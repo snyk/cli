@@ -45,13 +45,11 @@ function createJsonResultOutput(jsonResult, options: Options) {
 
 function formatJsonVulnerabilityStructure(jsonResult, options: Options) {
   if (options['group-issues']) {
-    // Note: we have to reverse the array to keep the existing behavior so that the json output will stay the same.
-    // Since the entire array is reversed before grouping, we reverse it back after grouping to preserve the grouped vulns order.
-    const reversedVulnerabilities = jsonResult.vulnerabilities
-      ? jsonResult.vulnerabilities.slice().reverse()
-      : [];
     jsonResult.vulnerabilities = Object.values(
-      reversedVulnerabilities.reduce((acc, vuln): Record<string, any> => {
+      (jsonResult.vulnerabilities || []).reduce((acc, vuln): Record<
+        string,
+        any
+      > => {
         if (!acc[vuln.id]) {
           acc[vuln.id] = {
             ...vuln,
@@ -64,7 +62,7 @@ function formatJsonVulnerabilityStructure(jsonResult, options: Options) {
         }
         return acc;
       }, {}),
-    ).reverse();
+    );
   }
 
   if (jsonResult.vulnerabilities) {

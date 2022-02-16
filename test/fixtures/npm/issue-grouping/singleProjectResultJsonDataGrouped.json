@@ -392,20 +392,18 @@
         [
           "cli-grouping@1.0.0",
           "express@2.5.11",
-          "connect@1.9.2",
           "mime@1.2.4"
         ],
         [
           "cli-grouping@1.0.0",
           "express@2.5.11",
+          "connect@1.9.2",
           "mime@1.2.4"
         ]
       ],
       "upgradePath": [
         false,
-        "express@2.5.11",
-        "connect@1.9.2",
-        "mime@1.4.1"
+        "express@3.0.0"
       ],
       "isUpgradable": true,
       "isPatchable": false,
@@ -528,20 +526,18 @@
         [
           "cli-grouping@1.0.0",
           "express@2.5.11",
-          "connect@1.9.2",
           "qs@0.4.2"
         ],
         [
           "cli-grouping@1.0.0",
           "express@2.5.11",
+          "connect@1.9.2",
           "qs@0.4.2"
         ]
       ],
       "upgradePath": [
         false,
-        "express@2.5.11",
-        "connect@1.9.2",
-        "qs@1.0.0"
+        "express@3.0.0"
       ],
       "isUpgradable": true,
       "isPatchable": false,
@@ -634,20 +630,18 @@
         [
           "cli-grouping@1.0.0",
           "express@2.5.11",
-          "connect@1.9.2",
           "qs@0.4.2"
         ],
         [
           "cli-grouping@1.0.0",
           "express@2.5.11",
+          "connect@1.9.2",
           "qs@0.4.2"
         ]
       ],
       "upgradePath": [
         false,
-        "express@2.5.11",
-        "connect@1.9.2",
-        "qs@1.0.0"
+        "express@3.0.0"
       ],
       "isUpgradable": true,
       "isPatchable": false,
@@ -862,20 +856,18 @@
         [
           "cli-grouping@1.0.0",
           "express@2.5.11",
-          "connect@1.9.2",
           "qs@0.4.2"
         ],
         [
           "cli-grouping@1.0.0",
           "express@2.5.11",
+          "connect@1.9.2",
           "qs@0.4.2"
         ]
       ],
       "upgradePath": [
         false,
-        "express@2.5.11",
-        "connect@1.9.2",
-        "qs@6.0.4"
+        "express@3.0.0"
       ],
       "isUpgradable": true,
       "isPatchable": false,

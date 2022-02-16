@@ -38,56 +38,6 @@
       "from": [
         [
           "docker-image|alpine@3.12.1",
-          "libc-dev/libc-utils@0.7.2-r3",
-          "musl/musl-utils@1.1.24-r9"
-        ],
-        [
-          "docker-image|alpine@3.12.1",
-          "musl/musl-utils@1.1.24-r9"
-        ],
-        [
-          "docker-image|alpine@3.12.1",
-          "zlib/zlib@1.2.11-r3",
-          "musl/musl@1.1.24-r9"
-        ],
-        [
-          "docker-image|alpine@3.12.1",
-          "musl/musl-utils@1.1.24-r9",
-          "musl/musl@1.1.24-r9"
-        ],
-        [
-          "docker-image|alpine@3.12.1",
-          "busybox/ssl_client@1.31.1-r19",
-          "musl/musl@1.1.24-r9"
-        ],
-        [
-          "docker-image|alpine@3.12.1",
-          "libtls-standalone/libtls-standalone@2.9.1-r1",
-          "musl/musl@1.1.24-r9"
-        ],
-        [
-          "docker-image|alpine@3.12.1",
-          "apk-tools/apk-tools@2.10.5-r1",
-          "musl/musl@1.1.24-r9"
-        ],
-        [
-          "docker-image|alpine@3.12.1",
-          "busybox/busybox@1.31.1-r19",
-          "musl/musl@1.1.24-r9"
-        ],
-        [
-          "docker-image|alpine@3.12.1",
-          "openssl/libssl1.1@1.1.1g-r0",
-          "musl/musl@1.1.24-r9"
-        ],
-        [
-          "docker-image|alpine@3.12.1",
-          "openssl/libcrypto1.1@1.1.1g-r0",
-          "musl/musl@1.1.24-r9"
-        ],
-        [
-          "docker-image|alpine@3.12.1",
-          "alpine-baselayout/alpine-baselayout@3.2.0-r7",
           "musl/musl@1.1.24-r9"
         ],
         [
@@ -97,26 +47,76 @@
         ],
         [
           "docker-image|alpine@3.12.1",
+          "alpine-baselayout/alpine-baselayout@3.2.0-r7",
           "musl/musl@1.1.24-r9"
+        ],
+        [
+          "docker-image|alpine@3.12.1",
+          "openssl/libcrypto1.1@1.1.1g-r0",
+          "musl/musl@1.1.24-r9"
+        ],
+        [
+          "docker-image|alpine@3.12.1",
+          "openssl/libssl1.1@1.1.1g-r0",
+          "musl/musl@1.1.24-r9"
+        ],
+        [
+          "docker-image|alpine@3.12.1",
+          "busybox/busybox@1.31.1-r19",
+          "musl/musl@1.1.24-r9"
+        ],
+        [
+          "docker-image|alpine@3.12.1",
+          "apk-tools/apk-tools@2.10.5-r1",
+          "musl/musl@1.1.24-r9"
+        ],
+        [
+          "docker-image|alpine@3.12.1",
+          "libtls-standalone/libtls-standalone@2.9.1-r1",
+          "musl/musl@1.1.24-r9"
+        ],
+        [
+          "docker-image|alpine@3.12.1",
+          "busybox/ssl_client@1.31.1-r19",
+          "musl/musl@1.1.24-r9"
+        ],
+        [
+          "docker-image|alpine@3.12.1",
+          "musl/musl-utils@1.1.24-r9",
+          "musl/musl@1.1.24-r9"
+        ],
+        [
+          "docker-image|alpine@3.12.1",
+          "zlib/zlib@1.2.11-r3",
+          "musl/musl@1.1.24-r9"
+        ],
+        [
+          "docker-image|alpine@3.12.1",
+          "musl/musl-utils@1.1.24-r9"
+        ],
+        [
+          "docker-image|alpine@3.12.1",
+          "libc-dev/libc-utils@0.7.2-r3",
+          "musl/musl-utils@1.1.24-r9"
         ]
       ],
       "upgradePath": [],
       "isUpgradable": false,
       "isPatchable": false,
       "name": [
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
         "musl/musl-utils",
-        "musl/musl-utils",
-        "musl/musl",
-        "musl/musl",
-        "musl/musl",
-        "musl/musl",
-        "musl/musl",
-        "musl/musl",
-        "musl/musl",
-        "musl/musl",
-        "musl/musl",
-        "musl/musl",
-        "musl/musl"
+        "musl/musl-utils"
       ],
       "version": "1.1.24-r9",
       "nearestFixedInVersion": "1.1.24-r10"

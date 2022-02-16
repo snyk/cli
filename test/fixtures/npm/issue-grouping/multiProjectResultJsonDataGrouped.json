@@ -393,20 +393,18 @@
           [
             "cli-grouping@1.0.0",
             "express@2.5.11",
-            "connect@1.9.2",
             "mime@1.2.4"
           ],
           [
             "cli-grouping@1.0.0",
             "express@2.5.11",
+            "connect@1.9.2",
             "mime@1.2.4"
           ]
         ],
         "upgradePath": [
           false,
-          "express@2.5.11",
-          "connect@1.9.2",
-          "mime@1.4.1"
+          "express@3.0.0"
         ],
         "isUpgradable": true,
         "isPatchable": false,
@@ -529,20 +527,18 @@
           [
             "cli-grouping@1.0.0",
             "express@2.5.11",
-            "connect@1.9.2",
             "qs@0.4.2"
           ],
           [
             "cli-grouping@1.0.0",
             "express@2.5.11",
+            "connect@1.9.2",
             "qs@0.4.2"
           ]
         ],
         "upgradePath": [
           false,
-          "express@2.5.11",
-          "connect@1.9.2",
-          "qs@1.0.0"
+          "express@3.0.0"
         ],
         "isUpgradable": true,
         "isPatchable": false,
@@ -635,20 +631,18 @@
           [
             "cli-grouping@1.0.0",
             "express@2.5.11",
-            "connect@1.9.2",
             "qs@0.4.2"
           ],
           [
             "cli-grouping@1.0.0",
             "express@2.5.11",
+            "connect@1.9.2",
             "qs@0.4.2"
           ]
         ],
         "upgradePath": [
           false,
-          "express@2.5.11",
-          "connect@1.9.2",
-          "qs@1.0.0"
+          "express@3.0.0"
         ],
         "isUpgradable": true,
         "isPatchable": false,
@@ -863,20 +857,18 @@
           [
             "cli-grouping@1.0.0",
             "express@2.5.11",
-            "connect@1.9.2",
             "qs@0.4.2"
           ],
           [
             "cli-grouping@1.0.0",
             "express@2.5.11",
+            "connect@1.9.2",
             "qs@0.4.2"
           ]
         ],
         "upgradePath": [
           false,
-          "express@2.5.11",
-          "connect@1.9.2",
-          "qs@6.0.4"
+          "express@3.0.0"
         ],
         "isUpgradable": true,
         "isPatchable": false,
@@ -1083,7 +1075,6 @@
             "nodemon@1.19.4",
             "update-notifier@2.5.0",
             "boxen@1.3.0",
-            "widest-line@2.0.1",
             "string-width@2.1.1",
             "strip-ansi@4.0.0",
             "ansi-regex@3.0.0"
@@ -1103,6 +1094,7 @@
             "nodemon@1.19.4",
             "update-notifier@2.5.0",
             "boxen@1.3.0",
+            "widest-line@2.0.1",
             "string-width@2.1.1",
             "strip-ansi@4.0.0",
             "ansi-regex@3.0.0"
@@ -1113,7 +1105,6 @@
           "nodemon@2.0.3",
           "update-notifier@4.0.0",
           "boxen@4.2.0",
-          "widest-line@3.1.0",
           "string-width@4.2.0",
           "strip-ansi@6.0.0",
           "ansi-regex@5.0.1"
