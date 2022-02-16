@@ -40,7 +40,7 @@ describe('Terraform plan scanning', () => {
     expect(exitCode).toBe(1);
     expect(stdout).toContain('Infrastructure as code issues:');
     expect(stdout).toContain(
-      'Tested ./iac/terraform-plan/tf-plan-create.json for known issues, found 3 issues',
+      'Tested ./iac/terraform-plan/tf-plan-create.json for known issues',
     );
   });
 
