@@ -1,4 +1,5 @@
 import { startMockServer, isValidJSONString } from './helpers';
+import * as path from 'path';
 
 jest.setTimeout(50000);
 
@@ -23,7 +24,7 @@ describe('Terraform Language Support', () => {
       );
       expect(exitCode).toBe(1);
 
-      expect(stdout).toContain('Testing sg_open_ss.tf...');
+      expect(stdout).toContain('Testing sg_open_ssh.tf...');
       expect(stdout).toContain('Infrastructure as code issues:');
       expect(stdout).not.toContain('✗ Security Group allows open ingress');
       expect(stdout).not.toContain(
@@ -39,14 +40,16 @@ describe('Terraform Language Support', () => {
       );
       expect(exitCode).toBe(1);
 
-      expect(stdout).toContain('Testing sg_open_ss.tf...');
+      expect(stdout).toContain('Testing sg_open_ssh.tf...');
       expect(stdout).toContain('Infrastructure as code issues:');
       expect(stdout).toContain('✗ Security Group allows open ingress');
       expect(stdout).toContain(
         ' input > resource > aws_security_group[allow_ssh] > ingress',
       );
 
-      expect(stdout).not.toContain('Testing nested-var_deref/sg_open_ss.tf...');
+      expect(stdout).not.toContain(
+        'Testing nested-var_deref/sg_open_ssh.tf...',
+      );
     });
 
     it('still scans other files but not terraform files nested in a directory', async () => {
@@ -57,14 +60,25 @@ describe('Terraform Language Support', () => {
 
       expect(stdout).toContain('Infrastructure as code issues:');
 
-      expect(stdout).toContain('Testing kubernetes/pod-privileged.yaml');
       expect(stdout).toContain(
-        'Tested kubernetes/pod-privileged.yaml for known issues, found 9 issues',
+        `Testing ${path.join('kubernetes', 'pod-privileged.yaml')}`,
+      );
+      expect(stdout).toContain(
+        `Tested ${path.join(
+          'kubernetes',
+          'pod-privileged.yaml',
+        )} for known issues, found 9 issues`,
       );
 
-      expect(stdout).not.toContain('Testing terraform/var_deref/sg_open_ss.tf');
       expect(stdout).not.toContain(
-        'Tested terraform/var_deref/sg_open_ss.tf for known issues, found 0 issues',
+        `Testing ${path.join('terraform', 'var_deref', 'sg_open_ssh.tf')}`,
+      );
+      expect(stdout).not.toContain(
+        `Tested ${path.join(
+          'terraform',
+          'var_deref',
+          'sg_open_ssh.tf',
+        )} for known issues, found 0 issues`,
       );
     });
 
