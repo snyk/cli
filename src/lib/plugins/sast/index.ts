@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import * as debugLib from 'debug';
+import { v4 as uuidv4 } from 'uuid';
 import { getCodeAnalysisAndParseResults } from './analysis';
 import { getSastSettings } from './settings';
 import {
@@ -24,15 +25,19 @@ export const codePlugin: EcosystemPlugin = {
     return '';
   },
   async test(paths, options) {
+    const requestId = uuidv4();
+    debug(`Analysis request ID: ${requestId}`);
     try {
       analytics.add('sast-scan', true);
       const sastSettings = await getSastSettings(options);
       // Currently code supports only one path
       const path = paths[0];
+
       const sarifTypedResult = await getCodeAnalysisAndParseResults(
         path,
         options,
         sastSettings,
+        requestId,
       );
 
       if (!sarifTypedResult) {
@@ -82,7 +87,7 @@ export const codePlugin: EcosystemPlugin = {
       }
       debug(
         chalk.bold.red(
-          `statusCode:${error.code ||
+          `requestId: ${requestId} statusCode:${error.code ||
             error.statusCode}, message: ${error.statusText || error.message}`,
         ),
       );

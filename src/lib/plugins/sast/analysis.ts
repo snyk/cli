@@ -18,10 +18,16 @@ export async function getCodeAnalysisAndParseResults(
   root: string,
   options: Options,
   sastSettings: SastSettings,
+  requestId: string,
 ): Promise<Log | null> {
   await spinner.clearAll();
   analysisProgressUpdate();
-  const codeAnalysis = await getCodeAnalysis(root, options, sastSettings);
+  const codeAnalysis = await getCodeAnalysis(
+    root,
+    options,
+    sastSettings,
+    requestId,
+  );
   spinner.clearAll();
   return parseSecurityResults(codeAnalysis);
 }
@@ -30,6 +36,7 @@ async function getCodeAnalysis(
   root: string,
   options: Options,
   sastSettings: SastSettings,
+  requestId: string,
 ): Promise<Log | null> {
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
@@ -67,7 +74,7 @@ async function getCodeAnalysis(
     : AnalysisSeverity.info;
 
   const result = await analyzeFolders({
-    connection: { baseURL, sessionToken, source },
+    connection: { baseURL, sessionToken, source, requestId },
     analysisOptions: { severity },
     fileOptions: { paths: [root] },
     analysisContext: {

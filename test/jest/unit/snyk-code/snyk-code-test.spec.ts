@@ -512,6 +512,7 @@ describe('Test snyk code', () => {
         baseURL,
         sessionToken,
         source,
+        requestId: 'test-id',
       },
       analysisOptions: {
         severity,
@@ -538,6 +539,7 @@ describe('Test snyk code', () => {
         code: true,
       },
       sastSettings,
+      'test-id',
     );
 
     expect(analyzeFoldersSpy.mock.calls[0]).toEqual([codeAnalysisArgs]);
@@ -557,6 +559,7 @@ describe('Test snyk code', () => {
         code: true,
       },
       sastSettings,
+      'test-id',
     );
 
     expect(actual).toEqual(sampleSarifResponse);
@@ -600,6 +603,7 @@ describe('Test snyk code', () => {
           baseURL: url,
           sessionToken,
           source,
+          requestId: 'test-id',
         },
         analysisOptions: {
           severity,
@@ -621,6 +625,7 @@ describe('Test snyk code', () => {
           code: true,
         },
         sastSettings,
+        'test-id',
       );
 
       expect(analyzeFoldersSpy.mock.calls[0]).toEqual([codeAnalysisArgs]);
@@ -647,6 +652,7 @@ describe('Test snyk code', () => {
         code: true,
       },
       sastSettings,
+      'test-id',
     );
 
     expect(analyzeFoldersSpy.mock.calls[0][0].connection.baseURL).toBe(
@@ -668,6 +674,7 @@ describe('Test snyk code', () => {
           code: true,
         },
         sastSettings,
+        'test-id',
       ),
     ).rejects.toThrowError(
       'Missing configuration for Snyk Code Local Engine. Refer to our docs to learn more: https://docs.snyk.io/products/snyk-code/deployment-options/snyk-code-local-engine/cli-and-ide',
