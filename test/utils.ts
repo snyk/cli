@@ -14,18 +14,6 @@ export function silenceLog() {
   };
 }
 
-export function extendExpiries(policy) {
-  const d = new Date(Date.now() + 1000 * 60 * 60 * 24).toJSON();
-  Object.keys(policy.ignore).forEach((id) => {
-    policy.ignore[id].forEach((rule) => {
-      const path = Object.keys(rule).shift();
-      if (path) {
-        rule[path].expires = d;
-      }
-    });
-  });
-}
-
 export async function makeDirectory(path: string): Promise<string> {
   return await new Promise((resolve, reject) => {
     mkdir(path, (err) => {
