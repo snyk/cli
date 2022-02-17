@@ -40,7 +40,7 @@ const renderer = {
   },
   link(href, title, text) {
     // Don't render links to relative paths (like local files)
-    if (href.startsWith('./')) {
+    if (href.startsWith('./') || !href.includes('://')) {
       return text;
     }
     const renderedLink = chalk.bold.blueBright(href);
@@ -53,23 +53,25 @@ const renderer = {
     return quote;
   },
   list(body, ordered, start) {
-    return body
-      .split(listItemSeparator)
-      .map((listItem, listItemIndex) => {
-        const bulletPoint = ordered ? `${listItemIndex + start}. ` : '-  ';
-        return reflowText(listItem, getIdealTextWidth())
-          .split('\n')
-          .map((listItemLine, listItemLineIndex) => {
-            if (!listItemLine) {
-              return '';
-            }
-            return `${getLeftTextPadding()}${
-              listItemLineIndex === 0 ? bulletPoint : '   '
-            }${listItemLine}`;
-          })
-          .join('\n');
-      })
-      .join('\n');
+    return (
+      body
+        .split(listItemSeparator)
+        .map((listItem, listItemIndex) => {
+          const bulletPoint = ordered ? `${listItemIndex + start}. ` : '-  ';
+          return reflowText(listItem, getIdealTextWidth())
+            .split('\n')
+            .map((listItemLine, listItemLineIndex) => {
+              if (!listItemLine) {
+                return '';
+              }
+              return `${getLeftTextPadding()}${
+                listItemLineIndex === 0 ? bulletPoint : '   '
+              }${listItemLine}`;
+            })
+            .join('\n');
+        })
+        .join('\n') + '\n'
+    );
   },
   listitem(text) {
     return text + listItemSeparator;
@@ -121,6 +123,7 @@ const htmlUnescapes = {
   '&quot;': '"',
   '&#39;': "'",
   '&#96;': '`',
+  '&#x20;': '',
 };
 
 /**
