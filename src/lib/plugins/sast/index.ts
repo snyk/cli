@@ -26,7 +26,7 @@ export const codePlugin: EcosystemPlugin = {
   },
   async test(paths, options) {
     const requestId = uuidv4();
-    debug(`Analysis request ID: ${requestId}`);
+    debug(`Request ID: ${requestId}`);
     try {
       analytics.add('sast-scan', true);
       const sastSettings = await getSastSettings(options);
