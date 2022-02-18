@@ -1,6 +1,9 @@
-const mockFs = require('mock-fs');
+import * as mockFs from 'mock-fs';
 
-import { parseArgs } from '../../../../../src/lib/iac/drift';
+import {
+  DriftctlGenDriftIgnoreOptions,
+  parseArgs,
+} from '../../../../../src/lib/iac/drift';
 import envPaths from 'env-paths';
 
 const paths = envPaths('snyk');
@@ -11,7 +14,7 @@ describe('driftctl integration', () => {
     mockFs.restore();
   });
 
-  it('default arguments are correct', () => {
+  it('scan: default arguments are correct', () => {
     const args = parseArgs(['scan'], {});
     expect(args).toEqual([
       'scan',
@@ -22,7 +25,12 @@ describe('driftctl integration', () => {
     ]);
   });
 
-  it('passing options generate correct arguments', () => {
+  it('gen-driftignore: default arguments are correct', () => {
+    const args = parseArgs(['gen-driftignore'], {});
+    expect(args).toEqual(['gen-driftignore']);
+  });
+
+  it('scan: passing options generate correct arguments', () => {
     const args = parseArgs(['scan'], {
       'config-dir': 'confdir',
       'tf-lockfile': 'tflockfile',
@@ -66,6 +74,27 @@ describe('driftctl integration', () => {
       'from',
       '--to',
       'to',
+    ]);
+  });
+
+  it('gen-driftignore: passing options generate correct arguments', () => {
+    const args = parseArgs(['gen-driftignore'], {
+      'exclude-changed': true,
+      'exclude-missing': true,
+      'exclude-unmanaged': true,
+      input: 'analysis.json',
+      output: '/dev/stdout',
+      org: 'testing-org', // Ensure that this should not be translated to args
+    } as DriftctlGenDriftIgnoreOptions);
+    expect(args).toEqual([
+      'gen-driftignore',
+      '--input',
+      'analysis.json',
+      '--output',
+      '/dev/stdout',
+      '--exclude-changed',
+      '--exclude-missing',
+      '--exclude-unmanaged',
     ]);
   });
 });
