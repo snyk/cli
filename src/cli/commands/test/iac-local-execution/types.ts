@@ -21,6 +21,7 @@ export enum ValidFileType {
   JSON = 'json',
   YAML = 'yaml',
   YML = 'yml',
+  TFVARS = 'tfvars',
 }
 export const VALID_FILE_TYPES = Object.values(ValidFileType);
 

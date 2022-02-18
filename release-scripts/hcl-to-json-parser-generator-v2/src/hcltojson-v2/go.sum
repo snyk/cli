@@ -194,6 +194,8 @@ github.com/snyk/snyk-iac-parsers v0.1.0 h1:+VHQorhJ0iro0EwCJR2kNFYpkQ6EsfWSVi3xY
 github.com/snyk/snyk-iac-parsers v0.1.0/go.mod h1:vmR6e9WfglVPO2Y82lW49Sb5jiGb13FXGwJGNtVRBcw=
 github.com/snyk/snyk-iac-parsers v0.2.0 h1:bc48Ra3U3spo5wl6XogFoT4N7VlkxCGBM3Cq0rjd0C8=
 github.com/snyk/snyk-iac-parsers v0.2.0/go.mod h1:vmR6e9WfglVPO2Y82lW49Sb5jiGb13FXGwJGNtVRBcw=
+github.com/snyk/snyk-iac-parsers v0.3.0 h1:WusEK8AT1TiFbkTPVtfJohyGwtQNWBHVeruLVAA2ueI=
+github.com/snyk/snyk-iac-parsers v0.3.0/go.mod h1:vmR6e9WfglVPO2Y82lW49Sb5jiGb13FXGwJGNtVRBcw=
 github.com/soheilhy/cmux v0.1.4/go.mod h1:IM3LyeVVIOuxMH7sFAkER9+bJ4dT7Ms6E4xg4kGIyLM=
 github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
 github.com/spf13/afero v1.1.2/go.mod h1:j4pytiNVoe2o6bmDsKpLACNPDBIoEAkihy7loJ1B0CQ=

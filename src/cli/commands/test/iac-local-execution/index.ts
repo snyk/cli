@@ -62,7 +62,9 @@ export async function test(
     // if TF vars enabled, valid files are all except terraform files
     const validFileTypes = isTFVarSupportEnabled
       ? VALID_FILE_TYPES.filter(
-          (fileType) => fileType !== ValidFileType.Terraform,
+          (fileType) =>
+            fileType !== ValidFileType.Terraform &&
+            fileType !== ValidFileType.TFVARS,
         )
       : undefined;
 
@@ -85,7 +87,6 @@ export async function test(
     // we may have loaded and parsed all but terraform files in the previous step
     // so now we check if we need to do a second load and parse which dereferences TF vars
     if (validFileTypes && !validFileTypes.includes(ValidFileType.Terraform)) {
-      // TODO: read and send .tfvars to parser
       // TODO: iterate through nested directories
       try {
         const tfFilesToParse = await loadFiles(
@@ -94,12 +95,13 @@ export async function test(
             ...options,
             detectionDepth: 1,
           },
-          [ValidFileType.Terraform],
+          [ValidFileType.Terraform, ValidFileType.TFVARS],
         );
         const {
           parsedFiles: parsedTfFiles,
           failedFiles: failedTfFiles,
         } = parseTerraformFiles(tfFilesToParse);
+
         parsedFiles = parsedFiles.concat(parsedTfFiles);
         failedFiles = failedFiles.concat(failedTfFiles);
       } catch (err) {
