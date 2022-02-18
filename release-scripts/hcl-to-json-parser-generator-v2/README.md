@@ -72,7 +72,34 @@ make build
 
 ## Updating the snyk/snyk-iac-parsers package for production use
 
-The generated GopherJS artefact is used... TBC (not used yet by the CLI)
+The generated GopherJS artefact is used in `src/cli/commands/test/iac-local-execution/parsers/hcl-to-json-v2/`
+
+There are two ways to do this:
+
+- use the automatic release process with the Makefile rule `release` (Automatic release)
+- do it manually by following the guide below (Manual Release)
+
+#### Automatic release process
+
+To check that the new version still works and is ready to be released:
+
+- copy the targeted tag from https://github.com/snyk/snyk-iac-parsers/tags
+- and then, while in `/release-scripts/hcl-to-json-parser-generator-v2/` directory, run:
+
+```shell
+ make release version=${version_or_sha}
+```
+
+e.g.
+
+```shell
+make release version=v0.2.0
+```
+
+This will get the required version, check for errors, run the tests against the new versions and copy the artefact to the iac-local-execution directory.
+In a case of a failure, it will revert the changes and fail gracefully.
+
+#### Manual release process
 
 This is a similar process to the local development, but you also need a couple of extra steps:
 
@@ -91,6 +118,4 @@ make build
 
 - Run `make test` to validate that tests are still passing.
 - Run the following shell script: `copy-artefact-to-destination.sh`, this will overwrite the current artefact being used by the Terraform parser.
-
-TBC: This still needs confirmation and update when we decide where we are going to use it. Currently it copies the artifact at the same place as before (iac-local-execution/parsers/terraform-parser).
-We need to change this accordingly when we decide the use of it.
+- Add a line containing the text: `/* eslint-disable */` in the very first line of the newly built artefact to avoid linting.
