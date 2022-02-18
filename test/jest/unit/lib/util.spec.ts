@@ -10,6 +10,7 @@ describe('Sanitize args', () => {
       username: 'fakeuser',
       password: 'fakepass',
       file: 'Dockerfile',
+      rawArgv: [],
     };
 
     const resultWithFlag = obfuscateArgs(
@@ -30,6 +31,7 @@ describe('Sanitize args', () => {
       org: 'demo-org',
       username: 'fakeuser',
       file: 'Dockerfile',
+      rawArgv: [],
     };
 
     const resultWithFlag = obfuscateArgs(
@@ -53,6 +55,7 @@ describe('Sanitize args', () => {
         password: 'fakepass',
         debug: true,
         docker: true,
+        rawArgv: [],
       },
     ];
 

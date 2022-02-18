@@ -70,12 +70,14 @@ export interface ArgsOptions {
   // (see the snyk-mvn-plugin or snyk-gradle-plugin)
   _doubleDashArgs: string[];
   _: MethodArgs;
+  rawArgv: string[];
   [key: string]: boolean | string | number | MethodArgs | string[]; // The two last types are for compatibility only
 }
 
 export function args(rawArgv: string[]): Args {
   const argv = {
     _: [] as string[],
+    rawArgv,
   } as ArgsOptions;
 
   for (let arg of rawArgv.slice(2)) {

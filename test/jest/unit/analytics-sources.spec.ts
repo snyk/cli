@@ -18,6 +18,7 @@ const emptyArgs = [];
 const defaultArgsParams = {
   _: [],
   _doubleDashArgs: [],
+  rawArgv: [],
 };
 
 beforeEach(() => {

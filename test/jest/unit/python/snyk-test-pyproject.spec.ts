@@ -67,6 +67,7 @@ describe('snyk test for python project', () => {
           json: true,
           _: [],
           _doubleDashArgs: [],
+          rawArgv: [],
         });
 
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
@@ -147,6 +148,7 @@ describe('snyk test for python project', () => {
           json: true,
           _: [],
           _doubleDashArgs: [],
+          rawArgv: [],
         });
 
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
@@ -237,6 +239,7 @@ describe('snyk test for python project', () => {
           json: true,
           _: [],
           _doubleDashArgs: [],
+          rawArgv: [],
         });
 
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(2);

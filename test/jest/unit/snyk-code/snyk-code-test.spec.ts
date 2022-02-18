@@ -156,6 +156,7 @@ describe('Test snyk code', () => {
       code: true,
       _: [],
       _doubleDashArgs: [],
+      rawArgv: [],
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
@@ -208,6 +209,7 @@ describe('Test snyk code', () => {
         code: true,
         _: [],
         _doubleDashArgs: [],
+        rawArgv: [],
       });
     } catch (error) {
       expect(error).toEqual(expected);
@@ -223,7 +225,12 @@ describe('Test snyk code', () => {
     });
 
     await expect(
-      snykTest('some/path', { code: true, _: [], _doubleDashArgs: [] }),
+      snykTest('some/path', {
+        code: true,
+        _: [],
+        _doubleDashArgs: [],
+        rawArgv: [],
+      }),
     ).rejects.toHaveProperty(
       'userMessage',
       'Snyk Code is not supported for org: enable in Settings > Snyk Code',
@@ -237,7 +244,12 @@ describe('Test snyk code', () => {
     });
 
     await expect(
-      snykTest('some/path', { code: true, _: [], _doubleDashArgs: [] }),
+      snykTest('some/path', {
+        code: true,
+        _: [],
+        _doubleDashArgs: [],
+        rawArgv: [],
+      }),
     ).rejects.toHaveProperty('userMessage', 'error from api: org not found');
   });
 
@@ -254,7 +266,12 @@ describe('Test snyk code', () => {
     });
 
     await expect(
-      snykTest('some/path', { code: true, _: [], _doubleDashArgs: [] }),
+      snykTest('some/path', {
+        code: true,
+        _: [],
+        _doubleDashArgs: [],
+        rawArgv: [],
+      }),
     ).rejects.toHaveProperty('userMessage', 'Test limit reached!');
   });
 
@@ -267,6 +284,7 @@ describe('Test snyk code', () => {
       _: [],
       _doubleDashArgs: [],
       'sarif-file-output': 'test.json',
+      rawArgv: [],
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
@@ -346,6 +364,7 @@ describe('Test snyk code', () => {
       sarif: true,
       _: [],
       _doubleDashArgs: [],
+      rawArgv: [],
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
@@ -387,6 +406,7 @@ describe('Test snyk code', () => {
       _: [],
       _doubleDashArgs: [],
       'no-markdown': true,
+      rawArgv: [],
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleSarif);

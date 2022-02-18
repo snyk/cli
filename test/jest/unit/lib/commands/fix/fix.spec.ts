@@ -76,6 +76,7 @@ describe('snyk fix (functional tests)', () => {
         quiet: true,
         _doubleDashArgs: [],
         _: [],
+        rawArgv: [],
       });
       expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
@@ -124,6 +125,7 @@ describe('snyk fix (functional tests)', () => {
         dryRun: true, // prevents write to disc
         _doubleDashArgs: [],
         _: [],
+        rawArgv: [],
       });
       expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
@@ -180,6 +182,7 @@ describe('snyk fix (functional tests)', () => {
         quiet: true,
         _doubleDashArgs: [],
         _: [],
+        rawArgv: [],
       });
       expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
@@ -239,6 +242,7 @@ describe('snyk fix (functional tests)', () => {
         quiet: true,
         _doubleDashArgs: [],
         _: [],
+        rawArgv: [],
       });
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
         dryRun: true,
@@ -333,6 +337,7 @@ describe('snyk fix (functional tests)', () => {
           quiet: true,
           _doubleDashArgs: [],
           _: [],
+          rawArgv: [],
         });
       } catch (e) {
         res = e.message;
@@ -403,6 +408,7 @@ describe('snyk fix (functional tests)', () => {
           quiet: true,
           _doubleDashArgs: [],
           _: [],
+          rawArgv: [],
         });
       } catch (error) {
         res = error;
@@ -458,6 +464,7 @@ describe('snyk fix (functional tests)', () => {
         quiet: true,
         _doubleDashArgs: [],
         _: [],
+        rawArgv: [],
       });
       expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
