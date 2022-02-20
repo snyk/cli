@@ -26,7 +26,7 @@ import {
   extractDataToSendFromResults,
 } from '../../../lib/formatters/test/format-test-results';
 
-import { test as iacTest } from './iac-test-shim';
+import { test as iacTest } from './iac-local-execution/';
 import { validateCredentials } from './validate-credentials';
 import { validateTestOptions } from './validate-test-options';
 import { setDefaultTestOptions } from './set-default-test-options';
@@ -45,6 +45,7 @@ import {
 } from '../../../lib/spotlight-vuln-notification';
 import config from '../../../lib/config';
 import { isIacShareResultsOptions } from './iac-local-execution/assert-iac-options-flag';
+import { assertIaCOptionsFlags } from './iac-local-execution/assert-iac-options-flag';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -107,8 +108,7 @@ export default async function test(
     let res: (TestResult | TestResult[]) | Error;
     try {
       if (options.iac) {
-        // this path is an experimental feature feature for IaC which does issue scanning locally without sending files to our Backend servers.
-        // once ready for GA, it is aimed to deprecate our remote-processing model, so IaC file scanning in the CLI is done locally.
+        assertIaCOptionsFlags(process.argv);
         const { results, failures } = await iacTest(path, testOpts);
         testOpts.org = results[0]?.org;
         testOpts.projectName = results[0]?.projectName;

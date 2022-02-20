@@ -195,9 +195,6 @@ export type IaCTestFlags = Pick<
   q?: boolean;
   quiet?: boolean;
   path?: string;
-  // This flag is internal and is used merely to route the smoke tests of the old flow.
-  // it should be removed together when the GA version completely deprecates the legacy remote processing flow.
-  legacy?: boolean;
   // Allows the caller to provide the path to a WASM bundle.
   rules?: string;
 } & TerraformPlanFlags;
@@ -211,14 +208,6 @@ export enum TerraformPlanScanMode {
   DeltaScan = 'resource-changes', // default value
   FullScan = 'planned-values',
 }
-
-// Includes all IaCTestOptions plus additional properties
-// that are added at runtime and not part of the parsed
-// CLI flags.
-export type IaCTestOptions = IaCTestFlags & {
-  /** @deprecated Only used by the legacy `iac test` flow remove once local exec path is GA */
-  iacDirFiles?: Array<IacFileInDirectory>;
-};
 
 export interface TerraformPlanResource {
   address: string; // "aws_cloudwatch_log_group.terra_ci",
