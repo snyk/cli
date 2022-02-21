@@ -1,4 +1,4 @@
-- [ ] Follows [CONTRIBUTING](https://github.com/snyk/snyk/blob/master/.github/CONTRIBUTING.md) rules
+- [ ] Follows [CONTRIBUTING](https://github.com/snyk/snyk/blob/master/CONTRIBUTING.md) rules
 
 #### What does this PR do?
 

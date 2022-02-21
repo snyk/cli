@@ -34,12 +34,6 @@ git fetch
 git pull --ff-only
 ```
 
-To make changes, first create a new branch. Make sure to give it a descriptive name so you can find it later.
-
-```sh
-git checkout -b docs/contributing
-```
-
 If you encounter vague errors without a clear solution at any point, try starting over by cloning a new copy or cleaning the project.
 
 ```
@@ -164,6 +158,32 @@ Customer-facing documentation is [available on GitBook](https://docs.snyk.io/fea
 
 `snyk help` output must also be [edited on GitBook](https://docs.snyk.io/features/snyk-cli/commands). Changes will automatically be pulled into Snyk CLI as pull requests.
 
+## Creating a branch
+
+Create a new branch before making any changes. Make sure to give it a descriptive name so that you can find it later.
+
+```sh
+git checkout -b type/topic
+```
+
+For example:
+
+```sh
+git checkout -b docs/contributing
+```
+
+### Branch types
+
+You can use these prefixes in your branch name to enable additional checks.
+
+| Prefix   | Description                                                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------------------- |
+| `chore/` | Build and test all artifacts. Same as a [release pipeline](#creating-a-release) without the release step.     |
+| `smoke/` | Run [smoke tests](https://github.com/snyk/snyk/actions/workflows/smoke-tests.yml) against the latest release. |
+| default  | Build and test your changes.                                                                                  |
+
+For more information, see: [Pull request checks](#pull-request-checks).
+
 ## Creating commits
 
 Each commit must provide some benefit on its own without breaking the release pipeline.
@@ -190,17 +210,17 @@ We often get questions on how to contribute to this repo. What versions to use, 
 
 ### Commit types
 
-The commit type is used to summarize intent and for release automation.
+The commit type is used to summarize intent and to automate various steps.
 
-| Type       | Description                                     | Release? |
-| ---------- | ----------------------------------------------- | -------- |
-| `feat`     | A new customer-facing feature.                  | Yes      |
-| `fix`      | A bug fix for an existing feature.              | Yes      |
-| `refactor` | Changes which do not affect existing features.  | No       |
-| `test`     | Changes to tests for existing features.         | No       |
-| `docs`     | Changes to documentation for existing features. | No       |
-| `chore`    | Build, workflow and pipeline changes.           | No       |
-| `revert`   | Reverting a previous commit.                    | Yes      |
+| Type       | Description                                     |
+| ---------- | ----------------------------------------------- |
+| `feat`     | A new customer-facing feature.                  |
+| `fix`      | A bug fix for an existing feature.              |
+| `refactor` | Changes which do not affect existing features.  |
+| `test`     | Changes to tests for existing features.         |
+| `docs`     | Changes to documentation for existing features. |
+| `chore`    | Build, workflow and pipeline changes.           |
+| `revert`   | Reverting a previous commit.                    |
 
 ## Pushing changes
 
@@ -222,11 +242,22 @@ If your PR becomes too large, consider breaking it up into multiple PRs so that 
 
 ## Pull request checks
 
-Your PR checks should already be running. The main pipeline is [`test_and_release`](https://app.circleci.com/pipelines/github/snyk/snyk?filter=mine) on CircleCI. This is where your changes are built and fully tested.
+Your PR checks will run every time you push changes to your branch.
+
+| Name               | Failure action                                                        |
+| ------------------ | --------------------------------------------------------------------- |
+| `test_and_release` | See: [Test pipeline](#test-pipeline).                                 |
+| `Danger`           | Check the comment created on your PR.                                 |
+| `license/cla`      | Visit [CLA Assistant](https://cla-assistant.io) to sign or re-run it. |
+| Everything else.   | Ask Hammer.                                                           |
+
+### Test pipeline
+
+The [test pipeline](https://app.circleci.com/pipelines/github/snyk/snyk?filter=mine) is on CircleCI. This is where your changes are built and tested.
 
 If any checks fail, fix them and force push your changes again. Make sure to review and tidy up your branch so that it remains easy to follow.
 
-Some tests may "flake", meaning they failed due to some external factor. While we try to fix these tests immediately, that's not always possible. You can use CircleCI's "Re-run from Failure" option to re-run only that job without needing to re-run the entire pipeline.
+Some tests may "flake", meaning they failed due to some external factor. While we try to fix these tests immediately, that's not always possible. You can use CircleCI's "Re-run from Failed" option to re-run only that job without needing to re-run the entire pipeline.
 
 ## Review cycle
 
@@ -234,16 +265,19 @@ Once your checks have passed, you can publish your Draft PR. Codeowners will be 
 
 Once you have received the necessary approvals, you can merge.
 
-At this point, your contribution has been fully integrated. If you are expecting a new release, continue reading.
-
 ## Creating a release
 
-A release is triggered whenever a merged branch contains [specific commit types](#type). All releases are minor version bumps.
+Merges will create a [release pipeline](https://app.circleci.com/pipelines/github/snyk/snyk?branch=master&filter=all) which will build and test your changes against a range of target platforms.
 
-Check the [release pipeline](https://app.circleci.com/pipelines/github/snyk/snyk?branch=master&filter=all) for updates on your release. You may see some "Docker Hub" releases fail. This is normal and safe to ignore.
-If your `test_and_release` pipeline fails, notify Hammer.
+Once all tests have passed, you will be given the choice to publish a new release containing your changes.
 
-For the latest releases, see: [Releases](https://github.com/snyk/snyk/releases).
+All releases are minor version bumps. For the latest releases, see: [Releases](https://github.com/snyk/snyk/releases).
+
+If you do not want to publish your changes immediately, you can "Cancel Workflow".
+
+If your release pipeline fails at any step, notify Hammer.
+
+You may see some "Docker Hub" checks on your merge commit fail. This is normal and safe to ignore.
 
 ---
 
