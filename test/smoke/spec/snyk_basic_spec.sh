@@ -80,6 +80,14 @@ Describe "Snyk CLI basics"
       The stderr should equal ""
     End
 
+    It "prints help info for documented subcommands"
+      When run snyk --help iac drift
+      The output should include "snyk iac drift"
+      The status should be success
+      # TODO: unusable with our current docker issues
+      The stderr should equal ""
+    End
+
     Describe "prints help info without ascii escape sequences"
       It "has NO_COLOR set"
         snyk_help_no_color() {
