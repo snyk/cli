@@ -75,7 +75,6 @@ test/tap/cli-monitor.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli-test.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli.test.ts @snyk/hammer
 test/tap/container.test.ts @snyk/capsule
-test/tap/dev-count-analysis.test.ts @snyk/hammer
 test/tap/display-test-results.test.ts @snyk/snyk-open-source
 test/tap/docker-token.test.ts @snyk/capsule
 test/tap/endpoint-config.test.ts @snyk/hammer
