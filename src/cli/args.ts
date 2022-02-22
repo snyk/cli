@@ -128,8 +128,12 @@ export function args(rawArgv: string[]): Args {
   const cli = require('./commands');
 
   // the first argument is the command we'll execute, everything else will be
-  // an argument to our command, like `snyk help protect`
-  let command = argv._.shift() as string; // can actually be undefined
+  // an argument to our command, like `snyk test package2test`
+  let command = (argv._ as string[])[0] || '';
+  // since we are handling documentation for subcommands now, we should keep all the arguments
+  if (!argv.help) {
+    command = argv._.shift() as string; // can actually be undefined
+  }
 
   // snyk [mode?] [command] [paths?] [options-double-dash]
   command = displayModeHelp(command, argv);
