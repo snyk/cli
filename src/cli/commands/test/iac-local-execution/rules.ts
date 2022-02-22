@@ -27,6 +27,7 @@ export async function initRules(
   options: IaCTestFlags,
 ): Promise<RulesOrigin> {
   let customRulesPath: string | undefined;
+  let rulesOrigin: RulesOrigin = RulesOrigin.Internal;
 
   if (options.rules) {
     if (!iacOrgSettings.entitlements?.iacCustomRulesEntitlement) {
@@ -36,6 +37,7 @@ export async function initRules(
       );
     }
     customRulesPath = options.rules;
+    rulesOrigin = RulesOrigin.Local;
   }
 
   const isOCIRegistryURLProvided = checkOCIRegistryURLProvided(iacOrgSettings);
@@ -57,12 +59,13 @@ export async function initRules(
     if (!iacOrgSettings.entitlements?.iacCustomRulesEntitlement) {
       throw new UnsupportedEntitlementPullError('iacCustomRulesEntitlement');
     }
-    await pullIaCCustomRules(iacOrgSettings);
-    return RulesOrigin.Remote;
+    customRulesPath = await pullIaCCustomRules(iacOrgSettings);
+    rulesOrigin = RulesOrigin.Remote;
   }
 
   await initLocalCache({ customRulesPath });
-  return customRulesPath ? RulesOrigin.Local : RulesOrigin.Internal;
+
+  return rulesOrigin;
 }
 
 /**
@@ -133,7 +136,7 @@ function getOCIRegistryURLComponents(
  */
 export async function pullIaCCustomRules(
   iacOrgSettings: IacOrgSettings,
-): Promise<void> {
+): Promise<string> {
   const ociRegistryURLComponents = getOCIRegistryURLComponents(iacOrgSettings);
 
   const username = userConfig.get('oci-registry-username');
@@ -150,7 +153,7 @@ export async function pullIaCCustomRules(
   };
 
   try {
-    await pull(ociRegistryURLComponents, opt);
+    return await pull(ociRegistryURLComponents, opt);
   } catch (err) {
     if (err.statusCode === 401) {
       throw new FailedToPullCustomBundleError(
