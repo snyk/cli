@@ -14,6 +14,7 @@ src/cli/commands/test @snyk/snyk-open-source
 src/cli/commands/monitor @snyk/snyk-open-source
 src/cli/commands/test/formatters/format-reachability.ts  @snyk/tardis
 help/  @snyk/hammer
+help/cli-commands/iac*.md @snyk/group-infrastructure-as-code @snyk/hammer 
 src/cli/commands/test/iac-local-execution/ @snyk/group-infrastructure-as-code
 src/cli/commands/test/iac-output.ts @snyk/group-infrastructure-as-code
 src/cli/commands/test/iac-test-shim.ts @snyk/group-infrastructure-as-code
