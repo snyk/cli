@@ -70,7 +70,6 @@ test/tap/args.test.ts @snyk/hammer
 test/tap/auth.test.ts @snyk/hammer
 test/tap/cli-fail-on-docker.test.ts @snyk/hammer
 test/tap/cli-fail-on-pinnable.test.ts @snyk/snyk-open-source
-test/tap/cli-json-file-output.test.ts @snyk/hammer
 test/tap/cli-monitor.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli-test.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli.test.ts @snyk/hammer
