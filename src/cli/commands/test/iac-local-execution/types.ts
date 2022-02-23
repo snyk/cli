@@ -225,7 +225,21 @@ export interface TerraformPlanResourceChange
 export interface TerraformPlanJson {
   // there are more values, but these are the required ones for us to scan
   resource_changes: Array<TerraformPlanResourceChange>;
+  configuration: {
+    root_module: {
+      resources: Array<TerraformPlanReferencedResource>;
+    };
+  };
 }
+
+export interface TerraformPlanReferencedResource extends TerraformPlanResource {
+  expressions: Record<string, TerraformPlanExpression>;
+}
+
+export interface TerraformPlanExpression {
+  references: Array<string>;
+}
+
 export interface TerraformScanInput {
   // within the resource field, resources are stored: [type] => [name] => [values]
   resource: Record<string, Record<string, unknown>>;
