@@ -12,7 +12,6 @@ import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { LOCAL_POLICY_ENGINE_DIR } from './local-cache';
 import * as Debug from 'debug';
-import { initLocalCache } from './measurable-methods';
 import { createIacDir } from './file-utils';
 const debug = Debug('iac-oci-pull');
 
@@ -61,7 +60,7 @@ export function extractOCIRegistryURLComponents(
 export async function pull(
   { registryBase, repo, tag }: OCIRegistryURLComponents,
   opt?: OCIPullOptions,
-): Promise<void> {
+): Promise<string> {
   const manifest: ImageManifest = await registryClient.getManifest(
     registryBase,
     repo,
@@ -96,7 +95,7 @@ export async function pull(
     );
     createIacDir();
     await fs.writeFile(downloadPath, blob);
-    await initLocalCache({ customRulesPath: downloadPath });
+    return downloadPath;
   } catch (err) {
     throw new FailedToBuildOCIArtifactError();
   }

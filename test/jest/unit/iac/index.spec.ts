@@ -119,7 +119,7 @@ describe('test()', () => {
         }));
         pullSpy = jest
           .spyOn(measurableMethods, 'pull')
-          .mockImplementationOnce(async () => {});
+          .mockImplementationOnce(async () => 'random-path');
       });
 
       afterEach(function() {
