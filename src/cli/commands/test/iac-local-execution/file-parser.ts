@@ -26,6 +26,9 @@ import { parseYAMLOrJSONFileData } from './yaml-parser';
 import hclToJsonV2 from './parsers/hcl-to-json-v2';
 import { IacProjectType } from '../../../../lib/iac/constants';
 
+import * as Debug from 'debug';
+const debug = Debug('snyk-test');
+
 export async function parseFiles(
   filesData: IacFileData[],
   options: IaCTestFlags = {},
@@ -59,10 +62,17 @@ export function parseTerraformFiles(filesData: IacFileData[]): ParsingResults {
     map[fileData.filePath] = fileData.fileContent;
     return map;
   }, {});
-  const { parsedFiles, failedFiles } = hclToJsonV2(files);
+  const { parsedFiles, failedFiles, debugLogs } = hclToJsonV2(files);
 
   // only throw an error when there were multiple files provided
   if (filesData.length === 1 && Object.keys(failedFiles).length === 1) {
+    if (debugLogs[filesData[0].filePath]) {
+      debug(
+        'File %s failed to parse with: %s',
+        filesData[0].filePath,
+        debugLogs[filesData[0].filePath],
+      );
+    }
     throw new FailedToParseTerraformFileError(filesData[0].filePath);
   }
 
@@ -79,6 +89,13 @@ export function parseTerraformFiles(filesData: IacFileData[]): ParsingResults {
         engineType: EngineType.Terraform,
       });
     } else if (failedFiles[fileData.filePath]) {
+      if (debugLogs[fileData.filePath]) {
+        debug(
+          'File %s failed to parse with: %s',
+          fileData.filePath,
+          debugLogs[fileData.filePath],
+        );
+      }
       parsingResults.failedFiles.push(
         generateFailedParsedFile(
           fileData,

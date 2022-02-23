@@ -8,6 +8,7 @@ type MapOfFiles = Record<FilePath, FileContent>;
 type ParsedResults = {
   parsedFiles: MapOfFiles;
   failedFiles: MapOfFiles;
+  debugLogs: MapOfFiles;
 };
 
 interface HclToJsonArtifact {
