@@ -60,7 +60,6 @@ export interface DriftctlGenDriftIgnoreOptions {
 interface DriftCTLOptions {
   quiet?: true;
   filter?: string;
-  output?: string;
   to?: string;
   headers?: string;
   'tfc-token'?: string;
@@ -72,6 +71,10 @@ interface DriftCTLOptions {
   'tf-lockfile'?: string;
   'config-dir'?: string;
   from?: string; // TODO We only handle one from at a time due to snyk cli arg parsing
+  json?: boolean;
+  'json-file-output'?: string;
+  html?: boolean;
+  'html-file-output'?: string;
 }
 
 export function parseArgs(
@@ -93,10 +96,12 @@ export function parseArgs(
   // we make change on arguments in driftctl
   switch (driftctlCommand) {
     case DriftctlCmd.GenDriftIgnore:
-      args.push(...parseGenDriftIgnoreFlags(options));
+      args.push(
+        ...parseGenDriftIgnoreFlags(options as DriftctlGenDriftIgnoreOptions),
+      );
       break;
     case DriftctlCmd.Scan:
-      args.push(...parseScanFlags(options));
+      args.push(...parseScanFlags(options as DriftCTLOptions));
       break;
   }
 
@@ -147,9 +152,24 @@ const parseScanFlags = (options: DriftCTLOptions): string[] => {
     args.push(options.filter);
   }
 
-  if (options.output) {
+  if (options.json) {
     args.push('--output');
-    args.push(options.output);
+    args.push('json://stdout');
+  }
+
+  if (options['json-file-output']) {
+    args.push('--output');
+    args.push('json://' + options['json-file-output']);
+  }
+
+  if (options.html) {
+    args.push('--output');
+    args.push('html://stdout');
+  }
+
+  if (options['html-file-output']) {
+    args.push('--output');
+    args.push('html://' + options['html-file-output']);
   }
 
   if (options.headers) {
