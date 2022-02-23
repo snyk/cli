@@ -298,6 +298,77 @@ describe('Test snyk code', () => {
     }
   });
 
+  describe('Default org test in CLI output', () => {
+    beforeAll(() => {
+      userConfig.set('org', 'defaultOrg');
+    });
+
+    afterAll(() => {
+      userConfig.set('org', undefined);
+    });
+
+    it('should show the default org in the output when org is not provided', async () => {
+      const options: ArgsOptions = {
+        path: '',
+        traverseNodeModules: false,
+        showVulnPaths: 'none',
+        code: true,
+        _: [],
+        _doubleDashArgs: [],
+      };
+
+      analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
+      isSastEnabledForOrgSpy.mockResolvedValueOnce({
+        sastEnabled: true,
+        localCodeEngine: {
+          enabled: false,
+        },
+        org: 'defaultOrg',
+      });
+      trackUsageSpy.mockResolvedValue({});
+
+      try {
+        await snykTest('some/path', options);
+      } catch (error) {
+        const errMessage = stripAscii(stripAnsi(error.message.trim()));
+
+        expect(error.code).toBe('VULNS');
+        expect(errMessage).toMatch(/Organization:\s+defaultOrg/);
+      }
+    });
+
+    it('should show the provided org in the output when org is provided', async () => {
+      const options: ArgsOptions = {
+        path: '',
+        traverseNodeModules: false,
+        showVulnPaths: 'none',
+        code: true,
+        _: [],
+        _doubleDashArgs: [],
+        org: 'otherOrg',
+      };
+
+      analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
+      isSastEnabledForOrgSpy.mockResolvedValueOnce({
+        sastEnabled: true,
+        localCodeEngine: {
+          enabled: false,
+        },
+        org: 'defaultOrg',
+      });
+      trackUsageSpy.mockResolvedValue({});
+
+      try {
+        await snykTest('some/path', options);
+      } catch (error) {
+        const errMessage = stripAscii(stripAnsi(error.message.trim()));
+
+        expect(error.code).toBe('VULNS');
+        expect(errMessage).toMatch(/Organization:\s+otherOrg/);
+      }
+    });
+  });
+
   it.each([
     ['sarif', { sarif: true }],
     ['json', { json: true }],
