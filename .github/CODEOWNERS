@@ -83,7 +83,6 @@ test/tap/docker-token.test.ts @snyk/capsule
 test/tap/endpoint-config.test.ts @snyk/hammer
 test/tap/find-files.test.ts @snyk/snyk-open-source
 test/tap/monitor-target.test.ts @snyk/snyk-open-source
-test/tap/policy-display.test.ts @snyk/hammer
 test/tap/proxy.test.js @snyk/hammer
 test/tap/reachable-vulns.test.ts @snyk/flow
 test/tap/remote-package.test.ts @snyk/snyk-open-source
