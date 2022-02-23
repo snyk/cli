@@ -30,6 +30,15 @@ describe('Terraform Language Support', () => {
       expect(stdout).not.toContain(
         ' input > resource > aws_security_group[allow_ssh] > ingress',
       );
+      expect(stdout).not.toContain(
+        ' input > resource > aws_security_group[allow_ssh_terraform_tfvars] > ingress',
+      );
+      expect(stdout).not.toContain(
+        ' input > resource > aws_security_group[allow_ssh_a_auto_tfvars] > ingress',
+      );
+      expect(stdout).not.toContain(
+        ' input > resource > aws_security_group[allow_ssh_b_auto_tfvars] > ingress',
+      );
     });
   });
 
@@ -45,6 +54,15 @@ describe('Terraform Language Support', () => {
       expect(stdout).toContain('✗ Security Group allows open ingress');
       expect(stdout).toContain(
         ' input > resource > aws_security_group[allow_ssh] > ingress',
+      );
+      expect(stdout).toContain(
+        ' input > resource > aws_security_group[allow_ssh_terraform_tfvars] > ingress',
+      );
+      expect(stdout).toContain(
+        ' input > resource > aws_security_group[allow_ssh_a_auto_tfvars] > ingress',
+      );
+      expect(stdout).toContain(
+        ' input > resource > aws_security_group[allow_ssh_b_auto_tfvars] > ingress',
       );
 
       expect(stdout).not.toContain(
@@ -67,7 +85,7 @@ describe('Terraform Language Support', () => {
         `Tested ${path.join(
           'kubernetes',
           'pod-privileged.yaml',
-        )} for known issues, found 9 issues`,
+        )} for known issues`,
       );
 
       expect(stdout).not.toContain(
@@ -78,7 +96,7 @@ describe('Terraform Language Support', () => {
           'terraform',
           'var_deref',
           'sg_open_ssh.tf',
-        )} for known issues, found 0 issues`,
+        )} for known issues`,
       );
     });
 

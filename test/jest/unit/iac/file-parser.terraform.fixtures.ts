@@ -34,12 +34,12 @@ const terraformPlanJson = JSON.parse(terraformPlanFileContent.toString());
 export const terraformPlanMissingFieldsJson = { ...terraformPlanJson };
 export const terraformFileDataStub: IacFileData = {
   fileContent: terraformFileContent,
-  filePath: 'dont-care',
+  filePath: 'dont-care.tf',
   fileType: 'tf',
 };
 export const terraformPlanDataStub: IacFileData = {
   fileContent: terraformPlanFileContent.toString(),
-  filePath: 'dont-care',
+  filePath: 'dont-care.tf',
   fileType: 'json',
 };
 export const expectedTerraformParsingResult: IacFileParsed = {
@@ -85,7 +85,7 @@ resource "aws_security_group" "allow_ssh" {
 }`;
 export const invalidTerraformFileDataStub: IacFileData = {
   fileContent: invalidTerraformFileContent,
-  filePath: 'dont-care-invalid',
+  filePath: 'dont-care-invalid.tf',
   fileType: 'tf',
 };
 
