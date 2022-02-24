@@ -13,12 +13,16 @@ export interface ContainerTarget {
   image: string;
 }
 
+interface UnknownTarget {
+  name: string; // Should be equal to the project name
+}
+
 export interface ScanResult {
   readonly identity: Identity;
   readonly facts: Facts[];
   readonly name?: string;
   readonly policy?: string;
-  readonly target?: GitTarget | ContainerTarget;
+  readonly target?: GitTarget | ContainerTarget | UnknownTarget;
 }
 
 export interface Identity {

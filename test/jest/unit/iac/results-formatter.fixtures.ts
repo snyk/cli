@@ -30,14 +30,14 @@ export const policyStub: PolicyMetadata = {
   type: 'k8s',
 };
 
-const anotherPolicyStub: PolicyMetadata = {
+export const anotherPolicyStub: PolicyMetadata = {
   ...policyStub,
   severity: 'high' as SEVERITY,
   id: '2',
   publicId: 'SNYK-CC-K8S-2',
 };
 
-const yetAnotherPolicyStub: PolicyMetadata = {
+export const yetAnotherPolicyStub: PolicyMetadata = {
   ...anotherPolicyStub,
   id: '3',
   publicId: 'SNYK-CC-K8S-3',
@@ -155,7 +155,7 @@ function generateFormattedResults(options) {
     meta: {
       ...meta,
       policy: '',
-      projectId: '',
+      projectId: undefined,
     },
     org: meta.org,
     policy: '',

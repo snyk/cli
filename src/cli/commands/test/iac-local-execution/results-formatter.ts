@@ -7,18 +7,17 @@ import {
   PolicyMetadata,
   TestMeta,
 } from './types';
-import * as path from 'path';
 import { SEVERITY, SEVERITIES } from '../../../../lib/snyk-test/common';
 import { IacProjectType } from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';
 import { extractLineNumber, getFileTypeForParser } from './extract-line-number';
 import { getErrorStringCode } from './error-utils';
-import { isLocalFolder } from '../../../../lib/detect';
 import {
   MapsDocIdToTree,
   getTrees,
   parsePath,
 } from '@snyk/cloud-config-parser';
+import { computePaths } from './file-utils';
 
 const severitiesArray = SEVERITIES.map((s) => s.verboseName);
 
@@ -26,6 +25,7 @@ export function formatScanResults(
   scanResults: IacFileScanResult[],
   options: IaCTestFlags,
   meta: TestMeta,
+  projectPublicIds: Record<string, string>,
 ): FormattedResult[] {
   try {
     const groupedByFile = scanResults.reduce((memo, scanResult) => {
@@ -35,6 +35,7 @@ export function formatScanResults(
           ...res.result.cloudConfigResults,
         );
       } else {
+        res.meta.projectId = projectPublicIds[res.targetFile];
         memo[scanResult.filePath] = res;
       }
       return memo;
@@ -128,38 +129,6 @@ function formatScanResult(
     isPrivate: true,
     targetFilePath,
     packageManager: engineTypeToProjectType[scanResult.engineType],
-  };
-}
-
-function computePaths(
-  filePath: string,
-  pathArg = '.',
-): { targetFilePath: string; projectName: string; targetFile: string } {
-  const targetFilePath = path.resolve(filePath, '.');
-
-  // the absolute path is needed to compute the full project path
-  const cmdPath = path.resolve(pathArg);
-
-  let projectPath: string;
-  let targetFile: string;
-  if (!isLocalFolder(cmdPath)) {
-    // if the provided path points to a file, then the project starts at the parent folder of that file
-    // and the target file was provided as the path argument
-    projectPath = path.dirname(cmdPath);
-    targetFile = path.isAbsolute(pathArg)
-      ? path.relative(process.cwd(), pathArg)
-      : pathArg;
-  } else {
-    // otherwise, the project starts at the provided path
-    // and the target file must be the relative path from the project path to the path of the scanned file
-    projectPath = cmdPath;
-    targetFile = path.relative(projectPath, targetFilePath);
-  }
-
-  return {
-    targetFilePath,
-    projectName: path.basename(projectPath),
-    targetFile,
   };
 }
 

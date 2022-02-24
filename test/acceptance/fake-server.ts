@@ -12,7 +12,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
   ]);
 };
 
-type FakeServer = {
+export type FakeServer = {
   getRequests: () => express.Request[];
   popRequest: () => express.Request;
   popRequests: (num: number) => express.Request[];
