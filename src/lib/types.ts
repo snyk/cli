@@ -90,7 +90,6 @@ export interface Options {
   tags?: string;
   'target-reference'?: string;
   'exclude-base-image-vulns'?: boolean;
-  supportUnmanagedVulnDB?: boolean;
   'no-markdown'?: boolean;
   'max-depth'?: number;
 }

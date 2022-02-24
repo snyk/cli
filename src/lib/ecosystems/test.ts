@@ -10,7 +10,6 @@ import { TestDependenciesResponse } from '../snyk-test/legacy';
 import { assembleQueryString } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
 import { resolveAndTestFacts } from './resolve-test-facts';
-import { hasFeatureFlag } from '../feature-flags';
 import { isUnmanagedEcosystem } from './common';
 
 export async function testEcosystem(
@@ -54,20 +53,11 @@ export async function testEcosystem(
   const emptyResults: ScanResult[] = [];
   const scanResults = emptyResults.concat(...Object.values(scanResultsByPath));
 
-  const enhancedOptions = { ...options };
-
-  if (isUnmanagedEcosystem(ecosystem)) {
-    enhancedOptions.supportUnmanagedVulnDB = await hasFeatureFlag(
-      'snykUnmanagedVulnDB',
-      options,
-    );
-  }
-
   const readableResult = await plugin.display(
     scanResults,
     testResults,
     errors,
-    enhancedOptions,
+    options,
   );
 
   return TestCommandResult.createHumanReadableTestCommandResult(
