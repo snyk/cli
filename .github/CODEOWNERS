@@ -19,6 +19,7 @@ src/cli/commands/test/iac-local-execution/ @snyk/group-infrastructure-as-code
 src/cli/commands/test/iac-output.ts @snyk/group-infrastructure-as-code
 src/cli/commands/test/iac-test-shim.ts @snyk/group-infrastructure-as-code
 src/cli/commands/drift.ts @snyk/group-infrastructure-as-code
+src/cli/commands/describe.ts @snyk/group-infrastructure-as-code
 src/cli/commands/apps @snyk/moose
 src/lib/apps @snyk/moose
 src/lib/cloud-config-projects.ts @snyk/group-infrastructure-as-code

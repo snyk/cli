@@ -256,6 +256,7 @@ export enum SupportedCliCommands {
   log4shell = 'log4shell',
   apps = 'apps',
   drift = 'drift',
+  describe = 'describe',
 }
 
 export interface IacFileInDirectory {
