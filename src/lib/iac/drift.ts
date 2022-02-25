@@ -228,23 +228,34 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
 
 export async function driftctl(args: string[]): Promise<number> {
   debug('running driftctl %s ', args.join(' '));
-
-  const path = await findOrDownload();
-
-  return await launch(path, args);
+  const driftctlPath = await findOrDownload();
+  return await runDriftctl(driftctlPath, args);
 }
 
-async function launch(path: string, args: string[]): Promise<number> {
+async function runDriftctl(path: string, args: string[]): Promise<number> {
   return new Promise<number>((resolve, reject) => {
-    const child = child_process.spawn(path, args, { stdio: 'inherit' });
+    const driftctlProc = child_process.spawn(path, args, { stdio: 'pipe' });
 
-    child.on('error', (error) => {
+    let stdout = '';
+    driftctlProc.stdout.on('data', function(output) {
+      stdout += output;
+    });
+
+    let stderr = '';
+    driftctlProc.stderr.on('data', function(output) {
+      stderr += output;
+    });
+
+    driftctlProc.on('error', (error) => {
       reject(error);
     });
 
-    child.on('exit', (code) => {
+    driftctlProc.on('exit', (code) => {
+      console.error(stderr);
+      console.log(stdout);
       if (code == null) {
-        //failed to find why this could happen...
+        // process was terminated by a signal
+        // https://nodejs.org/api/child_process.html#event-exit
         reject(new Error('Process was terminated'));
       } else {
         resolve(code);
