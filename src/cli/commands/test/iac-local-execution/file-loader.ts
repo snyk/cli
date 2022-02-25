@@ -14,6 +14,21 @@ import { getErrorStringCode } from './error-utils';
 
 const DEFAULT_ENCODING = 'utf-8';
 
+export async function loadContentForFiles(
+  filePaths: string[],
+): Promise<IacFileData[]> {
+  const loadedFiles = await Promise.all(
+    filePaths.map(async (filePath) => {
+      try {
+        return await tryLoadFileData(filePath);
+      } catch (e) {
+        throw new FailedToLoadFileError(filePath);
+      }
+    }),
+  );
+  return loadedFiles.filter((file) => file.fileContent !== '');
+}
+
 export async function loadFiles(
   pathToScan: string,
   options: IaCTestFlags = {},
@@ -27,16 +42,7 @@ export async function loadFiles(
   if (filePaths.length === 0) {
     throw new NoFilesToScanError();
   }
-
-  const loadedFiles: IacFileData[] = await Promise.all(
-    filePaths.map(async (filePath) => {
-      try {
-        return await tryLoadFileData(filePath);
-      } catch (e) {
-        throw new FailedToLoadFileError(filePath);
-      }
-    }),
-  );
+  const loadedFiles = await loadContentForFiles(filePaths);
 
   return loadedFiles.filter((file) => file.fileContent !== '');
 }

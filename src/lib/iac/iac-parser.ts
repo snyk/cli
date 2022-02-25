@@ -20,8 +20,13 @@ const debug = debugLib('snyk-detect');
 const requiredK8SObjectFields = ['apiVersion', 'kind', 'metadata'];
 
 export function getFileType(filePath: string): string {
-  const filePathSplit = filePath.split('.');
-  return filePathSplit[filePathSplit.length - 1].toLowerCase();
+  try {
+    const index = filePath.lastIndexOf('.'); // it will be -1 if it doesn't contain a dot
+    if (index !== -1) return filePath.slice(index + 1).toLowerCase();
+  } catch (e) {
+    // ignore errors if we can't extract the filetype
+  }
+  return '';
 }
 
 function parseFileContent(fileContent: string, filePath: string): any {
