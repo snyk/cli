@@ -19,6 +19,8 @@ describe('driftctl integration', () => {
     const args = parseDescribeFlags({});
     expect(args).toEqual([
       'scan',
+      '--output',
+      'json://stdout',
       '--config-dir',
       paths.cache,
       '--to',
@@ -53,17 +55,11 @@ describe('driftctl integration', () => {
     });
     expect(args).toEqual([
       'scan',
+      '--output',
+      'json://stdout',
       '--quiet',
       '--filter',
       'filter',
-      '--output',
-      'json://stdout',
-      '--output',
-      'json://jsonfileoutput',
-      '--output',
-      'html://stdout',
-      '--output',
-      'html://htmlfileoutput',
       '--headers',
       'headers',
       '--tfc-token',

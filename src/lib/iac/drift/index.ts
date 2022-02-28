@@ -102,6 +102,9 @@ const parseGenDriftIgnoreFlags = (
 export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
   const args: string[] = ['scan'];
 
+  args.push('--output');
+  args.push('json://stdout');
+
   if (options.quiet) {
     args.push('--quiet');
   }
@@ -109,26 +112,6 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
   if (options.filter) {
     args.push('--filter');
     args.push(options.filter);
-  }
-
-  if (options.json) {
-    args.push('--output');
-    args.push('json://stdout');
-  }
-
-  if (options['json-file-output']) {
-    args.push('--output');
-    args.push('json://' + options['json-file-output']);
-  }
-
-  if (options.html) {
-    args.push('--output');
-    args.push('html://stdout');
-  }
-
-  if (options['html-file-output']) {
-    args.push('--output');
-    args.push('html://' + options['html-file-output']);
   }
 
   if (options.headers) {
@@ -192,10 +175,10 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
   return args;
 };
 
-export async function runDriftctl(args: string[]): Promise<number> {
+export async function runDriftctl(args: string[]): Promise<CommandResult> {
   debug('running driftctl %s ', args.join(' '));
   const driftctlPath = await findOrDownload();
-  return new Promise<number>((resolve, reject) => {
+  return new Promise<CommandResult>((resolve, reject) => {
     const driftctlProc = child_process.spawn(driftctlPath, args, {
       stdio: 'pipe',
     });
@@ -216,14 +199,29 @@ export async function runDriftctl(args: string[]): Promise<number> {
 
     driftctlProc.on('exit', (code) => {
       console.error(stderr);
-      console.log(stdout);
       if (code == null) {
         // process was terminated by a signal
         // https://nodejs.org/api/child_process.html#event-exit
         reject(new Error('Process was terminated'));
       } else {
-        resolve(code);
+        resolve({ status: code, stdout: stdout });
       }
     });
   });
+}
+
+export interface CommandResult {
+  stdout: string;
+  status: number;
+}
+
+export async function presentDriftOutput(
+  stdout: string,
+  cmd: string,
+  opts: DriftCTLOptions,
+): Promise<void> {
+  // TODO call `driftctl fmt <console|html>` if cmd === 'scan', and the
+  // requested output format is not json. Write the output to stdout, or a
+  // regular file if requested.
+  console.log(stdout);
 }
