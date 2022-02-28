@@ -9,6 +9,8 @@ import {
 import { getIacOrgSettings } from './test/iac-local-execution/org-settings/get-iac-org-settings';
 import { UnsupportedEntitlementCommandError } from './test/iac-local-execution/assert-iac-options-flag';
 import config from '../../lib/config';
+import { addScanResultDerivedAnalytics } from '../../lib/iac/drift/analytics';
+import { DriftScanResult } from '../../lib/iac/drift/scan';
 
 export default async (...args: MethodArgs): Promise<any> => {
   const { options } = processCommandArgs(...args);
@@ -30,6 +32,8 @@ export default async (...args: MethodArgs): Promise<any> => {
   try {
     const args = parseDescribeFlags(options);
     const res = await runDriftctl(args);
+    const scanResult: DriftScanResult = JSON.parse(res.stdout);
+    addScanResultDerivedAnalytics(scanResult);
     await presentDriftOutput(res.stdout, args[0], options);
     process.exit(res.status);
   } catch (e) {
