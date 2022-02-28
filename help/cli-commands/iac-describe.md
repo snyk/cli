@@ -196,34 +196,32 @@ the `/tmp` folder.
 Currently, driftctl only supports reading IaC from a Terraform state. We are investigating to support the Terraform code
 as well, as a state does not represent an intention.
 
-Multiple states can be read by passing `--from` flags. You can also use glob patterns to match multiple state files at
+Multiple states can be read by passing `--from` a coma separated list. You can also use glob patterns to match multiple state files at
 once.
 
 Examples:
 
 I want to read a local state and a state stored in an S3 bucket:
-`$ snyk iac describe \ --from tfstate+s3://statebucketdriftctl/terraform.tfstate \ --from tfstate://terraform_toto.tfstate`
+`$ snyk iac describe --from="tfstate+s3://statebucketdriftctl/terraform.tfstate,tfstate://terraform_toto.tfstate"`
 
 You can also read all files under a given prefix for S3
-`$ snyk iac describe --from tfstate+s3://statebucketdriftctl/states`
+`$ snyk iac describe --from=tfstate+s3://statebucketdriftctl/states`
 
 #### Supported IaC sources
 
 - Terraform state
-- Local: `--from tfstate://terraform.tfstate`
-- S3: `--from tfstate+s3://my-bucket/path/to/state.tfstate`
-- GCS: `--from tfstate+gs://my-bucket/path/to/state.tfstate`
-- HTTPS: `--from tfstate+https://my-url/state.tfstate`
-- Terraform Cloud / Terraform Enterprise: `--from tfstate+tfcloud://WORKSPACE_ID`
-- Azure blob storage: `--from tfstate+azurerm://container-name/path/to/state.tfstate`
-
-More details about sources configuration can be found on the [driftctl documentation](https://docs.driftctl.com/) website.
+- Local: `--from=tfstate://terraform.tfstate`
+- S3: `--from=tfstate+s3://my-bucket/path/to/state.tfstate`
+- GCS: `--from=tfstate+gs://my-bucket/path/to/state.tfstate`
+- HTTPS: `--from=tfstate+https://my-url/state.tfstate`
+- Terraform Cloud / Terraform Enterprise: `--from=tfstate+tfcloud://WORKSPACE_ID`
+- Azure blob storage: `--from=tfstate+azurerm://container-name/path/to/state.tfstate`
 
 You can use any unsupported backend by using `terraform` to pipe your state in a file and then use this file with
 driftctl:
 
 `$ terraform state pull > state.tfstate`
-`$ snyk iac describe --from tfstate://state.tfstate`
+`$ snyk iac describe --from=tfstate://state.tfstate`
 
 ## Examples for the iac describe command
 

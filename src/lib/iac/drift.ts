@@ -70,12 +70,12 @@ interface DriftCTLOptions {
   driftignore?: string;
   'tf-lockfile'?: string;
   'config-dir'?: string;
-  from?: string; // TODO We only handle one from at a time due to snyk cli arg parsing
   json?: boolean;
   'json-file-output'?: string;
   html?: boolean;
   'html-file-output'?: string;
   service?: string;
+  from?: string; // snyk cli args parsing does not support variadic args so this will be coma separated values
 }
 
 export function parseArgs(
@@ -217,8 +217,11 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
   args.push(configDir);
 
   if (options.from) {
-    args.push('--from');
-    args.push(options.from);
+    const froms = options.from.split(',');
+    for (const f of froms) {
+      args.push('--from');
+      args.push(f);
+    }
   }
 
   let to = 'aws+tf';

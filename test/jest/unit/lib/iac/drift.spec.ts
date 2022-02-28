@@ -87,6 +87,23 @@ describe('driftctl integration', () => {
     ]);
   });
 
+  it('describe: from arguments is a coma separated list', () => {
+    const args = parseDescribeFlags({ from: 'path1,path2,path3' });
+    expect(args).toEqual([
+      'scan',
+      '--config-dir',
+      paths.cache,
+      '--from',
+      'path1',
+      '--from',
+      'path2',
+      '--from',
+      'path3',
+      '--to',
+      'aws+tf',
+    ]);
+  });
+
   it('gen-driftignore: passing options generate correct arguments', () => {
     const args = parseArgs(['gen-driftignore'], {
       'exclude-changed': true,
