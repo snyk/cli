@@ -1,13 +1,15 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    crass (1.0.4)
+    crass (1.0.6)
     lynx (0.4.0)
-    mini_portile2 (2.3.0)
-    nokogiri (1.8.5)
-      mini_portile2 (~> 2.3.0)
+    mini_portile2 (2.8.0)
+    nokogiri (1.13.3)
+      mini_portile2 (~> 2.8.0)
+      racc (~> 1.4)
     nokogumbo (1.5.0)
       nokogiri
+    racc (1.6.0)
     sanitize (4.6.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.4.4)
@@ -23,4 +25,4 @@ DEPENDENCIES
   yard (= 0.8.0)
 
 BUNDLED WITH
-   1.16.5
+   1.17.3
