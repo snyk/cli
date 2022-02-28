@@ -40,14 +40,10 @@ const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
 const driftctlPath = path.join(cachePath, 'driftctl_' + driftctlVersion);
 
 enum DriftctlCmd {
-  Scan = 'scan',
   GenDriftIgnore = 'gen-driftignore',
 }
 
-const supportedDriftctlCommands: string[] = [
-  DriftctlCmd.Scan,
-  DriftctlCmd.GenDriftIgnore,
-];
+const supportedDriftctlCommands: string[] = [DriftctlCmd.GenDriftIgnore];
 
 export interface DriftctlGenDriftIgnoreOptions {
   input?: string;
@@ -100,9 +96,6 @@ export function parseArgs(
         ...parseGenDriftIgnoreFlags(options as DriftctlGenDriftIgnoreOptions),
       );
       break;
-    case DriftctlCmd.Scan:
-      args.push(...parseScanFlags(options as DriftCTLOptions));
-      break;
   }
 
   debug(args);
@@ -140,8 +133,8 @@ const parseGenDriftIgnoreFlags = (
   return args;
 };
 
-const parseScanFlags = (options: DriftCTLOptions): string[] => {
-  const args: string[] = [];
+export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
+  const args: string[] = ['scan'];
 
   if (options.quiet) {
     args.push('--quiet');
