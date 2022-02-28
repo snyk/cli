@@ -12,28 +12,28 @@ import * as crypto from 'crypto';
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
 
-export const driftctlVersion = 'v0.19.0';
+export const driftctlVersion = 'v0.21.0';
 const driftctlChecksums = {
   'driftctl_windows_386.exe':
-    '0336132cc0c24beaef2535e0a129d146c1a267f6296d5d6bcc7fbe0b02f0bc78',
+    'f7affbe0ba270b0339d0398befc686bd747a1694a4db0890ce73a2b1921521d4',
   driftctl_darwin_amd64:
-    '07eae8f9e537183031bb78203c1c50a0ca80e114716598946b76baadcbca2656',
+    '85cd7a0b5670aa0ee52181357ec891f5a84df29cf505344e403b8b9de5953d61',
   driftctl_linux_386:
-    '4b83a5644ce72d3eabd915ffc1bba13ad1d61914984801800f598b35db2fe054',
+    '4221b4f2db65163ccfd300f90fe7cffa7bac1f806f56971ebbca5e36269aa3a4',
   driftctl_linux_amd64:
-    '4bfd536e2123667e01b6e5d54acc27733be0db5a00b7fda7f41fabcd9e910e1d',
+    'eb64c0d7a7094f0d741abae24c59a46db3eb76f619f177fd745efea7d468a66e',
   driftctl_linux_arm64:
-    '50bbf8f47ec7dcb9cc09a628444b093a0305aa9b4accc84b7c366a2297390881',
+    'c0c4dbfb2f5217124d3f7e1ef33b8b547fc84adf65612aca438e48e63da2f63e',
   'driftctl_windows_arm64.exe':
-    '6eee390fb97998f309ff0491b893d8727f90f45b98f42fd1aa3ebef29fd7fc5b',
+    '9e87c2a7fecca5a2846c87d4c570b5357e892e4234d7eafa0dac5ea31142e992',
   driftctl_darwin_arm64:
-    '6f37d9f2e385ef81adea9a1f68f2c85f859608dd854416d8ecf629e626bc8b0c',
+    '39813b4f05c034b6833508062f72bc17f1edbe2bc4db244893e75198eb013a34',
   'driftctl_windows_arm.exe':
-    '7ce916deaad289f41c874a4ddff41e9e6195cd5f78821a5769f8e66434be5465',
+    '5d66cb4db95bfa33d4946d324c4674f10fde8370dfb5003d99242a560d8e7e1b',
   driftctl_linux_arm:
-    'a73193472fb33744f0a344a5f3a5663bd0f4791c393a68ea1b4c219b02eda8f1',
+    '13705de80f0de3d1a931e81947cc7a443dcec59968bafcb8ea888a4f643e5605',
   'driftctl_windows_amd64.exe':
-    'be423648c164f816ea98eae9694aa7c6679d0a6c33305aceb435cd75821bc730',
+    '154afbf87a3c0d36a345ccadad8ca7f85855a1c1f8f622ce1ea46931dadafce7',
 };
 
 const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
