@@ -19,6 +19,7 @@ describe('tryParsingTerraformPlan', () => {
     2. Plan which deletes resources
     3. Plan which doesn't do anything
     4. Plan which updates resources
+    5. Plan from the Terraform v4 provider
     These tests validate that the correct resources are being extracted, based on the give scan mode (Full/Delta).
     These tests do not cover scanning for finding vulnerabilites, but only for the resource extraction logic.
   **/
