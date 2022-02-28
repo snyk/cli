@@ -4,7 +4,7 @@ import {
   DriftctlGenDriftIgnoreOptions,
   parseArgs,
   parseDescribeFlags,
-} from '../../../../../src/lib/iac/drift';
+} from '../../../../../../src/lib/iac/drift';
 import envPaths from 'env-paths';
 
 const paths = envPaths('snyk');

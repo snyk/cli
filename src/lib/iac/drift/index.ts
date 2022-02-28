@@ -3,9 +3,9 @@ import * as child_process from 'child_process';
 import * as os from 'os';
 import envPaths from 'env-paths';
 import * as fs from 'fs';
-import { spinner } from '../spinner';
-import { makeRequest } from '../request';
-import config from '../../lib/config';
+import { spinner } from '../../spinner';
+import { makeRequest } from '../../request';
+import config from '../../../lib/config';
 import * as path from 'path';
 import * as crypto from 'crypto';
 
@@ -226,15 +226,13 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
   return args;
 };
 
-export async function driftctl(args: string[]): Promise<number> {
+export async function runDriftctl(args: string[]): Promise<number> {
   debug('running driftctl %s ', args.join(' '));
   const driftctlPath = await findOrDownload();
-  return await runDriftctl(driftctlPath, args);
-}
-
-async function runDriftctl(path: string, args: string[]): Promise<number> {
   return new Promise<number>((resolve, reject) => {
-    const driftctlProc = child_process.spawn(path, args, { stdio: 'pipe' });
+    const driftctlProc = child_process.spawn(driftctlPath, args, {
+      stdio: 'pipe',
+    });
 
     let stdout = '';
     driftctlProc.stdout.on('data', function(output) {
@@ -278,7 +276,7 @@ async function findOrDownload(): Promise<string> {
   return dctl;
 }
 
-export async function findDriftCtl(): Promise<string> {
+async function findDriftCtl(): Promise<string> {
   // lookup in custom path contained in env var DRIFTCTL_PATH
   let dctlPath = config.DRIFTCTL_PATH;
   if (dctlPath != null) {

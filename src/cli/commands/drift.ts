@@ -1,6 +1,6 @@
 import { MethodArgs } from '../args';
 import { processCommandArgs } from './process-command-args';
-import { driftctl, parseArgs } from '../../lib/iac/drift';
+import { runDriftctl, parseArgs } from '../../lib/iac/drift';
 import { UnsupportedEntitlementCommandError } from './test/iac-local-execution/assert-iac-options-flag';
 import { getIacOrgSettings } from './test/iac-local-execution/measurable-methods';
 import config from '../../lib/config';
@@ -23,7 +23,7 @@ export default async function drift(...args: MethodArgs): Promise<any> {
 
   try {
     const args = parseArgs(paths, options);
-    const ret = await driftctl(args);
+    const ret = await runDriftctl(args);
     process.exit(ret);
   } catch (e) {
     const err = new Error('Error running `iac drift` ' + e);

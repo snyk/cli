@@ -1,7 +1,7 @@
 import { MethodArgs } from '../args';
 import { processCommandArgs } from './process-command-args';
 import * as legacyError from '../../lib/errors/legacy-errors';
-import { driftctl, parseDescribeFlags } from '../../lib/iac/drift';
+import { runDriftctl, parseDescribeFlags } from '../../lib/iac/drift';
 import { getIacOrgSettings } from './test/iac-local-execution/org-settings/get-iac-org-settings';
 import { UnsupportedEntitlementCommandError } from './test/iac-local-execution/assert-iac-options-flag';
 import config from '../../lib/config';
@@ -25,7 +25,7 @@ export default async (...args: MethodArgs): Promise<any> => {
 
   try {
     const args = parseDescribeFlags(options);
-    const ret = await driftctl(args);
+    const ret = await runDriftctl(args);
     process.exit(ret);
   } catch (e) {
     const err = new Error('Error running `iac describe` ' + e);
