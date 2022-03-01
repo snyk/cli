@@ -12,11 +12,19 @@ import {
   createIgnorePattern,
   verifyServiceMappingExists,
 } from './service-mappings';
+import { EXIT_CODES } from '../../cli/exit-codes';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
 
 export const driftctlVersion = 'v0.21.0';
+
+export const DCTL_EXIT_CODES = {
+  EXIT_IN_SYNC: 0,
+  EXIT_NOT_IN_SYNC: 1,
+  EXIT_ERROR: 2,
+};
+
 const driftctlChecksums = {
   'driftctl_windows_386.exe':
     'f7affbe0ba270b0339d0398befc686bd747a1694a4db0890ce73a2b1921521d4',
@@ -243,12 +251,28 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
   return args;
 };
 
+export function translateExitCode(exitCode: number) {
+  switch (exitCode) {
+    case DCTL_EXIT_CODES.EXIT_IN_SYNC:
+      return 0;
+    case DCTL_EXIT_CODES.EXIT_NOT_IN_SYNC:
+      return EXIT_CODES.VULNS_FOUND;
+    case DCTL_EXIT_CODES.EXIT_ERROR:
+      return EXIT_CODES.ERROR;
+    default:
+      debug('driftctl returned %d', exitCode);
+      return EXIT_CODES.ERROR;
+  }
+}
+
 export async function driftctl(args: string[]): Promise<number> {
   debug('running driftctl %s ', args.join(' '));
 
   const path = await findOrDownload();
 
-  return await launch(path, args);
+  const exitCode = await launch(path, args);
+
+  return translateExitCode(exitCode);
 }
 
 async function launch(path: string, args: string[]): Promise<number> {

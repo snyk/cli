@@ -9,7 +9,8 @@ For more information see the [driftctl documentation](https://docs.driftctl.com/
 Possible exit codes and their meaning:
 
 **0**: success, no drift found<br />
-**1**: action_needed, drifts found or failure<br />
+**1**: drifts or unmanaged resources found<br />
+**2**: failure<br />
 
 ## Configure the Snyk CLI
 
