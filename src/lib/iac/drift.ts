@@ -8,6 +8,10 @@ import { makeRequest } from '../request';
 import config from '../../lib/config';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import {
+  createIgnorePattern,
+  verifyServiceMappingExists,
+} from './service-mappings';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
@@ -71,6 +75,7 @@ interface DriftCTLOptions {
   'json-file-output'?: string;
   html?: boolean;
   'html-file-output'?: string;
+  service?: string;
 }
 
 export function parseArgs(
@@ -223,6 +228,15 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
   args.push('--to');
   args.push(to);
 
+  if (options.service) {
+    const services = options.service.split(',');
+    verifyServiceMappingExists(services);
+    args.push('--ignore');
+    args.push(createIgnorePattern(services));
+  }
+
+  debug(args);
+
   return args;
 };
 
@@ -349,6 +363,7 @@ function validateChecksum(body: string) {
     throw new Error('Downloaded file has inconsistent checksum...');
   }
 }
+
 function driftctlFileName(): string {
   let platform = 'linux';
   switch (os.platform()) {
