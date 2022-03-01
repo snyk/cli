@@ -43,7 +43,7 @@ test/jest/unit/lib/formatters/iac-output.spec.ts @snyk/group-infrastructure-as-c
 test/jest/unit/iac/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
-test/jest/acceptance/snyk-apps @snyk-moose
+test/jest/acceptance/snyk-apps @snyk/moose
 src/lib/errors/invalid-iac-file.ts @snyk/group-infrastructure-as-code
 src/lib/errors/unsupported-options-iac-error.ts @snyk/group-infrastructure-as-code
 src/lib/errors/no-supported-sast-files-found.ts @snyk/nebula
