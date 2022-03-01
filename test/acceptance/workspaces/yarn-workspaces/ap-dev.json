@@ -956,7 +956,7 @@
     "ok": false,
     "dependencyCount": 74,
     "org": "lili",
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  'npm:node-uuid:20111130':\n    - '*':\n        reason: None Given\n        expires: 2020-07-17T21:40:21.917Z\n        source: cli\npatch: {}\n",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.2\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  'npm:node-uuid:20111130':\n    - '*':\n        reason: None Given\n        expires: 2020-07-17T21:40:21.917Z\n        source: cli\npatch: {}\n",
     "isPrivate": true,
     "licensesPolicy": {
       "severities": {},
@@ -1682,7 +1682,7 @@
     "ok": false,
     "dependencyCount": 1,
     "org": "lili",
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\nignore: {}\npatch: {}\n",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.2\nignore: {}\npatch: {}\n",
     "isPrivate": true,
     "licensesPolicy": {
       "severities": {},
@@ -1966,7 +1966,7 @@
     "ok": false,
     "dependencyCount": 1,
     "org": "lili",
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  'npm:node-uuid:20160328':\n    - '*':\n        reason: None Given\n        expires: 2020-07-17T17:21:53.744Z\n        source: cli\n  'npm:node-uuid:20111130':\n    - '*':\n        reason: None Given\n        expires: 2020-07-17T21:40:21.917Z\n        source: cli\npatch: {}\n",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.2\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  'npm:node-uuid:20160328':\n    - '*':\n        reason: None Given\n        expires: 2020-07-17T17:21:53.744Z\n        source: cli\n  'npm:node-uuid:20111130':\n    - '*':\n        reason: None Given\n        expires: 2020-07-17T21:40:21.917Z\n        source: cli\npatch: {}\n",
     "isPrivate": true,
     "licensesPolicy": {
       "severities": {},
@@ -2165,7 +2165,7 @@
     "ok": false,
     "dependencyCount": 2,
     "org": "lili",
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\nignore: {}\npatch: {}\n",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.2\nignore: {}\npatch: {}\n",
     "isPrivate": true,
     "licensesPolicy": {
       "severities": {},
@@ -2294,7 +2294,7 @@
     "ok": true,
     "dependencyCount": 2,
     "org": "lili",
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\nignore: {}\npatch: {}\n",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.2\nignore: {}\npatch: {}\n",
     "isPrivate": true,
     "licensesPolicy": {
       "severities": {},

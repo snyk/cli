@@ -583,7 +583,7 @@
   "meta": {
     "isPrivate": true,
     "isLicensesEnabled": true,
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\nignore: {}\n# patches apply the minimum changes required to fix a vulnerability\npatch:\n  SNYK-JS-LODASH-567746:\n    - '@snyk/patchable-dep-fixture > lodash':\n        patched: '2021-12-01T20:14:14.219Z'\n",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.2\nignore: {}\n# patches apply the minimum changes required to fix a vulnerability\npatch:\n  SNYK-JS-LODASH-567746:\n    - '@snyk/patchable-dep-fixture > lodash':\n        patched: '2021-12-01T20:14:14.219Z'\n",
     "ignoreSettings": null,
     "org": "demo-applications",
     "licensesPolicy": {
