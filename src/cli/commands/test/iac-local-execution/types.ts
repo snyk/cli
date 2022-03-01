@@ -344,6 +344,9 @@ export enum IaCErrorCodes {
   InvalidManifestSchemaVersionError = 1104,
   UnsupportedFeatureFlagPullError = 1105,
   UnsupportedEntitlementPullError = 1106,
+
+  // drift errors
+  InvalidServiceError = 1110,
 }
 
 export interface TestReturnValue {
