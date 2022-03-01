@@ -215,6 +215,9 @@ You can also read all files under a given prefix for S3
 - GCS: `--from tfstate+gs://my-bucket/path/to/state.tfstate`
 - HTTPS: `--from tfstate+https://my-url/state.tfstate`
 - Terraform Cloud / Terraform Enterprise: `--from tfstate+tfcloud://WORKSPACE_ID`
+- Azure blob storage: `--from tfstate+azurerm://container-name/path/to/state.tfstate`
+
+More details about sources configuration can be found on the [driftctl documentation](https://docs.driftctl.com/) website.
 
 You can use any unsupported backend by using `terraform` to pipe your state in a file and then use this file with
 driftctl:
