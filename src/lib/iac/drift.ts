@@ -69,6 +69,8 @@ interface DriftCTLOptions {
   'tf-provider-version'?: string;
   strict?: true;
   deep?: true;
+  'only-managed'?: true;
+  'only-unmanaged'?: true;
   driftignore?: string;
   'tf-lockfile'?: string;
   'config-dir'?: string;
@@ -168,6 +170,14 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
 
   if (options.deep) {
     args.push('--deep');
+  }
+
+  if (options['only-managed']) {
+    args.push('--only-managed');
+  }
+
+  if (options['only-unmanaged']) {
+    args.push('--only-unmanaged');
   }
 
   if (options.driftignore) {
