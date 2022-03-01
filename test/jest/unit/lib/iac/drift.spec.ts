@@ -1,11 +1,14 @@
 import * as mockFs from 'mock-fs';
 
 import {
+  DCTL_EXIT_CODES,
   DriftctlGenDriftIgnoreOptions,
   parseArgs,
   parseDescribeFlags,
+  translateExitCode,
 } from '../../../../../src/lib/iac/drift';
 import envPaths from 'env-paths';
+import { EXIT_CODES } from '../../../../../src/cli/exit-codes';
 
 const paths = envPaths('snyk');
 
@@ -106,5 +109,16 @@ describe('driftctl integration', () => {
       '--exclude-missing',
       '--exclude-unmanaged',
     ]);
+  });
+
+  it('run driftctl: exit code is translated', () => {
+    expect(translateExitCode(DCTL_EXIT_CODES.EXIT_IN_SYNC)).toEqual(0);
+    expect(translateExitCode(DCTL_EXIT_CODES.EXIT_NOT_IN_SYNC)).toEqual(
+      EXIT_CODES.VULNS_FOUND,
+    );
+    expect(translateExitCode(DCTL_EXIT_CODES.EXIT_ERROR)).toEqual(
+      EXIT_CODES.ERROR,
+    );
+    expect(translateExitCode(42)).toEqual(EXIT_CODES.ERROR);
   });
 });
