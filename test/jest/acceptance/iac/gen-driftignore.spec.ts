@@ -48,7 +48,7 @@ describe('iac gen-driftignore', () => {
     );
 
     expect(stdout).toMatch(
-      'gen-driftignore --input something.json --output stdout --exclude-changed --exclude-missing --exclude-unmanaged',
+      'gen-driftignore --no-version-check --input something.json --output stdout --exclude-changed --exclude-missing --exclude-unmanaged',
     );
     expect(stderr).toMatch('');
     expect(exitCode).toBe(0);

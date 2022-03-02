@@ -22,6 +22,7 @@ describe('driftctl integration', () => {
     const args = parseDescribeFlags({});
     expect(args).toEqual([
       'scan',
+      '--no-version-check',
       '--config-dir',
       paths.cache,
       '--to',
@@ -31,7 +32,7 @@ describe('driftctl integration', () => {
 
   it('gen-driftignore: default arguments are correct', () => {
     const args = parseGenDriftIgnoreFlags({});
-    expect(args).toEqual(['gen-driftignore']);
+    expect(args).toEqual(['gen-driftignore', '--no-version-check']);
   });
 
   it('describe: passing options generate correct arguments', () => {
@@ -58,6 +59,7 @@ describe('driftctl integration', () => {
     });
     expect(args).toEqual([
       'scan',
+      '--no-version-check',
       '--quiet',
       '--filter',
       'filter',
@@ -98,6 +100,7 @@ describe('driftctl integration', () => {
     const args = parseDescribeFlags({ from: 'path1,path2,path3' });
     expect(args).toEqual([
       'scan',
+      '--no-version-check',
       '--config-dir',
       paths.cache,
       '--from',
@@ -122,6 +125,7 @@ describe('driftctl integration', () => {
     } as DriftctlGenDriftIgnoreOptions);
     expect(args).toEqual([
       'gen-driftignore',
+      '--no-version-check',
       '--input',
       'analysis.json',
       '--output',
