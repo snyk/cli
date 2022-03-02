@@ -62,7 +62,7 @@ Use to narrow the scope of the ignore rule. When no resource path is specified, 
 
 Default: all
 
-## Examples
+## Examples for snyk ignore command
 
 Ignore a specific vulnerability:
 
