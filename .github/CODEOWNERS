@@ -23,6 +23,7 @@ src/cli/commands/gen-driftignore.ts @snyk/group-infrastructure-as-code
 src/cli/commands/apps @snyk/moose
 src/lib/apps @snyk/moose
 src/lib/cloud-config-projects.ts @snyk/group-infrastructure-as-code
+src/lib/container @snyk/magma
 src/lib/plugins @snyk/snyk-open-source
 src/lib/plugins/sast/ @snyk/nebula
 test/fixtures/sast/ @snyk/nebula
