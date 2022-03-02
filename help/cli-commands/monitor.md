@@ -12,7 +12,7 @@ The `snyk monitor` command creates a project in your Synk account to be continuo
 
 Possible exit codes and their meaning:
 
-**0**: success, no vulnerabilities found\
+**0**: success, snapshot created\
 **1**: action_needed, vulnerabilities found\
 **2**: failure, try to re-run command\
 **3**: failure, no supported projects detected
@@ -129,23 +129,9 @@ Manually pass a path to a `.snyk` policy file.
 
 Print results in JSON format.
 
-### `--json-file-output=<OUTPUT_FILE_PATH>`
-
-Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
-
-This is especially useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
-
 ### `--sarif`
 
 Return results in SARIF format.
-
-### `--sarif-file-output=<OUTPUT_FILE_PATH>`
-
-Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.
-
-This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
-
-Fail only when there are vulnerabilities that can be fixed.
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
