@@ -41,6 +41,13 @@ import {
 } from '../../../lib/types';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
+import * as theme from '../../../lib/theme';
+
+function getWizardRemovalMessage(): string {
+  return theme.color.status.warn(
+    `${theme.icon.WARNING} WARNING: Starting from 31 March 2022, the wizard command will be deprecated and removed.\nPlease use the 'snyk ignore' command instead.\nFor more info: https://snyk.co/ueln8\n`,
+  );
+}
 
 export default function wizard(options?: Options) {
   options = options || ({} as Options);
@@ -95,6 +102,7 @@ async function loadOrCreatePolicyFile(options: Options & ProtectOptions) {
 }
 
 async function processWizardFlow(options) {
+  console.log(getWizardRemovalMessage());
   spinner.sticky();
   const message = options['dry-run']
     ? '*** dry run ****'
@@ -640,7 +648,8 @@ export function processAnswers(answers, policy, options) {
                 manageUrl +
                 '\n\n',
             )
-          : '')
+          : '') +
+        getWizardRemovalMessage()
       );
     })
     .catch((error) => {
