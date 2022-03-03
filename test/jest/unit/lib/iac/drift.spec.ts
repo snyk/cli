@@ -53,6 +53,8 @@ describe('driftctl integration', () => {
       'json-file-output': 'jsonfileoutput',
       html: true,
       'html-file-output': 'htmlfileoutput',
+      'only-managed': true,
+      'only-unmanaged': true,
     });
     expect(args).toEqual([
       'scan',
@@ -77,6 +79,8 @@ describe('driftctl integration', () => {
       'tfproviderversion',
       '--strict',
       '--deep',
+      '--only-managed',
+      '--only-unmanaged',
       '--driftignore',
       'driftignore',
       '--tf-lockfile',

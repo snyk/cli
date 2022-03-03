@@ -17,7 +17,7 @@ import { EXIT_CODES } from '../../cli/exit-codes';
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
 
-export const driftctlVersion = 'v0.21.0';
+export const driftctlVersion = 'v0.22.0';
 
 export const DCTL_EXIT_CODES = {
   EXIT_IN_SYNC: 0,
@@ -27,25 +27,25 @@ export const DCTL_EXIT_CODES = {
 
 const driftctlChecksums = {
   'driftctl_windows_386.exe':
-    'f7affbe0ba270b0339d0398befc686bd747a1694a4db0890ce73a2b1921521d4',
+    'bc51261061cea3d3c71d8ce9449e6f052b73d6faa98debe8d714362b30bdaa1f',
   driftctl_darwin_amd64:
-    '85cd7a0b5670aa0ee52181357ec891f5a84df29cf505344e403b8b9de5953d61',
+    '8f268f57c5ba9e78f7c9f228bc7a4690b8d7671a721ef3adfa1e87da71a71c6f',
   driftctl_linux_386:
-    '4221b4f2db65163ccfd300f90fe7cffa7bac1f806f56971ebbca5e36269aa3a4',
+    'b4bbeffe76e0b5bd461e5034886dea1256b90e90136b6bdb8f4f89a4fd2ea792',
   driftctl_linux_amd64:
-    'eb64c0d7a7094f0d741abae24c59a46db3eb76f619f177fd745efea7d468a66e',
+    '6bd0f400aa717dc44e860c59394901a1256177d06e1eba198ce5adc21aa64d60',
   driftctl_linux_arm64:
-    'c0c4dbfb2f5217124d3f7e1ef33b8b547fc84adf65612aca438e48e63da2f63e',
+    '8e3bbff72db5105de3bfb203537ab47dbca5240db28192f12a5b032b33f8a1cc',
   'driftctl_windows_arm64.exe':
-    '9e87c2a7fecca5a2846c87d4c570b5357e892e4234d7eafa0dac5ea31142e992',
+    '781dbc12bd6bdae32637fd1a69579f8744d72de702485f3068c81972cc6d5966',
   driftctl_darwin_arm64:
-    '39813b4f05c034b6833508062f72bc17f1edbe2bc4db244893e75198eb013a34',
+    '8ae04ef9cfc7ec364638e85a4e00e03484d6057b54dd51b17c3d51ebdd70cec5',
   'driftctl_windows_arm.exe':
-    '5d66cb4db95bfa33d4946d324c4674f10fde8370dfb5003d99242a560d8e7e1b',
+    '039f5cfb5244c832ae1c2b6fcf25a4004a1abbd5b8a366030d9cd3832214136f',
   driftctl_linux_arm:
-    '13705de80f0de3d1a931e81947cc7a443dcec59968bafcb8ea888a4f643e5605',
+    'a71dfdb6a18af1d99e6234ab18a07b436c46f24939d4bab6357af4c18ce00987',
   'driftctl_windows_amd64.exe':
-    '154afbf87a3c0d36a345ccadad8ca7f85855a1c1f8f622ce1ea46931dadafce7',
+    '6084cce4a8753a7efa57c71ac56165d80011bfc21a16e07372981e8c004a636b',
 };
 
 const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
@@ -69,6 +69,8 @@ interface DriftCTLOptions {
   'tf-provider-version'?: string;
   strict?: true;
   deep?: true;
+  'only-managed'?: true;
+  'only-unmanaged'?: true;
   driftignore?: string;
   'tf-lockfile'?: string;
   'config-dir'?: string;
@@ -168,6 +170,14 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
 
   if (options.deep) {
     args.push('--deep');
+  }
+
+  if (options['only-managed']) {
+    args.push('--only-managed');
+  }
+
+  if (options['only-unmanaged']) {
+    args.push('--only-unmanaged');
   }
 
   if (options.driftignore) {
