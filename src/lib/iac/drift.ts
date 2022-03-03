@@ -51,12 +51,6 @@ const driftctlChecksums = {
 const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
 const driftctlPath = path.join(cachePath, 'driftctl_' + driftctlVersion);
 
-enum DriftctlCmd {
-  GenDriftIgnore = 'gen-driftignore',
-}
-
-const supportedDriftctlCommands: string[] = [DriftctlCmd.GenDriftIgnore];
-
 export interface DriftctlGenDriftIgnoreOptions {
   input?: string;
   output?: string;
@@ -86,40 +80,10 @@ interface DriftCTLOptions {
   from?: string; // snyk cli args parsing does not support variadic args so this will be coma separated values
 }
 
-export function parseArgs(
-  commands: string[],
-  options: DriftCTLOptions | DriftctlGenDriftIgnoreOptions,
-): string[] {
-  const args: string[] = commands;
-
-  const driftctlCommand = args[0];
-  if (!supportedDriftctlCommands.includes(driftctlCommand)) {
-    throw new Error(`Unsupported command: ${driftctlCommand}`);
-  }
-
-  // It is currently not possible to iterate on options and pass everything
-  // to the args since there is snyk CLI related data on it.
-  // We can try to switch the logic from a whitelist approch to a blacklist apporoach
-  // But if something change from the snyk cli options parsing sub command will fail
-  // For now it's better to keep the control on that even if mean that we'll need to update theses methods every time
-  // we make change on arguments in driftctl
-  switch (driftctlCommand) {
-    case DriftctlCmd.GenDriftIgnore:
-      args.push(
-        ...parseGenDriftIgnoreFlags(options as DriftctlGenDriftIgnoreOptions),
-      );
-      break;
-  }
-
-  debug(args);
-
-  return args;
-}
-
-const parseGenDriftIgnoreFlags = (
+export const parseGenDriftIgnoreFlags = (
   options: DriftctlGenDriftIgnoreOptions,
 ): string[] => {
-  const args: string[] = [];
+  const args: string[] = ['gen-driftignore'];
 
   if (options.input) {
     args.push('--input');

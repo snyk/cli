@@ -3,8 +3,8 @@ import * as mockFs from 'mock-fs';
 import {
   DCTL_EXIT_CODES,
   DriftctlGenDriftIgnoreOptions,
-  parseArgs,
   parseDescribeFlags,
+  parseGenDriftIgnoreFlags,
   translateExitCode,
 } from '../../../../../src/lib/iac/drift';
 import envPaths from 'env-paths';
@@ -30,7 +30,7 @@ describe('driftctl integration', () => {
   });
 
   it('gen-driftignore: default arguments are correct', () => {
-    const args = parseArgs(['gen-driftignore'], {});
+    const args = parseGenDriftIgnoreFlags({});
     expect(args).toEqual(['gen-driftignore']);
   });
 
@@ -108,7 +108,7 @@ describe('driftctl integration', () => {
   });
 
   it('gen-driftignore: passing options generate correct arguments', () => {
-    const args = parseArgs(['gen-driftignore'], {
+    const args = parseGenDriftIgnoreFlags({
       'exclude-changed': true,
       'exclude-missing': true,
       'exclude-unmanaged': true,

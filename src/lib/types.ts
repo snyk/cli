@@ -257,6 +257,7 @@ export enum SupportedCliCommands {
   apps = 'apps',
   drift = 'drift',
   describe = 'describe',
+  'gen-driftignore' = 'gen-driftignore',
 }
 
 export interface IacFileInDirectory {
