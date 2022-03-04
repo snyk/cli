@@ -80,8 +80,14 @@ async function getCodeAnalysis(
     analysisContext: {
       initiator: 'CLI',
       flow: source,
-      orgDisplayName: config.org,
+      orgDisplayName: sastSettings.org,
       projectName: config.PROJECT_NAME,
+      org: {
+        name: sastSettings.org || 'unknown',
+        displayName: 'unknown',
+        publicId: 'unknown',
+        flags: {},
+      },
     },
   });
 
