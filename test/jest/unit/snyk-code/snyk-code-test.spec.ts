@@ -369,6 +369,50 @@ describe('Test snyk code', () => {
     });
   });
 
+  it('should pass org returned by settings to analysis context', async () => {
+    const options: ArgsOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+      _: [],
+      _doubleDashArgs: [],
+      org: 'anyOrg',
+    };
+
+    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+      org: 'defaultOrg',
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    try {
+      await snykTest('some/path', options);
+    } catch (error) {
+      expect(analyzeFoldersMock).toHaveBeenCalledWith({
+        analysisContext: {
+          flow: 'snyk-cli',
+          initiator: 'CLI',
+          orgDisplayName: 'defaultOrg',
+          projectName: undefined,
+          org: {
+            displayName: 'unknown',
+            flags: {},
+            name: 'defaultOrg',
+            publicId: 'unknown',
+          },
+        },
+        analysisOptions: expect.any(Object),
+        connection: expect.any(Object),
+        fileOptions: expect.any(Object),
+      });
+    }
+  });
+
   it.each([
     ['sarif', { sarif: true }],
     ['json', { json: true }],
@@ -592,6 +636,7 @@ describe('Test snyk code', () => {
       analysisContext: {
         flow: 'snyk-cli',
         initiator: 'CLI',
+        org: expect.anything(),
       },
     };
 
@@ -683,6 +728,7 @@ describe('Test snyk code', () => {
         analysisContext: {
           flow: 'snyk-cli',
           initiator: 'CLI',
+          org: expect.anything(),
         },
       };
 
