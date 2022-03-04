@@ -60,7 +60,9 @@ describe('iac describe', () => {
       ),
     });
 
-    expect(stdout).toMatch('scan --config-dir ' + paths.cache + ' --to aws+tf');
+    expect(stdout).toMatch(
+      'scan --no-version-check --config-dir ' + paths.cache + ' --to aws+tf',
+    );
     expect(stderr).toMatch('');
     expect(exitCode).toBe(0);
   });
@@ -72,7 +74,9 @@ describe('iac describe', () => {
       SNYK_CACHE_PATH: cachedir,
     });
 
-    expect(stdout).toMatch('scan --config-dir ' + cachedir + ' --to aws+tf');
+    expect(stdout).toMatch(
+      'scan --no-version-check --config-dir ' + cachedir + ' --to aws+tf',
+    );
     expect(stderr).toMatch('');
     expect(exitCode).toBe(0);
     expect(
