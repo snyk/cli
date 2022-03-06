@@ -12,6 +12,7 @@ export interface SastSettings {
   error?: string;
   userMessage?: string;
   localCodeEngine: LocalCodeEngine;
+  supportedLanguages?: string[];
   org?: string;
 }
 
