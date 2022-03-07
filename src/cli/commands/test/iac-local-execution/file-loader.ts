@@ -6,7 +6,6 @@ import {
   IaCTestFlags,
   VALID_FILE_TYPES,
 } from './types';
-import { getFileType } from '../../../../lib/iac/iac-parser';
 import { IacFileTypes } from '../../../../lib/iac/constants';
 import { isLocalFolder } from '../../../../lib/detect';
 import { CustomError } from '../../../../lib/errors';
@@ -116,4 +115,9 @@ export class FailedToLoadFileError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to read file "${filename}" for scanning. Please ensure that it is readable.`;
   }
+}
+
+function getFileType(filePath: string): string {
+  const filePathSplit = filePath.split('.');
+  return filePathSplit[filePathSplit.length - 1].toLowerCase();
 }

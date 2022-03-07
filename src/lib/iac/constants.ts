@@ -33,15 +33,3 @@ export const projectTypeByFileType = {
   json: IacProjectType.K8S,
   tf: IacProjectType.TERRAFORM,
 };
-
-export type IacValidateTerraformResponse = {
-  body?: {
-    isValidTerraformFile: boolean;
-    reason: string;
-  };
-};
-
-export interface IacValidationResponse {
-  isValidFile: boolean;
-  reason: string;
-}
