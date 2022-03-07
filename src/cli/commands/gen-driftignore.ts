@@ -1,7 +1,7 @@
 import { MethodArgs } from '../args';
 import { processCommandArgs } from './process-command-args';
 import * as legacyError from '../../lib/errors/legacy-errors';
-import { driftctl, parseGenDriftIgnoreFlags } from '../../lib/iac/drift';
+import { runDriftCTL } from '../../lib/iac/drift';
 import { getIacOrgSettings } from './test/iac-local-execution/org-settings/get-iac-org-settings';
 import { UnsupportedEntitlementCommandError } from './test/iac-local-execution/assert-iac-options-flag';
 import config from '../../lib/config';
@@ -24,9 +24,11 @@ export default async (...args: MethodArgs): Promise<any> => {
   }
 
   try {
-    const args = parseGenDriftIgnoreFlags(options);
-    const ret = await driftctl(args);
-    process.exit(ret);
+    const ret = await runDriftCTL({
+      options: { kind: 'gen-driftignore', ...options },
+      stdio: 'inherit',
+    });
+    process.exit(ret.code);
   } catch (e) {
     const err = new Error('Error running `iac gen-driftignore` ' + e);
     return Promise.reject(err);
