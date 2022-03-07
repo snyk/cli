@@ -22,22 +22,23 @@ describe('Terraform Language Support', () => {
       const { stdout, exitCode } = await run(
         `snyk iac test ./iac/terraform/var_deref`,
       );
-      expect(exitCode).toBe(1);
+
+      // expect exitCode to be 0 or 1
+      expect(exitCode).toBeLessThanOrEqual(1);
 
       expect(stdout).toContain('Testing sg_open_ssh.tf...');
-      expect(stdout).toContain('Infrastructure as code issues:');
-      expect(stdout).not.toContain('✗ Security Group allows open ingress');
-      expect(stdout).not.toContain(
-        ' input > resource > aws_security_group[allow_ssh] > ingress',
+      expect(stdout.match(/✗ Security Group allows open ingress/g)).toBeNull();
+      expect(stdout).toContain('Tested sg_open_ssh.tf for known issues');
+
+      expect(stdout).toContain(
+        `Testing ${path.join('nested_var_deref', 'sg_open_ssh.tf')}...`,
       );
-      expect(stdout).not.toContain(
-        ' input > resource > aws_security_group[allow_ssh_terraform_tfvars] > ingress',
-      );
-      expect(stdout).not.toContain(
-        ' input > resource > aws_security_group[allow_ssh_a_auto_tfvars] > ingress',
-      );
-      expect(stdout).not.toContain(
-        ' input > resource > aws_security_group[allow_ssh_b_auto_tfvars] > ingress',
+      expect(stdout.match(/✗ Rule allows open egress/g)).toBeNull();
+      expect(stdout).toContain(
+        `Tested ${path.join(
+          'nested_var_deref',
+          'sg_open_ssh.tf',
+        )} for known issues`,
       );
     });
   });
@@ -47,25 +48,27 @@ describe('Terraform Language Support', () => {
     describe('files', () => {
       it('finds issues in Terraform file', async () => {
         const { stdout, exitCode } = await run(
-          `snyk iac test --org=tf-lang-support iac/terraform/sg_open_ssh.tf`,
+          `snyk iac test --org=tf-lang-support iac/terraform/var_deref/sg_open_ssh.tf`,
         );
+
         expect(exitCode).toBe(1);
 
         expect(stdout).toContain(
-          `Testing ${path
-            .join('iac', 'terraform', 'sg_open_ssh.tf')
-            .replace(new RegExp('\\' + path.sep, 'g'), '/')}`,
+          'Testing iac/terraform/var_deref/sg_open_ssh.tf...',
         );
-        expect(stdout).toContain('Infrastructure as code issues:');
-        expect(stdout).toContain('✗ Security Group allows open ingress');
+        expect(
+          stdout.match(/✗ Security Group allows open ingress/g),
+        ).toHaveLength(1);
         expect(stdout).toContain(
-          ' input > resource > aws_security_group[allow_ssh] > ingress',
+          'Tested iac/terraform/var_deref/sg_open_ssh.tf for known issues',
         );
       });
+
       it('finds no issues in empty Terraform file', async () => {
         const { exitCode } = await run(
           `snyk iac test --org=tf-lang-support ./iac/terraform/empty_file.tf`,
         );
+
         expect(exitCode).toBe(0);
       });
     });
@@ -75,26 +78,24 @@ describe('Terraform Language Support', () => {
         const { stdout, exitCode } = await run(
           `snyk iac test --org=tf-lang-support ./iac/terraform/var_deref`,
         );
+
         expect(exitCode).toBe(1);
 
         expect(stdout).toContain('Testing sg_open_ssh.tf...');
-        expect(stdout).toContain('Infrastructure as code issues:');
-        expect(stdout).toContain('✗ Security Group allows open ingress');
-        expect(stdout).toContain(
-          ' input > resource > aws_security_group[allow_ssh] > ingress',
-        );
-        expect(stdout).toContain(
-          ' input > resource > aws_security_group[allow_ssh_terraform_tfvars] > ingress',
-        );
-        expect(stdout).toContain(
-          ' input > resource > aws_security_group[allow_ssh_a_auto_tfvars] > ingress',
-        );
-        expect(stdout).toContain(
-          ' input > resource > aws_security_group[allow_ssh_b_auto_tfvars] > ingress',
-        );
+        expect(
+          stdout.match(/✗ Security Group allows open ingress/g),
+        ).toHaveLength(5);
+        expect(stdout).toContain('Tested sg_open_ssh.tf for known issues');
 
         expect(stdout).toContain(
           `Testing ${path.join('nested_var_deref', 'sg_open_ssh.tf')}...`,
+        );
+        expect(stdout.match(/✗ Rule allows open egress/g)).toHaveLength(1);
+        expect(stdout).toContain(
+          `Tested ${path.join(
+            'nested_var_deref',
+            'sg_open_ssh.tf',
+          )} for known issues`,
         );
       });
 
@@ -104,9 +105,8 @@ describe('Terraform Language Support', () => {
         const { stdout, exitCode } = await run(
           `snyk iac test --org=tf-lang-support ./iac`,
         );
-        expect(exitCode).toBe(1);
 
-        expect(stdout).toContain('Infrastructure as code issues:');
+        expect(exitCode).toBe(1);
 
         expect(stdout).toContain(
           `Testing ${path.join('kubernetes', 'pod-privileged.yaml')}`,
@@ -121,12 +121,33 @@ describe('Terraform Language Support', () => {
         expect(stdout).toContain(
           `Testing ${path.join('terraform', 'var_deref', 'sg_open_ssh.tf')}`,
         );
+        expect(
+          stdout.match(/✗ Security Group allows open ingress/g),
+        ).toHaveLength(8);
         expect(stdout).toContain(
           `Tested ${path.join(
             'terraform',
             'var_deref',
             'sg_open_ssh.tf',
-          )} for known issues, found`,
+          )} for known issues`,
+        );
+
+        expect(stdout).toContain(
+          `Testing ${path.join(
+            'terraform',
+            'var_deref',
+            'nested_var_deref',
+            'sg_open_ssh.tf',
+          )}...`,
+        );
+        expect(stdout.match(/✗ Rule allows open egress/g)).toHaveLength(1);
+        expect(stdout).toContain(
+          `Tested ${path.join(
+            'terraform',
+            'var_deref',
+            'nested_var_deref',
+            'sg_open_ssh.tf',
+          )} for known issues`,
         );
       });
     });
@@ -136,17 +157,15 @@ describe('Terraform Language Support', () => {
         const { stdout, exitCode } = await run(
           `snyk iac test --org=tf-lang-support iac/terraform/sg_open_ssh.tf`,
         );
+
         expect(exitCode).toBe(1);
 
+        expect(stdout).toContain('Testing iac/terraform/sg_open_ssh.tf...');
+        expect(
+          stdout.match(/✗ Security Group allows open ingress/g),
+        ).toHaveLength(1);
         expect(stdout).toContain(
-          `Testing ${path
-            .join('iac', 'terraform', 'sg_open_ssh.tf')
-            .replace(new RegExp('\\' + path.sep, 'g'), '/')}`,
-        );
-        expect(stdout).toContain('Infrastructure as code issues:');
-        expect(stdout).toContain('✗ Security Group allows open ingress');
-        expect(stdout).toContain(
-          ' input > resource > aws_security_group[allow_ssh] > ingress',
+          'Tested iac/terraform/sg_open_ssh.tf for known issues',
         );
       });
 
@@ -155,15 +174,15 @@ describe('Terraform Language Support', () => {
           `snyk iac test --org=tf-lang-support iac/terraform/sg_open_ssh.tf --severity-threshold=high`,
         );
 
-        expect(exitCode).toBe(0);
-        expect(stdout).toContain('Infrastructure as code issues:');
+        // expect exitCode to be 0 or 1
+        expect(exitCode).toBeLessThanOrEqual(1);
+
+        expect(stdout).toContain('Testing iac/terraform/sg_open_ssh.tf...');
+        expect(
+          stdout.match(/✗ Security Group allows open ingress/g),
+        ).toBeNull();
         expect(stdout).toContain(
-          `Tested ${path
-            .join('iac', 'terraform', 'sg_open_ssh.tf')
-            .replace(
-              new RegExp('\\' + path.sep, 'g'),
-              '/',
-            )} for known issues, found 0 issues`,
+          'Tested iac/terraform/sg_open_ssh.tf for known issues',
         );
       });
 
@@ -173,17 +192,34 @@ describe('Terraform Language Support', () => {
         );
 
         expect(exitCode).toBe(1);
-        expect(stdout).toContain('Infrastructure as code issues:');
-        expect(stdout).toContain('Testing sg_open_ssh.tf...');
+
         expect(stdout).toContain(
-          `Testing ${path.join('var_deref', 'sg_open_ssh.tf')}...`,
+          `Testing ${path.join('var_deref', 'sg_open_ssh.tf')}`,
         );
+        expect(stdout).toContain(
+          `Tested ${path.join('var_deref', 'sg_open_ssh.tf')} for known issues`,
+        );
+        expect(stdout).toContain(`Testing ${path.join('sg_open_ssh.tf')}`);
+        expect(stdout).toContain('Tested sg_open_ssh.tf for known issues');
+        expect(
+          stdout.match(/✗ Security Group allows open ingress/g),
+        ).toHaveLength(6);
+
+        // Check that we didn't scan directories with depth > 2
         expect(stdout).not.toContain(
           `Testing ${path.join(
-            'nested_var_deref',
             'var_deref',
+            'nested_var_deref',
             'sg_open_ssh.tf',
           )}...`,
+        );
+        expect(stdout.match(/✗ Rule allows open egress/g)).toBeNull();
+        expect(stdout).not.toContain(
+          `Tested ${path.join(
+            'var_deref',
+            'nested_var_deref',
+            'sg_open_ssh.tf',
+          )} for known issues`,
         );
       });
 
@@ -193,6 +229,7 @@ describe('Terraform Language Support', () => {
         );
 
         expect(exitCode).toBe(2);
+
         expect(stdout).toContain('We were unable to parse the Terraform file');
       });
 
@@ -202,6 +239,7 @@ describe('Terraform Language Support', () => {
         );
 
         expect(exitCode).toBe(1);
+
         expect(isValidJSONString(stdout)).toBe(true);
         expect(stdout).toContain('"id": "SNYK-CC-TF-1",');
         expect(stdout).toContain('"ruleId": "SNYK-CC-TF-1",');
@@ -213,6 +251,7 @@ describe('Terraform Language Support', () => {
         );
 
         expect(exitCode).toBe(1);
+
         expect(isValidJSONString(stdout)).toBe(true);
         expect(stdout).toContain('"id": "SNYK-CC-TF-1",');
         expect(stdout).toContain('"packageManager": "terraformconfig",');
