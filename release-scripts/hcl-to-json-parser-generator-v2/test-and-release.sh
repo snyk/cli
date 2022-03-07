@@ -3,6 +3,10 @@ set -e
 
 # default version is the minimum workable version, coming from the makefile
 VERSION=$1
+if [[ -z "$VERSION" ]]; then
+    echo "version is not set. Please provide a version" 1>&2
+    exit 1
+fi
 
 function print() {
   GREEN='\033[0;32m'
@@ -35,9 +39,13 @@ if grep -q "github.com/snyk/snyk-iac-parsers ${VERSION}" "go.mod"; then
 else
   echo "Downloading new version of the parser... ${VERSION}
   "
-  go get github.com/snyk/snyk-iac-parsers@"${VERSION}" ||
-  printError "Download of version ${VERSION} of the snyk-iac-parsers failed. Please check the error above for details."
-  exit 1
+  go get github.com/snyk/snyk-iac-parsers@"${VERSION}"
+  if [ $? -eq 0 ]; then
+      echo "Downloaded version ${VERSION} of the synk-iac-parsers"
+  else
+    printError "Download of version ${VERSION} of the snyk-iac-parsers failed. Please check the error above for details."
+    exit 1
+  fi
 fi
 
 #run tests to make sure there are no breaking changes
