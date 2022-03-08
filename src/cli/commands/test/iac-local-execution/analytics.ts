@@ -2,6 +2,14 @@ import { FormattedResult, PerformanceAnalyticsKey, RulesOrigin } from './types';
 import * as analytics from '../../../../lib/analytics';
 import { calculatePercentage } from './math-utils';
 import { computeCustomRulesBundleChecksum } from './file-utils';
+import {
+  DescribeOptions,
+  DriftctlExecutionResult,
+} from '../../../../lib/iac/types';
+import {
+  driftctlVersion,
+  parseDriftAnalysisResults,
+} from '../../../../lib/iac/drift';
 
 export function addIacAnalytics(
   formattedResults: FormattedResult[],
@@ -84,3 +92,60 @@ export const performanceAnalyticsObject: Record<
   [PerformanceAnalyticsKey.CacheCleanup]: null,
   [PerformanceAnalyticsKey.Total]: null,
 };
+
+export function addIacDriftAnalytics(
+  describe: DriftctlExecutionResult,
+  options: DescribeOptions,
+): void {
+  const driftctlAnalysis = parseDriftAnalysisResults(describe.stdout);
+
+  let scope: string;
+  if (options['only-managed']) {
+    scope = 'managed';
+  } else if (options['only-unmanaged']) {
+    scope = 'unmanaged';
+  } else {
+    scope = 'all';
+  }
+
+  analytics.add('is-iac-drift', true);
+  analytics.add('iac-drift-coverage', driftctlAnalysis.coverage);
+  analytics.add('iac-drift-exit-code', describe.code);
+  analytics.add(
+    'iac-drift-total-resources',
+    driftctlAnalysis.summary.total_resources,
+  );
+  analytics.add(
+    'iac-drift-total-unmanaged',
+    driftctlAnalysis.summary.total_unmanaged,
+  );
+  analytics.add(
+    'iac-drift-total-managed',
+    driftctlAnalysis.summary.total_managed,
+  );
+  analytics.add(
+    'iac-drift-total-missing',
+    driftctlAnalysis.summary.total_missing,
+  );
+  analytics.add(
+    'iac-drift-total-changed',
+    driftctlAnalysis.summary.total_changed,
+  );
+  analytics.add(
+    'iac-drift-iac-source-count',
+    driftctlAnalysis.summary.total_iac_source_count,
+  );
+  analytics.add('iac-drift-provider-name', driftctlAnalysis.provider_name);
+  analytics.add(
+    'iac-drift-provider-version',
+    driftctlAnalysis.provider_version,
+  );
+  analytics.add('iac-drift-version', driftctlVersion);
+  analytics.add('iac-drift-scan-duration', driftctlAnalysis.scan_duration);
+  analytics.add('iac-drift-binary-already-exist', describe.binaryExist);
+  analytics.add(
+    'iac-drift-binary-download-duration-seconds',
+    describe.downloadDuration,
+  );
+  analytics.add('iac-drift-scan-scope', scope);
+}

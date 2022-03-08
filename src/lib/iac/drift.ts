@@ -19,9 +19,11 @@ import {
   DriftAnalysis,
   DriftctlExecutionResult,
   DriftCTLOptions,
+  DriftFindOrDownloadResult,
   FmtOptions,
   GenDriftIgnoreOptions,
 } from './types';
+import { TimerMetricInstance } from '../metrics';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
@@ -256,7 +258,7 @@ export const runDriftCTL = async ({
   input?: string;
   stdio?: StdioOptions;
 }): Promise<DriftctlExecutionResult> => {
-  const path = await findOrDownload();
+  const { path, ...rest } = await findOrDownload();
   const args = generateArgs(options);
 
   if (!stdio) {
@@ -285,23 +287,35 @@ export const runDriftCTL = async ({
     });
 
     p.on('exit', (code) => {
-      resolve({ code: translateExitCode(code), stdout });
+      resolve({ code: translateExitCode(code), stdout, ...rest });
     });
   });
 };
 
-async function findOrDownload(): Promise<string> {
+async function findOrDownload(): Promise<DriftFindOrDownloadResult> {
   let dctl = await findDriftCtl();
+  let downloadDuration = 0;
+  const binaryExist = dctl !== '';
   if (dctl === '') {
     try {
       createIfNotExists(cachePath);
       dctl = driftctlPath;
+
+      const duration = new TimerMetricInstance('driftctl_download');
+      duration.start();
       await download(driftctlUrl(), dctl);
+      duration.stop();
+
+      downloadDuration = Math.round((duration.getValue() as number) / 1000);
     } catch (err) {
       return Promise.reject(err);
     }
   }
-  return dctl;
+  return {
+    path: dctl,
+    binaryExist,
+    downloadDuration,
+  };
 }
 
 async function findDriftCtl(): Promise<string> {
