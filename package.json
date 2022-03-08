@@ -73,7 +73,7 @@
     "@snyk/inquirer": "^7.3.3-patch",
     "@snyk/snyk-cocoapods-plugin": "2.5.2",
     "@snyk/snyk-hex-plugin": "1.1.4",
-    "@types/marked": "^4.0.0",
+    "@types/marked": "^4.0.2",
     "abbrev": "^1.1.1",
     "adm-zip": "^0.5.9",
     "ansi-escapes": "3.2.0",
