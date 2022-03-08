@@ -4,8 +4,16 @@
     "rootDir": ".",
     "pretty": true,
     "moduleResolution": "node",
-    "target": "es2018",
-    "lib": ["ES2018", "ES2019", "DOM", "DOM.Iterable"],
+    // https://github.com/tsconfig/bases#node-12-tsconfigjson
+    "target": "es2019",
+    "lib": [
+      "es2019",
+      "es2020.promise",
+      "es2020.bigint",
+      "es2020.string",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "commonjs",
     "allowJs": true,
     "sourceMap": true,

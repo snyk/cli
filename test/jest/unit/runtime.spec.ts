@@ -6,7 +6,7 @@ describe('verify supported nodejs runtime versions', () => {
   });
 
   it('pre-release is supported', async () => {
-    expect(runtime.isSupported('11.0.0-pre')).toBeTruthy();
+    expect(runtime.isSupported('19.0.0-pre')).toBeTruthy();
   });
 });
 

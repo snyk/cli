@@ -3,7 +3,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 export default {
   entry: './src/cli/index.ts',
-  target: 'node10',
+  target: 'node12',
   output: {
     clean: true,
     path: path.resolve(__dirname, 'dist/cli/'),

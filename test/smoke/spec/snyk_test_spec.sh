@@ -56,7 +56,6 @@ Describe "Snyk test command"
     End
 
     It "finds vulns in a project in the same folder"
-      Skip if "skip for node 10" check_if_node10
       When run run_test_in_subfolder
       The status should equal 1
       The output should include "https://snyk.io/vuln/npm:minimatch:20160620"
@@ -64,7 +63,6 @@ Describe "Snyk test command"
     End
 
     It "finds vulns in a project when pointing to a folder"
-      Skip if "skip for node 10" check_if_node10
       When run snyk test ../fixtures/basic-npm
       The status should be failure # issues found
       The output should include "https://snyk.io/vuln/npm:minimatch:20160620"
@@ -72,7 +70,6 @@ Describe "Snyk test command"
     End
 
     It "finds vulns in a project when pointing to a file"
-      Skip if "skip for node 10" check_if_node10
       When run snyk test --file=../fixtures/basic-npm/package.json
       The status should be failure # issues found
       The output should include "https://snyk.io/vuln/npm:minimatch:20160620"

@@ -401,7 +401,7 @@ workflows:
             - Build
           matrix:
             parameters:
-              node_version: ['10.24.1', '12.22.9', '14.18.2', '16.13.2']
+              node_version: ['12.22.9', '14.18.2', '16.13.2']
       - test-tap:
           name: Tap Tests
           context: nodejs-install
@@ -438,7 +438,6 @@ workflows:
           requires:
             - Lint
             - Tap Tests
-            - Jest Tests (Linux, Node v10.24.1)
             - Jest Tests (Linux, Node v12.22.9)
             - Jest Tests (Linux, Node v14.18.2)
             - Jest Tests (Linux, Node v16.13.2)
