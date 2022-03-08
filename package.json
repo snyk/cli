@@ -65,7 +65,7 @@
     "@snyk/cli-interface": "2.11.0",
     "@snyk/cloud-config-parser": "^1.13.1",
     "@snyk/code-client": "^4.7.0",
-    "@snyk/dep-graph": "^1.27.1",
+    "@snyk/dep-graph": "^1.30.0",
     "@snyk/docker-registry-v2-client": "^2.6.1",
     "@snyk/fix": "file:packages/snyk-fix",
     "@snyk/gemfile": "1.2.0",
