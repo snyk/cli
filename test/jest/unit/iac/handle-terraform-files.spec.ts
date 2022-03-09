@@ -2,8 +2,6 @@ const mockFs = require('mock-fs');
 import {
   getTerraformFilesInDirectoryGenerator,
   getAllDirectoriesForPath,
-  loadAndParseTerraformFiles,
-  getFilesForDirectory,
 } from '../../../../src/cli/commands/test/iac-local-execution/handle-terraform-files';
 import * as terraformFileHandler from '../../../../src/cli/commands/test/iac-local-execution/handle-terraform-files';
 import * as path from 'path';
@@ -48,18 +46,11 @@ describe('getAllDirectoriesForPath', () => {
   });
 
   describe('errors', () => {
-    it('throws an error if a single file scan and the file is not IaC', async () => {
+    it('throws an error if a single file scan and the file is not IaC', () => {
       mockFs({ [nonIacFileStub.filePath]: 'content' });
-
-      expect(getAllDirectoriesForPath(nonIacFileStub.filePath)).toEqual([
-        nonIacFileStub.filePath,
-      ]);
-      expect(
-        getFilesForDirectory(nonIacFileStub.filePath, nonIacFileStub.filePath),
-      ).toEqual([nonIacFileStub.filePath]);
-      await expect(
-        loadAndParseTerraformFiles(nonIacFileStub.filePath, [], []),
-      ).rejects.toThrow(NoFilesToScanError);
+      expect(() => {
+        getAllDirectoriesForPath(nonIacFileStub.filePath);
+      }).toThrow(NoFilesToScanError);
     });
 
     it('throws an error when an error occurs when loading files', () => {
