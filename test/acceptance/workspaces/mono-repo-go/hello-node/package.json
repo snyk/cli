@@ -7,6 +7,6 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "debug": "^4.1.1"
+    "debug": "^4.3.3"
   }
 }
