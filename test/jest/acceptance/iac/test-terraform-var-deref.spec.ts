@@ -44,8 +44,8 @@ describe('Terraform Language Support', () => {
   });
 
   describe('with feature flag', () => {
-    describe('single files', () => {
-      // TODO: these can be merged with the existing test-terraform.spec.ts when the flag is removed
+    // TODO: can be merged with the existing test-terraform.spec.ts when the flag is removed
+    describe('files', () => {
       it('finds issues in Terraform file', async () => {
         const { stdout, exitCode } = await run(
           `snyk iac test --org=tf-lang-support iac/terraform/var_deref/sg_open_ssh.tf`,
@@ -70,88 +70,6 @@ describe('Terraform Language Support', () => {
         );
 
         expect(exitCode).toBe(0);
-      });
-      describe('single non-terraform files', () => {
-        it('finds issues in a Terraform plan file', async () => {
-          const { stdout, exitCode } = await run(
-            `snyk iac test --org=tf-lang-support ./iac/terraform-plan/tf-plan-create.json`,
-          );
-          expect(exitCode).toBe(1);
-
-          expect(stdout).toContain(
-            'Testing ./iac/terraform-plan/tf-plan-create.json',
-          );
-          expect(stdout).toContain('Infrastructure as code issues:');
-          expect(stdout).toContain('✗ S3 bucket versioning disabled');
-          expect(stdout).toContain(
-            'resource > aws_s3_bucket[terra_ci] > versioning > enabled',
-          );
-        });
-        it('finds issues in CloudFormation YAML file', async () => {
-          const { stdout, exitCode } = await run(
-            `snyk iac test --org=tf-lang-support ./iac/cloudformation/aurora-valid.yml`,
-          );
-          expect(exitCode).toBe(1);
-
-          expect(stdout).toContain(
-            'Testing ./iac/cloudformation/aurora-valid.yml',
-          );
-          expect(stdout).toContain('Infrastructure as code issues:');
-          expect(stdout).toContain(
-            '✗ SNS topic is not encrypted with customer managed key',
-          );
-          expect(stdout).toContain(
-            '[DocId: 0] > Resources[DatabaseAlarmTopic] > Properties > KmsMasterKeyId',
-          );
-        });
-
-        it('finds issues in CloudFormation JSON file', async () => {
-          const { stdout, exitCode } = await run(
-            `snyk iac test --org=tf-lang-support ./iac/cloudformation/fargate-valid.json`,
-          );
-          expect(exitCode).toBe(1);
-
-          expect(stdout).toContain(
-            'Testing ./iac/cloudformation/fargate-valid.json',
-          );
-          expect(stdout).toContain('Infrastructure as code issues:');
-          expect(stdout).toContain(
-            '✗ S3 restrict public bucket control is disabled',
-          );
-          expect(stdout).toContain(
-            'Resources[CodePipelineArtifactBucket] > Properties > PublicAccessBlockConfiguration > RestrictPublicBuckets',
-          );
-        });
-        it('finds issues in ARM JSON file', async () => {
-          const { stdout, exitCode } = await run(
-            `snyk iac test --org=tf-lang-support ./iac/arm/rule_test.json`,
-          );
-          expect(exitCode).toBe(1);
-
-          expect(stdout).toContain('Testing ./iac/arm/rule_test.json');
-          expect(stdout).toContain('Infrastructure as code issues:');
-          expect(stdout).toContain(
-            '✗ Azure Firewall Network Rule Collection allows public access',
-          );
-          expect(stdout).toContain(
-            'resources[1] > properties > networkRuleCollections[0] > properties > rules[0] > sourceAddresses',
-          );
-        });
-        it('finds issues in Kubernetes JSON file', async () => {
-          const { stdout, exitCode } = await run(
-            `snyk iac test --org=tf-lang-support ./iac/kubernetes/pod-privileged.yaml`,
-          );
-          expect(exitCode).toBe(1);
-
-          expect(stdout).toContain(
-            'Testing ./iac/kubernetes/pod-privileged.yaml',
-          );
-          expect(stdout).toContain('Infrastructure as code issues:');
-          expect(stdout).toContain('✗ Privileged container');
-          expect(stdout).toContain(
-            '[DocId: 0] > input > spec > containers[example] > securityContext > privileged',
-          );
-        });
       });
     });
 
@@ -180,6 +98,8 @@ describe('Terraform Language Support', () => {
           )} for known issues`,
         );
       });
+
+      //TODO: add another test that checks a folder with edge cases
 
       it('scans a mix of IaC files in nested directories', async () => {
         const { stdout, exitCode } = await run(
