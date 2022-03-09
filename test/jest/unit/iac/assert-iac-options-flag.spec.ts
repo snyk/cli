@@ -23,7 +23,6 @@ describe('assertIaCOptionsFlags()', () => {
       '--help',
       '-q',
       '--quiet',
-      '--legacy',
     ];
     expect(() =>
       assertIaCOptionsFlags([...command, ...options, ...files]),

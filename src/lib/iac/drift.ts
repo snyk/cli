@@ -8,46 +8,49 @@ import { makeRequest } from '../request';
 import config from '../../lib/config';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import {
+  createIgnorePattern,
+  verifyServiceMappingExists,
+} from './service-mappings';
+import { EXIT_CODES } from '../../cli/exit-codes';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
 
-export const driftctlVersion = 'v0.19.0';
+export const driftctlVersion = 'v0.22.0';
+
+export const DCTL_EXIT_CODES = {
+  EXIT_IN_SYNC: 0,
+  EXIT_NOT_IN_SYNC: 1,
+  EXIT_ERROR: 2,
+};
+
 const driftctlChecksums = {
   'driftctl_windows_386.exe':
-    '0336132cc0c24beaef2535e0a129d146c1a267f6296d5d6bcc7fbe0b02f0bc78',
+    'bc51261061cea3d3c71d8ce9449e6f052b73d6faa98debe8d714362b30bdaa1f',
   driftctl_darwin_amd64:
-    '07eae8f9e537183031bb78203c1c50a0ca80e114716598946b76baadcbca2656',
+    '8f268f57c5ba9e78f7c9f228bc7a4690b8d7671a721ef3adfa1e87da71a71c6f',
   driftctl_linux_386:
-    '4b83a5644ce72d3eabd915ffc1bba13ad1d61914984801800f598b35db2fe054',
+    'b4bbeffe76e0b5bd461e5034886dea1256b90e90136b6bdb8f4f89a4fd2ea792',
   driftctl_linux_amd64:
-    '4bfd536e2123667e01b6e5d54acc27733be0db5a00b7fda7f41fabcd9e910e1d',
+    '6bd0f400aa717dc44e860c59394901a1256177d06e1eba198ce5adc21aa64d60',
   driftctl_linux_arm64:
-    '50bbf8f47ec7dcb9cc09a628444b093a0305aa9b4accc84b7c366a2297390881',
+    '8e3bbff72db5105de3bfb203537ab47dbca5240db28192f12a5b032b33f8a1cc',
   'driftctl_windows_arm64.exe':
-    '6eee390fb97998f309ff0491b893d8727f90f45b98f42fd1aa3ebef29fd7fc5b',
+    '781dbc12bd6bdae32637fd1a69579f8744d72de702485f3068c81972cc6d5966',
   driftctl_darwin_arm64:
-    '6f37d9f2e385ef81adea9a1f68f2c85f859608dd854416d8ecf629e626bc8b0c',
+    '8ae04ef9cfc7ec364638e85a4e00e03484d6057b54dd51b17c3d51ebdd70cec5',
   'driftctl_windows_arm.exe':
-    '7ce916deaad289f41c874a4ddff41e9e6195cd5f78821a5769f8e66434be5465',
+    '039f5cfb5244c832ae1c2b6fcf25a4004a1abbd5b8a366030d9cd3832214136f',
   driftctl_linux_arm:
-    'a73193472fb33744f0a344a5f3a5663bd0f4791c393a68ea1b4c219b02eda8f1',
+    'a71dfdb6a18af1d99e6234ab18a07b436c46f24939d4bab6357af4c18ce00987',
   'driftctl_windows_amd64.exe':
-    'be423648c164f816ea98eae9694aa7c6679d0a6c33305aceb435cd75821bc730',
+    '6084cce4a8753a7efa57c71ac56165d80011bfc21a16e07372981e8c004a636b',
 };
 
 const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
 const driftctlPath = path.join(cachePath, 'driftctl_' + driftctlVersion);
-
-enum DriftctlCmd {
-  Scan = 'scan',
-  GenDriftIgnore = 'gen-driftignore',
-}
-
-const supportedDriftctlCommands: string[] = [
-  DriftctlCmd.Scan,
-  DriftctlCmd.GenDriftIgnore,
-];
+const driftctlDefaultOptions = ['--no-version-check'];
 
 export interface DriftctlGenDriftIgnoreOptions {
   input?: string;
@@ -67,53 +70,23 @@ interface DriftCTLOptions {
   'tf-provider-version'?: string;
   strict?: true;
   deep?: true;
+  'only-managed'?: true;
+  'only-unmanaged'?: true;
   driftignore?: string;
   'tf-lockfile'?: string;
   'config-dir'?: string;
-  from?: string; // TODO We only handle one from at a time due to snyk cli arg parsing
   json?: boolean;
   'json-file-output'?: string;
   html?: boolean;
   'html-file-output'?: string;
+  service?: string;
+  from?: string; // snyk cli args parsing does not support variadic args so this will be coma separated values
 }
 
-export function parseArgs(
-  commands: string[],
-  options: DriftCTLOptions | DriftctlGenDriftIgnoreOptions,
-): string[] {
-  const args: string[] = commands;
-
-  const driftctlCommand = args[0];
-  if (!supportedDriftctlCommands.includes(driftctlCommand)) {
-    throw new Error(`Unsupported command: ${driftctlCommand}`);
-  }
-
-  // It is currently not possible to iterate on options and pass everything
-  // to the args since there is snyk CLI related data on it.
-  // We can try to switch the logic from a whitelist approch to a blacklist apporoach
-  // But if something change from the snyk cli options parsing sub command will fail
-  // For now it's better to keep the control on that even if mean that we'll need to update theses methods every time
-  // we make change on arguments in driftctl
-  switch (driftctlCommand) {
-    case DriftctlCmd.GenDriftIgnore:
-      args.push(
-        ...parseGenDriftIgnoreFlags(options as DriftctlGenDriftIgnoreOptions),
-      );
-      break;
-    case DriftctlCmd.Scan:
-      args.push(...parseScanFlags(options as DriftCTLOptions));
-      break;
-  }
-
-  debug(args);
-
-  return args;
-}
-
-const parseGenDriftIgnoreFlags = (
+export const parseGenDriftIgnoreFlags = (
   options: DriftctlGenDriftIgnoreOptions,
 ): string[] => {
-  const args: string[] = [];
+  const args: string[] = ['gen-driftignore', ...driftctlDefaultOptions];
 
   if (options.input) {
     args.push('--input');
@@ -140,8 +113,8 @@ const parseGenDriftIgnoreFlags = (
   return args;
 };
 
-const parseScanFlags = (options: DriftCTLOptions): string[] => {
-  const args: string[] = [];
+export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
+  const args: string[] = ['scan', ...driftctlDefaultOptions];
 
   if (options.quiet) {
     args.push('--quiet');
@@ -200,6 +173,14 @@ const parseScanFlags = (options: DriftCTLOptions): string[] => {
     args.push('--deep');
   }
 
+  if (options['only-managed']) {
+    args.push('--only-managed');
+  }
+
+  if (options['only-unmanaged']) {
+    args.push('--only-unmanaged');
+  }
+
   if (options.driftignore) {
     args.push('--driftignore');
     args.push(options.driftignore);
@@ -219,8 +200,11 @@ const parseScanFlags = (options: DriftCTLOptions): string[] => {
   args.push(configDir);
 
   if (options.from) {
-    args.push('--from');
-    args.push(options.from);
+    const froms = options.from.split(',');
+    for (const f of froms) {
+      args.push('--from');
+      args.push(f);
+    }
   }
 
   let to = 'aws+tf';
@@ -230,15 +214,40 @@ const parseScanFlags = (options: DriftCTLOptions): string[] => {
   args.push('--to');
   args.push(to);
 
+  if (options.service) {
+    const services = options.service.split(',');
+    verifyServiceMappingExists(services);
+    args.push('--ignore');
+    args.push(createIgnorePattern(services));
+  }
+
+  debug(args);
+
   return args;
 };
+
+export function translateExitCode(exitCode: number) {
+  switch (exitCode) {
+    case DCTL_EXIT_CODES.EXIT_IN_SYNC:
+      return 0;
+    case DCTL_EXIT_CODES.EXIT_NOT_IN_SYNC:
+      return EXIT_CODES.VULNS_FOUND;
+    case DCTL_EXIT_CODES.EXIT_ERROR:
+      return EXIT_CODES.ERROR;
+    default:
+      debug('driftctl returned %d', exitCode);
+      return EXIT_CODES.ERROR;
+  }
+}
 
 export async function driftctl(args: string[]): Promise<number> {
   debug('running driftctl %s ', args.join(' '));
 
   const path = await findOrDownload();
 
-  return await launch(path, args);
+  const exitCode = await launch(path, args);
+
+  return translateExitCode(exitCode);
 }
 
 async function launch(path: string, args: string[]): Promise<number> {
@@ -356,6 +365,7 @@ function validateChecksum(body: string) {
     throw new Error('Downloaded file has inconsistent checksum...');
   }
 }
+
 function driftctlFileName(): string {
   let platform = 'linux';
   switch (os.platform()) {

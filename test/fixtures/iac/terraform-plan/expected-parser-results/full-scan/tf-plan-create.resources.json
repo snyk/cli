@@ -53,6 +53,7 @@
           "queued_timeout": 480,
           "secondary_artifacts": [],
           "secondary_sources": [],
+          "service_role": "aws_iam_role.terra_ci_job",
           "source": [
             {
               "auth": [],
@@ -97,10 +98,12 @@
       "aws_iam_role_policy": {
         "terra_ci_job": {
           "name_prefix": null,
+          "policy": "data.aws_caller_identity.current",
           "role": "terra_ci_job"
         },
         "terra_ci_runner": {
           "name_prefix": null,
+          "policy": "aws_codebuild_project.terra_ci",
           "role": "terra_ci_runner"
         }
       },
@@ -146,6 +149,7 @@
         "terra_ci_runner": {
           "definition": "{\n  \"Comment\": \"Run Terragrunt Jobs\",\n  \"StartAt\": \"OnBranch?\",\n  \"States\": {\n    \"OnBranch?\": {\n      \"Type\": \"Choice\",\n      \"Choices\": [\n        {\n          \"Variable\": \"$.build.sourceversion\",\n          \"IsPresent\": true,\n          \"Next\": \"PlanBranch\"\n        }\n      ],\n      \"Default\": \"Plan\"\n    },\n    \"Plan\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"arn:aws:states:::codebuild:startBuild.sync\",\n      \"Parameters\": {\n        \"ProjectName\": \"terra-ci-runner\",\n        \"EnvironmentVariablesOverride\": [\n          {\n            \"Name\": \"TERRA_CI_BUILD_NAME\",\n            \"Value.$\": \"$$.Execution.Name\"\n          },\n          {\n            \"Name\": \"TERRA_CI_RESOURCE\",\n            \"Value.$\": \"$.build.environment.terra_ci_resource\"\n          }\n        ]\n      },\n      \"End\": true\n    },\n    \"PlanBranch\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"arn:aws:states:::codebuild:startBuild.sync\",\n      \"Parameters\": {\n        \"ProjectName\": \"terra-ci-runner\",\n        \"SourceVersion.$\": \"$.build.sourceversion\",\n        \"EnvironmentVariablesOverride\": [\n          {\n            \"Name\": \"TERRA_CI_RESOURCE\",\n            \"Value.$\": \"$.build.environment.terra_ci_resource\"\n          }\n        ]\n      },\n      \"End\": true\n    }\n  }\n}\n",
           "name": "terra-ci-runner",
+          "role_arn": "aws_iam_role.terra_ci_runner",
           "tags": null,
           "type": "STANDARD"
         }

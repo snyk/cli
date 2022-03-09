@@ -30,8 +30,8 @@ import { findAndLoadPolicy } from '../../../../lib/policy';
 import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
 import { initRules } from './rules';
 import { NoFilesToScanError } from './file-loader';
-import { parseTerraformFiles } from './file-parser';
 import { formatAndShareResults } from './share-results';
+import { loadAndParseTerraformFiles } from './handle-terraform-files';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -88,30 +88,17 @@ export async function test(
     // we may have loaded and parsed all but terraform files in the previous step
     // so now we check if we need to do a second load and parse which dereferences TF vars
     if (validFileTypes && !validFileTypes.includes(ValidFileType.Terraform)) {
-      // TODO: iterate through nested directories
-      try {
-        const tfFilesToParse = await loadFiles(
-          pathToScan,
-          {
-            ...options,
-            detectionDepth: 1,
-          },
-          [ValidFileType.Terraform, ValidFileType.TFVARS],
-        );
-        const {
-          parsedFiles: parsedTfFiles,
-          failedFiles: failedTfFiles,
-        } = parseTerraformFiles(tfFilesToParse);
-
-        parsedFiles = parsedFiles.concat(parsedTfFiles);
-        failedFiles = failedFiles.concat(failedTfFiles);
-      } catch (err) {
-        if (parsedFiles.length !== 0 && err instanceof NoFilesToScanError) {
-          // ignore this error since we might only have .tf files in the folder and we have separated them
-        } else {
-          throw err;
-        }
-      }
+      const {
+        allParsedFiles,
+        allFailedFiles,
+      } = await loadAndParseTerraformFiles(
+        pathToScan,
+        parsedFiles,
+        failedFiles,
+        options.detectionDepth,
+      );
+      parsedFiles = allParsedFiles;
+      failedFiles = allFailedFiles;
     }
 
     // Duplicate all the files and run them through the custom engine.

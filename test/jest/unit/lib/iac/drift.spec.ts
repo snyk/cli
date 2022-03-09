@@ -1,10 +1,14 @@
 import * as mockFs from 'mock-fs';
 
 import {
+  DCTL_EXIT_CODES,
   DriftctlGenDriftIgnoreOptions,
-  parseArgs,
+  parseDescribeFlags,
+  parseGenDriftIgnoreFlags,
+  translateExitCode,
 } from '../../../../../src/lib/iac/drift';
 import envPaths from 'env-paths';
+import { EXIT_CODES } from '../../../../../src/cli/exit-codes';
 
 const paths = envPaths('snyk');
 
@@ -14,10 +18,11 @@ describe('driftctl integration', () => {
     mockFs.restore();
   });
 
-  it('scan: default arguments are correct', () => {
-    const args = parseArgs(['scan'], {});
+  it('describe: default arguments are correct', () => {
+    const args = parseDescribeFlags({});
     expect(args).toEqual([
       'scan',
+      '--no-version-check',
       '--config-dir',
       paths.cache,
       '--to',
@@ -26,12 +31,12 @@ describe('driftctl integration', () => {
   });
 
   it('gen-driftignore: default arguments are correct', () => {
-    const args = parseArgs(['gen-driftignore'], {});
-    expect(args).toEqual(['gen-driftignore']);
+    const args = parseGenDriftIgnoreFlags({});
+    expect(args).toEqual(['gen-driftignore', '--no-version-check']);
   });
 
-  it('scan: passing options generate correct arguments', () => {
-    const args = parseArgs(['scan'], {
+  it('describe: passing options generate correct arguments', () => {
+    const args = parseDescribeFlags({
       'config-dir': 'confdir',
       'tf-lockfile': 'tflockfile',
       'tf-provider-version': 'tfproviderversion',
@@ -42,7 +47,6 @@ describe('driftctl integration', () => {
       filter: 'filter',
       from: 'from',
       headers: 'headers',
-      output: 'output',
       quiet: true,
       strict: true,
       to: 'to',
@@ -50,9 +54,12 @@ describe('driftctl integration', () => {
       'json-file-output': 'jsonfileoutput',
       html: true,
       'html-file-output': 'htmlfileoutput',
+      'only-managed': true,
+      'only-unmanaged': true,
     });
     expect(args).toEqual([
       'scan',
+      '--no-version-check',
       '--quiet',
       '--filter',
       'filter',
@@ -74,6 +81,8 @@ describe('driftctl integration', () => {
       'tfproviderversion',
       '--strict',
       '--deep',
+      '--only-managed',
+      '--only-unmanaged',
       '--driftignore',
       'driftignore',
       '--tf-lockfile',
@@ -87,8 +96,26 @@ describe('driftctl integration', () => {
     ]);
   });
 
+  it('describe: from arguments is a coma separated list', () => {
+    const args = parseDescribeFlags({ from: 'path1,path2,path3' });
+    expect(args).toEqual([
+      'scan',
+      '--no-version-check',
+      '--config-dir',
+      paths.cache,
+      '--from',
+      'path1',
+      '--from',
+      'path2',
+      '--from',
+      'path3',
+      '--to',
+      'aws+tf',
+    ]);
+  });
+
   it('gen-driftignore: passing options generate correct arguments', () => {
-    const args = parseArgs(['gen-driftignore'], {
+    const args = parseGenDriftIgnoreFlags({
       'exclude-changed': true,
       'exclude-missing': true,
       'exclude-unmanaged': true,
@@ -98,6 +125,7 @@ describe('driftctl integration', () => {
     } as DriftctlGenDriftIgnoreOptions);
     expect(args).toEqual([
       'gen-driftignore',
+      '--no-version-check',
       '--input',
       'analysis.json',
       '--output',
@@ -106,5 +134,16 @@ describe('driftctl integration', () => {
       '--exclude-missing',
       '--exclude-unmanaged',
     ]);
+  });
+
+  it('run driftctl: exit code is translated', () => {
+    expect(translateExitCode(DCTL_EXIT_CODES.EXIT_IN_SYNC)).toEqual(0);
+    expect(translateExitCode(DCTL_EXIT_CODES.EXIT_NOT_IN_SYNC)).toEqual(
+      EXIT_CODES.VULNS_FOUND,
+    );
+    expect(translateExitCode(DCTL_EXIT_CODES.EXIT_ERROR)).toEqual(
+      EXIT_CODES.ERROR,
+    );
+    expect(translateExitCode(42)).toEqual(EXIT_CODES.ERROR);
   });
 });

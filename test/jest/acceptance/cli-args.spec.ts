@@ -79,32 +79,6 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('iac test command should fail when file is not supported', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `iac test ./test/acceptance/workspaces/empty/readme.md --legacy`,
-      {
-        env,
-      },
-    );
-
-    expect(stdout).toMatch('Illegal infrastructure as code target file');
-    expect(code).toEqual(2);
-  });
-
-  test('iac test command should fail when helm file is not supported', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `iac test ./test/acceptance/workspaces/helmconfig/Chart.yaml --legacy`,
-      {
-        env,
-      },
-    );
-
-    expect(stdout).toMatch(
-      'Not supported infrastructure as code target files in',
-    );
-    expect(code).toEqual(2);
-  });
-
   test('snyk test multiple paths with --project-name=NAME', async () => {
     const { code, stdout } = await runSnykCLI(
       `test pathA pathB --project-name=NAME`,

@@ -10,6 +10,8 @@ import {
   TerraformScanInput,
   TerraformPlanResourceChange,
   IaCErrorCodes,
+  TerraformPlanReferencedResource,
+  TerraformPlanExpression,
 } from '../types';
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from '../error-utils';
@@ -32,6 +34,27 @@ function terraformPlanReducer(
   }
 
   return scanInput;
+}
+
+function getExpressions(
+  expressions: Record<string, TerraformPlanExpression>,
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  // expressions can be nested. we are only doing 1 depth to resolve top level depenencies
+  for (const key of Object.keys(expressions)) {
+    const referenceKey = getReference(expressions[key]);
+    if (referenceKey) {
+      result[key] = referenceKey;
+    }
+  }
+  return result;
+}
+
+// this is very naive implementation
+// the referenences can be composed of number of keys
+// we only going to use the first reference for time being
+function getReference(value: TerraformPlanExpression): string {
+  return value.references?.[0];
 }
 
 function getResourceName(index: string | number, name: string): string {
@@ -70,10 +93,50 @@ function isValidResourceActions(
   });
 }
 
+function referencedResourcesResolver(
+  scanInput: TerraformScanInput,
+  resources: TerraformPlanReferencedResource[],
+): TerraformScanInput {
+  // check root module for references in first depth of attributes
+  for (const resource of resources) {
+    const { type, name, mode, index, expressions } = resource;
+
+    // don't care about references in data sources for time being
+    if (mode == 'data') {
+      continue;
+    }
+    const inputKey: keyof TerraformScanInput = 'resource';
+
+    // only update the references in resources that have some resolved attributes already
+    const resolvedResource: any =
+      scanInput[inputKey]?.[type]?.[getResourceName(index, name)];
+    if (resolvedResource) {
+      const resourceExpressions = getExpressions(expressions);
+      for (const key of Object.keys(resourceExpressions)) {
+        // only add non existing attributes. If we already have resolved value do not overwrite it with reference
+        if (!resolvedResource[key]) {
+          resolvedResource[key] = resourceExpressions[key];
+        }
+      }
+      scanInput[inputKey][type][
+        getResourceName(index, name)
+      ] = resolvedResource;
+    }
+  }
+
+  return scanInput;
+}
+
 function extractResourceChanges(
   terraformPlanJson: TerraformPlanJson,
 ): Array<TerraformPlanResourceChange> {
   return terraformPlanJson.resource_changes || [];
+}
+
+function extractReferencedResources(
+  terraformPlanJson: TerraformPlanJson,
+): Array<TerraformPlanReferencedResource> {
+  return terraformPlanJson.configuration?.root_module?.resources || [];
 }
 
 function extractResourcesForScan(
@@ -81,13 +144,16 @@ function extractResourcesForScan(
   isFullScan = false,
 ): TerraformScanInput {
   const resourceChanges = extractResourceChanges(terraformPlanJson);
-  return resourceChanges.reduce(
+  const scanInput = resourceChanges.reduce(
     (memo, curr) => resourceChangeReducer(memo, curr, isFullScan),
     {
       resource: {},
       data: {},
     },
   );
+
+  const referencedResources = extractReferencedResources(terraformPlanJson);
+  return referencedResourcesResolver(scanInput, referencedResources);
 }
 
 export function isTerraformPlan(terraformPlanJson: TerraformPlanJson): boolean {

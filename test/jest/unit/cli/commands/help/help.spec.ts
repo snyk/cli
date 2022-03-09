@@ -25,9 +25,18 @@ describe('findHelpFile', () => {
     ).toContain('container.md');
   });
 
-  it('returns correct help markdown path for a documented subcommand with `iac drift`', () => {
+  it('returns correct help markdown path for a documented subcommand with `iac describe`', () => {
     expect(
-      help.findHelpFile(['iac', 'drift'], '../../../../help/cli-commands'),
-    ).toContain('iac-drift.md');
+      help.findHelpFile(['iac', 'describe'], '../../../../help/cli-commands'),
+    ).toContain('iac-describe.md');
+  });
+
+  it('returns correct help markdown path for a documented subcommand with `iac gen-driftignore`', () => {
+    expect(
+      help.findHelpFile(
+        ['iac', 'gen-driftignore'],
+        '../../../../help/cli-commands',
+      ),
+    ).toContain('iac-gen-driftignore.md');
   });
 });

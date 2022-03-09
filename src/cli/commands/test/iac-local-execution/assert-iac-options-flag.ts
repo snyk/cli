@@ -21,7 +21,6 @@ const keys: (keyof IaCTestFlags)[] = [
   'q',
   'quiet',
   'scan',
-  'legacy',
   'report',
 
   // PolicyOptions
@@ -147,5 +146,5 @@ function assertTerraformPlanModes(scanModeArgValue: string) {
 }
 
 export function isIacShareResultsOptions(options) {
-  return options.iac && options.report && !options.legacy;
+  return options.iac && options.report;
 }

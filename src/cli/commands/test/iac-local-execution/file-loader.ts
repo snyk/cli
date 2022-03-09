@@ -6,13 +6,27 @@ import {
   IaCTestFlags,
   VALID_FILE_TYPES,
 } from './types';
-import { getFileType } from '../../../../lib/iac/iac-parser';
 import { IacFileTypes } from '../../../../lib/iac/constants';
 import { isLocalFolder } from '../../../../lib/detect';
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 
 const DEFAULT_ENCODING = 'utf-8';
+
+export async function loadContentForFiles(
+  filePaths: string[],
+): Promise<IacFileData[]> {
+  const loadedFiles = await Promise.all(
+    filePaths.map(async (filePath) => {
+      try {
+        return await tryLoadFileData(filePath);
+      } catch (e) {
+        throw new FailedToLoadFileError(filePath);
+      }
+    }),
+  );
+  return loadedFiles.filter((file) => file.fileContent !== '');
+}
 
 export async function loadFiles(
   pathToScan: string,
@@ -27,16 +41,7 @@ export async function loadFiles(
   if (filePaths.length === 0) {
     throw new NoFilesToScanError();
   }
-
-  const loadedFiles: IacFileData[] = await Promise.all(
-    filePaths.map(async (filePath) => {
-      try {
-        return await tryLoadFileData(filePath);
-      } catch (e) {
-        throw new FailedToLoadFileError(filePath);
-      }
-    }),
-  );
+  const loadedFiles = await loadContentForFiles(filePaths);
 
   return loadedFiles.filter((file) => file.fileContent !== '');
 }
@@ -110,4 +115,9 @@ export class FailedToLoadFileError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to read file "${filename}" for scanning. Please ensure that it is readable.`;
   }
+}
+
+function getFileType(filePath: string): string {
+  const filePathSplit = filePath.split('.');
+  return filePathSplit[filePathSplit.length - 1].toLowerCase();
 }

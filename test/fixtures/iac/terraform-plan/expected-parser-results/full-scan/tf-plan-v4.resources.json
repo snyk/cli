@@ -1,0 +1,41 @@
+{
+  "data": {},
+  "resource": {
+    "aws_s3_bucket": {
+      "denied": {
+        "bucket": "denied",
+        "bucket_prefix": null,
+        "force_destroy": false,
+        "tags": null
+      },
+      "duh": {
+        "bucket": "duh",
+        "bucket_prefix": null,
+        "force_destroy": false,
+        "tags": null
+      },
+      "logging2": {
+        "bucket": "logging2",
+        "bucket_prefix": null,
+        "force_destroy": false,
+        "tags": null
+      }
+    },
+    "aws_s3_bucket_logging": {
+      "example": {
+        "bucket": "aws_s3_bucket.logging2.id",
+        "target_bucket": "aws_s3_bucket.duh.id",
+        "expected_bucket_owner": null,
+        "target_grant": [],
+        "target_prefix": "log/"
+      },
+      "example2": {
+        "bucket": "aws_s3_bucket.logging2.id",
+        "target_bucket": "aws_s3_bucket.duh.id",
+        "expected_bucket_owner": null,
+        "target_grant": [],
+        "target_prefix": "log/"
+      }
+    }
+  }
+}

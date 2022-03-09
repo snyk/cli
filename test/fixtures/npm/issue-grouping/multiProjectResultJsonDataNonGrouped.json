@@ -1426,7 +1426,7 @@
     "ok": false,
     "dependencyCount": 6,
     "org": "test-org",
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\nignore: {}\npatch: {}\n",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.2\nignore: {}\npatch: {}\n",
     "isPrivate": true,
     "licensesPolicy": {
       "severities": {},
@@ -1873,7 +1873,7 @@
     "ok": false,
     "dependencyCount": 197,
     "org": "test-org",
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\nignore: {}\npatch: {}\n",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.2\nignore: {}\npatch: {}\n",
     "isPrivate": true,
     "licensesPolicy": {
       "severities": {},
