@@ -426,7 +426,7 @@
   "meta": {
     "isPrivate": true,
     "isLicensesEnabled": true,
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  SNYK-JS-LODASH-590103:\n    - '*':\n        reason: None Given\n        expires: 2021-11-21T21:55:08.466Z\n        created: 2021-10-22T21:55:08.469Z\n        source: cli\npatch: {}\n",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.2\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  SNYK-JS-LODASH-590103:\n    - '*':\n        reason: None Given\n        expires: 2021-11-21T21:55:08.466Z\n        created: 2021-10-22T21:55:08.469Z\n        source: cli\npatch: {}\n",
     "ignoreSettings": null,
     "org": "demo-applications",
     "licensesPolicy": {

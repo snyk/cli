@@ -7,6 +7,7 @@ export enum PlanOutputCase {
   Destroy = 'tf-plan-destroy', // plan with destroy actions
   NoOp = 'tf-plan-no-op', // plan with no-op actions
   Update = 'tf-plan-update', // plan with updates actions
+  V4 = 'tf-plan-v4', // plan with updates actions
 }
 
 export function getTfPlanData(planOutputCase: PlanOutputCase) {
@@ -58,4 +59,5 @@ export const planOutputCases: PlanOutputTestCase[] = [
   [PlanOutputCase.Destroy],
   [PlanOutputCase.NoOp],
   [PlanOutputCase.Update],
+  [PlanOutputCase.V4],
 ];

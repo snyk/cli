@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Snyk Support
+    url: https://support.snyk.io
+    about: Contact Snyk Support
+  - name: Snyk User Docs
+    url: https://docs.snyk.io
+    about: Snyk User Documentation

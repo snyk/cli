@@ -1,6 +1,8 @@
 import { runCommand, RunCommandResult } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { createProject } from '../../util/createProject';
+import { getProtectRemovalMessage } from '../../../../src/cli/commands/protect';
+import stripAnsi from 'strip-ansi';
 
 jest.setTimeout(1000 * 60);
 
@@ -24,7 +26,10 @@ test('patch is applied to vulnerable dependency', async () => {
   expect(await runSnykCLI('protect', { cwd: project.path() })).toEqual(
     expect.objectContaining<RunCommandResult>({
       code: 0,
-      stdout: 'Successfully applied Snyk patches\n',
+      stdout:
+        'Successfully applied Snyk patches' +
+        stripAnsi(getProtectRemovalMessage()) +
+        '\n',
       stderr: expect.any(String),
     }),
   );

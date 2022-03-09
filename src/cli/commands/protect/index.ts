@@ -1,15 +1,22 @@
 import * as debugModule from 'debug';
 import * as snyk from '../../../lib/';
 import * as types from '../../../lib/types';
-const protect = require('../../../lib/protect');
 import * as analytics from '../../../lib/analytics';
 import * as detect from '../../../lib/detect';
 import * as pm from '../../../lib/package-managers';
 import { CustomError } from '../../../lib/errors';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 import * as errors from '../../../lib/errors';
+import * as theme from '../../../lib/theme';
 
+const protect = require('../../../lib/protect');
 const debug = debugModule('snyk');
+
+export function getProtectRemovalMessage(): string {
+  return theme.color.status.warn(
+    `\n${theme.icon.WARNING} WARNING: Starting from 31 March 2022, the protect command will be removed.\nPlease use the @snyk/protect package instead.\nFor more info: https://snyk.co/ueln7`,
+  );
+}
 
 export default async function protectFunc(
   options: types.PolicyOptions &
@@ -66,10 +73,12 @@ export default async function protectFunc(
 
   try {
     const policy = await snyk.policy.load(protectOptions['policy-path']);
+    const removalMessage = getProtectRemovalMessage();
     if (policy.patch) {
-      return patch(protectOptions);
+      const patchOutput = await patch(protectOptions);
+      return patchOutput + removalMessage;
     }
-    return 'Nothing to do';
+    return 'Nothing to do' + removalMessage;
   } catch (e) {
     let error;
     if (e.code === 'ENOENT') {

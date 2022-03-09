@@ -700,15 +700,12 @@ if (!isWindows) {
     );
     t.match(req.url, '/monitor/maven', 'puts at correct url');
     t.equal(pkg.name, 'com.mycompany.app:maven-multi-app', 'specifies name');
-    t.ok(
-      pkg.dependencies['com.mycompany.app:simple-child'],
-      'specifies dependency',
+    // child projects are not included when scanning root project
+    t.notOk(
+      pkg.dependencies?.['com.mycompany.app:simple-child'],
+      'does not include modules',
     );
     t.notOk(pkg.from, 'no "from" array on root');
-    t.notOk(
-      pkg.dependencies['com.mycompany.app:simple-child'].from,
-      'no "from" array on dep',
-    );
   });
 
   test('`monitor maven-multi-app with --project-business-criticality`', async (t) => {

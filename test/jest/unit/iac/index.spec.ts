@@ -5,6 +5,7 @@ jest.mock('../../../../src/lib/feature-flags', () => ({
   isFeatureFlagSupportedForOrg: isFeatureFlagSupportedForOrgStub,
 }));
 const parseFilesStub = jest.fn();
+const loadAndParseFilesStub = jest.fn();
 const parseTerraformFilesStub = jest.fn();
 jest.mock(
   '../../../../src/cli/commands/test/iac-local-execution/file-parser',
@@ -32,6 +33,16 @@ jest.mock(
   '../../../../src/cli/commands/test/iac-local-execution/org-settings/get-iac-org-settings.ts',
   () => ({
     getIacOrgSettings: getIacOrgSettingsStub,
+  }),
+);
+
+const loadAndParseTerraformFilesStub = jest.fn();
+const getDirectoriesForTFScanStub = jest.fn();
+jest.mock(
+  '../../../../src/cli/commands/test/iac-local-execution/handle-terraform-files.ts',
+  () => ({
+    loadAndParseTerraformFiles: loadAndParseTerraformFilesStub,
+    getDirectoriesForTFScan: getDirectoriesForTFScanStub,
   }),
 );
 
@@ -132,6 +143,10 @@ describe('test()', () => {
 
       it('attempts to pull the custom-rules bundle using the provided configurations', async () => {
         const opts: IaCTestFlags = {};
+        loadAndParseTerraformFilesStub.mockResolvedValue({
+          allParsedFiles: parsedFiles,
+          allFailedFiles: failedFiles,
+        });
 
         await test('./iac/terraform/sg_open_ssh.tf', opts);
 
@@ -166,6 +181,13 @@ describe('test()', () => {
 
       it('returns the unparsable files excluding content', async () => {
         const opts: IaCTestFlags = {};
+        loadAndParseFilesStub.mockReturnValue(() => {
+          return {
+            allParsedFiles: parsedFiles,
+            allFailedFiles: failedFiles,
+          };
+        });
+
         const { failures } = await test('./storage/', opts);
 
         expect(failures).toEqual([

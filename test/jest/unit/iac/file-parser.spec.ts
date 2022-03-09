@@ -174,6 +174,19 @@ describe('parseTerraformFiles', () => {
     expect(failedFiles.length).toEqual(0);
   });
 
+  it('parses empty Terraform files', () => {
+    const { parsedFiles, failedFiles } = parseTerraformFiles([
+      { ...terraformFileDataStub, fileContent: '' },
+    ]);
+    expect(parsedFiles.length).toEqual(1);
+    expect(parsedFiles[0]).toEqual({
+      ...expectedTerraformParsingResult,
+      fileContent: '',
+      jsonContent: {},
+    });
+    expect(failedFiles.length).toEqual(0);
+  });
+
   it('does not throw an error if a file parse failed in a directory scan', () => {
     const { parsedFiles, failedFiles } = parseTerraformFiles([
       invalidTerraformFileDataStub,

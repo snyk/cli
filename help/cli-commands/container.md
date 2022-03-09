@@ -93,6 +93,26 @@ Save test output in SARIF format directly to the `<OUTPUT_FILE_PATH>` file, rega
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
+### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
+
+Set the project environment to one or more values (comma-separated). To clear the project environment set `--project-environment=`. Allowed values: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed
+
+### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE]...>`
+
+Set the project lifecycle to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`. Allowed values: production, development, sandbox
+
+### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
+
+Set the project business criticality to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`. Allowed values: critical, medium, low
+
+### `--project-tags=<TAG>[,<TAG>]...>`
+
+Set the project tags to one or more values (comma-separarted key values pairs with an "=" separator), for example, `--project-tags=department=finance,team=alpha`. To clear the project tags set `--project-tags=`
+
+### `--tags=<TAG>[,<TAG>]...>`
+
+This is an alias for `--project tags`.
+
 ### `--severity-threshold=<low|medium|high|critical>`
 
 Report only vulnerabilities at the specified level or higher.

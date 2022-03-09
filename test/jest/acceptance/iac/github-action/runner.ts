@@ -49,17 +49,17 @@ export class GithubActionTestRunner {
     this.teardown();
   }
 
-  public async test(flag: string) {
-    const sarif = await this.runAndGenerateSARIF(flag);
+  public async test() {
+    const sarif = await this.runAndGenerateSARIF();
     this.verifySARIFPaths(sarif);
   }
 
-  private async runAndGenerateSARIF(flag: string): Promise<string> {
+  private async runAndGenerateSARIF(): Promise<string> {
     const sarifOutputFilename = path.join(__dirname, `${uuidv4()}.sarif`);
 
     try {
       const { stderr } = await this.run(
-        `${this.command} ${flag} --sarif-file-output=${sarifOutputFilename}`,
+        `${this.command} --sarif-file-output=${sarifOutputFilename}`,
         {},
         this.workingDir,
       );

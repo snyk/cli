@@ -48,8 +48,8 @@ describe('GitHub action - IaC', () => {
       githubActionTestRunner.destroy();
     });
 
-    it.each([[''], ['--legacy']])(`when running with flag %p`, async (flag) => {
-      await githubActionTestRunner.test(flag);
+    it(`tests the GH Action SARIF output`, async () => {
+      await githubActionTestRunner.test();
     });
   });
 });

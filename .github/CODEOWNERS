@@ -18,7 +18,8 @@ help/cli-commands/iac*.md @snyk/group-infrastructure-as-code @snyk/hammer
 src/cli/commands/test/iac-local-execution/ @snyk/group-infrastructure-as-code
 src/cli/commands/test/iac-output.ts @snyk/group-infrastructure-as-code
 src/cli/commands/test/iac-test-shim.ts @snyk/group-infrastructure-as-code
-src/cli/commands/drift.ts @snyk/group-infrastructure-as-code
+src/cli/commands/describe.ts @snyk/group-infrastructure-as-code
+src/cli/commands/gen-driftignore.ts @snyk/group-infrastructure-as-code
 src/cli/commands/apps @snyk/moose
 src/lib/apps @snyk/moose
 src/lib/cloud-config-projects.ts @snyk/group-infrastructure-as-code
@@ -42,7 +43,7 @@ test/jest/unit/lib/formatters/iac-output.spec.ts @snyk/group-infrastructure-as-c
 test/jest/unit/iac/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
-test/jest/acceptance/snyk-apps @snyk-moose
+test/jest/acceptance/snyk-apps @snyk/moose
 src/lib/errors/invalid-iac-file.ts @snyk/group-infrastructure-as-code
 src/lib/errors/unsupported-options-iac-error.ts @snyk/group-infrastructure-as-code
 src/lib/errors/no-supported-sast-files-found.ts @snyk/nebula
@@ -77,7 +78,6 @@ test/tap/cli-monitor.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli-test.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli.test.ts @snyk/hammer
 test/tap/container.test.ts @snyk/capsule
-test/tap/dev-count-analysis.test.ts @snyk/hammer
 test/tap/display-test-results.test.ts @snyk/snyk-open-source
 test/tap/docker-token.test.ts @snyk/capsule
 test/tap/endpoint-config.test.ts @snyk/hammer

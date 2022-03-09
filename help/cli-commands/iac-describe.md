@@ -1,6 +1,6 @@
-# snyk iac drift scan -- find differences between Cloud and Infrastructure as Code
+# snyk iac describe -- find differences between Cloud and Infrastructure as Code
 
-The `snyk iac drift scan` command detect, track and alert on infrastructure drift. It runs driftctl in the background.
+The `snyk iac describe` command detect, track and alert on infrastructure drift. It runs driftctl in the background.
 
 For more information see the [driftctl documentation](https://docs.driftctl.com/).
 
@@ -9,7 +9,8 @@ For more information see the [driftctl documentation](https://docs.driftctl.com/
 Possible exit codes and their meaning:
 
 **0**: success, no drift found<br />
-**1**: action_needed, drifts found or failure<br />
+**1**: drifts or unmanaged resources found<br />
+**2**: failure<br />
 
 ## Configure the Snyk CLI
 
@@ -51,12 +52,12 @@ driftctl supports multiple providers. By default it will scan against AWS, but y
 
 Environment: `DCTL_TO`
 
-`$ snyk iac drift scan --to PROVIDER+TYPE`
+`$ snyk iac describe --to PROVIDER+TYPE`
 
 Examples:
 
-`$ snyk iac drift scan --to aws+tf`
-`$ DCTL_TO=github+tf snyk iac drift scan`
+`$ snyk iac describe --to aws+tf`
+`$ DCTL_TO=github+tf snyk iac describe`
 
 #### Supported Providers
 
@@ -73,7 +74,7 @@ Use a specific HTTP header(s) for the HTTP backend.
 
 Example:
 
-`$ GITLAB_TOKEN=<access_token> \ snyk iac drift scan \ --from tfstate+https://gitlab.com/api/v4/projects/<project_id>/terraform/state/<path_to_state> \ --headers "Authorization=Bearer ${GITLAB_TOKEN}"`
+`$ GITLAB_TOKEN=<access_token> \ snyk iac describe \ --from tfstate+https://gitlab.com/api/v4/projects/<project_id>/terraform/state/<path_to_state> \ --headers "Authorization=Bearer ${GITLAB_TOKEN}"`
 
 ### `--tfc-token`
 
@@ -90,7 +91,7 @@ Don't forget to provide your Terraform Enterprise API token.
 
 Example:
 
-`$ snyk iac drift scan --from tfstate+tfcloud://$WORKSPACE_ID --tfc-token $TFC_TOKEN --tfc-endpoint 'https://tfe.example.com/api/v2'`
+`$ snyk iac describe --from tfstate+tfcloud://$WORKSPACE_ID --tfc-token $TFC_TOKEN --tfc-endpoint 'https://tfe.example.com/api/v2'`
 
 ### `--tf-provider-version`
 
@@ -101,12 +102,12 @@ You can specify a terraform provider version to use. If none, driftctl uses defa
 
 #### Usage
 
-I use terraform provider 3.43.0 so I can use this provider with driftctl to avoid scan errors. driftctl will scan with
-an AWS terraform provider v3.43.0
-`$ DCTL_TF_PROVIDER_VERSION=3.43.0 snyk iac drift scan`
+I use terraform provider 3.43.0 so I can use this provider with driftctl to avoid scan errors. driftctl will scan with an AWS terraform provider v3.43.0
+`$ DCTL_TF_PROVIDER_VERSION=3.43.0 snyk iac describe`
 
-Same parameter is used for every cloud provider. driftctl will scan with a GitHub terraform provider v4.10.1.
-`$ DCTL_TF_PROVIDER_VERSION=4.10.1 snyk iac drift scan --to github+tf`
+Same parameter is used for every cloud provider.
+driftctl will scan with a GitHub terraform provider v4.10.1.
+`$ DCTL_TF_PROVIDER_VERSION=4.10.1 snyk iac describe --to github+tf`
 
 ### `--strict`
 
@@ -123,7 +124,7 @@ For now, resources include:
 
 #### Usage
 
-`$ snyk iac drift scan --strict`
+`$ snyk iac describe --strict`
 
 ### `--deep`
 
@@ -147,7 +148,7 @@ behavior in a newer version you have to enable the deep mode flag.
 
 #### Usage
 
-`$ snyk iac drift scan --deep`
+`$ snyk iac describe --deep`
 
 ### `--driftignore`
 
@@ -161,7 +162,7 @@ NOTE: You can use only one driftignore file at once.
 
 Apply ignore directives from the /path/to/driftignore file
 
-`$ snyk iac drift scan --driftignore /path/to/driftignore`
+`$ snyk iac describe --driftignore /path/to/driftignore`
 
 ### `--tf-lockfile`
 
@@ -177,7 +178,7 @@ precedence overall.
 
 #### Example
 
-`$ snyk iac drift scan --to aws+tf --tf-lockfile path/to/.terraform.lock.hcl`
+`$ snyk iac describe --to aws+tf --tf-lockfile path/to/.terraform.lock.hcl`
 
 ### `--config-dir`
 
@@ -188,41 +189,53 @@ the `/tmp` folder.
 
 #### Usage
 
-`$ snyk iac drift scan --config-dir path_to_driftctl_config_dir`
-`$ DCTL_CONFIG_DIR=path_to_driftctl_config_dir snyk iac drift scan`
+`$ snyk iac describe --config-dir path_to_driftctl_config_dir`
+`$ DCTL_CONFIG_DIR=path_to_driftctl_config_dir snyk iac describe`
 
 ### `--from`
 
 Currently, driftctl only supports reading IaC from a Terraform state. We are investigating to support the Terraform code
 as well, as a state does not represent an intention.
 
-Multiple states can be read by passing `--from` flags. You can also use glob patterns to match multiple state files at
-once.
+Multiple states can be read by passing `--from` a comma separated list. You can also use glob patterns to match multiple
+state files at once.
 
 Examples:
 
 I want to read a local state and a state stored in an S3 bucket:
-`$ snyk iac drift scan \ --from tfstate+s3://statebucketdriftctl/terraform.tfstate \ --from tfstate://terraform_toto.tfstate`
+`$ snyk iac describe --from="tfstate+s3://statebucketdriftctl/terraform.tfstate,tfstate://terraform_toto.tfstate"`
 
 You can also read all files under a given prefix for S3
-`$ snyk iac drift scan --from tfstate+s3://statebucketdriftctl/states`
+`$ snyk iac describe --from=tfstate+s3://statebucketdriftctl/states`
 
 #### Supported IaC sources
 
 - Terraform state
-- Local: `--from tfstate://terraform.tfstate`
-- S3: `--from tfstate+s3://my-bucket/path/to/state.tfstate`
-- GCS: `--from tfstate+gs://my-bucket/path/to/state.tfstate`
-- HTTPS: `--from tfstate+https://my-url/state.tfstate`
-- Terraform Cloud / Terraform Enterprise: `--from tfstate+tfcloud://WORKSPACE_ID`
+- Local: `--from=tfstate://terraform.tfstate`
+- S3: `--from=tfstate+s3://my-bucket/path/to/state.tfstate`
+- GCS: `--from=tfstate+gs://my-bucket/path/to/state.tfstate`
+- HTTPS: `--from=tfstate+https://my-url/state.tfstate`
+- Terraform Cloud / Terraform Enterprise: `--from=tfstate+tfcloud://WORKSPACE_ID`
+- Azure blob storage: `--from=tfstate+azurerm://container-name/path/to/state.tfstate`
 
 You can use any unsupported backend by using `terraform` to pipe your state in a file and then use this file with
 driftctl:
 
 `$ terraform state pull > state.tfstate`
-`$ snyk iac drift scan --from tfstate://state.tfstate`
+`$ snyk iac describe --from=tfstate://state.tfstate`
 
-## Examples for the iac drift scan command
+### `--service`
+
+The services(s) specified with this argument controls which resources are going to be included/ignored in drift
+detection.
+
+When specifying multiple services, use a comma to separate them e.g. `snyk iac describe --service=aws_s3,aws_ec2`
+
+This argument can't be used at the same time with a driftignore file, driftignore will be ignored.
+
+Here are the available services: aws_s3, aws_ec2, aws_lambda, aws_rds, aws_route53, aws_iam, aws_vpc, aws_api_gateway, aws_apigatewayv2, aws_sqs, aws_sns, aws_ecr, aws_cloudfront, aws_kms, aws_dynamodb, azure_base, azure_compute, azure_storage, azure_network, azure_container, azure_database, azure_loadbalancer, azure_private_dns, google_cloud_platform, google_cloud_storage, google_compute_engine, google_cloud_dns, google_cloud_bigtable, google_cloud_bigquery, google_cloud_functions, google_cloud_sql, google_cloud_run
+
+## Examples for the iac describe command
 
 [For more information
 see [Synk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
