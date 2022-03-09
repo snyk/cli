@@ -40,6 +40,14 @@ export async function loadAndParseTerraformFiles(
       currentDirectory,
     );
     if (filePathsInDirectory.length === 0) continue; // skip directories that have 0 files but have other directories
+    if (
+      filePathsInDirectory.length === 1 &&
+      allParsedFiles.length === 0 &&
+      (!shouldBeParsed(filePathsInDirectory[0]) ||
+        isIgnoredFile(filePathsInDirectory[0]))
+    ) {
+      throw new NoFilesToScanError();
+    }
     try {
       const tfFilesToParse = await loadContentForFiles(filePathsInDirectory);
       const {
@@ -50,7 +58,8 @@ export async function loadAndParseTerraformFiles(
       allFailedFiles = allFailedFiles.concat(failedTfFiles);
     } catch (err) {
       if (allParsedFiles.length !== 0 && err instanceof NoFilesToScanError) {
-        // ignore this error since we might only have .tf files in the folder and we have separated them
+        // ignore this error since we might only have TF files in the folder and we have separated them,
+        // or if we have a single file scan of a non-TF file, and we have already parsed it
       } else {
         throw err;
       }
@@ -71,9 +80,6 @@ export function getAllDirectoriesForPath(
 ): string[] {
   // if it is a single file (it has an extension)
   if (isSingleFile(pathToScan)) {
-    if (!shouldBeParsed(pathToScan) || isIgnoredFile(pathToScan)) {
-      throw new NoFilesToScanError();
-    }
     return [path.resolve(pathToScan)]; // we return the current path if it is a single file
   }
   // if the path we scanned itself is an empty directory, finish the scan here
