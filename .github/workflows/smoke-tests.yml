@@ -157,7 +157,8 @@ jobs:
       - name: Install scoop on Windows
         if: ${{ matrix.os == 'windows'}}
         run: |
-          iwr -useb get.scoop.sh | iex
+          iwr -useb get.scoop.sh -outfile 'install-scoop.ps1'
+          .\install-scoop.ps1 -RunAsAdmin
           scoop install jq
 
       - name: Install jq on Ubuntu
