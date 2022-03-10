@@ -187,6 +187,7 @@ export const services2resources = new Map<string, Array<string>>([
       'google_compute_image',
       'google_compute_instance',
       'google_compute_instance_group',
+      'google_compute_instance_group_manager',
       'google_compute_network',
       'google_compute_node_group',
       'google_compute_router',
