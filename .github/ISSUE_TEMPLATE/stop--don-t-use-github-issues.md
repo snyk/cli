@@ -1,5 +1,5 @@
 ---
-name: Please don't use GitHub Issues
+name: Please don't use GitHub Issues for support requests
 about: Email us at support@snyk.io
 title: Stop, this is not a support channel
 labels: ''
