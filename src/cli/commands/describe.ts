@@ -1,7 +1,7 @@
 import { MethodArgs } from '../args';
 import { processCommandArgs } from './process-command-args';
 import * as legacyError from '../../lib/errors/legacy-errors';
-import { driftctl, parseDescribeFlags } from '../../lib/iac/drift';
+import { DCTL_EXIT_CODES, runDriftCTL } from '../../lib/iac/drift';
 import { getIacOrgSettings } from './test/iac-local-execution/org-settings/get-iac-org-settings';
 import { UnsupportedEntitlementCommandError } from './test/iac-local-execution/assert-iac-options-flag';
 import config from '../../lib/config';
@@ -24,9 +24,20 @@ export default async (...args: MethodArgs): Promise<any> => {
   }
 
   try {
-    const args = parseDescribeFlags(options);
-    const ret = await driftctl(args);
-    process.exit(ret);
+    const describe = await runDriftCTL({
+      options: { kind: 'describe', ...options },
+    });
+    if (describe.code === DCTL_EXIT_CODES.EXIT_ERROR) {
+      process.exit(describe.code);
+    }
+    // TODO handle drift related analytics here
+    //const driftctlAnalysis = parseDriftAnalysisResults(describe.stdout)
+    const fmtResult = await runDriftCTL({
+      options: { kind: 'fmt', ...options },
+      input: describe.stdout,
+    });
+    process.stdout.write(fmtResult.stdout);
+    process.exit(describe.code);
   } catch (e) {
     const err = new Error('Error running `iac describe` ' + e);
     return Promise.reject(err);

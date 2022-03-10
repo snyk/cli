@@ -1,5 +1,6 @@
 import * as debugLib from 'debug';
 import * as child_process from 'child_process';
+import { StdioOptions } from 'child_process';
 import * as os from 'os';
 import envPaths from 'env-paths';
 import * as fs from 'fs';
@@ -13,11 +14,19 @@ import {
   verifyServiceMappingExists,
 } from './service-mappings';
 import { EXIT_CODES } from '../../cli/exit-codes';
+import {
+  DescribeOptions,
+  DriftAnalysis,
+  DriftctlExecutionResult,
+  DriftCTLOptions,
+  FmtOptions,
+  GenDriftIgnoreOptions,
+} from './types';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
 
-export const driftctlVersion = 'v0.22.0';
+export const driftctlVersion = 'v0.23.0';
 
 export const DCTL_EXIT_CODES = {
   EXIT_IN_SYNC: 0,
@@ -27,64 +36,49 @@ export const DCTL_EXIT_CODES = {
 
 const driftctlChecksums = {
   'driftctl_windows_386.exe':
-    'bc51261061cea3d3c71d8ce9449e6f052b73d6faa98debe8d714362b30bdaa1f',
+    'e5befbafe2291674a4d6c8522411a44fea3549057fb46d331402d49b180202fe',
   driftctl_darwin_amd64:
-    '8f268f57c5ba9e78f7c9f228bc7a4690b8d7671a721ef3adfa1e87da71a71c6f',
+    '9af4e88a8e08e53ac3c373407bdd0b18a91941dc620266349f10600fc7b283d2',
   driftctl_linux_386:
-    'b4bbeffe76e0b5bd461e5034886dea1256b90e90136b6bdb8f4f89a4fd2ea792',
+    '6cd2719f81210017e3f67677cb92f4b0060976a3588c220b4af6b2dda174df8f',
   driftctl_linux_amd64:
-    '6bd0f400aa717dc44e860c59394901a1256177d06e1eba198ce5adc21aa64d60',
+    'd714a3d11056169f4c4cc047b48b4d732f5df8cdfbc00e40c3e5f6e6cc5ead3e',
   driftctl_linux_arm64:
-    '8e3bbff72db5105de3bfb203537ab47dbca5240db28192f12a5b032b33f8a1cc',
+    '24812c8b2ec2d8e3d619317e76fbba0d8e7e263fc2c26cba26265a9656e8fe91',
   'driftctl_windows_arm64.exe':
-    '781dbc12bd6bdae32637fd1a69579f8744d72de702485f3068c81972cc6d5966',
+    'd84461f0ba63b59aec66393fa67147f4157b5bddc02a19315d737c5f5a46c07b',
   driftctl_darwin_arm64:
-    '8ae04ef9cfc7ec364638e85a4e00e03484d6057b54dd51b17c3d51ebdd70cec5',
+    'b711143d9331a10fc34c202284f67ce5eeb0348baca546b47af139f418f812c1',
   'driftctl_windows_arm.exe':
-    '039f5cfb5244c832ae1c2b6fcf25a4004a1abbd5b8a366030d9cd3832214136f',
+    'b5d24e1407c24ddfff63ffbba85eb1dc13473e2fd36e3e99e5e1762cf615f011',
   driftctl_linux_arm:
-    'a71dfdb6a18af1d99e6234ab18a07b436c46f24939d4bab6357af4c18ce00987',
+    '089665efa8a7c5e95b3cee9ace85fc5b0f2d7f2a29c351f2d3dbef3dae553e2d',
   'driftctl_windows_amd64.exe':
-    '6084cce4a8753a7efa57c71ac56165d80011bfc21a16e07372981e8c004a636b',
+    'bf7310277eeccc2679b529c1f1d2ced30e877949a6d7c5606eb2d4c2ec033b66',
 };
 
 const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
 const driftctlPath = path.join(cachePath, 'driftctl_' + driftctlVersion);
 const driftctlDefaultOptions = ['--no-version-check'];
 
-export interface DriftctlGenDriftIgnoreOptions {
-  input?: string;
-  output?: string;
-  'exclude-changed'?: boolean;
-  'exclude-missing'?: boolean;
-  'exclude-unmanaged'?: boolean;
-}
+export const generateArgs = (options: DriftCTLOptions): string[] => {
+  if (options.kind === 'describe') {
+    return generateScanFlags(options as DescribeOptions);
+  }
 
-interface DriftCTLOptions {
-  quiet?: true;
-  filter?: string;
-  to?: string;
-  headers?: string;
-  'tfc-token'?: string;
-  'tfc-endpoint'?: string;
-  'tf-provider-version'?: string;
-  strict?: true;
-  deep?: true;
-  'only-managed'?: true;
-  'only-unmanaged'?: true;
-  driftignore?: string;
-  'tf-lockfile'?: string;
-  'config-dir'?: string;
-  json?: boolean;
-  'json-file-output'?: string;
-  html?: boolean;
-  'html-file-output'?: string;
-  service?: string;
-  from?: string; // snyk cli args parsing does not support variadic args so this will be coma separated values
-}
+  if (options.kind === 'gen-driftignore') {
+    return generateGenDriftIgnoreFlags(options as GenDriftIgnoreOptions);
+  }
 
-export const parseGenDriftIgnoreFlags = (
-  options: DriftctlGenDriftIgnoreOptions,
+  if (options.kind === 'fmt') {
+    return generateFmtFlags(options as FmtOptions);
+  }
+
+  throw 'Unsupported command';
+};
+
+export const generateGenDriftIgnoreFlags = (
+  options: GenDriftIgnoreOptions,
 ): string[] => {
   const args: string[] = ['gen-driftignore', ...driftctlDefaultOptions];
 
@@ -113,17 +107,8 @@ export const parseGenDriftIgnoreFlags = (
   return args;
 };
 
-export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
-  const args: string[] = ['scan', ...driftctlDefaultOptions];
-
-  if (options.quiet) {
-    args.push('--quiet');
-  }
-
-  if (options.filter) {
-    args.push('--filter');
-    args.push(options.filter);
-  }
+const generateFmtFlags = (options: FmtOptions): string[] => {
+  const args: string[] = ['fmt', ...driftctlDefaultOptions];
 
   if (options.json) {
     args.push('--output');
@@ -144,6 +129,24 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
     args.push('--output');
     args.push('html://' + options['html-file-output']);
   }
+
+  return args;
+};
+
+const generateScanFlags = (options: DescribeOptions): string[] => {
+  const args: string[] = ['scan', ...driftctlDefaultOptions];
+
+  if (options.quiet) {
+    args.push('--quiet');
+  }
+
+  if (options.filter) {
+    args.push('--filter');
+    args.push(options.filter);
+  }
+
+  args.push('--output');
+  args.push('json://stdout');
 
   if (options.headers) {
     args.push('--headers');
@@ -226,7 +229,7 @@ export const parseDescribeFlags = (options: DriftCTLOptions): string[] => {
   return args;
 };
 
-export function translateExitCode(exitCode: number) {
+export function translateExitCode(exitCode: number | null): number {
   switch (exitCode) {
     case DCTL_EXIT_CODES.EXIT_IN_SYNC:
       return 0;
@@ -240,34 +243,52 @@ export function translateExitCode(exitCode: number) {
   }
 }
 
-export async function driftctl(args: string[]): Promise<number> {
+export const parseDriftAnalysisResults = (input: string): DriftAnalysis => {
+  return JSON.parse(input) as DriftAnalysis;
+};
+
+export const runDriftCTL = async ({
+  options,
+  input,
+  stdio,
+}: {
+  options: DriftCTLOptions;
+  input?: string;
+  stdio?: StdioOptions;
+}): Promise<DriftctlExecutionResult> => {
+  const path = await findOrDownload();
+  const args = generateArgs(options);
+
+  if (!stdio) {
+    stdio = ['pipe', 'pipe', 'inherit'];
+  }
+
   debug('running driftctl %s ', args.join(' '));
 
-  const path = await findOrDownload();
+  const p = child_process.spawn(path, args, {
+    stdio,
+    env: { ...process.env, DCTL_IS_SNYK: 'true' },
+  });
 
-  const exitCode = await launch(path, args);
-
-  return translateExitCode(exitCode);
-}
-
-async function launch(path: string, args: string[]): Promise<number> {
-  return new Promise<number>((resolve, reject) => {
-    const child = child_process.spawn(path, args, { stdio: 'inherit' });
-
-    child.on('error', (error) => {
+  let stdout = '';
+  return new Promise<DriftctlExecutionResult>((resolve, reject) => {
+    if (input) {
+      p.stdin?.write(input);
+      p.stdin?.end();
+    }
+    p.on('error', (error) => {
       reject(error);
     });
 
-    child.on('exit', (code) => {
-      if (code == null) {
-        //failed to find why this could happen...
-        reject(new Error('Process was terminated'));
-      } else {
-        resolve(code);
-      }
+    p.stdout?.on('data', (data) => {
+      stdout += data;
+    });
+
+    p.on('exit', (code) => {
+      resolve({ code: translateExitCode(code), stdout });
     });
   });
-}
+};
 
 async function findOrDownload(): Promise<string> {
   let dctl = await findDriftCtl();
@@ -283,7 +304,7 @@ async function findOrDownload(): Promise<string> {
   return dctl;
 }
 
-export async function findDriftCtl(): Promise<string> {
+async function findDriftCtl(): Promise<string> {
   // lookup in custom path contained in env var DRIFTCTL_PATH
   let dctlPath = config.DRIFTCTL_PATH;
   if (dctlPath != null) {
