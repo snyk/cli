@@ -4,11 +4,15 @@ import { getAuthHeader } from '../api-token';
 import { IacShareResultsFormat } from '../../cli/commands/test/iac-local-execution/types';
 import { convertIacResultToScanResult } from './envelope-formatters';
 import { AuthFailedError } from '../errors/authentication-failed-error';
+import { Policy } from '../policy/find-and-load-policy';
 
 export async function shareResults(
   results: IacShareResultsFormat[],
+  policy: Policy | undefined,
 ): Promise<Record<string, string>> {
-  const scanResults = results.map(convertIacResultToScanResult);
+  const scanResults = results.map((result) =>
+    convertIacResultToScanResult(result, policy),
+  );
 
   const { res, body } = await makeRequest({
     method: 'POST',
