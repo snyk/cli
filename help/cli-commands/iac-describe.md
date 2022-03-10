@@ -48,6 +48,14 @@ Output report as html to stdout or into a file.
 
 driftctl supports multiple providers. By default it will scan against AWS, but you can change this using `--to`.
 
+### `--ignore-policy`
+
+Ignore all set policies, the current policy in the `.snyk` file, Org level ignores, and the project policy on snyk.io.
+
+### `--policy-path=<PATH_TO_POLICY_FILE>`
+
+Manually pass a path to a `.snyk` policy file.
+
 #### Usage
 
 Environment: `DCTL_TO`

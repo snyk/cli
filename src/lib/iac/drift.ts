@@ -24,6 +24,7 @@ import {
 } from './types';
 import { TimerMetricInstance } from '../metrics';
 import * as analytics from '../../lib/analytics';
+import { Policy } from '../policy/find-and-load-policy';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
@@ -195,6 +196,11 @@ const generateScanFlags = (options: DescribeOptions): string[] => {
   if (options['tf-lockfile']) {
     args.push('--tf-lockfile');
     args.push(options['tf-lockfile']);
+  }
+
+  if (options.ignore && options.ignore.length > 0) {
+    args.push('--ignore');
+    args.push(options.ignore.join(','));
   }
 
   let configDir = cachePath;
@@ -464,4 +470,12 @@ function createIfNotExists(path: string) {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path, { recursive: true });
   }
+}
+
+export function driftignoreFromPolicy(policy: Policy | undefined): string[] {
+  const excludeSection = 'iac-drift';
+  if (!policy || !policy.exclude || !(excludeSection in policy.exclude)) {
+    return [];
+  }
+  return policy.exclude[excludeSection];
 }

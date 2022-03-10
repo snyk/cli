@@ -1,0 +1,10 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.22.1
+exclude:
+  iac-drift:
+    - '*'
+    - '!aws_iam_*'
+    - 'aws_s3_*'
+    - 'aws_s3_bucket.*'
+    - 'aws_s3_bucket.name*'
+patch: {}

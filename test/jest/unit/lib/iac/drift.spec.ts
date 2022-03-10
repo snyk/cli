@@ -6,6 +6,7 @@ import {
   generateArgs,
   parseDriftAnalysisResults,
   translateExitCode,
+  driftignoreFromPolicy,
 } from '../../../../../src/lib/iac/drift';
 import envPaths from 'env-paths';
 import { EXIT_CODES } from '../../../../../src/cli/exit-codes';
@@ -18,6 +19,8 @@ import {
 } from '../../../../../src/lib/iac/types';
 import { addIacDriftAnalytics } from '../../../../../src/cli/commands/test/iac-local-execution/analytics';
 import * as analytics from '../../../../../src/lib/analytics';
+import * as snykPolicy from 'snyk-policy';
+import { Policy } from '../../../../../src/lib/policy/find-and-load-policy';
 
 const paths = envPaths('snyk');
 
@@ -64,6 +67,7 @@ describe('driftctl integration', () => {
       to: 'to',
       'only-managed': true,
       'only-unmanaged': true,
+      ignore: ['*', '!aws_s3_bucket'],
     } as DescribeOptions);
     expect(args).toEqual([
       'scan',
@@ -89,6 +93,8 @@ describe('driftctl integration', () => {
       'driftignore',
       '--tf-lockfile',
       'tflockfile',
+      '--ignore',
+      '*,!aws_s3_bucket',
       '--config-dir',
       'confdir',
       '--from',
@@ -288,5 +294,39 @@ describe('drift analytics', () => {
       123,
     );
     expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-scan-scope', 'all');
+  });
+});
+describe('driftignoreFromPolicy', () => {
+  const loadPolicy = async (name: string): Promise<Policy> => {
+    const policyPath = path.join(__dirname, 'fixtures', name);
+    const policyText = fs.readFileSync(policyPath, 'utf-8');
+    return await snykPolicy.loadFromText(policyText);
+  };
+
+  it.each([
+    ['policy undefined', undefined, []],
+    ['policy with no excludes', loadPolicy('policy-no-excludes.yml'), []],
+    [
+      'policy with irrelevant excludes',
+      loadPolicy('policy-irrelevant-excludes.yml'),
+      [],
+    ],
+    [
+      'policy with empty drift excludes',
+      loadPolicy('policy-empty-drift-excludes.yml'),
+      [],
+    ],
+    [
+      'policy with one drift exclude',
+      loadPolicy('policy-one-drift-exclude.yml'),
+      ['foo'],
+    ],
+    [
+      'policy with several drift excludes',
+      loadPolicy('policy-several-drift-excludes.yml'),
+      ['*', '!aws_iam_*', 'aws_s3_*', 'aws_s3_bucket.*', 'aws_s3_bucket.name*'],
+    ],
+  ])('%s', async (_, policy, expected) => {
+    expect(driftignoreFromPolicy(await policy)).toEqual(expected);
   });
 });
