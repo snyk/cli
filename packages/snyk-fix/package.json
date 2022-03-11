@@ -43,7 +43,7 @@
     "debug": "^4.3.1",
     "lodash.groupby": "4.6.0",
     "lodash.sortby": "^4.7.0",
-    "ora": "5.4.0",
+    "ora": "5.4.1",
     "p-map": "^4.0.0",
     "strip-ansi": "6.0.0",
     "toml": "3.0.0"
