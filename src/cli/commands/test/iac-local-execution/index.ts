@@ -23,6 +23,7 @@ import {
   parseFiles,
   scanFiles,
   trackUsage,
+  loadAndParseTerraformFiles,
 } from './measurable-methods';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import config from '../../../../lib/config';
@@ -31,7 +32,6 @@ import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
 import { initRules } from './rules';
 import { NoFilesToScanError } from './file-loader';
 import { formatAndShareResults } from './share-results';
-import { loadAndParseTerraformFiles } from './handle-terraform-files';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.

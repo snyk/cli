@@ -10,6 +10,7 @@ import { test } from './index';
 import { pull } from './oci-pull';
 import { performanceAnalyticsObject } from './analytics';
 import { PerformanceAnalyticsKey } from './types';
+import { loadAndParseTerraformFiles } from './handle-terraform-files';
 
 // Unwrap a promise: https://stackoverflow.com/questions/48011353/how-to-unwrap-type-of-a-promise
 type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
@@ -102,6 +103,11 @@ const measurableOciPull = asyncPerformanceAnalyticsDecorator(
   PerformanceAnalyticsKey.Total,
 );
 
+const measurableLoadAndParseTerraformFiles = asyncPerformanceAnalyticsDecorator(
+  loadAndParseTerraformFiles,
+  PerformanceAnalyticsKey.Total,
+);
+
 export {
   measurableInitLocalCache as initLocalCache,
   measurableLoadFiles as loadFiles,
@@ -114,4 +120,5 @@ export {
   measurableCleanLocalCache as cleanLocalCache,
   measurableLocalTest as localTest,
   measurableOciPull as pull,
+  measurableLoadAndParseTerraformFiles as loadAndParseTerraformFiles,
 };
