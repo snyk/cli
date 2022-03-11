@@ -20,7 +20,7 @@ jobs:
           gh repo clone snyk/user-docs docs -- --depth=1 --quiet
           git -C ./cli checkout -b docs/automatic-gitbook-update
 
-          cp ./docs/docs/features/snyk-cli/commands/*.md ./cli/help/cli-commands/
+          cp ./docs/docs/snyk-cli/commands/*.md ./cli/help/cli-commands/
 
           if [[ $(git -C ./cli status --porcelain) ]]; then
             echo "Documentation changes detected"
