@@ -22,6 +22,7 @@ const keys: (keyof IaCTestFlags)[] = [
   'quiet',
   'scan',
   'report',
+  'target-reference',
 
   // PolicyOptions
   'ignore-policy',

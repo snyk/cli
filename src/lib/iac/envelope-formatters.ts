@@ -1,5 +1,6 @@
 import {
   IacShareResultsFormat,
+  IaCTestFlags,
   PolicyMetadata,
 } from '../../cli/commands/test/iac-local-execution/types';
 import { GitTarget, ScanResult } from '../ecosystems/types';
@@ -9,6 +10,7 @@ export function convertIacResultToScanResult(
   iacResult: IacShareResultsFormat,
   policy: Policy | undefined,
   gitTarget: GitTarget,
+  options?: IaCTestFlags,
 ): ScanResult {
   return {
     identity: {
@@ -28,5 +30,6 @@ export function convertIacResultToScanResult(
         ? { name: iacResult.projectName }
         : { ...gitTarget, branch: 'master' },
     policy: policy?.toString() ?? '',
+    targetReference: options?.['target-reference'],
   };
 }

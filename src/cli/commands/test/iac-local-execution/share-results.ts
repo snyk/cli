@@ -21,5 +21,5 @@ export async function formatAndShareResults(
 
   const formattedResults = formatShareResults(results, options);
 
-  return await shareResults(formattedResults, policy);
+  return await shareResults(formattedResults, policy, options);
 }
