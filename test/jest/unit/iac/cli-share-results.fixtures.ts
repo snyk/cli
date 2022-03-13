@@ -122,6 +122,7 @@ export const expectedEnvelopeFormatterResults = [
     target: {
       remoteUrl: 'http://github.com/snyk/cli.git',
     },
+    targetReference: undefined,
   },
   {
     identity: {
@@ -163,6 +164,7 @@ export const expectedEnvelopeFormatterResults = [
     target: {
       remoteUrl: 'http://github.com/snyk/cli.git',
     },
+    targetReference: undefined,
   },
 ];
 
@@ -182,3 +184,13 @@ patch: {}
     };
   },
 );
+
+export const createEnvelopeFormatterResultsWithTargetRef = (
+  targetReference: string,
+) =>
+  expectedEnvelopeFormatterResults.map((result) => {
+    return {
+      ...result,
+      targetReference,
+    };
+  });

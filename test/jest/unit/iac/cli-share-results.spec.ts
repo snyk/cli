@@ -2,6 +2,7 @@ import { shareResults } from '../../../../src/lib/iac/cli-share-results';
 import {
   expectedEnvelopeFormatterResults,
   expectedEnvelopeFormatterResultsWithPolicy,
+  createEnvelopeFormatterResultsWithTargetRef,
   scanResults,
 } from './cli-share-results.fixtures';
 import * as request from '../../../../src/lib/request';
@@ -59,6 +60,58 @@ describe('CLI Share Results', () => {
       secondCallResult,
     ] = envelopeFormattersSpy.mock.results;
 
+    expect(firstCallResult.value).toEqual(
+      expectedEnvelopeFormatterResultsWithPolicy[0],
+    );
+    expect(secondCallResult.value).toEqual(
+      expectedEnvelopeFormatterResultsWithPolicy[1],
+    );
+  });
+
+  describe('when given a target reference', () => {
+    it("should include it in the Envelope's ScanResult interface", async () => {
+      const testTargetRef = 'test-target-ref';
+      const expectedEnvelopeFormatterResults = createEnvelopeFormatterResultsWithTargetRef(
+        testTargetRef,
+      );
+
+      await shareResults(scanResults, undefined, {
+        'target-reference': testTargetRef,
+      });
+
+      expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
+
+      const [firstCall, secondCall] = envelopeFormattersSpy.mock.calls;
+      expect(firstCall[0]).toEqual(scanResults[0]);
+      expect(secondCall[0]).toEqual(scanResults[1]);
+
+      const [
+        firstCallResult,
+        secondCallResult,
+      ] = envelopeFormattersSpy.mock.results;
+      expect(firstCallResult.value).toEqual(
+        expectedEnvelopeFormatterResults[0],
+      );
+
+      expect(secondCallResult.value).toEqual(
+        expectedEnvelopeFormatterResults[1],
+      );
+    });
+  });
+
+  it("converts the results to Envelope's ScanResult interface - with .snyk policies", async () => {
+    await shareResults(scanResults, snykPolicy);
+
+    expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
+
+    const [firstCall, secondCall] = envelopeFormattersSpy.mock.calls;
+    expect(firstCall[0]).toEqual(scanResults[0]);
+    expect(secondCall[0]).toEqual(scanResults[1]);
+
+    const [
+      firstCallResult,
+      secondCallResult,
+    ] = envelopeFormattersSpy.mock.results;
     expect(firstCallResult.value).toEqual(
       expectedEnvelopeFormatterResultsWithPolicy[0],
     );

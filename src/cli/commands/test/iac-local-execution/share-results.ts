@@ -6,14 +6,21 @@ import { FeatureFlagError } from './assert-iac-options-flag';
 import { formatShareResults } from './share-results-formatter';
 import { IacFileScanResult, IaCTestFlags } from './types';
 
-export async function formatAndShareResults(
-  results: IacFileScanResult[],
-  options: IaCTestFlags,
-  orgPublicId: string,
-  policy: Policy | undefined,
-  tags?: Tag[],
-  attributes?: ProjectAttributes,
-): Promise<Record<string, string>> {
+export async function formatAndShareResults({
+  results,
+  options,
+  orgPublicId,
+  policy,
+  tags,
+  attributes,
+}: {
+  results: IacFileScanResult[];
+  options: IaCTestFlags;
+  orgPublicId: string;
+  policy: Policy | undefined;
+  tags?: Tag[];
+  attributes?: ProjectAttributes;
+}): Promise<Record<string, string>> {
   const isCliReportEnabled = await isFeatureFlagSupportedForOrg(
     'iacCliShareResults',
     orgPublicId,
@@ -24,5 +31,11 @@ export async function formatAndShareResults(
 
   const formattedResults = formatShareResults(results, options);
 
-  return await shareResults(formattedResults, policy, tags, attributes);
+  return await shareResults({
+    results: formattedResults,
+    policy,
+    tags,
+    attributes,
+    options,
+  });
 }

@@ -1,9 +1,11 @@
 import config from '../config';
 import { makeRequest } from '../request';
 import { getAuthHeader } from '../api-token';
-import { IacShareResultsFormat } from '../../cli/commands/test/iac-local-execution/types';
+import {
+  IacShareResultsFormat,
+  IaCTestFlags,
+} from '../../cli/commands/test/iac-local-execution/types';
 import { convertIacResultToScanResult } from './envelope-formatters';
-import { AuthFailedError } from '../errors/authentication-failed-error';
 import { Policy } from '../policy/find-and-load-policy';
 import { getInfo } from '../project-metadata/target-builders/git';
 import { GitTarget } from '../ecosystems/types';
@@ -11,18 +13,27 @@ import { Contributor } from '../types';
 import * as analytics from '../analytics';
 import { getContributors } from '../monitor/dev-count-analysis';
 import * as Debug from 'debug';
+import { AuthFailedError, ValidationError } from '../errors';
+
 const debug = Debug('iac-cli-share-results');
 import { ProjectAttributes, Tag } from '../types';
 
-export async function shareResults(
-  results: IacShareResultsFormat[],
-  policy: Policy | undefined,
-  tags?: Tag[],
-  attributes?: ProjectAttributes,
-): Promise<Record<string, string>> {
+export async function shareResults({
+  results,
+  policy,
+  tags,
+  attributes,
+  options,
+}: {
+  results: IacShareResultsFormat[];
+  policy: Policy | undefined;
+  tags?: Tag[];
+  attributes?: ProjectAttributes;
+  options?: IaCTestFlags;
+}): Promise<Record<string, string>> {
   const gitTarget = (await getInfo(false)) as GitTarget;
   const scanResults = results.map((result) =>
-    convertIacResultToScanResult(result, policy, gitTarget),
+    convertIacResultToScanResult(result, policy, gitTarget, options),
   );
 
   let contributors: Contributor[] = [];
@@ -52,6 +63,12 @@ export async function shareResults(
 
   if (res.statusCode === 401) {
     throw AuthFailedError();
+  }
+
+  if (res.statusCode === 422) {
+    throw new ValidationError(
+      res.body.error ?? 'An error occurred, please contact Snyk support',
+    );
   }
 
   return body;

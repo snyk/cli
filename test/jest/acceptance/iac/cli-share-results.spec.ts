@@ -175,5 +175,42 @@ describe('CLI Share Results', () => {
         },
       });
     });
+
+    describe('with target reference', () => {
+      it('forwards the target reference to iac-cli-share-results endpoint', async () => {
+        const testTargetRef = 'test-target-ref';
+
+        const { exitCode } = await run(
+          `snyk iac test ./iac/arm/rule_test.json --report --target-reference=${testTargetRef}`,
+        );
+
+        expect(exitCode).toEqual(1);
+
+        const testRequests = server
+          .getRequests()
+          .filter((request) => request.url?.includes('/iac-cli-share-results'));
+
+        expect(testRequests[0]).toMatchObject({
+          body: {
+            contributors: expect.any(Array),
+            scanResults: [
+              {
+                identity: {
+                  type: 'armconfig',
+                  targetFile: './iac/arm/rule_test.json',
+                },
+                facts: [],
+                findings: expect.arrayContaining([]),
+                name: 'arm',
+                target: {
+                  remoteUrl: 'http://github.com/snyk/cli.git',
+                },
+                targetReference: testTargetRef,
+              },
+            ],
+          },
+        });
+      });
+    });
   });
 });

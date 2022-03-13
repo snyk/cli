@@ -180,6 +180,8 @@ export type IaCTestFlags = Pick<
   | 'json'
   | 'sarif'
   | 'report'
+  | 'target-reference'
+
   // PolicyOptions
   | 'ignore-policy'
   | 'policy-path'
