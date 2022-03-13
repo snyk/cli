@@ -123,6 +123,7 @@ export async function test(
         resultsWithCustomSeverities,
         options,
         orgPublicId,
+        policy,
       );
     }
 

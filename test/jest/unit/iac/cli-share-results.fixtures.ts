@@ -35,26 +35,24 @@ const anotherPolicyStub: PolicyMetadata = {
   docId: 1,
 };
 
-export function generateScanResults(): IacShareResultsFormat[] {
-  return [
-    {
-      projectName: 'projectA',
-      targetFile: 'file.yaml',
-      filePath: '/some/path/to/file.yaml',
-      fileType: 'yaml',
-      projectType: IacProjectType.K8S,
-      violatedPolicies: [{ ...policyStub }, { ...anotherPolicyStub }],
-    },
-    {
-      projectName: 'projectB',
-      targetFile: 'file.yaml',
-      filePath: '/some/path/to/file.yaml',
-      fileType: 'yaml',
-      projectType: IacProjectType.K8S,
-      violatedPolicies: [{ ...policyStub }],
-    },
-  ];
-}
+export const scanResults: IacShareResultsFormat[] = [
+  {
+    projectName: 'projectA',
+    targetFile: 'file.yaml',
+    filePath: '/some/path/to/file.yaml',
+    fileType: 'yaml',
+    projectType: IacProjectType.K8S,
+    violatedPolicies: [{ ...policyStub }, { ...anotherPolicyStub }],
+  },
+  {
+    projectName: 'projectB',
+    targetFile: 'file.yaml',
+    filePath: '/some/path/to/file.yaml',
+    fileType: 'yaml',
+    projectType: IacProjectType.K8S,
+    violatedPolicies: [{ ...policyStub }],
+  },
+];
 
 export const expectedEnvelopeFormatterResults = [
   {
@@ -120,6 +118,7 @@ export const expectedEnvelopeFormatterResults = [
       },
     ],
     name: 'projectA',
+    policy: '',
     target: { name: 'projectA' },
   },
   {
@@ -158,6 +157,24 @@ export const expectedEnvelopeFormatterResults = [
       },
     ],
     name: 'projectB',
+    policy: '',
     target: { name: 'projectB' },
   },
 ];
+
+export const expectedEnvelopeFormatterResultsWithPolicy = expectedEnvelopeFormatterResults.map(
+  (result) => {
+    return {
+      ...result,
+      policy: `# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.22.2
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-CC-TF-4:
+    - '*':
+        reason: IGNORE ALL THE THINGS!
+patch: {}
+`,
+    };
+  },
+);

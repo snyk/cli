@@ -1,18 +1,20 @@
 import { shareResults } from '../../../../src/lib/iac/cli-share-results';
 import {
   expectedEnvelopeFormatterResults,
-  generateScanResults,
+  expectedEnvelopeFormatterResultsWithPolicy,
+  scanResults,
 } from './cli-share-results.fixtures';
 import * as request from '../../../../src/lib/request';
 import * as envelopeFormatters from '../../../../src/lib/iac/envelope-formatters';
-import { IacShareResultsFormat } from '../../../../src/cli/commands/test/iac-local-execution/types';
+import { Policy } from '../../../../src/lib/policy/find-and-load-policy';
+import * as snykPolicyLib from 'snyk-policy';
 
 describe('CLI Share Results', () => {
-  let scanResults: IacShareResultsFormat[];
+  let snykPolicy: Policy;
   let requestSpy, envelopeFormattersSpy;
 
   beforeAll(async () => {
-    scanResults = generateScanResults();
+    snykPolicy = await snykPolicyLib.load('test/jest/unit/iac/fixtures');
     requestSpy = await jest.spyOn(request, 'makeRequest');
     envelopeFormattersSpy = await jest.spyOn(
       envelopeFormatters,
@@ -20,16 +22,14 @@ describe('CLI Share Results', () => {
     );
   });
 
-  beforeEach(async () => {
-    await shareResults(scanResults);
-  });
-
   afterEach(() => {
     requestSpy.mockClear();
     envelopeFormattersSpy.mockClear();
   });
 
-  it("converts the results to Envelops's ScanResult interface", () => {
+  it("converts the results to Envelope's ScanResult interface - without .snyk policies", async () => {
+    await shareResults(scanResults, undefined);
+
     expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
 
     const [firstCall, secondCall] = envelopeFormattersSpy.mock.calls;
@@ -44,7 +44,30 @@ describe('CLI Share Results', () => {
     expect(secondCallResult.value).toEqual(expectedEnvelopeFormatterResults[1]);
   });
 
-  it('forwards value to iac-cli-share-results endpoint', () => {
+  it("converts the results to Envelope's ScanResult interface - with .snyk policies", async () => {
+    await shareResults(scanResults, snykPolicy);
+
+    expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
+
+    const [firstCall, secondCall] = envelopeFormattersSpy.mock.calls;
+    expect(firstCall[0]).toEqual(scanResults[0]);
+    expect(secondCall[0]).toEqual(scanResults[1]);
+
+    const [
+      firstCallResult,
+      secondCallResult,
+    ] = envelopeFormattersSpy.mock.results;
+    expect(firstCallResult.value).toEqual(
+      expectedEnvelopeFormatterResultsWithPolicy[0],
+    );
+    expect(secondCallResult.value).toEqual(
+      expectedEnvelopeFormatterResultsWithPolicy[1],
+    );
+  });
+
+  it('forwards value to iac-cli-share-results endpoint', async () => {
+    await shareResults(scanResults, undefined);
+
     expect(requestSpy.mock.calls.length).toBe(1);
 
     expect(requestSpy.mock.calls[0][0]).toMatchObject({
