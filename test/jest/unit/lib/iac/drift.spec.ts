@@ -2,6 +2,7 @@ import * as mockFs from 'mock-fs';
 
 import {
   DCTL_EXIT_CODES,
+  driftctlVersion,
   generateArgs,
   parseDriftAnalysisResults,
   translateExitCode,
@@ -15,6 +16,8 @@ import {
   DriftAnalysis,
   GenDriftIgnoreOptions,
 } from '../../../../../src/lib/iac/types';
+import { addIacDriftAnalytics } from '../../../../../src/cli/commands/test/iac-local-execution/analytics';
+import * as analytics from '../../../../../src/lib/analytics';
 
 const paths = envPaths('snyk');
 
@@ -155,7 +158,7 @@ describe('driftctl integration', () => {
 
 // That test mostly cover the Types definition
 // There is no really any custom logic in that method
-describe('parseDriftAnalysisResults ', () => {
+describe('parseDriftAnalysisResults', () => {
   it('should parse correctly drift analysis', () => {
     const driftAnalysisFile = fs.readFileSync(
       path.resolve(__dirname, `fixtures/driftctl-analysis.json`),
@@ -235,5 +238,55 @@ describe('parseDriftAnalysisResults ', () => {
       ],
     };
     expect(analysis).toEqual(expected);
+  });
+});
+
+describe('drift analytics', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  it('should add most of all drift analytics depending on a given analysis', () => {
+    const addAnalyticsSpy = jest.spyOn(analytics, 'add');
+    const options: DescribeOptions = { kind: 'describe', deep: true };
+    const driftAnalysisFile = fs.readFileSync(
+      path.resolve(__dirname, `fixtures/driftctl-analysis.json`),
+    );
+    const analysis = parseDriftAnalysisResults(driftAnalysisFile.toString());
+    addIacDriftAnalytics(analysis, options);
+
+    expect(addAnalyticsSpy).toHaveBeenCalledTimes(13);
+    expect(addAnalyticsSpy).toHaveBeenCalledWith('is-iac-drift', true);
+    expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-coverage', 33);
+    expect(addAnalyticsSpy).toHaveBeenCalledWith(
+      'iac-drift-total-resources',
+      6,
+    );
+    expect(addAnalyticsSpy).toHaveBeenCalledWith(
+      'iac-drift-total-unmanaged',
+      2,
+    );
+    expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-total-managed', 2);
+    expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-total-missing', 2);
+    expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-total-changed', 1);
+    expect(addAnalyticsSpy).toHaveBeenCalledWith(
+      'iac-drift-iac-source-count',
+      3,
+    );
+    expect(addAnalyticsSpy).toHaveBeenCalledWith(
+      'iac-drift-provider-name',
+      'AWS',
+    );
+    expect(addAnalyticsSpy).toHaveBeenCalledWith(
+      'iac-drift-provider-version',
+      '2.18.5',
+    );
+    expect(addAnalyticsSpy).toHaveBeenCalledWith(
+      'iac-drift-version',
+      driftctlVersion,
+    );
+    expect(addAnalyticsSpy).toHaveBeenCalledWith(
+      'iac-drift-scan-duration',
+      123,
+    );
+    expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-scan-scope', 'all');
   });
 });

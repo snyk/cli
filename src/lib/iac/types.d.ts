@@ -1,7 +1,7 @@
 export type DriftctlExecutionResult = {
   code: number;
   stdout: string;
-} & Omit<DriftFindOrDownloadResult, 'path'>;
+};
 
 interface DriftCTLOptions {
   kind: string;
@@ -109,10 +109,4 @@ export type DriftAnalysis = {
   scan_duration: number;
   provider_name: string;
   provider_version: string;
-};
-
-export type DriftFindOrDownloadResult = {
-  path: string;
-  binaryExist: boolean;
-  downloadDuration: number;
 };

@@ -19,11 +19,11 @@ import {
   DriftAnalysis,
   DriftctlExecutionResult,
   DriftCTLOptions,
-  DriftFindOrDownloadResult,
   FmtOptions,
   GenDriftIgnoreOptions,
 } from './types';
 import { TimerMetricInstance } from '../metrics';
+import * as analytics from '../../lib/analytics';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
@@ -62,6 +62,7 @@ const driftctlChecksums = {
 const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
 const driftctlPath = path.join(cachePath, 'driftctl_' + driftctlVersion);
 const driftctlDefaultOptions = ['--no-version-check'];
+let isBinaryDownloaded = false;
 
 export const generateArgs = (options: DriftCTLOptions): string[] => {
   if (options.kind === 'describe') {
@@ -258,7 +259,7 @@ export const runDriftCTL = async ({
   input?: string;
   stdio?: StdioOptions;
 }): Promise<DriftctlExecutionResult> => {
-  const { path, ...rest } = await findOrDownload();
+  const path = await findOrDownload();
   const args = generateArgs(options);
 
   if (!stdio) {
@@ -287,16 +288,20 @@ export const runDriftCTL = async ({
     });
 
     p.on('exit', (code) => {
-      resolve({ code: translateExitCode(code), stdout, ...rest });
+      resolve({ code: translateExitCode(code), stdout });
     });
   });
 };
 
-async function findOrDownload(): Promise<DriftFindOrDownloadResult> {
+async function findOrDownload(): Promise<string> {
   let dctl = await findDriftCtl();
+  if (isBinaryDownloaded) {
+    return dctl;
+  }
   let downloadDuration = 0;
-  const binaryExist = dctl !== '';
+  let binaryExist = true;
   if (dctl === '') {
+    binaryExist = false;
     try {
       createIfNotExists(cachePath);
       dctl = driftctlPath;
@@ -311,11 +316,10 @@ async function findOrDownload(): Promise<DriftFindOrDownloadResult> {
       return Promise.reject(err);
     }
   }
-  return {
-    path: dctl,
-    binaryExist,
-    downloadDuration,
-  };
+  analytics.add('iac-drift-binary-already-exist', binaryExist);
+  analytics.add('iac-drift-binary-download-duration-seconds', downloadDuration);
+  isBinaryDownloaded = true;
+  return dctl;
 }
 
 async function findDriftCtl(): Promise<string> {
