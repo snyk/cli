@@ -13,6 +13,8 @@ import config from '../../lib/config';
 import { addIacDriftAnalytics } from './test/iac-local-execution/analytics';
 import * as analytics from '../../lib/analytics';
 import { findAndLoadPolicy } from '../../lib/policy';
+import { DescribeRequiredArgumentError } from '../../lib/errors/describe-required-argument-error';
+import help from './help';
 
 export default async (...args: MethodArgs): Promise<any> => {
   const { options } = processCommandArgs(...args);
@@ -56,6 +58,11 @@ export default async (...args: MethodArgs): Promise<any> => {
     process.stdout.write(fmtResult.stdout);
     process.exitCode = describe.code;
   } catch (e) {
+    if (e instanceof DescribeRequiredArgumentError) {
+      // when missing a required arg we will display help to explain
+      const helpMsg = await help('iac', 'describe');
+      console.log(helpMsg);
+    }
     return Promise.reject(e);
   }
 };

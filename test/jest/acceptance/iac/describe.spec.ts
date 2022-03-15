@@ -46,7 +46,7 @@ describe('iac describe', () => {
 
   it('describe fail without the right entitlement', async () => {
     const { stdout, stderr, exitCode } = await run(
-      `snyk iac describe --org=no-iac-drift-entitlements`,
+      `snyk iac describe --all --org=no-iac-drift-entitlements`,
       {
         SNYK_DRIFTCTL_PATH: './iac/drift/args-echo',
       },
@@ -64,7 +64,7 @@ describe('iac describe', () => {
   }
 
   it('Test when driftctl scan exit in error', async () => {
-    const { stdout, stderr, exitCode } = await run(`snyk iac describe`, {
+    const { stdout, stderr, exitCode } = await run(`snyk iac describe  --all`, {
       SNYK_FIXTURE_OUTPUT_PATH: outputFile,
       DCTL_EXIT_CODE: '2',
       SNYK_DRIFTCTL_PATH: path.join(
@@ -80,7 +80,7 @@ describe('iac describe', () => {
   });
 
   it('Launch driftctl from SNYK_DRIFTCTL_PATH env var when org has the entitlement', async () => {
-    const { stdout, stderr, exitCode } = await run(`snyk iac describe`, {
+    const { stdout, stderr, exitCode } = await run(`snyk iac describe  --all`, {
       SNYK_FIXTURE_OUTPUT_PATH: outputFile,
       SNYK_DRIFTCTL_PATH: path.join(
         getFixturePath('iac'),
@@ -114,7 +114,7 @@ describe('iac describe', () => {
 
   it('Download and launch driftctl when executable is not found and org has the entitlement', async () => {
     const cachedir = path.join(os.tmpdir(), 'driftctl_download_' + Date.now());
-    const { stderr, exitCode } = await run(`snyk iac describe`, {
+    const { stderr, exitCode } = await run(`snyk iac describe --all`, {
       SNYK_DRIFTCTL_URL: apiUrl + '/download/driftctl',
       SNYK_CACHE_PATH: cachedir,
     });
