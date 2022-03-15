@@ -8,6 +8,7 @@ import {
   FailedToRunTestError,
   FeatureNotSupportedForOrgError,
   NotFoundError,
+  InternalServerError
 } from '../../errors';
 
 export async function getSastSettings(options: Options): Promise<SastSettings> {
@@ -32,6 +33,10 @@ export async function getSastSettings(options: Options): Promise<SastSettings> {
 
   if (sastSettingsResponse?.code === 404) {
     throw new NotFoundError(sastSettingsResponse?.userMessage);
+  }
+
+  if ((sastSettingsResponse?.code || 0) >= 500) {
+    throw new InternalServerError(sastSettingsResponse?.userMessage)
   }
 
   if (!sastSettingsResponse.sastEnabled) {
