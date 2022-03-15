@@ -72,7 +72,6 @@ async function getCodeAnalysis(
   const severity = options.severityThreshold
     ? severityToAnalysisSeverity(options.severityThreshold)
     : AnalysisSeverity.info;
-
   const result = await analyzeFolders({
     connection: { baseURL, sessionToken, source, requestId },
     analysisOptions: { severity },
@@ -89,6 +88,7 @@ async function getCodeAnalysis(
         flags: {},
       },
     },
+    languages: sastSettings.supportedLanguages,
   });
 
   if (result?.analysisResults.type === 'sarif') {
