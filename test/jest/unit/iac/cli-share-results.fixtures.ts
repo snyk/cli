@@ -119,7 +119,10 @@ export const expectedEnvelopeFormatterResults = [
     ],
     name: 'projectA',
     policy: '',
-    target: { name: 'projectA' },
+    target: {
+      remoteUrl: 'http://github.com/snyk/cli.git',
+      branch: 'master',
+    },
   },
   {
     identity: {
@@ -158,7 +161,10 @@ export const expectedEnvelopeFormatterResults = [
     ],
     name: 'projectB',
     policy: '',
-    target: { name: 'projectB' },
+    target: {
+      remoteUrl: 'http://github.com/snyk/cli.git',
+      branch: 'master',
+    },
   },
 ];
 

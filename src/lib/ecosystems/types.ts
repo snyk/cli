@@ -12,8 +12,8 @@ export interface PluginResponse {
 }
 
 export interface GitTarget {
-  remoteUrl: string;
-  branch: string;
+  remoteUrl?: string;
+  branch?: string;
 }
 
 export interface ContainerTarget {
