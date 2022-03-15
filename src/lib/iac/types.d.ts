@@ -1,7 +1,7 @@
-interface DriftctlExecutionResult {
+export type DriftctlExecutionResult = {
   code: number;
   stdout: string;
-}
+};
 
 interface DriftCTLOptions {
   kind: string;

@@ -2,6 +2,8 @@ import { FormattedResult, PerformanceAnalyticsKey, RulesOrigin } from './types';
 import * as analytics from '../../../../lib/analytics';
 import { calculatePercentage } from './math-utils';
 import { computeCustomRulesBundleChecksum } from './file-utils';
+import { DescribeOptions, DriftAnalysis } from '../../../../lib/iac/types';
+import { driftctlVersion } from '../../../../lib/iac/drift';
 
 export function addIacAnalytics(
   formattedResults: FormattedResult[],
@@ -84,3 +86,32 @@ export const performanceAnalyticsObject: Record<
   [PerformanceAnalyticsKey.CacheCleanup]: null,
   [PerformanceAnalyticsKey.Total]: null,
 };
+
+export function addIacDriftAnalytics(
+  analysis: DriftAnalysis,
+  options: DescribeOptions,
+): void {
+  analytics.add('is-iac-drift', true);
+  analytics.add('iac-drift-coverage', analysis.coverage);
+  analytics.add('iac-drift-total-resources', analysis.summary.total_resources);
+  analytics.add('iac-drift-total-unmanaged', analysis.summary.total_unmanaged);
+  analytics.add('iac-drift-total-managed', analysis.summary.total_managed);
+  analytics.add('iac-drift-total-missing', analysis.summary.total_missing);
+  analytics.add('iac-drift-total-changed', analysis.summary.total_changed);
+  analytics.add(
+    'iac-drift-iac-source-count',
+    analysis.summary.total_iac_source_count,
+  );
+  analytics.add('iac-drift-provider-name', analysis.provider_name);
+  analytics.add('iac-drift-provider-version', analysis.provider_version);
+  analytics.add('iac-drift-version', driftctlVersion);
+  analytics.add('iac-drift-scan-duration', analysis.scan_duration);
+
+  let scope = 'all';
+  if (options['only-managed']) {
+    scope = 'managed';
+  } else if (options['only-unmanaged']) {
+    scope = 'unmanaged';
+  }
+  analytics.add('iac-drift-scan-scope', scope);
+}

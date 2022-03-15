@@ -22,6 +22,8 @@ import {
   FmtOptions,
   GenDriftIgnoreOptions,
 } from './types';
+import { TimerMetricInstance } from '../metrics';
+import * as analytics from '../../lib/analytics';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
@@ -60,6 +62,7 @@ const driftctlChecksums = {
 const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
 const driftctlPath = path.join(cachePath, 'driftctl_' + driftctlVersion);
 const driftctlDefaultOptions = ['--no-version-check'];
+let isBinaryDownloaded = false;
 
 export const generateArgs = (options: DriftCTLOptions): string[] => {
   if (options.kind === 'describe') {
@@ -292,15 +295,30 @@ export const runDriftCTL = async ({
 
 async function findOrDownload(): Promise<string> {
   let dctl = await findDriftCtl();
+  if (isBinaryDownloaded) {
+    return dctl;
+  }
+  let downloadDuration = 0;
+  let binaryExist = true;
   if (dctl === '') {
+    binaryExist = false;
     try {
       createIfNotExists(cachePath);
       dctl = driftctlPath;
+
+      const duration = new TimerMetricInstance('driftctl_download');
+      duration.start();
       await download(driftctlUrl(), dctl);
+      duration.stop();
+
+      downloadDuration = Math.round((duration.getValue() as number) / 1000);
     } catch (err) {
       return Promise.reject(err);
     }
   }
+  analytics.add('iac-drift-binary-already-exist', binaryExist);
+  analytics.add('iac-drift-binary-download-duration-seconds', downloadDuration);
+  isBinaryDownloaded = true;
   return dctl;
 }
 
