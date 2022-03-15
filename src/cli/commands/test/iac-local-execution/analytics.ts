@@ -91,7 +91,6 @@ export function addIacDriftAnalytics(
   analysis: DriftAnalysis,
   options: DescribeOptions,
 ): void {
-  analytics.add('is-iac-drift', true);
   analytics.add('iac-drift-coverage', analysis.coverage);
   analytics.add('iac-drift-total-resources', analysis.summary.total_resources);
   analytics.add('iac-drift-total-unmanaged', analysis.summary.total_unmanaged);

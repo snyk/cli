@@ -253,8 +253,7 @@ describe('drift analytics', () => {
     const analysis = parseDriftAnalysisResults(driftAnalysisFile.toString());
     addIacDriftAnalytics(analysis, options);
 
-    expect(addAnalyticsSpy).toHaveBeenCalledTimes(13);
-    expect(addAnalyticsSpy).toHaveBeenCalledWith('is-iac-drift', true);
+    expect(addAnalyticsSpy).toHaveBeenCalledTimes(12);
     expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-coverage', 33);
     expect(addAnalyticsSpy).toHaveBeenCalledWith(
       'iac-drift-total-resources',
