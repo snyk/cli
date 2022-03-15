@@ -33,6 +33,7 @@ export default async (...args: MethodArgs): Promise<any> => {
     const describe = await runDriftCTL({
       options: { kind: 'describe', ...options },
     });
+    analytics.add('is-iac-drift', true);
     analytics.add('iac-drift-exit-code', describe.code);
     if (describe.code === DCTL_EXIT_CODES.EXIT_ERROR) {
       process.exitCode = describe.code;
