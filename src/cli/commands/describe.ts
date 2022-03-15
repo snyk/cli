@@ -3,14 +3,16 @@ import { processCommandArgs } from './process-command-args';
 import * as legacyError from '../../lib/errors/legacy-errors';
 import {
   DCTL_EXIT_CODES,
-  parseDriftAnalysisResults,
   runDriftCTL,
+  driftignoreFromPolicy,
+  parseDriftAnalysisResults,
 } from '../../lib/iac/drift';
 import { getIacOrgSettings } from './test/iac-local-execution/org-settings/get-iac-org-settings';
 import { UnsupportedEntitlementCommandError } from './test/iac-local-execution/assert-iac-options-flag';
 import config from '../../lib/config';
 import { addIacDriftAnalytics } from './test/iac-local-execution/analytics';
 import * as analytics from '../../lib/analytics';
+import { findAndLoadPolicy } from '../../lib/policy';
 
 export default async (...args: MethodArgs): Promise<any> => {
   const { options } = processCommandArgs(...args);
@@ -28,6 +30,9 @@ export default async (...args: MethodArgs): Promise<any> => {
   if (!iacOrgSettings.entitlements?.iacDrift) {
     throw new UnsupportedEntitlementCommandError('drift', 'iacDrift');
   }
+
+  const policy = await findAndLoadPolicy(process.cwd(), 'iac', options);
+  options.ignore = driftignoreFromPolicy(policy);
 
   try {
     const describe = await runDriftCTL({

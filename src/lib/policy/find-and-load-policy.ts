@@ -52,4 +52,5 @@ export async function findAndLoadPolicy(
 
 export interface Policy {
   filter(vulns: any, root?: string, matchStrategy?: string): any;
+  exclude?: { [key: string]: string[] };
 }

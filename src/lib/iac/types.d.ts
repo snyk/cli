@@ -43,6 +43,7 @@ export interface DescribeOptions extends DriftCTLOptions {
   'html-file-output'?: string;
   service?: string;
   from?: string; // snyk cli args parsing does not support variadic args so this will be coma separated values
+  ignore?: string[];
 }
 
 export type DriftResource = {
