@@ -152,9 +152,9 @@ const generateScanFlags = (options: DescribeOptions): string[] => {
   args.push('--output');
   args.push('json://stdout');
 
-  if (options.headers) {
+  if (options['fetch-tfstate-headers']) {
     args.push('--headers');
-    args.push(options.headers);
+    args.push(options['fetch-tfstate-headers']);
   }
 
   if (options['tfc-token']) {

@@ -10,7 +10,11 @@ import { getStandardData } from './getStandardData';
 // Add flags whose values should be redacted in analytics here.
 // TODO make this less error-prone by baking the concept of sensitivity into the
 // flag-parsing code, but this is a start.
-const sensitiveFlags = ['tfc-token'];
+const sensitiveFlags = [
+  'tfc-token',
+  'azurerm-account-key',
+  'fetch-tfstate-headers',
+];
 
 const debug = createDebug('snyk');
 const metadata = {};
@@ -34,11 +38,13 @@ export function addDataAndSend(
     delete (data.args.slice(-1).pop() || {})._;
 
     data.args.forEach((argObj) => {
-      Object.keys(argObj).forEach((field) => {
-        if (sensitiveFlags.includes(field)) {
-          argObj[field] = 'REDACTED';
-        }
-      });
+      if (typeof argObj === 'object') {
+        Object.keys(argObj).forEach((field) => {
+          if (sensitiveFlags.includes(field)) {
+            argObj[field] = 'REDACTED';
+          }
+        });
+      }
     });
   }
 

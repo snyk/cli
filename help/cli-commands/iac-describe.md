@@ -76,13 +76,13 @@ driftctl supports these providers:
 - `gcp+tf`
 - `azure+tf`
 
-### `--headers`
+### `--fetch-tfstate-headers`
 
 Use a specific HTTP header(s) for the HTTP backend.
 
 Example:
 
-`$ GITLAB_TOKEN=<access_token> \ snyk iac describe \ --from tfstate+https://gitlab.com/api/v4/projects/<project_id>/terraform/state/<path_to_state> \ --headers "Authorization=Bearer ${GITLAB_TOKEN}"`
+`$ GITLAB_TOKEN=<access_token> \ snyk iac describe \ --from tfstate+https://gitlab.com/api/v4/projects/<project_id>/terraform/state/<path_to_state> \ --fetch-tfstate-headers "Authorization=Bearer ${GITLAB_TOKEN}"`
 
 ### `--tfc-token`
 

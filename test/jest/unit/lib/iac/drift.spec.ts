@@ -61,7 +61,7 @@ describe('driftctl integration', () => {
       driftignore: 'driftignore',
       filter: 'filter',
       from: 'from',
-      headers: 'headers',
+      'fetch-tfstate-headers': 'headers',
       quiet: true,
       strict: true,
       to: 'to',
