@@ -6,8 +6,8 @@ import { CustomError } from './lib/errors/custom-error';
  * what should be scanned for issues
  */
 export interface GitTarget {
-  remoteUrl: string;
-  branch: string;
+  remoteUrl?: string;
+  branch?: string;
 }
 export interface ContainerTarget {
   image: string;

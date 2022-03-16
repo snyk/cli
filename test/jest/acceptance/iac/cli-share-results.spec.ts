@@ -68,23 +68,27 @@ describe('CLI Share Results', () => {
         .filter((request) => request.url?.includes('/iac-cli-share-results'));
 
       expect(testRequests.length).toEqual(1);
-
-      expect(testRequests[0]).toMatchObject({
-        body: [
-          {
-            identity: {
-              type: 'armconfig',
-              targetFile: './iac/arm/rule_test.json',
-            },
-            facts: [],
-            findings: expect.arrayContaining([]),
-            name: 'arm',
-            target: {
+      expect(testRequests[0].body).toEqual(
+        expect.objectContaining({
+          contributors: expect.any(Array),
+          scanResults: [
+            {
+              identity: {
+                type: 'armconfig',
+                targetFile: './iac/arm/rule_test.json',
+              },
+              facts: [],
+              findings: expect.any(Array),
+              policy: '',
               name: 'arm',
+              target: {
+                branch: 'master',
+                remoteUrl: 'http://github.com/snyk/cli.git',
+              },
             },
-          },
-        ],
-      });
+          ],
+        }),
+      );
     });
   });
 });

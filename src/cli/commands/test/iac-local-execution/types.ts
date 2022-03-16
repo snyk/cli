@@ -13,9 +13,8 @@ import {
   IacFileInDirectory,
   Options,
   TestOptions,
-  PolicyOptions, Contributor,
+  PolicyOptions,
 } from '../../../../lib/types';
-import {GitTarget} from "../../../../lib/ecosystems/types";
 
 export interface IacFileData extends IacFileInDirectory {
   fileContent: string;
@@ -66,11 +65,6 @@ export interface IacShareResultsFormat {
   fileType: IacFileTypes;
   projectType: IacProjectType;
   violatedPolicies: PolicyMetadata[];
-}
-
-export interface GitInfo{
-  gitTarget: GitTarget;
-  contributors: Contributor[];
 }
 
 // This type is the integration point with the CLI test command, please note it is still partial in the experimental version
