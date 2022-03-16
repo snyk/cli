@@ -26,6 +26,25 @@ describe('analytics module', () => {
     );
   });
 
+  it('removes sensitive flags', async () => {
+    const requestSpy = jest.spyOn(request, 'makeRequest');
+    requestSpy.mockResolvedValue();
+
+    await analytics.addDataAndSend({
+      args: argsFrom({
+        'tfc-endpoint': "I don't care who sees this",
+        'tfc-token': 'itsasecret',
+      }),
+    });
+
+    expect(requestSpy.mock.calls[0][0].body.data).toHaveProperty('args', [
+      {
+        'tfc-endpoint': "I don't care who sees this",
+        'tfc-token': 'REDACTED',
+      },
+    ]);
+  });
+
   it('ignores analytics request failures', async () => {
     const requestSpy = jest.spyOn(request, 'makeRequest');
     requestSpy.mockRejectedValue(new Error('this should be ignored'));

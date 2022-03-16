@@ -7,6 +7,11 @@ import { makeRequest } from '../request';
 import { config as userConfig } from '../user-config';
 import { getStandardData } from './getStandardData';
 
+// Add flags whose values should be redacted in analytics here.
+// TODO make this less error-prone by baking the concept of sensitivity into the
+// flag-parsing code, but this is a start.
+const sensitiveFlags = ['tfc-token'];
+
 const debug = createDebug('snyk');
 const metadata = {};
 // analytics module is required at the beginning of the CLI run cycle
@@ -27,6 +32,14 @@ export function addDataAndSend(
   if (Array.isArray(data.args)) {
     // this is an overhang from the cli/args.js and we don't want it
     delete (data.args.slice(-1).pop() || {})._;
+
+    data.args.forEach((argObj) => {
+      Object.keys(argObj).forEach((field) => {
+        if (sensitiveFlags.includes(field)) {
+          argObj[field] = 'REDACTED';
+        }
+      });
+    });
   }
 
   if (Object.keys(metadata).length) {
