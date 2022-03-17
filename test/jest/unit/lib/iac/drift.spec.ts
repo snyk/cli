@@ -3,10 +3,11 @@ import * as mockFs from 'mock-fs';
 import {
   DCTL_EXIT_CODES,
   driftctlVersion,
+  driftignoreFromPolicy,
   generateArgs,
   parseDriftAnalysisResults,
   translateExitCode,
-  driftignoreFromPolicy,
+  validateArgs,
 } from '../../../../../src/lib/iac/drift';
 import envPaths from 'env-paths';
 import { EXIT_CODES } from '../../../../../src/cli/exit-codes';
@@ -15,12 +16,15 @@ import * as path from 'path';
 import {
   DescribeOptions,
   DriftAnalysis,
+  DriftCTLOptions,
   GenDriftIgnoreOptions,
 } from '../../../../../src/lib/iac/types';
 import { addIacDriftAnalytics } from '../../../../../src/cli/commands/test/iac-local-execution/analytics';
 import * as analytics from '../../../../../src/lib/analytics';
 import * as snykPolicy from 'snyk-policy';
 import { Policy } from '../../../../../src/lib/policy/find-and-load-policy';
+import { DescribeRequiredArgumentError } from '../../../../../src/lib/errors/describe-required-argument-error';
+import { DescribeExclusiveArgumentError } from '../../../../../src/lib/errors/describe-exclusive-argument-error';
 
 const paths = envPaths('snyk');
 
@@ -125,6 +129,24 @@ describe('driftctl integration', () => {
       '--to',
       'aws+tf',
     ]);
+  });
+
+  it('describe: argument are validated correctly', async () => {
+    expect(() => {
+      validateArgs({ kind: 'describe' });
+    }).toThrow(new DescribeRequiredArgumentError());
+
+    expect(() => {
+      validateArgs({ kind: 'describe', all: true } as DriftCTLOptions);
+    }).not.toThrow();
+
+    expect(() => {
+      validateArgs({
+        kind: 'describe',
+        all: true,
+        drift: true,
+      } as DriftCTLOptions);
+    }).toThrow(new DescribeExclusiveArgumentError());
   });
 
   it('gen-driftignore: passing options generate correct arguments', () => {

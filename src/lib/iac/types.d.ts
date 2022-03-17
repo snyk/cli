@@ -33,7 +33,9 @@ export interface DescribeOptions extends DriftCTLOptions {
   strict?: true;
   deep?: true;
   'only-managed'?: true;
+  drift?: true;
   'only-unmanaged'?: true;
+  all?: true;
   driftignore?: string;
   'tf-lockfile'?: string;
   'config-dir'?: string;

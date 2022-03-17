@@ -25,6 +25,8 @@ import {
 import { TimerMetricInstance } from '../metrics';
 import * as analytics from '../../lib/analytics';
 import { Policy } from '../policy/find-and-load-policy';
+import { DescribeExclusiveArgumentError } from '../errors/describe-exclusive-argument-error';
+import { DescribeRequiredArgumentError } from '../errors/describe-required-argument-error';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
@@ -35,9 +37,24 @@ export const DCTL_EXIT_CODES = {
   EXIT_ERROR: 2,
 };
 
+export const DescribeExclusiveArgs = [
+  'all',
+  'only-managed',
+  'drift',
+  'only-unmanaged',
+];
+
+export const DescribeRequiredArgs = [
+  'all',
+  'only-managed',
+  'drift',
+  'only-unmanaged',
+];
+
 // ⚠ Keep in mind to also update driftctl version used to generate docker images
 // You can edit base image used for snyk final image here https://github.com/snyk/snyk-images/blob/master/alpine
 export const driftctlVersion = 'v0.23.0';
+
 const driftctlChecksums = {
   'driftctl_windows_386.exe':
     'e5befbafe2291674a4d6c8522411a44fea3549057fb46d331402d49b180202fe',
@@ -65,6 +82,36 @@ const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
 const driftctlPath = path.join(cachePath, 'driftctl_' + driftctlVersion);
 const driftctlDefaultOptions = ['--no-version-check'];
 let isBinaryDownloaded = false;
+
+export const validateArgs = (options: DriftCTLOptions): void => {
+  if (options.kind === 'describe') {
+    return validateDescribeArgs(options as DescribeOptions);
+  }
+};
+
+const validateDescribeArgs = (options: DescribeOptions): void => {
+  // Check that there is no more than one of the exclusive arguments
+  let count = 0;
+  for (const describeExclusiveArg of DescribeExclusiveArgs) {
+    if (options[describeExclusiveArg]) {
+      count++;
+    }
+  }
+  if (count > 1) {
+    throw new DescribeExclusiveArgumentError();
+  }
+
+  // Check we have one of the required arguments
+  count = 0;
+  for (const describeRequiredArgs of DescribeRequiredArgs) {
+    if (options[describeRequiredArgs]) {
+      count++;
+    }
+  }
+  if (count === 0) {
+    throw new DescribeRequiredArgumentError();
+  }
+};
 
 export const generateArgs = (options: DriftCTLOptions): string[] => {
   if (options.kind === 'describe') {
@@ -181,7 +228,7 @@ const generateScanFlags = (options: DescribeOptions): string[] => {
     args.push('--deep');
   }
 
-  if (options['only-managed']) {
+  if (options['only-managed'] || options.drift) {
     args.push('--only-managed');
   }
 
@@ -267,7 +314,8 @@ export const runDriftCTL = async ({
   stdio?: StdioOptions;
 }): Promise<DriftctlExecutionResult> => {
   const path = await findOrDownload();
-  const args = generateArgs(options);
+  await validateArgs(options);
+  const args = await generateArgs(options);
 
   if (!stdio) {
     stdio = ['pipe', 'pipe', 'inherit'];
