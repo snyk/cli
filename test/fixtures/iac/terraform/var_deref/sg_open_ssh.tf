@@ -50,7 +50,7 @@ resource "aws_security_group" "allow_ssh_b_auto_tfvars" {
   }
 }
 
-resource "aws_security_group" "allow_ssh_c_auto_tfvars" {
+resource "aws_security_group" "allow_ssh_locals" {
   name        = "allow_ssh"
   description = "Allow SSH inbound from anywhere"
   vpc_id      = "${aws_vpc.main.id}"
@@ -64,5 +64,6 @@ resource "aws_security_group" "allow_ssh_c_auto_tfvars" {
 }
 
 locals {
-  remote_user_addr = ["0.0.0.0/0"]
+  remote_user_addr = local.remote_user_addr_tmp
+  remote_user_addr_tmp = ["0.0.0.0/0"]
 }
