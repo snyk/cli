@@ -29,14 +29,15 @@ import { Policy } from '../policy/find-and-load-policy';
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
 
-export const driftctlVersion = 'v0.23.0';
-
 export const DCTL_EXIT_CODES = {
   EXIT_IN_SYNC: 0,
   EXIT_NOT_IN_SYNC: 1,
   EXIT_ERROR: 2,
 };
 
+// ⚠ Keep in mind to also update driftctl version used to generate docker images
+// You can edit base image used for snyk final image here https://github.com/snyk/snyk-images/blob/master/alpine
+export const driftctlVersion = 'v0.23.0';
 const driftctlChecksums = {
   'driftctl_windows_386.exe':
     'e5befbafe2291674a4d6c8522411a44fea3549057fb46d331402d49b180202fe',
@@ -346,8 +347,19 @@ async function findDriftCtl(): Promise<string> {
     debug('Found driftctl in cache: %s', dctlPath);
     return dctlPath;
   }
-  debug('driftctl not found');
 
+  // lookup in /bin
+  // when used in a docker context the default binary path should be used
+  {
+    dctlPath = '/bin/driftctl';
+    const exists = await isExe(dctlPath);
+    if (exists) {
+      debug('Found driftctl in %s', dctlPath);
+      return dctlPath;
+    }
+  }
+
+  debug('driftctl not found');
   return '';
 }
 
