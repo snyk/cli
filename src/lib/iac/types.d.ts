@@ -26,7 +26,7 @@ export interface DescribeOptions extends DriftCTLOptions {
   quiet?: true;
   filter?: string;
   to?: string;
-  headers?: string;
+  'fetch-tfstate-headers'?: string;
   'tfc-token'?: string;
   'tfc-endpoint'?: string;
   'tf-provider-version'?: string;
