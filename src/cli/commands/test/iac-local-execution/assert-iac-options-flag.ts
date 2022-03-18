@@ -22,7 +22,12 @@ const keys: (keyof IaCTestFlags)[] = [
   'quiet',
   'scan',
   'report',
-
+  // Tags and attributes
+  'tags',
+  'project-tags',
+  'project-environment',
+  'project-lifecycle',
+  'project-business-criticality',
   // PolicyOptions
   'ignore-policy',
   'policy-path',

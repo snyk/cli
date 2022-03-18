@@ -90,5 +90,91 @@ describe('CLI Share Results', () => {
         }),
       );
     });
+
+    it('forwards project tags', async () => {
+      const { exitCode } = await run(
+        'snyk iac test ./iac/arm/rule_test.json --report --tags=foo=bar',
+      );
+
+      expect(exitCode).toEqual(1);
+
+      const requests = server
+        .getRequests()
+        .filter((request) => request.url.includes('/iac-cli-share-results'));
+
+      expect(requests.length).toEqual(1);
+
+      const [request] = requests;
+
+      expect(request.body).toMatchObject({
+        tags: [{ key: 'foo', value: 'bar' }],
+      });
+    });
+
+    it('forwards project environment', async () => {
+      const { exitCode } = await run(
+        'snyk iac test ./iac/arm/rule_test.json --report --project-environment=saas',
+      );
+
+      expect(exitCode).toEqual(1);
+
+      const requests = server
+        .getRequests()
+        .filter((request) => request.url.includes('/iac-cli-share-results'));
+
+      expect(requests.length).toEqual(1);
+
+      const [request] = requests;
+
+      expect(request.body).toMatchObject({
+        attributes: {
+          environment: ['saas'],
+        },
+      });
+    });
+
+    it('forwards project lifecycle', async () => {
+      const { exitCode } = await run(
+        'snyk iac test ./iac/arm/rule_test.json --report --project-lifecycle=sandbox',
+      );
+
+      expect(exitCode).toEqual(1);
+
+      const requests = server
+        .getRequests()
+        .filter((request) => request.url.includes('/iac-cli-share-results'));
+
+      expect(requests.length).toEqual(1);
+
+      const [request] = requests;
+
+      expect(request.body).toMatchObject({
+        attributes: {
+          lifecycle: ['sandbox'],
+        },
+      });
+    });
+
+    it('forwards project business criticality', async () => {
+      const { exitCode } = await run(
+        'snyk iac test ./iac/arm/rule_test.json --report --project-business-criticality=high',
+      );
+
+      expect(exitCode).toEqual(1);
+
+      const requests = server
+        .getRequests()
+        .filter((request) => request.url.includes('/iac-cli-share-results'));
+
+      expect(requests.length).toEqual(1);
+
+      const [request] = requests;
+
+      expect(request.body).toMatchObject({
+        attributes: {
+          criticality: ['high'],
+        },
+      });
+    });
   });
 });

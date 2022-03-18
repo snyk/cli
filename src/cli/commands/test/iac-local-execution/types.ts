@@ -180,10 +180,10 @@ export type IaCTestFlags = Pick<
   | 'json'
   | 'sarif'
   | 'report'
-
   // PolicyOptions
   | 'ignore-policy'
   | 'policy-path'
+  | 'tags'
 > & {
   // Supported flags not yet covered by Options or TestOptions
   'json-file-output'?: string;
@@ -197,6 +197,11 @@ export type IaCTestFlags = Pick<
   path?: string;
   // Allows the caller to provide the path to a WASM bundle.
   rules?: string;
+  // Tags and attributes
+  'project-tags'?: string;
+  'project-environment'?: string;
+  'project-lifecycle'?: string;
+  'project-business-criticality'?: string;
 } & TerraformPlanFlags;
 
 // Flags specific for Terraform plan scanning
