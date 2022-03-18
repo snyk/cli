@@ -33,13 +33,13 @@ jest.mock(
   }),
 );
 
-const loadAndParseTerraformFilesStub = jest.fn();
-const getDirectoriesForTFScanStub = jest.fn();
+const getAllDirectoriesForPathStub = jest.fn();
+const getFilesForDirectoryStub = jest.fn();
 jest.mock(
-  '../../../../src/cli/commands/test/iac-local-execution/handle-terraform-files.ts',
+  '../../../../src/cli/commands/test/iac-local-execution/directory-loader',
   () => ({
-    loadAndParseTerraformFiles: loadAndParseTerraformFilesStub,
-    getDirectoriesForTFScan: getDirectoriesForTFScanStub,
+    getAllDirectoriesForPath: getAllDirectoriesForPathStub,
+    getFilesForDirectory: getFilesForDirectoryStub,
   }),
 );
 
@@ -82,25 +82,11 @@ describe('test()', () => {
       isFeatureFlagSupportedForOrgStub.mockImplementation((flag) =>
         Promise.resolve({ ok: featureFlags[flag] ?? true }),
       );
-      if (featureFlags['iacTerraformVarSupport']) {
-        parseFilesStub.mockImplementation(() => ({
-          parsedFiles: [],
-          failedFiles: [],
-        }));
-        loadAndParseTerraformFilesStub.mockResolvedValue({
-          parsedFiles: parsedFiles,
-          failedFiles: failedFiles,
-        });
-      } else {
-        parseFilesStub.mockImplementation(() => ({
-          parsedFiles,
-          failedFiles,
-        }));
-        loadAndParseTerraformFilesStub.mockResolvedValue({
-          parsedFiles: [],
-          failedFiles: [],
-        });
-      }
+      getAllDirectoriesForPathStub.mockImplementation(() => ['./storage']);
+      parseFilesStub.mockImplementation(() => ({
+        parsedFiles,
+        failedFiles,
+      }));
     });
 
     describe('With a remote custom rules bundle', () => {

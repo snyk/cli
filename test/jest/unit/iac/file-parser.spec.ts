@@ -1,9 +1,7 @@
 import {
-  UnsupportedFileTypeError,
   parseFiles,
   parseTerraformFiles,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
-import { NoFilesToScanError } from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
 import {
   FailedToParseTerraformFileError,
   tryParsingTerraformFile,
@@ -32,10 +30,6 @@ import {
   expectedCloudFormationJSONParsingResult,
   expectedCloudFormationYAMLParsingResult,
 } from './file-parser.cloudformation.fixtures';
-import {
-  InvalidJsonFileError,
-  InvalidYamlFileError,
-} from '../../../../src/cli/commands/test/iac-local-execution/yaml-parser';
 import {
   expectedTerraformJsonParsingResult,
   expectedTerraformParsingResult,
@@ -95,31 +89,38 @@ describe('parseFiles', () => {
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('throws an error for unsupported file types', async () => {
-    await expect(
-      parseFiles([
-        {
-          fileContent: 'file.java',
-          filePath: 'path/to/file',
-          fileType: 'java' as IacFileTypes,
-        },
-      ]),
-    ).rejects.toThrow(UnsupportedFileTypeError);
+  it('includes unsupported file types in failed files', async () => {
+    const { parsedFiles, failedFiles } = await parseFiles([
+      {
+        fileContent: 'file.java',
+        filePath: 'path/to/file',
+        fileType: 'java' as IacFileTypes,
+      },
+    ]);
+    expect(parsedFiles.length).toEqual(0);
+    expect(failedFiles.length).toEqual(1);
+    expect(failedFiles[0].err.message).toEqual('Unsupported file extension');
   });
 
   it('throws an error for invalid JSON file types', async () => {
-    await expect(parseFiles([invalidJsonFileDataStub])).rejects.toThrow(
-      InvalidJsonFileError,
-    );
+    const { parsedFiles, failedFiles } = await parseFiles([
+      invalidJsonFileDataStub,
+    ]);
+    expect(parsedFiles.length).toEqual(0);
+    expect(failedFiles.length).toEqual(1);
+    expect(failedFiles[0].err.message).toEqual('Failed to parse JSON file');
   });
 
   it('throws an error for invalid (syntax) YAML file types', async () => {
-    await expect(parseFiles([invalidYamlFileDataStub])).rejects.toThrow(
-      InvalidYamlFileError,
-    );
+    const { parsedFiles, failedFiles } = await parseFiles([
+      invalidYamlFileDataStub,
+    ]);
+    expect(parsedFiles.length).toEqual(0);
+    expect(failedFiles.length).toEqual(1);
+    expect(failedFiles[0].err.message).toEqual('Failed to parse YAML file');
   });
 
-  it('does not throw an error for unrecognised config types', async () => {
+  it('returns both parsed and failed files', async () => {
     const { parsedFiles, failedFiles } = await parseFiles([
       cloudFormationYAMLFileDataStub,
       unrecognisedYamlDataStub,
@@ -128,10 +129,12 @@ describe('parseFiles', () => {
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('throws an error when no recognised config types are found', async () => {
-    await expect(parseFiles([unrecognisedYamlDataStub])).rejects.toThrow(
-      NoFilesToScanError,
-    );
+  it('returns emptywhen no recognised config types are found', async () => {
+    const { parsedFiles, failedFiles } = await parseFiles([
+      unrecognisedYamlDataStub,
+    ]);
+    expect(parsedFiles.length).toEqual(0);
+    expect(failedFiles.length).toEqual(0);
   });
 
   // the npm yaml parser by default fails on SemanticErrors like duplicate keys
@@ -187,7 +190,7 @@ describe('parseTerraformFiles', () => {
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('does not throw an error if a file parse failed in a directory scan', () => {
+  it('returns both parsed and failed files', () => {
     const { parsedFiles, failedFiles } = parseTerraformFiles([
       invalidTerraformFileDataStub,
       terraformFileDataStub,
@@ -197,9 +200,14 @@ describe('parseTerraformFiles', () => {
     expect(failedFiles.length).toEqual(1);
   });
 
-  it('throws an error if a file parse failed in a file scan', () => {
-    expect(() => {
-      parseTerraformFiles([invalidTerraformFileDataStub]);
-    }).toThrow(FailedToParseTerraformFileError);
+  it('returns if a file parse failed in a file scan', () => {
+    const { parsedFiles, failedFiles } = parseTerraformFiles([
+      invalidTerraformFileDataStub,
+    ]);
+    expect(parsedFiles.length).toEqual(0);
+    expect(failedFiles.length).toEqual(1);
+    expect(failedFiles[0].err.message).toEqual(
+      'Failed to parse Terraform file',
+    );
   });
 });

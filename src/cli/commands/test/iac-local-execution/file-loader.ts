@@ -1,15 +1,9 @@
-import { makeDirectoryIterator } from '../../../../lib/iac/makeDirectoryIterator';
 import { promises as fs } from 'fs';
-import {
-  IaCErrorCodes,
-  IacFileData,
-  IaCTestFlags,
-  VALID_FILE_TYPES,
-} from './types';
+import { IaCErrorCodes, IacFileData } from './types';
 import { IacFileTypes } from '../../../../lib/iac/constants';
-import { isLocalFolder } from '../../../../lib/detect';
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
+import { getFileType } from './directory-loader';
 
 const DEFAULT_ENCODING = 'utf-8';
 
@@ -26,60 +20,6 @@ export async function loadContentForFiles(
     }),
   );
   return loadedFiles.filter((file) => file.fileContent !== '');
-}
-
-export async function loadFiles(
-  pathToScan: string,
-  options: IaCTestFlags = {},
-  validFileTypes?: string[],
-): Promise<IacFileData[]> {
-  const filePaths = getFilePathsFromDirectory(pathToScan, {
-    maxDepth: options.detectionDepth,
-    validFileTypes,
-  });
-
-  if (filePaths.length === 0) {
-    throw new NoFilesToScanError();
-  }
-  const loadedFiles = await loadContentForFiles(filePaths);
-
-  return loadedFiles.filter((file) => file.fileContent !== '');
-}
-
-function hasValidFileType(
-  filePath: string,
-  validFileTypes: string[] = VALID_FILE_TYPES,
-): boolean {
-  return validFileTypes.includes(getFileType(filePath));
-}
-
-function getFilePathsFromDirectory(
-  pathToScan: string,
-  options: {
-    maxDepth?: number;
-    validFileTypes?: string[];
-  } = {},
-): string[] {
-  const resFilePaths: string[] = [];
-
-  if (isLocalFolder(pathToScan)) {
-    // Directory
-    const dirIterator = makeDirectoryIterator(pathToScan, {
-      maxDepth: options.maxDepth,
-    });
-
-    for (const filePath of dirIterator) {
-      if (hasValidFileType(filePath, options.validFileTypes)) {
-        resFilePaths.push(filePath);
-      }
-    }
-  } else {
-    // File
-    if (hasValidFileType(pathToScan, options.validFileTypes)) {
-      resFilePaths.push(pathToScan);
-    }
-  }
-  return resFilePaths;
 }
 
 export async function tryLoadFileData(
@@ -115,9 +55,4 @@ export class FailedToLoadFileError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to read file "${filename}" for scanning. Please ensure that it is readable.`;
   }
-}
-
-function getFileType(filePath: string): string {
-  const filePathSplit = filePath.split('.');
-  return filePathSplit[filePathSplit.length - 1].toLowerCase();
 }
