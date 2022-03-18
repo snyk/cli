@@ -79,7 +79,7 @@ export async function test(
         !validFileTypes.includes(ValidFileType.Terraform) &&
         err instanceof NoFilesToScanError
       ) {
-        // ignore this error since we might only have .tf files in the folder and we have separated them
+        // ignore this error since we might only have .tf files in the folder and we will parse them in the next block
       } else {
         throw err;
       }
@@ -88,17 +88,23 @@ export async function test(
     // we may have loaded and parsed all but terraform files in the previous step
     // so now we check if we need to do a second load and parse which dereferences TF vars
     if (validFileTypes && !validFileTypes.includes(ValidFileType.Terraform)) {
-      const {
-        allParsedFiles,
-        allFailedFiles,
-      } = await loadAndParseTerraformFiles(
-        pathToScan,
-        parsedFiles,
-        failedFiles,
-        options.detectionDepth,
-      );
-      parsedFiles = allParsedFiles;
-      failedFiles = allFailedFiles;
+      try {
+        const {
+          parsedFiles: tfParsedFiles,
+          failedFiles: tfFailedFiles,
+        } = await loadAndParseTerraformFiles(
+          pathToScan,
+          options.detectionDepth,
+        );
+        parsedFiles = parsedFiles.concat(tfParsedFiles);
+        failedFiles = failedFiles.concat(tfFailedFiles);
+      } catch (err) {
+        if (parsedFiles.length > 0 && err instanceof NoFilesToScanError) {
+          // ignore this error since we've discovered non-terraform files in the previous block
+        } else {
+          throw err;
+        }
+      }
     }
 
     // Duplicate all the files and run them through the custom engine.

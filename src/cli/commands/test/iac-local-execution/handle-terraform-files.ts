@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import { loadContentForFiles, NoFilesToScanError } from './file-loader';
 import * as path from 'path';
 import { parseTerraformFiles } from './file-parser';
@@ -15,23 +14,20 @@ import {
  * loading them, sending them to the parser and getting the parsing results back.
  * Then it concatenates and returns the new parsing results with the existing parsing results.
  * @param pathToScan - the path to scan provided by the user
- * @param parsedFiles - an array that holds all the existing parsedFiles
- * @param failedFiles - an array that holds all the existing failedFiles
  * @param maxDepth? - an optional maxDepth of directories if provided by the detection-depth flag
- * @returns { allParsedFiles, allFailedFiles} - all the parsing results so far
+ * @returns { parsedFiles, failedFiles} - all the parsing results so far
  */
 export async function loadAndParseTerraformFiles(
   pathToScan: string,
-  parsedFiles: IacFileParsed[],
-  failedFiles: IacFileParseFailure[],
   maxDepth?: number,
 ): Promise<{
-  allParsedFiles: Array<IacFileParsed>;
-  allFailedFiles: Array<IacFileParseFailure>;
+  parsedFiles: Array<IacFileParsed>;
+  failedFiles: Array<IacFileParseFailure>;
 }> {
-  let allParsedFiles: IacFileParsed[] = parsedFiles,
-    allFailedFiles: IacFileParseFailure[] = failedFiles;
+  let parsedFiles: IacFileParsed[] = [],
+    failedFiles: IacFileParseFailure[] = [];
   const allDirectories = getAllDirectoriesForPath(pathToScan, maxDepth);
+
   // we load and parse files directory by directory
   // this is because we need all files in the same directory to share the same variable context
   for (const currentDirectory of allDirectories) {
@@ -39,37 +35,20 @@ export async function loadAndParseTerraformFiles(
       pathToScan,
       currentDirectory,
     );
-    if (
-      filePathsInDirectory.length === 0 || // skip directories that have 0 files but have other directories
-      (filePathsInDirectory.length === 1 && allParsedFiles.length === 1) // skip single files that have already been parsed
-    )
-      continue;
-    if (
-      filePathsInDirectory.length === 1 &&
-      allParsedFiles.length === 0 &&
-      (!shouldBeParsed(filePathsInDirectory[0]) ||
-        isIgnoredFile(filePathsInDirectory[0]))
-    ) {
-      throw new NoFilesToScanError();
-    }
-    try {
-      const tfFilesToParse = await loadContentForFiles(filePathsInDirectory);
-      const {
-        parsedFiles: parsedTfFiles,
-        failedFiles: failedTfFiles,
-      } = parseTerraformFiles(tfFilesToParse);
-      allParsedFiles = allParsedFiles.concat(parsedTfFiles);
-      allFailedFiles = allFailedFiles.concat(failedTfFiles);
-    } catch (err) {
-      if (allParsedFiles.length !== 0 && err instanceof NoFilesToScanError) {
-        // ignore this error since we might only have TF files in the folder and we have separated them,
-        // or if we have a single file scan of a non-TF file, and we have already parsed it
-      } else {
-        throw err;
-      }
-    }
+    const tfFilesToParse = await loadContentForFiles(filePathsInDirectory);
+    const {
+      parsedFiles: parsedTfFiles,
+      failedFiles: failedTfFiles,
+    } = parseTerraformFiles(tfFilesToParse);
+    parsedFiles = parsedFiles.concat(parsedTfFiles);
+    failedFiles = failedFiles.concat(failedTfFiles);
   }
-  return { allParsedFiles, allFailedFiles };
+
+  if (parsedFiles.length === 0) {
+    throw new NoFilesToScanError();
+  }
+
+  return { parsedFiles, failedFiles };
 }
 
 /**
@@ -85,10 +64,6 @@ export function getAllDirectoriesForPath(
   // if it is a single file (it has an extension), we return the current path
   if (isSingleFile(pathToScan)) {
     return [path.resolve(pathToScan)];
-  }
-  // if the path we scanned itself is an empty directory, finish the scan here
-  if (fs.readdirSync(pathToScan).length === 0) {
-    throw new NoFilesToScanError();
   }
   return [...getAllDirectoriesForPathGenerator(pathToScan, maxDepth)];
 }
@@ -109,7 +84,7 @@ function* getAllDirectoriesForPathGenerator(
 }
 
 /**
- * Gets all file paths for the specific directory
+ * Gets all file paths for the specific directory. If the provided path is a supported file, then it gets returned.
  * @param pathToScan - the path to scan provided by the user
  * @param currentDirectory - the directory which we want to return files for
  * @returns {string[]} An array with all the Terraform filePaths for this directory
@@ -119,7 +94,10 @@ export function getFilesForDirectory(
   currentDirectory: string,
 ): string[] {
   if (isSingleFile(pathToScan)) {
-    return [pathToScan];
+    if (shouldBeParsed(pathToScan) && !isIgnoredFile(pathToScan)) {
+      return [pathToScan];
+    }
+    return [];
   } else {
     return [...getTerraformFilesInDirectoryGenerator(currentDirectory)];
   }

@@ -5,14 +5,11 @@ jest.mock('../../../../src/lib/feature-flags', () => ({
   isFeatureFlagSupportedForOrg: isFeatureFlagSupportedForOrgStub,
 }));
 const parseFilesStub = jest.fn();
-const loadAndParseFilesStub = jest.fn();
-const parseTerraformFilesStub = jest.fn();
 jest.mock(
   '../../../../src/cli/commands/test/iac-local-execution/file-parser',
   () => {
     return {
       parseFiles: parseFilesStub,
-      parseTerraformFiles: parseTerraformFilesStub,
     };
   },
 );
@@ -90,19 +87,19 @@ describe('test()', () => {
           parsedFiles: [],
           failedFiles: [],
         }));
-        parseTerraformFilesStub.mockImplementation(() => ({
-          parsedFiles,
-          failedFiles,
-        }));
+        loadAndParseTerraformFilesStub.mockResolvedValue({
+          parsedFiles: parsedFiles,
+          failedFiles: failedFiles,
+        });
       } else {
         parseFilesStub.mockImplementation(() => ({
           parsedFiles,
           failedFiles,
         }));
-        parseTerraformFilesStub.mockImplementation(() => ({
+        loadAndParseTerraformFilesStub.mockResolvedValue({
           parsedFiles: [],
           failedFiles: [],
-        }));
+        });
       }
     });
 
@@ -143,10 +140,6 @@ describe('test()', () => {
 
       it('attempts to pull the custom-rules bundle using the provided configurations', async () => {
         const opts: IaCTestFlags = {};
-        loadAndParseTerraformFilesStub.mockResolvedValue({
-          allParsedFiles: parsedFiles,
-          allFailedFiles: failedFiles,
-        });
 
         await test('./iac/terraform/sg_open_ssh.tf', opts);
 
@@ -181,12 +174,6 @@ describe('test()', () => {
 
       it('returns the unparsable files excluding content', async () => {
         const opts: IaCTestFlags = {};
-        loadAndParseFilesStub.mockReturnValue(() => {
-          return {
-            allParsedFiles: parsedFiles,
-            allFailedFiles: failedFiles,
-          };
-        });
 
         const { failures } = await test('./storage/', opts);
 

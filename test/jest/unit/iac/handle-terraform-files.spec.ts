@@ -56,9 +56,9 @@ describe('getAllDirectoriesForPath', () => {
       ]);
       expect(
         getFilesForDirectory(nonIacFileStub.filePath, nonIacFileStub.filePath),
-      ).toEqual([nonIacFileStub.filePath]);
+      ).toEqual([]);
       await expect(
-        loadAndParseTerraformFiles(nonIacFileStub.filePath, [], []),
+        loadAndParseTerraformFiles(nonIacFileStub.filePath),
       ).rejects.toThrow(NoFilesToScanError);
     });
 
@@ -132,15 +132,6 @@ describe('getAllDirectoriesForPath', () => {
       });
 
       describe('with 1 directory', () => {
-        it('throws an error as there are no files at that level', () => {
-          mockFs({
-            'empty-dir': {},
-          });
-          expect(() => {
-            getAllDirectoriesForPath('empty-dir');
-          }).toThrow(NoFilesToScanError);
-        });
-
         describe('with 2 directories', () => {
           it('returns the files at level 2', () => {
             const directoryFilePaths = getAllDirectoriesForPath(

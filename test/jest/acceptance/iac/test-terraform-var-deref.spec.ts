@@ -41,6 +41,14 @@ describe('Terraform Language Support', () => {
         )} for known issues`,
       );
     });
+
+    it('returns error if empty Terraform file', async () => {
+      const { exitCode } = await run(
+        `snyk iac test ./iac/terraform/empty_file.tf`,
+      );
+
+      expect(exitCode).toBe(3);
+    });
   });
 
   describe('with feature flag', () => {
@@ -64,12 +72,12 @@ describe('Terraform Language Support', () => {
         );
       });
 
-      it('finds no issues in empty Terraform file', async () => {
+      it('returns error empty Terraform file', async () => {
         const { exitCode } = await run(
           `snyk iac test --org=tf-lang-support ./iac/terraform/empty_file.tf`,
         );
 
-        expect(exitCode).toBe(0);
+        expect(exitCode).toBe(3);
       });
     });
     describe('single non-terraform files', () => {
@@ -138,7 +146,7 @@ describe('Terraform Language Support', () => {
           'resources[1] > properties > networkRuleCollections[0] > properties > rules[0] > sourceAddresses',
         );
       });
-      it('finds issues in Kubernetes JSON file', async () => {
+      it('finds issues in Kubernetes YAML file', async () => {
         const { stdout, exitCode } = await run(
           `snyk iac test --org=tf-lang-support ./iac/kubernetes/pod-privileged.yaml`,
         );
@@ -146,6 +154,22 @@ describe('Terraform Language Support', () => {
 
         expect(stdout).toContain(
           'Testing ./iac/kubernetes/pod-privileged.yaml',
+        );
+        expect(stdout).toContain('Infrastructure as code issues:');
+        expect(stdout).toContain('✗ Privileged container');
+        expect(stdout).toContain(
+          '[DocId: 0] > input > spec > containers[example] > securityContext > privileged',
+        );
+      });
+
+      it('finds issues in Kubernetes YAML multi file', async () => {
+        const { stdout, exitCode } = await run(
+          `snyk iac test --org=tf-lang-support ./iac/kubernetes/pod-privileged-multi.yaml`,
+        );
+        expect(exitCode).toBe(1);
+
+        expect(stdout).toContain(
+          'Testing ./iac/kubernetes/pod-privileged-multi.yaml',
         );
         expect(stdout).toContain('Infrastructure as code issues:');
         expect(stdout).toContain('✗ Privileged container');
