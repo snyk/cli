@@ -23,6 +23,7 @@ src/cli/commands/gen-driftignore.ts @snyk/group-infrastructure-as-code
 src/cli/commands/apps @snyk/moose
 src/lib/apps @snyk/moose
 src/lib/cloud-config-projects.ts @snyk/group-infrastructure-as-code
+src/lib/container @snyk/magma
 src/lib/plugins @snyk/snyk-open-source
 src/lib/plugins/sast/ @snyk/nebula
 test/fixtures/sast/ @snyk/nebula
@@ -33,13 +34,17 @@ src/lib/snyk-test/iac-test-result.ts @snyk/group-infrastructure-as-code
 src/lib/snyk-test/payload-schema.ts @snyk/group-infrastructure-as-code
 src/lib/snyk-test/run-iac-test.ts @snyk/group-infrastructure-as-code
 test/acceptance/cli-test/iac/ @snyk/group-infrastructure-as-code
-test/fixtures/container-projects/ @snyk/capsule
+test/fixtures/basic-apk/ @snyk/magma
+test/fixtures/container-app-vulns/ @snyk/magma
+test/fixtures/container-projects/ @snyk/capsule @snyk/magma
+test/fixtures/docker/ @snyk/capsule @snyk/magma
 test/fixtures/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/snyk_code_spec.sh @snyk/nebula
 test/smoke/spec/snyk_basic_spec.sh @snyk/hammer
 test/smoke/.iac-data/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/formatters/iac-output.spec.ts @snyk/group-infrastructure-as-code
+test/jest/unit/lib/formatters/test/format-test-results.spec.ts @snyk/hammer @snyk/snyk-open-source @snyk/magma
 test/jest/unit/iac/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
