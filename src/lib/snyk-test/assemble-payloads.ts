@@ -19,8 +19,6 @@ export async function assembleEcosystemPayloads(
   let analysisTypeText = 'all dependencies for ';
   if (options.docker) {
     analysisTypeText = 'container dependencies for ';
-  } else if (options.iac) {
-    analysisTypeText = 'Infrastructure as code configurations for ';
   } else if (options.packageManager) {
     analysisTypeText = options.packageManager + ' dependencies for ';
   }

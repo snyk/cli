@@ -7,8 +7,6 @@ import chalk from 'chalk';
 import { icon } from '../theme';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
-import { IacScan } from './payload-schema';
-import * as Queue from 'promise-queue';
 import * as theme from '../../lib/theme';
 
 import {
@@ -21,7 +19,6 @@ import {
   TestDepGraphResponse,
   TestResult,
 } from './legacy';
-import { IacTestResponse } from './iac-test-result';
 import {
   AuthFailedError,
   DockerImageNotFoundError,
@@ -60,7 +57,6 @@ import { getExtraProjectCount } from '../plugins/get-extra-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
-import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
 import {
   Payload,
   PayloadBody,
@@ -173,7 +169,6 @@ function prepareLanguagesResponseForParsing(payload: Payload) {
 
 function isTestDependenciesResponse(
   response:
-    | IacTestResponse
     | TestDepGraphResponse
     | TestDependenciesResponse
     | LegacyVulnApiResult,
@@ -184,15 +179,10 @@ function isTestDependenciesResponse(
 
 function convertIssuesToAffectedPkgs(
   response:
-    | IacTestResponse
     | TestDepGraphResponse
     | TestDependenciesResponse
     | LegacyVulnApiResult,
-):
-  | IacTestResponse
-  | TestDepGraphResponse
-  | TestDependenciesResponse
-  | LegacyVulnApiResult {
+): TestDepGraphResponse | TestDependenciesResponse | LegacyVulnApiResult {
   if (!(response as any).result) {
     return response;
   }
@@ -232,43 +222,6 @@ async function sendAndParseResults(
   root: string,
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
-  // Note for the IaC Test Flow:
-  // There is a RATE_LIMIT setup for network requests within a time period.
-  // To support this limit and avoid getting back 502 errors from registry,
-  // we introduced a concurrent requests limit of 25. With that, we will only process MAX 25 requests at the same time.
-  // In the future, we would probably want to introduce a RATE_LIMIT specific for IaC
-
-  if (options.iac) {
-    const maxConcurrent = 25;
-    const queue = new Queue(maxConcurrent);
-    const iacResults: Promise<TestResult>[] = [];
-
-    await spinner.clear<void>(spinnerLbl)();
-    if (!options.quiet) {
-      await spinner(spinnerLbl);
-    }
-    for (const payload of payloads) {
-      iacResults.push(
-        queue.add(async () => {
-          const iacScan: IacScan = payload.body as IacScan;
-          analytics.add('iac type', !!iacScan.type);
-          const res = (await sendTestPayload(payload)) as IacTestResponse;
-
-          const projectName =
-            iacScan.projectNameOverride || iacScan.originalProjectName;
-          return await parseIacTestResult(
-            res,
-            iacScan.targetFile,
-            iacScan.targetFileRelativePath,
-            projectName,
-            options.severityThreshold,
-          );
-        }),
-      );
-    }
-    return Promise.all(iacResults);
-  }
-
   const results: TestResult[] = [];
   for (const payload of payloads) {
     await spinner.clear<void>(spinnerLbl)();
@@ -479,10 +432,7 @@ async function parseRes(
 function sendTestPayload(
   payload: Payload,
 ): Promise<
-  | LegacyVulnApiResult
-  | TestDepGraphResponse
-  | IacTestResponse
-  | TestDependenciesResponse
+  LegacyVulnApiResult | TestDepGraphResponse | TestDependenciesResponse
 > {
   const payloadBody = payload.body as any;
   const filesystemPolicy =
@@ -564,8 +514,6 @@ async function assembleLocalPayloads(
   let analysisTypeText = 'all dependencies for ';
   if (options.docker) {
     analysisTypeText = 'docker dependencies for ';
-  } else if (options.iac) {
-    analysisTypeText = 'Infrastructure as code configurations for ';
   } else if (options.packageManager) {
     analysisTypeText = options.packageManager + ' dependencies for ';
   }
@@ -581,9 +529,6 @@ async function assembleLocalPayloads(
     await spinner.clear<void>(spinnerLbl)();
     if (!options.quiet) {
       await spinner(spinnerLbl);
-    }
-    if (options.iac) {
-      return assembleIacLocalPayloads(root, options);
     }
 
     const deps = await getDepsFromPlugin(root, options);
