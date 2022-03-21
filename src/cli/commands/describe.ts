@@ -34,11 +34,12 @@ export default async (...args: MethodArgs): Promise<any> => {
   }
 
   const policy = await findAndLoadPolicy(process.cwd(), 'iac', options);
-  options.ignore = driftignoreFromPolicy(policy);
+  const driftIgnore = driftignoreFromPolicy(policy);
 
   try {
     const describe = await runDriftCTL({
       options: { kind: 'describe', ...options },
+      driftIgnore: driftIgnore,
     });
     analytics.add('is-iac-drift', true);
     analytics.add('iac-drift-exit-code', describe.code);

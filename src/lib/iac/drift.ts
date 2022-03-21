@@ -113,9 +113,12 @@ const validateDescribeArgs = (options: DescribeOptions): void => {
   }
 };
 
-export const generateArgs = (options: DriftCTLOptions): string[] => {
+export const generateArgs = (
+  options: DriftCTLOptions,
+  driftIgnore?: string[],
+): string[] => {
   if (options.kind === 'describe') {
-    return generateScanFlags(options as DescribeOptions);
+    return generateScanFlags(options as DescribeOptions, driftIgnore);
   }
 
   if (options.kind === 'gen-driftignore') {
@@ -185,7 +188,10 @@ const generateFmtFlags = (options: FmtOptions): string[] => {
   return args;
 };
 
-const generateScanFlags = (options: DescribeOptions): string[] => {
+const generateScanFlags = (
+  options: DescribeOptions,
+  driftIgnore?: string[],
+): string[] => {
   const args: string[] = ['scan', ...driftctlDefaultOptions];
 
   if (options.quiet) {
@@ -246,9 +252,9 @@ const generateScanFlags = (options: DescribeOptions): string[] => {
     args.push(options['tf-lockfile']);
   }
 
-  if (options.ignore && options.ignore.length > 0) {
+  if (driftIgnore && driftIgnore.length > 0) {
     args.push('--ignore');
-    args.push(options.ignore.join(','));
+    args.push(driftIgnore.join(','));
   }
 
   let configDir = cachePath;
@@ -306,16 +312,18 @@ export const parseDriftAnalysisResults = (input: string): DriftAnalysis => {
 
 export const runDriftCTL = async ({
   options,
+  driftIgnore,
   input,
   stdio,
 }: {
   options: DriftCTLOptions;
+  driftIgnore?: string[];
   input?: string;
   stdio?: StdioOptions;
 }): Promise<DriftctlExecutionResult> => {
   const path = await findOrDownload();
   await validateArgs(options);
-  const args = await generateArgs(options);
+  const args = await generateArgs(options, driftIgnore);
 
   if (!stdio) {
     stdio = ['pipe', 'pipe', 'inherit'];
