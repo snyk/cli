@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
-import { MonitorResult, Options } from '../types';
+import { MonitorResult, Options, PolicyOptions } from '../types';
 import { spinner } from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
@@ -32,13 +32,14 @@ import {
   validateTags,
 } from '../../cli/commands/monitor';
 import { isUnmanagedEcosystem } from './common';
+import { findAndLoadPolicy } from '../policy';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
 export async function monitorEcosystem(
   ecosystem: Ecosystem,
   paths: string[],
-  options: Options,
+  options: Options & PolicyOptions,
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const plugin = getPlugin(ecosystem);
 
@@ -52,6 +53,13 @@ export async function monitorEcosystem(
       options.path = path;
       const pluginResponse = await plugin.scan(options);
       scanResultsByPath[path] = pluginResponse.scanResults;
+
+      const policy = await findAndLoadPolicy(path, 'cpp', options);
+      if (policy) {
+        scanResultsByPath[path].forEach(
+          (scanResult) => (scanResult.policy = policy.toString()),
+        );
+      }
     } catch (error) {
       if (
         ecosystem === 'docker' &&

@@ -11,7 +11,7 @@ const debug = debugModule('snyk');
 
 export async function findAndLoadPolicy(
   root: string,
-  scanType: SupportedPackageManagers | 'docker' | 'iac',
+  scanType: SupportedPackageManagers | 'docker' | 'iac' | 'cpp',
   options: PolicyOptions,
   pkg?: PackageExpanded,
   scannedProjectFolder?: string,
@@ -53,4 +53,5 @@ export async function findAndLoadPolicy(
 export interface Policy {
   filter(vulns: any, root?: string, matchStrategy?: string): any;
   exclude?: { [key: string]: string[] };
+  ignore?: any;
 }
