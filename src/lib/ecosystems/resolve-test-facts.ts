@@ -1,4 +1,4 @@
-import { Options } from '../types';
+import { Options, PolicyOptions } from '../types';
 import { spinner } from '../../lib/spinner';
 import { Ecosystem, ScanResult, TestResult } from './types';
 import {
@@ -6,13 +6,15 @@ import {
   pollingTestWithTokenUntilDone,
 } from '../polling/polling-test';
 import { extractAndApplyPluginAnalytics } from './plugin-analytics';
+import { findAndLoadPolicy } from '../policy';
+import { filterIgnoredIssues } from './policy';
 
 export async function resolveAndTestFacts(
   ecosystem: Ecosystem,
   scans: {
     [dir: string]: ScanResult[];
   },
-  options: Options,
+  options: Options & PolicyOptions,
 ): Promise<[TestResult[], string[]]> {
   const results: any[] = [];
   const errors: string[] = [];
@@ -35,9 +37,17 @@ export async function resolveAndTestFacts(
           attemptsCount,
           maxAttempts,
         );
+
+        const policy = await findAndLoadPolicy(path, 'cpp', options);
+        const [issues, issuesData] = filterIgnoredIssues(
+          response.issues,
+          response.issuesData,
+          policy,
+        );
+
         results.push({
-          issues: response?.issues,
-          issuesData: response?.issuesData,
+          issues,
+          issuesData,
           depGraphData: response?.depGraphData,
           depsFilePaths: response?.depsFilePaths,
           fileSignaturesDetails: response?.fileSignaturesDetails,

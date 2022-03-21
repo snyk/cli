@@ -87,14 +87,14 @@ describe('resolve and test facts', () => {
 
     expect(extractAndApplyPluginAnalyticsSpy).toHaveBeenCalledTimes(1);
     expect(addAnalyticsSpy).toHaveBeenCalledWith('asyncRequestToken', token);
-    expect(addAnalyticsSpy).toHaveBeenLastCalledWith(
+    expect(addAnalyticsSpy).toHaveBeenCalledWith(
       'fileSignaturesAnalyticsContext',
       {
         totalFileSignatures: 3,
         totalSecondsElapsedToGenerateFileSignatures: 0,
       },
     );
-    expect(addAnalyticsSpy).toHaveBeenCalledTimes(2);
+    expect(addAnalyticsSpy).toHaveBeenCalledTimes(4);
     expect(testResults).toEqual([
       {
         issuesData: {},

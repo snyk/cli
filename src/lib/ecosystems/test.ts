@@ -1,7 +1,7 @@
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
-import { Options } from '../types';
+import { Options, PolicyOptions } from '../types';
 import { TestCommandResult } from '../../cli/commands/types';
 import { spinner } from '../../lib/spinner';
 import { Ecosystem, ScanResult, TestResult } from './types';
@@ -15,7 +15,7 @@ import { isUnmanagedEcosystem } from './common';
 export async function testEcosystem(
   ecosystem: Ecosystem,
   paths: string[],
-  options: Options,
+  options: Options & PolicyOptions,
 ): Promise<TestCommandResult> {
   const plugin = getPlugin(ecosystem);
   // TODO: this is an intermediate step before consolidating ecosystem plugins
@@ -69,7 +69,7 @@ export async function testEcosystem(
 export async function selectAndExecuteTestStrategy(
   ecosystem: Ecosystem,
   scanResultsByPath: { [dir: string]: ScanResult[] },
-  options: Options,
+  options: Options & PolicyOptions,
 ): Promise<[TestResult[], string[]]> {
   return isUnmanagedEcosystem(ecosystem)
     ? await resolveAndTestFacts(ecosystem, scanResultsByPath, options)
