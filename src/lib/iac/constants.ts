@@ -26,10 +26,3 @@ export const TEST_SUPPORTED_IAC_PROJECTS: IacProjectTypes[] = [
   IacProjectType.MULTI_IAC,
   IacProjectType.CUSTOM,
 ];
-
-export const projectTypeByFileType = {
-  yaml: IacProjectType.K8S,
-  yml: IacProjectType.K8S,
-  json: IacProjectType.K8S,
-  tf: IacProjectType.TERRAFORM,
-};
