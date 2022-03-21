@@ -23,7 +23,7 @@ npm --version
 Clone this repository with git.
 
 ```sh
-git clone git@github.com/snyk/snyk.git
+git clone git@github.com/snyk/cli.git
 cd snyk
 ```
 
@@ -57,7 +57,7 @@ npm run build
 Ensure the build is working. The version should be `1.0.0-monorepo`.
 
 ```sh
-npx snyk --version
+npx . --version
 ```
 
 For faster rebuilds, you can watch for changes. This command will keep running so you will want to run this in a separate terminal or background.
@@ -176,11 +176,11 @@ git checkout -b docs/contributing
 
 You can use these prefixes in your branch name to enable additional checks.
 
-| Prefix   | Description                                                                                                   |
-| -------- | ------------------------------------------------------------------------------------------------------------- |
-| `chore/` | Build and test all artifacts. Same as a [release pipeline](#creating-a-release) without the release step.     |
-| `smoke/` | Run [smoke tests](https://github.com/snyk/snyk/actions/workflows/smoke-tests.yml) against the latest release. |
-| default  | Build and test your changes.                                                                                  |
+| Prefix   | Description                                                                                                  |
+| -------- | ------------------------------------------------------------------------------------------------------------ |
+| `chore/` | Build and test all artifacts. Same as a [release pipeline](#creating-a-release) without the release step.    |
+| `smoke/` | Run [smoke tests](https://github.com/snyk/cli/actions/workflows/smoke-tests.yml) against the latest release. |
+| default  | Build and test your changes.                                                                                 |
 
 For more information, see: [Pull request checks](#pull-request-checks).
 
@@ -234,7 +234,7 @@ Do not hold onto your changes for too long. Commit and push frequently and creat
 
 ## Creating pull requests
 
-You can now [create a Draft PR](https://github.com/snyk/snyk/compare) on GitHub. Make sure to switch the big green button to a "Draft Pull Request". Draft PRs allow you to ensure your PR checks pass before asking for a review.
+You can now [create a Draft PR](https://github.com/snyk/cli/compare) on GitHub. Make sure to switch the big green button to a "Draft Pull Request". Draft PRs allow you to ensure your PR checks pass before asking for a review.
 
 To keep things simple, try to use the most important commit as the PR's title. Provide some context and summarize the changes in your body.
 
@@ -253,7 +253,7 @@ Your PR checks will run every time you push changes to your branch.
 
 ### Test pipeline
 
-The [test pipeline](https://app.circleci.com/pipelines/github/snyk/snyk?filter=mine) is on CircleCI. This is where your changes are built and tested.
+The [test pipeline](https://app.circleci.com/pipelines/github/snyk/cli?filter=mine) is on CircleCI. This is where your changes are built and tested.
 
 If any checks fail, fix them and force push your changes again. Make sure to review and tidy up your branch so that it remains easy to follow.
 
@@ -267,11 +267,11 @@ Once you have received the necessary approvals, you can merge.
 
 ## Creating a release
 
-Merges will create a [release pipeline](https://app.circleci.com/pipelines/github/snyk/snyk?branch=master&filter=all) which will build and test your changes against a range of target platforms.
+Merges will create a [release pipeline](https://app.circleci.com/pipelines/github/snyk/cli?branch=master&filter=all) which will build and test your changes against a range of target platforms.
 
 Once all tests have passed, you will be given the choice to publish a new release containing your changes.
 
-All releases are minor version bumps. For the latest releases, see: [Releases](https://github.com/snyk/snyk/releases).
+All releases are minor version bumps. For the latest releases, see: [Releases](https://github.com/snyk/cli/releases).
 
 If you do not want to publish your changes immediately, you can "Cancel Workflow".
 
