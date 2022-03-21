@@ -35,7 +35,7 @@ describe('driftctl integration', () => {
   });
 
   it('describe: default arguments are correct', () => {
-    const args = generateArgs({ kind: 'describe' });
+    const args = generateArgs({ kind: 'describe' }, []);
     expect(args).toEqual([
       'scan',
       '--no-version-check',
@@ -54,25 +54,27 @@ describe('driftctl integration', () => {
   });
 
   it('describe: passing options generate correct arguments', () => {
-    const args = generateArgs({
-      kind: 'describe',
-      'config-dir': 'confdir',
-      'tf-lockfile': 'tflockfile',
-      'tf-provider-version': 'tfproviderversion',
-      'tfc-endpoint': 'tfcendpoint',
-      'tfc-token': 'tfctoken',
-      deep: true,
-      driftignore: 'driftignore',
-      filter: 'filter',
-      from: 'from',
-      'fetch-tfstate-headers': 'headers',
-      quiet: true,
-      strict: true,
-      to: 'to',
-      'only-managed': true,
-      'only-unmanaged': true,
-      ignore: ['*', '!aws_s3_bucket'],
-    } as DescribeOptions);
+    const args = generateArgs(
+      {
+        kind: 'describe',
+        'config-dir': 'confdir',
+        'tf-lockfile': 'tflockfile',
+        'tf-provider-version': 'tfproviderversion',
+        'tfc-endpoint': 'tfcendpoint',
+        'tfc-token': 'tfctoken',
+        deep: true,
+        driftignore: 'driftignore',
+        filter: 'filter',
+        from: 'from',
+        'fetch-tfstate-headers': 'headers',
+        quiet: true,
+        strict: true,
+        to: 'to',
+        'only-managed': true,
+        'only-unmanaged': true,
+      } as DescribeOptions,
+      ['*', '!aws_s3_bucket'],
+    );
     expect(args).toEqual([
       'scan',
       '--no-version-check',
