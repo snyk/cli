@@ -120,45 +120,11 @@ export const generateArgs = (
     return generateScanFlags(options as DescribeOptions, driftIgnore);
   }
 
-  if (options.kind === 'gen-driftignore') {
-    return generateGenDriftIgnoreFlags(options as GenDriftIgnoreOptions);
-  }
-
   if (options.kind === 'fmt') {
     return generateFmtFlags(options as FmtOptions);
   }
 
   throw 'Unsupported command';
-};
-
-export const generateGenDriftIgnoreFlags = (
-  options: GenDriftIgnoreOptions,
-): string[] => {
-  const args: string[] = ['gen-driftignore', ...driftctlDefaultOptions];
-
-  if (options.input) {
-    args.push('--input');
-    args.push(options.input);
-  }
-
-  if (options.output) {
-    args.push('--output');
-    args.push(options.output);
-  }
-
-  if (options['exclude-changed']) {
-    args.push('--exclude-changed');
-  }
-
-  if (options['exclude-missing']) {
-    args.push('--exclude-missing');
-  }
-
-  if (options['exclude-unmanaged']) {
-    args.push('--exclude-unmanaged');
-  }
-
-  return args;
 };
 
 const generateFmtFlags = (options: FmtOptions): string[] => {
@@ -534,6 +500,33 @@ export function driftignoreFromPolicy(policy: Policy | undefined): string[] {
   }
   return policy.exclude[excludeSection];
 }
+
+export const updateExcludeInPolicy = (
+  policy: Policy,
+  analysis: DriftAnalysis,
+  options: GenDriftIgnoreOptions,
+): void => {
+  const excludedResources = driftignoreFromPolicy(policy);
+  const addResource = (res) => excludedResources.push(`${res.type}.${res.id}`);
+
+  if (!options['exclude-changed'] && analysis.summary.total_changed > 0) {
+    analysis.differences?.forEach((change) => addResource(change.res));
+  }
+
+  if (!options['exclude-missing'] && analysis.summary.total_missing > 0) {
+    analysis.missing?.forEach((res) => addResource(res));
+  }
+
+  if (!options['exclude-unmanaged'] && analysis.summary.total_unmanaged > 0) {
+    analysis.unmanaged?.forEach((res) => addResource(res));
+  }
+
+  if (!policy.exclude) {
+    policy.exclude = {};
+  }
+
+  policy.exclude['iac-drift'] = excludedResources;
+};
 
 export function processDriftctlOutput(
   options: DescribeOptions,

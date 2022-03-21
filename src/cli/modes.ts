@@ -23,7 +23,7 @@ const modes: Record<string, ModeData> = {
     },
   },
   iac: {
-    allowedCommands: ['test', 'gen-driftignore', 'describe', 'report'],
+    allowedCommands: ['test', 'update-exclude-policy', 'describe', 'report'],
     config: (args): [] => {
       args['iac'] = true;
 

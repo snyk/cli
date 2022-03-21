@@ -14,9 +14,7 @@ export interface FmtOptions extends DriftCTLOptions {
   'html-file-output': string;
 }
 
-export interface GenDriftIgnoreOptions extends DriftCTLOptions {
-  input?: string;
-  output?: string;
+export interface GenDriftIgnoreOptions {
   'exclude-changed'?: boolean;
   'exclude-missing'?: boolean;
   'exclude-unmanaged'?: boolean;

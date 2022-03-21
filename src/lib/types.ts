@@ -257,7 +257,7 @@ export enum SupportedCliCommands {
   apps = 'apps',
   drift = 'drift',
   describe = 'describe',
-  'gen-driftignore' = 'gen-driftignore',
+  'update-exclude-policy' = 'update-exclude-policy',
   report = 'report',
 }
 
