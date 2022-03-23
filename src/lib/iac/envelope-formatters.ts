@@ -2,12 +2,13 @@ import {
   IacShareResultsFormat,
   PolicyMetadata,
 } from '../../cli/commands/test/iac-local-execution/types';
-import { ScanResult } from '../ecosystems/types';
+import { GitTarget, ScanResult } from '../ecosystems/types';
 import { Policy } from '../policy/find-and-load-policy';
 
 export function convertIacResultToScanResult(
   iacResult: IacShareResultsFormat,
   policy: Policy | undefined,
+  gitTarget: GitTarget,
 ): ScanResult {
   return {
     identity: {
@@ -22,7 +23,10 @@ export function convertIacResultToScanResult(
       };
     }),
     name: iacResult.projectName,
-    target: { name: iacResult.projectName },
+    target:
+      Object.keys(gitTarget).length === 0
+        ? { name: iacResult.projectName }
+        : { ...gitTarget, branch: 'master' },
     policy: policy?.toString() ?? '',
   };
 }
