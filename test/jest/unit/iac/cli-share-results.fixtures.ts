@@ -121,7 +121,6 @@ export const expectedEnvelopeFormatterResults = [
     policy: '',
     target: {
       remoteUrl: 'http://github.com/snyk/cli.git',
-      branch: 'master',
     },
   },
   {
@@ -163,7 +162,6 @@ export const expectedEnvelopeFormatterResults = [
     policy: '',
     target: {
       remoteUrl: 'http://github.com/snyk/cli.git',
-      branch: 'master',
     },
   },
 ];

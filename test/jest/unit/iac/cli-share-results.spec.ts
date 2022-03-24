@@ -40,6 +40,7 @@ describe('CLI Share Results', () => {
       firstCallResult,
       secondCallResult,
     ] = envelopeFormattersSpy.mock.results;
+
     expect(firstCallResult.value).toEqual(expectedEnvelopeFormatterResults[0]);
     expect(secondCallResult.value).toEqual(expectedEnvelopeFormatterResults[1]);
   });
@@ -57,6 +58,7 @@ describe('CLI Share Results', () => {
       firstCallResult,
       secondCallResult,
     ] = envelopeFormattersSpy.mock.results;
+
     expect(firstCallResult.value).toEqual(
       expectedEnvelopeFormatterResultsWithPolicy[0],
     );
