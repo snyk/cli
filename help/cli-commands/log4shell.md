@@ -10,9 +10,9 @@ The `snyk log4shell` command finds traces of the Log4J library that are affected
 
 ## Managed projects
 
-To test for Log4Shell vulnerabilities in Java projects using their package manager manifest files, use the `snyk test` command. See the [test command help](https://docs.snyk.io/features/snyk-cli/commands/test) and [Snyk for Java (Gradle, Maven)](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven).
+To test for Log4Shell vulnerabilities in Java projects using their package manager manifest files, use the `snyk test` command. See the [test command help](https://docs.snyk.io/snyk-cli/commands/test) and [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven).
 
-To test unmanaged files, use `snyk test --scan-all-unmanaged`. See the Maven options section of the [test command help](https://docs.snyk.io/features/snyk-cli/commands/test).
+To test unmanaged files, use `snyk test --scan-all-unmanaged`. See the Maven options section of the [test command help](https://docs.snyk.io/snyk-cli/commands/test).
 
 ## Exit codes
 

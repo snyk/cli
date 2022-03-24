@@ -6,9 +6,9 @@ Visit the [Snyk website](https://snyk.io) for more information. See the [CLI doc
 
 ## How to get started
 
-1. Authenticate by running `snyk auth`.
-2. Test your local project with `snyk test`.
-3. Get alerted for new vulnerabilities with `snyk monitor`.
+1. Authenticate by running `snyk auth`
+2. Test your local project with `snyk test`
+3. Get alerted for new vulnerabilities with `snyk monitor`
 
 ## Available commands
 
@@ -30,9 +30,17 @@ Snapshot and continuously monitor a project for open source vulnerabilities and 
 
 Test container images for vulnerabilities.
 
-### [`snyk iac`](iac.md)
+### `` [`iac describe`](https://docs.snyk.io/snyk-cli/commands/iac-describe) ``
 
-Find security issues in Infrastructure as Code files.
+&#x20;Detect, track, and, alert on infrastructure drift and unmanaged resources.
+
+### [`iac gen-driftignore`](https://docs.snyk.io/snyk-cli/commands/iac-gen-driftignore)``
+
+Generate driftignore rules to be used by `snyk iac test`.
+
+### [iac test](https://docs.snyk.io/snyk-cli/commands/iac-test)
+
+Test for any known security issue.
 
 ### [`snyk code`](code.md)
 

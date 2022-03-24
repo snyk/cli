@@ -1,4 +1,4 @@
-# snyk iac gen-driftignore -- generate ignore rules based on scan result
+# IAC gen-driftignore
 
 ## Usage
 
@@ -6,21 +6,20 @@
 
 ## Description
 
-The `snyk iac gen-driftignore` can generate driftignore rules to be used by `snyk iac scan`.
+The `snyk iac gen-driftignore` command generates driftignore rules to be used by `snyk iac test`.
 
-For more information see the [driftctl documentation](https://docs.driftctl.com/).
+For more information see [Ignore resources](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/ignore-resources).
 
 ## Exit codes
 
 Possible exit codes and their meaning:
 
-**0**: success, driftignore generated successfully
+**0**: success, driftignore generated successfully\
 **1**: error, something wrong happened during ignore file generation
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API.
-See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli).
+You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli).
 
 ## Debug
 
@@ -30,27 +29,36 @@ Use the `-d` option to output the debug logs.
 
 ### `--input`
 
-Input where the JSON should be parsed from. Defaults to stdin.
+Input from which the JSON should be parsed.
 
-### `--output`
+Default: stdin
 
-Output file path to write the driftignore to. (default ".driftignore")
+Example:
+
+```
+$ snyk iac gen-driftignore --input=output.json --output=/dev/stdout
+```
+
+### `--output=<OUTPUT_FILE_PATH>`
+
+Output file path to which to write the driftignore.
+
+Default: `.driftignore`
+
+Example:
+
+```
+$ snyk iac describe --output=json://output.json
+```
 
 ### `--exclude-changed`
 
-Exclude resources that changed on cloud provider
+Exclude resources that changed on cloud provider.
 
 ### `--exclude-missing`
 
-Exclude missing resources
+Exclude missing resources.
 
 ### `--exclude-unmanaged`
 
-Exclude resources not managed by IaC
-
-## Usage
-
-```
-$ snyk iac scan --output=json://output.json
-$ snyk iac gen-driftignore --input=output.json --output=/dev/stdout
-```
+Exclude resources not managed by IaC.

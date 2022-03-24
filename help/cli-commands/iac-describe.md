@@ -1,21 +1,30 @@
-# snyk iac describe -- find differences between Cloud and Infrastructure as Code
+# IAC describe
 
-The `snyk iac describe` command detect, track and alert on infrastructure drift. It runs driftctl in the background.
+## Usage
 
-For more information see the [driftctl documentation](https://docs.driftctl.com/).
+**Note:** This feature is available in Snyk CLI version v1.876.0 or greater.
+
+`snyk iac describe [<OPTIONS>]`
+
+## Description
+
+The `snyk iac describe` command detects, tracks, and alerts on infrastructure drift and unmanaged resources.
 
 ## Exit codes
 
 Possible exit codes and their meaning:
 
-**0**: success, no drift found<br />
-**1**: drifts or unmanaged resources found<br />
-**2**: failure<br />
+**0**: success, no drift found\
+**1**: drifts or unmanaged resources found\
+**2**: failure
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect
-with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli).
+You can use environment variables and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli).
+
+## Configure the terraform provider
+
+You can use environment variables and also set variables to configure the terraform provider used by the `describe` command. For more information see [Configure cloud providers](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/configure-cloud-providers).
 
 ## Debug
 
@@ -23,30 +32,226 @@ Use the `-d` option to output the debug logs.
 
 ## Options
 
-NOTE: Although driftctl is used in the background, the Snyk CLI brings its own options to run drift detection.
+**Note:** To use the `describe` command, you **must use at least one of these options**:
+
+- `--only-managed` / `--drift` Scan only managed resources from the Terraform states.
+- `--only-unmanaged` Scan only unmanaged resources.
+- `--all` Scan both managed and unmanaged resources.
+
+See the list of options that follows for details.
+
+### `--from=<STATE>[,<STATE>...]`
+
+Specify multiple states to be read.
+
+At this time, the `snyk iac describe` command supports reading Terraform states.
+
+To read multiple states, pass `--from=` followed by a comma-separated list. You can also use glob patterns to match multiple state files at once.
+
+For more information including **a list of supported IaC sources** and how to use them, see [IAC Sources usage](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/iac-sources-usage).
+
+Examples:
+
+Scan for AWS drift and aggregate both a local Terraform state and one stored in an S3 bucket:
+
+```
+$ snyk iac describe --all --from="tfstate+s3://statebucket/terraform.tfstate,tfstate://other_terraform.tfstate"
+```
+
+Scan for AWS drift and aggregate all Terraform states under a given prefix for S3:
+
+`$ snyk iac describe --all --from="tfstate+s3://statebucket/states"`
+
+Read and aggregate all Terraform states in a given directory:
+
+`$ snyk iac describe --all --from="tfstate://directory/*.tfstate"`
+
+Use any unsupported backend by using `terraform` to pipe your state in a file and then use this file:
+
+`$ terraform state pull > state.tfstate`&#x20;
+
+`$ snyk iac describe --all --from="tfstate://state.tfstate"`
+
+### `--to=<PROVIDER+TYPE>`
+
+Specify the cloud provider to scan.
+
+The `iac describe` command supports multiple cloud providers. By default the `describe` command scans AWS, but you can change this using the `--to` option.
+
+Usage:
+
+`$ snyk iac describe --to="PROVIDER+TYPE"`
+
+Example to explicitly scan AWS in a Terraform context:
+
+`$ snyk iac describe --to="aws+tf"`
+
+Supported providers:
+
+- `github+tf` (GitHub with Terraform)
+- `aws+tf` (Amazon Web Services with Terraform)
+- `gcp+tf` (Google Cloud Platform with Terraform)
+- `azure+tf` (Azure with Terraform)
+
+### `--service=<SERVICE>[,<SERVICE]...>`
+
+Specify the services that control which resources are included, ignored, or both in drift detection.
+
+Specify multiple services as a comma-separated list, for example:
+
+`$ snyk iac describe --all --service="aws_s3,aws_ec2"`
+
+This option cannot be used with a `.snyk` drift ignore rule, the content in `.snyk` will be ignored.
+
+The supported services are: `aws_s3`, `aws_ec2`, `aws_lambda`, `aws_rds`, `aws_route53`, `aws_iam` , `aws_vpc`, `aws_api_gateway`, `aws_apigatewayv2`, `aws_sqs`, `aws_sns`, `aws_ecr`, `aws_cloudfront`, `aws_kms`, `aws_dynamodb`, `azure_base`, `azure_compute`, `azure_storage`, `azure_network`, `azure_container`, `azure_database`, `azure_loadbalancer`, `azure_private_dns`, `google_cloud_platform`, `google_cloud_storage`, `google_compute_engine`, `google_cloud_dns`, `google_cloud_bigtable`, `google_cloud_bigquery`, `google_cloud_functions`, `google_cloud_sql`, `google_cloud_run`
+
+### `--all`
+
+Display a report that shows changes for both managed and unmanaged resources.
+
+### `--only-managed`
+
+Display a report that shows changes only for resources found in aggregated Terraform states; filter out drift for resources that are not managed by Terraform.&#x20;
+
+### `--only-unmanaged`
+
+Display a report that shows resources not found in any Terraform state; filter out drift for managed resources.
 
 ### `--quiet`
 
-This flag prevents stdout to be use for anything but the scan result.
+Prevent stdout from being used for anything but the scan result. This can be useful to pipe the output into some other command.
 
 ### `--filter`
 
-Filter rules allow you to build complex expression to include and exclude a set of resources in your workflow. Powered
-by expression language JMESPath you could build a complex include and exclude expression.
+Use filter rules.
 
-See [documentation for more details](https://docs.driftctl.com/0.19.0/usage/filtering/rules).
+Filter rules allow you to build a complex expression to include and exclude a set of resources in your workflow. Building a complex include and exclude expression is powered by the expression language JMESPath.
 
-### `--json` `--json-output-file=`
+For more information see [Filter results](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/filter-results).
 
-Output report as json to stdout or into a file.
+### `--json`
 
-### `--html` `--html-output-file=`
+Output the report as JSON to stdout.
 
-Output report as html to stdout or into a file.
+### `--json-output-file=<OUTPUT_FILE_PATH>`
 
-### `--to`
+Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
 
-driftctl supports multiple providers. By default it will scan against AWS, but you can change this using `--to`.
+This is especially useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
+
+### `--html`
+
+`--html-output-file=<OUTPUT_FILE_PATH>`
+
+Output the report as html to stdout or into a file.
+
+### `--fetch-tfstate-headers`
+
+Use a specific HTTP header or headers for the HTTP backend.
+
+Example for HTTPS authentication to use a Terraform state stored on GitLab:
+
+```
+$ GITLAB_TOKEN=<access_token> \
+  snyk iac describe --all \
+  --from="tfstate+https://gitlab.com/api/v4/projects/<project_id>/terraform/state/<path_to_state>" \
+ --fetch-tfstate-headers='Authorization="Bearer ${GITLAB_TOKEN}"'
+```
+
+### `--tfc-token`
+
+Specify an API token to authenticate to the Terraform Cloud or Enterprise API.
+
+### `--tfc-endpoint`
+
+Read the current state for a given workspace from Terraform Enterprise by passing the `tfc-endpoint` value that is specific to your Org's Terraform Enterprise installation.
+
+You can obtain your workspace id from the **General Settings** of the workspace.
+
+Remember to provide your Terraform Enterprise API token.
+
+Example:
+
+```
+$ snyk iac describe --all --from="tfstate+tfcloud://$WORKSPACE_ID" --tfc-token="$TFC_TOKEN" --tfc-endpoint="https://tfe.example.com/api/v2"
+```
+
+### `--tf-provider-version`
+
+Specify a terraform provider version to use. If none is specified, default versions are used as follows:
+
+- aws@3.19.0
+- github@4.4.0
+
+Usage:
+
+Specify terraform provider 3.43.0 to use this provider to avoid scan errors:
+
+`$ DCTL_TF_PROVIDER_VERSION=3.43.0 snyk iac describe --only-unmanaged`
+
+Use the same parameter for every cloud provider:
+
+`$ DCTL_TF_PROVIDER_VERSION=4.10.1 snyk iac describe --all --to="github+tf"`
+
+### `--strict`
+
+Enable strict mode.
+
+The `iac describe` command ignores service-linked resources by default (like service-linked AWS IAM roles, their policies and policy attachments). To include those resources in the report you can enable **strict mode**.
+
+Note: when using the strict mode with an AWS account, you may experience unnecessary noise from resources that do not belong to you. This can happen if you have an organization account in which you, by default, have a service-linked role associated to your the account, for example, **AWSServiceRoleForOrganizations**.&#x20;
+
+Usage:
+
+`$ snyk iac describe --all --strict`
+
+### `--deep`
+
+Enable deep mode for `--all`.
+
+Deep mode enables retrieval of details for resources, for deeper and more detailed drift detection. &#x20;
+
+**Note:** this option is experimental. Enabling deep mode can lead to unexpected behavior: false positive drifts or undetected drifts.
+
+Usage:
+
+`$ snyk iac describe --all --deep`
+
+### `--tf-lockfile`
+
+By default, `snyk iac describe` reads the Terraform lock file (`.terraform.lock.hcl`) from the current directory, so it can automatically detect which provider to use, according to the `--to` flag. You can specify a custom path for that file using the `--tf-lockfile` option. If parsing the lockfile fails for some reason, errors are logged and scan continues.
+
+**Note**: When using both the `--tf-lockfile` and `--tf-provider-version` options together, `--tf-provider-version` takes precedence overall.
+
+Example:
+
+`$ snyk iac describe --all --to="aws+tf" --tf-lockfile="/path/to/.terraform.lock.hcl"`
+
+### `--org=<ORG_ID>`
+
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. The `<ORG_ID>` influences some features availability and private test limits.
+
+If you have multiple organizations, you can set a default from the CLI using:
+
+`$ snyk config set org=<ORG_ID>`
+
+Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
+
+Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
+
+For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI).
+
+### `--config-dir`
+
+You can change the directory path used for configuration. By default, it is the `$HOME` directory.
+
+This can be useful, for example, if you want to invoke this command in an AWS Lambda function where you can only use the `/tmp` folder.
+
+Usage:
+
+```
+$ snyk iac describe --only-unmanaged --config-dir="/path/to/config_dir"
+```
 
 ### `--ignore-policy`
 
@@ -56,195 +261,41 @@ Ignore all set policies, the current policy in the `.snyk` file, Org level ignor
 
 Manually pass a path to a `.snyk` policy file.
 
-#### Usage
+## Examples for snyk iac describe command
 
-Environment: `DCTL_TO`
+### Detect drift on AWS with a single local Terraform state
 
-`$ snyk iac describe --to PROVIDER+TYPE`
+```
+$ snyk iac describe --all
+$ snyk iac describe --all --from="tfstate://terraform.tfstate"
+```
 
-Examples:
+### Specify AWS credentials
 
-`$ snyk iac describe --to aws+tf`
-`$ DCTL_TO=github+tf snyk iac describe`
+```
+$ AWS_ACCESS_KEY_ID=XXX AWS_SECRET_ACCESS_KEY=XXX snyk iac describe --all
+```
 
-#### Supported Providers
+### Use an AWS named profile
 
-driftctl supports these providers:
+```
+$ AWS_PROFILE=profile_name snyk iac describe --all
+```
 
-- `github+tf`
-- `aws+tf`
-- `gcp+tf`
-- `azure+tf`
+### Use a single Terraform state stored on an S3 backend
 
-### `--fetch-tfstate-headers`
+```
+$ snyk iac describe --from="tfstate+s3://my-bucket/path/to/state.tfstate"
+```
 
-Use a specific HTTP header(s) for the HTTP backend.
+### Aggregate multiple Terraform states
 
-Example:
+```
+$ snyk iac describe --all --from="tfstate://terraform_S3.tfstate,tfstate://terraform_VPC.tfstate"
+```
 
-`$ GITLAB_TOKEN=<access_token> \ snyk iac describe \ --from tfstate+https://gitlab.com/api/v4/projects/<project_id>/terraform/state/<path_to_state> \ --fetch-tfstate-headers "Authorization=Bearer ${GITLAB_TOKEN}"`
+### Aggregate many Terraform states, using glob pattern
 
-### `--tfc-token`
-
-Specify an API token to authenticate to the Terraform Cloud or Enterprise API.
-
-### `--tfc-endpoint`
-
-You can also read the current state for a given workspace from Terraform Enterprise by passing the tfc-endpoint value
-that's specific to your Org's Terraform Enterprise installation.
-
-You can obtain your workspace id from the General Settings of the workspace.
-
-Don't forget to provide your Terraform Enterprise API token.
-
-Example:
-
-`$ snyk iac describe --from tfstate+tfcloud://$WORKSPACE_ID --tfc-token $TFC_TOKEN --tfc-endpoint 'https://tfe.example.com/api/v2'`
-
-### `--tf-provider-version`
-
-You can specify a terraform provider version to use. If none, driftctl uses defaults like below:
-
-- aws@3.19.0
-- github@4.4.0
-
-#### Usage
-
-I use terraform provider 3.43.0 so I can use this provider with driftctl to avoid scan errors. driftctl will scan with an AWS terraform provider v3.43.0
-`$ DCTL_TF_PROVIDER_VERSION=3.43.0 snyk iac describe`
-
-Same parameter is used for every cloud provider.
-driftctl will scan with a GitHub terraform provider v4.10.1.
-`$ DCTL_TF_PROVIDER_VERSION=4.10.1 snyk iac describe --to github+tf`
-
-### `--strict`
-
-When running driftctl against an AWS account, you may experience unnecessary noises with resources that don't belong to
-you. It can be the case if you have an organization account in which you will by default have a service-linked role
-associated to your account (e.g. AWSServiceRoleForOrganizations). For now, driftctl ignores those service-linked
-resources by default.
-
-If you still want to include those resources in the report anyway, you can enable the strict mode.
-
-For now, resources include:
-
-- Service-linked AWS IAM roles, including their policies and policy attachments
-
-#### Usage
-
-`$ snyk iac describe --strict`
-
-### `--deep`
-
-#### Warning
-
-This flag is **EXPERIMENTAL**. Enabling deep mode while using a Terraform state as IaC source can lead to unexpected
-behaviors: false positive drifts, undetected drifts.
-
-Deep mode enables resources details retrieval. It was the original driftctl behavior.
-
-- In **deep** mode we compare resources details to expected ones (like a terraform plan).
-- In **non-deep** mode (the default one) we only enumerate resources and display which ones are out of IaC scope.
-
-Since it overlaps the new `terraform plan` behavior (as of Terraform 0.15 it shows diffs between your state and the
-remote) we moved the original behavior under the `--deep` **experimental** flag.
-
-#### Info
-
-If you use a version of driftctl prior to 0.13, the deep mode was the default behavior. If you want to keep the old
-behavior in a newer version you have to enable the deep mode flag.
-
-#### Usage
-
-`$ snyk iac describe --deep`
-
-### `--driftignore`
-
-The default name for a driftignore file is `.driftignore`. If for some reason you want to use a custom filename, you can
-do so using the `--driftignore` flag. This is especially useful when you have multiple driftignore files, where each of
-them represents a particular use case.
-
-NOTE: You can use only one driftignore file at once.
-
-#### Usage
-
-Apply ignore directives from the /path/to/driftignore file
-
-`$ snyk iac describe --driftignore /path/to/driftignore`
-
-### `--tf-lockfile`
-
-By default, driftctl tries to read a Terraform lock file (.terraform.lock.hcl) in the current directory, so driftctl can
-automatically detect which provider to use, according to the --to flag. You can specify a custom path for that file
-using the --tf-lockfile flag. If parsing the lockfile fails for some reason, errors will be logged and scan will
-continue.
-
-#### Note
-
-When using both --tf-lockfile and --tf-provider-version flags together, --tf-provider-version will simply take
-precedence overall.
-
-#### Example
-
-`$ snyk iac describe --to aws+tf --tf-lockfile path/to/.terraform.lock.hcl`
-
-### `--config-dir`
-
-You can change the directory path that driftctl uses for configuration. By default, it is the `$HOME` directory.
-
-This can be useful, for example, if you want to invoke driftctl in an AWS Lambda function where you can only use
-the `/tmp` folder.
-
-#### Usage
-
-`$ snyk iac describe --config-dir path_to_driftctl_config_dir`
-`$ DCTL_CONFIG_DIR=path_to_driftctl_config_dir snyk iac describe`
-
-### `--from`
-
-Currently, driftctl only supports reading IaC from a Terraform state. We are investigating to support the Terraform code
-as well, as a state does not represent an intention.
-
-Multiple states can be read by passing `--from` a comma separated list. You can also use glob patterns to match multiple
-state files at once.
-
-Examples:
-
-I want to read a local state and a state stored in an S3 bucket:
-`$ snyk iac describe --from="tfstate+s3://statebucketdriftctl/terraform.tfstate,tfstate://terraform_toto.tfstate"`
-
-You can also read all files under a given prefix for S3
-`$ snyk iac describe --from=tfstate+s3://statebucketdriftctl/states`
-
-#### Supported IaC sources
-
-- Terraform state
-- Local: `--from=tfstate://terraform.tfstate`
-- S3: `--from=tfstate+s3://my-bucket/path/to/state.tfstate`
-- GCS: `--from=tfstate+gs://my-bucket/path/to/state.tfstate`
-- HTTPS: `--from=tfstate+https://my-url/state.tfstate`
-- Terraform Cloud / Terraform Enterprise: `--from=tfstate+tfcloud://WORKSPACE_ID`
-- Azure blob storage: `--from=tfstate+azurerm://container-name/path/to/state.tfstate`
-
-You can use any unsupported backend by using `terraform` to pipe your state in a file and then use this file with
-driftctl:
-
-`$ terraform state pull > state.tfstate`
-`$ snyk iac describe --from=tfstate://state.tfstate`
-
-### `--service`
-
-The services(s) specified with this argument controls which resources are going to be included/ignored in drift
-detection.
-
-When specifying multiple services, use a comma to separate them e.g. `snyk iac describe --service=aws_s3,aws_ec2`
-
-This argument can't be used at the same time with a driftignore file, driftignore will be ignored.
-
-Here are the available services: aws_s3, aws_ec2, aws_lambda, aws_rds, aws_route53, aws_iam, aws_vpc, aws_api_gateway, aws_apigatewayv2, aws_sqs, aws_sns, aws_ecr, aws_cloudfront, aws_kms, aws_dynamodb, azure_base, azure_compute, azure_storage, azure_network, azure_container, azure_database, azure_loadbalancer, azure_private_dns, google_cloud_platform, google_cloud_storage, google_compute_engine, google_cloud_dns, google_cloud_bigtable, google_cloud_bigquery, google_cloud_functions, google_cloud_sql, google_cloud_run
-
-## Examples for the iac describe command
-
-[For more information
-see [Synk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
-.
+```
+$ snyk iac describe --all --from="tfstate://path/to/**/*.tfstate"
+```
