@@ -266,27 +266,33 @@ snyk code --help
 
 # Getting support
 
-We recommend reaching out via the [support@snyk.io](mailto:support@snyk.io) email whenever you need help with Snyk CLI or Snyk in general.
+If you need support using Snyk CLI, please [contact support](https://support.snyk.io).
 
-GitHub Issues on any [Snyk project](https://github.com/snyk) are not actively monitored by Snyk support.
+We do not actively monitor GitHub Issues so any issues there may go unnoticed.
 
-## Contributing
+# Contributing
 
-This project is open source but we don't encourage outside contributors.
-You may look into [design decisions in the Snyk CLI](help/_about-this-project/README.md).
+If you are an external contributor, before working on any contributions, please first [contact support](https://support.snyk.io) to discuss the issue or feature request with us.
+
+If you are contributing to Snyk CLI, see [our contributing guidelines](CONTRIBUTING.md)
+
+For information on how Snyk CLI is implemented, see [our design decisions](help/_about-this-project/README.md).
 
 This repository is a monorepo, also covering other projects and tools:
 
-- [`@snyk/protect`](packages/snyk-protect): [npm package for `snyk-protect` command](https://www.npmjs.com/package/@snyk/protect)
+- [`@snyk/fix](packages/snyk-fix): npm package for `snyk fix` libraries.
+- [`@snyk/protect`](packages/snyk-protect): npm package for [`snyk-protect`](https://www.npmjs.com/package/@snyk/protect) command.
 
-## Security
+# Security
 
 For any security issues or concerns, please see [SECURITY.md](SECURITY.md) file in this repository.
 
-## Notices
+# Notices
 
-### Snyk API usage policy
+## Snyk API usage policy
 
 The use of Snyk's API, whether through the use of the 'snyk' npm package or otherwise, is subject to the [Terms & Conditions](https://snyk.co/ucT6N).
+
+---
 
 Made with 💜 by Snyk
