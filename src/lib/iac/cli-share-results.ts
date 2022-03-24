@@ -50,6 +50,7 @@ export async function shareResults({
     method: 'POST',
     url: `${config.API}/iac-cli-share-results`,
     json: true,
+    qs: { org: options?.org ?? config.org },
     headers: {
       authorization: getAuthHeader(),
     },
