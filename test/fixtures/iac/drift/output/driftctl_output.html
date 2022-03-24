@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>driftctl Scan Report</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAflBMVEVHcEyG1N1wgIVytMRxtMNufIByf4JxtMQpPUJxs8NytMRxtMR2u8VytcV0tcUvRUt1t8dxs8RytMR1t8UvSE5xtMRxs8Nxs8Nxs8NUZGdbam4pPUL///&#43;nr7G0u73a3t9ygIOYoqTFy82GkZRxs8NKW19jcXXy9PRSY2c9T1PL6xgVAAAAG3RSTlMABedb3drdoM31bYIfPzzdGrN2LN6217251dZBPg6dAAABA0lEQVR4Xq2T2XKCMBSGQ9maKBS0oDbrAtq&#43;/wsWDnKGxZnc&#43;DETLs6fs4e8lSNrEkqThh1fm/MOyV9IYtotoPHWfug2HNb2U7fjtLQXc&#43;y4LOM5l4IgUQLm65kA5ysIkggFbLpOkMkJWzuoo4XLeuWihMIqsqCCokssEQMgOZZ6y7KPkQz5&#43;Rz5Ghn&#43;RApAjYcT0mnhOOc9tz0HngJptHRKaaONVHffK3P/XQoe0jonhB0&#43;&#43;XCec8/XAmG91mMcJbRUxnNj/uxTcEtTSDJFpiS/ByDJQJnhRgH7VjfQ6uCwtuO&#43;zOO&#43;4Lj3C1MU64UJr1x4acNrH344SMXqltK2ZhV5J/88zzYOY4aflwAAAABJRU5ErkJggg==" />
+    <style>html, body, div, span, h1, h2, p, pre, a, code, img, ul, li, form, label, table, tbody, thead, tr, th, td, header, section, button {
+        border: 0;
+        font: inherit;
+        margin: 0;
+        padding: 0;
+        vertical-align: baseline;
+    }
+
+    body {
+        background-color: #f7f7f9;
+        color: #1c1e21;
+        font-family: Helvetica, sans-serif;
+        padding-bottom: 50px;
+    }
+
+    form {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    h2 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    header {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 12px 0;
+    }
+
+    #brand_logo {
+        margin-right: 20px;
+        width: 100px;
+        height: 81px;
+        display: inline-block;
+    }
+
+    #brand_logo svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    input::placeholder {
+        color: #ccc;
+        opacity: 1;
+    }
+
+    main {
+        background-color: #fff;
+        border-top: 3px solid #71b2c3;
+        box-shadow: 0 0 5px #0000000a;
+        padding: 25px;
+    }
+
+    section {
+        background: #fff;
+        border-radius: 3px;
+        box-shadow: 0 0 5px #0000000a;
+        color: #747578;
+        display: flex;
+        flex-direction: column;
+        font-size: 15px;
+        margin-bottom: 20px;
+        padding: 15px;
+    }
+
+    select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background: url(data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0Ljk1IDEwIj48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6I2ZmZjt9LmNscy0ye2ZpbGw6IzQ0NDt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPmFycm93czwvdGl0bGU+PHJlY3QgY2xhc3M9ImNscy0xIiB3aWR0aD0iNC45NSIgaGVpZ2h0PSIxMCIvPjxwb2x5Z29uIGNsYXNzPSJjbHMtMiIgcG9pbnRzPSIxLjQxIDQuNjcgMi40OCAzLjE4IDMuNTQgNC42NyAxLjQxIDQuNjciLz48cG9seWdvbiBjbGFzcz0iY2xzLTIiIHBvaW50cz0iMy41NCA1LjMzIDIuNDggNi44MiAxLjQxIDUuMzMgMy41NCA1LjMzIi8+PC9zdmc+) no-repeat 97% 50%;
+    }
+
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    tbody, ul, .table-body {
+        border-left: 1px solid #ececec;
+        border-right: 1px solid #ececec;
+        border-top: 1px solid #ececec;
+        border-radius: 3px;
+        display: block;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    [role="tab"] {
+        background: transparent;
+        border-radius: 3px;
+        color: #747578;
+        cursor: pointer;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px;
+        padding: 10px 20px;
+    }
+
+    [role="tab"]:hover {
+        background-color: #f9f9f9;
+    }
+
+    [role="tab"][aria-selected="true"] {
+        background: #71b2c3;
+        color: #fff;
+    }
+
+    [role="tablist"] {
+        display: flex;
+        flex-direction: column;
+    }
+
+    [role="tabpanel"] {
+        -webkit-animation: fadein .8s;
+        animation: fadein .8s;
+        width: 100%;
+        overflow: scroll;
+    }
+
+    [role="tabpanel"].is-hidden {
+        opacity: 0;
+    }
+
+    input[type="reset"] {
+        background-color: transparent;
+        border: none;
+        color: #5faabd;
+        cursor: pointer;
+        font-size: 14px;
+        height: 34px;
+        margin: 5px;
+        width: 100px;
+    }
+
+    input[type="search"], select {
+        border: 1px solid #ececec;
+        border-radius: 3px;
+        color: #6e7071;
+        font-size: 14px;
+        height: 36px;
+        margin: 5px;
+        max-width: 300px;
+        padding: 8px;
+        width: 100%;
+    }
+
+    .card {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        margin: 5px 0;
+    }
+
+    .code-box {
+        background: #eee;
+        border-radius: 3px;
+        color: #747578;
+        display: flex;
+        margin-top: 20px;
+    }
+
+    .code-box-line {
+        line-height: 30px;
+        overflow-x: auto;
+        padding: 10px;
+        width: 100%;
+    }
+
+    .code-box-line-create {
+        background-color: #22863a1a;
+        border-radius: 3px;
+        color: #22863a;
+        padding: 3px;
+    }
+
+    .code-box-line-delete {
+        background-color: #bf404a17;
+        border-radius: 3px;
+        color: #bf404a;
+        padding: 3px;
+        text-decoration: line-through;
+    }
+
+    .congrats {
+        color: #4d9221;
+        text-align: center;
+        margin: 50px 0;
+    }
+
+    .container {
+        margin: auto;
+        max-width: 100%;
+        width: 1280px;
+    }
+
+    .div-left {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .div-right {
+        margin: 12px 0;
+        text-align: center;
+    }
+
+    .empty-panel {
+        color: #747578;
+        display: flex;
+        flex-direction: row;
+        font-size: 20px;
+        font-weight: 600;
+        justify-content: center;
+        padding: 25px;
+    }
+
+    .fraction {
+        background: #e8e8e8;
+        border-radius: 3px;
+        color: #555;
+        font-size: 12px;
+        margin-left: 5px;
+        padding: 4px 5px;
+    }
+
+    .panels {
+        padding: 10px;
+        width: 100%;
+    }
+
+    .provider {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 5px 0;
+    }
+
+    .resource-item {
+        border-bottom: 1px solid #ececec;
+        color: #6e7071;
+        font-size: 14px;
+        padding: 15px;
+    }
+
+    .resource-item:hover {
+        background-color: #f9f9f9;
+    }
+
+    .row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .strong {
+        color: #333;
+        font-weight: 700;
+        margin-left: 5px;
+    }
+
+    .table-header {
+        color: #747578;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 10px;
+    }
+
+    .tabs-wrapper {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .visuallyhidden {
+        border: 0;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }
+
+    .is-hidden {
+        display: none;
+    }
+
+    @-webkit-keyframes fadein {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadein {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @media (min-width: 768px) {
+        form {
+            flex-direction: row;
+        }
+
+        header {
+            height: 130px;
+            padding: 0 50px;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        section {
+            flex-direction: row;
+            justify-content: space-around;
+        }
+
+        [role="tab"] {
+            font-size: 18px;
+        }
+
+        [role="tablist"] {
+            flex-direction: row;
+        }
+
+        .card {
+            margin: 0;
+        }
+
+        .div-right {
+            text-align: right;
+        }
+
+        .panels {
+            padding: 20px;
+        }
+    }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="div-left">
+            <div id="brand_logo"><svg viewBox="0 0 1490.92 1207.41" xmlns="http://www.w3.org/2000/svg"><path d="m450.87 700.16c48.21-154.42 192.33-266.49 362.63-266.49s314.42 112.07 362.63 266.49h230.41c-53-279.23-298.37-490.36-593-490.36s-540 211.13-593 490.36z" fill="#71b3c3" transform="translate(-68.04 -209.8)"/><path d="m1176.13 926.84c-48.21 154.42-192.33 266.49-362.63 266.49s-314.42-112.07-362.63-266.49h-230.4c53 279.23 298.36 490.36 593 490.36s540-211.13 593-490.36z" fill="#71b3c3" transform="translate(-68.04 -209.8)"/><path d="m0 482.77h1490.92v241.88h-1490.92z" fill="#293d42"/><path d="m19 501.77h852.03v203.88h-852.03z" fill="#fff"/><g transform="translate(-68.04 -209.8)"><path d="m1015.32 875.71c-22.39 0-37.84-15-37.84-37.61 0-22.81 15.67-38 38.44-38 10.28 0 19 4.06 27.52 11.06l10.37-13.62c-8.74-8.49-21.75-15.18-38.83-15.18-32.17 0-59.59 20.26-59.59 55.7 0 35.08 25 55.34 58.19 55.34a64.53 64.53 0 0 0 42.41-16.3l-9.27-13.88c-8.42 6.88-18.85 12.49-31.4 12.49z" fill="#fff"/><path d="m1152.93 876c-19.15 0-25.59-8.81-25.59-27v-46.78h49.94v-17.22h-49.94v-33.55h-17.9l-2.82 33.55-30 1.12v16.1h29.16v46.78c0 26.56 10.53 44.47 42.18 44.47 13.5 0 24-2.85 33.5-6.16l-4.39-15.76a67.72 67.72 0 0 1 -24.14 4.45z" fill="#fff"/><path d="m1281 871.26c-7 3-13.16 4.45-18.94 4.45-11.63 0-20-5.94-20-20.62v-117.84h-58v17.23h36.38v99.31c0 25.52 12.79 39.65 36.49 39.65 12 0 19.06-2.16 29.17-6.16z" fill="#fff"/><path d="m418 776.75 1 18.59h-.52c-8.79-8.16-18.09-12.94-30.45-12.94-24.51 0-47.21 21.23-47.21 55.7 0 35.09 18.11 55.34 45.45 55.34 12.56 0 24.76-7.13 33.23-15.73h.69l1.72 13.13h17.64v-153.59h-21.55zm0 84.56c-8.35 9.59-17.12 14.14-26.71 14.14-17.66 0-28.35-13.53-28.35-37.61 0-23.11 13.52-37.45 30-37.45 8.37 0 16.48 2.89 25 10.84z" fill="#293d42"/><path d="m496.88 809.55h-.52l-1.93-24.55h-17.86v105.84h21.58v-60.06c11.71-21.37 26.34-29.1 41.5-29.1 8.15 0 12.17 1.08 19.38 3.38l4.72-18.33c-6.42-3.13-12.55-4.33-20.75-4.33-18.89 0-35.2 9.91-46.12 27.15z" fill="#293d42"/><path d="m644.66 733.56c-9.29 0-16.08 6.28-16.08 15.4 0 9.29 6.79 15.32 16.08 15.32s16.07-6 16.07-15.32c0-9.12-6.79-15.4-16.07-15.4z" fill="#293d42"/></g><path d="m520.24 592.43h47.33v88.62h21.58v-105.85h-68.91z" fill="#293d42"/><path d="m725.05 777.69v7.31l-29.67 1.1v16.1h29.67v88.62h21.4v-88.6h42.16v-17.22h-42.16v-7.83c0-15.89 7.3-25.29 24.81-25.29a58.07 58.07 0 0 1 24 4.78l4.64-16a83.66 83.66 0 0 0 -30.9-6c-30.28-.01-43.95 17.71-43.95 43.03z" fill="#293d42" transform="translate(-68.04 -209.8)"/><path d="m912.4 871.52a67.72 67.72 0 0 1 -24.12 4.48c-19.15 0-25.59-8.81-25.59-27v-46.78h49.94v-17.22h-49.94v-33.55h-17.9l-2.79 33.55-30 1.12v16.1h29.17v46.78c0 26.56 10.53 44.47 42.18 44.47 13.5 0 24-2.85 33.5-6.16z" fill="#293d42" transform="translate(-68.04 -209.8)"/></svg>
+            </div>
+            <div>
+                <h1>Scan Report</h1>
+                <h2>Jun 10, 2021</h2>
+                <p>Scan Duration: 1m12s</p>
+            </div>
+        </div>
+        <div class="div-right">
+            <p class="provider">IaC Source: Terraform</p>
+            <p class="provider">Cloud Provider: AWS (3.19.0)</p>
+        </div>
+    </header>
+    <section>
+        <div class="card">
+            <span>Total Resources:</span>
+            <span class="strong">1</span>
+        </div>
+        <div class="card">
+            <span>Coverage:</span>
+            <span class="strong">100%</span>
+        </div>
+        <div class="card">
+            <span>Managed:</span>
+            <span class="strong">100%</span>
+            <span class="fraction">1/1</span>
+        </div>
+        <div class="card">
+            <span>Unmanaged:</span>
+            <span class="strong">0%</span>
+            <span class="fraction">0/1</span>
+        </div>
+        <div class="card">
+            <span>Missing:</span>
+            <span class="strong">0%</span>
+            <span class="fraction">0/1</span>
+        </div>
+    </section>
+    <main>
+
+        <h1 class="congrats">Congrats! Your infrastructure is in sync</h1>
+
+    </main>
+</div>
+<script>
+    const form = document.querySelector("form");
+
+    form.addEventListener("submit", (event) => event.preventDefault());
+
+    const resources = document.querySelectorAll("[data-kind^='resource-']");
+    const searchInput = document.querySelector('[type="search"]');
+    const resourceTypeSelectBox = document.querySelector("#resource-type-select");
+    const iacSourceSelectBox = document.querySelector("#iac-source-select");
+    const resetButton = document.querySelector('[type="reset"]');
+
+    searchInput.addEventListener("input", filterResources);
+    resourceTypeSelectBox.addEventListener("input", filterResources);
+    iacSourceSelectBox.addEventListener("input", filterResources);
+    resetButton.addEventListener("click", resetResources);
+
+    function refreshPanel(count, el) {
+        const panel = document.getElementById(
+            el.parentElement.getAttribute("aria-controls")
+        );
+        if (!panel) {
+            return;
+        }
+        if (count === 0) {
+            panel.firstElementChild.classList.add("is-hidden");
+            panel.children[1].classList.remove("is-hidden");
+        } else {
+            panel.firstElementChild.classList.remove("is-hidden");
+            panel.children[1].classList.add("is-hidden");
+        }
+    }
+
+    function refreshCounters() {
+        const map = {
+            "[data-kind='resource-unmanaged']": "[data-count='resource-unmanaged']",
+            "[data-kind='resource-changed']": "[data-count='resource-changed']",
+            "[data-kind='resource-deleted']": "[data-count='resource-deleted']",
+            "[data-kind='resource-alerts']": "[data-count='resource-alerts']",
+        };
+        for (const key in map) {
+            const countEl = document.querySelector(map[key]);
+            if (countEl) {
+                const count = Array.from(document.querySelectorAll(key)).filter(
+                    (el) => !el.classList.contains("is-hidden")
+                ).length;
+                countEl.textContent = count;
+                refreshPanel(count, countEl);
+            }
+        }
+    }
+
+    function resourceIdContains(res, id) {
+        if (id === "") {
+            return true;
+        }
+        const el = res.querySelector("[data-type='resource-id']");
+        if (!el) {
+            return false;
+        }
+        return el.innerText.toLowerCase().includes(id.toLowerCase());
+    }
+
+    function resourceTypeEquals(res, type) {
+        if (type === "") {
+            return true;
+        }
+        const el = res.querySelector("[data-type='resource-type']");
+        if (!el) {
+            return false;
+        }
+        return el.innerText === type;
+    }
+
+    function resourceSourceEquals(res, source) {
+        if (source === "") {
+            return true;
+        }
+        const el = res.querySelector("[data-type='resource-source']");
+        if (!el) {
+            return false;
+        }
+        return el.innerText === source;
+    }
+
+    function filterResources() {
+        const id = searchInput.value;
+        const type = resourceTypeSelectBox.value;
+        const source = iacSourceSelectBox.value;
+        for (const res of resources) {
+            const matchId = resourceIdContains(res, id);
+            const matchType = resourceTypeEquals(res, type);
+            const matchSource = resourceSourceEquals(res, source);
+            if (matchId && matchType && matchSource) {
+                res.classList.remove("is-hidden");
+            } else {
+                res.classList.add("is-hidden");
+            }
+        }
+        refreshCounters();
+    }
+
+    function resetResources() {
+        for (const res of resources) {
+            res.classList.remove("is-hidden");
+        }
+        refreshCounters();
+    }
+
+    resetResources()
+</script>
+<script>
+
+    const tablist = document.querySelector('[role="tablist"]')
+    const tabs = document.querySelectorAll('[role="tab"]')
+    const panels = document.querySelectorAll('[role="tabpanel"]')
+    const keys = {left: 37, right: 39}
+    const direction = {37: -1, 39: 1}
+
+    for (let i = 0; i < tabs.length; ++i) {
+        addListeners(i)
+    }
+
+    function addListeners(index) {
+        tabs[index].addEventListener('click', clickEventListener)
+        tabs[index].addEventListener('keyup', keyupEventListener)
+        tabs[index].index = index
+    }
+
+    function clickEventListener(event) {
+        let tab
+        if (event.target.getAttribute("role") === "tab") {
+            tab = event.target
+        } else {
+            tab = event.target.closest("button")
+        }
+        const selected = tab.getAttribute("aria-selected")
+        if (selected === "false") {
+            activateTab(tab, false)
+        }
+    }
+
+    function keyupEventListener(event) {
+        const key = event.keyCode
+        switch (key) {
+            case keys.left:
+            case keys.right:
+                switchTabOnArrowPress(event)
+                break
+        }
+    }
+
+    function switchTabOnArrowPress(event) {
+        const pressed = event.keyCode
+        for (let x = 0; x < tabs.length; x++) {
+            tabs[x].addEventListener('focus', focusEventHandler)
+        }
+        if (direction[pressed]) {
+            const target = event.target
+            if (target.index !== undefined) {
+                if (tabs[target.index + direction[pressed]]) {
+                    tabs[target.index + direction[pressed]].focus()
+                } else if (pressed === keys.left) {
+                    tabs[tabs.length - 1].focus()
+                } else if (pressed === keys.right) {
+                    tabs[0].focus()
+                }
+            }
+        }
+    }
+
+    function activateTab(tab, setFocus) {
+        setFocus = setFocus || true
+        deactivateTabs()
+        tab.removeAttribute('tabindex')
+        tab.setAttribute('aria-selected', 'true')
+        const controls = tab.getAttribute('aria-controls')
+        document.getElementById(controls).classList.remove('is-hidden')
+        if (setFocus) {
+            tab.focus()
+        }
+    }
+
+    function deactivateTabs() {
+        for (let t = 0; t < tabs.length; t++) {
+            tabs[t].setAttribute('tabindex', '-1')
+            tabs[t].setAttribute('aria-selected', 'false')
+            tabs[t].removeEventListener('focus', focusEventHandler)
+        }
+        for (let p = 0; p < panels.length; p++) {
+            panels[p].classList.add('is-hidden')
+        }
+    }
+
+    function focusEventHandler(event) {
+        const target = event.target
+        if (target === document.activeElement) {
+            activateTab(target, false)
+        }
+    }
+</script>
+</body>
+</html>

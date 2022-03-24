@@ -7,6 +7,8 @@ import * as path from 'path';
 import { getFixturePath } from '../../util/getFixturePath';
 import * as uuid from 'uuid';
 import * as rimraf from 'rimraf';
+import { processDriftctlOutput } from '../../../../src/lib/iac/drift';
+import { DescribeOptions } from '../../../../src/lib/iac/types';
 
 const paths = envPaths('snyk');
 
@@ -124,5 +126,59 @@ describe('iac describe', () => {
     expect(
       fs.existsSync(path.join(cachedir, 'driftctl_' + driftctlVersion)),
     ).toBe(true);
+  });
+});
+
+describe('processDriftctlOutput', () => {
+  it('test that html in stdout is parsed correctly', async () => {
+    const inputData = fs.readFileSync(
+      path.join(
+        getFixturePath('iac'),
+        'drift',
+        'output',
+        'driftctl_output.html',
+      ),
+    );
+    const expectedOutputData = fs.readFileSync(
+      path.join(getFixturePath('iac'), 'drift', 'output', 'snyk_output.html'),
+    );
+
+    const opts: DescribeOptions = {
+      kind: 'fmt',
+      html: true,
+    };
+    const output = processDriftctlOutput(opts, inputData.toString('utf8'));
+
+    expect(output).toBe(expectedOutputData.toString('utf8'));
+  });
+
+  it('test that html in file is parsed correctly', async () => {
+    const inputData = fs.readFileSync(
+      path.join(
+        getFixturePath('iac'),
+        'drift',
+        'output',
+        'driftctl_output.html',
+      ),
+    );
+    const expectedOutputData = fs.readFileSync(
+      path.join(getFixturePath('iac'), 'drift', 'output', 'snyk_output.html'),
+    );
+
+    const tmpFilepath = '/tmp/snyk-html-test.html';
+    fs.writeFileSync(tmpFilepath, inputData);
+
+    const opts: DescribeOptions = {
+      kind: 'fmt',
+      'html-file-output': tmpFilepath,
+    };
+    processDriftctlOutput(opts, inputData.toString('utf8'));
+
+    const data = fs.readFileSync(tmpFilepath, {
+      encoding: 'utf8',
+    });
+    expect(data).toBe(expectedOutputData.toString('utf8'));
+
+    fs.unlinkSync(tmpFilepath);
   });
 });

@@ -6,6 +6,7 @@ import {
   runDriftCTL,
   driftignoreFromPolicy,
   parseDriftAnalysisResults,
+  processDriftctlOutput,
 } from '../../lib/iac/drift';
 import { getIacOrgSettings } from './test/iac-local-execution/org-settings/get-iac-org-settings';
 import { UnsupportedEntitlementCommandError } from './test/iac-local-execution/assert-iac-options-flag';
@@ -38,7 +39,7 @@ export default async (...args: MethodArgs): Promise<any> => {
 
   try {
     const describe = await runDriftCTL({
-      options: { kind: 'describe', ...options },
+      options: { ...options, kind: 'describe' },
       driftIgnore: driftIgnore,
     });
     analytics.add('is-iac-drift', true);
@@ -53,10 +54,10 @@ export default async (...args: MethodArgs): Promise<any> => {
     addIacDriftAnalytics(analysis, options);
 
     const fmtResult = await runDriftCTL({
-      options: { kind: 'fmt', ...options },
+      options: { ...options, kind: 'fmt' },
       input: describe.stdout,
     });
-    process.stdout.write(fmtResult.stdout);
+    process.stdout.write(processDriftctlOutput(options, fmtResult.stdout));
     process.exitCode = describe.code;
   } catch (e) {
     if (e instanceof DescribeRequiredArgumentError) {
