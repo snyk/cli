@@ -9,7 +9,7 @@ interface Config {
   MAX_PATH_COUNT: number;
   API: string;
   api: string;
-  API_V3_URL: string;
+  API_REST_URL: string;
   disableSuggestions: string;
   org: string;
   ROOT: string;

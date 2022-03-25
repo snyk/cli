@@ -12,11 +12,11 @@ describe('snyk-apps: create app', () => {
 
   beforeAll((done) => {
     const port = process.env.PORT || process.env.SNYK_PORT || '12345';
-    const baseApi = '/v3';
+    const baseApi = '/rest';
     env = {
       ...process.env,
       SNYK_API: 'http://localhost:' + port + baseApi,
-      SNYK_API_V3_URL: 'http://localhost:' + port + baseApi,
+      SNYK_API_REST_URL: 'http://localhost:' + port + baseApi,
       SNYK_HOST: 'http://localhost:' + port,
       SNYK_TOKEN: '123456789',
       SNYK_DISABLE_ANALYTICS: '1',

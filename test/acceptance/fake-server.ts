@@ -87,7 +87,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const app = express();
   app.use(bodyParser.json({ limit: '50mb' }));
-  // Content-Type for v3 API endpoints is 'application/vnd.api+json'
+  // Content-Type for rest API endpoints is 'application/vnd.api+json'
   app.use(express.json({ type: 'application/vnd.api+json', strict: false }));
   app.use((req, res, next) => {
     requests.push(req);

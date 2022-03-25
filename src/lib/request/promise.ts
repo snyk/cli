@@ -19,12 +19,12 @@ export async function makeRequest<T>(payload: any): Promise<T> {
 }
 
 /**
- * All v3 request will essentially be the same and are JSON by default
+ * All rest request will essentially be the same and are JSON by default
  * Thus if no headers provided default headers are used
  * @param {any} payload for the request
  * @returns
  */
-export async function makeRequestV3<T>(payload: any): Promise<T> {
+export async function makeRequestRest<T>(payload: any): Promise<T> {
   return new Promise((resolve, reject) => {
     payload.headers = payload.headers ?? {
       'Content-Type': 'application/vnd.api+json',
