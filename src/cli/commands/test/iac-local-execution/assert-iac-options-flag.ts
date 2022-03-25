@@ -28,6 +28,7 @@ const keys: (keyof IaCTestFlags)[] = [
   'project-environment',
   'project-lifecycle',
   'project-business-criticality',
+  'target-reference',
   // PolicyOptions
   'ignore-policy',
   'policy-path',

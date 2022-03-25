@@ -131,14 +131,14 @@ export async function test(
 
     let projectPublicIds: Record<string, string> = {};
     if (options.report) {
-      projectPublicIds = await formatAndShareResults(
-        resultsWithCustomSeverities,
+      projectPublicIds = await formatAndShareResults({
+        results: resultsWithCustomSeverities,
         options,
         orgPublicId,
         policy,
         tags,
         attributes,
-      );
+      });
     }
 
     const formattedResults = formatScanResults(

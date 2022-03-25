@@ -32,6 +32,7 @@ export interface ScanResult {
   policy?: string;
   target?: GitTarget | ContainerTarget | UnknownTarget;
   analytics?: Analytics[];
+  targetReference?: string;
 }
 
 export interface Analytics {
