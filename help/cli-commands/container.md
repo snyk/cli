@@ -2,7 +2,7 @@
 
 ## Usage
 
-`snyk container <COMMAND> [<OPTIONS>] [<IMAGE>]`
+`snyk container <SUBCOMMAND> [<OPTIONS>] [<IMAGE>]`
 
 ## Description
 
@@ -10,7 +10,7 @@ The `snyk container` command tests container images for vulnerabilities.
 
 For more information see [Snyk CLI for container security](https://docs.snyk.io/products/snyk-container/snyk-cli-for-container-security).
 
-## Commands
+## Subcommands
 
 ### `test`
 
@@ -37,7 +37,7 @@ You can use environment variables to configure the Snyk CLI and also set variabl
 
 Use the `-d` option to output the debug logs.
 
-## Options
+## Options for the container test and container monitor subcommands
 
 ### `--print-deps`
 
@@ -54,8 +54,6 @@ If you have multiple organizations, you can set a default from the CLI using:
 Set a default to ensure all newly tested and monitored projects are tested and monitored under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
 Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
-
-Example: `$ snyk container test ubuntu:18.04 --org=my-team`
 
 For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI).
 
@@ -107,7 +105,9 @@ Set the project business criticality to one or more values (comma-separated). To
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
-Set the project tags to one or more values (comma-separarted key values pairs with an "=" separator), for example, `--project-tags=department=finance,team=alpha`. To clear the project tags set `--project-tags=`
+Set the project tags to one or more values (comma-separarted key values pairs with an "=" separator).
+
+Example: `--project-tags=department=finance,team=alpha`. To clear the project tags set `--project-tags=`
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
@@ -119,7 +119,7 @@ Report only vulnerabilities at the specified level or higher.
 
 ### `--app-vulns`
 
-&#x20;Allow detection of vulnerabilities in your application dependencies from container images, as well as from the operating system, all in one single scan.
+Allow detection of vulnerabilities in your application dependencies from container images, as well as from the operating system, all in one single scan.
 
 ### `--nested-jars-depth`
 
@@ -147,7 +147,7 @@ Specify a password to use when connecting to a container registry. This is ignor
 
 ### Scan and monitor Docker images
 
-`$ snyk container test <image>`&#x20;
+`$ snyk container test <image>`
 
 `$ snyk container monitor <image>`
 

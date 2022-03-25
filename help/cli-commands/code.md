@@ -2,7 +2,7 @@
 
 ## Usage
 
-`snyk code [<COMMAND>] [<OPTIONS>] [<PATH>]`
+`snyk code [<SUBCOMMAND>] [<OPTIONS>] [<PATH>]`
 
 ## Description
 
@@ -10,7 +10,7 @@ The `snyk code` command finds security issues using Static Code Analysis.
 
 For more information see [CLI for Snyk Code](https://docs.snyk.io/snyk-code/cli-for-snyk-code).
 
-## Command: `test`
+## Subcommand: `test`
 
 Test for any known issue.
 
@@ -31,7 +31,7 @@ You can use environment variables to configure the Snyk CLI and also set variabl
 
 Use the `-d` option to output the debug logs.
 
-## Options
+## Options for the code test subcommand
 
 ### `--org=<ORG_ID>`
 
@@ -44,8 +44,6 @@ If you have multiple organizations, you can set a default from the CLI using:
 Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
 Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
-
-Example: `$ snyk code test --org=my-team`
 
 For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI).
 
