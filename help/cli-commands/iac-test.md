@@ -1,18 +1,16 @@
-# IAC
+# IAC test
 
 ## Usage
 
-`snyk iac <COMMAND> [<OPTIONS>] [<PATH>]`
+`snyk iac test [<OPTIONS>] [<PATH>]`
 
 ## Description
 
-The `snyk iac` command finds security issues in Infrastructure as Code files.
+The `snyk iac test` command tests for any known security issue.
 
-For more information see [Synk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code).
+See also the help for [`iac describe`](https://docs.snyk.io/snyk-cli/commands/iac-describe) and [`iac-gendriftignore`](https://docs.snyk.io/snyk-cli/commands/iac-gen-driftignore)``
 
-## Command: `test`
-
-Test for any known issue.
+For more information see [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code).
 
 ## Exit codes
 
@@ -25,7 +23,7 @@ Possible exit codes and their meaning:
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli).
+You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli).
 
 ## Debug
 
@@ -52,8 +50,6 @@ If you have multiple organizations, you can set a default from the CLI using:
 Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
 Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
-
-Example: `$ snyk iac test --org=my-team`
 
 For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI).
 
@@ -95,19 +91,20 @@ Report only vulnerabilities at the specified level or higher.
 
 Use this dedicated option for Terraform plan scanning modes to control whether the scan analyzes the full final state (for example, `planned-values`), or the proposed changes only (for example, `resource-changes`).
 
-Default: If the `--scan` option is not specified, scan the proposed changes only by default. Example 1: `--scan=planned-values` (full state scan) Example 2: `--scan=resource-changes` (proposed changes scan)
+Default: If the `--scan` option is not specified, scan the proposed changes only by default. Example 1: `--scan=planned-values` (full state scan)\
+Example 2: `--scan=resource-changes` (proposed changes scan)
 
 ### `--rules=<PATH_TO_CUSTOM_RULES_BUNDLE>`
 
-Use this dedicated option for Custom Rules scanning to enable the IaC scans to use a custom rules bundle generated with the `snyk-iac-rules` SDK. See [Download learn how to use the SDK](https://github.com/snyk/snyk-iac-rules).
+Use this dedicated option for Custom Rules scanning to enable the IaC scans to use a custom rules bundle generated with the `snyk-iac-rules` SDK. See [`snyk-iac-rules` SDK](https://github.com/snyk/snyk-iac-rules#readme).
 
 This option cannot be used if the custom rules settings were configured with the Snyk UI. Default: If the `--rules` flag is not specified, scan the configuration files using the internal Snyk rules only.
 
 Example: `--rules=bundle.tar.gz` (Scan the configuration files using custom rules and internal Snyk rules.)
 
-## Examples for the iac test command
+## Examples for snyk iac test command
 
-For more information see [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code).
+For more information see Synk CLI for Infrastructure as Code.
 
 ### Test a CloudFormation file
 

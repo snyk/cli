@@ -33,6 +33,8 @@ See also subsequent sections for options for specific build environments, packag
 
 Auto-detect all projects in the working directory (including Yarn workspaces).
 
+For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/hc/en-us/articles/360000910577-Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files-).
+
 ### `--detection-depth=<DEPTH>`
 
 Use with `--all-projects` or `--yarn-workspaces` to indicate how many sub-directories to search. `DEPTH` must be a number.
@@ -79,8 +81,6 @@ Set a default to ensure all newly tested projects are tested under your default 
 
 Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
 
-Example: `$ snyk test --org=my-team`
-
 For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI).
 
 ### `--file=<FILE>`
@@ -103,13 +103,13 @@ Ignore all set policies, the current policy in the `.snyk` file, Org level ignor
 
 Apply and use ignore rules from the Snyk policies your dependencies; otherwise ignore rules in the dependencies are only shown as a suggestion.
 
-### `--show-vulnerable-<paths=none|some|all>`
+### `--show-vulnerable-paths=<none|some|all>`
 
 Display the dependency paths from the top level dependencies down to the vulnerable packages. Does not affect output when using JSON `--json` output.
 
 Default: `some` (a few example paths shown). `false` is an alias for `none`.
 
-Example: `--show-vulnerable-paths=false`
+Example: `--show-vulnerable-paths=none`
 
 ### `--project-name=<PROJECT_NAME>`
 
@@ -117,7 +117,7 @@ Specify a custom Snyk project name.
 
 ### `--target-reference=<TARGET_REFERENCE>`
 
-Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Only supported for Snyk Open Source. For more information see [Separating projects by branch or version](https://snyk.info/3B0vTPs).
+Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Only supported for Snyk Open Source. For more information see [Separating projects by branch or version](https://docs.snyk.io/snyk-cli/secure-your-projects-in-the-long-term/grouping-projects-by-branch-or-version).
 
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 
@@ -161,11 +161,13 @@ If vulnerabilities do not have a fix and this option is being used, tests pass.
 
 ## Options for Maven projects
 
-For more information about Maven CLI options see [Snyk for Java (Gradle, Maven)](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven).
+For more information about Maven CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven).
 
 ### `--scan-all-unmanaged`
 
-Auto-detect maven jars, aars, and wars in given directory. To test individually use `--file=<JAR_FILE_NAME>`. **Note**: Custom-built jar files, even with open source dependencies, are out of scope.
+Auto-detect maven jars, aars, and wars in given directory. To test individually use `--file=<JAR_FILE_NAME>`.
+
+**Note**: Custom-built jar files, even with open source dependencies, are out of scope.
 
 ### `--reachable`
 
@@ -179,7 +181,7 @@ Default: 300 (5 minutes).
 
 ## Options for Gradle projects
 
-For more information about Gradle CLI options see [Snyk for Java (Gradle, Maven)](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven).
+For more information about Gradle CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven).
 
 ### `--sub-project=<NAME>`, `--gradle-sub-project=<NAME>`
 
@@ -191,11 +193,15 @@ For "multi project" configurations, test all sub-projects.
 
 ### `--configuration-matching=<CONFIGURATION_REGEX>`
 
-Resolve dependencies using only configuration(s) that match the specified Java regular expression, for example, `^releaseRuntimeClasspath$`.
+Resolve dependencies using only configuration(s) that match the specified Java regular expression
+
+Example: `^releaseRuntimeClasspath$`.
 
 ### `--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]...`
 
-Select certain values of configuration attributes to install dependencies and perform dependency resolution, for example, `buildtype:release,usage:java-runtime`.
+Select certain values of configuration attributes to install dependencies and perform dependency resolution.
+
+Eexample: `buildtype:release,usage:java-runtime`.
 
 ### `--reachable`
 
@@ -223,13 +229,17 @@ Specify a custom path to the packages folder.
 
 ### `--project-name-prefix=<PREFIX_STRING>`
 
-When monitoring a .NET project, use this option to add a custom prefix to the name of files inside a project along with any desired separators, for example, `snyk monitor --file=my-project.sln --project-name-prefix=my-group/`. This is useful when you have multiple projects with the same name in other `.sln` files.
+When monitoring a .NET project, use this option to add a custom prefix to the name of files inside a project along with any desired separators.
+
+Example: `snyk monitor --file=my-project.sln --project-name-prefix=my-group/`.&#x20;
+
+This is useful when you have multiple projects with the same name in other `.sln` files.
 
 ## Option for npm projects
 
 ### `--strict-out-of-sync=true|false`
 
-Control testing out of sync lockfiles.
+Control testing out-of-sync lockfiles.
 
 Default: true
 
@@ -237,7 +247,7 @@ Default: true
 
 ### `--strict-out-of-sync=true|false`
 
-Control testing out of sync lockfiles.
+Control testing out-of-sync lockfiles.
 
 Default: true
 
@@ -249,7 +259,7 @@ Detect and scan Yarn workspaces. You can specify how many sub-directories to sea
 
 ### `--strict-out-of-sync=true|false`
 
-Control testing out of sync lockfiles.
+Control testing out-of-sync lockfiles.
 
 Default: false
 
@@ -271,19 +281,29 @@ Currently the following options are not supported:
 
 `--fail-on=<all|upgradable|patchable>`
 
+## Options for C/C++ projects
+
+### `--unmanaged`
+
+Scan C/C++ source code for vulnerabilities.
+
+For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++).
+
 ## `-- [<CONTEXT-SPECIFIC_OPTIONS>]`
 
-Use context-specific options to pass extra arguments directly to Gradle, Maven, or other build tools. These options are specified last. Example: `snyk test -- --build-cache`
+Use context-specific options to pass extra arguments directly to Gradle, Maven, or other build tools. These options are specified last.
+
+Example: `snyk test -- --build-cache`
 
 ## Examples for the snyk test command
 
 Test a project in the current folder for known vulnerabilities:
 
-&#x20;`$ snyk test`
+`$ snyk test`
 
 Test a specific dependency for vulnerabilities:
 
-&#x20;`$ snyk test ionic@1.6.5`
+`$ snyk test ionic@1.6.5`
 
 Test the latest version of an npm package:
 

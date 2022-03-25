@@ -64,19 +64,19 @@ Default: all
 
 ## Examples for snyk ignore command
 
-Ignore a specific vulnerability:
+### Ignore a specific vulnerability:
 
 ```
 $ snyk ignore --id='npm:qs:20170213' --expiry='2021-01-10' --reason='Module not affected by this vulnerability'
 ```
 
-Ignore a specific vulnerability with a resource path specified:
+### Ignore a specific vulnerability with a resource path specified:
 
 ```
 $ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc@11.9.0 > istanbul-lib-report@1.1.3 > path-parse@1.0.5' --reason='Module not affected by this vulnerability'
 ```
 
-Ignore a specific vulnerability for 30 days:
+### Ignore a specific vulnerability for 30 days:
 
 ```
 $ snyk ignore --id=npm:tough-cookie:20160722

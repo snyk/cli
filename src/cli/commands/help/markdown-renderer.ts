@@ -88,7 +88,12 @@ const renderer = {
     return chalk.italic.blueBright(`${text}`);
   },
   code(code) {
-    return code + '\n';
+    return (
+      code
+        .split('\n')
+        .map((s) => getLeftTextPadding() + chalk.reset() + s)
+        .join('\n') + '\n\n'
+    );
   },
   heading(text, level) {
     currentHeader = level;
