@@ -26,7 +26,7 @@ export function convertIacResultToScanResult(
     target:
       Object.keys(gitTarget).length === 0
         ? { name: iacResult.projectName }
-        : { ...gitTarget, branch: 'master' },
+        : { remoteUrl: gitTarget.remoteUrl },
     policy: policy?.toString() ?? '',
   };
 }

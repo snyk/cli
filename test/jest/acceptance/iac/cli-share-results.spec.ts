@@ -82,7 +82,6 @@ describe('CLI Share Results', () => {
               policy: '',
               name: 'arm',
               target: {
-                branch: 'master',
                 remoteUrl: 'http://github.com/snyk/cli.git',
               },
             },
