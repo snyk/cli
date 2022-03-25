@@ -12,10 +12,13 @@ import * as analytics from '../analytics';
 import { getContributors } from '../monitor/dev-count-analysis';
 import * as Debug from 'debug';
 const debug = Debug('iac-cli-share-results');
+import { ProjectAttributes, Tag } from '../types';
 
 export async function shareResults(
   results: IacShareResultsFormat[],
   policy: Policy | undefined,
+  tags?: Tag[],
+  attributes?: ProjectAttributes,
 ): Promise<Record<string, string>> {
   const gitTarget = (await getInfo(false)) as GitTarget;
   const scanResults = results.map((result) =>
@@ -42,6 +45,8 @@ export async function shareResults(
     body: {
       scanResults,
       contributors,
+      tags,
+      attributes,
     },
   });
 

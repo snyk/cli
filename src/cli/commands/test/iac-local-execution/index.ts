@@ -32,6 +32,7 @@ import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
 import { initRules } from './rules';
 import { NoFilesToScanError } from './file-loader';
 import { formatAndShareResults } from './share-results';
+import { generateProjectAttributes, generateTags } from '../../monitor';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -46,6 +47,11 @@ export async function test(
     if (!iacOrgSettings.entitlements?.infrastructureAsCode) {
       throw new UnsupportedEntitlementError('infrastructureAsCode');
     }
+
+    // Parse tags and attributes right now, so we can exit early if the user
+    // provided invalid values.
+    const tags = parseTags(options);
+    const attributes = parseAttributes(options);
 
     const rulesOrigin = await initRules(iacOrgSettings, options);
 
@@ -130,6 +136,8 @@ export async function test(
         options,
         orgPublicId,
         policy,
+        tags,
+        attributes,
       );
     }
 
@@ -185,4 +193,16 @@ export function removeFileContent({
     failureReason,
     projectType,
   };
+}
+
+function parseTags(options: IaCTestFlags) {
+  if (options.report) {
+    return generateTags(options);
+  }
+}
+
+function parseAttributes(options: IaCTestFlags) {
+  if (options.report) {
+    return generateProjectAttributes(options);
+  }
 }
