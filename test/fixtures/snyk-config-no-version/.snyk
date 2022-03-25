@@ -41,3 +41,22 @@ patch:
   'npm:uglify-js:20151024':
     - 'handlebars@4.0.3 > uglify-js@2.4.24':
         patched: '2015-11-20T16:37:39.554Z'
+exclude:
+  global:
+    - some/excluded/file/file-to-exclude.cpp:
+        reason: False positive
+        expires: 2022-04-17T12:57:47.569Z
+        created: 2022-03-18T12:57:47.576Z
+    - some/excluded/folder:
+        reason: None Given
+        expires: 2022-04-17T12:57:47.569Z
+        created: 2022-03-18T12:57:47.576Z
+  code:
+    - some/path
+    - some/file
+  iac-drift:
+    - '*'
+    - '!aws_iam_*'
+    - 'aws_s3_*'
+    - 'aws_s3_bucket.*'
+    - 'aws_s3_bucket.name*'

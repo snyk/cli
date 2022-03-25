@@ -42,3 +42,25 @@ Expires: Sun, 20 Dec 2015 16:37:39 GMT
 tap@0.7.1 > runforcover@0.0.2 > bunker@0.1.2 > burrito@0.2.12 > uglify-js@1.1.1
 Reason: Stuff
 Expires: Sun, 20 Dec 2015 16:37:39 GMT
+
+------------------------
+
+#1 Exclude the following global items/paths:
+some/excluded/file/file-to-exclude.cpp
+Reason: False positive
+Expires: Sun, 17 Apr 2022 12:57:47 GMT
+
+some/excluded/folder
+Reason: None Given
+Expires: Sun, 17 Apr 2022 12:57:47 GMT
+
+#2 Exclude the following code items/paths:
+some/path
+some/file
+
+#3 Exclude the following iac-drift items/paths:
+*
+!aws_iam_*
+aws_s3_*
+aws_s3_bucket.*
+aws_s3_bucket.name*

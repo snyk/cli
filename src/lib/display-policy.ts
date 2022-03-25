@@ -4,6 +4,8 @@ import config from './config';
 
 export async function display(policy) {
   const p = demunge(policy, config.ROOT);
+  const delimiter = '\n\n------------------------\n';
+
   let res =
     chalk.bold(
       'Current Snyk policy, read from ' + policy.__filename + ' file',
@@ -13,9 +15,15 @@ export async function display(policy) {
 
   res += p.patch.map(displayRule('Patch vulnerability')).join('\n');
   if (p.patch.length && p.ignore.length) {
-    res += '\n\n------------------------\n';
+    res += delimiter;
   }
+
   res += p.ignore.map(displayRule('Ignore')).join('\n');
+  if (p.ignore.length && p.exclude.length) {
+    res += delimiter;
+  }
+
+  res += p.exclude.map(displayRule('Exclude')).join('\n');
 
   return Promise.resolve(res);
 }
@@ -23,9 +31,16 @@ export async function display(policy) {
 function displayRule(title) {
   return (rule, i) => {
     i += 1;
+
+    const formattedTitle =
+      title === 'Exclude'
+        ? chalk.bold(`\n#${i} ${title}`) +
+          ` the following ${chalk.bold(rule.id)} items/paths:\n`
+        : chalk.bold(`\n#${i} ${title} ${rule.url}`) +
+          ' in the following paths:\n';
+
     return (
-      chalk.bold('\n#' + i + ' ' + title + ' ' + rule.url) +
-      ' in the following paths:\n' +
+      formattedTitle +
       rule.paths
         .map((p) => {
           return (
