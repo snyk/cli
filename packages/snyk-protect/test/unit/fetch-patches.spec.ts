@@ -46,7 +46,7 @@ describe('fetchPatches', () => {
 });
 
 describe('getAllPatches', () => {
-  it('works for normal scenario', async () => {
+  it.skip('works for normal scenario', async () => {
     const vulnIdAndPackageNames = [
       {
         vulnId: 'SNYK-JS-LODASH-567746',
