@@ -19,6 +19,7 @@ const commands = {
   policy: async (...args) => callModule(import('./policy'), args),
   protect: async (...args) => callModule(import('./protect'), args),
   test: async (...args) => callModule(import('./test'), args),
+  report: async (...args) => callModule(import('./report'), args),
   version: async (...args) => callModule(import('./version'), args),
   wizard: async (...args) => callModule(import('./protect/wizard'), args),
   woof: async (...args) => callModule(import('./woof'), args),

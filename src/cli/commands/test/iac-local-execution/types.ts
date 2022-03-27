@@ -344,6 +344,9 @@ export enum IaCErrorCodes {
 
   // drift errors
   InvalidServiceError = 1110,
+
+  // report errors
+  UnsupportedReportCommandError = 1120,
 }
 
 export interface TestReturnValue {
