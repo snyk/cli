@@ -122,6 +122,7 @@ export interface TestMeta {
   ignoreSettings?: IgnoreSettings | null;
   projectId?: string;
   policy?: string;
+  gitRemoteUrl?: string;
 }
 
 export interface OpaWasmInstance {
@@ -399,4 +400,9 @@ export enum PerformanceAnalyticsKey {
   UsageTracking = 'usage-tracking-ms',
   CacheCleanup = 'cache-cleanup-ms',
   Total = 'total-iac-ms',
+}
+
+export interface ShareResultsOutput {
+  projectPublicIds: { [targetFile: string]: string };
+  gitRemoteUrl?: string;
 }

@@ -4,6 +4,7 @@ import { getAuthHeader } from '../api-token';
 import {
   IacShareResultsFormat,
   IaCTestFlags,
+  ShareResultsOutput,
 } from '../../cli/commands/test/iac-local-execution/types';
 import { convertIacResultToScanResult } from './envelope-formatters';
 import { Policy } from '../policy/find-and-load-policy';
@@ -30,7 +31,7 @@ export async function shareResults({
   tags?: Tag[];
   attributes?: ProjectAttributes;
   options?: IaCTestFlags;
-}): Promise<Record<string, string>> {
+}): Promise<ShareResultsOutput> {
   const gitTarget = (await getInfo(false)) as GitTarget;
   const scanResults = results.map((result) =>
     convertIacResultToScanResult(result, policy, gitTarget, options),
@@ -72,5 +73,5 @@ export async function shareResults({
     );
   }
 
-  return body;
+  return { projectPublicIds: body, gitRemoteUrl: gitTarget?.remoteUrl };
 }

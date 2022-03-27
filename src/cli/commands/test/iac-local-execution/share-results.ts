@@ -4,7 +4,7 @@ import { Policy } from '../../../../lib/policy/find-and-load-policy';
 import { ProjectAttributes, Tag } from '../../../../lib/types';
 import { FeatureFlagError } from './assert-iac-options-flag';
 import { formatShareResults } from './share-results-formatter';
-import { IacFileScanResult, IaCTestFlags } from './types';
+import { IacFileScanResult, IaCTestFlags, ShareResultsOutput } from './types';
 
 export async function formatAndShareResults({
   results,
@@ -20,7 +20,7 @@ export async function formatAndShareResults({
   policy: Policy | undefined;
   tags?: Tag[];
   attributes?: ProjectAttributes;
-}): Promise<Record<string, string>> {
+}): Promise<ShareResultsOutput> {
   const isCliReportEnabled = await isFeatureFlagSupportedForOrg(
     'iacCliShareResults',
     orgPublicId,

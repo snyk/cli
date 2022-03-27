@@ -130,15 +130,17 @@ export async function test(
     );
 
     let projectPublicIds: Record<string, string> = {};
+    let gitRemoteUrl: string | undefined;
+
     if (options.report) {
-      projectPublicIds = await formatAndShareResults({
+      ({ projectPublicIds, gitRemoteUrl } = await formatAndShareResults({
         results: resultsWithCustomSeverities,
         options,
         orgPublicId,
         policy,
         tags,
         attributes,
-      });
+      }));
     }
 
     const formattedResults = formatScanResults(
@@ -146,6 +148,7 @@ export async function test(
       options,
       iacOrgSettings.meta,
       projectPublicIds,
+      gitRemoteUrl,
     );
 
     const { filteredIssues, ignoreCount } = filterIgnoredIssues(

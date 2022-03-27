@@ -52,7 +52,7 @@ describe('CLI Share Results', () => {
       expect(exitCode).toBe(1);
 
       expect(stdout).toContain(
-        `Your test results are available at: http://localhost:${server.getPort()}/org/test-org/projects under the name arm`,
+        `Your test results are available at: http://localhost:${server.getPort()}/org/test-org/projects under the name snyk/cli`,
       );
     });
 

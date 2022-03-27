@@ -15,11 +15,12 @@ import { printPath } from './remediation-based-format-issues';
 import { titleCaseText } from './legacy-format-issue';
 import * as sarif from 'sarif';
 import { colorTextBySeverity } from '../../lib/snyk-test/common';
-import { IacFileInDirectory } from '../../lib/types';
+import { IacFileInDirectory, IacOutputMeta } from '../../lib/types';
 import { isLocalFolder } from '../../lib/detect';
 import { getSeverityValue } from './get-severity-value';
 import { getIssueLevel } from './sarif-output';
 import { getVersion } from '../version';
+import config from '../config';
 const debug = Debug('iac-output');
 
 function formatIacIssue(
@@ -316,4 +317,16 @@ function getPathRelativeToRepoRoot(
 ) {
   const fullPath = pathLib.resolve(basePath, filePath).replace(/\\/g, '/');
   return fullPath.replace(repoRoot, '');
+}
+
+export function shareResultsOutput(iacOutputMeta: IacOutputMeta): string {
+  let projectName: string = iacOutputMeta.projectName;
+  if (iacOutputMeta?.gitRemoteUrl) {
+    // from "http://github.com/snyk/cli.git" to "snyk/cli"
+    projectName = iacOutputMeta.gitRemoteUrl.replace(
+      /^https?:\/\/github.com\/(.*)\.git$/,
+      '$1',
+    );
+  }
+  return `Your test results are available at: ${config.ROOT}/org/${iacOutputMeta.orgName}/projects under the name ${projectName}`;
 }

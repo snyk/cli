@@ -1,4 +1,7 @@
-import { createSarifOutputForIac } from '../../../../../src/lib/formatters/iac-output';
+import {
+  createSarifOutputForIac,
+  shareResultsOutput,
+} from '../../../../../src/lib/formatters/iac-output';
 import {
   IacTestResponse,
   AnnotatedIacIssue,
@@ -104,5 +107,25 @@ describe('createSarifOutputForIac', () => {
       uriBaseId: 'PROJECTROOT',
     });
     expect(location?.physicalLocation?.region).not.toBeDefined();
+  });
+});
+
+describe('shareResultsOutput', () => {
+  it('returns the correct output when gitRemoteUrl is specified', () => {
+    const output = shareResultsOutput({
+      projectName: 'test-project',
+      orgName: 'test-org',
+      gitRemoteUrl: 'http://github.com/test/repo.git',
+    });
+
+    expect(output).toContain('under the name test/repo');
+  });
+  it('returns the correct output when gitRemoteUrl is not specified', () => {
+    const output = shareResultsOutput({
+      projectName: 'test-project',
+      orgName: 'test-org',
+    });
+
+    expect(output).toContain('under the name test-project');
   });
 });
