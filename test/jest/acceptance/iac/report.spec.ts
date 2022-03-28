@@ -40,7 +40,7 @@ describe('iac report', () => {
     const { stdout } = await run(`snyk iac report ./iac/arm/rule_test.json`);
 
     expect(stdout).toContain(
-      `Your test results are available at: ${API_HOST}/org/test-org/projects under the name arm`,
+      `Your test results are available at: ${API_HOST}/org/test-org/projects under the name snyk/cli`,
     );
   });
 
