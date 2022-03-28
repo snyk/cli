@@ -40,6 +40,10 @@ executors:
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
+  macos:
+    macos:
+      # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
+      xcode: '13.3.0'
 
 commands:
   setup_npm:
@@ -113,24 +117,19 @@ commands:
           key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
-  install_sdks_linux:
+  install_sdks_unix:
     steps:
       - restore_cache:
           name: Restoring SDKMAN install cache
           keys:
             - sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
       - run:
-          name: Installing Python
-          command: |
-            sudo apt update
-            sudo apt install python3 python3-pip python-is-python3
-      - run:
           name: Installing SDKMAN
           # The install script comes from https://get.sdkman.io/?rcupdate=false
           # We need to disable rcupdate as CircleCI uses a different setup.
           command: |
             ./.circleci/vendor/sdkman-install.sh
-            echo -e '\nsource "/home/circleci/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
+            echo -e '\nsource "${HOME}/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
             source $BASH_ENV
       - save_cache:
           name: Saving SDKMAN install cache
@@ -140,15 +139,28 @@ commands:
       - restore_cache:
           name: Restoring SDKMAN archive cache
           keys:
-            - sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
+            - sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-unix.sh" }}
       - run:
           name: Installing SDKs
-          command: ./.circleci/install-sdks-linux.sh
+          command: ./.circleci/install-sdks-unix.sh
       - save_cache:
           name: Saving SDKMAN archive cache
-          key: sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
+          key: sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-unix.sh" }}
           paths:
             - ~/.sdkman/archives
+      - aws-cli/install:
+          version: << pipeline.parameters.aws_version >>
+  install_sdks_linux:
+    steps:
+      - run:
+          name: Installing Python
+          command: |
+            sudo apt update
+            sudo apt install python3 python3-pip python-is-python3
+      - install_sdks_unix
+  install_sdks_macos:
+    steps:
+      - install_sdks_unix
   install_shellspec_dependencies:
     steps:
       - run:
@@ -245,6 +257,26 @@ jobs:
           command: npm run test:acceptance
           environment:
             TEST_SNYK_COMMAND: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
+  test-macos:
+    executor: macos
+    working_directory: /Users/distiller/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - install_sdks_macos
+      - setup_npm:
+          npm_global_sudo: false
+          npm_install: true # reinstalling as workspace node_modules is for linux
+          npm_cache_directory: /Users/distiller/.npm
+      - run:
+          name: Configuring artifact
+          command: /Users/distiller/snyk/binary-releases/snyk-macos config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Testing artifact
+          command: npm run test:acceptance
+          environment:
+            TEST_SNYK_COMMAND: /Users/distiller/snyk/binary-releases/snyk-macos
   test-linux-arm64:
     executor: linux-arm64
     working_directory: /home/circleci/snyk
@@ -293,8 +325,6 @@ jobs:
       - run:
           name: Running unit tests
           command: npm run test:unit
-      - aws-cli/install:
-          version: << pipeline.parameters.aws_version >>
       - run:
           name: Running acceptance tests
           command: npm run test:acceptance
@@ -422,6 +452,11 @@ workflows:
           context: nodejs-install
           requires:
             - Build Artifacts
+      - test-macos:
+          name: Acceptance Tests (snyk-macos)
+          context: nodejs-install
+          requires:
+            - Build Artifacts
       - test-linux-arm64:
           name: Acceptance Tests (snyk-linux-arm64)
           context: nodejs-install
@@ -443,6 +478,7 @@ workflows:
             - Jest Tests (Linux, Node v14.18.2)
             - Jest Tests (Linux, Node v16.13.2)
             - Acceptance Tests (snyk-win.exe)
+            - Acceptance Tests (snyk-macos)
             - Acceptance Tests (snyk-linux-arm64)
             - Regression Tests
           filters:
