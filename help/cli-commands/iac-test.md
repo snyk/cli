@@ -83,6 +83,62 @@ Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regar
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
+### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
+
+This can be used in combination with the `--report` option.
+
+Set the project business criticality project attribute to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`.
+
+Allowed values: `critical, high, medium, low`
+
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes).
+
+### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
+
+This can be used in combination with the `--report` command.
+
+Set the project environment project attribute to one or more values (comma-separated). To clear the project environment set `--project-environment=`.
+
+Allowed values: `frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed`
+
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes).
+
+### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
+
+This can be used in combination with the `--report` command.
+
+Set the project lifecycle project attribute to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`.
+
+Allowed values: `production, development, sandbox`
+
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes).
+
+### `--project-tags=<TAG>[,<TAG>]...>`
+
+This can be used in combination with the `--report` command.
+
+Set the project tags to one or more values (comma-separated key value pairs with an "=" separator), for example, `--project-tags=department=finance,team=alpha`. To clear the project tags set `--project-tags=`
+
+### `--report`
+
+Share results with the Snyk App.
+
+This creates a project in your Synk account with a snapshot of the current configuration issues. After running this command, log in to the Snyk website and view your projects to see the monitor.
+
+Example: `$ snyk iac test --report`
+
+Note: This option cannot be used in combination with the `--rules` option.
+
+### `--rules=<PATH_TO_CUSTOM_RULES_BUNDLE>`
+
+Use this dedicated option for Custom Rules scanning to enable the IaC scans to use a custom rules bundle generated with the `snyk-iac-rules` SDK. See [`snyk-iac-rules` SDK](https://github.com/snyk/snyk-iac-rules#readme).
+
+This option cannot be used if the custom rules settings were configured with the Snyk UI. Default: If the `--rules` flag is not specified, scan the configuration files using the internal Snyk rules only.
+
+Example: `--rules=bundle.tar.gz` (Scan the configuration files using custom rules and internal Snyk rules.)
+
+Note: This option can not be used in combination with the `--report` option.
+
 ### `--severity-threshold=<low|medium|high|critical>`
 
 Report only vulnerabilities at the specified level or higher.
@@ -94,13 +150,16 @@ Use this dedicated option for Terraform plan scanning modes to control whether t
 Default: If the `--scan` option is not specified, scan the proposed changes only by default. Example 1: `--scan=planned-values` (full state scan)\
 Example 2: `--scan=resource-changes` (proposed changes scan)
 
-### `--rules=<PATH_TO_CUSTOM_RULES_BUNDLE>`
+### `--target-reference=<TARGET_REFERENCE>`
 
-Use this dedicated option for Custom Rules scanning to enable the IaC scans to use a custom rules bundle generated with the `snyk-iac-rules` SDK. See [`snyk-iac-rules` SDK](https://github.com/snyk/snyk-iac-rules#readme).
+This can be used in combination with the `--report` command.
 
-This option cannot be used if the custom rules settings were configured with the Snyk UI. Default: If the `--rules` flag is not specified, scan the configuration files using the internal Snyk rules only.
+Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference.
 
-Example: `--rules=bundle.tar.gz` (Scan the configuration files using custom rules and internal Snyk rules.)
+Example setting to the current Git branch: `snyk iac test myproject/ --report --target-reference="$(git branch --show-current)"`
+
+\
+Example setting to the latest Git tag : `snyk iac test myproject/ --report --target-reference="$(git describe --tags --abbrev=0)"`
 
 ## Examples for snyk iac test command
 
