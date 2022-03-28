@@ -415,6 +415,7 @@ workflows:
             branches:
               only:
                 - /^chore\/.+$/
+                - /test-all/
                 - master
       - test-windows:
           name: Acceptance Tests (snyk-win.exe)
