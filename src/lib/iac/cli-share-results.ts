@@ -2,6 +2,7 @@ import config from '../config';
 import { makeRequest } from '../request';
 import { getAuthHeader } from '../api-token';
 import {
+  IaCErrorCodes,
   IacShareResultsFormat,
   IaCTestFlags,
   ShareResultsOutput,
@@ -14,10 +15,11 @@ import { Contributor } from '../types';
 import * as analytics from '../analytics';
 import { getContributors } from '../monitor/dev-count-analysis';
 import * as Debug from 'debug';
-import { AuthFailedError, ValidationError } from '../errors';
+import { AuthFailedError, CustomError, ValidationError } from '../errors';
 
 const debug = Debug('iac-cli-share-results');
 import { ProjectAttributes, Tag } from '../types';
+import { getErrorStringCode } from '../../cli/commands/test/iac-local-execution/error-utils';
 
 export async function shareResults({
   results,
@@ -47,6 +49,7 @@ export async function shareResults({
       }
     }
   }
+
   const { res, body } = await makeRequest({
     method: 'POST',
     url: `${config.API}/iac-cli-share-results`,
@@ -63,15 +66,25 @@ export async function shareResults({
     },
   });
 
-  if (res.statusCode === 401) {
-    throw AuthFailedError();
+  if (res.statusCode === 200) {
+    return { projectPublicIds: body, gitRemoteUrl: gitTarget?.remoteUrl };
+  } else {
+    if (res.statusCode === 401) {
+      throw AuthFailedError();
+    } else if (res.statusCode === 422 && body.error) {
+      throw new ValidationError(body.error);
+    } else {
+      throw new FailedToShareResults();
+    }
   }
+}
 
-  if (res.statusCode === 422) {
-    throw new ValidationError(
-      res.body.error ?? 'An error occurred, please contact Snyk support',
-    );
+class FailedToShareResults extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Failed to share results');
+    this.code = IaCErrorCodes.FailedToShareResults;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage =
+      'An error occurred when trying to share your results, please contact Snyk support (support@snyk.io)';
   }
-
-  return { projectPublicIds: body, gitRemoteUrl: gitTarget?.remoteUrl };
 }

@@ -348,6 +348,9 @@ export enum IaCErrorCodes {
 
   // report errors
   UnsupportedReportCommandError = 1120,
+
+  // share results errors
+  FailedToShareResults = 1130,
 }
 
 export interface TestReturnValue {

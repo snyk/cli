@@ -168,6 +168,7 @@ export const expectedEnvelopeFormatterResults = [
   },
 ];
 
+// if the test that is using this expected output fails for version, look at the package.json policy package version and update it accordingly
 export const expectedEnvelopeFormatterResultsWithPolicy = expectedEnvelopeFormatterResults.map(
   (result) => {
     return {

@@ -22,7 +22,10 @@ describe('CLI Share Results', () => {
   beforeEach(() => {
     requestSpy = jest
       .spyOn(request, 'makeRequest')
-      .mockImplementation(async () => ({ res: {} as any, body: {} }));
+      .mockImplementation(async () => ({
+        res: { statusCode: 200 } as any,
+        body: {},
+      }));
     envelopeFormattersSpy = jest.spyOn(
       envelopeFormatters,
       'convertIacResultToScanResult',
