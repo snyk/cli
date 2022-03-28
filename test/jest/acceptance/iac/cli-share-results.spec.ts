@@ -176,6 +176,17 @@ describe('CLI Share Results', () => {
       });
     });
 
+    it('should print an error message if test usage is exceeded', async () => {
+      server.setNextStatusCode(429);
+
+      const { stdout, exitCode } = await run(
+        'snyk iac test ./iac/arm/rule_test.json --report --project-business-criticality=high',
+      );
+
+      expect(exitCode).toEqual(2);
+      expect(stdout).toMatch(/test limit reached/i);
+    });
+
     describe('with target reference', () => {
       it('forwards the target reference to iac-cli-share-results endpoint', async () => {
         const testTargetRef = 'test-target-ref';

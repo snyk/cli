@@ -18,6 +18,7 @@ import { AuthFailedError, ValidationError } from '../errors';
 
 const debug = Debug('iac-cli-share-results');
 import { ProjectAttributes, Tag } from '../types';
+import { TestLimitReachedError } from '../../cli/commands/test/iac-local-execution/usage-tracking';
 
 export async function shareResults({
   results,
@@ -63,14 +64,15 @@ export async function shareResults({
     },
   });
 
-  if (res.statusCode === 401) {
-    throw AuthFailedError();
-  }
-
-  if (res.statusCode === 422) {
-    throw new ValidationError(
-      res.body.error ?? 'An error occurred, please contact Snyk support',
-    );
+  switch (res.statusCode) {
+    case 401:
+      throw AuthFailedError();
+    case 422:
+      throw new ValidationError(
+        res.body.error ?? 'An error occurred, please contact Snyk support',
+      );
+    case 429:
+      throw new TestLimitReachedError();
   }
 
   return { projectPublicIds: body, gitRemoteUrl: gitTarget?.remoteUrl };
