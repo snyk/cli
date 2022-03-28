@@ -280,7 +280,7 @@ For information on how Snyk CLI is implemented, see [our design decisions](help/
 
 This repository is a monorepo, also covering other projects and tools:
 
-- [`@snyk/fix](packages/snyk-fix): npm package for `snyk fix` libraries.
+- [`@snyk/fix`](packages/snyk-fix): npm package for `snyk fix` libraries.
 - [`@snyk/protect`](packages/snyk-protect): npm package for [`snyk-protect`](https://www.npmjs.com/package/@snyk/protect) command.
 
 # Security
