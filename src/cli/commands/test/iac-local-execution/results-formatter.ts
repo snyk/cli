@@ -26,6 +26,7 @@ export function formatScanResults(
   options: IaCTestFlags,
   meta: TestMeta,
   projectPublicIds: Record<string, string>,
+  gitRemoteUrl?: string,
 ): FormattedResult[] {
   try {
     const groupedByFile = scanResults.reduce((memo, scanResult) => {
@@ -35,6 +36,7 @@ export function formatScanResults(
           ...res.result.cloudConfigResults,
         );
       } else {
+        res.meta.gitRemoteUrl = gitRemoteUrl;
         res.meta.projectId = projectPublicIds[res.targetFile];
         memo[scanResult.filePath] = res;
       }

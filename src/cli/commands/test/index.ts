@@ -6,7 +6,12 @@ import chalk from 'chalk';
 import { MissingArgError } from '../../../lib/errors';
 
 import * as snyk from '../../../lib';
-import { IacFileInDirectory, Options, TestOptions } from '../../../lib/types';
+import {
+  IacFileInDirectory,
+  IacOutputMeta,
+  Options,
+  TestOptions,
+} from '../../../lib/types';
 import { MethodArgs } from '../../args';
 import { TestCommandResult } from '../../commands/types';
 import { LegacyVulnApiResult, TestResult } from '../../../lib/snyk-test/legacy';
@@ -17,7 +22,10 @@ import {
   summariseVulnerableResults,
 } from '../../../lib/formatters';
 import * as utils from './utils';
-import { getIacDisplayErrorFileOutput } from '../../../lib/formatters/iac-output';
+import {
+  getIacDisplayErrorFileOutput,
+  shareResultsOutput,
+} from '../../../lib/formatters/iac-output';
 import { getEcosystemForTest, testEcosystem } from '../../../lib/ecosystems';
 import { hasFixes, hasPatches, hasUpgrades } from '../../../lib/vuln-helpers';
 import { FailOn } from '../../../lib/snyk-test/common';
@@ -43,7 +51,6 @@ import {
   containsSpotlightVulnIds,
   notificationForSpotlightVulns,
 } from '../../../lib/spotlight-vuln-notification';
-import config from '../../../lib/config';
 import { isIacShareResultsOptions } from './iac-local-execution/assert-iac-options-flag';
 import { assertIaCOptionsFlags } from './iac-local-execution/assert-iac-options-flag';
 
@@ -95,6 +102,7 @@ export default async function test(
 
   // Holds an array of scanned file metadata for output.
   let iacScanFailures: IacFileInDirectory[] | undefined;
+  let iacOutputMeta: IacOutputMeta | undefined;
 
   // Promise waterfall to test all other paths sequentially
   for (const path of paths) {
@@ -110,8 +118,11 @@ export default async function test(
       if (options.iac) {
         assertIaCOptionsFlags(process.argv);
         const { results, failures } = await iacTest(path, testOpts);
-        testOpts.org = results[0]?.org;
-        testOpts.projectName = results[0]?.projectName;
+        iacOutputMeta = {
+          orgName: results[0]?.org,
+          projectName: results[0]?.projectName,
+          gitRemoteUrl: results[0]?.meta?.gitRemoteUrl,
+        };
         res = results;
         iacScanFailures = failures;
       } else {
@@ -297,10 +308,7 @@ export default async function test(
     response += spotlightVulnsMsg;
 
     if (isIacShareResultsOptions(options)) {
-      response +=
-        chalk.bold.white(
-          `Your test results are available at: ${config.ROOT}/org/${resultOptions[0].org}/projects under the name ${resultOptions[0].projectName}`,
-        ) + EOL;
+      response += chalk.bold.white(shareResultsOutput(iacOutputMeta!)) + EOL;
     }
 
     const error = new Error(response) as any;
@@ -322,10 +330,7 @@ export default async function test(
   );
 
   if (isIacShareResultsOptions(options)) {
-    response +=
-      chalk.bold.white(
-        `Your test results are available at: ${config.ROOT}/org/${resultOptions[0].org}/projects under the name ${resultOptions[0].projectName}`,
-      ) + EOL;
+    response += chalk.bold.white(shareResultsOutput(iacOutputMeta!)) + EOL;
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(

@@ -267,3 +267,9 @@ export interface IacFileInDirectory {
   projectType?: IacProjectTypes;
   failureReason?: string;
 }
+
+export interface IacOutputMeta {
+  projectName: string;
+  orgName: string;
+  gitRemoteUrl?: string;
+}
