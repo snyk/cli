@@ -51,8 +51,6 @@ export const DescribeRequiredArgs = [
   'only-unmanaged',
 ];
 
-// ⚠ Keep in mind to also update driftctl version used to generate docker images
-// You can edit base image used for snyk final image here https://github.com/snyk/snyk-images/blob/master/alpine
 export const driftctlVersion = 'v0.25.0';
 
 const driftctlChecksums = {
@@ -403,18 +401,6 @@ async function findDriftCtl(): Promise<string> {
     debug('Found driftctl in cache: %s', dctlPath);
     return dctlPath;
   }
-
-  // lookup in /bin
-  // when used in a docker context the default binary path should be used
-  {
-    dctlPath = '/bin/driftctl';
-    const exists = await isExe(dctlPath);
-    if (exists) {
-      debug('Found driftctl in %s', dctlPath);
-      return dctlPath;
-    }
-  }
-
   debug('driftctl not found');
   return '';
 }
