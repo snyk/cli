@@ -7,7 +7,9 @@ type RunCommandResult = {
   stderr: string;
 };
 
-type RunCommandOptions = SpawnOptionsWithoutStdio;
+interface RunCommandOptions extends SpawnOptionsWithoutStdio {
+  delay?: number;
+}
 
 const runCommand = (
   command: string,
@@ -47,7 +49,7 @@ function runCommandsWithUserInputs(
   inputs: string[] = [],
   options?: RunCommandOptions,
 ): Promise<any> {
-  const timeout = 100;
+  const timeout = options?.delay ?? 100;
   const childProcess = spawn(command, args, options);
 
   // Creates a loop to feed user inputs to the child process
