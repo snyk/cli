@@ -36,7 +36,7 @@ Use the `-d` option to output the debug logs.
 
 **Note:** To use the `describe` command, you **must use at least one of these options**:
 
-- `--only-managed` / `--drift` Scan only managed resources from the Terraform states.
+- `--only-managed` or `--drift` Scan only managed resources from the Terraform states.
 - `--only-unmanaged` Scan only unmanaged resources.
 - `--all` Scan both managed and unmanaged resources.
 
@@ -118,6 +118,8 @@ Display a report that shows changes only for resources found in aggregated Terra
 ### `--only-unmanaged`
 
 Display a report that shows resources not found in any Terraform state; filter out drift for managed resources.
+
+Alternative: `--drift`
 
 ### `--quiet`
 

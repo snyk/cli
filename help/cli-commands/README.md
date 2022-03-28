@@ -30,17 +30,9 @@ Snapshot and continuously monitor a project for open source vulnerabilities and 
 
 Test container images for vulnerabilities.
 
-### [`iac describe`](iac-describe.md)
+### [`snyk iac`](iac.md)
 
-Detect, track, and, alert on infrastructure drift and unmanaged resources.
-
-### [`iac gen-driftignore`](iac-gen-driftignore.md)
-
-Generate driftignore rules to be used by `snyk iac test`.
-
-### [`iac test`](iac-test.md)
-
-Test for any known security issue.
+Find security issues in Infrastructure as Code files, and detect drift.
 
 ### [`snyk code`](code.md)
 
