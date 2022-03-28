@@ -53,32 +53,32 @@ export const DescribeRequiredArgs = [
 
 // ⚠ Keep in mind to also update driftctl version used to generate docker images
 // You can edit base image used for snyk final image here https://github.com/snyk/snyk-images/blob/master/alpine
-export const driftctlVersion = 'v0.23.0';
+export const driftctlVersion = 'v0.25.0';
 
 const driftctlChecksums = {
   'driftctl_windows_386.exe':
-    'e5befbafe2291674a4d6c8522411a44fea3549057fb46d331402d49b180202fe',
+    'ce0d01910c0522ba8b4e48ef4e13846d278b6af9a3d4119e686a9cb7197bd786',
   driftctl_darwin_amd64:
-    '9af4e88a8e08e53ac3c373407bdd0b18a91941dc620266349f10600fc7b283d2',
+    '587eb76144a58ffb656740b18c163fdfc30f590744cae3f08d232c841b10f940',
   driftctl_linux_386:
-    '6cd2719f81210017e3f67677cb92f4b0060976a3588c220b4af6b2dda174df8f',
+    '73c56cbb8ad86e90bf349f67f5c62307fd0f976b964d8f10da3578124baff2f2',
   driftctl_linux_amd64:
-    'd714a3d11056169f4c4cc047b48b4d732f5df8cdfbc00e40c3e5f6e6cc5ead3e',
+    '6ec764a36571b19408d89b07cc7c601dc30e68712f3a5822fe81ea392230dcfc',
   driftctl_linux_arm64:
-    '24812c8b2ec2d8e3d619317e76fbba0d8e7e263fc2c26cba26265a9656e8fe91',
+    '7168fa70ee5997d46ebf9c0aaaabb063e7d8acb2cb6de841e364281b6762b158',
   'driftctl_windows_arm64.exe':
-    'd84461f0ba63b59aec66393fa67147f4157b5bddc02a19315d737c5f5a46c07b',
+    '432ff6d1ad0ad99f47d6482abf097fd999231f3f1df688c8bf6cdaa157c3b81b',
   driftctl_darwin_arm64:
-    'b711143d9331a10fc34c202284f67ce5eeb0348baca546b47af139f418f812c1',
+    '16ce674a17fb1b2feab8a8fedcd2f3dca0d28fbce8e97dc351e51825c2a289ac',
   'driftctl_windows_arm.exe':
-    'b5d24e1407c24ddfff63ffbba85eb1dc13473e2fd36e3e99e5e1762cf615f011',
+    '295b5a979f42aed83b163451950b35627533e63583de641a2bea5e8ada6e8ca7',
   driftctl_linux_arm:
-    '089665efa8a7c5e95b3cee9ace85fc5b0f2d7f2a29c351f2d3dbef3dae553e2d',
+    '634b61400733ea60e45e2ea57b8ede5083711e8615f61695ffe7ee2ec9a627dd',
   'driftctl_windows_amd64.exe':
-    'bf7310277eeccc2679b529c1f1d2ced30e877949a6d7c5606eb2d4c2ec033b66',
+    '4ef220ea8aaca51129086f69c0634d39fa99d50d965fe2ad3644d4f7e19e24f6',
 };
 
-const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
+const dctlBaseUrl = 'https://static.snyk.io/cli/driftctl/';
 const driftctlPath = path.join(cachePath, 'driftctl_' + driftctlVersion);
 const driftctlDefaultOptions = ['--no-version-check'];
 let isBinaryDownloaded = false;
