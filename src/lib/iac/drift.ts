@@ -27,6 +27,7 @@ import * as analytics from '../../lib/analytics';
 import { Policy } from '../policy/find-and-load-policy';
 import { DescribeExclusiveArgumentError } from '../errors/describe-exclusive-argument-error';
 import { DescribeRequiredArgumentError } from '../errors/describe-required-argument-error';
+import snykLogoSVG from './assets/snyk-logo';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
@@ -532,4 +533,34 @@ export function driftignoreFromPolicy(policy: Policy | undefined): string[] {
     return [];
   }
   return policy.exclude[excludeSection];
+}
+
+export function processDriftctlOutput(
+  options: DescribeOptions,
+  stdout: string,
+): string {
+  if (options.html) {
+    stdout = rebrandHTMLOutput(stdout);
+  }
+
+  if (options['html-file-output']) {
+    const data = fs.readFileSync(options['html-file-output'], {
+      encoding: 'utf8',
+    });
+    fs.writeFileSync(options['html-file-output'], rebrandHTMLOutput(data));
+  }
+
+  return stdout;
+}
+
+function rebrandHTMLOutput(data: string): string {
+  const logoReplaceRegex = new RegExp(
+    '(<div id="brand_logo">)((.|\\r|\\n)*?)(<\\/div>)',
+    'g',
+  );
+  data = data.replace(
+    logoReplaceRegex,
+    `<div id="brand_logo">${snykLogoSVG}</div>`,
+  );
+  return data;
 }
