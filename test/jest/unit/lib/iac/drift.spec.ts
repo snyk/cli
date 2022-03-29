@@ -7,6 +7,7 @@ import {
   generateArgs,
   parseDriftAnalysisResults,
   translateExitCode,
+  updateExcludeInPolicy,
   validateArgs,
 } from '../../../../../src/lib/iac/drift';
 import envPaths from 'env-paths';
@@ -46,11 +47,6 @@ describe('driftctl integration', () => {
       '--to',
       'aws+tf',
     ]);
-  });
-
-  it('gen-driftignore: default arguments are correct', () => {
-    const args = generateArgs({ kind: 'gen-driftignore' });
-    expect(args).toEqual(['gen-driftignore', '--no-version-check']);
   });
 
   it('describe: passing options generate correct arguments', () => {
@@ -149,29 +145,6 @@ describe('driftctl integration', () => {
         drift: true,
       } as DriftCTLOptions);
     }).toThrow(new DescribeExclusiveArgumentError());
-  });
-
-  it('gen-driftignore: passing options generate correct arguments', () => {
-    const args = generateArgs({
-      kind: 'gen-driftignore',
-      'exclude-changed': true,
-      'exclude-missing': true,
-      'exclude-unmanaged': true,
-      input: 'analysis.json',
-      output: '/dev/stdout',
-      org: 'testing-org', // Ensure that this should not be translated to args
-    } as GenDriftIgnoreOptions);
-    expect(args).toEqual([
-      'gen-driftignore',
-      '--no-version-check',
-      '--input',
-      'analysis.json',
-      '--output',
-      '/dev/stdout',
-      '--exclude-changed',
-      '--exclude-missing',
-      '--exclude-unmanaged',
-    ]);
   });
 
   it('run driftctl: exit code is translated', () => {
@@ -319,37 +292,164 @@ describe('drift analytics', () => {
     expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-scan-scope', 'all');
   });
 });
-describe('driftignoreFromPolicy', () => {
-  const loadPolicy = async (name: string): Promise<Policy> => {
-    const policyPath = path.join(__dirname, 'fixtures', name);
-    const policyText = fs.readFileSync(policyPath, 'utf-8');
-    return await snykPolicy.loadFromText(policyText);
-  };
 
+const loadPolicyFixture = async (name: string): Promise<Policy> => {
+  const policyPath = path.join(__dirname, 'fixtures', name);
+  const policyText = fs.readFileSync(policyPath, 'utf-8');
+  return await snykPolicy.loadFromText(policyText);
+};
+
+describe('driftignoreFromPolicy', () => {
   it.each([
     ['policy undefined', undefined, []],
-    ['policy with no excludes', loadPolicy('policy-no-excludes.yml'), []],
+    [
+      'policy with no excludes',
+      loadPolicyFixture('policy-no-excludes.yml'),
+      [],
+    ],
     [
       'policy with irrelevant excludes',
-      loadPolicy('policy-irrelevant-excludes.yml'),
+      loadPolicyFixture('policy-irrelevant-excludes.yml'),
       [],
     ],
     [
       'policy with empty drift excludes',
-      loadPolicy('policy-empty-drift-excludes.yml'),
+      loadPolicyFixture('policy-empty-drift-excludes.yml'),
       [],
     ],
     [
       'policy with one drift exclude',
-      loadPolicy('policy-one-drift-exclude.yml'),
+      loadPolicyFixture('policy-one-drift-exclude.yml'),
       ['foo'],
     ],
     [
       'policy with several drift excludes',
-      loadPolicy('policy-several-drift-excludes.yml'),
+      loadPolicyFixture('policy-several-drift-excludes.yml'),
       ['*', '!aws_iam_*', 'aws_s3_*', 'aws_s3_bucket.*', 'aws_s3_bucket.name*'],
     ],
   ])('%s', async (_, policy, expected) => {
     expect(driftignoreFromPolicy(await policy)).toEqual(expected);
+  });
+});
+
+describe('updateExcludeInPolicy', () => {
+  const analysis = parseDriftAnalysisResults(
+    fs.readFileSync(
+      path.join(__dirname, 'fixtures', 'driftctl-analysis.json'),
+      'utf-8',
+    ),
+  );
+  it.each([
+    [
+      'policy with no excludes',
+      'policy-no-excludes.yml',
+      {},
+      {
+        'iac-drift': [
+          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
+          'aws_iam_user.test-driftctl2',
+          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+          'aws_s3_bucket_policy.driftctl',
+          'aws_s3_bucket_notification.driftctl',
+        ],
+      },
+    ],
+    [
+      'policy with irrelevant excludes',
+      'policy-irrelevant-excludes.yml',
+      {},
+      {
+        foo: ['bar'],
+        'iac-drift': [
+          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
+          'aws_iam_user.test-driftctl2',
+          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+          'aws_s3_bucket_policy.driftctl',
+          'aws_s3_bucket_notification.driftctl',
+        ],
+      },
+    ],
+    [
+      'policy with empty drift excludes',
+      'policy-empty-drift-excludes.yml',
+      {},
+      {
+        'iac-drift': [
+          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
+          'aws_iam_user.test-driftctl2',
+          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+          'aws_s3_bucket_policy.driftctl',
+          'aws_s3_bucket_notification.driftctl',
+        ],
+      },
+    ],
+    [
+      'policy with several drift excludes',
+      'policy-several-drift-excludes.yml',
+      {},
+      {
+        'iac-drift': [
+          // Those are existing ones
+          '*',
+          '!aws_iam_*',
+          'aws_s3_*',
+          'aws_s3_bucket.*',
+          'aws_s3_bucket.name*',
+          // Following exclude are the new ones
+          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
+          'aws_iam_user.test-driftctl2',
+          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+          'aws_s3_bucket_policy.driftctl',
+          'aws_s3_bucket_notification.driftctl',
+        ],
+      },
+    ],
+    [
+      'with exclude changed option',
+      'policy-no-excludes.yml',
+      {
+        'exclude-changed': true,
+      },
+      {
+        'iac-drift': [
+          'aws_iam_user.test-driftctl2',
+          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+          'aws_s3_bucket_policy.driftctl',
+          'aws_s3_bucket_notification.driftctl',
+        ],
+      },
+    ],
+    [
+      'with exclude changed option',
+      'policy-no-excludes.yml',
+      {
+        'exclude-missing': true,
+      },
+      {
+        'iac-drift': [
+          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
+          'aws_s3_bucket_policy.driftctl',
+          'aws_s3_bucket_notification.driftctl',
+        ],
+      },
+    ],
+    [
+      'with exclude changed option',
+      'policy-no-excludes.yml',
+      {
+        'exclude-unmanaged': true,
+      },
+      {
+        'iac-drift': [
+          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
+          'aws_iam_user.test-driftctl2',
+          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+        ],
+      },
+    ],
+  ])('%s', async (_, policyPath, options: GenDriftIgnoreOptions, expected) => {
+    const policy = await loadPolicyFixture(policyPath);
+    updateExcludeInPolicy(policy, analysis, options);
+    expect(policy.exclude).toEqual(expected);
   });
 });

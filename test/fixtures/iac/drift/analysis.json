@@ -1,0 +1,75 @@
+{
+  "options": {
+    "deep": true,
+    "only_managed": false,
+    "only_unmanaged": false
+  },
+  "summary": {
+    "total_resources": 6,
+    "total_changed": 1,
+    "total_unmanaged": 2,
+    "total_missing": 2,
+    "total_managed": 2,
+    "total_iac_source_count": 3
+  },
+  "managed": [
+    {
+      "id": "AKIA5QYBVVD25KFXJHYJ",
+      "type": "aws_iam_access_key"
+    },
+    {
+      "id": "test-managed",
+      "type": "aws_iam_user"
+    }
+  ],
+  "unmanaged": [
+    {
+      "id": "driftctl",
+      "type": "aws_s3_bucket_policy"
+    },
+    {
+      "id": "driftctl",
+      "type": "aws_s3_bucket_notification"
+    }
+  ],
+  "missing": [
+    {
+      "id": "test-driftctl2",
+      "type": "aws_iam_user"
+    },
+    {
+      "id": "AKIA5QYBVVD2Y6PBAAPY",
+      "type": "aws_iam_access_key"
+    }
+  ],
+  "differences": [
+    {
+      "res": {
+        "id": "AKIA5QYBVVD25KFXJHYJ",
+        "type": "aws_iam_access_key"
+      },
+      "changelog": [
+        {
+          "type": "update",
+          "path": [
+            "status"
+          ],
+          "from": "Active",
+          "to": "Inactive",
+          "computed": false
+        }
+      ]
+    }
+  ],
+  "coverage": 33,
+  "alerts": {
+    "aws_iam_access_key": [
+      {
+        "message": "This is an alert"
+      }
+    ]
+  },
+  "scan_duration": 123,
+  "provider_name": "AWS",
+  "provider_version": "2.18.5"
+}

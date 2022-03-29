@@ -31,12 +31,12 @@ describe('findHelpFile', () => {
     ).toContain('iac-describe.md');
   });
 
-  it('returns correct help markdown path for a documented subcommand with `iac gen-driftignore`', () => {
+  it('returns correct help markdown path for a documented subcommand with `iac update-exclude-policy`', () => {
     expect(
       help.findHelpFile(
-        ['iac', 'gen-driftignore'],
+        ['iac', 'update-exclude-policy'],
         '../../../../help/cli-commands',
       ),
-    ).toContain('iac-gen-driftignore.md');
+    ).toContain('iac-update-exclude-policy.md');
   });
 });
