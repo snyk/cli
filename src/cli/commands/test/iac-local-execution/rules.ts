@@ -46,9 +46,14 @@ export async function initRules(
     (isOCIRegistryURLProvided || customRulesPath) &&
     !(options.sarif || options.json)
   ) {
-    console.log(
-      chalk.hex('#ff9b00')('Using custom rules to generate misconfigurations.'),
-    );
+    let userMessage = 'Using custom rules to generate misconfigurations.';
+
+    if (options.report) {
+      userMessage +=
+        "\nPlease note that your custom rules will not be sent to the Snyk platform, and will not be available on the project's page.";
+    }
+
+    console.log(chalk.hex('#ff9b00')(userMessage));
   }
 
   if (isOCIRegistryURLProvided && customRulesPath) {

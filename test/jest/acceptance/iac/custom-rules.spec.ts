@@ -67,6 +67,55 @@ describe('iac test --rules', () => {
       `Flag "--rules" is currently not supported for this org. To enable it, please contact snyk support.`,
     );
   });
+
+  describe.each([
+    ['--report flag', 'test --report'],
+    ['report command', 'report'],
+  ])('when used with the %s', (_, testedCommand) => {
+    it('should resolve successfully', async () => {
+      const { stderr, exitCode } = await run(
+        `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
+      );
+
+      expect(exitCode).toEqual(1);
+      expect(stderr).toEqual('');
+    });
+
+    it('should display a message informing of the application of custom rules', async () => {
+      const { stdout } = await run(
+        `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
+      );
+
+      expect(stdout).toContain(
+        'Using custom rules to generate misconfigurations.',
+      );
+    });
+
+    it('should display a warning message for custom rules not being available on the platform', async () => {
+      const { stdout } = await run(
+        `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
+      );
+
+      expect(stdout).toContain(
+        "Please note that your custom rules will not be sent to the Snyk platform, and will not be available on the project's page.",
+      );
+    });
+
+    describe.each(['--json', '--sarif'])(
+      'when the %s flag is provided',
+      (testedFormatFlag) => {
+        it('should not display the warning message for the custom rules not being available on the platform', async () => {
+          const { stdout } = await run(
+            `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf ${testedFormatFlag}`,
+          );
+
+          expect(stdout).not.toContain(
+            "Please note that your custom rules will not be sent to the Snyk platform, and will not be available on the project's page.",
+          );
+        });
+      },
+    );
+  });
 });
 
 describe('custom rules pull from a remote OCI registry', () => {
@@ -149,37 +198,109 @@ describe('custom rules pull from a remote OCI registry', () => {
     //   process.env.OCI_GCR_REGISTRY_PASSWORD,
     // ],
   ];
-  test.each(cases)(
-    'given %p as a registry and correct credentials, it returns a success exit code',
-    async (
+
+  describe.each(cases)(
+    'given %p as a registry and correct credentials',
+    (
       SNYK_CFG_OCI_REGISTRY_NAME,
       SNYK_CFG_OCI_REGISTRY_URL,
       SNYK_CFG_OCI_REGISTRY_USERNAME,
       SNYK_CFG_OCI_REGISTRY_PASSWORD,
     ) => {
-      const { stdout, exitCode } = await run(
-        `snyk iac test ./iac/terraform/sg_open_ssh.tf`,
-        {
-          SNYK_CFG_OCI_REGISTRY_URL: SNYK_CFG_OCI_REGISTRY_URL as string,
-          SNYK_CFG_OCI_REGISTRY_USERNAME: SNYK_CFG_OCI_REGISTRY_USERNAME as string,
-          SNYK_CFG_OCI_REGISTRY_PASSWORD: SNYK_CFG_OCI_REGISTRY_PASSWORD as string,
-        },
-      );
-      expect(SNYK_CFG_OCI_REGISTRY_URL).toBeDefined();
-      expect(SNYK_CFG_OCI_REGISTRY_USERNAME).toBeDefined();
-      expect(SNYK_CFG_OCI_REGISTRY_PASSWORD).toBeDefined();
-      expect(exitCode).toBe(1);
+      it('should return a success exit code', async () => {
+        const { stdout, exitCode } = await run(
+          `snyk iac test ./iac/terraform/sg_open_ssh.tf`,
+          {
+            SNYK_CFG_OCI_REGISTRY_URL: SNYK_CFG_OCI_REGISTRY_URL as string,
+            SNYK_CFG_OCI_REGISTRY_USERNAME: SNYK_CFG_OCI_REGISTRY_USERNAME as string,
+            SNYK_CFG_OCI_REGISTRY_PASSWORD: SNYK_CFG_OCI_REGISTRY_PASSWORD as string,
+          },
+        );
+        expect(SNYK_CFG_OCI_REGISTRY_URL).toBeDefined();
+        expect(SNYK_CFG_OCI_REGISTRY_USERNAME).toBeDefined();
+        expect(SNYK_CFG_OCI_REGISTRY_PASSWORD).toBeDefined();
+        expect(exitCode).toBe(1);
 
-      expect(stdout).toContain(
-        'Using custom rules to generate misconfigurations.',
-      );
-      expect(stdout).toContain('Testing ./iac/terraform/sg_open_ssh.tf');
-      expect(stdout).toContain('Infrastructure as code issues:');
-      expect(stdout).toContain('Missing tags');
-      expect(stdout).toContain('CUSTOM-1');
-      expect(stdout).toContain(
-        'introduced by input > resource > aws_security_group[allow_ssh] > tags',
-      );
+        expect(stdout).toContain(
+          'Using custom rules to generate misconfigurations.',
+        );
+        expect(stdout).toContain('Testing ./iac/terraform/sg_open_ssh.tf');
+        expect(stdout).toContain('Infrastructure as code issues:');
+        expect(stdout).toContain('Missing tags');
+        expect(stdout).toContain('CUSTOM-1');
+        expect(stdout).toContain(
+          'introduced by input > resource > aws_security_group[allow_ssh] > tags',
+        );
+      });
+
+      describe.each([
+        ['--report flag', 'test --report'],
+        ['report command', 'report'],
+      ])('when used with the %s', (_, testedCommand) => {
+        it('should resolve successfully', async () => {
+          const { exitCode, stderr } = await run(
+            `snyk iac ${testedCommand} ./iac/terraform/sg_open_ssh.tf`,
+            {
+              SNYK_CFG_OCI_REGISTRY_URL: SNYK_CFG_OCI_REGISTRY_URL as string,
+              SNYK_CFG_OCI_REGISTRY_USERNAME: SNYK_CFG_OCI_REGISTRY_USERNAME as string,
+              SNYK_CFG_OCI_REGISTRY_PASSWORD: SNYK_CFG_OCI_REGISTRY_PASSWORD as string,
+            },
+          );
+
+          expect(exitCode).toEqual(1);
+          expect(stderr).toContain('');
+        });
+
+        it('should display a message informing of the application of custom rules', async () => {
+          const { stdout } = await run(
+            `snyk iac ${testedCommand} ./iac/terraform/sg_open_ssh.tf`,
+            {
+              SNYK_CFG_OCI_REGISTRY_URL: SNYK_CFG_OCI_REGISTRY_URL as string,
+              SNYK_CFG_OCI_REGISTRY_USERNAME: SNYK_CFG_OCI_REGISTRY_USERNAME as string,
+              SNYK_CFG_OCI_REGISTRY_PASSWORD: SNYK_CFG_OCI_REGISTRY_PASSWORD as string,
+            },
+          );
+
+          expect(stdout).toContain(
+            'Using custom rules to generate misconfigurations.',
+          );
+        });
+
+        it('should display a warning message for custom rules not being available on the platform', async () => {
+          const { stdout } = await run(
+            `snyk iac ${testedCommand} ./iac/terraform/sg_open_ssh.tf`,
+            {
+              SNYK_CFG_OCI_REGISTRY_URL: SNYK_CFG_OCI_REGISTRY_URL as string,
+              SNYK_CFG_OCI_REGISTRY_USERNAME: SNYK_CFG_OCI_REGISTRY_USERNAME as string,
+              SNYK_CFG_OCI_REGISTRY_PASSWORD: SNYK_CFG_OCI_REGISTRY_PASSWORD as string,
+            },
+          );
+
+          expect(stdout).toContain(
+            "Please note that your custom rules will not be sent to the Snyk platform, and will not be available on the project's page.",
+          );
+        });
+
+        describe.each(['--json', '--sarif'])(
+          'when the %s flag is provided',
+          (testedFormatFlag) => {
+            it('should not display the warning message for the custom rules not being available on the platform', async () => {
+              const { stdout } = await run(
+                `snyk iac ${testedCommand} ./iac/terraform/sg_open_ssh.tf ${testedFormatFlag}`,
+                {
+                  SNYK_CFG_OCI_REGISTRY_URL: SNYK_CFG_OCI_REGISTRY_URL as string,
+                  SNYK_CFG_OCI_REGISTRY_USERNAME: SNYK_CFG_OCI_REGISTRY_USERNAME as string,
+                  SNYK_CFG_OCI_REGISTRY_PASSWORD: SNYK_CFG_OCI_REGISTRY_PASSWORD as string,
+                },
+              );
+
+              expect(stdout).not.toContain(
+                "Please note that your custom rules will not be sent to the Snyk platform, and will not be available on the project's page.",
+              );
+            });
+          },
+        );
+      });
     },
   );
 
