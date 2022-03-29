@@ -174,13 +174,13 @@ git checkout -b docs/contributing
 
 ### Branch types
 
-You can use these prefixes in your branch name to enable additional checks.
+You can use these patterns in your branch name to enable additional checks.
 
-| Prefix   | Description                                                                                                  |
-| -------- | ------------------------------------------------------------------------------------------------------------ |
-| `chore/` | Build and test all artifacts. Same as a [release pipeline](#creating-a-release) without the release step.    |
-| `smoke/` | Run [smoke tests](https://github.com/snyk/cli/actions/workflows/smoke-tests.yml) against the latest release. |
-| default  | Build and test your changes.                                                                                 |
+| Pattern                 | Examples                                         | Description                                                                                                  |
+| ----------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `chore/*`, `*test-all*` | `chore/build-change`, `feat/my-feature+test-all` | Build and test all artifacts. Same as a [release pipeline](#creating-a-release) without the release step.    |
+| `smoke/*`               | `smoke/test-change`                              | Run [smoke tests](https://github.com/snyk/cli/actions/workflows/smoke-tests.yml) against the latest release. |
+| default                 | `fix/a-bug`                                      | Build and test your changes.                                                                                 |
 
 For more information, see: [Pull request checks](#pull-request-checks).
 
