@@ -115,7 +115,7 @@ describe('snyk-apps: create app', () => {
       } = await runSnykCLIWithUserInputs(
         'apps create --interactive --experimental',
         [testData.appName, ENTER, testData.redirectURIs, ENTER, ENTER],
-        { env },
+        { env, delay: 200 },
       );
       // Assert
       expect(stdout).toContain("Your Snyk App's permission scopes");
@@ -158,7 +158,7 @@ describe('snyk-apps: create app', () => {
           testData.orgId,
           ENTER,
         ],
-        { env },
+        { env, delay: 200 },
       );
       // Assert
       expect(code).toBe(0);
