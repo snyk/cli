@@ -53,6 +53,7 @@ import {
 } from '../../../lib/spotlight-vuln-notification';
 import { isIacShareResultsOptions } from './iac-local-execution/assert-iac-options-flag';
 import { assertIaCOptionsFlags } from './iac-local-execution/assert-iac-options-flag';
+import { hasFeatureFlag } from '../../../lib/feature-flags';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -228,11 +229,18 @@ export default async function test(
     throw err;
   }
 
+  const isNewIacOutputSupported = options.iac
+    ? await hasFeatureFlag('iacCliOutput', options)
+    : false;
+
   let response = results
     .map((result, i) => {
       return displayResult(
         results[i] as LegacyVulnApiResult,
-        resultOptions[i],
+        {
+          ...resultOptions[i],
+          isNewIacOutputSupported,
+        },
         result.foundProjectCount,
       );
     })
@@ -253,7 +261,9 @@ export default async function test(
     errorResultsLength = iacScanFailures.length || errorResults.length;
 
     for (const reason of iacScanFailures) {
-      response += chalk.bold.red(getIacDisplayErrorFileOutput(reason));
+      response += chalk.bold.red(
+        getIacDisplayErrorFileOutput(reason, isNewIacOutputSupported),
+      );
     }
   }
 

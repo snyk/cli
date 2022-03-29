@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { icon } from '../theme';
+import { icon } from '../../../theme';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 import { pathToFileURL } from 'url';
@@ -10,17 +10,17 @@ import { execSync } from 'child_process';
 import {
   IacTestResponse,
   AnnotatedIacIssue,
-} from '../../lib/snyk-test/iac-test-result';
-import { printPath } from './remediation-based-format-issues';
-import { titleCaseText } from './legacy-format-issue';
+} from '../../../../lib/snyk-test/iac-test-result';
+import { printPath } from '../../remediation-based-format-issues';
+import { titleCaseText } from '../../legacy-format-issue';
 import * as sarif from 'sarif';
-import { colorTextBySeverity } from '../../lib/snyk-test/common';
-import { IacFileInDirectory, IacOutputMeta } from '../../lib/types';
-import { isLocalFolder } from '../../lib/detect';
-import { getSeverityValue } from './get-severity-value';
-import { getIssueLevel } from './sarif-output';
-import { getVersion } from '../version';
-import config from '../config';
+import { colorTextBySeverity } from '../../../../lib/snyk-test/common';
+import { IacFileInDirectory, IacOutputMeta } from '../../../../lib/types';
+import { isLocalFolder } from '../../../../lib/detect';
+import { getSeverityValue } from '../../get-severity-value';
+import { getIssueLevel } from '../../sarif-output';
+import { getVersion } from '../../../version';
+import config from '../../../config';
 const debug = Debug('iac-output');
 
 function formatIacIssue(
