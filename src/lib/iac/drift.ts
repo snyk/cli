@@ -135,11 +135,6 @@ const generateFmtFlags = (options: FmtOptions): string[] => {
     args.push('json://stdout');
   }
 
-  if (options['json-file-output']) {
-    args.push('--output');
-    args.push('json://' + options['json-file-output']);
-  }
-
   if (options.html) {
     args.push('--output');
     args.push('html://stdout');
