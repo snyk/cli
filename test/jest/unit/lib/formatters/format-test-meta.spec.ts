@@ -4,7 +4,7 @@ import { formatTestMeta } from '../../../../../src/lib/formatters/format-test-me
 import { IacTestResponse } from '../../../../../src/lib/snyk-test/iac-test-result';
 import { TestResult } from '../../../../../src/lib/snyk-test/legacy';
 import { ShowVulnPaths } from '../../../../../src/lib/types';
-import { generateCloudConfigResults } from '../../iac/results-formatter.fixtures';
+import { generateCloudConfigResults } from '../../iac/process-results/results-formatter.fixtures';
 
 describe('formatTestMeta', () => {
   it('iacTestResult meta is formatted as expected', () => {

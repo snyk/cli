@@ -1,6 +1,6 @@
 import { parseFiles } from './file-parser';
 import { scanFiles } from './file-scanner';
-import { formatScanResults } from './results-formatter';
+import { formatScanResults } from './process-results/results-formatter';
 import { trackUsage } from './usage-tracking';
 import { cleanLocalCache, initLocalCache } from './local-cache';
 import { applyCustomSeverities } from './org-settings/apply-custom-severities';

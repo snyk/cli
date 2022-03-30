@@ -4,10 +4,10 @@ import {
   IacFileScanResult,
   PolicyMetadata,
   TestMeta,
-} from '../../../../src/cli/commands/test/iac-local-execution/types';
-import { IacProjectType } from '../../../../src/lib/iac/constants';
-import { SEVERITY } from '../../../../src/lib/snyk-test/common';
-import { AnnotatedIacIssue } from '../../../../src/lib/snyk-test/iac-test-result';
+} from '../../../../../src/cli/commands/test/iac-local-execution/types';
+import { IacProjectType } from '../../../../../src/lib/iac/constants';
+import { SEVERITY } from '../../../../../src/lib/snyk-test/common';
+import { AnnotatedIacIssue } from '../../../../../src/lib/snyk-test/iac-test-result';
 
 export const policyStub: PolicyMetadata = {
   id: '1',

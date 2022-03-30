@@ -1,8 +1,8 @@
 import {
   filterPoliciesBySeverity,
   formatScanResults,
-} from '../../../../src/cli/commands/test/iac-local-execution/results-formatter';
-import { SEVERITY } from '../../../../src/lib/snyk-test/common';
+} from '../../../../../src/cli/commands/test/iac-local-execution/process-results/results-formatter';
+import { SEVERITY } from '../../../../../src/lib/snyk-test/common';
 import {
   expectedFormattedResultsWithLineNumber,
   expectedFormattedResultsWithoutLineNumber,
@@ -15,7 +15,7 @@ import * as cloudConfigParserModule from '@snyk/cloud-config-parser';
 import {
   EngineType,
   PolicyMetadata,
-} from '../../../../src/cli/commands/test/iac-local-execution/types';
+} from '../../../../../src/cli/commands/test/iac-local-execution/types';
 
 jest.mock('@snyk/cloud-config-parser', () => ({
   ...jest.requireActual('@snyk/cloud-config-parser'),
