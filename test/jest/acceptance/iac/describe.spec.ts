@@ -114,6 +114,55 @@ describe('iac describe', () => {
     expect(exitCode).toBe(0);
   });
 
+  describe('Test html file output', () => {
+    let htmlFile: string;
+    const fixtureHtmlReport = path.join(
+      getFixturePath('iac'),
+      'drift',
+      'output',
+      'driftctl_output.html',
+    );
+    beforeEach(() => {
+      htmlFile = path.join(tmpFolderPath, 'foobar.html');
+      fs.copyFileSync(fixtureHtmlReport, htmlFile);
+    });
+    afterEach(() => {
+      rimraf.sync(htmlFile);
+    });
+
+    it('Launch driftctl with html output format', async () => {
+      const { stdout, stderr, exitCode } = await run(
+        `snyk iac describe --all --html-file-output=${htmlFile}`,
+        {
+          SNYK_FIXTURE_OUTPUT_PATH: outputFile,
+          SNYK_DRIFTCTL_PATH: path.join(
+            getFixturePath('iac'),
+            'drift',
+            'args-echo.sh',
+          ),
+        },
+      );
+
+      expect(stdout).toBe('');
+      expect(stderr).toBe('');
+      expect(exitCode).toBe(0);
+
+      const output = fs.readFileSync(outputFile).toString();
+
+      // First invocation of driftctl scan triggered by describe cmd
+      expect(output).toContain('DCTL_IS_SNYK=true');
+      expect(output).toContain(
+        `ARGS=scan --no-version-check --output json://stdout --config-dir ${paths.cache} --to aws+tf`,
+      );
+
+      // Second invocation of driftctl fmt triggered by describe cmd
+      // We should test that the format is properly set for fmt command
+      expect(output).toContain(
+        `ARGS=fmt --no-version-check --output html://${htmlFile}`,
+      );
+    });
+  });
+
   it('Download and launch driftctl when executable is not found and org has the entitlement', async () => {
     const cachedir = path.join(os.tmpdir(), 'driftctl_download_' + Date.now());
     const { stderr, exitCode } = await run(`snyk iac describe --all`, {

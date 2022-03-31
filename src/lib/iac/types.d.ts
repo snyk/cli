@@ -9,7 +9,6 @@ interface DriftCTLOptions {
 
 export interface FmtOptions extends DriftCTLOptions {
   json: boolean;
-  'json-file-output': string;
   html: boolean;
   'html-file-output': string;
 }
@@ -38,7 +37,6 @@ export interface DescribeOptions extends DriftCTLOptions {
   'tf-lockfile'?: string;
   'config-dir'?: string;
   json?: boolean;
-  'json-file-output'?: string;
   html?: boolean;
   'html-file-output'?: string;
   service?: string;
