@@ -6,7 +6,7 @@ orbs:
   # https://circleci.com/developer/orbs/orb/circleci/aws-cli
   aws-cli: circleci/aws-cli@2.0.3
   # https://circleci.com/developer/orbs/orb/circleci/github-cli
-  gh: circleci/github-cli@1.0.4
+  gh: circleci/github-cli@2.1.0
 
 parameters:
   node_version:
@@ -24,7 +24,7 @@ parameters:
   gh_version:
     type: string
     # https://github.com/cli/cli/releases
-    default: '1.9.2'
+    default: '2.7.0'
 
 executors:
   linux:
