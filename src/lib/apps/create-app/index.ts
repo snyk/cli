@@ -10,7 +10,7 @@ import {
   validateUUID,
   validateAllURL,
 } from '..';
-import * as inquirer from '@snyk/inquirer';
+import * as enquirer from 'enquirer';
 import { ValidationError } from '../../errors';
 
 /**
@@ -52,7 +52,7 @@ export function createAppDataScriptable(
 // Interactive format
 export async function createAppDataInteractive(): Promise<ICreateAppRequest> {
   // Proceed with interactive
-  const answers = await inquirer.prompt(createAppPrompts);
+  const answers = await enquirer.prompt(createAppPrompts);
   // Process answers
   const snykAppName = answers[SNYK_APP_NAME].trim() as string;
   const snykAppRedirectUris = answers[SNYK_APP_REDIRECT_URIS].replace(

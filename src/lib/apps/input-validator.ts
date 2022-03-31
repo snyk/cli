@@ -4,7 +4,7 @@ import * as uuid from 'uuid';
  *
  * @param {String} input of space separated URL/URI passed by
  * user for redirect URIs
- * @returns { String | Boolean } complying with inquirer return values, the function
+ * @returns { String | Boolean } complying with enquirer return values, the function
  * separates the string on space and validates each to see
  * if a valid URL/URI. Return a string if invalid and
  * boolean true if valid
