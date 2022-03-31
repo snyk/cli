@@ -4,6 +4,11 @@ import { SEVERITY } from '@snyk/fix/dist/types';
 import { filterIgnoredIssues } from '../../../../../src/lib/ecosystems/policy';
 
 describe('filterIgnoredIssues fn', () => {
+  const ONE_HOUR_MS = 60 * 60 * 1000;
+  const getCurrentDate = () => new Date();
+  const getFutureDate = () => new Date(Date.now() + ONE_HOUR_MS);
+  const getPastDate = () => new Date(Date.now() - ONE_HOUR_MS);
+
   it('should filter the not-expired ignored issues', () => {
     const issues: Issue[] = [
       {
@@ -43,8 +48,8 @@ describe('filterIgnoredIssues fn', () => {
           {
             '*': {
               reason: 'None Given',
-              expires: new Date(new Date().getTime() + 60 * 60000),
-              created: new Date(),
+              created: getCurrentDate(),
+              expires: getFutureDate(),
             },
           },
         ],
@@ -116,8 +121,8 @@ describe('filterIgnoredIssues fn', () => {
           {
             '*': {
               reason: 'None Given',
-              expires: new Date(new Date().getTime() - 60 * 60000),
-              created: new Date(),
+              created: getCurrentDate(),
+              expires: getPastDate(),
             },
           },
         ],
@@ -149,8 +154,8 @@ describe('filterIgnoredIssues fn', () => {
           {
             '*': {
               reason: 'None Given',
-              expires: new Date(),
-              created: new Date(),
+              created: getCurrentDate(),
+              expires: getFutureDate(),
             },
           },
         ],
@@ -186,8 +191,8 @@ describe('filterIgnoredIssues fn', () => {
           {
             '*': {
               reason: 'None Given',
-              expires: new Date(),
-              created: new Date(),
+              created: getCurrentDate(),
+              expires: getFutureDate(),
             },
           },
         ],
