@@ -69,10 +69,6 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   hex: 'Hex',
 };
 
-export const PROTECT_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
-  'yarn',
-  'npm',
-];
 export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
   'npm',
   'sbt',

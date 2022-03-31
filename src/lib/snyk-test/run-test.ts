@@ -683,7 +683,7 @@ async function assembleLocalPayloads(
         ? (pkg as depGraphLib.DepGraph).rootPkg.name
         : (pkg as DepTree).name;
 
-      let body: PayloadBody = {
+      const body: PayloadBody = {
         // WARNING: be careful changing this as it affects project uniqueness
         targetFile: project.plugin.targetFile,
 
@@ -700,40 +700,31 @@ async function assembleLocalPayloads(
         target,
       };
 
-      if (options.vulnEndpoint) {
-        // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests).
-        body = { ...body, ...pkg };
+      let depGraph: depGraphLib.DepGraph;
+      if (scannedProject.depGraph) {
+        depGraph = scannedProject.depGraph;
       } else {
-        let depGraph: depGraphLib.DepGraph;
-        if (scannedProject.depGraph) {
-          depGraph = scannedProject.depGraph;
-        } else {
-          // Graphs are more compact and robust representations.
-          // Legacy parts of the code are still using trees, but will eventually be fully migrated.
-          debug('converting dep-tree to dep-graph', {
-            name: (pkg as DepTree).name,
-            targetFile: scannedProject.targetFile || options.file,
-          });
-          depGraph = await depGraphLib.legacy.depTreeToGraph(
-            pkg as DepTree,
-            packageManager!,
-          );
-          debug('done converting dep-tree to dep-graph', {
-            uniquePkgsCount: depGraph.getPkgs().length,
-          });
-        }
-
-        const pruneIsRequired = options.pruneRepeatedSubdependencies;
-
-        if (packageManager) {
-          depGraph = await pruneGraph(
-            depGraph,
-            packageManager,
-            pruneIsRequired,
-          );
-        }
-        body.depGraph = depGraph;
+        // Graphs are more compact and robust representations.
+        // Legacy parts of the code are still using trees, but will eventually be fully migrated.
+        debug('converting dep-tree to dep-graph', {
+          name: (pkg as DepTree).name,
+          targetFile: scannedProject.targetFile || options.file,
+        });
+        depGraph = await depGraphLib.legacy.depTreeToGraph(
+          pkg as DepTree,
+          packageManager!,
+        );
+        debug('done converting dep-tree to dep-graph', {
+          uniquePkgsCount: depGraph.getPkgs().length,
+        });
       }
+
+      const pruneIsRequired = options.pruneRepeatedSubdependencies;
+
+      if (packageManager) {
+        depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
+      }
+      body.depGraph = depGraph;
 
       if (
         options.reachableVulns &&
