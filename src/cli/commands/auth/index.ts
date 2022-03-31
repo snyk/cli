@@ -26,13 +26,8 @@ function resetAttempts() {
   attemptsLeft = isDocker() ? 60 : 3 * 60;
 }
 
-type AuthCliCommands = 'wizard' | 'ignore';
-
-async function webAuth(via: AuthCliCommands) {
+async function webAuth() {
   const token = uuidv4(); // generate a random key
-  const redirects = {
-    wizard: '/authenticated',
-  };
 
   let urlStr = authUrl + '/login?token=' + token;
 
@@ -41,11 +36,6 @@ async function webAuth(via: AuthCliCommands) {
   const utmParams = getQueryParamsAsString(args);
   if (utmParams) {
     urlStr += '&' + utmParams;
-  }
-
-  // validate that via comes from our code, and not from user & CLI
-  if (redirects[via]) {
-    urlStr += '&redirectUri=' + Buffer.from(redirects[via]).toString('base64');
   }
 
   // suppress this message in CI
@@ -123,17 +113,14 @@ async function testAuthComplete(
   });
 }
 
-export default async function auth(
-  apiToken: string,
-  via: AuthCliCommands,
-): Promise<string> {
+export default async function auth(apiToken: string): Promise<string> {
   let promise;
   resetAttempts();
   if (apiToken) {
     // user is manually setting the API token on the CLI - let's trust them
     promise = verifyAPI(apiToken);
   } else {
-    promise = webAuth(via);
+    promise = webAuth();
   }
 
   return promise.then((data) => {

@@ -58,10 +58,7 @@ export default async function protectFunc(
   if (protectOptions.interactive) {
     // silently fail
     return Promise.reject(
-      new Error(
-        'Snyk protect interactive mode ' +
-          'has moved. Please run `snyk wizard`',
-      ),
+      new Error('Snyk protect interactive mode ' + 'has moved.'),
     );
   }
 

@@ -106,11 +106,6 @@ test/tap/vulnerable-path-output.js @snyk/snyk-open-source
 test/tap/cli-protect-no-vulns-to-patch.test.ts @snyk/hammer
 test/tap/patch-fetch-fail.test.ts @snyk/hammer
 test/tap/cli-protect.test.ts @snyk/hammer
-test/tap/prompt-instrument.test.ts @snyk/hammer
-test/tap/prompt-next-step.test.ts @snyk/hammer
-test/tap/prompts-no-remediation.test.ts @snyk/hammer
-test/tap/prompts-show-original-severity.test.ts @snyk/hammer
-test/tap/prompts.test.ts @snyk/hammer
 test/tap/protect-apply-same-patch-again.test.js @snyk/hammer
 test/tap/protect-config.test.ts @snyk/hammer
 test/tap/protect-factors-pre-tarred.test.ts @snyk/hammer
@@ -120,14 +115,3 @@ test/tap/protect-patch-filter.test.js @snyk/hammer
 test/tap/protect-patch-order.test.ts @snyk/hammer
 test/tap/protect-patch-same-pkg.test.js @snyk/hammer
 test/tap/protect-semver-patch.test.ts @snyk/hammer
-
-# wizard
-test/tap/cli-wizard.acceptance.test.ts @snyk/hammer
-test/tap/wizard-instrumented.js @snyk/hammer
-test/tap/wizard-package-changes.test.ts @snyk/hammer
-test/tap/wizard-patch-generates-policy.test.js @snyk/hammer
-test/tap/wizard-patch-multiple-locations.test.ts @snyk/hammer
-test/tap/wizard-prepare.test.js @snyk/hammer
-test/tap/wizard-prepublish.test.js @snyk/hammer
-test/tap/wizard-process-answers.test.js @snyk/hammer
-test/tap/wizard-shrinkwrap.test.ts @snyk/hammer
