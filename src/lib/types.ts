@@ -30,11 +30,6 @@ export interface TestOptions {
   iacDirFiles?: IacFileInDirectory[];
 }
 
-export interface ProtectOptions {
-  interactive?: boolean;
-  newPolicy: boolean;
-}
-
 export interface Contributor {
   email: string;
   lastCommitDate: string;
