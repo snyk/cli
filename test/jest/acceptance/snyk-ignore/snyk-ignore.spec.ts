@@ -33,6 +33,97 @@ describe('snyk ignore', () => {
     server.close(() => done());
   });
 
+  it('creates a policy file with exclude, using default group', async () => {
+    const project = await createProjectFromWorkspace('empty');
+    const { code } = await runSnykCLI(
+      `ignore --file-path=**/deps/**/*.ts  --policy-path=${project.path()}`,
+      {
+        cwd: project.path(),
+        env: env,
+      },
+    );
+
+    expect(code).toEqual(0);
+
+    const policy = await loadPolicy(project.path());
+    expect(policy.exclude).toMatchObject({
+      global: ['**/deps/**/*.ts'],
+    });
+  });
+
+  it('add multiple uniq patterns to the same group', async () => {
+    const project = await createProjectFromWorkspace('empty');
+
+    let result = await runSnykCLI(
+      `ignore --file-path=**/deps/**/*.ts  --policy-path=${project.path()}`,
+      {
+        cwd: project.path(),
+        env: env,
+      },
+    );
+
+    expect(result.code).toEqual(0);
+
+    result = await runSnykCLI(
+      `ignore --file-path=**/deps/**/*.ts  --policy-path=${project.path()}`,
+      {
+        cwd: project.path(),
+        env: env,
+      },
+    );
+
+    expect(result.code).toEqual(0);
+
+    const policy = await loadPolicy(project.path());
+    expect(policy.exclude).toMatchObject({
+      global: ['**/deps/**/*.ts'],
+    });
+  });
+
+  it('create a policy file with exclude, using custom group', async () => {
+    const project = await createProjectFromWorkspace('empty');
+    const {
+      code,
+    } = await runSnykCLI(
+      `ignore --file-path=**/deps/**/*.ts --file-path-group=code  --policy-path=${project.path()}`,
+      { cwd: project.path(), env: env },
+    );
+
+    expect(code).toEqual(0);
+
+    const policy = await loadPolicy(project.path());
+
+    expect(policy.exclude).toMatchObject({
+      code: ['**/deps/**/*.ts'],
+    });
+  });
+
+  it('update a policy file with exclude, using different groups', async () => {
+    const project = await createProjectFromWorkspace('empty');
+
+    await runSnykCLI(
+      `ignore --file-path=**/deps/**/*.ts --file-path-group=global  --policy-path=${project.path()}`,
+      { cwd: project.path(), env: env },
+    );
+
+    await runSnykCLI(
+      `ignore --file-path=**/vendor/**/*.ts --file-path-group=code  --policy-path=${project.path()}`,
+      { cwd: project.path(), env: env },
+    );
+
+    await runSnykCLI(
+      `ignore --file-path=**/deps/**/*.ts --file-path-group=code  --policy-path=${project.path()}`,
+      { cwd: project.path(), env: env },
+    );
+
+    const policy = await loadPolicy(project.path());
+
+    expect(policy.exclude).toMatchObject({
+      global: ['**/deps/**/*.ts'],
+      code: ['**/vendor/**/*.ts', '**/deps/**/*.ts'],
+    });
+  });
+
   it('creates a policy file using minimal options', async () => {
     const project = await createProjectFromWorkspace('empty');
     const { code } = await runSnykCLI(`ignore --id=ID`, {
