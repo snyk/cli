@@ -26,7 +26,7 @@ export interface ICreateAppResponse {
   };
 }
 
-export interface IV3ErrorResponse {
+export interface IRestErrorResponse {
   jsonapi: IJSONApi;
   errors: [
     {

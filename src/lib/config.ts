@@ -9,7 +9,9 @@ interface Config {
   MAX_PATH_COUNT: number;
   API: string;
   api: string;
-  API_V3_URL: string;
+  API_REST_URL: string;
+  // deprecated, use API_REST_URL instead
+  API_V3_URL?: string;
   disableSuggestions: string;
   org: string;
   ROOT: string;
@@ -66,6 +68,11 @@ if (!config.timeout) {
 if (!config.ROOT) {
   const apiUrl = url.parse(config.API);
   config.ROOT = apiUrl.protocol + '//' + apiUrl.host;
+}
+
+// maintain backwards compatibility with older name
+if (config.API_V3_URL) {
+  config.API_REST_URL = config.API_V3_URL;
 }
 
 export default config;

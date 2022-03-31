@@ -6,7 +6,7 @@ import {
   EAppsURL,
   ICreateAppResponse,
   IGetAppsURLOpts,
-  IV3ErrorResponse,
+  IRestErrorResponse,
   SNYK_APP_DEBUG,
 } from '.';
 import chalk from 'chalk';
@@ -20,10 +20,10 @@ export function getAppsURL(
   selection: EAppsURL,
   opts: IGetAppsURLOpts = {},
 ): string {
-  // Get the V3 URL from user config
+  // Get the rest URL from user config
   // Environment variable takes precendence over config
-  const baseURL = config.API_V3_URL;
-  debug(`API v3 base URL => ${baseURL}`);
+  const baseURL = config.API_REST_URL;
+  debug(`API rest base URL => ${baseURL}`);
 
   switch (selection) {
     case EAppsURL.CREATE_APP:
@@ -33,11 +33,11 @@ export function getAppsURL(
   }
 }
 
-export function handleV3Error(error: any): void {
+export function handleRestError(error: any): void {
   if (error.code) {
     if (error.code === 400) {
       // Bad request
-      const responseJSON: IV3ErrorResponse = error.body;
+      const responseJSON: IRestErrorResponse = error.body;
       const errString = errorsToDisplayString(responseJSON);
       throw new Error(errString);
     } else if (error.code === 401) {
@@ -48,7 +48,7 @@ export function handleV3Error(error: any): void {
         'Forbidden! the authentication token does not have access to the resource.',
       );
     } else if (error.code === 404) {
-      const responseJSON: IV3ErrorResponse = error.body;
+      const responseJSON: IRestErrorResponse = error.body;
       const errString = errorsToDisplayString(responseJSON);
       throw new Error(errString);
     } else if (error.code === 500) {
@@ -62,11 +62,11 @@ export function handleV3Error(error: any): void {
 }
 
 /**
- * @param errRes V3Error response
+ * @param errRes RestError response
  * @returns {String} Iterates over error and
  * converts them into a readible string
  */
-function errorsToDisplayString(errRes: IV3ErrorResponse): string {
+function errorsToDisplayString(errRes: IRestErrorResponse): string {
   const resString = `Uh oh! an error occurred while trying to create the Snyk App.
 Please run the command with '--debug' or '-d' to get more information`;
   if (!errRes.errors) return resString;
@@ -88,7 +88,7 @@ Please run the command with '--debug' or '-d' to get more information`;
     const source = sourceString || '-';
 
     return `Uh oh! an error occured while trying to create the Snyk App.
-  
+
 Error Description:\t${e.detail}
 Request Status:\t${e.status}
 Source:\t${source}

@@ -3,12 +3,12 @@ import {
   EAppsURL,
   getAppsURL,
   handleCreateAppRes,
-  handleV3Error,
+  handleRestError,
   ICreateAppRequest,
   ICreateAppResponse,
   SNYK_APP_DEBUG,
 } from '../../../lib/apps';
-import { makeRequestV3 } from '../../../lib/request/promise';
+import { makeRequestRest } from '../../../lib/request/promise';
 import { spinner } from '../../../lib/spinner';
 
 const debug = Debug(SNYK_APP_DEBUG);
@@ -46,12 +46,12 @@ export async function createApp(
 
   try {
     await spinner('Creating your Snyk App');
-    const response = await makeRequestV3<ICreateAppResponse>(payload);
+    const response = await makeRequestRest<ICreateAppResponse>(payload);
     debug(response);
     spinner.clearAll();
     return handleCreateAppRes(response);
   } catch (error) {
     spinner.clearAll();
-    handleV3Error(error);
+    handleRestError(error);
   }
 }
