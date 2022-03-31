@@ -12,7 +12,7 @@ parameters:
   node_version:
     type: string
     # https://circleci.com/developer/images/image/cimg/node
-    default: '16.13.2'
+    default: '16.14.2'
   npm_version:
     type: string
     # match whatever's bundled with node_version
@@ -431,7 +431,7 @@ workflows:
             - Build
           matrix:
             parameters:
-              node_version: ['12.22.9', '14.18.2', '16.13.2']
+              node_version: ['12.22.11', '14.19.1', '16.14.2']
       - test-tap:
           name: Tap Tests
           context: nodejs-install
@@ -473,9 +473,9 @@ workflows:
           requires:
             - Lint
             - Tap Tests
-            - Jest Tests (Linux, Node v12.22.9)
-            - Jest Tests (Linux, Node v14.18.2)
-            - Jest Tests (Linux, Node v16.13.2)
+            - Jest Tests (Linux, Node v12.22.11)
+            - Jest Tests (Linux, Node v14.19.1)
+            - Jest Tests (Linux, Node v16.14.2)
             - Acceptance Tests (snyk-win.exe)
             - Acceptance Tests (snyk-macos)
             - Acceptance Tests (snyk-linux-arm64)
