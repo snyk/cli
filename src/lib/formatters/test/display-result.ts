@@ -26,9 +26,13 @@ import {
 } from '../../../lib/formatters/test/format-test-results';
 import { showMultiScanTip } from '../show-multi-scan-tip';
 
+interface DisplayResultOptions extends Options, TestOptions {
+  isNewIacOutputSupported?: boolean;
+}
+
 export function displayResult(
   res: TestResult,
-  options: Options & TestOptions,
+  options: DisplayResultOptions,
   foundProjectCount?: number,
 ) {
   const meta = formatTestMeta(res, options);
@@ -116,6 +120,7 @@ export function displayResult(
       testedInfoText,
       meta,
       prefix,
+      options.isNewIacOutputSupported,
     );
   }
 

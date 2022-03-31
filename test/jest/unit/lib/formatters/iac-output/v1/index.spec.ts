@@ -1,12 +1,12 @@
 import {
   createSarifOutputForIac,
   shareResultsOutput,
-} from '../../../../../src/lib/formatters/iac-output';
+} from '../../../../../../../src/lib/formatters/iac-output';
 import {
   IacTestResponse,
   AnnotatedIacIssue,
-} from '../../../../../src/lib/snyk-test/iac-test-result';
-import { SEVERITY } from '../../../../../src/lib/snyk-test/legacy';
+} from '../../../../../../../src/lib/snyk-test/iac-test-result';
+import { SEVERITY } from '../../../../../../../src/lib/snyk-test/legacy';
 
 describe('createSarifOutputForIac', () => {
   function createResponseIssue(
