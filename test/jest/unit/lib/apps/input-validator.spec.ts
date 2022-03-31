@@ -14,7 +14,7 @@ describe('input validation for snyk apps', () => {
       ['localhost:3000/callback', true],
       ['localhost:3000/callback,something', true],
       ['localhost:3000', true],
-      // inquirer validation return string message when false
+      // enquirer validation return string message when false
       ['#somethig-wrong.com', '#somethig-wrong.com is not a valid URL'],
       ['#somethig-wrong', '#somethig-wrong is not a valid URL'],
       ['somethig wrong', 'somethig wrong is not a valid URL'],
