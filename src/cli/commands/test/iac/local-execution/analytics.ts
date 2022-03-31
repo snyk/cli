@@ -3,7 +3,7 @@ import * as analytics from '../../../../../lib/analytics';
 import { calculatePercentage } from './math-utils';
 import { computeCustomRulesBundleChecksum } from './file-utils';
 import { DescribeOptions, DriftAnalysis } from '../../../../../lib/iac/types';
-import { driftctlVersion } from '../../../../../lib/iac/drift';
+import { driftctlVersion } from '../../../../../lib/iac/drift/driftctl';
 
 export function addIacAnalytics(
   formattedResults: FormattedResult[],

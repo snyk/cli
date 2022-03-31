@@ -1,0 +1,398 @@
+{
+	"options": {
+		"deep": true,
+		"only_managed": false,
+		"only_unmanaged": false
+	},
+	"summary": {
+		"total_resources": 48,
+		"total_changed": 3,
+		"total_unmanaged": 35,
+		"total_missing": 5,
+		"total_managed": 8,
+		"total_iac_source_count": 1
+	},
+	"managed": [
+		{
+			"id": "bucketwithouttags",
+			"type": "aws_s3_bucket",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "bucket-without-tags"
+			}
+		},
+		{
+			"id": "bucketwithenvtag",
+			"type": "aws_s3_bucket",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "bucket-with-env-tag"
+			}
+		},
+		{
+			"id": "AKIAXVMHWD4BVQ2IDIWH",
+			"type": "aws_iam_access_key",
+			"human_readable_attributes": {
+				"User": "storageservice"
+			},
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "storageservice"
+			}
+		},
+		{
+			"id": "arn:aws:iam::526954929923:policy/s3listingpolicy",
+			"type": "aws_iam_policy",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "s3lstpol"
+			}
+		},
+		{
+			"id": "arn:aws:iam::526954929923:policy/sqshandlingpolicy",
+			"type": "aws_iam_policy",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "sqshandlingpolicy"
+			}
+		},
+		{
+			"id": "storageservice-arn:aws:iam::526954929923:policy/sqshandlingpolicy",
+			"type": "aws_iam_policy_attachment"
+		},
+		{
+			"id": "storageservice",
+			"type": "aws_iam_user",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "storageservice"
+			}
+		},
+		{
+			"id": "storageservice:storageservice_s3_admin",
+			"type": "aws_iam_user_policy",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "storageservice_s3_admin"
+			}
+		}
+	],
+	"unmanaged": [
+		{
+			"id": "default",
+			"type": "aws_db_subnet_group"
+		},
+		{
+			"id": "AKIAXVMHWD4BRT2NN4CO",
+			"type": "aws_iam_access_key",
+			"human_readable_attributes": {
+				"User": "admin"
+			}
+		},
+		{
+			"id": "AKIAXVMHWD4BTMNTJAKL",
+			"type": "aws_iam_access_key",
+			"human_readable_attributes": {
+				"User": "user"
+			}
+		},
+		{
+			"id": "AKIAXVMHWD4BZ3UGZRVX",
+			"type": "aws_iam_access_key",
+			"human_readable_attributes": {
+				"User": "martin"
+			}
+		},
+		{
+			"id": "arn:aws:iam::526954929923:policy/driftctl-user-policy",
+			"type": "aws_iam_policy"
+		},
+		{
+			"id": "AWSServiceRoleForCloudTrail-arn:aws:iam::aws:policy/aws-service-role/CloudTrailServiceRolePolicy",
+			"type": "aws_iam_policy_attachment"
+		},
+		{
+			"id": "AWSServiceRoleForDynamoDBReplication-arn:aws:iam::aws:policy/aws-service-role/DynamoDBReplicationServiceRolePolicy",
+			"type": "aws_iam_policy_attachment"
+		},
+		{
+			"id": "AWSServiceRoleForRDS-arn:aws:iam::aws:policy/aws-service-role/AmazonRDSServiceRolePolicy",
+			"type": "aws_iam_policy_attachment"
+		},
+		{
+			"id": "admin-arn:aws:iam::aws:policy/job-function/SystemAdministrator",
+			"type": "aws_iam_policy_attachment"
+		},
+		{
+			"id": "martin-arn:aws:iam::aws:policy/AdministratorAccess",
+			"type": "aws_iam_policy_attachment"
+		},
+		{
+			"id": "user-arn:aws:iam::aws:policy/ReadOnlyAccess",
+			"type": "aws_iam_policy_attachment"
+		},
+		{
+			"id": "user-arn:aws:iam::aws:policy/job-function/SystemAdministrator",
+			"type": "aws_iam_policy_attachment"
+		},
+		{
+			"id": "OrganizationAccountAccessRole",
+			"type": "aws_iam_role"
+		},
+		{
+			"id": "driftctl-role",
+			"type": "aws_iam_role"
+		},
+		{
+			"id": "iam_for_lambda",
+			"type": "aws_iam_role"
+		},
+		{
+			"id": "OrganizationAccountAccessRole:AdministratorAccess",
+			"type": "aws_iam_role_policy"
+		},
+		{
+			"id": "driftctl-role:driftctl-role-policy",
+			"type": "aws_iam_role_policy"
+		},
+		{
+			"id": "admin",
+			"type": "aws_iam_user"
+		},
+		{
+			"id": "martin",
+			"type": "aws_iam_user"
+		},
+		{
+			"id": "user",
+			"type": "aws_iam_user"
+		},
+		{
+			"id": "igw-037afbaa8a4926de5",
+			"type": "aws_internet_gateway"
+		},
+		{
+			"id": "56103074-ce94-4c3c-acb5-2ecae87e665e",
+			"type": "aws_lambda_event_source_mapping",
+			"human_readable_attributes": {
+				"Dest": "arn:aws:lambda:us-east-1:526954929923:function:lambda_function_name",
+				"Source": "arn:aws:dynamodb:us-east-1:526954929923:table/example/stream/2021-03-23T14:34:31.443"
+			}
+		},
+		{
+			"id": "a23379c9-73ed-49cc-9ad8-a9c415b9618e",
+			"type": "aws_lambda_event_source_mapping",
+			"human_readable_attributes": {
+				"Dest": "arn:aws:lambda:us-east-1:526954929923:function:lambda_function_name",
+				"Source": "arn:aws:sqs:us-east-1:526954929923:queue1"
+			}
+		},
+		{
+			"id": "fd8a254a-3523-45e8-be51-6a82ccc04fb7",
+			"type": "aws_lambda_event_source_mapping",
+			"human_readable_attributes": {
+				"Dest": "arn:aws:lambda:us-east-1:526954929923:function:lambda_function_name",
+				"Source": "arn:aws:sqs:us-east-1:526954929923:queue2"
+			}
+		},
+		{
+			"id": "lambda_function_name",
+			"type": "aws_lambda_function"
+		},
+		{
+			"id": "nacl-1038030429",
+			"type": "aws_network_acl_rule",
+			"human_readable_attributes": {
+				"CIDR": "0.0.0.0/0",
+				"Egress": "true",
+				"Network": "acl-0b9ac7def6f49a85f",
+				"Protocol": "All",
+				"Rule number": "100"
+			}
+		},
+		{
+			"id": "nacl-1312371138",
+			"type": "aws_network_acl_rule",
+			"human_readable_attributes": {
+				"CIDR": "0.0.0.0/0",
+				"Egress": "false",
+				"Network": "acl-0b9ac7def6f49a85f",
+				"Protocol": "All",
+				"Rule number": "100"
+			}
+		},
+		{
+			"id": "Z0550848EDQNFSD05MSY_blog.martin.ski_A",
+			"type": "aws_route53_record",
+			"human_readable_attributes": {
+				"Fqdn": "blog.martin.ski",
+				"Type": "A",
+				"ZoneId": "Z0550848EDQNFSD05MSY"
+			}
+		},
+		{
+			"id": "Z0550848EDQNFSD05MSY",
+			"type": "aws_route53_zone",
+			"human_readable_attributes": {
+				"Name": "martin.ski"
+			}
+		},
+		{
+			"id": "arn:aws:sns:us-east-1:526954929923:user-updates-topic",
+			"type": "aws_sns_topic",
+			"human_readable_attributes": {
+				"Name": "user-updates-topic"
+			}
+		},
+		{
+			"id": "arn:aws:sns:us-east-1:526954929923:user-updates-topic2",
+			"type": "aws_sns_topic",
+			"human_readable_attributes": {
+				"Name": "user-updates-topic2"
+			}
+		},
+		{
+			"id": "arn:aws:sns:us-east-1:526954929923:user-updates-topic3",
+			"type": "aws_sns_topic",
+			"human_readable_attributes": {
+				"DisplayName": "user-updates-topic3",
+				"Name": "user-updates-topic3"
+			}
+		},
+		{
+			"id": "arn:aws:sns:us-east-1:526954929923:user-updates-topic",
+			"type": "aws_sns_topic_policy"
+		},
+		{
+			"id": "arn:aws:sns:us-east-1:526954929923:user-updates-topic2",
+			"type": "aws_sns_topic_policy"
+		},
+		{
+			"id": "arn:aws:sns:us-east-1:526954929923:user-updates-topic3",
+			"type": "aws_sns_topic_policy"
+		}
+	],
+	"missing": [
+		{
+			"id": "AKIAXVMHWD4BSY5AP345",
+			"type": "aws_iam_access_key",
+			"human_readable_attributes": {
+				"User": "loadbalancer"
+			},
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "lb"
+			}
+		},
+		{
+			"id": "loadbalancer-arn:aws:iam::526954929923:policy/s3listingpolicy",
+			"type": "aws_iam_policy_attachment"
+		},
+		{
+			"id": "loadbalancer-arn:aws:iam::526954929923:policy/sqshandlingpolicy",
+			"type": "aws_iam_policy_attachment"
+		},
+		{
+			"id": "loadbalancer",
+			"type": "aws_iam_user",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "loadbalancer"
+			}
+		},
+		{
+			"id": "loadbalancer:lb_ec2_ro",
+			"type": "aws_iam_user_policy",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "lb_ec2_ro"
+			}
+		}
+	],
+	"differences": [
+		{
+			"res": {
+				"id": "arn:aws:iam::526954929923:policy/sqshandlingpolicy",
+				"type": "aws_iam_policy",
+				"source": {
+					"source": "tfstate://../driftctl/terraform.tfstate",
+					"namespace": "",
+					"internal_name": "sqshandlingpolicy"
+				}
+			},
+			"changelog": [
+				{
+					"type": "update",
+					"path": [
+						"policy"
+					],
+					"from": "{\"Statement\":[{\"Action\":[\"sqs:ReceiveMessage\",\"sqs:DeleteMessage\",\"sqs:GetQueueAttributes\"],\"Effect\":\"Allow\",\"Resource\":\"*\"}],\"Version\":\"2012-10-17\"}",
+					"to": "{\"Statement\":[{\"Action\":\"sqs:*\",\"Effect\":\"Allow\",\"Resource\":\"*\",\"Sid\":\"VisualEditor0\"}],\"Version\":\"2012-10-17\"}",
+					"computed": false
+				}
+			]
+		},
+		{
+			"res": {
+				"id": "bucketwithenvtag",
+				"type": "aws_s3_bucket",
+				"source": {
+					"source": "tfstate://../driftctl/terraform.tfstate",
+					"namespace": "",
+					"internal_name": "bucket-with-env-tag"
+				}
+			},
+			"changelog": [
+				{
+					"type": "create",
+					"path": [
+						"tags",
+						"ThisTagIsNew"
+					],
+					"from": null,
+					"to": "True",
+					"computed": false
+				}
+			]
+		},
+		{
+			"res": {
+				"id": "bucketwithouttags",
+				"type": "aws_s3_bucket",
+				"source": {
+					"source": "tfstate://../driftctl/terraform.tfstate",
+					"namespace": "",
+					"internal_name": "bucket-without-tags"
+				}
+			},
+			"changelog": [
+				{
+					"type": "create",
+					"path": [
+						"tags"
+					],
+					"from": null,
+					"to": {
+						"Environement": "Prod"
+					},
+					"computed": false
+				}
+			]
+		}
+	],
+	"coverage": 16,
+	"alerts": null,
+	"provider_name": "aws",
+	"provider_version": "3.19.0",
+	"scan_duration": 16
+}

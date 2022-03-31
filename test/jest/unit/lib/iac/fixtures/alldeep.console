@@ -1,0 +1,148 @@
+[1mSnyk Scanning Infrastructure As Code Discrepancies[22m
+
+  Info:    Resources under IaC, but different to terraform states.
+  Resolve: Reapply IaC resources or update into terraform.
+
+[1mChanged resources: 3[22m
+
+[34mState: [1mtfstate://../driftctl/terraform.tfstate[22m [ Changed Resources: [1m3[22m ][39m
+
+  Resource Type: aws_iam_policy
+    ID: [1marn:aws:iam::526954929923:policy/sqshandlingpolicy[22m
+    [33m~[39m policy:
+    {
+      Statement: [
+        0: {
+          Action: [31m[[39m
+    [31m        "sqs:ReceiveMessage",[39m
+    [31m        "sqs:DeleteMessage",[39m
+    [31m        "sqs:GetQueueAttributes"[39m
+    [31m      ][39m => [32m"sqs:*"[39m
+          [90mEffect: [39m[90m"Allow"[39m
+          [90mResource: [39m[90m"*"[39m
+          [32mSid: [39m[32m"VisualEditor0"[39m
+        }
+      ]
+      [90mVersion: [39m[90m"2012-10-17"[39m
+    }
+
+
+  Resource Type: aws_s3_bucket
+    ID: [1mbucketwithenvtag[22m
+    [32m+[39m tags.ThisTagIsNew: [1mnull[22m => [32mTrue[39m
+
+    ID: [1mbucketwithouttags[22m
+    [32m+[39m tags: [1mnull[22m => [32m{"Environement":"Prod"}[39m
+
+[1mMissing resources: 5[22m
+
+[34mState: [1mGenerated[22m [ Missing Resources: [1m2[22m ][39m
+
+  Resource Type: aws_iam_policy_attachment
+    ID: [1mloadbalancer-arn:aws:iam::526954929923:policy/s3listingpolicy[22m
+    ID: [1mloadbalancer-arn:aws:iam::526954929923:policy/sqshandlingpolicy[22m
+
+[34mState: [1mtfstate://../driftctl/terraform.tfstate[22m [ Missing Resources: [1m3[22m ][39m
+
+  Resource Type: aws_iam_access_key
+    ID: [1mAKIAXVMHWD4BSY5AP345[22m
+
+  Resource Type: aws_iam_user
+    ID: [1mloadbalancer[22m
+
+  Resource Type: aws_iam_user_policy
+    ID: [1mloadbalancer:lb_ec2_ro[22m
+
+[1mUnmanaged resources: 35[22m
+
+[34mService: [1mUnidentified[22m [ Unmanaged Resources: [1m2[22m ][39m
+
+  Resource Type: aws_network_acl_rule
+    ID: [1mnacl-1038030429[22m
+    ID: [1mnacl-1312371138[22m
+
+[34mService: [1maws_iam[22m [ Unmanaged Resources: [1m19[22m ][39m
+
+  Resource Type: aws_iam_access_key
+    ID: [1mAKIAXVMHWD4BRT2NN4CO[22m
+    ID: [1mAKIAXVMHWD4BTMNTJAKL[22m
+    ID: [1mAKIAXVMHWD4BZ3UGZRVX[22m
+
+  Resource Type: aws_iam_policy
+    ID: [1marn:aws:iam::526954929923:policy/driftctl-user-policy[22m
+
+  Resource Type: aws_iam_policy_attachment
+    ID: [1mAWSServiceRoleForCloudTrail-arn:aws:iam::aws:policy/aws-service-role/CloudTrailServiceRolePolicy[22m
+    ID: [1mAWSServiceRoleForDynamoDBReplication-arn:aws:iam::aws:policy/aws-service-role/DynamoDBReplicationServiceRolePolicy[22m
+    ID: [1mAWSServiceRoleForRDS-arn:aws:iam::aws:policy/aws-service-role/AmazonRDSServiceRolePolicy[22m
+    ID: [1madmin-arn:aws:iam::aws:policy/job-function/SystemAdministrator[22m
+    ID: [1mmartin-arn:aws:iam::aws:policy/AdministratorAccess[22m
+    ID: [1muser-arn:aws:iam::aws:policy/ReadOnlyAccess[22m
+    ID: [1muser-arn:aws:iam::aws:policy/job-function/SystemAdministrator[22m
+
+  Resource Type: aws_iam_role
+    ID: [1mOrganizationAccountAccessRole[22m
+    ID: [1mdriftctl-role[22m
+    ID: [1miam_for_lambda[22m
+
+  Resource Type: aws_iam_role_policy
+    ID: [1mOrganizationAccountAccessRole:AdministratorAccess[22m
+    ID: [1mdriftctl-role:driftctl-role-policy[22m
+
+  Resource Type: aws_iam_user
+    ID: [1madmin[22m
+    ID: [1mmartin[22m
+    ID: [1muser[22m
+
+[34mService: [1maws_lambda[22m [ Unmanaged Resources: [1m4[22m ][39m
+
+  Resource Type: aws_lambda_event_source_mapping
+    ID: [1m56103074-ce94-4c3c-acb5-2ecae87e665e[22m
+    ID: [1ma23379c9-73ed-49cc-9ad8-a9c415b9618e[22m
+    ID: [1mfd8a254a-3523-45e8-be51-6a82ccc04fb7[22m
+
+  Resource Type: aws_lambda_function
+    ID: [1mlambda_function_name[22m
+
+[34mService: [1maws_rds[22m [ Unmanaged Resources: [1m1[22m ][39m
+
+  Resource Type: aws_db_subnet_group
+    ID: [1mdefault[22m
+
+[34mService: [1maws_route53[22m [ Unmanaged Resources: [1m2[22m ][39m
+
+  Resource Type: aws_route53_record
+    ID: [1mZ0550848EDQNFSD05MSY_blog.martin.ski_A[22m
+
+  Resource Type: aws_route53_zone
+    ID: [1mZ0550848EDQNFSD05MSY[22m
+
+[34mService: [1maws_sns[22m [ Unmanaged Resources: [1m6[22m ][39m
+
+  Resource Type: aws_sns_topic
+    ID: [1marn:aws:sns:us-east-1:526954929923:user-updates-topic[22m
+    ID: [1marn:aws:sns:us-east-1:526954929923:user-updates-topic2[22m
+    ID: [1marn:aws:sns:us-east-1:526954929923:user-updates-topic3[22m
+
+  Resource Type: aws_sns_topic_policy
+    ID: [1marn:aws:sns:us-east-1:526954929923:user-updates-topic[22m
+    ID: [1marn:aws:sns:us-east-1:526954929923:user-updates-topic2[22m
+    ID: [1marn:aws:sns:us-east-1:526954929923:user-updates-topic3[22m
+
+[34mService: [1maws_vpc[22m [ Unmanaged Resources: [1m1[22m ][39m
+
+  Resource Type: aws_internet_gateway
+    ID: [1migw-037afbaa8a4926de5[22m
+
+[1mTest Summary[22m
+
+  Managed Resources: [1m8[22m
+  Changed Resources: [1m3[22m
+  Missing Resources: [1m5[22m
+  Unmanaged Resources: [1m35[22m
+
+  IaC Coverage: [1m16%[22m
+  Info: To reach full coverage, remove resources or move it to Terraform.
+
+  Tip: Run --help to find out about commands and flags.
+      Scanned with aws provider version 3.19.0. Use --tf-provider=version to use another version.

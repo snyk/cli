@@ -1,14 +1,14 @@
 import { startMockServer } from './helpers';
 import envPaths from 'env-paths';
-import { driftctlVersion } from '../../../../src/lib/iac/drift';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { getFixturePath } from '../../util/getFixturePath';
 import * as uuid from 'uuid';
 import * as rimraf from 'rimraf';
-import { processDriftctlOutput } from '../../../../src/lib/iac/drift';
+import { processHTMLOutput } from '../../../../src/lib/iac/drift';
 import { DescribeOptions } from '../../../../src/lib/iac/types';
+import { driftctlVersion } from '../../../../src/lib/iac/drift/driftctl';
 
 const paths = envPaths('snyk');
 
@@ -92,6 +92,34 @@ describe('iac describe', () => {
     });
 
     const output = fs.readFileSync(outputFile).toString();
+
+    // First invocation of driftctl scan triggered by describe cmd
+    expect(output).toContain('DCTL_IS_SNYK=true');
+    expect(output).toContain(
+      `ARGS=scan --no-version-check --output json://stdout --config-dir ${paths.cache} --to aws+tf`,
+    );
+
+    // no second invocation with console output
+
+    expect(stdout).toMatch('');
+    expect(stderr).toMatch('');
+    expect(exitCode).toBe(0);
+  });
+
+  it('Launch driftctl from SNYK_DRIFTCTL_PATH with html output', async () => {
+    const { stdout, stderr, exitCode } = await run(
+      `snyk iac describe  --all --html`,
+      {
+        SNYK_FIXTURE_OUTPUT_PATH: outputFile,
+        SNYK_DRIFTCTL_PATH: path.join(
+          getFixturePath('iac'),
+          'drift',
+          'args-echo.sh',
+        ),
+      },
+    );
+
+    const output = fs.readFileSync(outputFile).toString();
     const expectedPipedOutput = fs
       .readFileSync(
         path.join(getFixturePath('iac'), 'drift', 'output', 'output.json'),
@@ -143,7 +171,37 @@ describe('iac describe', () => {
         },
       );
 
-      expect(stdout).toBe('');
+      expect(stdout).toBe(
+        'Snyk Scanning Infrastructure As Code Discrepancies\n\n' +
+          '  Info:    Resources under IaC, but different to terraform states.\n' +
+          '  Resolve: Reapply IaC resources or update into terraform.\n\n' +
+          'Changed resources: 1\n\n' +
+          'State: Generated [ Changed Resources: 1 ]\n\n' +
+          '  Resource Type: aws_iam_access_key\n' +
+          '    ID: AKIA5QYBVVD25KFXJHYJ\n' +
+          '    ~ status: Active => Inactive\n\n' +
+          'Missing resources: 2\n\n' +
+          'State: Generated [ Missing Resources: 2 ]\n\n' +
+          '  Resource Type: aws_iam_access_key\n' +
+          '    ID: AKIA5QYBVVD2Y6PBAAPY\n\n' +
+          '  Resource Type: aws_iam_user\n' +
+          '    ID: test-driftctl2\n\n' +
+          'Unmanaged resources: 2\n\n' +
+          'Service: aws_s3 [ Unmanaged Resources: 2 ]\n\n' +
+          '  Resource Type: aws_s3_bucket_notification\n' +
+          '    ID: driftctl\n\n' +
+          '  Resource Type: aws_s3_bucket_policy\n' +
+          '    ID: driftctl\n\n' +
+          'Test Summary\n\n' +
+          '  Managed Resources: 2\n' +
+          '  Changed Resources: 1\n' +
+          '  Missing Resources: 2\n' +
+          '  Unmanaged Resources: 2\n\n' +
+          '  IaC Coverage: 33%\n' +
+          '  Info: To reach full coverage, remove resources or move it to Terraform.\n\n' +
+          '  Tip: Run --help to find out about commands and flags.\n' +
+          '      Scanned with AWS provider version 2.18.5. Use --tf-provider=version to use another version.\n',
+      );
       expect(stderr).toBe('');
       expect(exitCode).toBe(0);
 
@@ -196,7 +254,7 @@ describe('processDriftctlOutput', () => {
       kind: 'fmt',
       html: true,
     };
-    const output = processDriftctlOutput(opts, inputData.toString('utf8'));
+    const output = processHTMLOutput(opts, inputData.toString('utf8'));
 
     expect(output).toBe(expectedOutputData.toString('utf8'));
   });
@@ -221,7 +279,7 @@ describe('processDriftctlOutput', () => {
       kind: 'fmt',
       'html-file-output': tmpFilepath,
     };
-    processDriftctlOutput(opts, inputData.toString('utf8'));
+    processHTMLOutput(opts, inputData.toString('utf8'));
 
     const data = fs.readFileSync(tmpFilepath, {
       encoding: 'utf8',
