@@ -1,5 +1,3 @@
-import { SupportedProjectTypes } from './types';
-
 export type SupportedPackageManagers =
   | 'rubygems'
   | 'npm'
@@ -71,10 +69,6 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   hex: 'Hex',
 };
 
-export const WIZARD_SUPPORTED_PACKAGE_MANAGERS: SupportedProjectTypes[] = [
-  'yarn',
-  'npm',
-];
 export const PROTECT_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
   'yarn',
   'npm',

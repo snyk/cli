@@ -122,7 +122,7 @@ export interface MonitorOptions {
 }
 
 export interface MonitorMeta {
-  method: 'cli' | 'wizard';
+  method: 'cli';
   packageManager: SupportedPackageManagers;
   'policy-path': string;
   'project-name': string;

@@ -6,7 +6,7 @@
 
 ## Description
 
-The `snyk protect` command applies patches to your vulnerable dependencies. This is useful after you open a fix pull request from the Snyk website (GitHub only) or after you run `snyk wizard` with the CLI. `snyk protect` reads a `.snyk` policy file to determine what patches to apply.
+The `snyk protect` command applies patches to your vulnerable dependencies. This is useful after you open a fix pull request from the Snyk website (GitHub only). `snyk protect` reads a `.snyk` policy file to determine what patches to apply.
 
 ## Deprecation notice
 

@@ -10,7 +10,7 @@ const errors = {
   auth: 'Unauthorized: please ensure you are logged in using `snyk auth`',
   oldsnyk:
     'You have an alpha format Snyk policy file in this directory. ' +
-    'Please remove it, and re-create using `snyk wizard`',
+    'Please remove it.',
   notfound: 'The package could not be found or does not exist',
   patchfail: 'Failed to apply patch against %s',
   updatefail:
@@ -20,7 +20,7 @@ const errors = {
     '\n If you see any WARN messages about permission issues you can try ' +
     'following advice on: ' +
     'https://docs.npmjs.com/getting-started/fixing-npm-permissions',
-  updatepackage: 'Upgrade this package to "%s", then run the wizard again.',
+  updatepackage: 'Upgrade this package to "%s".',
   nodeModules:
     'This directory looks like a node project, but is missing the ' +
     'contents of the node_modules directory.' +
