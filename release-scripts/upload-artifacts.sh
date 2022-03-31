@@ -24,6 +24,7 @@ VERSION_TAG="v$(cat binary-releases/version)"
 
 # Upload files to the GitHub release
 gh release create "${VERSION_TAG}" "${StaticFiles[@]}" \
+  --target "${CIRCLE_SHA1}" \
   --title "${VERSION_TAG}" \
   --notes-file binary-releases/RELEASE_NOTES.md
 
