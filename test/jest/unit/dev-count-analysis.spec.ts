@@ -19,9 +19,8 @@ const TIMESTAMP_TO_TEST = 1590174610000;
 
 describe('cli dev count via git log analysis', () => {
   let expectedContributoremails: string[] = [];
-  let expectedMergeOnlyemails: string[] = [];
 
-  // this computes the expectedContributoremails and expectedMergeOnlyemails
+  // this computes the expectedContributoremails
   beforeAll(async () => {
     const timestampEpochSecondsEndOfPeriod = Math.floor(
       TIMESTAMP_TO_TEST / 1000,
@@ -42,24 +41,7 @@ describe('cli dev count via git log analysis', () => {
     );
     const uniqueEmails = [...new Set(allEmails)]; // dedupe the list of emails
 
-    const uniqueEmailsContainingOnlyMergeCommits: string[] = []; // a list of emails which are only associated with merge commits; don't include an email if it also have regular commits
-    const uniqueEmailsContainingAtLeastOneNonMergeCommit: string[] = [];
-    for (const nextEmail of uniqueEmails) {
-      const associatedCommits = withMergesLogLines.filter((l) =>
-        l.includes(nextEmail),
-      );
-      const allAssociatedCommitsAreMergeCommits = associatedCommits.every((e) =>
-        e.includes('Merge pull request'),
-      );
-      if (allAssociatedCommitsAreMergeCommits) {
-        uniqueEmailsContainingOnlyMergeCommits.push(nextEmail);
-      } else {
-        uniqueEmailsContainingAtLeastOneNonMergeCommit.push(nextEmail);
-      }
-    }
-
-    expectedContributoremails = uniqueEmailsContainingAtLeastOneNonMergeCommit;
-    expectedMergeOnlyemails = uniqueEmailsContainingOnlyMergeCommits;
+    expectedContributoremails = uniqueEmails;
   }, testTimeout);
 
   it(
@@ -74,25 +56,6 @@ describe('cli dev count via git log analysis', () => {
       expect(contributoremails.sort()).toEqual(
         expectedContributoremails.sort(),
       );
-    },
-    testTimeout,
-  );
-
-  it(
-    'does not include contributors who have only merged pull requests',
-    async () => {
-      const contributors = await getContributors({
-        endDate: new Date(TIMESTAMP_TO_TEST),
-        periodDays: 10,
-        repoPath: process.cwd(),
-      });
-      const contributoremails = contributors.map((c) => c.email);
-
-      // make sure none of uniqueEmailsContainingOnlyMergeCommits are in contributoremails
-      const legitemailsWhichAreAlsoInMergeOnlyemails = expectedMergeOnlyemails.filter(
-        (user) => contributoremails.includes(user),
-      );
-      expect(legitemailsWhichAreAlsoInMergeOnlyemails).toHaveLength(0);
     },
     testTimeout,
   );
