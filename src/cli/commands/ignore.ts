@@ -113,10 +113,20 @@ export async function excludeFilePathPattern(options): Promise<MethodResult> {
   const group = options['file-path-group'] || 'global';
   const policyPath = options['policy-path'];
 
+  const excludeOptions = {};
+
+  if (options.reason !== undefined) {
+    excludeOptions['reason'] = options.reason;
+  }
+
+  if (options.expiry !== undefined) {
+    excludeOptions['expires'] = new Date(options.expiry);
+  }
+
   debug(`changing policy: ignore "%s" added to "%s"`, pattern, policyPath);
 
   const pol = await load(policyPath);
-  pol.addExclude(pattern, group);
+  pol.addExclude(pattern, group, excludeOptions);
 
   return policy.save(pol, policyPath);
 }
