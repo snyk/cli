@@ -266,5 +266,6 @@ export interface IacFileInDirectory {
 export interface IacOutputMeta {
   projectName: string;
   orgName: string;
+  projectPath?: string;
   gitRemoteUrl?: string;
 }

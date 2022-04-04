@@ -14,6 +14,8 @@ import { IacFileInDirectory } from '../../../../lib/types';
 
 import { getSeverityValue } from '../../get-severity-value';
 
+export { formatIacTestSummary } from './test-summary';
+
 const debug = Debug('iac-output');
 
 function formatIacIssue(
@@ -48,7 +50,6 @@ function formatIacIssue(
 export function getIacDisplayedOutput(
   iacTest: IacTestResponse,
   testedInfoText: string,
-  meta: string,
   prefix: string,
 ): string {
   const issuesTextArray = [
@@ -74,7 +75,7 @@ export function getIacDisplayedOutput(
     issuesInfoOutput.push(issuesTextArray.join('\n'));
   }
 
-  let body = issuesInfoOutput.join('\n\n') + '\n\n' + meta;
+  let body = issuesInfoOutput.join('\n\n');
 
   const vulnCountText = `found ${issues.length} issues`;
   const summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);

@@ -11,7 +11,7 @@ export function getIacDisplayedOutput(
   isNewIacOutputSupported?: boolean,
 ): string {
   return isNewIacOutputSupported
-    ? v2.getIacDisplayedOutput(iacTest, testedInfoText, meta, prefix)
+    ? v2.getIacDisplayedOutput(iacTest, testedInfoText, prefix)
     : v1.getIacDisplayedOutput(iacTest, testedInfoText, meta, prefix);
 }
 
