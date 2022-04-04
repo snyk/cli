@@ -35,7 +35,9 @@ export function displayResult(
   options: DisplayResultOptions,
   foundProjectCount?: number,
 ) {
-  const meta = formatTestMeta(res, options);
+  const meta = options.isNewIacOutputSupported
+    ? ''
+    : formatTestMeta(res, options);
   const dockerAdvice = dockerRemediationForDisplay(res);
   const projectType =
     (res.packageManager as SupportedProjectTypes) || options.packageManager;

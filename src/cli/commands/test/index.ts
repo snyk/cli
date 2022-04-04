@@ -54,6 +54,7 @@ import {
 import { isIacShareResultsOptions } from './iac-local-execution/assert-iac-options-flag';
 import { assertIaCOptionsFlags } from './iac-local-execution/assert-iac-options-flag';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
+import { formatIacTestSummary } from '../../../lib/formatters/iac-output/v2';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -103,6 +104,7 @@ export default async function test(
 
   // Holds an array of scanned file metadata for output.
   let iacScanFailures: IacFileInDirectory[] | undefined;
+  let iacIgnoredIssuesCount = 0;
   let iacOutputMeta: IacOutputMeta | undefined;
 
   // Promise waterfall to test all other paths sequentially
@@ -118,14 +120,20 @@ export default async function test(
     try {
       if (options.iac) {
         assertIaCOptionsFlags(process.argv);
-        const { results, failures } = await iacTest(path, testOpts);
+        const { results, failures, ignoreCount } = await iacTest(
+          path,
+          testOpts,
+        );
+
         iacOutputMeta = {
           orgName: results[0]?.org,
           projectName: results[0]?.projectName,
           gitRemoteUrl: results[0]?.meta?.gitRemoteUrl,
         };
+
         res = results;
         iacScanFailures = failures;
+        iacIgnoredIssuesCount += ignoreCount;
       } else {
         res = await snyk.test(path, testOpts);
       }
@@ -229,9 +237,8 @@ export default async function test(
     throw err;
   }
 
-  const isNewIacOutputSupported = options.iac
-    ? await hasFeatureFlag('iacCliOutput', options)
-    : false;
+  const isNewIacOutputSupported =
+    !!options.iac && !!(await hasFeatureFlag('iacCliOutput', options));
 
   let response = results
     .map((result, i) => {
@@ -267,77 +274,89 @@ export default async function test(
     }
   }
 
-  if (results.length > 1) {
-    const projects = results.length === 1 ? 'project' : 'projects';
-    summaryMessage =
-      `\n\n\nTested ${results.length} ${projects}` +
-      summariseVulnerableResults(vulnerableResults, options) +
-      summariseErrorResults(errorResultsLength) +
-      '\n';
-  }
+  if (iacOutputMeta && isNewIacOutputSupported) {
+    const iacTestSummary = `${EOL.repeat(2)}${formatIacTestSummary(
+      {
+        results,
+        ignoreCount: iacIgnoredIssuesCount,
+      },
+      iacOutputMeta,
+    )}${EOL}`;
 
-  if (notSuccess) {
-    response += chalk.bold.red(summaryMessage);
-    const error = new Error(response) as any;
-    // take the code of the first problem to go through error
-    // translation
-    // HACK as there can be different errors, and we pass only the
-    // first one
-    error.code = errorResults[0].code;
-    error.userMessage = errorResults[0].userMessage;
-    error.strCode = errorResults[0].strCode;
-    throw error;
-  }
+    response += iacTestSummary;
+  } else {
+    if (results.length > 1) {
+      const projects = results.length === 1 ? 'project' : 'projects';
+      summaryMessage =
+        `\n\n\nTested ${results.length} ${projects}` +
+        summariseVulnerableResults(vulnerableResults, options) +
+        summariseErrorResults(errorResultsLength) +
+        '\n';
+    }
 
-  if (foundVulnerabilities) {
-    if (options.failOn) {
-      const fail = shouldFail(vulnerableResults, options.failOn);
-      if (!fail) {
-        // return here to prevent throwing failure
-        response += chalk.bold.green(summaryMessage);
-        response += EOL + EOL;
-        response += getProtectUpgradeWarningForPaths(
-          packageJsonPathsWithSnykDepForProtect,
-        );
+    if (notSuccess) {
+      response += chalk.bold.red(summaryMessage);
+      const error = new Error(response) as any;
+      // take the code of the first problem to go through error
+      // translation
+      // HACK as there can be different errors, and we pass only the
+      // first one
+      error.code = errorResults[0].code;
+      error.userMessage = errorResults[0].userMessage;
+      error.strCode = errorResults[0].strCode;
+      throw error;
+    }
 
-        return TestCommandResult.createHumanReadableTestCommandResult(
-          response,
-          stringifiedJsonData,
-          stringifiedSarifData,
-        );
+    if (foundVulnerabilities) {
+      if (options.failOn) {
+        const fail = shouldFail(vulnerableResults, options.failOn);
+        if (!fail) {
+          // return here to prevent throwing failure
+          response += chalk.bold.green(summaryMessage);
+          response += EOL + EOL;
+          response += getProtectUpgradeWarningForPaths(
+            packageJsonPathsWithSnykDepForProtect,
+          );
+
+          return TestCommandResult.createHumanReadableTestCommandResult(
+            response,
+            stringifiedJsonData,
+            stringifiedSarifData,
+          );
+        }
       }
+
+      response += chalk.bold.red(summaryMessage);
+
+      response += EOL + EOL;
+      const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
+      const spotlightVulnsMsg = notificationForSpotlightVulns(
+        foundSpotlightVulnIds,
+      );
+      response += spotlightVulnsMsg;
+
+      if (isIacShareResultsOptions(options)) {
+        response += chalk.bold.white(shareResultsOutput(iacOutputMeta!)) + EOL;
+      }
+
+      const error = new Error(response) as any;
+      // take the code of the first problem to go through error
+      // translation
+      // HACK as there can be different errors, and we pass only the
+      // first one
+      error.code = vulnerableResults[0].code || 'VULNS';
+      error.userMessage = vulnerableResults[0].userMessage;
+      error.jsonStringifiedResults = stringifiedJsonData;
+      error.sarifStringifiedResults = stringifiedSarifData;
+      throw error;
     }
 
-    response += chalk.bold.red(summaryMessage);
-
+    response += chalk.bold.green(summaryMessage);
     response += EOL + EOL;
-    const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
-    const spotlightVulnsMsg = notificationForSpotlightVulns(
-      foundSpotlightVulnIds,
+    response += getProtectUpgradeWarningForPaths(
+      packageJsonPathsWithSnykDepForProtect,
     );
-    response += spotlightVulnsMsg;
-
-    if (isIacShareResultsOptions(options)) {
-      response += chalk.bold.white(shareResultsOutput(iacOutputMeta!)) + EOL;
-    }
-
-    const error = new Error(response) as any;
-    // take the code of the first problem to go through error
-    // translation
-    // HACK as there can be different errors, and we pass only the
-    // first one
-    error.code = vulnerableResults[0].code || 'VULNS';
-    error.userMessage = vulnerableResults[0].userMessage;
-    error.jsonStringifiedResults = stringifiedJsonData;
-    error.sarifStringifiedResults = stringifiedSarifData;
-    throw error;
   }
-
-  response += chalk.bold.green(summaryMessage);
-  response += EOL + EOL;
-  response += getProtectUpgradeWarningForPaths(
-    packageJsonPathsWithSnykDepForProtect,
-  );
 
   if (isIacShareResultsOptions(options)) {
     response += chalk.bold.white(shareResultsOutput(iacOutputMeta!)) + EOL;
