@@ -53,12 +53,18 @@ describe('IaC Output Formatter', () => {
           .spyOn(iacOutputV2, 'getIacDisplayedOutput')
           .mockImplementationOnce(jest.fn());
 
+        const testIacTestResponse = {} as IacTestResponse;
+        const testTestedInfoTest = 'test-tested-info-text';
+        const testMeta = 'test-meta';
+        const testPrefix = 'test-prefix';
+        const testIsNewIacOutputSupported = true;
+
         const args: Parameters<typeof getIacDisplayedOutput> = [
-          {} as IacTestResponse,
-          'test-tested-info-text',
-          'test-meta',
-          'test-prefix',
-          true,
+          testIacTestResponse,
+          testTestedInfoTest,
+          testMeta,
+          testPrefix,
+          testIsNewIacOutputSupported,
         ];
 
         // Act
@@ -68,9 +74,11 @@ describe('IaC Output Formatter', () => {
         expect(result).toBeUndefined();
         expect(getIacDisplayedOutputV1Spy).not.toHaveBeenCalled();
         expect(getIacDisplayedOutputV2Spy).toHaveBeenCalledTimes(1);
-        expect([...getIacDisplayedOutputV2Spy.mock.calls[0]]).toStrictEqual(
-          args.slice(0, args.length - 1),
-        );
+        expect([...getIacDisplayedOutputV2Spy.mock.calls[0]]).toStrictEqual([
+          testIacTestResponse,
+          testTestedInfoTest,
+          testPrefix,
+        ]);
       });
     });
   });
