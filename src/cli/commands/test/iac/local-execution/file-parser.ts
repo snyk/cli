@@ -19,12 +19,12 @@ import {
   TerraformPlanScanMode,
   VALID_TERRAFORM_FILE_TYPES,
 } from './types';
-import * as analytics from '../../../../lib/analytics';
-import { CustomError } from '../../../../lib/errors';
+import * as analytics from '../../../../../lib/analytics';
+import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { parseYAMLOrJSONFileData } from './yaml-parser';
 import hclToJsonV2 from './parsers/hcl-to-json-v2';
-import { IacProjectType } from '../../../../lib/iac/constants';
+import { IacProjectType } from '../../../../../lib/iac/constants';
 
 import * as Debug from 'debug';
 const debug = Debug('snyk-test');

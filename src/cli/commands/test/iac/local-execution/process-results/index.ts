@@ -1,8 +1,8 @@
 import { filterIgnoredIssues } from './policy';
 import { formatAndShareResults } from './share-results';
 import { formatScanResults } from '../measurable-methods';
-import { Policy } from '../../../../../lib/policy/find-and-load-policy';
-import { ProjectAttributes, Tag } from '../../../../../lib/types';
+import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { ProjectAttributes, Tag } from '../../../../../../lib/types';
 import {
   FormattedResult,
   IacFileScanResult,

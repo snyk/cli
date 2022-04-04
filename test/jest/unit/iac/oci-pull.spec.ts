@@ -1,15 +1,15 @@
-import * as OCIPull from '../../../../src/cli/commands/test/iac-local-execution/oci-pull';
+import * as OCIPull from '../../../../src/cli/commands/test/iac/local-execution/oci-pull';
 import {
   CUSTOM_RULES_TARBALL,
   extractOCIRegistryURLComponents,
   FailedToBuildOCIArtifactError,
   InvalidRemoteRegistryURLError,
-} from '../../../../src/cli/commands/test/iac-local-execution/oci-pull';
+} from '../../../../src/cli/commands/test/iac/local-execution/oci-pull';
 import * as registryClient from '@snyk/docker-registry-v2-client';
 import { layers, manifest, opt } from './oci-pull.fixtures';
 import { promises as fs } from 'fs';
-import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
-import * as measurableMethods from '../../../../src/cli/commands/test/iac-local-execution/measurable-methods';
+import * as fileUtilsModule from '../../../../src/cli/commands/test/iac/local-execution/file-utils';
+import * as measurableMethods from '../../../../src/cli/commands/test/iac/local-execution/measurable-methods';
 
 describe('extractOCIRegistryURLComponents', () => {
   it('extracts baseURL, repo and tag from an OCI URL', async () => {

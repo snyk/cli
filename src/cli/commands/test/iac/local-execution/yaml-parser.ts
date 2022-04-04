@@ -1,4 +1,4 @@
-import { CustomError } from '../../../../lib/errors';
+import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { IaCErrorCodes, IacFileData } from './types';
 import { ParserFileType, parseFileContent } from '@snyk/cloud-config-parser';

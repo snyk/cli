@@ -72,7 +72,7 @@ make build
 
 ## Updating the snyk/snyk-iac-parsers package for production use
 
-The generated GopherJS artefact is used in `src/cli/commands/test/iac-local-execution/parsers/hcl-to-json-v2/`
+The generated GopherJS artefact is used in `src/cli/commands/test/iac/local-execution/parsers/hcl-to-json-v2/`
 
 There are two ways to do this:
 
@@ -96,7 +96,7 @@ e.g.
 make release version=v0.2.0
 ```
 
-This will get the required version, check for errors, run the tests against the new versions and copy the artefact to the iac-local-execution directory.
+This will get the required version, check for errors, run the tests against the new versions and copy the artefact to the `iac/local-execution` directory.
 In a case of a failure, it will revert the changes and fail gracefully.
 
 #### Manual release process

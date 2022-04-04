@@ -1,10 +1,10 @@
 import {
   extractBundle,
   makeFileAndDirectoryGenerator,
-} from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
+} from '../../../../src/cli/commands/test/iac/local-execution/file-utils';
 import * as tar from 'tar';
 import { PassThrough } from 'stream';
-import { LOCAL_POLICY_ENGINE_DIR } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
+import { LOCAL_POLICY_ENGINE_DIR } from '../../../../src/cli/commands/test/iac/local-execution/local-cache';
 import * as path from 'path';
 
 describe('extractBundle', () => {

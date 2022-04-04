@@ -5,8 +5,8 @@ import * as needle from 'needle';
 import * as rimraf from 'rimraf';
 import { createIacDir, extractBundle, isValidBundle } from './file-utils';
 import * as Debug from 'debug';
-import { CustomError } from '../../../../lib/errors';
-import * as analytics from '../../../../lib/analytics';
+import { CustomError } from '../../../../../lib/errors';
+import * as analytics from '../../../../../lib/analytics';
 import ReadableStream = NodeJS.ReadableStream;
 import { getErrorStringCode } from './error-utils';
 

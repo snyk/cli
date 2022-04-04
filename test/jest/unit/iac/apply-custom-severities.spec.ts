@@ -1,4 +1,4 @@
-import { applyCustomSeverities } from '../../../../src/cli/commands/test/iac-local-execution/org-settings/apply-custom-severities';
+import { applyCustomSeverities } from '../../../../src/cli/commands/test/iac/local-execution/org-settings/apply-custom-severities';
 import { generateScanResults } from './results-formatter.fixtures';
 
 describe('applyCustomSeverities', () => {

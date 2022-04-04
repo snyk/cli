@@ -1,7 +1,7 @@
 import {
   trackUsage,
   TestLimitReachedError,
-} from '../../../../src/cli/commands/test/iac-local-execution/usage-tracking';
+} from '../../../../src/cli/commands/test/iac/local-execution/usage-tracking';
 import { mocked } from 'ts-jest/utils';
 import { NeedleResponse } from 'needle';
 import { makeRequest } from '../../../../src/lib/request/request';

@@ -1,5 +1,5 @@
-import { getErrorStringCode } from '../../../../src/cli/commands/test/iac-local-execution/error-utils';
-import { IaCErrorCodes } from '../../../../src/cli/commands/test/iac-local-execution/types';
+import { getErrorStringCode } from '../../../../src/cli/commands/test/iac/local-execution/error-utils';
+import { IaCErrorCodes } from '../../../../src/cli/commands/test/iac/local-execution/types';
 
 describe('getErrorStringCode', () => {
   it('converts invalid IaCErrorCodes error to INVALID_IAC_ERROR', () => {

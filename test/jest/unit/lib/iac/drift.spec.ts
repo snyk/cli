@@ -20,7 +20,7 @@ import {
   DriftCTLOptions,
   GenDriftIgnoreOptions,
 } from '../../../../../src/lib/iac/types';
-import { addIacDriftAnalytics } from '../../../../../src/cli/commands/test/iac-local-execution/analytics';
+import { addIacDriftAnalytics } from '../../../../../src/cli/commands/test/iac/local-execution/analytics';
 import * as analytics from '../../../../../src/lib/analytics';
 import * as snykPolicy from 'snyk-policy';
 import { Policy } from '../../../../../src/lib/policy/find-and-load-policy';

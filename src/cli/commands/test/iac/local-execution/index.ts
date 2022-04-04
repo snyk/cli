@@ -1,5 +1,5 @@
 import { existsSync } from 'fs';
-import { isLocalFolder } from '../../../../lib/detect';
+import { isLocalFolder } from '../../../../../lib/detect';
 import {
   EngineType,
   IaCErrorCodes,
@@ -12,7 +12,7 @@ import {
 } from './types';
 import { addIacAnalytics } from './analytics';
 import { TestLimitReachedError } from './usage-tracking';
-import { TestResult } from '../../../../lib/snyk-test/legacy';
+import { TestResult } from '../../../../../lib/snyk-test/legacy';
 import {
   applyCustomSeverities,
   cleanLocalCache,
@@ -22,19 +22,19 @@ import {
   scanFiles,
   trackUsage,
 } from './measurable-methods';
-import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
-import config from '../../../../lib/config';
-import { findAndLoadPolicy } from '../../../../lib/policy';
-import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
+import { UnsupportedEntitlementError } from '../../../../../lib/errors/unsupported-entitlement-error';
+import config from '../../../../../lib/config';
+import { findAndLoadPolicy } from '../../../../../lib/policy';
+import { isFeatureFlagSupportedForOrg } from '../../../../../lib/feature-flags';
 import { initRules } from './rules';
 import { NoFilesToScanError } from './file-loader';
 import { processResults } from './process-results';
-import { generateProjectAttributes, generateTags } from '../../monitor';
+import { generateProjectAttributes, generateTags } from '../../../monitor';
 import {
   getAllDirectoriesForPath,
   getFilesForDirectory,
 } from './directory-loader';
-import { CustomError } from '../../../../lib/errors';
+import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { FeatureFlagError } from './assert-iac-options-flag';
 

@@ -8,10 +8,10 @@ import {
   parseDriftAnalysisResults,
   processDriftctlOutput,
 } from '../../lib/iac/drift';
-import { getIacOrgSettings } from './test/iac-local-execution/org-settings/get-iac-org-settings';
-import { UnsupportedEntitlementCommandError } from './test/iac-local-execution/assert-iac-options-flag';
+import { getIacOrgSettings } from './test/iac/local-execution/org-settings/get-iac-org-settings';
+import { UnsupportedEntitlementCommandError } from './test/iac/local-execution/assert-iac-options-flag';
 import config from '../../lib/config';
-import { addIacDriftAnalytics } from './test/iac-local-execution/analytics';
+import { addIacDriftAnalytics } from './test/iac/local-execution/analytics';
 import * as analytics from '../../lib/analytics';
 import { findAndLoadPolicy } from '../../lib/policy';
 import { DescribeRequiredArgumentError } from '../../lib/errors/describe-required-argument-error';

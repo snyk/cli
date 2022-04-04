@@ -1,5 +1,5 @@
 import { MethodArgs } from '../../args';
-import { IaCTestFlags } from '../test/iac-local-execution/types';
+import { IaCTestFlags } from '../test/iac/local-execution/types';
 import { TestCommandResult } from '../types';
 import test from '../test';
 import { hasFeatureFlag } from '../../../lib/feature-flags';

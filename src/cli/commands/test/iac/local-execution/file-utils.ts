@@ -7,7 +7,7 @@ import {
   LOCAL_POLICY_ENGINE_DIR,
 } from './local-cache';
 import { CUSTOM_RULES_TARBALL } from './oci-pull';
-import { isLocalFolder } from '../../../../lib/detect';
+import { isLocalFolder } from '../../../../../lib/detect';
 import { readdirSync } from 'fs';
 import { join } from 'path';
 

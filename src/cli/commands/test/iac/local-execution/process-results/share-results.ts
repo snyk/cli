@@ -1,7 +1,7 @@
-import { isFeatureFlagSupportedForOrg } from '../../../../../lib/feature-flags';
-import { shareResults } from '../../../../../lib/iac/cli-share-results';
-import { Policy } from '../../../../../lib/policy/find-and-load-policy';
-import { ProjectAttributes, Tag } from '../../../../../lib/types';
+import { isFeatureFlagSupportedForOrg } from '../../../../../../lib/feature-flags';
+import { shareResults } from '../../../../../../lib/iac/cli-share-results';
+import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { ProjectAttributes, Tag } from '../../../../../../lib/types';
 import { FeatureFlagError } from '../assert-iac-options-flag';
 import { formatShareResults } from './share-results-formatter';
 import { IacFileScanResult, IaCTestFlags, ShareResultsOutput } from '../types';

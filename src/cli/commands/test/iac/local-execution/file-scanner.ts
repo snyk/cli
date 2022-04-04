@@ -9,7 +9,7 @@ import {
 import { loadPolicy } from '@open-policy-agent/opa-wasm';
 import * as fs from 'fs';
 import { getLocalCachePath } from './local-cache';
-import { CustomError } from '../../../../lib/errors';
+import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 
 export async function scanFiles(

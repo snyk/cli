@@ -1,4 +1,4 @@
-import { tryParsingTerraformPlan } from '../../../../src/cli/commands/test/iac-local-execution/parsers/terraform-plan-parser';
+import { tryParsingTerraformPlan } from '../../../../src/cli/commands/test/iac/local-execution/parsers/terraform-plan-parser';
 import {
   getExpectedResult,
   getTfPlanData,
@@ -8,7 +8,7 @@ import {
 import {
   EngineType,
   TerraformPlanJson,
-} from '../../../../src/cli/commands/test/iac-local-execution/types';
+} from '../../../../src/cli/commands/test/iac/local-execution/types';
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 
 describe('tryParsingTerraformPlan', () => {

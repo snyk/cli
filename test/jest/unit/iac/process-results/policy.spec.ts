@@ -1,5 +1,5 @@
-import { filterIgnoredIssues } from '../../../../../src/cli/commands/test/iac-local-execution/process-results/policy';
-import { FormattedResult } from '../../../../../src/cli/commands/test/iac-local-execution/types';
+import { filterIgnoredIssues } from '../../../../../src/cli/commands/test/iac/local-execution/process-results/policy';
+import { FormattedResult } from '../../../../../src/cli/commands/test/iac/local-execution/types';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as snykPolicy from 'snyk-policy';

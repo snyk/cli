@@ -1,5 +1,5 @@
-import { CustomError } from '../../../../lib/errors';
-import { args } from '../../../args';
+import { CustomError } from '../../../../../lib/errors';
+import { args } from '../../../../args';
 import { getErrorStringCode } from './error-utils';
 import { IaCErrorCodes, IaCTestFlags, TerraformPlanScanMode } from './types';
 

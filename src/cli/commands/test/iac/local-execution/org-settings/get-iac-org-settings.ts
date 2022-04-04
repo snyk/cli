@@ -1,10 +1,10 @@
 import { IaCErrorCodes, IacOrgSettings } from '../types';
-import { Payload } from '../../../../../lib/snyk-test/types';
-import config from '../../../../../lib/config';
-import { isCI } from '../../../../../lib/is-ci';
-import { api } from '../../../../../lib/api-token';
-import { makeRequest } from '../../../../../lib/request';
-import { CustomError } from '../../../../../lib/errors';
+import { Payload } from '../../../../../../lib/snyk-test/types';
+import config from '../../../../../../lib/config';
+import { isCI } from '../../../../../../lib/is-ci';
+import { api } from '../../../../../../lib/api-token';
+import { makeRequest } from '../../../../../../lib/request';
+import { CustomError } from '../../../../../../lib/errors';
 import { getErrorStringCode } from '../error-utils';
 
 export function getIacOrgSettings(

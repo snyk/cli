@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import { IaCErrorCodes, IacFileData } from './types';
-import { IacFileTypes } from '../../../../lib/iac/constants';
-import { CustomError } from '../../../../lib/errors';
+import { IacFileTypes } from '../../../../../lib/iac/constants';
+import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { getFileType } from './directory-loader';
 

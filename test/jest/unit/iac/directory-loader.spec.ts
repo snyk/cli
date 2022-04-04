@@ -4,8 +4,8 @@ import {
   getAllDirectoriesForPath,
   getFilesForDirectory,
   shouldBeParsed,
-} from '../../../../src/cli/commands/test/iac-local-execution/directory-loader';
-import * as directoryLoader from '../../../../src/cli/commands/test/iac-local-execution/directory-loader';
+} from '../../../../src/cli/commands/test/iac/local-execution/directory-loader';
+import * as directoryLoader from '../../../../src/cli/commands/test/iac/local-execution/directory-loader';
 import * as path from 'path';
 import {
   terraformFileStub,

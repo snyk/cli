@@ -13,9 +13,9 @@ import {
   TerraformPlanReferencedResource,
   TerraformPlanExpression,
 } from '../types';
-import { CustomError } from '../../../../../lib/errors';
+import { CustomError } from '../../../../../../lib/errors';
 import { getErrorStringCode } from '../error-utils';
-import { IacProjectType } from '../../../../../lib/iac/constants';
+import { IacProjectType } from '../../../../../../lib/iac/constants';
 
 function terraformPlanReducer(
   scanInput: TerraformScanInput,

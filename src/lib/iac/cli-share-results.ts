@@ -5,7 +5,7 @@ import {
   IacShareResultsFormat,
   IaCTestFlags,
   ShareResultsOutput,
-} from '../../cli/commands/test/iac-local-execution/types';
+} from '../../cli/commands/test/iac/local-execution/types';
 import { convertIacResultToScanResult } from './envelope-formatters';
 import { Policy } from '../policy/find-and-load-policy';
 import { getInfo } from '../project-metadata/target-builders/git';
@@ -18,7 +18,7 @@ import { AuthFailedError, ValidationError } from '../errors';
 
 const debug = Debug('iac-cli-share-results');
 import { ProjectAttributes, Tag } from '../types';
-import { TestLimitReachedError } from '../../cli/commands/test/iac-local-execution/usage-tracking';
+import { TestLimitReachedError } from '../../cli/commands/test/iac/local-execution/usage-tracking';
 
 export async function shareResults({
   results,

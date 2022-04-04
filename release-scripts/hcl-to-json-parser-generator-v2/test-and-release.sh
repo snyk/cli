@@ -21,7 +21,7 @@ function printError() {
 }
 
 function revertChanges(){
-  git checkout go.mod go.sum ../../../../src/cli/commands/test/iac-local-execution/parsers/hcl-to-json-v2/parser.js
+  git checkout go.mod go.sum ../../../../src/cli/commands/test/iac/local-execution/parsers/hcl-to-json-v2/parser.js
     printError "
       $1
       Changes in go.mod, go.sum and parser.js files have been reverted.
@@ -60,7 +60,7 @@ echo "Running tests...
 if node test.js; then
   #  tests passed, the new bundle can be copied over
   print "All tests passed."
-  echo "Copying artefact to iac-local-execution directory..."
+  echo "Copying artefact to iac/local-execution directory..."
   chmod +x ./copy-artefact-to-destination.sh
   if ./copy-artefact-to-destination.sh; then
     print "Success. The new parser version can now be used."

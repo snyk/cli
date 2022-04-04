@@ -1,5 +1,5 @@
 import { FormattedResult, PolicyMetadata } from '../types';
-import { Policy } from '../../../../../lib/policy/find-and-load-policy';
+import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
 
 export function filterIgnoredIssues(
   policy: Policy | undefined,

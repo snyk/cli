@@ -52,7 +52,7 @@ content of fixture.json.
 ## Updating the Terraform parser
 
 The generated GopherJS artefact is currently being used only for the IaC terraform scanning flow in order to parse raw HCL into structured JSON,
-the integration point can be found under `/src/cli/commands/test/iac-local-execution/parsers/terraform-file-parser.ts`.
+the integration point can be found under `/src/cli/commands/test/iac/local-execution/parsers/terraform-file-parser.ts`.
 
 In case that this artefact has to updated and replace, please follow the next steps:
 
