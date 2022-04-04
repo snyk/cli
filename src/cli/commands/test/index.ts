@@ -105,6 +105,19 @@ export default async function test(
   let iacScanFailures: IacFileInDirectory[] | undefined;
   let iacOutputMeta: IacOutputMeta | undefined;
 
+  const isNewIacOutputSupported = options.iac
+    ? await hasFeatureFlag('iacCliOutput', options)
+    : false;
+
+  if (shouldPrintIacInitialMessage(options, isNewIacOutputSupported)) {
+    console.log(
+      EOL +
+        chalk.white.bold(
+          'Snyk testing Infrastructure as Code configuration issues...',
+        ),
+    );
+  }
+
   // Promise waterfall to test all other paths sequentially
   for (const path of paths) {
     // Create a copy of the options so a specific test can
@@ -228,10 +241,6 @@ export default async function test(
     err.sarifStringifiedResults = stringifiedSarifData;
     throw err;
   }
-
-  const isNewIacOutputSupported = options.iac
-    ? await hasFeatureFlag('iacCliOutput', options)
-    : false;
 
   let response = results
     .map((result, i) => {
@@ -363,4 +372,8 @@ function shouldFail(vulnerableResults: any[], failOn: FailOn) {
   }
   // should fail by default when there are vulnerable results
   return vulnerableResults.length > 0;
+}
+
+function shouldPrintIacInitialMessage(options, iacCliOutputFeatureFlag) {
+  return !options.json && !options.sarif && iacCliOutputFeatureFlag;
 }
