@@ -1,5 +1,10 @@
 <p align="center">
-  <img src="https://snyk.io/style/asset/logo/snyk-print.svg" />
+  <a href="https://snyk.io/#gh-light-mode-only">
+    <img src="https://snyk.io/style/asset/logo/snyk-print.svg" />
+  </a>
+  <a href="https://snyk.io/#gh-dark-mode-only">
+    <img src="https://user-images.githubusercontent.com/1393946/161861176-d30157b8-afcf-4119-88de-bec5b16e48b6.svg" />
+  </a>
 </p>
 
 # Snyk CLI

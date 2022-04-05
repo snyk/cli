@@ -3,7 +3,14 @@
 [![npm](https://img.shields.io/npm/v/@snyk/protect)](https://www.npmjs.com/package/@snyk/protect)
 [![Known Vulnerabilities](https://snyk.io/test/github/snyk/snyk/badge.svg)](https://snyk.io/test/github/snyk/snyk)
 
-![Snyk](https://snyk.io/style/asset/logo/snyk-print.svg)
+<p align="center">
+  <a href="https://snyk.io/#gh-light-mode-only">
+    <img src="https://snyk.io/style/asset/logo/snyk-print.svg" />
+  </a>
+  <a href="https://snyk.io/#gh-dark-mode-only">
+    <img src="https://user-images.githubusercontent.com/1393946/161861176-d30157b8-afcf-4119-88de-bec5b16e48b6.svg" />
+  </a>
+</p>
 
 Patch vulnerable code in your project's dependencies. This package is officially maintained by [Snyk](https://snyk.io).
 
