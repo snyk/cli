@@ -794,7 +794,7 @@ describe('Test snyk code', () => {
         'test-id',
       ),
     ).rejects.toThrowError(
-      'Missing configuration for Snyk Code Local Engine. Refer to our docs to learn more: https://docs.snyk.io/products/snyk-code/deployment-options/snyk-code-local-engine/cli-and-ide',
+      'Missing configuration for Snyk Code Local Engine. Refer to our docs on https://docs.snyk.io/products/snyk-code/deployment-options/snyk-code-local-engine/cli-and-ide to learn more',
     );
   });
 });
