@@ -1,4 +1,8 @@
-import { analyzeFolders, AnalysisSeverity } from '@snyk/code-client';
+import {
+  analyzeFolders,
+  AnalysisSeverity,
+  MAX_FILE_SIZE,
+} from '@snyk/code-client';
 import { ReportingDescriptor, Result } from 'sarif';
 import { SEVERITY } from '../../snyk-test/legacy';
 import { api } from '../../api-token';
@@ -13,6 +17,10 @@ import {
 } from './errors';
 import { getProxyForUrl } from 'proxy-from-env';
 import { bootstrap } from 'global-agent';
+import chalk from 'chalk';
+import * as debugLib from 'debug';
+
+const debug = debugLib('snyk-code');
 
 export async function getCodeAnalysisAndParseResults(
   root: string,
@@ -90,6 +98,17 @@ async function getCodeAnalysis(
     },
     languages: sastSettings.supportedLanguages,
   });
+
+  if (result?.fileBundle.skippedOversizedFiles?.length) {
+    debug(
+      '\n',
+      chalk.yellow(
+        `Warning!\nFiles were skipped in the analysis due to their size being greater than ${MAX_FILE_SIZE}B. Skipped files: ${[
+          ...result.fileBundle.skippedOversizedFiles,
+        ].join(', ')}`,
+      ),
+    );
+  }
 
   if (result?.analysisResults.type === 'sarif') {
     return result.analysisResults.sarif;
