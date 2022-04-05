@@ -32,11 +32,11 @@ describe('CLI Share Results', () => {
       const { stdout, exitCode } = await run(
         `snyk iac test ./iac/arm/rule_test.json --report`,
       );
-      expect(exitCode).toBe(2);
 
       expect(stdout).toMatch(
         'Flag "--report" is only supported if feature flag "iacCliShareResults" is enabled. To enable it, please contact Snyk support.',
       );
+      expect(exitCode).toBe(2);
     });
   });
 
@@ -49,19 +49,17 @@ describe('CLI Share Results', () => {
       const { stdout, exitCode } = await run(
         `snyk iac test ./iac/arm/rule_test.json --report`,
       );
-      expect(exitCode).toBe(1);
 
       expect(stdout).toContain(
         `Your test results are available at: http://localhost:${server.getPort()}/org/test-org/projects under the name snyk/cli`,
       );
+      expect(exitCode).toBe(1);
     });
 
     it('forwards value to iac-cli-share-results endpoint', async () => {
       const { exitCode } = await run(
         `snyk iac test ./iac/arm/rule_test.json --report`,
       );
-
-      expect(exitCode).toEqual(1);
 
       const testRequests = server
         .getRequests()
@@ -88,14 +86,13 @@ describe('CLI Share Results', () => {
           ],
         }),
       );
+      expect(exitCode).toEqual(1);
     });
 
     it('forwards project tags', async () => {
       const { exitCode } = await run(
         'snyk iac test ./iac/arm/rule_test.json --report --tags=foo=bar',
       );
-
-      expect(exitCode).toEqual(1);
 
       const requests = server
         .getRequests()
@@ -108,14 +105,13 @@ describe('CLI Share Results', () => {
       expect(request.body).toMatchObject({
         tags: [{ key: 'foo', value: 'bar' }],
       });
+      expect(exitCode).toEqual(1);
     });
 
     it('forwards project environment', async () => {
       const { exitCode } = await run(
         'snyk iac test ./iac/arm/rule_test.json --report --project-environment=saas',
       );
-
-      expect(exitCode).toEqual(1);
 
       const requests = server
         .getRequests()
@@ -130,14 +126,13 @@ describe('CLI Share Results', () => {
           environment: ['saas'],
         },
       });
+      expect(exitCode).toEqual(1);
     });
 
     it('forwards project lifecycle', async () => {
       const { exitCode } = await run(
         'snyk iac test ./iac/arm/rule_test.json --report --project-lifecycle=sandbox',
       );
-
-      expect(exitCode).toEqual(1);
 
       const requests = server
         .getRequests()
@@ -152,6 +147,7 @@ describe('CLI Share Results', () => {
           lifecycle: ['sandbox'],
         },
       });
+      expect(exitCode).toEqual(1);
     });
 
     it('forwards project business criticality', async () => {
@@ -159,21 +155,18 @@ describe('CLI Share Results', () => {
         'snyk iac test ./iac/arm/rule_test.json --report --project-business-criticality=high',
       );
 
-      expect(exitCode).toEqual(1);
-
       const requests = server
         .getRequests()
         .filter((request) => request.url.includes('/iac-cli-share-results'));
-
       expect(requests.length).toEqual(1);
 
       const [request] = requests;
-
       expect(request.body).toMatchObject({
         attributes: {
           criticality: ['high'],
         },
       });
+      expect(exitCode).toEqual(1);
     });
 
     it('should print an error message if test usage is exceeded', async () => {
@@ -183,8 +176,8 @@ describe('CLI Share Results', () => {
         'snyk iac test ./iac/arm/rule_test.json --report --project-business-criticality=high',
       );
 
-      expect(exitCode).toEqual(2);
       expect(stdout).toMatch(/test limit reached/i);
+      expect(exitCode).toEqual(2);
     });
 
     describe('with target reference', () => {
@@ -195,12 +188,9 @@ describe('CLI Share Results', () => {
           `snyk iac test ./iac/arm/rule_test.json --report --target-reference=${testTargetRef}`,
         );
 
-        expect(exitCode).toEqual(1);
-
         const testRequests = server
           .getRequests()
           .filter((request) => request.url?.includes('/iac-cli-share-results'));
-
         expect(testRequests[0]).toMatchObject({
           body: {
             contributors: expect.any(Array),
@@ -221,6 +211,7 @@ describe('CLI Share Results', () => {
             ],
           },
         });
+        expect(exitCode).toEqual(1);
       });
     });
   });
