@@ -23,32 +23,24 @@ describe('iac report', () => {
   afterAll(async () => teardown());
 
   it('should return exit code 1', async () => {
-    // Act
     const { exitCode } = await run(`snyk iac report ./iac/arm/rule_test.json`);
-
-    // Assert
     expect(exitCode).toEqual(1);
   });
 
   it('should include test results in the output', async () => {
     const { stdout } = await run(`snyk iac report ./iac/arm/rule_test.json`);
-
     expect(stdout).toContain('Infrastructure as code issues:');
   });
 
   it('should include a link to the projects page in the output', async () => {
     const { stdout } = await run(`snyk iac report ./iac/arm/rule_test.json`);
-
     expect(stdout).toContain(
       `Your test results are available at: ${API_HOST}/org/test-org/projects under the name snyk/cli`,
     );
   });
 
   it('should forward the scan results to the /iac-cli-share-results endpoint', async () => {
-    // Act
     await run(`snyk iac report ./iac/arm/rule_test.json`);
-
-    // Assert
     const testRequests = server
       .getRequests()
       .filter((request) => request.url?.includes('/iac-cli-share-results'));
@@ -78,26 +70,16 @@ describe('iac report', () => {
 
   describe("when called without the 'iacCliShareResults' feature flag", () => {
     it('should return an error status code', async () => {
-      // Arrange
       server.setFeatureFlag('iacCliShareResults', false);
-
-      // Act
       const { exitCode } = await run(
         `snyk iac report ./iac/arm/rule_test.json`,
       );
-
-      // Assert
       expect(exitCode).toBe(2);
     });
 
     it('should print an appropriate error message', async () => {
-      // Arrange
       server.setFeatureFlag('iacCliShareResults', false);
-
-      // Act
       const { stdout } = await run(`snyk iac report ./iac/arm/rule_test.json`);
-
-      // Assert
       expect(stdout).toMatch(
         "Feature flag 'iacCliShareResults' is not currently enabled for your org, to enable please contact snyk support",
       );
@@ -106,28 +88,19 @@ describe('iac report', () => {
 
   describe("when called without a preceding 'iac'", () => {
     it('should return an error status code', async () => {
-      // Act
       const { exitCode } = await run(`snyk report ./iac/arm/rule_test.json`);
-
-      // Assert
       expect(exitCode).toBe(2);
     });
 
     it('should print an appropriate error message', async () => {
-      // Act
       const { stdout } = await run(`snyk report ./iac/arm/rule_test.json`);
-
-      // Assert
       expect(stdout).toContain(
         '"report" is not a supported command. Did you mean to use "iac report"?',
       );
     });
 
     it('should return an empty stderr', async () => {
-      // Act
       const { stderr } = await run(`snyk report ./iac/arm/rule_test.json`);
-
-      // Assert
       expect(stderr).toEqual('');
     });
   });

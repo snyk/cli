@@ -18,9 +18,9 @@ describe('iac test with infrastructureAsCode entitlement', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test --org=no-iac-entitlements ./iac/terraform/sg_open_ssh.tf`,
     );
-    expect(exitCode).toBe(2);
     expect(stdout).toContain(
       'This feature is currently not enabled for your org. To enable it, please contact snyk support.',
     );
+    expect(exitCode).toBe(2);
   });
 });

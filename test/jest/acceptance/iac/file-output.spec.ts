@@ -112,8 +112,7 @@ describe('iac test --sarif-file-output', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/file-logging -d`,
     );
-    expect(exitCode).toBe(1);
-
     expect(stdout).not.toContain('PRIVATE_FILE_CONTENT_CHECK');
+    expect(exitCode).toBe(1);
   });
 });

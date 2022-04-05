@@ -20,8 +20,6 @@ describe('Terraform plan scanning', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/terraform-plan/tf-plan-create.json`,
     );
-    expect(exitCode).toBe(1);
-
     expect(stdout).toContain(
       'Testing ./iac/terraform-plan/tf-plan-create.json',
     );
@@ -30,6 +28,7 @@ describe('Terraform plan scanning', () => {
     expect(stdout).toContain(
       'resource > aws_s3_bucket[terra_ci] > versioning > enabled',
     );
+    expect(exitCode).toBe(1);
   });
 
   it('finds issues in a Terraform plan file - explicit delta scan with flag', async () => {
@@ -37,33 +36,31 @@ describe('Terraform plan scanning', () => {
       `snyk iac test ./iac/terraform-plan/tf-plan-create.json --scan=resource-changes`,
     );
 
-    expect(exitCode).toBe(1);
     expect(stdout).toContain('Infrastructure as code issues:');
     expect(stdout).toContain(
       'Tested ./iac/terraform-plan/tf-plan-create.json for known issues',
     );
+    expect(exitCode).toBe(1);
   });
 
   it('errors when a wrong value is passed to the --scan flag', async () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/terraform-plan/tf-plan-create.json --scan=resrc-changes`,
     );
-
-    expect(exitCode).toBe(2);
     expect(stdout).toContain(
       'Unsupported value "resrc-changes" provided to flag "--scan".',
     );
+    expect(exitCode).toBe(2);
   });
 
   it('errors when no value is provided to the --scan flag', async () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/terraform-plan/tf-plan-create.json.json  --scan`,
     );
-
-    expect(exitCode).toBe(2);
     expect(stdout).toContain(
       'Unsupported value "true" provided to flag "--scan".',
     );
+    expect(exitCode).toBe(2);
   });
 
   it('succesfully scans a TF-Plan with the --json output flag', async () => {
@@ -71,10 +68,10 @@ describe('Terraform plan scanning', () => {
       `snyk iac test ./iac/terraform-plan/tf-plan-create.json --json`,
     );
 
-    expect(exitCode).toBe(1);
     expect(isValidJSONString(stdout)).toBe(true);
     expect(stdout).toContain('"id": "SNYK-CC-TF-124",');
     expect(stdout).toContain('"packageManager": "terraformconfig",');
     expect(stdout).toContain('"projectType": "terraformconfig",');
+    expect(exitCode).toBe(1);
   });
 });

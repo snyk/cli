@@ -136,19 +136,19 @@ describe('Directory scan', () => {
         const { exitCode, stderr, stdout } = await run(
           `snyk iac test ./iac/kubernetes/`,
         );
-        expect(exitCode).toBe(1);
         expect(stderr).toBe('');
         expect(stdout).toContain(
           'Tested 3 projects, 3 contained issues. Failed to test 1 project',
         );
+        expect(exitCode).toBe(1);
       });
       it('returns 1 even if some files failed to parse - using --json flag', async () => {
         const { exitCode, stderr, stdout } = await run(
           `snyk iac test ./iac/kubernetes/  --json`,
         );
-        expect(exitCode).toBe(1);
         expect(stderr).toBe('');
         expect(stdout).toContain('"ok": false');
+        expect(exitCode).toBe(1);
       });
     });
 
@@ -157,17 +157,17 @@ describe('Directory scan', () => {
         const { exitCode, stderr, stdout } = await run(
           `snyk iac test ./iac/no_vulnerabilities/  --severity-threshold=high`,
         );
-        expect(exitCode).toBe(0);
         expect(stderr).toBe('');
         expect(stdout).toContain('found 0 issues');
+        expect(exitCode).toBe(0);
       });
       it('returns 0 even if some files failed to parse - using --json flag', async () => {
         const { exitCode, stderr, stdout } = await run(
           `snyk iac test ./iac/no_vulnerabilities/  --severity-threshold=high  --json`,
         );
-        expect(exitCode).toBe(0);
         expect(stderr).toBe('');
         expect(stdout).toContain('"ok": true');
+        expect(exitCode).toBe(0);
       });
     });
   });

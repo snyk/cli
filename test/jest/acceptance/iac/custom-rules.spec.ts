@@ -21,7 +21,6 @@ describe('iac test --rules', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
     );
-    expect(exitCode).toBe(1);
 
     expect(stdout).toContain(
       'Using custom rules to generate misconfigurations.',
@@ -33,39 +32,37 @@ describe('iac test --rules', () => {
     expect(stdout).toContain(
       'introduced by input > resource > aws_security_group[allow_ssh] > tags',
     );
+    expect(exitCode).toBe(1);
   });
 
   it('does not show custom rules message if it scans local custom rules and uses --json flag', async () => {
     const { stdout, exitCode } = await run(
       `snyk iac test --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf --json`,
     );
-    expect(exitCode).toBe(1);
-
     expect(stdout).not.toContain(
       'Using custom rules to generate misconfigurations.',
     );
+    expect(exitCode).toBe(1);
   });
 
   it('presents an error message when the local rules cannot be found', async () => {
     const { stdout, exitCode } = await run(
       `snyk iac test --rules=./not/a/real/path.tar.gz ./iac/terraform/sg_open_ssh.tf`,
     );
-
-    expect(exitCode).toBe(2);
     expect(stdout).toContain(
       'We were unable to extract the rules provided at: ./not/a/real/path.tar.gz',
     );
+    expect(exitCode).toBe(2);
   });
 
   it('presents an error message when the user is not entitled to custom-rules', async () => {
     const { stdout, exitCode } = await run(
       `snyk iac test --org=no-custom-rules-entitlements --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
     );
-
-    expect(exitCode).toBe(2);
     expect(stdout).toContain(
       `Flag "--rules" is currently not supported for this org. To enable it, please contact snyk support.`,
     );
+    expect(exitCode).toBe(2);
   });
 
   describe.each([
@@ -76,9 +73,8 @@ describe('iac test --rules', () => {
       const { stderr, exitCode } = await run(
         `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
       );
-
-      expect(exitCode).toEqual(1);
       expect(stderr).toEqual('');
+      expect(exitCode).toEqual(1);
     });
 
     it('should display a message informing of the application of custom rules', async () => {
@@ -219,7 +215,6 @@ describe('custom rules pull from a remote OCI registry', () => {
         expect(SNYK_CFG_OCI_REGISTRY_URL).toBeDefined();
         expect(SNYK_CFG_OCI_REGISTRY_USERNAME).toBeDefined();
         expect(SNYK_CFG_OCI_REGISTRY_PASSWORD).toBeDefined();
-        expect(exitCode).toBe(1);
 
         expect(stdout).toContain(
           'Using custom rules to generate misconfigurations.',
@@ -231,6 +226,7 @@ describe('custom rules pull from a remote OCI registry', () => {
         expect(stdout).toContain(
           'introduced by input > resource > aws_security_group[allow_ssh] > tags',
         );
+        expect(exitCode).toBe(1);
       });
 
       describe.each([
@@ -246,9 +242,8 @@ describe('custom rules pull from a remote OCI registry', () => {
               SNYK_CFG_OCI_REGISTRY_PASSWORD: SNYK_CFG_OCI_REGISTRY_PASSWORD as string,
             },
           );
-
-          expect(exitCode).toEqual(1);
           expect(stderr).toContain('');
+          expect(exitCode).toEqual(1);
         });
 
         it('should display a message informing of the application of custom rules', async () => {
@@ -313,10 +308,10 @@ describe('custom rules pull from a remote OCI registry', () => {
       },
     );
 
-    expect(exitCode).toBe(2);
     expect(stdout).toContain(
       'There was an authentication error. Incorrect credentials provided.',
     );
+    expect(exitCode).toBe(2);
   });
 
   it('presents an error message when there is a local and remote rules conflict', async () => {
@@ -328,10 +323,10 @@ describe('custom rules pull from a remote OCI registry', () => {
       },
     );
 
-    expect(exitCode).toBe(2);
     expect(stdout).toContain(
       'Remote and local custom rules bundle can not be used at the same time.',
     );
+    expect(exitCode).toBe(2);
   });
 
   it('presents an error message when the user is not entitled to custom-rules', async () => {
@@ -346,9 +341,9 @@ describe('custom rules pull from a remote OCI registry', () => {
       },
     );
 
-    expect(exitCode).toBe(2);
     expect(stdout).toContain(
       `The custom rules feature is currently not supported for this org. To enable it, please contact snyk support.`,
     );
+    expect(exitCode).toBe(2);
   });
 });
