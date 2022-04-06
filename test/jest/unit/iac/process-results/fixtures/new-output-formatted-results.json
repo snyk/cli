@@ -1,0 +1,846 @@
+{
+    "results":{
+      "low":[
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "resolve":"Set `disable_api_termination` attribute  with value `true`",
+            "id":"SNYK-CC-AWS-426",
+            "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+            "msg":"resource.aws_instance[denied].disable_api_termination",
+            "remediation":{
+              "cloudformation":"Set `DisableApiTermination` attribute with value `true`",
+              "terraform":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "subType":"EC2",
+            "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+            "publicId":"SNYK-CC-AWS-426",
+            "title":"EC2 API termination protection is not enabled",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination"
+            ],
+            "name":"EC2 API termination protection is not enabled",
+            "cloudConfigPath":[
+              "resource",
+              "aws_instance[denied]",
+              "disable_api_termination"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+              "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+              "resolve":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-AWS-426"
+          },
+          "targetFile":"aws_ec2_metadata_secrets.tf",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/aws_ec2_metadata_secrets.tf"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "resolve":"Set `disable_api_termination` attribute  with value `true`",
+            "id":"SNYK-CC-AWS-426",
+            "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+            "msg":"resource.aws_instance[denied_3].disable_api_termination",
+            "remediation":{
+              "cloudformation":"Set `DisableApiTermination` attribute with value `true`",
+              "terraform":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "subType":"EC2",
+            "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+            "publicId":"SNYK-CC-AWS-426",
+            "title":"EC2 API termination protection is not enabled",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination"
+            ],
+            "name":"EC2 API termination protection is not enabled",
+            "cloudConfigPath":[
+              "resource",
+              "aws_instance[denied_3]",
+              "disable_api_termination"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+              "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+              "resolve":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-AWS-426"
+          },
+          "targetFile":"aws_ec2_metadata_secrets.tf",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/aws_ec2_metadata_secrets.tf"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "resolve":"Set `disable_api_termination` attribute  with value `true`",
+            "id":"SNYK-CC-AWS-426",
+            "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+            "msg":"resource.aws_instance[allowed_3].disable_api_termination",
+            "remediation":{
+              "cloudformation":"Set `DisableApiTermination` attribute with value `true`",
+              "terraform":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "subType":"EC2",
+            "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+            "publicId":"SNYK-CC-AWS-426",
+            "title":"EC2 API termination protection is not enabled",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination"
+            ],
+            "name":"EC2 API termination protection is not enabled",
+            "cloudConfigPath":[
+              "resource",
+              "aws_instance[allowed_3]",
+              "disable_api_termination"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+              "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+              "resolve":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-AWS-426"
+          },
+          "targetFile":"aws_ec2_metadata_secrets.tf",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/aws_ec2_metadata_secrets.tf"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "resolve":"Set `disable_api_termination` attribute  with value `true`",
+            "id":"SNYK-CC-AWS-426",
+            "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+            "msg":"resource.aws_instance[allowed].disable_api_termination",
+            "remediation":{
+              "cloudformation":"Set `DisableApiTermination` attribute with value `true`",
+              "terraform":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "subType":"EC2",
+            "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+            "publicId":"SNYK-CC-AWS-426",
+            "title":"EC2 API termination protection is not enabled",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination"
+            ],
+            "name":"EC2 API termination protection is not enabled",
+            "cloudConfigPath":[
+              "resource",
+              "aws_instance[allowed]",
+              "disable_api_termination"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+              "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+              "resolve":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-AWS-426"
+          },
+          "targetFile":"aws_ec2_metadata_secrets.tf",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/aws_ec2_metadata_secrets.tf"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "resolve":"Set `disable_api_termination` attribute  with value `true`",
+            "id":"SNYK-CC-AWS-426",
+            "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+            "msg":"resource.aws_instance[denied_2].disable_api_termination",
+            "remediation":{
+              "cloudformation":"Set `DisableApiTermination` attribute with value `true`",
+              "terraform":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "subType":"EC2",
+            "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+            "publicId":"SNYK-CC-AWS-426",
+            "title":"EC2 API termination protection is not enabled",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination"
+            ],
+            "name":"EC2 API termination protection is not enabled",
+            "cloudConfigPath":[
+              "resource",
+              "aws_instance[denied_2]",
+              "disable_api_termination"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+              "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+              "resolve":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-AWS-426"
+          },
+          "targetFile":"aws_ec2_metadata_secrets.tf",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/aws_ec2_metadata_secrets.tf"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "resolve":"Set `disable_api_termination` attribute  with value `true`",
+            "id":"SNYK-CC-AWS-426",
+            "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+            "msg":"resource.aws_instance[allowed_2].disable_api_termination",
+            "remediation":{
+              "cloudformation":"Set `DisableApiTermination` attribute with value `true`",
+              "terraform":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "subType":"EC2",
+            "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+            "publicId":"SNYK-CC-AWS-426",
+            "title":"EC2 API termination protection is not enabled",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination"
+            ],
+            "name":"EC2 API termination protection is not enabled",
+            "cloudConfigPath":[
+              "resource",
+              "aws_instance[allowed_2]",
+              "disable_api_termination"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+              "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+              "resolve":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-AWS-426"
+          },
+          "targetFile":"aws_ec2_metadata_secrets.tf",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/aws_ec2_metadata_secrets.tf"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "resolve":"Set `DisableApiTermination` attribute with value `true`",
+            "id":"SNYK-CC-AWS-426",
+            "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+            "msg":"Resources[BastionHost].Properties.DisableApiTermination",
+            "remediation":{
+              "cloudformation":"Set `DisableApiTermination` attribute with value `true`",
+              "terraform":"Set `disable_api_termination` attribute  with value `true`"
+            },
+            "subType":"EC2",
+            "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+            "publicId":"SNYK-CC-AWS-426",
+            "title":"EC2 API termination protection is not enabled",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination"
+            ],
+            "name":"EC2 API termination protection is not enabled",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "Resources[BastionHost]",
+              "Properties",
+              "DisableApiTermination"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance",
+              "impact":"Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
+              "resolve":"Set `DisableApiTermination` attribute with value `true`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-AWS-426"
+          },
+          "targetFile":"bastion.yml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/bastion.yml"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "resolve":"Set `Properties.KmsKeyId` attribute with customer managed key id",
+            "id":"SNYK-CC-AWS-415",
+            "impact":"Scope of use of the key cannot be controlled via KMS/IAM policies",
+            "msg":"Resources[BastionSecureLogGroup].Properties.KmsKeyId",
+            "remediation":{
+              "cloudformation":"Set `Properties.KmsKeyId` attribute with customer managed key id",
+              "terraform":"Set `kms_key_id` attribute with customer managed key id"
+            },
+            "subType":"CloudWatch",
+            "issue":"Log group is not encrypted with customer managed key",
+            "publicId":"SNYK-CC-AWS-415",
+            "title":"CloudWatch log group not encrypted with managed key",
+            "references":[
+              "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html",
+              "https://docs.aws.amazon.com/whitepapers/latest/kms-best-practices/aws-managed-and-customer-managed-cmks.html"
+            ],
+            "name":"CloudWatch log group not encrypted with managed key",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "Resources[BastionSecureLogGroup]",
+              "Properties",
+              "KmsKeyId"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"Log group is not encrypted with customer managed key",
+              "impact":"Scope of use of the key cannot be controlled via KMS/IAM policies",
+              "resolve":"Set `Properties.KmsKeyId` attribute with customer managed key id"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-AWS-415"
+          },
+          "targetFile":"bastion.yml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/bastion.yml"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "description":"",
+            "resolve":"Set `imagePullPolicy` attribute to `Always`",
+            "id":"SNYK-CC-K8S-42",
+            "impact":"The container may run with outdated or unauthorized image",
+            "msg":"spec.template.spec.containers[web].imagePullPolicy",
+            "subType":"Deployment",
+            "issue":"The image policy does not prevent image reuse",
+            "publicId":"SNYK-CC-K8S-42",
+            "title":"Container could be running with outdated image",
+            "references":[
+              "5.27 Ensure that Docker commands always make use of the latest version of their image",
+              "https://kubernetes.io/docs/concepts/containers/images/",
+              "https://kubernetes.io/docs/concepts/configuration/overview/#container-images"
+            ],
+            "name":"Container could be running with outdated image",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "spec",
+              "template",
+              "spec",
+              "containers[web]",
+              "imagePullPolicy"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"The image policy does not prevent image reuse",
+              "impact":"The container may run with outdated or unauthorized image",
+              "resolve":"Set `imagePullPolicy` attribute to `Always`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-K8S-42"
+          },
+          "targetFile":"k8s.yaml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/k8s.yaml"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "description":"",
+            "resolve":"Set `securityContext.readOnlyRootFilesystem` to `true`",
+            "id":"SNYK-CC-K8S-8",
+            "impact":"Compromised process could abuse writable root filesystem to elevate privileges",
+            "msg":"input.spec.template.spec.containers[web].securityContext.readOnlyRootFilesystem",
+            "subType":"Deployment",
+            "issue":"`readOnlyRootFilesystem` attribute is not set to `true`",
+            "publicId":"SNYK-CC-K8S-8",
+            "title":"Container is running with writable root filesystem",
+            "references":[
+              "CIS Docker Benchmark 1.2.0 - Ensure that the container's root filesystem is mounted as read only",
+              "https://kubernetes.io/docs/concepts/policy/pod-security-policy/#volumes-and-file-systems",
+              "https://kubernetes.io/blog/2016/08/security-best-practices-kubernetes-deployment/"
+            ],
+            "name":"Container is running with writable root filesystem",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "input",
+              "spec",
+              "template",
+              "spec",
+              "containers[web]",
+              "securityContext",
+              "readOnlyRootFilesystem"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"`readOnlyRootFilesystem` attribute is not set to `true`",
+              "impact":"Compromised process could abuse writable root filesystem to elevate privileges",
+              "resolve":"Set `securityContext.readOnlyRootFilesystem` to `true`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-K8S-8"
+          },
+          "targetFile":"k8s.yaml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/k8s.yaml"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "description":"",
+            "resolve":"Add `container.apparmor.security.beta.kubernetes.io/<container-name>` annotation with value `runtime/default` or `localhost/<name-of-profile`",
+            "id":"SNYK-CC-K8S-32",
+            "impact":"AppArmor will not enforce mandatory access control, which can increase the attack vectors.",
+            "msg":"metadata.annotations['container.apparmor.security.beta.kubernetes.io/web']",
+            "subType":"Deployment",
+            "issue":"The AppArmor profile is not set correctly",
+            "publicId":"SNYK-CC-K8S-32",
+            "title":"Container is running without AppArmor profile",
+            "references":[
+              "CIS Docker Benchmark 1.2.0 - 5.1 Ensure that, if applicable, an AppArmor Profile is enabled",
+              "https://kubernetes.io/docs/tutorials/clusters/apparmor/",
+              "https://kubernetes.io/docs/concepts/policy/pod-security-policy/#apparmor"
+            ],
+            "name":"Container is running without AppArmor profile",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "metadata",
+              "annotations['container.apparmor.security.beta.kubernetes.io/web']"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"The AppArmor profile is not set correctly",
+              "impact":"AppArmor will not enforce mandatory access control, which can increase the attack vectors.",
+              "resolve":"Add `container.apparmor.security.beta.kubernetes.io/<container-name>` annotation with value `runtime/default` or `localhost/<name-of-profile`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-K8S-32"
+          },
+          "targetFile":"k8s.yaml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/k8s.yaml"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "description":"",
+            "resolve":"Set `resources.limits.memory` value",
+            "id":"SNYK-CC-K8S-4",
+            "impact":"Containers without memory limits are more likely to be terminated when the node runs out of memory",
+            "msg":"input.spec.template.spec.containers[web].resources.limits.memory",
+            "subType":"Deployment",
+            "issue":"Memory limit is not defined",
+            "publicId":"SNYK-CC-K8S-4",
+            "title":"Container is running without memory limit",
+            "references":[
+              "CIS Docker Benchmark 1.2.0 - 5.10 Ensure that the memory usage for containers is limited",
+              "https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/",
+              "https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/"
+            ],
+            "name":"Container is running without memory limit",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "input",
+              "spec",
+              "template",
+              "spec",
+              "containers[web]",
+              "resources",
+              "limits",
+              "memory"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"Memory limit is not defined",
+              "impact":"Containers without memory limits are more likely to be terminated when the node runs out of memory",
+              "resolve":"Set `resources.limits.memory` value"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-K8S-4"
+          },
+          "targetFile":"k8s.yaml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/k8s.yaml"
+        },
+        {
+          "policyMetadata":{
+            "severity":"low",
+            "description":"",
+            "resolve":"Add `resources.limits.cpu` field with required CPU limit value",
+            "id":"SNYK-CC-K8S-5",
+            "impact":"Containers without limits can exceed the capacity of the node, and affect availability/performance of the host and other containers.",
+            "msg":"input.spec.template.spec.containers[web].resources.limits.cpu",
+            "subType":"Deployment",
+            "issue":"CPU limit is not defined",
+            "publicId":"SNYK-CC-K8S-5",
+            "title":"Container is running without cpu limit",
+            "references":[
+              "CIS Docker Benchmark 1.2.0 - 5.11 Ensure that CPU priority is set appropriately on containers",
+              "https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/",
+              "https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+              "https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/cpu-default-namespace/"
+            ],
+            "name":"Container is running without cpu limit",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "input",
+              "spec",
+              "template",
+              "spec",
+              "containers[web]",
+              "resources",
+              "limits",
+              "cpu"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"CPU limit is not defined",
+              "impact":"Containers without limits can exceed the capacity of the node, and affect availability/performance of the host and other containers.",
+              "resolve":"Add `resources.limits.cpu` field with required CPU limit value"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-K8S-5"
+          },
+          "targetFile":"k8s.yaml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/k8s.yaml"
+        }
+      ],
+      "high":[
+        {
+          "policyMetadata":{
+            "severity":"high",
+            "resolve":"Remove secret value from `user_data` attribute",
+            "id":"SNYK-CC-TF-123",
+            "impact":"Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
+            "msg":"resource.aws_instance[denied_2].user_data_base64[aws_access_key_id]",
+            "remediation":{
+              "cloudformation":"Remove secret value from `Properties.UserData` attribute",
+              "terraform":"Remove secret value from `user_data` attribute"
+            },
+            "subType":"EC2",
+            "issue":"Secret keys have been hardcoded in user_data script",
+            "publicId":"SNYK-CC-TF-123",
+            "title":"Hard coded secrets in EC2 metadata",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html"
+            ],
+            "name":"Hard coded secrets in EC2 metadata",
+            "cloudConfigPath":[
+              "resource",
+              "aws_instance[denied_2]",
+              "user_data_base64[aws_access_key_id]"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"Secret keys have been hardcoded in user_data script",
+              "impact":"Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
+              "resolve":"Remove secret value from `user_data` attribute"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-TF-123"
+          },
+          "targetFile":"aws_ec2_metadata_secrets.tf",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/aws_ec2_metadata_secrets.tf"
+        },
+        {
+          "policyMetadata":{
+            "severity":"high",
+            "resolve":"Remove secret value from `user_data` attribute",
+            "id":"SNYK-CC-TF-123",
+            "impact":"Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
+            "msg":"resource.aws_instance[denied_3].user_data[aws_secret_access_key]",
+            "remediation":{
+              "cloudformation":"Remove secret value from `Properties.UserData` attribute",
+              "terraform":"Remove secret value from `user_data` attribute"
+            },
+            "subType":"EC2",
+            "issue":"Secret keys have been hardcoded in user_data script",
+            "publicId":"SNYK-CC-TF-123",
+            "title":"Hard coded secrets in EC2 metadata",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html"
+            ],
+            "name":"Hard coded secrets in EC2 metadata",
+            "cloudConfigPath":[
+              "resource",
+              "aws_instance[denied_3]",
+              "user_data[aws_secret_access_key]"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"Secret keys have been hardcoded in user_data script",
+              "impact":"Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
+              "resolve":"Remove secret value from `user_data` attribute"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-TF-123"
+          },
+          "targetFile":"aws_ec2_metadata_secrets.tf",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/aws_ec2_metadata_secrets.tf"
+        },
+        {
+          "policyMetadata":{
+            "severity":"high",
+            "resolve":"Remove secret value from `user_data` attribute",
+            "id":"SNYK-CC-TF-123",
+            "impact":"Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
+            "msg":"resource.aws_instance[denied].user_data[aws_access_key_id]",
+            "remediation":{
+              "cloudformation":"Remove secret value from `Properties.UserData` attribute",
+              "terraform":"Remove secret value from `user_data` attribute"
+            },
+            "subType":"EC2",
+            "issue":"Secret keys have been hardcoded in user_data script",
+            "publicId":"SNYK-CC-TF-123",
+            "title":"Hard coded secrets in EC2 metadata",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html"
+            ],
+            "name":"Hard coded secrets in EC2 metadata",
+            "cloudConfigPath":[
+              "resource",
+              "aws_instance[denied]",
+              "user_data[aws_access_key_id]"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"Secret keys have been hardcoded in user_data script",
+              "impact":"Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
+              "resolve":"Remove secret value from `user_data` attribute"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-TF-123"
+          },
+          "targetFile":"aws_ec2_metadata_secrets.tf",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/aws_ec2_metadata_secrets.tf"
+        },
+        {
+          "policyMetadata":{
+            "severity":"high",
+            "resolve":"Remove secret value from `user_data` attribute",
+            "id":"SNYK-CC-TF-123",
+            "impact":"Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
+            "msg":"resource.aws_instance[denied_2].user_data_base64[aws_secret_access_key]",
+            "remediation":{
+              "cloudformation":"Remove secret value from `Properties.UserData` attribute",
+              "terraform":"Remove secret value from `user_data` attribute"
+            },
+            "subType":"EC2",
+            "issue":"Secret keys have been hardcoded in user_data script",
+            "publicId":"SNYK-CC-TF-123",
+            "title":"Hard coded secrets in EC2 metadata",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html"
+            ],
+            "name":"Hard coded secrets in EC2 metadata",
+            "cloudConfigPath":[
+              "resource",
+              "aws_instance[denied_2]",
+              "user_data_base64[aws_secret_access_key]"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"Secret keys have been hardcoded in user_data script",
+              "impact":"Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
+              "resolve":"Remove secret value from `user_data` attribute"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-TF-123"
+          },
+          "targetFile":"aws_ec2_metadata_secrets.tf",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/aws_ec2_metadata_secrets.tf"
+        },
+        {
+          "policyMetadata":{
+            "severity":"high",
+            "description":"",
+            "resolve":"Remove `securityContext.privileged` attribute, or set value to `false`",
+            "id":"SNYK-CC-K8S-1",
+            "impact":"Compromised container could potentially modify the underlying host’s kernel by loading unauthorized modules (i.e. drivers).",
+            "msg":"input.spec.template.spec.containers[web].securityContext.privileged",
+            "subType":"Deployment",
+            "issue":"Container is running in privileged mode",
+            "publicId":"SNYK-CC-K8S-1",
+            "title":"Container is running in privileged mode",
+            "references":[
+              "CIS Kubernetes Benchmark 1.6.0 - 5.2.1 Minimize the admission of privileged containers",
+              "https://kubernetes.io/docs/concepts/policy/pod-security-policy/#privileged",
+              "https://kubernetes.io/blog/2016/08/security-best-practices-kubernetes-deployment/"
+            ],
+            "name":"Container is running in privileged mode",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "input",
+              "spec",
+              "template",
+              "spec",
+              "containers[web]",
+              "securityContext",
+              "privileged"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"Container is running in privileged mode",
+              "impact":"Compromised container could potentially modify the underlying host’s kernel by loading unauthorized modules (i.e. drivers).",
+              "resolve":"Remove `securityContext.privileged` attribute, or set value to `false`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-K8S-1"
+          },
+          "targetFile":"k8s.yaml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/k8s.yaml"
+        }
+      ],
+      "medium":[
+        {
+          "policyMetadata":{
+            "severity":"medium",
+            "resolve":"Set `BlockDeviceMappings.Encrypted` attribute of root device to `true`",
+            "id":"SNYK-CC-TF-53",
+            "impact":"That should someone gain unauthorized access to the data they would be able to read the contents.",
+            "msg":"Resources.BastionHost.Properties.BlockDeviceMappings",
+            "remediation":{
+              "cloudformation":"Set `BlockDeviceMappings.Encrypted` attribute of root device to `true`",
+              "terraform":"Set `root_block_device.encrypted` attribute to `true`"
+            },
+            "subType":"EC2",
+            "issue":"The root block device for ec2 instance is not encrypted",
+            "publicId":"SNYK-CC-TF-53",
+            "title":"Non-Encrypted root block device",
+            "references":[
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/RootDeviceStorage.html",
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html",
+              "https://aws.amazon.com/premiumsupport/knowledge-center/cloudformation-root-volume-property/",
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html"
+            ],
+            "name":"Non-Encrypted root block device",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "Resources",
+              "BastionHost",
+              "Properties",
+              "BlockDeviceMappings"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"The root block device for ec2 instance is not encrypted",
+              "impact":"That should someone gain unauthorized access to the data they would be able to read the contents.",
+              "resolve":"Set `BlockDeviceMappings.Encrypted` attribute of root device to `true`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-TF-53"
+          },
+          "targetFile":"bastion.yml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/bastion.yml"
+        },
+        {
+          "policyMetadata":{
+            "severity":"medium",
+            "description":"",
+            "resolve":"Set `securityContext.runAsNonRoot` to `true`",
+            "id":"SNYK-CC-K8S-10",
+            "impact":"Container could be running with full administrative privileges",
+            "msg":"input.spec.template.spec.containers[web].securityContext.runAsNonRoot",
+            "subType":"Deployment",
+            "issue":"Container is running without root user control",
+            "publicId":"SNYK-CC-K8S-10",
+            "title":"Container is running without root user control",
+            "references":[
+              "CIS Docker Benchmark 1.2.0 - 5.5 Ensure sensitive host system directories are not mounted on containers",
+              "https://kubernetes.io/docs/concepts/policy/pod-security-policy/#users-and-groups",
+              "https://kubernetes.io/blog/2016/08/security-best-practices-kubernetes-deployment/"
+            ],
+            "name":"Container is running without root user control",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "input",
+              "spec",
+              "template",
+              "spec",
+              "containers[web]",
+              "securityContext",
+              "runAsNonRoot"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"Container is running without root user control",
+              "impact":"Container could be running with full administrative privileges",
+              "resolve":"Set `securityContext.runAsNonRoot` to `true`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-K8S-10"
+          },
+          "targetFile":"k8s.yaml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/k8s.yaml"
+        },
+        {
+          "policyMetadata":{
+            "severity":"medium",
+            "description":"",
+            "resolve":"Add `ALL` to `securityContext.capabilities.drop` list, and add only required capabilities in `securityContext.capabilities.add`",
+            "id":"SNYK-CC-K8S-6",
+            "impact":"Containers are running with potentially unnecessary privileges",
+            "msg":"input.spec.template.spec.containers[web].securityContext.capabilities.drop",
+            "subType":"Deployment",
+            "issue":"All default capabilities are not explicitly dropped",
+            "publicId":"SNYK-CC-K8S-6",
+            "title":"Container does not drop all default capabilities",
+            "references":[
+              "https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+              "https://linux-audit.com/linux-capabilities-hardening-linux-binaries-by-removing-setuid/"
+            ],
+            "name":"Container does not drop all default capabilities",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "input",
+              "spec",
+              "template",
+              "spec",
+              "containers[web]",
+              "securityContext",
+              "capabilities",
+              "drop"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"All default capabilities are not explicitly dropped",
+              "impact":"Containers are running with potentially unnecessary privileges",
+              "resolve":"Add `ALL` to `securityContext.capabilities.drop` list, and add only required capabilities in `securityContext.capabilities.add`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-K8S-6"
+          },
+          "targetFile":"k8s.yaml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/k8s.yaml"
+        },
+        {
+          "policyMetadata":{
+            "severity":"medium",
+            "description":"",
+            "resolve":"Set `securityContext.allowPrivilegeEscalation` to `false`",
+            "id":"SNYK-CC-K8S-9",
+            "impact":"Processes could elevate current privileges via known vectors, for example SUID binaries",
+            "msg":"input.spec.template.spec.containers[web].securityContext.allowPrivilegeEscalation",
+            "subType":"Deployment",
+            "issue":"`allowPrivilegeEscalation` attribute is not set to `false`",
+            "publicId":"SNYK-CC-K8S-9",
+            "title":"Container is running without privilege escalation control",
+            "references":[
+              "CIS Docker Benchmark 1.2.0 - 5.25 Ensure that the container is restricted from acquiring additional privileges",
+              "https://kubernetes.io/docs/concepts/policy/pod-security-policy/#privilege-escalation",
+              "https://www.kernel.org/doc/html/latest/userspace-api/no_new_privs.html"
+            ],
+            "name":"Container is running without privilege escalation control",
+            "cloudConfigPath":[
+              "[DocId: 0]",
+              "input",
+              "spec",
+              "template",
+              "spec",
+              "containers[web]",
+              "securityContext",
+              "allowPrivilegeEscalation"
+            ],
+            "isIgnored":false,
+            "iacDescription":{
+              "issue":"`allowPrivilegeEscalation` attribute is not set to `false`",
+              "impact":"Processes could elevate current privileges via known vectors, for example SUID binaries",
+              "resolve":"Set `securityContext.allowPrivilegeEscalation` to `false`"
+            },
+            "lineNumber":-1,
+            "documentation":"https://snyk.io/security-rules/SNYK-CC-K8S-9"
+          },
+          "targetFile":"k8s.yaml",
+          "targetFilePath":"/Users/craig/workspace/github.com/snyk/snyk/testdata/policies/k8s.yaml"
+        }
+      ]
+    },
+    "metadata":{
+      "orgName":"Shmulik.Kipod",
+      "projectName":"project-name"
+    }
+  }
