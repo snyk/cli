@@ -6,28 +6,26 @@ import {
   RunCommandOptions,
 } from './runCommand';
 
-const cwd = process.cwd();
+const CLI_BIN_SCRIPT = path.resolve(__dirname, '../../../bin/snyk');
 
 const runSnykCLI = async (
   argsString: string,
   options?: RunCommandOptions,
 ): Promise<RunCommandResult> => {
-  const cliPath = path.resolve(cwd, './bin/snyk');
-  const args = argsString.split(' ').filter((v) => !!v);
-
-  if (process.env.TEST_SNYK_COMMAND) {
-    return await runCommand(process.env.TEST_SNYK_COMMAND, args, options);
-  }
-
-  return await runCommand('node', [cliPath, ...args], options);
+  return runSnykCLIWithArray(
+    argsString.split(' ').filter((v) => !!v),
+    options,
+  );
 };
 
 const runSnykCLIWithArray = async (
   args: string[],
   options?: RunCommandOptions,
 ): Promise<RunCommandResult> => {
-  const cliPath = path.resolve(cwd, './bin/snyk');
-  return await runCommand('node', [cliPath, ...args], options);
+  if (process.env.TEST_SNYK_COMMAND) {
+    return await runCommand(process.env.TEST_SNYK_COMMAND, args, options);
+  }
+  return await runCommand('node', [CLI_BIN_SCRIPT, ...args], options);
 };
 
 const runSnykCLIWithUserInputs = async (
@@ -35,11 +33,18 @@ const runSnykCLIWithUserInputs = async (
   inputs: string[],
   options?: RunCommandOptions,
 ): Promise<any> => {
-  const cliPath = path.resolve(cwd, './bin/snyk');
   const args = argsString.split(' ').filter((v) => !!v);
+  if (process.env.TEST_SNYK_COMMAND) {
+    return await runCommandsWithUserInputs(
+      process.env.TEST_SNYK_COMMAND,
+      args,
+      inputs,
+      options,
+    );
+  }
   return await runCommandsWithUserInputs(
     'node',
-    [cliPath, ...args],
+    [CLI_BIN_SCRIPT, ...args],
     inputs,
     options,
   );
