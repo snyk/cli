@@ -280,7 +280,7 @@ describe('Terraform Language Support', () => {
 
     it('filters out issues when using detection depth', async () => {
       const { stdout, exitCode } = await run(
-        `snyk iac test --org=tf-lang-support ./iac/terraform/ --detection-depth=2`,
+        `snyk iac test --org=tf-lang-support ./iac/terraform/ --detection-depth=1`,
       );
 
       expect(stdout).toContain(

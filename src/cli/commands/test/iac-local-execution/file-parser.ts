@@ -3,7 +3,6 @@ import {
   FailedToParseTerraformFileError,
   tryParsingTerraformFile,
 } from './parsers/terraform-file-parser';
-import { NoFilesToScanError } from './file-loader';
 import {
   isTerraformPlan,
   tryParsingTerraformPlan,
@@ -18,6 +17,7 @@ import {
   IaCTestFlags,
   ParsingResults,
   TerraformPlanScanMode,
+  VALID_TERRAFORM_FILE_TYPES,
 } from './types';
 import * as analytics from '../../../../lib/analytics';
 import { CustomError } from '../../../../lib/errors';
@@ -32,22 +32,54 @@ const debug = Debug('snyk-test');
 export async function parseFiles(
   filesData: IacFileData[],
   options: IaCTestFlags = {},
+  isTFVarSupportEnabled = false,
 ): Promise<ParsingResults> {
+  let tfFileData: IacFileData[] = [];
+  let nonTfFileData: IacFileData[] = [];
+
+  if (!isTFVarSupportEnabled) {
+    nonTfFileData = filesData;
+  } else {
+    tfFileData = filesData.filter((fileData) =>
+      VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType),
+    );
+    nonTfFileData = filesData.filter(
+      (fileData) => !VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType),
+    );
+  }
+
+  let { parsedFiles, failedFiles } = parseNonTerraformFiles(
+    nonTfFileData,
+    options,
+  );
+
+  if (tfFileData.length > 0) {
+    const {
+      parsedFiles: parsedTfFiles,
+      failedFiles: failedTfFiles,
+    } = parseTerraformFiles(tfFileData);
+    parsedFiles = parsedFiles.concat(parsedTfFiles);
+    failedFiles = failedFiles.concat(failedTfFiles);
+  }
+
+  return {
+    parsedFiles,
+    failedFiles,
+  };
+}
+
+export function parseNonTerraformFiles(
+  filesData: IacFileData[],
+  options: IaCTestFlags,
+): ParsingResults {
   const parsedFiles: IacFileParsed[] = [];
   const failedFiles: IacFileParseFailure[] = [];
   for (const fileData of filesData) {
     try {
       parsedFiles.push(...tryParseIacFile(fileData, options));
     } catch (err) {
-      if (filesData.length === 1) {
-        throw err;
-      }
       failedFiles.push(generateFailedParsedFile(fileData, err));
     }
-  }
-
-  if (parsedFiles.length === 0) {
-    throw new NoFilesToScanError();
   }
 
   return {
@@ -63,18 +95,6 @@ export function parseTerraformFiles(filesData: IacFileData[]): ParsingResults {
     return map;
   }, {});
   const { parsedFiles, failedFiles, debugLogs } = hclToJsonV2(files);
-
-  // only throw an error when there were multiple files provided
-  if (filesData.length === 1 && Object.keys(failedFiles).length === 1) {
-    if (debugLogs[filesData[0].filePath]) {
-      debug(
-        'File %s failed to parse with: %s',
-        filesData[0].filePath,
-        debugLogs[filesData[0].filePath],
-      );
-    }
-    throw new FailedToParseTerraformFileError(filesData[0].filePath);
-  }
 
   const parsingResults: ParsingResults = {
     parsedFiles: [],
@@ -99,7 +119,7 @@ export function parseTerraformFiles(filesData: IacFileData[]): ParsingResults {
       parsingResults.failedFiles.push(
         generateFailedParsedFile(
           fileData,
-          new Error(failedFiles[fileData.filePath]),
+          new FailedToParseTerraformFileError(fileData.filePath),
         ),
       );
     }

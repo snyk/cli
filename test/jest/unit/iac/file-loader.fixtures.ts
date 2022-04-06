@@ -31,7 +31,7 @@ export const anotherTerraformFileStub = {
 
 export const nonIacFileStub = {
   fileContent,
-  filePath: path.join(mixedDirectory, 'this_shouldnt_load.sh'),
+  filePath: path.join(mixedDirectory, 'this_can_load.sh'),
   fileType: 'sh',
 };
 
@@ -39,12 +39,6 @@ export const emptyFileStub = {
   fileContent: '',
   filePath: path.join(mixedDirectory, 'this_shouldnt_load.yaml'),
   fileType: 'yaml',
-};
-
-export const anotherNonIacFileStub = {
-  fileContent,
-  filePath: path.join(mixedDirectory, 'this_also_shouldnt_load.js'),
-  fileType: 'js',
 };
 
 export const level1Directory = path.join(__dirname, 'dir1');

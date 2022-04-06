@@ -1,4 +1,3 @@
-import { loadFiles } from './file-loader';
 import { parseFiles } from './file-parser';
 import { scanFiles } from './file-scanner';
 import { formatScanResults } from './results-formatter';
@@ -10,7 +9,7 @@ import { test } from './index';
 import { pull } from './oci-pull';
 import { performanceAnalyticsObject } from './analytics';
 import { PerformanceAnalyticsKey } from './types';
-import { loadAndParseTerraformFiles } from './handle-terraform-files';
+import { loadContentForFiles } from './file-loader';
 
 // Unwrap a promise: https://stackoverflow.com/questions/48011353/how-to-unwrap-type-of-a-promise
 type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
@@ -53,14 +52,14 @@ const measurableInitLocalCache = asyncPerformanceAnalyticsDecorator(
   PerformanceAnalyticsKey.InitLocalCache,
 );
 
-const measurableLoadFiles = asyncPerformanceAnalyticsDecorator(
-  loadFiles,
-  PerformanceAnalyticsKey.FileLoading,
-);
-
 const measurableParseFiles = asyncPerformanceAnalyticsDecorator(
   parseFiles,
   PerformanceAnalyticsKey.FileParsing,
+);
+
+const measurableloadContentForFiles = asyncPerformanceAnalyticsDecorator(
+  loadContentForFiles,
+  PerformanceAnalyticsKey.FileLoading,
 );
 
 const measurableScanFiles = asyncPerformanceAnalyticsDecorator(
@@ -103,14 +102,9 @@ const measurableOciPull = asyncPerformanceAnalyticsDecorator(
   PerformanceAnalyticsKey.Total,
 );
 
-const measurableLoadAndParseTerraformFiles = asyncPerformanceAnalyticsDecorator(
-  loadAndParseTerraformFiles,
-  PerformanceAnalyticsKey.Total,
-);
-
 export {
   measurableInitLocalCache as initLocalCache,
-  measurableLoadFiles as loadFiles,
+  measurableloadContentForFiles as loadContentForFiles,
   measurableParseFiles as parseFiles,
   measurableScanFiles as scanFiles,
   measurableGetIacOrgSettings as getIacOrgSettings,
@@ -120,5 +114,4 @@ export {
   measurableCleanLocalCache as cleanLocalCache,
   measurableLocalTest as localTest,
   measurableOciPull as pull,
-  measurableLoadAndParseTerraformFiles as loadAndParseTerraformFiles,
 };

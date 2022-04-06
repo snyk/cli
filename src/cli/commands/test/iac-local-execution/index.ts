@@ -7,8 +7,6 @@ import {
   RulesOrigin,
   SafeAnalyticsOutput,
   TestReturnValue,
-  VALID_FILE_TYPES,
-  ValidFileType,
 } from './types';
 import { addIacAnalytics } from './analytics';
 import { TestLimitReachedError } from './usage-tracking';
@@ -19,11 +17,10 @@ import {
   cleanLocalCache,
   formatScanResults,
   getIacOrgSettings,
-  loadFiles,
+  loadContentForFiles,
   parseFiles,
   scanFiles,
   trackUsage,
-  loadAndParseTerraformFiles,
 } from './measurable-methods';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import config from '../../../../lib/config';
@@ -33,6 +30,10 @@ import { initRules } from './rules';
 import { NoFilesToScanError } from './file-loader';
 import { formatAndShareResults } from './share-results';
 import { generateProjectAttributes, generateTags } from '../../monitor';
+import {
+  getAllDirectoriesForPath,
+  getFilesForDirectory,
+} from './directory-loader';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -57,8 +58,6 @@ export async function test(
 
     const policy = await findAndLoadPolicy(pathToScan, 'iac', options);
 
-    let parsedFiles: IacFileParsed[] = [];
-    let failedFiles: IacFileParseFailure[] = [];
     const isTFVarSupportEnabled = (
       await isFeatureFlagSupportedForOrg(
         'iacTerraformVarSupport',
@@ -66,64 +65,51 @@ export async function test(
       )
     ).ok;
 
-    // if TF vars enabled, valid files are all except terraform files
-    const validFileTypes = isTFVarSupportEnabled
-      ? VALID_FILE_TYPES.filter(
-          (fileType) =>
-            fileType !== ValidFileType.Terraform &&
-            fileType !== ValidFileType.TFVARS,
-        )
-      : undefined;
+    let allParsedFiles: IacFileParsed[] = [],
+      allFailedFiles: IacFileParseFailure[] = [];
+    const allDirectories = getAllDirectoriesForPath(
+      pathToScan,
+      options.detectionDepth,
+    );
 
-    try {
-      // load and parse all files that are a valid file type
-      const filesToParse = await loadFiles(pathToScan, options, validFileTypes);
-      ({ parsedFiles, failedFiles } = await parseFiles(filesToParse, options));
-    } catch (err) {
-      if (
-        validFileTypes &&
-        !validFileTypes.includes(ValidFileType.Terraform) &&
-        err instanceof NoFilesToScanError
-      ) {
-        // ignore this error since we might only have .tf files in the folder and we will parse them in the next block
-      } else {
-        throw err;
-      }
+    // we load and parse files directory by directory
+    // because we need all files in the same directory to share the same variable context for Terraform
+    for (const currentDirectory of allDirectories) {
+      const filePathsInDirectory = getFilesForDirectory(
+        pathToScan,
+        currentDirectory,
+      );
+      const filesToParse = await loadContentForFiles(filePathsInDirectory);
+      const { parsedFiles, failedFiles } = await parseFiles(
+        filesToParse,
+        options,
+        isTFVarSupportEnabled,
+      );
+      allParsedFiles = allParsedFiles.concat(parsedFiles);
+      allFailedFiles = allFailedFiles.concat(failedFiles);
     }
 
-    // we may have loaded and parsed all but terraform files in the previous step
-    // so now we check if we need to do a second load and parse which dereferences TF vars
-    if (validFileTypes && !validFileTypes.includes(ValidFileType.Terraform)) {
-      try {
-        const {
-          parsedFiles: tfParsedFiles,
-          failedFiles: tfFailedFiles,
-        } = await loadAndParseTerraformFiles(
-          pathToScan,
-          options.detectionDepth,
-        );
-        parsedFiles = parsedFiles.concat(tfParsedFiles);
-        failedFiles = failedFiles.concat(tfFailedFiles);
-      } catch (err) {
-        if (parsedFiles.length > 0 && err instanceof NoFilesToScanError) {
-          // ignore this error since we've discovered non-terraform files in the previous block
-        } else {
-          throw err;
-        }
+    // if none of the files were parsed then either we didn't have any IaC files
+    // or there was only one file passed via the CLI and it failed parsing
+    if (allParsedFiles.length === 0) {
+      if (allFailedFiles.length === 1) {
+        throw allFailedFiles[0].err;
+      } else {
+        throw new NoFilesToScanError();
       }
     }
 
     // Duplicate all the files and run them through the custom engine.
     if (rulesOrigin !== RulesOrigin.Internal) {
-      parsedFiles.push(
-        ...parsedFiles.map((file) => ({
+      allParsedFiles.push(
+        ...allParsedFiles.map((file) => ({
           ...file,
           engineType: EngineType.Custom,
         })),
       );
     }
 
-    const scannedFiles = await scanFiles(parsedFiles);
+    const scannedFiles = await scanFiles(allParsedFiles);
     const resultsWithCustomSeverities = await applyCustomSeverities(
       scannedFiles,
       iacOrgSettings.customPolicies,
@@ -176,7 +162,7 @@ export async function test(
       results: (filteredIssues as unknown) as TestResult[],
       // NOTE: No file or parsed file data should leave this function.
       failures: isLocalFolder(pathToScan)
-        ? failedFiles.map(removeFileContent)
+        ? allFailedFiles.map(removeFileContent)
         : undefined,
     };
   } finally {

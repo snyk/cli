@@ -8,6 +8,8 @@ import {
 } from './local-cache';
 import { CUSTOM_RULES_TARBALL } from './oci-pull';
 import { isLocalFolder } from '../../../../lib/detect';
+import { readdirSync } from 'fs';
+import { join } from 'path';
 
 function hashData(s: string): string {
   const hashedData = crypto
@@ -100,4 +102,40 @@ export function computePaths(
     projectName: path.basename(projectPath),
     targetFile,
   };
+}
+
+/**
+ * makeFileAndDirectoryGenerator is a generator function that helps walking the directory and file structure of this pathToScan
+ * @param root
+ * @param maxDepth? - An optional `maxDepth` argument can be provided to limit how deep in the file tree the search will go.
+ * @returns {Generator<object>} - a generator which yields an object with directories or paths for the path to scan
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function* makeFileAndDirectoryGenerator(root = '.', maxDepth?: number) {
+  function* generatorHelper(pathToScan, currentDepth) {
+    {
+      yield { directory: pathToScan };
+    }
+    if (maxDepth !== currentDepth) {
+      for (const dirent of readdirSync(pathToScan, { withFileTypes: true })) {
+        if (
+          dirent.isDirectory() &&
+          fs.readdirSync(join(pathToScan, dirent.name)).length !== 0
+        ) {
+          yield* generatorHelper(
+            join(pathToScan, dirent.name),
+            currentDepth + 1,
+          );
+        } else if (dirent.isFile()) {
+          yield {
+            file: {
+              dir: pathToScan,
+              fileName: join(pathToScan, dirent.name),
+            },
+          };
+        }
+      }
+    }
+  }
+  yield* generatorHelper(root, 0);
 }

@@ -7,7 +7,7 @@ export type IacProjectTypes =
   | 'armconfig'
   | 'customconfig'
   | 'multiiacconfig';
-export type IacFileTypes = ParserFileType | 'tf';
+export type IacFileTypes = ParserFileType | 'tf' | 'tfvars';
 
 export enum IacProjectType {
   K8S = 'k8sconfig',
