@@ -14,6 +14,8 @@ import { IacFileInDirectory } from '../../../../lib/types';
 
 import { getSeverityValue } from '../../get-severity-value';
 
+export { formatIacTestSummary } from './test-summary';
+
 const debug = Debug('iac-output');
 
 function formatIacIssue(
