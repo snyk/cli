@@ -57,6 +57,7 @@ import {
 import { isIacShareResultsOptions } from './local-execution/assert-iac-options-flag';
 import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag';
 import { hasFeatureFlag } from '../../../../lib/feature-flags';
+import { formatIacTestSummary } from '../../../../lib/formatters/iac-output';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -105,6 +106,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
 
   // Holds an array of scanned file metadata for output.
   let iacScanFailures: IacFileInDirectory[] | undefined;
+  let iacIgnoredIssuesCount = 0;
   let iacOutputMeta: IacOutputMeta | undefined;
 
   const isNewIacOutputSupported = await hasFeatureFlag('iacCliOutput', options);
@@ -130,14 +132,17 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     let res: (TestResult | TestResult[]) | Error;
     try {
       assertIaCOptionsFlags(process.argv);
-      const { results, failures } = await iacTest(path, testOpts);
+      const { results, failures, ignoreCount } = await iacTest(path, testOpts);
+
       iacOutputMeta = {
         orgName: results[0]?.org,
         projectName: results[0]?.projectName,
         gitRemoteUrl: results[0]?.meta?.gitRemoteUrl,
       };
+
       res = results;
       iacScanFailures = failures;
+      iacIgnoredIssuesCount += ignoreCount;
     } catch (error) {
       // not throwing here but instead returning error response
       // for legacy flow reasons.
@@ -268,6 +273,20 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
         getIacDisplayErrorFileOutput(reason, isNewIacOutputSupported),
       );
     }
+  }
+
+  if (iacOutputMeta && isNewIacOutputSupported) {
+    response += `${EOL}${SEPARATOR}${EOL}`;
+
+    const iacTestSummary = `${formatIacTestSummary(
+      {
+        results,
+        ignoreCount: iacIgnoredIssuesCount,
+      },
+      iacOutputMeta,
+    )}`;
+
+    response += iacTestSummary;
   }
 
   if (results.length > 1) {
