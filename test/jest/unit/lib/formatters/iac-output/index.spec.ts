@@ -1,10 +1,6 @@
 import * as iacOutputV1 from '../../../../../../src/lib/formatters/iac-output/v1';
 import * as iacOutputV2 from '../../../../../../src/lib/formatters/iac-output/v2';
-import {
-  getIacDisplayErrorFileOutput,
-  getIacDisplayedOutput,
-} from '../../../../../../src/lib/formatters/iac-output';
-import { IacTestResponse } from '../../../../../../src/lib/snyk-test/iac-test-result';
+import { getIacDisplayErrorFileOutput } from '../../../../../../src/lib/formatters/iac-output';
 import { IacFileInDirectory } from '../../../../../../src/lib/types';
 
 describe('IaC Output Formatter', () => {
@@ -12,74 +8,6 @@ describe('IaC Output Formatter', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-  });
-
-  describe('getIacDisplayedOutput', () => {
-    it('should use the implementation from v1 with the provided arguments', () => {
-      // Arrange
-      const getIacDisplayedOutputV1Spy = jest
-        .spyOn(iacOutputV1, 'getIacDisplayedOutput')
-        .mockImplementationOnce(jest.fn());
-
-      const getIacDisplayedOutputV2Spy = jest
-        .spyOn(iacOutputV2, 'getIacDisplayedOutput')
-        .mockImplementationOnce(jest.fn());
-
-      const args: Parameters<typeof getIacDisplayedOutput> = [
-        {} as IacTestResponse,
-        'test-tested-info-text',
-        'test-meta',
-        'test-prefix',
-      ];
-
-      // Act
-      const result = getIacDisplayedOutput(...args);
-
-      // Assert
-      expect(result).toBeUndefined();
-      expect(getIacDisplayedOutputV1Spy).toHaveBeenCalledTimes(1);
-      expect(getIacDisplayedOutputV2Spy).not.toHaveBeenCalled();
-      expect([...getIacDisplayedOutputV1Spy.mock.calls[0]]).toStrictEqual(args);
-    });
-
-    describe(`when the org has the ${IAC_CLI_OUTPUT_FF} feature flag`, () => {
-      it('should use the implementation from v2 with the provided arguments', () => {
-        // Arrange
-        const getIacDisplayedOutputV1Spy = jest
-          .spyOn(iacOutputV1, 'getIacDisplayedOutput')
-          .mockImplementationOnce(jest.fn());
-
-        const getIacDisplayedOutputV2Spy = jest
-          .spyOn(iacOutputV2, 'getIacDisplayedOutput')
-          .mockImplementationOnce(jest.fn());
-
-        const testIacTestResponse = {} as IacTestResponse;
-        const testTestedInfoTest = 'test-tested-info-text';
-        const testMeta = 'test-meta';
-        const testPrefix = 'test-prefix';
-        const testIsNewIacOutputSupported = true;
-
-        const args: Parameters<typeof getIacDisplayedOutput> = [
-          testIacTestResponse,
-          testTestedInfoTest,
-          testMeta,
-          testPrefix,
-          testIsNewIacOutputSupported,
-        ];
-
-        // Act
-        const result = getIacDisplayedOutput(...args);
-
-        // Assert
-        expect(result).toBeUndefined();
-        expect(getIacDisplayedOutputV1Spy).not.toHaveBeenCalled();
-        expect(getIacDisplayedOutputV2Spy).toHaveBeenCalledTimes(1);
-        expect([...getIacDisplayedOutputV2Spy.mock.calls[0]]).toStrictEqual([
-          testIacTestResponse,
-          testPrefix,
-        ]);
-      });
-    });
   });
 
   describe('getIacDisplayErrorFileOutput', () => {

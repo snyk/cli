@@ -342,6 +342,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       return;
     }
 
+    if (org === 'tf-lang-support' && flag === 'iacTerraformVarSupport') {
+      res.send({
+        ok: true,
+      });
+      return;
+    }
+
     if (featureFlags.has(flag)) {
       const ffEnabled = featureFlags.get(flag);
       if (ffEnabled) {
