@@ -397,6 +397,13 @@ jobs:
               exit 1
             fi
       - run:
+          name: Ensure not already released
+          command: |
+            if git describe --contains --tags; then
+              echo "This commit has already been released."
+              exit 1
+            fi
+      - run:
           name: Publishing npm packages
           command: |
             npm publish ./binary-releases/snyk-fix.tgz
