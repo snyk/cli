@@ -1,5 +1,5 @@
 import { applyCustomSeverities } from '../../../../src/cli/commands/test/iac-local-execution/org-settings/apply-custom-severities';
-import { generateScanResults } from './process-results/results-formatter.fixtures';
+import { generateScanResults } from './results-formatter.fixtures';
 
 describe('applyCustomSeverities', () => {
   const mockedCustomPolicies = {

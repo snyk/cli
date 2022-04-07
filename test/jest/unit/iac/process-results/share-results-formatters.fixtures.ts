@@ -2,7 +2,7 @@ import {
   anotherPolicyStub,
   policyStub,
   yetAnotherPolicyStub,
-} from './results-formatter.fixtures';
+} from '../results-formatter.fixtures';
 
 export const expectedFormattedResultsForShareResults = [
   {
