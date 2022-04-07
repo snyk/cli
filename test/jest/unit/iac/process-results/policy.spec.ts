@@ -1,9 +1,9 @@
-import { filterIgnoredIssues } from '../../../../src/cli/commands/test/iac-local-execution/policy';
-import { FormattedResult } from '../../../../src/cli/commands/test/iac-local-execution/types';
-import fs = require('fs');
+import { filterIgnoredIssues } from '../../../../../src/cli/commands/test/iac-local-execution/process-results/policy';
+import { FormattedResult } from '../../../../../src/cli/commands/test/iac-local-execution/types';
+import * as fs from 'fs';
 import * as path from 'path';
 import * as snykPolicy from 'snyk-policy';
-const cloneDeep = require('lodash.clonedeep');
+import * as cloneDeep from 'lodash.clonedeep';
 
 async function filterFixture(policyName: string) {
   const policy = await loadPolicy(policyName);
