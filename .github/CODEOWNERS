@@ -37,8 +37,8 @@ src/lib/snyk-test/run-iac-test.ts @snyk/group-infrastructure-as-code
 test/acceptance/cli-test/iac/ @snyk/group-infrastructure-as-code
 test/fixtures/basic-apk/ @snyk/magma
 test/fixtures/container-app-vulns/ @snyk/magma
-test/fixtures/container-projects/ @snyk/capsule @snyk/magma
-test/fixtures/docker/ @snyk/capsule @snyk/magma
+test/fixtures/container-projects/ @snyk/capsule @snyk/magma @snyk/potion
+test/fixtures/docker/ @snyk/capsule @snyk/magma @snyk/potion
 test/fixtures/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/snyk_code_spec.sh @snyk/nebula
@@ -86,9 +86,9 @@ test/tap/cli-fail-on-pinnable.test.ts @snyk/snyk-open-source
 test/tap/cli-monitor.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli-test.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli.test.ts @snyk/hammer
-test/tap/container.test.ts @snyk/capsule
+test/tap/container.test.ts @snyk/capsule @snyk/potion
 test/tap/display-test-results.test.ts @snyk/snyk-open-source
-test/tap/docker-token.test.ts @snyk/capsule
+test/tap/docker-token.test.ts @snyk/capsule @snyk/potion
 test/tap/endpoint-config.test.ts @snyk/hammer
 test/tap/find-files.test.ts @snyk/snyk-open-source
 test/tap/monitor-target.test.ts @snyk/snyk-open-source
