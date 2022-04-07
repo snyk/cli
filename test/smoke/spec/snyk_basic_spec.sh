@@ -58,7 +58,7 @@ Describe "Snyk CLI basics"
 
     It "prints specific help info for iac"
       When run snyk iac -help
-      The output should include "finds security issues in Infrastructure as Code files"
+      The output should include "Infrastructure as Code"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
@@ -66,7 +66,7 @@ Describe "Snyk CLI basics"
 
     It "prints specific help info when called with flag and equals sign"
       When run snyk --help=iac
-      The output should include "finds security issues in Infrastructure as Code files"
+      The output should include "Infrastructure as Code"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
