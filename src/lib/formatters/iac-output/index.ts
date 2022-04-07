@@ -3,6 +3,8 @@ import * as v2 from './v2';
 import { IacTestResponse } from '../../snyk-test/iac-test-result';
 import { IacFileInDirectory } from '../../types';
 
+export { formatIacTestSummary } from './v2';
+
 export function getIacDisplayedOutput(
   iacTest: IacTestResponse,
   testedInfoText: string,
