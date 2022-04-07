@@ -8,9 +8,9 @@
 
 The `snyk iac test` command tests for any known security issue.
 
-See also the help for [`iac describe`](https://docs.snyk.io/snyk-cli/commands/iac-describe) and [`iac-gendriftignore`](https://docs.snyk.io/snyk-cli/commands/iac-gen-driftignore)``
+For a list of related commands see the [snyk iac](iac.md) help; `iac --help`
 
-For more information see [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code).
+For more information see [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
 
 ## Exit codes
 
@@ -23,7 +23,7 @@ Possible exit codes and their meaning:
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli).
+You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli)
 
 ## Debug
 
@@ -49,13 +49,13 @@ If you have multiple organizations, you can set a default from the CLI using:
 
 Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
+Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
 
-For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI).
+For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
 
 ### `--ignore-policy`
 
-Ignore all set policies, the current policy in the `.snyk` file, Org level ignores, and the project policy on snyk.io.
+Ignore all set policies, the current policy in the `.snyk` file, org level ignores, and the project policy on snyk.io.
 
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 
@@ -91,7 +91,7 @@ Set the project business criticality project attribute to one or more values (co
 
 Allowed values: `critical, high, medium, low`
 
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes).
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -101,7 +101,7 @@ Set the project environment project attribute to one or more values (comma-separ
 
 Allowed values: `frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed`
 
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes).
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
 
@@ -111,19 +111,23 @@ Set the project lifecycle project attribute to one or more values (comma-separat
 
 Allowed values: `production, development, sandbox`
 
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes).
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
 This can be used in combination with the `--report` command.
 
-Set the project tags to one or more values (comma-separated key value pairs with an "=" separator), for example, `--project-tags=department=finance,team=alpha`. To clear the project tags set `--project-tags=`
+Set the project tags to one or more values (comma-separated key value pairs with an "=" separator).
+
+Example: `--project-tags=department=finance,team=alpha`.
+
+To clear the project tags set `--project-tags=`
 
 ### `--report`
 
 Share results with the Snyk App.
 
-This creates a project in your Synk account with a snapshot of the current configuration issues. After running this command, log in to the Snyk website and view your projects to see the monitor.
+This creates a project in your Snyk account with a snapshot of the current configuration issues. After running this command, log in to the Snyk website and view your projects to see the monitor.
 
 Example: `$ snyk iac test --report`
 
@@ -131,11 +135,13 @@ Note: This option cannot be used in combination with the `--rules` option.
 
 ### `--rules=<PATH_TO_CUSTOM_RULES_BUNDLE>`
 
-Use this dedicated option for Custom Rules scanning to enable the IaC scans to use a custom rules bundle generated with the `snyk-iac-rules` SDK. See [`snyk-iac-rules` SDK](https://github.com/snyk/snyk-iac-rules#readme).
+Use this dedicated option for Custom Rules scanning to enable the IaC scans to use a custom rules bundle generated with the `snyk-iac-rules` SDK. See [`snyk-iac-rules` SDK](https://github.com/snyk/snyk-iac-rules#readme)
 
 This option cannot be used if the custom rules settings were configured with the Snyk UI. Default: If the `--rules` flag is not specified, scan the configuration files using the internal Snyk rules only.
 
-Example: `--rules=bundle.tar.gz` (Scan the configuration files using custom rules and internal Snyk rules.)
+Example: Scan the configuration files using custom rules and internal Snyk rules.
+
+&#x20;`--rules=bundle.tar.gz`
 
 Note: This option can not be used in combination with the `--report` option.
 
@@ -156,14 +162,18 @@ This can be used in combination with the `--report` command.
 
 Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference.
 
-Example setting to the current Git branch: `snyk iac test myproject/ --report --target-reference="$(git branch --show-current)"`
+Example, setting to the current Git branch:
+
+`snyk iac test myproject/ --report --target-reference="$(git branch --show-current)"`
 
 \
-Example setting to the latest Git tag : `snyk iac test myproject/ --report --target-reference="$(git describe --tags --abbrev=0)"`
+Example, setting to the latest Git tag:
+
+`snyk iac test myproject/ --report --target-reference="$(git describe --tags --abbrev=0)"`
 
 ## Examples for snyk iac test command
 
-For more information see Synk CLI for Infrastructure as Code.
+For more information see [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
 
 ### Test a CloudFormation file
 

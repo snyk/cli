@@ -19,7 +19,7 @@ Possible exit codes and their meaning:
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli).
+You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
 
 ## Debug
 
@@ -33,7 +33,7 @@ See also subsequent sections for options for specific build environments, packag
 
 Auto-detect all projects in the working directory (including Yarn workspaces).
 
-For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/hc/en-us/articles/360000910577-Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files-).
+For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/hc/en-us/articles/360000910577-Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files-)
 
 ### `--detection-depth=<DEPTH>`
 
@@ -41,13 +41,19 @@ Use with `--all-projects` or `--yarn-workspaces` to indicate how many sub-direct
 
 Default: 4 (the current working directory and 3 sub-directories).
 
-Example: `--detection-depth=3` limits search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories.
+Example: Limit search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories.
 
-### `--exclude=<DIRECTORY>[,<DIRECTORY>]...>`
+`--detection-depth=3`
+
+### `--exclude=<GLOB>[,<GLOB>]...>`
 
 Can be used with `--all-projects` and `--yarn-workspaces` to indicate sub-directories and files to exclude. Must be comma separated.
 
+Note that the glob doesn't need to be an exact match and only need to be part of the path or the filename.
+
 Use the `--exclude` option with `--detection-depth` to ignore directories at any depth.
+
+Example: `--exclude=test` will exclude any (sub-)folders or files containing `test` as part of their path or name Example: `--exclude=fixtures,debug` will exclude any (sub-)folders or files containing `fixtures` or `debug` as part of their path or name
 
 ### `--prune-repeated-subdependencies`, `-p`
 
@@ -81,7 +87,7 @@ Set a default to ensure all newly tested projects are tested under your default 
 
 Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
 
-For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI).
+For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
 
 ### `--file=<FILE>`
 
@@ -117,7 +123,9 @@ Specify a custom Snyk project name.
 
 ### `--target-reference=<TARGET_REFERENCE>`
 
-Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Only supported for Snyk Open Source. For more information see [Separating projects by branch or version](https://docs.snyk.io/snyk-cli/secure-your-projects-in-the-long-term/grouping-projects-by-branch-or-version).
+Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Only supported for Snyk Open Source.
+
+For more information see [Separating projects by branch or version](https://docs.snyk.io/snyk-cli/secure-your-projects-in-the-long-term/grouping-projects-by-branch-or-version)
 
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 
@@ -161,7 +169,7 @@ If vulnerabilities do not have a fix and this option is being used, tests pass.
 
 ## Options for Maven projects
 
-For more information about Maven CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven).
+For more information about Maven CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven)
 
 ### `--scan-all-unmanaged`
 
@@ -181,7 +189,7 @@ Default: 300 (5 minutes).
 
 ## Options for Gradle projects
 
-For more information about Gradle CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven).
+For more information about Gradle CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven)
 
 ### `--sub-project=<NAME>`, `--gradle-sub-project=<NAME>`
 
@@ -231,7 +239,7 @@ Specify a custom path to the packages folder.
 
 When monitoring a .NET project, use this option to add a custom prefix to the name of files inside a project along with any desired separators.
 
-Example: `snyk monitor --file=my-project.sln --project-name-prefix=my-group/`.&#x20;
+Example: `snyk monitor --file=my-project.sln --project-name-prefix=my-group/`.
 
 This is useful when you have multiple projects with the same name in other `.sln` files.
 
@@ -281,17 +289,21 @@ Currently the following options are not supported:
 
 `--fail-on=<all|upgradable|patchable>`
 
-## Options for C/C++ projects
+## Option for C/C++ projects
 
 ### `--unmanaged`
 
 Scan C/C++ source code for vulnerabilities.
 
-For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++).
+For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)
 
-## `-- [<CONTEXT-SPECIFIC_OPTIONS>]`
+## Options for build tools
 
-Use context-specific options to pass extra arguments directly to Gradle, Maven, or other build tools. These options are specified last.
+### `-- [<CONTEXT-SPECIFIC_OPTIONS>]`
+
+Use a double dash (`--`) after the complete Snyk command to pass options (arguments, flags) that follow directly to the build tool, for example Gradle or Maven.
+
+The format is `snyk <command> -- -- [<context-specific_options>]`
 
 Example: `snyk test -- --build-cache`
 

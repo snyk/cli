@@ -10,7 +10,7 @@
 
 The `snyk iac describe` command detects, tracks, and alerts on infrastructure drift and unmanaged resources.
 
-See also the help for [`iac-test`](https://docs.snyk.io/snyk-cli/commands/iac-test) and [iac-gendriftignore](https://docs.snyk.io/snyk-cli/commands/iac-gen-driftignore)
+For a list of related commands see the [snyk iac](iac.md) help; `iac --help`
 
 ## Exit codes
 
@@ -22,11 +22,13 @@ Possible exit codes and their meaning:
 
 ## Configure the Snyk CLI
 
-You can use environment variables and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli).
+You can use environment variables and set variables for connecting with the Snyk API; see [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli)
 
 ## Configure the terraform provider
 
-You can use environment variables and also set variables to configure the terraform provider used by the `describe` command. For more information see [Configure cloud providers](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/configure-cloud-providers).
+You also set variables to configure the terraform provider used by the `describe` command.
+
+For more information see [Configure cloud providers](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/configure-cloud-providers)
 
 ## Debug
 
@@ -36,9 +38,12 @@ Use the `-d` option to output the debug logs.
 
 **Note:** To use the `describe` command, you **must use at least one of these options**:
 
-- `--only-managed` or `--drift` Scan only managed resources from the Terraform states.
-- `--only-unmanaged` Scan only unmanaged resources.
-- `--all` Scan both managed and unmanaged resources.
+- `--only-managed` or `--drift`\
+  ``Scan only managed resources from the Terraform states.
+- `--only-unmanaged`\
+  ``Scan only unmanaged resources.
+- `--all`\
+  ``Scan both managed and unmanaged resources.
 
 See the list of options that follows for details.
 
@@ -50,7 +55,7 @@ At this time, the `snyk iac describe` command supports reading Terraform states.
 
 To read multiple states, pass `--from=` followed by a comma-separated list. You can also use glob patterns to match multiple state files at once.
 
-For more information including **a list of supported IaC sources** and how to use them, see [IAC Sources usage](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/iac-sources-usage).
+For more information including **a list of supported IaC sources** and how to use them, see [IAC Sources usage](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/iac-sources-usage)
 
 Examples:
 
@@ -103,7 +108,7 @@ Specify multiple services as a comma-separated list, for example:
 
 `$ snyk iac describe --all --service="aws_s3,aws_ec2"`
 
-This option cannot be used with a `.snyk` drift ignore rule, the content in `.snyk` will be ignored.
+This option cannot be used with a `.snyk` drift ignore rule; the content in `.snyk` will be ignored.
 
 The supported services are: `aws_s3`, `aws_ec2`, `aws_lambda`, `aws_rds`, `aws_route53`, `aws_iam` , `aws_vpc`, `aws_api_gateway`, `aws_apigatewayv2`, `aws_sqs`, `aws_sns`, `aws_ecr`, `aws_cloudfront`, `aws_kms`, `aws_dynamodb`, `azure_base`, `azure_compute`, `azure_storage`, `azure_network`, `azure_container`, `azure_database`, `azure_loadbalancer`, `azure_private_dns`, `google_cloud_platform`, `google_cloud_storage`, `google_compute_engine`, `google_cloud_dns`, `google_cloud_bigtable`, `google_cloud_bigquery`, `google_cloud_functions`, `google_cloud_sql`, `google_cloud_run`
 
@@ -115,39 +120,43 @@ Display a report that shows changes for both managed and unmanaged resources.
 
 Display a report that shows changes only for resources found in aggregated Terraform states; filter out drift for resources that are not managed by Terraform.&#x20;
 
+Alternative: `--drift`
+
 ### `--only-unmanaged`
 
 Display a report that shows resources not found in any Terraform state; filter out drift for managed resources.
 
-Alternative: `--drift`
-
 ### `--quiet`
 
-Prevent stdout from being used for anything but the scan result. This can be useful to pipe the output into some other command.
+Prevent stdout from being used for anything but the scan result.
+
+This can be useful to pipe the output into some other command.
 
 ### `--filter`
 
 Use filter rules.
 
-Filter rules allow you to build a complex expression to include and exclude a set of resources in your workflow. Building a complex include and exclude expression is powered by the expression language JMESPath.
+Filter rules allow you to build a complex expression to include and exclude a set of resources in your workflow.
 
-For more information see [Filter results](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/filter-results).
+Building a complex include and exclude expression is powered by the expression language JMESPath.
+
+For more information see [Filter results](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/filter-results)
 
 ### `--json`
 
 Output the report as JSON to stdout.
 
-### `--json-output-file=<OUTPUT_FILE_PATH>`
+You can save the report to a file with a redirection:
 
-Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
-
-This is especially useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
+`$ snyk iac describe --json > report.json`&#x20;
 
 ### `--html`
 
-`--html-output-file=<OUTPUT_FILE_PATH>`
+Output the report as html to stdout.
 
-Output the report as html to stdout or into a file.
+### `--html-file-output=<OUTPUT_FILE_PATH>`
+
+Output the report as html into a file.
 
 ### `--fetch-tfstate-headers`
 
@@ -168,7 +177,7 @@ Specify an API token to authenticate to the Terraform Cloud or Enterprise API.
 
 ### `--tfc-endpoint`
 
-Read the current state for a given workspace from Terraform Enterprise by passing the `tfc-endpoint` value that is specific to your Org's Terraform Enterprise installation.
+Read the current state for a given workspace from Terraform Enterprise by passing the `tfc-endpoint` value that is specific to your org's Terraform Enterprise installation.
 
 You can obtain your workspace id from the **General Settings** of the workspace.
 
@@ -203,7 +212,9 @@ Enable strict mode.
 
 The `iac describe` command ignores service-linked resources by default (like service-linked AWS IAM roles, their policies and policy attachments). To include those resources in the report you can enable **strict mode**.
 
-Note: when using the strict mode with an AWS account, you may experience unnecessary noise from resources that do not belong to you. This can happen if you have an organization account in which you, by default, have a service-linked role associated to your the account, for example, **AWSServiceRoleForOrganizations**.&#x20;
+Note: when using the strict mode with an AWS account, you may experience unnecessary noise from resources that do not belong to you.
+
+This can happen if you have an organization account in which you, by default, have a service-linked role associated to your the account, for example, **AWSServiceRoleForOrganizations**.&#x20;
 
 Usage:
 
@@ -223,7 +234,9 @@ Usage:
 
 ### `--tf-lockfile`
 
-By default, `snyk iac describe` reads the Terraform lock file (`.terraform.lock.hcl`) from the current directory, so it can automatically detect which provider to use, according to the `--to` flag. You can specify a custom path for that file using the `--tf-lockfile` option. If parsing the lockfile fails for some reason, errors are logged and scan continues.
+By default, `snyk iac describe` reads the Terraform lock file (`.terraform.lock.hcl`) from the current directory, so it can automatically detect which provider to use, according to the `--to` flag. You can specify a custom path for that file using the `--tf-lockfile` option.
+
+If parsing the lockfile fails for some reason, errors are logged and scan continues.
 
 **Note**: When using both the `--tf-lockfile` and `--tf-provider-version` options together, `--tf-provider-version` takes precedence overall.
 
@@ -241,9 +254,9 @@ If you have multiple organizations, you can set a default from the CLI using:
 
 Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
+Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
 
-For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI).
+For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
 
 ### `--config-dir`
 
@@ -259,7 +272,7 @@ $ snyk iac describe --only-unmanaged --config-dir="/path/to/config_dir"
 
 ### `--ignore-policy`
 
-Ignore all set policies, the current policy in the `.snyk` file, Org level ignores, and the project policy on snyk.io.
+Ignore all set policies, the current policy in the `.snyk` file, org level ignores, and the project policy on snyk.io.
 
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 

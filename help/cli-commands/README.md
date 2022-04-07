@@ -2,7 +2,9 @@
 
 Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.
 
-Visit the [Snyk website](https://snyk.io) for more information. See the [CLI documentation](https://docs.snyk.io/features/snyk-cli) for details.
+For more information visit the [Snyk website](https://snyk.io)
+
+For details see the [CLI documentation](https://docs.snyk.io/features/snyk-cli)
 
 ## How to get started
 
@@ -12,7 +14,7 @@ Visit the [Snyk website](https://snyk.io) for more information. See the [CLI doc
 
 ## Available commands
 
-To learn more about each Snyk CLI command, use the `--help` option, for example, `snyk auth --help` or `snyk container --help`. You can also use the help command: `snyk help [<COMMAND>]`.
+To learn more about each Snyk CLI command, use the `--help` option, for example, `snyk auth --help` or `snyk container --help`.
 
 ### [`snyk auth`](auth.md)
 
@@ -32,7 +34,7 @@ Test container images for vulnerabilities.
 
 ### [`snyk iac`](iac.md)
 
-Find security issues in Infrastructure as Code files, and detect drift.
+Commands to find and manage security issues in Infrastructure as Code files.
 
 ### [`snyk code`](code.md)
 
