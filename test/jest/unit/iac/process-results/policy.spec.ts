@@ -3,7 +3,7 @@ import { FormattedResult } from '../../../../../src/cli/commands/test/iac-local-
 import * as fs from 'fs';
 import * as path from 'path';
 import * as snykPolicy from 'snyk-policy';
-import { cloneDeep } from 'lodash';
+import * as cloneDeep from 'lodash.clonedeep';
 
 async function filterFixture(policyName: string) {
   const policy = await loadPolicy(policyName);
