@@ -8,7 +8,7 @@
 
 The `snyk container` command tests container images for vulnerabilities.
 
-For more information see [Snyk CLI for container security](https://docs.snyk.io/products/snyk-container/snyk-cli-for-container-security).
+For more information see [Snyk CLI for container security](https://docs.snyk.io/products/snyk-container/snyk-cli-for-container-security)
 
 ## Subcommands
 
@@ -18,7 +18,7 @@ Test for any known vulnerabilities.
 
 ### `monitor`
 
-Capture the container image layers and dependencies and monitor for vulnerabilities on snyk.io
+Capture the container image layers and dependencies and monitor for vulnerabilities on [snyk.io](https://snyk.io)
 
 ## Exit codes
 
@@ -31,7 +31,9 @@ Possible exit codes and their meaning:
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. There are environment variables that apply to the container command. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli).
+You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API.
+
+There are environment variables that apply to the container command; see [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
 
 ## Debug
 
@@ -53,9 +55,9 @@ If you have multiple organizations, you can set a default from the CLI using:
 
 Set a default to ensure all newly tested and monitored projects are tested and monitored under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
+Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
 
-For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI).
+For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
 
 ### `--file=<FILE_PATH>`
 
@@ -95,19 +97,31 @@ This is especially useful if you want to display the human-readable test output 
 
 Set the project environment to one or more values (comma-separated). To clear the project environment set `--project-environment=`. Allowed values: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed
 
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE]...>`
 
-Set the project lifecycle to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`. Allowed values: production, development, sandbox
+Set the project lifecycle to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`.
+
+Allowed values: `production, development, sandbox`
+
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
 
-Set the project business criticality to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`. Allowed values: critical, medium, low
+Set the project business criticality to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`.
+
+Allowed values: `critical, high, medium, low`
+
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
 Set the project tags to one or more values (comma-separarted key values pairs with an "=" separator).
 
-Example: `--project-tags=department=finance,team=alpha`. To clear the project tags set `--project-tags=`
+Example: `--project-tags=department=finance,team=alpha`.
+
+To clear the project tags set `--project-tags=`
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
@@ -161,4 +175,4 @@ Specify a password to use when connecting to a container registry. This is ignor
 
 `$ snyk container test app:latest --file=Dockerfile --policy-path=path/to/.snyk`
 
-For more information and examples see [Advanced Snyk Container CLI usage](https://docs.snyk.io/snyk-container/snyk-cli-for-container-security/advanced-snyk-container-cli-usage).
+For more information and examples see [Advanced Snyk Container CLI usage](https://docs.snyk.io/snyk-container/snyk-cli-for-container-security/advanced-snyk-container-cli-usage)

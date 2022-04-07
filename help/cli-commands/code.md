@@ -8,7 +8,7 @@
 
 The `snyk code` command finds security issues using Static Code Analysis.
 
-For more information see [CLI for Snyk Code](https://docs.snyk.io/snyk-code/cli-for-snyk-code).
+For more information see [CLI for Snyk Code](https://docs.snyk.io/snyk-code/cli-for-snyk-code)
 
 ## Subcommand: `test`
 
@@ -25,7 +25,7 @@ Possible exit codes and their meaning:
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli).
+You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API; see [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
 
 ## Debug
 
@@ -43,9 +43,9 @@ If you have multiple organizations, you can set a default from the CLI using:
 
 Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
+Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
 
-For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI).
+For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
 
 ### `--json`
 
