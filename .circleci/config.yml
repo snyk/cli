@@ -27,7 +27,7 @@ parameters:
     default: '2.7.0'
 
 executors:
-  linux:
+  docker-node:
     parameters:
       node_version:
         type: string
@@ -36,8 +36,13 @@ executors:
       - image: cimg/node:<< parameters.node_version >>
     # Using RAM Disk. https://circleci.com/docs/2.0/executor-types/#ram-disks
     working_directory: /mnt/ramdisk/snyk
+  linux:
+    machine:
+      # https://circleci.com/developer/machine/image/ubuntu-2004
+      image: ubuntu-2004:202201-01
   linux-arm64:
     machine:
+      # https://circleci.com/docs/2.0/arm-resources/
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
   macos:
@@ -171,7 +176,7 @@ commands:
 
 jobs:
   install:
-    executor: linux
+    executor: docker-node
     steps:
       - checkout
       - setup_npm:
@@ -182,7 +187,7 @@ jobs:
             - node_modules
             - packages/*/node_modules
   lint:
-    executor: linux
+    executor: docker-node
     steps:
       - checkout
       - attach_workspace:
@@ -192,7 +197,7 @@ jobs:
           name: Linting project
           command: npm run lint
   build:
-    executor: linux
+    executor: docker-node
     steps:
       - checkout
       - attach_workspace:
@@ -208,7 +213,7 @@ jobs:
             - packages/*/dist
             - pysrc
   regression-test:
-    executor: linux
+    executor: docker-node
     steps:
       - checkout
       - attach_workspace:
@@ -277,6 +282,29 @@ jobs:
           command: npm run test:acceptance
           environment:
             TEST_SNYK_COMMAND: /Users/distiller/snyk/binary-releases/snyk-macos
+  test-linux:
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - install_sdks_linux
+      - run:
+          name: Installing Node.js
+          command: |
+            sudo apt update
+            sudo apt install nodejs npm
+      - setup_npm:
+          npm_cache_directory: /home/circleci/.npm
+      - run:
+          name: Configuring artifact
+          command: /home/circleci/snyk/binary-releases/snyk-linux config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Testing artifact
+          command: npm run test:acceptance
+          environment:
+            TEST_SNYK_COMMAND: /home/circleci/snyk/binary-releases/snyk-linux
   test-linux-arm64:
     executor: linux-arm64
     working_directory: /home/circleci/snyk
@@ -300,12 +328,12 @@ jobs:
           command: npm run test:acceptance
           environment:
             TEST_SNYK_COMMAND: /home/circleci/snyk/binary-releases/snyk-linux-arm64
-  test-linux:
+  test-jest:
     parameters:
       node_version:
         type: string
     executor:
-      name: linux
+      name: docker-node
       node_version: << parameters.node_version >>
     environment:
       TEMP: /mnt/ramdisk/tmp
@@ -330,7 +358,7 @@ jobs:
           command: npm run test:acceptance
 
   test-tap:
-    executor: linux
+    executor: docker-node
     parallelism: 2
     steps:
       - checkout
@@ -348,7 +376,7 @@ jobs:
               $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
   build-artifacts:
-    executor: linux
+    executor: docker-node
     steps:
       - checkout
       - attach_workspace:
@@ -375,7 +403,7 @@ jobs:
           paths:
             - binary-releases
   release:
-    executor: linux
+    executor: docker-node
     steps:
       - checkout
       - attach_workspace:
@@ -431,7 +459,7 @@ workflows:
           name: Build
           requires:
             - Install
-      - test-linux:
+      - test-jest:
           name: Jest Tests (Linux, Node v<< matrix.node_version >>)
           context: nodejs-install
           requires:
@@ -465,6 +493,11 @@ workflows:
           context: nodejs-install
           requires:
             - Build Artifacts
+      - test-linux:
+          name: Acceptance Tests (snyk-linux)
+          context: nodejs-install
+          requires:
+            - Build Artifacts
       - test-linux-arm64:
           name: Acceptance Tests (snyk-linux-arm64)
           context: nodejs-install
@@ -486,6 +519,7 @@ workflows:
             - Jest Tests (Linux, Node v16.13.2)
             - Acceptance Tests (snyk-win.exe)
             - Acceptance Tests (snyk-macos)
+            - Acceptance Tests (snyk-linux)
             - Acceptance Tests (snyk-linux-arm64)
             - Regression Tests
           filters:
