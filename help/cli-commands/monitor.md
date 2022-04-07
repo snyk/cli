@@ -290,6 +290,6 @@ For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-ope
 
 Use a double dash (`--`) after the complete Snyk command to pass options (arguments, flags) that follow directly to the build tool, for example Gradle or Maven.
 
-The format is `snyk <command> -- -- [<context-specific_options>]`
+The format is `snyk <command> -- [<context-specific_options>]`
 
 Example: `snyk monitor -- --build-cache`
