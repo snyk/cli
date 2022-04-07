@@ -452,6 +452,7 @@ workflows:
             branches:
               only:
                 - /^chore\/.+$/
+                - /^test\/.+$/
                 - /test-all/
                 - master
       - test-windows:
