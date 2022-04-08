@@ -185,6 +185,7 @@ export type IaCTestFlags = Pick<
   | 'sarif'
   | 'report'
   | 'target-reference'
+  | 'var-file'
 
   // PolicyOptions
   | 'ignore-policy'

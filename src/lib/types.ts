@@ -88,6 +88,7 @@ export interface Options {
   'no-markdown'?: boolean;
   'max-depth'?: number;
   report?: boolean;
+  'var-file'?: string;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
