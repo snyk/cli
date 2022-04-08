@@ -23,9 +23,6 @@ describe('Terraform Language Support', () => {
         `snyk iac test ./iac/terraform/var_deref`,
       );
 
-      // expect exitCode to be 0 or 1
-      expect(exitCode).toBeLessThanOrEqual(1);
-
       expect(stdout).toContain('Testing sg_open_ssh.tf...');
       expect(stdout.match(/✗ Security Group allows open ingress/g)).toBeNull();
       expect(stdout).toContain('Tested sg_open_ssh.tf for known issues');
@@ -40,6 +37,17 @@ describe('Terraform Language Support', () => {
           'sg_open_ssh.tf',
         )} for known issues`,
       );
+      // expect exitCode to be 0 or 1
+      expect(exitCode).toBeLessThanOrEqual(1);
+    });
+    it('returns an error if var-file flag is used', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test ./iac/terraform/var_deref --var-file=path/to/var-file.tfvars`,
+      );
+      expect(stdout).toMatch(
+        'Flag "--var-file" is only supported if feature flag "iacTerraformVarSupport" is enabled. To enable it, please contact Snyk support.',
+      );
+      expect(exitCode).toBe(2);
     });
 
     it('returns error if empty Terraform file', async () => {
@@ -245,6 +253,27 @@ describe('Terraform Language Support', () => {
         )} for known issues`,
       );
       expect(exitCode).toBe(1);
+    });
+  });
+
+  describe('with --var-file', () => {
+    it.skip('picks up the file if it exists', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test --org=tf-lang-support ./iac/terraform/var_deref --var-file=./iac/terraform/example_var.tfvars`,
+      );
+      expect(stdout).toContain(
+        `Testing ${path.join('terraform', 'example_var.tfvars')}`,
+      );
+      expect(exitCode).toBe(1);
+    });
+    it('returns error if the file does not exist', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test --org=tf-lang-support ./iac/terraform/var_deref --var-file=./iac/terraform/non-existent.tfvars`,
+      );
+      expect(stdout).toContain(
+        'We were unable to locate a variable definitions file at: "./iac/terraform/non-existent.tfvars". The file at the provided path does not exist',
+      );
+      expect(exitCode).toBe(2);
     });
   });
 

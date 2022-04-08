@@ -15,6 +15,7 @@ import {
   TestOptions,
   PolicyOptions,
 } from '../../../../lib/types';
+import { InvalidVarFilePath } from './index';
 
 export interface IacFileData extends IacFileInDirectory {
   fileContent: string;
@@ -299,6 +300,7 @@ export enum IaCErrorCodes {
   FailedToExtractCustomRulesError = 1003,
   InvalidCustomRules = 1004,
   InvalidCustomRulesPath = 1005,
+  InvalidVarFilePath = 1006,
 
   // file-loader errors
   NoFilesToScanError = 1010,
