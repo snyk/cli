@@ -119,14 +119,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   app.use((req, res, next) => {
-    // these test don't run on the new experimental flow
-    // so once we deprecate legacy this check can be removed
-    const isExperimentalIac =
-      req.url !== undefined &&
-      (req.url.includes('/iac-org-settings') ||
-        req.url.includes('/feature-flags/experimentalLocalExecIac'));
     if (
-      isExperimentalIac ||
+      req.url?.includes('/iac-org-settings') ||
       req.url?.includes('/cli-config/feature-flags/') ||
       (!nextResponse && !nextStatusCode)
     ) {
@@ -328,28 +322,6 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       uri:
         'http://example-url/project/project-public-id/history/snapshot-public-id',
       projectName: 'test-project',
-    });
-  });
-
-  app.post(basePath + '/test-iac', (req, res) => {
-    if (req.query.org && req.query.org === 'missing-org') {
-      res.status(404).send({
-        code: 404,
-        userMessage:
-          'Org missing-org was not found or you may not have the correct permissions',
-      });
-      return;
-    }
-
-    res.send({
-      result: {
-        projectType: 'k8sconfig',
-        cloudConfigResults: [],
-      },
-      meta: {
-        org: 'test-org',
-        isPublic: false,
-      },
     });
   });
 
