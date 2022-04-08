@@ -1,6 +1,7 @@
 import { isLocalFolder } from '../../../../lib/detect';
 import {
   EngineType,
+  IaCErrorCodes,
   IacFileParsed,
   IacFileParseFailure,
   IaCTestFlags,
@@ -32,6 +33,10 @@ import {
   getAllDirectoriesForPath,
   getFilesForDirectory,
 } from './directory-loader';
+import { existsSync } from 'fs';
+import { CustomError } from '../../../../lib/errors';
+import { getErrorStringCode } from './error-utils';
+import { FeatureFlagError } from './assert-iac-options-flag';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -69,6 +74,15 @@ export async function test(
       pathToScan,
       options.detectionDepth,
     );
+
+    if (options['var-file']) {
+      if (!isTFVarSupportEnabled) {
+        throw new FeatureFlagError('var-file', 'iacTerraformVarSupport');
+      }
+      if (!existsSync(options['var-file'])) {
+        throw new InvalidVarFilePath(options['var-file']);
+      }
+    }
 
     // we load and parse files directory by directory
     // because we need all files in the same directory to share the same variable context for Terraform
@@ -174,5 +188,14 @@ function parseTags(options: IaCTestFlags) {
 function parseAttributes(options: IaCTestFlags) {
   if (options.report) {
     return generateProjectAttributes(options);
+  }
+}
+
+export class InvalidVarFilePath extends CustomError {
+  constructor(path: string, message?: string) {
+    super(message || 'Invalid path to variable definitions file');
+    this.code = IaCErrorCodes.InvalidVarFilePath;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `We were unable to locate a variable definitions file at: "${path}". The file at the provided path does not exist`;
   }
 }
