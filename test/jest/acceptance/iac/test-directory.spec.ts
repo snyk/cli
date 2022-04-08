@@ -18,8 +18,6 @@ describe('Directory scan', () => {
 
   it('scans all files in a directory with Kubernetes files', async () => {
     const { stdout, exitCode } = await run(`snyk iac test ./iac/kubernetes/`);
-    expect(exitCode).toBe(1);
-
     expect(stdout).toContain('Testing pod-privileged.yaml'); //directory scan shows relative path to cwd in output
     expect(stdout).toContain('Testing pod-privileged-multi.yaml');
     expect(stdout).toContain('Testing pod-valid.json');
@@ -28,11 +26,11 @@ describe('Directory scan', () => {
     expect(stdout).toContain(
       'Tested 3 projects, 3 contained issues. Failed to test 1 project.',
     );
+    expect(exitCode).toBe(1);
   });
 
   it('scans all files in a directory with a mix of IaC files', async () => {
     const { stdout, exitCode } = await run(`snyk iac test ./iac/`);
-    expect(exitCode).toBe(1);
     //directory scan shows relative path to cwd  in output
     // here we assert just on the filename to avoid the different slashes (/) for Unix/Windows on the CI runner
     expect(stdout).toContain('pod-privileged.yaml');
@@ -47,8 +45,9 @@ describe('Directory scan', () => {
     expect(stdout).toContain('Failed to parse YAML file');
     expect(stdout).toContain('Failed to parse JSON file');
     expect(stdout).toContain(
-      '22 projects, 15 contained issues. Failed to test 8 projects.',
+      '23 projects, 15 contained issues. Failed to test 8 projects.',
     );
+    expect(exitCode).toBe(1);
   });
 
   it('filters out issues when using severity threshold', async () => {

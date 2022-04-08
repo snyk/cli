@@ -1,4 +1,4 @@
-import { startMockServer, isValidJSONString } from './helpers';
+import { isValidJSONString, startMockServer } from './helpers';
 import * as path from 'path';
 
 jest.setTimeout(50000);
@@ -256,14 +256,26 @@ describe('Terraform Language Support', () => {
     });
   });
 
-  describe('with --var-file', () => {
-    it.skip('picks up the file if it exists', async () => {
+  describe('with the --var-file flag', () => {
+    it('picks up the file and dereferences the variable context for the right directory (pathToScan)', async () => {
       const { stdout, exitCode } = await run(
-        `snyk iac test --org=tf-lang-support ./iac/terraform/var_deref --var-file=./iac/terraform/example_var.tfvars`,
+        `snyk iac test --org=tf-lang-support ./iac/terraform/var_deref/nested_var_deref --var-file=./iac/terraform/vars.tf`,
       );
       expect(stdout).toContain(
-        `Testing ${path.join('terraform', 'example_var.tfvars')}`,
+        `Testing ${path.relative(
+          './iac/terraform/var_deref/nested_var_deref',
+          './iac/terraform/vars.tf',
+        )}`,
       );
+      expect(stdout).toContain(
+        'introduced by input > resource > aws_security_group[allow_ssh_external_var_file] > ingress\n',
+      );
+      expect(
+        stdout.match(
+          /Project path: {6}.\/iac\/terraform\/var_deref\/nested_var_deref/g,
+        ),
+      ).toHaveLength(3);
+      expect(stdout.match(/Project path: {6}.\/iac\/terraform$/g)).toBeNull();
       expect(exitCode).toBe(1);
     });
     it('returns error if the file does not exist', async () => {
@@ -274,6 +286,14 @@ describe('Terraform Language Support', () => {
         'We were unable to locate a variable definitions file at: "./iac/terraform/non-existent.tfvars". The file at the provided path does not exist',
       );
       expect(exitCode).toBe(2);
+    });
+    it('will not parse the external file if it is invalid', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test --org=tf-lang-support ./iac/terraform/var_deref --var-file=./iac/terraform/sg_open_ssh_invalid_hcl2.tf`,
+      );
+      expect(stdout).toContain('Testing sg_open_ssh_invalid_hcl2.tf...');
+      expect(stdout).toContain('Failed to parse Terraform file');
+      expect(exitCode).toBe(1);
     });
   });
 
