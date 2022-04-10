@@ -39,12 +39,14 @@ test/smoke/spec/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/snyk_code_spec.sh @snyk/zenith
 test/smoke/spec/snyk_basic_spec.sh @snyk/hammer
 test/smoke/.iac-data/ @snyk/group-infrastructure-as-code
+test/jest/unit/lib/endpoint-config-test.spec.ts @snyk/nebula
 test/jest/unit/lib/formatters/iac-output/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/formatters/test/format-test-results.spec.ts @snyk/hammer @snyk/snyk-open-source @snyk/magma
 test/jest/unit/iac/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/snyk-apps @snyk/moose
+src/lib/code-config.ts @snyk/nebula
 src/lib/errors/describe-required-argument-error.ts @snyk/group-infrastructure-as-code
 src/lib/errors/describe-exclusive-argument-error.ts @snyk/group-infrastructure-as-code
 src/lib/errors/no-supported-sast-files-found.ts @snyk/zenith
