@@ -1,12 +1,12 @@
-jest.mock('../../../../src/cli/commands/test/iac-local-execution/local-cache');
-jest.mock('../../../../src/cli/commands/test/iac-local-execution/file-loader');
+jest.mock('../../../../src/cli/commands/test/iac/local-execution/local-cache');
+jest.mock('../../../../src/cli/commands/test/iac/local-execution/file-loader');
 const isFeatureFlagSupportedForOrgStub = jest.fn();
 jest.mock('../../../../src/lib/feature-flags', () => ({
   isFeatureFlagSupportedForOrg: isFeatureFlagSupportedForOrgStub,
 }));
 const parseFilesStub = jest.fn();
 jest.mock(
-  '../../../../src/cli/commands/test/iac-local-execution/file-parser',
+  '../../../../src/cli/commands/test/iac/local-execution/file-parser',
   () => {
     return {
       parseFiles: parseFilesStub,
@@ -14,7 +14,7 @@ jest.mock(
   },
 );
 jest.mock(
-  '../../../../src/cli/commands/test/iac-local-execution/file-scanner',
+  '../../../../src/cli/commands/test/iac/local-execution/file-scanner',
   () => {
     return {
       scanFiles: async () => [],
@@ -27,7 +27,7 @@ jest.mock('../../../../src/lib/detect', () => ({
 
 const getIacOrgSettingsStub = jest.fn();
 jest.mock(
-  '../../../../src/cli/commands/test/iac-local-execution/org-settings/get-iac-org-settings.ts',
+  '../../../../src/cli/commands/test/iac/local-execution/org-settings/get-iac-org-settings.ts',
   () => ({
     getIacOrgSettings: getIacOrgSettingsStub,
   }),
@@ -36,21 +36,21 @@ jest.mock(
 const getAllDirectoriesForPathStub = jest.fn();
 const getFilesForDirectoryStub = jest.fn();
 jest.mock(
-  '../../../../src/cli/commands/test/iac-local-execution/directory-loader',
+  '../../../../src/cli/commands/test/iac/local-execution/directory-loader',
   () => ({
     getAllDirectoriesForPath: getAllDirectoriesForPathStub,
     getFilesForDirectory: getFilesForDirectoryStub,
   }),
 );
 
-import { test } from '../../../../src/cli/commands/test/iac-local-execution';
-import * as measurableMethods from '../../../../src/cli/commands/test/iac-local-execution/measurable-methods';
+import { test } from '../../../../src/cli/commands/test/iac/local-execution/';
+import * as measurableMethods from '../../../../src/cli/commands/test/iac/local-execution/measurable-methods';
 import {
   IacFileParsed,
   IaCTestFlags,
-} from '../../../../src/cli/commands/test/iac-local-execution/types';
+} from '../../../../src/cli/commands/test/iac/local-execution/types';
 import { IacProjectType } from '../../../../src/lib/iac/constants';
-import { EngineType } from '../../../../src/cli/commands/test/iac-local-execution/types';
+import { EngineType } from '../../../../src/cli/commands/test/iac/local-execution/types';
 const parsedFiles: IacFileParsed[] = [
   {
     engineType: EngineType.Terraform,

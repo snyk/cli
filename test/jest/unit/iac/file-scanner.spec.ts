@@ -2,12 +2,12 @@ import * as path from 'path';
 import {
   scanFiles,
   clearPolicyEngineCache,
-} from '../../../../src/cli/commands/test/iac-local-execution/file-scanner';
-import { LOCAL_POLICY_ENGINE_DIR } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
+} from '../../../../src/cli/commands/test/iac/local-execution/file-scanner';
+import { LOCAL_POLICY_ENGINE_DIR } from '../../../../src/cli/commands/test/iac/local-execution/local-cache';
 import {
   EngineType,
   IacFileParsed,
-} from '../../../../src/cli/commands/test/iac-local-execution/types';
+} from '../../../../src/cli/commands/test/iac/local-execution/types';
 
 import {
   paresdKubernetesFileStub,
@@ -17,7 +17,7 @@ import {
   expectedViolatedPoliciesForTerraform,
   expectedViolatedPoliciesForArm,
 } from './file-scanner.fixtures';
-import * as localCacheModule from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
+import * as localCacheModule from '../../../../src/cli/commands/test/iac/local-execution/local-cache';
 
 describe('scanFiles', () => {
   const parsedFiles: Array<IacFileParsed> = [

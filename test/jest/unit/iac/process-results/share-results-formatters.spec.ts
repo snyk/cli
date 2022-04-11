@@ -1,4 +1,4 @@
-import { formatShareResults } from '../../../../../src/cli/commands/test/iac-local-execution/process-results/share-results-formatter';
+import { formatShareResults } from '../../../../../src/cli/commands/test/iac/local-execution/process-results/share-results-formatter';
 import { generateScanResults } from '../results-formatter.fixtures';
 import { expectedFormattedResultsForShareResults } from './share-results-formatters.fixtures';
 

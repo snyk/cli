@@ -1,9 +1,9 @@
 import { FormattedResult, PerformanceAnalyticsKey, RulesOrigin } from './types';
-import * as analytics from '../../../../lib/analytics';
+import * as analytics from '../../../../../lib/analytics';
 import { calculatePercentage } from './math-utils';
 import { computeCustomRulesBundleChecksum } from './file-utils';
-import { DescribeOptions, DriftAnalysis } from '../../../../lib/iac/types';
-import { driftctlVersion } from '../../../../lib/iac/drift';
+import { DescribeOptions, DriftAnalysis } from '../../../../../lib/iac/types';
+import { driftctlVersion } from '../../../../../lib/iac/drift';
 
 export function addIacAnalytics(
   formattedResults: FormattedResult[],

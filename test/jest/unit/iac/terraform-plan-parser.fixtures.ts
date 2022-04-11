@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';
+import { IacFileData } from '../../../../src/cli/commands/test/iac/local-execution/types';
 
 export enum PlanOutputCase {
   Create = 'tf-plan-create', // plan with create actions

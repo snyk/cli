@@ -7,9 +7,9 @@ import {
   PolicyMetadata,
   TestMeta,
 } from '../types';
-import { SEVERITY, SEVERITIES } from '../../../../../lib/snyk-test/common';
-import { IacProjectType } from '../../../../../lib/iac/constants';
-import { CustomError } from '../../../../../lib/errors';
+import { SEVERITY, SEVERITIES } from '../../../../../../lib/snyk-test/common';
+import { IacProjectType } from '../../../../../../lib/iac/constants';
+import { CustomError } from '../../../../../../lib/errors';
 import {
   extractLineNumber,
   getFileTypeForParser,

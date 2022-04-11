@@ -1,4 +1,4 @@
-import { IacProjectType } from '../../../../../lib/iac/constants';
+import { IacProjectType } from '../../../../../../lib/iac/constants';
 import { EngineType, IacFileData, IacFileParsed } from '../types';
 
 export const REQUIRED_K8S_FIELDS = ['apiVersion', 'kind', 'metadata'];

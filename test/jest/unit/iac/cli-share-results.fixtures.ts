@@ -1,7 +1,7 @@
 import {
   IacShareResultsFormat,
   PolicyMetadata,
-} from '../../../../src/cli/commands/test/iac-local-execution/types';
+} from '../../../../src/cli/commands/test/iac/local-execution/types';
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 import { SEVERITY } from '../../../../src/lib/snyk-test/common';
 

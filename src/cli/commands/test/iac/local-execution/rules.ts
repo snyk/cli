@@ -17,9 +17,9 @@ import {
   UnsupportedEntitlementPullError,
 } from './oci-pull';
 import { initLocalCache, pull } from './measurable-methods';
-import { config as userConfig } from '../../../../lib/user-config';
+import { config as userConfig } from '../../../../../lib/user-config';
 import { isValidUrl } from './url-utils';
-import { CustomError } from '../../../../lib/errors';
+import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 
 export async function initRules(

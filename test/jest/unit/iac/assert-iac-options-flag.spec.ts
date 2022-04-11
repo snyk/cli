@@ -1,7 +1,7 @@
 import {
   assertIaCOptionsFlags,
   FlagValueError,
-} from '../../../../src/cli/commands/test/iac-local-execution/assert-iac-options-flag';
+} from '../../../../src/cli/commands/test/iac/local-execution/assert-iac-options-flag';
 
 describe('assertIaCOptionsFlags()', () => {
   const command = ['node', 'cli', 'iac', 'test'];

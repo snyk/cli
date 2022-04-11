@@ -15,15 +15,12 @@ src/cli/commands/monitor @snyk/snyk-open-source
 src/cli/commands/test/formatters/format-reachability.ts  @snyk/tardis
 help/  @snyk/hammer
 help/cli-commands/iac*.md @snyk/group-infrastructure-as-code @snyk/hammer 
-src/cli/commands/test/iac-local-execution/ @snyk/group-infrastructure-as-code
-src/cli/commands/test/iac-output.ts @snyk/group-infrastructure-as-code
-src/cli/commands/test/iac-test-shim.ts @snyk/group-infrastructure-as-code
+src/cli/commands/test/iac/ @snyk/group-infrastructure-as-code
 src/cli/commands/describe.ts @snyk/group-infrastructure-as-code
 src/cli/commands/report/ @snyk/group-infrastructure-as-code
 src/cli/commands/update-exclude-policy.ts @snyk/group-infrastructure-as-code
 src/cli/commands/apps @snyk/moose
 src/lib/apps @snyk/moose
-src/lib/cloud-config-projects.ts @snyk/group-infrastructure-as-code
 src/lib/container @snyk/magma
 src/lib/plugins @snyk/snyk-open-source
 test/fixtures/sast/ @snyk/zenith
@@ -32,9 +29,6 @@ test/jest/unit/snyk-code/ @snyk/zenith
 src/lib/formatters/iac-output/ @snyk/group-infrastructure-as-code
 src/lib/iac/ @snyk/group-infrastructure-as-code
 src/lib/snyk-test/iac-test-result.ts @snyk/group-infrastructure-as-code
-src/lib/snyk-test/payload-schema.ts @snyk/group-infrastructure-as-code
-src/lib/snyk-test/run-iac-test.ts @snyk/group-infrastructure-as-code
-test/acceptance/cli-test/iac/ @snyk/group-infrastructure-as-code
 test/fixtures/basic-apk/ @snyk/magma
 test/fixtures/container-app-vulns/ @snyk/magma
 test/fixtures/container-projects/ @snyk/capsule @snyk/magma @snyk/potion
@@ -47,12 +41,9 @@ test/smoke/.iac-data/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/formatters/iac-output/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/formatters/test/format-test-results.spec.ts @snyk/hammer @snyk/snyk-open-source @snyk/magma
 test/jest/unit/iac/ @snyk/group-infrastructure-as-code
-test/jest/unit/makeDirectoryIterator.spec.ts @snyk/group-infrastructure-as-code
 test/jest/unit/lib/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/snyk-apps @snyk/moose
-src/lib/errors/invalid-iac-file.ts @snyk/group-infrastructure-as-code
-src/lib/errors/unsupported-options-iac-error.ts @snyk/group-infrastructure-as-code
 src/lib/errors/describe-required-argument-error.ts @snyk/group-infrastructure-as-code
 src/lib/errors/describe-exclusive-argument-error.ts @snyk/group-infrastructure-as-code
 src/lib/errors/no-supported-sast-files-found.ts @snyk/zenith

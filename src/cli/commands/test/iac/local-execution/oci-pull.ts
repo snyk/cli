@@ -8,7 +8,7 @@ import {
   OCIPullOptions,
   OCIRegistryURLComponents,
 } from './types';
-import { CustomError } from '../../../../lib/errors';
+import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { LOCAL_POLICY_ENGINE_DIR } from './local-cache';
 import * as Debug from 'debug';

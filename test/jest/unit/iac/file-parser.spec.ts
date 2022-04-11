@@ -1,11 +1,11 @@
 import {
   parseFiles,
   parseTerraformFiles,
-} from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
+} from '../../../../src/cli/commands/test/iac/local-execution/file-parser';
 import {
   FailedToParseTerraformFileError,
   tryParsingTerraformFile,
-} from '../../../../src/cli/commands/test/iac-local-execution/parsers/terraform-file-parser';
+} from '../../../../src/cli/commands/test/iac/local-execution/parsers/terraform-file-parser';
 import {
   expectedKubernetesYamlParsingResult,
   kubernetesYamlInvalidFileDataStub,
@@ -22,8 +22,8 @@ import {
   expectedInsufficientIndentationYamlErrorFileParsingResult,
   insufficientIndentationYamlErrorFileDataStub,
 } from './file-parser.kubernetes.fixtures';
-import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';
-import { IacFileTypes } from '../../../../dist/lib/iac/constants';
+import { IacFileData } from '../../../../src/cli/commands/test/iac/local-execution/types';
+import { IacFileTypes } from '../../../../src/lib/iac/constants';
 import {
   cloudFormationJSONFileDataStub,
   cloudFormationYAMLFileDataStub,

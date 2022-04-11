@@ -1,6 +1,6 @@
 import { CustomError } from '../errors';
-import { IaCErrorCodes } from '../../cli/commands/test/iac-local-execution/types';
-import { getErrorStringCode } from '../../cli/commands/test/iac-local-execution/error-utils';
+import { IaCErrorCodes } from '../../cli/commands/test/iac/local-execution/types';
+import { getErrorStringCode } from '../../cli/commands/test/iac/local-execution/error-utils';
 
 export const services2resources = new Map<string, Array<string>>([
   // Amazon

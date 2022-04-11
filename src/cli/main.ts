@@ -30,7 +30,7 @@ import {
   CustomError,
   NoSupportedSastFiles,
 } from '../lib/errors';
-import { IaCErrorCodes } from './commands/test/iac-local-execution/types';
+import { IaCErrorCodes } from './commands/test/iac/local-execution/types';
 import stripAnsi from 'strip-ansi';
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';

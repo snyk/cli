@@ -3,8 +3,8 @@ import { processCommandArgs } from './process-command-args';
 import * as legacyError from '../../lib/errors/legacy-errors';
 import * as fs from 'fs';
 import * as snykPolicyLib from 'snyk-policy';
-import { getIacOrgSettings } from './test/iac-local-execution/org-settings/get-iac-org-settings';
-import { UnsupportedEntitlementCommandError } from './test/iac-local-execution/assert-iac-options-flag';
+import { getIacOrgSettings } from './test/iac/local-execution/org-settings/get-iac-org-settings';
+import { UnsupportedEntitlementCommandError } from './test/iac/local-execution/assert-iac-options-flag';
 import config from '../../lib/config';
 import {
   parseDriftAnalysisResults,

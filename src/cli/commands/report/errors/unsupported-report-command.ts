@@ -1,6 +1,6 @@
 import { CustomError } from '../../../../lib/errors';
-import { getErrorStringCode } from '../../test/iac-local-execution/error-utils';
-import { IaCErrorCodes } from '../../test/iac-local-execution/types';
+import { getErrorStringCode } from '../../test/iac/local-execution/error-utils';
+import { IaCErrorCodes } from '../../test/iac/local-execution/types';
 
 export class UnsupportedReportCommandError extends CustomError {
   constructor(message?: string) {

@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { makeFileAndDirectoryGenerator } from './file-utils';
 import { VALID_FILE_TYPES } from './types';
-import { isLocalFolder } from '../../../../lib/detect';
+import { isLocalFolder } from '../../../../../lib/detect';
 
 /**
  * Gets all nested directories for the path that we ran a scan.

@@ -2,8 +2,8 @@ const mockFs = require('mock-fs');
 import {
   FailedToLoadFileError,
   loadContentForFiles,
-} from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
-import * as fileLoader from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
+} from '../../../../src/cli/commands/test/iac/local-execution/file-loader';
+import * as fileLoader from '../../../../src/cli/commands/test/iac/local-execution/file-loader';
 import {
   anotherK8sFileStub,
   k8sFileStub,

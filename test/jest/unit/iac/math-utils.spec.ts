@@ -1,4 +1,4 @@
-import { calculatePercentage } from '../../../../src/cli/commands/test/iac-local-execution/math-utils';
+import { calculatePercentage } from '../../../../src/cli/commands/test/iac/local-execution/math-utils';
 
 describe('Math Utils', function() {
   describe('calculatePercentage', function() {

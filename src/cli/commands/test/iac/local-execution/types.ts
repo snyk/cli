@@ -2,19 +2,19 @@ import {
   IacFileTypes,
   IacProjectType,
   IacProjectTypes,
-} from '../../../../lib/iac/constants';
-import { SEVERITY } from '../../../../lib/snyk-test/common';
+} from '../../../../../lib/iac/constants';
+import { SEVERITY } from '../../../../../lib/snyk-test/common';
 import {
   AnnotatedIssue,
   IgnoreSettings,
   TestResult,
-} from '../../../../lib/snyk-test/legacy';
+} from '../../../../../lib/snyk-test/legacy';
 import {
   IacFileInDirectory,
   Options,
   TestOptions,
   PolicyOptions,
-} from '../../../../lib/types';
+} from '../../../../../lib/types';
 
 export interface IacFileData extends IacFileInDirectory {
   fileContent: string;

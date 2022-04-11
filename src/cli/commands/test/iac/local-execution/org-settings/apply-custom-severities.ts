@@ -1,6 +1,6 @@
 import { IacCustomPolicies, IacFileScanResult } from '../types';
 import _ = require('lodash');
-import { SEVERITY } from '../../../../../lib/snyk-test/common';
+import { SEVERITY } from '../../../../../../lib/snyk-test/common';
 
 export async function applyCustomSeverities(
   scannedFiles: IacFileScanResult[],

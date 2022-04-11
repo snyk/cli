@@ -1,4 +1,4 @@
-import { isValidUrl } from '../../../../src/cli/commands/test/iac-local-execution/url-utils';
+import { isValidUrl } from '../../../../src/cli/commands/test/iac/local-execution/url-utils';
 
 describe('url-utils.ts', function() {
   describe('isValidUrl', function() {
