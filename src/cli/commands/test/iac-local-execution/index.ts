@@ -1,6 +1,8 @@
+import { existsSync } from 'fs';
 import { isLocalFolder } from '../../../../lib/detect';
 import {
   EngineType,
+  IaCErrorCodes,
   IacFileParsed,
   IacFileParseFailure,
   IaCTestFlags,
@@ -32,6 +34,9 @@ import {
   getAllDirectoriesForPath,
   getFilesForDirectory,
 } from './directory-loader';
+import { CustomError } from '../../../../lib/errors';
+import { getErrorStringCode } from './error-utils';
+import { FeatureFlagError } from './assert-iac-options-flag';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -77,6 +82,13 @@ export async function test(
         pathToScan,
         currentDirectory,
       );
+      if (
+        currentDirectory === pathToScan &&
+        shouldLoadVarDefinitionsFile(options, isTFVarSupportEnabled)
+      ) {
+        const varDefinitionsFilePath = options['var-file'];
+        filePathsInDirectory.push(varDefinitionsFilePath);
+      }
       const filesToParse = await loadContentForFiles(filePathsInDirectory);
       const { parsedFiles, failedFiles } = await parseFiles(
         filesToParse,
@@ -107,7 +119,6 @@ export async function test(
       );
     }
 
-    // TODO: decide if this should go into scanFiles or stay here
     const scannedFiles = await scanFiles(allParsedFiles);
     const resultsWithCustomSeverities = await applyCustomSeverities(
       scannedFiles,
@@ -174,5 +185,30 @@ function parseTags(options: IaCTestFlags) {
 function parseAttributes(options: IaCTestFlags) {
   if (options.report) {
     return generateProjectAttributes(options);
+  }
+}
+
+function shouldLoadVarDefinitionsFile(
+  options: IaCTestFlags,
+  isTFVarSupportEnabled = false,
+): options is IaCTestFlags & { 'var-file': string } {
+  if (options['var-file']) {
+    if (!isTFVarSupportEnabled) {
+      throw new FeatureFlagError('var-file', 'iacTerraformVarSupport');
+    }
+    if (!existsSync(options['var-file'])) {
+      throw new InvalidVarFilePath(options['var-file']);
+    }
+    return true;
+  }
+  return false;
+}
+
+export class InvalidVarFilePath extends CustomError {
+  constructor(path: string, message?: string) {
+    super(message || 'Invalid path to variable definitions file');
+    this.code = IaCErrorCodes.InvalidVarFilePath;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `We were unable to locate a variable definitions file at: "${path}". The file at the provided path does not exist`;
   }
 }

@@ -1,4 +1,4 @@
-import { startMockServer, isValidJSONString } from './helpers';
+import { isValidJSONString, startMockServer } from './helpers';
 import * as path from 'path';
 
 jest.setTimeout(50000);
@@ -23,9 +23,6 @@ describe('Terraform Language Support', () => {
         `snyk iac test ./iac/terraform/var_deref`,
       );
 
-      // expect exitCode to be 0 or 1
-      expect(exitCode).toBeLessThanOrEqual(1);
-
       expect(stdout).toContain('Testing sg_open_ssh.tf...');
       expect(stdout.match(/✗ Security Group allows open ingress/g)).toBeNull();
       expect(stdout).toContain('Tested sg_open_ssh.tf for known issues');
@@ -40,6 +37,17 @@ describe('Terraform Language Support', () => {
           'sg_open_ssh.tf',
         )} for known issues`,
       );
+      // expect exitCode to be 0 or 1
+      expect(exitCode).toBeLessThanOrEqual(1);
+    });
+    it('returns an error if var-file flag is used', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test ./iac/terraform/var_deref --var-file=path/to/var-file.tfvars`,
+      );
+      expect(stdout).toMatch(
+        'Flag "--var-file" is only supported if feature flag "iacTerraformVarSupport" is enabled. To enable it, please contact Snyk support.',
+      );
+      expect(exitCode).toBe(2);
     });
 
     it('returns error if empty Terraform file', async () => {
@@ -244,6 +252,47 @@ describe('Terraform Language Support', () => {
           'sg_open_ssh.tf',
         )} for known issues`,
       );
+      expect(exitCode).toBe(1);
+    });
+  });
+
+  describe('with the --var-file flag', () => {
+    it('picks up the file and dereferences the variable context for the right directory (pathToScan)', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test --org=tf-lang-support ./iac/terraform/var_deref/nested_var_deref --var-file=./iac/terraform/vars.tf`,
+      );
+      expect(stdout).toContain(
+        `Testing ${path.relative(
+          './iac/terraform/var_deref/nested_var_deref',
+          './iac/terraform/vars.tf',
+        )}`,
+      );
+      expect(stdout).toContain(
+        'introduced by input > resource > aws_security_group[allow_ssh_external_var_file] > ingress\n',
+      );
+      expect(
+        stdout.match(
+          /Project path: {6}.\/iac\/terraform\/var_deref\/nested_var_deref/g,
+        ),
+      ).toHaveLength(3);
+      expect(stdout.match(/Project path: {6}.\/iac\/terraform$/g)).toBeNull();
+      expect(exitCode).toBe(1);
+    });
+    it('returns error if the file does not exist', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test --org=tf-lang-support ./iac/terraform/var_deref --var-file=./iac/terraform/non-existent.tfvars`,
+      );
+      expect(stdout).toContain(
+        'We were unable to locate a variable definitions file at: "./iac/terraform/non-existent.tfvars". The file at the provided path does not exist',
+      );
+      expect(exitCode).toBe(2);
+    });
+    it('will not parse the external file if it is invalid', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test --org=tf-lang-support ./iac/terraform/var_deref --var-file=./iac/terraform/sg_open_ssh_invalid_hcl2.tf`,
+      );
+      expect(stdout).toContain('Testing sg_open_ssh_invalid_hcl2.tf...');
+      expect(stdout).toContain('Failed to parse Terraform file');
       expect(exitCode).toBe(1);
     });
   });
