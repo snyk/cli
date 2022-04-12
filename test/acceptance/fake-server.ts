@@ -2,6 +2,7 @@ import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import * as fs from 'fs';
 import * as http from 'http';
+import * as https from 'https';
 import * as path from 'path';
 import { getFixturePath } from '../jest/util/getFixturePath';
 
@@ -23,6 +24,10 @@ export type FakeServer = {
   setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
   unauthorizeAction: (action: string, reason?: string) => void;
   listen: (port: string | number, callback: () => void) => void;
+  listenWithHttps: (
+    port: string | number,
+    options: https.ServerOptions,
+  ) => Promise<void>;
   restore: () => void;
   close: (callback: () => void) => void;
   getPort: () => number;
@@ -479,7 +484,23 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   const listen = (port: string | number, callback: () => void) => {
-    server = app.listen(Number(port), callback);
+    server = http.createServer(app).listen(Number(port), callback);
+  };
+
+  const listenWithHttps = (
+    port: string | number,
+    options: https.ServerOptions,
+  ): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      server = https.createServer(options, app);
+      server.once('listening', () => {
+        resolve();
+      });
+      server.once('error', (err) => {
+        reject(err);
+      });
+      server.listen(Number(port));
+    });
   };
 
   const close = (callback: () => void) => {
@@ -509,6 +530,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setFeatureFlag,
     unauthorizeAction,
     listen,
+    listenWithHttps,
     restore,
     close,
     getPort,
