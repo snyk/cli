@@ -39,7 +39,7 @@ export async function tryLoadFileData(
 }
 
 function removeBom(s: string): string {
-  if (s.length > 0 && s.charCodeAt(0) === 0xfeff) {
+  if (s.charCodeAt(0) === 0xfeff) {
     return s.slice(1);
   }
   return s;
