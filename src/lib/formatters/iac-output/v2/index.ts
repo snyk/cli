@@ -11,7 +11,6 @@ import { printPath } from '../../remediation-based-format-issues';
 import { titleCaseText } from '../../legacy-format-issue';
 import { colorTextBySeverity } from '../../../../lib/snyk-test/common';
 import { IacFileInDirectory } from '../../../../lib/types';
-
 import { getSeverityValue } from '../../get-severity-value';
 
 export { formatIacTestSummary } from './test-summary';
@@ -49,8 +48,6 @@ function formatIacIssue(
 
 export function getIacDisplayedOutput(
   iacTest: IacTestResponse,
-  testedInfoText: string,
-  meta: string,
   prefix: string,
 ): string {
   const issuesTextArray = [
@@ -76,12 +73,7 @@ export function getIacDisplayedOutput(
     issuesInfoOutput.push(issuesTextArray.join('\n'));
   }
 
-  let body = issuesInfoOutput.join('\n\n') + '\n\n' + meta;
-
-  const vulnCountText = `found ${issues.length} issues`;
-  const summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
-
-  body = body + '\n\n' + summary;
+  const body = issuesInfoOutput.join('\n\n');
 
   return prefix + body;
 }

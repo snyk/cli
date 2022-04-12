@@ -358,6 +358,7 @@ export enum IaCErrorCodes {
 export interface TestReturnValue {
   results: TestResult | TestResult[];
   failures?: IacFileInDirectory[];
+  ignoreCount: number;
 }
 
 // https://github.com/opencontainers/image-spec/blob/main/manifest.md#image-manifest
