@@ -27,7 +27,7 @@ export async function tryLoadFileData(
 ): Promise<IacFileData> {
   const fileType = getFileType(pathToScan);
 
-  const fileContent = removeBOM(
+  const fileContent = removeBom(
     await fs.readFile(pathToScan, DEFAULT_ENCODING),
   );
 
@@ -38,7 +38,7 @@ export async function tryLoadFileData(
   };
 }
 
-function removeBOM(s: string): string {
+function removeBom(s: string): string {
   if (s.length > 0 && s.charCodeAt(0) === 0xfeff) {
     return s.slice(1);
   }
