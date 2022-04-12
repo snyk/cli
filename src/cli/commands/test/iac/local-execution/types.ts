@@ -20,7 +20,7 @@ export interface IacFileData extends IacFileInDirectory {
   fileContent: string;
 }
 
-export enum ValidFileType {
+enum ValidFileType {
   Terraform = 'tf',
   JSON = 'json',
   YAML = 'yaml',
@@ -46,11 +46,6 @@ export interface IacFileParseFailure extends IacFileData {
   failureReason: string;
   err: Error;
 }
-
-export type ScanningResults = {
-  scannedFiles: Array<IacFileScanResult>;
-  unscannedFiles: Array<IacFileParseFailure>;
-};
 
 export type ParsingResults = {
   parsedFiles: Array<IacFileParsed>;

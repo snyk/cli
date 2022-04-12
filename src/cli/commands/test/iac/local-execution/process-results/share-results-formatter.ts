@@ -1,9 +1,9 @@
-import { computePaths } from '../file-utils';
 import {
   IacFileScanResult,
   IacShareResultsFormat,
   IaCTestFlags,
 } from '../types';
+import { computePaths } from './utils';
 
 export function formatShareResults(
   scanResults: IacFileScanResult[],

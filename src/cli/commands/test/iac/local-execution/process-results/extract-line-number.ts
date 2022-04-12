@@ -1,14 +1,14 @@
-import { IaCErrorCodes } from './types';
-import { CustomError } from '../../../../../lib/errors';
+import { IaCErrorCodes } from '../types';
+import { CustomError } from '../../../../../../lib/errors';
 import {
   CloudConfigFileTypes,
   MapsDocIdToTree,
   getLineNumber,
 } from '@snyk/cloud-config-parser';
-import { UnsupportedFileTypeError } from './file-parser';
-import * as analytics from '../../../../../lib/analytics';
+import { UnsupportedFileTypeError } from '../file-parser';
+import * as analytics from '../../../../../../lib/analytics';
 import * as Debug from 'debug';
-import { getErrorStringCode } from './error-utils';
+import { getErrorStringCode } from '../error-utils';
 const debug = Debug('iac-extract-line-number');
 
 export function getFileTypeForParser(fileType: string): CloudConfigFileTypes {
