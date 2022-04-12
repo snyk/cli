@@ -337,13 +337,6 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       return;
     }
 
-    if (org === 'tf-lang-support') {
-      res.send({
-        ok: true,
-      });
-      return;
-    }
-
     if (featureFlags.has(flag)) {
       const ffEnabled = featureFlags.get(flag);
       if (ffEnabled) {
