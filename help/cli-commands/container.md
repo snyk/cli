@@ -95,13 +95,15 @@ This is especially useful if you want to display the human-readable test output 
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
-Set the project environment to one or more values (comma-separated). To clear the project environment set `--project-environment=`. Allowed values: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed
+Set the project environment to one or more values (comma-separated). To clear the project environment set `--project-environment=`
+
+Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`
 
 For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE]...>`
 
-Set the project lifecycle to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`.
+Set the project lifecycle to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`
 
 Allowed values: `production, development, sandbox`
 
@@ -109,23 +111,23 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
 
-Set the project business criticality to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`.
+Set the project business criticality to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`
 
-Allowed values: `critical, high, medium, low`
+Allowed values: `critical`, `high`, `medium`, `low`
 
 For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
-Set the project tags to one or more values (comma-separarted key values pairs with an "=" separator).
+Set the project tags to one or more values (comma-separated key values pairs with an "=" separator).
 
-Example: `--project-tags=department=finance,team=alpha`.
+Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
-This is an alias for `--project tags`.
+This is an alias for `--project tags`
 
 ### `--severity-threshold=<low|medium|high|critical>`
 
@@ -147,7 +149,7 @@ Do not show vulnerabilities introduced only by the base image. Available when us
 
 For multi-architecture images, specify the platform to test.
 
-Supported platforms are: `linux/amd64`, `linux/arm64`, `linux/riscv64`, `linux/ppc64le`, `linux/s390x`, `linux/386`, `linux/arm/v7`, or `linux/arm/v6`.
+Supported platforms are: `linux/amd64`, `linux/arm64`, `linux/riscv64`, `linux/ppc64le`, `linux/s390x`, `linux/386`, `linux/arm/v7`, or `linux/arm/v6`
 
 ### `--username=<CONTAINER_REGISTRY_USERNAME>`
 

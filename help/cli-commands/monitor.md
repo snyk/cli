@@ -52,7 +52,15 @@ Note that the glob doesn't need to be an exact match and only need to be part of
 
 Use the `--exclude` option with `--detection-depth` to ignore directories at any depth.
 
-Example: `--exclude=test` will exclude any (sub-)folders or files containing `test` as part of their path or name Example: `--exclude=fixtures,debug` will exclude any (sub-)folders or files containing `fixtures` or `debug` as part of their path or name
+Examples:
+
+Exclude any (sub-)folders or files containing `test` as part of the path or name:
+
+&#x20;`--exclude=test`
+
+Exclude any (sub-)folders or files containing `fixtures` or `debug` as part of the path or name:
+
+`--exclude=fixtures,debug`&#x20;
 
 ### `--prune-repeated-subdependencies`, `-p`
 
@@ -102,7 +110,7 @@ Example: `$ snyk monitor --file=req.txt --package-manager=pip`
 
 ### `--ignore-policy`
 
-Ignore all set policies, the current policy in the `.snyk` file, Org level ignores, and the project policy on snyk.io.
+Ignore all set policies, the current policy in the `.snyk` file, org level ignores, and the project policy on snyk.io.
 
 ### `--trust-policies`
 
@@ -130,7 +138,7 @@ Print results in JSON format.
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
-Set the project environment project attribute to one or more values (comma-separated). To clear the project environment set `--project-environment=`.
+Set the project environment project attribute to one or more values (comma-separated). To clear the project environment set `--project-environment=`
 
 Allowed values: `frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed`
 
@@ -138,7 +146,7 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
 
-Set the project lifecycle project attribute to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`.
+Set the project lifecycle project attribute to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`
 
 Allowed values: `production, development, sandbox`
 
@@ -146,7 +154,7 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
 
-Set the project business criticality project attribute to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`.
+Set the project business criticality project attribute to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`
 
 Allowed values: `critical, high, medium, low`
 
@@ -154,11 +162,11 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
-Set the project tags to one or more values (comma-separated key value pairs with an "=" separator), for example, `--project-tags=department=finance,team=alpha`. To clear the project tags set `--project-tags=`
+Set the project tags to one or more values (comma-separated key value pairs with an "=" separator), for example, `--project-tags=department=finance,team=alpha` To clear the project tags set `--project-tags=`
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
-This is an alias for `--project-tags`.
+This is an alias for `--project-tags`
 
 ## Options for Maven projects
 
@@ -166,13 +174,13 @@ For more information about Maven CLI options see [Snyk for Java and Kotlin](http
 
 ### `--scan-all-unmanaged`
 
-Auto-detect maven jars, aars, and wars in given directory. To monitor individually use `--file=<JAR_FILE_NAME>`.
+Auto-detect maven jars, aars, and wars in given directory. To monitor individually use `--file=<JAR_FILE_NAME>`
 
 **Note**: Custom-built jar files, even with open source dependencies, are out of scope.
 
 ### `--reachable`
 
-Analyze your source code to find which vulnerable functions and packages are called. Cannot be used with `--all-projects`.
+Analyze your source code to find which vulnerable functions and packages are called. Cannot be used with `--all-projects`
 
 ### `--reachable-timeout=<TIMEOUT>`
 
@@ -196,13 +204,13 @@ For "multi project" configurations, monitor all sub-projects.
 
 Resolve dependencies using only configuration(s) that match the specified Java regular expression.
 
-Example: `^releaseRuntimeClasspath$`.
+Example: `^releaseRuntimeClasspath$`
 
 ### `--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]...`
 
 Select certain values of configuration attributes to install dependencies and perform dependency resolution.
 
-Example: `buildtype:release,usage:java-runtime`.
+Example: `buildtype:release,usage:java-runtime`
 
 ### `--reachable`
 
@@ -254,7 +262,7 @@ Default: true
 
 ### `--yarn-workspaces`
 
-Detect and scan Yarn workspaces. You can specify how many sub-directories to search using `--detection-depth` and exclude directories and files using `--exclude`. Alternatively scan Yarn workspaces with other projects using `--all-projects`.
+Detect and scan Yarn workspaces. You can specify how many sub-directories to search using `--detection-depth` and exclude directories and files using `--exclude`. Alternatively scan Yarn workspaces with other projects using `--all-projects`
 
 ## Option for CocoaPods projects
 
