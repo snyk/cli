@@ -87,7 +87,7 @@ This is especially useful if you want to display the human-readable test output 
 
 This can be used in combination with the `--report` option.
 
-Set the project business criticality project attribute to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`.
+Set the project business criticality project attribute to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`
 
 Allowed values: `critical, high, medium, low`
 
@@ -97,9 +97,9 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 This can be used in combination with the `--report` command.
 
-Set the project environment project attribute to one or more values (comma-separated). To clear the project environment set `--project-environment=`.
+Set the project environment project attribute to one or more values (comma-separated). To clear the project environment set `--project-environment=`
 
-Allowed values: `frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed`
+Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`
 
 For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
@@ -107,9 +107,9 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 This can be used in combination with the `--report` command.
 
-Set the project lifecycle project attribute to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`.
+Set the project lifecycle project attribute to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`
 
-Allowed values: `production, development, sandbox`
+Allowed values: `production`, `development`, `sandbox`
 
 For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
@@ -119,7 +119,7 @@ This can be used in combination with the `--report` command.
 
 Set the project tags to one or more values (comma-separated key value pairs with an "=" separator).
 
-Example: `--project-tags=department=finance,team=alpha`.
+Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
 
@@ -170,6 +170,14 @@ Example, setting to the current Git branch:
 Example, setting to the latest Git tag:
 
 `snyk iac test myproject/ --report --target-reference="$(git describe --tags --abbrev=0)"`
+
+### `--var-file=<PATH_TO_VARIABLE_FILE>`
+
+Use this option to load a terraform variable definitions file that is located in a different directory from the scanned one.
+
+Example:&#x20;
+
+`$ snyk iac test myproject/staging/networking --var-file=myproject/vars.tf`
 
 ## Examples for snyk iac test command
 

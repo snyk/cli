@@ -6,7 +6,7 @@
 
 ## Description
 
-The `snyk config` command manages your local Snyk CLI config file, a JSON file located at `$XDG_CONFIG_HOME` or `~/.config` followed by `configstore/snyk.json`.
+The `snyk config` command manages your local Snyk CLI config file, a JSON file located at `$XDG_CONFIG_HOME` or `~/.config` followed by `configstore/snyk.json`
 
 Example: `~/.config/configstore/snyk.json`
 

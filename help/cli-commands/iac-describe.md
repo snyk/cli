@@ -38,12 +38,14 @@ Use the `-d` option to output the debug logs.
 
 **Note:** To use the `describe` command, you **must use at least one of these options**:
 
-- `--only-managed` or `--drift`\
-  ``Scan only managed resources from the Terraform states.
-- `--only-unmanaged`\
-  ``Scan only unmanaged resources.
-- `--all`\
-  ``Scan both managed and unmanaged resources.
+`--only-managed` or `--drift`\
+Scan only managed resources from the Terraform states.
+
+`--only-unmanaged`\
+Scan only unmanaged resources.
+
+`--all`\
+Scan both managed and unmanaged resources.
 
 See the list of options that follows for details.
 

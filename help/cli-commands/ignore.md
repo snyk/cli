@@ -64,7 +64,7 @@ Supported formats:
 
 [RFC 2822](https://tools.ietf.org/html/rfc2822)
 
-Default: 30 days or none if used with `--file-path`.
+Default: 30 days or none if used with `--file-path`
 
 ### `--reason=<REASON>`
 
@@ -90,7 +90,7 @@ Default: all
 
 ### `--file-path=<PATH_TO_RESOURCE>`
 
-Filesystem for which to ignore the issue. Used by `snyk code` and `snyk test --unmanaged`.
+Filesystem for which to ignore the issue. Used by `snyk code` and `snyk test --unmanaged`
 
 Default: none
 

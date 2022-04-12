@@ -53,7 +53,15 @@ Note that the glob doesn't need to be an exact match and only need to be part of
 
 Use the `--exclude` option with `--detection-depth` to ignore directories at any depth.
 
-Example: `--exclude=test` will exclude any (sub-)folders or files containing `test` as part of their path or name Example: `--exclude=fixtures,debug` will exclude any (sub-)folders or files containing `fixtures` or `debug` as part of their path or name
+Examples:
+
+Exclude any (sub-)folders or files containing `test` as part of the path or name:
+
+&#x20;`--exclude=test`&#x20;
+
+Exclude any (sub-)folders or files containing `fixtures` or `debug` as part of the path or name:
+
+`--exclude=fixtures,debug`&#x20;
 
 ### `--prune-repeated-subdependencies`, `-p`
 
@@ -85,7 +93,7 @@ If you have multiple organizations, you can set a default from the CLI using:
 
 Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account).
+Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
 
 For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
 
@@ -103,7 +111,7 @@ Example: `$ snyk test --file=req.txt --package-manager=pip`
 
 ### `--ignore-policy`
 
-Ignore all set policies, the current policy in the `.snyk` file, Org level ignores, and the project policy on snyk.io.
+Ignore all set policies, the current policy in the `.snyk` file, org level ignores, and the project policy on snyk.io.
 
 ### `--trust-policies`
 
@@ -113,7 +121,7 @@ Apply and use ignore rules from the Snyk policies your dependencies; otherwise i
 
 Display the dependency paths from the top level dependencies down to the vulnerable packages. Does not affect output when using JSON `--json` output.
 
-Default: `some` (a few example paths shown). `false` is an alias for `none`.
+Default: `some` (a few example paths shown). `false` is an alias for `none`
 
 Example: `--show-vulnerable-paths=none`
 
@@ -173,13 +181,13 @@ For more information about Maven CLI options see [Snyk for Java and Kotlin](http
 
 ### `--scan-all-unmanaged`
 
-Auto-detect maven jars, aars, and wars in given directory. To test individually use `--file=<JAR_FILE_NAME>`.
+Auto-detect maven jars, aars, and wars in given directory. To test individually use `--file=<JAR_FILE_NAME>`
 
 **Note**: Custom-built jar files, even with open source dependencies, are out of scope.
 
 ### `--reachable`
 
-Analyze your source code to find which vulnerable functions and packages are called. Cannot be used with `--all-projects`.
+Analyze your source code to find which vulnerable functions and packages are called. Cannot be used with `--all-projects`
 
 ### `--reachable-timeout=<TIMEOUT>`
 
@@ -203,13 +211,13 @@ For "multi project" configurations, test all sub-projects.
 
 Resolve dependencies using only configuration(s) that match the specified Java regular expression
 
-Example: `^releaseRuntimeClasspath$`.
+Example: `^releaseRuntimeClasspath$`
 
 ### `--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]...`
 
 Select certain values of configuration attributes to install dependencies and perform dependency resolution.
 
-Eexample: `buildtype:release,usage:java-runtime`.
+Example: `buildtype:release,usage:java-runtime`
 
 ### `--reachable`
 
@@ -229,7 +237,7 @@ Use for projects that contain a Gradle initialization script.
 
 ### `--assets-project-name`
 
-When monitoring a .NET project using NuGet `PackageReference` use the project name in project.assets.json, if found.
+When monitoring a .NET project using NuGet `PackageReference` use the project name in `project.assets.json` if found.
 
 ### `--packages-folder`
 
@@ -239,7 +247,7 @@ Specify a custom path to the packages folder.
 
 When monitoring a .NET project, use this option to add a custom prefix to the name of files inside a project along with any desired separators.
 
-Example: `snyk monitor --file=my-project.sln --project-name-prefix=my-group/`.
+Example: `snyk monitor --file=my-project.sln --project-name-prefix=my-group/`
 
 This is useful when you have multiple projects with the same name in other `.sln` files.
 
@@ -261,7 +269,7 @@ Default: true
 
 ### `--yarn-workspaces`
 
-Detect and scan Yarn workspaces. You can specify how many sub-directories to search using `--detection-depth` and exclude directories and files using `--exclude`. Alternatively scan Yarn workspaces with other projects using `--all-projects`.
+Detect and scan Yarn workspaces. You can specify how many sub-directories to search using `--detection-depth` and exclude directories and files using `--exclude`. Alternatively scan Yarn workspaces with other projects using `--all-projects`
 
 ## Option for CocoaPods projects
 
