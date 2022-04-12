@@ -1,3 +1,4 @@
+import { EOL } from 'os';
 import { FakeServer } from '../../../acceptance/fake-server';
 import { startMockServer } from './helpers';
 
@@ -88,14 +89,17 @@ Target file:       ${filePath}
           `snyk iac test ${filePath} --policy-path=${policyPath}`,
         );
         expect(stdout).toContain(
-          `Test Summary
-
-  Organization: test-org
-
-✔ Files without issues: 0
-✗ Files with issues: 1
-  Ignored issues: 2
-  Total issues: 7 [ 0 critical, 1 high, 2 medium, 4 low ]`,
+          'Test Summary' +
+            EOL.repeat(2) +
+            '  Organization: test-org' +
+            EOL.repeat(2) +
+            '✔ Files without issues: 0' +
+            EOL +
+            '✗ Files with issues: 1' +
+            EOL +
+            '  Ignored issues: 2' +
+            EOL +
+            '  Total issues: 7 [ 0 critical, 1 high, 2 medium, 4 low ]',
         );
       });
     });
@@ -150,14 +154,17 @@ If the issue persists contact support@snyk.io`,
           `snyk iac test ${dirPath} --policy-path=${policyPath}`,
         );
         expect(stdout).toContain(
-          `Test Summary
-
-  Organization: test-org
-
-✔ Files without issues: 0
-✗ Files with issues: 3
-  Ignored issues: 8
-  Total issues: 28 [ 0 critical, 4 high, 8 medium, 16 low ]`,
+          'Test Summary' +
+            EOL.repeat(2) +
+            '  Organization: test-org' +
+            EOL.repeat(2) +
+            '✔ Files without issues: 0' +
+            EOL +
+            '✗ Files with issues: 3' +
+            EOL +
+            '  Ignored issues: 8' +
+            EOL +
+            '  Total issues: 28 [ 0 critical, 4 high, 8 medium, 16 low ]',
         );
       });
     });
