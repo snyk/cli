@@ -54,6 +54,9 @@ enum TrackedIntegration {
   // DevRel integrations and plugins
   // Netlify plugin: https://github.com/snyk-labs/netlify-plugin-snyk
   NETLIFY_PLUGIN = 'NETLIFY_PLUGIN',
+
+  // CLI_V1_PLUGIN integration
+  CLI_V1_PLUGIN = 'CLI_V1_PLUGIN',
 }
 
 export const getIntegrationName = (args: ArgsOptions[]): string => {
