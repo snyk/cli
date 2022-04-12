@@ -27,15 +27,22 @@ export async function tryLoadFileData(
 ): Promise<IacFileData> {
   const fileType = getFileType(pathToScan);
 
-  const fileContent = (
-    await fs.readFile(pathToScan, DEFAULT_ENCODING)
-  ).toString();
+  const fileContent = removeBom(
+    await fs.readFile(pathToScan, DEFAULT_ENCODING),
+  );
 
   return {
     filePath: pathToScan,
     fileType: fileType as IacFileTypes,
     fileContent,
   };
+}
+
+function removeBom(s: string): string {
+  if (s.charCodeAt(0) === 0xfeff) {
+    return s.slice(1);
+  }
+  return s;
 }
 
 export class NoFilesToScanError extends CustomError {
