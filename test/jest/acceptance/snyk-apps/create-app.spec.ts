@@ -1,13 +1,9 @@
-import { runSnykCLI, runSnykCLIWithUserInputs } from '../../util/runSnykCLI';
-import { fakeServer } from '../../../acceptance/fake-server';
-
-// const DOWN = '\x1B\x5B\x42';
-// const UP = '\x1B\x5B\x41';
-const ENTER = '\x0D';
-// const SPACE = '\x20';
+import { fakeServer, FakeServer } from '../../../acceptance/fake-server';
+import { startSnykCLI, TestCLI } from '../../util/startSnykCLI';
 
 describe('snyk-apps: create app', () => {
-  let server;
+  let server: FakeServer;
+  let cli: TestCLI | null = null;
   let env: Record<string, string>;
 
   beforeAll((done) => {
@@ -30,6 +26,10 @@ describe('snyk-apps: create app', () => {
   afterEach(async () => {
     jest.resetAllMocks();
     server.restore();
+    if (cli) {
+      await cli.stop();
+      cli = null;
+    }
   });
 
   afterAll((done) => {
@@ -51,8 +51,8 @@ describe('snyk-apps: create app', () => {
    */
   describe('experimental flag', () => {
     it('should throw error without the experimental flag', async () => {
-      const { stdout } = await runSnykCLI('apps create');
-      expect(stdout).toContain(
+      cli = await startSnykCLI('apps create');
+      await expect(cli).toDisplay(
         `All 'apps' commands are only accessible behind the '--experimental' flag.`,
       );
     });
@@ -65,14 +65,14 @@ describe('snyk-apps: create app', () => {
    */
   describe('help', () => {
     it('should print the apps helps document when apps subcommand invalid', async () => {
-      const { stdout } = await runSnykCLI('apps invalid');
+      cli = await startSnykCLI('apps invalid');
       // Check for first line to confirm help docs were indeed printed
-      // Snapshot testing can lead to flaky test due to varying screen width
-      expect(stdout).toContain(
+      await expect(cli).toDisplay(
         'Snyk Apps are integrations that extend the functionality of the Snyk platform',
       );
     });
   });
+
   /**
    * Tests for the interactive mode of the command to create apps.
    * Using Jest snapshot testing led to very flaky behaviour.
@@ -80,105 +80,117 @@ describe('snyk-apps: create app', () => {
    */
   describe('interactive mode', () => {
     it('should prompt for app name and print error if not provided', async () => {
-      const { stdout } = await runSnykCLIWithUserInputs(
-        'apps create --interactive --experimental',
-        [ENTER],
-        {
-          env,
-        },
-      );
+      cli = await startSnykCLI('apps create --interactive --experimental', {
+        env,
+      });
       // Assert for first question that is the name and error when no name provided
-      expect(stdout).toContain(
+      await expect(cli).toDisplay(
         'Name of the Snyk App (visible to users when they install the Snyk App)?',
       );
-      expect(stdout).toContain('Please enter something');
+
+      await expect(cli).not.toDisplay('Please enter something');
+      await cli.answer('');
+      await expect(cli).toDisplay('Please enter something');
     });
 
     it('should prompt for redirect uris and print error if not provided', async () => {
-      const { stdout } = await runSnykCLIWithUserInputs(
-        'apps create --interactive --experimental',
-        [testData.appName, ENTER, 'something#invalid', ENTER],
-        {
-          env,
-        },
+      cli = await startSnykCLI('apps create --interactive --experimental', {
+        env,
+      });
+
+      await expect(cli).toDisplay(
+        'Name of the Snyk App (visible to users when they install the Snyk App)?',
       );
+      await cli.answer(testData.appName);
+
       // Assert if URI validator is working or not
-      expect(stdout).toContain(
+      await expect(cli).toDisplay(
         "Your Snyk App's redirect URIs (comma seprated list.",
       );
-      expect(stdout).toContain('something#invalid is not a valid URL');
+      await cli.answer('something#invalid');
+      await expect(cli).toDisplay('something#invalid is not a valid URL');
     });
 
     it('should prompt for scopes and print error if not provided', async () => {
-      const {
-        stdout,
-      } = await runSnykCLIWithUserInputs(
-        'apps create --interactive --experimental',
-        [testData.appName, ENTER, testData.redirectURIs, ENTER, ENTER],
-        { env, delay: 200 },
+      cli = await startSnykCLI('apps create --interactive --experimental', {
+        env,
+      });
+
+      await expect(cli).toDisplay(
+        'Name of the Snyk App (visible to users when they install the Snyk App)?',
       );
+      await cli.answer(testData.appName);
+
+      await expect(cli).toDisplay(
+        "Your Snyk App's redirect URIs (comma seprated list.",
+      );
+      await cli.answer(testData.redirectURIs);
       // Assert
-      expect(stdout).toContain("Your Snyk App's permission scopes");
-      expect(stdout).toContain('Please enter something');
+      await expect(cli).toDisplay("Your Snyk App's permission scopes");
+      await cli.answer('');
+      await expect(cli).toDisplay('Please enter something');
     });
 
-    it('should prompt for org id and use default if not provided', async () => {
-      const {
-        stdout,
-      } = await runSnykCLIWithUserInputs(
-        'apps create --interactive --experimental',
-        [
-          testData.appName,
-          ENTER,
-          testData.redirectURIs,
-          ENTER,
-          testData.scopes,
-          ENTER,
-          ENTER,
-        ],
-        { env },
+    it('should prompt for org id and print error if not provided', async () => {
+      cli = await startSnykCLI('apps create --interactive --experimental', {
+        env,
+      });
+
+      await expect(cli).toDisplay(
+        'Name of the Snyk App (visible to users when they install the Snyk App)?',
       );
+      await cli.answer(testData.appName);
+
+      await expect(cli).toDisplay(
+        "Your Snyk App's redirect URIs (comma seprated list.",
+      );
+      await cli.answer(testData.redirectURIs);
+
+      await expect(cli).toDisplay("Your Snyk App's permission scopes");
+      await cli.answer(testData.scopes);
+
       // Assert
-      expect(stdout).toContain('Please provide the org id under which');
+      await expect(cli).toDisplay('Please provide the org id under which');
+      await cli.answer('');
+      await expect(cli).toDisplay('Invalid UUID provided');
     });
 
     it('should create app with user provided data (interactive mode)', async () => {
-      const {
-        stdout,
-        code,
-      } = await runSnykCLIWithUserInputs(
-        'apps create --interactive --experimental',
-        [
-          testData.appName,
-          ENTER,
-          testData.redirectURIs,
-          ENTER,
-          testData.scopes,
-          ENTER,
-          testData.orgId,
-          ENTER,
-        ],
-        { env, delay: 200 },
+      cli = await startSnykCLI('apps create --interactive --experimental', {
+        env,
+      });
+
+      await expect(cli).toDisplay(
+        'Name of the Snyk App (visible to users when they install the Snyk App)?',
       );
+      await cli.answer(testData.appName);
+
+      await expect(cli).toDisplay(
+        "Your Snyk App's redirect URIs (comma seprated list.",
+      );
+      await cli.answer(testData.redirectURIs);
+
+      await expect(cli).toDisplay("Your Snyk App's permission scopes");
+      await cli.answer(testData.scopes);
+
+      await expect(cli).toDisplay('Please provide the org id under which');
+      await cli.answer(testData.orgId);
+
       // Assert
-      expect(code).toBe(0);
-      expect(stdout).toContain('Snyk App created successfully!');
-      expect(stdout).toContain(`${testData.appName}`);
-      expect(stdout).toContain(`${testData.redirectURIs}`);
-      expect(stdout).toContain(`${testData.scopes}`);
+      await expect(cli).toDisplay('Snyk App created successfully!');
+      await expect(cli).toDisplay(testData.appName);
+      await expect(cli).toDisplay(testData.redirectURIs);
+      await expect(cli).toDisplay(testData.scopes);
+      await expect(cli).toExitWith(0);
     });
 
     // Interactive mode with flag shortcut (-i)
     it('should prompt users for input with flag shortcut (-i)', async () => {
-      const { stdout } = await runSnykCLIWithUserInputs(
-        'apps create -i --experimental',
-        [ENTER],
-        {
-          env,
-        },
-      );
+      cli = await startSnykCLI('apps create -i --experimental', {
+        env,
+      });
       // Assert for first question that is the name if presented all is working as expected
-      expect(stdout).toContain(
+      await expect(cli).toDisplay(
         'Name of the Snyk App (visible to users when they install the Snyk App)?',
       );
     });
@@ -189,78 +201,63 @@ describe('snyk-apps: create app', () => {
    */
   describe('scriptable mode', () => {
     it('should throw error when org id not provided', async () => {
-      const {
-        code,
-        stdout,
-      } = await runSnykCLI(
+      cli = await startSnykCLI(
         `apps create --name=${testData.appName} --redirect-uris=${testData.redirectURIs} --scopes=${testData.scopes} --experimental`,
         { env },
       );
       // Assert
-      expect(code).toBe(2);
-      expect(stdout).toContain(
+      await expect(cli).toDisplay(
         "Option '--org' is required! For interactive mode, please use '--interactive' or '-i' flag",
       );
+      await expect(cli).toExitWith(2);
     });
 
     it('should throw error when app name not provided', async () => {
-      const {
-        code,
-        stdout,
-      } = await runSnykCLI(
+      const cli = await startSnykCLI(
         `apps create --org=${testData.orgId} --redirect-uris=${testData.redirectURIs} --scopes=${testData.scopes} --experimental`,
         { env },
       );
       // Assert
-      expect(code).toBe(2);
-      expect(stdout).toContain(
+      await expect(cli).toDisplay(
         "Option '--name' is required! For interactive mode, please use '--interactive' or '-i' flag",
       );
+      await expect(cli).toExitWith(2);
     });
 
     it('should throw error when redirect uris not provided', async () => {
-      const {
-        code,
-        stdout,
-      } = await runSnykCLI(
+      cli = await startSnykCLI(
         `apps create --org=${testData.orgId} --name=${testData.appName} --scopes=${testData.scopes} --experimental`,
         { env },
       );
       // Assert
-      expect(code).toBe(2);
-      expect(stdout).toContain(
+      await expect(cli).toDisplay(
         "Option '--redirect-uris' is required! For interactive mode, please use '--interactive' or '-i' flag",
       );
+      await expect(cli).toExitWith(2);
     });
 
-    it('shoud throw error when scopes not provided', async () => {
-      const {
-        code,
-        stdout,
-      } = await runSnykCLI(
+    it('should throw error when scopes not provided', async () => {
+      cli = await startSnykCLI(
         `apps create --org=${testData.orgId} --name=${testData.appName} --redirect-uris=${testData.redirectURIs} --experimental`,
         { env },
       );
-      expect(code).toBe(2);
-      expect(stdout).toContain(
+      await expect(cli).toDisplay(
         "Option '--scopes' is required! For interactive mode, please use '--interactive' or '-i' flag",
       );
+      await expect(cli).toExitWith(2);
     });
 
     it('should create app with user provided data', async () => {
-      const {
-        code,
-        stdout,
-      } = await runSnykCLI(
+      cli = await startSnykCLI(
         `apps create --org=${testData.orgId} --name=${testData.appName} --redirect-uris=${testData.redirectURIs} --scopes=${testData.scopes} --experimental`,
         { env },
       );
       // Assert
-      expect(code).toBe(0);
-      expect(stdout).toContain('Snyk App created successfully!');
-      expect(stdout).toContain(`${testData.appName}`);
-      expect(stdout).toContain(`${testData.redirectURIs}`);
-      expect(stdout).toContain(`${testData.scopes}`);
+      await expect(cli).toDisplay('Snyk App created successfully!');
+      await expect(cli).toDisplay(testData.appName);
+      await expect(cli).toDisplay(testData.redirectURIs);
+      await expect(cli).toDisplay(testData.scopes);
+      await expect(cli).toExitWith(0);
     });
   });
 });
