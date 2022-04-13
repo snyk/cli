@@ -35,20 +35,14 @@ describe('getIacDisplayedIssues', () => {
   it("should include the 'Issues' title", () => {
     const result = getIacDisplayedIssues(resultFixtures, outputMeta);
 
-    expect(result).toContain(chalk.bold.white('Issues'));
+    expect(result).toContain(chalk.white('Issues'));
   });
 
   it('should include a subtitle for each severity with the correct amount of issues', () => {
     const result = getIacDisplayedIssues(resultFixtures, outputMeta);
 
-    expect(result).toContain(
-      severityColor.low(chalk.bold(`Low Severity Issues: 13`)),
-    );
-    expect(result).toContain(
-      severityColor.medium(chalk.bold(`Medium Severity Issues: 4`)),
-    );
-    expect(result).toContain(
-      severityColor.high(chalk.bold(`High Severity Issues: 5`)),
-    );
+    expect(result).toContain(severityColor.low(`Low Severity Issues: 13`));
+    expect(result).toContain(severityColor.medium(`Medium Severity Issues: 4`));
+    expect(result).toContain(severityColor.high(`High Severity Issues: 5`));
   });
 });
