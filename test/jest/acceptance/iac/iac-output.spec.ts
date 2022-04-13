@@ -39,6 +39,14 @@ describe('iac test output', () => {
       );
     });
 
+    it('should show a subtitle for medium severity issues', async () => {
+      const { stdout } = await run('snyk iac test  ./iac/arm/rule_test.json');
+
+      expect(stdout).toContain(
+        'Issues' + EOL.repeat(2) + 'Medium Severity Issues: 1',
+      );
+    });
+
     it('should not show an initial message for JSON output', async () => {
       const { stdout } = await run(
         'snyk iac test --json  ./iac/arm/rule_test.json',
@@ -174,6 +182,14 @@ If the issue persists contact support@snyk.io`,
     it('should not show an initial message', async () => {
       const { stdout } = await run('snyk iac test  ./iac/arm/rule_test.json');
       expect(stdout).not.toContain(initialMessage);
+    });
+
+    it('should not show a subtitle for medium severity issues', async () => {
+      const { stdout } = await run('snyk iac test  ./iac/arm/rule_test.json');
+
+      expect(stdout).not.toContain(
+        'Issues' + EOL.repeat(2) + 'Medium Severity Issues: 1',
+      );
     });
 
     it('should not display the test summary section', async () => {
