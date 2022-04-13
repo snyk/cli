@@ -112,6 +112,8 @@ export async function processAnalysis(
       // html on stdout
       return output;
     }
+    // should return an empty string if we use the html-file-output flag
+    return '';
   }
 
   if (options.json) {

@@ -1,0 +1,38 @@
+[1mSnyk Scanning Infrastructure As Code Discrepancies...[22m
+
+  Info:    Resources under IaC, but different to terraform states.
+  Resolve: Reapply IaC resources or update into terraform.
+
+[1mChanged resources: 1[22m
+
+[34mState: [1mtfstate://../driftctl/terraform.tfstate[22m [ Changed Resources: [1m1[22m ][39m
+
+  Resource Type: aws_iam_role_policy
+    ID: [1mdriftctl-assume-role:driftctl-policy[22m
+    [33m~[39m policy:
+    {
+      Statement: [
+        0: {
+          Action: [
+            [31m0: [39m[31m"sqs:ListQueues"[39m
+            [90m1: [39m[90m"sqs:ListQueueTags"[39m
+            [90m2: [39m[90m"sqs:GetQueueAttributes"[39m
+          ]
+          [90mEffect: [39m[90m"Allow"[39m
+          [90mResource: [39m[90m"*"[39m
+          [90mSid: [39m[90m""[39m
+        }
+      ]
+      [90mVersion: [39m[90m"2012-10-17"[39m
+    }
+
+[1mTest Summary[22m
+
+  Managed Resources: [1m4[22m
+  Changed Resources: [1m1[22m
+
+  IaC Coverage: [1m100%[22m
+  Info: To reach full coverage, remove resources or move it to Terraform.
+
+  Tip: Run --help to find out about commands and flags.
+      Scanned with aws provider version 3.19.0. Use --tf-provider-version to update.

@@ -474,4 +474,28 @@ describe('Test describe output', () => {
     const expectedOutput = loadFile('alldeep.console');
     expect(hrAnalysis).toBe(expectedOutput);
   });
+
+  it('test output for known analysis with --only-managed', () => {
+    const analysis = JSON.parse(loadFile('only-managed.json'));
+    const options: DescribeOptions = {
+      kind: 'describe',
+      'only-managed': true,
+    };
+    const hrAnalysis = getHumanReadableAnalysis(options, analysis);
+
+    const expectedOutput = loadFile('only-managed.console');
+    expect(hrAnalysis).toBe(expectedOutput);
+  });
+
+  it('test output for known analysis with --only-unmanaged', () => {
+    const analysis = JSON.parse(loadFile('only-unmanaged.json'));
+    const options: DescribeOptions = {
+      kind: 'describe',
+      'only-unmanaged': true,
+    };
+    const hrAnalysis = getHumanReadableAnalysis(options, analysis);
+
+    const expectedOutput = loadFile('only-unmanaged.console');
+    expect(hrAnalysis).toBe(expectedOutput);
+  });
 });

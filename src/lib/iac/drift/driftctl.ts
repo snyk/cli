@@ -27,12 +27,15 @@ import * as crypto from 'crypto';
 const debug = debugLib('driftctl');
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
+
 export const DCTL_EXIT_CODES = {
   EXIT_IN_SYNC: 0,
   EXIT_NOT_IN_SYNC: 1,
   EXIT_ERROR: 2,
 };
+
 export const driftctlVersion = 'v0.27.0';
+
 const driftctlChecksums = {
   'driftctl_windows_386.exe':
     '476356c281b3370ece3ee159a3a8915031c37bce269d7fd4e17bbda2b364bf44',
@@ -55,13 +58,18 @@ const driftctlChecksums = {
   'driftctl_windows_amd64.exe':
     '1cd2a63dc47064207e9c23157df2c67ab2cfa7605e82537193c1f27a967d2a45',
 };
+
 const dctlBaseUrl = 'https://static.snyk.io/cli/driftctl/';
+
 const driftctlPath: string = path.join(
   cachePath,
   'driftctl_' + driftctlVersion,
 );
+
 const driftctlDefaultOptions = ['--no-version-check'];
+
 let isBinaryDownloaded = false;
+
 export const generateArgs = (
   options: DriftCTLOptions,
   driftIgnore?: string[],
@@ -76,6 +84,7 @@ export const generateArgs = (
 
   throw 'Unsupported command';
 };
+
 const generateFmtFlags = (options: FmtOptions): string[] => {
   const args: string[] = ['fmt', ...driftctlDefaultOptions];
 
@@ -96,6 +105,7 @@ const generateFmtFlags = (options: FmtOptions): string[] => {
 
   return args;
 };
+
 const generateScanFlags = (
   options: DescribeOptions,
   driftIgnore?: string[],

@@ -1,4 +1,4 @@
-[1mSnyk Scanning Infrastructure As Code Discrepancies[22m
+[1mSnyk Scanning Infrastructure As Code Discrepancies...[22m
 
   Info:    Resources under IaC, but different to terraform states.
   Resolve: Reapply IaC resources or update into terraform.
@@ -25,7 +25,6 @@
       ]
       [90mVersion: [39m[90m"2012-10-17"[39m
     }
-
 
   Resource Type: aws_s3_bucket
     ID: [1mbucketwithenvtag[22m
@@ -145,4 +144,4 @@
   Info: To reach full coverage, remove resources or move it to Terraform.
 
   Tip: Run --help to find out about commands and flags.
-      Scanned with aws provider version 3.19.0. Use --tf-provider=version to use another version.
+      Scanned with aws provider version 3.19.0. Use --tf-provider-version to update.

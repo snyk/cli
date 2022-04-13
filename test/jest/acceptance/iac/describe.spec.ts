@@ -171,37 +171,7 @@ describe('iac describe', () => {
         },
       );
 
-      expect(stdout).toBe(
-        'Snyk Scanning Infrastructure As Code Discrepancies\n\n' +
-          '  Info:    Resources under IaC, but different to terraform states.\n' +
-          '  Resolve: Reapply IaC resources or update into terraform.\n\n' +
-          'Changed resources: 1\n\n' +
-          'State: Generated [ Changed Resources: 1 ]\n\n' +
-          '  Resource Type: aws_iam_access_key\n' +
-          '    ID: AKIA5QYBVVD25KFXJHYJ\n' +
-          '    ~ status: Active => Inactive\n\n' +
-          'Missing resources: 2\n\n' +
-          'State: Generated [ Missing Resources: 2 ]\n\n' +
-          '  Resource Type: aws_iam_access_key\n' +
-          '    ID: AKIA5QYBVVD2Y6PBAAPY\n\n' +
-          '  Resource Type: aws_iam_user\n' +
-          '    ID: test-driftctl2\n\n' +
-          'Unmanaged resources: 2\n\n' +
-          'Service: aws_s3 [ Unmanaged Resources: 2 ]\n\n' +
-          '  Resource Type: aws_s3_bucket_notification\n' +
-          '    ID: driftctl\n\n' +
-          '  Resource Type: aws_s3_bucket_policy\n' +
-          '    ID: driftctl\n\n' +
-          'Test Summary\n\n' +
-          '  Managed Resources: 2\n' +
-          '  Changed Resources: 1\n' +
-          '  Missing Resources: 2\n' +
-          '  Unmanaged Resources: 2\n\n' +
-          '  IaC Coverage: 33%\n' +
-          '  Info: To reach full coverage, remove resources or move it to Terraform.\n\n' +
-          '  Tip: Run --help to find out about commands and flags.\n' +
-          '      Scanned with AWS provider version 2.18.5. Use --tf-provider=version to use another version.\n',
-      );
+      expect(stdout).toBe('');
       expect(stderr).toBe('');
       expect(exitCode).toBe(0);
 

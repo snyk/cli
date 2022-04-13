@@ -1,9 +1,12 @@
 import {
   DescribeOptions,
+  DiffByType,
   DriftAnalysis,
   DriftAnalysisDifference,
   DriftChange,
   DriftResource,
+  MissingByType,
+  UnmanagedByType,
 } from '../types';
 import { findServiceMappingForType } from '../service-mappings';
 import chalk from 'chalk';
@@ -12,6 +15,7 @@ import {
   create as createDiffPatch,
   console as consoleFormatter,
 } from 'jsondiffpatch';
+
 export function getHumanReadableAnalysis(
   option: DescribeOptions,
   analysis: DriftAnalysis,
@@ -29,36 +33,20 @@ export function getHumanReadableAnalysis(
   return output;
 }
 
-type DiffByType = {
-  diffByType: Map<string, DriftAnalysisDifference[]>;
-  count: number;
-};
-type MissingByType = {
-  missingByType: Map<string, DriftResource[]>;
-  count: number;
-};
-type UnmanagedByType = {
-  unmanagedByType: Map<string, DriftResource[]>;
-  count: number;
-};
-
-function changeAsString(obj: any): string {
-  if (obj instanceof String || typeof obj === 'string') {
-    return obj as string;
+function changeAsString(obj: unknown): string {
+  if (typeof obj === 'string') {
+    return obj;
   }
   return JSON.stringify(obj);
 }
 
 function isJsonDiff(driftChange: DriftChange): boolean {
-  if (
-    !(driftChange.from instanceof String) &&
-    !(typeof driftChange.from === 'string')
-  ) {
+  if (!(typeof driftChange.from === 'string')) {
     return false;
   }
 
   try {
-    JSON.parse(driftChange.from as string);
+    JSON.parse(driftChange.from);
   } catch (e) {
     return false;
   }
@@ -66,7 +54,7 @@ function isJsonDiff(driftChange: DriftChange): boolean {
   return true;
 }
 
-function getNonJsonDiff(driftChange: DriftChange) {
+function getNonJsonDiff(driftChange: DriftChange): string {
   let output = '';
   switch (driftChange.type) {
     case 'create':
@@ -99,7 +87,7 @@ function getNonJsonDiff(driftChange: DriftChange) {
   return output;
 }
 
-function getJsonDiff(driftChange: DriftChange) {
+function getJsonDiff(driftChange: DriftChange): string {
   let output = '';
 
   let from = null;
@@ -112,10 +100,11 @@ function getJsonDiff(driftChange: DriftChange) {
     to = JSON.parse(driftChange.to as string);
   }
 
-  const diffStr = consoleFormatter.format(
-    createDiffPatch().diff(from, to)!,
-    from,
-  );
+  let diffStr = '';
+  const diffPatch = createDiffPatch().diff(from, to);
+  if (diffPatch) {
+    diffStr = consoleFormatter.format(diffPatch, from);
+  }
 
   switch (driftChange.type) {
     case 'create':
@@ -123,7 +112,6 @@ function getJsonDiff(driftChange: DriftChange) {
       break;
     case 'update':
       output += chalk.yellow('~') + ' ' + driftChange.path.join('.') + ':\n';
-
       break;
     case 'delete':
       output += chalk.red('-') + ' ' + driftChange.path.join('.') + ':\n';
@@ -132,19 +120,20 @@ function getJsonDiff(driftChange: DriftChange) {
       output += driftChange.path.join('.') + ':\n';
       break;
   }
+
   for (const elem of diffStr.split('\n')) {
     output += addLine(leftPad(elem, 4));
   }
-  output += '\n';
+
   return output;
 }
 
-function getHumanReadableDrift(analysis: DriftAnalysis) {
+function getHumanReadableDrift(analysis: DriftAnalysis): string {
   let output = '';
   if (!analysis.differences || analysis.differences.length <= 0) {
     return '';
   }
-  const diffByStates: Map<string, DiffByType> = new Map<string, DiffByType>();
+  const diffByStates = new Map<string, DiffByType>();
 
   for (const difference of analysis.differences) {
     let statefile = 'Generated';
@@ -220,15 +209,12 @@ function getHumanReadableDrift(analysis: DriftAnalysis) {
   return output;
 }
 
-function getHumanReadableMissing(analysis: DriftAnalysis) {
+function getHumanReadableMissing(analysis: DriftAnalysis): string {
   let output = '';
   if (!analysis.missing || analysis.missing.length <= 0) {
     return '';
   }
-  const missingByStates: Map<string, MissingByType> = new Map<
-    string,
-    MissingByType
-  >();
+  const missingByStates = new Map<string, MissingByType>();
 
   for (const missing of analysis.missing) {
     let statefile = 'Generated';
@@ -315,10 +301,7 @@ function getHumanReadableUnmanaged(analysis: DriftAnalysis): string {
   if (!analysis.unmanaged || analysis.unmanaged.length <= 0) {
     return '';
   }
-  const unmanagedByServices: Map<string, UnmanagedByType> = new Map<
-    string,
-    UnmanagedByType
-  >();
+  const unmanagedByServices = new Map<string, UnmanagedByType>();
 
   for (const unmanaged of analysis.unmanaged) {
     const service = findServiceMappingForType(unmanaged.type);
@@ -369,9 +352,9 @@ function getHumanReadableUnmanaged(analysis: DriftAnalysis): string {
 }
 
 function getHumanReadableHeader(): string {
-  // TODO driftctl to return number of states and supported resources ?
+  // TODO: driftctl to return number of states and supported resources?
   let output = addLine(
-    chalk.bold('Snyk Scanning Infrastructure As Code Discrepancies'),
+    chalk.bold('Snyk Scanning Infrastructure As Code Discrepancies...'),
   );
   output += '\n';
   output += addLine(
@@ -392,7 +375,7 @@ function getHumanReadableSummary(analysis: DriftAnalysis): string {
   let output = addLine(chalk.bold('Test Summary'));
   output += '\n';
 
-  // TODO driftctl to return number of states
+  // TODO: driftctl to return number of states
   if (analysis.managed) {
     output += addLine(
       leftPad(
@@ -453,7 +436,7 @@ function getHumanReadableSummary(analysis: DriftAnalysis): string {
         analysis.provider_name +
         ' provider version ' +
         analysis.provider_version +
-        '. Use --tf-provider=version to use another version.',
+        '. Use --tf-provider-version to update.',
       6,
     ),
   );
@@ -465,7 +448,7 @@ function addLine(line: string): string {
 }
 
 // Used when we are sure the key exists because we just set it but typescript linter does not see that...
-function mustGet<Type>(map: Map<string, Type>, key: string): Type {
+function mustGet<T>(map: Map<string, T>, key: string): T {
   const value = map.get(key);
   if (!value) {
     throw new Error('Key does not exists');

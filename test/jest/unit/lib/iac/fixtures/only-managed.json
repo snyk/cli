@@ -1,0 +1,84 @@
+{
+	"options": {
+		"deep": true,
+		"only_managed": true,
+		"only_unmanaged": false
+	},
+	"summary": {
+		"total_resources": 4,
+		"total_changed": 1,
+		"total_unmanaged": 0,
+		"total_missing": 0,
+		"total_managed": 4,
+		"total_iac_source_count": 1
+	},
+	"managed": [
+		{
+			"id": "driftctl-ro:driftctl-ro",
+			"type": "aws_iam_user_policy",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "driftctl_ro"
+			}
+		},
+		{
+			"id": "driftctl-assume-role",
+			"type": "aws_iam_role",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "driftctl_assume_role"
+			}
+		},
+		{
+			"id": "driftctl-assume-role:driftctl-policy",
+			"type": "aws_iam_role_policy",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "driftctl_policy"
+			}
+		},
+		{
+			"id": "driftctl-ro",
+			"type": "aws_iam_user",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "driftctl_ro"
+			}
+		}
+	],
+	"unmanaged": null,
+	"missing": null,
+	"differences": [
+		{
+			"res": {
+				"id": "driftctl-assume-role:driftctl-policy",
+				"type": "aws_iam_role_policy",
+				"source": {
+					"source": "tfstate://../driftctl/terraform.tfstate",
+					"namespace": "",
+					"internal_name": "driftctl_policy"
+				}
+			},
+			"changelog": [
+				{
+					"type": "update",
+					"path": [
+						"policy"
+					],
+					"from": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"sqs:ListQueues\",\n        \"sqs:ListQueueTags\",\n        \"sqs:GetQueueAttributes\"\n      ],\n      \"Resource\": \"*\"\n    }\n  ]\n}",
+					"to": "{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n        {\n            \"Sid\": \"\",\n            \"Effect\": \"Allow\",\n            \"Action\": [\n                \"sqs:ListQueueTags\",\n                \"sqs:GetQueueAttributes\"\n            ],\n            \"Resource\": \"*\"\n        }\n    ]\n}",
+					"computed": false
+				}
+			]
+		}
+	],
+	"coverage": 100,
+	"alerts": null,
+	"provider_name": "aws",
+	"provider_version": "3.19.0",
+	"scan_duration": 15
+}

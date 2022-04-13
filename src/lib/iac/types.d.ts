@@ -109,3 +109,19 @@ export type DriftAnalysis = {
   provider_name: string;
   provider_version: string;
 };
+
+interface AnalysisByType {
+  count: number;
+}
+
+export interface DiffByType extends AnalysisByType {
+  diffByType: Map<string, DriftAnalysisDifference[]>;
+}
+
+export interface MissingByType extends AnalysisByType {
+  missingByType: Map<string, DriftResource[]>;
+}
+
+export interface UnmanagedByType extends AnalysisByType {
+  unmanagedByType: Map<string, DriftResource[]>;
+}
