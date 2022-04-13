@@ -5,7 +5,7 @@ import debug = require('debug');
 
 import { FormattedResult } from '../../../../cli/commands/test/iac/local-execution/types';
 import { IacOutputMeta } from '../../../types';
-import { severityColor } from './color-utils';
+import { colors } from './color-utils';
 import { formatScanResultsNewOutput } from './formatters';
 import { FormattedIssue } from './types';
 
@@ -22,7 +22,7 @@ export function getIacDisplayedIssues(
       const issues = formattedResults.results[severity];
       output +=
         EOL +
-        severityColor[severity](
+        colors.severities[severity](
           `${capitalize(severity)} Severity Issues: ${issues.length}`,
         ) +
         EOL.repeat(2);

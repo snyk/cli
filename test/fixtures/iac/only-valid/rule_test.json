@@ -1,0 +1,126 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {},
+  "resources": [
+    {
+      "name": "allowed",
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2020-08-01",
+      "location": "West Europe",
+      "properties": {
+        "networkRuleCollections": [
+          {
+            "id": "id",
+            "properties": {
+              "priority": 100,
+              "action": {
+                "type": "Allow"
+              },
+              "rules": [
+                {
+                  "name": "testrule",
+                  "protocols": [
+                    "TCP",
+                    "UDP"
+                  ],
+                  "sourceAddresses": [
+                    "10.0.0.0/16"
+                  ],
+                  "destinationAddresses": [
+                    "8.8.8.8",
+                    "8.8.4.4"
+                  ],
+                  "destinationPorts": [
+                    "53"
+                  ]
+                }
+              ]
+            },
+            "name": "allowed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "denied",
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2020-08-01",
+      "location": "West Europe",
+      "properties": {
+        "networkRuleCollections": [
+          {
+            "id": "id",
+            "properties": {
+              "priority": 100,
+              "action": {
+                "type": "Allow"
+              },
+              "rules": [
+                {
+                  "name": "testrule",
+                  "protocols": [
+                    "TCP",
+                    "UDP"
+                  ],
+                  "sourceAddresses": [
+                    "0.0.0.0/0"
+                  ],
+                  "destinationAddresses": [
+                    "8.8.8.8",
+                    "8.8.4.4"
+                  ],
+                  "destinationPorts": [
+                    "53"
+                  ]
+                }
+              ]
+            },
+            "name": "denied"
+          }
+        ]
+      }
+    },
+    {
+      "name": "allowed2",
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2020-08-01",
+      "location": "West Europe",
+      "properties": {
+        "networkRuleCollections": [
+          {
+            "id": "id",
+            "properties": {
+              "priority": 100,
+              "action": {
+                "type": "Deny"
+              },
+              "rules": [
+                {
+                  "name": "testrule",
+                  "protocols": [
+                    "TCP",
+                    "UDP"
+                  ],
+                  "sourceAddresses": [
+                    "0.0.0.0/0"
+                  ],
+                  "destinationAddresses": [
+                    "8.8.8.8",
+                    "8.8.4.4"
+                  ],
+                  "destinationPorts": [
+                    "53"
+                  ]
+                }
+              ]
+            },
+            "name": "denied2"
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {}
+}
