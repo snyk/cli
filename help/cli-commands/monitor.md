@@ -40,27 +40,26 @@ Use with `--all-projects` or `--yarn-workspaces` to indicate how many sub-direct
 
 Default: 4 (the current working directory and 3 sub-directories).
 
-Example: Limit search to the specified directory (or the current directory if no `<PATH>` is specified) plus two levels of subdirectories.
-
+Example: Limit search to the specified directory (or the current directory if no `<PATH>` is specified) plus two levels of subdirectories.\
 `--detection-depth=3`
 
 ### `--exclude=<GLOB>[,<GLOB>]...>`
 
-Can be used with `--all-projects` and `--yarn-workspaces` to indicate sub-directories and files to exclude. Must be comma separated.
+Use with `--all-projects` and `--yarn-workspaces` to indicate subdirectories and files to exclude.
 
-Note that the glob doesn't need to be an exact match and only need to be part of the path or the filename.
+The `--exclude` argument must be a comma separated list of directory or file names and cannot contain a path.
+
+Note that the glob does need to be an exact match and needs only to be part of the path or the filename.
 
 Use the `--exclude` option with `--detection-depth` to ignore directories at any depth.
 
 Examples:
 
-Exclude any (sub-)folders or files containing `test` as part of the path or name:
+Exclude any folders, subfolders, or files containing `test` as part of the path or name:\
+`--exclude=test`
 
-&#x20;`--exclude=test`
-
-Exclude any (sub-)folders or files containing `fixtures` or `debug` as part of the path or name:
-
-`--exclude=fixtures,debug`&#x20;
+Exclude any folders, subfolders, or files containing `fixtures` or `debug` as part of the path or name:\
+`--exclude=fixtures,debug`
 
 ### `--prune-repeated-subdependencies`, `-p`
 
