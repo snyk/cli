@@ -14,6 +14,8 @@ describe('getStandardData returns object', () => {
       version: '1.0.0-monorepo',
       id: expect.any(String),
       ci: expect.any(Boolean),
+      ciName: expect.any(String),
+      pr: expect.any(Boolean),
       metrics: {
         network_time: {
           type: 'timer',
@@ -53,6 +55,8 @@ describe('getStandardData returns object', () => {
       version: '1.0.0-monorepo',
       id: expect.any(String),
       ci: expect.any(Boolean),
+      ciName: expect.any(String),
+      pr: expect.any(Boolean),
       metrics: {
         network_time: {
           type: 'timer',

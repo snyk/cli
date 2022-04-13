@@ -15,7 +15,7 @@ describe('analytics module', () => {
     const port = process.env.PORT || process.env.SNYK_PORT || '12345';
     const baseApi = '/api/v1';
     env = {
-      ...process.env,
+      PATH: process.env.PATH || '',
       SNYK_API: 'http://localhost:' + port + baseApi,
       SNYK_HOST: 'http://localhost:' + port,
       SNYK_TOKEN: '123456789',
@@ -318,5 +318,53 @@ describe('analytics module', () => {
 
     const lastRequest = server.popRequest();
     expect(lastRequest).toBeUndefined();
+  });
+
+  describe('CI detection', () => {
+    it('detects CI environments', async () => {
+      const project = await createProjectFromWorkspace('npm-package');
+      const { code } = await runSnykCLI('woof', {
+        cwd: project.path(),
+        env: {
+          ...env,
+          CIRCLECI: 'true',
+          CIRCLE_PULL_REQUEST: 'true',
+        },
+      });
+
+      expect(code).toBe(0);
+
+      const lastRequest = server.popRequest();
+      expect(lastRequest).toMatchObject({
+        body: {
+          data: {
+            ci: true,
+            ciName: 'CircleCI',
+            pr: true,
+          },
+        },
+      });
+    });
+
+    it('detects non-CI environments', async () => {
+      const project = await createProjectFromWorkspace('npm-package');
+      const { code } = await runSnykCLI('woof', {
+        cwd: project.path(),
+        env: env,
+      });
+
+      expect(code).toBe(0);
+
+      const lastRequest = server.popRequest();
+      expect(lastRequest).toMatchObject({
+        body: {
+          data: {
+            ci: false,
+            ciName: '',
+            pr: false,
+          },
+        },
+      });
+    });
   });
 });

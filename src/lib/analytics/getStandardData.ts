@@ -2,7 +2,7 @@ import * as version from '../version';
 import { v4 as uuidv4 } from 'uuid';
 import * as os from 'os';
 import * as crypto from 'crypto';
-import { isCI } from '../is-ci';
+import { isCI, getCIName, isPullRequest } from '../is-ci';
 import {
   getIntegrationName,
   getIntegrationVersion,
@@ -53,6 +53,8 @@ export async function getStandardData(
     integrationEnvironmentVersion: getIntegrationEnvironmentVersion(args),
     id: shasum.update(seed).digest('hex'),
     ci: isCI(),
+    ciName: getCIName(),
+    pr: isPullRequest(),
     durationMs,
     metrics,
   };
