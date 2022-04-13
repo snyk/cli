@@ -23,9 +23,7 @@ export function getIacDisplayedIssues(
       output +=
         EOL +
         severityColor[severity](
-          chalk.bold(
-            `${capitalize(severity)} Severity Issues: ${issues.length}`,
-          ),
+          `${capitalize(severity)} Severity Issues: ${issues.length}`,
         ) +
         EOL.repeat(2);
       output += getIssuesOutput(issues);
