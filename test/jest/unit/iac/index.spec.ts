@@ -44,7 +44,6 @@ jest.mock(
 );
 
 import { test } from '../../../../src/cli/commands/test/iac/local-execution/';
-import * as measurableMethods from '../../../../src/cli/commands/test/iac/local-execution/measurable-methods';
 import {
   IacFileParsed,
   IaCTestFlags,
@@ -79,6 +78,21 @@ describe('test()', () => {
     [{ iacTerraformVarSupport: false }],
     [{ iacTerraformVarSupport: true }],
   ])('With TF language support feature flag set to %p', (featureFlags) => {
+    const iacOrgSettings = {
+      meta: {
+        isPrivate: false,
+        isLicensesEnabled: false,
+        ignoreSettings: null,
+        org: 'org-name',
+      },
+      customPolicies: {},
+      customRules: {},
+      entitlements: {
+        infrastructureAsCode: true,
+        iacCustomRulesEntitlement: true,
+      },
+    };
+
     beforeAll(() => {
       isFeatureFlagSupportedForOrgStub.mockImplementation((flag) =>
         Promise.resolve({ ok: featureFlags[flag] ?? true }),
@@ -88,115 +102,36 @@ describe('test()', () => {
         parsedFiles,
         failedFiles,
       }));
+      getIacOrgSettingsStub.mockImplementation(async () => iacOrgSettings);
     });
 
-    describe('With a remote custom rules bundle', () => {
-      const iacOrgSettings = {
-        meta: {
-          isPrivate: false,
-          isLicensesEnabled: false,
-          ignoreSettings: null,
-          org: 'org-name',
+    it('returns the unparsable files excluding content', async () => {
+      const opts: IaCTestFlags = {};
+
+      const { failures } = await test(
+        './storage/',
+        opts,
+        'org-name',
+        iacOrgSettings,
+        RulesOrigin.Internal,
+      );
+
+      expect(failures).toEqual([
+        {
+          filePath: './storage/storage.tf',
+          fileType: 'tf',
+          failureReason: 'Mock Test',
+          projectType: IacProjectType.TERRAFORM,
         },
-        customPolicies: {},
-        customRules: {
-          isEnabled: true,
-          ociRegistryURL: 'https://fake-registry/lib/img',
-          ociRegistryTag: 'latest',
-        },
-        entitlements: {
-          infrastructureAsCode: true,
-          iacCustomRulesEntitlement: true,
-        },
-      };
-
-      let pullSpy: jest.SpyInstance;
-
-      beforeAll(function() {
-        getIacOrgSettingsStub.mockImplementation(async () => iacOrgSettings);
-        pullSpy = jest
-          .spyOn(measurableMethods, 'pull')
-          .mockImplementationOnce(async () => 'random-path');
-      });
-
-      afterEach(function() {
-        pullSpy.mockClear();
-      });
-
-      afterAll(function() {
-        pullSpy.mockReset();
-      });
-
-      it.skip('attempts to pull the custom-rules bundle using the provided configurations', async () => {
-        const opts: IaCTestFlags = {};
-
-        await test(
-          './iac/terraform/sg_open_ssh.tf',
-          opts,
-          'org-name',
-          iacOrgSettings,
-          RulesOrigin.Internal,
-        );
-
-        expect(pullSpy).toBeCalledWith(
+      ]);
+      expect(failures).not.toEqual(
+        expect.arrayContaining([
           {
-            registryBase: 'fake-registry',
-            repo: 'lib/img',
-            tag: 'latest',
+            fileContent: 'FAKE_FILE_CONTENT',
+            jsonContent: {},
           },
-          expect.anything(),
-        );
-      });
-    });
-
-    describe('Without a remote custom rules bundle', () => {
-      const iacOrgSettings = {
-        meta: {
-          isPrivate: false,
-          isLicensesEnabled: false,
-          ignoreSettings: null,
-          org: 'org-name',
-        },
-        customPolicies: {},
-        customRules: {},
-        entitlements: {
-          infrastructureAsCode: true,
-          iacCustomRulesEntitlement: true,
-        },
-      };
-
-      beforeAll(function() {
-        getIacOrgSettingsStub.mockImplementation(async () => iacOrgSettings);
-      });
-
-      it('returns the unparsable files excluding content', async () => {
-        const opts: IaCTestFlags = {};
-
-        const { failures } = await test(
-          './storage/',
-          opts,
-          'org-name',
-          iacOrgSettings,
-          RulesOrigin.Internal,
-        );
-
-        expect(failures).toEqual([
-          {
-            filePath: './storage/storage.tf',
-            fileType: 'tf',
-            failureReason: 'Mock Test',
-            projectType: IacProjectType.TERRAFORM,
-          },
-        ]);
-        expect(failures).not.toEqual(
-          expect.arrayContaining([
-            {
-              fileContent: 'FAKE_FILE_CONTENT',
-              jsonContent: {},
-            },
-          ]),
-        );
-      });
+        ]),
+      );
     });
   });
 });
