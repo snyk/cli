@@ -14,7 +14,7 @@ For details see the [CLI documentation](https://docs.snyk.io/features/snyk-cli)
 
 ## Available commands
 
-To learn more about each Snyk CLI command, use the `--help` option, for example, `snyk auth --help` or `snyk container --help`.
+To learn more about each Snyk CLI command, use the `--help` option, for example, `snyk auth --help` or `snyk container --help`
 
 ### [`snyk auth`](auth.md)
 
@@ -62,4 +62,4 @@ Use `-d` option to output the debug logs.
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli).
+You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
