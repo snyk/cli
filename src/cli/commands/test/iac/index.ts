@@ -1,7 +1,7 @@
 import * as Debug from 'debug';
 import { EOL } from 'os';
-const cloneDeep = require('lodash.clonedeep');
-const assign = require('lodash.assign');
+import * as cloneDeep from 'lodash.clonedeep';
+import * as assign from 'lodash.assign';
 import chalk from 'chalk';
 import { MissingArgError } from '../../../../lib/errors';
 
