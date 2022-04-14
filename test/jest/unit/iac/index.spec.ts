@@ -48,6 +48,7 @@ import * as measurableMethods from '../../../../src/cli/commands/test/iac/local-
 import {
   IacFileParsed,
   IaCTestFlags,
+  RulesOrigin,
 } from '../../../../src/cli/commands/test/iac/local-execution/types';
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 import { EngineType } from '../../../../src/cli/commands/test/iac/local-execution/types';
@@ -90,27 +91,29 @@ describe('test()', () => {
     });
 
     describe('With a remote custom rules bundle', () => {
+      const iacOrgSettings = {
+        meta: {
+          isPrivate: false,
+          isLicensesEnabled: false,
+          ignoreSettings: null,
+          org: 'org-name',
+        },
+        customPolicies: {},
+        customRules: {
+          isEnabled: true,
+          ociRegistryURL: 'https://fake-registry/lib/img',
+          ociRegistryTag: 'latest',
+        },
+        entitlements: {
+          infrastructureAsCode: true,
+          iacCustomRulesEntitlement: true,
+        },
+      };
+
       let pullSpy: jest.SpyInstance;
 
       beforeAll(function() {
-        getIacOrgSettingsStub.mockImplementation(async () => ({
-          meta: {
-            isPrivate: false,
-            isLicensesEnabled: false,
-            ignoreSettings: null,
-            org: 'org-name',
-          },
-          customPolicies: {},
-          customRules: {
-            isEnabled: true,
-            ociRegistryURL: 'https://fake-registry/lib/img',
-            ociRegistryTag: 'latest',
-          },
-          entitlements: {
-            infrastructureAsCode: true,
-            iacCustomRulesEntitlement: true,
-          },
-        }));
+        getIacOrgSettingsStub.mockImplementation(async () => iacOrgSettings);
         pullSpy = jest
           .spyOn(measurableMethods, 'pull')
           .mockImplementationOnce(async () => 'random-path');
@@ -124,10 +127,16 @@ describe('test()', () => {
         pullSpy.mockReset();
       });
 
-      it('attempts to pull the custom-rules bundle using the provided configurations', async () => {
+      it.skip('attempts to pull the custom-rules bundle using the provided configurations', async () => {
         const opts: IaCTestFlags = {};
 
-        await test('./iac/terraform/sg_open_ssh.tf', opts);
+        await test(
+          './iac/terraform/sg_open_ssh.tf',
+          opts,
+          'org-name',
+          iacOrgSettings,
+          RulesOrigin.Internal,
+        );
 
         expect(pullSpy).toBeCalledWith(
           {
@@ -141,27 +150,35 @@ describe('test()', () => {
     });
 
     describe('Without a remote custom rules bundle', () => {
+      const iacOrgSettings = {
+        meta: {
+          isPrivate: false,
+          isLicensesEnabled: false,
+          ignoreSettings: null,
+          org: 'org-name',
+        },
+        customPolicies: {},
+        customRules: {},
+        entitlements: {
+          infrastructureAsCode: true,
+          iacCustomRulesEntitlement: true,
+        },
+      };
+
       beforeAll(function() {
-        getIacOrgSettingsStub.mockImplementation(async () => ({
-          meta: {
-            isPrivate: false,
-            isLicensesEnabled: false,
-            ignoreSettings: null,
-            org: 'org-name',
-          },
-          customPolicies: {},
-          customRules: {},
-          entitlements: {
-            infrastructureAsCode: true,
-            iacCustomRulesEntitlement: true,
-          },
-        }));
+        getIacOrgSettingsStub.mockImplementation(async () => iacOrgSettings);
       });
 
       it('returns the unparsable files excluding content', async () => {
         const opts: IaCTestFlags = {};
 
-        const { failures } = await test('./storage/', opts);
+        const { failures } = await test(
+          './storage/',
+          opts,
+          'org-name',
+          iacOrgSettings,
+          RulesOrigin.Internal,
+        );
 
         expect(failures).toEqual([
           {
