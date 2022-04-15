@@ -11,6 +11,7 @@ import {
   updateExcludeInPolicy,
 } from '../../lib/iac/drift';
 import { Policy } from '../../lib/policy/find-and-load-policy';
+import * as analytics from '../../lib/analytics';
 
 export default async (...args: MethodArgs): Promise<any> => {
   const { options } = processCommandArgs(...args);
@@ -37,6 +38,10 @@ export default async (...args: MethodArgs): Promise<any> => {
     // See https://github.com/nodejs/node/issues/19831
     // The actual error handling behavior is enough for now but may be improved if needed
     const analysis = parseDriftAnalysisResults(fs.readFileSync(0).toString());
+
+    // Add analytics
+    analytics.add('is-iac-drift', true);
+
     let policy: Policy;
     try {
       policy = await snykPolicyLib.load();
