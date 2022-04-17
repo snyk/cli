@@ -284,7 +284,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
           .join('');
   }
 
-  if (iacOutputMeta && isNewIacOutputSupported) {
+  if (!notSuccess && iacOutputMeta && isNewIacOutputSupported) {
     response += `${EOL}${SEPARATOR}${EOL}`;
 
     const iacTestSummary = `${formatIacTestSummary(
