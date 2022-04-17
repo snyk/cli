@@ -2,9 +2,9 @@ import chalk from 'chalk';
 import * as fs from 'fs';
 import * as pathLib from 'path';
 
-import { formatIacTestFailures } from '../../../../../../src/lib/formatters/iac-output';
-import { colors } from '../../../../../../src/lib/formatters/iac-output/v2/color-utils';
-import { IacFileInDirectory } from '../../../../../../src/lib/types';
+import { formatIacTestFailures } from '../../../../../../../src/lib/formatters/iac-output';
+import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/color-utils';
+import { IacFileInDirectory } from '../../../../../../../src/lib/types';
 
 const testFailureFixtures: IacFileInDirectory[] = JSON.parse(
   fs.readFileSync(
