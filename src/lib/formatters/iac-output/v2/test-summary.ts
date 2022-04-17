@@ -66,12 +66,11 @@ function formatCountsSection(testData: IacTestData): string {
 
   let totalIssuesCount = 0;
 
-  const issueCountsBySeverities: { [key in SEVERITY | 'none']: number } = {
+  const issueCountsBySeverities: { [key in SEVERITY]: number } = {
     critical: 0,
     high: 0,
     medium: 0,
     low: 0,
-    none: 0,
   };
 
   testData.results.forEach((iacTestResponse) => {
