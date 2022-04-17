@@ -2,9 +2,9 @@ import * as fs from 'fs';
 import * as pathLib from 'path';
 import chalk from 'chalk';
 
-import { formatIacTestSummary } from '../../../../../../src/lib/formatters/iac-output';
-import { colors } from '../../../../../../src/lib/formatters/iac-output/v2/color-utils';
-import { IacTestResponse } from '../../../../../../src/lib/snyk-test/iac-test-result';
+import { formatIacTestSummary } from '../../../../../../../src/lib/formatters/iac-output';
+import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/color-utils';
+import { IacTestResponse } from '../../../../../../../src/lib/snyk-test/iac-test-result';
 
 describe('formatIacTestSummary', () => {
   let resultFixtures: IacTestResponse[];
@@ -14,6 +14,7 @@ describe('formatIacTestSummary', () => {
       fs.readFileSync(
         pathLib.join(
           __dirname,
+          '..',
           '..',
           '..',
           '..',
