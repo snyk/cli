@@ -1,14 +1,15 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { formatScanResultsNewOutput } from '../../../../../../../src/lib/formatters/iac-output/v2/formatters';
-import { FormattedResult } from '../../../../../../../src/cli/commands/test/iac/local-execution/types';
-import { IacOutputMeta } from '../../../../../../../src/lib/types';
-import { IacTestOutput } from '../../../../../../../src/lib/formatters/iac-output/v2/types';
+import { IacOutputMeta } from '../../../../../../../../src/lib/types';
+import { formatScanResultsNewOutput } from '../../../../../../../../src/lib/formatters/iac-output/v2/issues-list/formatters';
+import { FormattedResult } from '../../../../../../../../src/cli/commands/test/iac/local-execution/types';
+import { IacTestOutput } from '../../../../../../../../src/lib/formatters/iac-output/v2/issues-list/types';
 
 describe('IaC Output Mapper', () => {
   const fixtureContent = fs.readFileSync(
     path.join(
       __dirname,
+      '..',
       '..',
       '..',
       '..',
@@ -25,6 +26,7 @@ describe('IaC Output Mapper', () => {
   const formattedFixtureContent = fs.readFileSync(
     path.join(
       __dirname,
+      '..',
       '..',
       '..',
       '..',
