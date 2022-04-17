@@ -3,7 +3,7 @@ import * as pathLib from 'path';
 import chalk from 'chalk';
 
 import { formatIacTestSummary } from '../../../../../../src/lib/formatters/iac-output';
-import { severityColor } from '../../../../../../src/lib/formatters/iac-output/v2/color-utils';
+import { colors } from '../../../../../../src/lib/formatters/iac-output/v2/color-utils';
 import { IacTestResponse } from '../../../../../../src/lib/snyk-test/iac-test-result';
 
 describe('formatIacTestSummary', () => {
@@ -48,11 +48,11 @@ describe('formatIacTestSummary', () => {
 ${chalk.bold.green('✔')} Files without issues: ${chalk.bold.white('0')}
 ${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
   Ignored issues: ${chalk.bold.white(`${ignoreCount}`)}
-  Total issues: ${chalk.bold.white('22')} [ ${severityColor.critical(
+  Total issues: ${chalk.bold.white('22')} [ ${colors.severities.critical(
         '0 critical',
-      )}, ${severityColor.high('5 high')}, ${severityColor.medium(
+      )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
         '4 medium',
-      )}, ${severityColor.low('13 low')} ]`,
+      )}, ${colors.severities.low('13 low')} ]`,
     );
   });
   it('should include the test meta properties section with the correct values', () => {
@@ -88,11 +88,11 @@ ${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
       `${chalk.bold.green('✔')} Files without issues: ${chalk.bold.white('0')}
 ${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
   Ignored issues: ${chalk.bold.white(`${ignoreCount}`)}
-  Total issues: ${chalk.bold.white('22')} [ ${severityColor.critical(
+  Total issues: ${chalk.bold.white('22')} [ ${colors.severities.critical(
         '0 critical',
-      )}, ${severityColor.high('5 high')}, ${severityColor.medium(
+      )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
         '4 medium',
-      )}, ${severityColor.low('13 low')} ]`,
+      )}, ${colors.severities.low('13 low')} ]`,
     );
   });
 });
