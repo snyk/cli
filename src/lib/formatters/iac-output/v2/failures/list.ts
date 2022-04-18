@@ -1,7 +1,7 @@
 import { EOL } from 'os';
 
-import { IacFileInDirectory } from '../../../types';
-import { colors } from './color-utils';
+import { IacFileInDirectory } from '../../../../types';
+import { colors } from '../color-utils';
 
 export function formatIacTestFailures(testFailures: IacFileInDirectory[]) {
   const sectionComponents: string[] = [];
