@@ -45,7 +45,7 @@ describe('Directory scan', () => {
     expect(stdout).toContain('Failed to parse YAML file');
     expect(stdout).toContain('Failed to parse JSON file');
     expect(stdout).toContain(
-      '23 projects, 15 contained issues. Failed to test 8 projects.',
+      '28 projects, 20 contained issues. Failed to test 8 projects.',
     );
     expect(exitCode).toBe(1);
   });

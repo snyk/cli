@@ -25,6 +25,7 @@ import {
 } from '../../../../lib/formatters';
 import * as utils from '../utils';
 import {
+  formatIacTestFailures,
   getIacDisplayErrorFileOutput,
   shareResultsOutput,
 } from '../../../../lib/formatters/iac-output';
@@ -273,17 +274,17 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   let summaryMessage = '';
   let errorResultsLength = errorResults.length;
 
-  if (iacScanFailures) {
+  if (iacScanFailures?.length) {
     errorResultsLength = iacScanFailures.length || errorResults.length;
 
-    for (const reason of iacScanFailures) {
-      response += chalk.bold.red(
-        getIacDisplayErrorFileOutput(reason, isNewIacOutputSupported),
-      );
-    }
+    response += isNewIacOutputSupported
+      ? EOL + formatIacTestFailures(iacScanFailures)
+      : iacScanFailures
+          .map((reason) => chalk.bold.red(getIacDisplayErrorFileOutput(reason)))
+          .join('');
   }
 
-  if (iacOutputMeta && isNewIacOutputSupported) {
+  if (!notSuccess && iacOutputMeta && isNewIacOutputSupported) {
     response += `${EOL}${SEPARATOR}${EOL}`;
 
     const iacTestSummary = `${formatIacTestSummary(

@@ -1,0 +1,74 @@
+{
+	"options": {
+		"deep": false,
+		"only_managed": false,
+		"only_unmanaged": true
+	},
+	"summary": {
+		"total_resources": 8,
+		"total_changed": 0,
+		"total_unmanaged": 3,
+		"total_missing": 0,
+		"total_managed": 5,
+		"total_iac_source_count": 1
+	},
+	"managed": [
+		{
+			"id": "driftctl-ro:driftctl-ro",
+			"type": "aws_iam_user_policy",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "driftctl_ro"
+			}
+		},
+		{
+			"id": "driftctl-assume-role",
+			"type": "aws_iam_role",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "driftctl_assume_role"
+			}
+		},
+		{
+			"id": "driftctl-assume-role:driftctl-policy",
+			"type": "aws_iam_role_policy",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "driftctl_policy"
+			}
+		},
+		{
+			"id": "driftctl-ro",
+			"type": "aws_iam_user",
+			"source": {
+				"source": "tfstate://../driftctl/terraform.tfstate",
+				"namespace": "",
+				"internal_name": "driftctl_ro"
+			}
+		}
+	],
+	"unmanaged": [
+		{
+			"id": "default",
+			"type": "aws_db_subnet_group"
+		},
+		{
+			"id": "arn:aws:iam::123456789:policy/foo",
+			"type": "aws_iam_policy"
+		},
+		{
+			"id": "BarRole",
+			"type": "aws_iam_role"
+		}
+	],
+	"missing": null,
+	"differences": null,
+	"coverage": 62,
+	"alerts": null,
+	"provider_name": "aws",
+	"provider_version": "3.19.0",
+	"scan_duration": 9
+}

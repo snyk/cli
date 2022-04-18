@@ -4,7 +4,7 @@ import { rightPadWithSpaces } from '../../../right-pad';
 import { SEVERITY } from '../../../snyk-test/common';
 import { color, icon } from '../../../theme';
 import { IacOutputMeta } from '../../../types';
-import { severityColor } from './color-utils';
+import { colors } from './color-utils';
 import { IacTestData } from './types';
 
 const PAD_LENGTH = 19; // chars to align
@@ -66,12 +66,11 @@ function formatCountsSection(testData: IacTestData): string {
 
   let totalIssuesCount = 0;
 
-  const issueCountsBySeverities: { [key in SEVERITY | 'none']: number } = {
+  const issueCountsBySeverities: { [key in SEVERITY]: number } = {
     critical: 0,
     high: 0,
     medium: 0,
     low: 0,
-    none: 0,
   };
 
   testData.results.forEach((iacTestResponse) => {
@@ -84,13 +83,13 @@ function formatCountsSection(testData: IacTestData): string {
   countsSectionProperties.push(
     `${INDENT}Total issues: ${chalk.bold.white(
       `${totalIssuesCount}`,
-    )} [ ${severityColor.critical(
+    )} [ ${colors.severities.critical(
       `${issueCountsBySeverities.critical} critical`,
-    )}, ${severityColor.high(
+    )}, ${colors.severities.high(
       `${issueCountsBySeverities.high} high`,
-    )}, ${severityColor.medium(
+    )}, ${colors.severities.medium(
       `${issueCountsBySeverities.medium} medium`,
-    )}, ${severityColor.low(`${issueCountsBySeverities.low} low`)} ]`,
+    )}, ${colors.severities.low(`${issueCountsBySeverities.low} low`)} ]`,
   );
 
   return countsSectionProperties.join(EOL);

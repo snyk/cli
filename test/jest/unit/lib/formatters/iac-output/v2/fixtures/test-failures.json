@@ -1,0 +1,27 @@
+[
+  {
+    "filePath": "test/fixtures/iac/arm/invalid_rule_test.json",
+    "fileType": "json",
+    "failureReason": "Failed to parse JSON file"
+  },
+  {
+    "filePath": "test/fixtures/iac/cloudformation/invalid-cfn.yml",
+    "fileType": "yml",
+    "failureReason": "Failed to parse YAML file"
+  },
+  {
+    "filePath": "test/fixtures/iac/kubernetes/helm-config.yaml",
+    "fileType": "yaml",
+    "failureReason": "Failed to parse YAML file"
+  },
+  {
+    "filePath": "test/fixtures/iac/terraform/sg_open_ssh_invalid_go_templates.tf",
+    "fileType": "tf",
+    "failureReason": "Failed to parse Terraform file"
+  },
+  {
+    "filePath": "test/fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf",
+    "fileType": "tf",
+    "failureReason": "Failed to parse Terraform file"
+  }
+]

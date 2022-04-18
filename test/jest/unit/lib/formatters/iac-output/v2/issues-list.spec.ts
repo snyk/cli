@@ -2,10 +2,10 @@ import * as fs from 'fs';
 import * as pathLib from 'path';
 import chalk from 'chalk';
 
-import { getIacDisplayedIssues } from '../../../../../../src/lib/formatters/iac-output';
-import { severityColor } from '../../../../../../src/lib/formatters/iac-output/v2/color-utils';
-import { IacOutputMeta } from '../../../../../../src/lib/types';
-import { FormattedResult } from '../../../../../../src/cli/commands/test/iac/local-execution/types';
+import { getIacDisplayedIssues } from '../../../../../../../src/lib/formatters/iac-output';
+import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/color-utils';
+import { IacOutputMeta } from '../../../../../../../src/lib/types';
+import { FormattedResult } from '../../../../../../../src/cli/commands/test/iac/local-execution/types';
 
 describe('getIacDisplayedIssues', () => {
   let resultFixtures: FormattedResult[];
@@ -19,6 +19,7 @@ describe('getIacDisplayedIssues', () => {
       fs.readFileSync(
         pathLib.join(
           __dirname,
+          '..',
           '..',
           '..',
           '..',
@@ -41,8 +42,10 @@ describe('getIacDisplayedIssues', () => {
   it('should include a subtitle for each severity with the correct amount of issues', () => {
     const result = getIacDisplayedIssues(resultFixtures, outputMeta);
 
-    expect(result).toContain(severityColor.low(`Low Severity Issues: 13`));
-    expect(result).toContain(severityColor.medium(`Medium Severity Issues: 4`));
-    expect(result).toContain(severityColor.high(`High Severity Issues: 5`));
+    expect(result).toContain(colors.severities.low(`Low Severity Issues: 13`));
+    expect(result).toContain(
+      colors.severities.medium(`Medium Severity Issues: 4`),
+    );
+    expect(result).toContain(colors.severities.high(`High Severity Issues: 5`));
   });
 });

@@ -220,6 +220,15 @@ export function verifyServiceMappingExists(services: string[]): void {
   }
 }
 
+export function findServiceMappingForType(type: string): string {
+  for (const service of services2resources.keys()) {
+    if (services2resources.get(service)?.includes(type)) {
+      return service;
+    }
+  }
+  return '';
+}
+
 function existingServiceNames(): string {
   let res = '';
   for (const s of services2resources.keys()) {
