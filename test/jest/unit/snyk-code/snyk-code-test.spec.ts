@@ -298,6 +298,40 @@ describe('Test snyk code', () => {
     }
   });
 
+  it('should create sarif result with security rules mapping', async () => {
+    const options: ArgsOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+      _: [],
+      _doubleDashArgs: [],
+      'sarif-file-output': 'test.json',
+    };
+
+    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    try {
+      await snykTest('some/path', options);
+    } catch (error) {
+      const sarifResultsJSON = JSON.parse(error.sarifStringifiedResults.trim());
+
+      const results = sarifResultsJSON.runs[0].results;
+      const rules = sarifResultsJSON.runs[0].tool.driver.rules;
+      // in each result, look for rule index and make sure it matches in the rules array
+      expect(
+        results.every((result) => result.ruleId == rules[result.ruleIndex].id),
+      ).toBeTruthy();
+    }
+  });
+
   describe('Default org test in CLI output', () => {
     beforeAll(() => {
       userConfig.set('org', 'defaultOrg');
