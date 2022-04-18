@@ -1,14 +1,14 @@
 import { startMockServer } from './helpers';
 import envPaths from 'env-paths';
-import { driftctlVersion } from '../../../../src/lib/iac/drift';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { getFixturePath } from '../../util/getFixturePath';
 import * as uuid from 'uuid';
 import * as rimraf from 'rimraf';
-import { processDriftctlOutput } from '../../../../src/lib/iac/drift';
+import { processHTMLOutput } from '../../../../src/lib/iac/drift';
 import { DescribeOptions } from '../../../../src/lib/iac/types';
+import { driftctlVersion } from '../../../../src/lib/iac/drift/driftctl';
 
 const paths = envPaths('snyk');
 
@@ -90,6 +90,34 @@ describe('iac describe', () => {
         'args-echo.sh',
       ),
     });
+
+    const output = fs.readFileSync(outputFile).toString();
+
+    // First invocation of driftctl scan triggered by describe cmd
+    expect(output).toContain('DCTL_IS_SNYK=true');
+    expect(output).toContain(
+      `ARGS=scan --no-version-check --output json://stdout --config-dir ${paths.cache} --to aws+tf`,
+    );
+
+    // no second invocation with console output
+
+    expect(stdout).toMatch('');
+    expect(stderr).toMatch('');
+    expect(exitCode).toBe(0);
+  });
+
+  it('Launch driftctl from SNYK_DRIFTCTL_PATH with html output', async () => {
+    const { stdout, stderr, exitCode } = await run(
+      `snyk iac describe  --all --html`,
+      {
+        SNYK_FIXTURE_OUTPUT_PATH: outputFile,
+        SNYK_DRIFTCTL_PATH: path.join(
+          getFixturePath('iac'),
+          'drift',
+          'args-echo.sh',
+        ),
+      },
+    );
 
     const output = fs.readFileSync(outputFile).toString();
     const expectedPipedOutput = fs
@@ -196,7 +224,7 @@ describe('processDriftctlOutput', () => {
       kind: 'fmt',
       html: true,
     };
-    const output = processDriftctlOutput(opts, inputData.toString('utf8'));
+    const output = processHTMLOutput(opts, inputData.toString('utf8'));
 
     expect(output).toBe(expectedOutputData.toString('utf8'));
   });
@@ -221,7 +249,7 @@ describe('processDriftctlOutput', () => {
       kind: 'fmt',
       'html-file-output': tmpFilepath,
     };
-    processDriftctlOutput(opts, inputData.toString('utf8'));
+    processHTMLOutput(opts, inputData.toString('utf8'));
 
     const data = fs.readFileSync(tmpFilepath, {
       encoding: 'utf8',

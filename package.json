@@ -84,6 +84,7 @@
     "env-paths": "^2.0.0",
     "glob": "^7.1.7",
     "global-agent": "^2.1.12",
+    "jsondiffpatch": "^0.4.1",
     "lodash.assign": "^4.2.0",
     "lodash.camelcase": "^4.3.0",
     "lodash.clonedeep": "^4.5.0",

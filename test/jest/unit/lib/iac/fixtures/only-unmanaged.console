@@ -1,0 +1,30 @@
+[1mSnyk Scanning Infrastructure As Code Discrepancies...[22m
+
+  Info:    Resources under IaC, but different to terraform states.
+  Resolve: Reapply IaC resources or update into terraform.
+
+[1mUnmanaged resources: 3[22m
+
+[34mService: [1maws_iam[22m [ Unmanaged Resources: [1m2[22m ][39m
+
+  Resource Type: aws_iam_policy
+    ID: [1marn:aws:iam::123456789:policy/foo[22m
+
+  Resource Type: aws_iam_role
+    ID: [1mBarRole[22m
+
+[34mService: [1maws_rds[22m [ Unmanaged Resources: [1m1[22m ][39m
+
+  Resource Type: aws_db_subnet_group
+    ID: [1mdefault[22m
+
+[1mTest Summary[22m
+
+  Managed Resources: [1m4[22m
+  Unmanaged Resources: [1m3[22m
+
+  IaC Coverage: [1m62%[22m
+  Info: To reach full coverage, remove resources or move it to Terraform.
+
+  Tip: Run --help to find out about commands and flags.
+      Scanned with aws provider version 3.19.0. Use --tf-provider-version to update.

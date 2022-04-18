@@ -234,7 +234,7 @@ describe('Terraform Language Support', () => {
       );
       expect(
         stdout.match(/✗ Security Group allows open ingress/g),
-      ).toHaveLength(8);
+      ).toHaveLength(9);
       expect(stdout).toContain(
         `Tested ${path.join(
           'terraform',
