@@ -42,7 +42,7 @@ Use with `--all-projects` or `--yarn-workspaces` to indicate how many subdirecto
 Default: 4 (the current working directory (0) and 4 subdirectories).
 
 Example: Limit search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories.\
-`--detection-depth=3`
+`--detection-depth=4`
 
 ### `--exclude=<GLOB>[,<GLOB>]...>`
 

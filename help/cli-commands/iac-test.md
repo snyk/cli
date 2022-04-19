@@ -37,7 +37,7 @@ Use to indicate how many subdirectories to search. `DEPTH` must be a number, 0 o
 
 Default: no limit.
 
-Example: `--detection-depth=3` limits search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories.
+Example: `--detection-depth=4` limits search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories.
 
 ### `--org=<ORG_ID>`
 
