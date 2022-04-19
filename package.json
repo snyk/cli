@@ -87,6 +87,7 @@
     "jsondiffpatch": "^0.4.1",
     "lodash.assign": "^4.2.0",
     "lodash.camelcase": "^4.3.0",
+    "lodash.capitalize": "^4.2.1",
     "lodash.clonedeep": "^4.5.0",
     "lodash.flatten": "^4.4.0",
     "lodash.get": "^4.4.2",

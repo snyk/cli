@@ -244,6 +244,19 @@ https://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files
         expect(stdout).not.toContain('Test Summary');
       });
     });
+
+    describe('with no issues', () => {
+      it('it should display an appropriate message in the issues section', async () => {
+        // Arrange
+        const filePath = 'iac/terraform/vars.tf';
+
+        // Act
+        const { stdout } = await run(`snyk iac test ${filePath}`);
+
+        // Assert
+        expect(stdout).toContain('No vulnerable paths were found!');
+      });
+    });
   });
 
   describe(`without the '${IAC_CLI_OUTPUT_FF}' feature flag`, () => {

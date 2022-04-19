@@ -1,6 +1,7 @@
 import { EOL } from 'os';
-import capitalize = require('lodash/capitalize');
-import debug = require('debug');
+import * as capitalize from 'lodash.capitalize';
+import * as isEmpty from 'lodash.isempty';
+import * as debug from 'debug';
 
 import { FormattedResult } from '../../../../cli/commands/test/iac/local-execution/types';
 import { IacOutputMeta } from '../../../types';
@@ -12,9 +13,18 @@ export function getIacDisplayedIssues(
   results: FormattedResult[],
   outputMeta: IacOutputMeta,
 ): string {
+  let output = EOL + colors.info.bold('Issues') + EOL;
+
   const formattedResults = formatScanResultsNewOutput(results, outputMeta);
 
-  let output = EOL + colors.info.bold('Issues') + EOL;
+  if (isEmpty(formattedResults.results)) {
+    return (
+      output +
+      EOL +
+      ' '.repeat(2) +
+      colors.success.bold('No vulnerable paths were found!')
+    );
+  }
 
   ['low', 'medium', 'high', 'critical'].forEach((severity) => {
     if (formattedResults.results[severity]) {
