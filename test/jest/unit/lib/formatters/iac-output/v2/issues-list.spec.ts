@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import chalk from 'chalk';
 
 import { getIacDisplayedIssues } from '../../../../../../../src/lib/formatters/iac-output';
 import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/color-utils';
@@ -36,7 +35,7 @@ describe('getIacDisplayedIssues', () => {
   it("should include the 'Issues' title", () => {
     const result = getIacDisplayedIssues(resultFixtures, outputMeta);
 
-    expect(result).toContain(chalk.white('Issues'));
+    expect(result).toContain(colors.info.bold('Issues'));
   });
 
   it('should include a subtitle for each severity with the correct amount of issues', () => {

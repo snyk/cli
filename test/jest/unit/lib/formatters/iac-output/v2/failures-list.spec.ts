@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import * as fs from 'fs';
 import * as pathLib from 'path';
 
@@ -19,7 +18,7 @@ describe('formatIacTestFailures', () => {
     const result = formatIacTestFailures(testFailureFixtures);
 
     // Assert
-    expect(result).toContain(chalk.bold.white(`Invalid Files: 5`));
+    expect(result).toContain(colors.info.bold(`Invalid Files: 5`));
   });
 
   it('should include the failures list with the correct values', () => {

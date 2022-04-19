@@ -27,7 +27,8 @@ import * as utils from '../utils';
 import {
   formatIacTestFailures,
   getIacDisplayErrorFileOutput,
-  shareResultsOutput,
+  initalUserMessageOutput,
+  shouldPrintIacInitialMessage,
 } from '../../../../lib/formatters/iac-output';
 import { getEcosystemForTest, testEcosystem } from '../../../../lib/ecosystems';
 import {
@@ -60,6 +61,7 @@ import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag
 import { hasFeatureFlag } from '../../../../lib/feature-flags';
 import {
   formatIacTestSummary,
+  formatShareResultsOutput,
   getIacDisplayedIssues,
 } from '../../../../lib/formatters/iac-output';
 
@@ -116,12 +118,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const isNewIacOutputSupported = await hasFeatureFlag('iacCliOutput', options);
 
   if (shouldPrintIacInitialMessage(options, isNewIacOutputSupported)) {
-    console.log(
-      EOL +
-        chalk.bold(
-          'Snyk testing Infrastructure as Code configuration issues...',
-        ),
-    );
+    console.log(EOL + initalUserMessageOutput);
   }
 
   // Promise waterfall to test all other paths sequentially
@@ -349,7 +346,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     response += spotlightVulnsMsg;
 
     if (isIacShareResultsOptions(options)) {
-      response += chalk.bold.white(shareResultsOutput(iacOutputMeta!)) + EOL;
+      response += formatShareResultsOutput(iacOutputMeta!) + EOL;
     }
 
     const error = new Error(response) as any;
@@ -371,7 +368,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   );
 
   if (isIacShareResultsOptions(options)) {
-    response += chalk.bold.white(shareResultsOutput(iacOutputMeta!)) + EOL;
+    response += formatShareResultsOutput(iacOutputMeta!) + EOL;
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
@@ -394,8 +391,4 @@ function shouldFail(vulnerableResults: any[], failOn: FailOn) {
   }
   // should fail by default when there are vulnerable results
   return vulnerableResults.length > 0;
-}
-
-function shouldPrintIacInitialMessage(options, iacCliOutputFeatureFlag) {
-  return !options.json && !options.sarif && iacCliOutputFeatureFlag;
 }

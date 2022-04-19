@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import { EOL } from 'os';
 
 import { IacFileInDirectory } from '../../../types';
@@ -7,7 +6,7 @@ import { colors } from './color-utils';
 export function formatIacTestFailures(testFailures: IacFileInDirectory[]) {
   const sectionComponents: string[] = [];
 
-  const titleOutput = chalk.bold.white(`Invalid Files: ${testFailures.length}`);
+  const titleOutput = colors.info.bold(`Invalid Files: ${testFailures.length}`);
   sectionComponents.push(titleOutput);
 
   const testFailuresListOutput = formatFailuresList(testFailures);

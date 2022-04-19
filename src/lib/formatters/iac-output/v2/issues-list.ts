@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import { EOL } from 'os';
 import capitalize = require('lodash/capitalize');
 import debug = require('debug');
@@ -15,7 +14,7 @@ export function getIacDisplayedIssues(
 ): string {
   const formattedResults = formatScanResultsNewOutput(results, outputMeta);
 
-  let output = EOL + chalk.bold.white('Issues') + EOL;
+  let output = EOL + colors.info.bold('Issues') + EOL;
 
   ['low', 'medium', 'high', 'critical'].forEach((severity) => {
     if (formattedResults.results[severity]) {
@@ -42,7 +41,7 @@ function getIssuesOutput(issues: FormattedIssue[]) {
   let output = '';
 
   issues.forEach((issue) => {
-    output += chalk.white(`${issue.policyMetadata.title}`) + EOL;
+    output += colors.info(`${issue.policyMetadata.title}`) + EOL;
   });
 
   return output;
