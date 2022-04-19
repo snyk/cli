@@ -25,11 +25,13 @@ export function extractResolutionMetaFromScanResult({
   target,
   identity,
   policy,
+  targetReference,
 }: ScanResult): ResolutionMeta {
   return {
     name,
     target,
     identity,
     policy,
+    targetReference,
   };
 }

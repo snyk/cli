@@ -51,4 +51,5 @@ export interface ResolutionMeta {
   };
   target?: GitTarget | ContainerTarget | UnknownTarget;
   policy?: string;
+  targetReference?: string;
 }

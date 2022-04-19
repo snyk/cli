@@ -23,6 +23,7 @@ interface Config {
   CACHE_PATH?: string;
   DRIFTCTL_PATH?: string;
   DRIFTCTL_URL?: string;
+  IAC_BUNDLE_PATH?: string;
 }
 
 // TODO: fix the types!
