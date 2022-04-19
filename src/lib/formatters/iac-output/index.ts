@@ -10,4 +10,7 @@ export {
   formatIacTestSummary,
   getIacDisplayedIssues,
   formatIacTestFailures,
+  initalUserMessageOutput,
+  shouldPrintIacInitialMessage,
+  formatShareResultsOutput,
 } from './v2';
