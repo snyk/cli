@@ -1,5 +1,6 @@
 import { emitter as codeEmitter } from '@snyk/code-client';
 import { spinner } from '../../../spinner';
+import * as debugLib from 'debug';
 
 export function analysisProgressUpdate(): void {
   let currentMessage = '';
@@ -28,5 +29,9 @@ export function analysisProgressUpdate(): void {
   );
   codeEmitter.on('sendError', (error) => {
     throw error;
+  });
+  codeEmitter.on('apiRequestLog', (data) => {
+    const debug = debugLib('snyk-code');
+    debug('---> API request log ', data);
   });
 }
