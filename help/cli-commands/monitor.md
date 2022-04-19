@@ -36,9 +36,9 @@ For more information see the article [Does the Snyk CLI support monorepos or mul
 
 ### `--detection-depth=<DEPTH>`
 
-Use with `--all-projects` or `--yarn-workspaces` to indicate how many sub-directories to search. `DEPTH` must be a number.
+Use with `--all-projects` or `--yarn-workspaces` to indicate how many subdirectories to search. `DEPTH` must be a number, 0 or greater, where 0 is the current directory.
 
-Default: 4 (the current working directory and 3 sub-directories).
+Default: 4 (the current working directory (0) and 4 subdirectories).
 
 Example: Limit search to the specified directory (or the current directory if no `<PATH>` is specified) plus two levels of subdirectories.\
 `--detection-depth=3`

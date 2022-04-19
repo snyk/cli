@@ -33,7 +33,7 @@ Use the `-d` option to output the debug logs.
 
 ### `--detection-depth=<DEPTH>`
 
-Use to indicate how many sub-directories to search. `DEPTH` must be a number.
+Use to indicate how many subdirectories to search. `DEPTH` must be a number, 0 or greater, where 0 is the current directory.
 
 Default: no limit.
 
@@ -141,7 +141,7 @@ This option cannot be used if the custom rules settings were configured with the
 
 Example: Scan the configuration files using custom rules and internal Snyk rules.
 
-&#x20;`--rules=bundle.tar.gz`
+`--rules=bundle.tar.gz`
 
 Note: This option can not be used in combination with the `--report` option.
 
@@ -175,7 +175,7 @@ Example, setting to the latest Git tag:
 
 Use this option to load a terraform variable definitions file that is located in a different directory from the scanned one.
 
-Example:&#x20;
+Example:
 
 `$ snyk iac test myproject/staging/networking --var-file=myproject/vars.tf`
 
