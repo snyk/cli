@@ -1,7 +1,7 @@
 import * as Debug from 'debug';
 import { EOL } from 'os';
-const cloneDeep = require('lodash.clonedeep');
-const assign = require('lodash.assign');
+import * as cloneDeep from 'lodash.clonedeep';
+import * as assign from 'lodash.assign';
 import chalk from 'chalk';
 import { MissingArgError } from '../../../../lib/errors';
 
@@ -64,6 +64,13 @@ import {
   formatShareResultsOutput,
   getIacDisplayedIssues,
 } from '../../../../lib/formatters/iac-output';
+import { initRules } from './local-execution/rules';
+import {
+  cleanLocalCache,
+  getIacOrgSettings,
+} from './local-execution/measurable-methods';
+import config from '../../../../lib/config';
+import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -121,58 +128,78 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     console.log(EOL + initalUserMessageOutput);
   }
 
-  // Promise waterfall to test all other paths sequentially
-  for (const path of paths) {
-    // Create a copy of the options so a specific test can
-    // modify them i.e. add `options.file` etc. We'll need
-    // these options later.
-    const testOpts = cloneDeep(options);
-    testOpts.path = path;
-    testOpts.projectName = testOpts['project-name'];
+  const orgPublicId = (options.org as string) ?? config.org;
+  const iacOrgSettings = await getIacOrgSettings(orgPublicId);
 
-    let res: (TestResult | TestResult[]) | Error;
-    try {
-      assertIaCOptionsFlags(process.argv);
-      const { results, failures, ignoreCount } = await iacTest(path, testOpts);
+  if (!iacOrgSettings.entitlements?.infrastructureAsCode) {
+    throw new UnsupportedEntitlementError('infrastructureAsCode');
+  }
 
-      iacOutputMeta = {
-        orgName: results[0]?.org,
-        projectName: results[0]?.projectName,
-        gitRemoteUrl: results[0]?.meta?.gitRemoteUrl,
-      };
+  try {
+    const rulesOrigin = await initRules(iacOrgSettings, options);
 
-      res = results;
-      iacScanFailures = failures;
-      iacIgnoredIssuesCount += ignoreCount;
-    } catch (error) {
-      // not throwing here but instead returning error response
-      // for legacy flow reasons.
-      res = formatTestError(error);
-    }
+    for (const path of paths) {
+      // Create a copy of the options so a specific test can
+      // modify them i.e. add `options.file` etc. We'll need
+      // these options later.
+      const testOpts = cloneDeep(options);
+      testOpts.path = path;
+      testOpts.projectName = testOpts['project-name'];
 
-    // Not all test results are arrays in order to be backwards compatible
-    // with scripts that use a callback with test. Coerce results/errors to be arrays
-    // and add the result options to each to be displayed
-    const resArray: any[] = Array.isArray(res) ? res : [res];
-
-    for (let i = 0; i < resArray.length; i++) {
-      const pathWithOptionalProjectName = utils.getPathWithOptionalProjectName(
-        path,
-        resArray[i],
-      );
-      results.push(assign(resArray[i], { path: pathWithOptionalProjectName }));
-      // currently testOpts are identical for each test result returned even if it's for multiple projects.
-      // we want to return the project names, so will need to be crafty in a way that makes sense.
-      if (!testOpts.projectNames) {
-        resultOptions.push(testOpts);
-      } else {
-        resultOptions.push(
-          assign(cloneDeep(testOpts), {
-            projectName: testOpts.projectNames[i],
-          }),
+      let res: (TestResult | TestResult[]) | Error;
+      try {
+        assertIaCOptionsFlags(process.argv);
+        const { results, failures, ignoreCount } = await iacTest(
+          path,
+          testOpts,
+          orgPublicId,
+          iacOrgSettings,
+          rulesOrigin,
         );
+
+        iacOutputMeta = {
+          orgName: results[0]?.org,
+          projectName: results[0]?.projectName,
+          gitRemoteUrl: results[0]?.meta?.gitRemoteUrl,
+        };
+
+        res = results;
+        iacScanFailures = failures;
+        iacIgnoredIssuesCount += ignoreCount;
+      } catch (error) {
+        // not throwing here but instead returning error response
+        // for legacy flow reasons.
+        res = formatTestError(error);
+      }
+
+      // Not all test results are arrays in order to be backwards compatible
+      // with scripts that use a callback with test. Coerce results/errors to be arrays
+      // and add the result options to each to be displayed
+      const resArray: any[] = Array.isArray(res) ? res : [res];
+
+      for (let i = 0; i < resArray.length; i++) {
+        const pathWithOptionalProjectName = utils.getPathWithOptionalProjectName(
+          path,
+          resArray[i],
+        );
+        results.push(
+          assign(resArray[i], { path: pathWithOptionalProjectName }),
+        );
+        // currently testOpts are identical for each test result returned even if it's for multiple projects.
+        // we want to return the project names, so will need to be crafty in a way that makes sense.
+        if (!testOpts.projectNames) {
+          resultOptions.push(testOpts);
+        } else {
+          resultOptions.push(
+            assign(cloneDeep(testOpts), {
+              projectName: testOpts.projectNames[i],
+            }),
+          );
+        }
       }
     }
+  } finally {
+    cleanLocalCache();
   }
 
   const vulnerableResults = results.filter(
