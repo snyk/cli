@@ -62,6 +62,7 @@ import {
   formatIacTestSummary,
   getIacDisplayedIssues,
 } from '../../../../lib/formatters/iac-output';
+import { colors } from '../../../../lib/formatters/iac-output/v2/color-utils';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -118,7 +119,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   if (shouldPrintIacInitialMessage(options, isNewIacOutputSupported)) {
     console.log(
       EOL +
-        chalk.bold(
+        colors.info.bold(
           'Snyk testing Infrastructure as Code configuration issues...',
         ),
     );
@@ -349,7 +350,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     response += spotlightVulnsMsg;
 
     if (isIacShareResultsOptions(options)) {
-      response += chalk.bold.white(shareResultsOutput(iacOutputMeta!)) + EOL;
+      response += colors.info.bold(shareResultsOutput(iacOutputMeta!)) + EOL;
     }
 
     const error = new Error(response) as any;
@@ -371,7 +372,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   );
 
   if (isIacShareResultsOptions(options)) {
-    response += chalk.bold.white(shareResultsOutput(iacOutputMeta!)) + EOL;
+    response += colors.info.bold(shareResultsOutput(iacOutputMeta!)) + EOL;
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(

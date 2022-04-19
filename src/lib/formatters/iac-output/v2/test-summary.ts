@@ -1,8 +1,7 @@
-import chalk from 'chalk';
 import { EOL } from 'os';
 import { rightPadWithSpaces } from '../../../right-pad';
 import { SEVERITY } from '../../../snyk-test/common';
-import { color, icon } from '../../../theme';
+import { icon } from '../../../theme';
 import { IacOutputMeta } from '../../../types';
 import { colors } from './color-utils';
 import { IacTestData } from './types';
@@ -14,7 +13,7 @@ export function formatIacTestSummary(
   testData: IacTestData,
   outputMeta: IacOutputMeta,
 ): string {
-  const title = chalk.bold.white('Test Summary');
+  const title = colors.info.bold('Test Summary');
   const summarySections: string[] = [title];
 
   summarySections.push(formatTestMetaSection(outputMeta));
@@ -49,19 +48,19 @@ function formatCountsSection(testData: IacTestData): string {
   const countsSectionProperties: string[] = [];
 
   countsSectionProperties.push(
-    `${chalk.bold(
-      color.status.success(icon.VALID),
-    )} Files without issues: ${chalk.bold.white(`${filesWithoutIssues}`)}`,
+    `${colors.success.bold(
+      icon.VALID,
+    )} Files without issues: ${colors.info.bold(`${filesWithoutIssues}`)}`,
   );
 
   countsSectionProperties.push(
-    `${chalk.bold(
-      color.status.error(icon.ISSUE),
-    )} Files with issues: ${chalk.bold.white(`${filesWithIssues}`)}`,
+    `${colors.failure.bold(icon.ISSUE)} Files with issues: ${colors.info.bold(
+      `${filesWithIssues}`,
+    )}`,
   );
 
   countsSectionProperties.push(
-    `${INDENT}Ignored issues: ${chalk.bold.white(`${testData.ignoreCount}`)}`,
+    `${INDENT}Ignored issues: ${colors.info.bold(`${testData.ignoreCount}`)}`,
   );
 
   let totalIssuesCount = 0;
@@ -81,7 +80,7 @@ function formatCountsSection(testData: IacTestData): string {
   });
 
   countsSectionProperties.push(
-    `${INDENT}Total issues: ${chalk.bold.white(
+    `${INDENT}Total issues: ${colors.info.bold(
       `${totalIssuesCount}`,
     )} [ ${colors.severities.critical(
       `${issueCountsBySeverities.critical} critical`,

@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import chalk from 'chalk';
 
 import { formatIacTestSummary } from '../../../../../../../src/lib/formatters/iac-output';
 import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/color-utils';
@@ -42,14 +41,14 @@ describe('formatIacTestSummary', () => {
 
     // Assert
     expect(result).toContain(
-      `${chalk.bold.white('Test Summary')}
+      `${colors.info.bold('Test Summary')}
 
   Organization: ${orgName}
 
-${chalk.bold.green('✔')} Files without issues: ${chalk.bold.white('0')}
-${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
-  Ignored issues: ${chalk.bold.white(`${ignoreCount}`)}
-  Total issues: ${chalk.bold.white('22')} [ ${colors.severities.critical(
+${colors.success.bold('✔')} Files without issues: ${colors.info.bold('0')}
+${colors.failure.bold('✗')} Files with issues: ${colors.info.bold('3')}
+  Ignored issues: ${colors.info.bold(`${ignoreCount}`)}
+  Total issues: ${colors.info.bold('22')} [ ${colors.severities.critical(
         '0 critical',
       )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
         '4 medium',
@@ -69,7 +68,7 @@ ${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
     );
 
     // Assert
-    expect(result).toContain(`${chalk.bold.white('Test Summary')}`);
+    expect(result).toContain(`${colors.info.bold('Test Summary')}`);
   });
 
   it('should include the counts section with the correct values', () => {
@@ -86,10 +85,12 @@ ${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
 
     // Assert
     expect(result).toContain(
-      `${chalk.bold.green('✔')} Files without issues: ${chalk.bold.white('0')}
-${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
-  Ignored issues: ${chalk.bold.white(`${ignoreCount}`)}
-  Total issues: ${chalk.bold.white('22')} [ ${colors.severities.critical(
+      `${colors.success.bold('✔')} Files without issues: ${colors.info.bold(
+        '0',
+      )}
+${colors.failure.bold('✗')} Files with issues: ${colors.info.bold('3')}
+  Ignored issues: ${colors.info.bold(`${ignoreCount}`)}
+  Total issues: ${colors.info.bold('22')} [ ${colors.severities.critical(
         '0 critical',
       )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
         '4 medium',

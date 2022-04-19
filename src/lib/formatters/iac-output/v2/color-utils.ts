@@ -4,6 +4,8 @@ import { SEVERITY } from '../../../snyk-test/common';
 interface IacOutputColors {
   severities: SeverityColor;
   failure: Chalk;
+  success: Chalk;
+  info: Chalk;
 }
 
 type SeverityColor = {
@@ -18,4 +20,6 @@ export const colors: IacOutputColors = {
     low: chalk.hex('#88879E'),
   },
   failure: chalk.hex('#B81415'),
+  success: chalk.hex('#00BB00'),
+  info: chalk.white,
 };
