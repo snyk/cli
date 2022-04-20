@@ -47,4 +47,47 @@ describe('getIacDisplayedIssues', () => {
     );
     expect(result).toContain(colors.severities.high(`High Severity Issues: 5`));
   });
+
+  describe('with no issues', () => {
+    let resultsWithNoIssues: FormattedResult[];
+
+    beforeAll(() => {
+      resultsWithNoIssues = resultFixtures.map((resultFixture) => ({
+        ...resultFixture,
+        result: {
+          ...resultFixture.result,
+          cloudConfigResults: [],
+        },
+      }));
+    });
+
+    it('should display an appropriate message', () => {
+      // Act
+      const result = getIacDisplayedIssues(resultsWithNoIssues, outputMeta);
+
+      // Assert
+      expect(result).toContain(
+        colors.success.bold('No vulnerable paths were found!'),
+      );
+    });
+
+    it('should not display any severity sections', () => {
+      // Act
+      const result = getIacDisplayedIssues(resultsWithNoIssues, outputMeta);
+
+      // Assert
+      expect(result).not.toContain(
+        colors.severities.low('Low Severity Issues'),
+      );
+      expect(result).not.toContain(
+        colors.severities.medium('Medium Severity Issues'),
+      );
+      expect(result).not.toContain(
+        colors.severities.high('High Severity Issues'),
+      );
+      expect(result).not.toContain(
+        colors.severities.critical('Critical Severity Issues'),
+      );
+    });
+  });
 });
