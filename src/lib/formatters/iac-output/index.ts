@@ -13,4 +13,5 @@ export {
   initalUserMessageOutput,
   shouldPrintIacInitialMessage,
   formatShareResultsOutput,
+  failuresTipOutput,
 } from './v2';

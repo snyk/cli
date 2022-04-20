@@ -125,17 +125,6 @@ Target file:       ${dirPath}/`);
     );
 
     describe('with multiple test results', () => {
-      it('should show the test summary message', async () => {
-        // Arrange
-        const dirPath = 'iac/kubernetes';
-
-        // Act
-        const { stdout } = await run(`snyk iac test ${dirPath}`);
-
-        // Assert
-        expect(stdout).toContain('Tested 3 projects, 3 contained issues.');
-      });
-
       describe('with test failures', () => {
         it('should show the failures list section with the correct values', async () => {
           // Arrange
@@ -176,19 +165,6 @@ Target file:       ${dirPath}/`);
           );
         });
 
-        it('should include the failures count in the test summary message', async () => {
-          // Arrange
-          const dirPath = 'iac/kubernetes';
-
-          // Act
-          const { stdout } = await run(`snyk iac test ${dirPath}`);
-
-          // Assert
-          expect(stdout).toContain(
-            'Tested 3 projects, 3 contained issues. Failed to test 1 project.',
-          );
-        });
-
         it('should include user tip for test failures', async () => {
           // Arrange
           const dirPath = 'iac/terraform';
@@ -198,8 +174,9 @@ Target file:       ${dirPath}/`);
 
           // Assert
           expect(stdout).toContain(
-            `Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>
-If the issue persists contact support@snyk.io`,
+            'Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>' +
+              EOL +
+              'If the issue persists contact support@snyk.io',
           );
         });
       });

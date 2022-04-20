@@ -71,6 +71,7 @@ import {
 } from './local-execution/measurable-methods';
 import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
+import { failuresTipOutput } from '../../../../lib/formatters/iac-output';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -323,12 +324,16 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   }
 
   if (results.length > 1) {
-    const projects = results.length === 1 ? 'project' : 'projects';
-    summaryMessage =
-      `\n\n\nTested ${results.length} ${projects}` +
-      summariseVulnerableResults(vulnerableResults, options) +
-      summariseErrorResults(errorResultsLength) +
-      '\n';
+    if (isNewIacOutputSupported) {
+      response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : '';
+    } else {
+      const projects = results.length === 1 ? 'project' : 'projects';
+      summaryMessage +=
+        `\n\n\nTested ${results.length} ${projects}` +
+        summariseVulnerableResults(vulnerableResults, options) +
+        summariseErrorResults(errorResultsLength) +
+        '\n';
+    }
   }
 
   if (notSuccess) {
