@@ -38,7 +38,9 @@ export async function parseFiles(
   let nonTfFileData: IacFileData[] = [];
 
   if (!isTFVarSupportEnabled) {
-    nonTfFileData = filesData;
+    nonTfFileData = filesData.filter((fileData) =>
+      ['tf', 'json', 'yaml', 'yml'].includes(fileData.fileType),
+    );
   } else {
     tfFileData = filesData.filter((fileData) =>
       VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType),
