@@ -1,0 +1,20 @@
+package cliv1
+
+import (
+	_ "embed"
+)
+
+//go:embed FILENAME
+var snykCLIBytes []byte
+
+func getCLIv1Filename() string {
+	return "FILENAME"
+}
+
+//go:embed FILENAME.sha256
+var snykCLISHA256 string
+
+func ExpectedSHA256() string {
+	sha256 := snykCLISHA256[0:64]
+	return sha256
+}

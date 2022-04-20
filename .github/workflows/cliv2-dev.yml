@@ -1,0 +1,428 @@
+name: CLIv2 dev workflow
+
+on:
+  push:
+    branches:
+      - '**v2**'
+
+jobs:
+  build-dev-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17'
+
+      - name: Show environment
+        run: go version
+
+      - name: Build Linux amd64
+        run: |
+          make build build-test install prefix=. -e
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        working-directory: cliv2
+
+      - name: Build macOS amd64
+        run: |
+          make build build-test install prefix=. -e
+        env:
+          GOOS: darwin
+          GOARCH: amd64
+        working-directory: cliv2
+
+      - name: Build Windows amd64
+        run: |
+          make build build-test install prefix=. -e
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        working-directory: cliv2
+
+      - name: Show built artifacts
+        run: ls -la
+        working-directory: cliv2
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk_linux_amd64
+          path: ./cliv2/bin/snyk_linux_amd64
+          retention-days: 1
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk_linux_amd64.sha256
+          path: ./cliv2/bin/snyk_linux_amd64.sha256
+          retention-days: 1
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk_tests_linux_amd64
+          path: ./cliv2/bin/snyk_tests_linux_amd64
+          retention-days: 1
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk_darwin_amd64
+          path: ./cliv2/bin/snyk_darwin_amd64
+          retention-days: 1
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk_darwin_amd64.sha256
+          path: ./cliv2/bin/snyk_darwin_amd64.sha256
+          retention-days: 1
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk_tests_darwin_amd64
+          path: ./cliv2/bin/snyk_tests_darwin_amd64
+          retention-days: 1
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk_windows_amd64.exe
+          path: ./cliv2/bin/snyk_windows_amd64.exe
+          retention-days: 1
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk_windows_amd64.exe.sha256
+          path: ./cliv2/bin/snyk_windows_amd64.exe.sha256
+          retention-days: 1
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk_tests_windows_amd64.exe
+          path: ./cliv2/bin/snyk_tests_windows_amd64.exe
+          retention-days: 1
+
+  integration-tests-linux-amd64:
+    needs: build-dev-artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17'
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_linux_amd64
+          path: ./cliv2 # this is the directory where the file will be downloaded
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_linux_amd64.sha256
+          path: ./cliv2 # this is the directory where the file will be downloaded
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_tests_linux_amd64
+          path: ./cliv2 # this is the directory where the file will be downloaded
+
+      - name: Validate artifact checksum
+        run: shasum -a 256 -c snyk_linux_amd64.sha256
+        working-directory: cliv2
+
+      - name: Set perms
+        run: chmod a+x ./snyk_linux_amd64
+        working-directory: cliv2
+
+      - name: Set perms on test artifact
+        run: chmod a+x ./snyk_tests_linux_amd64
+        working-directory: cliv2
+
+      - name: Show files
+        run: |
+          pwd
+          ls -la
+        working-directory: cliv2
+
+      - name: Run snyk version
+        run: ./snyk_linux_amd64 version --debug
+        working-directory: cliv2
+
+      - name: Run integration tests
+        run: |
+          ./snyk_tests_linux_amd64
+        env:
+          SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
+          TEST_SNYK_EXECUTABLE_PATH: ./snyk_linux_amd64
+        working-directory: cliv2
+
+  integration-tests-darwin-amd64:
+    needs: build-dev-artifacts
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17'
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_darwin_amd64
+          path: ./cliv2 # this is the directory where the file will be downloaded
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_darwin_amd64.sha256
+          path: ./cliv2 # this is the directory where the file will be downloaded
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_tests_darwin_amd64
+          path: ./cliv2 # this is the directory where the file will be downloaded
+
+      - name: Validate artifact checksum
+        run: shasum -a 256 -c snyk_darwin_amd64.sha256
+        working-directory: cliv2
+
+      - name: Set perms
+        run: chmod a+x ./snyk_darwin_amd64
+        working-directory: cliv2
+
+      - name: Set perms on test artifact
+        run: chmod a+x ./snyk_tests_darwin_amd64
+        working-directory: cliv2
+
+      - name: Show files
+        run: |
+          pwd
+          ls -la
+          ls -la ./snyk_darwin_amd64
+        working-directory: cliv2
+
+      - name: Run snyk version
+        run: ./snyk_darwin_amd64 version --debug
+        working-directory: cliv2
+
+      - name: Run integration tests
+        run: |
+          ./snyk_tests_darwin_amd64
+        env:
+          SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
+          TEST_SNYK_EXECUTABLE_PATH: ./snyk_darwin_amd64
+        working-directory: cliv2
+
+  integration-tests-windows-amd64:
+    needs: build-dev-artifacts
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17'
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_windows_amd64.exe
+          path: ./cliv2 # this is the directory where the file will be downloaded
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_windows_amd64.exe.sha256
+          path: ./cliv2 # this is the directory where the file will be downloaded
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_tests_windows_amd64.exe
+          path: ./cliv2 # this is the directory where the file will be downloaded
+
+      - name: Validate artifact checksum
+        run: shasum -a 256 -c --binary snyk_windows_amd64.exe.sha256
+        working-directory: cliv2
+
+      - name: Set perms
+        run: chmod a+x ./snyk_windows_amd64.exe
+        shell: bash
+        working-directory: cliv2
+
+      - name: Show files
+        run: |
+          pwd
+          ls -la
+          ls -la ./snyk_windows_amd64.exe
+        shell: bash
+        working-directory: cliv2
+
+      - name: Run snyk version
+        run: ./snyk_windows_amd64.exe version --debug
+        shell: bash
+        working-directory: cliv2
+
+      - name: Run integration tests
+        run: |
+          ./snyk_tests_windows_amd64.exe
+        env:
+          SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
+          TEST_SNYK_EXECUTABLE_PATH: ./snyk_windows_amd64.exe
+        working-directory: cliv2
+
+  # Repeat integration tests, this time with the upstream proxy
+  integration-tests-with-upstream-proxy-linux-amd64:
+    needs: build-dev-artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17'
+
+      - name: gen-corp-proxy-cert
+        run: |
+          ../make-ss-cert.sh test-corp-proxy
+          ls -la
+        working-directory: cliv2/test/fixtures/.certs/test-corp-proxy
+
+      - name: Download mitmproxy
+        run: |
+          curl -Lo ./mitmproxy.tar.gz https://snapshots.mitmproxy.org/7.0.4/mitmproxy-7.0.4-linux.tar.gz
+          tar -xvzf mitmproxy.tar.gz
+          ls -la
+        working-directory: cliv2
+
+      - name: Run "corp proxy"
+        run: ./mitmdump --certs *=./test/fixtures/.certs/test-corp-proxy/test-corp-proxy.pem &
+        working-directory: cliv2
+
+      - name: Import test-corp-proxy cert
+        run: |
+          sudo cp test/fixtures/.certs/test-corp-proxy/test-corp-proxy.crt /usr/local/share/ca-certificates
+          sudo update-ca-certificates
+        working-directory: cliv2
+
+      - name: Test curl to https through "corp proxy"
+        run: curl -I --verbose --proxy http://localhost:8080 https://snyk.io/
+        working-directory: cliv2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_linux_amd64
+          path: ./cliv2 # this is the directory where the file will be downloaded
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_linux_amd64.sha256
+          path: ./cliv2 # this is the directory where the file will be downloaded
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_tests_linux_amd64
+          path: ./cliv2 # this is the directory where the file will be downloaded
+
+      - name: Validate artifact checksum
+        run: shasum -a 256 -c snyk_linux_amd64.sha256
+        working-directory: cliv2
+
+      - name: Set perms
+        run: chmod a+x ./snyk_tests_linux_amd64
+        working-directory: cliv2
+
+      - name: Set perms on test artifact
+        run: chmod a+x ./snyk_linux_amd64
+        working-directory: cliv2
+
+      - name: Show files
+        run: |
+          pwd
+          ls -la
+        working-directory: cliv2
+
+      - name: Run snyk version
+        run: ./snyk_linux_amd64 version --debug
+        working-directory: cliv2
+
+      # run go install separate from the running the test because for the test we go through the upstream proxy
+      # but that breaks go's dependency install
+      - name: Go install
+        run: go install main_integration_test.go
+        working-directory: cliv2
+
+      - name: Run integration tests
+        run: |
+          ./snyk_tests_linux_amd64
+        env:
+          SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
+          HTTPS_PROXY: http://localhost:8080
+          TEST_SNYK_EXECUTABLE_PATH: ./snyk_linux_amd64
+        working-directory: cliv2
+
+  integration-tests-with-upstream-proxy-windows-amd64:
+    needs: build-dev-artifacts
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17'
+
+      - name: gen-corp-proxy-cert
+        run: |
+          go run ../../../../cmd/make-cert/main.go test-corp-proxy
+          # ../make-ss-cert.sh test-corp-proxy  # not using the script here because one of the openssl commands gives an error on windows
+          ls -la
+        shell: bash
+        working-directory: cliv2/test/fixtures/.certs/test-corp-proxy
+
+      - name: Download mitmproxy
+        run: |
+          curl -Lo ./mitmproxy.zip https://snapshots.mitmproxy.org/7.0.4/mitmproxy-7.0.4-windows.zip
+          unzip mitmproxy.zip
+          ls -la
+        shell: bash
+        working-directory: cliv2
+
+      - name: Run "corp proxy"
+        run: ./mitmdump --certs *=./test/fixtures/.certs/test-corp-proxy/test-corp-proxy.pem &
+        shell: bash
+        working-directory: cliv2
+
+      - name: Import test-corp-proxy cert
+        run: Import-Certificate -FilePath "test\fixtures\.certs\test-corp-proxy\test-corp-proxy.crt" -CertStoreLocation Cert:\LocalMachine\Root
+        working-directory: cliv2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_windows_amd64.exe
+          path: ./cliv2 # this is the directory where the file will be downloaded
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_windows_amd64.exe.sha256
+          path: ./cliv2 # this is the directory where the file will be downloaded
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk_tests_windows_amd64.exe
+          path: ./cliv2 # this is the directory where the file will be downloaded
+
+      - name: Validate artifact checksum
+        run: shasum -a 256 -c --binary snyk_windows_amd64.exe.sha256
+        working-directory: cliv2
+
+      - name: Set perms
+        run: chmod a+x ./snyk_windows_amd64.exe
+        shell: bash
+        working-directory: cliv2
+
+      - name: Show files
+        run: |
+          pwd
+          ls -la
+          ls -la ./snyk_windows_amd64.exe
+        shell: bash
+        working-directory: cliv2
+
+      - name: Run snyk version
+        run: ./snyk_windows_amd64.exe version --debug
+        shell: bash
+        working-directory: cliv2
+
+      # run go install separate from the running the test because for the test we go through the upstream proxy
+      # but that breaks go's dependency install
+      - name: Go install
+        run: go install main_integration_test.go
+        working-directory: cliv2
+
+      - name: Run integration tests
+        run: |
+          ./snyk_tests_windows_amd64.exe
+        env:
+          SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
+          HTTPS_PROXY: http://localhost:8080
+          TEST_SNYK_EXECUTABLE_PATH: ./snyk_windows_amd64.exe
+        working-directory: cliv2

@@ -1,0 +1,49 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"path"
+	"snyk/cling/internal/certs"
+	"snyk/cling/internal/utils"
+	"strings"
+)
+
+func main() {
+	certName := os.Args[1]
+
+	debugLogger := log.Default()
+
+	snykDNSNamesStr := os.Getenv("SNYK_DNS_NAMES")
+	var snykDNSNames []string
+	fmt.Println("SNYK_DNS_NAMES:", snykDNSNamesStr)
+	if snykDNSNamesStr != "" {
+		snykDNSNames = strings.Split(snykDNSNamesStr, ",")
+	} else {
+		snykDNSNames = []string{"snyk.io", "*.snyk.io"}
+	}
+
+	debugLogger.Println("certificate name:", certName)
+	debugLogger.Println("SNYK_DNS_NAMES:", snykDNSNames)
+
+	certPEMBlockBytes, keyPEMBlockBytes, err := certs.MakeSelfSignedCert(certName, snykDNSNames, debugLogger)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// certString := certPEMBytesBuffer.String()
+	certPEMString := string(certPEMBlockBytes)
+	keyPEMString := string(keyPEMBlockBytes)
+
+	keyAndCert := keyPEMString + certPEMString
+
+	// write to file
+	certFilePath := path.Join(".", certName+".crt")
+	keyFilePath := path.Join(".", certName+".key")
+	joinedPemFilePath := path.Join(".", certName+".pem") // key and cert in one file - used by mitmproxy
+
+	_ = utils.WriteToFile(certFilePath, certPEMString)
+	_ = utils.WriteToFile(keyFilePath, keyPEMString)
+	_ = utils.WriteToFile(joinedPemFilePath, keyAndCert)
+}

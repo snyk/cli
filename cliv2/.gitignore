@@ -1,0 +1,12 @@
+.DS_STORE
+internal/cliv2/cliv2.version
+internal/embedded/cliv1/cliv1.version
+internal/embedded/cliv1/snyk-macos
+internal/embedded/cliv1/snyk-macos.sha256
+internal/embedded/cliv1/embedded*.go
+main
+sbin
+_bin
+_cache
+.dccache
+.vscode
