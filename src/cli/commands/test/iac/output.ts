@@ -277,18 +277,11 @@ function buildNewTextOutput(
   iacOutputMeta: IacOutputMeta | undefined,
   resultOptions: (Options & TestOptions)[],
 ) {
-  const errorResults = results.filter((res) => res instanceof Error);
-  const notSuccess = errorResults.length > 0;
-
-  if (notSuccess) {
-    buildNewTextOutputForFailureAndThrow(
-      results,
-      iacScanFailures,
-      resultOptions,
-    );
+  if (containsErrors(results)) {
+    buildNewTextOutputForErrorAndThrow(results, iacScanFailures, resultOptions);
   }
 
-  return buildNewTextOutputForSuccess(
+  return buildNewTextOutputForSuccessOrFailure(
     options,
     results,
     iacScanFailures,
@@ -297,7 +290,7 @@ function buildNewTextOutput(
   );
 }
 
-function buildNewTextOutputForSuccess(
+function buildNewTextOutputForSuccessOrFailure(
   options: any,
   results: any[],
   iacScanFailures: IacFileInDirectory[] | undefined,
@@ -311,7 +304,6 @@ function buildNewTextOutputForSuccess(
         res.result.cloudConfigResults &&
         res.result.cloudConfigResults.length),
   );
-  const errorResults = results.filter((res) => res instanceof Error);
   const foundVulnerabilities = vulnerableResults.length > 0;
 
   // resultOptions is now an array of 1 or more options used for
@@ -328,10 +320,10 @@ function buildNewTextOutputForSuccess(
 
   response += getIacDisplayedIssues(results, iacOutputMeta!);
 
-  let errorResultsLength = errorResults.length;
+  let errorResultsLength = 0;
 
   if (iacScanFailures?.length) {
-    errorResultsLength = iacScanFailures.length || errorResults.length;
+    errorResultsLength = iacScanFailures.length || 0;
 
     response += EOL + formatIacTestFailures(iacScanFailures);
   }
@@ -388,7 +380,7 @@ function buildNewTextOutputForSuccess(
   );
 }
 
-function buildNewTextOutputForFailureAndThrow(
+function buildNewTextOutputForErrorAndThrow(
   results: any[],
   iacScanFailures: IacFileInDirectory[] | undefined,
   resultOptions: (Options & TestOptions)[],
@@ -436,4 +428,8 @@ function buildNewTextOutputForFailureAndThrow(
   error.userMessage = errorResults[0].userMessage;
   error.strCode = errorResults[0].strCode;
   throw error;
+}
+
+function containsErrors(results: any[]) {
+  return results.some((res) => res instanceof Error);
 }
