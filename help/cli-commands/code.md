@@ -51,8 +51,6 @@ For more information see the article [How to select the organization to use in t
 
 Print results in JSON format.
 
-Example: `$ snyk code test --json-file-output=vuln.json`
-
 ### `--sarif`
 
 Return results in SARIF format.

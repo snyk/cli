@@ -6,7 +6,7 @@
 
 ## Description
 
-The `snyk iac update-exclude-policy` generates exclude policy rules to be used by `snyk iac test`.
+The `snyk iac update-exclude-policy` generates exclude policy rules to be used by `snyk iac describe`.
 
 For a list of related commands see the [snyk iac](iac.md) help; `iac --help`
 
