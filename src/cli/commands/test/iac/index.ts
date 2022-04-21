@@ -1,10 +1,5 @@
-import { EOL } from 'os';
 import { MethodArgs } from '../../../args';
 import { TestCommandResult } from '../../../commands/types';
-import {
-  initalUserMessageOutput,
-  shouldPrintIacInitialMessage,
-} from '../../../../lib/formatters/iac-output';
 import { validateCredentials } from '../validate-credentials';
 import { validateTestOptions } from '../validate-test-options';
 import { setDefaultTestOptions } from '../set-default-test-options';
@@ -13,7 +8,7 @@ import { hasFeatureFlag } from '../../../../lib/feature-flags';
 import { getIacOrgSettings } from './local-execution/measurable-methods';
 import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
-import { buildOutput } from './output';
+import { buildOutput, printInitialMessage } from './output';
 import { initRulesAndScanPaths } from './scan';
 import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag';
 
@@ -32,9 +27,7 @@ export default async function (
 
   const isNewIacOutputSupported = await hasFeatureFlag('iacCliOutput', options);
 
-  if (shouldPrintIacInitialMessage(options, isNewIacOutputSupported)) {
-    console.log(EOL + initalUserMessageOutput);
-  }
+  printInitialMessage(options, isNewIacOutputSupported);
 
   const orgPublicId = (options.org as string) ?? config.org;
   const iacOrgSettings = await getIacOrgSettings(orgPublicId);

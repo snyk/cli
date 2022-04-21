@@ -19,6 +19,8 @@ import {
 import {
   formatIacTestFailures,
   getIacDisplayErrorFileOutput,
+  initalUserMessageOutput,
+  shouldPrintIacInitialMessage,
 } from '../../../../lib/formatters/iac-output';
 import { extractDataToSendFromResults } from '../../../../lib/formatters/test/format-test-results';
 
@@ -37,6 +39,15 @@ import { failuresTipOutput } from '../../../../lib/formatters/iac-output';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
+
+export function printInitialMessage(
+  options: any,
+  isNewIacOutputSupported: boolean | undefined,
+) {
+  if (shouldPrintIacInitialMessage(options, isNewIacOutputSupported)) {
+    console.log(EOL + initalUserMessageOutput);
+  }
+}
 
 export function buildOutput(
   options: any,
