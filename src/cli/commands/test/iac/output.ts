@@ -20,12 +20,6 @@ import {
   formatIacTestFailures,
   getIacDisplayErrorFileOutput,
 } from '../../../../lib/formatters/iac-output';
-import {
-  hasFixes,
-  hasPatches,
-  hasUpgrades,
-} from '../../../../lib/vuln-helpers';
-import { FailOn } from '../../../../lib/snyk-test/common';
 import { extractDataToSendFromResults } from '../../../../lib/formatters/test/format-test-results';
 
 import { displayResult } from '../../../../lib/formatters/test/display-result';
@@ -104,17 +98,6 @@ function buildJsonOrSarifOutput(options: any, results: any[]) {
   const err = new Error(stringifiedData) as any;
 
   if (foundVulnerabilities) {
-    if (options.failOn) {
-      const fail = shouldFail(vulnerableResults, options.failOn);
-      if (!fail) {
-        // return here to prevent failure
-        return TestCommandResult.createJsonTestCommandResult(
-          stringifiedData,
-          stringifiedJsonData,
-          stringifiedSarifData,
-        );
-      }
-    }
     err.code = 'VULNS';
     const dataToSendNoVulns = dataToSend;
     delete dataToSendNoVulns.vulnerabilities;
@@ -247,21 +230,6 @@ function buildOldTextOutput(
   }
 
   if (foundVulnerabilities) {
-    if (options.failOn) {
-      const fail = shouldFail(vulnerableResults, options.failOn);
-      if (!fail) {
-        // return here to prevent throwing failure
-        response += chalk.bold.green(summaryMessage);
-        response += EOL + EOL;
-
-        return TestCommandResult.createHumanReadableTestCommandResult(
-          response,
-          stringifiedJsonData,
-          stringifiedSarifData,
-        );
-      }
-    }
-
     response += chalk.bold.red(summaryMessage);
     response += EOL + EOL;
 
@@ -387,18 +355,6 @@ function buildNewTextOutputForSuccess(
   }
 
   if (foundVulnerabilities) {
-    if (options.failOn) {
-      const fail = shouldFail(vulnerableResults, options.failOn);
-      if (!fail) {
-        // return here to prevent throwing failure
-        return TestCommandResult.createHumanReadableTestCommandResult(
-          response,
-          stringifiedJsonData,
-          stringifiedSarifData,
-        );
-      }
-    }
-
     const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
     const spotlightVulnsMsg = notificationForSpotlightVulns(
       foundSpotlightVulnIds,
@@ -480,19 +436,4 @@ function buildNewTextOutputForFailureAndThrow(
   error.userMessage = errorResults[0].userMessage;
   error.strCode = errorResults[0].strCode;
   throw error;
-}
-
-function shouldFail(vulnerableResults: any[], failOn: FailOn) {
-  // find reasons not to fail
-  if (failOn === 'all') {
-    return hasFixes(vulnerableResults);
-  }
-  if (failOn === 'upgradable') {
-    return hasUpgrades(vulnerableResults);
-  }
-  if (failOn === 'patchable') {
-    return hasPatches(vulnerableResults);
-  }
-  // should fail by default when there are vulnerable results
-  return vulnerableResults.length > 0;
 }
