@@ -17,7 +17,11 @@ import {
   LegacyVulnApiResult,
   TestResult,
 } from '../../../../lib/snyk-test/legacy';
-import { mapIacTestResult } from '../../../../lib/snyk-test/iac-test-result';
+import {
+  IacTestError,
+  mapIacTestResult,
+  MappedIacTestResponse,
+} from '../../../../lib/snyk-test/iac-test-result';
 
 import {
   summariseErrorResults,
@@ -207,6 +211,23 @@ export default async function(
     cleanLocalCache();
   }
 
+  if (options.json || options.sarif) {
+    return buildJsonOrSarifOutput(options, results);
+  }
+
+  return buildConsoleOutput(
+    options,
+    results,
+    isNewIacOutputSupported,
+    iacScanFailures,
+    iacIgnoredIssuesCount,
+    iacOutputMeta,
+    resultOptions,
+    packageJsonPathsWithSnykDepForProtect,
+  );
+}
+
+function buildJsonOrSarifOutput(options: any, results: any[]) {
   const vulnerableResults = results.filter(
     (res) =>
       (res.vulnerabilities && res.vulnerabilities.length) ||
@@ -230,53 +251,258 @@ export default async function(
     stringifiedSarifData,
   } = extractDataToSendFromResults(results, mappedResults, options);
 
-  if (options.json || options.sarif) {
-    // if all results are ok (.ok == true)
-    if (mappedResults.every((res) => res.ok)) {
-      return TestCommandResult.createJsonTestCommandResult(
-        stringifiedData,
-        stringifiedJsonData,
-        stringifiedSarifData,
-      );
-    }
-
-    const err = new Error(stringifiedData) as any;
-
-    if (foundVulnerabilities) {
-      if (options.failOn) {
-        const fail = shouldFail(vulnerableResults, options.failOn);
-        if (!fail) {
-          // return here to prevent failure
-          return TestCommandResult.createJsonTestCommandResult(
-            stringifiedData,
-            stringifiedJsonData,
-            stringifiedSarifData,
-          );
-        }
-      }
-      err.code = 'VULNS';
-      const dataToSendNoVulns = dataToSend;
-      delete dataToSendNoVulns.vulnerabilities;
-      err.jsonNoVulns = dataToSendNoVulns;
-    }
-
-    if (notSuccess) {
-      // Take the code of the first problem to go through error
-      // translation.
-      // Note: this is done based on the logic done below
-      // for non-json/sarif outputs, where we take the code of
-      // the first error.
-      err.code = errorResults[0].code;
-    }
-    err.json = stringifiedData;
-    err.jsonStringifiedResults = stringifiedJsonData;
-    err.sarifStringifiedResults = stringifiedSarifData;
-    throw err;
+  // if all results are ok (.ok == true)
+  if (mappedResults.every((res) => res.ok)) {
+    return TestCommandResult.createJsonTestCommandResult(
+      stringifiedData,
+      stringifiedJsonData,
+      stringifiedSarifData,
+    );
   }
+
+  const err = new Error(stringifiedData) as any;
+
+  if (foundVulnerabilities) {
+    if (options.failOn) {
+      const fail = shouldFail(vulnerableResults, options.failOn);
+      if (!fail) {
+        // return here to prevent failure
+        return TestCommandResult.createJsonTestCommandResult(
+          stringifiedData,
+          stringifiedJsonData,
+          stringifiedSarifData,
+        );
+      }
+    }
+    err.code = 'VULNS';
+    const dataToSendNoVulns = dataToSend;
+    delete dataToSendNoVulns.vulnerabilities;
+    err.jsonNoVulns = dataToSendNoVulns;
+  }
+
+  if (notSuccess) {
+    // Take the code of the first problem to go through error
+    // translation.
+    // Note: this is done based on the logic done below
+    // for non-json/sarif outputs, where we take the code of
+    // the first error.
+    err.code = errorResults[0].code;
+  }
+  err.json = stringifiedData;
+  err.jsonStringifiedResults = stringifiedJsonData;
+  err.sarifStringifiedResults = stringifiedSarifData;
+  throw err;
+}
+
+function buildConsoleOutput(
+  options: any,
+  results: any[],
+  isNewIacOutputSupported: boolean | undefined,
+  iacScanFailures: IacFileInDirectory[] | undefined,
+  iacIgnoredIssuesCount: number,
+  iacOutputMeta: IacOutputMeta | undefined,
+  resultOptions: (Options & TestOptions)[],
+  packageJsonPathsWithSnykDepForProtect: string[],
+) {
+  if (isNewIacOutputSupported) {
+    return buildNewConsoleOutput(
+      options,
+      results,
+      iacScanFailures,
+      iacIgnoredIssuesCount,
+      iacOutputMeta,
+      resultOptions,
+      packageJsonPathsWithSnykDepForProtect,
+    );
+  }
+  return buildOldConsoleOutput(
+    options,
+    results,
+    iacScanFailures,
+    iacOutputMeta,
+    resultOptions,
+    packageJsonPathsWithSnykDepForProtect,
+  );
+}
+
+function buildOldConsoleOutput(
+  options: any,
+  results: any[],
+  iacScanFailures: IacFileInDirectory[] | undefined,
+  iacOutputMeta: IacOutputMeta | undefined,
+  resultOptions: (Options & TestOptions)[],
+  packageJsonPathsWithSnykDepForProtect: string[],
+) {
+  const vulnerableResults = results.filter(
+    (res) =>
+      (res.vulnerabilities && res.vulnerabilities.length) ||
+      (res.result &&
+        res.result.cloudConfigResults &&
+        res.result.cloudConfigResults.length),
+  );
+  const errorResults = results.filter((res) => res instanceof Error);
+  const notSuccess = errorResults.length > 0;
+  const foundVulnerabilities = vulnerableResults.length > 0;
+
+  // resultOptions is now an array of 1 or more options used for
+  // the tests results is now an array of 1 or more test results
+  // values depend on `options.json` value - string or object
+  const mappedResults = results.map(mapIacTestResult);
+
+  const {
+    stringifiedJsonData,
+    stringifiedSarifData,
+  } = extractDataToSendFromResults(results, mappedResults, options);
 
   let response = '';
 
-  if (isNewIacOutputSupported && !notSuccess) {
+  response += results
+    .map((result, i) => {
+      return displayResult(
+        results[i] as LegacyVulnApiResult,
+        {
+          ...resultOptions[i],
+        },
+        result.foundProjectCount,
+      );
+    })
+    .join(`\n${SEPARATOR}`);
+
+  if (notSuccess) {
+    debug(`Failed to test ${errorResults.length} projects, errors:`);
+    errorResults.forEach((err) => {
+      const errString = err.stack ? err.stack.toString() : err.toString();
+      debug('error: %s', errString);
+    });
+  }
+
+  let summaryMessage = '';
+  let errorResultsLength = errorResults.length;
+
+  if (iacScanFailures?.length) {
+    errorResultsLength = iacScanFailures.length || errorResults.length;
+
+    response += iacScanFailures
+      .map((reason) => chalk.bold.red(getIacDisplayErrorFileOutput(reason)))
+      .join('');
+  }
+
+  if (results.length > 1) {
+    const projects = results.length === 1 ? 'project' : 'projects';
+    summaryMessage +=
+      `\n\n\nTested ${results.length} ${projects}` +
+      summariseVulnerableResults(vulnerableResults, options) +
+      summariseErrorResults(errorResultsLength) +
+      '\n';
+  }
+
+  if (notSuccess) {
+    response += chalk.bold.red(summaryMessage);
+    const error = new Error(response) as any;
+    // take the code of the first problem to go through error
+    // translation
+    // HACK as there can be different errors, and we pass only the
+    // first one
+    error.code = errorResults[0].code;
+    error.userMessage = errorResults[0].userMessage;
+    error.strCode = errorResults[0].strCode;
+    throw error;
+  }
+
+  if (foundVulnerabilities) {
+    if (options.failOn) {
+      const fail = shouldFail(vulnerableResults, options.failOn);
+      if (!fail) {
+        // return here to prevent throwing failure
+        response += chalk.bold.green(summaryMessage);
+        response += EOL + EOL;
+        response += getProtectUpgradeWarningForPaths(
+          packageJsonPathsWithSnykDepForProtect,
+        );
+
+        return TestCommandResult.createHumanReadableTestCommandResult(
+          response,
+          stringifiedJsonData,
+          stringifiedSarifData,
+        );
+      }
+    }
+
+    response += chalk.bold.red(summaryMessage);
+
+    response += EOL + EOL;
+    const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
+    const spotlightVulnsMsg = notificationForSpotlightVulns(
+      foundSpotlightVulnIds,
+    );
+    response += spotlightVulnsMsg;
+
+    if (isIacShareResultsOptions(options)) {
+      response += formatShareResultsOutput(iacOutputMeta!) + EOL;
+    }
+
+    const error = new Error(response) as any;
+    // take the code of the first problem to go through error
+    // translation
+    // HACK as there can be different errors, and we pass only the
+    // first one
+    error.code = vulnerableResults[0].code || 'VULNS';
+    error.userMessage = vulnerableResults[0].userMessage;
+    error.jsonStringifiedResults = stringifiedJsonData;
+    error.sarifStringifiedResults = stringifiedSarifData;
+    throw error;
+  }
+
+  response += chalk.bold.green(summaryMessage);
+  response += EOL + EOL;
+  response += getProtectUpgradeWarningForPaths(
+    packageJsonPathsWithSnykDepForProtect,
+  );
+
+  if (isIacShareResultsOptions(options)) {
+    response += formatShareResultsOutput(iacOutputMeta!) + EOL;
+  }
+
+  return TestCommandResult.createHumanReadableTestCommandResult(
+    response,
+    stringifiedJsonData,
+    stringifiedSarifData,
+  );
+}
+
+function buildNewConsoleOutput(
+  options: any,
+  results: any[],
+  iacScanFailures: IacFileInDirectory[] | undefined,
+  iacIgnoredIssuesCount: number,
+  iacOutputMeta: IacOutputMeta | undefined,
+  resultOptions: (Options & TestOptions)[],
+  packageJsonPathsWithSnykDepForProtect: string[],
+) {
+  const vulnerableResults = results.filter(
+    (res) =>
+      (res.vulnerabilities && res.vulnerabilities.length) ||
+      (res.result &&
+        res.result.cloudConfigResults &&
+        res.result.cloudConfigResults.length),
+  );
+  const errorResults = results.filter((res) => res instanceof Error);
+  const notSuccess = errorResults.length > 0;
+  const foundVulnerabilities = vulnerableResults.length > 0;
+
+  // resultOptions is now an array of 1 or more options used for
+  // the tests results is now an array of 1 or more test results
+  // values depend on `options.json` value - string or object
+  const mappedResults = results.map(mapIacTestResult);
+
+  const {
+    stringifiedJsonData,
+    stringifiedSarifData,
+  } = extractDataToSendFromResults(results, mappedResults, options);
+
+  let response = '';
+
+  if (!notSuccess) {
     response += getIacDisplayedIssues(results, iacOutputMeta!);
   } else {
     response += results
@@ -306,14 +532,10 @@ export default async function(
   if (iacScanFailures?.length) {
     errorResultsLength = iacScanFailures.length || errorResults.length;
 
-    response += isNewIacOutputSupported
-      ? EOL + formatIacTestFailures(iacScanFailures)
-      : iacScanFailures
-          .map((reason) => chalk.bold.red(getIacDisplayErrorFileOutput(reason)))
-          .join('');
+    response += EOL + formatIacTestFailures(iacScanFailures);
   }
 
-  if (!notSuccess && iacOutputMeta && isNewIacOutputSupported) {
+  if (!notSuccess && iacOutputMeta) {
     response += `${EOL}${SEPARATOR}${EOL}`;
 
     const iacTestSummary = `${formatIacTestSummary(
@@ -328,16 +550,7 @@ export default async function(
   }
 
   if (results.length > 1) {
-    if (isNewIacOutputSupported) {
-      response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : '';
-    } else {
-      const projects = results.length === 1 ? 'project' : 'projects';
-      summaryMessage +=
-        `\n\n\nTested ${results.length} ${projects}` +
-        summariseVulnerableResults(vulnerableResults, options) +
-        summariseErrorResults(errorResultsLength) +
-        '\n';
-    }
+    response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : '';
   }
 
   if (notSuccess) {
