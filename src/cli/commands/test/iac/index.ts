@@ -17,11 +17,7 @@ import {
   LegacyVulnApiResult,
   TestResult,
 } from '../../../../lib/snyk-test/legacy';
-import {
-  IacTestError,
-  mapIacTestResult,
-  MappedIacTestResponse,
-} from '../../../../lib/snyk-test/iac-test-result';
+import { mapIacTestResult } from '../../../../lib/snyk-test/iac-test-result';
 
 import {
   summariseErrorResults,
@@ -526,7 +522,6 @@ function buildNewConsoleOutput(
     });
   }
 
-  let summaryMessage = '';
   let errorResultsLength = errorResults.length;
 
   if (iacScanFailures?.length) {
@@ -554,7 +549,6 @@ function buildNewConsoleOutput(
   }
 
   if (notSuccess) {
-    response += chalk.bold.red(summaryMessage);
     const error = new Error(response) as any;
     // take the code of the first problem to go through error
     // translation
@@ -571,8 +565,6 @@ function buildNewConsoleOutput(
       const fail = shouldFail(vulnerableResults, options.failOn);
       if (!fail) {
         // return here to prevent throwing failure
-        response += chalk.bold.green(summaryMessage);
-        response += EOL + EOL;
         response += getProtectUpgradeWarningForPaths(
           packageJsonPathsWithSnykDepForProtect,
         );
@@ -585,9 +577,6 @@ function buildNewConsoleOutput(
       }
     }
 
-    response += chalk.bold.red(summaryMessage);
-
-    response += EOL + EOL;
     const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
     const spotlightVulnsMsg = notificationForSpotlightVulns(
       foundSpotlightVulnIds,
@@ -617,8 +606,6 @@ function buildNewConsoleOutput(
     throw error;
   }
 
-  response += chalk.bold.green(summaryMessage);
-  response += EOL + EOL;
   response += getProtectUpgradeWarningForPaths(
     packageJsonPathsWithSnykDepForProtect,
   );
