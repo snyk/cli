@@ -46,12 +46,6 @@ import { setDefaultTestOptions } from '../set-default-test-options';
 import { processCommandArgs } from '../../process-command-args';
 import { formatTestError } from '../format-test-error';
 import { displayResult } from '../../../../lib/formatters/test/display-result';
-import * as analytics from '../../../../lib/analytics';
-
-import {
-  getPackageJsonPathsContainingSnykDependency,
-  getProtectUpgradeWarningForPaths,
-} from '../../../../lib/protect-update-notification';
 import {
   containsSpotlightVulnIds,
   notificationForSpotlightVulns,
@@ -88,16 +82,6 @@ export default async function(
   const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
-
-  const packageJsonPathsWithSnykDepForProtect: string[] = getPackageJsonPathsContainingSnykDependency(
-    options.file,
-    paths,
-  );
-
-  analytics.add(
-    'upgradable-snyk-protect-paths',
-    packageJsonPathsWithSnykDepForProtect.length,
-  );
 
   // Handles no image arg provided to the container command until
   // a validation interface is implemented in the docker plugin.
@@ -219,7 +203,6 @@ export default async function(
     iacIgnoredIssuesCount,
     iacOutputMeta,
     resultOptions,
-    packageJsonPathsWithSnykDepForProtect,
   );
 }
 
@@ -298,7 +281,6 @@ function buildConsoleOutput(
   iacIgnoredIssuesCount: number,
   iacOutputMeta: IacOutputMeta | undefined,
   resultOptions: (Options & TestOptions)[],
-  packageJsonPathsWithSnykDepForProtect: string[],
 ) {
   if (isNewIacOutputSupported) {
     return buildNewConsoleOutput(
@@ -308,7 +290,6 @@ function buildConsoleOutput(
       iacIgnoredIssuesCount,
       iacOutputMeta,
       resultOptions,
-      packageJsonPathsWithSnykDepForProtect,
     );
   }
   return buildOldConsoleOutput(
@@ -317,7 +298,6 @@ function buildConsoleOutput(
     iacScanFailures,
     iacOutputMeta,
     resultOptions,
-    packageJsonPathsWithSnykDepForProtect,
   );
 }
 
@@ -327,7 +307,6 @@ function buildOldConsoleOutput(
   iacScanFailures: IacFileInDirectory[] | undefined,
   iacOutputMeta: IacOutputMeta | undefined,
   resultOptions: (Options & TestOptions)[],
-  packageJsonPathsWithSnykDepForProtect: string[],
 ) {
   const vulnerableResults = results.filter(
     (res) =>
@@ -412,9 +391,6 @@ function buildOldConsoleOutput(
         // return here to prevent throwing failure
         response += chalk.bold.green(summaryMessage);
         response += EOL + EOL;
-        response += getProtectUpgradeWarningForPaths(
-          packageJsonPathsWithSnykDepForProtect,
-        );
 
         return TestCommandResult.createHumanReadableTestCommandResult(
           response,
@@ -425,8 +401,8 @@ function buildOldConsoleOutput(
     }
 
     response += chalk.bold.red(summaryMessage);
-
     response += EOL + EOL;
+
     const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
     const spotlightVulnsMsg = notificationForSpotlightVulns(
       foundSpotlightVulnIds,
@@ -451,9 +427,6 @@ function buildOldConsoleOutput(
 
   response += chalk.bold.green(summaryMessage);
   response += EOL + EOL;
-  response += getProtectUpgradeWarningForPaths(
-    packageJsonPathsWithSnykDepForProtect,
-  );
 
   if (isIacShareResultsOptions(options)) {
     response += formatShareResultsOutput(iacOutputMeta!) + EOL;
@@ -473,7 +446,6 @@ function buildNewConsoleOutput(
   iacIgnoredIssuesCount: number,
   iacOutputMeta: IacOutputMeta | undefined,
   resultOptions: (Options & TestOptions)[],
-  packageJsonPathsWithSnykDepForProtect: string[],
 ) {
   const vulnerableResults = results.filter(
     (res) =>
@@ -565,10 +537,6 @@ function buildNewConsoleOutput(
       const fail = shouldFail(vulnerableResults, options.failOn);
       if (!fail) {
         // return here to prevent throwing failure
-        response += getProtectUpgradeWarningForPaths(
-          packageJsonPathsWithSnykDepForProtect,
-        );
-
         return TestCommandResult.createHumanReadableTestCommandResult(
           response,
           stringifiedJsonData,
@@ -605,10 +573,6 @@ function buildNewConsoleOutput(
     error.sarifStringifiedResults = stringifiedSarifData;
     throw error;
   }
-
-  response += getProtectUpgradeWarningForPaths(
-    packageJsonPathsWithSnykDepForProtect,
-  );
 
   if (isIacShareResultsOptions(options)) {
     response += formatShareResultsOutput(iacOutputMeta!) + EOL.repeat(2);
