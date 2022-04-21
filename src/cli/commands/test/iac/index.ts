@@ -17,12 +17,15 @@ import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import { buildOutput } from './output';
 import { initRulesAndScanPaths } from './scan';
+import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag';
 
 // The hardcoded `isReportCommand` argument is temporary and will be removed together with the `snyk iac report` command deprecation
 export default async function (
   isReportCommand: boolean,
   ...args: MethodArgs
 ): Promise<TestCommandResult> {
+  assertIaCOptionsFlags(process.argv);
+
   const { options: originalOptions, paths } = processCommandArgs(...args);
 
   const options = setDefaultTestOptions(originalOptions);

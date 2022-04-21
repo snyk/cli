@@ -10,7 +10,6 @@ import { TestResult } from '../../../../lib/snyk-test/legacy';
 import * as utils from '../utils';
 import { test as iacTest } from './local-execution';
 import { formatTestError } from '../format-test-error';
-import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag';
 import { initRules } from './local-execution/rules';
 import { cleanLocalCache } from './local-execution/measurable-methods';
 import { IacOrgSettings, RulesOrigin } from './local-execution/types';
@@ -98,7 +97,6 @@ async function scanPath(
 
   let res: (TestResult | TestResult[]) | Error;
   try {
-    assertIaCOptionsFlags(process.argv);
     const { results, failures, ignoreCount } = await iacTest(
       path,
       testOpts,
