@@ -258,7 +258,23 @@ describe('Test snyk code', () => {
     ).rejects.toHaveProperty('userMessage', 'Test limit reached!');
   });
 
-  it('should create sarif result when `--sarif-file-output` is used', async () => {
+  it.each([
+    {
+      name:
+        'should write only sarif result to file when only `--sarif-file-output` is used',
+      options: { 'sarif-file-output': true, 'json-file-output': false },
+    },
+    {
+      name:
+        'should write only json result to file when only `--json-file-output` is used',
+      options: { 'sarif-file-output': false, 'json-file-output': true },
+    },
+    {
+      name:
+        'should write sarif and json results to file when `--sarif-file-output` and `--json-file-output` are used',
+      options: { 'sarif-file-output': true, 'json-file-output': true },
+    },
+  ])('$name', async (args) => {
     const options: ArgsOptions = {
       path: '',
       traverseNodeModules: false,
@@ -266,7 +282,7 @@ describe('Test snyk code', () => {
       code: true,
       _: [],
       _doubleDashArgs: [],
-      'sarif-file-output': 'test.json',
+      ...args.options,
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
@@ -278,24 +294,31 @@ describe('Test snyk code', () => {
     });
     trackUsageSpy.mockResolvedValue({});
 
+    let error: any;
     try {
       await snykTest('some/path', options);
-    } catch (error) {
-      // check if stringified sarif result exists
-      expect(error.sarifStringifiedResults).toBeTruthy();
-
-      const errSarifResult = error.sarifStringifiedResults.trim();
-      const expectedSarifOutput = jsonStringifyLargeObject(
-        sampleSarifResponse,
-      ).trim();
-      const errMessage = stripAscii(stripAnsi(error.message.trim()));
-      const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
-
-      // check if error code and message is correct and sarif result is as expected
-      expect(error.code).toBe('VULNS');
-      expect(errMessage).toBe(expectedOutput);
-      expect(errSarifResult).toBe(expectedSarifOutput);
+    } catch (err) {
+      error = err;
     }
+    expect(error).toBeDefined();
+
+    // Currently json and sarif output are exactly the same, but can be requested independently
+    const expectedSarifOutput = args.options['sarif-file-output']
+      ? jsonStringifyLargeObject(sampleSarifResponse).trim()
+      : undefined;
+    const expectedJsonOutput = args.options['json-file-output']
+      ? jsonStringifyLargeObject(sampleSarifResponse).trim()
+      : undefined;
+    const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
+
+    const errMessage = stripAscii(stripAnsi(error.message.trim()));
+    const errSarifResult = error.sarifStringifiedResults?.trim();
+    const errJsonResult = error.jsonStringifiedResults?.trim();
+
+    expect(error.code).toStrictEqual('VULNS');
+    expect(errMessage).toStrictEqual(expectedOutput);
+    expect(errSarifResult).toStrictEqual(expectedSarifOutput);
+    expect(errJsonResult).toStrictEqual(expectedJsonOutput);
   });
 
   describe('Default org test in CLI output', () => {
