@@ -56,20 +56,24 @@ export const codePlugin: EcosystemPlugin = {
         meta,
         prefix,
       );
-      let sarifResult;
       if (numOfIssues > 0 && options['no-markdown']) {
         sarifTypedResult.runs?.[0].results?.forEach(({ message }) => {
           delete message.markdown;
         });
       }
+      let sarifResult: string | undefined;
       if (options['sarif-file-output']) {
         sarifResult = jsonStringifyLargeObject(sarifTypedResult);
+      }
+      let jsonResult: string | undefined;
+      if (options['json-file-output']) {
+        jsonResult = jsonStringifyLargeObject(sarifTypedResult);
       }
       if (options.sarif || options.json) {
         readableResult = jsonStringifyLargeObject(sarifTypedResult);
       }
       if (numOfIssues > 0) {
-        hasIssues(readableResult, sarifResult);
+        throwIssuesError({ readableResult, sarifResult, jsonResult });
       }
       return sarifResult ? { readableResult, sarifResult } : { readableResult };
     } catch (error) {
@@ -117,11 +121,18 @@ function isUnauthorizedError(error: any): boolean {
   );
 }
 
-function hasIssues(readableResult: string, sarifResult?: string): Error {
-  const err = new Error(readableResult) as any;
+function throwIssuesError(args: {
+  readableResult: string;
+  sarifResult: string | undefined;
+  jsonResult: string | undefined;
+}): Error {
+  const err = new Error(args.readableResult) as any;
   err.code = 'VULNS';
-  if (sarifResult !== undefined) {
-    err.sarifStringifiedResults = sarifResult;
+  if (args.sarifResult !== undefined) {
+    err.sarifStringifiedResults = args.sarifResult;
+  }
+  if (args.jsonResult !== undefined) {
+    err.jsonStringifiedResults = args.jsonResult;
   }
   throw err;
 }
