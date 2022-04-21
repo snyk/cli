@@ -447,6 +447,33 @@ function buildNewConsoleOutput(
   iacOutputMeta: IacOutputMeta | undefined,
   resultOptions: (Options & TestOptions)[],
 ) {
+  const errorResults = results.filter((res) => res instanceof Error);
+  const notSuccess = errorResults.length > 0;
+
+  if (notSuccess) {
+    buildNewConsoleOutputForFailureAndThrow(
+      results,
+      iacScanFailures,
+      resultOptions,
+    );
+  }
+
+  return buildNewConsoleOutputForSuccess(
+    options,
+    results,
+    iacScanFailures,
+    iacIgnoredIssuesCount,
+    iacOutputMeta,
+  );
+}
+
+function buildNewConsoleOutputForSuccess(
+  options: any,
+  results: any[],
+  iacScanFailures: IacFileInDirectory[] | undefined,
+  iacIgnoredIssuesCount: number,
+  iacOutputMeta: IacOutputMeta | undefined,
+) {
   const vulnerableResults = results.filter(
     (res) =>
       (res.vulnerabilities && res.vulnerabilities.length) ||
@@ -455,7 +482,6 @@ function buildNewConsoleOutput(
         res.result.cloudConfigResults.length),
   );
   const errorResults = results.filter((res) => res instanceof Error);
-  const notSuccess = errorResults.length > 0;
   const foundVulnerabilities = vulnerableResults.length > 0;
 
   // resultOptions is now an array of 1 or more options used for
@@ -470,29 +496,7 @@ function buildNewConsoleOutput(
 
   let response = '';
 
-  if (!notSuccess) {
-    response += getIacDisplayedIssues(results, iacOutputMeta!);
-  } else {
-    response += results
-      .map((result, i) => {
-        return displayResult(
-          results[i] as LegacyVulnApiResult,
-          {
-            ...resultOptions[i],
-          },
-          result.foundProjectCount,
-        );
-      })
-      .join(`\n${SEPARATOR}`);
-  }
-
-  if (notSuccess) {
-    debug(`Failed to test ${errorResults.length} projects, errors:`);
-    errorResults.forEach((err) => {
-      const errString = err.stack ? err.stack.toString() : err.toString();
-      debug('error: %s', errString);
-    });
-  }
+  response += getIacDisplayedIssues(results, iacOutputMeta!);
 
   let errorResultsLength = errorResults.length;
 
@@ -502,7 +506,7 @@ function buildNewConsoleOutput(
     response += EOL + formatIacTestFailures(iacScanFailures);
   }
 
-  if (!notSuccess && iacOutputMeta) {
+  if (iacOutputMeta) {
     response += `${EOL}${SEPARATOR}${EOL}`;
 
     const iacTestSummary = `${formatIacTestSummary(
@@ -518,18 +522,6 @@ function buildNewConsoleOutput(
 
   if (results.length > 1) {
     response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : '';
-  }
-
-  if (notSuccess) {
-    const error = new Error(response) as any;
-    // take the code of the first problem to go through error
-    // translation
-    // HACK as there can be different errors, and we pass only the
-    // first one
-    error.code = errorResults[0].code;
-    error.userMessage = errorResults[0].userMessage;
-    error.strCode = errorResults[0].strCode;
-    throw error;
   }
 
   if (foundVulnerabilities) {
@@ -590,6 +582,56 @@ function buildNewConsoleOutput(
     stringifiedJsonData,
     stringifiedSarifData,
   );
+}
+
+function buildNewConsoleOutputForFailureAndThrow(
+  results: any[],
+  iacScanFailures: IacFileInDirectory[] | undefined,
+  resultOptions: (Options & TestOptions)[],
+) {
+  const errorResults = results.filter((res) => res instanceof Error);
+
+  let response = '';
+
+  response += results
+    .map((result, i) => {
+      return displayResult(
+        results[i] as LegacyVulnApiResult,
+        {
+          ...resultOptions[i],
+        },
+        result.foundProjectCount,
+      );
+    })
+    .join(`\n${SEPARATOR}`);
+
+  debug(`Failed to test ${errorResults.length} projects, errors:`);
+  errorResults.forEach((err) => {
+    const errString = err.stack ? err.stack.toString() : err.toString();
+    debug('error: %s', errString);
+  });
+
+  let errorResultsLength = errorResults.length;
+
+  if (iacScanFailures?.length) {
+    errorResultsLength = iacScanFailures.length || errorResults.length;
+
+    response += EOL + formatIacTestFailures(iacScanFailures);
+  }
+
+  if (results.length > 1) {
+    response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : '';
+  }
+
+  const error = new Error(response) as any;
+  // take the code of the first problem to go through error
+  // translation
+  // HACK as there can be different errors, and we pass only the
+  // first one
+  error.code = errorResults[0].code;
+  error.userMessage = errorResults[0].userMessage;
+  error.strCode = errorResults[0].strCode;
+  throw error;
 }
 
 function shouldFail(vulnerableResults: any[], failOn: FailOn) {
