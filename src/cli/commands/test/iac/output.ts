@@ -221,15 +221,14 @@ function buildOldTextOutput(
       '\n';
   }
 
-  if (notSuccess) {
-    response += chalk.bold.red(summaryMessage);
-    throw new GenericError(response, errorResults);
-  }
-
-  if (foundVulnerabilities) {
+  if (foundVulnerabilities || notSuccess) {
     response += chalk.bold.red(summaryMessage);
   } else {
     response += chalk.bold.green(summaryMessage);
+  }
+
+  if (notSuccess) {
+    throw new GenericError(response, errorResults);
   }
 
   response += EOL + EOL;
