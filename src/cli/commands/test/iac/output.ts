@@ -72,10 +72,9 @@ export function buildOutput(
 function buildJsonOrSarifOutput(options: any, results: any[]) {
   const vulnerableResults = results.filter(
     (res) =>
-      (res.vulnerabilities && res.vulnerabilities.length) ||
-      (res.result &&
-        res.result.cloudConfigResults &&
-        res.result.cloudConfigResults.length),
+      res.result &&
+      res.result.cloudConfigResults &&
+      res.result.cloudConfigResults.length,
   );
   const errorResults = results.filter((res) => res instanceof Error);
   const notSuccess = errorResults.length > 0;
@@ -162,10 +161,9 @@ function buildOldTextOutput(
 ) {
   const vulnerableResults = results.filter(
     (res) =>
-      (res.vulnerabilities && res.vulnerabilities.length) ||
-      (res.result &&
-        res.result.cloudConfigResults &&
-        res.result.cloudConfigResults.length),
+      res.result &&
+      res.result.cloudConfigResults &&
+      res.result.cloudConfigResults.length,
   );
   const errorResults = results.filter((res) => res instanceof Error);
   const notSuccess = errorResults.length > 0;
@@ -298,10 +296,9 @@ function buildNewTextOutputForSuccessOrFailure(
 ) {
   const vulnerableResults = results.filter(
     (res) =>
-      (res.vulnerabilities && res.vulnerabilities.length) ||
-      (res.result &&
-        res.result.cloudConfigResults &&
-        res.result.cloudConfigResults.length),
+      res.result &&
+      res.result.cloudConfigResults &&
+      res.result.cloudConfigResults.length,
   );
   const foundVulnerabilities = vulnerableResults.length > 0;
 
