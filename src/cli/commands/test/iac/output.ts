@@ -238,12 +238,17 @@ function buildOldTextOutput(
 
   if (foundVulnerabilities) {
     response += chalk.bold.red(summaryMessage);
-    response += EOL + EOL;
+  } else {
+    response += chalk.bold.green(summaryMessage);
+  }
 
-    if (isIacShareResultsOptions(options)) {
-      response += formatShareResultsOutput(iacOutputMeta!) + EOL;
-    }
+  response += EOL + EOL;
 
+  if (isIacShareResultsOptions(options)) {
+    response += formatShareResultsOutput(iacOutputMeta!) + EOL;
+  }
+
+  if (foundVulnerabilities) {
     const error = new Error(response) as any;
     // take the code of the first problem to go through error
     // translation
@@ -254,13 +259,6 @@ function buildOldTextOutput(
     error.jsonStringifiedResults = stringifiedJsonData;
     error.sarifStringifiedResults = stringifiedSarifData;
     throw error;
-  }
-
-  response += chalk.bold.green(summaryMessage);
-  response += EOL + EOL;
-
-  if (isIacShareResultsOptions(options)) {
-    response += formatShareResultsOutput(iacOutputMeta!) + EOL;
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
@@ -347,11 +345,11 @@ function buildNewTextOutputForSuccessOrFailure(
     response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : '';
   }
 
-  if (foundVulnerabilities) {
-    if (isIacShareResultsOptions(options)) {
-      response += formatShareResultsOutput(iacOutputMeta!) + EOL;
-    }
+  if (isIacShareResultsOptions(options)) {
+    response += formatShareResultsOutput(iacOutputMeta!) + EOL;
+  }
 
+  if (foundVulnerabilities) {
     const error = new Error(response) as any;
     // take the code of the first problem to go through error
     // translation
@@ -362,10 +360,6 @@ function buildNewTextOutputForSuccessOrFailure(
     error.jsonStringifiedResults = stringifiedJsonData;
     error.sarifStringifiedResults = stringifiedSarifData;
     throw error;
-  }
-
-  if (isIacShareResultsOptions(options)) {
-    response += formatShareResultsOutput(iacOutputMeta!) + EOL;
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
