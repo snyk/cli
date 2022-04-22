@@ -25,10 +25,6 @@ import {
 import { extractDataToSendFromResults } from '../../../../lib/formatters/test/format-test-results';
 
 import { displayResult } from '../../../../lib/formatters/test/display-result';
-import {
-  containsSpotlightVulnIds,
-  notificationForSpotlightVulns,
-} from '../../../../lib/spotlight-vuln-notification';
 import { isIacShareResultsOptions } from './local-execution/assert-iac-options-flag';
 import {
   formatIacTestSummary,
@@ -244,12 +240,6 @@ function buildOldTextOutput(
     response += chalk.bold.red(summaryMessage);
     response += EOL + EOL;
 
-    const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
-    const spotlightVulnsMsg = notificationForSpotlightVulns(
-      foundSpotlightVulnIds,
-    );
-    response += spotlightVulnsMsg;
-
     if (isIacShareResultsOptions(options)) {
       response += formatShareResultsOutput(iacOutputMeta!) + EOL;
     }
@@ -358,12 +348,6 @@ function buildNewTextOutputForSuccessOrFailure(
   }
 
   if (foundVulnerabilities) {
-    const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
-    const spotlightVulnsMsg = notificationForSpotlightVulns(
-      foundSpotlightVulnIds,
-    );
-    response += spotlightVulnsMsg;
-
     if (isIacShareResultsOptions(options)) {
       response += formatShareResultsOutput(iacOutputMeta!) + EOL;
     }
