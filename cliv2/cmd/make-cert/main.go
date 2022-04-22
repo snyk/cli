@@ -21,7 +21,8 @@ func main() {
 	if snykDNSNamesStr != "" {
 		snykDNSNames = strings.Split(snykDNSNamesStr, ",")
 	} else {
-		snykDNSNames = []string{"snyk.io", "*.snyk.io"}
+		// We use app.dev.snyk.io for development
+		snykDNSNames = []string{"snyk.io", "*.snyk.io", "*.dev.snyk.io"}
 	}
 
 	debugLogger.Println("certificate name:", certName)
