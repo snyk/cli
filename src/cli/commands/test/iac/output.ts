@@ -223,15 +223,7 @@ function buildOldTextOutput(
 
   if (notSuccess) {
     response += chalk.bold.red(summaryMessage);
-    const error = new Error(response) as any;
-    // take the code of the first problem to go through error
-    // translation
-    // HACK as there can be different errors, and we pass only the
-    // first one
-    error.code = errorResults[0].code;
-    error.userMessage = errorResults[0].userMessage;
-    error.strCode = errorResults[0].strCode;
-    throw error;
+    throw new GenericError(response, errorResults);
   }
 
   if (foundVulnerabilities) {
@@ -247,16 +239,12 @@ function buildOldTextOutput(
   }
 
   if (foundVulnerabilities) {
-    const error = new Error(response) as any;
-    // take the code of the first problem to go through error
-    // translation
-    // HACK as there can be different errors, and we pass only the
-    // first one
-    error.code = vulnerableResults[0].code || 'VULNS';
-    error.userMessage = vulnerableResults[0].userMessage;
-    error.jsonStringifiedResults = stringifiedJsonData;
-    error.sarifStringifiedResults = stringifiedSarifData;
-    throw error;
+    throw new VulnerabilitiesFoundError(
+      response,
+      vulnerableResults,
+      stringifiedJsonData,
+      stringifiedSarifData,
+    );
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
@@ -347,16 +335,12 @@ function buildNewTextOutputForSuccessOrFailure(
   }
 
   if (foundVulnerabilities) {
-    const error = new Error(response) as any;
-    // take the code of the first problem to go through error
-    // translation
-    // HACK as there can be different errors, and we pass only the
-    // first one
-    error.code = vulnerableResults[0].code || 'VULNS';
-    error.userMessage = vulnerableResults[0].userMessage;
-    error.jsonStringifiedResults = stringifiedJsonData;
-    error.sarifStringifiedResults = stringifiedSarifData;
-    throw error;
+    throw new VulnerabilitiesFoundError(
+      response,
+      vulnerableResults,
+      stringifiedJsonData,
+      stringifiedSarifData,
+    );
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
@@ -405,17 +389,44 @@ function buildNewTextOutputForErrorAndThrow(
     response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : '';
   }
 
-  const error = new Error(response) as any;
-  // take the code of the first problem to go through error
-  // translation
-  // HACK as there can be different errors, and we pass only the
-  // first one
-  error.code = errorResults[0].code;
-  error.userMessage = errorResults[0].userMessage;
-  error.strCode = errorResults[0].strCode;
-  throw error;
+  throw new GenericError(response, errorResults);
 }
 
 function containsErrors(results: any[]) {
   return results.some((res) => res instanceof Error);
+}
+
+class GenericError extends Error {
+  code: any;
+  userMessage: any;
+  strCode: any;
+
+  constructor(response: string, errorResults: any[]) {
+    super(response);
+
+    this.code = errorResults[0].code;
+    this.userMessage = errorResults[0].userMessage;
+    this.strCode = errorResults[0].strCode;
+  }
+}
+
+class VulnerabilitiesFoundError extends Error {
+  code: any;
+  userMessage: any;
+  jsonStringifiedResults: string;
+  sarifStringifiedResults: string;
+
+  constructor(
+    response: string,
+    vulnerableResults: any[],
+    jsonData: string,
+    sarifData: string,
+  ) {
+    super(response);
+
+    this.code = vulnerableResults[0].code || 'VULNS';
+    this.userMessage = vulnerableResults[0].userMessage;
+    this.jsonStringifiedResults = jsonData;
+    this.sarifStringifiedResults = sarifData;
+  }
 }
