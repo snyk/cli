@@ -174,10 +174,9 @@ function getSecurityResultsOnly(
   securityRules: string[],
 ): Result[] {
   const securityResults = results.reduce((acc: Result[], result: Result) => {
-    const isSecurityResult = securityRules.some(
-      (securityRule) => securityRule === result?.ruleId,
-    );
-    if (isSecurityResult) {
+    const securityRule = securityRules.find((sr) => sr === result?.ruleId);
+    if (securityRule) {
+      result.ruleIndex = securityRules.indexOf(securityRule);
       acc.push(result);
     }
     return acc;
