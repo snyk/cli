@@ -689,6 +689,8 @@ workflows:
             - Build
       - build-artifacts:
           name: Build Artifacts
+          context:
+            - snyk-cli-pgp-signing
           requires:
             - Build
           filters:

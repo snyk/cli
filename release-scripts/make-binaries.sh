@@ -13,7 +13,7 @@ npx pkg . --compress Brotli -t node16-macos-x64  -o binary-releases/snyk-macos
 npx pkg . --compress Brotli -t node16-win-x64    -o binary-releases/snyk-win-unsigned.exe
 
 # Why `--no-bytecode` for Linux/arm64:
-#   arm64 bytecode generation requires various build tools on an x64 build 
+#   arm64 bytecode generation requires various build tools on an x64 build
 #   environment. So disabling until we can support it. It's an optimisation.
 #   https://github.com/vercel/pkg#targets
 npx pkg . --compress Brotli -t node16-linux-arm64 -o binary-releases/snyk-linux-arm64 --no-bytecode
@@ -36,6 +36,16 @@ shasum -a 256 snyk-macos >snyk-macos.sha256
 shasum -a 256 snyk-fix.tgz > snyk-fix.tgz.sha256
 shasum -a 256 snyk-protect.tgz > snyk-protect.tgz.sha256
 shasum -a 256 snyk.tgz > snyk.tgz.sha256
+
+# GPG signed shasums file
+cat ./*.sha256 >> sha256sums.txt
+
+echo "Importing PGP key"
+echo "$SNYK_CODE_SIGNING_PGP_PRIVATE" | base64 --decode | gpg --import --batch --passphrase="$SNYK_CODE_SIGNING_GPG_PASSPHRASE"
+
+echo "Signing shasums file"
+gpg --clear-sign --local-user=1F4B9569 --passphrase="$SNYK_CODE_SIGNING_GPG_PASSPHRASE" --pinentry-mode=loopback --armor --batch sha256sums.txt
+cat sha256sums.txt.asc
 popd
 
 BUILD_VERSION="$(jq -r '.version' package.json)"
@@ -59,6 +69,7 @@ else
     sed -i "s|snyk-macos-sha256|$(cat binary-releases/snyk-macos.sha256)|" binary-releases/release.json
     sed -i "s|snyk-win.exe-sha256|$(cat binary-releases/snyk-win.exe.sha256)|" binary-releases/release.json
 fi
+
 # sanity check if release.json is a valid JSON
 jq '.' binary-releases/release.json
 

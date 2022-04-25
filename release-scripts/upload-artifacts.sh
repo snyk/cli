@@ -18,6 +18,7 @@ declare -a StaticFiles=(
   "binary-releases/snyk-for-docker-desktop-darwin-x64.tar.gz.sha256"
   "binary-releases/snyk-for-docker-desktop-darwin-arm64.tar.gz.sha256"
   "binary-releases/docker-mac-signed-bundle.tar.gz.sha256"
+  "binary-releases/sha256sums.txt.asc"
 )
 
 VERSION_TAG="v$(cat binary-releases/version)"
