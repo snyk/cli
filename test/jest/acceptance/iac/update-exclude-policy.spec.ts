@@ -4,10 +4,18 @@ import * as fs from 'fs';
 import * as rimraf from 'rimraf';
 import * as path from 'path';
 import { findAndLoadPolicy } from '../../../../src/lib/policy';
+import { isCLIV2 } from '../../util/isCLIV2';
 
 jest.setTimeout(50000);
 
 describe('iac update-exclude-policy', () => {
+  if (isCLIV2()) {
+    // eslint-disable-next-line jest/no-focused-tests
+    it.only('CLIv2 not yet supported', () => {
+      console.warn('Skipping test as CLIv2 does not support it yet.');
+    });
+  }
+
   let run: typeof Run;
   let teardown: () => void;
 

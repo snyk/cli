@@ -1,4 +1,5 @@
 import { runSnykCLI } from '../util/runSnykCLI';
+import { isCLIV2 } from '../util/isCLIV2';
 
 const fakeServerPort = 12345;
 const SNYK_API_HTTPS = 'https://snyk.io/api/v1';
@@ -8,6 +9,13 @@ const FAKE_HTTP_PROXY = `http://localhost:${fakeServerPort}`;
 jest.setTimeout(1000 * 60 * 1);
 
 describe('Proxy configuration behavior', () => {
+  if (isCLIV2()) {
+    // eslint-disable-next-line jest/no-focused-tests
+    it.only('CLIv2 not yet supported', () => {
+      console.warn('Skipping test as CLIv2 does not support it yet.');
+    });
+  }
+
   describe('*_PROXY against HTTPS host', () => {
     it('tries to connect to the HTTPS_PROXY when HTTPS_PROXY is set', async () => {
       const { code, stderr } = await runSnykCLI(`woof -d`, {

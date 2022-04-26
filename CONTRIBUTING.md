@@ -77,7 +77,7 @@ npx jest <path>
 If you are working on a specific project, you can filter by project.
 
 ```
-npx jest --selectedProjects @snyk/protect <path>
+npx jest --selectProjects @snyk/protect <path>
 ```
 
 Debugger configuration is available for VS Code. Open "Run and Debug" and choose "Jest Current File".

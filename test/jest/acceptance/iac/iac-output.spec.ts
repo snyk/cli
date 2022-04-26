@@ -6,6 +6,8 @@ import { startMockServer } from './helpers';
 
 const IAC_CLI_OUTPUT_FF = 'iacCliOutput';
 
+jest.setTimeout(1000 * 30);
+
 describe('iac test output', () => {
   let server: FakeServer;
   let run: (
