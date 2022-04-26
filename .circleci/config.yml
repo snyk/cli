@@ -278,6 +278,9 @@ jobs:
             - packages/*/dist
             - pysrc
   regression-test:
+    parameters:
+      test_snyk_command:
+        type: string
     executor: docker-node
     steps:
       - checkout
@@ -291,11 +294,10 @@ jobs:
           working_directory: ./test/fixtures/basic-npm
           command: npm install
       - run:
-          name: Pruning dependencies
-          command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
-      - run:
-          name: Installing packed Snyk CLI
-          command: sudo npm install -g ./binary-releases/snyk.tgz
+          name: Installing Snyk CLI
+          command: |
+            sudo ln -s << parameters.test_snyk_command >> /usr/local/bin/snyk
+            snyk --version
       - run:
           name: Running ShellSpec tests
           working_directory: ./test/smoke
@@ -719,6 +721,7 @@ workflows:
           context: nodejs-install
           requires:
             - Build Artifacts
+          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
       - should-release:
           name: Release?
           type: approval
@@ -802,3 +805,9 @@ workflows:
             - Build Artifacts (v2)
             - Install Dependencies (npm)
           test_snyk_command: /Users/distiller/snyk/cliv2/bin/snyk_darwin_amd64
+      - regression-test:
+          name: Regression Tests (v2)
+          context: nodejs-install
+          requires:
+            - Build Artifacts (v2)
+          test_snyk_command: /mnt/ramdisk/snyk/cliv2/bin/snyk_linux_amd64
