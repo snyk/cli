@@ -57,7 +57,13 @@ export async function run(
     const child = exec(
       cmd.trim().replace(/^snyk/, snykCommand),
       {
-        env,
+        env: {
+          // Home and cache env vars for CLIv2 cache directory
+          HOME: process.env.HOME,
+          LocalAppData: process.env.LOCALAPPDATA,
+          XDG_CACHE_HOME: process.env.XDG_CACHE_HOME,
+          ...env,
+        },
         cwd: cwd ?? join(root, 'test/fixtures'),
       },
       function(err, stdout, stderr) {
