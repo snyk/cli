@@ -64,7 +64,7 @@ type Spinner = {
   clear: () => void;
 };
 
-// taken from http://git.io/vWdUm and modified
+// adapted from https://github.com/isaacs/char-spinner/blob/201fb1312e0472af3e7a044bd38d9bdf1a663b6d/spin.js
 function createSpinner(opt: SpinnerOptions): Spinner | false {
   if (isCI()) {
     return false;

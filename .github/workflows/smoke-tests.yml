@@ -128,7 +128,7 @@ jobs:
       - name: Install Shellspec - non-windows
         if: ${{ matrix.os != 'windows' && matrix.snyk_install_method != 'alpine-binary' }}
         run: |
-          curl -fsSL https://git.io/shellspec | sh -s -- -y
+          ./test/smoke/install-shellspec.sh --yes
           sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
           ls -la ${HOME}/.local/lib/shellspec
           echo "shellspec symlink:"
@@ -168,7 +168,7 @@ jobs:
         run: |
           Get-Host | Select-Object Version
           Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
-          sh ./test/smoke/install-shellspec-win.sh
+          sh ./test/smoke/install-shellspec.sh --yes
 
       - name: Run shellspec tests - non-Windows
         if: ${{ matrix.os != 'windows' && matrix.snyk_install_method != 'alpine-binary' && matrix.snyk_install_method != 'npm-root-user'  }}
