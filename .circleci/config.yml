@@ -181,7 +181,7 @@ commands:
       - run:
           name: Installing ShellSpec
           command: |
-            curl -fsSL https://git.io/shellspec | sh -s -- -y
+            ./test/smoke/install-shellspec.sh --yes
             sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
   start_proxy_linux:
     steps:
@@ -690,8 +690,7 @@ workflows:
             branches:
               only:
                 - /^chore\/.+$/
-                - /^test\/.+$/
-                - /test-all/
+                - /^.*test.*$/
                 - master
       - test-windows:
           name: Acceptance Tests (snyk-win.exe)
