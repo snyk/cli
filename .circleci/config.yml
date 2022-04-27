@@ -690,8 +690,7 @@ workflows:
             branches:
               only:
                 - /^chore\/.+$/
-                - /^test\/.+$/
-                - /test-all/
+                - /^.*test.*$/
                 - master
       - test-windows:
           name: Acceptance Tests (snyk-win.exe)
