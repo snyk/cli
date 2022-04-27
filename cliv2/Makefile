@@ -50,11 +50,9 @@ endif
 _V1_DOWNLOAD = true
 ifneq ($(CLI_V1_LOCATION), $(_EMPTY)) 
 	ifeq ($(CLI_V1_VERSION_TAG), $(_EMPTY))
-$(error ERROR! CLI_V1_VERSION_TAG needs to be specified)
-		#_V1_DOWNLOAD = true
-	else
-		_V1_DOWNLOAD = false
+		CLI_V1_VERSION_TAG = $(shell cat "$(CLI_V1_LOCATION)/version")
 	endif
+	_V1_DOWNLOAD = false
 endif
 
 
@@ -79,7 +77,7 @@ LOG_PREFIX = --
 # determine the latest cli version if no version was explicitly defined
 $(CACHE_DIR)/version.mk: $(CACHE_DIR)
 ifeq ($(CLI_V1_VERSION_TAG), $(_EMPTY))
-	$(eval CLI_V1_VERSION_TAG := v$(shell curl --fail -# -L https://static.snyk.io/cli/latest/version))
+	CLI_V1_VERSION_TAG = $(shell curl --fail --progress-bar -L https://static.snyk.io/cli/latest/version)
 endif
 	@echo "CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG)\nCLI_V2_VERSION_TAG=$(CLI_V2_VERSION_TAG)" > $(CACHE_DIR)/version.mk
 	@echo "$(LOG_PREFIX) Using cliv1 version ( $(CLI_V1_VERSION_TAG) )"
@@ -107,7 +105,7 @@ $(V2_DIRECTORY)/cliv2.version:
 $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME): $(V1_DIRECTORY)/cliv1.version
 ifeq ($(_V1_DOWNLOAD), true)
 	@echo "$(LOG_PREFIX) Downloading cliv1 executable ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) )"
-	@curl --fail -# -Lo $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DOWNLOAD_LINK)
+	@curl --fail --progress-bar -Lo $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DOWNLOAD_LINK)
 else
 	@echo "$(LOG_PREFIX) Copying cliv1 executable ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) )"
 	@cp $(CLI_V1_LOCATION)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
@@ -116,7 +114,7 @@ endif
 $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING): $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
 ifeq ($(_V1_DOWNLOAD), true)
 	@echo "$(LOG_PREFIX) Downloading cliv1 checksum ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) )"
-	@curl --fail -# -Lo $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) $(V1_DOWNLOAD_LINK).$(HASH_STRING)
+	@curl --fail --progress-bar -Lo $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) $(V1_DOWNLOAD_LINK).$(HASH_STRING)
 else
 	@echo "$(LOG_PREFIX) Copying cliv1 checksum ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) )"
 	@cp $(CLI_V1_LOCATION)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)

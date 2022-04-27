@@ -49,7 +49,7 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) *CLI {
 		DebugLogger:      debugLogger,
 		CacheDirectory:   cacheDirectory,
 		v1Version:        cliv1.CLIV1Version(),
-		v2Version:        SNYK_CLIV2_VERSION_PART,
+		v2Version:        strings.TrimSpace(SNYK_CLIV2_VERSION_PART),
 		v1BinaryLocation: v1BinaryLocation,
 	}
 
@@ -93,7 +93,7 @@ func (c *CLI) ExtractV1Binary() error {
 }
 
 func (c *CLI) GetFullVersion() string {
-	return strings.TrimSpace(c.v2Version) + "+" + strings.Replace(c.v1Version, "v", "", 1)
+	return c.v2Version + "." + c.v1Version
 }
 
 func (c *CLI) GetIntegrationName() string {
