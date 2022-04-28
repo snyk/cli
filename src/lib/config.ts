@@ -23,6 +23,7 @@ interface Config {
   CACHE_PATH?: string;
   DRIFTCTL_PATH?: string;
   DRIFTCTL_URL?: string;
+  USE_BASE64_ENCODING?: boolean;
 }
 
 // TODO: fix the types!
