@@ -382,6 +382,9 @@ jobs:
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
   test-linux-arm64:
+    parameters:
+      test_snyk_command:
+        type: string
     executor: linux-arm64
     working_directory: /home/circleci/snyk
     steps:
@@ -398,12 +401,12 @@ jobs:
           npm_cache_directory: /home/circleci/.npm
       - run:
           name: Configuring artifact
-          command: /home/circleci/snyk/binary-releases/snyk-linux-arm64 config set "api=${SNYK_API_KEY}"
+          command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
       - run:
           name: Testing artifact
-          command: npm run test:acceptance
+          command: npm run test:acceptance -- --selectProjects snyk
           environment:
-            TEST_SNYK_COMMAND: /home/circleci/snyk/binary-releases/snyk-linux-arm64
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
   test-jest:
     parameters:
       node_version:
@@ -544,6 +547,14 @@ jobs:
             CLI_V1_LOCATION: ../binary-releases
           command: make build build-test install prefix=. -e
       - run:
+          name: Build linux/arm64
+          working_directory: ./cliv2
+          environment:
+            GOOS: linux
+            GOARCH: arm64
+            CLI_V1_LOCATION: ../binary-releases
+          command: make build build-test install prefix=. -e
+      - run:
           name: Build darwin/amd64
           working_directory: ./cliv2
           environment:
@@ -577,8 +588,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - go/install:
-          version: << pipeline.parameters.go_version >>
       - run:
           name: Run integration tests
           working_directory: ./cliv2
@@ -607,6 +616,22 @@ jobs:
             export SNYK_TOKEN="${SNYK_API_KEY}"
             ./bin/snyk_tests_linux_amd64
 
+  v2-test-linux-arm64:
+    executor: linux-arm64
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run integration tests
+          working_directory: ./cliv2
+          environment:
+            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk_linux_arm64
+          command: |
+            export SNYK_TOKEN="${SNYK_API_KEY}"
+            ./bin/snyk_tests_linux_arm64
+
   v2-test-darwin-amd64:
     executor: macos
     working_directory: /Users/distiller/snyk
@@ -614,8 +639,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - go/install:
-          version: << pipeline.parameters.go_version >>
       - run:
           name: Run integration tests
           working_directory: ./cliv2
@@ -632,7 +655,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - install_sdks_windows
       - run:
           name: Run integration tests
           working_directory: ./cliv2
@@ -721,6 +743,7 @@ workflows:
           context: nodejs-install
           requires:
             - Build Artifacts
+          test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux-arm64
       - regression-test:
           name: Regression Tests
           context: nodejs-install
@@ -774,6 +797,10 @@ workflows:
           name: v2 / Proxy Integration Tests (linux/amd64)
           requires:
             - v2 / Build Artifacts
+      - v2-test-linux-arm64:
+          name: v2 / Integration Tests (linux/arm64)
+          requires:
+            - v2 / Build Artifacts
       - v2-test-darwin-amd64:
           name: v2 / Integration Tests (darwin/amd64)
           requires:
@@ -793,6 +820,12 @@ workflows:
           requires:
             - v2 / Build Artifacts
           test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_linux_amd64
+      - test-linux-arm64:
+          name: v2 / Jest Acceptance Tests (linux/arm64)
+          context: nodejs-install
+          requires:
+            - v2 / Build Artifacts
+          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_linux_arm64
       - test-windows:
           name: v2 / Jest Acceptance Tests (windows/amd64)
           context: nodejs-install
