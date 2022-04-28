@@ -6,5 +6,6 @@
   "MAX_PATH_COUNT": 1500000,
   "CODE_CLIENT_PROXY_URL": "https://deeproxy.snyk.io",
   "NPM_TREE_SIZE_LIMIT": 6.0e6,
-  "YARN_TREE_SIZE_LIMIT": 6.0e6
+  "YARN_TREE_SIZE_LIMIT": 6.0e6,
+  "USE_BASE64_ENCODING": false
 }
