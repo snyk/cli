@@ -1,7 +1,7 @@
 # Build system related variables
 GOCMD = go
-GOOS = darwin
-GOARCH = amd64
+GOOS = $(shell go env GOOS)
+GOARCH = $(shell go env GOARCH)
 HASH = sha
 HASH_ALGORITHM = 256
 CLI_V2_VERSION_TAG = 2.0.0-prerelease
@@ -31,6 +31,8 @@ _SEPARATOR = _
 
 ifeq ($(_V1_OS), darwin)
 	_V1_OS = macos
+#temporarily irgnoring any architecture for macos v1 binaries, this will enable to natively compile v2 as darwin arm64 and bundle v1 as amd64
+	_V1_ARCH = 
 else ifeq ($(_V1_OS), windows)
 	_V1_OS = win
 	_EXE_POSTFIX = .exe
@@ -64,12 +66,14 @@ V2_EXECUTABLE_NAME = $(APPLICATION_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE
 V1_EXECUTABLE_NAME = $(APPLICATION_NAME)-$(V1_PLATFORM_STING)$(_EXE_POSTFIX)
 V2_DIRECTORY = $(WORKING_DIR)/internal/cliv2
 V1_DIRECTORY = $(WORKING_DIR)/internal/embedded/cliv1
-V1_DOWNLOAD_LINK = https://static.snyk.io/cli/$(CLI_V1_VERSION_TAG)/$(V1_EXECUTABLE_NAME)
+V1_DOWNLOAD_LINK = https://static.snyk.io/cli/v$(CLI_V1_VERSION_TAG)/$(V1_EXECUTABLE_NAME)
 V1_EMBEDDED_FILE_TEMPLATE = $(V1_DIRECTORY)/embedded_binary_template.txt
 V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 TEST_SNYK_EXECUTABLE_PATH=$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 TEST_EXECUTABLE_NAME = $(TEST_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE_POSTFIX)
+SIGN_SCRIPT = sign_$(GOOS).sh
+ISSIGNED_SCRIPT = issigned_$(GOOS).sh
 
 # some make file variables
 LOG_PREFIX = --
@@ -77,7 +81,7 @@ LOG_PREFIX = --
 # determine the latest cli version if no version was explicitly defined
 $(CACHE_DIR)/version.mk: $(CACHE_DIR)
 ifeq ($(CLI_V1_VERSION_TAG), $(_EMPTY))
-	CLI_V1_VERSION_TAG = $(shell curl --fail --progress-bar -L https://static.snyk.io/cli/latest/version)
+	$(eval CLI_V1_VERSION_TAG := $(shell curl --fail --progress-bar -L https://static.snyk.io/cli/latest/version))
 endif
 	@echo "CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG)\nCLI_V2_VERSION_TAG=$(CLI_V2_VERSION_TAG)" > $(CACHE_DIR)/version.mk
 	@echo "$(LOG_PREFIX) Using cliv1 version ( $(CLI_V1_VERSION_TAG) )"
@@ -120,14 +124,14 @@ else
 	@cp $(CLI_V1_LOCATION)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 endif
 
-.PHONY: _validate_sha
-_validate_sha: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
+.PHONY: _validate_sha_v1
+_validate_sha_v1: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 	@echo "$(LOG_PREFIX) Validating checksum ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) )"
 	@cd $(V1_DIRECTORY) && shasum -b -q -a $(HASH_ALGORITHM) -c $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 
 # separate dependency target
 .PHONY: dependencies
-dependencies: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) _validate_sha
+dependencies: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) _validate_sha_v1
 
 # prepare the workspace and cache global parameters
 .PHONY: configure
@@ -137,7 +141,7 @@ $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) build -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING): $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
+$(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING): 
 	@echo "$(LOG_PREFIX) Generating checksum ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
 	@cd $(BUILD_DIR) && shasum -a $(HASH_ALGORITHM) --binary $(V2_EXECUTABLE_NAME) > $(V2_EXECUTABLE_NAME).$(HASH_STRING)
 
@@ -154,6 +158,27 @@ build-test: build $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME)
 .PHONY: test
 test: build-test
 	TEST_SNYK_EXECUTABLE_PATH=$(TEST_SNYK_EXECUTABLE_PATH) $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) -test.v
+
+.PHONY: $(SIGN_SCRIPT)
+$(SIGN_SCRIPT): 
+	@echo "$(LOG_PREFIX) Running $(SIGN_SCRIPT) ( $(BUILD_DIR) )"
+	@scripts/$(SIGN_SCRIPT) $(BUILD_DIR) $(V2_EXECUTABLE_NAME)
+
+.PHONY: _cleanup_sha_v2
+_cleanup_sha_v2:
+	@echo "$(LOG_PREFIX) Removing ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
+	@rm -f $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
+
+.PHONY: $(ISSIGNED_SCRIPT)
+$(ISSIGNED_SCRIPT): 
+	@scripts/$(ISSIGNED_SCRIPT) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
+
+
+.PHONY: sign
+sign: _cleanup_sha_v2 $(SIGN_SCRIPT) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) $(ISSIGNED_SCRIPT)
+
+.PHONY: test-signature
+test-signature: $(ISSIGNED_SCRIPT)
 
 .PHONY: clean
 clean:
@@ -176,8 +201,10 @@ install:
 help:
 	@echo "Main targets:"
 	@echo "$(LOG_PREFIX) build"
+	@echo "$(LOG_PREFIX) sign"
 	@echo "$(LOG_PREFIX) build-test"
 	@echo "$(LOG_PREFIX) test"
+	@echo "$(LOG_PREFIX) test-signature"
 	@echo "$(LOG_PREFIX) install"
 	@echo "$(LOG_PREFIX) clean"
 	@echo "\nAvailable parameter:"

@@ -11,6 +11,12 @@ import (
 	"strings"
 )
 
+type EnvironmentVariables struct {
+	UpstreamProxy	string
+	SnykDNSNames	[]string
+	CacheDirectory	string
+}
+
 func getDebugLogger(args []string) *log.Logger {
 	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 	debug := utils.Contains(args, "--debug")
@@ -22,52 +28,60 @@ func getDebugLogger(args []string) *log.Logger {
 	return debugLogger
 }
 
-func main() {
-	errorCode := mainWithErrorCode()
-	os.Exit(errorCode)
-}
-
-func mainWithErrorCode() int {
-	var err error
-
-	// Read input from command line parameter and environment variables
-	args := os.Args[1:]
-
-	debugLogger := getDebugLogger(args)
-	debugLogger.Println("debug: true")
-
+func getEnvVariables() EnvironmentVariables {
 	upstreamProxy := os.Getenv("HTTPS_PROXY")
-	debugLogger.Println("upstreamProxy:", upstreamProxy)
 
 	snykDNSNamesStr := os.Getenv("SNYK_DNS_NAMES")
 	var snykDNSNames []string
-	debugLogger.Println("SNYK_DNS_NAMES:", snykDNSNamesStr)
 	if snykDNSNamesStr != "" {
 		snykDNSNames = strings.Split(snykDNSNamesStr, ",")
 	} else {
 		snykDNSNames = []string{"snyk.io", "*.snyk.io"}
 	}
-	debugLogger.Println("snykDNSNames:", snykDNSNames)
 
 	cacheDirectory := os.Getenv("SNYK_CACHE_PATH")
-	if cacheDirectory == "" {
-		cacheDirectory, err = utils.SnykCacheDir()
+
+	variables := EnvironmentVariables{
+		UpstreamProxy: upstreamProxy,
+		SnykDNSNames: snykDNSNames,
+		CacheDirectory: cacheDirectory,
+	}
+
+	return variables
+}
+
+func main() {
+	envVariables := getEnvVariables()
+	errorCode := MainWithErrorCode(envVariables, os.Args[1:])
+	os.Exit(errorCode)
+}
+
+func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
+	var err error
+	debugLogger := getDebugLogger(args)
+	debugLogger.Println("debug: true")
+
+	debugLogger.Println("upstreamProxy:", envVariables.UpstreamProxy)
+	debugLogger.Println("snykDNSNames:", envVariables.SnykDNSNames)
+	debugLogger.Println("cacheDirectory:", envVariables.CacheDirectory)
+
+	if envVariables.CacheDirectory == "" {
+		envVariables.CacheDirectory, err = utils.SnykCacheDir()
 		if err != nil {
 			fmt.Println("Failed to determine cache directory!")
 			return cliv2.SNYK_EXIT_CODE_ERROR
 		}
 	}
-	debugLogger.Println("cacheDirectory:", cacheDirectory)
 
 	// init cli object
 	var cli *cliv2.CLI
-	cli = cliv2.NewCLIv2(cacheDirectory, debugLogger)
+	cli = cliv2.NewCLIv2(envVariables.CacheDirectory, debugLogger)
 	if cli == nil {
 		return cliv2.SNYK_EXIT_CODE_ERROR
 	}
 
 	// init proxy object
-	wrapperProxy, err := proxy.NewWrapperProxy(upstreamProxy, snykDNSNames, cacheDirectory, debugLogger)
+	wrapperProxy, err := proxy.NewWrapperProxy(envVariables.UpstreamProxy, envVariables.SnykDNSNames, envVariables.CacheDirectory, debugLogger)
 	if err != nil {
 		fmt.Println("Failed to create proxy")
 		return cliv2.SNYK_EXIT_CODE_ERROR
