@@ -1,10 +1,9 @@
-import chalk from 'chalk';
 import { EOL } from 'os';
 import { rightPadWithSpaces } from '../../../right-pad';
 import { SEVERITY } from '../../../snyk-test/common';
-import { color, icon } from '../../../theme';
+import { icon } from '../../../theme';
 import { IacOutputMeta } from '../../../types';
-import { severityColor } from './color-utils';
+import { colors } from './color-utils';
 import { IacTestData } from './types';
 
 const PAD_LENGTH = 19; // chars to align
@@ -14,7 +13,7 @@ export function formatIacTestSummary(
   testData: IacTestData,
   outputMeta: IacOutputMeta,
 ): string {
-  const title = chalk.bold.white('Test Summary');
+  const title = colors.info.bold('Test Summary');
   const summarySections: string[] = [title];
 
   summarySections.push(formatTestMetaSection(outputMeta));
@@ -49,29 +48,28 @@ function formatCountsSection(testData: IacTestData): string {
   const countsSectionProperties: string[] = [];
 
   countsSectionProperties.push(
-    `${chalk.bold(
-      color.status.success(icon.VALID),
-    )} Files without issues: ${chalk.bold.white(`${filesWithoutIssues}`)}`,
+    `${colors.success.bold(
+      icon.VALID,
+    )} Files without issues: ${colors.info.bold(`${filesWithoutIssues}`)}`,
   );
 
   countsSectionProperties.push(
-    `${chalk.bold(
-      color.status.error(icon.ISSUE),
-    )} Files with issues: ${chalk.bold.white(`${filesWithIssues}`)}`,
+    `${colors.failure.bold(icon.ISSUE)} Files with issues: ${colors.info.bold(
+      `${filesWithIssues}`,
+    )}`,
   );
 
   countsSectionProperties.push(
-    `${INDENT}Ignored issues: ${chalk.bold.white(`${testData.ignoreCount}`)}`,
+    `${INDENT}Ignored issues: ${colors.info.bold(`${testData.ignoreCount}`)}`,
   );
 
   let totalIssuesCount = 0;
 
-  const issueCountsBySeverities: { [key in SEVERITY | 'none']: number } = {
+  const issueCountsBySeverities: { [key in SEVERITY]: number } = {
     critical: 0,
     high: 0,
     medium: 0,
     low: 0,
-    none: 0,
   };
 
   testData.results.forEach((iacTestResponse) => {
@@ -82,15 +80,15 @@ function formatCountsSection(testData: IacTestData): string {
   });
 
   countsSectionProperties.push(
-    `${INDENT}Total issues: ${chalk.bold.white(
+    `${INDENT}Total issues: ${colors.info.bold(
       `${totalIssuesCount}`,
-    )} [ ${severityColor.critical(
+    )} [ ${colors.severities.critical(
       `${issueCountsBySeverities.critical} critical`,
-    )}, ${severityColor.high(
+    )}, ${colors.severities.high(
       `${issueCountsBySeverities.high} high`,
-    )}, ${severityColor.medium(
+    )}, ${colors.severities.medium(
       `${issueCountsBySeverities.medium} medium`,
-    )}, ${severityColor.low(`${issueCountsBySeverities.low} low`)} ]`,
+    )}, ${colors.severities.low(`${issueCountsBySeverities.low} low`)} ]`,
   );
 
   return countsSectionProperties.join(EOL);

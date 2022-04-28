@@ -33,11 +33,11 @@ Use the `-d` option to output the debug logs.
 
 ### `--detection-depth=<DEPTH>`
 
-Use to indicate how many sub-directories to search. `DEPTH` must be a number.
+Use to indicate how many subdirectories to search. `DEPTH` must be a number, 1 or greater; zero (0) is the current directory.
 
 Default: no limit.
 
-Example: `--detection-depth=3` limits search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories.
+Example: `--detection-depth=3` limits search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories; zero (0) is the current directory.
 
 ### `--org=<ORG_ID>`
 
@@ -65,13 +65,15 @@ Manually pass a path to a `.snyk` policy file.
 
 Print results in JSON format.
 
-Example: `$ snyk iac test --json-file-output=vuln.json`
+Example: `$ snyk iac test --json`
 
 ### `--json-file-output=<OUTPUT_FILE_PATH>`
 
 Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
+
+Example: `$ snyk iac test --json-file-output=vuln.json`
 
 ### `--sarif`
 
@@ -141,7 +143,7 @@ This option cannot be used if the custom rules settings were configured with the
 
 Example: Scan the configuration files using custom rules and internal Snyk rules.
 
-&#x20;`--rules=bundle.tar.gz`
+`--rules=bundle.tar.gz`
 
 Note: This option can not be used in combination with the `--report` option.
 
@@ -175,7 +177,7 @@ Example, setting to the latest Git tag:
 
 Use this option to load a terraform variable definitions file that is located in a different directory from the scanned one.
 
-Example:&#x20;
+Example:
 
 `$ snyk iac test myproject/staging/networking --var-file=myproject/vars.tf`
 

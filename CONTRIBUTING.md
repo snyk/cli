@@ -77,7 +77,7 @@ npx jest <path>
 If you are working on a specific project, you can filter by project.
 
 ```
-npx jest --selectedProjects @snyk/protect <path>
+npx jest --selectProjects @snyk/protect <path>
 ```
 
 Debugger configuration is available for VS Code. Open "Run and Debug" and choose "Jest Current File".
@@ -176,11 +176,12 @@ git checkout -b docs/contributing
 
 You can use these patterns in your branch name to enable additional checks.
 
-| Pattern                           | Examples                                                             | Description                                                                                                  |
-| --------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `chore/*`, `test/*`, `*test-all*` | `chore/build-change`, `test/test-change`, `feat/my-feature+test-all` | Build and test all artifacts. Same as a [release pipeline](#creating-a-release) without the release step.    |
-| `smoke/*`                         | `smoke/test-change`                                                  | Run [smoke tests](https://github.com/snyk/cli/actions/workflows/smoke-tests.yml) against the latest release. |
-| default                           | `fix/a-bug`                                                          | Build and test your changes.                                                                                 |
+| Pattern             | Examples                                          | Description                                                                                                                |
+| ------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `chore/*`, `*test*` | `chore/change`, `test/change`, `feat/change+test` | Build and test all artifacts, excluding CLIv2. Same as a [release pipeline](#creating-a-release) without the release step. |
+| `smoke/*`           | `smoke/change`                                    | Run [smoke tests](https://github.com/snyk/cli/actions/workflows/smoke-tests.yml) against the latest release.               |
+| `*v2*`              | `feat/v2-feature`                                 | Build and test all artifacts, including CLIv2.                                                                             |
+| default             | `fix/a-bug`                                       | Build and test your changes.                                                                                               |
 
 For more information, see: [Pull request checks](#pull-request-checks).
 

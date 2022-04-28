@@ -1,19 +1,8 @@
-import * as pathLib from 'path';
-
-import { IacFileInDirectory } from '../../../../lib/types';
-
 export { getIacDisplayedIssues } from './issues-list';
 export { formatIacTestSummary } from './test-summary';
-
-export function getIacDisplayErrorFileOutput(
-  iacFileResult: IacFileInDirectory,
-): string {
-  const fileName = pathLib.basename(iacFileResult.filePath);
-  return `
-
--------------------------------------------------------
-
-Testing ${fileName}...
-
-${iacFileResult.failureReason}`;
-}
+export {
+  initalUserMessageOutput,
+  shouldPrintIacInitialMessage,
+} from './initial-user-message';
+export { formatShareResultsOutput } from './share-results';
+export { formatIacTestFailures, failuresTipOutput } from './failures';

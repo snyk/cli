@@ -89,7 +89,7 @@ describe('parseFiles', () => {
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('includes unsupported file types in failed files', async () => {
+  it('does not include the unsupported file types in failed files list', async () => {
     const { parsedFiles, failedFiles } = await parseFiles([
       {
         fileContent: 'file.java',
@@ -98,8 +98,7 @@ describe('parseFiles', () => {
       },
     ]);
     expect(parsedFiles.length).toEqual(0);
-    expect(failedFiles.length).toEqual(1);
-    expect(failedFiles[0].err.message).toEqual('Unsupported file extension');
+    expect(failedFiles.length).toEqual(0);
   });
 
   it('throws an error for invalid JSON file types', async () => {

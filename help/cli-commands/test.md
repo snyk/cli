@@ -37,31 +37,29 @@ For more information see the article [Does the Snyk CLI support monorepos or mul
 
 ### `--detection-depth=<DEPTH>`
 
-Use with `--all-projects` or `--yarn-workspaces` to indicate how many sub-directories to search. `DEPTH` must be a number.
+Use with `--all-projects` or `--yarn-workspaces` to indicate how many subdirectories to search. `DEPTH` must be a number, 1 or greater; zero (0) is the current directory.
 
-Default: 4 (the current working directory and 3 sub-directories).
+Default: 4 , the current working directory (0) and 4 subdirectories.
 
-Example: Limit search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories.
-
-`--detection-depth=3`
+Example: `--detection-depth=3` limits search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories; zero (0) is the current directory.
 
 ### `--exclude=<GLOB>[,<GLOB>]...>`
 
-Can be used with `--all-projects` and `--yarn-workspaces` to indicate sub-directories and files to exclude. Must be comma separated.
+Use with `--all-projects` and `--yarn-workspaces` to indicate subdirectories and files to exclude.
 
-Note that the glob doesn't need to be an exact match and only need to be part of the path or the filename.
+The `--exclude` argument must be a comma separated list of directory or file names and cannot contain a path.
+
+Note that the glob does need to be an exact match and needs only to be part of the path or the filename.
 
 Use the `--exclude` option with `--detection-depth` to ignore directories at any depth.
 
 Examples:
 
-Exclude any (sub-)folders or files containing `test` as part of the path or name:
+Exclude any folders, subfolders, or files containing `test` as part of the path or name:\
+`--exclude=test`
 
-&#x20;`--exclude=test`&#x20;
-
-Exclude any (sub-)folders or files containing `fixtures` or `debug` as part of the path or name:
-
-`--exclude=fixtures,debug`&#x20;
+Exclude any folders, subfolders, or files containing `fixtures` or `debug` as part of the path or name:\
+`--exclude=fixtures,debug`
 
 ### `--prune-repeated-subdependencies`, `-p`
 
@@ -143,13 +141,15 @@ Manually pass a path to a `.snyk` policy file.
 
 Print results in JSON format.
 
-Example: `$ snyk test --json-file-output=vuln.json`
+Example: `$ snyk test --json`
 
 ### `--json-file-output=<OUTPUT_FILE_PATH>`
 
 Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
+
+Example: `$ snyk test --json-file-output=vuln.json`
 
 ### `--sarif`
 

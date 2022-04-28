@@ -4,10 +4,18 @@ import {
   createProjectFromWorkspace,
 } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { isCLIV2 } from '../util/isCLIV2';
 
 jest.setTimeout(1000 * 30);
 
 describe('analytics module', () => {
+  if (isCLIV2()) {
+    // eslint-disable-next-line jest/no-focused-tests
+    it.only('CLIv2 not yet supported', () => {
+      console.warn('Skipping test as CLIv2 does not support it yet.');
+    });
+  }
+
   let server;
   let env: Record<string, string>;
 

@@ -67,6 +67,16 @@ describe('Terraform Language Support', () => {
 
       expect(exitCode).toBe(3);
     });
+
+    it('skips non-supported IaC files in a directory', async () => {
+      const { exitCode, stdout } = await run(
+        `snyk iac test ./iac/terraform/var_deref`,
+      );
+
+      expect(stdout).not.toContain(`a.auto.tfvars`);
+      expect(stdout).not.toContain(`Unsupported file extension`);
+      expect(exitCode).toBe(0);
+    });
   });
 
   describe('with feature flag', () => {
@@ -234,7 +244,7 @@ describe('Terraform Language Support', () => {
       );
       expect(
         stdout.match(/✗ Security Group allows open ingress/g),
-      ).toHaveLength(8);
+      ).toHaveLength(9);
       expect(stdout).toContain(
         `Tested ${path.join(
           'terraform',

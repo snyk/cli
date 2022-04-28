@@ -1,12 +1,8 @@
 import * as mockFs from 'mock-fs';
 
 import {
-  DCTL_EXIT_CODES,
-  driftctlVersion,
   driftignoreFromPolicy,
-  generateArgs,
   parseDriftAnalysisResults,
-  translateExitCode,
   updateExcludeInPolicy,
   validateArgs,
 } from '../../../../../src/lib/iac/drift';
@@ -26,6 +22,13 @@ import * as snykPolicy from 'snyk-policy';
 import { Policy } from '../../../../../src/lib/policy/find-and-load-policy';
 import { DescribeRequiredArgumentError } from '../../../../../src/lib/errors/describe-required-argument-error';
 import { DescribeExclusiveArgumentError } from '../../../../../src/lib/errors/describe-exclusive-argument-error';
+import {
+  DCTL_EXIT_CODES,
+  driftctlVersion,
+  generateArgs,
+  translateExitCode,
+} from '../../../../../src/lib/iac/drift/driftctl';
+import { getHumanReadableAnalysis } from '../../../../../src/lib/iac/drift/output';
 
 const paths = envPaths('snyk');
 
@@ -451,5 +454,48 @@ describe('updateExcludeInPolicy', () => {
     const policy = await loadPolicyFixture(policyPath);
     updateExcludeInPolicy(policy, analysis, options);
     expect(policy.exclude).toEqual(expected);
+  });
+});
+
+describe('Test describe output', () => {
+  const loadFile = (name: string): string => {
+    const filePath = path.join(__dirname, 'fixtures', name);
+    return fs.readFileSync(filePath, 'utf-8');
+  };
+
+  it('test output for known analysis with --all', () => {
+    const analysis = JSON.parse(loadFile('alldeep.json'));
+    const options: DescribeOptions = {
+      kind: 'describe',
+      all: true,
+    };
+    const hrAnalysis = getHumanReadableAnalysis(options, analysis);
+
+    const expectedOutput = loadFile('alldeep.console');
+    expect(hrAnalysis).toBe(expectedOutput);
+  });
+
+  it('test output for known analysis with --only-managed', () => {
+    const analysis = JSON.parse(loadFile('only-managed.json'));
+    const options: DescribeOptions = {
+      kind: 'describe',
+      'only-managed': true,
+    };
+    const hrAnalysis = getHumanReadableAnalysis(options, analysis);
+
+    const expectedOutput = loadFile('only-managed.console');
+    expect(hrAnalysis).toBe(expectedOutput);
+  });
+
+  it('test output for known analysis with --only-unmanaged', () => {
+    const analysis = JSON.parse(loadFile('only-unmanaged.json'));
+    const options: DescribeOptions = {
+      kind: 'describe',
+      'only-unmanaged': true,
+    };
+    const hrAnalysis = getHumanReadableAnalysis(options, analysis);
+
+    const expectedOutput = loadFile('only-unmanaged.console');
+    expect(hrAnalysis).toBe(expectedOutput);
   });
 });

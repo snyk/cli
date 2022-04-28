@@ -1,11 +1,11 @@
-import chalk from 'chalk';
 import { EOL } from 'os';
-import capitalize = require('lodash/capitalize');
-import debug = require('debug');
+import * as capitalize from 'lodash.capitalize';
+import * as isEmpty from 'lodash.isempty';
+import * as debug from 'debug';
 
 import { FormattedResult } from '../../../../cli/commands/test/iac/local-execution/types';
 import { IacOutputMeta } from '../../../types';
-import { severityColor } from './color-utils';
+import { colors } from './color-utils';
 import { formatScanResultsNewOutput } from './formatters';
 import { FormattedIssue } from './types';
 
@@ -13,19 +13,26 @@ export function getIacDisplayedIssues(
   results: FormattedResult[],
   outputMeta: IacOutputMeta,
 ): string {
+  let output = EOL + colors.info.bold('Issues') + EOL;
+
   const formattedResults = formatScanResultsNewOutput(results, outputMeta);
 
-  let output = EOL + chalk.bold.white('Issues') + EOL;
+  if (isEmpty(formattedResults.results)) {
+    return (
+      output +
+      EOL +
+      ' '.repeat(2) +
+      colors.success.bold('No vulnerable paths were found!')
+    );
+  }
 
   ['low', 'medium', 'high', 'critical'].forEach((severity) => {
     if (formattedResults.results[severity]) {
       const issues = formattedResults.results[severity];
       output +=
         EOL +
-        severityColor[severity](
-          chalk.bold(
-            `${capitalize(severity)} Severity Issues: ${issues.length}`,
-          ),
+        colors.severities[severity](
+          `${capitalize(severity)} Severity Issues: ${issues.length}`,
         ) +
         EOL.repeat(2);
       output += getIssuesOutput(issues);
@@ -44,7 +51,7 @@ function getIssuesOutput(issues: FormattedIssue[]) {
   let output = '';
 
   issues.forEach((issue) => {
-    output += chalk.white(`${issue.policyMetadata.title}`) + EOL;
+    output += colors.info(`${issue.policyMetadata.title}`) + EOL;
   });
 
   return output;

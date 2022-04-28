@@ -316,7 +316,7 @@
         },
         {
           "ruleId": "javascript/Sqli",
-          "ruleIndex": 3,
+          "ruleIndex": 2,
           "level": "error",
           "message": {
             "text": "Unsanitized input from the HTTP request body flows into find, where it is used in an SQL query. This may result in an SQL Injection vulnerability.",
@@ -461,7 +461,7 @@
         },
         {
           "ruleId": "javascript/NoRateLimitingForExpensiveWebOperation",
-          "ruleIndex": 5,
+          "ruleIndex": 3,
           "level": "warning",
           "message": {
             "text": "This endpoint handler performs a system command execution and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
@@ -537,7 +537,7 @@
         },
         {
           "ruleId": "javascript/NoRateLimitingForExpensiveWebOperation",
-          "ruleIndex": 6,
+          "ruleIndex": 3,
           "level": "warning",
           "message": {
             "text": "This endpoint handler performs a file system operation and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
@@ -613,7 +613,7 @@
         },
         {
           "ruleId": "javascript/CommandInjection",
-          "ruleIndex": 7,
+          "ruleIndex": 4,
           "level": "error",
           "message": {
             "text": "Unsanitized input from the HTTP request body flows into child_process.exec, where it is used to build a shell command. This may result in a Command Injection vulnerability.",
@@ -826,7 +826,7 @@
         },
         {
           "ruleId": "javascript/XSS",
-          "ruleIndex": 8,
+          "ruleIndex": 5,
           "level": "error",
           "message": {
             "text": "Unsanitized input from the HTTP request body flows into send, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).",

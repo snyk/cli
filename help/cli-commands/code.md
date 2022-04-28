@@ -51,11 +51,13 @@ For more information see the article [How to select the organization to use in t
 
 Print results in JSON format.
 
-Example: `$ snyk code test --json-file-output=vuln.json`
+Example: `$ snyk code test --json`
 
 ### `--sarif`
 
 Return results in SARIF format.
+
+Example: `$ snyk code`
 
 ### `--severity-threshold=<low|medium|high|critical>`
 

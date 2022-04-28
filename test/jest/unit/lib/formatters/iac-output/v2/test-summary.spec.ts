@@ -1,10 +1,9 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import chalk from 'chalk';
 
-import { formatIacTestSummary } from '../../../../../../src/lib/formatters/iac-output';
-import { severityColor } from '../../../../../../src/lib/formatters/iac-output/v2/color-utils';
-import { IacTestResponse } from '../../../../../../src/lib/snyk-test/iac-test-result';
+import { formatIacTestSummary } from '../../../../../../../src/lib/formatters/iac-output';
+import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/color-utils';
+import { IacTestResponse } from '../../../../../../../src/lib/snyk-test/iac-test-result';
 
 describe('formatIacTestSummary', () => {
   let resultFixtures: IacTestResponse[];
@@ -14,6 +13,7 @@ describe('formatIacTestSummary', () => {
       fs.readFileSync(
         pathLib.join(
           __dirname,
+          '..',
           '..',
           '..',
           '..',
@@ -41,18 +41,18 @@ describe('formatIacTestSummary', () => {
 
     // Assert
     expect(result).toContain(
-      `${chalk.bold.white('Test Summary')}
+      `${colors.info.bold('Test Summary')}
 
   Organization: ${orgName}
 
-${chalk.bold.green('✔')} Files without issues: ${chalk.bold.white('0')}
-${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
-  Ignored issues: ${chalk.bold.white(`${ignoreCount}`)}
-  Total issues: ${chalk.bold.white('22')} [ ${severityColor.critical(
+${colors.success.bold('✔')} Files without issues: ${colors.info.bold('0')}
+${colors.failure.bold('✗')} Files with issues: ${colors.info.bold('3')}
+  Ignored issues: ${colors.info.bold(`${ignoreCount}`)}
+  Total issues: ${colors.info.bold('22')} [ ${colors.severities.critical(
         '0 critical',
-      )}, ${severityColor.high('5 high')}, ${severityColor.medium(
+      )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
         '4 medium',
-      )}, ${severityColor.low('13 low')} ]`,
+      )}, ${colors.severities.low('13 low')} ]`,
     );
   });
   it('should include the test meta properties section with the correct values', () => {
@@ -68,7 +68,7 @@ ${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
     );
 
     // Assert
-    expect(result).toContain(`${chalk.bold.white('Test Summary')}`);
+    expect(result).toContain(`${colors.info.bold('Test Summary')}`);
   });
 
   it('should include the counts section with the correct values', () => {
@@ -85,14 +85,16 @@ ${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
 
     // Assert
     expect(result).toContain(
-      `${chalk.bold.green('✔')} Files without issues: ${chalk.bold.white('0')}
-${chalk.bold.red('✗')} Files with issues: ${chalk.bold.white('3')}
-  Ignored issues: ${chalk.bold.white(`${ignoreCount}`)}
-  Total issues: ${chalk.bold.white('22')} [ ${severityColor.critical(
+      `${colors.success.bold('✔')} Files without issues: ${colors.info.bold(
+        '0',
+      )}
+${colors.failure.bold('✗')} Files with issues: ${colors.info.bold('3')}
+  Ignored issues: ${colors.info.bold(`${ignoreCount}`)}
+  Total issues: ${colors.info.bold('22')} [ ${colors.severities.critical(
         '0 critical',
-      )}, ${severityColor.high('5 high')}, ${severityColor.medium(
+      )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
         '4 medium',
-      )}, ${severityColor.low('13 low')} ]`,
+      )}, ${colors.severities.low('13 low')} ]`,
     );
   });
 });

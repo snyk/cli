@@ -10,10 +10,12 @@ The `snyk iac` subcommands find and report security issues in Infrastructure as 
 
 For more information see [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
 
-## Subcommands with their options
+## Subcommands and the help docs
 
-Help docs for all the `iac` commands are listed here:
+All the `iac` commands are listed here with the help docs.
 
-- [iac test](iac-test.md); `iac test --help`
-- [iac describe](iac-describe.md); `iac describe --help`
-- [iac update-exclude-policy](iac-update-exclude-policy.md); `iac update-exclude-policy --help`
+- [`iac test`](iac-test.md); `iac test --help`: tests for any known security issue.
+- [iac describe](iac-describe.md); `iac describe--help`: detects infrastructure drift and unmanaged cloud resources\
+  Example: `snyk iac describe --only-unmanaged`&#x20;
+- [iac update-exclude-policy](iac-update-exclude-policy.md); `iac update-exclude-policy --help`: auto-generates `.snyk` exclusions for cloud resources\
+  Example: `snyk iac describe --json --all | snyk iac update-exclude-policy`

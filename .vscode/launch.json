@@ -22,6 +22,19 @@
       "console": "integratedTerminal",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
       "args": ["${relativeFile}"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Jest Current File",
+      "console": "integratedTerminal",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["${relativeFile}"],
+      "runtimeArgs": [
+        "--inspect-brk",
+        "${workspaceRoot}/node_modules/.bin/jest",
+        "--runInBand"
+      ]
     }
   ]
 }

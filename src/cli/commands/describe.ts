@@ -2,11 +2,9 @@ import { MethodArgs } from '../args';
 import { processCommandArgs } from './process-command-args';
 import * as legacyError from '../../lib/errors/legacy-errors';
 import {
-  DCTL_EXIT_CODES,
-  runDriftCTL,
   driftignoreFromPolicy,
   parseDriftAnalysisResults,
-  processDriftctlOutput,
+  processAnalysis,
 } from '../../lib/iac/drift';
 import { getIacOrgSettings } from './test/iac/local-execution/org-settings/get-iac-org-settings';
 import { UnsupportedEntitlementCommandError } from './test/iac/local-execution/assert-iac-options-flag';
@@ -16,6 +14,7 @@ import * as analytics from '../../lib/analytics';
 import { findAndLoadPolicy } from '../../lib/policy';
 import { DescribeRequiredArgumentError } from '../../lib/errors/describe-required-argument-error';
 import help from './help';
+import { DCTL_EXIT_CODES, runDriftCTL } from '../../lib/iac/drift/driftctl';
 
 export default async (...args: MethodArgs): Promise<any> => {
   const { options } = processCommandArgs(...args);
@@ -42,10 +41,12 @@ export default async (...args: MethodArgs): Promise<any> => {
       options: { ...options, kind: 'describe' },
       driftIgnore: driftIgnore,
     });
+
+    process.exitCode = describe.code;
+
     analytics.add('is-iac-drift', true);
     analytics.add('iac-drift-exit-code', describe.code);
     if (describe.code === DCTL_EXIT_CODES.EXIT_ERROR) {
-      process.exitCode = describe.code;
       throw new Error();
     }
 
@@ -53,12 +54,8 @@ export default async (...args: MethodArgs): Promise<any> => {
     const analysis = parseDriftAnalysisResults(describe.stdout);
     addIacDriftAnalytics(analysis, options);
 
-    const fmtResult = await runDriftCTL({
-      options: { ...options, kind: 'fmt' },
-      input: describe.stdout,
-    });
-    process.stdout.write(processDriftctlOutput(options, fmtResult.stdout));
-    process.exitCode = describe.code;
+    const output = await processAnalysis(options, describe);
+    process.stdout.write(output);
   } catch (e) {
     if (e instanceof DescribeRequiredArgumentError) {
       // when missing a required arg we will display help to explain

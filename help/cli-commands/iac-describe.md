@@ -34,18 +34,20 @@ For more information see [Configure cloud providers](https://docs.snyk.io/produc
 
 Use the `-d` option to output the debug logs.
 
-## Options
+## Required Arguments
 
-**Note:** To use the `describe` command, you **must use at least one of these options**:
-
-`--only-managed` or `--drift`\
-Scan only managed resources from the Terraform states.
+**Note:** To use the `describe` command, you **must use one of these options**:
 
 `--only-unmanaged`\
-Scan only unmanaged resources.
+Report resources not found in any Terraform states.
+
+`--only-managed` or `--drift`\
+Scan managed resources found in Terraform states for changes.
 
 `--all`\
 Scan both managed and unmanaged resources.
+
+## Optional Arguments
 
 See the list of options that follows for details.
 
@@ -53,7 +55,7 @@ See the list of options that follows for details.
 
 Specify multiple states to be read.
 
-At this time, the `snyk iac describe` command supports reading Terraform states.
+The `snyk iac describe` command supports reading Terraform states.
 
 To read multiple states, pass `--from=` followed by a comma-separated list. You can also use glob patterns to match multiple state files at once.
 
@@ -77,7 +79,7 @@ Read and aggregate all Terraform states in a given directory:
 
 Use any unsupported backend by using `terraform` to pipe your state in a file and then use this file:
 
-`$ terraform state pull > state.tfstate`&#x20;
+`$ terraform state pull > state.tfstate`
 
 `$ snyk iac describe --all --from="tfstate://state.tfstate"`
 
@@ -114,20 +116,6 @@ This option cannot be used with a `.snyk` drift ignore rule; the content in `.sn
 
 The supported services are: `aws_s3`, `aws_ec2`, `aws_lambda`, `aws_rds`, `aws_route53`, `aws_iam` , `aws_vpc`, `aws_api_gateway`, `aws_apigatewayv2`, `aws_sqs`, `aws_sns`, `aws_ecr`, `aws_cloudfront`, `aws_kms`, `aws_dynamodb`, `azure_base`, `azure_compute`, `azure_storage`, `azure_network`, `azure_container`, `azure_database`, `azure_loadbalancer`, `azure_private_dns`, `google_cloud_platform`, `google_cloud_storage`, `google_compute_engine`, `google_cloud_dns`, `google_cloud_bigtable`, `google_cloud_bigquery`, `google_cloud_functions`, `google_cloud_sql`, `google_cloud_run`
 
-### `--all`
-
-Display a report that shows changes for both managed and unmanaged resources.
-
-### `--only-managed`
-
-Display a report that shows changes only for resources found in aggregated Terraform states; filter out drift for resources that are not managed by Terraform.&#x20;
-
-Alternative: `--drift`
-
-### `--only-unmanaged`
-
-Display a report that shows resources not found in any Terraform state; filter out drift for managed resources.
-
 ### `--quiet`
 
 Prevent stdout from being used for anything but the scan result.
@@ -150,7 +138,7 @@ Output the report as JSON to stdout.
 
 You can save the report to a file with a redirection:
 
-`$ snyk iac describe --json > report.json`&#x20;
+`$ snyk iac describe --json > report.json`
 
 ### `--html`
 
@@ -216,7 +204,7 @@ The `iac describe` command ignores service-linked resources by default (like ser
 
 Note: when using the strict mode with an AWS account, you may experience unnecessary noise from resources that do not belong to you.
 
-This can happen if you have an organization account in which you, by default, have a service-linked role associated to your the account, for example, **AWSServiceRoleForOrganizations**.&#x20;
+This can happen if you have an organization account in which you, by default, have a service-linked role associated to your the account, for example, **AWSServiceRoleForOrganizations**.
 
 Usage:
 
@@ -226,9 +214,7 @@ Usage:
 
 Enable deep mode for `--all`.
 
-Deep mode enables retrieval of details for resources, for deeper and more detailed drift detection. &#x20;
-
-**Note:** this option is experimental. Enabling deep mode can lead to unexpected behavior: false positive drifts or undetected drifts.
+Deep mode enables retrieval of details for resources, for deeper and more detailed drift detection.
 
 Usage:
 

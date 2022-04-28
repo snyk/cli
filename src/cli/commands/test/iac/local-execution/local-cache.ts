@@ -9,6 +9,7 @@ import { CustomError } from '../../../../../lib/errors';
 import * as analytics from '../../../../../lib/analytics';
 import ReadableStream = NodeJS.ReadableStream;
 import { getErrorStringCode } from './error-utils';
+import config from '../../../../../lib/config';
 
 const debug = Debug('iac-local-cache');
 
@@ -126,6 +127,14 @@ export async function initLocalCache({
     ) {
       throw new InvalidCustomRules(customRulesPath);
     }
+  }
+
+  // IAC_BUNDLE_PATH is a developer setting that is not useful to most users. It
+  // is not a replacement for custom rules.
+  if (config.IAC_BUNDLE_PATH) {
+    const stream = fs.createReadStream(config.IAC_BUNDLE_PATH);
+    await extractBundle(stream);
+    return;
   }
 
   // We extract the Snyk rules after the custom rules to ensure our files
