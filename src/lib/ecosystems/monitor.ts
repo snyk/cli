@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
-import { MonitorResult, Options, PolicyOptions } from '../types';
+import { Contributor, MonitorResult, Options, PolicyOptions } from '../types';
 import { spinner } from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
@@ -40,6 +40,7 @@ export async function monitorEcosystem(
   ecosystem: Ecosystem,
   paths: string[],
   options: Options & PolicyOptions,
+  contributors?: Contributor[],
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const plugin = getPlugin(ecosystem);
 
@@ -81,6 +82,7 @@ export async function monitorEcosystem(
     ecosystem,
     scanResultsByPath,
     options,
+    contributors,
   );
   return [monitorResults, errors];
 }
@@ -89,9 +91,10 @@ async function selectAndExecuteMonitorStrategy(
   ecosystem: Ecosystem,
   scanResultsByPath: { [dir: string]: ScanResult[] },
   options: Options,
+  contributors?: Contributor[],
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   return isUnmanagedEcosystem(ecosystem)
-    ? await resolveAndMonitorFacts(scanResultsByPath, options)
+    ? await resolveAndMonitorFacts(scanResultsByPath, options, contributors)
     : await monitorDependencies(scanResultsByPath, options);
 }
 

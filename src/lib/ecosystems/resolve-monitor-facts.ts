@@ -1,4 +1,4 @@
-import { Options } from '../types';
+import { Contributor, Options } from '../types';
 import { spinner } from '../../lib/spinner';
 import {
   ScanResult,
@@ -18,6 +18,7 @@ export async function resolveAndMonitorFacts(
     [dir: string]: ScanResult[];
   },
   options: Options,
+  contributors?: Contributor[],
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const results: EcosystemMonitorResult[] = [];
   const errors: EcosystemMonitorError[] = [];
@@ -41,6 +42,7 @@ export async function resolveAndMonitorFacts(
           attemptsCount,
           maxAttempts,
           resolutionMeta,
+          contributors,
         );
 
         const ecosystemMonitorResult: EcosystemMonitorResult = {

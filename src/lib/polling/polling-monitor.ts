@@ -1,7 +1,7 @@
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
-import { Options } from '../types';
+import { Contributor, Options } from '../types';
 
 import { assembleQueryString } from '../../lib/snyk-test/common';
 import { getAuthHeader } from '../api-token';
@@ -52,6 +52,7 @@ export async function pollingMonitorWithTokenUntilDone(
   attemptsCount: number,
   maxAttempts = Infinity,
   resolutionMeta: ResolutionMeta | undefined,
+  contributors: Contributor[] = [],
 ): Promise<MonitorDependenciesResponse> {
   const payload = {
     method: 'PUT',
@@ -65,6 +66,7 @@ export async function pollingMonitorWithTokenUntilDone(
     body: {
       isAsync,
       resolutionMeta,
+      contributors,
       method: 'cli',
       tags: generateTags(options),
       attributes: generateProjectAttributes(options),
@@ -87,5 +89,6 @@ export async function pollingMonitorWithTokenUntilDone(
     attemptsCount,
     maxAttempts,
     resolutionMeta,
+    contributors,
   );
 }

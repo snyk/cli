@@ -102,7 +102,12 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
 
   const ecosystem = getEcosystem(options);
   if (ecosystem) {
-    const commandResult = await monitorEcosystem(ecosystem, paths, options);
+    const commandResult = await monitorEcosystem(
+      ecosystem,
+      paths,
+      options,
+      contributors,
+    );
 
     const [monitorResults, monitorErrors] = commandResult;
 
