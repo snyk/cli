@@ -1,5 +1,10 @@
 package utils
 
+import (
+	"fmt"
+	"strings"
+)
+
 func Contains(list []string, element string) bool {
 	for _, a := range list {
 		if a == element {
@@ -7,4 +12,30 @@ func Contains(list []string, element string) bool {
 		}
 	}
 	return false
+}
+
+func ToKeyValueMap(input []string, splitBy string) map[string]string {
+	result := make(map[string]string)
+
+	for _, a := range input {
+		splittedString := strings.Split(a, splitBy)
+		if len(splittedString) == 2 {
+			key := splittedString[0]
+			value := splittedString[1]
+			result[key] = value
+		}
+	}
+
+	return result
+}
+
+func ToSlice(input map[string]string, combineBy string) []string {
+	result := []string{}
+
+	for key, value := range input {
+		entry := fmt.Sprintf("%s%s%s", key, combineBy, value)
+		result = append(result, entry)
+	}
+
+	return result
 }
