@@ -13,4 +13,6 @@ shasum -a 256 -c docker-mac-signed-bundle.tar.gz.sha256
 shasum -a 256 -c snyk-fix.tgz.sha256
 shasum -a 256 -c snyk-protect.tgz.sha256
 shasum -a 256 -c snyk.tgz.sha256
+gpg --import ../help/_about-this-project/snyk-code-signing-public.pgp
+gpg --verify sha256sums.txt.asc
 popd
