@@ -77,11 +77,13 @@ async function getCodeAnalysis(
 
   const sessionToken = api() || '';
 
+  const base64Encoding = config.USE_BASE64_ENCODING ?? false;
+
   const severity = options.severityThreshold
     ? severityToAnalysisSeverity(options.severityThreshold)
     : AnalysisSeverity.info;
   const result = await analyzeFolders({
-    connection: { baseURL, sessionToken, source, requestId },
+    connection: { baseURL, sessionToken, source, requestId, base64Encoding },
     analysisOptions: { severity },
     fileOptions: { paths: [root] },
     analysisContext: {
