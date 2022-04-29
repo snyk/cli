@@ -13,8 +13,8 @@ import (
 
 func Test_addIntegrationEnvironment_Fill(t *testing.T) {
 
-	input := []string{"something=1", "in=2", "here=3"}
-	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar"}
+	input := []string{"something=1", "in=2", "here=3=2"}
+	expected := []string{"something=1", "in=2", "here=3=2", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar"}
 
 	actual, err := cliv2.AddIntegrationEnvironment(input, "foo", "bar")
 

@@ -18,7 +18,7 @@ func ToKeyValueMap(input []string, splitBy string) map[string]string {
 	result := make(map[string]string)
 
 	for _, a := range input {
-		splittedString := strings.Split(a, splitBy)
+		splittedString := strings.SplitN(a, splitBy, 2)
 		if len(splittedString) == 2 {
 			key := splittedString[0]
 			value := splittedString[1]
