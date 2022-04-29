@@ -114,7 +114,9 @@ describe('iac test --rules', () => {
   });
 });
 
-describe('custom rules pull from a remote OCI registry', () => {
+// Hits OCI Registry 200 pull rate limit
+// eslint-disable-next-line jest/no-disabled-tests
+describe.skip('custom rules pull from a remote OCI registry', () => {
   let run: (
     cmd: string,
     overrides?: Record<string, string>,
