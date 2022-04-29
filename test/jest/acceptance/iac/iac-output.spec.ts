@@ -325,34 +325,32 @@ Project path:      ${filePath}
       expect(stdout).toContain(
         'Tested sg_open_ssh.tf for known issues, found 1 issues',
       );
-      expect(stdout).toContain(
-        'Tested vars.tf for known issues, found 0 issues',
-      );
+      expect(stdout).toContain('Tested vars.tf for known issues, found');
       expect(stdout).toContain(
         `Tested ${pathLib.join(
           'var_deref',
           'sg_open_ssh.tf',
-        )} for known issues, found 0 issues`,
+        )} for known issues, found`,
       );
       expect(stdout).toContain(
         `Tested ${pathLib.join(
           'var_deref',
           'variables.tf',
-        )} for known issues, found 0 issues`,
+        )} for known issues, found`,
       );
       expect(stdout).toContain(
         `Tested ${pathLib.join(
           'var_deref',
           'nested_var_deref',
           'sg_open_ssh.tf',
-        )} for known issues, found 0 issues`,
+        )} for known issues, found`,
       );
       expect(stdout).toContain(
         `Tested ${pathLib.join(
           'var_deref',
           'nested_var_deref',
           'variables.tf',
-        )} for known issues, found 0 issues`,
+        )} for known issues, found`,
       );
     });
 

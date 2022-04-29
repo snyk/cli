@@ -27,28 +27,21 @@ import hclToJsonV2 from './parsers/hcl-to-json-v2';
 import { IacProjectType } from '../../../../../lib/iac/constants';
 
 import * as Debug from 'debug';
+
 const debug = Debug('snyk-test');
 
 export async function parseFiles(
   filesData: IacFileData[],
   options: IaCTestFlags = {},
-  isTFVarSupportEnabled = false,
 ): Promise<ParsingResults> {
   let tfFileData: IacFileData[] = [];
   let nonTfFileData: IacFileData[] = [];
-
-  if (!isTFVarSupportEnabled) {
-    nonTfFileData = filesData.filter((fileData) =>
-      ['tf', 'json', 'yaml', 'yml'].includes(fileData.fileType),
-    );
-  } else {
-    tfFileData = filesData.filter((fileData) =>
-      VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType),
-    );
-    nonTfFileData = filesData.filter(
-      (fileData) => !VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType),
-    );
-  }
+  tfFileData = filesData.filter((fileData) =>
+    VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType),
+  );
+  nonTfFileData = filesData.filter(
+    (fileData) => !VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType),
+  );
 
   let { parsedFiles, failedFiles } = parseNonTerraformFiles(
     nonTfFileData,

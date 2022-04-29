@@ -61,18 +61,18 @@ describe('parseFiles', () => {
     expect(parsedFiles.length).toEqual(9);
     expect(parsedFiles[0]).toEqual(expectedKubernetesYamlParsingResult);
     expect(parsedFiles[1]).toEqual(expectedKubernetesJsonParsingResult);
-    expect(parsedFiles[2]).toEqual(expectedTerraformParsingResult);
-    expect(parsedFiles[3]).toEqual(expectedTerraformJsonParsingResult);
-    expect(parsedFiles[4]).toEqual(
+    expect(parsedFiles[2]).toEqual(expectedTerraformJsonParsingResult);
+    expect(parsedFiles[3]).toEqual(
       expectedMultipleKubernetesYamlsParsingResult,
     );
-    expect(parsedFiles[5]).toEqual({
+    expect(parsedFiles[4]).toEqual({
       ...expectedMultipleKubernetesYamlsParsingResult,
       docId: 2, // doc, the 2nd doc, is an empty doc, which is ignored. There is also an ignored docId:3.
     });
-    expect(parsedFiles[6]).toEqual(expectedCloudFormationYAMLParsingResult);
-    expect(parsedFiles[7]).toEqual(expectedCloudFormationJSONParsingResult);
-    expect(parsedFiles[8]).toEqual(expectedArmParsingResult);
+    expect(parsedFiles[5]).toEqual(expectedCloudFormationYAMLParsingResult);
+    expect(parsedFiles[6]).toEqual(expectedCloudFormationJSONParsingResult);
+    expect(parsedFiles[7]).toEqual(expectedArmParsingResult);
+    expect(parsedFiles[8]).toEqual(expectedTerraformParsingResult);
     expect(failedFiles.length).toEqual(0);
   });
 
@@ -89,7 +89,7 @@ describe('parseFiles', () => {
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('does not include the unsupported file types in failed files list', async () => {
+  it('includes unsupported file types in failed files', async () => {
     const { parsedFiles, failedFiles } = await parseFiles([
       {
         fileContent: 'file.java',
@@ -98,7 +98,7 @@ describe('parseFiles', () => {
       },
     ]);
     expect(parsedFiles.length).toEqual(0);
-    expect(failedFiles.length).toEqual(0);
+    expect(failedFiles.length).toEqual(1);
   });
 
   it('throws an error for invalid JSON file types', async () => {
