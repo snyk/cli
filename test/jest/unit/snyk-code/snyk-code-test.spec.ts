@@ -6,7 +6,6 @@ jest.mock('@snyk/code-client');
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
 
 import { loadJson } from '../../../utils';
-import config from '../../../../src/lib/config';
 import * as checks from '../../../../src/lib/plugins/sast/checks';
 import { config as userConfig } from '../../../../src/lib/user-config';
 import * as analysis from '../../../../src/lib/plugins/sast/analysis';
@@ -16,6 +15,7 @@ import * as analytics from '../../../../src/lib/analytics';
 import snykTest from '../../../../src/cli/commands/test/';
 import { jsonStringifyLargeObject } from '../../../../src/lib/json';
 import { ArgsOptions } from '../../../../src/cli/args';
+import * as codeConfig from '../../../../src/lib/code-config';
 
 const { getCodeAnalysisAndParseResults } = analysis;
 import osName = require('os-name');
@@ -26,7 +26,7 @@ describe('Test snyk code', () => {
   let trackUsageSpy;
   const failedCodeTestMessage = "Failed to run 'code test'";
   const fakeApiKey = '123456789';
-  const baseURL = config.CODE_CLIENT_PROXY_URL;
+  const baseURL = codeConfig.getCodeClientProxyUrl();
   const LCEbaseURL = 'https://my-proxy-server';
   const sampleSarifResponse = loadJson(
     path.join(__dirname, '/../../../fixtures/sast/sample-sarif.json'),

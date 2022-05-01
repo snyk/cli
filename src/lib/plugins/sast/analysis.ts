@@ -19,6 +19,7 @@ import { getProxyForUrl } from 'proxy-from-env';
 import { bootstrap } from 'global-agent';
 import chalk from 'chalk';
 import * as debugLib from 'debug';
+import { getCodeClientProxyUrl } from '../../code-config';
 
 const debug = debugLib('snyk-code');
 
@@ -54,7 +55,7 @@ async function getCodeAnalysis(
   const source = 'snyk-cli';
   const baseURL = isLocalCodeEngineEnabled
     ? sastSettings.localCodeEngine.url
-    : config.CODE_CLIENT_PROXY_URL;
+    : getCodeClientProxyUrl();
 
   // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
   // This ensures we support lowercase http(s)_proxy values as well
