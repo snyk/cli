@@ -1,11 +1,10 @@
 import config from './config';
 
 export function getCodeClientProxyUrl() {
+  const url = new URL(config.API);
+  const domain = url.origin;
   return (
     config.CODE_CLIENT_PROXY_URL ||
-    config.API.replace(/snyk\.io.*/, 'snyk.io').replace(
-      /\/\/(app\.)?/,
-      '//deeproxy.',
-    )
+    domain.replace(/\/\/(app\.)?/, '//deeproxy.')
   );
 }
