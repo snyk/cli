@@ -54,6 +54,7 @@ func mainWithErrorCode() int {
 		cacheDirectory, err = utils.SnykCacheDir()
 		if err != nil {
 			fmt.Println("Failed to determine cache directory!")
+			fmt.Println(err)
 			return cliv2.SNYK_EXIT_CODE_ERROR
 		}
 	}
@@ -70,12 +71,14 @@ func mainWithErrorCode() int {
 	wrapperProxy, err := proxy.NewWrapperProxy(upstreamProxy, snykDNSNames, cacheDirectory, debugLogger)
 	if err != nil {
 		fmt.Println("Failed to create proxy")
+		fmt.Println(err)
 		return cliv2.SNYK_EXIT_CODE_ERROR
 	}
 
 	port, err := wrapperProxy.Start()
 	if err != nil {
 		fmt.Println("Failed to start the proxy")
+		fmt.Println(err)
 		return cliv2.SNYK_EXIT_CODE_ERROR
 	}
 
