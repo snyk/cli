@@ -682,6 +682,45 @@ jobs:
             $env:SNYK_TOKEN = $env:SNYK_API_KEY
             ./bin/snyk_tests_windows_amd64.exe
 
+  v2-sign-darwin-amd64:
+    executor: macos
+    working_directory: /Users/distiller/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Signing macOS artifact
+          command: make sign GOOS=darwin GOARCH=amd64 BUILD_DIR=$PWD/bin
+          working_directory: ./cliv2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - cliv2/bin/snyk_darwin_amd64
+            - cliv2/bin/snyk_darwin_amd64.sha256
+
+  v2-sign-windows-amd64:
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - run:
+          name: Installing build dependencies
+          command: |
+            sudo apt update
+            sudo apt install osslsigncode
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Signing windows artifact
+          command: make sign GOOS=windows GOARCH=amd64 BUILD_DIR=$PWD/bin
+          working_directory: ./cliv2
+      - persist_to_workspace:
+          root: .
+          paths:
+            - cliv2/bin/snyk_windows_amd64.exe
+            - cliv2/bin/snyk_windows_amd64.exe.sha256
+
 workflows:
   version: 2
   test_and_release:
@@ -846,3 +885,14 @@ workflows:
           requires:
             - v2 / Build Artifacts
           test_snyk_command: /mnt/ramdisk/snyk/cliv2/bin/snyk_linux_amd64
+
+      - v2-sign-darwin-amd64:
+          name: v2 / Sign Artifacts (darwin/amd64)
+          context: snyk-macos-signing
+          requires:
+            - v2 / Build Artifacts
+      - v2-sign-windows-amd64:
+          name: v2 / Sign Artifacts (windows/amd64)
+          context: snyk-windows-signing
+          requires:
+            - v2 / Build Artifacts
