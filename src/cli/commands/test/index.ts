@@ -53,7 +53,7 @@ export default async function test(
   const { options: originalOptions, paths } = processCommandArgs(...args);
 
   if (originalOptions.iac) {
-    return await iacTestCommand(...args);
+    return await iacTestCommand(false, ...args);
   }
 
   const options = setDefaultTestOptions(originalOptions);

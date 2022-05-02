@@ -1,5 +1,6 @@
 import { startMockServer } from './helpers';
 import { FakeServer } from '../../../acceptance/fake-server';
+import { EOL } from 'os';
 
 jest.setTimeout(50_000);
 
@@ -65,6 +66,15 @@ describe('iac report', () => {
           },
         ],
       }),
+    );
+  });
+
+  it('outputs a deprecation warning message', async () => {
+    const { stdout } = await run(`snyk iac report ./iac/arm/rule_test.json`);
+    expect(stdout).toContain(
+      'Warning:' +
+        EOL +
+        "We will be deprecating support for the 'snyk iac report' command by mid-June and 'snyk iac test --report' will become the default command for using our share results functionality.",
     );
   });
 
