@@ -25,9 +25,15 @@ type CLI struct {
 	v2Version        string
 }
 
+type EnvironmentWarning struct {
+	message string
+}
+
 const SNYK_EXIT_CODE_OK = 0
 const SNYK_EXIT_CODE_ERROR = 2
 const SNYK_INTEGRATION_NAME = "CLI_V1_PLUGIN"
+const SNYK_INTEGRATION_NAME_ENV = "SNYK_INTEGRATION_NAME"
+const SNYK_INTEGRATION_VERSION_ENV = "SNYK_INTEGRATION_VERSION"
 
 const (
 	V1_DEFAULT Handler = iota
@@ -100,6 +106,10 @@ func (c *CLI) GetIntegrationName() string {
 	return SNYK_INTEGRATION_NAME
 }
 
+func (c *CLI) GetBinaryLocation() string {
+	return c.v1BinaryLocation
+}
+
 func (c *CLI) printVersion() {
 	fmt.Println(c.GetFullVersion())
 }
@@ -116,23 +126,63 @@ func determineHandler(passthroughArgs []string) Handler {
 	return result
 }
 
-func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) int {
-	c.DebugLogger.Println("launching snyk with path: ", c.v1BinaryLocation)
-	c.DebugLogger.Println("fullPathToCert:", fullPathToCert)
+func AddIntegrationEnvironment(input []string, name string, version string) (result []string, err error) {
 
-	snykCmd := exec.Command(c.v1BinaryLocation, passthroughArgs...)
+	inputAsMap := utils.ToKeyValueMap(input, "=")
+	result = input
+
+	_, integrationNameExists := inputAsMap[SNYK_INTEGRATION_NAME_ENV]
+	_, integrationVersionExists := inputAsMap[SNYK_INTEGRATION_VERSION_ENV]
+
+	if !integrationNameExists && !integrationVersionExists {
+		inputAsMap[SNYK_INTEGRATION_NAME_ENV] = name
+		inputAsMap[SNYK_INTEGRATION_VERSION_ENV] = version
+		result = utils.ToSlice(inputAsMap, "=")
+	} else if !(integrationNameExists && integrationVersionExists) {
+		err = EnvironmentWarning{message: fmt.Sprintf("Partially defined environment, please ensure to provide both %s and %s together!", SNYK_INTEGRATION_NAME_ENV, SNYK_INTEGRATION_VERSION_ENV)}
+	}
+
+	return result, err
+
+}
+
+func PrepareV1Command(cmd string, args []string, proxyPort int, caCertLocation string, integrationName string, integrationVersion string) (snykCmd *exec.Cmd, err error) {
+
+	snykCmd = exec.Command(cmd, args...)
 	snykCmd.Env = append(os.Environ(),
-		fmt.Sprintf("HTTPS_PROXY=http://127.0.0.1:%d", wrapperProxyPort),
-		fmt.Sprintf("NODE_EXTRA_CA_CERTS=%s", fullPathToCert),
-		fmt.Sprintf("SNYK_INTEGRATION_VERSION=%s", c.GetFullVersion()),
-		fmt.Sprintf("SNYK_INTEGRATION_NAME=%s", c.GetIntegrationName()),
+		fmt.Sprintf("HTTPS_PROXY=http://127.0.0.1:%d", proxyPort),
+		fmt.Sprintf("NODE_EXTRA_CA_CERTS=%s", caCertLocation),
 	)
+
+	snykCmd.Env, err = AddIntegrationEnvironment(snykCmd.Env, integrationName, integrationVersion)
 
 	snykCmd.Stdin = os.Stdin
 	snykCmd.Stdout = os.Stdout
 	snykCmd.Stderr = os.Stderr
 
-	err := snykCmd.Run()
+	return snykCmd, err
+}
+
+func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) int {
+	c.DebugLogger.Println("launching snyk with path: ", c.v1BinaryLocation)
+	c.DebugLogger.Println("fullPathToCert:", fullPathToCert)
+
+	snykCmd, err := PrepareV1Command(
+		c.v1BinaryLocation,
+		passthroughArgs,
+		wrapperProxyPort,
+		fullPathToCert,
+		c.GetIntegrationName(),
+		c.GetFullVersion(),
+	)
+
+	if err != nil {
+		if evWarning, ok := err.(EnvironmentWarning); ok {
+			fmt.Println("WARNING! ", evWarning)
+		}
+	}
+
+	err = snykCmd.Run()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			exitCode := exitError.ExitCode()
@@ -161,4 +211,8 @@ func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughAr
 	}
 
 	return returnCode
+}
+
+func (e EnvironmentWarning) Error() string {
+	return e.message
 }
