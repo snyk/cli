@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/elazarl/goproxy"
 	"log"
 	"net"
 	"net/http"
@@ -12,8 +13,6 @@ import (
 	"os"
 	"snyk/cling/internal/certs"
 	"snyk/cling/internal/utils"
-
-	"github.com/elazarl/goproxy"
 )
 
 type WrapperProxy struct {
@@ -23,7 +22,7 @@ type WrapperProxy struct {
 	CertificateLocation string
 }
 
-func NewWrapperProxy(upstreamProxy string, cacheDirectory string, debugLogger *log.Logger) (*WrapperProxy, error) {
+func NewWrapperProxy(upstreamProxy string, cacheDirectory string, cliVersion string, debugLogger *log.Logger) (*WrapperProxy, error) {
 	var p WrapperProxy
 	p.DebugLogger = debugLogger
 
@@ -63,6 +62,14 @@ func NewWrapperProxy(upstreamProxy string, cacheDirectory string, debugLogger *l
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Logger = debugLogger
 	proxy.OnRequest().HandleConnect(goproxy.AlwaysMitm)
+	proxy.OnRequest().DoFunc(func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+		existingValue := r.Header.Get("x-snyk-cli-version")
+		if existingValue != "" {
+			debugLogger.Printf("Replacing value of existing x-snyk-cli-version header (%s) with %s\n", existingValue, cliVersion)
+			r.Header.Set("x-snyk-cli-version", cliVersion)
+		}
+		return r, nil
+	})
 
 	// Set the upstream proxy, if any. For example, if using with a corporate proxy.
 	if upstreamProxy != "" {
