@@ -1,5 +1,5 @@
 import * as featureFlags from '../../../../src/lib/feature-flags';
-import * as runTest from '../../../../src/cli/commands/test';
+import * as runTest from '../../../../src/cli/commands/test/iac';
 import report from '../../../../src/cli/commands/report';
 import { ArgsOptions } from '../../../../src/cli/args';
 import { UnsupportedFeatureFlagError } from '../../../../src/lib/errors';
@@ -36,6 +36,7 @@ describe('report', () => {
     // Assert
     expect(runTestSpy).toBeCalledTimes(1);
     expect(runTestSpy).toHaveBeenCalledWith(
+      true,
       fakePath,
       expect.objectContaining(iacTestOptions),
     );

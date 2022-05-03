@@ -1,7 +1,7 @@
 import { MethodArgs } from '../../args';
 import { IaCTestFlags } from '../test/iac/local-execution/types';
 import { TestCommandResult } from '../types';
-import test from '../test';
+import test from '../test/iac/';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
 import { Options } from '../../../lib/types';
 import { UnsupportedFeatureFlagError } from '../../../lib/errors';
@@ -21,7 +21,7 @@ export default async function report(
 
   options.report = true;
 
-  return await test(...paths, options);
+  return await test(true, ...paths, options);
 }
 
 async function assertReportSupported(options: IaCTestFlags) {
