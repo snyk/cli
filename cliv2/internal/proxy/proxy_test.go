@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,12 +11,14 @@ import (
 	"os"
 	"snyk/cling/internal/proxy"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_closingProxyDeletesTempCert(t *testing.T) {
 	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
-	wp, err := proxy.NewWrapperProxy("", []string{"*.snyk.io"}, "", debugLogger)
+	wp, err := proxy.NewWrapperProxy("", "", debugLogger)
 	assert.Nil(t, err)
 
 	port, err := wp.Start()
@@ -34,7 +35,7 @@ func Test_closingProxyDeletesTempCert(t *testing.T) {
 func Test_canGoThroughProxy(t *testing.T) {
 	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
-	wp, err := proxy.NewWrapperProxy("", []string{"static.snyk.io"}, "", debugLogger)
+	wp, err := proxy.NewWrapperProxy("", "", debugLogger)
 	assert.Nil(t, err)
 
 	port, err := wp.Start()
