@@ -70,7 +70,8 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	}
 
 	// init proxy object
-	wrapperProxy, err := proxy.NewWrapperProxy(envVariables.UpstreamProxy, envVariables.CacheDirectory, debugLogger)
+
+	wrapperProxy, err := proxy.NewWrapperProxy(envVariables.UpstreamProxy, envVariables.CacheDirectory, cli.GetFullVersion(), debugLogger)
 	if err != nil {
 		fmt.Println("Failed to create proxy")
 		fmt.Println(err)
