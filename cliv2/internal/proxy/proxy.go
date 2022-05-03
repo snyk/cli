@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/elazarl/goproxy"
 	"log"
 	"net"
 	"net/http"
@@ -13,6 +12,8 @@ import (
 	"os"
 	"snyk/cling/internal/certs"
 	"snyk/cling/internal/utils"
+
+	"github.com/elazarl/goproxy"
 )
 
 type WrapperProxy struct {
@@ -22,12 +23,12 @@ type WrapperProxy struct {
 	CertificateLocation string
 }
 
-func NewWrapperProxy(upstreamProxy string, snykDNSNames []string, cacheDirectory string, debugLogger *log.Logger) (*WrapperProxy, error) {
+func NewWrapperProxy(upstreamProxy string, cacheDirectory string, debugLogger *log.Logger) (*WrapperProxy, error) {
 	var p WrapperProxy
 	p.DebugLogger = debugLogger
 
 	certName := "snyk-embedded-proxy"
-	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, snykDNSNames, p.DebugLogger)
+	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, p.DebugLogger)
 	if err != nil {
 		return nil, err
 	}

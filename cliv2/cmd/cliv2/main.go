@@ -8,12 +8,10 @@ import (
 	"snyk/cling/internal/cliv2"
 	"snyk/cling/internal/proxy"
 	"snyk/cling/internal/utils"
-	"strings"
 )
 
 type EnvironmentVariables struct {
 	UpstreamProxy	string
-	SnykDNSNames	[]string
 	CacheDirectory	string
 }
 
@@ -31,19 +29,10 @@ func getDebugLogger(args []string) *log.Logger {
 func getEnvVariables() EnvironmentVariables {
 	upstreamProxy := os.Getenv("HTTPS_PROXY")
 
-	snykDNSNamesStr := os.Getenv("SNYK_DNS_NAMES")
-	var snykDNSNames []string
-	if snykDNSNamesStr != "" {
-		snykDNSNames = strings.Split(snykDNSNamesStr, ",")
-	} else {
-		snykDNSNames = []string{"snyk.io", "*.snyk.io"}
-	}
-
 	cacheDirectory := os.Getenv("SNYK_CACHE_PATH")
 
 	variables := EnvironmentVariables{
 		UpstreamProxy: upstreamProxy,
-		SnykDNSNames: snykDNSNames,
 		CacheDirectory: cacheDirectory,
 	}
 
@@ -62,7 +51,6 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	debugLogger.Println("debug: true")
 
 	debugLogger.Println("upstreamProxy:", envVariables.UpstreamProxy)
-	debugLogger.Println("snykDNSNames:", envVariables.SnykDNSNames)
 	debugLogger.Println("cacheDirectory:", envVariables.CacheDirectory)
 
 	if envVariables.CacheDirectory == "" {
@@ -82,7 +70,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	}
 
 	// init proxy object
-	wrapperProxy, err := proxy.NewWrapperProxy(envVariables.UpstreamProxy, envVariables.SnykDNSNames, envVariables.CacheDirectory, debugLogger)
+	wrapperProxy, err := proxy.NewWrapperProxy(envVariables.UpstreamProxy, envVariables.CacheDirectory, debugLogger)
 	if err != nil {
 		fmt.Println("Failed to create proxy")
 		fmt.Println(err)
