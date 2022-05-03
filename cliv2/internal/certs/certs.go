@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func MakeSelfSignedCert(certName string, debugLogger *log.Logger) (certPEMBlock []byte, keyPEMBlock []byte, err error) {
+func MakeSelfSignedCert(certName string, dnsNames []string, debugLogger *log.Logger) (certPEMBlock []byte, keyPEMBlock []byte, err error) {
 	// create a key
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -37,6 +37,11 @@ func MakeSelfSignedCert(certName string, debugLogger *log.Logger) (certPEMBlock 
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 		IsCA: true,
+	}
+
+	for _, dnsName := range dnsNames {
+		template.DNSNames = append(template.DNSNames, dnsName)
+		debugLogger.Println("MakeSelfSignedCert added ", dnsName)
 	}
 
 	certDERBytes, err_CreateCertificate := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
