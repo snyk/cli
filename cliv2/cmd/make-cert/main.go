@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path"
 	"snyk/cling/internal/certs"
 	"snyk/cling/internal/utils"
+	"strings"
 )
 
 func main() {
@@ -13,9 +15,20 @@ func main() {
 
 	debugLogger := log.Default()
 
-	debugLogger.Println("certificate name:", certName)
+	snykDNSNamesStr := os.Getenv("SNYK_DNS_NAMES")
+	var snykDNSNames []string
+	fmt.Println("SNYK_DNS_NAMES:", snykDNSNamesStr)
+	if snykDNSNamesStr != "" {
+		snykDNSNames = strings.Split(snykDNSNamesStr, ",")
+	} else {
+		// We use app.dev.snyk.io for development
+		snykDNSNames = []string{"snyk.io", "*.snyk.io", "*.dev.snyk.io"}
+	}
 
-	certPEMBlockBytes, keyPEMBlockBytes, err := certs.MakeSelfSignedCert(certName, debugLogger)
+	debugLogger.Println("certificate name:", certName)
+	debugLogger.Println("SNYK_DNS_NAMES:", snykDNSNames)
+
+	certPEMBlockBytes, keyPEMBlockBytes, err := certs.MakeSelfSignedCert(certName, snykDNSNames, debugLogger)
 	if err != nil {
 		log.Fatal(err)
 	}

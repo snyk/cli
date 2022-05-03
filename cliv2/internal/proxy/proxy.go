@@ -28,7 +28,7 @@ func NewWrapperProxy(upstreamProxy string, cacheDirectory string, debugLogger *l
 	p.DebugLogger = debugLogger
 
 	certName := "snyk-embedded-proxy"
-	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, p.DebugLogger)
+	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, p.DebugLogger)
 	if err != nil {
 		return nil, err
 	}
