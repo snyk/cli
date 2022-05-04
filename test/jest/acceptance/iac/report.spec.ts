@@ -1,6 +1,11 @@
 import { startMockServer } from './helpers';
 import { FakeServer } from '../../../acceptance/fake-server';
 import { EOL } from 'os';
+import * as path from 'path';
+
+const projectDirectoryName = path.basename(
+  path.resolve(__dirname, '..', '..', '..', '..'),
+);
 
 jest.setTimeout(50_000);
 
@@ -54,12 +59,12 @@ describe('iac report', () => {
           {
             identity: {
               type: 'armconfig',
-              targetFile: './iac/arm/rule_test.json',
+              targetFile: 'test/fixtures/iac/arm/rule_test.json',
             },
             facts: [],
             findings: expect.any(Array),
             policy: '',
-            name: 'arm',
+            name: projectDirectoryName,
             target: {
               remoteUrl: 'http://github.com/snyk/cli.git',
             },
