@@ -48,6 +48,7 @@ export function printInitialMessage(
 export function buildOutput(
   options: any,
   results: any[],
+  isReportCommand: boolean,
   isNewIacOutputSupported: boolean | undefined,
   iacScanFailures: IacFileInDirectory[] | undefined,
   iacIgnoredIssuesCount: number,
@@ -61,6 +62,7 @@ export function buildOutput(
   return buildTextOutput(
     options,
     results,
+    isReportCommand,
     isNewIacOutputSupported,
     iacScanFailures,
     iacIgnoredIssuesCount,
@@ -127,6 +129,7 @@ function buildJsonOrSarifOutput(options: any, results: any[]) {
 function buildTextOutput(
   options: any,
   results: any[],
+  isReportCommand: boolean,
   isNewIacOutputSupported: boolean | undefined,
   iacScanFailures: IacFileInDirectory[] | undefined,
   iacIgnoredIssuesCount: number,
@@ -137,6 +140,7 @@ function buildTextOutput(
     return buildNewTextOutput(
       options,
       results,
+      isReportCommand,
       iacScanFailures,
       iacIgnoredIssuesCount,
       iacOutputMeta,
@@ -146,6 +150,7 @@ function buildTextOutput(
   return buildOldTextOutput(
     options,
     results,
+    isReportCommand,
     iacScanFailures,
     iacOutputMeta,
     resultOptions,
@@ -155,6 +160,7 @@ function buildTextOutput(
 function buildOldTextOutput(
   options: any,
   results: any[],
+  isReportCommand: boolean,
   iacScanFailures: IacFileInDirectory[] | undefined,
   iacOutputMeta: IacOutputMeta | undefined,
   resultOptions: (Options & TestOptions)[],
@@ -234,7 +240,11 @@ function buildOldTextOutput(
   response += EOL + EOL;
 
   if (isIacShareResultsOptions(options)) {
-    response += formatShareResultsOutput(iacOutputMeta!) + EOL;
+    response += formatShareResultsOutput(iacOutputMeta!) + EOL + EOL;
+
+    if (isReportCommand) {
+      response += buildReportCommandWarning();
+    }
   }
 
   if (foundVulnerabilities) {
@@ -256,6 +266,7 @@ function buildOldTextOutput(
 function buildNewTextOutput(
   options: any,
   results: any[],
+  isReportCommand: boolean,
   iacScanFailures: IacFileInDirectory[] | undefined,
   iacIgnoredIssuesCount: number,
   iacOutputMeta: IacOutputMeta | undefined,
@@ -268,6 +279,7 @@ function buildNewTextOutput(
   return buildNewTextOutputForSuccessOrFailure(
     options,
     results,
+    isReportCommand,
     iacScanFailures,
     iacIgnoredIssuesCount,
     iacOutputMeta,
@@ -277,6 +289,7 @@ function buildNewTextOutput(
 function buildNewTextOutputForSuccessOrFailure(
   options: any,
   results: any[],
+  isReportCommand: boolean,
   iacScanFailures: IacFileInDirectory[] | undefined,
   iacIgnoredIssuesCount: number,
   iacOutputMeta: IacOutputMeta | undefined,
@@ -331,6 +344,10 @@ function buildNewTextOutputForSuccessOrFailure(
 
   if (isIacShareResultsOptions(options)) {
     response += formatShareResultsOutput(iacOutputMeta!) + EOL;
+
+    if (isReportCommand) {
+      response += buildReportCommandWarning();
+    }
   }
 
   if (foundVulnerabilities) {
@@ -393,6 +410,14 @@ function buildNewTextOutputForErrorAndThrow(
 
 function containsErrors(results: any[]) {
   return results.some((res) => res instanceof Error);
+}
+
+function buildReportCommandWarning() {
+  return chalk.red.bold(
+    'Warning:' +
+      EOL +
+      "We will be deprecating support for the 'snyk iac report' command by mid-June and 'snyk iac test --report' will become the default command for using our share results functionality.",
+  );
 }
 
 class GenericError extends Error {
