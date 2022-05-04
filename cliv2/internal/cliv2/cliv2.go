@@ -114,6 +114,16 @@ func (c *CLI) printVersion() {
 	fmt.Println(c.GetFullVersion())
 }
 
+func (c *CLI) commandVersion(passthroughArgs []string) int {
+	if utils.Contains(passthroughArgs, "--json-file-output") {
+		fmt.Println("The following option combination is not currently supported: version + json-file-output")
+		return SNYK_EXIT_CODE_ERROR
+	} else {
+		c.printVersion()
+		return SNYK_EXIT_CODE_OK
+	}
+}
+
 func determineHandler(passthroughArgs []string) Handler {
 	result := V1_DEFAULT
 
@@ -205,7 +215,7 @@ func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughAr
 
 	switch {
 	case handler == V2_VERSION:
-		c.printVersion()
+		returnCode = c.commandVersion(passthroughArgs)
 	default:
 		returnCode = c.executeV1Default(wrapperProxyPort, fullPathToCert, passthroughArgs)
 	}
