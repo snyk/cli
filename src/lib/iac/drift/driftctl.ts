@@ -148,7 +148,7 @@ const generateScanFlags = (
     args.push('--strict');
   }
 
-  if (options.deep) {
+  if (options.deep || options.all) {
     args.push('--deep');
   }
 
