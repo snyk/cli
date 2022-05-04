@@ -59,26 +59,8 @@ describe('getIacDisplayedIssues', () => {
     // Assert
     expect(result).toContain(
       `${colors.severities.low(
-        `[Low] ${chalk.bold('Container could be running with outdated image')}`,
+        `[Low] ${chalk.bold('Container is running without AppArmor profile')}`,
       )}
-Info:    The image policy does not prevent image reuse. The container may run with outdated or unauthorized image
-Rule:    https://snyk.io/security-rules/SNYK-CC-K8S-42
-Path:    [DocId: 0] > spec > template > spec > containers[web] > imagePullPolicy
-File:    k8s.yaml
-Resolve: Set \`imagePullPolicy\` attribute to \`Always\`
-
-${colors.severities.low(
-  `[Low] ${chalk.bold('Container is running with writable root filesystem')}`,
-)}
-Info:    \`readOnlyRootFilesystem\` attribute is not set to \`true\`. Compromised process could abuse writable root filesystem to elevate privileges
-Rule:    https://snyk.io/security-rules/SNYK-CC-K8S-8
-Path:    [DocId: 0] > input > spec > template > spec > containers[web] > securityContext > readOnlyRootFilesystem
-File:    k8s.yaml
-Resolve: Set \`securityContext.readOnlyRootFilesystem\` to \`true\`
-
-${colors.severities.low(
-  `[Low] ${chalk.bold('Container is running without AppArmor profile')}`,
-)}
 Info:    The AppArmor profile is not set correctly. AppArmor will not enforce mandatory access control, which can increase the attack vectors.
 Rule:    https://snyk.io/security-rules/SNYK-CC-K8S-32
 Path:    [DocId: 0] > metadata > annotations['container.apparmor.security.beta.kubernetes.io/web']
@@ -95,13 +77,31 @@ File:    k8s.yaml
 Resolve: Set \`resources.limits.memory\` value
 
 ${colors.severities.low(
+  `[Low] ${chalk.bold('Container could be running with outdated image')}`,
+)}
+Info:    The image policy does not prevent image reuse. The container may run with outdated or unauthorized image
+Rule:    https://snyk.io/security-rules/SNYK-CC-K8S-42
+Path:    [DocId: 0] > spec > template > spec > containers[web] > imagePullPolicy
+File:    k8s.yaml
+Resolve: Set \`imagePullPolicy\` attribute to \`Always\`
+
+${colors.severities.low(
   `[Low] ${chalk.bold('Container is running without cpu limit')}`,
 )}
 Info:    CPU limit is not defined. Containers without limits can exceed the capacity of the node, and affect availability/performance of the host and other containers.
 Rule:    https://snyk.io/security-rules/SNYK-CC-K8S-5
 Path:    [DocId: 0] > input > spec > template > spec > containers[web] > resources > limits > cpu
 File:    k8s.yaml
-Resolve: Add \`resources.limits.cpu\` field with required CPU limit value`,
+Resolve: Add \`resources.limits.cpu\` field with required CPU limit value
+
+${colors.severities.low(
+  `[Low] ${chalk.bold('Container is running with writable root filesystem')}`,
+)}
+Info:    \`readOnlyRootFilesystem\` attribute is not set to \`true\`. Compromised process could abuse writable root filesystem to elevate privileges
+Rule:    https://snyk.io/security-rules/SNYK-CC-K8S-8
+Path:    [DocId: 0] > input > spec > template > spec > containers[web] > securityContext > readOnlyRootFilesystem
+File:    k8s.yaml
+Resolve: Set \`securityContext.readOnlyRootFilesystem\` to \`true\``,
     );
 
     expect(result).toContain(
