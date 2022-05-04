@@ -3,7 +3,6 @@ import { UnsupportedOptionCombinationError } from '../../../src/lib/errors/unsup
 import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer } from '../../acceptance/fake-server';
 import { createProject } from '../util/createProject';
-import { isCLIV2 } from '../util/isCLIV2';
 
 const isWindows =
   require('os-name')()
@@ -13,13 +12,6 @@ const isWindows =
 jest.setTimeout(1000 * 60 * 5);
 
 describe('cli args', () => {
-  if (isCLIV2()) {
-    // eslint-disable-next-line jest/no-focused-tests
-    it.only('CLIv2 not yet supported', () => {
-      console.warn('Skipping test as CLIv2 does not support it yet.');
-    });
-  }
-
   let server;
   let env: Record<string, string>;
 
