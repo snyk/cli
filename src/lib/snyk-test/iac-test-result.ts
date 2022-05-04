@@ -11,6 +11,10 @@ export interface AnnotatedIacIssue {
   path?: string[];
   documentation?: string;
   isGeneratedByCustomRule?: boolean;
+  remediation?: Partial<
+    Record<'terraform' | 'cloudformation' | 'arm' | 'kubernetes', string>
+  >;
+
   // Legacy fields from Registry, unused.
   name?: string;
   from?: string[];

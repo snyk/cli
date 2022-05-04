@@ -43,11 +43,25 @@ describe('iac test output', () => {
       );
     });
 
-    it('should show a subtitle for medium severity issues', async () => {
+    it('should show the issues list section with correct values', async () => {
       const { stdout } = await run('snyk iac test  ./iac/arm/rule_test.json');
 
       expect(stdout).toContain(
-        'Issues' + EOL.repeat(2) + 'Medium Severity Issues: 1',
+        'Issues' +
+          EOL.repeat(2) +
+          'Medium Severity Issues: 1' +
+          EOL.repeat(2) +
+          '[Medium] Azure Firewall Network Rule Collection allows public access' +
+          EOL +
+          'Info:    That inbound traffic is allowed to a resource from any source instead of a restricted range. That potentially everyone can access your resource' +
+          EOL +
+          'Rule:    https://snyk.io/security-rules/SNYK-CC-TF-20' +
+          EOL +
+          'Path:    resources[1] > properties > networkRuleCollections[0] > properties > rules[0] > sourceAddresses' +
+          EOL +
+          'File:    ./iac/arm/rule_test.json' +
+          EOL +
+          'Resolve: Set `properties.networkRuleCollections.properties.rules.sourceAddresses` attribute to specific IP range only, e.g. `192.168.1.0/24`',
       );
     });
 

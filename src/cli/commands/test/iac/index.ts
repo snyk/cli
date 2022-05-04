@@ -277,7 +277,7 @@ export default async function(
   let response = '';
 
   if (isNewIacOutputSupported && !notSuccess) {
-    response += getIacDisplayedIssues(results, iacOutputMeta!);
+    response += EOL + getIacDisplayedIssues(results, iacOutputMeta!);
   } else {
     response += results
       .map((result, i) => {
@@ -307,7 +307,7 @@ export default async function(
     errorResultsLength = iacScanFailures.length || errorResults.length;
 
     response += isNewIacOutputSupported
-      ? EOL + formatIacTestFailures(iacScanFailures)
+      ? EOL.repeat(2) + formatIacTestFailures(iacScanFailures)
       : iacScanFailures
           .map((reason) => chalk.bold.red(getIacDisplayErrorFileOutput(reason)))
           .join('');

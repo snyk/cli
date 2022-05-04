@@ -31,6 +31,7 @@ export function formatScanResults(
   try {
     const groupedByFile = scanResults.reduce((memo, scanResult) => {
       const res = formatScanResult(scanResult, meta, options);
+
       if (memo[scanResult.filePath]) {
         memo[scanResult.filePath].result.cloudConfigResults.push(
           ...res.result.cloudConfigResults,

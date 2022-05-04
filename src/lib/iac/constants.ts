@@ -26,3 +26,10 @@ export const TEST_SUPPORTED_IAC_PROJECTS: IacProjectTypes[] = [
   IacProjectType.MULTI_IAC,
   IacProjectType.CUSTOM,
 ];
+
+export const iacRemediationTypes: { [k in IacProjectTypes]?: string } = {
+  armconfig: 'arm',
+  cloudformationconfig: 'cloudformation',
+  k8sconfig: 'kubernetes',
+  terraformconfig: 'terraform',
+};
