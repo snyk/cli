@@ -96,7 +96,7 @@ describe('iac describe', () => {
     // First invocation of driftctl scan triggered by describe cmd
     expect(output).toContain('DCTL_IS_SNYK=true');
     expect(output).toContain(
-      `ARGS=scan --no-version-check --output json://stdout --config-dir ${paths.cache} --to aws+tf`,
+      `ARGS=scan --no-version-check --output json://stdout --deep --config-dir ${paths.cache} --to aws+tf`,
     );
 
     // no second invocation with console output
@@ -129,7 +129,7 @@ describe('iac describe', () => {
     // First invocation of driftctl scan triggered by describe cmd
     expect(output).toContain('DCTL_IS_SNYK=true');
     expect(output).toContain(
-      `ARGS=scan --no-version-check --output json://stdout --config-dir ${paths.cache} --to aws+tf`,
+      `ARGS=scan --no-version-check --output json://stdout --deep --config-dir ${paths.cache} --to aws+tf`,
     );
 
     // Second invocation of driftctl fmt triggered by describe cmd
@@ -180,7 +180,7 @@ describe('iac describe', () => {
       // First invocation of driftctl scan triggered by describe cmd
       expect(output).toContain('DCTL_IS_SNYK=true');
       expect(output).toContain(
-        `ARGS=scan --no-version-check --output json://stdout --config-dir ${paths.cache} --to aws+tf`,
+        `ARGS=scan --no-version-check --output json://stdout --deep --config-dir ${paths.cache} --to aws+tf`,
       );
 
       // Second invocation of driftctl fmt triggered by describe cmd

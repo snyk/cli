@@ -52,6 +52,44 @@ describe('driftctl integration', () => {
     ]);
   });
 
+  it('describe: --all enable deep mode', () => {
+    {
+      const args = generateArgs(
+        { kind: 'describe', all: true } as DescribeOptions,
+        [],
+      );
+      expect(args).toEqual([
+        'scan',
+        '--no-version-check',
+        '--output',
+        'json://stdout',
+        '--deep',
+        '--config-dir',
+        paths.cache,
+        '--to',
+        'aws+tf',
+      ]);
+    }
+
+    {
+      const args = generateArgs(
+        { kind: 'describe', all: true, deep: true } as DescribeOptions,
+        [],
+      );
+      expect(args).toEqual([
+        'scan',
+        '--no-version-check',
+        '--output',
+        'json://stdout',
+        '--deep',
+        '--config-dir',
+        paths.cache,
+        '--to',
+        'aws+tf',
+      ]);
+    }
+  });
+
   it('describe: passing options generate correct arguments', () => {
     const args = generateArgs(
       {
