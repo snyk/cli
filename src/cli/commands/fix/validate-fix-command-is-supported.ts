@@ -41,7 +41,7 @@ export async function validateFixCommandIsSupported(
           options.org ? ` for org '${options.org}'` : ''
         }.`,
       ) +
-      '\nSee documentation on how to enable this beta feature: https://docs.snyk.io/features/snyk-cli/fix-vulnerabilities-from-the-cli/automatic-remediation-with-snyk-fix';
+      '\nSee documentation on how to enable this beta feature: https://docs.snyk.io/snyk-cli/fix-vulnerabilities-from-the-cli/automatic-remediation-with-snyk-fix#enabling-snyk-fix';
     const unsupportedError = new Error(snykFixErrorMessage);
     throw unsupportedError;
   }

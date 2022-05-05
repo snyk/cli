@@ -23,7 +23,7 @@ describe('showFixTip', () => {
       ),
     ).toBe(
       'Tip: Try `snyk fix` to address these issues.`snyk fix` is a new CLI command in that aims to automatically apply the recommended updates for supported ecosystems.\n' +
-        'See documentation on how to enable this beta feature: https://docs.snyk.io/features/snyk-cli/fix-vulnerabilities-from-the-cli/automatic-remediation-with-snyk-fix',
+        'See documentation on how to enable this beta feature: https://docs.snyk.io/snyk-cli/fix-vulnerabilities-from-the-cli/automatic-remediation-with-snyk-fix#enabling-snyk-fix',
     );
   });
 
