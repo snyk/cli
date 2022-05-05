@@ -60,6 +60,12 @@ function formatCountsSection(testData: IacTestData): string {
   );
 
   countsSectionProperties.push(
+    `${INDENT}Invalid files: ${colors.info.bold(
+      `${testData.failures?.length ?? 0}`,
+    )}`,
+  );
+
+  countsSectionProperties.push(
     `${INDENT}Ignored issues: ${colors.info.bold(`${testData.ignoreCount}`)}`,
   );
 
