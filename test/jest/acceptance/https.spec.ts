@@ -8,13 +8,6 @@ import { isCLIV2 } from '../util/isCLIV2';
 jest.setTimeout(1000 * 30);
 
 describe('https', () => {
-  if (isCLIV2()) {
-    // eslint-disable-next-line jest/no-focused-tests
-    it.only('CLIv2 not yet supported', () => {
-      console.warn('Skipping test as CLIv2 does not support it yet.');
-    });
-  }
-
   let server: FakeServer;
   let env: Record<string, string>;
 
@@ -58,7 +51,11 @@ describe('https', () => {
         env,
       });
 
-      expect(stdout).toContain('certificate has expired');
+      expect(stdout).toContain(
+        isCLIV2()
+          ? 'socket hang up' // cliv2's proxy will drop the connection, but its debug logs will say why.
+          : 'certificate has expired',
+      );
       expect(code).toBe(2);
     });
 

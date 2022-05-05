@@ -11,8 +11,7 @@ import (
 )
 
 type EnvironmentVariables struct {
-	UpstreamProxy	string
-	CacheDirectory	string
+	CacheDirectory string
 }
 
 func getDebugLogger(args []string) *log.Logger {
@@ -26,21 +25,10 @@ func getDebugLogger(args []string) *log.Logger {
 	return debugLogger
 }
 
-func getEnvVariables() EnvironmentVariables {
-	upstreamProxy := os.Getenv("HTTPS_PROXY")
-
-	cacheDirectory := os.Getenv("SNYK_CACHE_PATH")
-
-	variables := EnvironmentVariables{
-		UpstreamProxy: upstreamProxy,
-		CacheDirectory: cacheDirectory,
-	}
-
-	return variables
-}
-
 func main() {
-	envVariables := getEnvVariables()
+	envVariables := EnvironmentVariables{
+		CacheDirectory: os.Getenv("SNYK_CACHE_PATH"),
+	}
 	errorCode := MainWithErrorCode(envVariables, os.Args[1:])
 	os.Exit(errorCode)
 }
@@ -50,8 +38,10 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	debugLogger := getDebugLogger(args)
 	debugLogger.Println("debug: true")
 
-	debugLogger.Println("upstreamProxy:", envVariables.UpstreamProxy)
 	debugLogger.Println("cacheDirectory:", envVariables.CacheDirectory)
+
+	insecure := utils.Contains(args, "--insecure")
+	debugLogger.Println("insecure:", insecure)
 
 	if envVariables.CacheDirectory == "" {
 		envVariables.CacheDirectory, err = utils.SnykCacheDir()
@@ -70,8 +60,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	}
 
 	// init proxy object
-
-	wrapperProxy, err := proxy.NewWrapperProxy(envVariables.UpstreamProxy, envVariables.CacheDirectory, cli.GetFullVersion(), debugLogger)
+	wrapperProxy, err := proxy.NewWrapperProxy(insecure, envVariables.CacheDirectory, cli.GetFullVersion(), debugLogger)
 	if err != nil {
 		fmt.Println("Failed to create proxy")
 		fmt.Println(err)

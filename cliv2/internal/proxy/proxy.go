@@ -5,24 +5,23 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/elazarl/goproxy"
 	"log"
 	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"snyk/cling/internal/certs"
 	"snyk/cling/internal/utils"
+
+	"github.com/elazarl/goproxy"
 )
 
 type WrapperProxy struct {
-	UpstreamProxy       string
 	httpServer          *http.Server
 	DebugLogger         *log.Logger
 	CertificateLocation string
 }
 
-func NewWrapperProxy(upstreamProxy string, cacheDirectory string, cliVersion string, debugLogger *log.Logger) (*WrapperProxy, error) {
+func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion string, debugLogger *log.Logger) (*WrapperProxy, error) {
 	var p WrapperProxy
 	p.DebugLogger = debugLogger
 
@@ -60,6 +59,13 @@ func NewWrapperProxy(upstreamProxy string, cacheDirectory string, cliVersion str
 		return nil, err
 	}
 	proxy := goproxy.NewProxyHttpServer()
+	proxy.Tr = &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: insecureSkipVerify, // goproxy defaults to true
+		},
+	}
+
 	proxy.Logger = debugLogger
 	proxy.OnRequest().HandleConnect(goproxy.AlwaysMitm)
 	proxy.OnRequest().DoFunc(func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
@@ -71,25 +77,11 @@ func NewWrapperProxy(upstreamProxy string, cacheDirectory string, cliVersion str
 		return r, nil
 	})
 
-	// Set the upstream proxy, if any. For example, if using with a corporate proxy.
-	if upstreamProxy != "" {
-		_, err := url.ParseRequestURI(upstreamProxy)
-		if err != nil {
-			fmt.Println("Invalid upstream proxy:", upstreamProxy)
-			return nil, err
-		}
-
-		proxy.Tr = &http.Transport{Proxy: func(req *http.Request) (*url.URL, error) {
-			return url.Parse(upstreamProxy)
-		}}
-	}
-
 	proxy.Verbose = true
 	proxyServer := &http.Server{
 		Handler: proxy,
 	}
 
-	p.UpstreamProxy = upstreamProxy
 	p.httpServer = proxyServer
 
 	return &p, nil
