@@ -53,11 +53,19 @@ Print results in JSON format.
 
 Example: `$ snyk code test --json`
 
+### `--json-file-output=<OUTPUT_FILE_PATH>`
+
+Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
+
+This is useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
+
+Example: `$ snyk code test --json-file-output=vuln.json`
+
 ### `--sarif`
 
 Return results in SARIF format.
 
-Example: `$ snyk code`
+Example: \$snyk code&#x20;
 
 ### `--severity-threshold=<low|medium|high|critical>`
 

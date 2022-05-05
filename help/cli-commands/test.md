@@ -107,6 +107,14 @@ Specify the name of the package manager when the filename specified with the `--
 
 Example: `$ snyk test --file=req.txt --package-manager=pip`
 
+### `--unmanaged`
+
+For C++ only, scan all files for known open source dependencies.
+
+For options you can use with `--unmanaged` see [Options for scanning using `--unmanaged`](https://docs.snyk.io/snyk-cli/commands/test#options-for-scanning-using-unmanaged)``
+
+For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)
+
 ### `--ignore-policy`
 
 Ignore all set policies, the current policy in the `.snyk` file, org level ignores, and the project policy on snyk.io.
@@ -117,7 +125,7 @@ Apply and use ignore rules from the Snyk policies your dependencies; otherwise i
 
 ### `--show-vulnerable-paths=<none|some|all>`
 
-Display the dependency paths from the top level dependencies down to the vulnerable packages. Does not affect output when using JSON `--json` output.
+Display the dependency paths from the top level dependencies down to the vulnerable packages. Not supported with `--json-file-output`.
 
 Default: `some` (a few example paths shown). `false` is an alias for `none`
 
@@ -147,7 +155,7 @@ Example: `$ snyk test --json`
 
 Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
 
-This is especially useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
+This is useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
 
 Example: `$ snyk test --json-file-output=vuln.json`
 
@@ -297,13 +305,25 @@ Currently the following options are not supported:
 
 `--fail-on=<all|upgradable|patchable>`
 
-## Option for C/C++ projects
+## Options for scanning using `--unmanaged`
 
-### `--unmanaged`
+### `` [`--org=<ORG_ID>`](test.md#org-less-than-org\_id-greater-than) ``
 
-Scan C/C++ source code for vulnerabilities.
+### `` [`--json`](test.md#json) ``
 
-For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)
+### [--json-file-output=\<OUTPUT_FILE_PATH>](test.md#json-file-output-less-than-output_file_path-greater-than)
+
+### `--target-dir`&#x20;
+
+Scan the path specified in the argument instead of the current directory.
+
+Alternatively, run `snyk test --unmanaged`
+
+### `--max-depth`
+
+`Usage: --max-depth=1` Specify the maximum level of archive extraction.
+
+Use 0 to disable archive extraction completely.
 
 ## Options for build tools
 

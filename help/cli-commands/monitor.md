@@ -106,6 +106,14 @@ Specify the name of the package manager when the filename specified with the `--
 
 Example: `$ snyk monitor --file=req.txt --package-manager=pip`
 
+### `--unmanaged`
+
+For C++ only, scan all files for known open source dependencies.
+
+For options you can use with `--unmanaged` see [Options for scanning using `--unmanaged`](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-scanning-using-unmanaged)``
+
+For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)``
+
 ### `--ignore-policy`
 
 Ignore all set policies, the current policy in the `.snyk` file, org level ignores, and the project policy on snyk.io.
@@ -122,7 +130,7 @@ Example: `$ snyk monitor --project-name=my-project`
 
 ### `--target-reference=<TARGET_REFERENCE>`
 
-Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Only supported for Snyk Open Source.
+Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Supported for Snyk Open Source and use with `--unmanaged`.
 
 For more information see [Separating projects by branch or version](https://docs.snyk.io/snyk-cli/secure-your-projects-in-the-long-term/grouping-projects-by-branch-or-version)
 
@@ -282,13 +290,29 @@ Default: `python` Example: `--command=python3`
 
 Allow skipping packages that are not found in the environment.
 
-## Option for C/C++ projects
+## Options for scanning using `--unmanaged`
 
-### `--unmanaged`
+### `` [`--org=<ORG_ID>`](monitor.md#org-less-than-org\_id-greater-than) ``
 
-Monitor your C/C++ project.
+### `` [`--json`](monitor.md#json) ``
 
-For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)
+### `` [`--target-reference=<TARGET_REFERENCE>`](monitor.md#target-reference-less-than-target\_reference-greater-than) ``
+
+### `--target-dir`&#x20;
+
+Scan the path specified in the argument instead of the current directory.
+
+Alternatively, run `snyk test --unmanaged`
+
+### `--max-depth`
+
+`Usage: --max-depth=1` Specify the maximum level of archive extraction.
+
+Use 0 to disable archive extraction completely.
+
+### `--project-name=c-project`&#x20;
+
+Use with the `snyk monitor --unmanaged` command to override the default name Snyk gives your snapshots by entering the desired name.
 
 ## Options for build tools
 

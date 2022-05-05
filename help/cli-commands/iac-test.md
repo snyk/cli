@@ -97,7 +97,7 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
-This can be used in combination with the `--report` command.
+This can be used in combination with the `--report` option.
 
 Set the project environment project attribute to one or more values (comma-separated). To clear the project environment set `--project-environment=`
 
@@ -107,7 +107,7 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
 
-This can be used in combination with the `--report` command.
+This can be used in combination with the `--report` option.
 
 Set the project lifecycle project attribute to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`
 
@@ -117,7 +117,7 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
-This can be used in combination with the `--report` command.
+This can be used in combination with the `--report` option.
 
 Set the project tags to one or more values (comma-separated key value pairs with an "=" separator).
 
@@ -127,9 +127,9 @@ To clear the project tags set `--project-tags=`
 
 ### `--report`
 
-Share results with the Snyk App.
+Share results with the Snyk Web UI.
 
-This creates a project in your Snyk account with a snapshot of the current configuration issues. After running this command, log in to the Snyk website and view your projects to see the monitor.
+This creates a project in your Snyk account with a snapshot of the current configuration issues. After using this option, log in to the Snyk website and view your projects to see the monitor.
 
 Example: `$ snyk iac test --report`
 
@@ -160,7 +160,7 @@ Example 2: `--scan=resource-changes` (proposed changes scan)
 
 ### `--target-reference=<TARGET_REFERENCE>`
 
-This can be used in combination with the `--report` command.
+This can be used in combination with the `--report` option.
 
 Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference.
 
