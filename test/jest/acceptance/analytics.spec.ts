@@ -4,18 +4,10 @@ import {
   createProjectFromWorkspace,
 } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
-import { isCLIV2 } from '../util/isCLIV2';
 
 jest.setTimeout(1000 * 30);
 
 describe('analytics module', () => {
-  if (isCLIV2()) {
-    // eslint-disable-next-line jest/no-focused-tests
-    it.only('CLIv2 not yet supported', () => {
-      console.warn('Skipping test as CLIv2 does not support it yet.');
-    });
-  }
-
   let server;
   let env: Record<string, string>;
 
@@ -48,7 +40,7 @@ describe('analytics module', () => {
 
   it('sends analytics for `snyk test` with no vulns found', async () => {
     const project = await createProjectFromWorkspace('npm-package');
-    const { code } = await runSnykCLI('test', {
+    const { code } = await runSnykCLI('test --debug', {
       cwd: project.path(),
       env,
     });
@@ -298,7 +290,7 @@ describe('analytics module', () => {
 
   it('uses OAUTH token if set', async () => {
     const project = await createProjectFromWorkspace('npm-package');
-    const { code } = await runSnykCLI('version', {
+    const { code } = await runSnykCLI('test woof', {
       cwd: project.path(),
       env: {
         ...env,
