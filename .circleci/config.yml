@@ -545,7 +545,9 @@ jobs:
             GOOS: linux
             GOARCH: amd64
             CLI_V1_LOCATION: ../binary-releases
-          command: make build build-test install prefix=. -e
+          command: |
+            export SNYK_TOKEN="${SNYK_API_KEY}"
+            make build build-test install test prefix=. -e
       - run:
           name: Build linux/arm64
           working_directory: ./cliv2
