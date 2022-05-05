@@ -527,6 +527,20 @@ jobs:
   #
   # Snyk CLI v2 Jobs
   #
+  v2-lint:
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - go/install:
+          version: << pipeline.parameters.go_version >>
+      - run:
+          name: Lint
+          working_directory: ./cliv2
+          command: make lint
+
   v2-build-artifacts:
     executor: linux
     working_directory: /home/circleci/snyk
@@ -823,6 +837,13 @@ workflows:
       #
       # Snyk CLI v2 Workflow Jobs
       #
+      - v2-lint:
+          name: v2 / Lint
+          filters:
+            branches:
+              only:
+                - /^.*v2.*$/
+                - master
       - v2-build-artifacts:
           name: v2 / Build Artifacts
           requires:
