@@ -46,11 +46,12 @@ function computePaths(
   const currentDirectoryName = path.basename(currentDirectory);
   const absoluteFilePath = path.resolve(filePath);
   const relativeFilePath = path.relative(currentDirectory, absoluteFilePath);
+  const unixRelativeFilePath = relativeFilePath.split(path.sep).join('/');
 
   return {
     targetFilePath: absoluteFilePath,
     projectName: currentDirectoryName,
-    targetFile: relativeFilePath,
+    targetFile: unixRelativeFilePath,
   };
 }
 
