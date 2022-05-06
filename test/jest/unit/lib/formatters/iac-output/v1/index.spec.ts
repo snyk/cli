@@ -2,6 +2,7 @@ import {
   createSarifOutputForIac,
   shareResultsOutput,
 } from '../../../../../../../src/lib/formatters/iac-output';
+import * as iacOutputUtils from '../../../../../../../src/lib/formatters/iac-output/v1/utils';
 import {
   IacTestResponse,
   AnnotatedIacIssue,
@@ -101,6 +102,26 @@ describe('createSarifOutputForIac', () => {
     const issue = createResponseIssue(SEVERITY.HIGH, { lineNumber: undefined });
     const sarif = createSarifOutputForIac([issue]);
 
+    const location = sarif.runs?.[0]?.results?.[0]?.locations?.[0];
+    expect(location?.physicalLocation?.artifactLocation).toEqual({
+      uri: 'target_file.tf',
+      uriBaseId: 'PROJECTROOT',
+    });
+    expect(location?.physicalLocation?.region).not.toBeDefined();
+  });
+
+  it('uses the base path if git not present', () => {
+    const getRepoRootSpy = jest.spyOn(iacOutputUtils, 'getRepoRoot');
+    getRepoRootSpy.mockImplementation(() => {
+      throw new Error();
+    });
+
+    const issue = createResponseIssue(SEVERITY.HIGH, { lineNumber: undefined });
+    const sarif = createSarifOutputForIac([issue]);
+
+    expect(
+      sarif.runs?.[0]?.originalUriBaseIds?.PROJECTROOT?.uri?.endsWith('snyk/'),
+    ).toBeTruthy();
     const location = sarif.runs?.[0]?.results?.[0]?.locations?.[0];
     expect(location?.physicalLocation?.artifactLocation).toEqual({
       uri: 'target_file.tf',
