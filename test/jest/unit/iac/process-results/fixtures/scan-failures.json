@@ -1,0 +1,12 @@
+[
+    {
+        "filePath": "test/fixtures/iac/terraform/sg_open_ssh_invalid_go_templates.tf",
+        "fileType": "tf",
+        "failureReason": "Failed to parse Terraform file"
+    },
+    {
+        "filePath": "test/fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf",
+        "fileType": "tf",
+        "failureReason": "Failed to parse Terraform file"
+    }
+]

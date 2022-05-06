@@ -83,9 +83,11 @@ describe('iac test output', () => {
           EOL +
           '✗ Files with issues: 3' +
           EOL +
+          '  Invalid files: 1' +
+          EOL +
           '  Ignored issues: 8' +
           EOL +
-          '  Total issues: 28 [ 0 critical, 4 high, 8 medium, 16 low ]',
+          '  Total issues: ',
       );
     });
 

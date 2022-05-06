@@ -319,6 +319,7 @@ export default async function(
     const iacTestSummary = `${formatIacTestSummary(
       {
         results,
+        failures: iacScanFailures,
         ignoreCount: iacIgnoredIssuesCount,
       },
       iacOutputMeta,
