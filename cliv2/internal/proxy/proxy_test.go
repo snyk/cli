@@ -19,7 +19,7 @@ import (
 func Test_closingProxyDeletesTempCert(t *testing.T) {
 	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
-	wp, err := proxy.NewWrapperProxy("", "", "", debugLogger)
+	wp, err := proxy.NewWrapperProxy(false, "", "", debugLogger)
 	assert.Nil(t, err)
 
 	port, err := wp.Start()
@@ -36,7 +36,7 @@ func Test_closingProxyDeletesTempCert(t *testing.T) {
 func Test_canGoThroughProxy(t *testing.T) {
 	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
-	wp, err := proxy.NewWrapperProxy("", "", "", debugLogger)
+	wp, err := proxy.NewWrapperProxy(false, "", "", debugLogger)
 	assert.Nil(t, err)
 
 	port, err := wp.Start()
@@ -82,7 +82,7 @@ func Test_xSnykCliVersionHeaderIsReplaced(t *testing.T) {
 	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
 	expectedVersion := "the-cli-version"
-	wp, err := proxy.NewWrapperProxy("", "", expectedVersion, debugLogger)
+	wp, err := proxy.NewWrapperProxy(false, "", expectedVersion, debugLogger)
 	assert.Nil(t, err)
 
 	port, err := wp.Start()
