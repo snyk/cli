@@ -1,12 +1,17 @@
+import * as path from 'path';
 import {
   anotherPolicyStub,
   policyStub,
   yetAnotherPolicyStub,
 } from '../results-formatter.fixtures';
 
+const projectDirectoryName = path.basename(
+  path.resolve(__dirname, '..', '..', '..', '..', '..'),
+);
+
 export const expectedFormattedResultsForShareResults = [
   {
-    projectName: 'snyk',
+    projectName: projectDirectoryName,
     targetFile: 'dont-care.yaml',
     filePath: 'dont-care.yaml',
     fileType: 'yaml',
