@@ -9,6 +9,10 @@ import { IacProjectType } from '../../../../src/lib/iac/constants';
 import { SEVERITY } from '../../../../src/lib/snyk-test/common';
 import { AnnotatedIacIssue } from '../../../../src/lib/snyk-test/iac-test-result';
 
+const projectDirectoryName = path.basename(
+  path.resolve(__dirname, '..', '..', '..', '..'),
+);
+
 // TODO this file should be in the process-results directory. Moving this file,
 // though, will affect the test suite format-test-meta.spec.ts, which references
 // it. This file has been left here in order to avoid a complex review with
@@ -157,7 +161,7 @@ function generateFormattedResults(options) {
     dependencyCount: 0,
     ignoreSettings: null,
     licensesPolicy: null,
-    projectName: 'snyk',
+    projectName: projectDirectoryName,
     meta: {
       ...meta,
       policy: '',
