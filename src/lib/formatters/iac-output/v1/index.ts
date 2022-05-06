@@ -144,7 +144,7 @@ export function createSarifOutputForIac(
   try {
     repoRoot = getRepoRoot();
   } catch {
-    repoRoot = basePath;
+    repoRoot = pathLib.join(basePath, '/'); // the slash at the end is required, otherwise the artifactLocation.uri starts with a slash
   }
   const issues = iacTestResponses.reduce((collect: ResponseIssues, res) => {
     if (res.result) {
