@@ -1,5 +1,10 @@
 import { FakeServer } from '../../../acceptance/fake-server';
 import { startMockServer } from './helpers';
+import * as path from 'path';
+
+const projectDirectoryName = path.basename(
+  path.resolve(__dirname, '..', '..', '..', '..'),
+);
 
 jest.setTimeout(50000);
 
@@ -73,12 +78,12 @@ describe('CLI Share Results', () => {
             {
               identity: {
                 type: 'armconfig',
-                targetFile: './iac/arm/rule_test.json',
+                targetFile: 'test/fixtures/iac/arm/rule_test.json',
               },
               facts: [],
               findings: expect.any(Array),
               policy: '',
-              name: 'arm',
+              name: projectDirectoryName,
               target: {
                 remoteUrl: 'http://github.com/snyk/cli.git',
               },
@@ -198,11 +203,11 @@ describe('CLI Share Results', () => {
               {
                 identity: {
                   type: 'armconfig',
-                  targetFile: './iac/arm/rule_test.json',
+                  targetFile: 'test/fixtures/iac/arm/rule_test.json',
                 },
                 facts: [],
                 findings: expect.arrayContaining([]),
-                name: 'arm',
+                name: projectDirectoryName,
                 target: {
                   remoteUrl: 'http://github.com/snyk/cli.git',
                 },

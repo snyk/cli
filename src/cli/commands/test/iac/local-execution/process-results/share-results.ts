@@ -29,7 +29,7 @@ export async function formatAndShareResults({
     throw new FeatureFlagError('report', 'iacCliShareResults');
   }
 
-  const formattedResults = formatShareResults(results, options);
+  const formattedResults = formatShareResults(results);
 
   return await shareResults({
     results: formattedResults,

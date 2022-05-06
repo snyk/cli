@@ -6,7 +6,6 @@ describe('formatShareResults', () => {
   it('returns the formatted results', () => {
     const IacShareResultsFormatResults = formatShareResults(
       generateScanResults(),
-      {},
     );
     expect(IacShareResultsFormatResults).toStrictEqual(
       expectedFormattedResultsForShareResults,
