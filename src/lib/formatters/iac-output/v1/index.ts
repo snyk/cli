@@ -5,7 +5,6 @@ import * as pathLib from 'path';
 import { pathToFileURL } from 'url';
 import upperFirst = require('lodash.upperfirst');
 import camelCase = require('lodash.camelcase');
-import { execSync } from 'child_process';
 
 import {
   IacTestResponse,
@@ -21,6 +20,7 @@ import { getSeverityValue } from '../../get-severity-value';
 import { getIssueLevel } from '../../sarif-output';
 import { getVersion } from '../../../version';
 import config from '../../../config';
+import { getRepoRoot } from './utils';
 const debug = Debug('iac-output');
 
 function formatIacIssue(
@@ -140,7 +140,12 @@ export function createSarifOutputForIac(
   const basePath = isLocalFolder(iacTestResponses[0].path)
     ? pathLib.resolve('.', iacTestResponses[0].path)
     : pathLib.resolve('.');
-  const repoRoot = getRepoRoot(basePath);
+  let repoRoot: string;
+  try {
+    repoRoot = getRepoRoot();
+  } catch {
+    repoRoot = pathLib.join(basePath, '/'); // the slash at the end is required, otherwise the artifactLocation.uri starts with a slash
+  }
   const issues = iacTestResponses.reduce((collect: ResponseIssues, res) => {
     if (res.result) {
       // targetFile is the computed relative path of the scanned file
@@ -295,19 +300,6 @@ export function mapIacTestResponseToSarifResults(
       ],
     };
   });
-}
-
-function getRepoRoot(basePath: string) {
-  try {
-    const cwd = process.cwd();
-    const stdout = execSync('git rev-parse --show-toplevel', {
-      encoding: 'utf8',
-      cwd,
-    });
-    return stdout.trim() + '/';
-  } catch {
-    return basePath;
-  }
 }
 
 function getPathRelativeToRepoRoot(
