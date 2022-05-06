@@ -153,11 +153,23 @@ $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME):
 build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
 
 .PHONY: build-test
-build-test: build $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME)
+build-test: build-blackboxtest
+
+.PHONY: build-blackboxtest
+build-blackboxtest: build $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME)
+
+.PHONY: blackboxtest
+blackboxtest: build-blackboxtest
+	@echo "$(LOG_PREFIX) Running $@"
+	TEST_SNYK_EXECUTABLE_PATH=$(TEST_SNYK_EXECUTABLE_PATH) $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) -test.v
+
+.PHONY: whiteboxtest
+whiteboxtest: 
+	@echo "$(LOG_PREFIX) Running $@"
+	@$(GOCMD) test -cover ./...
 
 .PHONY: test
-test: build-test
-	TEST_SNYK_EXECUTABLE_PATH=$(TEST_SNYK_EXECUTABLE_PATH) $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) -test.v
+test: whiteboxtest blackboxtest
 
 .PHONY: $(SIGN_SCRIPT)
 $(SIGN_SCRIPT): 
@@ -182,6 +194,7 @@ test-signature: $(ISSIGNED_SCRIPT)
 
 .PHONY: clean
 clean:
+	@$(GOCMD) clean
 	@rm -f -r $(BUILD_DIR)
 	@rm -f -r $(CACHE_DIR)
 	@rm -f $(V1_DIRECTORY)/$(APPLICATION_NAME)-*
