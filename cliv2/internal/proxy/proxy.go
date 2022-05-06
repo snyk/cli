@@ -9,8 +9,9 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"snyk/cling/internal/certs"
-	"snyk/cling/internal/utils"
+
+	"github.com/snyk/cli/cliv2/internal/certs"
+	"github.com/snyk/cli/cliv2/internal/utils"
 
 	"github.com/elazarl/goproxy"
 )

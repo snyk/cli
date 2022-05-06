@@ -1,10 +1,10 @@
 package cliv2_test
 
 import (
+	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"io/ioutil"
 	"log"
 	"os"
-	"snyk/cling/internal/cliv2"
 	"sort"
 	"testing"
 

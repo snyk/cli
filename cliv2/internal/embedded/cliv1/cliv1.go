@@ -3,9 +3,10 @@ package cliv1
 import (
 	_ "embed"
 	"path"
-	"snyk/cling/internal/embedded"
-	"snyk/cling/internal/utils"
 	"strings"
+
+	"github.com/snyk/cli/cliv2/internal/embedded"
+	"github.com/snyk/cli/cliv2/internal/utils"
 )
 
 //go:embed cliv1.version

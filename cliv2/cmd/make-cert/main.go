@@ -5,9 +5,10 @@ import (
 	"log"
 	"os"
 	"path"
-	"snyk/cling/internal/certs"
-	"snyk/cling/internal/utils"
 	"strings"
+
+	"github.com/snyk/cli/cliv2/internal/certs"
+	"github.com/snyk/cli/cliv2/internal/utils"
 )
 
 func main() {
