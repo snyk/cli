@@ -5,9 +5,13 @@ import { GitTarget } from '../types';
 // for scp-like syntax [user@]server:project.git
 const originRegex = /(.+@)?(.+):(.+$)/;
 
-export async function getInfo(
-  isFromContainer: boolean,
-): Promise<GitTarget | null> {
+export async function getInfo({
+  isFromContainer,
+  cwd,
+}: {
+  isFromContainer: boolean;
+  cwd?: string;
+}): Promise<GitTarget | null> {
   // safety check
   if (isFromContainer) {
     return null;
@@ -17,7 +21,7 @@ export async function getInfo(
 
   try {
     const origin: string | null | undefined = (
-      await subProcess.execute('git', ['remote', 'get-url', 'origin'])
+      await subProcess.execute('git', ['remote', 'get-url', 'origin'], { cwd })
     ).trim();
 
     if (origin) {
@@ -44,7 +48,9 @@ export async function getInfo(
 
   try {
     target.branch = (
-      await subProcess.execute('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
+      await subProcess.execute('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+        cwd,
+      })
     ).trim();
   } catch (err) {
     // Swallowing exception since we don't want to break the monitor if there is a problem

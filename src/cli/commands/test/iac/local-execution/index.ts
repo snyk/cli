@@ -121,6 +121,7 @@ export async function test(
     tags,
     attributes,
     options,
+    pathToScan,
   );
 
   try {

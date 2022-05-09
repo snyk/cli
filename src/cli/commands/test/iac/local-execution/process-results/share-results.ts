@@ -13,6 +13,7 @@ export async function formatAndShareResults({
   policy,
   tags,
   attributes,
+  pathToScan,
 }: {
   results: IacFileScanResult[];
   options: IaCTestFlags;
@@ -20,6 +21,7 @@ export async function formatAndShareResults({
   policy: Policy | undefined;
   tags?: Tag[];
   attributes?: ProjectAttributes;
+  pathToScan: string;
 }): Promise<ShareResultsOutput> {
   const isCliReportEnabled = await isFeatureFlagSupportedForOrg(
     'iacCliShareResults',
@@ -37,5 +39,6 @@ export async function formatAndShareResults({
     tags,
     attributes,
     options,
+    pathToScan,
   });
 }

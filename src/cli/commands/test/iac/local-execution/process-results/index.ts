@@ -18,6 +18,7 @@ export async function processResults(
   tags: Tag[] | undefined,
   attributes: ProjectAttributes | undefined,
   options: IaCTestFlags,
+  pathToScan: string,
 ): Promise<{
   filteredIssues: FormattedResult[];
   ignoreCount: number;
@@ -33,6 +34,7 @@ export async function processResults(
       policy,
       tags,
       attributes,
+      pathToScan,
     }));
   }
 

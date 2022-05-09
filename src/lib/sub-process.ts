@@ -3,7 +3,7 @@ import * as childProcess from 'child_process';
 export function execute(
   command: string,
   args: string[],
-  options?: { cwd: string },
+  options?: { cwd: string | undefined },
 ): Promise<string> {
   const spawnOptions: childProcess.SpawnOptions = { shell: true };
   if (options && options.cwd) {

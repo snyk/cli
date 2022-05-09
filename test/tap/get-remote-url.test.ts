@@ -6,7 +6,9 @@ test('getInfo returns null for isFromContainer=true', async (t) => {
   const {
     getInfo,
   } = require('../../src/lib/project-metadata/target-builders/git');
-  const gitInfo = await getInfo(true);
+  const gitInfo = await getInfo({
+    isFromContainer: true,
+  });
   t.same(gitInfo, null);
 });
 
