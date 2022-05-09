@@ -3,8 +3,8 @@ import { icon } from '../../../theme';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 import { pathToFileURL } from 'url';
-import upperFirst = require('lodash.upperfirst');
-import camelCase = require('lodash.camelcase');
+import * as upperFirst from 'lodash.upperfirst';
+import * as camelCase from 'lodash.camelcase';
 
 import {
   IacTestResponse,
@@ -20,7 +20,7 @@ import { getSeverityValue } from '../../get-severity-value';
 import { getIssueLevel } from '../../sarif-output';
 import { getVersion } from '../../../version';
 import config from '../../../config';
-import { getRepoRoot } from './utils';
+import { getRepositoryRoot } from '../../../iac/git';
 const debug = Debug('iac-output');
 
 function formatIacIssue(
@@ -142,7 +142,7 @@ export function createSarifOutputForIac(
     : pathLib.resolve('.');
   let repoRoot: string;
   try {
-    repoRoot = getRepoRoot();
+    repoRoot = getRepositoryRoot() + '/';
   } catch {
     repoRoot = pathLib.join(basePath, '/'); // the slash at the end is required, otherwise the artifactLocation.uri starts with a slash
   }
