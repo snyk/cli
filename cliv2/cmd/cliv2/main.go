@@ -5,9 +5,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"snyk/cling/internal/cliv2"
-	"snyk/cling/internal/proxy"
-	"snyk/cling/internal/utils"
+
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/proxy"
+	"github.com/snyk/cli/cliv2/internal/utils"
 )
 
 type EnvironmentVariables struct {

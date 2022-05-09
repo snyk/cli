@@ -9,10 +9,11 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"snyk/cling/internal/embedded"
-	"snyk/cling/internal/embedded/cliv1"
-	"snyk/cling/internal/utils"
 	"strings"
+
+	"github.com/snyk/cli/cliv2/internal/embedded"
+	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
+	"github.com/snyk/cli/cliv2/internal/utils"
 )
 
 type Handler int

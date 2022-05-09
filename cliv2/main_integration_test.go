@@ -5,11 +5,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/snyk/cli/cliv2/internal/embedded"
+	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
+	"github.com/snyk/cli/cliv2/test"
 	"github.com/stretchr/testify/assert"
 	"os"
-	"snyk/cling/internal/embedded"
-	"snyk/cling/internal/embedded/cliv1"
-	"snyk/cling/test"
 	"strings"
 	"testing"
 )

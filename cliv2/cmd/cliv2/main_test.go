@@ -2,8 +2,9 @@ package main_test
 
 import (
 	"os"
-	main "snyk/cling/cmd/cliv2"
 	"testing"
+
+	main "github.com/snyk/cli/cliv2/cmd/cliv2"
 
 	"github.com/stretchr/testify/assert"
 )
