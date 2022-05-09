@@ -7,6 +7,7 @@ import { ReportingDescriptor, Result } from 'sarif';
 import { SEVERITY } from '../../snyk-test/legacy';
 import { api } from '../../api-token';
 import config from '../../config';
+import { getBase64Encoding } from '../../code-config';
 import { spinner } from '../../spinner';
 import { Options } from '../../types';
 import { SastSettings, Log } from './types';
@@ -57,6 +58,9 @@ async function getCodeAnalysis(
     ? sastSettings.localCodeEngine.url
     : getCodeClientProxyUrl();
 
+  const base64Encoding = getBase64Encoding();
+  debug(`base64 encoding enabled: ${base64Encoding}`);
+
   // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
   // This ensures we support lowercase http(s)_proxy values as well
   // The weird IF around it ensures we don't create an envvar with
@@ -82,7 +86,7 @@ async function getCodeAnalysis(
     ? severityToAnalysisSeverity(options.severityThreshold)
     : AnalysisSeverity.info;
   const result = await analyzeFolders({
-    connection: { baseURL, sessionToken, source, requestId },
+    connection: { baseURL, sessionToken, source, requestId, base64Encoding },
     analysisOptions: { severity },
     fileOptions: { paths: [root] },
     analysisContext: {
