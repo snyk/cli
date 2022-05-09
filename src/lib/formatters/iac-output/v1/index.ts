@@ -20,7 +20,7 @@ import { getSeverityValue } from '../../get-severity-value';
 import { getIssueLevel } from '../../sarif-output';
 import { getVersion } from '../../../version';
 import config from '../../../config';
-import { getRepoRoot } from './utils';
+import { getRepositoryRoot } from '../../../iac/git';
 const debug = Debug('iac-output');
 
 function formatIacIssue(
@@ -142,7 +142,7 @@ export function createSarifOutputForIac(
     : pathLib.resolve('.');
   let repoRoot: string;
   try {
-    repoRoot = getRepoRoot();
+    repoRoot = getRepositoryRoot() + '/';
   } catch {
     repoRoot = pathLib.join(basePath, '/'); // the slash at the end is required, otherwise the artifactLocation.uri starts with a slash
   }

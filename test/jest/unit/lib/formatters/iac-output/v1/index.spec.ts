@@ -2,12 +2,17 @@ import {
   createSarifOutputForIac,
   shareResultsOutput,
 } from '../../../../../../../src/lib/formatters/iac-output';
-import * as iacOutputUtils from '../../../../../../../src/lib/formatters/iac-output/v1/utils';
+import * as git from '../../../../../../../src/lib/iac/git';
 import {
   IacTestResponse,
   AnnotatedIacIssue,
 } from '../../../../../../../src/lib/snyk-test/iac-test-result';
 import { SEVERITY } from '../../../../../../../src/lib/snyk-test/legacy';
+import * as path from 'path';
+
+const projectDirectoryName = path.basename(
+  path.resolve(__dirname, '..', '..', '..', '..', '..', '..', '..'),
+);
 
 describe('createSarifOutputForIac', () => {
   function createResponseIssue(
@@ -111,7 +116,7 @@ describe('createSarifOutputForIac', () => {
   });
 
   it('uses the base path if git not present', () => {
-    const getRepoRootSpy = jest.spyOn(iacOutputUtils, 'getRepoRoot');
+    const getRepoRootSpy = jest.spyOn(git, 'getRepositoryRoot');
     getRepoRootSpy.mockImplementation(() => {
       throw new Error();
     });
@@ -120,7 +125,9 @@ describe('createSarifOutputForIac', () => {
     const sarif = createSarifOutputForIac([issue]);
 
     expect(
-      sarif.runs?.[0]?.originalUriBaseIds?.PROJECTROOT?.uri?.endsWith('snyk/'),
+      sarif.runs?.[0]?.originalUriBaseIds?.PROJECTROOT?.uri?.endsWith(
+        projectDirectoryName + '/',
+      ),
     ).toBeTruthy();
     const location = sarif.runs?.[0]?.results?.[0]?.locations?.[0];
     expect(location?.physicalLocation?.artifactLocation).toEqual({
