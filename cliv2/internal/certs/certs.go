@@ -34,9 +34,9 @@ func MakeSelfSignedCert(certName string, dnsNames []string, debugLogger *log.Log
 			x509.KeyUsageKeyAgreement |
 			x509.KeyUsageCertSign, // needed for sure
 
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
-		IsCA: true,
+		IsCA:                  true,
 	}
 
 	for _, dnsName := range dnsNames {

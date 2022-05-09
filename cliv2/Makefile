@@ -171,6 +171,14 @@ whiteboxtest:
 .PHONY: test
 test: whiteboxtest blackboxtest
 
+.PHONY: lint
+lint:
+	./scripts/lint.sh
+
+.PHONY: format
+format:
+	gofmt -w -l -e .
+
 .PHONY: $(SIGN_SCRIPT)
 $(SIGN_SCRIPT): 
 	@echo "$(LOG_PREFIX) Running $(SIGN_SCRIPT) ( $(BUILD_DIR) )"
@@ -213,6 +221,8 @@ install:
 .PHONY: help
 help:
 	@echo "Main targets:"
+	@echo "$(LOG_PREFIX) lint"
+	@echo "$(LOG_PREFIX) format"
 	@echo "$(LOG_PREFIX) build"
 	@echo "$(LOG_PREFIX) sign"
 	@echo "$(LOG_PREFIX) build-test"
