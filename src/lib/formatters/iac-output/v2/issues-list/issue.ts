@@ -35,7 +35,12 @@ function formatProperties(result: FormattedOutputResult): string {
         result.issue.iacDescription.issue.endsWith('.') ? '' : '.'
       } ${result.issue.iacDescription.impact}`,
     ],
-    ['Rule', result.issue.documentation],
+    [
+      'Rule',
+      result.issue.isGeneratedByCustomRule
+        ? `custom rule ${result.issue.id}`
+        : result.issue.documentation,
+    ],
     ['Path', printPath(result.issue.cloudConfigPath, 0)],
     ['File', result.targetFile],
     [
