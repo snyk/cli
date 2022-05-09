@@ -27,8 +27,8 @@ import * as utils from '../utils';
 import {
   formatIacTestFailures,
   getIacDisplayErrorFileOutput,
-  initalUserMessageOutput,
-  shouldPrintIacInitialMessage,
+  shouldLogUserMessages,
+  spinnerMessage,
 } from '../../../../lib/formatters/iac-output';
 import { getEcosystemForTest, testEcosystem } from '../../../../lib/ecosystems';
 import {
@@ -129,8 +129,8 @@ export default async function(
 
   const isNewIacOutputSupported = await hasFeatureFlag('iacCliOutput', options);
 
-  if (shouldPrintIacInitialMessage(options, isNewIacOutputSupported)) {
-    console.log(EOL + initalUserMessageOutput);
+  if (shouldLogUserMessages(options, isNewIacOutputSupported)) {
+    console.log(EOL + spinnerMessage);
   }
 
   const orgPublicId = (options.org as string) ?? config.org;

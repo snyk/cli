@@ -10,8 +10,8 @@ export {
   formatIacTestSummary,
   getIacDisplayedIssues,
   formatIacTestFailures,
-  initalUserMessageOutput,
-  shouldPrintIacInitialMessage,
+  spinnerMessage,
+  shouldLogUserMessages,
   formatShareResultsOutput,
   failuresTipOutput,
 } from './v2';

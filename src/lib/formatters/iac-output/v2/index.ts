@@ -1,8 +1,5 @@
 export { getIacDisplayedIssues } from './issues-list';
 export { formatIacTestSummary } from './test-summary';
-export {
-  initalUserMessageOutput,
-  shouldPrintIacInitialMessage,
-} from './initial-user-message';
+export { spinnerMessage, shouldLogUserMessages } from './user-messages';
 export { formatShareResultsOutput } from './share-results';
 export { formatIacTestFailures, failuresTipOutput } from './failures';

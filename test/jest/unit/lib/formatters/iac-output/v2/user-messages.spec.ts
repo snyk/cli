@@ -1,6 +1,6 @@
-import { shouldPrintIacInitialMessage } from '../../../../../../../src/lib/formatters/iac-output';
+import { shouldLogUserMessages } from '../../../../../../../src/lib/formatters/iac-output';
 
-describe('shouldPrintIacInitialMessage', () => {
+describe('shouldLogUserMessages', () => {
   describe("when the 'iacCliOutputFeatureFlag' flag is provided and the 'json' and 'sarif' options are not provided", () => {
     it('should return true', () => {
       // Arrange
@@ -8,7 +8,7 @@ describe('shouldPrintIacInitialMessage', () => {
       const testIacCliOutputFeatureFlag = true;
 
       // Act
-      const result = shouldPrintIacInitialMessage(
+      const result = shouldLogUserMessages(
         testOptions,
         testIacCliOutputFeatureFlag,
       );
@@ -29,7 +29,7 @@ describe('shouldPrintIacInitialMessage', () => {
       const testIacCliOutputFeatureFlag = true;
 
       // Act
-      const result = shouldPrintIacInitialMessage(
+      const result = shouldLogUserMessages(
         testOptions,
         testIacCliOutputFeatureFlag,
       );
@@ -45,7 +45,7 @@ describe('shouldPrintIacInitialMessage', () => {
       const testOptions = {};
 
       // Act
-      const result = shouldPrintIacInitialMessage(testOptions);
+      const result = shouldLogUserMessages(testOptions);
 
       // Assert
       expect(result).toEqual(false);
