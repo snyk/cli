@@ -27,8 +27,11 @@ import * as utils from '../utils';
 import {
   formatIacTestFailures,
   getIacDisplayErrorFileOutput,
+  iacTestTitle,
   shouldLogUserMessages,
+  spinnerFailureMessage,
   spinnerMessage,
+  spinnerSuccessMessage,
 } from '../../../../lib/formatters/iac-output';
 import { getEcosystemForTest, testEcosystem } from '../../../../lib/ecosystems';
 import {
@@ -72,6 +75,7 @@ import {
 import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import { failuresTipOutput } from '../../../../lib/formatters/iac-output';
+import * as ora from 'ora';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -119,6 +123,8 @@ export default async function(
     }
   }
 
+  let testSpinner: ora.Ora | undefined;
+
   const resultOptions: Array<Options & TestOptions> = [];
   const results = [] as any[];
 
@@ -130,7 +136,9 @@ export default async function(
   const isNewIacOutputSupported = await hasFeatureFlag('iacCliOutput', options);
 
   if (shouldLogUserMessages(options, isNewIacOutputSupported)) {
-    console.log(EOL + spinnerMessage);
+    console.log(EOL + iacTestTitle + EOL);
+
+    testSpinner = ora({ isSilent: options.quiet, stream: process.stdout });
   }
 
   const orgPublicId = (options.org as string) ?? config.org;
@@ -141,6 +149,8 @@ export default async function(
   }
 
   try {
+    testSpinner?.start(spinnerMessage);
+
     const rulesOrigin = await initRules(iacOrgSettings, options);
 
     for (const path of paths) {
@@ -217,6 +227,12 @@ export default async function(
   const errorResults = results.filter((res) => res instanceof Error);
   const notSuccess = errorResults.length > 0;
   const foundVulnerabilities = vulnerableResults.length > 0;
+
+  if (notSuccess) {
+    testSpinner?.fail(spinnerFailureMessage + EOL);
+  } else {
+    testSpinner?.succeed(spinnerSuccessMessage);
+  }
 
   // resultOptions is now an array of 1 or more options used for
   // the tests results is now an array of 1 or more test results
