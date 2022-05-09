@@ -3,8 +3,8 @@ import { icon } from '../../../theme';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 import { pathToFileURL } from 'url';
-import upperFirst = require('lodash.upperfirst');
-import camelCase = require('lodash.camelcase');
+import * as upperFirst from 'lodash.upperfirst';
+import * as camelCase from 'lodash.camelcase';
 
 import {
   IacTestResponse,
