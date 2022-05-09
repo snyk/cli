@@ -1,54 +1,32 @@
 import { shouldLogUserMessages } from '../../../../../../../src/lib/formatters/iac-output';
 
 describe('shouldLogUserMessages', () => {
-  describe("when the 'iacCliOutputFeatureFlag' flag is provided and the 'json' and 'sarif' options are not provided", () => {
-    it('should return true', () => {
-      // Arrange
-      const testOptions = {};
-      const testIacCliOutputFeatureFlag = true;
-
+  it.each`
+    iacCliOutputFeatureFlag | options                                     | expected
+    ${true}                 | ${{}}                                       | ${true}
+    ${true}                 | ${{ json: true }}                           | ${false}
+    ${true}                 | ${{ sarif: true }}                          | ${false}
+    ${true}                 | ${{ quiet: true }}                          | ${false}
+    ${true}                 | ${{ json: true, sarif: true }}              | ${false}
+    ${true}                 | ${{ json: true, quiet: true }}              | ${false}
+    ${true}                 | ${{ sarif: true, quiet: true }}             | ${false}
+    ${true}                 | ${{ json: true, sarif: true, quiet: true }} | ${false}
+    ${false}                | ${{}}                                       | ${false}
+    ${false}                | ${{ json: true }}                           | ${false}
+    ${false}                | ${{ sarif: true }}                          | ${false}
+    ${false}                | ${{ quiet: true }}                          | ${false}
+    ${false}                | ${{ json: true, sarif: true }}              | ${false}
+    ${false}                | ${{ json: true, quiet: true }}              | ${false}
+    ${false}                | ${{ sarif: true, quiet: true }}             | ${false}
+    ${false}                | ${{ json: true, sarif: true, quiet: true }} | ${false}
+  `(
+    'should return $expected, with: iacCliOutputFeatureFlag: $iacCliOutputFeatureFlag, options: $options',
+    ({ iacCliOutputFeatureFlag, options, expected }) => {
       // Act
-      const result = shouldLogUserMessages(
-        testOptions,
-        testIacCliOutputFeatureFlag,
-      );
+      const result = shouldLogUserMessages(options, iacCliOutputFeatureFlag);
 
       // Assert
-      expect(result).toEqual(true);
-    });
-  });
-
-  describe.each`
-    option
-    ${'json'}
-    ${'sarif'}
-  `("when the '$option' option is provided", ({ option }) => {
-    it('should return false', () => {
-      // Arrange
-      const testOptions = { [option]: true };
-      const testIacCliOutputFeatureFlag = true;
-
-      // Act
-      const result = shouldLogUserMessages(
-        testOptions,
-        testIacCliOutputFeatureFlag,
-      );
-
-      // Assert
-      expect(result).toEqual(false);
-    });
-  });
-
-  describe("when the 'iacCliOutputFeatureFlag' flag is not provided", () => {
-    it('should return false', () => {
-      // Arrange
-      const testOptions = {};
-
-      // Act
-      const result = shouldLogUserMessages(testOptions);
-
-      // Assert
-      expect(result).toEqual(false);
-    });
-  });
+      expect(result).toEqual(expected);
+    },
+  );
 });

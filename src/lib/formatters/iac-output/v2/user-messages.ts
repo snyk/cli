@@ -15,5 +15,10 @@ export function shouldLogUserMessages(
   options: IaCTestFlags,
   iacCliOutputFeatureFlag?: boolean,
 ): boolean {
-  return !!(!options.json && !options.sarif && iacCliOutputFeatureFlag);
+  return !!(
+    !options.json &&
+    !options.sarif &&
+    !options.quiet &&
+    iacCliOutputFeatureFlag
+  );
 }
