@@ -3,6 +3,9 @@ const chalk = require('chalk');
 const { SEVERITIES } = require('../snyk-test/common');
 const { errorMessageWithRetry } = require('./error-with-retry');
 const analytics = require('../analytics');
+const {
+  colors: iacOutputColors,
+} = require('../formatters/iac-output/v2/color-utils');
 
 const errors = {
   connect: 'Check your network connection, failed to connect to Snyk API',
@@ -71,7 +74,7 @@ module.exports = function error(command) {
   return Promise.reject(e);
 };
 
-module.exports.message = function(error) {
+module.exports.message = function(error, shouldUseNewIacOutput) {
   let message = error; // defaults to a string (which is super unlikely)
   if (error instanceof Error) {
     if (error.code === 'VULNS') {
@@ -87,7 +90,9 @@ module.exports.message = function(error) {
       errors[error.code || error.message];
     if (message) {
       message = message.replace(/(%s)/g, error.message).trim();
-      message = chalk.bold.red(message);
+      message = shouldUseNewIacOutput
+        ? iacOutputColors.failure.bold(message)
+        : chalk.bold.red(message);
     } else if (error.code) {
       // means it's a code error
       message =

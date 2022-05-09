@@ -46,6 +46,7 @@ import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-erro
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
 import { obfuscateArgs } from '../lib/utils';
 import { EXIT_CODES } from './exit-codes';
+import { hasFeatureFlag } from '../lib/feature-flags';
 
 const debug = Debug('snyk');
 
@@ -121,7 +122,11 @@ async function handleError(args, error) {
     console.log(output);
   } else {
     if (!args.options.quiet) {
-      const result = errors.message(error);
+      const shouldUseNewIacOutput =
+        args.options.iac &&
+        (await hasFeatureFlag('iacCliOutput', args.options));
+
+      const result = errors.message(error, shouldUseNewIacOutput);
       if (args.options.copy) {
         copy(result);
         console.log('Result copied to clipboard');
