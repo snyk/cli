@@ -123,7 +123,7 @@ Target file:       ${dirPath}/`);
       const { stdout } = await run(`snyk iac test ${dirPath}`);
 
       // Assert
-      expect(stdout).not.toContain('Invalid Files');
+      expect(stdout).not.toContain('Test Failures');
     });
 
     describe.each`
@@ -241,7 +241,7 @@ https://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files
     });
 
     describe('with no issues', () => {
-      it('it should display an appropriate message in the issues section', async () => {
+      it('should display an appropriate message in the issues section', async () => {
         // Arrange
         const filePath = 'iac/terraform/vars.tf';
 
