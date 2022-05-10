@@ -35,7 +35,11 @@ describe('CLI Share Results', () => {
   });
 
   it("converts the results to Envelope's ScanResult interface - without .snyk policies", async () => {
-    await shareResults({ results: scanResults, policy: undefined });
+    await shareResults({
+      results: scanResults,
+      policy: undefined,
+      pathToScan: 'test/fixtures/iac/arm',
+    });
 
     expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
 
@@ -53,7 +57,11 @@ describe('CLI Share Results', () => {
   });
 
   it("converts the results to Envelope's ScanResult interface - with .snyk policies", async () => {
-    await shareResults({ results: scanResults, policy: snykPolicy });
+    await shareResults({
+      results: scanResults,
+      policy: snykPolicy,
+      pathToScan: 'test/fixtures/iac/arm',
+    });
 
     expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
 
@@ -87,6 +95,7 @@ describe('CLI Share Results', () => {
         options: {
           'target-reference': testTargetRef,
         },
+        pathToScan: 'test/fixtures/iac/arm',
       });
 
       expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
@@ -109,29 +118,12 @@ describe('CLI Share Results', () => {
     });
   });
 
-  it("converts the results to Envelope's ScanResult interface - with .snyk policies (2)", async () => {
-    await shareResults({ results: scanResults, policy: snykPolicy });
-
-    expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
-
-    const [firstCall, secondCall] = envelopeFormattersSpy.mock.calls;
-    expect(firstCall[0]).toEqual(scanResults[0]);
-    expect(secondCall[0]).toEqual(scanResults[1]);
-
-    const [
-      firstCallResult,
-      secondCallResult,
-    ] = envelopeFormattersSpy.mock.results;
-    expect(firstCallResult.value).toEqual(
-      expectedEnvelopeFormatterResultsWithPolicy[0],
-    );
-    expect(secondCallResult.value).toEqual(
-      expectedEnvelopeFormatterResultsWithPolicy[1],
-    );
-  });
-
   it('forwards value to iac-cli-share-results endpoint', async () => {
-    await shareResults({ results: scanResults, policy: undefined });
+    await shareResults({
+      results: scanResults,
+      policy: undefined,
+      pathToScan: 'test/fixtures/iac/arm',
+    });
 
     expect(requestSpy.mock.calls.length).toBe(1);
 
@@ -152,6 +144,7 @@ describe('CLI Share Results', () => {
       options: {
         org: 'my-custom-org',
       },
+      pathToScan: 'test/fixtures/iac/arm',
     });
 
     expect(requestSpy.mock.calls.length).toBe(1);

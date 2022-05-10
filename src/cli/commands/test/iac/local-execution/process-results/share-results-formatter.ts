@@ -1,6 +1,9 @@
 import { IacFileScanResult, IacShareResultsFormat } from '../types';
 import * as path from 'path';
-import { getRepositoryRootForPath } from '../../../../../../lib/iac/git';
+import {
+  getRepositoryRootForPath,
+  getWorkingDirectoryForPath,
+} from '../../../../../../lib/iac/git';
 
 export function formatShareResults(
   scanResults: IacFileScanResult[],
@@ -59,6 +62,6 @@ function getGitRootOrCwd(currentPath: string): string {
   try {
     return getRepositoryRootForPath(currentPath);
   } catch (e) {
-    return process.cwd();
+    return getWorkingDirectoryForPath(currentPath);
   }
 }

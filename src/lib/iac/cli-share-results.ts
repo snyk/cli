@@ -19,6 +19,7 @@ import { AuthFailedError, ValidationError } from '../errors';
 const debug = Debug('iac-cli-share-results');
 import { ProjectAttributes, Tag } from '../types';
 import { TestLimitReachedError } from '../../cli/commands/test/iac/local-execution/usage-tracking';
+import { getWorkingDirectoryForPath } from './git';
 
 export async function shareResults({
   results,
@@ -26,14 +27,19 @@ export async function shareResults({
   tags,
   attributes,
   options,
+  pathToScan,
 }: {
   results: IacShareResultsFormat[];
   policy: Policy | undefined;
   tags?: Tag[];
   attributes?: ProjectAttributes;
   options?: IaCTestFlags;
+  pathToScan: string;
 }): Promise<ShareResultsOutput> {
-  const gitTarget = (await getInfo(false)) as GitTarget;
+  const gitTarget = (await getInfo({
+    isFromContainer: false,
+    cwd: getWorkingDirectoryForPath(pathToScan),
+  })) as GitTarget;
   const scanResults = results.map((result) =>
     convertIacResultToScanResult(result, policy, gitTarget, options),
   );

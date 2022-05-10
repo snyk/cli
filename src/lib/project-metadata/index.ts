@@ -18,11 +18,11 @@ export async function getInfo(
 ): Promise<GitTarget | ContainerTarget | null> {
   const isFromContainer = options.docker || options.isDocker || false;
   for (const builder of TARGET_BUILDERS) {
-    const target = await builder.getInfo(
+    const target = await builder.getInfo({
       isFromContainer,
       scannedProject,
       packageInfo,
-    );
+    });
 
     if (target) {
       const remoteUrl = options['remote-repo-url'];
