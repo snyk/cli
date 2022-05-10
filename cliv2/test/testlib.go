@@ -72,14 +72,11 @@ func SetupTestProject(t *testing.T) *TestProject {
 	t.Log("snykCLIPath:", snykCLIPath)
 
 	snykCLIFilename := path.Base(snykCLIPath)
-	tempDirForTest, err := os.MkdirTemp("", "snyk-cliv2-test-")
-	if err != nil {
-		t.Fatal(err)
-	}
+	tempDirForTest := t.TempDir()
 
 	targetSnykCLIPath := path.Join(tempDirForTest, snykCLIFilename)
 	t.Log("targetSnykCLIPath:", targetSnykCLIPath)
-	err = copyFile(snykCLIPath, targetSnykCLIPath)
+	err := copyFile(snykCLIPath, targetSnykCLIPath)
 	if err != nil {
 		t.Fatal(err)
 	}
