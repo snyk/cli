@@ -1,5 +1,11 @@
+import chalk from 'chalk';
 import { EOL } from 'os';
 import * as pathLib from 'path';
+import {
+  spinnerFailureMessage,
+  spinnerMessage,
+  spinnerSuccessMessage,
+} from '../../../../src/lib/formatters/iac-output';
 
 import { FakeServer } from '../../../acceptance/fake-server';
 import { startMockServer } from './helpers';
@@ -15,9 +21,6 @@ describe('iac test output', () => {
     overrides?: Record<string, string>,
   ) => Promise<{ stdout: string; stderr: string; exitCode: number }>;
   let teardown: () => Promise<unknown>;
-
-  const initialMessage =
-    'Snyk testing Infrastructure as Code configuration issues...';
 
   beforeAll(async () => {
     ({ server, run, teardown } = await startMockServer());
@@ -36,11 +39,39 @@ describe('iac test output', () => {
       server.setFeatureFlag(IAC_CLI_OUTPUT_FF, true);
     });
 
-    it('should show an initial message', async () => {
-      const { stdout } = await run('snyk iac test  ./iac/arm/rule_test.json');
+    it('should show the IaC test title', async () => {
+      // Arrange
+      const dirPath = './iac/terraform';
+
+      // Act
+      const { stdout } = await run(`snyk iac test ${dirPath}`);
+
+      // Assert
+      expect(stdout).toContain('Snyk Infrastructure as Code');
+    });
+
+    it('should show the spinner message', async () => {
+      // Arrange
+      const dirPath = './iac/terraform';
+
+      // Act
+      const { stdout } = await run(`snyk iac test ${dirPath}`);
+
+      // Arrange
       expect(stdout).toContain(
-        'Snyk testing Infrastructure as Code configuration issues...',
+        'Snyk testing Infrastructure as Code configuration issues.',
       );
+    });
+
+    it('should show the test completion message', async () => {
+      // Arrange
+      const dirPath = './iac/terraform';
+
+      // Act
+      const { stdout } = await run(`snyk iac test ${dirPath}`);
+
+      // Assert
+      expect(stdout).toContain('Test completed.');
     });
 
     it('should show the issues list section with correct values', async () => {
@@ -131,13 +162,15 @@ Target file:       ${dirPath}/`);
       ${'JSON'}  | ${'--json'}
       ${'SARIF'} | ${'--sarif'}
     `(
-      'when providing the $dataFormatFlag flag',
-      ({ dataFormat, dataFormatFlag }) => {
-        it(`should not show an initial message for ${dataFormat} output`, async () => {
+      'when providing the $dataFormatFlag flag for the $dataFormat format',
+      ({ dataFormatFlag }) => {
+        it(`should not show spinner messages`, async () => {
           const { stdout } = await run(
             `snyk iac test ${dataFormatFlag} ./iac/arm/rule_test.json`,
           );
-          expect(stdout).not.toContain(initialMessage);
+          expect(stdout).not.toContain(chalk.reset(spinnerMessage));
+          expect(stdout).not.toContain(chalk.reset(spinnerFailureMessage));
+          expect(stdout).not.toContain(chalk.reset(spinnerSuccessMessage));
         });
       },
     );
@@ -201,6 +234,17 @@ Target file:       ${dirPath}/`);
     });
 
     describe('with only test failures', () => {
+      it('should the test failure message', async () => {
+        // Arrange
+        const dirPath = 'iac/only-invalid';
+
+        // Act
+        const { stdout } = await run(`snyk iac test ${dirPath}`);
+
+        // Assert
+        expect(stdout).toContain('Unable to complete the test.');
+      });
+
       it('should display the failure reason for the first failed test', async () => {
         // Arrange
         const dirPath = 'iac/only-invalid';
@@ -345,7 +389,7 @@ Project path:      ${filePath}
 
     it('should not show an initial message', async () => {
       const { stdout } = await run('snyk iac test  ./iac/arm/rule_test.json');
-      expect(stdout).not.toContain(initialMessage);
+      expect(stdout).not.toContain(chalk.reset(spinnerMessage));
     });
 
     it('should not show a subtitle for medium severity issues', async () => {
