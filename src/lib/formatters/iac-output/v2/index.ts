@@ -4,8 +4,9 @@ export {
   iacTestTitle,
   spinnerMessage,
   spinnerSuccessMessage,
-  spinnerFailureMessage,
   shouldLogUserMessages,
+  customRulesMessage,
+  customRulesReportMessage,
 } from './user-messages';
 export { formatShareResultsOutput } from './share-results';
 export { formatIacTestFailures, failuresTipOutput } from './failures';

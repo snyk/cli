@@ -4,7 +4,7 @@ import { EOL } from 'os';
 import { iacRemediationTypes } from '../../../../iac/constants';
 
 import { printPath } from '../../../remediation-based-format-issues';
-import { colors } from '../color-utils';
+import { colors, contentPadding } from '../utils';
 import { FormattedOutputResult } from './types';
 import { AnnotatedIacIssue } from '../../../../snyk-test/iac-test-result';
 
@@ -13,7 +13,13 @@ export function formatIssue(result: FormattedOutputResult): string {
 
   const propertiesOutput = formatProperties(result);
 
-  return titleOutput + EOL + propertiesOutput;
+  return (
+    contentPadding +
+    titleOutput +
+    EOL +
+    contentPadding +
+    propertiesOutput.join(EOL + contentPadding)
+  );
 }
 
 function formatTitle(issue: AnnotatedIacIssue): string {
@@ -25,7 +31,7 @@ function formatTitle(issue: AnnotatedIacIssue): string {
   return titleOutput;
 }
 
-function formatProperties(result: FormattedOutputResult): string {
+function formatProperties(result: FormattedOutputResult): string[] {
   const remediationKey = iacRemediationTypes?.[result.projectType];
 
   const properties = [
@@ -55,10 +61,8 @@ function formatProperties(result: FormattedOutputResult): string {
     ...properties.map(([key]) => key.length),
   );
 
-  return properties
-    .map(
-      ([key, value]) =>
-        `${key}: ${' '.repeat(maxPropertyNameLength - key.length)}${value}`,
-    )
-    .join(EOL);
+  return properties.map(
+    ([key, value]) =>
+      `${key}: ${' '.repeat(maxPropertyNameLength - key.length)}${value}`,
+  );
 }

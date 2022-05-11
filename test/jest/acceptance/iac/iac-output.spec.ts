@@ -2,7 +2,6 @@ import chalk from 'chalk';
 import { EOL } from 'os';
 import * as pathLib from 'path';
 import {
-  spinnerFailureMessage,
   spinnerMessage,
   spinnerSuccessMessage,
 } from '../../../../src/lib/formatters/iac-output';
@@ -82,17 +81,17 @@ describe('iac test output', () => {
           EOL.repeat(2) +
           'Medium Severity Issues: 1' +
           EOL.repeat(2) +
-          '[Medium] Azure Firewall Network Rule Collection allows public access' +
+          '  [Medium] Azure Firewall Network Rule Collection allows public access' +
           EOL +
-          'Info:    That inbound traffic is allowed to a resource from any source instead of a restricted range. That potentially everyone can access your resource' +
+          '  Info:    That inbound traffic is allowed to a resource from any source instead of a restricted range. That potentially everyone can access your resource' +
           EOL +
-          'Rule:    https://snyk.io/security-rules/SNYK-CC-TF-20' +
+          '  Rule:    https://snyk.io/security-rules/SNYK-CC-TF-20' +
           EOL +
-          'Path:    resources[1] > properties > networkRuleCollections[0] > properties > rules[0] > sourceAddresses' +
+          '  Path:    resources[1] > properties > networkRuleCollections[0] > properties > rules[0] > sourceAddresses' +
           EOL +
-          'File:    ./iac/arm/rule_test.json' +
+          '  File:    ./iac/arm/rule_test.json' +
           EOL +
-          'Resolve: Set `properties.networkRuleCollections.properties.rules.sourceAddresses` attribute to specific IP range only, e.g. `192.168.1.0/24`',
+          '  Resolve: Set `properties.networkRuleCollections.properties.rules.sourceAddresses` attribute to specific IP range only, e.g. `192.168.1.0/24`',
       );
     });
 
@@ -169,7 +168,6 @@ Target file:       ${dirPath}/`);
             `snyk iac test ${dataFormatFlag} ./iac/arm/rule_test.json`,
           );
           expect(stdout).not.toContain(chalk.reset(spinnerMessage));
-          expect(stdout).not.toContain(chalk.reset(spinnerFailureMessage));
           expect(stdout).not.toContain(chalk.reset(spinnerSuccessMessage));
         });
       },
@@ -186,29 +184,37 @@ Target file:       ${dirPath}/`);
 
           // Assert
           expect(stdout).toContain(
-            'Failed to parse JSON file' +
+            '  Failed to parse JSON file' +
               EOL +
-              `Path: ${pathLib.join('iac', 'arm', 'invalid_rule_test.json')}` +
+              `  Path: ${pathLib.join(
+                'iac',
+                'arm',
+                'invalid_rule_test.json',
+              )}` +
               EOL.repeat(2) +
-              'Failed to parse YAML file' +
+              '  Failed to parse YAML file' +
               EOL +
-              `Path: ${pathLib.join(
+              `  Path: ${pathLib.join(
                 'iac',
                 'cloudformation',
                 'invalid-cfn.yml',
               )}` +
               EOL +
-              `      ${pathLib.join('iac', 'kubernetes', 'helm-config.yaml')}` +
+              `        ${pathLib.join(
+                'iac',
+                'kubernetes',
+                'helm-config.yaml',
+              )}` +
               EOL.repeat(2) +
-              'Failed to parse Terraform file' +
+              '  Failed to parse Terraform file' +
               EOL +
-              `Path: ${pathLib.join(
+              `  Path: ${pathLib.join(
                 'iac',
                 'terraform',
                 'sg_open_ssh_invalid_go_templates.tf',
               )}` +
               EOL +
-              `      ${pathLib.join(
+              `        ${pathLib.join(
                 'iac',
                 'terraform',
                 'sg_open_ssh_invalid_hcl2.tf',
@@ -234,17 +240,6 @@ Target file:       ${dirPath}/`);
     });
 
     describe('with only test failures', () => {
-      it('should the test failure message', async () => {
-        // Arrange
-        const dirPath = 'iac/only-invalid';
-
-        // Act
-        const { stdout } = await run(`snyk iac test ${dirPath}`);
-
-        // Assert
-        expect(stdout).toContain('Unable to complete the test.');
-      });
-
       it('should display the failure reason for the first failed test', async () => {
         // Arrange
         const dirPath = 'iac/only-invalid';

@@ -1,12 +1,12 @@
 import { EOL } from 'os';
 
 import { IacFileInDirectory } from '../../../../types';
-import { colors } from '../color-utils';
+import { colors, contentPadding } from '../utils';
 
 export function formatIacTestFailures(testFailures: IacFileInDirectory[]) {
   const sectionComponents: string[] = [];
 
-  const titleOutput = colors.info.bold(`Test Failures`);
+  const titleOutput = colors.title(`Test Failures`);
   sectionComponents.push(titleOutput);
 
   const testFailuresListOutput = formatFailuresList(testFailures);
@@ -49,10 +49,11 @@ function formatFailure(
   failureReason: string,
   testFailures: IacFileInDirectory[],
 ): string {
-  const pathPrefix = 'Path: ';
+  const pathPrefix = contentPadding + 'Path: ';
   const pathLeftPadding = ' '.repeat(pathPrefix.length);
 
   return (
+    contentPadding +
     colors.failure.bold(failureReason) +
     EOL +
     pathPrefix +
