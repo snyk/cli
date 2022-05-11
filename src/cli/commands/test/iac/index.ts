@@ -32,7 +32,6 @@ import {
   getIacDisplayErrorFileOutput,
   iacTestTitle,
   shouldLogUserMessages,
-  spinnerFailureMessage,
   spinnerMessage,
   spinnerSuccessMessage,
 } from '../../../../lib/formatters/iac-output';
@@ -102,9 +101,9 @@ export default async function(
   }
 
   try {
-    testSpinner?.start(spinnerMessage);
-
     const rulesOrigin = await initRules(iacOrgSettings, options);
+
+    testSpinner?.start(spinnerMessage);
 
     for (const path of paths) {
       // Create a copy of the options so a specific test can
@@ -197,7 +196,7 @@ export default async function(
   if (isPartialSuccess) {
     testSpinner?.succeed(spinnerSuccessMessage);
   } else {
-    testSpinner?.fail(spinnerFailureMessage + EOL);
+    testSpinner?.stop();
   }
 
   // resultOptions is now an array of 1 or more options used for

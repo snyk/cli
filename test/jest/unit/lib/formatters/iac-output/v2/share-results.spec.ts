@@ -1,6 +1,6 @@
 import config from '../../../../../../../src/lib/config';
 import { formatShareResultsOutput } from '../../../../../../../src/lib/formatters/iac-output';
-import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/color-utils';
+import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/utils';
 
 describe('formatShareResultsOutput', () => {
   it('returns the correct output', () => {

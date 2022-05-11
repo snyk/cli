@@ -7,8 +7,8 @@ import {
   OCIRegistryURLComponents,
   RulesOrigin,
 } from './types';
+import { EOL } from 'os';
 import { UnsupportedEntitlementFlagError } from './assert-iac-options-flag';
-import chalk from 'chalk';
 import {
   extractOCIRegistryURLComponents,
   FailedToBuildOCIArtifactError,
@@ -21,6 +21,10 @@ import { config as userConfig } from '../../../../../lib/user-config';
 import { isValidUrl } from './url-utils';
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
+import {
+  customRulesMessage,
+  customRulesReportMessage,
+} from '../../../../../lib/formatters/iac-output/v2/user-messages';
 
 export async function initRules(
   iacOrgSettings: IacOrgSettings,
@@ -46,14 +50,13 @@ export async function initRules(
     (isOCIRegistryURLProvided || customRulesPath) &&
     !(options.sarif || options.json)
   ) {
-    let userMessage = 'Using custom rules to generate misconfigurations.';
+    let userMessage = `${customRulesMessage}${EOL}`;
 
     if (options.report) {
-      userMessage +=
-        "\nPlease note that your custom rules will not be sent to the Snyk platform, and will not be available on the project's page.";
+      userMessage += `${customRulesReportMessage}${EOL}`;
     }
 
-    console.log(chalk.hex('#ff9b00')(userMessage));
+    console.log(userMessage);
   }
 
   if (isOCIRegistryURLProvided && customRulesPath) {

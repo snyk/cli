@@ -3,7 +3,7 @@ import { rightPadWithSpaces } from '../../../right-pad';
 import { SEVERITY } from '../../../snyk-test/common';
 import { icon } from '../../../theme';
 import { IacOutputMeta } from '../../../types';
-import { colors } from './color-utils';
+import { colors } from './utils';
 import { IacTestData } from './types';
 
 const PAD_LENGTH = 19; // chars to align

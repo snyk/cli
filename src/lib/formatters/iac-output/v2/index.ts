@@ -4,7 +4,6 @@ export {
   iacTestTitle,
   spinnerMessage,
   spinnerSuccessMessage,
-  spinnerFailureMessage,
   shouldLogUserMessages,
 } from './user-messages';
 export { formatShareResultsOutput } from './share-results';

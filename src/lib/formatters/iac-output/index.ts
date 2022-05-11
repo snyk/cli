@@ -13,7 +13,6 @@ export {
   iacTestTitle,
   spinnerMessage,
   spinnerSuccessMessage,
-  spinnerFailureMessage,
   shouldLogUserMessages,
   formatShareResultsOutput,
   failuresTipOutput,
