@@ -6,7 +6,7 @@ import { colors } from '../color-utils';
 export function formatIacTestFailures(testFailures: IacFileInDirectory[]) {
   const sectionComponents: string[] = [];
 
-  const titleOutput = colors.info.bold(`Invalid Files: ${testFailures.length}`);
+  const titleOutput = colors.info.bold(`Test Failures`);
   sectionComponents.push(titleOutput);
 
   const testFailuresListOutput = formatFailuresList(testFailures);
