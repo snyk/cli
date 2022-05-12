@@ -30,7 +30,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.17.8'
+    default: '1.18.2'
   mitmproxy_version:
     type: string
     # https://go.dev/doc/devel/release
