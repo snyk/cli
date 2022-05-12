@@ -73,6 +73,9 @@ fi
 # sanity check if release.json is a valid JSON
 jq '.' binary-releases/release.json
 
-npx conventional-changelog-cli -p angular -l -r 1 > binary-releases/RELEASE_NOTES.md
+# --commit-path is forwarded to `git log <path>`.
+#     We're use this to remove CLIv2 changes in v1's changelogs.
+# :(exclude) syntax: https://git-scm.com/docs/gitglossary.html#Documentation/gitglossary.txt-exclude
+npx conventional-changelog-cli -p angular -l -r 1 --commit-path ':(exclude)cliv2' > binary-releases/RELEASE_NOTES.md
 
 ls -la
