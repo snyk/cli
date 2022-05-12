@@ -31,12 +31,6 @@ import {
   shouldPrintIacInitialMessage,
 } from '../../../../lib/formatters/iac-output';
 import { getEcosystemForTest, testEcosystem } from '../../../../lib/ecosystems';
-import {
-  hasFixes,
-  hasPatches,
-  hasUpgrades,
-} from '../../../../lib/vuln-helpers';
-import { FailOn } from '../../../../lib/snyk-test/common';
 import { extractDataToSendFromResults } from '../../../../lib/formatters/test/format-test-results';
 
 import { test as iacTest } from './local-execution';
@@ -243,17 +237,6 @@ export default async function(
     const err = new Error(stringifiedData) as any;
 
     if (foundVulnerabilities) {
-      if (options.failOn) {
-        const fail = shouldFail(vulnerableResults, options.failOn);
-        if (!fail) {
-          // return here to prevent failure
-          return TestCommandResult.createJsonTestCommandResult(
-            stringifiedData,
-            stringifiedJsonData,
-            stringifiedSarifData,
-          );
-        }
-      }
       err.code = 'VULNS';
       const dataToSendNoVulns = dataToSend;
       delete dataToSendNoVulns.vulnerabilities;
@@ -355,24 +338,6 @@ export default async function(
   }
 
   if (foundVulnerabilities) {
-    if (options.failOn) {
-      const fail = shouldFail(vulnerableResults, options.failOn);
-      if (!fail) {
-        // return here to prevent throwing failure
-        response += chalk.bold.green(summaryMessage);
-        response += EOL + EOL;
-        response += getProtectUpgradeWarningForPaths(
-          packageJsonPathsWithSnykDepForProtect,
-        );
-
-        return TestCommandResult.createHumanReadableTestCommandResult(
-          response,
-          stringifiedJsonData,
-          stringifiedSarifData,
-        );
-      }
-    }
-
     response += chalk.bold.red(summaryMessage);
 
     response += EOL + EOL;
@@ -427,19 +392,4 @@ export default async function(
     stringifiedJsonData,
     stringifiedSarifData,
   );
-}
-
-function shouldFail(vulnerableResults: any[], failOn: FailOn) {
-  // find reasons not to fail
-  if (failOn === 'all') {
-    return hasFixes(vulnerableResults);
-  }
-  if (failOn === 'upgradable') {
-    return hasUpgrades(vulnerableResults);
-  }
-  if (failOn === 'patchable') {
-    return hasPatches(vulnerableResults);
-  }
-  // should fail by default when there are vulnerable results
-  return vulnerableResults.length > 0;
 }
