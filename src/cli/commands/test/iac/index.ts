@@ -3,7 +3,6 @@ import { EOL } from 'os';
 import * as cloneDeep from 'lodash.clonedeep';
 import * as assign from 'lodash.assign';
 import chalk from 'chalk';
-import { MissingArgError } from '../../../../lib/errors';
 
 import {
   IacFileInDirectory,
@@ -33,7 +32,6 @@ import {
   spinnerMessage,
   spinnerSuccessMessage,
 } from '../../../../lib/formatters/iac-output';
-import { getEcosystemForTest, testEcosystem } from '../../../../lib/ecosystems';
 import { extractDataToSendFromResults } from '../../../../lib/formatters/test/format-test-results';
 
 import { test as iacTest } from './local-execution';
@@ -43,16 +41,7 @@ import { setDefaultTestOptions } from '../set-default-test-options';
 import { processCommandArgs } from '../../process-command-args';
 import { formatTestError } from '../format-test-error';
 import { displayResult } from '../../../../lib/formatters/test/display-result';
-import * as analytics from '../../../../lib/analytics';
 
-import {
-  getPackageJsonPathsContainingSnykDependency,
-  getProtectUpgradeWarningForPaths,
-} from '../../../../lib/protect-update-notification';
-import {
-  containsSpotlightVulnIds,
-  notificationForSpotlightVulns,
-} from '../../../../lib/spotlight-vuln-notification';
 import { isIacShareResultsOptions } from './local-execution/assert-iac-options-flag';
 import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag';
 import { hasFeatureFlag } from '../../../../lib/feature-flags';
@@ -86,36 +75,6 @@ export default async function(
   const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
-
-  const packageJsonPathsWithSnykDepForProtect: string[] = getPackageJsonPathsContainingSnykDependency(
-    options.file,
-    paths,
-  );
-
-  analytics.add(
-    'upgradable-snyk-protect-paths',
-    packageJsonPathsWithSnykDepForProtect.length,
-  );
-
-  // Handles no image arg provided to the container command until
-  // a validation interface is implemented in the docker plugin.
-  if (options.docker && paths.length === 0) {
-    throw new MissingArgError();
-  }
-
-  const ecosystem = getEcosystemForTest(options);
-  if (ecosystem) {
-    try {
-      const commandResult = await testEcosystem(ecosystem, paths, options);
-      return commandResult;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error(String(error));
-      }
-    }
-  }
 
   let testSpinner: ora.Ora | undefined;
 
@@ -355,13 +314,7 @@ export default async function(
 
   if (foundVulnerabilities) {
     response += chalk.bold.red(summaryMessage);
-
     response += EOL + EOL;
-    const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
-    const spotlightVulnsMsg = notificationForSpotlightVulns(
-      foundSpotlightVulnIds,
-    );
-    response += spotlightVulnsMsg;
 
     if (isIacShareResultsOptions(options)) {
       response += formatShareResultsOutput(iacOutputMeta!) + EOL.repeat(2);
@@ -387,10 +340,6 @@ export default async function(
   }
 
   response += chalk.bold.green(summaryMessage);
-  response += EOL + EOL;
-  response += getProtectUpgradeWarningForPaths(
-    packageJsonPathsWithSnykDepForProtect,
-  );
 
   if (isIacShareResultsOptions(options)) {
     response += formatShareResultsOutput(iacOutputMeta!) + EOL.repeat(2);
