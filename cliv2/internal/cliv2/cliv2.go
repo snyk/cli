@@ -13,6 +13,7 @@ import (
 
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
+	"github.com/snyk/cli/cliv2/internal/extensions"
 	"github.com/snyk/cli/cliv2/internal/utils"
 )
 
@@ -24,6 +25,7 @@ type CLI struct {
 	v1BinaryLocation string
 	v1Version        string
 	v2Version        string
+	Extensions       []extensions.Extension
 }
 
 type EnvironmentWarning struct {
@@ -45,12 +47,14 @@ const (
 var SNYK_CLIV2_VERSION_PART string
 
 func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) *CLI {
-
 	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(cacheDirectory)
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
+
+	extensions := extensions.LoadExtensions(cacheDirectory, debugLogger)
+	debugLogger.Println("found extensions:\n", extensions)
 
 	cli := CLI{
 		DebugLogger:      debugLogger,
@@ -58,6 +62,7 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) *CLI {
 		v1Version:        cliv1.CLIV1Version(),
 		v2Version:        strings.TrimSpace(SNYK_CLIV2_VERSION_PART),
 		v1BinaryLocation: v1BinaryLocation,
+		Extensions:       extensions,
 	}
 
 	err = cli.ExtractV1Binary()
@@ -211,7 +216,19 @@ func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, pass
 func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) int {
 	c.DebugLogger.Println("passthroughArgs", passthroughArgs)
 
+	// TODO: needs refactoring
+
 	returnCode := SNYK_EXIT_CODE_OK
+
+	maybeMatchingExtension := extensions.MatchExtension(passthroughArgs, c.Extensions)
+	if maybeMatchingExtension != nil {
+		c.DebugLogger.Println("matched extension:", maybeMatchingExtension)
+		returnCode := extensions.LaunchExtension(maybeMatchingExtension, passthroughArgs, wrapperProxyPort, fullPathToCert, c.DebugLogger)
+		return returnCode
+	} else {
+		c.DebugLogger.Println("no matching extension")
+	}
+
 	handler := determineHandler(passthroughArgs)
 
 	switch {
