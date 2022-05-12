@@ -83,7 +83,7 @@ func LoadExtension(extensionDir string, extensionPath string, debugLogger *log.L
 	}
 
 	return &Extension{
-		ExtensionRoot:     extensionDir,
-		ExtensionMetadata: &extensionMetadata,
+		ExtensionRoot: extensionDir,
+		Metadata:      &extensionMetadata,
 	}, nil
 }
