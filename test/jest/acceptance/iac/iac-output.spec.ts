@@ -39,37 +39,25 @@ describe('iac test output', () => {
     });
 
     it('should show the IaC test title', async () => {
-      // Arrange
       const dirPath = './iac/terraform';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-      // Assert
       expect(stdout).toContain('Snyk Infrastructure as Code');
     });
 
     it('should show the spinner message', async () => {
-      // Arrange
       const dirPath = './iac/terraform';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-      // Arrange
       expect(stdout).toContain(
         'Snyk testing Infrastructure as Code configuration issues.',
       );
     });
 
     it('should show the test completion message', async () => {
-      // Arrange
       const dirPath = './iac/terraform';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-      // Assert
       expect(stdout).toContain('Test completed.');
     });
 
@@ -96,11 +84,8 @@ describe('iac test output', () => {
     });
 
     it('should show the test summary section with correct values', async () => {
-      // Arrange
       const dirPath = 'iac/kubernetes';
       const policyPath = `iac/policy/.snyk`;
-
-      // Act
       const { stdout } = await run(
         `snyk iac test ${dirPath} --policy-path=${policyPath}`,
       );
@@ -122,37 +107,24 @@ describe('iac test output', () => {
     });
 
     it('should not show the file meta sections', async () => {
-      // Arrange
       const dirPath = 'iac/arm';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${dirPath}`);
-
-      // Assert
       expect(stdout).not.toContain(`
 Type:              ARM
 Target file:       ${dirPath}/`);
     });
 
     it('should not show the file summary messages', async () => {
-      // Arrange
       const dirPath = 'iac/terraform';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-      // Assert
       expect(stdout).not.toContain(`Tested ${dirPath} for known issues`);
     });
 
     it('should not show the test failures section', async () => {
-      // Arrange
       const dirPath = 'iac/only-valid';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-      // Assert
       expect(stdout).not.toContain('Test Failures');
     });
 
@@ -176,13 +148,11 @@ Target file:       ${dirPath}/`);
     describe('with multiple test results', () => {
       describe('with test failures', () => {
         it('should show the failures list section with the correct values', async () => {
-          // Arrange
           const dirPath = 'iac';
+          const { stdout } = await run(
+            `snyk iac test ${dirPath} my-imaginary-file.tf my-imaginary-directory/`,
+          );
 
-          // Act
-          const { stdout } = await run(`snyk iac test ${dirPath}`);
-
-          // Assert
           expect(stdout).toContain(
             '  Failed to parse JSON file' +
               EOL +
@@ -218,18 +188,22 @@ Target file:       ${dirPath}/`);
                 'iac',
                 'terraform',
                 'sg_open_ssh_invalid_hcl2.tf',
-              )}`,
+              )}` +
+              EOL.repeat(2) +
+              '  Failed to load file content' +
+              EOL +
+              `  Path: my-imaginary-file.tf` +
+              EOL.repeat(2) +
+              '  Could not find any valid IaC files' +
+              EOL +
+              `  Path: my-imaginary-directory/`,
           );
         });
 
         it('should include user tip for test failures', async () => {
-          // Arrange
           const dirPath = 'iac/terraform';
-
-          // Act
           const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-          // Assert
           expect(stdout).toContain(
             'Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>' +
               EOL +
@@ -241,13 +215,9 @@ Target file:       ${dirPath}/`);
 
     describe('with only test failures', () => {
       it('should display the failure reason for the first failed test', async () => {
-        // Arrange
         const dirPath = 'iac/only-invalid';
-
-        // Act
         const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-        // Assert
         expect(stdout).toContain(
           `Could not find any valid infrastructure as code files. Supported file extensions are tf, yml, yaml & json.
 More information can be found by running \`snyk iac test --help\` or through our documentation:
@@ -257,52 +227,36 @@ https://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files
       });
 
       it('should not show the issues section', async () => {
-        // Arrange
         const dirPath = 'iac/only-invalid';
-
-        // Act
         const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-        // Assert
         expect(stdout).not.toContain('Issues');
       });
 
       it('should not show the test summary section', async () => {
-        // Arrange
         const dirPath = 'iac/only-invalid';
-
-        // Act
         const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-        // Assert
         expect(stdout).not.toContain('Test Summary');
       });
     });
 
     describe('with no issues', () => {
       it('should display an appropriate message in the issues section', async () => {
-        // Arrange
         const filePath = 'iac/terraform/vars.tf';
-
-        // Act
         const { stdout } = await run(`snyk iac test ${filePath}`);
 
-        // Assert
         expect(stdout).toContain('No vulnerable paths were found!');
       });
     });
 
     describe('with issues generated by custom rules', () => {
       it('should include the public custom rule IDs', async () => {
-        // Arrange
         const filePath = 'iac/terraform/sg_open_ssh.tf ';
-
-        // Act
         const { stdout } = await run(
           `snyk iac test ${filePath} --rules=./iac/custom-rules/custom.tar.gz`,
         );
 
-        // Assert
         expect(stdout).toContain(`Rule: custom rule CUSTOM-1`);
       });
     });
@@ -310,13 +264,9 @@ https://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files
 
   describe(`without the '${IAC_CLI_OUTPUT_FF}' feature flag`, () => {
     it('should show the file meta sections for each file', async () => {
-      // Arrange
       const filePath = 'iac/arm/rule_test.json';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${filePath}`);
 
-      // Assert
       expect(stdout).toContain(`
 Organization:      test-org
 Type:              ARM
@@ -328,13 +278,9 @@ Project path:      ${filePath}
     });
 
     it('should show the file summary messages', async () => {
-      // Arrange
       const dirPath = 'iac/terraform';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-      // Assert
       expect(stdout).toContain(
         'Tested sg_open_ssh.tf for known issues, found 1 issues',
       );
@@ -370,13 +316,9 @@ Project path:      ${filePath}
     });
 
     it('should show the test summary message', async () => {
-      // Arrange
       const dirPath = 'iac/kubernetes';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-      // Assert
       expect(stdout).toContain(
         'Tested 3 projects, 3 contained issues. Failed to test 1 project.',
       );
@@ -396,48 +338,32 @@ Project path:      ${filePath}
     });
 
     it('should not show the test summary section', async () => {
-      // Arrange
       const filePath = 'iac/kubernetes/pod-valid.json';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${filePath}`);
 
-      // Assert
       expect(stdout).not.toContain('Test Summary');
     });
 
     it('should not show the test failures section', async () => {
-      // Arrange
       const dirPath = 'iac/only-valid';
-
-      // Act
       const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-      // Assert
       expect(stdout).not.toContain('Invalid Files');
     });
 
     describe('with multiple test results', () => {
       it('should show the test summary message', async () => {
-        // Arrange
         const dirPath = 'iac/kubernetes';
-
-        // Act
         const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-        // Assert
         expect(stdout).toContain('Tested 3 projects, 3 contained issues.');
       });
 
       describe('with test failures', () => {
         it('should show the failure reasons per file', async () => {
-          // Arrange
           const dirPath = 'iac/terraform';
-
-          // Act
           const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-          // Assert
           expect(stdout).toContain(
             `Testing sg_open_ssh_invalid_go_templates.tf...
 
@@ -452,26 +378,18 @@ Failed to parse Terraform file`,
         });
 
         it('should include the failures count in the test summary message', async () => {
-          // Arrange
           const dirPath = 'iac/kubernetes';
-
-          // Act
           const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-          // Assert
           expect(stdout).toContain(
             'Tested 3 projects, 3 contained issues. Failed to test 1 project.',
           );
         });
 
         it('should include user tip for test failures', async () => {
-          // Arrange
           const dirPath = 'iac/terraform';
-
-          // Act
           const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-          // Assert
           expect(stdout).toContain(
             `Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>
 If the issue persists contact support@snyk.io`,
@@ -482,13 +400,9 @@ If the issue persists contact support@snyk.io`,
 
     describe('with only test failures', () => {
       it('should display the failure reason for the first failed test', async () => {
-        // Arrange
         const dirPath = 'iac/only-invalid';
-
-        // Act
         const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-        // Assert
         expect(stdout).toContain(
           `Could not find any valid infrastructure as code files. Supported file extensions are tf, yml, yaml & json.
 More information can be found by running \`snyk iac test --help\` or through our documentation:
@@ -498,24 +412,16 @@ https://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files
       });
 
       it('should not show file issue lists', async () => {
-        // Arrange
         const dirPath = 'iac/only-invalid';
-
-        // Act
         const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-        // Assert
         expect(stdout).not.toContain('Infrastructure as code issues');
       });
 
       it('should not show the test summary section', async () => {
-        // Arrange
         const dirPath = 'iac/only-invalid';
-
-        // Act
         const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-        // Assert
         expect(stdout).not.toContain('Test Summary');
       });
     });

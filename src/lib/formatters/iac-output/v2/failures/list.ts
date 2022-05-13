@@ -2,8 +2,9 @@ import { EOL } from 'os';
 
 import { IacFileInDirectory } from '../../../../types';
 import { colors, contentPadding } from '../utils';
+import { IaCTestFailure } from '../types';
 
-export function formatIacTestFailures(testFailures: IacFileInDirectory[]) {
+export function formatIacTestFailures(testFailures: IaCTestFailure[]): string {
   const sectionComponents: string[] = [];
 
   const titleOutput = colors.title(`Test Failures`);
@@ -20,7 +21,7 @@ interface TestFailuresByFailureReason {
 }
 
 function groupTestFailuresByFailureReason(
-  testFailures: IacFileInDirectory[],
+  testFailures: IaCTestFailure[],
 ): TestFailuresByFailureReason {
   return testFailures.reduce((groupedFailures, failure) => {
     const reason = failure.failureReason;
@@ -36,7 +37,7 @@ function groupTestFailuresByFailureReason(
   }, {});
 }
 
-function formatFailuresList(testFailures: IacFileInDirectory[]) {
+function formatFailuresList(testFailures: IaCTestFailure[]) {
   const testFailuresByReason = groupTestFailuresByFailureReason(testFailures);
   return Object.entries(testFailuresByReason)
     .map(([failureReason, testFailures]) =>
