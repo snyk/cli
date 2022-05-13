@@ -11,7 +11,7 @@ import {
   TestOptions,
 } from '../../../../lib/types';
 import { MethodArgs } from '../../../args';
-import { TestCommandResult } from '../../../commands/types';
+import { TestCommandResult } from '../../types';
 import {
   LegacyVulnApiResult,
   TestResult,
@@ -24,7 +24,11 @@ import {
 } from '../../../../lib/formatters';
 import * as utils from '../utils';
 import {
+  failuresTipOutput,
   formatIacTestFailures,
+  formatIacTestSummary,
+  formatShareResultsOutput,
+  getIacDisplayedIssues,
   getIacDisplayErrorFileOutput,
   iacTestTitle,
   shouldLogUserMessages,
@@ -42,14 +46,11 @@ import { processCommandArgs } from '../../process-command-args';
 import { formatTestError } from '../format-test-error';
 import { displayResult } from '../../../../lib/formatters/test/display-result';
 
-import { isIacShareResultsOptions } from './local-execution/assert-iac-options-flag';
-import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag';
-import { hasFeatureFlag } from '../../../../lib/feature-flags';
 import {
-  formatIacTestSummary,
-  formatShareResultsOutput,
-  getIacDisplayedIssues,
-} from '../../../../lib/formatters/iac-output';
+  assertIaCOptionsFlags,
+  isIacShareResultsOptions,
+} from './local-execution/assert-iac-options-flag';
+import { hasFeatureFlag } from '../../../../lib/feature-flags';
 import { initRules } from './local-execution/rules';
 import {
   cleanLocalCache,
@@ -57,7 +58,6 @@ import {
 } from './local-execution/measurable-methods';
 import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
-import { failuresTipOutput } from '../../../../lib/formatters/iac-output';
 import * as ora from 'ora';
 
 const debug = Debug('snyk-test');
@@ -124,7 +124,6 @@ export default async function(
           iacOrgSettings,
           rulesOrigin,
         );
-
         iacOutputMeta = {
           orgName: results[0]?.org,
           projectName: results[0]?.projectName,
@@ -135,14 +134,17 @@ export default async function(
         iacScanFailures = failures;
         iacIgnoredIssuesCount += ignoreCount;
       } catch (error) {
-        // not throwing here but instead returning error response
-        // for legacy flow reasons.
+        // TODO: Check if we really need this anymore.
+        //  All errors that we throw are of Error type, so we shouldn't be needing this check/conversion.
         res = formatTestError(error);
+        // we can store all errors here for printing the paths and errors later in the new output.
       }
 
       // Not all test results are arrays in order to be backwards compatible
       // with scripts that use a callback with test. Coerce results/errors to be arrays
       // and add the result options to each to be displayed
+      // TODO: Similarly to above, do we actually need to convert this to an array?
+      // I think we do not need this in IaC
       const resArray: any[] = Array.isArray(res) ? res : [res];
 
       for (let i = 0; i < resArray.length; i++) {
@@ -170,21 +172,32 @@ export default async function(
     cleanLocalCache();
   }
 
-  const vulnerableResults = results.filter(
+  // this is any[] to follow the resArray type above
+  const successResults: any[] = [],
+    errorResults: any[] = [];
+  results.forEach((result) => {
+    if (!(result instanceof Error)) {
+      successResults.push(result);
+    } else {
+      errorResults.push(result);
+    }
+  });
+
+  const vulnerableResults = successResults.filter(
     (res) =>
       (res.vulnerabilities && res.vulnerabilities.length) ||
       (res.result &&
         res.result.cloudConfigResults &&
         res.result.cloudConfigResults.length),
   );
-  const errorResults = results.filter((res) => res instanceof Error);
-  const notSuccess = errorResults.length > 0;
-  const foundVulnerabilities = vulnerableResults.length > 0;
+  const hasErrors = errorResults.length;
+  const isPartialSuccess = !hasErrors || successResults.length;
+  const foundVulnerabilities = vulnerableResults.length;
 
-  if (notSuccess) {
-    testSpinner?.fail(spinnerFailureMessage + EOL);
-  } else {
+  if (isPartialSuccess) {
     testSpinner?.succeed(spinnerSuccessMessage);
+  } else {
+    testSpinner?.fail(spinnerFailureMessage + EOL);
   }
 
   // resultOptions is now an array of 1 or more options used for
@@ -218,7 +231,7 @@ export default async function(
       err.jsonNoVulns = dataToSendNoVulns;
     }
 
-    if (notSuccess) {
+    if (hasErrors) {
       // Take the code of the first problem to go through error
       // translation.
       // Note: this is done based on the logic done below
@@ -234,8 +247,8 @@ export default async function(
 
   let response = '';
 
-  if (isNewIacOutputSupported && !notSuccess) {
-    response += EOL + getIacDisplayedIssues(results, iacOutputMeta!);
+  if (isNewIacOutputSupported && isPartialSuccess) {
+    response += EOL + getIacDisplayedIssues(successResults, iacOutputMeta!);
   } else {
     response += results
       .map((result, i) => {
@@ -250,7 +263,7 @@ export default async function(
       .join(`\n${SEPARATOR}`);
   }
 
-  if (notSuccess) {
+  if (!isNewIacOutputSupported && hasErrors) {
     debug(`Failed to test ${errorResults.length} projects, errors:`);
     errorResults.forEach((err) => {
       const errString = err.stack ? err.stack.toString() : err.toString();
@@ -271,12 +284,12 @@ export default async function(
           .join('');
   }
 
-  if (!notSuccess && iacOutputMeta && isNewIacOutputSupported) {
+  if (isPartialSuccess && iacOutputMeta && isNewIacOutputSupported) {
     response += `${EOL}${SEPARATOR}${EOL}`;
 
     const iacTestSummary = `${formatIacTestSummary(
       {
-        results,
+        results: successResults,
         failures: iacScanFailures,
         ignoreCount: iacIgnoredIssuesCount,
       },
@@ -299,7 +312,7 @@ export default async function(
     }
   }
 
-  if (notSuccess) {
+  if (hasErrors && !isPartialSuccess) {
     response += chalk.bold.red(summaryMessage);
     const error = new Error(response) as any;
     // take the code of the first problem to go through error
