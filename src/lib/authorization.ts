@@ -1,6 +1,6 @@
-import * as snyk from './';
-import { makeRequest } from './request';
+import { getAuthHeader } from './api-token';
 import config from './config';
+import { makeRequest } from './request';
 
 export async function actionAllowed(
   action: string,
@@ -14,7 +14,7 @@ export async function actionAllowed(
       url: config.API + '/authorization/' + action,
       json: true,
       headers: {
-        authorization: 'token ' + snyk.api,
+        authorization: getAuthHeader(),
       },
       qs: org && { org },
     });
