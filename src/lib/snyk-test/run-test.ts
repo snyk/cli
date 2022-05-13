@@ -817,7 +817,7 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
       json: true,
       headers: {
         'x-is-ci': isCI(),
-        authorization: 'token ' + snyk.api,
+        authorization: getAuthHeader(),
       },
     },
   ];

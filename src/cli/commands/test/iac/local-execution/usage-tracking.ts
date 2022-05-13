@@ -1,6 +1,6 @@
 import { makeRequest } from '../../../../../lib/request';
 import config from '../../../../../lib/config';
-import { api as getApiToken } from '../../../../../lib/api-token';
+import { getAuthHeader } from '../../../../../lib/api-token';
 import { CustomError } from '../../../../../lib/errors';
 
 export async function trackUsage(
@@ -15,7 +15,7 @@ export async function trackUsage(
   const trackingResponse = await makeRequest({
     method: 'POST',
     headers: {
-      Authorization: `token ${getApiToken()}`,
+      Authorization: getAuthHeader(),
     },
     url: `${config.API}/track-iac-usage/cli`,
     body: { results: trackingData },
