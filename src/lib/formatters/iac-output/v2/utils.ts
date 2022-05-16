@@ -6,6 +6,7 @@ interface IacOutputColors {
   failure: Chalk;
   success: Chalk;
   info: Chalk;
+  title: Chalk;
 }
 
 type SeverityColor = {
@@ -14,12 +15,15 @@ type SeverityColor = {
 
 export const colors: IacOutputColors = {
   severities: {
-    critical: chalk.hex('#AB191A'),
-    high: chalk.hex('#CE501A'),
-    medium: chalk.hex('#D68000'),
-    low: chalk.hex('#88879E'),
+    critical: chalk.magenta,
+    high: chalk.red,
+    medium: chalk.yellow,
+    low: chalk.white,
   },
-  failure: chalk.hex('#B81415'),
-  success: chalk.hex('#00BB00'),
+  failure: chalk.red,
+  success: chalk.green,
   info: chalk.white,
+  title: chalk.white.bold,
 };
+
+export const contentPadding = ' '.repeat(2);

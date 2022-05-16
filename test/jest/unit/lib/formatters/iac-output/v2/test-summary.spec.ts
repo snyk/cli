@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as pathLib from 'path';
 
 import { formatIacTestSummary } from '../../../../../../../src/lib/formatters/iac-output';
-import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/color-utils';
+import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/utils';
 import { IacTestResponse } from '../../../../../../../src/lib/snyk-test/iac-test-result';
 import { IacFileInDirectory } from '../../../../../../../src/lib/types';
 

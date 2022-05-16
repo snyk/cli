@@ -1,5 +1,5 @@
 import { IaCTestFlags } from '../../../../cli/commands/test/iac/local-execution/types';
-import { colors } from './color-utils';
+import { colors } from './utils';
 
 /**
  * Displayed as the title of the test output.
@@ -19,10 +19,17 @@ export const spinnerMessage = colors.info(
 export const spinnerSuccessMessage = colors.info('Test completed.');
 
 /**
- * Displayed when a test fails.
+ * Message for using custom rules.
  */
-export const spinnerFailureMessage = colors.info(
-  'Unable to complete the test.',
+export const customRulesMessage = colors.info(
+  'Using custom rules to generate misconfigurations.',
+);
+
+/**
+ * Message for using custom rules.
+ */
+export const customRulesReportMessage = colors.info(
+  "Please note that your custom rules will not be sent to the Snyk platform, and will not be available on the project's page.",
 );
 
 /**

@@ -4,7 +4,7 @@ import * as isEmpty from 'lodash.isempty';
 import * as debug from 'debug';
 
 import { IacOutputMeta } from '../../../../types';
-import { colors } from '../color-utils';
+import { colors, contentPadding } from '../utils';
 import { formatScanResultsNewOutput } from './formatters';
 import { formatIssue } from './issue';
 import { SEVERITY } from '../../../../snyk-test/common';
@@ -23,7 +23,7 @@ export function getIacDisplayedIssues(
     return (
       titleOutput +
       EOL +
-      ' '.repeat(2) +
+      contentPadding +
       colors.success.bold('No vulnerable paths were found!')
     );
   }
@@ -34,7 +34,7 @@ export function getIacDisplayedIssues(
       const severityResults: FormattedOutputResult[] =
         formattedResults.results[severity];
 
-      const titleOutput = colors.severities[severity](
+      const titleOutput = colors.title(
         `${capitalize(severity)} Severity Issues: ${severityResults.length}`,
       );
 
