@@ -7,7 +7,6 @@ import {
   OCIRegistryURLComponents,
   RulesOrigin,
 } from './types';
-import { EOL } from 'os';
 import { UnsupportedEntitlementFlagError } from './assert-iac-options-flag';
 import {
   extractOCIRegistryURLComponents,
@@ -21,10 +20,6 @@ import { config as userConfig } from '../../../../../lib/user-config';
 import { isValidUrl } from './url-utils';
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
-import {
-  customRulesMessage,
-  customRulesReportMessage,
-} from '../../../../../lib/formatters/iac-output/v2/user-messages';
 
 export async function initRules(
   iacOrgSettings: IacOrgSettings,
@@ -45,19 +40,6 @@ export async function initRules(
   }
 
   const isOCIRegistryURLProvided = checkOCIRegistryURLProvided(iacOrgSettings);
-
-  if (
-    (isOCIRegistryURLProvided || customRulesPath) &&
-    !(options.sarif || options.json)
-  ) {
-    let userMessage = `${customRulesMessage}${EOL}`;
-
-    if (options.report) {
-      userMessage += `${customRulesReportMessage}${EOL}`;
-    }
-
-    console.log(userMessage);
-  }
 
   if (isOCIRegistryURLProvided && customRulesPath) {
     throw new FailedToExecuteCustomRulesError();

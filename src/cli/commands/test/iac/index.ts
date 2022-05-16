@@ -58,6 +58,11 @@ import {
 import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import * as ora from 'ora';
+import { RulesOrigin } from './local-execution/types';
+import {
+  customRulesMessage,
+  customRulesReportMessage,
+} from '../../../../lib/formatters/iac-output/v2/user-messages';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -102,6 +107,18 @@ export default async function(
 
   try {
     const rulesOrigin = await initRules(iacOrgSettings, options);
+    if (
+      rulesOrigin !== RulesOrigin.Internal &&
+      !(options.sarif || options.json)
+    ) {
+      let userMessage = `${customRulesMessage}${EOL}`;
+
+      if (options.report) {
+        userMessage += `${customRulesReportMessage}${EOL}`;
+      }
+
+      console.log(userMessage);
+    }
 
     testSpinner?.start(spinnerMessage);
 
