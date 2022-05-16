@@ -16,8 +16,10 @@ type ExtensionMetadata struct {
 }
 
 type Option struct {
-	Name string `json:"name"`
-	Type string `json:"type"`
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	Shorthand string `json:"shorthand"`
+	Usage     string `json:"usage"`
 }
 
 func LoadExtensions(cacheDir string, debugLogger *log.Logger) []Extension {

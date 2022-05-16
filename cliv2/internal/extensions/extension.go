@@ -8,6 +8,7 @@ import (
 	"path"
 	"runtime"
 )
+import flag "github.com/spf13/pflag"
 
 type ExtensionInput struct {
 	// TODO: what standard stuff needs to go here?
@@ -69,16 +70,23 @@ func (e *Extension) ExecutablePath(debugLogger *log.Logger) (string, error) {
 func (e *Extension) MakeLaunchCodes(args []string, debugLogger *log.Logger) (string, error) {
 	debugLogger.Println("making launch codes for extension:", e.Metadata.Name)
 
-	// TODO: this needs to be dynamic based on
-	//   1) the extension's metadata file describing its inputs
-	//   2) the args passed into the CLI
-	// maybe we could generate a pflag (or just flag) config based on the metadata file and use that
-	// to build this map?
 	extensionArgs := map[string]string{}
-	extensionArgs["lang"] = "foo"
+
+	for _, opt := range e.Metadata.Options {
+		debugLogger.Println("option:", opt)
+		debugLogger.Println("name:", opt.Name)
+		debugLogger.Println("shorthand:", opt.Shorthand)
+		debugLogger.Println("type:", opt.Type)
+		debugLogger.Println("usage:", opt.Usage)
+
+		optionValue := flag.StringP(opt.Name, opt.Shorthand, "", opt.Usage)
+		flag.Parse()
+
+		extensionArgs[opt.Name] = *optionValue
+	}
 
 	extensionLaunchCodes := ExtensionInput{
-		TBDMetadata: "some metadata", // TODO: just a placeholder until we figure out what field(s) we need here
+		TBDMetadata: "some metadata",
 		Args:        extensionArgs,
 	}
 
