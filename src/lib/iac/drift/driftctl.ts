@@ -34,29 +34,29 @@ export const DCTL_EXIT_CODES = {
   EXIT_ERROR: 2,
 };
 
-export const driftctlVersion = 'v0.29.0';
+export const driftctlVersion = 'v0.30.0';
 
 const driftctlChecksums = {
   'driftctl_windows_386.exe':
-    'c97190f622f26b6a8c0e08cbef7b5994f923efc960f79e2ae86c0239bbe5e9c5',
+    'db7b1a5c27bfb1fc441dbcd6362336fcfc6f8d6dedeb8b18f8efc967399af131',
   driftctl_darwin_amd64:
-    'f66f61f059789bc6fefe6947b8877648c9178355196fea322292d5c893e1c05a',
+    '3ca93e4393aa0f41119768fff15edbaa9a528605e16467b24381663ae08c2fd8',
   driftctl_linux_386:
-    '35ec11207181f9b198f59740831dfc3e47bbe93649f994e3a770b2e4377a9264',
+    'e84c8ea8b63e29f50a188d82079a552cd78025d9324e6c83fc4a704def1d6c0f',
   driftctl_linux_amd64:
-    'e3d132a587d029631ed57239202f9b66186756a2928bc25d4cc697de166eea10',
+    'ce1be224bd9f9ebebe87347e4bc213ede8ed55a18c3e2a810ba1aafa3d9dbe01',
   driftctl_linux_arm64:
-    '98ff8f9545419cde574cf3c0cf07ada2b0f5512fa414a88f0de08144ee3afd99',
+    '1514fe31aeea885e3451111c7d6a432997cff602775d2961d21f9e4ae6518a2e',
   'driftctl_windows_arm64.exe':
-    'c07f82cfdb5b4c08333461fd796a56930a5b833e95f2744443d5af5d3ded43fe',
+    'ff226aba9aaa4de064d51724bcb995d6ccf2868e6d9dfbdc64c54369e766b696',
   driftctl_darwin_arm64:
-    '7ddecfbc6a9ea8f51c5832bdffa1adfbd5b178f7af8526c8ab30c6818bda8fde',
+    '844e2558a8ad72e012fa2f80acd9eb107940f92ad0382850bbb36ab7856369d5',
   'driftctl_windows_arm.exe':
-    'effa0daa4bf85dfcdd3e64069beb27c3a70f494cddb65101fa6c01948ee8e4c0',
+    '8968d6e1145e53dbbdcd72e6be53bc98de406b6cb22b12d8cb1edbc616b6627f',
   driftctl_linux_arm:
-    'da707399198f67843a0d3985cedf2a1b49512aa3023c69da336b8b4e8d77f6e6',
+    '406f87cdadb9fe4946407d02ace90967c17c68b8da54878ee97b2e7dc2989c8f',
   'driftctl_windows_amd64.exe':
-    '9126e3d56bde1260c271a55337f88dff91510c04a5864a3d4666361b1ce4a1e2',
+    '03daa917939f4e64d91136561c529ed36efcbd36a22d434b17daa087a368d40f',
 };
 
 const dctlBaseUrl = 'https://static.snyk.io/cli/driftctl/';
