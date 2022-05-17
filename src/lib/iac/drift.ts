@@ -10,6 +10,7 @@ import { Policy } from '../policy/find-and-load-policy';
 import { DescribeExclusiveArgumentError } from '../errors/describe-exclusive-argument-error';
 import { DescribeRequiredArgumentError } from '../errors/describe-required-argument-error';
 import snykLogoSVG from './assets/snyk-logo';
+import snykFaviconBase64 from './assets/snyk-favicon';
 import { getHumanReadableAnalysis } from './drift/output';
 import { runDriftCTL } from './drift/driftctl';
 
@@ -144,6 +145,24 @@ export function processHTMLOutput(
 }
 
 function rebrandHTMLOutput(data: string): string {
+  // Replace favicon
+  const faviconReplaceRegex = new RegExp(
+    '(<link rel="shortcut icon")(.*)(\\/>)',
+    'g',
+  );
+  data = data.replace(
+    faviconReplaceRegex,
+    `<link rel="shortcut icon" type="image/x-icon" href="${snykFaviconBase64}" />`,
+  );
+
+  // Replace HTML title
+  const titleReplaceRegex = new RegExp('(<title>)(.*)(<\\/title>)', 'g');
+  data = data.replace(
+    titleReplaceRegex,
+    `<title>Snyk IaC drift report</title>`,
+  );
+
+  // Replace header brand logo
   const logoReplaceRegex = new RegExp(
     '(<div id="brand_logo">)((.|\\r|\\n)*?)(<\\/div>)',
     'g',
@@ -152,5 +171,6 @@ function rebrandHTMLOutput(data: string): string {
     logoReplaceRegex,
     `<div id="brand_logo">${snykLogoSVG}</div>`,
   );
+
   return data;
 }
