@@ -3,6 +3,8 @@ set -euo pipefail
 
 # Do not run this file locally. To build release artifacts, see CONTRIBUTING.
 
+make prepack
+
 mv "$(npm pack --workspace '@snyk/fix')" binary-releases/snyk-fix.tgz
 mv "$(npm pack --workspace '@snyk/protect')" binary-releases/snyk-protect.tgz
 mv "$(npm pack)" binary-releases/snyk.tgz

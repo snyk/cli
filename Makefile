@@ -18,3 +18,14 @@ binary-releases:
 
 binary-releases/version: | binary-releases
 	./release-scripts/next-version.sh > binary-releases/version
+
+# this target is destructive since package.json files are modified in-place.
+prepack: binary-releases/version
+	@echo "'make prepack' was run. Run 'make clean-prepack' to rollback your package.json changes and this file." > prepack
+	npm version "$(shell cat binary-releases/version)" --no-git-tag-version --workspaces --include-workspace-root
+	npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
+
+.PHONY: clean-prepack
+clean-prepack:
+	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json
+	rm -f prepack
