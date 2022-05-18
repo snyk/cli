@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mkdir binary-releases
+# Do not run this file locally. To build release artifacts, see CONTRIBUTING.
 
 mv "$(npm pack --workspace '@snyk/fix')" binary-releases/snyk-fix.tgz
 mv "$(npm pack --workspace '@snyk/protect')" binary-releases/snyk-protect.tgz
@@ -48,8 +48,7 @@ gpg --clear-sign --local-user=1F4B9569 --passphrase="$SNYK_CODE_SIGNING_GPG_PASS
 cat sha256sums.txt.asc
 popd
 
-BUILD_VERSION="$(jq -r '.version' package.json)"
-echo "${BUILD_VERSION}" > binary-releases/version
+BUILD_VERSION="$(cat binary-releases/version)"
 
 cp ./release-scripts/release.json binary-releases/release.json
 if [[ $(uname -s) == "Darwin" ]];then
