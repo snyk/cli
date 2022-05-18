@@ -29,3 +29,6 @@ prepack: binary-releases/version
 clean-prepack:
 	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json
 	rm -f prepack
+
+binary-releases/release.json: binary-releases/version $(wildcard binary-releases/*.sha256)
+	./release-scripts/release.json.sh

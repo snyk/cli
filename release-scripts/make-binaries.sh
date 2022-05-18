@@ -50,29 +50,7 @@ gpg --clear-sign --local-user=1F4B9569 --passphrase="$SNYK_CODE_SIGNING_GPG_PASS
 cat sha256sums.txt.asc
 popd
 
-BUILD_VERSION="$(cat binary-releases/version)"
-
-cp ./release-scripts/release.json binary-releases/release.json
-if [[ $(uname -s) == "Darwin" ]];then
-    echo "this is Mac"
-    sed -i "" "s|1.0.0-monorepo|${BUILD_VERSION}|g" binary-releases/release.json
-    sed -i "" "s|snyk-alpine-sha256|$(cat binary-releases/snyk-alpine.sha256)|" binary-releases/release.json
-    sed -i "" "s|snyk-linux-sha256|$(cat binary-releases/snyk-linux.sha256)|" binary-releases/release.json
-    sed -i "" "s|snyk-linux-arm64-sha256|$(cat binary-releases/snyk-linux-arm64.sha256)|" binary-releases/release.json
-    sed -i "" "s|snyk-macos-sha256|$(cat binary-releases/snyk-macos.sha256)|" binary-releases/release.json
-    sed -i "" "s|snyk-win.exe-sha256|$(cat binary-releases/snyk-win.exe.sha256)|" binary-releases/release.json
-else
-    echo "this is Linux"
-    sed -i "s|1.0.0-monorepo|${BUILD_VERSION}|g" binary-releases/release.json
-    sed -i "s|snyk-alpine-sha256|$(cat binary-releases/snyk-alpine.sha256)|" binary-releases/release.json
-    sed -i "s|snyk-linux-sha256|$(cat binary-releases/snyk-linux.sha256)|" binary-releases/release.json
-    sed -i "s|snyk-linux-arm64-sha256|$(cat binary-releases/snyk-linux-arm64.sha256)|" binary-releases/release.json
-    sed -i "s|snyk-macos-sha256|$(cat binary-releases/snyk-macos.sha256)|" binary-releases/release.json
-    sed -i "s|snyk-win.exe-sha256|$(cat binary-releases/snyk-win.exe.sha256)|" binary-releases/release.json
-fi
-
-# sanity check if release.json is a valid JSON
-jq '.' binary-releases/release.json
+make binary-releases/release.json
 
 # --commit-path is forwarded to `git log <path>`.
 #     We're use this to remove CLIv2 changes in v1's changelogs.
