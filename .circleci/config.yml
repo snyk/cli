@@ -277,6 +277,20 @@ jobs:
             - dist/
             - packages/*/dist
             - pysrc
+  version:
+    executor: docker-node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - setup_npm
+      - run:
+          name: Deciding version
+          command: make binary-releases/version
+      - persist_to_workspace:
+          root: .
+          paths:
+            - binary-releases/version
   regression-test:
     parameters:
       test_snyk_command:
@@ -764,12 +778,10 @@ workflows:
           context: nodejs-install
           requires:
             - Build
-      - build-artifacts:
-          name: Build Artifacts
-          context:
-            - snyk-cli-pgp-signing
+      - version:
+          name: Version
           requires:
-            - Build
+            - Install
           filters:
             branches:
               only:
@@ -777,6 +789,13 @@ workflows:
                 - /^.*test.*$/
                 - /^.*v2.*$/
                 - master
+      - build-artifacts:
+          name: Build Artifacts
+          context:
+            - snyk-cli-pgp-signing
+          requires:
+            - Build
+            - Version
       - test-windows:
           name: Acceptance Tests (snyk-win.exe)
           context: nodejs-install
