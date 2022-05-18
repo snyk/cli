@@ -3,6 +3,7 @@ package extensions
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/snyk/cli/cliv2/internal/extension_metadata"
 	"log"
 	"os"
 	"path"
@@ -11,8 +12,9 @@ import (
 import flag "github.com/spf13/pflag"
 
 type ExtensionInput struct {
-	// TODO: what standard stuff needs to go here?
-	TBDMetadata string `json:"tbd"`
+	// Standard stuff do we want to passed to all extensions
+	Debug     bool `json:"debug"`
+	ProxyPort int  `json:"proxy_port"`
 
 	// Extension-specific args
 	Args any `json:"args"`
@@ -20,10 +22,10 @@ type ExtensionInput struct {
 
 type Extension struct {
 	ExtensionRoot string
-	Metadata      *ExtensionMetadata
+	Metadata      *extension_metadata.ExtensionMetadata
 }
 
-func NewExtension(extensionRoot string, extensionMetadata *ExtensionMetadata) *Extension {
+func NewExtension(extensionRoot string, extensionMetadata *extension_metadata.ExtensionMetadata) *Extension {
 	return &Extension{
 		ExtensionRoot: extensionRoot,
 		Metadata:      extensionMetadata,
@@ -67,10 +69,19 @@ func (e *Extension) ExecutablePath(debugLogger *log.Logger) (string, error) {
 	return binaryFullPath, nil
 }
 
-func (e *Extension) MakeLaunchCodes(args []string, debugLogger *log.Logger) (string, error) {
+// Builds the JSON string required to pass to stdin of an extension when launching it
+// based on 1) the CLI args and 2) the extension's metadata
+func (e *Extension) MakeLaunchCodes(args []string, proxyPort int, debugLogger *log.Logger) (string, error) {
 	debugLogger.Println("making launch codes for extension:", e.Metadata.Name)
 
 	extensionArgs := map[string]string{}
+
+	// this is to make flag.Parse not complain about the --debug or -d flags getting passed through
+	// and also determine whether we should set `Debug` in the
+	// it might be better to remove these from args[] if they are present and then pass through debug bool
+	// from main.go through cliv2.go and into here.
+	debug := flag.BoolP("debug", "d", false, "debug mode")
+	debugLogger.Println("debug:", *debug)
 
 	for _, opt := range e.Metadata.Options {
 		debugLogger.Println("option:", opt)
@@ -80,14 +91,18 @@ func (e *Extension) MakeLaunchCodes(args []string, debugLogger *log.Logger) (str
 		debugLogger.Println("usage:", opt.Usage)
 
 		optionValue := flag.StringP(opt.Name, opt.Shorthand, "", opt.Usage)
+
+		// todo: does this need to go outside the loop?
 		flag.Parse()
 
 		extensionArgs[opt.Name] = *optionValue
 	}
 
 	extensionLaunchCodes := ExtensionInput{
-		TBDMetadata: "some metadata",
-		Args:        extensionArgs,
+		// Debug:     *debug,
+		Debug:     *debug,
+		ProxyPort: proxyPort,
+		Args:      extensionArgs,
 	}
 
 	launchCodesSerializedBytes, err := json.Marshal(extensionLaunchCodes)
@@ -98,4 +113,23 @@ func (e *Extension) MakeLaunchCodes(args []string, debugLogger *log.Logger) (str
 
 	launchCodesSerializedString := string(launchCodesSerializedBytes)
 	return string(launchCodesSerializedString), nil
+}
+
+func LoadExtension(extensionDir string, extensionPath string, debugLogger *log.Logger) (*Extension, error) {
+	bytes, err := os.ReadFile(extensionPath)
+	if err != nil {
+		debugLogger.Println("Failed to read extension file:", extensionPath)
+		return nil, err
+	}
+	var extensionMetadata extension_metadata.ExtensionMetadata
+	err = json.Unmarshal(bytes, &extensionMetadata)
+	if err != nil {
+		debugLogger.Println("Failed to unmarshal extension.json file, ", extensionPath)
+		return nil, err
+	}
+
+	return &Extension{
+		ExtensionRoot: extensionDir,
+		Metadata:      &extensionMetadata,
+	}, nil
 }

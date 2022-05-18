@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 
 	"github.com/snyk/cli/cliv2/internal/embedded"
@@ -53,8 +54,8 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) *CLI {
 		return nil
 	}
 
-	extensions := extensions.LoadExtensions(cacheDirectory, debugLogger)
-	debugLogger.Println("found extensions:\n", extensions)
+	loaded_extensions := LoadExtensions(cacheDirectory, debugLogger)
+	debugLogger.Println("found extensions:\n", loaded_extensions)
 
 	cli := CLI{
 		DebugLogger:      debugLogger,
@@ -62,7 +63,7 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) *CLI {
 		v1Version:        cliv1.CLIV1Version(),
 		v2Version:        strings.TrimSpace(SNYK_CLIV2_VERSION_PART),
 		v1BinaryLocation: v1BinaryLocation,
-		Extensions:       extensions,
+		Extensions:       loaded_extensions,
 	}
 
 	err = cli.ExtractV1Binary()
@@ -149,6 +150,19 @@ func (c *CLI) matchBuiltInHandler(args []string) CommandHandler {
 	return nil
 }
 
+func matchExtension(args []string, extensions []extensions.Extension) *extensions.Extension {
+	if len(args) > 0 {
+		maybeCommand := args[0]
+		for _, extension := range extensions {
+			if extension.Metadata.Command == maybeCommand {
+				return &extension
+			}
+		}
+	}
+
+	return nil
+}
+
 func AddIntegrationEnvironment(input []string, name string, version string) (result []string, err error) {
 	inputAsMap := utils.ToKeyValueMap(input, "=")
 	result = input
@@ -228,10 +242,10 @@ func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughAr
 		return maybeMatchingBuiltinHandler.Execute(wrapperProxyPort, fullPathToCert, passthroughArgs)
 	}
 
-	maybeMatchingExtension := extensions.MatchExtension(passthroughArgs, c.Extensions)
+	maybeMatchingExtension := matchExtension(passthroughArgs, c.Extensions)
 	if maybeMatchingExtension != nil {
 		c.DebugLogger.Println("matched extension:", maybeMatchingExtension)
-		launchCodes, err := maybeMatchingExtension.MakeLaunchCodes(passthroughArgs, c.DebugLogger)
+		launchCodes, err := maybeMatchingExtension.MakeLaunchCodes(passthroughArgs, wrapperProxyPort, c.DebugLogger)
 		if err != nil {
 			fmt.Println(err)
 			return exit_codes.SNYK_EXIT_CODE_ERROR
@@ -289,4 +303,53 @@ func LaunchExtension(extension *extensions.Extension, launchCodes string, proxyP
 	}
 
 	return exit_codes.SNYK_EXIT_CODE_OK
+}
+
+func LoadExtensions(cacheDir string, debugLogger *log.Logger) []extensions.Extension {
+	loaded_extensions := []extensions.Extension{}
+
+	extensionsDir := path.Join(cacheDir, "extensions")
+	debugLogger.Println("extensionsDir:", extensionsDir)
+
+	_, err := os.Stat(extensionsDir)
+	if err != nil {
+		debugLogger.Println("No extensions directory found in cache directory:", extensionsDir)
+		return loaded_extensions
+	}
+
+	f, err := os.Open(extensionsDir)
+	if err != nil {
+		debugLogger.Println("Failed to open extensions directory:", extensionsDir)
+		return loaded_extensions
+	}
+
+	dirEntries, err := f.ReadDir(0) // 0 means read all directories in the directory (as opposed to some n > 0 which would be a limited number of directories to read)
+	if err != nil {
+		debugLogger.Println("Failed to read extensions directory:", extensionsDir)
+		return loaded_extensions
+	}
+
+	for _, dirEntry := range dirEntries {
+		if dirEntry.IsDir() {
+			debugLogger.Println("dirEntry:", dirEntry.Name())
+			// make sure that it has an extension.json file in it
+			extensionDir := path.Join(extensionsDir, dirEntry.Name())
+			extensionMetadataPath := path.Join(extensionDir, "extension.json")
+			debugLogger.Println("extensionMetadataPath:", extensionMetadataPath)
+			_, err := os.Stat(extensionMetadataPath)
+			if err == nil {
+				ext, err := extensions.LoadExtension(extensionDir, extensionMetadataPath, debugLogger)
+				if err != nil {
+					debugLogger.Println("failed to parse extension metadate file:", extensionMetadataPath)
+					debugLogger.Println(err)
+				}
+				debugLogger.Println("found valid extension metadata file at", extensionMetadataPath)
+				loaded_extensions = append(loaded_extensions, *ext)
+			} else {
+				debugLogger.Println("No extension.json file found in extension directory:", dirEntry.Name())
+			}
+		}
+	}
+
+	return loaded_extensions
 }
