@@ -51,10 +51,6 @@ cat sha256sums.txt.asc
 popd
 
 make binary-releases/release.json
-
-# --commit-path is forwarded to `git log <path>`.
-#     We're use this to remove CLIv2 changes in v1's changelogs.
-# :(exclude) syntax: https://git-scm.com/docs/gitglossary.html#Documentation/gitglossary.txt-exclude
-npx conventional-changelog-cli -p angular -l -r 1 --commit-path ':(exclude)cliv2' > binary-releases/RELEASE_NOTES.md
+make binary-releases/RELEASE_NOTES.md
 
 ls -la
