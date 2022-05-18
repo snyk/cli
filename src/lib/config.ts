@@ -23,6 +23,7 @@ interface Config {
   DRIFTCTL_PATH?: string;
   DRIFTCTL_URL?: string;
   IAC_BUNDLE_PATH?: string;
+  IAC_OUTPUT_V2?: boolean;
 }
 
 // TODO: fix the types!

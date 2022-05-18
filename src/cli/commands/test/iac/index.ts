@@ -85,7 +85,8 @@ export default async function(
   let iacIgnoredIssuesCount = 0;
   let iacOutputMeta: IacOutputMeta | undefined;
 
-  const isNewIacOutputSupported = await hasFeatureFlag('iacCliOutput', options);
+  const isNewIacOutputSupported =
+    config.IAC_OUTPUT_V2 || (await hasFeatureFlag('iacCliOutput', options));
 
   if (shouldLogUserMessages(options, isNewIacOutputSupported)) {
     console.log(EOL + iacTestTitle + EOL);
