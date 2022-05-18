@@ -39,17 +39,7 @@ shasum -a 256 snyk-fix.tgz > snyk-fix.tgz.sha256
 shasum -a 256 snyk-protect.tgz > snyk-protect.tgz.sha256
 shasum -a 256 snyk.tgz > snyk.tgz.sha256
 
-# GPG signed shasums file
-cat ./*.sha256 >> sha256sums.txt
-
-echo "Importing PGP key"
-echo "$SNYK_CODE_SIGNING_PGP_PRIVATE" | base64 --decode | gpg --import --batch --passphrase="$SNYK_CODE_SIGNING_GPG_PASSPHRASE"
-
-echo "Signing shasums file"
-gpg --clear-sign --local-user=1F4B9569 --passphrase="$SNYK_CODE_SIGNING_GPG_PASSPHRASE" --pinentry-mode=loopback --armor --batch sha256sums.txt
-cat sha256sums.txt.asc
-popd
-
+make binary-releases/sha256sums.txt.asc
 make binary-releases/release.json
 make binary-releases/RELEASE_NOTES.md
 
