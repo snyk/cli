@@ -5,6 +5,7 @@ import { resolveAndMonitorFacts } from '../../../../../src/lib/ecosystems/resolv
 import * as pluginAnalytics from '../../../../../src/lib/ecosystems/plugin-analytics';
 import * as analytics from '../../../../../src/lib/analytics';
 import * as httpClient from '../../../../../src/lib/request/promise';
+import * as promise from '../../../../../src/lib/request/promise';
 
 describe('resolve and test facts', () => {
   afterEach(() => jest.restoreAllMocks());
@@ -37,6 +38,68 @@ describe('resolve and test facts', () => {
       code: 500,
       message:
         'Internal error (reference: eb9ab16c-1d33-4586-bf99-ef30c144d1f1)',
+    });
+
+    const [testResults, errors] = await resolveAndMonitorFacts(
+      scanResults,
+      {} as Options,
+    );
+
+    expect(testResults).toEqual([]);
+    expect(errors[0]).toEqual({
+      error: 'Could not monitor dependencies in path',
+      path: 'path',
+      scanResult: {
+        analytics: [
+          {
+            data: {
+              totalFileSignatures: 3,
+              totalSecondsElapsedToGenerateFileSignatures: 0,
+            },
+            name: 'fileSignaturesAnalyticsContext',
+          },
+        ],
+        facts: [
+          {
+            data: [
+              {
+                hashes_ffm: [
+                  { data: 'ucMc383nMM/wkFRM4iOo5Q', format: 1 },
+                  { data: 'k+DxEmslFQWuJsZFXvSoYw', format: 1 },
+                ],
+                path: 'fastlz_example/fastlz.h',
+              },
+            ],
+            type: 'fileSignatures',
+          },
+        ],
+        identity: { type: 'cpp' },
+        name: 'my-unmanaged-c-project',
+        target: {
+          branch: 'master',
+          remoteUrl: 'https://github.com/some-org/some-unmanaged-project.git',
+        },
+      },
+    });
+  });
+
+  it('failing to resolve and monitor file-signatures fact for c/c++ projects when the job is cancelled', async () => {
+    const requestMonitorPollingTokenSpy = jest.spyOn(
+      pollingMonitor,
+      'requestMonitorPollingToken',
+    );
+    const makeRequestSpy = jest.spyOn(promise, 'makeRequest');
+
+    requestMonitorPollingTokenSpy.mockResolvedValueOnce({
+      token,
+      status: 'OK',
+      pollingTask,
+    });
+
+    makeRequestSpy.mockResolvedValueOnce({
+      token,
+      status: 'CANCELLED',
+      pollingTask,
     });
 
     const [testResults, errors] = await resolveAndMonitorFacts(

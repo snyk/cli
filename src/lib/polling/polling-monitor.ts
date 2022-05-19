@@ -11,7 +11,7 @@ import {
   ResolveAndMonitorFactsResponse,
   ResolveFactsState,
 } from './types';
-import { delayNextStep } from './common';
+import { delayNextStep, handleProcessingStatus } from './common';
 import {
   generateProjectAttributes,
   generateTags,
@@ -76,6 +76,9 @@ export async function pollingMonitorWithTokenUntilDone(
   };
 
   const response = await makeRequest<ResolveAndMonitorFactsResponse>(payload);
+
+  handleProcessingStatus(response);
+
   if (response.ok && response.isMonitored) {
     return response;
   }

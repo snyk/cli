@@ -8,7 +8,7 @@ import { getAuthHeader } from '../api-token';
 import { ScanResult } from '../ecosystems/types';
 
 import { ResolveAndTestFactsResponse } from './types';
-import { delayNextStep } from './common';
+import { delayNextStep, handleProcessingStatus } from './common';
 import { TestDependenciesResult } from '../snyk-test/legacy';
 
 export async function requestTestPollingToken(
@@ -53,6 +53,8 @@ export async function pollingTestWithTokenUntilDone(
   };
 
   const response = await makeRequest<ResolveAndTestFactsResponse>(payload);
+
+  handleProcessingStatus(response);
 
   if (response.result) {
     const {
