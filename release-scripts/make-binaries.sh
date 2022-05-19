@@ -3,8 +3,6 @@ set -euo pipefail
 
 # Do not run this file locally. To build release artifacts, see CONTRIBUTING.
 
-make prepack
-
 make binary-releases/snyk-fix.tgz
 make binary-releases/snyk-protect.tgz
 make binary-releases/snyk.tgz
