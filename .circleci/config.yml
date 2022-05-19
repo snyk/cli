@@ -481,9 +481,6 @@ jobs:
             sudo apt update
             sudo apt install osslsigncode
       - run:
-          name: Preparing packages
-          command: ./release-scripts/prepare-packages-for-release.sh
-      - run:
           name: Building artifacts
           command: ./release-scripts/make-binaries.sh
       - store_artifacts:
