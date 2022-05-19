@@ -39,8 +39,4 @@ shasum -a 256 snyk-fix.tgz > snyk-fix.tgz.sha256
 shasum -a 256 snyk-protect.tgz > snyk-protect.tgz.sha256
 shasum -a 256 snyk.tgz > snyk.tgz.sha256
 
-make binary-releases/sha256sums.txt.asc
-make binary-releases/release.json
-make binary-releases/RELEASE_NOTES.md
-
 ls -la
