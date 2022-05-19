@@ -29,3 +29,16 @@ prepack: binary-releases/version
 clean-prepack:
 	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json
 	rm -f prepack
+
+binary-releases/sha256sums.txt.asc: $(wildcard binary-releases/*.sha256)
+	./release-scripts/sha256sums.txt.asc.sh
+
+binary-releases/release.json: binary-releases/version $(wildcard binary-releases/*.sha256)
+	./release-scripts/release.json.sh
+
+# --commit-path is forwarded to `git log <path>`.
+#   We're using this to remove CLIv2 changes in v1's changelogs.
+#   :(exclude) syntax: https://git-scm.com/docs/gitglossary.html#Documentation/gitglossary.txt-exclude
+# Release notes uses version from package.json so we need to prepack beforehand.
+binary-releases/RELEASE_NOTES.md: prepack | binary-releases
+	npx conventional-changelog-cli -p angular -l -r 1 --commit-path ':(exclude)cliv2' > binary-releases/RELEASE_NOTES.md

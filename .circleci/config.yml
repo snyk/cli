@@ -483,6 +483,26 @@ jobs:
       - run:
           name: Building artifacts
           command: ./release-scripts/make-binaries.sh
+      - persist_to_workspace:
+          root: .
+          paths:
+            - binary-releases
+  prepare-release:
+    executor: docker-node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - setup_npm
+      - run:
+          name: Signing shasums
+          command: make binary-releases/sha256sums.txt.asc
+      - run:
+          name: Making release.json
+          command: make binary-releases/release.json
+      - run:
+          name: Making release notes
+          command: make binary-releases/RELEASE_NOTES.md
       - store_artifacts:
           path: ./binary-releases
       - run:
@@ -788,8 +808,6 @@ workflows:
                 - master
       - build-artifacts:
           name: Build Artifacts
-          context:
-            - snyk-cli-pgp-signing
           requires:
             - Build
             - Version
@@ -823,10 +841,17 @@ workflows:
           requires:
             - Build Artifacts
           test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
+      - prepare-release:
+          name: Prepare Release
+          context:
+            - snyk-cli-pgp-signing
+          requires:
+            - Build Artifacts
       - should-release:
           name: Release?
           type: approval
           requires:
+            - Prepare Release
             - Lint
             - Tap Tests
             - Jest Tests (Linux, Node v12.22.11)
