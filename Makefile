@@ -19,7 +19,14 @@ binary-releases:
 binary-releases/version: | binary-releases
 	./release-scripts/next-version.sh > binary-releases/version
 
-# this target is destructive since package.json files are modified in-place.
+# prepack is not a typical target.
+#   It modifies package.json files rather than only creating new files.
+#   INTERMEDIATE prevents dependants from rebuilding when prepack is stale.
+#     It will act as a passthrough and only rebuild dependants when version has changed.
+#   SECONDARY disables INTERMEDIATE's auto-remove feature.
+#     Only removing "prepack" is not enough. We need to do additional cleanup (see clean-prepack).
+.INTERMEDIATE: prepack
+.SECONDARY: prepack
 prepack: binary-releases/version
 	@echo "'make prepack' was run. Run 'make clean-prepack' to rollback your package.json changes and this file." > prepack
 	npm version "$(shell cat binary-releases/version)" --no-git-tag-version --workspaces --include-workspace-root
@@ -42,3 +49,20 @@ binary-releases/release.json: binary-releases/version $(wildcard binary-releases
 # Release notes uses version from package.json so we need to prepack beforehand.
 binary-releases/RELEASE_NOTES.md: prepack | binary-releases
 	npx conventional-changelog-cli -p angular -l -r 1 --commit-path ':(exclude)cliv2' > binary-releases/RELEASE_NOTES.md
+
+# Generates a shasum of a target with the same name.
+# See "Automatic Variables" in GNU Make docs (linked at the top)
+%.sha256: %
+	cd $(@D); shasum -a 256 $(<F) > $(@F); shasum -a 256 -c $(@F)
+
+binary-releases/snyk.tgz: prepack | binary-releases
+	mv $(shell npm pack) binary-releases/snyk.tgz
+	$(MAKE) binary-releases/snyk.tgz.sha256
+
+binary-releases/snyk-fix.tgz: prepack | binary-releases
+	mv $(shell npm pack --workspace '@snyk/fix') binary-releases/snyk-fix.tgz
+	$(MAKE) binary-releases/snyk-fix.tgz.sha256
+
+binary-releases/snyk-protect.tgz: prepack | binary-releases
+	mv $(shell npm pack --workspace '@snyk/protect') binary-releases/snyk-protect.tgz
+	$(MAKE) binary-releases/snyk-protect.tgz.sha256
