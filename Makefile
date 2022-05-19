@@ -5,6 +5,8 @@
 # Documentation: https://www.gnu.org/software/make/manual/make.html
 #
 
+PKG := npx pkg ./ --compress Brotli
+
 # First target is default when running `make`.
 .PHONY: help
 help:
@@ -66,3 +68,29 @@ binary-releases/snyk-fix.tgz: prepack | binary-releases
 binary-releases/snyk-protect.tgz: prepack | binary-releases
 	mv $(shell npm pack --workspace '@snyk/protect') binary-releases/snyk-protect.tgz
 	$(MAKE) binary-releases/snyk-protect.tgz.sha256
+
+binary-releases/snyk-alpine: prepack | binary-releases
+	$(PKG) -t node16-alpine-x64 -o binary-releases/snyk-alpine
+	$(MAKE) binary-releases/snyk-alpine.sha256
+
+binary-releases/snyk-linux: prepack | binary-releases
+	$(PKG) -t node16-linux-x64 -o binary-releases/snyk-linux
+	$(MAKE) binary-releases/snyk-linux.sha256
+
+# Why `--no-bytecode` for Linux/arm64:
+#   arm64 bytecode generation requires various build tools on an x64 build
+#   environment. So disabling until we can support it. It's an optimisation.
+#   https://github.com/vercel/pkg#targets
+binary-releases/snyk-linux-arm64: prepack | binary-releases
+	$(PKG) -t node16-linux-arm64 -o binary-releases/snyk-linux-arm64 --no-bytecode
+	$(MAKE) binary-releases/snyk-linux-arm64.sha256
+
+binary-releases/snyk-macos: prepack | binary-releases
+	$(PKG) -t node16-macos-x64 -o binary-releases/snyk-macos
+	$(MAKE) binary-releases/snyk-macos.sha256
+
+binary-releases/snyk-win.exe: prepack | binary-releases
+	$(PKG) -t node16-win-x64 -o binary-releases/snyk-win-unsigned.exe
+	./release-scripts/sign-windows-binary.sh
+	rm binary-releases/snyk-win-unsigned.exe
+	$(MAKE) binary-releases/snyk-win.exe.sha256

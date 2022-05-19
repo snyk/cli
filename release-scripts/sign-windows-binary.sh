@@ -21,9 +21,3 @@ osslsigncode sign -h sha512 \
   -t "http://timestamp.comodoca.com/authenticode" \
   -in binary-releases/snyk-win-unsigned.exe \
   -out binary-releases/snyk-win.exe
-
-rm binary-releases/snyk-win-unsigned.exe
-
-pushd binary-releases
-sha256sum snyk-win.exe >snyk-win.exe.sha256
-popd
