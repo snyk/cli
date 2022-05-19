@@ -58,6 +58,7 @@ import {
 import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import * as ora from 'ora';
+import { IaCTestFailure } from '../../../../lib/formatters/iac-output/v2/types';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -81,7 +82,7 @@ export default async function(
   const results = [] as any[];
 
   // Holds an array of scanned file metadata for output.
-  let iacScanFailures: IacFileInDirectory[] | undefined;
+  let iacScanFailures: IacFileInDirectory[] = [];
   let iacIgnoredIssuesCount = 0;
   let iacOutputMeta: IacOutputMeta | undefined;
 
@@ -131,20 +132,16 @@ export default async function(
         };
 
         res = results;
-        iacScanFailures = failures;
+        iacScanFailures = failures ? failures : [];
         iacIgnoredIssuesCount += ignoreCount;
       } catch (error) {
-        // TODO: Check if we really need this anymore.
-        //  All errors that we throw are of Error type, so we shouldn't be needing this check/conversion.
         res = formatTestError(error);
-        // we can store all errors here for printing the paths and errors later in the new output.
       }
 
       // Not all test results are arrays in order to be backwards compatible
       // with scripts that use a callback with test. Coerce results/errors to be arrays
       // and add the result options to each to be displayed
       // TODO: Similarly to above, do we actually need to convert this to an array?
-      // I think we do not need this in IaC
       const resArray: any[] = Array.isArray(res) ? res : [res];
 
       for (let i = 0; i < resArray.length; i++) {
@@ -274,11 +271,23 @@ export default async function(
   let summaryMessage = '';
   let errorResultsLength = errorResults.length;
 
-  if (iacScanFailures?.length) {
+  if (iacScanFailures.length || hasErrors) {
     errorResultsLength = iacScanFailures.length || errorResults.length;
 
+    const thrownErrors: IaCTestFailure[] = errorResults.map((err) => ({
+      filePath: err.path,
+      failureReason: err.message,
+    }));
+
+    const allTestFailures: IaCTestFailure[] = iacScanFailures
+      .map((f) => ({
+        filePath: f.filePath,
+        failureReason: f.failureReason,
+      }))
+      .concat(thrownErrors);
+
     response += isNewIacOutputSupported
-      ? EOL.repeat(2) + formatIacTestFailures(iacScanFailures)
+      ? EOL.repeat(2) + formatIacTestFailures(allTestFailures)
       : iacScanFailures
           .map((reason) => chalk.bold.red(getIacDisplayErrorFileOutput(reason)))
           .join('');

@@ -3,9 +3,9 @@ import * as pathLib from 'path';
 
 import { formatIacTestFailures } from '../../../../../../../../src/lib/formatters/iac-output';
 import { colors } from '../../../../../../../../src/lib/formatters/iac-output/v2/utils';
-import { IacFileInDirectory } from '../../../../../../../../src/lib/types';
+import { IaCTestFailure } from '../../../../../../../../src/lib/formatters/iac-output/v2/types';
 
-const testFailureFixtures: IacFileInDirectory[] = JSON.parse(
+const testFailureFixtures: IaCTestFailure[] = JSON.parse(
   fs.readFileSync(
     pathLib.join(__dirname, 'fixtures', 'test-failures.json'),
     'utf-8',
@@ -14,15 +14,11 @@ const testFailureFixtures: IacFileInDirectory[] = JSON.parse(
 
 describe('formatIacTestFailures', () => {
   it('should include the "Invalid files: X" title with the correct value', () => {
-    // Act
     const result = formatIacTestFailures(testFailureFixtures);
-
-    // Assert
     expect(result).toContain(colors.info.bold(`Test Failures`));
   });
 
   it('should include the failures list with the correct values', () => {
-    // Act
     const result = formatIacTestFailures(testFailureFixtures);
 
     // Assert

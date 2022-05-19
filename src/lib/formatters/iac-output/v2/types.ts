@@ -6,3 +6,8 @@ export interface IacTestData {
   results: IacTestResponse[];
   failures?: IacFileInDirectory[];
 }
+
+export type IaCTestFailure = {
+  filePath: string;
+  failureReason: string | undefined;
+};
