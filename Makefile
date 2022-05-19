@@ -94,3 +94,15 @@ binary-releases/snyk-win.exe: prepack | binary-releases
 	./release-scripts/sign-windows-binary.sh
 	rm binary-releases/snyk-win-unsigned.exe
 	$(MAKE) binary-releases/snyk-win.exe.sha256
+
+binary-releases/snyk-for-docker-desktop-darwin-x64.tar.gz: prepack | binary-releases
+	./docker-desktop/build.sh darwin x64
+	$(MAKE) binary-releases/snyk-for-docker-desktop-darwin-x64.tar.gz.sha256
+
+binary-releases/snyk-for-docker-desktop-darwin-arm64.tar.gz: prepack | binary-releases
+	./docker-desktop/build.sh darwin arm64
+	$(MAKE) binary-releases/snyk-for-docker-desktop-darwin-arm64.tar.gz.sha256
+
+binary-releases/docker-mac-signed-bundle.tar.gz: prepack | binary-releases
+	./release-scripts/docker-desktop-release.sh
+	$(MAKE) binary-releases/docker-mac-signed-bundle.tar.gz.sha256

@@ -27,8 +27,4 @@ tar czfh docker-mac-signed-bundle.tar.gz ./docker
 mv ./docker-mac-signed-bundle.tar.gz ../binary-releases/
 cd ..
 
-pushd binary-releases
-shasum -a 256 docker-mac-signed-bundle.tar.gz >docker-mac-signed-bundle.tar.gz.sha256
-popd
-
 rm -rf ./dist-docker
