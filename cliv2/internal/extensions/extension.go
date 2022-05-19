@@ -3,7 +3,7 @@ package extensions
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/snyk/cli/cliv2/internal/extension_metadata"
+	"github.com/snyk/cli-extension-lib-go"
 	"log"
 	"os"
 	"path"
@@ -22,10 +22,10 @@ type ExtensionInput struct {
 
 type Extension struct {
 	ExtensionRoot string
-	Metadata      *extension_metadata.ExtensionMetadata
+	Metadata      *cli_extension_lib_go.ExtensionMetadata
 }
 
-func NewExtension(extensionRoot string, extensionMetadata *extension_metadata.ExtensionMetadata) *Extension {
+func NewExtension(extensionRoot string, extensionMetadata *cli_extension_lib_go.ExtensionMetadata) *Extension {
 	return &Extension{
 		ExtensionRoot: extensionRoot,
 		Metadata:      extensionMetadata,
@@ -88,9 +88,9 @@ func (e *Extension) MakeLaunchCodes(args []string, proxyPort int, debugLogger *l
 		debugLogger.Println("name:", opt.Name)
 		debugLogger.Println("shorthand:", opt.Shorthand)
 		debugLogger.Println("type:", opt.Type)
-		debugLogger.Println("usage:", opt.Usage)
+		debugLogger.Println("description:", opt.Description)
 
-		optionValue := flag.StringP(opt.Name, opt.Shorthand, "", opt.Usage)
+		optionValue := flag.StringP(opt.Name, opt.Shorthand, opt.Default, opt.Description)
 
 		// todo: does this need to go outside the loop?
 		flag.Parse()
@@ -113,23 +113,4 @@ func (e *Extension) MakeLaunchCodes(args []string, proxyPort int, debugLogger *l
 
 	launchCodesSerializedString := string(launchCodesSerializedBytes)
 	return string(launchCodesSerializedString), nil
-}
-
-func LoadExtension(extensionDir string, extensionPath string, debugLogger *log.Logger) (*Extension, error) {
-	bytes, err := os.ReadFile(extensionPath)
-	if err != nil {
-		debugLogger.Println("Failed to read extension file:", extensionPath)
-		return nil, err
-	}
-	var extensionMetadata extension_metadata.ExtensionMetadata
-	err = json.Unmarshal(bytes, &extensionMetadata)
-	if err != nil {
-		debugLogger.Println("Failed to unmarshal extension.json file, ", extensionPath)
-		return nil, err
-	}
-
-	return &Extension{
-		ExtensionRoot: extensionDir,
-		Metadata:      &extensionMetadata,
-	}, nil
 }

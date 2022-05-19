@@ -13,6 +13,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/snyk/cli-extension-lib-go"
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
 	"github.com/snyk/cli/cliv2/internal/exit_codes"
@@ -338,13 +339,19 @@ func LoadExtensions(cacheDir string, debugLogger *log.Logger) []extensions.Exten
 			debugLogger.Println("extensionMetadataPath:", extensionMetadataPath)
 			_, err := os.Stat(extensionMetadataPath)
 			if err == nil {
-				ext, err := extensions.LoadExtension(extensionDir, extensionMetadataPath, debugLogger)
+				extensionMetadata, err := cli_extension_lib_go.DeserExtensionMetadata(extensionMetadataPath)
 				if err != nil {
 					debugLogger.Println("failed to parse extension metadate file:", extensionMetadataPath)
 					debugLogger.Println(err)
 				}
 				debugLogger.Println("found valid extension metadata file at", extensionMetadataPath)
-				loaded_extensions = append(loaded_extensions, *ext)
+
+				ext := extensions.Extension{
+					ExtensionRoot: extensionDir,
+					Metadata:      extensionMetadata,
+				}
+
+				loaded_extensions = append(loaded_extensions, ext)
 			} else {
 				debugLogger.Println("No extension.json file found in extension directory:", dirEntry.Name())
 			}
