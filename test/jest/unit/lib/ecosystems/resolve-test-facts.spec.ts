@@ -1,5 +1,6 @@
 import { Options } from '../../../../../src/lib/types';
 import * as pollingTest from '../../../../../src/lib/polling/polling-test';
+import * as promise from '../../../../../src/lib/request/promise';
 import { depGraphData, scanResults } from './fixtures/';
 import { resolveAndTestFacts } from '../../../../../src/lib/ecosystems/resolve-test-facts';
 import * as pluginAnalytics from '../../../../../src/lib/ecosystems/plugin-analytics';
@@ -49,6 +50,42 @@ describe('resolve and test facts', () => {
       'Internal error (reference: eb9ab16c-1d33-4586-bf99-ef30c144d1f1)',
     );
   });
+
+  it.each`
+    actual         | expected
+    ${'CANCELLED'} | ${'Failed to process the project. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output'}
+    ${'ERROR'}     | ${'Failed to process the project. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output'}
+  `(
+    'should handle different file-signatures processing statuses for the testing flow',
+    async ({ actual, expected }) => {
+      const requestTestPollingTokenSpy = jest.spyOn(
+        pollingTest,
+        'requestTestPollingToken',
+      );
+      const makeRequestSpy = jest.spyOn(promise, 'makeRequest');
+
+      requestTestPollingTokenSpy.mockResolvedValueOnce({
+        token,
+        status: 'OK',
+        pollingTask,
+      });
+
+      makeRequestSpy.mockResolvedValueOnce({
+        token,
+        status: actual,
+        pollingTask,
+      });
+
+      const [testResults, errors] = await resolveAndTestFacts(
+        'cpp',
+        scanResults,
+        {} as Options,
+      );
+
+      expect(testResults).toEqual([]);
+      expect(errors[0]).toContain(expected);
+    },
+  );
 
   it('successfully resolving and testing file-signatures fact for c/c++ projects', async () => {
     const resolveAndTestFactsSpy = jest.spyOn(
