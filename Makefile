@@ -7,7 +7,7 @@
 
 PKG := npx pkg ./ --compress Brotli
 
-# First target is default when running `make`.
+.DEFAULT: help
 .PHONY: help
 help:
 	@echo 'Usage: make <target>'
