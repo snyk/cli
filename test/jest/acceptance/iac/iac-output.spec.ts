@@ -100,6 +100,8 @@ describe('iac test output', () => {
           EOL +
           '  Invalid files: 1' +
           EOL +
+          '  Invalid paths: 0' +
+          EOL +
           '  Ignored issues: 8' +
           EOL +
           '  Total issues: ',
@@ -175,6 +177,12 @@ Target file:       ${dirPath}/`);
                 'kubernetes',
                 'helm-config.yaml',
               )}` +
+              EOL +
+              `        ${pathLib.join(
+                'iac',
+                'only-invalid',
+                'helm-config.yaml',
+              )}` +
               EOL.repeat(2) +
               '  Failed to parse Terraform file' +
               EOL +
@@ -200,6 +208,17 @@ Target file:       ${dirPath}/`);
           );
         });
 
+        it('should include counts for invalid files and invalid paths in the test summary', async () => {
+          const dirPath = 'iac';
+          const { stdout } = await run(
+            `snyk iac test ${dirPath} my-imaginary-file.tf my-imaginary-directory/`,
+          );
+
+          expect(stdout).toContain(
+            '  Invalid files: 6' + EOL + '  Invalid paths: 2',
+          );
+        });
+
         it('should include user tip for test failures', async () => {
           const dirPath = 'iac/terraform';
           const { stdout } = await run(`snyk iac test ${dirPath}`);
@@ -218,12 +237,7 @@ Target file:       ${dirPath}/`);
         const dirPath = 'iac/only-invalid';
         const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-        expect(stdout).toContain(
-          `Could not find any valid infrastructure as code files. Supported file extensions are tf, yml, yaml & json.
-More information can be found by running \`snyk iac test --help\` or through our documentation:
-https://support.snyk.io/hc/en-us/articles/360012429477-Test-your-Kubernetes-files-with-our-CLI-tool
-https://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files-with-our-CLI-tool`,
-        );
+        expect(stdout).toContain('We were unable to parse the YAML file');
       });
 
       it('should not show the issues section', async () => {
@@ -348,7 +362,7 @@ Project path:      ${filePath}
       const dirPath = 'iac/only-valid';
       const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-      expect(stdout).not.toContain('Invalid Files');
+      expect(stdout).not.toContain('Test Failures');
     });
 
     describe('with multiple test results', () => {
@@ -403,12 +417,7 @@ If the issue persists contact support@snyk.io`,
         const dirPath = 'iac/only-invalid';
         const { stdout } = await run(`snyk iac test ${dirPath}`);
 
-        expect(stdout).toContain(
-          `Could not find any valid infrastructure as code files. Supported file extensions are tf, yml, yaml & json.
-More information can be found by running \`snyk iac test --help\` or through our documentation:
-https://support.snyk.io/hc/en-us/articles/360012429477-Test-your-Kubernetes-files-with-our-CLI-tool
-https://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files-with-our-CLI-tool`,
-        );
+        expect(stdout).toContain('We were unable to parse the YAML file');
       });
 
       it('should not show file issue lists', async () => {

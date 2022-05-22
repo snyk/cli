@@ -2,13 +2,13 @@ import * as fs from 'fs';
 import * as pathLib from 'path';
 
 import { formatIacTestSummary } from '../../../../../../../src/lib/formatters/iac-output';
+import { IaCTestFailure } from '../../../../../../../src/lib/formatters/iac-output/v2/types';
 import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/utils';
 import { IacTestResponse } from '../../../../../../../src/lib/snyk-test/iac-test-result';
-import { IacFileInDirectory } from '../../../../../../../src/lib/types';
 
 describe('formatIacTestSummary', () => {
   let resultFixtures: IacTestResponse[];
-  let scanFailureFixtures: IacFileInDirectory[];
+  let iacTestFailureFixtures: IaCTestFailure[];
 
   beforeAll(async () => {
     resultFixtures = JSON.parse(
@@ -28,7 +28,7 @@ describe('formatIacTestSummary', () => {
       ),
     );
 
-    scanFailureFixtures = JSON.parse(
+    iacTestFailureFixtures = JSON.parse(
       fs.readFileSync(
         pathLib.join(
           __dirname,
@@ -39,7 +39,7 @@ describe('formatIacTestSummary', () => {
           'iac',
           'process-results',
           'fixtures',
-          'scan-failures.json',
+          'test-failures.json',
         ),
         'utf8',
       ),
@@ -86,7 +86,11 @@ describe('formatIacTestSummary', () => {
 
     // Act
     const result = formatIacTestSummary(
-      { ignoreCount, results: resultFixtures, failures: scanFailureFixtures },
+      {
+        ignoreCount,
+        results: resultFixtures,
+        failures: iacTestFailureFixtures,
+      },
       { orgName, projectName },
     );
 
@@ -96,7 +100,8 @@ describe('formatIacTestSummary', () => {
         '0',
       )}
 ${colors.failure.bold('✗')} Files with issues: ${colors.info.bold('3')}
-  Invalid files: ${colors.info.bold(`${scanFailureFixtures.length}`)}
+  Invalid files: ${colors.info.bold('3')}
+  Invalid paths: ${colors.info.bold('2')}
   Ignored issues: ${colors.info.bold(`${ignoreCount}`)}
   Total issues: ${colors.info.bold('22')} [ ${colors.severities.critical(
         '0 critical',

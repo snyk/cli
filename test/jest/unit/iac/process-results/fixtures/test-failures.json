@@ -1,0 +1,29 @@
+[
+    {
+        "failureType": "file",
+        "filePath": "test/fixtures/iac/terraform/sg_open_ssh_invalid_go_templates.tf",
+        "fileType": "tf",
+        "failureReason": "Failed to parse Terraform file"
+    },
+    {
+        "failureType": "file",
+        "filePath": "test/fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf",
+        "fileType": "tf",
+        "failureReason": "Failed to parse Terraform file"
+    },
+    {
+        "failureType": "file",
+        "filePath": "test/fixtures/iac/kubernetes/helm-config.yaml",
+        "failureReason": "Failed to parse YAML file"
+      },
+      {
+        "failureType": "path",
+        "filePath": "./test/fixtures/iac/terraform/empty_file.tf",
+        "failureReason": "Failed to load file content"
+      },
+      {
+        "failureType": "path",
+        "filePath": "test/fixtures/iac/only-invalid/empty_file.tf",
+        "failureReason": "Could not find any valid IaC files"
+      }
+]
