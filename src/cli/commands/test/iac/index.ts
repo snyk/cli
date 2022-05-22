@@ -270,20 +270,29 @@ export default async function(
 
   let summaryMessage = '';
   let errorResultsLength = errorResults.length;
+  let allTestFailures: IaCTestFailure[] | undefined;
 
   if (iacScanFailures.length || hasErrors) {
     errorResultsLength = iacScanFailures.length || errorResults.length;
 
-    const thrownErrors: IaCTestFailure[] = errorResults.map((err) => ({
-      filePath: err.path,
-      failureReason: err.message,
-    }));
+    const thrownErrors = errorResults.map(
+      (err) =>
+        ({
+          failureType: 'path',
+          filePath: err.path,
+          failureReason: err.message,
+        } as IaCTestFailure),
+    );
 
-    const allTestFailures: IaCTestFailure[] = iacScanFailures
-      .map((f) => ({
-        filePath: f.filePath,
-        failureReason: f.failureReason,
-      }))
+    allTestFailures = iacScanFailures
+      .map(
+        (f) =>
+          ({
+            failureType: 'file',
+            filePath: f.filePath,
+            failureReason: f.failureReason,
+          } as IaCTestFailure),
+      )
       .concat(thrownErrors);
 
     response += isNewIacOutputSupported
@@ -299,7 +308,7 @@ export default async function(
     const iacTestSummary = `${formatIacTestSummary(
       {
         results: successResults,
-        failures: iacScanFailures,
+        failures: allTestFailures,
         ignoreCount: iacIgnoredIssuesCount,
       },
       iacOutputMeta,

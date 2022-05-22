@@ -45,6 +45,14 @@ function formatCountsSection(testData: IacTestData): string {
   ).length;
   const filesWithoutIssues = testData.results.length - filesWithIssues;
 
+  const invalidFilesCount =
+    testData.failures?.filter((failure) => failure.failureType === 'file')
+      ?.length ?? 0;
+
+  const invalidPathsCount =
+    testData.failures?.filter((failure) => failure.failureType === 'path')
+      ?.length ?? 0;
+
   const countsSectionProperties: string[] = [];
 
   countsSectionProperties.push(
@@ -60,9 +68,11 @@ function formatCountsSection(testData: IacTestData): string {
   );
 
   countsSectionProperties.push(
-    `${INDENT}Invalid files: ${colors.info.bold(
-      `${testData.failures?.length ?? 0}`,
-    )}`,
+    `${INDENT}Invalid files: ${colors.info.bold(`${invalidFilesCount}`)}`,
+  );
+
+  countsSectionProperties.push(
+    `${INDENT}Invalid paths: ${colors.info.bold(`${invalidPathsCount}`)}`,
   );
 
   countsSectionProperties.push(
