@@ -791,7 +791,7 @@ workflows:
           requires:
             - Install
       - test-jest:
-          name: Jest Tests (Linux, Node v<< matrix.node_version >>)
+          name: Jest Tests (Node v<< matrix.node_version >>)
           context: nodejs-install
           requires:
             - Build
@@ -815,7 +815,7 @@ workflows:
                 - /^.*v2.*$/
                 - master
       - build-artifact:
-          name: Build Artifact (<< matrix.artifact >>)
+          name: Build (<< matrix.artifact >>)
           requires:
             - Build
             - Version
@@ -837,48 +837,48 @@ workflows:
           name: Acceptance Tests (snyk-win.exe)
           context: nodejs-install
           requires:
-            - Build Artifact (snyk-win.exe)
+            - Build (snyk-win.exe)
           test_snyk_command: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
       - test-macos:
           name: Acceptance Tests (snyk-macos)
           context: nodejs-install
           requires:
-            - Build Artifact (snyk-macos)
+            - Build (snyk-macos)
           test_snyk_command: /Users/distiller/snyk/binary-releases/snyk-macos
       - test-linux:
           name: Acceptance Tests (snyk-linux)
           context: nodejs-install
           requires:
-            - Build Artifact (snyk-linux)
+            - Build (snyk-linux)
           test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux
       - test-linux-arm64:
           name: Acceptance Tests (snyk-linux-arm64)
           context: nodejs-install
           requires:
-            - Build Artifact (snyk-linux-arm64)
+            - Build (snyk-linux-arm64)
           test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux-arm64
       - regression-test:
           name: Regression Tests (snyk-linux)
           context: nodejs-install
           requires:
-            - Build Artifact (snyk-linux)
+            - Build (snyk-linux)
           test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
       - prepare-release:
           name: Prepare Release
           context:
             - snyk-cli-pgp-signing
           requires:
-            - Build Artifact (snyk.tgz)
-            - Build Artifact (snyk-fix.tgz)
-            - Build Artifact (snyk-protect.tgz)
-            - Build Artifact (snyk-alpine)
-            - Build Artifact (snyk-linux)
-            - Build Artifact (snyk-linux-arm64)
-            - Build Artifact (snyk-macos)
-            - Build Artifact (snyk-win.exe)
-            - Build Artifact (snyk-for-docker-desktop-darwin-x64.tar.gz)
-            - Build Artifact (snyk-for-docker-desktop-darwin-arm64.tar.gz)
-            - Build Artifact (docker-mac-signed-bundle.tar.gz)
+            - Build (snyk.tgz)
+            - Build (snyk-fix.tgz)
+            - Build (snyk-protect.tgz)
+            - Build (snyk-alpine)
+            - Build (snyk-linux)
+            - Build (snyk-linux-arm64)
+            - Build (snyk-macos)
+            - Build (snyk-win.exe)
+            - Build (snyk-for-docker-desktop-darwin-x64.tar.gz)
+            - Build (snyk-for-docker-desktop-darwin-arm64.tar.gz)
+            - Build (docker-mac-signed-bundle.tar.gz)
       - should-release:
           name: Release?
           type: approval
@@ -886,9 +886,9 @@ workflows:
             - Prepare Release
             - Lint
             - Tap Tests
-            - Jest Tests (Linux, Node v12.22.11)
-            - Jest Tests (Linux, Node v14.19.1)
-            - Jest Tests (Linux, Node v16.14.2)
+            - Jest Tests (Node v12.22.11)
+            - Jest Tests (Node v14.19.1)
+            - Jest Tests (Node v16.14.2)
             - Acceptance Tests (snyk-win.exe)
             - Acceptance Tests (snyk-macos)
             - Acceptance Tests (snyk-linux)
@@ -925,9 +925,9 @@ workflows:
                 - /^.*v2.*$/
                 - master
       - v2-build-artifact:
-          name: v2 / Build Artifact (linux/amd64)
+          name: v2 / Build (linux/amd64)
           requires:
-            - Build Artifact (snyk-linux)
+            - Build (snyk-linux)
           go_os: linux
           go_arch: amd64
           filters:
@@ -936,9 +936,9 @@ workflows:
                 - /^.*v2.*$/
                 - master
       - v2-build-artifact:
-          name: v2 / Build Artifact (linux/arm64)
+          name: v2 / Build (linux/arm64)
           requires:
-            - Build Artifact (snyk-linux-arm64)
+            - Build (snyk-linux-arm64)
           go_os: linux
           go_arch: arm64
           filters:
@@ -947,9 +947,9 @@ workflows:
                 - /^.*v2.*$/
                 - master
       - v2-build-artifact:
-          name: v2 / Build Artifact (darwin/amd64)
+          name: v2 / Build (darwin/amd64)
           requires:
-            - Build Artifact (snyk-macos)
+            - Build (snyk-macos)
           go_os: darwin
           go_arch: amd64
           filters:
@@ -958,9 +958,9 @@ workflows:
                 - /^.*v2.*$/
                 - master
       - v2-build-artifact:
-          name: v2 / Build Artifact (windows/amd64)
+          name: v2 / Build (windows/amd64)
           requires:
-            - Build Artifact (snyk-win.exe)
+            - Build (snyk-win.exe)
           go_os: windows
           go_arch: amd64
           filters:
@@ -971,66 +971,66 @@ workflows:
       - v2-test-linux-amd64:
           name: v2 / Integration Tests (linux/amd64)
           requires:
-            - v2 / Build Artifact (linux/amd64)
+            - v2 / Build (linux/amd64)
       - v2-test-proxy-linux-amd64:
           name: v2 / Proxy Integration Tests (linux/amd64)
           requires:
-            - v2 / Build Artifact (linux/amd64)
+            - v2 / Build (linux/amd64)
       - v2-test-linux-arm64:
           name: v2 / Integration Tests (linux/arm64)
           requires:
-            - v2 / Build Artifact (linux/arm64)
+            - v2 / Build (linux/arm64)
       - v2-test-darwin-amd64:
           name: v2 / Integration Tests (darwin/amd64)
           requires:
-            - v2 / Build Artifact (darwin/amd64)
+            - v2 / Build (darwin/amd64)
       - v2-test-windows-amd64:
           name: v2 / Integration Tests (windows/amd64)
           requires:
-            - v2 / Build Artifact (windows/amd64)
+            - v2 / Build (windows/amd64)
       - v2-test-proxy-windows-amd64:
           name: v2 / Proxy Integration Tests (windows/amd64)
           requires:
-            - v2 / Build Artifact (windows/amd64)
+            - v2 / Build (windows/amd64)
       # Tests for backwards compatibility with CLIv1
       - test-linux:
           name: v2 / Jest Acceptance Tests (linux/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build Artifact (linux/amd64)
+            - v2 / Build (linux/amd64)
           test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_linux_amd64
       - test-linux-arm64:
           name: v2 / Jest Acceptance Tests (linux/arm64)
           context: nodejs-install
           requires:
-            - v2 / Build Artifact (linux/arm64)
+            - v2 / Build (linux/arm64)
           test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_linux_arm64
       - test-windows:
           name: v2 / Jest Acceptance Tests (windows/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build Artifact (windows/amd64)
+            - v2 / Build (windows/amd64)
           test_snyk_command: C:\Users\circleci\snyk\cliv2\bin\snyk_windows_amd64.exe
       - test-macos:
           name: v2 / Jest Acceptance Tests (darwin/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build Artifact (darwin/amd64)
+            - v2 / Build (darwin/amd64)
           test_snyk_command: /Users/distiller/snyk/cliv2/bin/snyk_darwin_amd64
       - regression-test:
           name: v2 / Regression Tests (linux/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build Artifact (linux/amd64)
+            - v2 / Build (linux/amd64)
           test_snyk_command: /mnt/ramdisk/snyk/cliv2/bin/snyk_linux_amd64
 
       - v2-sign-darwin-amd64:
-          name: v2 / Sign Artifact (darwin/amd64)
+          name: v2 / Sign (darwin/amd64)
           context: snyk-macos-signing
           requires:
-            - v2 / Build Artifact (darwin/amd64)
+            - v2 / Build (darwin/amd64)
       - v2-sign-windows-amd64:
-          name: v2 / Sign Artifact (windows/amd64)
+          name: v2 / Sign (windows/amd64)
           context: snyk-windows-signing
           requires:
-            - v2 / Build Artifact (windows/amd64)
+            - v2 / Build (windows/amd64)
