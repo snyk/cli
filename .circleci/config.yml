@@ -468,25 +468,33 @@ jobs:
             npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
               $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
-  build-artifacts:
+  build-artifact:
+    parameters:
+      artifact:
+        type: string
     executor: docker-node
     steps:
       - checkout
       - attach_workspace:
           at: .
       - setup_npm
+      - when:
+          condition:
+            equal: ['snyk-win.exe', << parameters.artifact >>]
+          steps:
+            run:
+              name: Installing osslsigncode
+              command: |
+                sudo apt update
+                sudo apt install osslsigncode
       - run:
-          name: Installing build dependencies
-          command: |
-            sudo apt update
-            sudo apt install osslsigncode
-      - run:
-          name: Building artifacts
-          command: ./release-scripts/make-binaries.sh
+          name: Building artifact
+          command: make binary-releases/<< parameters.artifact >>
       - persist_to_workspace:
           root: .
           paths:
-            - binary-releases
+            - binary-releases/<< parameters.artifact >>
+            - binary-releases/<< parameters.artifact >>.sha256
   prepare-release:
     executor: docker-node
     steps:
@@ -809,47 +817,71 @@ workflows:
                 - /^.*test.*$/
                 - /^.*v2.*$/
                 - master
-      - build-artifacts:
-          name: Build Artifacts
+      - build-artifact:
+          name: Build Artifact (<< matrix.artifact >>)
           requires:
             - Build
             - Version
+          matrix:
+            parameters:
+              artifact:
+                - snyk.tgz
+                - snyk-fix.tgz
+                - snyk-protect.tgz
+                - snyk-alpine
+                - snyk-linux
+                - snyk-linux-arm64
+                - snyk-macos
+                - snyk-win.exe
+                - snyk-for-docker-desktop-darwin-x64.tar.gz
+                - snyk-for-docker-desktop-darwin-arm64.tar.gz
+                - docker-mac-signed-bundle.tar.gz
       - test-windows:
           name: Acceptance Tests (snyk-win.exe)
           context: nodejs-install
           requires:
-            - Build Artifacts
+            - Build Artifact (snyk-win.exe)
           test_snyk_command: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
       - test-macos:
           name: Acceptance Tests (snyk-macos)
           context: nodejs-install
           requires:
-            - Build Artifacts
+            - Build Artifact (snyk-macos)
           test_snyk_command: /Users/distiller/snyk/binary-releases/snyk-macos
       - test-linux:
           name: Acceptance Tests (snyk-linux)
           context: nodejs-install
           requires:
-            - Build Artifacts
+            - Build Artifact (snyk-linux)
           test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux
       - test-linux-arm64:
           name: Acceptance Tests (snyk-linux-arm64)
           context: nodejs-install
           requires:
-            - Build Artifacts
+            - Build Artifact (snyk-linux-arm64)
           test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux-arm64
       - regression-test:
-          name: Regression Tests
+          name: Regression Tests (snyk-linux)
           context: nodejs-install
           requires:
-            - Build Artifacts
+            - Build Artifact (snyk-linux)
           test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
       - prepare-release:
           name: Prepare Release
           context:
             - snyk-cli-pgp-signing
           requires:
-            - Build Artifacts
+            - Build Artifact (snyk.tgz)
+            - Build Artifact (snyk-fix.tgz)
+            - Build Artifact (snyk-protect.tgz)
+            - Build Artifact (snyk-alpine)
+            - Build Artifact (snyk-linux)
+            - Build Artifact (snyk-linux-arm64)
+            - Build Artifact (snyk-macos)
+            - Build Artifact (snyk-win.exe)
+            - Build Artifact (snyk-for-docker-desktop-darwin-x64.tar.gz)
+            - Build Artifact (snyk-for-docker-desktop-darwin-arm64.tar.gz)
+            - Build Artifact (docker-mac-signed-bundle.tar.gz)
       - should-release:
           name: Release?
           type: approval
@@ -864,7 +896,7 @@ workflows:
             - Acceptance Tests (snyk-macos)
             - Acceptance Tests (snyk-linux)
             - Acceptance Tests (snyk-linux-arm64)
-            - Regression Tests
+            - Regression Tests (snyk-linux)
           filters:
             branches:
               only:
@@ -891,7 +923,10 @@ workflows:
       - v2-build-artifacts:
           name: v2 / Build Artifacts
           requires:
-            - Build Artifacts
+            - Build Artifact (snyk-linux)
+            - Build Artifact (snyk-linux-arm64)
+            - Build Artifact (snyk-macos)
+            - Build Artifact (snyk-win.exe)
           filters:
             branches:
               only:
