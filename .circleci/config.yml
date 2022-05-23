@@ -580,7 +580,7 @@ jobs:
           working_directory: ./cliv2
           command: make lint
 
-  v2-build-artifacts:
+  v2-unit-test:
     executor: linux
     working_directory: /home/circleci/snyk
     steps:
@@ -590,45 +590,42 @@ jobs:
       - go/install:
           version: << pipeline.parameters.go_version >>
       - restore_cache:
-          key: go-mod-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          key: go-unit-test-{{ arch }}-{{ checksum "cliv2/go.sum" }}
       - run:
-          name: Build linux/amd64
+          name: Run unit tests
+          working_directory: ./cliv2
+          command: make configure whiteboxtest
+      - save_cache:
+          key: go-unit-test-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          paths: [/home/circleci/go/pkg/mod]
+
+  v2-build-artifact:
+    parameters:
+      go_os:
+        type: string
+      go_arch:
+        type: string
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - go/install:
+          version: << pipeline.parameters.go_version >>
+      - restore_cache:
+          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+      - run:
+          name: Build << parameters.go_os >>/<< parameters.go_arch >>
           working_directory: ./cliv2
           environment:
-            GOOS: linux
-            GOARCH: amd64
-            CLI_V1_LOCATION: ../binary-releases
-          command: |
-            export SNYK_TOKEN="${SNYK_API_KEY}"
-            make build build-test install test prefix=. -e
-      - run:
-          name: Build linux/arm64
-          working_directory: ./cliv2
-          environment:
-            GOOS: linux
-            GOARCH: arm64
-            CLI_V1_LOCATION: ../binary-releases
-          command: make build build-test install prefix=. -e
-      - run:
-          name: Build darwin/amd64
-          working_directory: ./cliv2
-          environment:
-            GOOS: darwin
-            GOARCH: amd64
-            CLI_V1_LOCATION: ../binary-releases
-          command: make build build-test install prefix=. -e
-      - run:
-          name: Build windows/amd64
-          working_directory: ./cliv2
-          environment:
-            GOOS: windows
-            GOARCH: amd64
+            GOOS: << parameters.go_os >>
+            GOARCH: << parameters.go_arch >>
             CLI_V1_LOCATION: ../binary-releases
           command: make build build-test install prefix=. -e
       - save_cache:
-          key: go-mod-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths:
-            - /home/circleci/go/pkg/mod
+          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          paths: [/home/circleci/go/pkg/mod]
       - store_artifacts:
           path: ./cliv2/bin
       - persist_to_workspace:
@@ -920,13 +917,52 @@ workflows:
               only:
                 - /^.*v2.*$/
                 - master
-      - v2-build-artifacts:
-          name: v2 / Build Artifacts
+      - v2-unit-test:
+          name: v2 / Unit Tests
+          filters:
+            branches:
+              only:
+                - /^.*v2.*$/
+                - master
+      - v2-build-artifact:
+          name: v2 / Build Artifact (linux/amd64)
           requires:
             - Build Artifact (snyk-linux)
+          go_os: linux
+          go_arch: amd64
+          filters:
+            branches:
+              only:
+                - /^.*v2.*$/
+                - master
+      - v2-build-artifact:
+          name: v2 / Build Artifact (linux/arm64)
+          requires:
             - Build Artifact (snyk-linux-arm64)
+          go_os: linux
+          go_arch: arm64
+          filters:
+            branches:
+              only:
+                - /^.*v2.*$/
+                - master
+      - v2-build-artifact:
+          name: v2 / Build Artifact (darwin/amd64)
+          requires:
             - Build Artifact (snyk-macos)
+          go_os: darwin
+          go_arch: amd64
+          filters:
+            branches:
+              only:
+                - /^.*v2.*$/
+                - master
+      - v2-build-artifact:
+          name: v2 / Build Artifact (windows/amd64)
+          requires:
             - Build Artifact (snyk-win.exe)
+          go_os: windows
+          go_arch: amd64
           filters:
             branches:
               only:
@@ -935,66 +971,66 @@ workflows:
       - v2-test-linux-amd64:
           name: v2 / Integration Tests (linux/amd64)
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (linux/amd64)
       - v2-test-proxy-linux-amd64:
           name: v2 / Proxy Integration Tests (linux/amd64)
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (linux/amd64)
       - v2-test-linux-arm64:
           name: v2 / Integration Tests (linux/arm64)
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (linux/arm64)
       - v2-test-darwin-amd64:
           name: v2 / Integration Tests (darwin/amd64)
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (darwin/amd64)
       - v2-test-windows-amd64:
           name: v2 / Integration Tests (windows/amd64)
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (windows/amd64)
       - v2-test-proxy-windows-amd64:
           name: v2 / Proxy Integration Tests (windows/amd64)
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (windows/amd64)
       # Tests for backwards compatibility with CLIv1
       - test-linux:
           name: v2 / Jest Acceptance Tests (linux/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (linux/amd64)
           test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_linux_amd64
       - test-linux-arm64:
           name: v2 / Jest Acceptance Tests (linux/arm64)
           context: nodejs-install
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (linux/arm64)
           test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_linux_arm64
       - test-windows:
           name: v2 / Jest Acceptance Tests (windows/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (windows/amd64)
           test_snyk_command: C:\Users\circleci\snyk\cliv2\bin\snyk_windows_amd64.exe
       - test-macos:
           name: v2 / Jest Acceptance Tests (darwin/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (darwin/amd64)
           test_snyk_command: /Users/distiller/snyk/cliv2/bin/snyk_darwin_amd64
       - regression-test:
-          name: v2 / Regression Tests
+          name: v2 / Regression Tests (linux/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (linux/amd64)
           test_snyk_command: /mnt/ramdisk/snyk/cliv2/bin/snyk_linux_amd64
 
       - v2-sign-darwin-amd64:
-          name: v2 / Sign Artifacts (darwin/amd64)
+          name: v2 / Sign Artifact (darwin/amd64)
           context: snyk-macos-signing
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (darwin/amd64)
       - v2-sign-windows-amd64:
-          name: v2 / Sign Artifacts (windows/amd64)
+          name: v2 / Sign Artifact (windows/amd64)
           context: snyk-windows-signing
           requires:
-            - v2 / Build Artifacts
+            - v2 / Build Artifact (windows/amd64)
