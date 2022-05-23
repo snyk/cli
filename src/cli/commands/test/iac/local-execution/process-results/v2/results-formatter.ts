@@ -6,19 +6,22 @@ import {
   IaCTestFlags,
   PolicyMetadata,
   TestMeta,
-} from '../types';
-import { SEVERITY, SEVERITIES } from '../../../../../../lib/snyk-test/common';
-import { IacProjectType } from '../../../../../../lib/iac/constants';
-import { CustomError } from '../../../../../../lib/errors';
+} from '../../types';
+import {
+  SEVERITY,
+  SEVERITIES,
+} from '../../../../../../../lib/snyk-test/common';
+import { IacProjectType } from '../../../../../../../lib/iac/constants';
+import { CustomError } from '../../../../../../../lib/errors';
 import { extractLineNumber, getFileTypeForParser } from './extract-line-number';
-import { getErrorStringCode } from '../error-utils';
+import { getErrorStringCode } from '../../error-utils';
 import {
   MapsDocIdToTree,
   getTrees,
   parsePath,
 } from '@snyk/cloud-config-parser';
 import * as path from 'path';
-import { isLocalFolder } from '../../../../../../lib/detect';
+import { isLocalFolder } from '../../../../../../../lib/detect';
 
 const severitiesArray = SEVERITIES.map((s) => s.verboseName);
 
@@ -27,11 +30,12 @@ export function formatScanResults(
   options: IaCTestFlags,
   meta: TestMeta,
   projectPublicIds: Record<string, string>,
+  porjectRoot: string,
   gitRemoteUrl?: string,
 ): FormattedResult[] {
   try {
     const groupedByFile = scanResults.reduce((memo, scanResult) => {
-      const res = formatScanResult(scanResult, meta, options);
+      const res = formatScanResult(scanResult, meta, options, porjectRoot);
 
       if (memo[scanResult.filePath]) {
         memo[scanResult.filePath].result.cloudConfigResults.push(
@@ -62,6 +66,7 @@ function formatScanResult(
   scanResult: IacFileScanResult,
   meta: TestMeta,
   options: IaCTestFlags,
+  projectRoot: string,
 ): FormattedResult {
   const fileType = getFileTypeForParser(scanResult.fileType);
   const isGeneratedByCustomRule = scanResult.engineType === EngineType.Custom;
@@ -105,6 +110,7 @@ function formatScanResult(
   });
 
   const { targetFilePath, projectName, targetFile } = computePaths(
+    projectRoot,
     scanResult.filePath,
     options.path,
   );
@@ -168,6 +174,7 @@ export class FailedToFormatResults extends CustomError {
 }
 
 function computePaths(
+  projectRoot: string,
   filePath: string,
   pathArg = '.',
 ): { targetFilePath: string; projectName: string; targetFile: string } {
@@ -194,7 +201,7 @@ function computePaths(
 
   return {
     targetFilePath,
-    projectName: path.basename(projectPath),
+    projectName: path.basename(projectRoot),
     targetFile,
   };
 }

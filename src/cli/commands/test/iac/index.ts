@@ -1,28 +1,16 @@
 import * as Debug from 'debug';
 import { EOL } from 'os';
-import * as cloneDeep from 'lodash.clonedeep';
-import * as assign from 'lodash.assign';
 import chalk from 'chalk';
 
-import {
-  IacFileInDirectory,
-  IacOutputMeta,
-  Options,
-  TestOptions,
-} from '../../../../lib/types';
 import { MethodArgs } from '../../../args';
 import { TestCommandResult } from '../../types';
-import {
-  LegacyVulnApiResult,
-  TestResult,
-} from '../../../../lib/snyk-test/legacy';
+import { LegacyVulnApiResult } from '../../../../lib/snyk-test/legacy';
 import { mapIacTestResult } from '../../../../lib/snyk-test/iac-test-result';
 
 import {
   summariseErrorResults,
   summariseVulnerableResults,
 } from '../../../../lib/formatters';
-import * as utils from '../utils';
 import {
   failuresTipOutput,
   formatIacTestFailures,
@@ -33,42 +21,29 @@ import {
   getIacDisplayErrorFileOutput,
   iacTestTitle,
   shouldLogUserMessages,
-  spinnerMessage,
   spinnerSuccessMessage,
   IaCTestFailure,
 } from '../../../../lib/formatters/iac-output';
 import { extractDataToSendFromResults } from '../../../../lib/formatters/test/format-test-results';
 
-import { test as iacTest } from './local-execution';
 import { validateCredentials } from '../validate-credentials';
 import { validateTestOptions } from '../validate-test-options';
 import { setDefaultTestOptions } from '../set-default-test-options';
 import { processCommandArgs } from '../../process-command-args';
-import { formatTestError } from '../format-test-error';
 import { displayResult } from '../../../../lib/formatters/test/display-result';
 
-import {
-  assertIaCOptionsFlags,
-  isIacShareResultsOptions,
-} from './local-execution/assert-iac-options-flag';
+import { isIacShareResultsOptions } from './local-execution/assert-iac-options-flag';
 import { hasFeatureFlag } from '../../../../lib/feature-flags';
-import {
-  buildDefaultOciRegistry,
-  initRules,
-} from './local-execution/rules/rules';
-import {
-  cleanLocalCache,
-  getIacOrgSettings,
-} from './local-execution/measurable-methods';
+import { buildDefaultOciRegistry } from './local-execution/rules/rules';
+import { getIacOrgSettings } from './local-execution/measurable-methods';
 import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import * as ora from 'ora';
 import { CustomError, FormattedCustomError } from '../../../../lib/errors';
+import { scan } from './scan';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
-
-// TODO: avoid using `as any` whenever it's possible
 
 // The hardcoded `isReportCommand` argument is temporary and will be removed together with the `snyk iac report` command deprecation
 export default async function(
@@ -88,17 +63,9 @@ export default async function(
     throw new UnsupportedEntitlementError('infrastructureAsCode');
   }
 
-  const ociRegistryBuilder = () => buildDefaultOciRegistry(iacOrgSettings);
+  const buildOciRegistry = () => buildDefaultOciRegistry(iacOrgSettings);
 
   let testSpinner: ora.Ora | undefined;
-
-  const resultOptions: Array<Options & TestOptions> = [];
-  const results = [] as any[];
-
-  // Holds an array of scanned file metadata for output.
-  let iacScanFailures: IacFileInDirectory[] = [];
-  let iacIgnoredIssuesCount = 0;
-  let iacOutputMeta: IacOutputMeta | undefined;
 
   const isNewIacOutputSupported =
     config.IAC_OUTPUT_V2 ||
@@ -110,75 +77,24 @@ export default async function(
     testSpinner = ora({ isSilent: options.quiet, stream: process.stdout });
   }
 
-  try {
-    const rulesOrigin = await initRules(
-      ociRegistryBuilder,
-      iacOrgSettings,
-      options,
-    );
-
-    testSpinner?.start(spinnerMessage);
-
-    for (const path of paths) {
-      // Create a copy of the options so a specific test can
-      // modify them i.e. add `options.file` etc. We'll need
-      // these options later.
-      const testOpts = cloneDeep(options);
-      testOpts.path = path;
-      testOpts.projectName = testOpts['project-name'];
-
-      let res: (TestResult | TestResult[]) | Error;
-      try {
-        assertIaCOptionsFlags(process.argv);
-        const { results, failures, ignoreCount } = await iacTest(
-          path,
-          testOpts,
-          orgPublicId,
-          iacOrgSettings,
-          rulesOrigin,
-        );
-        iacOutputMeta = {
-          orgName: results[0]?.org,
-          projectName: results[0]?.projectName,
-          gitRemoteUrl: results[0]?.meta?.gitRemoteUrl,
-        };
-
-        res = results;
-        iacScanFailures = [...iacScanFailures, ...(failures || [])];
-        iacIgnoredIssuesCount += ignoreCount;
-      } catch (error) {
-        res = formatTestError(error);
-      }
-
-      // Not all test results are arrays in order to be backwards compatible
-      // with scripts that use a callback with test. Coerce results/errors to be arrays
-      // and add the result options to each to be displayed
-      const resArray: any[] = Array.isArray(res) ? res : [res];
-
-      for (let i = 0; i < resArray.length; i++) {
-        const pathWithOptionalProjectName = utils.getPathWithOptionalProjectName(
-          path,
-          resArray[i],
-        );
-        results.push(
-          assign(resArray[i], { path: pathWithOptionalProjectName }),
-        );
-        // currently testOpts are identical for each test result returned even if it's for multiple projects.
-        // we want to return the project names, so will need to be crafty in a way that makes sense.
-        if (!testOpts.projectNames) {
-          resultOptions.push(testOpts);
-        } else {
-          resultOptions.push(
-            assign(cloneDeep(testOpts), {
-              projectName: testOpts.projectNames[i],
-            }),
-          );
-        }
-      }
-    }
-  } finally {
-    cleanLocalCache();
+  if (!iacOrgSettings.entitlements?.infrastructureAsCode) {
+    throw new UnsupportedEntitlementError('infrastructureAsCode');
   }
+
+  const {
+    iacOutputMeta,
+    iacScanFailures,
+    iacIgnoredIssuesCount,
+    results,
+    resultOptions,
+  } = await scan(
+    iacOrgSettings,
+    options,
+    testSpinner,
+    paths,
+    orgPublicId,
+    buildOciRegistry,
+  );
 
   // this is any[] to follow the resArray type above
   const successResults: any[] = [],

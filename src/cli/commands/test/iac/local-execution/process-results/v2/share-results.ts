@@ -1,10 +1,14 @@
-import { isFeatureFlagSupportedForOrg } from '../../../../../../lib/feature-flags';
-import { shareResults } from '../../../../../../lib/iac/cli-share-results';
-import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
-import { ProjectAttributes, Tag } from '../../../../../../lib/types';
-import { FeatureFlagError } from '../assert-iac-options-flag';
+import { isFeatureFlagSupportedForOrg } from '../../../../../../../lib/feature-flags';
+import { shareResults } from './cli-share-results';
+import { Policy } from '../../../../../../../lib/policy/find-and-load-policy';
+import { ProjectAttributes, Tag } from '../../../../../../../lib/types';
+import { FeatureFlagError } from '../../assert-iac-options-flag';
 import { formatShareResults } from './share-results-formatter';
-import { IacFileScanResult, IaCTestFlags, ShareResultsOutput } from '../types';
+import {
+  IacFileScanResult,
+  IaCTestFlags,
+  ShareResultsOutput,
+} from '../../types';
 
 export async function formatAndShareResults({
   results,
@@ -13,7 +17,7 @@ export async function formatAndShareResults({
   policy,
   tags,
   attributes,
-  pathToScan,
+  projectRoot,
 }: {
   results: IacFileScanResult[];
   options: IaCTestFlags;
@@ -21,7 +25,7 @@ export async function formatAndShareResults({
   policy: Policy | undefined;
   tags?: Tag[];
   attributes?: ProjectAttributes;
-  pathToScan: string;
+  projectRoot: string;
 }): Promise<ShareResultsOutput> {
   const isCliReportEnabled = await isFeatureFlagSupportedForOrg(
     'iacCliShareResults',
@@ -31,7 +35,7 @@ export async function formatAndShareResults({
     throw new FeatureFlagError('report', 'iacCliShareResults');
   }
 
-  const formattedResults = formatShareResults(results);
+  const formattedResults = formatShareResults(projectRoot, results);
 
   return await shareResults({
     results: formattedResults,
@@ -39,6 +43,6 @@ export async function formatAndShareResults({
     tags,
     attributes,
     options,
-    pathToScan,
+    projectRoot,
   });
 }

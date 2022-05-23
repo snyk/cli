@@ -1,6 +1,3 @@
-import { filterIgnoredIssues } from './policy';
-import { formatAndShareResults } from './share-results';
-import { formatScanResults } from '../measurable-methods';
 import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
 import { ProjectAttributes, Tag } from '../../../../../../lib/types';
 import {
@@ -9,42 +6,71 @@ import {
   IacOrgSettings,
   IaCTestFlags,
 } from '../types';
+import { processResults as processResultsV2 } from './v2';
+import { processResults as processResultsV1 } from './v1';
 
-export async function processResults(
-  resultsWithCustomSeverities: IacFileScanResult[],
-  orgPublicId: string,
-  iacOrgSettings: IacOrgSettings,
-  policy: Policy | undefined,
-  tags: Tag[] | undefined,
-  attributes: ProjectAttributes | undefined,
-  options: IaCTestFlags,
-  pathToScan: string,
-): Promise<{
-  filteredIssues: FormattedResult[];
-  ignoreCount: number;
-}> {
-  let projectPublicIds: Record<string, string> = {};
-  let gitRemoteUrl: string | undefined;
+export interface ResultsProcessor {
+  processResults(
+    resultsWithCustomSeverities: IacFileScanResult[],
+    policy: Policy | undefined,
+    tags: Tag[] | undefined,
+    attributes: ProjectAttributes | undefined,
+  ): Promise<{
+    filteredIssues: FormattedResult[];
+    ignoreCount: number;
+  }>;
+}
 
-  if (options.report) {
-    ({ projectPublicIds, gitRemoteUrl } = await formatAndShareResults({
-      results: resultsWithCustomSeverities,
-      options,
-      orgPublicId,
+export class SingleGroupResultsProcessor implements ResultsProcessor {
+  constructor(
+    private projectRoot: string,
+    private orgPublicId: string,
+    private iacOrgSettings: IacOrgSettings,
+    private options: IaCTestFlags,
+  ) {}
+
+  processResults(
+    resultsWithCustomSeverities: IacFileScanResult[],
+    policy: Policy | undefined,
+    tags: Tag[] | undefined,
+    attributes: ProjectAttributes | undefined,
+  ): Promise<{ filteredIssues: FormattedResult[]; ignoreCount: number }> {
+    return processResultsV2(
+      resultsWithCustomSeverities,
+      this.orgPublicId,
+      this.iacOrgSettings,
       policy,
       tags,
       attributes,
-      pathToScan,
-    }));
+      this.options,
+      this.projectRoot,
+    );
   }
+}
 
-  const formattedResults = formatScanResults(
-    resultsWithCustomSeverities,
-    options,
-    iacOrgSettings.meta,
-    projectPublicIds,
-    gitRemoteUrl,
-  );
+export class MultipleGroupsResultsProcessor implements ResultsProcessor {
+  constructor(
+    private pathToScan: string,
+    private orgPublicId: string,
+    private iacOrgSettings: IacOrgSettings,
+    private options: IaCTestFlags,
+  ) {}
 
-  return filterIgnoredIssues(policy, formattedResults);
+  processResults(
+    resultsWithCustomSeverities: IacFileScanResult[],
+    policy: Policy | undefined,
+    tags: Tag[] | undefined,
+    attributes: ProjectAttributes | undefined,
+  ): Promise<{ filteredIssues: FormattedResult[]; ignoreCount: number }> {
+    return processResultsV1(
+      resultsWithCustomSeverities,
+      this.orgPublicId,
+      this.iacOrgSettings,
+      policy,
+      tags,
+      attributes,
+      this.options,
+      this.pathToScan,
+    );
+  }
 }

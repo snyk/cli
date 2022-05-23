@@ -1,7 +1,7 @@
 import {
   filterPoliciesBySeverity,
   formatScanResults,
-} from '../../../../../src/cli/commands/test/iac/local-execution/process-results/results-formatter';
+} from '../../../../../src/cli/commands/test/iac/local-execution/process-results/v1/results-formatter';
 import { SEVERITY } from '../../../../../src/lib/snyk-test/common';
 import {
   expectedFormattedResultsWithLineNumber,
