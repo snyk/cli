@@ -114,7 +114,9 @@ describe('iac test --rules', () => {
   });
 });
 
-describe('custom rules pull from a remote OCI registry', () => {
+// skipping this as we have many flakes recently
+// to be re-written in CFG-1847
+describe.skip('custom rules pull from a remote OCI registry', () => {
   let run: (
     cmd: string,
     overrides?: Record<string, string>,
