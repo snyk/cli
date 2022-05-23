@@ -1,2 +1,2 @@
-export { formatIacTestFailures } from './list';
+export { formatIacTestFailures, formatFailuresList } from './list';
 export { failuresTipOutput } from './tip';

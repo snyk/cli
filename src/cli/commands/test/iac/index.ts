@@ -26,6 +26,7 @@ import * as utils from '../utils';
 import {
   failuresTipOutput,
   formatIacTestFailures,
+  formatFailuresList,
   formatIacTestSummary,
   formatShareResultsOutput,
   getIacDisplayedIssues,
@@ -34,6 +35,7 @@ import {
   shouldLogUserMessages,
   spinnerMessage,
   spinnerSuccessMessage,
+  IaCTestFailure,
 } from '../../../../lib/formatters/iac-output';
 import { extractDataToSendFromResults } from '../../../../lib/formatters/test/format-test-results';
 
@@ -58,7 +60,7 @@ import {
 import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import * as ora from 'ora';
-import { IaCTestFailure } from '../../../../lib/formatters/iac-output/v2/types';
+import { CustomError, FormattedCustomError } from '../../../../lib/errors';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -243,8 +245,10 @@ export default async function(
 
   let response = '';
 
-  if (isNewIacOutputSupported && isPartialSuccess) {
-    response += EOL + getIacDisplayedIssues(successResults, iacOutputMeta!);
+  if (isNewIacOutputSupported) {
+    if (isPartialSuccess) {
+      response += EOL + getIacDisplayedIssues(successResults, iacOutputMeta!);
+    }
   } else {
     response += results
       .map((result, i) => {
@@ -285,6 +289,27 @@ export default async function(
       }))
       .concat(thrownErrors);
 
+    if (hasErrors && !isPartialSuccess) {
+      response += chalk.bold.red(summaryMessage);
+
+      // take the code of the first problem to go through error
+      // translation
+      // HACK as there can be different errors, and we pass only the
+      // first one
+      const error: CustomError =
+        isNewIacOutputSupported && allTestFailures
+          ? new FormattedCustomError(
+              errorResults[0].message,
+              formatFailuresList(allTestFailures),
+            )
+          : new CustomError(response);
+      error.code = errorResults[0].code;
+      error.userMessage = errorResults[0].userMessage;
+      error.strCode = errorResults[0].strCode;
+
+      throw error;
+    }
+
     response += isNewIacOutputSupported
       ? EOL.repeat(2) + formatIacTestFailures(allTestFailures)
       : iacScanFailures
@@ -318,19 +343,6 @@ export default async function(
         summariseErrorResults(errorResultsLength) +
         '\n';
     }
-  }
-
-  if (hasErrors && !isPartialSuccess) {
-    response += chalk.bold.red(summaryMessage);
-    const error = new Error(response) as any;
-    // take the code of the first problem to go through error
-    // translation
-    // HACK as there can be different errors, and we pass only the
-    // first one
-    error.code = errorResults[0].code;
-    error.userMessage = errorResults[0].userMessage;
-    error.strCode = errorResults[0].strCode;
-    throw error;
   }
 
   if (foundVulnerabilities) {

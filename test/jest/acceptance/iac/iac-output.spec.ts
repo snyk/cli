@@ -214,15 +214,48 @@ Target file:       ${dirPath}/`);
     });
 
     describe('with only test failures', () => {
-      it('should display the failure reason for the first failed test', async () => {
-        const dirPath = 'iac/only-invalid';
-        const { stdout } = await run(`snyk iac test ${dirPath}`);
+      it('should display the test failures list', async () => {
+        const invalidPaths = [
+          pathLib.join('iac', 'only-invalid'),
+          pathLib.join('iac', 'cloudformation', 'invalid-cfn.yml'),
+          pathLib.join(
+            'iac',
+            'terraform',
+            'sg_open_ssh_invalid_go_templates.tf',
+          ),
+          pathLib.join('iac', 'terraform', 'sg_open_ssh_invalid_hcl2.tf'),
+          pathLib.join('does', 'not', 'exist'),
+        ];
+        const { stdout } = await run(`snyk iac test ${invalidPaths.join(' ')}`);
 
         expect(stdout).toContain(
-          `Could not find any valid infrastructure as code files. Supported file extensions are tf, yml, yaml & json.
-More information can be found by running \`snyk iac test --help\` or through our documentation:
-https://support.snyk.io/hc/en-us/articles/360012429477-Test-your-Kubernetes-files-with-our-CLI-tool
-https://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files-with-our-CLI-tool`,
+          '  Could not find any valid IaC files' +
+            EOL +
+            `  Path: ${pathLib.join('iac', 'only-invalid')}` +
+            EOL +
+            `        ${pathLib.join('does', 'not', 'exist')}` +
+            EOL.repeat(2) +
+            '  Failed to parse YAML file' +
+            EOL +
+            `  Path: ${pathLib.join(
+              'iac',
+              'cloudformation',
+              'invalid-cfn.yml',
+            )}` +
+            EOL.repeat(2) +
+            '  Failed to parse Terraform file' +
+            EOL +
+            `  Path: ${pathLib.join(
+              'iac',
+              'terraform',
+              'sg_open_ssh_invalid_go_templates.tf',
+            )}` +
+            EOL +
+            `        ${pathLib.join(
+              'iac',
+              'terraform',
+              'sg_open_ssh_invalid_hcl2.tf',
+            )}`,
         );
       });
 
