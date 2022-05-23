@@ -104,9 +104,8 @@ describe('Directory scan', () => {
       );
       //directory scan shows relative path to cwd  in output
       expect(stdout).toContain('Testing sg_open_ssh.tf');
-      //TODO: currently the failures show only for the second path->cloudformation so this will fail:
-      // expect(stdout).toContain('Testing sg_open_ssh_invalid_hcl2.tf');
-      // expect(stdout).toContain('Failed to parse Terraform file');
+      expect(stdout).toContain('Testing sg_open_ssh_invalid_hcl2.tf');
+      expect(stdout).toContain('Failed to parse Terraform file');
       expect(stdout).toContain('Testing aurora-valid.yml');
       expect(stdout).toContain('Testing invalid-cfn.yml');
       expect(stdout).toContain('Failed to parse YAML file');

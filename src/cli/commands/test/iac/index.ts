@@ -132,7 +132,7 @@ export default async function(
         };
 
         res = results;
-        iacScanFailures = failures ? failures : [];
+        iacScanFailures = [...iacScanFailures, ...(failures || [])];
         iacIgnoredIssuesCount += ignoreCount;
       } catch (error) {
         res = formatTestError(error);
@@ -141,7 +141,6 @@ export default async function(
       // Not all test results are arrays in order to be backwards compatible
       // with scripts that use a callback with test. Coerce results/errors to be arrays
       // and add the result options to each to be displayed
-      // TODO: Similarly to above, do we actually need to convert this to an array?
       const resArray: any[] = Array.isArray(res) ? res : [res];
 
       for (let i = 0; i < resArray.length; i++) {
