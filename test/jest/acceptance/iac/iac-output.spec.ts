@@ -7,7 +7,7 @@ import {
 } from '../../../../src/lib/formatters/iac-output';
 
 import { FakeServer } from '../../../acceptance/fake-server';
-import { startMockServer } from './helpers';
+import { isValidJSONString, startMockServer } from './helpers';
 
 const IAC_CLI_OUTPUT_FF = 'iacCliOutput';
 
@@ -141,6 +141,16 @@ Target file:       ${dirPath}/`);
           );
           expect(stdout).not.toContain(chalk.reset(spinnerMessage));
           expect(stdout).not.toContain(chalk.reset(spinnerSuccessMessage));
+        });
+
+        it(`should return results with multiple paths`, async () => {
+          const { stdout, exitCode } = await run(
+            `snyk iac test ${dataFormatFlag} ./iac/arm/rule_test.json ./iac/cloudformation/`,
+          );
+          expect(isValidJSONString(stdout)).toBe(true);
+          expect(stdout).toContain('"id": "SNYK-CC-TF-20",');
+          expect(stdout).toContain('"id": "SNYK-CC-AWS-422",');
+          expect(exitCode).toBe(1);
         });
       },
     );
