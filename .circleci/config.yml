@@ -737,8 +737,11 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          # --ignore-errors due to 500s from Apple's service.
+          #   https://developer.apple.com/forums/thread/706539
+          #   We currently don't publish this artifact so it's safe to ignore.
           name: Signing macOS artifact
-          command: make sign GOOS=darwin GOARCH=amd64 BUILD_DIR=$PWD/bin
+          command: make sign GOOS=darwin GOARCH=amd64 BUILD_DIR=$PWD/bin --ignore-errors
           working_directory: ./cliv2
       - persist_to_workspace:
           root: .
