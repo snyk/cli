@@ -3,6 +3,7 @@ const chalk = require('chalk');
 const { SEVERITIES } = require('../snyk-test/common');
 const { errorMessageWithRetry } = require('./error-with-retry');
 const analytics = require('../analytics');
+const { FormattedCustomError } = require('./formatted-custom-error');
 
 const errors = {
   connect: 'Check your network connection, failed to connect to Snyk API',
@@ -86,8 +87,12 @@ module.exports.message = function(error) {
       codes[error.code || error.message] ||
       errors[error.code || error.message];
     if (message) {
-      message = message.replace(/(%s)/g, error.message).trim();
-      message = chalk.bold.red(message);
+      if (error instanceof FormattedCustomError) {
+        message = error.formattedUserMessage;
+      } else {
+        message = message.replace(/(%s)/g, error.message).trim();
+        message = chalk.bold.red(message);
+      }
     } else if (error.code) {
       // means it's a code error
       message =

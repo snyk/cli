@@ -10,6 +10,7 @@ export {
   formatIacTestSummary,
   getIacDisplayedIssues,
   formatIacTestFailures,
+  formatFailuresList,
   iacTestTitle,
   spinnerMessage,
   spinnerSuccessMessage,
@@ -18,4 +19,5 @@ export {
   shouldLogUserMessages,
   formatShareResultsOutput,
   failuresTipOutput,
+  IaCTestFailure,
 } from './v2';

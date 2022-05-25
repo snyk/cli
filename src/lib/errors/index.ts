@@ -26,3 +26,4 @@ export { FeatureNotSupportedByPackageManagerError } from './feature-not-supporte
 export { DockerImageNotFoundError } from './docker-image-not-found-error';
 export { NotFoundError } from './not-found-error';
 export { errorMessageWithRetry } from './error-with-retry';
+export { FormattedCustomError } from './formatted-custom-error';

@@ -9,4 +9,9 @@ export {
   customRulesReportMessage,
 } from './user-messages';
 export { formatShareResultsOutput } from './share-results';
-export { formatIacTestFailures, failuresTipOutput } from './failures';
+export {
+  formatIacTestFailures,
+  formatFailuresList,
+  failuresTipOutput,
+} from './failures';
+export { IaCTestFailure } from './types';

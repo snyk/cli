@@ -37,7 +37,7 @@ function groupTestFailuresByFailureReason(
   }, {});
 }
 
-function formatFailuresList(testFailures: IaCTestFailure[]) {
+export function formatFailuresList(testFailures: IaCTestFailure[]): string {
   const testFailuresByReason = groupTestFailuresByFailureReason(testFailures);
   return Object.entries(testFailuresByReason)
     .map(([failureReason, testFailures]) =>
