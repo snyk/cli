@@ -10,7 +10,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([
     ['cliFailFast', false],
     ['iacTerraformVarSupport', false],
-    ['iacCliOutput', false],
+    ['iacCliOutputRelease', false],
   ]);
 };
 

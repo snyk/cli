@@ -9,7 +9,7 @@ import {
 import { FakeServer } from '../../../acceptance/fake-server';
 import { isValidJSONString, startMockServer } from './helpers';
 
-const IAC_CLI_OUTPUT_FF = 'iacCliOutput';
+const IAC_CLI_OUTPUT_FF = 'iacCliOutputRelease';
 
 jest.setTimeout(1000 * 30);
 
