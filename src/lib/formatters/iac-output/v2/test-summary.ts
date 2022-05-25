@@ -13,7 +13,7 @@ export function formatIacTestSummary(
   testData: IacTestData,
   outputMeta: IacOutputMeta,
 ): string {
-  const title = colors.info.bold('Test Summary');
+  const title = colors.title('Test Summary');
   const summarySections: string[] = [title];
 
   summarySections.push(formatTestMetaSection(outputMeta));

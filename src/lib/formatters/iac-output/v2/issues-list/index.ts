@@ -15,7 +15,7 @@ export function getIacDisplayedIssues(
   results: FormattedResult[],
   outputMeta: IacOutputMeta,
 ): string {
-  const titleOutput = colors.info.bold('Issues');
+  const titleOutput = colors.title('Issues');
 
   const formattedResults = formatScanResultsNewOutput(results, outputMeta);
 

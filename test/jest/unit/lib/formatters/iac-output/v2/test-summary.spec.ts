@@ -40,7 +40,7 @@ describe('formatIacTestSummary', () => {
     );
 
     // Assert
-    expect(result).toContain(`${colors.info.bold('Test Summary')}`);
+    expect(result).toContain(`${colors.title('Test Summary')}`);
   });
 
   it('should include the test meta properties section with the correct values', () => {

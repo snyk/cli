@@ -15,7 +15,7 @@ const testFailureFixtures: IaCTestFailure[] = JSON.parse(
 describe('formatIacTestFailures', () => {
   it('should include the "Invalid files: X" title with the correct value', () => {
     const result = formatIacTestFailures(testFailureFixtures);
-    expect(result).toContain(colors.info.bold(`Test Failures`));
+    expect(result).toContain(colors.title(`Test Failures`));
   });
 
   it('should include the failures list with the correct values', () => {

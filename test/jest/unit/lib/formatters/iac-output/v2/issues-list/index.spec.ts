@@ -36,7 +36,7 @@ describe('getIacDisplayedIssues', () => {
   it("should include the 'Issues' title", () => {
     const result = getIacDisplayedIssues(resultFixtures, outputMeta);
 
-    expect(result).toContain(colors.info.bold('Issues'));
+    expect(result).toContain(colors.title('Issues'));
   });
 
   it('should include a subtitle for each severity with the correct amount of issues', () => {
