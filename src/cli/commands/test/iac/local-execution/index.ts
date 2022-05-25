@@ -107,12 +107,19 @@ export async function test(
       })),
     );
   }
+  // NOTE: No file or parsed file data should leave this function.
+  let failures = isLocalFolder(pathToScan)
+    ? allFailedFiles.map(removeFileContent)
+    : [];
 
-  const scannedFiles = await scanFiles(allParsedFiles);
+  const { scannedFiles, failedScans } = await scanFiles(allParsedFiles);
+  failures = [...failures, ...failedScans];
+
   const resultsWithCustomSeverities = await applyCustomSeverities(
     scannedFiles,
     iacOrgSettings.customPolicies,
   );
+
   const { filteredIssues, ignoreCount } = await processResults(
     resultsWithCustomSeverities,
     orgPublicId,
@@ -142,10 +149,7 @@ export async function test(
   // TODO: add support for proper typing of old TestResult interface.
   return {
     results: (filteredIssues as unknown) as TestResult[],
-    // NOTE: No file or parsed file data should leave this function.
-    failures: isLocalFolder(pathToScan)
-      ? allFailedFiles.map(removeFileContent)
-      : undefined,
+    failures,
     ignoreCount,
   };
 }

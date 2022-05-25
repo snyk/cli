@@ -17,7 +17,12 @@ jest.mock(
   '../../../../src/cli/commands/test/iac/local-execution/file-scanner',
   () => {
     return {
-      scanFiles: async () => [],
+      scanFiles: async () => {
+        return {
+          scannedFiles: [],
+          failedScans: [],
+        };
+      },
     };
   },
 );
