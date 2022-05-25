@@ -806,7 +806,7 @@ workflows:
       - version:
           name: Version
           requires:
-            - Install
+            - Build
           filters:
             branches:
               only:
@@ -817,7 +817,6 @@ workflows:
       - build-artifact:
           name: Build (<< matrix.artifact >>)
           requires:
-            - Build
             - Version
           matrix:
             parameters:
