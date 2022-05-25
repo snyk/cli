@@ -333,8 +333,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   app.get(basePath + '/cli-config/feature-flags/:featureFlag', (req, res) => {
     const org = req.query.org;
     const flag = req.params.featureFlag;
-    const disabled = new Set(['optOutFromLocalExecIac']);
-    if (org === 'no-flag' || disabled.has(flag)) {
+    if (org === 'no-flag') {
       res.send({
         ok: false,
         userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
