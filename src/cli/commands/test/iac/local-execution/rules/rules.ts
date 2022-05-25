@@ -6,9 +6,9 @@ import {
   manifestContentType,
   OCIRegistryURLComponents,
   RulesOrigin,
-} from './types';
+} from '../types';
 import { EOL } from 'os';
-import { UnsupportedEntitlementFlagError } from './assert-iac-options-flag';
+import { UnsupportedEntitlementFlagError } from '../assert-iac-options-flag';
 import {
   extractOCIRegistryURLComponents,
   FailedToBuildOCIArtifactError,
@@ -16,15 +16,15 @@ import {
   InvalidRemoteRegistryURLError,
   UnsupportedEntitlementPullError,
 } from './oci-pull';
-import { initLocalCache, pull } from './measurable-methods';
-import { config as userConfig } from '../../../../../lib/user-config';
-import { isValidUrl } from './url-utils';
-import { CustomError } from '../../../../../lib/errors';
-import { getErrorStringCode } from './error-utils';
+import { initLocalCache, pull } from '../measurable-methods';
+import { config as userConfig } from '../../../../../../lib/user-config';
+import { CustomError } from '../../../../../../lib/errors';
+import { getErrorStringCode } from '../error-utils';
 import {
   customRulesMessage,
   customRulesReportMessage,
-} from '../../../../../lib/formatters/iac-output';
+} from '../../../../../../lib/formatters/iac-output';
+import { isValidUrl } from '../url-utils';
 
 export async function initRules(
   iacOrgSettings: IacOrgSettings,

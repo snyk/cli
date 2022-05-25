@@ -6,7 +6,7 @@ import { cleanLocalCache, initLocalCache } from './local-cache';
 import { applyCustomSeverities } from './org-settings/apply-custom-severities';
 import { getIacOrgSettings } from './org-settings/get-iac-org-settings';
 import { test } from './index';
-import { pull } from './oci-pull';
+import { pull } from './rules/oci-pull';
 import { performanceAnalyticsObject } from './analytics';
 import { PerformanceAnalyticsKey } from './types';
 import { loadContentForFiles } from './file-loader';
