@@ -46,7 +46,7 @@ export const CreateAppPromptData = {
   SNYK_APP_SCOPES: {
     name: SNYK_APP_SCOPES,
     message: `Your Snyk App's permission scopes (comma separated list. ${chalk.yellowBright(
-      ' Ex: apps:beta',
+      ' Ex: org.read,org.report.read',
     )})?: `,
   },
   SNYK_APP_ORG_ID: {

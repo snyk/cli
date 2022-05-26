@@ -42,13 +42,13 @@ A comma separated list of redirect URIs. This will form a list of allowed redire
 ### `--scopes=<SCOPES>`
 
 (Required for the `create` command)
-A comma separated list of scopes required by your Snyk App. This will for a list of scopes that your app is allowed to request during authorization.
+A comma separated list of scopes required by your Snyk App. This will form a list of scopes that your app is allowed to request during authorization. You can read more about the allowed scopes in our [docs](https://docs.snyk.io/snyk-apps/getting-started-with-snyk-apps/create-an-app-via-the-api#requesting-scopes).
 
 ## Examples
 
 ### `Create Snyk App`
 
-\$ snyk apps create --experimental --org=48ebb069-472f-40f4-b5bf-d2d103bc02d4 --name='My Awesome App' --redirect-uris=https://example1.com,https://example2.com --scopes=apps:beta
+\$ snyk apps create --experimental --org=48ebb069-472f-40f4-b5bf-d2d103bc02d4 --name='My Awesome App' --redirect-uris=https://example1.com,https://example2.com --scopes=org.read,org.report.read
 
 ### `Create Snyk App Interactive Mode`
 
