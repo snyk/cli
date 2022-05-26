@@ -1,4 +1,15 @@
 #!/bin/bash
+>&2 echo " "
+>&2 echo "  Deprecation Notice for snyk/snyk-cli images"
+>&2 echo "  -------------------------------------------"
+>&2 echo " "
+>&2 echo "  Please note, snyk/snyk-cli Docker images are deprecated and may be removed in the future."
+>&2 echo "  They remain available only to provide continuity for legacy Snyk integrations."
+>&2 echo "  Snyk does not recommend their use."
+>&2 echo " "
+>&2 echo "  Instead, please use the https://hub.docker.com/r/snyk/snyk Docker images."
+>&2 echo "  See the https://github.com/snyk/snyk-images for more details and examples."
+>&2 echo " "
 
 OUTPUT_FILE=snyk-result.json
 MONITOR_OUTPUT_FILE=snyk-monitor-result.json
