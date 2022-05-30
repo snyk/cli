@@ -52,7 +52,6 @@ import {
   isIacShareResultsOptions,
 } from './local-execution/assert-iac-options-flag';
 import { hasFeatureFlag } from '../../../../lib/feature-flags';
-import { initRules } from './local-execution/rules';
 import {
   cleanLocalCache,
   getIacOrgSettings,
@@ -61,6 +60,7 @@ import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import * as ora from 'ora';
 import { CustomError, FormattedCustomError } from '../../../../lib/errors';
+import { initRules } from './local-execution/rules/rules';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';

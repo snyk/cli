@@ -7,12 +7,12 @@ import {
   ManifestConfig,
   OCIPullOptions,
   OCIRegistryURLComponents,
-} from './types';
-import { CustomError } from '../../../../../lib/errors';
-import { getErrorStringCode } from './error-utils';
-import { LOCAL_POLICY_ENGINE_DIR } from './local-cache';
+} from '../types';
+import { CustomError } from '../../../../../../lib/errors';
+import { getErrorStringCode } from '../error-utils';
+import { LOCAL_POLICY_ENGINE_DIR } from '../local-cache';
 import * as Debug from 'debug';
-import { createIacDir } from './file-utils';
+import { createIacDir } from '../file-utils';
 const debug = Debug('iac-oci-pull');
 
 export const CUSTOM_RULES_TARBALL = 'custom-bundle.tar.gz';
@@ -26,25 +26,18 @@ export function extractOCIRegistryURLComponents(
       : OCIRegistryURL;
 
     const firstSlashIdx = urlWithoutProtocol.indexOf('/');
-    if (firstSlashIdx === -1) {
-      throw new InvalidRemoteRegistryURLError(OCIRegistryURL);
-    }
-
     const [registryHost, repoWithTag] = [
       urlWithoutProtocol.substring(0, firstSlashIdx),
       urlWithoutProtocol.substring(firstSlashIdx + 1),
     ];
-    if (!registryHost || !repoWithTag) {
-      throw new InvalidRemoteRegistryURLError(OCIRegistryURL);
-    }
-
     const [repo, tag = 'latest'] = repoWithTag.split(':');
-    if (!repo) {
+    if (firstSlashIdx === -1 || !registryHost || !repoWithTag || !repo) {
       throw new InvalidRemoteRegistryURLError(OCIRegistryURL);
     }
-
     return { registryBase: registryHost, repo, tag };
   } catch {
+    // if one of the String functions in the try throws,
+    // we wrap it in our own error
     throw new InvalidRemoteRegistryURLError(OCIRegistryURL);
   }
 }

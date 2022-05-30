@@ -6,7 +6,7 @@ import {
   FailedToInitLocalCacheError,
   LOCAL_POLICY_ENGINE_DIR,
 } from './local-cache';
-import { CUSTOM_RULES_TARBALL } from './oci-pull';
+import { CUSTOM_RULES_TARBALL } from './rules/oci-pull';
 import { readdirSync } from 'fs';
 import { join } from 'path';
 

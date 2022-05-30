@@ -1,15 +1,14 @@
-import * as OCIPull from '../../../../src/cli/commands/test/iac/local-execution/oci-pull';
+import * as OCIPull from '../../../../../src/cli/commands/test/iac/local-execution/rules/oci-pull';
 import {
   CUSTOM_RULES_TARBALL,
   extractOCIRegistryURLComponents,
   FailedToBuildOCIArtifactError,
   InvalidRemoteRegistryURLError,
-} from '../../../../src/cli/commands/test/iac/local-execution/oci-pull';
+} from '../../../../../src/cli/commands/test/iac/local-execution/rules/oci-pull';
 import * as registryClient from '@snyk/docker-registry-v2-client';
-import { layers, manifest, opt } from './oci-pull.fixtures';
 import { promises as fs } from 'fs';
-import * as fileUtilsModule from '../../../../src/cli/commands/test/iac/local-execution/file-utils';
-import * as measurableMethods from '../../../../src/cli/commands/test/iac/local-execution/measurable-methods';
+import * as fileUtilsModule from '../../../../../src/cli/commands/test/iac/local-execution/file-utils';
+import * as measurableMethods from '../../../../../src/cli/commands/test/iac/local-execution/measurable-methods';
 
 describe('extractOCIRegistryURLComponents', () => {
   it('extracts baseURL, repo and tag from an OCI URL', async () => {
@@ -94,6 +93,38 @@ describe('extractOCIRegistryURLComponents', () => {
 
 describe('pull', () => {
   let getManifestSpy, getLayerSpy, writeSpy;
+  const config = {
+    mediaType: '',
+    size: 50,
+    digest:
+      'sha256:db5t678c2946ae8c52553519a93bf5bc09c2df3e7f48cfb28acb258c91c67ee1',
+  };
+
+  const manifest = {
+    schemaVersion: 2,
+    mediaType: 'la',
+    config,
+    layers: [
+      {
+        mediaType: 'application/vnd.oci.image.layer.v1.tar+gzip',
+        digest: '',
+        size: 50000,
+      },
+    ],
+  };
+  const opt = {
+    username: 'username',
+    password: 'password',
+    reqOptions: {},
+  };
+
+  const blob = Buffer.from('text');
+  const layers = [
+    {
+      config,
+      blob,
+    },
+  ];
 
   beforeEach(() => {
     jest.restoreAllMocks();
