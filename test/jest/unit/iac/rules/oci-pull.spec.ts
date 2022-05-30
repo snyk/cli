@@ -8,7 +8,7 @@ import {
 import { promises as fs } from 'fs';
 import * as fileUtilsModule from '../../../../../src/cli/commands/test/iac/local-execution/file-utils';
 import * as measurableMethods from '../../../../../src/cli/commands/test/iac/local-execution/measurable-methods';
-import { OciRegistry } from '../../../../../src/cli/commands/test/iac/local-execution/oci-registry';
+import { OciRegistry } from '../../../../../src/cli/commands/test/iac/local-execution/rules/oci-registry';
 
 describe('extractOCIRegistryURLComponents', () => {
   it('extracts baseURL, repo and tag from an OCI URL', async () => {

@@ -53,7 +53,7 @@ import {
 } from './local-execution/assert-iac-options-flag';
 import { hasFeatureFlag } from '../../../../lib/feature-flags';
 import {
-  getOCIRegistryURLComponents,
+  buildDefaultOciRegistry,
   initRules,
 } from './local-execution/rules/rules';
 import {
@@ -64,9 +64,6 @@ import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import * as ora from 'ora';
 import { CustomError, FormattedCustomError } from '../../../../lib/errors';
-import { IacOrgSettings } from './local-execution/types';
-import { OciRegistry, RemoteOciRegistry } from './local-execution/oci-registry';
-import { config as userConfig } from '../../../../lib/user-config';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -91,7 +88,7 @@ export default async function(
     throw new UnsupportedEntitlementError('infrastructureAsCode');
   }
 
-  const ociRegistryBuilder = () => buildOciRegistry(iacOrgSettings);
+  const ociRegistryBuilder = () => buildDefaultOciRegistry(iacOrgSettings);
 
   let testSpinner: ora.Ora | undefined;
 
@@ -403,19 +400,4 @@ export default async function(
     stringifiedJsonData,
     stringifiedSarifData,
   );
-}
-
-function buildOciRegistry(settings: IacOrgSettings): OciRegistry {
-  const { registryBase } = getOCIRegistryURLComponents(settings);
-
-  const username = userConfig.get('oci-registry-username');
-  const password = userConfig.get('oci-registry-password');
-
-  const options = {
-    acceptManifest: 'application/vnd.oci.image.manifest.v1+json',
-    acceptLayer: 'application/vnd.oci.image.layer.v1.tar+gzip',
-    indexContentType: '',
-  };
-
-  return new RemoteOciRegistry(registryBase, username, password, options);
 }

@@ -22,7 +22,7 @@ import {
   customRulesMessage,
   customRulesReportMessage,
 } from '../../../../../../lib/formatters/iac-output';
-import { OciRegistry } from '../oci-registry';
+import { OciRegistry, RemoteOciRegistry } from './oci-registry';
 import { isValidUrl } from '../url-utils';
 
 export async function initRules(
@@ -131,7 +131,7 @@ function getOCIRegistryURLComponentsFromEnv() {
 /**
  * Gets the OCI registry URL components from either the env variables or the IaC org settings.
  */
-export function getOCIRegistryURLComponents(
+function getOCIRegistryURLComponents(
   iacOrgSettings: IacOrgSettings,
 ): OCIRegistryURLComponents {
   if (checkOCIRegistryURLExistsInSettings(iacOrgSettings)) {
@@ -140,6 +140,21 @@ export function getOCIRegistryURLComponents(
 
   // Default is to get the URL from env variables.
   return getOCIRegistryURLComponentsFromEnv();
+}
+
+export function buildDefaultOciRegistry(settings: IacOrgSettings): OciRegistry {
+  const { registryBase } = getOCIRegistryURLComponents(settings);
+
+  const username = userConfig.get('oci-registry-username');
+  const password = userConfig.get('oci-registry-password');
+
+  const options = {
+    acceptManifest: 'application/vnd.oci.image.manifest.v1+json',
+    acceptLayer: 'application/vnd.oci.image.layer.v1.tar+gzip',
+    indexContentType: '',
+  };
+
+  return new RemoteOciRegistry(registryBase, username, password, options);
 }
 
 /**
