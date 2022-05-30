@@ -111,19 +111,20 @@ describe('pull', () => {
       },
     ],
   };
-  const opt = {
-    username: 'username',
-    password: 'password',
-    reqOptions: {},
-  };
 
   const blob = Buffer.from('text');
+
   const layers = [
     {
       config,
       blob,
     },
   ];
+
+  const registry: OciRegistry = {
+    getManifest: jest.fn(async () => manifest),
+    getLayer: jest.fn(async () => ({ blob })),
+  };
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -137,11 +138,6 @@ describe('pull', () => {
       .spyOn(measurableMethods, 'initLocalCache')
       .mockImplementationOnce(() => Promise.resolve());
     jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => null);
-
-    const registry: OciRegistry = {
-      getManifest: jest.fn(async () => manifest),
-      getLayer: jest.fn(async () => ({ blob: layers[0].blob })),
-    };
 
     await OCIPull.pull(registry, 'accountName/custom-bundle-repo', 'latest');
 
@@ -164,11 +160,6 @@ describe('pull', () => {
     jest.spyOn(fs, 'writeFile').mockImplementation(() => {
       throw new Error();
     });
-
-    const registry: OciRegistry = {
-      getManifest: jest.fn(async () => manifest),
-      getLayer: jest.fn(async () => ({ blob: layers[0].blob })),
-    };
 
     const pullResult = OCIPull.pull(
       registry,
