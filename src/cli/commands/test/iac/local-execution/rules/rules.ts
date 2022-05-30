@@ -23,6 +23,7 @@ import {
   customRulesReportMessage,
 } from '../../../../../../lib/formatters/iac-output';
 import { OciRegistry } from '../oci-registry';
+import { isValidUrl } from '../url-utils';
 
 export async function initRules(
   buildOciRegistry: () => OciRegistry,
