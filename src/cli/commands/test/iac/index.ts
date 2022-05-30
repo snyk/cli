@@ -91,7 +91,7 @@ export default async function(
     throw new UnsupportedEntitlementError('infrastructureAsCode');
   }
 
-  const registry = buildOciRegistry(iacOrgSettings);
+  const ociRegistryBuilder = () => buildOciRegistry(iacOrgSettings);
 
   let testSpinner: ora.Ora | undefined;
 
@@ -114,7 +114,11 @@ export default async function(
   }
 
   try {
-    const rulesOrigin = await initRules(registry, iacOrgSettings, options);
+    const rulesOrigin = await initRules(
+      ociRegistryBuilder,
+      iacOrgSettings,
+      options,
+    );
 
     testSpinner?.start(spinnerMessage);
 

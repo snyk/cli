@@ -25,7 +25,7 @@ import {
 import { OciRegistry } from '../oci-registry';
 
 export async function initRules(
-  registry: OciRegistry,
+  buildOciRegistry: () => OciRegistry,
   iacOrgSettings: IacOrgSettings,
   options: IaCTestFlags,
 ): Promise<RulesOrigin> {
@@ -66,7 +66,10 @@ export async function initRules(
     if (!iacOrgSettings.entitlements?.iacCustomRulesEntitlement) {
       throw new UnsupportedEntitlementPullError('iacCustomRulesEntitlement');
     }
-    customRulesPath = await pullIaCCustomRules(registry, iacOrgSettings);
+    customRulesPath = await pullIaCCustomRules(
+      buildOciRegistry,
+      iacOrgSettings,
+    );
     rulesOrigin = RulesOrigin.Remote;
   }
 
@@ -142,13 +145,13 @@ export function getOCIRegistryURLComponents(
  * Pull and store the IaC custom-rules bundle from the remote OCI Registry.
  */
 export async function pullIaCCustomRules(
-  registry: OciRegistry,
+  buildOciRegistry: () => OciRegistry,
   iacOrgSettings: IacOrgSettings,
 ): Promise<string> {
   const { repo, tag } = getOCIRegistryURLComponents(iacOrgSettings);
 
   try {
-    return await pull(registry, repo, tag);
+    return await pull(buildOciRegistry(), repo, tag);
   } catch (err) {
     if (err.statusCode === 401) {
       throw new FailedToPullCustomBundleError(
