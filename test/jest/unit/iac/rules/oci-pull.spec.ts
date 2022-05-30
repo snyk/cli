@@ -5,10 +5,10 @@ import {
   FailedToBuildOCIArtifactError,
   InvalidRemoteRegistryURLError,
 } from '../../../../../src/cli/commands/test/iac/local-execution/rules/oci-pull';
-import * as registryClient from '@snyk/docker-registry-v2-client';
 import { promises as fs } from 'fs';
 import * as fileUtilsModule from '../../../../../src/cli/commands/test/iac/local-execution/file-utils';
 import * as measurableMethods from '../../../../../src/cli/commands/test/iac/local-execution/measurable-methods';
+import { OciRegistry } from '../../../../../src/cli/commands/test/iac/local-execution/rules/oci-registry';
 
 describe('extractOCIRegistryURLComponents', () => {
   it('extracts baseURL, repo and tag from an OCI URL', async () => {
@@ -92,7 +92,6 @@ describe('extractOCIRegistryURLComponents', () => {
 });
 
 describe('pull', () => {
-  let getManifestSpy, getLayerSpy, writeSpy;
   const config = {
     mediaType: '',
     size: 50,
@@ -112,13 +111,9 @@ describe('pull', () => {
       },
     ],
   };
-  const opt = {
-    username: 'username',
-    password: 'password',
-    reqOptions: {},
-  };
 
   const blob = Buffer.from('text');
+
   const layers = [
     {
       config,
@@ -126,18 +121,17 @@ describe('pull', () => {
     },
   ];
 
-  beforeEach(() => {
+  const registry: OciRegistry = {
+    getManifest: jest.fn(async () => manifest),
+    getLayer: jest.fn(async () => ({ blob })),
+  };
+
+  afterEach(() => {
     jest.restoreAllMocks();
-    getManifestSpy = jest
-      .spyOn(registryClient, 'getManifest')
-      .mockResolvedValue(manifest);
-    getLayerSpy = jest
-      .spyOn(registryClient, 'getLayer')
-      .mockResolvedValue(layers[0].blob);
   });
 
   it('pulls successfully', async () => {
-    writeSpy = jest
+    const writeSpy = jest
       .spyOn(fs, 'writeFile')
       .mockImplementationOnce(() => Promise.resolve());
     jest
@@ -145,31 +139,16 @@ describe('pull', () => {
       .mockImplementationOnce(() => Promise.resolve());
     jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => null);
 
-    await OCIPull.pull(
-      {
-        registryBase: 'registry-1.docker.io',
-        repo: 'accountName/custom-bundle-repo',
-        tag: 'latest',
-      },
-      opt,
-    );
+    await OCIPull.pull(registry, 'accountName/custom-bundle-repo', 'latest');
 
-    expect(getManifestSpy).toHaveBeenCalledWith(
-      'registry-1.docker.io',
+    expect(registry.getManifest).toHaveBeenCalledWith(
       'accountName/custom-bundle-repo',
       'latest',
-      opt.username,
-      opt.password,
-      opt.reqOptions,
     );
 
-    expect(getLayerSpy).toHaveBeenCalledWith(
-      'registry-1.docker.io',
+    expect(registry.getLayer).toHaveBeenCalledWith(
       'accountName/custom-bundle-repo',
       '',
-      opt.username,
-      opt.password,
-      opt.reqOptions,
     );
     expect(writeSpy).toHaveBeenCalledWith(
       expect.stringContaining(CUSTOM_RULES_TARBALL),
@@ -178,17 +157,14 @@ describe('pull', () => {
   });
 
   it('fails to pull with a FailedToBuildOCIArtifactError', async () => {
-    writeSpy = jest.spyOn(fs, 'writeFile').mockImplementation(() => {
+    jest.spyOn(fs, 'writeFile').mockImplementation(() => {
       throw new Error();
     });
 
     const pullResult = OCIPull.pull(
-      {
-        registryBase: 'registry-1.docker.io',
-        repo: 'accountName/custom-bundle-repo',
-        tag: 'latest',
-      },
-      opt,
+      registry,
+      'accountName/custom-bundle-repo',
+      'latest',
     );
 
     await expect(pullResult).rejects.toThrow(FailedToBuildOCIArtifactError);
