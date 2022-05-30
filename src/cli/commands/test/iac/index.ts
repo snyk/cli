@@ -53,6 +53,10 @@ import {
 } from './local-execution/assert-iac-options-flag';
 import { hasFeatureFlag } from '../../../../lib/feature-flags';
 import {
+  buildDefaultOciRegistry,
+  initRules,
+} from './local-execution/rules/rules';
+import {
   cleanLocalCache,
   getIacOrgSettings,
 } from './local-execution/measurable-methods';
@@ -60,7 +64,6 @@ import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import * as ora from 'ora';
 import { CustomError, FormattedCustomError } from '../../../../lib/errors';
-import { initRules } from './local-execution/rules/rules';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -77,6 +80,15 @@ export default async function(
   const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
+
+  const orgPublicId = (options.org as string) ?? config.org;
+  const iacOrgSettings = await getIacOrgSettings(orgPublicId);
+
+  if (!iacOrgSettings.entitlements?.infrastructureAsCode) {
+    throw new UnsupportedEntitlementError('infrastructureAsCode');
+  }
+
+  const ociRegistryBuilder = () => buildDefaultOciRegistry(iacOrgSettings);
 
   let testSpinner: ora.Ora | undefined;
 
@@ -98,15 +110,12 @@ export default async function(
     testSpinner = ora({ isSilent: options.quiet, stream: process.stdout });
   }
 
-  const orgPublicId = (options.org as string) ?? config.org;
-  const iacOrgSettings = await getIacOrgSettings(orgPublicId);
-
-  if (!iacOrgSettings.entitlements?.infrastructureAsCode) {
-    throw new UnsupportedEntitlementError('infrastructureAsCode');
-  }
-
   try {
-    const rulesOrigin = await initRules(iacOrgSettings, options);
+    const rulesOrigin = await initRules(
+      ociRegistryBuilder,
+      iacOrgSettings,
+      options,
+    );
 
     testSpinner?.start(spinnerMessage);
 

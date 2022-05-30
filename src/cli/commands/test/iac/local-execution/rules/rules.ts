@@ -2,8 +2,6 @@ import {
   IaCErrorCodes,
   IacOrgSettings,
   IaCTestFlags,
-  layerContentType,
-  manifestContentType,
   OCIRegistryURLComponents,
   RulesOrigin,
 } from '../types';
@@ -24,9 +22,11 @@ import {
   customRulesMessage,
   customRulesReportMessage,
 } from '../../../../../../lib/formatters/iac-output';
+import { OciRegistry, RemoteOciRegistry } from './oci-registry';
 import { isValidUrl } from '../url-utils';
 
 export async function initRules(
+  buildOciRegistry: () => OciRegistry,
   iacOrgSettings: IacOrgSettings,
   options: IaCTestFlags,
 ): Promise<RulesOrigin> {
@@ -67,7 +67,10 @@ export async function initRules(
     if (!iacOrgSettings.entitlements?.iacCustomRulesEntitlement) {
       throw new UnsupportedEntitlementPullError('iacCustomRulesEntitlement');
     }
-    customRulesPath = await pullIaCCustomRules(iacOrgSettings);
+    customRulesPath = await pullIaCCustomRules(
+      buildOciRegistry,
+      iacOrgSettings,
+    );
     rulesOrigin = RulesOrigin.Remote;
   }
 
@@ -139,35 +142,32 @@ function getOCIRegistryURLComponents(
   return getOCIRegistryURLComponentsFromEnv();
 }
 
-/**
- * Pull and store the IaC custom-rules bundle from the remote OCI Registry.
- */
-export async function pullIaCCustomRules(
-  iacOrgSettings: IacOrgSettings,
-): Promise<string> {
-  const ociRegistryURLComponents = getOCIRegistryURLComponents(iacOrgSettings);
+export function buildDefaultOciRegistry(settings: IacOrgSettings): OciRegistry {
+  const { registryBase } = getOCIRegistryURLComponents(settings);
 
   const username = userConfig.get('oci-registry-username');
   const password = userConfig.get('oci-registry-password');
 
-  const opt = {
-    username,
-    password,
-    reqOptions: {
-      acceptManifest: manifestContentType,
-      acceptLayer: layerContentType,
-      indexContentType: '',
-    },
-  };
+  return new RemoteOciRegistry(registryBase, username, password);
+}
+
+/**
+ * Pull and store the IaC custom-rules bundle from the remote OCI Registry.
+ */
+export async function pullIaCCustomRules(
+  buildOciRegistry: () => OciRegistry,
+  iacOrgSettings: IacOrgSettings,
+): Promise<string> {
+  const { repo, tag } = getOCIRegistryURLComponents(iacOrgSettings);
 
   try {
-    return await pull(ociRegistryURLComponents, opt);
+    return await pull(buildOciRegistry(), repo, tag);
   } catch (err) {
-    if (err.statusCode === 401) {
+    if ((err as any).statusCode === 401) {
       throw new FailedToPullCustomBundleError(
         'There was an authentication error. Incorrect credentials provided.',
       );
-    } else if (err.statusCode === 404) {
+    } else if ((err as any).statusCode === 404) {
       throw new FailedToPullCustomBundleError(
         'The remote repository could not be found. Please check the provided registry URL.',
       );
