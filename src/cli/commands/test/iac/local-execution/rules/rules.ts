@@ -169,11 +169,11 @@ export async function pullIaCCustomRules(
   try {
     return await pull(buildOciRegistry(), repo, tag);
   } catch (err) {
-    if (err.statusCode === 401) {
+    if ((err as any).statusCode === 401) {
       throw new FailedToPullCustomBundleError(
         'There was an authentication error. Incorrect credentials provided.',
       );
-    } else if (err.statusCode === 404) {
+    } else if ((err as any).statusCode === 404) {
       throw new FailedToPullCustomBundleError(
         'The remote repository could not be found. Please check the provided registry URL.',
       );
