@@ -390,9 +390,6 @@ export interface OCIRegistryURLComponents {
   tag: string;
 }
 
-export const manifestContentType = 'application/vnd.oci.image.manifest.v1+json';
-export const layerContentType = 'application/vnd.oci.image.layer.v1.tar+gzip';
-
 export enum PerformanceAnalyticsKey {
   InitLocalCache = 'cache-init-ms',
   FileLoading = 'file-loading-ms',

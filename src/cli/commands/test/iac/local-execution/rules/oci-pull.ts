@@ -1,18 +1,12 @@
-import * as registryClient from '@snyk/docker-registry-v2-client';
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import {
-  IaCErrorCodes,
-  ImageManifest,
-  ManifestConfig,
-  OCIPullOptions,
-  OCIRegistryURLComponents,
-} from '../types';
+import { IaCErrorCodes, OCIRegistryURLComponents } from '../types';
 import { CustomError } from '../../../../../../lib/errors';
 import { getErrorStringCode } from '../error-utils';
 import { LOCAL_POLICY_ENGINE_DIR } from '../local-cache';
 import * as Debug from 'debug';
 import { createIacDir } from '../file-utils';
+import { OciRegistry } from '../oci-registry';
 const debug = Debug('iac-oci-pull');
 
 export const CUSTOM_RULES_TARBALL = 'custom-bundle.tar.gz';
@@ -51,35 +45,19 @@ export function extractOCIRegistryURLComponents(
  * @param opt????? (optional) - object that holds the credentials and other metadata required for the registry-v2-client
  **/
 export async function pull(
-  { registryBase, repo, tag }: OCIRegistryURLComponents,
-  opt?: OCIPullOptions,
+  registry: OciRegistry,
+  repository: string,
+  tag: string,
 ): Promise<string> {
-  const manifest: ImageManifest = await registryClient.getManifest(
-    registryBase,
-    repo,
-    tag,
-    opt?.username,
-    opt?.password,
-    opt?.reqOptions,
-  );
-  if (manifest.schemaVersion !== 2) {
-    throw new InvalidManifestSchemaVersionError(
-      manifest.schemaVersion.toString(),
-    );
+  const { schemaVersion, layers } = await registry.getManifest(repository, tag);
+  if (schemaVersion !== 2) {
+    throw new InvalidManifestSchemaVersionError(schemaVersion.toString());
   }
-  const manifestLayers: ManifestConfig[] = manifest.layers;
   // We assume that we will always have an artifact of a single layer
-  if (manifestLayers.length > 1) {
+  if (layers.length > 1) {
     debug('There were more than one layers found in the OCI Artifact.');
   }
-  const blob = await registryClient.getLayer(
-    registryBase,
-    repo,
-    manifestLayers[0].digest,
-    opt?.username,
-    opt?.password,
-    opt?.reqOptions,
-  );
+  const { blob } = await registry.getLayer(repository, layers[0].digest);
 
   try {
     const downloadPath: string = path.join(

@@ -2,8 +2,6 @@ import {
   IaCErrorCodes,
   IacOrgSettings,
   IaCTestFlags,
-  layerContentType,
-  manifestContentType,
   OCIRegistryURLComponents,
   RulesOrigin,
 } from '../types';
@@ -24,9 +22,10 @@ import {
   customRulesMessage,
   customRulesReportMessage,
 } from '../../../../../../lib/formatters/iac-output';
-import { isValidUrl } from '../url-utils';
+import { OciRegistry } from '../oci-registry';
 
 export async function initRules(
+  registry: OciRegistry,
   iacOrgSettings: IacOrgSettings,
   options: IaCTestFlags,
 ): Promise<RulesOrigin> {
@@ -67,7 +66,7 @@ export async function initRules(
     if (!iacOrgSettings.entitlements?.iacCustomRulesEntitlement) {
       throw new UnsupportedEntitlementPullError('iacCustomRulesEntitlement');
     }
-    customRulesPath = await pullIaCCustomRules(iacOrgSettings);
+    customRulesPath = await pullIaCCustomRules(registry, iacOrgSettings);
     rulesOrigin = RulesOrigin.Remote;
   }
 
@@ -128,7 +127,7 @@ function getOCIRegistryURLComponentsFromEnv() {
 /**
  * Gets the OCI registry URL components from either the env variables or the IaC org settings.
  */
-function getOCIRegistryURLComponents(
+export function getOCIRegistryURLComponents(
   iacOrgSettings: IacOrgSettings,
 ): OCIRegistryURLComponents {
   if (checkOCIRegistryURLExistsInSettings(iacOrgSettings)) {
@@ -143,25 +142,13 @@ function getOCIRegistryURLComponents(
  * Pull and store the IaC custom-rules bundle from the remote OCI Registry.
  */
 export async function pullIaCCustomRules(
+  registry: OciRegistry,
   iacOrgSettings: IacOrgSettings,
 ): Promise<string> {
-  const ociRegistryURLComponents = getOCIRegistryURLComponents(iacOrgSettings);
-
-  const username = userConfig.get('oci-registry-username');
-  const password = userConfig.get('oci-registry-password');
-
-  const opt = {
-    username,
-    password,
-    reqOptions: {
-      acceptManifest: manifestContentType,
-      acceptLayer: layerContentType,
-      indexContentType: '',
-    },
-  };
+  const { repo, tag } = getOCIRegistryURLComponents(iacOrgSettings);
 
   try {
-    return await pull(ociRegistryURLComponents, opt);
+    return await pull(registry, repo, tag);
   } catch (err) {
     if (err.statusCode === 401) {
       throw new FailedToPullCustomBundleError(
