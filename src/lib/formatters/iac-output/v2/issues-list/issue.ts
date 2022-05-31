@@ -45,7 +45,7 @@ function formatProperties(result: FormattedOutputResult): string[] {
       'Rule',
       result.issue.isGeneratedByCustomRule
         ? `custom rule ${result.issue.id}`
-        : result.issue.documentation,
+        : chalk.underline(result.issue.documentation || ''),
     ],
     ['Path', printPath(result.issue.cloudConfigPath, 0)],
     ['File', result.targetFile],
