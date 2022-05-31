@@ -22,7 +22,6 @@ import {
   trackUsage,
 } from './measurable-methods';
 import { findAndLoadPolicy } from '../../../../../lib/policy';
-import { isFeatureFlagSupportedForOrg } from '../../../../../lib/feature-flags';
 import { NoFilesToScanError } from './file-loader';
 import { processResults } from './process-results';
 import { generateProjectAttributes, generateTags } from '../../../monitor';
@@ -32,7 +31,6 @@ import {
 } from './directory-loader';
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
-import { FeatureFlagError } from './assert-iac-options-flag';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -50,13 +48,6 @@ export async function test(
 
   const policy = await findAndLoadPolicy(pathToScan, 'iac', options);
 
-  const isTFVarSupportEnabled = (
-    await isFeatureFlagSupportedForOrg(
-      'iacTerraformVarSupport',
-      iacOrgSettings.meta.org,
-    )
-  ).ok;
-
   let allParsedFiles: IacFileParsed[] = [],
     allFailedFiles: IacFileParseFailure[] = [];
   const allDirectories = getAllDirectoriesForPath(
@@ -73,7 +64,7 @@ export async function test(
     );
     if (
       currentDirectory === pathToScan &&
-      shouldLoadVarDefinitionsFile(options, isTFVarSupportEnabled)
+      shouldLoadVarDefinitionsFile(options)
     ) {
       const varDefinitionsFilePath = options['var-file'];
       filePathsInDirectory.push(varDefinitionsFilePath);
@@ -82,7 +73,6 @@ export async function test(
     const { parsedFiles, failedFiles } = await parseFiles(
       filesToParse,
       options,
-      isTFVarSupportEnabled,
     );
     allParsedFiles = allParsedFiles.concat(parsedFiles);
     allFailedFiles = allFailedFiles.concat(failedFiles);
@@ -182,12 +172,8 @@ function parseAttributes(options: IaCTestFlags) {
 
 function shouldLoadVarDefinitionsFile(
   options: IaCTestFlags,
-  isTFVarSupportEnabled = false,
 ): options is IaCTestFlags & { 'var-file': string } {
   if (options['var-file']) {
-    if (!isTFVarSupportEnabled) {
-      throw new FeatureFlagError('var-file', 'iacTerraformVarSupport');
-    }
     if (!existsSync(options['var-file'])) {
       throw new InvalidVarFilePath(options['var-file']);
     }

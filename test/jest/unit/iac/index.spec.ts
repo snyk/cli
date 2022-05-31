@@ -1,9 +1,5 @@
 jest.mock('../../../../src/cli/commands/test/iac/local-execution/local-cache');
 jest.mock('../../../../src/cli/commands/test/iac/local-execution/file-loader');
-const isFeatureFlagSupportedForOrgStub = jest.fn();
-jest.mock('../../../../src/lib/feature-flags', () => ({
-  isFeatureFlagSupportedForOrg: isFeatureFlagSupportedForOrgStub,
-}));
 const parseFilesStub = jest.fn();
 jest.mock(
   '../../../../src/cli/commands/test/iac/local-execution/file-parser',
@@ -50,12 +46,13 @@ jest.mock(
 
 import { test } from '../../../../src/cli/commands/test/iac/local-execution/';
 import {
+  EngineType,
   IacFileParsed,
   IaCTestFlags,
   RulesOrigin,
 } from '../../../../src/cli/commands/test/iac/local-execution/types';
 import { IacProjectType } from '../../../../src/lib/iac/constants';
-import { EngineType } from '../../../../src/cli/commands/test/iac/local-execution/types';
+
 const parsedFiles: IacFileParsed[] = [
   {
     engineType: EngineType.Terraform,
@@ -79,10 +76,7 @@ const failedFiles: IacFileParsed[] = [
 ];
 
 describe('test()', () => {
-  describe.each([
-    [{ iacTerraformVarSupport: false }],
-    [{ iacTerraformVarSupport: true }],
-  ])('With TF language support feature flag set to %p', (featureFlags) => {
+  describe('parsing', () => {
     const iacOrgSettings = {
       meta: {
         isPrivate: false,
@@ -99,9 +93,6 @@ describe('test()', () => {
     };
 
     beforeAll(() => {
-      isFeatureFlagSupportedForOrgStub.mockImplementation((flag) =>
-        Promise.resolve({ ok: featureFlags[flag] ?? true }),
-      );
       getAllDirectoriesForPathStub.mockImplementation(() => ['./storage']);
       parseFilesStub.mockImplementation(() => ({
         parsedFiles,
