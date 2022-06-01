@@ -8,23 +8,28 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/snyk/cli/cliv2/internal/certs"
+	"github.com/snyk/cli/cliv2/internal/httpauth"
 	"github.com/snyk/cli/cliv2/internal/utils"
 
 	"github.com/elazarl/goproxy"
 )
 
 type WrapperProxy struct {
-	httpServer          *http.Server
-	DebugLogger         *log.Logger
-	CertificateLocation string
+	impl                       *goproxy.ProxyHttpServer
+	httpServer                 *http.Server
+	DebugLogger                *log.Logger
+	CertificateLocation        string
+	acceptedProxyAuthMechanism httpauth.AuthenticationMechanism
 }
 
 func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion string, debugLogger *log.Logger) (*WrapperProxy, error) {
 	var p WrapperProxy
 	p.DebugLogger = debugLogger
+	p.acceptedProxyAuthMechanism = httpauth.NoAuth
 
 	certName := "snyk-embedded-proxy"
 	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, p.DebugLogger)
@@ -59,9 +64,11 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 	if err != nil {
 		return nil, err
 	}
+
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Tr = &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
+		Proxy:                 http.ProxyFromEnvironment,
+		GetProxyConnectHeader: p.GetProxyConnectHeader,
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: insecureSkipVerify, // goproxy defaults to true
 		},
@@ -70,11 +77,14 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 	proxy.Logger = debugLogger
 	proxy.OnRequest().HandleConnect(goproxy.AlwaysMitm)
 	proxy.OnRequest().DoFunc(func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+
+		// Manipulate Header (replace x-snyk-cli-version)
 		existingValue := r.Header.Get("x-snyk-cli-version")
 		if existingValue != "" {
 			debugLogger.Printf("Replacing value of existing x-snyk-cli-version header (%s) with %s\n", existingValue, cliVersion)
 			r.Header.Set("x-snyk-cli-version", cliVersion)
 		}
+
 		return r, nil
 	})
 
@@ -84,6 +94,7 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 	}
 
 	p.httpServer = proxyServer
+	p.impl = proxy
 
 	return &p, nil
 }
@@ -139,4 +150,58 @@ func setCAFromBytes(certPEMBlock []byte, keyPEMBlock []byte) error {
 	goproxy.HTTPMitmConnect = &goproxy.ConnectAction{Action: goproxy.ConnectHTTPMitm, TLSConfig: goproxy.TLSConfigFromCA(&goproxyCa)}
 	goproxy.RejectConnect = &goproxy.ConnectAction{Action: goproxy.ConnectReject, TLSConfig: goproxy.TLSConfigFromCA(&goproxyCa)}
 	return nil
+}
+
+func (p *WrapperProxy) SetUpstreamProxyAuthentication(mechanism httpauth.AuthenticationMechanism) {
+	p.acceptedProxyAuthMechanism = mechanism
+	p.DebugLogger.Println("Proxy Authentication Mechanism:", httpauth.StringFromAuthenticationMechanism(p.acceptedProxyAuthMechanism))
+}
+
+func (p *WrapperProxy) SetUpstreamProxy(proxyAddr string) {
+	if len(proxyAddr) > 0 {
+		if proxyUrl, err := url.Parse(proxyAddr); err == nil {
+			p.impl.Tr.Proxy = func(req *http.Request) (*url.URL, error) {
+				return proxyUrl, nil
+			}
+			p.DebugLogger.Println("Proxy Address:", proxyUrl)
+		} else {
+			fmt.Println("Failed to set proxy! ", err)
+		}
+	}
+}
+
+func (p *WrapperProxy) GetUpstreamProxy() func(req *http.Request) (*url.URL, error) {
+	return p.impl.Tr.Proxy
+}
+
+func (p *WrapperProxy) GetProxyConnectHeader(ctx context.Context, proxyURL *url.URL, target string) (http.Header, error) {
+
+	var err error
+	var token string
+	proxyConnectHeader := make(http.Header)
+
+	if p.acceptedProxyAuthMechanism != httpauth.NoAuth {
+		if proxyURL != nil {
+			// create an AuthenticationHandler
+			authHandler := httpauth.AuthenticationHandler{
+				Mechanism: p.acceptedProxyAuthMechanism,
+			}
+
+			// try to retrieve Header value
+			if token, err = authHandler.GetAuthorizationValue(proxyURL); err == nil {
+				if len(token) > 0 {
+					proxyConnectHeader.Add(httpauth.ProxyAuthorizationKey, token)
+					p.DebugLogger.Printf("CONNECT Header value \"%s\" added.\n", httpauth.ProxyAuthorizationKey)
+				} else {
+					p.DebugLogger.Printf("CONNECT Header value \"%s\" NOT added since it is empty.\n", httpauth.ProxyAuthorizationKey)
+				}
+			} else {
+				fmt.Println("Failed to retreive Proxy Authorization!", err)
+			}
+		} else {
+			err = fmt.Errorf("Given proxyUrl must not be nil!")
+		}
+	}
+
+	return proxyConnectHeader, err
 }

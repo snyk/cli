@@ -14,6 +14,18 @@ func Contains(list []string, element string) bool {
 	return false
 }
 
+func RemoveSimilar(list []string, element string) []string {
+	filteredArgs := []string{}
+
+	for _, a := range list {
+		if !strings.Contains(a, element) {
+			filteredArgs = append(filteredArgs, a)
+		}
+	}
+
+	return filteredArgs
+}
+
 func ToKeyValueMap(input []string, splitBy string) map[string]string {
 	result := make(map[string]string)
 
