@@ -41,6 +41,8 @@ import {
   notificationForSpotlightVulns,
 } from '../../../lib/spotlight-vuln-notification';
 import iacTestCommand from './iac';
+import * as iacTestCommandV2 from './iac/v2';
+import { hasFeatureFlag } from '../../../lib/feature-flags';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -52,11 +54,19 @@ export default async function test(
 ): Promise<TestCommandResult> {
   const { options: originalOptions, paths } = processCommandArgs(...args);
 
+  const options = setDefaultTestOptions(originalOptions);
   if (originalOptions.iac) {
-    return await iacTestCommand(false, ...args);
+    // temporary placeholder for the "new" flow that integrates with UPE
+    if (
+      (await hasFeatureFlag('iacCliUnifiedEngine', options)) &&
+      options.experimental
+    ) {
+      return await iacTestCommandV2.test();
+    } else {
+      return await iacTestCommand(false, ...args);
+    }
   }
 
-  const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
 
