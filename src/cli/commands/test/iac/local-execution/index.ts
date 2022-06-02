@@ -23,7 +23,7 @@ import {
 } from './measurable-methods';
 import { findAndLoadPolicy } from '../../../../../lib/policy';
 import { NoFilesToScanError } from './file-loader';
-import { processResults } from './process-results';
+import { ResultsProcessor } from './process-results';
 import { generateProjectAttributes, generateTags } from '../../../monitor';
 import {
   getAllDirectoriesForPath,
@@ -35,9 +35,9 @@ import { getErrorStringCode } from './error-utils';
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
 export async function test(
+  resultsProcessor: ResultsProcessor,
   pathToScan: string,
   options: IaCTestFlags,
-  orgPublicId: string,
   iacOrgSettings: IacOrgSettings,
   rulesOrigin: RulesOrigin,
 ): Promise<TestReturnValue> {
@@ -110,15 +110,11 @@ export async function test(
     iacOrgSettings.customPolicies,
   );
 
-  const { filteredIssues, ignoreCount } = await processResults(
+  const { filteredIssues, ignoreCount } = await resultsProcessor.processResults(
     resultsWithCustomSeverities,
-    orgPublicId,
-    iacOrgSettings,
     policy,
     tags,
     attributes,
-    options,
-    pathToScan,
   );
 
   try {

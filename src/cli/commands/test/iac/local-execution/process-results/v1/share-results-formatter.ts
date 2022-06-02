@@ -1,9 +1,9 @@
-import { IacFileScanResult, IacShareResultsFormat } from '../types';
+import { IacFileScanResult, IacShareResultsFormat } from '../../types';
 import * as path from 'path';
 import {
   getRepositoryRootForPath,
   getWorkingDirectoryForPath,
-} from '../../../../../../lib/iac/git';
+} from '../../../../../../../lib/iac/git';
 
 export function formatShareResults(
   scanResults: IacFileScanResult[],
