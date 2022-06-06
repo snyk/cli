@@ -31,16 +31,26 @@ function formatTitle(issue: AnnotatedIacIssue): string {
   return titleOutput;
 }
 
+function formatInfo(issue: AnnotatedIacIssue): string | undefined {
+  const issueDesc = issue.iacDescription.issue;
+  const issueImpact = issue.iacDescription.impact;
+
+  if (!issueDesc) {
+    return issueImpact;
+  }
+
+  if (!issueImpact) {
+    return issueDesc;
+  }
+
+  return `${issueDesc}${!issueDesc.endsWith('.') ? '.' : ''} ${issueImpact}`;
+}
+
 function formatProperties(result: FormattedOutputResult): string[] {
   const remediationKey = iacRemediationTypes?.[result.projectType];
 
   const properties = [
-    [
-      'Info',
-      `${result.issue.iacDescription.issue}${
-        result.issue.iacDescription.issue.endsWith('.') ? '' : '.'
-      } ${result.issue.iacDescription.impact}`,
-    ],
+    ['Info', formatInfo(result.issue)],
     [
       'Rule',
       result.issue.isGeneratedByCustomRule
