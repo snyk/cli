@@ -18,10 +18,7 @@ import { initLocalCache, pull } from '../measurable-methods';
 import { config as userConfig } from '../../../../../../lib/user-config';
 import { CustomError } from '../../../../../../lib/errors';
 import { getErrorStringCode } from '../error-utils';
-import {
-  customRulesMessage,
-  customRulesReportMessage,
-} from '../../../../../../lib/formatters/iac-output';
+import { customRulesMessage } from '../../../../../../lib/formatters/iac-output';
 import { OciRegistry, RemoteOciRegistry } from './oci-registry';
 import { isValidUrl } from '../url-utils';
 
@@ -50,13 +47,7 @@ export async function initRules(
     (isOCIRegistryURLProvided || customRulesPath) &&
     !(options.sarif || options.json)
   ) {
-    let userMessage = `${customRulesMessage}${EOL}`;
-
-    if (options.report) {
-      userMessage += `${customRulesReportMessage}${EOL}`;
-    }
-
-    console.log(userMessage);
+    console.log(`${customRulesMessage}${EOL}`);
   }
 
   if (isOCIRegistryURLProvided && customRulesPath) {

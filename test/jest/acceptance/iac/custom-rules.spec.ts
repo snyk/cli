@@ -85,30 +85,5 @@ describe('iac test --rules', () => {
         'Using custom rules to generate misconfigurations.',
       );
     });
-
-    it('should display a warning message for custom rules not being available on the platform', async () => {
-      const { stdout } = await run(
-        `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
-      );
-
-      expect(stdout).toContain(
-        "Please note that your custom rules will not be sent to the Snyk platform, and will not be available on the project's page.",
-      );
-    });
-
-    describe.each(['--json', '--sarif'])(
-      'when the %s flag is provided',
-      (testedFormatFlag) => {
-        it('should not display the warning message for the custom rules not being available on the platform', async () => {
-          const { stdout } = await run(
-            `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf ${testedFormatFlag}`,
-          );
-
-          expect(stdout).not.toContain(
-            "Please note that your custom rules will not be sent to the Snyk platform, and will not be available on the project's page.",
-          );
-        });
-      },
-    );
   });
 });
