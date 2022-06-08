@@ -23,6 +23,7 @@ interface Config {
   DRIFTCTL_PATH?: string;
   DRIFTCTL_URL?: string;
   IAC_BUNDLE_PATH?: string;
+  IAC_POLICY_ENGINE_PATH?: string;
   IAC_OUTPUT_V2?: boolean;
 }
 

@@ -23,6 +23,7 @@ import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as crypto from 'crypto';
+import { isExe } from '../file-utils';
 
 const debug = debugLib('driftctl');
 
@@ -422,18 +423,6 @@ function driftctlUrl(): string {
   }
 
   return `${dctlBaseUrl}/${driftctlVersion}/${driftctlFileName()}`;
-}
-
-function isExe(dctlPath: string): Promise<boolean> {
-  return new Promise<boolean>((resolve) => {
-    fs.access(dctlPath, fs.constants.X_OK, (err) => {
-      if (err) {
-        resolve(false);
-        return;
-      }
-      resolve(true);
-    });
-  });
 }
 
 function createIfNotExists(path: string) {

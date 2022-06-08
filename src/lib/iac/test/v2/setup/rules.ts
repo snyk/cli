@@ -1,8 +1,23 @@
 import * as fs from 'fs';
 import * as tar from 'tar';
-import { CustomError } from '../../../../../lib/errors';
-import { getErrorStringCode } from '../local-execution/error-utils';
-import { IaCErrorCodes } from '../local-execution/types';
+import { CustomError } from '../../../../errors';
+import { getErrorStringCode } from '../../../../../cli/commands/test/iac/local-execution/error-utils';
+import { IaCErrorCodes } from '../../../../../cli/commands/test/iac/local-execution/types';
+import { TestConfig } from '../types';
+
+export async function initRules(testConfig: TestConfig) {
+  const bundleLocator = new RulesBundleLocator(
+    testConfig.cachedBundlePath,
+    testConfig.userBundlePath,
+  );
+  const bundlePath = bundleLocator.locateBundle();
+
+  if (bundlePath) {
+    console.log(`found rules bundle at ${bundlePath}`);
+  } else {
+    console.log('no rules bundle found');
+  }
+}
 
 export class RulesBundleLocator {
   constructor(

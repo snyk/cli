@@ -35,6 +35,7 @@ const DEBUG_DEFAULT_NAMESPACES = [
   'snyk-test',
   'snyk',
   'snyk-code',
+  'snyk-iac',
   'snyk:find-files',
   'snyk:run-test',
   'snyk:prune',
