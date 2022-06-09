@@ -48,6 +48,10 @@ export default {
           to: '../gosrc/',
         },
         {
+          from: 'node_modules/sql.js/dist/sql-wasm.wasm',
+          to: './',
+        },
+        {
           from:
             'node_modules/@snyk/java-call-graph-builder/config.default.json',
           to: '../',
@@ -66,6 +70,8 @@ export default {
         loader: 'node-loader',
       },
     ],
+    // noParse avoids breaking sql.js. https://github.com/sql-js/sql.js/issues/406#issuecomment-688594485
+    noParse: /node_modules\/sql\.js\/dist\/sql-wasm\.js$/,
   },
   resolve: {
     extensions: ['.ts', '.js', '.json'],
