@@ -626,12 +626,20 @@ jobs:
       - save_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
           paths: [/home/circleci/go/pkg/mod]
-      - store_artifacts:
-          path: ./cliv2/bin
       - persist_to_workspace:
           root: .
           paths:
             - ./cliv2/bin
+
+  v2-prepare-release:
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - store_artifacts:
+          path: ./cliv2/bin
 
   v2-test-linux-amd64:
     executor: linux
@@ -1022,7 +1030,6 @@ workflows:
           requires:
             - v2 / Build (linux/amd64)
           test_snyk_command: /mnt/ramdisk/snyk/cliv2/bin/snyk_linux_amd64
-
       - v2-sign-darwin-amd64:
           name: v2 / Sign (darwin/amd64)
           context: snyk-macos-signing
@@ -1033,3 +1040,10 @@ workflows:
           context: snyk-windows-signing
           requires:
             - v2 / Build (windows/amd64)
+      - v2-prepare-release:
+          name: v2 / Prepare Release
+          requires:
+            - v2 / Build (linux/amd64)
+            - v2 / Build (linux/arm64)
+            - v2 / Sign (darwin/amd64)
+            - v2 / Sign (windows/amd64)
