@@ -35,6 +35,9 @@ const SNYK_EXIT_CODE_ERROR = 2
 const SNYK_INTEGRATION_NAME = "CLI_V1_PLUGIN"
 const SNYK_INTEGRATION_NAME_ENV = "SNYK_INTEGRATION_NAME"
 const SNYK_INTEGRATION_VERSION_ENV = "SNYK_INTEGRATION_VERSION"
+const SNYK_HTTPS_PROXY_ENV = "HTTPS_PROXY"
+const SNYK_HTTP_PROXY_ENV = "HTTP_PROXY"
+const SNYK_CA_CERTIFICATE_LOCATION_ENV = "NODE_EXTRA_CA_CERTS"
 
 const (
 	V1_DEFAULT Handler = iota
@@ -137,7 +140,7 @@ func determineHandler(passthroughArgs []string) Handler {
 	return result
 }
 
-func AddIntegrationEnvironment(input []string, name string, version string) (result []string, err error) {
+func PrepareV1EnvironmentVariables(input []string, integrationName string, integrationVersion string, proxyAddress string, caCertificateLocation string) (result []string, err error) {
 
 	inputAsMap := utils.ToKeyValueMap(input, "=")
 	result = input
@@ -146,11 +149,17 @@ func AddIntegrationEnvironment(input []string, name string, version string) (res
 	_, integrationVersionExists := inputAsMap[SNYK_INTEGRATION_VERSION_ENV]
 
 	if !integrationNameExists && !integrationVersionExists {
-		inputAsMap[SNYK_INTEGRATION_NAME_ENV] = name
-		inputAsMap[SNYK_INTEGRATION_VERSION_ENV] = version
-		result = utils.ToSlice(inputAsMap, "=")
+		inputAsMap[SNYK_INTEGRATION_NAME_ENV] = integrationName
+		inputAsMap[SNYK_INTEGRATION_VERSION_ENV] = integrationVersion
 	} else if !(integrationNameExists && integrationVersionExists) {
 		err = EnvironmentWarning{message: fmt.Sprintf("Partially defined environment, please ensure to provide both %s and %s together!", SNYK_INTEGRATION_NAME_ENV, SNYK_INTEGRATION_VERSION_ENV)}
+	}
+
+	if err == nil {
+		inputAsMap[SNYK_HTTPS_PROXY_ENV] = proxyAddress
+		inputAsMap[SNYK_HTTP_PROXY_ENV] = proxyAddress
+		inputAsMap[SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
+		result = utils.ToSlice(inputAsMap, "=")
 	}
 
 	return result, err
@@ -159,14 +168,10 @@ func AddIntegrationEnvironment(input []string, name string, version string) (res
 
 func PrepareV1Command(cmd string, args []string, proxyPort int, caCertLocation string, integrationName string, integrationVersion string) (snykCmd *exec.Cmd, err error) {
 
+	proxyAddress := fmt.Sprintf("http://127.0.0.1:%d", proxyPort)
+
 	snykCmd = exec.Command(cmd, args...)
-	snykCmd.Env = append(os.Environ(),
-		fmt.Sprintf("HTTPS_PROXY=http://127.0.0.1:%d", proxyPort),
-		fmt.Sprintf("NODE_EXTRA_CA_CERTS=%s", caCertLocation),
-	)
-
-	snykCmd.Env, err = AddIntegrationEnvironment(snykCmd.Env, integrationName, integrationVersion)
-
+	snykCmd.Env, err = PrepareV1EnvironmentVariables(os.Environ(), integrationName, integrationVersion, proxyAddress, caCertLocation)
 	snykCmd.Stdin = os.Stdin
 	snykCmd.Stdout = os.Stdout
 	snykCmd.Stderr = os.Stderr
