@@ -161,6 +161,7 @@ func PrepareV1Command(cmd string, args []string, proxyPort int, caCertLocation s
 
 	snykCmd = exec.Command(cmd, args...)
 	snykCmd.Env = append(os.Environ(),
+		fmt.Sprintf("HTTP_PROXY=http://127.0.0.1:%d", proxyPort),
 		fmt.Sprintf("HTTPS_PROXY=http://127.0.0.1:%d", proxyPort),
 		fmt.Sprintf("NODE_EXTRA_CA_CERTS=%s", caCertLocation),
 	)
