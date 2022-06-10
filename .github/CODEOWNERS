@@ -19,7 +19,6 @@ help/  @snyk/hammer
 help/cli-commands/iac*.md @snyk/group-infrastructure-as-code @snyk/hammer 
 src/cli/commands/test/iac/ @snyk/group-infrastructure-as-code
 src/cli/commands/describe.ts @snyk/group-infrastructure-as-code
-src/cli/commands/report/ @snyk/group-infrastructure-as-code
 src/cli/commands/update-exclude-policy.ts @snyk/group-infrastructure-as-code
 src/cli/commands/apps @snyk/moose
 src/lib/apps @snyk/moose

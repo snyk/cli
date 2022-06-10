@@ -63,7 +63,7 @@ export default async function test(
     ) {
       return await iacTestCommandV2.test();
     } else {
-      return await iacTestCommand(false, ...args);
+      return await iacTestCommand(...args);
     }
   }
 

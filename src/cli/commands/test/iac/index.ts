@@ -45,11 +45,7 @@ import { scan } from './scan';
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
-// The hardcoded `isReportCommand` argument is temporary and will be removed together with the `snyk iac report` command deprecation
-export default async function(
-  isReportCommand: boolean,
-  ...args: MethodArgs
-): Promise<TestCommandResult> {
+export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const { options: originalOptions, paths } = processCommandArgs(...args);
 
   const options = setDefaultTestOptions(originalOptions);
@@ -277,13 +273,6 @@ export default async function(
 
     if (isIacShareResultsOptions(options)) {
       response += formatShareResultsOutput(iacOutputMeta!) + EOL.repeat(2);
-      if (isReportCommand) {
-        response += chalk.red.bold(
-          'Warning:' +
-            EOL +
-            "We will be deprecating support for the 'snyk iac report' command by mid-June and 'snyk iac test --report' will become the default command for using our share results functionality.",
-        );
-      }
     }
 
     const error = new Error(response) as any;
@@ -302,13 +291,6 @@ export default async function(
 
   if (isIacShareResultsOptions(options)) {
     response += formatShareResultsOutput(iacOutputMeta!) + EOL.repeat(2);
-    if (isReportCommand) {
-      response += chalk.red.bold(
-        'Warning:' +
-          EOL +
-          "We will be deprecating support for the 'snyk iac report' command by mid-June and 'snyk iac test --report' will become the default command for using our share results functionality.",
-      );
-    }
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
