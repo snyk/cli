@@ -71,13 +71,13 @@ npm run watch
 You can run tests using standard Jest commands. See: [Jest CLI docs](https://jestjs.io/docs/cli).
 
 ```
-npx jest <path>
+npx jest --runInBand <path>
 ```
 
 If you are working on a specific project, you can filter by project.
 
 ```
-npx jest --selectProjects @snyk/protect <path>
+npx jest --runInBand --selectProjects @snyk/protect <path>
 ```
 
 Debugger configuration is available for VS Code. Open "Run and Debug" and choose "Jest Current File".
