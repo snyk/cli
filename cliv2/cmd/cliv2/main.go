@@ -7,12 +7,16 @@ import (
 	"os"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/httpauth"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 	"github.com/snyk/cli/cliv2/internal/utils"
 )
 
 type EnvironmentVariables struct {
-	CacheDirectory string
+	CacheDirectory               string
+	Insecure                     bool
+	ProxyAuthenticationMechanism httpauth.AuthenticationMechanism
+	ProxyAddr                    string
 }
 
 func getDebugLogger(args []string) *log.Logger {
@@ -26,11 +30,36 @@ func getDebugLogger(args []string) *log.Logger {
 	return debugLogger
 }
 
-func main() {
+func GetConfiguration(args []string) (EnvironmentVariables, []string) {
+	argsAsMap := utils.ToKeyValueMap(args, "=")
+
 	envVariables := EnvironmentVariables{
-		CacheDirectory: os.Getenv("SNYK_CACHE_PATH"),
+		CacheDirectory:               os.Getenv("SNYK_CACHE_PATH"),
+		ProxyAuthenticationMechanism: httpauth.NoAuth,
+		Insecure:                     false,
 	}
-	errorCode := MainWithErrorCode(envVariables, os.Args[1:])
+
+	if utils.Contains(args, "--proxy-negotiate") {
+		envVariables.ProxyAuthenticationMechanism = httpauth.Negotiate
+	}
+
+	envVariables.Insecure = utils.Contains(args, "--insecure")
+
+	envVariables.ProxyAddr, _ = argsAsMap["--proxy"]
+
+	// filter args not meant to be forwarded to CLIv1 or an Extensions
+	elementsToFilter := []string{"--proxy=", "--proxy-negotiate"}
+	filteredArgs := args
+	for _, element := range elementsToFilter {
+		filteredArgs = utils.RemoveSimilar(filteredArgs, element)
+	}
+
+	return envVariables, filteredArgs
+}
+
+func main() {
+	config, args := GetConfiguration(os.Args[1:])
+	errorCode := MainWithErrorCode(config, args)
 	os.Exit(errorCode)
 }
 
@@ -40,9 +69,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	debugLogger.Println("debug: true")
 
 	debugLogger.Println("cacheDirectory:", envVariables.CacheDirectory)
-
-	insecure := utils.Contains(args, "--insecure")
-	debugLogger.Println("insecure:", insecure)
+	debugLogger.Println("insecure:", envVariables.Insecure)
 
 	if envVariables.CacheDirectory == "" {
 		envVariables.CacheDirectory, err = utils.SnykCacheDir()
@@ -61,12 +88,15 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	}
 
 	// init proxy object
-	wrapperProxy, err := proxy.NewWrapperProxy(insecure, envVariables.CacheDirectory, cli.GetFullVersion(), debugLogger)
+	wrapperProxy, err := proxy.NewWrapperProxy(envVariables.Insecure, envVariables.CacheDirectory, cli.GetFullVersion(), debugLogger)
 	if err != nil {
 		fmt.Println("Failed to create proxy")
 		fmt.Println(err)
 		return cliv2.SNYK_EXIT_CODE_ERROR
 	}
+
+	wrapperProxy.SetUpstreamProxy(envVariables.ProxyAddr)
+	wrapperProxy.SetUpstreamProxyAuthentication(envVariables.ProxyAuthenticationMechanism)
 
 	port, err := wrapperProxy.Start()
 	if err != nil {
