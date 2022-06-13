@@ -351,6 +351,9 @@ export enum IaCErrorCodes {
 
   // Rules bundle errors.
   InvalidUserRulesBundleError = 1130,
+
+  // Unified Policy Engine executable errors.
+  InvalidUserPolicyEnginePathError = 1140,
 }
 
 export interface TestReturnValue {

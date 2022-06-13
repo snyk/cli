@@ -1,19 +1,15 @@
 import chalk from 'chalk';
-import { TestCommandResult } from '../../../types';
-import { RulesBundleLocator } from './rules';
-import config from '../../../../../lib/config';
 import envPaths from 'env-paths';
-import * as path from 'path';
+import * as pathLib from 'path';
+import * as testLib from '../../../../../lib/iac/test/v2';
+import { TestConfig } from '../../../../../lib/iac/test/v2';
+import config from '../../../../../lib/config';
+import { TestCommandResult } from '../../../types';
 
 export async function test(): Promise<TestCommandResult> {
-  const bundleLocator = createRulesBundleLocator();
-  const bundlePath = bundleLocator.locateBundle();
+  const testConfig = prepareTestConfig();
 
-  if (bundlePath) {
-    console.log(`found rules bundle at ${bundlePath}`);
-  } else {
-    console.log('no rules bundle found');
-  }
+  await testLib.test(testConfig);
 
   let response = '';
   response += chalk.bold.green('new flow for UPE integration - TBC...');
@@ -24,9 +20,14 @@ export async function test(): Promise<TestCommandResult> {
   );
 }
 
-function createRulesBundleLocator(): RulesBundleLocator {
+function prepareTestConfig(): TestConfig {
   const systemCachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
-  const cachedBundlePath = path.join(systemCachePath, 'iac', 'bundle.tar.gz');
-  const userBundlePath = config.IAC_BUNDLE_PATH;
-  return new RulesBundleLocator(cachedBundlePath, userBundlePath);
+  const iacCachePath = pathLib.join(systemCachePath, 'iac');
+
+  return {
+    cachedBundlePath: pathLib.join(iacCachePath, 'bundle.tar.gz'),
+    userBundlePath: config.IAC_BUNDLE_PATH,
+    cachedPolicyEnginePath: pathLib.join(iacCachePath, 'snyk-iac-test'),
+    userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
+  };
 }

@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as tar from 'tar';
 import * as rimraf from 'rimraf';
-import { RulesBundleLocator } from '../../../../../src/cli/commands/test/iac/v2/rules';
+import { RulesBundleLocator } from '../../../../../../../../src/lib/iac/test/v2/setup/rules';
 
 describe('PathRulesBundleLocator', () => {
   let root: string;
