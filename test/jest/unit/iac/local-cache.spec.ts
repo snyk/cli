@@ -30,6 +30,7 @@ describe('initLocalCache - downloads bundle successfully', () => {
 
     expect(needle.get).toHaveBeenCalledWith(
       expect.stringContaining('bundle.tar.gz'),
+      { rejectUnauthorized: true },
     );
     expect(spy).toHaveBeenCalledWith(mockReadable);
   });

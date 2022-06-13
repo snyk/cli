@@ -3,6 +3,8 @@ import * as fs from 'fs';
 import { EngineType, IaCErrorCodes } from './types';
 import * as needle from 'needle';
 import * as rimraf from 'rimraf';
+import { getProxyForUrl } from 'proxy-from-env';
+import { bootstrap } from 'global-agent';
 import { createIacDir, extractBundle, isValidBundle } from './file-utils';
 import * as Debug from 'debug';
 import { CustomError } from '../../../../../lib/errors';
@@ -10,8 +12,11 @@ import * as analytics from '../../../../../lib/analytics';
 import ReadableStream = NodeJS.ReadableStream;
 import { getErrorStringCode } from './error-utils';
 import config from '../../../../../lib/config';
+import { Global } from '../../../../args';
 
 const debug = Debug('iac-local-cache');
+
+declare const global: Global;
 
 export const LOCAL_POLICY_ENGINE_DIR = '.iac-data';
 
@@ -141,7 +146,15 @@ export async function initLocalCache({
   // always overwrite whatever might be there.
   try {
     const BUNDLE_URL = 'https://static.snyk.io/cli/wasm/bundle.tar.gz';
-    const response: ReadableStream = needle.get(BUNDLE_URL);
+    const proxyUri = getProxyForUrl(BUNDLE_URL);
+    if (proxyUri) {
+      bootstrap({
+        environmentVariableNamespace: '',
+      });
+    }
+    const response: ReadableStream = needle.get(BUNDLE_URL, {
+      rejectUnauthorized: !global.ignoreUnknownCA,
+    });
     await extractBundle(response);
   } catch (e) {
     throw new FailedToDownloadRulesError();
