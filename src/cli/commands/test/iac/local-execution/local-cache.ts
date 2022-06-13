@@ -1,15 +1,14 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { EngineType, IaCErrorCodes } from './types';
-import * as needle from 'needle';
 import * as rimraf from 'rimraf';
 import { createIacDir, extractBundle, isValidBundle } from './file-utils';
 import * as Debug from 'debug';
 import { CustomError } from '../../../../../lib/errors';
 import * as analytics from '../../../../../lib/analytics';
-import ReadableStream = NodeJS.ReadableStream;
 import { getErrorStringCode } from './error-utils';
 import config from '../../../../../lib/config';
+import { streamRequest } from '../../../../../lib/request/request';
 
 const debug = Debug('iac-local-cache');
 
@@ -141,7 +140,12 @@ export async function initLocalCache({
   // always overwrite whatever might be there.
   try {
     const BUNDLE_URL = 'https://static.snyk.io/cli/wasm/bundle.tar.gz';
-    const response: ReadableStream = needle.get(BUNDLE_URL);
+    const response = await streamRequest({
+      method: 'get',
+      url: BUNDLE_URL,
+      body: null,
+      headers: {},
+    });
     await extractBundle(response);
   } catch (e) {
     throw new FailedToDownloadRulesError();
