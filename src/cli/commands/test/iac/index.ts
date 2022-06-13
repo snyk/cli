@@ -41,6 +41,7 @@ import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-
 import * as ora from 'ora';
 import { CustomError, FormattedCustomError } from '../../../../lib/errors';
 import { scan } from './scan';
+import * as path from 'path';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -73,6 +74,10 @@ export default async function(
 
   if (shouldLogUserMessages(options, isNewIacOutputSupported)) {
     console.log(EOL + iacTestTitle + EOL);
+
+    if (paths.some(isOutsideCurrentWorkingDirectory)) {
+      printCurrentWorkingDirectoryTraversalWarning();
+    }
 
     testSpinner = ora({ isSilent: options.quiet, stream: process.stdout });
   }
@@ -316,4 +321,25 @@ export default async function(
     stringifiedJsonData,
     stringifiedSarifData,
   );
+}
+
+function isOutsideCurrentWorkingDirectory(p: string): boolean {
+  return path.relative(process.cwd(), p).includes('..');
+}
+
+function printCurrentWorkingDirectoryTraversalWarning() {
+  let msg = '';
+
+  msg +=
+    'Warning: Scanning paths outside the current working directory is deprecated and' +
+    EOL;
+  msg +=
+    'will be removed in the future. Please see the documentation for further details:' +
+    EOL +
+    EOL;
+  msg +=
+    '  https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code/test-your-configuration-files' +
+    EOL;
+
+  console.log(chalk.yellow(msg));
 }
