@@ -18,14 +18,19 @@ import { initLocalCache, pull } from '../measurable-methods';
 import { config as userConfig } from '../../../../../../lib/user-config';
 import { CustomError } from '../../../../../../lib/errors';
 import { getErrorStringCode } from '../error-utils';
-import { customRulesMessage } from '../../../../../../lib/formatters/iac-output';
+import {
+  customRulesMessage,
+  customRulesReportMessage,
+} from '../../../../../../lib/formatters/iac-output';
 import { OciRegistry, RemoteOciRegistry } from './oci-registry';
 import { isValidUrl } from '../url-utils';
+import { isFeatureFlagSupportedForOrg } from '../../../../../../lib/feature-flags';
 
 export async function initRules(
   buildOciRegistry: () => OciRegistry,
   iacOrgSettings: IacOrgSettings,
   options: IaCTestFlags,
+  orgPublicId: string,
 ): Promise<RulesOrigin> {
   let customRulesPath: string | undefined;
   let rulesOrigin: RulesOrigin = RulesOrigin.Internal;
@@ -47,7 +52,20 @@ export async function initRules(
     (isOCIRegistryURLProvided || customRulesPath) &&
     !(options.sarif || options.json)
   ) {
-    console.log(`${customRulesMessage}${EOL}`);
+    let userMessage = `${customRulesMessage}${EOL}`;
+
+    if (options.report) {
+      const isCliReportCustomRulesEnabled = await isFeatureFlagSupportedForOrg(
+        'iacShareCliResultsCustomRules',
+        orgPublicId,
+      );
+
+      if (!isCliReportCustomRulesEnabled.ok) {
+        userMessage += `${customRulesReportMessage}${EOL}`;
+      }
+    }
+
+    console.log(userMessage);
   }
 
   if (isOCIRegistryURLProvided && customRulesPath) {

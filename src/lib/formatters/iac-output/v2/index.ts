@@ -6,6 +6,7 @@ export {
   spinnerSuccessMessage,
   shouldLogUserMessages,
   customRulesMessage,
+  customRulesReportMessage,
 } from './user-messages';
 export { formatShareResultsOutput } from './share-results';
 export {

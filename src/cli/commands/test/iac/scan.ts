@@ -52,7 +52,12 @@ export async function scan(
   let iacIgnoredIssuesCount = 0;
 
   try {
-    const rulesOrigin = await initRules(buildOciRules, iacOrgSettings, options);
+    const rulesOrigin = await initRules(
+      buildOciRules,
+      iacOrgSettings,
+      options,
+      orgPublicId,
+    );
 
     testSpinner?.start(spinnerMessage);
 
