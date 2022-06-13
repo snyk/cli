@@ -15,6 +15,7 @@ export {
   spinnerMessage,
   spinnerSuccessMessage,
   customRulesMessage,
+  customRulesReportMessage,
   shouldLogUserMessages,
   formatShareResultsOutput,
   failuresTipOutput,

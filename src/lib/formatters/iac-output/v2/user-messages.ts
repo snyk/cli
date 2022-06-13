@@ -26,6 +26,13 @@ export const customRulesMessage = colors.info(
 );
 
 /**
+ * Message for using custom rules.
+ */
+export const customRulesReportMessage = colors.info(
+  "Please note that your custom rules will not be sent to the Snyk platform, and will not be available on the project's page.",
+);
+
+/**
  * @returns whether or not to include user messages in the output.
  */
 export function shouldLogUserMessages(

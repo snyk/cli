@@ -49,7 +49,9 @@ describe('initRules', () => {
       };
     };
 
-    await expect(initRules(registryBuilder, settings, options)).rejects.toThrow(
+    await expect(
+      initRules(registryBuilder, settings, options, 'orgPublicId'),
+    ).rejects.toThrow(
       'There was an authentication error. Incorrect credentials provided.',
     );
   });
@@ -59,9 +61,9 @@ describe('initRules', () => {
       rules: 'path/to/rules.tgz',
     };
 
-    await expect(initRules(registryBuilder, settings, options)).rejects.toThrow(
-      'Could not execute custom rules mode',
-    );
+    await expect(
+      initRules(registryBuilder, settings, options, 'orgPublicId'),
+    ).rejects.toThrow('Could not execute custom rules mode');
   });
 
   it('should fail if the user is not entitled to use custom rules', async () => {
@@ -77,8 +79,8 @@ describe('initRules', () => {
       },
     };
 
-    await expect(initRules(registryBuilder, settings, options)).rejects.toThrow(
-      'Missing the iacCustomRulesEntitlement entitlement',
-    );
+    await expect(
+      initRules(registryBuilder, settings, options, 'orgPublicId'),
+    ).rejects.toThrow('Missing the iacCustomRulesEntitlement entitlement');
   });
 });
