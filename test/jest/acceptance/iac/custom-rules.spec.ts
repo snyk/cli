@@ -90,7 +90,7 @@ describe('iac test --rules', () => {
       server.setFeatureFlag('iacShareCliResultsCustomRules', false);
 
       const { stdout } = await run(
-        `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
+        `snyk iac test --report --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
       );
 
       expect(stdout).toContain(
@@ -102,7 +102,7 @@ describe('iac test --rules', () => {
       server.setFeatureFlag('iacShareCliResultsCustomRules', true);
 
       const { stdout } = await run(
-        `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
+        `snyk iac test --report --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
       );
 
       expect(stdout).not.toContain(
@@ -117,7 +117,7 @@ describe('iac test --rules', () => {
           server.setFeatureFlag('iacShareCliResultsCustomRules', false);
 
           const { stdout } = await run(
-            `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf ${testedFormatFlag}`,
+            `snyk iac test --report --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf ${testedFormatFlag}`,
           );
 
           expect(stdout).not.toContain(
