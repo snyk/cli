@@ -67,13 +67,10 @@ describe('iac test --rules', () => {
     expect(exitCode).toBe(2);
   });
 
-  describe.each([
-    ['--report flag', 'test --report'],
-    ['report command', 'report'],
-  ])('when used with the %s', (_, testedCommand) => {
+  describe('when used with the --report flag', () => {
     it('should resolve successfully', async () => {
       const { stderr, exitCode } = await run(
-        `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
+        `snyk iac test --report --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
       );
       expect(stderr).toEqual('');
       expect(exitCode).toEqual(1);
@@ -81,7 +78,7 @@ describe('iac test --rules', () => {
 
     it('should display a message informing of the application of custom rules', async () => {
       const { stdout } = await run(
-        `snyk iac ${testedCommand} --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
+        `snyk iac test --report --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
       );
 
       expect(stdout).toContain(

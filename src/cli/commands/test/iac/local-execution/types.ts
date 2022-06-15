@@ -346,9 +346,6 @@ export enum IaCErrorCodes {
   // drift errors
   InvalidServiceError = 1110,
 
-  // report errors
-  UnsupportedReportCommandError = 1120,
-
   // Rules bundle errors.
   InvalidUserRulesBundleError = 1130,
 
