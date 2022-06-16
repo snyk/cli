@@ -19,7 +19,7 @@ import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag
 import { initRules } from './local-execution/rules/rules';
 import { cleanLocalCache } from './local-execution/measurable-methods';
 import * as ora from 'ora';
-import { IacOrgSettings } from './local-execution/types';
+import { IaCErrorCodes, IacOrgSettings } from './local-execution/types';
 import * as pathLib from 'path';
 import { CustomError } from '../../../../lib/errors';
 import { OciRegistry } from './local-execution/rules/oci-registry';
@@ -28,6 +28,7 @@ import {
   ResultsProcessor,
   SingleGroupResultsProcessor,
 } from './local-execution/process-results';
+import { getErrorStringCode } from './local-execution/error-utils';
 
 export async function scan(
   iacOrgSettings: IacOrgSettings,
@@ -157,5 +158,8 @@ export async function scan(
 class CurrentWorkingDirectoryTraversalError extends CustomError {
   constructor() {
     super('Path is outside the current working directory');
+    this.code = IaCErrorCodes.CurrentWorkingDirectoryTraversalError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `Path is outside the current working directory`;
   }
 }

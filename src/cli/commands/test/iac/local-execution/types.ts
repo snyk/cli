@@ -299,6 +299,7 @@ export enum IaCErrorCodes {
   // file-loader errors
   NoFilesToScanError = 1010,
   FailedToLoadFileError = 1011,
+  CurrentWorkingDirectoryTraversalError = 1012,
 
   // file-parser errors
   UnsupportedFileTypeError = 1020,
