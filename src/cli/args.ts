@@ -209,7 +209,6 @@ export function args(rawArgv: string[]): Args {
     'all-sub-projects',
     'sub-project',
     'gradle-sub-project',
-    'gradle-accept-legacy-config-roles',
     'skip-unresolved',
     'scan-all-unmanaged',
     'fail-on',

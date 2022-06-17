@@ -22,7 +22,6 @@ export interface TestOptions {
   initScript?: string;
   yarnWorkspaces?: boolean;
   gradleSubProject?: boolean;
-  gradleAcceptLegacyConfigRoles?: boolean;
   command?: string; // python interpreter to use for python tests
   testDepGraphDockerEndpoint?: string | null;
   isDockerUser?: boolean;
@@ -210,7 +209,6 @@ export type SupportedUserReachableFacingCliArgs =
   | 'sequential'
   | 'fail-on'
   | 'file'
-  | 'gradle-accept-legacy-config-roles'
   | 'gradle-sub-project'
   | 'ignore-policy'
   | 'init-script'
