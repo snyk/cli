@@ -59,21 +59,33 @@ Describe "Snyk test command"
       When run run_test_in_subfolder
       The status should equal 1
       The output should include "https://snyk.io/vuln/npm:minimatch:20160620"
-      The stderr should equal ""
+      if should_have_deprecation_warnings; then 
+        The stderr should not equal ""
+      else
+        The stderr should equal ""
+      fi
     End
 
     It "finds vulns in a project when pointing to a folder"
       When run snyk test ../fixtures/basic-npm
       The status should be failure # issues found
       The output should include "https://snyk.io/vuln/npm:minimatch:20160620"
-      The stderr should equal ""
+      if should_have_deprecation_warnings; then 
+        The stderr should not equal ""
+      else
+        The stderr should equal ""
+      fi
     End
 
     It "finds vulns in a project when pointing to a file"
       When run snyk test --file=../fixtures/basic-npm/package.json
       The status should be failure # issues found
       The output should include "https://snyk.io/vuln/npm:minimatch:20160620"
-      The stderr should equal ""
+      if should_have_deprecation_warnings; then 
+        The stderr should not equal ""
+      else
+        The stderr should equal ""
+      fi
     End
 
     It "tests a library on a specific version when passed a library@version"
