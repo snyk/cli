@@ -3,6 +3,7 @@ import { initRules } from './rules';
 import { initPolicyEngine } from './policy-engine';
 
 export async function setup(testConfig: TestConfig) {
-  await initPolicyEngine(testConfig);
-  await initRules(testConfig);
+  const policyEnginePath = await initPolicyEngine(testConfig);
+  const rulesBundlePath = await initRules(testConfig);
+  return { policyEnginePath, rulesBundlePath };
 }

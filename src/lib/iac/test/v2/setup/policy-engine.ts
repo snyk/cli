@@ -56,11 +56,16 @@ export async function lookupLocalPolicyEngine({
   }
 }
 
-export async function initPolicyEngine(testConfig: TestConfig) {
+export async function initPolicyEngine(
+  testConfig: TestConfig,
+): Promise<string> {
   const localPolicyEnginePath = await lookupLocalPolicyEngine(testConfig);
+
   if (localPolicyEnginePath) {
     return localPolicyEnginePath;
   }
 
   // TODO: Download Policy Engine executable
+
+  throw new InvalidUserPolicyEnginePathError('', 'policy engine not found');
 }
