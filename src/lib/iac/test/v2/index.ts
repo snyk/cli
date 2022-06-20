@@ -1,12 +1,14 @@
 import { TestConfig } from './types';
 import { setup } from './setup';
+import { scan } from './scan';
 
 export { TestConfig } from './types';
 
 export async function test(testConfig: TestConfig) {
-  await setup(testConfig);
+  const { policyEnginePath, rulesBundlePath } = await setup(testConfig);
 
-  // TODO: Add the rest of the test steps
+  // TODO use the results in a more meaningful way.
+  scan(testConfig, policyEnginePath, rulesBundlePath);
 
   return;
 }

@@ -5,18 +5,19 @@ import { getErrorStringCode } from '../../../../../cli/commands/test/iac/local-e
 import { IaCErrorCodes } from '../../../../../cli/commands/test/iac/local-execution/types';
 import { TestConfig } from '../types';
 
-export async function initRules(testConfig: TestConfig) {
+export async function initRules(testConfig: TestConfig): Promise<string> {
   const bundleLocator = new RulesBundleLocator(
     testConfig.cachedBundlePath,
     testConfig.userBundlePath,
   );
+
   const bundlePath = bundleLocator.locateBundle();
 
-  if (bundlePath) {
-    console.log(`found rules bundle at ${bundlePath}`);
-  } else {
-    console.log('no rules bundle found');
+  if (!bundlePath) {
+    throw new BundleNotFoundError('no rules bundle found');
   }
+
+  return bundlePath;
 }
 
 export class RulesBundleLocator {
@@ -78,6 +79,15 @@ class InvalidUserRulesBundleError extends CustomError {
     this.code = IaCErrorCodes.InvalidUserRulesBundleError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `The provided rules bundle is not a valid .tar.gz archive.`;
+  }
+}
+
+class BundleNotFoundError extends CustomError {
+  constructor(message: string) {
+    super(message);
+    this.code = IaCErrorCodes.BundleNotFoundError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `No rules bundle could be found.`;
   }
 }
 
