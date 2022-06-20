@@ -120,7 +120,7 @@
     "snyk-nuget-plugin": "1.23.5",
     "snyk-php-plugin": "1.9.2",
     "snyk-policy": "^1.25.0",
-    "snyk-python-plugin": "1.23.1",
+    "snyk-python-plugin": "1.24.0",
     "snyk-resolve-deps": "4.7.3",
     "snyk-sbt-plugin": "2.14.0",
     "strip-ansi": "^5.2.0",
