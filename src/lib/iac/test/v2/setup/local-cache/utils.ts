@@ -1,6 +1,8 @@
 import * as createDebugLogger from 'debug';
 import * as path from 'path';
+
 import { CustomError } from '../../../../../errors';
+import { makeRequest } from '../../../../../request';
 
 const debugLogger = createDebugLogger('snyk-iac');
 
@@ -36,4 +38,16 @@ export class InvalidUserPathError extends CustomError {
   constructor(message: string) {
     super(message);
   }
+}
+
+export async function fetchCacheResource(url: string): Promise<Buffer> {
+  const { res, body: cacheResourceBuffer } = await makeRequest({
+    url,
+  });
+
+  if (res.statusCode !== 200) {
+    throw new CustomError(`Failed to download cache resource from ${url}`);
+  }
+
+  return cacheResourceBuffer;
 }

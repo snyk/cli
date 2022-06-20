@@ -1,9 +1,13 @@
 import * as pathLib from 'path';
 import * as cloneDeep from 'lodash.clonedeep';
+
+import * as requestLib from '../../../../../../../../../src/lib/request';
 import {
+  fetchCacheResource,
   InvalidUserPathError,
   lookupLocal,
 } from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/utils';
+import { CustomError } from '../../../../../../../../../src/lib/errors';
 
 describe('lookupLocal', () => {
   const iacCachePath = pathLib.join('iac', 'cache', 'path');
@@ -96,6 +100,68 @@ describe('lookupLocal', () => {
           ),
         ).rejects.toThrow(InvalidUserPathError);
       });
+    });
+  });
+});
+
+describe('fetchCacheResource', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('fetches the cache resource', async () => {
+    // Arrange
+    const testCacheResourceUrl = 'test-cache-resource-url';
+    const testCacheResourcBuffer = Buffer.from('test-cache-resource-content');
+
+    const makeRequestSpy = jest
+      .spyOn(requestLib, 'makeRequest')
+      .mockResolvedValue({
+        body: testCacheResourcBuffer,
+        res: {
+          statusCode: 200,
+          body: testCacheResourcBuffer,
+        } as any,
+      } as any);
+
+    // Act
+    await fetchCacheResource(testCacheResourceUrl);
+
+    // Assert
+    expect(makeRequestSpy).toHaveBeenCalledWith({
+      url: testCacheResourceUrl,
+    });
+  });
+
+  describe('when the request fails to be sent', () => {
+    it('throws an error', async () => {
+      // Arrange
+      const testCacheResourceUrl = 'test-cache-resource-url';
+
+      jest.spyOn(requestLib, 'makeRequest').mockRejectedValue(new Error());
+
+      // Act + Assert
+      await expect(
+        fetchCacheResource(testCacheResourceUrl),
+      ).rejects.toThrowError();
+    });
+  });
+  describe('when an error response is received', () => {
+    it('throws an error', async () => {
+      // Arrange
+      const testCacheResourceUrl = 'test-cache-resource-url';
+
+      jest.spyOn(requestLib, 'makeRequest').mockResolvedValue({
+        body: '',
+        res: {
+          statusCode: 500,
+        },
+      } as any);
+
+      // Act + Assert
+      await expect(fetchCacheResource(testCacheResourceUrl)).rejects.toThrow(
+        CustomError,
+      );
     });
   });
 });

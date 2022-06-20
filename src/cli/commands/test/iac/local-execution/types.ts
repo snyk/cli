@@ -353,6 +353,8 @@ export enum IaCErrorCodes {
 
   // Unified Policy Engine executable errors.
   InvalidUserPolicyEnginePathError = 1140,
+  FailedToDownloadPolicyEngineError = 1141,
+  FailedToCachePolicyEngineError = 1142,
 
   // Scan errors
   PolicyEngineScanError = 1150,
