@@ -29,9 +29,8 @@ function prepareTestConfig(paths: string[]): TestConfig {
 
   return {
     paths,
-    cachedBundlePath: pathLib.join(iacCachePath, 'bundle.tar.gz'),
+    iacCachePath,
     userBundlePath: config.IAC_BUNDLE_PATH,
-    cachedPolicyEnginePath: pathLib.join(iacCachePath, 'snyk-iac-test'),
     userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
   };
 }

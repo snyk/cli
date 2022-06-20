@@ -1,9 +1,11 @@
+import * as pathLib from 'path';
 import * as createDebugLogger from 'debug';
-import { isExe } from '../../../file-utils';
-import { CustomError } from '../../../../errors';
-import { IaCErrorCodes } from '../../../../../cli/commands/test/iac/local-execution/types';
-import { getErrorStringCode } from '../../../../../cli/commands/test/iac/local-execution/error-utils';
-import { TestConfig } from '../types';
+import { isExe } from '../../../../../file-utils';
+import { CustomError } from '../../../../../../errors';
+import { IaCErrorCodes } from '../../../../../../../cli/commands/test/iac/local-execution/types';
+import { getErrorStringCode } from '../../../../../../../cli/commands/test/iac/local-execution/error-utils';
+import { TestConfig } from '../../../types';
+import { policyEngineFileName } from './constants';
 
 const debugLogger = createDebugLogger('snyk-iac');
 
@@ -22,8 +24,8 @@ export class InvalidUserPolicyEnginePathError extends CustomError {
   }
 }
 
-export async function lookupLocalPolicyEngine({
-  cachedPolicyEnginePath,
+export async function lookupLocal({
+  iacCachePath,
   userPolicyEnginePath,
 }: TestConfig): Promise<string | undefined> {
   // Lookup in custom path.
@@ -41,6 +43,10 @@ export async function lookupLocalPolicyEngine({
   }
   // Lookup in cache.
   else {
+    const cachedPolicyEnginePath = pathLib.join(
+      iacCachePath,
+      policyEngineFileName,
+    );
     if (await isExe(cachedPolicyEnginePath)) {
       debugLogger(
         'Found cached Policy Engine executable: %s',
@@ -54,18 +60,4 @@ export async function lookupLocalPolicyEngine({
       );
     }
   }
-}
-
-export async function initPolicyEngine(
-  testConfig: TestConfig,
-): Promise<string> {
-  const localPolicyEnginePath = await lookupLocalPolicyEngine(testConfig);
-
-  if (localPolicyEnginePath) {
-    return localPolicyEnginePath;
-  }
-
-  // TODO: Download Policy Engine executable
-
-  throw new InvalidUserPolicyEnginePathError('', 'policy engine not found');
 }

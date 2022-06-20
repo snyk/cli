@@ -1,13 +1,21 @@
+import * as pathLib from 'path';
 import * as fs from 'fs';
 import * as tar from 'tar';
-import { CustomError } from '../../../../errors';
-import { getErrorStringCode } from '../../../../../cli/commands/test/iac/local-execution/error-utils';
-import { IaCErrorCodes } from '../../../../../cli/commands/test/iac/local-execution/types';
-import { TestConfig } from '../types';
+import { CustomError } from '../../../../../errors';
+import { getErrorStringCode } from '../../../../../../cli/commands/test/iac/local-execution/error-utils';
+import { IaCErrorCodes } from '../../../../../../cli/commands/test/iac/local-execution/types';
+import { TestConfig } from '../../types';
+
+export const rulesBundleName = 'bundle.tar.gz';
 
 export async function initRules(testConfig: TestConfig): Promise<string> {
+  const cachedBundlePath = pathLib.join(
+    testConfig.iacCachePath,
+    rulesBundleName,
+  );
+
   const bundleLocator = new RulesBundleLocator(
-    testConfig.cachedBundlePath,
+    cachedBundlePath,
     testConfig.userBundlePath,
   );
 

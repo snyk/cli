@@ -1,7 +1,6 @@
 export interface TestConfig {
   paths: string[];
-  cachedBundlePath: string;
-  cachedPolicyEnginePath: string;
+  iacCachePath: string;
   userBundlePath?: string;
   userPolicyEnginePath?: string;
 }

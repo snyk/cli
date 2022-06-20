@@ -38,8 +38,8 @@ describe('driftctl integration', () => {
     mockFs.restore();
   });
 
-  it('describe: default arguments are correct', () => {
-    const args = generateArgs({ kind: 'describe' }, []);
+  it('describe: default arguments are correct', async () => {
+    const args = await generateArgs({ kind: 'describe' }, []);
     expect(args).toEqual([
       'scan',
       '--no-version-check',
@@ -52,9 +52,9 @@ describe('driftctl integration', () => {
     ]);
   });
 
-  it('describe: --all enable deep mode', () => {
+  it('describe: --all enable deep mode', async () => {
     {
-      const args = generateArgs(
+      const args = await generateArgs(
         { kind: 'describe', all: true } as DescribeOptions,
         [],
       );
@@ -72,7 +72,7 @@ describe('driftctl integration', () => {
     }
 
     {
-      const args = generateArgs(
+      const args = await generateArgs(
         { kind: 'describe', all: true, deep: true } as DescribeOptions,
         [],
       );
@@ -90,8 +90,8 @@ describe('driftctl integration', () => {
     }
   });
 
-  it('describe: passing options generate correct arguments', () => {
-    const args = generateArgs(
+  it('describe: passing options generate correct arguments', async () => {
+    const args = await generateArgs(
       {
         kind: 'describe',
         'config-dir': 'confdir',
@@ -147,8 +147,8 @@ describe('driftctl integration', () => {
     ]);
   });
 
-  it('describe: from arguments is a coma separated list', () => {
-    const args = generateArgs({
+  it('describe: from arguments is a coma separated list', async () => {
+    const args = await generateArgs({
       kind: 'describe',
       from: 'path1,path2,path3',
     } as DescribeOptions);
