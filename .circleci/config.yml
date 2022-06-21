@@ -817,7 +817,7 @@ workflows:
               only:
                 - /^chore\/.+$/
                 - /^.*test.*$/
-                - /^.*v2.*$/
+                - /^.*cliv2.*$/
                 - master
       - build-artifact:
           name: Build (<< matrix.artifact >>)
@@ -919,14 +919,14 @@ workflows:
           filters:
             branches:
               only:
-                - /^.*v2.*$/
+                - /^.*cliv2.*$/
                 - master
       - v2-unit-test:
           name: v2 / Unit Tests
           filters:
             branches:
               only:
-                - /^.*v2.*$/
+                - /^.*cliv2.*$/
                 - master
       - v2-build-artifact:
           name: v2 / Build (linux/amd64)
@@ -937,7 +937,7 @@ workflows:
           filters:
             branches:
               only:
-                - /^.*v2.*$/
+                - /^.*cliv2.*$/
                 - master
       - v2-build-artifact:
           name: v2 / Build (linux/arm64)
@@ -948,7 +948,7 @@ workflows:
           filters:
             branches:
               only:
-                - /^.*v2.*$/
+                - /^.*cliv2.*$/
                 - master
       - v2-build-artifact:
           name: v2 / Build (darwin/amd64)
@@ -959,7 +959,7 @@ workflows:
           filters:
             branches:
               only:
-                - /^.*v2.*$/
+                - /^.*cliv2.*$/
                 - master
       - v2-build-artifact:
           name: v2 / Build (windows/amd64)
@@ -970,7 +970,7 @@ workflows:
           filters:
             branches:
               only:
-                - /^.*v2.*$/
+                - /^.*cliv2.*$/
                 - master
       - v2-test-linux-amd64:
           name: v2 / Integration Tests (linux/amd64)
