@@ -14,7 +14,16 @@ import (
 
 func Test_PrepareV1EnvironmentVariables_Fill(t *testing.T) {
 
-	input := []string{"something=1", "in=2", "here=3=2"}
+	input := []string{"something=1",
+		"in=2",
+		"here=3=2",
+		"NO_PROXY=something",
+		"NPM_CONFIG_PROXY=something",
+		"NPM_CONFIG_HTTPS_PROXY=something",
+		"NPM_CONFIG_HTTP_PROXY=something",
+		"NPM_CONFIG_NO_PROXY=something",
+		"ALL_PROXY=something",
+	}
 	expected := []string{"something=1", "in=2", "here=3=2", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
