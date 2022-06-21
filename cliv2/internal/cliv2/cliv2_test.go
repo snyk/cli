@@ -12,9 +12,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_PrepareV1EnvironmentVariables_Fill(t *testing.T) {
+func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 
-	input := []string{"something=1", "in=2", "here=3=2"}
+	input := []string{
+		"something=1",
+		"in=2",
+		"here=3=2",
+		"no_proxy=something",
+		"NPM_CONFIG_PROXY=something",
+		"NPM_CONFIG_HTTPS_PROXY=something",
+		"NPM_CONFIG_HTTP_PROXY=something",
+		"npm_config_no_proxy=something",
+		"ALL_PROXY=something",
+	}
 	expected := []string{"something=1", "in=2", "here=3=2", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
@@ -25,10 +35,10 @@ func Test_PrepareV1EnvironmentVariables_Fill(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func Test_PrepareV1EnvironmentVariables_DontOverrideExisting(t *testing.T) {
+func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testing.T) {
 
-	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
-	expected := input
+	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already"}
+	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 
@@ -38,7 +48,20 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExisting(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func Test_PrepareV1EnvironmentVariables_DontOverrideExisting2(t *testing.T) {
+func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
+
+	input := []string{"something=1", "in=2", "here=3", "http_proxy=exists", "https_proxy=already", "NODE_EXTRA_CA_CERTS=again", "no_proxy=312123"}
+	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
+
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
+
+	sort.Strings(expected)
+	sort.Strings(actual)
+	assert.Equal(t, expected, actual)
+	assert.Nil(t, err)
+}
+
+func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) {
 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists"}
 	expected := input

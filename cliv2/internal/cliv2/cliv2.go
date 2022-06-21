@@ -37,6 +37,12 @@ const SNYK_INTEGRATION_NAME_ENV = "SNYK_INTEGRATION_NAME"
 const SNYK_INTEGRATION_VERSION_ENV = "SNYK_INTEGRATION_VERSION"
 const SNYK_HTTPS_PROXY_ENV = "HTTPS_PROXY"
 const SNYK_HTTP_PROXY_ENV = "HTTP_PROXY"
+const SNYK_HTTP_NO_PROXY_ENV = "NO_PROXY"
+const SNYK_NPM_PROXY_ENV = "NPM_CONFIG_PROXY"
+const SNYK_NPM_HTTPS_PROXY_ENV = "NPM_CONFIG_HTTPS_PROXY"
+const SNYK_NPM_HTTP_PROXY_ENV = "NPM_CONFIG_HTTP_PROXY"
+const SNYK_NPM_NO_PROXY_ENV = "NPM_CONFIG_NO_PROXY"
+const SNYK_NPM_ALL_PROXY = "ALL_PROXY"
 const SNYK_CA_CERTIFICATE_LOCATION_ENV = "NODE_EXTRA_CA_CERTS"
 
 const (
@@ -156,9 +162,29 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 	}
 
 	if err == nil {
+
+		// apply blacklist: ensure that no existing no_proxy or other configuration causes redirecting internal communication that is meant to stay between cliv1 and cliv2
+		blackList := []string{
+			SNYK_HTTPS_PROXY_ENV,
+			SNYK_HTTP_PROXY_ENV,
+			SNYK_CA_CERTIFICATE_LOCATION_ENV,
+			SNYK_HTTP_NO_PROXY_ENV,
+			SNYK_NPM_NO_PROXY_ENV,
+			SNYK_NPM_HTTPS_PROXY_ENV,
+			SNYK_NPM_HTTP_PROXY_ENV,
+			SNYK_NPM_PROXY_ENV,
+			SNYK_NPM_ALL_PROXY,
+		}
+
+		for _, key := range blackList {
+			inputAsMap = utils.Remove(inputAsMap, key)
+		}
+
+		// fill expected values
 		inputAsMap[SNYK_HTTPS_PROXY_ENV] = proxyAddress
 		inputAsMap[SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
+
 		result = utils.ToSlice(inputAsMap, "=")
 	}
 
