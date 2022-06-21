@@ -18,7 +18,7 @@ export async function requestTestPollingToken(
 ): Promise<ResolveAndTestFactsResponse> {
   const payload = {
     method: 'POST',
-    url: `${config.API}/test-dependencies`,
+    url: `${config.API}/unmanaged/test-dependencies`,
     json: true,
     headers: {
       'x-is-ci': isCI(),
@@ -43,7 +43,7 @@ export async function pollingTestWithTokenUntilDone(
 ): Promise<TestDependenciesResult> {
   const payload = {
     method: 'GET',
-    url: `${config.API}/test-dependencies/${token}`,
+    url: `${config.API}/unmanaged/test-dependencies/${token}`,
     json: true,
     headers: {
       'x-is-ci': isCI(),
