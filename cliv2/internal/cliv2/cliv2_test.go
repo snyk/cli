@@ -1,22 +1,23 @@
 package cliv2_test
 
 import (
-	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"io/ioutil"
 	"log"
 	"os"
 	"sort"
 	"testing"
 
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_addIntegrationEnvironment_Fill(t *testing.T) {
+func Test_PrepareV1EnvironmentVariables_Fill(t *testing.T) {
 
 	input := []string{"something=1", "in=2", "here=3=2"}
-	expected := []string{"something=1", "in=2", "here=3=2", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar"}
+	expected := []string{"something=1", "in=2", "here=3=2", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
 
-	actual, err := cliv2.AddIntegrationEnvironment(input, "foo", "bar")
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -24,12 +25,12 @@ func Test_addIntegrationEnvironment_Fill(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func Test_addIntegrationEnvironment_DontOverrideExisting(t *testing.T) {
+func Test_PrepareV1EnvironmentVariables_DontOverrideExisting(t *testing.T) {
 
-	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already"}
+	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
 	expected := input
 
-	actual, err := cliv2.AddIntegrationEnvironment(input, "foo", "bar")
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -37,12 +38,12 @@ func Test_addIntegrationEnvironment_DontOverrideExisting(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func Test_addIntegrationEnvironment_DontOverrideExisting2(t *testing.T) {
+func Test_PrepareV1EnvironmentVariables_DontOverrideExisting2(t *testing.T) {
 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists"}
 	expected := input
 
-	actual, err := cliv2.AddIntegrationEnvironment(input, "foo", "bar")
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
