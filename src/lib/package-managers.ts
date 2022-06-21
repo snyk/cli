@@ -14,7 +14,8 @@ export type SupportedPackageManagers =
   | 'composer'
   | 'cocoapods'
   | 'poetry'
-  | 'hex';
+  | 'hex'
+  | 'Unmanaged (C/C++)';
 
 export enum SUPPORTED_MANIFEST_FILES {
   GEMFILE = 'Gemfile',
@@ -67,6 +68,7 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   cocoapods: 'CocoaPods',
   poetry: 'Poetry',
   hex: 'Hex',
+  'Unmanaged (C/C++)': 'Unmanaged (C/C++)',
 };
 
 export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [

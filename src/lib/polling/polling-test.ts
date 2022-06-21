@@ -63,6 +63,10 @@ export async function pollingTestWithTokenUntilDone(
       depGraphData,
       depsFilePaths,
       fileSignaturesDetails,
+      vulnerabilities,
+      path,
+      dependencyCount,
+      packageManager,
     } = response.result;
     return {
       issues,
@@ -70,6 +74,10 @@ export async function pollingTestWithTokenUntilDone(
       depGraphData,
       depsFilePaths,
       fileSignaturesDetails,
+      vulnerabilities,
+      path,
+      dependencyCount,
+      packageManager,
     };
   }
 
