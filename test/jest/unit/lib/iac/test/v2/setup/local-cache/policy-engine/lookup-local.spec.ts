@@ -1,14 +1,27 @@
+import * as pathLib from 'path';
 import * as cloneDeep from 'lodash.clonedeep';
-import * as fileUtils from '../../../../../../../../src/lib/iac/file-utils';
+import * as fileUtils from '../../../../../../../../../../src/lib/iac/file-utils';
 import {
   InvalidUserPolicyEnginePathError,
-  lookupLocalPolicyEngine,
-} from '../../../../../../../../src/lib/iac/test/v2/setup/policy-engine';
+  lookupLocal,
+} from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/lookup-local';
 
-describe('lookupLocalPolicyEngine', () => {
+jest.mock(
+  '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants',
+  () => ({
+    policyEngineFileName: 'policy-engine-test-file-name',
+  }),
+);
+
+describe('lookupLocal', () => {
+  const iacCachePath = pathLib.join('iac', 'cache', 'path');
   const defaultTestConfig = {
-    cachedPolicyEnginePath: `iac/cache/path/snyk-iac-test`,
+    iacCachePath,
   };
+  const cachedPolicyEnginePath = pathLib.join(
+    iacCachePath,
+    'policy-engine-test-file-name',
+  );
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -22,15 +35,13 @@ describe('lookupLocalPolicyEngine', () => {
 
         jest
           .spyOn(fileUtils, 'isExe')
-          .mockImplementationOnce(
-            async (path) => path === testConfig.cachedPolicyEnginePath,
-          );
+          .mockImplementation(async (path) => path === cachedPolicyEnginePath);
 
         // Act
-        const res = await lookupLocalPolicyEngine(testConfig);
+        const res = await lookupLocal(testConfig);
 
         // Assert
-        expect(res).toEqual(testConfig.cachedPolicyEnginePath);
+        expect(res).toEqual(cachedPolicyEnginePath);
       });
     });
 
@@ -40,7 +51,7 @@ describe('lookupLocalPolicyEngine', () => {
         const testConfig = cloneDeep(defaultTestConfig);
 
         // Act
-        const res = await lookupLocalPolicyEngine(testConfig);
+        const res = await lookupLocal(testConfig);
 
         // Assert
         expect(res).toBeUndefined();
@@ -61,12 +72,10 @@ describe('lookupLocalPolicyEngine', () => {
 
         jest
           .spyOn(fileUtils, 'isExe')
-          .mockImplementationOnce(
-            async (path) => path === userPolicyEnginePath,
-          );
+          .mockImplementation(async (path) => path === userPolicyEnginePath);
 
         // Act
-        const res = await lookupLocalPolicyEngine(testConfig);
+        const res = await lookupLocal(testConfig);
 
         // Assert
         expect(res).toEqual(userPolicyEnginePath);
@@ -82,7 +91,7 @@ describe('lookupLocalPolicyEngine', () => {
         };
 
         // Act + Assert
-        await expect(lookupLocalPolicyEngine(testConfig)).rejects.toThrow(
+        await expect(lookupLocal(testConfig)).rejects.toThrow(
           InvalidUserPolicyEnginePathError,
         );
       });

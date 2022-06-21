@@ -23,7 +23,7 @@ import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as crypto from 'crypto';
-import { isExe } from '../file-utils';
+import { createDirIfNotExists, isExe } from '../file-utils';
 
 const debug = debugLib('driftctl');
 
@@ -71,12 +71,12 @@ const driftctlDefaultOptions = ['--no-version-check'];
 
 let isBinaryDownloaded = false;
 
-export const generateArgs = (
+export const generateArgs = async (
   options: DriftCTLOptions,
   driftIgnore?: string[],
-): string[] => {
+): Promise<string[]> => {
   if (options.kind === 'describe') {
-    return generateScanFlags(options as DescribeOptions, driftIgnore);
+    return await generateScanFlags(options as DescribeOptions, driftIgnore);
   }
 
   if (options.kind === 'fmt') {
@@ -107,10 +107,10 @@ const generateFmtFlags = (options: FmtOptions): string[] => {
   return args;
 };
 
-const generateScanFlags = (
+const generateScanFlags = async (
   options: DescribeOptions,
   driftIgnore?: string[],
-): string[] => {
+): Promise<string[]> => {
   const args: string[] = ['scan', ...driftctlDefaultOptions];
 
   if (options.quiet) {
@@ -177,7 +177,7 @@ const generateScanFlags = (
   }
 
   let configDir = cachePath;
-  createIfNotExists(cachePath);
+  await createDirIfNotExists(cachePath);
   if (options['config-dir']) {
     configDir = options['config-dir'];
   }
@@ -238,7 +238,7 @@ export const runDriftCTL = async ({
 }): Promise<DriftctlExecutionResult> => {
   const path = await findOrDownload();
   await validateArgs(options);
-  const args = generateArgs(options, driftIgnore);
+  const args = await generateArgs(options, driftIgnore);
 
   if (!stdio) {
     stdio = ['pipe', 'pipe', 'inherit'];
@@ -281,7 +281,7 @@ async function findOrDownload(): Promise<string> {
   if (dctl === '') {
     binaryExist = false;
     try {
-      createIfNotExists(cachePath);
+      await createDirIfNotExists(cachePath);
       dctl = driftctlPath;
 
       const duration = new TimerMetricInstance('driftctl_download');
@@ -423,10 +423,4 @@ function driftctlUrl(): string {
   }
 
   return `${dctlBaseUrl}/${driftctlVersion}/${driftctlFileName()}`;
-}
-
-function createIfNotExists(path: string) {
-  if (!fs.existsSync(path)) {
-    fs.mkdirSync(path, { recursive: true });
-  }
 }
