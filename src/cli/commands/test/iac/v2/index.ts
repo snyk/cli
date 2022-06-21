@@ -30,7 +30,7 @@ function prepareTestConfig(paths: string[]): TestConfig {
   return {
     paths,
     iacCachePath,
-    userBundlePath: config.IAC_BUNDLE_PATH,
+    userRulesBundlePath: config.IAC_BUNDLE_PATH,
     userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
   };
 }

@@ -1,5 +1,5 @@
 import { TestConfig } from '../../types';
-import { initRules } from './rules';
+import { initRulesBundle } from './rules-bundle';
 import { initPolicyEngine } from './policy-engine';
 import { createDirIfNotExists } from '../../../../file-utils';
 import { CustomError } from '../../../../../errors';
@@ -10,7 +10,7 @@ export async function initLocalCache(testConfig: TestConfig) {
     await createDirIfNotExists(testConfig.iacCachePath);
 
     const policyEnginePath = await initPolicyEngine(testConfig);
-    const rulesBundlePath = await initRules(testConfig);
+    const rulesBundlePath = await initRulesBundle(testConfig);
 
     return { policyEnginePath, rulesBundlePath };
   } catch (err) {

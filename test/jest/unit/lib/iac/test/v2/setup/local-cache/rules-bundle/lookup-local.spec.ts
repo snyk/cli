@@ -2,29 +2,19 @@ import * as pathLib from 'path';
 import * as cloneDeep from 'lodash.clonedeep';
 import * as fileUtils from '../../../../../../../../../../src/lib/iac/file-utils';
 import {
-  InvalidUserPolicyEnginePathError,
-  lookupLocalPolicyEngine,
-} from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/lookup-local';
+  InvalidUserRulesBundlePathError,
+  lookupLocalRulesBundle,
+} from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules-bundle/lookup-local';
+import { rulesBundleName } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules-bundle/constants';
 import * as utilsLib from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/utils';
-import { policyEngineFileName } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants';
 import { InvalidUserPathError } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/utils';
 
-jest.mock(
-  '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants',
-  () => ({
-    policyEngineFileName: 'policy-engine-test-file-name',
-  }),
-);
-
-describe('lookupLocalPolicyEngine', () => {
+describe('lookupLocalRulesBundle', () => {
   const iacCachePath = pathLib.join('iac', 'cache', 'path');
   const defaultTestConfig = {
     iacCachePath,
   };
-  const cachedPolicyEnginePath = pathLib.join(
-    iacCachePath,
-    'policy-engine-test-file-name',
-  );
+  const cachedRulesBundlePath = pathLib.join(iacCachePath, rulesBundleName);
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -35,47 +25,53 @@ describe('lookupLocalPolicyEngine', () => {
     const testConfig = cloneDeep(defaultTestConfig);
 
     const lookupLocalySpy = jest.spyOn(utilsLib, 'lookupLocal');
-    const isExeSpy = jest.spyOn(fileUtils, 'isExe');
+    const isFileSpy = jest
+      .spyOn(fileUtils, 'isFile')
+      .mockImplementation(async (_path) => _path === cachedRulesBundlePath);
+    const isArchiveSpy = jest
+      .spyOn(fileUtils, 'isArchive')
+      .mockImplementation(async (_path) => _path === cachedRulesBundlePath);
 
     // Act
-    await lookupLocalPolicyEngine(testConfig);
+    await lookupLocalRulesBundle(testConfig);
 
     // Assert
     expect(lookupLocalySpy).toBeCalledWith(
       testConfig.iacCachePath,
-      policyEngineFileName,
+      rulesBundleName,
       undefined,
       expect.any(Function),
     );
-    expect(isExeSpy).toBeCalledWith(cachedPolicyEnginePath);
+    expect(isFileSpy).toBeCalledWith(cachedRulesBundlePath);
+    expect(isArchiveSpy).toBeCalledWith(cachedRulesBundlePath);
   });
 
-  it('returns undefined when the policy engine is not present locally', async () => {
+  it('returns undefined when the rules bundle is not present locally', async () => {
     // Arrange
     const testConfig = cloneDeep(defaultTestConfig);
 
     jest.spyOn(utilsLib, 'lookupLocal').mockResolvedValue(undefined);
 
     // Act
-    const res = await lookupLocalPolicyEngine(testConfig);
+    const res = await lookupLocalRulesBundle(testConfig);
 
     // Assert
     expect(res).toEqual(undefined);
   });
 
-  it('return the path to the policy engine when it is present locally', async () => {
+  it('return the path to the rules bundle when it is present locally', async () => {
     // Arrange
     const testConfig = cloneDeep(defaultTestConfig);
 
     jest
       .spyOn(utilsLib, 'lookupLocal')
-      .mockResolvedValue(cachedPolicyEnginePath);
+      .mockResolvedValue(cachedRulesBundlePath);
 
     // Act
-    const res = await lookupLocalPolicyEngine(testConfig);
+    const res = await lookupLocalRulesBundle(testConfig);
 
     // Assert
-    expect(res).toEqual(cachedPolicyEnginePath);
+    expect(res).toEqual(cachedRulesBundlePath);
   });
 
   it('return an error when the condition is not met', async () => {
@@ -87,8 +83,8 @@ describe('lookupLocalPolicyEngine', () => {
       .mockRejectedValue(new InvalidUserPathError('test error'));
 
     // Act + Assert
-    await expect(lookupLocalPolicyEngine(testConfig)).rejects.toThrow(
-      InvalidUserPolicyEnginePathError,
+    await expect(lookupLocalRulesBundle(testConfig)).rejects.toThrow(
+      InvalidUserRulesBundlePathError,
     );
   });
 });
