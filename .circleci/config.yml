@@ -751,7 +751,10 @@ jobs:
           at: .
       - run:
           name: Signing macOS artifact
-          command: make sign GOOS=darwin GOARCH=amd64 BUILD_DIR=$PWD/bin
+          # --ignore-errors due to 403s from Apple's service.
+          #   We need to sign a new agreement for our dev account.
+          #   We currently don't publish this artifact so it's safe to ignore.
+          command: make sign GOOS=darwin GOARCH=amd64 BUILD_DIR=$PWD/bin --ignore-errors
           working_directory: ./cliv2
       - persist_to_workspace:
           root: .
