@@ -180,7 +180,7 @@ You can use these patterns in your branch name to enable additional checks.
 | ------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `chore/*`, `*test*` | `chore/change`, `test/change`, `feat/change+test` | Build and test all artifacts, excluding CLIv2. Same as a [release pipeline](#creating-a-release) without the release step. |
 | `smoke/*`           | `smoke/change`                                    | Run [smoke tests](https://github.com/snyk/cli/actions/workflows/smoke-tests.yml) against the latest release.               |
-| `*v2*`              | `feat/v2-feature`                                 | Build and test all artifacts, including CLIv2.                                                                             |
+| `*cliv2*`           | `feat/cliv2-feature`                              | Build and test all artifacts, including CLIv2.                                                                             |
 | default             | `fix/a-bug`                                       | Build and test your changes.                                                                                               |
 
 For more information, see: [Pull request checks](#pull-request-checks).
