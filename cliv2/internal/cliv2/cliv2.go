@@ -162,19 +162,29 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 	}
 
 	if err == nil {
+
+		// apply blacklist: ensure that no existing no_proxy or other configuration causes redirecting internal communication that is meant to stay between cliv1 and cliv2
+		blackList := []string{
+			SNYK_HTTPS_PROXY_ENV,
+			SNYK_HTTP_PROXY_ENV,
+			SNYK_CA_CERTIFICATE_LOCATION_ENV,
+			SNYK_HTTP_NO_PROXY_ENV,
+			SNYK_NPM_NO_PROXY_ENV,
+			SNYK_NPM_HTTPS_PROXY_ENV,
+			SNYK_NPM_HTTP_PROXY_ENV,
+			SNYK_NPM_PROXY_ENV,
+			SNYK_NPM_ALL_PROXY,
+		}
+
+		for _, key := range blackList {
+			inputAsMap = utils.Remove(inputAsMap, key)
+		}
+
+		// fill expected values
 		inputAsMap[SNYK_HTTPS_PROXY_ENV] = proxyAddress
 		inputAsMap[SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
 
-		// ensure that no existing no_proxy or other configuration causes redirecting internal communication that is meant to stay between cliv1 and cliv2
-		inputAsMap[SNYK_HTTP_NO_PROXY_ENV] = ""
-		inputAsMap[SNYK_NPM_NO_PROXY_ENV] = ""
-		inputAsMap[SNYK_NPM_HTTPS_PROXY_ENV] = ""
-		inputAsMap[SNYK_NPM_HTTP_PROXY_ENV] = ""
-		inputAsMap[SNYK_NPM_PROXY_ENV] = ""
-		inputAsMap[SNYK_NPM_ALL_PROXY] = ""
-
-		inputAsMap = utils.RemoveEmptyValue(inputAsMap)
 		result = utils.ToSlice(inputAsMap, "=")
 	}
 

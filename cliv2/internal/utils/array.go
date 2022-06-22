@@ -52,14 +52,36 @@ func ToSlice(input map[string]string, combineBy string) []string {
 	return result
 }
 
-func RemoveEmptyValue(input map[string]string) map[string]string {
-	result := make(map[string]string)
+// Removes a given key from the input map and uses FindKeyCaseInsensitive() for this. The resulting map is being returned.
+func Remove(input map[string]string, key string) map[string]string {
+	found := false
+	key, found = FindKeyCaseInsensitive(input, key)
+	if found {
+		delete(input, key)
+	}
+	return input
+}
 
-	for key, value := range input {
-		if len(value) > 0 {
-			result[key] = value
-		}
+// This method determines whether the given key is in the input map, it therefore looks for the exact match and the key in all capital or lower case letters.
+// If the key in any of these versions was found, it'll be returned alongside with a boolean indicating whether or not it was found.
+func FindKeyCaseInsensitive(input map[string]string, key string) (string, bool) {
+
+	found := false
+
+	// look for exact match
+	_, found = input[key]
+
+	// look for lower case match
+	if !found {
+		key = strings.ToLower(key)
+		_, found = input[key]
 	}
 
-	return result
+	// look for upper case match
+	if !found {
+		key = strings.ToUpper(key)
+		_, found = input[key]
+	}
+
+	return key, found
 }
