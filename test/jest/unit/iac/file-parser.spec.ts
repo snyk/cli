@@ -3,24 +3,20 @@ import {
   parseTerraformFiles,
 } from '../../../../src/cli/commands/test/iac/local-execution/file-parser';
 import {
-  FailedToParseTerraformFileError,
-  tryParsingTerraformFile,
-} from '../../../../src/cli/commands/test/iac/local-execution/parsers/terraform-file-parser';
-import {
-  expectedKubernetesYamlParsingResult,
-  kubernetesYamlInvalidFileDataStub,
-  kubernetesYamlFileDataStub,
-  kubernetesJsonFileDataStub,
-  expectedKubernetesJsonParsingResult,
-  multipleKubernetesYamlsFileDataStub,
-  expectedMultipleKubernetesYamlsParsingResult,
-  invalidYamlFileDataStub,
-  unrecognisedYamlDataStub,
-  invalidJsonFileDataStub,
   duplicateKeyYamlErrorFileDataStub,
   expectedDuplicateKeyYamlErrorFileParsingResult,
   expectedInsufficientIndentationYamlErrorFileParsingResult,
+  expectedKubernetesJsonParsingResult,
+  expectedKubernetesYamlParsingResult,
+  expectedMultipleKubernetesYamlsParsingResult,
   insufficientIndentationYamlErrorFileDataStub,
+  invalidJsonFileDataStub,
+  invalidYamlFileDataStub,
+  kubernetesJsonFileDataStub,
+  kubernetesYamlFileDataStub,
+  kubernetesYamlInvalidFileDataStub,
+  multipleKubernetesYamlsFileDataStub,
+  unrecognisedYamlDataStub,
 } from './file-parser.kubernetes.fixtures';
 import { IacFileData } from '../../../../src/cli/commands/test/iac/local-execution/types';
 import { IacFileTypes } from '../../../../src/lib/iac/constants';
@@ -37,10 +33,10 @@ import {
   terraformFileDataStub,
   terraformPlanDataStub,
 } from './file-parser.terraform.fixtures';
-import { expectedArmParsingResult } from './file-parser.arm.fixtures';
 import {
   armJsonFileDataStub,
   armJsonInvalidFileDataStub,
+  expectedArmParsingResult,
 } from './file-parser.arm.fixtures';
 
 const filesToParse: IacFileData[] = [
@@ -158,12 +154,6 @@ describe('parseFiles', () => {
       expect(parsedFiles[0]).toEqual(expectedParsingResult);
     },
   );
-
-  it('throws an error for an invalid HCL file', async () => {
-    expect(() => tryParsingTerraformFile(invalidTerraformFileDataStub)).toThrow(
-      FailedToParseTerraformFileError,
-    );
-  });
 });
 
 describe('parseTerraformFiles', () => {

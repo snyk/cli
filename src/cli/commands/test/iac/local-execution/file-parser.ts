@@ -1,8 +1,5 @@
 import { detectConfigType } from './parsers/config-type-detection';
-import {
-  FailedToParseTerraformFileError,
-  tryParsingTerraformFile,
-} from './parsers/terraform-file-parser';
+import { FailedToParseTerraformFileError } from './parsers/terraform-file-parser';
 import {
   isTerraformPlan,
   tryParsingTerraformPlan,
@@ -161,8 +158,6 @@ export function tryParseIacFile(
         return detectConfigType(fileData, parsedIacFile);
       }
     }
-    case 'tf':
-      return tryParsingTerraformFile(fileData);
     default:
       throw new UnsupportedFileTypeError(fileData.fileType);
   }
