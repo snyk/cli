@@ -51,3 +51,15 @@ func ToSlice(input map[string]string, combineBy string) []string {
 
 	return result
 }
+
+func RemoveEmptyValue(input map[string]string) map[string]string {
+	result := make(map[string]string)
+
+	for key, value := range input {
+		if len(value) > 0 {
+			result[key] = value
+		}
+	}
+
+	return result
+}
