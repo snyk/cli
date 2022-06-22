@@ -5,10 +5,10 @@ import {
 } from '../../../../src/cli/commands/test/iac/local-execution/local-cache';
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac/local-execution/file-utils';
 import { PassThrough } from 'stream';
-import * as needle from 'needle';
 import * as rimraf from 'rimraf';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as request from '../../../../src/lib/request/request';
 
 describe('initLocalCache - downloads bundle successfully', () => {
   beforeEach(() => {
@@ -24,12 +24,17 @@ describe('initLocalCache - downloads bundle successfully', () => {
       .spyOn(fileUtilsModule, 'extractBundle')
       .mockResolvedValue();
     jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => null);
-    jest.spyOn(needle, 'get').mockReturnValue(mockReadable);
+    jest
+      .spyOn(request, 'streamRequest')
+      .mockReturnValue(Promise.resolve(mockReadable));
 
     await localCacheModule.initLocalCache();
 
-    expect(needle.get).toHaveBeenCalledWith(
-      expect.stringContaining('bundle.tar.gz'),
+    expect(request.streamRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'get',
+        url: expect.stringContaining('bundle.tar.gz'),
+      }),
     );
     expect(spy).toHaveBeenCalledWith(mockReadable);
   });
@@ -43,7 +48,9 @@ describe('initLocalCache - downloads bundle successfully', () => {
       .mockResolvedValue();
     jest.spyOn(fileUtilsModule, 'isValidBundle').mockReturnValue(true);
     jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => null);
-    jest.spyOn(needle, 'get').mockReturnValue(new PassThrough());
+    jest
+      .spyOn(request, 'streamRequest')
+      .mockReturnValue(Promise.resolve(new PassThrough()));
     jest.spyOn(fs, 'createReadStream').mockReturnValue(mockReadable);
 
     await localCacheModule.initLocalCache({

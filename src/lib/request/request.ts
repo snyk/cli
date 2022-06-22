@@ -17,9 +17,7 @@ const snykDebug = debugModule('snyk');
 
 declare const global: Global;
 
-export async function makeRequest(
-  payload: Payload,
-): Promise<{ res: needle.NeedleResponse; body: any }> {
+function setupRequest(payload: Payload) {
   // This ensures we support lowercase http(s)_proxy values as well
   // The weird IF around it ensures we don't create an envvar with a value of undefined, which throws error when trying to use it as a proxy
   if (process.env.HTTP_PROXY || process.env.http_proxy) {
@@ -129,6 +127,14 @@ export async function makeRequest(
     options.rejectUnauthorized = false;
   }
 
+  return { method, url, data, options };
+}
+
+export async function makeRequest(
+  payload: Payload,
+): Promise<{ res: needle.NeedleResponse; body: any }> {
+  const { method, url, data, options } = setupRequest(payload);
+
   return new Promise((resolve, reject) => {
     needle.request(method, url, data, options, (err, res, respBody) => {
       debug(err);
@@ -142,6 +148,33 @@ export async function makeRequest(
       }
 
       resolve({ res, body: respBody });
+    });
+  });
+}
+
+export async function streamRequest(
+  payload: Payload,
+): Promise<needle.ReadableStream> {
+  const { method, url, data, options } = setupRequest(payload);
+
+  try {
+    const result = await needle.request(method, url, data, options);
+    const statusCode = await getStatusCode(result);
+    debug('response (%s): <stream>', statusCode);
+    return result;
+  } catch (e) {
+    debug(e);
+    throw e;
+  }
+}
+
+async function getStatusCode(stream: needle.ReadableStream): Promise<number> {
+  return new Promise((resolve, reject) => {
+    stream.on('header', (statusCode: number) => {
+      resolve(statusCode);
+    });
+    stream.on('err', (err: Error) => {
+      reject(err);
     });
   });
 }
