@@ -108,6 +108,10 @@ describe('resolve and test facts', () => {
       issues: [],
       depGraphData,
       fileSignaturesDetails: {},
+      vulnerabilities: [],
+      path: 'path',
+      dependencyCount: 0,
+      packageManager: 'Unmanaged (C/C++)',
     });
 
     const extractAndApplyPluginAnalyticsSpy = jest.spyOn(
@@ -138,6 +142,10 @@ describe('resolve and test facts', () => {
         issues: [],
         depGraphData,
         fileSignaturesDetails: {},
+        vulnerabilities: [],
+        path: 'path',
+        dependencyCount: 0,
+        packageManager: 'Unmanaged (C/C++)',
       },
     ]);
     expect(errors).toEqual([]);

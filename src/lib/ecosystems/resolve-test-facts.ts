@@ -8,6 +8,7 @@ import {
 import { extractAndApplyPluginAnalytics } from './plugin-analytics';
 import { findAndLoadPolicy } from '../policy';
 import { filterIgnoredIssues } from './policy';
+import { IssueData, Issue } from '../snyk-test/legacy';
 
 export async function resolveAndTestFacts(
   ecosystem: Ecosystem,
@@ -18,6 +19,7 @@ export async function resolveAndTestFacts(
 ): Promise<[TestResult[], string[]]> {
   const results: any[] = [];
   const errors: string[] = [];
+  const packageManager = 'Unmanaged (C/C++)';
 
   for (const [path, scanResults] of Object.entries(scans)) {
     await spinner(`Resolving and Testing fileSignatures in ${path}`);
@@ -45,12 +47,33 @@ export async function resolveAndTestFacts(
           policy,
         );
 
+        const issuesMap: Map<string, Issue> = new Map();
+        response.issues.forEach((i) => {
+          issuesMap[i.issueId] = i;
+        });
+
+        const vulnerabilities: IssueData[] = [];
+        for (const issuesDataKey in response.issuesData) {
+          const issueData = response.issuesData[issuesDataKey];
+          const pkgCoordinate = `${issuesMap[issuesDataKey].pkgName}@${issuesMap[issuesDataKey].pkgVersion}`;
+          issueData.from = [pkgCoordinate];
+          issueData.name = pkgCoordinate;
+          issueData.packageManager = packageManager;
+          vulnerabilities.push(issueData);
+        }
+
+        const dependencyCount = response.issues.length;
+
         results.push({
           issues,
           issuesData,
           depGraphData: response?.depGraphData,
           depsFilePaths: response?.depsFilePaths,
           fileSignaturesDetails: response?.fileSignaturesDetails,
+          vulnerabilities,
+          path,
+          dependencyCount,
+          packageManager,
         });
       } catch (error) {
         const hasStatusCodeError = error.code >= 400 && error.code <= 500;

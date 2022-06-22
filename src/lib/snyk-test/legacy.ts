@@ -92,6 +92,8 @@ export interface IssueData {
   legalInstructions?: string;
   reachability?: REACHABILITY;
   packageManager?: SupportedProjectTypes;
+  from?: string[];
+  name?: string;
 }
 
 export type CallPath = string[];
@@ -235,7 +237,7 @@ interface TestDepGraphResult {
   remediation?: RemediationChanges;
 }
 
-interface Issue {
+export interface Issue {
   pkgName: string;
   pkgVersion?: string;
   issueId: string;
@@ -256,6 +258,10 @@ export interface TestDependenciesResult {
   depsFilePaths?: DepsFilePaths;
   depGraphData: depGraphLib.DepGraphData;
   fileSignaturesDetails: FileSignaturesDetails;
+  vulnerabilities: IssueData[];
+  path: string;
+  dependencyCount: number;
+  packageManager: SupportedProjectTypes;
 }
 
 export interface TestDepGraphMeta {
