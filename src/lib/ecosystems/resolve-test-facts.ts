@@ -62,7 +62,11 @@ export async function resolveAndTestFacts(
           vulnerabilities.push(issueData);
         }
 
-        const dependencyCount = response.issues.length;
+        const dependencyCount = response?.depGraphData?.graph?.nodes?.find(
+          (graphNode) => {
+            return graphNode.nodeId === 'root-node';
+          },
+        )?.deps?.length;
 
         results.push({
           issues,

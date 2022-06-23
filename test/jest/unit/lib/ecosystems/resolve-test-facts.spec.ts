@@ -110,7 +110,7 @@ describe('resolve and test facts', () => {
       fileSignaturesDetails: {},
       vulnerabilities: [],
       path: 'path',
-      dependencyCount: 0,
+      dependencyCount: 1,
       packageManager: 'Unmanaged (C/C++)',
     });
 
@@ -144,7 +144,7 @@ describe('resolve and test facts', () => {
         fileSignaturesDetails: {},
         vulnerabilities: [],
         path: 'path',
-        dependencyCount: 0,
+        dependencyCount: 1,
         packageManager: 'Unmanaged (C/C++)',
       },
     ]);
