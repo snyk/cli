@@ -149,7 +149,7 @@ export function buildOutput({
       err.jsonNoVulns = dataToSendNoVulns;
     }
 
-    if (hasErrors) {
+    if (hasErrors && !options.sarif) {
       // Take the code of the first problem to go through error
       // translation.
       // Note: this is done based on the logic done below
