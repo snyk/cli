@@ -163,7 +163,6 @@ func (p *WrapperProxy) SetUpstreamProxy(proxyAddr string) {
 			p.impl.Tr.Proxy = func(req *http.Request) (*url.URL, error) {
 				return proxyUrl, nil
 			}
-			p.DebugLogger.Println("Proxy Address:", proxyUrl)
 		} else {
 			fmt.Println("Failed to set proxy! ", err)
 		}
@@ -187,11 +186,13 @@ func (p *WrapperProxy) GetProxyConnectHeader(ctx context.Context, proxyURL *url.
 				Mechanism: p.acceptedProxyAuthMechanism,
 			}
 
+			p.DebugLogger.Println("Proxy Address:", proxyURL)
+
 			// try to retrieve Header value
 			if token, err = authHandler.GetAuthorizationValue(proxyURL); err == nil {
 				if len(token) > 0 {
 					proxyConnectHeader.Add(httpauth.ProxyAuthorizationKey, token)
-					p.DebugLogger.Printf("CONNECT Header value \"%s\" added.\n", httpauth.ProxyAuthorizationKey)
+					p.DebugLogger.Printf("CONNECT Header value \"%s=%s\" added.\n", httpauth.ProxyAuthorizationKey, token)
 				} else {
 					p.DebugLogger.Printf("CONNECT Header value \"%s\" NOT added since it is empty.\n", httpauth.ProxyAuthorizationKey)
 				}
