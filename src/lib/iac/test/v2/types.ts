@@ -1,6 +1,9 @@
 export interface TestConfig {
-  paths: string[];
   iacCachePath: string;
+  options: TestOptions;
+}
+
+export interface TestOptions {
   userRulesBundlePath?: string;
   userPolicyEnginePath?: string;
 }

@@ -2,17 +2,17 @@ import chalk from 'chalk';
 import envPaths from 'env-paths';
 import * as pathLib from 'path';
 import * as testLib from '../../../../../lib/iac/test/v2';
-import { TestConfig } from '../../../../../lib/iac/test/v2';
 import config from '../../../../../lib/config';
 import { TestCommandResult } from '../../../types';
 import { MethodArgs } from '../../../../args';
 import { processCommandArgs } from '../../../process-command-args';
+import { TestOptions, TestConfig } from '../../../../../lib/iac/test/v2/types';
 
 export async function test(...args: MethodArgs): Promise<TestCommandResult> {
   const { paths } = processCommandArgs(...args);
-  const testConfig = prepareTestConfig(paths);
+  const testConfig = prepareTestConfig();
 
-  await testLib.test(testConfig);
+  await testLib.test(paths, testConfig);
 
   let response = '';
   response += chalk.bold.green('new flow for UPE integration - TBC...');
@@ -23,13 +23,18 @@ export async function test(...args: MethodArgs): Promise<TestCommandResult> {
   );
 }
 
-function prepareTestConfig(paths: string[]): TestConfig {
+function prepareTestConfig(): TestConfig {
   const systemCachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
   const iacCachePath = pathLib.join(systemCachePath, 'iac');
 
   return {
-    paths,
     iacCachePath,
+    options: prepareTestOptions(),
+  };
+}
+
+function prepareTestOptions(): TestOptions {
+  return {
     userRulesBundlePath: config.IAC_BUNDLE_PATH,
     userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
   };

@@ -1,16 +1,30 @@
-import { TestConfig } from '../../types';
-import { initRulesBundle } from './rules-bundle';
 import { initPolicyEngine } from './policy-engine';
 import { createDirIfNotExists } from '../../../../file-utils';
 import { CustomError } from '../../../../../errors';
 import { FailedToInitLocalCacheError } from '../../../../../../cli/commands/test/iac/local-execution/local-cache';
+import { TestOptions } from '../../types';
+import { initRulesBundle } from './rules-bundle';
 
-export async function initLocalCache(testConfig: TestConfig) {
+type InitLocalCacheOptions = Pick<
+  TestOptions,
+  'userPolicyEnginePath' | 'userRulesBundlePath'
+>;
+
+export async function initLocalCache(
+  iacCachePath: string,
+  options: InitLocalCacheOptions,
+) {
   try {
-    await createDirIfNotExists(testConfig.iacCachePath);
+    await createDirIfNotExists(iacCachePath);
 
-    const policyEnginePath = await initPolicyEngine(testConfig);
-    const rulesBundlePath = await initRulesBundle(testConfig);
+    const policyEnginePath = await initPolicyEngine(
+      iacCachePath,
+      options.userPolicyEnginePath,
+    );
+    const rulesBundlePath = await initRulesBundle(
+      iacCachePath,
+      options.userRulesBundlePath,
+    );
 
     return { policyEnginePath, rulesBundlePath };
   } catch (err) {

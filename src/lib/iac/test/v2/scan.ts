@@ -1,4 +1,3 @@
-import { TestConfig } from './types';
 import * as childProcess from 'child_process';
 import { CustomError } from '../../../errors';
 import { IaCErrorCodes } from '../../../../cli/commands/test/iac/local-execution/types';
@@ -7,14 +6,10 @@ import * as newDebug from 'debug';
 
 const debug = newDebug('snyk-iac');
 
-export function scan(
-  options: TestConfig,
-  policyEnginePath: string,
-  rulesBundlePath: string,
-): any {
-  const args = ['-bundle', rulesBundlePath, ...options.paths];
+export function scan(scanPaths: string[], scanConfig: ScanConfig): any {
+  const args = ['-bundle', scanConfig.rulesBundlePath, ...scanPaths];
 
-  const process = childProcess.spawnSync(policyEnginePath, args, {
+  const process = childProcess.spawnSync(scanConfig.policyEnginePath, args, {
     encoding: 'utf-8',
     stdio: 'pipe',
   });
@@ -38,6 +33,11 @@ export function scan(
   }
 
   return output;
+}
+
+interface ScanConfig {
+  policyEnginePath: string;
+  rulesBundlePath: string;
 }
 
 class ScanError extends CustomError {

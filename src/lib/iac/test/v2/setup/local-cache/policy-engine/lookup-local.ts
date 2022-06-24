@@ -2,7 +2,6 @@ import { isExe } from '../../../../../file-utils';
 import { CustomError } from '../../../../../../errors';
 import { IaCErrorCodes } from '../../../../../../../cli/commands/test/iac/local-execution/types';
 import { getErrorStringCode } from '../../../../../../../cli/commands/test/iac/local-execution/error-utils';
-import { TestConfig } from '../../../types';
 import { policyEngineFileName } from './constants';
 import { InvalidUserPathError, lookupLocal } from '../utils';
 
@@ -22,7 +21,8 @@ export class InvalidUserPolicyEnginePathError extends CustomError {
 }
 
 export async function lookupLocalPolicyEngine(
-  testConfig: TestConfig,
+  iacCachePath: string,
+  userPolicyEnginePath: string | undefined,
 ): Promise<string | undefined> {
   const validPolicyEngineCondition = async (path: string) => {
     return await isExe(path);
@@ -30,15 +30,15 @@ export async function lookupLocalPolicyEngine(
 
   try {
     return await lookupLocal(
-      testConfig.iacCachePath,
+      iacCachePath,
       policyEngineFileName,
-      testConfig.userPolicyEnginePath,
+      userPolicyEnginePath,
       validPolicyEngineCondition,
     );
   } catch (err) {
     if (err instanceof InvalidUserPathError) {
       throw new InvalidUserPolicyEnginePathError(
-        testConfig.userPolicyEnginePath!, // `lookupLocal` will throw an error only if `userPolicyEnginePath` is configured and invalid
+        userPolicyEnginePath!, // `lookupLocal` will throw an error only if `userPolicyEnginePath` is configured and invalid
       );
     } else {
       throw err;

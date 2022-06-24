@@ -6,14 +6,13 @@ import { IaCErrorCodes } from '../../../../../../../cli/commands/test/iac/local-
 import { CustomError } from '../../../../../../errors';
 import { TimerMetricInstance } from '../../../../../../metrics';
 import { saveFile } from '../../../../../file-utils';
-import { TestConfig } from '../../../types';
 import { fetchCacheResource } from '../utils';
 import { rulesBundleName } from './constants';
 
 const debugLog = createDebugLogger('snyk-iac');
 
 export async function downloadRulesBundle(
-  testConfig: TestConfig,
+  iacCachePath: string,
 ): Promise<string> {
   let downloadDurationSeconds = 0;
 
@@ -22,10 +21,7 @@ export async function downloadRulesBundle(
 
   const dataBuffer = await fetch();
 
-  const cachedRulesBundlePath = await cache(
-    dataBuffer,
-    testConfig.iacCachePath,
-  );
+  const cachedRulesBundlePath = await cache(dataBuffer, iacCachePath);
 
   timer.stop();
   downloadDurationSeconds = Math.round((timer.getValue() as number) / 1000);

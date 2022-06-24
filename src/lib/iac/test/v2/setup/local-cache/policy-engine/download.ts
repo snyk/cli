@@ -6,7 +6,6 @@ import { getErrorStringCode } from '../../../../../../../cli/commands/test/iac/l
 import { IaCErrorCodes } from '../../../../../../../cli/commands/test/iac/local-execution/types';
 import { CustomError } from '../../../../../../errors';
 import { TimerMetricInstance } from '../../../../../../metrics';
-import { TestConfig } from '../../../types';
 import { fetchCacheResource } from '../utils';
 import { policyEngineFileName, policyEngineReleaseVersion } from './constants';
 import { saveFile } from '../../../../../file-utils';
@@ -14,7 +13,7 @@ import { saveFile } from '../../../../../file-utils';
 const debugLog = createDebugLogger('snyk-iac');
 
 export async function downloadPolicyEngine(
-  testConfig: TestConfig,
+  iacCachePath: string,
 ): Promise<string> {
   let downloadDurationSeconds = 0;
 
@@ -25,10 +24,7 @@ export async function downloadPolicyEngine(
 
   assertValidChecksum(dataBuffer);
 
-  const cachedPolicyEnginePath = await cache(
-    dataBuffer,
-    testConfig.iacCachePath,
-  );
+  const cachedPolicyEnginePath = await cache(dataBuffer, iacCachePath);
 
   timer.stop();
   downloadDurationSeconds = Math.round((timer.getValue() as number) / 1000);

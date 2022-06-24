@@ -2,26 +2,28 @@ import { getErrorStringCode } from '../../../../../../../cli/commands/test/iac/l
 import { IaCErrorCodes } from '../../../../../../../cli/commands/test/iac/local-execution/types';
 import { CustomError } from '../../../../../../errors';
 import { isFile, isArchive } from '../../../../../file-utils';
-import { TestConfig } from '../../../types';
 import { InvalidUserPathError, lookupLocal } from '../utils';
 import { rulesBundleName } from './constants';
 
-export async function lookupLocalRulesBundle(testConfig: TestConfig) {
+export async function lookupLocalRulesBundle(
+  iacCachePath: string,
+  userRulesBundlePath: string | undefined,
+) {
   const validRulesBundleCondition = async (path: string) => {
     return (await isFile(path)) && (await isArchive(path));
   };
 
   try {
     return await lookupLocal(
-      testConfig.iacCachePath,
+      iacCachePath,
       rulesBundleName,
-      testConfig.userRulesBundlePath,
+      userRulesBundlePath,
       validRulesBundleCondition,
     );
   } catch (err) {
     if (err instanceof InvalidUserPathError) {
       throw new InvalidUserRulesBundlePathError(
-        testConfig.userRulesBundlePath!,
+        userRulesBundlePath!,
         'Failed to find a valid Rules Bundle in the configured path',
       );
     } else {
