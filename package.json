@@ -71,6 +71,7 @@
     "@snyk/snyk-cocoapods-plugin": "2.5.2",
     "@snyk/snyk-hex-plugin": "1.1.4",
     "@types/marked": "^4.0.0",
+    "@types/tar": "^6.1.1",
     "abbrev": "^1.1.1",
     "adm-zip": "^0.5.9",
     "ansi-escapes": "3.2.0",

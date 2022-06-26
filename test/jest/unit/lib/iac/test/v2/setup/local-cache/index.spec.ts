@@ -1,6 +1,6 @@
 import * as pathLib from 'path';
 import * as initPolicyEngineLib from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine';
-import * as initRulesLib from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules';
+import * as initRulesBundleLib from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules-bundle';
 import * as fileUtils from '../../../../../../../../../src/lib/iac/file-utils';
 import { initLocalCache } from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache';
 import { TestConfig } from '../../../../../../../../../src/lib/iac/test/v2/types';
@@ -23,7 +23,7 @@ describe('initLocalCache', () => {
       .spyOn(initPolicyEngineLib, 'initPolicyEngine')
       .mockImplementation(async () => testPolicyEnginePath);
     jest
-      .spyOn(initRulesLib, 'initRules')
+      .spyOn(initRulesBundleLib, 'initRulesBundle')
       .mockImplementation(async () => testRulesBundlePath);
     const createDirIfNotExistsSpy = jest
       .spyOn(fileUtils, 'createDirIfNotExists')
@@ -50,7 +50,7 @@ describe('initLocalCache', () => {
       .spyOn(initPolicyEngineLib, 'initPolicyEngine')
       .mockImplementation(async () => testPolicyEnginePath);
     jest
-      .spyOn(initRulesLib, 'initRules')
+      .spyOn(initRulesBundleLib, 'initRulesBundle')
       .mockImplementation(async () => testRulesBundlePath);
     jest
       .spyOn(fileUtils, 'createDirIfNotExists')
@@ -75,7 +75,7 @@ describe('initLocalCache', () => {
       .spyOn(initPolicyEngineLib, 'initPolicyEngine')
       .mockImplementation(async () => testPolicyEnginePath);
     const initRulesSpy = jest
-      .spyOn(initRulesLib, 'initRules')
+      .spyOn(initRulesBundleLib, 'initRulesBundle')
       .mockImplementation(async () => testRulesBundlePath);
     jest
       .spyOn(fileUtils, 'createDirIfNotExists')
@@ -100,7 +100,7 @@ describe('initLocalCache', () => {
       .spyOn(initPolicyEngineLib, 'initPolicyEngine')
       .mockImplementation(async () => testPolicyEnginePath);
     jest
-      .spyOn(initRulesLib, 'initRules')
+      .spyOn(initRulesBundleLib, 'initRulesBundle')
       .mockImplementation(async () => testRulesBundlePath);
     jest
       .spyOn(fileUtils, 'createDirIfNotExists')
@@ -121,7 +121,7 @@ describe('initLocalCache', () => {
     failingResource               | module                 | methodName
     ${'cache directory'}          | ${fileUtils}           | ${'createDirIfNotExists'}
     ${'Policy Engine executable'} | ${initPolicyEngineLib} | ${'initPolicyEngine'}
-    ${'rules bundle'}             | ${initRulesLib}        | ${'initRules'}
+    ${'rules bundle'}             | ${initRulesBundleLib}  | ${'initRulesBundle'}
   `(
     'when the initialization for the $failingResource fails',
     ({ module, methodName }) => {
@@ -137,7 +137,7 @@ describe('initLocalCache', () => {
           .spyOn(initPolicyEngineLib, 'initPolicyEngine')
           .mockImplementation(async () => testPolicyEnginePath);
         jest
-          .spyOn(initRulesLib, 'initRules')
+          .spyOn(initRulesBundleLib, 'initRulesBundle')
           .mockImplementation(async () => testRulesBundlePath);
         jest
           .spyOn(fileUtils, 'createDirIfNotExists')
