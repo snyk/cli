@@ -44,3 +44,11 @@ export async function isArchive(path: string): Promise<boolean> {
     return false;
   }
 }
+
+export async function saveFile(
+  dataBuffer: Buffer,
+  savePath: string,
+): Promise<void> {
+  await fsPromises.writeFile(savePath, dataBuffer);
+  await fsPromises.chmod(savePath, 0o744);
+}
