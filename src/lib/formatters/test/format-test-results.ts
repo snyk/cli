@@ -99,7 +99,18 @@ export function extractDataToSendFromResults(
   );
 
   // backwards compat - strip array IFF only one result
-  const jsonData = jsonResults.length === 1 ? jsonResults[0] : jsonResults;
+  let jsonData = jsonResults.length === 1 ? jsonResults[0] : jsonResults;
+
+  // for container projects, we want the app vulns data to be a part of the result object
+  if (options.docker && jsonResults.length > 1) {
+    const appVulnsData = jsonData.splice(1);
+    jsonData = jsonData[0];
+    if (jsonData.vulnerabilities.length === 0) {
+      // to avoid confusion with other vulns that might be found
+      jsonData.summary = 'No known operating system vulnerabilities';
+    }
+    jsonData['applications'] = appVulnsData;
+  }
 
   let stringifiedJsonData = '';
   if (options.json || options['json-file-output']) {

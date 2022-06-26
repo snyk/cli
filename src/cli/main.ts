@@ -249,17 +249,6 @@ export async function main(): Promise<void> {
       (globalArgs.options as unknown) as AllSupportedCliOptions,
     );
 
-    if (
-      !globalArgs.options['experimental'] &&
-      globalArgs.options['app-vulns'] &&
-      globalArgs.options['json']
-    ) {
-      throw new UnsupportedOptionCombinationError([
-        'Application vulnerabilities is currently not supported with JSON output. ' +
-          'Please try using —-app-vulns only to get application vulnerabilities, or ' +
-          '—-json only to get your image vulnerabilities, excluding the application ones.',
-      ]);
-    }
     if (globalArgs.options['group-issues'] && globalArgs.options['iac']) {
       throw new UnsupportedOptionCombinationError([
         '--group-issues is currently not supported for Snyk IaC.',
