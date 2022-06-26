@@ -34,7 +34,7 @@ export async function downloadPolicyEngine(
   downloadDurationSeconds = Math.round((timer.getValue() as number) / 1000);
 
   debugLog(
-    `Downladed Policy Engine successfully in ${downloadDurationSeconds} seconds`,
+    `Downloaded and cached Policy Engine successfully in ${downloadDurationSeconds} seconds`,
   );
 
   return cachedPolicyEnginePath;

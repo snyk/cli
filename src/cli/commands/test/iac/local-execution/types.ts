@@ -349,7 +349,8 @@ export enum IaCErrorCodes {
 
   // Rules bundle errors.
   InvalidUserRulesBundlePathError = 1130,
-  BundleNotFoundError = 1131,
+  FailedToDownloadRulesBundleError = 1131,
+  FailedToCacheRulesBundleError = 1132,
 
   // Unified Policy Engine executable errors.
   InvalidUserPolicyEnginePathError = 1140,
