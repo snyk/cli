@@ -18,6 +18,9 @@ import { Payload } from '../../../lib/request/types';
 import { getQueryParamsAsString } from '../../../lib/query-strings';
 
 const apiUrl = url.parse(config.API);
+if (apiUrl.host?.startsWith('api.')) {
+  apiUrl.host = apiUrl.host.replace(/^api\./, 'app.');
+}
 const authUrl = apiUrl.protocol + '//' + apiUrl.host;
 const debug = Debug('snyk-auth');
 let attemptsLeft = 0;

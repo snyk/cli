@@ -21,6 +21,7 @@ describe('snyk config endpoint', () => {
       cwd: project.path(),
       env: {
         ...process.env,
+        SNYK_API: undefined,
         SNYK_DISABLE_ANALYTICS: '1',
         XDG_CONFIG_HOME: project.path(),
       },
@@ -41,7 +42,7 @@ describe('snyk config endpoint', () => {
         `config get endpoint`,
         runOptions,
       );
-      expect(stderr).toContain("Invalid 'endpoint' config option.");
+      expect(stderr).toContain("Invalid 'endpoint' snyk config option");
       expect(stdout).toEqual(invalidEndpoint + '\n');
       expect(code).toEqual(0);
     }
@@ -55,7 +56,7 @@ describe('snyk config endpoint', () => {
        *  Error will still be logged as we still validate the pre-existing
        *  invalid value before executing commands.
        */
-      expect(stderr).toContain("Invalid 'endpoint' config option.");
+      expect(stderr).toContain("Invalid 'endpoint' snyk config option");
       expect(stdout).toContain('endpoint updated');
       expect(code).toEqual(0);
     }
@@ -65,7 +66,7 @@ describe('snyk config endpoint', () => {
         `config get endpoint`,
         runOptions,
       );
-      expect(stderr).not.toContain("Invalid 'endpoint' config option.");
+      expect(stderr).not.toContain("Invalid 'endpoint' snyk config option");
       expect(stdout).toEqual(validEndpoint + '\n');
       expect(code).toEqual(0);
     }

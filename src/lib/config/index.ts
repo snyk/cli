@@ -1,6 +1,6 @@
 import * as snykConfig from 'snyk-config';
-import { config as userConfig } from './user-config';
-import * as url from 'url';
+import { config as userConfig } from '../user-config';
+import { getBaseApiUrl, getRestApiUrl, getV1ApiUrl } from './api-url';
 
 const DEFAULT_TIMEOUT = 5 * 60; // in seconds
 interface Config {
@@ -31,23 +31,24 @@ interface Config {
 const config = (snykConfig.loadConfig(
   __dirname + '/../..',
 ) as unknown) as Config;
+const defaultAPIURL = config.API;
 
-// allow user config override of the API endpoint
-const endpoint = userConfig.get('endpoint');
-if (endpoint && endpoint !== config.API) {
-  const parsedEndpoint = url.parse(endpoint);
-  // Endpoint option must be a valid URL including protocol
-  if (!parsedEndpoint || !parsedEndpoint.protocol || !parsedEndpoint.host) {
-    console.warn(
-      "Invalid 'endpoint' config option. Endpoint must be a full and valid URL including protocol and for Snyk.io it should contain path to '/api'",
-    );
-  }
-  console.warn(
-    'Using a custom API endpoint from `snyk config` (tip: it should contain path to `/api`):',
-    endpoint,
-  );
-  config.API = endpoint;
-}
+const configDefinedApiUrl = userConfig.get('endpoint');
+const environmentDefinedApiUrl = process.env.SNYK_API;
+
+const snykApiBaseUrl = getBaseApiUrl(
+  defaultAPIURL,
+  environmentDefinedApiUrl,
+  configDefinedApiUrl,
+);
+config.API = getV1ApiUrl(snykApiBaseUrl);
+
+// API_V3_URL is deprecated, but maintaining backwards compatibility
+config.API_REST_URL = getRestApiUrl(
+  snykApiBaseUrl,
+  process.env.API_REST_URL || config.API_REST_URL,
+  process.env.API_V3_URL || config.API_V3_URL,
+);
 
 const disableSuggestions = userConfig.get('disableSuggestions');
 if (disableSuggestions) {
@@ -70,13 +71,8 @@ if (!config.timeout) {
 // this is a bit of an assumption that our web site origin is the same
 // as our API origin, but for now it's okay - RS 2015-10-16
 if (!config.ROOT) {
-  const apiUrl = url.parse(config.API);
+  const apiUrl = new URL(config.API);
   config.ROOT = apiUrl.protocol + '//' + apiUrl.host;
-}
-
-// maintain backwards compatibility with older name
-if (config.API_V3_URL) {
-  config.API_REST_URL = config.API_V3_URL;
 }
 
 export default config;
