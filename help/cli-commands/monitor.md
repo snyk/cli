@@ -8,6 +8,10 @@
 
 The `snyk monitor` command creates a project in your Snyk account to be continuously monitored for open source vulnerabilities and license issues. After running this command, log in to the Snyk website and view your projects to see the monitor.
 
+For Snyk Container see [`snyk container` help](https://docs.snyk.io/snyk-cli/commands/container)
+
+For Snyk Infrastructure as Code follow the instructions in "Regularly testing IaC files" on [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
+
 ## Exit codes
 
 Possible exit codes and their meaning:
@@ -42,23 +46,13 @@ Default: 4, the current working directory (0) and 4 subdirectories.
 
 Example: `--detection-depth=3` limits search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories; zero (0) is the current directory.
 
-### `--exclude=<GLOB>[,<GLOB>]...>`
+### `--exclude=<NAME>[,<NAME>]...>`
 
-Use with `--all-projects` and `--yarn-workspaces` to indicate subdirectories and files to exclude.
+Can be used with `--all-projects` and `--yarn-workspaces` to indicate directory names and file names to exclude. Must be comma separated.
 
-The `--exclude` argument must be a comma separated list of directory or file names and cannot contain a path.
+Example: `$ snyk test --all-projects --exclude=dir1,file2`
 
-Note that the glob does need to be an exact match and needs only to be part of the path or the filename.
-
-Use the `--exclude` option with `--detection-depth` to ignore directories at any depth.
-
-Examples:
-
-Exclude any folders, subfolders, or files containing `test` as part of the path or name:\
-`--exclude=test`
-
-Exclude any folders, subfolders, or files containing `fixtures` or `debug` as part of the path or name:\
-`--exclude=fixtures,debug`
+This will exclude any directories and files named "dir1" and "file2" when scanning for project manifest files. Such as: "./dir1", "./src/dir1", "./file2", "./src/file2", and so on.
 
 ### `--prune-repeated-subdependencies`, `-p`
 
@@ -110,9 +104,9 @@ Example: `$ snyk monitor --file=req.txt --package-manager=pip`
 
 For C++ only, scan all files for known open source dependencies.
 
-For options you can use with `--unmanaged` see [Options for scanning using `--unmanaged`](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-scanning-using-unmanaged)``
+For options you can use with `--unmanaged` see [Options for scanning using `--unmanaged`](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-scanning-using-unmanaged)\`\`
 
-For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)``
+For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)\`\`
 
 ### `--ignore-policy`
 
@@ -292,13 +286,17 @@ Allow skipping packages that are not found in the environment.
 
 ## Options for scanning using `--unmanaged`
 
-### `` [`--org=<ORG_ID>`](monitor.md#org-less-than-org\_id-greater-than) ``
+The following `snyk monitor` options can be used with `--unmanaged`.
 
-### `` [`--json`](monitor.md#json) ``
+`--org=<ORG_ID>`
 
-### `` [`--target-reference=<TARGET_REFERENCE>`](monitor.md#target-reference-less-than-target\_reference-greater-than) ``
+`--json`
 
-### `--target-dir`&#x20;
+`--target-reference=<TARGET_REFERENCE>`
+
+There are also special options.
+
+### `--target-dir`
 
 Scan the path specified in the argument instead of the current directory.
 
@@ -310,7 +308,7 @@ Alternatively, run `snyk test --unmanaged`
 
 Use 0 to disable archive extraction completely.
 
-### `--project-name=c-project`&#x20;
+### `--project-name=c-project`
 
 Use with the `snyk monitor --unmanaged` command to override the default name Snyk gives your snapshots by entering the desired name.
 

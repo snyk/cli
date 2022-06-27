@@ -43,23 +43,13 @@ Default: 4 , the current working directory (0) and 4 subdirectories.
 
 Example: `--detection-depth=3` limits search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories; zero (0) is the current directory.
 
-### `--exclude=<GLOB>[,<GLOB>]...>`
+### `--exclude=<NAME>[,<NAME>]...>`
 
-Use with `--all-projects` and `--yarn-workspaces` to indicate subdirectories and files to exclude.
+Can be used with `--all-projects` and `--yarn-workspaces` to indicate directory names and file names to exclude. Must be comma separated.
 
-The `--exclude` argument must be a comma separated list of directory or file names and cannot contain a path.
+Example: `$ snyk test --all-projects --exclude=dir1,file2`
 
-Note that the glob does need to be an exact match and needs only to be part of the path or the filename.
-
-Use the `--exclude` option with `--detection-depth` to ignore directories at any depth.
-
-Examples:
-
-Exclude any folders, subfolders, or files containing `test` as part of the path or name:\
-`--exclude=test`
-
-Exclude any folders, subfolders, or files containing `fixtures` or `debug` as part of the path or name:\
-`--exclude=fixtures,debug`
+This will exclude any directories and files named "dir1" and "file2" when scanning for project manifest files. Such as: "./dir1", "./src/dir1", "./file2", "./src/file2", and so on.
 
 ### `--prune-repeated-subdependencies`, `-p`
 
@@ -111,7 +101,7 @@ Example: `$ snyk test --file=req.txt --package-manager=pip`
 
 For C++ only, scan all files for known open source dependencies.
 
-For options you can use with `--unmanaged` see [Options for scanning using `--unmanaged`](https://docs.snyk.io/snyk-cli/commands/test#options-for-scanning-using-unmanaged)``
+For options you can use with `--unmanaged` see [Options for scanning using `--unmanaged`](https://docs.snyk.io/snyk-cli/commands/test#options-for-scanning-using-unmanaged)\`\`
 
 For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)
 
@@ -307,13 +297,17 @@ Currently the following options are not supported:
 
 ## Options for scanning using `--unmanaged`
 
-### `` [`--org=<ORG_ID>`](test.md#org-less-than-org\_id-greater-than) ``
+The following `snyk test`options can be used.
 
-### `` [`--json`](test.md#json) ``
+`--org=<ORG_ID>`
 
-### [--json-file-output=\<OUTPUT_FILE_PATH>](test.md#json-file-output-less-than-output_file_path-greater-than)
+`--json`
 
-### `--target-dir`&#x20;
+`--json-file-output=<OUTPUT_FILE_PATH>`
+
+There are also special options.
+
+### `--target-dir`
 
 Scan the path specified in the argument instead of the current directory.
 

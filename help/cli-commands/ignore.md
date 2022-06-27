@@ -130,7 +130,7 @@ $ snyk ignore --file-path='./deps/curl-7.58.0/src/tool_msgs.c' --expiry='2031-01
 
 ### Ignore files or folders using glob expression
 
-Ignore files matching a glob expression by adding them to a specific group.
+Ignore files matching a glob expression by adding them to a specific group. Applies to Snyk Code; does not apply to Snyk Open Source, Container, or Infrastructure as Code.
 
 ```
 $ snyk ignore --file-path='./**/vendor/**/*.cpp' --file-path-group='global'
