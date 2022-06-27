@@ -1,6 +1,10 @@
+import { EOL } from 'os';
 import config from '../../../../../../../src/lib/config';
 import { formatShareResultsOutput } from '../../../../../../../src/lib/formatters/iac-output';
-import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/utils';
+import {
+  colors,
+  contentPadding,
+} from '../../../../../../../src/lib/formatters/iac-output/v2/utils';
 
 describe('formatShareResultsOutput', () => {
   it('returns the correct output', () => {
@@ -16,9 +20,16 @@ describe('formatShareResultsOutput', () => {
 
     // Assert
     expect(output).toEqual(
-      colors.info.bold(
-        `Your test results are available at: ${config.ROOT}/org/${testOrgName}/projects under the name ${testProjectName}`,
-      ),
+      colors.title('Report Complete') +
+        EOL +
+        EOL +
+        contentPadding +
+        'Your test results are available at: ' +
+        colors.title(`${config.ROOT}/org/${testOrgName}/project`) +
+        EOL +
+        contentPadding +
+        'under the name: ' +
+        colors.title(testProjectName),
     );
   });
 
@@ -39,9 +50,16 @@ describe('formatShareResultsOutput', () => {
 
       // Assert
       expect(output).toEqual(
-        colors.info.bold(
-          `Your test results are available at: ${config.ROOT}/org/${testOrgName}/projects under the name ${testRepoName}`,
-        ),
+        colors.title('Report Complete') +
+          EOL +
+          EOL +
+          contentPadding +
+          'Your test results are available at: ' +
+          colors.title(`${config.ROOT}/org/${testOrgName}/project`) +
+          EOL +
+          contentPadding +
+          'under the name: ' +
+          colors.title(testRepoName),
       );
     });
   });

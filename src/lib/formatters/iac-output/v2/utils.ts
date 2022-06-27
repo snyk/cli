@@ -7,6 +7,7 @@ interface IacOutputColors {
   success: Chalk;
   info: Chalk;
   title: Chalk;
+  suggestion: Chalk;
 }
 
 type SeverityColor = {
@@ -24,6 +25,7 @@ export const colors: IacOutputColors = {
   success: chalk.green,
   info: chalk.white,
   title: chalk.white.bold,
+  suggestion: chalk.gray,
 };
 
 export const contentPadding = ' '.repeat(2);

@@ -8,7 +8,11 @@ export {
   customRulesMessage,
   customRulesReportMessage,
 } from './user-messages';
-export { formatShareResultsOutput } from './share-results';
+export {
+  formatShareResultsOutput,
+  shareResultsTip,
+  shareCustomRulesDisclaimer,
+} from './share-results';
 export {
   formatIacTestFailures,
   formatFailuresList,

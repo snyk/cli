@@ -22,6 +22,7 @@ import {
   IaCTestFailure,
   shouldLogUserMessages,
   iacTestTitle,
+  shareResultsOutput,
 } from '../../../../lib/formatters/iac-output';
 import { extractDataToSendFromResults } from '../../../../lib/formatters/test/format-test-results';
 
@@ -37,6 +38,11 @@ import {
   TestOptions,
 } from '../../../../lib/types';
 import * as path from 'path';
+import { IaCTestFlags } from './local-execution/types';
+import {
+  shareCustomRulesDisclaimer,
+  shareResultsTip,
+} from '../../../../lib/formatters/iac-output/v2';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -75,6 +81,8 @@ export function buildOutput({
   results,
   options,
   isNewIacOutputSupported,
+  isIacShareCliResultsCustomRulesSupported,
+  isIacCustomRulesEntitlementEnabled,
   iacOutputMeta,
   resultOptions,
   iacScanFailures,
@@ -83,7 +91,9 @@ export function buildOutput({
 }: {
   results: any[];
   options: Options & TestOptions;
-  isNewIacOutputSupported?: boolean;
+  isNewIacOutputSupported: boolean;
+  isIacShareCliResultsCustomRulesSupported: boolean;
+  isIacCustomRulesEntitlementEnabled: boolean;
   iacOutputMeta?: IacOutputMeta;
   resultOptions: (Options & TestOptions)[];
   iacScanFailures: IacFileInDirectory[];
@@ -267,12 +277,32 @@ export function buildOutput({
 
   if (foundVulnerabilities) {
     response += chalk.bold.red(summaryMessage);
-    response += EOL + EOL;
+  } else {
+    response += chalk.bold.green(summaryMessage);
+  }
 
-    if (isIacShareResultsOptions(options)) {
-      response += formatShareResultsOutput(iacOutputMeta!) + EOL.repeat(2);
+  response += EOL;
+
+  if (isIacShareResultsOptions(options)) {
+    if (isNewIacOutputSupported) {
+      response += buildShareResultsSummary({
+        options,
+        iacOutputMeta,
+        isIacCustomRulesEntitlementEnabled,
+        isIacShareCliResultsCustomRulesSupported,
+        isNewIacOutputSupported,
+      });
+    } else {
+      response += EOL + shareResultsOutput(iacOutputMeta!);
     }
+    response += EOL;
+  }
 
+  if (shouldPrintShareResultsTip(options, isNewIacOutputSupported)) {
+    response += SEPARATOR + EOL + shareResultsTip + EOL;
+  }
+
+  if (foundVulnerabilities) {
     const error = new Error(response) as any;
     // take the code of the first problem to go through error
     // translation
@@ -283,12 +313,6 @@ export function buildOutput({
     error.jsonStringifiedResults = stringifiedJsonData;
     error.sarifStringifiedResults = stringifiedSarifData;
     throw error;
-  }
-
-  response += chalk.bold.green(summaryMessage);
-
-  if (isIacShareResultsOptions(options)) {
-    response += formatShareResultsOutput(iacOutputMeta!) + EOL.repeat(2);
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
@@ -317,4 +341,56 @@ function printCurrentWorkingDirectoryTraversalWarning() {
     EOL;
 
   console.log(chalk.yellow(msg));
+}
+
+function buildShareResultsSummary({
+  iacOutputMeta,
+  options,
+  isIacCustomRulesEntitlementEnabled,
+  isNewIacOutputSupported,
+  isIacShareCliResultsCustomRulesSupported,
+}: {
+  iacOutputMeta?: IacOutputMeta;
+  options: IaCTestFlags;
+  isIacCustomRulesEntitlementEnabled: boolean;
+  isNewIacOutputSupported: boolean;
+  isIacShareCliResultsCustomRulesSupported: boolean;
+}): string {
+  let response = '';
+
+  response += SEPARATOR + EOL + formatShareResultsOutput(iacOutputMeta!);
+
+  if (
+    shouldPrintShareCustomRulesDisclaimer(
+      options,
+      isIacCustomRulesEntitlementEnabled,
+      isNewIacOutputSupported,
+      isIacShareCliResultsCustomRulesSupported,
+    )
+  ) {
+    response += EOL + EOL + shareCustomRulesDisclaimer;
+  }
+
+  return response;
+}
+
+function shouldPrintShareResultsTip(
+  options: IaCTestFlags,
+  isNewOutput: boolean,
+): boolean {
+  return shouldLogUserMessages(options, isNewOutput) && !options.report;
+}
+
+function shouldPrintShareCustomRulesDisclaimer(
+  options: IaCTestFlags,
+  isIacCustomRulesEntitlementEnabled: boolean,
+  isNewOutput: boolean,
+  isIacShareCliResultsCustomRulesSupported: boolean,
+): boolean {
+  return (
+    shouldLogUserMessages(options, isNewOutput) &&
+    Boolean(options.rules) &&
+    isIacCustomRulesEntitlementEnabled &&
+    !isIacShareCliResultsCustomRulesSupported
+  );
 }
