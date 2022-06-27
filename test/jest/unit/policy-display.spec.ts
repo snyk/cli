@@ -2,11 +2,10 @@ import * as policy from 'snyk-policy';
 import * as fs from 'fs';
 import { display } from '../../../src/lib/display-policy';
 import stripAnsi from 'strip-ansi';
-import { URL } from 'url';
 import { getFixturePath } from '../util/getFixturePath';
+import config from '../../../src/lib/config';
 
-const SNYK_API = process.env.SNYK_API || 'https://snyk.io/api/v1';
-const { hostname } = new URL(SNYK_API);
+const { hostname } = new URL(config.ROOT);
 
 it('test sensibly bails if gets an old .snyk format', async () => {
   const filename = getFixturePath('snyk-config-no-version');

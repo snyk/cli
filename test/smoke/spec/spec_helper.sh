@@ -21,7 +21,7 @@ spec_helper_configure() {
 
   verify_login_url() {
     # https://snyk.io/login?token=uuid-token&utm_medium=cli&utm_source=cli&utm_campaign=cli&os=darwin&docker=false
-    echo "$1" | grep https | grep -E "^https://(dev\.)?(test\.)?snyk\.io/login\?token=[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}\&.*$"
+    echo "$1" | grep https | grep -E "^https://(app\.)?(dev\.)?(test\.)?snyk\.io/login\?token=[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}\&.*$"
   }
 
   # Consume stdout and checks validates whether it's a valid JSON

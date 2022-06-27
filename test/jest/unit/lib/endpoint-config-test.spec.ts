@@ -20,6 +20,11 @@ describe('Testing deeproxy URL', () => {
     expect(codeConfig.getCodeClientProxyUrl()).toBe('https://deeproxy.snyk.io');
   });
 
+  test('uses api URL to determine deeproxy URL when provided with app. prefix', () => {
+    config.API = 'https://api.snyk.io/';
+    expect(codeConfig.getCodeClientProxyUrl()).toBe('https://deeproxy.snyk.io');
+  });
+
   test('uses a custom deeproxy endpoint when provided by SNYK_CODE_CLIENT_PROXY_URL environment', () => {
     config.CODE_CLIENT_PROXY_URL = 'https://deeproxy.custom.url.snyk.io';
     expect(codeConfig.getCodeClientProxyUrl()).toBe(
