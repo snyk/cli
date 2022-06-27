@@ -48,8 +48,10 @@ describe('Directory scan', () => {
     expect(stdout).toContain('Failed to parse Terraform file');
     expect(stdout).toContain('Failed to parse YAML file');
     expect(stdout).toContain('Failed to parse JSON file');
-    expect(stdout).toContain(
-      '28 projects, 22 contained issues. Failed to test 5 projects.',
+    expect(stdout).toEqual(
+      expect.stringMatching(
+        /\d+ projects, \d+ contained issues. Failed to test \d+ projects/,
+      ),
     );
     expect(exitCode).toBe(1);
   });

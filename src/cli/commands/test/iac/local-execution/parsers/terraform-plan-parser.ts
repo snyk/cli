@@ -110,7 +110,7 @@ function referencedResourcesResolver(
     // only update the references in resources that have some resolved attributes already
     const resolvedResource: any =
       scanInput[inputKey]?.[type]?.[getResourceName(index, name)];
-    if (resolvedResource) {
+    if (resolvedResource && expressions) {
       const resourceExpressions = getExpressions(expressions);
       for (const key of Object.keys(resourceExpressions)) {
         // only add non existing attributes. If we already have resolved value do not overwrite it with reference

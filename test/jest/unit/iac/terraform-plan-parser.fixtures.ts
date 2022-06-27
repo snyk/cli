@@ -8,6 +8,7 @@ export enum PlanOutputCase {
   NoOp = 'tf-plan-no-op', // plan with no-op actions
   Update = 'tf-plan-update', // plan with updates actions
   V4 = 'tf-plan-v4', // plan with updates actions
+  Null = 'tf-plan-null', // plan using null resource (no expressions)
 }
 
 export function getTfPlanData(planOutputCase: PlanOutputCase) {
@@ -60,4 +61,5 @@ export const planOutputCases: PlanOutputTestCase[] = [
   [PlanOutputCase.NoOp],
   [PlanOutputCase.Update],
   [PlanOutputCase.V4],
+  [PlanOutputCase.Null],
 ];

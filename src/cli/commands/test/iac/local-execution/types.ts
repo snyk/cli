@@ -245,7 +245,7 @@ export interface TerraformPlanJson {
 }
 
 export interface TerraformPlanReferencedResource extends TerraformPlanResource {
-  expressions: Record<string, TerraformPlanExpression>;
+  expressions?: Record<string, TerraformPlanExpression>;
 }
 
 export interface TerraformPlanExpression {
