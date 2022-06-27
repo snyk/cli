@@ -38,7 +38,7 @@ export async function isFile(path: string): Promise<boolean> {
 export async function isArchive(path: string): Promise<boolean> {
   try {
     const tarList = promisify(tar.list);
-    await tarList({ file: path, strict: true, sync: true }, undefined);
+    await tarList({ file: path, strict: true });
     return true;
   } catch (e) {
     return false;
