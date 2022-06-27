@@ -43,6 +43,7 @@ import {
 import iacTestCommand from './iac';
 import * as iacTestCommandV2 from './iac/v2';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
+import { checkOSSPaths } from '../../../lib/check-paths';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -65,6 +66,10 @@ export default async function test(
     } else {
       return await iacTestCommand(...args);
     }
+  }
+
+  if (!options.docker) {
+    checkOSSPaths(paths, options);
   }
 
   validateTestOptions(options);

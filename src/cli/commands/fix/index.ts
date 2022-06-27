@@ -18,6 +18,7 @@ import { Options, TestOptions } from '../../../lib/types';
 import { getDisplayPath } from './get-display-path';
 import chalk from 'chalk';
 import { icon, color } from '../../../lib/theme';
+import { checkOSSPaths } from '../../../lib/check-paths';
 
 const debug = Debug('snyk-fix');
 const snykFixFeatureFlag = 'cliSnykFix';
@@ -34,6 +35,11 @@ export default async function fix(...args: MethodArgs): Promise<string> {
   const options = setDefaultTestOptions<FixOptions>(rawOptions);
   debug(options);
   await validateFixCommandIsSupported(options);
+
+  if (!options.docker) {
+    checkOSSPaths(paths, rawOptions);
+  }
+
   validateTestOptions(options);
   validateCredentials(options);
   const results: snykFix.EntityToFix[] = [];
