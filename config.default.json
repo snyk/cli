@@ -1,5 +1,5 @@
 {
-  "API": "https://snyk.io/api/v1",
+  "API": "https://api.snyk.io/v1",
   "API_REST_URL": "https://api.snyk.io/rest",
   "devDeps": false,
   "PRUNE_DEPS_THRESHOLD": 40000,
