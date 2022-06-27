@@ -1,0 +1,75 @@
+{
+  "format_version": "1.0",
+  "terraform_version": "1.1.9",
+  "variables": {
+    "environment": {
+      "value": "test"
+    }
+  },
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "null_resource.empty",
+          "mode": "managed",
+          "type": "null_resource",
+          "name": "empty",
+          "provider_name": "registry.terraform.io/hashicorp/null",
+          "schema_version": 0,
+          "values": {
+            "triggers": null
+          },
+          "sensitive_values": {}
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "null_resource.empty",
+      "mode": "managed",
+      "type": "null_resource",
+      "name": "empty",
+      "provider_name": "registry.terraform.io/hashicorp/null",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "triggers": null
+        },
+        "after_unknown": {
+          "id": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {}
+      }
+    }
+  ],
+  "configuration": {
+    "provider_config": {
+      "aws": {
+        "name": "aws",
+        "version_constraint": ">= 4.12.1"
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "null_resource.empty",
+          "mode": "managed",
+          "type": "null_resource",
+          "name": "empty",
+          "provider_config_key": "null",
+          "schema_version": 0
+        }
+      ],
+      "variables": {
+        "environment": {
+          "description": "The name of the deployment environment"
+        }
+      }
+    }
+  }
+}

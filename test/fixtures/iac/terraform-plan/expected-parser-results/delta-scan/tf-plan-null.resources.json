@@ -1,0 +1,10 @@
+{
+	"data": {},
+	"resource": {
+		"null_resource": {
+			"empty": {
+				"triggers": null
+			}
+		}
+	}
+}
