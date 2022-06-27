@@ -173,17 +173,15 @@ describe('Directory scan', () => {
       expect(exitCode).toBe(3);
     });
 
-    // document the existing bug to fix, when one path fails entirely, sarif fails with:
-    // An unknown error occurred. Please run with `-d` and include full trace when reporting to Snyk
-    it.skip('outputs issues and errors when one of the paths fails, with --sarif flag', async () => {
+    it('filters out errors when one of the paths fails, with --sarif flag', async () => {
       const { stdout, exitCode } = await run(
         `snyk iac test ./iac/arm non-existing-dir --sarif`,
       );
       expect(isValidJSONString(stdout)).toBe(true);
-      expect(stdout).toContain('"results"');
-      expect(stdout).toContain('"ok": false');
-      expect(stdout).toContain('"error": "Could not find any valid IaC files"');
-      expect(stdout).toContain('"path": "non-existing-dir"');
+      expect(stdout).not.toContain(
+        '"error": "Could not find any valid IaC files"',
+      );
+      expect(stdout).not.toContain('"path": "non-existing-dir"');
       expect(exitCode).toBe(1);
     });
 
