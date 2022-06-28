@@ -19,12 +19,12 @@ export const colors: IacOutputColors = {
     critical: chalk.magenta,
     high: chalk.red,
     medium: chalk.yellow,
-    low: chalk.white,
+    low: chalk.reset,
   },
   failure: chalk.red,
   success: chalk.green,
-  info: chalk.white,
-  title: chalk.white.bold,
+  info: chalk.reset,
+  title: chalk.reset.bold,
   suggestion: chalk.gray,
 };
 
