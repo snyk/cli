@@ -4,6 +4,7 @@ import * as Debug from 'debug';
 import * as pathUtil from 'path';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { validateOptions } from '../../../lib/options-validator';
+import { checkOSSPaths } from '../../../lib/check-paths';
 
 import {
   MonitorOptions,
@@ -77,6 +78,10 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     throw new Error(
       '`--all-sub-projects` is currently not compatible with `--project-name`',
     );
+  }
+
+  if (!options.docker) {
+    checkOSSPaths(paths, options);
   }
 
   if (options.docker && options['remote-repo-url']) {

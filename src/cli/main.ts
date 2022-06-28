@@ -20,9 +20,7 @@ import { spinner } from '../lib/spinner';
 import * as errors from '../lib/errors/legacy-errors';
 import * as ansiEscapes from 'ansi-escapes';
 
-import { isPathToPackageFile } from '../lib/detect';
 import {
-  MissingTargetFileError,
   FileFlagBadInputError,
   MissingOptionError,
   UnsupportedOptionCombinationError,
@@ -216,24 +214,6 @@ function checkRuntime() {
   }
 }
 
-// Throw error if user specifies package file name as part of path,
-// and if user specifies multiple paths and used project-name option.
-function checkPaths(args) {
-  let count = 0;
-  for (const path of args.options._) {
-    if (typeof path === 'string' && isPathToPackageFile(path)) {
-      throw MissingTargetFileError(path);
-    } else if (typeof path === 'string') {
-      if (++count > 1 && args.options['project-name']) {
-        throw new UnsupportedOptionCombinationError([
-          'multiple paths',
-          'project-name',
-        ]);
-      }
-    }
-  }
-}
-
 type AllSupportedCliOptions = Options & MonitorOptions & TestOptions;
 
 export async function main(): Promise<void> {
@@ -311,8 +291,6 @@ export async function main(): Promise<void> {
       'sarif',
       new SarifFileOutputEmptyError(),
     );
-
-    checkPaths(globalArgs);
 
     res = await runCommand(globalArgs);
   } catch (error) {
