@@ -352,13 +352,13 @@ export enum IaCErrorCodes {
   FailedToDownloadRulesBundleError = 1131,
   FailedToCacheRulesBundleError = 1132,
 
-  // Unified Policy Engine executable errors.
-  InvalidUserPolicyEnginePathError = 1140,
-  FailedToDownloadPolicyEngineError = 1141,
-  FailedToCachePolicyEngineError = 1142,
+  // Test Engine executable errors.
+  InvalidUserTestEnginePathError = 1140,
+  FailedToDownloadTestEngineError = 1141,
+  FailedToCacheTestEngineError = 1142,
 
   // Scan errors
-  PolicyEngineScanError = 1150,
+  TestEngineScanError = 1150,
 }
 
 export interface TestReturnValue {

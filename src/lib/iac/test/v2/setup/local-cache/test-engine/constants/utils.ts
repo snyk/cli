@@ -1,6 +1,6 @@
 import * as os from 'os';
 
-export function formatPolicyEngineFileName(releaseVersion: string) {
+export function formatTestEngineFileName(releaseVersion: string) {
   let platform = 'Linux';
   switch (os.platform()) {
     case 'darwin':

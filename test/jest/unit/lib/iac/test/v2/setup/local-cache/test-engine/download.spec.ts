@@ -6,41 +6,41 @@ import * as localCacheUtils from '../../../../../../../../../../src/lib/iac/test
 import * as fileUtils from '../../../../../../../../../../src/lib/iac/file-utils';
 import { TestConfig } from '../../../../../../../../../../src/lib/iac/test/v2/types';
 import {
-  downloadPolicyEngine,
-  FailedToCachePolicyEngineError,
-  FailedToDownloadPolicyEngineError,
-  policyEngineChecksum,
-  policyEngineUrl,
-} from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/download';
+  downloadTestEngine,
+  FailedToCacheTestEngineError,
+  FailedToDownloadTestEngineError,
+  testEngineChecksum,
+  testEngineUrl,
+} from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/test-engine/download';
 
 jest.mock(
-  '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants',
+  '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/test-engine/constants',
   () => ({
-    policyEngineFileName: 'test-policy-engine-file-name',
+    testEngineFileName: 'test-test-engine-file-name',
   }),
 );
 
-describe('downloadPolicyEngine', () => {
+describe('downloadTestEngine', () => {
   const testIacCachePath = pathLib.join('test', 'iac', 'cache', 'path');
   const defaultTestTestConfig = {
     iacCachePath: testIacCachePath,
   };
-  const testPolicyEngineFileName = 'test-policy-engine-file-name';
-  const testCachedPolicyEnginePath = pathLib.join(
+  const testTestEngineFileName = 'test-test-engine-file-name';
+  const testCachedTestEnginePath = pathLib.join(
     testIacCachePath,
-    testPolicyEngineFileName,
+    testTestEngineFileName,
   );
 
   const defaultHashMock = {
     update: jest.fn().mockReturnThis(),
-    digest: jest.fn().mockReturnValue(policyEngineChecksum),
+    digest: jest.fn().mockReturnValue(testEngineChecksum),
   } as any;
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('fetches the Policy Engine executable', async () => {
+  it('fetches the Test Engine executable', async () => {
     // Arrange
     const testTestConfig: TestConfig = cloneDeep(defaultTestTestConfig);
     const testDataBuffer = Buffer.from('test-data-buffer');
@@ -52,10 +52,10 @@ describe('downloadPolicyEngine', () => {
     jest.spyOn(fileUtils, 'saveFile').mockResolvedValue();
 
     // Act
-    await downloadPolicyEngine(testTestConfig);
+    await downloadTestEngine(testTestConfig);
 
     // Assert
-    expect(fetchCacheResourceSpy).toHaveBeenCalledWith(policyEngineUrl);
+    expect(fetchCacheResourceSpy).toHaveBeenCalledWith(testEngineUrl);
   });
 
   it('caches the fetched cache resource', async () => {
@@ -72,16 +72,16 @@ describe('downloadPolicyEngine', () => {
       .mockResolvedValue();
 
     // Act
-    await downloadPolicyEngine(testTestConfig);
+    await downloadTestEngine(testTestConfig);
 
     // Assert
     expect(saveCacheResourceSpy).toHaveBeenCalledWith(
       testDataBuffer,
-      testCachedPolicyEnginePath,
+      testCachedTestEnginePath,
     );
   });
 
-  describe('when the Policy Engine executable fails to be fetched', () => {
+  describe('when the Test Engine executable fails to be fetched', () => {
     it('throws an error', async () => {
       // Arrange
       const testTestConfig: TestConfig = cloneDeep(defaultTestTestConfig);
@@ -92,8 +92,8 @@ describe('downloadPolicyEngine', () => {
       jest.spyOn(fileUtils, 'saveFile').mockResolvedValue();
 
       // Act + Assert
-      await expect(downloadPolicyEngine(testTestConfig)).rejects.toThrow(
-        FailedToDownloadPolicyEngineError,
+      await expect(downloadTestEngine(testTestConfig)).rejects.toThrow(
+        FailedToDownloadTestEngineError,
       );
     });
   });
@@ -114,13 +114,13 @@ describe('downloadPolicyEngine', () => {
       jest.spyOn(fileUtils, 'saveFile').mockResolvedValue();
 
       // Act + Assert
-      await expect(downloadPolicyEngine(testTestConfig)).rejects.toThrow(
-        FailedToDownloadPolicyEngineError,
+      await expect(downloadTestEngine(testTestConfig)).rejects.toThrow(
+        FailedToDownloadTestEngineError,
       );
     });
   });
 
-  describe('when the Policy Engine executable fails to be cached', () => {
+  describe('when the Test Engine executable fails to be cached', () => {
     it('throws an error', async () => {
       // Arrange
       const testTestConfig: TestConfig = cloneDeep(defaultTestTestConfig);
@@ -133,8 +133,8 @@ describe('downloadPolicyEngine', () => {
       jest.spyOn(fileUtils, 'saveFile').mockRejectedValue(new Error());
 
       // Act + Assert
-      await expect(downloadPolicyEngine(testTestConfig)).rejects.toThrow(
-        FailedToCachePolicyEngineError,
+      await expect(downloadTestEngine(testTestConfig)).rejects.toThrow(
+        FailedToCacheTestEngineError,
       );
     });
   });

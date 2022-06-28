@@ -31,6 +31,6 @@ function prepareTestConfig(paths: string[]): TestConfig {
     paths,
     iacCachePath,
     userRulesBundlePath: config.IAC_BUNDLE_PATH,
-    userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
+    userTestEnginePath: config.IAC_TEST_ENGINE_PATH,
   };
 }

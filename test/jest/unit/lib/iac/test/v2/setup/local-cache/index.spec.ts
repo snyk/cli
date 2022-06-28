@@ -1,5 +1,5 @@
 import * as pathLib from 'path';
-import * as initPolicyEngineLib from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine';
+import * as initTestEngineLib from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/test-engine';
 import * as initRulesBundleLib from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules-bundle';
 import * as fileUtils from '../../../../../../../../../src/lib/iac/file-utils';
 import { initLocalCache } from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache';
@@ -13,15 +13,15 @@ describe('initLocalCache', () => {
 
   it('creates the IaC cache directory if it does not exist', async () => {
     // Arrange
-    const testPolicyEnginePath = 'test-policy-engine-path';
+    const testTestEnginePath = 'test-test-engine-path';
     const testRulesBundlePath = 'test-rules-bundle-path';
     const testTestConfig = {
       iacCachePath: pathLib.join('iac', 'cache', 'path'),
     } as TestConfig;
 
     jest
-      .spyOn(initPolicyEngineLib, 'initPolicyEngine')
-      .mockImplementation(async () => testPolicyEnginePath);
+      .spyOn(initTestEngineLib, 'initTestEngine')
+      .mockImplementation(async () => testTestEnginePath);
     jest
       .spyOn(initRulesBundleLib, 'initRulesBundle')
       .mockImplementation(async () => testRulesBundlePath);
@@ -38,17 +38,17 @@ describe('initLocalCache', () => {
     );
   });
 
-  it('initializes the Policy Engine executable', async () => {
+  it('initializes the Test Engine executable', async () => {
     // Arrange
-    const testPolicyEnginePath = 'test-policy-engine-path';
+    const testTestEnginePath = 'test-test-engine-path';
     const testRulesBundlePath = 'test-rules-bundle-path';
     const testTestConfig = {
       iacCachePath: pathLib.join('iac', 'cache', 'path'),
     } as TestConfig;
 
-    const initPolicyEngineSpy = jest
-      .spyOn(initPolicyEngineLib, 'initPolicyEngine')
-      .mockImplementation(async () => testPolicyEnginePath);
+    const initTestEngineSpy = jest
+      .spyOn(initTestEngineLib, 'initTestEngine')
+      .mockImplementation(async () => testTestEnginePath);
     jest
       .spyOn(initRulesBundleLib, 'initRulesBundle')
       .mockImplementation(async () => testRulesBundlePath);
@@ -60,20 +60,20 @@ describe('initLocalCache', () => {
     await initLocalCache(testTestConfig);
 
     // Assert
-    expect(initPolicyEngineSpy).toHaveBeenCalledWith(testTestConfig);
+    expect(initTestEngineSpy).toHaveBeenCalledWith(testTestConfig);
   });
 
   it('initializes the rules bundle', async () => {
     // Arrange
-    const testPolicyEnginePath = 'test-policy-engine-path';
+    const testTestEnginePath = 'test-test-engine-path';
     const testRulesBundlePath = 'test-rules-bundle-path';
     const testTestConfig = {
       iacCachePath: pathLib.join('iac', 'cache', 'path'),
     } as TestConfig;
 
     jest
-      .spyOn(initPolicyEngineLib, 'initPolicyEngine')
-      .mockImplementation(async () => testPolicyEnginePath);
+      .spyOn(initTestEngineLib, 'initTestEngine')
+      .mockImplementation(async () => testTestEnginePath);
     const initRulesSpy = jest
       .spyOn(initRulesBundleLib, 'initRulesBundle')
       .mockImplementation(async () => testRulesBundlePath);
@@ -90,15 +90,15 @@ describe('initLocalCache', () => {
 
   it('returns the cached resrouce paths', async () => {
     // Arrange
-    const testPolicyEnginePath = 'test-policy-engine-path';
+    const testTestEnginePath = 'test-test-engine-path';
     const testRulesBundlePath = 'test-rules-bundle-path';
     const testTestConfig = {
       iacCachePath: pathLib.join('iac', 'cache', 'path'),
     } as TestConfig;
 
     jest
-      .spyOn(initPolicyEngineLib, 'initPolicyEngine')
-      .mockImplementation(async () => testPolicyEnginePath);
+      .spyOn(initTestEngineLib, 'initTestEngine')
+      .mockImplementation(async () => testTestEnginePath);
     jest
       .spyOn(initRulesBundleLib, 'initRulesBundle')
       .mockImplementation(async () => testRulesBundlePath);
@@ -107,7 +107,7 @@ describe('initLocalCache', () => {
       .mockImplementation(async () => undefined);
 
     const expected = {
-      policyEnginePath: testPolicyEnginePath,
+      testEnginePath: testTestEnginePath,
       rulesBundlePath: testRulesBundlePath,
     };
     // Act
@@ -118,24 +118,24 @@ describe('initLocalCache', () => {
   });
 
   describe.each`
-    failingResource               | module                 | methodName
-    ${'cache directory'}          | ${fileUtils}           | ${'createDirIfNotExists'}
-    ${'Policy Engine executable'} | ${initPolicyEngineLib} | ${'initPolicyEngine'}
-    ${'rules bundle'}             | ${initRulesBundleLib}  | ${'initRulesBundle'}
+    failingResource             | module                | methodName
+    ${'cache directory'}        | ${fileUtils}          | ${'createDirIfNotExists'}
+    ${'Test Engine executable'} | ${initTestEngineLib}  | ${'initTestEngine'}
+    ${'rules bundle'}           | ${initRulesBundleLib} | ${'initRulesBundle'}
   `(
     'when the initialization for the $failingResource fails',
     ({ module, methodName }) => {
       it('throws an error', async () => {
         // Arrange
-        const testPolicyEnginePath = 'test-policy-engine-path';
+        const testTestEnginePath = 'test-test-engine-path';
         const testRulesBundlePath = 'test-rules-bundle-path';
         const testTestConfig = {
           iacCachePath: pathLib.join('iac', 'cache', 'path'),
         } as TestConfig;
 
         jest
-          .spyOn(initPolicyEngineLib, 'initPolicyEngine')
-          .mockImplementation(async () => testPolicyEnginePath);
+          .spyOn(initTestEngineLib, 'initTestEngine')
+          .mockImplementation(async () => testTestEnginePath);
         jest
           .spyOn(initRulesBundleLib, 'initRulesBundle')
           .mockImplementation(async () => testRulesBundlePath);

@@ -40,27 +40,27 @@ describe('iac --experimental', () => {
         expect(exitCode).toBe(0);
       });
 
-      describe('when a custom Policy Engine executable path is configured ', () => {
+      describe('when a custom Test Engine executable path is configured ', () => {
         // TODO: Add this test when we start generate actual test output.
         describe('when the path does not lead to a valid executable', () => {
-          it.todo('uses the Policy Engine executable from the custom path');
+          it.todo('uses the Test Engine executable from the custom path');
         });
 
         describe('when the path does not lead to a valid executable', () => {
           it('Shows an error message', async () => {
-            const userPolicyEnginePath = pathLib.join('made', 'up', 'path');
+            const userTestEnginePath = pathLib.join('made', 'up', 'path');
 
             const { exitCode, stdout } = await run(
               `snyk iac test ./iac/arm/rule_test.json --experimental`,
               {
-                SNYK_IAC_POLICY_ENGINE_PATH: userPolicyEnginePath,
+                SNYK_IAC_TEST_ENGINE_PATH: userTestEnginePath,
               },
             );
 
             expect(exitCode).toBe(2);
             expect(stdout).toContain(
-              `Could not find a valid Policy Engine executable in the configured path: ${userPolicyEnginePath}` +
-                '\nEnsure the configured path points to a valid Policy Engine executable.',
+              `Could not find a valid Test Engine executable in the configured path: ${userTestEnginePath}` +
+                '\nEnsure the configured path points to a valid Test Engine executable.',
             );
           });
         });

@@ -9,17 +9,17 @@ const debug = newDebug('snyk-iac');
 
 export function scan(
   options: TestConfig,
-  policyEnginePath: string,
+  testEnginePath: string,
   rulesBundlePath: string,
 ): any {
   const args = ['-bundle', rulesBundlePath, ...options.paths];
 
-  const process = childProcess.spawnSync(policyEnginePath, args, {
+  const process = childProcess.spawnSync(testEnginePath, args, {
     encoding: 'utf-8',
     stdio: 'pipe',
   });
 
-  debug('policy engine standard error:\n%s', '\n' + process.stderr);
+  debug('test engine standard error:\n%s', '\n' + process.stderr);
 
   if (process.status && process.status !== 0) {
     throw new ScanError(`invalid exist status: ${process.status}`);
@@ -43,7 +43,7 @@ export function scan(
 class ScanError extends CustomError {
   constructor(message: string) {
     super(message);
-    this.code = IaCErrorCodes.PolicyEngineScanError;
+    this.code = IaCErrorCodes.TestEngineScanError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = 'An error occurred when running the scan';
   }

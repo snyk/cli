@@ -1,7 +1,7 @@
 import * as os from 'os';
-import { formatPolicyEngineFileName } from '../../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants/utils';
+import { formatTestEngineFileName } from '../../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/test-engine/constants/utils';
 
-describe('formatPolicyEngineFileName', () => {
+describe('formatTestEngineFileName', () => {
   const testReleaseVersion = '6.6.6';
 
   afterEach(() => {
@@ -25,7 +25,7 @@ describe('formatPolicyEngineFileName', () => {
         jest.spyOn(os, 'arch').mockImplementation(() => osArch);
 
         // Act
-        const res = formatPolicyEngineFileName(testReleaseVersion);
+        const res = formatTestEngineFileName(testReleaseVersion);
 
         // Assert
         expect(res).toEqual(expectedFileName);
