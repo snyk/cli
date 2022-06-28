@@ -24,6 +24,8 @@ Authenticate Snyk CLI with a Snyk account.
 
 Test a project for open source vulnerabilities and license issues.
 
+**Note**: Use `snyk test --unmanaged` to scan all files for known open source dependencies (C/C++ only).
+
 ### [`snyk monitor`](monitor.md)
 
 Snapshot and continuously monitor a project for open source vulnerabilities and license issues.
