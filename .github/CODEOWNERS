@@ -43,6 +43,7 @@ test/jest/unit/lib/endpoint-config-test.spec.ts @snyk/nebula
 test/jest/unit/lib/formatters/iac-output/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/formatters/test/format-test-results.spec.ts @snyk/hammer @snyk/snyk-open-source @snyk/mycelium
 test/jest/unit/iac/ @snyk/group-infrastructure-as-code
+test/jest/unit/cli/commands/test/iac @snyk/group-infrastructure-as-code
 test/jest/unit/lib/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/snyk-apps @snyk/moose

@@ -62,7 +62,7 @@ export default async function test(
       (await hasFeatureFlag('iacCliUnifiedEngine', options)) &&
       options.experimental
     ) {
-      return await iacTestCommandV2.test(...args);
+      return await iacTestCommandV2.test(paths, originalOptions);
     } else {
       return await iacTestCommand(...args);
     }

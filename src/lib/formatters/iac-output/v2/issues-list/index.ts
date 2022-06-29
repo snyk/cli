@@ -3,23 +3,15 @@ import * as capitalize from 'lodash.capitalize';
 import * as isEmpty from 'lodash.isempty';
 import * as debug from 'debug';
 
-import { IacOutputMeta } from '../../../../types';
 import { colors, contentPadding } from '../utils';
-import { formatScanResultsNewOutput } from './formatters';
 import { formatIssue } from './issue';
 import { SEVERITY } from '../../../../snyk-test/common';
-import { FormattedOutputResult } from './types';
-import { FormattedResult } from '../../../../../cli/commands/test/iac/local-execution/types';
+import { FormattedOutputResult, IacTestOutput } from './types';
 
-export function getIacDisplayedIssues(
-  results: FormattedResult[],
-  outputMeta: IacOutputMeta,
-): string {
+export function getIacDisplayedIssues(results: IacTestOutput): string {
   const titleOutput = colors.title('Issues');
 
-  const formattedResults = formatScanResultsNewOutput(results, outputMeta);
-
-  if (isEmpty(formattedResults.results)) {
+  if (isEmpty(results.results)) {
     return (
       titleOutput +
       EOL +
@@ -29,10 +21,10 @@ export function getIacDisplayedIssues(
   }
 
   const severitySectionsOutput = Object.values(SEVERITY)
-    .filter((severity) => !!formattedResults.results[severity])
+    .filter((severity) => !!results.results[severity])
     .map((severity) => {
       const severityResults: FormattedOutputResult[] =
-        formattedResults.results[severity];
+        results.results[severity];
 
       const titleOutput = colors.title(
         `${capitalize(severity)} Severity Issues: ${severityResults.length}`,

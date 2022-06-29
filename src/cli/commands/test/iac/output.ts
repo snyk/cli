@@ -43,6 +43,7 @@ import {
   shareCustomRulesDisclaimer,
   shareResultsTip,
 } from '../../../../lib/formatters/iac-output/v2';
+import { formatScanResultsNewOutput } from '../../../../lib/formatters/iac-output/v2/issues-list/formatters';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -177,7 +178,11 @@ export function buildOutput({
 
   if (isNewIacOutputSupported) {
     if (isPartialSuccess) {
-      response += EOL + getIacDisplayedIssues(successResults, iacOutputMeta!);
+      const formattedSuccessResults = formatScanResultsNewOutput(
+        successResults,
+        iacOutputMeta!,
+      );
+      response += EOL + getIacDisplayedIssues(formattedSuccessResults);
     }
   } else {
     response += results

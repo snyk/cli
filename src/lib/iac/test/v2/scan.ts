@@ -4,6 +4,7 @@ import { CustomError } from '../../../errors';
 import { IaCErrorCodes } from '../../../../cli/commands/test/iac/local-execution/types';
 import { getErrorStringCode } from '../../../../cli/commands/test/iac/local-execution/error-utils';
 import * as newDebug from 'debug';
+import { SnykIacTestOutput } from '../../../../cli/commands/test/iac/v2/types';
 
 const debug = newDebug('snyk-iac');
 
@@ -11,7 +12,7 @@ export function scan(
   options: TestConfig,
   policyEnginePath: string,
   rulesBundlePath: string,
-): any {
+): SnykIacTestOutput {
   const args = ['-bundle', rulesBundlePath, ...options.paths];
 
   const process = childProcess.spawnSync(policyEnginePath, args, {
@@ -29,7 +30,7 @@ export function scan(
     throw new ScanError(`spawning process: ${process.error}`);
   }
 
-  let output: any;
+  let output: SnykIacTestOutput;
 
   try {
     output = JSON.parse(process.stdout);
