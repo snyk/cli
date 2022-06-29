@@ -22,7 +22,7 @@ src/cli/commands/describe.ts @snyk/group-infrastructure-as-code
 src/cli/commands/update-exclude-policy.ts @snyk/group-infrastructure-as-code
 src/cli/commands/apps @snyk/moose
 src/lib/apps @snyk/moose
-src/lib/container @snyk/magma
+src/lib/container @snyk/mycelium
 src/lib/plugins @snyk/snyk-open-source
 test/fixtures/sast/ @snyk/zenith
 src/lib/plugins/sast/ @snyk/zenith
@@ -30,10 +30,10 @@ test/jest/unit/snyk-code/ @snyk/zenith
 src/lib/formatters/iac-output/ @snyk/group-infrastructure-as-code
 src/lib/iac/ @snyk/group-infrastructure-as-code
 src/lib/snyk-test/iac-test-result.ts @snyk/group-infrastructure-as-code
-test/fixtures/basic-apk/ @snyk/magma
-test/fixtures/container-app-vulns/ @snyk/magma
-test/fixtures/container-projects/ @snyk/capsule @snyk/magma @snyk/potion
-test/fixtures/docker/ @snyk/capsule @snyk/magma @snyk/potion
+test/fixtures/basic-apk/ @snyk/mycelium
+test/fixtures/container-app-vulns/ @snyk/mycelium
+test/fixtures/container-projects/ @snyk/mycelium @snyk/potion
+test/fixtures/docker/ @snyk/mycelium @snyk/potion
 test/fixtures/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/snyk_code_spec.sh @snyk/zenith
@@ -41,7 +41,7 @@ test/smoke/spec/snyk_basic_spec.sh @snyk/hammer
 test/smoke/.iac-data/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/endpoint-config-test.spec.ts @snyk/nebula
 test/jest/unit/lib/formatters/iac-output/ @snyk/group-infrastructure-as-code
-test/jest/unit/lib/formatters/test/format-test-results.spec.ts @snyk/hammer @snyk/snyk-open-source @snyk/magma
+test/jest/unit/lib/formatters/test/format-test-results.spec.ts @snyk/hammer @snyk/snyk-open-source @snyk/mycelium
 test/jest/unit/iac/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
