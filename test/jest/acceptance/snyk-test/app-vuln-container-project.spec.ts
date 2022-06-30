@@ -18,10 +18,26 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     );
     const jsonOutput = JSON.parse(stdout);
 
-    expect(jsonOutput[0].ok).toEqual(false);
-    expect(jsonOutput[0].uniqueCount).toBeGreaterThan(0);
-    expect(jsonOutput[1].ok).toEqual(false);
-    expect(jsonOutput[1].uniqueCount).toBeGreaterThan(0);
+    expect(jsonOutput.ok).toEqual(false);
+    expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
+    const applications = jsonOutput.applications;
+    expect(applications.length).toEqual(1);
+    expect(applications[0].uniqueCount).toBeGreaterThan(0);
+    expect(applications[0].ok).toEqual(false);
+    expect(code).toEqual(1);
+  }, 10000);
+  it('should find all vulns when using --app-vulns without experimental flag', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --app-vulns`,
+    );
+    const jsonOutput = JSON.parse(stdout);
+
+    expect(jsonOutput.ok).toEqual(false);
+    expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
+    const applications = jsonOutput.applications;
+    expect(applications.length).toEqual(1);
+    expect(applications[0].uniqueCount).toBeGreaterThan(0);
+    expect(applications[0].ok).toEqual(false);
     expect(code).toEqual(1);
   }, 10000);
   it('should return only dockerfile instructions vulnerabilities when excluding base image vulns', async () => {
@@ -45,14 +61,14 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     );
 
     const { code, stdout } = await runSnykCLI(
-      `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --experimental --app-vulns --file=${dockerfilePath} --exclude-base-image-vulns`,
+      `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --app-vulns --file=${dockerfilePath} --exclude-base-image-vulns`,
     );
     const jsonOutput = JSON.parse(stdout);
 
-    expect(jsonOutput[0].ok).toEqual(false);
-    expect(jsonOutput[0].uniqueCount).toBeGreaterThan(0);
-    expect(jsonOutput[1].ok).toEqual(false);
-    expect(jsonOutput[1].uniqueCount).toBeGreaterThan(0);
+    expect(jsonOutput.ok).toEqual(false);
+    expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
+    expect(jsonOutput.applications[0].ok).toEqual(false);
+    expect(jsonOutput.applications[0].uniqueCount).toBeGreaterThan(0);
     expect(code).toEqual(1);
   }, 10000);
 });
@@ -97,22 +113,7 @@ describe('container test projects behavior with --app-vulns, --json flags', () =
     );
 
     const jsonOutput = JSON.parse(stdout);
-    expect(Array.isArray(jsonOutput)).toBeTruthy();
-    expect(jsonOutput).toHaveLength(2);
+    expect(jsonOutput.applications).toHaveLength(1);
     expect(code).toEqual(0);
-  });
-
-  it('returns an error without the --experimental flags', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `container test snykgoof/os-app:node-snykin --app-vulns --json`,
-      {
-        env,
-      },
-    );
-
-    expect(stdout).toContain(
-      'Application vulnerabilities is currently not supported with JSON output',
-    );
-    expect(code).toEqual(2);
   });
 });

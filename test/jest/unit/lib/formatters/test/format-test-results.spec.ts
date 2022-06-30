@@ -303,6 +303,7 @@ describe('extractDataToSendFromResults', () => {
     it('should create Snyk grouped JSON for container image if `--json` and `--group-issues` are set in the options', () => {
       const options = {
         json: true,
+        docker: true,
         'group-issues': true,
       } as Options;
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
@@ -350,6 +351,7 @@ describe('extractDataToSendFromResults', () => {
     it('should create Snyk grouped JSON for each of the multiple test results if `--json` and `--group-issues` are set in the options', () => {
       const options = {
         json: true,
+        docker: true,
         'group-issues': true,
       } as Options;
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
@@ -359,23 +361,24 @@ describe('extractDataToSendFromResults', () => {
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
-      expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
+      const parsedStringifiedJson = JSON.parse(res.stringifiedJsonData);
+      expect(parsedStringifiedJson).toMatchObject(
         resultJsonDataGroupedContainerAppVulnsFixture,
       );
       expect(res.stringifiedData).not.toBe('');
       expect(res.stringifiedJsonData).not.toBe('');
       expect(res.stringifiedSarifData).toBe('');
+      expect(parsedStringifiedJson.vulnerabilities).toHaveLength(1);
+      expect(parsedStringifiedJson.applications).not.toBeUndefined();
       expect(
-        JSON.parse(res.stringifiedJsonData)[0].vulnerabilities,
-      ).toHaveLength(1);
-      expect(
-        JSON.parse(res.stringifiedJsonData)[1].vulnerabilities,
+        parsedStringifiedJson.applications[0].vulnerabilities,
       ).toHaveLength(7);
     });
 
     it('should create a non-grouped JSON for each of the test results if `--json` option is set and `--group-issues` is not set', () => {
       const options = {
         json: true,
+        docker: true,
       } as Options;
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
@@ -384,17 +387,17 @@ describe('extractDataToSendFromResults', () => {
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
-      expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
+      const parsedStringifiedJson = JSON.parse(res.stringifiedJsonData);
+      expect(parsedStringifiedJson).toMatchObject(
         resultJsonDataNonGroupedContainerAppVulnsFixture,
       );
       expect(res.stringifiedData).not.toBe('');
       expect(res.stringifiedJsonData).not.toBe('');
       expect(res.stringifiedSarifData).toBe('');
+      expect(parsedStringifiedJson.vulnerabilities).toHaveLength(3);
+      expect(parsedStringifiedJson.applications).not.toBeUndefined();
       expect(
-        JSON.parse(res.stringifiedJsonData)[0].vulnerabilities,
-      ).toHaveLength(3);
-      expect(
-        JSON.parse(res.stringifiedJsonData)[1].vulnerabilities,
+        parsedStringifiedJson.applications[0].vulnerabilities,
       ).toHaveLength(11);
     });
   });
