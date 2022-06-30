@@ -84,6 +84,15 @@ async function runCommand(args: Args) {
 
 async function handleError(args, error) {
   spinner.clearAll();
+
+  if (typeof error === 'object') {
+    error.stack = error.nestedStack || error.stack;
+    error.userMessage = error.nestedUserMessage || error.userMessage;
+    error.code = error.nestedCode || error.code;
+    error.strCode = error.nestedStrCode || error.strCode;
+    error.userMessage = error.nestedUserMessage || error.userMessage;
+  }
+
   let command = 'bad-command';
   let exitCode = EXIT_CODES.ERROR;
 
