@@ -9,9 +9,9 @@ import {
   downloadPolicyEngine,
   FailedToCachePolicyEngineError,
   FailedToDownloadPolicyEngineError,
-  policyEngineChecksum,
   policyEngineUrl,
 } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/download';
+import { policyEngineChecksum } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants';
 
 jest.mock(
   '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants',
