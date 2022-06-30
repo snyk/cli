@@ -78,14 +78,8 @@ export async function test(
     allFailedFiles = allFailedFiles.concat(failedFiles);
   }
 
-  // if none of the files were parsed then either we didn't have any IaC files
-  // or there was only one file passed via the CLI and it failed parsing
-  if (allParsedFiles.length === 0) {
-    if (allFailedFiles.length === 1) {
-      throw allFailedFiles[0].err;
-    } else {
-      throw new NoFilesToScanError();
-    }
+  if (allParsedFiles.length === 0 && allFailedFiles.length === 0) {
+    throw new NoFilesToScanError();
   }
 
   // Duplicate all the files and run them through the custom engine.

@@ -38,7 +38,7 @@ import {
   TestOptions,
 } from '../../../../lib/types';
 import * as path from 'path';
-import { IaCTestFlags } from './local-execution/types';
+import { IaCTestFlags, IaCErrorCodes } from './local-execution/types';
 import {
   shareCustomRulesDisclaimer,
   shareResultsTip,
@@ -315,6 +315,36 @@ export function buildOutput({
     // first one
     error.code = vulnerableResults[0].code || 'VULNS';
     error.userMessage = vulnerableResults[0].userMessage;
+    error.jsonStringifiedResults = stringifiedJsonData;
+    error.sarifStringifiedResults = stringifiedSarifData;
+    throw error;
+  } else if (iacScanFailures.length > 0) {
+    // When we have no issues found, but some files failed to parse, we want to
+    // exit non-zero.
+
+    const error = new Error(response) as any;
+
+    // TODO: this causes us to return an exit status of 1 when there are IaC
+    // files with no issues, and some that can't be parsed. This is arguably
+    // quite wrong.
+    //
+    // When there are no scan results at all, this is semantically a 3 - no
+    // valid IaC files found.
+    // When there are some successfully scanned files with no issues, we should
+    // probably return a 2.
+    // Coercing the exception processing code in src/cli/main.ts and
+    // src/lib/errors/legacy-errors.js into actually printing all the output we
+    // want is tangled, and tightly coupled to the error code.
+    //
+    error.code = 'VULNS';
+
+    // TODO: this code below would cause us to return an exit status of 2 in the
+    // same scenario as the block above, but causes all the output to be
+    // malformed, and entirely in bold after a certain point.
+    //
+    // error.code = IaCErrorCodes.FailedToLoadFileError; // or NoFilesToScanError when there are no success cases
+    // error.userMessage = response;
+
     error.jsonStringifiedResults = stringifiedJsonData;
     error.sarifStringifiedResults = stringifiedSarifData;
     throw error;
