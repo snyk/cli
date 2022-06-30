@@ -1,0 +1,222 @@
+[
+  {
+    "meta":{
+      "isPrivate":false,
+      "isLicensesEnabled":false,
+      "org":"org-name",
+      "policy":"",
+      "ignoreSettings":{
+        "adminOnly":false,
+        "reasonRequired":false,
+        "disregardFilesystemIgnores":false
+      }
+    },
+    "filesystemPolicy":false,
+    "vulnerabilities":[
+      
+    ],
+    "dependencyCount":0,
+    "licensesPolicy":null,
+    "ignoreSettings":{
+      "adminOnly":false,
+      "reasonRequired":false,
+      "disregardFilesystemIgnores":false
+    },
+    "targetFile":"/Users/yairzohar/snyk/upe-test/tf-plan-v4.json",
+    "projectName":"org-name",
+    "org":"org-name",
+    "policy":"",
+    "isPrivate":false,
+    "targetFilePath":"/Users/yairzohar/snyk/upe-test/tf-plan-v4.json",
+    "packageManager":"tf_plan",
+    "path":"/Users/yairzohar/snyk/cli",
+    "projectType":"tf_plan",
+    "ok":true,
+    "infrastructureAsCodeIssues":[
+      
+    ]
+  },
+  {
+    "meta":{
+      "isPrivate":false,
+      "isLicensesEnabled":false,
+      "org":"org-name",
+      "policy":"",
+      "ignoreSettings":{
+        "adminOnly":false,
+        "reasonRequired":false,
+        "disregardFilesystemIgnores":false
+      }
+    },
+    "filesystemPolicy":false,
+    "vulnerabilities":[
+      
+    ],
+    "dependencyCount":0,
+    "licensesPolicy":null,
+    "ignoreSettings":{
+      "adminOnly":false,
+      "reasonRequired":false,
+      "disregardFilesystemIgnores":false
+    },
+    "targetFile":"/Users/yairzohar/snyk/upe-test/default_vpc_security_group.tf",
+    "projectName":"org-name",
+    "org":"org-name",
+    "policy":"",
+    "isPrivate":false,
+    "targetFilePath":"/Users/yairzohar/snyk/upe-test/default_vpc_security_group.tf",
+    "packageManager":"tf_hcl",
+    "path":"/Users/yairzohar/snyk/cli",
+    "projectType":"tf_hcl",
+    "ok":false,
+    "infrastructureAsCodeIssues":[
+      {
+        "severity":"medium",
+        "resolve":"# Remediation Steps\nEnsure that an [aws_default_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) or [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) `ingress` block does NOT contain the value `0.0.0.0/0` in the `cidr_blocks` (`ipv6_cidr_blocks` for ipv6) field.\n \n```\n# Example configuration\nresource \"aws_security_group\" \"example\" {\n  ingress {\n    cidr_blocks = [10.0.0.0/16]\n    from_port   = 5900\n    to_port     = 5900\n    # other required fields here\n  }\n}\n```\n \n# References\n* [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group)\n\n",
+        "impact":"TBD",
+        "msg":"aws_default_security_group.defaultingress[0].cidr_blocks[0]",
+        "remediation":{
+          "terraform":"# Remediation Steps\nEnsure that an [aws_default_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) or [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) `ingress` block does NOT contain the value `0.0.0.0/0` in the `cidr_blocks` (`ipv6_cidr_blocks` for ipv6) field.\n \n```\n# Example configuration\nresource \"aws_security_group\" \"example\" {\n  ingress {\n    cidr_blocks = [10.0.0.0/16]\n    from_port   = 5900\n    to_port     = 5900\n    # other required fields here\n  }\n}\n```\n \n# References\n* [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group)\n\n"
+        },
+        "type":"tf_hcl",
+        "subType":"aws_default_security_group",
+        "issue":"Configuring all VPC default security groups to restrict all traffic encourages least privilege security\ngroup development and mindful placement of AWS resources into security groups which in turn reduces the exposure of those resources.\n",
+        "publicId":"SNYK-CC-00024",
+        "title":"VPC default security group allows unrestricted ingress traffic",
+        "references":[
+          "TBD"
+        ],
+        "id":"SNYK-CC-00024",
+        "isIgnored":false,
+        "iacDescription":{
+          "issue":"VPC default security group allows unrestricted ingress traffic",
+          "impact":"TBD",
+          "resolve":"# Remediation Steps\nEnsure that an [aws_default_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) or [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) `ingress` block does NOT contain the value `0.0.0.0/0` in the `cidr_blocks` (`ipv6_cidr_blocks` for ipv6) field.\n \n```\n# Example configuration\nresource \"aws_security_group\" \"example\" {\n  ingress {\n    cidr_blocks = [10.0.0.0/16]\n    from_port   = 5900\n    to_port     = 5900\n    # other required fields here\n  }\n}\n```\n \n# References\n* [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group)\n\n"
+        },
+        "lineNumber":12,
+        "documentation":"TBD",
+        "isGeneratedByCustomRule":false,
+        "path":[
+          "ingress",
+          0,
+          "cidr_blocks",
+          0
+        ],
+        "compliance":[
+          [
+            "TBD"
+          ]
+        ],
+        "description":"Configuring all VPC default security groups to restrict all traffic encourages least privilege security\ngroup development and mindful placement of AWS resources into security groups which in turn reduces the exposure of those resources.\n"
+      }
+    ]
+  },
+  {
+    "meta":{
+      "isPrivate":false,
+      "isLicensesEnabled":false,
+      "org":"org-name",
+      "policy":"",
+      "ignoreSettings":{
+        "adminOnly":false,
+        "reasonRequired":false,
+        "disregardFilesystemIgnores":false
+      }
+    },
+    "filesystemPolicy":false,
+    "vulnerabilities":[
+      
+    ],
+    "dependencyCount":0,
+    "licensesPolicy":null,
+    "ignoreSettings":{
+      "adminOnly":false,
+      "reasonRequired":false,
+      "disregardFilesystemIgnores":false
+    },
+    "targetFile":"/Users/yairzohar/snyk/upe-test/s3_cis.tf",
+    "projectName":"org-name",
+    "org":"org-name",
+    "policy":"",
+    "isPrivate":false,
+    "targetFilePath":"/Users/yairzohar/snyk/upe-test/s3_cis.tf",
+    "packageManager":"tf_hcl",
+    "path":"/Users/yairzohar/snyk/cli",
+    "projectType":"tf_hcl",
+    "ok":false,
+    "infrastructureAsCodeIssues":[
+      {
+        "severity":"high",
+        "resolve":"# Remediation Steps\n\n* Ensure that the [aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) `acl` field does NOT contain EITHER of the following:\n\n  * \"public-read\"\n  * \"public-read-write\"\n\n* Ensure that the `grant` block does NOT contain BOTH an invalid `uri` and `permissions` field:\n\n  * Invalid `uri`:\n\n    * \"http://acs.amazonaws.com/groups/global/AuthenticatedUsers\"\n    * \"http://acs.amazonaws.com/groups/global/AllUsers\"\n\n  * Invalid `permissions`:\n    * \"READ\"\n    * \"FULL_CONTROL\"\n    * \"READ_ACP\"\n\n* If a bucket policy is defined in the bucket's `policy` field, ensure the JSON document does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect:\n\n  * Invalid principals:\n\n    * `\"Principal\": { \"AWS\": \"*\" }`\n    * `\"Principal\": \"*\"`\n\n  * Invalid actions:\n\n    * `\"*\"`\n    * `\"s3:*\"`\n    * `\"s3:List*\"`\n    * `\"s3:Get*\"`\n    * `\"s3:ListBucket*\"`\n    * `\"s3:GetObject*\"`\n    * `\"s3:ListBucket\"`\n    * `\"s3:ListBucketVersions\"`\n    * `\"s3:ListBucketMultipartUploads\"`\n    * `\"s3:GetObject\"`\n    * `\"s3:GetObjectVersion\"`\n    * `\"s3:GetObjectTorrent\"`\n\n  * Invalid effect:\n\n    * `\"Effect\": \"Allow\"`\n\n* If a bucket policy as defined as an [aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy), ensure the JSON document in the `policy` field does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect, as listed above\n\n* While a [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) is not required for the bucket, it's highly recommended. Ensure the following [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n* You can enable block public access settings for all buckets in your account by using a [aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block). Ensure the following fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n#### Example Configuration\n\n```hcl\n# Compliant ACL\nresource \"aws_s3_bucket\" \"b\" {\n  acl    = \"private\"\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant grant\nresource \"aws_s3_bucket\" \"bucket\" {\n  bucket = \"mybucket\"\n\n  grant {\n    id          = data.aws_canonical_user_id.current_user.id\n    type        = \"CanonicalUser\"\n    permissions = [\"FULL_CONTROL\"]\n  }\n\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant bucket policy\nresource \"aws_s3_bucket\" \"b\" {\n  bucket = \"my-tf-test-bucket\"\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_policy\" \"b\" {\n  bucket = aws_s3_bucket.b.id\n\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Id      = \"MYBUCKETPOLICY\"\n    Statement = [\n      {\n        Sid       = \"IPAllow\"\n        Effect    = \"Deny\"\n        Principal = \"*\"\n        Action    = \"s3:*\"\n        Resource = [\n          aws_s3_bucket.b.arn,\n          \"${aws_s3_bucket.b.arn}/*\",\n        ]\n        Condition = {\n          NotIpAddress = {\n            \"aws:SourceIp\" = \"8.8.8.8/32\"\n          }\n        }\n      },\n    ]\n  })\n  \n  # other required fields here\n}\n```\n\n```\n# Compliant public access block - single bucket\nresource \"aws_s3_bucket\" \"b\" {\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_public_access_block\" \"private\" {\n  bucket                  = \"${aws_s3_bucket.b.id}\"\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n```\n# Compliance public access block - ALL buckets\nresource \"aws_s3_account_public_access_block\" \"main\" {\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n# References\n\n* [Resource: aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket)\n  * [Field: acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#acl)\n  * [Field: grant](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#grant)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#policy)\n* [Resource: aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy#policy)\n* [Resource: aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block)\n* [Resource: aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block)\n",
+        "impact":"TBD",
+        "msg":"aws_s3_bucket.readableacl",
+        "remediation":{
+          "terraform":"# Remediation Steps\n\n* Ensure that the [aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) `acl` field does NOT contain EITHER of the following:\n\n  * \"public-read\"\n  * \"public-read-write\"\n\n* Ensure that the `grant` block does NOT contain BOTH an invalid `uri` and `permissions` field:\n\n  * Invalid `uri`:\n\n    * \"http://acs.amazonaws.com/groups/global/AuthenticatedUsers\"\n    * \"http://acs.amazonaws.com/groups/global/AllUsers\"\n\n  * Invalid `permissions`:\n    * \"READ\"\n    * \"FULL_CONTROL\"\n    * \"READ_ACP\"\n\n* If a bucket policy is defined in the bucket's `policy` field, ensure the JSON document does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect:\n\n  * Invalid principals:\n\n    * `\"Principal\": { \"AWS\": \"*\" }`\n    * `\"Principal\": \"*\"`\n\n  * Invalid actions:\n\n    * `\"*\"`\n    * `\"s3:*\"`\n    * `\"s3:List*\"`\n    * `\"s3:Get*\"`\n    * `\"s3:ListBucket*\"`\n    * `\"s3:GetObject*\"`\n    * `\"s3:ListBucket\"`\n    * `\"s3:ListBucketVersions\"`\n    * `\"s3:ListBucketMultipartUploads\"`\n    * `\"s3:GetObject\"`\n    * `\"s3:GetObjectVersion\"`\n    * `\"s3:GetObjectTorrent\"`\n\n  * Invalid effect:\n\n    * `\"Effect\": \"Allow\"`\n\n* If a bucket policy as defined as an [aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy), ensure the JSON document in the `policy` field does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect, as listed above\n\n* While a [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) is not required for the bucket, it's highly recommended. Ensure the following [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n* You can enable block public access settings for all buckets in your account by using a [aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block). Ensure the following fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n#### Example Configuration\n\n```hcl\n# Compliant ACL\nresource \"aws_s3_bucket\" \"b\" {\n  acl    = \"private\"\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant grant\nresource \"aws_s3_bucket\" \"bucket\" {\n  bucket = \"mybucket\"\n\n  grant {\n    id          = data.aws_canonical_user_id.current_user.id\n    type        = \"CanonicalUser\"\n    permissions = [\"FULL_CONTROL\"]\n  }\n\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant bucket policy\nresource \"aws_s3_bucket\" \"b\" {\n  bucket = \"my-tf-test-bucket\"\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_policy\" \"b\" {\n  bucket = aws_s3_bucket.b.id\n\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Id      = \"MYBUCKETPOLICY\"\n    Statement = [\n      {\n        Sid       = \"IPAllow\"\n        Effect    = \"Deny\"\n        Principal = \"*\"\n        Action    = \"s3:*\"\n        Resource = [\n          aws_s3_bucket.b.arn,\n          \"${aws_s3_bucket.b.arn}/*\",\n        ]\n        Condition = {\n          NotIpAddress = {\n            \"aws:SourceIp\" = \"8.8.8.8/32\"\n          }\n        }\n      },\n    ]\n  })\n  \n  # other required fields here\n}\n```\n\n```\n# Compliant public access block - single bucket\nresource \"aws_s3_bucket\" \"b\" {\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_public_access_block\" \"private\" {\n  bucket                  = \"${aws_s3_bucket.b.id}\"\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n```\n# Compliance public access block - ALL buckets\nresource \"aws_s3_account_public_access_block\" \"main\" {\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n# References\n\n* [Resource: aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket)\n  * [Field: acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#acl)\n  * [Field: grant](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#grant)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#policy)\n* [Resource: aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy#policy)\n* [Resource: aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block)\n* [Resource: aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block)\n"
+        },
+        "type":"tf_hcl",
+        "subType":"aws_s3_bucket",
+        "issue":"A bucket with a public ACL or bucket policy is exposed to the entire internet if all\nblock public access settings are disabled at the resource and account level. This\nposes a security vulnerability, as any AWS user or anonymous user can access the\ndata in the bucket.\n",
+        "publicId":"SNYK-CC-00107",
+        "title":"S3 bucket is publicly readable",
+        "references":[
+          "TBD"
+        ],
+        "id":"SNYK-CC-00107",
+        "isIgnored":false,
+        "iacDescription":{
+          "issue":"S3 bucket is publicly readable",
+          "impact":"TBD",
+          "resolve":"# Remediation Steps\n\n* Ensure that the [aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) `acl` field does NOT contain EITHER of the following:\n\n  * \"public-read\"\n  * \"public-read-write\"\n\n* Ensure that the `grant` block does NOT contain BOTH an invalid `uri` and `permissions` field:\n\n  * Invalid `uri`:\n\n    * \"http://acs.amazonaws.com/groups/global/AuthenticatedUsers\"\n    * \"http://acs.amazonaws.com/groups/global/AllUsers\"\n\n  * Invalid `permissions`:\n    * \"READ\"\n    * \"FULL_CONTROL\"\n    * \"READ_ACP\"\n\n* If a bucket policy is defined in the bucket's `policy` field, ensure the JSON document does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect:\n\n  * Invalid principals:\n\n    * `\"Principal\": { \"AWS\": \"*\" }`\n    * `\"Principal\": \"*\"`\n\n  * Invalid actions:\n\n    * `\"*\"`\n    * `\"s3:*\"`\n    * `\"s3:List*\"`\n    * `\"s3:Get*\"`\n    * `\"s3:ListBucket*\"`\n    * `\"s3:GetObject*\"`\n    * `\"s3:ListBucket\"`\n    * `\"s3:ListBucketVersions\"`\n    * `\"s3:ListBucketMultipartUploads\"`\n    * `\"s3:GetObject\"`\n    * `\"s3:GetObjectVersion\"`\n    * `\"s3:GetObjectTorrent\"`\n\n  * Invalid effect:\n\n    * `\"Effect\": \"Allow\"`\n\n* If a bucket policy as defined as an [aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy), ensure the JSON document in the `policy` field does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect, as listed above\n\n* While a [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) is not required for the bucket, it's highly recommended. Ensure the following [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n* You can enable block public access settings for all buckets in your account by using a [aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block). Ensure the following fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n#### Example Configuration\n\n```hcl\n# Compliant ACL\nresource \"aws_s3_bucket\" \"b\" {\n  acl    = \"private\"\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant grant\nresource \"aws_s3_bucket\" \"bucket\" {\n  bucket = \"mybucket\"\n\n  grant {\n    id          = data.aws_canonical_user_id.current_user.id\n    type        = \"CanonicalUser\"\n    permissions = [\"FULL_CONTROL\"]\n  }\n\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant bucket policy\nresource \"aws_s3_bucket\" \"b\" {\n  bucket = \"my-tf-test-bucket\"\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_policy\" \"b\" {\n  bucket = aws_s3_bucket.b.id\n\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Id      = \"MYBUCKETPOLICY\"\n    Statement = [\n      {\n        Sid       = \"IPAllow\"\n        Effect    = \"Deny\"\n        Principal = \"*\"\n        Action    = \"s3:*\"\n        Resource = [\n          aws_s3_bucket.b.arn,\n          \"${aws_s3_bucket.b.arn}/*\",\n        ]\n        Condition = {\n          NotIpAddress = {\n            \"aws:SourceIp\" = \"8.8.8.8/32\"\n          }\n        }\n      },\n    ]\n  })\n  \n  # other required fields here\n}\n```\n\n```\n# Compliant public access block - single bucket\nresource \"aws_s3_bucket\" \"b\" {\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_public_access_block\" \"private\" {\n  bucket                  = \"${aws_s3_bucket.b.id}\"\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n```\n# Compliance public access block - ALL buckets\nresource \"aws_s3_account_public_access_block\" \"main\" {\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n# References\n\n* [Resource: aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket)\n  * [Field: acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#acl)\n  * [Field: grant](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#grant)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#policy)\n* [Resource: aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy#policy)\n* [Resource: aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block)\n* [Resource: aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block)\n"
+        },
+        "lineNumber":8,
+        "documentation":"TBD",
+        "isGeneratedByCustomRule":false,
+        "path":[
+          "acl"
+        ],
+        "compliance":[
+          [
+            "TBD"
+          ]
+        ],
+        "description":"A bucket with a public ACL or bucket policy is exposed to the entire internet if all\nblock public access settings are disabled at the resource and account level. This\nposes a security vulnerability, as any AWS user or anonymous user can access the\ndata in the bucket.\n"
+      },
+      {
+        "severity":"high",
+        "resolve":"# Remediation Steps\n\n* Ensure that the [aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) `acl` field does NOT contain EITHER of the following:\n\n  * \"public-read\"\n  * \"public-read-write\"\n\n* Ensure that the `grant` block does NOT contain BOTH an invalid `uri` and `permissions` field:\n\n  * Invalid `uri`:\n\n    * \"http://acs.amazonaws.com/groups/global/AuthenticatedUsers\"\n    * \"http://acs.amazonaws.com/groups/global/AllUsers\"\n\n  * Invalid `permissions`:\n    * \"READ\"\n    * \"FULL_CONTROL\"\n    * \"READ_ACP\"\n\n* If a bucket policy is defined in the bucket's `policy` field, ensure the JSON document does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect:\n\n  * Invalid principals:\n\n    * `\"Principal\": { \"AWS\": \"*\" }`\n    * `\"Principal\": \"*\"`\n\n  * Invalid actions:\n\n    * `\"*\"`\n    * `\"s3:*\"`\n    * `\"s3:List*\"`\n    * `\"s3:Get*\"`\n    * `\"s3:ListBucket*\"`\n    * `\"s3:GetObject*\"`\n    * `\"s3:ListBucket\"`\n    * `\"s3:ListBucketVersions\"`\n    * `\"s3:ListBucketMultipartUploads\"`\n    * `\"s3:GetObject\"`\n    * `\"s3:GetObjectVersion\"`\n    * `\"s3:GetObjectTorrent\"`\n\n  * Invalid effect:\n\n    * `\"Effect\": \"Allow\"`\n\n* If a bucket policy as defined as an [aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy), ensure the JSON document in the `policy` field does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect, as listed above\n\n* While a [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) is not required for the bucket, it's highly recommended. Ensure the following [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n* You can enable block public access settings for all buckets in your account by using a [aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block). Ensure the following fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n#### Example Configuration\n\n```hcl\n# Compliant ACL\nresource \"aws_s3_bucket\" \"b\" {\n  acl    = \"private\"\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant grant\nresource \"aws_s3_bucket\" \"bucket\" {\n  bucket = \"mybucket\"\n\n  grant {\n    id          = data.aws_canonical_user_id.current_user.id\n    type        = \"CanonicalUser\"\n    permissions = [\"FULL_CONTROL\"]\n  }\n\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant bucket policy\nresource \"aws_s3_bucket\" \"b\" {\n  bucket = \"my-tf-test-bucket\"\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_policy\" \"b\" {\n  bucket = aws_s3_bucket.b.id\n\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Id      = \"MYBUCKETPOLICY\"\n    Statement = [\n      {\n        Sid       = \"IPAllow\"\n        Effect    = \"Deny\"\n        Principal = \"*\"\n        Action    = \"s3:*\"\n        Resource = [\n          aws_s3_bucket.b.arn,\n          \"${aws_s3_bucket.b.arn}/*\",\n        ]\n        Condition = {\n          NotIpAddress = {\n            \"aws:SourceIp\" = \"8.8.8.8/32\"\n          }\n        }\n      },\n    ]\n  })\n  \n  # other required fields here\n}\n```\n\n```\n# Compliant public access block - single bucket\nresource \"aws_s3_bucket\" \"b\" {\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_public_access_block\" \"private\" {\n  bucket                  = \"${aws_s3_bucket.b.id}\"\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n```\n# Compliance public access block - ALL buckets\nresource \"aws_s3_account_public_access_block\" \"main\" {\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n# References\n\n* [Resource: aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket)\n  * [Field: acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#acl)\n  * [Field: grant](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#grant)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#policy)\n* [Resource: aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy#policy)\n* [Resource: aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block)\n* [Resource: aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block)\n",
+        "impact":"TBD",
+        "msg":"aws_s3_bucket.writableacl",
+        "remediation":{
+          "terraform":"# Remediation Steps\n\n* Ensure that the [aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) `acl` field does NOT contain EITHER of the following:\n\n  * \"public-read\"\n  * \"public-read-write\"\n\n* Ensure that the `grant` block does NOT contain BOTH an invalid `uri` and `permissions` field:\n\n  * Invalid `uri`:\n\n    * \"http://acs.amazonaws.com/groups/global/AuthenticatedUsers\"\n    * \"http://acs.amazonaws.com/groups/global/AllUsers\"\n\n  * Invalid `permissions`:\n    * \"READ\"\n    * \"FULL_CONTROL\"\n    * \"READ_ACP\"\n\n* If a bucket policy is defined in the bucket's `policy` field, ensure the JSON document does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect:\n\n  * Invalid principals:\n\n    * `\"Principal\": { \"AWS\": \"*\" }`\n    * `\"Principal\": \"*\"`\n\n  * Invalid actions:\n\n    * `\"*\"`\n    * `\"s3:*\"`\n    * `\"s3:List*\"`\n    * `\"s3:Get*\"`\n    * `\"s3:ListBucket*\"`\n    * `\"s3:GetObject*\"`\n    * `\"s3:ListBucket\"`\n    * `\"s3:ListBucketVersions\"`\n    * `\"s3:ListBucketMultipartUploads\"`\n    * `\"s3:GetObject\"`\n    * `\"s3:GetObjectVersion\"`\n    * `\"s3:GetObjectTorrent\"`\n\n  * Invalid effect:\n\n    * `\"Effect\": \"Allow\"`\n\n* If a bucket policy as defined as an [aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy), ensure the JSON document in the `policy` field does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect, as listed above\n\n* While a [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) is not required for the bucket, it's highly recommended. Ensure the following [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n* You can enable block public access settings for all buckets in your account by using a [aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block). Ensure the following fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n#### Example Configuration\n\n```hcl\n# Compliant ACL\nresource \"aws_s3_bucket\" \"b\" {\n  acl    = \"private\"\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant grant\nresource \"aws_s3_bucket\" \"bucket\" {\n  bucket = \"mybucket\"\n\n  grant {\n    id          = data.aws_canonical_user_id.current_user.id\n    type        = \"CanonicalUser\"\n    permissions = [\"FULL_CONTROL\"]\n  }\n\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant bucket policy\nresource \"aws_s3_bucket\" \"b\" {\n  bucket = \"my-tf-test-bucket\"\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_policy\" \"b\" {\n  bucket = aws_s3_bucket.b.id\n\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Id      = \"MYBUCKETPOLICY\"\n    Statement = [\n      {\n        Sid       = \"IPAllow\"\n        Effect    = \"Deny\"\n        Principal = \"*\"\n        Action    = \"s3:*\"\n        Resource = [\n          aws_s3_bucket.b.arn,\n          \"${aws_s3_bucket.b.arn}/*\",\n        ]\n        Condition = {\n          NotIpAddress = {\n            \"aws:SourceIp\" = \"8.8.8.8/32\"\n          }\n        }\n      },\n    ]\n  })\n  \n  # other required fields here\n}\n```\n\n```\n# Compliant public access block - single bucket\nresource \"aws_s3_bucket\" \"b\" {\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_public_access_block\" \"private\" {\n  bucket                  = \"${aws_s3_bucket.b.id}\"\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n```\n# Compliance public access block - ALL buckets\nresource \"aws_s3_account_public_access_block\" \"main\" {\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n# References\n\n* [Resource: aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket)\n  * [Field: acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#acl)\n  * [Field: grant](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#grant)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#policy)\n* [Resource: aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy#policy)\n* [Resource: aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block)\n* [Resource: aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block)\n"
+        },
+        "type":"tf_hcl",
+        "subType":"aws_s3_bucket",
+        "issue":"A bucket with a public ACL or bucket policy is exposed to the entire internet if all\nblock public access settings are disabled at the resource and account level. This\nposes a security vulnerability, as any AWS user or anonymous user can access the\ndata in the bucket.\n",
+        "publicId":"SNYK-CC-00107",
+        "title":"S3 bucket is publicly readable",
+        "references":[
+          "TBD"
+        ],
+        "id":"SNYK-CC-00107",
+        "isIgnored":false,
+        "iacDescription":{
+          "issue":"S3 bucket is publicly readable",
+          "impact":"TBD",
+          "resolve":"# Remediation Steps\n\n* Ensure that the [aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) `acl` field does NOT contain EITHER of the following:\n\n  * \"public-read\"\n  * \"public-read-write\"\n\n* Ensure that the `grant` block does NOT contain BOTH an invalid `uri` and `permissions` field:\n\n  * Invalid `uri`:\n\n    * \"http://acs.amazonaws.com/groups/global/AuthenticatedUsers\"\n    * \"http://acs.amazonaws.com/groups/global/AllUsers\"\n\n  * Invalid `permissions`:\n    * \"READ\"\n    * \"FULL_CONTROL\"\n    * \"READ_ACP\"\n\n* If a bucket policy is defined in the bucket's `policy` field, ensure the JSON document does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect:\n\n  * Invalid principals:\n\n    * `\"Principal\": { \"AWS\": \"*\" }`\n    * `\"Principal\": \"*\"`\n\n  * Invalid actions:\n\n    * `\"*\"`\n    * `\"s3:*\"`\n    * `\"s3:List*\"`\n    * `\"s3:Get*\"`\n    * `\"s3:ListBucket*\"`\n    * `\"s3:GetObject*\"`\n    * `\"s3:ListBucket\"`\n    * `\"s3:ListBucketVersions\"`\n    * `\"s3:ListBucketMultipartUploads\"`\n    * `\"s3:GetObject\"`\n    * `\"s3:GetObjectVersion\"`\n    * `\"s3:GetObjectTorrent\"`\n\n  * Invalid effect:\n\n    * `\"Effect\": \"Allow\"`\n\n* If a bucket policy as defined as an [aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy), ensure the JSON document in the `policy` field does NOT contain BOTH an invalid principal, an invalid action, and an invalid effect, as listed above\n\n* While a [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) is not required for the bucket, it's highly recommended. Ensure the following [aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n* You can enable block public access settings for all buckets in your account by using a [aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block). Ensure the following fields are all set to `true`:\n  * `block_public_acls`\n  * `block_public_policy`\n  * `ignore_public_acls`\n  * `restrict_public_buckets`\n\n#### Example Configuration\n\n```hcl\n# Compliant ACL\nresource \"aws_s3_bucket\" \"b\" {\n  acl    = \"private\"\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant grant\nresource \"aws_s3_bucket\" \"bucket\" {\n  bucket = \"mybucket\"\n\n  grant {\n    id          = data.aws_canonical_user_id.current_user.id\n    type        = \"CanonicalUser\"\n    permissions = [\"FULL_CONTROL\"]\n  }\n\n  # other required fields here\n}\n```\n\n```hcl\n# Compliant bucket policy\nresource \"aws_s3_bucket\" \"b\" {\n  bucket = \"my-tf-test-bucket\"\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_policy\" \"b\" {\n  bucket = aws_s3_bucket.b.id\n\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Id      = \"MYBUCKETPOLICY\"\n    Statement = [\n      {\n        Sid       = \"IPAllow\"\n        Effect    = \"Deny\"\n        Principal = \"*\"\n        Action    = \"s3:*\"\n        Resource = [\n          aws_s3_bucket.b.arn,\n          \"${aws_s3_bucket.b.arn}/*\",\n        ]\n        Condition = {\n          NotIpAddress = {\n            \"aws:SourceIp\" = \"8.8.8.8/32\"\n          }\n        }\n      },\n    ]\n  })\n  \n  # other required fields here\n}\n```\n\n```\n# Compliant public access block - single bucket\nresource \"aws_s3_bucket\" \"b\" {\n  # other required fields here\n}\n\nresource \"aws_s3_bucket_public_access_block\" \"private\" {\n  bucket                  = \"${aws_s3_bucket.b.id}\"\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n```\n# Compliance public access block - ALL buckets\nresource \"aws_s3_account_public_access_block\" \"main\" {\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n```\n\n# References\n\n* [Resource: aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket)\n  * [Field: acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#acl)\n  * [Field: grant](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#grant)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#policy)\n* [Resource: aws_s3_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy)\n  * [Field: policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy#policy)\n* [Resource: aws_s3_bucket_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block)\n* [Resource: aws_s3_account_public_access_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block)\n"
+        },
+        "lineNumber":3,
+        "documentation":"TBD",
+        "isGeneratedByCustomRule":false,
+        "path":[
+          "acl"
+        ],
+        "compliance":[
+          [
+            "TBD"
+          ]
+        ],
+        "description":"A bucket with a public ACL or bucket policy is exposed to the entire internet if all\nblock public access settings are disabled at the resource and account level. This\nposes a security vulnerability, as any AWS user or anonymous user can access the\ndata in the bucket.\n"
+      }
+    ]
+  }
+]

@@ -1,10 +1,10 @@
-import { SEVERITY } from '../../../../../lib/snyk-test/common';
-import * as PolicyEngineTypes from './policy-engine-types';
+import { SEVERITY } from '../../../../snyk-test/common';
+import * as PolicyEngineTypes from './policy-engine';
 
 export interface SnykIacTestOutput {
   results?: Results;
   rawResults?: PolicyEngineTypes.Results;
-  errors?: scanError[];
+  errors?: ScanError[];
 }
 
 export interface Results {
@@ -21,13 +21,13 @@ export interface Vulnerability {
   resource: Resource;
 }
 
-interface Rule {
+export interface Rule {
   id: string;
   title: string;
   description: string;
 }
 
-interface Resource {
+export interface Resource {
   id: string;
   type: string;
   path?: any[];
@@ -37,8 +37,8 @@ interface Resource {
   column?: number;
 }
 
-interface scanError {
+export interface ScanError {
   message: string;
   code: number;
-  fields?: { [key: string]: string };
+  fields?: Record<string, string>;
 }

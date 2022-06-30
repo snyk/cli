@@ -1,10 +1,10 @@
-import { TestConfig } from './types';
+import { TestConfig } from '../types';
 import * as childProcess from 'child_process';
-import { CustomError } from '../../../errors';
-import { IaCErrorCodes } from '../../../../cli/commands/test/iac/local-execution/types';
-import { getErrorStringCode } from '../../../../cli/commands/test/iac/local-execution/error-utils';
+import { CustomError } from '../../../../errors';
+import { IaCErrorCodes } from '../../../../../cli/commands/test/iac/local-execution/types';
+import { getErrorStringCode } from '../../../../../cli/commands/test/iac/local-execution/error-utils';
 import * as newDebug from 'debug';
-import { SnykIacTestOutput } from '../../../../cli/commands/test/iac/v2/types';
+import { SnykIacTestOutput } from './results';
 
 const debug = newDebug('snyk-iac');
 

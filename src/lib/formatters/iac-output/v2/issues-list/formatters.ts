@@ -1,8 +1,5 @@
 import { FormattedResult } from '../../../../../cli/commands/test/iac/local-execution/types';
-import {
-  Results,
-  Vulnerability,
-} from '../../../../../cli/commands/test/iac/v2/types';
+import { Results, Vulnerability } from '../../../../iac/test/v2/scan/results';
 import { AnnotatedIacIssue } from '../../../../snyk-test/iac-test-result';
 import { IacOutputMeta } from '../../../../types';
 import { IacTestOutput } from './types';

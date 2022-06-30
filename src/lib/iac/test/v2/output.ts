@@ -1,6 +1,7 @@
 import { Ora } from 'ora';
 import { EOL } from 'os';
-import { SnykIacTestOutput } from '../../../../cli/commands/test/iac/v2/types';
+import { convertEngineToJsonResults } from './json';
+import { SnykIacTestOutput } from './scan/results';
 
 import { TestCommandResult } from '../../../../cli/commands/types';
 import {
@@ -9,13 +10,21 @@ import {
 } from '../../../formatters/iac-output';
 import { formatSnykIacTestScanResultNewOutput } from '../../../formatters/iac-output/v2/issues-list/formatters';
 import { IacTestOutput } from '../../../formatters/iac-output/v2/issues-list/types';
+import { jsonStringifyLargeObject } from '../../../json';
+import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-execution/types';
 
 export function buildOutput({
   scanResult,
   testSpinner,
+  projectName,
+  orgSettings,
+  options,
 }: {
   scanResult: SnykIacTestOutput;
   testSpinner?: Ora;
+  projectName: string;
+  orgSettings: IacOrgSettings;
+  options: any;
 }): TestCommandResult {
   testSpinner?.succeed(spinnerSuccessMessage);
 
@@ -25,9 +34,25 @@ export function buildOutput({
   );
   response += EOL + getIacDisplayedIssues(formattedScanResult);
 
+  const jsonData = jsonStringifyLargeObject(
+    convertEngineToJsonResults({
+      results: scanResult,
+      projectName,
+      orgSettings,
+    }),
+  );
+
+  if (options.json) {
+    return TestCommandResult.createJsonTestCommandResult(
+      jsonData,
+      jsonData,
+      '',
+    );
+  }
+
   return TestCommandResult.createHumanReadableTestCommandResult(
     response,
-    '', // TODO: add JSON output
-    '', // TODO: add SARIF output
+    jsonData,
+    '',
   );
 }
