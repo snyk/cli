@@ -1,17 +1,12 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 import chalk from 'chalk';
-import { IacOutputMeta } from '../../../../../../../../src/lib/types';
 import { getIacDisplayedIssues } from '../../../../../../../../src/lib/formatters/iac-output';
 import { colors } from '../../../../../../../../src/lib/formatters/iac-output/v2/utils';
-import { FormattedResult } from '../../../../../../../../src/cli/commands/test/iac/local-execution/types';
+import { IacTestOutput } from '../../../../../../../../src/lib/formatters/iac-output/v2/issues-list/types';
 
 describe('getIacDisplayedIssues', () => {
-  let resultFixtures: FormattedResult[];
-  const outputMeta: IacOutputMeta = {
-    orgName: 'Shmulik.Kipod',
-    projectName: 'project-name',
-  };
+  let resultFixtures: IacTestOutput;
 
   beforeAll(async () => {
     resultFixtures = JSON.parse(
@@ -26,7 +21,7 @@ describe('getIacDisplayedIssues', () => {
           'iac',
           'process-results',
           'fixtures',
-          'formatted-results.json',
+          'new-output-formatted-results.json',
         ),
         'utf8',
       ),
@@ -34,13 +29,13 @@ describe('getIacDisplayedIssues', () => {
   });
 
   it("should include the 'Issues' title", () => {
-    const result = getIacDisplayedIssues(resultFixtures, outputMeta);
+    const result = getIacDisplayedIssues(resultFixtures);
 
     expect(result).toContain(colors.title('Issues'));
   });
 
   it('should include a subtitle for each severity with the correct amount of issues', () => {
-    const result = getIacDisplayedIssues(resultFixtures, outputMeta);
+    const result = getIacDisplayedIssues(resultFixtures);
 
     expect(result).toContain(colors.title(`Low Severity Issues: 13`));
     expect(result).toContain(colors.title(`Medium Severity Issues: 4`));
@@ -48,11 +43,8 @@ describe('getIacDisplayedIssues', () => {
   });
 
   it('should include the correct issues in each severity section, and display the correct issue details', () => {
-    // Arrange
-    const testFormattedResults = resultFixtures.slice(2, 4);
-
     // Act
-    const result = getIacDisplayedIssues(testFormattedResults, outputMeta);
+    const result = getIacDisplayedIssues(resultFixtures);
 
     // Assert
     expect(result).toContain(
@@ -150,21 +142,15 @@ describe('getIacDisplayedIssues', () => {
   });
 
   describe('with no issues', () => {
-    let resultsWithNoIssues: FormattedResult[];
+    let resultsWithNoIssues: IacTestOutput;
 
     beforeAll(() => {
-      resultsWithNoIssues = resultFixtures.map((resultFixture) => ({
-        ...resultFixture,
-        result: {
-          ...resultFixture.result,
-          cloudConfigResults: [],
-        },
-      }));
+      resultsWithNoIssues = { ...resultFixtures, results: {} };
     });
 
     it('should display an appropriate message', () => {
       // Act
-      const result = getIacDisplayedIssues(resultsWithNoIssues, outputMeta);
+      const result = getIacDisplayedIssues(resultsWithNoIssues);
 
       // Assert
       expect(result).toContain(
@@ -174,7 +160,7 @@ describe('getIacDisplayedIssues', () => {
 
     it('should not display any severity sections', () => {
       // Act
-      const result = getIacDisplayedIssues(resultsWithNoIssues, outputMeta);
+      const result = getIacDisplayedIssues(resultsWithNoIssues);
 
       // Assert
       expect(result).not.toContain(
