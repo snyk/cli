@@ -25,7 +25,7 @@ describe('formatShareResultsOutput', () => {
         EOL +
         contentPadding +
         'Your test results are available at: ' +
-        colors.title(`${config.ROOT}/org/${testOrgName}/project`) +
+        colors.title(`${config.ROOT}/org/${testOrgName}/projects`) +
         EOL +
         contentPadding +
         'under the name: ' +
@@ -55,7 +55,7 @@ describe('formatShareResultsOutput', () => {
           EOL +
           contentPadding +
           'Your test results are available at: ' +
-          colors.title(`${config.ROOT}/org/${testOrgName}/project`) +
+          colors.title(`${config.ROOT}/org/${testOrgName}/projects`) +
           EOL +
           contentPadding +
           'under the name: ' +
