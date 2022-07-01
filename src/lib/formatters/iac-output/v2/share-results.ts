@@ -20,7 +20,7 @@ export function formatShareResultsOutput(iacOutputMeta: IacOutputMeta) {
     EOL +
     contentPadding +
     'Your test results are available at: ' +
-    colors.title(`${config.ROOT}/org/${iacOutputMeta.orgName}/project`) +
+    colors.title(`${config.ROOT}/org/${iacOutputMeta.orgName}/projects`) +
     EOL +
     contentPadding +
     'under the name: ' +
