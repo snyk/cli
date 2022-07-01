@@ -24,6 +24,10 @@ func getDebugLogger(args []string) *log.Logger {
 	debug := utils.Contains(args, "--debug")
 
 	if !debug {
+		debug = utils.Contains(args, "-d")
+	}
+
+	if !debug {
 		debugLogger.SetOutput(ioutil.Discard)
 	}
 
@@ -95,7 +99,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 		return cliv2.SNYK_EXIT_CODE_ERROR
 	}
 
-	wrapperProxy.SetUpstreamProxy(envVariables.ProxyAddr)
+	wrapperProxy.SetUpstreamProxyFromUrl(envVariables.ProxyAddr)
 	wrapperProxy.SetUpstreamProxyAuthentication(envVariables.ProxyAuthenticationMechanism)
 
 	port, err := wrapperProxy.Start()
