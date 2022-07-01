@@ -135,6 +135,15 @@ This is an alias for `--project tags`
 
 Report only vulnerabilities at the specified level or higher.
 
+### &#x20;--fail-on=\<all|upgradable>
+
+Fail only when there are vulnerabilities that can be fixed.
+
+- `all`: fail when there is at least one vulnerability that can be either upgraded or patched.
+- `upgradable`: fail when there is at least one vulnerability that can be upgraded.
+
+To fail on any vulnerability (the default behavior), do not use the `--fail-on` option. If vulnerabilities do not have a fix and this option is being used, tests pass.
+
 ### `--app-vulns`
 
 Allow detection of vulnerabilities in your application dependencies from container images, as well as from the operating system, all in one single scan.

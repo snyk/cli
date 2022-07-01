@@ -286,11 +286,13 @@ Allow skipping packages that are not found in the environment.
 
 ## Options for scanning using `--unmanaged`
 
-The following `snyk monitor` options can be used with `--unmanaged`.
+The following `snyk monitor` options can be used with `--unmanaged` as documented in this help.
 
 `--org=<ORG_ID>`
 
 `--json`
+
+`--remote-repo-url=<URL>`
 
 `--target-reference=<TARGET_REFERENCE>`
 
@@ -304,9 +306,21 @@ Alternatively, run `snyk test --unmanaged`
 
 ### `--max-depth`
 
-`Usage: --max-depth=1` Specify the maximum level of archive extraction.
+Specify the maximum level of archive extraction.
+
+Usage: `--max-depth=1`&#x20;
 
 Use 0 to disable archive extraction completely.
+
+### `--print-dep-paths`
+
+Display dependencies.
+
+Use use this option to see what files contributed to each dependency identified.
+
+To see how confident Snyk is about the identified dependency and its version, use the `--print-deps` or `--print-dep-paths` option.
+
+For more information on uses of CLI options for C/C++ projects see [Snyk for C / C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)
 
 ### `--project-name=c-project`
 
