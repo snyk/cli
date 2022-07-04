@@ -39,24 +39,30 @@ export function getCodeDisplayedOutput(
     '\n\n' +
     meta +
     '\n\n' +
-    codeIssueSummary
+    chalk.bold('Summary:') +
+    '\n\n' +
+    codeIssueSummary +
+    '\n\n'
   );
 }
 
 function getCodeIssuesSummary(issues: { [index: string]: string[] }): string {
   const lowSeverityText = issues.low.length
-    ? colorTextBySeverity(SEVERITY.LOW, ` ${issues.low.length} [Low] `)
+    ? colorTextBySeverity(SEVERITY.LOW, `  ${issues.low.length} [Low] `)
     : '';
   const mediumSeverityText = issues.medium.length
-    ? colorTextBySeverity(SEVERITY.MEDIUM, ` ${issues.medium.length} [Medium] `)
+    ? colorTextBySeverity(
+        SEVERITY.MEDIUM,
+        `  ${issues.medium.length} [Medium] `,
+      )
     : '';
   const highSeverityText = issues.high.length
-    ? colorTextBySeverity(SEVERITY.HIGH, `${issues.high.length} [High] `)
+    ? colorTextBySeverity(SEVERITY.HIGH, `  ${issues.high.length} [High] `)
     : '';
 
   const codeIssueCount =
     issues.low.length + issues.medium.length + issues.high.length;
-  const codeIssueFound = `${codeIssueCount} Code issue${
+  const codeIssueFound = `  ${codeIssueCount} Code issue${
     codeIssueCount > 0 ? 's' : ''
   } found`;
   const issuesBySeverityText =
@@ -90,18 +96,19 @@ function getIssues(
           debug('Rule ID does not exist in the rules list');
         }
         const ruleName =
-          rulesMap[ruleId].shortDescription?.text || rulesMap[ruleId].name;
+          rulesMap[ruleId].shortDescription?.text ||
+          rulesMap[ruleId].name ||
+          '';
         const ruleIdSeverityText = colorTextBySeverity(
           severity,
-          ` ${icon.ISSUE} [${severity}] ${ruleName}`,
+          ` ${icon.ISSUE} [${severity}] ${chalk.bold(ruleName)}`,
         );
         const artifactLocationUri = location.artifactLocation.uri;
         const startLine = location.region.startLine;
         const text = res.message.text;
-
         const title = ruleIdSeverityText;
-        const path = `    Path: ${artifactLocationUri}, line ${startLine}`;
-        const info = `    Info: ${text}`;
+        const path = `  Path: ${artifactLocationUri}, line ${startLine}`;
+        const info = `  Info: ${text}`;
         acc[severity.toLowerCase()].push(`${title} \n ${path} \n ${info}\n\n`);
       }
     }
@@ -136,17 +143,17 @@ function sarifToSeverityLevel(
 
 export function getMeta(options: Options, path: string): string {
   const padToLength = 19; // chars to align
-  const orgName = options.org;
+  const orgName = options.org || '';
   const projectPath = options.path || path;
   const meta = [
-    chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + orgName,
+    rightPadWithSpaces('Organization: ', padToLength) + chalk.bold(orgName),
   ];
   meta.push(
-    chalk.bold(rightPadWithSpaces('Test type: ', padToLength)) +
-      'Static code analysis',
+    rightPadWithSpaces('Test type: ', padToLength) +
+      chalk.bold('Static code analysis'),
   );
   meta.push(
-    chalk.bold(rightPadWithSpaces('Project path: ', padToLength)) + projectPath,
+    rightPadWithSpaces('Project path: ', padToLength) + chalk.bold(projectPath),
   );
 
   return meta.join('\n');

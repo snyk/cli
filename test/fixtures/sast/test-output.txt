@@ -2,39 +2,41 @@
 [1m[37mTesting some/path ...[39m[22m
 [1m[37m[39m[22m
 [1m[37m[39m[22m[1m[33m ✗ [Medium] Cleartext Transmission of Sensitive Information 
-     Path: sample-project/goof/app.js, line 12 
-     Info: http (used in require) is an insecure protocol and should not be used in new code.
+   Path: sample-project/goof/app.js, line 12 
+   Info: http (used in require) is an insecure protocol and should not be used in new code.
 
 [1m[33m ✗ [Medium] Information Exposure 
-     Path: sample-project/goof/app.js, line 27 
-     Info: Disable X-Powered-By header for your Express app (consider using Helmet middleware), because it exposes information about the used framework to potential attackers.
+   Path: sample-project/goof/app.js, line 27 
+   Info: Disable X-Powered-By header for your Express app (consider using Helmet middleware), because it exposes information about the used framework to potential attackers.
 
 [1m[33m ✗ [Medium] Allocation of Resources Without Limits or Throttling 
-     Path: sample-project/goof/routes/index.js, line 77 
-     Info: This endpoint handler performs a system command execution and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.
+   Path: sample-project/goof/routes/index.js, line 77 
+   Info: This endpoint handler performs a system command execution and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.
 
 [1m[33m ✗ [Medium] Allocation of Resources Without Limits or Throttling 
-     Path: sample-project/goof/routes/index.js, line 166 
-     Info: This endpoint handler performs a file system operation and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.
+   Path: sample-project/goof/routes/index.js, line 166 
+   Info: This endpoint handler performs a file system operation and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.
 
 [1m[31m ✗ [High] SQL Injection 
-     Path: sample-project/goof/routes/index.js, line 39 
-     Info: Unsanitized input from the HTTP request body flows into find, where it is used in an SQL query. This may result in an SQL Injection vulnerability.
+   Path: sample-project/goof/routes/index.js, line 39 
+   Info: Unsanitized input from the HTTP request body flows into find, where it is used in an SQL query. This may result in an SQL Injection vulnerability.
 
 [1m[31m ✗ [High] Command Injection 
-     Path: sample-project/goof/routes/index.js, line 86 
-     Info: Unsanitized input from the HTTP request body flows into child_process.exec, where it is used to build a shell command. This may result in a Command Injection vulnerability.
+   Path: sample-project/goof/routes/index.js, line 86 
+   Info: Unsanitized input from the HTTP request body flows into child_process.exec, where it is used to build a shell command. This may result in a Command Injection vulnerability.
 
 [1m[31m ✗ [High] Cross-site Scripting (XSS) 
-     Path: sample-project/goof/routes/index.js, line 109 
-     Info: Unsanitized input from the HTTP request body flows into send, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).
+   Path: sample-project/goof/routes/index.js, line 109 
+   Info: Unsanitized input from the HTTP request body flows into send, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).
 
 
 [32m✓ Test completed[39m
 
-[1mOrganization:      [22mundefined
+[1mOrganization:      [22m
 [1mTest type:         [22mStatic code analysis
 [1mProject path:      [22msome/path
 
-7 Code issues found
-[1m[31m3 [High] [39m[22m[1m[33m 4 [Medium] [39m[22m
+Summary:
+
+  7 Code issues found
+  [1m[31m3 [High] [39m[22m[1m[33m  4 [Medium] [39m[22m
