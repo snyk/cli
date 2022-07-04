@@ -1,6 +1,5 @@
 import { FormattedResult, PerformanceAnalyticsKey, RulesOrigin } from './types';
 import * as analytics from '../../../../../lib/analytics';
-import { calculatePercentage } from './math-utils';
 import { computeCustomRulesBundleChecksum } from './file-utils';
 import { DescribeOptions, DriftAnalysis } from '../../../../../lib/iac/types';
 import { driftctlVersion } from '../../../../../lib/iac/drift/driftctl';
@@ -60,10 +59,6 @@ export function addIacAnalytics(
     opts.rulesOrigin === RulesOrigin.Remote,
   );
   analytics.add('iac-custom-rules-issues-count', issuesFromCustomRulesCount);
-  analytics.add(
-    'iac-custom-rules-issues-percentage',
-    calculatePercentage(issuesFromCustomRulesCount, totalIssuesCount),
-  );
   analytics.add(
     'iac-custom-rules-checksum',
     computeCustomRulesBundleChecksum(),
