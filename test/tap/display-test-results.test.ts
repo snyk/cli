@@ -174,7 +174,7 @@ test('`test npm-package-with-severity-override` show original severity upgrade',
     const { message } = error;
     t.match(
       message,
-      `[Low Severity (originally Medium)][${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328]`,
+      `[Low (originally Medium)] Insecure Randomness\n    [${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328]`,
     );
   }
 
@@ -201,7 +201,7 @@ test('`test npm-package-with-severity-override` show original severity patches',
     t.match(message, 'Patch available for node-uuid@1.4.0');
     t.match(
       message,
-      `[Low Severity (originally Medium)][${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328]`,
+      `[Low (originally Medium)] Insecure Randomness\n    [${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328]`,
     );
   }
 
@@ -253,7 +253,7 @@ test('`test npm-package-with-severity-override` show original severity unresolve
     const { message } = error;
     t.match(
       message,
-      `Malicious Package [Low Severity (originally Medium)][${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328`,
+      `[Low (originally Medium)] Malicious Package\n    [${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328`,
     );
   }
 
@@ -279,7 +279,7 @@ test('`test npm-package-with-severity-override` dont show original severity if i
     const { message } = error;
     t.match(
       message,
-      `[Low Severity][${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328]`,
+      `[Low] Insecure Randomness\n    [${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328]`,
     );
   }
 

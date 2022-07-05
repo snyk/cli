@@ -161,7 +161,7 @@ function constructLicenseText(
     return [];
   }
 
-  const licenseTextArray = [chalk.bold.green('\nLicense issues:')];
+  const licenseTextArray = [chalk.bold('\nLicense issues:')];
 
   for (const id of Object.keys(basicLicenseInfo)) {
     const licenseText = formatIssue(
@@ -193,7 +193,7 @@ function constructPatchesText(
   if (!(Object.keys(patches).length > 0)) {
     return [];
   }
-  const patchedTextArray = [chalk.bold.green('\nPatchable issues:')];
+  const patchedTextArray = [chalk.bold('\nPatchable issues:')];
   for (const id of Object.keys(patches)) {
     if (!basicVulnInfo[id]) {
       continue;
@@ -288,7 +288,7 @@ function constructUpgradesText(
     return [];
   }
 
-  const upgradeTextArray = [chalk.bold.green('\nIssues to fix by upgrading:')];
+  const upgradeTextArray = [chalk.bold('\nIssues to fix by upgrading:')];
   processUpgrades(
     upgradeTextArray,
     upgrades,
@@ -311,7 +311,7 @@ function constructPinText(
 
   const upgradeTextArray: string[] = [];
   upgradeTextArray.push(
-    chalk.bold.green('\nIssues to fix by upgrading dependencies:'),
+    chalk.bold('\nIssues to fix by upgrading dependencies:'),
   );
 
   // First, direct upgrades
@@ -376,7 +376,7 @@ function constructUnfixableText(
     return [];
   }
   const unfixableIssuesTextArray = [
-    chalk.bold.white('\nIssues with no direct upgrade or patch:'),
+    chalk.bold('\nIssues with no direct upgrade or patch:'),
   ];
   for (const issue of unresolved) {
     const issueInfo = basicVulnInfo[issue.id];
@@ -387,10 +387,10 @@ function constructUnfixableText(
 
     const extraInfo =
       issue.fixedIn && issue.fixedIn.length
-        ? `\n  This issue was fixed in versions: ${chalk.bold(
+        ? `\n    This issue was fixed in versions: ${chalk.bold(
             issue.fixedIn.join(', '),
           )}`
-        : '\n  No upgrade or patch available';
+        : '\n    No upgrade or patch available';
     unfixableIssuesTextArray.push(
       formatIssue(
         issue.id,
@@ -489,11 +489,12 @@ export function formatIssue(
   return (
     colorTextBySeverity(
       severity,
-      `  ${icon.ISSUE} ${chalk.bold(title)}${newBadge} [${titleCaseText(
+      `  ${icon.ISSUE} [${titleCaseText(
         severity,
-      )} Severity${originalSeverityStr}]`,
+      )}${originalSeverityStr}] ${chalk.bold(title)}${newBadge}`,
     ) +
     reachabilityText +
+    '\n    ' +
     `[${config.ROOT}/vuln/${id}]` +
     name +
     reachableVia +
