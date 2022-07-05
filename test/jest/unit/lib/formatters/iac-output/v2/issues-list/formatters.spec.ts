@@ -7,7 +7,7 @@ import {
 } from '../../../../../../../../src/lib/formatters/iac-output/v2/issues-list/formatters';
 import { FormattedResult } from '../../../../../../../../src/cli/commands/test/iac/local-execution/types';
 import { IacTestOutput } from '../../../../../../../../src/lib/formatters/iac-output/v2/issues-list/types';
-import { SnykIacTestOutput } from '../../../../../../../../src/cli/commands/test/iac/v2/types';
+import { SnykIacTestOutput } from '../../../../../../../../src/lib/iac/test/v2/scan/results';
 
 describe('IaC Output Mapper', () => {
   const fixtureContent = fs.readFileSync(

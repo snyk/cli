@@ -1,4 +1,4 @@
-import { State } from '../../../../../cli/commands/test/iac/v2/policy-engine-types';
+import { State } from '../../../../iac/test/v2/scan/policy-engine';
 import { IacProjectType } from '../../../../iac/constants';
 import { SEVERITY } from '../../../../snyk-test/common';
 import { AnnotatedIacIssue } from '../../../../snyk-test/iac-test-result';
