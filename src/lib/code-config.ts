@@ -6,7 +6,7 @@ export function getCodeClientProxyUrl() {
   const domain = url.origin;
   return (
     config.CODE_CLIENT_PROXY_URL ||
-    domain.replace(/\/\/(app\.)?/, '//deeproxy.')
+    domain.replace(/\/\/(ap[pi]\.)?/, '//deeproxy.')
   );
 }
 

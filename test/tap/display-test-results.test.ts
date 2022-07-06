@@ -3,7 +3,6 @@ import * as sinon from 'sinon';
 import * as fs from 'fs';
 
 import config from '../../src/lib/config';
-import * as url from 'url';
 import * as cli from '../../src/cli/commands';
 import * as snyk from '../../src/lib';
 import { chdirWorkspaces } from '../acceptance/workspace-helper';
@@ -12,7 +11,7 @@ import { getWorkspacePath } from '../jest/util/getWorkspacePath';
 
 const { test } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
-const apiUrl = url.parse(config.API);
+const apiUrl = new URL(config.ROOT);
 
 test('`test ruby-app` remediation displayed', async (t) => {
   chdirWorkspaces();
