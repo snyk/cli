@@ -13,8 +13,6 @@ import * as utils from '../utils';
 import { spinnerMessage } from '../../../../lib/formatters/iac-output';
 
 import { test as iacTest } from './local-execution';
-import { formatTestError } from '../format-test-error';
-
 import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag';
 import { initRules } from './local-execution/rules/rules';
 import { cleanLocalCache } from './local-execution/measurable-methods';
@@ -122,10 +120,9 @@ export async function scan(
       const resArray: any[] = Array.isArray(res) ? res : [res];
 
       for (let i = 0; i < resArray.length; i++) {
-        const pathWithOptionalProjectName = utils.getPathWithOptionalProjectName(
-          path,
-          resArray[i],
-        );
+        const pathWithOptionalProjectName =
+          resArray[i].filename ||
+          utils.getPathWithOptionalProjectName(path, resArray[i]);
         results.push(
           assign(resArray[i], { path: pathWithOptionalProjectName }),
         );
@@ -153,6 +150,26 @@ export async function scan(
     results,
     resultOptions,
   };
+}
+
+// This is a duplicate of  commands/test/format-test-error.ts
+// we wanted to adjust it and check the case we send errors in an Array
+function formatTestError(error) {
+  let errorResponse;
+  if (error instanceof Error) {
+    errorResponse = error;
+  } else if (Array.isArray(error)) {
+    return error.map(formatTestError);
+  } else if (typeof error !== 'object') {
+    errorResponse = new Error(error);
+  } else {
+    try {
+      errorResponse = JSON.parse(error.message);
+    } catch (unused) {
+      errorResponse = error;
+    }
+  }
+  return errorResponse;
 }
 
 class CurrentWorkingDirectoryTraversalError extends CustomError {

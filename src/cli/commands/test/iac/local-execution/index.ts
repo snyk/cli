@@ -22,7 +22,6 @@ import {
   trackUsage,
 } from './measurable-methods';
 import { findAndLoadPolicy } from '../../../../../lib/policy';
-import { NoFilesToScanError } from './file-loader';
 import { ResultsProcessor } from './process-results';
 import { generateProjectAttributes, generateTags } from '../../../monitor';
 import {
@@ -31,6 +30,7 @@ import {
 } from './directory-loader';
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
+import { NoFilesToScanError } from './file-loader';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -78,13 +78,12 @@ export async function test(
     allFailedFiles = allFailedFiles.concat(failedFiles);
   }
 
-  // if none of the files were parsed then either we didn't have any IaC files
-  // or there was only one file passed via the CLI and it failed parsing
   if (allParsedFiles.length === 0) {
-    if (allFailedFiles.length === 1) {
-      throw allFailedFiles[0].err;
-    } else {
+    if (allFailedFiles.length === 0) {
       throw new NoFilesToScanError();
+    } else {
+      // we throw an array of errors in order to get the path of the files which generated an error
+      throw allFailedFiles.map((f) => f.err);
     }
   }
 
