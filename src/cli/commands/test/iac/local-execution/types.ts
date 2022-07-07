@@ -359,6 +359,27 @@ export enum IaCErrorCodes {
 
   // Scan errors
   PolicyEngineScanError = 1150,
+
+  // snyk-iac-test errors
+  NoPaths = 2000,
+  CwdTraversal = 2003,
+  NoBundle = 2004,
+  OpenBundle = 2005,
+  Scan = 2100,
+  UnableToRecognizeInputType = 2101,
+  UnsupportedInputType = 2102,
+  UnableToResolveLocation = 2103,
+  UnrecognizedFileExtension = 2104,
+  FailedToParseInput = 2105,
+  InvalidInput = 2106,
+  UnableToReadFile = 2107,
+  UnableToReadDir = 2108,
+  UnableToReadStdin = 2109,
+  FailedToLoadRegoAPI = 2110,
+  FailedToLoadRules = 2111,
+  FailedToCompile = 2112,
+  UnableToReadPath = 2113,
+  NoLoadableInput = 2114,
 }
 
 export interface TestReturnValue {
