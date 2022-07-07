@@ -20,19 +20,23 @@ export function parseYAMLOrJSONFileData(fileData: IacFileData): any[] {
 }
 
 export class InvalidJsonFileError extends CustomError {
+  public filename: string;
   constructor(filename: string) {
     super('Failed to parse JSON file');
     this.code = IaCErrorCodes.InvalidJsonFileError;
     this.strCode = getErrorStringCode(this.code);
+    this.filename = filename;
     this.userMessage = `We were unable to parse the JSON file "${filename}". Please ensure that it contains properly structured JSON`;
   }
 }
 
 export class InvalidYamlFileError extends CustomError {
+  public filename: string;
   constructor(filename: string) {
     super('Failed to parse YAML file');
     this.code = IaCErrorCodes.InvalidYamlFileError;
     this.strCode = getErrorStringCode(this.code);
+    this.filename = filename;
     this.userMessage = `We were unable to parse the YAML file "${filename}". Please ensure that it contains properly structured YAML, without any template directives`;
   }
 }

@@ -183,6 +183,18 @@ Target file:       ${dirPath}/`);
                 'kubernetes',
                 'helm-config.yaml',
               )}` +
+              EOL +
+              `        ${pathLib.join(
+                'iac',
+                'only-invalid',
+                'invalid-file1.yml',
+              )}` +
+              EOL +
+              `        ${pathLib.join(
+                'iac',
+                'only-invalid',
+                'invalid-file2.yaml',
+              )}` +
               EOL.repeat(2) +
               '  Failed to parse Terraform file' +
               EOL +
@@ -224,7 +236,6 @@ Target file:       ${dirPath}/`);
     describe('with only test failures', () => {
       it('should display the test failures list', async () => {
         const invalidPaths = [
-          pathLib.join('iac', 'only-invalid'),
           pathLib.join('iac', 'cloudformation', 'invalid-cfn.yml'),
           pathLib.join(
             'iac',
@@ -237,13 +248,7 @@ Target file:       ${dirPath}/`);
         const { stdout } = await run(`snyk iac test ${invalidPaths.join(' ')}`);
 
         expect(stdout).toContain(
-          '  Could not find any valid IaC files' +
-            EOL +
-            `  Path: ${pathLib.join('iac', 'only-invalid')}` +
-            EOL +
-            `        ${pathLib.join('does', 'not', 'exist')}` +
-            EOL.repeat(2) +
-            '  Failed to parse YAML file' +
+          '  Failed to parse YAML file' +
             EOL +
             `  Path: ${pathLib.join(
               'iac',
@@ -263,7 +268,11 @@ Target file:       ${dirPath}/`);
               'iac',
               'terraform',
               'sg_open_ssh_invalid_hcl2.tf',
-            )}`,
+            )}` +
+            EOL.repeat(2) +
+            '  Could not find any valid IaC files' +
+            EOL +
+            `  Path: ${pathLib.join('does', 'not', 'exist')}`,
         );
       });
 
@@ -439,7 +448,7 @@ If the issue persists contact support@snyk.io`,
 
     describe('with only test failures', () => {
       it('should display the failure reason for the first failed test', async () => {
-        const dirPath = 'iac/only-invalid';
+        const dirPath = 'iac/no-files';
         const { stdout } = await run(`snyk iac test ${dirPath}`);
 
         expect(stdout).toContain(

@@ -1,0 +1,11 @@
+features:
+  - name: lorem ipsum
+    bullets:
+      - bullet 1
+      - bullet 2
+  - name: lorem ipsum 2
+
+scripts:
+    - BRANCH_LOCAL=${BRANCH/remotes\/origin\//}
+    - echo ${BRANCH_LOCAL}
+    - git checkout -b ${BRANCH_LOCAL} origin/${BRANCH_LOCAL}

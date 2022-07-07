@@ -56,10 +56,12 @@ export class NoFilesToScanError extends CustomError {
 }
 
 export class FailedToLoadFileError extends CustomError {
+  public filename: string;
   constructor(filename: string) {
     super('Failed to load file content');
     this.code = IaCErrorCodes.FailedToLoadFileError;
     this.strCode = getErrorStringCode(this.code);
+    this.filename = filename;
     this.userMessage = `We were unable to read file "${filename}" for scanning. Please ensure that it is readable.`;
   }
 }
