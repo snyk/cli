@@ -61,7 +61,7 @@
   "dependencies": {
     "@open-policy-agent/opa-wasm": "^1.6.0",
     "@snyk/cli-interface": "2.11.0",
-    "@snyk/cloud-config-parser": "^1.14.1",
+    "@snyk/cloud-config-parser": "^1.14.3",
     "@snyk/code-client": "^4.12.3",
     "@snyk/dep-graph": "^1.27.1",
     "@snyk/docker-registry-v2-client": "^2.6.1",
