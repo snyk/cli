@@ -236,61 +236,47 @@ describe('Directory scan', () => {
         expect(exitCode).toBe(1);
       });
     });
+  });
 
-    describe('directory with files that can not be parsed', () => {
-      beforeEach(() => {
-        server.setFeatureFlag(IAC_CLI_OUTPUT_FF, true);
-      });
-      afterEach(() => {
-        server.restore();
-      });
-      it('prints all invalid paths', async () => {
-        const { stdout, exitCode } = await run(
-          `snyk iac test ./iac/only-invalid`,
-        );
-        expect(stdout).toContain(
-          '  Failed to parse YAML file' +
-            EOL +
-            `  Path: ${pathLib.join(
-              'iac',
-              'only-invalid',
-              'invalid-file1.yml',
-            )}` +
-            EOL +
-            `        ${pathLib.join(
-              'iac',
-              'only-invalid',
-              'invalid-file2.yaml',
-            )}`,
-        );
-        expect(exitCode).toBe(2);
-      });
-      it('prints all errors and paths in --json', async () => {
-        const { stdout, exitCode } = await run(
-          `snyk iac test ./iac/only-invalid --json`,
-        );
-
-        expect(isValidJSONString(stdout)).toBe(true);
-        expect(JSON.parse(stdout).length).toBe(2);
-
-        expect(stdout).toContain('"ok": false');
-        expect(stdout).toContain('"error": "Failed to parse YAML file"');
-        expect(stdout).toContain(
-          `"path": "${pathLib.join(
+  describe('directory with files that can not be parsed', () => {
+    beforeEach(() => {
+      server.setFeatureFlag(IAC_CLI_OUTPUT_FF, true);
+    });
+    afterEach(() => {
+      server.restore();
+    });
+    it('prints all invalid paths', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test ./iac/only-invalid`,
+      );
+      expect(stdout).toContain(
+        '  Failed to parse YAML file' +
+          EOL +
+          `  Path: ${pathLib.join(
             'iac',
             'only-invalid',
             'invalid-file1.yml',
-          )}"`,
-        );
-        expect(stdout).toContain(
-          `"path": "${pathLib.join(
+          )}` +
+          EOL +
+          `        ${pathLib.join(
             'iac',
             'only-invalid',
             'invalid-file2.yaml',
-          )}"`,
-        );
-        expect(exitCode).toBe(2);
-      });
+          )}`,
+      );
+      expect(exitCode).toBe(2);
+    });
+    it('prints all errors and paths in --json', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test ./iac/only-invalid --json`,
+      );
+
+      expect(isValidJSONString(stdout)).toBe(true);
+
+      expect(JSON.parse(stdout).length).toBe(2);
+      expect(stdout).toContain('"ok": false');
+      expect(stdout).toContain('"error": "Failed to parse YAML file"');
+      expect(exitCode).toBe(2);
     });
   });
 
