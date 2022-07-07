@@ -43,7 +43,7 @@ import {
   shareCustomRulesDisclaimer,
   shareResultsTip,
 } from '../../../../lib/formatters/iac-output/v2';
-import { formatScanResultsNewOutput } from '../../../../lib/formatters/iac-output/v2/issues-list/formatters';
+import { formatTestData } from '../../../../lib/formatters/iac-output';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -176,13 +176,16 @@ export function buildOutput({
 
   let response = '';
 
+  const newOutputTestData = formatTestData({
+    oldFormattedResults: successResults,
+    ignoresCount: iacIgnoredIssuesCount,
+    iacOutputMeta: iacOutputMeta,
+  });
+
   if (isNewIacOutputSupported) {
     if (isPartialSuccess) {
-      const formattedSuccessResults = formatScanResultsNewOutput(
-        successResults,
-        iacOutputMeta!,
-      );
-      response += EOL + getIacDisplayedIssues(formattedSuccessResults);
+      response +=
+        EOL + getIacDisplayedIssues(newOutputTestData.resultsBySeverity);
     }
   } else {
     response += results
@@ -255,14 +258,7 @@ export function buildOutput({
   if (isPartialSuccess && iacOutputMeta && isNewIacOutputSupported) {
     response += `${EOL}${SEPARATOR}${EOL}`;
 
-    const iacTestSummary = `${formatIacTestSummary(
-      {
-        results: successResults,
-        failures: iacScanFailures,
-        ignoreCount: iacIgnoredIssuesCount,
-      },
-      iacOutputMeta,
-    )}`;
+    const iacTestSummary = `${formatIacTestSummary(newOutputTestData)}`;
 
     response += iacTestSummary;
   }

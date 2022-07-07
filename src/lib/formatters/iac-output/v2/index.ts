@@ -19,3 +19,4 @@ export {
   failuresTipOutput,
 } from './failures';
 export { IaCTestFailure } from './types';
+export { formatSnykIacTestTestData, formatTestData } from './formatters';

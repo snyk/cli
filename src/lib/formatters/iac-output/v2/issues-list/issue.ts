@@ -5,7 +5,7 @@ import { iacRemediationTypes } from '../../../../iac/constants';
 
 import { printPath } from '../../../remediation-based-format-issues';
 import { colors, contentPadding } from '../utils';
-import { FormattedOutputResult } from './types';
+import { FormattedOutputResult } from '../types';
 import { AnnotatedIacIssue } from '../../../../snyk-test/iac-test-result';
 
 export function formatIssue(result: FormattedOutputResult): string {
