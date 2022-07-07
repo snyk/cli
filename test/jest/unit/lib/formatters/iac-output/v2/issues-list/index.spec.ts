@@ -3,10 +3,10 @@ import * as pathLib from 'path';
 import chalk from 'chalk';
 import { getIacDisplayedIssues } from '../../../../../../../../src/lib/formatters/iac-output';
 import { colors } from '../../../../../../../../src/lib/formatters/iac-output/v2/utils';
-import { IacTestOutput } from '../../../../../../../../src/lib/formatters/iac-output/v2/issues-list/types';
+import { FormattedOutputResultsBySeverity } from '../../../../../../../../src/lib/formatters/iac-output/v2/types';
 
 describe('getIacDisplayedIssues', () => {
-  let resultFixtures: IacTestOutput;
+  let resultFixtures: FormattedOutputResultsBySeverity;
 
   beforeAll(async () => {
     resultFixtures = JSON.parse(
@@ -142,13 +142,10 @@ describe('getIacDisplayedIssues', () => {
   });
 
   describe('with no issues', () => {
-    let resultsWithNoIssues: IacTestOutput;
-
-    beforeAll(() => {
-      resultsWithNoIssues = { ...resultFixtures, results: {} };
-    });
-
     it('should display an appropriate message', () => {
+      // Arrange
+      const resultsWithNoIssues: FormattedOutputResultsBySeverity = {};
+
       // Act
       const result = getIacDisplayedIssues(resultsWithNoIssues);
 
@@ -159,6 +156,9 @@ describe('getIacDisplayedIssues', () => {
     });
 
     it('should not display any severity sections', () => {
+      // Arrange
+      const resultsWithNoIssues: FormattedOutputResultsBySeverity = {};
+
       // Act
       const result = getIacDisplayedIssues(resultsWithNoIssues);
 

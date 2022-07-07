@@ -8,8 +8,7 @@ import {
   getIacDisplayedIssues,
   spinnerSuccessMessage,
 } from '../../../formatters/iac-output';
-import { formatSnykIacTestScanResultNewOutput } from '../../../formatters/iac-output/v2/issues-list/formatters';
-import { IacTestOutput } from '../../../formatters/iac-output/v2/issues-list/types';
+import { formatSnykIacTestTestData } from '../../../formatters/iac-output';
 import { jsonStringifyLargeObject } from '../../../json';
 import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-execution/types';
 
@@ -29,10 +28,8 @@ export function buildOutput({
   testSpinner?.succeed(spinnerSuccessMessage);
 
   let response = '';
-  const formattedScanResult: IacTestOutput = formatSnykIacTestScanResultNewOutput(
-    scanResult.results,
-  );
-  response += EOL + getIacDisplayedIssues(formattedScanResult);
+  const testData = formatSnykIacTestTestData(scanResult.results);
+  response += EOL + getIacDisplayedIssues(testData.resultsBySeverity);
 
   const jsonData = jsonStringifyLargeObject(
     convertEngineToJsonResults({
