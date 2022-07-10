@@ -30,7 +30,7 @@
                                         "impact": "Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 21,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
@@ -66,7 +66,6 @@
                                         "impact": "Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
-                                "lineNumber": -1,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
@@ -102,7 +101,7 @@
                                         "impact": "Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 1,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
@@ -138,7 +137,7 @@
                                         "impact": "Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 2,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
@@ -174,7 +173,7 @@
                                         "impact": "Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 3,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
@@ -210,7 +209,7 @@
                                         "impact": "Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 4,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
@@ -247,7 +246,7 @@
                                         "impact": "Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
                                         "resolve": "Set `DisableApiTermination` attribute with value `true`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 5,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
                         },
                         "targetFile": "bastion.yml",
@@ -285,7 +284,7 @@
                                         "impact": "Scope of use of the key cannot be controlled via KMS/IAM policies",
                                         "resolve": "Set `Properties.KmsKeyId` attribute with customer managed key id"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 6,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-415"
                         },
                         "targetFile": "bastion.yml",
@@ -323,7 +322,7 @@
                                         "impact": "The container may run with outdated or unauthorized image",
                                         "resolve": "Set `imagePullPolicy` attribute to `Always`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 7,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-42"
                         },
                         "targetFile": "k8s.yaml",
@@ -363,7 +362,7 @@
                                         "impact": "Compromised process could abuse writable root filesystem to elevate privileges",
                                         "resolve": "Set `securityContext.readOnlyRootFilesystem` to `true`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 8,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-8"
                         },
                         "targetFile": "k8s.yaml",
@@ -398,7 +397,7 @@
                                         "impact": "AppArmor will not enforce mandatory access control, which can increase the attack vectors.",
                                         "resolve": "Add `container.apparmor.security.beta.kubernetes.io/<container-name>` annotation with value `runtime/default` or `localhost/<name-of-profile`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 9,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-32"
                         },
                         "targetFile": "k8s.yaml",
@@ -439,7 +438,7 @@
                                         "impact": "Containers without memory limits are more likely to be terminated when the node runs out of memory",
                                         "resolve": "Set `resources.limits.memory` value"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 10,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-4"
                         },
                         "targetFile": "k8s.yaml",
@@ -481,7 +480,7 @@
                                         "impact": "Containers without limits can exceed the capacity of the node, and affect availability/performance of the host and other containers.",
                                         "resolve": "Add `resources.limits.cpu` field with required CPU limit value"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 11,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-5"
                         },
                         "targetFile": "k8s.yaml",
@@ -555,7 +554,7 @@
                                         "impact": "Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
                                         "resolve": "Remove secret value from `user_data` attribute"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 13,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-123"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
@@ -591,7 +590,7 @@
                                         "impact": "Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
                                         "resolve": "Remove secret value from `user_data` attribute"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 14,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-123"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
@@ -627,7 +626,7 @@
                                         "impact": "Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources",
                                         "resolve": "Remove secret value from `user_data` attribute"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 15,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-123"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
@@ -667,7 +666,7 @@
                                         "impact": "Compromised container could potentially modify the underlying host’s kernel by loading unauthorized modules (i.e. drivers).",
                                         "resolve": "Remove `securityContext.privileged` attribute, or set value to `false`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 16,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-1"
                         },
                         "targetFile": "k8s.yaml",
@@ -710,7 +709,7 @@
                                         "impact": "That should someone gain unauthorized access to the data they would be able to read the contents.",
                                         "resolve": "Set `BlockDeviceMappings.Encrypted` attribute of root device to `true`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 17,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-53"
                         },
                         "targetFile": "bastion.yml",
@@ -750,7 +749,7 @@
                                         "impact": "Container could be running with full administrative privileges",
                                         "resolve": "Set `securityContext.runAsNonRoot` to `true`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 18,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-10"
                         },
                         "targetFile": "k8s.yaml",
@@ -790,7 +789,7 @@
                                         "impact": "Containers are running with potentially unnecessary privileges",
                                         "resolve": "Add `ALL` to `securityContext.capabilities.drop` list, and add only required capabilities in `securityContext.capabilities.add`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 19,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-6"
                         },
                         "targetFile": "k8s.yaml",
@@ -830,7 +829,7 @@
                                         "impact": "Processes could elevate current privileges via known vectors, for example SUID binaries",
                                         "resolve": "Set `securityContext.allowPrivilegeEscalation` to `false`"
                                 },
-                                "lineNumber": -1,
+                                "lineNumber": 20,
                                 "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-9"
                         },
                         "targetFile": "k8s.yaml",

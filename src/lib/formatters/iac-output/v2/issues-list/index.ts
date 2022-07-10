@@ -10,9 +10,11 @@ import {
   FormattedOutputResult,
   FormattedOutputResultsBySeverity,
 } from '../types';
+import { Options } from './types';
 
 export function getIacDisplayedIssues(
   resultsBySeverity: FormattedOutputResultsBySeverity,
+  options?: Options,
 ): string {
   const titleOutput = colors.title('Issues');
 
@@ -43,7 +45,7 @@ export function getIacDisplayedIssues(
             ) ||
             severityResult1.issue.id.localeCompare(severityResult2.issue.id),
         )
-        .map(formatIssue)
+        .map((result) => formatIssue(result, options))
         .join(EOL.repeat(2));
 
       debug(
