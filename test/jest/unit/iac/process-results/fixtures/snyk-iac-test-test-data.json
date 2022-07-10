@@ -20,7 +20,8 @@
               "issue":"",
               "impact":"",
               "resolve":""
-            }
+            },
+            "lineNumber": 12
           },
           "targetFile":"/Users/yairzohar/snyk/upe-test/default_vpc_security_group.tf",
           "projectType":"aws_default_security_group"
@@ -43,7 +44,8 @@
               "issue":"",
               "impact":"",
               "resolve":""
-            }
+            },
+            "lineNumber": 8
           },
           "targetFile":"/Users/yairzohar/snyk/upe-test/s3_cis.tf",
           "projectType":"aws_s3_bucket"
@@ -64,7 +66,8 @@
               "issue":"",
               "impact":"",
               "resolve":""
-            }
+            },
+            "lineNumber": 3
           },
           "targetFile":"/Users/yairzohar/snyk/upe-test/s3_cis.tf",
           "projectType":"aws_s3_bucket"

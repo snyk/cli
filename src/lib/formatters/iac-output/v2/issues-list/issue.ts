@@ -2,17 +2,19 @@ import * as capitalize from 'lodash.capitalize';
 import chalk from 'chalk';
 import { EOL } from 'os';
 import { iacRemediationTypes } from '../../../../iac/constants';
-
 import { printPath } from '../../../remediation-based-format-issues';
 import { colors, contentPadding } from '../utils';
 import { FormattedOutputResult } from '../types';
 import { AnnotatedIacIssue } from '../../../../snyk-test/iac-test-result';
+import { Options } from './types';
 
-export function formatIssue(result: FormattedOutputResult): string {
+export function formatIssue(
+  result: FormattedOutputResult,
+  options?: Options,
+): string {
   const titleOutput = formatTitle(result.issue);
 
-  const propertiesOutput = formatProperties(result);
-
+  const propertiesOutput = formatProperties(result, options);
   return (
     contentPadding +
     titleOutput +
@@ -46,7 +48,10 @@ function formatInfo(issue: AnnotatedIacIssue): string | undefined {
   return `${issueDesc}${!issueDesc.endsWith('.') ? '.' : ''} ${issueImpact}`;
 }
 
-function formatProperties(result: FormattedOutputResult): string[] {
+function formatProperties(
+  result: FormattedOutputResult,
+  options?: Options,
+): string[] {
   const remediationKey = iacRemediationTypes?.[result.projectType];
 
   const properties = [
@@ -58,7 +63,15 @@ function formatProperties(result: FormattedOutputResult): string[] {
         : chalk.underline(result.issue.documentation || ''),
     ],
     ['Path', printPath(result.issue.cloudConfigPath, 0)],
-    ['File', result.targetFile],
+    [
+      'File',
+      `${result.targetFile}${
+        options?.shouldShowLineNumbers &&
+        isValidLineNumber(result.issue.lineNumber)
+          ? `:${result.issue.lineNumber}`
+          : ''
+      }`,
+    ],
     [
       'Resolve',
       remediationKey && result.issue.remediation?.[remediationKey]
@@ -74,5 +87,11 @@ function formatProperties(result: FormattedOutputResult): string[] {
   return properties.map(
     ([key, value]) =>
       `${key}: ${' '.repeat(maxPropertyNameLength - key.length)}${value}`,
+  );
+}
+
+function isValidLineNumber(lineNumber: number | undefined): boolean {
+  return (
+    typeof lineNumber === 'number' && lineNumber! > 0 && lineNumber! % 1 === 0
   );
 }

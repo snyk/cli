@@ -144,6 +144,7 @@ function formatSnykIacTestScanVulnerability(
     severity: vulnerability.severity,
     title: vulnerability.rule.title,
     isIgnored: vulnerability.ignored,
+    lineNumber: vulnerability.resource.line,
     cloudConfigPath: vulnerability.resource.id
       .split('.')
       .concat(vulnerability.resource.path as string[]),

@@ -29,7 +29,11 @@ export function buildOutput({
 
   let response = '';
   const testData = formatSnykIacTestTestData(scanResult.results);
-  response += EOL + getIacDisplayedIssues(testData.resultsBySeverity);
+  response +=
+    EOL +
+    getIacDisplayedIssues(testData.resultsBySeverity, {
+      shouldShowLineNumbers: true,
+    });
 
   const jsonData = jsonStringifyLargeObject(
     convertEngineToJsonResults({
