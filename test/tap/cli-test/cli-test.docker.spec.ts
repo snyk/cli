@@ -65,6 +65,7 @@ export const DockerTests: AcceptanceTests = {
         [
           {
             docker: true,
+            'exclude-app-vulns': true,
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
@@ -141,6 +142,7 @@ export const DockerTests: AcceptanceTests = {
         [
           {
             docker: true,
+            'exclude-app-vulns': true,
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
@@ -293,6 +295,7 @@ export const DockerTests: AcceptanceTests = {
           {
             file: 'Dockerfile',
             docker: true,
+            'exclude-app-vulns': true,
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
@@ -407,6 +410,7 @@ export const DockerTests: AcceptanceTests = {
         [
           {
             docker: true,
+            'exclude-app-vulns': true,
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
@@ -482,6 +486,7 @@ export const DockerTests: AcceptanceTests = {
         [
           {
             docker: true,
+            'exclude-app-vulns': true,
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
@@ -563,6 +568,7 @@ export const DockerTests: AcceptanceTests = {
         [
           {
             docker: true,
+            'exclude-app-vulns': true,
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
