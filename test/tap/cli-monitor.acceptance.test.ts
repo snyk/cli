@@ -1741,6 +1741,7 @@ if (!isWindows) {
       [
         {
           docker: true,
+          'exclude-app-vulns': true,
           org: 'explicit-org',
           path: 'foo:latest',
         },
@@ -1809,6 +1810,7 @@ if (!isWindows) {
       [
         {
           docker: true,
+          'exclude-app-vulns': true,
           file: 'Dockerfile',
           org: 'explicit-org',
           path: 'foo:latest',
@@ -1876,6 +1878,7 @@ if (!isWindows) {
       [
         {
           docker: true,
+          'exclude-app-vulns': true,
           org: 'explicit-org',
           'policy-path': 'custom-location',
           path: 'foo:latest',
@@ -1939,6 +1942,7 @@ if (!isWindows) {
       [
         {
           docker: true,
+          'exclude-app-vulns': true,
           path: 'foo:latest',
           platform,
         },
