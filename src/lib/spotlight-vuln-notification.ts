@@ -41,7 +41,7 @@ export function notificationForSpotlightVulns(
           );
 
           for (const vulnId of foundSpotlightVulnsIds) {
-            message += `  - ${vulnId} (See https://snyk.io/vuln/${vulnId})`;
+            message += `  - ${vulnId} (See https://security.snyk.io/vuln/${vulnId})`;
           }
 
           message += EOL + EOL;
