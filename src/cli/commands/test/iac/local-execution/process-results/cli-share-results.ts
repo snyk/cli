@@ -1,29 +1,26 @@
-import config from '../../../../../../../lib/config';
-import { makeRequest } from '../../../../../../../lib/request';
-import { getAuthHeader } from '../../../../../../../lib/api-token';
+import config from '../../../../../../lib/config';
+import { makeRequest } from '../../../../../../lib/request';
+import { getAuthHeader } from '../../../../../../lib/api-token';
 import {
   IacShareResultsFormat,
   IaCTestFlags,
   ShareResultsOutput,
-} from '../../types';
-import { convertIacResultToScanResult } from '../../../../../../../lib/iac/envelope-formatters';
-import { Policy } from '../../../../../../../lib/policy/find-and-load-policy';
-import { getInfo } from '../../../../../../../lib/project-metadata/target-builders/git';
-import { GitTarget } from '../../../../../../../lib/ecosystems/types';
-import { Contributor } from '../../../../../../../lib/types';
-import * as analytics from '../../../../../../../lib/analytics';
-import { getContributors } from '../../../../../../../lib/monitor/dev-count-analysis';
+} from '../types';
+import { convertIacResultToScanResult } from '../../../../../../lib/iac/envelope-formatters';
+import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { getInfo } from '../../../../../../lib/project-metadata/target-builders/git';
+import { GitTarget } from '../../../../../../lib/ecosystems/types';
+import { Contributor } from '../../../../../../lib/types';
+import * as analytics from '../../../../../../lib/analytics';
+import { getContributors } from '../../../../../../lib/monitor/dev-count-analysis';
 import * as Debug from 'debug';
-import {
-  AuthFailedError,
-  ValidationError,
-} from '../../../../../../../lib/errors';
+import { AuthFailedError, ValidationError } from '../../../../../../lib/errors';
 import * as pathLib from 'path';
 
 const debug = Debug('iac-cli-share-results');
-import { ProjectAttributes, Tag } from '../../../../../../../lib/types';
-import { TestLimitReachedError } from '../../usage-tracking';
-import { getRepositoryRootForPath } from '../../../../../../../lib/iac/git';
+import { ProjectAttributes, Tag } from '../../../../../../lib/types';
+import { TestLimitReachedError } from '../usage-tracking';
+import { getRepositoryRootForPath } from '../../../../../../lib/iac/git';
 
 export async function shareResults({
   results,

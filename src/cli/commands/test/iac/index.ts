@@ -48,8 +48,9 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     isNewIacOutputSupported,
   });
 
+  const projectRoot = process.cwd();
+
   printHeader({
-    paths,
     options,
     isNewIacOutputSupported,
   });
@@ -67,6 +68,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     paths,
     orgPublicId,
     buildOciRegistry,
+    projectRoot,
   );
 
   return buildOutput({

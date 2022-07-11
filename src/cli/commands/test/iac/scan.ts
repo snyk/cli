@@ -21,11 +21,7 @@ import { IaCErrorCodes, IacOrgSettings } from './local-execution/types';
 import * as pathLib from 'path';
 import { CustomError } from '../../../../lib/errors';
 import { OciRegistry } from './local-execution/rules/oci-registry';
-import {
-  MultipleGroupsResultsProcessor,
-  ResultsProcessor,
-  SingleGroupResultsProcessor,
-} from './local-execution/process-results';
+import { SingleGroupResultsProcessor } from './local-execution/process-results';
 import { getErrorStringCode } from './local-execution/error-utils';
 
 export async function scan(
@@ -35,7 +31,7 @@ export async function scan(
   paths: string[],
   orgPublicId: string,
   buildOciRules: () => OciRegistry,
-  projectRoot?: string,
+  projectRoot: string,
 ): Promise<{
   iacOutputMeta: IacOutputMeta | undefined;
   iacScanFailures: IacFileInDirectory[];
@@ -72,27 +68,16 @@ export async function scan(
       try {
         assertIaCOptionsFlags(process.argv);
 
-        let resultsProcessor: ResultsProcessor;
-
-        if (projectRoot) {
-          if (pathLib.relative(projectRoot, path).includes('..')) {
-            throw new CurrentWorkingDirectoryTraversalError();
-          }
-
-          resultsProcessor = new SingleGroupResultsProcessor(
-            projectRoot,
-            orgPublicId,
-            iacOrgSettings,
-            testOpts,
-          );
-        } else {
-          resultsProcessor = new MultipleGroupsResultsProcessor(
-            path,
-            orgPublicId,
-            iacOrgSettings,
-            testOpts,
-          );
+        if (pathLib.relative(projectRoot, path).includes('..')) {
+          throw new CurrentWorkingDirectoryTraversalError(path);
         }
+
+        const resultsProcessor = new SingleGroupResultsProcessor(
+          projectRoot,
+          orgPublicId,
+          iacOrgSettings,
+          testOpts,
+        );
 
         const { results, failures, ignoreCount } = await iacTest(
           resultsProcessor,
@@ -173,10 +158,13 @@ function formatTestError(error) {
 }
 
 class CurrentWorkingDirectoryTraversalError extends CustomError {
-  constructor() {
+  public filename: string;
+
+  constructor(path: string) {
     super('Path is outside the current working directory');
     this.code = IaCErrorCodes.CurrentWorkingDirectoryTraversalError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Path is outside the current working directory`;
+    this.filename = path;
   }
 }

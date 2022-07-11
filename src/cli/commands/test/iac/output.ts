@@ -37,7 +37,6 @@ import {
   Options,
   TestOptions,
 } from '../../../../lib/types';
-import * as path from 'path';
 import { IaCTestFlags } from './local-execution/types';
 import {
   shareCustomRulesDisclaimer,
@@ -61,20 +60,14 @@ export function buildSpinner({
 }
 
 export function printHeader({
-  paths,
   options,
   isNewIacOutputSupported,
 }: {
-  paths: string[];
   options: Options & TestOptions;
   isNewIacOutputSupported?: boolean;
 }) {
   if (shouldLogUserMessages(options, isNewIacOutputSupported)) {
     console.log(EOL + iacTestTitle + EOL);
-
-    if (paths.some(isOutsideCurrentWorkingDirectory)) {
-      printCurrentWorkingDirectoryTraversalWarning();
-    }
   }
 }
 
@@ -321,27 +314,6 @@ export function buildOutput({
     stringifiedJsonData,
     stringifiedSarifData,
   );
-}
-
-function isOutsideCurrentWorkingDirectory(p: string): boolean {
-  return path.relative(process.cwd(), p).includes('..');
-}
-
-function printCurrentWorkingDirectoryTraversalWarning() {
-  let msg = '';
-
-  msg +=
-    'Warning: Scanning paths outside the current working directory is deprecated and' +
-    EOL;
-  msg +=
-    'will be removed in the future. Please see the documentation for further details:' +
-    EOL +
-    EOL;
-  msg +=
-    '  https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code/test-your-configuration-files' +
-    EOL;
-
-  console.log(chalk.yellow(msg));
 }
 
 function buildShareResultsSummary({

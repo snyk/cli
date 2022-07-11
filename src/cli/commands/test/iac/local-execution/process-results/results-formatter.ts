@@ -6,22 +6,19 @@ import {
   IaCTestFlags,
   PolicyMetadata,
   TestMeta,
-} from '../../types';
-import {
-  SEVERITY,
-  SEVERITIES,
-} from '../../../../../../../lib/snyk-test/common';
-import { IacProjectType } from '../../../../../../../lib/iac/constants';
-import { CustomError } from '../../../../../../../lib/errors';
+} from '../types';
+import { SEVERITY, SEVERITIES } from '../../../../../../lib/snyk-test/common';
+import { IacProjectType } from '../../../../../../lib/iac/constants';
+import { CustomError } from '../../../../../../lib/errors';
 import { extractLineNumber, getFileTypeForParser } from './extract-line-number';
-import { getErrorStringCode } from '../../error-utils';
+import { getErrorStringCode } from '../error-utils';
 import {
   MapsDocIdToTree,
   getTrees,
   parsePath,
 } from '@snyk/cloud-config-parser';
 import * as path from 'path';
-import { isLocalFolder } from '../../../../../../../lib/detect';
+import { isLocalFolder } from '../../../../../../lib/detect';
 
 const severitiesArray = SEVERITIES.map((s) => s.verboseName);
 

@@ -321,7 +321,7 @@ Target file:       ${dirPath}/`);
 Organization:      test-org
 Type:              ARM
 Target file:       ${filePath}
-Project name:      arm
+Project name:      fixtures
 Open source:       no
 Project path:      ${filePath}
 `);
