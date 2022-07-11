@@ -58,5 +58,6 @@ async function prepareTestConfig(
     orgSettings,
     userRulesBundlePath: config.IAC_BUNDLE_PATH,
     userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
+    severityThreshold: options.severityThreshold,
   };
 }
