@@ -77,6 +77,6 @@ if (!config.ROOT) {
   config.ROOT = apiUrl.protocol + '//' + apiUrl.host;
 }
 
-config.PUBLIC_VULN_DB_URL = "https://security.snyk.io"
+config.PUBLIC_VULN_DB_URL = 'https://security.snyk.io';
 
 export default config;
