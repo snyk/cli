@@ -632,7 +632,7 @@ export const DockerTests: AcceptanceTests = {
         );
         t.match(
           msg,
-          'Info: http://localhost:12345/vuln/SNYK-UPSTREAM-NODE-72359',
+          'Info: https://security.snyk.io/vuln/SNYK-UPSTREAM-NODE-72359',
         );
         t.false(
           msg.includes('vulnerable paths'),
