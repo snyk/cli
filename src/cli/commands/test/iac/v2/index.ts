@@ -23,7 +23,6 @@ export async function test(
   });
 
   printHeader({
-    paths,
     options,
     isNewIacOutputSupported: true,
   });

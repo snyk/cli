@@ -1,4 +1,4 @@
-import { filterIgnoredIssues } from '../../../../../src/cli/commands/test/iac/local-execution/process-results/v1/policy';
+import { filterIgnoredIssues } from '../../../../../src/cli/commands/test/iac/local-execution/process-results/policy';
 import { FormattedResult } from '../../../../../src/cli/commands/test/iac/local-execution/types';
 import * as fs from 'fs';
 import * as path from 'path';

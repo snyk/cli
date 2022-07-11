@@ -1,14 +1,14 @@
 import { filterIgnoredIssues } from './policy';
 import { formatAndShareResults } from './share-results';
-import { formatScanResultsV2 } from '../../measurable-methods';
-import { Policy } from '../../../../../../../lib/policy/find-and-load-policy';
-import { ProjectAttributes, Tag } from '../../../../../../../lib/types';
+import { formatScanResultsV2 } from '../measurable-methods';
+import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { ProjectAttributes, Tag } from '../../../../../../lib/types';
 import {
   FormattedResult,
   IacFileScanResult,
   IacOrgSettings,
   IaCTestFlags,
-} from '../../types';
+} from '../types';
 
 export async function processResults(
   resultsWithCustomSeverities: IacFileScanResult[],

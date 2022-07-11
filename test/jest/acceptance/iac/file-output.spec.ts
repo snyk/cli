@@ -52,7 +52,7 @@ describe('iac test --json-file-output', () => {
       path.resolve('./test/fixtures/iac/file-output/sg_open_ssh.tf'),
     );
     expect(actualTargetFile).toEqual('./iac/file-output/sg_open_ssh.tf');
-    expect(actualProjectName).toEqual('file-output');
+    expect(actualProjectName).toEqual('fixtures');
   });
 });
 
