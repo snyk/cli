@@ -46,7 +46,7 @@ export function formatIssues(
     }),
     introducedThrough: '  Introduced through: ' + uniquePackages,
     description: '  Description: ' + vuln.title,
-    info: '  Info: ' + chalk.underline(config.ROOT + '/vuln/' + vulnID),
+    info: '  Info: ' + chalk.underline(config.PUBLIC_VULN_DB_URL + '/vuln/' + vulnID),
     fromPaths: createTruncatedVulnsPathsText(vuln.list, options.showVulnPaths),
     extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
     remediationInfo:
