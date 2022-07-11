@@ -18,12 +18,10 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     );
     const jsonOutput = JSON.parse(stdout);
 
-    expect(jsonOutput.ok).toEqual(false);
-    expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
-    const applications = jsonOutput.applications;
-    expect(applications.length).toEqual(1);
-    expect(applications[0].uniqueCount).toBeGreaterThan(0);
-    expect(applications[0].ok).toEqual(false);
+    expect(jsonOutput[0].ok).toEqual(false);
+    expect(jsonOutput[0].uniqueCount).toBeGreaterThan(0);
+    expect(jsonOutput[1].ok).toEqual(false);
+    expect(jsonOutput[1].uniqueCount).toBeGreaterThan(0);
     expect(code).toEqual(1);
   }, 10000);
   it('should find all vulns when using --app-vulns without experimental flag', async () => {
@@ -113,7 +111,8 @@ describe('container test projects behavior with --app-vulns, --json flags', () =
     );
 
     const jsonOutput = JSON.parse(stdout);
-    expect(jsonOutput.applications).toHaveLength(1);
+    expect(Array.isArray(jsonOutput)).toBeTruthy();
+    expect(jsonOutput).toHaveLength(2);
     expect(code).toEqual(0);
   });
 });
