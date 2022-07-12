@@ -110,6 +110,10 @@ describe('test()', () => {
         'org-name',
         iacOrgSettings,
         opts,
+        {
+          projectName: 'project-name',
+          orgName: 'org-name',
+        },
       );
 
       const { failures } = await test(

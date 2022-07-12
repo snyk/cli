@@ -23,6 +23,9 @@ import { CustomError } from '../../../../lib/errors';
 import { OciRegistry } from './local-execution/rules/oci-registry';
 import { SingleGroupResultsProcessor } from './local-execution/process-results';
 import { getErrorStringCode } from './local-execution/error-utils';
+import { getRepositoryRootForPath } from '../../../../lib/iac/git';
+import { getInfo } from '../../../../lib/project-metadata/target-builders/git';
+import { buildMeta, GitRepository, GitRepositoryFinder } from './meta';
 
 export async function scan(
   iacOrgSettings: IacOrgSettings,
@@ -32,6 +35,7 @@ export async function scan(
   orgPublicId: string,
   buildOciRules: () => OciRegistry,
   projectRoot: string,
+  remoteRepoUrl?: string,
 ): Promise<{
   iacOutputMeta: IacOutputMeta | undefined;
   iacScanFailures: IacFileInDirectory[];
@@ -41,8 +45,15 @@ export async function scan(
 }> {
   const results = [] as any[];
   const resultOptions: Array<Options & TestOptions> = [];
+  const repositoryFinder = new DefaultGitRepositoryFinder();
 
-  let iacOutputMeta: IacOutputMeta | undefined;
+  const iacOutputMeta = await buildMeta(
+    repositoryFinder,
+    iacOrgSettings,
+    projectRoot,
+    remoteRepoUrl,
+  );
+
   let iacScanFailures: IacFileInDirectory[] = [];
   let iacIgnoredIssuesCount = 0;
 
@@ -77,6 +88,7 @@ export async function scan(
           orgPublicId,
           iacOrgSettings,
           testOpts,
+          iacOutputMeta,
         );
 
         const { results, failures, ignoreCount } = await iacTest(
@@ -86,11 +98,6 @@ export async function scan(
           iacOrgSettings,
           rulesOrigin,
         );
-        iacOutputMeta = {
-          orgName: results[0]?.org,
-          projectName: results[0]?.projectName,
-          gitRemoteUrl: results[0]?.meta?.gitRemoteUrl,
-        };
 
         res = results;
         iacScanFailures = [...iacScanFailures, ...(failures || [])];
@@ -166,5 +173,27 @@ class CurrentWorkingDirectoryTraversalError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Path is outside the current working directory`;
     this.filename = path;
+  }
+}
+
+class DefaultGitRepository implements GitRepository {
+  constructor(public readonly path: string) {}
+
+  async readRemoteUrl() {
+    const gitInfo = await getInfo({
+      isFromContainer: false,
+      cwd: this.path,
+    });
+    return gitInfo?.remoteUrl;
+  }
+}
+
+class DefaultGitRepositoryFinder implements GitRepositoryFinder {
+  async findRepositoryForPath(path: string) {
+    try {
+      return new DefaultGitRepository(getRepositoryRootForPath(path));
+    } catch {
+      return;
+    }
   }
 }

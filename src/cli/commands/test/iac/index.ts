@@ -13,6 +13,7 @@ import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import { scan } from './scan';
 import { buildOutput, buildSpinner, printHeader } from './output';
+import { InvalidRemoteUrlError } from '../../../../lib/errors/invalid-remote-url-error';
 
 export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const { options: originalOptions, paths } = processCommandArgs(...args);
@@ -20,6 +21,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
+  const remoteRepoUrl = getRemoteRepoUrl(options);
 
   const orgPublicId = (options.org as string) ?? config.org;
   const iacOrgSettings = await getIacOrgSettings(orgPublicId);
@@ -69,6 +71,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     orgPublicId,
     buildOciRegistry,
     projectRoot,
+    remoteRepoUrl,
   );
 
   return buildOutput({
@@ -83,4 +86,18 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     iacIgnoredIssuesCount,
     testSpinner,
   });
+}
+
+function getRemoteRepoUrl(options: any) {
+  const remoteRepoUrl = options['remote-repo-url'];
+
+  if (!remoteRepoUrl) {
+    return;
+  }
+
+  if (typeof remoteRepoUrl !== 'string') {
+    throw new InvalidRemoteUrlError();
+  }
+
+  return remoteRepoUrl;
 }

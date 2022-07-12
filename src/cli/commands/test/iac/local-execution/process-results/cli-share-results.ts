@@ -8,19 +8,19 @@ import {
 } from '../types';
 import { convertIacResultToScanResult } from '../../../../../../lib/iac/envelope-formatters';
 import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
-import { getInfo } from '../../../../../../lib/project-metadata/target-builders/git';
-import { GitTarget } from '../../../../../../lib/ecosystems/types';
-import { Contributor } from '../../../../../../lib/types';
+import {
+  Contributor,
+  IacOutputMeta,
+  ProjectAttributes,
+  Tag,
+} from '../../../../../../lib/types';
 import * as analytics from '../../../../../../lib/analytics';
 import { getContributors } from '../../../../../../lib/monitor/dev-count-analysis';
 import * as Debug from 'debug';
 import { AuthFailedError, ValidationError } from '../../../../../../lib/errors';
-import * as pathLib from 'path';
+import { TestLimitReachedError } from '../usage-tracking';
 
 const debug = Debug('iac-cli-share-results');
-import { ProjectAttributes, Tag } from '../../../../../../lib/types';
-import { TestLimitReachedError } from '../usage-tracking';
-import { getRepositoryRootForPath } from '../../../../../../lib/iac/git';
 
 export async function shareResults({
   results,
@@ -28,22 +28,21 @@ export async function shareResults({
   tags,
   attributes,
   options,
-  projectRoot,
+  meta,
 }: {
   results: IacShareResultsFormat[];
   policy: Policy | undefined;
   tags?: Tag[];
   attributes?: ProjectAttributes;
   options?: IaCTestFlags;
-  projectRoot: string;
+  meta: IacOutputMeta;
 }): Promise<ShareResultsOutput> {
-  const gitTarget = await readGitInfoForProjectRoot(projectRoot);
   const scanResults = results.map((result) =>
-    convertIacResultToScanResult(result, policy, gitTarget, options),
+    convertIacResultToScanResult(result, policy, meta, options),
   );
 
   let contributors: Contributor[] = [];
-  if (gitTarget.remoteUrl) {
+  if (meta.gitRemoteUrl) {
     if (analytics.allowAnalytics()) {
       try {
         contributors = await getContributors();
@@ -79,29 +78,5 @@ export async function shareResults({
     );
   }
 
-  return { projectPublicIds: body, gitRemoteUrl: gitTarget?.remoteUrl };
-}
-
-async function readGitInfoForProjectRoot(
-  projectRoot: string,
-): Promise<GitTarget> {
-  const repositoryRoot = getRepositoryRootForPath(projectRoot);
-
-  const resolvedRepositoryRoot = pathLib.resolve(repositoryRoot);
-  const resolvedProjectRoot = pathLib.resolve(projectRoot);
-
-  if (resolvedRepositoryRoot != resolvedProjectRoot) {
-    return {};
-  }
-
-  const gitInfo = await getInfo({
-    isFromContainer: false,
-    cwd: projectRoot,
-  });
-
-  if (gitInfo) {
-    return gitInfo;
-  }
-
-  return {};
+  return { projectPublicIds: body, gitRemoteUrl: meta.gitRemoteUrl };
 }

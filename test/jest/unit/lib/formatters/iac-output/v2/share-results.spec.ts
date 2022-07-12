@@ -32,35 +32,4 @@ describe('formatShareResultsOutput', () => {
         colors.title(testProjectName),
     );
   });
-
-  describe('when the gitRemoteUrl is specified', () => {
-    it('returns the correct output', () => {
-      // Arrange
-      const testProjectName = 'test-project';
-      const testOrgName = 'test-org';
-      const testRepoName = 'test/repo';
-      const testGitRemoteUrl = `http://github.com/${testRepoName}.git`;
-
-      // Act
-      const output = formatShareResultsOutput({
-        projectName: testProjectName,
-        orgName: testOrgName,
-        gitRemoteUrl: testGitRemoteUrl,
-      });
-
-      // Assert
-      expect(output).toEqual(
-        colors.title('Report Complete') +
-          EOL +
-          EOL +
-          contentPadding +
-          'Your test results are available at: ' +
-          colors.title(`${config.ROOT}/org/${testOrgName}/projects`) +
-          EOL +
-          contentPadding +
-          'under the name: ' +
-          colors.title(testRepoName),
-      );
-    });
-  });
 });

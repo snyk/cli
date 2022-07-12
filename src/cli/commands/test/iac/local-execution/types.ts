@@ -186,6 +186,7 @@ export type IaCTestFlags = Pick<
   | 'ignore-policy'
   | 'policy-path'
   | 'tags'
+  | 'remote-repo-url'
 > & {
   // Supported flags not yet covered by Options or TestOptions
   'json-file-output'?: string;

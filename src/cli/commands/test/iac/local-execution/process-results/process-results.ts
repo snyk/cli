@@ -2,7 +2,11 @@ import { filterIgnoredIssues } from './policy';
 import { formatAndShareResults } from './share-results';
 import { formatScanResultsV2 } from '../measurable-methods';
 import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
-import { ProjectAttributes, Tag } from '../../../../../../lib/types';
+import {
+  IacOutputMeta,
+  ProjectAttributes,
+  Tag,
+} from '../../../../../../lib/types';
 import {
   FormattedResult,
   IacFileScanResult,
@@ -19,6 +23,7 @@ export async function processResults(
   attributes: ProjectAttributes | undefined,
   options: IaCTestFlags,
   projectRoot: string,
+  meta: IacOutputMeta,
 ): Promise<{
   filteredIssues: FormattedResult[];
   ignoreCount: number;
@@ -35,6 +40,7 @@ export async function processResults(
       tags,
       attributes,
       projectRoot,
+      meta,
     }));
   }
 

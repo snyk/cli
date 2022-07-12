@@ -1,4 +1,4 @@
-import { shareResults } from '../../../../src/lib/iac/cli-share-results';
+import { shareResults } from '../../../../src/cli/commands/test/iac/local-execution/process-results/cli-share-results';
 import {
   expectedEnvelopeFormatterResults,
   expectedEnvelopeFormatterResultsWithPolicy,
@@ -38,7 +38,11 @@ describe('CLI Share Results', () => {
     await shareResults({
       results: scanResults,
       policy: undefined,
-      pathToScan: 'test/fixtures/iac/arm',
+      meta: {
+        projectName: 'project-name',
+        orgName: 'org-name',
+        gitRemoteUrl: 'http://github.com/snyk/cli.git',
+      },
     });
 
     expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
@@ -60,7 +64,11 @@ describe('CLI Share Results', () => {
     await shareResults({
       results: scanResults,
       policy: snykPolicy,
-      pathToScan: 'test/fixtures/iac/arm',
+      meta: {
+        projectName: 'project-name',
+        orgName: 'org-name',
+        gitRemoteUrl: 'http://github.com/snyk/cli.git',
+      },
     });
 
     expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
@@ -95,7 +103,11 @@ describe('CLI Share Results', () => {
         options: {
           'target-reference': testTargetRef,
         },
-        pathToScan: 'test/fixtures/iac/arm',
+        meta: {
+          projectName: 'project-name',
+          orgName: 'org-name',
+          gitRemoteUrl: 'http://github.com/snyk/cli.git',
+        },
       });
 
       expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
@@ -122,7 +134,11 @@ describe('CLI Share Results', () => {
     await shareResults({
       results: scanResults,
       policy: undefined,
-      pathToScan: 'test/fixtures/iac/arm',
+      meta: {
+        projectName: 'project-name',
+        orgName: 'org-name',
+        gitRemoteUrl: 'http://github.com/snyk/cli.git',
+      },
     });
 
     expect(requestSpy.mock.calls.length).toBe(1);
@@ -144,7 +160,11 @@ describe('CLI Share Results', () => {
       options: {
         org: 'my-custom-org',
       },
-      pathToScan: 'test/fixtures/iac/arm',
+      meta: {
+        projectName: 'project-name',
+        orgName: 'org-name',
+        gitRemoteUrl: 'http://github.com/snyk/cli.git',
+      },
     });
 
     expect(requestSpy.mock.calls.length).toBe(1);

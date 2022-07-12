@@ -3,13 +3,14 @@ import {
   IaCTestFlags,
   PolicyMetadata,
 } from '../../cli/commands/test/iac/local-execution/types';
-import { GitTarget, ScanResult } from '../ecosystems/types';
+import { ScanResult } from '../ecosystems/types';
 import { Policy } from '../policy/find-and-load-policy';
+import { IacOutputMeta } from '../types';
 
 export function convertIacResultToScanResult(
   iacResult: IacShareResultsFormat,
   policy: Policy | undefined,
-  gitTarget: GitTarget,
+  meta: IacOutputMeta,
   options?: IaCTestFlags,
 ): ScanResult {
   return {
@@ -25,11 +26,15 @@ export function convertIacResultToScanResult(
       };
     }),
     name: iacResult.projectName,
-    target:
-      Object.keys(gitTarget).length === 0
-        ? { name: iacResult.projectName }
-        : { remoteUrl: gitTarget.remoteUrl },
+    target: buildTarget(meta),
     policy: policy?.toString() ?? '',
     targetReference: options?.['target-reference'],
   };
+}
+
+function buildTarget(meta: IacOutputMeta) {
+  if (meta.gitRemoteUrl) {
+    return { remoteUrl: meta.gitRemoteUrl };
+  }
+  return { name: meta.projectName };
 }

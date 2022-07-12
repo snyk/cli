@@ -33,6 +33,7 @@ const keys: (keyof IaCTestFlags)[] = [
   // PolicyOptions
   'ignore-policy',
   'policy-path',
+  'remote-repo-url',
 ];
 const allowed = new Set<string>(keys);
 
