@@ -47,7 +47,8 @@ describe('formatIacTestSummary', () => {
     const result = formatIacTestSummary(testTestData);
 
     // Assert
-    expect(result).toContain(`Organization: Shmulik.Kipod`);
+    expect(result).toContain(`Organization: Shmulik.Kipod
+  Project name: project-name`);
   });
 
   it('should include the counts section with the correct values', () => {

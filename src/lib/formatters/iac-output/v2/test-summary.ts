@@ -28,6 +28,10 @@ function formatTestMetaSection(iacMeta: IacOutputMeta): string {
     metaSectionProperties.push(['Organization', iacMeta.orgName]);
   }
 
+  if (iacMeta.projectName) {
+    metaSectionProperties.push(['Project name', iacMeta.projectName]);
+  }
+
   const metaSection = metaSectionProperties
     .map(([key, value]) =>
       rightPadWithSpaces(`${INDENT}${key}: ${value}`, PAD_LENGTH),
