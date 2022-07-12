@@ -93,6 +93,8 @@ describe('iac test output', () => {
         'Test Summary' +
           EOL.repeat(2) +
           '  Organization: test-org' +
+          EOL +
+          '  Project name: fixtures' +
           EOL.repeat(2) +
           '✔ Files without issues: 0' +
           EOL +
