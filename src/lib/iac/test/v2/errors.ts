@@ -12,6 +12,8 @@ const snykIacTestErrorsUserMessages = {
     'Running the scan from outside of the current working directory is not supported',
   NoBundle: 'A rules bundle were not provided',
   OpenBundle: "The Snyk CLI couldn't open the rules bundle",
+  InvalidSeverityThreshold:
+    'The provided severity threshold is invalid. The following values are supported: "low", "medium", "high", "critical"',
   Scan: defaultUserMessage,
   UnableToRecognizeInputType: 'Input type was not recognized',
   UnsupportedInputType: 'Input type is not supported',

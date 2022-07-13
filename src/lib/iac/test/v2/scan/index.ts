@@ -13,7 +13,13 @@ export function scan(
   policyEnginePath: string,
   rulesBundlePath: string,
 ): SnykIacTestOutput {
-  const args = ['-bundle', rulesBundlePath, ...options.paths];
+  const args = ['-bundle', rulesBundlePath];
+
+  if (options.severityThreshold) {
+    args.push('-severity-threshold', options.severityThreshold);
+  }
+
+  args.push(...options.paths);
 
   const process = childProcess.spawnSync(policyEnginePath, args, {
     encoding: 'utf-8',

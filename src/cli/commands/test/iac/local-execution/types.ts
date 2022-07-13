@@ -365,6 +365,7 @@ export enum IaCErrorCodes {
   CwdTraversal = 2003,
   NoBundle = 2004,
   OpenBundle = 2005,
+  InvalidSeverityThreshold = 2006,
   Scan = 2100,
   UnableToRecognizeInputType = 2101,
   UnsupportedInputType = 2102,
