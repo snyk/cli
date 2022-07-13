@@ -68,15 +68,15 @@ export async function shareResults({
     },
   });
 
-  switch (res.statusCode) {
-    case 401:
-      throw AuthFailedError();
-    case 422:
-      throw new ValidationError(
-        res.body.error ?? 'An error occurred, please contact Snyk support',
-      );
-    case 429:
-      throw new TestLimitReachedError();
+  if (res.statusCode === 401) {
+    throw AuthFailedError();
+  } else if (res.statusCode === 429) {
+    throw new TestLimitReachedError();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  } else if (res.statusCode! < 200 || res.statusCode! > 299) {
+    throw new ValidationError(
+      res.body.error ?? 'An error occurred, please contact Snyk support',
+    );
   }
 
   return { projectPublicIds: body, gitRemoteUrl: gitTarget?.remoteUrl };

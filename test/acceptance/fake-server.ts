@@ -470,6 +470,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200).send({});
   });
 
+  app.post(basePath + '/iac-cli-share-results', (req, res) => {
+    res.status(200).send({});
+  });
+
   app.post(basePath + '/analytics/cli', (req, res) => {
     res.status(200).send({});
   });
