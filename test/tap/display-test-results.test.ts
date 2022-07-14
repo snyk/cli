@@ -11,7 +11,6 @@ import { getWorkspacePath } from '../jest/util/getWorkspacePath';
 
 const { test } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
-const apiUrl = new URL(config.ROOT);
 
 test('`test ruby-app` remediation displayed', async (t) => {
   chdirWorkspaces();
@@ -173,7 +172,7 @@ test('`test npm-package-with-severity-override` show original severity upgrade',
     const { message } = error;
     t.match(
       message,
-      `[Low Severity (originally Medium)][${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328]`,
+      `[Low Severity (originally Medium)][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328]`,
     );
   }
 
@@ -200,7 +199,7 @@ test('`test npm-package-with-severity-override` show original severity patches',
     t.match(message, 'Patch available for node-uuid@1.4.0');
     t.match(
       message,
-      `[Low Severity (originally Medium)][${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328]`,
+      `[Low Severity (originally Medium)][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328]`,
     );
   }
 
@@ -252,7 +251,7 @@ test('`test npm-package-with-severity-override` show original severity unresolve
     const { message } = error;
     t.match(
       message,
-      `Malicious Package [Low Severity (originally Medium)][${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328`,
+      `Malicious Package [Low Severity (originally Medium)][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328`,
     );
   }
 
@@ -278,7 +277,7 @@ test('`test npm-package-with-severity-override` dont show original severity if i
     const { message } = error;
     t.match(
       message,
-      `[Low Severity][${apiUrl.protocol}//${apiUrl.host}/vuln/npm:node-uuid:20160328]`,
+      `[Low Severity][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328]`,
     );
   }
 

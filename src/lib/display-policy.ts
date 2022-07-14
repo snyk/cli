@@ -3,7 +3,7 @@ import { demunge } from 'snyk-policy';
 import config from './config';
 
 export async function display(policy) {
-  const p = demunge(policy, config.ROOT);
+  const p = demunge(policy, config.PUBLIC_VULN_DB_URL);
   const delimiter = '\n\n------------------------\n';
 
   let res =

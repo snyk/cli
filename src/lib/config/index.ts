@@ -25,6 +25,7 @@ interface Config {
   IAC_BUNDLE_PATH?: string;
   IAC_POLICY_ENGINE_PATH?: string;
   IAC_OUTPUT_V2?: boolean;
+  PUBLIC_VULN_DB_URL: string;
 }
 
 // TODO: fix the types!
@@ -75,5 +76,7 @@ if (!config.ROOT) {
   apiUrl.host = apiUrl.host.replace(/^ap[pi]\./, '');
   config.ROOT = apiUrl.protocol + '//' + apiUrl.host;
 }
+
+config.PUBLIC_VULN_DB_URL = 'https://security.snyk.io';
 
 export default config;
