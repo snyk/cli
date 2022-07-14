@@ -1,5 +1,9 @@
 import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
-import { ProjectAttributes, Tag } from '../../../../../../lib/types';
+import {
+  IacOutputMeta,
+  ProjectAttributes,
+  Tag,
+} from '../../../../../../lib/types';
 import {
   FormattedResult,
   IacFileScanResult,
@@ -26,6 +30,7 @@ export class SingleGroupResultsProcessor implements ResultsProcessor {
     private orgPublicId: string,
     private iacOrgSettings: IacOrgSettings,
     private options: IaCTestFlags,
+    private meta: IacOutputMeta,
   ) {}
 
   processResults(
@@ -43,6 +48,7 @@ export class SingleGroupResultsProcessor implements ResultsProcessor {
       attributes,
       this.options,
       this.projectRoot,
+      this.meta,
     );
   }
 }

@@ -4,16 +4,6 @@ import { EOL } from 'os';
 import { colors, contentPadding } from './utils';
 
 export function formatShareResultsOutput(iacOutputMeta: IacOutputMeta) {
-  let projectName: string = iacOutputMeta.projectName;
-
-  if (iacOutputMeta.gitRemoteUrl) {
-    // from "http://github.com/snyk/cli.git" to "snyk/cli"
-    projectName = iacOutputMeta.gitRemoteUrl.replace(
-      /^https?:\/\/github.com\/(.*)\.git$/,
-      '$1',
-    );
-  }
-
   return (
     colors.title('Report Complete') +
     EOL +
@@ -24,7 +14,7 @@ export function formatShareResultsOutput(iacOutputMeta: IacOutputMeta) {
     EOL +
     contentPadding +
     'under the name: ' +
-    colors.title(projectName)
+    colors.title(iacOutputMeta.projectName)
   );
 }
 

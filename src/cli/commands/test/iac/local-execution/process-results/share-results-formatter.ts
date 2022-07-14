@@ -1,9 +1,11 @@
 import { IacFileScanResult, IacShareResultsFormat } from '../types';
 import * as path from 'path';
+import { IacOutputMeta } from '../../../../../../lib/types';
 
 export function formatShareResults(
   projectRoot: string,
   scanResults: IacFileScanResult[],
+  meta: IacOutputMeta,
 ): IacShareResultsFormat[] {
   const resultsGroupedByFilePath = groupByFilePath(scanResults);
 
@@ -11,6 +13,7 @@ export function formatShareResults(
     const { projectName, targetFile } = computePaths(
       projectRoot,
       result.filePath,
+      meta,
     );
 
     return {
@@ -45,16 +48,16 @@ function groupByFilePath(scanResults: IacFileScanResult[]) {
 function computePaths(
   projectRoot: string,
   filePath: string,
+  meta: IacOutputMeta,
 ): { targetFilePath: string; projectName: string; targetFile: string } {
   const projectDirectory = path.resolve(projectRoot);
-  const currentDirectoryName = path.basename(projectDirectory);
   const absoluteFilePath = path.resolve(filePath);
   const relativeFilePath = path.relative(projectDirectory, absoluteFilePath);
   const unixRelativeFilePath = relativeFilePath.split(path.sep).join('/');
 
   return {
     targetFilePath: absoluteFilePath,
-    projectName: currentDirectoryName,
+    projectName: meta.projectName,
     targetFile: unixRelativeFilePath,
   };
 }
