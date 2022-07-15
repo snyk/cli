@@ -13,7 +13,13 @@ describe('buildMeta', () => {
     const repoFinder = repositoryFound(repoPath, repoUrl);
 
     it('should return a valid meta', async () => {
-      const meta = await buildMeta(repoFinder, orgSettings, repoPath);
+      const meta = await buildMeta(
+        repoFinder,
+        orgSettings,
+        repoPath,
+        undefined,
+        undefined,
+      );
 
       expect(meta).toMatchObject({
         projectName: 'foo/bar',
@@ -25,7 +31,13 @@ describe('buildMeta', () => {
     it('should respect the repository URL override', async () => {
       const repoUrl = 'git@example.com:baz/qux.git';
 
-      const meta = await buildMeta(repoFinder, orgSettings, repoPath, repoUrl);
+      const meta = await buildMeta(
+        repoFinder,
+        orgSettings,
+        repoPath,
+        repoUrl,
+        undefined,
+      );
 
       expect(meta).toMatchObject({
         projectName: 'baz/qux',
@@ -42,7 +54,13 @@ describe('buildMeta', () => {
     const repoFinder = repositoryFound(repoPath);
 
     it('should return a valid meta', async () => {
-      const meta = await buildMeta(repoFinder, orgSettings, repoPath);
+      const meta = await buildMeta(
+        repoFinder,
+        orgSettings,
+        repoPath,
+        undefined,
+        undefined,
+      );
 
       expect(meta).toMatchObject({
         projectName: 'project',
@@ -54,7 +72,13 @@ describe('buildMeta', () => {
     it('should respect the repository URL override', async () => {
       const repoUrl = 'git@example.com:baz/qux.git';
 
-      const meta = await buildMeta(repoFinder, orgSettings, repoPath, repoUrl);
+      const meta = await buildMeta(
+        repoFinder,
+        orgSettings,
+        repoPath,
+        repoUrl,
+        undefined,
+      );
 
       expect(meta).toMatchObject({
         projectName: 'baz/qux',
@@ -71,7 +95,13 @@ describe('buildMeta', () => {
     const projectPath = path.resolve('project');
 
     it('should return a valid meta', async () => {
-      const meta = await buildMeta(repoFinder, orgSettings, projectPath);
+      const meta = await buildMeta(
+        repoFinder,
+        orgSettings,
+        projectPath,
+        undefined,
+        undefined,
+      );
 
       expect(meta).toMatchObject({
         projectName: 'project',
@@ -88,10 +118,30 @@ describe('buildMeta', () => {
         orgSettings,
         projectPath,
         repoUrl,
+        undefined,
       );
 
       expect(meta).toMatchObject({
         projectName: 'baz/qux',
+        orgName: 'org',
+        gitRemoteUrl: repoUrl,
+      });
+    });
+
+    it('should respect the target-name override over the remote-repo-url for the project name', async () => {
+      const repoUrl = 'git@example.com:baz/qux.git';
+      const targetName = 'fab-tf-project';
+
+      const meta = await buildMeta(
+        repoFinder,
+        orgSettings,
+        projectPath,
+        repoUrl,
+        targetName,
+      );
+
+      expect(meta).toMatchObject({
+        projectName: targetName,
         orgName: 'org',
         gitRemoteUrl: repoUrl,
       });
@@ -107,7 +157,13 @@ describe('buildMeta', () => {
     const repoFinder = repositoryFound(repoPath, repoUrl);
 
     it('should return a valid meta', async () => {
-      const meta = await buildMeta(repoFinder, orgSettings, projectPath);
+      const meta = await buildMeta(
+        repoFinder,
+        orgSettings,
+        projectPath,
+        undefined,
+        undefined,
+      );
 
       expect(meta).toMatchObject({
         projectName: 'project',
@@ -119,7 +175,13 @@ describe('buildMeta', () => {
     it('should respect the repository URL override', async () => {
       const repoUrl = 'git@example.com:baz/qux.git';
 
-      const meta = await buildMeta(repoFinder, orgSettings, repoPath, repoUrl);
+      const meta = await buildMeta(
+        repoFinder,
+        orgSettings,
+        repoPath,
+        repoUrl,
+        undefined,
+      );
 
       expect(meta).toMatchObject({
         projectName: 'baz/qux',
@@ -192,13 +254,11 @@ function orgSettingsFor(org) {
 }
 
 function repositoryNotFound() {
-  const repositoryFinder = {
+  return {
     async findRepositoryForPath() {
       return undefined;
     },
   };
-
-  return repositoryFinder;
 }
 
 function repositoryFound(path: string, url?: string) {
@@ -210,11 +270,9 @@ function repositoryFound(path: string, url?: string) {
     },
   };
 
-  const repositoryFinder = {
+  return {
     async findRepositoryForPath() {
       return repository;
     },
   };
-
-  return repositoryFinder;
 }

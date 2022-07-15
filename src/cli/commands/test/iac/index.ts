@@ -13,7 +13,8 @@ import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import { scan } from './scan';
 import { buildOutput, buildSpinner, printHeader } from './output';
-import { InvalidRemoteUrlError } from '../../../../lib/errors/invalid-remote-url-error';
+import { Options, TestOptions } from '../../../../lib/types';
+import { InvalidArgumentError } from './local-execution/assert-iac-options-flag';
 
 export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const { options: originalOptions, paths } = processCommandArgs(...args);
@@ -21,7 +22,8 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
-  const remoteRepoUrl = getRemoteRepoUrl(options);
+  const remoteRepoUrl = getFlag(options, 'remote-repo-url');
+  const targetName = getFlag(options, 'target-name');
 
   const orgPublicId = (options.org as string) ?? config.org;
   const iacOrgSettings = await getIacOrgSettings(orgPublicId);
@@ -72,6 +74,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     buildOciRegistry,
     projectRoot,
     remoteRepoUrl,
+    targetName,
   );
 
   return buildOutput({
@@ -88,16 +91,16 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   });
 }
 
-function getRemoteRepoUrl(options: any) {
-  const remoteRepoUrl = options['remote-repo-url'];
+function getFlag(options: Options & TestOptions, flag: string) {
+  const flagValue = options[flag];
 
-  if (!remoteRepoUrl) {
+  if (!flagValue) {
     return;
   }
-
-  if (typeof remoteRepoUrl !== 'string') {
-    throw new InvalidRemoteUrlError();
+  // if the user does not provide a value, it will be of boolean type
+  if (typeof flagValue !== 'string') {
+    throw new InvalidArgumentError(flag);
   }
 
-  return remoteRepoUrl;
+  return flagValue;
 }

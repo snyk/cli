@@ -185,8 +185,11 @@ export type IaCTestFlags = Pick<
   // PolicyOptions
   | 'ignore-policy'
   | 'policy-path'
+  // Tags
   | 'tags'
+  // Report options
   | 'remote-repo-url'
+  | 'target-name'
 > & {
   // Supported flags not yet covered by Options or TestOptions
   'json-file-output'?: string;
@@ -335,6 +338,7 @@ export enum IaCErrorCodes {
   FlagValueError = 1091,
   UnsupportedEntitlementFlagError = 1092,
   FeatureFlagError = 1093,
+  InvalidArgumentError = 1094,
 
   // oci-pull errors
   FailedToExecuteCustomRulesError = 1100,
