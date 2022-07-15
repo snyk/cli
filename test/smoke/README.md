@@ -1,6 +1,6 @@
 # Snyk CLI Smoke Tests
 
-Design goal is to have a single test suite, that can detect if CLI is not working properly - before and after it's released. Defects it should catch are e.g. [broken pkg builds for a specific platform](https://github.com/snyk/snyk/issues/670), [misaligned dependencies](https://github.com/snyk/snyk/issues/1261) or [issues with a specific installation targets](https://github.com/snyk/snyk/issues/1270).
+Design goal is to have a single test suite that can detect if CLI is not working properly - before and after it's released. Defects it should catch are e.g. [broken pkg builds for a specific platform](https://github.com/snyk/snyk/issues/670), [misaligned dependencies](https://github.com/snyk/snyk/issues/1261) or [issues with a specific installation targets](https://github.com/snyk/snyk/issues/1270).
 
 CLI is being tested by a series of tests using [Shellspec](https://shellspec.info). See them in a `test/smoke/spec` folder.
 
