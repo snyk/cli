@@ -6,11 +6,22 @@ export class NestedCustomError extends CustomError {
     this.innerError = innerError;
   }
 
-  public get nestedName(): string {
+  get nestedValues() {
+    return {
+      name: this.nestedName,
+      message: this.nestedMessage,
+      userMessage: this.nestedUserMessage,
+      code: this.nestedCode,
+      strCode: this.nestedStrCode,
+      stack: this.nestedStack,
+    };
+  }
+
+  private get nestedName(): string {
     return this.innerError?.nestedName || this.innerError?.name || this.name;
   }
 
-  public get nestedStack(): string | undefined {
+  private get nestedStack(): string | undefined {
     const stackComponents: string[] = [];
     if (this.stack) {
       stackComponents.push(this.stack);
@@ -24,7 +35,7 @@ export class NestedCustomError extends CustomError {
     return stackComponents.join('\n' + ' '.repeat(2) + '[cause]: ');
   }
 
-  public get nestedMessage(): string {
+  private get nestedMessage(): string {
     let message = this.message;
 
     const innerErrorMessage =
@@ -36,7 +47,7 @@ export class NestedCustomError extends CustomError {
     return message;
   }
 
-  public get nestedUserMessage(): string | undefined {
+  private get nestedUserMessage(): string | undefined {
     return (
       this.innerError?.nestedUserMessage ||
       this.innerError?.userMessage ||
@@ -44,11 +55,11 @@ export class NestedCustomError extends CustomError {
     );
   }
 
-  public get nestedCode(): number | undefined {
+  private get nestedCode(): number | undefined {
     return this.innerError?.nestedCode || this.innerError?.code || this.code;
   }
 
-  public get nestedStrCode(): string | undefined {
+  private get nestedStrCode(): string | undefined {
     return (
       this.innerError?.nestedStrCode || this.innerError?.strCode || this.strCode
     );
