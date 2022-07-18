@@ -13,6 +13,7 @@ import {
 } from './errors';
 import { MonitorOptions, Options, TestOptions } from './types';
 import { isMultiProjectScan } from './is-multi-project-scan';
+import * as theme from './theme';
 
 const featureFlag = 'reachableVulns';
 
@@ -65,3 +66,7 @@ export async function validatePayload(
   }
   return true;
 }
+
+export const reachableVulnsRemovalMessage = theme.color.status.warn(
+  `${theme.icon.WARNING} Starting on August 15th 2022, the reachable flag (--reachable) will not be supported.We are currently developing new and improved capabilities for prioritizing vulnerabilities.Please follow https://updates.snyk.io for news and updates, and we are sorry for the temporary inconvenience.\n`,
+);

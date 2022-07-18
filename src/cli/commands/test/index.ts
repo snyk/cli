@@ -44,14 +44,10 @@ import iacTestCommand from './iac';
 import * as iacTestCommandV2 from './iac/v2';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
 import { checkOSSPaths } from '../../../lib/check-paths';
-import * as theme from '../../../lib/theme';
+import { reachableVulnsRemovalMessage } from '../../../lib/reachable-vulns';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
-
-const reachableVulnsRemovalMessage = theme.color.status.warn(
-  `${theme.icon.WARNING} Starting on August 15th 2022, the reachable flag (--reachable) will not be supported.We are currently developing new and improved capabilities for prioritizing vulnerabilities.Please follow https://updates.snyk.io for news and updates, and we are sorry for the temporary inconvenience.\n`,
-);
 
 // TODO: avoid using `as any` whenever it's possible
 
