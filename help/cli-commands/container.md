@@ -148,6 +148,8 @@ To fail on any vulnerability (the default behavior), do not use the `--fail-on` 
 
 Allow detection of vulnerabilities in your application dependencies from container images, as well as from the operating system, all in one single scan.
 
+In CLI version 1.962.0 and higher, use the `--app-vulns` option with the the `--json` option to see the operating system as well as application vulnerabilities in JSON format in the results.
+
 ### `--nested-jars-depth`
 
 When using `--app-vulns` use the `--nested-jars-depth` option to set how many levels of nested jars Snyk is to unpack. Depth must be a number.
