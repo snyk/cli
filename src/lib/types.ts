@@ -88,6 +88,7 @@ export interface Options {
   'max-depth'?: number;
   report?: boolean;
   'var-file'?: string;
+  'target-name'?: string;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny

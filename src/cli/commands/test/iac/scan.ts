@@ -36,6 +36,7 @@ export async function scan(
   buildOciRules: () => OciRegistry,
   projectRoot: string,
   remoteRepoUrl?: string,
+  targetName?: string,
 ): Promise<{
   iacOutputMeta: IacOutputMeta | undefined;
   iacScanFailures: IacFileInDirectory[];
@@ -52,6 +53,7 @@ export async function scan(
     iacOrgSettings,
     projectRoot,
     remoteRepoUrl,
+    targetName,
   );
 
   let iacScanFailures: IacFileInDirectory[] = [];

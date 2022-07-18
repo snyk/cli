@@ -17,18 +17,26 @@ export async function buildMeta(
   orgSettings: IacOrgSettings,
   projectRoot: string,
   remoteRepoUrl?: string,
+  targetName?: string,
 ): Promise<IacOutputMeta> {
   const gitRemoteUrl = await getGitRemoteUrl(
     repositoryFinder,
     projectRoot,
     remoteRepoUrl,
   );
-  const projectName = getProjectName(projectRoot, gitRemoteUrl);
+  const projectName = getProjectName(projectRoot, gitRemoteUrl, targetName);
   const orgName = getOrgName(orgSettings);
   return { projectName, orgName, gitRemoteUrl };
 }
 
-function getProjectName(projectRoot: string, gitRemoteUrl?: string): string {
+function getProjectName(
+  projectRoot: string,
+  gitRemoteUrl?: string,
+  targetName?: string,
+): string {
+  if (targetName) {
+    return targetName;
+  }
   if (gitRemoteUrl) {
     return getProjectNameFromGitUrl(gitRemoteUrl);
   }
