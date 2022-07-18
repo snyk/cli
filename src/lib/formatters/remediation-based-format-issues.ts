@@ -115,9 +115,6 @@ export function formatIssuesWithRemediation(
       options,
     );
   }
-  if (upgradeTextArray.length > 0) {
-    results.push(upgradeTextArray.join('\n'));
-  }
 
   const patchedTextArray = constructPatchesText(
     remediationInfo.patch,
@@ -125,13 +122,14 @@ export function formatIssuesWithRemediation(
     options,
   );
 
-  if (patchedTextArray.length > 0) {
-    results.push(patchedTextArray.join('\n'));
-  }
-
   const unfixableIssuesTextArray = constructUnfixableText(
     remediationInfo.unresolved,
     basicVulnInfo,
+    options,
+  );
+
+  const licenseIssuesTextArray = constructLicenseText(
+    basicLicenseInfo,
     options,
   );
 
@@ -139,13 +137,16 @@ export function formatIssuesWithRemediation(
     results.push(unfixableIssuesTextArray.join('\n'));
   }
 
-  const licenseIssuesTextArray = constructLicenseText(
-    basicLicenseInfo,
-    options,
-  );
-
   if (licenseIssuesTextArray.length > 0) {
     results.push(licenseIssuesTextArray.join('\n'));
+  }
+
+  if (patchedTextArray.length > 0) {
+    results.push(patchedTextArray.join('\n'));
+  }
+
+  if (upgradeTextArray.length > 0) {
+    results.push(upgradeTextArray.join('\n'));
   }
 
   return results;

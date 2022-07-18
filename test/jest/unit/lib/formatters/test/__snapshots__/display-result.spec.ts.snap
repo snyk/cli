@@ -233,19 +233,19 @@ Testing src...
 Tested 2 dependencies for known issues, found 32 issues, 2 vulnerable paths.
 
 
+Issues with no direct upgrade or patch:
+  ✗ Directory Traversal [Low Severity][URL] in django@1.6.1
+    introduced by:
+    django@1.6.1
+  This issue was fixed in versions: 2.2.18, 3.0.12, 3.1.6
+
+
 Issues to fix by upgrading dependencies:
 
   Upgrade django@1.6.1 to django@2.2.18 to fix
   ✗ Content Spoofing [Medium Severity][URL] in django@1.6.1
     introduced by:
     django@1.6.1
-
-
-Issues with no direct upgrade or patch:
-  ✗ Directory Traversal [Low Severity][URL] in django@1.6.1
-    introduced by:
-    django@1.6.1
-  This issue was fixed in versions: 2.2.18, 3.0.12, 3.1.6
 
 
 
@@ -270,6 +270,14 @@ Testing src...
 Tested 2 dependencies for known vulnerabilities, found 4 vulnerabilities, 4 vulnerable paths.
 
 
+Patchable issues:
+
+  Patch available for node-uuid@1.4.0
+  ✗ Insecure Randomness [Low Severity (originally Medium)][URL] in node-uuid@1.4.0
+    introduced by:
+    node-uuid@1.4.0
+
+
 Issues to fix by upgrading:
 
   Upgrade qs@0.0.6 to qs@6.0.4 to fix
@@ -282,14 +290,6 @@ Issues to fix by upgrading:
   ✗ Denial of Service (DoS) [Low Severity (originally Medium)][URL] in qs@0.0.6
     introduced by:
     qs@0.0.6
-
-
-Patchable issues:
-
-  Patch available for node-uuid@1.4.0
-  ✗ Insecure Randomness [Low Severity (originally Medium)][URL] in node-uuid@1.4.0
-    introduced by:
-    node-uuid@1.4.0
 
 
 
@@ -308,6 +308,15 @@ exports[`displayResult with license issues 1`] = `
 Testing src...
 
 Tested 3 dependencies for known issues, found 6 issues, 8 vulnerable paths.
+
+
+License issues:
+
+  ✗ Unknown license [High Severity][URL] in rack-cache@1.1
+    introduced by:
+    rack-cache@1.1
+    Legal instructions:
+    ○ for LGPL-3.0 license: I am legal license instruction
 
 
 Issues to fix by upgrading:
@@ -344,15 +353,6 @@ Issues to fix by upgrading:
     rack@1.6.5
     rack-cache@1.1 > rack@1.6.5
     rack-protection@1.5.3 > rack@1.6.5
-
-
-License issues:
-
-  ✗ Unknown license [High Severity][URL] in rack-cache@1.1
-    introduced by:
-    rack-cache@1.1
-    Legal instructions:
-    ○ for LGPL-3.0 license: I am legal license instruction
 
 
 
