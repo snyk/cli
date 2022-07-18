@@ -236,12 +236,14 @@ Tested 2 dependencies for known issues, found 32 issues, 2 vulnerable paths.
 Issues to fix by upgrading dependencies:
 
   Upgrade django@1.6.1 to django@2.2.18 to fix
+
   ✗ Content Spoofing [Medium Severity][URL] in django@1.6.1
     introduced by:
     django@1.6.1
 
 
 Issues with no direct upgrade or patch:
+
   ✗ Directory Traversal [Low Severity][URL] in django@1.6.1
     introduced by:
     django@1.6.1
@@ -273,12 +275,15 @@ Tested 2 dependencies for known vulnerabilities, found 4 vulnerabilities, 4 vuln
 Issues to fix by upgrading:
 
   Upgrade qs@0.0.6 to qs@6.0.4 to fix
+
   ✗ Prototype Override Protection Bypass [Low Severity (originally High)][URL] in qs@0.0.6
     introduced by:
     qs@0.0.6
+
   ✗ Denial of Service (DoS) [Low Severity (originally High)][URL] in qs@0.0.6
     introduced by:
     qs@0.0.6
+
   ✗ Denial of Service (DoS) [Low Severity (originally Medium)][URL] in qs@0.0.6
     introduced by:
     qs@0.0.6
@@ -287,6 +292,7 @@ Issues to fix by upgrading:
 Patchable issues:
 
   Patch available for node-uuid@1.4.0
+
   ✗ Insecure Randomness [Low Severity (originally Medium)][URL] in node-uuid@1.4.0
     introduced by:
     node-uuid@1.4.0
@@ -313,6 +319,7 @@ Tested 3 dependencies for known issues, found 6 issues, 8 vulnerable paths.
 Issues to fix by upgrading:
 
   Upgrade rack@1.6.5 to rack@1.6.11 to fix
+
   ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
     introduced by:
     rack@1.6.5
@@ -320,25 +327,31 @@ Issues to fix by upgrading:
     rack-protection@1.5.3 > rack@1.6.5
 
   Upgrade rack-cache@1.1 to rack-cache@1.3.0 to fix
+
   ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
     introduced by:
     rack@1.6.5
     rack-cache@1.1 > rack@1.6.5
     rack-protection@1.5.3 > rack@1.6.5
+
   ✗ HTTP Header Caching Weakness [High Severity][URL] in rack-cache@1.1
     introduced by:
     rack-cache@1.1
 
   Upgrade rack-protection@1.5.3 to rack-protection@2.0.0 to fix
+
   ✗ Side-channel attack [Low Severity][URL] in rack-protection@1.5.3
     introduced by:
     rack-protection@1.5.3
+
   ✗ Timing Attack [Medium Severity][URL] in rack-protection@1.5.3
     introduced by:
     rack-protection@1.5.3
+
   ✗ Directory Traversal [Medium Severity][URL] in rack-protection@1.5.3
     introduced by:
     rack-protection@1.5.3
+
   ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
     introduced by:
     rack@1.6.5

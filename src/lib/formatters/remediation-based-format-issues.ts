@@ -176,7 +176,7 @@ function constructLicenseText(
       undefined, // We can never override license rules, so no originalSeverity here
       basicLicenseInfo[id].legalInstructions,
     );
-    licenseTextArray.push('\n' + licenseText);
+    licenseTextArray.push(licenseText);
   }
   return licenseTextArray;
 }
@@ -487,6 +487,7 @@ export function formatIssue(
   }
 
   return (
+    '\n' +
     colorTextBySeverity(
       severity,
       `  ${icon.ISSUE} ${chalk.bold(title)}${newBadge} [${titleCaseText(
