@@ -260,7 +260,7 @@ function vulnerabilitiesToIacIssues(
       issue: v.rule.description,
       publicId: v.rule.id,
       title: v.rule.title,
-      references: ['TBD'], // missing in `snyk-iac-test` v0.3.0 will be added in a future release
+      references: v.rule.references ? [v.rule.references] : [], // TODO: `references` expects a list of URLs, but `v.references` is a markdown string with URLs. When makrdown parsing is added, extract the URLs in `v.references`
       id: v.rule.id,
       isIgnored: v.ignored,
       iacDescription: {
@@ -269,10 +269,10 @@ function vulnerabilitiesToIacIssues(
         resolve: v.remediation,
       },
       lineNumber: v.resource.line || -1,
-      documentation: 'TBD', // add this once we'll start using updated rules with "legacy" public-ids
+      documentation: `https://snyk.io/security-rules/${v.rule.id}`, // only works for rules available on snyk.io
       isGeneratedByCustomRule: false,
       path: v.resource.path || [], // needs to be fixed, currently doesn't show the full path
-      compliance: [['TBD']], // missing in `snyk-iac-test` v0.3.0 will be added in a future release
+      compliance: v.rule.controls,
       description: v.rule.description,
     };
   });
