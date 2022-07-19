@@ -86,6 +86,8 @@ function formatScanResultsNewOutput(
 
 export function formatSnykIacTestTestData(
   snykIacTestScanResult: Results | undefined,
+  projectName: string,
+  orgName: string,
 ): IacTestData {
   const resultsBySeverity = formatSnykIacTestScanResultNewOutput(
     snykIacTestScanResult,
@@ -99,19 +101,53 @@ export function formatSnykIacTestTestData(
     totalIssues += issuesCountBySeverity[severity];
   });
 
+  const allFilesCount = countFiles(snykIacTestScanResult);
+  const filesWithIssuesCount = countFilesWithIssues(snykIacTestScanResult);
+  const filesWithoutIssuesCount = allFilesCount - filesWithIssuesCount;
+
   return {
     resultsBySeverity,
-    // TODO: Add metadata when working on the Share Results feat
-    metadata: { projectName: 'TBD', orgName: 'TBD' },
-    // TODO: Add missing preoprties when adding support for the test summary
+    metadata: { projectName, orgName },
     counts: {
       ignores: 0,
-      filesWithIssues: 0,
-      filesWithoutIssues: 0,
+      filesWithIssues: filesWithIssuesCount,
+      filesWithoutIssues: filesWithoutIssuesCount,
       issues: totalIssues,
       issuesBySeverity: issuesCountBySeverity,
     },
   };
+}
+
+function countFilesWithIssues(results?: Results): number {
+  if (results && results.vulnerabilities) {
+    const files = new Set<string>();
+
+    for (const vulnerability of results.vulnerabilities) {
+      if (vulnerability.resource.file) {
+        files.add(vulnerability.resource.file);
+      }
+    }
+
+    return files.size;
+  }
+
+  return 0;
+}
+
+function countFiles(results?: Results): number {
+  if (results && results?.resources) {
+    const files = new Set<string>();
+
+    for (const resource of results.resources) {
+      if (resource.file) {
+        files.add(resource.file);
+      }
+    }
+
+    return files.size;
+  }
+
+  return 0;
 }
 
 function formatSnykIacTestScanResultNewOutput(
