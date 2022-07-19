@@ -99,8 +99,12 @@ describe('formatSnykIacTestTestData', () => {
   );
 
   it('formats the test data correctly', () => {
-    expect(formatSnykIacTestTestData(snykIacTestOutputFixture.results)).toEqual(
-      testDataFixture,
-    );
+    expect(
+      formatSnykIacTestTestData(
+        snykIacTestOutputFixture.results,
+        'project-name',
+        'org-name',
+      ),
+    ).toEqual(testDataFixture);
   });
 });
