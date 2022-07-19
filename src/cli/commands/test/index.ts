@@ -44,7 +44,6 @@ import iacTestCommand from './iac';
 import * as iacTestCommandV2 from './iac/v2';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
 import { checkOSSPaths } from '../../../lib/check-paths';
-import { reachableVulnsRemovalMessage } from '../../../lib/reachable-vulns';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -233,10 +232,6 @@ export default async function test(
       );
     })
     .join(`\n${SEPARATOR}`);
-
-  if (options.reachableVulns || options.callGraphBuilderTimeout) {
-    response += "\n" + reachableVulnsRemovalMessage;
-  }
 
   if (notSuccess) {
     debug(`Failed to test ${errorResults.length} projects, errors:`);
