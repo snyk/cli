@@ -119,7 +119,7 @@ Place fixtures in `./test/fixtures`. Keep them minimal to reduce maintenance. Us
 
 ### Smoke Tests
 
-Smoke tests typically don't run on branche unless the banch is specifically prefixed with `smoke/`. They usually run on an hourly basis against the latest published version of the CLI.
+Smoke tests typically don't run on branches unless the branch is specifically prefixed with `smoke/`. They usually run on an hourly basis against the latest published version of the CLI.
 
 If you merge a PR that changes smoke tests, remember that the tests will fail until your changes are deployed.
 
