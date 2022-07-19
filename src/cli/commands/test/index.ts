@@ -234,6 +234,10 @@ export default async function test(
     })
     .join(`\n${SEPARATOR}`);
 
+  if (options.reachableVulns || options.callGraphBuilderTimeout) {
+    response += "\n" + reachableVulnsRemovalMessage;
+  }
+
   if (notSuccess) {
     debug(`Failed to test ${errorResults.length} projects, errors:`);
     errorResults.forEach((err) => {
@@ -312,10 +316,6 @@ export default async function test(
   response += getProtectUpgradeWarningForPaths(
     packageJsonPathsWithSnykDepForProtect,
   );
-
-  if (options.reachableVulns || options.callGraphBuilderTimeout) {
-    response += reachableVulnsRemovalMessage;
-  }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
     response,
