@@ -117,6 +117,14 @@ Use [fake-server](./test/acceptance/fake-server.ts) to mock any Snyk API calls. 
 
 Place fixtures in `./test/fixtures`. Keep them minimal to reduce maintenance. Use [`createProject`](./test/jest/util/createProject.ts) to use your fixtures in isolated working directories for your tests.
 
+### Smoke Tests
+
+Smoke tests typically don't run on branche unless the banch is specifically prefixed with `smoke/`. They usually run on an hourly basis against the latest published version of the CLI.
+
+If you merge a PR that changes smoke tests, remember that the tests will fail until your changes are deployed.
+
+See [the smoke tests readme](./test/smoke/README.md) for more info
+
 ## Code ownership
 
 For current ownership assignments, see: [CODEOWNERS](./.github/CODEOWNERS).
