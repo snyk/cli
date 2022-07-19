@@ -180,13 +180,13 @@ Auto-detect maven jars, aars, and wars in given directory. To monitor individual
 
 ### `--reachable`
 
-WARNING: Will be deprecated on the 1st of September 2022
+WARNING: Will be deprecated on the 15th of August 2022
 
 Analyze your source code to find which vulnerable functions and packages are called. Cannot be used with `--all-projects`
 
 ### `--reachable-timeout=<TIMEOUT>`
 
-WARNING: Will be deprecated on the 1st of September 2022
+WARNING: Will be deprecated on the 15th of August 2022
 
 Specify the amount of time (in seconds) to wait for Snyk to gather reachability data. If it takes longer than `<TIMEOUT>`, reachable vulnerabilities are not reported. This does not affect regular test or monitor output.
 
