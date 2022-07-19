@@ -48,7 +48,6 @@ import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
 import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 import { processCommandArgs } from '../process-command-args';
-import { reachableVulnsRemovalMessage } from '../../../lib/reachable-vulns';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
