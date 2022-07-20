@@ -1,7 +1,9 @@
+import pick = require('lodash.pick');
 import { BasicResultData, SEVERITY, TestDepGraphMeta } from './legacy';
 
 export interface AnnotatedIacIssue {
   id: string;
+  publicId: string;
   title: string;
   description?: string;
   severity: SEVERITY | 'none';
@@ -11,9 +13,14 @@ export interface AnnotatedIacIssue {
   path?: string[];
   documentation?: string;
   isGeneratedByCustomRule?: boolean;
+  issue: string;
+  impact: string;
+  resolve: string;
   remediation?: Partial<
     Record<'terraform' | 'cloudformation' | 'arm' | 'kubernetes', string>
   >;
+  msg: string;
+  compliance?: string[][];
 
   // Legacy fields from Registry, unused.
   name?: string;
@@ -94,7 +101,27 @@ export function mapIacIssue(
   iacIssue: AnnotatedIacIssue,
 ): MappedAnnotatedIacIssue {
   // filters out & renames properties we're getting from registry and don't need for the JSON output.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { cloudConfigPath: path, name, from, ...mappedIacIssue } = iacIssue;
-  return { ...mappedIacIssue, path };
+  return {
+    ...pick(
+      iacIssue,
+      'id',
+      'title',
+      'severity',
+      'isIgnored',
+      'subType',
+      'documentation',
+      'isGeneratedByCustomRule',
+      'issue',
+      'impact',
+      'resolve',
+      'remediation',
+      'lineNumber',
+      'iacDescription',
+      'publicId',
+      'msg',
+      'description',
+      'compliance',
+    ),
+    path: iacIssue.cloudConfigPath,
+  };
 }

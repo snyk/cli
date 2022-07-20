@@ -177,6 +177,7 @@ function formatSnykIacTestScanVulnerability(
 ): AnnotatedIacIssue {
   return {
     id: vulnerability.rule.id,
+    publicId: vulnerability.rule.id,
     severity: vulnerability.severity,
     title: vulnerability.rule.title,
     isIgnored: vulnerability.ignored,
@@ -190,5 +191,9 @@ function formatSnykIacTestScanVulnerability(
       impact: '',
       resolve: '',
     },
+    issue: '',
+    impact: '',
+    resolve: '',
+    msg: '',
   };
 }
