@@ -15,6 +15,7 @@ import { formatSnykIacTestTestData } from '../../../formatters/iac-output';
 import { jsonStringifyLargeObject } from '../../../json';
 import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-execution/types';
 import { SnykIacTestError } from './errors';
+import { convertEngineToSarifResults } from './sarif';
 
 export function buildOutput({
   scanResult,
@@ -35,7 +36,40 @@ export function buildOutput({
     testSpinner?.stop();
   }
 
-  const response = buildTextOutput({ scanResult, projectName, orgSettings });
+  const { responseData, jsonData, sarifData } = buildTestCommandResultData({
+    scanResult,
+    projectName,
+    orgSettings,
+    options,
+  });
+
+  if (options.json || options.sarif) {
+    return TestCommandResult.createJsonTestCommandResult(
+      responseData,
+      jsonData,
+      sarifData,
+    );
+  }
+
+  return TestCommandResult.createHumanReadableTestCommandResult(
+    responseData,
+    jsonData,
+    sarifData,
+  );
+}
+
+function buildTestCommandResultData({
+  scanResult,
+  projectName,
+  orgSettings,
+  options,
+}: {
+  scanResult: SnykIacTestOutput;
+  projectName: string;
+  orgSettings: IacOrgSettings;
+  options: any;
+}) {
+  let responseData = '';
 
   const jsonData = jsonStringifyLargeObject(
     convertEngineToJsonResults({
@@ -45,19 +79,19 @@ export function buildOutput({
     }),
   );
 
+  const sarifData = jsonStringifyLargeObject(
+    convertEngineToSarifResults(scanResult),
+  );
+
   if (options.json) {
-    return TestCommandResult.createJsonTestCommandResult(
-      jsonData,
-      jsonData,
-      '',
-    );
+    responseData = jsonData;
+  } else if (options.sarif) {
+    responseData = sarifData;
+  } else {
+    responseData = buildTextOutput({ scanResult, projectName, orgSettings });
   }
 
-  return TestCommandResult.createHumanReadableTestCommandResult(
-    response,
-    jsonData,
-    '',
-  );
+  return { responseData, jsonData, sarifData };
 }
 
 const SEPARATOR = '\n-------------------------------------------------------\n';

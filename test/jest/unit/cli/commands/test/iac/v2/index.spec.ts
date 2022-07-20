@@ -97,5 +97,17 @@ describe('test', () => {
     expect(result).toContain(`"ok": false`);
   });
 
-  it.skip('with `--sarif` flag', async () => {});
+  it('with `--sarif` flag', async () => {
+    const result = (
+      await test(['path/to/test'], {
+        ...defaultOptions,
+        sarif: true,
+      })
+    ).getSarifResult();
+
+    expect(isValidJSONString(result)).toBe(true);
+    expect(result).toContain(
+      `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+    );
+  });
 });
