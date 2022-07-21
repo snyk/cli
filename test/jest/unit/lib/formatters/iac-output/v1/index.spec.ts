@@ -21,6 +21,7 @@ describe('createSarifOutputForIac', () => {
   ): IacTestResponse {
     const issue: AnnotatedIacIssue = {
       id: 'ID',
+      publicId: 'ID',
       title: 'TITLE',
       severity,
       isIgnored: false,
@@ -33,6 +34,10 @@ describe('createSarifOutputForIac', () => {
         impact: 'Description of Impact',
         resolve: 'Description of Remediation',
       },
+      issue: 'Description of Issue',
+      impact: 'Description of Impact',
+      resolve: 'Description of Remediation',
+      msg: 'MSG',
       ...issueOverrides,
     };
 
