@@ -12,7 +12,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/snyk/cli/cliv2/internal/httpauth"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 
 	"github.com/stretchr/testify/assert"
@@ -140,52 +139,7 @@ func Test_xSnykCliVersionHeaderIsReplaced(t *testing.T) {
 	wp.Close()
 }
 
-func Test_GetProxyConnectHeader_successful01(t *testing.T) {
-	var err error
-	var objectUnderTest *proxy.WrapperProxy
-	var url *url.URL
-	var actualHeader http.Header
-
-	expectedHeader := make(http.Header)
-	expectedHeader.Add(httpauth.ProxyAuthorizationKey, "Mock")
-
-	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
-	objectUnderTest, err = proxy.NewWrapperProxy(false, "", "", debugLogger)
-	assert.Nil(t, err)
-
-	url, err = url.Parse("http://localhost:3128")
-	assert.Nil(t, err)
-
-	objectUnderTest.SetUpstreamProxyAuthentication(httpauth.Mock)
-
-	actualHeader, err = objectUnderTest.GetProxyConnectHeader(nil, url, "")
-	assert.Equal(t, expectedHeader, actualHeader)
-	assert.Nil(t, err)
-}
-
-func Test_GetProxyConnectHeader_failed01(t *testing.T) {
-	var err error
-	var objectUnderTest *proxy.WrapperProxy
-	var url *url.URL
-	var actualHeader http.Header
-
-	expectedHeader := make(http.Header)
-
-	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
-	objectUnderTest, err = proxy.NewWrapperProxy(false, "", "", debugLogger)
-	assert.Nil(t, err)
-
-	url = nil // error case where url is nil
-
-	objectUnderTest.SetUpstreamProxyAuthentication(httpauth.Mock)
-
-	actualHeader, err = objectUnderTest.GetProxyConnectHeader(nil, url, "")
-	assert.Equal(t, expectedHeader, actualHeader)
-	assert.NotNil(t, err)
-}
-
 func Test_SetUpstreamProxy(t *testing.T) {
-
 	var err error
 	var objectUnderTest *proxy.WrapperProxy
 	var upstreamProxyFunction (func(req *http.Request) (*url.URL, error))
@@ -205,7 +159,7 @@ func Test_SetUpstreamProxy(t *testing.T) {
 
 	proxyUrlAsString = "http://myProxy2.example.com:3128"
 	expectedUrl, _ = url.Parse(proxyUrlAsString)
-	objectUnderTest.SetUpstreamProxy(proxyUrlAsString)
+	objectUnderTest.SetUpstreamProxyFromUrl(proxyUrlAsString)
 	upstreamProxyFunction = objectUnderTest.GetUpstreamProxy()
 	actualUrl, err = upstreamProxyFunction(&testRequest)
 	assert.Nil(t, err)
