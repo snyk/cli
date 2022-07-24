@@ -250,26 +250,26 @@ function vulnerabilitiesToIacIssues(
     return {
       severity: v.severity,
       resolve: v.remediation, // potential needs to be deleted because it is supported only by the old format of our rules
-      impact: 'TBD',
+      impact: v.rule.description,
       msg,
       remediation: {
         terraform: v.remediation, // in the future we need to add logic that will add remediation only for the relevant field (based on file type)
       },
       type: v.resource.kind,
       subType: v.resource.type,
-      issue: v.rule.description,
+      issue: v.rule.title,
       publicId: v.rule.id,
       title: v.rule.title,
-      references: ['TBD'], // missing in `snyk-iac-test` v0.3.0 will be added in a future release
+      references: v.rule.references ? [v.rule.references] : [], // TODO: `references` expects a list of URLs, but `v.references` is a markdown string with URLs. When makrdown parsing is added, extract the URLs in `v.references`
       id: v.rule.id,
       isIgnored: v.ignored,
       iacDescription: {
         issue: v.rule.title,
-        impact: 'TBD',
+        impact: v.rule.description,
         resolve: v.remediation,
       },
       lineNumber: v.resource.line || -1,
-      documentation: 'TBD', // add this once we'll start using updated rules with "legacy" public-ids
+      documentation: `https://snyk.io/security-rules/${v.rule.id}`, // only works for rules available on snyk.io
       isGeneratedByCustomRule: false,
       path: v.resource.path || [], // needs to be fixed, currently doesn't show the full path
       compliance: [['TBD']], // missing in `snyk-iac-test` v0.3.0 will be added in a future release

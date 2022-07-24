@@ -25,6 +25,9 @@ export interface Rule {
   id: string;
   title: string;
   description: string;
+  references?: string;
+  labels?: string[];
+  category?: string;
 }
 
 export interface Resource {
