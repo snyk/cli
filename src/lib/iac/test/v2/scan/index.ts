@@ -5,6 +5,12 @@ import { IaCErrorCodes } from '../../../../../cli/commands/test/iac/local-execut
 import { getErrorStringCode } from '../../../../../cli/commands/test/iac/local-execution/error-utils';
 import * as newDebug from 'debug';
 import { SnykIacTestOutput } from './results';
+import * as os from 'os';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as rimraf from 'rimraf';
+import config from '../../../../config';
+import { getAuthHeader } from '../../../../api-token';
 
 const debug = newDebug('snyk-iac');
 
@@ -13,7 +19,26 @@ export function scan(
   policyEnginePath: string,
   rulesBundlePath: string,
 ): SnykIacTestOutput {
-  const args = ['-bundle', rulesBundlePath];
+  const configPath = createConfig(options);
+  try {
+    return scanWithConfig(
+      options,
+      policyEnginePath,
+      rulesBundlePath,
+      configPath,
+    );
+  } finally {
+    deleteConfig(configPath);
+  }
+}
+
+function scanWithConfig(
+  options: TestConfig,
+  policyEnginePath: string,
+  rulesBundlePath: string,
+  configPath: string,
+): SnykIacTestOutput {
+  const args = ['-bundle', rulesBundlePath, '-config', configPath];
 
   if (options.severityThreshold) {
     args.push('-severity-threshold', options.severityThreshold);
@@ -45,6 +70,33 @@ export function scan(
   }
 
   return output;
+}
+
+function createConfig(options: TestConfig): string {
+  try {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'snyk-'));
+    const tempConfig = path.join(tempDir, 'config.json');
+
+    const configData = JSON.stringify({
+      org: options.orgSettings.meta.org,
+      apiUrl: config.API,
+      apiAuth: getAuthHeader(),
+    });
+
+    fs.writeFileSync(tempConfig, configData);
+
+    return tempConfig;
+  } catch (e) {
+    throw new ScanError(`unable to create config file: ${e}`);
+  }
+}
+
+function deleteConfig(configPath) {
+  try {
+    rimraf.sync(path.dirname(configPath));
+  } catch (e) {
+    debug('unable to delete temporary directory', e);
+  }
 }
 
 class ScanError extends CustomError {
