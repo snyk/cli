@@ -120,8 +120,8 @@ export function mapIacIssue(
       'publicId',
       'msg',
       'description',
-      'compliance',
     ),
     path: iacIssue.cloudConfigPath,
+    compliance: [],
   };
 }

@@ -101,7 +101,7 @@
           0
         ],
         "description":"Configuring all VPC default security groups to restrict all traffic encourages least privilege security\ngroup development and mindful placement of AWS resources into security groups which in turn reduces the exposure of those resources.\n",
-        "compliance": [["TBD"]]
+        "compliance": []
       }
     ]
   },
@@ -167,7 +167,7 @@
           "acl"
         ],
         "description":"A bucket with a public ACL or bucket policy is exposed to the entire internet if all\nblock public access settings are disabled at the resource and account level. This\nposes a security vulnerability, as any AWS user or anonymous user can access the\ndata in the bucket.\n",
-        "compliance": [["TBD"]]
+        "compliance": []
       },
       {
         "severity":"high",
@@ -197,7 +197,7 @@
           "acl"
         ],
         "description":"A bucket with a public ACL or bucket policy is exposed to the entire internet if all\nblock public access settings are disabled at the resource and account level. This\nposes a security vulnerability, as any AWS user or anonymous user can access the\ndata in the bucket.\n",
-        "compliance": [["TBD"]]
+        "compliance": []
       }
     ]
   }
