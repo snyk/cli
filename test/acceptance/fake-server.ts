@@ -23,12 +23,14 @@ export type FakeServer = {
   setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
   unauthorizeAction: (action: string, reason?: string) => void;
   listen: (port: string | number, callback: () => void) => void;
+  listenPromise: (port: string | number) => Promise<void>;
   listenWithHttps: (
     port: string | number,
     options: https.ServerOptions,
   ) => Promise<void>;
   restore: () => void;
   close: (callback: () => void) => void;
+  closePromise: () => Promise<void>;
   getPort: () => number;
 };
 
@@ -485,8 +487,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send(body);
   });
 
+  const listenPromise = (port: string | number) => {
+    return new Promise<void>((resolve) => {
+      server = http.createServer(app).listen(Number(port), resolve);
+    });
+  };
+
   const listen = (port: string | number, callback: () => void) => {
-    server = http.createServer(app).listen(Number(port), callback);
+    listenPromise(port).then(callback);
   };
 
   const listenWithHttps = (
@@ -505,13 +513,19 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   };
 
+  const closePromise = () => {
+    return new Promise<void>((resolve) => {
+      if (!server) {
+        resolve();
+        return;
+      }
+      server.close(() => resolve());
+      server = undefined;
+    });
+  };
+
   const close = (callback: () => void) => {
-    if (!server) {
-      callback();
-      return;
-    }
-    server.close(callback);
-    server = undefined;
+    closePromise().then(callback);
   };
 
   const getPort = () => {
@@ -532,9 +546,11 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setFeatureFlag,
     unauthorizeAction,
     listen,
+    listenPromise,
     listenWithHttps,
     restore,
     close,
+    closePromise,
     getPort,
   };
 };
