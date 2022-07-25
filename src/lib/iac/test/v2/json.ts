@@ -3,7 +3,12 @@
 // to keep backwards compatibility.
 
 import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-execution/types';
-import { Resource, SnykIacTestOutput, Vulnerability } from './scan/results';
+import {
+  Resource,
+  ScanError,
+  SnykIacTestOutput,
+  Vulnerability,
+} from './scan/results';
 import * as path from 'path';
 import { createErrorMappedResultsForJsonOutput } from '../../../formatters/test/format-test-results';
 
@@ -93,7 +98,7 @@ export function convertEngineToJsonResults({
   results: SnykIacTestOutput;
   projectName: string;
   orgSettings: IacOrgSettings;
-}): Result[] {
+}): Array<Result | ScanError> {
   const vulnerabilityGroups = groupVulnerabilitiesByFile(results); // all vulns groups by file
   const resourceGroups = groupResourcesByFile(results); // all resources grouped by file
   const filesWithoutIssues = findFilesWithoutIssues(
@@ -101,11 +106,10 @@ export function convertEngineToJsonResults({
     vulnerabilityGroups,
   ); // all resources without issues grouped by file
 
-  const output: Result[] = [];
+  const output: Array<Result | ScanError> = [];
 
-  // TODO: add support for multiple errors, currently we output only the first one
   if (results.errors) {
-    return createErrorMappedResultsForJsonOutput(results.errors);
+    output.push(...createErrorMappedResultsForJsonOutput(results.errors));
   }
 
   for (const [file, resources] of Object.entries(filesWithoutIssues)) {

@@ -1,5 +1,10 @@
 [
   {
+    "message": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",
+    "code": 2106,
+    "fields": { "path": "/Users/yairzohar/snyk/upe-test/README.txt" }
+  },
+  {
     "meta":{
       "isPrivate":false,
       "isLicensesEnabled":false,

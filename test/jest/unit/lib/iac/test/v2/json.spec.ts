@@ -5,7 +5,10 @@ import {
   convertEngineToJsonResults,
   Result,
 } from '../../../../../../../src/lib/iac/test/v2/json';
-import { SnykIacTestOutput } from '../../../../../../../src/lib/iac/test/v2/scan/results';
+import {
+  ScanError,
+  SnykIacTestOutput,
+} from '../../../../../../../src/lib/iac/test/v2/scan/results';
 
 describe('convertEngineToJsonResults', () => {
   const snykIacTestFixtureContent = fs.readFileSync(
@@ -40,13 +43,13 @@ describe('convertEngineToJsonResults', () => {
     ),
     'utf-8',
   );
-  let experimentalJsonOutputFixture: Result[] = JSON.parse(
+  let experimentalJsonOutputFixture: Array<Result | ScanError> = JSON.parse(
     experimentalJsonOutputFixtureContent,
   );
 
-  experimentalJsonOutputFixture = experimentalJsonOutputFixture.map((item) => {
-    return { ...item, path: process.cwd() };
-  });
+  experimentalJsonOutputFixture = experimentalJsonOutputFixture.map((item) =>
+    'path' in item ? { ...item, path: process.cwd() } : item,
+  );
 
   const orgSettings: IacOrgSettings = {
     meta: {

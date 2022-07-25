@@ -169,6 +169,15 @@
       }
     ]
   },
+  "errors": [
+    {
+      "message": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",
+      "code": 2106,
+      "fields": {
+        "path": "/Users/yairzohar/snyk/upe-test/README.txt"
+      }
+    }
+  ],
   "rawResults": {
     "format": "results",
     "format_version": "1.0.0",
