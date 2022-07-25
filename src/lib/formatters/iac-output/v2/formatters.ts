@@ -195,5 +195,6 @@ function formatSnykIacTestScanVulnerability(
     impact: '',
     resolve: '',
     msg: '',
+    references: [],
   };
 }
