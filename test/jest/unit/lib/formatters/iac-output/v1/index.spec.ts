@@ -38,6 +38,7 @@ describe('createSarifOutputForIac', () => {
       impact: 'Description of Impact',
       resolve: 'Description of Remediation',
       msg: 'MSG',
+      references: [],
       ...issueOverrides,
     };
 

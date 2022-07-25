@@ -9,7 +9,10 @@ export interface AnnotatedIacIssue {
   severity: SEVERITY | 'none';
   isIgnored: boolean;
   cloudConfigPath: string[];
+  type?: string;
   subType: string;
+  policyEngineType?: string;
+  references: string[];
   path?: string[];
   documentation?: string;
   isGeneratedByCustomRule?: boolean;
@@ -108,7 +111,9 @@ export function mapIacIssue(
       'title',
       'severity',
       'isIgnored',
+      'type',
       'subType',
+      'policyEngineType',
       'documentation',
       'isGeneratedByCustomRule',
       'issue',
@@ -120,6 +125,7 @@ export function mapIacIssue(
       'publicId',
       'msg',
       'description',
+      'references',
     ),
     path: iacIssue.cloudConfigPath,
     compliance: [],
