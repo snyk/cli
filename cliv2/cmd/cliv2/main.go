@@ -39,12 +39,12 @@ func GetConfiguration(args []string) (EnvironmentVariables, []string) {
 
 	envVariables := EnvironmentVariables{
 		CacheDirectory:               os.Getenv("SNYK_CACHE_PATH"),
-		ProxyAuthenticationMechanism: httpauth.NoAuth,
+		ProxyAuthenticationMechanism: httpauth.AnyAuth,
 		Insecure:                     false,
 	}
 
-	if utils.Contains(args, "--proxy-negotiate") {
-		envVariables.ProxyAuthenticationMechanism = httpauth.Negotiate
+	if utils.Contains(args, "--proxy-noauth") {
+		envVariables.ProxyAuthenticationMechanism = httpauth.NoAuth
 	}
 
 	envVariables.Insecure = utils.Contains(args, "--insecure")
@@ -52,7 +52,7 @@ func GetConfiguration(args []string) (EnvironmentVariables, []string) {
 	envVariables.ProxyAddr, _ = argsAsMap["--proxy"]
 
 	// filter args not meant to be forwarded to CLIv1 or an Extensions
-	elementsToFilter := []string{"--proxy=", "--proxy-negotiate"}
+	elementsToFilter := []string{"--proxy=", "--proxy-noauth"}
 	filteredArgs := args
 	for _, element := range elementsToFilter {
 		filteredArgs = utils.RemoveSimilar(filteredArgs, element)

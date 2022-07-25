@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/alexbrainman/sspi v0.0.0-20210105120005-909beea2cc74
 	github.com/elazarl/goproxy v0.0.0-20220328115640-894aeddb713e
+	github.com/golang/mock v1.6.0
 	github.com/jcmturner/gokrb5/v8 v8.4.2
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20220630215102-69896b714898

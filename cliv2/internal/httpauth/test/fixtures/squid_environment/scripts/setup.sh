@@ -51,6 +51,13 @@ cat > /etc/squid/squid.conf << EOL
 auth_param negotiate program /usr/lib/squid/negotiate_wrapper_auth --kerberos /usr/lib/squid/negotiate_kerberos_auth -d -s HTTP/localhost --ntlm /usr/lib/squid/ntlm_fake_auth
 auth_param negotiate children 10
 auth_param negotiate keep_alive on
+
+auth_param ntlm program /usr/lib/squid/ntlm_fake_auth
+auth_param ntlm children 10
+auth_param ntlm keep_alive off
+
+auth_param basic program /usr/lib/squid/basic_fake_auth
+
 acl auth proxy_auth REQUIRED
 http_port 0.0.0.0:${HTTP_PROXY_PORT}
 http_access deny !auth

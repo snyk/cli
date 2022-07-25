@@ -18,6 +18,7 @@ type ProxyAuthenticator struct {
 	acceptedProxyAuthMechanism AuthenticationMechanism
 	debugLogger                *log.Logger
 	upstreamProxy              func(*http.Request) (*url.URL, error)
+	CreateHandler              func(mechanism AuthenticationMechanism) AuthenticationHandlerInterface
 }
 
 func NewProxyAuthenticator(mechanism AuthenticationMechanism, upstreamProxy func(*http.Request) (*url.URL, error), logger *log.Logger) *ProxyAuthenticator {
@@ -25,6 +26,7 @@ func NewProxyAuthenticator(mechanism AuthenticationMechanism, upstreamProxy func
 		acceptedProxyAuthMechanism: mechanism,
 		debugLogger:                logger,
 		upstreamProxy:              upstreamProxy,
+		CreateHandler:              NewHandler,
 	}
 	return authenticator
 }
@@ -37,26 +39,29 @@ func (p *ProxyAuthenticator) DialContext(ctx context.Context, network, addr stri
 	var err error
 	var proxyUrl *url.URL
 
-	fakeRequest := &http.Request{URL: &url.URL{}}
-	fakeRequest.URL.Scheme = LookupSchemeFromCannonicalAddress(addr, "https")
-	proxyUrl, err = p.upstreamProxy(fakeRequest)
-	if err != nil {
-		return nil, err
+	if p.upstreamProxy != nil {
+		fakeRequest := &http.Request{URL: &url.URL{}}
+		fakeRequest.URL.Scheme = LookupSchemeFromCannonicalAddress(addr, "https")
+		proxyUrl, err = p.upstreamProxy(fakeRequest)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if proxyUrl != nil {
 		proxyAddr := CanonicalAddr(proxyUrl)
-		connection, err = net.Dial(network, proxyAddr)
-		if err == nil {
-			err = p.connectToProxy(ctx, proxyUrl, addr, connection)
+		createConnectionFunc := func() (net.Conn, error) {
+			c, e := net.Dial(network, proxyAddr)
+			if e == nil {
+				p.debugLogger.Printf("Connecting to %s from %s via %s\n", addr, c.LocalAddr(), c.RemoteAddr())
+			}
+			return c, e
 		}
+
+		connection, err = p.connectToProxy(ctx, proxyUrl, addr, createConnectionFunc)
 
 		if err != nil {
 			fmt.Println("Failed to connect to Proxy! ", proxyUrl)
-			if connection != nil {
-				connection.Close()
-				connection = nil
-			}
 		}
 	} else {
 		p.debugLogger.Println("No Proxy defined for ", addr, "!")
@@ -67,44 +72,58 @@ func (p *ProxyAuthenticator) DialContext(ctx context.Context, network, addr stri
 }
 
 // This method takes the given connection and connects to the specified proxy (RFC 2817) while adding proxy authentication (RFC 4559).
-func (p *ProxyAuthenticator) connectToProxy(ctx context.Context, proxyURL *url.URL, target string, connection net.Conn) error {
-
+func (p *ProxyAuthenticator) connectToProxy(ctx context.Context, proxyURL *url.URL, target string, createConnection func() (net.Conn, error)) (net.Conn, error) {
 	var err error
 	var token string
 	var responseToken string
+	var connection net.Conn
 
-	if connection == nil {
-		return fmt.Errorf("Given connection must not be nil!")
+	if createConnection == nil {
+		return nil, fmt.Errorf("Given connection must not be nil!")
 	}
 
 	if proxyURL == nil {
-		return fmt.Errorf("Given proxyUrl must not be nil!")
+		return nil, fmt.Errorf("Given proxyUrl must not be nil!")
 	}
 
 	if len(target) == 0 {
-		return fmt.Errorf("Given target address must not be empty!")
+		return nil, fmt.Errorf("Given target address must not be empty!")
 	}
 
 	if p.acceptedProxyAuthMechanism != NoAuth {
-		authHandler := NewHandler(p.acceptedProxyAuthMechanism)
+		newConnectionRequired := true
+		authHandler := p.CreateHandler(p.acceptedProxyAuthMechanism)
 		authHandler.SetLogger(p.debugLogger)
 		defer authHandler.Close()
 
 		p.debugLogger.Println("Proxy Address:", proxyURL)
-		p.debugLogger.Printf("CONNECT to %s from %s via %s\n", target, connection.LocalAddr(), connection.RemoteAddr())
 
 		for !authHandler.IsStopped() {
 			proxyConnectHeader := make(http.Header)
 			var response *http.Response
 			var responseError error
 
-			if token, err = authHandler.GetAuthorizationValue(proxyURL, responseToken); err == nil {
-				if len(token) > 0 {
+			if token, err = authHandler.GetAuthorizationValue(proxyURL, responseToken); err != nil {
+				err = fmt.Errorf("Failed to retreive Proxy Authorization! %v", err)
+			}
+
+			if err == nil {
+				if newConnectionRequired { // open a new connection if required
+					if connection != nil {
+						connection.Close()
+					}
+					connection, err = createConnection()
+				}
+			}
+
+			if err == nil {
+				if len(token) > 0 { // Add Header if a token is available
 					proxyConnectHeader.Add(ProxyAuthorizationKey, token)
 					p.debugLogger.Printf("> %s: %s\n", ProxyAuthorizationKey, token)
-
-					mechanisms, _ := GetMechanismsFromToken(token)
-					p.debugLogger.Printf("Mechanism: %s", mechanisms)
+					newConnectionRequired = false
+				} else { // Connect without specific header, if this fails, we require a new connection later
+					p.debugLogger.Printf("> CONNECT without %s", ProxyAuthorizationKey)
+					newConnectionRequired = true
 				}
 
 				request := &http.Request{
@@ -116,64 +135,62 @@ func (p *ProxyAuthenticator) connectToProxy(ctx context.Context, proxyURL *url.U
 
 				response, responseError = p.SendRequest(ctx, connection, request)
 				responseToken, err = p.processResponse(authHandler, response, responseError)
+			}
 
-			} else {
+			if err != nil {
 				authHandler.Cancel()
-				err = fmt.Errorf("Failed to retreive Proxy Authorization! %v", err)
+
+				if connection != nil {
+					connection.Close()
+					connection = nil
+				}
 			}
 		}
 	}
 
-	return err
+	return connection, err
 }
 
 func (p *ProxyAuthenticator) processResponse(authHandler AuthenticationHandlerInterface, response *http.Response, responseError error) (responseToken string, err error) {
-	if response != nil && response.StatusCode == 407 {
-		responseToken, err = p.processResponse407(authHandler, response, responseError)
+	if responseError != nil {
+		err = fmt.Errorf("Failed to CONNECT to proxy! (%v)", responseError)
+	} else if response != nil && response.StatusCode == 407 {
+		responseToken, err = p.processResponse407(authHandler, response)
 	} else if response != nil && response.StatusCode <= 200 && response.StatusCode <= 299 {
 		authHandler.Succesful()
 	} else if response != nil {
-		authHandler.Cancel()
-		err = fmt.Errorf("Unexpected HTTP Status Code %d", response.StatusCode)
-	} else if responseError != nil {
-		authHandler.Cancel()
-		err = fmt.Errorf("Failed to CONNECT to proxy! %v", responseError)
+		err = fmt.Errorf("Unexpected HTTP Status Code (%d)", response.StatusCode)
 	} else {
-		authHandler.Cancel()
 		err = fmt.Errorf("Failed to CONNECT to proxy due to unknown error!")
 	}
 	return responseToken, err
 }
 
-func (p *ProxyAuthenticator) processResponse407(authHandler AuthenticationHandlerInterface, response *http.Response, responseError error) (responseToken string, err error) {
-	detectedMechanism := NoAuth
+func (p *ProxyAuthenticator) processResponse407(authHandler AuthenticationHandlerInterface, response *http.Response) (responseToken string, err error) {
 
 	result := response.Header.Values(ProxyAuthenticateKey)
-	if len(result) == 1 {
-		authenticateValue := strings.Split(result[0], " ")
-		p.debugLogger.Printf("< %s: %s\n", ProxyAuthenticateKey, result[0])
+	availableMechanismCount := len(result)
+	if availableMechanismCount >= 1 {
+		p.debugLogger.Printf("< %s: %s\n", ProxyAuthenticateKey, result)
+		availableMechanismList := make(map[AuthenticationMechanism]string, availableMechanismCount)
 
-		if len(authenticateValue) >= 1 {
-			detectedMechanism = AuthenticationMechanismFromString(authenticateValue[0])
-			p.debugLogger.Printf("  Detected Mechanism: %s\n", detectedMechanism)
+		for i := range result {
+			tempMechanism, tempResponseToken := GetMechanismAndToken(result[i])
+			availableMechanismList[tempMechanism] = tempResponseToken
+
+			p.debugLogger.Printf("  %d. Detected Mechanism: %s\n", i, StringFromAuthenticationMechanism(tempMechanism))
+
+			if len(tempResponseToken) != 0 {
+				p.debugLogger.Printf("  %d. Response Token: %s\n", i, tempResponseToken)
+			}
 		}
 
-		if len(authenticateValue) == 2 {
-			responseToken = authenticateValue[1]
-			p.debugLogger.Printf("  Response Token: %s\n", responseToken)
-		} else {
-			responseToken = ""
-		}
+		responseToken, err = authHandler.Update(availableMechanismList)
 
 	} else {
-		authHandler.Cancel()
-		err = fmt.Errorf("Received 407 but didn't find \"%s\" in the header!", ProxyAuthenticateKey)
+		err = fmt.Errorf("Received 407 but didn't find \"%s\" in the header! (%v)", ProxyAuthenticateKey, response.Header)
 	}
 
-	if detectedMechanism != p.acceptedProxyAuthMechanism {
-		authHandler.Cancel()
-		err = fmt.Errorf("Incorrect Mechanism detected! %s", result)
-	}
 	return responseToken, err
 }
 

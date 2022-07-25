@@ -12,6 +12,11 @@ import (
 	"github.com/jcmturner/gokrb5/v8/gssapi"
 )
 
+const (
+	NTLMSSP_NAME string = "NTLMSSP"
+	SPNEGO_NAME  string = string(gssapi.OIDSPNEGO)
+)
+
 type SpnegoProvider interface {
 	GetToken(url *url.URL, responseToken string) (string, bool, error)
 	Close() error
@@ -23,7 +28,7 @@ func IsNTLMToken(token string) bool {
 	return isNtlm
 }
 
-func GetMechanismsFromToken(token string) ([]string, error) {
+func GetMechanismsFromHttpFieldValue(token string) ([]string, error) {
 	var result []string
 	var err error
 
@@ -33,7 +38,7 @@ func GetMechanismsFromToken(token string) ([]string, error) {
 	}
 
 	if IsNTLMToken(token) {
-		result = append(result, "NTLM")
+		result = append(result, NTLMSSP_NAME)
 	} else {
 		var decodedToken []byte
 		decodedToken, err = base64.StdEncoding.DecodeString(token)
@@ -42,7 +47,7 @@ func GetMechanismsFromToken(token string) ([]string, error) {
 			_, err = asn1.UnmarshalWithParams(decodedToken, &oid, fmt.Sprintf("application,explicit,tag:%v", 0))
 
 			if reflect.DeepEqual(oid, asn1.ObjectIdentifier(gssapi.OIDSPNEGO.OID())) {
-				result = append(result, string(gssapi.OIDSPNEGO))
+				result = append(result, SPNEGO_NAME)
 			}
 
 		}
