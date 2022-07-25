@@ -272,7 +272,7 @@ function vulnerabilitiesToIacIssues(
       documentation: `https://snyk.io/security-rules/${v.rule.id}`, // only works for rules available on snyk.io
       isGeneratedByCustomRule: false,
       path: v.resource.path || [], // needs to be fixed, currently doesn't show the full path
-      compliance: [['TBD']], // missing in `snyk-iac-test` v0.3.0 will be added in a future release
+      compliance: [],
       description: v.rule.description,
     };
   });
