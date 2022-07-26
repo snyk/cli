@@ -1,19 +1,20 @@
+import * as fs from 'fs';
 import chalk from 'chalk';
 import { EOL } from 'os';
 import * as pathLib from 'path';
 import {
   spinnerMessage,
   spinnerSuccessMessage,
-} from '../../../../src/lib/formatters/iac-output';
+} from '../../../../../src/lib/formatters/iac-output';
 
-import { FakeServer } from '../../../acceptance/fake-server';
-import { isValidJSONString, startMockServer } from './helpers';
+import { FakeServer } from '../../../../acceptance/fake-server';
+import { isValidJSONString, startMockServer } from '../helpers';
 
 const IAC_CLI_OUTPUT_FF = 'iacCliOutputRelease';
 
 jest.setTimeout(1000 * 30);
 
-describe('iac test output', () => {
+describe('iac test text output', () => {
   let server: FakeServer;
   let run: (
     cmd: string,
@@ -476,4 +477,5 @@ https://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files
       });
     });
   });
+
 });

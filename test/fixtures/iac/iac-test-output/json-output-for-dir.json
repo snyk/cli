@@ -1,0 +1,765 @@
+[
+  {
+    "meta": {
+      "isPrivate": false,
+      "isLicensesEnabled": false,
+      "ignoreSettings": null,
+      "org": "test-org",
+      "policy": ""
+    },
+    "filesystemPolicy": false,
+    "vulnerabilities": [],
+    "dependencyCount": 0,
+    "licensesPolicy": null,
+    "ignoreSettings": null,
+    "targetFile": "aurora-valid.yml",
+    "projectName": "fixtures",
+    "org": "test-org",
+    "policy": "",
+    "isPrivate": true,
+    "targetFilePath": "/Users/ofek/Documents/Snykcraft/repos/snyk/cli/test/fixtures/iac/cloudformation/aurora-valid.yml",
+    "packageManager": "cloudformationconfig",
+    "path": "iac/cloudformation",
+    "projectType": "cloudformationconfig",
+    "ok": false,
+    "infrastructureAsCodeIssues": [
+      {
+        "id": "SNYK-CC-AWS-422",
+        "title": "SNS topic is not encrypted with customer managed key",
+        "severity": "low",
+        "isIgnored": false,
+        "subType": "SNS",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-422",
+        "isGeneratedByCustomRule": false,
+        "issue": "SNS topic is not encrypted with customer managed key",
+        "impact": "Scope of use of the encryption key cannot be controlled via KMS/IAM policies",
+        "resolve": "Set `Properties.KmsMasterKeyId` attribute to a customer managed key id ",
+        "remediation": {
+          "cloudformation": "Set `Properties.KmsMasterKeyId` attribute to a customer managed key id ",
+          "terraform": "Set `kms_master_key_id` attribute to a customer managed key id"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "SNS topic is not encrypted with customer managed key",
+          "impact": "Scope of use of the encryption key cannot be controlled via KMS/IAM policies",
+          "resolve": "Set `Properties.KmsMasterKeyId` attribute to a customer managed key id "
+        },
+        "publicId": "SNYK-CC-AWS-422",
+        "msg": "Resources[DatabaseAlarmTopic].Properties.KmsMasterKeyId",
+        "references": [
+          "https://docs.aws.amazon.com/sns/latest/dg/sns-create-topic.html",
+          "https://docs.aws.amazon.com/whitepapers/latest/kms-best-practices/aws-managed-and-customer-managed-cmks.html"
+        ],
+        "path": [
+          "[DocId: 0]",
+          "Resources[DatabaseAlarmTopic]",
+          "Properties",
+          "KmsMasterKeyId"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-201",
+        "title": "Non-encrypted RDS instance at rest",
+        "severity": "medium",
+        "isIgnored": false,
+        "subType": "RDS",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-201",
+        "isGeneratedByCustomRule": false,
+        "issue": "The DB instance storage is not encrypted by default",
+        "impact": "Should someone gain unauthorized access to the data they would be able to read the contents.",
+        "resolve": "Set `Properties.StorageEncrypted` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.StorageEncrypted` attribute to `true`",
+          "terraform": "Set `storage_encrypted` attribute to true"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "The DB instance storage is not encrypted by default",
+          "impact": "Should someone gain unauthorized access to the data they would be able to read the contents.",
+          "resolve": "Set `Properties.StorageEncrypted` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-TF-201",
+        "msg": "Resources[AuroraInstance1].Properties.StorageEncrypted",
+        "references": [
+          "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance#storage_encrypted"
+        ],
+        "path": [
+          "[DocId: 0]",
+          "Resources[AuroraInstance1]",
+          "Properties",
+          "StorageEncrypted"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-AWS-408",
+        "title": "RDS automatic backup is disabled",
+        "severity": "medium",
+        "isIgnored": false,
+        "type": "terraform",
+        "subType": "RDS",
+        "policyEngineType": "opa",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-408",
+        "isGeneratedByCustomRule": false,
+        "issue": "Automatic backup of AWS Relational Database is disabled",
+        "impact": "No automatic backups will occur, availability risk if disaster occurs and manual backups have not been set",
+        "resolve": "Set `Properties.BackupRetentionPeriod` to `1` or more",
+        "remediation": {
+          "cloudformation": "Set `Properties.BackupRetentionPeriod` to `1` or more",
+          "terraform": "Set `resource.backup_retention_period` to `1` or more"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "Automatic backup of AWS Relational Database is disabled",
+          "impact": "No automatic backups will occur, availability risk if disaster occurs and manual backups have not been set",
+          "resolve": "Set `Properties.BackupRetentionPeriod` to `1` or more"
+        },
+        "publicId": "SNYK-CC-AWS-408",
+        "msg": "Resources[AuroraInstance0].Properties.BackupRetentionPeriod",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html"
+        ],
+        "path": [
+          "[DocId: 0]",
+          "Resources[AuroraInstance0]",
+          "Properties",
+          "BackupRetentionPeriod"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-AWS-710",
+        "title": "IAM authentication for RDS cluster is disabled",
+        "severity": "medium",
+        "isIgnored": false,
+        "subType": "RDS",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-710",
+        "isGeneratedByCustomRule": false,
+        "issue": "IAM authentication for RDS cluster is disabled",
+        "impact": "IAM integration allows you to avoid using passwords in favour of short lived tokens.",
+        "resolve": "Set `Properties.EnableIAMDatabaseAuthentication` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.EnableIAMDatabaseAuthentication` attribute to `true`",
+          "terraform": "Set `iam_database_authentication_enabled` attribute to `true`"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "IAM authentication for RDS cluster is disabled",
+          "impact": "IAM integration allows you to avoid using passwords in favour of short lived tokens.",
+          "resolve": "Set `Properties.EnableIAMDatabaseAuthentication` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-AWS-710",
+        "msg": "Resources[AuroraCluster].Properties.EnableIAMDatabaseAuthentication",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/UsingWithRDS.IAMDBAuth.html"
+        ],
+        "path": [
+          "[DocId: 0]",
+          "Resources[AuroraCluster]",
+          "Properties",
+          "EnableIAMDatabaseAuthentication"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-AWS-414",
+        "title": "RDS IAM authentication is disabled",
+        "severity": "medium",
+        "isIgnored": false,
+        "subType": "RDS",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-414",
+        "isGeneratedByCustomRule": false,
+        "issue": "IAM database authentication is disabled, authentication tokens are not used to connect to DB instance",
+        "impact": "Users will connect to DB instance with password, which are less secure than temporary tokens which expire",
+        "resolve": "Set `Properties.EnableIAMDatabaseAuthentication` to `true`.",
+        "remediation": {
+          "cloudformation": "Set `Properties.EnableIAMDatabaseAuthentication` to `true`.",
+          "terraform": "Set `iam_database_authentication_enabled` to `true`."
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "IAM database authentication is disabled, authentication tokens are not used to connect to DB instance",
+          "impact": "Users will connect to DB instance with password, which are less secure than temporary tokens which expire",
+          "resolve": "Set `Properties.EnableIAMDatabaseAuthentication` to `true`."
+        },
+        "publicId": "SNYK-CC-AWS-414",
+        "msg": "Resources[AuroraInstance0].Properties.EnableIAMDatabaseAuthentication",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html"
+        ],
+        "path": [
+          "[DocId: 0]",
+          "Resources[AuroraInstance0]",
+          "Properties",
+          "EnableIAMDatabaseAuthentication"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-AWS-439",
+        "title": "RDS cluster does not have encryption enabled",
+        "severity": "medium",
+        "isIgnored": false,
+        "subType": "RDS",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-439",
+        "isGeneratedByCustomRule": false,
+        "issue": "RDS cluster does not have encryption enabled which means data is stored on cluster in plaintext",
+        "impact": "In the occurrence of a data breach, sensitive data stored on the RDS cluster will be accessible",
+        "resolve": "Set `Properties.StorageEncrypted` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.StorageEncrypted` attribute to `true`",
+          "terraform": "Set `storage_encrypted` attribute to `true`"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "RDS cluster does not have encryption enabled which means data is stored on cluster in plaintext",
+          "impact": "In the occurrence of a data breach, sensitive data stored on the RDS cluster will be accessible",
+          "resolve": "Set `Properties.StorageEncrypted` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-AWS-439",
+        "msg": "Resources[AuroraCluster].Properties.StorageEncrypted",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html",
+          "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-rds-dbcluster.html"
+        ],
+        "path": [
+          "[DocId: 0]",
+          "Resources[AuroraCluster]",
+          "Properties",
+          "StorageEncrypted"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-55",
+        "title": "Non-Encrypted SNS Topic",
+        "severity": "medium",
+        "isIgnored": false,
+        "subType": "SNS",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-55",
+        "isGeneratedByCustomRule": false,
+        "issue": "The SNS topic is not encrypted at rest",
+        "impact": "That should someone gain unauthorized access to the data they would be able to read the contents.",
+        "resolve": "Set `KmsMasterKeyId` attribute to KMS key for example `alias/aws/sns`",
+        "remediation": {
+          "cloudformation": "Set `KmsMasterKeyId` attribute to KMS key for example `alias/aws/sns`",
+          "terraform": "Set `kms_master_key_id` attribute to KMS key"
+        },
+        "lineNumber": 183,
+        "iacDescription": {
+          "issue": "The SNS topic is not encrypted at rest",
+          "impact": "That should someone gain unauthorized access to the data they would be able to read the contents.",
+          "resolve": "Set `KmsMasterKeyId` attribute to KMS key for example `alias/aws/sns`"
+        },
+        "publicId": "SNYK-CC-TF-55",
+        "msg": "Resources.DatabaseAlarmTopic.Properties.KmsMasterKeyId",
+        "references": [
+          "https://docs.aws.amazon.com/sns/latest/dg/sns-server-side-encryption.html"
+        ],
+        "path": [
+          "[DocId: 0]",
+          "Resources",
+          "DatabaseAlarmTopic",
+          "Properties",
+          "KmsMasterKeyId"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-201",
+        "title": "Non-encrypted RDS instance at rest",
+        "severity": "medium",
+        "isIgnored": false,
+        "subType": "RDS",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-201",
+        "isGeneratedByCustomRule": false,
+        "issue": "The DB instance storage is not encrypted by default",
+        "impact": "Should someone gain unauthorized access to the data they would be able to read the contents.",
+        "resolve": "Set `Properties.StorageEncrypted` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.StorageEncrypted` attribute to `true`",
+          "terraform": "Set `storage_encrypted` attribute to true"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "The DB instance storage is not encrypted by default",
+          "impact": "Should someone gain unauthorized access to the data they would be able to read the contents.",
+          "resolve": "Set `Properties.StorageEncrypted` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-TF-201",
+        "msg": "Resources[AuroraInstance0].Properties.StorageEncrypted",
+        "references": [
+          "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance#storage_encrypted"
+        ],
+        "path": [
+          "[DocId: 0]",
+          "Resources[AuroraInstance0]",
+          "Properties",
+          "StorageEncrypted"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-AWS-408",
+        "title": "RDS automatic backup is disabled",
+        "severity": "medium",
+        "isIgnored": false,
+        "type": "terraform",
+        "subType": "RDS",
+        "policyEngineType": "opa",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-408",
+        "isGeneratedByCustomRule": false,
+        "issue": "Automatic backup of AWS Relational Database is disabled",
+        "impact": "No automatic backups will occur, availability risk if disaster occurs and manual backups have not been set",
+        "resolve": "Set `Properties.BackupRetentionPeriod` to `1` or more",
+        "remediation": {
+          "cloudformation": "Set `Properties.BackupRetentionPeriod` to `1` or more",
+          "terraform": "Set `resource.backup_retention_period` to `1` or more"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "Automatic backup of AWS Relational Database is disabled",
+          "impact": "No automatic backups will occur, availability risk if disaster occurs and manual backups have not been set",
+          "resolve": "Set `Properties.BackupRetentionPeriod` to `1` or more"
+        },
+        "publicId": "SNYK-CC-AWS-408",
+        "msg": "Resources[AuroraInstance1].Properties.BackupRetentionPeriod",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html"
+        ],
+        "path": [
+          "[DocId: 0]",
+          "Resources[AuroraInstance1]",
+          "Properties",
+          "BackupRetentionPeriod"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-AWS-414",
+        "title": "RDS IAM authentication is disabled",
+        "severity": "medium",
+        "isIgnored": false,
+        "subType": "RDS",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-414",
+        "isGeneratedByCustomRule": false,
+        "issue": "IAM database authentication is disabled, authentication tokens are not used to connect to DB instance",
+        "impact": "Users will connect to DB instance with password, which are less secure than temporary tokens which expire",
+        "resolve": "Set `Properties.EnableIAMDatabaseAuthentication` to `true`.",
+        "remediation": {
+          "cloudformation": "Set `Properties.EnableIAMDatabaseAuthentication` to `true`.",
+          "terraform": "Set `iam_database_authentication_enabled` to `true`."
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "IAM database authentication is disabled, authentication tokens are not used to connect to DB instance",
+          "impact": "Users will connect to DB instance with password, which are less secure than temporary tokens which expire",
+          "resolve": "Set `Properties.EnableIAMDatabaseAuthentication` to `true`."
+        },
+        "publicId": "SNYK-CC-AWS-414",
+        "msg": "Resources[AuroraInstance1].Properties.EnableIAMDatabaseAuthentication",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html"
+        ],
+        "path": [
+          "[DocId: 0]",
+          "Resources[AuroraInstance1]",
+          "Properties",
+          "EnableIAMDatabaseAuthentication"
+        ],
+        "compliance": []
+      }
+    ]
+  },
+  {
+    "meta": {
+      "isPrivate": false,
+      "isLicensesEnabled": false,
+      "ignoreSettings": null,
+      "org": "test-org",
+      "policy": ""
+    },
+    "filesystemPolicy": false,
+    "vulnerabilities": [],
+    "dependencyCount": 0,
+    "licensesPolicy": null,
+    "ignoreSettings": null,
+    "targetFile": "fargate-valid.json",
+    "projectName": "fixtures",
+    "org": "test-org",
+    "policy": "",
+    "isPrivate": true,
+    "targetFilePath": "/Users/ofek/Documents/Snykcraft/repos/snyk/cli/test/fixtures/iac/cloudformation/fargate-valid.json",
+    "packageManager": "cloudformationconfig",
+    "path": "iac/cloudformation",
+    "projectType": "cloudformationconfig",
+    "ok": false,
+    "infrastructureAsCodeIssues": [
+      {
+        "id": "SNYK-CC-TF-96",
+        "title": "S3 block public policy control is disabled",
+        "severity": "high",
+        "isIgnored": false,
+        "subType": "S3",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-96",
+        "isGeneratedByCustomRule": false,
+        "issue": "Bucket does not prevent creation of public policies",
+        "impact": "Anyone who can manage bucket's policies will be able to grant public access to the bucket.",
+        "resolve": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicPolicy` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicPolicy` attribute to `true`",
+          "terraform": "Set `block_public_policy` attribute to `true`"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "Bucket does not prevent creation of public policies",
+          "impact": "Anyone who can manage bucket's policies will be able to grant public access to the bucket.",
+          "resolve": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicPolicy` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-TF-96",
+        "msg": "Resources[CodePipelineArtifactBucket].Properties.PublicAccessBlockConfiguration.BlockPublicPolicy",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html",
+          "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html"
+        ],
+        "path": [
+          "Resources[CodePipelineArtifactBucket]",
+          "Properties",
+          "PublicAccessBlockConfiguration",
+          "BlockPublicPolicy"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-97",
+        "title": "S3 ignore public ACLs control is disabled",
+        "severity": "high",
+        "isIgnored": false,
+        "subType": "S3",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-97",
+        "isGeneratedByCustomRule": false,
+        "issue": "Bucket will recognize public ACLs and allow public access",
+        "impact": "If public ACL is attached to the bucket, anyone will be able to read and/or write to the bucket.",
+        "resolve": "Set `Properties.PublicAccessBlockConfiguration.IgnorePublicAcls` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.PublicAccessBlockConfiguration.IgnorePublicAcls` attribute to `true`",
+          "terraform": "Set `ignore_public_acls` attribute to `true`"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "Bucket will recognize public ACLs and allow public access",
+          "impact": "If public ACL is attached to the bucket, anyone will be able to read and/or write to the bucket.",
+          "resolve": "Set `Properties.PublicAccessBlockConfiguration.IgnorePublicAcls` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-TF-97",
+        "msg": "Resources[DefaultContainerBucket].Properties.PublicAccessBlockConfiguration.IgnorePublicAcls",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html",
+          "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-s3-accesspoint.html"
+        ],
+        "path": [
+          "Resources[DefaultContainerBucket]",
+          "Properties",
+          "PublicAccessBlockConfiguration",
+          "IgnorePublicAcls"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-95",
+        "title": "S3 block public ACLs control is disabled",
+        "severity": "high",
+        "isIgnored": false,
+        "subType": "S3",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-95",
+        "isGeneratedByCustomRule": false,
+        "issue": "Bucket does not prevent creation of public ACLs",
+        "impact": "Anyone who can manage bucket's ACLs will be able to grant public access to the bucket",
+        "resolve": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicAcls` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicAcls` attribute to `true`",
+          "terraform": "Set `block_public_acls` attribute to `true`"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "Bucket does not prevent creation of public ACLs",
+          "impact": "Anyone who can manage bucket's ACLs will be able to grant public access to the bucket",
+          "resolve": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicAcls` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-TF-95",
+        "msg": "Resources[DefaultContainerBucket].Properties.PublicAccessBlockConfiguration.BlockPublicAcls",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html",
+          "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-s3-accesspoint.html"
+        ],
+        "path": [
+          "Resources[DefaultContainerBucket]",
+          "Properties",
+          "PublicAccessBlockConfiguration",
+          "BlockPublicAcls"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-97",
+        "title": "S3 ignore public ACLs control is disabled",
+        "severity": "high",
+        "isIgnored": false,
+        "subType": "S3",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-97",
+        "isGeneratedByCustomRule": false,
+        "issue": "Bucket will recognize public ACLs and allow public access",
+        "impact": "If public ACL is attached to the bucket, anyone will be able to read and/or write to the bucket.",
+        "resolve": "Set `Properties.PublicAccessBlockConfiguration.IgnorePublicAcls` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.PublicAccessBlockConfiguration.IgnorePublicAcls` attribute to `true`",
+          "terraform": "Set `ignore_public_acls` attribute to `true`"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "Bucket will recognize public ACLs and allow public access",
+          "impact": "If public ACL is attached to the bucket, anyone will be able to read and/or write to the bucket.",
+          "resolve": "Set `Properties.PublicAccessBlockConfiguration.IgnorePublicAcls` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-TF-97",
+        "msg": "Resources[CodePipelineArtifactBucket].Properties.PublicAccessBlockConfiguration.IgnorePublicAcls",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html",
+          "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-s3-accesspoint.html"
+        ],
+        "path": [
+          "Resources[CodePipelineArtifactBucket]",
+          "Properties",
+          "PublicAccessBlockConfiguration",
+          "IgnorePublicAcls"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-98",
+        "title": "S3 restrict public bucket control is disabled",
+        "severity": "high",
+        "isIgnored": false,
+        "subType": "S3",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-98",
+        "isGeneratedByCustomRule": false,
+        "issue": "Bucket will recognize public policies and allow public access",
+        "impact": "If public policy is attached to the bucket, anyone will be able to read and/or write to the bucket.",
+        "resolve": "Set `Properties.PublicAccessBlockConfiguration.RestrictPublicBuckets` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.PublicAccessBlockConfiguration.RestrictPublicBuckets` attribute to `true`",
+          "terraform": "Set `restrict_public_buckets` attribute to `true`"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "Bucket will recognize public policies and allow public access",
+          "impact": "If public policy is attached to the bucket, anyone will be able to read and/or write to the bucket.",
+          "resolve": "Set `Properties.PublicAccessBlockConfiguration.RestrictPublicBuckets` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-TF-98",
+        "msg": "Resources[DefaultContainerBucket].Properties.PublicAccessBlockConfiguration.RestrictPublicBuckets",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html",
+          "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html"
+        ],
+        "path": [
+          "Resources[DefaultContainerBucket]",
+          "Properties",
+          "PublicAccessBlockConfiguration",
+          "RestrictPublicBuckets"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-95",
+        "title": "S3 block public ACLs control is disabled",
+        "severity": "high",
+        "isIgnored": false,
+        "subType": "S3",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-95",
+        "isGeneratedByCustomRule": false,
+        "issue": "Bucket does not prevent creation of public ACLs",
+        "impact": "Anyone who can manage bucket's ACLs will be able to grant public access to the bucket",
+        "resolve": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicAcls` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicAcls` attribute to `true`",
+          "terraform": "Set `block_public_acls` attribute to `true`"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "Bucket does not prevent creation of public ACLs",
+          "impact": "Anyone who can manage bucket's ACLs will be able to grant public access to the bucket",
+          "resolve": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicAcls` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-TF-95",
+        "msg": "Resources[CodePipelineArtifactBucket].Properties.PublicAccessBlockConfiguration.BlockPublicAcls",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html",
+          "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-s3-accesspoint.html"
+        ],
+        "path": [
+          "Resources[CodePipelineArtifactBucket]",
+          "Properties",
+          "PublicAccessBlockConfiguration",
+          "BlockPublicAcls"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-96",
+        "title": "S3 block public policy control is disabled",
+        "severity": "high",
+        "isIgnored": false,
+        "subType": "S3",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-96",
+        "isGeneratedByCustomRule": false,
+        "issue": "Bucket does not prevent creation of public policies",
+        "impact": "Anyone who can manage bucket's policies will be able to grant public access to the bucket.",
+        "resolve": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicPolicy` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicPolicy` attribute to `true`",
+          "terraform": "Set `block_public_policy` attribute to `true`"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "Bucket does not prevent creation of public policies",
+          "impact": "Anyone who can manage bucket's policies will be able to grant public access to the bucket.",
+          "resolve": "Set `Properties.PublicAccessBlockConfiguration.BlockPublicPolicy` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-TF-96",
+        "msg": "Resources[DefaultContainerBucket].Properties.PublicAccessBlockConfiguration.BlockPublicPolicy",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html",
+          "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html"
+        ],
+        "path": [
+          "Resources[DefaultContainerBucket]",
+          "Properties",
+          "PublicAccessBlockConfiguration",
+          "BlockPublicPolicy"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-124",
+        "title": "S3 bucket versioning disabled",
+        "severity": "low",
+        "isIgnored": false,
+        "subType": "S3",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-124",
+        "isGeneratedByCustomRule": false,
+        "issue": "S3 bucket versioning is disabled",
+        "impact": "Changes or deletion of objects will not be reversible",
+        "resolve": "Set `Properties.VersioningConfiguration.Status` attribute to `Enabled`",
+        "remediation": {
+          "cloudformation": "Set `Properties.VersioningConfiguration.Status` attribute to `Enabled`",
+          "terraform": "For AWS provider < v4.0.0, set `versioning.enabled` attribute to `true`. For AWS provider >= v4.0.0, add aws_s3_bucket_versioning resource."
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "S3 bucket versioning is disabled",
+          "impact": "Changes or deletion of objects will not be reversible",
+          "resolve": "Set `Properties.VersioningConfiguration.Status` attribute to `Enabled`"
+        },
+        "publicId": "SNYK-CC-TF-124",
+        "msg": "Resources[DefaultContainerBucket].Properties.VersioningConfiguration.Status",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html"
+        ],
+        "path": [
+          "Resources[DefaultContainerBucket]",
+          "Properties",
+          "VersioningConfiguration",
+          "Status"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-98",
+        "title": "S3 restrict public bucket control is disabled",
+        "severity": "high",
+        "isIgnored": false,
+        "subType": "S3",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-98",
+        "isGeneratedByCustomRule": false,
+        "issue": "Bucket will recognize public policies and allow public access",
+        "impact": "If public policy is attached to the bucket, anyone will be able to read and/or write to the bucket.",
+        "resolve": "Set `Properties.PublicAccessBlockConfiguration.RestrictPublicBuckets` attribute to `true`",
+        "remediation": {
+          "cloudformation": "Set `Properties.PublicAccessBlockConfiguration.RestrictPublicBuckets` attribute to `true`",
+          "terraform": "Set `restrict_public_buckets` attribute to `true`"
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "Bucket will recognize public policies and allow public access",
+          "impact": "If public policy is attached to the bucket, anyone will be able to read and/or write to the bucket.",
+          "resolve": "Set `Properties.PublicAccessBlockConfiguration.RestrictPublicBuckets` attribute to `true`"
+        },
+        "publicId": "SNYK-CC-TF-98",
+        "msg": "Resources[CodePipelineArtifactBucket].Properties.PublicAccessBlockConfiguration.RestrictPublicBuckets",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html",
+          "https://docs.aws.amazon.com/AmazonS3/latest/user-guide/block-public-access.html",
+          "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html"
+        ],
+        "path": [
+          "Resources[CodePipelineArtifactBucket]",
+          "Properties",
+          "PublicAccessBlockConfiguration",
+          "RestrictPublicBuckets"
+        ],
+        "compliance": []
+      },
+      {
+        "id": "SNYK-CC-TF-124",
+        "title": "S3 bucket versioning disabled",
+        "severity": "low",
+        "isIgnored": false,
+        "subType": "S3",
+        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-124",
+        "isGeneratedByCustomRule": false,
+        "issue": "S3 bucket versioning is disabled",
+        "impact": "Changes or deletion of objects will not be reversible",
+        "resolve": "Set `Properties.VersioningConfiguration.Status` attribute to `Enabled`",
+        "remediation": {
+          "cloudformation": "Set `Properties.VersioningConfiguration.Status` attribute to `Enabled`",
+          "terraform": "For AWS provider < v4.0.0, set `versioning.enabled` attribute to `true`. For AWS provider >= v4.0.0, add aws_s3_bucket_versioning resource."
+        },
+        "lineNumber": -1,
+        "iacDescription": {
+          "issue": "S3 bucket versioning is disabled",
+          "impact": "Changes or deletion of objects will not be reversible",
+          "resolve": "Set `Properties.VersioningConfiguration.Status` attribute to `Enabled`"
+        },
+        "publicId": "SNYK-CC-TF-124",
+        "msg": "Resources[CodePipelineArtifactBucket].Properties.VersioningConfiguration.Status",
+        "references": [
+          "https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html"
+        ],
+        "path": [
+          "Resources[CodePipelineArtifactBucket]",
+          "Properties",
+          "VersioningConfiguration",
+          "Status"
+        ],
+        "compliance": []
+      }
+    ]
+  }
+]
