@@ -173,7 +173,7 @@ Fail only when there are vulnerabilities that can be fixed.
 
 To fail on any vulnerability (the default behavior), do not use the `--fail-on` option. If vulnerabilities do not have a fix and this option is being used, tests pass.
 
-## Options for Maven projects
+## Option for Maven projects
 
 For more information about Maven CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven)
 
@@ -182,20 +182,6 @@ For more information about Maven CLI options see [Snyk for Java and Kotlin](http
 Auto-detect maven jars, aars, and wars in given directory. To test individually use `--file=<JAR_FILE_NAME>`
 
 **Note**: Custom-built jar files, even with open source dependencies, are out of scope.
-
-### `--reachable`
-
-WARNING: Will be removed on 15 August 2022
-
-Analyze your source code to find which vulnerable functions and packages are called. Cannot be used with `--all-projects`
-
-### `--reachable-timeout=<TIMEOUT>`
-
-WARNING: Will be removed on 15 August 2022
-
-Specify the amount of time (in seconds) to wait for Snyk to gather reachability data. If it takes longer than `<TIMEOUT>`, reachable vulnerabilities are not reported. This does not affect regular test or monitor output.
-
-Default: 300 (5 minutes).
 
 ## Options for Gradle projects
 
@@ -220,16 +206,6 @@ Example: `^releaseRuntimeClasspath$`
 Select certain values of configuration attributes to install dependencies and perform dependency resolution.
 
 Example: `buildtype:release,usage:java-runtime`
-
-### `--reachable`
-
-Analyze your source code to find which vulnerable functions and packages are called.
-
-### `--reachable-timeout=<TIMEOUT>`
-
-Specify the amount of time (in seconds) to wait for Snyk to gather reachability data. If it takes longer than `<TIMEOUT>`, reachable vulnerabilities are not reported. This does not affect regular test or monitor output.
-
-Default: 300 (5 minutes).
 
 ### `--init-script=<FILE`
 
