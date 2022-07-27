@@ -10,6 +10,7 @@ import { test } from '../../../../../../../../src/cli/commands/test/iac/v2/index
 import { Options, TestOptions } from '../../../../../../../../src/lib/types';
 import { isValidJSONString } from '../../../../../../acceptance/iac/helpers';
 import { IacOrgSettings } from '../../../../../../../../src/cli/commands/test/iac/local-execution/types';
+import { FoundIssuesError } from '../../../../../../../../src/lib/iac/test/v2/output';
 
 jest.setTimeout(1000 * 10);
 
@@ -70,44 +71,79 @@ describe('test', () => {
     .spyOn(orgSettingsLib, 'getIacOrgSettings')
     .mockResolvedValue(orgSettings);
 
-  it('without any flags outputs the test results', async () => {
-    const result = await test(['path/to/test'], defaultOptions);
-    const output = result.getDisplayResults();
+  it('outputs the test results', async () => {
+    // Arrange
+    let output: string;
 
-    expect(output).toContain('Issues');
-    expect(output).toContain('Medium Severity Issues: ');
-    expect(output).toContain('High Severity Issues: ');
-    expect(output).toContain(`Organization: ${orgSettings.meta.org}`);
-    expect(output).toContain(`Project name: ${path.basename(projectRoot)}`);
-    expect(output).toContain('Files without issues: 1');
-    expect(output).toContain('Files with issues: 2');
-    expect(output).toContain('Total issues: 3');
-    expect(output).toContain('[ 0 critical, 2 high, 1 medium, 0 low ]');
+    // Act
+    try {
+      await test(['path/to/test'], defaultOptions);
+    } catch (error) {
+      output = error.message;
+    }
+
+    // Assert
+    expect(output!).toContain('Issues');
+    expect(output!).toContain('Medium Severity Issues: ');
+    expect(output!).toContain('High Severity Issues: ');
+    expect(output!).toContain(`Organization: ${orgSettings.meta.org}`);
+    expect(output!).toContain(`Project name: ${path.basename(projectRoot)}`);
+    expect(output!).toContain('Files without issues: 1');
+    expect(output!).toContain('Files with issues: 2');
+    expect(output!).toContain('Total issues: 3');
+    expect(output!).toContain('[ 0 critical, 2 high, 1 medium, 0 low ]');
   });
 
-  it('with `--json` flag', async () => {
-    const result = (
-      await test(['path/to/test'], {
-        ...defaultOptions,
-        json: true,
-      })
-    ).getJsonResult();
-
-    expect(isValidJSONString(result)).toBe(true);
-    expect(result).toContain(`"ok": false`);
+  describe('with issues', () => {
+    it('throws the expected error', async () => {
+      // Act + Assert
+      await expect(test(['path/to/test'], defaultOptions)).rejects.toThrowError(
+        FoundIssuesError,
+      );
+    });
   });
 
-  it('with `--sarif` flag', async () => {
-    const result = (
-      await test(['path/to/test'], {
-        ...defaultOptions,
-        sarif: true,
-      })
-    ).getSarifResult();
+  describe('with `--json` flag', () => {
+    it('outputs the test results in JSON format', async () => {
+      // Arrange
+      let result: string;
 
-    expect(isValidJSONString(result)).toBe(true);
-    expect(result).toContain(
-      `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
-    );
+      // Act
+      try {
+        await test(['path/to/test'], {
+          ...defaultOptions,
+          json: true,
+        });
+      } catch (error) {
+        result = error.jsonStringifiedResults;
+      }
+
+      // Assert
+      expect(isValidJSONString(result!)).toBe(true);
+      expect(result!).toContain(`"ok": false`);
+    });
+  });
+
+  describe('with `--sarif` flag', () => {
+    it('outputs the test results in SARIF format', async () => {
+      // Arrange
+      let result: string;
+
+      // Act
+      try {
+        await test(['path/to/test'], {
+          ...defaultOptions,
+          sarif: true,
+        });
+      } catch (error) {
+        result = error.sarifStringifiedResults;
+      }
+
+      // Assert
+      expect(isValidJSONString(result!)).toBe(true);
+      expect(result!).toContain(
+        `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+      );
+    });
   });
 });
