@@ -161,7 +161,8 @@ function constructLicenseText(
     return [];
   }
 
-  const licenseTextArray = [chalk.bold.green('\nLicense issues:')];
+  const licenseTextArray: string[] = [];
+  let issuesCount = 0;
 
   for (const id of Object.keys(basicLicenseInfo)) {
     const licenseText = formatIssue(
@@ -177,7 +178,15 @@ function constructLicenseText(
       basicLicenseInfo[id].legalInstructions,
     );
     licenseTextArray.push('\n' + licenseText);
+    issuesCount += 1;
   }
+  licenseTextArray.unshift(
+    chalk.bold.green(
+      `\nLicense issues (${issuesCount} ${
+        issuesCount > 1 ? 'issues' : 'issue'
+      }):`,
+    ),
+  );
   return licenseTextArray;
 }
 
@@ -193,7 +202,8 @@ function constructPatchesText(
   if (!(Object.keys(patches).length > 0)) {
     return [];
   }
-  const patchedTextArray = [chalk.bold.green('\nPatchable issues:')];
+  const patchedTextArray: string[] = [];
+  let patchedCount = 0;
   for (const id of Object.keys(patches)) {
     if (!basicVulnInfo[id]) {
       continue;
@@ -219,8 +229,15 @@ function constructPatchesText(
       basicVulnInfo[id].originalSeverity,
     );
     patchedTextArray.push(patchedText + thisPatchFixes);
+    patchedCount += 1;
   }
-
+  patchedTextArray.unshift(
+    chalk.bold.green(
+      `\nPatchable issues (${patchedCount} ${
+        patchedCount > 1 ? 'issues' : 'issue'
+      }):`,
+    ),
+  );
   return patchedTextArray;
 }
 
@@ -252,28 +269,33 @@ function thisUpgradeFixes(
         basicVulnInfo[id].reachability,
         basicVulnInfo[id].sampleReachablePaths,
       ),
-    )
-    .join('\n');
+    );
 }
 
 function processUpgrades(
-  sink: string[],
+  sink: {
+    textArray: string[];
+    count: number;
+  },
   upgradesByDep: DependencyUpdates | DependencyPins,
   deps: string[],
   basicVulnInfo: Record<string, BasicVulnInfo>,
   testOptions: TestOptions,
 ) {
+  sink.count = 0;
   for (const dep of deps) {
     const data = upgradesByDep[dep];
     const upgradeDepTo = data.upgradeTo;
     const vulnIds =
       (data as UpgradeRemediation).vulns || (data as PinRemediation).vulns;
+    const fixesArray = thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions);
     const upgradeText = `\n  Upgrade ${chalk.bold.whiteBright(
       dep,
-    )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
-    sink.push(
-      upgradeText + thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions),
-    );
+    )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix ${fixesArray.length} ${
+      fixesArray.length > 1 ? 'issues' : 'issue'
+    }\n`;
+    sink.textArray.push(upgradeText + fixesArray.join('\n'));
+    sink.count += fixesArray.length;
   }
 }
 
@@ -288,15 +310,26 @@ function constructUpgradesText(
     return [];
   }
 
-  const upgradeTextArray = [chalk.bold.green('\nIssues to fix by upgrading:')];
+  const upgradeIssues: { textArray: string[]; count: number } = {
+    textArray: [],
+    count: 0,
+  };
   processUpgrades(
-    upgradeTextArray,
+    upgradeIssues,
     upgrades,
     Object.keys(upgrades),
     basicVulnInfo,
     testOptions,
   );
-  return upgradeTextArray;
+  upgradeIssues.textArray.unshift(
+    chalk.bold.green(
+      `\nIssues to fix by upgrading (${upgradeIssues.count} ${
+        upgradeIssues.count > 1 ? 'issues' : 'issue'
+      }):`,
+    ),
+  );
+
+  return upgradeIssues.textArray;
 }
 
 function constructPinText(
@@ -309,19 +342,17 @@ function constructPinText(
     return [];
   }
 
-  const upgradeTextArray: string[] = [];
-  upgradeTextArray.push(
-    chalk.bold.green('\nIssues to fix by upgrading dependencies:'),
-  );
-
   // First, direct upgrades
-
+  const upgradeIssues: { textArray: string[]; count: number } = {
+    textArray: [],
+    count: 0,
+  };
   const upgradeables = Object.keys(pins).filter(
     (name) => !pins[name].isTransitive,
   );
   if (upgradeables.length) {
     processUpgrades(
-      upgradeTextArray,
+      upgradeIssues,
       pins,
       upgradeables,
       basicVulnInfo,
@@ -337,13 +368,14 @@ function constructPinText(
       const data = pins[pkgName];
       const vulnIds = data.vulns;
       const upgradeDepTo = data.upgradeTo;
+      const fixesArray = thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions);
       const upgradeText = `\n  Pin ${chalk.bold.whiteBright(
         pkgName,
-      )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix`;
-      upgradeTextArray.push(upgradeText);
-      upgradeTextArray.push(
-        thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions),
-      );
+      )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix ${
+        fixesArray.length
+      } ${fixesArray.length > 1 ? 'issues' : 'issue'}`;
+      upgradeIssues.textArray.push(upgradeText);
+      upgradeIssues.textArray.push(fixesArray.join('\n'));
 
       // Finally, if we have some upgrade paths that fix the same issues, suggest them as well.
       const topLevelUpgradesAlreadySuggested = new Set();
@@ -354,7 +386,7 @@ function constructPinText(
           const setKey = `${topLevelPkg.name}\n${topLevelPkg.version}`;
           if (!topLevelUpgradesAlreadySuggested.has(setKey)) {
             topLevelUpgradesAlreadySuggested.add(setKey);
-            upgradeTextArray.push(
+            upgradeIssues.textArray.push(
               '  The issues above can also be fixed by upgrading top-level dependency ' +
                 `${topLevelPkg.name} to ${topLevelPkg.version}`,
             );
@@ -363,8 +395,15 @@ function constructPinText(
       }
     }
   }
+  upgradeIssues.textArray.unshift(
+    chalk.bold.green(
+      `\nIssues to fix by upgrading dependencies (${upgradeIssues.count} ${
+        upgradeIssues.count > 1 ? 'issues' : 'issue'
+      }):`,
+    ),
+  );
 
-  return upgradeTextArray;
+  return upgradeIssues.textArray;
 }
 
 function constructUnfixableText(
@@ -375,9 +414,7 @@ function constructUnfixableText(
   if (!(unresolved.length > 0)) {
     return [];
   }
-  const unfixableIssuesTextArray = [
-    chalk.bold.white('\nIssues with no direct upgrade or patch:'),
-  ];
+  const unfixableIssuesTextArray: string[] = [];
   for (const issue of unresolved) {
     const issueInfo = basicVulnInfo[issue.id];
     if (!issueInfo) {
@@ -407,6 +444,14 @@ function constructUnfixableText(
       ) + `${extraInfo}`,
     );
   }
+
+  unfixableIssuesTextArray.unshift(
+    chalk.bold.white(
+      `\nIssues with no direct upgrade or patch (${
+        unfixableIssuesTextArray.length
+      } ${unfixableIssuesTextArray.length > 1 ? 'issues' : 'issue'}):`,
+    ),
+  );
 
   if (unfixableIssuesTextArray.length === 1) {
     // seems we still only have

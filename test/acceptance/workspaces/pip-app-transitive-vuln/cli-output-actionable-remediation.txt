@@ -4,19 +4,19 @@ Testing pip-app-transitive-vuln...
 Tested 6 dependencies for known vulnerabilities, found 4 vulnerabilities, 4 vulnerable paths.
 
 
-Issues to fix by upgrading dependencies:
+Issues to fix by upgrading dependencies (2 issues):
 
-  Upgrade flask to 1.0 to fix
+  Upgrade flask to 1.0 to fix 2 issues
   ✗ Improper Input Validation [High Severity][https://security.snyk.io/vuln/SNYK-PYTHON-FLASK-42185] in flask@0.12.2
     introduced by flask@0.12.2
   ✗ Denial of Service (DOS) [High Severity][https://security.snyk.io/vuln/SNYK-PYTHON-FLASK-451637] in flask@0.12.2
     introduced by flask@0.12.2
 
-  Pin Jinja2 to 2.10.1 to fix
+  Pin Jinja2 to 2.10.1 to fix 1 issue
   ✗ Sandbox Escape [Medium Severity][https://security.snyk.io/vuln/SNYK-PYTHON-JINJA2-174126] in Jinja2@2.9.6
     introduced by flask@0.12.2 > Jinja2@2.9.6
 
-  Pin Werkzeug to 0.15.3 to fix
+  Pin Werkzeug to 0.15.3 to fix 1 issue
   ✗ Insufficient Randomness [High Severity][https://security.snyk.io/vuln/SNYK-PYTHON-WERKZEUG-458931] in Werkzeug@0.12.2
     introduced by flask@0.12.2 > Werkzeug@0.12.2
 
