@@ -1,7 +1,9 @@
 import { isValidJSONString, startMockServer } from './helpers';
 import { FakeServer } from '../../../acceptance/fake-server';
+import { EOL } from 'os';
+import * as pathLib from 'path';
 
-const IAC_CLI_OUTPUT_FF = 'iacCliOutput';
+const IAC_CLI_OUTPUT_FF = 'iacCliOutputRelease';
 
 jest.setTimeout(50000);
 
@@ -233,6 +235,48 @@ describe('Directory scan', () => {
         expect(stdout).toContain('"ruleId": "SNYK-CC-AWS-422",');
         expect(exitCode).toBe(1);
       });
+    });
+  });
+
+  describe('directory with files that can not be parsed', () => {
+    beforeEach(() => {
+      server.setFeatureFlag(IAC_CLI_OUTPUT_FF, true);
+    });
+    afterEach(() => {
+      server.restore();
+    });
+    it('prints all invalid paths', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test ./iac/only-invalid`,
+      );
+      expect(stdout).toContain(
+        '  Failed to parse YAML file' +
+          EOL +
+          `  Path: ${pathLib.join(
+            'iac',
+            'only-invalid',
+            'invalid-file1.yml',
+          )}` +
+          EOL +
+          `        ${pathLib.join(
+            'iac',
+            'only-invalid',
+            'invalid-file2.yaml',
+          )}`,
+      );
+      expect(exitCode).toBe(2);
+    });
+    it('prints all errors and paths in --json', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test ./iac/only-invalid --json`,
+      );
+
+      expect(isValidJSONString(stdout)).toBe(true);
+
+      expect(JSON.parse(stdout).length).toBe(2);
+      expect(stdout).toContain('"ok": false');
+      expect(stdout).toContain('"error": "Failed to parse YAML file"');
+      expect(exitCode).toBe(2);
     });
   });
 

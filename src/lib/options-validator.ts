@@ -11,6 +11,16 @@ export async function validateOptions(
   packageManager?: SupportedPackageManagers,
 ): Promise<void> {
   if (options.reachableVulns) {
+    alerts.registerAlerts([
+      {
+        type: 'warning',
+        name: 'reachable deprecation',
+        msg: reachableVulns.reachableVulnsRemovalMessage,
+      },
+    ]);
+  }
+
+  if (options.reachableVulns) {
     // Throwing error only in case when both packageManager and allProjects not defined
     if (!packageManager && !isMultiProjectScan(options)) {
       throw new Error('Could not determine package manager');

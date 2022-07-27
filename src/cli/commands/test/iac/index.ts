@@ -13,6 +13,8 @@ import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import { scan } from './scan';
 import { buildOutput, buildSpinner, printHeader } from './output';
+import { Options, TestOptions } from '../../../../lib/types';
+import { InvalidArgumentError } from './local-execution/assert-iac-options-flag';
 
 export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const { options: originalOptions, paths } = processCommandArgs(...args);
@@ -20,6 +22,8 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
+  const remoteRepoUrl = getFlag(options, 'remote-repo-url');
+  const targetName = getFlag(options, 'target-name');
 
   const orgPublicId = (options.org as string) ?? config.org;
   const iacOrgSettings = await getIacOrgSettings(orgPublicId);
@@ -48,8 +52,9 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     isNewIacOutputSupported,
   });
 
+  const projectRoot = process.cwd();
+
   printHeader({
-    paths,
     options,
     isNewIacOutputSupported,
   });
@@ -67,6 +72,9 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     paths,
     orgPublicId,
     buildOciRegistry,
+    projectRoot,
+    remoteRepoUrl,
+    targetName,
   );
 
   return buildOutput({
@@ -81,4 +89,18 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     iacIgnoredIssuesCount,
     testSpinner,
   });
+}
+
+function getFlag(options: Options & TestOptions, flag: string) {
+  const flagValue = options[flag];
+
+  if (!flagValue) {
+    return;
+  }
+  // if the user does not provide a value, it will be of boolean type
+  if (typeof flagValue !== 'string') {
+    throw new InvalidArgumentError(flag);
+  }
+
+  return flagValue;
 }

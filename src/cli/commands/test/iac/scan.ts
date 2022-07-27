@@ -13,8 +13,6 @@ import * as utils from '../utils';
 import { spinnerMessage } from '../../../../lib/formatters/iac-output';
 
 import { test as iacTest } from './local-execution';
-import { formatTestError } from '../format-test-error';
-
 import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag';
 import { initRules } from './local-execution/rules/rules';
 import { cleanLocalCache } from './local-execution/measurable-methods';
@@ -23,12 +21,11 @@ import { IaCErrorCodes, IacOrgSettings } from './local-execution/types';
 import * as pathLib from 'path';
 import { CustomError } from '../../../../lib/errors';
 import { OciRegistry } from './local-execution/rules/oci-registry';
-import {
-  MultipleGroupsResultsProcessor,
-  ResultsProcessor,
-  SingleGroupResultsProcessor,
-} from './local-execution/process-results';
+import { SingleGroupResultsProcessor } from './local-execution/process-results';
 import { getErrorStringCode } from './local-execution/error-utils';
+import { getRepositoryRootForPath } from '../../../../lib/iac/git';
+import { getInfo } from '../../../../lib/project-metadata/target-builders/git';
+import { buildMeta, GitRepository, GitRepositoryFinder } from './meta';
 
 export async function scan(
   iacOrgSettings: IacOrgSettings,
@@ -37,7 +34,9 @@ export async function scan(
   paths: string[],
   orgPublicId: string,
   buildOciRules: () => OciRegistry,
-  projectRoot?: string,
+  projectRoot: string,
+  remoteRepoUrl?: string,
+  targetName?: string,
 ): Promise<{
   iacOutputMeta: IacOutputMeta | undefined;
   iacScanFailures: IacFileInDirectory[];
@@ -47,8 +46,16 @@ export async function scan(
 }> {
   const results = [] as any[];
   const resultOptions: Array<Options & TestOptions> = [];
+  const repositoryFinder = new DefaultGitRepositoryFinder();
 
-  let iacOutputMeta: IacOutputMeta | undefined;
+  const iacOutputMeta = await buildMeta(
+    repositoryFinder,
+    iacOrgSettings,
+    projectRoot,
+    remoteRepoUrl,
+    targetName,
+  );
+
   let iacScanFailures: IacFileInDirectory[] = [];
   let iacIgnoredIssuesCount = 0;
 
@@ -74,27 +81,17 @@ export async function scan(
       try {
         assertIaCOptionsFlags(process.argv);
 
-        let resultsProcessor: ResultsProcessor;
-
-        if (projectRoot) {
-          if (pathLib.relative(projectRoot, path).includes('..')) {
-            throw new CurrentWorkingDirectoryTraversalError();
-          }
-
-          resultsProcessor = new SingleGroupResultsProcessor(
-            projectRoot,
-            orgPublicId,
-            iacOrgSettings,
-            testOpts,
-          );
-        } else {
-          resultsProcessor = new MultipleGroupsResultsProcessor(
-            path,
-            orgPublicId,
-            iacOrgSettings,
-            testOpts,
-          );
+        if (pathLib.relative(projectRoot, path).includes('..')) {
+          throw new CurrentWorkingDirectoryTraversalError(path);
         }
+
+        const resultsProcessor = new SingleGroupResultsProcessor(
+          projectRoot,
+          orgPublicId,
+          iacOrgSettings,
+          testOpts,
+          iacOutputMeta,
+        );
 
         const { results, failures, ignoreCount } = await iacTest(
           resultsProcessor,
@@ -103,11 +100,6 @@ export async function scan(
           iacOrgSettings,
           rulesOrigin,
         );
-        iacOutputMeta = {
-          orgName: results[0]?.org,
-          projectName: results[0]?.projectName,
-          gitRemoteUrl: results[0]?.meta?.gitRemoteUrl,
-        };
 
         res = results;
         iacScanFailures = [...iacScanFailures, ...(failures || [])];
@@ -122,10 +114,9 @@ export async function scan(
       const resArray: any[] = Array.isArray(res) ? res : [res];
 
       for (let i = 0; i < resArray.length; i++) {
-        const pathWithOptionalProjectName = utils.getPathWithOptionalProjectName(
-          path,
-          resArray[i],
-        );
+        const pathWithOptionalProjectName =
+          resArray[i].filename ||
+          utils.getPathWithOptionalProjectName(path, resArray[i]);
         results.push(
           assign(resArray[i], { path: pathWithOptionalProjectName }),
         );
@@ -155,11 +146,56 @@ export async function scan(
   };
 }
 
+// This is a duplicate of  commands/test/format-test-error.ts
+// we wanted to adjust it and check the case we send errors in an Array
+function formatTestError(error) {
+  let errorResponse;
+  if (error instanceof Error) {
+    errorResponse = error;
+  } else if (Array.isArray(error)) {
+    return error.map(formatTestError);
+  } else if (typeof error !== 'object') {
+    errorResponse = new Error(error);
+  } else {
+    try {
+      errorResponse = JSON.parse(error.message);
+    } catch (unused) {
+      errorResponse = error;
+    }
+  }
+  return errorResponse;
+}
+
 class CurrentWorkingDirectoryTraversalError extends CustomError {
-  constructor() {
+  public filename: string;
+
+  constructor(path: string) {
     super('Path is outside the current working directory');
     this.code = IaCErrorCodes.CurrentWorkingDirectoryTraversalError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Path is outside the current working directory`;
+    this.filename = path;
+  }
+}
+
+class DefaultGitRepository implements GitRepository {
+  constructor(public readonly path: string) {}
+
+  async readRemoteUrl() {
+    const gitInfo = await getInfo({
+      isFromContainer: false,
+      cwd: this.path,
+    });
+    return gitInfo?.remoteUrl;
+  }
+}
+
+class DefaultGitRepositoryFinder implements GitRepositoryFinder {
+  async findRepositoryForPath(path: string) {
+    try {
+      return new DefaultGitRepository(getRepositoryRootForPath(path));
+    } catch {
+      return;
+    }
   }
 }

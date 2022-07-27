@@ -2,6 +2,7 @@ import { CustomError } from '../../../../../lib/errors';
 import { args } from '../../../../args';
 import { getErrorStringCode } from './error-utils';
 import { IaCErrorCodes, IaCTestFlags, TerraformPlanScanMode } from './types';
+import { Options, TestOptions } from '../../../../../lib/types';
 
 const keys: (keyof IaCTestFlags)[] = [
   'org',
@@ -33,6 +34,9 @@ const keys: (keyof IaCTestFlags)[] = [
   // PolicyOptions
   'ignore-policy',
   'policy-path',
+  // Report options
+  'remote-repo-url',
+  'target-name',
 ];
 const allowed = new Set<string>(keys);
 
@@ -112,15 +116,15 @@ export class UnsupportedEntitlementCommandError extends CustomError {
 /**
  * Validates the command line flags passed to the snyk iac test
  * command. The current argument parsing is very permissive and
- * allows unknown flags to be provided without valdiation.
+ * allows unknown flags to be provided without validation.
  *
- * For snyk iac we need to explictly validate the flags to avoid
+ * For snyk iac we need to explicitly validate the flags to avoid
  * misconfigurations and typos. For example, if the --experimental
- * flag were to be mis-spelled we would end up sending the client
+ * flag were to be misspelled we would end up sending the client
  * data to our backend rather than running it locally as intended.
  * @param argv command line args passed to the process
  */
-export function assertIaCOptionsFlags(argv: string[]) {
+export function assertIaCOptionsFlags(argv: string[]): void {
   // We process the process.argv so we don't get default values.
   const parsed = args(argv);
   for (const key of Object.keys(parsed.options)) {
@@ -152,6 +156,18 @@ function assertTerraformPlanModes(scanModeArgValue: string) {
   }
 }
 
-export function isIacShareResultsOptions(options) {
+export function isIacShareResultsOptions(
+  options: Options & TestOptions,
+): boolean | undefined {
   return options.iac && options.report;
+}
+export class InvalidArgumentError extends CustomError {
+  constructor(key: string) {
+    const flag = getFlagName(key);
+    const msg = `Invalid argument provided to flag "${flag}". Value must be a string`;
+    super(msg);
+    this.code = IaCErrorCodes.InvalidArgumentError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = msg;
+  }
 }

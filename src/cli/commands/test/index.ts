@@ -91,6 +91,11 @@ export default async function test(
     throw new MissingArgError();
   }
 
+  // TODO remove once https://github.com/snyk/cli/pull/3433 is merged
+  if (options.docker && !options['app-vulns']) {
+    options['exclude-app-vulns'] = true;
+  }
+
   const ecosystem = getEcosystemForTest(options);
   if (ecosystem) {
     try {

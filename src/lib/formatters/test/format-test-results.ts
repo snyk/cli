@@ -102,7 +102,7 @@ export function extractDataToSendFromResults(
   let jsonData = jsonResults.length === 1 ? jsonResults[0] : jsonResults;
 
   // for container projects, we want the app vulns data to be a part of the result object
-  if (options.docker && jsonResults.length > 1) {
+  if (options.docker && jsonResults.length > 1 && !options.experimental) {
     const appVulnsData = jsonData.splice(1);
     jsonData = jsonData[0];
     if (jsonData.vulnerabilities.length === 0) {

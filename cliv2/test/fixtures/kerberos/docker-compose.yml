@@ -1,0 +1,19 @@
+services:
+  cliv2_kerberos:
+    container_name: ${CONTAINER_NAME}
+    build: .
+    environment:
+      - KERBEROS_USERNAME=administrator
+      - KERBEROS_PASSWORD=password123
+      - HTTP_PROXY_PORT=${HTTP_PROXY_PORT}
+    ports:
+      - "${HTTP_PROXY_PORT}:${HTTP_PROXY_PORT}"
+      - "88:88"
+    expose:
+      - "${HTTP_PROXY_PORT}"
+      - "88/udp"
+    hostname: "${PROXY_HOSTNAME}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${SCRIPTS_PATH}:/etc/cliv2/scripts

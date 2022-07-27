@@ -125,6 +125,12 @@ Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
 
+### `--remote-repo-url=<URL>`
+
+This can be used in combination with the `--report` option.
+
+Set or override the remote URL for the repository.&#x20;
+
 ### `--report`
 
 **NEW** option: Share results with the Snyk Web UI.
@@ -157,6 +163,14 @@ Use this dedicated option for Terraform plan scanning modes to control whether t
 
 Default: If the `--scan` option is not specified, scan the proposed changes only by default. Example 1: `--scan=planned-values` (full state scan)\
 Example 2: `--scan=resource-changes` (proposed changes scan)
+
+### `--target-name=<TARGET_NAME>`
+
+This can be used in combination with the `--report` option.
+
+Set or override the project name for the repository.&#x20;
+
+Note: This flag will supersede the `--remote-repo-url`, if used together.
 
 ### `--target-reference=<TARGET_REFERENCE>`
 

@@ -107,7 +107,7 @@ If you are mostly testing functions calling other functions, consider writing an
 
 ### Acceptance tests
 
-Acceptance tests enforce the correctness of our distribution and are written from the perspective of a customer.
+Acceptance tests enforce the correctness of our distribution and are written from the perspective of an user.
 
 Snyk CLI's acceptance tests execute a specific command line as a standalone process, then assert on `stdout`, `stdin` and the exit code. As an example, see: [`oauth-token.spec.ts`](test/jest/acceptance/oauth-token.spec.ts).
 
@@ -116,6 +116,14 @@ Your tests should never call remote endpoints. Otherwise, our release pipelines 
 Use [fake-server](./test/acceptance/fake-server.ts) to mock any Snyk API calls. If you are using other endpoints, mock those too in a similar way.
 
 Place fixtures in `./test/fixtures`. Keep them minimal to reduce maintenance. Use [`createProject`](./test/jest/util/createProject.ts) to use your fixtures in isolated working directories for your tests.
+
+### Smoke Tests
+
+Smoke tests typically don't run on branches unless the branch is specifically prefixed with `smoke/`. They usually run on an hourly basis against the latest published version of the CLI.
+
+If you merge a PR that changes smoke tests, remember that the tests will fail until your changes are deployed.
+
+See [the smoke tests readme](./test/smoke/README.md) for more info
 
 ## Code ownership
 
@@ -154,7 +162,7 @@ You will need to fix any remaining issues manually.
 
 When making changes, ensure documentation is updated accordingly.
 
-Customer-facing documentation is [available on GitBook](https://docs.snyk.io/features/snyk-cli).
+User-facing documentation is [available on GitBook](https://docs.snyk.io/features/snyk-cli).
 
 `snyk help` output must also be [edited on GitBook](https://docs.snyk.io/features/snyk-cli/commands). Changes will automatically be pulled into Snyk CLI as pull requests.
 
@@ -191,9 +199,7 @@ Each commit must provide some benefit on its own without breaking the release pi
 
 For larger changes, break down each step into multiple commits so that it's easy to review in pull requests and git history.
 
-Your changes must be backwards compatible and cannot break existing customer pipelines.
-
-Commits must follow this structure:
+Commits must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) structure:
 
 ```
 type: summary of your changes
@@ -209,13 +215,19 @@ docs: update contributing guide
 We often get questions on how to contribute to this repo. What versions to use, what the workflow is, and so on. This change updates our CONTRIBUTING guide to answer those types of questions.
 ```
 
+### No breaking changes
+
+Your changes must be backwards compatible and cannot break existing user pipelines.
+
+Don't use `BREAKING CHANGE` or exclamation mark `!` from the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+
 ### Commit types
 
 The commit type is used to summarize intent and to automate various steps.
 
 | Type       | Description                                     |
 | ---------- | ----------------------------------------------- |
-| `feat`     | A new customer-facing feature.                  |
+| `feat`     | A new user-facing feature.                      |
 | `fix`      | A bug fix for an existing feature.              |
 | `refactor` | Changes which do not affect existing features.  |
 | `test`     | Changes to tests for existing features.         |

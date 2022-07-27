@@ -185,7 +185,11 @@ export type IaCTestFlags = Pick<
   // PolicyOptions
   | 'ignore-policy'
   | 'policy-path'
+  // Tags
   | 'tags'
+  // Report options
+  | 'remote-repo-url'
+  | 'target-name'
 > & {
   // Supported flags not yet covered by Options or TestOptions
   'json-file-output'?: string;
@@ -334,6 +338,7 @@ export enum IaCErrorCodes {
   FlagValueError = 1091,
   UnsupportedEntitlementFlagError = 1092,
   FeatureFlagError = 1093,
+  InvalidArgumentError = 1094,
 
   // oci-pull errors
   FailedToExecuteCustomRulesError = 1100,
@@ -359,6 +364,28 @@ export enum IaCErrorCodes {
 
   // Scan errors
   PolicyEngineScanError = 1150,
+
+  // snyk-iac-test errors
+  NoPaths = 2000,
+  CwdTraversal = 2003,
+  NoBundle = 2004,
+  OpenBundle = 2005,
+  InvalidSeverityThreshold = 2006,
+  Scan = 2100,
+  UnableToRecognizeInputType = 2101,
+  UnsupportedInputType = 2102,
+  UnableToResolveLocation = 2103,
+  UnrecognizedFileExtension = 2104,
+  FailedToParseInput = 2105,
+  InvalidInput = 2106,
+  UnableToReadFile = 2107,
+  UnableToReadDir = 2108,
+  UnableToReadStdin = 2109,
+  FailedToLoadRegoAPI = 2110,
+  FailedToLoadRules = 2111,
+  FailedToCompile = 2112,
+  UnableToReadPath = 2113,
+  NoLoadableInput = 2114,
 }
 
 export interface TestReturnValue {

@@ -88,6 +88,11 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     throw new Error('`--remote-repo-url` is not supported for container scans');
   }
 
+  // TODO remove once https://github.com/snyk/cli/pull/3433 is merged
+  if (options.docker && !options['app-vulns']) {
+    options['exclude-app-vulns'] = true;
+  }
+
   // Handles no image arg provided to the container command until
   // a validation interface is implemented in the docker plugin.
   if (options.docker && paths.length === 0) {

@@ -37,13 +37,12 @@ import {
   Options,
   TestOptions,
 } from '../../../../lib/types';
-import * as path from 'path';
 import { IaCTestFlags } from './local-execution/types';
 import {
   shareCustomRulesDisclaimer,
   shareResultsTip,
 } from '../../../../lib/formatters/iac-output/v2';
-import { formatScanResultsNewOutput } from '../../../../lib/formatters/iac-output/v2/issues-list/formatters';
+import { formatTestData } from '../../../../lib/formatters/iac-output';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -61,20 +60,14 @@ export function buildSpinner({
 }
 
 export function printHeader({
-  paths,
   options,
   isNewIacOutputSupported,
 }: {
-  paths: string[];
   options: Options & TestOptions;
   isNewIacOutputSupported?: boolean;
 }) {
   if (shouldLogUserMessages(options, isNewIacOutputSupported)) {
     console.log(EOL + iacTestTitle + EOL);
-
-    if (paths.some(isOutsideCurrentWorkingDirectory)) {
-      printCurrentWorkingDirectoryTraversalWarning();
-    }
   }
 }
 
@@ -176,13 +169,16 @@ export function buildOutput({
 
   let response = '';
 
+  const newOutputTestData = formatTestData({
+    oldFormattedResults: successResults,
+    ignoresCount: iacIgnoredIssuesCount,
+    iacOutputMeta: iacOutputMeta,
+  });
+
   if (isNewIacOutputSupported) {
     if (isPartialSuccess) {
-      const formattedSuccessResults = formatScanResultsNewOutput(
-        successResults,
-        iacOutputMeta!,
-      );
-      response += EOL + getIacDisplayedIssues(formattedSuccessResults);
+      response +=
+        EOL + getIacDisplayedIssues(newOutputTestData.resultsBySeverity);
     }
   } else {
     response += results
@@ -255,14 +251,7 @@ export function buildOutput({
   if (isPartialSuccess && iacOutputMeta && isNewIacOutputSupported) {
     response += `${EOL}${SEPARATOR}${EOL}`;
 
-    const iacTestSummary = `${formatIacTestSummary(
-      {
-        results: successResults,
-        failures: iacScanFailures,
-        ignoreCount: iacIgnoredIssuesCount,
-      },
-      iacOutputMeta,
-    )}`;
+    const iacTestSummary = `${formatIacTestSummary(newOutputTestData)}`;
 
     response += iacTestSummary;
   }
@@ -325,27 +314,6 @@ export function buildOutput({
     stringifiedJsonData,
     stringifiedSarifData,
   );
-}
-
-function isOutsideCurrentWorkingDirectory(p: string): boolean {
-  return path.relative(process.cwd(), p).includes('..');
-}
-
-function printCurrentWorkingDirectoryTraversalWarning() {
-  let msg = '';
-
-  msg +=
-    'Warning: Scanning paths outside the current working directory is deprecated and' +
-    EOL;
-  msg +=
-    'will be removed in the future. Please see the documentation for further details:' +
-    EOL +
-    EOL;
-  msg +=
-    '  https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code/test-your-configuration-files' +
-    EOL;
-
-  console.log(chalk.yellow(msg));
 }
 
 function buildShareResultsSummary({

@@ -6,12 +6,19 @@ import * as debug from 'debug';
 import { colors, contentPadding } from '../utils';
 import { formatIssue } from './issue';
 import { SEVERITY } from '../../../../snyk-test/common';
-import { FormattedOutputResult, IacTestOutput } from './types';
+import {
+  FormattedOutputResult,
+  FormattedOutputResultsBySeverity,
+} from '../types';
+import { Options } from './types';
 
-export function getIacDisplayedIssues(results: IacTestOutput): string {
+export function getIacDisplayedIssues(
+  resultsBySeverity: FormattedOutputResultsBySeverity,
+  options?: Options,
+): string {
   const titleOutput = colors.title('Issues');
 
-  if (isEmpty(results.results)) {
+  if (isEmpty(resultsBySeverity)) {
     return (
       titleOutput +
       EOL +
@@ -21,10 +28,10 @@ export function getIacDisplayedIssues(results: IacTestOutput): string {
   }
 
   const severitySectionsOutput = Object.values(SEVERITY)
-    .filter((severity) => !!results.results[severity])
+    .filter((severity) => !!resultsBySeverity[severity])
     .map((severity) => {
       const severityResults: FormattedOutputResult[] =
-        results.results[severity];
+        resultsBySeverity[severity];
 
       const titleOutput = colors.title(
         `${capitalize(severity)} Severity Issues: ${severityResults.length}`,
@@ -38,7 +45,7 @@ export function getIacDisplayedIssues(results: IacTestOutput): string {
             ) ||
             severityResult1.issue.id.localeCompare(severityResult2.issue.id),
         )
-        .map(formatIssue)
+        .map((result) => formatIssue(result, options))
         .join(EOL.repeat(2));
 
       debug(

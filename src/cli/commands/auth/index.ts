@@ -1,4 +1,3 @@
-import * as url from 'url';
 import * as open from 'open';
 import { v4 as uuidv4 } from 'uuid';
 import * as Debug from 'debug';
@@ -17,8 +16,11 @@ import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in
 import { Payload } from '../../../lib/request/types';
 import { getQueryParamsAsString } from '../../../lib/query-strings';
 
-const apiUrl = url.parse(config.API);
-const authUrl = apiUrl.protocol + '//' + apiUrl.host;
+const apiUrl = new URL(config.API);
+// Ensure user gets redirected to the login page
+if (apiUrl.host.startsWith('api.')) {
+  apiUrl.host = apiUrl.host.replace(/^api\./, 'app.');
+}
 const debug = Debug('snyk-auth');
 let attemptsLeft = 0;
 
@@ -29,7 +31,9 @@ function resetAttempts() {
 async function webAuth() {
   const token = uuidv4(); // generate a random key
 
-  let urlStr = authUrl + '/login?token=' + token;
+  apiUrl.pathname = '/login';
+  apiUrl.searchParams.append('token', token);
+  let urlStr = apiUrl.toString();
 
   // It's not optimal, but I have to parse args again here. Alternative is reworking everything about how we parse args
   const args = [argsLib(process.argv).options];

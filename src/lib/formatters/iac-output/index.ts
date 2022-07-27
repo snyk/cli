@@ -20,4 +20,6 @@ export {
   formatShareResultsOutput,
   failuresTipOutput,
   IaCTestFailure,
+  formatSnykIacTestTestData,
+  formatTestData,
 } from './v2';

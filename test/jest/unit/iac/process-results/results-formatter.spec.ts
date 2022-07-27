@@ -1,7 +1,7 @@
 import {
   filterPoliciesBySeverity,
   formatScanResults,
-} from '../../../../../src/cli/commands/test/iac/local-execution/process-results/v1/results-formatter';
+} from '../../../../../src/cli/commands/test/iac/local-execution/process-results/results-formatter';
 import { SEVERITY } from '../../../../../src/lib/snyk-test/common';
 import {
   expectedFormattedResultsWithLineNumber,
@@ -83,6 +83,7 @@ describe('formatScanResults', () => {
         optionsObject.formatOptions,
         meta,
         {},
+        process.cwd(),
       );
 
       expect(formattedResults.length).toEqual(1);
@@ -108,6 +109,7 @@ describe('parser failures should return -1 for lineNumber', () => {
       { severityThreshold: SEVERITY.HIGH },
       meta,
       {},
+      process.cwd(),
     );
 
     expect(formattedResults.length).toEqual(1);
@@ -125,6 +127,7 @@ describe('parser failures should return -1 for lineNumber', () => {
       { severityThreshold: SEVERITY.HIGH },
       meta,
       {},
+      process.cwd(),
     );
 
     expect(formattedResults.length).toEqual(1);

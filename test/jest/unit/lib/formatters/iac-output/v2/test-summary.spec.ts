@@ -1,15 +1,16 @@
+import * as clonedeep from 'lodash.clonedeep';
 import * as fs from 'fs';
 import * as pathLib from 'path';
 
 import { formatIacTestSummary } from '../../../../../../../src/lib/formatters/iac-output';
 import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/utils';
-import { IacTestResponse } from '../../../../../../../src/lib/snyk-test/iac-test-result';
+import { IacTestData } from '../../../../../../../src/lib/formatters/iac-output/v2/types';
 
 describe('formatIacTestSummary', () => {
-  let resultFixtures: IacTestResponse[];
+  let testDataFixture: IacTestData;
 
   beforeAll(async () => {
-    resultFixtures = JSON.parse(
+    testDataFixture = JSON.parse(
       fs.readFileSync(
         pathLib.join(
           __dirname,
@@ -20,7 +21,7 @@ describe('formatIacTestSummary', () => {
           'iac',
           'process-results',
           'fixtures',
-          'formatted-results.json',
+          'test-data.json',
         ),
         'utf8',
       ),
@@ -29,15 +30,10 @@ describe('formatIacTestSummary', () => {
 
   it("should include the 'Test Summary' title", () => {
     // Arrange
-    const orgName = 'test-org-name';
-    const projectName = 'test-project-name';
-    const ignoreCount = 3;
+    const testTestData: IacTestData = clonedeep(testDataFixture);
 
     // Act
-    const result = formatIacTestSummary(
-      { ignoreCount, results: resultFixtures },
-      { orgName, projectName },
-    );
+    const result = formatIacTestSummary(testTestData);
 
     // Assert
     expect(result).toContain(`${colors.title('Test Summary')}`);
@@ -45,31 +41,22 @@ describe('formatIacTestSummary', () => {
 
   it('should include the test meta properties section with the correct values', () => {
     // Arrange
-    const orgName = 'test-org-name';
-    const projectName = 'test-project-name';
-    const ignoreCount = 3;
+    const testTestData: IacTestData = clonedeep(testDataFixture);
 
     // Act
-    const result = formatIacTestSummary(
-      { ignoreCount, results: resultFixtures },
-      { orgName, projectName },
-    );
+    const result = formatIacTestSummary(testTestData);
 
     // Assert
-    expect(result).toContain(`Organization: ${orgName}`);
+    expect(result).toContain(`Organization: Shmulik.Kipod
+  Project name: project-name`);
   });
 
   it('should include the counts section with the correct values', () => {
     // Arrange
-    const orgName = 'test-org-name';
-    const projectName = 'test-project-name';
-    const ignoreCount = 3;
+    const testTestData: IacTestData = clonedeep(testDataFixture);
 
     // Act
-    const result = formatIacTestSummary(
-      { ignoreCount, results: resultFixtures },
-      { orgName, projectName },
-    );
+    const result = formatIacTestSummary(testTestData);
 
     // Assert
     expect(result).toContain(
@@ -77,7 +64,7 @@ describe('formatIacTestSummary', () => {
         '0',
       )}
 ${colors.failure.bold('✗')} Files with issues: ${colors.info.bold('3')}
-  Ignored issues: ${colors.info.bold(`${ignoreCount}`)}
+  Ignored issues: ${colors.info.bold('3')}
   Total issues: ${colors.info.bold('22')} [ ${colors.severities.critical(
         '0 critical',
       )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(

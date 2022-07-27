@@ -1,24 +1,22 @@
 import { EOL } from 'os';
 import { rightPadWithSpaces } from '../../../right-pad';
-import { SEVERITY } from '../../../snyk-test/common';
 import { icon } from '../../../theme';
 import { IacOutputMeta } from '../../../types';
 import { colors } from './utils';
-import { IacTestData } from './types';
+import { IacTestCounts, IacTestData } from './types';
 
 const PAD_LENGTH = 19; // chars to align
 const INDENT = '  ';
 
-export function formatIacTestSummary(
-  testData: IacTestData,
-  outputMeta: IacOutputMeta,
-): string {
+export function formatIacTestSummary(testData: IacTestData): string {
   const title = colors.title('Test Summary');
   const summarySections: string[] = [title];
 
-  summarySections.push(formatTestMetaSection(outputMeta));
+  if (testData.metadata) {
+    summarySections.push(formatTestMetaSection(testData.metadata));
+  }
 
-  summarySections.push(formatCountsSection(testData));
+  summarySections.push(formatCountsSection(testData.counts));
 
   return summarySections.join(EOL.repeat(2));
 }
@@ -30,6 +28,10 @@ function formatTestMetaSection(iacMeta: IacOutputMeta): string {
     metaSectionProperties.push(['Organization', iacMeta.orgName]);
   }
 
+  if (iacMeta.projectName) {
+    metaSectionProperties.push(['Project name', iacMeta.projectName]);
+  }
+
   const metaSection = metaSectionProperties
     .map(([key, value]) =>
       rightPadWithSpaces(`${INDENT}${key}: ${value}`, PAD_LENGTH),
@@ -39,56 +41,37 @@ function formatTestMetaSection(iacMeta: IacOutputMeta): string {
   return metaSection;
 }
 
-function formatCountsSection(testData: IacTestData): string {
-  const filesWithIssues = testData.results.filter(
-    (result) => result.result.cloudConfigResults.length,
-  ).length;
-  const filesWithoutIssues = testData.results.length - filesWithIssues;
-
+function formatCountsSection(testCounts: IacTestCounts): string {
   const countsSectionProperties: string[] = [];
 
   countsSectionProperties.push(
     `${colors.success.bold(
       icon.VALID,
-    )} Files without issues: ${colors.info.bold(`${filesWithoutIssues}`)}`,
-  );
-
-  countsSectionProperties.push(
-    `${colors.failure.bold(icon.ISSUE)} Files with issues: ${colors.info.bold(
-      `${filesWithIssues}`,
+    )} Files without issues: ${colors.info.bold(
+      `${testCounts.filesWithoutIssues}`,
     )}`,
   );
 
   countsSectionProperties.push(
-    `${INDENT}Ignored issues: ${colors.info.bold(`${testData.ignoreCount}`)}`,
+    `${colors.failure.bold(icon.ISSUE)} Files with issues: ${colors.info.bold(
+      `${testCounts.filesWithIssues}`,
+    )}`,
   );
 
-  let totalIssuesCount = 0;
-
-  const issueCountsBySeverities: { [key in SEVERITY]: number } = {
-    critical: 0,
-    high: 0,
-    medium: 0,
-    low: 0,
-  };
-
-  testData.results.forEach((iacTestResponse) => {
-    totalIssuesCount += iacTestResponse.result.cloudConfigResults.length;
-    iacTestResponse.result.cloudConfigResults.forEach((iacIssue) => {
-      issueCountsBySeverities[iacIssue.severity]++;
-    });
-  });
+  countsSectionProperties.push(
+    `${INDENT}Ignored issues: ${colors.info.bold(`${testCounts.ignores}`)}`,
+  );
 
   countsSectionProperties.push(
     `${INDENT}Total issues: ${colors.info.bold(
-      `${totalIssuesCount}`,
+      `${testCounts.issues}`,
     )} [ ${colors.severities.critical(
-      `${issueCountsBySeverities.critical} critical`,
+      `${testCounts.issuesBySeverity.critical} critical`,
     )}, ${colors.severities.high(
-      `${issueCountsBySeverities.high} high`,
+      `${testCounts.issuesBySeverity.high} high`,
     )}, ${colors.severities.medium(
-      `${issueCountsBySeverities.medium} medium`,
-    )}, ${colors.severities.low(`${issueCountsBySeverities.low} low`)} ]`,
+      `${testCounts.issuesBySeverity.medium} medium`,
+    )}, ${colors.severities.low(`${testCounts.issuesBySeverity.low} low`)} ]`,
   );
 
   return countsSectionProperties.join(EOL);

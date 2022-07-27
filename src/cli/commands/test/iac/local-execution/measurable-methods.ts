@@ -1,7 +1,6 @@
 import { parseFiles } from './file-parser';
 import { scanFiles } from './file-scanner';
-import { formatScanResults as formatScanResultsV1 } from './process-results/v1/results-formatter';
-import { formatScanResults as formatScanResultsV2 } from './process-results/v2/results-formatter';
+import { formatScanResults } from './process-results/results-formatter';
 import { trackUsage } from './usage-tracking';
 import { cleanLocalCache, initLocalCache } from './local-cache';
 import { applyCustomSeverities } from './org-settings/apply-custom-severities';
@@ -83,13 +82,8 @@ const measurableCleanLocalCache = performanceAnalyticsDecorator(
   PerformanceAnalyticsKey.CacheCleanup,
 );
 
-const measurableFormatScanResultsV1 = performanceAnalyticsDecorator(
-  formatScanResultsV1,
-  PerformanceAnalyticsKey.ResultFormatting,
-);
-
-const measurableFormatScanResultsV2 = performanceAnalyticsDecorator(
-  formatScanResultsV2,
+const measurableFormatScanResults = performanceAnalyticsDecorator(
+  formatScanResults,
   PerformanceAnalyticsKey.ResultFormatting,
 );
 
@@ -115,8 +109,7 @@ export {
   measurableScanFiles as scanFiles,
   measurableGetIacOrgSettings as getIacOrgSettings,
   measurableApplyCustomSeverities as applyCustomSeverities,
-  measurableFormatScanResultsV1 as formatScanResultsV1,
-  measurableFormatScanResultsV2 as formatScanResultsV2,
+  measurableFormatScanResults as formatScanResultsV2,
   measurableTrackUsage as trackUsage,
   measurableCleanLocalCache as cleanLocalCache,
   measurableLocalTest as localTest,

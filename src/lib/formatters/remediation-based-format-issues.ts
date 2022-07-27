@@ -495,7 +495,7 @@ export function formatIssue(
     ) +
     reachabilityText +
     '\n    ' +
-    `[${config.ROOT}/vuln/${id}]` +
+    `[${config.PUBLIC_VULN_DB_URL}/vuln/${id}]` +
     name +
     reachableVia +
     introducedBy +

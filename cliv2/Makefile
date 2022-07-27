@@ -17,6 +17,7 @@ bindir = $(exec_prefix)/bin
 WORKING_DIR = $(CURDIR)
 BUILD_DIR = $(WORKING_DIR)/_bin
 CACHE_DIR = $(WORKING_DIR)/_cache
+SRCS = $(shell find $(WORKING_DIR) -type f -name '*.go')
 
 # load cached variables if available
 -include $(CACHE_DIR)/variables.mk
@@ -137,7 +138,7 @@ dependencies: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTA
 .PHONY: configure
 configure: $(V2_DIRECTORY)/cliv2.version $(CACHE_DIR) $(CACHE_DIR)/version.mk $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) 
+$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) build -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
@@ -168,8 +169,12 @@ whiteboxtest:
 	@echo "$(LOG_PREFIX) Running $@"
 	@$(GOCMD) test -cover ./...
 
+.PHONY: acceptancetest 
+acceptancetest: build
+	TEST_SNYK_COMMAND="$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)" npx jest
+
 .PHONY: test
-test: whiteboxtest blackboxtest
+test: whiteboxtest blackboxtest acceptancetest
 
 .PHONY: lint
 lint:

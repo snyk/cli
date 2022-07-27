@@ -1,0 +1,23 @@
+---
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  name: db-controller
+spec:
+  replicas: 2
+  selector:
+    name: db
+  template:
+    spec:
+      containers:
+        - name: db
+          image: dbforweb
+          ports:
+            - containerPort: 3306
+    metadata:
+      labels:
+        name: "db"
+      selectorname: "db"
+  labels:
+    name: "db"
+  script

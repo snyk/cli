@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { getFixturePath } from './getFixturePath';
 
-type TestProject = {
+export type TestProject = {
   path: (filePath?: string) => string;
   read: (filePath: string) => Promise<string>;
   readJSON: (filePath: string) => Promise<any>;

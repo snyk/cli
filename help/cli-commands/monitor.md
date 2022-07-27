@@ -168,7 +168,7 @@ Set the project tags to one or more values (comma-separated key value pairs with
 
 This is an alias for `--project-tags`
 
-## Options for Maven projects
+## Option for Maven projects
 
 For more information about Maven CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven)
 
@@ -177,16 +177,6 @@ For more information about Maven CLI options see [Snyk for Java and Kotlin](http
 Auto-detect maven jars, aars, and wars in given directory. To monitor individually use `--file=<JAR_FILE_NAME>`
 
 **Note**: Custom-built jar files, even with open source dependencies, are out of scope.
-
-### `--reachable`
-
-Analyze your source code to find which vulnerable functions and packages are called. Cannot be used with `--all-projects`
-
-### `--reachable-timeout=<TIMEOUT>`
-
-Specify the amount of time (in seconds) to wait for Snyk to gather reachability data. If it takes longer than `<TIMEOUT>`, reachable vulnerabilities are not reported. This does not affect regular test or monitor output.
-
-Default: 300 (5 minutes).
 
 ## Options for Gradle projects
 
@@ -211,16 +201,6 @@ Example: `^releaseRuntimeClasspath$`
 Select certain values of configuration attributes to install dependencies and perform dependency resolution.
 
 Example: `buildtype:release,usage:java-runtime`
-
-### `--reachable`
-
-Analyze your source code to find which vulnerable functions and packages are called.
-
-### `--reachable-timeout=<TIMEOUT>`
-
-Specify the amount of time (in seconds) to wait for Snyk to gather reachability data. If it takes longer than `<TIMEOUT>`, reachable vulnerabilities are not reported. This does not affect regular test or monitor output.
-
-Default: 300 (5 minutes).
 
 ### `--init-script=<FILE`
 

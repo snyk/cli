@@ -1,0 +1,13 @@
+---
+kind: ReplicationController
+apiVersion: v1
+metadata:
+  name: db-controller
+spec:
+  replicas
+  selector:
+    name: db
+  template:
+    labels:
+      name: "db"
+    selectorname: "db"

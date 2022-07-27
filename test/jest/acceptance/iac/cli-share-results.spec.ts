@@ -1,10 +1,5 @@
 import { FakeServer } from '../../../acceptance/fake-server';
 import { startMockServer } from './helpers';
-import * as path from 'path';
-
-const projectDirectoryName = path.basename(
-  path.resolve(__dirname, '..', '..', '..', '..'),
-);
 
 jest.setTimeout(50000);
 
@@ -56,8 +51,9 @@ describe('CLI Share Results', () => {
       );
 
       expect(stdout).toContain(
-        `Your test results are available at: http://localhost:${server.getPort()}/org/test-org/projects under the name snyk/cli`,
+        `Your test results are available at: http://localhost:${server.getPort()}/org/test-org/projects`,
       );
+      expect(stdout).toContain('under the name fixtures');
       expect(exitCode).toBe(1);
     });
 
@@ -78,14 +74,14 @@ describe('CLI Share Results', () => {
             {
               identity: {
                 type: 'armconfig',
-                targetFile: 'test/fixtures/iac/arm/rule_test.json',
+                targetFile: 'iac/arm/rule_test.json',
               },
               facts: [],
               findings: expect.any(Array),
               policy: '',
-              name: projectDirectoryName,
+              name: 'fixtures',
               target: {
-                remoteUrl: 'http://github.com/snyk/cli.git',
+                name: 'fixtures',
               },
             },
           ],
@@ -203,13 +199,13 @@ describe('CLI Share Results', () => {
               {
                 identity: {
                   type: 'armconfig',
-                  targetFile: 'test/fixtures/iac/arm/rule_test.json',
+                  targetFile: 'iac/arm/rule_test.json',
                 },
                 facts: [],
                 findings: expect.arrayContaining([]),
-                name: projectDirectoryName,
+                name: 'fixtures',
                 target: {
-                  remoteUrl: 'http://github.com/snyk/cli.git',
+                  name: 'fixtures',
                 },
                 targetReference: testTargetRef,
               },

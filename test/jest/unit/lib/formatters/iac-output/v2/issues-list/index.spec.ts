@@ -3,10 +3,10 @@ import * as pathLib from 'path';
 import chalk from 'chalk';
 import { getIacDisplayedIssues } from '../../../../../../../../src/lib/formatters/iac-output';
 import { colors } from '../../../../../../../../src/lib/formatters/iac-output/v2/utils';
-import { IacTestOutput } from '../../../../../../../../src/lib/formatters/iac-output/v2/issues-list/types';
+import { FormattedOutputResultsBySeverity } from '../../../../../../../../src/lib/formatters/iac-output/v2/types';
 
 describe('getIacDisplayedIssues', () => {
-  let resultFixtures: IacTestOutput;
+  let resultFixtures: FormattedOutputResultsBySeverity;
 
   beforeAll(async () => {
     resultFixtures = JSON.parse(
@@ -142,13 +142,10 @@ describe('getIacDisplayedIssues', () => {
   });
 
   describe('with no issues', () => {
-    let resultsWithNoIssues: IacTestOutput;
-
-    beforeAll(() => {
-      resultsWithNoIssues = { ...resultFixtures, results: {} };
-    });
-
     it('should display an appropriate message', () => {
+      // Arrange
+      const resultsWithNoIssues: FormattedOutputResultsBySeverity = {};
+
       // Act
       const result = getIacDisplayedIssues(resultsWithNoIssues);
 
@@ -159,6 +156,9 @@ describe('getIacDisplayedIssues', () => {
     });
 
     it('should not display any severity sections', () => {
+      // Arrange
+      const resultsWithNoIssues: FormattedOutputResultsBySeverity = {};
+
       // Act
       const result = getIacDisplayedIssues(resultsWithNoIssues);
 
@@ -175,6 +175,61 @@ describe('getIacDisplayedIssues', () => {
       expect(result).not.toContain(
         colors.severities.critical('Critical Severity Issues'),
       );
+    });
+  });
+
+  describe('with the `shouldShowLineNumbers` option', () => {
+    it('should display line numbers', () => {
+      // Act
+      const result = getIacDisplayedIssues(resultFixtures, {
+        shouldShowLineNumbers: true,
+      });
+
+      // Assert
+      expect(result).toContain('aws_ec2_metadata_secrets.tf:21');
+    });
+
+    describe('when an issue does not have a line number', () => {
+      it('should not display the line number', () => {
+        // Act
+        const result = getIacDisplayedIssues(resultFixtures, {
+          shouldShowLineNumbers: true,
+        });
+
+        // Assert
+        expect(result).toContain(
+          `  ${colors.severities.low(
+            `[Low] ${chalk.bold(
+              'EC2 API termination protection is not enabled',
+            )}`,
+          )}
+  Info:    To prevent instance from being accidentally terminated using Amazon EC2, you can enable termination protection for the instance. Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type
+  Rule:    ${chalk.underline('https://snyk.io/security-rules/SNYK-CC-AWS-426')}
+  Path:    resource > aws_instance[denied_3] > disable_api_termination
+  File:    aws_ec2_metadata_secrets.tf
+  Resolve: Set \`disable_api_termination\` attribute  with value \`true\``,
+        );
+      });
+    });
+    describe('when an issue line number is a non-positive number', () => {
+      it('should not display the line number', () => {
+        // Act
+        const result = getIacDisplayedIssues(resultFixtures, {
+          shouldShowLineNumbers: true,
+        });
+
+        // Assert
+        expect(result).toContain(
+          `${colors.severities.high(
+            `[High] ${chalk.bold('Hard coded secrets in EC2 metadata')}`,
+          )}
+  Info:    Secret keys have been hardcoded in user_data script. Anyone with access to VCS will be able to obtain the secret keys, and access the unauthorized resources
+  Rule:    ${chalk.underline('https://snyk.io/security-rules/SNYK-CC-TF-123')}
+  Path:    resource > aws_instance[denied_2] > user_data_base64[aws_access_key_id]
+  File:    aws_ec2_metadata_secrets.tf
+  Resolve: Remove secret value from \`user_data\` attribute`,
+        );
+      });
     });
   });
 });

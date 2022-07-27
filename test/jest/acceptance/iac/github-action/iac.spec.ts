@@ -29,10 +29,6 @@ describe('GitHub action - IaC', () => {
       relativeDir: 'iac',
       inputPath: '', // current directory provided by default
     },
-    {
-      relativeDir: 'iac/file-output',
-      inputPath: '../../iac', // one folder up
-    },
   ])('when provided config: %j', ({ relativeDir, inputPath }) => {
     let githubActionTestRunner: GithubActionTestRunner;
 

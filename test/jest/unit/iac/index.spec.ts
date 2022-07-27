@@ -53,7 +53,7 @@ import {
 } from '../../../../src/cli/commands/test/iac/local-execution/types';
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 
-import { MultipleGroupsResultsProcessor } from '../../../../src/cli/commands/test/iac/local-execution/process-results';
+import { SingleGroupResultsProcessor } from '../../../../src/cli/commands/test/iac/local-execution/process-results';
 const parsedFiles: IacFileParsed[] = [
   {
     engineType: EngineType.Terraform,
@@ -105,11 +105,15 @@ describe('test()', () => {
     it('returns the unparsable files excluding content', async () => {
       const opts: IaCTestFlags = {};
 
-      const resultsProcessor = new MultipleGroupsResultsProcessor(
+      const resultsProcessor = new SingleGroupResultsProcessor(
         './storage/',
         'org-name',
         iacOrgSettings,
         opts,
+        {
+          projectName: 'project-name',
+          orgName: 'org-name',
+        },
       );
 
       const { failures } = await test(

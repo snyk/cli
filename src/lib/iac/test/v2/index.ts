@@ -1,7 +1,7 @@
 import { TestConfig } from './types';
 import { setup } from './setup';
 import { scan } from './scan';
-import { SnykIacTestOutput } from '../../../../cli/commands/test/iac/v2/types';
+import { SnykIacTestOutput } from '../../../../lib/iac/test/v2/scan/results';
 
 export { TestConfig } from './types';
 

@@ -1,6 +1,7 @@
 import * as theme from './theme';
 import * as createDebug from 'debug';
 import { EOL } from 'os';
+import config from './config';
 
 const debug = createDebug('snyk-spotlight-vuln-notification');
 
@@ -41,7 +42,7 @@ export function notificationForSpotlightVulns(
           );
 
           for (const vulnId of foundSpotlightVulnsIds) {
-            message += `  - ${vulnId} (See https://snyk.io/vuln/${vulnId})`;
+            message += `  - ${vulnId} (See ${config.PUBLIC_VULN_DB_URL}/vuln/${vulnId})`;
           }
 
           message += EOL + EOL;
@@ -50,9 +51,9 @@ export function notificationForSpotlightVulns(
               `We highly recommend fixing this vulnerability. If it cannot be fixed by upgrading, see mitigation information here:`,
             ) +
             EOL +
-            '  - https://security.snyk.io/vuln/SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720' +
+            `  - ${config.PUBLIC_VULN_DB_URL}/vuln/SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720` +
             EOL +
-            '  - https://snyk.io/blog/log4shell-remediation-cheat-sheet/' +
+            `  - https://snyk.io/blog/log4shell-remediation-cheat-sheet/` +
             EOL;
         }
       }

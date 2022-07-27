@@ -36,7 +36,7 @@ const createMatchableOutput = (outputStream: Readable) => {
     expected: string | RegExp,
     { timeout = DEFAULT_ASSERTION_TIMEOUT } = {},
   ) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         matchers.delete(matcher);
         reject(new AssertionTimeoutError('waitUntilMatches', timeout));
@@ -85,9 +85,11 @@ const createTestCLI = (child: ChildProcessWithoutNullStreams) => {
   /**
    * Waits for process to exit and provides the exit code.
    */
-  const wait = async ({ timeout = DEFAULT_ASSERTION_TIMEOUT } = {}) => {
+  const wait = async ({
+    timeout = DEFAULT_ASSERTION_TIMEOUT,
+  } = {}): Promise<number> => {
     if (child.killed) {
-      return child.exitCode;
+      return child.exitCode || 0;
     }
     return new Promise((resolve, reject) => {
       const onTimeout = () => {
@@ -114,7 +116,7 @@ const createTestCLI = (child: ChildProcessWithoutNullStreams) => {
    * Sends data through the process' stdin.
    */
   const input = async (input: string) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       child.stdin.write(input, (err) => {
         if (err) {
           reject(err);
@@ -156,7 +158,7 @@ type StartCommandOptions = SpawnOptionsWithoutStdio & {
   startTimeout?: number;
 };
 
-const startCommand = async (
+export const startCommand = async (
   command: string,
   args: string[],
   {
@@ -248,6 +250,12 @@ expect.extend({
         pass: true,
       };
     } catch (err) {
+      const result = {
+        code: cli.process.exitCode,
+        stdout: cli.stdout.get(),
+        stderr: cli.stderr.get(),
+      };
+      console.debug('toDisplay error', result);
       return {
         message: () =>
           `expected process to display "${expected}" (${err.message})`,
@@ -295,6 +303,8 @@ expect.extend({
           pass: true,
         };
       }
+      console.debug('-> Stdout\n' + cli.stdout.get());
+      console.debug('-> Stderr\n' + cli.stderr.get());
       return {
         message: () =>
           `expected process to exit with ${expected} but was ${actual}.`,
