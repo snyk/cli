@@ -82,7 +82,7 @@ export async function scan(
         assertIaCOptionsFlags(process.argv);
 
         if (pathLib.relative(projectRoot, path).includes('..')) {
-          throw new CurrentWorkingDirectoryTraversalError(path);
+          throw new CurrentWorkingDirectoryTraversalError(path, projectRoot);
         }
 
         const resultsProcessor = new SingleGroupResultsProcessor(
@@ -168,13 +168,15 @@ function formatTestError(error) {
 
 class CurrentWorkingDirectoryTraversalError extends CustomError {
   public filename: string;
+  public projectRoot: string;
 
-  constructor(path: string) {
+  constructor(path: string, projectRoot: string) {
     super('Path is outside the current working directory');
     this.code = IaCErrorCodes.CurrentWorkingDirectoryTraversalError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Path is outside the current working directory`;
     this.filename = path;
+    this.projectRoot = projectRoot;
   }
 }
 
