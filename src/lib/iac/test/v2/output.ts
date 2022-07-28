@@ -16,6 +16,7 @@ import { jsonStringifyLargeObject } from '../../../json';
 import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-execution/types';
 import { SnykIacTestError } from './errors';
 import { convertEngineToSarifResults } from './sarif';
+import { CustomError } from '../../../errors';
 
 export function buildOutput({
   scanResult,
@@ -91,6 +92,11 @@ function buildTestCommandResultData({
     responseData = buildTextOutput({ scanResult, projectName, orgSettings });
   }
 
+  const isFoundIssues = !!scanResult.results?.vulnerabilities?.length;
+  if (isFoundIssues) {
+    throw new FoundIssuesError({ responseData, jsonData, sarifData });
+  }
+
   return { responseData, jsonData, sarifData };
 }
 
@@ -140,4 +146,24 @@ function buildTextOutput({
   response += EOL;
 
   return response;
+}
+
+interface FoundIssuesErrorProps {
+  responseData: string;
+  jsonData: string;
+  sarifData: string;
+}
+
+export class FoundIssuesError extends CustomError {
+  public jsonStringifiedResults: string;
+  public sarifStringifiedResults: string;
+
+  constructor(props: FoundIssuesErrorProps) {
+    super(props.responseData);
+    this.code = 'VULNS' as any;
+    this.strCode = 'VULNS';
+    this.userMessage = props.responseData;
+    this.jsonStringifiedResults = props.jsonData;
+    this.sarifStringifiedResults = props.sarifData;
+  }
 }
