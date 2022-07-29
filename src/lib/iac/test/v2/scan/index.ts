@@ -11,6 +11,7 @@ import * as path from 'path';
 import * as rimraf from 'rimraf';
 import config from '../../../../config';
 import { getAuthHeader } from '../../../../api-token';
+import { allowAnalytics } from '../../../../analytics';
 
 const debug = newDebug('snyk-iac');
 
@@ -81,6 +82,7 @@ function createConfig(options: TestConfig): string {
       org: options.orgSettings.meta.org,
       apiUrl: config.API,
       apiAuth: getAuthHeader(),
+      allowAnalytics: allowAnalytics(),
     });
 
     fs.writeFileSync(tempConfig, configData);
