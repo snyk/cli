@@ -249,13 +249,11 @@ function vulnerabilitiesToIacIssues(
   vulnerabilities: Vulnerability[],
 ): IacIssue[] {
   return vulnerabilities.map((v) => {
-    const msg = formattedPath(v.resource.id, v.resource.path);
-
     return {
       severity: v.severity,
       resolve: v.remediation, // potential needs to be deleted because it is supported only by the old format of our rules
       impact: v.rule.description,
-      msg,
+      msg: v.resource.formattedPath,
       remediation: {
         terraform: v.remediation, // in the future we need to add logic that will add remediation only for the relevant field (based on file type)
       },
@@ -327,28 +325,4 @@ function orgSettingsToIgnoreSettings(
     disregardFilesystemIgnores:
       ignoreSettings?.disregardFilesystemIgnores || false,
   };
-}
-
-function formattedPath(id: string, path?: any[]): string {
-  const parts: string[] = [id];
-
-  if (path) {
-    for (let i = 0; i < path.length; i++) {
-      if (i == 0) {
-        if (typeof path[i] === 'number') {
-          parts.push(`[${path[i]}]`);
-        } else {
-          parts.push(`${path[i]}`);
-        }
-      } else {
-        if (typeof path[i] === 'number') {
-          parts.push(`[${path[i]}]`);
-        } else {
-          parts.push(`.${path[i]}`);
-        }
-      }
-    }
-  }
-
-  return parts.join('');
 }
