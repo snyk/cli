@@ -30,6 +30,7 @@ const snykIacTestErrorsUserMessages = {
   UnableToReadPath: 'Unable to read path',
   NoLoadableInput:
     "The Snyk CLI couldn't find any valid IaC configuration files to scan",
+  FailedToShareResults: 'Failed to upload the test results with the platform',
 };
 
 export function getErrorUserMessage(code: number): string {

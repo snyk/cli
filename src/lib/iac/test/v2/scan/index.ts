@@ -98,6 +98,10 @@ function processFlags(
     flags.push('-project-lifecycle', options.attributes.lifecycle.join(','));
   }
 
+  if (options.report) {
+    flags.push('-report');
+  }
+
   return flags;
 }
 

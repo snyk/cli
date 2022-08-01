@@ -63,6 +63,7 @@ async function prepareTestConfig(
     userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
     severityThreshold: options.severityThreshold,
     attributes,
+    report: !!options.report,
   };
 }
 
