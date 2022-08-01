@@ -1,19 +1,16 @@
 import chalk from 'chalk';
 import { EOL } from 'os';
 import * as pathLib from 'path';
-import {
-  spinnerMessage,
-  spinnerSuccessMessage,
-} from '../../../../src/lib/formatters/iac-output';
+import { spinnerMessage } from '../../../../../src/lib/formatters/iac-output';
 
-import { FakeServer } from '../../../acceptance/fake-server';
-import { isValidJSONString, startMockServer } from './helpers';
+import { FakeServer } from '../../../../acceptance/fake-server';
+import { startMockServer } from '../helpers';
 
 const IAC_CLI_OUTPUT_FF = 'iacCliOutputRelease';
 
-jest.setTimeout(1000 * 30);
+jest.setTimeout(1_000 * 30);
 
-describe('iac test output', () => {
+describe('iac test text output', () => {
   let server: FakeServer;
   let run: (
     cmd: string,
@@ -127,33 +124,6 @@ Target file:       ${dirPath}/`);
 
       expect(stdout).not.toContain('Test Failures');
     });
-
-    describe.each`
-      dataFormat | dataFormatFlag
-      ${'JSON'}  | ${'--json'}
-      ${'SARIF'} | ${'--sarif'}
-    `(
-      'when providing the $dataFormatFlag flag for the $dataFormat format',
-      ({ dataFormatFlag }) => {
-        it(`should not show spinner messages`, async () => {
-          const { stdout } = await run(
-            `snyk iac test ${dataFormatFlag} ./iac/arm/rule_test.json`,
-          );
-          expect(stdout).not.toContain(chalk.reset(spinnerMessage));
-          expect(stdout).not.toContain(chalk.reset(spinnerSuccessMessage));
-        });
-
-        it(`should return results with multiple paths`, async () => {
-          const { stdout, exitCode } = await run(
-            `snyk iac test ${dataFormatFlag} ./iac/arm/rule_test.json ./iac/cloudformation/`,
-          );
-          expect(isValidJSONString(stdout)).toBe(true);
-          expect(stdout).toContain('"id": "SNYK-CC-TF-20",');
-          expect(stdout).toContain('"id": "SNYK-CC-AWS-422",');
-          expect(exitCode).toBe(1);
-        });
-      },
-    );
 
     describe('with multiple test results', () => {
       describe('with test failures', () => {

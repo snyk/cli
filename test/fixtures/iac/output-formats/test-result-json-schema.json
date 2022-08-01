@@ -1,0 +1,250 @@
+{
+    "type": "object",
+    "properties": {
+        "meta": {
+            "type": "object",
+            "properties": {
+                "isPrivate": {
+                    "type": "boolean"
+                },
+                "isLicensesEnabled": {
+                    "type": "boolean"
+                },
+                "org": {
+                    "type": "string"
+                },
+                "ignoreSettings": {
+                    "type": "object",
+                    "properties": {
+                        "adminOnly": {
+                            "type": "boolean"
+                        },
+                        "reasonRequired": {
+                            "type": "boolean"
+                        },
+                        "disregardFilesystemIgnores": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "adminOnly",
+                        "reasonRequired",
+                        "disregardFilesystemIgnores"
+                    ],
+                    "additionalProperties": false,
+                    "nullable": true
+                },
+                "projectId": {
+                    "type": "string"
+                },
+                "policy": {
+                    "type": "string"
+                },
+                "gitRemoteUrl": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "isPrivate",
+                "isLicensesEnabled",
+                "org"
+            ],
+            "additionalFields": false
+        },
+        "filesystemPolicy": {
+            "type": "boolean"
+        },
+        "dependencyCount": {
+            "type": "number"
+        },
+        "licensesPolicy": {
+            "type": "null"
+        },
+        "ignoreSettings": {
+            "type": "null"
+        },
+        "vulnerabilities": {
+            "type": "array",
+            "maxItems": 0
+        },
+        "targetFile": {
+            "type": "string"
+        },
+        "projectName": {
+            "type": "string"
+        },
+        "org": {
+            "type": "string"
+        },
+        "policy": {
+            "type": "string",
+            "maxLength": 0
+        },
+        "isPrivate": {
+            "type": "boolean"
+        },
+        "targetFilePath": {
+            "type": "string"
+        },
+        "packageManager": {
+            "type": "string"
+        },
+        "path": {
+            "type": "string"
+        },
+        "projectType": {
+            "type": "string"
+        },
+        "ok": {
+            "type": "boolean"
+        },
+        "infrastructureAsCodeIssues": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "publicId": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "severity": {
+                        "type": "string",
+                        "enum": [
+                            "low",
+                            "medium",
+                            "high",
+                            "critical"
+                        ]
+                    },
+                    "isIgnored": {
+                        "type": "boolean"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "subType": {
+                        "type": "string"
+                    },
+                    "policyEngineType": {
+                        "type": "string"
+                    },
+                    "references": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "path": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "documentation": {
+                        "type": "string"
+                    },
+                    "isGeneratedByCustomRule": {
+                        "type": "boolean"
+                    },
+                    "issue": {
+                        "type": "string"
+                    },
+                    "impact": {
+                        "type": "string"
+                    },
+                    "resolve": {
+                        "type": "string"
+                    },
+                    "remediation": {
+                        "type": "object",
+                        "terraform": {
+                            "type": "string"
+                        },
+                        "cloudformation": {
+                            "type": "string"
+                        },
+                        "arm": {
+                            "type": "string"
+                        },
+                        "kubernetes": {
+                            "type": "string"
+                        }
+                    },
+                    "msg": {
+                        "type": "string"
+                    },
+                    "compliance": {
+                        "type": "array",
+                        "maxItems": 0
+                    },
+                    "lineNumber": {
+                        "type": "number"
+                    },
+                    "iacDescription": {
+                        "type": "object",
+                        "properties": {
+                            "issue": {
+                                "type": "string"
+                            },
+                            "impact": {
+                                "type": "string"
+                            },
+                            "resolve": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "issue",
+                            "impact",
+                            "resolve"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "requires": [
+                    "id",
+                    "publicId",
+                    "title",
+                    "severity",
+                    "isIgnored",
+                    "subType",
+                    "references",
+                    "issue",
+                    "impact",
+                    "resolve",
+                    "msg",
+                    "iacDescription"
+                ],
+                "additionalProperties": true
+            }
+        }
+    },
+    "required": [
+        "meta",
+        "filesystemPolicy",
+        "dependencyCount",
+        "licensesPolicy",
+        "ignoreSettings",
+        "vulnerabilities",
+        "targetFile",
+        "projectName",
+        "org",
+        "policy",
+        "isPrivate",
+        "targetFilePath",
+        "packageManager",
+        "path",
+        "projectType",
+        "ok",
+        "infrastructureAsCodeIssues"
+    ],
+    "additionalProperties": false
+}
