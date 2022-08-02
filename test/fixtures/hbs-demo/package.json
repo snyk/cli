@@ -9,7 +9,7 @@
   "author": "Remy Sharp",
   "license": "private",
   "dependencies": {
-    "handlebars": "~2.0.0-alpha.2"
+    "handlebars": "~4.7.7"
   }
 }
 
