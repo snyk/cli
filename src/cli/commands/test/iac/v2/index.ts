@@ -9,6 +9,7 @@ import { spinnerMessage } from '../../../../../lib/formatters/iac-output';
 import { buildOutput } from '../../../../../lib/iac/test/v2/output';
 import { getIacOrgSettings } from '../local-execution/org-settings/get-iac-org-settings';
 import { Options, TestOptions } from '../../../../../lib/types';
+import { generateProjectAttributes } from '../../../monitor';
 
 export async function test(
   paths: string[],
@@ -42,7 +43,7 @@ export async function test(
 
 async function prepareTestConfig(
   paths: string[],
-  options: any,
+  options: Options & TestOptions,
 ): Promise<TestConfig> {
   const systemCachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
   const iacCachePath = pathLib.join(systemCachePath, 'iac');
@@ -50,6 +51,8 @@ async function prepareTestConfig(
 
   const org = (options.org as string) || config.org;
   const orgSettings = await getIacOrgSettings(org);
+
+  const attributes = parseAttributes(options);
 
   return {
     paths,
@@ -59,5 +62,12 @@ async function prepareTestConfig(
     userRulesBundlePath: config.IAC_BUNDLE_PATH,
     userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
     severityThreshold: options.severityThreshold,
+    attributes,
   };
+}
+
+function parseAttributes(options: Options & TestOptions) {
+  if (options.report) {
+    return generateProjectAttributes(options);
+  }
 }
