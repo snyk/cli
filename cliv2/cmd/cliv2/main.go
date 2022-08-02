@@ -19,13 +19,8 @@ type EnvironmentVariables struct {
 	ProxyAddr                    string
 }
 
-func getDebugLogger(args []string) *log.Logger {
+func getDebugLogger(debug bool) *log.Logger {
 	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
-	debug := utils.Contains(args, "--debug")
-
-	if !debug {
-		debug = utils.Contains(args, "-d")
-	}
 
 	if !debug {
 		debugLogger.SetOutput(ioutil.Discard)
@@ -61,6 +56,10 @@ func GetConfiguration(args []string) (EnvironmentVariables, []string) {
 	return envVariables, filteredArgs
 }
 
+func debugArgPresent(args []string) bool {
+	return utils.Contains(args, "--debug") || utils.Contains(args, "-d")
+}
+
 func main() {
 	config, args := GetConfiguration(os.Args[1:])
 	errorCode := MainWithErrorCode(config, args)
@@ -68,8 +67,10 @@ func main() {
 }
 
 func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
+	debugMode := debugArgPresent(args)
+
 	var err error
-	debugLogger := getDebugLogger(args)
+	debugLogger := getDebugLogger(debugMode)
 	debugLogger.Println("debug: true")
 
 	debugLogger.Println("cacheDirectory:", envVariables.CacheDirectory)
@@ -100,7 +101,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	}
 
 	// init cli object
-	cli := cliv2.NewCLIv2(envVariables.CacheDirectory, extensions, argParserRootCmd, debugLogger)
+	cli := cliv2.NewCLIv2(envVariables.CacheDirectory, extensions, argParserRootCmd, debugMode, debugLogger)
 	if cli == nil {
 		return cliv2.SNYK_EXIT_CODE_ERROR
 	}
