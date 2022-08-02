@@ -1,10 +1,11 @@
 package cliv2
 
 import (
-	"github.com/snyk/cli-extension-lib-go/extension"
 	"log"
 	"os"
 	"path"
+
+	"github.com/snyk/cli-extension-lib-go/extension"
 )
 
 // Load extensions found in the <snyk-cache-dir>/extensions directory.
@@ -42,9 +43,15 @@ func LoadExtensions(cacheDir string, debugLogger *log.Logger) []*extension.Exten
 			if err != nil {
 				debugLogger.Println("failed to load extension in directory:", extensionDir)
 				debugLogger.Println(err)
+				continue
 			}
 
-			loadedExtensions = append(loadedExtensions, ext)
+			if ext == nil {
+				debugLogger.Println("ext is nil - not adding:", extensionDir)
+				continue
+			} else {
+				loadedExtensions = append(loadedExtensions, ext)
+			}
 		}
 	}
 
