@@ -164,6 +164,15 @@ blackboxtest: build-blackboxtest
 	@echo "$(LOG_PREFIX) Running $@"
 	TEST_SNYK_EXECUTABLE_PATH=$(TEST_SNYK_EXECUTABLE_PATH) $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) -test.v
 
+$(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
+	@$(GOCMD) generate ./internal/httpauth/
+
+$(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
+	@$(GOCMD) generate ./internal/httpauth/
+
+.PHONY: generate
+generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go
+
 .PHONY: whiteboxtest
 whiteboxtest: 
 	@echo "$(LOG_PREFIX) Running $@"

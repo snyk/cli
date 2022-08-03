@@ -12,14 +12,49 @@ import (
 	"os"
 	"testing"
 
+	"github.com/snyk/cli/cliv2/internal/httpauth"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_closingProxyDeletesTempCert(t *testing.T) {
-	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
+var debugLogger *log.Logger = log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
+func helper_getHttpClient(gateway *proxy.WrapperProxy) (*http.Client, error) {
+	rootCAs, _ := x509.SystemCertPool()
+	if rootCAs == nil {
+		rootCAs = x509.NewCertPool()
+	}
+
+	proxyCertBytes, err := ioutil.ReadFile(gateway.CertificateLocation)
+	if err != nil {
+		return nil, err
+	}
+
+	ok := rootCAs.AppendCertsFromPEM(proxyCertBytes)
+	if ok == false {
+		return nil, fmt.Errorf("failed to append proxy cert")
+	}
+
+	config := &tls.Config{
+		InsecureSkipVerify: false,
+		RootCAs:            rootCAs,
+	}
+
+	proxyUrl, err := url.Parse(fmt.Sprintf("http://127.0.0.1:%d", gateway.Port()))
+	if err != nil {
+		return nil, err
+	}
+
+	proxiedClient := &http.Client{Transport: &http.Transport{
+		Proxy:           http.ProxyURL(proxyUrl),
+		TLSClientConfig: config,
+	}}
+
+	return proxiedClient, nil
+}
+
+func Test_closingProxyDeletesTempCert(t *testing.T) {
 	wp, err := proxy.NewWrapperProxy(false, "", "", debugLogger)
 	assert.Nil(t, err)
 
@@ -35,35 +70,13 @@ func Test_closingProxyDeletesTempCert(t *testing.T) {
 }
 
 func Test_canGoThroughProxy(t *testing.T) {
-	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
-
 	wp, err := proxy.NewWrapperProxy(false, "", "", debugLogger)
 	assert.Nil(t, err)
 
-	port, err := wp.Start()
+	_, err = wp.Start()
 	assert.Nil(t, err)
-	t.Log("proxy listening on port:", port)
 
-	rootCAs, _ := x509.SystemCertPool()
-	if rootCAs == nil {
-		rootCAs = x509.NewCertPool()
-	}
-
-	proxyCertBytes, err := ioutil.ReadFile(wp.CertificateLocation)
-	assert.Nil(t, err)
-	ok := rootCAs.AppendCertsFromPEM(proxyCertBytes)
-	assert.True(t, ok)
-
-	config := &tls.Config{
-		InsecureSkipVerify: false,
-		RootCAs:            rootCAs,
-	}
-
-	proxyUrl, err := url.Parse(fmt.Sprintf("http://127.0.0.1:%d", port))
-	proxiedClient := &http.Client{Transport: &http.Transport{
-		Proxy:           http.ProxyURL(proxyUrl),
-		TLSClientConfig: config,
-	}}
+	proxiedClient, err := helper_getHttpClient(wp)
 	assert.Nil(t, err)
 
 	res, err := proxiedClient.Get("https://static.snyk.io/cli/latest/version")
@@ -80,36 +93,14 @@ func Test_canGoThroughProxy(t *testing.T) {
 }
 
 func Test_xSnykCliVersionHeaderIsReplaced(t *testing.T) {
-	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
-
 	expectedVersion := "the-cli-version"
 	wp, err := proxy.NewWrapperProxy(false, "", expectedVersion, debugLogger)
 	assert.Nil(t, err)
 
-	port, err := wp.Start()
+	_, err = wp.Start()
 	assert.Nil(t, err)
-	t.Log("proxy listening on port:", port)
 
-	rootCAs, _ := x509.SystemCertPool()
-	if rootCAs == nil {
-		rootCAs = x509.NewCertPool()
-	}
-
-	proxyCertBytes, err := ioutil.ReadFile(wp.CertificateLocation)
-	assert.Nil(t, err)
-	ok := rootCAs.AppendCertsFromPEM(proxyCertBytes)
-	assert.True(t, ok)
-
-	config := &tls.Config{
-		InsecureSkipVerify: false,
-		RootCAs:            rootCAs,
-	}
-
-	proxyUrl, err := url.Parse(fmt.Sprintf("http://127.0.0.1:%d", port))
-	proxiedClient := &http.Client{Transport: &http.Transport{
-		Proxy:           http.ProxyURL(proxyUrl),
-		TLSClientConfig: config,
-	}}
+	proxiedClient, err := helper_getHttpClient(wp)
 	assert.Nil(t, err)
 
 	var capturedVersion string
@@ -142,26 +133,46 @@ func Test_xSnykCliVersionHeaderIsReplaced(t *testing.T) {
 func Test_SetUpstreamProxy(t *testing.T) {
 	var err error
 	var objectUnderTest *proxy.WrapperProxy
-	var upstreamProxyFunction (func(req *http.Request) (*url.URL, error))
-	var expectedUrl *url.URL
-	var actualUrl *url.URL
-	var proxyUrlAsString string
 
-	testUrl, _ := url.Parse("https://www.snyk.io")
-	testRequest := http.Request{
-		URL:    testUrl,
-		Header: map[string][]string{},
+	testUrl, _ := url.Parse("http://www.snyk.io")
+	testRequest := http.Request{URL: testUrl}
+
+	upstreanProxyUrlAsString := "http://localhost:3128"
+	expectedUpstreamProxyUrl, _ := url.Parse(upstreanProxyUrlAsString)
+
+	// using different cases to determine whether the proxy actually switches the mode authentication mode
+	testCaseList := []httpauth.AuthenticationMechanism{
+		httpauth.Negotiate,
+		httpauth.AnyAuth,
+		httpauth.NoAuth,
+		httpauth.UnknownMechanism,
 	}
 
-	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 	objectUnderTest, err = proxy.NewWrapperProxy(false, "", "", debugLogger)
 	assert.Nil(t, err)
 
-	proxyUrlAsString = "http://myProxy2.example.com:3128"
-	expectedUrl, _ = url.Parse(proxyUrlAsString)
-	objectUnderTest.SetUpstreamProxyFromUrl(proxyUrlAsString)
-	upstreamProxyFunction = objectUnderTest.GetUpstreamProxy()
-	actualUrl, err = upstreamProxyFunction(&testRequest)
-	assert.Nil(t, err)
-	assert.Equal(t, expectedUrl, actualUrl)
+	// running different cases
+	for i := range testCaseList {
+		currentMechanism := testCaseList[i]
+		t.Logf(" - using %s", httpauth.StringFromAuthenticationMechanism(currentMechanism))
+
+		objectUnderTest.SetUpstreamProxyAuthentication(currentMechanism)
+		objectUnderTest.SetUpstreamProxyFromUrl(upstreanProxyUrlAsString)
+		transport := objectUnderTest.Transport()
+		proxyFunc := objectUnderTest.UpstreamProxy()
+
+		assert.NotNil(t, proxyFunc)
+		actualUrl, err := proxyFunc(&testRequest)
+		assert.Nil(t, err)
+		assert.Equal(t, expectedUpstreamProxyUrl, actualUrl)
+
+		// check transport and thereby authenticator configuration
+		if httpauth.IsSupportedMechanism(currentMechanism) {
+			assert.NotNil(t, transport.DialContext)
+			assert.Nil(t, transport.Proxy)
+		} else {
+			assert.Nil(t, transport.DialContext)
+			assert.NotNil(t, transport.Proxy)
+		}
+	}
 }

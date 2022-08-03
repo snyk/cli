@@ -25,11 +25,15 @@ type WrapperProxy struct {
 	upstreamProxy       func(*http.Request) (*url.URL, error)
 	transport           *http.Transport
 	authenticator       *httpauth.ProxyAuthenticator
+	port                int
+	authMechanism       httpauth.AuthenticationMechanism
+	cliVersion          string
 }
 
 func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion string, debugLogger *log.Logger) (*WrapperProxy, error) {
 	var p WrapperProxy
 	p.DebugLogger = debugLogger
+	p.cliVersion = cliVersion
 
 	certName := "snyk-embedded-proxy"
 	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, p.DebugLogger)
@@ -71,21 +75,27 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 		},
 	}
 
+	p.SetUpstreamProxy(http.ProxyFromEnvironment)
+
+	return &p, nil
+}
+
+func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
+	// Manipulate Header (replace x-snyk-cli-version)
+	existingValue := r.Header.Get("x-snyk-cli-version")
+	if existingValue != "" {
+		p.DebugLogger.Printf("Replacing value of existing x-snyk-cli-version header (%s) with %s\n", existingValue, p.cliVersion)
+		r.Header.Set("x-snyk-cli-version", p.cliVersion)
+	}
+	return r, nil
+}
+
+func (p *WrapperProxy) Start() (int, error) {
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Tr = p.transport
-	proxy.Logger = debugLogger
+	proxy.Logger = p.DebugLogger
 	proxy.OnRequest().HandleConnect(goproxy.AlwaysMitm)
-	proxy.OnRequest().DoFunc(func(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-
-		// Manipulate Header (replace x-snyk-cli-version)
-		existingValue := r.Header.Get("x-snyk-cli-version")
-		if existingValue != "" {
-			debugLogger.Printf("Replacing value of existing x-snyk-cli-version header (%s) with %s\n", existingValue, cliVersion)
-			r.Header.Set("x-snyk-cli-version", cliVersion)
-		}
-
-		return r, nil
-	})
+	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
 
 	proxy.Verbose = true
 	proxyServer := &http.Server{
@@ -94,12 +104,6 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 
 	p.httpServer = proxyServer
 
-	p.SetUpstreamProxy(http.ProxyFromEnvironment)
-
-	return &p, nil
-}
-
-func (p *WrapperProxy) Start() (int, error) {
 	p.DebugLogger.Println("starting proxy")
 	address := "127.0.0.1:0"
 	l, err := net.Listen("tcp", address)
@@ -107,17 +111,17 @@ func (p *WrapperProxy) Start() (int, error) {
 		return 0, err
 	}
 
-	port := l.Addr().(*net.TCPAddr).Port
-	p.DebugLogger.Println("Wrapper proxy is listening on port: ", port)
+	p.port = l.Addr().(*net.TCPAddr).Port
+	p.DebugLogger.Println("Wrapper proxy is listening on port: ", p.port)
 
 	go func() {
 		_ = p.httpServer.Serve(l) // this blocks until the server stops and gives you an error which can be ignored
 	}()
 
-	return port, nil
+	return p.port, nil
 }
 
-func (p *WrapperProxy) Close() {
+func (p *WrapperProxy) Stop() {
 	err := p.httpServer.Shutdown(context.Background())
 	if err == nil {
 		p.DebugLogger.Printf("Proxy successfully shut down")
@@ -125,9 +129,13 @@ func (p *WrapperProxy) Close() {
 		// Error from closing listeners, or context timeout:
 		p.DebugLogger.Printf("HTTP server Shutdown error: %v", err)
 	}
+}
+
+func (p *WrapperProxy) Close() {
+	p.Stop()
 
 	p.DebugLogger.Println("deleting temp cert file:", p.CertificateLocation)
-	err = os.Remove(p.CertificateLocation)
+	err := os.Remove(p.CertificateLocation)
 	if err != nil {
 		p.DebugLogger.Println("failed to delete cert file")
 		p.DebugLogger.Println(err)
@@ -153,10 +161,13 @@ func setCAFromBytes(certPEMBlock []byte, keyPEMBlock []byte) error {
 }
 
 func (p *WrapperProxy) SetUpstreamProxyAuthentication(mechanism httpauth.AuthenticationMechanism) {
-	p.DebugLogger.Println("Proxy Authentication Mechanism:", httpauth.StringFromAuthenticationMechanism(mechanism))
+	if mechanism != p.authMechanism {
+		p.authMechanism = mechanism
+		p.DebugLogger.Printf("Enabled Proxy Authentication Mechanism: %s\n", httpauth.StringFromAuthenticationMechanism(p.authMechanism))
+	}
 
-	if httpauth.Negotiate == mechanism { // since Negotiate is not covered by the go http stack, we skip its proxy handling and inject a custom Handling via the DialContext
-		p.authenticator = httpauth.NewProxyAuthenticator(mechanism, p.upstreamProxy, p.DebugLogger)
+	if httpauth.IsSupportedMechanism(p.authMechanism) { // since Negotiate is not covered by the go http stack, we skip its proxy handling and inject a custom Handling via the DialContext
+		p.authenticator = httpauth.NewProxyAuthenticator(p.authMechanism, p.upstreamProxy, p.DebugLogger)
 		p.transport.DialContext = p.authenticator.DialContext
 		p.transport.Proxy = nil
 	} else { // for other mechanisms like basic we switch back to go default behavior
@@ -180,12 +191,17 @@ func (p *WrapperProxy) SetUpstreamProxyFromUrl(proxyAddr string) {
 
 func (p *WrapperProxy) SetUpstreamProxy(proxyFunc func(req *http.Request) (*url.URL, error)) {
 	p.upstreamProxy = proxyFunc
-
-	if p.authenticator != nil {
-		p.SetUpstreamProxyAuthentication(p.authenticator.GetMechanism())
-	}
+	p.SetUpstreamProxyAuthentication(p.authMechanism)
 }
 
-func (p *WrapperProxy) GetUpstreamProxy() func(req *http.Request) (*url.URL, error) {
+func (p *WrapperProxy) UpstreamProxy() func(req *http.Request) (*url.URL, error) {
 	return p.upstreamProxy
+}
+
+func (p *WrapperProxy) Port() int {
+	return p.port
+}
+
+func (p *WrapperProxy) Transport() *http.Transport {
+	return p.transport
 }

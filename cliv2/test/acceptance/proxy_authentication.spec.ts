@@ -11,16 +11,26 @@ import {
 } from '../../../test/jest/util/startSnykCLI';
 import { isCLIV2 } from '../../../test/jest/util/isCLIV2';
 import { unlink } from 'fs';
+import { execSync } from 'child_process';
 
 jest.setTimeout(1000 * 60);
 
 // Global test configuration
+const rootDir = path.resolve(path.join(__dirname, '..', '..'));
+const squidEnvironmentPath = path.resolve(
+  path.join(
+    rootDir,
+    'internal',
+    'httpauth',
+    'test',
+    'fixtures',
+    'squid_environment',
+  ),
+);
 const dockerComposeFile = path.resolve(
-  path.join(__dirname, '..', 'fixtures', 'kerberos', 'docker-compose.yml'),
+  path.join(squidEnvironmentPath, 'docker-compose.yml'),
 );
-const scriptsPath = path.resolve(
-  path.join(__dirname, '..', 'fixtures', 'kerberos', 'scripts'),
-);
+const scriptsPath = path.resolve(path.join(squidEnvironmentPath, 'scripts'));
 const containerName = 'proxy_authentication_container';
 const hostnameFakeServer = 'host.docker.internal';
 const hostnameProxy = 'proxy.snyk.local';
@@ -46,17 +56,16 @@ function getDockerOptions() {
   return dockerOptions;
 }
 
-async function isDockerAvailable(): Promise<boolean> {
+function isDockerAvailable(): boolean {
   let result = false;
 
   try {
-    const process = await startCommand('docker', ['--version']);
-    const errorCode = process.wait({ timeout: 30_000 });
-    if ((await errorCode).valueOf() == 0) {
-      result = true;
-    }
-  } catch {
+    execSync('docker --version');
+    execSync('docker-compose --version');
+    result = true;
+  } catch (error) {
     result = false;
+    console.debug(error);
   }
 
   return result;
@@ -115,26 +124,19 @@ async function runCliWithProxy(
 }
 
 describe('Proxy Authentication', () => {
-  if (!isCLIV2() || !process.env.TEST_SNYK_COMMAND?.includes('linux')) {
+  if (!isCLIV2() || !isDockerAvailable()) {
     // eslint-disable-next-line jest/no-focused-tests
-    it.only('These tests are currently limited to cover linux builds of CLIv2.', () => {
+    it.only('These tests are currently limited to certain environments.', () => {
       console.warn(
-        'Skipping test. These tests covering CLIv2 only features on linux and mac.',
+        'Skipping CLIv2 test. These tests are limited to environments that have docker and docker-compose installed.',
       );
     });
   } else {
     let server: FakeServer;
     let env: Record<string, string>;
     let project: TestProject;
-    let hasDockerInstalled: boolean;
 
     beforeAll(async () => {
-      hasDockerInstalled = (await isDockerAvailable()).valueOf();
-      if (false == hasDockerInstalled) {
-        console.warn('These tests require Docker to be installed!');
-      }
-      expect(hasDockerInstalled).toBe(true);
-
       project = await createProjectFromWorkspace('npm-package');
       await startProxyEnvironment();
 
@@ -150,25 +152,21 @@ describe('Proxy Authentication', () => {
     });
 
     afterEach(() => {
-      if (hasDockerInstalled) {
-        server.restore();
-      }
+      server.restore();
     });
 
     afterAll(async () => {
-      if (hasDockerInstalled) {
-        await server.closePromise();
-        await stopProxyEnvironment();
-        unlink(path.join(scriptsPath, KRB5_CACHE_FILE), () => {});
-        unlink(path.join(scriptsPath, KRB5_CONFIG_FILE), () => {});
-      }
+      await server.closePromise();
+      await stopProxyEnvironment();
+      unlink(path.join(scriptsPath, KRB5_CACHE_FILE), () => {});
+      unlink(path.join(scriptsPath, KRB5_CONFIG_FILE), () => {});
     });
 
-    it('fails to run snyk test due to missing --proxy-negotiate', async () => {
+    it('fails to run snyk test due to disabled proxy authentication', async () => {
       const logOnEntry = await getProxyAccessLog();
 
       // run snyk test
-      const args: string[] = [project.path()];
+      const args: string[] = ['--proxy-noauth', project.path()];
       const cli = await runCliWithProxy(env, args);
       await expect(cli).toExitWith(2);
 
@@ -186,7 +184,7 @@ describe('Proxy Authentication', () => {
       const logOnEntry = await getProxyAccessLog();
 
       // run snyk test
-      const args: string[] = ['--proxy-negotiate', project.path()];
+      const args: string[] = [project.path()];
       const cli = await runCliWithProxy(env, args);
       await expect(cli).toExitWith(0);
 

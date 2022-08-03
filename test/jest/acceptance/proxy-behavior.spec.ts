@@ -28,7 +28,7 @@ describe('Proxy configuration behavior', () => {
       //   - on some other systems in CirclCI: `Cannot read TLS response from mitm'd server proxyconnect tcp: dial tcp [::1]:12345: connect: connection refused`
       // Here is a regex that matches any of these scenarios:
       const cliv2MessageRegex = new RegExp(
-        `Cannot read TLS response from mitm'd server proxyconnect tcp: dial tcp (127\\.0\\.0\\.1|\\[::1\\]):${fakeServerPort}: (connectex: No connection could be made|connect: connection refused)`,
+        `Cannot read TLS response from mitm'd server dial tcp (127\\.0\\.0\\.1|\\[::1\\]):${fakeServerPort}: (connectex: No connection could be made|connect: connection refused)`,
       );
       // When running this for v1, the message is more predictable:
       // `Error: connect ECONNREFUSED 127.0.0.1:${fakeServerPort}`
