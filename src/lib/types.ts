@@ -54,6 +54,7 @@ export interface Options {
   insecure?: boolean;
   'dry-run'?: boolean;
   allSubProjects?: boolean;
+  mavenAggregateProject?: boolean;
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
   packageManager?: SupportedPackageManagers;
@@ -231,7 +232,8 @@ export type SupportedUserReachableFacingCliArgs =
   | 'strict-out-of-sync'
   | 'sub-project'
   | 'trust-policies'
-  | 'yarn-workspaces';
+  | 'yarn-workspaces'
+  | 'maven-aggregate-project';
 
 export enum SupportedCliCommands {
   version = 'version',

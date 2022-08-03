@@ -219,6 +219,7 @@ export function args(rawArgv: string[]): Args {
     'fail-on',
     'all-projects',
     'yarn-workspaces',
+    'maven-aggregate-project',
     'detection-depth',
     'reachable',
     'reachable-vulns',

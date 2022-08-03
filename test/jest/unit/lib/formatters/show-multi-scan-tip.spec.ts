@@ -44,4 +44,10 @@ describe('showMultiScanTip', () => {
       ),
     ).toEqual('');
   });
+
+  it('maven without options and more than 1 file detected shows tip', () => {
+    expect(
+      showMultiScanTip('maven', { path: 'src', showVulnPaths: 'none' }, 2),
+    ).toMatch('Tip: Detected Maven project, are you using modules?');
+  });
 });

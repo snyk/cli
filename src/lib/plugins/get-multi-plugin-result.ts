@@ -51,6 +51,7 @@ export async function getMultiPluginResult(
   } = await processYarnWorkspacesProjects(root, options, targetFiles);
   allResults.push(...scannedProjects);
   debug(`Not part of a workspace: ${unprocessedFiles.join(', ')}}`);
+
   // process the rest 1 by 1 sent to relevant plugins
   for (const targetFile of unprocessedFiles) {
     const optionsClone = cloneDeep(options);

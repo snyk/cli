@@ -17,6 +17,19 @@ export function showMultiScanTip(
   if (gradleSubProjectsTip) {
     return gradleSubProjectsTip;
   }
+  if (
+    projectType === 'maven' &&
+    foundProjectCount &&
+    foundProjectCount > 1 &&
+    !options.allProjects &&
+    !options.mavenAggregateProject
+  ) {
+    return (
+      'Tip: Detected Maven project, are you using modules? ' +
+      'Use --maven-aggregate-project to scan each project. ' +
+      'Alternatively use --all-projects to scan Maven and other types of projects.'
+    );
+  }
   const allProjectsTip = showAllProjectsTip(
     projectType,
     options,
