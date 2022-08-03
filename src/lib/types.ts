@@ -25,8 +25,6 @@ export interface TestOptions {
   command?: string; // python interpreter to use for python tests
   testDepGraphDockerEndpoint?: string | null;
   isDockerUser?: boolean;
-  /** @deprecated Only used by the legacy `iac test` flow remove once local exec path is GA */
-  iacDirFiles?: IacFileInDirectory[];
 }
 
 export interface Contributor {
