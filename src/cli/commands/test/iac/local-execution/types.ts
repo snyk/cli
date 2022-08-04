@@ -386,6 +386,7 @@ export enum IaCErrorCodes {
   FailedToCompile = 2112,
   UnableToReadPath = 2113,
   NoLoadableInput = 2114,
+  FailedToShareResults = 2200,
 }
 
 export interface TestReturnValue {

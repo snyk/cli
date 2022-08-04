@@ -9,6 +9,7 @@ export interface TestConfig {
   userPolicyEnginePath?: string;
   projectName: string;
   orgSettings: IacOrgSettings;
+  report: boolean;
   severityThreshold?: SEVERITY;
   attributes?: ProjectAttributes;
 }
