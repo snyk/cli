@@ -89,6 +89,33 @@
         },
         "targetFile": "/Users/yairzohar/snyk/upe-test/s3_cis.tf",
         "projectType": "aws_s3_bucket"
+      },
+      {
+        "issue": {
+          "id": "SNYK-CC-00107",
+          "publicId": "SNYK-CC-00107",
+          "severity": "high",
+          "title": "S3 bucket is publicly readable",
+          "isIgnored": false,
+          "cloudConfigPath": [
+            "aws_s3_bucket",
+            "writable"
+          ],
+          "subType": "",
+          "iacDescription": {
+            "issue": "",
+            "impact": "",
+            "resolve": ""
+          },
+          "issue": "",
+          "impact": "",
+          "resolve": "",
+          "lineNumber": 12,
+          "msg": "",
+          "references": []
+        },
+        "targetFile": "/Users/yairzohar/snyk/upe-test/s3_cis.tf",
+        "projectType": "aws_s3_bucket"
       }
     ]
   },
@@ -100,10 +127,10 @@
     "filesWithIssues": 2,
     "filesWithoutIssues": 1,
     "ignores": 0,
-    "issues": 3,
+    "issues": 4,
     "issuesBySeverity": {
       "critical": 0,
-      "high": 2,
+      "high": 3,
       "low": 0,
       "medium": 1
     }

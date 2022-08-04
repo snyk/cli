@@ -90,8 +90,8 @@ describe('test', () => {
     expect(output!).toContain(`Project name: ${path.basename(projectRoot)}`);
     expect(output!).toContain('Files without issues: 1');
     expect(output!).toContain('Files with issues: 2');
-    expect(output!).toContain('Total issues: 3');
-    expect(output!).toContain('[ 0 critical, 2 high, 1 medium, 0 low ]');
+    expect(output!).toContain('Total issues: 4');
+    expect(output!).toContain('[ 0 critical, 3 high, 1 medium, 0 low ]');
   });
 
   describe('with issues', () => {
