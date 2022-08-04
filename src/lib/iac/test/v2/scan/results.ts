@@ -34,6 +34,7 @@ export interface Resource {
   id: string;
   type: string;
   path?: any[];
+  formattedPath: string;
   file?: string;
   kind: string;
   line?: number;
