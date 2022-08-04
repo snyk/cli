@@ -39,11 +39,7 @@ function scanWithConfig(
   rulesBundlePath: string,
   configPath: string,
 ): SnykIacTestOutput {
-  const args = ['-bundle', rulesBundlePath, '-config', configPath];
-
-  if (options.severityThreshold) {
-    args.push('-severity-threshold', options.severityThreshold);
-  }
+  const args = processFlags(options, rulesBundlePath, configPath);
 
   args.push(...options.paths);
 
@@ -71,6 +67,38 @@ function scanWithConfig(
   }
 
   return output;
+}
+
+function processFlags(
+  options: TestConfig,
+  rulesBundlePath: string,
+  configPath: string,
+) {
+  const flags = ['-bundle', rulesBundlePath, '-config', configPath];
+
+  if (options.severityThreshold) {
+    flags.push('-severity-threshold', options.severityThreshold);
+  }
+
+  if (options.attributes?.criticality) {
+    flags.push(
+      '-project-business-criticality',
+      options.attributes.criticality.join(','),
+    );
+  }
+
+  if (options.attributes?.environment) {
+    flags.push(
+      '-project-environment',
+      options.attributes.environment.join(','),
+    );
+  }
+
+  if (options.attributes?.lifecycle) {
+    flags.push('-project-lifecycle', options.attributes.lifecycle.join(','));
+  }
+
+  return flags;
 }
 
 function createConfig(options: TestConfig): string {
