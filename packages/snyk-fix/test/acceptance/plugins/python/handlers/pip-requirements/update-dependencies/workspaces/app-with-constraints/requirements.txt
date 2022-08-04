@@ -1,4 +1,4 @@
 -c constraints.txt
 -r lib/requirements.txt
 -r base.txt
-Django==1.6.1
+Django==3.2.15
