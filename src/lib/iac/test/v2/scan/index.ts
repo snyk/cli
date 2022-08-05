@@ -16,8 +16,11 @@ import * as rimraf from 'rimraf';
 import config from '../../../../config';
 import { getAuthHeader } from '../../../../api-token';
 import { allowAnalytics } from '../../../../analytics';
+import envPaths from 'env-paths';
 
 const debug = newDebug('snyk-iac');
+
+export const systemCachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 
 export function scan(
   options: TestConfig,
@@ -80,7 +83,14 @@ function processFlags(
   rulesBundlePath: string,
   configPath: string,
 ) {
-  const flags = ['-bundle', rulesBundlePath, '-config', configPath];
+  const flags = [
+    '-cache-dir',
+    systemCachePath,
+    '-bundle',
+    rulesBundlePath,
+    '-config',
+    configPath,
+  ];
 
   if (options.severityThreshold) {
     flags.push('-severity-threshold', options.severityThreshold);
