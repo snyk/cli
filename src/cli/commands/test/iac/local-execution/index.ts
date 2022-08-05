@@ -153,7 +153,7 @@ export function removeFileContent({
   };
 }
 
-function parseTags(options: IaCTestFlags) {
+export function parseTags(options: IaCTestFlags) {
   if (options.report) {
     return generateTags(options);
   }

@@ -98,6 +98,15 @@ function processFlags(
     flags.push('-project-lifecycle', options.attributes.lifecycle.join(','));
   }
 
+  if (options.projectTags) {
+    const stringifiedTags = options.projectTags
+      .map((tag) => {
+        return `${tag.key}=${tag.value}`;
+      })
+      .join(',');
+    flags.push('-project-tags', stringifiedTags);
+  }
+
   if (options.report) {
     flags.push('-report');
   }
