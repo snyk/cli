@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/extension"
 	"github.com/snyk/cli/cliv2/internal/httpauth"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 	"github.com/snyk/cli/cliv2/internal/utils"
@@ -84,6 +85,9 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 			return cliv2.SNYK_EXIT_CODE_ERROR
 		}
 	}
+
+	extMngr := extension.New(&extension.Configuration{CacheDirectory: envVariables.CacheDirectory})
+	extMngr.Init()
 
 	// load extensions
 	extensions := cliv2.LoadExtensions(envVariables.CacheDirectory, debugLogger)
