@@ -133,6 +133,25 @@
               }
             }
           ]
+        },
+        {
+          "ruleId":"SNYK-CC-00107",
+          "message":{
+            "text":"This line contains a potential high severity misconfiguration"
+          },
+          "locations":[
+            {
+              "physicalLocation":{
+                "artifactLocation":{
+                  "uri":"/Users/yairzohar/snyk/upe-test/s3_cis.tf",
+                  "uriBaseId":"PROJECTROOT"
+                },
+                "region":{
+                  "startLine":12
+                }
+              }
+            }
+          ]
         }
       ]
     }

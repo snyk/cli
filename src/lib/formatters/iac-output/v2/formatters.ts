@@ -182,9 +182,7 @@ function formatSnykIacTestScanVulnerability(
     title: vulnerability.rule.title,
     isIgnored: vulnerability.ignored,
     lineNumber: vulnerability.resource.line,
-    cloudConfigPath: vulnerability.resource.id
-      .split('.')
-      .concat(vulnerability.resource.path as string[]),
+    cloudConfigPath: formatCloudConfigPath(vulnerability),
     subType: '',
     iacDescription: {
       issue: '',
@@ -197,4 +195,14 @@ function formatSnykIacTestScanVulnerability(
     msg: '',
     references: [],
   };
+}
+
+function formatCloudConfigPath(vulnerability: Vulnerability): string[] {
+  const cloudConfigPath = vulnerability.resource.id.split('.');
+
+  if (vulnerability.resource.path) {
+    cloudConfigPath.push(...vulnerability.resource.path);
+  }
+
+  return cloudConfigPath;
 }
