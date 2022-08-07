@@ -14,7 +14,7 @@ interface Pkg {
   version?: string;
 }
 
-interface Patch {
+export interface Patch {
   version: string;
   id: string;
   urls: string[];
