@@ -13,7 +13,8 @@ import (
 	"strings"
 
 	"bytes"
-	"github.com/snyk/cli-extension-lib-go"
+
+	cli_extension_lib_go "github.com/snyk/cli-extension-lib-go"
 	"github.com/snyk/cli-extension-lib-go/extension"
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
@@ -39,8 +40,6 @@ type EnvironmentWarning struct {
 	message string
 }
 
-const SNYK_EXIT_CODE_OK = 0
-const SNYK_EXIT_CODE_ERROR = 2
 const SNYK_INTEGRATION_NAME = "CLI_V1_PLUGIN"
 const SNYK_INTEGRATION_NAME_ENV = "SNYK_INTEGRATION_NAME"
 const SNYK_INTEGRATION_VERSION_ENV = "SNYK_INTEGRATION_VERSION"
@@ -138,10 +137,10 @@ func (c *CLI) printVersion() {
 func (c *CLI) commandVersion(passthroughArgs []string) int {
 	if utils.Contains(passthroughArgs, "--json-file-output") {
 		fmt.Println("The following option combination is not currently supported: version + json-file-output")
-		return SNYK_EXIT_CODE_ERROR
+		return exit_codes.SNYK_EXIT_CODE_ERROR
 	} else {
 		c.printVersion()
-		return SNYK_EXIT_CODE_OK
+		return exit_codes.SNYK_EXIT_CODE_OK
 	}
 }
 
@@ -240,11 +239,11 @@ func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, pass
 		} else {
 			// got an error but it's not an ExitError
 			fmt.Println(err)
-			return SNYK_EXIT_CODE_ERROR
+			return exit_codes.SNYK_EXIT_CODE_ERROR
 		}
 	}
 
-	return SNYK_EXIT_CODE_OK
+	return exit_codes.SNYK_EXIT_CODE_OK
 }
 
 func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) int {

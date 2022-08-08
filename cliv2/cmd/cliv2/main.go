@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/exit_codes"
 	"github.com/snyk/cli/cliv2/internal/extension"
 	"github.com/snyk/cli/cliv2/internal/httpauth"
 	"github.com/snyk/cli/cliv2/internal/proxy"
@@ -82,7 +83,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 		if err != nil {
 			fmt.Println("Failed to determine cache directory!")
 			fmt.Println(err)
-			return cliv2.SNYK_EXIT_CODE_ERROR
+			return exit_codes.SNYK_EXIT_CODE_ERROR
 		}
 	}
 
@@ -94,7 +95,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	err = extMngr.Init()
 	if err != nil {
 		fmt.Println(err)
-		return cliv2.SNYK_EXIT_CODE_ERROR
+		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
 	// load extensions
@@ -115,7 +116,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	// init cli object
 	cli := cliv2.NewCLIv2(envVariables.CacheDirectory, extensions, argParserRootCmd, debugMode, debugLogger)
 	if cli == nil {
-		return cliv2.SNYK_EXIT_CODE_ERROR
+		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
 	// init proxy object
@@ -123,7 +124,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	if err != nil {
 		fmt.Println("Failed to create proxy")
 		fmt.Println(err)
-		return cliv2.SNYK_EXIT_CODE_ERROR
+		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
 	wrapperProxy.SetUpstreamProxyFromUrl(envVariables.ProxyAddr)
@@ -133,7 +134,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	if err != nil {
 		fmt.Println("Failed to start the proxy")
 		fmt.Println(err)
-		return cliv2.SNYK_EXIT_CODE_ERROR
+		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
 	// run the cli
