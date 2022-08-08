@@ -10,3 +10,5 @@ _cache
 .dccache
 .vscode
 bin
+internal/embedded/_data
+_build_extensions

@@ -617,7 +617,7 @@ jobs:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
       - run:
           name: Build bundled extensions
-          command: ./scripts/build_extensions.sh
+          command: go run ./scripts/build_extensions.go
           working_directory: ./cliv2
           environment:
             GOOS: << parameters.go_os >>

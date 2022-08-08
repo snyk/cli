@@ -2,7 +2,7 @@
   "extensions": [
     {
       "repo": "https://github.com/snyk/sclix_woof",
-      "commit_hash": "3af0e5a2da2ea6ab3ef1d9414889c730a6b408d2"
+      "commit_hash": "ea1302af5bbea2ebaac605ec469874e3aa5d24e2"
     }
   ]
 }
