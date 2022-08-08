@@ -80,6 +80,25 @@ func MainWithErrorCode(cliConfig *cliv2.CliConfiguration, args []string) int {
 	// parse the input args
 	err = cliv2.ExecuteArgumentParser(argParserRootCmd, cliConfig)
 	cliConfig.Log()
+	if err != nil {
+		fmt.Println(err)
+		return exit_codes.SNYK_EXIT_CODE_ERROR
+	}
+
+	// check if it there's no command to run (in which case help will run automatically and we can just exit)
+	matchedCommand, _, err := argParserRootCmd.Find(args)
+	if err != nil {
+		fmt.Println(err)
+		return exit_codes.SNYK_EXIT_CODE_ERROR
+	}
+	if matchedCommand == nil {
+		fmt.Println("No command specified") // this should never happen
+		return exit_codes.SNYK_EXIT_CODE_ERROR
+	}
+	if matchedCommand.Name() == "snyk" || matchedCommand.Name() == "help" && matchedCommand.Parent().Name() == "snyk" {
+		// this is the root command, so we can just exit and the usage (help) will show automatically
+		return exit_codes.SNYK_EXIT_CODE_OK
+	}
 
 	// init cli object
 	cli := cliv2.NewCLIv2(cliConfig, extensions, argParserRootCmd)
