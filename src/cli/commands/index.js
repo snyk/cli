@@ -20,6 +20,7 @@ const commands = {
   protect: async (...args) => callModule(import('./protect'), args),
   test: async (...args) => callModule(import('./test'), args),
   version: async (...args) => callModule(import('./version'), args),
+  about: async (...args) => callModule(import('./about'), args),
   wizard: async (...args) => callModule(import('./protect/wizard'), args),
   woof: async (...args) => callModule(import('./woof'), args),
   log4shell: async (...args) => callModule(import('./log4shell'), args),

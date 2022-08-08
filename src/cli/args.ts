@@ -150,6 +150,11 @@ export function args(rawArgv: string[]): Args {
     command = 'version';
   }
 
+  // alias `--about` to `snyk about`
+  if (argv.about) {
+    command = 'about';
+  }
+
   if (!command || argv.help || command === 'help') {
     // bit of a song and dance to support `snyk -h` and `snyk help`
     if (argv.help === true || command === 'help') {

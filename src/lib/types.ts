@@ -235,6 +235,7 @@ export type SupportedUserReachableFacingCliArgs =
 
 export enum SupportedCliCommands {
   version = 'version',
+  about = 'about',
   help = 'help',
   // config = 'config', // TODO: cleanup `$ snyk config` parsing logic before adding it here
   // auth = 'auth', // TODO: auth does not support argv._ at the moment
