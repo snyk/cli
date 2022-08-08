@@ -87,8 +87,20 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	// load extensions
 	extensions := cliv2.LoadExtensions(envVariables.CacheDirectory, debugLogger)
 
+	// build arg parser
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, debugLogger)
+
+	// parse the input args
+	debugLogger.Println("calling .Execute()...")
+	argParserRootCmd.Execute()
+	debugLogger.Println("back from .Execute()")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(2)
+	}
+
 	// init cli object
-	cli := cliv2.NewCLIv2(envVariables.CacheDirectory, extensions, debugLogger)
+	cli := cliv2.NewCLIv2(envVariables.CacheDirectory, extensions, argParserRootCmd, debugLogger)
 	if cli == nil {
 		return cliv2.SNYK_EXIT_CODE_ERROR
 	}

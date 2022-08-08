@@ -15,6 +15,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
 	"github.com/snyk/cli/cliv2/internal/utils"
+	"github.com/spf13/cobra"
 )
 
 type Handler int
@@ -26,6 +27,7 @@ type CLI struct {
 	v1Version        string
 	v2Version        string
 	Extensions       []*extension.Extension
+	ArgParserRootCmd *cobra.Command
 }
 
 type EnvironmentWarning struct {
@@ -55,7 +57,7 @@ const (
 //go:embed cliv2.version
 var SNYK_CLIV2_VERSION_PART string
 
-func NewCLIv2(cacheDirectory string, extensions []*extension.Extension, debugLogger *log.Logger) *CLI {
+func NewCLIv2(cacheDirectory string, extensions []*extension.Extension, argParserRootCmd *cobra.Command, debugLogger *log.Logger) *CLI {
 	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(cacheDirectory)
 	if err != nil {
 		fmt.Println(err)
@@ -69,6 +71,7 @@ func NewCLIv2(cacheDirectory string, extensions []*extension.Extension, debugLog
 		v2Version:        strings.TrimSpace(SNYK_CLIV2_VERSION_PART),
 		v1BinaryLocation: v1BinaryLocation,
 		Extensions:       extensions,
+		ArgParserRootCmd: argParserRootCmd,
 	}
 
 	err = cli.ExtractV1Binary()
@@ -149,7 +152,6 @@ func determineHandler(passthroughArgs []string) Handler {
 }
 
 func PrepareV1EnvironmentVariables(input []string, integrationName string, integrationVersion string, proxyAddress string, caCertificateLocation string) (result []string, err error) {
-
 	inputAsMap := utils.ToKeyValueMap(input, "=")
 	result = input
 
@@ -164,7 +166,6 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 	}
 
 	if err == nil {
-
 		// apply blacklist: ensure that no existing no_proxy or other configuration causes redirecting internal communication that is meant to stay between cliv1 and cliv2
 		blackList := []string{
 			SNYK_HTTPS_PROXY_ENV,
@@ -195,7 +196,6 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 }
 
 func PrepareV1Command(cmd string, args []string, proxyPort int, caCertLocation string, integrationName string, integrationVersion string) (snykCmd *exec.Cmd, err error) {
-
 	proxyAddress := fmt.Sprintf("http://127.0.0.1:%d", proxyPort)
 
 	snykCmd = exec.Command(cmd, args...)
