@@ -9,11 +9,12 @@ import (
 
 	"github.com/snyk/cli-extension-lib-go/extension"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/exit_codes"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
+func Test_PrepareChildProcessEnvironmentVariables_Fill_and_Filter(t *testing.T) {
 
 	input := []string{
 		"something=1",
@@ -28,7 +29,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 	}
 	expected := []string{"something=1", "in=2", "here=3=2", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
+	actual, err := cliv2.PrepareChildProcessEnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -36,12 +37,12 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testing.T) {
+func Test_PrepareChildProcessEnvironmentVariables_DontOverrideExistingIntegration(t *testing.T) {
 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already"}
 	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
+	actual, err := cliv2.PrepareChildProcessEnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -49,12 +50,12 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 	assert.Nil(t, err)
 }
 
-func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
+func Test_PrepareChildProcessEnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 
 	input := []string{"something=1", "in=2", "here=3", "http_proxy=exists", "https_proxy=already", "NODE_EXTRA_CA_CERTS=again", "no_proxy=312123"}
 	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
+	actual, err := cliv2.PrepareChildProcessEnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -62,12 +63,12 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) {
+func Test_PrepareChildProcessEnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) {
 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists"}
 	expected := input
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused")
+	actual, err := cliv2.PrepareChildProcessEnvironmentVariables(input, "foo", "bar", "unused", "unused")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -78,24 +79,18 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) 
 	assert.NotNil(t, warn)
 }
 
-func Test_prepareV1Command(t *testing.T) {
+func Test_PrepareCommand(t *testing.T) {
 	expectedArgs := []string{"hello", "world"}
+	expectedEnv := []string{"something=1", "else=2"}
 
-	snykCmd, err := cliv2.PrepareV1Command(
+	snykCmd := cliv2.PrepareCommand(
 		"someExecutable",
 		expectedArgs,
-		1,
-		"certLocation",
-		"name",
-		"version",
+		expectedEnv,
 	)
 
-	assert.Contains(t, snykCmd.Env, "SNYK_INTEGRATION_NAME=name")
-	assert.Contains(t, snykCmd.Env, "SNYK_INTEGRATION_VERSION=version")
-	assert.Contains(t, snykCmd.Env, "HTTPS_PROXY=http://127.0.0.1:1")
-	assert.Contains(t, snykCmd.Env, "NODE_EXTRA_CA_CERTS=certLocation")
+	assert.Equal(t, snykCmd.Env, expectedEnv)
 	assert.Equal(t, expectedArgs, snykCmd.Args[1:])
-	assert.Nil(t, err)
 }
 
 func Test_executeRunV1(t *testing.T) {
@@ -174,7 +169,7 @@ func Test_executeEnvironmentError(t *testing.T) {
 }
 
 func Test_executeUnknownCommand(t *testing.T) {
-	expectedReturnCode := cliv2.SNYK_EXIT_CODE_ERROR
+	expectedReturnCode := exit_codes.SNYK_EXIT_CODE_ERROR
 
 	cacheDir := "dasda"
 	logger := log.New(ioutil.Discard, "", 0)

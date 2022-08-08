@@ -26,14 +26,15 @@ import (
 type Handler int
 
 type CLI struct {
-	DebugLogger      *log.Logger
-	CacheDirectory   string
-	v1BinaryLocation string
-	v1Version        string
-	v2Version        string
-	Extensions       []*extension.Extension
-	ArgParserRootCmd *cobra.Command
-	debugMode        bool
+	DebugLogger                      *log.Logger
+	CacheDirectory                   string
+	v1BinaryLocation                 string
+	v1Version                        string
+	v2Version                        string
+	Extensions                       []*extension.Extension
+	ArgParserRootCmd                 *cobra.Command
+	debugMode                        bool
+	childProcessEnvironmentVariables []string
 }
 
 type EnvironmentWarning struct {
@@ -156,7 +157,7 @@ func determineHandler(passthroughArgs []string) Handler {
 	return result
 }
 
-func PrepareV1EnvironmentVariables(input []string, integrationName string, integrationVersion string, proxyAddress string, caCertificateLocation string) (result []string, err error) {
+func PrepareChildProcessEnvironmentVariables(input []string, integrationName string, integrationVersion string, proxyAddress string, caCertificateLocation string) (result []string, err error) {
 	inputAsMap := utils.ToKeyValueMap(input, "=")
 	result = input
 
@@ -200,59 +201,33 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 
 }
 
-func PrepareV1Command(cmd string, args []string, proxyPort int, caCertLocation string, integrationName string, integrationVersion string) (snykCmd *exec.Cmd, err error) {
-	proxyAddress := fmt.Sprintf("http://127.0.0.1:%d", proxyPort)
+func PrepareCommand(cmd string, args []string, environmentVariables []string) (snykCmd *exec.Cmd) {
 
 	snykCmd = exec.Command(cmd, args...)
-	snykCmd.Env, err = PrepareV1EnvironmentVariables(os.Environ(), integrationName, integrationVersion, proxyAddress, caCertLocation)
+	snykCmd.Env = environmentVariables
 	snykCmd.Stdin = os.Stdin
 	snykCmd.Stdout = os.Stdout
 	snykCmd.Stderr = os.Stderr
 
-	return snykCmd, err
+	return snykCmd
 }
 
-func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) int {
-	c.DebugLogger.Println("launching snyk with path: ", c.v1BinaryLocation)
-	c.DebugLogger.Println("fullPathToCert:", fullPathToCert)
+func (c *CLI) Execute(wrapperProxyPort int, caCertLocation string, passthroughArgs []string) int {
+	var err error
+	c.DebugLogger.Println("passthroughArgs", passthroughArgs)
 
-	snykCmd, err := PrepareV1Command(
-		c.v1BinaryLocation,
-		passthroughArgs,
-		wrapperProxyPort,
-		fullPathToCert,
-		c.GetIntegrationName(),
-		c.GetFullVersion(),
-	)
-
+	proxyAddress := fmt.Sprintf("http://127.0.0.1:%d", wrapperProxyPort)
+	c.childProcessEnvironmentVariables, err = PrepareChildProcessEnvironmentVariables(os.Environ(), c.GetIntegrationName(), c.GetFullVersion(), proxyAddress, caCertLocation)
 	if err != nil {
 		if evWarning, ok := err.(EnvironmentWarning); ok {
 			fmt.Println("WARNING! ", evWarning)
 		}
 	}
 
-	err = snykCmd.Run()
-	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			exitCode := exitError.ExitCode()
-			return exitCode
-		} else {
-			// got an error but it's not an ExitError
-			fmt.Println(err)
-			return exit_codes.SNYK_EXIT_CODE_ERROR
-		}
-	}
-
-	return exit_codes.SNYK_EXIT_CODE_OK
-}
-
-func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) int {
-	c.DebugLogger.Println("passthroughArgs", passthroughArgs)
-
 	maybeMatchingBuiltinHandler := c.matchBuiltInHandler(passthroughArgs)
 	if maybeMatchingBuiltinHandler != nil {
 		c.DebugLogger.Println("matched built-in handler for: ", passthroughArgs)
-		return maybeMatchingBuiltinHandler.Execute(wrapperProxyPort, fullPathToCert, passthroughArgs)
+		return maybeMatchingBuiltinHandler.Execute(wrapperProxyPort, caCertLocation, passthroughArgs)
 	}
 
 	maybeMatchingExtension := matchExtension(passthroughArgs, c.Extensions)
@@ -272,13 +247,13 @@ func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughAr
 			return exit_codes.SNYK_EXIT_CODE_ERROR
 		}
 		utils.PrettyLogObject(extensionInput, c.DebugLogger)
-		return LaunchExtension(matchedExtension, extensionInput, wrapperProxyPort, fullPathToCert, c.DebugLogger)
+		return c.executeExtension(matchedExtension, extensionInput)
 	}
 
 	c.DebugLogger.Println("No matching built-in handlers or extensions. Falling back on CLIv1")
 
 	// fall-back on CLIv1
-	return c.executeV1Default(wrapperProxyPort, fullPathToCert, passthroughArgs)
+	return c.executeV1Default(passthroughArgs)
 }
 
 func (e EnvironmentWarning) Error() string {
@@ -327,8 +302,32 @@ func matchExtension(args []string, extensions []*extension.Extension) *extension
 	return nil
 }
 
-func LaunchExtension(extension *extension.Extension, extensionInput *cli_extension_lib_go.ExtensionInput, proxyPort int, caCertLocation string, debugLogger *log.Logger) int {
-	debugLogger.Println("launching extension:", extension.Metadata.Name)
+func (c *CLI) executeV1Default(passthroughArgs []string) int {
+	c.DebugLogger.Println("launching snyk: ", c.v1BinaryLocation)
+
+	snykCmd := PrepareCommand(
+		c.v1BinaryLocation,
+		passthroughArgs,
+		c.childProcessEnvironmentVariables,
+	)
+
+	err := snykCmd.Run()
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			exitCode := exitError.ExitCode()
+			return exitCode
+		} else {
+			// got an error but it's not an ExitError
+			fmt.Println(err)
+			return exit_codes.SNYK_EXIT_CODE_ERROR
+		}
+	}
+
+	return exit_codes.SNYK_EXIT_CODE_OK
+}
+
+func (c *CLI) executeExtension(extension *extension.Extension, extensionInput *cli_extension_lib_go.ExtensionInput) int {
+	c.DebugLogger.Printf("launching %s: %s", extension.Metadata.Name, extension.BinPath)
 
 	extensionInputJsonBytes, err := json.Marshal(extensionInput)
 	if err != nil {
@@ -336,8 +335,7 @@ func LaunchExtension(extension *extension.Extension, extensionInput *cli_extensi
 		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
-	debugLogger.Println("extension input:\n", string(extensionInputJsonBytes))
-	debugLogger.Println("extension binary path:", extension.BinPath)
+	c.DebugLogger.Println("extension input:\n", string(extensionInputJsonBytes))
 
 	_, err = os.Stat(extension.BinPath)
 	if err != nil {
@@ -345,14 +343,7 @@ func LaunchExtension(extension *extension.Extension, extensionInput *cli_extensi
 		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
-	cmd := exec.Command(extension.BinPath)
-	cmd.Env = append(os.Environ(),
-		fmt.Sprintf("HTTPS_PROXY=http://127.0.0.1:%d", proxyPort),
-		fmt.Sprintf("NODE_EXTRA_CA_CERTS=%s", caCertLocation),
-	)
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd := PrepareCommand(extension.BinPath, []string{}, c.childProcessEnvironmentVariables)
 	buffer := bytes.Buffer{}
 	buffer.Write(extensionInputJsonBytes)
 	buffer.WriteString("\n\n")
