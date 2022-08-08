@@ -85,7 +85,7 @@ func (e *ExtensionManager) SaveExtensionsToDisk() (err error) {
 			}
 
 			if isPartOfExtension {
-				destPath := filepath.Join(e.extensionCacheDir, path)
+				destPath := filepath.Join(e.config.CacheDirectory, path)
 				e.config.Logger.Printf("Saving %s", destPath)
 				err = files[i].SaveToLocalFilesystem(destPath, fileMode)
 				if err != nil {
