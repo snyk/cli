@@ -7,6 +7,8 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20220328115640-894aeddb713e
 	github.com/golang/mock v1.6.0
 	github.com/jcmturner/gokrb5/v8 v8.4.2
+	github.com/snyk/cli-extension-lib-go v0.0.0-20220728132237-0ced5623af32
+	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/net v0.0.0-20220630215102-69896b714898
 )
@@ -21,8 +23,6 @@ require (
 	github.com/jcmturner/goidentity/v6 v6.0.1 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/snyk/cli-extension-lib-go v0.0.0-20220728132237-0ced5623af32 // indirect
-	github.com/spf13/cobra v1.5.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9 // indirect
 	golang.org/x/text v0.3.7 // indirect
