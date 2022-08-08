@@ -22,7 +22,7 @@ func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfigura
 	rootCmd.PersistentFlags().BoolVarP(&config.Debug, "debug", "d", false, "Enable debug logging.")
 	rootCmd.PersistentFlags().BoolVar(&config.Insecure, "insecure", false, "Disable secure communication protocols.")
 	rootCmd.PersistentFlags().Bool(CMDARG_PROXY_NO_AUTH, false, "Disable all proxy authentication.")
-	rootCmd.PersistentFlags().StringVar(&config.ProxyAddr, "proxy", "", "Configure a http/https proxy. Overriding environment variables.")
+	rootCmd.PersistentFlags().StringVar(&config.ProxyAddr, "proxy", "", "Configure an http/https proxy. Overriding environment variables.")
 
 	// add a command for each of the extensions
 	for _, x := range extensions {
