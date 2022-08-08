@@ -2,9 +2,10 @@ package embedded
 
 import (
 	"embed"
-	"fmt"
 	"io/fs"
 	"math"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -39,24 +40,24 @@ func ListFiles() []File {
 	return result
 }
 
-func (f *File) data() []byte {
+func (f *File) data() ([]byte, error) {
+	var err error
 	if f.cachedData == nil {
-		var err error
 		f.cachedData, err = data.ReadFile(f.path)
-		fmt.Println(err)
 	}
-	return f.cachedData
+	return f.cachedData, err
 }
 
 func (f *File) Read(p []byte) (n int, err error) {
-	tmp := f.data()
+	tmp, err := f.data()
 	n = int(math.Min(float64(len(tmp)), float64(len(p))))
 	copy(p, tmp)
 	return n, err
 }
 
 func (f *File) Size() int {
-	return len(f.data())
+	d, _ := f.data()
+	return len(d)
 }
 
 func (f *File) Name() string {
@@ -65,4 +66,23 @@ func (f *File) Name() string {
 
 func (f *File) Path() string {
 	return strings.Replace(f.path, rootDirectory, "", 1)
+}
+
+func (f *File) SaveToLocalFilesystem(destPath string, fileMode fs.FileMode) (err error) {
+	size := f.Size()
+	data := make([]byte, size)
+
+	_, err = f.Read(data)
+	if err == nil {
+		folder := filepath.Dir(destPath)
+		_, err = os.Stat(folder)
+		if os.IsNotExist(err) {
+			err = os.MkdirAll(folder, fileMode)
+		}
+	}
+
+	if err == nil {
+		err = os.WriteFile(destPath, data, fileMode)
+	}
+	return err
 }

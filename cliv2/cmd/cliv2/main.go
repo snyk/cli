@@ -86,8 +86,16 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 		}
 	}
 
-	extMngr := extension.New(&extension.Configuration{CacheDirectory: envVariables.CacheDirectory})
-	extMngr.Init()
+	extMngr := extension.New(&extension.Configuration{
+		CacheDirectory: envVariables.CacheDirectory,
+		Logger:         debugLogger,
+	})
+
+	err = extMngr.Init()
+	if err != nil {
+		fmt.Println(err)
+		return cliv2.SNYK_EXIT_CODE_ERROR
+	}
 
 	// load extensions
 	extensions := cliv2.LoadExtensions(envVariables.CacheDirectory, debugLogger)
