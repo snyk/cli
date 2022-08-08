@@ -14,13 +14,6 @@ import (
 	"github.com/snyk/cli/cliv2/internal/utils"
 )
 
-type EnvironmentVariables struct {
-	CacheDirectory               string
-	Insecure                     bool
-	ProxyAuthenticationMechanism httpauth.AuthenticationMechanism
-	ProxyAddr                    string
-}
-
 func getDebugLogger(debug bool) *log.Logger {
 	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
@@ -31,31 +24,15 @@ func getDebugLogger(debug bool) *log.Logger {
 	return debugLogger
 }
 
-func GetConfiguration(args []string) (EnvironmentVariables, []string) {
-	argsAsMap := utils.ToKeyValueMap(args, "=")
-
-	envVariables := EnvironmentVariables{
+func GetConfiguration(args []string) *cliv2.CliConfiguration {
+	cliConfig := cliv2.CliConfiguration{
 		CacheDirectory:               os.Getenv("SNYK_CACHE_PATH"),
 		ProxyAuthenticationMechanism: httpauth.AnyAuth,
 		Insecure:                     false,
+		Debug:                        debugArgPresent(args), // parsing the debug flag here, enables to debug early before any cmd line argument parser is being run
 	}
 
-	if utils.Contains(args, "--proxy-noauth") {
-		envVariables.ProxyAuthenticationMechanism = httpauth.NoAuth
-	}
-
-	envVariables.Insecure = utils.Contains(args, "--insecure")
-
-	envVariables.ProxyAddr, _ = argsAsMap["--proxy"]
-
-	// filter args not meant to be forwarded to CLIv1 or an Extensions
-	elementsToFilter := []string{"--proxy=", "--proxy-noauth"}
-	filteredArgs := args
-	for _, element := range elementsToFilter {
-		filteredArgs = utils.RemoveSimilar(filteredArgs, element)
-	}
-
-	return envVariables, filteredArgs
+	return &cliConfig
 }
 
 func debugArgPresent(args []string) bool {
@@ -63,23 +40,19 @@ func debugArgPresent(args []string) bool {
 }
 
 func main() {
-	config, args := GetConfiguration(os.Args[1:])
+	args := os.Args[1:]
+	config := GetConfiguration(args)
 	errorCode := MainWithErrorCode(config, args)
 	os.Exit(errorCode)
 }
 
-func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
-	debugMode := debugArgPresent(args)
-
+func MainWithErrorCode(cliConfig *cliv2.CliConfiguration, args []string) int {
 	var err error
-	debugLogger := getDebugLogger(debugMode)
-	debugLogger.Println("debug: true")
+	cliConfig.DebugLogger = getDebugLogger(cliConfig.Debug)
+	cliConfig.DebugLogger.Println("debug: true")
 
-	debugLogger.Println("cacheDirectory:", envVariables.CacheDirectory)
-	debugLogger.Println("insecure:", envVariables.Insecure)
-
-	if envVariables.CacheDirectory == "" {
-		envVariables.CacheDirectory, err = utils.SnykCacheDir()
+	if cliConfig.CacheDirectory == "" {
+		cliConfig.CacheDirectory, err = utils.SnykCacheDir()
 		if err != nil {
 			fmt.Println("Failed to determine cache directory!")
 			fmt.Println(err)
@@ -88,8 +61,8 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	}
 
 	extMngr := extension.New(&extension.Configuration{
-		CacheDirectory: envVariables.CacheDirectory,
-		Logger:         debugLogger,
+		CacheDirectory: cliConfig.CacheDirectory,
+		Logger:         cliConfig.DebugLogger,
 	})
 
 	err = extMngr.Init()
@@ -102,33 +75,28 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	extensions := extMngr.AvailableExtenions()
 
 	// build arg parser
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, debugLogger)
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, cliConfig)
 
 	// parse the input args
-	debugLogger.Println("calling .Execute()...")
-	argParserRootCmd.Execute()
-	debugLogger.Println("back from .Execute()")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(2)
-	}
+	err = cliv2.ExecuteArgumentParser(argParserRootCmd, cliConfig)
+	cliConfig.Log()
 
 	// init cli object
-	cli := cliv2.NewCLIv2(envVariables.CacheDirectory, extensions, argParserRootCmd, debugMode, debugLogger)
+	cli := cliv2.NewCLIv2(cliConfig, extensions, argParserRootCmd)
 	if cli == nil {
 		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
 	// init proxy object
-	wrapperProxy, err := proxy.NewWrapperProxy(envVariables.Insecure, envVariables.CacheDirectory, cli.GetFullVersion(), debugLogger)
+	wrapperProxy, err := proxy.NewWrapperProxy(cliConfig.Insecure, cliConfig.CacheDirectory, cli.GetFullVersion(), cliConfig.DebugLogger)
 	if err != nil {
 		fmt.Println("Failed to create proxy")
 		fmt.Println(err)
 		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
-	wrapperProxy.SetUpstreamProxyFromUrl(envVariables.ProxyAddr)
-	wrapperProxy.SetUpstreamProxyAuthentication(envVariables.ProxyAuthenticationMechanism)
+	wrapperProxy.SetUpstreamProxyFromUrl(cliConfig.ProxyAddr)
+	wrapperProxy.SetUpstreamProxyAuthentication(cliConfig.ProxyAuthenticationMechanism)
 
 	port, err := wrapperProxy.Start()
 	if err != nil {
@@ -140,9 +108,9 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	// run the cli
 	exitCode := cli.Execute(port, wrapperProxy.CertificateLocation, args)
 
-	debugLogger.Println("in main, cliv1 is done")
+	cliConfig.DebugLogger.Println("in main, cliv1 is done")
 	wrapperProxy.Close()
-	debugLogger.Printf("Exiting with %d\n", exitCode)
+	cliConfig.DebugLogger.Printf("Exiting with %d\n", exitCode)
 
 	return exitCode
 }

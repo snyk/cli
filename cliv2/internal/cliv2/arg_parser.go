@@ -2,21 +2,31 @@ package cliv2
 
 import (
 	"fmt"
+
 	"github.com/snyk/cli-extension-lib-go/extension"
+	"github.com/snyk/cli/cliv2/internal/httpauth"
 	"github.com/spf13/cobra"
-	"log"
 )
 
-func MakeArgParserConfig(extensions []*extension.Extension, debugLogger *log.Logger) *cobra.Command {
+const (
+	CMDARG_PROXY_NO_AUTH string = "proxy-noauth"
+)
+
+func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfiguration) *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Use:   "snyk",
 		Short: "Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.",
 		Long:  `Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.`,
 	}
 
+	rootCmd.PersistentFlags().BoolVarP(&config.Debug, "debug", "d", false, "Enable debug logging.")
+	rootCmd.PersistentFlags().BoolVar(&config.Insecure, "insecure", false, "Disable secure communication protocols.")
+	rootCmd.PersistentFlags().Bool(CMDARG_PROXY_NO_AUTH, false, "Disable all proxy authentication.")
+	rootCmd.PersistentFlags().StringVar(&config.ProxyAddr, "proxy", "", "Configure a http/https proxy. Overriding environment variables.")
+
 	// add a command for each of the extensions
 	for _, x := range extensions {
-		debugLogger.Println("adding extension to arg parser:", x.Metadata.Name)
+		config.DebugLogger.Println("adding extension to arg parser:", x.Metadata.Name)
 		c := cobraCommandFromExtensionMetadataCommand(x.Metadata.Command)
 		rootCmd.AddCommand(c)
 	}
@@ -91,4 +101,17 @@ func cobraCommandFromExtensionMetadataCommand(cmd *extension.Command) *cobra.Com
 	}
 
 	return cobraCommand
+}
+
+func ExecuteArgumentParser(argParserRootCmd *cobra.Command, config *CliConfiguration) (err error) {
+	err = argParserRootCmd.Execute()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	if isSet, _ := argParserRootCmd.PersistentFlags().GetBool(CMDARG_PROXY_NO_AUTH); isSet {
+		config.ProxyAuthenticationMechanism = httpauth.NoAuth
+	}
+	return err
 }

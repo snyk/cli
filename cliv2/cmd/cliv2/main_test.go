@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	main "github.com/snyk/cli/cliv2/cmd/cliv2"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/httpauth"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ import (
 func Test_MainWithErrorCode(t *testing.T) {
 	cacheDirectory := ""
 
-	variables := main.EnvironmentVariables{
+	variables := &cliv2.CliConfiguration{
 		CacheDirectory: cacheDirectory,
 	}
 
@@ -25,7 +26,7 @@ func Test_MainWithErrorCode(t *testing.T) {
 func Test_MainWithErrorCode_no_cache(t *testing.T) {
 	cacheDirectory := "MADE_UP_NAME"
 
-	variables := main.EnvironmentVariables{
+	variables := &cliv2.CliConfiguration{
 		CacheDirectory: cacheDirectory,
 	}
 
@@ -33,38 +34,37 @@ func Test_MainWithErrorCode_no_cache(t *testing.T) {
 
 	assert.Equal(t, mainErr, 0)
 	assert.DirExists(t, cacheDirectory)
+	os.RemoveAll(cacheDirectory)
 }
 
-func Test_GetConfiguration(t *testing.T) {
-	cmd := "_bin/snyk_darwin_arm64 --debug --proxy=http://host.example.com:3128 --insecure test"
+func Test_GetConfiguration_debugEnabled1(t *testing.T) {
+	cmd := "_bin/snyk_darwin_arm64 --debug"
 	args := strings.Split(cmd, " ")
 
-	expectedConfig := main.EnvironmentVariables{
-		Insecure:                     true,
+	expectedConfig := &cliv2.CliConfiguration{
+		Insecure:                     false,
 		ProxyAuthenticationMechanism: httpauth.AnyAuth,
-		ProxyAddr:                    "http://host.example.com:3128",
+		ProxyAddr:                    "",
+		Debug:                        true,
 	}
-	expectedArgs := []string{"_bin/snyk_darwin_arm64", "--debug", "--insecure", "test"}
 
-	actualConfig, actualArgs := main.GetConfiguration(args)
+	actualConfig := main.GetConfiguration(args)
 
-	assert.Equal(t, expectedArgs, actualArgs)
 	assert.Equal(t, expectedConfig, actualConfig)
 }
 
-func Test_GetConfiguration02(t *testing.T) {
-	cmd := "_bin/snyk_darwin_arm64 --debug --proxy-noauth --proxy=http://host.example.com:3128 --insecure test"
+func Test_GetConfiguration_debugEnabled2(t *testing.T) {
+	cmd := "_bin/snyk_darwin_arm64 -d"
 	args := strings.Split(cmd, " ")
 
-	expectedConfig := main.EnvironmentVariables{
-		Insecure:                     true,
-		ProxyAuthenticationMechanism: httpauth.NoAuth,
-		ProxyAddr:                    "http://host.example.com:3128",
+	expectedConfig := &cliv2.CliConfiguration{
+		Insecure:                     false,
+		ProxyAuthenticationMechanism: httpauth.AnyAuth,
+		ProxyAddr:                    "",
+		Debug:                        true,
 	}
-	expectedArgs := []string{"_bin/snyk_darwin_arm64", "--debug", "--insecure", "test"}
 
-	actualConfig, actualArgs := main.GetConfiguration(args)
+	actualConfig := main.GetConfiguration(args)
 
-	assert.Equal(t, expectedArgs, actualArgs)
 	assert.Equal(t, expectedConfig, actualConfig)
 }

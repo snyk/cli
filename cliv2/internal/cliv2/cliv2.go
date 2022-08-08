@@ -7,7 +7,6 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -26,14 +25,12 @@ import (
 type Handler int
 
 type CLI struct {
-	DebugLogger                      *log.Logger
-	CacheDirectory                   string
+	config                           *CliConfiguration
 	v1BinaryLocation                 string
 	v1Version                        string
 	v2Version                        string
 	Extensions                       []*extension.Extension
 	ArgParserRootCmd                 *cobra.Command
-	debugMode                        bool
 	childProcessEnvironmentVariables []string
 }
 
@@ -62,22 +59,20 @@ const (
 //go:embed cliv2.version
 var SNYK_CLIV2_VERSION_PART string
 
-func NewCLIv2(cacheDirectory string, extensions []*extension.Extension, argParserRootCmd *cobra.Command, debugMode bool, debugLogger *log.Logger) *CLI {
-	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(cacheDirectory)
+func NewCLIv2(config *CliConfiguration, extensions []*extension.Extension, argParserRootCmd *cobra.Command) *CLI {
+	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(config.CacheDirectory)
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
 
 	cli := CLI{
-		DebugLogger:      debugLogger,
-		CacheDirectory:   cacheDirectory,
+		config:           config,
 		v1Version:        cliv1.CLIV1Version(),
 		v2Version:        strings.TrimSpace(SNYK_CLIV2_VERSION_PART),
 		v1BinaryLocation: v1BinaryLocation,
 		Extensions:       extensions,
 		ArgParserRootCmd: argParserRootCmd,
-		debugMode:        debugMode,
 	}
 
 	err = cli.ExtractV1Binary()
@@ -92,28 +87,28 @@ func NewCLIv2(cacheDirectory string, extensions []*extension.Extension, argParse
 func (c *CLI) ExtractV1Binary() error {
 	cliV1ExpectedSHA256 := cliv1.ExpectedSHA256()
 
-	isValid, err := embedded.ValidateFile(c.v1BinaryLocation, cliV1ExpectedSHA256, c.DebugLogger)
+	isValid, err := embedded.ValidateFile(c.v1BinaryLocation, cliV1ExpectedSHA256, c.config.DebugLogger)
 	if err != nil || !isValid {
-		c.DebugLogger.Println("cliv1 is not valid, start extracting ", c.v1BinaryLocation)
+		c.config.DebugLogger.Println("cliv1 is not valid, start extracting ", c.v1BinaryLocation)
 
 		err = cliv1.ExtractTo(c.v1BinaryLocation)
 		if err != nil {
 			return err
 		}
 
-		isValid, err := embedded.ValidateFile(c.v1BinaryLocation, cliV1ExpectedSHA256, c.DebugLogger)
+		isValid, err := embedded.ValidateFile(c.v1BinaryLocation, cliV1ExpectedSHA256, c.config.DebugLogger)
 		if err != nil {
 			return err
 		}
 
 		if isValid {
-			c.DebugLogger.Println("cliv1 is valid after extracting", c.v1BinaryLocation)
+			c.config.DebugLogger.Println("cliv1 is valid after extracting", c.v1BinaryLocation)
 		} else {
 			fmt.Println("cliv1 is not valid after sha256 check")
 			return err
 		}
 	} else {
-		c.DebugLogger.Println("cliv1 already exists and is valid at", c.v1BinaryLocation)
+		c.config.DebugLogger.Println("cliv1 already exists and is valid at", c.v1BinaryLocation)
 	}
 
 	return nil
@@ -214,7 +209,7 @@ func PrepareCommand(cmd string, args []string, environmentVariables []string) (s
 
 func (c *CLI) Execute(wrapperProxyPort int, caCertLocation string, passthroughArgs []string) int {
 	var err error
-	c.DebugLogger.Println("passthroughArgs", passthroughArgs)
+	c.config.DebugLogger.Println("passthroughArgs", passthroughArgs)
 
 	proxyAddress := fmt.Sprintf("http://127.0.0.1:%d", wrapperProxyPort)
 	c.childProcessEnvironmentVariables, err = PrepareChildProcessEnvironmentVariables(os.Environ(), c.GetIntegrationName(), c.GetFullVersion(), proxyAddress, caCertLocation)
@@ -226,14 +221,14 @@ func (c *CLI) Execute(wrapperProxyPort int, caCertLocation string, passthroughAr
 
 	maybeMatchingBuiltinHandler := c.matchBuiltInHandler(passthroughArgs)
 	if maybeMatchingBuiltinHandler != nil {
-		c.DebugLogger.Println("matched built-in handler for: ", passthroughArgs)
+		c.config.DebugLogger.Println("matched built-in handler for: ", passthroughArgs)
 		return maybeMatchingBuiltinHandler.Execute(wrapperProxyPort, caCertLocation, passthroughArgs)
 	}
 
 	maybeMatchingExtension := matchExtension(passthroughArgs, c.Extensions)
 	if maybeMatchingExtension != nil {
 		matchedExtension := maybeMatchingExtension
-		c.DebugLogger.Println("matched extension:", matchedExtension)
+		c.config.DebugLogger.Println("matched extension:", matchedExtension)
 
 		matchedCommand, _, err := c.ArgParserRootCmd.Find(passthroughArgs)
 		if err != nil {
@@ -241,16 +236,16 @@ func (c *CLI) Execute(wrapperProxyPort int, caCertLocation string, passthroughAr
 			return exit_codes.SNYK_EXIT_CODE_ERROR
 		}
 
-		extensionInput := MakeExtensionInput(matchedExtension.Metadata, matchedCommand, passthroughArgs, c.debugMode, wrapperProxyPort)
+		extensionInput := MakeExtensionInput(matchedExtension.Metadata, matchedCommand, passthroughArgs, c.config.Debug, wrapperProxyPort)
 		if err != nil {
 			fmt.Println(err)
 			return exit_codes.SNYK_EXIT_CODE_ERROR
 		}
-		utils.PrettyLogObject(extensionInput, c.DebugLogger)
+		utils.PrettyLogObject(extensionInput, c.config.DebugLogger)
 		return c.executeExtension(matchedExtension, extensionInput)
 	}
 
-	c.DebugLogger.Println("No matching built-in handlers or extensions. Falling back on CLIv1")
+	c.config.DebugLogger.Println("No matching built-in handlers or extensions. Falling back on CLIv1")
 
 	// fall-back on CLIv1
 	return c.executeV1Default(passthroughArgs)
@@ -303,7 +298,7 @@ func matchExtension(args []string, extensions []*extension.Extension) *extension
 }
 
 func (c *CLI) executeV1Default(passthroughArgs []string) int {
-	c.DebugLogger.Println("launching snyk: ", c.v1BinaryLocation)
+	c.config.DebugLogger.Println("launching snyk: ", c.v1BinaryLocation)
 
 	snykCmd := PrepareCommand(
 		c.v1BinaryLocation,
@@ -327,7 +322,7 @@ func (c *CLI) executeV1Default(passthroughArgs []string) int {
 }
 
 func (c *CLI) executeExtension(extension *extension.Extension, extensionInput *cli_extension_lib_go.ExtensionInput) int {
-	c.DebugLogger.Printf("launching %s: %s", extension.Metadata.Name, extension.BinPath)
+	c.config.DebugLogger.Printf("launching %s: %s", extension.Metadata.Name, extension.BinPath)
 
 	extensionInputJsonBytes, err := json.Marshal(extensionInput)
 	if err != nil {
@@ -335,7 +330,7 @@ func (c *CLI) executeExtension(extension *extension.Extension, extensionInput *c
 		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
-	c.DebugLogger.Println("extension input:\n", string(extensionInputJsonBytes))
+	c.config.DebugLogger.Println("extension input:\n", string(extensionInputJsonBytes))
 
 	_, err = os.Stat(extension.BinPath)
 	if err != nil {
