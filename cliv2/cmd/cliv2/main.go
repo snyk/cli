@@ -84,9 +84,11 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 		}
 	}
 
+	// load extensions
+	extensions := cliv2.LoadExtensions(envVariables.CacheDirectory, debugLogger)
+
 	// init cli object
-	var cli *cliv2.CLI
-	cli = cliv2.NewCLIv2(envVariables.CacheDirectory, debugLogger)
+	cli := cliv2.NewCLIv2(envVariables.CacheDirectory, extensions, debugLogger)
 	if cli == nil {
 		return cliv2.SNYK_EXIT_CODE_ERROR
 	}

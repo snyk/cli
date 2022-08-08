@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/snyk/cli-extension-lib-go/extension"
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
 	"github.com/snyk/cli/cliv2/internal/utils"
@@ -24,6 +25,7 @@ type CLI struct {
 	v1BinaryLocation string
 	v1Version        string
 	v2Version        string
+	Extensions       []*extension.Extension
 }
 
 type EnvironmentWarning struct {
@@ -53,8 +55,7 @@ const (
 //go:embed cliv2.version
 var SNYK_CLIV2_VERSION_PART string
 
-func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) *CLI {
-
+func NewCLIv2(cacheDirectory string, extensions []*extension.Extension, debugLogger *log.Logger) *CLI {
 	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(cacheDirectory)
 	if err != nil {
 		fmt.Println(err)
@@ -67,6 +68,7 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) *CLI {
 		v1Version:        cliv1.CLIV1Version(),
 		v2Version:        strings.TrimSpace(SNYK_CLIV2_VERSION_PART),
 		v1BinaryLocation: v1BinaryLocation,
+		Extensions:       extensions,
 	}
 
 	err = cli.ExtractV1Binary()
