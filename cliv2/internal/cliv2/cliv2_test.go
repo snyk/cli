@@ -7,6 +7,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/snyk/cli-extension-lib-go/extension"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 
 	"github.com/stretchr/testify/assert"
@@ -105,8 +106,11 @@ func Test_executeRunV1(t *testing.T) {
 
 	assert.NoDirExists(t, cacheDir)
 
+	var extensions []*extension.Extension // no extensions
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, logger)
+
 	// create instance under test
-	cli := cliv2.NewCLIv2(cacheDir, logger)
+	cli := cliv2.NewCLIv2(cacheDir, extensions, argParserRootCmd, false, logger)
 
 	// run once
 	actualReturnCode := cli.Execute(1000, "", []string{"--help"})
@@ -134,8 +138,11 @@ func Test_executeRunV2only(t *testing.T) {
 
 	assert.NoDirExists(t, cacheDir)
 
+	var extensions []*extension.Extension // no extensions
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, logger)
+
 	// create instance under test
-	cli := cliv2.NewCLIv2(cacheDir, logger)
+	cli := cliv2.NewCLIv2(cacheDir, extensions, argParserRootCmd, false, logger)
 	actualReturnCode := cli.Execute(1000, "", []string{"--version"})
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
@@ -154,8 +161,11 @@ func Test_executeEnvironmentError(t *testing.T) {
 	// fill Environment Variable
 	os.Setenv(cliv2.SNYK_INTEGRATION_NAME_ENV, "someName")
 
+	var extensions []*extension.Extension // no extensions
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, logger)
+
 	// create instance under test
-	cli := cliv2.NewCLIv2(cacheDir, logger)
+	cli := cliv2.NewCLIv2(cacheDir, extensions, argParserRootCmd, false, logger)
 	actualReturnCode := cli.Execute(1000, "", []string{"--help"})
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
@@ -169,8 +179,11 @@ func Test_executeUnknownCommand(t *testing.T) {
 	cacheDir := "dasda"
 	logger := log.New(ioutil.Discard, "", 0)
 
+	var extensions []*extension.Extension // no extensions
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, logger)
+
 	// create instance under test
-	cli := cliv2.NewCLIv2(cacheDir, logger)
+	cli := cliv2.NewCLIv2(cacheDir, extensions, argParserRootCmd, false, logger)
 	actualReturnCode := cli.Execute(1000, "", []string{"bogusCommand"})
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 
