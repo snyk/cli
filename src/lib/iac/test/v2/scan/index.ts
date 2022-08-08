@@ -4,7 +4,11 @@ import { CustomError } from '../../../../errors';
 import { IaCErrorCodes } from '../../../../../cli/commands/test/iac/local-execution/types';
 import { getErrorStringCode } from '../../../../../cli/commands/test/iac/local-execution/error-utils';
 import * as newDebug from 'debug';
-import { SnykIacTestOutput } from './results';
+import {
+  mapSnykIacTestOutputToTestOutput,
+  SnykIacTestOutput,
+  TestOutput,
+} from './results';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -19,7 +23,7 @@ export function scan(
   options: TestConfig,
   policyEnginePath: string,
   rulesBundlePath: string,
-): SnykIacTestOutput {
+): TestOutput {
   const configPath = createConfig(options);
   try {
     return scanWithConfig(
@@ -38,7 +42,7 @@ function scanWithConfig(
   policyEnginePath: string,
   rulesBundlePath: string,
   configPath: string,
-): SnykIacTestOutput {
+): TestOutput {
   const args = processFlags(options, rulesBundlePath, configPath);
 
   args.push(...options.paths);
@@ -58,15 +62,17 @@ function scanWithConfig(
     throw new ScanError(`spawning process: ${process.error}`);
   }
 
-  let output: SnykIacTestOutput;
+  let snykIacTestOutput: SnykIacTestOutput;
 
   try {
-    output = JSON.parse(process.stdout);
+    snykIacTestOutput = JSON.parse(process.stdout);
   } catch (e) {
     throw new ScanError(`invalid output encoding: ${e}`);
   }
 
-  return output;
+  const testOutput = mapSnykIacTestOutputToTestOutput(snykIacTestOutput);
+
+  return testOutput;
 }
 
 function processFlags(
