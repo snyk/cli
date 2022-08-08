@@ -98,7 +98,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	}
 
 	// load extensions
-	extensions := cliv2.LoadExtensions(envVariables.CacheDirectory, debugLogger)
+	extensions := extMngr.AvailableExtenions()
 
 	// build arg parser
 	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, debugLogger)
