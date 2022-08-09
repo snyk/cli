@@ -37,12 +37,12 @@ func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfigura
 	return rootCmd
 }
 
-type Command struct {
+type NodeCLICommandMeta struct {
 	name string
 	description string
 }
 
-var v1Commands = []Command{
+var v1Commands = []NodeCLICommandMeta{
 	{
 		name: "auth",
 		description: "Authenticate Snyk CLI with a Snyk account.",
