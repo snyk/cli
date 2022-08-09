@@ -58,7 +58,7 @@ function scanWithConfig(
   debug('policy engine standard error:\n%s', '\n' + process.stderr);
 
   if (process.status && process.status !== 0) {
-    throw new ScanError(`invalid exist status: ${process.status}`);
+    throw new ScanError(`invalid exit status: ${process.status}`);
   }
 
   if (process.error) {
@@ -125,6 +125,10 @@ function processFlags(
 
   if (options.report) {
     flags.push('-report');
+  }
+
+  if (options.targetReference) {
+    flags.push('-target-reference', options.targetReference);
   }
 
   return flags;

@@ -70,6 +70,7 @@ async function prepareTestConfig(
     report: !!options.report,
     attributes,
     projectTags,
+    targetReference: options['target-reference'],
   };
 }
 

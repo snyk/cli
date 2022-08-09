@@ -14,4 +14,5 @@ export interface TestConfig {
   severityThreshold?: SEVERITY;
   attributes?: ProjectAttributes;
   projectTags?: Tag[];
+  targetReference?: string;
 }
