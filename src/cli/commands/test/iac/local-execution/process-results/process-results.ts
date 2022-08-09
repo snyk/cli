@@ -1,6 +1,7 @@
 import { filterIgnoredIssues } from './policy';
 import { formatAndShareResults } from './share-results';
-import { formatScanResultsV2 } from '../measurable-methods';
+import { formatScanResults } from '../measurable-methods';
+import * as cloneDeep from 'lodash.clonedeep';
 import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
 import {
   IacOutputMeta,
@@ -33,7 +34,11 @@ export async function processResults(
 
   if (options.report) {
     ({ projectPublicIds, gitRemoteUrl } = await formatAndShareResults({
-      results: resultsWithCustomSeverities,
+      // this is to fix a bug where we mutated the "results" in the formatAndShareResults
+      // and these were used again in the formatScanResults below
+      // resulting in double count of issues
+      // note: this happened only in multi-YAML documents
+      results: cloneDeep(resultsWithCustomSeverities),
       options,
       orgPublicId,
       policy,
@@ -44,7 +49,7 @@ export async function processResults(
     }));
   }
 
-  const formattedResults = formatScanResultsV2(
+  const formattedResults = formatScanResults(
     resultsWithCustomSeverities,
     options,
     iacOrgSettings.meta,
