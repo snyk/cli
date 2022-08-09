@@ -27,7 +27,7 @@ it('with pins & unfixable & showVulnsPaths = all', () => {
     { showVulnPaths: 'all' },
   );
   expect(
-    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
+    stripAnsi(res.outputTextArray.join('\n').replace(/\[http.*\]/g, '[URL]')),
   ).toMatchSnapshot();
 });
 
@@ -52,7 +52,7 @@ it('with showVulnPaths = some', () => {
     { showVulnPaths: 'some' },
   );
   expect(
-    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
+    stripAnsi(res.outputTextArray.join('\n').replace(/\[http.*\]/g, '[URL]')),
   ).toMatchSnapshot();
 });
 it('with upgrades & patches', () => {
@@ -78,7 +78,7 @@ it('with upgrades & patches', () => {
     { showVulnPaths: 'all' },
   );
   expect(
-    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
+    stripAnsi(res.outputTextArray.join('\n').replace(/\[http.*\]/g, '[URL]')),
   ).toMatchSnapshot();
 });
 it('with reachable info', () => {
@@ -102,7 +102,7 @@ it('with reachable info', () => {
     { showVulnPaths: 'all' },
   );
   expect(
-    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
+    stripAnsi(res.outputTextArray.join('\n').replace(/\[http.*\]/g, '[URL]')),
   ).toMatchSnapshot();
 });
 
@@ -129,6 +129,6 @@ it('with license issues', () => {
     { showVulnPaths: 'all' },
   );
   expect(
-    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
+    stripAnsi(res.outputTextArray.join('\n').replace(/\[http.*\]/g, '[URL]')),
   ).toMatchSnapshot();
 });

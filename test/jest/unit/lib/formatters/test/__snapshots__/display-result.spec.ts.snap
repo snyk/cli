@@ -232,7 +232,6 @@ Testing src...
 
 Tested 2 dependencies for known issues, found 32 issues, 2 vulnerable paths.
 
-
 Issues to fix by upgrading dependencies:
 
   Upgrade django@1.6.1 to django@2.2.18 to fix
@@ -257,6 +256,11 @@ Open source:       no
 Project path:      src
 Licenses:          enabled
 
+Test summary:
+
+  1 issues with no upgrade or patch
+  1 fixable issues: 1 Medium
+
 Tip: Try \`snyk fix\` to address these issues.\`snyk fix\` is a new CLI command in that aims to automatically apply the recommended updates for supported ecosystems.
 See documentation on how to enable this beta feature: https://docs.snyk.io/snyk-cli/fix-vulnerabilities-from-the-cli/automatic-remediation-with-snyk-fix#enabling-snyk-fix
 
@@ -268,7 +272,6 @@ exports[`displayResult with Upgrades & Patches 1`] = `
 Testing src...
 
 Tested 2 dependencies for known vulnerabilities, found 4 vulnerabilities, 4 vulnerable paths.
-
 
 Issues to fix by upgrading:
 
@@ -300,6 +303,10 @@ Project name:      shallow-goof
 Open source:       no
 Project path:      src
 
+Test summary:
+
+  4 fixable issues: 4 Low
+
 Tip: Detected multiple supported manifests (3), use --all-projects to scan all of them at once."
 `;
 
@@ -308,7 +315,6 @@ exports[`displayResult with license issues 1`] = `
 Testing src...
 
 Tested 3 dependencies for known issues, found 6 issues, 8 vulnerable paths.
-
 
 Issues to fix by upgrading:
 
@@ -361,6 +367,11 @@ Package manager:   rubygems
 Open source:       no
 Project path:      src
 Licenses:          enabled
+
+Test summary:
+
+  1 license issues: 1 High
+  7 fixable issues: 1 High, 5 Medium, 1 Low
 
 Tip: Detected multiple supported manifests (3), use --all-projects to scan all of them at once."
 `;

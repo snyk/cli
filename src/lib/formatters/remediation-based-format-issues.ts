@@ -23,6 +23,7 @@ import {
 } from './format-reachability';
 import {
   BasicVulnInfo,
+  FormattedIssuesWithRemediation,
   SampleReachablePaths,
   UpgradesByAffectedPackage,
 } from './types';
@@ -32,11 +33,17 @@ import { getSeverityValue } from './get-severity-value';
 // How many reachable paths to show in the output
 const MAX_REACHABLE_PATHS = 2;
 
+type ConstructIssuesTextOutput = {
+  textArray: string[];
+  countTotal: number;
+  countBySeverity?: { [severity in SEVERITY]: number };
+};
+
 export function formatIssuesWithRemediation(
   vulns: GroupedVuln[],
   remediationInfo: RemediationChanges,
   options: TestOptions,
-): string[] {
+): FormattedIssuesWithRemediation {
   const basicVulnInfo: {
     [name: string]: BasicVulnInfo;
   } = {};
@@ -78,9 +85,18 @@ export function formatIssuesWithRemediation(
     }
   }
 
-  const results = [''];
+  const results: FormattedIssuesWithRemediation = {
+    outputTextArray: [],
+    counts: {
+      noUpgradeOrPatchCount: 0,
+      licenseTotal: 0,
+      fixableTotal: 0,
+      licenseBySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
+      fixableBySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
+    },
+  };
 
-  let upgradeTextArray: string[];
+  let upgradeIssues = {} as ConstructIssuesTextOutput;
   if (remediationInfo.pin && Object.keys(remediationInfo.pin).length) {
     const upgradesByAffected: UpgradesByAffectedPackage = {};
     for (const topLevelPkg of Object.keys(remediationInfo.upgrade)) {
@@ -95,7 +111,7 @@ export function formatIssuesWithRemediation(
         });
       }
     }
-    upgradeTextArray = constructPinText(
+    upgradeIssues = constructPinText(
       remediationInfo.pin,
       upgradesByAffected,
       basicVulnInfo,
@@ -109,43 +125,61 @@ export function formatIssuesWithRemediation(
       (issue) => !allVulnIds.has(issue.id),
     );
   } else {
-    upgradeTextArray = constructUpgradesText(
+    upgradeIssues = constructUpgradesText(
       remediationInfo.upgrade,
       basicVulnInfo,
       options,
     );
   }
-  if (upgradeTextArray.length > 0) {
-    results.push(upgradeTextArray.join('\n'));
+  if (upgradeIssues.textArray?.length > 0) {
+    results.outputTextArray.push(upgradeIssues.textArray.join('\n'));
+    results.counts.fixableTotal += upgradeIssues.countTotal;
+    if (upgradeIssues.countBySeverity) {
+      results.counts.fixableBySeverity = upgradeIssues.countBySeverity;
+    }
   }
 
-  const patchedTextArray = constructPatchesText(
+  let patchedIssues = {} as ConstructIssuesTextOutput;
+  patchedIssues = constructPatchesText(
     remediationInfo.patch,
     basicVulnInfo,
     options,
   );
 
-  if (patchedTextArray.length > 0) {
-    results.push(patchedTextArray.join('\n'));
+  if (patchedIssues.textArray?.length > 0) {
+    results.outputTextArray.push(patchedIssues.textArray.join('\n'));
+    results.counts.fixableTotal += patchedIssues.countTotal;
+    if (patchedIssues.countBySeverity) {
+      Object.keys(patchedIssues.countBySeverity).forEach((severity) => {
+        if (patchedIssues.countBySeverity) {
+          results.counts.fixableBySeverity[severity] +=
+            patchedIssues.countBySeverity[severity];
+        }
+      });
+    }
   }
 
-  const unfixableIssuesTextArray = constructUnfixableText(
+  let unfixableIssues = {} as ConstructIssuesTextOutput;
+  unfixableIssues = constructUnfixableText(
     remediationInfo.unresolved,
     basicVulnInfo,
     options,
   );
 
-  if (unfixableIssuesTextArray.length > 0) {
-    results.push(unfixableIssuesTextArray.join('\n'));
+  if (unfixableIssues.textArray?.length > 0) {
+    results.outputTextArray.push(unfixableIssues.textArray.join('\n'));
+    results.counts.noUpgradeOrPatchCount += unfixableIssues.countTotal;
   }
 
-  const licenseIssuesTextArray = constructLicenseText(
-    basicLicenseInfo,
-    options,
-  );
+  let licenseIssues = {} as ConstructIssuesTextOutput;
+  licenseIssues = constructLicenseText(basicLicenseInfo, options);
 
-  if (licenseIssuesTextArray.length > 0) {
-    results.push(licenseIssuesTextArray.join('\n'));
+  if (licenseIssues.textArray?.length > 0) {
+    results.outputTextArray.push(licenseIssues.textArray.join('\n'));
+    results.counts.licenseTotal += licenseIssues.countTotal;
+    if (licenseIssues.countBySeverity) {
+      results.counts.licenseBySeverity = licenseIssues.countBySeverity;
+    }
   }
 
   return results;
@@ -156,12 +190,16 @@ function constructLicenseText(
     [name: string]: BasicVulnInfo;
   },
   testOptions: TestOptions,
-): string[] {
+): ConstructIssuesTextOutput {
   if (!(Object.keys(basicLicenseInfo).length > 0)) {
-    return [];
+    return {} as ConstructIssuesTextOutput;
   }
 
-  const licenseTextArray = [chalk.bold.green('\nLicense issues:')];
+  const licenseIssues: ConstructIssuesTextOutput = {
+    textArray: [],
+    countTotal: 0,
+    countBySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
+  };
 
   for (const id of Object.keys(basicLicenseInfo)) {
     const licenseText = formatIssue(
@@ -176,9 +214,19 @@ function constructLicenseText(
       undefined, // We can never override license rules, so no originalSeverity here
       basicLicenseInfo[id].legalInstructions,
     );
-    licenseTextArray.push('\n' + licenseText);
+    licenseIssues.textArray.push('\n' + licenseText);
+    licenseIssues.countTotal += 1;
+    if (licenseIssues.countBySeverity) {
+      licenseIssues.countBySeverity[basicLicenseInfo[id].severity] += 1;
+    }
   }
-  return licenseTextArray;
+  licenseIssues.textArray.unshift(chalk.bold.green('\nLicense issues:'));
+
+  return {
+    textArray: licenseIssues.textArray,
+    countTotal: licenseIssues.countTotal,
+    countBySeverity: licenseIssues.countBySeverity,
+  };
 }
 
 function constructPatchesText(
@@ -189,11 +237,17 @@ function constructPatchesText(
     [name: string]: BasicVulnInfo;
   },
   testOptions: TestOptions,
-): string[] {
+): ConstructIssuesTextOutput {
   if (!(Object.keys(patches).length > 0)) {
-    return [];
+    return {} as ConstructIssuesTextOutput;
   }
-  const patchedTextArray = [chalk.bold.green('\nPatchable issues:')];
+
+  const patchedIssues: ConstructIssuesTextOutput = {
+    textArray: [],
+    countTotal: 0,
+    countBySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
+  };
+
   for (const id of Object.keys(patches)) {
     if (!basicVulnInfo[id]) {
       continue;
@@ -218,18 +272,34 @@ function constructPatchesText(
       basicVulnInfo[id].note,
       basicVulnInfo[id].originalSeverity,
     );
-    patchedTextArray.push(patchedText + thisPatchFixes);
+    patchedIssues.textArray.push(patchedText + thisPatchFixes);
+    patchedIssues.countTotal += 1;
+    if (patchedIssues.countBySeverity) {
+      patchedIssues.countBySeverity[basicVulnInfo[id].severity] += 1;
+    }
   }
 
-  return patchedTextArray;
+  patchedIssues.textArray.unshift(chalk.bold.green('\nPatchable issues:'));
+
+  return {
+    textArray: patchedIssues.textArray,
+    countTotal: patchedIssues.countTotal,
+    countBySeverity: patchedIssues.countBySeverity,
+  };
 }
 
 function thisUpgradeFixes(
   vulnIds: string[],
   basicVulnInfo: Record<string, BasicVulnInfo>,
   testOptions: TestOptions,
-) {
-  return vulnIds
+): ConstructIssuesTextOutput {
+  const fixedIssues: ConstructIssuesTextOutput = {
+    textArray: [],
+    countTotal: 0,
+    countBySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
+  };
+
+  fixedIssues.textArray = vulnIds
     .filter((id) => basicVulnInfo[id]) // basicVulnInfo only contains issues with the specified severity levels
     .sort(
       (a, b) =>
@@ -252,28 +322,48 @@ function thisUpgradeFixes(
         basicVulnInfo[id].reachability,
         basicVulnInfo[id].sampleReachablePaths,
       ),
-    )
-    .join('\n');
+    );
+  fixedIssues.countTotal = fixedIssues.textArray.length;
+
+  Object.values(SEVERITY).forEach((severity) => {
+    if (fixedIssues.countBySeverity) {
+      fixedIssues.countBySeverity[severity] += vulnIds
+        .filter((id) => basicVulnInfo[id])
+        .filter((id) => basicVulnInfo[id].type !== 'license')
+        .filter((id) => basicVulnInfo[id].severity === severity).length;
+    }
+  });
+  return fixedIssues;
 }
 
 function processUpgrades(
-  sink: string[],
+  sink: ConstructIssuesTextOutput,
   upgradesByDep: DependencyUpdates | DependencyPins,
   deps: string[],
   basicVulnInfo: Record<string, BasicVulnInfo>,
   testOptions: TestOptions,
 ) {
+  sink.countTotal = 0;
   for (const dep of deps) {
     const data = upgradesByDep[dep];
     const upgradeDepTo = data.upgradeTo;
     const vulnIds =
       (data as UpgradeRemediation).vulns || (data as PinRemediation).vulns;
+    const fixesArray = thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions);
     const upgradeText = `\n  Upgrade ${chalk.bold.whiteBright(
       dep,
     )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
-    sink.push(
-      upgradeText + thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions),
-    );
+    sink.textArray.push(upgradeText + fixesArray.textArray.join('\n'));
+    sink.countTotal += fixesArray.countTotal;
+    if (fixesArray.countBySeverity) {
+      Object.entries(fixesArray.countBySeverity).forEach(
+        ([severity, count]) => {
+          if (sink.countBySeverity) {
+            sink.countBySeverity[severity] += count;
+          }
+        },
+      );
+    }
   }
 }
 
@@ -283,20 +373,31 @@ function constructUpgradesText(
     [name: string]: BasicVulnInfo;
   },
   testOptions: TestOptions,
-): string[] {
+): ConstructIssuesTextOutput {
   if (!(Object.keys(upgrades).length > 0)) {
-    return [];
+    return {} as ConstructIssuesTextOutput;
   }
 
-  const upgradeTextArray = [chalk.bold.green('\nIssues to fix by upgrading:')];
+  const upgradeIssues: ConstructIssuesTextOutput = {
+    textArray: [],
+    countTotal: 0,
+    countBySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
+  };
   processUpgrades(
-    upgradeTextArray,
+    upgradeIssues,
     upgrades,
     Object.keys(upgrades),
     basicVulnInfo,
     testOptions,
   );
-  return upgradeTextArray;
+  upgradeIssues.textArray.unshift(
+    chalk.bold.green('\n\nIssues to fix by upgrading:'),
+  );
+  return {
+    textArray: upgradeIssues.textArray,
+    countTotal: upgradeIssues.countTotal,
+    countBySeverity: upgradeIssues.countBySeverity,
+  };
 }
 
 function constructPinText(
@@ -304,15 +405,16 @@ function constructPinText(
   upgradesByAffected: UpgradesByAffectedPackage, // classical "remediation via top-level dep" upgrades
   basicVulnInfo: Record<string, BasicVulnInfo>,
   testOptions: TestOptions,
-): string[] {
+): ConstructIssuesTextOutput {
   if (!Object.keys(pins).length) {
-    return [];
+    return {} as ConstructIssuesTextOutput;
   }
 
-  const upgradeTextArray: string[] = [];
-  upgradeTextArray.push(
-    chalk.bold.green('\nIssues to fix by upgrading dependencies:'),
-  );
+  const upgradeIssues: ConstructIssuesTextOutput = {
+    textArray: [],
+    countTotal: 0,
+    countBySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
+  };
 
   // First, direct upgrades
 
@@ -321,7 +423,7 @@ function constructPinText(
   );
   if (upgradeables.length) {
     processUpgrades(
-      upgradeTextArray,
+      upgradeIssues,
       pins,
       upgradeables,
       basicVulnInfo,
@@ -337,13 +439,22 @@ function constructPinText(
       const data = pins[pkgName];
       const vulnIds = data.vulns;
       const upgradeDepTo = data.upgradeTo;
+      const fixesArray = thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions);
       const upgradeText = `\n  Pin ${chalk.bold.whiteBright(
         pkgName,
       )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix`;
-      upgradeTextArray.push(upgradeText);
-      upgradeTextArray.push(
-        thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions),
-      );
+      upgradeIssues.textArray.push(upgradeText);
+      upgradeIssues.textArray.push(fixesArray.textArray.join('\n'));
+      upgradeIssues.countTotal += fixesArray.countTotal;
+      if (fixesArray.countBySeverity) {
+        Object.entries(fixesArray.countBySeverity).forEach(
+          ([severity, count]) => {
+            if (upgradeIssues.countBySeverity) {
+              upgradeIssues.countBySeverity[severity] += count;
+            }
+          },
+        );
+      }
 
       // Finally, if we have some upgrade paths that fix the same issues, suggest them as well.
       const topLevelUpgradesAlreadySuggested = new Set();
@@ -354,7 +465,7 @@ function constructPinText(
           const setKey = `${topLevelPkg.name}\n${topLevelPkg.version}`;
           if (!topLevelUpgradesAlreadySuggested.has(setKey)) {
             topLevelUpgradesAlreadySuggested.add(setKey);
-            upgradeTextArray.push(
+            upgradeIssues.textArray.push(
               '  The issues above can also be fixed by upgrading top-level dependency ' +
                 `${topLevelPkg.name} to ${topLevelPkg.version}`,
             );
@@ -363,21 +474,27 @@ function constructPinText(
       }
     }
   }
+  upgradeIssues.textArray.unshift(
+    chalk.bold.green('\n\nIssues to fix by upgrading dependencies:'),
+  );
 
-  return upgradeTextArray;
+  return {
+    textArray: upgradeIssues.textArray,
+    countTotal: upgradeIssues.countTotal,
+    countBySeverity: upgradeIssues.countBySeverity,
+  };
 }
 
 function constructUnfixableText(
   unresolved: IssueData[],
   basicVulnInfo: Record<string, BasicVulnInfo>,
   testOptions: TestOptions,
-) {
+): ConstructIssuesTextOutput {
   if (!(unresolved.length > 0)) {
-    return [];
+    return {} as ConstructIssuesTextOutput;
   }
-  const unfixableIssuesTextArray = [
-    chalk.bold.white('\nIssues with no direct upgrade or patch:'),
-  ];
+  const unfixableIssuesTextArray: string[] = [];
+  let unfixableCount = 0;
   for (const issue of unresolved) {
     const issueInfo = basicVulnInfo[issue.id];
     if (!issueInfo) {
@@ -406,15 +523,23 @@ function constructUnfixableText(
         issue.reachability,
       ) + `${extraInfo}`,
     );
+    unfixableCount += 1;
   }
+
+  unfixableIssuesTextArray.unshift(
+    chalk.bold.white('\nIssues with no direct upgrade or patch:'),
+  );
 
   if (unfixableIssuesTextArray.length === 1) {
     // seems we still only have
     // the initial section title, so nothing to return
-    return [];
+    return {} as ConstructIssuesTextOutput;
   }
 
-  return unfixableIssuesTextArray;
+  return {
+    textArray: unfixableIssuesTextArray,
+    countTotal: unfixableCount,
+  };
 }
 
 export function printPath(path: string[], slice = 1) {

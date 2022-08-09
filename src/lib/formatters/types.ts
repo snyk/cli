@@ -34,3 +34,16 @@ interface TopLevelPackageUpgrade {
 export interface UpgradesByAffectedPackage {
   [pkgNameAndVersion: string]: TopLevelPackageUpgrade[];
 }
+
+export type FormattedIssuesCounts = {
+  noUpgradeOrPatchCount: number;
+  licenseTotal: number;
+  fixableTotal: number;
+  licenseBySeverity: { [severity in SEVERITY]: number };
+  fixableBySeverity: { [severity in SEVERITY]: number };
+};
+
+export type FormattedIssuesWithRemediation = {
+  outputTextArray: string[];
+  counts: FormattedIssuesCounts;
+};
