@@ -17,6 +17,7 @@ bindir = $(exec_prefix)/bin
 WORKING_DIR = $(CURDIR)
 BUILD_DIR = $(WORKING_DIR)/_bin
 CACHE_DIR = $(WORKING_DIR)/_cache
+BUILD_EXTENSIONS_DIR = $(WORKING_DIR)/_build_extensions
 SRCS = $(shell find $(WORKING_DIR) -type f -name '*.go')
 
 # load cached variables if available
@@ -67,6 +68,7 @@ V2_EXECUTABLE_NAME = $(APPLICATION_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE
 V1_EXECUTABLE_NAME = $(APPLICATION_NAME)-$(V1_PLATFORM_STING)$(_EXE_POSTFIX)
 V2_DIRECTORY = $(WORKING_DIR)/internal/cliv2
 V1_DIRECTORY = $(WORKING_DIR)/internal/embedded/cliv1
+EMBEDDED_DATA_DIR = $(WORKING_DIR)/internal/embedded/_data
 V1_DOWNLOAD_LINK = https://static.snyk.io/cli/v$(CLI_V1_VERSION_TAG)/$(V1_EXECUTABLE_NAME)
 V1_EMBEDDED_FILE_TEMPLATE = $(V1_DIRECTORY)/embedded_binary_template.txt
 V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
@@ -151,7 +153,11 @@ $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME):
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) test -c -o $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) main_integration_test.go
 
 .PHONY: build
-build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
+build: configure build-extension $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
+
+.PHONY: build-extension
+build-extension:
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) run scripts/build_extensions.go
 
 .PHONY: build-test
 build-test: build-blackboxtest
@@ -219,6 +225,8 @@ clean:
 	@$(GOCMD) clean
 	@rm -f -r $(BUILD_DIR)
 	@rm -f -r $(CACHE_DIR)
+	@rm -f -r $(BUILD_EXTENSIONS_DIR)
+	@rm -f -r $(EMBEDDED_DATA_DIR)/extensions
 	@rm -f $(V1_DIRECTORY)/$(APPLICATION_NAME)-*
 	@rm -f $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
 	@rm -f $(V1_DIRECTORY)/cliv1.version
@@ -240,6 +248,7 @@ help:
 	@echo "$(LOG_PREFIX) build"
 	@echo "$(LOG_PREFIX) sign"
 	@echo "$(LOG_PREFIX) build-test"
+	@echo "$(LOG_PREFIX) build-extension"
 	@echo "$(LOG_PREFIX) test"
 	@echo "$(LOG_PREFIX) test-signature"
 	@echo "$(LOG_PREFIX) install"

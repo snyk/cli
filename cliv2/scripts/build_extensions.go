@@ -43,8 +43,6 @@ func deserBundledExtensions() (*BundledExtensions, error) {
 }
 
 func runCommand(workingDirectory string, command string, args []string) error {
-	fmt.Printf("runCommand in dir %s\n  - %s %s\n", workingDirectory, command, args)
-
 	// return error if dir does not exist
 	_, err := os.Stat(workingDirectory)
 	if err != nil {
@@ -79,9 +77,7 @@ func main() {
 
 	// make base extension build output directory if it doesn't exist
 	for _, e := range bundledExtensions.Extensions {
-		fmt.Println("repo:", e.Repo)
-		fmt.Println("commit_hash:", e.CommitHash)
-		fmt.Println("")
+		fmt.Printf("building %s at %s\n", e.Repo, e.CommitHash)
 
 		err = runCommand(baseExtensionBuildDir, "pwd", nil)
 		if err != nil {
@@ -93,21 +89,19 @@ func main() {
 			panic(err)
 		}
 
-		fmt.Println("Path:", url.Path)
 		orgName := strings.Split(url.Path, "/")[1]
 		if orgName != "snyk" {
 			panic("org name must be `snyk`")
 		}
 		repoName := strings.Split(url.Path, "/")[2]
-		fmt.Println("repoName:", repoName)
 
-		runCommand(baseExtensionBuildDir, "git", []string{"clone", e.Repo})
+		runCommand(baseExtensionBuildDir, "git", []string{"clone", "--quiet", e.Repo})
 		if err != nil {
 			panic(err)
 		}
 
 		repoDir := path.Join(baseExtensionBuildDir, repoName)
-		err = runCommand(repoDir, "git", []string{"checkout", e.CommitHash})
+		err = runCommand(repoDir, "git", []string{"checkout", "--quiet", e.CommitHash})
 		if err != nil {
 			panic(err)
 		}
@@ -125,8 +119,6 @@ func main() {
 		extensionName := x.Metadata.Name
 
 		targetDir := path.Join("../../internal/embedded/_data/extensions", extensionName)
-		fmt.Println("targetDir:", targetDir)
-
 		err = runCommand(repoDir, "make", []string{"install", "prefix=" + targetDir})
 		if err != nil {
 			panic(err)
