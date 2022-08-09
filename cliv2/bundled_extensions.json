@@ -2,7 +2,7 @@
   "extensions": [
     {
       "repo": "https://github.com/snyk/sclix_woof",
-      "commit_hash": "4798e877c081ced70636f503b3f39664007833a2"
+      "commit_hash": "feat/updated-ext-lib"
     }
   ]
 }
