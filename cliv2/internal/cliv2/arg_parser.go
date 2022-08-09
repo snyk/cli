@@ -38,49 +38,49 @@ func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfigura
 }
 
 type NodeCLICommandMeta struct {
-	name string
+	name        string
 	description string
 }
 
 var v1Commands = []NodeCLICommandMeta{
 	{
-		name: "auth",
+		name:        "auth",
 		description: "Authenticate Snyk CLI with a Snyk account.",
 	},
 	{
-		name: "test",
+		name:        "test",
 		description: "Test a project for open source vulnerabilities and license issues.\n\t\tNote: Use snyk test --unmanaged to scan all files for known open source dependencies (C/C++ only).",
 	},
 	{
-		name: "monitor",
+		name:        "monitor",
 		description: "Snapshot and continuously monitor a project for open source vulnerabilities and license issues.",
 	},
 	{
-		name: "container",
+		name:        "container",
 		description: "Test container images for vulnerabilities.",
 	},
 	{
-		name: "iac",
+		name:        "iac",
 		description: "Commands to find and manage security issues in Infrastructure as Code files.",
 	},
 	{
-		name: "code",
+		name:        "code",
 		description: "Find security issues using static code analysis.",
 	},
 	{
-		name: "log4shell",
+		name:        "log4shell",
 		description: "Find Log4Shell vulnerability.",
 	},
 	{
-		name: "config",
+		name:        "config",
 		description: "Manage Snyk CLI configuration.",
 	},
 	{
-		name: "policy",
+		name:        "policy",
 		description: "Display the .snyk policy for a package.",
 	},
 	{
-		name: "ignore",
+		name:        "ignore",
 		description: "Modify the .snyk policy to ignore stated issues.",
 	},
 }
