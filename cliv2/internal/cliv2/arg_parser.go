@@ -37,22 +37,60 @@ func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfigura
 	return rootCmd
 }
 
-var v1Commands = []string{
-	"test",
-	"monitor",
-	"code",
-	"iac",
-	"container",
-	"auth",
-	// TODO: what else?
+type Command struct {
+	name string
+	description string
+}
+
+var v1Commands = []Command{
+	{
+		name: "auth",
+		description: "Authenticate Snyk CLI with a Snyk account.",
+	},
+	{
+		name: "test",
+		description: "Test a project for open source vulnerabilities and license issues.\n\t\tNote: Use snyk test --unmanaged to scan all files for known open source dependencies (C/C++ only).",
+	},
+	{
+		name: "monitor",
+		description: "Snapshot and continuously monitor a project for open source vulnerabilities and license issues.",
+	},
+	{
+		name: "container",
+		description: "Test container images for vulnerabilities.",
+	},
+	{
+		name: "iac",
+		description: "Commands to find and manage security issues in Infrastructure as Code files.",
+	},
+	{
+		name: "code",
+		description: "Find security issues using static code analysis.",
+	},
+	{
+		name: "log4shell",
+		description: "Find Log4Shell vulnerability.",
+	},
+	{
+		name: "config",
+		description: "Manage Snyk CLI configuration.",
+	},
+	{
+		name: "policy",
+		description: "Display the .snyk policy for a package.",
+	},
+	{
+		name: "ignore",
+		description: "Modify the .snyk policy to ignore stated issues.",
+	},
 }
 
 func addV1TopLevelCommands(rootCmd *cobra.Command) {
 	for _, command := range v1Commands {
 		c := &cobra.Command{
-			Use:   command,
-			Short: "todo: command description",
-			Long:  "todo: command description",
+			Use:   command.name,
+			Short: command.description,
+			Long:  command.description,
 			Run: func(cmd *cobra.Command, args []string) {
 				fmt.Printf("v1 command %s called\n", command)
 				fmt.Println("args:", args)
