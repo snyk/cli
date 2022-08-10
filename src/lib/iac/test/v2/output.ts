@@ -15,7 +15,9 @@ import { formatSnykIacTestTestData } from '../../../formatters/iac-output';
 import { jsonStringifyLargeObject } from '../../../json';
 import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-execution/types';
 import { convertEngineToSarifResults } from './sarif';
-import { CustomError } from '../../../errors';
+import { CustomError, FormattedCustomError } from '../../../errors';
+import { SnykIacTestError } from './errors';
+import stripAnsi from 'strip-ansi';
 
 export function buildOutput({
   scanResult,
@@ -69,8 +71,6 @@ function buildTestCommandResultData({
   orgSettings: IacOrgSettings;
   options: any;
 }) {
-  let responseData = '';
-
   const jsonData = jsonStringifyLargeObject(
     convertEngineToJsonResults({
       results: scanResult,
@@ -83,6 +83,17 @@ function buildTestCommandResultData({
     convertEngineToSarifResults(scanResult),
   );
 
+  const isPartialSuccess =
+    scanResult.results?.resources?.length || !scanResult.errors?.length;
+  if (!isPartialSuccess) {
+    throw new NoSuccessfulScansError(
+      { json: jsonData, sarif: sarifData },
+      scanResult.errors!,
+      options,
+    );
+  }
+
+  let responseData: string;
   if (options.json) {
     responseData = jsonData;
   } else if (options.sarif) {
@@ -93,7 +104,11 @@ function buildTestCommandResultData({
 
   const isFoundIssues = !!scanResult.results?.vulnerabilities?.length;
   if (isFoundIssues) {
-    throw new FoundIssuesError({ responseData, jsonData, sarifData });
+    throw new FoundIssuesError({
+      response: responseData,
+      json: jsonData,
+      sarif: sarifData,
+    });
   }
 
   return { responseData, jsonData, sarifData };
@@ -142,22 +157,68 @@ function buildTextOutput({
   return response;
 }
 
-interface FoundIssuesErrorProps {
-  responseData: string;
-  jsonData: string;
-  sarifData: string;
+interface ResponseData {
+  response: string;
+  json: string;
+  sarif: string;
+}
+
+export class NoSuccessfulScansError extends FormattedCustomError {
+  public json: string | undefined;
+  public jsonStringifiedResults: string | undefined;
+  public sarifStringifiedResults: string | undefined;
+  public fields: { path: string } & Record<string, string>;
+
+  constructor(
+    responseData: Omit<ResponseData, 'response'>,
+    errors: SnykIacTestError[],
+    options: { json?: boolean; sarif?: boolean },
+  ) {
+    const firstErr = errors[0];
+    const isText = !options.json && !options.sarif;
+    const message = options.json
+      ? responseData.json
+      : options.sarif
+      ? responseData.sarif
+      : firstErr.message;
+    super(
+      message,
+      isText
+        ? formatIacTestFailures(
+            errors.map((scanError) => ({
+              failureReason: scanError.userMessage,
+              filePath: scanError.fields.path,
+            })),
+          )
+        : stripAnsi(message),
+    );
+    this.strCode = firstErr.strCode;
+    this.code = firstErr.code;
+    this.json = isText ? responseData.json : message;
+    this.jsonStringifiedResults = responseData.json;
+    this.sarifStringifiedResults = responseData.sarif;
+    this.fields = firstErr.fields;
+  }
+
+  public get path(): string {
+    return this.fields?.path;
+  }
+
+  public set path(path1: string) {
+    this.fields.path = path1;
+  }
 }
 
 export class FoundIssuesError extends CustomError {
   public jsonStringifiedResults: string;
   public sarifStringifiedResults: string;
 
-  constructor(props: FoundIssuesErrorProps) {
-    super(props.responseData);
+  constructor(responseData: ResponseData) {
+    super(responseData.response);
     this.code = 'VULNS' as any;
     this.strCode = 'VULNS';
-    this.userMessage = props.responseData;
-    this.jsonStringifiedResults = props.jsonData;
-    this.sarifStringifiedResults = props.sarifData;
+    this.userMessage = responseData.response;
+    this.jsonStringifiedResults = responseData.json;
+    this.sarifStringifiedResults = responseData.sarif;
   }
 }

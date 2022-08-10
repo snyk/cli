@@ -10,8 +10,11 @@ import { test } from '../../../../../../../../src/cli/commands/test/iac/v2/index
 import { Options, TestOptions } from '../../../../../../../../src/lib/types';
 import { isValidJSONString } from '../../../../../../acceptance/iac/helpers';
 import { IacOrgSettings } from '../../../../../../../../src/cli/commands/test/iac/local-execution/types';
-import { FoundIssuesError } from '../../../../../../../../src/lib/iac/test/v2/output';
 import { SnykIacTestError } from '../../../../../../../../src/lib/iac/test/v2/errors';
+import {
+  FoundIssuesError,
+  NoSuccessfulScansError,
+} from '../../../../../../../../src/lib/iac/test/v2/output';
 
 jest.setTimeout(1000 * 10);
 
@@ -61,19 +64,29 @@ describe('test', () => {
     (scanError) => new SnykIacTestError(scanError),
   );
 
-  jest.spyOn(scanLib, 'scan').mockReturnValue(scanFixture);
+  const scanWithOnlyErrorsFixture = {
+    errors: scanFixture.errors,
+  };
 
-  jest
-    .spyOn(downloadPolicyEngineLib, 'downloadPolicyEngine')
-    .mockResolvedValue('');
+  beforeEach(() => {
+    jest.spyOn(scanLib, 'scan').mockReturnValue(scanFixture);
 
-  jest
-    .spyOn(downloadRulesBundleLib, 'downloadRulesBundle')
-    .mockResolvedValue('');
+    jest
+      .spyOn(downloadPolicyEngineLib, 'downloadPolicyEngine')
+      .mockResolvedValue('');
 
-  jest
-    .spyOn(orgSettingsLib, 'getIacOrgSettings')
-    .mockResolvedValue(orgSettings);
+    jest
+      .spyOn(downloadRulesBundleLib, 'downloadRulesBundle')
+      .mockResolvedValue('');
+
+    jest
+      .spyOn(orgSettingsLib, 'getIacOrgSettings')
+      .mockResolvedValue(orgSettings);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
   it('outputs the test results', async () => {
     // Arrange
@@ -96,6 +109,51 @@ describe('test', () => {
     expect(output!).toContain('Files with issues: 2');
     expect(output!).toContain('Total issues: 4');
     expect(output!).toContain('[ 0 critical, 3 high, 1 medium, 0 low ]');
+  });
+
+  describe('with no successful scans', () => {
+    beforeEach(() => {
+      jest.spyOn(scanLib, 'scan').mockReturnValue(scanWithOnlyErrorsFixture);
+    });
+
+    it('throws the expected error', async () => {
+      // Arrange
+      let error;
+
+      // Act
+      try {
+        await test(['path/to/test'], defaultOptions);
+      } catch (err) {
+        error = err;
+      }
+
+      // Assert
+      expect(error).toBeInstanceOf(NoSuccessfulScansError);
+      expect(error).toEqual(
+        expect.objectContaining({
+          name: 'NoSuccessfulScansError',
+          message:
+            'invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt',
+          code: 2106,
+          strCode: 'INVALID_INPUT',
+          fields: {
+            path: '/Users/yairzohar/snyk/upe-test/README.txt',
+          },
+          path: '/Users/yairzohar/snyk/upe-test/README.txt',
+          userMessage:
+            'Test Failures\n\n  Invalid input\n  Path: /Users/yairzohar/snyk/upe-test/README.txt',
+          formattedUserMessage:
+            'Test Failures\n\n  Invalid input\n  Path: /Users/yairzohar/snyk/upe-test/README.txt',
+          sarifStringifiedResults: expect.stringContaining(
+            `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+          ),
+          jsonStringifiedResults:
+            '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+          json:
+            '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+        }),
+      );
+    });
   });
 
   describe('with issues', () => {
@@ -126,6 +184,51 @@ describe('test', () => {
       expect(isValidJSONString(result!)).toBe(true);
       expect(result!).toContain(`"ok": false`);
     });
+
+    describe('with no successful scans', () => {
+      beforeEach(() => {
+        jest.spyOn(scanLib, 'scan').mockReturnValue(scanWithOnlyErrorsFixture);
+      });
+
+      it('throws the expected error', async () => {
+        // Arrange
+        let error;
+
+        // Act
+        try {
+          await test(['path/to/test'], { ...defaultOptions, json: true });
+        } catch (err) {
+          error = err;
+        }
+
+        // Assert
+        expect(error).toBeInstanceOf(NoSuccessfulScansError);
+        expect(error).toEqual(
+          expect.objectContaining({
+            name: 'NoSuccessfulScansError',
+            message:
+              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+            code: 2106,
+            strCode: 'INVALID_INPUT',
+            fields: {
+              path: '/Users/yairzohar/snyk/upe-test/README.txt',
+            },
+            path: '/Users/yairzohar/snyk/upe-test/README.txt',
+            userMessage:
+              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+            formattedUserMessage:
+              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+            sarifStringifiedResults: expect.stringContaining(
+              `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+            ),
+            jsonStringifiedResults:
+              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+            json:
+              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+          }),
+        );
+      });
+    });
   });
 
   describe('with `--sarif` flag', () => {
@@ -148,6 +251,55 @@ describe('test', () => {
       expect(result!).toContain(
         `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
       );
+    });
+
+    describe('with no successful scans', () => {
+      beforeEach(() => {
+        jest.spyOn(scanLib, 'scan').mockReturnValue(scanWithOnlyErrorsFixture);
+      });
+
+      it('throws the expected error', async () => {
+        // Arrange
+        let error;
+
+        // Act
+        try {
+          await test(['path/to/test'], { ...defaultOptions, sarif: true });
+        } catch (err) {
+          error = err;
+        }
+
+        // Assert
+        expect(error).toBeInstanceOf(NoSuccessfulScansError);
+        expect(error).toEqual(
+          expect.objectContaining({
+            name: 'NoSuccessfulScansError',
+            message: expect.stringContaining(
+              `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+            ),
+            code: 2106,
+            strCode: 'INVALID_INPUT',
+            fields: {
+              path: '/Users/yairzohar/snyk/upe-test/README.txt',
+            },
+            path: '/Users/yairzohar/snyk/upe-test/README.txt',
+            userMessage: expect.stringContaining(
+              `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+            ),
+            formattedUserMessage: expect.stringContaining(
+              `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+            ),
+            sarifStringifiedResults: expect.stringContaining(
+              `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+            ),
+            jsonStringifiedResults:
+              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+            json: expect.stringContaining(
+              `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+            ),
+          }),
+        );
+      });
     });
   });
 });
