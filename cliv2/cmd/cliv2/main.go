@@ -95,9 +95,25 @@ func MainWithErrorCode(cliConfig *cliv2.CliConfiguration, args []string) int {
 		fmt.Println("No command specified") // this should never happen
 		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
-	if matchedCommand.Name() == "snyk" || matchedCommand.Name() == "help" && matchedCommand.Parent().Name() == "snyk" {
+	if matchedCommand.Name() == "help" && matchedCommand.Parent().Name() == "snyk" {
 		// this is the root command, so we can just exit and the usage (help) will show automatically
 		return exit_codes.SNYK_EXIT_CODE_OK
+	}
+	if matchedCommand.Name() == "snyk" {
+		versionValue, err := matchedCommand.Flags().GetBool("version")
+		if err == nil {
+			// user used --version or -v
+			if versionValue {
+				cliConfig.DebugLogger.Println("version flag on root snyk command is set")
+				// allow this to go through - don't return an error
+			} else {
+				// user must have used --verison=false or -v=false which doesn't make sense
+				return exit_codes.SNYK_EXIT_CODE_OK
+			}
+		} else {
+			// this is the root command, so we can just exit and the usage (help) will show automatically
+			return exit_codes.SNYK_EXIT_CODE_OK
+		}
 	}
 
 	// init cli object

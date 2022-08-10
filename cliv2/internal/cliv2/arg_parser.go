@@ -19,6 +19,12 @@ func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfigura
 		Long:  `Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.`,
 	}
 
+	rootCmd.Flags().BoolP("version", "v", false, "Show Snyk CLI version.")
+
+	// Put these here to make it NOT show the usage when you do `snyk --version` or `snyk -v`
+	rootCmd.SilenceUsage = true
+	rootCmd.SilenceErrors = true
+
 	rootCmd.PersistentFlags().BoolVarP(&config.Debug, "debug", "d", false, "Enable debug logging.")
 	rootCmd.PersistentFlags().BoolVar(&config.Insecure, "insecure", false, "Disable secure communication protocols.")
 	rootCmd.PersistentFlags().Bool(CMDARG_PROXY_NO_AUTH, false, "Disable all proxy authentication.")
@@ -33,6 +39,15 @@ func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfigura
 
 	// add top-level commands for CLIv1
 	addV1TopLevelCommands(rootCmd)
+
+	// version command
+	versionCmd := &cobra.Command{
+		Use:   "version",
+		Short: "Show Snyk CLI version.",
+		Long:  "Show Snyk CLI version.",
+		Run:   func(cmd *cobra.Command, args []string) {},
+	}
+	rootCmd.AddCommand(versionCmd)
 
 	return rootCmd
 }
@@ -91,10 +106,7 @@ func addV1TopLevelCommands(rootCmd *cobra.Command) {
 			Use:   command.name,
 			Short: command.description,
 			Long:  command.description,
-			Run: func(cmd *cobra.Command, args []string) {
-				fmt.Printf("v1 command %s called\n", command)
-				fmt.Println("args:", args)
-			},
+			Run:   func(cmd *cobra.Command, args []string) {},
 		}
 
 		// c.SilenceUsage = true
