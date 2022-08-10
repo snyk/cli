@@ -236,16 +236,20 @@ Tested 2 dependencies for known issues, found 32 issues, 2 vulnerable paths.
 Issues to fix by upgrading dependencies:
 
   Upgrade django@1.6.1 to django@2.2.18 to fix
-  ✗ Content Spoofing [Medium Severity][URL] in django@1.6.1
-    introduced by:
+  ✗ Content Spoofing [Medium Severity]
+    Info: https://security.snyk.io/vuln/SNYK-PYTHON-DJANGO-72888
+    Introduced through: django@1.6.1
+    Introduced by:
     django@1.6.1
 
 
 Issues with no direct upgrade or patch:
-  ✗ Directory Traversal [Low Severity][URL] in django@1.6.1
-    introduced by:
+  ✗ Directory Traversal [Low Severity]
+    Info: https://security.snyk.io/vuln/SNYK-PYTHON-DJANGO-1066259
+    Introduced through: django@1.6.1
+    Introduced by:
     django@1.6.1
-  This issue was fixed in versions: 2.2.18, 3.0.12, 3.1.6
+    Fixed in: 2.2.18, 3.0.12, 3.1.6
 
 
 
@@ -273,22 +277,30 @@ Tested 2 dependencies for known vulnerabilities, found 4 vulnerabilities, 4 vuln
 Issues to fix by upgrading:
 
   Upgrade qs@0.0.6 to qs@6.0.4 to fix
-  ✗ Prototype Override Protection Bypass [Low Severity (originally High)][URL] in qs@0.0.6
-    introduced by:
+  ✗ Prototype Override Protection Bypass [Low Severity (originally High)]
+    Info: https://security.snyk.io/vuln/npm:qs:20170213
+    Introduced through: qs@0.0.6
+    Introduced by:
     qs@0.0.6
-  ✗ Denial of Service (DoS) [Low Severity (originally High)][URL] in qs@0.0.6
-    introduced by:
+  ✗ Denial of Service (DoS) [Low Severity (originally High)]
+    Info: https://security.snyk.io/vuln/npm:qs:20140806
+    Introduced through: qs@0.0.6
+    Introduced by:
     qs@0.0.6
-  ✗ Denial of Service (DoS) [Low Severity (originally Medium)][URL] in qs@0.0.6
-    introduced by:
+  ✗ Denial of Service (DoS) [Low Severity (originally Medium)]
+    Info: https://security.snyk.io/vuln/npm:qs:20140806-1
+    Introduced through: qs@0.0.6
+    Introduced by:
     qs@0.0.6
 
 
 Patchable issues:
 
   Patch available for node-uuid@1.4.0
-  ✗ Insecure Randomness [Low Severity (originally Medium)][URL] in node-uuid@1.4.0
-    introduced by:
+  ✗ Insecure Randomness [Low Severity (originally Medium)]
+    Info: https://security.snyk.io/vuln/npm:node-uuid:20160328
+    Introduced through: node-uuid@1.4.0
+    Introduced by:
     node-uuid@1.4.0
 
 
@@ -313,34 +325,48 @@ Tested 3 dependencies for known issues, found 6 issues, 8 vulnerable paths.
 Issues to fix by upgrading:
 
   Upgrade rack@1.6.5 to rack@1.6.11 to fix
-  ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
-    introduced by:
+  ✗ Cross-site Scripting (XSS) [Medium Severity]
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACK-72567
+    Introduced through: rack@1.6.5
+    Introduced by:
     rack@1.6.5
     rack-cache@1.1 > rack@1.6.5
     rack-protection@1.5.3 > rack@1.6.5
 
   Upgrade rack-cache@1.1 to rack-cache@1.3.0 to fix
-  ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
-    introduced by:
+  ✗ Cross-site Scripting (XSS) [Medium Severity]
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACK-72567
+    Introduced through: rack@1.6.5
+    Introduced by:
     rack@1.6.5
     rack-cache@1.1 > rack@1.6.5
     rack-protection@1.5.3 > rack@1.6.5
-  ✗ HTTP Header Caching Weakness [High Severity][URL] in rack-cache@1.1
-    introduced by:
+  ✗ HTTP Header Caching Weakness [High Severity]
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACKCACHE-20031
+    Introduced through: rack-cache@1.1
+    Introduced by:
     rack-cache@1.1
 
   Upgrade rack-protection@1.5.3 to rack-protection@2.0.0 to fix
-  ✗ Side-channel attack [Low Severity][URL] in rack-protection@1.5.3
-    introduced by:
+  ✗ Side-channel attack [Low Severity]
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACKPROTECTION-20394
+    Introduced through: rack-protection@1.5.3
+    Introduced by:
     rack-protection@1.5.3
-  ✗ Timing Attack [Medium Severity][URL] in rack-protection@1.5.3
-    introduced by:
+  ✗ Timing Attack [Medium Severity]
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACKPROTECTION-20395
+    Introduced through: rack-protection@1.5.3
+    Introduced by:
     rack-protection@1.5.3
-  ✗ Directory Traversal [Medium Severity][URL] in rack-protection@1.5.3
-    introduced by:
+  ✗ Directory Traversal [Medium Severity]
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACKPROTECTION-22019
+    Introduced through: rack-protection@1.5.3
+    Introduced by:
     rack-protection@1.5.3
-  ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
-    introduced by:
+  ✗ Cross-site Scripting (XSS) [Medium Severity]
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACK-72567
+    Introduced through: rack@1.6.5
+    Introduced by:
     rack@1.6.5
     rack-cache@1.1 > rack@1.6.5
     rack-protection@1.5.3 > rack@1.6.5
@@ -348,8 +374,10 @@ Issues to fix by upgrading:
 
 License issues:
 
-  ✗ Unknown license [High Severity][URL] in rack-cache@1.1
-    introduced by:
+  ✗ Unknown license [High Severity]
+    Info: https://security.snyk.io/vuln/snyk:lic:rubygems:rack-cache:Unknown
+    Introduced through: rack-cache@1.1
+    Introduced by:
     rack-cache@1.1
     Legal instructions:
     ○ for LGPL-3.0 license: I am legal license instruction
