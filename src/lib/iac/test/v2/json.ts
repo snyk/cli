@@ -3,12 +3,7 @@
 // to keep backwards compatibility.
 
 import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-execution/types';
-import {
-  Resource,
-  ScanError,
-  SnykIacTestOutput,
-  Vulnerability,
-} from './scan/results';
+import { Resource, ScanError, TestOutput, Vulnerability } from './scan/results';
 import * as path from 'path';
 import { createErrorMappedResultsForJsonOutput } from '../../../formatters/test/format-test-results';
 
@@ -95,7 +90,7 @@ export function convertEngineToJsonResults({
   projectName,
   orgSettings,
 }: {
-  results: SnykIacTestOutput;
+  results: TestOutput;
   projectName: string;
   orgSettings: IacOrgSettings;
 }): Array<Result | ScanError> {
@@ -125,7 +120,7 @@ export function convertEngineToJsonResults({
   return output;
 }
 
-function groupResourcesByFile(results: SnykIacTestOutput) {
+function groupResourcesByFile(results: TestOutput) {
   const groups: Record<string, Resource[]> = {};
 
   if (results.results?.resources) {
@@ -141,7 +136,7 @@ function groupResourcesByFile(results: SnykIacTestOutput) {
   return groups;
 }
 
-function groupVulnerabilitiesByFile(results: SnykIacTestOutput) {
+function groupVulnerabilitiesByFile(results: TestOutput) {
   const groups: Record<string, Vulnerability[]> = {};
 
   if (results.results?.vulnerabilities) {

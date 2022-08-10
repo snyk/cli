@@ -1,5 +1,27 @@
 import { SEVERITY } from '../../../../snyk-test/common';
+import { SnykIacTestError } from '../errors';
 import * as PolicyEngineTypes from './policy-engine';
+
+export function mapSnykIacTestOutputToTestOutput(
+  snykIacOutput: SnykIacTestOutput,
+): TestOutput {
+  const errors = snykIacOutput.errors?.map((err) => new SnykIacTestError(err));
+
+  const errWithoutPath = errors?.find((err) => !err.fields?.path);
+  if (errWithoutPath) {
+    throw errWithoutPath;
+  }
+
+  return {
+    results: snykIacOutput.results,
+    errors,
+  };
+}
+
+export interface TestOutput {
+  results?: Results;
+  errors?: SnykIacTestError[];
+}
 
 export interface SnykIacTestOutput {
   results?: Results;

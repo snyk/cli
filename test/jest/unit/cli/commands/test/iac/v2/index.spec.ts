@@ -11,6 +11,7 @@ import { Options, TestOptions } from '../../../../../../../../src/lib/types';
 import { isValidJSONString } from '../../../../../../acceptance/iac/helpers';
 import { IacOrgSettings } from '../../../../../../../../src/cli/commands/test/iac/local-execution/types';
 import { FoundIssuesError } from '../../../../../../../../src/lib/iac/test/v2/output';
+import { SnykIacTestError } from '../../../../../../../../src/lib/iac/test/v2/errors';
 
 jest.setTimeout(1000 * 10);
 
@@ -56,6 +57,9 @@ describe('test', () => {
   };
 
   const scanFixture = JSON.parse(fs.readFileSync(scanFixturePath, 'utf-8'));
+  scanFixture.errors = scanFixture.errors.map(
+    (scanError) => new SnykIacTestError(scanError),
+  );
 
   jest.spyOn(scanLib, 'scan').mockReturnValue(scanFixture);
 

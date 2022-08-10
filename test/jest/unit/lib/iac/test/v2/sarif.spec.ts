@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as sarif from 'sarif';
 import { pathToFileURL } from 'url';
 
-import { SnykIacTestOutput } from '../../../../../../../src/lib/iac/test/v2/scan/results';
+import { TestOutput } from '../../../../../../../src/lib/iac/test/v2/scan/results';
 import { convertEngineToSarifResults } from '../../../../../../../src/lib/iac/test/v2/sarif';
 describe('convertEngineToSarifResults', () => {
   const snykIacTestFixtureContent = fs.readFileSync(
@@ -20,9 +20,7 @@ describe('convertEngineToSarifResults', () => {
     ),
     'utf-8',
   );
-  const snykIacTestFixture: SnykIacTestOutput = JSON.parse(
-    snykIacTestFixtureContent,
-  );
+  const snykIacTestFixture: TestOutput = JSON.parse(snykIacTestFixtureContent);
 
   const experimentalSarifOutputFixtureContent = fs.readFileSync(
     path.join(

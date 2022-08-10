@@ -6,16 +6,14 @@ import * as upperFirst from 'lodash.upperfirst';
 import * as camelCase from 'lodash.camelcase';
 
 import { getVersion } from '../../../version';
-import { Results, SnykIacTestOutput } from './scan/results';
+import { Results, TestOutput } from './scan/results';
 import { getIssueLevel } from '../../../formatters/sarif-output';
 import { getRepositoryRoot } from '../../git';
 
 // Used to reference the base path in results.
 const PROJECT_ROOT_KEY = 'PROJECTROOT';
 
-export function convertEngineToSarifResults(
-  scanResult: SnykIacTestOutput,
-): sarif.Log {
+export function convertEngineToSarifResults(scanResult: TestOutput): sarif.Log {
   let repoRoot;
   try {
     repoRoot = getRepositoryRoot() + '/';

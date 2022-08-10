@@ -196,8 +196,11 @@
   },
   "errors": [
     {
+      "name": "SnykIacTestError",
       "message": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",
+      "userMessage": "invalid input for input type",
       "code": 2106,
+      "strCode": "INVALID_INPUT",
       "fields": {
         "path": "/Users/yairzohar/snyk/upe-test/README.txt"
       }

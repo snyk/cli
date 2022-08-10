@@ -45,10 +45,26 @@ export function getErrorUserMessage(code: number): string {
 }
 
 export class SnykIacTestError extends CustomError {
-  constructor(error: ScanError) {
-    super(error.message);
-    this.code = error.code;
+  public fields: { path: string; [key: string]: string };
+
+  constructor(scanError: ScanError) {
+    super(scanError.message);
+    this.code = scanError.code;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = getErrorUserMessage(this.code);
+    this.fields = Object.assign(
+      {
+        path: '',
+      },
+      scanError.fields,
+    );
+  }
+
+  public get path(): string {
+    return this.fields?.path;
+  }
+
+  public set path(path1: string) {
+    this.fields.path = path1;
   }
 }

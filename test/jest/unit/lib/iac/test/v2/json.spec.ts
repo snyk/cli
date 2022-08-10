@@ -1,14 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { IacOrgSettings } from '../../../../../../../src/cli/commands/test/iac/local-execution/types';
+import { SnykIacTestError } from '../../../../../../../src/lib/iac/test/v2/errors';
 import {
   convertEngineToJsonResults,
   Result,
 } from '../../../../../../../src/lib/iac/test/v2/json';
-import {
-  ScanError,
-  SnykIacTestOutput,
-} from '../../../../../../../src/lib/iac/test/v2/scan/results';
+import { ScanError } from '../../../../../../../src/lib/iac/test/v2/scan/results';
 
 describe('convertEngineToJsonResults', () => {
   const snykIacTestFixtureContent = fs.readFileSync(
@@ -25,9 +23,12 @@ describe('convertEngineToJsonResults', () => {
     ),
     'utf-8',
   );
-  const snykIacTestFixture: SnykIacTestOutput = JSON.parse(
-    snykIacTestFixtureContent,
-  );
+
+  const snykIacTestFixture = JSON.parse(snykIacTestFixtureContent);
+  snykIacTestFixture.errors = snykIacTestFixture.errors?.map((item) => {
+    const isError = 'code' in item;
+    return isError ? new SnykIacTestError(item) : item;
+  });
 
   const experimentalJsonOutputFixtureContent = fs.readFileSync(
     path.join(
@@ -48,7 +49,7 @@ describe('convertEngineToJsonResults', () => {
   );
 
   experimentalJsonOutputFixture = experimentalJsonOutputFixture.map((item) =>
-    'path' in item ? { ...item, path: process.cwd() } : item,
+    !('error' in item) ? { ...item, path: process.cwd() } : item,
   );
 
   const orgSettings: IacOrgSettings = {

@@ -1,7 +1,7 @@
 import { Ora } from 'ora';
 import { EOL } from 'os';
 import { convertEngineToJsonResults } from './json';
-import { SnykIacTestOutput } from './scan/results';
+import { TestOutput } from './scan/results';
 
 import { TestCommandResult } from '../../../../cli/commands/types';
 import {
@@ -14,7 +14,6 @@ import {
 import { formatSnykIacTestTestData } from '../../../formatters/iac-output';
 import { jsonStringifyLargeObject } from '../../../json';
 import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-execution/types';
-import { SnykIacTestError } from './errors';
 import { convertEngineToSarifResults } from './sarif';
 import { CustomError } from '../../../errors';
 
@@ -25,7 +24,7 @@ export function buildOutput({
   orgSettings,
   options,
 }: {
-  scanResult: SnykIacTestOutput;
+  scanResult: TestOutput;
   testSpinner?: Ora;
   projectName: string;
   orgSettings: IacOrgSettings;
@@ -65,7 +64,7 @@ function buildTestCommandResultData({
   orgSettings,
   options,
 }: {
-  scanResult: SnykIacTestOutput;
+  scanResult: TestOutput;
   projectName: string;
   orgSettings: IacOrgSettings;
   options: any;
@@ -107,7 +106,7 @@ function buildTextOutput({
   projectName,
   orgSettings,
 }: {
-  scanResult: SnykIacTestOutput;
+  scanResult: TestOutput;
   projectName: string;
   orgSettings: IacOrgSettings;
 }): string {
@@ -118,6 +117,7 @@ function buildTextOutput({
     projectName,
     orgSettings.meta.org,
   );
+
   response +=
     EOL +
     getIacDisplayedIssues(testData.resultsBySeverity, {
@@ -125,17 +125,11 @@ function buildTextOutput({
     });
 
   if (scanResult.errors) {
-    const testFailures: IaCTestFailure[] = scanResult.errors.map((error) => {
-      const formattedError = new SnykIacTestError(error);
-      // If we received an error without a path it means that the scan failed
-      if (!error?.fields?.path) {
-        throw formattedError;
-      }
-      return {
-        filePath: error.fields!.path!,
-        failureReason: formattedError.userMessage,
-      };
-    });
+    const testFailures: IaCTestFailure[] = scanResult.errors.map((error) => ({
+      filePath: error.fields.path,
+      failureReason: error.userMessage,
+    }));
+
     response += EOL.repeat(2) + formatIacTestFailures(testFailures);
   }
 
