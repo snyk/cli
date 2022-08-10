@@ -5,6 +5,7 @@ import (
 
 	cli_extension_lib_go "github.com/snyk/cli-extension-lib-go"
 	"github.com/snyk/cli-extension-lib-go/extension"
+	"github.com/snyk/cli/cliv2/internal/configuration"
 	"github.com/snyk/cli/cliv2/internal/utils"
 	"github.com/spf13/cobra"
 )
@@ -17,6 +18,9 @@ func MakeExtensionInput(extensionMetadata *extension.ExtensionMetadata, matchedC
 		cobraCommands = append(cobraCommands, cmd)
 		cmd = cmd.Parent()
 	}
+
+	config := configuration.NewConfigstore()
+	fmt.Println(config.Get("api"))
 
 	// reverse the commands list so it's ordered from root to leaf
 	cobraCommands = utils.GetReverseSlice(cobraCommands)
