@@ -4,8 +4,7 @@ import { EOL } from 'os';
 import { iacRemediationTypes } from '../../../../iac/constants';
 import { printPath } from '../../../remediation-based-format-issues';
 import { colors, contentPadding } from '../utils';
-import { FormattedOutputResult } from '../types';
-import { AnnotatedIacIssue } from '../../../../snyk-test/iac-test-result';
+import { FormattedOutputResult, Issue } from '../types';
 import { Options } from './types';
 
 export function formatIssue(
@@ -24,7 +23,7 @@ export function formatIssue(
   );
 }
 
-function formatTitle(issue: AnnotatedIacIssue): string {
+function formatTitle(issue: Issue): string {
   const severity = issue.severity;
   const titleOutput = colors.severities[severity](
     `[${capitalize([issue.severity])}] ${chalk.bold(issue.title)}`,
@@ -33,9 +32,9 @@ function formatTitle(issue: AnnotatedIacIssue): string {
   return titleOutput;
 }
 
-function formatInfo(issue: AnnotatedIacIssue): string | undefined {
-  const issueDesc = issue.iacDescription.issue;
-  const issueImpact = issue.iacDescription.impact;
+function formatInfo(issue: Issue): string | undefined {
+  const issueDesc = issue.issue;
+  const issueImpact = issue.impact;
 
   if (!issueDesc) {
     return issueImpact;
@@ -76,7 +75,7 @@ function formatProperties(
       'Resolve',
       remediationKey && result.issue.remediation?.[remediationKey]
         ? result.issue.remediation[remediationKey]
-        : result.issue.iacDescription.resolve,
+        : result.issue.resolve,
     ],
   ].filter(([, val]) => !!val) as [string, string][];
 

@@ -1,12 +1,12 @@
 import { FormattedResult } from '../../../../cli/commands/test/iac/local-execution/types';
 import { Results, Vulnerability } from '../../../iac/test/v2/scan/results';
-import { AnnotatedIacIssue } from '../../../snyk-test/iac-test-result';
 import { SEVERITY } from '../../../snyk-test/legacy';
 import { IacOutputMeta } from '../../../types';
 import {
   FormattedOutputResultsBySeverity,
   IacTestCounts,
   IacTestData,
+  Issue,
 } from './types';
 
 interface FormatTestDataParams {
@@ -174,26 +174,16 @@ function formatSnykIacTestScanResultNewOutput(
 
 function formatSnykIacTestScanVulnerability(
   vulnerability: Vulnerability,
-): AnnotatedIacIssue {
+): Issue {
   return {
     id: vulnerability.rule.id,
-    publicId: vulnerability.rule.id,
     severity: vulnerability.severity,
     title: vulnerability.rule.title,
-    isIgnored: vulnerability.ignored,
     lineNumber: vulnerability.resource.line,
     cloudConfigPath: formatCloudConfigPath(vulnerability),
-    subType: '',
-    iacDescription: {
-      issue: '',
-      impact: '',
-      resolve: '',
-    },
     issue: '',
     impact: '',
     resolve: '',
-    msg: '',
-    references: [],
   };
 }
 

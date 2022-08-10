@@ -4,10 +4,8 @@
       {
         "issue": {
           "id": "SNYK-CC-00024",
-          "publicId": "SNYK-CC-00024",
           "severity": "medium",
           "title": "VPC default security group allows unrestricted ingress traffic",
-          "isIgnored": false,
           "cloudConfigPath": [
             "aws_default_security_group",
             "default",
@@ -16,18 +14,10 @@
             "cidr_blocks",
             0
           ],
-          "subType": "",
-          "iacDescription": {
-            "issue": "",
-            "impact": "",
-            "resolve": ""
-          },
           "issue": "",
           "impact": "",
           "resolve": "",
-          "lineNumber": 12,
-          "msg": "",
-          "references": []
+          "lineNumber": 12
         },
         "targetFile": "/Users/yairzohar/snyk/upe-test/default_vpc_security_group.tf",
         "projectType": "aws_default_security_group"
@@ -37,27 +27,17 @@
       {
         "issue": {
           "id": "SNYK-CC-00107",
-          "publicId": "SNYK-CC-00107",
           "severity": "high",
           "title": "S3 bucket is publicly readable",
-          "isIgnored": false,
           "cloudConfigPath": [
             "aws_s3_bucket",
             "readable",
             "acl"
           ],
-          "subType": "",
-          "iacDescription": {
-            "issue": "",
-            "impact": "",
-            "resolve": ""
-          },
           "issue": "",
           "impact": "",
           "resolve": "",
-          "lineNumber": 8,
-          "msg": "",
-          "references": []
+          "lineNumber": 8
         },
         "targetFile": "/Users/yairzohar/snyk/upe-test/s3_cis.tf",
         "projectType": "aws_s3_bucket"
@@ -65,27 +45,17 @@
       {
         "issue": {
           "id": "SNYK-CC-00107",
-          "publicId": "SNYK-CC-00107",
           "severity": "high",
           "title": "S3 bucket is publicly readable",
-          "isIgnored": false,
           "cloudConfigPath": [
             "aws_s3_bucket",
             "writable",
             "acl"
           ],
-          "subType": "",
-          "iacDescription": {
-            "issue": "",
-            "impact": "",
-            "resolve": ""
-          },
           "issue": "",
           "impact": "",
           "resolve": "",
-          "lineNumber": 3,
-          "msg": "",
-          "references": []
+          "lineNumber": 3
         },
         "targetFile": "/Users/yairzohar/snyk/upe-test/s3_cis.tf",
         "projectType": "aws_s3_bucket"
@@ -93,26 +63,16 @@
       {
         "issue": {
           "id": "SNYK-CC-00107",
-          "publicId": "SNYK-CC-00107",
           "severity": "high",
           "title": "S3 bucket is publicly readable",
-          "isIgnored": false,
           "cloudConfigPath": [
             "aws_s3_bucket",
             "writable"
           ],
-          "subType": "",
-          "iacDescription": {
-            "issue": "",
-            "impact": "",
-            "resolve": ""
-          },
           "issue": "",
           "impact": "",
           "resolve": "",
-          "lineNumber": 12,
-          "msg": "",
-          "references": []
+          "lineNumber": 12
         },
         "targetFile": "/Users/yairzohar/snyk/upe-test/s3_cis.tf",
         "projectType": "aws_s3_bucket"
