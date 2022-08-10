@@ -14,10 +14,11 @@
             "cidr_blocks",
             0
           ],
-          "issue": "",
-          "impact": "",
+          "issue": "VPC default security group allows unrestricted ingress traffic",
+          "impact": "Configuring all VPC default security groups to restrict all traffic encourages least privilege security\ngroup development and mindful placement of AWS resources into security groups which in turn reduces the exposure of those resources.\n",
           "resolve": "",
-          "lineNumber": 12
+          "lineNumber": 12,
+          "documentation": "https://snyk.io/security-rules/SNYK-CC-00024"
         },
         "targetFile": "/Users/yairzohar/snyk/upe-test/default_vpc_security_group.tf",
         "projectType": "aws_default_security_group"
@@ -34,10 +35,11 @@
             "readable",
             "acl"
           ],
-          "issue": "",
-          "impact": "",
+          "issue": "S3 bucket is publicly readable",
+          "impact": "A bucket with a public ACL or bucket policy is exposed to the entire internet if all\nblock public access settings are disabled at the resource and account level. This\nposes a security vulnerability, as any AWS user or anonymous user can access the\ndata in the bucket.\n",
           "resolve": "",
-          "lineNumber": 8
+          "lineNumber": 8,
+          "documentation": "https://snyk.io/security-rules/SNYK-CC-00107"
         },
         "targetFile": "/Users/yairzohar/snyk/upe-test/s3_cis.tf",
         "projectType": "aws_s3_bucket"
@@ -52,10 +54,11 @@
             "writable",
             "acl"
           ],
-          "issue": "",
-          "impact": "",
+          "issue": "S3 bucket is publicly readable",
+          "impact": "A bucket with a public ACL or bucket policy is exposed to the entire internet if all\nblock public access settings are disabled at the resource and account level. This\nposes a security vulnerability, as any AWS user or anonymous user can access the\ndata in the bucket.\n",
           "resolve": "",
-          "lineNumber": 3
+          "lineNumber": 3,
+          "documentation": "https://snyk.io/security-rules/SNYK-CC-00107"
         },
         "targetFile": "/Users/yairzohar/snyk/upe-test/s3_cis.tf",
         "projectType": "aws_s3_bucket"
@@ -69,10 +72,11 @@
             "aws_s3_bucket",
             "writable"
           ],
-          "issue": "",
-          "impact": "",
+          "issue": "S3 bucket is publicly readable",
+          "impact": "A bucket with a public ACL or bucket policy is exposed to the entire internet if all\nblock public access settings are disabled at the resource and account level. This\nposes a security vulnerability, as any AWS user or anonymous user can access the\ndata in the bucket.\n",
           "resolve": "",
-          "lineNumber": 12
+          "lineNumber": 12,
+          "documentation": "https://snyk.io/security-rules/SNYK-CC-00107"
         },
         "targetFile": "/Users/yairzohar/snyk/upe-test/s3_cis.tf",
         "projectType": "aws_s3_bucket"

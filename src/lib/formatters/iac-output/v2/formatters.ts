@@ -181,9 +181,10 @@ function formatSnykIacTestScanVulnerability(
     title: vulnerability.rule.title,
     lineNumber: vulnerability.resource.line,
     cloudConfigPath: formatCloudConfigPath(vulnerability),
-    issue: '',
-    impact: '',
+    issue: vulnerability.rule.title,
+    impact: vulnerability.rule.description,
     resolve: '',
+    documentation: formatDocumentation(vulnerability),
   };
 }
 
@@ -195,4 +196,8 @@ function formatCloudConfigPath(vulnerability: Vulnerability): string[] {
   }
 
   return cloudConfigPath;
+}
+
+function formatDocumentation(vulnerability: Vulnerability) {
+  return `https://snyk.io/security-rules/${vulnerability.rule.id}`;
 }
