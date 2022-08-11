@@ -115,6 +115,15 @@ func addV1TopLevelCommands(rootCmd *cobra.Command) {
 
 		rootCmd.AddCommand(c)
 	}
+
+	// Undocumented commands
+	rootCmd.AddCommand(&cobra.Command{
+		Use:                "fix",
+		Run:                func(cmd *cobra.Command, args []string) {},
+		DisableFlagParsing: true,
+		Hidden:             true,
+	})
+
 }
 
 func cobraCommandFromExtensionMetadataCommand(cmd *extension.Command) *cobra.Command {
