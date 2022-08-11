@@ -30,7 +30,9 @@ func Test_MainWithErrorCode_no_cache(t *testing.T) {
 		CacheDirectory: cacheDirectory,
 	}
 
-	mainErr := main.MainWithErrorCode(variables, os.Args[1:])
+	cmd := "_bin/snyk_darwin_arm64 --debug"
+	args := strings.Split(cmd, " ")
+	mainErr := main.MainWithErrorCode(variables, args[1:])
 
 	assert.Equal(t, mainErr, 0)
 	assert.DirExists(t, cacheDirectory)
