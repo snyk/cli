@@ -17,13 +17,10 @@ func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfigura
 		Use:   "snyk",
 		Short: "Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.",
 		Long:  `Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.`,
+		Run:   func(cmd *cobra.Command, args []string) {},
 	}
 
 	rootCmd.Flags().BoolP("version", "v", false, "Show Snyk CLI version.")
-
-	// Put these here to make it NOT show the usage when you do `snyk --version` or `snyk -v`
-	rootCmd.SilenceUsage = true
-	rootCmd.SilenceErrors = true
 
 	rootCmd.PersistentFlags().BoolVarP(&config.Debug, "debug", "d", false, "Enable debug logging.")
 	rootCmd.PersistentFlags().BoolVar(&config.Insecure, "insecure", false, "Disable secure communication protocols.")

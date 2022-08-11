@@ -81,7 +81,6 @@ func MainWithErrorCode(cliConfig *cliv2.CliConfiguration, args []string) int {
 	err = cliv2.ExecuteArgumentParser(argParserRootCmd, cliConfig)
 	cliConfig.Log()
 	if err != nil {
-		fmt.Println(err)
 		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
@@ -99,20 +98,34 @@ func MainWithErrorCode(cliConfig *cliv2.CliConfiguration, args []string) int {
 		// this is the root command, so we can just exit and the usage (help) will show automatically
 		return exit_codes.SNYK_EXIT_CODE_OK
 	}
+
 	if matchedCommand.Name() == "snyk" {
 		versionValue, err := matchedCommand.Flags().GetBool("version")
-		if err == nil {
-			// user used --version or -v
-			if versionValue {
-				cliConfig.DebugLogger.Println("version flag on root snyk command is set")
-				// allow this to go through - don't return an error
-			} else {
-				// user must have used --verison=false or -v=false which doesn't make sense
-				return exit_codes.SNYK_EXIT_CODE_OK
-			}
-		} else {
-			// this is the root command, so we can just exit and the usage (help) will show automatically
+		if err != nil {
+			fmt.Println(err)
+			return exit_codes.SNYK_EXIT_CODE_ERROR
+		}
+
+		helpValue, err := matchedCommand.Flags().GetBool("help")
+		if err != nil {
+			fmt.Println(err)
+			return exit_codes.SNYK_EXIT_CODE_ERROR
+		}
+
+		// if no version or help options set; show usage
+		if !versionValue && !helpValue {
+			matchedCommand.Usage()
 			return exit_codes.SNYK_EXIT_CODE_OK
+		}
+
+		if helpValue {
+			// usage is shown automatically
+			return exit_codes.SNYK_EXIT_CODE_OK
+		}
+
+		if versionValue {
+			cliConfig.DebugLogger.Println("version flag on root snyk command is set")
+			// allow this to go through - don't return an error
 		}
 	}
 

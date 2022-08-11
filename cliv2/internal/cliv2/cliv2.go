@@ -197,7 +197,6 @@ func PrepareChildProcessEnvironmentVariables(input []string, integrationName str
 }
 
 func PrepareCommand(cmd string, args []string, environmentVariables []string) (snykCmd *exec.Cmd) {
-
 	snykCmd = exec.Command(cmd, args...)
 	snykCmd.Env = environmentVariables
 	snykCmd.Stdin = os.Stdin
