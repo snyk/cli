@@ -3,6 +3,7 @@ package configuration
 import (
 	"io/ioutil"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,7 +16,16 @@ const (
 func prepareConfigstore(content string) error {
 	config := NewConfigstoreWithFilename(TEST_FILENAME)
 	file := config.GetFilepath()
-	err := ioutil.WriteFile(file, []byte(content), 0755)
+
+	/* create folder */
+	folder := path.Dir(file)
+	err := os.MkdirAll(folder, 0755)
+	if err != nil {
+		return err
+	}
+
+	/* write content to file */
+	err = ioutil.WriteFile(file, []byte(content), 0755)
 	return err
 }
 
