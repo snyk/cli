@@ -31,15 +31,19 @@ export async function test(
 
   testSpinner?.start(spinnerMessage);
 
-  const scanResult = await testLib.test(testConfig);
+  try {
+    const scanResult = await testLib.test(testConfig);
 
-  return buildOutput({
-    scanResult,
-    testSpinner,
-    projectName,
-    orgSettings,
-    options,
-  });
+    return buildOutput({
+      scanResult,
+      testSpinner,
+      projectName,
+      orgSettings,
+      options,
+    });
+  } finally {
+    testSpinner?.stop();
+  }
 }
 
 async function prepareTestConfig(
