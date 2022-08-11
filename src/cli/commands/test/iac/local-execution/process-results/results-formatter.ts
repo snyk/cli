@@ -27,12 +27,12 @@ export function formatScanResults(
   options: IaCTestFlags,
   meta: TestMeta,
   projectPublicIds: Record<string, string>,
-  porjectRoot: string,
+  projectRoot: string,
   gitRemoteUrl?: string,
 ): FormattedResult[] {
   try {
     const groupedByFile = scanResults.reduce((memo, scanResult) => {
-      const res = formatScanResult(scanResult, meta, options, porjectRoot);
+      const res = formatScanResult(scanResult, meta, options, projectRoot);
 
       if (memo[scanResult.filePath]) {
         memo[scanResult.filePath].result.cloudConfigResults.push(

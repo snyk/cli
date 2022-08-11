@@ -109,7 +109,7 @@ export {
   measurableScanFiles as scanFiles,
   measurableGetIacOrgSettings as getIacOrgSettings,
   measurableApplyCustomSeverities as applyCustomSeverities,
-  measurableFormatScanResults as formatScanResultsV2,
+  measurableFormatScanResults as formatScanResults,
   measurableTrackUsage as trackUsage,
   measurableCleanLocalCache as cleanLocalCache,
   measurableLocalTest as localTest,
