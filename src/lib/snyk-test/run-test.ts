@@ -231,6 +231,7 @@ async function sendAndParseResults(
     /** sendTestPayload() deletes the request.body from the payload once completed. */
     const payloadCopy = Object.assign({}, payload);
     const res = await sendTestPayload(payload);
+    console.log('++++++++++res', JSON.stringify(res));
     const {
       depGraph,
       payloadPolicy,
@@ -285,6 +286,7 @@ export async function runTest(
   root: string,
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
+  console.log('++++HERE+++++');
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
     await validateOptions(options, options.packageManager);

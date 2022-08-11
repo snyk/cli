@@ -1,4 +1,4 @@
-import { makeRequest } from './request';
+import { makeAsyncRequest } from './request';
 import alerts = require('../alerts');
 import { MetricsCollector } from '../metrics';
 import * as needle from 'needle';
@@ -18,7 +18,7 @@ async function makeRequestWrapper(
   const totalNetworkTimeTimer = MetricsCollector.NETWORK_TIME.createInstance();
   totalNetworkTimeTimer.start();
   try {
-    const result = await makeRequest(payload);
+    const result = await makeAsyncRequest(payload);
     if (result.body.alerts) {
       alerts.registerAlerts(result.body.alerts);
     }

@@ -11,6 +11,8 @@ import { Payload } from './types';
 import { getVersion } from '../version';
 import * as https from 'https';
 import * as http from 'http';
+import { sleep } from '../common';
+import bodyParser = require('body-parser');
 
 const debug = debugModule('snyk:req');
 const snykDebug = debugModule('snyk');
@@ -150,6 +152,26 @@ export async function makeRequest(
       resolve({ res, body: respBody });
     });
   });
+}
+
+export async function makeAsyncRequest(
+  payload: Payload,
+): Promise<{ res: needle.NeedleResponse; body: any }> {
+  payload.url = 'http://localhost:3000/mock/test';
+  let res = await makeRequest(payload);
+
+  while (res.body.status !== 'complete') {
+    res = await makeRequest({
+      ...payload,
+      method: 'get',
+      url: `http://localhost:3000/mock/test/${res.body.id}`,
+    });
+    if (res.body.status !== 'complete') {
+      await sleep(2000);
+    }
+  }
+
+  return { res: res.res, body: res.body.issueGenerationOutput };
 }
 
 export async function streamRequest(
