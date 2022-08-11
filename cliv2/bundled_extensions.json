@@ -3,6 +3,10 @@
     {
       "repo": "https://github.com/snyk/sclix_woof",
       "commit_hash": "feat/updated-ext-lib"
+    },
+    {
+      "repo": "https://github.com/PeterSchafer/sample_extension",
+      "commit_hash": "feat/updated-ext-lib"
     }
   ]
 }

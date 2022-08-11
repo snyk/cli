@@ -110,10 +110,6 @@ func build(cmd *cobra.Command, args []string) {
 			panic(err)
 		}
 
-		orgName := strings.Split(url.Path, "/")[1]
-		if orgName != "snyk" {
-			panic("org name must be `snyk`")
-		}
 		repoName := strings.Split(url.Path, "/")[2]
 		repoDirectory := path.Join(baseExtensionBuildDir, repoName)
 
