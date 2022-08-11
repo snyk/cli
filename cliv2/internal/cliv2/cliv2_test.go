@@ -104,10 +104,10 @@ func Test_executeRunV1(t *testing.T) {
 	assert.NoDirExists(t, cacheDir)
 
 	var extensions []*extension.Extension // no extensions
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config, args)
+	argParser := cliv2.BaseArgParser(logger, args)
 
 	// create instance under test
-	cli := cliv2.NewCLIv2(config, extensions, argParserRootCmd)
+	cli := cliv2.NewCLIv2(config, extensions, argParser.RootCobraCommand)
 
 	// run once
 	actualReturnCode := cli.Execute(1000, "", args)
@@ -149,10 +149,10 @@ func Test_executeRunV2only(t *testing.T) {
 	assert.NoDirExists(t, cacheDir)
 
 	var extensions []*extension.Extension // no extensions
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config, args)
+	argParser := cliv2.BaseArgParser(logger, args)
 
 	// create instance under test
-	cli := cliv2.NewCLIv2(config, extensions, argParserRootCmd)
+	cli := cliv2.NewCLIv2(config, extensions, argParser.RootCobraCommand)
 	actualReturnCode := cli.Execute(1000, "", args)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.NoFileExists(t, cli.GetBinaryLocation())
@@ -174,10 +174,10 @@ func Test_executeEnvironmentError(t *testing.T) {
 	os.Setenv(cliv2.SNYK_INTEGRATION_NAME_ENV, "someName")
 
 	var extensions []*extension.Extension // no extensions
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config, args)
+	argParser := cliv2.BaseArgParser(logger, args)
 
 	// create instance under test
-	cli := cliv2.NewCLIv2(config, extensions, argParserRootCmd)
+	cli := cliv2.NewCLIv2(config, extensions, argParser.RootCobraCommand)
 	actualReturnCode := cli.Execute(1000, "", args)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
@@ -194,10 +194,10 @@ func Test_executeUnknownCommand(t *testing.T) {
 	args := []string{"bogusCommand"}
 
 	var extensions []*extension.Extension // no extensions
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config, args)
+	argParser := cliv2.BaseArgParser(logger, args)
 
 	// create instance under test
-	cli := cliv2.NewCLIv2(config, extensions, argParserRootCmd)
+	cli := cliv2.NewCLIv2(config, extensions, argParser.RootCobraCommand)
 	actualReturnCode := cli.Execute(1000, "", args)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 

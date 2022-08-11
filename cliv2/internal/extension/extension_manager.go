@@ -19,8 +19,9 @@ const (
 )
 
 type Configuration struct {
-	CacheDirectory string
-	Logger         *log.Logger
+	CacheDirectory                   string
+	AdditionalExtensionDirectoryPath string
+	Logger                           *log.Logger
 }
 
 type ExtensionManager struct {
@@ -29,7 +30,7 @@ type ExtensionManager struct {
 	availableExtensions []*extension.Extension
 }
 
-func New(config *Configuration) *ExtensionManager {
+func NewExtensionManager(config *Configuration) *ExtensionManager {
 	if config.Logger == nil {
 		config.Logger = log.Default()
 	}

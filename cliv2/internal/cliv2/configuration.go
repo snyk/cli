@@ -11,12 +11,13 @@ import (
 )
 
 type CliConfiguration struct {
-	CacheDirectory               string
-	Insecure                     bool
-	ProxyAuthenticationMechanism httpauth.AuthenticationMechanism
-	ProxyAddr                    string
-	Debug                        bool
-	DebugLogger                  *log.Logger
+	CacheDirectory                   string
+	Insecure                         bool
+	ProxyAuthenticationMechanism     httpauth.AuthenticationMechanism
+	ProxyAddr                        string
+	Debug                            bool
+	DebugLogger                      *log.Logger
+	AdditionalExtensionDirectoryPath string
 }
 
 func (c *CliConfiguration) Log() {

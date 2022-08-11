@@ -60,9 +60,25 @@ func MainWithErrorCode(cliConfig *cliv2.CliConfiguration, args []string) int {
 		}
 	}
 
-	extMngr := extension.New(&extension.Configuration{
-		CacheDirectory: cliConfig.CacheDirectory,
-		Logger:         cliConfig.DebugLogger,
+	argParser := cliv2.BaseArgParser(cliConfig.DebugLogger, args)
+	persistentFlagValues, err := argParser.PeristentFlagValues(args)
+	if persistentFlagValues == nil {
+		fmt.Println("persistentFlagValues is nil")
+		return exit_codes.SNYK_EXIT_CODE_ERROR
+	}
+
+	cliConfig.Debug = persistentFlagValues.Debug
+	cliConfig.Insecure = persistentFlagValues.Insecure
+	cliConfig.ProxyAddr = persistentFlagValues.ProxyAddr
+	cliConfig.AdditionalExtensionDirectoryPath = persistentFlagValues.AdditionalExtensionDirectoryPath
+	if persistentFlagValues.NoAuth {
+		cliConfig.ProxyAuthenticationMechanism = httpauth.NoAuth
+	}
+
+	extMngr := extension.NewExtensionManager(&extension.Configuration{
+		CacheDirectory:                   cliConfig.CacheDirectory,
+		AdditionalExtensionDirectoryPath: persistentFlagValues.AdditionalExtensionDirectoryPath,
+		Logger:                           cliConfig.DebugLogger,
 	})
 
 	err = extMngr.Init()
@@ -71,21 +87,24 @@ func MainWithErrorCode(cliConfig *cliv2.CliConfiguration, args []string) int {
 		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
-	// load extensions
 	extensions := extMngr.AvailableExtenions()
+	argParser.AddExtensions(extensions)
 
-	// build arg parser
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, cliConfig, args)
+	argParser.AddV1TopLevelCommands()
 
-	// parse the input args
-	err = cliv2.ExecuteArgumentParser(argParserRootCmd, cliConfig)
+	err = argParser.RootCobraCommand.Execute()
+	if err != nil {
+		fmt.Println(err)
+		return exit_codes.SNYK_EXIT_CODE_ERROR
+	}
+
 	cliConfig.Log()
 	if err != nil {
 		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
 
 	// check if it there's no command to run (in which case help will run automatically and we can just exit)
-	matchedCommand, _, err := argParserRootCmd.Find(args)
+	matchedCommand, _, err := argParser.RootCobraCommand.Find(args)
 	if err != nil {
 		fmt.Println(err)
 		return exit_codes.SNYK_EXIT_CODE_ERROR
@@ -129,8 +148,10 @@ func MainWithErrorCode(cliConfig *cliv2.CliConfiguration, args []string) int {
 		}
 	}
 
+	cliConfig.DebugLogger.Println("AdditionalExtensionDirectoryPath: ", cliConfig.AdditionalExtensionDirectoryPath)
+
 	// init cli object
-	cli := cliv2.NewCLIv2(cliConfig, extensions, argParserRootCmd)
+	cli := cliv2.NewCLIv2(cliConfig, extensions, argParser.RootCobraCommand)
 	if cli == nil {
 		return exit_codes.SNYK_EXIT_CODE_ERROR
 	}
