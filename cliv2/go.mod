@@ -7,7 +7,7 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20220328115640-894aeddb713e
 	github.com/golang/mock v1.6.0
 	github.com/jcmturner/gokrb5/v8 v8.4.2
-	github.com/snyk/cli-extension-lib-go v0.0.0-20220728132237-0ced5623af32
+	github.com/snyk/cli-extension-lib-go v0.0.0-20220811175831-cccd20997fed
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/net v0.0.0-20220630215102-69896b714898
