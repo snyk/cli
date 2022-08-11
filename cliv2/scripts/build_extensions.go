@@ -94,6 +94,10 @@ func main() {
 			panic("org name must be `snyk`")
 		}
 		repoName := strings.Split(url.Path, "/")[2]
+		repoDirectory := path.Join(baseExtensionBuildDir, repoName)
+
+		// to ensure to be able to clone, we for now delete the directory where git will clone into, this might be changed in the future to improve build performance
+		os.RemoveAll(repoDirectory)
 
 		runCommand(baseExtensionBuildDir, "git", []string{"clone", "--quiet", e.Repo})
 		if err != nil {
