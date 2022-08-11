@@ -99,23 +99,24 @@ func Test_executeRunV1(t *testing.T) {
 	cacheDir := "dasda"
 	logger := log.New(ioutil.Discard, "", 0)
 	config := &cliv2.CliConfiguration{DebugLogger: logger, CacheDirectory: cacheDir}
+	args := []string{"--help"}
 
 	assert.NoDirExists(t, cacheDir)
 
 	var extensions []*extension.Extension // no extensions
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config)
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config, args)
 
 	// create instance under test
 	cli := cliv2.NewCLIv2(config, extensions, argParserRootCmd)
 
 	// run once
-	actualReturnCode := cli.Execute(1000, "", []string{"--help"})
+	actualReturnCode := cli.Execute(1000, "", args)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 	fileInfo1, _ := os.Stat(cli.GetBinaryLocation())
 
 	// run twice
-	actualReturnCode = cli.Execute(1000, "", []string{"--help"})
+	actualReturnCode = cli.Execute(1000, "", args)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 	fileInfo2, _ := os.Stat(cli.GetBinaryLocation())
@@ -132,15 +133,16 @@ func Test_executeRunV2only(t *testing.T) {
 	cacheDir := "dasda"
 	logger := log.New(ioutil.Discard, "", 0)
 	config := &cliv2.CliConfiguration{DebugLogger: logger, CacheDirectory: cacheDir}
+	args := []string{"--version"}
 
 	assert.NoDirExists(t, cacheDir)
 
 	var extensions []*extension.Extension // no extensions
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config)
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config, args)
 
 	// create instance under test
 	cli := cliv2.NewCLIv2(config, extensions, argParserRootCmd)
-	actualReturnCode := cli.Execute(1000, "", []string{"--version"})
+	actualReturnCode := cli.Execute(1000, "", args)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 
@@ -153,6 +155,7 @@ func Test_executeEnvironmentError(t *testing.T) {
 	cacheDir := "dasda"
 	logger := log.New(ioutil.Discard, "", 0)
 	config := &cliv2.CliConfiguration{DebugLogger: logger, CacheDirectory: cacheDir}
+	args := []string{"--help"}
 
 	assert.NoDirExists(t, cacheDir)
 
@@ -160,11 +163,11 @@ func Test_executeEnvironmentError(t *testing.T) {
 	os.Setenv(cliv2.SNYK_INTEGRATION_NAME_ENV, "someName")
 
 	var extensions []*extension.Extension // no extensions
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config)
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config, args)
 
 	// create instance under test
 	cli := cliv2.NewCLIv2(config, extensions, argParserRootCmd)
-	actualReturnCode := cli.Execute(1000, "", []string{"--help"})
+	actualReturnCode := cli.Execute(1000, "", args)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 
@@ -177,13 +180,14 @@ func Test_executeUnknownCommand(t *testing.T) {
 	cacheDir := "dasda"
 	logger := log.New(ioutil.Discard, "", 0)
 	config := &cliv2.CliConfiguration{DebugLogger: logger, CacheDirectory: cacheDir}
+	args := []string{"bogusCommand"}
 
 	var extensions []*extension.Extension // no extensions
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config)
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, config, args)
 
 	// create instance under test
 	cli := cliv2.NewCLIv2(config, extensions, argParserRootCmd)
-	actualReturnCode := cli.Execute(1000, "", []string{"bogusCommand"})
+	actualReturnCode := cli.Execute(1000, "", args)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 
 	os.RemoveAll(cacheDir)
