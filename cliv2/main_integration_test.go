@@ -72,32 +72,3 @@ func Test_canPassThroughArgs(t *testing.T) {
 	assert.Contains(t, res.Stdout, "└─ lodash @ 4.17.15")
 	assert.Contains(t, res.Stdout, "found 4 issues")
 }
-
-func Test_cliv1AlreadyExistsAndIsValid(t *testing.T) {
-	testProject := test.SetupTestProject(t)
-
-	// get target extraction path
-	cliv1TargetExtractionPath, err := cliv1.GetFullCLIV1TargetPath(testProject.CacheDirPath)
-	if err != nil {
-		t.Errorf("failed to get cliv1 target extraction path: %s", err)
-	}
-
-	// extract the real cliv1 to the path
-	cliv1.ExtractTo(cliv1TargetExtractionPath)
-
-	cliv1FileInfoBefore, err := os.Stat(cliv1TargetExtractionPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	res := testProject.LaunchCLI(t, []string{"version", "--debug"})
-
-	assert.Equal(t, res.ExitCode, 0)
-	assert.Contains(t, res.Stderr, fmt.Sprintf("cliv1 already exists and is valid at %s", cliv1TargetExtractionPath))
-	cliv1FileInfoAfter, err := os.Stat(cliv1TargetExtractionPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	assert.Equal(t, cliv1FileInfoBefore.Size(), cliv1FileInfoAfter.Size())
-	assert.Equal(t, cliv1FileInfoBefore.ModTime(), cliv1FileInfoAfter.ModTime())
-}
