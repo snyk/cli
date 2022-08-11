@@ -1,16 +1,11 @@
-//go:build integration
-// +build integration
-
 package main
 
 import (
-	"fmt"
-	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
-	"github.com/snyk/cli/cliv2/test"
-	"github.com/stretchr/testify/assert"
-	"os"
 	"strings"
 	"testing"
+
+	"github.com/snyk/cli/cliv2/test"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_init(t *testing.T) {
