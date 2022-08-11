@@ -1,4 +1,3 @@
-import envPaths from 'env-paths';
 import * as pathLib from 'path';
 import * as testLib from '../../../../../lib/iac/test/v2';
 import { TestConfig } from '../../../../../lib/iac/test/v2';
@@ -11,6 +10,7 @@ import { getIacOrgSettings } from '../local-execution/org-settings/get-iac-org-s
 import { Options, TestOptions } from '../../../../../lib/types';
 import { generateProjectAttributes } from '../../../monitor';
 import { parseTags } from '../local-execution';
+import { systemCachePath } from '../../../../../lib/iac/test/v2/scan';
 
 export async function test(
   paths: string[],
@@ -50,7 +50,6 @@ async function prepareTestConfig(
   paths: string[],
   options: Options & TestOptions,
 ): Promise<TestConfig> {
-  const systemCachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
   const iacCachePath = pathLib.join(systemCachePath, 'iac');
   const projectName = pathLib.basename(process.cwd());
 
