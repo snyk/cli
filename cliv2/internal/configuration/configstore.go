@@ -20,6 +20,8 @@ type Configstore struct {
 type ConfigstoreInterface interface {
 	Get(key string) (string, error)
 	GetFilepath() string
+	Create() error
+	Exists() bool
 }
 
 func determineBasePath() string {
@@ -77,4 +79,31 @@ func (c *Configstore) Get(key string) (string, error) {
 func (c *Configstore) GetFilepath() string {
 	file := path.Join(c.basePath, c.configfile)
 	return file
+}
+
+func (c *Configstore) Create() error {
+	if c.Exists() == false {
+		file := c.GetFilepath()
+
+		// create folder
+		folder := path.Dir(file)
+		err := os.MkdirAll(folder, 0755)
+		if err != nil {
+			return err
+		}
+
+		// create empty file
+		err = os.WriteFile(file, []byte{}, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (c *Configstore) Exists() bool {
+	file := c.GetFilepath()
+	_, err := os.Stat(file)
+	return !os.IsNotExist(err)
 }

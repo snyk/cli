@@ -3,7 +3,6 @@ package configuration
 import (
 	"io/ioutil"
 	"os"
-	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,17 +13,17 @@ const (
 )
 
 func prepareConfigstore(content string) error {
+	var err error
 	config := NewConfigstoreWithFilename(TEST_FILENAME)
-	file := config.GetFilepath()
 
-	/* create folder */
-	folder := path.Dir(file)
-	err := os.MkdirAll(folder, 0755)
+	// create store
+	err = config.Create()
 	if err != nil {
 		return err
 	}
 
-	/* write content to file */
+	// write content to file
+	file := config.GetFilepath()
 	err = ioutil.WriteFile(file, []byte(content), 0755)
 	return err
 }
@@ -42,6 +41,7 @@ func Test_ConfigurationGet_success_file(t *testing.T) {
 	config := NewConfigstoreWithFilename(TEST_FILENAME)
 	actualValue, err := config.Get("api")
 
+	assert.True(t, config.Exists())
 	assert.Nil(t, err)
 	assert.Equal(t, expectedValue, actualValue)
 
@@ -57,6 +57,7 @@ func Test_ConfigurationGet_success_env(t *testing.T) {
 	config := NewConfigstoreWithFilename(TEST_FILENAME)
 	actualValue, err := config.Get("api-addr")
 
+	assert.True(t, config.Exists())
 	assert.Nil(t, err)
 	assert.Equal(t, expectedValue, actualValue)
 
@@ -69,6 +70,7 @@ func Test_ConfigurationGet_fail01(t *testing.T) {
 	config := NewConfigstoreWithFilename(TEST_FILENAME)
 	actualValue, err := config.Get("notthere")
 
+	assert.True(t, config.Exists())
 	assert.NotNil(t, err)
 	assert.Empty(t, actualValue)
 
@@ -79,6 +81,7 @@ func Test_ConfigurationGet_fail02(t *testing.T) {
 	config := NewConfigstoreWithFilename(TEST_FILENAME)
 	actualValue, err := config.Get("notthere")
 
+	assert.False(t, config.Exists())
 	assert.NotNil(t, err)
 	assert.Empty(t, actualValue)
 }
