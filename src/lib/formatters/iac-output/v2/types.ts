@@ -15,7 +15,7 @@ export type FormattedOutputResultsBySeverity = {
 };
 
 export type FormattedOutputResult = {
-  issue: AnnotatedIacIssue;
+  issue: Issue;
   targetFile: string;
   projectType: IacProjectType | State.InputTypeEnum;
 };
@@ -32,3 +32,18 @@ export type IaCTestFailure = {
   filePath: string;
   failureReason: string | undefined;
 };
+
+export type Issue = Pick<
+  AnnotatedIacIssue,
+  | 'id'
+  | 'title'
+  | 'severity'
+  | 'issue'
+  | 'impact'
+  | 'resolve'
+  | 'remediation'
+  | 'lineNumber'
+  | 'isGeneratedByCustomRule'
+  | 'documentation'
+  | 'cloudConfigPath'
+>;
