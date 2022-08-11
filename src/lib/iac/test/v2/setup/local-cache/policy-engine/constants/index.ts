@@ -1,9 +1,13 @@
-import { formatPolicyEngineFileName, getChecksum } from './utils';
+import {
+  formatPolicyEngineFileName,
+  getChecksum,
+  policyEngineVersion,
+} from './utils';
 
 /**
  * The Policy Engine release version associated with this Snyk CLI version.
  */
-export const policyEngineReleaseVersion = '0.17.3';
+export const policyEngineReleaseVersion = policyEngineVersion;
 
 /**
  * The Policy Engine executable's file name.
