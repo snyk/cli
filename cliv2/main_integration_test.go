@@ -5,7 +5,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
 	"github.com/snyk/cli/cliv2/test"
 	"github.com/stretchr/testify/assert"
@@ -101,32 +100,4 @@ func Test_cliv1AlreadyExistsAndIsValid(t *testing.T) {
 	}
 	assert.Equal(t, cliv1FileInfoBefore.Size(), cliv1FileInfoAfter.Size())
 	assert.Equal(t, cliv1FileInfoBefore.ModTime(), cliv1FileInfoAfter.ModTime())
-}
-
-func Test_cliv1AlreadyExistsAndIsInvalid(t *testing.T) {
-	testProject := test.SetupTestProject(t)
-
-	// get target extraction path
-	cliv1TargetExtractionPath, err := cliv1.GetFullCLIV1TargetPath(testProject.CacheDirPath)
-	if err != nil {
-		t.Errorf("failed to get cliv1 target extraction path: %s", err)
-	}
-
-	// write a bogus file to cliv1TargetExtractionPath
-	embedded.ExtractBytesToTarget([]byte(""), cliv1TargetExtractionPath)
-	cliv1FileInfoBefore, err := os.Stat(cliv1TargetExtractionPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	res := testProject.LaunchCLI(t, []string{"--debug"})
-
-	assert.Equal(t, res.ExitCode, 0)
-	assert.Contains(t, res.Stderr, "cliv1 is not valid, start extracting")
-	assert.Contains(t, res.Stderr, "cliv1 is valid after extracting")
-	cliv1FileInfoAfter, err := os.Stat(cliv1TargetExtractionPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	assert.NotEqual(t, cliv1FileInfoBefore.Size(), cliv1FileInfoAfter.Size())
 }

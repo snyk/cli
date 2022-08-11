@@ -75,12 +75,6 @@ func NewCLIv2(config *CliConfiguration, extensions []*extension.Extension, argPa
 		ArgParserRootCmd: argParserRootCmd,
 	}
 
-	err = cli.ExtractV1Binary()
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-
 	return &cli
 }
 
@@ -297,6 +291,12 @@ func matchExtension(args []string, extensions []*extension.Extension) *extension
 }
 
 func (c *CLI) executeV1Default(passthroughArgs []string) int {
+	err := c.ExtractV1Binary()
+	if err != nil {
+		fmt.Println(err)
+		return exit_codes.SNYK_EXIT_CODE_ERROR
+	}
+
 	c.config.DebugLogger.Println("launching snyk: ", c.v1BinaryLocation)
 
 	snykCmd := PrepareCommand(
@@ -305,7 +305,7 @@ func (c *CLI) executeV1Default(passthroughArgs []string) int {
 		c.childProcessEnvironmentVariables,
 	)
 
-	err := snykCmd.Run()
+	err = snykCmd.Run()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			exitCode := exitError.ExitCode()

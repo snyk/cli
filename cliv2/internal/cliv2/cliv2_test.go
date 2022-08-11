@@ -123,6 +123,17 @@ func Test_executeRunV1(t *testing.T) {
 
 	assert.Equal(t, fileInfo1.ModTime(), fileInfo2.ModTime())
 
+	// override cliv1 binary
+	assert.Nil(t, ioutil.WriteFile(cli.GetBinaryLocation(), []byte{}, 0755))
+
+	// run third time
+	actualReturnCode = cli.Execute(1000, "", args)
+	assert.Equal(t, expectedReturnCode, actualReturnCode)
+	assert.FileExists(t, cli.GetBinaryLocation())
+	fileInfo3, _ := os.Stat(cli.GetBinaryLocation())
+
+	assert.NotEqual(t, fileInfo1.ModTime(), fileInfo3.ModTime())
+
 	// cleanup
 	os.RemoveAll(cacheDir)
 }
