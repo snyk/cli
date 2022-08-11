@@ -2,6 +2,8 @@
 GOCMD = go
 GOOS = $(shell go env GOOS)
 GOARCH = $(shell go env GOARCH)
+GOHOSTOS = $(shell go env GOHOSTOS)
+GOHOSTARCH = $(shell go env GOHOSTARCH)
 HASH = sha
 HASH_ALGORITHM = 256
 CLI_V2_VERSION_TAG = 2.0.0-prerelease
@@ -157,7 +159,7 @@ build: configure build-extension $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(BUILD_DIR)
 
 .PHONY: build-extension
 build-extension:
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) run scripts/build_extensions.go
+	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) $(GOCMD) run scripts/build_extensions.go --goos=$(GOOS) --goarch=$(GOARCH) --workingdir=$(WORKING_DIR) --tempdir=$(BUILD_EXTENSIONS_DIR)
 
 .PHONY: build-test
 build-test: build-blackboxtest

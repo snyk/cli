@@ -10,7 +10,13 @@ import (
 	"strings"
 
 	"github.com/snyk/cli-extension-lib-go/extension"
+	"github.com/spf13/cobra"
 )
+
+var GOOS string
+var GOARCH string
+var WorkingDir string
+var TempDir string
 
 type BundledExtensionInfo struct {
 	Repo       string `json:"repo"`
@@ -52,6 +58,7 @@ func runCommand(workingDirectory string, command string, args []string) error {
 	cmd := exec.Command(command, args...)
 	cmd.Dir = workingDirectory
 
+	cmd.Env = append(os.Environ(), "GOOS="+GOOS, "GOARCH="+GOARCH)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -67,7 +74,26 @@ func makeAllDir(dirPath string) error {
 }
 
 func main() {
-	baseExtensionBuildDir := "./_build_extensions"
+	var rootCmd = &cobra.Command{
+		Use:   "",
+		Short: "Build Extemsions",
+		Run:   build,
+	}
+	rootCmd.Flags().StringVar(&GOOS, "goos", "", "OS to build for")
+	rootCmd.Flags().StringVar(&GOARCH, "goarch", "", "Architecture to build for")
+	rootCmd.Flags().StringVar(&WorkingDir, "workingdir", "", "Working dir")
+	rootCmd.Flags().StringVar(&TempDir, "tempdir", "", "Temporary directory to build in")
+	rootCmd.MarkFlagRequired("goos")
+	rootCmd.MarkFlagRequired("goarch")
+	rootCmd.MarkFlagRequired("workingdir")
+	rootCmd.MarkFlagRequired("tempdir")
+
+	rootCmd.Execute()
+}
+
+func build(cmd *cobra.Command, args []string) {
+
+	baseExtensionBuildDir := TempDir
 	makeAllDir(baseExtensionBuildDir)
 
 	bundledExtensions, err := deserBundledExtensions()
@@ -78,11 +104,6 @@ func main() {
 	// make base extension build output directory if it doesn't exist
 	for _, e := range bundledExtensions.Extensions {
 		fmt.Printf("building %s at %s\n", e.Repo, e.CommitHash)
-
-		err = runCommand(baseExtensionBuildDir, "pwd", nil)
-		if err != nil {
-			panic(err)
-		}
 
 		url, err := url.Parse(e.Repo)
 		if err != nil {
@@ -122,7 +143,7 @@ func main() {
 		}
 		extensionName := x.Metadata.Name
 
-		targetDir := path.Join("../../internal/embedded/_data/extensions", extensionName)
+		targetDir := path.Join(WorkingDir, "internal", "embedded", "_data", "extensions", extensionName)
 		err = runCommand(repoDir, "make", []string{"install", "prefix=" + targetDir})
 		if err != nil {
 			panic(err)
