@@ -8,7 +8,6 @@ export interface TestConfig {
   iacCachePath: string;
   userRulesBundlePath?: string;
   userPolicyEnginePath?: string;
-  projectName: string;
   orgSettings: IacOrgSettings;
   report: boolean;
   severityThreshold?: SEVERITY;

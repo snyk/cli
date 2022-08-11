@@ -18,17 +18,16 @@ import { convertEngineToSarifResults } from './sarif';
 import { CustomError, FormattedCustomError } from '../../../errors';
 import { SnykIacTestError } from './errors';
 import stripAnsi from 'strip-ansi';
+import * as path from 'path';
 
 export function buildOutput({
   scanResult,
   testSpinner,
-  projectName,
   orgSettings,
   options,
 }: {
   scanResult: TestOutput;
   testSpinner?: Ora;
-  projectName: string;
   orgSettings: IacOrgSettings;
   options: any;
 }): TestCommandResult {
@@ -40,7 +39,6 @@ export function buildOutput({
 
   const { responseData, jsonData, sarifData } = buildTestCommandResultData({
     scanResult,
-    projectName,
     orgSettings,
     options,
   });
@@ -62,15 +60,16 @@ export function buildOutput({
 
 function buildTestCommandResultData({
   scanResult,
-  projectName,
   orgSettings,
   options,
 }: {
   scanResult: TestOutput;
-  projectName: string;
   orgSettings: IacOrgSettings;
   options: any;
 }) {
+  const projectName =
+    scanResult.results?.metadata?.projectName ?? path.basename(process.cwd());
+
   const jsonData = jsonStringifyLargeObject(
     convertEngineToJsonResults({
       results: scanResult,
