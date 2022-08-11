@@ -12,7 +12,7 @@ const (
 	CMDARG_PROXY_NO_AUTH string = "proxy-noauth"
 )
 
-func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfiguration) *cobra.Command {
+func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfiguration, args []string) *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Use:   "snyk",
 		Short: "Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.",
@@ -20,6 +20,7 @@ func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfigura
 		Run:   func(cmd *cobra.Command, args []string) {},
 	}
 
+	rootCmd.SetArgs(args)
 	rootCmd.Flags().BoolP("version", "v", false, "Show Snyk CLI version.")
 
 	rootCmd.PersistentFlags().BoolVarP(&config.Debug, "debug", "d", false, "Enable debug logging.")

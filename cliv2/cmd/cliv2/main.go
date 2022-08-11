@@ -75,7 +75,7 @@ func MainWithErrorCode(cliConfig *cliv2.CliConfiguration, args []string) int {
 	extensions := extMngr.AvailableExtenions()
 
 	// build arg parser
-	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, cliConfig)
+	argParserRootCmd := cliv2.MakeArgParserConfig(extensions, cliConfig, args)
 
 	// parse the input args
 	err = cliv2.ExecuteArgumentParser(argParserRootCmd, cliConfig)
