@@ -2,6 +2,7 @@ package main_test
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -24,15 +25,17 @@ func Test_MainWithErrorCode(t *testing.T) {
 }
 
 func Test_MainWithErrorCode_no_cache(t *testing.T) {
-	cacheDirectory := "MADE_UP_NAME"
+	cacheDirectory, err := filepath.Abs("./MADE_UP_NAME")
+	t.Log(cacheDirectory)
+	assert.Nil(t, err)
 
 	variables := &cliv2.CliConfiguration{
 		CacheDirectory: cacheDirectory,
 	}
 
-	cmd := "_bin/snyk_darwin_arm64 --debug"
+	cmd := "version --debug"
 	args := strings.Split(cmd, " ")
-	mainErr := main.MainWithErrorCode(variables, args[1:])
+	mainErr := main.MainWithErrorCode(variables, args)
 
 	assert.Equal(t, mainErr, 0)
 	assert.DirExists(t, cacheDirectory)
