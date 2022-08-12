@@ -36,6 +36,8 @@ github.com/rogpeppe/go-charset v0.0.0-20180617210344-2471d30d28b4/go.mod h1:qgYe
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/snyk/cli-extension-lib-go v0.0.0-20220811175831-cccd20997fed h1:n15AbxG44W8T2LQk31c0I8LutJADT8wPnTsf4Jlyg/U=
 github.com/snyk/cli-extension-lib-go v0.0.0-20220811175831-cccd20997fed/go.mod h1:AWlXeQJLA0dktpcBNQ7aDf8IwG9m8+4kpDa1TXg9bqQ=
+github.com/snyk/cli-extension-lib-go v0.0.0-20220812142728-616df3799bdf h1:Xa20YYfYR+RAHiKV6uirZNUVEm0d8I6+SI8VXdee3aI=
+github.com/snyk/cli-extension-lib-go v0.0.0-20220812142728-616df3799bdf/go.mod h1:AWlXeQJLA0dktpcBNQ7aDf8IwG9m8+4kpDa1TXg9bqQ=
 github.com/spf13/cobra v1.5.0 h1:X+jTBEBqF0bHN+9cSMgmfuvv2VHJ9ezmFNf9Y/XstYU=
 github.com/spf13/cobra v1.5.0/go.mod h1:dWXEIy2H428czQCjInthrTRUg7yKbok+2Qi/yBIJoUM=
 github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
