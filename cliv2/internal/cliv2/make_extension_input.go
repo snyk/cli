@@ -2,6 +2,7 @@ package cliv2
 
 import (
 	"fmt"
+	"os"
 
 	cli_extension_lib_go "github.com/snyk/cli-extension-lib-go"
 	"github.com/snyk/cli-extension-lib-go/extension"
@@ -73,8 +74,7 @@ func MakeExtensionInput(extensionMetadata *extension.ExtensionMetadata, matchedC
 		}
 	}
 
-	config := configuration.NewConfigstore()
-	token, _ := config.Get("api")
+	token := getToken()
 
 	return &cli_extension_lib_go.ExtensionInput{
 		Debug:     debugMode,
@@ -106,4 +106,18 @@ func GetOptionsFromSubcommand(extMetaCmd *extension.Command, cobraCmd *cobra.Com
 	}
 
 	return optionsMap
+}
+
+func getToken() string {
+	var token string
+
+	envAsMap := utils.ToKeyValueMap(os.Environ(), "=")
+	token = envAsMap["SNYK_TOKEN"]
+
+	if len(token) == 0 {
+		config := configuration.NewConfigstore()
+		token, _ = config.Get("api")
+	}
+
+	return token
 }
