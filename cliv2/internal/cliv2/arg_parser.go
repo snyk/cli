@@ -1,10 +1,9 @@
 package cliv2
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/snyk/cli-extension-lib-go/extension"
-	"github.com/snyk/cli/cliv2/internal/httpauth"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +11,20 @@ const (
 	CMDARG_PROXY_NO_AUTH string = "proxy-noauth"
 )
 
-func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfiguration, args []string) *cobra.Command {
+type ArgParser struct {
+	RootCobraCommand *cobra.Command
+	logger           *log.Logger
+}
+
+type PersistentFlags struct {
+	Debug                            bool
+	Insecure                         bool
+	NoAuth                           bool
+	ProxyAddr                        string
+	AdditionalExtensionDirectoryPath string
+}
+
+func BaseArgParser(logger *log.Logger, args []string) *ArgParser {
 	var rootCmd = &cobra.Command{
 		Use:   "snyk",
 		Short: "Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.",
@@ -21,24 +33,8 @@ func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfigura
 	}
 
 	rootCmd.SetArgs(args)
+
 	rootCmd.Flags().BoolP("version", "v", false, "Show Snyk CLI version.")
-
-	rootCmd.PersistentFlags().BoolVarP(&config.Debug, "debug", "d", false, "Enable debug logging.")
-	rootCmd.PersistentFlags().BoolVar(&config.Insecure, "insecure", false, "Disable secure communication protocols.")
-	rootCmd.PersistentFlags().Bool(CMDARG_PROXY_NO_AUTH, false, "Disable all proxy authentication.")
-	rootCmd.PersistentFlags().StringVar(&config.ProxyAddr, "proxy", "", "Configure an http/https proxy. Overriding environment variables.")
-
-	// add a command for each of the extensions
-	for _, x := range extensions {
-		config.DebugLogger.Println("adding extension to arg parser:", x.Metadata.Name)
-		c := cobraCommandFromExtensionMetadataCommand(x.Metadata.Command)
-		rootCmd.AddCommand(c)
-	}
-
-	// add top-level commands for CLIv1
-	addV1TopLevelCommands(rootCmd)
-
-	// version command
 	versionCmd := &cobra.Command{
 		Use:   "version",
 		Short: "Show Snyk CLI version.",
@@ -47,7 +43,69 @@ func MakeArgParserConfig(extensions []*extension.Extension, config *CliConfigura
 	}
 	rootCmd.AddCommand(versionCmd)
 
-	return rootCmd
+	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Enable debug logging.")
+	rootCmd.PersistentFlags().Bool("insecure", false, "Disable secure communication protocols.")
+	rootCmd.PersistentFlags().Bool(CMDARG_PROXY_NO_AUTH, false, "Disable all proxy authentication.")
+	rootCmd.PersistentFlags().String("proxy", "", "Configure an http/https proxy. Overriding environment variables.")
+	rootCmd.PersistentFlags().String("additional-extension-path", "", "Add additional path for loading extensions (extension authoring tool)")
+
+	return &ArgParser{
+		RootCobraCommand: rootCmd,
+		logger:           logger,
+	}
+}
+
+func (ap *ArgParser) PeristentFlagValues(args []string) (*PersistentFlags, error) {
+	persistentFlags := ap.RootCobraCommand.PersistentFlags()
+	_ = persistentFlags.Parse(args)
+
+	debug, _ := persistentFlags.GetBool("debug")
+	insecure, _ := persistentFlags.GetBool("insecure")
+	noAuth, _ := persistentFlags.GetBool(CMDARG_PROXY_NO_AUTH)
+	proxyAddr, _ := persistentFlags.GetString("proxy")
+	additionalExtensionPath, _ := persistentFlags.GetString("additional-extension-path")
+
+	pf := &PersistentFlags{
+		Debug:                            debug,
+		Insecure:                         insecure,
+		NoAuth:                           noAuth,
+		ProxyAddr:                        proxyAddr,
+		AdditionalExtensionDirectoryPath: additionalExtensionPath,
+	}
+
+	return pf, nil
+}
+
+func (ap *ArgParser) AddExtensions(extensions []*extension.Extension) {
+	for _, x := range extensions {
+		ap.logger.Println("adding extension to arg parser:", x.Metadata.Name)
+		c := cobraCommandFromExtensionMetadataCommand(x.Metadata.Command)
+		ap.RootCobraCommand.AddCommand(c)
+	}
+}
+
+func (ap *ArgParser) AddV1TopLevelCommands() {
+	for _, command := range v1Commands {
+		c := &cobra.Command{
+			Use:   command.name,
+			Short: command.description,
+			Long:  command.description,
+			Run:   func(cmd *cobra.Command, args []string) {},
+		}
+
+		// because we don't know anything about the command internals - they are all handled by v1
+		c.DisableFlagParsing = true
+
+		ap.RootCobraCommand.AddCommand(c)
+	}
+
+	// Undocumented commands
+	ap.RootCobraCommand.AddCommand(&cobra.Command{
+		Use:                "fix",
+		Run:                func(cmd *cobra.Command, args []string) {},
+		DisableFlagParsing: true,
+		Hidden:             true,
+	})
 }
 
 type NodeCLICommandMeta struct {
@@ -158,17 +216,4 @@ func cobraCommandFromExtensionMetadataCommand(cmd *extension.Command) *cobra.Com
 	}
 
 	return cobraCommand
-}
-
-func ExecuteArgumentParser(argParserRootCmd *cobra.Command, config *CliConfiguration) (err error) {
-	err = argParserRootCmd.Execute()
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	if isSet, _ := argParserRootCmd.PersistentFlags().GetBool(CMDARG_PROXY_NO_AUTH); isSet {
-		config.ProxyAuthenticationMechanism = httpauth.NoAuth
-	}
-	return err
 }
