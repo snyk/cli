@@ -77,10 +77,9 @@ func MakeExtensionInput(extensionMetadata *extension.ExtensionMetadata, matchedC
 	token := getToken()
 
 	return &cli_extension_lib_go.ExtensionInput{
-		Debug:     debugMode,
-		ProxyPort: proxyPort,
-		Command:   topLevelExtInputCommand,
-		Token:     token,
+		Debug:   debugMode,
+		Command: topLevelExtInputCommand,
+		Token:   token,
 	}
 }
 
