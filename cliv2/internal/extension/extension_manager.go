@@ -107,44 +107,53 @@ func (e *ExtensionManager) AvailableExtenions() []*extension.Extension {
 // If an extension fails to load it fails silently, only logging the failures in debug mode.
 func (e *ExtensionManager) loadExtensions() []*extension.Extension {
 	loadedExtensions := []*extension.Extension{}
+	extensionSearchDirectories := []string{e.extensionCacheDir}
 
-	e.config.Logger.Println("Loading extensions from :", e.extensionCacheDir)
-
-	_, err := os.Stat(e.extensionCacheDir)
-	if err != nil {
-		e.config.Logger.Println("No extensions directory found in cache directory:", e.extensionCacheDir)
-		return loadedExtensions
+	if len(e.config.AdditionalExtensionDirectoryPath) > 0 {
+		extensionSearchDirectories = append(extensionSearchDirectories, e.config.AdditionalExtensionDirectoryPath)
 	}
 
-	f, err := os.Open(e.extensionCacheDir)
-	if err != nil {
-		e.config.Logger.Println("Failed to open extensions directory:", e.extensionCacheDir)
-		return loadedExtensions
-	}
+	for i := range extensionSearchDirectories {
+		currentSearchDirectory := extensionSearchDirectories[i]
 
-	dirEntries, err := f.ReadDir(0) // 0 means read all directories in the directory (as opposed to some n > 0 which would be a limited number of directories to read)
-	if err != nil {
-		e.config.Logger.Println("Failed to read extensions directory:", e.extensionCacheDir)
-		return loadedExtensions
-	}
+		e.config.Logger.Println("Loading extensions from :", currentSearchDirectory)
 
-	for _, dirEntry := range dirEntries {
-		if dirEntry.IsDir() {
-			e.config.Logger.Println("Loading:", dirEntry.Name())
-			extensionDir := path.Join(e.extensionCacheDir, dirEntry.Name())
+		_, err := os.Stat(currentSearchDirectory)
+		if err != nil {
+			e.config.Logger.Println("No extensions directory found in cache directory:", currentSearchDirectory)
+			continue
+		}
 
-			ext, err := extension.TryLoad(extensionDir)
-			if err != nil {
-				e.config.Logger.Println("failed to load extension in directory:", extensionDir)
-				e.config.Logger.Println(err)
-				continue
-			}
+		f, err := os.Open(currentSearchDirectory)
+		if err != nil {
+			e.config.Logger.Println("Failed to open extensions directory:", currentSearchDirectory)
+			continue
+		}
 
-			if ext == nil {
-				e.config.Logger.Println("ext is nil - not adding:", extensionDir)
-				continue
-			} else {
-				loadedExtensions = append(loadedExtensions, ext)
+		dirEntries, err := f.ReadDir(0) // 0 means read all directories in the directory (as opposed to some n > 0 which would be a limited number of directories to read)
+		if err != nil {
+			e.config.Logger.Println("Failed to read extensions directory:", currentSearchDirectory)
+			continue
+		}
+
+		for _, dirEntry := range dirEntries {
+			if dirEntry.IsDir() {
+				e.config.Logger.Println("Loading:", dirEntry.Name())
+				extensionDir := path.Join(currentSearchDirectory, dirEntry.Name())
+
+				ext, err := extension.TryLoad(extensionDir)
+				if err != nil {
+					e.config.Logger.Println("failed to load extension in directory:", extensionDir)
+					e.config.Logger.Println(err)
+					continue
+				}
+
+				if ext == nil {
+					e.config.Logger.Println("ext is nil - not adding:", extensionDir)
+					continue
+				} else {
+					loadedExtensions = append(loadedExtensions, ext)
+				}
 			}
 		}
 	}
