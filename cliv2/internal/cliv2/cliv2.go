@@ -224,24 +224,26 @@ func (c *CLI) Execute(wrapperProxyPort int, caCertLocation string, passthroughAr
 		return maybeMatchingBuiltinHandler.Execute(wrapperProxyPort, caCertLocation, passthroughArgs)
 	}
 
-	maybeMatchingExtension := matchExtension(passthroughArgs, c.Extensions)
-	if maybeMatchingExtension != nil {
-		matchedExtension := maybeMatchingExtension
-		c.config.DebugLogger.Println("matched extension:", matchedExtension)
+	matchedCommand, _, err := c.ArgParserRootCmd.Find(passthroughArgs)
+	if err != nil {
+		fmt.Println("There was an error with c.ArgParserRootCmd.Find()")
+		return exit_codes.SNYK_EXIT_CODE_ERROR
+	}
 
-		matchedCommand, _, err := c.ArgParserRootCmd.Find(passthroughArgs)
-		if err != nil {
-			fmt.Println("There was an error with c.ArgParserRootCmd.Find()")
-			return exit_codes.SNYK_EXIT_CODE_ERROR
-		}
+	if matchedCommand != nil {
+		maybeMatchingExtension := matchExtension([]string{matchedCommand.Name()}, c.Extensions)
+		if maybeMatchingExtension != nil {
+			matchedExtension := maybeMatchingExtension
+			c.config.DebugLogger.Println("matched extension:", matchedExtension)
 
-		extensionInput := MakeExtensionInput(matchedExtension.Metadata, matchedCommand, passthroughArgs, c.config.Debug, wrapperProxyPort)
-		if err != nil {
-			fmt.Println(err)
-			return exit_codes.SNYK_EXIT_CODE_ERROR
+			extensionInput := MakeExtensionInput(matchedExtension.Metadata, matchedCommand, passthroughArgs, c.config.Debug, wrapperProxyPort)
+			if err != nil {
+				fmt.Println(err)
+				return exit_codes.SNYK_EXIT_CODE_ERROR
+			}
+			utils.PrettyLogObject(extensionInput, c.config.DebugLogger)
+			return c.executeExtension(matchedExtension, extensionInput)
 		}
-		utils.PrettyLogObject(extensionInput, c.config.DebugLogger)
-		return c.executeExtension(matchedExtension, extensionInput)
 	}
 
 	c.config.DebugLogger.Println("No matching built-in handlers or extensions. Falling back on CLIv1")
