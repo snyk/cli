@@ -225,6 +225,7 @@ test-signature: $(ISSIGNED_SCRIPT)
 .PHONY: clean
 clean:
 	@$(GOCMD) clean
+	@$(GOCMD) clean -testcache
 	@rm -f -r $(BUILD_DIR)
 	@rm -f -r $(CACHE_DIR)
 	@rm -f -r $(BUILD_EXTENSIONS_DIR)
