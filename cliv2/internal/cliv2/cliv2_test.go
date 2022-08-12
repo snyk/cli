@@ -155,7 +155,7 @@ func Test_executeRunV2only(t *testing.T) {
 	cli := cliv2.NewCLIv2(config, extensions, argParserRootCmd)
 	actualReturnCode := cli.Execute(1000, "", args)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
-	assert.NoFileExists(t, cli.GetBinaryLocation())
+	assert.FileExists(t, cli.GetBinaryLocation())
 
 	os.RemoveAll(cacheDir)
 }

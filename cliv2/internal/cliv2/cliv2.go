@@ -75,6 +75,12 @@ func NewCLIv2(config *CliConfiguration, extensions []*extension.Extension, argPa
 		ArgParserRootCmd: argParserRootCmd,
 	}
 
+	err = cli.ExtractV1Binary()
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
 	return &cli
 }
 
