@@ -13,12 +13,16 @@ import {
 } from '../../../formatters/iac-output';
 import { formatSnykIacTestTestData } from '../../../formatters/iac-output';
 import { jsonStringifyLargeObject } from '../../../json';
-import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-execution/types';
+import {
+  IaCErrorCodes,
+  IacOrgSettings,
+} from '../../../../cli/commands/test/iac/local-execution/types';
 import { convertEngineToSarifResults } from './sarif';
 import { CustomError, FormattedCustomError } from '../../../errors';
 import { SnykIacTestError } from './errors';
 import stripAnsi from 'strip-ansi';
 import * as path from 'path';
+import { getErrorStringCode } from '../../../../cli/commands/test/iac/local-execution/error-utils';
 
 export function buildOutput({
   scanResult,
@@ -82,15 +86,11 @@ function buildTestCommandResultData({
     convertEngineToSarifResults(scanResult),
   );
 
-  const isPartialSuccess =
-    scanResult.results?.resources?.length || !scanResult.errors?.length;
-  if (!isPartialSuccess) {
-    throw new NoSuccessfulScansError(
-      { json: jsonData, sarif: sarifData },
-      scanResult.errors!,
-      options,
-    );
-  }
+  assertHasSuccessfulScans(
+    scanResult,
+    { json: jsonData, sarif: sarifData },
+    options,
+  );
 
   let responseData: string;
   if (options.json) {
@@ -101,8 +101,8 @@ function buildTestCommandResultData({
     responseData = buildTextOutput({ scanResult, projectName, orgSettings });
   }
 
-  const isFoundIssues = !!scanResult.results?.vulnerabilities?.length;
-  if (isFoundIssues) {
+  const hasVulnerabilities = !!scanResult.results?.vulnerabilities?.length;
+  if (hasVulnerabilities) {
     throw new FoundIssuesError({
       response: responseData,
       json: jsonData,
@@ -156,6 +156,26 @@ function buildTextOutput({
   return response;
 }
 
+function assertHasSuccessfulScans(
+  scanResult: TestOutput,
+  responseData: Omit<ResponseData, 'response'>,
+  options: { json?: boolean; sarif?: boolean },
+): void {
+  const hasResources = !!scanResult.results?.resources?.length;
+  const hasErrors = !!scanResult.errors?.length;
+  const hasSuccessfulScans = hasResources || !hasErrors;
+
+  if (!hasSuccessfulScans) {
+    const hasLoadableInput = scanResult.errors!.some(
+      (error) => error.code !== IaCErrorCodes.NoLoadableInput,
+    );
+
+    throw hasLoadableInput
+      ? new NoSuccessfulScansError(responseData, scanResult.errors!, options)
+      : new NoLoadableInputError(responseData, scanResult.errors!, options);
+  }
+}
+
 interface ResponseData {
   response: string;
   json: string;
@@ -191,8 +211,9 @@ export class NoSuccessfulScansError extends FormattedCustomError {
           )
         : stripAnsi(message),
     );
-    this.strCode = firstErr.strCode;
+
     this.code = firstErr.code;
+    this.strCode = firstErr.strCode;
     this.json = isText ? responseData.json : message;
     this.jsonStringifiedResults = responseData.json;
     this.sarifStringifiedResults = responseData.sarif;
@@ -205,6 +226,19 @@ export class NoSuccessfulScansError extends FormattedCustomError {
 
   public set path(path1: string) {
     this.fields.path = path1;
+  }
+}
+
+export class NoLoadableInputError extends NoSuccessfulScansError {
+  constructor(
+    responseData: Omit<ResponseData, 'response'>,
+    errors: SnykIacTestError[],
+    options: { json?: boolean; sarif?: boolean },
+  ) {
+    super(responseData, errors, options);
+
+    (this.code = IaCErrorCodes.NoFilesToScanError),
+      (this.strCode = getErrorStringCode(this.code));
   }
 }
 

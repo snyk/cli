@@ -197,12 +197,12 @@
   "errors": [
     {
       "name": "SnykIacTestError",
-      "message": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",
-      "userMessage": "invalid input for input type",
-      "code": 2106,
-      "strCode": "INVALID_INPUT",
+      "message": "failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml",
+      "userMessage": "failed to parse input",
+      "code": 2105,
+      "strCode": "FAILED_TO_PARSE_INPUT",
       "fields": {
-        "path": "/Users/yairzohar/snyk/upe-test/README.txt"
+        "path": "/Users/yairzohar/snyk/upe-test/invalid-cfn.yml"
       }
     }
   ],
