@@ -91,69 +91,6 @@ test('`test pip-app-license-issue` legal instructions displayed (legacy formatte
   t.end();
 });
 
-test('test reachability info is displayed', async (t) => {
-  chdirWorkspaces();
-  const stubbedResponse = JSON.parse(
-    fs.readFileSync(
-      getWorkspacePath('reachable-vulns/maven/test-dep-graph-response.json'),
-      'utf8',
-    ),
-  );
-  const snykTestStub = sinon.stub(snyk, 'test').returns(stubbedResponse);
-  try {
-    await cli.test('maven-app', {
-      reachableVulns: true,
-    });
-  } catch (error) {
-    const { message } = error;
-    t.match(
-      message,
-      ' In addition, found 1 vulnerability with a reachable path.',
-    );
-    t.match(message, '[Reachable]');
-  }
-
-  snykTestStub.restore();
-  t.end();
-});
-
-test('test info is displayed when reachability with json flag', async (t) => {
-  chdirWorkspaces();
-  const stubbedResponse = JSON.parse(
-    fs.readFileSync(
-      getWorkspacePath(
-        'reachable-vulns/maven/test-dep-graph-response-reachable.json',
-      ),
-      'utf8',
-    ),
-  );
-  const snykTestStub = sinon.stub(snyk, 'test').returns(stubbedResponse);
-  try {
-    await cli.test('maven-app', {
-      reachableVulns: true,
-      json: true,
-    });
-  } catch (error) {
-    let { message } = error;
-    message = JSON.parse(message);
-
-    const reachabilities = message.vulnerabilities.map(
-      (vuln) => vuln.reachability,
-    );
-
-    t.deepEqual(reachabilities, [
-      'potentially-reachable',
-      'no-path-found',
-      'reachable',
-    ]);
-    const resType = error.constructor.name;
-    t.equal(resType, 'Error');
-  }
-
-  snykTestStub.restore();
-  t.end();
-});
-
 test('`test npm-package-with-severity-override` show original severity upgrade', async (t) => {
   chdirWorkspaces();
   const stubbedResponse = JSON.parse(

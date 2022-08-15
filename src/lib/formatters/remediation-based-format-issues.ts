@@ -10,27 +10,15 @@ import {
   LegalInstruction,
   PatchRemediation,
   PinRemediation,
-  REACHABILITY,
   RemediationChanges,
   SEVERITY,
   UpgradeRemediation,
 } from '../../lib/snyk-test/legacy';
 import { colorTextBySeverity } from '../../lib/snyk-test/common';
 import { formatLegalInstructions } from './legal-license-instructions';
-import {
-  formatReachability,
-  formatReachablePaths,
-} from './format-reachability';
-import {
-  BasicVulnInfo,
-  SampleReachablePaths,
-  UpgradesByAffectedPackage,
-} from './types';
+import { BasicVulnInfo, UpgradesByAffectedPackage } from './types';
 import { PATH_SEPARATOR } from '../constants';
 import { getSeverityValue } from './get-severity-value';
-
-// How many reachable paths to show in the output
-const MAX_REACHABLE_PATHS = 2;
 
 export function formatIssuesWithRemediation(
   vulns: GroupedVuln[],
@@ -45,16 +33,6 @@ export function formatIssuesWithRemediation(
     [name: string]: BasicVulnInfo;
   } = {};
   for (const vuln of vulns) {
-    const allReachablePaths: SampleReachablePaths = { pathCount: 0, paths: [] };
-    for (const issue of vuln.list) {
-      const issueReachablePaths = issue.reachablePaths?.paths || [];
-      for (const functionReachablePaths of issueReachablePaths) {
-        allReachablePaths.paths = allReachablePaths.paths.concat(
-          functionReachablePaths.callPaths,
-        );
-        allReachablePaths.pathCount += functionReachablePaths.callPaths.length;
-      }
-    }
     const vulnData = {
       title: vuln.title,
       severity: vuln.severity,
@@ -67,8 +45,6 @@ export function formatIssuesWithRemediation(
       note: vuln.note,
       legalInstructions: vuln.legalInstructionsArray,
       paths: vuln.list.map((v) => v.from),
-      reachability: vuln.reachability,
-      sampleReachablePaths: allReachablePaths,
     };
 
     if (vulnData.type === 'license') {
@@ -249,8 +225,6 @@ function thisUpgradeFixes(
         basicVulnInfo[id].note,
         basicVulnInfo[id].originalSeverity,
         [],
-        basicVulnInfo[id].reachability,
-        basicVulnInfo[id].sampleReachablePaths,
       ),
     )
     .join('\n');
@@ -403,7 +377,6 @@ function constructUnfixableText(
         issueInfo.note,
         issueInfo.originalSeverity,
         [],
-        issue.reachability,
       ) + `${extraInfo}`,
     );
   }
@@ -432,18 +405,12 @@ export function formatIssue(
   note: string | false,
   originalSeverity?: SEVERITY,
   legalInstructions?: LegalInstruction[],
-  reachability?: REACHABILITY,
-  sampleReachablePaths?: SampleReachablePaths,
 ): string {
   const newBadge = isNew ? ' (new)' : '';
   const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';
   let legalLicenseInstructionsText;
   if (legalInstructions) {
     legalLicenseInstructionsText = formatLegalInstructions(legalInstructions);
-  }
-  let reachabilityText = '';
-  if (reachability) {
-    reachabilityText = formatReachability(reachability);
   }
 
   let introducedBy = '';
@@ -475,12 +442,6 @@ export function formatIssue(
     }
   }
 
-  const reachableVia = formatReachablePaths(
-    sampleReachablePaths,
-    MAX_REACHABLE_PATHS,
-    reachablePathsTemplate,
-  );
-
   let originalSeverityStr = '';
   if (originalSeverity && originalSeverity !== severity) {
     originalSeverityStr = ` (originally ${titleCaseText(originalSeverity)})`;
@@ -493,10 +454,8 @@ export function formatIssue(
         severity,
       )} Severity${originalSeverityStr}]`,
     ) +
-    reachabilityText +
     `[${config.PUBLIC_VULN_DB_URL}/vuln/${id}]` +
     name +
-    reachableVia +
     introducedBy +
     (legalLicenseInstructionsText
       ? `${chalk.bold(
@@ -509,26 +468,4 @@ export function formatIssue(
 
 function titleCaseText(text) {
   return text[0].toUpperCase() + text.slice(1);
-}
-
-function reachablePathsTemplate(
-  samplePaths: string[],
-  extraPathsCount: number,
-): string {
-  if (samplePaths.length === 0 && extraPathsCount === 0) {
-    return '';
-  }
-  if (samplePaths.length === 0) {
-    return `\n    reachable via at least ${extraPathsCount} paths`;
-  }
-  let reachableVia = '\n    reachable via:\n';
-  for (const p of samplePaths) {
-    reachableVia += `    ${p}\n`;
-  }
-  if (extraPathsCount > 0) {
-    reachableVia += `    and at least ${chalk.cyanBright(
-      '' + extraPathsCount,
-    )} other path(s)`;
-  }
-  return reachableVia;
 }

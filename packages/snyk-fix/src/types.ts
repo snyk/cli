@@ -141,7 +141,6 @@ export interface IssueData {
   severity: SEVERITY;
   fixedIn: string[];
   legalInstructions?: string;
-  reachability?: REACHABILITY;
 }
 
 interface Patch {
@@ -149,13 +148,6 @@ interface Patch {
   id: string;
   urls: string[];
   modificationTime: string;
-}
-
-export enum REACHABILITY {
-  FUNCTION = 'function',
-  PACKAGE = 'package',
-  NOT_REACHABLE = 'not-reachable',
-  NO_INFO = 'no-info',
 }
 
 export interface PatchObject {

@@ -64,17 +64,6 @@ Issues with no direct upgrade or patch:
   This issue was fixed in versions: 2.2.18, 3.0.12, 3.1.6"
 `;
 
-exports[`with reachable info 1`] = `
-"
-
-Issues to fix by upgrading:
-
-  Upgrade package-name@1.6.1 to package-name@1.6.3 to fix
-  ✗ Arbitrary Code Execution [Medium Severity][Reachable][URL] in package-name@1.6.1
-    introduced by:
-    package-name@1.6.1"
-`;
-
 exports[`with showVulnPaths = some 1`] = `
 "
 

@@ -47,10 +47,6 @@ const DEBUG_DEFAULT_NAMESPACES = [
   'snyk-java-call-graph-builder',
 ];
 
-// NOTE[muscar] This is accepted in seconds for UX reasons, the maven plugin
-// turns it into milliseconds before calling the call graph generator
-const REACHABLE_VULNS_TIMEOUT = 5 * 60; // 5 min (in seconds)
-
 function dashToCamelCase(dash) {
   return dash.indexOf('-') < 0
     ? dash
@@ -221,10 +217,6 @@ export function args(rawArgv: string[]): Args {
     'yarn-workspaces',
     'maven-aggregate-project',
     'detection-depth',
-    'reachable',
-    'reachable-vulns',
-    'reachable-timeout',
-    'reachable-vulns-timeout',
     'init-script',
     'integration-name',
     'integration-version',
@@ -263,21 +255,10 @@ export function args(rawArgv: string[]): Args {
     }
   }
 
-  if (
-    (argv.reachableVulns || argv.reachable) &&
-    argv.reachableTimeout === undefined &&
-    argv.reachableVulnsTimeout === undefined
-  ) {
-    argv.reachableVulnsTimeout = REACHABLE_VULNS_TIMEOUT.toString();
-  }
-
   // Alias
   const aliases = {
     gradleSubProject: 'subProject',
     container: 'docker',
-    reachable: 'reachableVulns',
-    reachableTimeout: 'callGraphBuilderTimeout',
-    reachableVulnsTimeout: 'callGraphBuilderTimeout',
   };
   for (const argAlias in aliases) {
     if (argv[argAlias]) {

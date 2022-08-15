@@ -5,10 +5,6 @@ import {
   TestOptions,
 } from '../../types';
 import {
-  getReachabilityJson,
-  summariseReachableVulns,
-} from '../format-reachability';
-import {
   GroupedVuln,
   SEVERITY,
   TestResult,
@@ -65,14 +61,6 @@ function formatJsonVulnerabilityStructure(jsonResult, options: Options) {
         return acc;
       }, {}),
     ).reverse();
-  }
-
-  if (jsonResult.vulnerabilities) {
-    jsonResult.vulnerabilities.forEach((vuln) => {
-      if (vuln.reachability) {
-        vuln.reachability = getReachabilityJson(vuln.reachability);
-      }
-    });
   }
 }
 
@@ -180,16 +168,7 @@ export function getDisplayedOutput(
     vulnCountText += '.';
   }
 
-  const reachableVulnsText =
-    options.reachableVulns && vulnCount > 0
-      ? ` ${summariseReachableVulns(res.vulnerabilities)}`
-      : '';
-
-  const summary =
-    testedInfoText +
-    ', ' +
-    chalk.red.bold(vulnCountText) +
-    chalk.blue.bold(reachableVulnsText);
+  const summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
 
   const fixTip = showFixTip(projectType, res, options);
   const fixAdvice = fixTip ? `\n\n${fixTip}` : '';

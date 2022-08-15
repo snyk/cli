@@ -6,7 +6,6 @@ import { apiOrOAuthTokenExists, getAuthHeader } from '../api-token';
 import { makeRequest } from '../request';
 import config from '../config';
 import * as os from 'os';
-const get = require('lodash.get');
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
 import {
@@ -35,13 +34,8 @@ import { dropEmptyDeps } from './drop-empty-deps';
 import { pruneTree } from './prune-dep-tree';
 import { findAndLoadPolicy } from '../policy';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
-import {
-  CallGraph,
-  CallGraphError,
-  ScannedProject,
-} from '@snyk/cli-interface/legacy/common';
+import { CallGraph, ScannedProject } from '@snyk/cli-interface/legacy/common';
 import { isGitTarget } from '../project-metadata/types';
-import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import {
   getNameDepTree,
   getNameDepGraph,
@@ -49,12 +43,8 @@ import {
   getTargetFile,
 } from './utils';
 import { countPathsToGraphRoot } from '../utils';
-import * as alerts from '../alerts';
-import { abridgeErrorMessage } from '../error-format';
 
 const debug = Debug('snyk');
-
-const ANALYTICS_PAYLOAD_MAX_LENGTH = 1024;
 
 interface MonitorBody {
   meta: Meta;
@@ -209,41 +199,6 @@ async function monitorDepTree(
   depTree = dropEmptyDeps(depTree);
 
   let callGraphPayload;
-  if (
-    options.reachableVulns &&
-    (scannedProject.callGraph as CallGraphError)?.innerError
-  ) {
-    const err = scannedProject.callGraph as CallGraphError;
-    analytics.add(
-      'callGraphError',
-      abridgeErrorMessage(
-        err.innerError.toString(),
-        ANALYTICS_PAYLOAD_MAX_LENGTH,
-      ),
-    );
-    alerts.registerAlerts([
-      {
-        type: 'error',
-        name: 'missing-call-graph',
-        msg: err.message,
-      },
-    ]);
-  } else if (scannedProject.callGraph) {
-    const { callGraph, nodeCount, edgeCount } = serializeCallGraphWithMetrics(
-      scannedProject.callGraph as CallGraph,
-    );
-    debug(
-      `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
-    );
-
-    const callGraphMetrics = get(pluginMeta, 'meta.callGraphMetrics', {});
-    analytics.add('callGraphMetrics', {
-      callGraphEdgeCount: edgeCount,
-      callGraphNodeCount: nodeCount,
-      ...callGraphMetrics,
-    });
-    callGraphPayload = callGraph;
-  }
 
   if (!depTree) {
     debug(
@@ -367,41 +322,6 @@ export async function monitorDepGraph(
   depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
 
   let callGraphPayload;
-  if (
-    options.reachableVulns &&
-    (scannedProject.callGraph as CallGraphError)?.innerError
-  ) {
-    const err = scannedProject.callGraph as CallGraphError;
-    analytics.add(
-      'callGraphError',
-      abridgeErrorMessage(
-        err.innerError.toString(),
-        ANALYTICS_PAYLOAD_MAX_LENGTH,
-      ),
-    );
-    alerts.registerAlerts([
-      {
-        type: 'error',
-        name: 'missing-call-graph',
-        msg: err.message,
-      },
-    ]);
-  } else if (scannedProject.callGraph) {
-    const { callGraph, nodeCount, edgeCount } = serializeCallGraphWithMetrics(
-      scannedProject.callGraph as CallGraph,
-    );
-    debug(
-      `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
-    );
-
-    const callGraphMetrics = get(pluginMeta, 'meta.callGraphMetrics', {});
-    analytics.add('callGraphMetrics', {
-      callGraphEdgeCount: edgeCount,
-      callGraphNodeCount: nodeCount,
-      ...callGraphMetrics,
-    });
-    callGraphPayload = callGraph;
-  }
 
   if (!depGraph) {
     debug(

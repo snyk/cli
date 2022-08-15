@@ -67,7 +67,6 @@
     "@snyk/docker-registry-v2-client": "^2.7.1",
     "@snyk/fix": "file:packages/snyk-fix",
     "@snyk/gemfile": "1.2.0",
-    "@snyk/graphlib": "^2.1.9-patch.3",
     "@snyk/snyk-cocoapods-plugin": "2.5.2",
     "@snyk/snyk-hex-plugin": "1.1.4",
     "@types/jest-json-schema": "^6.1.1",

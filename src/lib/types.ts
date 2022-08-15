@@ -17,8 +17,6 @@ export interface TestOptions {
   pruneRepeatedSubdependencies?: boolean;
   showVulnPaths: ShowVulnPaths;
   failOn?: FailOn;
-  reachableVulns?: boolean;
-  reachableVulnsTimeout?: number;
   initScript?: string;
   yarnWorkspaces?: boolean;
   gradleSubProject?: boolean;
@@ -109,8 +107,6 @@ export interface MonitorOptions {
   experimental?: boolean;
   // Used with the Docker plugin only. Allows application scanning.
   'app-vulns'?: boolean;
-  reachableVulns?: boolean;
-  reachableVulnsTimeout?: number;
   initScript?: string;
   yarnWorkspaces?: boolean;
   'max-depth'?: number;

@@ -1,8 +1,6 @@
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { mkdir, readFileSync } from 'fs';
-import * as graphlib from '@snyk/graphlib';
-import { CallGraph } from '@snyk/cli-interface/legacy/common';
 
 export function silenceLog() {
   const old = console.log;
@@ -39,8 +37,4 @@ export async function makeTmpDirectory(): Promise<string> {
 
 export function loadJson(filename: string) {
   return JSON.parse(readFileSync(filename, 'utf-8'));
-}
-
-export function createCallGraph(callGraphPayload: any): CallGraph {
-  return graphlib.json.read(callGraphPayload);
 }
