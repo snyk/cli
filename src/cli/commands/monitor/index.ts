@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import * as Debug from 'debug';
 import * as pathUtil from 'path';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { validateOptions } from '../../../lib/options-validator';
 import { checkOSSPaths } from '../../../lib/check-paths';
 
 import {
@@ -143,11 +142,6 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       } else {
         packageManager = detect.detectPackageManager(path, options);
       }
-
-      await validateOptions(
-        options as Options & MonitorOptions,
-        packageManager,
-      );
 
       const targetFile =
         !options.scanAllUnmanaged && options.docker && !options.file // snyk monitor --docker (without --file)

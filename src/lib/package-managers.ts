@@ -83,7 +83,3 @@ export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
 export const PINNING_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
   'pip',
 ];
-export const REACHABLE_VULNS_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
-  'maven',
-  'gradle',
-];

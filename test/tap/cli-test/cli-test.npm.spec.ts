@@ -1,6 +1,5 @@
 import { AcceptanceTests } from '../cli-test.acceptance.test';
 import { CommandResult } from '../../../src/cli/commands/types';
-import alerts = require('../../../src/lib/alerts');
 import { getFixturePath } from '../../jest/util/getFixturePath';
 
 export const NpmTests: AcceptanceTests = {
@@ -251,17 +250,6 @@ export const NpmTests: AcceptanceTests = {
         ['npm-package-subfolder@1.0.0', 'to-array@0.1.4'].sort(),
         'depGraph looks fine',
       );
-    },
-
-    'test --reachable is not supported for npm': (params, utils) => async (
-      t,
-    ) => {
-      utils.chdirWorkspaces();
-      await params.cli.test('npm-package', {
-        file: 'package-lock.json',
-        reachableVulns: true,
-      });
-      t.true(alerts.hasAlert('pkgman-not-supported'));
     },
   },
 };

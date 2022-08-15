@@ -81,30 +81,6 @@ it('with upgrades & patches', () => {
     stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
   ).toMatchSnapshot();
 });
-it('with reachable info', () => {
-  const withRemediation = JSON.parse(
-    fs.readFileSync(
-      getWorkspacePath('reachable-vulns/maven/test-dep-graph-response.json'),
-      'utf8',
-    ),
-  );
-  const groupedVulns = groupVulnerabilities(withRemediation.vulnerabilities);
-
-  const sortedGroupedVulns = orderBy(
-    groupedVulns,
-    ['metadata.severityValue', 'metadata.name'],
-    ['asc', 'desc'],
-  );
-
-  const res = formatIssuesWithRemediation(
-    sortedGroupedVulns,
-    withRemediation.remediation,
-    { showVulnPaths: 'all' },
-  );
-  expect(
-    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
-  ).toMatchSnapshot();
-});
 
 it('with license issues', () => {
   const withRemediation = JSON.parse(

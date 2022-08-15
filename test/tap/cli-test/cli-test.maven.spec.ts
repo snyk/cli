@@ -5,8 +5,6 @@ import * as subProcess from '../../../src/lib/sub-process';
 
 import { AcceptanceTests } from '../cli-test.acceptance.test';
 import * as depGraphLib from '@snyk/dep-graph';
-import { createCallGraph } from '../../utils';
-import { getFixturePath } from '../../jest/util/getFixturePath';
 
 /**
  * We can't expect all test environments to have Maven installed
@@ -212,67 +210,6 @@ export const MavenTests: AcceptanceTests = {
             path: 'maven-app-with-jars',
             showVulnPaths: 'some',
             scanAllUnmanaged: true,
-          },
-        ],
-        'calls mvn plugin',
-      );
-    },
-
-    '`test maven-app-with-jars --reachable-vulns` sends call graph': (
-      params,
-      utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-      const callGraphPayload = require(getFixturePath(
-        'call-graphs/maven.json',
-      ));
-      const callGraph = createCallGraph(callGraphPayload);
-      const plugin = {
-        async inspect() {
-          return {
-            package: {},
-            plugin: { name: 'testplugin', runtime: 'testruntime' },
-            callGraph,
-          };
-        },
-      };
-      const spyPlugin = sinon.spy(plugin, 'inspect');
-      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
-      t.teardown(loadPlugin.restore);
-      loadPlugin.withArgs('maven').returns(plugin);
-      await params.cli.test('maven-app-with-jars', {
-        reachableVulns: true,
-        file: 'example.jar',
-      });
-      const req = params.server.popRequest();
-      t.equal(req.method, 'POST', 'makes POST request');
-      t.equal(
-        req.headers['x-snyk-cli-version'],
-        params.versionNumber,
-        'sends version number',
-      );
-      t.match(req.url, '/test-dep-graph', 'posts to correct url');
-      t.match(req.body.targetFile, undefined, 'target is undefined');
-      t.equal(req.body.depGraph.pkgManager.name, 'maven');
-      t.deepEqual(
-        req.body.callGraph,
-        callGraphPayload,
-        'correct call graph sent',
-      );
-      t.same(
-        spyPlugin.getCall(0).args,
-        [
-          'maven-app-with-jars',
-          'example.jar',
-          {
-            args: null,
-            file: 'example.jar',
-            org: null,
-            projectName: null,
-            packageManager: 'maven',
-            path: 'maven-app-with-jars',
-            showVulnPaths: 'some',
-            reachableVulns: true,
           },
         ],
         'calls mvn plugin',

@@ -54,8 +54,6 @@ import {
 } from '../plugins/get-multi-plugin-result';
 import { extractPackageManager } from '../plugins/extract-package-manager';
 import { getExtraProjectCount } from '../plugins/get-extra-project-count';
-import { serializeCallGraphWithMetrics } from '../reachable-vulns';
-import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
 import {
   Payload,
@@ -63,9 +61,6 @@ import {
   DepTreeFromResolveDeps,
   TestDependenciesRequest,
 } from './types';
-import { CallGraphError, CallGraph } from '@snyk/cli-interface/legacy/common';
-import * as alerts from '../alerts';
-import { abridgeErrorMessage } from '../error-format';
 import { getAuthHeader } from '../api-token';
 import { getEcosystem } from '../ecosystems';
 import { Issue } from '../ecosystems/types';
@@ -74,8 +69,6 @@ import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 
 const debug = debugModule('snyk:run-test');
-
-const ANALYTICS_PAYLOAD_MAX_LENGTH = 1024;
 
 function prepareResponseForParsing(
   payload: Payload,
@@ -287,7 +280,6 @@ export async function runTest(
 ): Promise<TestResult[]> {
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
-    await validateOptions(options, options.packageManager);
     const payloads = await assemblePayloads(root, options);
     return await sendAndParseResults(payloads, spinnerLbl, root, options);
   } catch (error) {
@@ -726,46 +718,6 @@ async function assembleLocalPayloads(
       }
       body.depGraph = depGraph;
 
-      if (
-        options.reachableVulns &&
-        (scannedProject.callGraph as CallGraphError)?.message
-      ) {
-        const err = scannedProject.callGraph as CallGraphError;
-        const analyticsError = err.innerError || err;
-        analytics.add('callGraphError', {
-          errorType: analyticsError.constructor?.name,
-          message: abridgeErrorMessage(
-            analyticsError.message.toString(),
-            ANALYTICS_PAYLOAD_MAX_LENGTH,
-          ),
-        });
-        alerts.registerAlerts([
-          {
-            type: 'error',
-            name: 'missing-call-graph',
-            msg: err.message,
-          },
-        ]);
-      } else if (scannedProject.callGraph) {
-        const {
-          callGraph,
-          nodeCount,
-          edgeCount,
-        } = serializeCallGraphWithMetrics(
-          scannedProject.callGraph as CallGraph,
-        );
-        debug(
-          `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
-        );
-
-        const callGraphMetrics = get(deps.plugin, 'meta.callGraphMetrics', {});
-        analytics.add('callGraphMetrics', {
-          callGraphEdgeCount: edgeCount,
-          callGraphNodeCount: nodeCount,
-          ...callGraphMetrics,
-        });
-        body.callGraph = callGraph;
-      }
       const reqUrl =
         config.API +
         (options.testDepGraphDockerEndpoint ||

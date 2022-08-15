@@ -1,14 +1,4 @@
-import {
-  CallPath,
-  LegalInstruction,
-  REACHABILITY,
-  SEVERITY,
-} from '../../lib/snyk-test/legacy';
-
-export interface SampleReachablePaths {
-  pathCount: number;
-  paths: CallPath[];
-}
+import { LegalInstruction, SEVERITY } from '../../lib/snyk-test/legacy';
 
 export interface BasicVulnInfo {
   type: string;
@@ -22,8 +12,6 @@ export interface BasicVulnInfo {
   legalInstructions?: LegalInstruction[];
   paths: string[][];
   note: string | false;
-  reachability?: REACHABILITY;
-  sampleReachablePaths?: SampleReachablePaths;
 }
 
 interface TopLevelPackageUpgrade {

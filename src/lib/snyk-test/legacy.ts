@@ -28,13 +28,6 @@ export enum SEVERITY {
   CRITICAL = 'critical',
 }
 
-export enum REACHABILITY {
-  FUNCTION = 'function',
-  PACKAGE = 'package',
-  NOT_REACHABLE = 'not-reachable',
-  NO_INFO = 'no-info',
-}
-
 export interface VulnMetaData {
   id: string;
   title: string;
@@ -63,7 +56,6 @@ export interface GroupedVuln {
   isFixable: boolean;
   fixedIn: string[];
   legalInstructionsArray?: LegalInstruction[];
-  reachability?: REACHABILITY;
 }
 
 export interface LegalInstruction {
@@ -90,23 +82,12 @@ export interface IssueData {
   severity: SEVERITY;
   fixedIn: string[];
   legalInstructions?: string;
-  reachability?: REACHABILITY;
   packageManager?: SupportedProjectTypes;
   from?: string[];
   name?: string;
 }
 
 export type CallPath = string[];
-
-export interface ReachableFunctionPaths {
-  functionName: string;
-  callPaths: CallPath[];
-}
-
-export interface ReachablePaths {
-  pathCount: number;
-  paths: ReachableFunctionPaths[];
-}
 
 interface AnnotatedIssue extends IssueData {
   credit: string[];
@@ -131,7 +112,6 @@ interface AnnotatedIssue extends IssueData {
   note?: string | false;
   publicationTime?: string;
 
-  reachablePaths?: ReachablePaths;
   identifiers?: {
     [name: string]: string[];
   };
