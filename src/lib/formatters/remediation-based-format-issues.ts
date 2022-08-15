@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 import { icon } from '../theme';
-import config from '../../lib/config';
 import { TestOptions } from '../../lib/types';
 import {
   DependencyPins,
@@ -19,6 +18,7 @@ import { formatLegalInstructions } from './legal-license-instructions';
 import { BasicVulnInfo, UpgradesByAffectedPackage } from './types';
 import { PATH_SEPARATOR } from '../constants';
 import { getSeverityValue } from './get-severity-value';
+import { getVulnerabilityUrl } from './get-vuln-url';
 
 export function formatIssuesWithRemediation(
   vulns: GroupedVuln[],
@@ -454,7 +454,7 @@ export function formatIssue(
         severity,
       )} Severity${originalSeverityStr}]`,
     ) +
-    `[${config.PUBLIC_VULN_DB_URL}/vuln/${id}]` +
+    `[${getVulnerabilityUrl(id)}]` +
     name +
     introducedBy +
     (legalLicenseInstructionsText

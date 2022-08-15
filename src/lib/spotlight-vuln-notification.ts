@@ -2,6 +2,7 @@ import * as theme from './theme';
 import * as createDebug from 'debug';
 import { EOL } from 'os';
 import config from './config';
+import { getVulnerabilityUrl } from './formatters/get-vuln-url';
 
 const debug = createDebug('snyk-spotlight-vuln-notification');
 
@@ -42,7 +43,7 @@ export function notificationForSpotlightVulns(
           );
 
           for (const vulnId of foundSpotlightVulnsIds) {
-            message += `  - ${vulnId} (See ${config.PUBLIC_VULN_DB_URL}/vuln/${vulnId})`;
+            message += `  - ${vulnId} (See ${getVulnerabilityUrl(vulnId)})`;
           }
 
           message += EOL + EOL;

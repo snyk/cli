@@ -1,7 +1,6 @@
 const uniq = require('lodash.uniq');
 import chalk from 'chalk';
 
-import config from '../../lib/config';
 import { Options, TestOptions, ShowVulnPaths } from '../../lib/types';
 import { isLocalFolder } from '../../lib/detect';
 import { parsePackageString as snykModule } from 'snyk-module';
@@ -18,6 +17,7 @@ import {
 import { formatLegalInstructions } from './legal-license-instructions';
 import { colorTextBySeverity } from '../../lib/snyk-test/common';
 import { PATH_SEPARATOR } from '../constants';
+import { getVulnerabilityUrl } from './get-vuln-url';
 
 export function formatIssues(
   vuln: GroupedVuln,
@@ -45,9 +45,7 @@ export function formatIssues(
     }),
     introducedThrough: '  Introduced through: ' + uniquePackages,
     description: '  Description: ' + vuln.title,
-    info:
-      '  Info: ' +
-      chalk.underline(config.PUBLIC_VULN_DB_URL + '/vuln/' + vulnID),
+    info: '  Info: ' + chalk.underline(getVulnerabilityUrl(vulnID)),
     fromPaths: createTruncatedVulnsPathsText(vuln.list, options.showVulnPaths),
     extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
     remediationInfo:
