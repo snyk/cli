@@ -17,7 +17,7 @@ export async function test(
   options: Options & TestOptions,
 ): Promise<TestCommandResult> {
   const testConfig = await prepareTestConfig(paths, options);
-  const { projectName, orgSettings } = testConfig;
+  const { orgSettings } = testConfig;
 
   const testSpinner = buildSpinner({
     options,
@@ -37,7 +37,6 @@ export async function test(
     return buildOutput({
       scanResult,
       testSpinner,
-      projectName,
       orgSettings,
       options,
     });
@@ -51,7 +50,6 @@ async function prepareTestConfig(
   options: Options & TestOptions,
 ): Promise<TestConfig> {
   const iacCachePath = pathLib.join(systemCachePath, 'iac');
-  const projectName = pathLib.basename(process.cwd());
 
   const org = (options.org as string) || config.org;
   const orgSettings = await getIacOrgSettings(org);
@@ -62,7 +60,6 @@ async function prepareTestConfig(
   return {
     paths,
     iacCachePath,
-    projectName,
     orgSettings,
     userRulesBundlePath: config.IAC_BUNDLE_PATH,
     userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
