@@ -351,10 +351,10 @@ func (c *CLI) executeExtension(extension *extension.Extension, extensionInput *c
 	buffer.WriteString("\n\n")
 	cmd.Stdin = &buffer
 
-	cmd.Start()
-	err = cmd.Wait()
-
+	err = cmd.Run()
 	if err != nil {
+		fmt.Printf("Failed to execute the extension: %v\n", err)
+
 		if exitError, ok := err.(*exec.ExitError); ok {
 			exitCode := exitError.ExitCode()
 			return exitCode
