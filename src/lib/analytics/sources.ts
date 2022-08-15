@@ -37,6 +37,7 @@ enum TrackedIntegration {
   VISUAL_STUDIO = 'VISUAL_STUDIO',
   VS_CODE = 'VS_CODE',
   VS_CODE_VULN_COST = 'VS_CODE_VULN_COST',
+  SUBLIME_TEXT_LSP = 'SUBLIME_TEXT_LSP',
 
   // CI - tracked by passing flag or envvar on CLI invocation
   JENKINS = 'JENKINS',
