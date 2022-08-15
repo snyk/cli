@@ -13,6 +13,7 @@ import { IacOrgSettings } from '../../../../../../../../src/cli/commands/test/ia
 import { SnykIacTestError } from '../../../../../../../../src/lib/iac/test/v2/errors';
 import {
   FoundIssuesError,
+  NoLoadableInputError,
   NoSuccessfulScansError,
 } from '../../../../../../../../src/lib/iac/test/v2/output';
 
@@ -66,6 +67,18 @@ describe('test', () => {
 
   const scanWithOnlyErrorsFixture = {
     errors: scanFixture.errors,
+  };
+
+  const scanWithoutLoadableInputsFixture = {
+    errors: [
+      new SnykIacTestError({
+        code: 2114,
+        message: 'no loadable input: path/to/test',
+        fields: {
+          path: 'path/to/test',
+        },
+      }),
+    ],
   };
 
   beforeEach(() => {
@@ -133,26 +146,72 @@ describe('test', () => {
         expect.objectContaining({
           name: 'NoSuccessfulScansError',
           message:
-            'invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt',
-          code: 2106,
-          strCode: 'INVALID_INPUT',
+            'failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml',
+          code: 2105,
+          strCode: 'FAILED_TO_PARSE_INPUT',
           fields: {
-            path: '/Users/yairzohar/snyk/upe-test/README.txt',
+            path: '/Users/yairzohar/snyk/upe-test/invalid-cfn.yml',
           },
-          path: '/Users/yairzohar/snyk/upe-test/README.txt',
+          path: '/Users/yairzohar/snyk/upe-test/invalid-cfn.yml',
           userMessage:
-            'Test Failures\n\n  Invalid input\n  Path: /Users/yairzohar/snyk/upe-test/README.txt',
+            'Test Failures\n\n  Failed to parse input\n  Path: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml',
           formattedUserMessage:
-            'Test Failures\n\n  Invalid input\n  Path: /Users/yairzohar/snyk/upe-test/README.txt',
+            'Test Failures\n\n  Failed to parse input\n  Path: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml',
           sarifStringifiedResults: expect.stringContaining(
             `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
           ),
           jsonStringifiedResults:
-            '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+            '[\n  {\n    "ok": false,\n    "error": "failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml",\n    "path": "/Users/yairzohar/snyk/upe-test/invalid-cfn.yml"\n  }\n]',
           json:
-            '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+            '[\n  {\n    "ok": false,\n    "error": "failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml",\n    "path": "/Users/yairzohar/snyk/upe-test/invalid-cfn.yml"\n  }\n]',
         }),
       );
+    });
+
+    describe('without loadable inputs', () => {
+      beforeEach(() => {
+        jest
+          .spyOn(scanLib, 'scan')
+          .mockReturnValue(scanWithoutLoadableInputsFixture);
+      });
+
+      it('throws the expected error', async () => {
+        // Arrange
+        let error;
+
+        // Act
+        try {
+          await test(['path/to/test'], defaultOptions);
+        } catch (err) {
+          error = err;
+        }
+
+        // Assert
+        expect(error).toBeInstanceOf(NoLoadableInputError);
+        expect(error).toEqual(
+          expect.objectContaining({
+            name: 'NoLoadableInputError',
+            message: 'no loadable input: path/to/test',
+            code: 1010,
+            strCode: 'NO_FILES_TO_SCAN_ERROR',
+            fields: {
+              path: 'path/to/test',
+            },
+            path: 'path/to/test',
+            userMessage:
+              "Test Failures\n\n  The Snyk CLI couldn't find any valid IaC configuration files to scan\n  Path: path/to/test",
+            formattedUserMessage:
+              "Test Failures\n\n  The Snyk CLI couldn't find any valid IaC configuration files to scan\n  Path: path/to/test",
+            sarifStringifiedResults: expect.stringContaining(
+              `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+            ),
+            jsonStringifiedResults:
+              '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+            json:
+              '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+          }),
+        );
+      });
     });
   });
 
@@ -207,26 +266,76 @@ describe('test', () => {
           expect.objectContaining({
             name: 'NoSuccessfulScansError',
             message:
-              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
-            code: 2106,
-            strCode: 'INVALID_INPUT',
+              '[\n  {\n    "ok": false,\n    "error": "failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml",\n    "path": "/Users/yairzohar/snyk/upe-test/invalid-cfn.yml"\n  }\n]',
+            code: 2105,
+            strCode: 'FAILED_TO_PARSE_INPUT',
             fields: {
-              path: '/Users/yairzohar/snyk/upe-test/README.txt',
+              path: '/Users/yairzohar/snyk/upe-test/invalid-cfn.yml',
             },
-            path: '/Users/yairzohar/snyk/upe-test/README.txt',
+            path: '/Users/yairzohar/snyk/upe-test/invalid-cfn.yml',
             userMessage:
-              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+              '[\n  {\n    "ok": false,\n    "error": "failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml",\n    "path": "/Users/yairzohar/snyk/upe-test/invalid-cfn.yml"\n  }\n]',
             formattedUserMessage:
-              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+              '[\n  {\n    "ok": false,\n    "error": "failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml",\n    "path": "/Users/yairzohar/snyk/upe-test/invalid-cfn.yml"\n  }\n]',
             sarifStringifiedResults: expect.stringContaining(
               `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
             ),
             jsonStringifiedResults:
-              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+              '[\n  {\n    "ok": false,\n    "error": "failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml",\n    "path": "/Users/yairzohar/snyk/upe-test/invalid-cfn.yml"\n  }\n]',
             json:
-              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+              '[\n  {\n    "ok": false,\n    "error": "failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml",\n    "path": "/Users/yairzohar/snyk/upe-test/invalid-cfn.yml"\n  }\n]',
           }),
         );
+      });
+
+      describe('without loadable inputs', () => {
+        beforeEach(() => {
+          jest
+            .spyOn(scanLib, 'scan')
+            .mockReturnValue(scanWithoutLoadableInputsFixture);
+        });
+
+        it('throws the expected error', async () => {
+          // Arrange
+          let error;
+
+          // Act
+          try {
+            await test(['path/to/test'], {
+              ...defaultOptions,
+              json: true,
+            });
+          } catch (err) {
+            error = err;
+          }
+
+          // Assert
+          expect(error).toBeInstanceOf(NoLoadableInputError);
+          expect(error).toEqual(
+            expect.objectContaining({
+              name: 'NoLoadableInputError',
+              message:
+                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+              code: 1010,
+              strCode: 'NO_FILES_TO_SCAN_ERROR',
+              fields: {
+                path: 'path/to/test',
+              },
+              path: 'path/to/test',
+              userMessage:
+                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+              formattedUserMessage:
+                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+              sarifStringifiedResults: expect.stringContaining(
+                `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+              ),
+              jsonStringifiedResults:
+                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+              json:
+                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+            }),
+          );
+        });
       });
     });
   });
@@ -277,12 +386,12 @@ describe('test', () => {
             message: expect.stringContaining(
               `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
             ),
-            code: 2106,
-            strCode: 'INVALID_INPUT',
+            code: 2105,
+            strCode: 'FAILED_TO_PARSE_INPUT',
             fields: {
-              path: '/Users/yairzohar/snyk/upe-test/README.txt',
+              path: '/Users/yairzohar/snyk/upe-test/invalid-cfn.yml',
             },
-            path: '/Users/yairzohar/snyk/upe-test/README.txt',
+            path: '/Users/yairzohar/snyk/upe-test/invalid-cfn.yml',
             userMessage: expect.stringContaining(
               `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
             ),
@@ -293,12 +402,66 @@ describe('test', () => {
               `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
             ),
             jsonStringifiedResults:
-              '[\n  {\n    "ok": false,\n    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",\n    "path": "/Users/yairzohar/snyk/upe-test/README.txt"\n  }\n]',
+              '[\n  {\n    "ok": false,\n    "error": "failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml",\n    "path": "/Users/yairzohar/snyk/upe-test/invalid-cfn.yml"\n  }\n]',
             json: expect.stringContaining(
               `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
             ),
           }),
         );
+      });
+
+      describe('without loadable inputs', () => {
+        beforeEach(() => {
+          jest
+            .spyOn(scanLib, 'scan')
+            .mockReturnValue(scanWithoutLoadableInputsFixture);
+        });
+
+        it('throws the expected error', async () => {
+          // Arrange
+          let error;
+
+          // Act
+          try {
+            await test(['path/to/test'], {
+              ...defaultOptions,
+              sarif: true,
+            });
+          } catch (err) {
+            error = err;
+          }
+
+          // Assert
+          expect(error).toBeInstanceOf(NoLoadableInputError);
+          expect(error).toEqual(
+            expect.objectContaining({
+              name: 'NoLoadableInputError',
+              message: expect.stringContaining(
+                `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+              ),
+              code: 1010,
+              strCode: 'NO_FILES_TO_SCAN_ERROR',
+              fields: {
+                path: 'path/to/test',
+              },
+              path: 'path/to/test',
+              userMessage: expect.stringContaining(
+                `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+              ),
+              formattedUserMessage: expect.stringContaining(
+                `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+              ),
+              sarifStringifiedResults: expect.stringContaining(
+                `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+              ),
+              jsonStringifiedResults:
+                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+              json: expect.stringContaining(
+                `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
+              ),
+            }),
+          );
+        });
       });
     });
   });

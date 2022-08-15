@@ -1,8 +1,8 @@
 [
   {
-    "error": "invalid input for input type: /Users/yairzohar/snyk/upe-test/README.txt",
+    "error": "failed to parse input: /Users/yairzohar/snyk/upe-test/invalid-cfn.yml",
     "ok": false,
-    "path": "/Users/yairzohar/snyk/upe-test/README.txt"
+    "path": "/Users/yairzohar/snyk/upe-test/invalid-cfn.yml"
   },
   {
     "meta":{
