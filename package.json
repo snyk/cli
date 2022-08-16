@@ -64,7 +64,7 @@
     "@snyk/cloud-config-parser": "^1.14.3",
     "@snyk/code-client": "^4.12.3",
     "@snyk/dep-graph": "^1.27.1",
-    "@snyk/docker-registry-v2-client": "^2.7.1",
+    "@snyk/docker-registry-v2-client": "^2.7.2",
     "@snyk/fix": "file:packages/snyk-fix",
     "@snyk/gemfile": "1.2.0",
     "@snyk/snyk-cocoapods-plugin": "2.5.2",
