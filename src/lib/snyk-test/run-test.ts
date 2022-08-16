@@ -27,7 +27,6 @@ import {
   FailedToRunTestError,
   InternalServerError,
   NoSupportedManifestsFoundError,
-  UnsupportedFeatureFlagError,
   NotFoundError,
   errorMessageWithRetry,
 } from '../errors';
@@ -457,10 +456,6 @@ function handleTestHttpErrorResponse(res, body) {
       break;
     case 404:
       err = new NotFoundError(userMessage);
-      err.innerError = body.stack;
-      break;
-    case 405:
-      err = new UnsupportedFeatureFlagError('reachableVulns');
       err.innerError = body.stack;
       break;
     case 500:
