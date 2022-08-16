@@ -73,9 +73,7 @@ function scanWithConfig(
     throw new ScanError(`invalid output encoding: ${e}`);
   }
 
-  const testOutput = mapSnykIacTestOutputToTestOutput(snykIacTestOutput);
-
-  return testOutput;
+  return mapSnykIacTestOutputToTestOutput(snykIacTestOutput);
 }
 
 function processFlags(
@@ -129,6 +127,10 @@ function processFlags(
 
   if (options.targetReference) {
     flags.push('-target-reference', options.targetReference);
+  }
+
+  if (options.targetName) {
+    flags.push('-target-name', options.targetName);
   }
 
   return flags;
