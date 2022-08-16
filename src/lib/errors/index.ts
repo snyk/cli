@@ -12,7 +12,6 @@ export { PolicyNotFoundError } from './policy-not-found-error';
 export { InternalServerError } from './internal-server-error';
 export { FailedToGetVulnerabilitiesError } from './failed-to-get-vulnerabilities-error';
 export { FailedToGetVulnsFromUnavailableResource } from './failed-to-get-vulns-from-unavailable-resource';
-export { UnsupportedFeatureFlagError } from './unsupported-feature-flag-error';
 export { UnsupportedPackageManagerError } from './unsupported-package-manager-error';
 export { FailedToRunTestError } from './failed-to-run-test-error';
 export { TooManyVulnPaths } from './too-many-vuln-paths';
