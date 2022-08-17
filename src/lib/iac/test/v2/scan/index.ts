@@ -134,6 +134,10 @@ function processFlags(
     flags.push('-target-name', options.targetName);
   }
 
+  if (options.remoteRepoUrl) {
+    flags.push('-remote-repo-url', options.remoteRepoUrl);
+  }
+
   return flags;
 }
 

@@ -56,6 +56,7 @@ async function prepareTestConfig(
   const orgSettings = await getIacOrgSettings(org);
   const projectTags = parseTags(options);
   const targetName = getFlag(options, 'target-name');
+  const remoteRepoUrl = getFlag(options, 'remote-repo-url');
 
   const attributes = parseAttributes(options);
 
@@ -71,6 +72,7 @@ async function prepareTestConfig(
     projectTags,
     targetReference: options['target-reference'],
     targetName,
+    remoteRepoUrl,
   };
 }
 

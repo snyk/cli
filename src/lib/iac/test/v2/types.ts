@@ -15,4 +15,5 @@ export interface TestConfig {
   projectTags?: Tag[];
   targetReference?: string;
   targetName?: string;
+  remoteRepoUrl?: string;
 }
