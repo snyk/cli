@@ -53,6 +53,7 @@ function scanWithConfig(
   const process = childProcess.spawnSync(policyEnginePath, args, {
     encoding: 'utf-8',
     stdio: 'pipe',
+    maxBuffer: 1024 * 1024 * 10, // The default value is 1024 * 1024, if we see in the future that multiplying it by 10 is not enough we can increase it further.
   });
 
   debug('policy engine standard error:\n%s', '\n' + process.stderr);
