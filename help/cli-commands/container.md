@@ -41,10 +41,6 @@ Use the `-d` option to output the debug logs.
 
 ## Options for the container test and container monitor subcommands
 
-### `--print-deps`
-
-Print the dependency tree before sending it for analysis.
-
 ### `--org=<ORG_ID>`
 
 Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. The `<ORG_ID>` influences some features availability and private test limits.
@@ -77,73 +73,6 @@ Print results in JSON format, useful for integrating with other tools
 
 Example: `$ snyk container test --json`
 
-### `--json-file-output=<OUTPUT_FILE_PATH>`
-
-Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
-
-This is especially useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
-
-Example: `$ snyk container test --json-file-output=vuln.json`
-
-### `--sarif`
-
-Return results in SARIF format. Note this requires the test to be run with `--file` as well.
-
-### `--sarif-file-output=<OUTPUT_FILE_PATH>`
-
-Save test output in SARIF format directly to the `<OUTPUT_FILE_PATH>` file, regardless of whether or not you use the `--sarif` option.
-
-This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
-
-### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
-
-Set the project environment to one or more values (comma-separated). To clear the project environment set `--project-environment=`
-
-Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`
-
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
-
-### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE]...>`
-
-Set the project lifecycle to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`
-
-Allowed values: `production, development, sandbox`
-
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
-
-### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
-
-Set the project business criticality to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`
-
-Allowed values: `critical`, `high`, `medium`, `low`
-
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
-
-### `--project-tags=<TAG>[,<TAG>]...>`
-
-Set the project tags to one or more values (comma-separated key values pairs with an "=" separator).
-
-Example: `--project-tags=department=finance,team=alpha`
-
-To clear the project tags set `--project-tags=`
-
-### `--tags=<TAG>[,<TAG>]...>`
-
-This is an alias for `--project tags`
-
-### `--severity-threshold=<low|medium|high|critical>`
-
-Report only vulnerabilities at the specified level or higher.
-
-### &#x20;--fail-on=\<all|upgradable>
-
-Fail only when there are vulnerabilities that can be fixed.
-
-- `all`: fail when there is at least one vulnerability that can be either upgraded or patched.
-- `upgradable`: fail when there is at least one vulnerability that can be upgraded.
-
-To fail on any vulnerability (the default behavior), do not use the `--fail-on` option. If vulnerabilities do not have a fix and this option is being used, tests pass.
-
 ### `--app-vulns`
 
 Allow detection of vulnerabilities in your application dependencies from container images, as well as from the operating system, all in one single scan.
@@ -171,6 +100,98 @@ Specify a username to use when connecting to a container registry. This is ignor
 ### `--password=<CONTAINER_REGISTRY_PASSWORD>`
 
 Specify a password to use when connecting to a container registry. This is ignored in favor of local Docker binary credentials when Docker is present.
+
+## Options for the container test subcommand
+
+### `--print-deps`
+
+Print the dependency tree before sending it for analysis.
+This option is only applicable for the `test` subcommand.
+
+### `--json-file-output=<OUTPUT_FILE_PATH>`
+
+Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
+
+This is especially useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
+
+This option is only applicable for the `test` subcommand.
+
+Example: `$ snyk container test --json-file-output=vuln.json`
+
+### `--sarif`
+
+Return results in SARIF format. Note this requires the test to be run with `--file` as well.
+
+This option is only applicable for the `test` subcommand.
+
+### `--sarif-file-output=<OUTPUT_FILE_PATH>`
+
+Save test output in SARIF format directly to the `<OUTPUT_FILE_PATH>` file, regardless of whether or not you use the `--sarif` option.
+
+This option is only applicable for the `test` subcommand.
+
+This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
+
+### `--severity-threshold=<low|medium|high|critical>`
+
+Report only vulnerabilities at the specified level or higher.
+
+This option is only applicable for the `test` subcommand.
+
+### &#x20;--fail-on=\<all|upgradable>
+
+Fail only when there are vulnerabilities that can be fixed.
+
+- `all`: fail when there is at least one vulnerability that can be either upgraded or patched.
+- `upgradable`: fail when there is at least one vulnerability that can be upgraded.
+
+To fail on any vulnerability (the default behavior), do not use the `--fail-on` option. If vulnerabilities do not have a fix and this option is being used, tests pass.
+
+## Options for the container monitor subcommand
+
+### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
+
+Set the project environment to one or more values (comma-separated). To clear the project environment set `--project-environment=`
+
+Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`
+
+This option is only applicable for the `monitor` subcommand.
+
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+
+### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE]...>`
+
+Set the project lifecycle to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`
+
+Allowed values: `production, development, sandbox`
+
+This option is only applicable for the `monitor` subcommand.
+
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+
+### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
+
+Set the project business criticality to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`
+
+Allowed values: `critical`, `high`, `medium`, `low`
+
+This option is only applicable for the `monitor` subcommand.
+
+For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+
+### `--project-tags=<TAG>[,<TAG>]...>`
+
+Set the project tags to one or more values (comma-separated key values pairs with an "=" separator).
+
+This option is only applicable for the `monitor` subcommand.
+
+Example: `--project-tags=department=finance,team=alpha`
+
+To clear the project tags set `--project-tags=`
+
+### `--tags=<TAG>[,<TAG>]...>`
+
+This is an alias for `--project tags`
 
 ## Examples for the container test command
 
