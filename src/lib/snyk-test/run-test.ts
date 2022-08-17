@@ -772,7 +772,7 @@ async function assembleLocalPayloads(
         config.API +
         (options.testDepGraphDockerEndpoint ||
           options.vulnEndpoint ||
-          '/test-dep-graph');
+          '/mock/test');
       const payload: Payload = {
         method: 'POST',
         url: reqUrl,

@@ -157,17 +157,16 @@ export async function makeRequest(
 export async function makeAsyncRequest(
   payload: Payload,
 ): Promise<{ res: needle.NeedleResponse; body: any }> {
-  payload.url = 'http://localhost:3000/mock/test?error';
   let res = await makeRequest(payload);
 
   const start = Date.now();
-  const timeout = payload.options.timeout || 20 * 60 * 1000; // either optional timeout or 20 mins (workflow timeout?)
+  const timeout = 20 * 60 * 1000; // either optional timeout or 20 mins (workflow timeout?)
   // eslint-disable-next-line no-constant-condition
   while (true) {
     res = await makeRequest({
       ...payload,
       method: 'get',
-      url: `http://localhost:3000/mock/test/${res.body.id}`,
+      url: `${payload.url}/${res.body.id}`,
     });
     if (res.body.status === 'complete') {
       return { res: res.res, body: res.body.issueGenerationOutput };
@@ -178,6 +177,7 @@ export async function makeAsyncRequest(
     if (Date.now() > start + timeout) {
       throw new Error('Test timed out');
     }
+    await sleep(2_000);
   }
 }
 
