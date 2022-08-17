@@ -151,6 +151,7 @@ function createConfig(options: TestConfig): string {
       apiUrl: config.API,
       apiAuth: getAuthHeader(),
       allowAnalytics: allowAnalytics(),
+      policy: options.policy,
     });
 
     fs.writeFileSync(tempConfig, configData);
