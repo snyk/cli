@@ -62,11 +62,7 @@ describe('iac test text output', () => {
       const { stdout } = await run('snyk iac test  ./iac/arm/rule_test.json');
 
       expect(stdout).toContain(
-        'Issues' +
-          EOL.repeat(2) +
-          'Medium Severity Issues: 1' +
-          EOL.repeat(2) +
-          '  [Medium] Azure Firewall Network Rule Collection allows public access' +
+        '  [Medium] Azure Firewall Network Rule Collection allows public access' +
           EOL +
           '  Info:    That inbound traffic is allowed to a resource from any source instead of a restricted range. That potentially everyone can access your resource' +
           EOL +
