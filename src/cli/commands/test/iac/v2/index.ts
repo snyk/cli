@@ -11,6 +11,7 @@ import { Options, TestOptions } from '../../../../../lib/types';
 import { generateProjectAttributes } from '../../../monitor';
 import { parseTags } from '../local-execution';
 import { systemCachePath } from '../../../../../lib/iac/test/v2/scan';
+import { getFlag } from '../index';
 
 export async function test(
   paths: string[],
@@ -54,6 +55,7 @@ async function prepareTestConfig(
   const org = (options.org as string) || config.org;
   const orgSettings = await getIacOrgSettings(org);
   const projectTags = parseTags(options);
+  const targetName = getFlag(options, 'target-name');
 
   const attributes = parseAttributes(options);
 
@@ -68,6 +70,7 @@ async function prepareTestConfig(
     attributes,
     projectTags,
     targetReference: options['target-reference'],
+    targetName,
   };
 }
 

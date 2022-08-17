@@ -14,4 +14,5 @@ export interface TestConfig {
   attributes?: ProjectAttributes;
   projectTags?: Tag[];
   targetReference?: string;
+  targetName?: string;
 }

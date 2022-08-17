@@ -91,7 +91,10 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   });
 }
 
-function getFlag(options: Options & TestOptions, flag: string) {
+export function getFlag(
+  options: Options & TestOptions,
+  flag: string,
+): string | undefined {
   const flagValue = options[flag];
 
   if (!flagValue) {
