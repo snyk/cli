@@ -13,8 +13,8 @@ import config from '../../../../lib/config';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import { scan } from './scan';
 import { buildOutput, buildSpinner, printHeader } from './output';
-import { Options, TestOptions } from '../../../../lib/types';
 import { InvalidArgumentError } from './local-execution/assert-iac-options-flag';
+import { IaCTestFlags } from './local-execution/types';
 
 export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const { options: originalOptions, paths } = processCommandArgs(...args);
@@ -92,7 +92,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
 }
 
 export function getFlag(
-  options: Options & TestOptions,
+  options: IaCTestFlags,
   flag: string,
 ): string | undefined {
   const flagValue = options[flag];

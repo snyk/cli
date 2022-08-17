@@ -31,6 +31,7 @@ import {
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { NoFilesToScanError } from './file-loader';
+import { Tag } from '../../../../../lib/types';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -153,7 +154,7 @@ export function removeFileContent({
   };
 }
 
-export function parseTags(options: IaCTestFlags) {
+export function parseTags(options: IaCTestFlags): Tag[] | undefined {
   if (options.report) {
     return generateTags(options);
   }

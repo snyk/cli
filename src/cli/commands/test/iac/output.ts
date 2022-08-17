@@ -51,7 +51,7 @@ export function buildSpinner({
   options,
   isNewIacOutputSupported,
 }: {
-  options: Options & TestOptions;
+  options: IaCTestFlags;
   isNewIacOutputSupported?: boolean;
 }) {
   if (shouldLogUserMessages(options, isNewIacOutputSupported)) {
@@ -63,7 +63,7 @@ export function printHeader({
   options,
   isNewIacOutputSupported,
 }: {
-  options: Options & TestOptions;
+  options: IaCTestFlags;
   isNewIacOutputSupported?: boolean;
 }) {
   if (shouldLogUserMessages(options, isNewIacOutputSupported)) {
