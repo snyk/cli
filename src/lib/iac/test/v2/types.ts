@@ -16,4 +16,5 @@ export interface TestConfig {
   targetName?: string;
   remoteRepoUrl?: string;
   policy?: string;
+  scan: string;
 }

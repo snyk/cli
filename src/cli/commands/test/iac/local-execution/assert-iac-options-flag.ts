@@ -146,7 +146,7 @@ const SUPPORTED_TF_PLAN_SCAN_MODES = [
   TerraformPlanScanMode.FullScan,
 ];
 
-function assertTerraformPlanModes(scanModeArgValue: string) {
+export function assertTerraformPlanModes(scanModeArgValue: string) {
   if (
     !SUPPORTED_TF_PLAN_SCAN_MODES.includes(
       scanModeArgValue as TerraformPlanScanMode,

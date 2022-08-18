@@ -13,11 +13,13 @@ import { systemCachePath } from '../../../../../lib/iac/test/v2/scan';
 import { getFlag } from '../index';
 import { IaCTestFlags } from '../local-execution/types';
 import { findAndLoadPolicy } from '../../../../../lib/policy';
+import { assertIacV2Options } from './assert-iac-options';
 
 export async function test(
   paths: string[],
   options: IaCTestFlags,
 ): Promise<TestCommandResult> {
+  assertIacV2Options(options);
   const testConfig = await prepareTestConfig(paths, options);
   const { orgSettings } = testConfig;
 
@@ -54,6 +56,7 @@ async function prepareTestConfig(
   const remoteRepoUrl = getFlag(options, 'remote-repo-url');
   const attributes = parseAttributes(options);
   const policy = await findAndLoadPolicy(process.cwd(), 'iac', options);
+  const scan = options.scan ?? 'resource-changes';
 
   return {
     paths,
@@ -69,6 +72,7 @@ async function prepareTestConfig(
     targetName,
     remoteRepoUrl,
     policy: policy?.toString(),
+    scan,
   };
 }
 

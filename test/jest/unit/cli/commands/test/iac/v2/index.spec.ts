@@ -7,7 +7,6 @@ import * as downloadPolicyEngineLib from '../../../../../../../../src/lib/iac/te
 import * as downloadRulesBundleLib from '../../../../../../../../src/lib/iac/test/v2/local-cache/rules-bundle/download';
 import * as orgSettingsLib from '../../../../../../../../src/cli/commands/test/iac/local-execution/org-settings/get-iac-org-settings';
 import { test } from '../../../../../../../../src/cli/commands/test/iac/v2/index';
-import { Options, TestOptions } from '../../../../../../../../src/lib/types';
 import { isValidJSONString } from '../../../../../../acceptance/iac/helpers';
 import { IacOrgSettings } from '../../../../../../../../src/cli/commands/test/iac/local-execution/types';
 import { SnykIacTestError } from '../../../../../../../../src/lib/iac/test/v2/errors';
@@ -45,12 +44,6 @@ const scanFixturePath = path.join(
 
 describe('test', () => {
   chalk.enabled = false;
-
-  const defaultOptions: Options & TestOptions = {
-    iac: true,
-    path: 'path/to/test',
-    showVulnPaths: 'all',
-  };
 
   const orgSettings: IacOrgSettings = {
     customPolicies: {},
@@ -108,7 +101,7 @@ describe('test', () => {
 
     // Act
     try {
-      await test(['path/to/test'], defaultOptions);
+      await test(['path/to/test'], {});
     } catch (error) {
       output = error.message;
     }
@@ -133,7 +126,7 @@ describe('test', () => {
 
       // Act
       try {
-        await test(['path/to/test'], defaultOptions);
+        await test(['path/to/test'], {});
       } catch (err) {
         error = err;
       }
@@ -175,7 +168,7 @@ describe('test', () => {
 
         // Act
         try {
-          await test(['path/to/test'], defaultOptions);
+          await test(['path/to/test'], {});
         } catch (err) {
           error = err;
         }
@@ -212,7 +205,7 @@ describe('test', () => {
   describe('with issues', () => {
     it('throws the expected error', async () => {
       // Act + Assert
-      await expect(test(['path/to/test'], defaultOptions)).rejects.toThrowError(
+      await expect(test(['path/to/test'], {})).rejects.toThrowError(
         FoundIssuesError,
       );
     });
@@ -226,7 +219,6 @@ describe('test', () => {
       // Act
       try {
         await test(['path/to/test'], {
-          ...defaultOptions,
           json: true,
         });
       } catch (error) {
@@ -249,7 +241,7 @@ describe('test', () => {
 
         // Act
         try {
-          await test(['path/to/test'], { ...defaultOptions, json: true });
+          await test(['path/to/test'], { json: true });
         } catch (err) {
           error = err;
         }
@@ -292,7 +284,6 @@ describe('test', () => {
           // Act
           try {
             await test(['path/to/test'], {
-              ...defaultOptions,
               json: true,
             });
           } catch (err) {
@@ -338,7 +329,6 @@ describe('test', () => {
       // Act
       try {
         await test(['path/to/test'], {
-          ...defaultOptions,
           sarif: true,
         });
       } catch (error) {
@@ -363,7 +353,7 @@ describe('test', () => {
 
         // Act
         try {
-          await test(['path/to/test'], { ...defaultOptions, sarif: true });
+          await test(['path/to/test'], { sarif: true });
         } catch (err) {
           error = err;
         }
@@ -409,7 +399,6 @@ describe('test', () => {
           // Act
           try {
             await test(['path/to/test'], {
-              ...defaultOptions,
               sarif: true,
             });
           } catch (err) {
