@@ -410,6 +410,15 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       });
     }
 
+    if (req.query.org === 'custom-policies') {
+      return res.status(200).send({
+        ...baseResponse,
+        customPolicies: {
+          'SNYK-CC-AZURE-543': { severity: 'none' },
+        },
+      });
+    }
+
     res.status(200).send(baseResponse);
   });
 

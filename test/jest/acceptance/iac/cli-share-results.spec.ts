@@ -181,6 +181,42 @@ describe('CLI Share Results', () => {
       expect(exitCode).toEqual(2);
     });
 
+    it('should filter out NONE custom policies severity issues and then forward', async () => {
+      const { exitCode } = await run(
+        'snyk iac test ./iac/arm/rule_test.json --report --org=custom-policies',
+      );
+
+      const requests = server
+        .getRequests()
+        .filter((request) => request.url?.includes('/iac-cli-share-results'));
+
+      expect(requests.length).toEqual(1);
+      const [request] = requests;
+      expect(request.body).toEqual(
+        expect.objectContaining({
+          contributors: expect.any(Array),
+          scanResults: [
+            {
+              identity: {
+                type: 'armconfig',
+                targetFile: 'iac/arm/rule_test.json',
+              },
+              facts: [],
+              findings: expect.any(Array),
+              policy: '',
+              name: 'fixtures',
+              target: {
+                name: 'fixtures',
+              },
+            },
+          ],
+        }),
+      );
+      // The other SNYK-CC-AZURE-543 issue has been filtered out
+      expect(request.body.scanResults[0].findings.length).toEqual(1);
+      expect(exitCode).toEqual(1);
+    });
+
     describe('with target reference', () => {
       it('forwards the target reference to iac-cli-share-results endpoint', async () => {
         const testTargetRef = 'test-target-ref';
