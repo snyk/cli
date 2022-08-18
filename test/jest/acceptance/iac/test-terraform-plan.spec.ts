@@ -20,11 +20,11 @@ describe('Terraform plan scanning', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/terraform-plan/tf-plan-create.json`,
     );
+
     expect(stdout).toContain(
-      'Testing ./iac/terraform-plan/tf-plan-create.json',
+      'File:    ./iac/terraform-plan/tf-plan-create.json',
     );
-    expect(stdout).toContain('Infrastructure as code issues:');
-    expect(stdout).toContain('✗ S3 bucket versioning disabled');
+    expect(stdout).toContain('S3 bucket versioning disabled');
     expect(stdout).toContain(
       'resource > aws_s3_bucket[terra_ci] > versioning > enabled',
     );
@@ -36,10 +36,7 @@ describe('Terraform plan scanning', () => {
       `snyk iac test ./iac/terraform-plan/tf-plan-create.json --scan=resource-changes`,
     );
 
-    expect(stdout).toContain('Infrastructure as code issues:');
-    expect(stdout).toContain(
-      'Tested ./iac/terraform-plan/tf-plan-create.json for known issues',
-    );
+    expect(stdout).toContain('Files with issues: 1');
     expect(exitCode).toBe(1);
   });
 

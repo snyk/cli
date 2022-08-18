@@ -10,7 +10,7 @@ import {
 import { TestResult } from '../../../../lib/snyk-test/legacy';
 
 import * as utils from '../utils';
-import { spinnerMessage } from '../../../../lib/formatters/iac-output';
+import { spinnerMessage } from '../../../../lib/formatters/iac-output/text';
 
 import { test as iacTest } from './local-execution';
 import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag';

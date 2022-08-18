@@ -27,12 +27,11 @@ describe('iac test --rules', () => {
     expect(stdout).toContain(
       'Using custom rules to generate misconfigurations.',
     );
-    expect(stdout).toContain('Testing ./iac/terraform/sg_open_ssh.tf');
-    expect(stdout).toContain('Infrastructure as code issues:');
+    expect(stdout).toContain('File:    ./iac/terraform/sg_open_ssh.tf');
     expect(stdout).toContain('Missing tags');
     expect(stdout).toContain('CUSTOM-1');
     expect(stdout).toContain(
-      'introduced by input > resource > aws_security_group[allow_ssh] > tags',
+      'Path:    input > resource > aws_security_group[allow_ssh] > tags',
     );
     expect(exitCode).toBe(1);
   });

@@ -53,7 +53,7 @@ describe('CLI Share Results', () => {
       expect(stdout).toContain(
         `Your test results are available at: http://localhost:${server.getPort()}/org/test-org/projects`,
       );
-      expect(stdout).toContain('under the name fixtures');
+      expect(stdout).toContain('under the name: fixtures');
       expect(exitCode).toBe(1);
     });
 

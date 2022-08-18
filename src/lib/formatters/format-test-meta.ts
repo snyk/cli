@@ -3,7 +3,6 @@ import { rightPadWithSpaces } from '../../lib/right-pad';
 import { TestOptions, Options } from '../../lib/types';
 import { TestResult } from '../../lib/snyk-test/legacy';
 import { IacTestResponse } from '../../lib/snyk-test/iac-test-result';
-import { capitalizePackageManager } from './iac-output';
 
 export function formatTestMeta(
   res: TestResult | IacTestResponse,
@@ -16,17 +15,10 @@ export function formatTestMeta(
   const meta = res.org
     ? [chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + res.org]
     : [];
-  if (options.iac) {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Type: ', padToLength)) +
-        capitalizePackageManager(packageManager),
-    );
-  } else {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Package manager: ', padToLength)) +
-        packageManager,
-    );
-  }
+  meta.push(
+    chalk.bold(rightPadWithSpaces('Package manager: ', padToLength)) +
+      packageManager,
+  );
   if (targetFile) {
     meta.push(
       chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) + targetFile,

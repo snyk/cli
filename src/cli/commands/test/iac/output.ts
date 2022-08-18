@@ -1,15 +1,8 @@
-import * as Debug from 'debug';
 import { EOL } from 'os';
-import chalk from 'chalk';
 
 import { TestCommandResult } from '../../types';
-import { LegacyVulnApiResult } from '../../../../lib/snyk-test/legacy';
 import { mapIacTestResult } from '../../../../lib/snyk-test/iac-test-result';
 
-import {
-  summariseErrorResults,
-  summariseVulnerableResults,
-} from '../../../../lib/formatters';
 import {
   failuresTipOutput,
   formatIacTestFailures,
@@ -17,16 +10,12 @@ import {
   formatIacTestSummary,
   formatShareResultsOutput,
   getIacDisplayedIssues,
-  getIacDisplayErrorFileOutput,
   spinnerSuccessMessage,
   IaCTestFailure,
   shouldLogUserMessages,
   iacTestTitle,
-  shareResultsOutput,
-} from '../../../../lib/formatters/iac-output';
+} from '../../../../lib/formatters/iac-output/text';
 import { extractDataToSendFromResults } from '../../../../lib/formatters/test/format-test-results';
-
-import { displayResult } from '../../../../lib/formatters/test/display-result';
 
 import { isIacShareResultsOptions } from './local-execution/assert-iac-options-flag';
 import * as ora from 'ora';
@@ -41,32 +30,19 @@ import { IaCTestFlags } from './local-execution/types';
 import {
   shareCustomRulesDisclaimer,
   shareResultsTip,
-} from '../../../../lib/formatters/iac-output/v2';
-import { formatTestData } from '../../../../lib/formatters/iac-output';
+  formatTestData,
+} from '../../../../lib/formatters/iac-output/text';
 
-const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
-export function buildSpinner({
-  options,
-  isNewIacOutputSupported,
-}: {
-  options: IaCTestFlags;
-  isNewIacOutputSupported?: boolean;
-}) {
-  if (shouldLogUserMessages(options, isNewIacOutputSupported)) {
+export function buildSpinner(options: IaCTestFlags) {
+  if (shouldLogUserMessages(options)) {
     return ora({ isSilent: options.quiet, stream: process.stdout });
   }
 }
 
-export function printHeader({
-  options,
-  isNewIacOutputSupported,
-}: {
-  options: IaCTestFlags;
-  isNewIacOutputSupported?: boolean;
-}) {
-  if (shouldLogUserMessages(options, isNewIacOutputSupported)) {
+export function printHeader(options: IaCTestFlags) {
+  if (shouldLogUserMessages(options)) {
     console.log(EOL + iacTestTitle + EOL);
   }
 }
@@ -74,22 +50,18 @@ export function printHeader({
 export function buildOutput({
   results,
   options,
-  isNewIacOutputSupported,
   isIacShareCliResultsCustomRulesSupported,
   isIacCustomRulesEntitlementEnabled,
   iacOutputMeta,
-  resultOptions,
   iacScanFailures,
   iacIgnoredIssuesCount,
   testSpinner,
 }: {
   results: any[];
   options: Options & TestOptions;
-  isNewIacOutputSupported: boolean;
   isIacShareCliResultsCustomRulesSupported: boolean;
   isIacCustomRulesEntitlementEnabled: boolean;
   iacOutputMeta: IacOutputMeta;
-  resultOptions: (Options & TestOptions)[];
   iacScanFailures: IacFileInDirectory[];
   iacIgnoredIssuesCount: number;
   testSpinner?: ora.Ora;
@@ -175,34 +147,11 @@ export function buildOutput({
     iacOutputMeta: iacOutputMeta,
   });
 
-  if (isNewIacOutputSupported) {
-    if (isPartialSuccess) {
-      response +=
-        EOL + getIacDisplayedIssues(newOutputTestData.resultsBySeverity);
-    }
-  } else {
-    response += results
-      .map((result, i) => {
-        return displayResult(
-          results[i] as LegacyVulnApiResult,
-          {
-            ...resultOptions[i],
-          },
-          result.foundProjectCount,
-        );
-      })
-      .join(`\n${SEPARATOR}`);
+  if (isPartialSuccess) {
+    response +=
+      EOL + getIacDisplayedIssues(newOutputTestData.resultsBySeverity);
   }
 
-  if (!isNewIacOutputSupported && hasErrors) {
-    debug(`Failed to test ${errorResults.length} projects, errors:`);
-    errorResults.forEach((err) => {
-      const errString = err.stack ? err.stack.toString() : err.toString();
-      debug('error: %s', errString);
-    });
-  }
-
-  let summaryMessage = '';
   let errorResultsLength = errorResults.length;
 
   if (iacScanFailures.length || hasErrors) {
@@ -221,19 +170,16 @@ export function buildOutput({
       .concat(thrownErrors);
 
     if (hasErrors && !isPartialSuccess) {
-      response += chalk.bold.red(summaryMessage);
-
       // take the code of the first problem to go through error
       // translation
       // HACK as there can be different errors, and we pass only the
       // first one
-      const error: CustomError =
-        isNewIacOutputSupported && allTestFailures
-          ? new FormattedCustomError(
-              errorResults[0].message,
-              formatFailuresList(allTestFailures),
-            )
-          : new CustomError(response);
+      const error: CustomError = allTestFailures
+        ? new FormattedCustomError(
+            errorResults[0].message,
+            formatFailuresList(allTestFailures),
+          )
+        : new CustomError(response);
       error.code = errorResults[0].code;
       error.userMessage = errorResults[0].userMessage;
       error.strCode = errorResults[0].strCode;
@@ -241,14 +187,10 @@ export function buildOutput({
       throw error;
     }
 
-    response += isNewIacOutputSupported
-      ? EOL.repeat(2) + formatIacTestFailures(allTestFailures)
-      : iacScanFailures
-          .map((reason) => chalk.bold.red(getIacDisplayErrorFileOutput(reason)))
-          .join('');
+    response += EOL.repeat(2) + formatIacTestFailures(allTestFailures);
   }
 
-  if (isPartialSuccess && iacOutputMeta && isNewIacOutputSupported) {
+  if (isPartialSuccess && iacOutputMeta) {
     response += `${EOL}${SEPARATOR}${EOL}`;
 
     const iacTestSummary = `${formatIacTestSummary(newOutputTestData)}`;
@@ -257,43 +199,23 @@ export function buildOutput({
   }
 
   if (results.length > 1) {
-    if (isNewIacOutputSupported) {
-      response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : '';
-    } else {
-      const projects = results.length === 1 ? 'project' : 'projects';
-      summaryMessage +=
-        `\n\n\nTested ${results.length} ${projects}` +
-        summariseVulnerableResults(vulnerableResults, options) +
-        summariseErrorResults(errorResultsLength) +
-        '\n';
-    }
-  }
-
-  if (foundVulnerabilities) {
-    response += chalk.bold.red(summaryMessage);
-  } else {
-    response += chalk.bold.green(summaryMessage);
+    response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : '';
   }
 
   response += EOL;
 
   if (isIacShareResultsOptions(options)) {
-    if (isNewIacOutputSupported) {
-      response += buildShareResultsSummary({
-        options,
-        projectName: iacOutputMeta.projectName,
-        orgName: iacOutputMeta.orgName,
-        isIacCustomRulesEntitlementEnabled,
-        isIacShareCliResultsCustomRulesSupported,
-        isNewIacOutputSupported,
-      });
-    } else {
-      response += EOL + shareResultsOutput(iacOutputMeta!);
-    }
+    response += buildShareResultsSummary({
+      options,
+      projectName: iacOutputMeta.projectName,
+      orgName: iacOutputMeta.orgName,
+      isIacCustomRulesEntitlementEnabled,
+      isIacShareCliResultsCustomRulesSupported,
+    });
     response += EOL;
   }
 
-  if (shouldPrintShareResultsTip(options, isNewIacOutputSupported)) {
+  if (shouldPrintShareResultsTip(options)) {
     response += SEPARATOR + EOL + shareResultsTip + EOL;
   }
 
@@ -322,14 +244,12 @@ export function buildShareResultsSummary({
   projectName,
   options,
   isIacCustomRulesEntitlementEnabled,
-  isNewIacOutputSupported,
   isIacShareCliResultsCustomRulesSupported,
 }: {
   orgName: string;
   projectName: string;
   options: IaCTestFlags;
   isIacCustomRulesEntitlementEnabled: boolean;
-  isNewIacOutputSupported: boolean;
   isIacShareCliResultsCustomRulesSupported: boolean;
 }): string {
   let response = '';
@@ -340,7 +260,6 @@ export function buildShareResultsSummary({
     shouldPrintShareCustomRulesDisclaimer(
       options,
       isIacCustomRulesEntitlementEnabled,
-      isNewIacOutputSupported,
       isIacShareCliResultsCustomRulesSupported,
     )
   ) {
@@ -350,21 +269,17 @@ export function buildShareResultsSummary({
   return response;
 }
 
-export function shouldPrintShareResultsTip(
-  options: IaCTestFlags,
-  isNewOutput: boolean,
-): boolean {
-  return shouldLogUserMessages(options, isNewOutput) && !options.report;
+export function shouldPrintShareResultsTip(options: IaCTestFlags): boolean {
+  return shouldLogUserMessages(options) && !options.report;
 }
 
 function shouldPrintShareCustomRulesDisclaimer(
   options: IaCTestFlags,
   isIacCustomRulesEntitlementEnabled: boolean,
-  isNewOutput: boolean,
   isIacShareCliResultsCustomRulesSupported: boolean,
 ): boolean {
   return (
-    shouldLogUserMessages(options, isNewOutput) &&
+    shouldLogUserMessages(options) &&
     Boolean(options.rules) &&
     isIacCustomRulesEntitlementEnabled &&
     !isIacShareCliResultsCustomRulesSupported

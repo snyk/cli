@@ -34,11 +34,6 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
 
   const buildOciRegistry = () => buildDefaultOciRegistry(iacOrgSettings);
 
-  const isNewIacOutputSupported = Boolean(
-    config.IAC_OUTPUT_V2 ||
-      (await hasFeatureFlag('iacCliOutputRelease', options)),
-  );
-
   const isIacShareCliResultsCustomRulesSupported = Boolean(
     await hasFeatureFlag('iacShareCliResultsCustomRules', options),
   );
@@ -47,24 +42,17 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     iacOrgSettings.entitlements?.iacCustomRulesEntitlement,
   );
 
-  const testSpinner = buildSpinner({
-    options,
-    isNewIacOutputSupported,
-  });
+  const testSpinner = buildSpinner(options);
 
   const projectRoot = process.cwd();
 
-  printHeader({
-    options,
-    isNewIacOutputSupported,
-  });
+  printHeader(options);
 
   const {
     iacOutputMeta,
     iacScanFailures,
     iacIgnoredIssuesCount,
     results,
-    resultOptions,
   } = await scan(
     iacOrgSettings,
     options,
@@ -80,11 +68,9 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   return buildOutput({
     results,
     options,
-    isNewIacOutputSupported,
     isIacShareCliResultsCustomRulesSupported,
     isIacCustomRulesEntitlementEnabled,
     iacOutputMeta,
-    resultOptions,
     iacScanFailures,
     iacIgnoredIssuesCount,
     testSpinner,

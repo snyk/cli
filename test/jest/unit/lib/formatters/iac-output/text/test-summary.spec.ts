@@ -2,9 +2,9 @@ import * as clonedeep from 'lodash.clonedeep';
 import * as fs from 'fs';
 import * as pathLib from 'path';
 
-import { formatIacTestSummary } from '../../../../../../../src/lib/formatters/iac-output';
-import { colors } from '../../../../../../../src/lib/formatters/iac-output/v2/utils';
-import { IacTestData } from '../../../../../../../src/lib/formatters/iac-output/v2/types';
+import { formatIacTestSummary } from '../../../../../../../src/lib/formatters/iac-output/text';
+import { colors } from '../../../../../../../src/lib/formatters/iac-output/text/utils';
+import { IacTestData } from '../../../../../../../src/lib/formatters/iac-output/text/types';
 
 describe('formatIacTestSummary', () => {
   let testDataFixture: IacTestData;

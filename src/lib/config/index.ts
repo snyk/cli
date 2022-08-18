@@ -24,7 +24,6 @@ interface Config {
   DRIFTCTL_URL?: string;
   IAC_BUNDLE_PATH?: string;
   IAC_POLICY_ENGINE_PATH?: string;
-  IAC_OUTPUT_V2?: boolean;
   PUBLIC_VULN_DB_URL: string;
 }
 

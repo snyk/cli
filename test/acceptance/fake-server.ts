@@ -7,10 +7,7 @@ import * as path from 'path';
 import { getFixturePath } from '../jest/util/getFixturePath';
 
 const featureFlagDefaults = (): Map<string, boolean> => {
-  return new Map([
-    ['cliFailFast', false],
-    ['iacCliOutputRelease', false],
-  ]);
+  return new Map([['cliFailFast', false]]);
 };
 
 export type FakeServer = {
