@@ -42,6 +42,7 @@ func (p *ProxyAuthenticator) DialContext(ctx context.Context, network, addr stri
 	if p.upstreamProxy != nil {
 		fakeRequest := &http.Request{URL: &url.URL{}}
 		fakeRequest.URL.Scheme = LookupSchemeFromCannonicalAddress(addr, "https")
+		fakeRequest.URL.Host = addr
 		proxyUrl, err = p.upstreamProxy(fakeRequest)
 		if err != nil {
 			return nil, err
