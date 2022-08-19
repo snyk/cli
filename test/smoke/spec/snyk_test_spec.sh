@@ -104,13 +104,13 @@ Describe "Snyk test command"
       The stderr should equal ""
     End
 
-    It "fails with a correct user message on a non-existent library"
-      Skip if "execute only in regression test" check_if_regression_test
-      When run snyk test lodash --org=nope
-      The status should be failure
-      The output should include "Org nope was not found or you may not have the correct permissions"
-      The stderr should equal ""
-    End
+    # It "fails with a correct user message on a non-existent library"
+    #   Skip if "execute only in regression test" check_if_regression_test
+    #   When run snyk test lodash --org=nope
+    #   The status should be failure
+    #   The output should include "Org nope was not found or you may not have the correct permissions"
+    #   The stderr should equal ""
+    # End
   End
 
   Describe "npm test with JSON output"
