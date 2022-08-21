@@ -13,10 +13,7 @@ describe('formatShareResultsOutput', () => {
     const testOrgName = 'test-org';
 
     // Act
-    const output = formatShareResultsOutput({
-      projectName: testProjectName,
-      orgName: testOrgName,
-    });
+    const output = formatShareResultsOutput(testOrgName, testProjectName);
 
     // Assert
     expect(output).toEqual(

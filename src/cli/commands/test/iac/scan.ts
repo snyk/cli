@@ -38,7 +38,7 @@ export async function scan(
   remoteRepoUrl?: string,
   targetName?: string,
 ): Promise<{
-  iacOutputMeta: IacOutputMeta | undefined;
+  iacOutputMeta: IacOutputMeta;
   iacScanFailures: IacFileInDirectory[];
   iacIgnoredIssuesCount: number;
   results: any[];

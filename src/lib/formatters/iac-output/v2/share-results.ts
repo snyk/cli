@@ -1,20 +1,19 @@
-import { IacOutputMeta } from '../../../types';
 import config from '../../../config';
 import { EOL } from 'os';
 import { colors, contentPadding } from './utils';
 
-export function formatShareResultsOutput(iacOutputMeta: IacOutputMeta) {
+export function formatShareResultsOutput(orgName: string, projectName: string) {
   return (
     colors.title('Report Complete') +
     EOL +
     EOL +
     contentPadding +
     'Your test results are available at: ' +
-    colors.title(`${config.ROOT}/org/${iacOutputMeta.orgName}/projects`) +
+    colors.title(`${config.ROOT}/org/${orgName}/projects`) +
     EOL +
     contentPadding +
     'under the name: ' +
-    colors.title(iacOutputMeta.projectName)
+    colors.title(projectName)
   );
 }
 
