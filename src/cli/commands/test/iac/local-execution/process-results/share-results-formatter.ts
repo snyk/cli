@@ -22,7 +22,9 @@ export function formatShareResults(
       filePath: result.filePath,
       fileType: result.fileType,
       projectType: result.projectType,
-      violatedPolicies: result.violatedPolicies,
+      violatedPolicies: result.violatedPolicies.filter(
+        (violatedPolicy) => violatedPolicy.severity !== 'none',
+      ),
     };
   });
 }
