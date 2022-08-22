@@ -14,4 +14,4 @@ jobs:
       SCRIPTS_PATH: ./cliv2/internal/httpauth/test/fixtures/squid_environment/scripts/
     steps:
       - uses: actions/checkout@v2
-      - run: docker-compose --file ./cliv2/internal/httpauth/test/fixtures/squid_environment/docker-compose.yml up --build
+      - run: docker-compose --platform linux --file ./cliv2/internal/httpauth/test/fixtures/squid_environment/docker-compose.yml up --build
