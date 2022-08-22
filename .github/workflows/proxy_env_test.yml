@@ -1,0 +1,12 @@
+name: 'Test Proxy Environment'
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  run-proxy:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker-compose --file cliv2/internal/httpauth/test/fixtures/squid_environment/docker-compose.yml up --build
