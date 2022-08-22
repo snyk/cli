@@ -19,4 +19,4 @@ services:
       - ${SCRIPTS_PATH}:/etc/cliv2/scripts
 
 volumes:
-  ${SCRIPTS_PATH}:
+  scripts:
