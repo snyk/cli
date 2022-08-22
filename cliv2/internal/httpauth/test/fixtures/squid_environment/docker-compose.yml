@@ -17,6 +17,3 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ${SCRIPTS_PATH}:/etc/cliv2/scripts
-
-volumes:
-  scripts:
