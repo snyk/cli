@@ -7,15 +7,15 @@ import { buildSpinner, printHeader } from '../output';
 import { spinnerMessage } from '../../../../../lib/formatters/iac-output';
 import { buildOutput } from '../../../../../lib/iac/test/v2/output';
 import { getIacOrgSettings } from '../local-execution/org-settings/get-iac-org-settings';
-import { Options, TestOptions } from '../../../../../lib/types';
 import { generateProjectAttributes } from '../../../monitor';
 import { parseTags } from '../local-execution';
 import { systemCachePath } from '../../../../../lib/iac/test/v2/scan';
 import { getFlag } from '../index';
+import { IaCTestFlags } from '../local-execution/types';
 
 export async function test(
   paths: string[],
-  options: Options & TestOptions,
+  options: IaCTestFlags,
 ): Promise<TestCommandResult> {
   const testConfig = await prepareTestConfig(paths, options);
   const { orgSettings } = testConfig;
@@ -48,7 +48,7 @@ export async function test(
 
 async function prepareTestConfig(
   paths: string[],
-  options: Options & TestOptions,
+  options: IaCTestFlags,
 ): Promise<TestConfig> {
   const iacCachePath = pathLib.join(systemCachePath, 'iac');
 
@@ -57,7 +57,6 @@ async function prepareTestConfig(
   const projectTags = parseTags(options);
   const targetName = getFlag(options, 'target-name');
   const remoteRepoUrl = getFlag(options, 'remote-repo-url');
-
   const attributes = parseAttributes(options);
 
   return {
@@ -76,7 +75,7 @@ async function prepareTestConfig(
   };
 }
 
-function parseAttributes(options: Options & TestOptions) {
+function parseAttributes(options: IaCTestFlags) {
   if (options.report) {
     return generateProjectAttributes(options);
   }
