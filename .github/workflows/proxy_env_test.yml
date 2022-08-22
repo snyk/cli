@@ -11,7 +11,7 @@ jobs:
       HTTP_PROXY_PORT: 3128
       PROXY_HOSTNAME: proxy.snyk.local
       CONTAINER_NAME: spnego_test
-      SCRIPTS_PATH: "cliv2/internal/httpauth/test/fixtures/squid_environment/scripts/")
+      SCRIPTS_PATH: cliv2/internal/httpauth/test/fixtures/squid_environment/scripts/
     steps:
       - uses: actions/checkout@v2
       - run: docker-compose --file cliv2/internal/httpauth/test/fixtures/squid_environment/docker-compose.yml up --build
