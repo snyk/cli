@@ -266,7 +266,7 @@ function vulnerabilitiesToIacIssues(
         resolve: v.remediation,
       },
       lineNumber: v.resource.line || -1,
-      documentation: `https://snyk.io/security-rules/${v.rule.id}`, // only works for rules available on snyk.io
+      documentation: v.rule.documentation, // only works for rules available on snyk.io
       isGeneratedByCustomRule: false,
       path: v.resource.path || [], // needs to be fixed, currently doesn't show the full path
       compliance: [],

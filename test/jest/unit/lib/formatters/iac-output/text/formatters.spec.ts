@@ -92,19 +92,19 @@ describe('formatSnykIacTestTestData', () => {
         'iac',
         'process-results',
         'fixtures',
-        'snyk-iac-test-test-data.json',
+        'snyk-iac-test-text-output-data.json',
       ),
       'utf-8',
     ),
   );
 
   it('formats the test data correctly', () => {
-    expect(
-      formatSnykIacTestTestData(
-        snykIacTestOutputFixture.results,
-        'project-name',
-        'org-name',
-      ),
-    ).toEqual(testDataFixture);
+    const result = formatSnykIacTestTestData(
+      snykIacTestOutputFixture.results,
+      'project-name',
+      'org-name',
+    );
+
+    expect(result).toEqual(testDataFixture);
   });
 });
