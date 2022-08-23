@@ -6,7 +6,7 @@ import {
 import {
   GitTarget,
   ContainerTarget,
-  UnknownTarget,
+  NamedTarget,
   MonitorDependenciesResponse,
 } from '../ecosystems/types';
 
@@ -49,7 +49,7 @@ export interface ResolutionMeta {
   identity: {
     type: string;
   };
-  target?: GitTarget | ContainerTarget | UnknownTarget;
+  target?: GitTarget | ContainerTarget | NamedTarget;
   policy?: string;
   targetReference?: string;
 }

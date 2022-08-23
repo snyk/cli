@@ -3,7 +3,7 @@ import {
   IaCTestFlags,
   PolicyMetadata,
 } from '../../cli/commands/test/iac/local-execution/types';
-import { ScanResult } from '../ecosystems/types';
+import { GitTarget, NamedTarget, ScanResult } from '../ecosystems/types';
 import { Policy } from '../policy/find-and-load-policy';
 import { IacOutputMeta } from '../types';
 
@@ -11,7 +11,7 @@ export function convertIacResultToScanResult(
   iacResult: IacShareResultsFormat,
   policy: Policy | undefined,
   meta: IacOutputMeta,
-  options?: IaCTestFlags,
+  options: IaCTestFlags,
 ): ScanResult {
   return {
     identity: {
@@ -26,15 +26,18 @@ export function convertIacResultToScanResult(
       };
     }),
     name: iacResult.projectName,
-    target: buildTarget(meta),
+    target: buildTarget(meta, options),
     policy: policy?.toString() ?? '',
     targetReference: options?.['target-reference'],
   };
 }
 
-function buildTarget(meta: IacOutputMeta) {
+function buildTarget(
+  meta: IacOutputMeta,
+  options: IaCTestFlags,
+): NamedTarget | GitTarget {
   if (meta.gitRemoteUrl) {
-    return { remoteUrl: meta.gitRemoteUrl };
+    return { remoteUrl: meta.gitRemoteUrl, name: options['target-name'] };
   }
   return { name: meta.projectName };
 }
