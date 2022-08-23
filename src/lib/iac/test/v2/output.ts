@@ -16,6 +16,7 @@ import { jsonStringifyLargeObject } from '../../../json';
 import {
   IaCErrorCodes,
   IacOrgSettings,
+  IaCTestFlags,
 } from '../../../../cli/commands/test/iac/local-execution/types';
 import { convertEngineToSarifResults } from './sarif';
 import { CustomError, FormattedCustomError } from '../../../errors';
@@ -23,6 +24,11 @@ import { SnykIacTestError } from './errors';
 import stripAnsi from 'strip-ansi';
 import * as path from 'path';
 import { getErrorStringCode } from '../../../../cli/commands/test/iac/local-execution/error-utils';
+import {
+  buildShareResultsSummary,
+  shouldPrintShareResultsTip,
+} from '../../../../cli/commands/test/iac/output';
+import { shareResultsTip } from '../../../formatters/iac-output/v2';
 
 export function buildOutput({
   scanResult,
@@ -98,7 +104,12 @@ function buildTestCommandResultData({
   } else if (options.sarif) {
     responseData = sarifData;
   } else {
-    responseData = buildTextOutput({ scanResult, projectName, orgSettings });
+    responseData = buildTextOutput({
+      scanResult,
+      projectName,
+      orgSettings,
+      options,
+    });
   }
 
   const hasVulnerabilities = !!scanResult.results?.vulnerabilities?.length;
@@ -119,10 +130,12 @@ function buildTextOutput({
   scanResult,
   projectName,
   orgSettings,
+  options,
 }: {
   scanResult: TestOutput;
   projectName: string;
   orgSettings: IacOrgSettings;
+  options: IaCTestFlags;
 }): string {
   let response = '';
 
@@ -152,6 +165,22 @@ function buildTextOutput({
   response += EOL;
   response += formatIacTestSummary(testData);
   response += EOL;
+
+  if (options.report) {
+    response += buildShareResultsSummary({
+      orgName: orgSettings.meta.org,
+      projectName,
+      options,
+      isIacCustomRulesEntitlementEnabled: false, // TODO: update when we add custom rules support
+      isIacShareCliResultsCustomRulesSupported: false, // TODO: update when we add custom rules support
+      isNewIacOutputSupported: true,
+    });
+    response += EOL;
+  }
+
+  if (shouldPrintShareResultsTip(options, true)) {
+    response += SEPARATOR + EOL + shareResultsTip + EOL;
+  }
 
   return response;
 }

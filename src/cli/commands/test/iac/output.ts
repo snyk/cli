@@ -88,7 +88,7 @@ export function buildOutput({
   isNewIacOutputSupported: boolean;
   isIacShareCliResultsCustomRulesSupported: boolean;
   isIacCustomRulesEntitlementEnabled: boolean;
-  iacOutputMeta?: IacOutputMeta;
+  iacOutputMeta: IacOutputMeta;
   resultOptions: (Options & TestOptions)[];
   iacScanFailures: IacFileInDirectory[];
   iacIgnoredIssuesCount: number;
@@ -281,7 +281,8 @@ export function buildOutput({
     if (isNewIacOutputSupported) {
       response += buildShareResultsSummary({
         options,
-        iacOutputMeta,
+        projectName: iacOutputMeta.projectName,
+        orgName: iacOutputMeta.orgName,
         isIacCustomRulesEntitlementEnabled,
         isIacShareCliResultsCustomRulesSupported,
         isNewIacOutputSupported,
@@ -316,14 +317,16 @@ export function buildOutput({
   );
 }
 
-function buildShareResultsSummary({
-  iacOutputMeta,
+export function buildShareResultsSummary({
+  orgName,
+  projectName,
   options,
   isIacCustomRulesEntitlementEnabled,
   isNewIacOutputSupported,
   isIacShareCliResultsCustomRulesSupported,
 }: {
-  iacOutputMeta?: IacOutputMeta;
+  orgName: string;
+  projectName: string;
   options: IaCTestFlags;
   isIacCustomRulesEntitlementEnabled: boolean;
   isNewIacOutputSupported: boolean;
@@ -331,7 +334,7 @@ function buildShareResultsSummary({
 }): string {
   let response = '';
 
-  response += SEPARATOR + EOL + formatShareResultsOutput(iacOutputMeta!);
+  response += SEPARATOR + EOL + formatShareResultsOutput(orgName, projectName);
 
   if (
     shouldPrintShareCustomRulesDisclaimer(
@@ -347,7 +350,7 @@ function buildShareResultsSummary({
   return response;
 }
 
-function shouldPrintShareResultsTip(
+export function shouldPrintShareResultsTip(
   options: IaCTestFlags,
   isNewOutput: boolean,
 ): boolean {
