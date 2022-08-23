@@ -12,6 +12,7 @@ import { parseTags } from '../local-execution';
 import { systemCachePath } from '../../../../../lib/iac/test/v2/scan';
 import { getFlag } from '../index';
 import { IaCTestFlags } from '../local-execution/types';
+import { findAndLoadPolicy } from '../../../../../lib/policy';
 
 export async function test(
   paths: string[],
@@ -58,6 +59,7 @@ async function prepareTestConfig(
   const targetName = getFlag(options, 'target-name');
   const remoteRepoUrl = getFlag(options, 'remote-repo-url');
   const attributes = parseAttributes(options);
+  const policy = await findAndLoadPolicy(process.cwd(), 'iac', options);
 
   return {
     paths,
@@ -72,6 +74,7 @@ async function prepareTestConfig(
     targetReference: options['target-reference'],
     targetName,
     remoteRepoUrl,
+    policy: policy?.toString(),
   };
 }
 
