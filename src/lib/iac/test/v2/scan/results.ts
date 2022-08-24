@@ -7,7 +7,7 @@ export function mapSnykIacTestOutputToTestOutput(
 ): TestOutput {
   const errors = snykIacOutput.errors?.map((err) => new SnykIacTestError(err));
 
-  const errWithoutPath = errors?.find((err) => !err.fields?.path);
+  const errWithoutPath = errors?.find((err) => !err.fields.path);
   if (errWithoutPath) {
     throw errWithoutPath;
   }
@@ -71,5 +71,8 @@ export interface Resource {
 export interface ScanError {
   message: string;
   code: number;
-  fields?: Record<string, string>;
+  fields: {
+    path: string;
+    [key: string]: string;
+  };
 }

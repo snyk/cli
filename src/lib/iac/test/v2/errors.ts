@@ -52,16 +52,11 @@ export class SnykIacTestError extends CustomError {
     this.code = scanError.code;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = getErrorUserMessage(this.code);
-    this.fields = Object.assign(
-      {
-        path: '',
-      },
-      scanError.fields,
-    );
+    this.fields = scanError.fields;
   }
 
   public get path(): string {
-    return this.fields?.path;
+    return this.fields.path;
   }
 
   public set path(path1: string) {

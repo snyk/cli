@@ -364,6 +364,7 @@ export enum IaCErrorCodes {
 
   // Scan errors
   PolicyEngineScanError = 1150,
+  OperationalPolicyEngineScanError = 1150,
 
   // snyk-iac-test errors
   NoPaths = 2000,

@@ -58,8 +58,13 @@ function scanWithConfig(
 
   debug('policy engine standard error:\n%s', '\n' + process.stderr);
 
-  if (process.status && process.status !== 0) {
-    throw new ScanError(`invalid exit status: ${process.status}`);
+  switch (process.status) {
+    case 0:
+      break;
+    case 1:
+      throw new OperationalScanError(`invalid exit status: ${process.status}`); // TODO: Change to a more specific error.
+    default:
+      throw new ScanError(`invalid exit status: ${process.status}`);
   }
 
   if (process.error) {
@@ -167,6 +172,15 @@ function deleteConfig(configPath) {
     rimraf.sync(path.dirname(configPath));
   } catch (e) {
     debug('unable to delete temporary directory', e);
+  }
+}
+
+class OperationalScanError extends CustomError {
+  constructor(message: string) {
+    super(message);
+    this.code = IaCErrorCodes.OperationalPolicyEngineScanError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = 'An operational error occurred when running the scan';
   }
 }
 
