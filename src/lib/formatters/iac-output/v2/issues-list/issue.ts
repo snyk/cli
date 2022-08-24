@@ -77,16 +77,18 @@ function formatProperties(
         ? result.issue.remediation[remediationKey]
         : result.issue.resolve,
     ],
-  ].filter(([, val]) => !!val) as [string, string][];
+  ];
 
   const maxPropertyNameLength = Math.max(
     ...properties.map(([key]) => key.length),
   );
 
-  return properties.map(
-    ([key, value]) =>
-      `${key}: ${' '.repeat(maxPropertyNameLength - key.length)}${value}`,
-  );
+  return properties
+    .filter(([, val]) => !!val)
+    .map(
+      ([key, value]) =>
+        `${key}: ${' '.repeat(maxPropertyNameLength - key.length)}${value}`,
+    );
 }
 
 function isValidLineNumber(lineNumber: number | undefined): boolean {

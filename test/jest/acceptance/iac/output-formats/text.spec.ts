@@ -275,7 +275,7 @@ Target file:       ${dirPath}/`);
           `snyk iac test ${filePath} --rules=./iac/custom-rules/custom.tar.gz`,
         );
 
-        expect(stdout).toContain(`Rule: custom rule CUSTOM-1`);
+        expect(stdout).toContain(`Rule:    custom rule CUSTOM-1`);
       });
     });
   });
