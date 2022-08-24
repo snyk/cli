@@ -4,7 +4,7 @@ import { TestConfig } from '../../../../../lib/iac/test/v2';
 import config from '../../../../../lib/config';
 import { TestCommandResult } from '../../../types';
 import { buildSpinner, printHeader } from '../output';
-import { spinnerMessage } from '../../../../../lib/formatters/iac-output';
+import { spinnerMessage } from '../../../../../lib/formatters/iac-output/text';
 import { buildOutput } from '../../../../../lib/iac/test/v2/output';
 import { getIacOrgSettings } from '../local-execution/org-settings/get-iac-org-settings';
 import { generateProjectAttributes } from '../../../monitor';
@@ -21,15 +21,9 @@ export async function test(
   const testConfig = await prepareTestConfig(paths, options);
   const { orgSettings } = testConfig;
 
-  const testSpinner = buildSpinner({
-    options,
-    isNewIacOutputSupported: true,
-  });
+  const testSpinner = buildSpinner(options);
 
-  printHeader({
-    options,
-    isNewIacOutputSupported: true,
-  });
+  printHeader(options);
 
   testSpinner?.start(spinnerMessage);
 

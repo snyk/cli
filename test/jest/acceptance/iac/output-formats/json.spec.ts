@@ -7,11 +7,9 @@ import { startMockServer } from '../helpers';
 import {
   spinnerMessage,
   spinnerSuccessMessage,
-} from '../../../../../src/lib/formatters/iac-output';
+} from '../../../../../src/lib/formatters/iac-output/text';
 
 expect.extend(matchers);
-
-const IAC_CLI_OUTPUT_FF = 'iacCliOutputRelease';
 
 const testResultJsonSchema = JSON.parse(
   fs.readFileSync(
@@ -79,122 +77,106 @@ describe('iac test JSON output', () => {
     await teardown();
   });
 
-  describe.each`
-    outputFFValue
-    ${true}
-    ${false}
-  `(
-    `with \`${IAC_CLI_OUTPUT_FF}\` feature flag as \`$outputFFValue\``,
-    ({ outputFFValue }) => {
-      beforeEach(() => {
-        server.setFeatureFlag(IAC_CLI_OUTPUT_FF, outputFFValue);
-      });
+  it('should not show an initial message', async () => {
+    // Arrange
+    const filePath = './iac/arm/rule_test.json';
 
-      it('should not show an initial message', async () => {
+    // Act
+    const { stdout } = await run(`snyk iac test --json ${filePath}`);
+
+    // Assert
+    expect(stdout).not.toContain(spinnerMessage);
+  });
+
+  it('should not show spinner messages', async () => {
+    // Arrange
+    const filePath = './iac/arm/rule_test.json';
+
+    // Act
+    const { stdout } = await run(`snyk iac test --json ${filePath}`);
+
+    // Asset
+    expect(stdout).not.toContain(spinnerMessage);
+    expect(stdout).not.toContain(spinnerSuccessMessage);
+  });
+
+  describe('with a single file', () => {
+    describe('when the test is successful', () => {
+      it('should output a result in the correct schema', async () => {
         // Arrange
-        const filePath = './iac/arm/rule_test.json';
+        const filePath = 'iac/cloudformation/aurora-valid.yml';
 
         // Act
         const { stdout } = await run(`snyk iac test --json ${filePath}`);
+        const outputJson = JSON.parse(stdout);
 
         // Assert
-        expect(stdout).not.toContain(spinnerMessage);
+        expect(outputJson).toMatchSchema(testResultJsonSchema);
       });
+    });
 
-      it('should not show spinner messages', async () => {
+    describe('when the test fails', () => {
+      it('should output an error in the correct schema', async () => {
         // Arrange
-        const filePath = './iac/arm/rule_test.json';
+        const filePath = 'iac/only-invalid/invalid-file1.yml';
 
         // Act
         const { stdout } = await run(`snyk iac test --json ${filePath}`);
+        const outputJson = JSON.parse(stdout);
 
-        // Asset
-        expect(stdout).not.toContain(spinnerMessage);
-        expect(stdout).not.toContain(spinnerSuccessMessage);
+        // Assert
+        expect(outputJson).toMatchSchema(testErrorJsonSchema);
+      });
+    });
+  });
+
+  describe('with multiple files', () => {
+    describe('with some successful tests', () => {
+      it('should output results in the correct schema', async () => {
+        // Arrange
+        const dirPath = 'iac';
+
+        // Act
+        const { stdout } = await run(`snyk iac test --json ${dirPath}`);
+        const outputJson = JSON.parse(stdout);
+
+        // Assert
+        expect(outputJson).toMatchSchema(testResultsJsonSchema);
       });
 
-      describe('with a single file', () => {
-        describe('when the test is successful', () => {
-          it('should output a result in the correct schema', async () => {
-            // Arrange
-            const filePath = 'iac/cloudformation/aurora-valid.yml';
+      describe('with multiple paths', () => {
+        it('should return valid output', async () => {
+          // Arrange
+          const paths = ['./iac/arm/rule_test.json', './iac/cloudformation'];
 
-            // Act
-            const { stdout } = await run(`snyk iac test --json ${filePath}`);
-            const outputJson = JSON.parse(stdout);
+          // Act
+          const { stdout, exitCode } = await run(
+            `snyk iac test --json ${paths.join(' ')}`,
+          );
 
-            // Assert
-            expect(outputJson).toMatchSchema(testResultJsonSchema);
-          });
-        });
+          // Assert
+          const outputJson = JSON.parse(stdout);
+          expect(outputJson).toMatchSchema(testResultsJsonSchema);
 
-        describe('when the test fails', () => {
-          it('should output an error in the correct schema', async () => {
-            // Arrange
-            const filePath = 'iac/only-invalid/invalid-file1.yml';
-
-            // Act
-            const { stdout } = await run(`snyk iac test --json ${filePath}`);
-            const outputJson = JSON.parse(stdout);
-
-            // Assert
-            expect(outputJson).toMatchSchema(testErrorJsonSchema);
-          });
+          expect(stdout).toContain('"id": "SNYK-CC-TF-20",');
+          expect(stdout).toContain('"id": "SNYK-CC-AWS-422",');
+          expect(exitCode).toBe(1);
         });
       });
+    });
 
-      describe('with multiple files', () => {
-        describe('with some successful tests', () => {
-          it('should output results in the correct schema', async () => {
-            // Arrange
-            const dirPath = 'iac';
+    describe('with only failing tests', () => {
+      it('should output errors in the correct schema', async () => {
+        // Arrange
+        const dirPath = 'iac/only-invalid';
 
-            // Act
-            const { stdout } = await run(`snyk iac test --json ${dirPath}`);
-            const outputJson = JSON.parse(stdout);
+        // Act
+        const { stdout } = await run(`snyk iac test --json ${dirPath}`);
+        const outputJson = JSON.parse(stdout);
 
-            // Assert
-            expect(outputJson).toMatchSchema(testResultsJsonSchema);
-          });
-
-          describe('with multiple paths', () => {
-            it('should return valid output', async () => {
-              // Arrange
-              const paths = [
-                './iac/arm/rule_test.json',
-                './iac/cloudformation',
-              ];
-
-              // Act
-              const { stdout, exitCode } = await run(
-                `snyk iac test --json ${paths.join(' ')}`,
-              );
-
-              // Assert
-              const outputJson = JSON.parse(stdout);
-              expect(outputJson).toMatchSchema(testResultsJsonSchema);
-
-              expect(stdout).toContain('"id": "SNYK-CC-TF-20",');
-              expect(stdout).toContain('"id": "SNYK-CC-AWS-422",');
-              expect(exitCode).toBe(1);
-            });
-          });
-        });
-
-        describe('with only failing tests', () => {
-          it('should output errors in the correct schema', async () => {
-            // Arrange
-            const dirPath = 'iac/only-invalid';
-
-            // Act
-            const { stdout } = await run(`snyk iac test --json ${dirPath}`);
-            const outputJson = JSON.parse(stdout);
-
-            // Assert
-            expect(outputJson).toMatchSchema(testErrorsJsonSchema);
-          });
-        });
+        // Assert
+        expect(outputJson).toMatchSchema(testErrorsJsonSchema);
       });
-    },
-  );
+    });
+  });
 });

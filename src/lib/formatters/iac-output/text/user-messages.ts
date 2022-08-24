@@ -35,14 +35,6 @@ export const customRulesReportMessage = colors.info(
 /**
  * @returns whether or not to include user messages in the output.
  */
-export function shouldLogUserMessages(
-  options: IaCTestFlags,
-  iacCliOutputFeatureFlag?: boolean,
-): boolean {
-  return !!(
-    !options.json &&
-    !options.sarif &&
-    !options.quiet &&
-    iacCliOutputFeatureFlag
-  );
+export function shouldLogUserMessages(options: IaCTestFlags): boolean {
+  return !options.json && !options.sarif && !options.quiet;
 }

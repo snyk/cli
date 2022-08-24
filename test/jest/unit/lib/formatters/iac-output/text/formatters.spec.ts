@@ -4,13 +4,13 @@ import { IacOutputMeta } from '../../../../../../../src/lib/types';
 import {
   formatSnykIacTestTestData,
   formatTestData,
-} from '../../../../../../../src/lib/formatters/iac-output';
+} from '../../../../../../../src/lib/formatters/iac-output/text';
 import { FormattedResult } from '../../../../../../../src/cli/commands/test/iac/local-execution/types';
 import { SnykIacTestOutput } from '../../../../../../../src/lib/iac/test/v2/scan/results';
 import {
   FormattedOutputResultsBySeverity,
   IacTestData,
-} from '../../../../../../../src/lib/formatters/iac-output/v2/types';
+} from '../../../../../../../src/lib/formatters/iac-output/text/types';
 
 describe('formatTestData', () => {
   const formattedResultFixtures: FormattedResult[] = JSON.parse(

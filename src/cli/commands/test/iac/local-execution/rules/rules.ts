@@ -21,7 +21,7 @@ import { getErrorStringCode } from '../error-utils';
 import {
   customRulesMessage,
   customRulesReportMessage,
-} from '../../../../../../lib/formatters/iac-output';
+} from '../../../../../../lib/formatters/iac-output/text';
 import { OciRegistry, RemoteOciRegistry } from './oci-registry';
 import { isValidUrl } from '../url-utils';
 import { isFeatureFlagSupportedForOrg } from '../../../../../../lib/feature-flags';

@@ -8,15 +8,12 @@ import {
 } from '../../../lib/types';
 import { isLocalFolder } from '../../../lib/detect';
 import { TestResult } from '../../../lib/snyk-test/legacy';
-import { IacTestResponse } from '../../../lib/snyk-test/iac-test-result';
 
 import {
   dockerRemediationForDisplay,
   formatTestMeta,
 } from '../../../lib/formatters';
-import { getIacDisplayedOutput } from '../../../lib/formatters/iac-output';
 import {
-  IacProjectType,
   IacProjectTypes,
   TEST_SUPPORTED_IAC_PROJECTS,
 } from '../../../lib/iac/constants';
@@ -105,17 +102,6 @@ export function displayResult(
       (isCI()
         ? ''
         : dockerAdvice + nextStepsText + snykPackageTestTip + dockerCTA)
-    );
-  }
-
-  if (
-    TEST_SUPPORTED_IAC_PROJECTS.includes(res.packageManager as IacProjectType)
-  ) {
-    return getIacDisplayedOutput(
-      (res as any) as IacTestResponse,
-      testedInfoText,
-      meta,
-      prefix,
     );
   }
 

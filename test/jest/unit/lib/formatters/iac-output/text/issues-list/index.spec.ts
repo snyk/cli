@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 import chalk from 'chalk';
-import { getIacDisplayedIssues } from '../../../../../../../../src/lib/formatters/iac-output';
-import { colors } from '../../../../../../../../src/lib/formatters/iac-output/v2/utils';
-import { FormattedOutputResultsBySeverity } from '../../../../../../../../src/lib/formatters/iac-output/v2/types';
+import { getIacDisplayedIssues } from '../../../../../../../../src/lib/formatters/iac-output/text';
+import { colors } from '../../../../../../../../src/lib/formatters/iac-output/text/utils';
+import { FormattedOutputResultsBySeverity } from '../../../../../../../../src/lib/formatters/iac-output/text/types';
 
 describe('getIacDisplayedIssues', () => {
   let resultFixtures: FormattedOutputResultsBySeverity;

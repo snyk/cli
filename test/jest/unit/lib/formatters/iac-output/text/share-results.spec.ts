@@ -1,10 +1,10 @@
 import { EOL } from 'os';
 import config from '../../../../../../../src/lib/config';
-import { formatShareResultsOutput } from '../../../../../../../src/lib/formatters/iac-output';
+import { formatShareResultsOutput } from '../../../../../../../src/lib/formatters/iac-output/text';
 import {
   colors,
   contentPadding,
-} from '../../../../../../../src/lib/formatters/iac-output/v2/utils';
+} from '../../../../../../../src/lib/formatters/iac-output/text/utils';
 
 describe('formatShareResultsOutput', () => {
   it('returns the correct output', () => {

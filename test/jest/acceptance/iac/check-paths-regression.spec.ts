@@ -1,3 +1,4 @@
+import { EOL } from 'os';
 import { startMockServer } from './helpers';
 
 jest.setTimeout(50000);
@@ -24,8 +25,10 @@ describe('checkPath() regression test snyk/cli#3406', () => {
       '--file=iac/check-paths-regression/package.json',
     );
     expect(stdout).toContain(
-      'Could not find any valid infrastructure as code files',
+      'Could not find any valid IaC files' +
+        EOL +
+        '  Path: ./iac/check-paths-regression/package.json',
     );
-    expect(exitCode).not.toBe(2);
+    expect(exitCode).toBe(3);
   });
 });

@@ -1,43 +1,10 @@
 import stripAnsi from 'strip-ansi';
 
 import { formatTestMeta } from '../../../../../src/lib/formatters/format-test-meta';
-import { IacTestResponse } from '../../../../../src/lib/snyk-test/iac-test-result';
 import { TestResult } from '../../../../../src/lib/snyk-test/legacy';
 import { ShowVulnPaths } from '../../../../../src/lib/types';
-import { generateCloudConfigResults } from '../../iac/results-formatter.fixtures';
 
 describe('formatTestMeta', () => {
-  it('iacTestResult meta is formatted as expected', () => {
-    const iacTestResult: IacTestResponse = {
-      path: 'src',
-      targetFile: 'example.yaml',
-      projectName: 'snyk',
-      displayTargetFile: 'src/example.yaml',
-      foundProjectCount: 0,
-      meta: {
-        isLicensesEnabled: false,
-        org: 'org-name',
-        isPublic: false,
-        policy: '',
-      },
-      result: {
-        cloudConfigResults: generateCloudConfigResults({
-          withLineNumber: false,
-        }),
-        projectType: 'k8sconfig',
-      },
-      ok: true,
-      isPrivate: false,
-      org: 'test-org',
-      summary: 'No known vulnerabilities',
-    };
-    const options = {
-      iac: true,
-      path: '/path/to/test',
-      showVulnPaths: 'all' as ShowVulnPaths,
-    };
-    expect(stripAnsi(formatTestMeta(iacTestResult, options))).toMatchSnapshot();
-  });
   it('with TargetFile', () => {
     const testResult: TestResult = {
       targetFile: 'package.json',

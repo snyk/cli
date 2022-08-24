@@ -1,3 +1,4 @@
+import { EOL } from 'os';
 import { startMockServer, isValidJSONString } from './helpers';
 
 jest.setTimeout(50000);
@@ -20,9 +21,9 @@ describe('Kubernetes single file scan', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/kubernetes/pod-privileged.yaml`,
     );
-    expect(stdout).toContain('Testing ./iac/kubernetes/pod-privileged.yaml');
-    expect(stdout).toContain('Infrastructure as code issues:');
-    expect(stdout).toContain('✗ Privileged container');
+
+    expect(stdout).toContain(`File:    ./iac/kubernetes/pod-privileged.yaml`);
+    expect(stdout).toContain('Privileged container');
     expect(stdout).toContain(
       '[DocId: 0] > input > spec > containers[example] > securityContext > privileged',
     );
@@ -33,10 +34,8 @@ describe('Kubernetes single file scan', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/kubernetes/pod-privileged.yaml --severity-threshold=high`,
     );
-    expect(stdout).toContain('Infrastructure as code issues:');
-    expect(stdout).toContain(
-      'Tested ./iac/kubernetes/pod-privileged.yaml for known issues, found 1 issues',
-    );
+    expect(stdout).toContain('File:    ./iac/kubernetes/pod-privileged.yaml');
+    expect(stdout).toContain('Total issues: 1');
     expect(exitCode).toBe(1);
   });
 
@@ -45,7 +44,9 @@ describe('Kubernetes single file scan', () => {
       `snyk iac test ./iac/kubernetes/pod-invalid.yaml`,
     );
     expect(stdout).toContain(
-      'Could not find any valid infrastructure as code files. Supported file extensions are tf, yml, yaml & json.',
+      'Could not find any valid IaC files' +
+        EOL +
+        '  Path: ./iac/kubernetes/pod-invalid.yaml',
     );
     expect(exitCode).toBe(3);
   });
@@ -77,9 +78,7 @@ describe('Kubernetes single file scan', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/kubernetes/helm-config.yaml`,
     );
-    expect(stdout).toContain(
-      'We were unable to parse the YAML file "./iac/kubernetes/helm-config.yaml". Please ensure that it contains properly structured YAML, without any template directives',
-    );
+    expect(stdout).toContain('Failed to parse YAML file');
     expect(exitCode).toBe(2);
   });
 });

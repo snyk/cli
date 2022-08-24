@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 
-import { formatIacTestFailures } from '../../../../../../../../src/lib/formatters/iac-output';
-import { colors } from '../../../../../../../../src/lib/formatters/iac-output/v2/utils';
-import { IaCTestFailure } from '../../../../../../../../src/lib/formatters/iac-output/v2/types';
+import { formatIacTestFailures } from '../../../../../../../../src/lib/formatters/iac-output/text';
+import { colors } from '../../../../../../../../src/lib/formatters/iac-output/text/utils';
+import { IaCTestFailure } from '../../../../../../../../src/lib/formatters/iac-output/text/types';
 
 const testFailureFixtures: IaCTestFailure[] = JSON.parse(
   fs.readFileSync(

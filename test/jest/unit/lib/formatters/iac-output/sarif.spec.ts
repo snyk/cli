@@ -1,17 +1,14 @@
-import {
-  createSarifOutputForIac,
-  shareResultsOutput,
-} from '../../../../../../../src/lib/formatters/iac-output';
-import * as git from '../../../../../../../src/lib/iac/git';
+import { createSarifOutputForIac } from '../../../../../../src/lib/formatters/iac-output/sarif';
+import * as git from '../../../../../../src/lib/iac/git';
 import {
   IacTestResponse,
   AnnotatedIacIssue,
-} from '../../../../../../../src/lib/snyk-test/iac-test-result';
-import { SEVERITY } from '../../../../../../../src/lib/snyk-test/legacy';
+} from '../../../../../../src/lib/snyk-test/iac-test-result';
+import { SEVERITY } from '../../../../../../src/lib/snyk-test/legacy';
 import * as path from 'path';
 
 const projectDirectoryName = path.basename(
-  path.resolve(__dirname, '..', '..', '..', '..', '..', '..', '..'),
+  path.resolve(__dirname, '..', '..', '..', '..', '..', '..'),
 );
 
 describe('createSarifOutputForIac', () => {
@@ -141,25 +138,5 @@ describe('createSarifOutputForIac', () => {
       uriBaseId: 'PROJECTROOT',
     });
     expect(location?.physicalLocation?.region).not.toBeDefined();
-  });
-});
-
-describe('shareResultsOutput', () => {
-  it('returns the correct output when gitRemoteUrl is specified', () => {
-    const output = shareResultsOutput({
-      projectName: 'test-project',
-      orgName: 'test-org',
-      gitRemoteUrl: 'http://github.com/test/repo.git',
-    });
-
-    expect(output).toContain('under the name test/repo');
-  });
-  it('returns the correct output when gitRemoteUrl is not specified', () => {
-    const output = shareResultsOutput({
-      projectName: 'test-project',
-      orgName: 'test-org',
-    });
-
-    expect(output).toContain('under the name test-project');
   });
 });

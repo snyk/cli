@@ -10,8 +10,9 @@ import {
   getIacDisplayedIssues,
   IaCTestFailure,
   spinnerSuccessMessage,
-} from '../../../formatters/iac-output';
-import { formatSnykIacTestTestData } from '../../../formatters/iac-output';
+  formatSnykIacTestTestData,
+  shareResultsTip,
+} from '../../../formatters/iac-output/text';
 import { jsonStringifyLargeObject } from '../../../json';
 import {
   IaCErrorCodes,
@@ -28,7 +29,6 @@ import {
   buildShareResultsSummary,
   shouldPrintShareResultsTip,
 } from '../../../../cli/commands/test/iac/output';
-import { shareResultsTip } from '../../../formatters/iac-output/v2';
 
 export function buildOutput({
   scanResult,
@@ -173,12 +173,11 @@ function buildTextOutput({
       options,
       isIacCustomRulesEntitlementEnabled: false, // TODO: update when we add custom rules support
       isIacShareCliResultsCustomRulesSupported: false, // TODO: update when we add custom rules support
-      isNewIacOutputSupported: true,
     });
     response += EOL;
   }
 
-  if (shouldPrintShareResultsTip(options, true)) {
+  if (shouldPrintShareResultsTip(options)) {
     response += SEPARATOR + EOL + shareResultsTip + EOL;
   }
 

@@ -8,15 +8,6 @@ Platform:          linux/amd64
 Base image:        debian:latest"
 `;
 
-exports[`formatTestMeta iacTestResult meta is formatted as expected 1`] = `
-"Organization:      test-org
-Type:              Infrastructure as Code
-Target file:       example.yaml
-Project name:      snyk
-Open source:       yes
-Project path:      /path/to/test"
-`;
-
 exports[`formatTestMeta with TargetFile 1`] = `
 "Organization:      my-org
 Package manager:   npm

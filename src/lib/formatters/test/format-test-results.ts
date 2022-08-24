@@ -19,7 +19,7 @@ import { formatIssuesWithRemediation } from '../remediation-based-format-issues'
 import { formatIssues } from '../legacy-format-issue';
 import { formatDockerBinariesIssues } from '../docker';
 import { createSarifOutputForContainers } from '../sarif-output';
-import { createSarifOutputForIac } from '../iac-output';
+import { createSarifOutputForIac } from '../iac-output/sarif';
 import { isNewVuln, isVulnFixable } from '../../vuln-helpers';
 import { jsonStringifyLargeObject } from '../../json';
 import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
