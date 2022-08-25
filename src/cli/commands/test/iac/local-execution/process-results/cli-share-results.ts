@@ -34,7 +34,7 @@ export async function shareResults({
   policy: Policy | undefined;
   tags?: Tag[];
   attributes?: ProjectAttributes;
-  options?: IaCTestFlags;
+  options: IaCTestFlags;
   meta: IacOutputMeta;
 }): Promise<ShareResultsOutput> {
   const scanResults = results.map((result) =>

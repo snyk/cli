@@ -20,7 +20,7 @@ export interface ContainerTarget {
   image: string;
 }
 
-export interface UnknownTarget {
+export interface NamedTarget extends GitTarget {
   name: string; // Should be equal to the project name
 }
 
@@ -30,7 +30,7 @@ export interface ScanResult {
   findings?: Finding[];
   name?: string;
   policy?: string;
-  target?: GitTarget | ContainerTarget | UnknownTarget;
+  target?: GitTarget | ContainerTarget | NamedTarget;
   analytics?: Analytics[];
   targetReference?: string;
 }

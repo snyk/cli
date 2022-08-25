@@ -43,6 +43,7 @@ describe('CLI Share Results', () => {
         orgName: 'org-name',
         gitRemoteUrl: 'http://github.com/snyk/cli.git',
       },
+      options: {},
     });
 
     expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
@@ -69,6 +70,7 @@ describe('CLI Share Results', () => {
         orgName: 'org-name',
         gitRemoteUrl: 'http://github.com/snyk/cli.git',
       },
+      options: {},
     });
 
     expect(envelopeFormattersSpy.mock.calls.length).toBe(2);
@@ -139,6 +141,7 @@ describe('CLI Share Results', () => {
         orgName: 'org-name',
         gitRemoteUrl: 'http://github.com/snyk/cli.git',
       },
+      options: {},
     });
 
     expect(requestSpy.mock.calls.length).toBe(1);
