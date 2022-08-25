@@ -1,8 +1,8 @@
 import * as pathLib from 'path';
-import * as initPolicyEngineLib from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine';
-import * as initRulesBundleLib from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules-bundle';
+import * as initPolicyEngineLib from '../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine';
+import * as initRulesBundleLib from '../../../../../../../../../src/lib/iac/test/v2/local-cache/rules-bundle';
 import * as fileUtils from '../../../../../../../../../src/lib/iac/file-utils';
-import { initLocalCache } from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache';
+import { initLocalCache } from '../../../../../../../../../src/lib/iac/test/v2/local-cache';
 import { TestConfig } from '../../../../../../../../../src/lib/iac/test/v2/types';
 import { FailedToInitLocalCacheError } from '../../../../../../../../../src/cli/commands/test/iac/local-execution/local-cache';
 

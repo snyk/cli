@@ -1,12 +1,14 @@
 import { TestConfig } from './types';
-import { setup } from './setup';
 import { scan } from './scan';
-import { TestOutput } from '../../../../lib/iac/test/v2/scan/results';
+import { TestOutput } from './scan/results';
+import { initLocalCache } from './local-cache';
 
 export { TestConfig } from './types';
 
 export async function test(testConfig: TestConfig): Promise<TestOutput> {
-  const { policyEnginePath, rulesBundlePath } = await setup(testConfig);
+  const { policyEnginePath, rulesBundlePath } = await initLocalCache(
+    testConfig,
+  );
 
   return scan(testConfig, policyEnginePath, rulesBundlePath);
 }

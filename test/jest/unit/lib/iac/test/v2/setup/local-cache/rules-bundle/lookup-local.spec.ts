@@ -4,10 +4,10 @@ import * as fileUtils from '../../../../../../../../../../src/lib/iac/file-utils
 import {
   InvalidUserRulesBundlePathError,
   lookupLocalRulesBundle,
-} from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules-bundle/lookup-local';
-import { rulesBundleName } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules-bundle/constants';
-import * as utilsLib from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/utils';
-import { InvalidUserPathError } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/utils';
+} from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/rules-bundle/lookup-local';
+import { rulesBundleName } from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/rules-bundle/constants';
+import * as utilsLib from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/utils';
+import { InvalidUserPathError } from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/utils';
 
 describe('lookupLocalRulesBundle', () => {
   const iacCachePath = pathLib.join('iac', 'cache', 'path');

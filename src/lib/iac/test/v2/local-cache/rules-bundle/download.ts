@@ -1,12 +1,12 @@
 import * as createDebugLogger from 'debug';
 import * as path from 'path';
 
-import { getErrorStringCode } from '../../../../../../../cli/commands/test/iac/local-execution/error-utils';
-import { IaCErrorCodes } from '../../../../../../../cli/commands/test/iac/local-execution/types';
-import { CustomError } from '../../../../../../errors';
-import { TimerMetricInstance } from '../../../../../../metrics';
-import { saveFile } from '../../../../../file-utils';
-import { TestConfig } from '../../../types';
+import { getErrorStringCode } from '../../../../../../cli/commands/test/iac/local-execution/error-utils';
+import { IaCErrorCodes } from '../../../../../../cli/commands/test/iac/local-execution/types';
+import { CustomError } from '../../../../../errors';
+import { TimerMetricInstance } from '../../../../../metrics';
+import { saveFile } from '../../../../file-utils';
+import { TestConfig } from '../../types';
 import { fetchCacheResource } from '../utils';
 import { rulesBundleName } from './constants';
 

@@ -1,12 +1,14 @@
 import * as createDebugLogger from 'debug';
 
-import { TestConfig } from '../../../types';
+import { TestConfig } from '../../types';
 import { lookupLocalPolicyEngine } from './lookup-local';
 import { downloadPolicyEngine } from './download';
 
 const debugLogger = createDebugLogger('snyk-iac');
 
-export async function initPolicyEngine(testConfig: TestConfig) {
+export async function initPolicyEngine(
+  testConfig: TestConfig,
+): Promise<string> {
   debugLogger('Looking for Policy Engine locally');
   let policyEnginePath = await lookupLocalPolicyEngine(testConfig);
 

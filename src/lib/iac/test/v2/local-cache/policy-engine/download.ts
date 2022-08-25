@@ -2,18 +2,18 @@ import * as pathLib from 'path';
 import * as crypto from 'crypto';
 import * as createDebugLogger from 'debug';
 
-import { getErrorStringCode } from '../../../../../../../cli/commands/test/iac/local-execution/error-utils';
-import { IaCErrorCodes } from '../../../../../../../cli/commands/test/iac/local-execution/types';
-import { CustomError } from '../../../../../../errors';
-import { TimerMetricInstance } from '../../../../../../metrics';
-import { TestConfig } from '../../../types';
+import { getErrorStringCode } from '../../../../../../cli/commands/test/iac/local-execution/error-utils';
+import { IaCErrorCodes } from '../../../../../../cli/commands/test/iac/local-execution/types';
+import { CustomError } from '../../../../../errors';
+import { TimerMetricInstance } from '../../../../../metrics';
+import { TestConfig } from '../../types';
 import { fetchCacheResource } from '../utils';
 import {
   policyEngineChecksum,
   policyEngineFileName,
   policyEngineReleaseVersion,
 } from './constants';
-import { saveFile } from '../../../../../file-utils';
+import { saveFile } from '../../../../file-utils';
 
 const debugLog = createDebugLogger('snyk-iac');
 

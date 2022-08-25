@@ -4,13 +4,13 @@ import * as fileUtils from '../../../../../../../../../../src/lib/iac/file-utils
 import {
   InvalidUserPolicyEnginePathError,
   lookupLocalPolicyEngine,
-} from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/lookup-local';
-import * as utilsLib from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/utils';
-import { policyEngineFileName } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants';
-import { InvalidUserPathError } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/utils';
+} from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/lookup-local';
+import * as utilsLib from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/utils';
+import { policyEngineFileName } from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants';
+import { InvalidUserPathError } from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/utils';
 
 jest.mock(
-  '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants',
+  '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants',
   () => ({
     policyEngineFileName: 'policy-engine-test-file-name',
   }),

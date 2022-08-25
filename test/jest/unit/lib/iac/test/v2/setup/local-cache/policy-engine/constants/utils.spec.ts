@@ -2,8 +2,8 @@ import * as os from 'os';
 import {
   formatPolicyEngineFileName,
   getChecksum,
-} from '../../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants/utils';
-import { policyEngineReleaseVersion } from '../../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants/index';
+} from '../../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants/utils';
+import { policyEngineReleaseVersion } from '../../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants/index';
 
 describe('formatPolicyEngineFileName', () => {
   const testReleaseVersion = '6.6.6';

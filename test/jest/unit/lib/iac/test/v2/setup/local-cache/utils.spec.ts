@@ -6,7 +6,7 @@ import {
   fetchCacheResource,
   InvalidUserPathError,
   lookupLocal,
-} from '../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/utils';
+} from '../../../../../../../../../src/lib/iac/test/v2/local-cache/utils';
 import { CustomError } from '../../../../../../../../../src/lib/errors';
 
 describe('lookupLocal', () => {

@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as pathLib from 'path';
 import * as cloneDeep from 'lodash.clonedeep';
 
-import * as localCacheUtils from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/utils';
+import * as localCacheUtils from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/utils';
 import * as fileUtils from '../../../../../../../../../../src/lib/iac/file-utils';
 import { TestConfig } from '../../../../../../../../../../src/lib/iac/test/v2/types';
 import {
@@ -10,11 +10,11 @@ import {
   FailedToCachePolicyEngineError,
   FailedToDownloadPolicyEngineError,
   policyEngineUrl,
-} from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/download';
-import { policyEngineChecksum } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants';
+} from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/download';
+import { policyEngineChecksum } from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants';
 
 jest.mock(
-  '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants',
+  '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants',
   () => ({
     policyEngineFileName: 'test-policy-engine-file-name',
   }),
