@@ -74,6 +74,12 @@ describe('convertEngineToJsonResults', () => {
       orgSettings,
     });
 
+    experimentalJsonOutputFixture.forEach((item) => {
+      if ('targetFilePath' in item) {
+        item.targetFilePath = path.resolve(item.targetFile);
+      }
+    });
+
     expect(result).toEqual(experimentalJsonOutputFixture);
   });
 });

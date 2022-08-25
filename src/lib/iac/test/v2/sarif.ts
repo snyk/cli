@@ -97,7 +97,7 @@ function extractReportingDescriptor(
           severity: vulnerability.severity,
         },
       },
-      helpUri: `https://snyk.io/security-rules/${vulnerability.rule.id}`,
+      helpUri: vulnerability.rule.documentation,
     };
   });
   return Object.values(rules);
@@ -166,7 +166,7 @@ function mapSnykIacTestResultsToSarifResults(
             // We exclude the `region` key when the line number is missing or -1.
             // https://docs.oasis-open.org/sarif/sarif/v2.0/csprd02/sarif-v2.0-csprd02.html#_Toc10127873
             region: {
-              startLine: vulnerability.resource.line,
+              startLine: vulnerability.resource.line ?? 1,
             },
           },
         },

@@ -55,6 +55,7 @@ export interface Rule {
   references?: string;
   labels?: string[];
   category?: string;
+  documentation: string; // TODO: revisit this field when adding support for custom rules
 }
 
 export interface Resource {
