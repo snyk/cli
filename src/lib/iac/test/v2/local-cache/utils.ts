@@ -1,8 +1,8 @@
 import * as createDebugLogger from 'debug';
 import * as path from 'path';
 
-import { CustomError } from '../../../../../errors';
-import { makeRequest } from '../../../../../request';
+import { CustomError } from '../../../../errors';
+import { makeRequest } from '../../../../request';
 
 const debugLogger = createDebugLogger('snyk-iac');
 

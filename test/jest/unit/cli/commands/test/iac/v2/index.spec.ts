@@ -3,8 +3,8 @@ import * as path from 'path';
 import chalk from 'chalk';
 
 import * as scanLib from '../../../../../../../../src/lib/iac/test/v2/scan';
-import * as downloadPolicyEngineLib from '../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/download';
-import * as downloadRulesBundleLib from '../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules-bundle/download';
+import * as downloadPolicyEngineLib from '../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/download';
+import * as downloadRulesBundleLib from '../../../../../../../../src/lib/iac/test/v2/local-cache/rules-bundle/download';
 import * as orgSettingsLib from '../../../../../../../../src/cli/commands/test/iac/local-execution/org-settings/get-iac-org-settings';
 import { test } from '../../../../../../../../src/cli/commands/test/iac/v2/index';
 import { Options, TestOptions } from '../../../../../../../../src/lib/types';

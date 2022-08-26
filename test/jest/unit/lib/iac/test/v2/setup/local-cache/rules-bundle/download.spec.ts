@@ -1,7 +1,7 @@
 import * as pathLib from 'path';
 import * as cloneDeep from 'lodash.clonedeep';
 
-import * as localCacheUtils from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/utils';
+import * as localCacheUtils from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/utils';
 import * as fileUtils from '../../../../../../../../../../src/lib/iac/file-utils';
 import { TestConfig } from '../../../../../../../../../../src/lib/iac/test/v2/types';
 import {
@@ -9,10 +9,10 @@ import {
   FailedToDownloadRulesBundleError,
   FailedToCacheRulesBundleError,
   rulesBundleUrl,
-} from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules-bundle/download';
+} from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/rules-bundle/download';
 
 jest.mock(
-  '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/rules-bundle/constants',
+  '../../../../../../../../../../src/lib/iac/test/v2/local-cache/rules-bundle/constants',
   () => ({
     rulesBundleName: 'test-rules-bundle-file-name',
   }),

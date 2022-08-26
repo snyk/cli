@@ -1,8 +1,8 @@
-import { isExe } from '../../../../../file-utils';
-import { CustomError } from '../../../../../../errors';
-import { IaCErrorCodes } from '../../../../../../../cli/commands/test/iac/local-execution/types';
-import { getErrorStringCode } from '../../../../../../../cli/commands/test/iac/local-execution/error-utils';
-import { TestConfig } from '../../../types';
+import { isExe } from '../../../../file-utils';
+import { CustomError } from '../../../../../errors';
+import { IaCErrorCodes } from '../../../../../../cli/commands/test/iac/local-execution/types';
+import { getErrorStringCode } from '../../../../../../cli/commands/test/iac/local-execution/error-utils';
+import { TestConfig } from '../../types';
 import { policyEngineFileName } from './constants';
 import { InvalidUserPathError, lookupLocal } from '../utils';
 

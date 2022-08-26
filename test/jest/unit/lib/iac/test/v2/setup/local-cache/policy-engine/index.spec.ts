@@ -1,12 +1,12 @@
 import * as pathLib from 'path';
 import * as cloneDeep from 'lodash.clonedeep';
 
-import * as lookupLocalLib from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/lookup-local';
-import * as downloadLib from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/download';
-import { initPolicyEngine } from '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine';
+import * as lookupLocalLib from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/lookup-local';
+import * as downloadLib from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/download';
+import { initPolicyEngine } from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine';
 
 jest.mock(
-  '../../../../../../../../../../src/lib/iac/test/v2/setup/local-cache/policy-engine/constants',
+  '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants',
   () => ({
     policyEngineFileName: 'test-policy-engine-file-name',
   }),
