@@ -45,6 +45,8 @@ Set a default to ensure all newly tested projects are tested under your default 
 
 Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
 
+Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
+
 For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
 
 ### `--json`
@@ -65,7 +67,7 @@ Example: `$ snyk code test --json-file-output=vuln.json`
 
 Return results in SARIF format.
 
-Example: \$snyk code
+Example: `$ snyk code --sarif`
 
 ### `--sarif-file-output=<OUTPUT_FILE_PATH>`
 

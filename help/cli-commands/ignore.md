@@ -10,7 +10,7 @@ OR
 
 ## Description
 
-The `snyk ignore` command modifies the `.snyk` policy file to ignore a stated issue according to its snyk ID for all occurrences or to ignore paths on the filesystem.
+The `snyk ignore` command modifies the `.snyk` policy file to ignore a stated issue according to its snyk ID for all occurrences, its expiry date, a reason, or according to paths in the filesystem.
 
 This updates your local `.snyk` file to contain a block similar to the following:
 
@@ -135,3 +135,10 @@ Ignore files matching a glob expression by adding them to a specific group. Appl
 ```
 $ snyk ignore --file-path='./**/vendor/**/*.cpp' --file-path-group='global'
 ```
+
+## More information about snyk ignore command
+
+For more information see:
+
+- [Ignore vulnerabilities using Snyk CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/ignore-vulnerabilities-using-snyk-cli)
+- [IaC ignores using the .snyk policy file](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code/iac-ignores-using-the-.snyk-policy-file)

@@ -10,6 +10,8 @@ The `snyk monitor` command creates a project in your Snyk account to be continuo
 
 For Snyk Container see [`snyk container` help](https://docs.snyk.io/snyk-cli/commands/container)
 
+The `monitor` command is not supported for Snyk Code.
+
 For Snyk Infrastructure as Code follow the instructions in "Regularly testing IaC files" on [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
 
 ## Exit codes
@@ -37,6 +39,16 @@ See also subsequent sections for options for specific build environments, packag
 Auto-detect all projects in the working directory (including Yarn workspaces).
 
 For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/hc/en-us/articles/360000910577-Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files-)
+
+### `--fail-fast`
+
+Use with `--all-projects` to cause scans to be interrupted when errors occur and to report these errors back to the user.
+
+The exit code is 2 and the scan ends. No vulnerability information is reported for projects that did not produce errors.
+
+To perform the scan, resolve the error and scan again.
+
+Note: If you do not use `--fail-fast`, Snyk scans all the projects but does not report any vulnerabilities for projects it could not scan due to misconfiguration or another error.
 
 ### `--detection-depth=<DEPTH>`
 
@@ -86,6 +98,8 @@ Set a default to ensure all newly monitored projects are created under your defa
 
 Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
 
+Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
+
 For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
 
 ### `--file=<FILE>`
@@ -104,9 +118,9 @@ Example: `$ snyk monitor --file=req.txt --package-manager=pip`
 
 For C++ only, scan all files for known open source dependencies.
 
-For options you can use with `--unmanaged` see [Options for scanning using `--unmanaged`](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-scanning-using-unmanaged)\`\`
+For options you can use with `--unmanaged` see [Options for scanning using `--unmanaged`](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-scanning-using-unmanaged)
 
-For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)\`\`
+For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)
 
 ### `--ignore-policy`
 
@@ -114,7 +128,7 @@ Ignore all set policies, the current policy in the `.snyk` file, org level ignor
 
 ### `--trust-policies`
 
-Apply and use ignore rules from the Snyk policies your dependencies; otherwise ignore rules in the dependencies are only shown as a suggestion.
+Apply and use ignore rules from the Snyk policies in your dependencies; otherwise ignore rules in the dependencies are only shown as a suggestion.
 
 ### `--project-name=<PROJECT_NAME>`
 
@@ -168,9 +182,19 @@ Set the project tags to one or more values (comma-separated key value pairs with
 
 This is an alias for `--project-tags`
 
-## Option for Maven projects
+## Options for Maven projects
 
 For more information about Maven CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven)
+
+### `--maven-aggregate-project`
+
+Use `--maven-aggregate-project` instead of `--all-projects` when scanning Maven aggregate projects, that is, ones that use modules and inheritance.
+
+When scanning these types of projects, Snyk performs a compile to ensure all modules are resolvable by the Maven reactor.&#x20;
+
+Be sure to run the scan in the same directory as the root pom.xml file.&#x20;
+
+Snyk reports test results per pom.xml file.
 
 ### `--scan-all-unmanaged`
 
