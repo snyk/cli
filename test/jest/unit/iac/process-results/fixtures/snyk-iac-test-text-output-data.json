@@ -88,7 +88,7 @@
     "orgName": "org-name"
   },
   "counts": {
-    "ignores": 0,
+    "ignores": 3,
     "filesWithIssues": 2,
     "filesWithoutIssues": 0,
     "issues": 4,

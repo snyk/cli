@@ -32,11 +32,12 @@ export interface SnykIacTestOutput {
 export interface Results {
   resources?: Resource[];
   vulnerabilities?: Vulnerability[];
-  metadata?: Metadata;
+  metadata: Metadata;
 }
 
 export interface Metadata {
   projectName: string;
+  ignoredCount: number;
 }
 
 export interface Vulnerability {

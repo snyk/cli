@@ -104,12 +104,15 @@ export function formatSnykIacTestTestData(
   const allFilesCount = countFiles(snykIacTestScanResult);
   const filesWithIssuesCount = countFilesWithIssues(snykIacTestScanResult);
   const filesWithoutIssuesCount = allFilesCount - filesWithIssuesCount;
+  const ignores = snykIacTestScanResult
+    ? snykIacTestScanResult.metadata.ignoredCount
+    : 0;
 
   return {
     resultsBySeverity,
     metadata: { projectName, orgName },
     counts: {
-      ignores: 0,
+      ignores,
       filesWithIssues: filesWithIssuesCount,
       filesWithoutIssues: filesWithoutIssuesCount,
       issues: totalIssues,
