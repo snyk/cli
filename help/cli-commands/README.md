@@ -1,4 +1,4 @@
-# CLI commands help
+# CLI help
 
 Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.
 
@@ -15,6 +15,8 @@ For details see the [CLI documentation](https://docs.snyk.io/features/snyk-cli)
 ## Available commands
 
 To learn more about each Snyk CLI command, use the `--help` option, for example, `snyk auth --help` or `snyk container --help`
+
+**Note:** The help on the docs site is the same as the `--help` in the CLI.
 
 ### [`snyk auth`](auth.md)
 

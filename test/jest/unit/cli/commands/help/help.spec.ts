@@ -19,10 +19,25 @@ describe('findHelpFile', () => {
     ).toContain('test.md');
   });
 
-  it('returns correct help markdown path with a `container` command and a non-documented subcommand', () => {
+  it('returns correct help markdown path with a `container` command', () => {
+    expect(
+      help.findHelpFile(['container'], '../../../../help/cli-commands'),
+    ).toContain('container.md');
+  });
+
+  it('returns correct help markdown path with a `container test` subcommand', () => {
     expect(
       help.findHelpFile(['container', 'test'], '../../../../help/cli-commands'),
-    ).toContain('container.md');
+    ).toContain('container-test.md');
+  });
+
+  it('returns correct help markdown path with a `container monitor` subcommand', () => {
+    expect(
+      help.findHelpFile(
+        ['container', 'monitor'],
+        '../../../../help/cli-commands',
+      ),
+    ).toContain('container-monitor.md');
   });
 
   it('returns correct help markdown path for a documented subcommand with `iac describe`', () => {
