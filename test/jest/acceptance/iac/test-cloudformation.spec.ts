@@ -26,7 +26,9 @@ describe('CloudFormation single file scan', () => {
       'SNS topic is not encrypted with customer managed key',
     );
     expect(stdout).toContain(
-      '[DocId: 0] > Resources[DatabaseAlarmTopic] > Properties > KmsMasterKeyId',
+      '  Path:    [DocId: 0] > Resources[DatabaseAlarmTopic] > Properties >' +
+        EOL +
+        '           KmsMasterKeyId',
     );
     expect(exitCode).toBe(1);
   });
@@ -40,7 +42,9 @@ describe('CloudFormation single file scan', () => {
     );
     expect(stdout).toContain('S3 restrict public bucket control is disabled');
     expect(stdout).toContain(
-      'Resources[CodePipelineArtifactBucket] > Properties > PublicAccessBlockConfiguration > RestrictPublicBuckets',
+      '  Path:    Resources[CodePipelineArtifactBucket] > Properties >' +
+        EOL +
+        '           PublicAccessBlockConfiguration > RestrictPublicBuckets',
     );
     expect(exitCode).toBe(1);
   });

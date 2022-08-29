@@ -6,6 +6,8 @@ import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-executio
 import { Resource, ScanError, TestOutput, Vulnerability } from './scan/results';
 import * as path from 'path';
 import { createErrorMappedResultsForJsonOutput } from '../../../formatters/test/format-test-results';
+import { IacProjectType } from '../../constants';
+import { State } from './scan/policy-engine';
 
 export interface Result {
   meta: Meta;
@@ -54,7 +56,7 @@ export interface IacIssue {
   impact: string;
   msg: string;
   remediation?: Remediation;
-  subType: string;
+  subType: IacProjectType | State.InputTypeEnum;
   issue: string;
   publicId: string;
   title: string;

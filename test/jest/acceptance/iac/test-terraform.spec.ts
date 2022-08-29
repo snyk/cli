@@ -167,7 +167,9 @@ describe('Terraform', () => {
         `snyk iac test ./iac/terraform/var_deref/nested_var_deref --var-file=./iac/terraform/vars.tf`,
       );
       expect(stdout).toContain(
-        'Path:    input > resource > aws_security_group[allow_ssh_external_var_file] > ingress',
+        '  Path:    input > resource > aws_security_group[allow_ssh_external_var_file] >' +
+          EOL +
+          '           ingress',
       );
       expect(stdout).toContain(
         'Files without issues: 2' + EOL + '✗ Files with issues: 1',

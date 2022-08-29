@@ -1,9 +1,10 @@
 import * as capitalize from 'lodash.capitalize';
 import chalk from 'chalk';
 import { EOL } from 'os';
+import * as wrapAnsi from 'wrap-ansi';
 import { iacRemediationTypes } from '../../../../iac/constants';
 import { printPath } from '../../../remediation-based-format-issues';
-import { colors, contentPadding } from '../utils';
+import { colors, contentPadding, maxLineWidth } from '../utils';
 import { FormattedOutputResult, Issue } from '../types';
 import { Options } from './types';
 
@@ -79,15 +80,22 @@ function formatProperties(
     ],
   ];
 
-  const maxPropertyNameLength = Math.max(
-    ...properties.map(([key]) => key.length),
-  );
+  const propKeyColWidth = Math.max(...properties.map(([key]) => key.length));
+  const propValColWidth =
+    maxLineWidth - contentPadding.length - propKeyColWidth - 2;
+  const indentLength = propKeyColWidth + 2;
 
   return properties
     .filter(([, val]) => !!val)
+    .map(([key, value]) => [
+      key,
+      wrapAnsi(value, propValColWidth, {
+        hard: true,
+      }).replace(/\r?\n|\r/g, EOL + contentPadding + ' '.repeat(indentLength)),
+    ])
     .map(
       ([key, value]) =>
-        `${key}: ${' '.repeat(maxPropertyNameLength - key.length)}${value}`,
+        `${key}: ${' '.repeat(propKeyColWidth - key.length)}${value}`,
     );
 }
 
