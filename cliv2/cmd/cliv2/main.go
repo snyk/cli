@@ -16,7 +16,6 @@ type EnvironmentVariables struct {
 	CacheDirectory               string
 	Insecure                     bool
 	ProxyAuthenticationMechanism httpauth.AuthenticationMechanism
-	ProxyAddr                    string
 }
 
 func getDebugLogger(args []string) *log.Logger {
@@ -35,8 +34,6 @@ func getDebugLogger(args []string) *log.Logger {
 }
 
 func GetConfiguration(args []string) (EnvironmentVariables, []string) {
-	argsAsMap := utils.ToKeyValueMap(args, "=")
-
 	envVariables := EnvironmentVariables{
 		CacheDirectory:               os.Getenv("SNYK_CACHE_PATH"),
 		ProxyAuthenticationMechanism: httpauth.AnyAuth,
@@ -49,10 +46,8 @@ func GetConfiguration(args []string) (EnvironmentVariables, []string) {
 
 	envVariables.Insecure = utils.Contains(args, "--insecure")
 
-	envVariables.ProxyAddr, _ = argsAsMap["--proxy"]
-
 	// filter args not meant to be forwarded to CLIv1 or an Extensions
-	elementsToFilter := []string{"--proxy=", "--proxy-noauth"}
+	elementsToFilter := []string{"--proxy-noauth"}
 	filteredArgs := args
 	for _, element := range elementsToFilter {
 		filteredArgs = utils.RemoveSimilar(filteredArgs, element)
@@ -99,7 +94,6 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 		return cliv2.SNYK_EXIT_CODE_ERROR
 	}
 
-	wrapperProxy.SetUpstreamProxyFromUrl(envVariables.ProxyAddr)
 	wrapperProxy.SetUpstreamProxyAuthentication(envVariables.ProxyAuthenticationMechanism)
 
 	port, err := wrapperProxy.Start()
