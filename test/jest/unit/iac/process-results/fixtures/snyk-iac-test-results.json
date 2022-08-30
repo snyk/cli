@@ -147,7 +147,8 @@
       }
     ],
     "metadata": {
-      "projectName": "input-files-for-json-v2"
+      "projectName": "input-files-for-json-v2",
+      "ignoredCount": 3
     }
   },
   "errors": [
