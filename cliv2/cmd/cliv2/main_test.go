@@ -36,13 +36,12 @@ func Test_MainWithErrorCode_no_cache(t *testing.T) {
 }
 
 func Test_GetConfiguration(t *testing.T) {
-	cmd := "_bin/snyk_darwin_arm64 --debug --proxy=http://host.example.com:3128 --insecure test"
+	cmd := "_bin/snyk_darwin_arm64 --debug --insecure test"
 	args := strings.Split(cmd, " ")
 
 	expectedConfig := main.EnvironmentVariables{
 		Insecure:                     true,
 		ProxyAuthenticationMechanism: httpauth.AnyAuth,
-		ProxyAddr:                    "http://host.example.com:3128",
 	}
 	expectedArgs := []string{"_bin/snyk_darwin_arm64", "--debug", "--insecure", "test"}
 
@@ -53,13 +52,12 @@ func Test_GetConfiguration(t *testing.T) {
 }
 
 func Test_GetConfiguration02(t *testing.T) {
-	cmd := "_bin/snyk_darwin_arm64 --debug --proxy-noauth --proxy=http://host.example.com:3128 --insecure test"
+	cmd := "_bin/snyk_darwin_arm64 --debug --proxy-noauth --insecure test"
 	args := strings.Split(cmd, " ")
 
 	expectedConfig := main.EnvironmentVariables{
 		Insecure:                     true,
 		ProxyAuthenticationMechanism: httpauth.NoAuth,
-		ProxyAddr:                    "http://host.example.com:3128",
 	}
 	expectedArgs := []string{"_bin/snyk_darwin_arm64", "--debug", "--insecure", "test"}
 
