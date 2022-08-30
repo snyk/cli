@@ -2,7 +2,7 @@ import { fakeServer } from '../../../acceptance/fake-server';
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 
-jest.setTimeout(1000 * 30);
+jest.setTimeout(1000 * 60);
 
 describe('spotlight vuln notification', () => {
   let server;
