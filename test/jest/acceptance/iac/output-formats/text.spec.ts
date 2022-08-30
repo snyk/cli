@@ -55,15 +55,25 @@ describe('iac test text output', () => {
     expect(stdout).toContain(
       '  [Medium] Azure Firewall Network Rule Collection allows public access' +
         EOL +
-        '  Info:    That inbound traffic is allowed to a resource from any source instead of a restricted range. That potentially everyone can access your resource' +
+        '  Info:    That inbound traffic is allowed to a resource from any source instead' +
+        EOL +
+        '           of a restricted range. That potentially everyone can access your' +
+        EOL +
+        '           resource' +
         EOL +
         '  Rule:    https://snyk.io/security-rules/SNYK-CC-TF-20' +
         EOL +
-        '  Path:    resources[1] > properties > networkRuleCollections[0] > properties > rules[0] > sourceAddresses' +
+        '  Path:    resources[1] > properties > networkRuleCollections[0] > properties >' +
+        EOL +
+        '           rules[0] > sourceAddresses' +
         EOL +
         '  File:    ./iac/arm/rule_test.json' +
         EOL +
-        '  Resolve: Set `properties.networkRuleCollections.properties.rules.sourceAddresses` attribute to specific IP range only, e.g. `192.168.1.0/24`',
+        '  Resolve: Set' +
+        EOL +
+        '           `properties.networkRuleCollections.properties.rules.sourceAddresses`' +
+        EOL +
+        '           attribute to specific IP range only, e.g. `192.168.1.0/24`',
     );
   });
 

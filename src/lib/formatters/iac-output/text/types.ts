@@ -11,7 +11,7 @@ export interface IacTestData {
 }
 
 export type FormattedOutputResultsBySeverity = {
-  [severity in keyof SEVERITY]?: FormattedOutputResult[];
+  [severity in SEVERITY]?: FormattedOutputResult[];
 };
 
 export type FormattedOutputResult = {

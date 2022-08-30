@@ -25,7 +25,9 @@ describe('Kubernetes single file scan', () => {
     expect(stdout).toContain(`File:    ./iac/kubernetes/pod-privileged.yaml`);
     expect(stdout).toContain('Privileged container');
     expect(stdout).toContain(
-      '[DocId: 0] > input > spec > containers[example] > securityContext > privileged',
+      '  Path:    [DocId: 0] > input > spec > containers[example] > securityContext >' +
+        EOL +
+        '           privileged',
     );
     expect(exitCode).toBe(1);
   });

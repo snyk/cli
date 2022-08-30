@@ -29,3 +29,5 @@ export const colors: IacOutputColors = {
 };
 
 export const contentPadding = ' '.repeat(2);
+
+export const maxLineWidth = 80;

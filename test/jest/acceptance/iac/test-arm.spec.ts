@@ -1,6 +1,5 @@
 import { EOL } from 'os';
 import { startMockServer, isValidJSONString } from './helpers';
-
 jest.setTimeout(50000);
 
 describe('ARM single file scan', () => {
@@ -25,7 +24,9 @@ describe('ARM single file scan', () => {
       'Azure Firewall Network Rule Collection allows public access',
     );
     expect(stdout).toContain(
-      'Path:    resources[1] > properties > networkRuleCollections[0] > properties > rules[0] > sourceAddresses',
+      '  Path:    resources[1] > properties > networkRuleCollections[0] > properties >' +
+        EOL +
+        '           rules[0] > sourceAddresses',
     );
     expect(stdout).toContain('File:    ./iac/arm/rule_test.json');
     expect(exitCode).toBe(1);

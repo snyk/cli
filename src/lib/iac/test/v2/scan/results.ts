@@ -1,4 +1,5 @@
 import { SEVERITY } from '../../../../snyk-test/common';
+import { IacProjectType } from '../../../constants';
 import { SnykIacTestError } from '../errors';
 import * as PolicyEngineTypes from './policy-engine';
 
@@ -61,10 +62,10 @@ export interface Rule {
 
 export interface Resource {
   id: string;
-  type: string;
+  type: IacProjectType | PolicyEngineTypes.State.InputTypeEnum;
   path?: any[];
   formattedPath: string;
-  file?: string;
+  file: string;
   kind: string;
   line?: number;
   column?: number;
