@@ -12,6 +12,7 @@ import {
 import { isCLIV2 } from '../../../test/jest/util/isCLIV2';
 import { unlink } from 'fs';
 import { execSync } from 'child_process';
+import * as os from 'os';
 
 jest.setTimeout(1000 * 60);
 
@@ -112,18 +113,22 @@ async function runCliWithProxy(
 ): Promise<TestCLI> {
   let temp: string[] = [cmd, '--debug'];
   temp = temp.concat(args);
+
+  if (env['KRB5CCNAME'] == undefined) {
+    env['KRB5CCNAME'] = 'FILE:' + path.join(scriptsPath, KRB5_CACHE_FILE);
+    env['KRB5_CONFIG'] = path.join(scriptsPath, KRB5_CONFIG_FILE);
+  }
+
   const cli = await startSnykCLI(temp.join(' '), {
     env: {
       ...env,
       SNYK_HTTP_PROTOCOL_UPGRADE: '0',
-      KRB5CCNAME: 'FILE:' + path.join(scriptsPath, KRB5_CACHE_FILE),
-      KRB5_CONFIG: path.join(scriptsPath, KRB5_CONFIG_FILE),
     },
   });
   return cli;
 }
 
-describe('Proxy Authentication', () => {
+function canTestRun(): boolean {
   if (!isCLIV2() || !isDockerAvailable()) {
     // eslint-disable-next-line jest/no-focused-tests
     it.only('These tests are currently limited to certain environments.', () => {
@@ -131,7 +136,13 @@ describe('Proxy Authentication', () => {
         'Skipping CLIv2 test. These tests are limited to environments that have docker and docker-compose installed.',
       );
     });
-  } else {
+    return false;
+  }
+  return true;
+}
+
+describe('Proxy Authentication (all platforms)', () => {
+  if (canTestRun()) {
     let server: FakeServer;
     let env: Record<string, string>;
     let project: TestProject;
@@ -180,7 +191,7 @@ describe('Proxy Authentication', () => {
       ).toBeFalsy();
     });
 
-    it('successfully runs snyk test', async () => {
+    it('successfully runs snyk test with proxy', async () => {
       const logOnEntry = await getProxyAccessLog();
 
       // run snyk test
@@ -196,6 +207,71 @@ describe('Proxy Authentication', () => {
           'CONNECT ' + hostnameFakeServer + ':' + port,
         ),
       ).toBeTruthy();
+    });
+  }
+});
+
+describe('Proxy Authentication (Non-Windows)', () => {
+  if (canTestRun() && !os.platform().includes('win32')) {
+    let server: FakeServer;
+    let env: Record<string, string>;
+    let project: TestProject;
+
+    beforeAll(async () => {
+      project = await createProjectFromWorkspace('npm-package');
+      await startProxyEnvironment();
+
+      env = {
+        ...process.env,
+        SNYK_API: SNYK_API,
+        SNYK_TOKEN: '123456789',
+        HTTP_PROXY: HTTP_PROXY,
+        HTTPS_PROXY: HTTP_PROXY,
+      };
+      server = fakeServer(baseApi, env.SNYK_TOKEN);
+      await server.listenPromise(port);
+    });
+
+    afterEach(() => {
+      server.restore();
+    });
+
+    afterAll(async () => {
+      await server.closePromise();
+      await stopProxyEnvironment();
+      unlink(path.join(scriptsPath, KRB5_CACHE_FILE), () => {});
+      unlink(path.join(scriptsPath, KRB5_CONFIG_FILE), () => {});
+    });
+
+    it('fail to run snyk test with proxy due to incorrect cache configuration', async () => {
+      const logOnEntry = await getProxyAccessLog();
+
+      // run snyk test
+      const args: string[] = [project.path()];
+      env['KRB5CCNAME'] = 'MEMORY:' + path.join(scriptsPath, KRB5_CACHE_FILE); // specifying incorrect cache type memory
+      env['KRB5_CONFIG'] = path.join(scriptsPath, KRB5_CONFIG_FILE);
+      const cli = await runCliWithProxy(env, args);
+      await expect(cli).toExitWith(2);
+
+      const logOnExit = await getProxyAccessLog();
+      const additionalLogEntries = logOnExit.substring(logOnEntry.length);
+      expect(additionalLogEntries.includes('TCP_DENIED/407')).toBeTruthy();
+    });
+
+    it('fail to run snyk test with proxy due to incorrect config file', async () => {
+      const logOnEntry = await getProxyAccessLog();
+
+      // run snyk test
+      const args: string[] = [project.path()];
+      env['KRB5CCNAME'] = 'FILE:' + path.join(scriptsPath, KRB5_CACHE_FILE);
+      env['KRB5_CONFIG'] =
+        path.join(scriptsPath, KRB5_CONFIG_FILE) + '_not_existing'; // specifying incorrect config location
+      const cli = await runCliWithProxy(env, args);
+      await expect(cli).toExitWith(2);
+
+      const logOnExit = await getProxyAccessLog();
+      const additionalLogEntries = logOnExit.substring(logOnEntry.length);
+      expect(additionalLogEntries.includes('TCP_DENIED/407')).toBeTruthy();
     });
   }
 });
