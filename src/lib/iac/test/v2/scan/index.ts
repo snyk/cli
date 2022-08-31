@@ -146,6 +146,10 @@ function processFlags(
     flags.push('-remote-repo-url', options.remoteRepoUrl);
   }
 
+  if (options.varFile) {
+    flags.push('-var-file', options.varFile);
+  }
+
   return flags;
 }
 

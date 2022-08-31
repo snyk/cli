@@ -1,6 +1,12 @@
+import { existsSync } from 'fs';
+import { extname } from 'path';
+import { SEVERITIES, SEVERITY } from '../../../../../lib/snyk-test/common';
+
+import { InvalidVarFilePath } from '../local-execution';
 import {
   assertTerraformPlanModes,
   FlagError,
+  FlagValueError,
 } from '../local-execution/assert-iac-options-flag';
 import { IaCTestFlags } from '../local-execution/types';
 
@@ -40,7 +46,36 @@ export function assertIacV2Options(options: IaCTestFlags): void {
     }
   }
 
+  if (options.severityThreshold) {
+    assertSeverityOptions(options.severityThreshold);
+  }
+
+  if (options['var-file']) {
+    assertVarFileOptions(options['var-file']);
+  }
+
   if (options.scan) {
     assertTerraformPlanModes(options.scan as string);
+  }
+}
+
+function assertSeverityOptions(severity: SEVERITY) {
+  const validSeverityOptions = SEVERITIES.map((s) => s.verboseName);
+
+  if (!validSeverityOptions.includes(severity)) {
+    throw new FlagValueError(
+      'severityThreshold',
+      severity,
+      validSeverityOptions.join(', '),
+    );
+  }
+}
+
+function assertVarFileOptions(filePath: string) {
+  if (!existsSync(filePath)) {
+    throw new InvalidVarFilePath(filePath);
+  }
+  if (extname(filePath) !== '.tfvars') {
+    throw new FlagValueError('var-file', filePath, '.tfvars file');
   }
 }
