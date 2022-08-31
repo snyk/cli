@@ -22,6 +22,7 @@ const keys: (keyof IaCTestFlags)[] = [
   'scan',
   'experimental',
   'var-file',
+  'detectionDepth',
   // PolicyOptions
   'ignore-policy',
   'policy-path',
