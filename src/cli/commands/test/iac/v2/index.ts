@@ -54,6 +54,8 @@ async function prepareTestConfig(
   const projectTags = parseTags(options);
   const targetName = getFlag(options, 'target-name');
   const remoteRepoUrl = getFlag(options, 'remote-repo-url');
+  const depthDetection =
+    parseInt(getFlag(options, 'depth-detection') as string) || undefined;
   const attributes = parseAttributes(options);
   const policy = await findAndLoadPolicy(process.cwd(), 'iac', options);
   const scan = options.scan ?? 'resource-changes';
@@ -73,6 +75,7 @@ async function prepareTestConfig(
     remoteRepoUrl,
     policy: policy?.toString(),
     scan,
+    depthDetection,
   };
 }
 

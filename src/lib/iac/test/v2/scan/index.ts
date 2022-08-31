@@ -113,6 +113,10 @@ function processFlags(
     flags.push('-project-lifecycle', options.attributes.lifecycle.join(','));
   }
 
+  if (options.depthDetection) {
+    flags.push('-depth-detection', `${options.depthDetection}`);
+  }
+
   if (options.projectTags) {
     const stringifiedTags = options.projectTags
       .map((tag) => {
