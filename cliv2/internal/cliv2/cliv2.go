@@ -48,6 +48,7 @@ const SNYK_CA_CERTIFICATE_LOCATION_ENV = "NODE_EXTRA_CA_CERTS"
 const (
 	V1_DEFAULT Handler = iota
 	V2_VERSION Handler = iota
+	V2_ABOUT   Handler = iota
 )
 
 //go:embed cliv2.version
@@ -134,6 +135,37 @@ func (c *CLI) commandVersion(passthroughArgs []string) int {
 	}
 }
 
+func (c *CLI) commandAbout(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) int {
+
+	returnCode := c.executeV1Default(wrapperProxyPort, fullPathToCert, passthroughArgs)
+	if returnCode != SNYK_EXIT_CODE_OK {
+		return returnCode
+	}
+
+	separator := "\n+-+-+-+-+-+-+\n\n"
+
+	allEmbeddedFiles := embedded.ListFiles()
+	for i := range allEmbeddedFiles {
+		f := &allEmbeddedFiles[i]
+		path := f.Path()
+
+		if strings.Contains(path, "licenses") {
+			size := f.Size()
+			data := make([]byte, size)
+			_, err := f.Read(data)
+			if err != nil {
+				continue
+			}
+
+			fmt.Printf("Package: %s \n", strings.ReplaceAll(strings.ReplaceAll(path, "/licenses/", ""), "/"+f.Name(), ""))
+			fmt.Println(string(data))
+			fmt.Println(separator)
+		}
+	}
+
+	return SNYK_EXIT_CODE_OK
+}
+
 func determineHandler(passthroughArgs []string) Handler {
 	result := V1_DEFAULT
 
@@ -141,6 +173,8 @@ func determineHandler(passthroughArgs []string) Handler {
 		utils.Contains(passthroughArgs, "-v") ||
 		utils.Contains(passthroughArgs, "version") {
 		result = V2_VERSION
+	} else if utils.Contains(passthroughArgs, "--about") {
+		result = V2_ABOUT
 	}
 
 	return result
@@ -248,6 +282,8 @@ func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughAr
 	switch {
 	case handler == V2_VERSION:
 		returnCode = c.commandVersion(passthroughArgs)
+	case handler == V2_ABOUT:
+		returnCode = c.commandAbout(wrapperProxyPort, fullPathToCert, passthroughArgs)
 	default:
 		returnCode = c.executeV1Default(wrapperProxyPort, fullPathToCert, passthroughArgs)
 	}

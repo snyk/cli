@@ -10,3 +10,4 @@ _cache
 .dccache
 .vscode
 bin
+internal/embedded/_data
