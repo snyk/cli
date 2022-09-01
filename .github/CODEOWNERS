@@ -81,9 +81,9 @@ test/tap/cli-fail-on-pinnable.test.ts @snyk/snyk-open-source
 test/tap/cli-monitor.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli-test.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli.test.ts @snyk/hammer
-test/tap/container.test.ts @snyk/capsule @snyk/potion
+test/tap/container.test.ts @snyk/potion
 test/tap/display-test-results.test.ts @snyk/snyk-open-source
-test/tap/docker-token.test.ts @snyk/capsule @snyk/potion
+test/tap/docker-token.test.ts @snyk/potion
 test/tap/endpoint-config.test.ts @snyk/hammer
 test/tap/find-files.test.ts @snyk/snyk-open-source
 test/tap/monitor-target.test.ts @snyk/snyk-open-source
