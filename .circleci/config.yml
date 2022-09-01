@@ -37,6 +37,9 @@ parameters:
     default: '7.0.4'
 
 executors:
+  alpine:
+    docker:
+      - image: alpine:3.16.2
   docker-node:
     parameters:
       node_version:
@@ -367,6 +370,31 @@ jobs:
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+  test-alpine:
+    parameters:
+      test_snyk_command:
+        type: string
+    executor: alpine
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Installing Node.js + other test dependencies
+          command: |
+            apk add --update nodejs npm bash maven
+      - setup_npm:
+          npm_cache_directory: /home/circleci/.npm
+          npm_global_sudo: false
+      - run:
+          name: Configuring artifact
+          command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Testing artifact
+          command: npm run test:acceptance -- --selectProjects snyk
+          environment:
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
   test-linux:
     parameters:
       test_snyk_command:
@@ -608,6 +636,9 @@ jobs:
         type: string
       go_arch:
         type: string
+      c_compiler:
+        type: string
+        default: ''
     executor: linux
     working_directory: /home/circleci/snyk
     steps:
@@ -618,10 +649,12 @@ jobs:
           version: << pipeline.parameters.go_version >>
       - restore_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+      - run: sudo apt-get install musl-tools
       - run:
           name: Build << parameters.go_os >>/<< parameters.go_arch >>
           working_directory: ./cliv2
           environment:
+            CC: << parameters.c_compiler >>
             GOOS: << parameters.go_os >>
             GOARCH: << parameters.go_arch >>
             CLI_V1_LOCATION: ../binary-releases
@@ -986,6 +1019,18 @@ workflows:
               only:
                 - /^.*cliv2.*$/
                 - master
+      - v2-build-artifact:
+          name: v2 / Build (alpine/amd64)
+          requires:
+            - Build (snyk-alpine)
+          go_os: alpine
+          go_arch: amd64
+          c_compiler: /usr/bin/musl-gcc
+          filters:
+            branches:
+              only:
+                - /^.*cliv2.*$/
+                - master
       - v2-test-linux-amd64:
           name: v2 / Integration Tests (linux/amd64)
           requires:
@@ -1011,6 +1056,12 @@ workflows:
           requires:
             - v2 / Build (windows/amd64)
       # Tests for backwards compatibility with CLIv1
+      - test-alpine:
+          name: v2 / Jest Acceptance Tests (alpine/amd64)
+          context: nodejs-install
+          requires:
+            - v2 / Build (alpine/amd64)
+          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_alpine_amd64
       - test-linux:
           name: v2 / Jest Acceptance Tests (linux/amd64)
           context: nodejs-install
@@ -1054,6 +1105,7 @@ workflows:
       - v2-prepare-release:
           name: v2 / Prepare Release
           requires:
+            - v2 / Build (alpine/amd64)
             - v2 / Build (linux/amd64)
             - v2 / Build (linux/arm64)
             - v2 / Sign (darwin/amd64)

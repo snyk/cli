@@ -24,6 +24,7 @@ SRCS = $(shell find $(WORKING_DIR) -type f -name '*.go')
 -include $(CACHE_DIR)/version.mk
 
 # the platform string used by the deployed binaries is not excatly OS-ARCH so we need to translate a bit
+_GO_OS = $(GOOS)
 _V1_OS = $(GOOS)
 _V1_ARCH = $(GOARCH)
 _EMPTY =
@@ -58,6 +59,9 @@ ifneq ($(CLI_V1_LOCATION), $(_EMPTY))
 	_V1_DOWNLOAD = false
 endif
 
+ifeq ($(_GO_OS), alpine)
+	_GO_OS = linux
+endif
 
 # some globally assembled variables
 APPLICATION_NAME = snyk
@@ -73,8 +77,8 @@ V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 TEST_SNYK_EXECUTABLE_PATH=$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 TEST_EXECUTABLE_NAME = $(TEST_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE_POSTFIX)
-SIGN_SCRIPT = sign_$(GOOS).sh
-ISSIGNED_SCRIPT = issigned_$(GOOS).sh
+SIGN_SCRIPT = sign_$(_GO_OS).sh
+ISSIGNED_SCRIPT = issigned_$(_GO_OS).sh
 
 # some make file variables
 LOG_PREFIX = --
@@ -140,7 +144,7 @@ configure: $(V2_DIRECTORY)/cliv2.version $(CACHE_DIR) $(CACHE_DIR)/version.mk $(
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) build -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
+	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING): 
 	@echo "$(LOG_PREFIX) Generating checksum ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
@@ -148,7 +152,7 @@ $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING):
 
 $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building test executable ( $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) )"
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) test -c -o $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) main_integration_test.go
+	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) test -c -o $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) main_integration_test.go
 
 .PHONY: build
 build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)

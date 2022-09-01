@@ -85,28 +85,36 @@ describe('iac test --sarif-file-output', () => {
     expect(startLine).not.toEqual(-1);
   });
 
-  it('returns the correct paths for provided path', async () => {
-    const sarifOutputFilename = path.join(__dirname, `${uuidv4()}.sarif`);
-    const { stdout } = await run(
-      `snyk iac test ./iac/file-output/sg_open_ssh.tf --sarif-file-output=${sarifOutputFilename}`,
-    );
-    expect(stdout).toMatch('Organization:');
+  if (
+    process.env.TEST_SNYK_COMMAND &&
+    process.env.TEST_SNYK_COMMAND.includes('alpine')
+  ) {
+    // This test is temporarily skipped on Alpine Linux.
+    it.skip('returns the correct paths for provided path', async () => {});
+  } else {
+    it('returns the correct paths for provided path', async () => {
+      const sarifOutputFilename = path.join(__dirname, `${uuidv4()}.sarif`);
+      const { stdout } = await run(
+        `snyk iac test ./iac/file-output/sg_open_ssh.tf --sarif-file-output=${sarifOutputFilename}`,
+      );
+      expect(stdout).toMatch('Organization:');
 
-    const outputFileContents = readFileSync(sarifOutputFilename, 'utf-8');
-    unlinkSync(sarifOutputFilename);
-    const jsonObj = JSON.parse(outputFileContents);
-    const actualPhysicalLocation =
-      jsonObj?.runs?.[0].results[0].locations[0].physicalLocation
-        .artifactLocation.uri;
-    const actualProjectRoot =
-      jsonObj?.runs?.[0].originalUriBaseIds.PROJECTROOT.uri;
-    expect(actualPhysicalLocation).toEqual(
-      'test/fixtures/iac/file-output/sg_open_ssh.tf',
-    );
-    expect(actualProjectRoot).toEqual(
-      pathToFileURL(path.join(path.resolve(''), '/')).href,
-    );
-  });
+      const outputFileContents = readFileSync(sarifOutputFilename, 'utf-8');
+      unlinkSync(sarifOutputFilename);
+      const jsonObj = JSON.parse(outputFileContents);
+      const actualPhysicalLocation =
+        jsonObj?.runs?.[0].results[0].locations[0].physicalLocation
+          .artifactLocation.uri;
+      const actualProjectRoot =
+        jsonObj?.runs?.[0].originalUriBaseIds.PROJECTROOT.uri;
+      expect(actualPhysicalLocation).toEqual(
+        'test/fixtures/iac/file-output/sg_open_ssh.tf',
+      );
+      expect(actualProjectRoot).toEqual(
+        pathToFileURL(path.join(path.resolve(''), '/')).href,
+      );
+    });
+  }
 
   it('does not include file content in analytics logs', async () => {
     const { stdout, exitCode } = await run(
