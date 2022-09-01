@@ -13,11 +13,14 @@
           ],
           "issue": "VPC flow logging should be enabled",
           "impact": "VPC flow logging should be enabled. AWS VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC.\nUsers can use the flow logs to detect anomalous traffic or insight during security workflows.\n",
-          "resolve": "",
+          "resolve": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field.",
+          "remediation": {
+            "terraform": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field."
+          },
           "documentation": "https://snyk.io/security-rules/SNYK-CC-00151"
         },
         "targetFile": "plan.json",
-        "projectType": "aws_vpc"
+        "projectType": "terraformconfig"
       },
       {
         "issue": {
@@ -35,11 +38,14 @@
           ],
           "issue": "VPC default security group allows unrestricted ingress traffic",
           "impact": "Configuring all VPC default security groups to restrict all traffic encourages least privilege security\ngroup development and mindful placement of AWS resources into security groups which in turn reduces the exposure of those resources.\n",
-          "resolve": "",
+          "resolve": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`.",
+          "remediation": {
+            "terraform": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
+          },
           "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-5"
         },
         "targetFile": "plan.json",
-        "projectType": "aws_default_security_group"
+        "projectType": "terraformconfig"
       },
       {
         "issue": {
@@ -53,11 +59,14 @@
           ],
           "issue": "VPC flow logging should be enabled",
           "impact": "VPC flow logging should be enabled. AWS VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC.\nUsers can use the flow logs to detect anomalous traffic or insight during security workflows.\n",
-          "resolve": "",
+          "resolve": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field.",
+          "remediation": {
+            "terraform": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field."
+          },
           "documentation": "https://snyk.io/security-rules/SNYK-CC-00151"
         },
         "targetFile": "vpc_group.tf",
-        "projectType": "aws_vpc"
+        "projectType": "terraformconfig"
       },
       {
         "issue": {
@@ -75,11 +84,14 @@
           ],
           "issue": "VPC default security group allows unrestricted ingress traffic",
           "impact": "Configuring all VPC default security groups to restrict all traffic encourages least privilege security\ngroup development and mindful placement of AWS resources into security groups which in turn reduces the exposure of those resources.\n",
-          "resolve": "",
+          "resolve": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`.",
+          "remediation": {
+            "terraform": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
+          },
           "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-5"
         },
         "targetFile": "vpc_group.tf",
-        "projectType": "aws_default_security_group"
+        "projectType": "terraformconfig"
       }
     ]
   },

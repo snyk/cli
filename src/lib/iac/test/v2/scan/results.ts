@@ -62,11 +62,11 @@ export interface Rule {
 
 export interface Resource {
   id: string;
-  type: IacProjectType | PolicyEngineTypes.State.InputTypeEnum;
+  type: string;
   path?: any[];
   formattedPath: string;
   file: string;
-  kind: string;
+  kind: IacProjectType | PolicyEngineTypes.State.InputTypeEnum;
   line?: number;
   column?: number;
 }
