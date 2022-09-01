@@ -78,11 +78,9 @@ export class FeatureFlagError extends CustomError {
 }
 
 export class FlagValueError extends CustomError {
-  constructor(key: string, value: string) {
+  constructor(key: string, value: string, supportedValues: string) {
     const flag = getFlagName(key);
-    const msg = `Unsupported value "${value}" provided to flag "${flag}".\nSupported values are: ${SUPPORTED_TF_PLAN_SCAN_MODES.join(
-      ', ',
-    )}`;
+    const msg = `Unsupported value "${value}" provided to flag "${flag}".\nSupported values are: ${supportedValues}`;
     super(msg);
     this.code = IaCErrorCodes.FlagValueError;
     this.strCode = getErrorStringCode(this.code);
@@ -152,7 +150,11 @@ export function assertTerraformPlanModes(scanModeArgValue: string) {
       scanModeArgValue as TerraformPlanScanMode,
     )
   ) {
-    throw new FlagValueError('scan', scanModeArgValue);
+    throw new FlagValueError(
+      'scan',
+      scanModeArgValue,
+      SUPPORTED_TF_PLAN_SCAN_MODES.join(', '),
+    );
   }
 }
 

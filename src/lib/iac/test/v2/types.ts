@@ -17,5 +17,6 @@ export interface TestConfig {
   remoteRepoUrl?: string;
   policy?: string;
   scan: string;
+  varFile?: string;
   depthDetection?: number;
 }
