@@ -94,7 +94,8 @@ describe('Proxy configuration behavior', () => {
     });
 
     if (!isCLIV2()) {
-      it('does not try to connect to the HTTPS_PROXY when it is set', async () => {
+      // This scenario should actually work, an http request should directly go through and not hit the proxy if protocol upgrade is disabled.
+      it('needle behavior - only HTTPS Proxy is set but HTTP request (without protocol upgrade) fails.', async () => {
         const { code, stderr } = await runSnykCLI(`woof -d`, {
           env: {
             ...process.env,
