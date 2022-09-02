@@ -4,11 +4,7 @@ import { CustomError } from '../../../../errors';
 import { IaCErrorCodes } from '../../../../../cli/commands/test/iac/local-execution/types';
 import { getErrorStringCode } from '../../../../../cli/commands/test/iac/local-execution/error-utils';
 import * as newDebug from 'debug';
-import {
-  mapSnykIacTestOutputToTestOutput,
-  SnykIacTestOutput,
-  TestOutput,
-} from './results';
+import { mapSnykIacTestOutputToTestOutput, TestOutput } from './results';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -27,16 +23,21 @@ export function scan(
   policyEnginePath: string,
   rulesBundlePath: string,
 ): TestOutput {
-  const configPath = createConfig(options);
+  const {
+    tempConfig: configPath,
+    tempOutput: outputPath,
+    tempDir: tempDirPath,
+  } = createTemporaryFiles(options);
   try {
     return scanWithConfig(
       options,
       policyEnginePath,
       rulesBundlePath,
       configPath,
+      outputPath,
     );
   } finally {
-    deleteConfig(configPath);
+    deleteTemporaryFiles(tempDirPath);
   }
 }
 
@@ -45,8 +46,9 @@ function scanWithConfig(
   policyEnginePath: string,
   rulesBundlePath: string,
   configPath: string,
+  outputPath: string,
 ): TestOutput {
-  const args = processFlags(options, rulesBundlePath, configPath);
+  const args = processFlags(options, rulesBundlePath, configPath, outputPath);
 
   args.push(...options.paths);
 
@@ -66,21 +68,23 @@ function scanWithConfig(
     throw new ScanError(`spawning process: ${process.error}`);
   }
 
-  let snykIacTestOutput: SnykIacTestOutput;
+  let snykIacTestOutput: string, parsedSnykIacTestOutput;
 
   try {
-    snykIacTestOutput = JSON.parse(process.stdout);
+    snykIacTestOutput = fs.readFileSync(outputPath, 'utf-8');
+    parsedSnykIacTestOutput = JSON.parse(snykIacTestOutput);
   } catch (e) {
     throw new ScanError(`invalid output encoding: ${e}`);
   }
 
-  return mapSnykIacTestOutputToTestOutput(snykIacTestOutput);
+  return mapSnykIacTestOutputToTestOutput(parsedSnykIacTestOutput);
 }
 
 function processFlags(
   options: TestConfig,
   rulesBundlePath: string,
   configPath: string,
+  outputPath: string,
 ) {
   const flags = [
     '-cache-dir',
@@ -90,6 +94,8 @@ function processFlags(
     '-config',
     configPath,
   ];
+
+  flags.push('-output', outputPath);
 
   if (options.severityThreshold) {
     flags.push('-severity-threshold', options.severityThreshold);
@@ -153,10 +159,13 @@ function processFlags(
   return flags;
 }
 
-function createConfig(options: TestConfig): string {
+function createTemporaryFiles(
+  options: TestConfig,
+): { tempConfig: string; tempOutput: string; tempDir: string } {
   try {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'snyk-'));
     const tempConfig = path.join(tempDir, 'config.json');
+    const tempOutput = path.join(tempDir, 'output.json');
 
     const configData = JSON.stringify({
       org: options.orgSettings.meta.org,
@@ -168,16 +177,17 @@ function createConfig(options: TestConfig): string {
     });
 
     fs.writeFileSync(tempConfig, configData);
+    fs.writeFileSync(tempOutput, '');
 
-    return tempConfig;
+    return { tempConfig, tempOutput, tempDir };
   } catch (e) {
-    throw new ScanError(`unable to create config file: ${e}`);
+    throw new ScanError(`unable to create config/output file: ${e}`);
   }
 }
 
-function deleteConfig(configPath) {
+function deleteTemporaryFiles(tempDirPath: string) {
   try {
-    rimraf.sync(path.dirname(configPath));
+    rimraf.sync(tempDirPath);
   } catch (e) {
     debug('unable to delete temporary directory', e);
   }
