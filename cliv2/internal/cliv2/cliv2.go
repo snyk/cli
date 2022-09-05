@@ -110,7 +110,11 @@ func (c *CLI) ExtractV1Binary() error {
 }
 
 func (c *CLI) GetFullVersion() string {
-	return c.v2Version + "." + c.v1Version
+	if len(c.v2Version) > 0 {
+		return c.v2Version + "." + c.v1Version
+	} else {
+		return c.v1Version
+	}
 }
 
 func (c *CLI) GetIntegrationName() string {
