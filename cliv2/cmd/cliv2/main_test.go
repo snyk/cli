@@ -33,6 +33,8 @@ func Test_MainWithErrorCode_no_cache(t *testing.T) {
 
 	assert.Equal(t, mainErr, 0)
 	assert.DirExists(t, cacheDirectory)
+
+	os.RemoveAll(cacheDirectory)
 }
 
 func Test_GetConfiguration(t *testing.T) {

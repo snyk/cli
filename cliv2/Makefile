@@ -2,6 +2,8 @@
 GOCMD = go
 GOOS = $(shell go env GOOS)
 GOARCH = $(shell go env GOARCH)
+GOHOSTOS = $(shell go env GOHOSTOS)
+GOHOSTARCH = $(shell go env GOHOSTARCH)
 HASH = sha
 HASH_ALGORITHM = 256
 CLI_V2_VERSION_TAG = 2.0.0-prerelease
@@ -79,6 +81,7 @@ TEST_SNYK_EXECUTABLE_PATH=$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 TEST_EXECUTABLE_NAME = $(TEST_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE_POSTFIX)
 SIGN_SCRIPT = sign_$(_GO_OS).sh
 ISSIGNED_SCRIPT = issigned_$(_GO_OS).sh
+EMBEDDED_DATA_DIR = $(WORKING_DIR)/internal/embedded/_data
 
 # some make file variables
 LOG_PREFIX = --
@@ -140,7 +143,7 @@ dependencies: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTA
 
 # prepare the workspace and cache global parameters
 .PHONY: configure
-configure: $(V2_DIRECTORY)/cliv2.version $(CACHE_DIR) $(CACHE_DIR)/version.mk $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies
+configure: $(V2_DIRECTORY)/cliv2.version $(CACHE_DIR) $(CACHE_DIR)/version.mk $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
@@ -173,6 +176,11 @@ $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
 
 $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
+
+
+$(CACHE_DIR)/prepare-3rd-party-licenses: 
+	@echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"
+	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) scripts/prepare_licenses.sh > $(CACHE_DIR)/prepare-3rd-party-licenses
 
 .PHONY: generate
 generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go
@@ -227,6 +235,7 @@ clean:
 	@rm -f $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
 	@rm -f $(V1_DIRECTORY)/cliv1.version
 	@rm -f $(V2_DIRECTORY)/cliv2.version
+	@rm -f -r $(EMBEDDED_DATA_DIR)/licenses
 
 .PHONY: install
 install:
