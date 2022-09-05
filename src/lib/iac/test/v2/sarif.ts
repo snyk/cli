@@ -6,7 +6,7 @@ import * as upperFirst from 'lodash.upperfirst';
 import * as camelCase from 'lodash.camelcase';
 
 import { getVersion } from '../../../version';
-import { Results, TestOutput } from './scan/results';
+import { Results, TestOutput, Vulnerability } from './scan/results';
 import { getIssueLevel } from '../../../formatters/sarif-output';
 import { getRepositoryRoot } from '../../git';
 
@@ -73,6 +73,8 @@ function extractReportingDescriptor(
 
     const tags = ['security']; // switch to rules.labels once `snyk-iac-test` includes this info
 
+    const remediation = extractRemediation(vulnerability);
+
     rules[vulnerability.rule.id] = {
       id: vulnerability.rule.id,
       name: upperFirst(camelCase(vulnerability.rule.title)).replace(/ /g, ''),
@@ -85,8 +87,8 @@ function extractReportingDescriptor(
         text: vulnerability.rule.description,
       },
       help: {
-        text: renderMarkdown(vulnerability.remediation),
-        markdown: vulnerability.remediation,
+        text: renderMarkdown(remediation),
+        markdown: remediation,
       },
       defaultConfiguration: {
         level: getIssueLevel(vulnerability.severity),
@@ -175,4 +177,11 @@ function mapSnykIacTestResultsToSarifResults(
   });
 
   return result;
+}
+
+function extractRemediation(vulnerability: Vulnerability): string {
+  const newLineIdx = vulnerability.remediation.search(/\r?\n|\r/g);
+  return newLineIdx < 0
+    ? vulnerability.remediation
+    : vulnerability.remediation.substring(0, newLineIdx);
 }
