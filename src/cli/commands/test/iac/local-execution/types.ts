@@ -387,6 +387,7 @@ export enum IaCErrorCodes {
   UnableToReadPath = 2113,
   NoLoadableInput = 2114,
   FailedToMakeResourcesResolvers = 2115,
+  ResourcesResolverError = 2116,
   FailedToShareResults = 2200,
 }
 

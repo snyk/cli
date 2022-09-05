@@ -32,6 +32,8 @@ const snykIacTestErrorsUserMessages = {
     "The Snyk CLI couldn't find any valid IaC configuration files to scan",
   FailedToMakeResourcesResolvers:
     'An error occurred preparing the requested cloud context. Please run the command again with the `-d` flag for more information.',
+  ResourcesResolverError:
+    'An error occurred scanning cloud resources. Please run the command again with the `-d` flag for more information.',
   FailedToShareResults: 'Failed to upload the test results with the platform',
 };
 
