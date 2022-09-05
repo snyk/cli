@@ -30,4 +30,4 @@ export const colors: IacOutputColors = {
 
 export const contentPadding = ' '.repeat(2);
 
-export const maxLineWidth = 80;
+export const maxLineWidth = Math.min(process.stdout.columns || Infinity, 80);
