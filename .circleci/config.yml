@@ -383,7 +383,7 @@ jobs:
       - run:
           name: Installing Node.js + other test dependencies
           command: |
-            apk add --update nodejs npm bash maven
+            apk add --update nodejs npm bash maven git
       - setup_npm:
           npm_cache_directory: /home/circleci/.npm
           npm_global_sudo: false
