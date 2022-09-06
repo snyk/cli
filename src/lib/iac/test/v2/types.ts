@@ -19,4 +19,5 @@ export interface TestConfig {
   scan: string;
   varFile?: string;
   depthDetection?: number;
+  cloudContext?: string;
 }

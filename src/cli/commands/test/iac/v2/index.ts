@@ -60,6 +60,7 @@ async function prepareTestConfig(
   const policy = await findAndLoadPolicy(process.cwd(), 'iac', options);
   const scan = options.scan ?? 'resource-changes';
   const varFile = options['var-file'];
+  const cloudContext = getFlag(options, 'cloud-context');
 
   return {
     paths,
@@ -78,6 +79,7 @@ async function prepareTestConfig(
     scan,
     varFile,
     depthDetection,
+    cloudContext,
   };
 }
 
