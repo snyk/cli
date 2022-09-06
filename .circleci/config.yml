@@ -323,6 +323,13 @@ jobs:
             unset SNYK_API
             unset SNYK_API_KEY
             shellspec -f d -e REGRESSION_TEST=1
+      - run:
+          name: Handling failed release pipeline
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              ./release-scripts/handle-failed-release-pipeline.sh
+            fi
+          when: on_fail
   test-windows:
     parameters:
       test_snyk_command:
@@ -348,6 +355,13 @@ jobs:
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+      - run:
+          name: Handling failed release pipeline
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              ./release-scripts/handle-failed-release-pipeline.sh
+            fi
+          when: on_fail
   test-macos:
     parameters:
       test_snyk_command:
@@ -370,6 +384,13 @@ jobs:
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+      - run:
+          name: Handling failed release pipeline
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              ./release-scripts/handle-failed-release-pipeline.sh
+            fi
+          when: on_fail
   test-alpine:
     parameters:
       test_snyk_command:
@@ -395,6 +416,13 @@ jobs:
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+      - run:
+          name: Handling failed release pipeline
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              ./release-scripts/handle-failed-release-pipeline.sh
+            fi
+          when: on_fail
   test-linux:
     parameters:
       test_snyk_command:
@@ -422,6 +450,13 @@ jobs:
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+      - run:
+          name: Handling failed release pipeline
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              ./release-scripts/handle-failed-release-pipeline.sh
+            fi
+          when: on_fail
   test-linux-arm64:
     parameters:
       test_snyk_command:
@@ -449,6 +484,13 @@ jobs:
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+      - run:
+          name: Handling failed release pipeline
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              ./release-scripts/handle-failed-release-pipeline.sh
+            fi
+          when: on_fail
   test-jest:
     parameters:
       node_version:
@@ -480,6 +522,13 @@ jobs:
       - run:
           name: Running acceptance tests
           command: npm run test:acceptance
+      - run:
+          name: Handling failed release pipeline
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              ./release-scripts/handle-failed-release-pipeline.sh
+            fi
+          when: on_fail
 
   test-tap:
     executor: docker-node
@@ -498,6 +547,13 @@ jobs:
           command: |
             npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
               $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
+      - run:
+          name: Handling failed release pipeline
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              ./release-scripts/handle-failed-release-pipeline.sh
+            fi
+          when: on_fail
 
   build-artifact:
     parameters:
