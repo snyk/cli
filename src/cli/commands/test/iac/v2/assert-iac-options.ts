@@ -29,6 +29,7 @@ const keys: (keyof IaCTestFlags)[] = [
   'experimental',
   'var-file',
   'detectionDepth',
+  'cloud-context',
   // PolicyOptions
   'ignore-policy',
   'policy-path',
@@ -57,6 +58,10 @@ export function assertIacV2Options(options: IaCTestFlags): void {
   if (options.scan) {
     assertTerraformPlanModes(options.scan as string);
   }
+
+  if (options['cloud-context']) {
+    assertCloudContextOptions(options['cloud-context']);
+  }
 }
 
 function assertSeverityOptions(severity: SEVERITY) {
@@ -77,5 +82,17 @@ function assertVarFileOptions(filePath: string) {
   }
   if (extname(filePath) !== '.tfvars') {
     throw new FlagValueError('var-file', filePath, '.tfvars file');
+  }
+}
+
+function assertCloudContextOptions(cloudContext: string) {
+  const validCloudContextOptions = ['aws'];
+
+  if (!validCloudContextOptions.includes(cloudContext)) {
+    throw new FlagValueError(
+      'cloud-context',
+      cloudContext,
+      validCloudContextOptions.join(', '),
+    );
   }
 }

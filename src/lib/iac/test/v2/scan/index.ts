@@ -156,6 +156,10 @@ function processFlags(
     flags.push('-var-file', options.varFile);
   }
 
+  if (options.cloudContext) {
+    flags.push('-cloud-context', options.cloudContext);
+  }
+
   return flags;
 }
 
