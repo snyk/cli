@@ -26,6 +26,7 @@ export interface IacTestCounts {
   filesWithoutIssues: number;
   issues: number;
   issuesBySeverity: { [severity in SEVERITY]: number };
+  contextSuppressedIssues?: number;
 }
 
 export type IaCTestFailure = {

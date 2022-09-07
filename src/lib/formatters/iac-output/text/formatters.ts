@@ -109,6 +109,18 @@ export function formatSnykIacTestTestData(
     ? snykIacTestScanResult.metadata.ignoredCount
     : 0;
 
+  let contextSuppressedIssueCount: number | undefined;
+  const suppressedResults =
+    snykIacTestScanResult?.scanAnalytics.suppressedResults;
+  if (suppressedResults) {
+    contextSuppressedIssueCount = Object.values(suppressedResults).reduce(
+      function(count, resourcesForRuleId) {
+        return (count += resourcesForRuleId.length);
+      },
+      0,
+    );
+  }
+
   return {
     resultsBySeverity,
     metadata: { projectName, orgName },
@@ -118,6 +130,7 @@ export function formatSnykIacTestTestData(
       filesWithoutIssues: filesWithoutIssuesCount,
       issues: totalIssues,
       issuesBySeverity: issuesCountBySeverity,
+      contextSuppressedIssues: contextSuppressedIssueCount,
     },
   };
 }

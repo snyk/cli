@@ -150,7 +150,12 @@
       "projectName": "input-files-for-json-v2",
       "ignoredCount": 3
     },
-    "scanAnalytics": {}
+    "scanAnalytics": {
+      "suppressedResults": {
+        "issue-1": ["resource1", "resource2"],
+        "issue-2": ["resource3"]
+      }
+    }
   },
   "errors": [
     {

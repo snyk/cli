@@ -34,11 +34,16 @@ export interface Results {
   resources?: Resource[];
   vulnerabilities?: Vulnerability[];
   metadata: Metadata;
+  scanAnalytics: ScanAnalytics;
 }
 
 export interface Metadata {
   projectName: string;
   ignoredCount: number;
+}
+
+export interface ScanAnalytics {
+  suppressedResults?: Record<string, string[]>;
 }
 
 export interface Vulnerability {
