@@ -173,6 +173,7 @@ function createTemporaryFiles(
 
     const configData = JSON.stringify({
       org: options.orgSettings.meta.org,
+      orgPublicId: options.orgSettings.meta.orgPublicId,
       apiUrl: config.API,
       apiAuth: getAuthHeader(),
       allowAnalytics: allowAnalytics(),

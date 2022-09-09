@@ -11,6 +11,7 @@ describe('initRules', () => {
       isPrivate: false,
       isLicensesEnabled: false,
       org: 'my-org',
+      orgPublicId: '7bfa4159-6f90-4acd-82a4-0b2ad2aaf80b',
     },
     customPolicies: {},
     entitlements: {
@@ -72,6 +73,7 @@ describe('initRules', () => {
         isPrivate: false,
         isLicensesEnabled: false,
         org: 'my-org',
+        orgPublicId: '7bfa4159-6f90-4acd-82a4-0b2ad2aaf80b',
       },
       customPolicies: {},
       entitlements: {
