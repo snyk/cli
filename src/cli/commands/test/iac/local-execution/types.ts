@@ -117,6 +117,7 @@ export interface TestMeta {
   isPrivate: boolean;
   isLicensesEnabled: boolean;
   org: string;
+  orgPublicId: string;
   ignoreSettings?: IgnoreSettings | null;
   projectId?: string;
   policy?: string;
