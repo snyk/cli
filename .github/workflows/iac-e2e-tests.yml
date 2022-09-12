@@ -1,0 +1,170 @@
+name: Infrastructure as Code E2E Tests
+
+on:
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: '* 1 * * *'
+
+jobs:
+  run_iac_e2e_tests:
+    runs-on: ${{ matrix.os }}-latest
+    # if: ${{ github.event.requested_team.name == '@snyk/hammer'}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos, windows]
+        snyk_install_method: [binary, npm, yarn]
+        node_version: [12, 14, 16]
+        exclude:
+          # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
+          - snyk_install_method: yarn
+            os: windows
+          # For binary, use only the Node 14
+          - snyk_install_method: binary
+            node_version: 12
+          - snyk_install_method: binary
+            node_version: 16
+        include:
+          - snyk_install_method: binary
+            os: ubuntu
+            snyk_cli_dl_file: snyk-linux
+          - snyk_install_method: binary
+            os: macos
+            snyk_cli_dl_file: snyk-macos
+          # Homebrew installation
+          - snyk_install_method: brew
+            os: macos
+          - snyk_install_method: alpine-binary
+            os: ubuntu
+            snyk_cli_dl_file: snyk-alpine
+          - snyk_install_method: npm-root-user
+            os: ubuntu
+          - snyk_install_method: docker-bundle
+            os: macos
+            snyk_cli_dl_file: snyk-for-docker-desktop-darwin-x64.tar.gz
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Install Snyk with npm
+        if: ${{ matrix.snyk_install_method == 'npm' }}
+        run: |
+          echo "node_version: ${{ matrix.node_version }}"
+          node -v
+          echo "install snyk with npm"
+          npm install -g snyk
+
+      - name: Install Snyk with Yarn globally
+        if: ${{ matrix.snyk_install_method == 'yarn' }}
+        run: |
+          npm install yarn -g
+          echo "Yarn global path"
+          yarn global bin
+          echo 'export PATH="$PATH:$(yarn global bin)"' >> ~/.bash_profile
+          yarn global add snyk
+
+      - name: npm install for fixture project
+        working-directory: test/fixtures/basic-npm
+        run: |
+          npm install
+
+      - name: Run alpine test
+        if: ${{ matrix.snyk_install_method == 'alpine-binary' }}
+        env:
+          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker build -t snyk-cli-alpine -f ./test/smoke/alpine/Dockerfile ./test
+          docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN -eGITHUB_TOKEN snyk-cli-alpine
+
+      - name: Install snyk from Docker bundle
+        if: ${{ matrix.snyk_install_method == 'docker-bundle' }}
+        run: |
+          pushd "$(mktemp -d)"
+          curl 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}' | tar -xz
+          pushd ./docker
+          ls -la
+          sudo ln -s "$(pwd)/snyk-mac.sh" ./snyk
+          export PATH="$(pwd):${PATH}"
+          echo "$(pwd)" >> "${GITHUB_PATH}"
+          popd
+          popd
+          which snyk
+          snyk version
+
+      - name: Run npm test with Root user
+        if: ${{ matrix.snyk_install_method == 'npm-root-user' }}
+        env:
+          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+        run: |
+          docker build -t snyk-docker-root -f ./test/smoke/docker-root/Dockerfile ./test
+          docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN snyk-docker-root
+
+      - name: Install Snyk with binary - Non-Windows
+        if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
+        run: |
+          curl -Lo ./snyk-cli 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}'
+          chmod -R +x ./snyk-cli
+          sudo mv ./snyk-cli /usr/local/bin/snyk
+          snyk --version
+
+      - name: Install Snyk with binary - Windows
+        if: ${{ matrix.snyk_install_method == 'binary' && matrix.os == 'windows' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: powershell
+        run: |
+          echo "install snyk with binary"
+          echo $env:PATH
+          sh ./test/smoke/install-snyk-binary-win.sh
+
+      - name: Install test utilities with homebrew on macOS
+        if: ${{ matrix.os == 'macos' }}
+        # We need "timeout" and "jq" util and we'll use brew to check our brew package as well
+        run: |
+          brew install coreutils
+          brew install jq
+
+      - name: Echo team requested
+        run: echo "${{ toJSON(github.event.pull_request.requested_teams.*.slug }}" | jq
+
+      - name: Install Snyk CLI with homebrew on macOS
+        if: ${{ matrix.snyk_install_method == 'brew' }}
+        run: |
+          brew tap snyk/tap
+          brew install snyk
+
+      - name: Install scoop on Windows
+        if: ${{ matrix.os == 'windows'}}
+        run: |
+          iwr -useb get.scoop.sh -outfile 'install-scoop.ps1'
+          .\install-scoop.ps1 -RunAsAdmin
+          scoop install jq
+
+      - name: Install jq on Ubuntu
+        if: ${{ matrix.os == 'ubuntu' && matrix.snyk_install_method != 'alpine-binary' && matrix.snyk_install_method != 'npm-root-user' }}
+        run: |
+          sudo apt-get install jq
+
+      - name: Run IaC e2e tests - non-Windows
+        if: ${{ matrix.os != 'windows' && matrix.snyk_install_method != 'alpine-binary' && matrix.snyk_install_method != 'npm-root-user'  }}
+        working-directory: test/jest/acceptance/iac
+        run: |
+          which snyk
+          snyk version
+          jest ./output-formats/text.spec.ts
+
+      - name: Run IaC e2e tests - Windows
+        if: ${{ matrix.os == 'windows' }}
+        working-directory: test/jest/acceptance/iac
+        env:
+          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+        run: |
+          which snyk
+          snyk version
+          jest ./output-formats/text.spec.ts
