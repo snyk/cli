@@ -62,6 +62,14 @@ function formatCountsSection(testCounts: IacTestCounts): string {
     `${INDENT}Ignored issues: ${colors.info.bold(`${testCounts.ignores}`)}`,
   );
 
+  if (testCounts.contextSuppressedIssues) {
+    countsSectionProperties.push(
+      `${INDENT}Cloud context - suppressed issues: ${colors.info.bold(
+        `${testCounts.contextSuppressedIssues}`,
+      )}`,
+    );
+  }
+
   countsSectionProperties.push(
     `${INDENT}Total issues: ${colors.info.bold(
       `${testCounts.issues}`,

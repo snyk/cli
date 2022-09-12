@@ -7,7 +7,7 @@ import { colors } from '../../../../../../../src/lib/formatters/iac-output/text/
 import { IacTestData } from '../../../../../../../src/lib/formatters/iac-output/text/types';
 
 describe('formatIacTestSummary', () => {
-  let testDataFixture: IacTestData;
+  let testDataFixture, testDataFixtureWithSuppressions: IacTestData;
 
   beforeAll(async () => {
     testDataFixture = JSON.parse(
@@ -22,6 +22,22 @@ describe('formatIacTestSummary', () => {
           'process-results',
           'fixtures',
           'test-data.json',
+        ),
+        'utf8',
+      ),
+    );
+    testDataFixtureWithSuppressions = JSON.parse(
+      fs.readFileSync(
+        pathLib.join(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          '..',
+          'iac',
+          'process-results',
+          'fixtures',
+          'test-data-with-suppressions.json',
         ),
         'utf8',
       ),
@@ -65,6 +81,30 @@ describe('formatIacTestSummary', () => {
       )}
 ${colors.failure.bold('✗')} Files with issues: ${colors.info.bold('3')}
   Ignored issues: ${colors.info.bold('3')}
+  Total issues: ${colors.info.bold('22')} [ ${colors.severities.critical(
+        '0 critical',
+      )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
+        '4 medium',
+      )}, ${colors.severities.low('13 low')} ]`,
+    );
+
+    expect(result).not.toContain('suppressed issues');
+  });
+
+  it('should include the counts section with the correct values when suppressions are present', () => {
+    const testTestData: IacTestData = clonedeep(
+      testDataFixtureWithSuppressions,
+    );
+
+    const result = formatIacTestSummary(testTestData);
+
+    expect(result).toContain(
+      `${colors.success.bold('✔')} Files without issues: ${colors.info.bold(
+        '0',
+      )}
+${colors.failure.bold('✗')} Files with issues: ${colors.info.bold('3')}
+  Ignored issues: ${colors.info.bold('3')}
+  Cloud context - suppressed issues: ${colors.info.bold('42')}
   Total issues: ${colors.info.bold('22')} [ ${colors.severities.critical(
         '0 critical',
       )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
