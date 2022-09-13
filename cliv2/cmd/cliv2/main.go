@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 
+	"github.com/snyk/cli/cliv2/internal/analytics"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/configuration"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 	"github.com/snyk/cli/cliv2/internal/utils"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
@@ -62,8 +66,44 @@ func main() {
 	os.Exit(errorCode)
 }
 
+func initAnalytics(args []string, config configuration.Configuration) *analytics.Analytics {
+
+	headerFunc := func() http.Header {
+		h := http.Header{}
+
+		authHeader := utils.GetAuthHeader(config)
+		if len(authHeader) > 0 {
+			h.Add("Authorization", authHeader)
+		}
+
+		h.Add("x-snyk-cli-version", cliv2.GetFullVersion())
+		return h
+	}
+
+	cliAnalytics := analytics.New()
+	cliAnalytics.SetVersion(cliv2.GetFullVersion())
+	cliAnalytics.SetCmdArguments(args)
+	cliAnalytics.SetIntegration(config.GetString(configuration.INTEGRATION_NAME), config.GetString(configuration.INTEGRATION_VERSION))
+	cliAnalytics.SetApiUrl(config.GetString(configuration.API_URL))
+	cliAnalytics.AddHeader(headerFunc)
+
+	mappedArguments := utils.ToKeyValueMap(args, "=")
+	if org, ok := mappedArguments["--org"]; ok {
+		cliAnalytics.SetOrg(org)
+	}
+
+	return cliAnalytics
+}
+
 func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	var err error
+	config := configuration.New()
+
+	cliAnalytics := initAnalytics(args, config)
+	if config.GetBool(configuration.ANALYTICS_DISABLED) == false {
+		defer cliAnalytics.Send()
+	}
+
 	debugLogger := getDebugLogger(args)
 	debugLogger.Println("debug: true")
 
@@ -75,39 +115,47 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 		if err != nil {
 			fmt.Println("Failed to determine cache directory!")
 			fmt.Println(err)
-			return cliv2.SNYK_EXIT_CODE_ERROR
+			return constants.SNYK_EXIT_CODE_ERROR
 		}
 	}
 
 	// init cli object
 	var cli *cliv2.CLI
-	cli = cliv2.NewCLIv2(envVariables.CacheDirectory, debugLogger)
-	if cli == nil {
-		return cliv2.SNYK_EXIT_CODE_ERROR
+	cli, err = cliv2.NewCLIv2(envVariables.CacheDirectory, debugLogger)
+	if err != nil {
+		cliAnalytics.AddError(err)
+		return constants.SNYK_EXIT_CODE_ERROR
 	}
 
 	// init proxy object
-	wrapperProxy, err := proxy.NewWrapperProxy(envVariables.Insecure, envVariables.CacheDirectory, cli.GetFullVersion(), debugLogger)
+	wrapperProxy, err := proxy.NewWrapperProxy(envVariables.Insecure, envVariables.CacheDirectory, cliv2.GetFullVersion(), debugLogger)
+	defer wrapperProxy.Close()
 	if err != nil {
 		fmt.Println("Failed to create proxy")
 		fmt.Println(err)
-		return cliv2.SNYK_EXIT_CODE_ERROR
+		cliAnalytics.AddError(err)
+		return constants.SNYK_EXIT_CODE_ERROR
 	}
 
 	wrapperProxy.SetUpstreamProxyAuthentication(envVariables.ProxyAuthenticationMechanism)
+	http.DefaultTransport = wrapperProxy.Transport()
 
 	port, err := wrapperProxy.Start()
 	if err != nil {
 		fmt.Println("Failed to start the proxy")
 		fmt.Println(err)
-		return cliv2.SNYK_EXIT_CODE_ERROR
+		cliAnalytics.AddError(err)
+		return constants.SNYK_EXIT_CODE_ERROR
 	}
 
 	// run the cli
-	exitCode := cli.Execute(port, wrapperProxy.CertificateLocation, args)
+	err = cli.Execute(port, wrapperProxy.CertificateLocation, args)
+	if err != nil {
+		cliAnalytics.AddError(err)
+	}
 
-	debugLogger.Println("in main, cliv1 is done")
-	wrapperProxy.Close()
+	exitCode := cli.DeriveExitCode(err)
+
 	debugLogger.Printf("Exiting with %d\n", exitCode)
 
 	return exitCode
