@@ -1,0 +1,67 @@
+name: Infrastructure as Code Smoke Tests
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  release:
+    types: [published]
+  workflow_call:
+
+jobs:
+  run_iac_e2e_tests:
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos, windows]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 15
+
+      - name: Install jq on macOS
+        if: ${{ matrix.os == 'macos' }}
+        run: |
+          brew install jq
+
+      - name: Install jq on Windows
+        if: ${{ matrix.os == 'windows'}}
+        run: |
+          iwr -useb get.scoop.sh -outfile 'install-scoop.ps1'
+          .\install-scoop.ps1 -RunAsAdmin
+          scoop install jq
+
+      - name: Install jq on Ubuntu
+        if: ${{ matrix.os == 'ubuntu' }}
+        run: |
+          sudo apt-get install jq
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Build Snyk CLI
+        run: |
+          npm run build
+
+      - name: Run IaC smoke tests - non-Windows
+        if: ${{ matrix.os != 'windows' }}
+        env:
+          IAC_SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.IAC_SMOKE_TESTS_SNYK_TOKEN }}
+          TEST_SNYK_COMMAND: ${{ format('node {0}/dist/cli/index.js', github.workspace) }}
+        run: |
+          npm run test:smoke:iac
+
+      - name: Run IaC smoke tests - Windows
+        if: ${{ matrix.os == 'windows' }}
+        shell: pwsh
+        env:
+          IAC_SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.IAC_SMOKE_TESTS_SNYK_TOKEN }}
+          TEST_SNYK_COMMAND: ${{ format('node {0}\dist\cli\index.js', github.workspace) }}
+        run: |
+          npm run test:smoke:iac
