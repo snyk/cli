@@ -19,14 +19,7 @@ jest.setTimeout(1000 * 60);
 // Global test configuration
 const rootDir = path.resolve(path.join(__dirname, '..', '..'));
 const squidEnvironmentPath = path.resolve(
-  path.join(
-    rootDir,
-    'internal',
-    'httpauth',
-    'test',
-    'fixtures',
-    'squid_environment',
-  ),
+  path.join(rootDir, 'test', 'fixtures', 'squid_environment'),
 );
 const dockerComposeFile = path.resolve(
   path.join(squidEnvironmentPath, 'docker-compose.yml'),
