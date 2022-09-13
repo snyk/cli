@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	main "github.com/snyk/cli/cliv2/cmd/cliv2"
-	"github.com/snyk/cli/cliv2/internal/httpauth"
+	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/stretchr/testify/assert"
 )

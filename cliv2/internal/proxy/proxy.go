@@ -12,8 +12,8 @@ import (
 	"os"
 
 	"github.com/snyk/cli/cliv2/internal/certs"
-	"github.com/snyk/cli/cliv2/internal/httpauth"
 	"github.com/snyk/cli/cliv2/internal/utils"
+	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/elazarl/goproxy"
 )
