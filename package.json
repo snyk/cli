@@ -148,7 +148,7 @@
     "conventional-changelog-cli": "^2.2.2",
     "copy-webpack-plugin": "^9.0.1",
     "cross-spawn": "^6.0.5",
-    "danger": "10.7.1",
+    "danger": "10.9.0",
     "depcheck": "^1.4.3",
     "eslint": "6.8.0",
     "eslint-config-prettier": "^6.1.0",
