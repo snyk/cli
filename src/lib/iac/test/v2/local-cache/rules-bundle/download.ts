@@ -9,12 +9,19 @@ import { saveFile } from '../../../../file-utils';
 import { TestConfig } from '../../types';
 import { fetchCacheResource } from '../utils';
 import { rulesBundleName } from './constants';
+import config from '../../../../../config';
 
 const debugLog = createDebugLogger('snyk-iac');
 
 export async function downloadRulesBundle(
   testConfig: TestConfig,
 ): Promise<string> {
+  // IAC_BUNDLE_PATH is a developer setting that is not useful to most users. It
+  // is not a replacement for custom rules.
+  if (config.IAC_BUNDLE_PATH) {
+    return config.IAC_BUNDLE_PATH;
+  }
+
   let downloadDurationSeconds = 0;
 
   const timer = new TimerMetricInstance('iac_rules_bundle_download');
