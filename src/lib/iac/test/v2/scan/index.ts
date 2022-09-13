@@ -174,7 +174,7 @@ function createTemporaryFiles(
     const configData = JSON.stringify({
       org: options.orgSettings.meta.org,
       orgPublicId: options.orgSettings.meta.orgPublicId,
-      apiUrl: config.API,
+      apiUrl: getApiUrl(),
       apiAuth: getAuthHeader(),
       allowAnalytics: allowAnalytics(),
       policy: options.policy,
@@ -196,6 +196,12 @@ function deleteTemporaryFiles(tempDirPath: string) {
   } catch (e) {
     debug('unable to delete temporary directory', e);
   }
+}
+
+function getApiUrl() {
+  const apiUrl = new URL(config.API_REST_URL);
+  apiUrl.pathname = '';
+  return apiUrl.toString();
 }
 
 class ScanError extends CustomError {
