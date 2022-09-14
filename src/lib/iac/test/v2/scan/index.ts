@@ -160,6 +160,10 @@ function processFlags(
     flags.push('-cloud-context', options.cloudContext);
   }
 
+  if (options.insecure) {
+    flags.push('-http-tls-skip-verify');
+  }
+
   return flags;
 }
 

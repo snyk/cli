@@ -61,6 +61,7 @@ async function prepareTestConfig(
   const scan = options.scan ?? 'resource-changes';
   const varFile = options['var-file'];
   const cloudContext = getFlag(options, 'cloud-context');
+  const insecure = options.insecure;
 
   return {
     paths,
@@ -80,6 +81,7 @@ async function prepareTestConfig(
     varFile,
     depthDetection,
     cloudContext,
+    insecure,
   };
 }
 

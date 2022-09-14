@@ -20,4 +20,5 @@ export interface TestConfig {
   varFile?: string;
   depthDetection?: number;
   cloudContext?: string;
+  insecure?: boolean;
 }
