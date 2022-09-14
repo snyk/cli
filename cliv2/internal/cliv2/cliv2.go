@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
 	"github.com/snyk/cli/cliv2/internal/utils"
@@ -22,28 +23,11 @@ type CLI struct {
 	DebugLogger      *log.Logger
 	CacheDirectory   string
 	v1BinaryLocation string
-	v1Version        string
-	v2Version        string
 }
 
 type EnvironmentWarning struct {
 	message string
 }
-
-const SNYK_EXIT_CODE_OK = 0
-const SNYK_EXIT_CODE_ERROR = 2
-const SNYK_INTEGRATION_NAME = "CLI_V1_PLUGIN"
-const SNYK_INTEGRATION_NAME_ENV = "SNYK_INTEGRATION_NAME"
-const SNYK_INTEGRATION_VERSION_ENV = "SNYK_INTEGRATION_VERSION"
-const SNYK_HTTPS_PROXY_ENV = "HTTPS_PROXY"
-const SNYK_HTTP_PROXY_ENV = "HTTP_PROXY"
-const SNYK_HTTP_NO_PROXY_ENV = "NO_PROXY"
-const SNYK_NPM_PROXY_ENV = "NPM_CONFIG_PROXY"
-const SNYK_NPM_HTTPS_PROXY_ENV = "NPM_CONFIG_HTTPS_PROXY"
-const SNYK_NPM_HTTP_PROXY_ENV = "NPM_CONFIG_HTTP_PROXY"
-const SNYK_NPM_NO_PROXY_ENV = "NPM_CONFIG_NO_PROXY"
-const SNYK_NPM_ALL_PROXY = "ALL_PROXY"
-const SNYK_CA_CERTIFICATE_LOCATION_ENV = "NODE_EXTRA_CA_CERTS"
 
 const (
 	V1_DEFAULT Handler = iota
@@ -52,31 +36,29 @@ const (
 )
 
 //go:embed cliv2.version
-var SNYK_CLIV2_VERSION_PART string
+var version_prefix string
 
-func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) *CLI {
+func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
 
 	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(cacheDirectory)
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return nil, err
 	}
 
 	cli := CLI{
 		DebugLogger:      debugLogger,
 		CacheDirectory:   cacheDirectory,
-		v1Version:        cliv1.CLIV1Version(),
-		v2Version:        strings.TrimSpace(SNYK_CLIV2_VERSION_PART),
 		v1BinaryLocation: v1BinaryLocation,
 	}
 
 	err = cli.ExtractV1Binary()
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return nil, err
 	}
 
-	return &cli
+	return &cli, nil
 }
 
 func (c *CLI) ExtractV1Binary() error {
@@ -109,16 +91,19 @@ func (c *CLI) ExtractV1Binary() error {
 	return nil
 }
 
-func (c *CLI) GetFullVersion() string {
-	if len(c.v2Version) > 0 {
-		return c.v2Version + "." + c.v1Version
+func GetFullVersion() string {
+	v1Version := cliv1.CLIV1Version()
+	v2Version := strings.TrimSpace(version_prefix)
+
+	if len(v2Version) > 0 {
+		return v2Version + "." + v1Version
 	} else {
-		return c.v1Version
+		return v1Version
 	}
 }
 
 func (c *CLI) GetIntegrationName() string {
-	return SNYK_INTEGRATION_NAME
+	return constants.SNYK_INTEGRATION_NAME
 }
 
 func (c *CLI) GetBinaryLocation() string {
@@ -126,24 +111,23 @@ func (c *CLI) GetBinaryLocation() string {
 }
 
 func (c *CLI) printVersion() {
-	fmt.Println(c.GetFullVersion())
+	fmt.Println(GetFullVersion())
 }
 
-func (c *CLI) commandVersion(passthroughArgs []string) int {
+func (c *CLI) commandVersion(passthroughArgs []string) error {
 	if utils.Contains(passthroughArgs, "--json-file-output") {
-		fmt.Println("The following option combination is not currently supported: version + json-file-output")
-		return SNYK_EXIT_CODE_ERROR
+		return fmt.Errorf("The following option combination is not currently supported: version + json-file-output")
 	} else {
 		c.printVersion()
-		return SNYK_EXIT_CODE_OK
+		return nil
 	}
 }
 
-func (c *CLI) commandAbout(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) int {
+func (c *CLI) commandAbout(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) error {
 
-	returnCode := c.executeV1Default(wrapperProxyPort, fullPathToCert, passthroughArgs)
-	if returnCode != SNYK_EXIT_CODE_OK {
-		return returnCode
+	err := c.executeV1Default(wrapperProxyPort, fullPathToCert, passthroughArgs)
+	if err != nil {
+		return err
 	}
 
 	separator := "\n+-+-+-+-+-+-+\n\n"
@@ -167,7 +151,7 @@ func (c *CLI) commandAbout(wrapperProxyPort int, fullPathToCert string, passthro
 		}
 	}
 
-	return SNYK_EXIT_CODE_OK
+	return nil
 }
 
 func determineHandler(passthroughArgs []string) Handler {
@@ -189,29 +173,29 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 	inputAsMap := utils.ToKeyValueMap(input, "=")
 	result = input
 
-	_, integrationNameExists := inputAsMap[SNYK_INTEGRATION_NAME_ENV]
-	_, integrationVersionExists := inputAsMap[SNYK_INTEGRATION_VERSION_ENV]
+	_, integrationNameExists := inputAsMap[constants.SNYK_INTEGRATION_NAME_ENV]
+	_, integrationVersionExists := inputAsMap[constants.SNYK_INTEGRATION_VERSION_ENV]
 
 	if !integrationNameExists && !integrationVersionExists {
-		inputAsMap[SNYK_INTEGRATION_NAME_ENV] = integrationName
-		inputAsMap[SNYK_INTEGRATION_VERSION_ENV] = integrationVersion
+		inputAsMap[constants.SNYK_INTEGRATION_NAME_ENV] = integrationName
+		inputAsMap[constants.SNYK_INTEGRATION_VERSION_ENV] = integrationVersion
 	} else if !(integrationNameExists && integrationVersionExists) {
-		err = EnvironmentWarning{message: fmt.Sprintf("Partially defined environment, please ensure to provide both %s and %s together!", SNYK_INTEGRATION_NAME_ENV, SNYK_INTEGRATION_VERSION_ENV)}
+		err = EnvironmentWarning{message: fmt.Sprintf("Partially defined environment, please ensure to provide both %s and %s together!", constants.SNYK_INTEGRATION_NAME_ENV, constants.SNYK_INTEGRATION_VERSION_ENV)}
 	}
 
 	if err == nil {
 
 		// apply blacklist: ensure that no existing no_proxy or other configuration causes redirecting internal communication that is meant to stay between cliv1 and cliv2
 		blackList := []string{
-			SNYK_HTTPS_PROXY_ENV,
-			SNYK_HTTP_PROXY_ENV,
-			SNYK_CA_CERTIFICATE_LOCATION_ENV,
-			SNYK_HTTP_NO_PROXY_ENV,
-			SNYK_NPM_NO_PROXY_ENV,
-			SNYK_NPM_HTTPS_PROXY_ENV,
-			SNYK_NPM_HTTP_PROXY_ENV,
-			SNYK_NPM_PROXY_ENV,
-			SNYK_NPM_ALL_PROXY,
+			constants.SNYK_HTTPS_PROXY_ENV,
+			constants.SNYK_HTTP_PROXY_ENV,
+			constants.SNYK_CA_CERTIFICATE_LOCATION_ENV,
+			constants.SNYK_HTTP_NO_PROXY_ENV,
+			constants.SNYK_NPM_NO_PROXY_ENV,
+			constants.SNYK_NPM_HTTPS_PROXY_ENV,
+			constants.SNYK_NPM_HTTP_PROXY_ENV,
+			constants.SNYK_NPM_PROXY_ENV,
+			constants.SNYK_NPM_ALL_PROXY,
 		}
 
 		for _, key := range blackList {
@@ -219,9 +203,9 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 		}
 
 		// fill expected values
-		inputAsMap[SNYK_HTTPS_PROXY_ENV] = proxyAddress
-		inputAsMap[SNYK_HTTP_PROXY_ENV] = proxyAddress
-		inputAsMap[SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
+		inputAsMap[constants.SNYK_HTTPS_PROXY_ENV] = proxyAddress
+		inputAsMap[constants.SNYK_HTTP_PROXY_ENV] = proxyAddress
+		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
 
 		result = utils.ToSlice(inputAsMap, "=")
 	}
@@ -243,7 +227,7 @@ func PrepareV1Command(cmd string, args []string, proxyPort int, caCertLocation s
 	return snykCmd, err
 }
 
-func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) int {
+func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) error {
 	c.DebugLogger.Println("launching snyk with path: ", c.v1BinaryLocation)
 	c.DebugLogger.Println("fullPathToCert:", fullPathToCert)
 
@@ -253,7 +237,7 @@ func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, pass
 		wrapperProxyPort,
 		fullPathToCert,
 		c.GetIntegrationName(),
-		c.GetFullVersion(),
+		GetFullVersion(),
 	)
 
 	if err != nil {
@@ -263,33 +247,39 @@ func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, pass
 	}
 
 	err = snykCmd.Run()
-	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			exitCode := exitError.ExitCode()
-			return exitCode
-		} else {
-			// got an error but it's not an ExitError
-			fmt.Println(err)
-			return SNYK_EXIT_CODE_ERROR
-		}
-	}
 
-	return SNYK_EXIT_CODE_OK
+	return err
 }
 
-func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) int {
+func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) error {
 	c.DebugLogger.Println("passthroughArgs", passthroughArgs)
 
-	returnCode := SNYK_EXIT_CODE_OK
+	var err error
 	handler := determineHandler(passthroughArgs)
 
 	switch {
 	case handler == V2_VERSION:
-		returnCode = c.commandVersion(passthroughArgs)
+		err = c.commandVersion(passthroughArgs)
 	case handler == V2_ABOUT:
-		returnCode = c.commandAbout(wrapperProxyPort, fullPathToCert, passthroughArgs)
+		err = c.commandAbout(wrapperProxyPort, fullPathToCert, passthroughArgs)
 	default:
-		returnCode = c.executeV1Default(wrapperProxyPort, fullPathToCert, passthroughArgs)
+		err = c.executeV1Default(wrapperProxyPort, fullPathToCert, passthroughArgs)
+	}
+
+	return err
+}
+
+func (c *CLI) DeriveExitCode(err error) int {
+	returnCode := constants.SNYK_EXIT_CODE_OK
+
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			returnCode = exitError.ExitCode()
+		} else {
+			// got an error but it's not an ExitError
+			fmt.Println(err)
+			returnCode = constants.SNYK_EXIT_CODE_ERROR
+		}
 	}
 
 	return returnCode

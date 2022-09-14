@@ -15,7 +15,7 @@ PATH="$PATH:$GOBIN" go-licenses save ./... --save_path=./internal/embedded/_data
 manualLicenseDownload "https://raw.githubusercontent.com/davecgh/go-spew/master/LICENSE" github.com/davecgh/go-spew
 manualLicenseDownload "https://raw.githubusercontent.com/alexbrainman/sspi/master/LICENSE" github.com/alexbrainman/sspi
 manualLicenseDownload "https://raw.githubusercontent.com/pmezard/go-difflib/master/LICENSE" github.com/pmezard/go-difflib
-manualLicenseDownload "https://raw.githubusercontent.com/go-yaml/yaml/v3.0.1/LICENSE" gopkg.in/yaml.v3
+manualLicenseDownload "https://raw.githubusercontent.com/go-yaml/yaml/v2.4.0/LICENSE" gopkg.in/yaml.v2
 manualLicenseDownload "https://go.dev/LICENSE?m=text" go.dev
 
 # clean up and print result

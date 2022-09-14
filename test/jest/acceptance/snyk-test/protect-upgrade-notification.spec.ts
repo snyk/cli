@@ -1,6 +1,7 @@
 import { fakeServer } from '../../../acceptance/fake-server';
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { isCLIV2 } from '../../util/isCLIV2';
 
 jest.setTimeout(1000 * 30);
 
@@ -51,6 +52,11 @@ describe('analytics module', () => {
     );
     expect(stdout).toContain(project.path('package.json'));
 
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      server.popRequest();
+    }
+
     const lastRequest = server.popRequest();
     expect(lastRequest).toMatchObject({
       query: {},
@@ -81,6 +87,11 @@ describe('analytics module', () => {
       'WARNING: It looks like you have the `snyk` dependency in the `package.json` file(s) at the following path(s):',
     );
     expect(stdout).toContain(project.path('package.json'));
+
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      server.popRequest();
+    }
 
     const lastRequest = server.popRequest();
     expect(lastRequest).toMatchObject({
@@ -128,6 +139,11 @@ describe('analytics module', () => {
       project.path('with-package-json-without-snyk-dep/package.json'),
     );
 
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      server.popRequest();
+    }
+
     const lastRequest = server.popRequest();
     expect(lastRequest).toMatchObject({
       query: {},
@@ -157,6 +173,11 @@ describe('analytics module', () => {
       'WARNING: It looks like you have the `snyk` dependency in the `package.json` file(s) at the following path(s):',
     );
     expect(stdout).not.toContain(project.path('package.json'));
+
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      server.popRequest();
+    }
 
     const lastRequest = server.popRequest();
     expect(lastRequest).toMatchObject({

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -106,16 +107,16 @@ func Test_executeRunV1(t *testing.T) {
 	assert.NoDirExists(t, cacheDir)
 
 	// create instance under test
-	cli := cliv2.NewCLIv2(cacheDir, logger)
+	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
 
 	// run once
-	actualReturnCode := cli.Execute(1000, "", []string{"--help"})
+	actualReturnCode := cli.DeriveExitCode(cli.Execute(1000, "", []string{"--help"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 	fileInfo1, _ := os.Stat(cli.GetBinaryLocation())
 
 	// run twice
-	actualReturnCode = cli.Execute(1000, "", []string{"--help"})
+	actualReturnCode = cli.DeriveExitCode(cli.Execute(1000, "", []string{"--help"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 	fileInfo2, _ := os.Stat(cli.GetBinaryLocation())
@@ -135,8 +136,8 @@ func Test_executeRunV2only(t *testing.T) {
 	assert.NoDirExists(t, cacheDir)
 
 	// create instance under test
-	cli := cliv2.NewCLIv2(cacheDir, logger)
-	actualReturnCode := cli.Execute(1000, "", []string{"--version"})
+	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	actualReturnCode := cli.DeriveExitCode(cli.Execute(1000, "", []string{"--version"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 
@@ -152,11 +153,11 @@ func Test_executeEnvironmentError(t *testing.T) {
 	assert.NoDirExists(t, cacheDir)
 
 	// fill Environment Variable
-	os.Setenv(cliv2.SNYK_INTEGRATION_NAME_ENV, "someName")
+	os.Setenv(constants.SNYK_INTEGRATION_NAME_ENV, "someName")
 
 	// create instance under test
-	cli := cliv2.NewCLIv2(cacheDir, logger)
-	actualReturnCode := cli.Execute(1000, "", []string{"--help"})
+	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	actualReturnCode := cli.DeriveExitCode(cli.Execute(1000, "", []string{"--help"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 
@@ -164,14 +165,14 @@ func Test_executeEnvironmentError(t *testing.T) {
 }
 
 func Test_executeUnknownCommand(t *testing.T) {
-	expectedReturnCode := cliv2.SNYK_EXIT_CODE_ERROR
+	expectedReturnCode := constants.SNYK_EXIT_CODE_ERROR
 
 	cacheDir := "dasda"
 	logger := log.New(ioutil.Discard, "", 0)
 
 	// create instance under test
-	cli := cliv2.NewCLIv2(cacheDir, logger)
-	actualReturnCode := cli.Execute(1000, "", []string{"bogusCommand"})
+	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	actualReturnCode := cli.DeriveExitCode(cli.Execute(1000, "", []string{"bogusCommand"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 
 	os.RemoveAll(cacheDir)
