@@ -534,6 +534,12 @@ jobs:
           at: .
       - setup_npm
       - run:
+          name: Copy Windows cliv2 binaries to binary-releases staging area
+          command: |
+            ls -la cliv2/bin
+            cp cliv2/bin/snyk-win.exe binary-releases/snyk-win.exe
+            cp cliv2/bin/snyk-win.exe.sha256 binary-releases/snyk-win.exe.sha256
+      - run:
           name: Signing shasums
           command: make binary-releases/sha256sums.txt.asc
       - run:
@@ -667,6 +673,34 @@ jobs:
           paths:
             - ./cliv2/bin
 
+  v2-rename-windows-artifact:
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Rename snyk_windows_amd64.exe artifact
+          command: mv snyk_windows_amd64.exe snyk-win.exe
+          working_directory: ./cliv2/bin
+      - run:
+          name: Regenerate sha256
+          command: |
+            shasum -a 256 snyk-win.exe > snyk-win.exe.sha256
+            shasum -a 256 -c snyk-win.exe.sha256
+          working_directory: ./cliv2/bin
+      - run:
+          name: Show files
+          command: |
+            ls -la
+            cat snyk-win.exe.sha256
+          working_directory: ./cliv2/bin
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./cliv2/bin
+
   v2-prepare-release:
     executor: linux
     working_directory: /home/circleci/snyk
@@ -755,7 +789,7 @@ jobs:
           name: Run integration tests
           working_directory: ./cliv2
           environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk_windows_amd64.exe
+            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-win.exe
           command: |
             $env:SNYK_TOKEN = $env:SNYK_API_KEY
             ./bin/snyk_tests_windows_amd64.exe
@@ -772,7 +806,7 @@ jobs:
           name: Run integration tests
           working_directory: ./cliv2
           environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk_windows_amd64.exe
+            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-win.exe
             HTTPS_PROXY: http://localhost:8080
           command: |
             $env:SNYK_TOKEN = $env:SNYK_API_KEY
@@ -923,6 +957,7 @@ workflows:
             - Build (snyk-for-docker-desktop-darwin-x64.tar.gz)
             - Build (snyk-for-docker-desktop-darwin-arm64.tar.gz)
             - Build (docker-mac-signed-bundle.tar.gz)
+            - v2 / Prepare Release
       - should-release:
           name: Release?
           type: approval
@@ -1012,11 +1047,11 @@ workflows:
       - v2-test-windows-amd64:
           name: v2 / Integration Tests (windows/amd64)
           requires:
-            - v2 / Build (windows/amd64)
+            - v2 / Rename windows/amd64 artifact
       - v2-test-proxy-windows-amd64:
           name: v2 / Proxy Integration Tests (windows/amd64)
           requires:
-            - v2 / Build (windows/amd64)
+            - v2 / Rename windows/amd64 artifact
       # Tests for backwards compatibility with CLIv1
       - test-alpine:
           name: v2 / Jest Acceptance Tests (alpine/amd64)
@@ -1040,8 +1075,8 @@ workflows:
           name: v2 / Jest Acceptance Tests (windows/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build (windows/amd64)
-          test_snyk_command: C:\Users\circleci\snyk\cliv2\bin\snyk_windows_amd64.exe
+            - v2 / Rename windows/amd64 artifact
+          test_snyk_command: C:\Users\circleci\snyk\cliv2\bin\snyk-win.exe
       - test-macos:
           name: v2 / Jest Acceptance Tests (darwin/amd64)
           context: nodejs-install
@@ -1071,4 +1106,4 @@ workflows:
             - v2 / Build (linux/amd64)
             - v2 / Build (linux/arm64)
             - v2 / Sign (darwin/amd64)
-            - v2 / Sign (windows/amd64)
+            - v2 / Rename windows/amd64 artifact
