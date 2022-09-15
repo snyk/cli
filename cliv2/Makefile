@@ -190,12 +190,8 @@ whiteboxtest:
 	@echo "$(LOG_PREFIX) Running $@"
 	@$(GOCMD) test -cover ./...
 
-.PHONY: acceptancetest 
-acceptancetest: build
-	TEST_SNYK_COMMAND="$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)" npx jest
-
 .PHONY: test
-test: whiteboxtest blackboxtest acceptancetest
+test: whiteboxtest blackboxtest
 
 .PHONY: lint
 lint:
