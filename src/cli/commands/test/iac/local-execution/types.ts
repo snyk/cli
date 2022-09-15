@@ -390,7 +390,7 @@ export enum IaCErrorCodes {
   NoLoadableInput = 2114,
   FailedToMakeResourcesResolvers = 2115,
   ResourcesResolverError = 2116,
-  FailedToShareResults = 2200,
+  FailedToProcessResults = 2200,
 }
 
 export interface TestReturnValue {
