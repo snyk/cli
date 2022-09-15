@@ -26,7 +26,7 @@ import stripAnsi from 'strip-ansi';
 import * as path from 'path';
 import { getErrorStringCode } from '../../../../cli/commands/test/iac/local-execution/error-utils';
 import {
-  buildShareResultsSummary,
+  buildShareResultsSummaryV2,
   shouldPrintShareResultsTip,
 } from '../../../../cli/commands/test/iac/output';
 
@@ -167,7 +167,7 @@ function buildTextOutput({
   response += EOL;
 
   if (options.report) {
-    response += buildShareResultsSummary({
+    response += buildShareResultsSummaryV2({
       orgName: orgSettings.meta.org,
       projectName,
       options,

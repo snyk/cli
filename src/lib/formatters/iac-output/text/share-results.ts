@@ -17,6 +17,26 @@ export function formatShareResultsOutput(orgName: string, projectName: string) {
   );
 }
 
+export function formatShareResultsOutputV2(
+  orgName: string,
+  projectName: string,
+) {
+  return (
+    colors.title('Report Complete') +
+    EOL +
+    EOL +
+    contentPadding +
+    'Your test results are available at: ' +
+    colors.title(
+      `${
+        config.ROOT
+      }/org/${orgName}/cloud/issues?environment_name=${encodeURIComponent(
+        projectName,
+      )}`,
+    )
+  );
+}
+
 export const shareResultsTip =
   colors.title('Tip') +
   EOL +
