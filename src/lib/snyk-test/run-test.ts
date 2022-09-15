@@ -66,6 +66,7 @@ import { Issue } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
 import { makeRequest } from '../request';
 import { spinner } from '../spinner';
+import { hasUnknownVersions } from '../dep-graph';
 
 const debug = debugModule('snyk:run-test');
 
@@ -121,6 +122,7 @@ function prepareEcosystemResponseForParsing(
     payloadPolicy: payloadBody?.policy,
     platform,
     scanResult: payloadBody,
+    hasUnknownVersions: hasUnknownVersions(depGraph),
   };
 }
 
@@ -156,6 +158,7 @@ function prepareLanguagesResponseForParsing(payload: Payload) {
     foundProjectCount,
     displayTargetFile,
     dockerfilePackages,
+    hasUnknownVersions: hasUnknownVersions(depGraph),
   };
 }
 
@@ -234,6 +237,7 @@ async function sendAndParseResults(
       dockerfilePackages,
       platform,
       scanResult,
+      hasUnknownVersions,
     } = prepareResponseForParsing(
       payloadCopy,
       res as TestDependenciesResponse,
@@ -267,6 +271,7 @@ async function sendAndParseResults(
       displayTargetFile,
       platform,
       scanResult,
+      hasUnknownVersions,
     });
   }
   return results;
@@ -601,6 +606,7 @@ async function assembleLocalPayloads(
           maybePrintDepTree(options, pkg as DepTree);
         }
       }
+
       const project = scannedProject as ScannedProjectCustom;
       const packageManager = extractPackageManager(project, deps, options);
 
