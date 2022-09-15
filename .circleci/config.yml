@@ -859,13 +859,6 @@ workflows:
           name: Version
           requires:
             - Build
-          filters:
-            branches:
-              only:
-                - /^chore\/.+$/
-                - /^.*test.*$/
-                - /^.*cliv2.*$/
-                - master
       - build-artifact:
           name: Build (<< matrix.artifact >>)
           requires:
@@ -963,62 +956,36 @@ workflows:
       #
       - v2-lint:
           name: v2 / Lint
-          filters:
-            branches:
-              only:
-                - /^.*cliv2.*$/
-                - master
       - v2-unit-test:
           name: v2 / Unit Tests
-          filters:
-            branches:
-              only:
-                - /^.*cliv2.*$/
-                - master
       - v2-build-artifact:
           name: v2 / Build (linux/amd64)
           requires:
             - Build (snyk-linux)
           go_os: linux
           go_arch: amd64
-          filters:
-            branches:
-              only:
-                - /^.*cliv2.*$/
-                - master
       - v2-build-artifact:
           name: v2 / Build (linux/arm64)
           requires:
             - Build (snyk-linux-arm64)
           go_os: linux
           go_arch: arm64
-          filters:
-            branches:
-              only:
-                - /^.*cliv2.*$/
-                - master
       - v2-build-artifact:
           name: v2 / Build (darwin/amd64)
           requires:
             - Build (snyk-macos)
           go_os: darwin
           go_arch: amd64
-          filters:
-            branches:
-              only:
-                - /^.*cliv2.*$/
-                - master
       - v2-build-artifact:
           name: v2 / Build (windows/amd64)
           requires:
             - Build (snyk-win.exe)
           go_os: windows
           go_arch: amd64
-          filters:
-            branches:
-              only:
-                - /^.*cliv2.*$/
-                - master
+      - v2-rename-windows-artifact:
+          name: v2 / Rename windows/amd64 artifact
+          requires:
+            - v2 / Sign (windows/amd64)
       - v2-build-artifact:
           name: v2 / Build (alpine/amd64)
           requires:
@@ -1026,11 +993,6 @@ workflows:
           go_os: alpine
           go_arch: amd64
           c_compiler: /usr/bin/musl-gcc
-          filters:
-            branches:
-              only:
-                - /^.*cliv2.*$/
-                - master
       - v2-test-linux-amd64:
           name: v2 / Integration Tests (linux/amd64)
           requires:
