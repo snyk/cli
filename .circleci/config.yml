@@ -953,7 +953,6 @@ workflows:
             - Build (snyk-linux)
             - Build (snyk-linux-arm64)
             - Build (snyk-macos)
-            - Build (snyk-win.exe)
             - Build (snyk-for-docker-desktop-darwin-x64.tar.gz)
             - Build (snyk-for-docker-desktop-darwin-arm64.tar.gz)
             - Build (docker-mac-signed-bundle.tar.gz)
