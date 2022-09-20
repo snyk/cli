@@ -63,11 +63,11 @@ interface UpgradePathItem {
   isDropped?: boolean;
 }
 
-interface UpgradePath {
+export interface UpgradePath {
   path: UpgradePathItem[];
 }
 
-interface FixInfo {
+export interface FixInfo {
   upgradePaths: UpgradePath[];
   isPatchable: boolean;
   nearestFixedInVersion?: string;
