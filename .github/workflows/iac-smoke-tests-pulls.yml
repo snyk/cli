@@ -1,0 +1,92 @@
+name: Infrastructure as Code Smoke Tests (Pull Requests)
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  check_for_changed_iac_files:
+    name: Check for changed IaC files
+    runs-on: ubuntu-latest
+    outputs:
+      is_changed: ${{ steps.check_iac_files_changed.outputs.is_changed }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install jq
+        run: |
+          sudo apt-get install jq
+
+      - name: Parse CODEOWNERS file
+        id: codeowners
+        uses: SvanBoxel/codeowners-action@v2.2
+        with:
+          file_match_info: 'true'
+          path: ./.github/CODEOWNERS
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.4
+
+      - name: Get all IaC files
+        id: get_all_iac_files
+        run: |
+          ALL_IAC_FILES=$(
+            echo ${{ toJSON(steps.codeowners.outputs.filematches) }} |
+            jq '[
+              to_entries[] |
+              select(
+                .value.owners |
+                index("@snyk/group-infrastructure-as-code")
+              ) |
+              .key
+            ]'
+          )
+
+          echo "::set-output name=all_iac_files::$(
+            echo $ALL_IAC_FILES
+          )"
+
+      - id: check_iac_files_changed
+        name: Check for changed files owned by IaC
+        run: |
+          ALL_IAC_FILES=${{ toJson(steps.get_all_iac_files.outputs.all_iac_files) }}
+
+          CHANGED_FILES=$(
+            echo ${{ steps.changed-files.outputs.all_changed_files }} |
+            jq -R 'split(" ")'
+          )
+
+          CHANGED_IAC_FILES=$(
+            echo $CHANGED_FILES |
+            jq --argjson ALL_IAC_FILES "$ALL_IAC_FILES" '[
+                .[] |
+                . as $changed_file |
+                select(
+                  $ALL_IAC_FILES |
+                  index($changed_file)
+                )
+              ]'
+          )
+
+          CHANGED_IAC_FILES_COUNT=$(
+            echo $CHANGED_IAC_FILES | jq 'length'
+          )
+
+          IS_CHANGED=$(
+            echo $CHANGED_IAC_FILES_COUNT | jq '. > 0'
+          )
+
+          $IS_CHANGED &&
+          echo "Found $CHANGED_IAC_FILES_COUNT changed IaC files: $CHANGED_IAC_FILES"||
+          echo "No changed IaC files found!"
+
+          echo "::set-output name=is_changed::$IS_CHANGED"
+
+  run_iac_smoke_tests:
+    name: Run IaC smoke tests
+    uses: ./.github/workflows/iac-smoke-tests.yml
+    needs: check_for_changed_iac_files
+    if: ${{ needs.check_for_changed_iac_files.outputs.is_changed == 'true' }}
+    secrets: inherit
