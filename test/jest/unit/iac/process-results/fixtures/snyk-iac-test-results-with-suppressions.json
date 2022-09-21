@@ -147,14 +147,14 @@
       }
     ],
     "metadata": {
-      "projectName": "input-files-for-json-v2",
-      "ignoredCount": 3
+      "projectName": "input-files-for-json-v2"
     },
     "scanAnalytics": {
       "suppressedResults": {
         "issue-1": ["resource1", "resource2"],
         "issue-2": ["resource3"]
-      }
+      },
+      "ignoredCount": 3
     }
   },
   "errors": [

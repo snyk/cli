@@ -106,7 +106,7 @@ export function formatSnykIacTestTestData(
   const filesWithIssuesCount = countFilesWithIssues(snykIacTestScanResult);
   const filesWithoutIssuesCount = allFilesCount - filesWithIssuesCount;
   const ignores = snykIacTestScanResult
-    ? snykIacTestScanResult.metadata.ignoredCount
+    ? snykIacTestScanResult.scanAnalytics.ignoredCount
     : 0;
 
   let contextSuppressedIssueCount: number | undefined;

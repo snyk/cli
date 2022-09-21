@@ -39,11 +39,11 @@ export interface Results {
 
 export interface Metadata {
   projectName: string;
-  ignoredCount: number;
 }
 
 export interface ScanAnalytics {
   suppressedResults?: Record<string, string[]>;
+  ignoredCount: number;
 }
 
 export interface Vulnerability {
