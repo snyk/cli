@@ -2,6 +2,7 @@ import plugins = require('.');
 import { ModuleInfo } from '../module-info';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { TestOptions, Options, MonitorOptions } from '../types';
+import config from '../config';
 
 export async function getSinglePluginResult(
   root: string,
@@ -14,6 +15,7 @@ export async function getSinglePluginResult(
     root,
     targetFile || options.file,
     { ...options },
+    config,
   );
   return inspectRes;
 }

@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as cli from '../../src/cli/commands';
+import config from '../../src/lib/config';
 import { fakeServer } from '../acceptance/fake-server';
 import * as subProcess from '../../src/lib/sub-process';
 import { getVersion } from '../../src/lib/version';
@@ -927,6 +928,7 @@ if (!isWindows) {
           packageManager: 'pip',
           path: 'pip-app',
         },
+        config,
       ],
       'calls python plugin',
     );
@@ -990,6 +992,7 @@ if (!isWindows) {
           packageManager: 'pip',
           path: 'pip-app',
         },
+        config,
       ],
       'calls python plugin',
     );
@@ -1042,6 +1045,7 @@ if (!isWindows) {
           file: 'build.gradle',
           path: 'gradle-app',
         },
+        config,
       ],
       'calls gradle plugin',
     );
@@ -1111,6 +1115,7 @@ if (!isWindows) {
           packageManager: 'gradle',
           path: 'gradle-app',
         },
+        config,
       ],
       'calls gradle plugin',
     );
@@ -1170,6 +1175,7 @@ if (!isWindows) {
           packageManager: 'gradle',
           path: 'gradle-app',
         },
+        config,
       ],
       'calls gradle plugin',
     );
@@ -1224,6 +1230,7 @@ if (!isWindows) {
           packageManager: 'gradle',
           path: 'gradle-app',
         },
+        config,
       ],
       'calls plugin for the 1st path',
     );
@@ -1316,6 +1323,7 @@ if (!isWindows) {
           packageManager: 'gomodules',
           path: 'golang-gomodules',
         },
+        config,
       ],
       'calls golang plugin',
     );
@@ -1364,6 +1372,7 @@ if (!isWindows) {
           packageManager: 'golangdep',
           path: 'golang-app',
         },
+        config,
       ],
       'calls golang plugin',
     );
@@ -1412,6 +1421,7 @@ if (!isWindows) {
           packageManager: 'govendor',
           path: 'golang-app',
         },
+        config,
       ],
       'calls golang plugin',
     );
@@ -1458,6 +1468,7 @@ if (!isWindows) {
           packageManager: 'cocoapods',
           path: './',
         },
+        config,
       ],
       'calls CocoaPods plugin',
     );
@@ -1506,6 +1517,7 @@ if (!isWindows) {
           packageManager: 'cocoapods',
           path: './',
         },
+        config,
       ],
       'calls CocoaPods plugin',
     );
@@ -1560,6 +1572,7 @@ if (!isWindows) {
           packageManager: 'cocoapods',
           path: './',
         },
+        config,
       ],
       'calls CocoaPods plugin',
     );
