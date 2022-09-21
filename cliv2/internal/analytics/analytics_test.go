@@ -113,3 +113,74 @@ func Test_SanitizeValuesByKey(t *testing.T) {
 	assert.Equal(t, expectedNumberOfRedacted, secretsCountBefore)
 	assert.Equal(t, 0, secretsCountAfter)
 }
+
+func Test_SanitizeUsername(t *testing.T) {
+	type sanTest struct {
+		ErrorLog string
+		Other    string
+	}
+
+	rawUserName := "someuser"
+	simpleUsername := "someuser"
+	replacement := "REDACTED"
+
+	inputStruct := sanTest{
+		ErrorLog: "/Users/" + rawUserName + "/some/path",
+		Other:    fmt.Sprintf("some other value where %s is contained", rawUserName),
+	}
+
+	input, _ := json.Marshal(inputStruct)
+	fmt.Println("Before: " + string(input))
+
+	// invoke method under test
+	output, err := SanitizeUsername(rawUserName, replacement, input)
+
+	fmt.Println("After: " + string(output))
+	assert.Nil(t, err, "Failed to santize static values!")
+
+	numRedacted := strings.Count(string(output), replacement)
+	assert.Equal(t, 2, numRedacted)
+
+	numUsernameInstances := strings.Count(string(output), rawUserName)
+	assert.Equal(t, 0, numUsernameInstances)
+
+	numSimpleUsernameInstances := strings.Count(string(output), simpleUsername)
+	assert.Equal(t, 0, numSimpleUsernameInstances)
+
+	var outputStruct sanTest
+	json.Unmarshal(output, &outputStruct)
+	assert.Equal(t, "/Users/REDACTED/some/path", outputStruct.ErrorLog)
+	assert.Equal(t, "some other value where REDACTED is contained", outputStruct.Other)
+
+	// Check with Windows style domain\username
+	rawUserName = "somedomain\\someuser"
+	simpleUsername = "someuser"
+	replacement = "REDACTED"
+
+	inputStruct = sanTest{
+		ErrorLog: fmt.Sprintf("C:\\Users\\%s\\some\\path", simpleUsername),
+		Other:    fmt.Sprintf("some other value where %s is contained", rawUserName),
+	}
+
+	input, _ = json.Marshal(inputStruct)
+	fmt.Println("Before: " + string(input))
+
+	// invoke method under test
+	output, err = SanitizeUsername(rawUserName, replacement, input)
+
+	fmt.Println("After: " + string(output))
+	assert.Nil(t, err, "Failed to santize static values!")
+
+	numRedacted = strings.Count(string(output), replacement)
+	assert.Equal(t, 2, numRedacted)
+
+	numUsernameInstances = strings.Count(string(output), rawUserName)
+	assert.Equal(t, 0, numUsernameInstances)
+
+	numSimpleUsernameInstances = strings.Count(string(output), simpleUsername)
+	assert.Equal(t, 0, numSimpleUsernameInstances)
+
+	json.Unmarshal(output, &outputStruct)
+	assert.Equal(t, "C:\\Users\\REDACTED\\some\\path", outputStruct.ErrorLog)
+	assert.Equal(t, "some other value where somedomain\\REDACTED is contained", outputStruct.Other)
+}
