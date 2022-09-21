@@ -264,12 +264,14 @@ export async function resolveAndTestFactsRegistry(
 
         const vulnerabilities: IssueData[] = [];
         for (const issuesDataKey in response.issuesData) {
-          const issueData = response.issuesData[issuesDataKey];
-          const pkgCoordinate = `${issuesMap[issuesDataKey].pkgName}@${issuesMap[issuesDataKey].pkgVersion}`;
-          issueData.from = [pkgCoordinate];
-          issueData.name = pkgCoordinate;
-          issueData.packageManager = packageManager;
-          vulnerabilities.push(issueData);
+          if (issuesMap[issuesDataKey]) {
+            const issueData = response.issuesData[issuesDataKey];
+            const pkgCoordinate = `${issuesMap[issuesDataKey].pkgName}@${issuesMap[issuesDataKey].pkgVersion}`;
+            issueData.from = [pkgCoordinate];
+            issueData.name = pkgCoordinate;
+            issueData.packageManager = packageManager;
+            vulnerabilities.push(issueData);
+          }
         }
 
         const dependencyCount = response?.depGraphData?.graph?.nodes?.find(
