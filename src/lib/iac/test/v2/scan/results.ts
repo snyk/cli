@@ -71,10 +71,14 @@ export interface Resource {
   path?: any[];
   formattedPath: string;
   file: string;
-  kind: IacProjectType | PolicyEngineTypes.State.InputTypeEnum;
+  kind: ResourceKind;
   line?: number;
   column?: number;
 }
+
+export type ResourceKind =
+  | IacProjectType
+  | PolicyEngineTypes.State.InputTypeEnum;
 
 export interface ScanError {
   message: string;

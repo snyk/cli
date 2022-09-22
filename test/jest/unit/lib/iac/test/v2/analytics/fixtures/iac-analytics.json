@@ -1,0 +1,21 @@
+{
+    "iac-type": {
+      "terraformconfig": {
+        "count": 2,
+        "resource-count": 4,
+        "medium": 4
+      }
+    },
+    "packageManager": [
+      "terraformconfig"
+    ],
+    "iac-issues-count": 4,
+    "iac-ignored-issues-count": 3,
+    "iac-files-count": 2,
+    "iac-error-codes": [
+     2114
+    ],
+    "iac-resources-count": 4,
+    "iac-test-binary-version": "test-policy-engine-release-version"
+  }
+  
