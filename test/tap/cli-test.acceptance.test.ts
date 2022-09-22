@@ -65,7 +65,7 @@ const after = tap.runOnly ? only : test;
 // Should be after `process.env` setup.
 import * as plugins from '../../src/lib/plugins/index';
 import * as ecoSystemPlugins from '../../src/lib/ecosystems/plugins';
-import * as config from '../../src/lib/config'
+import * as config from '../../src/lib/config';
 /*
   TODO: enable these tests, once we switch from node-tap
   I couldn't get them to run reliably under Windows, spent ~3 days on it
