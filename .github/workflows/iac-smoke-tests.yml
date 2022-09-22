@@ -55,7 +55,7 @@ jobs:
           IAC_SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.IAC_SMOKE_TESTS_SNYK_TOKEN }}
           TEST_SNYK_COMMAND: ${{ format('node {0}/dist/cli/index.js', github.workspace) }}
         run: |
-          npm run test:smoke:iac
+          npx jest --runInBand --testPathPattern '/test/smoke(/jest)?/iac/'
 
       - name: Run IaC smoke tests - Windows
         if: ${{ matrix.os == 'windows' }}
@@ -64,4 +64,4 @@ jobs:
           IAC_SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.IAC_SMOKE_TESTS_SNYK_TOKEN }}
           TEST_SNYK_COMMAND: ${{ format('node {0}\dist\cli\index.js', github.workspace) }}
         run: |
-          npm run test:smoke:iac
+          npx jest --runInBand --testPathPattern '/test/smoke(/jest)?/iac/'
