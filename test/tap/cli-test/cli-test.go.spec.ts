@@ -4,7 +4,9 @@ import { AcceptanceTests } from '../cli-test.acceptance.test';
 export const GoTests: AcceptanceTests = {
   language: 'Go',
   tests: {
-    '`test golang-gomodules --file=go.mod`': (params, utils) => async (t) => {
+    '`test golang-gomodules --file=go.mod`': (params, utils, config) => async (
+      t,
+    ) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -51,6 +53,7 @@ export const GoTests: AcceptanceTests = {
             path: 'golang-gomodules',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls golang plugin',
       );
@@ -59,6 +62,7 @@ export const GoTests: AcceptanceTests = {
     '`test golang-app` auto-detects golang-gomodules': (
       params,
       utils,
+      config,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -104,12 +108,15 @@ export const GoTests: AcceptanceTests = {
             path: 'golang-gomodules',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls golang-gomodules plugin',
       );
     },
 
-    '`test golang-app --file=Gopkg.lock`': (params, utils) => async (t) => {
+    '`test golang-app --file=Gopkg.lock`': (params, utils, config) => async (
+      t,
+    ) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -156,14 +163,17 @@ export const GoTests: AcceptanceTests = {
             path: 'golang-app',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls golang plugin',
       );
     },
 
-    '`test golang-app --file=vendor/vendor.json`': (params, utils) => async (
-      t,
-    ) => {
+    '`test golang-app --file=vendor/vendor.json`': (
+      params,
+      utils,
+      config,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -210,14 +220,17 @@ export const GoTests: AcceptanceTests = {
             path: 'golang-app',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls golang plugin',
       );
     },
 
-    '`test golang-app` auto-detects golang/dep': (params, utils) => async (
-      t,
-    ) => {
+    '`test golang-app` auto-detects golang/dep': (
+      params,
+      utils,
+      config,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -262,6 +275,7 @@ export const GoTests: AcceptanceTests = {
             path: 'golang-app',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls golang plugin',
       );
@@ -270,6 +284,7 @@ export const GoTests: AcceptanceTests = {
     '`test golang-app-govendor` auto-detects govendor': (
       params,
       utils,
+      config,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -310,6 +325,7 @@ export const GoTests: AcceptanceTests = {
             path: 'golang-app-govendor',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls golang plugin',
       );

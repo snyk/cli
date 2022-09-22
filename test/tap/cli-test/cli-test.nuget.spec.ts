@@ -27,6 +27,7 @@ export const NugetTests: AcceptanceTests = {
     '`test nuget-app-2 auto-detects project.assets.json`': (
       params,
       utils,
+      config,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -71,6 +72,7 @@ export const NugetTests: AcceptanceTests = {
             path: 'nuget-app-2',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls nuget plugin',
       );
@@ -79,6 +81,7 @@ export const NugetTests: AcceptanceTests = {
     '`test nuget-app-2.1 auto-detects obj/project.assets.json`': (
       params,
       utils,
+      config,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -123,6 +126,7 @@ export const NugetTests: AcceptanceTests = {
             path: 'nuget-app-2.1',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls nuget plugin',
       );
@@ -131,6 +135,7 @@ export const NugetTests: AcceptanceTests = {
     '`test nuget-app-4 auto-detects packages.config`': (
       params,
       utils,
+      config,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -176,14 +181,17 @@ export const NugetTests: AcceptanceTests = {
             path: 'nuget-app-4',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls nuget plugin',
       );
     },
 
-    '`test nuget-app --file=project.assets.json`': (params, utils) => async (
-      t,
-    ) => {
+    '`test nuget-app --file=project.assets.json`': (
+      params,
+      utils,
+      config,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -230,12 +238,17 @@ export const NugetTests: AcceptanceTests = {
             path: 'nuget-app',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls nuget plugin',
       );
     },
 
-    '`test nuget-app --file=packages.config`': (params, utils) => async (t) => {
+    '`test nuget-app --file=packages.config`': (
+      params,
+      utils,
+      config,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -282,12 +295,15 @@ export const NugetTests: AcceptanceTests = {
             path: 'nuget-app',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls nuget plugin',
       );
     },
 
-    '`test nuget-app --file=project.json`': (params, utils) => async (t) => {
+    '`test nuget-app --file=project.json`': (params, utils, config) => async (
+      t,
+    ) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -334,6 +350,7 @@ export const NugetTests: AcceptanceTests = {
             path: 'nuget-app',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls nuget plugin',
       );
@@ -342,6 +359,7 @@ export const NugetTests: AcceptanceTests = {
     '`test paket-app auto-detects paket.dependencies`': (
       params,
       utils,
+      config,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -387,6 +405,7 @@ export const NugetTests: AcceptanceTests = {
             path: 'paket-app',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls nuget plugin',
       );
@@ -395,6 +414,7 @@ export const NugetTests: AcceptanceTests = {
     '`test paket-obj-app auto-detects obj/project.assets.json if exists`': (
       params,
       utils,
+      config,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -440,14 +460,17 @@ export const NugetTests: AcceptanceTests = {
             path: 'paket-obj-app',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls nuget plugin',
       );
     },
 
-    '`test paket-app --file=paket.dependencies`': (params, utils) => async (
-      t,
-    ) => {
+    '`test paket-app --file=paket.dependencies`': (
+      params,
+      utils,
+      config,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -494,6 +517,7 @@ export const NugetTests: AcceptanceTests = {
             path: 'paket-app',
             showVulnPaths: 'some',
           },
+          config,
         ],
         'calls nuget plugin',
       );
