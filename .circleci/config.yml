@@ -573,6 +573,25 @@ jobs:
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
+        name: Make sure that this is the release scheduled pipeline or manually invoked
+        command: |
+          if [ << pipeline.trigger_source >> == "scheduled_pipeline" ]; then
+            echo "This is a scheduled pipeline."
+            
+            # Now make sure it's the specific scheduled pipeline we want (i.e. `hammer-scheduled-release`)
+            if [ << pipeline.schedule.name >> != "hammer-scheduled-release" ]; then
+              echo "Early stop because this is a scheduled pipeline but the release one"
+              circleci-agent step halt
+            else
+              echo "This the release scheduled pipeline that we want. Continuing."
+            fi
+          elif [ << pipeline.trigger_source >> == "api" ]; then  # this will be the case when it is manually invoked
+            echo "This workflow run has been manually invoked. Continuing."
+          else
+            echo "Early stop because this workflow run is not a scheduled pipeline"
+            circleci-agent step halt
+          fi
+      - run:
           name: Ensure master branch
           command: |
             if [ "$CIRCLE_BRANCH" != "master" ]; then
@@ -1080,9 +1099,9 @@ workflows:
             - Build (snyk-for-docker-desktop-darwin-arm64.tar.gz)
             - Build (docker-mac-signed-bundle.tar.gz)
             - v2 / Prepare Release
-      - should-release:
-          name: Release?
-          type: approval
+      - release:
+          name: Release
+          context: nodejs-app-release
           requires:
             - Prepare Release
             - Lint
@@ -1095,15 +1114,6 @@ workflows:
             - Acceptance Tests (snyk-linux)
             - Acceptance Tests (snyk-linux-arm64)
             - Regression Tests (snyk-linux)
-          filters:
-            branches:
-              only:
-                - master
-      - release:
-          name: Release
-          context: nodejs-app-release
-          requires:
-            - Release?
           filters:
             branches:
               only:
