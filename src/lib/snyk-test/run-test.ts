@@ -67,6 +67,7 @@ import { assembleEcosystemPayloads } from './assemble-payloads';
 import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
+import { jsonStringifyLargeObject } from '../../lib/json';
 
 const debug = debugModule('snyk:run-test');
 
@@ -675,6 +676,25 @@ async function assembleLocalPayloads(
       const originalProjectName = scannedProject.depGraph
         ? (pkg as depGraphLib.DepGraph).rootPkg.name
         : (pkg as DepTree).name;
+
+      // print graph if required
+      if (options['print-graph'] && !options['print-deps']) {
+        await spinner.clear<void>(spinnerLbl)();
+        let root: depGraphLib.DepGraph;
+        if (scannedProject.depGraph) {
+          root = pkg as depGraphLib.DepGraph;
+        } else {
+          let tempDepTree = pkg as DepTree;
+          root = await depGraphLib.legacy.depTreeToGraph(
+            tempDepTree,
+            packageManager ? packageManager : '',
+          );
+        }
+
+        console.log('DepGraph data:');
+        console.log(jsonStringifyLargeObject(root.toJSON()));
+        console.log('DepGraph target:\n' + targetFile + '\nDepGraph end');
+      }
 
       const body: PayloadBody = {
         // WARNING: be careful changing this as it affects project uniqueness
