@@ -1,4 +1,5 @@
 import * as snykConfig from 'snyk-config';
+import { getAuthHeader } from '../api-token';
 import { config as userConfig } from '../user-config';
 import { getBaseApiUrl, getRestApiUrl, getV1ApiUrl } from './api-url';
 
@@ -25,6 +26,7 @@ interface Config {
   IAC_BUNDLE_PATH?: string;
   IAC_POLICY_ENGINE_PATH?: string;
   PUBLIC_VULN_DB_URL: string;
+  API_REST_AUTH_HEADER: string;
 }
 
 // TODO: fix the types!
@@ -79,3 +81,6 @@ if (!config.ROOT) {
 config.PUBLIC_VULN_DB_URL = 'https://security.snyk.io';
 
 export default config;
+
+// Note: after export to avoid circular imports
+config.API_REST_AUTH_HEADER = getAuthHeader();
