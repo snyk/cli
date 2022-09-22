@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as cli from '../../src/cli/commands';
-import config from '../../src/lib/config';
 import { fakeServer } from '../acceptance/fake-server';
 import * as subProcess from '../../src/lib/sub-process';
 import { getVersion } from '../../src/lib/version';
@@ -42,6 +41,7 @@ import { DepGraphBuilder } from '@snyk/dep-graph';
 import * as depGraphLib from '@snyk/dep-graph';
 import { getFixturePath } from '../jest/util/getFixturePath';
 import { getWorkspacePath } from '../jest/util/getWorkspacePath';
+import config from '../../src/lib/config';
 
 /*
   TODO: enable these tests, once we switch from node-tap
