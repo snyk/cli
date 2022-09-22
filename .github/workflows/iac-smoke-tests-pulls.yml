@@ -84,9 +84,11 @@ jobs:
 
           echo "::set-output name=is_changed::$IS_CHANGED"
 
-  run_iac_smoke_tests:
-    name: Run IaC smoke tests
+  run_iac_smoke_tests_pulls:
+    name: Run IaC smoke tests (Pull Requests)
     uses: ./.github/workflows/iac-smoke-tests.yml
     needs: check_for_changed_iac_files
     if: ${{ needs.check_for_changed_iac_files.outputs.is_changed == 'true' }}
     secrets: inherit
+    with:
+      is_skip_alert: true

@@ -6,9 +6,15 @@ on:
   release:
     types: [published]
   workflow_call:
+    inputs:
+      is_skip_alert:
+        type: boolean
+        required: true
+        default: false
 
 jobs:
-  run_iac_e2e_tests:
+  run_iac_smoke_tests:
+    name: Run IaC smoke tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -22,9 +28,10 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 15
+          node-version: 16.16.0
 
       - name: Install jq on macOS
+        id: test
         if: ${{ matrix.os == 'macos' }}
         run: |
           brew install jq
@@ -47,9 +54,10 @@ jobs:
 
       - name: Build Snyk CLI
         run: |
-          npm run build
+          npm run build:prod
 
       - name: Run IaC smoke tests - non-Windows
+        id: run_smoke_tests_non_windows
         if: ${{ matrix.os != 'windows' }}
         env:
           IAC_SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.IAC_SMOKE_TESTS_SNYK_TOKEN }}
@@ -58,6 +66,7 @@ jobs:
           npx jest --runInBand --testPathPattern '/test/smoke(/jest)?/iac/'
 
       - name: Run IaC smoke tests - Windows
+        id: run_smoke_tests_windows
         if: ${{ matrix.os == 'windows' }}
         shell: pwsh
         env:
@@ -65,3 +74,25 @@ jobs:
           TEST_SNYK_COMMAND: ${{ format('node {0}\dist\cli\index.js', github.workspace) }}
         run: |
           npx jest --runInBand --testPathPattern '/test/smoke(/jest)?/iac/'
+
+  trigger_iac_cli_alert:
+    name: Alert for failed IaC smoke tests
+    needs: [run_iac_smoke_tests]
+    if: ${{ failure() && !inputs.is_skip_alert && needs.run_iac_smoke_tests.result == 'failures' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./packages/iac-cli-alert
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.16.0'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm start
+        env:
+          IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL: ${{ secrets.IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL }}
+          IAC_SMOKE_TESTS_OS: ${{ matrix.os }}
