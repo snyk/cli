@@ -1246,6 +1246,7 @@ if (!isWindows) {
           packageManager: 'pip',
           path: 'pip-app',
         },
+        config,
       ],
       'calls plugin for the 2nd path',
     );
