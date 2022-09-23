@@ -225,7 +225,8 @@ export type SupportedUserReachableFacingCliArgs =
   | 'sub-project'
   | 'trust-policies'
   | 'yarn-workspaces'
-  | 'maven-aggregate-project';
+  | 'maven-aggregate-project'
+  | 'gradle-normalize-deps';
 
 export enum SupportedCliCommands {
   version = 'version',
