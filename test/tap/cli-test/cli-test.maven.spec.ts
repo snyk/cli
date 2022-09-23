@@ -65,6 +65,7 @@ export const MavenTests: AcceptanceTests = {
     '`test maven-app-with-jars --file=example.jar` sends package info': (
       params,
       utils,
+      snykHttpClient,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -109,6 +110,7 @@ export const MavenTests: AcceptanceTests = {
             path: 'maven-app-with-jars',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls mvn plugin',
       );
@@ -117,6 +119,7 @@ export const MavenTests: AcceptanceTests = {
     '`test maven-app-with-jars --file=example.war` sends package info': (
       params,
       utils,
+      snykHttpClient,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -161,6 +164,7 @@ export const MavenTests: AcceptanceTests = {
             path: 'maven-app-with-jars',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls mvn plugin',
       );
@@ -169,6 +173,7 @@ export const MavenTests: AcceptanceTests = {
     '`test maven-app-with-jars --scan-all-unmanaged` sends package info': (
       params,
       utils,
+      snykHttpClient,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -211,6 +216,7 @@ export const MavenTests: AcceptanceTests = {
             showVulnPaths: 'some',
             scanAllUnmanaged: true,
           },
+          snykHttpClient,
         ],
         'calls mvn plugin',
       );

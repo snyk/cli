@@ -5,9 +5,11 @@ import { AcceptanceTests } from '../cli-test.acceptance.test';
 export const ComposerTests: AcceptanceTests = {
   language: 'Composer',
   tests: {
-    '`test composer-app --file=composer.lock`': (params, utils) => async (
-      t,
-    ) => {
+    '`test composer-app --file=composer.lock`': (
+      params,
+      utils,
+      snykHttpClient,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -49,14 +51,17 @@ export const ComposerTests: AcceptanceTests = {
             path: 'composer-app',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls composer plugin',
       );
     },
 
-    '`test composer-app` auto-detects composer.lock': (params, utils) => async (
-      t,
-    ) => {
+    '`test composer-app` auto-detects composer.lock': (
+      params,
+      utils,
+      snykHttpClient,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -96,14 +101,17 @@ export const ComposerTests: AcceptanceTests = {
             path: 'composer-app',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls composer plugin',
       );
     },
 
-    '`test composer-app --file=composer.lock --dev`': (params, utils) => async (
-      t,
-    ) => {
+    '`test composer-app --file=composer.lock --dev`': (
+      params,
+      utils,
+      snykHttpClient,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -147,6 +155,7 @@ export const ComposerTests: AcceptanceTests = {
             path: 'composer-app',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls composer plugin',
       );
@@ -155,6 +164,7 @@ export const ComposerTests: AcceptanceTests = {
     '`test composer-app golang-app nuget-app` auto-detects all three projects': (
       params,
       utils,
+      snykHttpClient,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -223,6 +233,7 @@ export const ComposerTests: AcceptanceTests = {
             path: 'composer-app',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls composer plugin',
       );
@@ -240,6 +251,7 @@ export const ComposerTests: AcceptanceTests = {
             path: 'golang-app',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls golangdep plugin',
       );
@@ -257,6 +269,7 @@ export const ComposerTests: AcceptanceTests = {
             path: 'nuget-app',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls nuget plugin',
       );

@@ -65,6 +65,7 @@ const after = tap.runOnly ? only : test;
 // Should be after `process.env` setup.
 import * as plugins from '../../src/lib/plugins/index';
 import * as ecoSystemPlugins from '../../src/lib/ecosystems/plugins';
+import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
 
 /*
   TODO: enable these tests, once we switch from node-tap
@@ -134,6 +135,7 @@ test('Languages', async (t) => {
           languageTest.tests[testName](
             { server, plugins, ecoSystemPlugins, versionNumber, cli },
             { chdirWorkspaces },
+            snykHttpClient,
           ),
         );
         server.restore();

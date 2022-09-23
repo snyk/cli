@@ -5,7 +5,9 @@ import * as depGraphLib from '@snyk/dep-graph';
 export const ElixirTests: AcceptanceTests = {
   language: 'Elixir',
   tests: {
-    '`test elixir --file=mix.exs`': (params, utils) => async (t) => {
+    '`test elixir --file=mix.exs`': (params, utils, snykHttpClient) => async (
+      t,
+    ) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -52,12 +54,17 @@ export const ElixirTests: AcceptanceTests = {
             path: 'elixir-hex',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls golang plugin',
       );
     },
 
-    '`test elixir-hex` auto-detects hex': (params, utils) => async (t) => {
+    '`test elixir-hex` auto-detects hex': (
+      params,
+      utils,
+      snykHttpClient,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -103,6 +110,7 @@ export const ElixirTests: AcceptanceTests = {
             path: 'elixir-hex',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls elixir-hex plugin',
       );

@@ -10,6 +10,7 @@ export function ModuleInfo(plugin, policy) {
       root,
       targetFile,
       options,
+      snykHttpClient,
     ): Promise<pluginApi.SinglePackageResult | pluginApi.MultiProjectResult> {
       const pluginOptions = merge(
         {
@@ -19,7 +20,12 @@ export function ModuleInfo(plugin, policy) {
       );
 
       debug('calling plugin inspect()', { root, targetFile, pluginOptions });
-      const info = await plugin.inspect(root, targetFile, pluginOptions);
+      const info = await plugin.inspect(
+        root,
+        targetFile,
+        pluginOptions,
+        snykHttpClient,
+      );
       debug('plugin inspect() done');
 
       // attach policy if not provided by plugin

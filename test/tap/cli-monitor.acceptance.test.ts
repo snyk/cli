@@ -41,6 +41,7 @@ import { DepGraphBuilder } from '@snyk/dep-graph';
 import * as depGraphLib from '@snyk/dep-graph';
 import { getFixturePath } from '../jest/util/getFixturePath';
 import { getWorkspacePath } from '../jest/util/getWorkspacePath';
+import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
 
 /*
   TODO: enable these tests, once we switch from node-tap
@@ -927,6 +928,7 @@ if (!isWindows) {
           packageManager: 'pip',
           path: 'pip-app',
         },
+        snykHttpClient,
       ],
       'calls python plugin',
     );
@@ -990,6 +992,7 @@ if (!isWindows) {
           packageManager: 'pip',
           path: 'pip-app',
         },
+        snykHttpClient,
       ],
       'calls python plugin',
     );
@@ -1042,6 +1045,7 @@ if (!isWindows) {
           file: 'build.gradle',
           path: 'gradle-app',
         },
+        snykHttpClient,
       ],
       'calls gradle plugin',
     );
@@ -1111,6 +1115,7 @@ if (!isWindows) {
           packageManager: 'gradle',
           path: 'gradle-app',
         },
+        snykHttpClient,
       ],
       'calls gradle plugin',
     );
@@ -1170,6 +1175,7 @@ if (!isWindows) {
           packageManager: 'gradle',
           path: 'gradle-app',
         },
+        snykHttpClient,
       ],
       'calls gradle plugin',
     );
@@ -1224,6 +1230,7 @@ if (!isWindows) {
           packageManager: 'gradle',
           path: 'gradle-app',
         },
+        snykHttpClient,
       ],
       'calls plugin for the 1st path',
     );
@@ -1239,6 +1246,7 @@ if (!isWindows) {
           packageManager: 'pip',
           path: 'pip-app',
         },
+        snykHttpClient,
       ],
       'calls plugin for the 2nd path',
     );
@@ -1316,6 +1324,7 @@ if (!isWindows) {
           packageManager: 'gomodules',
           path: 'golang-gomodules',
         },
+        snykHttpClient,
       ],
       'calls golang plugin',
     );
@@ -1364,6 +1373,7 @@ if (!isWindows) {
           packageManager: 'golangdep',
           path: 'golang-app',
         },
+        snykHttpClient,
       ],
       'calls golang plugin',
     );
@@ -1412,6 +1422,7 @@ if (!isWindows) {
           packageManager: 'govendor',
           path: 'golang-app',
         },
+        snykHttpClient,
       ],
       'calls golang plugin',
     );
@@ -1458,6 +1469,7 @@ if (!isWindows) {
           packageManager: 'cocoapods',
           path: './',
         },
+        snykHttpClient,
       ],
       'calls CocoaPods plugin',
     );
@@ -1506,6 +1518,7 @@ if (!isWindows) {
           packageManager: 'cocoapods',
           path: './',
         },
+        snykHttpClient,
       ],
       'calls CocoaPods plugin',
     );
@@ -1560,6 +1573,7 @@ if (!isWindows) {
           packageManager: 'cocoapods',
           path: './',
         },
+        snykHttpClient,
       ],
       'calls CocoaPods plugin',
     );
