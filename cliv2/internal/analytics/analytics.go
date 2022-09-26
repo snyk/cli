@@ -9,8 +9,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/user"
 	"regexp"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-uuid"
@@ -196,6 +198,15 @@ func (a *Analytics) GetRequest() (*http.Request, error) {
 		return nil, err
 	}
 
+	user, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+	outputJson, err = SanitizeUsername(user.Username, sanitize_replacement_string, outputJson)
+	if err != nil {
+		return nil, err
+	}
+
 	analyticsUrl, _ := url.Parse(a.apiUrl + api_endpoint)
 	if len(a.org) > 0 {
 		query := url.Values{}
@@ -246,4 +257,27 @@ func SanitizeValuesByKey(keysToFilter []string, replacementValue string, content
 		content = r.ReplaceAll(content, []byte("${1}${4}${7}"+replacementValue+"${5}${8}"))
 	}
 	return content, nil
+}
+
+func SanitizeUsername(rawUserName string, replacementValue string, content []byte) ([]byte, error) {
+	contentStr := string(content)
+	contentStr = strings.ReplaceAll(contentStr, rawUserName, replacementValue)
+
+	if strings.Contains(rawUserName, "\\") {
+		segments := strings.Split(rawUserName, "\\")
+		segmentsLen := len(segments)
+		if segmentsLen < 2 {
+			// this should never happen because we already checked for the existence of a backslash
+			return nil, fmt.Errorf("could not sanitize username")
+		} else if segmentsLen == 2 {
+			simpleUsername := segments[1]
+			contentStr = strings.ReplaceAll(contentStr, simpleUsername, replacementValue)
+		} else {
+			// don't recognize this format
+			fmt.Println(segments)
+			return nil, fmt.Errorf("could not sanitize username - unrecognized format")
+		}
+	}
+
+	return []byte(contentStr), nil
 }
