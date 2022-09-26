@@ -293,7 +293,6 @@ export async function runTest(
     }
 
     return await sendAndParseResults(payloads, spinnerLbl, root, options);
-    
   } catch (error) {
     debug('Error running test', { error });
     // handling denial from registry because of the feature flag
