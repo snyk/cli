@@ -2,7 +2,7 @@ import { run } from '../../jest/acceptance/iac/helpers';
 
 jest.setTimeout(1_000 * 90);
 
-describe('snyk iac test --experimental', () => {
+describe('snyk iac test', () => {
   beforeAll(async () => {
     await login();
   });
@@ -12,9 +12,7 @@ describe('snyk iac test --experimental', () => {
     const filePath = 'iac/depth_detection/root.tf';
 
     // Act
-    const { stderr, stdout, exitCode } = await run(
-      `snyk iac test --experimental ${filePath}`,
-    );
+    const { stderr, stdout, exitCode } = await run(`snyk iac test ${filePath}`);
 
     // Assert
     expect(stdout).toContain('Infrastructure as Code');

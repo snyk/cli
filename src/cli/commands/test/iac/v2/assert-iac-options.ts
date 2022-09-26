@@ -26,7 +26,6 @@ const keys: (keyof IaCTestFlags)[] = [
   'json-file-output',
   'sarif-file-output',
   'scan',
-  'experimental',
   'var-file',
   'detectionDepth',
   'cloud-context',

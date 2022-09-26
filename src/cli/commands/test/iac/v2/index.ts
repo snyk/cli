@@ -14,6 +14,7 @@ import { getFlag } from '../index';
 import { IaCTestFlags } from '../local-execution/types';
 import { findAndLoadPolicy } from '../../../../../lib/policy';
 import { assertIacV2Options } from './assert-iac-options';
+import { UnsupportedEntitlementError } from '../../../../../lib/errors/unsupported-entitlement-error';
 
 export async function test(
   paths: string[],
@@ -22,6 +23,10 @@ export async function test(
   assertIacV2Options(options);
   const testConfig = await prepareTestConfig(paths, options);
   const { orgSettings } = testConfig;
+
+  if (!orgSettings.entitlements?.infrastructureAsCode) {
+    throw new UnsupportedEntitlementError('infrastructureAsCode');
+  }
 
   const testSpinner = buildSpinner(options);
 

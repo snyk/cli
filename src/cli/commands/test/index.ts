@@ -58,10 +58,7 @@ export default async function test(
   const options = setDefaultTestOptions(originalOptions);
   if (originalOptions.iac) {
     // temporary placeholder for the "new" flow that integrates with UPE
-    if (
-      (await hasFeatureFlag('iacCliUnifiedEngine', options)) &&
-      options.experimental
-    ) {
+    if (await hasFeatureFlag('iacIntegratedExperience', options)) {
       return await iacTestCommandV2.test(paths, originalOptions);
     } else {
       return await iacTestCommand(...args);
