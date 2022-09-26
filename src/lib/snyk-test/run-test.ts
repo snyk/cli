@@ -286,9 +286,14 @@ export async function runTest(
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
     const payloads = await assemblePayloads(root, options);
-    //return await sendAndParseResults(payloads, spinnerLbl, root, options);
-    const results: TestResult[] = [];
-    return results;
+
+    if (options['print-graph'] && !options['print-deps']) {
+      const results: TestResult[] = [];
+      return results;
+    }
+
+    return await sendAndParseResults(payloads, spinnerLbl, root, options);
+    
   } catch (error) {
     debug('Error running test', { error });
     // handling denial from registry because of the feature flag
