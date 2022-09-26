@@ -10,7 +10,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func sbomFunc(cmd *cobra.Command, args []string) error {
+type depGraph struct {
+	targetName   string
+	depGraphJson []byte
+}
+
+type sbomInvocation struct {
+	depGraph     depGraph
+	sbomResponse []byte
+}
+
+func depGraphWorkflow() (error, interface{}) {
+	var depGraphList []depGraph
+
 	targetPath := ".."
 	snykCmd := "node"
 	snykCmdArguments := []string{"../dist/cli/index.js", "test", "--print-graph", "--json", "--all-projects", targetPath}
@@ -19,25 +31,15 @@ func sbomFunc(cmd *cobra.Command, args []string) error {
 	jsonSeparatorData := []byte("DepGraph data:")
 	jsonSeparatorTarget := []byte("DepGraph target:")
 
-	type sbomInvocation struct {
-		targetName   string
-		depGraphJson []byte
-		sbomResponse []byte
-	}
-
-	var requestList []sbomInvocation
-
 	snykCommand := exec.Command(snykCmd, snykCmdArguments...)
 	snykOutput, err := snykCommand.Output()
 	if err != nil {
-		//fmt.Println(string(snykOutput))
 		fmt.Println(err)
-		//return err
 	}
 
 	snykOutputLength := len(snykOutput)
 	if snykOutputLength <= 0 {
-		return fmt.Errorf("No dependency graphs found")
+		return fmt.Errorf("No dependency graphs found"), nil
 	}
 
 	separatedJsonRawData := bytes.Split(snykOutput, jsonSeparatorEnd)
@@ -52,15 +54,54 @@ func sbomFunc(cmd *cobra.Command, args []string) error {
 			targetName := rawData[targetNameStartIndex:targetNameEndIndex]
 			depGraphJson := rawData[graphStartIndex:graphEndIndex]
 
-			requestList = append(requestList, sbomInvocation{
+			depGraphList = append(depGraphList, depGraph{
 				targetName:   strings.TrimSpace(string(targetName)),
 				depGraphJson: depGraphJson,
 			})
 		}
 	}
 
-	for i := range requestList {
-		fmt.Printf("Calling SBOM API for target '%s'\n", requestList[i].targetName)
+	return nil, depGraphList
+}
+
+func sbomWorkflow(cmd *cobra.Command, args []string) (error, interface{}) {
+	var sbomList []sbomInvocation
+
+	err, temp := depGraphWorkflow()
+	if err != nil {
+		return err, nil
+	}
+
+	depGraphList, ok := temp.([]depGraph)
+	if !ok {
+		return fmt.Errorf("Failed to reaid DepGraph results"), nil
+	}
+
+	for i := range depGraphList {
+		fmt.Printf("(TODO) Calling SBOM API for target '%s' \n", depGraphList[i].targetName)
+
+		sbomList = append(sbomList, sbomInvocation{
+			depGraph:     depGraphList[i],
+			sbomResponse: []byte("Coming soon!"),
+		})
+	}
+
+	return nil, sbomList
+}
+
+func output(cmd *cobra.Command, args []string) error {
+	err, result := sbomWorkflow(cmd, args)
+	if err != nil {
+		return err
+	}
+
+	sbomList, ok := result.([]sbomInvocation)
+	if !ok {
+		return fmt.Errorf("Failed to reaid DepGraph results")
+	}
+
+	for i := range sbomList {
+		fmt.Printf("(TODO) Writing SBOM for target '%s'\n", sbomList[i].depGraph.targetName)
 	}
 
 	return nil
@@ -69,7 +110,7 @@ func sbomFunc(cmd *cobra.Command, args []string) error {
 func main() {
 	rootCommand := cobra.Command{
 		Use:  "sbom",
-		RunE: sbomFunc,
+		RunE: output,
 	}
 
 	err := rootCommand.Execute()
