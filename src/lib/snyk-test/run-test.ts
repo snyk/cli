@@ -690,7 +690,7 @@ async function assembleLocalPayloads(
         if (scannedProject.depGraph) {
           root = pkg as depGraphLib.DepGraph;
         } else {
-          let tempDepTree = pkg as DepTree;
+          const tempDepTree = pkg as DepTree;
           root = await depGraphLib.legacy.depTreeToGraph(
             tempDepTree,
             packageManager ? packageManager : '',
