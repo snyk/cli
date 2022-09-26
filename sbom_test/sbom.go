@@ -78,7 +78,7 @@ func sbomWorkflow(cmd *cobra.Command, args []string) (error, interface{}) {
 	}
 
 	for i := range depGraphList {
-		fmt.Printf("(TODO) Calling SBOM API for target '%s' \n", depGraphList[i].targetName)
+		fmt.Printf("(TODO) Calling SBOM API for target '%s' (DepGraph Size: %.2f[KB])\n", depGraphList[i].targetName, (float64(len(depGraphList[i].depGraphJson)) / 1024.0))
 
 		sbomList = append(sbomList, sbomInvocation{
 			depGraph:     depGraphList[i],
