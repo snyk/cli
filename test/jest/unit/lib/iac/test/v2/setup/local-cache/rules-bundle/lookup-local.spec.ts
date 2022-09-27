@@ -36,14 +36,14 @@ describe('lookupLocalRulesBundle', () => {
     await lookupLocalRulesBundle(testConfig);
 
     // Assert
-    expect(lookupLocalySpy).toBeCalledWith(
+    expect(lookupLocalySpy).toHaveBeenCalledWith(
       testConfig.iacCachePath,
       rulesBundleName,
       undefined,
       expect.any(Function),
     );
-    expect(isFileSpy).toBeCalledWith(cachedRulesBundlePath);
-    expect(isArchiveSpy).toBeCalledWith(cachedRulesBundlePath);
+    expect(isFileSpy).toHaveBeenCalledWith(cachedRulesBundlePath);
+    expect(isArchiveSpy).toHaveBeenCalledWith(cachedRulesBundlePath);
   });
 
   it('returns undefined when the rules bundle is not present locally', async () => {

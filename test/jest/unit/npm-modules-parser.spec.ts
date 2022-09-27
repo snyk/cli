@@ -1,10 +1,8 @@
-import { mocked } from 'ts-jest/utils';
-
 import { parse } from '../../../src/lib/plugins/nodejs-plugin/npm-modules-parser';
 import { getFileContents } from '../../../src/lib/get-file-contents';
 
 jest.mock('../../../src/lib/get-file-contents');
-const mockedGetFileContents = mocked(getFileContents, true);
+const mockedGetFileContents = jest.mocked(getFileContents, { shallow: true });
 
 afterEach(() => {
   jest.clearAllMocks();

@@ -209,7 +209,7 @@ describe('test', () => {
   describe('with issues', () => {
     it('throws the expected error', async () => {
       // Act + Assert
-      await expect(test(['path/to/test'], {})).rejects.toThrowError(
+      await expect(test(['path/to/test'], {})).rejects.toThrow(
         FoundIssuesError,
       );
     });

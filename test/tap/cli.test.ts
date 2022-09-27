@@ -61,7 +61,7 @@ before('setup', async (t) => {
   oldEndPoint = endPointKey; // just in case
   t.pass('existing user endpoint captured');
 
-  await new Promise((resolve) => server.listen(port, resolve));
+  await new Promise<void>((resolve) => server.listen(port, resolve));
 });
 
 before('prime config', async (t) => {

@@ -37,7 +37,7 @@ before('setup', async (t) => {
   oldendpoint = key; // just in case
   t.pass('existing user endpoint captured');
 
-  await new Promise((resolve) => server.listen(port, resolve));
+  await new Promise<void>((resolve) => server.listen(port, resolve));
   t.pass('started demo server');
 });
 

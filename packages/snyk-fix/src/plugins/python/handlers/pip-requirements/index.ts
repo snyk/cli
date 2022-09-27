@@ -234,7 +234,7 @@ function filterOutAppliedUpgrades(
   const normalizedAppliedRemediation = upgradeChanges
     .map((c) => {
       if (c.success && c.from) {
-        const [pkgName, versionAndMore] = c.from?.split('@');
+        const [pkgName, versionAndMore] = c.from.split('@');
         return `${standardizePackageName(pkgName)}@${versionAndMore}`;
       }
       return false;

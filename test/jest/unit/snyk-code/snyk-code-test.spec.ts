@@ -85,9 +85,7 @@ describe('Test snyk code', () => {
         code: true,
         ...options,
       }),
-    ).rejects.toThrowError(
-      /Authentication failed. Please check the API token on/,
-    );
+    ).rejects.toThrow(/Authentication failed. Please check the API token on/);
   });
 
   it('should fail - when we do not support files', async () => {
@@ -610,7 +608,7 @@ describe('Test snyk code', () => {
       // exit code 1
       expect(error.code).toBe('VULNS');
       expect(errMessage).toBe(expectedOutput);
-      expect(analyticSend).toBeCalledTimes(2);
+      expect(analyticSend).toHaveBeenCalledTimes(2);
     }
   });
 
@@ -858,7 +856,7 @@ describe('Test snyk code', () => {
         sastSettings,
         'test-id',
       ),
-    ).rejects.toThrowError(
+    ).rejects.toThrow(
       'Missing configuration for Snyk Code Local Engine. Refer to our docs on https://docs.snyk.io/products/snyk-code/deployment-options/snyk-code-local-engine/cli-and-ide to learn more',
     );
   });

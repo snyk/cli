@@ -274,7 +274,7 @@ describe('resolve and test facts', () => {
       'project-lifecycle': 'development',
     } as unknown) as Options);
     expect(httpClientSpy).toHaveBeenCalledTimes(1);
-    expect(httpClientSpy).toBeCalledWith(
+    expect(httpClientSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         body: expect.objectContaining({
           tags: [

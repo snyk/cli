@@ -15,7 +15,7 @@ export async function startMockServer() {
   const server = fakeServer(BASE_API, SNYK_TOKEN);
 
   // Use port of 0 to find a free port.
-  await new Promise((resolve) => server.listen(0, resolve));
+  await new Promise<void>((resolve) => server.listen(0, resolve));
 
   const SNYK_HOST = 'http://localhost:' + server.getPort();
   const SNYK_API = SNYK_HOST + BASE_API;
@@ -37,7 +37,7 @@ export async function startMockServer() {
       overrides?: Record<string, string>,
       cwd?: string,
     ) => run(cmd, { ...env, ...overrides }, cwd),
-    teardown: async () => new Promise((resolve) => server.close(resolve)),
+    teardown: async () => new Promise<void>((resolve) => server.close(resolve)),
     apiUrl: SNYK_API,
   };
 }

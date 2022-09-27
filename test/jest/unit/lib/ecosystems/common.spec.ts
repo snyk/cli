@@ -26,7 +26,7 @@ describe('handleProcessingStatus fn', () => {
     ({ actual, expected }) => {
       expect(() => {
         handleProcessingStatus({ status: actual } as any);
-      }).toThrowError(new FailedToRunTestError(expected));
+      }).toThrow(new FailedToRunTestError(expected));
     },
   );
 });

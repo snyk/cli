@@ -10,6 +10,11 @@ const createJestConfig = (config) => {
   ];
 
   return {
+    snapshotFormat: {
+      // Jest 29 changed these defaults, see: https://jestjs.io/docs/upgrading-to-jest29#snapshot-format
+      escapeString: true,
+      printBasicPrototype: true,
+    },
     preset: 'ts-jest',
     testRegex: '\\.spec\\.ts$',
     testPathIgnorePatterns: [...ignorePatterns],
