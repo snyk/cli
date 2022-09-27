@@ -12,9 +12,10 @@ import {
 } from '../../lib/iac/drift';
 import { Policy } from '../../lib/policy/find-and-load-policy';
 import * as analytics from '../../lib/analytics';
+import { GenDriftIgnoreOptions } from '../../lib/iac/types';
 
 export default async (...args: MethodArgs): Promise<any> => {
-  const { options } = processCommandArgs(...args);
+  const { options } = processCommandArgs<GenDriftIgnoreOptions>(...args);
 
   // Ensure that this update-exclude-policy command can only be runned when using `snyk iac update-exclude-policy`
   // Avoid `snyk update-exclude-policy` direct usage

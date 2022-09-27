@@ -25,13 +25,13 @@ describe('hasFeatureFlag fn', () => {
 
     await expect(
       hasFeatureFlag('test-ff', { path: 'test-path' }),
-    ).rejects.toThrowError('Unauthorized');
+    ).rejects.toThrow('Unauthorized');
 
     jest.spyOn(request, 'makeRequest').mockResolvedValue({
       body: { code: 403, error: 'Forbidden', ok: false },
     } as any);
     await expect(
       hasFeatureFlag('test-ff', { path: 'test-path' }),
-    ).rejects.toThrowError('Forbidden');
+    ).rejects.toThrow('Forbidden');
   });
 });

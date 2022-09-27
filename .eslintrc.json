@@ -13,8 +13,7 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "prettier"
   ],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": "off",
@@ -52,7 +51,6 @@
         "jest/no-done-callback": "warn",
         "jest/valid-title": "warn",
         "jest/no-conditional-expect": "warn",
-        "jest/no-try-expect": "warn",
         "jest/no-identical-title": "warn",
         "@typescript-eslint/ban-ts-comment": "warn"
       }

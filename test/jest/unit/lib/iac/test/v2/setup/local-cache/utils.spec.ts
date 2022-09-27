@@ -141,9 +141,7 @@ describe('fetchCacheResource', () => {
       jest.spyOn(requestLib, 'makeRequest').mockRejectedValue(new Error());
 
       // Act + Assert
-      await expect(
-        fetchCacheResource(testCacheResourceUrl),
-      ).rejects.toThrowError();
+      await expect(fetchCacheResource(testCacheResourceUrl)).rejects.toThrow();
     });
   });
   describe('when an error response is received', () => {

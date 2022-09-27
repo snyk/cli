@@ -1,4 +1,3 @@
-import { mocked } from 'ts-jest/utils';
 import { NeedleResponse } from 'needle';
 import test from '../../../../src/cli/commands/test';
 import { loadPlugin } from '../../../../src/lib/plugins/index';
@@ -11,8 +10,8 @@ import { getFixturePath } from '../../util/getFixturePath';
 jest.mock('../../../../src/lib/plugins/index');
 jest.mock('../../../../src/lib/request/request');
 
-const mockedLoadPlugin = mocked(loadPlugin, true);
-const mockedMakeRequest = mocked(makeRequest);
+const mockedLoadPlugin = jest.mocked(loadPlugin, {shallow: true});
+const mockedMakeRequest = jest.mocked(makeRequest);
 
 describe('snyk test for python project', () => {
   afterEach(() => {

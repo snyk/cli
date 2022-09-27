@@ -66,7 +66,7 @@ async function promiseOrCleanup<T>(
 // Returns an array of Registry responses (one per every sub-project scanned), a single response,
 // or an error message.
 export default async function monitor(...args0: MethodArgs): Promise<any> {
-  const { options, paths } = processCommandArgs(...args0);
+  const { options, paths } = processCommandArgs<MonitorOptions>(...args0);
   const results: Array<GoodResult | BadResult> = [];
 
   if (options.id) {
