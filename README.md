@@ -321,6 +321,7 @@ For any security issues or concerns, please see [SECURITY.md](SECURITY.md) file 
 The use of Snyk's API, whether through the use of the 'snyk' npm package or otherwise, is subject to the [Terms & Conditions](https://snyk.co/ucT6N).
 
 ---
-
 Made with 💜 by Snyk
+
 test
+
