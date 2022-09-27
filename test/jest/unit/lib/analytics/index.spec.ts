@@ -20,7 +20,7 @@ describe('analytics module', () => {
       args: argsFrom({}),
     });
 
-    expect(requestSpy).toBeCalledTimes(1);
+    expect(requestSpy).toHaveBeenCalledTimes(1);
     expect(requestSpy.mock.calls[0][0]).not.toHaveProperty(
       'headers.authorization',
     );

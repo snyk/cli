@@ -41,13 +41,13 @@ describe('lookupLocalPolicyEngine', () => {
     await lookupLocalPolicyEngine(testConfig);
 
     // Assert
-    expect(lookupLocalySpy).toBeCalledWith(
+    expect(lookupLocalySpy).toHaveBeenCalledWith(
       testConfig.iacCachePath,
       policyEngineFileName,
       undefined,
       expect.any(Function),
     );
-    expect(isExeSpy).toBeCalledWith(cachedPolicyEnginePath);
+    expect(isExeSpy).toHaveBeenCalledWith(cachedPolicyEnginePath);
   });
 
   it('returns undefined when the policy engine is not present locally', async () => {

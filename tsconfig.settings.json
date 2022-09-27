@@ -19,6 +19,7 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "strict": true,
+    "useUnknownInCatchVariables": false,
     "noImplicitAny": false, // Needed to compile tap and ansi-escapes
     "composite": true
   }

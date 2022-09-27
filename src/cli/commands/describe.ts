@@ -15,9 +15,13 @@ import { findAndLoadPolicy } from '../../lib/policy';
 import { DescribeRequiredArgumentError } from '../../lib/errors/describe-required-argument-error';
 import help from './help';
 import { DCTL_EXIT_CODES, runDriftCTL } from '../../lib/iac/drift/driftctl';
+import { DescribeOptions } from '../../lib/iac/types';
+import { PolicyOptions } from '../../lib/types';
 
 export default async (...args: MethodArgs): Promise<any> => {
-  const { options } = processCommandArgs(...args);
+  const { options } = processCommandArgs<DescribeOptions & PolicyOptions>(
+    ...args,
+  );
 
   // Ensure that this describe command can only be runned when using `snyk iac describe`
   // Avoid `snyk describe` direct usage

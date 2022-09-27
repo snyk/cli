@@ -34,7 +34,7 @@ describe('extractBundle', () => {
     mockBundleStream.end();
 
     await expect(extractBundlePromise).resolves.toEqual(undefined);
-    expect(tarSpy).toBeCalledWith({
+    expect(tarSpy).toHaveBeenCalledWith({
       C: expect.stringMatching(LOCAL_POLICY_ENGINE_DIR),
     });
     expect(receivedBundleData).toEqual('zipped data');
@@ -83,6 +83,6 @@ describe('makeFileAndDirectoryGenerator', () => {
 
   it('throws an error if the path provided is not a directory', () => {
     const it = makeFileAndDirectoryGenerator('missing_path');
-    expect(() => Array.from(it)).toThrowError();
+    expect(() => Array.from(it)).toThrow();
   });
 });

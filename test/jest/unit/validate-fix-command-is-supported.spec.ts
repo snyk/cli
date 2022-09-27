@@ -21,7 +21,7 @@ describe('setDefaultTestOptions', () => {
       .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
       .mockResolvedValue({ ok: false });
     const options = { path: '/', showVulnPaths: 'all' as ShowVulnPaths };
-    await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
+    await expect(validateFixCommandIsSupported(options)).rejects.toThrow(
       '`snyk fix` is not supported',
     );
   });
@@ -31,7 +31,7 @@ describe('setDefaultTestOptions', () => {
       .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
       .mockResolvedValue({ ok: false, code: 401, error: 'Invalid auth token' });
     const options = { path: '/', showVulnPaths: 'all' as ShowVulnPaths };
-    await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
+    await expect(validateFixCommandIsSupported(options)).rejects.toThrow(
       AuthFailedError('Invalid auth token', 401),
     );
   });
@@ -45,7 +45,7 @@ describe('setDefaultTestOptions', () => {
       showVulnPaths: 'all' as ShowVulnPaths,
       unmanaged: true,
     };
-    await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
+    await expect(validateFixCommandIsSupported(options)).rejects.toThrow(
       new FeatureNotSupportedByEcosystemError('snyk fix', 'cpp'),
     );
   });
@@ -59,7 +59,7 @@ describe('setDefaultTestOptions', () => {
       showVulnPaths: 'all' as ShowVulnPaths,
       docker: true,
     };
-    await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
+    await expect(validateFixCommandIsSupported(options)).rejects.toThrow(
       new FeatureNotSupportedByEcosystemError('snyk fix', 'docker'),
     );
   });
@@ -73,7 +73,7 @@ describe('setDefaultTestOptions', () => {
       showVulnPaths: 'all' as ShowVulnPaths,
       code: true,
     };
-    await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
+    await expect(validateFixCommandIsSupported(options)).rejects.toThrow(
       new FeatureNotSupportedByEcosystemError('snyk fix', 'code'),
     );
   });
