@@ -605,19 +605,19 @@ jobs:
               echo "This commit has already been released."
               exit 1
             fi
-      - run:
-          name: Publishing npm packages
-          command: |
-            npm publish ./binary-releases/snyk-fix.tgz
-            npm publish ./binary-releases/snyk-protect.tgz
-            npm publish ./binary-releases/snyk.tgz
-      - run:
-          name: Publishing artifacts
-          command: ./release-scripts/upload-artifacts.sh
-      - run:
-          name: Handling failed release
-          command: ./release-scripts/handle-failed-release.sh
-          when: on_fail
+      # - run:
+      #     name: Publishing npm packages
+      #     command: |
+      #       npm publish ./binary-releases/snyk-fix.tgz
+      #       npm publish ./binary-releases/snyk-protect.tgz
+      #       npm publish ./binary-releases/snyk.tgz
+      # - run:
+      #     name: Publishing artifacts
+      #     command: ./release-scripts/upload-artifacts.sh
+      # - run:
+      #     name: Handling failed release
+      #     command: ./release-scripts/handle-failed-release.sh
+      #     when: on_fail
 
   #
   # Snyk CLI v2 Jobs
@@ -1114,7 +1114,7 @@ workflows:
             - Acceptance Tests (snyk-linux)
             - Acceptance Tests (snyk-linux-arm64)
             - Regression Tests (snyk-linux)
-          filters:
-            branches:
-              only:
-                - master
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
