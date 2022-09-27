@@ -88,7 +88,10 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   // TODO remove once https://github.com/snyk/cli/pull/3433 is merged
-  if (options.docker && !options['app-vulns']) {
+  if (
+    options.docker &&
+    (!options['app-vulns'] || options['exclude-app-vulns'])
+  ) {
     options['exclude-app-vulns'] = true;
   }
 
