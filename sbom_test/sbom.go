@@ -3,6 +3,9 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io/fs"
+	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strings"
@@ -20,12 +23,25 @@ type sbomInvocation struct {
 	sbomResponse []byte
 }
 
-func depGraphWorkflow() (error, interface{}) {
-	var depGraphList []depGraph
+type workflowData struct {
+	identifier *url.URL
+	header     http.Header
+	payload    interface{}
+}
 
-	targetPath := ".."
+func depGraphWorkflow(cmd *cobra.Command, args []string) (error, []workflowData) {
+	var depGraphList []workflowData
+
 	snykCmd := "node"
-	snykCmdArguments := []string{"../dist/cli/index.js", "test", "--print-graph", "--json", "--all-projects", targetPath}
+	snykCmdArguments := []string{"../dist/cli/index.js", "test", "--print-graph", "--json"}
+
+	if allProjects, _ := cmd.Flags().GetBool("all-projects"); allProjects {
+		snykCmdArguments = append(snykCmdArguments, "--all-projects")
+	}
+
+	if len(args) > 0 {
+		snykCmdArguments = append(snykCmdArguments, args[0])
+	}
 
 	jsonSeparatorEnd := []byte("DepGraph end")
 	jsonSeparatorData := []byte("DepGraph data:")
@@ -53,55 +69,87 @@ func depGraphWorkflow() (error, interface{}) {
 
 			targetName := rawData[targetNameStartIndex:targetNameEndIndex]
 			depGraphJson := rawData[graphStartIndex:graphEndIndex]
+			id, _ := url.Parse("did://depgraph/depgraph#2135546")
 
-			depGraphList = append(depGraphList, depGraph{
-				targetName:   strings.TrimSpace(string(targetName)),
-				depGraphJson: depGraphJson,
-			})
+			data := workflowData{
+				identifier: id,
+				header:     http.Header{"mime-type": {"application/json"}},
+				payload: depGraph{
+					targetName:   strings.TrimSpace(string(targetName)),
+					depGraphJson: depGraphJson,
+				},
+			}
+
+			depGraphList = append(depGraphList, data)
 		}
 	}
 
 	return nil, depGraphList
 }
 
-func sbomWorkflow(cmd *cobra.Command, args []string) (error, interface{}) {
-	var sbomList []sbomInvocation
+func sbomWorkflow(cmd *cobra.Command, args []string) (error, []workflowData) {
+	var sbomList []workflowData
 
-	err, temp := depGraphWorkflow()
+	debug, _ := cmd.Flags().GetBool("debug")
+
+	err, depGraphData := depGraphWorkflow(cmd, args)
 	if err != nil {
 		return err, nil
 	}
 
-	depGraphList, ok := temp.([]depGraph)
-	if !ok {
-		return fmt.Errorf("Failed to reaid DepGraph results"), nil
-	}
+	for i := range depGraphData {
+		if depGraphData[i].identifier.Path == "/depgraph" {
+			singleData := depGraphData[i].payload.(depGraph)
 
-	for i := range depGraphList {
-		fmt.Printf("(TODO) Calling SBOM API for target '%s' (DepGraph Size: %.2f[KB])\n", depGraphList[i].targetName, (float64(len(depGraphList[i].depGraphJson)) / 1024.0))
+			if debug {
+				fmt.Printf("(TODO) Calling SBOM API for target '%s' (DepGraph Size: %.2f[KB])\n", singleData.targetName, (float64(len(singleData.depGraphJson)) / 1024.0))
+			}
 
-		sbomList = append(sbomList, sbomInvocation{
-			depGraph:     depGraphList[i],
-			sbomResponse: []byte("Coming soon!"),
-		})
+			sbom := singleData.depGraphJson
+
+			id, _ := url.Parse("did://sbom/cyclonedx#2135546")
+			data := workflowData{
+				identifier: id,
+				header:     http.Header{"mime-type": {"application/json"}},
+				payload:    sbom,
+			}
+
+			sbomList = append(sbomList, data)
+		}
 	}
 
 	return nil, sbomList
 }
 
 func output(cmd *cobra.Command, args []string) error {
-	err, result := sbomWorkflow(cmd, args)
+	err, data := sbomWorkflow(cmd, args)
 	if err != nil {
 		return err
 	}
 
-	sbomList, ok := result.([]sbomInvocation)
-	if !ok {
-		return fmt.Errorf("Failed to reaid DepGraph results")
-	}
+	debug, _ := cmd.Flags().GetBool("debug")
+	printJsonToCmd, _ := cmd.Flags().GetBool("json")
+	writeJsonToFile, _ := cmd.Flags().GetString("json-file-output")
 
-	for i := range sbomList {
-		fmt.Printf("(TODO) Writing SBOM for target '%s'\n", sbomList[i].depGraph.targetName)
+	for i := range data {
+		mimeType := data[i].header["mime-type"][0]
+
+		if mimeType == "application/json" {
+			singleData := data[i].payload.([]byte)
+
+			if printJsonToCmd {
+				fmt.Println(string(singleData))
+			}
+
+			if len(writeJsonToFile) > 0 {
+				if debug {
+					fmt.Printf("Writing '%s' JSON of length %d to '%s'\n", data[i].identifier.Path, len(singleData), writeJsonToFile)
+				}
+
+				os.WriteFile(writeJsonToFile, singleData, fs.FileMode(0577))
+			}
+
+		}
 	}
 
 	return nil
@@ -110,8 +158,14 @@ func output(cmd *cobra.Command, args []string) error {
 func main() {
 	rootCommand := cobra.Command{
 		Use:  "sbom",
+		Args: cobra.MaximumNArgs(1),
 		RunE: output,
 	}
+
+	rootCommand.Flags().Bool("json", false, "Print json output to console")
+	rootCommand.Flags().String("json-file-output", "", "Write json output to file")
+	rootCommand.PersistentFlags().Bool("all-projects", false, "Enable all projects")
+	rootCommand.PersistentFlags().BoolP("debug", "d", false, "Enable debug output")
 
 	err := rootCommand.Execute()
 	if err != nil {
