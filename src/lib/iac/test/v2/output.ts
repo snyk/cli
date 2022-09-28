@@ -29,6 +29,10 @@ import {
   buildShareResultsSummaryV2,
   shouldPrintShareResultsTip,
 } from '../../../../cli/commands/test/iac/output';
+import {
+  colors,
+  contentPadding,
+} from '../../../formatters/iac-output/text/utils';
 
 export function buildOutput({
   scanResult,
@@ -180,6 +184,24 @@ function buildTextOutput({
   if (shouldPrintShareResultsTip(options)) {
     response += SEPARATOR + EOL + shareResultsTip + EOL;
   }
+
+  response += EOL;
+  response += colors.title('Info') + EOL;
+  response += EOL;
+  response +=
+    contentPadding +
+    `Your organization ${orgSettings.meta.org} is using Integrated IaC. To switch to Current IaC,` +
+    EOL;
+  response +=
+    contentPadding +
+    `use --org=<ORG_ID> to select a different organization. For more information about Integrated IaC, see:` +
+    EOL;
+  response += EOL;
+  response +=
+    contentPadding +
+    contentPadding +
+    'https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code/integrated-infrastructure-as-code' +
+    EOL;
 
   return response;
 }
