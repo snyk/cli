@@ -1,6 +1,6 @@
 import { run } from '../../jest/acceptance/iac/helpers';
 
-jest.setTimeout(1_000 * 90);
+jest.setTimeout(1_000 * 120);
 
 describe('snyk iac test --experimental', () => {
   beforeAll(async () => {

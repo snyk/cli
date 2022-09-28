@@ -78,7 +78,7 @@ jobs:
   trigger_iac_cli_alert:
     name: Alert for failed IaC smoke tests
     needs: [run_iac_smoke_tests]
-    if: ${{ failure() && !inputs.is_skip_alert && needs.run_iac_smoke_tests.result == 'failures' }}
+    if: ${{ failure() && !inputs.is_skip_alert && needs.run_iac_smoke_tests.result == 'failure' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -95,4 +95,3 @@ jobs:
       - run: npm start
         env:
           IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL: ${{ secrets.IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL }}
-          IAC_SMOKE_TESTS_OS: ${{ matrix.os }}
