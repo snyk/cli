@@ -147,10 +147,11 @@
       }
     ],
     "metadata": {
-      "projectName": "input-files-for-json-v2",
-      "ignoredCount": 3
+      "projectName": "input-files-for-json-v2"
     },
-    "scanAnalytics": {}
+    "scanAnalytics": {
+      "ignoredCount": 3
+    }
   },
   "errors": [
     {
