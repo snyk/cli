@@ -1,0 +1,31 @@
+// Code derived from: https://github.com/geddy/geddy
+// reference: https://github.com/geddy/geddy/commit/3f1bacd7cfda6556f35563f3e79c60c62aa9d286
+
+// https://github.com/geddy/geddy#license
+/*
+Apache License, Version 2
+
+Geddy Web-app development framework copyright 2112 mde@fleegix.org.
+*/
+
+
+diff --git a/lib/app/index.js b/lib/app/index.js
+index 856fa73..148813f 100644
+--- a/lib/app/index.js
++++ b/lib/app/index.js
+@@ -176,7 +176,14 @@ var App = function () {
+ 
+ 
+     // Get the path to the file, decoding the request URI
+-    staticPath = this.config.staticFilePath + decodeURIComponent(reqUrl);
++    staticPath = path.resolve(path.join(this.config.staticFilePath, decodeURIComponent(reqUrl)));
++
++    // Prevent directory traversal
++    if (staticPath.indexOf(this.config.staticFilePath) !== 0) {
++      this.handleNotFound(reqUrl, params, reqObj, respObj);
++      return;
++    }
++
+     // Ignore querystring
+     staticPath = staticPath.split('?')[0];
+ 

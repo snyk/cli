@@ -1,0 +1,85 @@
+# Derived from https://github.com/TooTallNate/node-https-proxy-agent/pull/76
+# License
+# -------
+
+# (The MIT License)
+
+# Copyright (c) 2013 Nathan Rajlich &lt;nathan@tootallnate.net&gt;
+
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# 'Software'), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+diff --git a/index.js b/index.js
+index 0a2fdab..4008fdc 100644
+--- a/index.js
++++ b/index.js
+@@ -157,17 +157,16 @@ HttpsProxyAgent.prototype.callback = function connect(req, opts, fn) {
+       cleanup();
+       fn(null, sock);
+     } else {
+-      // some other status code that's not 200... need to re-play the HTTP header
+-      // "data" events onto the socket once the HTTP machinery is attached so that
+-      // the user can parse and handle the error status code
++      // We got a bad response to the CONNECT request. Destroy the socket and
++      // return an error.
++      //
++      // If a secure endpoint is targeted, returning a socket without upgrading
++      // it to a TLS connection could result in plaintext secrets leaking to a
++      // network firewall or remote server.
++      buffers = buffered = null;
++      socket.destroy();
+       cleanup();
+-
+-      // save a reference to the concat'd Buffer for the `onsocket` callback
+-      buffers = buffered;
+-
+-      // need to wait for the "socket" event to re-play the "data" events
+-      req.once('socket', onsocket);
+-      fn(null, socket);
++      fn(new Error(`Could not establish connection to proxy server. Status code: ${statusCode}`));
+     }
+   }
+ 
+diff --git a/test/test.js b/test/test.js
+index b368495..a68c7d9 100644
+--- a/test/test.js
++++ b/test/test.js
+@@ -189,7 +189,7 @@ describe('HttpsProxyAgent', function () {
+         });
+       });
+     });
+-    it('should receive the 407 authorization code on the `http.ClientResponse`', function (done) {
++    it('should emit an "error" event on `http.ClientRequest` on proxy 407 authentication required response', function (done) {
+       // set a proxy authentication function for this test
+       proxy.authenticate = function (req, fn) {
+         // reject all requests
+@@ -206,8 +206,11 @@ describe('HttpsProxyAgent', function () {
+       opts.agent = agent;
+ 
+       var req = http.get(opts, function (res) {
+-        assert.equal(407, res.statusCode);
+-        assert('proxy-authenticate' in res.headers);
++        assert.fail('Got an unexpected response with status ' + res.statusCode);
++      });
++      req.once('error', function (err) {
++        assert.equal('Could not establish connection to proxy server. Status code: 407', err.message);
++        req.abort();
+         done();
+       });
+     });

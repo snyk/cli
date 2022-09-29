@@ -1,0 +1,19 @@
+--- a/st.js
++++ b/st.js
+@@ -156,7 +156,15 @@ Mount.prototype.getCacheOptions = function (opt) {
+ 
+ // get a path from a url
+ Mount.prototype.getPath = function (u) {
+-  u = path.normalize(url.parse(u).pathname.replace(/^[\/\\]?/, '/')).replace(/\\/g, '/')
++  var p = url.parse(u).pathname
++
++  p = p.replace(/%2e/ig, '.')
++  p = p.replace(/%2f/ig, '/')
++  p = p.replace(/%5c/ig, '\\')
++  p = p.replace(/^[\/\\]?/g, '/')
++  p = p.replace(/[\/\\]\.\.[\/\\]/g, '/')
++
++  u = path.normalize(p).replace(/\\/g, '/')
+   if (u.indexOf(this.url) !== 0) return false
+ 
+   try {

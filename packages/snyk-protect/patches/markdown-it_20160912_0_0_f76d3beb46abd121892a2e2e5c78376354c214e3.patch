@@ -1,0 +1,83 @@
+// code derived form: https://github.com/markdown-it/markdown-it
+// reference:
+//  https://github.com/markdown-it/markdown-it/commit/f76d3beb46abd121892a2e2e5c78376354c214e3
+
+// https://raw.githubusercontent.com/markdown-it/markdown-it/master/LICENSE
+/*
+
+Copyright (c) 2014 Vitaly Puzrin, Alex Kocharin.
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+*/
+
+diff --git a/lib/index.js b/lib/index.js
+index abc1525..320b983 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -20,20 +20,41 @@ var config = {
+   commonmark: require('./presets/commonmark')
+ };
+
+-
+-var BAD_PROTOCOLS    = [ 'vbscript', 'javascript', 'file' ];
++////////////////////////////////////////////////////////////////////////////////
++//
++// This validator does not pretent to functionality of full weight sanitizers.
++// It's a tradeoff between default security, simplicity and usability.
++// If you need different setup - override validator method as you wish. Or
++// replace it with dummy function and use external sanitizer.
++//
++
++var BAD_PROTOCOLS      = [ 'vbscript', 'javascript', 'file', 'data' ];
++var ALLOWED_DATA_MIMES = [
++  'data:image/gif',
++  'data:image/png',
++  'data:image/jpeg',
++  'data:image/webp'
++];
+
+ function validateLink(url) {
+   // url should be normalized at this point, and existing entities are decoded
+-  //
+-  var str = url.trim().toLowerCase();
+
+-  if (str.indexOf(':') >= 0 && BAD_PROTOCOLS.indexOf(str.split(':')[0]) >= 0) {
++  var str      = url.trim().toLowerCase(),
++      protocol = str.split(':')[0];
++
++  if (str.indexOf(':') >= 0 && BAD_PROTOCOLS.indexOf(protocol) >= 0) {
++    if (protocol === 'data' && ALLOWED_DATA_MIMES.indexOf(str.split(';')[0]) >= 0) {
++      return true;
++    }
+     return false;
+   }
++
+   return true;
+ }
+
++////////////////////////////////////////////////////////////////////////////////
++
++
+ var RECODE_HOSTNAME_FOR = [ 'http:', 'https:', 'mailto:' ];
+
+ function normalizeLink(url) {

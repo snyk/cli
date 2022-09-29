@@ -1,0 +1,13 @@
+diff --git a/engine.io.js b/engine.io.js
+index 165333a..eeefaa9 100644
+--- a/engine.io.js
++++ b/engine.io.js
+@@ -115,7 +115,7 @@
+   this.cert = opts.cert || null;
+   this.ca = opts.ca || null;
+   this.ciphers = opts.ciphers || null;
+-  this.rejectUnauthorized = opts.rejectUnauthorized || null;
++  this.rejectUnauthorized = opts.rejectUnauthorized || true;
+
+   this.open();
+ }

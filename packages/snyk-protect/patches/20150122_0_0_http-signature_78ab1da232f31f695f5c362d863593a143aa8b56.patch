@@ -1,0 +1,45 @@
+// code derived from https://github.com/joyent/node-http-signature/commit/78ab1da232f31f695f5c362d863593a143aa8b56
+/*
+Copyright Joyent, Inc. All rights reserved.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+
+*/
+
+--- a/lib/verify.js
++++ b/lib/verify.js
+@@ -29,9 +29,17 @@ module.exports = {
+                           parsedSignature.algorithm);
+ 
+     if (alg[1] === 'HMAC') {
+-      var hmac = crypto.createHmac(alg[2].toUpperCase(), key);
++      var hashAlg = alg[1];
++
++      var hmac = crypto.createHmac(hashAlg, key);
+       hmac.update(parsedSignature.signingString);
+-      return (hmac.digest('base64') === parsedSignature.params.signature);
++     
++      var h1 = crypto.createHmac(hashAlg, secret);
++      h1.update(hmac.digest());
++      var h2 = crypto.createHmac(hashAlg, secret);
++      h2.update(new Buffer(parsedSignature.params.signature, 'base64'));
++
++      return (h1.digest().equals(h2.digest()));
+     } else {
+       var verify = crypto.createVerify(alg[0]);
+       verify.update(parsedSignature.signingString);

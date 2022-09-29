@@ -1,0 +1,70 @@
+// Code derived from: https://github.com/mishoo/UglifyJS2.git
+// Reference: https://github.com/mishoo/UglifyJS2/commit/905b6011784ca60d41919ac1a499962b7c1d4b02
+
+// https://github.com/mishoo/UglifyJS2/blob/master/LICENSE
+/*
+UglifyJS is released under the BSD license:
+
+Copyright 2012-2013 (c) Mihai Bazon <mihai.bazon@gmail.com>
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+    * Redistributions of source code must retain the above
+      copyright notice, this list of conditions and the following
+      disclaimer.
+
+    * Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials
+      provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+*/
+
+diff --git a/lib/compress.js b/lib/compress.js
+index 54873f0..4c4cf97 100644
+--- a/lib/compress.js
++++ b/lib/compress.js
+@@ -2183,7 +2183,7 @@ merge(Compressor.prototype, {
+             }
+             break;
+         }
+-        if (compressor.option("comparisons")) {
++        if (compressor.option("comparisons") && self.is_boolean()) {
+             if (!(compressor.parent() instanceof AST_Binary)
+                 || compressor.parent() instanceof AST_Assign) {
+                 var negated = make_node(AST_UnaryPrefix, self, {
+diff --git a/lib/parse.js b/lib/parse.js
+index 1ab0358..4c548a2 100644
+--- a/lib/parse.js
++++ b/lib/parse.js
+@@ -59,7 +59,6 @@ var OPERATOR_CHARS = makePredicate(characters("+-*&%=<>!?|~^"));
+
+ var RE_HEX_NUMBER = /^0x[0-9a-f]+$/i;
+ var RE_OCT_NUMBER = /^0[0-7]+$/;
+-var RE_DEC_NUMBER = /^\d*\.?\d*(?:e[+-]?\d*(?:\d\.?|\.?\d)\d*)?$/i;
+
+ var OPERATORS = makePredicate([
+     "in",
+@@ -182,7 +181,7 @@ function parse_js_number(num) {
+         return parseInt(num.substr(2), 16);
+     } else if (RE_OCT_NUMBER.test(num)) {
+         return parseInt(num.substr(1), 8);
+-    } else if (RE_DEC_NUMBER.test(num)) {
++    } else {
+         return parseFloat(num);
+     }
+ };

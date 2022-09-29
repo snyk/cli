@@ -1,0 +1,39 @@
+// Code derived from https://github.com/websockets/ws
+// https://github.com/websockets/ws/commit/7253f06f5432c76f3e82e2c055fcea08b612d8b2
+
+// https://github.com/websockets/ws#license
+/*
+(The MIT License)
+
+Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+--- a/lib/Sender.js
++++ b/lib/Sender.js
+@@ -4,6 +4,8 @@
+  * MIT Licensed
+  */
+ 
++var crypto = require('crypto');
++
+ var events = require('events')
+   , util = require('util')
+   , EventEmitter = events.EventEmitter
+@@ -315,10 +317,5 @@
+ }
+ 
+ function getRandomMask() {
+-  return new Buffer([
+-    ~~(Math.random() * 255),
+-    ~~(Math.random() * 255),
+-    ~~(Math.random() * 255),
+-    ~~(Math.random() * 255)
+-  ]);
++  return crypto.randomBytes(4);
+ }

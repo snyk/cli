@@ -1,0 +1,85 @@
+// Code derived from https://github.com/SalesforceEng/tough-cookie
+// Reference: https://github.com/SalesforceEng/tough-cookie/commit/e4fc2e0f9ee1b7a818d68f0ac7ea696f377b1534
+
+// https://github.com/SalesforceEng/tough-cookie/blob/master/LICENSE
+/*
+Copyright (c) 2015, Salesforce.com, Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of Salesforce.com nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+===
+
+The following exceptions apply:
+
+===
+
+`public_suffix_list.dat` was obtained from
+<https://publicsuffix.org/list/public_suffix_list.dat> via
+<http://publicsuffix.org>. The license for this file is MPL/2.0.  The header of
+that file reads as follows:
+
+  // This Source Code Form is subject to the terms of the Mozilla Public
+  // License, v. 2.0. If a copy of the MPL was not distributed with this
+  // file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
+
+diff --git a/lib/cookie.js b/lib/cookie.js
+index 12da297..c3dacfe 100644
+--- a/lib/cookie.js
++++ b/lib/cookie.js
+@@ -68,9 +68,6 @@ var LOOSE_COOKIE_PAIR = /^((?:=)?([^=;]*)\s*=\s*)?([^\n\r\0]*)/;
+ // Note ';' is \x3B
+ var PATH_VALUE = /[\x20-\x3A\x3C-\x7E]+/;
+ 
+-// Used for checking whether or not there is a trailing semi-colon
+-var TRAILING_SEMICOLON = /;+$/;
+-
+ var DAY_OF_MONTH = /^(\d{1,2})[^\d]*$/;
+ var TIME = /^(\d{1,2})[^\d]*:(\d{1,2})[^\d]*:(\d{1,2})[^\d]*$/;
+ var MONTH = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i;
+@@ -327,12 +324,6 @@ function parse(str, options) {
+   }
+   str = str.trim();
+ 
+-  // S4.1.1 Trailing semi-colons are not part of the specification.
+-  var semiColonCheck = TRAILING_SEMICOLON.exec(str);
+-  if (semiColonCheck) {
+-    str = str.slice(0, semiColonCheck.index);
+-  }
+-
+   // We use a regex to parse the "name-value-pair" part of S5.2
+   var firstSemi = str.indexOf(';'); // S5.2 step 1
+   var pairRe = options.loose ? LOOSE_COOKIE_PAIR : COOKIE_PAIR;
+@@ -362,7 +353,7 @@ function parse(str, options) {
+   // S5.2.3 "unparsed-attributes consist of the remainder of the set-cookie-string
+   // (including the %x3B (";") in question)." plus later on in the same section
+   // "discard the first ";" and trim".
+-  var unparsed = str.slice(firstSemi).replace(/^\s*;\s*/,'').trim();
++  var unparsed = str.slice(firstSemi + 1).trim();
+ 
+   // "If the unparsed-attributes string is empty, skip the rest of these
+   // steps."
+@@ -378,9 +369,12 @@ function parse(str, options) {
+    * cookie-attribute-list".  Therefore, in this implementation, we overwrite
+    * the previous value.
+    */
+-  var cookie_avs = unparsed.split(/\s*;\s*/);
++  var cookie_avs = unparsed.split(';');
+   while (cookie_avs.length) {
+-    var av = cookie_avs.shift();
++    var av = cookie_avs.shift().trim();
++    if (av.length === 0) { // happens if ";;" appears
++      continue;
++    }
+     var av_sep = av.indexOf('=');
+     var av_key, av_value;
+ 

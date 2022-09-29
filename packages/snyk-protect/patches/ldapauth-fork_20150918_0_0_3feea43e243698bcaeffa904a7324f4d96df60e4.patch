@@ -1,0 +1,62 @@
+// code derived from https://github.com/vesse/node-ldapauth-fork
+// reference: https://github.com/vesse/node-ldapauth-fork/commit/3feea43e243698bcaeffa904a7324f4d96df60e4.patch
+
+// https://github.com/vesse/node-ldapauth-fork/blob/master/LICENSE
+/*
+Modified Work Copyright 2013 Vesa Poikajärvi.
+Original Work Copyright 2011 Trent Mick.
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+diff --git a/lib/ldapauth.js b/lib/ldapauth.js
+index 5bfafe9..103d619 100644
+--- a/lib/ldapauth.js
++++ b/lib/ldapauth.js
+@@ -219,6 +219,17 @@ LdapAuth.prototype._search = function (searchBase, options, callback) {
+   });
+ };
+
++// https://tools.ietf.org/search/rfc4515#section-3
++var sanitizeInput = function (username) {
++  return username
++    .replace(/\*/g, '\\2a')
++    .replace(/\(/g, '\\28')
++    .replace(/\)/g, '\\29')
++    .replace(/\\/g, '\\5c')
++    .replace(/\0/g, '\\00')
++    .replace(/\//g, '\\2f');
++};
++
+ /**
+  * Find the user record for the given username.
+  *
+@@ -233,7 +244,7 @@ LdapAuth.prototype._findUser = function (username, callback) {
+     return callback("empty username");
+   }
+
+-  var searchFilter = self.opts.searchFilter.replace(/{{username}}/g, username);
++  var searchFilter = self.opts.searchFilter.replace(/{{username}}/g, sanitizeInput(username));
+   var opts = {filter: searchFilter, scope: self.opts.searchScope};
+   if (self.opts.searchAttributes) {
+     opts.attributes = self.opts.searchAttributes;

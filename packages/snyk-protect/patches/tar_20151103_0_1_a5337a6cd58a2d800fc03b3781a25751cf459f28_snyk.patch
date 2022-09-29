@@ -1,0 +1,62 @@
+// Code derived from https://github.com/isaacs/node-tar
+// Reference: https://github.com/npm/node-tar/commit/a5337a6cd58a2d800fc03b3781a25751cf459f28.patch
+
+// https://github.com/npm/node-tar/blob/master/LICENSE
+/*
+The ISC License
+Copyright (c) Isaac Z. Schlueter and Contributors
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+
+--- a/lib/extract.js
++++ b/lib/extract.js
+@@ -11,16 +11,13 @@ function Extract (opts) {
+   if (!(this instanceof Extract)) return new Extract(opts)
+   tar.Parse.apply(this)
+
+-  // have to dump into a directory
+-  opts.type = "Directory"
+-  opts.Directory = true
+-
+   if (typeof opts !== "object") {
+     opts = { path: opts }
+   }
+
+   // better to drop in cwd? seems more standard.
+   opts.path = opts.path || path.resolve("node-tar-extract")
++  // have to dump into a directory
+   opts.type = "Directory"
+   opts.Directory = true
+
+@@ -33,9 +30,19 @@
+   // of the tarball.  So, they need to be resolved against
+   // the target directory in order to be created properly.
+   me.on("entry", function (entry) {
+-    if (entry.type !== "Link") return
+-    entry.linkpath = entry.props.linkpath =
+-      path.join(opts.path, path.join("/", entry.props.linkpath))
++    if (entry.type === "Link") {
++      entry.linkpath = entry.props.linkpath = path.join(
++        opts.path, path.join("/", entry.props.linkpath)
++      )
++    }
++
++    if (entry.props && entry.props.linkpath) {
++      var linkpath = entry.props.linkpath
++      // normalize paths that point outside the extraction root
++      if (path.resolve(opts.path, linkpath).indexOf(opts.path) !== 0) {
++        entry.props.linkpath = path.join(opts.path, path.join("/", linkpath))
++      }
++    }
+   })
+
+   this._fst.on("ready", function () {

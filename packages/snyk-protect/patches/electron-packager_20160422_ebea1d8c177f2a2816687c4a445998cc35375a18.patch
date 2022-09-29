@@ -1,0 +1,45 @@
+// Code derived from https://github.com/electron-userland/electron-packager
+// Based on:
+// https://github.com/electron-userland/electron-packager/commit/ebea1d8c177f2a2816687c4a445998cc35375a18
+// https://github.com/electron-userland/electron-packager/commit/cd3f4886a1e7bd942a5737c931dad7983dc5c069
+// https://github.com/electron-userland/electron-packager/blob/master/LICENSE
+/*
+Copyright (c) 2015 Max Ogden and other contributors
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+diff --git a/cli.js b/cli.js
+index 1c8dfcf..c6ba1e4 100755
+--- a/cli.js
++++ b/cli.js
+@@ -1,6 +1,9 @@
+ #!/usr/bin/env node
+ var fs = require('fs')
+-var args = require('minimist')(process.argv.slice(2), {boolean: ['prune', 'asar', 'all', 'overwrite', 'strict-ssl']})
++var args = require('minimist')(process.argv.slice(2), {boolean: ['prune', 'asar', 'all', 'overwrite', 'strict-ssl'],
++  default: {
++    'strict-ssl': true
++  }})
+ var packager = require('./')
+ var path = require('path')
+ var usage = fs.readFileSync(path.join(__dirname, 'usage.txt')).toString()

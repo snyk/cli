@@ -1,0 +1,22 @@
+// code derived from https://github.com/wycats/handlebars.js
+// https://github.com/wycats/handlebars.js/commit/83b8e846a3569bd366cf0b6bdc1e4604d1a2077e
+diff --git a/lib/handlebars/utils.js b/lib/handlebars/utils.js
+index 81050f9..d34646b 100644
+--- a/lib/handlebars/utils.js
++++ b/lib/handlebars/utils.js
+@@ -4,11 +4,12 @@ const escape = {
+   '>': '&gt;',
+   '"': '&quot;',
+   "'": '&#x27;',
+-  '`': '&#x60;'
++  '`': '&#x60;',
++  '=': '&#x3D;'
+ };
+ 
+-const badChars = /[&<>"'`]/g,
+-      possible = /[&<>"'`]/;
++const badChars = /[&<>"'`=]/g,
++      possible = /[&<>"'`=]/;
+ 
+ function escapeChar(chr) {
+   return escape[chr];

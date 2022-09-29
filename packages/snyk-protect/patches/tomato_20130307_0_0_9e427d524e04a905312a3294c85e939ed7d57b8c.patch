@@ -1,0 +1,64 @@
+// Code derived from: https://github.com/leizongmin/tomato
+
+// https://github.com/leizongmin/tomato/blob/master/MIT-License
+/*
+Copyright (c) 2012 Lei Zongmin(雷宗民) <leizongmin@gmail.com>
+http://ucdok.com
+
+The MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+diff --git a/lib/api.js b/lib/api.js
+index ea0c86f..b56578e 100644
+--- a/lib/api.js
++++ b/lib/api.js
+@@ -69,17 +69,20 @@ var configureInit = function () {
+    * 顺序 headers > GET > POST > Cookie
+    */
+   app.use('/api', function (req, res, next) {
+-    var access_key = req.headers['access-key'] ||
+-                     (req.query && req.query.access_key) ||
+-                     (req.body && req.body.access_key) ||
+-                     (req.cookies && req.cookies.access_key);
+-    if (access_key && config.master.api.access_key.indexOf(access_key) !== -1) {
+-      logger.info({event: 'verify-success', access_key: access_key, url: req.url});
+-      req.access_key = access_key;
+-      next();
++    var access_key = req.headers['access-key'] || (req.query && req.query.access_key) ||
++                     (req.body && req.body.access_key) || (req.cookies && req.cookies.access_key);
++    if (Array.isArray(config.master.api.access_key)) {
++      if (access_key && config.master.api.access_key.indexOf(access_key) !== -1) {
++        logger.info({event: 'verify-success', access_key: access_key, url: req.url});
++        req.access_key = access_key;
++        next();
++      } else {
++        logger.warn({event: 'verify-fail', access_key: access_key, url: req.url});
++        res.json({error: 'Permission denied.', access_key: access_key});
++      }
+     } else {
+-      logger.warn({event: 'verify-fail', access_key: access_key, url: req.url});
+-      res.json({error: 'Permission denied.', access_key: access_key});
++      logger.warn({event: 'verify-fail', message: 'Config error: master.api.access_key must be an Array!'});
++      res.json({error: 'Config error: master.api.access_key must be an Array!'});
+     }
+   });
+

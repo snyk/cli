@@ -1,0 +1,20 @@
+// Code derived from https://github.com/hapijs/yar
+// Reference: https://github.com/hapijs/yar/commit/66b981a47655bef2fed84f90b86fc5b43edaea8e.patch
+diff --git a/lib/index.js b/lib/index.js
+index 3d92dcd..41262aa 100755
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -178,6 +178,13 @@ exports.register = function (plugin, options, next) {
+ 
+     plugin.ext('onPreResponse', function (request, reply) {
+ 
++        if (!request.session) {
++
++            // onPreAuth was skipped because of a state error
++
++            return reply();
++        }
++
+         if (!request.session._isModified &&
+             !request.session._isLazy) {
+ 

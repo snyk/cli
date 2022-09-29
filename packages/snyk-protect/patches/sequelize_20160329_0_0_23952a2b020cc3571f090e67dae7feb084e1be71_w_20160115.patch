@@ -1,0 +1,42 @@
+// Code derived from https://github.com/sequelize/sequelize
+// Based on https://github.com/sequelize/sequelize/commit/23952a2b020cc3571f090e67dae7feb084e1be71
+// https://github.com/sequelize/sequelize/blob/master/LICENSE
+/*
+Copyright (c) 2014-2016 Sequelize contributors
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+// carries patches for:
+//  * npm:sequelize:20160115
+//  * npm:sequelize:20160329
+//
+// fix for npm:sequelize:20160115 vulnerability
+--- a/lib/data-types.js
++++ b/lib/data-types.js
+@@ -578,7 +578,11 @@ BLOB.prototype.validate = function(value) {
+ BLOB.prototype.escape = false;
+ BLOB.prototype.$stringify = function (value) {
+   if (!Buffer.isBuffer(value)) {
+-    value = new Buffer(value);
++    if (Array.isArray(value)) {
++      value = new Buffer(value);
++    } else {
++      value = new Buffer(value.toString());
++    }
+   }
+   var hex = value.toString('hex');
+ 
+diff --git a/lib/sql-string.js b/lib/sql-string.js
+index d9916ea..e3c6206 100644
+--- a/lib/sql-string.js
++++ b/lib/sql-string.js
+@@ -48,7 +48,7 @@ SqlString.escape = function(val, timeZone, dialect, format) {
+   }
+ 
+   if (Array.isArray(val)) {
+-    var escape = _.partialRight(SqlString.escape, timeZone, dialect);
++    var escape = _.partial(SqlString.escape, _, timeZone, dialect, format);
+     if (dialect === 'postgres' && !format) {
+       return dataTypes.ARRAY.prototype.stringify(val, {escape: escape});
+     }

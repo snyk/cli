@@ -1,0 +1,38 @@
+// code derived from https://github.com/guille/ms.js
+// reference: https://github.com/rauchg/ms.js/commit/48701f029417faf65e6f5e0b61a3cebe5436b07b
+
+// https://github.com/rauchg/ms.js/blob/master/LICENSE
+/*
+(The MIT License)
+
+Copyright (c) 2014 Guillermo Rauch <rauchg@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+--- a/ms.js
++++ b/ms.js
+@@ -26,6 +26,8 @@
+   _.d = _.h * 24;
+
+   function ms (s) {
++    s = '' + s;
++    if (s.length > 10000) return;
+     if (s == Number(s)) return Number(s);
+     r.exec(s.toLowerCase());
+     return RegExp.$1 * _[RegExp.$2];

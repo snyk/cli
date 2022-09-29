@@ -1,0 +1,13 @@
+diff --git a/engine.io.js b/engine.io.js
+index 165333a..eeefaa9 100644
+--- a/engine.io.js
++++ b/engine.io.js
+@@ -116,7 +116,7 @@ function Socket(uri, opts){
+   this.cert = opts.cert || null;
+   this.ca = opts.ca || null;
+   this.ciphers = opts.ciphers || null;
+-  this.rejectUnauthorized = opts.rejectUnauthorized === undefined ? null : opts.rejectUnauthorized;
++  this.rejectUnauthorized = opts.rejectUnauthorized === undefined ? true : opts.rejectUnauthorized;
+ 
+   // other options for Node.js client
+   var freeGlobal = typeof global == 'object' && global;

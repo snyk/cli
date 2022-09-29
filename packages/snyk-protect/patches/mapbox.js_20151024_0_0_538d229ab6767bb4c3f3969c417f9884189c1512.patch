@@ -1,0 +1,103 @@
+// code derived from: https://github.com/mapbox/mapbox.js
+
+// https://github.com/mapbox/mapbox.js/blob/mb-pages/LICENSE.md
+/* 
+# Mapbox.js
+
+Copyright (c), Mapbox
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+- Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+- Redistributions in binary form must reproduce the above copyright notice, this
+  list of conditions and the following disclaimer in the documentation and/or
+  other materials provided with the distribution.
+- Neither the name "Mapbox" nor the names of its contributors may be
+  used to endorse or promote products derived from this software without
+  specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Contains parts of L.UTFGrid
+
+Copyright 2012 David Leaver
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+diff --git a/src/map.js b/src/map.js
+index 93e7de6..c5e6098 100644
+--- a/src/map.js
++++ b/src/map.js
+@@ -27,7 +27,8 @@ var LMap = L.Map.extend({
+         legendControl: {},
+         gridControl: {},
+         infoControl: false,
+-        shareControl: false
++        shareControl: false,
++        sanitizer: require('sanitize-caja')
+     },
+
+     _tilejson: {},
+@@ -143,7 +144,7 @@ var LMap = L.Map.extend({
+         }
+
+         if (this.infoControl && json.attribution) {
+-            this.infoControl.addInfo(json.attribution);
++            this.infoControl.addInfo(this.options.sanitizer(json.attribution));
+             this._updateMapFeedbackLink();
+         }
+
+diff --git a/src/tile_layer.js b/src/tile_layer.js
+index 1cb1e42..3417318 100644
+--- a/src/tile_layer.js
++++ b/src/tile_layer.js
+@@ -6,6 +6,10 @@ var formatPattern = /\.((?:png|jpg)\d*)(?=$|\?)/;
+ var TileLayer = L.TileLayer.extend({
+     includes: [require('./load_tilejson')],
+
++    options: {
++        sanitizer: require('sanitize-caja')
++    },
++
+     // http://mapbox.com/developers/api/#image_quality
+     formats: [
+         'png', 'jpg',
+@@ -46,7 +50,7 @@ var TileLayer = L.TileLayer.extend({
+
+         L.extend(this.options, {
+             tiles: json.tiles,
+-            attribution: json.attribution,
++            attribution: this.options.sanitizer(json.attribution),
+             minZoom: json.minzoom || 0,
+             maxZoom: json.maxzoom || 18,
+             tms: json.scheme === 'tms',

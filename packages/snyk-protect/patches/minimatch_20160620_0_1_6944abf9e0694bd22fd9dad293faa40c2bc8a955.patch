@@ -1,0 +1,69 @@
+// Code derived from https://github.com/isaacs/minimatch/
+// Reference: https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955
+
+// https://github.com/isaacs/minimatch/blob/master/LICENSE
+/*
+The ISC License
+
+Copyright (c) Isaac Z. Schlueter and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+
+diff --git a/minimatch.js b/minimatch.js
+--- a/minimatch.js
++++ b/minimatch.js
+@@ -467,6 +467,10 @@
+ Minimatch.prototype.parse = parse
+ var SUBPARSE = {}
+ function parse (pattern, isSub) {
++  if (pattern.length > 1024 * 64) {
++    throw new TypeError('pattern is too long')
++  }
++
+   var options = this.options
+
+   // shortcuts
+--- a/minimatch.js
++++ b/minimatch.js
+@@ -696,7 +700,7 @@
+   while (pl = patternListStack.pop()) {
+     var tail = re.slice(pl.reStart + 3)
+     // maybe some even number of \, then maybe 1 \, followed by a |
+-    tail = tail.replace(/((?:\\{2})*)(\\?)\|/g, function (_, $1, $2) {
++    tail = tail.replace(/((?:\\{2}){0,64})(\\?)\|/g, function (_, $1, $2) {
+       if (!$2) {
+         // the | isn't already escaped, so escape it.
+         $2 = "\\"
+--- a/minimatch.js
++++ b/minimatch.js
+@@ -757,9 +761,17 @@
+     return globUnescape(pattern)
+   }
+
+-  var flags = options.nocase ? "i" : ""
+-    , regExp = new RegExp("^" + re + "$", flags)
+-
++  var flags = options.nocase ? "i" : "";
++  try {
++    var regExp = new RegExp('^' + re + '$', flags)
++  } catch (er) {
++    // If it was an invalid regular expression, then it can't match
++    // anything.  This trick looks for a character after the end of
++    // the string, which is of course impossible, except in multi-line
++    // mode, but it's not a /m regex.
++    return new RegExp('$.')
++  }
++
+   regExp._glob = pattern
+   regExp._src = re

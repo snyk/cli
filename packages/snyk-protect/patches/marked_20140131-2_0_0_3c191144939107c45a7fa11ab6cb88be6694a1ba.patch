@@ -1,0 +1,14 @@
+// code derived from https://github.com/chjj/marked
+diff --git a/lib/marked.js b/lib/marked.js
+index 142eccf..0b7180f 100644
+--- a/lib/marked.js
++++ b/lib/marked.js
+@@ -868,7 +868,7 @@ Renderer.prototype.link = function(href, title, text) {
+     } catch (e) {
+       return '';
+     }
+-    if (prot.indexOf('javascript:') === 0) {
++    if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0) {
+       return '';
+     }
+   }

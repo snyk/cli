@@ -1,0 +1,222 @@
+// code derived from https://github.com/ljharb/qs
+// based on the following commits:
+// '6.0.3', fixed https://github.com/ljharb/qs/commit/ca844c59f3180e2089a66f30c3b26848b9def123
+// '6.1.1', fixed https://github.com/ljharb/qs/commit/55de6600895b41f6726c39208fd0407da43604ae
+// '6.2.2', fixed https://github.com/ljharb/qs/commit/27bbdb2ba5723944dda50f8de72d8900348e3bba
+// '6.3.1'  fixed https://github.com/ljharb/qs/commit/beade029171b8cef9cee0d03ebe577e2dd84976d
+
+// https://github.com/ljharb/qs/blob/master/LICENSE
+/*
+Copyright (c) 2014 Nathan LaFreniere and other contributors.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * The names of any contributors may not be used to endorse or promote
+      products derived from this software without specific prior written
+      permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+                                  *   *   *
+
+The complete list of contributors can be found at: https://github.com/hapijs/qs/graphs/contributors
+*/
+
+diff -Naur a/lib/parse.js a/lib/parse.js
+--- a/lib/parse.js	2017-03-09 19:34:30.000000000 +0200
++++ a/lib/parse.js	2017-03-06 11:02:34.000000000 +0200
+@@ -16,7 +16,7 @@
+     strictNullHandling: false
+ };
+ 
+-var parseValues = function parseValues(str, options) {
++var parseValues = function parseQueryStringValues(str, options) {
+     var obj = {};
+     var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? undefined : options.parameterLimit);
+ 
+@@ -42,7 +42,7 @@
+     return obj;
+ };
+ 
+-var parseObject = function parseObject(chain, val, options) {
++var parseObject = function parseObjectRecursive(chain, val, options) {
+     if (!chain.length) {
+         return val;
+     }
+@@ -55,7 +55,7 @@
+         obj = obj.concat(parseObject(chain, val, options));
+     } else {
+         obj = options.plainObjects ? Object.create(null) : {};
+-        var cleanRoot = root[0] === '[' && root[root.length - 1] === ']' ? root.slice(1, root.length - 1) : root;
++        var cleanRoot = root.charAt(0) === '[' && root.charAt(root.length - 1) === ']' ? root.slice(1, -1) : root;
+         var index = parseInt(cleanRoot, 10);
+         if (
+             !isNaN(index) &&
+@@ -74,36 +74,37 @@
+     return obj;
+ };
+ 
+-var parseKeys = function parseKeys(givenKey, val, options) {
++var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
+     if (!givenKey) {
+         return;
+     }
+ 
+     // Transform dot notation to bracket notation
+-    var key = options.allowDots ? givenKey.replace(/\.([^\.\[]+)/g, '[$1]') : givenKey;
++    var key = options.allowDots ? givenKey.replace(/\.([^.[]+)/g, '[$1]') : givenKey;
+ 
+     // The regex chunks
+ 
+-    var parent = /^([^\[\]]*)/;
+-    var child = /(\[[^\[\]]*\])/g;
++    var brackets = /(\[[^[\]]*])/;
++    var child = /(\[[^[\]]*])/g;
+ 
+     // Get the parent
+ 
+-    var segment = parent.exec(key);
++    var segment = brackets.exec(key);
++    var parent = segment ? key.slice(0, segment.index) : key;
+ 
+     // Stash the parent if it exists
+ 
+     var keys = [];
+-    if (segment[1]) {
++    if (parent) {
+         // If we aren't using plain objects, optionally prefix keys
+         // that would overwrite object prototype properties
+-        if (!options.plainObjects && has.call(Object.prototype, segment[1])) {
++        if (!options.plainObjects && has.call(Object.prototype, parent)) {
+             if (!options.allowPrototypes) {
+                 return;
+             }
+         }
+ 
+-        keys.push(segment[1]);
++        keys.push(parent);
+     }
+ 
+     // Loop through children appending to the array until we hit depth
+@@ -111,9 +112,9 @@
+     var i = 0;
+     while ((segment = child.exec(key)) !== null && i < options.depth) {
+         i += 1;
+-        if (!options.plainObjects && has.call(Object.prototype, segment[1].replace(/\[|\]/g, ''))) {
++        if (!options.plainObjects && has.call(Object.prototype, segment[1].slice(1, -1))) {
+             if (!options.allowPrototypes) {
+-                continue;
++                return;
+             }
+         }
+         keys.push(segment[1]);
+diff -Naur 6.3.0/node_modules/qs/lib/stringify.js 6.3.2/node_modules/qs/lib/stringify.js
+--- a/lib/stringify.js	2017-03-09 19:33:52.000000000 +0200
++++ b/lib/stringify.js	2017-03-06 11:02:06.000000000 +0200
+@@ -4,13 +4,13 @@
+ var formats = require('./formats');
+ 
+ var arrayPrefixGenerators = {
+-    brackets: function brackets(prefix) {
++    brackets: function brackets(prefix) { // eslint-disable-line func-name-matching
+         return prefix + '[]';
+     },
+-    indices: function indices(prefix, key) {
++    indices: function indices(prefix, key) { // eslint-disable-line func-name-matching
+         return prefix + '[' + key + ']';
+     },
+-    repeat: function repeat(prefix) {
++    repeat: function repeat(prefix) { // eslint-disable-line func-name-matching
+         return prefix;
+     }
+ };
+@@ -21,14 +21,26 @@
+     delimiter: '&',
+     encode: true,
+     encoder: utils.encode,
+-    serializeDate: function serializeDate(date) {
++    serializeDate: function serializeDate(date) { // eslint-disable-line func-name-matching
+         return toISO.call(date);
+     },
+     skipNulls: false,
+     strictNullHandling: false
+ };
+ 
+-var stringify = function stringify(object, prefix, generateArrayPrefix, strictNullHandling, skipNulls, encoder, filter, sort, allowDots, serializeDate, formatter) {
++var stringify = function stringify( // eslint-disable-line func-name-matching
++    object,
++    prefix,
++    generateArrayPrefix,
++    strictNullHandling,
++    skipNulls,
++    encoder,
++    filter,
++    sort,
++    allowDots,
++    serializeDate,
++    formatter
++) {
+     var obj = object;
+     if (typeof filter === 'function') {
+         obj = filter(prefix, obj);
+@@ -107,6 +119,11 @@
+ module.exports = function (object, opts) {
+     var obj = object;
+     var options = opts || {};
++
++    if (options.encoder !== null && options.encoder !== undefined && typeof options.encoder !== 'function') {
++        throw new TypeError('Encoder has to be a function.');
++    }
++
+     var delimiter = typeof options.delimiter === 'undefined' ? defaults.delimiter : options.delimiter;
+     var strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : defaults.strictNullHandling;
+     var skipNulls = typeof options.skipNulls === 'boolean' ? options.skipNulls : defaults.skipNulls;
+@@ -124,10 +141,6 @@
+     var objKeys;
+     var filter;
+ 
+-    if (options.encoder !== null && options.encoder !== undefined && typeof options.encoder !== 'function') {
+-        throw new TypeError('Encoder has to be a function.');
+-    }
+-
+     if (typeof options.filter === 'function') {
+         filter = options.filter;
+         obj = filter('', obj);
+diff -Naur 6.3.0/node_modules/qs/lib/utils.js 6.3.2/node_modules/qs/lib/utils.js
+--- a/lib/utils.js	2017-03-09 19:33:52.000000000 +0200
++++ b/lib/utils.js	2017-03-06 11:02:06.000000000 +0200
+@@ -31,7 +31,9 @@
+         if (Array.isArray(target)) {
+             target.push(source);
+         } else if (typeof target === 'object') {
+-            target[source] = true;
++            if (options.plainObjects || options.allowPrototypes || !has.call(Object.prototype, source)) {
++                target[source] = true;
++            }
+         } else {
+             return [target, source];
+         }
+@@ -126,7 +128,7 @@
+ 
+         i += 1;
+         c = 0x10000 + (((c & 0x3FF) << 10) | (string.charCodeAt(i) & 0x3FF));
+-        out += hexTable[0xF0 | (c >> 18)] + hexTable[0x80 | ((c >> 12) & 0x3F)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)];
++        out += hexTable[0xF0 | (c >> 18)] + hexTable[0x80 | ((c >> 12) & 0x3F)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)]; // eslint-disable-line max-len
+     }
+ 
+     return out;

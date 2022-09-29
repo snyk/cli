@@ -1,0 +1,691 @@
+diff --git a/lib/BufferUtil.fallback.js b/lib/BufferUtil.fallback.js
+index 508542c..7abd0d8 100644
+--- a/lib/BufferUtil.fallback.js
++++ b/lib/BufferUtil.fallback.js
+@@ -4,7 +4,7 @@
+  * MIT Licensed
+  */
+ 
+-module.exports.BufferUtil = {
++exports.BufferUtil = {
+   merge: function(mergedBuffer, buffers) {
+     var offset = 0;
+     for (var i = 0, l = buffers.length; i < l; ++i) {
+diff --git a/lib/PerMessageDeflate.js b/lib/PerMessageDeflate.js
+index 5324bd8..00a6ea6 100644
+--- a/lib/PerMessageDeflate.js
++++ b/lib/PerMessageDeflate.js
+@@ -11,7 +11,7 @@ PerMessageDeflate.extensionName = 'permessage-deflate';
+  * Per-message Compression Extensions implementation
+  */
+ 
+-function PerMessageDeflate(options, isServer) {
++function PerMessageDeflate(options, isServer,maxPayload) {
+   if (this instanceof PerMessageDeflate === false) {
+     throw new TypeError("Classes can't be function-called");
+   }
+@@ -21,6 +21,7 @@ function PerMessageDeflate(options, isServer) {
+   this._inflate = null;
+   this._deflate = null;
+   this.params = null;
++  this._maxPayload = maxPayload || 0;
+ }
+ 
+ /**
+@@ -236,6 +237,7 @@ PerMessageDeflate.prototype.decompress = function (data, fin, callback) {
+ 
+   var self = this;
+   var buffers = [];
++  var cumulativeBufferLength=0;
+ 
+   this._inflate.on('error', onError).on('data', onData);
+   this._inflate.write(data);
+@@ -253,7 +255,17 @@ PerMessageDeflate.prototype.decompress = function (data, fin, callback) {
+   }
+ 
+   function onData(data) {
+-    buffers.push(data);
++      if(self._maxPayload!==undefined && self._maxPayload!==null && self._maxPayload>0){
++          cumulativeBufferLength+=data.length;
++          if(cumulativeBufferLength>self._maxPayload){
++            buffers=[];
++            cleanup();
++            var err={type:1009};
++            callback(err);
++            return;
++          }
++      }
++      buffers.push(data);
+   }
+ 
+   function cleanup() {
+diff --git a/lib/Receiver.hixie.js b/lib/Receiver.hixie.js
+index 66bc561..598ccbd 100644
+--- a/lib/Receiver.hixie.js
++++ b/lib/Receiver.hixie.js
+@@ -47,6 +47,7 @@ module.exports = Receiver;
+  */
+ 
+ Receiver.prototype.add = function(data) {
++  if (this.dead) return;
+   var self = this;
+   function doAdd() {
+     if (self.state === EMPTY) {
+@@ -153,8 +154,17 @@ Receiver.prototype.parse = function() {
+  */
+ 
+ Receiver.prototype.error = function (reason, terminate) {
++  if (this.dead) return;
+   this.reset();
+-  this.onerror(reason, terminate);
++  if(typeof reason == 'string'){
++    this.onerror(new Error(reason), terminate);
++  }
++  else if(reason.constructor == Error){
++    this.onerror(reason, terminate);
++  }
++  else{
++    this.onerror(new Error("An error occured"),terminate);
++  }
+   return this;
+ };
+ 
+diff --git a/lib/Receiver.js b/lib/Receiver.js
+index b3183bf..0bf29d8 100644
+--- a/lib/Receiver.js
++++ b/lib/Receiver.js
+@@ -15,10 +15,15 @@ var util = require('util')
+  * HyBi Receiver implementation
+  */
+ 
+-function Receiver (extensions) {
++function Receiver (extensions,maxPayload) {
+   if (this instanceof Receiver === false) {
+     throw new TypeError("Classes can't be function-called");
+   }
++  if(typeof extensions==='number'){
++    maxPayload=extensions;
++    extensions={};
++  }
++
+ 
+   // memory pool for fragmented messages
+   var fragmentedPoolPrevUsed = -1;
+@@ -39,8 +44,9 @@ function Receiver (extensions) {
+       Math.ceil((unfragmentedPoolPrevUsed + db.used) / 2) :
+       db.used;
+   });
+-
+   this.extensions = extensions || {};
++  this.maxPayload = maxPayload || 0;
++  this.currentPayloadLength = 0;
+   this.state = {
+     activeFragmentedOperation: null,
+     lastFragment: false,
+@@ -54,6 +60,7 @@ function Receiver (extensions) {
+   this.expectBuffer = null;
+   this.expectHandler = null;
+   this.currentMessage = [];
++  this.currentMessageLength = 0;
+   this.messageHandlers = [];
+   this.expectHeader(2, this.processPacket);
+   this.dead = false;
+@@ -76,6 +83,7 @@ module.exports = Receiver;
+  */
+ 
+ Receiver.prototype.add = function(data) {
++  if (this.dead) return;
+   var dataLength = data.length;
+   if (dataLength == 0) return;
+   if (this.expectBuffer == null) {
+@@ -244,6 +252,7 @@ Receiver.prototype.processPacket = function (data) {
+  */
+ 
+ Receiver.prototype.endPacket = function() {
++  if (this.dead) return;
+   if (!this.state.fragmentedOperation) this.unfragmentedBufferPool.reset(true);
+   else if (this.state.lastFragment) this.fragmentedBufferPool.reset(true);
+   this.expectOffset = 0;
+@@ -253,6 +262,7 @@ Receiver.prototype.endPacket = function() {
+     // end current fragmented operation
+     this.state.activeFragmentedOperation = null;
+   }
++  this.currentPayloadLength = 0;
+   this.state.lastFragment = false;
+   this.state.opcode = this.state.activeFragmentedOperation != null ? this.state.activeFragmentedOperation : 0;
+   this.state.masked = false;
+@@ -281,7 +291,9 @@ Receiver.prototype.reset = function() {
+   this.expectHandler = null;
+   this.overflow = [];
+   this.currentMessage = [];
++  this.currentMessageLength = 0;
+   this.messageHandlers = [];
++  this.currentPayloadLength = 0;
+ };
+ 
+ /**
+@@ -297,28 +309,23 @@ Receiver.prototype.unmask = function (mask, buf, binary) {
+ };
+ 
+ /**
+- * Concatenates a list of buffers.
+- *
+- * @api private
+- */
+-
+-Receiver.prototype.concatBuffers = function(buffers) {
+-  var length = 0;
+-  for (var i = 0, l = buffers.length; i < l; ++i) length += buffers[i].length;
+-  var mergedBuffer = new Buffer(length);
+-  bufferUtil.merge(mergedBuffer, buffers);
+-  return mergedBuffer;
+-};
+-
+-/**
+  * Handles an error
+  *
+  * @api private
+  */
+ 
+ Receiver.prototype.error = function (reason, protocolErrorCode) {
++  if (this.dead) return;
+   this.reset();
+-  this.onerror(reason, protocolErrorCode);
++  if(typeof reason == 'string'){
++    this.onerror(new Error(reason), protocolErrorCode);
++  }
++  else if(reason.constructor == Error){
++    this.onerror(reason, protocolErrorCode);
++  }
++  else{
++    this.onerror(new Error("An error occured"),protocolErrorCode);
++  }
+   return this;
+ };
+ 
+@@ -366,6 +373,27 @@ Receiver.prototype.applyExtensions = function(messageBuffer, fin, compressed, ca
+ };
+ 
+ /**
++* Checks payload size, disconnects socket when it exceeds maxPayload
++*
++* @api private
++*/
++Receiver.prototype.maxPayloadExceeded = function(length) {
++  if (this.maxPayload=== undefined || this.maxPayload === null || this.maxPayload < 1) {
++    return false;
++  }
++  var fullLength = this.currentPayloadLength + length;
++  if (fullLength < this.maxPayload) {
++    this.currentPayloadLength = fullLength;
++    return false;
++  }
++  this.error('payload cannot exceed ' + this.maxPayload + ' bytes', 1009);
++  this.messageBuffer=[];
++  this.cleanup();
++
++  return true;
++};
++
++/**
+  * Buffer utilities
+  */
+ 
+@@ -425,11 +453,20 @@ var opcodes = {
+       // decode length
+       var firstLength = data[1] & 0x7f;
+       if (firstLength < 126) {
++        if (self.maxPayloadExceeded(firstLength)){
++          self.error('Maximumpayload exceeded in compressed text message. Aborting...', 1009);
++          return;
++        }
+         opcodes['1'].getData.call(self, firstLength);
+       }
+       else if (firstLength == 126) {
+         self.expectHeader(2, function(data) {
+-          opcodes['1'].getData.call(self, readUInt16BE.call(data, 0));
++          var length = readUInt16BE.call(data, 0);
++          if (self.maxPayloadExceeded(length)){
++            self.error('Maximumpayload exceeded in compressed text message. Aborting...', 1009);
++            return;
++          }
++          opcodes['1'].getData.call(self, length);
+         });
+       }
+       else if (firstLength == 127) {
+@@ -438,6 +475,11 @@ var opcodes = {
+             self.error('packets with length spanning more than 32 bit is currently not supported', 1008);
+             return;
+           }
++          var length = readUInt32BE.call(data, 4);
++          if (self.maxPayloadExceeded(length)){
++            self.error('Maximumpayload exceeded in compressed text message. Aborting...', 1009);
++            return;
++          }
+           opcodes['1'].getData.call(self, readUInt32BE.call(data, 4));
+         });
+       }
+@@ -464,12 +506,29 @@ var opcodes = {
+       var state = clone(this.state);
+       this.messageHandlers.push(function(callback) {
+         self.applyExtensions(packet, state.lastFragment, state.compressed, function(err, buffer) {
+-          if (err) return self.error(err.message, 1007);
+-          if (buffer != null) self.currentMessage.push(buffer);
+-
++          if (err) {
++            if(err.type===1009){
++                return self.error('Maximumpayload exceeded in compressed text message. Aborting...', 1009);
++            }
++            return self.error(err.message, 1007);
++          }
++          if (buffer != null) {
++            if( self.maxPayload==0 || (self.maxPayload > 0 && (self.currentMessageLength + buffer.length) < self.maxPayload) ){
++              self.currentMessage.push(buffer);
++            }
++            else{
++                self.currentMessage=null;
++                self.currentMessage = [];
++                self.currentMessageLength = 0;
++                self.error(new Error('Maximum payload exceeded. maxPayload: '+self.maxPayload), 1009);
++                return;
++            }
++            self.currentMessageLength += buffer.length;
++          }
+           if (state.lastFragment) {
+-            var messageBuffer = self.concatBuffers(self.currentMessage);
++            var messageBuffer = Buffer.concat(self.currentMessage);
+             self.currentMessage = [];
++            self.currentMessageLength = 0;
+             if (!Validation.isValidUTF8(messageBuffer)) {
+               self.error('invalid utf8 sequence', 1007);
+               return;
+@@ -490,11 +549,20 @@ var opcodes = {
+       // decode length
+       var firstLength = data[1] & 0x7f;
+       if (firstLength < 126) {
++          if (self.maxPayloadExceeded(firstLength)){
++            self.error('Max payload exceeded in compressed text message. Aborting...', 1009);
++            return;
++          }
+         opcodes['2'].getData.call(self, firstLength);
+       }
+       else if (firstLength == 126) {
+         self.expectHeader(2, function(data) {
+-          opcodes['2'].getData.call(self, readUInt16BE.call(data, 0));
++          var length = readUInt16BE.call(data, 0);
++          if (self.maxPayloadExceeded(length)){
++            self.error('Max payload exceeded in compressed text message. Aborting...', 1009);
++            return;
++          }
++          opcodes['2'].getData.call(self, length);
+         });
+       }
+       else if (firstLength == 127) {
+@@ -503,7 +571,12 @@ var opcodes = {
+             self.error('packets with length spanning more than 32 bit is currently not supported', 1008);
+             return;
+           }
+-          opcodes['2'].getData.call(self, readUInt32BE.call(data, 4, true));
++          var length = readUInt32BE.call(data, 4, true);
++          if (self.maxPayloadExceeded(length)){
++            self.error('Max payload exceeded in compressed text message. Aborting...', 1009);
++            return;
++          }
++          opcodes['2'].getData.call(self, length);
+         });
+       }
+     },
+@@ -529,11 +602,29 @@ var opcodes = {
+       var state = clone(this.state);
+       this.messageHandlers.push(function(callback) {
+         self.applyExtensions(packet, state.lastFragment, state.compressed, function(err, buffer) {
+-          if (err) return self.error(err.message, 1007);
+-          if (buffer != null) self.currentMessage.push(buffer);
++          if (err) {
++            if(err.type===1009){
++                return self.error('Max payload exceeded in compressed binary message. Aborting...', 1009);
++            }
++            return self.error(err.message, 1007);
++          }
++          if (buffer != null) {
++            if( self.maxPayload==0 || (self.maxPayload > 0 && (self.currentMessageLength + buffer.length) < self.maxPayload) ){
++              self.currentMessage.push(buffer);
++            }
++            else{
++                self.currentMessage=null;
++                self.currentMessage = [];
++                self.currentMessageLength = 0;
++                self.error(new Error('Maximum payload exceeded'), 1009);
++                return;
++            }
++            self.currentMessageLength += buffer.length;
++          }
+           if (state.lastFragment) {
+-            var messageBuffer = self.concatBuffers(self.currentMessage);
++            var messageBuffer = Buffer.concat(self.currentMessage);
+             self.currentMessage = [];
++            self.currentMessageLength = 0;
+             self.onbinary(messageBuffer, {masked: state.masked, buffer: messageBuffer});
+           }
+           callback();
+diff --git a/lib/Sender.js b/lib/Sender.js
+index d34061e..6ef2ea2 100644
+--- a/lib/Sender.js
++++ b/lib/Sender.js
+@@ -197,7 +197,7 @@ Sender.prototype.frameAndSend = function(opcode, data, finalFragment, maskData,
+ 
+   if (maskData) {
+     outputBuffer[1] = secondByte | 0x80;
+-    var mask = this._randomMask || (this._randomMask = getRandomMask());
++    var mask = getRandomMask();
+     outputBuffer[dataOffset - 4] = mask[0];
+     outputBuffer[dataOffset - 3] = mask[1];
+     outputBuffer[dataOffset - 2] = mask[2];
+diff --git a/lib/Validation.fallback.js b/lib/Validation.fallback.js
+index 2c7c4fd..639b0d3 100644
+--- a/lib/Validation.fallback.js
++++ b/lib/Validation.fallback.js
+@@ -3,10 +3,9 @@
+  * Copyright(c) 2011 Einar Otto Stangvik <einaros@gmail.com>
+  * MIT Licensed
+  */
+- 
+-module.exports.Validation = {
++
++exports.Validation = {
+   isValidUTF8: function(buffer) {
+     return true;
+   }
+ };
+-
+diff --git a/lib/WebSocket.js b/lib/WebSocket.js
+index 4e06c80..bb09e85 100644
+--- a/lib/WebSocket.js
++++ b/lib/WebSocket.js
+@@ -71,6 +71,7 @@ function WebSocket(address, protocols, options) {
+   this.readyState = null;
+   this.supports = {};
+   this.extensions = {};
++  this._binaryType = 'nodebuffer';
+ 
+   if (Array.isArray(address)) {
+     initAsServerClient.apply(this, address.concat(options));
+@@ -372,6 +373,27 @@ Object.defineProperty(WebSocket.prototype, 'bufferedAmount', {
+ });
+ 
+ /**
++ * Expose binaryType
++ *
++ * This deviates from the W3C interface since ws doesn't support the required
++ * default "blob" type (instead we define a custom "nodebuffer" type).
++ *
++ * @see http://dev.w3.org/html5/websockets/#the-websocket-interface
++ * @api public
++ */
++Object.defineProperty(WebSocket.prototype, 'binaryType', {
++  get: function get() {
++    return this._binaryType;
++  },
++  set: function set(type) {
++    if (type === 'arraybuffer' || type === 'nodebuffer' || type === 'buffer')
++      this._binaryType = type;
++    else
++      throw new SyntaxError('unsupported binaryType: must be either "nodebuffer" or "arraybuffer"');
++  }
++});
++
++/**
+  * Emulates the W3C Browser based WebSocket interface using function members.
+  *
+  * @see http://dev.w3.org/html5/websockets/#the-websocket-interface
+@@ -415,6 +437,8 @@ WebSocket.prototype.addEventListener = function(method, listener) {
+   var target = this;
+ 
+   function onMessage (data, flags) {
++    if (flags.binary && this.binaryType === 'arraybuffer')
++        data = new Uint8Array(data).buffer;
+     listener.call(target, new MessageEvent(data, !!flags.binary, target));
+   }
+ 
+@@ -523,7 +547,8 @@ function initAsServerClient(req, socket, upgradeHead, options) {
+   options = new Options({
+     protocolVersion: protocolVersion,
+     protocol: null,
+-    extensions: {}
++    extensions: {},
++    maxPayload: 0
+   }).merge(options);
+ 
+   // expose state properties
+@@ -534,7 +559,7 @@ function initAsServerClient(req, socket, upgradeHead, options) {
+   this.upgradeReq = req;
+   this.readyState = WebSocket.CONNECTING;
+   this._isServer = true;
+-
++  this.maxPayload = options.value.maxPayload;
+   // establish connection
+   if (options.value.protocolVersion === 'hixie-76') {
+     establishConnection.call(this, ReceiverHixie, SenderHixie, socket, upgradeHead);
+@@ -770,7 +795,7 @@ function establishConnection(ReceiverClass, SenderClass, socket, upgradeHead) {
+   socket.setTimeout(0);
+   socket.setNoDelay(true);
+ 
+-  this._receiver = new ReceiverClass(this.extensions);
++  this._receiver = new ReceiverClass(this.extensions,this.maxPayload);
+   this._socket = socket;
+ 
+   // socket cleanup handlers
+@@ -848,7 +873,7 @@ function establishConnection(ReceiverClass, SenderClass, socket, upgradeHead) {
+   self._receiver.onerror = function onerror(reason, errorCode) {
+     // close the connection when the receiver reports a HyBi error code
+     self.close(typeof errorCode !== 'undefined' ? errorCode : 1002, '');
+-    self.emit('error', reason, errorCode);
++    self.emit('error', (reason instanceof Error) ? reason : (new Error(reason)));
+   };
+ 
+   // finalize the client
+@@ -911,21 +936,18 @@ function sendStream(instance, stream, options, cb) {
+ function cleanupWebsocketResources(error) {
+   if (this.readyState === WebSocket.CLOSED) return;
+ 
+-  var emitClose = this.readyState !== WebSocket.CONNECTING;
+   this.readyState = WebSocket.CLOSED;
+ 
+   clearTimeout(this._closeTimer);
+   this._closeTimer = null;
+ 
+-  if (emitClose) {
+-    // If the connection was closed abnormally (with an error), or if
+-    // the close control frame was not received then the close code
+-    // must default to 1006.
+-    if (error || !this._closeReceived) {
+-      this._closeCode = 1006;
+-    }
+-    this.emit('close', this._closeCode || 1000, this._closeMessage || '');
++  // If the connection was closed abnormally (with an error), or if
++  // the close control frame was not received then the close code
++  // must default to 1006.
++  if (error || !this._closeReceived) {
++    this._closeCode = 1006;
+   }
++  this.emit('close', this._closeCode || 1000, this._closeMessage || '');
+ 
+   if (this._socket) {
+     if (this._ultron) this._ultron.destroy();
+diff --git a/lib/WebSocketServer.js b/lib/WebSocketServer.js
+index ba0e4c0..92077cd 100644
+--- a/lib/WebSocketServer.js
++++ b/lib/WebSocketServer.js
+@@ -36,7 +36,8 @@ function WebSocketServer(options, callback) {
+     noServer: false,
+     disableHixie: false,
+     clientTracking: true,
+-    perMessageDeflate: true
++    perMessageDeflate: true,
++    maxPayload: 100 * 1024 * 1024
+   }).merge(options);
+ 
+   if (!options.isDefinedAndNonNull('port') && !options.isDefinedAndNonNull('server') && !options.value.noServer) {
+@@ -72,13 +73,15 @@ function WebSocketServer(options, callback) {
+       this._server._webSocketPaths[options.value.path] = 1;
+     }
+   }
+-  if (this._server) this._server.once('listening', function() { self.emit('listening'); });
++  if (this._server) {
++    this._onceServerListening = function() { self.emit('listening'); };
++    this._server.once('listening', this._onceServerListening);
++  }
+ 
+   if (typeof this._server != 'undefined') {
+-    this._server.on('error', function(error) {
+-      self.emit('error', error)
+-    });
+-    this._server.on('upgrade', function(req, socket, upgradeHead) {
++    this._onServerError = function(error) { self.emit('error', error) };
++    this._server.on('error', this._onServerError);
++    this._onServerUpgrade = function(req, socket, upgradeHead) {
+       //copy upgradeHead to avoid retention of large slab buffers used in node core
+       var head = new Buffer(upgradeHead.length);
+       upgradeHead.copy(head);
+@@ -87,7 +90,8 @@ function WebSocketServer(options, callback) {
+         self.emit('connection'+req.url, client);
+         self.emit('connection', client);
+       });
+-    });
++    };
++    this._server.on('upgrade', this._onServerUpgrade);
+   }
+ 
+   this.options = options.value;
+@@ -134,6 +138,11 @@ WebSocketServer.prototype.close = function(callback) {
+     }
+   }
+   finally {
++    if (this._server) {
++      this._server.removeListener('listening', this._onceServerListening);
++      this._server.removeListener('error', this._onServerError);
++      this._server.removeListener('upgrade', this._onServerUpgrade);
++    }
+     delete this._server;
+   }
+   if(callback)
+@@ -256,7 +265,8 @@ function handleHybiUpgrade(req, socket, upgradeHead, cb) {
+     var client = new WebSocket([req, socket, upgradeHead], {
+       protocolVersion: version,
+       protocol: protocol,
+-      extensions: extensions
++      extensions: extensions,
++      maxPayload: self.options.maxPayload
+     });
+ 
+     if (self.options.clientTracking) {
+@@ -359,8 +369,42 @@ function handleHixieUpgrade(req, socket, upgradeHead, cb) {
+     var location = ((req.headers['x-forwarded-proto'] === 'https' || socket.encrypted) ? 'wss' : 'ws') + '://' + wshost + req.url
+       , protocol = req.headers['sec-websocket-protocol'];
+ 
++    // build the response header and return a Buffer
++    var buildResponseHeader = function() {
++      var headers = [
++          'HTTP/1.1 101 Switching Protocols'
++        , 'Upgrade: WebSocket'
++        , 'Connection: Upgrade'
++        , 'Sec-WebSocket-Location: ' + location
++      ];
++      if (typeof protocol != 'undefined') headers.push('Sec-WebSocket-Protocol: ' + protocol);
++      if (typeof origin != 'undefined') headers.push('Sec-WebSocket-Origin: ' + origin);
++
++      return new Buffer(headers.concat('', '').join('\r\n'));
++    };
++
++    // send handshake response before receiving the nonce
++    var handshakeResponse = function() {
++
++      socket.setTimeout(0);
++      socket.setNoDelay(true);
++
++      var headerBuffer = buildResponseHeader();
++
++      try {
++        socket.write(headerBuffer, 'binary', function(err) {
++          // remove listener if there was an error
++          if (err) socket.removeListener('data', handler);
++          return;
++        });
++      } catch (e) {
++        try { socket.destroy(); } catch (e) {}
++        return;
++      };
++    };
++
+     // handshake completion code to run once nonce has been successfully retrieved
+-    var completeHandshake = function(nonce, rest) {
++    var completeHandshake = function(nonce, rest, headerBuffer) {
+       // calculate key
+       var k1 = req.headers['sec-websocket-key1']
+         , k2 = req.headers['sec-websocket-key2']
+@@ -382,20 +426,10 @@ function handleHixieUpgrade(req, socket, upgradeHead, cb) {
+       });
+       md5.update(nonce.toString('binary'));
+ 
+-      var headers = [
+-          'HTTP/1.1 101 Switching Protocols'
+-        , 'Upgrade: WebSocket'
+-        , 'Connection: Upgrade'
+-        , 'Sec-WebSocket-Location: ' + location
+-      ];
+-      if (typeof protocol != 'undefined') headers.push('Sec-WebSocket-Protocol: ' + protocol);
+-      if (typeof origin != 'undefined') headers.push('Sec-WebSocket-Origin: ' + origin);
+-
+       socket.setTimeout(0);
+       socket.setNoDelay(true);
++
+       try {
+-        // merge header and hash buffer
+-        var headerBuffer = new Buffer(headers.concat('', '').join('\r\n'));
+         var hashBuffer = new Buffer(md5.digest('binary'), 'binary');
+         var handshakeBuffer = new Buffer(headerBuffer.length + hashBuffer.length);
+         headerBuffer.copy(handshakeBuffer, 0);
+@@ -434,11 +468,10 @@ function handleHixieUpgrade(req, socket, upgradeHead, cb) {
+     if (upgradeHead && upgradeHead.length >= nonceLength) {
+       var nonce = upgradeHead.slice(0, nonceLength);
+       var rest = upgradeHead.length > nonceLength ? upgradeHead.slice(nonceLength) : null;
+-      completeHandshake.call(self, nonce, rest);
++      completeHandshake.call(self, nonce, rest, buildResponseHeader());
+     }
+     else {
+-      // nonce not present in upgradeHead, so we must wait for enough data
+-      // data to arrive before continuing
++      // nonce not present in upgradeHead
+       var nonce = new Buffer(nonceLength);
+       upgradeHead.copy(nonce, 0);
+       var received = upgradeHead.length;
+@@ -451,10 +484,17 @@ function handleHixieUpgrade(req, socket, upgradeHead, cb) {
+         if (received == nonceLength) {
+           socket.removeListener('data', handler);
+           if (toRead < data.length) rest = data.slice(toRead);
+-          completeHandshake.call(self, nonce, rest);
++
++          // complete the handshake but send empty buffer for headers since they have already been sent
++          completeHandshake.call(self, nonce, rest, new Buffer(0));
+         }
+       }
++
++      // handle additional data as we receive it
+       socket.on('data', handler);
++
++      // send header response before we have the nonce to fix haproxy buffering
++      handshakeResponse();
+     }
+   }
+ 
+@@ -489,8 +529,9 @@ function handleHixieUpgrade(req, socket, upgradeHead, cb) {
+ function acceptExtensions(offer) {
+   var extensions = {};
+   var options = this.options.perMessageDeflate;
++  var maxPayload = this.options.maxPayload;
+   if (options && offer[PerMessageDeflate.extensionName]) {
+-    var perMessageDeflate = new PerMessageDeflate(options !== true ? options : {}, true);
++    var perMessageDeflate = new PerMessageDeflate(options !== true ? options : {}, true, maxPayload);
+     perMessageDeflate.accept(offer[PerMessageDeflate.extensionName]);
+     extensions[PerMessageDeflate.extensionName] = perMessageDeflate;
+   }

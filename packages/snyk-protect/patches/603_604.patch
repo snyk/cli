@@ -1,0 +1,134 @@
+// code derived from https://github.com/ljharb/qs
+// based on the following commits:
+// '6.0.3', fixed https://github.com/ljharb/qs/commit/ca844c59f3180e2089a66f30c3b26848b9def123
+// '6.1.1', fixed https://github.com/ljharb/qs/commit/55de6600895b41f6726c39208fd0407da43604ae
+// '6.2.2', fixed https://github.com/ljharb/qs/commit/27bbdb2ba5723944dda50f8de72d8900348e3bba
+// '6.3.1'  fixed https://github.com/ljharb/qs/commit/beade029171b8cef9cee0d03ebe577e2dd84976d
+
+// https://github.com/ljharb/qs/blob/master/LICENSE
+/*
+Copyright (c) 2014 Nathan LaFreniere and other contributors.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * The names of any contributors may not be used to endorse or promote
+      products derived from this software without specific prior written
+      permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+                                  *   *   *
+
+The complete list of contributors can be found at: https://github.com/hapijs/qs/graphs/contributors
+*/
+
+diff -Naur a/lib/parse.js a/lib/parse.js
+--- a/lib/parse.js	2017-03-09 19:35:00.000000000 +0200
++++ a/lib/parse.js	2017-03-06 18:50:46.000000000 +0200
+@@ -13,6 +13,8 @@
+     allowDots: false
+ };
+ 
++var has = Object.prototype.hasOwnProperty;
++
+ internals.parseValues = function (str, options) {
+     var obj = {};
+     var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? undefined : options.parameterLimit);
+@@ -31,7 +33,7 @@
+             var key = Utils.decode(part.slice(0, pos));
+             var val = Utils.decode(part.slice(pos + 1));
+ 
+-            if (Object.prototype.hasOwnProperty.call(obj, key)) {
++            if (has.call(obj, key)) {
+                 obj[key] = [].concat(obj[key]).concat(val);
+             } else {
+                 obj[key] = val;
+@@ -84,26 +86,27 @@
+ 
+     // The regex chunks
+ 
+-    var parent = /^([^[]*)/;
++    var brackets = /(\[[^[\]]*])/;
+     var child = /(\[[^[\]]*])/g;
+ 
+     // Get the parent
+ 
+-    var segment = parent.exec(key);
++    var segment = brackets.exec(key);
++    var parent = segment ? key.slice(0, segment.index) : key;
+ 
+     // Stash the parent if it exists
+ 
+     var keys = [];
+-    if (segment[1]) {
++    if (parent) {
+         // If we aren't using plain objects, optionally prefix keys
+         // that would overwrite object prototype properties
+-        if (!options.plainObjects && Object.prototype.hasOwnProperty(segment[1])) {
++        if (!options.plainObjects && has.call(Object.prototype, parent)) {
+             if (!options.allowPrototypes) {
+                 return;
+             }
+         }
+ 
+-        keys.push(segment[1]);
++        keys.push(parent);
+     }
+ 
+     // Loop through children appending to the array until we hit depth
+@@ -111,7 +114,7 @@
+     var i = 0;
+     while ((segment = child.exec(key)) !== null && i < options.depth) {
+         i += 1;
+-        if (!options.plainObjects && Object.prototype.hasOwnProperty.call(Object.prototype, segment[1].slice(1, -1))) {
++        if (!options.plainObjects && has.call(Object.prototype, segment[1].slice(1, -1))) {
+             if (!options.allowPrototypes) {
+                 return;
+             }
+diff -Naur a/lib/utils.js a/lib/utils.js
+--- a/lib/utils.js	2017-03-09 19:35:00.000000000 +0200
++++ a/lib/utils.js	2017-03-06 18:50:46.000000000 +0200
+@@ -9,6 +9,8 @@
+     return array;
+ }());
+ 
++var has = Object.prototype.hasOwnProperty;
++
+ exports.arrayToObject = function (source, options) {
+     var obj = options.plainObjects ? Object.create(null) : {};
+     for (var i = 0; i < source.length; ++i) {
+@@ -29,7 +31,9 @@
+         if (Array.isArray(target)) {
+             target.push(source);
+         } else if (typeof target === 'object') {
+-            target[source] = true;
++            if (options.plainObjects || options.allowPrototypes || !has.call(Object.prototype, source)) {
++                target[source] = true;
++            }
+         } else {
+             return [target, source];
+         }
+@@ -49,7 +53,7 @@
+ 	return Object.keys(source).reduce(function (acc, key) {
+         var value = source[key];
+ 
+-        if (Object.prototype.hasOwnProperty.call(acc, key)) {
++        if (has.call(acc, key)) {
+             acc[key] = exports.merge(acc[key], value, options);
+         } else {
+             acc[key] = value;
