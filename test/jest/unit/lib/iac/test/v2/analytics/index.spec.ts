@@ -1,10 +1,11 @@
 import * as clonedeep from 'lodash.clonedeep';
 import * as path from 'path';
+import * as analytics from '../../../../../../../../src/lib/analytics';
 import * as fs from 'fs';
 
 import { SnykIacTestOutput } from '../../../../../../../../src/lib/iac/test/v2/scan/results';
 import {
-  computeIacAnalytics,
+  addIacAnalytics,
   IacAnalytics,
 } from '../../../../../../../../src/lib/iac/test/v2/analytics';
 
@@ -44,15 +45,24 @@ describe('computeIacAnalytics', () => {
     ),
   );
 
-  it('generates the correct analytics', async () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('sends the expected analytics', async () => {
     // Arrange
+    const addedAnalytics: Record<string, any> = {};
+    jest.spyOn(analytics, 'add').mockImplementation((key, value) => {
+      addedAnalytics[key] = value;
+    });
+
     const testOutput = clonedeep(snykIacTestOutputFixture);
     const expectedAnalytics = clonedeep(iacAnalyticsFixture);
 
     // Act
-    const result = computeIacAnalytics(testOutput);
+    addIacAnalytics(testOutput);
 
     // Assert
-    expect(result).toStrictEqual(expectedAnalytics);
+    expect(addedAnalytics).toStrictEqual(expectedAnalytics);
   });
 });
