@@ -1,33 +1,38 @@
+const fs = require('fs');
+const path = require('path');
 import { PatchInfo, Patch, VulnPatches, VulnIdAndPackageName } from './types';
-import { request } from './http';
-import { getApiBaseUrl } from './snyk-api';
+const localPatches = require(`../../patches.json`);
 
 export async function fetchPatches(
   vulnId: string,
-  packageName: string,
   packageVersion: string,
 ): Promise<Patch[]> {
-  const apiBaseUrl = getApiBaseUrl();
-  const apiUrl = `${apiBaseUrl}/v1/patches/${vulnId}?packageVersion=${packageVersion}`;
+  const results = localPatches.filter((patchResponse) => {
+    return (
+      patchResponse.vulnerabilityId === vulnId &&
+      patchResponse.libraryVersion === packageVersion
+    );
+  });
 
-  const { res, body } = await request(apiUrl);
-  if (res.statusCode !== 200 && res.statusCode !== 201) {
-    throw new Error(JSON.parse(body).error);
-  }
-
-  const jsonRes = JSON.parse(body);
-  if (jsonRes.packageName !== packageName) {
-    throw new Error('packageName in response not equal to packageName');
-  }
-  const patches = jsonRes.patches;
-  const patchInfos: PatchInfo[] = patches; // patchInfos is an array and each element has a .url which is also an array
-
+  const patchInfos: PatchInfo[] = [];
+  results.forEach((match) => {
+    match.patches.forEach((patch) => {
+      patchInfos.push({
+        patchableVersions: patch.version,
+        urls: patch.urls,
+      });
+    }); // patchInfos is an array and each element has a .url which is also an array
+  });
   const patchDiffs: Patch[] = [];
   for (const p of patchInfos) {
     const diffs: string[] = [];
     for (const url of p.urls) {
-      const { body: diff } = await request(url);
-      diffs.push(diff);
+      diffs.push(
+        fs.readFileSync(
+          path.resolve(__dirname, '../../patches/' + url),
+          'utf8',
+        ),
+      );
     }
 
     patchDiffs.push({
@@ -50,11 +55,7 @@ export async function getAllPatches(
     if (packageVersions) {
       for (const packageVersion of packageVersions) {
         const packageNameAtVersion = `${vpn.packageName}@${packageVersion}`;
-        const patches = await fetchPatches(
-          vpn.vulnId,
-          vpn.packageName,
-          packageVersion,
-        );
+        const patches = await fetchPatches(vpn.vulnId, packageVersion);
         const vulnIdAndDiffs: VulnPatches = {
           vulnId: vpn.vulnId,
           patches,
