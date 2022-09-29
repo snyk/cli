@@ -4,6 +4,7 @@ const cloneDeep = require('lodash.clonedeep');
 const assign = require('lodash.assign');
 import chalk from 'chalk';
 import { MissingArgError } from '../../../lib/errors';
+import * as theme from '../../../lib/theme';
 
 import * as snyk from '../../../lib';
 import { Options, TestOptions } from '../../../lib/types';
@@ -48,6 +49,12 @@ import { checkOSSPaths } from '../../../lib/check-paths';
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
+const appVulnsReleaseWarningMsg = `${theme.icon.WARNING} Important: Beginning January 24th, 2023, application dependencies in container
+images will be scanned by default when using the snyk container test/monitor
+commands. If you are using Snyk in a CI pipeline, action may be required. Read
+https://snyk.io/blog/securing-container-applications-using-the-snyk-cli/ for
+more info.`;
+
 // TODO: avoid using `as any` whenever it's possible
 
 export default async function test(
@@ -88,12 +95,18 @@ export default async function test(
     throw new MissingArgError();
   }
 
-  // TODO remove once https://github.com/snyk/cli/pull/3433 is merged
-  if (
-    options.docker &&
-    (!options['app-vulns'] || options['exclude-app-vulns'])
-  ) {
-    options['exclude-app-vulns'] = true;
+  // TODO remove 'app-vulns' options and warning message once
+  // https://github.com/snyk/cli/pull/3433 is merged
+  if (options.docker) {
+    if (!options['app-vulns'] || options['exclude-app-vulns']) {
+      options['exclude-app-vulns'] = true;
+    }
+
+    // we can't print the warning message with JSON output as that would make
+    // the JSON output invalid.
+    if (!options['app-vulns'] && !options['json']) {
+      console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
+    }
   }
 
   const ecosystem = getEcosystemForTest(options);
