@@ -10,7 +10,9 @@
     "bin",
     "SECURITY.md",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "patches.json",
+    "patches"
   ],
   "directories": {
     "lib": "src",
@@ -28,7 +30,8 @@
     "test:unit": "jest \"/test/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:acceptance": "jest \"/test/acceptance/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:smoke": "jest \"/test/acceptance/((.+)/)*[^/]+\\.smoke\\.spec\\.ts\"",
-    "format": "prettier --write '{src,test,scripts}/**/*.{js,ts}'"
+    "format": "prettier --write '{src,test,scripts}/**/*.{js,ts}'",
+    "embed-patches": "npm run build && node ./embed-patches.js"
   },
   "keywords": [
     "security",
@@ -53,6 +56,7 @@
   },
   "devDependencies": {
     "cross-spawn": "^6.0.5",
-    "fs-extra": "^9.1.0"
+    "fs-extra": "^9.1.0",
+    "semver": "^7.3.7"
   }
 }
