@@ -53,6 +53,9 @@ describe('test', () => {
       isLicensesEnabled: false,
       isPrivate: false,
     },
+    entitlements: {
+      infrastructureAsCode: true,
+    },
   };
 
   const scanFixture = JSON.parse(fs.readFileSync(scanFixturePath, 'utf-8'));

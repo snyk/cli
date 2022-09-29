@@ -7,7 +7,7 @@ console.log(JSON.stringify(scanResult, null, 2));
 ```
 3. scan the directory by running the following command:
 ```
-snyk-dev iac test --experimental vpc_group.tf plan.json invalid_file.txt
+snyk-dev iac test vpc_group.tf plan.json invalid_file.txt
 ```
 4. save the scan results in the [primary fixture file](../snyk-iac-test-results.json)
 5. start regenerating fixtures like a mad (wo)man!!!
