@@ -103,6 +103,7 @@ describe('snyk test for python project', () => {
           foundProjectCount: undefined,
           displayTargetFile: 'pyproject.toml',
           platform: undefined,
+          hasUnknownVersions: false,
           path: fixturePath,
         };
         expect(result).toMatchObject({
@@ -183,6 +184,7 @@ describe('snyk test for python project', () => {
           foundProjectCount: undefined,
           displayTargetFile: 'Pipfile',
           platform: undefined,
+          hasUnknownVersions: false,
           path: fixturePath,
         };
         expect(result).toMatchObject({
@@ -283,6 +285,7 @@ describe('snyk test for python project', () => {
           projectName: undefined,
           displayTargetFile: 'Pipfile',
           platform: undefined,
+          hasUnknownVersions: false,
           path: fixturePath,
         };
         const expectedPyprojectResultObject = {
@@ -307,6 +310,7 @@ describe('snyk test for python project', () => {
           projectName: undefined,
           displayTargetFile: 'pyproject.toml',
           platform: undefined,
+          hasUnknownVersions: false,
           path: fixturePath,
         };
         expect(result).toMatchObject({

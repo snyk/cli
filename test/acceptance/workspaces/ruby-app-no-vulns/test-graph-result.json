@@ -8,6 +8,7 @@
     "isLicensesEnabled": false,
     "licensesPolicy": null,
     "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.1\nignore: {}\npatch: {}\n",
+    "hasUnknownVersions": false,
     "ignoreSettings": null,
     "org": "test-org"
   },

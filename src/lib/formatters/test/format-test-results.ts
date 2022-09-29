@@ -142,6 +142,7 @@ export function getDisplayedOutput(
   projectType: SupportedProjectTypes,
   meta: string,
   prefix: string,
+  hasUnknownVersions: string,
   multiProjAdvice: string,
   dockerAdvice: string,
 ): string {
@@ -168,7 +169,8 @@ export function getDisplayedOutput(
     vulnCountText += '.';
   }
 
-  const summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
+  const summary =
+    testedInfoText + ', ' + chalk.red.bold(vulnCountText) + hasUnknownVersions;
 
   const fixTip = showFixTip(projectType, res, options);
   const fixAdvice = fixTip ? `\n\n${fixTip}` : '';

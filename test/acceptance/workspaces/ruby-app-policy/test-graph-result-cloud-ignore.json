@@ -386,6 +386,7 @@
     "isLicensesEnabled": false,
     "licensesPolicy": null,
     "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.1\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  SNYK-RUBY-LYNX-20160:\n    - '*':\n        reason: will check again in 2100\n        expires: 2100-01-01T00:00:00.000Z\n        source: cli\n  SNYK-RUBY-SANITIZE-22024:\n    - '*':\n        reason: who needs sanitization anyway\n        created: '2018-11-23T07:33:16.687Z'\n        ignoredBy:\n          id: 3c2d7dd6-e86e-4842-8124-5766bf55e060\n          name: brian@doogdog.com\n          email: brian@doogdog.com\n        reasonType: temporary-ignore\n        disregardIfFixable: false\n        source: api\npatch: {}\n",
+    "hasUnknownVersions": false,
     "ignoreSettings": null,
     "org": "test-org"
   },
