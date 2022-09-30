@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	main "github.com/snyk/cli/cliv2/cmd/cliv2"
-	"github.com/snyk/cli/cliv2/internal/httpauth"
+	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -33,6 +33,8 @@ func Test_MainWithErrorCode_no_cache(t *testing.T) {
 
 	assert.Equal(t, mainErr, 0)
 	assert.DirExists(t, cacheDirectory)
+
+	os.RemoveAll(cacheDirectory)
 }
 
 func Test_GetConfiguration(t *testing.T) {

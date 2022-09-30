@@ -6,7 +6,7 @@ import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-executio
 import { Resource, ScanError, TestOutput, Vulnerability } from './scan/results';
 import * as path from 'path';
 import { createErrorMappedResultsForJsonOutput } from '../../../formatters/test/format-test-results';
-import { IacProjectType } from '../../constants';
+import { IacProjectType, iacRemediationTypes } from '../../constants';
 import { State } from './scan/policy-engine';
 
 export interface Result {
@@ -22,9 +22,9 @@ export interface Result {
   policy: string;
   isPrivate: boolean;
   targetFilePath: string;
-  packageManager: string;
+  packageManager: IacProjectType | State.InputTypeEnum;
   path: string;
-  projectType: string;
+  projectType: IacProjectType | State.InputTypeEnum;
   ok: boolean;
   infrastructureAsCodeIssues: IacIssue[];
   error?: string;
@@ -56,7 +56,7 @@ export interface IacIssue {
   impact: string;
   msg: string;
   remediation?: Remediation;
-  subType: IacProjectType | State.InputTypeEnum;
+  subType: string;
   issue: string;
   publicId: string;
   title: string;
@@ -69,14 +69,14 @@ export interface IacIssue {
   isGeneratedByCustomRule: boolean;
   path: string[];
   policyEngineType?: string;
-  type?: string;
+  type?: IacProjectType | State.InputTypeEnum;
   compliance?: string[][];
   description: string;
 }
 
 export interface Remediation {
   cloudformation?: string;
-  terraform: string;
+  terraform?: string;
   arm?: string;
   kubernetes?: string;
 }
@@ -246,13 +246,15 @@ function vulnerabilitiesToIacIssues(
   vulnerabilities: Vulnerability[],
 ): IacIssue[] {
   return vulnerabilities.map((v) => {
+    const resolve = extractResolve(v);
+
     return {
       severity: v.severity,
-      resolve: v.remediation, // potential needs to be deleted because it is supported only by the old format of our rules
+      resolve,
       impact: v.rule.description,
       msg: v.resource.formattedPath,
       remediation: {
-        terraform: v.remediation, // in the future we need to add logic that will add remediation only for the relevant field (based on file type)
+        [iacRemediationTypes[v.resource.kind] as string]: resolve,
       },
       type: v.resource.kind,
       subType: v.resource.type,
@@ -265,7 +267,7 @@ function vulnerabilitiesToIacIssues(
       iacDescription: {
         issue: v.rule.title,
         impact: v.rule.description,
-        resolve: v.remediation,
+        resolve,
       },
       lineNumber: v.resource.line || -1,
       documentation: v.rule.documentation, // only works for rules available on snyk.io
@@ -277,19 +279,30 @@ function vulnerabilitiesToIacIssues(
   });
 }
 
+function extractResolve(vulnerability: Vulnerability): string {
+  const newLineIdx = vulnerability.remediation.search(/\r?\n|\r/g);
+  return newLineIdx < 0
+    ? vulnerability.remediation
+    : vulnerability.remediation.substring(0, newLineIdx);
+}
+
 // TODO: add correct mapping to our packageManger name (will probably be done in `snyk-iac-test`)
-function resourcesToKind(resources: Resource[]): string {
+function resourcesToKind(
+  resources: Resource[],
+): IacProjectType | State.InputTypeEnum {
   for (const r of resources) {
     return r.kind;
   }
-  return '';
+  return '' as IacProjectType | State.InputTypeEnum;
 }
 
-function vulnerabilitiesToKind(vulnerabilities: Vulnerability[]): string {
+function vulnerabilitiesToKind(
+  vulnerabilities: Vulnerability[],
+): IacProjectType | State.InputTypeEnum {
   for (const v of vulnerabilities) {
     return v.resource.kind;
   }
-  return '';
+  return '' as IacProjectType | State.InputTypeEnum;
 }
 
 function orgSettingsToMeta(

@@ -1,4 +1,5 @@
 import { FormattedResult } from '../../../../cli/commands/test/iac/local-execution/types';
+import { iacRemediationTypes } from '../../../iac/constants';
 import { Results, Vulnerability } from '../../../iac/test/v2/scan/results';
 import { SEVERITY } from '../../../snyk-test/legacy';
 import { IacOutputMeta } from '../../../types';
@@ -105,8 +106,20 @@ export function formatSnykIacTestTestData(
   const filesWithIssuesCount = countFilesWithIssues(snykIacTestScanResult);
   const filesWithoutIssuesCount = allFilesCount - filesWithIssuesCount;
   const ignores = snykIacTestScanResult
-    ? snykIacTestScanResult.metadata.ignoredCount
+    ? snykIacTestScanResult.scanAnalytics.ignoredCount
     : 0;
+
+  let contextSuppressedIssueCount: number | undefined;
+  const suppressedResults =
+    snykIacTestScanResult?.scanAnalytics?.suppressedResults;
+  if (suppressedResults) {
+    contextSuppressedIssueCount = Object.values(suppressedResults).reduce(
+      function(count, resourcesForRuleId) {
+        return (count += resourcesForRuleId.length);
+      },
+      0,
+    );
+  }
 
   return {
     resultsBySeverity,
@@ -117,6 +130,7 @@ export function formatSnykIacTestTestData(
       filesWithoutIssues: filesWithoutIssuesCount,
       issues: totalIssues,
       issuesBySeverity: issuesCountBySeverity,
+      contextSuppressedIssues: contextSuppressedIssueCount,
     },
   };
 }
@@ -167,7 +181,7 @@ function formatSnykIacTestScanResultNewOutput(
       resultsBySeverity[vulnerability.severity]!.push({
         issue: formatSnykIacTestScanVulnerability(vulnerability),
         targetFile: vulnerability.resource.file,
-        projectType: vulnerability.resource.type,
+        projectType: vulnerability.resource.kind,
       });
     });
   }
@@ -178,6 +192,8 @@ function formatSnykIacTestScanResultNewOutput(
 function formatSnykIacTestScanVulnerability(
   vulnerability: Vulnerability,
 ): Issue {
+  const resolve = extractResolve(vulnerability);
+
   return {
     id: vulnerability.rule.id,
     severity: vulnerability.severity,
@@ -186,9 +202,18 @@ function formatSnykIacTestScanVulnerability(
     cloudConfigPath: formatCloudConfigPath(vulnerability),
     issue: vulnerability.rule.title,
     impact: vulnerability.rule.description,
-    resolve: '',
+    resolve,
     documentation: vulnerability.rule.documentation,
+    remediation: {
+      [iacRemediationTypes[vulnerability.resource.kind]]: resolve,
+    },
   };
+}
+function extractResolve(vulnerability: Vulnerability): string {
+  const newLineIdx = vulnerability.remediation.search(/\r?\n|\r/g);
+  return newLineIdx < 0
+    ? vulnerability.remediation
+    : vulnerability.remediation.substring(0, newLineIdx);
 }
 
 function formatCloudConfigPath(vulnerability: Vulnerability): string[] {

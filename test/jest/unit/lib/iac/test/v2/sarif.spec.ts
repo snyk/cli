@@ -22,7 +22,7 @@ describe('convertEngineToSarifResults', () => {
   );
   const snykIacTestFixture: TestOutput = JSON.parse(snykIacTestFixtureContent);
 
-  const experimentalSarifOutputFixtureContent = fs.readFileSync(
+  const integratedSarifOutputFixtureContent = fs.readFileSync(
     path.join(
       __dirname,
       '..',
@@ -32,21 +32,21 @@ describe('convertEngineToSarifResults', () => {
       'iac',
       'process-results',
       'fixtures',
-      'experimental-sarif-output.json',
+      'integrated-sarif-output.json',
     ),
     'utf-8',
   );
-  const experimentalSarifOutputFixture: sarif.Log = JSON.parse(
-    experimentalSarifOutputFixtureContent,
+  const integratedSarifOutputFixture: sarif.Log = JSON.parse(
+    integratedSarifOutputFixtureContent,
   );
 
-  experimentalSarifOutputFixture.runs[0].originalUriBaseIds!.PROJECTROOT.uri = pathToFileURL(
+  integratedSarifOutputFixture.runs[0].originalUriBaseIds!.PROJECTROOT.uri = pathToFileURL(
     process.cwd() + '/',
   ).href;
 
   it('returns expected SARIF result', () => {
     const result = convertEngineToSarifResults(snykIacTestFixture);
 
-    expect(result).toEqual(experimentalSarifOutputFixture);
+    expect(result).toEqual(integratedSarifOutputFixture);
   });
 });

@@ -34,6 +34,7 @@ test/fixtures/container-app-vulns/ @snyk/mycelium
 test/fixtures/container-projects/ @snyk/mycelium @snyk/potion
 test/fixtures/docker/ @snyk/mycelium @snyk/potion
 test/fixtures/iac/ @snyk/group-infrastructure-as-code
+test/smoke/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/snyk_code_spec.sh @snyk/zenith
 test/smoke/spec/snyk_basic_spec.sh @snyk/hammer
@@ -70,6 +71,8 @@ test/fixtures/unmanaged-log4j-fixture @snyk/tundra
 test/jest/acceptance/snyk-log4shell/log4shell-detection.spec.ts @snyk/tundra
 test/jest/acceptance/snyk-test/app-vuln-container-project.spec.ts @snyk/mycelium
 /.github @snyk/hammer
+/.github/workflows/iac-smoke-tests.yml @snyk/group-infrastructure-as-code
+/.github/workflows/iac-smoke-tests-pulls.yml @snyk/group-infrastructure-as-code
 
 # tap tests ownership
 test/tap/cli-monitor/ @snyk/snyk-open-source
@@ -81,9 +84,9 @@ test/tap/cli-fail-on-pinnable.test.ts @snyk/snyk-open-source
 test/tap/cli-monitor.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli-test.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli.test.ts @snyk/hammer
-test/tap/container.test.ts @snyk/capsule @snyk/potion
+test/tap/container.test.ts @snyk/potion
 test/tap/display-test-results.test.ts @snyk/snyk-open-source
-test/tap/docker-token.test.ts @snyk/capsule @snyk/potion
+test/tap/docker-token.test.ts @snyk/potion
 test/tap/endpoint-config.test.ts @snyk/hammer
 test/tap/find-files.test.ts @snyk/snyk-open-source
 test/tap/monitor-target.test.ts @snyk/snyk-open-source

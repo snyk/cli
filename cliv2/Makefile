@@ -2,9 +2,11 @@
 GOCMD = go
 GOOS = $(shell go env GOOS)
 GOARCH = $(shell go env GOARCH)
+GOHOSTOS = $(shell go env GOHOSTOS)
+GOHOSTARCH = $(shell go env GOHOSTARCH)
 HASH = sha
 HASH_ALGORITHM = 256
-CLI_V2_VERSION_TAG = 2.0.0-prerelease
+CLI_V2_VERSION_TAG = 
 CLI_V1_VERSION_TAG = 
 CLI_V1_LOCATION = 
 
@@ -24,6 +26,7 @@ SRCS = $(shell find $(WORKING_DIR) -type f -name '*.go')
 -include $(CACHE_DIR)/version.mk
 
 # the platform string used by the deployed binaries is not excatly OS-ARCH so we need to translate a bit
+_GO_OS = $(GOOS)
 _V1_OS = $(GOOS)
 _V1_ARCH = $(GOARCH)
 _EMPTY =
@@ -58,6 +61,9 @@ ifneq ($(CLI_V1_LOCATION), $(_EMPTY))
 	_V1_DOWNLOAD = false
 endif
 
+ifeq ($(_GO_OS), alpine)
+	_GO_OS = linux
+endif
 
 # some globally assembled variables
 APPLICATION_NAME = snyk
@@ -73,8 +79,9 @@ V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 TEST_SNYK_EXECUTABLE_PATH=$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 TEST_EXECUTABLE_NAME = $(TEST_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE_POSTFIX)
-SIGN_SCRIPT = sign_$(GOOS).sh
-ISSIGNED_SCRIPT = issigned_$(GOOS).sh
+SIGN_SCRIPT = sign_$(_GO_OS).sh
+ISSIGNED_SCRIPT = issigned_$(_GO_OS).sh
+EMBEDDED_DATA_DIR = $(WORKING_DIR)/internal/embedded/_data
 
 # some make file variables
 LOG_PREFIX = --
@@ -136,11 +143,11 @@ dependencies: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTA
 
 # prepare the workspace and cache global parameters
 .PHONY: configure
-configure: $(V2_DIRECTORY)/cliv2.version $(CACHE_DIR) $(CACHE_DIR)/version.mk $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies
+configure: $(V2_DIRECTORY)/cliv2.version $(CACHE_DIR) $(CACHE_DIR)/version.mk $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) build -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
+	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING): 
 	@echo "$(LOG_PREFIX) Generating checksum ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
@@ -148,7 +155,7 @@ $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING):
 
 $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building test executable ( $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) )"
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOCMD) test -c -o $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) main_integration_test.go
+	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) test -c -o $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) main_integration_test.go
 
 .PHONY: build
 build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
@@ -170,6 +177,11 @@ $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
 $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
 
+
+$(CACHE_DIR)/prepare-3rd-party-licenses: 
+	@echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"
+	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) scripts/prepare_licenses.sh > $(CACHE_DIR)/prepare-3rd-party-licenses
+
 .PHONY: generate
 generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go
 
@@ -178,12 +190,8 @@ whiteboxtest:
 	@echo "$(LOG_PREFIX) Running $@"
 	@$(GOCMD) test -cover ./...
 
-.PHONY: acceptancetest 
-acceptancetest: build
-	TEST_SNYK_COMMAND="$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)" npx jest
-
 .PHONY: test
-test: whiteboxtest blackboxtest acceptancetest
+test: whiteboxtest blackboxtest
 
 .PHONY: lint
 lint:
@@ -223,6 +231,7 @@ clean:
 	@rm -f $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
 	@rm -f $(V1_DIRECTORY)/cliv1.version
 	@rm -f $(V2_DIRECTORY)/cliv2.version
+	@rm -f -r $(EMBEDDED_DATA_DIR)/licenses
 
 .PHONY: install
 install:

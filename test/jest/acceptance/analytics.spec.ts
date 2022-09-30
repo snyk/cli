@@ -4,6 +4,7 @@ import {
   createProjectFromWorkspace,
 } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { isCLIV2 } from '../util/isCLIV2';
 
 jest.setTimeout(1000 * 30);
 
@@ -47,7 +48,13 @@ describe('analytics module', () => {
 
     expect(code).toBe(0);
 
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      server.popRequest();
+    }
+
     const lastRequest = server.popRequest();
+
     expect(lastRequest).toMatchObject({
       headers: {
         host: 'localhost:12345',
@@ -113,6 +120,11 @@ describe('analytics module', () => {
     });
 
     expect(code).toBe(1);
+
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      server.popRequest();
+    }
 
     const lastRequest = server.popRequest();
     expect(lastRequest).toMatchObject({
@@ -185,6 +197,11 @@ describe('analytics module', () => {
 
     expect(code).toBe(2);
 
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      server.popRequest();
+    }
+
     const lastRequest = server.popRequest();
     expect(lastRequest).toMatchObject({
       headers: {
@@ -245,6 +262,11 @@ describe('analytics module', () => {
 
     expect(code).toBe(0);
 
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      server.popRequest();
+    }
+
     const lastRequest = server.popRequest();
     expect(lastRequest).toMatchObject({
       headers: {
@@ -279,6 +301,47 @@ describe('analytics module', () => {
               total: expect.any(Number),
             },
           },
+          nodeVersion: expect.any(String),
+          os: expect.any(String),
+          standalone: expect.any(Boolean),
+          version: expect.stringMatching(/^(\d+\.){2}.*/),
+        },
+      },
+    });
+  });
+
+  it('sends analytics data with basic check only', async () => {
+    const project = await createProjectFromWorkspace('npm-package');
+    const { code } = await runSnykCLI('', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toBe(0);
+
+    const lastRequest = server.popRequest();
+    expect(lastRequest).toMatchObject({
+      headers: {
+        host: 'localhost:12345',
+        'content-length': expect.any(String),
+        authorization: 'token 123456789',
+        'content-type': 'application/json; charset=utf-8',
+        'x-snyk-cli-version': expect.stringMatching(/^(\d+\.){2}.*/),
+      },
+      query: {},
+      body: {
+        data: {
+          args: expect.any(Array),
+          ci: expect.any(Boolean),
+          command: expect.any(String),
+          durationMs: expect.any(Number),
+          id: expect.any(String),
+          integrationEnvironment: '',
+          integrationEnvironmentVersion: '',
+          integrationName: 'JENKINS',
+          integrationVersion: '1.2.3',
+          // prettier-ignore
+          metrics: expect.any(Object),
           nodeVersion: expect.any(String),
           os: expect.any(String),
           standalone: expect.any(Boolean),

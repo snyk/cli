@@ -335,6 +335,7 @@
   "isPrivate": true,
   "packageManager": "rubygems",
   "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.1\n# ignores vulnerabilities until expiry date; change duration by modifying expiry date\nignore:\n  SNYK-RUBY-LYNX-20160:\n    - '*':\n        reason: will check again in 2100\n        expires: 2100-01-01T00:00:00.000Z\n        source: cli\npatch: {}\n",
+  "hasUnknownVersions": false,
   "ignoreSettings": null,
   "summary": "7 vulnerable dependency paths",
   "displayTargetFile": "Gemfile",

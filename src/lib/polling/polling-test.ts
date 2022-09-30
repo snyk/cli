@@ -6,10 +6,92 @@ import { Options } from '../types';
 import { assembleQueryString } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
 import { ScanResult } from '../ecosystems/types';
+import {
+  CreateDepGraphResponse,
+  FileHashes,
+  GetDepGraphResponse,
+  GetIssuesResponse,
+  IssuesRequestAttributes,
+} from '../ecosystems/unmanaged/types';
 
 import { ResolveAndTestFactsResponse } from './types';
 import { delayNextStep, handleProcessingStatus } from './common';
 import { TestDependenciesResult } from '../snyk-test/legacy';
+import { sleep } from '../common';
+
+export async function getIssues(
+  issuesRequestAttributes: IssuesRequestAttributes,
+  orgId: string,
+): Promise<GetIssuesResponse> {
+  const payload = {
+    method: 'POST',
+    url: `${config.API_REST_URL}/orgs/${orgId}/unmanaged_ecosystem/issues?version=2022-06-29~experimental`,
+    json: true,
+    headers: {
+      'Content-Type': 'application/vnd.api+json',
+      'x-is-ci': isCI(),
+      authorization: getAuthHeader(),
+    },
+    body: issuesRequestAttributes,
+  };
+
+  const result = await makeRequest<GetIssuesResponse>(payload);
+  return JSON.parse(result.toString());
+}
+
+export async function getDepGraph(
+  id: string,
+  orgId: string,
+): Promise<GetDepGraphResponse> {
+  const payload = {
+    method: 'GET',
+    url: `${config.API_REST_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs/${id}?version=2022-05-23~experimental`,
+    json: true,
+    headers: {
+      'Content-Type': 'application/vnd.api+json',
+      'x-is-ci': isCI(),
+      authorization: getAuthHeader(),
+    },
+  };
+
+  const maxWaitingTimeMs = 30000;
+  const pollIntervalMs = 5000;
+  let waitingTimeMs = pollIntervalMs;
+  let result = {} as GetDepGraphResponse;
+  while (waitingTimeMs <= maxWaitingTimeMs) {
+    try {
+      await sleep(waitingTimeMs);
+      result = await makeRequest<GetDepGraphResponse>(payload);
+      break;
+    } catch (e) {
+      if (waitingTimeMs < maxWaitingTimeMs) {
+        waitingTimeMs += pollIntervalMs;
+      } else {
+        throw e;
+      }
+    }
+  }
+  return JSON.parse(result.toString());
+}
+
+export async function createDepGraph(
+  hashes: FileHashes,
+  orgId: string,
+): Promise<CreateDepGraphResponse> {
+  const payload = {
+    method: 'POST',
+    url: `${config.API_REST_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs?version=2022-05-23~experimental`,
+    json: true,
+    headers: {
+      'Content-Type': 'application/vnd.api+json',
+      'x-is-ci': isCI(),
+      authorization: getAuthHeader(),
+    },
+    body: hashes,
+  };
+  const result = await makeRequest<CreateDepGraphResponse>(payload);
+  return JSON.parse(result.toString());
+}
 
 export async function requestTestPollingToken(
   options: Options,

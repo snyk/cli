@@ -97,6 +97,7 @@ export const meta: TestMeta = {
   isPrivate: false,
   isLicensesEnabled: false,
   org: 'org-name',
+  orgPublicId: '7bfa4159-6f90-4acd-82a4-0b2ad2aaf80b',
 };
 
 export function generateCloudConfigResults({

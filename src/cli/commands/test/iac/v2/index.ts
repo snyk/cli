@@ -14,6 +14,7 @@ import { getFlag } from '../index';
 import { IaCTestFlags } from '../local-execution/types';
 import { findAndLoadPolicy } from '../../../../../lib/policy';
 import { assertIacV2Options } from './assert-iac-options';
+import { UnsupportedEntitlementError } from '../../../../../lib/errors/unsupported-entitlement-error';
 
 export async function test(
   paths: string[],
@@ -22,6 +23,10 @@ export async function test(
   assertIacV2Options(options);
   const testConfig = await prepareTestConfig(paths, options);
   const { orgSettings } = testConfig;
+
+  if (!orgSettings.entitlements?.infrastructureAsCode) {
+    throw new UnsupportedEntitlementError('infrastructureAsCode');
+  }
 
   const testSpinner = buildSpinner(options);
 
@@ -54,9 +59,14 @@ async function prepareTestConfig(
   const projectTags = parseTags(options);
   const targetName = getFlag(options, 'target-name');
   const remoteRepoUrl = getFlag(options, 'remote-repo-url');
+  const depthDetection =
+    parseInt(getFlag(options, 'depth-detection') as string) || undefined;
   const attributes = parseAttributes(options);
   const policy = await findAndLoadPolicy(process.cwd(), 'iac', options);
   const scan = options.scan ?? 'resource-changes';
+  const varFile = options['var-file'];
+  const cloudContext = getFlag(options, 'cloud-context');
+  const insecure = options.insecure;
 
   return {
     paths,
@@ -73,6 +83,10 @@ async function prepareTestConfig(
     remoteRepoUrl,
     policy: policy?.toString(),
     scan,
+    varFile,
+    depthDetection,
+    cloudContext,
+    insecure,
   };
 }
 

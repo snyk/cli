@@ -14,7 +14,7 @@ interface Pkg {
   version?: string;
 }
 
-interface Patch {
+export interface Patch {
   version: string;
   id: string;
   urls: string[];
@@ -177,6 +177,7 @@ export interface TestResult extends LegacyVulnApiResult {
   displayTargetFile?: string; // used for display only
   foundProjectCount?: number;
   scanResult?: ScanResult;
+  hasUnknownVersions?: boolean;
 }
 
 interface UpgradePathItem {

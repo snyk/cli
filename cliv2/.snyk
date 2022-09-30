@@ -1,0 +1,127 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  'snyk:lic:golang:github.com:hashicorp:hcl:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:go-uuid:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:serf:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:errwrap:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:logutils:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:consul:sdk:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:golang-lru:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:memberlist:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:consul:api:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:go-sockaddr:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:go-cleanhttp:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:go-rootcerts:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:go-multierror:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:go-retryablehttp:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:hashicorp:go-immutable-radix:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  'snyk:lic:golang:github.com:mitchellh:cli:MPL-2.0':
+    - '*':
+        reason: >-
+          see
+          https://www.notion.so/snyk/MPL2-0-Use-Cases-4fe1a7a193354353a3603153e92a0a6d
+        expires: 2033-09-13T17:00:11.886Z
+        created: 2022-09-13T17:00:11.897Z
+  SNYK-GOLANG-GITHUBCOMGOGOPROTOBUFPLUGINUNMARSHAL-1058921:
+    - '*':
+        reason: Affected functionality is not used.
+        expires: 2023-09-14T08:42:41.894Z
+        created: 2022-09-14T08:42:41.931Z
+  SNYK-GOLANG-GITHUBCOMPROMETHEUSCLIENTGOLANGPROMETHEUSPROMHTTP-2401819:
+    - '*':
+        reason: Affected functionality is not used.
+        expires: 2023-09-14T08:43:11.340Z
+        created: 2022-09-14T08:43:11.370Z
+patch: {}

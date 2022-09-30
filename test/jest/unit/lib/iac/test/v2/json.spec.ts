@@ -30,7 +30,7 @@ describe('convertEngineToJsonResults', () => {
     return isError ? new SnykIacTestError(item) : item;
   });
 
-  const experimentalJsonOutputFixtureContent = fs.readFileSync(
+  const integratedJsonOutputFixtureContent = fs.readFileSync(
     path.join(
       __dirname,
       '..',
@@ -40,15 +40,15 @@ describe('convertEngineToJsonResults', () => {
       'iac',
       'process-results',
       'fixtures',
-      'experimental-json-output.json',
+      'integrated-json-output.json',
     ),
     'utf-8',
   );
-  let experimentalJsonOutputFixture: Array<Result | ScanError> = JSON.parse(
-    experimentalJsonOutputFixtureContent,
+  let integratedJsonOutputFixture: Array<Result | ScanError> = JSON.parse(
+    integratedJsonOutputFixtureContent,
   );
 
-  experimentalJsonOutputFixture = experimentalJsonOutputFixture.map((item) =>
+  integratedJsonOutputFixture = integratedJsonOutputFixture.map((item) =>
     !('error' in item) ? { ...item, path: process.cwd() } : item,
   );
 
@@ -58,6 +58,7 @@ describe('convertEngineToJsonResults', () => {
       isLicensesEnabled: false,
       ignoreSettings: null,
       org: 'org-name',
+      orgPublicId: '7bfa4159-6f90-4acd-82a4-0b2ad2aaf80b',
     },
     customPolicies: {},
     customRules: {},
@@ -74,12 +75,12 @@ describe('convertEngineToJsonResults', () => {
       orgSettings,
     });
 
-    experimentalJsonOutputFixture.forEach((item) => {
+    integratedJsonOutputFixture.forEach((item) => {
       if ('targetFilePath' in item) {
         item.targetFilePath = path.resolve(item.targetFile);
       }
     });
 
-    expect(result).toEqual(experimentalJsonOutputFixture);
+    expect(result).toEqual(integratedJsonOutputFixture);
   });
 });

@@ -117,6 +117,7 @@ export interface TestMeta {
   isPrivate: boolean;
   isLicensesEnabled: boolean;
   org: string;
+  orgPublicId: string;
   ignoreSettings?: IgnoreSettings | null;
   projectId?: string;
   policy?: string;
@@ -203,6 +204,7 @@ export type IaCTestFlags = Pick<
   path?: string;
   // Allows the caller to provide the path to a WASM bundle.
   rules?: string;
+  'cloud-context'?: string;
   // Tags and attributes
   'project-tags'?: string;
   'project-environment'?: string;
@@ -387,7 +389,8 @@ export enum IaCErrorCodes {
   UnableToReadPath = 2113,
   NoLoadableInput = 2114,
   FailedToMakeResourcesResolvers = 2115,
-  FailedToShareResults = 2200,
+  ResourcesResolverError = 2116,
+  FailedToProcessResults = 2200,
 }
 
 export interface TestReturnValue {

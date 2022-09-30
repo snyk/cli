@@ -44,7 +44,7 @@
           "documentation": "https://snyk.io/security-rules/SNYK-CC-00151"
         },
         "message": "VPC flow logging should be enabled",
-        "remediation": "# Remediation Steps\n\n* Ensure that the [aws_vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) is referenced in an [aws_flog_log](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/flow_log) `vpc_id` field.\n\n#### Example Configuration\n\n```hcl\nresource \"aws_vpc\" \"valid_vpc\" {\n  # other required fields here\n}\n\nresource \"aws_flow_log\" \"test_flow_log\" {\n  vpc_id         = \"${aws_vpc.valid_vpc.id}\"\n  # other required fields here\n}\n```\n",
+        "remediation": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field.",
         "severity": "medium",
         "ignored": false,
         "resource": {
@@ -69,7 +69,7 @@
           "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-5"
         },
         "message": "Inbound traffic to VPC should be more restrictive",
-        "remediation": "# Remediation Steps\nEnsure that an [aws_default_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) or [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) `ingress` block does NOT contain the value `0.0.0.0/0` in the `cidr_blocks` (`ipv6_cidr_blocks` for ipv6) field.\n\n# Example configuration\n```hcl\nresource \"aws_security_group\" \"example\" {\n  ingress {\n    cidr_blocks = [10.0.0.0/16]\n    from_port   = 5900\n    to_port     = 5900\n    # other required fields here\n  }\n}\n```\n",
+        "remediation": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`.\n\nEnsure that an [aws_default_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) or [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) `ingress` block does NOT contain the value `0.0.0.0/0` in the `cidr_blocks` (`ipv6_cidr_blocks` for ipv6) field.\n\n# Example configuration\n```hcl\nresource \"aws_security_group\" \"example\" {\n  ingress {\n    cidr_blocks = [10.0.0.0/16]\n    from_port   = 5900\n    to_port     = 5900\n    # other required fields here\n  }\n}\n```\n",
         "severity": "medium",
         "ignored": false,
         "resource": {
@@ -99,7 +99,7 @@
           "documentation": "https://snyk.io/security-rules/SNYK-CC-00151"
         },
         "message": "VPC flow logging should be enabled",
-        "remediation": "# Remediation Steps\n\n* Ensure that the [aws_vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) is referenced in an [aws_flog_log](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/flow_log) `vpc_id` field.\n\n#### Example Configuration\n\n```hcl\nresource \"aws_vpc\" \"valid_vpc\" {\n  # other required fields here\n}\n\nresource \"aws_flow_log\" \"test_flow_log\" {\n  vpc_id         = \"${aws_vpc.valid_vpc.id}\"\n  # other required fields here\n}\n```\n",
+        "remediation": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field.\n\n# Example Configuration\n\n```hcl\nresource \"aws_vpc\" \"valid_vpc\" {\n# other required fields here\n}\n\nresource \"aws_flow_log\" \"test_flow_log\" {\nvpc_id         = \"${aws_vpc.valid_vpc.id}\"\n# other required fields here\n}\n```\n",
         "severity": "medium",
         "ignored": false,
         "resource": {
@@ -126,7 +126,7 @@
           "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-5"
         },
         "message": "Inbound traffic to VPC should be more restrictive",
-        "remediation": "# Remediation Steps\nEnsure that an [aws_default_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) or [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) `ingress` block does NOT contain the value `0.0.0.0/0` in the `cidr_blocks` (`ipv6_cidr_blocks` for ipv6) field.\n\n# Example configuration\n```hcl\nresource \"aws_security_group\" \"example\" {\n  ingress {\n    cidr_blocks = [10.0.0.0/16]\n    from_port   = 5900\n    to_port     = 5900\n    # other required fields here\n  }\n}\n```\n",
+        "remediation": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`.\n\nEnsure that an [aws_default_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) or [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) `ingress` block does NOT contain the value `0.0.0.0/0` in the `cidr_blocks` (`ipv6_cidr_blocks` for ipv6) field.\n\n# Example configuration\n```hcl\nresource \"aws_security_group\" \"example\" {\n  ingress {\n    cidr_blocks = [10.0.0.0/16]\n    from_port   = 5900\n    to_port     = 5900\n    # other required fields here\n  }\n}\n```\n",
         "severity": "medium",
         "ignored": false,
         "resource": {
@@ -147,7 +147,9 @@
       }
     ],
     "metadata": {
-      "projectName": "input-files-for-json-v2",
+      "projectName": "input-files-for-json-v2"
+    },
+    "scanAnalytics": {
       "ignoredCount": 3
     }
   },

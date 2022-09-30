@@ -34,10 +34,15 @@ export interface Results {
   resources?: Resource[];
   vulnerabilities?: Vulnerability[];
   metadata: Metadata;
+  scanAnalytics: ScanAnalytics;
 }
 
 export interface Metadata {
   projectName: string;
+}
+
+export interface ScanAnalytics {
+  suppressedResults?: Record<string, string[]>;
   ignoredCount: number;
 }
 
@@ -62,14 +67,18 @@ export interface Rule {
 
 export interface Resource {
   id: string;
-  type: IacProjectType | PolicyEngineTypes.State.InputTypeEnum;
+  type: string;
   path?: any[];
   formattedPath: string;
   file: string;
-  kind: string;
+  kind: ResourceKind;
   line?: number;
   column?: number;
 }
+
+export type ResourceKind =
+  | IacProjectType
+  | PolicyEngineTypes.State.InputTypeEnum;
 
 export interface ScanError {
   message: string;

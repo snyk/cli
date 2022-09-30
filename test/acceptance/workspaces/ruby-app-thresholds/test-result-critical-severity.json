@@ -126,6 +126,7 @@
     "ignore": [],
     "patch": []
   },
+  "hasUnknownVersions": false,
   "projectName": "ruby-app-thresholds",
   "uniqueCount": 1,
   "path": "ruby-app-thresholds"

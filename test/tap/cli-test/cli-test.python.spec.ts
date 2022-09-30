@@ -6,7 +6,11 @@ import { loadJson } from '../../utils';
 export const PythonTests: AcceptanceTests = {
   language: 'Python',
   tests: {
-    '`test pip-app --file=requirements.txt`': (params, utils) => async (t) => {
+    '`test pip-app --file=requirements.txt`': (
+      params,
+      utils,
+      snykHttpClient,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -48,12 +52,17 @@ export const PythonTests: AcceptanceTests = {
             path: 'pip-app',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls python plugin',
       );
     },
 
-    '`test pipenv-app --file=Pipfile`': (params, utils) => async (t) => {
+    '`test pipenv-app --file=Pipfile`': (
+      params,
+      utils,
+      snykHttpClient,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -100,6 +109,7 @@ export const PythonTests: AcceptanceTests = {
             path: 'pipenv-app',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls python plugin',
       );
@@ -108,6 +118,7 @@ export const PythonTests: AcceptanceTests = {
     '`test pip-app-transitive-vuln --file=requirements.txt (actionableCliRemediation=false)`': (
       params,
       utils,
+      snykHttpClient,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -160,6 +171,7 @@ export const PythonTests: AcceptanceTests = {
             path: 'pip-app-transitive-vuln',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls python plugin',
       );
@@ -168,6 +180,7 @@ export const PythonTests: AcceptanceTests = {
     '`test pip-app-transitive-vuln --file=requirements.txt (actionableCliRemediation=true)`': (
       params,
       utils,
+      snykHttpClient,
     ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
@@ -223,11 +236,16 @@ export const PythonTests: AcceptanceTests = {
             path: 'pip-app-transitive-vuln',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls python plugin',
       );
     },
-    '`test setup_py-app --file=setup.py`': (params, utils) => async (t) => {
+    '`test setup_py-app --file=setup.py`': (
+      params,
+      utils,
+      snykHttpClient,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -275,6 +293,7 @@ export const PythonTests: AcceptanceTests = {
             path: 'setup_py-app',
             showVulnPaths: 'some',
           },
+          snykHttpClient,
         ],
         'calls python plugin',
       );
