@@ -5,12 +5,16 @@
   "main": "index.js",
   "dependencies": {
     "@remy/protect-test": "^1.0.7",
-    "qs": "^0.6.6"
+    "qs": "^6.0.4",
+    "@snyk/protect": "latest"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "snyk": true
 }
