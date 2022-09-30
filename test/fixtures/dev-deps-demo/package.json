@@ -12,7 +12,7 @@
     "uglify-js": "~2.3.6"
   },
   "dependencies": {
-    "qs": "~0.6.0",
+    "qs": "~6.0.4",
     "kind-of": "~*"
   }
 }
