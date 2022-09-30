@@ -6,7 +6,7 @@
   "dependencies": {
     "semver": "^2.3.2",
     "get-uri": "2.0.2",
-    "snyk": "*"
+    "snyk": "1.996.0"
   },
   "scripts": {
     "env": "env",
