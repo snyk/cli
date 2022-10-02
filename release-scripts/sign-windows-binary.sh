@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# create files as needed
-CERT_FILE=cert.pem
-if [ ! -f "$CERT_FILE" ]; then
-  echo "$SIGNING_CERT" | base64 --decode >"$CERT_FILE"
-fi
+SIGNING_CERTIFICATE_FILE=Certificate.cer
+SIGNING_KEY_FILE=Snyk_Limited.key
 
 # create files as needed
-KEY_FILE=key.pem
-if [ ! -f "$KEY_FILE" ]; then
-  echo "$SIGNING_KEY" | base64 --decode >"$KEY_FILE"
-fi
+echo "Creating .key file"
+echo "$SIGNING_CERTIFICATE_BINARY" | base64 --decode > "$SIGNING_CERTIFICATE_FILE"
+
+echo "Creating .cer file"
+echo "$SIGNING_KEY_BINARY" | base64 --decode > "$SIGNING_KEY_FILE"
 
 osslsigncode sign -h sha512 \
-  -certs cert.pem \
-  -key key.pem \
+  -certs "$SIGNING_CERTIFICATE_FILE" \
+  -key "$SIGNING_KEY_FILE" \
   -n "Snyk CLI" \
   -i "https://snyk.io" \
   -t "http://timestamp.comodoca.com/authenticode" \
   -in binary-releases/snyk-win-unsigned.exe \
   -out binary-releases/snyk-win.exe
+
+rm -f "$SIGNING_CERTIFICATE_FILE"
+rm -f "$SIGNING_KEY_FILE"
