@@ -1,3 +1,5 @@
+// This is a very simplified example on how Workflows, Configuration and Legacy CLI can work together to build an Extensible CLI.
+// It doesn't have the goal to be perfectly programmed nor to represent a final implementation proposal. It is meant as a supplement to the associated Pitch.
 package main
 
 import (
@@ -9,55 +11,198 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
-type depGraph struct {
-	targetName   string
-	depGraphJson []byte
-}
-
-type sbomInvocation struct {
-	depGraph     depGraph
-	sbomResponse []byte
-}
-
-type workflowData struct {
+type WorkflowData struct {
 	identifier *url.URL
 	header     http.Header
 	payload    interface{}
 }
 
-func depGraphWorkflow(cmd *cobra.Command, args []string) (error, []workflowData) {
-	var depGraphList []workflowData
+type Config struct {
+	cmd    *cobra.Command
+	args   []string
+	values map[string]interface{}
+}
 
-	snykCmd := "node"
-	snykCmdArguments := []string{"../dist/cli/index.js", "test", "--print-graph", "--json"}
+type WorkflowEntry struct {
+	visible               bool
+	expectedConfiguration *pflag.FlagSet
+	entryPoint            func(c *Config, input []WorkflowData) (error, []WorkflowData)
+}
 
-	if allProjects, _ := cmd.Flags().GetBool("all-projects"); allProjects {
-		snykCmdArguments = append(snykCmdArguments, "--all-projects")
-	}
+type WorkflowEngine struct {
+	workflows map[string]WorkflowEntry
+	Config    *Config
+}
+
+var WorkflowEngineInstance *WorkflowEngine
+
+// ***
+// Config
+// ***
+func (c *Config) Update(cmd *cobra.Command, args []string) {
+	c.args = args
+	c.cmd = cmd
 
 	if len(args) > 0 {
-		snykCmdArguments = append(snykCmdArguments, args[0])
+		c.SetString("targetDirectory", args[0])
 	}
+
+}
+
+func (c *Config) GetBool(name string) (bool, error) {
+	value, ok := c.values[name]
+	if ok {
+		return value.(bool), nil
+	}
+
+	return c.cmd.Flags().GetBool(name)
+}
+
+func (c *Config) SetBool(name string, value bool) {
+	c.values[name] = value
+}
+
+func (c *Config) SetString(name string, value string) {
+	c.values[name] = value
+}
+
+func (c *Config) GetString(name string) (string, error) {
+	value, ok := c.values[name]
+	if ok {
+		return value.(string), nil
+	}
+
+	return c.cmd.Flags().GetString(name)
+}
+
+func (c *Config) SetStringSlice(name string, value []string) {
+	c.values[name] = value
+}
+
+func (c *Config) GetStringSlice(name string) ([]string, error) {
+	value, ok := c.values[name]
+	if ok {
+		return value.([]string), nil
+	}
+
+	return c.cmd.Flags().GetStringSlice(name)
+}
+
+// ***
+// WorkflowEngine
+// ***
+func NewWorkflowEnginge() *WorkflowEngine {
+	wfl := WorkflowEngine{}
+	wfl.workflows = make(map[string]WorkflowEntry)
+	wfl.Config = &Config{
+		cmd:    &cobra.Command{},
+		values: make(map[string]interface{}),
+	}
+	return &wfl
+}
+
+func (w *WorkflowEngine) InvokeWorkflowWithData(name string, input []WorkflowData) (error, []WorkflowData) {
+	var result []WorkflowData
+	var err error
+
+	workflow, ok := w.workflows[name]
+	if ok {
+		err, result = workflow.entryPoint(w.Config, input)
+	} else {
+		err = fmt.Errorf("Workflow '%s' not found.", name)
+	}
+
+	return err, result
+}
+
+func (w *WorkflowEngine) InvokeWorkflow(name string) (error, []WorkflowData) {
+	var input []WorkflowData
+	return w.InvokeWorkflowWithData(name, input)
+}
+
+// ***
+// Workflow: LegacyCLIWorkflow
+// ***
+func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
+	var output []WorkflowData
+	var err error
+
+	debug, _ := c.GetBool("debug")
+	additionalArgs, _ := c.GetStringSlice("legacy_cli_args")
+	standalone, _ := c.GetBool("legacy_cli_standalone")
+
+	snykCmd := "node"
+	snykCmdArguments := []string{"../dist/cli/index.js"}
+	snykCmdArguments = append(snykCmdArguments, additionalArgs...)
+	snykCommand := exec.Command(snykCmd, snykCmdArguments...)
+
+	if debug {
+		standaloneString := ""
+		if standalone {
+			standaloneString = " (Standaolne)"
+		}
+
+		fmt.Printf("Executing legacy cli%s: %s", standaloneString, snykCommand)
+	}
+
+	if standalone {
+		snykCommand.Stdin = os.Stdin
+		snykCommand.Stdout = os.Stdout
+		snykCommand.Stderr = os.Stderr
+		err = snykCommand.Run()
+	} else {
+		snykOutput, _ := snykCommand.Output()
+
+		id, _ := url.Parse("did://legacy/cmd#2135546")
+		data := WorkflowData{
+			identifier: id,
+			header: http.Header{
+				"Content-Type": {"text/plain"},
+			},
+			payload: snykOutput,
+		}
+		output = append(output, data)
+	}
+
+	return err, output
+}
+
+// ***
+// Workflow: depGraph
+// ***
+func DepGraphWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
+	var depGraphList []WorkflowData
 
 	jsonSeparatorEnd := []byte("DepGraph end")
 	jsonSeparatorData := []byte("DepGraph data:")
 	jsonSeparatorTarget := []byte("DepGraph target:")
 
-	snykCommand := exec.Command(snykCmd, snykCmdArguments...)
-	snykOutput, err := snykCommand.Output()
-	if err != nil {
-		fmt.Println(err)
+	// prepare invocation of the legacy cli
+	snykCmdArguments := []string{"test", "--print-graph", "--json"}
+	if allProjects, _ := c.GetBool("all-projects"); allProjects {
+		snykCmdArguments = append(snykCmdArguments, "--all-projects")
 	}
+
+	if targetDirectory, err := c.GetString("targetDirectory"); err == nil {
+		snykCmdArguments = append(snykCmdArguments, targetDirectory)
+	}
+
+	c.SetStringSlice("legacy_cli_args", snykCmdArguments)
+	_, legacyData := WorkflowEngineInstance.InvokeWorkflow("legacy_cli")
+	snykOutput := legacyData[0].payload.([]byte)
 
 	snykOutputLength := len(snykOutput)
 	if snykOutputLength <= 0 {
 		return fmt.Errorf("No dependency graphs found"), nil
 	}
 
+	// split up dependency data from legacy cli
 	separatedJsonRawData := bytes.Split(snykOutput, jsonSeparatorEnd)
 	for i := range separatedJsonRawData {
 		rawData := separatedJsonRawData[i]
@@ -71,13 +216,13 @@ func depGraphWorkflow(cmd *cobra.Command, args []string) (error, []workflowData)
 			depGraphJson := rawData[graphStartIndex:graphEndIndex]
 			id, _ := url.Parse("did://depgraph/depgraph#2135546")
 
-			data := workflowData{
+			data := WorkflowData{
 				identifier: id,
-				header:     http.Header{"mime-type": {"application/json"}},
-				payload: depGraph{
-					targetName:   strings.TrimSpace(string(targetName)),
-					depGraphJson: depGraphJson,
+				header: http.Header{
+					"Content-Type":     {"application/json"},
+					"Content-Location": {strings.TrimSpace(string(targetName))},
 				},
+				payload: depGraphJson,
 			}
 
 			depGraphList = append(depGraphList, data)
@@ -87,30 +232,49 @@ func depGraphWorkflow(cmd *cobra.Command, args []string) (error, []workflowData)
 	return nil, depGraphList
 }
 
-func sbomWorkflow(cmd *cobra.Command, args []string) (error, []workflowData) {
-	var sbomList []workflowData
+// ***
+// Workflow: sbom
+// ***
+func SbomWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
+	var sbomList []WorkflowData
 
-	debug, _ := cmd.Flags().GetBool("debug")
+	debug, _ := c.GetBool("debug")
 
-	err, depGraphData := depGraphWorkflow(cmd, args)
+	err, depGraphData := WorkflowEngineInstance.InvokeWorkflow("depgraph")
 	if err != nil {
 		return err, nil
 	}
 
 	for i := range depGraphData {
 		if depGraphData[i].identifier.Path == "/depgraph" {
-			singleData := depGraphData[i].payload.(depGraph)
+			singleData := depGraphData[i].payload.([]byte)
+			targetName := depGraphData[i].header["Content-Location"][0]
 
 			if debug {
-				fmt.Printf("(TODO) Calling SBOM API for target '%s' (DepGraph Size: %.2f[KB])\n", singleData.targetName, (float64(len(singleData.depGraphJson)) / 1024.0))
+				fmt.Printf("(TODO) Calling SBOM API for target '%s' (DepGraph Size: %.2f[KB])\n", targetName, (float64(len(singleData)) / 1024.0))
 			}
 
-			sbom := singleData.depGraphJson
+			// create fake and empty cyclonedx sbom
+			sbom := []byte(`{
+"bomFormat": "CycloneDX",
+"specVersion": "1.4",
+"version": 1,
+"metadata": {
+    "timestamp": "` + time.Now().Format(time.RFC3339) + `",
+    "tools": [
+            {
+            "vendor": "Snyk",
+            "name": "Snyk Open Source"
+            }
+        ]
+    }
+}`)
 
+			// create output data
 			id, _ := url.Parse("did://sbom/cyclonedx#2135546")
-			data := workflowData{
+			data := WorkflowData{
 				identifier: id,
-				header:     http.Header{"mime-type": {"application/json"}},
+				header:     http.Header{"Content-Type": {"application/json"}},
 				payload:    sbom,
 			}
 
@@ -121,21 +285,21 @@ func sbomWorkflow(cmd *cobra.Command, args []string) (error, []workflowData) {
 	return nil, sbomList
 }
 
-func output(cmd *cobra.Command, args []string) error {
-	err, data := sbomWorkflow(cmd, args)
-	if err != nil {
-		return err
-	}
+// ***
+// Workflow: output
+// ***
+func OutputWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
+	var empty []WorkflowData
 
-	debug, _ := cmd.Flags().GetBool("debug")
-	printJsonToCmd, _ := cmd.Flags().GetBool("json")
-	writeJsonToFile, _ := cmd.Flags().GetString("json-file-output")
+	debug, _ := c.GetBool("debug")
+	printJsonToCmd, _ := c.GetBool("json")
+	writeJsonToFile, _ := c.GetString("json-file-output")
 
-	for i := range data {
-		mimeType := data[i].header["mime-type"][0]
+	for i := range input {
+		mimeType := input[i].header["Content-Type"][0]
 
-		if mimeType == "application/json" {
-			singleData := data[i].payload.([]byte)
+		if mimeType == "application/json" { // handle application/json
+			singleData := input[i].payload.([]byte)
 
 			if printJsonToCmd {
 				fmt.Println(string(singleData))
@@ -143,33 +307,150 @@ func output(cmd *cobra.Command, args []string) error {
 
 			if len(writeJsonToFile) > 0 {
 				if debug {
-					fmt.Printf("Writing '%s' JSON of length %d to '%s'\n", data[i].identifier.Path, len(singleData), writeJsonToFile)
+					fmt.Printf("Writing '%s' JSON of length %d to '%s'\n", input[i].identifier.Path, len(singleData), writeJsonToFile)
 				}
 
-				os.WriteFile(writeJsonToFile, singleData, fs.FileMode(0577))
+				os.Remove(writeJsonToFile)
+				os.WriteFile(writeJsonToFile, singleData, fs.FileMode(0666))
 			}
-
+		} else if mimeType == "text/plain" { // handle text/pain
+			singleData := input[i].payload.([]byte)
+			fmt.Println(string(singleData))
+		} else {
+			err := fmt.Errorf("Unsupported output type: %s", mimeType)
+			return err, empty
 		}
+	}
+
+	return nil, empty
+}
+
+func init() {
+	WorkflowEngineInstance = NewWorkflowEnginge()
+
+	// init & register depgraph
+	depGraphConfig := pflag.NewFlagSet("dasd", pflag.ExitOnError)
+	depGraphConfig.Bool("all-projects", false, "Enable all projects")
+	WorkflowEngineInstance.workflows["depgraph"] = WorkflowEntry{
+		visible:               true,
+		expectedConfiguration: depGraphConfig,
+		entryPoint:            DepGraphWorkflow,
+	}
+
+	// init & register sbom
+	WorkflowEngineInstance.workflows["sbom"] = WorkflowEntry{
+		visible:    true,
+		entryPoint: SbomWorkflow,
+	}
+
+	// init & register LegacyCLIWorkflow
+	WorkflowEngineInstance.workflows["legacy_cli"] = WorkflowEntry{
+		visible:    false,
+		entryPoint: LegacyCLIWorkflow,
+	}
+
+	// init & register output
+	outputConfig := pflag.NewFlagSet("dasd", pflag.ExitOnError)
+	outputConfig.Bool("json", false, "Print json output to console")
+	outputConfig.String("json-file-output", "", "Write json output to file")
+	WorkflowEngineInstance.workflows["output"] = WorkflowEntry{
+		visible:               false,
+		expectedConfiguration: outputConfig,
+		entryPoint:            OutputWorkflow,
+	}
+}
+
+// main workflow
+func run(cmd *cobra.Command, args []string) error {
+	WorkflowEngineInstance.Config.Update(cmd, args)
+
+	name := cmd.Name()
+	debug, _ := WorkflowEngineInstance.Config.GetBool("debug")
+	if debug {
+		fmt.Println("Running", name)
+	}
+
+	err, data := WorkflowEngineInstance.InvokeWorkflow(name)
+	if err != nil {
+		return err
+	}
+
+	err, data = WorkflowEngineInstance.InvokeWorkflowWithData("output", data)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
+func usage(cmd *cobra.Command) error {
+	return defaultCmd(cmd, []string{})
+}
+
+func help(cmd *cobra.Command, args []string) {
+	defaultCmd(cmd, args)
+}
+
+func defaultCmd(cmd *cobra.Command, args []string) error {
+	WorkflowEngineInstance.Config.SetStringSlice("legacy_cli_args", os.Args[1:])
+	WorkflowEngineInstance.Config.SetBool("legacy_cli_standalone", true)
+	err, _ := WorkflowEngineInstance.InvokeWorkflow("legacy_cli")
+	return err
+}
+
 func main() {
 	rootCommand := cobra.Command{
-		Use:  "sbom",
-		Args: cobra.MaximumNArgs(1),
-		RunE: output,
+		Use: "snyk",
 	}
 
-	rootCommand.Flags().Bool("json", false, "Print json output to console")
-	rootCommand.Flags().String("json-file-output", "", "Write json output to file")
-	rootCommand.PersistentFlags().Bool("all-projects", false, "Enable all projects")
-	rootCommand.PersistentFlags().BoolP("debug", "d", false, "Enable debug output")
+	helpCommand := cobra.Command{
+		Use: "help",
+		Run: help,
+	}
 
+	// init commands based on available workflows
+	for k, v := range WorkflowEngineInstance.workflows {
+		if v.visible {
+			cmd := cobra.Command{
+				Use:  k,
+				Args: cobra.MaximumNArgs(1),
+				RunE: run,
+			}
+
+			if v.expectedConfiguration != nil {
+				cmd.Flags().AddFlagSet(v.expectedConfiguration)
+			}
+
+			rootCommand.AddCommand(&cmd)
+		}
+	}
+
+	// some static/global cobra configuration
+	rootCommand.CompletionOptions.DisableDefaultCmd = true
+	rootCommand.SilenceErrors = true
+
+	rootCommand.PersistentFlags().BoolP("debug", "d", false, "Enable debug output")
+	rootCommand.PersistentFlags().AddFlagSet(WorkflowEngineInstance.workflows["output"].expectedConfiguration)
+
+	// ensure that help and usage information comes from the legacy cli instead of cobra's default help
+	rootCommand.SetHelpFunc(help)
+	rootCommand.SetUsageFunc(usage)
+	rootCommand.SetHelpCommand(&helpCommand)
+
+	// run the extensible cli
 	err := rootCommand.Execute()
+
+	// fallback to the legacy cli
 	if err != nil {
-		os.Exit(1)
+		err = defaultCmd(nil, []string{})
+	}
+
+	if err != nil {
+		exitCode := 1
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+		}
+		os.Exit(exitCode)
 	} else {
 		os.Exit(0)
 	}
