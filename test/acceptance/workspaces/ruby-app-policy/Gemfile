@@ -1,5 +1,5 @@
 source :rubygems
 
-gem "sanitize", "4.6.2"
-gem "yard", "0.8.0"
+gem "sanitize", "5.2.1"
+gem "yard", "0.9.20"
 gem "lynx", "0.4.0"
