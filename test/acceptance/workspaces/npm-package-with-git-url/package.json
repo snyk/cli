@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "prepublish": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
+  },
   "dependencies": {
-    "patchable-vuln": "git+ssh://git@github.com/snyk-fixtures/patchable-vuln.git"
+    "patchable-vuln": "git+ssh://git@github.com/snyk-fixtures/patchable-vuln.git",
+    "@snyk/protect": "latest"
   },
   "keywords": [],
   "author": "",
