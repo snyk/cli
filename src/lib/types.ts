@@ -73,6 +73,7 @@ export interface Options {
   experimental?: boolean;
   // Used with the Docker plugin only. Allows application scanning.
   'app-vulns'?: boolean;
+  'exclude-app-vulns'?: boolean;
   debug?: boolean;
   sarif?: boolean;
   'group-issues'?: boolean;
@@ -107,6 +108,7 @@ export interface MonitorOptions {
   experimental?: boolean;
   // Used with the Docker plugin only. Allows application scanning.
   'app-vulns'?: boolean;
+  'exclude-app-vulns'?: boolean;
   initScript?: string;
   yarnWorkspaces?: boolean;
   'max-depth'?: number;
