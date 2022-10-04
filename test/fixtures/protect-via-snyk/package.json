@@ -6,13 +6,15 @@
   "dependencies": {
     "semver": "^2.3.2",
     "get-uri": "2.0.2",
-    "snyk": "*"
+    "snyk": "^1.996.0",
+    "@snyk/protect": "latest"
   },
   "scripts": {
     "env": "env",
     "test": "snyk test && echo \"Error: no test specified\" && exit 1",
-    "snyk-protect": "snyk protect",
-    "postinstall": "npm run snyk-protect"
+    "snyk-protect": "snyk-protect",
+    "postinstall": "npm run snyk-protect",
+    "prepare": "yarn run snyk-protect"
   },
   "author": "",
   "license": "ISC",

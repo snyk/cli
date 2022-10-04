@@ -1,5 +1,26 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+# patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:semver:20150403':
     - semver@2.3.2:
         patched: '2015-10-27T16:30:18.628Z'
+  SNYK-JS-HTTPSPROXYAGENT-469131:
+    - snyk > proxy-agent > https-proxy-agent:
+        patched: '2022-10-04T15:10:14.720Z'
+    - snyk > proxy-agent > pac-proxy-agent > https-proxy-agent:
+        patched: '2022-10-04T15:10:14.720Z'
+  SNYK-JS-LODASH-567746:
+    - snyk > lodash:
+        patched: '2022-10-04T15:10:14.720Z'
+    - snyk > inquirer > lodash:
+        patched: '2022-10-04T15:10:14.720Z'
+    - snyk > snyk-config > lodash:
+        patched: '2022-10-04T15:10:14.720Z'
+    - snyk > snyk-nuget-plugin > lodash:
+        patched: '2022-10-04T15:10:14.720Z'
+    - snyk > snyk-php-plugin > lodash:
+        patched: '2022-10-04T15:10:14.720Z'
+    - snyk > snyk-go-plugin > graphlib > lodash:
+        patched: '2022-10-04T15:10:14.720Z'
 ignore: {}
+version: v1.25.0
