@@ -7,7 +7,7 @@ attrs==19.1.0
 automat==0.7.0
 backports.functools-lru-cache==1.5 ; python_version < '3.2'
 billiard==3.6.0.0
-celery==4.3.0
+celery==5.2.2
 certifi==2019.3.9
 cffi==1.12.3
 chardet==3.0.4
@@ -16,7 +16,7 @@ clickclick==1.2.2
 configparser==3.7.4 ; python_version == '2.7'
 connexion[swagger-ui]==2.2.0
 constantly==15.1.0
-cryptography==2.6.1
+cryptography==3.2
 cssselect==1.0.3
 cython==0.29.7
 enum34==1.1.6 ; python_version < '2.6'
