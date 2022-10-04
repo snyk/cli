@@ -12,11 +12,10 @@ describe('snyk iac test', () => {
     const filePath = 'iac/depth_detection/root.tf';
 
     // Act
-    const { stderr, stdout, exitCode } = await run(`snyk iac test ${filePath}`);
+    const { stdout, exitCode } = await run(`snyk iac test ${filePath}`);
 
     // Assert
     expect(stdout).toContain('Infrastructure as Code');
-    expect(stderr).toBe('');
     expect(exitCode).toBeLessThan(2);
   });
 
