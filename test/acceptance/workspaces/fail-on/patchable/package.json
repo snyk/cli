@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "description": "patchable application",
   "dependencies": {
-    "ms": "^1.0.0"
+    "ms": "^1.0.0",
+    "@snyk/protect": "latest"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "scripts": {
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
+  },
+  "snyk": true
 }
