@@ -1,0 +1,19 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-HTTPSPROXYAGENT-469131:
+    - '@google-cloud/trace-agent > gcp-metadata > gaxios > https-proxy-agent':
+        patched: '2022-10-04T16:19:34.824Z'
+    - '@google-cloud/profiler > @google-cloud/common > teeny-request > https-proxy-agent':
+        patched: '2022-10-04T16:19:34.824Z'
+    - '@google-cloud/profiler > @google-cloud/common > google-auth-library > gaxios > https-proxy-agent':
+        patched: '2022-10-04T16:19:34.824Z'
+    - '@google-cloud/profiler > @google-cloud/common > google-auth-library > gcp-metadata > gaxios > https-proxy-agent':
+        patched: '2022-10-04T16:19:34.824Z'
+    - '@google-cloud/profiler > @google-cloud/common > google-auth-library > gtoken > gaxios > https-proxy-agent':
+        patched: '2022-10-04T16:19:34.824Z'
+  SNYK-JS-LODASH-567746:
+    - '@grpc/proto-loader > lodash':
+        patched: '2022-10-04T16:19:34.824Z'
