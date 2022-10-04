@@ -13,7 +13,7 @@ export async function test(testConfig: TestConfig): Promise<TestOutput> {
 
   const testOutput = scan(testConfig, policyEnginePath, rulesBundlePath);
 
-  addIacAnalytics(testOutput);
+  addIacAnalytics(testConfig, testOutput);
 
   return testOutput;
 }
