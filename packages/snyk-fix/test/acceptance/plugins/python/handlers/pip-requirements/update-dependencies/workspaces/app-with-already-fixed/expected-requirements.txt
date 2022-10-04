@@ -1,4 +1,4 @@
 -r core/requirements.txt
 -r lib/requirements.txt
 -r base.txt
-Django==2.0.1
+Django==3.2.15
