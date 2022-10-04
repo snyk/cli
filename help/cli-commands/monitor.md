@@ -64,7 +64,7 @@ Can be used with `--all-projects` and `--yarn-workspaces` to indicate directory 
 
 Example: `$ snyk test --all-projects --exclude=dir1,file2`
 
-This will exclude any directories and files named "dir1" and "file2" when scanning for project manifest files. Such as: "./dir1", "./src/dir1", "./file2", "./src/file2", and so on.
+This will exclude any directories and files named `dir1` and `file2` when scanning for project manifest files such as: `./dir1`, `./src/dir1`, `./file2`, `./src/file2` and so on.
 
 ### `--prune-repeated-subdependencies`, `-p`
 
@@ -148,7 +148,9 @@ Manually pass a path to a `.snyk` policy file.
 
 ### `--json`
 
-Print results in JSON format.
+Print results on the console as a JSON data structure.
+
+Note: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Editing project attributes from the Snyk CLI](https://docs.snyk.io/features/user-and-group-management/managing-users-and-permissions/managing-permissions#editing-project-attributes-from-the-snyk-cli)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -302,19 +304,13 @@ The following `snyk monitor` options can be used with `--unmanaged` as documente
 
 There are also special options.
 
-### `--target-dir`
-
-Scan the path specified in the argument instead of the current directory.
-
-Alternatively, run `snyk test --unmanaged`
-
 ### `--max-depth`
 
 Specify the maximum level of archive extraction.
 
 Usage: `--max-depth=1`&#x20;
 
-Use 0 to disable archive extraction completely.
+Use 0 (zero, the default) to disable archive extraction completely.
 
 ### `--print-dep-paths`
 

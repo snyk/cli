@@ -60,9 +60,11 @@ Manually pass a path to a `.snyk` policy file.
 
 ### `--json`
 
-Print results in JSON format, useful for integrating with other tools
+Print results on the console as a JSON data structure.
 
 Example: `$ snyk container test --json`
+
+Note: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Editing project attributes from the Snyk CLI](https://docs.snyk.io/features/user-and-group-management/managing-users-and-permissions/managing-permissions#editing-project-attributes-from-the-snyk-cli)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -98,7 +100,7 @@ To clear the project tags set `--project-tags=`
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
-This is an alias for `--project tags`
+This is an alias for `--project-tags`
 
 ### `--app-vulns`
 
