@@ -5,7 +5,9 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/fs"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -41,6 +43,28 @@ type WorkflowEngine struct {
 }
 
 var WorkflowEngineInstance *WorkflowEngine
+var helpProvided bool = false
+var logger log.Logger
+
+func NewWorkflowDataFromInput(input *WorkflowData, id string, contentType string, data interface{}) *WorkflowData {
+	output := NewWorkflowData(id, contentType, data)
+	output.identifier.Fragment = input.identifier.Fragment
+	return output
+}
+
+func NewWorkflowData(id string, contentType string, data interface{}) *WorkflowData {
+	idUrl, _ := url.Parse(id)
+	idUrl.Fragment = fmt.Sprintf("%d", time.Now().Nanosecond())
+	output := &WorkflowData{
+		identifier: idUrl,
+		header: http.Header{
+			"Content-Type": {contentType},
+		},
+		payload: data,
+	}
+
+	return output
+}
 
 // ***
 // Config
@@ -148,7 +172,7 @@ func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) 
 			standaloneString = " (Standaolne)"
 		}
 
-		fmt.Printf("Executing legacy cli%s: %s", standaloneString, snykCommand)
+		logger.Printf("Executing legacy cli%s: %s\n", standaloneString, snykCommand)
 	}
 
 	if standalone {
@@ -159,15 +183,8 @@ func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) 
 	} else {
 		snykOutput, _ := snykCommand.Output()
 
-		id, _ := url.Parse("did://legacy/cmd#2135546")
-		data := WorkflowData{
-			identifier: id,
-			header: http.Header{
-				"Content-Type": {"text/plain"},
-			},
-			payload: snykOutput,
-		}
-		output = append(output, data)
+		data := NewWorkflowData("did://legacy/cmd", "text/plain", snykOutput)
+		output = append(output, *data)
 	}
 
 	return err, output
@@ -214,18 +231,10 @@ func DepGraphWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 
 			targetName := rawData[targetNameStartIndex:targetNameEndIndex]
 			depGraphJson := rawData[graphStartIndex:graphEndIndex]
-			id, _ := url.Parse("did://depgraph/depgraph#2135546")
 
-			data := WorkflowData{
-				identifier: id,
-				header: http.Header{
-					"Content-Type":     {"application/json"},
-					"Content-Location": {strings.TrimSpace(string(targetName))},
-				},
-				payload: depGraphJson,
-			}
-
-			depGraphList = append(depGraphList, data)
+			data := NewWorkflowData("did://depgraph/depgraph", "application/json", depGraphJson)
+			data.header.Add("Content-Location", strings.TrimSpace(string(targetName)))
+			depGraphList = append(depGraphList, *data)
 		}
 	}
 
@@ -238,47 +247,26 @@ func DepGraphWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 func SbomWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 	var sbomList []WorkflowData
 
-	debug, _ := c.GetBool("debug")
-
+	// invoke depgraph
 	err, depGraphData := WorkflowEngineInstance.InvokeWorkflow("depgraph")
 	if err != nil {
 		return err, nil
 	}
 
+	// iterate over depgraphs and generate sbom
 	for i := range depGraphData {
 		if depGraphData[i].identifier.Path == "/depgraph" {
 			singleData := depGraphData[i].payload.([]byte)
 			targetName := depGraphData[i].header["Content-Location"][0]
 
-			if debug {
-				fmt.Printf("(TODO) Calling SBOM API for target '%s' (DepGraph Size: %.2f[KB])\n", targetName, (float64(len(singleData)) / 1024.0))
-			}
+			logger.Printf("(TODO) Calling SBOM API for target '%s' (DepGraph Size: %.2f[KB])\n", targetName, (float64(len(singleData)) / 1024.0))
 
 			// create fake and empty cyclonedx sbom
-			sbom := []byte(`{
-"bomFormat": "CycloneDX",
-"specVersion": "1.4",
-"version": 1,
-"metadata": {
-    "timestamp": "` + time.Now().Format(time.RFC3339) + `",
-    "tools": [
-            {
-            "vendor": "Snyk",
-            "name": "Snyk Open Source"
-            }
-        ]
-    }
-}`)
+			sbom := []byte("{\n\"bomFormat\": \"CycloneDX\",\n\"specVersion\": \"1.4\",\n\"version\": 1,\n\"metadata\": {\n\t\"timestamp\": \"" + time.Now().Format(time.RFC3339) + "\",\n\t\"tools\": [\n\t\t{\n\t\t\"vendor\": \"Snyk\",\n\t\t\"name\": \"Snyk Open Source\"\n\t\t}\n\t]\n}\n}")
 
 			// create output data
-			id, _ := url.Parse("did://sbom/cyclonedx#2135546")
-			data := WorkflowData{
-				identifier: id,
-				header:     http.Header{"Content-Type": {"application/json"}},
-				payload:    sbom,
-			}
-
-			sbomList = append(sbomList, data)
+			data := NewWorkflowDataFromInput(&depGraphData[i], "did://sbom/cyclonedx", "application/json", sbom)
+			sbomList = append(sbomList, *data)
 		}
 	}
 
@@ -291,12 +279,13 @@ func SbomWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 func OutputWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 	var empty []WorkflowData
 
-	debug, _ := c.GetBool("debug")
 	printJsonToCmd, _ := c.GetBool("json")
 	writeJsonToFile, _ := c.GetString("json-file-output")
 
 	for i := range input {
 		mimeType := input[i].header["Content-Type"][0]
+
+		logger.Printf("Processing '%s' of type '%s'\n", input[i].identifier, mimeType)
 
 		if mimeType == "application/json" { // handle application/json
 			singleData := input[i].payload.([]byte)
@@ -306,9 +295,7 @@ func OutputWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 			}
 
 			if len(writeJsonToFile) > 0 {
-				if debug {
-					fmt.Printf("Writing '%s' JSON of length %d to '%s'\n", input[i].identifier.Path, len(singleData), writeJsonToFile)
-				}
+				logger.Printf("Writing '%s' JSON of length %d to '%s'\n", input[i].identifier.Path, len(singleData), writeJsonToFile)
 
 				os.Remove(writeJsonToFile)
 				os.WriteFile(writeJsonToFile, singleData, fs.FileMode(0666))
@@ -329,7 +316,7 @@ func init() {
 	WorkflowEngineInstance = NewWorkflowEnginge()
 
 	// init & register depgraph
-	depGraphConfig := pflag.NewFlagSet("dasd", pflag.ExitOnError)
+	depGraphConfig := pflag.NewFlagSet("depgraph", pflag.ExitOnError)
 	depGraphConfig.Bool("all-projects", false, "Enable all projects")
 	WorkflowEngineInstance.workflows["depgraph"] = WorkflowEntry{
 		visible:               true,
@@ -350,7 +337,7 @@ func init() {
 	}
 
 	// init & register output
-	outputConfig := pflag.NewFlagSet("dasd", pflag.ExitOnError)
+	outputConfig := pflag.NewFlagSet("output", pflag.ExitOnError)
 	outputConfig.Bool("json", false, "Print json output to console")
 	outputConfig.String("json-file-output", "", "Write json output to file")
 	WorkflowEngineInstance.workflows["output"] = WorkflowEntry{
@@ -364,11 +351,14 @@ func init() {
 func run(cmd *cobra.Command, args []string) error {
 	WorkflowEngineInstance.Config.Update(cmd, args)
 
-	name := cmd.Name()
 	debug, _ := WorkflowEngineInstance.Config.GetBool("debug")
-	if debug {
-		fmt.Println("Running", name)
+	logger = *log.Default()
+	if debug == false {
+		logger.SetOutput(io.Discard)
 	}
+
+	name := cmd.Name()
+	logger.Println("Running", name)
 
 	err, data := WorkflowEngineInstance.InvokeWorkflow(name)
 	if err != nil {
@@ -384,10 +374,12 @@ func run(cmd *cobra.Command, args []string) error {
 }
 
 func usage(cmd *cobra.Command) error {
+	helpProvided = true
 	return defaultCmd(cmd, []string{})
 }
 
 func help(cmd *cobra.Command, args []string) {
+	helpProvided = true
 	defaultCmd(cmd, args)
 }
 
@@ -441,7 +433,7 @@ func main() {
 	err := rootCommand.Execute()
 
 	// fallback to the legacy cli
-	if err != nil {
+	if err != nil && helpProvided == false {
 		err = defaultCmd(nil, []string{})
 	}
 
