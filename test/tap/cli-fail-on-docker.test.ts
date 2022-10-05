@@ -81,6 +81,11 @@ test('test docker image with no fixable vulns and --fail-on=all', async (t) => {
     await cli.test('debian/sqlite3:latest', {
       failOn: 'all',
       docker: true,
+      // TODO: we should be able to remove that setting once once we remove the
+      // containerCliAppVulnsEnabled feature flag has been removed as well.
+      // Currently without setting this (or app-vulns), the code tries to reach
+      // the API to check the feature flag and throws an exception.
+      'exclude-app-vulns': true,
     });
     t.pass('should not throw exception');
   } catch (err) {
@@ -98,6 +103,11 @@ test('test docker image with fixable vulns and --fail-on=all', async (t) => {
     await cli.test('garethr/snyky:alpine', {
       failOn: 'all',
       docker: true,
+      // TODO: we should be able to remove that setting once once we remove the
+      // containerCliAppVulnsEnabled feature flag has been removed as well.
+      // Currently without setting this (or app-vulns), the code tries to reach
+      // the API to check the feature flag and throws an exception.
+      'exclude-app-vulns': true,
     });
     t.fail('expected test to throw exception');
   } catch (err) {

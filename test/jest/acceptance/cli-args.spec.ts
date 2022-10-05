@@ -12,7 +12,7 @@ const isWindows =
 jest.setTimeout(1000 * 60 * 5);
 
 describe('cli args', () => {
-  let server;
+  let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
   beforeAll((done) => {
@@ -301,7 +301,7 @@ describe('cli args', () => {
   });
 
   test('iac test with flags not allowed with --sarif', async () => {
-    const { code, stdout } = await runSnykCLI(`test iac --sarif --json`, {
+    const { code, stdout } = await runSnykCLI(`iac test --sarif --json`, {
       env,
     });
     expect(stdout).toMatch(
@@ -312,10 +312,13 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('iac container with flags not allowed with --sarif', async () => {
-    const { code, stdout } = await runSnykCLI(`test container --sarif --json`, {
-      env,
-    });
+  test('container test with flags not allowed with --sarif', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container test  --sarif --json`,
+      {
+        env,
+      },
+    );
     expect(stdout).toMatch(
       new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
         .userMessage,
