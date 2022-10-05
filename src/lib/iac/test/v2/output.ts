@@ -33,6 +33,7 @@ import {
   colors,
   contentPadding,
 } from '../../../formatters/iac-output/text/utils';
+import * as wrapAnsi from 'wrap-ansi';
 
 export function buildOutput({
   scanResult,
@@ -188,22 +189,20 @@ function buildTextOutput({
   response += EOL;
   response += colors.title('Info') + EOL;
   response += EOL;
-  response +=
-    contentPadding +
-    `Your organization ${orgSettings.meta.org} is using Integrated IaC. To switch to Current IaC,` +
-    EOL;
-  response +=
-    contentPadding +
-    `use --org=<ORG_ID> to select a different organization. For more information about Integrated IaC, see:` +
-    EOL;
-  response += EOL;
-  response +=
-    contentPadding +
-    contentPadding +
-    'https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code/integrated-infrastructure-as-code' +
-    EOL;
+  response += wrapWithPadding(infoMessage(orgSettings), 80) + EOL;
 
   return response;
+}
+
+function wrapWithPadding(s: string, columns: number): string {
+  return wrapAnsi(s, columns)
+    .split('\n')
+    .map((s) => contentPadding + s)
+    .join('\n');
+}
+
+function infoMessage(orgSettings: IacOrgSettings): string {
+  return `Your organization ${orgSettings.meta.org} is using Integrated IaC. To switch to Current IaC, use --org=<ORG_ID> to select a different organization. For more information about Integrated IaC, see https://snyk.co/integrated-iac.`;
 }
 
 function assertHasSuccessfulScans(
