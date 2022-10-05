@@ -10,6 +10,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([
     ['cliFailFast', false],
     ['iacIntegratedExperience', false],
+    ['containerCliAppVulnsEnabled', false],
   ]);
 };
 

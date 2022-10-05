@@ -12,7 +12,7 @@ const isWindows =
 jest.setTimeout(1000 * 60 * 5);
 
 describe('cli args', () => {
-  let server;
+  let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
   beforeAll((done) => {
@@ -301,7 +301,7 @@ describe('cli args', () => {
   });
 
   test('iac test with flags not allowed with --sarif', async () => {
-    const { code, stdout } = await runSnykCLI(`test iac --sarif --json`, {
+    const { code, stdout } = await runSnykCLI(`iac test --sarif --json`, {
       env,
     });
     expect(stdout).toMatch(
@@ -312,10 +312,13 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('iac container with flags not allowed with --sarif', async () => {
-    const { code, stdout } = await runSnykCLI(`test container --sarif --json`, {
-      env,
-    });
+  test('container test with flags not allowed with --sarif', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container test  --sarif --json`,
+      {
+        env,
+      },
+    );
     expect(stdout).toMatch(
       new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
         .userMessage,
@@ -393,9 +396,9 @@ describe('cli args', () => {
       },
     );
 
+    expect(code).toEqual(0);
     const sarifOutput = await project.readJSON(sarifPath);
     expect(sarifOutput.version).toMatch('2.1.0');
-    expect(code).toEqual(0);
   });
 
   test('container test --sarif-file-output can be used at the same time as --json', async () => {
@@ -432,7 +435,6 @@ describe('cli args', () => {
         },
       );
       const jsonOutput = JSON.parse(stdout);
-
       expect(jsonOutput.ok).toEqual(true);
       expect(code).toEqual(0);
     });
