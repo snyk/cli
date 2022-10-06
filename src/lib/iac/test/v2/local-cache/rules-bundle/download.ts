@@ -19,8 +19,13 @@ export async function downloadRulesBundle(
   // IAC_BUNDLE_PATH is a developer setting that is not useful to most users. It
   // is not a replacement for custom rules.
   if (config.IAC_BUNDLE_PATH) {
+    debugLog(`Located a local rules bundle at ${testConfig.iacCachePath}`);
     return config.IAC_BUNDLE_PATH;
   }
+
+  debugLog(
+    `Downloading the rules bundle and saving it at ${testConfig.iacCachePath}`,
+  );
 
   let downloadDurationSeconds = 0;
 
