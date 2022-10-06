@@ -59,7 +59,7 @@ Can be used with `--all-projects` and `--yarn-workspaces` to indicate directory 
 
 Example: `$ snyk test --all-projects --exclude=dir1,file2`
 
-This will exclude any directories and files named "dir1" and "file2" when scanning for project manifest files. Such as: "./dir1", "./src/dir1", "./file2", "./src/file2", and so on.
+This will exclude any directories and files named `dir1` and `file2` when scanning for project manifest files such as: `./dir1`, `./src/dir1`, `./file2`, `./src/file2` and so on.
 
 ### `--prune-repeated-subdependencies`, `-p`
 
@@ -149,15 +149,15 @@ Manually pass a path to a `.snyk` policy file.
 
 ### `--json`
 
-Print results in JSON format.
+Print results on the console as a JSON data structure.
 
 Example: `$ snyk test --json`
 
 ### `--json-file-output=<OUTPUT_FILE_PATH>`
 
-Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
+Save test output as a JSON data structure directly to the specified file, regardless of whether or not you use the `--json` option.
 
-This is useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
+Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file. If no issues are found, an output file is not created.
 
 Example: `$ snyk test --json-file-output=vuln.json`
 
@@ -193,9 +193,9 @@ For more information about Maven CLI options see [Snyk for Java and Kotlin](http
 
 Use `--maven-aggregate-project` instead of `--all-projects` when scanning Maven aggregate projects, that is, ones that use modules and inheritance.
 
-When scanning these types of projects, Snyk performs a compile to ensure all modules are resolvable by the Maven reactor.&#x20;
+When scanning these types of projects, Snyk performs a compile to ensure all modules are resolvable by the Maven reactor.
 
-Be sure to run the scan in the same directory as the root pom.xml file.&#x20;
+Be sure to run the scan in the same directory as the root pom.xml file.
 
 Snyk reports test results per pom.xml file.
 
@@ -229,7 +229,7 @@ Select certain values of configuration attributes to install dependencies and pe
 
 Example: `buildtype:release,usage:java-runtime`
 
-### `--init-script=<FILE`
+### `--init-script=<FILE>`
 
 Use for projects that contain a Gradle initialization script.
 
@@ -313,19 +313,13 @@ The following standard `snyk test` options can be used with `--unmanaged` as doc
 
 There are also special options as follows.
 
-### `--target-dir`
-
-Scan the path specified in the argument instead of the current directory.
-
-Alternatively, run `snyk test --unmanaged`
-
 ### `--max-depth`
 
 Specify the maximum level of archive extraction.
 
-Usage: `--max-depth=1`&#x20;
+Usage: `--max-depth=1`
 
-Use 0 to disable archive extraction completely.
+Use 0 (zero, the default) to disable archive extraction completely.
 
 ### `--print-dep-paths`
 

@@ -166,7 +166,7 @@ Output only the scan result to stdout.
 
 ### `--json`
 
-Output the report as JSON to stdout.
+Output the report as a JSON data structure to stdout.
 
 ### `--html`
 

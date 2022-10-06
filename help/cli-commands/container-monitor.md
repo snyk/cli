@@ -60,9 +60,11 @@ Manually pass a path to a `.snyk` policy file.
 
 ### `--json`
 
-Print results in JSON format, useful for integrating with other tools
+Print results on the console as a JSON data structure.
 
 Example: `$ snyk container test --json`
+
+Note: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Editing project attributes from the Snyk CLI](https://docs.snyk.io/features/user-and-group-management/managing-users-and-permissions/managing-permissions#editing-project-attributes-from-the-snyk-cli)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -98,13 +100,21 @@ To clear the project tags set `--project-tags=`
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
-This is an alias for `--project tags`
+This is an alias for `--project-tags`
 
 ### `--app-vulns`
 
 Allow detection of vulnerabilities in your application dependencies from container images, as well as from the operating system, all in one single scan.
 
 In CLI version 1.962.0 and higher, use the `--app-vulns` option with the the `--json` option to see the operating system as well as application vulnerabilities in JSON format in the results.
+
+For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
+
+### `--exclude-app-vulns`
+
+Allow disabling scans for app vulnerabilities in advance of `app-vulns` being enabled by default.
+
+Cannot be used with `--app-vulns`.
 
 For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
 
