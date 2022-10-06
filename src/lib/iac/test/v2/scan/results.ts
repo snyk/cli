@@ -39,6 +39,7 @@ export interface Results {
 
 export interface Metadata {
   projectName: string;
+  ignoredCount: number;
 }
 
 export interface ScanAnalytics {
