@@ -6,7 +6,7 @@
 
 OR
 
-`snyk ignore [--expiry=] [--reason=] [--policy-path=<PATH_TO_POLICY_FILE>] --file-path=<PATH_TO_RESOURCE>] [OPTIONS]`
+`snyk ignore [--expiry=] [--reason=] [--policy-path=<PATH_TO_POLICY_FILE>] [--file-path=<PATH_TO_RESOURCE>] [OPTIONS]`
 
 ## Description
 

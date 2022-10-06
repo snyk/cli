@@ -65,15 +65,15 @@ Manually pass a path to a `.snyk` policy file.
 
 ### `--json`
 
-Print results in JSON format.
+Print results on the console as a JSON data structure.
 
 Example: `$ snyk iac test --json`
 
 ### `--json-file-output=<OUTPUT_FILE_PATH>`
 
-Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
+Save test output as a JSON data structure directly to the specified file, regardless of whether or not you use the `--json` option.
 
-This is especially useful if you want to display the human-readable test output using stdout and at the same time save the JSON format output to a file.
+Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file. If no issues are found, an output file is not created.
 
 Example: `$ snyk iac test --json-file-output=vuln.json`
 
@@ -87,6 +87,8 @@ Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regar
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
+Note: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `iac test` command fails. For instructions on how to proceed see [Editing project attributes from the Snyk CLI](https://docs.snyk.io/features/user-and-group-management/managing-users-and-permissions/managing-permissions#editing-project-attributes-from-the-snyk-cli)
+
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
 
 This can be used in combination with the `--report` option.
@@ -96,6 +98,8 @@ Set the project business criticality project attribute to one or more values (co
 Allowed values: `critical, high, medium, low`
 
 For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+
+This option is not supported for Integrated IaC (Limited Availability).
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -107,6 +111,8 @@ Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`,
 
 For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
+This option is not supported for Integrated IaC (Limited Availability).
+
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
 
 This can be used in combination with the `--report` option.
@@ -117,6 +123,8 @@ Allowed values: `production`, `development`, `sandbox`
 
 For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
 
+This option is not supported for Integrated IaC (Limited Availability).
+
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
 This can be used in combination with the `--report` option.
@@ -126,6 +134,8 @@ Set the project tags to one or more values (comma-separated key value pairs with
 Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
+
+This option is not supported for Integrated IaC (Limited Availability).
 
 ### `--remote-repo-url=<URL>`
 
@@ -147,13 +157,15 @@ Note: This option cannot be used in combination with the `--rules` option.
 
 Use this dedicated option for Custom Rules scanning to enable the IaC scans to use a custom rules bundle generated with the `snyk-iac-rules` SDK. See [`snyk-iac-rules` SDK](https://github.com/snyk/snyk-iac-rules#readme)
 
-This option cannot be used if the custom rules settings were configured with the Snyk UI. Default: If the `--rules` flag is not specified, scan the configuration files using the internal Snyk rules only.
+This option cannot be used if the custom rules settings were configured with the Snyk UI. Default: If the `--rules` option is not specified, scan the configuration files using the internal Snyk rules only.
 
 Example: Scan the configuration files using custom rules and internal Snyk rules.
 
 `--rules=bundle.tar.gz`
 
 Note: This option can not be used in combination with the `--report` option.
+
+This option is not supported for Integrated IaC (Limited Availability).
 
 ### `--severity-threshold=<low|medium|high|critical>`
 
@@ -172,7 +184,7 @@ This can be used in combination with the `--report` option.
 
 Set or override the project name for the repository.&#x20;
 
-Note: This flag will supersede the `--remote-repo-url`, if used together.
+Note: This option supersedes`--remote-repo-url`, if both options are used together.
 
 ### `--target-reference=<TARGET_REFERENCE>`
 
