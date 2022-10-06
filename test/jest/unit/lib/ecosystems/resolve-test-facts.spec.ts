@@ -28,7 +28,10 @@ import { DepsFilePaths } from 'snyk-cpp-plugin/dist/types';
 import { issuesResponseData } from './fixtures/issues-response';
 import { expectedTestResult } from './fixtures/expected-test-result-new-impl';
 import { createDepgraphResponse } from './fixtures/create-dep-graph-response';
-import { getDepGraphResponse } from './fixtures/get-dep-graph-response';
+import {
+  getDepGraphResponse,
+  getDepGraphResponseInProgress,
+} from './fixtures/get-dep-graph-response';
 
 describe('resolve and test facts', () => {
   afterEach(() => jest.restoreAllMocks());
@@ -97,6 +100,7 @@ describe('resolve and test facts', () => {
     };
     const attributes: Attributes = {
       start_time: 0,
+      in_progress: false,
       dep_graph_data: depGraphDataOpenAPI,
       component_details: componentDetailsOpenApi,
     };
@@ -270,6 +274,48 @@ describe('resolve and test facts', () => {
 
     jest.spyOn(pollingTest, 'createDepGraph').mockResolvedValueOnce({
       data: createDepgraphResponse,
+      jsonapi: { version: 'v1.0' } as JsonApi,
+      links: { self: '' } as Links,
+    });
+
+    jest.spyOn(pollingTest, 'getDepGraph').mockResolvedValue({
+      data: getDepGraphResponse,
+      jsonapi: { version: 'v1.0' } as JsonApi,
+      links: { self: '' } as Links,
+    });
+
+    jest.spyOn(pollingTest, 'getIssues').mockResolvedValueOnce({
+      data: issuesResponseData,
+      jsonapi: { version: 'v1.0' } as JsonApi,
+      links: { self: '' } as Links,
+    });
+
+    const [testResults, errors] = await resolveAndTestFacts(
+      'cpp',
+      scanResults,
+      {} as Options,
+    );
+
+    expect(testResults).toEqual(expectedTestResult);
+    expect(errors).toEqual([]);
+  });
+
+  it('successfully resolving and testing file-signatures fact after a retry for c/c++ projects with new unmanaged service', async () => {
+    const hasFeatureFlag: boolean | undefined = true;
+    jest
+      .spyOn(featureFlags, 'hasFeatureFlag')
+      .mockResolvedValueOnce(hasFeatureFlag);
+
+    jest.spyOn(common, 'delayNextStep').mockImplementation();
+
+    jest.spyOn(pollingTest, 'createDepGraph').mockResolvedValueOnce({
+      data: createDepgraphResponse,
+      jsonapi: { version: 'v1.0' } as JsonApi,
+      links: { self: '' } as Links,
+    });
+
+    jest.spyOn(pollingTest, 'getDepGraph').mockResolvedValue({
+      data: getDepGraphResponseInProgress,
       jsonapi: { version: 'v1.0' } as JsonApi,
       links: { self: '' } as Links,
     });

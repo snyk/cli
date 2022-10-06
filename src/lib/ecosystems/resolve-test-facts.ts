@@ -24,13 +24,13 @@ import { findAndLoadPolicy } from '../policy';
 import { filterIgnoredIssues } from './policy';
 import { IssueData, Issue } from '../snyk-test/legacy';
 import { hasFeatureFlag } from '../feature-flags';
-import { delayNextStep } from '../polling/common';
 import {
   convertDepGraph,
   convertMapCasing,
   convertToCamelCase,
   getSelf,
 } from './unmanaged/utils';
+import { sleep } from '../common';
 
 export async function resolveAndTestFacts(
   ecosystem: Ecosystem,
@@ -60,20 +60,31 @@ async function submitHashes(
   return response.data.id;
 }
 
-async function pollDepGraph(id: string, orgId: string): Promise<Attributes> {
-  let attempts = 0;
-  const maxAttempts = 50;
-  while (attempts < maxAttempts) {
-    try {
-      const response = await getDepGraph(id, orgId);
-      return response.data.attributes;
-    } catch (e) {
-      await delayNextStep(attempts, maxAttempts, 1000);
-      attempts++;
+async function pollDepGraphAttributes(
+  id: string,
+  orgId: string,
+): Promise<Attributes> {
+  const maxIntervalMs = 60000;
+  const minIntervalMs = 5000;
+
+  const maxAttempts = 31; // Corresponds to 25.5 minutes
+
+  // Loop until we receive a response that is not in progress,
+  // or we receive something else than http status code 200.
+  for (let i = 1; i <= maxAttempts; i++) {
+    const graph = await getDepGraph(id, orgId);
+
+    if (graph.data.attributes.in_progress) {
+      const pollInterval = Math.max(maxIntervalMs, minIntervalMs * i);
+      await sleep(pollInterval * i);
+
+      continue;
     }
+
+    return graph.data.attributes;
   }
 
-  return Promise.reject('Failed to get DepGraph');
+  throw new Error('max retries reached');
 }
 
 async function fetchIssues(
@@ -144,6 +155,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
 
   for (const [path, scanResults] of Object.entries(scans)) {
     await spinner(`Resolving and Testing fileSignatures in ${path}`);
+
     for (const scanResult of scanResults) {
       try {
         const id = await submitHashes(
@@ -155,7 +167,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
           start_time,
           dep_graph_data,
           component_details,
-        } = await pollDepGraph(id, orgId);
+        } = await pollDepGraphAttributes(id, orgId);
 
         const {
           issues,
@@ -178,11 +190,13 @@ export async function resolveAndTestFactsUnmanagedDeps(
 
         const vulnerabilities: IssueData[] = [];
         for (const issuesDataKey in issuesData) {
-          const issueData = issuesData[issuesDataKey];
           const pkgCoordinate = `${issuesMap[issuesDataKey]?.pkgName}@${issuesMap[issuesDataKey]?.pkgVersion}`;
+          const issueData = issuesData[issuesDataKey];
+
           issueData.from = [pkgCoordinate];
           issueData.name = pkgCoordinate;
           issueData.packageManager = packageManager;
+
           vulnerabilities.push(issueData);
         }
 
@@ -211,6 +225,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
           errors.push(error.message);
           continue;
         }
+
         const failedPath = path ? `in ${path}` : '.';
         errors.push(`Could not test dependencies ${failedPath}`);
       }
