@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/user"
 	"strings"
 	"testing"
 
@@ -120,67 +121,78 @@ func Test_SanitizeUsername(t *testing.T) {
 		Other    string
 	}
 
-	rawUserName := "someuser"
-	simpleUsername := "someuser"
+	type input struct {
+		userName     string
+		domainPrefix string
+		homeDir      string
+	}
+
+	user, err := user.Current()
+	assert.Nil(t, err)
+
+	// runs 3 cases
+	// 1. without domain name
+	// 2. with domain name
+	// 3. user name and path are different
+	// 4. current OS values
 	replacement := "REDACTED"
-
-	inputStruct := sanTest{
-		ErrorLog: "/Users/" + rawUserName + "/some/path",
-		Other:    fmt.Sprintf("some other value where %s is contained", rawUserName),
+	inputData := []input{
+		{
+			userName:     "some.user",
+			domainPrefix: "",
+			homeDir:      `/Users/some.user/some/Path`,
+		},
+		{
+			userName:     "some.user",
+			domainPrefix: "domainName\\",
+			homeDir:      `C:\Users\some.user\AppData\Local`,
+		},
+		{
+			userName:     "someuser",
+			domainPrefix: "domainName\\",
+			homeDir:      `C:\Users\some.user\AppData/Local`,
+		},
+		{
+			userName:     user.Username,
+			domainPrefix: "",
+			homeDir:      user.HomeDir,
+		},
 	}
 
-	input, _ := json.Marshal(inputStruct)
-	fmt.Println("Before: " + string(input))
+	for i := range inputData {
+		simpleUsername := inputData[i].userName
+		rawUserName := inputData[i].domainPrefix + inputData[i].userName
+		homeDir := inputData[i].homeDir
 
-	// invoke method under test
-	output, err := SanitizeUsername(rawUserName, replacement, input)
+		inputStruct := sanTest{
+			ErrorLog: fmt.Sprintf(`Can't execute %s\path/to/something/file.exe for whatever reason.`, homeDir),
+			Other:    fmt.Sprintf("some other value where %s is contained", rawUserName),
+		}
 
-	fmt.Println("After: " + string(output))
-	assert.Nil(t, err, "Failed to santize static values!")
+		input, _ := json.Marshal(inputStruct)
+		fmt.Printf("%d - Before: %s\n", i, string(input))
 
-	numRedacted := strings.Count(string(output), replacement)
-	assert.Equal(t, 2, numRedacted)
+		// invoke method under test
+		output, err := SanitizeUsername(rawUserName, homeDir, replacement, input)
 
-	numUsernameInstances := strings.Count(string(output), rawUserName)
-	assert.Equal(t, 0, numUsernameInstances)
+		fmt.Printf("%d - After: %s\n", i, string(output))
+		assert.Nil(t, err, "Failed to santize static values!")
 
-	numSimpleUsernameInstances := strings.Count(string(output), simpleUsername)
-	assert.Equal(t, 0, numSimpleUsernameInstances)
+		numRedacted := strings.Count(string(output), replacement)
+		assert.Equal(t, 2, numRedacted)
 
-	var outputStruct sanTest
-	json.Unmarshal(output, &outputStruct)
-	assert.Equal(t, "/Users/REDACTED/some/path", outputStruct.ErrorLog)
-	assert.Equal(t, "some other value where REDACTED is contained", outputStruct.Other)
+		numUsernameInstances := strings.Count(string(output), rawUserName)
+		assert.Equal(t, 0, numUsernameInstances)
 
-	// Check with Windows style domain\username
-	rawUserName = "somedomain\\someuser"
-	simpleUsername = "someuser"
-	replacement = "REDACTED"
+		numSimpleUsernameInstances := strings.Count(string(output), simpleUsername)
+		assert.Equal(t, 0, numSimpleUsernameInstances)
 
-	inputStruct = sanTest{
-		ErrorLog: fmt.Sprintf("C:\\Users\\%s\\some\\path", simpleUsername),
-		Other:    fmt.Sprintf("some other value where %s is contained", rawUserName),
+		numHomeDirInstances := strings.Count(string(output), homeDir)
+		assert.Equal(t, 0, numHomeDirInstances)
+
+		var outputStruct sanTest
+		json.Unmarshal(output, &outputStruct)
+
 	}
 
-	input, _ = json.Marshal(inputStruct)
-	fmt.Println("Before: " + string(input))
-
-	// invoke method under test
-	output, err = SanitizeUsername(rawUserName, replacement, input)
-
-	fmt.Println("After: " + string(output))
-	assert.Nil(t, err, "Failed to santize static values!")
-
-	numRedacted = strings.Count(string(output), replacement)
-	assert.Equal(t, 2, numRedacted)
-
-	numUsernameInstances = strings.Count(string(output), rawUserName)
-	assert.Equal(t, 0, numUsernameInstances)
-
-	numSimpleUsernameInstances = strings.Count(string(output), simpleUsername)
-	assert.Equal(t, 0, numSimpleUsernameInstances)
-
-	json.Unmarshal(output, &outputStruct)
-	assert.Equal(t, "C:\\Users\\REDACTED\\some\\path", outputStruct.ErrorLog)
-	assert.Equal(t, "some other value where somedomain\\REDACTED is contained", outputStruct.Other)
 }
