@@ -35,7 +35,7 @@ function computeIacAnalytics(testOutput: TestOutput): IacAnalytics {
     iacType,
     packageManager: Object.keys(iacType) as ResourceKind[],
     iacIssuesCount: testOutput.results?.vulnerabilities?.length || 0,
-    iacIgnoredIssuesCount: testOutput.results?.scanAnalytics.ignoredCount || 0,
+    iacIgnoredIssuesCount: testOutput.results?.metadata.ignoredCount || 0,
     iacFilesCount: Object.values(iacType).reduce(
       (acc, packageManagerAnalytics) => acc + packageManagerAnalytics!.count,
       0,

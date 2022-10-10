@@ -24,6 +24,30 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     expect(jsonOutput[1].uniqueCount).toBeGreaterThan(0);
     expect(code).toEqual(1);
   }, 10000);
+  it('should find nothing when app-vulns are explicitly disabled', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --exclude-app-vulns`,
+    );
+    const jsonOutput = JSON.parse(stdout);
+    expect(Array.isArray(jsonOutput)).toBeFalsy();
+    expect(jsonOutput.applications).toBeUndefined();
+    expect(jsonOutput.ok).toEqual(false);
+    expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
+    expect(code).toEqual(1);
+  }, 10000);
+  it('should find nothing on conflicting app-vulns flags', async () => {
+    // if both flags are set, --exclude-app-vulns should take precedence and
+    // disable it.
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --app-vulns --exclude-app-vulns --experimental`,
+    );
+    const jsonOutput = JSON.parse(stdout);
+    expect(Array.isArray(jsonOutput)).toBeFalsy();
+    expect(jsonOutput.applications).toBeUndefined();
+    expect(jsonOutput.ok).toEqual(false);
+    expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
+    expect(code).toEqual(1);
+  }, 10000);
   it('should find all vulns when using --app-vulns without experimental flag', async () => {
     const { code, stdout } = await runSnykCLI(
       `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --app-vulns`,

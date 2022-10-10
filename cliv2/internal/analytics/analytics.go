@@ -202,7 +202,7 @@ func (a *Analytics) GetRequest() (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-	outputJson, err = SanitizeUsername(user.Username, sanitize_replacement_string, outputJson)
+	outputJson, err = SanitizeUsername(user.Username, user.HomeDir, sanitize_replacement_string, outputJson)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +259,7 @@ func SanitizeValuesByKey(keysToFilter []string, replacementValue string, content
 	return content, nil
 }
 
-func SanitizeUsername(rawUserName string, replacementValue string, content []byte) ([]byte, error) {
+func SanitizeUsername(rawUserName string, userHomeDir string, replacementValue string, content []byte) ([]byte, error) {
 	contentStr := string(content)
 	contentStr = strings.ReplaceAll(contentStr, rawUserName, replacementValue)
 
@@ -278,6 +278,9 @@ func SanitizeUsername(rawUserName string, replacementValue string, content []byt
 			return nil, fmt.Errorf("could not sanitize username - unrecognized format")
 		}
 	}
+
+	// if the homedir is still there, we ensure to remove it completely
+	contentStr = strings.ReplaceAll(contentStr, strings.ReplaceAll(userHomeDir, "\\", "\\\\"), replacementValue)
 
 	return []byte(contentStr), nil
 }
