@@ -26,7 +26,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"npm_config_no_proxy=something",
 		"ALL_PROXY=something",
 	}
-	expected := []string{"something=1", "in=2", "here=3=2", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
+	expected := []string{"something=1", "in=2", "here=3=2", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation", "NO_PROXY=localhost,127.0.0.1"}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 
@@ -39,7 +39,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testing.T) {
 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already"}
-	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
+	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation", "NO_PROXY=localhost,127.0.0.1"}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 
@@ -52,7 +52,7 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 
 	input := []string{"something=1", "in=2", "here=3", "http_proxy=exists", "https_proxy=already", "NODE_EXTRA_CA_CERTS=again", "no_proxy=312123"}
-	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
+	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation", "NO_PROXY=localhost,127.0.0.1"}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 

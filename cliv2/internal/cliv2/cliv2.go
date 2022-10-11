@@ -206,6 +206,7 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 		inputAsMap[constants.SNYK_HTTPS_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
+		inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV] = "localhost,127.0.0.1"
 
 		result = utils.ToSlice(inputAsMap, "=")
 	}

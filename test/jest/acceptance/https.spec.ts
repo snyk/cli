@@ -4,6 +4,7 @@ import { createProjectFromWorkspace } from '../util/createProject';
 import { getFixturePath } from '../util/getFixturePath';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { isCLIV2 } from '../util/isCLIV2';
+import * as os from 'os';
 
 jest.setTimeout(1000 * 30);
 
@@ -14,10 +15,11 @@ describe('https', () => {
   beforeAll(async () => {
     const port = process.env.PORT || process.env.SNYK_PORT || '12345';
     const baseApi = '/api/v1';
+    const hostname = os.hostname();
     env = {
       ...process.env,
-      SNYK_API: 'https://localhost:' + port + baseApi,
-      SNYK_HOST: 'https://localhost:' + port,
+      SNYK_API: 'https://' + hostname + ':' + port + baseApi,
+      SNYK_HOST: 'https://' + hostname + ':' + port,
       SNYK_TOKEN: '123456789',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
