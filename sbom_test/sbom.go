@@ -4,6 +4,8 @@ package main
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -169,7 +171,7 @@ func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) 
 	if debug {
 		standaloneString := ""
 		if standalone {
-			standaloneString = " (Standaolne)"
+			standaloneString = " (Standalone)"
 		}
 
 		logger.Printf("Executing legacy cli%s: %s\n", standaloneString, snykCommand)
@@ -238,6 +240,8 @@ func DepGraphWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 		}
 	}
 
+	logger.Printf("depgraph workflow done (%d)", len(depGraphList))
+
 	return nil, depGraphList
 }
 
@@ -261,16 +265,59 @@ func SbomWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 
 			logger.Printf("(TODO) Calling SBOM API for target '%s' (DepGraph Size: %.2f[KB])\n", targetName, (float64(len(singleData)) / 1024.0))
 
-			// create fake and empty cyclonedx sbom
-			sbom := []byte("{\n\"bomFormat\": \"CycloneDX\",\n\"specVersion\": \"1.4\",\n\"version\": 1,\n\"metadata\": {\n\t\"timestamp\": \"" + time.Now().Format(time.RFC3339) + "\",\n\t\"tools\": [\n\t\t{\n\t\t\"vendor\": \"Snyk\",\n\t\t\"name\": \"Snyk Open Source\"\n\t\t}\n\t]\n}\n}")
+			sbom, err := convertDepGraphToSBOM(context.Background(), c, singleData, "cyclonedx+json")
+			if err != nil {
+				return err, nil
+			}
 
 			// create output data
-			data := NewWorkflowDataFromInput(&depGraphData[i], "did://sbom/cyclonedx", "application/json", sbom)
+			data := NewWorkflowDataFromInput(&depGraphData[i], "did://sbom/cyclonedx", "application/vnd.cyclonedx+json", sbom)
 			sbomList = append(sbomList, *data)
 		}
 	}
 
 	return nil, sbomList
+}
+
+func convertDepGraphToSBOM(ctx context.Context, c *Config, depGraph []byte, format string) (sbom []byte, err error) {
+	baseURL := "https://api.dev.snyk.io"
+	apiVersion := "2022-03-31~experimental"
+	token, _ := c.GetString("token")
+	orgID, _ := c.GetString("org")
+
+	url := fmt.Sprintf(
+		"%s/hidden/orgs/%s/sbom?version=%s&format=%s",
+		baseURL, orgID, apiVersion, url.QueryEscape(format),
+	)
+
+	body := bytes.NewBuffer([]byte(fmt.Sprintf(`{"depGraph":%s}`, depGraph)))
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, body)
+	req.Header.Set("Authorization", fmt.Sprintf("token %s", token))
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("could not convert to SBOM (status: %s)", resp.Status)
+	}
+
+	if resp.Header.Get("Content-Type") != "application/vnd.cyclonedx+json" {
+		return nil, errors.New("received unexpected response format")
+	}
+
+	sbom, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return sbom, nil
 }
 
 // ***
@@ -287,7 +334,7 @@ func OutputWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 
 		logger.Printf("Processing '%s' of type '%s'\n", input[i].identifier, mimeType)
 
-		if mimeType == "application/json" { // handle application/json
+		if strings.Contains(mimeType, "json") { // handle application/json
 			singleData := input[i].payload.([]byte)
 
 			if printJsonToCmd {
@@ -422,6 +469,8 @@ func main() {
 	rootCommand.SilenceErrors = true
 
 	rootCommand.PersistentFlags().BoolP("debug", "d", false, "Enable debug output")
+	rootCommand.PersistentFlags().String("org", "", "Set org context")
+	rootCommand.PersistentFlags().String("token", "", "Snyk API token")
 	rootCommand.PersistentFlags().AddFlagSet(WorkflowEngineInstance.workflows["output"].expectedConfiguration)
 
 	// ensure that help and usage information comes from the legacy cli instead of cobra's default help
