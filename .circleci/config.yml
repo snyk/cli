@@ -875,11 +875,9 @@ workflows:
             - Build
           matrix:
             parameters:
-              node_version: ['12.22.11', '14.20.0', '16.16.0']
+              node_version: ['14.20.0', '16.16.0']
               npm_global_sudo: [true, false]
             exclude:
-              - node_version: '12.22.11'
-                npm_global_sudo: false
               - node_version: '14.20.0'
                 npm_global_sudo: false
               - node_version: '16.16.0'
@@ -964,7 +962,6 @@ workflows:
             - Prepare Release
             - Lint
             - Tap Tests
-            - Jest Tests (Node v12.22.11)
             - Jest Tests (Node v14.20.0)
             - Jest Tests (Node v16.16.0)
             - Acceptance Tests (snyk-win.exe)

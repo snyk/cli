@@ -4,7 +4,7 @@ const LicensePlugin = require('webpack-license-plugin');
 
 export default {
   entry: './src/cli/index.ts',
-  target: 'node12',
+  target: 'node14',
   output: {
     clean: true,
     path: path.resolve(__dirname, 'dist/cli/'),

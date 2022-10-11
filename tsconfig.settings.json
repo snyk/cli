@@ -4,13 +4,10 @@
     "rootDir": ".",
     "pretty": true,
     "moduleResolution": "node",
-    // https://github.com/tsconfig/bases#node-12-tsconfigjson
-    "target": "es2019",
+    // https://github.com/tsconfig/bases#node-14-tsconfigjson
+    "target": "es2020",
     "lib": [
-      "es2019",
-      "es2020.promise",
-      "es2020.bigint",
-      "es2020.string",
+      "es2020",
       "DOM",
       "DOM.Iterable"
     ],
