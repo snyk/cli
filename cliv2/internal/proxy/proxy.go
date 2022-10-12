@@ -11,11 +11,14 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/google/uuid"
+
 	"github.com/snyk/cli/cliv2/internal/certs"
 	"github.com/snyk/cli/cliv2/internal/utils"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/elazarl/goproxy"
+	"github.com/elazarl/goproxy/ext/auth"
 )
 
 type WrapperProxy struct {
@@ -28,7 +31,19 @@ type WrapperProxy struct {
 	port                int
 	authMechanism       httpauth.AuthenticationMechanism
 	cliVersion          string
+	proxyUsername       string
+	proxyPassword       string
 }
+
+type ProxyInfo struct {
+	Port     int
+	Password string
+}
+
+const (
+	PROXY_REALM    = "snykcli_realm"
+	PROXY_USERNAME = "snykcli"
+)
 
 func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion string, debugLogger *log.Logger) (*WrapperProxy, error) {
 	var p WrapperProxy
@@ -77,7 +92,17 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 
 	p.SetUpstreamProxy(http.ProxyFromEnvironment)
 
+	p.proxyUsername = PROXY_USERNAME
+	p.proxyPassword = uuid.New().String()
+
 	return &p, nil
+}
+
+func (p *WrapperProxy) ProxyInfo() *ProxyInfo {
+	return &ProxyInfo{
+		Port:     p.port,
+		Password: p.proxyPassword,
+	}
 }
 
 func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
@@ -90,13 +115,28 @@ func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.Proxy
 	return r, nil
 }
 
-func (p *WrapperProxy) Start() (int, error) {
+func (p *WrapperProxy) checkBasicCredentials(user, password string) bool {
+	return user == p.proxyUsername && p.proxyPassword == password
+}
+
+func (p *WrapperProxy) HandleConnect(req string, ctx *goproxy.ProxyCtx) (*goproxy.ConnectAction, string) {
+	basic := auth.BasicConnect("", p.checkBasicCredentials)
+	action, str := basic.HandleConnect(req, ctx)
+	p.DebugLogger.Println("HandleConnect - basic authentication result: ", action, str)
+
+	if action == goproxy.OkConnect {
+		action, str = goproxy.AlwaysMitm.HandleConnect(req, ctx)
+	}
+
+	return action, str
+}
+
+func (p *WrapperProxy) Start() error {
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Tr = p.transport
 	proxy.Logger = p.DebugLogger
-	proxy.OnRequest().HandleConnect(goproxy.AlwaysMitm)
 	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
-
+	proxy.OnRequest().HandleConnect(p)
 	proxy.Verbose = true
 	proxyServer := &http.Server{
 		Handler: proxy,
@@ -108,7 +148,7 @@ func (p *WrapperProxy) Start() (int, error) {
 	address := "127.0.0.1:0"
 	l, err := net.Listen("tcp", address)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	p.port = l.Addr().(*net.TCPAddr).Port
@@ -118,7 +158,7 @@ func (p *WrapperProxy) Start() (int, error) {
 		_ = p.httpServer.Serve(l) // this blocks until the server stops and gives you an error which can be ignored
 	}()
 
-	return p.port, nil
+	return nil
 }
 
 func (p *WrapperProxy) Stop() {
@@ -196,10 +236,6 @@ func (p *WrapperProxy) SetUpstreamProxy(proxyFunc func(req *http.Request) (*url.
 
 func (p *WrapperProxy) UpstreamProxy() func(req *http.Request) (*url.URL, error) {
 	return p.upstreamProxy
-}
-
-func (p *WrapperProxy) Port() int {
-	return p.port
 }
 
 func (p *WrapperProxy) Transport() *http.Transport {
