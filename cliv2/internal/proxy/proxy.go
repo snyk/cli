@@ -5,12 +5,13 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/google/uuid"
 	"log"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+
+	"github.com/google/uuid"
 
 	"github.com/snyk/cli/cliv2/internal/certs"
 	"github.com/snyk/cli/cliv2/internal/utils"
@@ -114,16 +115,29 @@ func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.Proxy
 	return r, nil
 }
 
+func (p *WrapperProxy) checkBasicCredentials(user, password string) bool {
+	return user == p.proxyUsername && p.proxyPassword == password
+}
+
+func (p *WrapperProxy) HandleConnect(req string, ctx *goproxy.ProxyCtx) (*goproxy.ConnectAction, string) {
+	basic := auth.BasicConnect("", p.checkBasicCredentials)
+	action, str := basic.HandleConnect(req, ctx)
+
+	if action == goproxy.OkConnect {
+		action, str = goproxy.AlwaysMitm.HandleConnect(req, ctx)
+	}
+
+	return action, str
+}
+
 func (p *WrapperProxy) Start() (int, error) {
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Tr = p.transport
 	proxy.Logger = p.DebugLogger
-	proxy.OnRequest().HandleConnect(goproxy.AlwaysMitm)
 	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
 
-	auth.ProxyBasic(proxy, PROXY_REALM, func(user, password string) bool {
-		return user == p.proxyUsername && p.proxyPassword == password
-	})
+	//proxy.OnRequest().Do(auth.Basic("", p.checkBasicCredentials))
+	proxy.OnRequest().HandleConnect(p)
 
 	proxy.Verbose = true
 	proxyServer := &http.Server{

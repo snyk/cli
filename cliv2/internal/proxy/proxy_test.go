@@ -21,7 +21,7 @@ import (
 
 var debugLogger *log.Logger = log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
-func helper_getHttpClient(gateway *proxy.WrapperProxy) (*http.Client, error) {
+func helper_getHttpClient(gateway *proxy.WrapperProxy, useProxyAuth bool) (*http.Client, error) {
 	rootCAs, _ := x509.SystemCertPool()
 	if rootCAs == nil {
 		rootCAs = x509.NewCertPool()
@@ -42,7 +42,14 @@ func helper_getHttpClient(gateway *proxy.WrapperProxy) (*http.Client, error) {
 		RootCAs:            rootCAs,
 	}
 
-	proxyUrl, err := url.Parse(fmt.Sprintf("http://127.0.0.1:%d", gateway.Port()))
+	var proxyUrl *url.URL
+	if useProxyAuth {
+		proxyUrl, err = url.Parse(fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, gateway.ProxyInfo().Password, gateway.Port()))
+
+	} else {
+		proxyUrl, err = url.Parse(fmt.Sprintf("http://127.0.0.1:%d", gateway.Port()))
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -81,16 +88,11 @@ func Test_canGoThroughProxy(t *testing.T) {
 	_, err = wp.Start()
 	assert.Nil(t, err)
 
-	proxiedClient, err := helper_getHttpClient(wp)
+	useProxyAuth := true
+	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
 	assert.Nil(t, err)
 
-	req, err := http.NewRequest("GET", "https://static.snyk.io/cli/latest/version", nil)
-	req.Header.Set("Proxy-Authorization", fmt.Sprintf("Basic %s", basicAuthValue(proxy.PROXY_USERNAME, wp.ProxyInfo().Password)))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	res, err := proxiedClient.Do(req)
+	res, err := proxiedClient.Get("https://static.snyk.io/cli/latest/version")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,14 +112,14 @@ func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 	_, err = wp.Start()
 	assert.Nil(t, err)
 
-	proxiedClient, err := helper_getHttpClient(wp)
+	useProxyAuth := false
+	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
 	assert.Nil(t, err)
 
 	res, err := proxiedClient.Get("https://static.snyk.io/cli/latest/version")
-	if err != nil {
-		t.Fatal(err)
-	}
-	assert.Equal(t, 407, res.StatusCode)
+	assert.Nil(t, res)
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "Proxy Authentication Required")
 
 	wp.Close()
 
@@ -134,7 +136,8 @@ func Test_xSnykCliVersionHeaderIsReplaced(t *testing.T) {
 	_, err = wp.Start()
 	assert.Nil(t, err)
 
-	proxiedClient, err := helper_getHttpClient(wp)
+	useProxyAuth := true
+	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
 	assert.Nil(t, err)
 
 	var capturedVersion string
