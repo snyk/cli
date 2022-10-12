@@ -144,6 +144,10 @@ func (w *WorkflowEngine) InvokeWorkflowWithData(name string, input []WorkflowDat
 		err = fmt.Errorf("Workflow '%s' not found.", name)
 	}
 
+	if err != nil {
+		logger.Println("Workflow returned an error:", err)
+	}
+
 	return err, result
 }
 
@@ -166,6 +170,11 @@ func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) 
 	snykCmd := "node"
 	snykCmdArguments := []string{"../dist/cli/index.js"}
 	snykCmdArguments = append(snykCmdArguments, additionalArgs...)
+
+	if file, _ := c.GetString("file"); len(file) > 0 {
+		snykCmdArguments = append(snykCmdArguments, "--file="+file)
+	}
+
 	snykCommand := exec.Command(snykCmd, snykCmdArguments...)
 
 	if debug {
@@ -183,7 +192,8 @@ func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) 
 		snykCommand.Stderr = os.Stderr
 		err = snykCommand.Run()
 	} else {
-		snykOutput, _ := snykCommand.Output()
+		var snykOutput []byte
+		snykOutput, err = snykCommand.Output()
 
 		data := NewWorkflowData("did://legacy/cmd", "text/plain", snykOutput)
 		output = append(output, *data)
@@ -213,7 +223,11 @@ func DepGraphWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 	}
 
 	c.SetStringSlice("legacy_cli_args", snykCmdArguments)
-	_, legacyData := WorkflowEngineInstance.InvokeWorkflow("legacy_cli")
+	legacyCLIError, legacyData := WorkflowEngineInstance.InvokeWorkflow("legacy_cli")
+	if legacyCLIError != nil {
+		return legacyCLIError, depGraphList
+	}
+
 	snykOutput := legacyData[0].payload.([]byte)
 
 	snykOutputLength := len(snykOutput)
@@ -263,7 +277,7 @@ func SbomWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 			singleData := depGraphData[i].payload.([]byte)
 			targetName := depGraphData[i].header["Content-Location"][0]
 
-			logger.Printf("(TODO) Calling SBOM API for target '%s' (DepGraph Size: %.2f[KB])\n", targetName, (float64(len(singleData)) / 1024.0))
+			logger.Printf("Calling SBOM API for target '%s' (DepGraph Size: %.2f[KB])\n", targetName, (float64(len(singleData)) / 1024.0))
 
 			sbom, err := convertDepGraphToSBOM(context.Background(), c, singleData, "cyclonedx+json")
 			if err != nil {
@@ -365,6 +379,7 @@ func init() {
 	// init & register depgraph
 	depGraphConfig := pflag.NewFlagSet("depgraph", pflag.ExitOnError)
 	depGraphConfig.Bool("all-projects", false, "Enable all projects")
+	depGraphConfig.String("file", "", "Input file")
 	WorkflowEngineInstance.workflows["depgraph"] = WorkflowEntry{
 		visible:               true,
 		expectedConfiguration: depGraphConfig,
@@ -372,9 +387,12 @@ func init() {
 	}
 
 	// init & register sbom
+	sbomConfig := pflag.NewFlagSet("sbom", pflag.ExitOnError)
+	sbomConfig.String("file", "", "Input file")
 	WorkflowEngineInstance.workflows["sbom"] = WorkflowEntry{
-		visible:    true,
-		entryPoint: SbomWorkflow,
+		visible:               true,
+		expectedConfiguration: sbomConfig,
+		entryPoint:            SbomWorkflow,
 	}
 
 	// init & register LegacyCLIWorkflow
@@ -399,22 +417,18 @@ func run(cmd *cobra.Command, args []string) error {
 	WorkflowEngineInstance.Config.Update(cmd, args)
 
 	debug, _ := WorkflowEngineInstance.Config.GetBool("debug")
-	logger = *log.Default()
-	if debug == false {
-		logger.SetOutput(io.Discard)
+	if debug == true {
+		logger.SetOutput(os.Stderr)
 	}
 
 	name := cmd.Name()
 	logger.Println("Running", name)
 
 	err, data := WorkflowEngineInstance.InvokeWorkflow(name)
-	if err != nil {
-		return err
-	}
-
-	err, data = WorkflowEngineInstance.InvokeWorkflowWithData("output", data)
-	if err != nil {
-		return err
+	if err == nil {
+		err, data = WorkflowEngineInstance.InvokeWorkflowWithData("output", data)
+	} else {
+		fmt.Println("Failed to execute the command!", err)
 	}
 
 	return nil
@@ -438,6 +452,9 @@ func defaultCmd(cmd *cobra.Command, args []string) error {
 }
 
 func main() {
+	logger = *log.Default()
+	logger.SetOutput(io.Discard)
+
 	rootCommand := cobra.Command{
 		Use: "snyk",
 	}
