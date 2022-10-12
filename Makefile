@@ -39,6 +39,12 @@ clean-prepack:
 	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json
 	rm -f prepack
 
+.PHONY: clean
+clean: clean-prepack
+	npm run clean
+	rm -f -r binary-releases
+
+
 binary-releases/sha256sums.txt.asc: $(wildcard binary-releases/*.sha256)
 	./release-scripts/sha256sums.txt.asc.sh
 
