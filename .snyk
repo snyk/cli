@@ -8,3 +8,6 @@ ignore:
         expires: 2022-02-01T00:00:00.000Z
         created: 2021-11-29T17:25:19.200Z
 patch: {}
+exclude:
+  code:
+    - test/** 
