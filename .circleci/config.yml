@@ -540,12 +540,6 @@ jobs:
             cp cliv2/bin/snyk-win.exe binary-releases/snyk-win.exe
             cp cliv2/bin/snyk-win.exe.sha256 binary-releases/snyk-win.exe.sha256
       - run:
-          name: Copy macOS cliv2 binaries to binary-releases staging area
-          command: |
-            ls -la cliv2/bin
-            cp cliv2/bin/snyk-macos binary-releases/snyk-macos
-            cp cliv2/bin/snyk-macos.sha256 binary-releases/snyk-macos.sha256
-      - run:
           name: Signing shasums
           command: make binary-releases/sha256sums.txt.asc
       - run:
@@ -707,34 +701,6 @@ jobs:
           paths:
             - ./cliv2/bin
 
-  v2-rename-macos-artifact:
-    executor: linux
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Rename snyk_darwin_amd64 artifact
-          command: mv snyk_darwin_amd64 snyk-macos
-          working_directory: ./cliv2/bin
-      - run:
-          name: Regenerate sha256
-          command: |
-            shasum -a 256 snyk-macos > snyk-macos.sha256
-            shasum -a 256 -c snyk-macos.sha256
-          working_directory: ./cliv2/bin
-      - run:
-          name: Show files
-          command: |
-            ls -la
-            cat snyk-macos.sha256
-          working_directory: ./cliv2/bin
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./cliv2/bin
-
   v2-prepare-release:
     executor: linux
     working_directory: /home/circleci/snyk
@@ -807,7 +773,7 @@ jobs:
           name: Run integration tests
           working_directory: ./cliv2
           environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-macos
+            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk_darwin_amd64
           command: |
             export SNYK_TOKEN="${SNYK_API_KEY}"
             ./bin/snyk_tests_darwin_amd64
@@ -986,6 +952,7 @@ workflows:
             - Build (snyk-alpine)
             - Build (snyk-linux)
             - Build (snyk-linux-arm64)
+            - Build (snyk-macos)
             - Build (snyk-for-docker-desktop-darwin-x64.tar.gz)
             - Build (snyk-for-docker-desktop-darwin-arm64.tar.gz)
             - Build (docker-mac-signed-bundle.tar.gz)
@@ -1043,10 +1010,6 @@ workflows:
             - Build (snyk-macos)
           go_os: darwin
           go_arch: amd64
-      - v2-rename-macos-artifact:
-          name: v2 / Rename macos/amd64 artifact
-          requires:
-            - v2 / Sign (darwin/amd64)
       - v2-build-artifact:
           name: v2 / Build (windows/amd64)
           requires:
@@ -1079,7 +1042,7 @@ workflows:
       - v2-test-darwin-amd64:
           name: v2 / Integration Tests (darwin/amd64)
           requires:
-            - v2 / Rename macos/amd64 artifact
+            - v2 / Build (darwin/amd64)
       - v2-test-windows-amd64:
           name: v2 / Integration Tests (windows/amd64)
           requires:
@@ -1117,8 +1080,8 @@ workflows:
           name: v2 / Jest Acceptance Tests (darwin/amd64)
           context: nodejs-install
           requires:
-            - v2 / Rename macos/amd64 artifact
-          test_snyk_command: /Users/distiller/snyk/cliv2/bin/snyk-macos
+            - v2 / Build (darwin/amd64)
+          test_snyk_command: /Users/distiller/snyk/cliv2/bin/snyk_darwin_amd64
       - regression-test:
           name: v2 / Regression Tests (linux/amd64)
           context: nodejs-install
@@ -1141,5 +1104,5 @@ workflows:
             - v2 / Build (alpine/amd64)
             - v2 / Build (linux/amd64)
             - v2 / Build (linux/arm64)
-            - v2 / Rename macos/amd64 artifact
+            - v2 / Sign (darwin/amd64)
             - v2 / Rename windows/amd64 artifact
