@@ -4,6 +4,8 @@ go 1.18
 
 require (
 	github.com/elazarl/goproxy v0.0.0-20220328115640-894aeddb713e
+	github.com/elazarl/goproxy/ext v0.0.0-20190711103511-473e67f1d7d2
+	github.com/google/uuid v1.1.2
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd
 	github.com/spf13/viper v1.13.0

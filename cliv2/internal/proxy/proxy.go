@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/google/uuid"
 	"log"
 	"net"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/elazarl/goproxy"
+	"github.com/elazarl/goproxy/ext/auth"
 )
 
 type WrapperProxy struct {
@@ -28,7 +30,19 @@ type WrapperProxy struct {
 	port                int
 	authMechanism       httpauth.AuthenticationMechanism
 	cliVersion          string
+	proxyUsername       string
+	proxyPassword       string
 }
+
+type ProxyInfo struct {
+	Port     int
+	Password string
+}
+
+const (
+	PROXY_REALM    = "snykcli_realm"
+	PROXY_USERNAME = "snykcli"
+)
 
 func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion string, debugLogger *log.Logger) (*WrapperProxy, error) {
 	var p WrapperProxy
@@ -77,7 +91,17 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 
 	p.SetUpstreamProxy(http.ProxyFromEnvironment)
 
+	p.proxyUsername = PROXY_USERNAME
+	p.proxyPassword = uuid.New().String()
+
 	return &p, nil
+}
+
+func (p *WrapperProxy) ProxyInfo() *ProxyInfo {
+	return &ProxyInfo{
+		Port:     p.port,
+		Password: p.proxyPassword,
+	}
 }
 
 func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
@@ -96,6 +120,10 @@ func (p *WrapperProxy) Start() (int, error) {
 	proxy.Logger = p.DebugLogger
 	proxy.OnRequest().HandleConnect(goproxy.AlwaysMitm)
 	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
+
+	auth.ProxyBasic(proxy, PROXY_REALM, func(user, password string) bool {
+		return user == p.proxyUsername && p.proxyPassword == password
+	})
 
 	proxy.Verbose = true
 	proxyServer := &http.Server{

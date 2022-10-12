@@ -140,7 +140,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	wrapperProxy.SetUpstreamProxyAuthentication(envVariables.ProxyAuthenticationMechanism)
 	http.DefaultTransport = wrapperProxy.Transport()
 
-	port, err := wrapperProxy.Start()
+	_, err = wrapperProxy.Start()
 	if err != nil {
 		fmt.Println("Failed to start the proxy")
 		fmt.Println(err)
@@ -149,7 +149,8 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	}
 
 	// run the cli
-	err = cli.Execute(port, wrapperProxy.CertificateLocation, args)
+	proxyInfo := wrapperProxy.ProxyInfo()
+	err = cli.Execute(proxyInfo, wrapperProxy.CertificateLocation, args)
 	if err != nil {
 		cliAnalytics.AddError(err)
 	}

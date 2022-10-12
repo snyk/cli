@@ -14,6 +14,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
+	"github.com/snyk/cli/cliv2/internal/proxy"
 	"github.com/snyk/cli/cliv2/internal/utils"
 )
 
@@ -123,9 +124,9 @@ func (c *CLI) commandVersion(passthroughArgs []string) error {
 	}
 }
 
-func (c *CLI) commandAbout(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) error {
+func (c *CLI) commandAbout(proxyInfo *proxy.ProxyInfo, fullPathToCert string, passthroughArgs []string) error {
 
-	err := c.executeV1Default(wrapperProxyPort, fullPathToCert, passthroughArgs)
+	err := c.executeV1Default(proxyInfo, fullPathToCert, passthroughArgs)
 	if err != nil {
 		return err
 	}
@@ -214,9 +215,8 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 
 }
 
-func PrepareV1Command(cmd string, args []string, proxyPort int, caCertLocation string, integrationName string, integrationVersion string) (snykCmd *exec.Cmd, err error) {
-
-	proxyAddress := fmt.Sprintf("http://127.0.0.1:%d", proxyPort)
+func PrepareV1Command(cmd string, args []string, proxyInfo *proxy.ProxyInfo, caCertLocation string, integrationName string, integrationVersion string) (snykCmd *exec.Cmd, err error) {
+	proxyAddress := fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, proxyInfo.Password, proxyInfo.Port)
 
 	snykCmd = exec.Command(cmd, args...)
 	snykCmd.Env, err = PrepareV1EnvironmentVariables(os.Environ(), integrationName, integrationVersion, proxyAddress, caCertLocation)
@@ -227,14 +227,14 @@ func PrepareV1Command(cmd string, args []string, proxyPort int, caCertLocation s
 	return snykCmd, err
 }
 
-func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) error {
+func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, fullPathToCert string, passthroughArgs []string) error {
 	c.DebugLogger.Println("launching snyk with path: ", c.v1BinaryLocation)
 	c.DebugLogger.Println("fullPathToCert:", fullPathToCert)
 
 	snykCmd, err := PrepareV1Command(
 		c.v1BinaryLocation,
 		passthroughArgs,
-		wrapperProxyPort,
+		proxyInfo,
 		fullPathToCert,
 		c.GetIntegrationName(),
 		GetFullVersion(),
@@ -251,7 +251,7 @@ func (c *CLI) executeV1Default(wrapperProxyPort int, fullPathToCert string, pass
 	return err
 }
 
-func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughArgs []string) error {
+func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, fullPathToCert string, passthroughArgs []string) error {
 	c.DebugLogger.Println("passthroughArgs", passthroughArgs)
 
 	var err error
@@ -261,9 +261,9 @@ func (c *CLI) Execute(wrapperProxyPort int, fullPathToCert string, passthroughAr
 	case handler == V2_VERSION:
 		err = c.commandVersion(passthroughArgs)
 	case handler == V2_ABOUT:
-		err = c.commandAbout(wrapperProxyPort, fullPathToCert, passthroughArgs)
+		err = c.commandAbout(proxyInfo, fullPathToCert, passthroughArgs)
 	default:
-		err = c.executeV1Default(wrapperProxyPort, fullPathToCert, passthroughArgs)
+		err = c.executeV1Default(proxyInfo, fullPathToCert, passthroughArgs)
 	}
 
 	return err
