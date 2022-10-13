@@ -145,7 +145,7 @@ func (w *WorkflowEngine) InvokeWorkflowWithData(name string, input []WorkflowDat
 	}
 
 	if err != nil {
-		logger.Println("Workflow returned an error:", err)
+		logger.Printf("[%s] Error: %s\n", name, err.Error())
 	}
 
 	return err, result
@@ -161,6 +161,7 @@ func (w *WorkflowEngine) InvokeWorkflow(name string) (error, []WorkflowData) {
 // ***
 func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 	var output []WorkflowData
+	var snykOutput []byte
 	var err error
 
 	debug, _ := c.GetBool("debug")
@@ -173,6 +174,10 @@ func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) 
 
 	if file, _ := c.GetString("file"); len(file) > 0 {
 		snykCmdArguments = append(snykCmdArguments, "--file="+file)
+	}
+
+	if debug {
+		snykCmdArguments = append(snykCmdArguments, "--debug")
 	}
 
 	snykCommand := exec.Command(snykCmd, snykCmdArguments...)
@@ -192,11 +197,22 @@ func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) 
 		snykCommand.Stderr = os.Stderr
 		err = snykCommand.Run()
 	} else {
-		var snykOutput []byte
 		snykOutput, err = snykCommand.Output()
 
 		data := NewWorkflowData("did://legacy/cmd", "text/plain", snykOutput)
 		output = append(output, *data)
+	}
+
+	// swallow exit code 1 since it means vulns found
+	switch err.(type) {
+	case *exec.ExitError:
+		if err.(*exec.ExitError).ExitCode() == 1 {
+			err = nil
+		}
+	}
+
+	if debug && err != nil {
+		logger.Println(string(snykOutput))
 	}
 
 	return err, output
@@ -294,7 +310,7 @@ func SbomWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) {
 }
 
 func convertDepGraphToSBOM(ctx context.Context, c *Config, depGraph []byte, format string) (sbom []byte, err error) {
-	baseURL := "https://api.dev.snyk.io"
+	baseURL := "https://api.snyk.io"
 	apiVersion := "2022-03-31~experimental"
 	token, _ := c.GetString("token")
 	orgID, _ := c.GetString("org")
