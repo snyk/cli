@@ -5,7 +5,10 @@ import * as isAuthed from '../../src/cli/commands/auth/is-authed';
 import * as errors from '../../src/lib/errors/legacy-errors';
 import { fakeServer } from '../acceptance/fake-server';
 
-const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+const port =
+  process.env.PORT ||
+  process.env.SNYK_PORT ||
+  (12345 + +process.env.TAP_CHILD_ID!).toString();
 
 const apiKey = '123456789';
 const BASE_API = '/api/v1';
