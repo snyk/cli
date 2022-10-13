@@ -21,7 +21,10 @@ import { AllProjectsTests } from './cli-monitor/cli-monitor.all-projects.spec';
 const { test, only, beforeEach } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
 
-const port = (process.env.PORT = process.env.SNYK_PORT = '12345');
+const port =
+  process.env.PORT ||
+  process.env.SNYK_PORT ||
+  (12345 + +process.env.TAP_CHILD_ID!).toString();
 const BASE_API = '/api/v1';
 process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
 process.env.SNYK_HOST = 'http://localhost:' + port;
@@ -1589,12 +1592,12 @@ if (!isWindows) {
     // assert results contain monitor urls
     t.match(
       results[0].manageUrl,
-      'http://localhost:12345/manage',
+      `http://localhost:${port}/manage`,
       'first monitor url is present',
     );
     t.match(
       results[1].manageUrl,
-      'http://localhost:12345/manage',
+      `http://localhost:${port}/manage`,
       'second monitor url is present',
     );
 

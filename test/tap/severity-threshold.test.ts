@@ -5,7 +5,10 @@ import { fakeServer } from '../acceptance/fake-server';
 
 const apiKey = '123456789';
 
-const port = (process.env.PORT = process.env.SNYK_PORT = '12345');
+const port =
+  process.env.PORT ||
+  process.env.SNYK_PORT ||
+  (12345 + +process.env.TAP_CHILD_ID!).toString();
 const BASE_API = '/api/v1';
 process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
 process.env.SNYK_HOST = 'http://localhost:' + port;
