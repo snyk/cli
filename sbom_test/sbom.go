@@ -167,6 +167,7 @@ func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) 
 	debug, _ := c.GetBool("debug")
 	additionalArgs, _ := c.GetStringSlice("legacy_cli_args")
 	standalone, _ := c.GetBool("legacy_cli_standalone")
+	token, _ := c.GetString("token")
 
 	snykCmd := "node"
 	snykCmdArguments := []string{"../dist/cli/index.js"}
@@ -181,6 +182,10 @@ func LegacyCLIWorkflow(c *Config, input []WorkflowData) (error, []WorkflowData) 
 	}
 
 	snykCommand := exec.Command(snykCmd, snykCmdArguments...)
+
+	if len(token) > 0 {
+		snykCommand.Env = append(snykCommand.Env, "SNYK_TOKEN="+token)
+	}
 
 	if debug {
 		standaloneString := ""
