@@ -1,4 +1,5 @@
 # Build system related variables
+MAKE = make
 GOCMD = go
 GOOS = $(shell go env GOOS)
 GOARCH = $(shell go env GOARCH)
@@ -23,7 +24,6 @@ SRCS = $(shell find $(WORKING_DIR) -type f -name '*.go')
 
 # load cached variables if available
 -include $(CACHE_DIR)/variables.mk
--include $(CACHE_DIR)/version.mk
 
 # the platform string used by the deployed binaries is not excatly OS-ARCH so we need to translate a bit
 _GO_OS = $(GOOS)
@@ -76,6 +76,8 @@ V1_DIRECTORY = $(WORKING_DIR)/internal/embedded/cliv1
 V1_DOWNLOAD_LINK = https://static.snyk.io/cli/v$(CLI_V1_VERSION_TAG)/$(V1_EXECUTABLE_NAME)
 V1_EMBEDDED_FILE_TEMPLATE = $(V1_DIRECTORY)/embedded_binary_template.txt
 V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
+V1_WORKING_DIR = $(WORKING_DIR)/..
+V1_BUILD_TYPE = build
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 TEST_SNYK_EXECUTABLE_PATH=$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 TEST_EXECUTABLE_NAME = $(TEST_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE_POSTFIX)
@@ -222,6 +224,34 @@ sign: _cleanup_sha_v2 $(SIGN_SCRIPT) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_S
 .PHONY: test-signature
 test-signature: $(ISSIGNED_SCRIPT)
 
+# Typescript CLI targets
+$(V1_WORKING_DIR)/binary-releases/$(V1_EXECUTABLE_NAME):
+	@echo "$(LOG_PREFIX) Building legacy CLI"
+	@cd $(V1_WORKING_DIR) && npm ci && npm run $(V1_BUILD_TYPE)
+	@$(MAKE) -C $(V1_WORKING_DIR) binary-releases/$(V1_EXECUTABLE_NAME)
+	
+.PHONY: build-ts-cli
+build-ts-cli: $(V1_WORKING_DIR)/binary-releases/$(V1_EXECUTABLE_NAME)
+	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/binary-releases/version))
+	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/binary-releases/)
+	
+.PHONY: clean-ts-cli
+clean-ts-cli:
+	@echo "$(LOG_PREFIX) Cleaning legacy CLI"
+	@$(MAKE) -C $(V1_WORKING_DIR) clean
+
+# build the full CLI (Typescript+Golang)
+.PHONY: build-full
+build-full: | build-ts-cli
+	@$(MAKE) build CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG) CLI_V1_LOCATION="$(CLI_V1_LOCATION)"
+
+# clean the full CLI (Typescript+Golang)
+.PHONY: clean-full
+clean-full: | clean-ts-cli clean
+
+.PHONY: all
+all: build-full
+
 .PHONY: clean
 clean:
 	@$(GOCMD) clean
@@ -235,7 +265,7 @@ clean:
 
 .PHONY: install
 install:
-	@echo "$(LOG_PREFIX) Installing $(V2_EXECUTABLE_NAME) ( $(DESTDIR)$(bindir) )"
+	@echo "$(LOG_PREFIX) Installing $(V2_EXECUTABLE_NAME) ( $(DESTDIR)$(bindir) $(CLI_V1_VERSION_TAG))"
 	@mkdir -p $(DESTDIR)$(bindir)
 	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(DESTDIR)$(bindir)
 	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) $(DESTDIR)$(bindir)
@@ -243,7 +273,7 @@ install:
 
 .PHONY: help
 help:
-	@echo "Main targets:"
+	@echo "\n Main targets (Golang only):"
 	@echo "$(LOG_PREFIX) lint"
 	@echo "$(LOG_PREFIX) format"
 	@echo "$(LOG_PREFIX) build"
@@ -253,6 +283,9 @@ help:
 	@echo "$(LOG_PREFIX) test-signature"
 	@echo "$(LOG_PREFIX) install"
 	@echo "$(LOG_PREFIX) clean"
+	@echo "\nFull local targets (Typescript + Golang):"
+	@echo "$(LOG_PREFIX) build-full"               
+	@echo "$(LOG_PREFIX) clean-full"
 	@echo "\nAvailable parameter:"
 	@echo "$(LOG_PREFIX) GOOS                       Specify Operating System to compile for (see golang GOOS, default=$(GOOS))"
 	@echo "$(LOG_PREFIX) GOARCH                     Specify Architecture to compile for (see golang GOARCH, default=$(GOARCH))"
