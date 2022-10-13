@@ -124,9 +124,9 @@ func (c *CLI) commandVersion(passthroughArgs []string) error {
 	}
 }
 
-func (c *CLI) commandAbout(proxyInfo *proxy.ProxyInfo, fullPathToCert string, passthroughArgs []string) error {
+func (c *CLI) commandAbout(proxyInfo *proxy.ProxyInfo, passthroughArgs []string) error {
 
-	err := c.executeV1Default(proxyInfo, fullPathToCert, passthroughArgs)
+	err := c.executeV1Default(proxyInfo, passthroughArgs)
 	if err != nil {
 		return err
 	}
@@ -215,11 +215,11 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 
 }
 
-func PrepareV1Command(cmd string, args []string, proxyInfo *proxy.ProxyInfo, caCertLocation string, integrationName string, integrationVersion string) (snykCmd *exec.Cmd, err error) {
+func PrepareV1Command(cmd string, args []string, proxyInfo *proxy.ProxyInfo, integrationName string, integrationVersion string) (snykCmd *exec.Cmd, err error) {
 	proxyAddress := fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, proxyInfo.Password, proxyInfo.Port)
 
 	snykCmd = exec.Command(cmd, args...)
-	snykCmd.Env, err = PrepareV1EnvironmentVariables(os.Environ(), integrationName, integrationVersion, proxyAddress, caCertLocation)
+	snykCmd.Env, err = PrepareV1EnvironmentVariables(os.Environ(), integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation)
 	snykCmd.Stdin = os.Stdin
 	snykCmd.Stdout = os.Stdout
 	snykCmd.Stderr = os.Stderr
@@ -227,15 +227,14 @@ func PrepareV1Command(cmd string, args []string, proxyInfo *proxy.ProxyInfo, caC
 	return snykCmd, err
 }
 
-func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, fullPathToCert string, passthroughArgs []string) error {
+func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passthroughArgs []string) error {
 	c.DebugLogger.Println("launching snyk with path: ", c.v1BinaryLocation)
-	c.DebugLogger.Println("fullPathToCert:", fullPathToCert)
+	c.DebugLogger.Println("CertificateLocation:", proxyInfo.CertificateLocation)
 
 	snykCmd, err := PrepareV1Command(
 		c.v1BinaryLocation,
 		passthroughArgs,
 		proxyInfo,
-		fullPathToCert,
 		c.GetIntegrationName(),
 		GetFullVersion(),
 	)
@@ -251,7 +250,7 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, fullPathToCert string
 	return err
 }
 
-func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, fullPathToCert string, passthroughArgs []string) error {
+func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passthroughArgs []string) error {
 	c.DebugLogger.Println("passthroughArgs", passthroughArgs)
 
 	var err error
@@ -261,9 +260,9 @@ func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, fullPathToCert string, passthr
 	case handler == V2_VERSION:
 		err = c.commandVersion(passthroughArgs)
 	case handler == V2_ABOUT:
-		err = c.commandAbout(proxyInfo, fullPathToCert, passthroughArgs)
+		err = c.commandAbout(proxyInfo, passthroughArgs)
 	default:
-		err = c.executeV1Default(proxyInfo, fullPathToCert, passthroughArgs)
+		err = c.executeV1Default(proxyInfo, passthroughArgs)
 	}
 
 	return err

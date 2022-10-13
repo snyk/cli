@@ -150,7 +150,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 
 	// run the cli
 	proxyInfo := wrapperProxy.ProxyInfo()
-	err = cli.Execute(proxyInfo, wrapperProxy.CertificateLocation, args)
+	err = cli.Execute(proxyInfo, args)
 	if err != nil {
 		cliAnalytics.AddError(err)
 	}

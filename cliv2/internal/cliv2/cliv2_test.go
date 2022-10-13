@@ -81,8 +81,9 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) 
 
 func getProxyInfoForTest() *proxy.ProxyInfo {
 	return &proxy.ProxyInfo{
-		Port:     1000,
-		Password: "foo",
+		Port:                1000,
+		Password:            "foo",
+		CertificateLocation: "certLocation",
 	}
 }
 
@@ -93,7 +94,6 @@ func Test_prepareV1Command(t *testing.T) {
 		"someExecutable",
 		expectedArgs,
 		getProxyInfoForTest(),
-		"certLocation",
 		"name",
 		"version",
 	)
@@ -118,13 +118,13 @@ func Test_executeRunV1(t *testing.T) {
 	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
 
 	// run once
-	actualReturnCode := cli.DeriveExitCode(cli.Execute(getProxyInfoForTest(), "", []string{"--help"}))
+	actualReturnCode := cli.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--help"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 	fileInfo1, _ := os.Stat(cli.GetBinaryLocation())
 
 	// run twice
-	actualReturnCode = cli.DeriveExitCode(cli.Execute(getProxyInfoForTest(), "", []string{"--help"}))
+	actualReturnCode = cli.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--help"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 	fileInfo2, _ := os.Stat(cli.GetBinaryLocation())
@@ -145,7 +145,7 @@ func Test_executeRunV2only(t *testing.T) {
 
 	// create instance under test
 	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
-	actualReturnCode := cli.DeriveExitCode(cli.Execute(getProxyInfoForTest(), "", []string{"--version"}))
+	actualReturnCode := cli.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--version"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 
@@ -165,7 +165,7 @@ func Test_executeEnvironmentError(t *testing.T) {
 
 	// create instance under test
 	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
-	actualReturnCode := cli.DeriveExitCode(cli.Execute(getProxyInfoForTest(), "", []string{"--help"}))
+	actualReturnCode := cli.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--help"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 
@@ -180,7 +180,7 @@ func Test_executeUnknownCommand(t *testing.T) {
 
 	// create instance under test
 	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
-	actualReturnCode := cli.DeriveExitCode(cli.Execute(getProxyInfoForTest(), "", []string{"bogusCommand"}))
+	actualReturnCode := cli.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"bogusCommand"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 
 	os.RemoveAll(cacheDir)

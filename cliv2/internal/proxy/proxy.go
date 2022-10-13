@@ -36,8 +36,9 @@ type WrapperProxy struct {
 }
 
 type ProxyInfo struct {
-	Port     int
-	Password string
+	Port                int
+	Password            string
+	CertificateLocation string
 }
 
 const (
@@ -100,8 +101,9 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 
 func (p *WrapperProxy) ProxyInfo() *ProxyInfo {
 	return &ProxyInfo{
-		Port:     p.port,
-		Password: p.proxyPassword,
+		Port:                p.port,
+		Password:            p.proxyPassword,
+		CertificateLocation: p.CertificateLocation,
 	}
 }
 
