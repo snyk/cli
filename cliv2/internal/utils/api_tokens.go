@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	"github.com/snyk/cli/cliv2/internal/configuration"
+	"github.com/snyk/go-application-framework/pkg/configuration"
 )
 
 func GetAuthHeader(config configuration.Configuration) string {

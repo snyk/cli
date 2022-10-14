@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/snyk/cli/cliv2/internal/analytics"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/configuration"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 	"github.com/snyk/cli/cliv2/internal/utils"
+	"github.com/snyk/go-application-framework/pkg/analytics"
+	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 )
 
