@@ -53,6 +53,7 @@ async function prepareTestConfig(
   const scan = options.scan ?? 'resource-changes';
   const varFile = options['var-file'];
   const cloudContext = getFlag(options, 'cloud-context');
+  const snykCloudEnvironment = getFlag(options, 'snyk-cloud-environment');
   const insecure = options.insecure;
 
   return {
@@ -70,6 +71,7 @@ async function prepareTestConfig(
     varFile,
     depthDetection,
     cloudContext,
+    snykCloudEnvironment,
     insecure,
     org,
   };

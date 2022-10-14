@@ -139,6 +139,10 @@ function processFlags(
     flags.push('-cloud-context', options.cloudContext);
   }
 
+  if (options.snykCloudEnvironment) {
+    flags.push('-snyk-cloud-environment', options.snykCloudEnvironment);
+  }
+
   if (options.insecure) {
     flags.push('-http-tls-skip-verify');
   }
