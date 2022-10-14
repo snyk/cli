@@ -66,7 +66,7 @@ test('auth shows an appropriate error message when a request fails with a user m
   }
 });
 
-test('teardown', (t) => {
+test('teardown', async (t) => {
   t.plan(2);
 
   delete process.env.SNYK_API;
@@ -74,7 +74,9 @@ test('teardown', (t) => {
   delete process.env.SNYK_PORT;
   t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
-  server.close(() => {
-    t.pass('server shutdown');
+
+  await new Promise<void>((resolve) => {
+    server.close(resolve);
   });
+  t.pass('server shutdown');
 });
