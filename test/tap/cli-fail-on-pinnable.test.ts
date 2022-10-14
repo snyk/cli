@@ -7,6 +7,7 @@ import {
   getWorkspaceJSON,
   chdirWorkspaces,
 } from '../acceptance/workspace-helper';
+import { makeTmpDirectory } from '../utils';
 
 const { test, only } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
@@ -36,6 +37,7 @@ const pinnableVulnsResult = getWorkspaceJSON(
 const pinnableVulns = getWorkspaceJSON('fail-on', 'pinnable', 'vulns.json');
 
 before('setup', async (t) => {
+  process.env.XDG_CONFIG_HOME = await makeTmpDirectory();
   t.plan(3);
   let key = await cli.config('get', 'api');
   oldkey = key;

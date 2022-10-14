@@ -52,6 +52,7 @@ const before = test;
 const after = test;
 
 before('setup', async (t) => {
+  process.env.XDG_CONFIG_HOME = await makeTmpDirectory();
   const key = await cli.config('get', 'api');
   oldKey = key; // just in case
   t.pass('existing user config captured');
