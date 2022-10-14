@@ -320,6 +320,7 @@ export async function runTest(
         error.message ||
         `Failed to test ${projectType} project`,
       error.code,
+      error.innerError,
     );
   } finally {
     spinner.clear<void>(spinnerLbl)();

@@ -168,6 +168,7 @@ async function handleError(args, error) {
     // (see https://nodejs.org/api/errors.html#errors_error_stack)
     analytics.add('error', analyticsError.stack);
     analytics.add('error-code', error.code);
+    analytics.add('error-details', error.innerError);
     analytics.add('error-str-code', error.strCode);
     analytics.add('command', args.command);
   }
