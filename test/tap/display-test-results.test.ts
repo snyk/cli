@@ -1,6 +1,7 @@
 import * as tap from 'tap';
 import * as sinon from 'sinon';
 import * as fs from 'fs';
+import stripAnsi from 'strip-ansi';
 
 import config from '../../src/lib/config';
 import * as cli from '../../src/cli/commands';
@@ -24,7 +25,7 @@ test('`test ruby-app` remediation displayed', async (t) => {
   try {
     await cli.test('ruby-app');
   } catch (error) {
-    const res = error.message;
+    const res = stripAnsi(error.message);
     t.match(
       res,
       'Upgrade rails@5.2.3 to rails@5.2.3 to fix',
@@ -61,7 +62,7 @@ test('`test ruby-app` legal instructions displayed', async (t) => {
   try {
     await cli.test('ruby-app');
   } catch (error) {
-    const res = error.message;
+    const res = stripAnsi(error.message);
     t.match(res, 'I am legal license instruction');
   }
 
@@ -83,7 +84,7 @@ test('`test pip-app-license-issue` legal instructions displayed (legacy formatte
   try {
     await cli.test('pip-app-license-issue');
   } catch (error) {
-    const res = error.message;
+    const res = stripAnsi(error.message);
     t.match(res, 'I am legal license instruction');
   }
 
@@ -106,7 +107,7 @@ test('`test npm-package-with-severity-override` show original severity upgrade',
   try {
     await cli.test('npm-package-with-severity-override');
   } catch (error) {
-    const { message } = error;
+    const message = stripAnsi(error.message);
     t.match(
       message,
       `[Low Severity (originally Medium)][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328]`,
@@ -132,7 +133,7 @@ test('`test npm-package-with-severity-override` show original severity patches',
   try {
     await cli.test('npm-package-with-severity-override');
   } catch (error) {
-    const { message } = error;
+    const message = stripAnsi(error.message);
     t.match(message, 'Patch available for node-uuid@1.4.0');
     t.match(
       message,
@@ -159,7 +160,7 @@ test('`test npm-package-with-severity-override` show original severity no remedi
   try {
     await cli.test('npm-package-with-severity-override');
   } catch (error) {
-    const { message } = error;
+    const message = stripAnsi(error.message);
     t.match(
       message,
       `Low severity (originally Medium) vulnerability found in node-uuid`,
@@ -185,7 +186,7 @@ test('`test npm-package-with-severity-override` show original severity unresolve
   try {
     await cli.test('npm-package-with-severity-override');
   } catch (error) {
-    const { message } = error;
+    const message = stripAnsi(error.message);
     t.match(
       message,
       `Malicious Package [Low Severity (originally Medium)][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328`,
@@ -211,7 +212,7 @@ test('`test npm-package-with-severity-override` dont show original severity if i
   try {
     await cli.test('npm-package-with-severity-override');
   } catch (error) {
-    const { message } = error;
+    const message = stripAnsi(error.message);
     t.match(
       message,
       `[Low Severity][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328]`,
