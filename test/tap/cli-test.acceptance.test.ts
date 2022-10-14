@@ -3,6 +3,7 @@ import * as cli from '../../src/cli/commands';
 import { fakeServer } from '../acceptance/fake-server';
 import { getVersion } from '../../src/lib/version';
 import { chdirWorkspaces } from '../acceptance/workspace-helper';
+import { makeTmpDirectory } from '../utils';
 
 export interface AcceptanceTests {
   language: string;
@@ -79,6 +80,7 @@ import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
 */
 
 before('setup', async (t) => {
+  process.env.XDG_CONFIG_HOME = await makeTmpDirectory();
   versionNumber = await getVersion();
 
   t.plan(3);

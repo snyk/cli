@@ -2,6 +2,7 @@ import * as tap from 'tap';
 import * as cli from '../../src/cli/commands';
 import { fakeServer } from '../acceptance/fake-server';
 import * as sinon from 'sinon';
+import { makeTmpDirectory } from '../utils';
 
 const { test } = tap;
 
@@ -24,6 +25,7 @@ import * as plugins from '../../src/lib/ecosystems/plugins';
 import { getFixturePath } from '../jest/util/getFixturePath';
 
 test('setup', async (t) => {
+  process.env.XDG_CONFIG_HOME = await makeTmpDirectory();
   t.plan(3);
 
   let key = await cli.config('get', 'api');

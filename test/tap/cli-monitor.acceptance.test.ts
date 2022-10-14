@@ -10,6 +10,7 @@ import {
   chdirWorkspaces,
   getWorkspaceJSON,
 } from '../acceptance/workspace-helper';
+import { makeTmpDirectory } from '../utils';
 const isEmpty = require('lodash.isempty');
 const isObject = require('lodash.isobject');
 const get = require('lodash.get');
@@ -61,6 +62,7 @@ const isWindows =
 
 if (!isWindows) {
   before('setup', async (t) => {
+    process.env.XDG_CONFIG_HOME = await makeTmpDirectory();
     versionNumber = await getVersion();
 
     t.plan(3);

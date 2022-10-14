@@ -2,6 +2,7 @@ import * as tap from 'tap';
 import { only, test } from 'tap';
 import { fakeServer } from '../acceptance/fake-server';
 import * as cli from '../../src/cli/commands';
+import { makeTmpDirectory } from '../utils';
 
 const port =
   process.env.PORT ||
@@ -26,6 +27,7 @@ import { getFixturePath } from '../jest/util/getFixturePath';
 import { getWorkspacePath } from '../jest/util/getWorkspacePath';
 
 before('setup', async (t) => {
+  process.env.XDG_CONFIG_HOME = await makeTmpDirectory();
   t.plan(3);
   let key = await cli.config('get', 'api');
   oldkey = key;

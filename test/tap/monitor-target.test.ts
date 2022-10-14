@@ -8,6 +8,7 @@ import * as sinon from 'sinon';
 import * as cli from '../../src/cli/commands';
 import subProcess = require('../../src/lib/sub-process');
 import { fakeServer } from '../acceptance/fake-server';
+import { makeTmpDirectory } from '../utils';
 
 const apiKey = '123456789';
 
@@ -24,6 +25,7 @@ let oldendpoint;
 const server = fakeServer(BASE_API, apiKey);
 
 test('setup', async (t) => {
+  process.env.XDG_CONFIG_HOME = await makeTmpDirectory();
   let key = await cli.config('get', 'api');
   oldkey = key;
   t.pass('existing user config captured');

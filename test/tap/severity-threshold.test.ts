@@ -1,5 +1,6 @@
 import { test } from 'tap';
 import cli = require('../../src/cli/commands');
+import { makeTmpDirectory } from '../utils';
 
 import { fakeServer } from '../acceptance/fake-server';
 
@@ -18,6 +19,7 @@ let oldendpoint;
 const server = fakeServer(BASE_API, apiKey);
 
 test('setup', async (t) => {
+  process.env.XDG_CONFIG_HOME = await makeTmpDirectory();
   let key = await cli.config('get', 'api');
   oldkey = key;
   t.pass('existing user config captured');

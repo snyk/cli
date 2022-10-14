@@ -2,6 +2,7 @@ import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
 import * as sinon from 'sinon';
 import { fakeServer } from '../acceptance/fake-server';
+import { makeTmpDirectory } from '../utils';
 
 const port =
   process.env.PORT ||
@@ -27,6 +28,7 @@ const before = test;
 const after = test;
 
 before('setup', async (t) => {
+  process.env.XDG_CONFIG_HOME = await makeTmpDirectory();
   let key = await cli.config('get', 'api');
   oldkey = key; // just in case
   t.pass('existing user config captured');
