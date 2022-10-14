@@ -7,7 +7,7 @@ attrs==19.1.0
 automat==0.7.0
 backports.functools-lru-cache==1.5 ; python_version < '3.2'
 billiard==3.6.0.0
-celery==4.3.0
+celery==5.2.2
 certifi==2019.3.9
 cffi==1.12.3
 chardet==3.0.4
