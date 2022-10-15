@@ -15,7 +15,7 @@ export const YarnTests: AcceptanceTests = {
         t.equal(
           e.message,
           '\nTesting yarn-out-of-sync...\n\n' +
-            'Dependency snyk was not found in yarn.lock.' +
+            'Dependency snyk@* was not found in yarn.lock.' +
             ' Your package.json and yarn.lock are probably out of sync.' +
             ' Please run "yarn install" and try again.',
           'Contains enough info about err',
@@ -332,6 +332,29 @@ export const YarnTests: AcceptanceTests = {
       t.same(
         depGraph.pkgs.map((p) => p.id).sort(),
         ['yarn-v2@1.0.0', 'lodash@4.17.0'].sort(),
+        'depGraph looks fine',
+      );
+    },
+
+    '`test` on a yarn lock v2 package - uses yarn v3': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces('yarn-lock-v2-vuln');
+      await params.cli.test();
+      const req = params.server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(
+        req.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
+      t.match(req.url, '/test-dep-graph', 'posts to correct url');
+      t.match(req.body.targetFile, undefined, 'target is undefined');
+      const depGraph = req.body.depGraph;
+      t.same(
+        depGraph.pkgs.map((p) => p.id).sort(),
+        ['yarn-3-vuln@1.0.0', 'lodash@4.17.0'].sort(),
         'depGraph looks fine',
       );
     },

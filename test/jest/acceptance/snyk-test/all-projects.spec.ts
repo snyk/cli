@@ -56,7 +56,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       '✗ 1/3 potential projects failed to get dependencies',
     );
     expect(stderr).toMatch(
-      `Dependency snyk was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
+      `Dependency snyk@1.320.0 was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
     );
   });
 
@@ -81,7 +81,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       '✗ 1/3 potential projects failed to get dependencies',
     );
     expect(stderr).toMatch(
-      `Dependency snyk was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
+      `Dependency snyk@1.320.0 was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
     );
   });
 
