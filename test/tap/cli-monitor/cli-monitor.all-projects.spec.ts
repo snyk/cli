@@ -190,7 +190,7 @@ export const AllProjectsTests: AcceptanceTests = {
       );
       t.match(
         result,
-        'Dependency snyk was not found in yarn.lock',
+        'Dependency snyk@* was not found in yarn.lock',
         'yarn project had an error and we displayed it',
       );
 
