@@ -3,6 +3,7 @@ package proxy_test
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -20,7 +21,7 @@ import (
 
 var debugLogger *log.Logger = log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
-func helper_getHttpClient(gateway *proxy.WrapperProxy) (*http.Client, error) {
+func helper_getHttpClient(gateway *proxy.WrapperProxy, useProxyAuth bool) (*http.Client, error) {
 	rootCAs, _ := x509.SystemCertPool()
 	if rootCAs == nil {
 		rootCAs = x509.NewCertPool()
@@ -41,7 +42,14 @@ func helper_getHttpClient(gateway *proxy.WrapperProxy) (*http.Client, error) {
 		RootCAs:            rootCAs,
 	}
 
-	proxyUrl, err := url.Parse(fmt.Sprintf("http://127.0.0.1:%d", gateway.Port()))
+	var proxyUrl *url.URL
+	proxyInfo := gateway.ProxyInfo()
+	if useProxyAuth {
+		proxyUrl, err = url.Parse(fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, proxyInfo.Password, proxyInfo.Port))
+	} else {
+		proxyUrl, err = url.Parse(fmt.Sprintf("http://127.0.0.1:%d", proxyInfo.Port))
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -58,8 +66,8 @@ func Test_closingProxyDeletesTempCert(t *testing.T) {
 	wp, err := proxy.NewWrapperProxy(false, "", "", debugLogger)
 	assert.Nil(t, err)
 
-	port, err := wp.Start()
-	t.Log("proxy port:", port)
+	err = wp.Start()
+	t.Log("proxy port:", wp.ProxyInfo().Port)
 	assert.Nil(t, err)
 
 	wp.Close()
@@ -69,14 +77,19 @@ func Test_closingProxyDeletesTempCert(t *testing.T) {
 	assert.NotNil(t, err) // this means the file is gone
 }
 
+func basicAuthValue(username string, password string) string {
+	return base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
+}
+
 func Test_canGoThroughProxy(t *testing.T) {
 	wp, err := proxy.NewWrapperProxy(false, "", "", debugLogger)
 	assert.Nil(t, err)
 
-	_, err = wp.Start()
+	err = wp.Start()
 	assert.Nil(t, err)
 
-	proxiedClient, err := helper_getHttpClient(wp)
+	useProxyAuth := true
+	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
 	assert.Nil(t, err)
 
 	res, err := proxiedClient.Get("https://static.snyk.io/cli/latest/version")
@@ -92,15 +105,39 @@ func Test_canGoThroughProxy(t *testing.T) {
 	assert.NotNil(t, err) // this means the file is gone
 }
 
+func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
+	wp, err := proxy.NewWrapperProxy(false, "", "", debugLogger)
+	assert.Nil(t, err)
+
+	err = wp.Start()
+	assert.Nil(t, err)
+
+	useProxyAuth := false
+	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
+	assert.Nil(t, err)
+
+	res, err := proxiedClient.Get("https://static.snyk.io/cli/latest/version")
+	assert.Nil(t, res)
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "Proxy Authentication Required")
+
+	wp.Close()
+
+	// assert cert file is deleted on Close
+	_, err = os.Stat(wp.CertificateLocation)
+	assert.NotNil(t, err) // this means the file is gone
+}
+
 func Test_xSnykCliVersionHeaderIsReplaced(t *testing.T) {
 	expectedVersion := "the-cli-version"
 	wp, err := proxy.NewWrapperProxy(false, "", expectedVersion, debugLogger)
 	assert.Nil(t, err)
 
-	_, err = wp.Start()
+	err = wp.Start()
 	assert.Nil(t, err)
 
-	proxiedClient, err := helper_getHttpClient(wp)
+	useProxyAuth := true
+	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
 	assert.Nil(t, err)
 
 	var capturedVersion string
@@ -109,8 +146,13 @@ func Test_xSnykCliVersionHeaderIsReplaced(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	// request without the header set
-	res, err := proxiedClient.Get(ts.URL)
+	req, err := http.NewRequest("GET", ts.URL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// request without the "x-snyk-cli-version" header set
+	res, err := proxiedClient.Do(req)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -118,7 +160,7 @@ func Test_xSnykCliVersionHeaderIsReplaced(t *testing.T) {
 	assert.Equal(t, "", capturedVersion)
 
 	// request with the header set
-	req, _ := http.NewRequest("GET", ts.URL, nil)
+	req, _ = http.NewRequest("GET", ts.URL, nil)
 	req.Header.Add("x-snyk-cli-version", "1.0.0")
 	res, err = proxiedClient.Do(req)
 	if err != nil {
