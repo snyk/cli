@@ -53,7 +53,15 @@ async function prepareTestConfig(
   const scan = options.scan ?? 'resource-changes';
   const varFile = options['var-file'];
   const cloudContext = getFlag(options, 'cloud-context');
-  const insecure = options.insecure;
+
+  // Setting insecure to true is a temporary workaround. The CLIv2 installs an
+  // HTTP/HTTPS proxy with a self-signed CA. The CLIv2 uses the
+  // NODE_EXTRA_CA_CERTS to install the CA, but this only works for Node.js
+  // applications. snyk-iac-test will not recognize this, unless we write the
+  // code to install a CA from this environment variable. Until we do this, we
+  // skip certificate verification so every HTTP call works as expected.
+
+  const insecure = true;
 
   return {
     paths,
