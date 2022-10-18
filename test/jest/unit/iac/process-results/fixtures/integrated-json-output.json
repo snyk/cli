@@ -6,7 +6,7 @@
   },
   {
     "meta": {
-      "isPrivate": false,
+      "isPrivate": true,
       "isLicensesEnabled": false,
       "org": "org-name",
       "policy": "",
@@ -29,7 +29,7 @@
     "projectName": "org-name",
     "org": "org-name",
     "policy": "",
-    "isPrivate": false,
+    "isPrivate": true,
     "targetFilePath": "/Users/yairzohar/snyk/cli/plan.json",
     "packageManager": "terraformconfig",
     "path": "/Users/yairzohar/snyk/cli",
@@ -105,7 +105,7 @@
   },
   {
     "meta": {
-      "isPrivate": false,
+      "isPrivate": true,
       "isLicensesEnabled": false,
       "org": "org-name",
       "policy": "",
@@ -128,7 +128,7 @@
     "projectName": "org-name",
     "org": "org-name",
     "policy": "",
-    "isPrivate": false,
+    "isPrivate": true,
     "targetFilePath": "/Users/yairzohar/snyk/cli/vpc_group.tf",
     "packageManager": "terraformconfig",
     "path": "/Users/yairzohar/snyk/cli",
