@@ -5,10 +5,8 @@ import chalk from 'chalk';
 import * as scanLib from '../../../../../../../../src/lib/iac/test/v2/scan';
 import * as downloadPolicyEngineLib from '../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/download';
 import * as downloadRulesBundleLib from '../../../../../../../../src/lib/iac/test/v2/local-cache/rules-bundle/download';
-import * as orgSettingsLib from '../../../../../../../../src/cli/commands/test/iac/local-execution/org-settings/get-iac-org-settings';
 import { test } from '../../../../../../../../src/cli/commands/test/iac/v2/index';
 import { isValidJSONString } from '../../../../../../acceptance/iac/helpers';
-import { IacOrgSettings } from '../../../../../../../../src/cli/commands/test/iac/local-execution/types';
 import { SnykIacTestError } from '../../../../../../../../src/lib/iac/test/v2/errors';
 import {
   FoundIssuesError,
@@ -45,19 +43,6 @@ const scanFixturePath = path.join(
 describe('test', () => {
   chalk.enabled = false;
 
-  const orgSettings: IacOrgSettings = {
-    customPolicies: {},
-    meta: {
-      org: 'my-org-name',
-      orgPublicId: '7bfa4159-6f90-4acd-82a4-0b2ad2aaf80b',
-      isLicensesEnabled: false,
-      isPrivate: false,
-    },
-    entitlements: {
-      infrastructureAsCode: true,
-    },
-  };
-
   const scanFixture = JSON.parse(fs.readFileSync(scanFixturePath, 'utf-8'));
   scanFixture.errors = scanFixture.errors.map(
     (scanError) => new SnykIacTestError(scanError),
@@ -65,6 +50,14 @@ describe('test', () => {
 
   const scanWithOnlyErrorsFixture = {
     errors: scanFixture.errors,
+    settings: {
+      org: 'org-name',
+      ignoreSettings: {
+        adminOnly: false,
+        disregardFilesystemIgnores: false,
+        reasonRequired: false,
+      },
+    },
   };
 
   const scanWithoutLoadableInputsFixture = {
@@ -77,6 +70,14 @@ describe('test', () => {
         },
       }),
     ],
+    settings: {
+      org: 'org-name',
+      ignoreSettings: {
+        adminOnly: false,
+        disregardFilesystemIgnores: false,
+        reasonRequired: false,
+      },
+    },
   };
 
   beforeEach(() => {
@@ -89,10 +90,6 @@ describe('test', () => {
     jest
       .spyOn(downloadRulesBundleLib, 'downloadRulesBundle')
       .mockResolvedValue('');
-
-    jest
-      .spyOn(orgSettingsLib, 'getIacOrgSettings')
-      .mockResolvedValue(orgSettings);
   });
 
   afterEach(() => {
@@ -113,7 +110,7 @@ describe('test', () => {
     // Assert
     expect(output!).toContain('Issues');
     expect(output!).toContain('Severity Issues: ');
-    expect(output!).toContain(`Organization: ${orgSettings.meta.org}`);
+    expect(output!).toContain(`Organization: org-name`);
     expect(output!).toContain('Files without issues: ');
     expect(output!).toContain('Files with issues: ');
     expect(output!).toContain('Total issues: ');

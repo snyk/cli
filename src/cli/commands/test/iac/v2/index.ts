@@ -6,15 +6,11 @@ import { TestCommandResult } from '../../../types';
 import { buildSpinner, printHeader } from '../output';
 import { spinnerMessage } from '../../../../../lib/formatters/iac-output/text';
 import { buildOutput } from '../../../../../lib/iac/test/v2/output';
-import { getIacOrgSettings } from '../local-execution/org-settings/get-iac-org-settings';
-import { generateProjectAttributes } from '../../../monitor';
-import { parseTags } from '../local-execution';
 import { systemCachePath } from '../../../../../lib/iac/test/v2/scan';
 import { getFlag } from '../index';
 import { IaCTestFlags } from '../local-execution/types';
 import { findAndLoadPolicy } from '../../../../../lib/policy';
 import { assertIacV2Options } from './assert-iac-options';
-import { UnsupportedEntitlementError } from '../../../../../lib/errors/unsupported-entitlement-error';
 
 export async function test(
   paths: string[],
@@ -22,11 +18,6 @@ export async function test(
 ): Promise<TestCommandResult> {
   assertIacV2Options(options);
   const testConfig = await prepareTestConfig(paths, options);
-  const { orgSettings } = testConfig;
-
-  if (!orgSettings.entitlements?.infrastructureAsCode) {
-    throw new UnsupportedEntitlementError('infrastructureAsCode');
-  }
 
   const testSpinner = buildSpinner(options);
 
@@ -40,7 +31,6 @@ export async function test(
     return buildOutput({
       scanResult,
       testSpinner,
-      orgSettings,
       options,
     });
   } finally {
@@ -55,13 +45,10 @@ async function prepareTestConfig(
   const iacCachePath = pathLib.join(systemCachePath, 'iac');
 
   const org = (options.org as string) || config.org;
-  const orgSettings = await getIacOrgSettings(org);
-  const projectTags = parseTags(options);
   const targetName = getFlag(options, 'target-name');
   const remoteRepoUrl = getFlag(options, 'remote-repo-url');
   const depthDetection =
     parseInt(getFlag(options, 'depth-detection') as string) || undefined;
-  const attributes = parseAttributes(options);
   const policy = await findAndLoadPolicy(process.cwd(), 'iac', options);
   const scan = options.scan ?? 'resource-changes';
   const varFile = options['var-file'];
@@ -71,13 +58,10 @@ async function prepareTestConfig(
   return {
     paths,
     iacCachePath,
-    orgSettings,
     userRulesBundlePath: config.IAC_BUNDLE_PATH,
     userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
     severityThreshold: options.severityThreshold,
     report: !!options.report,
-    attributes,
-    projectTags,
     targetReference: options['target-reference'],
     targetName,
     remoteRepoUrl,
@@ -87,11 +71,6 @@ async function prepareTestConfig(
     depthDetection,
     cloudContext,
     insecure,
+    org,
   };
-}
-
-function parseAttributes(options: IaCTestFlags) {
-  if (options.report) {
-    return generateProjectAttributes(options);
-  }
 }

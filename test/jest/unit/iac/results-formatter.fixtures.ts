@@ -1,9 +1,9 @@
 import * as path from 'path';
 import {
   EngineType,
+  FormattedTestMeta,
   IacFileScanResult,
   PolicyMetadata,
-  TestMeta,
 } from '../../../../src/cli/commands/test/iac/local-execution/types';
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 import { SEVERITY } from '../../../../src/lib/snyk-test/common';
@@ -93,11 +93,11 @@ export function generateScanResults({
   ];
 }
 
-export const meta: TestMeta = {
-  isPrivate: false,
+export const meta: FormattedTestMeta = {
   isLicensesEnabled: false,
   org: 'org-name',
   orgPublicId: '7bfa4159-6f90-4acd-82a4-0b2ad2aaf80b',
+  isPrivate: true,
 };
 
 export function generateCloudConfigResults({

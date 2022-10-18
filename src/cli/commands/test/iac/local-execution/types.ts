@@ -65,13 +65,24 @@ export interface IacShareResultsFormat {
   violatedPolicies: PolicyMetadata[];
 }
 
+export interface FormattedTestMeta {
+  isPrivate: boolean;
+  isLicensesEnabled: boolean;
+  org: string;
+  orgPublicId: string;
+  ignoreSettings?: IgnoreSettings | null;
+  projectId?: string;
+  policy?: string;
+  gitRemoteUrl?: string;
+}
+
 // This type is the integration point with the CLI test command, please note it is still partial in the experimental version
 export type FormattedResult = {
   result: {
     cloudConfigResults: Array<PolicyMetadata>;
     projectType: IacProjectTypes;
   };
-  meta: TestMeta;
+  meta: FormattedTestMeta;
   filesystemPolicy: boolean;
   vulnerabilities: AnnotatedIssue[];
   dependencyCount: number;
@@ -114,13 +125,10 @@ export interface IacOrgSettings {
 }
 
 export interface TestMeta {
-  isPrivate: boolean;
-  isLicensesEnabled: boolean;
   org: string;
   orgPublicId: string;
   ignoreSettings?: IgnoreSettings | null;
   projectId?: string;
-  policy?: string;
   gitRemoteUrl?: string;
 }
 
@@ -391,6 +399,8 @@ export enum IaCErrorCodes {
   FailedToMakeResourcesResolvers = 2115,
   ResourcesResolverError = 2116,
   FailedToProcessResults = 2200,
+  EntitlementNotEnabled = 2201,
+  ReadSettings = 2202,
 }
 
 export interface TestReturnValue {

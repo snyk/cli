@@ -10,7 +10,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import config from '../../../../config';
-import { getAuthHeader } from '../../../../api-token';
+import { api } from '../../../../api-token';
 import { allowAnalytics } from '../../../../analytics';
 import envPaths from 'env-paths';
 
@@ -24,17 +24,17 @@ export function scan(
   rulesBundlePath: string,
 ): TestOutput {
   const {
-    tempConfig: configPath,
     tempOutput: outputPath,
     tempDir: tempDirPath,
+    tempPolicy: tempPolicyPath,
   } = createTemporaryFiles(options);
   try {
     return scanWithConfig(
       options,
       policyEnginePath,
       rulesBundlePath,
-      configPath,
       outputPath,
+      tempPolicyPath,
     );
   } finally {
     deleteTemporaryFiles(tempDirPath);
@@ -45,27 +45,33 @@ function scanWithConfig(
   options: TestConfig,
   policyEnginePath: string,
   rulesBundlePath: string,
-  configPath: string,
   outputPath: string,
+  policyPath: string,
 ): TestOutput {
-  const args = processFlags(options, rulesBundlePath, configPath, outputPath);
+  const env = { ...process.env };
+
+  env['SNYK_API_URL'] = getApiUrl();
+  env['SNYK_API_TOKEN'] = getApiToken();
+
+  const args = processFlags(options, rulesBundlePath, outputPath, policyPath);
 
   args.push(...options.paths);
 
-  const process = childProcess.spawnSync(policyEnginePath, args, {
+  const child = childProcess.spawnSync(policyEnginePath, args, {
     encoding: 'utf-8',
     stdio: 'pipe',
+    env: env,
     maxBuffer: 1024 * 1024 * 10, // The default value is 1024 * 1024, if we see in the future that multiplying it by 10 is not enough we can increase it further.
   });
 
-  debug('policy engine standard error:\n%s', '\n' + process.stderr);
+  debug('policy engine standard error:\n%s', '\n' + child.stderr);
 
-  if (process.status && process.status !== 0) {
-    throw new ScanError(`invalid exit status: ${process.status}`);
+  if (child.status && child.status !== 0) {
+    throw new ScanError(`invalid exit status: ${child.status}`);
   }
 
-  if (process.error) {
-    throw new ScanError(`spawning process: ${process.error}`);
+  if (child.error) {
+    throw new ScanError(`spawning process: ${child.error}`);
   }
 
   let snykIacTestOutput: string, parsedSnykIacTestOutput;
@@ -83,16 +89,16 @@ function scanWithConfig(
 function processFlags(
   options: TestConfig,
   rulesBundlePath: string,
-  configPath: string,
   outputPath: string,
+  policyPath: string,
 ) {
   const flags = [
     '-cache-dir',
     systemCachePath,
     '-bundle',
     rulesBundlePath,
-    '-config',
-    configPath,
+    '-policy',
+    policyPath,
   ];
 
   flags.push('-output', outputPath);
@@ -101,38 +107,11 @@ function processFlags(
     flags.push('-severity-threshold', options.severityThreshold);
   }
 
-  if (options.attributes?.criticality) {
-    flags.push(
-      '-project-business-criticality',
-      options.attributes.criticality.join(','),
-    );
-  }
-
-  if (options.attributes?.environment) {
-    flags.push(
-      '-project-environment',
-      options.attributes.environment.join(','),
-    );
-  }
-
-  if (options.attributes?.lifecycle) {
-    flags.push('-project-lifecycle', options.attributes.lifecycle.join(','));
-  }
-
   if (options.depthDetection) {
     flags.push('-depth-detection', `${options.depthDetection}`);
   }
 
-  if (options.projectTags) {
-    const stringifiedTags = options.projectTags
-      .map((tag) => {
-        return `${tag.key}=${tag.value}`;
-      })
-      .join(',');
-    flags.push('-project-tags', stringifiedTags);
-  }
-
-  if (options.report) {
+  if (options.report && allowAnalytics()) {
     flags.push('-report');
   }
 
@@ -164,31 +143,29 @@ function processFlags(
     flags.push('-http-tls-skip-verify');
   }
 
+  if (options.org) {
+    flags.push('-org', options.org);
+  }
+
   return flags;
 }
 
 function createTemporaryFiles(
   options: TestConfig,
-): { tempConfig: string; tempOutput: string; tempDir: string } {
+): {
+  tempOutput: string;
+  tempDir: string;
+  tempPolicy: string;
+} {
   try {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'snyk-'));
-    const tempConfig = path.join(tempDir, 'config.json');
     const tempOutput = path.join(tempDir, 'output.json');
+    const tempPolicy = path.join(tempDir, '.snyk');
 
-    const configData = JSON.stringify({
-      org: options.orgSettings.meta.org,
-      orgPublicId: options.orgSettings.meta.orgPublicId,
-      apiUrl: getApiUrl(),
-      apiAuth: getAuthHeader(),
-      allowAnalytics: allowAnalytics(),
-      policy: options.policy,
-      customSeverities: options.orgSettings.customPolicies,
-    });
-
-    fs.writeFileSync(tempConfig, configData);
     fs.writeFileSync(tempOutput, '');
+    fs.writeFileSync(tempPolicy, options.policy || '');
 
-    return { tempConfig, tempOutput, tempDir };
+    return { tempOutput, tempDir, tempPolicy };
   } catch (e) {
     throw new ScanError(`unable to create config/output file: ${e}`);
   }
@@ -203,9 +180,11 @@ function deleteTemporaryFiles(tempDirPath: string) {
 }
 
 function getApiUrl() {
-  const apiUrl = new URL(config.API_REST_URL);
-  apiUrl.pathname = '';
-  return apiUrl.toString();
+  return config.API_REST_URL;
+}
+
+function getApiToken() {
+  return api() || '';
 }
 
 class ScanError extends CustomError {
