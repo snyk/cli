@@ -4,7 +4,6 @@ import chalk from 'chalk';
 
 import * as scanLib from '../../../../../../../../src/lib/iac/test/v2/scan';
 import * as downloadPolicyEngineLib from '../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/download';
-import * as downloadRulesBundleLib from '../../../../../../../../src/lib/iac/test/v2/local-cache/rules-bundle/download';
 import { test } from '../../../../../../../../src/cli/commands/test/iac/v2/index';
 import { isValidJSONString } from '../../../../../../acceptance/iac/helpers';
 import { SnykIacTestError } from '../../../../../../../../src/lib/iac/test/v2/errors';
@@ -85,10 +84,6 @@ describe('test', () => {
 
     jest
       .spyOn(downloadPolicyEngineLib, 'downloadPolicyEngine')
-      .mockResolvedValue('');
-
-    jest
-      .spyOn(downloadRulesBundleLib, 'downloadRulesBundle')
       .mockResolvedValue('');
   });
 
