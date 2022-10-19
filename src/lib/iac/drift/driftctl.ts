@@ -17,9 +17,9 @@ import {
 import { validateArgs } from '../drift';
 import * as debugLib from 'debug';
 import { makeRequest } from '../../request';
+import * as child_process from 'child_process';
 import { StdioOptions } from 'child_process';
 import * as path from 'path';
-import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as crypto from 'crypto';
@@ -246,9 +246,22 @@ export const runDriftCTL = async ({
 
   debug('running driftctl %s ', args.join(' '));
 
+  const dctl_env: NodeJS.ProcessEnv = { ...process.env, DCTL_IS_SNYK: 'true' };
+
+  // WARN: We are restoring system en proxy because snyk cli override them but the proxy use untrusted certs
+  if (process.env.SNYK_SYSTEM_HTTP_PROXY != undefined) {
+    dctl_env.HTTP_PROXY = process.env.SNYK_SYSTEM_HTTP_PROXY;
+  }
+  if (process.env.SNYK_SYSTEM_HTTPS_PROXY != undefined) {
+    dctl_env.HTTPS_PROXY = process.env.SNYK_SYSTEM_HTTPS_PROXY;
+  }
+  if (process.env.SNYK_NO_PROXY != undefined) {
+    dctl_env.NO_PROXY = process.env.SNYK_SYSTEM_NO_PROXY;
+  }
+
   const p = child_process.spawn(path, args, {
     stdio,
-    env: { ...process.env, DCTL_IS_SNYK: 'true' },
+    env: dctl_env,
   });
 
   let stdout = '';
