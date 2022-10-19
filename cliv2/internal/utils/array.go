@@ -85,3 +85,9 @@ func FindKeyCaseInsensitive(input map[string]string, key string) (string, bool) 
 
 	return key, found
 }
+
+func FindValueCaseInsensitive(input map[string]string, key string) (string, bool) {
+	key, found := FindKeyCaseInsensitive(input, key)
+	value := input[key]
+	return value, found
+}

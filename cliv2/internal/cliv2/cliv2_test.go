@@ -20,14 +20,27 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"something=1",
 		"in=2",
 		"here=3=2",
-		"no_proxy=something",
+		"no_proxy=noProxy",
+		"HTTPS_PROXY=httpsProxy",
+		"HTTP_PROXY=httpProxy",
 		"NPM_CONFIG_PROXY=something",
 		"NPM_CONFIG_HTTPS_PROXY=something",
 		"NPM_CONFIG_HTTP_PROXY=something",
 		"npm_config_no_proxy=something",
 		"ALL_PROXY=something",
 	}
-	expected := []string{"something=1", "in=2", "here=3=2", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
+	expected := []string{"something=1",
+		"in=2",
+		"here=3=2",
+		"SNYK_INTEGRATION_NAME=foo",
+		"SNYK_INTEGRATION_VERSION=bar",
+		"HTTP_PROXY=proxy",
+		"HTTPS_PROXY=proxy",
+		"NODE_EXTRA_CA_CERTS=cacertlocation",
+		"SNYK_SYSTEM_NO_PROXY=noProxy",
+		"SNYK_SYSTEM_HTTP_PROXY=httpProxy",
+		"SNYK_SYSTEM_HTTPS_PROXY=httpsProxy",
+	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 
@@ -40,7 +53,19 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testing.T) {
 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already"}
-	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
+	expected := []string{
+		"something=1",
+		"in=2",
+		"here=3",
+		"SNYK_INTEGRATION_NAME=exists",
+		"SNYK_INTEGRATION_VERSION=already",
+		"HTTP_PROXY=proxy",
+		"HTTPS_PROXY=proxy",
+		"NODE_EXTRA_CA_CERTS=cacertlocation",
+		"SNYK_SYSTEM_NO_PROXY=",
+		"SNYK_SYSTEM_HTTP_PROXY=",
+		"SNYK_SYSTEM_HTTPS_PROXY=",
+	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 
@@ -53,7 +78,19 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 
 	input := []string{"something=1", "in=2", "here=3", "http_proxy=exists", "https_proxy=already", "NODE_EXTRA_CA_CERTS=again", "no_proxy=312123"}
-	expected := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=foo", "SNYK_INTEGRATION_VERSION=bar", "HTTP_PROXY=proxy", "HTTPS_PROXY=proxy", "NODE_EXTRA_CA_CERTS=cacertlocation"}
+	expected := []string{
+		"something=1",
+		"in=2",
+		"here=3",
+		"SNYK_INTEGRATION_NAME=foo",
+		"SNYK_INTEGRATION_VERSION=bar",
+		"HTTP_PROXY=proxy",
+		"HTTPS_PROXY=proxy",
+		"NODE_EXTRA_CA_CERTS=cacertlocation",
+		"SNYK_SYSTEM_NO_PROXY=312123",
+		"SNYK_SYSTEM_HTTP_PROXY=exists",
+		"SNYK_SYSTEM_HTTPS_PROXY=already",
+	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
 

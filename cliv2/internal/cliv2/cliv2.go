@@ -184,6 +184,11 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 		err = EnvironmentWarning{message: fmt.Sprintf("Partially defined environment, please ensure to provide both %s and %s together!", constants.SNYK_INTEGRATION_NAME_ENV, constants.SNYK_INTEGRATION_VERSION_ENV)}
 	}
 
+	// preserve original proxy settings
+	inputAsMap[constants.SNYK_HTTPS_PROXY_ENV_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_HTTPS_PROXY_ENV)
+	inputAsMap[constants.SNYK_HTTP_PROXY_ENV_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_HTTP_PROXY_ENV)
+	inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_HTTP_NO_PROXY_ENV)
+
 	if err == nil {
 
 		// apply blacklist: ensure that no existing no_proxy or other configuration causes redirecting internal communication that is meant to stay between cliv1 and cliv2
