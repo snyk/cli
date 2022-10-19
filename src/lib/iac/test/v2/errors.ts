@@ -10,7 +10,7 @@ const snykIacTestErrorsUserMessages = {
   NoPaths: 'No valid paths were provided',
   CwdTraversal:
     'Running the scan from outside of the current working directory is not supported',
-  NoBundle: 'A rules bundle were not provided',
+  NoBundle: 'A rule bundle was not provided',
   OpenBundle: "The Snyk CLI couldn't open the rules bundle",
   InvalidSeverityThreshold:
     'The provided severity threshold is invalid. The following values are supported: "low", "medium", "high", "critical"',
