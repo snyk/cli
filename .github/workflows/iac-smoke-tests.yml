@@ -30,24 +30,6 @@ jobs:
         with:
           node-version: 16.16.0
 
-      - name: Install jq on macOS
-        id: test
-        if: ${{ matrix.os == 'macos' }}
-        run: |
-          brew install jq
-
-      - name: Install jq on Windows
-        if: ${{ matrix.os == 'windows'}}
-        run: |
-          iwr -useb get.scoop.sh -outfile 'install-scoop.ps1'
-          .\install-scoop.ps1 -RunAsAdmin
-          scoop install jq
-
-      - name: Install jq on Ubuntu
-        if: ${{ matrix.os == 'ubuntu' }}
-        run: |
-          sudo apt-get install jq
-
       - name: Install dependencies
         run: |
           npm install
