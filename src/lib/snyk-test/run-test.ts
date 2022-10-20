@@ -458,7 +458,7 @@ function handleTestHttpErrorResponse(res, body) {
     case 401:
     case 403:
       err = AuthFailedError(userMessage, statusCode);
-      err.innerError = body.stack;
+      err.innerError = body.stack || body;
       break;
     case 404:
       err = new NotFoundError(userMessage);

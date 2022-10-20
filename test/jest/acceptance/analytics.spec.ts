@@ -253,6 +253,79 @@ describe('analytics module', () => {
     });
   });
 
+  it('sends correct analytics with error-details containing 403 error body', async () => {
+    server.setNextResponse({ error: 'Unauthorized' });
+    server.setNextStatusCode(403);
+
+    const project = await createProjectFromFixture(
+      'npm/with-vulnerable-lodash-dep',
+    );
+
+    const { code } = await runSnykCLI('test', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toBe(2);
+
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      server.popRequest();
+    }
+
+    const lastRequest = server.popRequest();
+    expect(lastRequest).toMatchObject({
+      query: {},
+      body: {
+        data: {
+          args: [{}],
+          ci: expect.any(Boolean),
+          command: 'bad-command',
+          metadata: {
+            'generating-node-dependency-tree': {
+              lockFile: true,
+              targetFile: 'package-lock.json',
+            },
+            lockfileVersion: 2,
+            pluginName: 'snyk-nodejs-lockfile-parser',
+            packageManager: 'npm',
+            packageName: 'with-vulnerable-lodash-dep',
+            packageVersion: '1.2.3',
+            prePrunedPathsCount: 2,
+            'error-code': 403,
+            'error-message': expect.stringContaining(
+              'Authentication failed. Please check the API token on',
+            ),
+            'error-details': { error: 'Unauthorized' },
+          },
+          durationMs: expect.any(Number),
+          id: expect.any(String),
+          integrationEnvironment: '',
+          integrationEnvironmentVersion: '',
+          integrationName: 'JENKINS',
+          integrationVersion: '1.2.3',
+          // prettier-ignore
+          metrics: {
+            'network_time': {
+              type: 'timer',
+              values: expect.any(Array),
+              total: expect.any(Number),
+            },
+            'cpu_time': {
+              type: 'synthetic',
+              values: [expect.any(Number)],
+              total: expect.any(Number),
+            },
+          },
+          nodeVersion: expect.any(String),
+          os: expect.any(String),
+          standalone: expect.any(Boolean),
+          version: expect.stringMatching(/^(\d+\.){2}.*/),
+        },
+      },
+    });
+  });
+
   it('sends analytics data a bad command', async () => {
     const project = await createProjectFromWorkspace('npm-package');
     const { code } = await runSnykCLI('', {
