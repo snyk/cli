@@ -144,9 +144,9 @@ describe('test', () => {
         formattedUserMessage:
           "Test Failures\n\n  The Snyk CLI couldn't find any valid IaC configuration files to scan\n  Path: invalid_file.txt",
         json:
-          '[\n  {\n    "ok": false,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
+          '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
         jsonStringifiedResults:
-          '[\n  {\n    "ok": false,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
+          '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
         sarifStringifiedResults: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
           pathToFileURL(path.join(process.cwd(), '/')).href
         }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "snyk-iac"\n      },\n      "results": []\n    }\n  ]\n}`,
@@ -194,9 +194,9 @@ describe('test', () => {
               `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
             ),
             jsonStringifiedResults:
-              '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+              '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
             json:
-              '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+              '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
           }),
         );
       });
@@ -255,13 +255,13 @@ describe('test', () => {
           strCode: 'NO_FILES_TO_SCAN_ERROR',
           innerError: undefined,
           userMessage:
-            '[\n  {\n    "ok": false,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
+            '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
           formattedUserMessage:
-            '[\n  {\n    "ok": false,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
+            '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
           json:
-            '[\n  {\n    "ok": false,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
+            '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
           jsonStringifiedResults:
-            '[\n  {\n    "ok": false,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
+            '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
           sarifStringifiedResults: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
             pathToFileURL(path.join(process.cwd(), '/')).href
           }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "snyk-iac"\n      },\n      "results": []\n    }\n  ]\n}`,
@@ -297,7 +297,7 @@ describe('test', () => {
             expect.objectContaining({
               name: 'NoLoadableInputError',
               message:
-                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+                '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
               code: 1010,
               strCode: 'NO_FILES_TO_SCAN_ERROR',
               fields: {
@@ -305,16 +305,16 @@ describe('test', () => {
               },
               path: 'path/to/test',
               userMessage:
-                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+                '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
               formattedUserMessage:
-                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+                '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
               sarifStringifiedResults: expect.stringContaining(
                 `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
               ),
               jsonStringifiedResults:
-                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+                '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
               json:
-                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+                '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
             }),
           );
         });
@@ -376,7 +376,7 @@ describe('test', () => {
             pathToFileURL(path.join(process.cwd(), '/')).href
           }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "snyk-iac"\n      },\n      "results": []\n    }\n  ]\n}`,
           jsonStringifiedResults:
-            '[\n  {\n    "ok": false,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
+            '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
           sarifStringifiedResults: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
             pathToFileURL(path.join(process.cwd(), '/')).href
           }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "snyk-iac"\n      },\n      "results": []\n    }\n  ]\n}`,
@@ -430,7 +430,7 @@ describe('test', () => {
                 `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
               ),
               jsonStringifiedResults:
-                '[\n  {\n    "ok": false,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+                '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
               json: expect.stringContaining(
                 `"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"`,
               ),

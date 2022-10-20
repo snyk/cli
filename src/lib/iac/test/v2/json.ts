@@ -2,11 +2,14 @@
 // fields must be produced in the JSON output, and they must have those values
 // to keep backwards compatibility.
 
-import { Resource, ScanError, TestOutput, Vulnerability } from './scan/results';
+import { Resource, TestOutput, Vulnerability } from './scan/results';
 import * as path from 'path';
-import { createErrorMappedResultsForJsonOutput } from '../../../formatters/test/format-test-results';
 import { IacProjectType, iacRemediationTypes } from '../../constants';
 import { State } from './scan/policy-engine';
+import {
+  IacTestError,
+  mapIacTestError,
+} from '../../../snyk-test/iac-test-result';
 
 export interface Result {
   meta: Meta;
@@ -92,7 +95,7 @@ export function convertEngineToJsonResults({
 }: {
   results: TestOutput;
   projectName: string;
-}): Array<Result | ScanError> {
+}): Array<Result | IacTestError> {
   const vulnerabilityGroups = groupVulnerabilitiesByFile(results); // all vulns groups by file
   const resourceGroups = groupResourcesByFile(results); // all resources grouped by file
   const filesWithoutIssues = findFilesWithoutIssues(
@@ -100,10 +103,10 @@ export function convertEngineToJsonResults({
     vulnerabilityGroups,
   ); // all resources without issues grouped by file
 
-  const output: Array<Result | ScanError> = [];
+  const output: Array<Result | IacTestError> = [];
 
   if (results.errors) {
-    output.push(...createErrorMappedResultsForJsonOutput(results.errors));
+    output.push(...results.errors.map((e) => mapIacTestError(e)));
   }
 
   for (const [file, resources] of Object.entries(filesWithoutIssues)) {
