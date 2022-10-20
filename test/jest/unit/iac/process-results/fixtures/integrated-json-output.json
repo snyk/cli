@@ -1,6 +1,7 @@
 [
   {
     "ok": false,
+    "code": 2114,
     "error": "",
     "path": "invalid_file.txt"
   },
