@@ -248,7 +248,7 @@ export const runDriftCTL = async ({
 
   const dctl_env: NodeJS.ProcessEnv = { ...process.env, DCTL_IS_SNYK: 'true' };
 
-  // WARN: We are restoring system en proxy because snyk cli override them but the proxy use untrusted certs
+  // WARN: We are restoring system en proxy because snyk cli override them but the proxy uses untrusted certs
   if (process.env.SNYK_SYSTEM_HTTP_PROXY != undefined) {
     dctl_env.HTTP_PROXY = process.env.SNYK_SYSTEM_HTTP_PROXY;
   }
