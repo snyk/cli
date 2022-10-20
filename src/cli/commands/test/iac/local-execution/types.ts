@@ -213,6 +213,7 @@ export type IaCTestFlags = Pick<
   // Allows the caller to provide the path to a WASM bundle.
   rules?: string;
   'cloud-context'?: string;
+  'snyk-cloud-environment'?: string;
   // Tags and attributes
   'project-tags'?: string;
   'project-environment'?: string;
