@@ -9,6 +9,7 @@ import {
   IacTestData,
   Issue,
 } from './types';
+import { countSuppressedIssues } from './utils';
 
 interface FormatTestDataParams {
   oldFormattedResults: FormattedResult[];
@@ -113,12 +114,7 @@ export function formatSnykIacTestTestData(
   const suppressedResults =
     snykIacTestScanResult?.scanAnalytics?.suppressedResults;
   if (suppressedResults) {
-    contextSuppressedIssueCount = Object.values(suppressedResults).reduce(
-      function(count, resourcesForRuleId) {
-        return (count += resourcesForRuleId.length);
-      },
-      0,
-    );
+    contextSuppressedIssueCount = countSuppressedIssues(suppressedResults);
   }
 
   return {
