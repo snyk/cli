@@ -50,8 +50,14 @@ function scanWithConfig(
 ): TestOutput {
   const env = { ...process.env };
 
-  env['SNYK_API_URL'] = getApiUrl();
-  env['SNYK_API_TOKEN'] = getApiToken();
+  env['SNYK_IAC_TEST_API_REST_URL'] =
+    process.env['SNYK_IAC_TEST_API_REST_URL'] || getApiUrl();
+  env['SNYK_IAC_TEST_API_REST_TOKEN'] =
+    process.env['SNYK_IAC_TEST_API_REST_TOKEN'] || getApiToken();
+  env['SNYK_IAC_TEST_API_V1_URL'] =
+    process.env['SNYK_IAC_TEST_API_V1_URL'] || getApiUrl();
+  env['SNYK_IAC_TEST_API_V1_TOKEN'] =
+    process.env['SNYK_IAC_TEST_API_V1_TOKEN'] || getApiToken();
 
   const args = processFlags(options, rulesBundlePath, outputPath, policyPath);
 
