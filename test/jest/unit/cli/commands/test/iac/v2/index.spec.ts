@@ -113,7 +113,7 @@ describe('test', () => {
 
   describe('with no successful scans', () => {
     beforeEach(() => {
-      jest.spyOn(scanLib, 'scan').mockReturnValue(scanWithOnlyErrorsFixture);
+      jest.spyOn(scanLib, 'scan').mockResolvedValue(scanWithOnlyErrorsFixture);
     });
 
     it('throws the expected error', async () => {
@@ -155,7 +155,7 @@ describe('test', () => {
       beforeEach(() => {
         jest
           .spyOn(scanLib, 'scan')
-          .mockReturnValue(scanWithoutLoadableInputsFixture);
+          .mockResolvedValue(scanWithoutLoadableInputsFixture);
       });
 
       it('throws the expected error', async () => {
@@ -228,7 +228,9 @@ describe('test', () => {
 
     describe('with no successful scans', () => {
       beforeEach(() => {
-        jest.spyOn(scanLib, 'scan').mockReturnValue(scanWithOnlyErrorsFixture);
+        jest
+          .spyOn(scanLib, 'scan')
+          .mockResolvedValue(scanWithOnlyErrorsFixture);
       });
 
       it('throws the expected error', async () => {
@@ -270,7 +272,7 @@ describe('test', () => {
         beforeEach(() => {
           jest
             .spyOn(scanLib, 'scan')
-            .mockReturnValue(scanWithoutLoadableInputsFixture);
+            .mockResolvedValue(scanWithoutLoadableInputsFixture);
         });
 
         it('throws the expected error', async () => {
@@ -340,7 +342,9 @@ describe('test', () => {
 
     describe('with no successful scans', () => {
       beforeEach(() => {
-        jest.spyOn(scanLib, 'scan').mockReturnValue(scanWithOnlyErrorsFixture);
+        jest
+          .spyOn(scanLib, 'scan')
+          .mockResolvedValue(scanWithOnlyErrorsFixture);
       });
 
       it('throws the expected error', async () => {
@@ -385,7 +389,7 @@ describe('test', () => {
         beforeEach(() => {
           jest
             .spyOn(scanLib, 'scan')
-            .mockReturnValue(scanWithoutLoadableInputsFixture);
+            .mockResolvedValue(scanWithoutLoadableInputsFixture);
         });
 
         it('throws the expected error', async () => {
