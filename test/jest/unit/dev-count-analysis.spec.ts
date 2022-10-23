@@ -62,10 +62,10 @@ describe('cli dev count via git log analysis', () => {
 
   it('can calculate start of contributing developer period', () => {
     const dEndMilliseconds = 1590174610000; // arbitrary timestamp in ms since epoch
-    const exectedStartTimestampSeconds = 1590174610 - 90 * 24 * 60 * 60;
+    const expectedStartTimestampSeconds = 1590174610 - 90 * 24 * 60 * 60;
     const dEnd = new Date(dEndMilliseconds);
     const tStart = getTimestampStartOfContributingDevTimeframe(dEnd, 90);
-    expect(tStart).toEqual(exectedStartTimestampSeconds);
+    expect(tStart).toEqual(expectedStartTimestampSeconds);
   });
 
   it('can parse a git log line', () => {
