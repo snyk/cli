@@ -64,7 +64,7 @@ export function handleRestError(error: any): void {
 /**
  * @param errRes RestError response
  * @returns {String} Iterates over error and
- * converts them into a readible string
+ * converts them into a readable string
  */
 function errorsToDisplayString(errRes: IRestErrorResponse): string {
   const resString = `Uh oh! an error occurred while trying to create the Snyk App.
