@@ -30,10 +30,10 @@ test('"snyk test --show-vulnerable-paths=false"', function(t) {
         });
       t.assert(
         _(vulnUrls)
-          .countBy() // count the occurrances of each vulnUrl
+          .countBy() // count the occurrences of each vulnUrl
           .values()
-          .every(function(occurances) {
-            return occurances === 1;
+          .every(function(occurrences) {
+            return occurrences === 1;
           }),
         'displays each vuln only once',
       );
@@ -63,10 +63,10 @@ test('"snyk test"', function(t) {
         });
       t.assert(
         _(vulnUrls)
-          .countBy() // count the occurrances of each vulnUrl
+          .countBy() // count the occurrences of each vulnUrl
           .values()
-          .some(function(occurances) {
-            return occurances > 1;
+          .some(function(occurrences) {
+            return occurrences > 1;
           }),
         'duplicates vuln data for each vulnerable-path',
       );
