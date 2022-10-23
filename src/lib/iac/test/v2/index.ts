@@ -11,9 +11,9 @@ export async function test(testConfig: TestConfig): Promise<TestOutput> {
     testConfig,
   );
 
-  const testOutput = scan(testConfig, policyEnginePath, rulesBundlePath);
+  const testOutput = await scan(testConfig, policyEnginePath, rulesBundlePath);
 
-  addIacAnalytics(testOutput);
+  addIacAnalytics(testConfig, testOutput);
 
   return testOutput;
 }

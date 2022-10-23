@@ -2,12 +2,14 @@
 // fields must be produced in the JSON output, and they must have those values
 // to keep backwards compatibility.
 
-import { IacOrgSettings } from '../../../../cli/commands/test/iac/local-execution/types';
-import { Resource, ScanError, TestOutput, Vulnerability } from './scan/results';
+import { Resource, TestOutput, Vulnerability } from './scan/results';
 import * as path from 'path';
-import { createErrorMappedResultsForJsonOutput } from '../../../formatters/test/format-test-results';
 import { IacProjectType, iacRemediationTypes } from '../../constants';
 import { State } from './scan/policy-engine';
+import {
+  IacTestError,
+  mapIacTestError,
+} from '../../../snyk-test/iac-test-result';
 
 export interface Result {
   meta: Meta;
@@ -90,12 +92,10 @@ export interface IacDescription {
 export function convertEngineToJsonResults({
   results,
   projectName,
-  orgSettings,
 }: {
   results: TestOutput;
   projectName: string;
-  orgSettings: IacOrgSettings;
-}): Array<Result | ScanError> {
+}): Array<Result | IacTestError> {
   const vulnerabilityGroups = groupVulnerabilitiesByFile(results); // all vulns groups by file
   const resourceGroups = groupResourcesByFile(results); // all resources grouped by file
   const filesWithoutIssues = findFilesWithoutIssues(
@@ -103,19 +103,19 @@ export function convertEngineToJsonResults({
     vulnerabilityGroups,
   ); // all resources without issues grouped by file
 
-  const output: Array<Result | ScanError> = [];
+  const output: Array<Result | IacTestError> = [];
 
   if (results.errors) {
-    output.push(...createErrorMappedResultsForJsonOutput(results.errors));
+    output.push(...results.errors.map((e) => mapIacTestError(e)));
   }
 
   for (const [file, resources] of Object.entries(filesWithoutIssues)) {
-    output.push(resourcesToResult(orgSettings, projectName, file, resources));
+    output.push(resourcesToResult(results, projectName, file, resources));
   }
 
   for (const [file, vulnerabilities] of Object.entries(vulnerabilityGroups)) {
     output.push(
-      vulnerabilitiesToResult(orgSettings, projectName, file, vulnerabilities),
+      vulnerabilitiesToResult(results, projectName, file, vulnerabilities),
     );
   }
 
@@ -170,18 +170,14 @@ function findFilesWithoutIssues(
 }
 
 function resourcesToResult(
-  orgSettings: IacOrgSettings,
+  testOutput: TestOutput,
   projectName: string,
   file: string,
   resources: Resource[],
 ): Result {
   const kind = resourcesToKind(resources);
-  const ignoreSettings = orgSettingsToIgnoreSettings(orgSettings);
-  const meta = orgSettingsToMeta(orgSettings, ignoreSettings);
-
-  const {
-    meta: { org, isPrivate, policy },
-  } = orgSettings;
+  const ignoreSettings = testOutput.settings.ignoreSettings;
+  const meta = orgSettingsToMeta(testOutput, ignoreSettings);
 
   return {
     meta,
@@ -192,9 +188,9 @@ function resourcesToResult(
     ignoreSettings,
     targetFile: file,
     projectName,
-    org,
-    policy: policy || '',
-    isPrivate,
+    org: testOutput.settings.org,
+    policy: '',
+    isPrivate: true,
     targetFilePath: path.resolve(file),
     packageManager: kind,
     path: process.cwd(),
@@ -205,21 +201,17 @@ function resourcesToResult(
 }
 
 function vulnerabilitiesToResult(
-  orgSettings: IacOrgSettings,
+  testOutput: TestOutput,
   projectName: string,
   file: string,
   vulnerabilities: Vulnerability[],
 ): Result {
   const kind = vulnerabilitiesToKind(vulnerabilities);
-  const ignoreSettings = orgSettingsToIgnoreSettings(orgSettings);
-  const meta = orgSettingsToMeta(orgSettings, ignoreSettings);
+  const ignoreSettings = testOutput.settings.ignoreSettings;
+  const meta = orgSettingsToMeta(testOutput, ignoreSettings);
   const infrastructureAsCodeIssues = vulnerabilitiesToIacIssues(
     vulnerabilities,
   );
-
-  const {
-    meta: { org, isPrivate, policy },
-  } = orgSettings;
 
   return {
     meta,
@@ -230,9 +222,9 @@ function vulnerabilitiesToResult(
     ignoreSettings,
     targetFile: file,
     projectName,
-    org,
-    policy: policy || '',
-    isPrivate,
+    org: testOutput.settings.org,
+    policy: '',
+    isPrivate: true,
     targetFilePath: path.resolve(file),
     packageManager: kind,
     path: process.cwd(),
@@ -306,33 +298,16 @@ function vulnerabilitiesToKind(
 }
 
 function orgSettingsToMeta(
-  orgSettings: IacOrgSettings,
+  testOutput: TestOutput,
   ignoreSettings: IgnoreSettings,
 ): Meta {
-  const {
-    meta: { isPrivate, isLicensesEnabled, org, policy },
-  } = orgSettings;
+  const org = testOutput.settings.org;
 
   return {
-    isPrivate,
-    isLicensesEnabled,
+    isPrivate: true,
+    isLicensesEnabled: false,
     org,
-    policy: policy || '',
+    policy: '',
     ignoreSettings,
-  };
-}
-
-function orgSettingsToIgnoreSettings(
-  orgSettings: IacOrgSettings,
-): IgnoreSettings {
-  const {
-    meta: { ignoreSettings },
-  } = orgSettings;
-
-  return {
-    adminOnly: ignoreSettings?.adminOnly || false,
-    reasonRequired: ignoreSettings?.reasonRequired || false,
-    disregardFilesystemIgnores:
-      ignoreSettings?.disregardFilesystemIgnores || false,
   };
 }

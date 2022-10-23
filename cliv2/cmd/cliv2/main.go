@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/snyk/cli/cliv2/internal/analytics"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/configuration"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 	"github.com/snyk/cli/cliv2/internal/utils"
+	"github.com/snyk/go-application-framework/pkg/analytics"
+	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 )
 
@@ -140,7 +140,7 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	wrapperProxy.SetUpstreamProxyAuthentication(envVariables.ProxyAuthenticationMechanism)
 	http.DefaultTransport = wrapperProxy.Transport()
 
-	port, err := wrapperProxy.Start()
+	err = wrapperProxy.Start()
 	if err != nil {
 		fmt.Println("Failed to start the proxy")
 		fmt.Println(err)
@@ -149,7 +149,8 @@ func MainWithErrorCode(envVariables EnvironmentVariables, args []string) int {
 	}
 
 	// run the cli
-	err = cli.Execute(port, wrapperProxy.CertificateLocation, args)
+	proxyInfo := wrapperProxy.ProxyInfo()
+	err = cli.Execute(proxyInfo, args)
 	if err != nil {
 		cliAnalytics.AddError(err)
 	}

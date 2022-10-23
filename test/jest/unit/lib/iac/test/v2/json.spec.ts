@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { IacOrgSettings } from '../../../../../../../src/cli/commands/test/iac/local-execution/types';
 import { SnykIacTestError } from '../../../../../../../src/lib/iac/test/v2/errors';
 import {
   convertEngineToJsonResults,
@@ -52,27 +51,10 @@ describe('convertEngineToJsonResults', () => {
     !('error' in item) ? { ...item, path: process.cwd() } : item,
   );
 
-  const orgSettings: IacOrgSettings = {
-    meta: {
-      isPrivate: false,
-      isLicensesEnabled: false,
-      ignoreSettings: null,
-      org: 'org-name',
-      orgPublicId: '7bfa4159-6f90-4acd-82a4-0b2ad2aaf80b',
-    },
-    customPolicies: {},
-    customRules: {},
-    entitlements: {
-      infrastructureAsCode: true,
-      iacCustomRulesEntitlement: true,
-    },
-  };
-
   it('returns expected JSON result', () => {
     const result = convertEngineToJsonResults({
       results: snykIacTestFixture,
       projectName: 'org-name',
-      orgSettings,
     });
 
     integratedJsonOutputFixture.forEach((item) => {

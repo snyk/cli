@@ -100,8 +100,9 @@ export interface DepGraphDataOpenAPI {
 
 export interface Attributes {
   start_time: number;
-  dep_graph_data: DepGraphDataOpenAPI;
-  component_details: ComponentDetailsOpenApi;
+  in_progress: boolean;
+  dep_graph_data?: DepGraphDataOpenAPI;
+  component_details?: ComponentDetailsOpenApi;
 }
 
 export interface IssuesRequestDetails {
@@ -219,12 +220,6 @@ export interface GetIssuesResponse {
   jsonapi: JsonApi;
   links: Links;
   data: IssuesResponseData;
-}
-
-export interface GetDepGraphResponse {
-  data: Data;
-  jsonapi: JsonApi;
-  links: Links;
 }
 
 interface PatchOpenApi {

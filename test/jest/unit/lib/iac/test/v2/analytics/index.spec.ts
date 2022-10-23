@@ -8,6 +8,7 @@ import {
   addIacAnalytics,
   IacAnalytics,
 } from '../../../../../../../../src/lib/iac/test/v2/analytics';
+import { TestConfig } from '../../../../../../../../src/lib/iac/test/v2/types';
 
 jest.mock(
   '../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants',
@@ -56,11 +57,14 @@ describe('computeIacAnalytics', () => {
       addedAnalytics[key] = value;
     });
 
+    const testConfig = {
+      cloudContext: 'aws',
+    } as TestConfig;
     const testOutput = clonedeep(snykIacTestOutputFixture);
     const expectedAnalytics = clonedeep(iacAnalyticsFixture);
 
     // Act
-    addIacAnalytics(testOutput);
+    addIacAnalytics(testConfig, testOutput);
 
     // Assert
     expect(addedAnalytics).toStrictEqual(expectedAnalytics);

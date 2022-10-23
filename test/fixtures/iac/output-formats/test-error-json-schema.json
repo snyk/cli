@@ -2,9 +2,10 @@
     "type": "object",
     "properties": {
         "ok": { "type": "boolean" },
+        "code": {"type": "integer"},
         "error": { "type": "string" },
         "path": { "type": "string" }
     },
-    "required": ["ok", "error", "path"],
+    "required": ["ok", "code", "error", "path"],
     "additionalProperties": false
 }

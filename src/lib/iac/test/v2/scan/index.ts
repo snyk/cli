@@ -10,7 +10,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import config from '../../../../config';
-import { getAuthHeader } from '../../../../api-token';
+import { api } from '../../../../api-token';
 import { allowAnalytics } from '../../../../analytics';
 import envPaths from 'env-paths';
 
@@ -18,81 +18,84 @@ const debug = newDebug('snyk-iac');
 
 export const systemCachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 
-export function scan(
+export async function scan(
   options: TestConfig,
   policyEnginePath: string,
   rulesBundlePath: string,
-): TestOutput {
+): Promise<TestOutput> {
   const {
-    tempConfig: configPath,
     tempOutput: outputPath,
     tempDir: tempDirPath,
-  } = createTemporaryFiles(options);
+    tempPolicy: tempPolicyPath,
+  } = await createTemporaryFiles(options);
   try {
-    return scanWithConfig(
+    return await scanWithConfig(
       options,
       policyEnginePath,
       rulesBundlePath,
-      configPath,
       outputPath,
+      tempPolicyPath,
     );
   } finally {
-    deleteTemporaryFiles(tempDirPath);
+    await deleteTemporaryFiles(tempDirPath);
   }
 }
 
-function scanWithConfig(
+async function scanWithConfig(
   options: TestConfig,
   policyEnginePath: string,
   rulesBundlePath: string,
-  configPath: string,
   outputPath: string,
-): TestOutput {
-  const args = processFlags(options, rulesBundlePath, configPath, outputPath);
+  policyPath: string,
+): Promise<TestOutput> {
+  const env = { ...process.env };
+
+  env['SNYK_IAC_TEST_API_REST_URL'] =
+    process.env['SNYK_IAC_TEST_API_REST_URL'] || getApiUrl();
+  env['SNYK_IAC_TEST_API_REST_TOKEN'] =
+    process.env['SNYK_IAC_TEST_API_REST_TOKEN'] || getApiToken();
+  env['SNYK_IAC_TEST_API_V1_URL'] =
+    process.env['SNYK_IAC_TEST_API_V1_URL'] || getApiUrl();
+  env['SNYK_IAC_TEST_API_V1_TOKEN'] =
+    process.env['SNYK_IAC_TEST_API_V1_TOKEN'] || getApiToken();
+
+  const args = processFlags(options, rulesBundlePath, outputPath, policyPath);
 
   args.push(...options.paths);
 
-  const process = childProcess.spawnSync(policyEnginePath, args, {
-    encoding: 'utf-8',
-    stdio: 'pipe',
-    maxBuffer: 1024 * 1024 * 10, // The default value is 1024 * 1024, if we see in the future that multiplying it by 10 is not enough we can increase it further.
-  });
+  const child = await spawn(policyEnginePath, args, env);
 
-  debug('policy engine standard error:\n%s', '\n' + process.stderr);
+  debug('policy engine standard error:\n%s', '\n' + child.stderr);
 
-  if (process.status && process.status !== 0) {
-    throw new ScanError(`invalid exit status: ${process.status}`);
+  if (child.status && child.status !== 0) {
+    throw new ScanError(`invalid exit status: ${child.status}`);
   }
 
-  if (process.error) {
-    throw new ScanError(`spawning process: ${process.error}`);
+  if (child.error) {
+    throw new ScanError(`spawning process: ${child.error}`);
   }
-
-  let snykIacTestOutput: string, parsedSnykIacTestOutput;
 
   try {
-    snykIacTestOutput = fs.readFileSync(outputPath, 'utf-8');
-    parsedSnykIacTestOutput = JSON.parse(snykIacTestOutput);
+    const output = await readFile(outputPath);
+    return mapSnykIacTestOutputToTestOutput(JSON.parse(output));
   } catch (e) {
     throw new ScanError(`invalid output encoding: ${e}`);
   }
-
-  return mapSnykIacTestOutputToTestOutput(parsedSnykIacTestOutput);
 }
 
 function processFlags(
   options: TestConfig,
   rulesBundlePath: string,
-  configPath: string,
   outputPath: string,
+  policyPath: string,
 ) {
   const flags = [
     '-cache-dir',
     systemCachePath,
     '-bundle',
     rulesBundlePath,
-    '-config',
-    configPath,
+    '-policy',
+    policyPath,
   ];
 
   flags.push('-output', outputPath);
@@ -101,38 +104,11 @@ function processFlags(
     flags.push('-severity-threshold', options.severityThreshold);
   }
 
-  if (options.attributes?.criticality) {
-    flags.push(
-      '-project-business-criticality',
-      options.attributes.criticality.join(','),
-    );
-  }
-
-  if (options.attributes?.environment) {
-    flags.push(
-      '-project-environment',
-      options.attributes.environment.join(','),
-    );
-  }
-
-  if (options.attributes?.lifecycle) {
-    flags.push('-project-lifecycle', options.attributes.lifecycle.join(','));
-  }
-
   if (options.depthDetection) {
     flags.push('-depth-detection', `${options.depthDetection}`);
   }
 
-  if (options.projectTags) {
-    const stringifiedTags = options.projectTags
-      .map((tag) => {
-        return `${tag.key}=${tag.value}`;
-      })
-      .join(',');
-    flags.push('-project-tags', stringifiedTags);
-  }
-
-  if (options.report) {
+  if (options.report && allowAnalytics()) {
     flags.push('-report');
   }
 
@@ -160,52 +136,172 @@ function processFlags(
     flags.push('-cloud-context', options.cloudContext);
   }
 
+  if (options.snykCloudEnvironment) {
+    flags.push('-snyk-cloud-environment', options.snykCloudEnvironment);
+  }
+
   if (options.insecure) {
     flags.push('-http-tls-skip-verify');
+  }
+
+  if (options.org) {
+    flags.push('-org', options.org);
   }
 
   return flags;
 }
 
-function createTemporaryFiles(
+interface TemporaryFilesResult {
+  tempOutput: string;
+  tempDir: string;
+  tempPolicy: string;
+}
+
+async function createTemporaryFiles(
   options: TestConfig,
-): { tempConfig: string; tempOutput: string; tempDir: string } {
+): Promise<TemporaryFilesResult> {
   try {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'snyk-'));
-    const tempConfig = path.join(tempDir, 'config.json');
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), 'snyk-'));
     const tempOutput = path.join(tempDir, 'output.json');
+    const tempPolicy = path.join(tempDir, '.snyk');
 
-    const configData = JSON.stringify({
-      org: options.orgSettings.meta.org,
-      orgPublicId: options.orgSettings.meta.orgPublicId,
-      apiUrl: getApiUrl(),
-      apiAuth: getAuthHeader(),
-      allowAnalytics: allowAnalytics(),
-      policy: options.policy,
-      customSeverities: options.orgSettings.customPolicies,
-    });
+    await writeFile(tempPolicy, options.policy || '');
 
-    fs.writeFileSync(tempConfig, configData);
-    fs.writeFileSync(tempOutput, '');
-
-    return { tempConfig, tempOutput, tempDir };
+    return { tempOutput, tempDir, tempPolicy };
   } catch (e) {
     throw new ScanError(`unable to create config/output file: ${e}`);
   }
 }
 
-function deleteTemporaryFiles(tempDirPath: string) {
+async function deleteTemporaryFiles(tempDirPath: string) {
   try {
-    rimraf.sync(tempDirPath);
+    await remove(tempDirPath);
   } catch (e) {
     debug('unable to delete temporary directory', e);
   }
 }
 
+async function mkdtemp(path: string) {
+  return new Promise<string>((resolve, reject) => {
+    fs.mkdtemp(path, (err, folder) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(folder);
+      }
+    });
+  });
+}
+
+async function writeFile(path: string, content: string) {
+  return new Promise<void>((resolve, reject) => {
+    fs.writeFile(path, content, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+async function readFile(path: string) {
+  return new Promise<string>((resolve, reject) => {
+    fs.readFile(path, 'utf-8', (err, content) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(content);
+      }
+    });
+  });
+}
+
+async function remove(path: string) {
+  return new Promise((resolve, reject) => {
+    rimraf(path, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
 function getApiUrl() {
-  const apiUrl = new URL(config.API_REST_URL);
-  apiUrl.pathname = '';
-  return apiUrl.toString();
+  return config.API_REST_URL;
+}
+
+function getApiToken() {
+  return api() || '';
+}
+
+interface SpawnResult {
+  stdout: Buffer;
+  stderr: Buffer;
+  status: number | null;
+  error?: Error;
+}
+
+async function spawn(
+  path: string,
+  args: string[],
+  env: Record<string, string | undefined>,
+) {
+  return new Promise<SpawnResult>((resolve) => {
+    const child = childProcess.spawn(path, args, {
+      stdio: 'pipe',
+      env: env,
+    });
+
+    const stdout: Buffer[] = [];
+
+    child.stdout.on('data', (data) => {
+      stdout.push(Buffer.from(data));
+    });
+
+    const stderr: Buffer[] = [];
+
+    child.stderr.on('data', (data) => {
+      stderr.push(Buffer.from(data));
+    });
+
+    // If 'error' is emitted, 'exit' might or might not be emitted, too. The
+    // 'returned' flag prevents the promise from being resolved twice if an
+    // error occurs.
+
+    let returned = false;
+
+    child.on('exit', (status) => {
+      if (returned) {
+        return;
+      }
+
+      returned = true;
+
+      resolve({
+        stdout: Buffer.concat(stdout),
+        stderr: Buffer.concat(stderr),
+        status,
+      });
+    });
+
+    child.on('error', (error) => {
+      if (returned) {
+        return;
+      }
+
+      returned = true;
+
+      resolve({
+        stdout: Buffer.concat(stdout),
+        stderr: Buffer.concat(stderr),
+        status: null,
+        error,
+      });
+    });
+  });
 }
 
 class ScanError extends CustomError {

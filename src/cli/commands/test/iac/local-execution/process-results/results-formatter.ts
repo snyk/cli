@@ -122,7 +122,9 @@ function formatScanResult(
     meta: {
       ...meta,
       projectId: '', // we do not have a project at this stage
-      policy: '', // we do not have the concept of policy
+      policy: '',
+      isPrivate: true,
+      isLicensesEnabled: false,
     },
     filesystemPolicy: false, // we do not have the concept of policy
     vulnerabilities: [],

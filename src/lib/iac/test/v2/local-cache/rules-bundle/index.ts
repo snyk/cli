@@ -1,10 +1,14 @@
-import { TestConfig } from '../../types';
-import { downloadRulesBundle } from './download';
+import config from '../../../../../config';
+import * as createDebugLogger from 'debug';
 
-export async function initRulesBundle(testConfig: TestConfig): Promise<string> {
-  // We are currently using the legacy rules bundle and we need to re-download it each time to use the latest one available.
-  // debugLogger('Looking for rules bundle locally');
-  // let rulesBundlePath = await lookupLocalRulesBundle(testConfig);
+const debugLog = createDebugLogger('snyk-iac');
 
-  return await downloadRulesBundle(testConfig);
+export function getLocalRulesBundle(): string {
+  // IAC_BUNDLE_PATH is a developer setting that is not useful to most users. It
+  // is not a replacement for custom rules.
+  if (!config.IAC_BUNDLE_PATH) {
+    return '';
+  }
+  debugLog(`Located a local rules bundle at ${config.IAC_BUNDLE_PATH}`);
+  return config.IAC_BUNDLE_PATH;
 }

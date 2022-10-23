@@ -17,7 +17,6 @@ import {
 import { ResolveAndTestFactsResponse } from './types';
 import { delayNextStep, handleProcessingStatus } from './common';
 import { TestDependenciesResult } from '../snyk-test/legacy';
-import { sleep } from '../common';
 
 export async function getIssues(
   issuesRequestAttributes: IssuesRequestAttributes,
@@ -54,23 +53,7 @@ export async function getDepGraph(
     },
   };
 
-  const maxWaitingTimeMs = 30000;
-  const pollIntervalMs = 5000;
-  let waitingTimeMs = pollIntervalMs;
-  let result = {} as GetDepGraphResponse;
-  while (waitingTimeMs <= maxWaitingTimeMs) {
-    try {
-      await sleep(waitingTimeMs);
-      result = await makeRequest<GetDepGraphResponse>(payload);
-      break;
-    } catch (e) {
-      if (waitingTimeMs < maxWaitingTimeMs) {
-        waitingTimeMs += pollIntervalMs;
-      } else {
-        throw e;
-      }
-    }
-  }
+  const result = await makeRequest<GetDepGraphResponse>(payload);
   return JSON.parse(result.toString());
 }
 
@@ -89,6 +72,7 @@ export async function createDepGraph(
     },
     body: hashes,
   };
+
   const result = await makeRequest<CreateDepGraphResponse>(payload);
   return JSON.parse(result.toString());
 }
