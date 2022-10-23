@@ -49,7 +49,7 @@ export const expectedViolatedPoliciesForTerraform: Array<PolicyMetadata> = [
   },
 ];
 
-export const paresdKubernetesFileStub: IacFileParsed = {
+export const parsedKubernetesFileStub: IacFileParsed = {
   engineType: EngineType.Kubernetes,
   projectType: IacProjectType.K8S,
   fileContent: 'dont-care',

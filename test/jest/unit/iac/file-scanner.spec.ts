@@ -16,7 +16,7 @@ import {
   expectedViolatedPoliciesForArm,
   expectedViolatedPoliciesForK8s,
   expectedViolatedPoliciesForTerraform,
-  paresdKubernetesFileStub,
+  parsedKubernetesFileStub,
   parsedArmFileStub,
   parsedTerraformFileStub,
 } from './file-scanner.fixtures';
@@ -25,7 +25,7 @@ import { IacProjectType } from '../../../../src/lib/iac/constants';
 
 describe('scanFiles', () => {
   const parsedFiles: Array<IacFileParsed> = [
-    paresdKubernetesFileStub,
+    parsedKubernetesFileStub,
     parsedTerraformFileStub,
     parsedArmFileStub,
   ];
