@@ -233,7 +233,7 @@ if (!isWindows) {
     );
     t.notOk(
       req.body.depGraphJSON.pkgs.find((pkg) => pkg.name === 'body-parser'),
-      'filetered out missingLockFileEntry',
+      'filtered out missingLockFileEntry',
     );
   });
 
