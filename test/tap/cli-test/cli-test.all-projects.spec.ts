@@ -202,7 +202,7 @@ export const AllProjectsTests: AcceptanceTests = {
     ) => async (t) => {
       utils.chdirWorkspaces();
 
-      // mock python plugin becuase CI tooling doesn't have pipenv installed
+      // mock python plugin because CI tooling doesn't have pipenv installed
       const mockPlugin = {
         async inspect() {
           return {

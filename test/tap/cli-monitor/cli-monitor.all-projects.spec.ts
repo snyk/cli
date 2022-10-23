@@ -50,7 +50,7 @@ export const AllProjectsTests: AcceptanceTests = {
     ) => async (t) => {
       utils.chdirWorkspaces();
 
-      // mock python plugin becuase CI tooling doesn't have pipenv installed
+      // mock python plugin because CI tooling doesn't have pipenv installed
       const mockPlugin = {
         async inspect() {
           return {
@@ -215,7 +215,7 @@ export const AllProjectsTests: AcceptanceTests = {
     ) => async (t) => {
       utils.chdirWorkspaces();
 
-      // mock python plugin becuase CI tooling doesn't have pipenv installed
+      // mock python plugin because CI tooling doesn't have pipenv installed
       const mockPlugin = {
         async inspect() {
           return {
@@ -364,7 +364,7 @@ export const AllProjectsTests: AcceptanceTests = {
       try {
         utils.chdirWorkspaces();
 
-        // mock python plugin becuase CI tooling doesn't have pipenv installed
+        // mock python plugin because CI tooling doesn't have pipenv installed
         const mockPlugin = {
           async inspect() {
             return {
@@ -458,7 +458,7 @@ export const AllProjectsTests: AcceptanceTests = {
     ) => async (t) => {
       utils.chdirWorkspaces();
 
-      // mock go plugin becuase CI tooling doesn't have go installed
+      // mock go plugin because CI tooling doesn't have go installed
       const mockPlugin = {
         async inspect() {
           return {
@@ -564,7 +564,7 @@ export const AllProjectsTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      // mock plugin becuase CI tooling doesn't have go installed
+      // mock plugin because CI tooling doesn't have go installed
       const mockPlugin = {
         async inspect() {
           return {
@@ -599,7 +599,7 @@ export const AllProjectsTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      // mock plugin becuase CI tooling doesn't have go installed
+      // mock plugin because CI tooling doesn't have go installed
       const mockPlugin = {
         async inspect() {
           return {
@@ -634,7 +634,7 @@ export const AllProjectsTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      // mock plugin becuase CI tooling doesn't have go installed
+      // mock plugin because CI tooling doesn't have go installed
       const mockPlugin = {
         async inspect() {
           return {
@@ -669,7 +669,7 @@ export const AllProjectsTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      // mock plugin becuase CI tooling doesn't have go installed
+      // mock plugin because CI tooling doesn't have go installed
       const mockPlugin = {
         async inspect() {
           return {
