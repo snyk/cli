@@ -60,7 +60,7 @@ describe('Terraform plan scanning', () => {
     expect(exitCode).toBe(2);
   });
 
-  it('succesfully scans a TF-Plan with the --json output flag', async () => {
+  it('successfully scans a TF-Plan with the --json output flag', async () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/terraform-plan/tf-plan-create.json --json`,
     );
