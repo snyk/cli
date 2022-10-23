@@ -8,4 +8,4 @@ assignees: ''
 
 [Contact Snyk Support on the web](http://support.snyk.io) or email us at support@snyk.io
 
-**GitHub Issues are not monited by Snyk Support**
+**GitHub Issues are not monitored by Snyk Support**
