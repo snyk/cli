@@ -86,7 +86,7 @@ test('`snyk test` with docker flag - docker token and no api key', async (t) => 
     t.match(req.url, 'docker-jwt/test-dependencies', 'posts to correct url');
   } catch (err) {
     if (err.code === 401) {
-      t.fail('did not send correct autorization header');
+      t.fail('did not send correct authorization header');
       t.end();
     }
     t.fail('did not expect exception to be thrown ' + err);
