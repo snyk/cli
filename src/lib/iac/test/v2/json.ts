@@ -253,7 +253,7 @@ function vulnerabilitiesToIacIssues(
       issue: v.rule.title,
       publicId: v.rule.id,
       title: v.rule.title,
-      references: v.rule.references ? [v.rule.references] : [], // TODO: `references` expects a list of URLs, but `v.references` is a markdown string with URLs. When makrdown parsing is added, extract the URLs in `v.references`
+      references: v.rule.references ? [v.rule.references] : [], // TODO: `references` expects a list of URLs, but `v.references` is a markdown string with URLs. When markdown parsing is added, extract the URLs in `v.references`
       id: v.rule.id,
       isIgnored: v.ignored,
       iacDescription: {
