@@ -972,7 +972,7 @@ export const AllProjectsTests: AcceptanceTests = {
       t.equal(
         loadPlugin.withArgs('yarn').callCount,
         1,
-        'loads plugin for yarn as we detect a Yarn projevct inside a workspace',
+        'loads plugin for yarn as we detect a Yarn project inside a workspace',
       );
       t.equal(loadPlugin.withArgs('npm').callCount, 1, 'calls npm plugin once');
 
