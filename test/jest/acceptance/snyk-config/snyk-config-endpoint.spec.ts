@@ -53,7 +53,7 @@ describe('snyk config endpoint', () => {
         runOptions,
       );
       /**
-       *  Error will still be logged as we still validate the pre-existing
+       *  Error will still be logged as we still validate the preexisting
        *  invalid value before executing commands.
        */
       expect(stderr).toContain("Invalid 'endpoint' config option");
