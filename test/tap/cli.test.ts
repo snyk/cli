@@ -214,7 +214,7 @@ test('auth with default UTMs', async (t) => {
     t.match(
       open.firstCall.args[0],
       '&utm_medium=cli&utm_source=cli&utm_campaign=cli&os=darwin&docker=false',
-      'defualt utms are exists',
+      'default utms are exists',
     );
 
     // clean up stubs
