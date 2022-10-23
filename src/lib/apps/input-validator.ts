@@ -40,7 +40,7 @@ export function validURL(input: string): boolean | string {
 }
 
 /**
- * Function validates if a valid UUID (version of UUID not tacken into account)
+ * Function validates if a valid UUID (version of UUID not taken into account)
  * @param {String} input UUID to be validated
  * @returns {String | Boolean } string message is not valid
  * and boolean true if valid
