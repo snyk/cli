@@ -11,6 +11,6 @@ setup(
         "python-etcd==0.4.5",
         "Django-Select2==6.0.1",  # this version installs with lowercase so it catches a previous bug in pip_resolve.py
         "irc==16.2",  # this has a cyclic dependency (internal jaraco.text <==> jaraco.collections)
-        "testtools==2.3.0",  # this has a cycle (fixtures ==> testtols)
+        "testtools==2.3.0",  # this has a cycle (fixtures ==> testtools)
     ],
 )
