@@ -105,7 +105,7 @@ describe('snyk-apps: create app', () => {
 
       // Assert if URI validator is working or not
       await expect(cli).toDisplay(
-        "Your Snyk App's redirect URIs (comma seprated list.",
+        "Your Snyk App's redirect URIs (comma separated list.",
       );
       await cli.answer('something#invalid');
       await expect(cli).toDisplay('something#invalid is not a valid URL');
@@ -122,7 +122,7 @@ describe('snyk-apps: create app', () => {
       await cli.answer(testData.appName);
 
       await expect(cli).toDisplay(
-        "Your Snyk App's redirect URIs (comma seprated list.",
+        "Your Snyk App's redirect URIs (comma separated list.",
       );
       await cli.answer(testData.redirectURIs);
       // Assert
@@ -142,7 +142,7 @@ describe('snyk-apps: create app', () => {
       await cli.answer(testData.appName);
 
       await expect(cli).toDisplay(
-        "Your Snyk App's redirect URIs (comma seprated list.",
+        "Your Snyk App's redirect URIs (comma separated list.",
       );
       await cli.answer(testData.redirectURIs);
 
@@ -166,7 +166,7 @@ describe('snyk-apps: create app', () => {
       await cli.answer(testData.appName);
 
       await expect(cli).toDisplay(
-        "Your Snyk App's redirect URIs (comma seprated list.",
+        "Your Snyk App's redirect URIs (comma separated list.",
       );
       await cli.answer(testData.redirectURIs);
 

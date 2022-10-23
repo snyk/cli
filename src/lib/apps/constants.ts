@@ -39,7 +39,7 @@ export const CreateAppPromptData = {
   },
   SNYK_APP_REDIRECT_URIS: {
     name: SNYK_APP_REDIRECT_URIS,
-    message: `Your Snyk App's redirect URIs (comma seprated list. ${chalk.yellowBright(
+    message: `Your Snyk App's redirect URIs (comma separated list. ${chalk.yellowBright(
       ' Ex: https://example1.com,https://example2.com',
     )})?: `,
   },
