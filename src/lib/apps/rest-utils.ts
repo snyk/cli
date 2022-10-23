@@ -21,7 +21,7 @@ export function getAppsURL(
   opts: IGetAppsURLOpts = {},
 ): string {
   // Get the rest URL from user config
-  // Environment variable takes precendence over config
+  // Environment variable takes precedence over config
   const baseURL = config.API_REST_URL;
   debug(`API rest base URL => ${baseURL}`);
 
