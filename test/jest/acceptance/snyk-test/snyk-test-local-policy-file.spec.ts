@@ -84,7 +84,7 @@ describe('`snyk test` with `--file=`', () => {
   describe('with `.snyk` file', () => {
     it('picks up the `.snyk` file when using relative path', async () => {
       const project = await createProjectFromFixture(
-        'npm/with-vulnnerable-lodash-and-snyk-file',
+        'npm/with-vulnerable-lodash-and-snyk-file',
       );
       server.setDepGraphResponse(
         await project.readJSON('test-dep-graph-result.json'),
@@ -113,7 +113,7 @@ describe('`snyk test` with `--file=`', () => {
 
     it('picks up the `.snyk` file when using absolute path', async () => {
       const project = await createProjectFromFixture(
-        'npm/with-vulnnerable-lodash-and-snyk-file',
+        'npm/with-vulnerable-lodash-and-snyk-file',
       );
       server.setDepGraphResponse(
         await project.readJSON('test-dep-graph-result.json'),
