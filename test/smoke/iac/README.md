@@ -15,7 +15,7 @@ The org we are using for testing is `snyk-cloud-tests` with the authentication t
 
 Spec in this folder is used as a
 
-1. **"name: Infrastructure as Code Smoke Tests" Github Action** - these run every hour and upon releases.
+1. **"name: Infrastructure as Code Smoke Tests" GitHub Action** - these run every hour and upon releases.
 2. **["Infrastructure as Code Smoke Tests (Pull Requests)"] GitHub Action** - these run for pull requests to the `master` branch which include changes to files owned by group IaC.
 
 ### Notes on the local run

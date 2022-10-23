@@ -13,7 +13,7 @@ import { startMockServer } from '../helpers';
 
 const ROOT_DIR = './test/fixtures';
 
-export class GithubActionTestRunner {
+export class GitHubActionTestRunner {
   constructor(
     private command: string,
     private workingDir: string,
@@ -30,13 +30,13 @@ export class GithubActionTestRunner {
     product: string,
     relativeDir: string,
     inputPath: string,
-  ): Promise<GithubActionTestRunner> {
+  ): Promise<GitHubActionTestRunner> {
     const command = `snyk ${product} test ${path.join(inputPath)}`;
     const workingDir = path.join(ROOT_DIR, relativeDir);
 
     const { run, teardown } = await startMockServer();
 
-    return new GithubActionTestRunner(
+    return new GitHubActionTestRunner(
       command,
       workingDir,
       inputPath,

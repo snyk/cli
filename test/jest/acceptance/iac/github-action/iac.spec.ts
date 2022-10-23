@@ -1,6 +1,6 @@
 import * as path from 'path';
 
-import { GithubActionTestRunner } from './runner';
+import { GitHubActionTestRunner } from './runner';
 
 jest.setTimeout(50000);
 
@@ -30,10 +30,10 @@ describe('GitHub action - IaC', () => {
       inputPath: '', // current directory provided by default
     },
   ])('when provided config: %j', ({ relativeDir, inputPath }) => {
-    let githubActionTestRunner: GithubActionTestRunner;
+    let githubActionTestRunner: GitHubActionTestRunner;
 
     beforeAll(async () => {
-      githubActionTestRunner = await GithubActionTestRunner.build(
+      githubActionTestRunner = await GitHubActionTestRunner.build(
         'iac',
         relativeDir,
         inputPath,
