@@ -87,7 +87,7 @@ export function mapIacTestError(error: CustomError) {
 
 /**
  * The following types represent manipulations to the data structure returned from Registry's `test-iac`.
- * These manipulations are being done prior to outputing as JSON, for renaming fields only.
+ * These manipulations are being done prior to outputting as JSON, for renaming fields only.
  * The types above, IacTestResult & AnnotatedIacIssue, represent how the response from Registry actually is.
  * These were introduced in order to prevent cascading complex changes caused by changing Registry's `test-iac` response.
  */
