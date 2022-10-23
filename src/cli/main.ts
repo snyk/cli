@@ -233,7 +233,7 @@ export async function main(): Promise<void> {
   let exitCode = EXIT_CODES.ERROR;
   try {
     modeValidation(globalArgs);
-    // TODO: fix this, we do transformation to options and teh type doesn't reflect it
+    // TODO: fix this, we do transformation to options and the type doesn't reflect it
     validateUnsupportedOptionCombinations(
       (globalArgs.options as unknown) as AllSupportedCliOptions,
     );

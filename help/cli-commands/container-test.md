@@ -104,7 +104,7 @@ To fail on any vulnerability (the default behavior), do not use the `--fail-on` 
 
 Allow detection of vulnerabilities in your application dependencies from container images, as well as from the operating system, all in one single scan.
 
-In CLI version 1.962.0 and higher, use the `--app-vulns` option with the the `--json` option to see the operating system as well as application vulnerabilities in JSON format in the results.
+In CLI version 1.962.0 and higher, use the `--app-vulns` option with the `--json` option to see the operating system as well as application vulnerabilities in JSON format in the results.
 
 For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
 

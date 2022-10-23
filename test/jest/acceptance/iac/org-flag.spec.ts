@@ -22,7 +22,7 @@ describe('iac test --org', () => {
     expect(result.meta.org).toBe('test-org');
   });
 
-  it('uses the the org provided via the --org flag', async () => {
+  it('uses the org provided via the --org flag', async () => {
     const { stdout } = await run(
       `snyk iac test --org=custom-org --json ./iac/terraform/sg_open_ssh.tf`,
     );
@@ -30,7 +30,7 @@ describe('iac test --org', () => {
     expect(result.meta.org).toBe('custom-org');
   });
 
-  it('uses the the org provided via the SNYK_CFG_ORG variable', async () => {
+  it('uses the org provided via the SNYK_CFG_ORG variable', async () => {
     const { stdout } = await run(
       `snyk iac test --json ./iac/terraform/sg_open_ssh.tf`,
       {
