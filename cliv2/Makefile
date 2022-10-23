@@ -25,7 +25,7 @@ SRCS = $(shell find $(WORKING_DIR) -type f -name '*.go')
 # load cached variables if available
 -include $(CACHE_DIR)/variables.mk
 
-# the platform string used by the deployed binaries is not excatly OS-ARCH so we need to translate a bit
+# the platform string used by the deployed binaries is not exactly OS-ARCH so we need to translate a bit
 _GO_OS = $(GOOS)
 _V1_OS = $(GOOS)
 _V1_ARCH = $(GOARCH)
