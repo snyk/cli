@@ -2930,7 +2930,7 @@ module.exports = {
       properties: {
         guid: {
           description:
-            'A stable, unique identifer for the suprression in the form of a GUID.',
+            'A stable, unique identifer for the suppression in the form of a GUID.',
           type: 'string',
           pattern:
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
