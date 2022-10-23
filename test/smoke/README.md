@@ -46,7 +46,7 @@ npm run test:smoke
 
 `REGRESSION_TEST=1` enables the extended mode we use for regression testing. For the hourly tests in GitHub Actions we use a limited scope of tested commands.
 
-You may specify an envvar `SNYK_COMMAND` to any executable that will be used by Smoke tests. E.g. a local exuctable `SNYK_COMMAND="./snyk-macos"` or an `SNYK_COMMAND="npx snyk@1.500.0"` or `SNYK_COMMAND="node ./dist/cli"` for local execution.
+You may specify an envvar `SNYK_COMMAND` to any executable that will be used by Smoke tests. E.g. a local executable `SNYK_COMMAND="./snyk-macos"` or an `SNYK_COMMAND="npx snyk@1.500.0"` or `SNYK_COMMAND="node ./dist/cli"` for local execution.
 
 This will meddle with your `snyk config` file as Smoke Tests are checking functionality of `snyk config` command.
 
