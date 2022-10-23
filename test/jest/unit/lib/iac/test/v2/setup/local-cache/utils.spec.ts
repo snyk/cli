@@ -112,15 +112,15 @@ describe('fetchCacheResource', () => {
   it('fetches the cache resource', async () => {
     // Arrange
     const testCacheResourceUrl = 'test-cache-resource-url';
-    const testCacheResourcBuffer = Buffer.from('test-cache-resource-content');
+    const testCacheResourceBuffer = Buffer.from('test-cache-resource-content');
 
     const makeRequestSpy = jest
       .spyOn(requestLib, 'makeRequest')
       .mockResolvedValue({
-        body: testCacheResourcBuffer,
+        body: testCacheResourceBuffer,
         res: {
           statusCode: 200,
-          body: testCacheResourcBuffer,
+          body: testCacheResourceBuffer,
         } as any,
       } as any);
 
