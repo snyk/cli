@@ -352,7 +352,7 @@ function convertTestDepGraphResultToLegacy(
     }
   }
 
-  // generate the legacy vulns array (vuln-data + metada per vulnerable path).
+  // generate the legacy vulns array (vuln-data + metadata per vulnerable path).
   //   use the upgradePathsMap to find available upgrade-paths
   const vulns: AnnotatedIssue[] = [];
 
