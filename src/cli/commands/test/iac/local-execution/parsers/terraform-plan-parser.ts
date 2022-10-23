@@ -113,7 +113,7 @@ function referencedResourcesResolver(
     if (resolvedResource && expressions) {
       const resourceExpressions = getExpressions(expressions);
       for (const key of Object.keys(resourceExpressions)) {
-        // only add non existing attributes. If we already have resolved value do not overwrite it with reference
+        // only add nonexistent attributes. If we already have resolved value do not overwrite it with reference
         if (!resolvedResource[key]) {
           resolvedResource[key] = resourceExpressions[key];
         }

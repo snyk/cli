@@ -39,7 +39,7 @@ addSpinner.sticky = (s?: any) => {
 addSpinner.clear = <T>(label): ((valueToPassThrough: T) => T) => {
   return (res: T) => {
     if (spinners[label] === undefined) {
-      // clearing a non-existend spinner is ok by default
+      // clearing a nonexistent spinner is ok by default
       return res;
     }
 

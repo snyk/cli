@@ -162,7 +162,7 @@ export const GenericTests: AcceptanceTests = {
      * Local source `test`
      */
 
-    '`test /` test for non-existent with path specified': (
+    '`test /` test for nonexistent with path specified': (
       params,
       utils,
     ) => async (t) => {

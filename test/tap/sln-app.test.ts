@@ -14,7 +14,7 @@ test('parseFoldersFromSln when passed an existent filename', (t) => {
   t.end();
 });
 
-test('parseFoldersFromSln when non existent filename', (t) => {
+test('parseFoldersFromSln when nonexistent filename', (t) => {
   let response;
   const slnFile = getWorkspacePath('sln-example-app/mySolution1.sln');
   try {

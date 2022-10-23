@@ -42,7 +42,7 @@ Describe "Snyk test command"
     }
 
     It "throws error when file does not exist"
-      When run snyk test --file=non-existent/package.json
+      When run snyk test --file=nonexistent/package.json
       The status should equal 2
       The output should include "Could not find the specified file"
       The stderr should equal ""
@@ -96,7 +96,7 @@ Describe "Snyk test command"
       The stderr should equal ""
     End
 
-    It "fails with a correct user message on a non-existent library"
+    It "fails with a correct user message on a nonexistent library"
       Skip if "execute only in regression test" check_if_regression_test
       When run snyk test nonexistentpackage123456789
       The status should be failure
@@ -104,7 +104,7 @@ Describe "Snyk test command"
       The stderr should equal ""
     End
 
-    It "fails with a correct user message on a non-existent library"
+    It "fails with a correct user message on a nonexistent library"
       Skip if "execute only in regression test" check_if_regression_test
       When run snyk test lodash --org=nope
       The status should be failure

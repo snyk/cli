@@ -7,13 +7,13 @@ export const NugetTests: AcceptanceTests = {
     '`test nuget-app --file=non_existent`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
       try {
-        await params.cli.test('nuget-app', { file: 'non-existent' });
+        await params.cli.test('nuget-app', { file: 'nonexistent' });
         t.fail('should have failed');
       } catch (err) {
         t.pass('throws err');
         t.match(
           err.message,
-          'Could not find the specified file: non-existent',
+          'Could not find the specified file: nonexistent',
           'show first part of err message',
         );
         t.match(

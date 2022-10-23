@@ -178,7 +178,7 @@ describe('Terraform', () => {
     });
     it('returns error if the file does not exist', async () => {
       const { stdout, exitCode } = await run(
-        `snyk iac test ./iac/terraform/var_deref --var-file=./iac/terraform/non-existent.tfvars`,
+        `snyk iac test ./iac/terraform/var_deref --var-file=./iac/terraform/nonexistent.tfvars`,
       );
       expect(stdout).toContain(
         'Invalid path to variable definitions file' +

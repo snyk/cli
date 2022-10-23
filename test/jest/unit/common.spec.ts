@@ -25,7 +25,7 @@ describe('colorTextBySeverity', () => {
     );
   });
 
-  it('Set default low color when given a non existent severity', () => {
+  it('Set default low color when given a nonexistent severity', () => {
     const severity = 'nonExistentSeverity';
     const defaultSeverity = SEVERITY.LOW;
     expect(colorTextBySeverity(severity, 'Pls help me')).toEqual(

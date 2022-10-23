@@ -218,7 +218,7 @@ describe('Directory scan', () => {
     });
 
     // regression test to check the case that an invalid path would override the overall output
-    it('outputs both results and failures for first path when the last path is empty or non-existent', async () => {
+    it('outputs both results and failures for first path when the last path is empty or nonexistent', async () => {
       const { stdout, exitCode } = await run(
         `snyk iac test ./iac/arm non-existing-dir`,
       );
