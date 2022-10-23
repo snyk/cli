@@ -35,7 +35,7 @@ _SEPARATOR = _
 
 ifeq ($(_V1_OS), darwin)
 	_V1_OS = macos
-#temporarily irgnoring any architecture for macos v1 binaries, this will enable to natively compile v2 as darwin arm64 and bundle v1 as amd64
+#temporarily ignoring any architecture for macos v1 binaries, this will enable to natively compile v2 as darwin arm64 and bundle v1 as amd64
 	_V1_ARCH = 
 else ifeq ($(_V1_OS), windows)
 	_V1_OS = win
