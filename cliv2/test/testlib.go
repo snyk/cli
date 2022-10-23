@@ -29,7 +29,7 @@ func getBinPath(t *testing.T) string {
 	return cliBinPath
 }
 
-func LaunchAsProccess(t *testing.T, args []string) *ProcessOutput {
+func LaunchAsProcess(t *testing.T, args []string) *ProcessOutput {
 	snykCLIPath := getBinPath(t)
 	t.Log("snykCLIPath:", snykCLIPath)
 
