@@ -15,10 +15,10 @@ describe('input validation for snyk apps', () => {
       ['localhost:3000/callback,something', true],
       ['localhost:3000', true],
       // enquirer validation return string message when false
-      ['#somethig-wrong.com', '#somethig-wrong.com is not a valid URL'],
-      ['#somethig-wrong', '#somethig-wrong is not a valid URL'],
-      ['somethig wrong', 'somethig wrong is not a valid URL'],
-      ['somethig&wrong.com', 'somethig&wrong.com is not a valid URL'],
+      ['#something-wrong.com', '#something-wrong.com is not a valid URL'],
+      ['#something-wrong', '#something-wrong is not a valid URL'],
+      ['something wrong', 'something wrong is not a valid URL'],
+      ['something&wrong.com', 'something&wrong.com is not a valid URL'],
     ];
 
     it.each(urlTable)("validate individual url '%s'", (url, valid) => {
