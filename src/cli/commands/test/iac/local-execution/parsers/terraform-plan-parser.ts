@@ -40,7 +40,7 @@ function getExpressions(
   expressions: Record<string, TerraformPlanExpression>,
 ): Record<string, string> {
   const result: Record<string, string> = {};
-  // expressions can be nested. we are only doing 1 depth to resolve top level depenencies
+  // expressions can be nested. we are only doing 1 depth to resolve top level dependencies
   for (const key of Object.keys(expressions)) {
     const referenceKey = getReference(expressions[key]);
     if (referenceKey) {
