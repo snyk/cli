@@ -179,8 +179,8 @@ func Test_SetUpstreamProxy(t *testing.T) {
 	testUrl, _ := url.Parse("http://www.snyk.io")
 	testRequest := http.Request{URL: testUrl}
 
-	upstreanProxyUrlAsString := "http://localhost:3128"
-	expectedUpstreamProxyUrl, _ := url.Parse(upstreanProxyUrlAsString)
+	upstreamProxyUrlAsString := "http://localhost:3128"
+	expectedUpstreamProxyUrl, _ := url.Parse(upstreamProxyUrlAsString)
 
 	// using different cases to determine whether the proxy actually switches the mode authentication mode
 	testCaseList := []httpauth.AuthenticationMechanism{
@@ -199,7 +199,7 @@ func Test_SetUpstreamProxy(t *testing.T) {
 		t.Logf(" - using %s", httpauth.StringFromAuthenticationMechanism(currentMechanism))
 
 		objectUnderTest.SetUpstreamProxyAuthentication(currentMechanism)
-		objectUnderTest.SetUpstreamProxyFromUrl(upstreanProxyUrlAsString)
+		objectUnderTest.SetUpstreamProxyFromUrl(upstreamProxyUrlAsString)
 		transport := objectUnderTest.Transport()
 		proxyFunc := objectUnderTest.UpstreamProxy()
 
