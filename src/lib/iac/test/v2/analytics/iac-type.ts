@@ -115,9 +115,9 @@ function getVulnerabilityAnalyticsByPackageManager(
 }
 
 export type VulnerabilityAnalyticsByPackageManager = {
-  [packageManager in PackageManager]?: VulnerabilityAnalitycs;
+  [packageManager in PackageManager]?: VulnerabilityAnalytics;
 };
 
-export type VulnerabilityAnalitycs = {
+export type VulnerabilityAnalytics = {
   [severity in SEVERITY]?: number;
 };
