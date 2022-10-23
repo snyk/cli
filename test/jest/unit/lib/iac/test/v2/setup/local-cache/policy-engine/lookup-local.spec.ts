@@ -34,14 +34,14 @@ describe('lookupLocalPolicyEngine', () => {
     // Arrange
     const testConfig = cloneDeep(defaultTestConfig);
 
-    const lookupLocalySpy = jest.spyOn(utilsLib, 'lookupLocal');
+    const lookupLocallySpy = jest.spyOn(utilsLib, 'lookupLocal');
     const isExeSpy = jest.spyOn(fileUtils, 'isExe');
 
     // Act
     await lookupLocalPolicyEngine(testConfig);
 
     // Assert
-    expect(lookupLocalySpy).toBeCalledWith(
+    expect(lookupLocallySpy).toBeCalledWith(
       testConfig.iacCachePath,
       policyEngineFileName,
       undefined,
