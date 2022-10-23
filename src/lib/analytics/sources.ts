@@ -109,13 +109,13 @@ export function validateScoopManifestFile(snykExecutablePath: string): boolean {
   // If this really is installed with scoop, there should be a `manifest.json` file adjacent to the running CLI executable (`snyk-win.exe`) which
   // we can look at for further validation that this really is from scoop.
   try {
-    const snykScoopManifiestPath = snykExecutablePath.replace(
+    const snykScoopManifestPath = snykExecutablePath.replace(
       'snyk-win.exe',
       'manifest.json',
     );
-    if (fs.existsSync(snykScoopManifiestPath)) {
+    if (fs.existsSync(snykScoopManifestPath)) {
       const manifestJson = JSON.parse(
-        fs.readFileSync(snykScoopManifiestPath, 'utf8'),
+        fs.readFileSync(snykScoopManifestPath, 'utf8'),
       );
 
       const url = manifestJson.url;
