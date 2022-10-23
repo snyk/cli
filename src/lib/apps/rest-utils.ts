@@ -87,7 +87,7 @@ Please run the command with '--debug' or '-d' to get more information`;
     const meta = metaString || '-';
     const source = sourceString || '-';
 
-    return `Uh oh! an error occured while trying to create the Snyk App.
+    return `Uh oh! an error occurred while trying to create the Snyk App.
 
 Error Description:\t${e.detail}
 Request Status:\t${e.status}
