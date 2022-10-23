@@ -48,7 +48,7 @@ Describe "Snyk test command"
       The stderr should equal ""
     End
 
-    It "throws error when no suppored manifests detected"
+    It "throws error when no supported manifests detected"
       When run run_test_in_empty_subfolder
       The status should equal 3
       The output should include "Could not detect supported target files in"
