@@ -47,7 +47,7 @@ describe('display help message', () => {
       'test/acceptance/workspaces/pip-app',
       {
         _: [
-          'test/acceptancaces/ruby-app',
+          'test/acceptances/ruby-app',
           'test/acceptance/workspaces/pip-app',
         ],
         allProjects: true,
