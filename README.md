@@ -255,7 +255,7 @@ Snyk is really powerful when you are continuously scanning and monitoring your p
 
 Use one of [our integrations](#install-as-a-part-of-a-snyk-cli-integration) to stay secure.
 
-You can authorize Snyk CLI in your CI/CD programatically:
+You can authorize Snyk CLI in your CI/CD programmatically:
 
 ```bash
 # Using a SNYK_TOKEN envvar (preferred)
