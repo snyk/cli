@@ -19,7 +19,7 @@ import { DCTL_EXIT_CODES, runDriftCTL } from '../../lib/iac/drift/driftctl';
 export default async (...args: MethodArgs): Promise<any> => {
   const { options } = processCommandArgs(...args);
 
-  // Ensure that this describe command can only be runned when using `snyk iac describe`
+  // Ensure that this describe command can only be run when using `snyk iac describe`
   // Avoid `snyk describe` direct usage
   if (options.iac != true) {
     return legacyError('describe');

@@ -16,7 +16,7 @@ import * as analytics from '../../lib/analytics';
 export default async (...args: MethodArgs): Promise<any> => {
   const { options } = processCommandArgs(...args);
 
-  // Ensure that this update-exclude-policy command can only be runned when using `snyk iac update-exclude-policy`
+  // Ensure that this update-exclude-policy command can only be run when using `snyk iac update-exclude-policy`
   // Avoid `snyk update-exclude-policy` direct usage
   if (options.iac != true) {
     return legacyError('update-exclude-policy');
