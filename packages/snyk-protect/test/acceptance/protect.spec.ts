@@ -385,7 +385,7 @@ describe('@snyk/protect', () => {
       const project = await createProject(
         'single-patchable-module-patched-with-old-protect',
       );
-      // sleep 2 ms to guarentee that before/after modified times cannot be the
+      // sleep 2 ms to guarantee that before/after modified times cannot be the
       // same because the file was written and then modified within a single millisecond.
       await sleep(2);
 
@@ -413,7 +413,7 @@ describe('@snyk/protect', () => {
       const project = await createProject(
         'single-patchable-module-patched-with-new-protect',
       );
-      // sleep 2 ms to guarentee that before/after modified times cannot be the
+      // sleep 2 ms to guarantee that before/after modified times cannot be the
       // same because the file was written and then modified within a single millisecond.
       await sleep(2);
 
