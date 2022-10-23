@@ -1,4 +1,5 @@
 import pick = require('lodash.pick');
+import { CustomError } from '../errors';
 import { BasicResultData, SEVERITY, TestDepGraphMeta } from './legacy';
 
 export interface AnnotatedIacIssue {
@@ -40,6 +41,7 @@ type FILTERED_OUT_FIELDS = 'cloudConfigPath' | 'name' | 'from';
 
 export interface IacTestResponse extends BasicResultData {
   path: string;
+  code?: number;
   targetFile: string;
   projectName: string;
   displayTargetFile: string; // used for display only
@@ -56,12 +58,8 @@ const IAC_ISSUES_KEY = 'infrastructureAsCodeIssues';
 export function mapIacTestResult(
   iacTest: IacTestResponse,
 ): MappedIacTestResponse | IacTestError {
-  if (iacTest instanceof Error) {
-    return {
-      ok: false,
-      error: iacTest.message,
-      path: (iacTest as any).path,
-    };
+  if (iacTest instanceof CustomError) {
+    return mapIacTestError(iacTest);
   }
 
   const infrastructureAsCodeIssues =
@@ -75,6 +73,15 @@ export function mapIacTestResult(
     projectType,
     ok: infrastructureAsCodeIssues.length === 0,
     [IAC_ISSUES_KEY]: infrastructureAsCodeIssues,
+  };
+}
+
+export function mapIacTestError(error: CustomError) {
+  return {
+    ok: false,
+    code: error.code,
+    error: error.message,
+    path: (error as any).path,
   };
 }
 

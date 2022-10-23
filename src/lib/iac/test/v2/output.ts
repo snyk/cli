@@ -7,16 +7,15 @@ import { TestCommandResult } from '../../../../cli/commands/types';
 import {
   formatIacTestFailures,
   formatIacTestSummary,
+  formatSnykIacTestTestData,
   getIacDisplayedIssues,
   IaCTestFailure,
-  spinnerSuccessMessage,
-  formatSnykIacTestTestData,
   shareResultsTip,
+  spinnerSuccessMessage,
 } from '../../../formatters/iac-output/text';
 import { jsonStringifyLargeObject } from '../../../json';
 import {
   IaCErrorCodes,
-  IacOrgSettings,
   IaCTestFlags,
 } from '../../../../cli/commands/test/iac/local-execution/types';
 import { convertEngineToSarifResults } from './sarif';
@@ -38,12 +37,10 @@ import * as wrapAnsi from 'wrap-ansi';
 export function buildOutput({
   scanResult,
   testSpinner,
-  orgSettings,
   options,
 }: {
   scanResult: TestOutput;
   testSpinner?: Ora;
-  orgSettings: IacOrgSettings;
   options: any;
 }): TestCommandResult {
   if (scanResult.results) {
@@ -54,7 +51,6 @@ export function buildOutput({
 
   const { responseData, jsonData, sarifData } = buildTestCommandResultData({
     scanResult,
-    orgSettings,
     options,
   });
 
@@ -75,11 +71,9 @@ export function buildOutput({
 
 function buildTestCommandResultData({
   scanResult,
-  orgSettings,
   options,
 }: {
   scanResult: TestOutput;
-  orgSettings: IacOrgSettings;
   options: any;
 }) {
   const projectName =
@@ -89,7 +83,6 @@ function buildTestCommandResultData({
     convertEngineToJsonResults({
       results: scanResult,
       projectName,
-      orgSettings,
     }),
   );
 
@@ -112,7 +105,6 @@ function buildTestCommandResultData({
     responseData = buildTextOutput({
       scanResult,
       projectName,
-      orgSettings,
       options,
     });
   }
@@ -134,12 +126,10 @@ const SEPARATOR = '\n-------------------------------------------------------\n';
 function buildTextOutput({
   scanResult,
   projectName,
-  orgSettings,
   options,
 }: {
   scanResult: TestOutput;
   projectName: string;
-  orgSettings: IacOrgSettings;
   options: IaCTestFlags;
 }): string {
   let response = '';
@@ -147,7 +137,7 @@ function buildTextOutput({
   const testData = formatSnykIacTestTestData(
     scanResult.results,
     projectName,
-    orgSettings.meta.org,
+    scanResult.settings.org,
   );
 
   response +=
@@ -173,7 +163,7 @@ function buildTextOutput({
 
   if (options.report) {
     response += buildShareResultsSummaryV2({
-      orgName: orgSettings.meta.org,
+      orgName: scanResult.settings.org,
       projectName,
       options,
       isIacCustomRulesEntitlementEnabled: false, // TODO: update when we add custom rules support
@@ -189,7 +179,7 @@ function buildTextOutput({
   response += EOL;
   response += colors.title('Info') + EOL;
   response += EOL;
-  response += wrapWithPadding(infoMessage(orgSettings), 80) + EOL;
+  response += wrapWithPadding(infoMessage(scanResult), 80) + EOL;
 
   return response;
 }
@@ -201,8 +191,8 @@ function wrapWithPadding(s: string, columns: number): string {
     .join('\n');
 }
 
-function infoMessage(orgSettings: IacOrgSettings): string {
-  return `Your organization ${orgSettings.meta.org} is using Integrated IaC. To switch to Current IaC, use --org=<ORG_ID> to select a different organization. For more information about Integrated IaC, see https://snyk.co/integrated-iac.`;
+function infoMessage(orgSettings: TestOutput): string {
+  return `Your organization ${orgSettings.settings.org} is using Integrated IaC. To switch to Current IaC, use --org=<ORG_ID> to select a different organization. For more information about Integrated IaC, see https://snyk.co/integrated-iac.`;
 }
 
 function assertHasSuccessfulScans(

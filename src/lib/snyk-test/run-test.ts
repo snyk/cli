@@ -8,6 +8,7 @@ import { icon } from '../theme';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 import * as theme from '../../lib/theme';
+import { jsonStringifyLargeObject } from '../../lib/json';
 
 import {
   AffectedPackages,
@@ -285,6 +286,12 @@ export async function runTest(
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
     const payloads = await assemblePayloads(root, options);
+
+    if (options['print-graph'] && !options['print-deps']) {
+      const results: TestResult[] = [];
+      return results;
+    }
+
     return await sendAndParseResults(payloads, spinnerLbl, root, options);
   } catch (error) {
     debug('Error running test', { error });
@@ -675,6 +682,25 @@ async function assembleLocalPayloads(
       const originalProjectName = scannedProject.depGraph
         ? (pkg as depGraphLib.DepGraph).rootPkg.name
         : (pkg as DepTree).name;
+
+      // print dep graph if `--print-graph` is set
+      if (options['print-graph'] && !options['print-deps']) {
+        await spinner.clear<void>(spinnerLbl)();
+        let root: depGraphLib.DepGraph;
+        if (scannedProject.depGraph) {
+          root = pkg as depGraphLib.DepGraph;
+        } else {
+          const tempDepTree = pkg as DepTree;
+          root = await depGraphLib.legacy.depTreeToGraph(
+            tempDepTree,
+            packageManager ? packageManager : '',
+          );
+        }
+
+        console.log('DepGraph data:');
+        console.log(jsonStringifyLargeObject(root.toJSON()));
+        console.log('DepGraph target:\n' + targetFile + '\nDepGraph end');
+      }
 
       const body: PayloadBody = {
         // WARNING: be careful changing this as it affects project uniqueness

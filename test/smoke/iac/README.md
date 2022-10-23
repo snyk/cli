@@ -9,31 +9,23 @@ The tests were written with Jest, and use a Snyk CLI executable either configure
 
 # Implementation details and usage
 
-These smoke tests are written with Jest, using the Snyk CLI executable identified on the runtime environment (See 'Notes on the local run' section below to read on how to override it)
+These smoke tests are written with Jest, using the Snyk CLI executable identified on the runtime environment (See 'Notes on the local run' section below to read on how to override it).
+
+The org we are using for testing is `snyk-cloud-tests` with the authentication token of the `Snyk IaC CLI smoke tests` service account which is available in [1Password](https://start.1password.com/open/i?a=PVJXHTLBRZAU5B6AZPH4R2XPKY&v=kbuze2xep3omyofrpfvvzmkwua&i=5h2xwp4d4rb4ng7arqadwxb3mu&h=team-snyk.1password.com).
 
 Spec in this folder is used as a
 
 1. **"name: Infrastructure as Code Smoke Tests" Github Action** - these run every hour and upon releases.
 2. **["Infrastructure as Code Smoke Tests (Pull Requests)"] GitHub Action** - these run for pull requests to the `master` branch which include changes to files owned by group IaC.
 
-```sh
-npm run test:smoke:iac
-```
-
 ### Notes on the local run
 
-These tests can be executed with the following npm script:
-
-```
-npm run test:smoke:iac
-```
-
-Alternatively, they can be executed directly via `jest`, by running:
+These tests can be executed directly via `jest`, by running:
 
 ```
 npx jest test/smoke/iac/
 ```
 
-You may specify any executable that will be used by the smoke tests, by configuring the `TEST_SNYK_COMMAND` environment variable. E.g. a local exuctable `TEST_SNYK_COMMAND="./snyk-macos"` or an `TEST_SNYK_COMMAND="npx snyk@1.500.0"` or `TEST_SNYK_COMMAND="node ./dist/cli"` for local execution.
+By default the jest runner uses the `bin/snyk` script in the repository which points to `dist/cli/index.js`. If you want to use a different Snyk CLI executable, you can override it by setting the `TEST_SNYK_COMMAND` environment variable.
 
-You may also configure an authentication token with the `SNYK_TOKEN` environment variable, to run the tests with any org and user needed.
+You may also configure an authentication token with the `IAC_SMOKE_TESTS_SNYK_TOKEN` environment variable, to run the tests with any org and user needed.

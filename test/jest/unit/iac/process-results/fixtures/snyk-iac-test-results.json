@@ -161,5 +161,13 @@
         "path": "invalid_file.txt"
       }
     }
-  ]
+  ],
+  "settings": {
+    "org": "org-name",
+    "ignoreSettings": {
+      "adminOnly": false,
+      "disregardFilesystemIgnores": false,
+      "reasonRequired": false
+    }
+  }
 }
