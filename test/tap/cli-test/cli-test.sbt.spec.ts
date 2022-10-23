@@ -52,7 +52,7 @@ export const SbtTests: AcceptanceTests = {
         t.is(
           res.packageManager,
           'sbt',
-          'pacakgeManager is sbt, altough it was mavn with the legacy api',
+          'pacakgeManager is sbt, although it was mavn with the legacy api',
         );
         t.deepEqual(
           sortBy(res.vulnerabilities, 'id'),
