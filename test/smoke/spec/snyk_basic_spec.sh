@@ -136,7 +136,7 @@ Describe "Snyk CLI basics"
       The stderr should equal ""
     End
 
-    It "Woofs in English when passed unsopported language"
+    It "Woofs in English when passed unsupported language"
       When run snyk woof --language=blalbla
       The output should include "Woof!"
       The status should be success
