@@ -51,7 +51,7 @@ function getExpressions(
 }
 
 // this is very naive implementation
-// the referenences can be composed of number of keys
+// the references can be composed of number of keys
 // we only going to use the first reference for time being
 function getReference(value: TerraformPlanExpression): string {
   return value.references?.[0];
