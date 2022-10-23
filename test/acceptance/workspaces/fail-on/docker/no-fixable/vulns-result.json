@@ -1660,7 +1660,7 @@
         "creationTime": "2019-07-24T09:36:38.236428Z",
         "credit": [""],
         "cvssScore": 2.8,
-        "description": "## Overview\nGNU Libc current is affected by: Re-mapping current loaded libray with malicious ELF file. The impact is: In worst case attacker may evaluate privileges. The component is: libld. The attack vector is: Attacker sends 2 ELF files to victim and asks to run ldd on it. ldd execute code.\n\n## References\n- [CONFIRM](https://support.f5.com/csp/article/K11932200?utm_source=f5support&amp%3Butm_medium=RSS)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-1010023)\n- [MISC](https://sourceware.org/bugzilla/show_bug.cgi?id=22851)\n- [Security Focus](http://www.securityfocus.com/bid/109167)\n",
+        "description": "## Overview\nGNU Libc current is affected by: Re-mapping current loaded library with malicious ELF file. The impact is: In worst case attacker may evaluate privileges. The component is: libld. The attack vector is: Attacker sends 2 ELF files to victim and asks to run ldd on it. ldd execute code.\n\n## References\n- [CONFIRM](https://support.f5.com/csp/article/K11932200?utm_source=f5support&amp%3Butm_medium=RSS)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-1010023)\n- [MISC](https://sourceware.org/bugzilla/show_bug.cgi?id=22851)\n- [Security Focus](http://www.securityfocus.com/bid/109167)\n",
         "disclosureTime": "2019-07-15T04:15:00Z",
         "id": "SNYK-LINUX-GLIBC-452266",
         "identifiers": {
