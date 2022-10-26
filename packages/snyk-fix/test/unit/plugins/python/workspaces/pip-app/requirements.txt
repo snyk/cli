@@ -1,5 +1,5 @@
 Jinja2==2.7.2
-Django==1.6.1
+Django==3.2.15
 python-etcd==0.4.5
 Django-Select2==6.0.1 # this version installs with lowercase so it catches a previous bug in pip_resolve.py
 irc==16.2 # this has a cyclic dependency (internal jaraco.text <==> jaraco.collections)
