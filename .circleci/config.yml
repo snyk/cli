@@ -178,6 +178,10 @@ commands:
       - install_sdks_unix
   install_sdks_macos:
     steps:
+      - run:
+          name: Installing golang
+          command: |
+            brew install go gradle python elixir composer
       - install_sdks_unix
   install_shellspec_dependencies:
     steps:
@@ -370,6 +374,7 @@ jobs:
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+            TEST_SNYK_DONT_SKIP_ANYTHING: 1
   test-alpine:
     parameters:
       test_snyk_command:
@@ -383,7 +388,7 @@ jobs:
       - run:
           name: Installing Node.js + other test dependencies
           command: |
-            apk add --update nodejs npm bash maven git
+            apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
       - setup_npm:
           npm_cache_directory: /home/circleci/.npm
           npm_global_sudo: false
@@ -410,7 +415,7 @@ jobs:
           name: Installing Node.js
           command: |
             sudo apt update
-            sudo apt install nodejs npm
+            sudo apt install nodejs npm golang gradle python3 python3-pip elixir composer
       - setup_npm:
           npm_cache_directory: /home/circleci/.npm
           npm_global_sudo: true
@@ -422,6 +427,7 @@ jobs:
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+            TEST_SNYK_DONT_SKIP_ANYTHING: 1
   test-linux-arm64:
     parameters:
       test_snyk_command:
@@ -437,7 +443,7 @@ jobs:
           name: Installing Node.js
           command: |
             sudo apt update
-            sudo apt install nodejs npm
+            sudo apt install nodejs npm golang gradle python3 python3-pip elixir composer
       - setup_npm:
           npm_cache_directory: /home/circleci/.npm
           npm_global_sudo: true
@@ -449,6 +455,7 @@ jobs:
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+            TEST_SNYK_DONT_SKIP_ANYTHING: 1
   test-jest:
     parameters:
       node_version:
@@ -468,6 +475,11 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_linux
+      - run:
+          name: Installing golang
+          command: |
+            sudo apt-get update
+            sudo apt-get install golang gradle python3 python3-pip elixir composer
       - setup_npm:
           npm_global_sudo: << parameters.npm_global_sudo >>
           node_version: << parameters.node_version >>

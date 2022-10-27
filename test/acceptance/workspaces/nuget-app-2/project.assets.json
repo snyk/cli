@@ -16,6 +16,11 @@
         "jQuery/1.10.2": {}
     },
     "project": {
-        "version": "2.2.2"
+        "version": "2.2.2",
+        "frameworks": {
+            "netcoreapp2.0": {
+              "projectReferences": {}
+            }
+          }
     }
 }
