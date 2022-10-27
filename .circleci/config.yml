@@ -178,6 +178,9 @@ commands:
       - install_sdks_unix
   install_sdks_macos:
     steps:
+      - run:
+          name: Installing golang
+          command: brew install go
       - install_sdks_unix
   install_shellspec_dependencies:
     steps:
@@ -383,7 +386,7 @@ jobs:
       - run:
           name: Installing Node.js + other test dependencies
           command: |
-            apk add --update nodejs npm bash maven git
+            apk add --update nodejs npm bash maven git go
       - setup_npm:
           npm_cache_directory: /home/circleci/.npm
           npm_global_sudo: false
@@ -468,6 +471,11 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_linux
+      - run:
+          name: Installing golang
+          command: |
+            sudo apt-get update
+            sudo apt-get install golang
       - setup_npm:
           npm_global_sudo: << parameters.npm_global_sudo >>
           node_version: << parameters.node_version >>
