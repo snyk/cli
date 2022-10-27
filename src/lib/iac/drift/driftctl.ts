@@ -255,7 +255,7 @@ export const runDriftCTL = async ({
   if (process.env.SNYK_SYSTEM_HTTPS_PROXY != undefined) {
     dctl_env.HTTPS_PROXY = process.env.SNYK_SYSTEM_HTTPS_PROXY;
   }
-  if (process.env.SNYK_NO_PROXY != undefined) {
+  if (process.env.SNYK_SYSTEM_NO_PROXY != undefined) {
     dctl_env.NO_PROXY = process.env.SNYK_SYSTEM_NO_PROXY;
   }
 
