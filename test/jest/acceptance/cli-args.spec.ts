@@ -393,9 +393,9 @@ describe('cli args', () => {
       },
     );
 
+    expect(code).toEqual(0);
     const sarifOutput = await project.readJSON(sarifPath);
     expect(sarifOutput.version).toMatch('2.1.0');
-    expect(code).toEqual(0);
   });
 
   test('container test --sarif-file-output can be used at the same time as --json', async () => {
@@ -432,7 +432,6 @@ describe('cli args', () => {
         },
       );
       const jsonOutput = JSON.parse(stdout);
-
       expect(jsonOutput.ok).toEqual(true);
       expect(code).toEqual(0);
     });

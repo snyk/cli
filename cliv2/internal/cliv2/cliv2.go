@@ -273,7 +273,7 @@ func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passthroughArgs []string) erro
 	return err
 }
 
-func (c *CLI) DeriveExitCode(err error) int {
+func DeriveExitCode(err error) int {
 	returnCode := constants.SNYK_EXIT_CODE_OK
 
 	if err != nil {

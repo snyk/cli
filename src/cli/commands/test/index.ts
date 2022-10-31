@@ -276,6 +276,7 @@ export default async function test(
     error.code = errorResults[0].code;
     error.userMessage = errorResults[0].userMessage;
     error.strCode = errorResults[0].strCode;
+    error.innerError = errorResults[0].innerError;
     throw error;
   }
 
