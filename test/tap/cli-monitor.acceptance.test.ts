@@ -1876,46 +1876,6 @@ if (!isWindows) {
     t.deepEqual(policyString, expected, 'sends correct policy');
   });
 
-  test('`monitor foo:latest --docker` with app vulns feature flag enabled', async (t) => {
-    chdirWorkspaces('npm-package-policy');
-    const spyPlugin = stubDockerPluginResponse(
-      {
-        scanResults: [
-          {
-            identity: {
-              type: 'rpm',
-            },
-            target: {
-              image: 'docker-image|foo',
-            },
-            facts: [{ type: 'depGraph', data: {} }],
-          },
-        ],
-        attributes: {},
-      },
-      t,
-    );
-
-    server.setFeatureFlag('containerCliAppVulnsEnabled', true);
-    await cli.monitor('foo:latest', {
-      docker: true,
-      org: 'explicit-org',
-    });
-    t.same(
-      spyPlugin.getCall(0).args,
-      [
-        {
-          docker: true,
-          'exclude-app-vulns': false,
-          org: 'explicit-org',
-          path: 'foo:latest',
-        },
-      ],
-      'calls docker plugin with expected arguments',
-    );
-    server.setFeatureFlag('containerCliAppVulnsEnabled', false);
-  });
-
   test('`monitor foo:latest --docker --platform=linux/arm64`', async (t) => {
     const platform = 'linux/arm64';
     const spyPlugin = stubDockerPluginResponse(
