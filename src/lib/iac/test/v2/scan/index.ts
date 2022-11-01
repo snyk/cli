@@ -75,9 +75,12 @@ async function scanWithConfig(
     throw new ScanError(`spawning process: ${child.error}`);
   }
 
+  return mapSnykIacTestOutputToTestOutput(await readJson(outputPath));
+}
+
+async function readJson(path: string) {
   try {
-    const output = await readFile(outputPath);
-    return mapSnykIacTestOutputToTestOutput(JSON.parse(output));
+    return JSON.parse(await readFile(path));
   } catch (e) {
     throw new ScanError(`invalid output encoding: ${e}`);
   }
