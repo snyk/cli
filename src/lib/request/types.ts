@@ -10,4 +10,5 @@ export interface Payload {
   json?: boolean;
   timeout?: number;
   family?: number;
+  noCompression?: boolean;
 }
