@@ -3,7 +3,6 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
-	"net/http"
 	"os"
 
 	"github.com/pkg/errors"
@@ -91,7 +90,6 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 	}
 
 	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
-	http.DefaultTransport = wrapperProxy.Transport()
 
 	err = wrapperProxy.Start()
 	if err != nil {

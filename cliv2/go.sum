@@ -182,8 +182,8 @@ github.com/rogpeppe/go-charset v0.0.0-20180617210344-2471d30d28b4/go.mod h1:qgYe
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
-github.com/snyk/go-application-framework v0.0.0-20221201105605-4873440314c9 h1:TAIP7A1Yy9qHAW2hoztvNo2z3iodYJT87XKmH/Ty6Hc=
-github.com/snyk/go-application-framework v0.0.0-20221201105605-4873440314c9/go.mod h1:cmEA75r0NIy0dyNx5AIKLtczEg6YF0oOPXIKHWiLyWc=
+github.com/snyk/go-application-framework v0.0.0-20221201145925-ee0ec4cf2688 h1:2WOMtq2WSgP/WL9qsQJBIxctf9vuvv+xn/xl6/qgNUY=
+github.com/snyk/go-application-framework v0.0.0-20221201145925-ee0ec4cf2688/go.mod h1:cmEA75r0NIy0dyNx5AIKLtczEg6YF0oOPXIKHWiLyWc=
 github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd h1:zjDhcQ642rIVI8aIjfG5uVcw+OGotQtX2l9VHe7IqCQ=
 github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd/go.mod h1:v6t6wKizOcHXT3p4qKn6Bda7yNIjCQ54Xyl31NjgXkY=
 github.com/spf13/afero v1.9.2 h1:j49Hj62F0n+DaZ1dDCvhABaPNSGNkt32oRFxI33IEMw=
