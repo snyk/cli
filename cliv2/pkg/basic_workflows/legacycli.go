@@ -1,8 +1,8 @@
 package basic_workflows
 
 import (
-	"io/ioutil"
-	"log"
+	"bufio"
+	"bytes"
 	"net/http"
 	"os"
 
@@ -17,6 +17,7 @@ import (
 )
 
 var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("legacycli")
+var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stdout")
 
 const (
 	PROXY_NOAUTH string = "proxy-noauth"
@@ -24,15 +25,17 @@ const (
 
 func Init(engine workflow.Engine) error {
 	flagset := pflag.NewFlagSet("legacycli", pflag.ContinueOnError)
+	flagset.StringSlice(configuration.RAW_CMD_ARGS, os.Args[1:], "Command line arguments for the legacy CLI.")
+	flagset.Bool(configuration.WORKFLOW_USE_STDIO, false, "Use StdIn and StdOut")
+
 	config := workflow.ConfigurationOptionsFromFlagset(flagset)
 	entry, _ := engine.Register(WORKFLOWID_LEGACY_CLI, config, legacycliWorkflow)
 	entry.SetVisibility(false)
 	return nil
 }
 
-func FilteredArgs() []string {
+func FilteredArgs(args []string) []string {
 	// filter args not meant to be forwarded to CLIv1 or an Extensions
-	args := os.Args[1:]
 	elementsToFilter := []string{"--" + PROXY_NOAUTH}
 	filteredArgs := args
 	for _, element := range elementsToFilter {
@@ -43,10 +46,13 @@ func FilteredArgs() []string {
 
 func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.Data) (output []workflow.Data, err error) {
 	output = []workflow.Data{}
+	var outBuffer bytes.Buffer
+	var errBuffer bytes.Buffer
 
 	config := invocation.GetConfiguration()
-	debugLogger := log.Default()
+	debugLogger := invocation.GetLogger()
 
+	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
 	debug := config.GetBool(configuration.DEBUG)
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
@@ -54,26 +60,27 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 	proxyAuthenticationMechanismString := config.GetString(configuration.PROXY_AUTHENTICATION_MECHANISM)
 	proxyAuthenticationMechanism := httpauth.AuthenticationMechanismFromString(proxyAuthenticationMechanismString)
 
-	if !debug {
-		debugLogger.SetOutput(ioutil.Discard)
+	if debug {
+		args = append(args, "--debug")
 	}
 
+	debugLogger.Println("Arguments:", args)
 	debugLogger.Println("Cache directory:", cacheDirectory)
-	debugLogger.Println("Insecure:", insecure)
+	debugLogger.Println("Insecure HTTPS:", insecure)
 	debugLogger.Println("Use StdIO:", useStdIo)
-
-	if cacheDirectory == "" {
-		cacheDirectory, err = utils.SnykCacheDir()
-		if err != nil {
-			return output, errors.Wrap(err, "Failed to determine cache directory!")
-		}
-	}
 
 	// init cli object
 	var cli *cliv2.CLI
 	cli, err = cliv2.NewCLIv2(cacheDirectory, debugLogger)
 	if err != nil {
 		return output, err
+	}
+
+	if useStdIo == false {
+		in := bytes.NewReader([]byte{})
+		out := bufio.NewWriter(&outBuffer)
+		err := bufio.NewWriter(&errBuffer)
+		cli.SetIoStreams(in, out, err)
 	}
 
 	// init proxy object
@@ -93,7 +100,12 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 
 	// run the cli
 	proxyInfo := wrapperProxy.ProxyInfo()
-	err = cli.Execute(proxyInfo, FilteredArgs())
+	err = cli.Execute(proxyInfo, FilteredArgs(args))
+
+	if useStdIo == false {
+		data := workflow.NewData(DATATYPEID_LEGACY_CLI_STDOUT, "text/plain", outBuffer.Bytes())
+		output = append(output, data)
+	}
 
 	return output, err
 }
