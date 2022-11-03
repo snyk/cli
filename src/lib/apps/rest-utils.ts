@@ -98,24 +98,27 @@ Meta:\t${meta}`;
 }
 
 export function handleCreateAppRes(res: ICreateAppResponse): string {
+  debug(res);
   const {
     name,
-    clientId,
-    redirectUris,
+    client_id,
+    redirect_uris,
     scopes,
-    isPublic,
-    clientSecret,
+    is_public,
+    client_secret,
+    access_token_ttl_seconds,
   } = res.data.attributes;
 
   return `Snyk App created successfully!
 Please ensure you save the following details:
 
-App Name:\t${name}
-Client ID:\t${clientId}
-Redirect URIs:\t${redirectUris}
-Scopes:\t${scopes}
-Is App Public:\t${isPublic}
+App Name: ${name}
+Client ID: ${client_id}
+Redirect URIs: ${redirect_uris}
+Scopes: ${scopes}
+Is App Public: ${is_public}
+Access token TTL seconds: ${access_token_ttl_seconds}
 Client Secret (${chalk.redBright(
     'keep it safe and protected',
-  )}):\t${clientSecret}`;
+  )}): ${client_secret}`;
 }

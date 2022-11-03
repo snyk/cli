@@ -14,11 +14,12 @@ export interface ICreateAppResponse {
     id: string;
     attributes: {
       name: string;
-      clientId: string;
-      redirectUris: string[];
+      client_id: string;
+      redirect_uris: string[];
       scopes: string[];
-      isPublic: boolean;
-      clientSecret: string;
+      is_public: boolean;
+      client_secret: string;
+      access_token_ttl_seconds: number;
     };
     links: {
       self: string;

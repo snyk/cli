@@ -451,7 +451,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   app.post(`${basePath}/orgs/:orgId/apps`, (req, res) => {
     const { orgId } = req.params;
     const name = req.body.name;
-    const redirectUris = req.body.redirectUris;
+    const redirect_uris = req.body.redirect_uris;
     const scopes = req.body.scopes;
     res.send(
       JSON.stringify({
@@ -463,14 +463,15 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           id: '84144c1d-a491-4fe5-94d1-ba143ba71b6d',
           attributes: {
             name,
-            clientId: '9f26c6c6-e04b-4310-8ce4-c3a6289d0633',
-            redirectUris,
+            client_id: '9f26c6c6-e04b-4310-8ce4-c3a6289d0633',
+            redirect_uris,
             scopes,
-            isPublic: false,
-            clientSecret: 'super-secret-client-secret',
+            is_public: false,
+            client_secret: 'super-secret-client-secret',
+            access_token_ttl_seconds: 3600,
           },
           links: {
-            self: `/orgs/${orgId}/apps?version=2021-08-11~experimental`,
+            self: `/orgs/${orgId}/apps?version=2022-03-11~experimental`,
           },
         },
       }),

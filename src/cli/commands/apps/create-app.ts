@@ -36,12 +36,13 @@ export async function createApp(
     url: getAppsURL(EAppsURL.CREATE_APP, { orgId }),
     body: {
       name,
-      redirectUris,
+      redirect_uris: redirectUris,
       scopes,
     },
     qs: {
-      version: '2021-08-11~experimental',
+      version: '2022-03-11~experimental',
     },
+    noCompression: true,
   };
 
   try {
