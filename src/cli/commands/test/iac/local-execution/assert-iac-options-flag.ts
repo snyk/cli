@@ -1,7 +1,12 @@
 import { CustomError } from '../../../../../lib/errors';
 import { args } from '../../../../args';
 import { getErrorStringCode } from './error-utils';
-import { IaCErrorCodes, IaCTestFlags, TerraformPlanScanMode } from './types';
+import {
+  IaCErrorCodes,
+  IacOrgSettings,
+  IaCTestFlags,
+  TerraformPlanScanMode,
+} from './types';
 import { Options, TestOptions } from '../../../../../lib/types';
 
 const keys: (keyof IaCTestFlags)[] = [
@@ -38,7 +43,13 @@ const keys: (keyof IaCTestFlags)[] = [
   'remote-repo-url',
   'target-name',
 ];
+const integratedKeys: (keyof IaCTestFlags)[] = [
+  'snyk-cloud-environment',
+  'cloud-context',
+];
+
 const allowed = new Set<string>(keys);
+const integratedOnlyFlags = new Set<string>(integratedKeys);
 
 function camelcaseToDash(key: string) {
   return key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
@@ -54,6 +65,17 @@ export class FlagError extends CustomError {
   constructor(key: string) {
     const flag = getFlagName(key);
     const msg = `Unsupported flag "${flag}" provided. Run snyk iac test --help for supported flags`;
+    super(msg);
+    this.code = IaCErrorCodes.FlagError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = msg;
+  }
+}
+
+export class IntegratedFlagError extends CustomError {
+  constructor(key: string, org: string) {
+    const flag = getFlagName(key);
+    const msg = `Flag "${flag}" is only supported when using Integrated IaC. To enable it for your organisation "${org}", please contact Snyk support.`;
     super(msg);
     this.code = IaCErrorCodes.FlagError;
     this.strCode = getErrorStringCode(this.code);
@@ -136,6 +158,28 @@ export function assertIaCOptionsFlags(argv: string[]): void {
 
   if (parsed.options.scan) {
     assertTerraformPlanModes(parsed.options.scan as string);
+  }
+}
+
+/**
+ * Check that the flags used for the v1 flow do not contain any flag that are
+ * only usable with the new integrated iac (v2) flow
+ * @param settings organisation settings, used to get the org name
+ * @param argv command line args
+ */
+export function assertIntegratedIaCOnlyOptions(
+  settings: IacOrgSettings,
+  argv: string[],
+): void {
+  // We process the process.argv so we don't get default values.
+  const parsed = args(argv);
+  for (const key of Object.keys(parsed.options)) {
+    // The _ property is a special case that contains non
+    // flag strings passed to the command line (usually files)
+    // and `iac` is the command provided.
+    if (key !== '_' && key !== 'iac' && integratedOnlyFlags.has(key)) {
+      throw new IntegratedFlagError(key, settings.meta.org);
+    }
   }
 }
 

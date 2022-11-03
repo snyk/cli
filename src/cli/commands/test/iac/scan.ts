@@ -13,7 +13,10 @@ import * as utils from '../utils';
 import { spinnerMessage } from '../../../../lib/formatters/iac-output/text';
 
 import { test as iacTest } from './local-execution';
-import { assertIaCOptionsFlags } from './local-execution/assert-iac-options-flag';
+import {
+  assertIaCOptionsFlags,
+  assertIntegratedIaCOnlyOptions,
+} from './local-execution/assert-iac-options-flag';
 import { initRules } from './local-execution/rules/rules';
 import { cleanLocalCache } from './local-execution/measurable-methods';
 import * as ora from 'ora';
@@ -79,6 +82,7 @@ export async function scan(
 
       let res: (TestResult | TestResult[]) | Error;
       try {
+        assertIntegratedIaCOnlyOptions(iacOrgSettings, process.argv);
         assertIaCOptionsFlags(process.argv);
 
         if (pathLib.relative(projectRoot, path).includes('..')) {

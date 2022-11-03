@@ -30,15 +30,11 @@ const snykIacTestErrorsUserMessages = {
   UnableToReadPath: 'Unable to read path',
   NoLoadableInput:
     "The Snyk CLI couldn't find any valid IaC configuration files to scan",
-  FailedToMakeResourcesResolvers:
-    'An error occurred preparing the requested cloud context. Please run the command again with the `-d` flag for more information.',
-  ResourcesResolverError:
-    'An error occurred scanning cloud resources. Please run the command again with the `-d` flag for more information.',
   FailedToProcessResults:
     'An error occurred while processing results. Please run the command again with the `-d` flag for more information.',
 };
 
-export function getErrorUserMessage(code: number): string {
+export function getErrorUserMessage(code: number, error: string): string {
   if (code < 2000 || code >= 3000) {
     return 'INVALID_SNYK_IAC_TEST_ERROR';
   }
@@ -46,6 +42,14 @@ export function getErrorUserMessage(code: number): string {
   if (!errorName) {
     return 'INVALID_IAC_ERROR';
   }
+
+  if (
+    code == IaCErrorCodes.FailedToMakeResourcesResolvers ||
+    code == IaCErrorCodes.ResourcesResolverError
+  ) {
+    return `${error}. Please run the command again with the \`-d\` flag for more information.`;
+  }
+
   return snykIacTestErrorsUserMessages[errorName];
 }
 
@@ -56,7 +60,7 @@ export class SnykIacTestError extends CustomError {
     super(scanError.message);
     this.code = scanError.code;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage = getErrorUserMessage(this.code);
+    this.userMessage = getErrorUserMessage(this.code, scanError.message);
     this.fields = Object.assign(
       {
         path: '',
