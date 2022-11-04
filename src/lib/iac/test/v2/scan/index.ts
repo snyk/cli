@@ -11,7 +11,6 @@ import * as path from 'path';
 import * as rimraf from 'rimraf';
 import config from '../../../../config';
 import { api } from '../../../../api-token';
-import { allowAnalytics } from '../../../../analytics';
 import envPaths from 'env-paths';
 
 const debug = newDebug('snyk-iac');
@@ -111,7 +110,7 @@ function processFlags(
     flags.push('-depth-detection', `${options.depthDetection}`);
   }
 
-  if (options.report && allowAnalytics()) {
+  if (options.report) {
     flags.push('-report');
   }
 
