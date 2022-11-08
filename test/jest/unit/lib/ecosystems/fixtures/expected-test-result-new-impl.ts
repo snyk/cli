@@ -76,6 +76,7 @@ export const expectedTestResult = [
             "deps/dnsmasq-2.80/Makefile",
             ],
         },
+        "displayTargetFile": "",
         "fileSignaturesDetails": {
             "https://thekelleys.org.uk|dnsmasq@2.80": {
                 "confidence": 1,
@@ -107,7 +108,10 @@ export const expectedTestResult = [
             'SNYK-UNMANAGED-CPIO-2319543': {
                 id: 'SNYK-UNMANAGED-CPIO-2319543',
                 packageName: 'cpio',
-                version: '',
+                upgradePath: [
+                    false
+                ],
+                version: '2.12',
                 below: '',
                 semver: {
                     "vulnerable": [
@@ -116,6 +120,7 @@ export const expectedTestResult = [
                 },
                 patches: [],
                 isNew: false,
+                isPatchable: false,
                 description: expectedDescription,
                 title: 'Symlink Attack',
                 severity: "medium",
@@ -135,13 +140,15 @@ export const expectedTestResult = [
                 from: ['https://ftp.gnu.org|cpio@2.12'],
                 id: 'SNYK-UNMANAGED-CPIO-2319543',
                 isNew: false,
+                isPatchable: false,
                 name: 'https://ftp.gnu.org|cpio@2.12',
                 packageManager: 'Unmanaged (C/C++)',
                 packageName: 'cpio',
                 patches: [],
                 severity: 'medium',
                 title: 'Symlink Attack',
-                version: '',
+                version: '2.12',
+                upgradePath: [false],
                 semver: {
                     "vulnerable": [
                         "[0,]"

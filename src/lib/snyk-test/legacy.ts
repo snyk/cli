@@ -87,6 +87,11 @@ export interface IssueData {
   name?: string;
 }
 
+export interface IssueDataUnmanaged extends IssueData {
+  upgradePath?: (string | boolean)[];
+  isPatchable?: boolean;
+}
+
 export type CallPath = string[];
 
 interface AnnotatedIssue extends IssueData {
@@ -227,7 +232,7 @@ export interface Issue {
 
 export interface TestDependenciesResult {
   issuesData: {
-    [issueId: string]: IssueData;
+    [issueId: string]: IssueDataUnmanaged;
   };
   issues: Issue[];
   docker?: {
