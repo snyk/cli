@@ -10,7 +10,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as rimraf from 'rimraf';
 import config from '../../../../config';
-import { api } from '../../../../api-token';
+import { api, getOAuthToken } from '../../../../api-token';
 import envPaths from 'env-paths';
 import { restoreEnvProxy } from '../../../env-utils';
 
@@ -54,10 +54,14 @@ async function scanWithConfig(
     process.env['SNYK_IAC_TEST_API_REST_URL'] || getApiUrl();
   env['SNYK_IAC_TEST_API_REST_TOKEN'] =
     process.env['SNYK_IAC_TEST_API_REST_TOKEN'] || getApiToken();
+  env['SNYK_IAC_TEST_API_REST_OAUTH_TOKEN'] =
+    process.env['SNYK_IAC_TEST_API_REST_OAUTH_TOKEN'] || getOAuthToken();
   env['SNYK_IAC_TEST_API_V1_URL'] =
     process.env['SNYK_IAC_TEST_API_V1_URL'] || getApiUrl();
   env['SNYK_IAC_TEST_API_V1_TOKEN'] =
     process.env['SNYK_IAC_TEST_API_V1_TOKEN'] || getApiToken();
+  env['SNYK_IAC_TEST_API_V1_OAUTH_TOKEN'] =
+    process.env['SNYK_IAC_TEST_API_V1_OAUTH_TOKEN'] || getOAuthToken();
 
   const args = processFlags(options, rulesBundlePath, outputPath, policyPath);
 
