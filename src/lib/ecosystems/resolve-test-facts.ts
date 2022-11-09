@@ -52,6 +52,10 @@ export async function resolveAndTestFacts(
     : resolveAndTestFactsRegistry(ecosystem, scans, options);
 }
 
+async function getOrgDefaultContext(): Promise<string> {
+  return (await getSelf())?.data.attributes.default_org_context;
+}
+
 async function submitHashes(
   hashes: FileHashes,
   orgId: string,
@@ -154,12 +158,12 @@ export async function resolveAndTestFactsUnmanagedDeps(
   const packageManager = 'Unmanaged (C/C++)';
   const displayTargetFile = '';
 
-  let orgId = options.org || '';
+  const orgId = options.org || (await getOrgDefaultContext()) || '';
   const target_severity: SEVERITY = options.severityThreshold || SEVERITY.LOW;
 
   if (orgId === '') {
-    const self = await getSelf();
-    orgId = self.data.attributes.default_org_context;
+    errors.push('organisation-id missing');
+    return [results, errors];
   }
 
   for (const [path, scanResults] of Object.entries(scans)) {
