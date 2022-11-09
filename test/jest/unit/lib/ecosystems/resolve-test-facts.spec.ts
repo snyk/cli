@@ -32,6 +32,7 @@ import {
   getDepGraphResponse,
   getDepGraphResponseInProgress,
 } from './fixtures/get-dep-graph-response';
+import * as request from '../../../../../src/lib/request/request';
 
 describe('resolve and test facts', () => {
   afterEach(() => jest.restoreAllMocks());
@@ -225,6 +226,7 @@ describe('resolve and test facts', () => {
       path: 'path',
       dependencyCount: 1,
       packageManager: 'Unmanaged (C/C++)',
+      depsFilePaths: undefined,
     });
 
     const extractAndApplyPluginAnalyticsSpy = jest.spyOn(
@@ -259,6 +261,8 @@ describe('resolve and test facts', () => {
         path: 'path',
         dependencyCount: 1,
         packageManager: 'Unmanaged (C/C++)',
+        depsFilePaths: undefined,
+        displayTargetFile: '',
       },
     ]);
     expect(errors).toEqual([]);
@@ -269,6 +273,12 @@ describe('resolve and test facts', () => {
     jest
       .spyOn(featureFlags, 'hasFeatureFlag')
       .mockResolvedValueOnce(hasFeatureFlag);
+
+    jest.spyOn(request, 'makeRequest').mockImplementationOnce(async () => ({
+      res: {} as any,
+      body:
+        '{ "data":{"attributes":{"default_org_context": "xx111x11-11bd-1e1e-1111-ff111b111f11"}}}',
+    }));
 
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
@@ -305,6 +315,12 @@ describe('resolve and test facts', () => {
     jest
       .spyOn(featureFlags, 'hasFeatureFlag')
       .mockResolvedValueOnce(hasFeatureFlag);
+
+    jest.spyOn(request, 'makeRequest').mockImplementationOnce(async () => ({
+      res: {} as any,
+      body:
+        '{ "data":{"attributes":{"default_org_context": "xx111x11-11bd-1e1e-1111-ff111b111f11"}}}',
+    }));
 
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
@@ -348,6 +364,12 @@ describe('resolve and test facts', () => {
       .spyOn(featureFlags, 'hasFeatureFlag')
       .mockResolvedValueOnce(hasFeatureFlag);
 
+    jest.spyOn(request, 'makeRequest').mockImplementationOnce(async () => ({
+      res: {} as any,
+      body:
+        '{ "data":{"attributes":{"default_org_context": "xx111x11-11bd-1e1e-1111-ff111b111f11"}}}',
+    }));
+
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
     jest.spyOn(pollingTest, 'createDepGraph').mockImplementation(() => {
@@ -369,6 +391,12 @@ describe('resolve and test facts', () => {
     jest
       .spyOn(featureFlags, 'hasFeatureFlag')
       .mockResolvedValueOnce(hasFeatureFlag);
+
+    jest.spyOn(request, 'makeRequest').mockImplementationOnce(async () => ({
+      res: {} as any,
+      body:
+        '{ "data":{"attributes":{"default_org_context": "xx111x11-11bd-1e1e-1111-ff111b111f11"}}}',
+    }));
 
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
@@ -397,6 +425,12 @@ describe('resolve and test facts', () => {
     jest
       .spyOn(featureFlags, 'hasFeatureFlag')
       .mockResolvedValueOnce(hasFeatureFlag);
+
+    jest.spyOn(request, 'makeRequest').mockImplementationOnce(async () => ({
+      res: {} as any,
+      body:
+        '{ "data":{"attributes":{"default_org_context": "xx111x11-11bd-1e1e-1111-ff111b111f11"}}}',
+    }));
 
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 

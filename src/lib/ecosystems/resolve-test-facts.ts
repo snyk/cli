@@ -22,7 +22,7 @@ import {
 import { extractAndApplyPluginAnalytics } from './plugin-analytics';
 import { findAndLoadPolicy } from '../policy';
 import { filterIgnoredIssues } from './policy';
-import { IssueData, Issue } from '../snyk-test/legacy';
+import { IssueDataUnmanaged, Issue } from '../snyk-test/legacy';
 import { hasFeatureFlag } from '../feature-flags';
 import {
   convertDepGraph,
@@ -46,7 +46,7 @@ export async function resolveAndTestFacts(
     options,
   );
 
-  return featureFlagEnabled || unmanagedDepsOverride
+  return featureFlagEnabled || unmanagedDepsOverride?.toLowerCase() === 'true'
     ? resolveAndTestFactsUnmanagedDeps(scans, options)
     : resolveAndTestFactsRegistry(ecosystem, scans, options);
 }
@@ -109,7 +109,7 @@ async function fetchIssues(
   });
 
   const issuesData = convertMapCasing<{
-    [issueId: string]: IssueData;
+    [issueId: string]: IssueDataUnmanaged;
   }>(response.data.result.issues_data);
 
   const depGraphData = convertDepGraph(response.data.result.dep_graph);
@@ -145,6 +145,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
   const results: any[] = [];
   const errors: string[] = [];
   const packageManager = 'Unmanaged (C/C++)';
+  const displayTargetFile = '';
 
   let orgId = options.org || '';
 
@@ -188,7 +189,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
           issuesMap[i.issueId] = i;
         });
 
-        const vulnerabilities: IssueData[] = [];
+        const vulnerabilities: IssueDataUnmanaged[] = [];
         for (const issuesDataKey in issuesData) {
           const pkgCoordinate = `${issuesMap[issuesDataKey]?.pkgName}@${issuesMap[issuesDataKey]?.pkgVersion}`;
           const issueData = issuesData[issuesDataKey];
@@ -196,7 +197,9 @@ export async function resolveAndTestFactsUnmanagedDeps(
           issueData.from = [pkgCoordinate];
           issueData.name = pkgCoordinate;
           issueData.packageManager = packageManager;
-
+          issueData.version = issuesMap[issuesDataKey]?.pkgVersion;
+          issueData.upgradePath = [false];
+          issueData.isPatchable = false;
           vulnerabilities.push(issueData);
         }
 
@@ -218,6 +221,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
           path,
           dependencyCount,
           packageManager,
+          displayTargetFile,
         });
       } catch (error) {
         const hasStatusCodeError = error.code >= 400 && error.code <= 500;
@@ -245,6 +249,7 @@ export async function resolveAndTestFactsRegistry(
   const results: any[] = [];
   const errors: string[] = [];
   const packageManager = 'Unmanaged (C/C++)';
+  const displayTargetFile = '';
 
   for (const [path, scanResults] of Object.entries(scans)) {
     await spinner(`Resolving and Testing fileSignatures in ${path}`);
@@ -277,7 +282,7 @@ export async function resolveAndTestFactsRegistry(
           issuesMap[i.issueId] = i;
         });
 
-        const vulnerabilities: IssueData[] = [];
+        const vulnerabilities: IssueDataUnmanaged[] = [];
         for (const issuesDataKey in response.issuesData) {
           if (issuesMap[issuesDataKey]) {
             const issueData = response.issuesData[issuesDataKey];
@@ -285,6 +290,9 @@ export async function resolveAndTestFactsRegistry(
             issueData.from = [pkgCoordinate];
             issueData.name = pkgCoordinate;
             issueData.packageManager = packageManager;
+            issueData.version = issuesMap[issuesDataKey]?.pkgVersion;
+            issueData.upgradePath = [false];
+            issueData.isPatchable = false;
             vulnerabilities.push(issueData);
           }
         }
@@ -305,6 +313,7 @@ export async function resolveAndTestFactsRegistry(
           path,
           dependencyCount,
           packageManager,
+          displayTargetFile,
         });
       } catch (error) {
         const hasStatusCodeError = error.code >= 400 && error.code <= 500;
