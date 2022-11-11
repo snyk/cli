@@ -3,7 +3,6 @@ config.local.json
 /node_modules/
 /packages/*/node_modules/
 local.log
-/patches/
 **/dist
 /dist-docker
 /pysrc
