@@ -2,7 +2,6 @@ import * as tap from 'tap';
 import * as sinon from 'sinon';
 import * as fs from 'fs';
 
-import config from '../../src/lib/config';
 import * as cli from '../../src/cli/commands';
 import * as snyk from '../../src/lib';
 import { chdirWorkspaces } from '../acceptance/workspace-helper';
@@ -104,13 +103,11 @@ test('`test npm-package-with-severity-override` show original severity upgrade',
 
   const snykTestStub = sinon.stub(snyk, 'test').returns(stubbedResponse);
   try {
+    console.log('David');
     await cli.test('npm-package-with-severity-override');
   } catch (error) {
     const { message } = error;
-    t.match(
-      message,
-      `[Low Severity (originally Medium)][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328]`,
-    );
+    t.match(message, `[Low (originally Medium)] Insecure Randomness`);
   }
 
   snykTestStub.restore();
@@ -134,10 +131,7 @@ test('`test npm-package-with-severity-override` show original severity patches',
   } catch (error) {
     const { message } = error;
     t.match(message, 'Patch available for node-uuid@1.4.0');
-    t.match(
-      message,
-      `[Low Severity (originally Medium)][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328]`,
-    );
+    t.match(message, `[Low (originally Medium)] Insecure Randomness`);
   }
 
   snykTestStub.restore();
@@ -186,10 +180,7 @@ test('`test npm-package-with-severity-override` show original severity unresolve
     await cli.test('npm-package-with-severity-override');
   } catch (error) {
     const { message } = error;
-    t.match(
-      message,
-      `Malicious Package [Low Severity (originally Medium)][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328`,
-    );
+    t.match(message, `[Low (originally Medium)] Malicious Package`);
   }
 
   snykTestStub.restore();
@@ -212,10 +203,7 @@ test('`test npm-package-with-severity-override` dont show original severity if i
     await cli.test('npm-package-with-severity-override');
   } catch (error) {
     const { message } = error;
-    t.match(
-      message,
-      `[Low Severity][${config.PUBLIC_VULN_DB_URL}/vuln/npm:node-uuid:20160328]`,
-    );
+    t.match(message, `[Low] Insecure Randomness`);
   }
 
   snykTestStub.restore();

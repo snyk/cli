@@ -118,6 +118,7 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src' },
       3,
     );
+
     expect(stripAnsi(res).replace(/\[http.*\]/g, '[URL]')).toMatchSnapshot();
   });
 
