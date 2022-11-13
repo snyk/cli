@@ -1,0 +1,23 @@
+name: Infrastructure as Code CLI alert
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  check_tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./packages/iac-cli-alert
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16.16.0'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm start
+        env:
+          USER_GITHUB_TOKEN: ${{ secrets.USER_GITHUB_TOKEN }}
+          IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL: ${{ secrets.IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL }}
