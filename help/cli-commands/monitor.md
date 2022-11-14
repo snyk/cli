@@ -302,6 +302,8 @@ The following `snyk monitor` options can be used with `--unmanaged` as documente
 
 `--target-reference=<TARGET_REFERENCE>`
 
+`--project-name=<PROJECT_NAME>`
+
 There are also special options.
 
 ### `--max-depth`
@@ -321,10 +323,6 @@ Use use this option to see what files contributed to each dependency identified.
 To see how confident Snyk is about the identified dependency and its version, use the `--print-deps` or `--print-dep-paths` option.
 
 For more information on uses of CLI options for C/C++ projects see [Snyk for C / C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)
-
-### `--project-name=c-project`
-
-Use with the `snyk monitor --unmanaged` command to override the default name Snyk gives your snapshots by entering the desired name.
 
 ## Options for build tools
 

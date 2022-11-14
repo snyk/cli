@@ -33,7 +33,7 @@ Use the `-d` option to output the debug logs.
 
 ### `--detection-depth=<DEPTH>`
 
-Use to indicate how many subdirectories to search. `DEPTH` must be a number, 1 or greater; zero (0) is the current directory.
+Indicate how many subdirectories to search. `DEPTH` must be a number, 1 or greater; zero (0) is the current directory.
 
 Default: no limit.
 
@@ -73,7 +73,7 @@ Example: `$ snyk iac test --json`
 
 Save test output as a JSON data structure directly to the specified file, regardless of whether or not you use the `--json` option.
 
-Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file. If no issues are found, an output file is not created.
+Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file.
 
 Example: `$ snyk iac test --json-file-output=vuln.json`
 
@@ -196,18 +196,37 @@ Example, setting to the current Git branch:
 
 `snyk iac test myproject/ --report --target-reference="$(git branch --show-current)"`
 
-\
 Example, setting to the latest Git tag:
 
 `snyk iac test myproject/ --report --target-reference="$(git describe --tags --abbrev=0)"`
 
 ### `--var-file=<PATH_TO_VARIABLE_FILE>`
 
-Use this option to load a terraform variable definitions file that is located in a different directory from the scanned one.
+Load a terraform variable definitions file that is located in a different directory from the scanned one.
 
 Example:
 
 `$ snyk iac test myproject/staging/networking --var-file=myproject/vars.tf`
+
+### `--snyk-cloud-environment=<ENVIRONMENT_ID>`
+
+Use the last scan from your Snyk Cloud Environment to suppress issues. For more information, see [Adding cloud context to your IaC test](https://docs.snyk.io/products/snyk-infrastructure-as-code/integrated-infrastructure-as-code/adding-cloud-context-to-your-iac-test)
+
+This option is only supported for Integrated IaC (Limited Availability).
+
+Example:
+
+`$ snyk iac test --snyk-cloud-environment=0d19dc1a-c2aa-4719-89ee-5f281dd92a20`
+
+### `--cloud-context=<ENVIRONMENT>`
+
+Scan your cloud environment and use the result to suppress issues. For information on how to authenticate with your cloud provider, see [Adding cloud context to your IaC test](https://docs.snyk.io/products/snyk-infrastructure-as-code/integrated-infrastructure-as-code/adding-cloud-context-to-your-iac-test)
+
+This option is only supported for Integrated IaC (Limited Availability).
+
+Example:
+
+`$ snyk iac test --cloud-context=aws`
 
 ## Examples for snyk iac test command
 

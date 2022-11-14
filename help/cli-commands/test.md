@@ -35,6 +35,8 @@ Auto-detect all projects in the working directory (including Yarn workspaces).
 
 For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/hc/en-us/articles/360000910577-Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files-)
 
+If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/invalid-string-length-error-when-scanning-projects)
+
 ### `--fail-fast`
 
 Use with `--all-projects` to cause scans to be interrupted when errors occur and to report these errors back to the user.
@@ -153,13 +155,17 @@ Print results on the console as a JSON data structure.
 
 Example: `$ snyk test --json`
 
+If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/invalid-string-length-error-when-scanning-projects)
+
 ### `--json-file-output=<OUTPUT_FILE_PATH>`
 
 Save test output as a JSON data structure directly to the specified file, regardless of whether or not you use the `--json` option.
 
-Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file. If no issues are found, an output file is not created.
+Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file.
 
 Example: `$ snyk test --json-file-output=vuln.json`
+
+If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/invalid-string-length-error-when-scanning-projects)
 
 ### `--sarif`
 
@@ -208,6 +214,8 @@ Auto-detect maven jars, aars, and wars in given directory. To test individually 
 ## Options for Gradle projects
 
 For more information about Gradle CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven)
+
+**Note:** If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/invalid-string-length-error-when-scanning-projects)
 
 ### `--sub-project=<NAME>`, `--gradle-sub-project=<NAME>`
 
