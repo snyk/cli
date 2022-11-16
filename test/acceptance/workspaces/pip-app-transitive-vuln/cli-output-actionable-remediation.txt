@@ -4,29 +4,33 @@ Testing pip-app-transitive-vuln...
 Tested 6 dependencies for known vulnerabilities, found 4 vulnerabilities, 4 vulnerable paths.
 
 
-Issues to fix by upgrading dependencies (2 issues):
+Issues to fix by upgrading dependencies (4 issues):
 
   Upgrade flask to 1.0 to fix 2 issues
 
   ✗ [High] Improper Input Validation
-    [https://security.snyk.io/vuln/SNYK-PYTHON-FLASK-42185] in flask@0.12.2
-    introduced by flask@0.12.2
+    Info: https://security.snyk.io/vuln/SNYK-PYTHON-FLASK-42185
+    Introduced through: flask@0.12.2
+    Introduced by: flask@0.12.2
 
   ✗ [High] Denial of Service (DOS)
-    [https://security.snyk.io/vuln/SNYK-PYTHON-FLASK-451637] in flask@0.12.2
-    introduced by flask@0.12.2
+    Info: https://security.snyk.io/vuln/SNYK-PYTHON-FLASK-451637
+    Introduced through: flask@0.12.2
+    Introduced by: flask@0.12.2
 
   Pin Jinja2 to 2.10.1 to fix 1 issue
 
   ✗ [Medium] Sandbox Escape
-    [https://security.snyk.io/vuln/SNYK-PYTHON-JINJA2-174126] in Jinja2@2.9.6
-    introduced by flask@0.12.2 > Jinja2@2.9.6
+    Info: https://security.snyk.io/vuln/SNYK-PYTHON-JINJA2-174126
+    Introduced through: Jinja2@2.9.6
+    Introduced by: flask@0.12.2 > Jinja2@2.9.6
 
   Pin Werkzeug to 0.15.3 to fix 1 issue
 
   ✗ [High] Insufficient Randomness
-    [https://security.snyk.io/vuln/SNYK-PYTHON-WERKZEUG-458931] in Werkzeug@0.12.2
-    introduced by flask@0.12.2 > Werkzeug@0.12.2
+    Info: https://security.snyk.io/vuln/SNYK-PYTHON-WERKZEUG-458931
+    Introduced through: Werkzeug@0.12.2
+    Introduced by: flask@0.12.2 > Werkzeug@0.12.2
 
 
 
@@ -36,6 +40,10 @@ Target file:       requirements.txt
 Project name:      pip-app-transitive-vuln
 Open source:       no
 Project path:      pip-app-transitive-vuln
+
+Test summary:
+
+  4 fixable issues: 3 High, 1 Medium
 
 Tip: Try `snyk fix` to address these issues.`snyk fix` is a new CLI command in that aims to automatically apply the recommended updates for supported ecosystems.
 See documentation on how to enable this beta feature: https://docs.snyk.io/snyk-cli/fix-vulnerabilities-from-the-cli/automatic-remediation-with-snyk-fix#enabling-snyk-fix

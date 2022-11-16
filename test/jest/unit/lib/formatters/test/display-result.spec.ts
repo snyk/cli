@@ -18,7 +18,7 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src', docker: true },
       3,
     );
-    expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/http.*/g, 'URL')).toMatchSnapshot();
   });
 
   it('Docker test result no file path and base image auto detected', () => {
@@ -38,7 +38,7 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src', docker: true },
       3,
     );
-    expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/http.*/g, 'URL')).toMatchSnapshot();
   });
 
   it('Docker test result with base image non resolvable warning', () => {
@@ -61,7 +61,7 @@ describe('displayResult', () => {
       },
       1,
     );
-    expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/http.*/g, 'URL')).toMatchSnapshot();
   });
 
   it('Docker test result with base image name not found warning', () => {
@@ -84,7 +84,7 @@ describe('displayResult', () => {
       },
       1,
     );
-    expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/http.*/g, 'URL')).toMatchSnapshot();
   });
 
   it('Docker test result with remediation advice', () => {
@@ -102,7 +102,7 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src', docker: true },
       3,
     );
-    expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/http.*/g, 'URL')).toMatchSnapshot();
   });
 
   it('Pip result with pins', () => {
@@ -118,8 +118,7 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src' },
       3,
     );
-
-    expect(stripAnsi(res).replace(/\[http.*\]/g, '[URL]')).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/\[http.*\]/g, 'URL')).toMatchSnapshot();
   });
 
   it('with license issues', () => {
@@ -137,7 +136,7 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src' },
       3,
     );
-    expect(stripAnsi(res).replace(/\[http.*\]/g, '[URL]')).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/\[http.*\]/g, 'URL')).toMatchSnapshot();
   });
 
   it('with Upgrades & Patches', () => {
@@ -155,6 +154,6 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src' },
       3,
     );
-    expect(stripAnsi(res).replace(/\[http.*\]/g, '[URL]')).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/\[http.*\]/g, 'URL')).toMatchSnapshot();
   });
 });

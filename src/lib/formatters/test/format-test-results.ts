@@ -30,6 +30,8 @@ import {
   facts as dockerFacts,
 } from 'snyk-docker-plugin/dist';
 import { ScanResult } from '../../ecosystems/types';
+import { FormattedIssuesWithRemediation } from '../types';
+import { colorTextBySeverity } from '../../snyk-test/common';
 
 function createJsonResultOutput(jsonResult, options: Options) {
   const jsonResultClone = cloneDeep(jsonResult);
@@ -197,7 +199,17 @@ export function getDisplayedOutput(
     (vuln) => vuln.metadata.packageManager === 'upstream',
   );
 
-  let groupedVulnInfoOutput;
+  let groupedVulnInfoOutput: FormattedIssuesWithRemediation = {
+    outputTextArray: [],
+    counts: {
+      noUpgradeOrPatchCount: 0,
+      licenseTotal: 0,
+      fixableTotal: 0,
+      licenseBySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
+      fixableBySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
+    },
+  };
+
   if (res.remediation) {
     analytics.add('actionableRemediation', true);
     groupedVulnInfoOutput = formatIssuesWithRemediation(
@@ -207,8 +219,8 @@ export function getDisplayedOutput(
     );
   } else {
     analytics.add('actionableRemediation', false);
-    groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) =>
-      formatIssues(vuln, options),
+    groupedVulnInfoOutput.outputTextArray = filteredSortedGroupedVulns.map(
+      (vuln) => formatIssues(vuln, options),
     );
   }
 
@@ -221,15 +233,73 @@ export function getDisplayedOutput(
         )
       : [];
 
+  const licenseBySeverityText = `${Object.keys(
+    groupedVulnInfoOutput.counts.licenseBySeverity,
+  )
+    .reverse()
+    .filter(
+      (severity) =>
+        groupedVulnInfoOutput.counts.licenseBySeverity[severity] > 0,
+    )
+    .map((severity) =>
+      colorTextBySeverity(
+        severity,
+        chalk.bold(
+          `${
+            groupedVulnInfoOutput.counts.licenseBySeverity[severity]
+          } ${severity.charAt(0).toUpperCase() + severity.slice(1)}`,
+        ),
+      ),
+    )
+    .join(', ')}`;
+  const fixableBySeverityText = `${Object.keys(
+    groupedVulnInfoOutput.counts.fixableBySeverity,
+  )
+    .reverse()
+    .filter(
+      (severity) =>
+        groupedVulnInfoOutput.counts.fixableBySeverity[severity] > 0,
+    )
+    .map((severity) =>
+      colorTextBySeverity(
+        severity,
+        chalk.bold(
+          `${
+            groupedVulnInfoOutput.counts.fixableBySeverity[severity]
+          } ${severity.charAt(0).toUpperCase() + severity.slice(1)}`,
+        ),
+      ),
+    )
+    .join(', ')}`;
+
+  const testSummary = `${
+    !options.docker
+      ? `${chalk.bold('\n\nTest summary:')}\n${
+          groupedVulnInfoOutput.counts.noUpgradeOrPatchCount
+            ? `\n  ${groupedVulnInfoOutput.counts.noUpgradeOrPatchCount} issues with no upgrade or patch`
+            : ''
+        }${
+          groupedVulnInfoOutput.counts.licenseTotal
+            ? `\n  ${groupedVulnInfoOutput.counts.licenseTotal} license issues: `
+            : ''
+        }${licenseBySeverityText}${
+          groupedVulnInfoOutput.counts.fixableTotal
+            ? `\n  ${groupedVulnInfoOutput.counts.fixableTotal} fixable issues: `
+            : ''
+        }${fixableBySeverityText}`
+      : ''
+  }`;
+
   let body =
-    groupedVulnInfoOutput.join('\n\n') +
+    groupedVulnInfoOutput.outputTextArray.join('\n\n') +
     '\n\n' +
     groupedDockerBinariesVulnInfoOutput.join('\n\n') +
     '\n\n' +
-    meta;
+    meta +
+    `${res.remediation ? `${testSummary}` : ''}`;
 
   if (res.remediation) {
-    body = summary + body + fixAdvice;
+    body = summary + '\n\n' + body + fixAdvice;
   } else {
     body = body + '\n\n' + summary + fixAdvice;
   }

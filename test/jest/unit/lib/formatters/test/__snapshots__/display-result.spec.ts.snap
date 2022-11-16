@@ -6,14 +6,14 @@ Testing src...
 
 ✗ High severity vulnerability found in musl
   Description: Out-of-bounds Write
-  Info: [URL]
+  Info: URL
   Introduced through: meta-common-packages@meta
   From: meta-common-packages@meta > musl@1.1.19-r10
   Fixed in: 1.1.19-r11
 
 ✗ High severity vulnerability found in expat
   Description: XML External Entity (XXE) Injection
-  Info: [URL]
+  Info: URL
   Introduced through: expat@2.2.5-r0, .python-rundeps@0, git@2.18.2-r0
   From: expat@2.2.5-r0
   From: .python-rundeps@0 > expat@2.2.5-r0
@@ -25,7 +25,7 @@ Testing src...
 
 ✗ High severity vulnerability found in expat
   Description: XML External Entity (XXE) Injection
-  Info: [URL]
+  Info: URL
   Introduced through: expat@2.2.5-r0, .python-rundeps@0, git@2.18.2-r0
   From: expat@2.2.5-r0
   From: .python-rundeps@0 > expat@2.2.5-r0
@@ -58,14 +58,14 @@ Testing src...
 
 ✗ High severity vulnerability found in musl
   Description: Out-of-bounds Write
-  Info: [URL]
+  Info: URL
   Introduced through: meta-common-packages@meta
   From: meta-common-packages@meta > musl@1.1.19-r10
   Fixed in: 1.1.19-r11
 
 ✗ High severity vulnerability found in expat
   Description: XML External Entity (XXE) Injection
-  Info: [URL]
+  Info: URL
   Introduced through: expat@2.2.5-r0, .python-rundeps@0, git@2.18.2-r0
   From: expat@2.2.5-r0
   From: .python-rundeps@0 > expat@2.2.5-r0
@@ -77,7 +77,7 @@ Testing src...
 
 ✗ High severity vulnerability found in expat
   Description: XML External Entity (XXE) Injection
-  Info: [URL]
+  Info: URL
   Introduced through: expat@2.2.5-r0, .python-rundeps@0, git@2.18.2-r0
   From: expat@2.2.5-r0
   From: .python-rundeps@0 > expat@2.2.5-r0
@@ -106,7 +106,7 @@ Testing alpine:latest...
 
 ✗ High severity vulnerability found in musl
   Description: Out-of-bounds Write
-  Info: [URL]
+  Info: URL
   Introduced through: meta-common-packages@meta
   From: meta-common-packages@meta > musl@1.1.19-r10
   Fixed in: 1.1.19-r11
@@ -139,7 +139,7 @@ Testing alpine:latest...
 
 ✗ High severity vulnerability found in musl
   Description: Out-of-bounds Write
-  Info: [URL]
+  Info: URL
   Introduced through: meta-common-packages@meta
   From: meta-common-packages@meta > musl@1.1.19-r10
   Fixed in: 1.1.19-r11
@@ -172,14 +172,14 @@ Testing src...
 
 ✗ High severity vulnerability found in musl
   Description: Out-of-bounds Write
-  Info: [URL]
+  Info: URL
   Introduced through: meta-common-packages@meta
   From: meta-common-packages@meta > musl@1.1.19-r10
   Fixed in: 1.1.19-r11
 
 ✗ High severity vulnerability found in expat
   Description: XML External Entity (XXE) Injection
-  Info: [URL]
+  Info: URL
   Introduced through: expat@2.2.5-r0, .python-rundeps@0, git@2.18.2-r0
   From: expat@2.2.5-r0
   From: .python-rundeps@0 > expat@2.2.5-r0
@@ -191,7 +191,7 @@ Testing src...
 
 ✗ High severity vulnerability found in expat
   Description: XML External Entity (XXE) Injection
-  Info: [URL]
+  Info: URL
   Introduced through: expat@2.2.5-r0, .python-rundeps@0, git@2.18.2-r0
   From: expat@2.2.5-r0
   From: .python-rundeps@0 > expat@2.2.5-r0
@@ -223,7 +223,7 @@ Base Image              Vulnerabilities  Severity
 ubuntu:impish-20210928  13               0 critical, 0 high, 2 medium, 11 low
 
 
-Learn more: [URL]"
+Learn more: URL"
 `;
 
 exports[`displayResult Pip result with pins 1`] = `
@@ -236,10 +236,10 @@ Tested 2 dependencies for known issues, found 32 issues, 2 vulnerable paths.
 Issues with no direct upgrade or patch (1 issue):
 
   ✗ [Low] Directory Traversal
-    [URL] in django@1.6.1
-    introduced by:
-    django@1.6.1
-    This issue was fixed in versions: 2.2.18, 3.0.12, 3.1.6
+    Info: https://security.snyk.io/vuln/SNYK-PYTHON-DJANGO-1066259
+    Introduced through: django@1.6.1
+    Introduced by: django@1.6.1
+    Fixed in: 2.2.18, 3.0.12, 3.1.6
 
 
 Issues to fix by upgrading dependencies (1 issue):
@@ -247,9 +247,9 @@ Issues to fix by upgrading dependencies (1 issue):
   Upgrade django@1.6.1 to django@2.2.18 to fix 1 issue
 
   ✗ [Medium] Content Spoofing
-    [URL] in django@1.6.1
-    introduced by:
-    django@1.6.1
+    Info: https://security.snyk.io/vuln/SNYK-PYTHON-DJANGO-72888
+    Introduced through: django@1.6.1
+    Introduced by: django@1.6.1
 
 
 
@@ -260,6 +260,11 @@ Project name:      pip-app
 Open source:       no
 Project path:      src
 Licenses:          enabled
+
+Test summary:
+
+  1 issues with no upgrade or patch
+  1 fixable issues: 1 Medium
 
 Tip: Try \`snyk fix\` to address these issues.\`snyk fix\` is a new CLI command in that aims to automatically apply the recommended updates for supported ecosystems.
 See documentation on how to enable this beta feature: https://docs.snyk.io/snyk-cli/fix-vulnerabilities-from-the-cli/automatic-remediation-with-snyk-fix#enabling-snyk-fix
@@ -279,9 +284,9 @@ Patchable issues (1 issue):
   Patch available for node-uuid@1.4.0
 
   ✗ [Low (originally Medium)] Insecure Randomness
-    [URL] in node-uuid@1.4.0
-    introduced by:
-    node-uuid@1.4.0
+    Info: https://security.snyk.io/vuln/npm:node-uuid:20160328
+    Introduced through: node-uuid@1.4.0
+    Introduced by: node-uuid@1.4.0
 
 
 Issues to fix by upgrading (3 issues):
@@ -289,19 +294,19 @@ Issues to fix by upgrading (3 issues):
   Upgrade qs@0.0.6 to qs@6.0.4 to fix 3 issues
 
   ✗ [Low (originally High)] Prototype Override Protection Bypass
-    [URL] in qs@0.0.6
-    introduced by:
-    qs@0.0.6
+    Info: https://security.snyk.io/vuln/npm:qs:20170213
+    Introduced through: qs@0.0.6
+    Introduced by: qs@0.0.6
 
   ✗ [Low (originally High)] Denial of Service (DoS)
-    [URL] in qs@0.0.6
-    introduced by:
-    qs@0.0.6
+    Info: https://security.snyk.io/vuln/npm:qs:20140806
+    Introduced through: qs@0.0.6
+    Introduced by: qs@0.0.6
 
   ✗ [Low (originally Medium)] Denial of Service (DoS)
-    [URL] in qs@0.0.6
-    introduced by:
-    qs@0.0.6
+    Info: https://security.snyk.io/vuln/npm:qs:20140806-1
+    Introduced through: qs@0.0.6
+    Introduced by: qs@0.0.6
 
 
 
@@ -311,6 +316,10 @@ Target file:       package-lock.json
 Project name:      shallow-goof
 Open source:       no
 Project path:      src
+
+Test summary:
+
+  4 fixable issues: 3 Low
 
 Tip: Detected multiple supported manifests (3), use --all-projects to scan all of them at once."
 `;
@@ -325,9 +334,9 @@ Tested 3 dependencies for known issues, found 6 issues, 8 vulnerable paths.
 License issues (1 issue):
 
   ✗ [High] Unknown license
-    [URL] in rack-cache@1.1
-    introduced by:
-    rack-cache@1.1
+    Info: https://dev.snyk.io/vuln/snyk:lic:rubygems:rack-cache:Unknown
+    Introduced through: rack-cache@1.1
+    Introduced by: rack-cache@1.1
     Legal instructions:
     ○ for LGPL-3.0 license: I am legal license instruction
 
@@ -337,49 +346,43 @@ Issues to fix by upgrading (7 issues):
   Upgrade rack@1.6.5 to rack@1.6.11 to fix 1 issue
 
   ✗ [Medium] Cross-site Scripting (XSS)
-    [URL] in rack@1.6.5
-    introduced by:
-    rack@1.6.5
-    rack-cache@1.1 > rack@1.6.5
-    rack-protection@1.5.3 > rack@1.6.5
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACK-72567
+    Introduced through: rack@1.6.5
+    Introduced by: rack@1.6.5 > rack-cache@1.1 > rack@1.6.5 > rack-protection@1.5.3 > rack@1.6.5
 
   Upgrade rack-cache@1.1 to rack-cache@1.3.0 to fix 2 issues
 
   ✗ [Medium] Cross-site Scripting (XSS)
-    [URL] in rack@1.6.5
-    introduced by:
-    rack@1.6.5
-    rack-cache@1.1 > rack@1.6.5
-    rack-protection@1.5.3 > rack@1.6.5
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACK-72567
+    Introduced through: rack@1.6.5
+    Introduced by: rack@1.6.5 > rack-cache@1.1 > rack@1.6.5 > rack-protection@1.5.3 > rack@1.6.5
 
   ✗ [High] HTTP Header Caching Weakness
-    [URL] in rack-cache@1.1
-    introduced by:
-    rack-cache@1.1
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACKCACHE-20031
+    Introduced through: rack-cache@1.1
+    Introduced by: rack-cache@1.1
 
   Upgrade rack-protection@1.5.3 to rack-protection@2.0.0 to fix 4 issues
 
   ✗ [Low] Side-channel attack
-    [URL] in rack-protection@1.5.3
-    introduced by:
-    rack-protection@1.5.3
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACKPROTECTION-20394
+    Introduced through: rack-protection@1.5.3
+    Introduced by: rack-protection@1.5.3
 
   ✗ [Medium] Timing Attack
-    [URL] in rack-protection@1.5.3
-    introduced by:
-    rack-protection@1.5.3
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACKPROTECTION-20395
+    Introduced through: rack-protection@1.5.3
+    Introduced by: rack-protection@1.5.3
 
   ✗ [Medium] Directory Traversal
-    [URL] in rack-protection@1.5.3
-    introduced by:
-    rack-protection@1.5.3
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACKPROTECTION-22019
+    Introduced through: rack-protection@1.5.3
+    Introduced by: rack-protection@1.5.3
 
   ✗ [Medium] Cross-site Scripting (XSS)
-    [URL] in rack@1.6.5
-    introduced by:
-    rack@1.6.5
-    rack-cache@1.1 > rack@1.6.5
-    rack-protection@1.5.3 > rack@1.6.5
+    Info: https://security.snyk.io/vuln/SNYK-RUBY-RACK-72567
+    Introduced through: rack@1.6.5
+    Introduced by: rack@1.6.5 > rack-cache@1.1 > rack@1.6.5 > rack-protection@1.5.3 > rack@1.6.5
 
 
 
@@ -388,6 +391,11 @@ Package manager:   rubygems
 Open source:       no
 Project path:      src
 Licenses:          enabled
+
+Test summary:
+
+  1 license issues: 1 High
+  7 fixable issues: 1 High, 5 Medium, 1 Low
 
 Tip: Detected multiple supported manifests (3), use --all-projects to scan all of them at once."
 `;

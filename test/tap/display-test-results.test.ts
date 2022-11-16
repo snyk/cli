@@ -30,11 +30,7 @@ test('`test ruby-app` remediation displayed', async (t) => {
       'upgrade advice displayed',
     );
     t.match(res, 'Tested 52 dependencies for known issues');
-    t.match(
-      res,
-      'This issue was fixed in versions: 1.2.3',
-      'fixed in is shown',
-    );
+    t.match(res, 'Fixed in: 1.2.3', 'fixed in is shown');
     t.match(
       res,
       'No upgrade or patch available',
@@ -103,7 +99,6 @@ test('`test npm-package-with-severity-override` show original severity upgrade',
 
   const snykTestStub = sinon.stub(snyk, 'test').returns(stubbedResponse);
   try {
-    console.log('David');
     await cli.test('npm-package-with-severity-override');
   } catch (error) {
     const { message } = error;
