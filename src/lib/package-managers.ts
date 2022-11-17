@@ -15,8 +15,8 @@ export type SupportedPackageManagers =
   | 'cocoapods'
   | 'poetry'
   | 'hex'
-  | 'Unmanaged (C/C++)';
-
+  | 'Unmanaged (C/C++)'
+  | 'swift';
 export enum SUPPORTED_MANIFEST_FILES {
   GEMFILE = 'Gemfile',
   GEMFILE_LOCK = 'Gemfile.lock',
@@ -47,6 +47,7 @@ export enum SUPPORTED_MANIFEST_FILES {
   PODFILE = 'Podfile',
   POETRY_LOCK = 'poetry.lock',
   MIX_EXS = 'mix.exs',
+  PACKAGE_SWIFT = 'Package.swift',
 }
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
@@ -69,6 +70,7 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   poetry: 'Poetry',
   hex: 'Hex',
   'Unmanaged (C/C++)': 'Unmanaged (C/C++)',
+  swift: 'Swift',
 };
 
 export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
