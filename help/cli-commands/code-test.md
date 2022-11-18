@@ -57,7 +57,7 @@ Example: `$ snyk code test --json`
 
 Save test output as a JSON data structure directly to the specified file, regardless of whether or not you use the `--json` option.
 
-Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file. If no issues are found, an output file is not created.
+Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file.
 
 Example: `$ snyk code test --json-file-output=vuln.json`
 

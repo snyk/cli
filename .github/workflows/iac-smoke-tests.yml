@@ -56,24 +56,3 @@ jobs:
           TEST_SNYK_COMMAND: ${{ format('node {0}\dist\cli\index.js', github.workspace) }}
         run: |
           npx jest --runInBand --testPathPattern '/test/smoke(/jest)?/iac/'
-
-  trigger_iac_cli_alert:
-    name: Alert for failed IaC smoke tests
-    needs: [run_iac_smoke_tests]
-    if: ${{ failure() && !inputs.is_skip_alert && needs.run_iac_smoke_tests.result == 'failure' }}
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./packages/iac-cli-alert
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16.16.0'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm start
-        env:
-          IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL: ${{ secrets.IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL }}

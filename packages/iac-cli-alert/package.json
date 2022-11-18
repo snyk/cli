@@ -1,7 +1,7 @@
 {
   "name": "@snyk/iac-cli-alert",
   "version": "1.0.0",
-  "description": "Script for alerting on failing IaC smoke tests",
+  "description": "Script to check IaC Smoke Test runs on Snyk CLI",
   "main": "dist/index.js",
   "private": true,
   "scripts": {
@@ -13,7 +13,10 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@slack/webhook": "^5.0.3",
+    "@octokit/rest": "^18.0.5",
+    "@slack/webhook": "^5.0.3"
+  },
+  "devDependencies": {
     "typescript": "^4.0.2"
   }
 }
