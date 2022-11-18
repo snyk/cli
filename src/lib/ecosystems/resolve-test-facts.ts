@@ -31,6 +31,7 @@ import {
   getSelf,
 } from './unmanaged/utils';
 import { sleep } from '../common';
+import { SEVERITY } from '../snyk-test/common';
 
 export async function resolveAndTestFacts(
   ecosystem: Ecosystem,
@@ -91,6 +92,7 @@ async function fetchIssues(
   start_time,
   dep_graph_data,
   component_details,
+  target_severity: SEVERITY,
   orgId: string,
 ) {
   const response: GetIssuesResponse = await getIssues(
@@ -98,6 +100,7 @@ async function fetchIssues(
       dep_graph: dep_graph_data,
       start_time,
       component_details,
+      target_severity,
     },
     orgId,
   );
@@ -148,6 +151,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
   const displayTargetFile = '';
 
   let orgId = options.org || '';
+  const target_severity: SEVERITY = options.severityThreshold || SEVERITY.LOW;
 
   if (orgId === '') {
     const self = await getSelf();
@@ -181,6 +185,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
           start_time,
           dep_graph_data,
           component_details,
+          target_severity,
           orgId,
         );
 
