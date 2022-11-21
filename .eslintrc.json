@@ -13,6 +13,7 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:anti-trojan-source/recommended",
     "prettier",
     "prettier/@typescript-eslint"
   ],
