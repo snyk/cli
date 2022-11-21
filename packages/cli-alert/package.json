@@ -16,6 +16,6 @@
     "@octokit/rest": "^18.0.5",
     "@pagerduty/pdjs": "^2.2.0",
     "@slack/webhook": "^5.0.3",
-    "typescript": "^4.0.2"
+    "typescript": "^4.7.4"
   }
 }
