@@ -163,6 +163,7 @@ export interface IssuesRequestAttributes {
   start_time: number;
   dep_graph: IssuesRequestDepGraphDataOpenAPI;
   component_details: IssuesRequestComponentDetails;
+  target_severity: SEVERITY;
 }
 
 export interface Data {
