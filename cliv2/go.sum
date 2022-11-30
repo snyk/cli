@@ -204,6 +204,8 @@ github.com/snyk/go-application-framework v0.0.0-20221027172303-127a5c059ca3 h1:b
 github.com/snyk/go-application-framework v0.0.0-20221027172303-127a5c059ca3/go.mod h1:qxy9kRGPDMbgKqTFHMYTGBaSovjxgIxbSSNtz/fz79I=
 github.com/snyk/go-application-framework v0.0.0-20221028125644-66016a1d4215 h1:0/1AW7/GHT4pAuzIFw0BLOH3jPKf3H4B2eQbTT2jZT0=
 github.com/snyk/go-application-framework v0.0.0-20221028125644-66016a1d4215/go.mod h1:qxy9kRGPDMbgKqTFHMYTGBaSovjxgIxbSSNtz/fz79I=
+github.com/snyk/go-application-framework v0.0.0-20221130192253-dca471134d75 h1:GJ4pWvuOxI4d1QchO54z/j3sMSCro4tfrOsq3CaTvSE=
+github.com/snyk/go-application-framework v0.0.0-20221130192253-dca471134d75/go.mod h1:qxy9kRGPDMbgKqTFHMYTGBaSovjxgIxbSSNtz/fz79I=
 github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd h1:zjDhcQ642rIVI8aIjfG5uVcw+OGotQtX2l9VHe7IqCQ=
 github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd/go.mod h1:v6t6wKizOcHXT3p4qKn6Bda7yNIjCQ54Xyl31NjgXkY=
 github.com/spf13/afero v1.9.2 h1:j49Hj62F0n+DaZ1dDCvhABaPNSGNkt32oRFxI33IEMw=
