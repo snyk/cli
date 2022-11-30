@@ -546,6 +546,9 @@ jobs:
           at: .
       - setup_npm
       - run:
+          name: Validating NPM artifacts
+          command: ./release-scripts/validate-npm-artifacts.sh
+      - run:
           name: Copy Windows cliv2 binaries to binary-releases staging area
           command: |
             ls -la cliv2/bin
