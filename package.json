@@ -33,9 +33,9 @@
     "lint": "npm-run-all --serial --continue-on-error lint:*",
     "lint:js": "eslint --quiet --color --cache '**/*.{js,ts}'",
     "lint:formatting": "prettier --check '**/*.{js,ts,json,yaml,yml,md}'",
-    "build": "npm run build:dev",
-    "build:dev": "npm run build --workspaces && npm run build-cli:dev",
-    "build:prod": "npm run build --workspaces && npm run build-cli:prod",
+    "build": "patch-package && npm run build:dev",
+    "build:dev": "patch-package && npm run build --workspaces && npm run build-cli:dev",
+    "build:prod": "patch-package && npm run build --workspaces && npm run build-cli:prod",
     "build-cli:dev": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.dev.ts",
     "build-cli:prod": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.prod.ts",
     "watch": "npm run build-cli:dev -- --watch",
@@ -43,8 +43,7 @@
     "test:unit": "jest --runInBand --testPathPattern '/test(/jest)?/unit/'",
     "test:acceptance": "jest --runInBand --testPathPattern '/test(/jest)?/acceptance/'",
     "test:tap": "tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register test/tap/*.test.* ",
-    "test:smoke": "./scripts/run-smoke-tests-locally.sh",
-    "postinstall": "patch-package"
+    "test:smoke": "./scripts/run-smoke-tests-locally.sh"
   },
   "keywords": [
     "security",
