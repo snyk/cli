@@ -2,7 +2,7 @@
 set -euo pipefail
 
 echo 'Running "npm install"'
-sudo npm install --location=global binary-releases/snyk.tgz
+npm install binary-releases/snyk.tgz
 
 echo 'Running "snyk"'
-snyk
+./node_modules/snyk/bin/snyk
