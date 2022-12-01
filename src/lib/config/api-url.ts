@@ -172,3 +172,11 @@ export function getRestApiUrl(
 
   return defaultRestApiUrl; // Fallback to default
 }
+
+export function getHiddenApiUrl(restUrl: string): string {
+  const parsedBaseUrl = new URL(restUrl);
+
+  parsedBaseUrl.pathname = '/hidden';
+
+  return parsedBaseUrl.toString();
+}

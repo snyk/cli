@@ -1,6 +1,6 @@
 import config from '../config';
 import { isCI } from '../is-ci';
-import { makeRequest } from '../request/promise';
+import { makeRequest, makeRequestRest } from '../request/promise';
 import { Options } from '../types';
 
 import { assembleQueryString } from '../snyk-test/common';
@@ -24,18 +24,11 @@ export async function getIssues(
 ): Promise<GetIssuesResponse> {
   const payload = {
     method: 'POST',
-    url: `${config.API_REST_URL}/orgs/${orgId}/unmanaged_ecosystem/issues?version=2022-06-29~experimental`,
-    json: true,
-    headers: {
-      'Content-Type': 'application/vnd.api+json',
-      'x-is-ci': isCI(),
-      authorization: getAuthHeader(),
-    },
+    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/issues?version=2022-06-29~experimental`,
     body: issuesRequestAttributes,
   };
 
-  const result = await makeRequest<GetIssuesResponse>(payload);
-  return JSON.parse(result.toString());
+  return await makeRequestRest<GetIssuesResponse>(payload);
 }
 
 export async function getDepGraph(
@@ -44,17 +37,10 @@ export async function getDepGraph(
 ): Promise<GetDepGraphResponse> {
   const payload = {
     method: 'GET',
-    url: `${config.API_REST_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs/${id}?version=2022-05-23~experimental`,
-    json: true,
-    headers: {
-      'Content-Type': 'application/vnd.api+json',
-      'x-is-ci': isCI(),
-      authorization: getAuthHeader(),
-    },
+    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs/${id}?version=2022-05-23~experimental`,
   };
 
-  const result = await makeRequest<GetDepGraphResponse>(payload);
-  return JSON.parse(result.toString());
+  return await makeRequestRest<GetDepGraphResponse>(payload);
 }
 
 export async function createDepGraph(
@@ -63,18 +49,11 @@ export async function createDepGraph(
 ): Promise<CreateDepGraphResponse> {
   const payload = {
     method: 'POST',
-    url: `${config.API_REST_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs?version=2022-05-23~experimental`,
-    json: true,
-    headers: {
-      'Content-Type': 'application/vnd.api+json',
-      'x-is-ci': isCI(),
-      authorization: getAuthHeader(),
-    },
+    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs?version=2022-05-23~experimental`,
     body: hashes,
   };
 
-  const result = await makeRequest<CreateDepGraphResponse>(payload);
-  return JSON.parse(result.toString());
+  return await makeRequestRest<CreateDepGraphResponse>(payload);
 }
 
 export async function requestTestPollingToken(
