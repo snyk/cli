@@ -64,20 +64,24 @@ async function pollDepGraphAttributes(
   id: string,
   orgId: string,
 ): Promise<Attributes> {
-  const maxIntervalMs = 60000;
   const minIntervalMs = 5000;
+  const maxIntervalMs = 30000;
 
-  const maxAttempts = 31; // Corresponds to 25.5 minutes
+  let totalElaspedTime = 0;
+  let attempts = 1;
+  const maxElapsedTime = 1800000; // 30 mins in ms
 
   // Loop until we receive a response that is not in progress,
   // or we receive something else than http status code 200.
-  for (let i = 1; i <= maxAttempts; i++) {
+  while (totalElaspedTime <= maxElapsedTime) {
     const graph = await getDepGraph(id, orgId);
 
     if (graph.data.attributes.in_progress) {
-      const pollInterval = Math.max(maxIntervalMs, minIntervalMs * i);
-      await sleep(pollInterval * i);
+      const pollInterval = Math.min(minIntervalMs * attempts, maxIntervalMs);
+      await sleep(pollInterval);
 
+      totalElaspedTime += pollInterval;
+      attempts++;
       continue;
     }
 
@@ -151,7 +155,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
 
   if (orgId === '') {
     const self = await getSelf();
-    orgId = self.default_org_context;
+    orgId = self.data.attributes.default_org_context;
   }
 
   for (const [path, scanResults] of Object.entries(scans)) {
