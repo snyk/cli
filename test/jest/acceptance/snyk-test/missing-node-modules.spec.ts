@@ -53,7 +53,7 @@ describe('snyk test with missing node_modules', () => {
   test('does not throw when missing node_modules & package.json has no dependencies', async () => {
     server.setNextResponse(noVulnsResult);
     const project = await createProject('npm/no-dependencies');
-    const { code, stdout } = await runSnykCLI('test', {
+    const { code, stdout } = await runSnykCLI('test --org=1234', {
       cwd: project.path(),
       env,
     });
@@ -64,7 +64,7 @@ describe('snyk test with missing node_modules', () => {
   test('does not throw when missing node_modules & package.json has no dependencies (with --dev)', async () => {
     server.setNextResponse(noVulnsResult);
     const project = await createProject('npm/no-dependencies');
-    const { code, stdout } = await runSnykCLI('test --dev', {
+    const { code, stdout } = await runSnykCLI('test --dev --org=1234', {
       cwd: project.path(),
       env,
     });
