@@ -124,7 +124,7 @@
     "snyk-policy": "^1.25.0",
     "snyk-python-plugin": "1.24.2",
     "snyk-resolve-deps": "4.7.3",
-    "snyk-sbt-plugin": "2.16.3",
+    "snyk-sbt-plugin": "2.17.0",
     "strip-ansi": "^5.2.0",
     "tar": "^6.1.2",
     "uuid": "^8.3.2",
