@@ -39,8 +39,15 @@ export async function getStandardData(
   const durationMs = Date.now() - START_TIME;
   const metrics = getMetrics(durationMs);
 
+  let osNameString;
+  try {
+    osNameString = osName(os.platform(), os.release());
+  } catch (e) {
+    osNameString = 'unknown';
+  }
+
   const data = {
-    os: osName(os.platform(), os.release()),
+    os: osNameString,
     osPlatform: os.platform(),
     osRelease: os.release(),
     osArch: os.arch(),

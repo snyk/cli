@@ -1,10 +1,8 @@
 import * as camelCase from 'lodash.camelcase';
 import { DepGraphData } from '@snyk/dep-graph';
 import { GraphNode } from '@snyk/dep-graph/dist/core/types';
-import { getAuthHeader } from '../../api-token';
-import { isCI } from '../../is-ci';
-import { makeRequest } from '../../request';
 import config from '../../config';
+import { makeRequestRest } from '../../request/promise';
 
 function mapKey(object, iteratee) {
   object = Object(object);
@@ -47,34 +45,29 @@ export function convertDepGraph<T>(depGraphOpenApi: T) {
   return depGraph;
 }
 
-export function getSelf() {
-  return makeSelfRequest().then((res: any) => {
-    const response = JSON.parse(res.body);
-    return response?.data?.attributes;
-  });
+interface SelfResponse {
+  jsonapi: {
+    version: string;
+  };
+  data: {
+    type: string;
+    id: string;
+    attributes: {
+      name: string;
+      username: string;
+      email: string;
+      avatar_url: string;
+      default_org_context: string;
+    };
+    links: {
+      self: string;
+    };
+  };
 }
 
-export function makeSelfRequest() {
-  const payload = {
+export function getSelf() {
+  return makeRequestRest<SelfResponse>({
     method: 'GET',
     url: `${config.API_REST_URL}/self?version=2022-08-12~experimental`,
-    json: true,
-    headers: {
-      'x-is-ci': isCI(),
-      authorization: getAuthHeader(),
-    },
-  };
-
-  return new Promise((resolve, reject) => {
-    makeRequest(payload, (error, res, body) => {
-      if (error) {
-        return reject(error);
-      }
-
-      resolve({
-        res,
-        body,
-      });
-    });
   });
 }

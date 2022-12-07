@@ -1,6 +1,11 @@
 import * as snykConfig from 'snyk-config';
 import { config as userConfig } from '../user-config';
-import { getBaseApiUrl, getRestApiUrl, getV1ApiUrl } from './api-url';
+import {
+  getBaseApiUrl,
+  getRestApiUrl,
+  getV1ApiUrl,
+  getHiddenApiUrl,
+} from './api-url';
 
 const DEFAULT_TIMEOUT = 5 * 60; // in seconds
 interface Config {
@@ -9,6 +14,7 @@ interface Config {
   API: string;
   api: string;
   API_REST_URL: string;
+  API_HIDDEN_URL: string;
   // deprecated, use API_REST_URL instead
   API_V3_URL?: string;
   disableSuggestions: string;
@@ -49,6 +55,8 @@ config.API_REST_URL = getRestApiUrl(
   process.env.API_REST_URL || config.API_REST_URL,
   process.env.API_V3_URL || config.API_V3_URL,
 );
+
+config.API_HIDDEN_URL = getHiddenApiUrl(config.API_REST_URL);
 
 const disableSuggestions = userConfig.get('disableSuggestions');
 if (disableSuggestions) {

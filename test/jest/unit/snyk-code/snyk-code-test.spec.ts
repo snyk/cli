@@ -685,7 +685,6 @@ describe('Test snyk code', () => {
         sessionToken,
         source,
         requestId: 'test-id',
-        base64Encoding: false,
       },
       analysisOptions: {
         severity,
@@ -781,7 +780,6 @@ describe('Test snyk code', () => {
           sessionToken,
           source,
           requestId: 'test-id',
-          base64Encoding: false,
         },
         analysisOptions: {
           severity,
