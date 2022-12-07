@@ -4,12 +4,15 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 	"github.com/snyk/go-application-framework/pkg/analytics"
+	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/spf13/cobra"
@@ -19,28 +22,63 @@ import (
 var engine workflow.Engine
 var config configuration.Configuration
 var helpProvided bool
+var debugLogger = log.New(os.Stderr, "", 0)
 
 func getDebugLogger(config configuration.Configuration) *log.Logger {
-	debugLogger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 	debug := config.GetBool(configuration.DEBUG)
-
 	if !debug {
 		debugLogger.SetOutput(ioutil.Discard)
+	} else {
+		debugFlags := config.GetInt(configuration.DEBUG_FORMAT)
+		debugLogger.SetFlags(debugFlags)
+		debugLogger.SetPrefix("main - ")
 	}
 
 	return debugLogger
 }
 
 func main() {
-	args := basic_workflows.FilteredArgs()
-	errorCode := MainWithErrorCode(args)
+	errorCode := MainWithErrorCode()
 	os.Exit(errorCode)
+}
+
+func getFullCommandString(cmd *cobra.Command) string {
+	fullCommandPath := []string{cmd.Name()}
+	fn := func(c *cobra.Command) {
+		if c.HasParent() {
+			fullCommandPath = append(fullCommandPath, c.Name())
+		}
+	}
+	cmd.VisitParents(fn)
+
+	for i, j := 0, len(fullCommandPath)-1; i < j; i, j = i+1, j-1 {
+		fullCommandPath[i], fullCommandPath[j] = fullCommandPath[j], fullCommandPath[i]
+	}
+
+	name := strings.Join(fullCommandPath, " ")
+	return name
 }
 
 // main workflow
 func runCommand(cmd *cobra.Command, args []string) error {
-	//fmt.Println("runCommand()", cmd)
-	return nil
+
+	config.AddFlagSet(cmd.Flags())
+
+	name := getFullCommandString(cmd)
+	debugLogger.Println("Running", name)
+
+	if len(args) > 0 {
+		config.Set("targetDirectory", args[0])
+	}
+
+	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
+	if err == nil {
+		_, err = engine.InvokeWithInput(workflow.NewWorkflowIdentifier("output"), data)
+	} else {
+		debugLogger.Println("Failed to execute the command!", err)
+	}
+
+	return err
 }
 
 func sendAnalytics(analytics analytics.Analytics, debugLogger *log.Logger) {
@@ -52,11 +90,6 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *log.Logger) {
 	} else {
 		debugLogger.Println("Failed to send Analytics", err)
 	}
-}
-
-func usage(cmd *cobra.Command) error {
-	// just ensure to do nothing when incorrectly used from cobra side
-	return nil
 }
 
 func help(cmd *cobra.Command, args []string) {
@@ -115,23 +148,27 @@ func prepareRootCommand() *cobra.Command {
 	// some static/global cobra configuration
 	rootCommand.CompletionOptions.DisableDefaultCmd = true
 	rootCommand.SilenceErrors = true
+	rootCommand.SilenceUsage = true
+	rootCommand.FParseErrWhitelist.UnknownFlags = true
 
 	// ensure that help and usage information comes from the legacy cli instead of cobra's default help
 	rootCommand.SetHelpFunc(help)
-	rootCommand.SetUsageFunc(usage)
 	rootCommand.SetHelpCommand(&helpCommand)
 	rootCommand.PersistentFlags().AddFlagSet(getGlobalFLags())
+
 	return &rootCommand
 }
 
-func MainWithErrorCode(args []string) int {
+func MainWithErrorCode() int {
 	var err error
 
 	rootCommand := prepareRootCommand()
 	rootCommand.ParseFlags(os.Args)
 
-	config = configuration.New()
-	config.AddFlagSet(rootCommand.Flags())
+	// create engine
+	engine = app.CreateAppEngine()
+	config = engine.GetConfiguration()
+	config.AddFlagSet(rootCommand.LocalFlags())
 
 	debugLogger := getDebugLogger(config)
 
@@ -139,17 +176,20 @@ func MainWithErrorCode(args []string) int {
 		config.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
 	}
 
-	// create engine
-	engine = workflow.NewWorkFlowEngine(config)
-
 	// initialize the extensions -> they register themselves at the engine
-	basic_workflows.Init(engine)
+	engine.AddExtensionInitializer(basic_workflows.Init)
 
 	// init engine
 	err = engine.Init()
 	if err != nil {
+		debugLogger.Println("Failed to init Workflow Engine!", err)
 		return constants.SNYK_EXIT_CODE_ERROR
 	}
+
+	// add output flags as persistent flags
+	outputWorkflow, _ := engine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
+	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
+	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
 
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, engine)
@@ -164,7 +204,7 @@ func MainWithErrorCode(args []string) int {
 	// init Analytics
 	cliAnalytics := engine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
-	cliAnalytics.SetCmdArguments(args)
+	cliAnalytics.SetCmdArguments(os.Args[1:])
 	if config.GetBool(configuration.ANALYTICS_DISABLED) == false {
 		defer sendAnalytics(cliAnalytics, debugLogger)
 	}

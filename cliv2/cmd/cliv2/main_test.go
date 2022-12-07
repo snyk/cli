@@ -1,7 +1,6 @@
 package main_test
 
 import (
-	"os"
 	"testing"
 
 	main "github.com/snyk/cli/cliv2/cmd/cliv2"
@@ -10,6 +9,6 @@ import (
 )
 
 func Test_MainWithErrorCode(t *testing.T) {
-	err := main.MainWithErrorCode(os.Args[1:])
+	err := main.MainWithErrorCode()
 	assert.Equal(t, err, 0)
 }

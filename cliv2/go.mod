@@ -6,9 +6,11 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20220901064549-fbd10ff4f5a1
 	github.com/elazarl/goproxy/ext v0.0.0-20220901064549-fbd10ff4f5a1
 	github.com/google/uuid v1.3.0
-	github.com/snyk/go-application-framework v0.0.0-20221130192253-dca471134d75
+	github.com/pkg/errors v0.9.1
+	github.com/snyk/go-application-framework v0.0.0-20221201105605-4873440314c9
 	github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd
 	github.com/spf13/cobra v1.6.0
+	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
 )
 
@@ -30,12 +32,10 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.13.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	golang.org/x/crypto v0.0.0-20221005025214-4161e89ecf1b // indirect

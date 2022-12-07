@@ -6,6 +6,7 @@ package cliv2
 import (
 	_ "embed"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -24,6 +25,9 @@ type CLI struct {
 	DebugLogger      *log.Logger
 	CacheDirectory   string
 	v1BinaryLocation string
+	stdin            io.Reader
+	stdout           io.Writer
+	stderr           io.Writer
 }
 
 type EnvironmentWarning struct {
@@ -51,6 +55,9 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
 		DebugLogger:      debugLogger,
 		CacheDirectory:   cacheDirectory,
 		v1BinaryLocation: v1BinaryLocation,
+		stdin:            os.Stdin,
+		stdout:           os.Stdout,
+		stderr:           os.Stderr,
 	}
 
 	err = cli.ExtractV1Binary()
@@ -225,9 +232,6 @@ func PrepareV1Command(cmd string, args []string, proxyInfo *proxy.ProxyInfo, int
 
 	snykCmd = exec.Command(cmd, args...)
 	snykCmd.Env, err = PrepareV1EnvironmentVariables(os.Environ(), integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation)
-	snykCmd.Stdin = os.Stdin
-	snykCmd.Stdout = os.Stdout
-	snykCmd.Stderr = os.Stderr
 
 	return snykCmd, err
 }
@@ -243,6 +247,10 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passthroughArgs []str
 		c.GetIntegrationName(),
 		GetFullVersion(),
 	)
+
+	snykCmd.Stdin = c.stdin
+	snykCmd.Stdout = c.stdout
+	snykCmd.Stderr = c.stderr
 
 	if err != nil {
 		if evWarning, ok := err.(EnvironmentWarning); ok {
@@ -291,4 +299,10 @@ func DeriveExitCode(err error) int {
 
 func (e EnvironmentWarning) Error() string {
 	return e.message
+}
+
+func (c *CLI) SetIoStreams(stdin io.Reader, stdout io.Writer, stderr io.Writer) {
+	c.stdin = stdin
+	c.stdout = stdout
+	c.stderr = stderr
 }
