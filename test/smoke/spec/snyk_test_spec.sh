@@ -66,6 +66,41 @@ Describe "Snyk test command"
       fi
     End
 
+    Describe "swift test"
+    run_test_in_subfolder() {
+      cd ../fixtures/basic-swift || return
+      snyk test
+    }
+
+    run_test_in_empty_subfolder() {
+      cd ../fixtures/empty || return
+      snyk test
+    }
+
+    It "throws error when file does not exist"
+      When run snyk test --file=non-existent/Package.swift
+      The status should equal 2
+      The output should include "Could not find the specified file"
+      The stderr should equal ""
+    End
+
+    It "throws error when no suppored manifests detected"
+      When run run_test_in_empty_subfolder
+      The status should equal 3
+      The output should include "Could not detect supported target files in"
+      The stderr should equal ""
+    End
+
+    It "finds vulns in a project in the same folder"
+      When run run_test_in_subfolder
+      The status should equal 1
+      if should_have_deprecation_warnings; then 
+        The stderr should not equal ""
+      else
+        The stderr should equal ""
+      fi
+    End
+
     It "finds vulns in a project when pointing to a folder"
       When run snyk test ../fixtures/basic-npm
       The status should be failure # issues found

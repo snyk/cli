@@ -34,6 +34,7 @@ const DETECTABLE_FILES: string[] = [
   'poetry.lock',
   'mix.exs',
   'mix.lock',
+  'Package.swift',
 ];
 
 export const AUTO_DETECTABLE_FILES: string[] = [
@@ -61,6 +62,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'poetry.lock',
   'mix.exs',
   'mix.lock',
+  'Package.swift',
 ];
 
 // when file is specified with --file, we look it up here
@@ -97,6 +99,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   [SUPPORTED_MANIFEST_FILES.PODFILE]: 'cocoapods',
   [SUPPORTED_MANIFEST_FILES.POETRY_LOCK]: 'poetry',
   [SUPPORTED_MANIFEST_FILES.MIX_EXS]: 'hex',
+  [SUPPORTED_MANIFEST_FILES.PACKAGE_SWIFT]: 'swift',
 };
 
 export function isPathToPackageFile(path: string) {
