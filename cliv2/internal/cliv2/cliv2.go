@@ -289,7 +289,6 @@ func DeriveExitCode(err error) int {
 			returnCode = exitError.ExitCode()
 		} else {
 			// got an error but it's not an ExitError
-			fmt.Println(err)
 			returnCode = constants.SNYK_EXIT_CODE_ERROR
 		}
 	}

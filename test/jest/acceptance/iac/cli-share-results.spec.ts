@@ -174,7 +174,7 @@ describe('CLI Share Results', () => {
       server.setNextStatusCode(429);
 
       const { stdout, exitCode } = await run(
-        'snyk iac test ./iac/arm/rule_test.json --report --project-business-criticality=high',
+        'snyk iac test ./iac/arm/rule_test.json --report --project-business-criticality=high --org=1234',
       );
 
       expect(stdout).toMatch(/test limit reached/i);

@@ -7,7 +7,8 @@ require (
 	github.com/elazarl/goproxy/ext v0.0.0-20220901064549-fbd10ff4f5a1
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.9.1
-	github.com/snyk/go-application-framework v0.0.0-20221201145925-ee0ec4cf2688
+	github.com/snyk/cli-extension-sbom v0.0.0-20221212093410-6b474ed1a42a
+	github.com/snyk/go-application-framework v0.0.0-20221213122015-81ad8dd6311d
 	github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
