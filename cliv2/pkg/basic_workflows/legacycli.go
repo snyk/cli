@@ -84,10 +84,10 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 
 	// init proxy object
 	wrapperProxy, err := proxy.NewWrapperProxy(insecure, cacheDirectory, cliv2.GetFullVersion(), debugLogger)
-	defer wrapperProxy.Close()
 	if err != nil {
 		return output, errors.Wrap(err, "Failed to create proxy!")
 	}
+	defer wrapperProxy.Close()
 
 	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
 

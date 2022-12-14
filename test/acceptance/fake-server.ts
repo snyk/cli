@@ -491,6 +491,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200).send({});
   });
 
+  app.post(basePath.replace('v1', 'hidden') + '/orgs/:org/sbom', (req, res) => {
+    res.status(200).send({});
+  });
+
   app.get(basePath + '/download/driftctl', (req, res) => {
     const fixturePath = getFixturePath('iac');
     const path1 = path.join(fixturePath, 'drift', 'download-test.sh');

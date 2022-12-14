@@ -13,7 +13,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
+	"github.com/snyk/go-application-framework/pkg/networking/certs"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/stretchr/testify/assert"
@@ -217,4 +219,26 @@ func Test_SetUpstreamProxy(t *testing.T) {
 			assert.NotNil(t, transport.Proxy)
 		}
 	}
+}
+
+func Test_appendExtraCaCert(t *testing.T) {
+	certPem, _, _ := certs.MakeSelfSignedCert("mycert", []string{"dns"}, debugLogger)
+	file, _ := os.CreateTemp("", "")
+	file.Write(certPem)
+
+	os.Setenv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV, file.Name())
+
+	wp, err := proxy.NewWrapperProxy(false, "", "", debugLogger)
+	assert.Nil(t, err)
+
+	certsPem, err := os.ReadFile(wp.CertificateLocation)
+	assert.Nil(t, err)
+
+	certsList, err := certs.GetAllCerts(certsPem)
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(certsList))
+
+	// cleanup
+	os.Unsetenv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV)
+	os.Remove(file.Name())
 }

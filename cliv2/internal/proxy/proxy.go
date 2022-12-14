@@ -13,8 +13,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/snyk/cli/cliv2/internal/certs"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/utils"
+	"github.com/snyk/go-application-framework/pkg/networking/certs"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/elazarl/goproxy"
@@ -71,7 +72,33 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 	defer certFile.Close()
 
 	p.CertificateLocation = certFile.Name() // gives full path, not just the name
-	p.DebugLogger.Println("p.CertificateLocation:", p.CertificateLocation)
+
+	rootCAs, err := x509.SystemCertPool()
+	if err != nil {
+		return nil, err
+	}
+
+	// append any given extra CA certificate to the internal PEM data before storing it to file
+	// this merges user provided CA certificates with the internal one
+	if extraCaCertFile, ok := os.LookupEnv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV); ok {
+		extraCertificateBytes, extraCertificateList, extraCertificateError := certs.GetExtraCaCert(extraCaCertFile)
+		if extraCertificateError == nil {
+			// add to pem data
+			certPEMBlock = append(certPEMBlock, '\n')
+			certPEMBlock = append(certPEMBlock, extraCertificateBytes...)
+
+			// add to cert pool
+			for _, currentCert := range extraCertificateList {
+				if currentCert != nil {
+					rootCAs.AddCert(currentCert)
+				}
+			}
+
+			p.DebugLogger.Println("Using additional CAs from file: ", extraCaCertFile)
+		}
+	}
+
+	p.DebugLogger.Println("Temporary CertificateLocation:", p.CertificateLocation)
 
 	certPEMString := string(certPEMBlock)
 	err = utils.WriteToFile(p.CertificateLocation, certPEMString)
@@ -88,6 +115,7 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 	p.transport = &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: insecureSkipVerify, // goproxy defaults to true
+			RootCAs:            rootCAs,
 		},
 	}
 

@@ -88,11 +88,18 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *log.Logger) {
 	debugLogger.Println("Sending Analytics")
 
 	res, err := analytics.Send()
-	errorCodeReceived := res != nil && 200 <= res.StatusCode && res.StatusCode < 300
-	if err == nil && !errorCodeReceived {
+	successfullySend := res != nil && 200 <= res.StatusCode && res.StatusCode < 300
+	if err == nil && successfullySend {
 		debugLogger.Println("Analytics sucessfully send")
 	} else {
-		debugLogger.Println("Failed to send Analytics:", err)
+		var details string
+		if res != nil {
+			details = res.Status
+		} else if err != nil {
+			details = err.Error()
+		}
+
+		debugLogger.Println("Failed to send Analytics:", details)
 	}
 }
 
@@ -232,6 +239,16 @@ func MainWithErrorCode() int {
 	// init NetworkAccess
 	networkAccess := engine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
+
+	extraCaCertFile := config.GetString(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV)
+	if len(extraCaCertFile) > 0 {
+		err = networkAccess.AddRootCAs(extraCaCertFile)
+		if err != nil {
+			debugLogger.Printf("Failed to AddRootCAs from '%s' (%v)\n", extraCaCertFile, err)
+		} else {
+			debugLogger.Println("Using additional CAs from file:", extraCaCertFile)
+		}
+	}
 
 	// init Analytics
 	cliAnalytics := engine.GetAnalytics()
