@@ -65,8 +65,8 @@ async function pollDepGraphAttributes(
   id: string,
   orgId: string,
 ): Promise<Attributes> {
-  const minIntervalMs = 5000;
-  const maxIntervalMs = 30000;
+  const minIntervalMs = 2000;
+  const maxIntervalMs = 20000;
 
   let totalElaspedTime = 0;
   let attempts = 1;
