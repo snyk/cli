@@ -11,6 +11,7 @@ import { assembleQueryString } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
 import { resolveAndTestFacts } from './resolve-test-facts';
 import { isUnmanagedEcosystem } from './common';
+import { jsonStringifyLargeObject } from '../json';
 
 export async function testEcosystem(
   ecosystem: Ecosystem,
@@ -48,6 +49,10 @@ export async function testEcosystem(
 
   const stringifiedData = JSON.stringify(testResults, null, 2);
   if (options.json) {
+    if (isUnmanagedEcosystem(ecosystem) && options['print-deps']) {
+      console.log(jsonStringifyLargeObject(testResults[0].depGraphData));
+    }
+
     return TestCommandResult.createJsonTestCommandResult(stringifiedData);
   }
   const emptyResults: ScanResult[] = [];
