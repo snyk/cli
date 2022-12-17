@@ -18,7 +18,7 @@ import { ArgsOptions } from '../../../../src/cli/args';
 import * as codeConfig from '../../../../src/lib/code-config';
 
 const { getCodeAnalysisAndParseResults } = analysis;
-import osName = require('os-name');
+import * as os from 'os';
 
 describe('Test snyk code', () => {
   let apiUserConfig;
@@ -38,10 +38,7 @@ describe('Test snyk code', () => {
     ),
   );
 
-  const isWindows =
-    osName()
-      .toLowerCase()
-      .indexOf('windows') === 0;
+  const isWindows = os.platform().indexOf('win') === 0;
   const fixturePath = path.join(__dirname, '../../../fixtures', 'sast');
   const cwd = process.cwd();
 

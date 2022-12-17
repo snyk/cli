@@ -3,11 +3,9 @@ import { UnsupportedOptionCombinationError } from '../../../src/lib/errors/unsup
 import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer } from '../../acceptance/fake-server';
 import { createProject } from '../util/createProject';
+import * as os from 'os';
 
-const isWindows =
-  require('os-name')()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+const isWindows = os.platform().indexOf('win') === 0;
 
 jest.setTimeout(1000 * 60 * 5);
 

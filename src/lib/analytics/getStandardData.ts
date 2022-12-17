@@ -14,7 +14,6 @@ import { MetricsCollector } from '../metrics';
 import * as createDebug from 'debug';
 import { ArgsOptions } from '../../cli/args';
 
-const osName = require('os-name');
 const debug = createDebug('snyk');
 const START_TIME = Date.now();
 
@@ -41,7 +40,8 @@ export async function getStandardData(
 
   let osNameString;
   try {
-    osNameString = osName(os.platform(), os.release());
+    const osName = await import('os-name');
+    osNameString = osName.default(os.platform(), os.release());
   } catch (e) {
     osNameString = 'unknown';
   }

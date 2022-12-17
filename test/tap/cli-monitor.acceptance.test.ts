@@ -42,6 +42,7 @@ import * as depGraphLib from '@snyk/dep-graph';
 import { getFixturePath } from '../jest/util/getFixturePath';
 import { getWorkspacePath } from '../jest/util/getWorkspacePath';
 import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
+import * as os from 'os';
 
 /*
   TODO: enable these tests, once we switch from node-tap
@@ -51,10 +52,7 @@ import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
   - Jakub
 */
 
-const isWindows =
-  require('os-name')()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+const isWindows = os.platform().indexOf('win') === 0;
 
 if (!isWindows) {
   before('setup', async (t) => {
