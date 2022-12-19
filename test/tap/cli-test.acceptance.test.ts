@@ -14,6 +14,7 @@ export interface AcceptanceTests {
 import { GenericTests } from './cli-test/cli-test.generic.spec';
 
 import { CocoapodsTests } from './cli-test/cli-test.cocoapods.spec';
+import { SwiftTests } from './cli-test/cli-test.swift.spec';
 import { ComposerTests } from './cli-test/cli-test.composer.spec';
 import { DockerTests } from './cli-test/cli-test.docker.spec';
 import { GoTests } from './cli-test/cli-test.go.spec';
@@ -44,6 +45,7 @@ const languageTests: AcceptanceTests[] = [
   YarnTests,
   YarnWorkspacesTests,
   ElixirTests,
+  SwiftTests,
 ];
 
 const { test, only } = tap;
