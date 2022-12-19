@@ -9,6 +9,7 @@ import * as phpPlugin from 'snyk-php-plugin';
 import * as nodejsPlugin from './nodejs-plugin';
 import * as cocoapodsPlugin from '@snyk/snyk-cocoapods-plugin';
 import * as hexPlugin from '@snyk/snyk-hex-plugin';
+import * as swiftPlugin from 'snyk-swiftpm-plugin';
 import * as types from './types';
 import { SupportedPackageManagers } from '../package-managers';
 import { UnsupportedPackageManagerError } from '../errors';
@@ -58,6 +59,9 @@ export function loadPlugin(
     }
     case 'hex': {
       return hexPlugin;
+    }
+    case 'swift': {
+      return swiftPlugin;
     }
     default: {
       throw new UnsupportedPackageManagerError(packageManager);
