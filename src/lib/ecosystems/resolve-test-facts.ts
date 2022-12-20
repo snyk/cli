@@ -172,6 +172,10 @@ export async function resolveAndTestFactsUnmanagedDeps(
           orgId,
         );
 
+        if (scanResult.analytics) {
+          extractAndApplyPluginAnalytics(scanResult.analytics, id);
+        }
+
         const {
           start_time,
           dep_graph_data,
@@ -219,6 +223,21 @@ export async function resolveAndTestFactsUnmanagedDeps(
           issuesData,
           policy,
         );
+
+        extractAndApplyPluginAnalytics([
+          {
+            name: 'packageManager',
+            data: depGraphData?.pkgManager?.name ?? '',
+          },
+          {
+            name: 'unmanagedDependencyCount',
+            data: depGraphData?.pkgs.length ?? 0,
+          },
+          {
+            name: 'unmanagedIssuesCount',
+            data: issues.length ?? 0,
+          },
+        ]);
 
         results.push({
           issues: issuesFiltered,
