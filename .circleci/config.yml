@@ -30,7 +30,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.18.2'
+    default: '1.19.4'
   mitmproxy_version:
     type: string
     # https://go.dev/doc/devel/release
@@ -39,7 +39,7 @@ parameters:
 executors:
   alpine:
     docker:
-      - image: alpine:3.16.2
+      - image: alpine:3.17
   docker-node:
     parameters:
       node_version:
@@ -52,11 +52,11 @@ executors:
   linux:
     machine:
       # https://circleci.com/developer/machine/image/ubuntu-2004
-      image: ubuntu-2004:202201-01
+      image: ubuntu-2004:2022.04.1
   linux-arm64:
     machine:
       # https://circleci.com/docs/2.0/arm-resources/
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2004:2022.04.1
     resource_class: arm.medium
   macos:
     macos:
@@ -475,11 +475,13 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_linux
+      - go/install:
+          version: << pipeline.parameters.go_version >>
       - run:
-          name: Installing golang
+          name: Installing test dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install golang gradle python3 python3-pip elixir composer
+            sudo apt-get install gradle python3 python3-pip elixir composer
       - setup_npm:
           npm_global_sudo: << parameters.npm_global_sudo >>
           node_version: << parameters.node_version >>
