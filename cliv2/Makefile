@@ -10,6 +10,7 @@ HASH_ALGORITHM = 256
 CLI_V2_VERSION_TAG = 
 CLI_V1_VERSION_TAG = 
 CLI_V1_LOCATION = 
+USE_LEGACY_EXECUTABLE_NAME = 
 
 # Make directories per convention
 prefix = /usr/local
@@ -70,6 +71,11 @@ APPLICATION_NAME = snyk
 TEST_NAME = $(APPLICATION_NAME)$(_SEPARATOR)tests
 V2_PLATFORM_STRING = $(GOOS)$(_SEPARATOR)$(GOARCH)
 V2_EXECUTABLE_NAME = $(APPLICATION_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE_POSTFIX)
+
+ifneq ($(USE_LEGACY_EXECUTABLE_NAME), $(_EMPTY))
+	V2_EXECUTABLE_NAME = $(V1_EXECUTABLE_NAME)
+endif 
+
 V1_EXECUTABLE_NAME = $(APPLICATION_NAME)-$(V1_PLATFORM_STING)$(_EXE_POSTFIX)
 V2_DIRECTORY = $(WORKING_DIR)/internal/cliv2
 V1_DIRECTORY = $(WORKING_DIR)/internal/embedded/cliv1
@@ -78,12 +84,14 @@ V1_EMBEDDED_FILE_TEMPLATE = $(V1_DIRECTORY)/embedded_binary_template.txt
 V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
 V1_WORKING_DIR = $(WORKING_DIR)/..
 V1_BUILD_TYPE = build
+V1_BINARY_FOLDER = ts-cli-binaries
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 TEST_SNYK_EXECUTABLE_PATH=$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 TEST_EXECUTABLE_NAME = $(TEST_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE_POSTFIX)
 SIGN_SCRIPT = sign_$(_GO_OS).sh
 ISSIGNED_SCRIPT = issigned_$(_GO_OS).sh
 EMBEDDED_DATA_DIR = $(WORKING_DIR)/internal/embedded/_data
+
 
 # some make file variables
 LOG_PREFIX = --
@@ -225,25 +233,25 @@ sign: _cleanup_sha_v2 $(SIGN_SCRIPT) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_S
 test-signature: $(ISSIGNED_SCRIPT)
 
 # Typescript CLI targets
-$(V1_WORKING_DIR)/binary-releases/$(V1_EXECUTABLE_NAME):
+$(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
 	@cd $(V1_WORKING_DIR) && npm ci && npm run $(V1_BUILD_TYPE)
-	@$(MAKE) -C $(V1_WORKING_DIR) binary-releases/$(V1_EXECUTABLE_NAME)
+	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 	
 .PHONY: build-ts-cli
-build-ts-cli: $(V1_WORKING_DIR)/binary-releases/$(V1_EXECUTABLE_NAME)
-	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/binary-releases/version))
-	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/binary-releases/)
+build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME)
+	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/version))
+	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/)
 	
 .PHONY: clean-ts-cli
 clean-ts-cli:
 	@echo "$(LOG_PREFIX) Cleaning legacy CLI"
-	@$(MAKE) -C $(V1_WORKING_DIR) clean
+	@$(MAKE) -C $(V1_WORKING_DIR) clean-ts BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 
 # build the full CLI (Typescript+Golang)
 .PHONY: build-full
 build-full: | build-ts-cli
-	@$(MAKE) build CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG) CLI_V1_LOCATION="$(CLI_V1_LOCATION)"
+	@$(MAKE) build build-test CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG) CLI_V1_LOCATION="$(CLI_V1_LOCATION)"
 
 # clean the full CLI (Typescript+Golang)
 .PHONY: clean-full
