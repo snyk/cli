@@ -4,20 +4,41 @@ import { createProjectFromWorkspace } from '../util/createProject';
 import { getFixturePath } from '../util/getFixturePath';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { isCLIV2 } from '../util/isCLIV2';
+import * as os from 'os';
 
 jest.setTimeout(1000 * 30);
+
+function getFirstIPv4Address(): string {
+  let ipaddress = '';
+
+  const interfaces = os.networkInterfaces();
+  for (const [, group] of Object.entries(interfaces)) {
+    if (group) {
+      for (const inter of group) {
+        if (inter && inter.family == 'IPv4' && inter.address != '127.0.0.1') {
+          ipaddress = inter.address;
+          break;
+        }
+      }
+    }
+  }
+  return ipaddress;
+}
 
 describe('https', () => {
   let server: FakeServer;
   let env: Record<string, string>;
 
   beforeAll(async () => {
+    const ipaddress = getFirstIPv4Address();
+    console.log('Using ip: ' + ipaddress);
+
     const port = process.env.PORT || process.env.SNYK_PORT || '12345';
     const baseApi = '/api/v1';
     env = {
       ...process.env,
-      SNYK_API: 'https://localhost:' + port + baseApi,
-      SNYK_HOST: 'https://localhost:' + port,
+      SNYK_API: 'https://' + ipaddress + ':' + port + baseApi,
+      SNYK_HOST: 'https://' + ipaddress + ':' + port,
       SNYK_TOKEN: '123456789',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
