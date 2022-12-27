@@ -5,6 +5,7 @@ import { CustomError } from '../../../../../lib/errors';
 
 export async function trackUsage(
   formattedResults: TrackableResult[],
+  org: string, // e.g. "my.org"
 ): Promise<void> {
   const trackingData = formattedResults.map((res) => {
     return {
@@ -19,6 +20,7 @@ export async function trackUsage(
     },
     url: `${config.API}/track-iac-usage/cli`,
     body: { results: trackingData },
+    qs: { org },
     gzip: true,
     json: true,
   });
