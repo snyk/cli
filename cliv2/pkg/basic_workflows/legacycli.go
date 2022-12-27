@@ -10,6 +10,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/proxy"
 	"github.com/snyk/cli/cliv2/internal/utils"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/spf13/pflag"
@@ -38,7 +39,7 @@ func FilteredArgs(args []string) []string {
 	elementsToFilter := []string{"--" + PROXY_NOAUTH}
 	filteredArgs := args
 	for _, element := range elementsToFilter {
-		filteredArgs = utils.RemoveSimilar(filteredArgs, element)
+		filteredArgs = pkg_utils.RemoveSimilar(filteredArgs, element)
 	}
 	return filteredArgs
 }
