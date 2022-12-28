@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"sort"
 	"testing"
 
@@ -20,7 +21,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"something=1",
 		"in=2",
 		"here=3=2",
-		"no_proxy=noProxy",
+		"NO_PROXY=noProxy",
 		"HTTPS_PROXY=httpsProxy",
 		"HTTP_PROXY=httpProxy",
 		"NPM_CONFIG_PROXY=something",
@@ -40,6 +41,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_SYSTEM_NO_PROXY=noProxy",
 		"SNYK_SYSTEM_HTTP_PROXY=httpProxy",
 		"SNYK_SYSTEM_HTTPS_PROXY=httpsProxy",
+		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY,
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
@@ -65,6 +67,7 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 		"SNYK_SYSTEM_NO_PROXY=",
 		"SNYK_SYSTEM_HTTP_PROXY=",
 		"SNYK_SYSTEM_HTTPS_PROXY=",
+		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY,
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
@@ -90,6 +93,7 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 		"SNYK_SYSTEM_NO_PROXY=312123",
 		"SNYK_SYSTEM_HTTP_PROXY=exists",
 		"SNYK_SYSTEM_HTTPS_PROXY=already",
+		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY,
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
@@ -221,4 +225,69 @@ func Test_executeUnknownCommand(t *testing.T) {
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 
 	os.RemoveAll(cacheDir)
+}
+
+func Test_clearCache(t *testing.T) {
+	cacheDir := "cacheDir"
+	logger := log.New(ioutil.Discard, "", 0)
+
+	// create instance under test
+	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	// create folders and files in cache dir
+	versionWithV := path.Join(cli.CacheDirectory, "v1.914.0")
+	versionNoV := path.Join(cli.CacheDirectory, "1.1048.0-dev.2401acbc")
+	randomFile := path.Join(versionNoV, "filename")
+	currentVersion := cli.GetBinaryLocation()
+
+	os.Mkdir(versionWithV, 0755)
+	os.Mkdir(versionNoV, 0755)
+	os.WriteFile(randomFile, []byte("Writing some strings"), 0666)
+
+	// clear cache
+	err := cli.ClearCache()
+	assert.Nil(t, err)
+
+	// check if directories that need to be deleted don't exist
+	assert.NoDirExists(t, versionWithV)
+	assert.NoDirExists(t, versionNoV)
+	assert.NoFileExists(t, randomFile)
+	// check if directories that need to exist still exist
+	assert.FileExists(t, currentVersion)
+}
+
+func Test_clearCacheBigCache(t *testing.T) {
+	cacheDir := "cacheDir"
+	logger := log.New(ioutil.Discard, "", 0)
+
+	// create instance under test
+	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	// create folders and files in cache dir
+	dir1 := path.Join(cli.CacheDirectory, "dir1")
+	dir2 := path.Join(cli.CacheDirectory, "dir2")
+	dir3 := path.Join(cli.CacheDirectory, "dir3")
+	dir4 := path.Join(cli.CacheDirectory, "dir4")
+	dir5 := path.Join(cli.CacheDirectory, "dir5")
+	dir6 := path.Join(cli.CacheDirectory, "dir6")
+	currentVersion := cli.GetBinaryLocation()
+
+	os.Mkdir(dir1, 0755)
+	os.Mkdir(dir2, 0755)
+	os.Mkdir(dir3, 0755)
+	os.Mkdir(dir4, 0755)
+	os.Mkdir(dir5, 0755)
+	os.Mkdir(dir6, 0755)
+
+	// clear cache
+	err := cli.ClearCache()
+	assert.Nil(t, err)
+
+	// check if directories that need to be deleted don't exist
+	assert.NoDirExists(t, dir1)
+	assert.NoDirExists(t, dir2)
+	assert.NoDirExists(t, dir3)
+	assert.NoDirExists(t, dir4)
+	assert.NoDirExists(t, dir5)
+	// check if directories that need to exist still exist
+	assert.DirExists(t, dir6)
+	assert.FileExists(t, currentVersion)
 }

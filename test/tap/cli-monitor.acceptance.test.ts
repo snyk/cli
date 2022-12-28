@@ -42,6 +42,7 @@ import * as depGraphLib from '@snyk/dep-graph';
 import { getFixturePath } from '../jest/util/getFixturePath';
 import { getWorkspacePath } from '../jest/util/getWorkspacePath';
 import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
+import * as os from 'os';
 
 /*
   TODO: enable these tests, once we switch from node-tap
@@ -51,10 +52,7 @@ import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
   - Jakub
 */
 
-const isWindows =
-  require('os-name')()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+const isWindows = os.platform().indexOf('win') === 0;
 
 if (!isWindows) {
   before('setup', async (t) => {
@@ -1874,6 +1872,46 @@ if (!isWindows) {
     );
     const policyString = req.body.scanResult.policy;
     t.deepEqual(policyString, expected, 'sends correct policy');
+  });
+
+  test('`monitor foo:latest --docker` with app vulns feature flag enabled', async (t) => {
+    chdirWorkspaces('npm-package-policy');
+    const spyPlugin = stubDockerPluginResponse(
+      {
+        scanResults: [
+          {
+            identity: {
+              type: 'rpm',
+            },
+            target: {
+              image: 'docker-image|foo',
+            },
+            facts: [{ type: 'depGraph', data: {} }],
+          },
+        ],
+        attributes: {},
+      },
+      t,
+    );
+
+    server.setFeatureFlag('containerCliAppVulnsEnabled', true);
+    await cli.monitor('foo:latest', {
+      docker: true,
+      org: 'explicit-org',
+    });
+    t.same(
+      spyPlugin.getCall(0).args,
+      [
+        {
+          docker: true,
+          'exclude-app-vulns': false,
+          org: 'explicit-org',
+          path: 'foo:latest',
+        },
+      ],
+      'calls docker plugin with expected arguments',
+    );
+    server.setFeatureFlag('containerCliAppVulnsEnabled', false);
   });
 
   test('`monitor foo:latest --docker --platform=linux/arm64`', async (t) => {

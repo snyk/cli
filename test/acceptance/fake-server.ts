@@ -10,6 +10,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([
     ['cliFailFast', false],
     ['iacIntegratedExperience', false],
+    ['containerCliAppVulnsEnabled', false],
   ]);
 };
 
@@ -487,6 +488,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   app.post(basePath + '/analytics/cli', (req, res) => {
+    res.status(200).send({});
+  });
+
+  app.post(basePath.replace('v1', 'hidden') + '/orgs/:org/sbom', (req, res) => {
     res.status(200).send({});
   });
 

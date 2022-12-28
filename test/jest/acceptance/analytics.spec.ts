@@ -48,12 +48,16 @@ describe('analytics module', () => {
 
     expect(code).toBe(0);
 
+    const requests = server.getRequests().filter((value) => {
+      return value.url == '/api/v1/analytics/cli';
+    });
+
     if (isCLIV2()) {
       // in this case an extra analytics event is being sent, which needs to be dropped
-      server.popRequest();
+      requests.pop();
     }
 
-    const lastRequest = server.popRequest();
+    const lastRequest = requests.pop();
 
     expect(lastRequest).toMatchObject({
       headers: {
@@ -121,12 +125,16 @@ describe('analytics module', () => {
 
     expect(code).toBe(1);
 
+    const requests = server.getRequests().filter((value) => {
+      return value.url == '/api/v1/analytics/cli';
+    });
+
     if (isCLIV2()) {
       // in this case an extra analytics event is being sent, which needs to be dropped
-      server.popRequest();
+      requests.pop();
     }
 
-    const lastRequest = server.popRequest();
+    const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
       headers: {
         host: 'localhost:12345',
@@ -197,12 +205,16 @@ describe('analytics module', () => {
 
     expect(code).toBe(2);
 
+    const requests = server.getRequests().filter((value) => {
+      return value.url == '/api/v1/analytics/cli';
+    });
+
     if (isCLIV2()) {
       // in this case an extra analytics event is being sent, which needs to be dropped
-      server.popRequest();
+      requests.pop();
     }
 
-    const lastRequest = server.popRequest();
+    const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
       headers: {
         host: 'localhost:12345',
@@ -261,19 +273,23 @@ describe('analytics module', () => {
       'npm/with-vulnerable-lodash-dep',
     );
 
-    const { code } = await runSnykCLI('test', {
+    const { code } = await runSnykCLI('test --org=1234', {
       cwd: project.path(),
       env,
     });
 
     expect(code).toBe(2);
 
+    const requests = server.getRequests().filter((value) => {
+      return value.url.includes('/api/v1/analytics/cli');
+    });
+
     if (isCLIV2()) {
       // in this case an extra analytics event is being sent, which needs to be dropped
-      server.popRequest();
+      requests.pop();
     }
 
-    const lastRequest = server.popRequest();
+    const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
       query: {},
       body: {
@@ -335,12 +351,16 @@ describe('analytics module', () => {
 
     expect(code).toBe(0);
 
+    const requests = server.getRequests().filter((value) => {
+      return value.url == '/api/v1/analytics/cli';
+    });
+
     if (isCLIV2()) {
       // in this case an extra analytics event is being sent, which needs to be dropped
-      server.popRequest();
+      requests.pop();
     }
 
-    const lastRequest = server.popRequest();
+    const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
       headers: {
         host: 'localhost:12345',
@@ -452,7 +472,11 @@ describe('analytics module', () => {
     });
     expect(code).toBe(0);
 
-    const lastRequest = server.popRequest();
+    const requests = server.getRequests().filter((value) => {
+      return value.url == '/api/v1/analytics/cli';
+    });
+
+    const lastRequest = requests.pop();
     expect(lastRequest).toBeUndefined();
   });
 });

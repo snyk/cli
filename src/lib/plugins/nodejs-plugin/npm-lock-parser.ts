@@ -5,14 +5,20 @@ import { spinner } from '../../spinner';
 import * as analytics from '../../analytics';
 import * as fs from 'fs';
 import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
-import { PkgTree } from 'snyk-nodejs-lockfile-parser';
+import {
+  NodeLockfileVersion,
+  PkgTree,
+  InvalidUserInputError,
+  ProjectParseOptions,
+} from 'snyk-nodejs-lockfile-parser';
 import { Options } from '../types';
+import { DepGraph } from '@snyk/dep-graph';
 
 export async function parse(
   root: string,
   targetFile: string,
   options: Options,
-): Promise<PkgTree> {
+): Promise<PkgTree | DepGraph> {
   const lockFileFullPath = path.resolve(root, targetFile);
   if (!fs.existsSync(lockFileFullPath)) {
     throw new Error(
@@ -47,9 +53,31 @@ export async function parse(
   });
   const resolveModuleSpinnerLabel = `Analyzing npm dependencies for ${lockFileFullPath}`;
   debug(resolveModuleSpinnerLabel);
+
+  const strictOutOfSync = options.strictOutOfSync !== false;
+  const lockfileVersion = lockFileParser.getLockfileVersionFromFile(
+    lockFileFullPath,
+  );
+  if (
+    lockfileVersion === NodeLockfileVersion.YarnLockV1 ||
+    lockfileVersion === NodeLockfileVersion.YarnLockV2
+  ) {
+    return await buildDepGraph(
+      root,
+      manifestFileFullPath,
+      lockFileFullPath,
+      lockfileVersion,
+      {
+        includeDevDeps: options.dev || false,
+        includeOptionalDeps: true,
+        strictOutOfSync,
+        pruneCycles: true,
+      },
+    );
+  }
+
   try {
     await spinner(resolveModuleSpinnerLabel);
-    const strictOutOfSync = options.strictOutOfSync !== false;
     return lockFileParser.buildDepTreeFromFiles(
       root,
       manifestFileFullPath,
@@ -60,4 +88,46 @@ export async function parse(
   } finally {
     await spinner.clear<void>(resolveModuleSpinnerLabel)();
   }
+}
+
+async function buildDepGraph(
+  root: string,
+  manifestFilePath: string,
+  lockfilePath: string,
+  lockfileVersion: NodeLockfileVersion,
+  options: ProjectParseOptions,
+): Promise<DepGraph> {
+  const manifestFileFullPath = path.resolve(root, manifestFilePath);
+  const lockFileFullPath = path.resolve(root, lockfilePath);
+
+  if (!fs.existsSync(manifestFileFullPath)) {
+    throw new InvalidUserInputError(
+      'Target file package.json not found at ' +
+        `location: ${manifestFileFullPath}`,
+    );
+  }
+  if (!fs.existsSync(lockFileFullPath)) {
+    throw new InvalidUserInputError(
+      'Lockfile not found at location: ' + lockFileFullPath,
+    );
+  }
+
+  const manifestFileContents = fs.readFileSync(manifestFileFullPath, 'utf-8');
+  const lockFileContents = fs.readFileSync(lockFileFullPath, 'utf-8');
+
+  switch (lockfileVersion) {
+    case NodeLockfileVersion.YarnLockV1:
+      return await lockFileParser.parseYarnLockV1Project(
+        manifestFileContents,
+        lockFileContents,
+        options,
+      );
+    case NodeLockfileVersion.YarnLockV2:
+      return lockFileParser.parseYarnLockV2Project(
+        manifestFileContents,
+        lockFileContents,
+        options,
+      );
+  }
+  throw new Error('Failed to build dep graph from current project');
 }

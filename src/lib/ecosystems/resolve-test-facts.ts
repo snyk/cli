@@ -52,6 +52,10 @@ export async function resolveAndTestFacts(
     : resolveAndTestFactsRegistry(ecosystem, scans, options);
 }
 
+async function getOrgDefaultContext(): Promise<string> {
+  return (await getSelf())?.data.attributes.default_org_context;
+}
+
 async function submitHashes(
   hashes: FileHashes,
   orgId: string,
@@ -65,8 +69,8 @@ async function pollDepGraphAttributes(
   id: string,
   orgId: string,
 ): Promise<Attributes> {
-  const minIntervalMs = 5000;
-  const maxIntervalMs = 30000;
+  const minIntervalMs = 2000;
+  const maxIntervalMs = 20000;
 
   let totalElaspedTime = 0;
   let attempts = 1;
@@ -154,12 +158,12 @@ export async function resolveAndTestFactsUnmanagedDeps(
   const packageManager = 'Unmanaged (C/C++)';
   const displayTargetFile = '';
 
-  let orgId = options.org || '';
+  const orgId = options.org || (await getOrgDefaultContext()) || '';
   const target_severity: SEVERITY = options.severityThreshold || SEVERITY.LOW;
 
   if (orgId === '') {
-    const self = await getSelf();
-    orgId = self.data.attributes.default_org_context;
+    errors.push('organisation-id missing');
+    return [results, errors];
   }
 
   for (const [path, scanResults] of Object.entries(scans)) {
@@ -171,6 +175,10 @@ export async function resolveAndTestFactsUnmanagedDeps(
           { hashes: scanResult?.facts[0]?.data },
           orgId,
         );
+
+        if (scanResult.analytics) {
+          extractAndApplyPluginAnalytics(scanResult.analytics, id);
+        }
 
         const {
           start_time,
@@ -219,6 +227,21 @@ export async function resolveAndTestFactsUnmanagedDeps(
           issuesData,
           policy,
         );
+
+        extractAndApplyPluginAnalytics([
+          {
+            name: 'packageManager',
+            data: depGraphData?.pkgManager?.name ?? '',
+          },
+          {
+            name: 'unmanagedDependencyCount',
+            data: depGraphData?.pkgs.length ?? 0,
+          },
+          {
+            name: 'unmanagedIssuesCount',
+            data: issues.length ?? 0,
+          },
+        ]);
 
         results.push({
           issues: issuesFiltered,

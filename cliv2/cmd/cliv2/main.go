@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 
+	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
@@ -84,11 +87,19 @@ func runCommand(cmd *cobra.Command, args []string) error {
 func sendAnalytics(analytics analytics.Analytics, debugLogger *log.Logger) {
 	debugLogger.Println("Sending Analytics")
 
-	_, err := analytics.Send()
-	if err == nil {
+	res, err := analytics.Send()
+	successfullySend := res != nil && 200 <= res.StatusCode && res.StatusCode < 300
+	if err == nil && successfullySend {
 		debugLogger.Println("Analytics sucessfully send")
 	} else {
-		debugLogger.Println("Failed to send Analytics", err)
+		var details string
+		if res != nil {
+			details = res.Status
+		} else if err != nil {
+			details = err.Error()
+		}
+
+		debugLogger.Println("Failed to send Analytics:", details)
 	}
 }
 
@@ -159,6 +170,33 @@ func prepareRootCommand() *cobra.Command {
 	return &rootCommand
 }
 
+func doFallback(err error, helped bool) (fallback bool) {
+	fallback = false
+	preCondition := err != nil && helpProvided == false
+	if preCondition {
+		errString := err.Error()
+		flagError := strings.Contains(errString, "unknown flag") ||
+			strings.Contains(errString, "flag needs") ||
+			strings.Contains(errString, "invalid argument")
+		commandError := strings.Contains(errString, "unknown command")
+
+		// filter for known cobra errors, since cobra errors shall trigger a fallback, but not others.
+		if commandError || flagError {
+			fallback = true
+		}
+	}
+
+	return fallback
+}
+
+func displayError(err error) {
+	if err != nil {
+		if _, ok := err.(*exec.ExitError); !ok {
+			fmt.Println(err)
+		}
+	}
+}
+
 func MainWithErrorCode() int {
 	var err error
 
@@ -178,6 +216,7 @@ func MainWithErrorCode() int {
 
 	// initialize the extensions -> they register themselves at the engine
 	engine.AddExtensionInitializer(basic_workflows.Init)
+	engine.AddExtensionInitializer(sbom.Init)
 
 	// init engine
 	err = engine.Init()
@@ -201,6 +240,16 @@ func MainWithErrorCode() int {
 	networkAccess := engine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
 
+	extraCaCertFile := config.GetString(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV)
+	if len(extraCaCertFile) > 0 {
+		err = networkAccess.AddRootCAs(extraCaCertFile)
+		if err != nil {
+			debugLogger.Printf("Failed to AddRootCAs from '%s' (%v)\n", extraCaCertFile, err)
+		} else {
+			debugLogger.Println("Using additional CAs from file:", extraCaCertFile)
+		}
+	}
+
 	// init Analytics
 	cliAnalytics := engine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
@@ -213,7 +262,7 @@ func MainWithErrorCode() int {
 	err = rootCommand.Execute()
 
 	// fallback to the legacy cli
-	if err != nil && helpProvided == false {
+	if doFallback(err, helpProvided) {
 		debugLogger.Printf("Falling back to legacy cli. (reason: %v)\n", err)
 		err = defaultCmd(nil, []string{})
 	}
@@ -221,6 +270,8 @@ func MainWithErrorCode() int {
 	if err != nil {
 		cliAnalytics.AddError(err)
 	}
+
+	displayError(err)
 
 	exitCode := cliv2.DeriveExitCode(err)
 	debugLogger.Printf("Exiting with %d\n", exitCode)

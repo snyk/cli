@@ -3,7 +3,6 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
-	"net/http"
 	"os"
 
 	"github.com/pkg/errors"
@@ -69,6 +68,12 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 	debugLogger.Println("Insecure HTTPS:", insecure)
 	debugLogger.Println("Use StdIO:", useStdIo)
 
+	// prepare environment by creating all required folders in advance
+	err = utils.CreateAllDirectories(cacheDirectory, cliv2.GetFullVersion())
+	if err != nil {
+		return output, err
+	}
+
 	// init cli object
 	var cli *cliv2.CLI
 	cli, err = cliv2.NewCLIv2(cacheDirectory, debugLogger)
@@ -85,13 +90,12 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 
 	// init proxy object
 	wrapperProxy, err := proxy.NewWrapperProxy(insecure, cacheDirectory, cliv2.GetFullVersion(), debugLogger)
-	defer wrapperProxy.Close()
 	if err != nil {
 		return output, errors.Wrap(err, "Failed to create proxy!")
 	}
+	defer wrapperProxy.Close()
 
 	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
-	http.DefaultTransport = wrapperProxy.Transport()
 
 	err = wrapperProxy.Start()
 	if err != nil {

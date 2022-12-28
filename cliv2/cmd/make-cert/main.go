@@ -7,8 +7,8 @@ import (
 	"path"
 	"strings"
 
-	"github.com/snyk/cli/cliv2/internal/certs"
 	"github.com/snyk/cli/cliv2/internal/utils"
+	"github.com/snyk/go-application-framework/pkg/networking/certs"
 )
 
 func main() {

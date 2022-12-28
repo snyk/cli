@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -60,6 +61,8 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
 		stderr:           os.Stderr,
 	}
 
+	cli.ClearCache()
+
 	err = cli.ExtractV1Binary()
 	if err != nil {
 		fmt.Println(err)
@@ -67,6 +70,33 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
 	}
 
 	return &cli, nil
+}
+
+func (c *CLI) ClearCache() error {
+	// Get files in directory
+	fileInfo, err := os.ReadDir(c.CacheDirectory)
+	if err != nil {
+		return err
+	}
+
+	// Get current version binary's path
+	v1BinaryPath := path.Dir(c.v1BinaryLocation)
+	var maxVersionToDelete = 5
+	for i, file := range fileInfo {
+		currentPath := path.Join(c.CacheDirectory, file.Name())
+		if currentPath != v1BinaryPath {
+			err = os.RemoveAll(currentPath)
+			if err != nil {
+				c.DebugLogger.Println("Error deleting an old version directory: ", currentPath)
+			}
+		}
+		// Stop the loop after 5 deletions to not create too much overhead
+		if i == maxVersionToDelete {
+			break
+		}
+	}
+
+	return nil
 }
 
 func (c *CLI) ExtractV1Binary() error {
@@ -219,6 +249,7 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 		inputAsMap[constants.SNYK_HTTPS_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
+		inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV] = constants.SNYK_INTERNAL_NO_PROXY
 
 		result = utils.ToSlice(inputAsMap, "=")
 	}
@@ -289,7 +320,6 @@ func DeriveExitCode(err error) int {
 			returnCode = exitError.ExitCode()
 		} else {
 			// got an error but it's not an ExitError
-			fmt.Println(err)
 			returnCode = constants.SNYK_EXIT_CODE_ERROR
 		}
 	}
