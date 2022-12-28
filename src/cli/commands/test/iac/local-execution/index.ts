@@ -118,7 +118,7 @@ export async function test(
   );
 
   try {
-    await trackUsage(filteredIssues);
+    await trackUsage(filteredIssues, iacOrgSettings.meta.org);
   } catch (e) {
     if (e instanceof TestLimitReachedError) {
       throw e;

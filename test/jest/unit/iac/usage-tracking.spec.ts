@@ -29,6 +29,8 @@ const results = [
   },
 ];
 
+const org = 'test-org';
+
 describe('tracking IaC test usage', () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -44,9 +46,10 @@ describe('tracking IaC test usage', () => {
       });
     });
 
-    await trackUsage(results);
+    await trackUsage(results, org);
 
     expect(mockedMakeRequest.mock.calls.length).toEqual(1);
+    expect(mockedMakeRequest.mock.calls[0][0].qs).toEqual({ org });
     expect(mockedMakeRequest.mock.calls[0][0].body).toEqual({
       results: [
         {
@@ -71,7 +74,7 @@ describe('tracking IaC test usage', () => {
       });
     });
 
-    await expect(trackUsage(results)).rejects.toThrow(
+    await expect(trackUsage(results, org)).rejects.toThrow(
       new TestLimitReachedError(),
     );
   });
@@ -86,7 +89,7 @@ describe('tracking IaC test usage', () => {
       });
     });
 
-    await expect(trackUsage(results)).rejects.toThrow(
+    await expect(trackUsage(results, org)).rejects.toThrow(
       new CustomError(
         'An error occurred while attempting to track test usage: {"foo":"bar"}',
       ),
