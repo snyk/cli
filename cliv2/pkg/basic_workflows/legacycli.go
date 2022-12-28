@@ -68,6 +68,12 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 	debugLogger.Println("Insecure HTTPS:", insecure)
 	debugLogger.Println("Use StdIO:", useStdIo)
 
+	// prepare environment by creating all required folders in advance
+	err = utils.CreateAllDirectories(cacheDirectory, cliv2.GetFullVersion())
+	if err != nil {
+		return output, err
+	}
+
 	// init cli object
 	var cli *cliv2.CLI
 	cli, err = cliv2.NewCLIv2(cacheDirectory, debugLogger)

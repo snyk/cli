@@ -58,13 +58,8 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 		return nil, err
 	}
 
-	tempDir, err := utils.SnykTempDirectory(p.DebugLogger)
-	if err != nil {
-		p.DebugLogger.Println("failed to create system temp directory:", tempDir)
-		return nil, err
-	}
-
-	certFile, err := os.CreateTemp(tempDir, "snyk-cli-cert-*.crt")
+	tmpDirectory := utils.GetTemporaryDirectory(cacheDirectory, cliVersion)
+	certFile, err := os.CreateTemp(tmpDirectory, "snyk-cli-cert-*.crt")
 	if err != nil {
 		fmt.Println("failed to create temp cert file")
 		return nil, err
