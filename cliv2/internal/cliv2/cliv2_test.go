@@ -41,7 +41,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_SYSTEM_NO_PROXY=noProxy",
 		"SNYK_SYSTEM_HTTP_PROXY=httpProxy",
 		"SNYK_SYSTEM_HTTPS_PROXY=httpsProxy",
-		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY,
+		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",noProxy",
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
@@ -93,7 +93,7 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 		"SNYK_SYSTEM_NO_PROXY=312123",
 		"SNYK_SYSTEM_HTTP_PROXY=exists",
 		"SNYK_SYSTEM_HTTPS_PROXY=already",
-		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY,
+		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",312123",
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")

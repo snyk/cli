@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/snyk/cli-extension-sbom v0.0.0-20221212093410-6b474ed1a42a
-	github.com/snyk/go-application-framework v0.0.0-20221215182111-b2d10cf1e146
+	github.com/snyk/go-application-framework v0.0.0-20221229122623-b3cc236e9f58
 	github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
