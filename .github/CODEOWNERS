@@ -4,6 +4,7 @@
 packages/snyk-fix/ @snyk/tech-services
 packages/snyk-protect/ @snyk/hammer
 packages/cli-alert/ @snyk/hammer
+packages/iac-cli-alert/ @snyk/group-infrastructure-as-code
 
 README.md  @snyk/hammer
 CONTRIBUTING.md @snyk/hammer

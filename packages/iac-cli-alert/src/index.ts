@@ -44,7 +44,7 @@ async function sendSlackAlert() {
   console.log('IaC smoke tests failed. Sending Slack alert...');
   const args: IncomingWebhookDefaultArguments = {
     text:
-      'Infrastructure as Code Smoke Tests jobs failed. \n<https://github.com/snyk/cli/actions/workflows/iac-smoke-tests.yml?query=workflow%3A|Infrastructure as Code Smoke Tests Results>',
+      'Infrastructure as Code Smoke Tests jobs failed. \n Core functionality in the Integrated IaC CLI flows may not be working as expected. \n <https://github.com/snyk/cli/actions/workflows/iac-smoke-tests.yml?query=workflow%3A|Infrastructure as Code Smoke Tests Results> \n <https://www.notion.so/snyk/Alert-Infrastructure-as-Code-Smoke-Tests-jobs-failed-ad6a89ea7fb74cc4aab4763c5ac59cbc|View the runbook for this alert>',
   };
   await slackWebhook.send(args);
   console.log('Slack alert sent.');
