@@ -11,13 +11,14 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
 	"github.com/snyk/cli/cliv2/internal/proxy"
-	"github.com/snyk/cli/cliv2/internal/utils"
+	"github.com/snyk/go-application-framework/pkg/utils"
 )
 
 type Handler int
@@ -249,7 +250,16 @@ func PrepareV1EnvironmentVariables(input []string, integrationName string, integ
 		inputAsMap[constants.SNYK_HTTPS_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
-		inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV] = constants.SNYK_INTERNAL_NO_PROXY
+
+		// merge user defined (external) and internal no_proxy configuration
+		if len(inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM]) > 0 {
+			internalNoProxy := strings.Split(constants.SNYK_INTERNAL_NO_PROXY, ",")
+			externalNoProxy := regexp.MustCompile("[,;]").Split(inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM], -1)
+			mergedNoProxy := utils.Merge(internalNoProxy, externalNoProxy)
+			inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV] = strings.Join(mergedNoProxy, ",")
+		} else {
+			inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV] = constants.SNYK_INTERNAL_NO_PROXY
+		}
 
 		result = utils.ToSlice(inputAsMap, "=")
 	}
@@ -268,8 +278,6 @@ func PrepareV1Command(cmd string, args []string, proxyInfo *proxy.ProxyInfo, int
 }
 
 func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passthroughArgs []string) error {
-	c.DebugLogger.Println("launching snyk with path: ", c.v1BinaryLocation)
-	c.DebugLogger.Println("CertificateLocation:", proxyInfo.CertificateLocation)
 
 	snykCmd, err := PrepareV1Command(
 		c.v1BinaryLocation,
@@ -278,6 +286,30 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passthroughArgs []str
 		c.GetIntegrationName(),
 		GetFullVersion(),
 	)
+
+	if c.DebugLogger.Writer() != io.Discard {
+		c.DebugLogger.Println("Launching: ")
+		c.DebugLogger.Println("  ", c.v1BinaryLocation)
+		c.DebugLogger.Println(" With Arguments:")
+		c.DebugLogger.Println("  ", strings.Join(passthroughArgs, ", "))
+		c.DebugLogger.Println(" With Environment: ")
+
+		variablesMap := utils.ToKeyValueMap(snykCmd.Env, "=")
+		listedEnvironmentVariables := []string{
+			constants.SNYK_CA_CERTIFICATE_LOCATION_ENV,
+			constants.SNYK_HTTPS_PROXY_ENV,
+			constants.SNYK_HTTP_PROXY_ENV,
+			constants.SNYK_HTTP_NO_PROXY_ENV,
+			constants.SNYK_HTTPS_PROXY_ENV_SYSTEM,
+			constants.SNYK_HTTP_PROXY_ENV_SYSTEM,
+			constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM,
+		}
+
+		for _, key := range listedEnvironmentVariables {
+			c.DebugLogger.Println("  ", key, "=", variablesMap[key])
+		}
+
+	}
 
 	snykCmd.Stdin = c.stdin
 	snykCmd.Stdout = c.stdout
@@ -295,8 +327,6 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passthroughArgs []str
 }
 
 func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passthroughArgs []string) error {
-	c.DebugLogger.Println("passthroughArgs", passthroughArgs)
-
 	var err error
 	handler := determineHandler(passthroughArgs)
 
