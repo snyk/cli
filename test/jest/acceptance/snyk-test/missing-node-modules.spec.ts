@@ -53,10 +53,13 @@ describe('snyk test with missing node_modules', () => {
   test('does not throw when missing node_modules & package.json has no dependencies', async () => {
     server.setNextResponse(noVulnsResult);
     const project = await createProject('npm/no-dependencies');
-    const { code, stdout } = await runSnykCLI('test --org=1234', {
-      cwd: project.path(),
-      env,
-    });
+    const { code, stdout } = await runSnykCLI(
+      'test --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
     expect(stdout).toMatch('for known issues, no vulnerable paths found.');
     expect(code).toEqual(0);
   });
@@ -64,10 +67,13 @@ describe('snyk test with missing node_modules', () => {
   test('does not throw when missing node_modules & package.json has no dependencies (with --dev)', async () => {
     server.setNextResponse(noVulnsResult);
     const project = await createProject('npm/no-dependencies');
-    const { code, stdout } = await runSnykCLI('test --dev --org=1234', {
-      cwd: project.path(),
-      env,
-    });
+    const { code, stdout } = await runSnykCLI(
+      'test --dev --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
     expect(stdout).toMatch('for known issues, no vulnerable paths found.');
     expect(code).toEqual(0);
   });
