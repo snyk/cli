@@ -48,7 +48,7 @@ rm $APPLE_SIGNING_SECRETS
 security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
 
 echo "$LOG_PREFIX Signing binary $APP_PATH"
-codesign -s "$APPLE_SIGNING_IDENTITY" -v "$APP_PATH" --options runtime
+codesign -s "$APPLE_SIGNING_IDENTITY" -v "$APP_PATH" --timestamp --options runtime 
 
 #
 # notarization
