@@ -9,7 +9,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "debug": "^1.0.0"
+        "debug": "^3.1.0"
     },
     "devDependencies": {
         "snyk": "*"
