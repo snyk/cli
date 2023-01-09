@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "debug": "4.1.0",
-    "undefsafe": "^1.0.0",
+    "undefsafe": "^2.0.5",
     "aws-sdk": "^2.224.1",
     "axios": "^0.18.0",
     "bignumber.js": "^7.2.1",
