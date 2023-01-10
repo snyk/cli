@@ -11,7 +11,7 @@ echo "${SNYK_CODE_SIGNING_PGP_PRIVATE}" \
 echo "Signing shasums file"
 gpg \
     --clear-sign \
-    --local-user=1F4B9569 \
+    --local-user=3676C4B8289C296E \
     --passphrase="${SNYK_CODE_SIGNING_GPG_PASSPHRASE}" \
     --pinentry-mode=loopback \
     --armor \

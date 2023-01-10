@@ -7,7 +7,7 @@ Describe "Snyk Code test command"
   Describe "snyk code test"
     run_test_in_subfolder() {
       cd ../fixtures/sast/shallow_sast_webgoat || return
-      snyk code test . --org=snyk-cli-smoke-test-with-snykcode
+      snyk code test .
     }
 
     It "finds vulns in a project in the same folder"
@@ -15,7 +15,7 @@ Describe "Snyk Code test command"
       The output should include "Static code analysis"
       The output should include "✗ [High] SQL Injection"
       The status should be failure
-      if should_have_deprecation_warnings; then 
+      if should_have_deprecation_warnings; then
         The stderr should not equal ""
       else
         The stderr should equal ""
@@ -25,11 +25,11 @@ Describe "Snyk Code test command"
 
   Describe "code test with SARIF output"
     It "outputs a valid SARIF with vulns"
-      When run snyk code test ../fixtures/sast/shallow_sast_webgoat --sarif --org=snyk-cli-smoke-test-with-snykcode
+      When run snyk code test ../fixtures/sast/shallow_sast_webgoat --sarif
       The status should be failure # issues found
       The output should include '"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"'
       The output should include '"name": "SnykCode"'
-      if should_have_deprecation_warnings; then 
+      if should_have_deprecation_warnings; then
         The stderr should not equal ""
       else
         The stderr should equal ""
