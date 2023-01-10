@@ -103,9 +103,9 @@ grep snyk-macos sha256sums.txt.asc | sha256sum -c -
 If you want to verify Snyk CLI standalone binaries against [Snyk CLI GPG key](help/_about-this-project/snyk-code-signing-public.pgp), you will need to import it first:
 
 ```bash
-# 68BFBCCEB7794E6FC06A2044A29C32E91F4B9569 is the key belonging to code-signing@snyk.io
+# 3676C4B8289C296E is the key belonging to code-signing@snyk.io
 # Copy of this public key is also in this repository /help/_about-this-project/snyk-code-signing-public.pgp
-gpg --keyserver hkps://keys.openpgp.org --recv-keys 68BFBCCEB7794E6FC06A2044A29C32E91F4B9569
+gpg --keyserver hkps://keys.openpgp.org --receive-keys 3676C4B8289C296E
 ```
 
 Then verify the file is signed with:
