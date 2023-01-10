@@ -16,7 +16,6 @@ release-scripts/hcl-to-json-parser-generator-v2/ @snyk/group-infrastructure-as-c
 src/cli/commands/test @snyk/snyk-open-source
 src/cli/commands/monitor @snyk/snyk-open-source
 help/  @snyk/hammer
-help/cli-commands/iac*.md @snyk/group-infrastructure-as-code @snyk/hammer 
 src/cli/commands/test/iac/ @snyk/group-infrastructure-as-code
 src/cli/commands/describe.ts @snyk/group-infrastructure-as-code
 src/cli/commands/update-exclude-policy.ts @snyk/group-infrastructure-as-code
@@ -52,8 +51,6 @@ src/lib/code-config.ts @snyk/nebula
 src/lib/errors/describe-required-argument-error.ts @snyk/group-infrastructure-as-code
 src/lib/errors/describe-exclusive-argument-error.ts @snyk/group-infrastructure-as-code
 src/lib/errors/no-supported-sast-files-found.ts @snyk/zenith
-help/commands-docs/iac-examples.md @snyk/group-infrastructure-as-code
-help/commands-docs/iac.md @snyk/group-infrastructure-as-code
 test/jest/util/ @snyk/hammer
 dangerfile.js @snyk/hammer
 /package.json @snyk/hammer
