@@ -65,6 +65,7 @@ describe('Test snyk code', () => {
   });
 
   afterEach(() => {
+    delete process.env.SNYK_OAUTH_TOKEN;
     jest.resetAllMocks();
   });
 
@@ -84,6 +85,33 @@ describe('Test snyk code', () => {
       }),
     ).rejects.toThrowError(
       /Authentication failed. Please check the API token on/,
+    );
+  });
+
+  it('should use oauth token for auth if provided', async () => {
+    const oauthToken = 'oauth-token';
+    process.env.SNYK_OAUTH_TOKEN = oauthToken;
+
+    const sastSettings = {
+      sastEnabled: true,
+      localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
+    };
+
+    const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersResponse,
+    );
+    await getCodeAnalysisAndParseResults(
+      '.',
+      {
+        path: '',
+        code: true,
+      },
+      sastSettings,
+      'test-id',
+    );
+
+    expect(analyzeFoldersSpy.mock.calls[0][0].connection.sessionToken).toEqual(
+      `Bearer ${oauthToken}`,
     );
   });
 
@@ -671,7 +699,7 @@ describe('Test snyk code', () => {
 
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
-    const sessionToken = expect.any(String);
+    const sessionToken = `token ${fakeApiKey}`;
     const source = expect.any(String);
     const severity = AnalysisSeverity.info;
     const paths: string[] = ['.'];
