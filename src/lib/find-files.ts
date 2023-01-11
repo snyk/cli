@@ -66,8 +66,8 @@ export async function find(
   const found: string[] = [];
   const foundAll: string[] = [];
 
-  // ensure we ignore find against node_modules path.
-  if (path.endsWith('node_modules')) {
+  // ensure we ignore find against node_modules path and .build folder for swift.
+  if (path.endsWith('node_modules') || path.endsWith('.build')) {
     return { files: found, allFilesFound: foundAll };
   }
 
