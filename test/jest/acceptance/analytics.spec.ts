@@ -273,10 +273,13 @@ describe('analytics module', () => {
       'npm/with-vulnerable-lodash-dep',
     );
 
-    const { code } = await runSnykCLI('test --org=1234', {
-      cwd: project.path(),
-      env,
-    });
+    const { code } = await runSnykCLI(
+      'test --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
 
     expect(code).toBe(2);
 

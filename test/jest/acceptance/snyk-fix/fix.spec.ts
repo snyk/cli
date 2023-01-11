@@ -91,10 +91,13 @@ describe('snyk fix', () => {
   it('fails when api requests fail', async () => {
     const project = await createProjectFromWorkspace('no-vulns');
     server.setNextStatusCode(500);
-    const { code, stdout, stderr } = await runSnykCLI('fix --org=1234', {
-      cwd: project.path(),
-      env,
-    });
+    const { code, stdout, stderr } = await runSnykCLI(
+      'fix --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
     expect(code).toBe(2);
     expect(stdout).toMatch('No successful fixes');
     expect(stderr).toBe('');
