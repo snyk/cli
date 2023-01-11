@@ -112,10 +112,10 @@ test('find package.json file in test fixture ignoring .build folder', async (t) 
   // six levels deep to ensure .build is tested
   const nodeModulesPath = path.join(testFixture, '.build');
   const { files: result } = await find(
-      nodeModulesPath,
-      [],
-      ['Package.swift'],
-      6,
+    nodeModulesPath,
+    [],
+    ['Package.swift'],
+    6,
   );
   const expected = [];
   t.same(result.sort(), expected.sort(), 'should return expected file');
