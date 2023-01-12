@@ -78,6 +78,7 @@ export function getProjectNameFromGitUrl(url: string) {
     /^ssh:\/\/([^@]+@)?[^:/]+(:[^/]+)?\/(?<name>.*).git\/?$/,
     /^(git|https?|ftp):\/\/[^:/]+(:[^/]+)?\/(?<name>.*).git\/?$/,
     /^[^@]+@[^:]+:(?<name>.*).git$/,
+    /^(https?):\/\/github.com\/(?<name>.*)$/,
   ];
 
   const trimmed = url.trim();
