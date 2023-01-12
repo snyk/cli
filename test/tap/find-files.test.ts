@@ -122,7 +122,7 @@ test('find Package.swift file in test fixture ignoring .build folder', async (t)
   const expected = [];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
-test('find Package.swift file in test fixture ignoring test.build folder', async (t) => {
+test('find Package.swift file in test fixture ignoring test.build folder ', async (t) => {
   const nodeModulesPath = path.join(testFixture, 'swift', 'test.build');
   const { files: result } = await find(
     nodeModulesPath,
