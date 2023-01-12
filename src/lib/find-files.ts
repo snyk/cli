@@ -1,9 +1,11 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
+
 const sortBy = require('lodash.sortby');
 const groupBy = require('lodash.groupby');
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
+
 const debug = debugModule('snyk:find-files');
 
 // TODO: use util.promisify once we move to node 8
@@ -45,6 +47,8 @@ interface FindFilesRes {
   allFilesFound: string[];
 }
 
+const ignoreFolders = ['node_modules', '.build'];
+
 /**
  * Find all files in given search path. Returns paths to files found.
  *
@@ -62,14 +66,18 @@ export async function find(
   const found: string[] = [];
   const foundAll: string[] = [];
 
-  // ensure we ignore find against node_modules path.
-  if (path.endsWith('node_modules')) {
+  // ensure we ignore find against node_modules path and .build folder for swift.
+  if (path.endsWith('node_modules') || path.endsWith('/.build')) {
     return { files: found, allFilesFound: foundAll };
   }
-  // ensure node_modules is always ignored
-  if (!ignore.includes('node_modules')) {
-    ignore.push('node_modules');
+
+  // ensure dependencies folders is always ignored
+  for (const folder of ignoreFolders) {
+    if (!ignore.includes(folder)) {
+      ignore.push(folder);
+    }
   }
+
   try {
     if (levelsDeep < 0) {
       return { files: found, allFilesFound: foundAll };

@@ -29,6 +29,7 @@ test('find all files in test fixture', async (t) => {
     path.join(testFixture, 'npm', 'package.json'),
     path.join(testFixture, 'ruby', 'Gemfile.lock'),
     path.join(testFixture, 'yarn', 'yarn.lock'),
+    path.join(testFixture, 'swift', 'test.build', 'Package.swift'),
   ];
   const filteredOut = [
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.toml'),
@@ -89,6 +90,7 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
     path.join(testFixture, 'mvn', 'pom.xml'),
     path.join(testFixture, 'npm-with-lockfile', 'package-lock.json'),
     path.join(testFixture, 'npm', 'package.json'),
+    path.join(testFixture, 'swift', 'test.build', 'Package.swift'),
     path.join(testFixture, 'ruby', 'Gemfile.lock'),
     path.join(testFixture, 'yarn', 'yarn.lock'),
   ];
@@ -105,6 +107,32 @@ test('find package.json file in test fixture ignoring node_modules', async (t) =
     6,
   );
   const expected = [];
+  t.same(result.sort(), expected.sort(), 'should return expected file');
+});
+
+test('find Package.swift file in test fixture ignoring .build folder', async (t) => {
+  // six levels deep to ensure .build is tested
+  const nodeModulesPath = path.join(testFixture, '.build');
+  const { files: result } = await find(
+    nodeModulesPath,
+    [],
+    ['Package.swift'],
+    6,
+  );
+  const expected = [];
+  t.same(result.sort(), expected.sort(), 'should return expected file');
+});
+test('find Package.swift file in test fixture ignoring test.build folder', async (t) => {
+  const nodeModulesPath = path.join(testFixture, 'swift', 'test.build');
+  const { files: result } = await find(
+    nodeModulesPath,
+    [],
+    ['Package.swift'],
+    6,
+  );
+  const expected = [
+    path.join(testFixture, 'swift', 'test.build', 'Package.swift'),
+  ];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
 
