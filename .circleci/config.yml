@@ -1016,6 +1016,7 @@ workflows:
           name: Build (<< matrix.artifact >>)
           requires:
             - Version
+          context: snyk-windows-signing
           matrix:
             parameters:
               artifact:

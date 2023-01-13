@@ -96,9 +96,8 @@ binary-releases/snyk-macos: prepack | binary-releases
 	$(MAKE) binary-releases/snyk-macos.sha256
 
 binary-releases/snyk-win.exe: prepack | binary-releases
-	$(PKG) -t node16-win-x64 -o binary-releases/snyk-win-unsigned.exe
-	./release-scripts/sign-windows-binary.sh
-	rm binary-releases/snyk-win-unsigned.exe
+	$(PKG) -t node16-win-x64 -o binary-releases/snyk-win.exe
+	./cliv2/scripts/sign_windows.sh binary-releases snyk-win.exe
 	$(MAKE) binary-releases/snyk-win.exe.sha256
 
 binary-releases/snyk-for-docker-desktop-darwin-x64.tar.gz: prepack | binary-releases
