@@ -6,6 +6,10 @@
 #
 
 PKG := npx pkg ./ --compress Brotli
+BINARY_WRAPPER_DIR = ts-binary-wrapper
+EXTENSIBLE_CLI_DIR = cliv2
+BINARY_RELEASES_FOLDER_TS_CLI = binary-releases
+BINARY_OUTPUT_FOLDER = binary-releases
 
 .DEFAULT: help
 .PHONY: help
@@ -15,11 +19,16 @@ help:
 	@echo 'This Makefile is currently only for building release artifacts.'
 	@echo 'Use `npm run` for CLIv1 scripts.'
 
-binary-releases:
-	mkdir binary-releases
+$(BINARY_RELEASES_FOLDER_TS_CLI):
+	@mkdir $(BINARY_RELEASES_FOLDER_TS_CLI)
 
-binary-releases/version: | binary-releases
-	./release-scripts/next-version.sh > binary-releases/version
+$(BINARY_RELEASES_FOLDER_TS_CLI)/version: | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+
+ifneq ($(BINARY_OUTPUT_FOLDER), $(BINARY_RELEASES_FOLDER_TS_CLI))
+$(BINARY_OUTPUT_FOLDER)/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/version
+endif
 
 # prepack is not a typical target.
 #   It modifies package.json files rather than only creating new files.
@@ -29,9 +38,9 @@ binary-releases/version: | binary-releases
 #     Only removing "prepack" is not enough. We need to do additional cleanup (see clean-prepack).
 .INTERMEDIATE: prepack
 .SECONDARY: prepack
-prepack: binary-releases/version
+prepack: $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 	@echo "'make prepack' was run. Run 'make clean-prepack' to rollback your package.json changes and this file." > prepack
-	npm version "$(shell cat binary-releases/version)" --no-git-tag-version --workspaces --include-workspace-root
+	npm version "$(shell cat $(BINARY_RELEASES_FOLDER_TS_CLI)/version)" --no-git-tag-version --workspaces --include-workspace-root
 	npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
 
 .PHONY: clean-prepack
@@ -39,75 +48,115 @@ clean-prepack:
 	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json
 	rm -f prepack
 
-.PHONY: clean
-clean: clean-prepack
+.PHONY: clean-ts
+clean-ts: 
 	npm run clean
-	rm -f -r binary-releases
+	rm -f -r $(BINARY_RELEASES_FOLDER_TS_CLI)
 
-
-binary-releases/sha256sums.txt.asc: $(wildcard binary-releases/*.sha256)
+$(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc: $(wildcard $(BINARY_OUTPUT_FOLDER)/*.sha256)
 	./release-scripts/sha256sums.txt.asc.sh
 
-binary-releases/release.json: binary-releases/version $(wildcard binary-releases/*.sha256)
+$(BINARY_OUTPUT_FOLDER)/release.json: $(BINARY_OUTPUT_FOLDER)/version $(wildcard $(BINARY_OUTPUT_FOLDER)/*.sha256)
 	./release-scripts/release.json.sh
 
 # --commit-path is forwarded to `git log <path>`.
 #   We're using this to remove CLIv2 changes in v1's changelogs.
 #   :(exclude) syntax: https://git-scm.com/docs/gitglossary.html#Documentation/gitglossary.txt-exclude
 # Release notes uses version from package.json so we need to prepack beforehand.
-binary-releases/RELEASE_NOTES.md: prepack | binary-releases
-	npx conventional-changelog-cli -p angular -l -r 1 --commit-path ':(exclude)cliv2' > binary-releases/RELEASE_NOTES.md
+$(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	npx conventional-changelog-cli -p angular -l -r 1 --commit-path ':(exclude)cliv2' > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
 
 # Generates a shasum of a target with the same name.
 # See "Automatic Variables" in GNU Make docs (linked at the top)
 %.sha256: %
 	cd $(@D); shasum -a 256 $(<F) > $(@F); shasum -a 256 -c $(@F)
 
-binary-releases/snyk.tgz: prepack | binary-releases
-	mv $(shell npm pack) binary-releases/snyk.tgz
-	$(MAKE) binary-releases/snyk.tgz.sha256
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	mv $(shell npm pack) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz.sha256
 
-binary-releases/snyk-fix.tgz: prepack | binary-releases
-	mv $(shell npm pack --workspace '@snyk/fix') binary-releases/snyk-fix.tgz
-	$(MAKE) binary-releases/snyk-fix.tgz.sha256
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-fix.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	mv $(shell npm pack --workspace '@snyk/fix') $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-fix.tgz
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-fix.tgz.sha256
 
-binary-releases/snyk-protect.tgz: prepack | binary-releases
-	mv $(shell npm pack --workspace '@snyk/protect') binary-releases/snyk-protect.tgz
-	$(MAKE) binary-releases/snyk-protect.tgz.sha256
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	mv $(shell npm pack --workspace '@snyk/protect') $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz.sha256
 
-binary-releases/snyk-alpine: prepack | binary-releases
-	$(PKG) -t node16-alpine-x64 -o binary-releases/snyk-alpine
-	$(MAKE) binary-releases/snyk-alpine.sha256
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PKG) -t node16-alpine-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine.sha256
 
-binary-releases/snyk-linux: prepack | binary-releases
-	$(PKG) -t node16-linux-x64 -o binary-releases/snyk-linux
-	$(MAKE) binary-releases/snyk-linux.sha256
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PKG) -t node16-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux.sha256
 
 # Why `--no-bytecode` for Linux/arm64:
 #   arm64 bytecode generation requires various build tools on an x64 build
 #   environment. So disabling until we can support it. It's an optimisation.
 #   https://github.com/vercel/pkg#targets
-binary-releases/snyk-linux-arm64: prepack | binary-releases
-	$(PKG) -t node16-linux-arm64 -o binary-releases/snyk-linux-arm64 --no-bytecode
-	$(MAKE) binary-releases/snyk-linux-arm64.sha256
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PKG) -t node16-linux-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64 --no-bytecode
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64.sha256
 
-binary-releases/snyk-macos: prepack | binary-releases
-	$(PKG) -t node16-macos-x64 -o binary-releases/snyk-macos
-	$(MAKE) binary-releases/snyk-macos.sha256
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PKG) -t node16-macos-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos.sha256
 
-binary-releases/snyk-win.exe: prepack | binary-releases
-	$(PKG) -t node16-win-x64 -o binary-releases/snyk-win.exe
-	./cliv2/scripts/sign_windows.sh binary-releases snyk-win.exe
-	$(MAKE) binary-releases/snyk-win.exe.sha256
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PKG) -t node16-win-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe
+	./cliv2/scripts/sign_windows.sh $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-win.exe
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe.sha256
 
-binary-releases/snyk-for-docker-desktop-darwin-x64.tar.gz: prepack | binary-releases
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-for-docker-desktop-darwin-x64.tar.gz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	./docker-desktop/build.sh darwin x64
-	$(MAKE) binary-releases/snyk-for-docker-desktop-darwin-x64.tar.gz.sha256
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-for-docker-desktop-darwin-x64.tar.gz.sha256
 
-binary-releases/snyk-for-docker-desktop-darwin-arm64.tar.gz: prepack | binary-releases
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-for-docker-desktop-darwin-arm64.tar.gz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	./docker-desktop/build.sh darwin arm64
-	$(MAKE) binary-releases/snyk-for-docker-desktop-darwin-arm64.tar.gz.sha256
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-for-docker-desktop-darwin-arm64.tar.gz.sha256
 
-binary-releases/docker-mac-signed-bundle.tar.gz: prepack | binary-releases
+$(BINARY_RELEASES_FOLDER_TS_CLI)/docker-mac-signed-bundle.tar.gz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	./release-scripts/docker-desktop-release.sh
-	$(MAKE) binary-releases/docker-mac-signed-bundle.tar.gz.sha256
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/docker-mac-signed-bundle.tar.gz.sha256
+
+# targets responsible for the Wrapper CLI (TS around Golang)
+$(BINARY_WRAPPER_DIR)/src/generated:
+	@mkdir $(BINARY_WRAPPER_DIR)/src/generated/
+
+$(BINARY_WRAPPER_DIR)/src/generated/version: $(BINARY_WRAPPER_DIR)/src/generated $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_WRAPPER_DIR)/src/generated/version
+
+$(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
+	@echo "-- Generating $(@F)"
+	@cat $(BINARY_OUTPUT_FOLDER)/*.sha256 > $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
+
+.PHONY: build-binary-wrapper
+build-binary-wrapper: $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
+	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
+	@cd $(BINARY_WRAPPER_DIR) && npm run build
+	
+.PHONY: clean-binary-wrapper
+clean-binary-wrapper:
+	@cd $(BINARY_WRAPPER_DIR) && npm run clean
+
+.PHONY: pack-binary-wrapper
+pack-binary-wrapper: build-binary-wrapper
+	@echo "-- Packaging tarball ($(BINARY_OUTPUT_FOLDER)/snyk.tgz)"
+	@mv $(BINARY_WRAPPER_DIR)/$(shell cd $(BINARY_WRAPPER_DIR) && npm pack) $(BINARY_OUTPUT_FOLDER)/snyk.tgz
+
+.PHONY: test-binary-wrapper
+test-binary-wrapper: 
+	@echo "-- Testing binary wrapper"
+	@cd $(BINARY_WRAPPER_DIR) && npm run test
+
+
+# targets responsible for the complete CLI build
+.PHONY: build
+build:
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) build-full install bindir=$(CURDIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+
+.PHONY: clean
+clean:
+	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) clean-full
+	$(MAKE) clean-prepack

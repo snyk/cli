@@ -1,0 +1,39 @@
+{
+  "name": "ts-binary-wrapper",
+  "version": "1.0.0",
+  "description": "Wrapper for Snyk's Golang based Extensible CLI.",
+  "main": "dist/index.js",
+  "directories": {
+    "lib": "src",
+    "test": "test"
+  },
+  "bin": {
+    "snyk": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo src/generated",
+    "build": "tsc && cp -R src/generated dist/",
+    "test": "npx jest test/*",
+    "postinstall": "node dist/bootstrap.js exec"
+  },
+  "keywords": [
+    "security",
+    "vulnerabilities",
+    "advisories",
+    "audit",
+    "snyk",
+    "scan",
+    "docker",
+    "container",
+    "scanning"
+  ],
+  "author": "snyk.io",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snyk/snyk.git"
+  }
+}
