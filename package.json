@@ -59,7 +59,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@open-policy-agent/opa-wasm": "^1.6.0",
+    "@open-policy-agent/opa-wasm": "^1.8.0",
     "@snyk/cli-interface": "2.11.0",
     "@snyk/cloud-config-parser": "^1.14.5",
     "@snyk/code-client": "^4.14.0",
