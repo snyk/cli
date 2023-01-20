@@ -70,7 +70,7 @@
     "@snyk/snyk-cocoapods-plugin": "2.5.3",
     "@snyk/snyk-hex-plugin": "1.1.6",
     "@types/jest-json-schema": "^6.1.1",
-    "@types/marked": "^4.0.0",
+    "@types/marked": "^4.0.8",
     "abbrev": "^1.1.1",
     "adm-zip": "^0.5.9",
     "ansi-escapes": "3.2.0",
