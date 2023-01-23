@@ -115,7 +115,7 @@
     "snyk-cpp-plugin": "2.20.1",
     "snyk-docker-plugin": "^5.7.4",
     "snyk-go-plugin": "^1.19.4",
-    "snyk-gradle-plugin": "3.25.1",
+    "snyk-gradle-plugin": "3.25.2",
     "snyk-module": "3.1.0",
     "snyk-mvn-plugin": "2.32.0",
     "snyk-nodejs-lockfile-parser": "1.45.1",
