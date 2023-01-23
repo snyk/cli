@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const CACHEDIR_PERMISSION = 0755
+
 // The directory structure used to cache things into
 // - Base cache directory (user definable, default depends on OS, exmple:  /Users/username/Library/Caches/snyk/)
 // |- Version cache directory (example: /Users/username/Library/Caches/snyk/1.1075.0/)
@@ -26,7 +28,7 @@ func CreateAllDirectories(baseCacheDirectory string, versionNumber string) error
 	}
 
 	for _, dir := range directoryList {
-		err := os.MkdirAll(dir, 0755)
+		err := os.MkdirAll(dir, CACHEDIR_PERMISSION)
 		if err != nil {
 			return errors.Wrap(err, "failed to create all directories.")
 		}
