@@ -70,11 +70,13 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
 func (c *CLI) Init() (err error) {
 	c.DebugLogger.Println("Init start")
 
-	// ensure the specified base cache directory exists, this needs to be done even before acquiring the lock
-	if _, err = os.Stat(c.CacheDirectory); os.IsNotExist(err) {
-		err = os.Mkdir(c.CacheDirectory, local_utils.CACHEDIR_PERMISSION)
-		if err != nil {
-			return err
+	if len(c.CacheDirectory) > 0 {
+		// ensure the specified base cache directory exists, this needs to be done even before acquiring the lock
+		if _, err = os.Stat(c.CacheDirectory); os.IsNotExist(err) {
+			err = os.Mkdir(c.CacheDirectory, local_utils.CACHEDIR_PERMISSION)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
