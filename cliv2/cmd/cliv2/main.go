@@ -235,6 +235,8 @@ func MainWithErrorCode() int {
 
 	debugLogger.Println("Organization:", config.GetString(configuration.ORGANIZATION))
 	debugLogger.Println("API:", config.GetString(configuration.API_URL))
+	debugLogger.Println("Cache directory:", config.GetString(configuration.CACHE_PATH))
+	debugLogger.Println("Insecure HTTPS:", config.GetBool(configuration.INSECURE_HTTPS))
 
 	// init NetworkAccess
 	networkAccess := engine.GetNetworkAccess()

@@ -64,8 +64,6 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 	}
 
 	debugLogger.Println("Arguments:", args)
-	debugLogger.Println("Cache directory:", cacheDirectory)
-	debugLogger.Println("Insecure HTTPS:", insecure)
 	debugLogger.Println("Use StdIO:", useStdIo)
 
 	// init cli object
