@@ -95,8 +95,6 @@ export default async function test(
     throw new MissingArgError();
   }
 
-  // TODO remove 'app-vulns' options and warning message once
-  // https://github.com/snyk/cli/pull/3433 is merged
   if (options.docker) {
     // order is important here, we want:
     // 1) exclude-app-vulns set -> no app vulns

@@ -93,9 +93,6 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   if (options.docker && options['remote-repo-url']) {
     throw new Error('`--remote-repo-url` is not supported for container scans');
   }
-
-  // TODO remove 'app-vulns' options and warning message once
-  // https://github.com/snyk/cli/pull/3433 is merged
   if (options.docker) {
     // order is important here, we want:
     // 1) exclude-app-vulns set -> no app vulns
