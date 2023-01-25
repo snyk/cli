@@ -63,7 +63,6 @@ describe('monitorEcosystem docker/container', () => {
       {
         path: '/srv',
         docker: true,
-        'app-vulns': true,
         org: 'my-org',
         tags: 'keyone=valueone',
       },
@@ -76,7 +75,6 @@ describe('monitorEcosystem docker/container', () => {
       {
         path: '/srv',
         docker: true,
-        'app-vulns': true,
         org: 'my-org',
       } as Options,
     );
