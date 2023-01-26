@@ -5,9 +5,9 @@ import {
   parseDriftAnalysisResults,
   updateExcludeInPolicy,
   validateArgs,
-} from '../../../../../src/lib/iac/drift';
+} from '../../../../../../src/lib/iac/drift';
 import envPaths from 'env-paths';
-import { EXIT_CODES } from '../../../../../src/cli/exit-codes';
+import { EXIT_CODES } from '../../../../../../src/cli/exit-codes';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
@@ -15,20 +15,20 @@ import {
   DriftAnalysis,
   DriftCTLOptions,
   GenDriftIgnoreOptions,
-} from '../../../../../src/lib/iac/types';
-import { addIacDriftAnalytics } from '../../../../../src/cli/commands/test/iac/local-execution/analytics';
-import * as analytics from '../../../../../src/lib/analytics';
+} from '../../../../../../src/lib/iac/types';
+import { addIacDriftAnalytics } from '../../../../../../src/cli/commands/test/iac/local-execution/analytics';
+import * as analytics from '../../../../../../src/lib/analytics';
 import * as snykPolicy from 'snyk-policy';
-import { Policy } from '../../../../../src/lib/policy/find-and-load-policy';
-import { DescribeRequiredArgumentError } from '../../../../../src/lib/errors/describe-required-argument-error';
-import { DescribeExclusiveArgumentError } from '../../../../../src/lib/errors/describe-exclusive-argument-error';
+import { Policy } from '../../../../../../src/lib/policy/find-and-load-policy';
+import { DescribeRequiredArgumentError } from '../../../../../../src/lib/errors/describe-required-argument-error';
+import { DescribeExclusiveArgumentError } from '../../../../../../src/lib/errors/describe-exclusive-argument-error';
 import {
   DCTL_EXIT_CODES,
   driftctlVersion,
   generateArgs,
   translateExitCode,
-} from '../../../../../src/lib/iac/drift/driftctl';
-import { getHumanReadableAnalysis } from '../../../../../src/lib/iac/drift/output';
+} from '../../../../../../src/lib/iac/drift/driftctl';
+import { getHumanReadableAnalysis } from '../../../../../../src/lib/iac/drift/output';
 
 const paths = envPaths('snyk');
 
