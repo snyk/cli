@@ -62,7 +62,7 @@
     "@open-policy-agent/opa-wasm": "^1.6.0",
     "@snyk/cli-interface": "2.11.0",
     "@snyk/cloud-config-parser": "^1.14.5",
-    "@snyk/code-client": "^4.14.0",
+    "@snyk/code-client": "^4.15.0",
     "@snyk/dep-graph": "^1.27.1",
     "@snyk/docker-registry-v2-client": "^2.7.3",
     "@snyk/fix": "file:packages/snyk-fix",
