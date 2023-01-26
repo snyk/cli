@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/flock"
+	"github.com/pkg/errors"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
@@ -75,6 +76,10 @@ func (c *CLI) Init() (err error) {
 		if _, err = os.Stat(c.CacheDirectory); os.IsNotExist(err) {
 			err = os.Mkdir(c.CacheDirectory, local_utils.CACHEDIR_PERMISSION)
 			if err != nil {
+				// If the path given contains sub directories, ask user to create them (as using MkdirAll will result in concurrency issues)
+				if strings.Contains(c.CacheDirectory, "/") {
+					errors.Wrap("Cache directory path contains sub-directories. Please create all sub-directories in the path")
+				}
 				return err
 			}
 		}
