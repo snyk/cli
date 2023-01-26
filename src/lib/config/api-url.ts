@@ -180,3 +180,15 @@ export function getHiddenApiUrl(restUrl: string): string {
 
   return parsedBaseUrl.toString();
 }
+
+export function getRootUrl(apiUrlString: string): string {
+  // based on https://docs.snyk.io/snyk-processes/data-residency-at-snyk#what-regions-are-available the pattern is as follows
+  // https://app.[region.]snyk.io
+  // given an api url that starts with api means, that we can replace "api" by "app".
+
+  const apiUrl = new URL(apiUrlString);
+  apiUrl.host = apiUrl.host.replace(/^api\./, '');
+
+  const rootUrl = apiUrl.protocol + '//' + apiUrl.host;
+  return rootUrl;
+}
