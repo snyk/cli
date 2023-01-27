@@ -2,6 +2,7 @@ import {
   getBaseApiUrl,
   getV1ApiUrl,
   getRestApiUrl,
+  getRootUrl,
 } from '../../../../src/lib/config/api-url';
 
 const urls = [
@@ -10,72 +11,84 @@ const urls = [
     expectedBase: 'https://snyk.io/api/',
     expectedV1: 'https://snyk.io/api/v1',
     expectedRest: 'https://api.snyk.io/rest',
+    expectedRoot: 'https://snyk.io',
   },
   {
     userInput: 'https://snyk.io/api',
     expectedBase: 'https://snyk.io/api',
     expectedV1: 'https://snyk.io/api/v1',
     expectedRest: 'https://api.snyk.io/rest',
+    expectedRoot: 'https://snyk.io',
   },
   {
     userInput: 'https://app.snyk.io/api',
     expectedBase: 'https://app.snyk.io/api',
     expectedV1: 'https://app.snyk.io/api/v1',
     expectedRest: 'https://api.snyk.io/rest',
+    expectedRoot: 'https://app.snyk.io',
   },
   {
     userInput: 'https://app.snyk.io/api/v1',
     expectedBase: 'https://app.snyk.io/api/',
     expectedV1: 'https://app.snyk.io/api/v1',
     expectedRest: 'https://api.snyk.io/rest',
+    expectedRoot: 'https://app.snyk.io',
   },
   {
     userInput: 'https://api.snyk.io/v1',
     expectedBase: 'https://api.snyk.io/',
     expectedV1: 'https://api.snyk.io/v1',
     expectedRest: 'https://api.snyk.io/rest',
+    expectedRoot: 'https://snyk.io',
   },
   {
     userInput: 'https://api.snyk.io',
     expectedBase: 'https://api.snyk.io',
     expectedV1: 'https://api.snyk.io/v1',
     expectedRest: 'https://api.snyk.io/rest',
+    expectedRoot: 'https://snyk.io',
   },
   {
     userInput: 'https://api.snyk.io/',
     expectedBase: 'https://api.snyk.io/',
     expectedV1: 'https://api.snyk.io/v1',
     expectedRest: 'https://api.snyk.io/rest',
+    expectedRoot: 'https://snyk.io',
   },
   {
     userInput: 'https://api.custom.snyk.io',
     expectedBase: 'https://api.custom.snyk.io',
     expectedV1: 'https://api.custom.snyk.io/v1',
     expectedRest: 'https://api.custom.snyk.io/rest',
+    expectedRoot: 'https://custom.snyk.io',
   },
   {
     userInput: 'http://localhost:9000/',
     expectedBase: 'http://localhost:9000/',
     expectedV1: 'http://localhost:9000/v1',
     expectedRest: 'http://localhost:9000/rest',
+    expectedRoot: 'http://localhost:9000',
   },
   {
     userInput: 'http://localhost:9000/api/v1',
     expectedBase: 'http://localhost:9000/api/',
     expectedV1: 'http://localhost:9000/api/v1',
     expectedRest: 'http://localhost:9000/rest',
+    expectedRoot: 'http://localhost:9000',
   },
   {
     userInput: 'http://alpha:omega@localhost:9000',
     expectedBase: 'http://alpha:omega@localhost:9000',
     expectedV1: 'http://alpha:omega@localhost:9000/v1',
     expectedRest: 'http://alpha:omega@localhost:9000/rest',
+    expectedRoot: 'http://localhost:9000',
   },
   {
     userInput: 'https://app.dev.snyk.io/api/v1',
     expectedBase: 'https://app.dev.snyk.io/api/',
     expectedV1: 'https://app.dev.snyk.io/api/v1',
     expectedRest: 'https://api.dev.snyk.io/rest',
+    expectedRoot: 'https://app.dev.snyk.io',
   },
 ];
 
@@ -149,6 +162,14 @@ describe('CLI config - API URL', () => {
     urls.forEach((url) => {
       it(`returns REST API URL ${url.expectedBase}`, () => {
         expect(getRestApiUrl(url.expectedBase)).toEqual(url.expectedRest);
+      });
+    });
+  });
+
+  describe('getRootUrl', () => {
+    urls.forEach((url) => {
+      it(`returns ROOT URL ${url.userInput}`, () => {
+        expect(getRootUrl(url.userInput)).toEqual(url.expectedRoot);
       });
     });
   });
