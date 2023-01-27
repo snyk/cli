@@ -75,7 +75,7 @@ func (c *CLI) Init() (err error) {
 		if _, err = os.Stat(c.CacheDirectory); os.IsNotExist(err) {
 			err = os.Mkdir(c.CacheDirectory, local_utils.CACHEDIR_PERMISSION)
 			if err != nil {
-				return err
+				return fmt.Errorf("Cache directory path is invalid: %w", err)
 			}
 		}
 	}

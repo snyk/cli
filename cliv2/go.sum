@@ -188,6 +188,8 @@ github.com/snyk/cli-extension-sbom v0.0.0-20221212093410-6b474ed1a42a h1:kImXWA4
 github.com/snyk/cli-extension-sbom v0.0.0-20221212093410-6b474ed1a42a/go.mod h1:ohrrgC94Gx82/cgSiac02JQrsMjFtggvhAvXGuGjDGU=
 github.com/snyk/go-application-framework v0.0.0-20230108154252-b4819d803624 h1:hSkeC6T7h5ppnRCMy236LGi1atqmhBJkLWSI7vsYOTk=
 github.com/snyk/go-application-framework v0.0.0-20230108154252-b4819d803624/go.mod h1:HtfqpR9P9WmTym2HruG7w/be5w+/HBfl5Y82CXSZ7tU=
+github.com/snyk/go-application-framework v0.0.0-20230125123834-dfb806074f4a h1:PAW3dFhSDGXefDi6I4sK4/6G23czznRQOaZoBSe0Q3M=
+github.com/snyk/go-application-framework v0.0.0-20230125123834-dfb806074f4a/go.mod h1:HtfqpR9P9WmTym2HruG7w/be5w+/HBfl5Y82CXSZ7tU=
 github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd h1:zjDhcQ642rIVI8aIjfG5uVcw+OGotQtX2l9VHe7IqCQ=
 github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd/go.mod h1:v6t6wKizOcHXT3p4qKn6Bda7yNIjCQ54Xyl31NjgXkY=
 github.com/spf13/afero v1.9.2 h1:j49Hj62F0n+DaZ1dDCvhABaPNSGNkt32oRFxI33IEMw=
