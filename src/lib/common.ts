@@ -33,7 +33,7 @@ export function testPlatformSupport() {
       ' The current platform (' +
       currentPlatform +
       ') is not supported by Snyk.\n' +
-      ' You may want to consider using docker to run Snyk.\n' +
+      ' You may want to consider using Docker to run Snyk, for details see: https://docs.snyk.io/snyk-cli/install-the-snyk-cli#snyk-cli-in-a-docker-image\n' +
       ' If you experience errors please reach out to support@snyk.io.\n' +
       '-----------------------------------------------------------------------';
 
