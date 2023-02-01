@@ -38,7 +38,7 @@ jobs:
               to_entries[] |
               select(
                 .value.owners |
-                index("@snyk/group-infrastructure-as-code")
+                index("@snyk/cloud-dev-ex")
               ) |
               .key
             ]'
