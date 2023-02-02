@@ -87,6 +87,7 @@ export function determineBinaryName(
 
   switch (arch) {
     case 'x64':
+    case 'amd64':
       archname = '';
       break;
     case 'arm64':
@@ -190,7 +191,7 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   return exitCode;
 }
 
-export async function downloadExecutable(
+export function downloadExecutable(
   downloadUrl: string,
   filename: string,
   filenameShasum: string,

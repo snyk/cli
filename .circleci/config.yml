@@ -572,7 +572,10 @@ jobs:
             cp cliv2/bin/snyk-linux-arm64 binary-releases/snyk-linux-arm64
             cp cliv2/bin/snyk-linux-arm64.sha256 binary-releases/snyk-linux-arm64.sha256
       - run:
-          name: Signing shasums
+          name: Making TS-Binary-Wrapper (snyk.tgz)
+          command: make binary-releases/snyk.tgz
+      - run:
+          name: Signing all shasums
           command: make binary-releases/sha256sums.txt.asc
       - run:
           name: Making release.json
@@ -1028,7 +1031,6 @@ workflows:
           matrix:
             parameters:
               artifact:
-                - snyk.tgz
                 - snyk-fix.tgz
                 - snyk-protect.tgz
                 - snyk-alpine
@@ -1074,7 +1076,6 @@ workflows:
           context:
             - snyk-cli-pgp-signing
           requires:
-            - Build (snyk.tgz)
             - Build (snyk-fix.tgz)
             - Build (snyk-protect.tgz)
             - Build (snyk-alpine)
