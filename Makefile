@@ -26,7 +26,10 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/version: | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 
 ifneq ($(BINARY_OUTPUT_FOLDER), $(BINARY_RELEASES_FOLDER_TS_CLI))
-$(BINARY_OUTPUT_FOLDER)/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+$(BINARY_OUTPUT_FOLDER):
+	@mkdir $(BINARY_OUTPUT_FOLDER)
+
+$(BINARY_OUTPUT_FOLDER)/version: $(BINARY_OUTPUT_FOLDER) $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/version
 endif
 
@@ -38,14 +41,15 @@ endif
 #     Only removing "prepack" is not enough. We need to do additional cleanup (see clean-prepack).
 .INTERMEDIATE: prepack
 .SECONDARY: prepack
-prepack: $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+prepack: $(BINARY_OUTPUT_FOLDER)/version
 	@echo "'make prepack' was run. Run 'make clean-prepack' to rollback your package.json changes and this file." > prepack
 	npm version "$(shell cat $(BINARY_RELEASES_FOLDER_TS_CLI)/version)" --no-git-tag-version --workspaces --include-workspace-root
+	cd $(BINARY_WRAPPER_DIR) && npm version "$(shell cat $(CURDIR)/$(BINARY_RELEASES_FOLDER_TS_CLI)/version)" --no-git-tag-version --include-workspace-root
 	npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
 
 .PHONY: clean-prepack
 clean-prepack:
-	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json
+	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json $(BINARY_WRAPPER_DIR)/package.json $(BINARY_WRAPPER_DIR)/package-lock.json
 	rm -f prepack
 
 .PHONY: clean-ts
@@ -53,10 +57,10 @@ clean-ts:
 	npm run clean
 	rm -f -r $(BINARY_RELEASES_FOLDER_TS_CLI)
 
-$(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc: $(wildcard $(BINARY_OUTPUT_FOLDER)/*.sha256)
+$(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc:
 	./release-scripts/sha256sums.txt.asc.sh
 
-$(BINARY_OUTPUT_FOLDER)/release.json: $(BINARY_OUTPUT_FOLDER)/version $(wildcard $(BINARY_OUTPUT_FOLDER)/*.sha256)
+$(BINARY_OUTPUT_FOLDER)/release.json: $(BINARY_OUTPUT_FOLDER)/version
 	./release-scripts/release.json.sh
 
 # --commit-path is forwarded to `git log <path>`.
@@ -71,8 +75,8 @@ $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_
 %.sha256: %
 	cd $(@D); shasum -a 256 $(<F) > $(@F); shasum -a 256 -c $(@F)
 
-$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	mv $(shell npm pack) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI) 
+	$(MAKE) pack-binary-wrapper
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-fix.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
@@ -121,6 +125,9 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/docker-mac-signed-bundle.tar.gz: prepack | $(BI
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/docker-mac-signed-bundle.tar.gz.sha256
 
 # targets responsible for the Wrapper CLI (TS around Golang)
+$(BINARY_WRAPPER_DIR)/README.md:
+	@cp ./README.md $(BINARY_WRAPPER_DIR)/README.md
+
 $(BINARY_WRAPPER_DIR)/src/generated:
 	@mkdir $(BINARY_WRAPPER_DIR)/src/generated/
 
@@ -132,7 +139,7 @@ $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 	@cat $(BINARY_OUTPUT_FOLDER)/*.sha256 > $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
 
 .PHONY: build-binary-wrapper
-build-binary-wrapper: $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
+build-binary-wrapper: $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt $(BINARY_WRAPPER_DIR)/README.md
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
 	@cd $(BINARY_WRAPPER_DIR) && npm run build
 	
