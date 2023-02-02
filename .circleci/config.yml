@@ -548,9 +548,6 @@ jobs:
           at: .
       - setup_npm
       - run:
-          name: Validating NPM artifacts
-          command: ./release-scripts/validate-npm-artifacts.sh
-      - run:
           name: Copy Windows cliv2 binaries to binary-releases staging area
           command: |
             ls -la cliv2/bin
@@ -592,6 +589,40 @@ jobs:
           root: .
           paths:
             - binary-releases
+  pre-release:
+    executor: docker-node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - setup_npm
+      - aws-cli/install:
+          version: << pipeline.parameters.aws_version >>
+      - run:
+          name: Pre-Publishing
+          command: make release-pre
+      - run:
+          name: Handling failed release
+          command: ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
+  test-release:
+    parameters:
+      executor:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Validating NPM artifacts
+          command: bash ./release-scripts/validate-npm-artifacts.sh
+      - run:
+          name: Handling failed release
+          command: bash ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
   release:
     executor: docker-node
     steps:
@@ -599,37 +630,14 @@ jobs:
       - attach_workspace:
           at: .
       - setup_npm
-      - run:
-          name: Validating artifacts
-          command: ./release-scripts/validate-checksums.sh
       - gh/setup:
           token: GH_TOKEN
           version: << pipeline.parameters.gh_version >>
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
-          name: Ensure master branch
-          command: |
-            if [ "$CIRCLE_BRANCH" != "master" ]; then
-              echo "Release must be on 'master' branch."
-              exit 1
-            fi
-      - run:
-          name: Ensure not already released
-          command: |
-            if git describe --contains --tags; then
-              echo "This commit has already been released."
-              exit 1
-            fi
-      - run:
-          name: Publishing npm packages
-          command: |
-            npm publish ./binary-releases/snyk-fix.tgz
-            npm publish ./binary-releases/snyk-protect.tgz
-            npm publish ./binary-releases/snyk.tgz
-      - run:
-          name: Publishing artifacts
-          command: ./release-scripts/upload-artifacts.sh
+          name: Publishing
+          command: make release-final
       - run:
           name: Handling failed release
           command: ./release-scripts/handle-failed-release.sh
@@ -1095,11 +1103,33 @@ workflows:
             branches:
               only:
                 - master
+      - pre-release:
+          name: Pre-Release
+          context: nodejs-app-release
+          requires:
+            - Release?
+          filters:
+            branches:
+              only:
+                - master
+      - test-release:
+          name: Test Release (<< matrix.executor >>)
+          matrix:
+            parameters:
+              executor: ['linux', 'win/default', 'macos']
+          requires:
+            - Pre-Release
+          filters:
+            branches:
+              only:
+                - master
       - release:
           name: Release
           context: nodejs-app-release
           requires:
-            - Release?
+            - Test Release (linux)
+            - Test Release (win/default)
+            - Test Release (macos)
           filters:
             branches:
               only:

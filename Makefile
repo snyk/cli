@@ -160,3 +160,18 @@ build:
 clean:
 	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) clean-full
 	$(MAKE) clean-prepack
+
+# targets responsible for the CLI release
+.PHONY: release-pre
+release-pre:
+	@echo "-- Validating repository"
+	@./release-scripts/validate-repository.sh
+	@echo "-- Validating artifacts"
+	@./release-scripts/validate-checksums.sh
+	@echo "-- Publishing to S3 /version"
+	@./release-scripts/upload-artifacts.sh version
+
+.PHONY: release-final
+release-final:
+	@echo "-- Publishing"
+	@./release-scripts/upload-artifacts.sh latest github npm
