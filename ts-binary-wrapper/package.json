@@ -1,12 +1,8 @@
 {
-  "name": "snyk",
-  "version": "1.0.0-monorepo",
-  "description": "snyk library and cli utility",
+  "name": "ts-binary-wrapper",
+  "version": "1.0.0",
+  "description": "Wrapper for Snyk's Golang based Extensible CLI.",
   "main": "dist/index.js",
-  "files": [
-    "dist/**/*",
-    "README.md"
-  ],
   "directories": {
     "lib": "src",
     "test": "test"
@@ -18,7 +14,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "clean": "npx rimraf dist tsconfig.tsbuildinfo src/generated README.md",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo src/generated",
     "build": "tsc && cp -R src/generated dist/",
     "test": "npx jest test/*",
     "postinstall": "node dist/bootstrap.js exec"
@@ -39,9 +35,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/snyk/snyk.git"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
-    "access": "public"
   }
 }
