@@ -23,23 +23,38 @@ declare -a StaticFiles=(
 
 VERSION_TAG="v$(cat binary-releases/version)"
 
-# Upload files to the GitHub release
-gh release create "${VERSION_TAG}" "${StaticFiles[@]}" \
-  --target "${CIRCLE_SHA1}" \
-  --title "${VERSION_TAG}" \
-  --notes-file binary-releases/RELEASE_NOTES.md
+if [ ${#} == 0 ]; then
+  echo "No upload target defined!"
+  exit 1
+fi
 
-# Upload files to the versioned folder
-for filename in "${StaticFiles[@]}"; do
-  aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/
+for arg in "${@}"; do
+   target="${arg}"
+    if [ "${arg}" == "version" ]; then
+      target="${VERSION_TAG}"
+    fi
+    echo "Uploading to ${target}"
+
+  # Upload files to the GitHub release
+  if [ "${arg}" == "github" ]; then
+    gh release create "${VERSION_TAG}" "${StaticFiles[@]}" \
+      --target "${CIRCLE_SHA1}" \
+      --title "${VERSION_TAG}" \
+      --notes-file binary-releases/RELEASE_NOTES.md
+
+  # Upload files to npm
+  elif [ "${arg}" == "npm" ]; then
+    npm publish ./binary-releases/snyk-fix.tgz
+	  npm publish ./binary-releases/snyk-protect.tgz
+	  npm publish ./binary-releases/snyk.tgz
+  
+  # Upload files to S3 bucket
+  else
+    for filename in "${StaticFiles[@]}"; do
+      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${target}"/
+    done
+
+    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${target}"/
+    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${target}"/
+  fi  
 done
-
-# Upload files to the /latest folder
-for filename in "${StaticFiles[@]}"; do
-  aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/latest/
-done
-
-aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/
-aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/
-aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/latest/
-aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/latest/
