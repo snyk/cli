@@ -1,5 +1,5 @@
 import { prepareEnvironment } from '../util/prepareEnvironment';
-import * as common from '../../src/common';
+import * as bootstrap from '../../src/bootstrap';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as child_process from 'child_process';
@@ -10,10 +10,10 @@ describe('Basic acceptance test', () => {
   it('Bootstrap binary & execute a command', async () => {
     const cliVersionForTesting = '1.1080.0';
     const envInfo = await prepareEnvironment(cliVersionForTesting);
-    const config = common.getCurrentConfiguration();
-    const executable = config
-      .getLocalLocation()
-      .replace(envInfo.inputfolder, envInfo.outputfolder);
+    const executable = bootstrap.executable.replace(
+      envInfo.inputfolder,
+      envInfo.outputfolder,
+    );
 
     try {
       fs.unlinkSync(executable);
