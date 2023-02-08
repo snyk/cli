@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as fs from 'fs';
 import { spawnSync } from 'child_process';
 import * as https from 'https';
-import { createHash } from 'crypto';
+import { randomInt, createHash } from 'crypto';
 
 export const versionFile = path.join(__dirname, 'generated', 'version');
 export const shasumFile = path.join(__dirname, 'generated', 'sha256sums.txt');
@@ -87,7 +87,6 @@ export function determineBinaryName(
 
   switch (arch) {
     case 'x64':
-    case 'amd64':
       archname = '';
       break;
     case 'arm64':
@@ -191,14 +190,14 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   return exitCode;
 }
 
-export function downloadExecutable(
+export async function downloadExecutable(
   downloadUrl: string,
   filename: string,
   filenameShasum: string,
 ): Promise<number> {
   return new Promise<number>(function(resolve) {
     const options = new URL(downloadUrl);
-    const temp = path.join(__dirname, Date.now().toString());
+    const temp = path.join(__dirname, randomInt(100000).toString());
     const fileStream = fs.createWriteStream(temp);
 
     const cleanupAfterError = (exitCode: number) => {
