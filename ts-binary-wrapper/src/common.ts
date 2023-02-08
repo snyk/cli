@@ -87,7 +87,6 @@ export function determineBinaryName(
 
   switch (arch) {
     case 'x64':
-    case 'amd64':
       archname = '';
       break;
     case 'arm64':
