@@ -15,6 +15,11 @@ Describe "Snyk Code test command"
       The output should include "Static code analysis"
       The output should include "✗ [High] SQL Injection"
       The status should be failure
+      if should_have_deprecation_warnings; then
+        The stderr should not equal ""
+      else
+        The stderr should equal ""
+      fi
     End
   End
 
@@ -24,6 +29,11 @@ Describe "Snyk Code test command"
       The status should be failure # issues found
       The output should include '"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"'
       The output should include '"name": "SnykCode"'
+      if should_have_deprecation_warnings; then
+        The stderr should not equal ""
+      else
+        The stderr should equal ""
+      fi
       The result of function check_valid_json should be success
     End
   End
