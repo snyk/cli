@@ -69,6 +69,8 @@ github.com/fsnotify/fsnotify v1.5.4/go.mod h1:OVB6XrOHzAwXMpEM7uPOzcehqUV2UqJxmV
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200222043503-6f7a984d4dc4/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
+github.com/gofrs/flock v0.8.1 h1:+gYjHKf32LDeiEEFhQaotPbLuUXjY5ZqxKgXy7n59aw=
+github.com/gofrs/flock v0.8.1/go.mod h1:F1TvTiK9OcQqauNUHlbJvyl9Qa1QvF/gOUDKA14jxHU=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
 github.com/golang/groupcache v0.0.0-20191227052852-215e87163ea7/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
@@ -184,8 +186,8 @@ github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZV
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/snyk/cli-extension-sbom v0.0.0-20221212093410-6b474ed1a42a h1:kImXWA4kbwaREeC+kaJ8H0aOukWzpK8K/UzAsExj6MU=
 github.com/snyk/cli-extension-sbom v0.0.0-20221212093410-6b474ed1a42a/go.mod h1:ohrrgC94Gx82/cgSiac02JQrsMjFtggvhAvXGuGjDGU=
-github.com/snyk/go-application-framework v0.0.0-20221215182111-b2d10cf1e146 h1:V5kc8tSGVhyiPNuEXkZ9CVmwWiYlMmaQGpjRbORuqlU=
-github.com/snyk/go-application-framework v0.0.0-20221215182111-b2d10cf1e146/go.mod h1:5hLGqObbxLWnZkhn3Xc5PblESjQOfjN509ucQ4dtqz8=
+github.com/snyk/go-application-framework v0.0.0-20230127154548-a9c237373827 h1:cUpEEJ7g404dDABJbQU5auuqSFqTBx9+6g45TCcFOTQ=
+github.com/snyk/go-application-framework v0.0.0-20230127154548-a9c237373827/go.mod h1:HtfqpR9P9WmTym2HruG7w/be5w+/HBfl5Y82CXSZ7tU=
 github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd h1:zjDhcQ642rIVI8aIjfG5uVcw+OGotQtX2l9VHe7IqCQ=
 github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd/go.mod h1:v6t6wKizOcHXT3p4qKn6Bda7yNIjCQ54Xyl31NjgXkY=
 github.com/spf13/afero v1.9.2 h1:j49Hj62F0n+DaZ1dDCvhABaPNSGNkt32oRFxI33IEMw=

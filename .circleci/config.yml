@@ -548,9 +548,6 @@ jobs:
           at: .
       - setup_npm
       - run:
-          name: Validating NPM artifacts
-          command: ./release-scripts/validate-npm-artifacts.sh
-      - run:
           name: Copy Windows cliv2 binaries to binary-releases staging area
           command: |
             ls -la cliv2/bin
@@ -562,6 +559,18 @@ jobs:
             ls -la cliv2/bin
             cp cliv2/bin/snyk-macos binary-releases/snyk-macos
             cp cliv2/bin/snyk-macos.sha256 binary-releases/snyk-macos.sha256
+      - run:
+          name: Copy linux cliv2 binaries to binary-releases staging area
+          command: |
+            ls -la cliv2/bin
+            cp cliv2/bin/snyk-linux binary-releases/snyk-linux
+            cp cliv2/bin/snyk-linux.sha256 binary-releases/snyk-linux.sha256
+      - run:
+          name: Copy linux arm64 cliv2 binaries to binary-releases staging area
+          command: |
+            ls -la cliv2/bin
+            cp cliv2/bin/snyk-linux-arm64 binary-releases/snyk-linux-arm64
+            cp cliv2/bin/snyk-linux-arm64.sha256 binary-releases/snyk-linux-arm64.sha256
       - run:
           name: Signing shasums
           command: make binary-releases/sha256sums.txt.asc
@@ -580,6 +589,40 @@ jobs:
           root: .
           paths:
             - binary-releases
+  pre-release:
+    executor: docker-node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - setup_npm
+      - aws-cli/install:
+          version: << pipeline.parameters.aws_version >>
+      - run:
+          name: Pre-Publishing
+          command: make release-pre
+      - run:
+          name: Handling failed release
+          command: ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
+  test-release:
+    parameters:
+      executor:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Validating NPM artifacts
+          command: bash ./release-scripts/validate-npm-artifacts.sh
+      - run:
+          name: Handling failed release
+          command: bash ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
   release:
     executor: docker-node
     steps:
@@ -587,37 +630,14 @@ jobs:
       - attach_workspace:
           at: .
       - setup_npm
-      - run:
-          name: Validating artifacts
-          command: ./release-scripts/validate-checksums.sh
       - gh/setup:
           token: GH_TOKEN
           version: << pipeline.parameters.gh_version >>
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
-          name: Ensure master branch
-          command: |
-            if [ "$CIRCLE_BRANCH" != "master" ]; then
-              echo "Release must be on 'master' branch."
-              exit 1
-            fi
-      - run:
-          name: Ensure not already released
-          command: |
-            if git describe --contains --tags; then
-              echo "This commit has already been released."
-              exit 1
-            fi
-      - run:
-          name: Publishing npm packages
-          command: |
-            npm publish ./binary-releases/snyk-fix.tgz
-            npm publish ./binary-releases/snyk-protect.tgz
-            npm publish ./binary-releases/snyk.tgz
-      - run:
-          name: Publishing artifacts
-          command: ./release-scripts/upload-artifacts.sh
+          name: Publishing
+          command: make release-final
       - run:
           name: Handling failed release
           command: ./release-scripts/handle-failed-release.sh
@@ -752,6 +772,62 @@ jobs:
           paths:
             - ./cliv2/bin
 
+  v2-rename-linux-artifact:
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Rename snyk_linux_amd64 artifact
+          command: mv snyk_linux_amd64 snyk-linux
+          working_directory: ./cliv2/bin
+      - run:
+          name: Regenerate sha256
+          command: |
+            shasum -a 256 snyk-linux > snyk-linux.sha256
+            shasum -a 256 -c snyk-linux.sha256
+          working_directory: ./cliv2/bin
+      - run:
+          name: Show files
+          command: |
+            ls -la
+            cat snyk-linux.sha256
+          working_directory: ./cliv2/bin
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./cliv2/bin
+
+  v2-rename-linux-arm64-artifact:
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Rename snyk_linux_arm64 artifact
+          command: mv snyk_linux_arm64 snyk-linux-arm64
+          working_directory: ./cliv2/bin
+      - run:
+          name: Regenerate sha256
+          command: |
+            shasum -a 256 snyk-linux-arm64 > snyk-linux-arm64.sha256
+            shasum -a 256 -c snyk-linux-arm64.sha256
+          working_directory: ./cliv2/bin
+      - run:
+          name: Show files
+          command: |
+            ls -la
+            cat snyk-linux-arm64.sha256
+          working_directory: ./cliv2/bin
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./cliv2/bin
+
   v2-prepare-release:
     executor: linux
     working_directory: /home/circleci/snyk
@@ -773,7 +849,7 @@ jobs:
           name: Run integration tests
           working_directory: ./cliv2
           environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk_linux_amd64
+            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-linux
           command: |
             export SNYK_TOKEN="${SNYK_API_KEY}"
             ./bin/snyk_tests_linux_amd64
@@ -791,7 +867,7 @@ jobs:
           name: Run integration tests
           working_directory: ./cliv2
           environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk_linux_amd64
+            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-linux
             HTTPS_PROXY: http://localhost:8080
           command: |
             export SNYK_TOKEN="${SNYK_API_KEY}"
@@ -808,7 +884,7 @@ jobs:
           name: Run integration tests
           working_directory: ./cliv2
           environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk_linux_arm64
+            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-linux-arm64
           command: |
             export SNYK_TOKEN="${SNYK_API_KEY}"
             ./bin/snyk_tests_linux_arm64
@@ -948,6 +1024,7 @@ workflows:
           name: Build (<< matrix.artifact >>)
           requires:
             - Version
+          context: snyk-windows-signing
           matrix:
             parameters:
               artifact:
@@ -1026,11 +1103,33 @@ workflows:
             branches:
               only:
                 - master
+      - pre-release:
+          name: Pre-Release
+          context: nodejs-app-release
+          requires:
+            - Release?
+          filters:
+            branches:
+              only:
+                - master
+      - test-release:
+          name: Test Release (<< matrix.executor >>)
+          matrix:
+            parameters:
+              executor: ['linux', 'win/default', 'macos']
+          requires:
+            - Pre-Release
+          filters:
+            branches:
+              only:
+                - master
       - release:
           name: Release
           context: nodejs-app-release
           requires:
-            - Release?
+            - Test Release (linux)
+            - Test Release (win/default)
+            - Test Release (macos)
           filters:
             branches:
               only:
@@ -1048,12 +1147,20 @@ workflows:
             - Build (snyk-linux)
           go_os: linux
           go_arch: amd64
+      - v2-rename-linux-artifact:
+          name: v2 / Rename linux/amd64 artifact
+          requires:
+            - v2 / Build (linux/amd64)
       - v2-build-artifact:
           name: v2 / Build (linux/arm64)
           requires:
             - Build (snyk-linux-arm64)
           go_os: linux
           go_arch: arm64
+      - v2-rename-linux-arm64-artifact:
+          name: v2 / Rename linux/arm64 artifact
+          requires:
+            - v2 / Build (linux/arm64)
       - v2-build-artifact:
           name: v2 / Build (darwin/amd64)
           requires:
@@ -1084,15 +1191,15 @@ workflows:
       - v2-test-linux-amd64:
           name: v2 / Integration Tests (linux/amd64)
           requires:
-            - v2 / Build (linux/amd64)
+            - v2 / Rename linux/amd64 artifact
       - v2-test-proxy-linux-amd64:
           name: v2 / Proxy Integration Tests (linux/amd64)
           requires:
-            - v2 / Build (linux/amd64)
+            - v2 / Rename linux/amd64 artifact
       - v2-test-linux-arm64:
           name: v2 / Integration Tests (linux/arm64)
           requires:
-            - v2 / Build (linux/arm64)
+            - v2 / Rename linux/arm64 artifact
       - v2-test-darwin-amd64:
           name: v2 / Integration Tests (darwin/amd64)
           requires:
@@ -1116,14 +1223,14 @@ workflows:
           name: v2 / Jest Acceptance Tests (linux/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build (linux/amd64)
-          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_linux_amd64
+            - v2 / Rename linux/amd64 artifact
+          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-linux
       - test-linux-arm64:
           name: v2 / Jest Acceptance Tests (linux/arm64)
           context: nodejs-install
           requires:
-            - v2 / Build (linux/arm64)
-          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_linux_arm64
+            - v2 / Rename linux/arm64 artifact
+          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-linux-arm64
       - test-windows:
           name: v2 / Jest Acceptance Tests (windows/amd64)
           context: nodejs-install
@@ -1140,8 +1247,8 @@ workflows:
           name: v2 / Regression Tests (linux/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build (linux/amd64)
-          test_snyk_command: /mnt/ramdisk/snyk/cliv2/bin/snyk_linux_amd64
+            - v2 / Rename linux/amd64 artifact
+          test_snyk_command: /mnt/ramdisk/snyk/cliv2/bin/snyk-linux
       - v2-sign-darwin-amd64:
           name: v2 / Sign (darwin/amd64)
           context: snyk-macos-signing
@@ -1156,7 +1263,7 @@ workflows:
           name: v2 / Prepare Release
           requires:
             - v2 / Build (alpine/amd64)
-            - v2 / Build (linux/amd64)
-            - v2 / Build (linux/arm64)
+            - v2 / Rename linux/amd64 artifact
+            - v2 / Rename linux/arm64 artifact
             - v2 / Rename macos/amd64 artifact
             - v2 / Rename windows/amd64 artifact

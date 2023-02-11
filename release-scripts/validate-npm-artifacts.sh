@@ -10,6 +10,6 @@ echo 'Running "npm install binary-releases/snyk.tgz"...'
 npm install $releaseTar
 
 echo 'Validating "snyk" command succeeds...'
-./node_modules/snyk/bin/snyk
+./node_modules/snyk/bin/snyk -d
 
 popd

@@ -250,6 +250,7 @@ describe('Proxy configuration behavior', () => {
   });
 });
 
+jest.setTimeout(1000 * 60 * 1);
 describe('Proxy Authentication (all platforms)', () => {
   if (canTestRun()) {
     let server: FakeServer;

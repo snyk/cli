@@ -5,12 +5,9 @@ import {
   createDirectory,
   writeContentsToFileSwallowingErrors,
 } from '../../../src/lib/json-file-output';
-const osName = require('os-name');
+import * as os from 'os';
 
-const isWindows =
-  osName()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+const isWindows = os.platform().indexOf('win') === 0;
 
 describe('createDirectory', () => {
   it('returns true if directory already exists - non-recursive', async () => {

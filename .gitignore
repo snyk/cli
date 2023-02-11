@@ -7,6 +7,8 @@ local.log
 /dist-docker
 /pysrc
 binary-releases
+ts-cli-binaries
+prepack
 tmp
 .DS_Store
 !/test/fixtures/**/package-lock.json

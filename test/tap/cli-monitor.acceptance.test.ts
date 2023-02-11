@@ -42,6 +42,7 @@ import * as depGraphLib from '@snyk/dep-graph';
 import { getFixturePath } from '../jest/util/getFixturePath';
 import { getWorkspacePath } from '../jest/util/getWorkspacePath';
 import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
+import * as os from 'os';
 
 /*
   TODO: enable these tests, once we switch from node-tap
@@ -51,10 +52,7 @@ import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
   - Jakub
 */
 
-const isWindows =
-  require('os-name')()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+const isWindows = os.platform().indexOf('win') === 0;
 
 if (!isWindows) {
   before('setup', async (t) => {
@@ -1723,7 +1721,7 @@ if (!isWindows) {
       [
         {
           docker: true,
-          'exclude-app-vulns': true,
+          'exclude-app-vulns': false,
           org: 'explicit-org',
           path: 'foo:latest',
         },
@@ -1792,7 +1790,7 @@ if (!isWindows) {
       [
         {
           docker: true,
-          'exclude-app-vulns': true,
+          'exclude-app-vulns': false,
           file: 'Dockerfile',
           org: 'explicit-org',
           path: 'foo:latest',
@@ -1860,7 +1858,7 @@ if (!isWindows) {
       [
         {
           docker: true,
-          'exclude-app-vulns': true,
+          'exclude-app-vulns': false,
           org: 'explicit-org',
           'policy-path': 'custom-location',
           path: 'foo:latest',
@@ -1875,8 +1873,7 @@ if (!isWindows) {
     const policyString = req.body.scanResult.policy;
     t.deepEqual(policyString, expected, 'sends correct policy');
   });
-
-  test('`monitor foo:latest --docker` with app vulns feature flag enabled', async (t) => {
+  test('`monitor foo:latest --docker` with exlude app vulns flag', async (t) => {
     chdirWorkspaces('npm-package-policy');
     const spyPlugin = stubDockerPluginResponse(
       {
@@ -1896,9 +1893,9 @@ if (!isWindows) {
       t,
     );
 
-    server.setFeatureFlag('containerCliAppVulnsEnabled', true);
     await cli.monitor('foo:latest', {
       docker: true,
+      'exclude-app-vulns': true,
       org: 'explicit-org',
     });
     t.same(
@@ -1906,16 +1903,14 @@ if (!isWindows) {
       [
         {
           docker: true,
-          'exclude-app-vulns': false,
+          'exclude-app-vulns': true,
           org: 'explicit-org',
           path: 'foo:latest',
         },
       ],
       'calls docker plugin with expected arguments',
     );
-    server.setFeatureFlag('containerCliAppVulnsEnabled', false);
   });
-
   test('`monitor foo:latest --docker --platform=linux/arm64`', async (t) => {
     const platform = 'linux/arm64';
     const spyPlugin = stubDockerPluginResponse(
@@ -1964,7 +1959,7 @@ if (!isWindows) {
       [
         {
           docker: true,
-          'exclude-app-vulns': true,
+          'exclude-app-vulns': false,
           path: 'foo:latest',
           platform,
         },

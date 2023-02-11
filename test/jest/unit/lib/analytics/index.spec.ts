@@ -8,7 +8,7 @@ describe('analytics module', () => {
     jest.restoreAllMocks();
   });
 
-  it('sends anaytics with no token set', async () => {
+  it('sends analytics with no token set', async () => {
     analytics.add('k1', 'v1');
     const requestSpy = jest.spyOn(request, 'makeRequest');
     requestSpy.mockResolvedValue();

@@ -83,23 +83,29 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
     let res4 = { code: 0 };
     if (isCLIV2()) {
       // invoke WITHOUT additional certificate set => succeeds
-      res3 = await runSnykCLI(`sbom --experimental --debug --org 1234`, {
-        env: {
-          ...process.env,
-          SNYK_API: SNYK_API,
-          SNYK_TOKEN: token,
+      res3 = await runSnykCLI(
+        `sbom --experimental --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee`,
+        {
+          env: {
+            ...process.env,
+            SNYK_API: SNYK_API,
+            SNYK_TOKEN: token,
+          },
         },
-      });
+      );
 
       // invoke WITH additional certificate set => succeeds
-      res4 = await runSnykCLI(`sbom --experimental --debug --org 1234`, {
-        env: {
-          ...process.env,
-          NODE_EXTRA_CA_CERTS: 'cliv2/mytestcert.crt',
-          SNYK_API: SNYK_API,
-          SNYK_TOKEN: token,
+      res4 = await runSnykCLI(
+        `sbom --experimental --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee`,
+        {
+          env: {
+            ...process.env,
+            NODE_EXTRA_CA_CERTS: 'cliv2/mytestcert.crt',
+            SNYK_API: SNYK_API,
+            SNYK_TOKEN: token,
+          },
         },
-      });
+      );
     }
 
     await server.closePromise();

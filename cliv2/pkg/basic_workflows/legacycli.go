@@ -8,8 +8,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/proxy"
-	"github.com/snyk/cli/cliv2/internal/utils"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/spf13/pflag"
@@ -38,7 +38,7 @@ func FilteredArgs(args []string) []string {
 	elementsToFilter := []string{"--" + PROXY_NOAUTH}
 	filteredArgs := args
 	for _, element := range elementsToFilter {
-		filteredArgs = utils.RemoveSimilar(filteredArgs, element)
+		filteredArgs = pkg_utils.RemoveSimilar(filteredArgs, element)
 	}
 	return filteredArgs
 }
@@ -64,13 +64,16 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 	}
 
 	debugLogger.Println("Arguments:", args)
-	debugLogger.Println("Cache directory:", cacheDirectory)
-	debugLogger.Println("Insecure HTTPS:", insecure)
 	debugLogger.Println("Use StdIO:", useStdIo)
 
 	// init cli object
 	var cli *cliv2.CLI
 	cli, err = cliv2.NewCLIv2(cacheDirectory, debugLogger)
+	if err != nil {
+		return output, err
+	}
+
+	err = cli.Init()
 	if err != nil {
 		return output, err
 	}

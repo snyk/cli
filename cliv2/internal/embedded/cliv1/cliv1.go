@@ -21,11 +21,7 @@ func CLIV1Version() string {
 func GetFullCLIV1TargetPath(cacheDir string) (string, error) {
 	cliv1Filename := getCLIv1Filename()
 	versionTag := CLIV1Version()
-	relPath := path.Join(versionTag, cliv1Filename)
-	fullPath, err := utils.FullPathInSnykCacheDir(cacheDir, relPath)
-	if err != nil {
-		return "", err
-	}
+	fullPath := path.Join(utils.GetVersionCacheDirectory(cacheDir, versionTag), cliv1Filename)
 	return fullPath, nil
 }
 

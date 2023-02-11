@@ -1,11 +1,14 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
@@ -197,6 +200,32 @@ func displayError(err error) {
 	}
 }
 
+func writeLogHeader(config configuration.Configuration) {
+	tokenShaSum := []byte{}
+	if token := config.GetString(configuration.AUTHENTICATION_TOKEN); len(token) > 0 {
+		temp := sha256.Sum256([]byte(token))
+		tokenShaSum = temp[0:16] // using a partial shasum to avoid sharing a token when sharing debug logs
+	}
+
+	org := config.GetString(configuration.ORGANIZATION)
+	insecureHTTPS := "false"
+	if config.GetBool(configuration.INSECURE_HTTPS) {
+		insecureHTTPS = "true"
+	}
+
+	tablePrint := func(name string, value string) {
+		debugLogger.Printf("%-15s %s", name+":", value)
+	}
+
+	tablePrint("Version", cliv2.GetFullVersion())
+	tablePrint("Platform", runtime.GOOS+" "+runtime.GOARCH)
+	tablePrint("API", config.GetString(configuration.API_URL))
+	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
+	tablePrint("Token-Hash", hex.EncodeToString(tokenShaSum))
+	tablePrint("Organization", org)
+	tablePrint("Insecure HTTPS", insecureHTTPS)
+}
+
 func MainWithErrorCode() int {
 	var err error
 
@@ -208,6 +237,7 @@ func MainWithErrorCode() int {
 	config = engine.GetConfiguration()
 	config.AddFlagSet(rootCommand.LocalFlags())
 
+	debugEnabled := config.GetBool(configuration.DEBUG)
 	debugLogger := getDebugLogger(config)
 
 	if noProxyAuth := config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
@@ -233,8 +263,9 @@ func MainWithErrorCode() int {
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, engine)
 
-	debugLogger.Println("Organization:", config.GetString(configuration.ORGANIZATION))
-	debugLogger.Println("API:", config.GetString(configuration.API_URL))
+	if debugEnabled {
+		writeLogHeader(config)
+	}
 
 	// init NetworkAccess
 	networkAccess := engine.GetNetworkAccess()

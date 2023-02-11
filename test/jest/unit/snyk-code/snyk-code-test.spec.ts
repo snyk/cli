@@ -18,7 +18,7 @@ import { ArgsOptions } from '../../../../src/cli/args';
 import * as codeConfig from '../../../../src/lib/code-config';
 
 const { getCodeAnalysisAndParseResults } = analysis;
-import osName = require('os-name');
+import * as os from 'os';
 
 describe('Test snyk code', () => {
   let apiUserConfig;
@@ -38,10 +38,7 @@ describe('Test snyk code', () => {
     ),
   );
 
-  const isWindows =
-    osName()
-      .toLowerCase()
-      .indexOf('windows') === 0;
+  const isWindows = os.platform().indexOf('win') === 0;
   const fixturePath = path.join(__dirname, '../../../fixtures', 'sast');
   const cwd = process.cwd();
 
@@ -68,6 +65,7 @@ describe('Test snyk code', () => {
   });
 
   afterEach(() => {
+    delete process.env.SNYK_OAUTH_TOKEN;
     jest.resetAllMocks();
   });
 
@@ -87,6 +85,33 @@ describe('Test snyk code', () => {
       }),
     ).rejects.toThrowError(
       /Authentication failed. Please check the API token on/,
+    );
+  });
+
+  it('should use oauth token for auth if provided', async () => {
+    const oauthToken = 'oauth-token';
+    process.env.SNYK_OAUTH_TOKEN = oauthToken;
+
+    const sastSettings = {
+      sastEnabled: true,
+      localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
+    };
+
+    const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersResponse,
+    );
+    await getCodeAnalysisAndParseResults(
+      '.',
+      {
+        path: '',
+        code: true,
+      },
+      sastSettings,
+      'test-id',
+    );
+
+    expect(analyzeFoldersSpy.mock.calls[0][0].connection.sessionToken).toEqual(
+      `Bearer ${oauthToken}`,
     );
   });
 
@@ -674,7 +699,7 @@ describe('Test snyk code', () => {
 
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
-    const sessionToken = expect.any(String);
+    const sessionToken = `token ${fakeApiKey}`;
     const source = expect.any(String);
     const severity = AnalysisSeverity.info;
     const paths: string[] = ['.'];

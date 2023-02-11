@@ -103,9 +103,9 @@ grep snyk-macos sha256sums.txt.asc | sha256sum -c -
 If you want to verify Snyk CLI standalone binaries against [Snyk CLI GPG key](help/_about-this-project/snyk-code-signing-public.pgp), you will need to import it first:
 
 ```bash
-# 68BFBCCEB7794E6FC06A2044A29C32E91F4B9569 is the key belonging to code-signing@snyk.io
+# A22665FB96CAB0E0973604C83676C4B8289C296E is the key belonging to code-signing@snyk.io
 # Copy of this public key is also in this repository /help/_about-this-project/snyk-code-signing-public.pgp
-gpg --keyserver hkps://keys.openpgp.org --recv-keys 68BFBCCEB7794E6FC06A2044A29C32E91F4B9569
+gpg --keyserver hkps://keys.openpgp.org --recv-keys A22665FB96CAB0E0973604C83676C4B8289C296E
 ```
 
 Then verify the file is signed with:
@@ -117,12 +117,12 @@ gpg --verify sha256sums.txt.asc
 Command output should look like:
 
 ```plain
-gpg: Signature made Mon Apr 25 16:55:01 2022 CEST
-gpg:                using RSA key 68BFBCCEB7794E6FC06A2044A29C32E91F4B9569
+gpg: Signature made So  8 Jan 14:11:44 2023 CET
+gpg:                using EDDSA key A22665FB96CAB0E0973604C83676C4B8289C296E
 gpg: Good signature from "Snyk Limited <code-signing@snyk.io>" [unknown]
 gpg: WARNING: This key is not certified with a trusted signature!
 gpg:          There is no indication that the signature belongs to the owner.
-Primary key fingerprint: 68BF BCCE B779 4E6F C06A  2044 A29C 32E9 1F4B 9569
+Primary key fingerprint: A226 65FB 96CA B0E0 9736  04C8 3676 C4B8 289C 296E
 ```
 
 </details>

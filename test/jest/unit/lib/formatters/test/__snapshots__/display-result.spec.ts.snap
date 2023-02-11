@@ -130,7 +130,9 @@ Warning: Unable to analyse Dockerfile provided through \`--file\`.
 
 Pro tip: use \`--exclude-base-image-vulns\` to exclude from display Docker base image vulnerabilities.
 
-To remove this message in the future, please run \`snyk config set disableSuggestions=true\`"
+Snyk found some vulnerabilities in your image applications (Snyk searches for these vulnerabilities by default). See [URL]
+
+To remove these messages in the future, please run \`snyk config set disableSuggestions=true\`"
 `;
 
 exports[`displayResult Docker test result with base image non resolvable warning 1`] = `
@@ -163,7 +165,9 @@ Warning: Unable to analyse Dockerfile provided through \`--file\`.
 
 Pro tip: use \`--exclude-base-image-vulns\` to exclude from display Docker base image vulnerabilities.
 
-To remove this message in the future, please run \`snyk config set disableSuggestions=true\`"
+Snyk found some vulnerabilities in your image applications (Snyk searches for these vulnerabilities by default). See [URL]
+
+To remove these messages in the future, please run \`snyk config set disableSuggestions=true\`"
 `;
 
 exports[`displayResult Docker test result with remediation advice 1`] = `

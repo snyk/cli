@@ -1,24 +1,24 @@
-*  @snyk/hammer @snyk/snyk-open-source
+*  @snyk/hammerhead @snyk/snyk-open-source
 
 # monorepo packages
 packages/snyk-fix/ @snyk/tech-services
-packages/snyk-protect/ @snyk/hammer
-packages/cli-alert/ @snyk/hammer
+packages/snyk-protect/ @snyk/hammerhead
+packages/cli-alert/ @snyk/hammerhead
+packages/iac-cli-alert/ @snyk/cloud-dev-ex
 
-README.md  @snyk/hammer
-CONTRIBUTING.md @snyk/hammer
-.circleci @snyk/hammer
+README.md  @snyk/hammerhead
+CONTRIBUTING.md @snyk/hammerhead
+.circleci @snyk/hammerhead
 
-cliv2/ @snyk/hammer
-release-scripts/hcl-to-json-parser-generator/ @snyk/group-infrastructure-as-code
-release-scripts/hcl-to-json-parser-generator-v2/ @snyk/group-infrastructure-as-code
+cliv2/ @snyk/hammerhead
+release-scripts/hcl-to-json-parser-generator/ @snyk/cloud-dev-ex
+release-scripts/hcl-to-json-parser-generator-v2/ @snyk/cloud-dev-ex
 src/cli/commands/test @snyk/snyk-open-source
 src/cli/commands/monitor @snyk/snyk-open-source
-help/  @snyk/hammer
-help/cli-commands/iac*.md @snyk/group-infrastructure-as-code @snyk/hammer 
-src/cli/commands/test/iac/ @snyk/group-infrastructure-as-code
-src/cli/commands/describe.ts @snyk/group-infrastructure-as-code
-src/cli/commands/update-exclude-policy.ts @snyk/group-infrastructure-as-code
+help/  @snyk/hammerhead
+src/cli/commands/test/iac/ @snyk/cloud-dev-ex
+src/cli/commands/describe.ts @snyk/cloud-context
+src/cli/commands/update-exclude-policy.ts @snyk/cloud-dev-ex
 src/cli/commands/apps @snyk/moose
 src/lib/apps @snyk/moose
 src/lib/container @snyk/mycelium
@@ -26,73 +26,74 @@ src/lib/plugins @snyk/snyk-open-source
 test/fixtures/sast/ @snyk/zenith
 src/lib/plugins/sast/ @snyk/zenith
 test/jest/unit/snyk-code/ @snyk/zenith
-src/lib/formatters/iac-output/ @snyk/group-infrastructure-as-code
+src/lib/formatters/iac-output/ @snyk/cloud-dev-ex
 src/lib/iac/ @snyk/group-infrastructure-as-code
-src/lib/snyk-test/iac-test-result.ts @snyk/group-infrastructure-as-code
+src/lib/iac/test/ @snyk/cloud-dev-ex
+src/lib/snyk-test/iac-test-result.ts @snyk/cloud-dev-ex
 test/fixtures/basic-apk/ @snyk/mycelium
 test/fixtures/container-app-vulns/ @snyk/mycelium
 test/fixtures/container-projects/ @snyk/mycelium @snyk/potion
 test/fixtures/docker/ @snyk/mycelium @snyk/potion
-test/fixtures/iac/ @snyk/group-infrastructure-as-code
-test/smoke/iac/ @snyk/group-infrastructure-as-code
-test/smoke/spec/iac/ @snyk/group-infrastructure-as-code
+test/fixtures/iac/ @snyk/cloud-dev-ex
+test/fixtures/iac/drift @snyk/cloud-context
+test/smoke/iac/ @snyk/cloud-dev-ex
 test/smoke/spec/snyk_code_spec.sh @snyk/zenith
-test/smoke/spec/snyk_basic_spec.sh @snyk/hammer
-test/smoke/.iac-data/ @snyk/group-infrastructure-as-code
+test/smoke/spec/snyk_basic_spec.sh @snyk/hammerhead
+test/smoke/.iac-data/ @snyk/cloud-dev-ex
 test/jest/unit/lib/endpoint-config-test.spec.ts @snyk/nebula
-test/jest/unit/lib/formatters/iac-output/ @snyk/group-infrastructure-as-code
-test/jest/unit/lib/formatters/test/format-test-results.spec.ts @snyk/hammer @snyk/snyk-open-source @snyk/mycelium
-test/jest/unit/iac/ @snyk/group-infrastructure-as-code
-test/jest/unit/cli/commands/test/iac @snyk/group-infrastructure-as-code
-test/jest/unit/lib/iac/ @snyk/group-infrastructure-as-code
-test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
+test/jest/unit/lib/formatters/iac-output/ @snyk/cloud-dev-ex
+test/jest/unit/lib/formatters/test/format-test-results.spec.ts @snyk/hammerhead @snyk/snyk-open-source @snyk/mycelium
+test/jest/unit/iac/ @snyk/cloud-dev-ex
+test/jest/unit/cli/commands/test/iac @snyk/cloud-dev-ex
+test/jest/unit/lib/iac/drift/ @snyk/cloud-context
+test/jest/unit/lib/iac/test/ @snyk/cloud-dev-ex
+test/jest/acceptance/iac/ @snyk/cloud-dev-ex
+test/jest/acceptance/iac/describe.spec.ts @snyk/cloud-context
 test/jest/acceptance/snyk-apps @snyk/moose
 src/lib/code-config.ts @snyk/nebula
-src/lib/errors/describe-required-argument-error.ts @snyk/group-infrastructure-as-code
-src/lib/errors/describe-exclusive-argument-error.ts @snyk/group-infrastructure-as-code
+src/lib/errors/describe-required-argument-error.ts @snyk/cloud-context
+src/lib/errors/describe-exclusive-argument-error.ts @snyk/cloud-context
 src/lib/errors/no-supported-sast-files-found.ts @snyk/zenith
-help/commands-docs/iac-examples.md @snyk/group-infrastructure-as-code
-help/commands-docs/iac.md @snyk/group-infrastructure-as-code
-test/jest/util/ @snyk/hammer
-dangerfile.js @snyk/hammer
-/package.json @snyk/hammer
-/package-lock.json @snyk/hammer
-/config.default.js @snyk/hammer
-/webpack.common.js @snyk/hammer
-/webpack.dev.js @snyk/hammer
-/webpack.prod.js @snyk/hammer
-/tsconfig.json @snyk/hammer
-/tsconfig.settings.json @snyk/hammer
-CODEOWNERS @snyk/hammer
-/docker @snyk/hammer
+test/jest/util/ @snyk/hammerhead
+dangerfile.js @snyk/hammerhead
+/package.json @snyk/hammerhead
+/package-lock.json @snyk/hammerhead
+/config.default.js @snyk/hammerhead
+/webpack.common.js @snyk/hammerhead
+/webpack.dev.js @snyk/hammerhead
+/webpack.prod.js @snyk/hammerhead
+/tsconfig.json @snyk/hammerhead
+/tsconfig.settings.json @snyk/hammerhead
+CODEOWNERS @snyk/hammerhead
+/docker @snyk/hammerhead
 src/cli/commands/log4shell-hashes.ts @snyk/tundra
 src/cli/commands/log4shell.ts @snyk/tundra
 test/fixtures/unmanaged-log4j-fixture @snyk/tundra
 test/jest/acceptance/snyk-log4shell/log4shell-detection.spec.ts @snyk/tundra
 test/jest/acceptance/snyk-test/app-vuln-container-project.spec.ts @snyk/mycelium
-/.github @snyk/hammer
-/.github/workflows/iac-smoke-tests.yml @snyk/group-infrastructure-as-code
-/.github/workflows/iac-smoke-tests-pulls.yml @snyk/group-infrastructure-as-code
+/.github @snyk/hammerhead
+/.github/workflows/iac-smoke-tests.yml @snyk/cloud-dev-ex
+/.github/workflows/iac-smoke-tests-pulls.yml @snyk/cloud-dev-ex
 
 # tap tests ownership
 test/tap/cli-monitor/ @snyk/snyk-open-source
 test/tap/cli-test/ @snyk/snyk-open-source
-test/tap/args.test.ts @snyk/hammer
-test/tap/auth.test.ts @snyk/hammer
-test/tap/cli-fail-on-docker.test.ts @snyk/hammer
+test/tap/args.test.ts @snyk/hammerhead
+test/tap/auth.test.ts @snyk/hammerhead
+test/tap/cli-fail-on-docker.test.ts @snyk/hammerhead
 test/tap/cli-fail-on-pinnable.test.ts @snyk/snyk-open-source
 test/tap/cli-monitor.acceptance.test.ts @snyk/snyk-open-source
 test/tap/cli-test.acceptance.test.ts @snyk/snyk-open-source
-test/tap/cli.test.ts @snyk/hammer
+test/tap/cli.test.ts @snyk/hammerhead
 test/tap/container.test.ts @snyk/potion
 test/tap/display-test-results.test.ts @snyk/snyk-open-source
 test/tap/docker-token.test.ts @snyk/potion
-test/tap/endpoint-config.test.ts @snyk/hammer
+test/tap/endpoint-config.test.ts @snyk/hammerhead
 test/tap/find-files.test.ts @snyk/snyk-open-source
 test/tap/monitor-target.test.ts @snyk/snyk-open-source
-test/tap/proxy.test.js @snyk/hammer
+test/tap/proxy.test.js @snyk/hammerhead
 test/tap/remote-package.test.ts @snyk/snyk-open-source
-test/tap/request.test.ts @snyk/hammer
+test/tap/request.test.ts @snyk/hammerhead
 test/tap/run-test.test.ts @snyk/snyk-open-source
 test/tap/severity-threshold.test.ts @snyk/snyk-open-source
 test/tap/sln-app.test.ts @snyk/snyk-open-source
@@ -101,16 +102,16 @@ test/tap/user-config.test.ts @snyk/snyk-open-source
 test/tap/vulnerable-path-output.js @snyk/snyk-open-source
 
 # protect
-test/tap/cli-protect-no-vulns-to-patch.test.ts @snyk/hammer
-test/tap/patch-fetch-fail.test.ts @snyk/hammer
-test/tap/cli-protect.test.ts @snyk/hammer
-test/tap/protect-apply-same-patch-again.test.js @snyk/hammer
-test/tap/protect-config.test.ts @snyk/hammer
-test/tap/protect-factors-pre-tarred.test.ts @snyk/hammer
-test/tap/protect-fail.test.js @snyk/hammer
-test/tap/protect-ignore.test.js @snyk/hammer
-test/tap/protect-patch-filter.test.js @snyk/hammer
-test/tap/protect-patch-order.test.ts @snyk/hammer
-test/tap/protect-patch-same-pkg.test.js @snyk/hammer
-test/tap/protect-semver-patch.test.ts @snyk/hammer
+test/tap/cli-protect-no-vulns-to-patch.test.ts @snyk/hammerhead
+test/tap/patch-fetch-fail.test.ts @snyk/hammerhead
+test/tap/cli-protect.test.ts @snyk/hammerhead
+test/tap/protect-apply-same-patch-again.test.js @snyk/hammerhead
+test/tap/protect-config.test.ts @snyk/hammerhead
+test/tap/protect-factors-pre-tarred.test.ts @snyk/hammerhead
+test/tap/protect-fail.test.js @snyk/hammerhead
+test/tap/protect-ignore.test.js @snyk/hammerhead
+test/tap/protect-patch-filter.test.js @snyk/hammerhead
+test/tap/protect-patch-order.test.ts @snyk/hammerhead
+test/tap/protect-patch-same-pkg.test.js @snyk/hammerhead
+test/tap/protect-semver-patch.test.ts @snyk/hammerhead
 
