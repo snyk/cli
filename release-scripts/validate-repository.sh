@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
 VERSION_TAG="v$(cat binary-releases/version)"
 
-if git -P tag --list --contains; then
+TAG_FOUND=$(git -P tag --list --contains)
+if [ "${TAG_FOUND}" != "" ]; then
     echo "This commit has already been released."
     exit 1
 fi
@@ -13,3 +14,5 @@ if [ "${?}" -eq "0" ]; then
     echo "Version ${VERSION_TAG} has already been released."
     exit 1
 fi
+
+echo "Version ${VERSION_TAG} LGTM!"
