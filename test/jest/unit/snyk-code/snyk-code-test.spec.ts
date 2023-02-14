@@ -479,7 +479,6 @@ describe('Test snyk code', () => {
         analysisContext: {
           flow: 'snyk-cli',
           initiator: 'CLI',
-          orgDisplayName: 'defaultOrg',
           projectName: undefined,
           org: {
             displayName: 'unknown',
@@ -719,7 +718,6 @@ describe('Test snyk code', () => {
         flow: 'snyk-cli',
         initiator: 'CLI',
         org: expect.anything(),
-        orgDisplayName: undefined,
         projectName: undefined,
       },
       languages: undefined,
@@ -814,7 +812,6 @@ describe('Test snyk code', () => {
           flow: 'snyk-cli',
           initiator: 'CLI',
           org: expect.anything(),
-          orgDisplayName: undefined,
           projectName: undefined,
         },
         languages: undefined,
