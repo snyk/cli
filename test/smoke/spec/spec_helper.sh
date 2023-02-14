@@ -68,4 +68,14 @@ spec_helper_configure() {
   snyk() {
     eval "${SNYK_COMMAND:=$ORIGINAL_SNYK_EXECUTABLE}" "$@"
   }
+
+  should_have_deprecation_warnings() {
+    #  deprecated node version will show additional stderr output for deprecation notices
+    if command -v node > /dev/null 2>&1; then
+      if node --version | grep -Eq "^v12.*"; then
+        return 0
+      fi
+    fi
+    return 1
+  }
 }

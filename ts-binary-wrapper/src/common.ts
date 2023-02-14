@@ -3,8 +3,7 @@ import * as os from 'os';
 import * as fs from 'fs';
 import { spawnSync } from 'child_process';
 import * as https from 'https';
-import { createHash } from 'crypto';
-import * as Sentry from '@sentry/node';
+import { randomInt, createHash } from 'crypto';
 
 export const versionFile = path.join(__dirname, 'generated', 'version');
 export const shasumFile = path.join(__dirname, 'generated', 'sha256sums.txt');
@@ -88,7 +87,6 @@ export function determineBinaryName(
 
   switch (arch) {
     case 'x64':
-    case 'amd64':
       archname = '';
       break;
     case 'arm64':
@@ -174,62 +172,44 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
     stdio: 'inherit',
   });
 
-  if (res.status !== null) {
-    if (debug) {
-      console.debug(res);
-    }
-
-    return res.status;
-  } else {
-    console.error(res);
-
-    interface SpawnError {
-      errno: number;
-      code: string;
-      syscall: string;
-      path: string;
-      spawnargs: string[];
-    }
-
-    const spawnError = (res.error as unknown) as SpawnError;
-    if (spawnError?.code == 'EACCES') {
-      console.error(
-        "We don't have the permissions to install snyk. Please try the following options:\n" +
-          '* If installing with increased privileges (eg sudo), try adding --unsafe-perm as a parameter to npm install\n' +
-          '* If you run NPM <= 6, please upgrade to a later version.\n' +
-          'If the problems persist please contact support@snyk.io and include the information provided above.',
-      );
-    } else {
-      console.error('Failed to spawn child process. (' + executable + ')');
-    }
-
-    return 2;
+  if (debug) {
+    console.debug(res);
   }
+
+  let exitCode = 2;
+  if (res.status !== null) {
+    exitCode = res.status;
+  } else {
+    console.error(
+      'Failed to spawn child process, ensure to run bootstrap first. (' +
+        executable +
+        ')',
+    );
+  }
+
+  return exitCode;
 }
 
-export function downloadExecutable(
+export async function downloadExecutable(
   downloadUrl: string,
   filename: string,
   filenameShasum: string,
-): Promise<Error | undefined> {
-  return new Promise<Error | undefined>(function(resolve) {
+): Promise<number> {
+  return new Promise<number>(function(resolve) {
     const options = new URL(downloadUrl);
-    const temp = path.join(__dirname, Date.now().toString());
+    const temp = path.join(__dirname, randomInt(100000).toString());
     const fileStream = fs.createWriteStream(temp);
 
-    const cleanupAfterError = (error: Error) => {
+    const cleanupAfterError = (exitCode: number) => {
       try {
         fs.unlinkSync(temp);
       } catch (e) {
         console.debug('Failed to cleanup temporary file (' + temp + '): ' + e);
       }
-
-      resolve(error);
+      resolve(exitCode);
     };
 
-    console.debug(
-      "Downloading from '" + downloadUrl + "' to '" + filename + "'",
-    );
+    console.debug("Downloading from '" + downloadUrl + "' to '" + filename);
 
     const req = https.request(options, (res) => {
       const shasum = createHash('sha256');
@@ -241,31 +221,29 @@ export function downloadExecutable(
 
         // compare shasums
         const actualShasum = shasum.digest('hex');
-
-        const debugMessage =
+        console.debug(
           'Shasums:\n- actual:   ' +
-          actualShasum +
-          '\n- expected: ' +
-          filenameShasum;
-
+            actualShasum +
+            '\n- expected: ' +
+            filenameShasum,
+        );
         if (filenameShasum && actualShasum != filenameShasum) {
-          cleanupAfterError(
-            Error('Shasum comparison failed!\n' + debugMessage),
-          );
+          console.error('Failed Shasum comparison!');
+          cleanupAfterError(3);
         } else {
-          console.debug(debugMessage);
-
           // finally rename the file and change permissions
           fs.renameSync(temp, filename);
-          fs.chmodSync(filename, 0o755);
+          fs.chmodSync(filename, 0o750);
           console.debug('Downloaded successfull! ');
-          resolve(undefined);
+          resolve(0);
         }
       });
     });
 
     req.on('error', (e) => {
-      cleanupAfterError(e);
+      console.debug('Error during download!');
+      console.error(e);
+      cleanupAfterError(1);
     });
 
     req.on('response', (incoming) => {
@@ -274,49 +252,11 @@ export function downloadExecutable(
         !(200 <= incoming.statusCode && incoming.statusCode < 300)
       ) {
         req.destroy();
-        cleanupAfterError(
-          Error(
-            'Download failed! Server Response: ' +
-              incoming.statusCode +
-              ' ' +
-              incoming.statusMessage,
-          ),
-        );
+        console.debug('Failed to download! ' + incoming.statusMessage);
+        cleanupAfterError(2);
       }
     });
 
     req.end();
   });
-}
-
-export async function logError(context: string, err): Promise<void> {
-  if (isAnalyticsEnabled()) {
-    // init error reporting
-    const version = getCurrentVersion(versionFile);
-    Sentry.init({
-      dsn:
-        'https://3e845233db8c4f43b4c4b9245f1d7bd6@o30291.ingest.sentry.io/4504599528079360',
-      release: version,
-    });
-
-    // report error
-    const sentryError = new Error('[' + context + '] ' + err.message);
-    sentryError.stack = err.stack;
-    Sentry.captureException(sentryError);
-    await Sentry.close();
-  }
-
-  // finally log the error to the console as well
-  console.error(err);
-}
-
-export function isAnalyticsEnabled(): boolean {
-  if (
-    process.env.snyk_disable_analytics == '1' ||
-    process.env.SNYK_DISABLE_ANALYTICS == '1'
-  ) {
-    return false;
-  }
-
-  return true;
 }
