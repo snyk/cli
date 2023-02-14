@@ -3,7 +3,7 @@ set -euo pipefail
 
 VERSION_TAG="v$(cat binary-releases/version)"
 
-if git describe --contains --tags; then
+if git -P tag --list --contains; then
     echo "This commit has already been released."
     exit 1
 fi
