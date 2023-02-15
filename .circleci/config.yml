@@ -995,27 +995,33 @@ workflows:
           name: Build
           requires:
             - Install
-      # - test-jest:
-      #     name: Jest Tests (Node v<< matrix.node_version >>)
-      #     context: nodejs-install
-      #     requires:
-      #       - Build
-      #     matrix:
-      #       parameters:
-      #         node_version: ['12.22.11', '14.20.0', '16.16.0']
-      #         npm_global_sudo: [true, false]
-      #       exclude:
-      #         - node_version: '12.22.11'
-      #           npm_global_sudo: false
-      #         - node_version: '14.20.0'
-      #           npm_global_sudo: false
-      #         - node_version: '16.16.0'
-      #           npm_global_sudo: true
-      # - test-tap:
-      #     name: Tap Tests
-      #     context: nodejs-install
-      #     requires:
-      #       - Build
+      - test-jest:
+          filters:
+            branches:
+              ignore: master
+          name: Jest Tests (Node v<< matrix.node_version >>)
+          context: nodejs-install
+          requires:
+            - Build
+          matrix:
+            parameters:
+              node_version: ['12.22.11', '14.20.0', '16.16.0']
+              npm_global_sudo: [true, false]
+            exclude:
+              - node_version: '12.22.11'
+                npm_global_sudo: false
+              - node_version: '14.20.0'
+                npm_global_sudo: false
+              - node_version: '16.16.0'
+                npm_global_sudo: true
+      - test-tap:
+          filters:
+            branches:
+              ignore: master
+          name: Tap Tests
+          context: nodejs-install
+          requires:
+            - Build
       - version:
           name: Version
           requires:
@@ -1039,36 +1045,51 @@ workflows:
                 - snyk-for-docker-desktop-darwin-x64.tar.gz
                 - snyk-for-docker-desktop-darwin-arm64.tar.gz
                 - docker-mac-signed-bundle.tar.gz
-      # - test-windows:
-      #     name: Acceptance Tests (snyk-win.exe)
-      #     context: nodejs-install
-      #     requires:
-      #       - Build (snyk-win.exe)
-      #     test_snyk_command: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
-      # - test-macos:
-      #     name: Acceptance Tests (snyk-macos)
-      #     context: nodejs-install
-      #     requires:
-      #       - Build (snyk-macos)
-      #     test_snyk_command: /Users/distiller/snyk/binary-releases/snyk-macos
-      # - test-linux:
-      #     name: Acceptance Tests (snyk-linux)
-      #     context: nodejs-install
-      #     requires:
-      #       - Build (snyk-linux)
-      #     test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux
-      # - test-linux-arm64:
-      #     name: Acceptance Tests (snyk-linux-arm64)
-      #     context: nodejs-install
-      #     requires:
-      #       - Build (snyk-linux-arm64)
-      #     test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux-arm64
-      # - regression-test:
-      #     name: Regression Tests (snyk-linux)
-      #     context: nodejs-install
-      #     requires:
-      #       - Build (snyk-linux)
-      #     test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
+      - test-windows:
+          filters:
+            branches:
+              ignore: master
+          name: Acceptance Tests (snyk-win.exe)
+          context: nodejs-install
+          requires:
+            - Build (snyk-win.exe)
+          test_snyk_command: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
+      - test-macos:
+          filters:
+            branches:
+              ignore: master
+          name: Acceptance Tests (snyk-macos)
+          context: nodejs-install
+          requires:
+            - Build (snyk-macos)
+          test_snyk_command: /Users/distiller/snyk/binary-releases/snyk-macos
+      - test-linux:
+          filters:
+            branches:
+              ignore: master
+          name: Acceptance Tests (snyk-linux)
+          context: nodejs-install
+          requires:
+            - Build (snyk-linux)
+          test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux
+      - test-linux-arm64:
+          filters:
+            branches:
+              ignore: master
+          name: Acceptance Tests (snyk-linux-arm64)
+          context: nodejs-install
+          requires:
+            - Build (snyk-linux-arm64)
+          test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux-arm64
+      - regression-test:
+          filters:
+            branches:
+              ignore: master
+          name: Regression Tests (snyk-linux)
+          context: nodejs-install
+          requires:
+            - Build (snyk-linux)
+          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
       - prepare-release:
           name: Prepare Release
           context:
@@ -1090,15 +1111,6 @@ workflows:
           requires:
             - Prepare Release
             - Lint
-            # - Tap Tests
-            # - Jest Tests (Node v12.22.11)
-            # - Jest Tests (Node v14.20.0)
-            # - Jest Tests (Node v16.16.0)
-            # - Acceptance Tests (snyk-win.exe)
-            # - Acceptance Tests (snyk-macos)
-            # - Acceptance Tests (snyk-linux)
-            # - Acceptance Tests (snyk-linux-arm64)
-            # - Regression Tests (snyk-linux)
           filters:
             branches:
               only:
@@ -1188,67 +1200,103 @@ workflows:
           go_os: alpine
           go_arch: amd64
           c_compiler: /usr/bin/musl-gcc
-      # - v2-test-linux-amd64:
-      #     name: v2 / Integration Tests (linux/amd64)
-      #     requires:
-      #       - v2 / Rename linux/amd64 artifact
-      # - v2-test-proxy-linux-amd64:
-      #     name: v2 / Proxy Integration Tests (linux/amd64)
-      #     requires:
-      #       - v2 / Rename linux/amd64 artifact
-      # - v2-test-linux-arm64:
-      #     name: v2 / Integration Tests (linux/arm64)
-      #     requires:
-      #       - v2 / Rename linux/arm64 artifact
-      # - v2-test-darwin-amd64:
-      #     name: v2 / Integration Tests (darwin/amd64)
-      #     requires:
-      #       - v2 / Rename macos/amd64 artifact
-      # - v2-test-windows-amd64:
-      #     name: v2 / Integration Tests (windows/amd64)
-      #     requires:
-      #       - v2 / Rename windows/amd64 artifact
-      # - v2-test-proxy-windows-amd64:
-      #     name: v2 / Proxy Integration Tests (windows/amd64)
-      #     requires:
-      #       - v2 / Rename windows/amd64 artifact
+      - v2-test-linux-amd64:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Integration Tests (linux/amd64)
+          requires:
+            - v2 / Rename linux/amd64 artifact
+      - v2-test-proxy-linux-amd64:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Proxy Integration Tests (linux/amd64)
+          requires:
+            - v2 / Rename linux/amd64 artifact
+      - v2-test-linux-arm64:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Integration Tests (linux/arm64)
+          requires:
+            - v2 / Rename linux/arm64 artifact
+      - v2-test-darwin-amd64:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Integration Tests (darwin/amd64)
+          requires:
+            - v2 / Rename macos/amd64 artifact
+      - v2-test-windows-amd64:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Integration Tests (windows/amd64)
+          requires:
+            - v2 / Rename windows/amd64 artifact
+      - v2-test-proxy-windows-amd64:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Proxy Integration Tests (windows/amd64)
+          requires:
+            - v2 / Rename windows/amd64 artifact
       # Tests for backwards compatibility with CLIv1
-      # - test-alpine:
-      #     name: v2 / Jest Acceptance Tests (alpine/amd64)
-      #     context: nodejs-install
-      #     requires:
-      #       - v2 / Build (alpine/amd64)
-      #     test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_alpine_amd64
-      # - test-linux:
-      #     name: v2 / Jest Acceptance Tests (linux/amd64)
-      #     context: nodejs-install
-      #     requires:
-      #       - v2 / Rename linux/amd64 artifact
-      #     test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-linux
-      # - test-linux-arm64:
-      #     name: v2 / Jest Acceptance Tests (linux/arm64)
-      #     context: nodejs-install
-      #     requires:
-      #       - v2 / Rename linux/arm64 artifact
-      #     test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-linux-arm64
-      # - test-windows:
-      #     name: v2 / Jest Acceptance Tests (windows/amd64)
-      #     context: nodejs-install
-      #     requires:
-      #       - v2 / Rename windows/amd64 artifact
-      #     test_snyk_command: C:\Users\circleci\snyk\cliv2\bin\snyk-win.exe
-      # - test-macos:
-      #     name: v2 / Jest Acceptance Tests (darwin/amd64)
-      #     context: nodejs-install
-      #     requires:
-      #       - v2 / Rename macos/amd64 artifact
-      #     test_snyk_command: /Users/distiller/snyk/cliv2/bin/snyk-macos
-      # - regression-test:
-      #     name: v2 / Regression Tests (linux/amd64)
-      #     context: nodejs-install
-      #     requires:
-      #       - v2 / Rename linux/amd64 artifact
-      #     test_snyk_command: /mnt/ramdisk/snyk/cliv2/bin/snyk-linux
+      - test-alpine:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Jest Acceptance Tests (alpine/amd64)
+          context: nodejs-install
+          requires:
+            - v2 / Build (alpine/amd64)
+          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_alpine_amd64
+      - test-linux:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Jest Acceptance Tests (linux/amd64)
+          context: nodejs-install
+          requires:
+            - v2 / Rename linux/amd64 artifact
+          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-linux
+      - test-linux-arm64:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Jest Acceptance Tests (linux/arm64)
+          context: nodejs-install
+          requires:
+            - v2 / Rename linux/arm64 artifact
+          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-linux-arm64
+      - test-windows:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Jest Acceptance Tests (windows/amd64)
+          context: nodejs-install
+          requires:
+            - v2 / Rename windows/amd64 artifact
+          test_snyk_command: C:\Users\circleci\snyk\cliv2\bin\snyk-win.exe
+      - test-macos:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Jest Acceptance Tests (darwin/amd64)
+          context: nodejs-install
+          requires:
+            - v2 / Rename macos/amd64 artifact
+          test_snyk_command: /Users/distiller/snyk/cliv2/bin/snyk-macos
+      - regression-test:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Regression Tests (linux/amd64)
+          context: nodejs-install
+          requires:
+            - v2 / Rename linux/amd64 artifact
+          test_snyk_command: /mnt/ramdisk/snyk/cliv2/bin/snyk-linux
       - v2-sign-darwin-amd64:
           name: v2 / Sign (darwin/amd64)
           context: snyk-macos-signing
