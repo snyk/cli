@@ -88,7 +88,6 @@ async function getCodeAnalysis(
     analysisContext: {
       initiator: 'CLI',
       flow: source,
-      orgDisplayName: sastSettings.org,
       projectName: config.PROJECT_NAME,
       org: {
         name: sastSettings.org || 'unknown',
