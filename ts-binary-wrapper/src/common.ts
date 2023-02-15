@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import { spawnSync } from 'child_process';
+import * as http from 'http';
 import * as https from 'https';
 import { randomInt, createHash } from 'crypto';
 
@@ -211,6 +212,17 @@ export async function downloadExecutable(
 
     console.debug("Downloading from '" + downloadUrl + "' to '" + filename);
 
+    if (process.env.PROXY_HOST && process.env.PROXY_PORT) {
+      downloadExeViaProxy(
+        options,
+        filename,
+        filenameShasum,
+        temp,
+        fileStream,
+        cleanupAfterError,
+      );
+    };
+
     const req = https.request(options, (res) => {
       const shasum = createHash('sha256');
       res.pipe(fileStream);
@@ -258,5 +270,84 @@ export async function downloadExecutable(
     });
 
     req.end();
+  });
+}
+
+function downloadExeViaProxy(
+  url: URL,
+  filename: string,
+  temp: string,
+  filenameShasum: string,
+  fileStream: fs.WriteStream,
+  cleanupAfterError: (exitCode: number) => void,
+): Promise<Error | undefined> {
+  return new Promise<Error | undefined>(function(resolve) {
+    http.request({
+      host: process.env.PROXY_HOST,
+      port: process.env.PROXY_PORT,
+      method: 'CONNECT',
+      path: url.hostname + ':' + url.port,
+    }).on('connect', (res, socket) => {
+      if (res.statusCode === 200) {
+        const agent = new https.Agent({ socket });
+        const req = https.request({
+          host: url.hostname,
+          path: url.pathname,
+          agent,
+        }, (res) => {
+          const shasum = createHash('sha256');
+          res.pipe(fileStream);
+          res.pipe(shasum);
+  
+          fileStream.on('finish', () => {
+            fileStream.close();
+  
+            // compare shasums
+            const actualShasum = shasum.digest('hex');
+  
+            const debugMessage =
+              'Shasums:\n- actual:   ' +
+              actualShasum +
+              '\n- expected: ' +
+              filenameShasum;
+  
+            if (filenameShasum && actualShasum != filenameShasum) {
+              console.error('Failed Shasum comparison!');
+              cleanupAfterError(3);
+            } else {
+              console.debug(debugMessage);
+  
+              // finally rename the file and change permissions
+              fs.renameSync(temp, filename);
+              fs.chmodSync(filename, 0o755);
+              console.debug('Downloaded successfull! ');
+              resolve(undefined);
+            }
+          });
+        });
+  
+        req.on('error', (e) => {
+          console.debug('Error during download!');
+          console.error(e);
+          cleanupAfterError(1);
+        });
+        req.on('response', (incoming) => {
+          if (
+            incoming.statusCode &&
+            !(200 <= incoming.statusCode && incoming.statusCode < 300)
+          ) {
+            req.destroy();
+            console.debug('Failed to download! ' + incoming.statusMessage);
+            cleanupAfterError(2);
+          }
+        });
+      } else {
+        console.error('Failed to connect to proxy: ' + res.statusCode);
+        cleanupAfterError(2);
+      }
+    }).on('error', (e) => {
+      console.error('Failed to connect to proxy: ' + e);
+      cleanupAfterError(2);
+    }).end();
   });
 }
