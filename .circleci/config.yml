@@ -358,6 +358,8 @@ jobs:
         type: string
     executor: macos
     working_directory: /Users/distiller/snyk
+    environment:
+      HOMEBREW_NO_AUTO_UPDATE: 1
     steps:
       - checkout
       - attach_workspace:
