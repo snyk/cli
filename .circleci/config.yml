@@ -181,7 +181,7 @@ commands:
       - restore_cache:
           name: Restoring Homebrew cache
           keys:
-            - homebrew-cache-{{ arch }}-{{ checksum "Brewfile" }}
+            - homebrew-cache-{{ arch }}
       - run:
           name: Installing golang
           command: |
@@ -189,7 +189,7 @@ commands:
       - install_sdks_unix
       - save_cache:
           name: Saving Homebrew cache
-          key: homebrew-cache-{{ arch }}-{{ checksum "Brewfile" }}
+          key: homebrew-cache-{{ arch }}
           paths:
             - /usr/local/Homebrew
             - /usr/local/Caskroom
@@ -546,7 +546,7 @@ jobs:
       - setup_npm
       - when:
           condition:
-            equal: [ 'snyk-win.exe', << parameters.artifact >> ]
+            equal: ['snyk-win.exe', << parameters.artifact >>]
           steps:
             run:
               name: Installing osslsigncode
@@ -698,7 +698,7 @@ jobs:
           command: make configure whiteboxtest
       - save_cache:
           key: go-unit-test-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths: [ /home/circleci/go/pkg/mod ]
+          paths: [/home/circleci/go/pkg/mod]
 
   v2-build-artifact:
     parameters:
@@ -731,7 +731,7 @@ jobs:
           command: make build build-test install prefix=. -e
       - save_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths: [ /home/circleci/go/pkg/mod ]
+          paths: [/home/circleci/go/pkg/mod]
       - persist_to_workspace:
           root: .
           paths:
@@ -1026,8 +1026,8 @@ workflows:
             - Build
           matrix:
             parameters:
-              node_version: [ '12.22.11', '14.20.0', '16.16.0' ]
-              npm_global_sudo: [ true, false ]
+              node_version: ['12.22.11', '14.20.0', '16.16.0']
+              npm_global_sudo: [true, false]
             exclude:
               - node_version: '12.22.11'
                 npm_global_sudo: false
@@ -1149,7 +1149,7 @@ workflows:
           name: Test Release (<< matrix.executor >>)
           matrix:
             parameters:
-              executor: [ 'linux', 'win/default', 'macos' ]
+              executor: ['linux', 'win/default', 'macos']
           requires:
             - Pre-Release
           filters:
