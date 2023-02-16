@@ -981,6 +981,22 @@ jobs:
             - cliv2/bin/snyk_windows_amd64.exe
             - cliv2/bin/snyk_windows_amd64.exe.sha256
 
+  ts-binary-wrapper:
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run ts-binary wrapper tests
+          working_directory: ./
+          command: make test-binary-wrapper
+      - run:
+          name: Run ts-binary wrapper proxy tests
+          working_directory: ./
+          command: make proxy-test-binary-wrapper
+
 workflows:
   version: 2
   test_and_release:
@@ -1242,6 +1258,13 @@ workflows:
           name: v2 / Proxy Integration Tests (windows/amd64)
           requires:
             - v2 / Rename windows/amd64 artifact
+      - ts-binary-wrapper:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / ts-binary-wrapper tests
+          requires:
+            - Version
       # Tests for backwards compatibility with CLIv1
       - test-alpine:
           filters:
