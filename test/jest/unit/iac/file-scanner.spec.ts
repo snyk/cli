@@ -5,7 +5,6 @@ import {
   validateResultFromCustomRules,
 } from '../../../../src/cli/commands/test/iac/local-execution/file-scanner';
 import * as localCacheModule from '../../../../src/cli/commands/test/iac/local-execution/local-cache';
-import { LOCAL_POLICY_ENGINE_DIR } from '../../../../src/cli/commands/test/iac/local-execution/local-cache';
 import {
   EngineType,
   IacFileParsed,
@@ -38,11 +37,11 @@ describe('scanFiles', () => {
     it('returns the expected violated policies', async () => {
       const policyEngineCoreDataPath = path.resolve(
         __dirname,
-        path.join('../../../smoke', LOCAL_POLICY_ENGINE_DIR),
+        path.normalize('../../../smoke/.iac-data'),
       );
       const policyEngineMetaDataPath = path.resolve(
         __dirname,
-        path.join('../../../smoke', LOCAL_POLICY_ENGINE_DIR),
+        path.normalize('../../../smoke/.iac-data'),
       );
 
       const spy = jest

@@ -9,10 +9,15 @@ import * as analytics from '../../../../../lib/analytics';
 import { getErrorStringCode } from './error-utils';
 import config from '../../../../../lib/config';
 import { streamRequest } from '../../../../../lib/request/request';
+import envPaths from 'env-paths';
 
 const debug = Debug('iac-local-cache');
 
-export const LOCAL_POLICY_ENGINE_DIR = '.iac-data';
+const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
+const uuid = Math.random()
+  .toString(36)
+  .substring(2);
+export const LOCAL_POLICY_ENGINE_DIR = cachePath + '/iac-data/' + uuid;
 
 const KUBERNETES_POLICY_ENGINE_WASM_PATH = path.join(
   LOCAL_POLICY_ENGINE_DIR,
@@ -68,28 +73,28 @@ export function getLocalCachePath(engineType: EngineType): string[] {
   switch (engineType) {
     case EngineType.Kubernetes:
       return [
-        `${process.cwd()}/${KUBERNETES_POLICY_ENGINE_WASM_PATH}`,
-        `${process.cwd()}/${KUBERNETES_POLICY_ENGINE_DATA_PATH}`,
+        `${KUBERNETES_POLICY_ENGINE_WASM_PATH}`,
+        `${KUBERNETES_POLICY_ENGINE_DATA_PATH}`,
       ];
     case EngineType.Terraform:
       return [
-        `${process.cwd()}/${TERRAFORM_POLICY_ENGINE_WASM_PATH}`,
-        `${process.cwd()}/${TERRAFORM_POLICY_ENGINE_DATA_PATH}`,
+        `${TERRAFORM_POLICY_ENGINE_WASM_PATH}`,
+        `${TERRAFORM_POLICY_ENGINE_DATA_PATH}`,
       ];
     case EngineType.CloudFormation:
       return [
-        `${process.cwd()}/${CLOUDFORMATION_POLICY_ENGINE_WASM_PATH}`,
-        `${process.cwd()}/${CLOUDFORMATION_POLICY_ENGINE_DATA_PATH}`,
+        `${CLOUDFORMATION_POLICY_ENGINE_WASM_PATH}`,
+        `${CLOUDFORMATION_POLICY_ENGINE_DATA_PATH}`,
       ];
     case EngineType.ARM:
       return [
-        `${process.cwd()}/${ARM_POLICY_ENGINE_WASM_PATH}`,
-        `${process.cwd()}/${ARM_POLICY_ENGINE_DATA_PATH}`,
+        `${ARM_POLICY_ENGINE_WASM_PATH}`,
+        `${ARM_POLICY_ENGINE_DATA_PATH}`,
       ];
     case EngineType.Custom:
       return [
-        `${process.cwd()}/${CUSTOM_POLICY_ENGINE_WASM_PATH}`,
-        `${process.cwd()}/${CUSTOM_POLICY_ENGINE_DATA_PATH}`,
+        `${CUSTOM_POLICY_ENGINE_WASM_PATH}`,
+        `${CUSTOM_POLICY_ENGINE_DATA_PATH}`,
       ];
     default:
       assertNever(engineType);
@@ -154,10 +159,7 @@ export async function initLocalCache({
 
 export function cleanLocalCache() {
   // path to delete is hardcoded for now
-  const iacPath: fs.PathLike = path.join(
-    `${process.cwd()}`,
-    LOCAL_POLICY_ENGINE_DIR,
-  );
+  const iacPath: fs.PathLike = path.normalize(LOCAL_POLICY_ENGINE_DIR);
   try {
     // when we support Node version >= 12.10.0 , we can replace rimraf
     // with the native fs.rmdirSync(path, {recursive: true})
