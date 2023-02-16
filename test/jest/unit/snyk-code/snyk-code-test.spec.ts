@@ -17,7 +17,7 @@ import { jsonStringifyLargeObject } from '../../../../src/lib/json';
 import { ArgsOptions } from '../../../../src/cli/args';
 import * as codeConfig from '../../../../src/lib/code-config';
 
-const { getCodeAnalysisAndParseResults } = analysis;
+const { getCodeTestResults } = analysis;
 import * as os from 'os';
 
 describe('Test snyk code', () => {
@@ -35,6 +35,12 @@ describe('Test snyk code', () => {
     path.join(
       __dirname,
       '/../../../fixtures/sast/sample-analyze-folders-response.json',
+    ),
+  );
+  const sampleAnalyzeFoldersWithReportAndIgnoresResponse = loadJson(
+    path.join(
+      __dirname,
+      '/../../../fixtures/sast/sample-analyze-folders-with-report-and-ignores-response.json',
     ),
   );
 
@@ -100,7 +106,7 @@ describe('Test snyk code', () => {
     const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
       sampleAnalyzeFoldersResponse,
     );
-    await getCodeAnalysisAndParseResults(
+    await getCodeTestResults(
       '.',
       {
         path: '',
@@ -380,6 +386,59 @@ describe('Test snyk code', () => {
     }
   });
 
+  it('should create sarif result with ignored issues omitted', async () => {
+    const sastSettings = {
+      sastEnabled: true,
+      localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
+    };
+
+    // First get results without ignores - it should not ignore when report is disabled
+    analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersWithReportAndIgnoresResponse,
+    );
+    const resultWithoutIgnores = await getCodeTestResults(
+      '.',
+      {
+        path: '',
+        code: true,
+        report: false,
+      },
+      sastSettings,
+      'test-id',
+    );
+
+    const sarifWithoutIgnores =
+      resultWithoutIgnores?.analysisResults.sarif.runs[0].results;
+    if (!sarifWithoutIgnores) throw new Error('A value was expected');
+
+    // Then get the results with ignores - ignore when report is enabled
+    analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersWithReportAndIgnoresResponse,
+    );
+    const resultWithIgnores = await getCodeTestResults(
+      '.',
+      {
+        path: '',
+        code: true,
+        report: true,
+      },
+      sastSettings,
+      'test-id',
+    );
+
+    const sarifWithIgnores =
+      resultWithIgnores?.analysisResults.sarif.runs[0].results;
+    if (!sarifWithIgnores) throw new Error('A value was expected');
+
+    expect(sarifWithoutIgnores.length).toBeGreaterThan(0);
+    expect(sarifWithIgnores.length).toBeGreaterThan(0);
+    expect(sarifWithIgnores.length).toBeLessThan(sarifWithoutIgnores.length);
+
+    sarifWithIgnores.forEach((result) => {
+      expect(result.suppressions?.length ?? 0).toEqual(0);
+    });
+  });
+
   describe('Default org test in CLI output', () => {
     beforeAll(() => {
       userConfig.set('org', 'defaultOrg');
@@ -650,7 +709,7 @@ describe('Test snyk code', () => {
         apiName: '/some-api',
       };
       jest
-        .spyOn(analysis, 'getCodeAnalysisAndParseResults')
+        .spyOn(analysis, 'getCodeTestResults')
         .mockRejectedValue(codeClientError);
       isSastEnabledForOrgSpy.mockResolvedValueOnce({
         sastEnabled: true,
@@ -677,7 +736,7 @@ describe('Test snyk code', () => {
     };
 
     jest
-      .spyOn(analysis, 'getCodeAnalysisAndParseResults')
+      .spyOn(analysis, 'getCodeTestResults')
       .mockRejectedValue(codeClientError);
 
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
@@ -731,7 +790,7 @@ describe('Test snyk code', () => {
     const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
       sampleAnalyzeFoldersResponse,
     );
-    await getCodeAnalysisAndParseResults(
+    await getCodeTestResults(
       '.',
       {
         path: '',
@@ -751,7 +810,7 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    const actual = await getCodeAnalysisAndParseResults(
+    const actual = await getCodeTestResults(
       '.',
       {
         path: '',
@@ -761,7 +820,35 @@ describe('Test snyk code', () => {
       'test-id',
     );
 
-    expect(actual).toEqual(sampleSarifResponse);
+    expect(actual?.analysisResults.sarif).toEqual(sampleSarifResponse);
+  });
+
+  it('analyzeFolders with report enabled should return the right report results response', async () => {
+    const sastSettings = {
+      sastEnabled: true,
+      localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
+    };
+
+    analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersWithReportAndIgnoresResponse,
+    );
+    const actual = await getCodeTestResults(
+      '.',
+      {
+        path: '',
+        code: true,
+      },
+      sastSettings,
+      'test-id',
+    );
+
+    const expectedReportResults = {
+      projectId: 'test-project-id',
+      snapshotId: 'test-snapshot-id',
+      reportUrl: 'test/report/url',
+    };
+
+    expect(actual?.reportResults).toEqual(expectedReportResults);
   });
 
   it.each([
@@ -820,7 +907,7 @@ describe('Test snyk code', () => {
       const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
         sampleAnalyzeFoldersResponse,
       );
-      await getCodeAnalysisAndParseResults(
+      await getCodeTestResults(
         '.',
         {
           path: '',
@@ -847,7 +934,7 @@ describe('Test snyk code', () => {
     const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
       sampleAnalyzeFoldersResponse,
     );
-    await getCodeAnalysisAndParseResults(
+    await getCodeTestResults(
       '.',
       {
         path: '',
@@ -869,7 +956,7 @@ describe('Test snyk code', () => {
     };
 
     await expect(
-      getCodeAnalysisAndParseResults(
+      getCodeTestResults(
         '.',
         {
           path: '',
