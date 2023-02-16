@@ -150,6 +150,11 @@ test-binary-wrapper:
 	@echo "-- Testing binary wrapper"
 	@cd $(BINARY_WRAPPER_DIR) && npm run test
 
+.PHONY: proxy-test-binary-wrapper
+proxy-test-binary-wrapper: 
+	@echo "-- Running binary wrapper acceptance tests with proxy"
+	@docker build -t proxy-tests -f ./docker-proxy/Dockerfile .
+	@docker run --rm --cap-add=NET_ADMIN proxy-tests ./node_modules/.bin/jest ./ts-binary-wrapper/test/acceptance/basic.spec.ts
 
 # targets responsible for the complete CLI build
 .PHONY: build

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Use arm64v8/node:gallium for M1 Macs
 FROM node:gallium
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y sudo git squid curl git traceroute net-tools iptables vim make golang
@@ -27,7 +26,7 @@ RUN mkdir -p /app
 COPY . /app
 
 RUN rm -rf /app/build /app/.bin
-RUN cp /app/.github/docker-proxy/entrypoint.sh /bin
+RUN cp /app/docker-proxy/entrypoint.sh /bin
 
 RUN chmod +x /bin/entrypoint.sh
 RUN chmod 777 /app && chown -R snyk /app
