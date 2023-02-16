@@ -1,6 +1,4 @@
-import {
-  prepareEnvironment,
-} from '../util/prepareEnvironment';
+import { prepareEnvironment } from '../util/prepareEnvironment';
 import * as bootstrap from '../../src/bootstrap';
 import * as fs from 'fs';
 import * as path from 'path';
