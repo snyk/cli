@@ -178,30 +178,11 @@ commands:
       - install_sdks_unix
   install_sdks_macos:
     steps:
-      - restore_cache:
-          name: Restoring Homebrew cache
-          keys:
-            - homebrew-cache-{{ arch }}
       - run:
           name: Installing golang
           command: |
             brew install go gradle python elixir composer
       - install_sdks_unix
-      - save_cache:
-          name: Saving Homebrew cache
-          key: homebrew-cache-{{ arch }}
-          paths:
-            - /usr/local/Homebrew
-            - /usr/local/Caskroom
-            - /usr/local/Cellar
-            - /usr/local/bin/brew
-            - /usr/local/etc
-            - /usr/local/include
-            - /usr/local/lib
-            - /usr/local/opt
-            - /usr/local/sbin
-            - /usr/local/share
-            - /usr/local/var
   install_shellspec_dependencies:
     steps:
       - run:
