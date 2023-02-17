@@ -233,7 +233,6 @@ export function downloadExecutable(
     const temp = path.join(__dirname, Date.now().toString());
     const fileStream = fs.createWriteStream(temp);
     fileStream.on('error', (e) => {
-      formatErrorMessage(e.message);
       cleanupAfterError(e);
     });
 
@@ -330,6 +329,7 @@ export async function logError(context: string, err): Promise<void> {
 
   // finally log the error to the console as well
   console.error(err);
+  formatErrorMessage(err.message);
 }
 
 export function isAnalyticsEnabled(): boolean {
