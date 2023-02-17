@@ -252,14 +252,10 @@ export function downloadExecutable(
 
     const req = https.request(options, (res) => {
       const shasum = createHash('sha256');
-      res.pipe(fileStream);
-      res.pipe(shasum);
+
       shasum.on('error', cleanupAfterError);
       res.on('error', cleanupAfterError);
-
-      fileStream.on('finish', () => {
-        fileStream.close();
-
+      res.on('end', () => {
         // compare shasums
         const actualShasum = shasum.digest('hex');
 
@@ -270,6 +266,8 @@ export function downloadExecutable(
           filenameShasum;
 
         if (filenameShasum && actualShasum != filenameShasum) {
+          fileStream.close();
+          shasum.end();
           cleanupAfterError(
             Error('Shasum comparison failed!\n' + debugMessage),
           );
@@ -280,9 +278,15 @@ export function downloadExecutable(
           fs.renameSync(temp, filename);
           fs.chmodSync(filename, 0o755);
           console.debug('Downloaded successfull! ');
+
+          shasum.end();
+          fileStream.close();
           resolve(undefined);
         }
       });
+
+      res.pipe(fileStream);
+      res.pipe(shasum);
     });
 
     req.on('error', (e) => {
