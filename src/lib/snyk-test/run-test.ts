@@ -71,6 +71,9 @@ import { hasUnknownVersions } from '../dep-graph';
 
 const debug = debugModule('snyk:run-test');
 
+// Controls the number of simultaneous test requests that can be in-flight.
+const MAX_CONCURRENCY = 5;
+
 function prepareResponseForParsing(
   payload: Payload,
   response: TestDependenciesResponse,
@@ -219,14 +222,49 @@ async function sendAndParseResults(
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
+
+  await spinner.clear<void>(spinnerLbl)();
+  if (!options.quiet) {
+    await spinner(spinnerLbl);
+  }
+
+  type TestResponse = {
+    payload: Payload;
+    originalPayload: Payload;
+    response: any;
+  };
+  const requests: (() => Promise<TestResponse>)[] = [];
   for (const payload of payloads) {
-    await spinner.clear<void>(spinnerLbl)();
-    if (!options.quiet) {
-      await spinner(spinnerLbl);
+    const request = async (): Promise<TestResponse> => {
+      /** sendTestPayload() deletes the request.body from the payload once completed. */
+      const originalPayload = Object.assign({}, payload);
+      const response = await sendTestPayload(payload);
+      return { payload, originalPayload, response };
+    };
+    requests.push(request);
+  }
+
+  // Start block adapted from https://gist.github.com/jcouyang/632709f30e12a7879a73e9e132c0d56b?permalink_comment_id=3591045#gistcomment-3591045
+  let index = 0;
+  const responses: TestResponse[] = [];
+
+  const execRequest = async () => {
+    while (index < requests.length) {
+      // index is shared across "threads", so capture the current value for this
+      // iteration on this "thread" and increment it for the rest of the world.
+      const curIndex = index++;
+      responses[curIndex] = await requests[curIndex]();
     }
-    /** sendTestPayload() deletes the request.body from the payload once completed. */
-    const payloadCopy = Object.assign({}, payload);
-    const res = await sendTestPayload(payload);
+  };
+
+  const threads: Promise<void>[] = [];
+  for (let thread = 0; thread < MAX_CONCURRENCY; thread++) {
+    threads.push(execRequest());
+  }
+  await Promise.all(threads);
+  // End block adapted from https://gist.github.com/jcouyang/632709f30e12a7879a73e9e132c0d56b?permalink_comment_id=3591045#gistcomment-3591045
+
+  for (const { payload, originalPayload, response } of responses) {
     const {
       depGraph,
       payloadPolicy,
@@ -240,8 +278,8 @@ async function sendAndParseResults(
       scanResult,
       hasUnknownVersions,
     } = prepareResponseForParsing(
-      payloadCopy,
-      res as TestDependenciesResponse,
+      originalPayload,
+      response as TestDependenciesResponse,
       options,
     );
 
@@ -251,7 +289,7 @@ async function sendAndParseResults(
       await maybePrintDepGraph(options, depGraph);
     }
 
-    const legacyRes = convertIssuesToAffectedPkgs(res);
+    const legacyRes = convertIssuesToAffectedPkgs(response);
 
     const result = await parseRes(
       depGraph,

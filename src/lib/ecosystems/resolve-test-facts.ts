@@ -56,7 +56,7 @@ async function getOrgDefaultContext(): Promise<string> {
   return (await getSelf())?.data.attributes.default_org_context;
 }
 
-async function submitHashes(
+export async function submitHashes(
   hashes: FileHashes,
   orgId: string,
 ): Promise<string> {
@@ -65,7 +65,7 @@ async function submitHashes(
   return response.data.id;
 }
 
-async function pollDepGraphAttributes(
+export async function pollDepGraphAttributes(
   id: string,
   orgId: string,
 ): Promise<Attributes> {

@@ -23,7 +23,7 @@ export function createIacDir(): void {
   const iacPath: fs.PathLike = path.join(LOCAL_POLICY_ENGINE_DIR);
   try {
     if (!fs.existsSync(iacPath)) {
-      fs.mkdirSync(iacPath, '700');
+      fs.mkdirSync(iacPath, { recursive: true, mode: 0o700 });
     }
     fs.accessSync(iacPath, fs.constants.W_OK);
   } catch {

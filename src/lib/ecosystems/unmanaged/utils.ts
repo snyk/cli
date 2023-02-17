@@ -3,6 +3,9 @@ import { DepGraphData } from '@snyk/dep-graph';
 import { GraphNode } from '@snyk/dep-graph/dist/core/types';
 import config from '../../config';
 import { makeRequestRest } from '../../request/promise';
+import { pollDepGraphAttributes, submitHashes } from '../resolve-test-facts';
+import { ScanResult } from '../types';
+import { DepGraphDataOpenAPI } from './types';
 
 function mapKey(object, iteratee) {
   object = Object(object);
@@ -70,4 +73,28 @@ export function getSelf() {
     method: 'GET',
     url: `${config.API_REST_URL}/self?version=2022-08-12~experimental`,
   });
+}
+
+export async function getUnmanagedDepGraph(scans: {
+  [dir: string]: ScanResult[];
+}) {
+  const results: DepGraphDataOpenAPI[] = [];
+  const orgId = (await getSelf())?.data.attributes.default_org_context;
+
+  for (const [, scanResults] of Object.entries(scans)) {
+    for (const scanResult of scanResults) {
+      const taskId = await submitHashes(
+        { hashes: scanResult?.facts[0]?.data },
+        orgId,
+      );
+
+      const { dep_graph_data } = await pollDepGraphAttributes(taskId, orgId);
+
+      if (dep_graph_data) {
+        results.push(dep_graph_data);
+      }
+    }
+  }
+
+  return results;
 }
