@@ -1,18 +1,27 @@
 import * as common from './common';
 import * as process from 'process';
 
-const config = common.getCurrentConfiguration();
-export const executable = config.getLocalLocation();
+const errorContextMessage = 'Download Error';
 
-if (process.argv.includes('exec')) {
-  const filenameShasum = config.getShasumFile();
-  const downloadUrl = config.getDownloadLocation();
+(async () => {
+  try {
+    const config = common.getCurrentConfiguration();
+    const executable = config.getLocalLocation();
 
-  common
-    .downloadExecutable(downloadUrl, executable, filenameShasum)
-    .then(process.exit)
-    .catch((err) => {
-      console.error(err);
-      process.exit(1);
-    });
-}
+    if (process.argv.includes('exec')) {
+      const filenameShasum = config.getShasumFile();
+      const downloadUrl = config.getDownloadLocation();
+
+      const downloadError = await common.downloadExecutable(
+        downloadUrl,
+        executable,
+        filenameShasum,
+      );
+      if (downloadError !== undefined) {
+        throw downloadError;
+      }
+    }
+  } catch (err) {
+    await common.logError(errorContextMessage, err);
+  }
+})();
