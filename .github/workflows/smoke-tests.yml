@@ -27,6 +27,11 @@ jobs:
             node_version: 12
           - snyk_install_method: binary
             node_version: 16
+          # No need to run brew tests on some Platforms
+          - snyk_install_method: brew
+            os: ubuntu
+          - snyk_install_method: brew
+            os: windows
         include:
           - snyk_install_method: binary
             os: ubuntu
@@ -71,7 +76,7 @@ jobs:
           yarn global add snyk
 
       - name: npm install for fixture project
-        working-directory: ./test/fixtures/basic-npm
+        working-directory: test/fixtures/basic-npm
         run: |
           npm install
 
