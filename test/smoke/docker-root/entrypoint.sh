@@ -1,9 +1,10 @@
 #!/bin/sh
 
-set -e
+set -ex
 
-echo "Install Snyk CLI with npm"
+whoami
+npm --version
 npm install snyk -g
 snyk --version
-
+su node -c "snyk --version"
 shellspec -f d
