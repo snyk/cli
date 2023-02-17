@@ -36,10 +36,7 @@ GEM
     minitest (5.17.0)
     multi_json (1.12.1)
     multi_xml (0.5.5)
-    nokogiri (1.14.0)
-      mini_portile2 (~> 2.8.0)
-      racc (~> 1.4)
-    racc (1.6.2)
+<
     rack (1.6.13)
     rack-protection (1.5.3)
       rack
