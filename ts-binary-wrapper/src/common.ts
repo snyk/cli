@@ -94,7 +94,8 @@ export function determineBinaryName(
     }
   }
 
-  const defaultErrorMsg = ' The current platform (' +
+  const defaultErrorMsg =
+    ' The current platform (' +
     platform +
     ' ' +
     arch +
@@ -212,9 +213,9 @@ function getWarningMessage(message: string): string {
 function formatErrorMessage(message: string): boolean {
   const eaccesWarning =
     "We don't have the permissions to install Snyk. Please try the following options:\n" +
-    "* If installing with increased privileges (eg sudo), try adding unsafe-perm a parameter to npm install\n" +
-    "* If you run NPM <= 6, please upgrade to a later version.\n" +
-    "If the problems persist please contact support@snyk.io and include the information provided.";
+    '* If installing with increased privileges (eg sudo), try adding unsafe-perm a parameter to npm install\n' +
+    '* If you run NPM <= 6, please upgrade to a later version.\n' +
+    'If the problems persist please contact support@snyk.io and include the information provided.';
   if (message.includes('EACCES')) {
     console.error(getWarningMessage(eaccesWarning));
     return true;
