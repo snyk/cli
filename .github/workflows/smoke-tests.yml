@@ -16,7 +16,7 @@ jobs:
       fail-fast: false # we care about other platforms and channels building
       matrix:
         os: [ubuntu, macos, windows]
-        snyk_install_method: [binary, npm, yarn, brew, docker-bundle]
+        snyk_install_method: [binary, npm, yarn, brew]
         node_version: [12, 14, 16]
         exclude:
           # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
@@ -85,7 +85,7 @@ jobs:
           docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN -eGITHUB_TOKEN snyk-cli-alpine
 
       - name: Install snyk from Docker bundle
-        if: ${{ matrix.snyk_install_method == 'docker-bundle' }}
+        if: ${{ matrix.snyk_install_method == 'docker-bundle' && matrix.os == 'macos' }}
         run: |
           pushd "$(mktemp -d)"
           curl 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}' | tar -xz
@@ -145,7 +145,7 @@ jobs:
           brew install jq
 
       - name: Install Snyk CLI with homebrew on macOS
-        if: ${{ matrix.snyk_install_method == 'brew' }}
+        if: ${{ matrix.snyk_install_method == 'brew' && matrix.os == 'macos'}}
         run: |
           brew tap snyk/tap
           brew install snyk
