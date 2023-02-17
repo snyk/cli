@@ -986,6 +986,22 @@ jobs:
             - cliv2/bin/snyk_windows_amd64.exe
             - cliv2/bin/snyk_windows_amd64.exe.sha256
 
+  test-in-proxy-environment-linux-amd64:
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run acceptance tests in a proxied environment
+          working_directory: ./
+          environment:
+            TEST_SNYK_COMMAND: ./bin/snyk-linux
+          command: |
+            export SNYK_TOKEN="${SNYK_API_KEY}"
+            make acceptance-test-with-proxy
+
 workflows:
   version: 2
   test_and_release:
@@ -1318,3 +1334,10 @@ workflows:
             - v2 / Rename linux/arm64 artifact
             - v2 / Rename macos/amd64 artifact
             - v2 / Rename windows/amd64 artifact
+      - test-in-proxy-environment-linux-amd64:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Acceptance Tests With Proxy (linux/amd64)
+          requires:
+            - v2 / Rename linux/amd64 artifact

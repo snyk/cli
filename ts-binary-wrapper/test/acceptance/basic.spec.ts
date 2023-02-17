@@ -57,4 +57,48 @@ describe('Basic acceptance test', () => {
       fs.rmdirSync(envInfo.outputfolder, { recursive: true });
     }
   });
+
+  it('Bootstrap binary fails when proxy is used but not allowed', async () => {
+    // only run when proxy is set
+    if (!process.env.https_proxy) {
+      console.info('Skipping test because https_proxy is not set');
+      return;
+    }
+
+    // setup
+    const cliVersionForTesting = '1.1080.0';
+    const envInfo = await prepareEnvironment(cliVersionForTesting);
+    const config = common.getCurrentConfiguration();
+    const executable = config
+      .getLocalLocation()
+      .replace(envInfo.inputfolder, envInfo.outputfolder);
+
+    try {
+      fs.unlinkSync(executable);
+    } catch {
+      //
+    }
+
+    expect(fs.existsSync(executable)).toBeFalsy();
+
+    const bootstrapScript = path.join(envInfo.outputfolder, 'bootstrap.js');
+
+    // set NO_PROXY for snyk.io
+    process.env.NO_PROXY = '*.snyk.io';
+
+    // run system under test: index
+    const resultBootstrap = child_process.spawnSync(
+      'node ' + bootstrapScript + ' exec',
+      { shell: true, env: { ...process.env } },
+    );
+    console.debug(resultBootstrap.stdout.toString());
+    expect(resultBootstrap.status).toEqual(1);
+
+    try {
+      fs.rmSync(envInfo.outputfolder, { recursive: true });
+    } catch {
+      // to support nodejs 12, which doesn't know rmSync()
+      fs.rmdirSync(envInfo.outputfolder, { recursive: true });
+    }
+  });
 });

@@ -23,7 +23,7 @@ export async function prepareEnvironment(
   fs.mkdirSync(path.join(outputfolder, 'generated'), { recursive: true });
 
   const tsc = child_process.spawnSync(
-    'tsc  --outDir ' +
+    'npx tsc  --outDir ' +
       outputfolder +
       ' --tsBuildInfoFile ' +
       path.join(outputfolder, 'tsconfig.tsbuildinfo'),
