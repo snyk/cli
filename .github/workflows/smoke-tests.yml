@@ -16,7 +16,7 @@ jobs:
       fail-fast: false # we care about other platforms and channels building
       matrix:
         os: [ubuntu, macos, windows]
-        snyk_install_method: [binary, npm, yarn]
+        snyk_install_method: [binary, npm, yarn, brew, docker-bundle]
         node_version: [12, 14, 16]
         exclude:
           # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
@@ -47,9 +47,9 @@ jobs:
             snyk_cli_dl_file: snyk-for-docker-desktop-darwin-x64.tar.gz
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v1 # Needed for fixtures installation
+      - uses: actions/setup-node@v3 # Needed for fixtures installation
         with:
           node-version: ${{ matrix.node_version }}
 
@@ -71,7 +71,7 @@ jobs:
           yarn global add snyk
 
       - name: npm install for fixture project
-        working-directory: test/fixtures/basic-npm
+        working-directory: ./test/fixtures/basic-npm
         run: |
           npm install
 
