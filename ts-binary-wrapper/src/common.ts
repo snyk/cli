@@ -94,6 +94,13 @@ export function determineBinaryName(
     }
   }
 
+  const defaultErrorMsg = ' The current platform (' +
+    platform +
+    ' ' +
+    arch +
+    ') is not supported by Snyk.\n' +
+    ' You may want to consider using Docker to run Snyk, for details see: https://docs.snyk.io/snyk-cli/install-the-snyk-cli#snyk-cli-in-a-docker-image\n' +
+    ' If you experience errors please reach out to support@snyk.io.';
   switch (arch) {
     case 'x64':
     case 'amd64':
@@ -103,17 +110,7 @@ export function determineBinaryName(
       archname = '-arm64';
       break;
     default:
-      throw Error(
-        '------------------------------- Warning -------------------------------\n' +
-          ' The current platform (' +
-          platform +
-          ' ' +
-          arch +
-          ') is not supported by Snyk.\n' +
-          ' You may want to consider using Docker to run Snyk, for details see: https://docs.snyk.io/snyk-cli/install-the-snyk-cli#snyk-cli-in-a-docker-image\n' +
-          ' If you experience errors please reach out to support@snyk.io.\n' +
-          '-----------------------------------------------------------------------',
-      );
+      throw Error(getWarningMessage(defaultErrorMsg));
   }
 
   if (platform == 'linux') {
@@ -173,6 +170,14 @@ export function debugEnabled(cliArguments: string[]): boolean {
 }
 
 export function runWrapper(executable: string, cliArguments: string[]): number {
+  interface SpawnError extends Error {
+    errno: number;
+    code: string;
+    syscall: string;
+    path: string;
+    spawnargs: string[];
+  }
+
   const debug = debugEnabled(cliArguments);
 
   if (debug) {
@@ -192,29 +197,29 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
     return res.status;
   } else {
     console.error(res);
-
-    interface SpawnError {
-      errno: number;
-      code: string;
-      syscall: string;
-      path: string;
-      spawnargs: string[];
-    }
-
-    const spawnError = (res.error as unknown) as SpawnError;
-    if (spawnError?.code == 'EACCES') {
-      console.error(
-        "We don't have the permissions to install snyk. Please try the following options:\n" +
-          '* If installing with increased privileges (eg sudo), try adding --unsafe-perm as a parameter to npm install\n' +
-          '* If you run NPM <= 6, please upgrade to a later version.\n' +
-          'If the problems persist please contact support@snyk.io and include the information provided above.',
-      );
-    } else {
+    if (!formatErrorMessage((res.error as SpawnError).code)) {
       console.error('Failed to spawn child process. (' + executable + ')');
     }
 
     return 2;
   }
+}
+
+function getWarningMessage(message: string): string {
+  return `\n------------------------------- Warning -------------------------------\n${message}\n------------------------------- Warning -------------------------------\n`;
+}
+
+function formatErrorMessage(message: string): boolean {
+  const eaccesWarning =
+    "We don't have the permissions to install Snyk. Please try the following options:\n" +
+    "* If installing with increased privileges (eg sudo), try adding unsafe-perm a parameter to npm install\n" +
+    "* If you run NPM <= 6, please upgrade to a later version.\n" +
+    "If the problems persist please contact support@snyk.io and include the information provided.";
+  if (message.includes('EACCES')) {
+    console.error(getWarningMessage(eaccesWarning));
+    return true;
+  }
+  return false;
 }
 
 export function downloadExecutable(
@@ -226,6 +231,10 @@ export function downloadExecutable(
     const options = new URL(downloadUrl);
     const temp = path.join(__dirname, Date.now().toString());
     const fileStream = fs.createWriteStream(temp);
+    fileStream.on('error', (e) => {
+      formatErrorMessage(e.message);
+      cleanupAfterError(e);
+    });
 
     const cleanupAfterError = (error: Error) => {
       try {
@@ -245,6 +254,8 @@ export function downloadExecutable(
       const shasum = createHash('sha256');
       res.pipe(fileStream);
       res.pipe(shasum);
+      shasum.on('error', cleanupAfterError);
+      res.on('error', cleanupAfterError);
 
       fileStream.on('finish', () => {
         fileStream.close();
