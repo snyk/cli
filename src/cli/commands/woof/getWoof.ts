@@ -2,11 +2,12 @@ import { MethodArgs, ArgsOptions } from '../../args';
 
 const woofs = {
   en: 'Woof!',
-  he: ' !הב ',
+  he: ' בה! ',
   ru: ' Гав!',
   es: 'Guau!',
   cs: ' Haf!',
   uk: ' Гав!',
+  de: 'Wuff!',
 };
 
 export default function getWoof(args: MethodArgs): string {
