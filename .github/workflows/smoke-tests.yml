@@ -52,9 +52,9 @@ jobs:
             snyk_cli_dl_file: snyk-for-docker-desktop-darwin-x64.tar.gz
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v3 # Needed for fixtures installation
+      - uses: actions/setup-node@v1 # Needed for fixtures installation
         with:
           node-version: ${{ matrix.node_version }}
 
