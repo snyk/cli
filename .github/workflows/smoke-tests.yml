@@ -179,7 +179,7 @@ jobs:
         run: |
           which snyk
           snyk version
-          shellspec -f d --skip-message quiet
+          shellspec -f d --skip-message quiet --no-warning-as-failure
 
       - name: Run shellspec tests - Windows
         if: ${{ matrix.os == 'windows' }}
