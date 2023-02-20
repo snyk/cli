@@ -16,7 +16,7 @@ jobs:
       fail-fast: false # we care about other platforms and channels building
       matrix:
         os: [ubuntu, macos, windows]
-        snyk_install_method: [binary, npm, yarn, brew]
+        snyk_install_method: [binary, npm, yarn, brew, docker-bundle]
         node_version: [12, 14, 16]
         exclude:
           # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
@@ -27,10 +27,15 @@ jobs:
             node_version: 12
           - snyk_install_method: binary
             node_version: 16
-          # No need to run brew tests on some Platforms
+          # No need to run brew tests on some platforms
           - snyk_install_method: brew
             os: ubuntu
           - snyk_install_method: brew
+            os: windows
+          # No need to run docker-bundle on some platforms
+          - snyk_install_method: docker-bundle
+            os: ubuntu
+          - snyk_install_method: docker-bundle
             os: windows
         include:
           - snyk_install_method: binary
