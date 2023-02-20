@@ -59,7 +59,6 @@ export class WrapperConfiguration {
 export function determineBinaryName(platform: string, arch: string): string {
   let osname = platform;
   let archname = arch;
-  let binaryName: string;
 
   switch (osname) {
     case 'win32':
@@ -92,11 +91,11 @@ export function determineBinaryName(platform: string, arch: string): string {
       break;
   }
 
-  try {
-    const binaryDeployments = readFileSync('binary-deployments.json', 'utf8');
-    const supportedPlatforms = JSON.parse(binaryDeployments);
-    binaryName = supportedPlatforms[osname][archname];
-  } catch (e) {
+  const binaryDeployments = readFileSync('binary-deployments.json', 'utf8');
+  const supportedPlatforms = JSON.parse(binaryDeployments);
+  const binaryName = supportedPlatforms[osname][archname];
+
+  if (binaryName === undefined) {
     const defaultErrorMsg =
       ' The current platform (' +
       osname +

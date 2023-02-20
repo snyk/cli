@@ -46,11 +46,9 @@ describe('Determine Binary Name', () => {
   });
 
   it('Unsupported Architecture', async () => {
-    try {
+    expect(() => {
       common.determineBinaryName('linux', 'mipsel');
-    } catch (e) {
-      expect(e).toBeDefined();
-    }
+    }).toThrow();
   });
 });
 
