@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -30,10 +30,12 @@ var config configuration.Configuration
 var helpProvided bool
 var debugLogger = log.New(os.Stderr, "", 0)
 
+const unknownCommandMessage string = "unknown command"
+
 func getDebugLogger(config configuration.Configuration) *log.Logger {
 	debug := config.GetBool(configuration.DEBUG)
 	if !debug {
-		debugLogger.SetOutput(ioutil.Discard)
+		debugLogger.SetOutput(io.Discard)
 	} else {
 		debugFlags := config.GetInt(configuration.DEBUG_FORMAT)
 		debugLogger.SetFlags(debugFlags)
@@ -68,7 +70,11 @@ func getFullCommandString(cmd *cobra.Command) string {
 // main workflow
 func runCommand(cmd *cobra.Command, args []string) error {
 
-	config.AddFlagSet(cmd.Flags())
+	err := config.AddFlagSet(cmd.Flags())
+	if err != nil {
+		debugLogger.Println("Failed to add flags", err)
+		return err
+	}
 
 	name := getFullCommandString(cmd)
 	debugLogger.Println("Running", name)
@@ -108,7 +114,7 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *log.Logger) {
 
 func help(cmd *cobra.Command, args []string) {
 	helpProvided = true
-	defaultCmd(cmd, args)
+	defaultCmd(cmd, args) // TODO handle error
 }
 
 func defaultCmd(cmd *cobra.Command, args []string) error {
@@ -124,28 +130,49 @@ func getGlobalFLags() *pflag.FlagSet {
 	return globalFLags
 }
 
+func emptyCommandFunction(cmd *cobra.Command, args []string) error {
+	return fmt.Errorf(unknownCommandMessage)
+}
+
 func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engine) {
 	workflowIdList := engine.GetWorkflows()
+	commandMap := make(map[string]*cobra.Command)
 	for i := range workflowIdList {
 		currentId := workflowIdList[i]
 		currentCommandString := workflow.GetCommandFromWorkflowIdentifier(currentId)
+
 		workflowEntry, _ := engine.GetWorkflow(currentId)
 
 		workflowOptions := workflowEntry.GetConfigurationOptions()
 		flagset := workflow.FlagsetFromConfigurationOptions(workflowOptions)
 
-		cmd := cobra.Command{
-			Use:    currentCommandString,
-			Args:   cobra.MaximumNArgs(1),
-			RunE:   runCommand,
-			Hidden: !workflowEntry.IsVisible(),
+		workflowParts := strings.Split(currentCommandString, " ")
+
+		parentCommand := rootCommand
+		var currentParts string
+		for level := 0; level < len(workflowParts); level++ {
+			subCmdName := workflowParts[level]
+			currentParts += " " + subCmdName
+			subCmd := commandMap[currentParts]
+			if subCmd == nil {
+				subCmd = &cobra.Command{
+					Use:    subCmdName,
+					Hidden: true,
+					RunE:   emptyCommandFunction, // ensure to trigger the fallback case
+				}
+				parentCommand.AddCommand(subCmd)
+				commandMap[currentParts] = subCmd
+			}
+			parentCommand = subCmd
 		}
 
+		// last parentCommand is the last level of the command, e.g. in the snyk iac capture workflow, it would be 'capture'
+		// we add flags and command line only to that one
 		if flagset != nil {
-			cmd.Flags().AddFlagSet(flagset)
+			parentCommand.Flags().AddFlagSet(flagset)
 		}
-
-		rootCommand.AddCommand(&cmd)
+		parentCommand.RunE = runCommand
+		parentCommand.Hidden = !workflowEntry.IsVisible()
 	}
 }
 
@@ -154,6 +181,8 @@ func prepareRootCommand() *cobra.Command {
 		Use: "snyk",
 	}
 
+	// help for all commands is handled by the legacy cli
+	// TODO: discuss how to move help to extensions
 	helpCommand := cobra.Command{
 		Use: "help",
 		Run: help,
@@ -173,7 +202,7 @@ func prepareRootCommand() *cobra.Command {
 	return &rootCommand
 }
 
-func doFallback(err error, helped bool) (fallback bool) {
+func doFallback(err error) (fallback bool) {
 	fallback = false
 	preCondition := err != nil && helpProvided == false
 	if preCondition {
@@ -181,7 +210,7 @@ func doFallback(err error, helped bool) (fallback bool) {
 		flagError := strings.Contains(errString, "unknown flag") ||
 			strings.Contains(errString, "flag needs") ||
 			strings.Contains(errString, "invalid argument")
-		commandError := strings.Contains(errString, "unknown command")
+		commandError := strings.Contains(errString, unknownCommandMessage)
 
 		// filter for known cobra errors, since cobra errors shall trigger a fallback, but not others.
 		if commandError || flagError {
@@ -230,12 +259,15 @@ func MainWithErrorCode() int {
 	var err error
 
 	rootCommand := prepareRootCommand()
-	rootCommand.ParseFlags(os.Args)
+	_ = rootCommand.ParseFlags(os.Args)
 
 	// create engine
 	engine = app.CreateAppEngine()
 	config = engine.GetConfiguration()
-	config.AddFlagSet(rootCommand.LocalFlags())
+	err = config.AddFlagSet(rootCommand.LocalFlags())
+	if err != nil {
+		debugLogger.Println("Failed to add flags to root command", err)
+	}
 
 	debugEnabled := config.GetBool(configuration.DEBUG)
 	debugLogger := getDebugLogger(config)
@@ -293,8 +325,8 @@ func MainWithErrorCode() int {
 	err = rootCommand.Execute()
 
 	// fallback to the legacy cli
-	if doFallback(err, helpProvided) {
-		debugLogger.Printf("Falling back to legacy cli. (reason: %v)\n", err)
+	if doFallback(err) {
+		debugLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)\n", err)
 		err = defaultCmd(nil, []string{})
 	}
 
