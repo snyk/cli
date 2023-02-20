@@ -2,8 +2,6 @@ import {
   analyzeFolders,
   AnalysisSeverity,
   MAX_FILE_SIZE,
-  FileAnalysis,
-  AnalysisResultSarif,
 } from '@snyk/code-client';
 import { ReportingDescriptor, Result } from 'sarif';
 import { SEVERITY } from '../../snyk-test/legacy';
@@ -11,7 +9,12 @@ import { getAuthHeader } from '../../api-token';
 import config from '../../config';
 import { spinner } from '../../spinner';
 import { Options } from '../../types';
-import { SastSettings, Log, CodeTestResults } from './types';
+import {
+  SastSettings,
+  Log,
+  CodeTestResults,
+  CodeAnalysisResults,
+} from './types';
 import { analysisProgressUpdate } from './utils';
 import {
   FeatureNotSupportedBySnykCodeError,
@@ -47,7 +50,7 @@ export async function getCodeTestResults(
 
   return {
     reportResults: codeAnalysis.reportResults,
-    analysisResults: codeAnalysis.analysisResults as AnalysisResultSarif,
+    analysisResults: codeAnalysis.analysisResults,
   };
 }
 
@@ -56,7 +59,7 @@ async function getCodeAnalysis(
   options: Options,
   sastSettings: SastSettings,
   requestId: string,
-): Promise<FileAnalysis | null> {
+) {
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
     validateLocalCodeEngineUrl(sastSettings.localCodeEngine.url);
@@ -132,7 +135,7 @@ async function getCodeAnalysis(
     );
   }
 
-  if (!result || result?.analysisResults.type !== 'sarif') {
+  if (!result || result.analysisResults.type !== 'sarif') {
     return null;
   }
 
@@ -147,7 +150,7 @@ async function getCodeAnalysis(
     );
   }
 
-  return result;
+  return result as CodeAnalysisResults;
 }
 
 function filterIgnoredIssues(codeAnalysis: Log): Log {

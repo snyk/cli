@@ -1,5 +1,9 @@
 export { Log, Tool, Result } from 'sarif';
-import { AnalysisResultSarif, ReportResult } from '@snyk/code-client';
+import {
+  AnalysisResultSarif,
+  FileAnalysis,
+  ReportResult,
+} from '@snyk/code-client';
 
 interface LocalCodeEngine {
   enabled: boolean;
@@ -24,5 +28,9 @@ export interface TrackUsageResponse {
 
 export interface CodeTestResults {
   reportResults?: ReportResult['uploadResult'];
+  analysisResults: AnalysisResultSarif;
+}
+
+export interface CodeAnalysisResults extends FileAnalysis {
   analysisResults: AnalysisResultSarif;
 }
