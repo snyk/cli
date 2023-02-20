@@ -16,7 +16,7 @@ jobs:
       fail-fast: false # we care about other platforms and channels building
       matrix:
         os: [ubuntu, macos, windows]
-        snyk_install_method: [binary, npm, yarn]
+        snyk_install_method: [binary, npm, yarn, brew]
         node_version: [12, 14, 16]
         exclude:
           # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
@@ -27,6 +27,11 @@ jobs:
             node_version: 12
           - snyk_install_method: binary
             node_version: 16
+          # No need to run brew tests on some Platforms
+          - snyk_install_method: brew
+            os: ubuntu
+          - snyk_install_method: brew
+            os: windows
         include:
           - snyk_install_method: binary
             os: ubuntu
@@ -34,16 +39,16 @@ jobs:
           - snyk_install_method: binary
             os: macos
             snyk_cli_dl_file: snyk-macos
-          # Homebrew installation
-          - snyk_install_method: brew
-            os: macos
           - snyk_install_method: alpine-binary
             os: ubuntu
+            node_version: 16
             snyk_cli_dl_file: snyk-alpine
           - snyk_install_method: npm-root-user
             os: ubuntu
+            node_version: 16
           - snyk_install_method: docker-bundle
             os: macos
+            node_version: 16
             snyk_cli_dl_file: snyk-for-docker-desktop-darwin-x64.tar.gz
 
     steps:
@@ -85,7 +90,7 @@ jobs:
           docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN -eGITHUB_TOKEN snyk-cli-alpine
 
       - name: Install snyk from Docker bundle
-        if: ${{ matrix.snyk_install_method == 'docker-bundle' }}
+        if: ${{ matrix.snyk_install_method == 'docker-bundle' && matrix.os == 'macos' }}
         run: |
           pushd "$(mktemp -d)"
           curl 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}' | tar -xz
@@ -145,7 +150,7 @@ jobs:
           brew install jq
 
       - name: Install Snyk CLI with homebrew on macOS
-        if: ${{ matrix.snyk_install_method == 'brew' }}
+        if: ${{ matrix.snyk_install_method == 'brew' && matrix.os == 'macos'}}
         run: |
           brew tap snyk/tap
           brew install snyk
