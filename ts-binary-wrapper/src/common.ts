@@ -12,6 +12,7 @@ import * as fs from 'fs';
 import { spawnSync } from 'child_process';
 import * as https from 'https';
 import { createHash } from 'crypto';
+import { readFileSync } from 'fs';
 import * as Sentry from '@sentry/node';
 
 export const versionFile = path.join(__dirname, 'generated', 'version');
@@ -55,24 +56,16 @@ export class WrapperConfiguration {
   }
 }
 
-export function determineBinaryName(
-  platform: NodeJS.Platform,
-  arch: string,
-): string {
-  const basename = 'snyk-';
-  let osname: string;
-  let archname = '';
-  let suffix = '';
+export function determineBinaryName(platform: string, arch: string): string {
+  let osname = platform;
+  let archname = arch;
+  let binaryName: string;
 
-  switch (platform) {
+  switch (osname) {
     case 'win32':
-      osname = 'win';
-      suffix = '.exe';
+      osname = 'windows';
       break;
-    case 'darwin':
-      osname = 'macos';
-      break;
-    default: {
+    case 'linux': {
       let isAlpine = false;
       try {
         const result = spawnSync('cat /etc/os-release', { shell: true });
@@ -86,39 +79,36 @@ export function determineBinaryName(
 
       if (isAlpine) {
         osname = 'alpine';
-      } else {
-        osname = 'linux';
-      }
+      } 
 
       break;
     }
   }
 
-  const defaultErrorMsg =
-    ' The current platform (' +
-    platform +
-    ' ' +
-    arch +
-    ') is not supported by Snyk.\n' +
-    ' You may want to consider using Docker to run Snyk, for details see: https://docs.snyk.io/snyk-cli/install-the-snyk-cli#snyk-cli-in-a-docker-image\n' +
-    ' If you experience errors please reach out to support@snyk.io.';
   switch (arch) {
     case 'x64':
     case 'amd64':
-      archname = '';
+      archname = 'amd64';
       break;
-    case 'arm64':
-      archname = '-arm64';
-      break;
-    default:
-      throw Error(getWarningMessage(defaultErrorMsg));
   }
 
-  if (platform == 'linux') {
-    return basename + osname + archname + suffix;
-  } else {
-    return basename + osname + suffix;
+  try {
+    const binaryDeployments = readFileSync('binary-deployments.json', 'utf8');
+    const supportedPlatforms = JSON.parse(binaryDeployments);
+    binaryName = supportedPlatforms[osname][archname];
+  } catch (e) {
+    const defaultErrorMsg =
+      ' The current platform (' +
+      osname +
+      ' ' +
+      archname +
+      ') is not supported by Snyk.\n' +
+      ' You may want to consider using Docker to run Snyk, for details see: https://docs.snyk.io/snyk-cli/install-the-snyk-cli#snyk-cli-in-a-docker-image\n' +
+      ' If you experience errors please reach out to support@snyk.io.';
+    throw Error(getWarningMessage(defaultErrorMsg));
   }
+
+  return binaryName;
 }
 
 export function getCurrentVersion(filename: string): string {

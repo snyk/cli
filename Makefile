@@ -134,6 +134,9 @@ $(BINARY_WRAPPER_DIR)/SECURITY.md:
 $(BINARY_WRAPPER_DIR)/LICENSE:
 	@cp ./LICENSE $(BINARY_WRAPPER_DIR)/LICENSE
 
+$(BINARY_WRAPPER_DIR)/binary-deployments.json:
+	@cp ./binary-deployments.json $(BINARY_WRAPPER_DIR)/binary-deployments.json
+
 $(BINARY_WRAPPER_DIR)/src/generated:
 	@mkdir -p $(BINARY_WRAPPER_DIR)/src/generated/
 
@@ -145,12 +148,17 @@ $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 	@cat $(BINARY_OUTPUT_FOLDER)/*.sha256 > $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
 
 .PHONY: build-binary-wrapper
-build-binary-wrapper: $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt $(BINARY_WRAPPER_DIR)/README.md $(BINARY_WRAPPER_DIR)/SECURITY.md $(BINARY_WRAPPER_DIR)/LICENSE
+build-binary-wrapper: $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt $(BINARY_WRAPPER_DIR)/README.md $(BINARY_WRAPPER_DIR)/SECURITY.md $(BINARY_WRAPPER_DIR)/LICENSE $(BINARY_WRAPPER_DIR)/binary-deployments.json
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
 	@cd $(BINARY_WRAPPER_DIR) && npm run build
 	
 .PHONY: clean-binary-wrapper
 clean-binary-wrapper:
+	@rm -f $(BINARY_WRAPPER_DIR)/binary-deployments.json
+	@rm -f $(BINARY_WRAPPER_DIR)/README.md
+	@rm -f $(BINARY_WRAPPER_DIR)/SECURITY.md
+	@rm -f $(BINARY_WRAPPER_DIR)/LICENSE
+	@rm -rf $(BINARY_WRAPPER_DIR)/src/generated
 	@cd $(BINARY_WRAPPER_DIR) && npm run clean
 
 .PHONY: pack-binary-wrapper

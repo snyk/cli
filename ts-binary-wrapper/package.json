@@ -7,7 +7,8 @@
     "bin",
     "SECURITY.md",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "binary-deployments.json"
   ],
   "directories": {
     "lib": "src",
@@ -20,7 +21,7 @@
     "node": ">=12"
   },
   "scripts": {
-    "clean": "npx rimraf dist tsconfig.tsbuildinfo src/generated README.md SECURITY.md LICENSE",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "build": "tsc && cp -R src/generated dist/",
     "test": "npx jest test/*",
     "postinstall": "node dist/bootstrap.js exec"

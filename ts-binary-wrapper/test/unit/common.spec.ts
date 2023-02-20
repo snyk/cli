@@ -4,9 +4,12 @@ import * as path from 'path';
 
 jest.setTimeout(60 * 1000);
 
+const binaryDeployments = fs.readFileSync('binary-deployments.json', 'utf8');
+const supportedPlatforms = JSON.parse(binaryDeployments);
+
 describe('Determine Binary Name', () => {
   it('Determine Binary Name (darwin)', async () => {
-    const expected = 'snyk-macos';
+    const expected = supportedPlatforms['darwin']['amd64'];
     const actualx64 = common.determineBinaryName('darwin', 'x64');
     const actualarm64 = common.determineBinaryName('darwin', 'arm64');
     const actualamd64 = common.determineBinaryName('darwin', 'amd64');
@@ -16,24 +19,30 @@ describe('Determine Binary Name', () => {
   });
 
   it('Determine Binary Name (win)', async () => {
-    const expected = 'snyk-win.exe';
+    const expected = supportedPlatforms['windows']['amd64'];
     const actualx64 = common.determineBinaryName('win32', 'x64');
-    const actualarm64 = common.determineBinaryName('win32', 'arm64');
     const actualamd64 = common.determineBinaryName('win32', 'amd64');
     expect(actualx64).toEqual(expected);
-    expect(actualarm64).toEqual(expected);
     expect(actualamd64).toEqual(expected);
   });
 
   it('Determine Binary Name (linux)', async () => {
-    const expectedx64 = 'snyk-linux';
-    const expectedarm64 = 'snyk-linux-arm64';
+    const expectedx64 = supportedPlatforms['linux']['amd64'];
+    const expectedarm64 = supportedPlatforms['linux']['arm64'];
     const actualx64 = common.determineBinaryName('linux', 'x64');
     const actualamd64 = common.determineBinaryName('linux', 'amd64');
     const actualarm64 = common.determineBinaryName('linux', 'arm64');
     expect(actualx64).toEqual(expectedx64);
     expect(actualamd64).toEqual(expectedx64);
     expect(actualarm64).toEqual(expectedarm64);
+  });
+
+  it('Determine Binary Name (alpine)', async () => {
+    const expectedx64 = supportedPlatforms['alpine']['amd64'];
+    const actualx64 = common.determineBinaryName('alpine', 'x64');
+    const actualamd64 = common.determineBinaryName('alpine', 'amd64');
+    expect(actualx64).toEqual(expectedx64);
+    expect(actualamd64).toEqual(expectedx64);
   });
 
   it('Unsupported Architecture', async () => {
