@@ -27,15 +27,10 @@ jobs:
             node_version: 12
           - snyk_install_method: binary
             node_version: 16
-          # No need to run brew tests on some platforms
+          # No need to run brew tests on some Platforms
           - snyk_install_method: brew
             os: ubuntu
           - snyk_install_method: brew
-            os: windows
-          # No need to run docker-bundle on some platforms
-          - snyk_install_method: docker-bundle
-            os: ubuntu
-          - snyk_install_method: docker-bundle
             os: windows
         include:
           - snyk_install_method: binary
@@ -45,15 +40,15 @@ jobs:
             os: macos
             snyk_cli_dl_file: snyk-macos
           # Homebrew installation
-          - snyk_install_method: brew
-            os: macos
           - snyk_install_method: alpine-binary
             os: ubuntu
             snyk_cli_dl_file: snyk-alpine
           - snyk_install_method: npm-root-user
             os: ubuntu
+            node_version: 16
           - snyk_install_method: docker-bundle
             os: macos
+            node_version: 16
             snyk_cli_dl_file: snyk-for-docker-desktop-darwin-x64.tar.gz
 
     steps:
