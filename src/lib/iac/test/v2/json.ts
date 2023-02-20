@@ -67,7 +67,7 @@ export interface IacIssue {
   isIgnored: boolean;
   iacDescription: IacDescription;
   lineNumber: number;
-  documentation: string;
+  documentation?: string;
   isGeneratedByCustomRule: boolean;
   path: string[];
   policyEngineType?: string;
@@ -263,7 +263,7 @@ function vulnerabilitiesToIacIssues(
       },
       lineNumber: v.resource.line || -1,
       documentation: v.rule.documentation, // only works for rules available on snyk.io
-      isGeneratedByCustomRule: false,
+      isGeneratedByCustomRule: !!v.rule.isGeneratedByCustomRule,
       path: v.resource.path || [], // needs to be fixed, currently doesn't show the full path
       compliance: [],
       description: v.rule.description,

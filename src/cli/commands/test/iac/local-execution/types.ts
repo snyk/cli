@@ -212,6 +212,8 @@ export type IaCTestFlags = Pick<
   path?: string;
   // Allows the caller to provide the path to a WASM bundle.
   rules?: string;
+  // Enables Snyk Cloud custom rules
+  'custom-rules'?: boolean;
   'cloud-context'?: string;
   'snyk-cloud-environment'?: string;
   // Tags and attributes
@@ -400,6 +402,7 @@ export enum IaCErrorCodes {
   FailedToProcessResults = 2200,
   EntitlementNotEnabled = 2201,
   ReadSettings = 2202,
+  FeatureFlagNotEnabled = 2203,
 }
 
 export interface TestReturnValue {

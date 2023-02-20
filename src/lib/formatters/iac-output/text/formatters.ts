@@ -200,6 +200,7 @@ function formatSnykIacTestScanVulnerability(
     impact: vulnerability.rule.description,
     resolve,
     documentation: vulnerability.rule.documentation,
+    isGeneratedByCustomRule: vulnerability.rule.isGeneratedByCustomRule,
     remediation: {
       [iacRemediationTypes[vulnerability.resource.kind]]: resolve,
     },
