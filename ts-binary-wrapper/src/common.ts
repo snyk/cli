@@ -79,7 +79,7 @@ export function determineBinaryName(platform: string, arch: string): string {
 
       if (isAlpine) {
         osname = 'alpine';
-      } 
+      }
 
       break;
     }
