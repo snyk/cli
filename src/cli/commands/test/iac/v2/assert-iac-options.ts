@@ -30,6 +30,8 @@ const keys: (keyof IaCTestFlags)[] = [
   'detectionDepth',
   'cloud-context',
   'snyk-cloud-environment',
+  'custom-rules',
+  'experimental',
   // PolicyOptions
   'ignore-policy',
   'policy-path',
