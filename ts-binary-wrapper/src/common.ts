@@ -206,8 +206,17 @@ function formatErrorMessage(message: string): boolean {
     '* If installing with increased privileges (eg sudo), try adding unsafe-perm a parameter to npm install\n' +
     '* If you run NPM <= 6, please upgrade to a later version.\n' +
     'If the problems persist please contact support@snyk.io and include the information provided.';
+
+  const certificateError =
+    'If you are running Snyk in an environment that intercepts SSL traffic, please specify\n' +
+    'your custom CA certificates via the NODE_EXTRA_CA_CERTS environment variable.\n' +
+    'See https://nodejs.org/api/cli.html#node_extra_ca_certsfile for additional information.';
+
   if (message.includes('EACCES')) {
     console.error(getWarningMessage(eaccesWarning));
+    return true;
+  } else if (message.includes('certificate')) {
+    console.error(getWarningMessage(certificateError));
     return true;
   }
   return false;
