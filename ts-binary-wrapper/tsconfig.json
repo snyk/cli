@@ -1,7 +1,7 @@
 {
   "extends": "../tsconfig.settings.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./wrapper_dist",
     "rootDir": "./src"
   },
   "include": ["./src/**/*"],

@@ -3,12 +3,7 @@
   "version": "1.0.0-monorepo",
   "description": "snyk library and cli utility",
   "files": [
-    "dist",
-    "bin",
-    "SECURITY.md",
-    "LICENSE",
-    "README.md",
-    "binary-deployments.json"
+    "*"
   ],
   "directories": {
     "lib": "src",
@@ -21,10 +16,10 @@
     "node": ">=12"
   },
   "scripts": {
-    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
-    "build": "tsc && cp -R src/generated dist/",
+    "clean": "npx rimraf wrapper_dist tsconfig.tsbuildinfo",
+    "build": "tsc && cp -R src/generated wrapper_dist/",
     "test": "npx jest test/*",
-    "postinstall": "node dist/bootstrap.js exec"
+    "postinstall": "node wrapper_dist/bootstrap.js exec"
   },
   "keywords": [
     "security",

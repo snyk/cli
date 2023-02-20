@@ -161,10 +161,15 @@ clean-binary-wrapper:
 	@rm -rf $(BINARY_WRAPPER_DIR)/src/generated
 	@cd $(BINARY_WRAPPER_DIR) && npm run clean
 
+# for compatibility reasons, we pack the legacy and the ts-binary-wrapper next to each other
 .PHONY: pack-binary-wrapper
 pack-binary-wrapper: build-binary-wrapper
 	@echo "-- Packaging tarball ($(BINARY_OUTPUT_FOLDER)/snyk.tgz)"
-	@mv $(BINARY_WRAPPER_DIR)/$(shell cd $(BINARY_WRAPPER_DIR) && npm pack) $(BINARY_OUTPUT_FOLDER)/snyk.tgz
+	@mv $(shell npm pack) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk_legacy.tgz
+	mv $(BINARY_WRAPPER_DIR)/$(shell cd $(BINARY_WRAPPER_DIR) && npm pack) $(BINARY_OUTPUT_FOLDER)/snyk_wrapper.tgz
+	cd $(BINARY_RELEASES_FOLDER_TS_CLI) && tar -xf snyk_legacy.tgz
+	cd $(BINARY_RELEASES_FOLDER_TS_CLI) && tar -xf snyk_wrapper.tgz
+	mv $(BINARY_RELEASES_FOLDER_TS_CLI)/package/$(shell cd "$(BINARY_RELEASES_FOLDER_TS_CLI)/package/" && npm pack) $(BINARY_OUTPUT_FOLDER)/snyk.tgz
 
 .PHONY: test-binary-wrapper
 test-binary-wrapper: 
