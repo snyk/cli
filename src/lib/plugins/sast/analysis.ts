@@ -70,6 +70,8 @@ async function getCodeAnalysis(
     ? sastSettings.localCodeEngine.url
     : getCodeClientProxyUrl();
 
+  const org = sastSettings.org;
+
   // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
   // This ensures we support lowercase http(s)_proxy values as well
   // The weird IF around it ensures we don't create an envvar with
@@ -94,12 +96,14 @@ async function getCodeAnalysis(
   const severity = options.severityThreshold
     ? severityToAnalysisSeverity(options.severityThreshold)
     : AnalysisSeverity.info;
+
   const result = await analyzeFolders({
     connection: {
       baseURL,
       sessionToken,
       source,
       requestId,
+      org,
     },
     analysisOptions: { severity },
     fileOptions: { paths: [root] },
