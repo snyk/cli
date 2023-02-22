@@ -330,7 +330,7 @@ export async function logError(context: string, err): Promise<void> {
   }
 
   // finally log the error to the console as well
-  console.error("\n");
+  console.error('\n');
   console.error(err);
   formatErrorMessage(err.message);
 }

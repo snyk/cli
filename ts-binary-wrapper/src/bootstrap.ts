@@ -3,7 +3,7 @@ import * as process from 'process';
 
 const errorContextMessage = 'Download Error';
 
-(async() => {
+(async () => {
   try {
     const config = common.getCurrentConfiguration();
     const executable = config.getLocalLocation();
@@ -12,9 +12,13 @@ const errorContextMessage = 'Download Error';
       const filenameShasum = config.getShasumFile();
       const downloadUrl = config.getDownloadLocation();
 
-      const  downloadError = await common.downloadExecutable(downloadUrl, executable, filenameShasum);
-      if (downloadError !== undefined) {  
-          throw downloadError;
+      const downloadError = await common.downloadExecutable(
+        downloadUrl,
+        executable,
+        filenameShasum,
+      );
+      if (downloadError !== undefined) {
+        throw downloadError;
       }
     }
   } catch (err) {
