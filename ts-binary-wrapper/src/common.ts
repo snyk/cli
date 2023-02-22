@@ -312,7 +312,7 @@ export function downloadExecutable(
   });
 }
 
-export async function logError(context: string, err): Promise<void> {
+export async function logError(context: string, err, printToConsole = true): Promise<void> {
   if (isAnalyticsEnabled()) {
     // init error reporting
     const version = getCurrentVersion(versionFile);
@@ -330,9 +330,11 @@ export async function logError(context: string, err): Promise<void> {
   }
 
   // finally log the error to the console as well
-  console.error('\n');
-  console.error(err);
-  formatErrorMessage(err.message);
+  if (printToConsole) {
+    console.error('\n');
+    console.error(err);
+    formatErrorMessage(err.message);
+  }
 }
 
 export function isAnalyticsEnabled(): boolean {

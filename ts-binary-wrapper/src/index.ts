@@ -5,7 +5,7 @@ import * as common from './common';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const errorContextMessage = 'Runtime Error';
+const errorContextMessage = 'Runtime';
 const fallbackScript = path.join(__dirname, '..', 'dist', 'cli', 'index.js');
 
 function run(executable: string): number {
@@ -46,6 +46,9 @@ function run(executable: string): number {
       fallbackToLegacyCLI = true;
       await common.logError(errorContextMessage, error);
     }
+  } else {
+    // if --legacy-clli is enabled create a log messaeg
+    await common.logError(errorContextMessage, Error('--legacy-cli is set'), false);
   }
 
   if (fallbackToLegacyCLI) {
