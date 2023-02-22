@@ -50,6 +50,12 @@ describe('Determine Binary Name', () => {
       common.determineBinaryName('linux', 'mipsel');
     }).toThrow();
   });
+
+  it('Unsupported OS', async () => {
+    expect(() => {
+      common.determineBinaryName('unknownos', 'amd64');
+    }).toThrow();
+  });
 });
 
 describe('Get Version', () => {
