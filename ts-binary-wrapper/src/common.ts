@@ -195,7 +195,7 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   }
 }
 
-function getWarningMessage(message: string): string {
+export function getWarningMessage(message: string): string {
   return `\n------------------------------- Warning -------------------------------\n${message}\n------------------------------- Warning -------------------------------\n`;
 }
 
@@ -238,7 +238,7 @@ export function downloadExecutable(
       try {
         fs.unlinkSync(temp);
       } catch (e) {
-        console.debug('Failed to cleanup temporary file (' + temp + '): ' + e);
+        // ignoring any error during cleaning up after an error
       }
 
       resolve(error);
@@ -330,6 +330,7 @@ export async function logError(context: string, err): Promise<void> {
   }
 
   // finally log the error to the console as well
+  console.error("\n");
   console.error(err);
   formatErrorMessage(err.message);
 }
