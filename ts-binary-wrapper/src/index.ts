@@ -24,7 +24,7 @@ function run(executable: string): number {
 (async () => {
   let fallbackToLegacyCLI = argv.includes(legacyCLIflag);
 
-  if (fallbackToLegacyCLI == false) {
+  if (fallbackToLegacyCLI === false) {
     try {
       const config = common.getCurrentConfiguration();
       const executable = config.getLocalLocation();
