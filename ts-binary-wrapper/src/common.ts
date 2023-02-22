@@ -17,6 +17,7 @@ import * as Sentry from '@sentry/node';
 
 export const versionFile = path.join(__dirname, 'generated', 'version');
 export const shasumFile = path.join(__dirname, 'generated', 'sha256sums.txt');
+const binaryDeploymentsFilePath = path.join(__dirname, 'generated', 'binary-deployments.json');
 
 export class WrapperConfiguration {
   private version: string;
@@ -91,8 +92,7 @@ export function determineBinaryName(platform: string, arch: string): string {
       break;
   }
 
-  const binaryDeployments = readFileSync('binary-deployments.json', 'utf8');
-  const supportedPlatforms = JSON.parse(binaryDeployments);
+  const supportedPlatforms = require(binaryDeploymentsFilePath);
   const binaryName = supportedPlatforms[osname][archname];
 
   if (binaryName === undefined) {
