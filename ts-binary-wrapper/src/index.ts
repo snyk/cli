@@ -7,6 +7,7 @@ import * as path from 'path';
 
 const errorContextMessage = 'Runtime';
 const fallbackScript = path.join(__dirname, '..', 'dist', 'cli', 'index.js');
+const legacyCLIflag = '--legacy-cli';
 
 function run(executable: string): number {
   let cliArguments = common.getCliArguments(argv);
@@ -21,7 +22,7 @@ function run(executable: string): number {
 }
 
 (async () => {
-  let fallbackToLegacyCLI = argv.includes('--legacy-cli');
+  let fallbackToLegacyCLI = argv.includes(legacyCLIflag);
 
   if (fallbackToLegacyCLI == false) {
     try {
@@ -48,21 +49,17 @@ function run(executable: string): number {
     }
   } else {
     // if --legacy-clli is enabled create a log messaeg
-    await common.logError(errorContextMessage, Error('--legacy-cli is set'), false);
+    await common.logError(
+      errorContextMessage,
+      Error(legacyCLIflag + 'is set'),
+      false,
+    );
   }
 
   if (fallbackToLegacyCLI) {
-    // TODO nice message
-    const messsage = common.getWarningMessage(
-      'You are running a fallback version of the Snyk CLI!\n' +
-        'This is either due to an error using the standard CLI or due to the usage of --legacy-cli,\n' +
-        'either way this fallback is only temporary. \n' +
-        "If you don't know how to resolve the issue, please contact support@snyk.io.",
-    );
-
-    console.error(messsage);
+    common.formatErrorMessage('legacy-cli');
     const exitCode = run(fallbackScript);
-    console.error(messsage);
+    common.formatErrorMessage('legacy-cli');
 
     process.exit(exitCode);
   }

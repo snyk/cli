@@ -12,12 +12,15 @@ import * as fs from 'fs';
 import { spawnSync } from 'child_process';
 import * as https from 'https';
 import { createHash } from 'crypto';
-import { readFileSync } from 'fs';
 import * as Sentry from '@sentry/node';
 
 export const versionFile = path.join(__dirname, 'generated', 'version');
 export const shasumFile = path.join(__dirname, 'generated', 'sha256sums.txt');
-const binaryDeploymentsFilePath = path.join(__dirname, 'generated', 'binary-deployments.json');
+const binaryDeploymentsFilePath = path.join(
+  __dirname,
+  'generated',
+  'binary-deployments.json',
+);
 
 export class WrapperConfiguration {
   private version: string;
@@ -171,7 +174,7 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   const debug = debugEnabled(cliArguments);
 
   if (debug) {
-    console.debug('Executing: ' + executable + ' ' + cliArguments.join(' '));
+    console.error('Executing: ' + executable + ' ' + cliArguments.join(' '));
   }
 
   const res = spawnSync(executable, cliArguments, {
@@ -181,7 +184,7 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
 
   if (res.status !== null) {
     if (debug) {
-      console.debug(res);
+      console.error(res);
     }
 
     return res.status;
@@ -199,7 +202,7 @@ export function getWarningMessage(message: string): string {
   return `\n------------------------------- Warning -------------------------------\n${message}\n------------------------------- Warning -------------------------------\n`;
 }
 
-function formatErrorMessage(message: string): boolean {
+export function formatErrorMessage(message: string): boolean {
   const eaccesWarning =
     "We don't have the permissions to install Snyk. Please try the following options:\n" +
     '* If installing with increased privileges (eg sudo), try adding unsafe-perm a parameter to npm install\n' +
@@ -211,14 +214,26 @@ function formatErrorMessage(message: string): boolean {
     'your custom CA certificates via the NODE_EXTRA_CA_CERTS environment variable.\n' +
     'See https://nodejs.org/api/cli.html#node_extra_ca_certsfile for additional information.';
 
+  const degradedCLIWarning =
+    'You are currently running a degraded version of the Snyk CLI.\n' +
+    'As a result, some features of the CLI will be unavailable.\n' +
+    'For information on how to resolve this, please see this article: TBD\n' +
+    'For any assistance, please contact support@snyk.io.';
+
+  let warning = '';
+
   if (message.includes('EACCES')) {
-    console.error(getWarningMessage(eaccesWarning));
-    return true;
+    warning = eaccesWarning;
   } else if (message.includes('certificate')) {
-    console.error(getWarningMessage(certificateError));
-    return true;
+    warning = certificateError;
+  } else if (message.includes('legacy-cli')) {
+    warning = degradedCLIWarning;
+  } else {
+    return false;
   }
-  return false;
+
+  console.error(getWarningMessage(warning));
+  return true;
 }
 
 export function downloadExecutable(
@@ -244,7 +259,7 @@ export function downloadExecutable(
       resolve(error);
     };
 
-    console.debug(
+    console.error(
       "Downloading from '" + downloadUrl + "' to '" + filename + "'",
     );
 
@@ -270,12 +285,12 @@ export function downloadExecutable(
             Error('Shasum comparison failed!\n' + debugMessage),
           );
         } else {
-          console.debug(debugMessage);
+          console.error(debugMessage);
 
           // finally rename the file and change permissions
           fs.renameSync(temp, filename);
           fs.chmodSync(filename, 0o755);
-          console.debug('Downloaded successfull! ');
+          console.error('Downloaded successfull! ');
 
           shasum.end();
           fileStream.close();
@@ -312,7 +327,11 @@ export function downloadExecutable(
   });
 }
 
-export async function logError(context: string, err, printToConsole = true): Promise<void> {
+export async function logError(
+  context: string,
+  err,
+  printToConsole = true,
+): Promise<void> {
   if (isAnalyticsEnabled()) {
     // init error reporting
     const version = getCurrentVersion(versionFile);
