@@ -1,4 +1,4 @@
-# Copyright 2022 Snyk Ltd.
+# Copyright 2022-2023 Snyk Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,11 +13,10 @@
 # limitations under the License.
 
 FROM node:gallium
-RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y sudo git squid curl git traceroute net-tools iptables vim make golang
-
-RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y sudo git squid curl git traceroute net-tools iptables vim make golang
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
+RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
 
 RUN useradd snyk --create-home
 RUN echo "snyk ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -31,11 +30,11 @@ RUN cp /app/test/acceptance/environments/proxy/entrypoint.sh /bin
 RUN chmod +x /bin/entrypoint.sh
 RUN chmod 777 /app && chown -R snyk /app
 
+USER snyk
+RUN cd /app && npm install
 ENV http_proxy="http://localhost:3128"
 ENV https_proxy="http://localhost:3128"
 ENV no_proxy "localhost,127.0.0.1"
-
 RUN env
-USER snyk
 WORKDIR /app
 ENTRYPOINT ["/bin/entrypoint.sh"]

@@ -44,6 +44,7 @@ for arg in "${@}"; do
 
   # Upload files to npm
   elif [ "${arg}" == "npm" ]; then
+    npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
     npm publish ./binary-releases/snyk-fix.tgz
 	  npm publish ./binary-releases/snyk-protect.tgz
 	  npm publish ./binary-releases/snyk.tgz
