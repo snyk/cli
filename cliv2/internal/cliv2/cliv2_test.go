@@ -1,7 +1,7 @@
 package cliv2_test
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -18,10 +18,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func getCacheDir() string {
-	cacheDir := path.Join(os.TempDir(), "snyk")
-	os.RemoveAll(cacheDir)
-	os.MkdirAll(cacheDir, 0755)
+var discardLogger = log.New(io.Discard, "", 0)
+
+func getCacheDir(t *testing.T) string {
+	t.Helper()
+	cacheDir := path.Join(t.TempDir(), "snyk")
+	err := os.MkdirAll(cacheDir, 0755)
+	assert.Nil(t, err)
 	return cacheDir
 }
 
@@ -140,8 +143,10 @@ func getProxyInfoForTest() *proxy.ProxyInfo {
 
 func Test_prepareV1Command(t *testing.T) {
 	expectedArgs := []string{"hello", "world"}
+	cacheDir := getCacheDir(t)
+	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
 
-	snykCmd, err := cliv2.PrepareV1Command(
+	snykCmd, err := cli.PrepareV1Command(
 		"someExecutable",
 		expectedArgs,
 		getProxyInfoForTest(),
@@ -160,17 +165,13 @@ func Test_prepareV1Command(t *testing.T) {
 func Test_executeRunV1(t *testing.T) {
 	expectedReturnCode := 0
 
-	cacheDir := getCacheDir()
+	cacheDir := getCacheDir(t)
 	tmpDir := utils.GetTemporaryDirectory(cacheDir, cliv2.GetFullVersion())
-	logger := log.New(ioutil.Discard, "", 0)
-
-	// cleanup
-	defer os.RemoveAll(cacheDir)
 
 	assert.NoDirExists(t, tmpDir)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
 
 	// run once
 	assert.Nil(t, cli.Init())
@@ -193,22 +194,17 @@ func Test_executeRunV1(t *testing.T) {
 }
 
 func Test_init_extractDueToInvalidBinary(t *testing.T) {
-
-	cacheDir := getCacheDir()
+	cacheDir := getCacheDir(t)
 	tmpDir := utils.GetTemporaryDirectory(cacheDir, cliv2.GetFullVersion())
-	logger := log.New(ioutil.Discard, "", 0)
-
-	// cleanup
-	defer os.RemoveAll(cacheDir)
 
 	assert.NoDirExists(t, tmpDir)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
 
 	// fill binary with invalid data
-	os.MkdirAll(tmpDir, 0755)
-	os.WriteFile(cli.GetBinaryLocation(), []byte("Writing some strings"), 0755)
+	_ = os.MkdirAll(tmpDir, 0755)
+	_ = os.WriteFile(cli.GetBinaryLocation(), []byte("Writing some strings"), 0755)
 	fileInfo1, _ := os.Stat(cli.GetBinaryLocation())
 
 	// prove that we can't execute the invalid binary
@@ -237,17 +233,13 @@ func Test_init_extractDueToInvalidBinary(t *testing.T) {
 func Test_executeRunV2only(t *testing.T) {
 	expectedReturnCode := 0
 
-	cacheDir := getCacheDir()
+	cacheDir := getCacheDir(t)
 	tmpDir := utils.GetTemporaryDirectory(cacheDir, cliv2.GetFullVersion())
-	logger := log.New(ioutil.Discard, "", 0)
-
-	// cleanup
-	defer os.RemoveAll(cacheDir)
 
 	assert.NoDirExists(t, tmpDir)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
 	assert.Nil(t, cli.Init())
 
 	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--version"}))
@@ -259,20 +251,16 @@ func Test_executeRunV2only(t *testing.T) {
 func Test_executeEnvironmentError(t *testing.T) {
 	expectedReturnCode := 0
 
-	cacheDir := getCacheDir()
+	cacheDir := getCacheDir(t)
 	tmpDir := utils.GetTemporaryDirectory(cacheDir, cliv2.GetFullVersion())
-	logger := log.New(ioutil.Discard, "", 0)
-
-	// cleanup
-	defer os.RemoveAll(cacheDir)
 
 	assert.NoDirExists(t, tmpDir)
 
 	// fill Environment Variable
-	os.Setenv(constants.SNYK_INTEGRATION_NAME_ENV, "someName")
+	_ = os.Setenv(constants.SNYK_INTEGRATION_NAME_ENV, "someName")
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
 	assert.Nil(t, cli.Init())
 
 	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--help"}))
@@ -283,14 +271,10 @@ func Test_executeEnvironmentError(t *testing.T) {
 func Test_executeUnknownCommand(t *testing.T) {
 	expectedReturnCode := constants.SNYK_EXIT_CODE_ERROR
 
-	cacheDir := getCacheDir()
-	logger := log.New(ioutil.Discard, "", 0)
-
-	// cleanup
-	defer os.RemoveAll(cacheDir)
+	cacheDir := getCacheDir(t)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
 	assert.Nil(t, cli.Init())
 
 	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"bogusCommand"}))
@@ -298,14 +282,10 @@ func Test_executeUnknownCommand(t *testing.T) {
 }
 
 func Test_clearCache(t *testing.T) {
-	cacheDir := getCacheDir()
-	logger := log.New(ioutil.Discard, "", 0)
-
-	// cleanup
-	defer os.RemoveAll(cacheDir)
+	cacheDir := getCacheDir(t)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
 	assert.Nil(t, cli.Init())
 
 	// create folders and files in cache dir
@@ -315,10 +295,10 @@ func Test_clearCache(t *testing.T) {
 	randomFile := path.Join(versionNoV, "filename")
 	currentVersion := cli.GetBinaryLocation()
 
-	os.Mkdir(versionWithV, 0755)
-	os.Mkdir(versionNoV, 0755)
-	os.WriteFile(randomFile, []byte("Writing some strings"), 0666)
-	os.WriteFile(lockfile, []byte("Writing some strings"), 0666)
+	_ = os.Mkdir(versionWithV, 0755)
+	_ = os.Mkdir(versionNoV, 0755)
+	_ = os.WriteFile(randomFile, []byte("Writing some strings"), 0666)
+	_ = os.WriteFile(lockfile, []byte("Writing some strings"), 0666)
 
 	// clear cache
 	err := cli.ClearCache()
@@ -334,14 +314,10 @@ func Test_clearCache(t *testing.T) {
 }
 
 func Test_clearCacheBigCache(t *testing.T) {
-	cacheDir := getCacheDir()
-	logger := log.New(ioutil.Discard, "", 0)
-
-	// cleanup
-	defer os.RemoveAll(cacheDir)
+	cacheDir := getCacheDir(t)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, logger)
+	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
 	assert.Nil(t, cli.Init())
 
 	// create folders and files in cache dir
@@ -353,12 +329,12 @@ func Test_clearCacheBigCache(t *testing.T) {
 	dir6 := path.Join(cli.CacheDirectory, "dir6")
 	currentVersion := cli.GetBinaryLocation()
 
-	os.Mkdir(dir1, 0755)
-	os.Mkdir(dir2, 0755)
-	os.Mkdir(dir3, 0755)
-	os.Mkdir(dir4, 0755)
-	os.Mkdir(dir5, 0755)
-	os.Mkdir(dir6, 0755)
+	_ = os.Mkdir(dir1, 0755)
+	_ = os.Mkdir(dir2, 0755)
+	_ = os.Mkdir(dir3, 0755)
+	_ = os.Mkdir(dir4, 0755)
+	_ = os.Mkdir(dir5, 0755)
+	_ = os.Mkdir(dir6, 0755)
 
 	// clear cache
 	err := cli.ClearCache()

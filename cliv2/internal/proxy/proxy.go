@@ -34,6 +34,7 @@ type WrapperProxy struct {
 	cliVersion          string
 	proxyUsername       string
 	proxyPassword       string
+	addHeaderFunc       func(*http.Request) error
 }
 
 type ProxyInfo struct {
@@ -51,6 +52,7 @@ func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion 
 	var p WrapperProxy
 	p.DebugLogger = debugLogger
 	p.cliVersion = cliVersion
+	p.addHeaderFunc = func(request *http.Request) error { return nil }
 
 	certName := "snyk-embedded-proxy"
 	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, p.DebugLogger)
@@ -131,12 +133,11 @@ func (p *WrapperProxy) ProxyInfo() *ProxyInfo {
 }
 
 func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-	// Manipulate Header (replace x-snyk-cli-version)
-	existingValue := r.Header.Get("x-snyk-cli-version")
-	if existingValue != "" {
-		p.DebugLogger.Printf("Replacing value of existing x-snyk-cli-version header (%s) with %s\n", existingValue, p.cliVersion)
-		r.Header.Set("x-snyk-cli-version", p.cliVersion)
+	err := p.addHeaderFunc(r)
+	if err != nil {
+		p.DebugLogger.Printf("Failed to add header")
 	}
+
 	return r, nil
 }
 
@@ -265,4 +266,8 @@ func (p *WrapperProxy) UpstreamProxy() func(req *http.Request) (*url.URL, error)
 
 func (p *WrapperProxy) Transport() *http.Transport {
 	return p.transport
+}
+
+func (p *WrapperProxy) SetHeaderFunction(addHeaderFunc func(*http.Request) error) {
+	p.addHeaderFunc = addHeaderFunc
 }

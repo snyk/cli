@@ -3,11 +3,14 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
+	"net/http"
 	"os"
 
 	"github.com/pkg/errors"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
+	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
@@ -43,13 +46,17 @@ func FilteredArgs(args []string) []string {
 	return filteredArgs
 }
 
-func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.Data) (output []workflow.Data, err error) {
+func legacycliWorkflow(
+	invocation workflow.InvocationContext,
+	_ []workflow.Data,
+) (output []workflow.Data, err error) {
 	output = []workflow.Data{}
 	var outBuffer bytes.Buffer
 	var errBuffer bytes.Buffer
 
 	config := invocation.GetConfiguration()
 	debugLogger := invocation.GetLogger()
+	networkAccess := invocation.GetNetworkAccess()
 
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
@@ -66,6 +73,22 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 	cli, err = cliv2.NewCLIv2(cacheDirectory, debugLogger)
 	if err != nil {
 		return output, err
+	}
+
+	// The Legacy CLI doesn't support oauth authentication. Oauth authentication is implemented in the Extensible CLI and is added
+	// to the legacy CLI by forwarding network traffic through the internal proxy of the Extensible CLI.
+	// The legacy CLI always expects some sort of token to be available, otherwise some functionality isn't available. This is why we inject
+	// a random token value to bypass these checks and replace the proper authentication headers in the internal proxy.
+	// Injecting the real token here and not in the proxy would create an issue when the token expires during CLI execution.
+	if oauth := config.GetString(auth.CONFIG_KEY_OAUTH_TOKEN); len(oauth) > 0 {
+		envMap := pkg_utils.ToKeyValueMap(os.Environ(), "=")
+		if _, ok := envMap[constants.SNYK_OAUTH_ACCESS_TOKEN_ENV]; !ok {
+			env := []string{constants.SNYK_OAUTH_ACCESS_TOKEN_ENV + "=randomtoken"}
+			cli.AppendEnvironmentVariables(env)
+			debugLogger.Println("Authentication: Oauth token handling delegated to Extensible CLI.")
+		} else {
+			debugLogger.Println("Authentication: Using oauth token from Environment Variable.")
+		}
 	}
 
 	err = cli.Init()
@@ -88,6 +111,11 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 	defer wrapperProxy.Close()
 
 	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
+	proxyHeaderFunc := func(req *http.Request) error {
+		err := networkAccess.AddHeaders(req)
+		return err
+	}
+	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
 
 	err = wrapperProxy.Start()
 	if err != nil {
