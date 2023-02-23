@@ -1,4 +1,4 @@
-import { prepareEnvironment } from '../util/prepareEnvironment';
+import { TestEnvironmentSetup } from '../util/prepareEnvironment';
 import * as common from '../../src/common';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -7,13 +7,22 @@ import * as child_process from 'child_process';
 jest.setTimeout(60 * 1000);
 
 describe('Basic acceptance test', () => {
+  const envSetup = new TestEnvironmentSetup();
+  const cliVersionForTesting = '1.1080.0';
+
+  beforeEach(async () => {
+    await envSetup.prepareEnvironment(cliVersionForTesting);
+  });
+
+  afterEach(async () => {
+    await envSetup.cleanupEnvironment();
+  });
+
   it('Bootstrap binary & execute a command', async () => {
-    const cliVersionForTesting = '1.1080.0';
-    const envInfo = await prepareEnvironment(cliVersionForTesting);
     const config = common.getCurrentConfiguration();
     const executable = config
       .getLocalLocation()
-      .replace(envInfo.inputfolder, envInfo.outputfolder);
+      .replace(envSetup.inputfolder, envSetup.outputfolder);
 
     try {
       fs.unlinkSync(executable);
@@ -23,8 +32,8 @@ describe('Basic acceptance test', () => {
 
     expect(fs.existsSync(executable)).toBeFalsy();
 
-    const indexScript = path.join(envInfo.outputfolder, 'index.js');
-    const bootstrapScript = path.join(envInfo.outputfolder, 'bootstrap.js');
+    const indexScript = path.join(envSetup.outputfolder, 'index.js');
+    const bootstrapScript = path.join(envSetup.outputfolder, 'bootstrap.js');
 
     // run system under test: index
     const resultBootstrap = child_process.spawnSync(
@@ -49,13 +58,6 @@ describe('Basic acceptance test', () => {
     expect(resultIndex.output.toString()).toContain(cliVersionForTesting);
 
     fs.unlinkSync(executable);
-
-    try {
-      fs.rmSync(envInfo.outputfolder, { recursive: true });
-    } catch {
-      // to support nodejs 12, which doesn't know rmSync()
-      fs.rmdirSync(envInfo.outputfolder, { recursive: true });
-    }
   });
 
   it('Bootstrap binary fails when proxy is used but not allowed', async () => {
@@ -66,12 +68,10 @@ describe('Basic acceptance test', () => {
     }
 
     // setup
-    const cliVersionForTesting = '1.1080.0';
-    const envInfo = await prepareEnvironment(cliVersionForTesting);
     const config = common.getCurrentConfiguration();
     const executable = config
       .getLocalLocation()
-      .replace(envInfo.inputfolder, envInfo.outputfolder);
+      .replace(envSetup.inputfolder, envSetup.outputfolder);
 
     try {
       fs.unlinkSync(executable);
@@ -81,7 +81,7 @@ describe('Basic acceptance test', () => {
 
     expect(fs.existsSync(executable)).toBeFalsy();
 
-    const bootstrapScript = path.join(envInfo.outputfolder, 'bootstrap.js');
+    const bootstrapScript = path.join(envSetup.outputfolder, 'bootstrap.js');
 
     // set NO_PROXY for snyk.io
     process.env.NO_PROXY = '*.snyk.io';
@@ -95,10 +95,10 @@ describe('Basic acceptance test', () => {
     expect(resultBootstrap.status).toEqual(1);
 
     try {
-      fs.rmSync(envInfo.outputfolder, { recursive: true });
+      fs.rmSync(envSetup.outputfolder, { recursive: true });
     } catch {
       // to support nodejs 12, which doesn't know rmSync()
-      fs.rmdirSync(envInfo.outputfolder, { recursive: true });
+      fs.rmdirSync(envSetup.outputfolder, { recursive: true });
     }
   });
 });
