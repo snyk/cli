@@ -41,6 +41,7 @@ describe('Basic acceptance test', () => {
       { shell: true },
     );
     console.debug(resultBootstrap.stdout.toString());
+    console.error(resultBootstrap.stderr.toString());
     expect(resultBootstrap.status).toEqual(0);
     expect(fs.existsSync(executable)).toBeTruthy();
 

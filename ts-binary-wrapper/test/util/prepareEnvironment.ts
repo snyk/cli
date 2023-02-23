@@ -58,6 +58,11 @@ export class TestEnvironmentSetup {
         path.join(this.root, 'binary-deployments.json'),
         path.join(this.inputfolder, 'generated', 'binary-deployments.json'),
       );
+      
+      await copyFile(
+        path.join(this.root, 'binary-deployments.json'),
+        path.join(this.outputfolder, 'generated', 'binary-deployments.json'),
+      );
     }
   }
 
