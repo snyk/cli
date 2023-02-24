@@ -21,6 +21,7 @@ import (
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
+	"github.com/snyk/snyk-iac-capture/pkg/capture"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -279,6 +280,7 @@ func MainWithErrorCode() int {
 	// initialize the extensions -> they register themselves at the engine
 	engine.AddExtensionInitializer(basic_workflows.Init)
 	engine.AddExtensionInitializer(sbom.Init)
+	engine.AddExtensionInitializer(capture.Init)
 
 	// init engine
 	err = engine.Init()
