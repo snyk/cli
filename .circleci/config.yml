@@ -126,15 +126,16 @@ commands:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v20230226-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Installing SDKs
           command: choco install .circleci/chocolatey.config --no-progress
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v20230226-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
+            - C:\ProgramData\chocolatey\lib
   install_sdks_unix:
     steps:
       - restore_cache:
@@ -327,12 +328,22 @@ jobs:
             unset SNYK_API
             unset SNYK_API_KEY
             shellspec -f d -e REGRESSION_TEST=1
+  test-windows-setup:
+    executor: win/default
+    steps:
+      - install_sdks_windows
+      - setup_npm:
+          npm_install: false
+          npm_cache_directory: ~\AppData\Local\npm-cache
   test-windows:
     parameters:
       test_snyk_command:
         type: string
     executor: win/default
     working_directory: C:\Users\circleci\snyk
+    parallelism: 4
+    requires:
+      - test-windows-setup
     steps:
       - run:
           name: Configuring Git
@@ -340,16 +351,18 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - install_sdks_windows
+      - install_sdks_windows # This step will restore the cache
       - setup_npm:
-          npm_install: true # reinstalling as workspace node_modules is for linux
+          npm_install: false
           npm_cache_directory: ~\AppData\Local\npm-cache
       - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=$env:SNYK_API_KEY"
       - run:
           name: Testing artifact
-          command: npm run test:acceptance -- --selectProjects snyk
+          command: |
+            $test = circleci tests glob "**/test/jest/acceptance/**" | circleci tests split --split-by=timings
+            npm run test:acceptance -- --selectProjects snyk --runTestsByPath $test
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
   test-macos:
