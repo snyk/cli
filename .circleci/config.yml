@@ -1073,7 +1073,7 @@ workflows:
           name: Acceptance Tests (snyk-win.exe)
           context: nodejs-install
           requires:
-            - test-windows-setup
+            - Acceptance Tests (snyk-win.exe) - Setup
           test_snyk_command: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
       - test-macos:
           filters:
