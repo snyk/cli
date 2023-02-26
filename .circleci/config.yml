@@ -330,6 +330,7 @@ jobs:
             shellspec -f d -e REGRESSION_TEST=1
   test-windows-setup:
     executor: win/default
+    working_directory: C:\Users\circleci\snyk
     steps:
       - run:
           name: Configuring Git
