@@ -331,6 +331,12 @@ jobs:
   test-windows-setup:
     executor: win/default
     steps:
+      - run:
+          name: Configuring Git
+          command: git config --global core.autocrlf false
+      - checkout
+      - attach_workspace:
+          at: .
       - install_sdks_windows
       - setup_npm:
           npm_install: false
