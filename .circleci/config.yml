@@ -340,7 +340,7 @@ jobs:
           at: .
       - install_sdks_windows
       - setup_npm:
-          npm_install: false
+          npm_install: true
           npm_cache_directory: ~\AppData\Local\npm-cache
   test-windows:
     parameters:
@@ -358,7 +358,7 @@ jobs:
           at: .
       - install_sdks_windows # This step will restore the cache
       - setup_npm:
-          npm_install: false
+          npm_install: true
           npm_cache_directory: ~\AppData\Local\npm-cache
       - run:
           name: Configuring artifact
