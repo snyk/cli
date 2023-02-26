@@ -342,8 +342,6 @@ jobs:
     executor: win/default
     working_directory: C:\Users\circleci\snyk
     parallelism: 4
-    requires:
-      - test-windows-setup
     steps:
       - run:
           name: Configuring Git
@@ -1060,6 +1058,14 @@ workflows:
                 - snyk-for-docker-desktop-darwin-x64.tar.gz
                 - snyk-for-docker-desktop-darwin-arm64.tar.gz
                 - docker-mac-signed-bundle.tar.gz
+      - test-windows-setup:
+          filters:
+            branches:
+              ignore: master
+          name: Acceptance Tests (snyk-win.exe) - Setup
+          context: nodejs-install
+          requires:
+            - Build (snyk-win.exe)
       - test-windows:
           filters:
             branches:
@@ -1067,7 +1073,7 @@ workflows:
           name: Acceptance Tests (snyk-win.exe)
           context: nodejs-install
           requires:
-            - Build (snyk-win.exe)
+            - test-windows-setup
           test_snyk_command: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
       - test-macos:
           filters:
