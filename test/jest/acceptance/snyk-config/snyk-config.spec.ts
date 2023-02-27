@@ -85,7 +85,7 @@ describe('snyk config set endpoint', () => {
     if (isCLIV2()) {
       // generate an sbom against the endpoint
       const resultSBOM = await runSnykCLI(
-        `sbom --experimental --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee`,
+        `sbom --experimental --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
         {
           env: env,
         },
