@@ -339,6 +339,12 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_windows
+      -run:
+          name: Refresh ENV vars
+          command: |
+            echo $env:PATH
+            refreshenv
+            echo $env:PATH
       - setup_npm:
           npm_install: true
           npm_cache_directory: ~\AppData\Local\npm-cache
@@ -357,6 +363,12 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_windows # This step will restore the cache
+      -run:
+          name: Refresh ENV vars
+          command: |
+            echo $env:PATH
+            refreshenv
+            echo $env:PATH
       - setup_npm:
           npm_install: true
           npm_cache_directory: ~\AppData\Local\npm-cache
