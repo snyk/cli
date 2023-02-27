@@ -39,6 +39,14 @@ describe('cli args', () => {
     });
   });
 
+  test('delimiting args should pass expected args to the command as expected', async () => {
+    const { stdout } = await runSnykCLI(`-d woof --language=cat -- --hello --world`, {
+      env,
+    });
+
+    expect(stdout).toContain("[ '--hello', '--world' ]");
+  });
+
   test('snyk test command should fail when --file is not specified correctly', async () => {
     const { code, stdout } = await runSnykCLI(`test --file package-lock.json`, {
       env,
