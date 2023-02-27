@@ -126,20 +126,16 @@ commands:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v20230226-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v20230226-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Installing SDKs
           command: choco install .circleci/chocolatey.config --no-progress
-      - run:
-          name: Saving PATH
-          command: echo $env:PATH | Out-File -FilePath $env:CIRCLE_ARTIFACTS\path.txt
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v20230226-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v20230226-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
             - C:\ProgramData\chocolatey\lib
-            - $env:CIRCLE_ARTIFACTS\path.txt
   install_sdks_unix:
     steps:
       - restore_cache:
@@ -343,9 +339,6 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_windows
-      - run: 
-          name: Restoring PATH
-          command: $env:PATH = Get-Content -Path $env:CIRCLE_ARTIFACTS\path.txt
       - setup_npm:
           npm_install: true
           npm_cache_directory: ~\AppData\Local\npm-cache
@@ -364,9 +357,6 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_windows # This step will restore the cache
-      - run: 
-          name: Restoring PATH
-          command: $env:PATH = Get-Content -Path $env:CIRCLE_ARTIFACTS\path.txt
       - setup_npm:
           npm_install: true
           npm_cache_directory: ~\AppData\Local\npm-cache
