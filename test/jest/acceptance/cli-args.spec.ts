@@ -40,9 +40,12 @@ describe('cli args', () => {
   });
 
   test('delimiting args should pass expected args to the command as expected', async () => {
-    const { stdout } = await runSnykCLI(`-d woof --language=cat -- --hello --world`, {
-      env,
-    });
+    const { stdout } = await runSnykCLI(
+      `-d woof --language=cat -- --hello --world`,
+      {
+        env,
+      },
+    );
 
     expect(stdout).toContain("[ '--hello', '--world' ]");
   });
