@@ -339,7 +339,7 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_windows
-      -run:
+      - run:
           name: Refresh ENV vars
           command: |
             echo $env:PATH
@@ -363,7 +363,7 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_windows # This step will restore the cache
-      -run:
+      - run:
           name: Refresh ENV vars
           command: |
             echo $env:PATH
