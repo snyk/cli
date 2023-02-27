@@ -364,6 +364,9 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_windows # This step will restore the cache
+      - run: 
+          name: Restoring PATH
+          command: $env:PATH = Get-Content -Path $env:CIRCLE_ARTIFACTS\path.txt
       - setup_npm:
           npm_install: true
           npm_cache_directory: ~\AppData\Local\npm-cache
