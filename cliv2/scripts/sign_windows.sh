@@ -26,7 +26,7 @@ osslsigncode sign -h sha512 \
   -pass "$SIGNING_SECRETS_PASSWORD" \
   -n "Snyk CLI" \
   -i "https://snyk.io" \
-  -t "http://timestamp.comodoca.com/authenticode" \
+  -t "http://timestamp.sectigo.com" \
   -in "$APP_PATH_UNSIGNED" \
   -out "$APP_PATH"
 

@@ -2,7 +2,15 @@
 # Can't set -u as sdkman has unbound variables.
 set -eo pipefail
 
-sdk install java   11.0.17-tem
-sdk install maven  3.8.2
-sdk install gradle 6.8.3
-sdk install sbt    1.5.5
+apt-get install -y \
+    maven \
+    gradle \
+    openjdk-11-jdk-headless \
+    openjdk-11-jre-headless \
+
+echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list
+echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list
+curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import
+chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
+apt-get update
+apt-get install sbt
