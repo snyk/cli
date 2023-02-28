@@ -160,7 +160,7 @@ commands:
             - sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-unix.sh" }}
       - run:
           name: Installing SDKs
-          command: ./.circleci/install-sdks-unix.sh
+          command: sudo ./.circleci/install-sdks-unix.sh
       - save_cache:
           name: Saving SDKMAN archive cache
           key: sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-unix.sh" }}
@@ -181,8 +181,9 @@ commands:
       - run:
           name: Installing golang
           command: |
-            brew install go gradle python elixir composer
-      - install_sdks_unix
+            brew install go gradle python elixir composer gradle@6 maven sbt
+      - aws-cli/install:
+          version: << pipeline.parameters.aws_version >>
   install_shellspec_dependencies:
     steps:
       - run:
