@@ -46,8 +46,10 @@ describe('cli args', () => {
         env,
       },
     );
-
-    expect(stdout).toContain("[ '--hello', '--world' ]");
+    const doubleDashArgsStart = stdout.indexOf('_doubleDashArgs:::');
+    const doubleDashArgsEnd = stdout.indexOf(':::_doubleDashArgs');
+    const doubleDashArgs = stdout.slice(doubleDashArgsStart, doubleDashArgsEnd);
+    expect(doubleDashArgs).toContain("[ '--hello', '--world' ]");
   });
 
   test('snyk test command should fail when --file is not specified correctly', async () => {

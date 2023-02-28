@@ -24,7 +24,7 @@ export default function getWoof(args: MethodArgs): string {
 
   if (lang === 'cat') {
     for (const option in options) {
-      console.debug(option, ':', options[option]);
+      console.debug(`${option}:::`, options[option], `:::${option}`);
     }
   }
 
