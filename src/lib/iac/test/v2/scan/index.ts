@@ -155,6 +155,16 @@ function processFlags(
     flags.push('-org', options.org);
   }
 
+  if (options.customRules) {
+    if (options.experimental) {
+      flags.push('-custom-rules');
+    } else {
+      debug(
+        '--custom-rules specified without --experimental. ignoring --custom-rules.',
+      );
+    }
+  }
+
   return flags;
 }
 

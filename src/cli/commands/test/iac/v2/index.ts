@@ -55,6 +55,8 @@ async function prepareTestConfig(
   const cloudContext = getFlag(options, 'cloud-context');
   const snykCloudEnvironment = getFlag(options, 'snyk-cloud-environment');
   const insecure = options.insecure;
+  const customRules = options['custom-rules'];
+  const experimental = options.experimental;
 
   return {
     paths,
@@ -74,5 +76,7 @@ async function prepareTestConfig(
     snykCloudEnvironment,
     insecure,
     org,
+    customRules,
+    experimental,
   };
 }
