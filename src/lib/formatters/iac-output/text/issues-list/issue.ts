@@ -52,8 +52,6 @@ function formatProperties(
   result: FormattedOutputResult,
   options?: Options,
 ): string[] {
-  const remediationKey = iacRemediationTypes?.[result.projectType];
-
   const properties = [
     ['Info', formatInfo(result.issue)],
     [
@@ -72,15 +70,10 @@ function formatProperties(
           : ''
       }`,
     ],
-    [
-      'Resolve',
-      remediationKey && result.issue.remediation?.[remediationKey]
-        ? result.issue.remediation[remediationKey]
-        : result.issue.resolve,
-    ],
+    ['Resolve', getRemediationText(result)],
   ];
 
-  const propKeyColWidth = Math.max(...properties.map(([key]) => key.length));
+  const propKeyColWidth = Math.max(...properties.map(([key]) => key!.length));
   const propValColWidth =
     maxLineWidth - contentPadding.length - propKeyColWidth - 2;
   const indentLength = propKeyColWidth + 2;
@@ -103,4 +96,14 @@ function isValidLineNumber(lineNumber: number | undefined): boolean {
   return (
     typeof lineNumber === 'number' && lineNumber! > 0 && lineNumber! % 1 === 0
   );
+}
+
+function getRemediationText(result: FormattedOutputResult): string | undefined {
+  const remediationKey = iacRemediationTypes?.[result.projectType];
+
+  if (result.issue.remediation) {
+    return result.issue.remediation[remediationKey] ?? result.issue.remediation;
+  }
+
+  return result.issue.resolve;
 }
