@@ -44,7 +44,7 @@ Snyk CLI can be installed through multiple channels.
 npm install snyk@latest -g
 ```
 
-or if you are using Yarn:
+or, if you are using Yarn:
 
 ```bash
 yarn global add snyk
