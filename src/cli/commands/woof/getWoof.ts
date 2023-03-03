@@ -8,6 +8,7 @@ const woofs = {
   cs: ' Haf!',
   uk: ' Гав!',
   de: 'Wuff!',
+  cat: 'Meow?',
 };
 
 export default function getWoof(args: MethodArgs): string {
@@ -19,6 +20,12 @@ export default function getWoof(args: MethodArgs): string {
     Object.keys(woofs).includes(options.language)
   ) {
     lang = options.language;
+  }
+
+  if (lang === 'cat') {
+    for (const option in options) {
+      console.debug(`${option}:::`, options[option], `:::${option}`);
+    }
   }
 
   return woofs[lang];
