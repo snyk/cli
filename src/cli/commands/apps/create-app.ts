@@ -30,6 +30,7 @@ export async function createApp(
     snykAppName: name,
     snykAppRedirectUris: redirectUris,
     snykAppScopes: scopes,
+    context,
   } = data;
   const payload = {
     method: 'POST',
@@ -38,6 +39,7 @@ export async function createApp(
       name,
       redirect_uris: redirectUris,
       scopes,
+      context,
     },
     qs: {
       version: '2022-03-11~experimental',
