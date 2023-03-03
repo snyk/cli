@@ -15,6 +15,7 @@ import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
 import { errorMessageWithRetry, FailedToRunTestError } from '../errors';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
+import { processNpmWorkspaces } from './nodejs-plugin/npm-workspaces-parser';
 
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
@@ -43,13 +44,24 @@ export async function getMultiPluginResult(
   const allResults: ScannedProjectCustom[] = [];
   const failedResults: FailedProjectScanError[] = [];
 
-  // process any yarn workspaces first
+  // process any workspaces first
   // the files need to be proceeded together as they provide context to each other
   const {
-    scannedProjects,
-    unprocessedFiles,
+    scannedProjects: scannedYarnResults,
+    unprocessedFiles: unprocessedFilesFromYarn,
   } = await processYarnWorkspacesProjects(root, options, targetFiles);
-  allResults.push(...scannedProjects);
+  allResults.push(...scannedYarnResults);
+
+  const {
+    scannedProjects: scannedNpmResults,
+    unprocessedFiles,
+  } = await processNpmWorkspacesProjects(
+    root,
+    options,
+    unprocessedFilesFromYarn,
+  );
+  allResults.push(...scannedNpmResults);
+
   debug(`Not part of a workspace: ${unprocessedFiles.join(', ')}}`);
 
   // process the rest 1 by 1 sent to relevant plugins
@@ -141,7 +153,7 @@ async function processYarnWorkspacesProjects(
       targetFiles,
     );
 
-    const unprocessedFiles = filterOutProcessedWorkspaces(
+    const unprocessedFiles = filterOutProcessedYarnWorkspaces(
       root,
       scannedProjects,
       targetFiles,
@@ -153,7 +165,37 @@ async function processYarnWorkspacesProjects(
   }
 }
 
-export function filterOutProcessedWorkspaces(
+async function processNpmWorkspacesProjects(
+  root: string,
+  options: Options & (TestOptions | MonitorOptions),
+  targetFiles: string[],
+): Promise<{
+  scannedProjects: ScannedProjectCustom[];
+  unprocessedFiles: string[];
+}> {
+  try {
+    const { scannedProjects } = await processNpmWorkspaces(
+      root,
+      {
+        strictOutOfSync: options.strictOutOfSync,
+        dev: options.dev,
+      },
+      targetFiles,
+    );
+
+    const unprocessedFiles = filterOutProcessedNpmWorkspaces(
+      root,
+      scannedProjects,
+      targetFiles,
+    );
+    return { scannedProjects, unprocessedFiles };
+  } catch (e) {
+    debug('Error during detecting or processing Npm Workspaces: ', e);
+    return { scannedProjects: [], unprocessedFiles: targetFiles };
+  }
+}
+
+export function filterOutProcessedYarnWorkspaces(
   root: string,
   scannedProjects: ScannedProjectCustom[],
   allTargetFiles: string[],
@@ -179,6 +221,39 @@ export function filterOutProcessedWorkspaces(
     // standardise to package.json
     // we discover the lockfiles but targetFile is package.json
     if (!scanned.includes(path.replace('yarn.lock', 'package.json'))) {
+      targetFiles.push(original);
+      continue;
+    }
+  }
+  return targetFiles;
+}
+
+export function filterOutProcessedNpmWorkspaces(
+  root: string,
+  scannedProjects: ScannedProjectCustom[],
+  allTargetFiles: string[],
+): string[] {
+  const targetFiles: string[] = [];
+
+  const scanned = scannedProjects
+    .map((p) => p.targetFile!)
+    .map((p) => pathLib.resolve(process.cwd(), root, p));
+  const all = allTargetFiles.map((p) => ({
+    path: pathLib.resolve(process.cwd(), root, p),
+    original: p,
+  }));
+
+  for (const entry of all) {
+    const { path, original } = entry;
+    const { base } = pathLib.parse(path);
+
+    if (!['package.json', 'package-lock.json'].includes(base)) {
+      targetFiles.push(original);
+      continue;
+    }
+    // standardise to package.json
+    // we discover the lockfiles but targetFile is package.json
+    if (!scanned.includes(path.replace('package-lock.json', 'package.json'))) {
       targetFiles.push(original);
       continue;
     }
