@@ -1,23 +1,25 @@
 {
-  "name": "ts-binary-wrapper",
-  "version": "1.0.0",
-  "description": "Wrapper for Snyk's Golang based Extensible CLI.",
-  "main": "dist/index.js",
+  "name": "snyk",
+  "version": "1.0.0-monorepo",
+  "description": "snyk library and cli utility",
+  "files": [
+    "*"
+  ],
   "directories": {
     "lib": "src",
     "test": "test"
   },
   "bin": {
-    "snyk": "dist/index.js"
+    "snyk": "bin/snyk"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=12"
   },
   "scripts": {
-    "clean": "npx rimraf dist tsconfig.tsbuildinfo src/generated",
-    "build": "tsc && cp -R src/generated dist/",
+    "clean": "npx rimraf wrapper_dist tsconfig.tsbuildinfo",
+    "build": "tsc && cp -R src/generated wrapper_dist/",
     "test": "npx jest test/*",
-    "postinstall": "node dist/bootstrap.js exec"
+    "postinstall": "node wrapper_dist/bootstrap.js exec"
   },
   "keywords": [
     "security",
@@ -35,5 +37,19 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/snyk/snyk.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "devDependencies": {
+    "jest": "^29.4.1",
+    "rimraf": "^4.1.2",
+    "ts-jest": "^29.0.5",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@sentry/node": "^7.36.0",
+    "global-agent": "^3.0.0"
   }
 }
