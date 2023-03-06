@@ -1,4 +1,5 @@
 import {
+  AppContext,
   AppsErrorMessages,
   createAppPrompts,
   ICreateAppRequest,
@@ -7,6 +8,7 @@ import {
   SNYK_APP_REDIRECT_URIS,
   SNYK_APP_SCOPES,
   SNYK_APP_ORG_ID,
+  SNYK_APP_CONTEXT,
   validateUUID,
   validateAllURL,
 } from '..';
@@ -37,6 +39,11 @@ export function createAppDataScriptable(
     );
   } else if (!options.scopes) {
     throw new ValidationError(AppsErrorMessages.scopesRequired);
+  } else if (
+    options.context != null &&
+    !(options.context == 'user' || options.context == 'tenant')
+  ) {
+    throw new ValidationError(AppsErrorMessages.invalidContext);
   } else {
     return {
       orgId: options.org,
@@ -45,6 +52,7 @@ export function createAppDataScriptable(
         .replace(/\s+/g, '')
         .split(','),
       snykAppScopes: options.scopes.replace(/\s+/g, '').split(','),
+      context: options.context,
     };
   }
 }
@@ -63,11 +71,13 @@ export async function createAppDataInteractive(): Promise<ICreateAppRequest> {
     ',',
   ) as string[];
   const orgId = answers[SNYK_APP_ORG_ID].trim() as string;
+  const context = answers[SNYK_APP_CONTEXT].trim() as AppContext;
   // POST: to create an app
   return {
     orgId,
     snykAppName,
     snykAppRedirectUris,
     snykAppScopes,
+    context,
   };
 }
