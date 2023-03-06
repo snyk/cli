@@ -259,7 +259,7 @@ export function downloadExecutable(
       resolve(error);
     };
 
-    console.debug(
+    console.error(
       "Downloading from '" + downloadUrl + "' to '" + filename + "'",
     );
 
