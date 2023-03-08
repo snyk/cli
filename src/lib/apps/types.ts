@@ -1,3 +1,5 @@
+export type AppContext = 'tenant' | 'user';
+
 export interface IGetAppsURLOpts {
   orgId?: string;
   clientId?: string;
@@ -48,6 +50,7 @@ export interface ICreateAppOptions extends IGenerateAppsOptions {
   name?: string;
   redirectUris?: string;
   scopes?: string;
+  context?: AppContext;
 }
 
 export interface ICreateAppRequest {
@@ -55,4 +58,5 @@ export interface ICreateAppRequest {
   snykAppName: string;
   snykAppRedirectUris: string[];
   snykAppScopes: string[];
+  context?: AppContext;
 }

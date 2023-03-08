@@ -176,6 +176,9 @@ describe('snyk-apps: create app', () => {
       await expect(cli).toDisplay('Please provide the org id under which');
       await cli.answer(testData.orgId);
 
+      await expect(cli).toDisplay('Which context will your app operate under');
+      await cli.answer('');
+
       // Assert
       await expect(cli).toDisplay('Snyk App created successfully!');
       await expect(cli).toDisplay(testData.appName);
@@ -243,6 +246,17 @@ describe('snyk-apps: create app', () => {
       );
       await expect(cli).toDisplay(
         "Option '--scopes' is required! For interactive mode, please use '--interactive' or '-i' flag",
+      );
+      await expect(cli).toExitWith(2);
+    });
+
+    it('throws an error when an invalid context is provided', async () => {
+      cli = await startSnykCLI(
+        `apps create --org=${testData.orgId} --name=${testData.appName} --redirect-uris=${testData.redirectURIs} --scopes=${testData.scopes} --context=foobar --experimental`,
+        { env },
+      );
+      await expect(cli).toDisplay(
+        "Option '--context' must be either 'tenant' or 'user'! For interactive mode, please use '--interactive' or '-i' flag. For more information please run the help command 'snyk apps --help' or 'snyk apps -h'.",
       );
       await expect(cli).toExitWith(2);
     });

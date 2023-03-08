@@ -186,8 +186,8 @@ github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZV
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/snyk/cli-extension-sbom v0.0.0-20230227081105-8d914d783ad3 h1:Qq1yHiZiZtjNv2bM1l1T7GTa8Jl/8f9+B50Z1ZgAJyQ=
 github.com/snyk/cli-extension-sbom v0.0.0-20230227081105-8d914d783ad3/go.mod h1:ohrrgC94Gx82/cgSiac02JQrsMjFtggvhAvXGuGjDGU=
-github.com/snyk/go-application-framework v0.0.0-20230216090107-83ce1c411058 h1:2+/VV/Lhhrq/4mlHAJ3HXwDVeQ/Ktr5TZnms16/ZzHg=
-github.com/snyk/go-application-framework v0.0.0-20230216090107-83ce1c411058/go.mod h1:HtfqpR9P9WmTym2HruG7w/be5w+/HBfl5Y82CXSZ7tU=
+github.com/snyk/go-application-framework v0.0.0-20230301080807-063d035e78ed h1:3D9Z+oCp0JUoDT9xxI2ejpso479XYdrbu1xbwp1+56k=
+github.com/snyk/go-application-framework v0.0.0-20230301080807-063d035e78ed/go.mod h1:HtfqpR9P9WmTym2HruG7w/be5w+/HBfl5Y82CXSZ7tU=
 github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd h1:zjDhcQ642rIVI8aIjfG5uVcw+OGotQtX2l9VHe7IqCQ=
 github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd/go.mod h1:v6t6wKizOcHXT3p4qKn6Bda7yNIjCQ54Xyl31NjgXkY=
 github.com/spf13/afero v1.9.2 h1:j49Hj62F0n+DaZ1dDCvhABaPNSGNkt32oRFxI33IEMw=
