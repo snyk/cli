@@ -1,84 +1,54 @@
 import * as common from '../../src/common';
+import * as fs from 'fs';
 import * as child_process from 'child_process';
 import * as path from 'path';
-import { copyFileSync, mkdirSync, rmdirSync, writeFileSync } from 'fs';
 
-export class TestEnvironmentSetup {
-  constructor(
-    readonly root = path.join(__dirname, '..', '..', '..'),
-    readonly inputfolder = path.join(__dirname, '..', '..', 'src'),
-    readonly outputfolder = path.join(__dirname, 'something'),
-  ) {
-    this.root = root;
-    this.inputfolder = inputfolder;
-    this.outputfolder = outputfolder;
+interface TestEnvironmentInfo {
+  inputfolder: string;
+  outputfolder: string;
+}
+
+export async function prepareEnvironment(
+  version: string,
+): Promise<TestEnvironmentInfo> {
+  const inputfolder = path.join(__dirname, '..', '..', 'src');
+  const outputfolder = path.join(__dirname, 'something');
+  const versionFile = common.versionFile.replace(inputfolder, outputfolder);
+  const shasumFile = common.shasumFile.replace(inputfolder, outputfolder);
+
+  if (fs.existsSync(outputfolder)) {
+    fs.rmSync(outputfolder, { recursive: true });
   }
 
-  async prepareEnvironment(version: string) {
-    const versionFile = common.versionFile.replace(
-      this.inputfolder,
-      this.outputfolder,
-    );
-    const shasumFile = common.shasumFile.replace(
-      this.inputfolder,
-      this.outputfolder,
-    );
+  fs.mkdirSync(path.join(outputfolder, 'generated'), { recursive: true });
 
-    try {
-      this.prepareDirectories();
-      this.compileTSCode();
-      writeFileSync(versionFile, version);
-      await this.downloadShaSum(version, shasumFile);
-    } catch (error) {
-      console.error('Error while preparing environment');
-      console.error(error);
-      throw error;
-    }
+  const tsc = child_process.spawnSync(
+    'tsc  --outDir ' +
+      outputfolder +
+      ' --tsBuildInfoFile ' +
+      path.join(outputfolder, 'tsconfig.tsbuildinfo'),
+    { cwd: inputfolder, shell: true },
+  );
+
+  if (tsc.status) {
+    console.debug(tsc);
+    console.debug(tsc.stdout.toString());
+    console.debug(tsc.stderr.toString());
   }
 
-  cleanupDirectories() {
-    rmdirSync(this.outputfolder, { recursive: true }); // remove output folder
-  }
+  fs.writeFileSync(versionFile, version);
 
-  prepareDirectories() {
-    mkdirSync(path.join(this.outputfolder, 'generated'), {
-      recursive: true,
-    });
+  await common.downloadExecutable(
+    'https://static.snyk.io/cli/v' + version + '/sha256sums.txt.asc',
+    shasumFile,
+    '',
+  );
 
-    copyFileSync(
-      path.join(this.root, 'binary-deployments.json'),
-      path.join(this.outputfolder, 'generated', 'binary-deployments.json'),
-    );
-  }
-
-  private compileTSCode() {
-    const tsc = child_process.spawnSync(
-      'npx tsc  --outDir ' +
-        this.outputfolder +
-        ' --tsBuildInfoFile ' +
-        path.join(this.outputfolder, 'tsconfig.tsbuildinfo'),
-      { cwd: this.inputfolder, shell: true },
-    );
-
-    if (tsc.status) {
-      console.debug(tsc);
-      console.debug(tsc.stdout.toString());
-      console.debug(tsc.stderr.toString());
-    }
-  }
-
-  private async downloadShaSum(version: string, shasumFile: string) {
-    await common.downloadExecutable(
-      'https://static.snyk.io/cli/v' + version + '/sha256sums.txt.asc',
-      shasumFile,
-      '',
-    );
-  }
+  return { inputfolder, outputfolder };
 }
 
 if (process.argv.includes('exec')) {
   (async function() {
-    const env = new TestEnvironmentSetup();
-    await env.prepareEnvironment('1.1080.0');
+    await prepareEnvironment('1.1080.0');
   });
 }

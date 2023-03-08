@@ -20,16 +20,13 @@ help:
 	@echo 'Use `npm run` for CLIv1 scripts.'
 
 $(BINARY_RELEASES_FOLDER_TS_CLI):
-	@mkdir -p $(BINARY_RELEASES_FOLDER_TS_CLI)
+	@mkdir $(BINARY_RELEASES_FOLDER_TS_CLI)
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/version: | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 
 ifneq ($(BINARY_OUTPUT_FOLDER), $(BINARY_RELEASES_FOLDER_TS_CLI))
-$(BINARY_OUTPUT_FOLDER):
-	@mkdir -p $(BINARY_OUTPUT_FOLDER)
-
-$(BINARY_OUTPUT_FOLDER)/version: $(BINARY_OUTPUT_FOLDER) $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+$(BINARY_OUTPUT_FOLDER)/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/version
 endif
 
@@ -41,15 +38,14 @@ endif
 #     Only removing "prepack" is not enough. We need to do additional cleanup (see clean-prepack).
 .INTERMEDIATE: prepack
 .SECONDARY: prepack
-prepack: $(BINARY_OUTPUT_FOLDER)/version
+prepack: $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 	@echo "'make prepack' was run. Run 'make clean-prepack' to rollback your package.json changes and this file." > prepack
 	npm version "$(shell cat $(BINARY_RELEASES_FOLDER_TS_CLI)/version)" --no-git-tag-version --workspaces --include-workspace-root
-	cd $(BINARY_WRAPPER_DIR) && npm version "$(shell cat $(CURDIR)/$(BINARY_RELEASES_FOLDER_TS_CLI)/version)" --no-git-tag-version --include-workspace-root
 	npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
 
 .PHONY: clean-prepack
 clean-prepack:
-	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json $(BINARY_WRAPPER_DIR)/package.json $(BINARY_WRAPPER_DIR)/package-lock.json
+	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json
 	rm -f prepack
 
 .PHONY: clean-ts
@@ -57,10 +53,10 @@ clean-ts:
 	npm run clean
 	rm -f -r $(BINARY_RELEASES_FOLDER_TS_CLI)
 
-$(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc:
+$(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc: $(wildcard $(BINARY_OUTPUT_FOLDER)/*.sha256)
 	./release-scripts/sha256sums.txt.asc.sh
 
-$(BINARY_OUTPUT_FOLDER)/release.json: $(BINARY_OUTPUT_FOLDER)/version
+$(BINARY_OUTPUT_FOLDER)/release.json: $(BINARY_OUTPUT_FOLDER)/version $(wildcard $(BINARY_OUTPUT_FOLDER)/*.sha256)
 	./release-scripts/release.json.sh
 
 # --commit-path is forwarded to `git log <path>`.
@@ -75,8 +71,8 @@ $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_
 %.sha256: %
 	cd $(@D); shasum -a 256 $(<F) > $(@F); shasum -a 256 -c $(@F)
 
-$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI) 
-	$(MAKE) pack-binary-wrapper
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	mv $(shell npm pack) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-fix.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
@@ -125,20 +121,8 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/docker-mac-signed-bundle.tar.gz: prepack | $(BI
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/docker-mac-signed-bundle.tar.gz.sha256
 
 # targets responsible for the Wrapper CLI (TS around Golang)
-$(BINARY_WRAPPER_DIR)/README.md:
-	@cp ./README.md $(BINARY_WRAPPER_DIR)/README.md
-
-$(BINARY_WRAPPER_DIR)/SECURITY.md:
-	@cp ./SECURITY.md $(BINARY_WRAPPER_DIR)/SECURITY.md
-
-$(BINARY_WRAPPER_DIR)/LICENSE:
-	@cp ./LICENSE $(BINARY_WRAPPER_DIR)/LICENSE
-
-$(BINARY_WRAPPER_DIR)/src/generated/binary-deployments.json: $(BINARY_WRAPPER_DIR)/src/generated
-	@cp ./binary-deployments.json $(BINARY_WRAPPER_DIR)/src/generated/binary-deployments.json
-
 $(BINARY_WRAPPER_DIR)/src/generated:
-	@mkdir -p $(BINARY_WRAPPER_DIR)/src/generated/
+	@mkdir $(BINARY_WRAPPER_DIR)/src/generated/
 
 $(BINARY_WRAPPER_DIR)/src/generated/version: $(BINARY_WRAPPER_DIR)/src/generated $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_WRAPPER_DIR)/src/generated/version
@@ -148,58 +132,34 @@ $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 	@cat $(BINARY_OUTPUT_FOLDER)/*.sha256 > $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
 
 .PHONY: build-binary-wrapper
-build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt 
+build-binary-wrapper: $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
 	@cd $(BINARY_WRAPPER_DIR) && npm run build
 	
 .PHONY: clean-binary-wrapper
 clean-binary-wrapper:
-	@rm -f $(BINARY_WRAPPER_DIR)/config.default.json
-	@rm -f $(BINARY_WRAPPER_DIR)/src/generated/binary-deployments.json
-	@rm -f $(BINARY_WRAPPER_DIR)/README.md
-	@rm -f $(BINARY_WRAPPER_DIR)/SECURITY.md
-	@rm -f $(BINARY_WRAPPER_DIR)/LICENSE
-	@rm -rf $(BINARY_WRAPPER_DIR)/src/generated
-	@rm -rf $(BINARY_WRAPPER_DIR)/help
-	@rm -rf $(BINARY_WRAPPER_DIR)/pysrc
 	@cd $(BINARY_WRAPPER_DIR) && npm run clean
 
-.PHONY: pre-build-binary-wrapper
-pre-build-binary-wrapper: $(BINARY_WRAPPER_DIR)/README.md $(BINARY_WRAPPER_DIR)/SECURITY.md $(BINARY_WRAPPER_DIR)/LICENSE $(BINARY_WRAPPER_DIR)/src/generated/binary-deployments.json
-
-# for compatibility reasons, we pack the legacy and the ts-binary-wrapper next to each other
 .PHONY: pack-binary-wrapper
 pack-binary-wrapper: build-binary-wrapper
 	@echo "-- Packaging tarball ($(BINARY_OUTPUT_FOLDER)/snyk.tgz)"
-	release-scripts/create-npm-artifact.sh $(BINARY_OUTPUT_FOLDER) $(BINARY_WRAPPER_DIR)
-
+	@mv $(BINARY_WRAPPER_DIR)/$(shell cd $(BINARY_WRAPPER_DIR) && npm pack) $(BINARY_OUTPUT_FOLDER)/snyk.tgz
 
 .PHONY: test-binary-wrapper
-test-binary-wrapper: build-binary-wrapper
+test-binary-wrapper: 
 	@echo "-- Testing binary wrapper"
 	@cd $(BINARY_WRAPPER_DIR) && npm run test
 
 
 # targets responsible for the complete CLI build
-.PHONY: pre-build
-pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI)
-
 .PHONY: build
-build: pre-build
+build:
 	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) build-full install bindir=$(CURDIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
 
 .PHONY: clean
 clean:
 	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) clean-full
 	$(MAKE) clean-prepack
-
-# targets responsible for the testing of CLI build
-.PHONY: acceptance-test-with-proxy
-acceptance-test-with-proxy:
-	@echo "-- Running acceptance tests in a proxied environment"
-	@docker build -t acceptance-test-with-proxy -f ./test/acceptance/environments/proxy/Dockerfile .
-	@docker run --rm --cap-add=NET_ADMIN acceptance-test-with-proxy ./node_modules/.bin/jest ./ts-binary-wrapper/test/acceptance/basic.spec.ts
-# TODO: Run all acceptance tests behind a proxy using npm run test:acceptance
 
 # targets responsible for the CLI release
 .PHONY: release-pre
