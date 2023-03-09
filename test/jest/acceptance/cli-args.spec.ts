@@ -39,6 +39,21 @@ describe('cli args', () => {
     });
   });
 
+  test('delimiting args should pass expected args to the command as expected', async () => {
+    const { stdout } = await runSnykCLI(
+      `-d woof --language=cat -- --hello --world`,
+      {
+        env,
+      },
+    );
+    const doubleDashArgsStart = stdout.indexOf('_doubleDashArgs:::');
+    const doubleDashArgsEnd = stdout.indexOf(':::_doubleDashArgs');
+    const doubleDashArgs = stdout.slice(doubleDashArgsStart, doubleDashArgsEnd);
+    expect(doubleDashArgs).toStrictEqual(
+      "_doubleDashArgs::: [ '--hello', '--world' ] ",
+    );
+  });
+
   test('snyk test command should fail when --file is not specified correctly', async () => {
     const { code, stdout } = await runSnykCLI(`test --file package-lock.json`, {
       env,
