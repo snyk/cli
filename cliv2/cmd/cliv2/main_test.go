@@ -65,6 +65,9 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	assert.True(t, doFallback(subcmd1.RunE(subcmd1, []string{})))
 	assert.True(t, doFallback(cmd2.RunE(cmd2, []string{})))
 
+	assert.True(t, subcmd1.DisableFlagParsing)
+	assert.False(t, subcmd2.DisableFlagParsing)
+
 	assert.False(t, subcmd2.HasSubCommands())
 	assert.Equal(t, "subcmd2", subcmd2.Name())
 	assert.False(t, subcmd3.Hidden)

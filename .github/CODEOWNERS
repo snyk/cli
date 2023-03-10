@@ -36,6 +36,7 @@ test/fixtures/container-projects/ @snyk/mycelium @snyk/potion
 test/fixtures/docker/ @snyk/mycelium @snyk/potion
 test/fixtures/iac/ @snyk/cloud-dev-ex
 test/fixtures/iac/drift @snyk/cloud-context
+test/fixtures/iac/capture @snyk/cloud-context
 test/smoke/iac/ @snyk/cloud-dev-ex
 test/smoke/spec/snyk_code_spec.sh @snyk/zenith
 test/smoke/spec/snyk_basic_spec.sh @snyk/hammerhead
@@ -49,6 +50,7 @@ test/jest/unit/lib/iac/drift/ @snyk/cloud-context
 test/jest/unit/lib/iac/test/ @snyk/cloud-dev-ex
 test/jest/acceptance/iac/ @snyk/cloud-dev-ex
 test/jest/acceptance/iac/describe.spec.ts @snyk/cloud-context
+test/jest/acceptance/iac/capture.spec.ts @snyk/cloud-context
 test/jest/acceptance/snyk-apps @snyk/moose
 src/lib/code-config.ts @snyk/nebula
 src/lib/errors/describe-required-argument-error.ts @snyk/cloud-context

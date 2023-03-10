@@ -21,6 +21,7 @@ import (
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
+	"github.com/snyk/snyk-iac-capture/pkg/capture"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -156,9 +157,10 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			subCmd := commandMap[currentParts]
 			if subCmd == nil {
 				subCmd = &cobra.Command{
-					Use:    subCmdName,
-					Hidden: true,
-					RunE:   emptyCommandFunction, // ensure to trigger the fallback case
+					Use:                subCmdName,
+					Hidden:             true,
+					RunE:               emptyCommandFunction, // ensure to trigger the fallback case
+					DisableFlagParsing: true,                 // disable flag parsing to allow arbitrary flags for commands that will trigger the fallback
 				}
 				parentCommand.AddCommand(subCmd)
 				commandMap[currentParts] = subCmd
@@ -173,6 +175,7 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		}
 		parentCommand.RunE = runCommand
 		parentCommand.Hidden = !workflowEntry.IsVisible()
+		parentCommand.DisableFlagParsing = false
 	}
 }
 
@@ -279,6 +282,7 @@ func MainWithErrorCode() int {
 	// initialize the extensions -> they register themselves at the engine
 	engine.AddExtensionInitializer(basic_workflows.Init)
 	engine.AddExtensionInitializer(sbom.Init)
+	engine.AddExtensionInitializer(capture.Init)
 
 	// init engine
 	err = engine.Init()
