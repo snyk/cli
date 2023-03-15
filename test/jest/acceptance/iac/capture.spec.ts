@@ -58,7 +58,7 @@ describe('iac capture', () => {
     const orgId = '0d9905be-7914-42c3-ada5-9c95d6fe7eb8';
 
     const { stdout, stderr, exitCode } = await run(
-      `snyk iac capture -d ${statePath}`,
+      `snyk iac capture ${statePath}`,
       {
         ...process.env,
         ORG: orgId,
