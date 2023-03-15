@@ -60,7 +60,7 @@ clean-ts:
 $(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc:
 	./release-scripts/sha256sums.txt.asc.sh
 
-$(BINARY_OUTPUT_FOLDER)/release.json: $(BINARY_OUTPUT_FOLDER)/version
+$(BINARY_OUTPUT_FOLDER)/release.json:
 	./release-scripts/release.json.sh
 
 # --commit-path is forwarded to `git log <path>`.
@@ -75,7 +75,7 @@ $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_
 %.sha256: %
 	cd $(@D); shasum -a 256 $(<F) > $(@F); shasum -a 256 -c $(@F)
 
-$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI) 
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	$(MAKE) pack-binary-wrapper
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz.sha256
 
@@ -148,7 +148,7 @@ $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 	@cat $(BINARY_OUTPUT_FOLDER)/*.sha256 > $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
 
 .PHONY: build-binary-wrapper
-build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt 
+build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
 	@cd $(BINARY_WRAPPER_DIR) && npm run build
 	
@@ -195,7 +195,7 @@ clean:
 
 # targets responsible for the testing of CLI build
 .PHONY: acceptance-test-with-proxy
-acceptance-test-with-proxy:
+acceptance-test-with-proxy: pre-build
 	@echo "-- Running acceptance tests in a proxied environment"
 	@docker build -t acceptance-test-with-proxy -f ./test/acceptance/environments/proxy/Dockerfile .
 	@docker run --rm --cap-add=NET_ADMIN acceptance-test-with-proxy ./node_modules/.bin/jest ./ts-binary-wrapper/test/acceptance/basic.spec.ts
