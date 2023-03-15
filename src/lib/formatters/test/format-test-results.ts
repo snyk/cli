@@ -93,7 +93,7 @@ export function extractDataToSendFromResults(
   if (options.docker && jsonResults.length > 1 && !options.experimental) {
     const appVulnsData = jsonData.splice(1);
     jsonData = jsonData[0];
-    if (jsonData.vulnerabilities.length === 0) {
+    if (!jsonData.vulnerabilities || jsonData.vulnerabilities.length === 0) {
       // to avoid confusion with other vulns that might be found
       jsonData.summary = 'No known operating system vulnerabilities';
     }
