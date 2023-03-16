@@ -114,7 +114,7 @@
     "semver": "^6.0.0",
     "snyk-config": "4.0.0",
     "snyk-cpp-plugin": "2.20.1",
-    "snyk-docker-plugin": "^6.0.0",
+    "snyk-docker-plugin": "6.2.0",
     "snyk-go-plugin": "^1.19.4",
     "snyk-gradle-plugin": "3.26.0",
     "snyk-module": "3.1.0",
