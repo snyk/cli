@@ -245,7 +245,9 @@ export function downloadExecutable(
     const options = new URL(downloadUrl);
     const temp = path.join(__dirname, Date.now().toString());
     const fileStream = fs.createWriteStream(temp);
-    const shasum = createHash('sha256');
+    const shasum = createHash('sha256', {
+      defaultEncoding: 'binary'
+    });
 
     const cleanupAfterError = (error: Error) => {
       try {
