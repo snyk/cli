@@ -148,7 +148,7 @@ jobs:
             - packages/*/dist
             - pysrc
             - ts-binary-wrapper/
-
+            - binary-releases/version
   regression-test:
     parameters:
       test_snyk_command:
