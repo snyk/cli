@@ -174,7 +174,7 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   const debug = debugEnabled(cliArguments);
 
   if (debug) {
-    console.error('Executing: ' + executable + ' ' + cliArguments.join(' '));
+    console.debug('Executing: ' + executable + ' ' + cliArguments.join(' '));
   }
 
   const res = spawnSync(executable, cliArguments, {
@@ -184,12 +184,12 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
 
   if (res.status !== null) {
     if (debug) {
-      console.error(res);
+      console.debug(res);
     }
 
     return res.status;
   } else {
-    console.error(res);
+    console.debug(res);
     if (!formatErrorMessage((res.error as SpawnError).code)) {
       console.error('Failed to spawn child process. (' + executable + ')');
     }
@@ -245,9 +245,7 @@ export function downloadExecutable(
     const options = new URL(downloadUrl);
     const temp = path.join(__dirname, Date.now().toString());
     const fileStream = fs.createWriteStream(temp);
-    const shasum = createHash('sha256', {
-      defaultEncoding: 'binary'
-    });
+    const shasum = createHash('sha256').setEncoding('hex');
 
     const cleanupAfterError = (error: Error) => {
       try {
@@ -263,54 +261,43 @@ export function downloadExecutable(
     shasum.on('error', cleanupAfterError);
 
     // filestream events
-    fileStream.on('error', (e) => {
-      cleanupAfterError(e);
-    });
+    fileStream.on('error', cleanupAfterError);
 
-    fileStream.on('finish', () => {
-      // compare shasums
-      const actualShasum = shasum.digest('hex');
-
-      const debugMessage =
-        'Shasums:\n- actual:   ' +
-        actualShasum +
-        '\n- expected: ' +
-        filenameShasum;
-
-      if (filenameShasum && actualShasum != filenameShasum) {
-        cleanupAfterError(Error('Shasum comparison failed!\n' + debugMessage));
-      } else {
-        console.error(debugMessage);
-
-        // finally rename the file and change permissions
-        fs.renameSync(temp, filename);
-        fs.chmodSync(filename, 0o755);
-        console.error('Downloaded successfull! ');
-      }
-
-      resolve(undefined);
-    });
-
-    console.error(
+    console.debug(
       "Downloading from '" + downloadUrl + "' to '" + filename + "'",
     );
 
     const req = https.request(options, (res) => {
       // response events
       res.on('error', cleanupAfterError);
-      res.on('end', () => {
-        shasum.end();
-        fileStream.end();
-      });
 
       // pipe data
-      res.pipe(fileStream);
-      res.pipe(shasum);
+      let hash;
+      res.pipe(shasum).on('finish', () => {
+        hash = shasum.read();
+      });
+      res.pipe(fileStream).on('finish', () => {
+        const debugMessage =
+          'Shasums:\n- actual:   ' + hash + '\n- expected: ' + filenameShasum;
+
+        if (filenameShasum && hash != filenameShasum) {
+          cleanupAfterError(
+            Error('Shasum comparison failed!\n' + debugMessage),
+          );
+        } else {
+          console.debug(debugMessage);
+
+          // finally rename the file and change permissions
+          fs.renameSync(temp, filename);
+          fs.chmodSync(filename, 0o755);
+          console.debug('Downloaded successfull! ');
+        }
+
+        resolve(undefined);
+      });
     });
 
-    req.on('error', (e) => {
-      cleanupAfterError(e);
-    });
+    req.on('error', cleanupAfterError);
 
     req.on('response', (incoming) => {
       if (
@@ -359,8 +346,7 @@ export async function logError(
 
   // finally log the error to the console as well
   if (printToConsole) {
-    console.error('\n');
-    console.error(err);
+    console.error('\n' + err);
     formatErrorMessage(err.message);
   }
 }
