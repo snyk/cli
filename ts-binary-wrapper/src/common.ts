@@ -261,7 +261,24 @@ export function downloadExecutable(
     shasum.on('error', cleanupAfterError);
 
     // filestream events
-    fileStream.on('error', cleanupAfterError);
+    fileStream.on('error', cleanupAfterError).on('finish', () => {
+      const actualShasum = shasum.read();
+      const debugMessage =
+        'Shasums:\n- actual:   ' + actualShasum + '\n- expected: ' + filenameShasum;
+
+      if (filenameShasum && actualShasum != filenameShasum) {
+        cleanupAfterError(Error('Shasum comparison failed!\n' + debugMessage));
+      } else {
+        console.debug(debugMessage);
+
+        // finally rename the file and change permissions
+        fs.renameSync(temp, filename);
+        fs.chmodSync(filename, 0o755);
+        console.debug('Downloaded successfull! ');
+      }
+
+      resolve(undefined);
+    });
 
     console.debug(
       "Downloading from '" + downloadUrl + "' to '" + filename + "'",
@@ -272,54 +289,32 @@ export function downloadExecutable(
       res.on('error', cleanupAfterError);
 
       // pipe data
-      let hash;
-      res.pipe(shasum).on('finish', () => {
-        hash = shasum.read();
-      });
-      res.pipe(fileStream).on('finish', () => {
-        const debugMessage =
-          'Shasums:\n- actual:   ' + hash + '\n- expected: ' + filenameShasum;
+      res.pipe(shasum);
+      res.pipe(fileStream);
+    });
 
-        if (filenameShasum && hash != filenameShasum) {
+    req
+      .on('error', cleanupAfterError)
+      .on('response', (incoming) => {
+        if (
+          incoming.statusCode &&
+          !(200 <= incoming.statusCode && incoming.statusCode < 300)
+        ) {
+          req.destroy();
           cleanupAfterError(
-            Error('Shasum comparison failed!\n' + debugMessage),
+            Error(
+              'Download failed! Server Response: ' +
+                incoming.statusCode +
+                ' ' +
+                incoming.statusMessage +
+                ' (' +
+                downloadUrl +
+                ')',
+            ),
           );
-        } else {
-          console.debug(debugMessage);
-
-          // finally rename the file and change permissions
-          fs.renameSync(temp, filename);
-          fs.chmodSync(filename, 0o755);
-          console.debug('Downloaded successfull! ');
         }
-
-        resolve(undefined);
-      });
-    });
-
-    req.on('error', cleanupAfterError);
-
-    req.on('response', (incoming) => {
-      if (
-        incoming.statusCode &&
-        !(200 <= incoming.statusCode && incoming.statusCode < 300)
-      ) {
-        req.destroy();
-        cleanupAfterError(
-          Error(
-            'Download failed! Server Response: ' +
-              incoming.statusCode +
-              ' ' +
-              incoming.statusMessage +
-              ' (' +
-              downloadUrl +
-              ')',
-          ),
-        );
-      }
-    });
-
-    req.end();
+      })
+      .end();
   });
 }
 
