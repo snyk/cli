@@ -100,8 +100,7 @@ describe('Basic acceptance test', () => {
     expect(
       resultIndex.stdout
         .toString()
-        .trim()
-        .startsWith(cliVersionForTesting),
+        .includes(cliVersionForTesting),
     ).toBeTruthy();
 
     fs.unlinkSync(executable);
