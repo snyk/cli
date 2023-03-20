@@ -264,7 +264,10 @@ export function downloadExecutable(
     fileStream.on('error', cleanupAfterError).on('finish', () => {
       const actualShasum = shasum.read();
       const debugMessage =
-        'Shasums:\n- actual:   ' + actualShasum + '\n- expected: ' + filenameShasum;
+        'Shasums:\n- actual:   ' +
+        actualShasum +
+        '\n- expected: ' +
+        filenameShasum;
 
       if (filenameShasum && actualShasum != filenameShasum) {
         cleanupAfterError(Error('Shasum comparison failed!\n' + debugMessage));
