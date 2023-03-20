@@ -272,6 +272,7 @@ export function downloadExecutable(
         .on('error', cleanupAfterError)
         .on('data', (chunk) => {
           shasum.update(chunk);
+          fileStream.write(chunk);
         })
         .on('end', () => {
           const actualShasum = shasum.digest('hex');
@@ -296,9 +297,6 @@ export function downloadExecutable(
 
           resolve(undefined);
         });
-
-      // pipe data
-      res.pipe(fileStream);
     });
 
     req.on('error', cleanupAfterError).on('response', (incoming) => {
