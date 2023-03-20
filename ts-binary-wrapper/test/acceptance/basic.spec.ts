@@ -17,7 +17,6 @@ describe('Basic acceptance test', () => {
 
   afterEach(() => {
     delete process.env.SNYK_DISABLE_ANALYTICS;
-    envSetup.cleanupDirectories();
   });
 
   it('Bootstrap binary & execute a command', () => {
@@ -63,13 +62,6 @@ describe('Basic acceptance test', () => {
     ).toBeTruthy();
 
     fs.unlinkSync(executable);
-    try {
-      // todo: figure out why we need to kill the process
-      // maybe an issue in bootstrapScript?
-      process.kill(resultIndex.pid);
-    } catch {
-      //
-    }
   });
 
   it('Execute a command without bootstrap', () => {

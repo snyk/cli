@@ -266,37 +266,32 @@ export function downloadExecutable(
       "Downloading from '" + downloadUrl + "' to '" + filename + "'",
     );
 
-    const req = https.request(options, (res) => {
-      // response events
-      res
-        .on('error', cleanupAfterError)
-        .on('data', (chunk) => {
-          shasum.update(chunk);
-          fileStream.write(chunk);
-        })
-        .on('end', () => {
-          const actualShasum = shasum.digest('hex');
-          const debugMessage =
-            'Shasums:\n- actual:   ' +
-            actualShasum +
-            '\n- expected: ' +
-            filenameShasum;
+    const req = https.get(options, (res) => {
+      res.pipe(shasum);
+      res.pipe(fileStream);
+      res.on('error', cleanupAfterError).on('end', () => {
+        const actualShasum = shasum.read();
+        const debugMessage =
+          'Shasums:\n- actual:   ' +
+          actualShasum +
+          '\n- expected: ' +
+          filenameShasum;
 
-          if (filenameShasum && actualShasum != filenameShasum) {
-            cleanupAfterError(
-              Error('Shasum comparison failed!\n' + debugMessage),
-            );
-          } else {
-            console.debug(debugMessage);
+        if (filenameShasum && actualShasum != filenameShasum) {
+          cleanupAfterError(
+            Error('Shasum comparison failed!\n' + debugMessage),
+          );
+        } else {
+          console.debug(debugMessage);
 
-            // finally rename the file and change permissions
-            fs.renameSync(temp, filename);
-            fs.chmodSync(filename, 0o755);
-            console.debug('Downloaded successfull! ');
-          }
+          // finally rename the file and change permissions
+          fs.renameSync(temp, filename);
+          fs.chmodSync(filename, 0o755);
+          console.debug('Downloaded successfull! ');
+        }
 
-          resolve(undefined);
-        });
+        resolve(undefined);
+      });
     });
 
     req.on('error', cleanupAfterError).on('response', (incoming) => {
