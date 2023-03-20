@@ -259,29 +259,8 @@ export function downloadExecutable(
 
     // shasum events
     shasum.on('error', cleanupAfterError);
-
     // filestream events
-    fileStream.on('error', cleanupAfterError).on('finish', () => {
-      const actualShasum = shasum.read();
-      const debugMessage =
-        'Shasums:\n- actual:   ' +
-        actualShasum +
-        '\n- expected: ' +
-        filenameShasum;
-
-      if (filenameShasum && actualShasum != filenameShasum) {
-        cleanupAfterError(Error('Shasum comparison failed!\n' + debugMessage));
-      } else {
-        console.debug(debugMessage);
-
-        // finally rename the file and change permissions
-        fs.renameSync(temp, filename);
-        fs.chmodSync(filename, 0o755);
-        console.debug('Downloaded successfull! ');
-      }
-
-      resolve(undefined);
-    });
+    fileStream.on('error', cleanupAfterError);
 
     console.debug(
       "Downloading from '" + downloadUrl + "' to '" + filename + "'",
@@ -289,35 +268,60 @@ export function downloadExecutable(
 
     const req = https.request(options, (res) => {
       // response events
-      res.on('error', cleanupAfterError);
+      res
+        .on('error', cleanupAfterError)
+        .on('data', (chunk) => {
+          shasum.update(chunk);
+        })
+        .on('end', () => {
+          const actualShasum = shasum.digest('hex');
+          const debugMessage =
+            'Shasums:\n- actual:   ' +
+            actualShasum +
+            '\n- expected: ' +
+            filenameShasum;
+
+          if (filenameShasum && actualShasum != filenameShasum) {
+            cleanupAfterError(
+              Error('Shasum comparison failed!\n' + debugMessage),
+            );
+          } else {
+            console.debug(debugMessage);
+
+            // finally rename the file and change permissions
+            fs.renameSync(temp, filename);
+            fs.chmodSync(filename, 0o755);
+            console.debug('Downloaded successfull! ');
+          }
+
+          resolve(undefined);
+        });
 
       // pipe data
-      res.pipe(shasum);
       res.pipe(fileStream);
     });
 
-    req
-      .on('error', cleanupAfterError)
-      .on('response', (incoming) => {
-        if (
-          incoming.statusCode &&
-          !(200 <= incoming.statusCode && incoming.statusCode < 300)
-        ) {
-          req.destroy();
-          cleanupAfterError(
-            Error(
-              'Download failed! Server Response: ' +
-                incoming.statusCode +
-                ' ' +
-                incoming.statusMessage +
-                ' (' +
-                downloadUrl +
-                ')',
-            ),
-          );
-        }
-      })
-      .end();
+    req.on('error', cleanupAfterError).on('response', (incoming) => {
+      if (
+        incoming.statusCode &&
+        !(200 <= incoming.statusCode && incoming.statusCode < 300)
+      ) {
+        req.destroy();
+        cleanupAfterError(
+          Error(
+            'Download failed! Server Response: ' +
+              incoming.statusCode +
+              ' ' +
+              incoming.statusMessage +
+              ' (' +
+              downloadUrl +
+              ')',
+          ),
+        );
+      }
+    });
+
+    req.end();
   });
 }
 
