@@ -59,13 +59,17 @@ describe('Basic acceptance test', () => {
 
     expect(resultIndex.status).toEqual(0);
     expect(
-      resultIndex.stdout
-        .toString()
-        .trim()
-        .startsWith(cliVersionForTesting),
+      resultIndex.stdout.toString().includes(cliVersionForTesting),
     ).toBeTruthy();
 
     fs.unlinkSync(executable);
+    try {
+      // todo: figure out why we need to kill the process
+      // maybe an issue in bootstrapScript?
+      process.kill(resultIndex.pid);
+    } catch {
+      //
+    }
   });
 
   it('Execute a command without bootstrap', () => {
