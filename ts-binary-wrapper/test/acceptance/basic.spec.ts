@@ -98,9 +98,7 @@ describe('Basic acceptance test', () => {
     expect(fs.existsSync(executable)).toBeTruthy();
     expect(resultIndex.status).toEqual(0);
     expect(
-      resultIndex.stdout
-        .toString()
-        .includes(cliVersionForTesting),
+      resultIndex.stdout.toString().includes(cliVersionForTesting),
     ).toBeTruthy();
 
     fs.unlinkSync(executable);
