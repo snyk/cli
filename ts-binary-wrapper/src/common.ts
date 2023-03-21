@@ -288,12 +288,15 @@ export function downloadExecutable(
     );
 
     const req = https.get(options, (res) => {
-      res.pipe(shasum);
-      res.pipe(fileStream);
+      // response events
       res.on('error', cleanupAfterError).on('end', () => {
         shasum.end();
         fileStream.end();
       });
+
+      // pipe data
+      res.pipe(fileStream);
+      res.pipe(shasum);
     });
 
     req.on('error', cleanupAfterError).on('response', (incoming) => {
