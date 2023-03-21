@@ -100,7 +100,6 @@ describe('Basic acceptance test', () => {
       console.debug(resultIndex.stderr.toString());
     }
 
-    
     expect(fs.existsSync(executable)).toBeTruthy();
     expect(resultIndex.status).toEqual(0);
     // The binary wrapper should not output anything to stdout
