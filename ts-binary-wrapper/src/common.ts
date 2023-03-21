@@ -263,26 +263,24 @@ export function downloadExecutable(
     fileStream.on('error', cleanupAfterError);
     fileStream.on('finish', () => {
       const actualShasum = shasum.read();
-        const debugMessage =
-          'Shasums:\n- actual:   ' +
-          actualShasum +
-          '\n- expected: ' +
-          filenameShasum;
+      const debugMessage =
+        'Shasums:\n- actual:   ' +
+        actualShasum +
+        '\n- expected: ' +
+        filenameShasum;
 
-        if (filenameShasum && actualShasum != filenameShasum) {
-          cleanupAfterError(
-            Error('Shasum comparison failed!\n' + debugMessage),
-          );
-        } else {
-          console.debug(debugMessage);
+      if (filenameShasum && actualShasum != filenameShasum) {
+        cleanupAfterError(Error('Shasum comparison failed!\n' + debugMessage));
+      } else {
+        console.debug(debugMessage);
 
-          // finally rename the file and change permissions
-          fs.renameSync(temp, filename);
-          fs.chmodSync(filename, 0o755);
-          console.debug('Downloaded successfull! ');
-        }
+        // finally rename the file and change permissions
+        fs.renameSync(temp, filename);
+        fs.chmodSync(filename, 0o755);
+        console.debug('Downloaded successfull! ');
+      }
 
-        resolve(undefined);
+      resolve(undefined);
     });
 
     console.debug(
