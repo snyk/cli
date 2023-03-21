@@ -17,6 +17,7 @@ import (
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
+	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/workflow"
@@ -234,9 +235,17 @@ func displayError(err error) {
 
 func writeLogHeader(config configuration.Configuration) {
 	tokenShaSum := []byte{}
+	tokenDetails := " (type=token)"
 	if token := config.GetString(configuration.AUTHENTICATION_TOKEN); len(token) > 0 {
 		temp := sha256.Sum256([]byte(token))
 		tokenShaSum = temp[0:16] // using a partial shasum to avoid sharing a token when sharing debug logs
+	} else {
+		token, err := auth.GetOAuthToken(config)
+		if token != nil && err == nil {
+			temp := sha256.Sum256([]byte(token.AccessToken))
+			tokenShaSum = temp[0:16] // using a partial shasum to avoid sharing a token when sharing debug logs
+			tokenDetails = fmt.Sprintf(" (type=oauth; expriy=%v)", token.Expiry.UTC())
+		}
 	}
 
 	org := config.GetString(configuration.ORGANIZATION)
@@ -253,7 +262,7 @@ func writeLogHeader(config configuration.Configuration) {
 	tablePrint("Platform", runtime.GOOS+" "+runtime.GOARCH)
 	tablePrint("API", config.GetString(configuration.API_URL))
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
-	tablePrint("Token-Hash", hex.EncodeToString(tokenShaSum))
+	tablePrint("Authorization", hex.EncodeToString(tokenShaSum)+tokenDetails)
 	tablePrint("Organization", org)
 	tablePrint("Insecure HTTPS", insecureHTTPS)
 }
@@ -306,6 +315,7 @@ func MainWithErrorCode() int {
 	// init NetworkAccess
 	networkAccess := engine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
+	//networkAccess.AddHeaderField("User-agent", "snyk-cli/"+cliv2.GetFullVersion())
 
 	extraCaCertFile := config.GetString(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV)
 	if len(extraCaCertFile) > 0 {
