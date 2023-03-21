@@ -17,6 +17,7 @@ describe('Basic acceptance test', () => {
 
   afterEach(() => {
     delete process.env.SNYK_DISABLE_ANALYTICS;
+    envSetup.cleanupDirectories();
   });
 
   it('Bootstrap binary & execute a command', () => {

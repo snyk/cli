@@ -261,16 +261,8 @@ export function downloadExecutable(
     shasum.on('error', cleanupAfterError);
     // filestream events
     fileStream.on('error', cleanupAfterError);
-
-    console.debug(
-      "Downloading from '" + downloadUrl + "' to '" + filename + "'",
-    );
-
-    const req = https.get(options, (res) => {
-      res.pipe(shasum);
-      res.pipe(fileStream);
-      res.on('error', cleanupAfterError).on('end', () => {
-        const actualShasum = shasum.read();
+    fileStream.on('finish', () => {
+      const actualShasum = shasum.read();
         const debugMessage =
           'Shasums:\n- actual:   ' +
           actualShasum +
@@ -291,6 +283,18 @@ export function downloadExecutable(
         }
 
         resolve(undefined);
+    });
+
+    console.debug(
+      "Downloading from '" + downloadUrl + "' to '" + filename + "'",
+    );
+
+    const req = https.get(options, (res) => {
+      res.pipe(shasum);
+      res.pipe(fileStream);
+      res.on('error', cleanupAfterError).on('end', () => {
+        shasum.end();
+        fileStream.end();
       });
     });
 
