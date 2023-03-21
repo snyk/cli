@@ -11,7 +11,7 @@ require (
 	github.com/snyk/cli-extension-sbom v0.0.0-20230227081105-8d914d783ad3
 	github.com/snyk/go-application-framework v0.0.0-20230301080807-063d035e78ed
 	github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd
-	github.com/snyk/snyk-iac-capture v0.5.1
+	github.com/snyk/snyk-iac-capture v0.6.0
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
