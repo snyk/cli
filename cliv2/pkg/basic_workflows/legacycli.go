@@ -53,15 +53,10 @@ func legacycliWorkflow(invocation workflow.InvocationContext, input []workflow.D
 
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
-	debug := config.GetBool(configuration.DEBUG)
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
 	insecure := config.GetBool(configuration.INSECURE_HTTPS)
 	proxyAuthenticationMechanismString := config.GetString(configuration.PROXY_AUTHENTICATION_MECHANISM)
 	proxyAuthenticationMechanism := httpauth.AuthenticationMechanismFromString(proxyAuthenticationMechanismString)
-
-	if debug {
-		args = append(args, "--debug")
-	}
 
 	debugLogger.Println("Arguments:", args)
 	debugLogger.Println("Use StdIO:", useStdIo)

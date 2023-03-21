@@ -18,4 +18,6 @@ export interface TestConfig {
   snykCloudEnvironment?: string;
   insecure?: boolean;
   org?: string;
+  customRules?: boolean;
+  experimental?: boolean;
 }

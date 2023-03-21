@@ -29,4 +29,11 @@ export const createAppPrompts = [
     message: CreateAppPromptData.SNYK_APP_ORG_ID.message,
     validate: validateUUID,
   },
+  {
+    name: CreateAppPromptData.SNYK_APP_CONTEXT.name,
+    type: 'select',
+    message: CreateAppPromptData.SNYK_APP_CONTEXT.message,
+    choices: ['tenant', 'user'],
+    initial: 'tenant',
+  },
 ];

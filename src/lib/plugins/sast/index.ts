@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as debugLib from 'debug';
 import { v4 as uuidv4 } from 'uuid';
-import { getCodeAnalysisAndParseResults } from './analysis';
+import { getCodeTestResults } from './analysis';
 import { getSastSettings } from './settings';
 import {
   getCodeDisplayedOutput,
@@ -33,17 +33,20 @@ export const codePlugin: EcosystemPlugin = {
       // Currently code supports only one path
       const path = paths[0];
 
-      const sarifTypedResult = await getCodeAnalysisAndParseResults(
+      const testResults = await getCodeTestResults(
         path,
         options,
         sastSettings,
         requestId,
       );
 
-      if (!sarifTypedResult) {
+      if (!testResults) {
         throw new NoSupportedSastFiles();
       }
-      const numOfIssues = sarifTypedResult!.runs?.[0].results?.length || 0;
+
+      const sarifTypedResult = testResults?.analysisResults?.sarif;
+
+      const numOfIssues = sarifTypedResult.runs?.[0].results?.length || 0;
       analytics.add('sast-issues-found', numOfIssues);
       let newOrg = options.org;
       if (!newOrg && sastSettings.org) {
@@ -51,11 +54,7 @@ export const codePlugin: EcosystemPlugin = {
       }
       const meta = getMeta({ ...options, org: newOrg }, path);
       const prefix = getPrefix(path);
-      let readableResult = getCodeDisplayedOutput(
-        sarifTypedResult!,
-        meta,
-        prefix,
-      );
+      let readableResult = getCodeDisplayedOutput(testResults, meta, prefix);
       if (numOfIssues > 0 && options['no-markdown']) {
         sarifTypedResult.runs?.[0].results?.forEach(({ message }) => {
           delete message.markdown;

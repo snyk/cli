@@ -11,14 +11,6 @@ orbs:
   go: circleci/go@1.7.1
 
 parameters:
-  node_version:
-    type: string
-    # https://circleci.com/developer/images/image/cimg/node
-    default: '16.16.0'
-  npm_version:
-    type: string
-    # match whatever's bundled with node_version
-    default: '8.1.2'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -31,91 +23,34 @@ parameters:
     type: string
     # https://go.dev/doc/devel/release
     default: '1.19.4'
-  mitmproxy_version:
-    type: string
-    # https://go.dev/doc/devel/release
-    default: '7.0.4'
 
 executors:
   alpine:
     docker:
       - image: alpine:3.17
   docker-node:
-    parameters:
-      node_version:
-        type: string
-        default: << pipeline.parameters.node_version >>
     docker:
-      - image: cimg/node:<< parameters.node_version >>
+      - image: bastiandoetsch209/cli-build:latest
     # Using RAM Disk. https://circleci.com/docs/2.0/executor-types/#ram-disks
     working_directory: /mnt/ramdisk/snyk
+    resource_class: large
+  arm64:
+    machine:
+      image: ubuntu-2204:current
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.large
   linux:
     machine:
-      # https://circleci.com/developer/machine/image/ubuntu-2004
-      image: ubuntu-2004:2022.04.1
-  linux-arm64:
-    machine:
-      # https://circleci.com/docs/2.0/arm-resources/
-      image: ubuntu-2004:2022.04.1
-    resource_class: arm.medium
+      image: ubuntu-2204:current
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: large
   macos:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '13.3.0'
+    resource_class: medium
 
 commands:
-  setup_npm:
-    parameters:
-      node_version:
-        type: string
-        default: << pipeline.parameters.node_version >>
-      npm_version:
-        type: string
-        default: << pipeline.parameters.npm_version >>
-      npm_cache_directory:
-        type: string
-        default: /mnt/ramdisk/.npm
-      npm_global_sudo:
-        type: boolean
-        default: false
-      npm_install:
-        type: boolean
-        default: false
-    steps:
-      - restore_cache:
-          name: Restoring npm cache
-          keys:
-            - npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
-      - when:
-          condition:
-            not: << parameters.npm_global_sudo >>
-          steps:
-            run:
-              name: Installing npm
-              command: npm install -g npm@<< parameters.npm_version >>
-      - when:
-          condition: << parameters.npm_global_sudo >>
-          steps:
-            run:
-              name: Installing npm
-              command: sudo npm install -g npm@<< parameters.npm_version >>
-      - run:
-          name: Configuring npm
-          command: |
-            npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
-            npm config set cache << parameters.npm_cache_directory >>
-            npm config set prefer-offline true
-      - when:
-          condition: << parameters.npm_install >>
-          steps:
-            - run:
-                name: Installing project dependencies
-                command: npm ci
-            - save_cache:
-                name: Saving npm cache
-                key: npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
-                paths:
-                  - << parameters.npm_cache_directory >>
   install_sdks_windows:
     steps:
       - run:
@@ -135,54 +70,49 @@ commands:
           key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
-  install_sdks_unix:
-    steps:
-      - restore_cache:
-          name: Restoring SDKMAN install cache
-          keys:
-            - sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
-      - run:
-          name: Installing SDKMAN
-          # The install script comes from https://get.sdkman.io/?rcupdate=false
-          # We need to disable rcupdate as CircleCI uses a different setup.
-          command: |
-            ./.circleci/vendor/sdkman-install.sh
-            echo -e '\nsource "${HOME}/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
-            source $BASH_ENV
-      - save_cache:
-          name: Saving SDKMAN install cache
-          key: sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
-          paths:
-            - ~/.sdkman
-      - restore_cache:
-          name: Restoring SDKMAN archive cache
-          keys:
-            - sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-unix.sh" }}
-      - run:
-          name: Installing SDKs
-          command: ./.circleci/install-sdks-unix.sh
-      - save_cache:
-          name: Saving SDKMAN archive cache
-          key: sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-unix.sh" }}
-          paths:
-            - ~/.sdkman/archives
-      - aws-cli/install:
-          version: << pipeline.parameters.aws_version >>
-  install_sdks_linux:
-    steps:
-      - run:
-          name: Installing Python
-          command: |
-            sudo apt update
-            sudo apt install python3 python3-pip python-is-python3
-      - install_sdks_unix
   install_sdks_macos:
     steps:
       - run:
-          name: Installing golang
+          name: Installing sdks and tools
           command: |
-            brew install go gradle python elixir composer
-      - install_sdks_unix
+            brew install go gradle python elixir composer gradle@6 maven sbt
+
+  install_sdks_linux:
+    steps:
+      - run:
+          name: Installing sdks and tools
+          command: |
+            sudo apt-get update
+            sudo curl -sL https://deb.nodesource.com/setup_16.x | sudo bash -
+            sudo apt-get install -y \
+            golang-go \
+            musl-tools \
+            git \
+            vim \
+            make \
+            maven \
+            gradle \
+            openjdk-11-jdk-headless \
+            openjdk-11-jre-headless \
+            python3 \
+            python3-pip \
+            python-is-python3 \
+            apt-transport-https \
+            gnupg \
+            -yqq \
+            nodejs \
+            elixir \
+            composer \
+            jq
+
+            pip install awscli --upgrade --user
+
+            echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
+            echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+            sudo curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import
+            sudo chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
+            sudo apt-get update
+            sudo apt-get install sbt
   install_shellspec_dependencies:
     steps:
       - run:
@@ -190,126 +120,46 @@ commands:
           command: |
             ./test/smoke/install-shellspec.sh --yes
             sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
-  start_proxy_linux:
-    steps:
-      - run:
-          name: Create and import proxy certificate
-          working_directory: ./cliv2
-          command: |
-            go run cmd/make-cert/main.go test-corp-proxy
-            sudo cp test-corp-proxy.crt /usr/local/share/ca-certificates
-            sudo update-ca-certificates
-      - restore_cache:
-          name: Restoring mitmproxy install cache
-          key: mitmproxy-install-cache-{{ arch }}-<< pipeline.parameters.mitmproxy_version >>
-      - run:
-          name: Install mitmproxy
-          command: |
-            if ! test -f mitmproxy.tar.gz; then
-              curl -Lo mitmproxy.tar.gz https://snapshots.mitmproxy.org/<< pipeline.parameters.mitmproxy_version >>/mitmproxy-<< pipeline.parameters.mitmproxy_version >>-linux.tar.gz
-            fi
-            sudo tar -xvzf mitmproxy.tar.gz -C /usr/local/bin
-      - save_cache:
-          name: Saving mitmproxy install cache
-          key: mitmproxy-install-cache-{{ arch }}-<< pipeline.parameters.mitmproxy_version >>
-          paths:
-            - mitmproxy.tar.gz
-      - run:
-          name: Start proxy
-          background: true
-          working_directory: ./cliv2
-          command: mitmdump --certs *=test-corp-proxy.pem
-      - run:
-          name: Wait for proxy
-          working_directory: ./cliv2
-          command: |
-            curl -I --verbose --retry 6 --retry-delay 5 --retry-connrefused http://localhost:8080
-            curl -I --verbose --proxy http://localhost:8080 "${SNYK_API}"
-  start_proxy_windows:
-    steps:
-      - run:
-          name: Create and import proxy certificate
-          working_directory: ./cliv2
-          command: |
-            go run cmd/make-cert/main.go test-corp-proxy
-            Import-Certificate -FilePath test-corp-proxy.crt -CertStoreLocation Cert:\LocalMachine\Root
-      - run:
-          name: Start proxy
-          background: true
-          working_directory: ./cliv2
-          command: mitmdump --certs *=test-corp-proxy.pem
-      - run:
-          name: Wait for proxy
-          shell: bash.exe
-          working_directory: ./cliv2
-          command: |
-            curl -I --verbose --retry 6 --retry-delay 5 --retry-connrefused http://localhost:8080
-            curl -I --verbose --proxy http://localhost:8080 "${SNYK_API}"
-
 jobs:
-  install:
+  build:
     executor: docker-node
+
     steps:
       - checkout
-      - setup_npm:
-          npm_install: true
-      - persist_to_workspace:
-          root: .
-          paths:
-            - node_modules
-            - packages/*/node_modules
-  lint:
-    executor: docker-node
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - setup_npm
+      - run:
+          name: Installing dependencies
+          command: npm install
       - run:
           name: Linting project
           command: npm run lint
-  build:
-    executor: docker-node
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - setup_npm
       - run:
           name: Building project
-          command: npm run build:prod
+          command: |
+            make pre-build
+            npm run build:prod
+      - run:
+          name: Deciding version
+          command: make binary-releases/version
+
       - persist_to_workspace:
           root: .
           paths:
             - dist/
             - packages/*/dist
             - pysrc
-  version:
-    executor: docker-node
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - setup_npm
-      - run:
-          name: Deciding version
-          command: make binary-releases/version
-      - persist_to_workspace:
-          root: .
-          paths:
+            - ts-binary-wrapper/
             - binary-releases/version
   regression-test:
     parameters:
       test_snyk_command:
         type: string
     executor: docker-node
+
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - install_sdks_linux
       - install_shellspec_dependencies
-      - setup_npm
       - run:
           name: Installing test fixture dependencies
           working_directory: ./test/fixtures/basic-npm
@@ -327,11 +177,13 @@ jobs:
             unset SNYK_API
             unset SNYK_API_KEY
             shellspec -f d -e REGRESSION_TEST=1
+
   test-windows:
     parameters:
       test_snyk_command:
         type: string
     executor: win/default
+
     working_directory: C:\Users\circleci\snyk
     steps:
       - run:
@@ -341,22 +193,24 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_windows
-      - setup_npm:
-          npm_install: true # reinstalling as workspace node_modules is for linux
-          npm_cache_directory: ~\AppData\Local\npm-cache
       - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=$env:SNYK_API_KEY"
+      - run:
+          name: Installing dependencies
+          command: npm install
       - run:
           name: Testing artifact
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+
   test-macos:
     parameters:
       test_snyk_command:
         type: string
     executor: macos
+
     working_directory: /Users/distiller/snyk
     environment:
       HOMEBREW_NO_AUTO_UPDATE: 1
@@ -365,23 +219,25 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_macos
-      - setup_npm:
-          npm_install: true # reinstalling as workspace node_modules is for linux
-          npm_cache_directory: /Users/distiller/.npm
       - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Installing dependencies
+          command: npm install
       - run:
           name: Testing artifact
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: 1
+
   test-alpine:
     parameters:
       test_snyk_command:
         type: string
     executor: alpine
+
     working_directory: /home/circleci/snyk
     steps:
       - checkout
@@ -391,50 +247,48 @@ jobs:
           name: Installing Node.js + other test dependencies
           command: |
             apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
-      - setup_npm:
-          npm_cache_directory: /home/circleci/.npm
-          npm_global_sudo: false
       - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Installing dependencies
+          command: npm install
       - run:
           name: Testing artifact
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+
   test-linux:
     parameters:
       test_snyk_command:
         type: string
-    executor: linux
+    executor: docker-node
+
     working_directory: /home/circleci/snyk
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - install_sdks_linux
-      - run:
-          name: Installing Node.js
-          command: |
-            sudo apt update
-            sudo apt install nodejs npm golang gradle python3 python3-pip elixir composer
-      - setup_npm:
-          npm_cache_directory: /home/circleci/.npm
-          npm_global_sudo: true
       - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Installing dependencies
+          command: npm install
       - run:
           name: Testing artifact
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: 1
+
   test-linux-arm64:
     parameters:
       test_snyk_command:
         type: string
-    executor: linux-arm64
+    executor: arm64
+
     working_directory: /home/circleci/snyk
     steps:
       - checkout
@@ -442,31 +296,21 @@ jobs:
           at: .
       - install_sdks_linux
       - run:
-          name: Installing Node.js
-          command: |
-            sudo apt update
-            sudo apt install nodejs npm golang gradle python3 python3-pip elixir composer
-      - setup_npm:
-          npm_cache_directory: /home/circleci/.npm
-          npm_global_sudo: true
-      - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Installing dependencies
+          command: npm install
       - run:
           name: Testing artifact
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: 1
+
   test-jest:
-    parameters:
-      node_version:
-        type: string
-      npm_global_sudo:
-        type: boolean
-    executor:
-      name: docker-node
-      node_version: << parameters.node_version >>
+    executor: docker-node
+
     environment:
       TEMP: /mnt/ramdisk/tmp
     steps:
@@ -476,20 +320,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - install_sdks_linux
-      - go/install:
-          version: << pipeline.parameters.go_version >>
-      - run:
-          name: Installing test dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install gradle python3 python3-pip elixir composer
-      - setup_npm:
-          npm_global_sudo: << parameters.npm_global_sudo >>
-          node_version: << parameters.node_version >>
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Installing dependencies
+          command: npm install
       - run:
           name: Running unit tests
           command: npm run test:unit
@@ -499,16 +335,17 @@ jobs:
 
   test-tap:
     executor: docker-node
-    parallelism: 2
+
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - install_sdks_linux
-      - setup_npm
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Installing dependencies
+          command: npm install
       - run:
           name: Running Tap tests
           command: |
@@ -520,20 +357,11 @@ jobs:
       artifact:
         type: string
     executor: docker-node
+
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - setup_npm
-      - when:
-          condition:
-            equal: ['snyk-win.exe', << parameters.artifact >>]
-          steps:
-            run:
-              name: Installing osslsigncode
-              command: |
-                sudo apt update
-                sudo apt install osslsigncode
       - run:
           name: Building artifact
           command: make binary-releases/<< parameters.artifact >>
@@ -542,13 +370,13 @@ jobs:
           paths:
             - binary-releases/<< parameters.artifact >>
             - binary-releases/<< parameters.artifact >>.sha256
+
   prepare-release:
     executor: docker-node
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - setup_npm
       - run:
           name: Copy Windows cliv2 binaries to binary-releases staging area
           command: |
@@ -574,7 +402,10 @@ jobs:
             cp cliv2/bin/snyk-linux-arm64 binary-releases/snyk-linux-arm64
             cp cliv2/bin/snyk-linux-arm64.sha256 binary-releases/snyk-linux-arm64.sha256
       - run:
-          name: Signing shasums
+          name: Making TS-Binary-Wrapper (snyk.tgz)
+          command: make binary-releases/snyk.tgz
+      - run:
+          name: Signing all shasums
           command: make binary-releases/sha256sums.txt.asc
       - run:
           name: Making release.json
@@ -591,13 +422,13 @@ jobs:
           root: .
           paths:
             - binary-releases
+
   pre-release:
     executor: docker-node
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - setup_npm
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
@@ -631,7 +462,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - setup_npm
       - gh/setup:
           token: GH_TOKEN
           version: << pipeline.parameters.gh_version >>
@@ -648,29 +478,16 @@ jobs:
   #
   # Snyk CLI v2 Jobs
   #
-  v2-lint:
-    executor: linux
-    working_directory: /home/circleci/snyk
+  v2-lint-and-test:
+    executor: docker-node
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - go/install:
-          version: << pipeline.parameters.go_version >>
       - run:
           name: Lint
           working_directory: ./cliv2
           command: make lint
-
-  v2-unit-test:
-    executor: linux
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - go/install:
-          version: << pipeline.parameters.go_version >>
       - restore_cache:
           key: go-unit-test-{{ arch }}-{{ checksum "cliv2/go.sum" }}
       - run:
@@ -679,7 +496,7 @@ jobs:
           command: make configure whiteboxtest
       - save_cache:
           key: go-unit-test-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths: [/home/circleci/go/pkg/mod]
+          paths: [./go/pkg/mod]
 
   v2-build-artifact:
     parameters:
@@ -690,7 +507,7 @@ jobs:
       c_compiler:
         type: string
         default: ''
-    executor: linux
+    executor: docker-node
     working_directory: /home/circleci/snyk
     steps:
       - checkout
@@ -719,7 +536,7 @@ jobs:
             - ./cliv2/bin
 
   v2-rename-windows-artifact:
-    executor: linux
+    executor: docker-node
     working_directory: /home/circleci/snyk
     steps:
       - checkout
@@ -747,7 +564,7 @@ jobs:
             - ./cliv2/bin
 
   v2-rename-macos-artifact:
-    executor: linux
+    executor: docker-node
     working_directory: /home/circleci/snyk
     steps:
       - checkout
@@ -775,7 +592,7 @@ jobs:
             - ./cliv2/bin
 
   v2-rename-linux-artifact:
-    executor: linux
+    executor: docker-node
     working_directory: /home/circleci/snyk
     steps:
       - checkout
@@ -803,7 +620,7 @@ jobs:
             - ./cliv2/bin
 
   v2-rename-linux-arm64-artifact:
-    executor: linux
+    executor: docker-node
     working_directory: /home/circleci/snyk
     steps:
       - checkout
@@ -831,7 +648,7 @@ jobs:
             - ./cliv2/bin
 
   v2-prepare-release:
-    executor: linux
+    executor: docker-node
     working_directory: /home/circleci/snyk
     steps:
       - checkout
@@ -841,7 +658,7 @@ jobs:
           path: ./cliv2/bin
 
   v2-test-linux-amd64:
-    executor: linux
+    executor: docker-node
     working_directory: /home/circleci/snyk
     steps:
       - checkout
@@ -855,28 +672,8 @@ jobs:
           command: |
             export SNYK_TOKEN="${SNYK_API_KEY}"
             ./bin/snyk_tests_linux_amd64
-  v2-test-proxy-linux-amd64:
-    executor: linux
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - go/install:
-          version: << pipeline.parameters.go_version >>
-      - start_proxy_linux
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-linux
-            HTTPS_PROXY: http://localhost:8080
-          command: |
-            export SNYK_TOKEN="${SNYK_API_KEY}"
-            ./bin/snyk_tests_linux_amd64
-
   v2-test-linux-arm64:
-    executor: linux-arm64
+    executor: arm64
     working_directory: /home/circleci/snyk
     steps:
       - checkout
@@ -922,25 +719,6 @@ jobs:
           command: |
             $env:SNYK_TOKEN = $env:SNYK_API_KEY
             ./bin/snyk_tests_windows_amd64.exe
-  v2-test-proxy-windows-amd64:
-    executor: win/default
-    working_directory: C:\Users\circleci\snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - install_sdks_windows
-      - start_proxy_windows
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-win.exe
-            HTTPS_PROXY: http://localhost:8080
-          command: |
-            $env:SNYK_TOKEN = $env:SNYK_API_KEY
-            ./bin/snyk_tests_windows_amd64.exe
-
   v2-sign-darwin-amd64:
     executor: macos
     working_directory: /Users/distiller/snyk
@@ -962,14 +740,9 @@ jobs:
             - cliv2/bin/snyk_darwin_amd64.sha256
 
   v2-sign-windows-amd64:
-    executor: linux
+    executor: docker-node
     working_directory: /home/circleci/snyk
     steps:
-      - run:
-          name: Installing build dependencies
-          command: |
-            sudo apt update
-            sudo apt install osslsigncode
       - checkout
       - attach_workspace:
           at: .
@@ -983,39 +756,36 @@ jobs:
             - cliv2/bin/snyk_windows_amd64.exe
             - cliv2/bin/snyk_windows_amd64.exe.sha256
 
+  test-in-proxy-environment-linux-amd64:
+    executor: linux
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run acceptance tests in a proxied environment
+          working_directory: ./
+          environment:
+            TEST_SNYK_COMMAND: ./bin/snyk-linux
+          command: |
+            export SNYK_TOKEN="${SNYK_API_KEY}"
+            make acceptance-test-with-proxy
+
 workflows:
   version: 2
   test_and_release:
     jobs:
-      - install:
-          name: Install
-      - lint:
-          name: Lint
-          requires:
-            - Install
       - build:
           name: Build
-          requires:
-            - Install
       - test-jest:
           filters:
             branches:
               ignore: master
-          name: Jest Tests (Node v<< matrix.node_version >>)
+          name: Jest Tests
           context: nodejs-install
           requires:
             - Build
-          matrix:
-            parameters:
-              node_version: ['12.22.11', '14.20.0', '16.16.0']
-              npm_global_sudo: [true, false]
-            exclude:
-              - node_version: '12.22.11'
-                npm_global_sudo: false
-              - node_version: '14.20.0'
-                npm_global_sudo: false
-              - node_version: '16.16.0'
-                npm_global_sudo: true
       - test-tap:
           filters:
             branches:
@@ -1024,19 +794,15 @@ workflows:
           context: nodejs-install
           requires:
             - Build
-      - version:
-          name: Version
-          requires:
-            - Build
+
       - build-artifact:
           name: Build (<< matrix.artifact >>)
           requires:
-            - Version
+            - Build
           context: snyk-windows-signing
           matrix:
             parameters:
               artifact:
-                - snyk.tgz
                 - snyk-fix.tgz
                 - snyk-protect.tgz
                 - snyk-alpine
@@ -1097,7 +863,6 @@ workflows:
           context:
             - snyk-cli-pgp-signing
           requires:
-            - Build (snyk.tgz)
             - Build (snyk-fix.tgz)
             - Build (snyk-protect.tgz)
             - Build (snyk-alpine)
@@ -1112,7 +877,6 @@ workflows:
           type: approval
           requires:
             - Prepare Release
-            - Lint
           filters:
             branches:
               only:
@@ -1130,7 +894,7 @@ workflows:
           name: Test Release (<< matrix.executor >>)
           matrix:
             parameters:
-              executor: ['linux', 'win/default', 'macos']
+              executor: ['docker-node', 'win/default', 'macos']
           requires:
             - Pre-Release
           filters:
@@ -1141,20 +905,19 @@ workflows:
           name: Release
           context: nodejs-app-release
           requires:
-            - Test Release (linux)
+            - Test Release (docker-node)
             - Test Release (win/default)
             - Test Release (macos)
           filters:
             branches:
               only:
                 - master
+
       #
       # Snyk CLI v2 Workflow Jobs
       #
-      - v2-lint:
-          name: v2 / Lint
-      - v2-unit-test:
-          name: v2 / Unit Tests
+      - v2-lint-and-test:
+          name: v2 / Lint and Test
       - v2-build-artifact:
           name: v2 / Build (linux/amd64)
           requires:
@@ -1209,13 +972,6 @@ workflows:
           name: v2 / Integration Tests (linux/amd64)
           requires:
             - v2 / Rename linux/amd64 artifact
-      - v2-test-proxy-linux-amd64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Proxy Integration Tests (linux/amd64)
-          requires:
-            - v2 / Rename linux/amd64 artifact
       - v2-test-linux-arm64:
           filters:
             branches:
@@ -1235,13 +991,6 @@ workflows:
             branches:
               ignore: master
           name: v2 / Integration Tests (windows/amd64)
-          requires:
-            - v2 / Rename windows/amd64 artifact
-      - v2-test-proxy-windows-amd64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Proxy Integration Tests (windows/amd64)
           requires:
             - v2 / Rename windows/amd64 artifact
       # Tests for backwards compatibility with CLIv1
@@ -1317,3 +1066,10 @@ workflows:
             - v2 / Rename linux/arm64 artifact
             - v2 / Rename macos/amd64 artifact
             - v2 / Rename windows/amd64 artifact
+      - test-in-proxy-environment-linux-amd64:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Acceptance Tests With Proxy (linux/amd64)
+          requires:
+            - v2 / Rename linux/amd64 artifact

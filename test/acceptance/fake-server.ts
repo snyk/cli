@@ -502,6 +502,22 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send(body);
   });
 
+  // Post state mapping artifact
+  app.post(
+    basePath.replace('v1', 'hidden') +
+      '/orgs/:orgId/cloud/mappings_artifact/tfstate',
+    (req, res) => {
+      const { orgId } = req.params;
+      const artifact = path.join(
+        getFixturePath('iac'),
+        'capture',
+        orgId + '-artifact.json',
+      );
+      fs.writeFileSync(artifact, JSON.stringify(req.body));
+      res.status(201).send({});
+    },
+  );
+
   const listenPromise = (port: string | number) => {
     return new Promise<void>((resolve) => {
       server = http.createServer(app).listen(Number(port), resolve);

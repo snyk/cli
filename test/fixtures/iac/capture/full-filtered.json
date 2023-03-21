@@ -1,0 +1,214 @@
+{
+  "data": {
+    "type": "tfstate",
+    "attributes":{
+  "version": 4,
+  "terraform_version": "1.2.2",
+  "lineage": "050cea66-5a5e-8563-fb9d-886a6e61fd16",
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "count",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-0-elie-foobar"
+          }
+        },
+        {
+          "index_key": 1,
+          "attributes": {
+            "id": "r4p3av-1-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "for_each",
+      "instances": [
+        {
+          "index_key": "bar",
+          "attributes": {
+            "id": "r4p3av-bar-elie-foobar"
+          }
+        },
+        {
+          "index_key": "foo",
+          "attributes": {
+            "id": "r4p3av-foo-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "single",
+      "instances": [
+        {
+          "attributes": {
+            "id": "r4p3av-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "random_string",
+      "name": "prefix",
+      "instances": [
+        {
+          "attributes": {
+            "id": "r4p3av"
+          }
+        }
+      ]
+    },
+    {
+      "module": "module.module_s3_bucket_count[0]",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "this",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-module-count-0-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "module": "module.module_s3_bucket_count[0]",
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "this",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-module-count-0-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "module": "module.module_s3_bucket_count[1]",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "this",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-module-count-1-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "module": "module.module_s3_bucket_count[1]",
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "this",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-module-count-1-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "module": "module.module_s3_bucket_for_each[\"bar\"]",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "this",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-module-foreach-bar-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "module": "module.module_s3_bucket_for_each[\"bar\"]",
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "this",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-module-foreach-bar-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "module": "module.module_s3_bucket_for_each[\"foo\"]",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "this",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-module-foreach-foo-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "module": "module.module_s3_bucket_for_each[\"foo\"]",
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "this",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-module-foreach-foo-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "module": "module.s3_bucket",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "this",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-module-elie-foobar"
+          }
+        }
+      ]
+    },
+    {
+      "module": "module.s3_bucket",
+      "mode": "managed",
+      "type": "aws_s3_bucket_public_access_block",
+      "name": "this",
+      "instances": [
+        {
+          "index_key": 0,
+          "attributes": {
+            "id": "r4p3av-module-elie-foobar"
+          }
+        }
+      ]
+    }
+  ]
+}
+  }
+}

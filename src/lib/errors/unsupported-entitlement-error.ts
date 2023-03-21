@@ -9,7 +9,11 @@ export class UnsupportedEntitlementError extends CustomError {
     entitlement: string,
     userMessage = `This feature is currently not enabled for your org. To enable it, please contact snyk support.`,
   ) {
-    super('Unsupported feature - Missing the ${entitlementName} entitlement');
+    super(
+      `Unsupported feature - Missing the ${
+        entitlement ? entitlement : 'required'
+      } entitlement`,
+    );
     this.entitlement = entitlement;
     this.code = UnsupportedEntitlementError.ERROR_CODE;
     this.userMessage = userMessage;

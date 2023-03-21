@@ -1,3 +1,4 @@
+import { EOL } from 'os';
 import * as Sarif from 'sarif';
 import * as Debug from 'debug';
 import chalk from 'chalk';
@@ -5,23 +6,24 @@ import { icon, color } from '../../../theme';
 import { colorTextBySeverity, SEVERITY } from '../../../snyk-test/common';
 import { rightPadWithSpaces } from '../../../right-pad';
 import { Options } from '../../../types';
-import { Log } from '../types';
+import { CodeTestResults } from '../types';
 
 const debug = Debug('code-output');
 
 export function getCodeDisplayedOutput(
-  codeTest: Log,
+  testResults: CodeTestResults,
   meta: string,
   prefix: string,
 ): string {
   let issues: { [index: string]: string[] } = {};
 
-  if (codeTest.runs[0].results) {
-    const results: Sarif.Result[] = codeTest.runs[0].results;
+  const sarif = testResults.analysisResults.sarif;
+  if (sarif.runs[0].results) {
+    const results: Sarif.Result[] = sarif.runs[0].results;
 
     const rulesMap: {
       [ruleId: string]: Sarif.ReportingDescriptor;
-    } = getRulesMap(codeTest.runs[0].tool.driver.rules || []);
+    } = getRulesMap(sarif.runs[0].tool.driver.rules || []);
 
     issues = getIssues(results, rulesMap);
   }
@@ -31,7 +33,7 @@ export function getCodeDisplayedOutput(
   const summaryOKText = color.status.success(`${icon.VALID} Test completed`);
   const codeIssueSummary = getCodeIssuesSummary(issues);
 
-  return (
+  let summary =
     prefix +
     issuesText +
     '\n' +
@@ -42,8 +44,15 @@ export function getCodeDisplayedOutput(
     chalk.bold('Summary:') +
     '\n\n' +
     codeIssueSummary +
-    '\n\n'
-  );
+    '\n\n';
+
+  if (testResults.reportResults) {
+    summary +=
+      getCodeReportDisplayedOutput(testResults.reportResults.reportUrl) +
+      '\n\n';
+  }
+
+  return summary;
 }
 
 function getCodeIssuesSummary(issues: { [index: string]: string[] }): string {
@@ -106,7 +115,10 @@ function getIssues(
         const artifactLocationUri = location.artifactLocation.uri;
         const startLine = location.region.startLine;
         const text = res.message.text;
-        const title = ruleIdSeverityText;
+        let title = ruleIdSeverityText;
+        if (res.fingerprints?.['identity']) {
+          title += `\n   ID: ${res.fingerprints['identity']}`;
+        }
         const path = `  Path: ${artifactLocationUri}, line ${startLine}`;
         const info = `  Info: ${text}`;
         acc[severity.toLowerCase()].push(`${title} \n ${path} \n ${info}\n\n`);
@@ -161,4 +173,15 @@ export function getMeta(options: Options, path: string): string {
 
 export function getPrefix(path: string): string {
   return chalk.bold.white('\nTesting ' + path + ' ...\n\n');
+}
+
+export function getCodeReportDisplayedOutput(reportUrl: string): string {
+  return (
+    chalk.bold('Code Report Complete') +
+    EOL +
+    EOL +
+    'Your test results are available at:' +
+    EOL +
+    chalk.bold(reportUrl)
+  );
 }

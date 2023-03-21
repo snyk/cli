@@ -1,0 +1,1757 @@
+{
+  "connection": { 
+    "baseURL": "http://proxy.acme--snyk-url.io",
+    "sessionToken": "912D0461-5CCD-417B-8073-1305D1D896C2", 
+    "source": "snyk-cli"
+  },
+  "analysisOptions": { "severity": 1 },
+  "fileOptions": {
+    "paths": ["../goof"],
+    "symlinksEnabled": false
+  },
+  "fileBundle": {
+    "bundleHash": "FFD4CE2E-74CE-4FC8-B868-CC707FD31389",
+    "baseDir": "../goof",
+    "supportedFiles": {
+      "extensions": [
+        ".java",
+        ".es",
+        ".es6",
+        ".htm",
+        ".html",
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".vue"
+      ],
+      "configFiles": [
+        ".dcignore",
+        ".gitignore"
+      ]
+    },
+    "fileIgnores": [
+      "**/.git",
+      "sample-project/goof/**/.DS_Store",
+      "sample-project/goof/**/node_modules",
+      "sample-project/goof/**/*.sock",
+      "sample-project/goof/**/.sass-cache",
+      "sample-project/goof/**/sass",
+      "sample-project/goof/**/config.rb",
+      "sample-project/goof/**/npm-debug.log"
+    ]
+  },
+  "analysisResults": {
+    "type": "sarif",
+    "sarif": {
+      "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+      "version": "2.1.0",
+      "runs": [
+        {
+          "tool": {
+            "driver": {
+              "name": "SnykCode",
+              "semanticVersion": "1.0.0",
+              "version": "1.0.0",
+              "rules": [
+                {
+                  "id": "javascript/HttpToHttps",
+                  "name": "HttpToHttps",
+                  "shortDescription": {
+                    "text": "Cleartext Transmission of Sensitive Information"
+                  },
+                  "defaultConfiguration": {
+                    "level": "warning"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "http",
+                      "server"
+                    ],
+                    "categories":["Security"],
+                    "precision": "very-high",
+                    "cwe": [
+                      "CWE-319"
+                    ]
+                  }
+                },
+                {
+                  "id": "javascript/DisablePoweredBy",
+                  "name": "DisablePoweredBy",
+                  "shortDescription": {
+                    "text": "Information Exposure"
+                  },
+                  "defaultConfiguration": {
+                    "level": "warning"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "express",
+                      "server",
+                      "helmet"
+                    ],
+                    "categories":["Security"],
+                    "precision": "very-high",
+                    "cwe": [
+                      "CWE-200"
+                    ]
+                  }
+                },
+                {
+                  "id": "javascript/JavascriptSelfAssignment",
+                  "name": "JavascriptSelfAssignment",
+                  "shortDescription": {
+                    "text": "JavascriptSelfAssignment"
+                  },
+                  "defaultConfiguration": {
+                    "level": "note"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript"
+                    ],
+                    "categories":["Check"],
+                    "precision": "very-high"
+                  }
+                },
+                {
+                  "id": "javascript/Sqli",
+                  "name": "Sqli",
+                  "shortDescription": {
+                    "text": "SQL Injection"
+                  },
+                  "defaultConfiguration": {
+                    "level": "error"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "tests",
+                      "adapter",
+                      "database"
+                    ],
+                    "categories":["Security"],
+                    "precision": "very-high",
+                    "cwe": [
+                      "CWE-89"
+                    ]
+                  }
+                },
+                {
+                  "id": "javascript/ReplacementRegex",
+                  "name": "ReplacementRegex",
+                  "shortDescription": {
+                    "text": "ReplacementRegex"
+                  },
+                  "defaultConfiguration": {
+                    "level": "warning"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "upgrade",
+                      "maintenance",
+                      "bug",
+                      "newline",
+                      "favicon",
+                      "auth"
+                    ],
+                    "categories":["Defect"],
+                    "precision": "very-high"
+                  }
+                },
+                {
+                  "id": "javascript/NoRateLimitingForExpensiveWebOperation",
+                  "name": "NoRateLimitingForExpensiveWebOperation",
+                  "shortDescription": {
+                    "text": "Allocation of Resources Without Limits or Throttling"
+                  },
+                  "defaultConfiguration": {
+                    "level": "warning"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "file",
+                      "server"
+                    ],
+                    "categories":["Security"],
+                    "precision": "very-high",
+                    "cwe": [
+                      "CWE-770"
+                    ]
+                  }
+                },
+                {
+                  "id": "javascript/NoRateLimitingForExpensiveWebOperation",
+                  "name": "NoRateLimitingForExpensiveWebOperation",
+                  "shortDescription": {
+                    "text": "Allocation of Resources Without Limits or Throttling"
+                  },
+                  "defaultConfiguration": {
+                    "level": "warning"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "file",
+                      "server"
+                    ],
+                    "categories":["Security"],
+                    "precision": "very-high",
+                    "cwe": [
+                      "CWE-770"
+                    ]
+                  }
+                },
+                {
+                  "id": "javascript/CommandInjection",
+                  "name": "CommandInjection",
+                  "shortDescription": {
+                    "text": "Command Injection"
+                  },
+                  "defaultConfiguration": {
+                    "level": "error"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "usability",
+                      "knot",
+                      "tests",
+                      "tap"
+                    ],
+                    "categories":["Security"],
+                    "precision": "very-high",
+                    "cwe": [
+                      "CWE-78"
+                    ]
+                  }
+                },
+                {
+                  "id": "javascript/XSS",
+                  "name": "XSS",
+                  "shortDescription": {
+                    "text": "Cross-site Scripting (XSS)"
+                  },
+                  "defaultConfiguration": {
+                    "level": "error"
+                  },
+                  "help": {
+                    "markdown": "## Details\n\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\n\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser's Same Origin Policy.\n\nInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\n\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they've been correctly escaped in the application code and in this way the attempted attack is diverted.\n\nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware.\n\n### Types of attacks\nThere are a few methods by which XSS can be manipulated:\n\n|Type|Origin|Description|\n|--|--|--|\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user's browser.|\n|**DOM-based**|Client|The attacker forces the user's browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\n\n### Affected environments\nThe following environments are susceptible to an XSS attack:\n\n* Web servers\n* Application servers\n* Web application environments\n\n### How to prevent\nThis section describes the top best practices designed to specifically protect your code:\n\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches.\n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents.\n* Give users the option to disable client-side scripts.\n* Redirect invalid requests.\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "server",
+                      "API",
+                      "tests"
+                    ],
+                    "categories":["Security"],
+                    "precision": "very-high",
+                    "cwe": [
+                      "CWE-79"
+                    ]
+                  }
+                },
+                {
+                  "id": "javascript/CopyPasteError",
+                  "name": "CopyPasteError",
+                  "shortDescription": {
+                    "text": "CopyPasteError"
+                  },
+                  "defaultConfiguration": {
+                    "level": "warning"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "bug",
+                      "tests",
+                      "support"
+                    ],
+                    "categories":["Defect"],
+                    "precision": "very-high"
+                  }
+                },
+                {
+                  "id": "javascript/ContentLengthInCode",
+                  "name": "ContentLengthInCode",
+                  "shortDescription": {
+                    "text": "ContentLengthInCode"
+                  },
+                  "defaultConfiguration": {
+                    "level": "warning"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "bug",
+                      "header",
+                      "contentlength",
+                      "stream"
+                    ],
+                    "categories":["Defect"],
+                    "precision": "very-high"
+                  }
+                }
+              ]
+            }
+          },
+          "results": [
+            {
+              "ruleId": "javascript/HttpToHttps",
+              "ruleIndex": 0,
+              "level": "warning",
+              "message": {
+                "text": "http (used in require) is an insecure protocol and should not be used in new code.",
+                "markdown": "{0} (used in {1}) is an insecure protocol and should not be used in new code.",
+                "arguments": [
+                  "[http](0)",
+                  "[require](1)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/app.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 12,
+                      "endLine": 12,
+                      "startColumn": 12,
+                      "endColumn": 26
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "app.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 12,
+                                "endLine": 12,
+                                "startColumn": 20,
+                                "endColumn": 25
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 1,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "app.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 12,
+                                "endLine": 12,
+                                "startColumn": 12,
+                                "endColumn": 26
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": []
+            },
+            {
+              "ruleId": "javascript/DisablePoweredBy",
+              "ruleIndex": 1,
+              "level": "warning",
+              "message": {
+                "text": "Disable X-Powered-By header for your Express app (consider using Helmet middleware), because it exposes information about the used framework to potential attackers.",
+                "markdown": "Disable X-Powered-By header for your {0} (consider using Helmet middleware), because it exposes information about the used framework to potential attackers.",
+                "arguments": [
+                  "[Express app](0)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/app.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 27,
+                      "endLine": 27,
+                      "startColumn": 11,
+                      "endColumn": 19
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "app.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 27,
+                                "endLine": 27,
+                                "startColumn": 11,
+                                "endColumn": 19
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": [
+                {
+                  "justification": "test-ignore",
+                  "kind": "external"
+                }
+              ]
+            },
+            {
+              "ruleId": "javascript/JavascriptSelfAssignment",
+              "ruleIndex": 2,
+              "level": "note",
+              "message": {
+                "text": "This self assignment has no impact, consider removing it.",
+                "markdown": "This self assignment has no impact, consider removing it.",
+                "arguments": []
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/routes/index.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 186,
+                      "endLine": 186,
+                      "startColumn": 9,
+                      "endColumn": 19
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "sample-project/goof/routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 186,
+                                "endLine": 186,
+                                "startColumn": 9,
+                                "endColumn": 19
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": []
+            },
+            {
+              "ruleId": "javascript/Sqli",
+              "ruleIndex": 3,
+              "level": "error",
+              "message": {
+                "text": "Unsanitized input from the HTTP request body flows into find, where it is used in an SQL query. This may result in an SQL Injection vulnerability.",
+                "markdown": "Unsanitized input from {0} {1} into {2}, where it is used in an SQL query. This may result in an SQL Injection vulnerability.",
+                "arguments": [
+                  "[the HTTP request body](0)",
+                  "[flows](1),(2),(3),(4)",
+                  "[find](5)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/routes/index.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 39,
+                      "endLine": 39,
+                      "startColumn": 3,
+                      "endColumn": 11
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 38,
+                                "endLine": 38,
+                                "startColumn": 15,
+                                "endColumn": 22
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 1,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 38,
+                                "endLine": 38,
+                                "startColumn": 15,
+                                "endColumn": 22
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 2,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 39,
+                                "endLine": 39,
+                                "startColumn": 25,
+                                "endColumn": 32
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 3,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 39,
+                                "endLine": 39,
+                                "startColumn": 15,
+                                "endColumn": 22
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 4,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 39,
+                                "endLine": 39,
+                                "startColumn": 13,
+                                "endColumn": 72
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 5,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 39,
+                                "endLine": 39,
+                                "startColumn": 3,
+                                "endColumn": 11
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": []
+            },
+            {
+              "ruleId": "javascript/ReplacementRegex",
+              "ruleIndex": 4,
+              "level": "warning",
+              "message": {
+                "text": "The pattern regex in replace may be improved to /\\r?\\n$/to handle different new lines.",
+                "markdown": "The pattern {0} in {1} may be improved to {2}{3}.",
+                "arguments": [
+                  "[regex](0)",
+                  "[replace](1)",
+                  "[/\\r?\\n$/](2)",
+                  "[to handle different new lines](3)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/routes/index.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 62,
+                      "endLine": 62,
+                      "startColumn": 12,
+                      "endColumn": 23
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 62,
+                                "endLine": 62,
+                                "startColumn": 25,
+                                "endColumn": 29
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 1,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 62,
+                                "endLine": 62,
+                                "startColumn": 12,
+                                "endColumn": 23
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 2,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 62,
+                                "endLine": 62,
+                                "startColumn": 25,
+                                "endColumn": 29
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 3,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 62,
+                                "endLine": 62,
+                                "startColumn": 25,
+                                "endColumn": 29
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": []
+            },
+            {
+              "ruleId": "javascript/NoRateLimitingForExpensiveWebOperation",
+              "ruleIndex": 5,
+              "level": "warning",
+              "message": {
+                "text": "This endpoint handler performs a system command execution and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
+                "markdown": "This {0} performs {1} and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
+                "arguments": [
+                  "[endpoint handler](0)",
+                  "[a system command execution](1)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/routes/index.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 77,
+                      "endLine": 113,
+                      "startColumn": 18,
+                      "endColumn": 1
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 77,
+                                "endLine": 113,
+                                "startColumn": 18,
+                                "endColumn": 1
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 1,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 86,
+                                "endLine": 86,
+                                "startColumn": 10,
+                                "endColumn": 26
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": []
+            },
+            {
+              "ruleId": "javascript/NoRateLimitingForExpensiveWebOperation",
+              "ruleIndex": 6,
+              "level": "warning",
+              "message": {
+                "text": "This endpoint handler performs a file system operation and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
+                "markdown": "This {0} performs {1} and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
+                "arguments": [
+                  "[endpoint handler](0)",
+                  "[a file system operation](1)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/routes/index.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 166,
+                      "endLine": 221,
+                      "startColumn": 18,
+                      "endColumn": 1
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 166,
+                                "endLine": 221,
+                                "startColumn": 18,
+                                "endColumn": 1
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 1,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 184,
+                                "endLine": 184,
+                                "startColumn": 17,
+                                "endColumn": 28
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": []
+            },
+            {
+              "ruleId": "javascript/CommandInjection",
+              "ruleIndex": 7,
+              "level": "error",
+              "message": {
+                "text": "Unsanitized input from the HTTP request body flows into child_process.exec, where it is used to build a shell command. This may result in a Command Injection vulnerability.",
+                "markdown": "Unsanitized input from {0} {1} into {2}, where it is used to build a shell command. This may result in a Command Injection vulnerability.",
+                "arguments": [
+                  "[the HTTP request body](0)",
+                  "[flows](1),(2),(3),(4),(5),(6),(7),(8)",
+                  "[child_process.exec](9)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/routes/index.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 86,
+                      "endLine": 86,
+                      "startColumn": 5,
+                      "endColumn": 26
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 80,
+                                "endLine": 80,
+                                "startColumn": 14,
+                                "endColumn": 21
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 1,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 80,
+                                "endLine": 80,
+                                "startColumn": 14,
+                                "endColumn": 21
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 2,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 80,
+                                "endLine": 80,
+                                "startColumn": 7,
+                                "endColumn": 10
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 3,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 82,
+                                "endLine": 82,
+                                "startColumn": 36,
+                                "endColumn": 39
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 4,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 83,
+                                "endLine": 83,
+                                "startColumn": 15,
+                                "endColumn": 18
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 5,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 83,
+                                "endLine": 83,
+                                "startColumn": 15,
+                                "endColumn": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 6,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 83,
+                                "endLine": 83,
+                                "startColumn": 15,
+                                "endColumn": 34
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 7,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 83,
+                                "endLine": 83,
+                                "startColumn": 9,
+                                "endColumn": 11
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 8,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 86,
+                                "endLine": 86,
+                                "startColumn": 10,
+                                "endColumn": 26
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 9,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 86,
+                                "endLine": 86,
+                                "startColumn": 5,
+                                "endColumn": 26
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": []
+            },
+            {
+              "ruleId": "javascript/XSS",
+              "ruleIndex": 8,
+              "level": "error",
+              "message": {
+                "text": "Unsanitized input from the HTTP request body flows into send, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).",
+                "markdown": "Unsanitized input from {0} {1} into {2}, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).",
+                "arguments": [
+                  "[the HTTP request body](0)",
+                  "[flows](1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12),(13),(14),(15),(16),(17),(18),(19)",
+                  "[send](20)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/routes/index.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 109,
+                      "endLine": 109,
+                      "startColumn": 5,
+                      "endColumn": 24
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 80,
+                                "endLine": 80,
+                                "startColumn": 14,
+                                "endColumn": 21
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 1,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 80,
+                                "endLine": 80,
+                                "startColumn": 14,
+                                "endColumn": 21
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 2,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 80,
+                                "endLine": 80,
+                                "startColumn": 7,
+                                "endColumn": 10
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 3,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 82,
+                                "endLine": 82,
+                                "startColumn": 36,
+                                "endColumn": 39
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 4,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 94,
+                                "endLine": 94,
+                                "startColumn": 18,
+                                "endColumn": 21
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 5,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 55,
+                                "endLine": 55,
+                                "startColumn": 16,
+                                "endColumn": 19
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 6,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 56,
+                                "endLine": 56,
+                                "startColumn": 11,
+                                "endColumn": 14
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 7,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 56,
+                                "endLine": 56,
+                                "startColumn": 7,
+                                "endColumn": 7
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 8,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 59,
+                                "endLine": 59,
+                                "startColumn": 18,
+                                "endColumn": 18
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 9,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 61,
+                                "endLine": 61,
+                                "startColumn": 16,
+                                "endColumn": 16
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 10,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 69,
+                                "endLine": 69,
+                                "startColumn": 9,
+                                "endColumn": 9
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 11,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 69,
+                                "endLine": 69,
+                                "startColumn": 9,
+                                "endColumn": 15
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 12,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 74,
+                                "endLine": 74,
+                                "startColumn": 10,
+                                "endColumn": 10
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 13,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 98,
+                                "endLine": 98,
+                                "startColumn": 14,
+                                "endColumn": 17
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 14,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 98,
+                                "endLine": 98,
+                                "startColumn": 5,
+                                "endColumn": 11
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 15,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 100,
+                                "endLine": 100,
+                                "startColumn": 26,
+                                "endColumn": 29
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 16,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 109,
+                                "endLine": 109,
+                                "startColumn": 26,
+                                "endColumn": 29
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 17,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 109,
+                                "endLine": 109,
+                                "startColumn": 26,
+                                "endColumn": 37
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 18,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 109,
+                                "endLine": 109,
+                                "startColumn": 26,
+                                "endColumn": 46
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 19,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 109,
+                                "endLine": 109,
+                                "startColumn": 26,
+                                "endColumn": 56
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 20,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 109,
+                                "endLine": 109,
+                                "startColumn": 5,
+                                "endColumn": 24
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "ruleId": "javascript/CopyPasteError",
+              "ruleIndex": 9,
+              "level": "warning",
+              "message": {
+                "markdown": "Duplicate expressions on both sides of {0} is probably a mistake.",
+                "text": "Duplicate expressions on both sides of an assignment is probably a mistake.",
+                "arguments": [
+                  "[an assignment](0)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/routes/index.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 186,
+                      "endLine": 186,
+                      "startColumn": 9,
+                      "endColumn": 19
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "routes/index.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 186,
+                                "endLine": 186,
+                                "startColumn": 9,
+                                "endColumn": 19
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": []
+            },
+            {
+              "ruleId": "javascript/ContentLengthInCode",
+              "ruleIndex": 10,
+              "level": "warning",
+              "message": {
+                "markdown": "The {0} header should be set by the browser, not in code (in {1}).",
+                "text": "The Content-Length header should be set by the browser, not in code (in setHeader).",
+                "arguments": [
+                  "[Content-Length](0)",
+                  "[setHeader](1)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/utils.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 25,
+                      "endLine": 25,
+                      "startColumn": 5,
+                      "endColumn": 17
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "utils.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 25,
+                                "endLine": 25,
+                                "startColumn": 20,
+                                "endColumn": 35
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 1,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "utils.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 25,
+                                "endLine": 25,
+                                "startColumn": 5,
+                                "endColumn": 17
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": []
+            }
+          ],
+          "properties": {
+            "coverage": [
+              {
+                "files": 8,
+                "isSupported": true,
+                "lang": "JavaScript"
+              },
+              {
+                "files": 1,
+                "isSupported": true,
+                "lang": "HTML"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "status": "COMPLETE",
+    "timing": {
+      "fetchingCode": 3,
+      "analysis": 5043,
+      "queue": 5
+    },
+    "coverage": [
+      {
+        "files": 8,
+        "isSupported": true,
+        "lang": "JavaScript"
+      },
+      {
+        "files": 1,
+        "isSupported": true,
+        "lang": "HTML"
+      }
+    ]
+  },
+  "reportResults": {
+    "projectId": "test-project-id",
+    "snapshotId": "test-snapshot-id",
+    "reportUrl": "test/report/url"
+  }
+}

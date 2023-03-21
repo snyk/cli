@@ -12,6 +12,7 @@ APP_PATH_UNSIGNED="$APP_PATH.unsigned"
 SIGNING_SECRETS=secrets.p12
 
 LOG_PREFIX="--- $(basename "$0"):"
+
 echo "$LOG_PREFIX Signing \"$APP_PATH\""
 
 # create files as needed
@@ -26,7 +27,7 @@ osslsigncode sign -h sha512 \
   -pass "$SIGNING_SECRETS_PASSWORD" \
   -n "Snyk CLI" \
   -i "https://snyk.io" \
-  -t "http://timestamp.comodoca.com/authenticode" \
+  -t "http://timestamp.sectigo.com" \
   -in "$APP_PATH_UNSIGNED" \
   -out "$APP_PATH"
 

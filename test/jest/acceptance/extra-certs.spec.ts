@@ -84,7 +84,7 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
     if (isCLIV2()) {
       // invoke WITHOUT additional certificate set => succeeds
       res3 = await runSnykCLI(
-        `sbom --experimental --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee`,
+        `sbom --experimental --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
         {
           env: {
             ...process.env,
@@ -96,7 +96,7 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
 
       // invoke WITH additional certificate set => succeeds
       res4 = await runSnykCLI(
-        `sbom --experimental --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee`,
+        `sbom --experimental --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
         {
           env: {
             ...process.env,

@@ -4,38 +4,65 @@ import * as path from 'path';
 
 jest.setTimeout(60 * 1000);
 
+const binaryDeploymentsPath = path.join(
+  __dirname,
+  '..',
+  '..',
+  'src',
+  'generated',
+  'binary-deployments.json',
+);
+const binaryDeployments = fs.readFileSync(binaryDeploymentsPath, 'utf8');
+const supportedPlatforms = JSON.parse(binaryDeployments);
+
 describe('Determine Binary Name', () => {
   it('Determine Binary Name (darwin)', async () => {
-    const expected = 'snyk-macos';
+    const expected = supportedPlatforms['darwin']['amd64'];
     const actualx64 = common.determineBinaryName('darwin', 'x64');
     const actualarm64 = common.determineBinaryName('darwin', 'arm64');
+    const actualamd64 = common.determineBinaryName('darwin', 'amd64');
     expect(actualx64).toEqual(expected);
     expect(actualarm64).toEqual(expected);
+    expect(actualamd64).toEqual(expected);
   });
 
   it('Determine Binary Name (win)', async () => {
-    const expected = 'snyk-win.exe';
+    const expected = supportedPlatforms['windows']['amd64'];
     const actualx64 = common.determineBinaryName('win32', 'x64');
-    const actualarm64 = common.determineBinaryName('win32', 'arm64');
+    const actualamd64 = common.determineBinaryName('win32', 'amd64');
     expect(actualx64).toEqual(expected);
-    expect(actualarm64).toEqual(expected);
+    expect(actualamd64).toEqual(expected);
   });
 
   it('Determine Binary Name (linux)', async () => {
-    const expectedx64 = 'snyk-linux';
-    const expectedarm64 = 'snyk-linux-arm64';
+    const expectedx64 = supportedPlatforms['linux']['amd64'];
+    const expectedarm64 = supportedPlatforms['linux']['arm64'];
     const actualx64 = common.determineBinaryName('linux', 'x64');
+    const actualamd64 = common.determineBinaryName('linux', 'amd64');
     const actualarm64 = common.determineBinaryName('linux', 'arm64');
     expect(actualx64).toEqual(expectedx64);
+    expect(actualamd64).toEqual(expectedx64);
     expect(actualarm64).toEqual(expectedarm64);
   });
 
+  it('Determine Binary Name (alpine)', async () => {
+    const expectedx64 = supportedPlatforms['alpine']['amd64'];
+    const actualx64 = common.determineBinaryName('alpine', 'x64');
+    const actualamd64 = common.determineBinaryName('alpine', 'amd64');
+    expect(actualx64).toEqual(expectedx64);
+    expect(actualamd64).toEqual(expectedx64);
+  });
+
   it('Unsupported Architecture', async () => {
-    try {
+    expect(() => {
       common.determineBinaryName('linux', 'mipsel');
-    } catch (e) {
-      expect(e).toBeDefined();
-    }
+    }).toThrow();
+  });
+
+  it('Unsupported OS', async () => {
+    expect(() => {
+      common.determineBinaryName('unknownos', 'amd64');
+    }).toThrow();
   });
 });
 
@@ -195,7 +222,7 @@ describe('Testing binary bootstrapper', () => {
       shasumFile,
       '',
     );
-    expect(shasumDownload).toEqual(0);
+    expect(shasumDownload).toBeUndefined();
     expect(fs.existsSync(shasumFile)).toBeTruthy();
     const expectedShasum = common.getCurrentSha256sum(binaryName, shasumFile);
 
@@ -205,8 +232,11 @@ describe('Testing binary bootstrapper', () => {
       config.getLocalLocation(),
       expectedShasum,
     );
-    expect(binaryDownload).toEqual(0);
+    expect(binaryDownload).toBeUndefined();
     expect(fs.existsSync(config.getLocalLocation())).toBeTruthy();
+
+    const stats = fs.statSync(config.getLocalLocation());
+    expect(stats.mode).toEqual(0o100755);
 
     try {
       // check if the binary is executable
@@ -233,7 +263,7 @@ describe('Testing binary bootstrapper', () => {
       shasumFile,
       'incorrect-shasum',
     );
-    expect(shasumDownload).toEqual(3);
+    expect(shasumDownload?.message).toContain('Shasum comparison failed');
     expect(fs.existsSync(shasumFile)).toBeFalsy();
   });
 
@@ -250,7 +280,9 @@ describe('Testing binary bootstrapper', () => {
       shasumFile,
       'incorrect-shasum',
     );
-    expect(shasumDownload).toEqual(2);
+    expect(shasumDownload?.message).toContain(
+      'Download failed! Server Response:',
+    );
     expect(fs.existsSync(shasumFile)).toBeFalsy();
   });
 
@@ -261,6 +293,19 @@ describe('Testing binary bootstrapper', () => {
       '',
       '',
     );
-    expect(shasumDownload).toEqual(1);
+    expect(shasumDownload).toBeDefined();
+  });
+});
+
+describe('isAnalyticsEnabled ', () => {
+  it('enabled', async () => {
+    delete process.env.SNYK_DISABLE_ANALYTICS;
+    expect(common.isAnalyticsEnabled()).toBeTruthy();
+  });
+
+  it('disabled', async () => {
+    process.env.SNYK_DISABLE_ANALYTICS = '1';
+    expect(common.isAnalyticsEnabled()).toBeFalsy();
+    delete process.env.SNYK_DISABLE_ANALYTICS;
   });
 });

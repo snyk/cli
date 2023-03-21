@@ -13,7 +13,7 @@ describe('Woof command - Language option', () => {
           language: 'he',
         } as any,
       ]),
-    ).toEqual(' !הב ');
+    ).toEqual(' בה! ');
   });
 
   it('Returns default when selected language is invalid', () => {
