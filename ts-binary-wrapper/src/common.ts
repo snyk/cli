@@ -174,7 +174,7 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   const debug = debugEnabled(cliArguments);
 
   if (debug) {
-    console.debug('Executing: ' + executable + ' ' + cliArguments.join(' '));
+    console.error('Executing: ' + executable + ' ' + cliArguments.join(' '));
   }
 
   const res = spawnSync(executable, cliArguments, {
@@ -184,12 +184,12 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
 
   if (res.status !== null) {
     if (debug) {
-      console.debug(res);
+      console.error(res);
     }
 
     return res.status;
   } else {
-    console.debug(res);
+    console.error(res);
     if (!formatErrorMessage((res.error as SpawnError).code)) {
       console.error('Failed to spawn child process. (' + executable + ')');
     }
@@ -271,18 +271,18 @@ export function downloadExecutable(
       if (filenameShasum && actualShasum != filenameShasum) {
         cleanupAfterError(Error('Shasum comparison failed!\n' + debugMessage));
       } else {
-        console.debug(debugMessage);
+        console.error(debugMessage);
 
         // finally rename the file and change permissions
         fs.renameSync(temp, filename);
         fs.chmodSync(filename, 0o755);
-        console.debug('Downloaded successfull! ');
+        console.error('Downloaded successfull! ');
       }
 
       resolve(undefined);
     });
 
-    console.debug(
+    console.error(
       "Downloading from '" + downloadUrl + "' to '" + filename + "'",
     );
 
