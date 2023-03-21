@@ -59,10 +59,7 @@ describe('Basic acceptance test', () => {
 
     expect(resultIndex.status).toEqual(0);
     expect(
-      resultIndex.stdout
-        .toString()
-        .trim()
-        .startsWith(cliVersionForTesting),
+      resultIndex.stdout.toString().includes(cliVersionForTesting),
     ).toBeTruthy();
 
     fs.unlinkSync(executable);
@@ -98,10 +95,7 @@ describe('Basic acceptance test', () => {
     expect(fs.existsSync(executable)).toBeTruthy();
     expect(resultIndex.status).toEqual(0);
     expect(
-      resultIndex.stdout
-        .toString()
-        .trim()
-        .startsWith(cliVersionForTesting),
+      resultIndex.stdout.toString().includes(cliVersionForTesting),
     ).toBeTruthy();
 
     fs.unlinkSync(executable);
