@@ -260,8 +260,7 @@ export function downloadExecutable(
     // shasum events
     shasum.on('error', cleanupAfterError);
     // filestream events
-    fileStream.on('error', cleanupAfterError);
-    fileStream.on('finish', () => {
+    fileStream.on('error', cleanupAfterError).on('finish', () => {
       const actualShasum = shasum.read();
       const debugMessage =
         'Shasums:\n- actual:   ' +
