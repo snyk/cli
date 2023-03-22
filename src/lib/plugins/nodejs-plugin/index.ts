@@ -5,7 +5,13 @@ import * as analytics from '../../analytics';
 import { MissingTargetFileError } from '../../errors/missing-targetfile-error';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 import { DepGraph } from '@snyk/dep-graph';
-import { PkgTree } from 'snyk-nodejs-lockfile-parser';
+import {
+  PkgTree,
+  getLockfileVersionFromFile,
+  NodeLockfileVersion,
+} from 'snyk-nodejs-lockfile-parser';
+
+import * as path from 'path';
 
 export async function inspect(
   root: string,
@@ -26,15 +32,29 @@ export async function inspect(
 
   let scannedProjects: any[] = [];
   if (isResDepGraph(depRes)) {
-    if (depRes.pkgManager.version) {
-      analytics.add('lockfileVersion', depRes.pkgManager.version);
-    }
     scannedProjects = [{ depGraph: depRes }];
   } else {
-    if (depRes.meta?.lockfileVersion) {
-      analytics.add('lockfileVersion', depRes.meta.lockfileVersion);
-    }
     scannedProjects = [{ depTree: depRes }];
+  }
+
+  if (isLockFileBased) {
+    const lockFileFullPath = path.resolve(root, targetFile);
+    const lockfileVersion = getLockfileVersionFromFile(lockFileFullPath);
+    switch (lockfileVersion) {
+      case NodeLockfileVersion.NpmLockV1:
+      case NodeLockfileVersion.YarnLockV1:
+        analytics.add('lockfileVersion', 1);
+        break;
+      case NodeLockfileVersion.NpmLockV2:
+      case NodeLockfileVersion.YarnLockV2:
+        analytics.add('lockfileVersion', 2);
+        break;
+      case NodeLockfileVersion.NpmLockV3:
+        analytics.add('lockfileVersion', 3);
+        break;
+      default:
+        break;
+    }
   }
 
   return {

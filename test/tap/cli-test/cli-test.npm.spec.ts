@@ -21,6 +21,30 @@ export const NpmTests: AcceptanceTests = {
       t.match(req.body.targetFile, undefined, 'target is undefined');
     },
 
+    '`test npm-package with lockfile v2`': (params, utils) => async (t) => {
+      utils.chdirWorkspaces();
+      await params.cli.test('npm-package-lockfile-v2');
+      const req = params.server.popRequest();
+      const depGraph = req.body.depGraph;
+      t.same(
+        depGraph.pkgs.map((p) => p.id).sort(),
+        ['npm-package-lockfile-v2@1.0.0', 'ms@0.7.1', 'debug@2.2.0'].sort(),
+        'depGraph looks fine',
+      );
+    },
+
+    '`test npm-package with lockfile v3`': (params, utils) => async (t) => {
+      utils.chdirWorkspaces();
+      await params.cli.test('npm-package-lockfile-v3');
+      const req = params.server.popRequest();
+      const depGraph = req.body.depGraph;
+      t.same(
+        depGraph.pkgs.map((p) => p.id).sort(),
+        ['npm-package-lockfile-v3@1.0.0', 'ms@0.7.1', 'debug@2.2.0'].sort(),
+        'depGraph looks fine',
+      );
+    },
+
     'test npm-package remoteUrl': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
       process.env.GIT_DIR = 'npm-package/gitdir';
