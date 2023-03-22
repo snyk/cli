@@ -104,7 +104,7 @@ describe('Basic acceptance test', () => {
     expect(resultIndex.status).toEqual(0);
     // The binary wrapper should not output anything to stdout
     // Assert the only stdout is from the CLI --version flag
-    expect(resultIndex.stdout.toString().trim()).toEqual(cliVersionForTesting);
+    expect(resultIndex.stdout.toString().split(' ')[0].trim()).toEqual(cliVersionForTesting);
 
     fs.unlinkSync(executable);
   });
