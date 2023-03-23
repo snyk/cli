@@ -58,6 +58,7 @@ func legacycliWorkflow(
 	debugLogger := invocation.GetLogger()
 	networkAccess := invocation.GetNetworkAccess()
 
+	oauthIsAvailable := config.GetBool(configuration.OAUTH_AUTH_ENABLED)
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
@@ -75,19 +76,21 @@ func legacycliWorkflow(
 		return output, err
 	}
 
-	// The Legacy CLI doesn't support oauth authentication. Oauth authentication is implemented in the Extensible CLI and is added
-	// to the legacy CLI by forwarding network traffic through the internal proxy of the Extensible CLI.
-	// The legacy CLI always expects some sort of token to be available, otherwise some functionality isn't available. This is why we inject
-	// a random token value to bypass these checks and replace the proper authentication headers in the internal proxy.
-	// Injecting the real token here and not in the proxy would create an issue when the token expires during CLI execution.
-	if oauth := config.GetString(auth.CONFIG_KEY_OAUTH_TOKEN); len(oauth) > 0 {
-		envMap := pkg_utils.ToKeyValueMap(os.Environ(), "=")
-		if _, ok := envMap[constants.SNYK_OAUTH_ACCESS_TOKEN_ENV]; !ok {
-			env := []string{constants.SNYK_OAUTH_ACCESS_TOKEN_ENV + "=randomtoken"}
-			cli.AppendEnvironmentVariables(env)
-			debugLogger.Println("Authentication: Oauth token handling delegated to Extensible CLI.")
-		} else {
-			debugLogger.Println("Authentication: Using oauth token from Environment Variable.")
+	if oauthIsAvailable {
+		// The Legacy CLI doesn't support oauth authentication. Oauth authentication is implemented in the Extensible CLI and is added
+		// to the legacy CLI by forwarding network traffic through the internal proxy of the Extensible CLI.
+		// The legacy CLI always expects some sort of token to be available, otherwise some functionality isn't available. This is why we inject
+		// a random token value to bypass these checks and replace the proper authentication headers in the internal proxy.
+		// Injecting the real token here and not in the proxy would create an issue when the token expires during CLI execution.
+		if oauth := config.GetString(auth.CONFIG_KEY_OAUTH_TOKEN); len(oauth) > 0 {
+			envMap := pkg_utils.ToKeyValueMap(os.Environ(), "=")
+			if _, ok := envMap[constants.SNYK_OAUTH_ACCESS_TOKEN_ENV]; !ok {
+				env := []string{constants.SNYK_OAUTH_ACCESS_TOKEN_ENV + "=randomtoken"}
+				cli.AppendEnvironmentVariables(env)
+				debugLogger.Println("Authentication: Oauth token handling delegated to Extensible CLI.")
+			} else {
+				debugLogger.Println("Authentication: Using oauth token from Environment Variable.")
+			}
 		}
 	}
 
@@ -111,11 +114,14 @@ func legacycliWorkflow(
 	defer wrapperProxy.Close()
 
 	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
-	proxyHeaderFunc := func(req *http.Request) error {
-		err := networkAccess.AddHeaders(req)
-		return err
+
+	if oauthIsAvailable {
+		proxyHeaderFunc := func(req *http.Request) error {
+			err := networkAccess.AddHeaders(req)
+			return err
+		}
+		wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
 	}
-	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
 
 	err = wrapperProxy.Start()
 	if err != nil {
