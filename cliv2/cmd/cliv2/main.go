@@ -258,13 +258,20 @@ func writeLogHeader(config configuration.Configuration) {
 		debugLogger.Printf("%-15s %s", name+":", value)
 	}
 
+	oauthEnabled := "Disabled"
+	if config.GetBool(configuration.OAUTH_AUTH_ENABLED) {
+		oauthEnabled = "Enabled"
+	}
+
 	tablePrint("Version", cliv2.GetFullVersion())
 	tablePrint("Platform", runtime.GOOS+" "+runtime.GOARCH)
 	tablePrint("API", config.GetString(configuration.API_URL))
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
-	tablePrint("Authorization", hex.EncodeToString(tokenShaSum)+tokenDetails)
 	tablePrint("Organization", org)
 	tablePrint("Insecure HTTPS", insecureHTTPS)
+	tablePrint("OAuth auth", oauthEnabled)
+	tablePrint("Authorization", hex.EncodeToString(tokenShaSum)+tokenDetails)
+
 }
 
 func MainWithErrorCode() int {
