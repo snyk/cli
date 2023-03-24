@@ -486,6 +486,9 @@ function sendTestPayload(
       }
       if (res.statusCode !== 200) {
         const err = handleTestHttpErrorResponse(res, body);
+        debug('sendTestPayload request URL:', payload.url);
+        debug('sendTestPayload response status code:', res.statusCode);
+        debug('sendTestPayload response body:', body);
         return reject(err);
       }
 
