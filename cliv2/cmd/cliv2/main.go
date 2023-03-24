@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
@@ -20,6 +21,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
@@ -233,20 +235,46 @@ func displayError(err error) {
 	}
 }
 
-func writeLogHeader(config configuration.Configuration) {
-	tokenShaSum := []byte{}
-	tokenDetails := " (type=token)"
-	if token := config.GetString(configuration.AUTHENTICATION_TOKEN); len(token) > 0 {
+func logHeaderAuthorizationInfo(config configuration.Configuration, networkAccess networking.NetworkAccess) (string, string) {
+	oauthEnabled := "Disabled"
+	authorization := ""
+	tokenShaSum := ""
+	tokenDetails := ""
+
+	apiRequest := &http.Request{
+		URL:    config.GetUrl(configuration.API_URL),
+		Header: http.Header{},
+	}
+	err := networkAccess.GetAuthenticator().AddAuthenticationHeader(apiRequest)
+	if err != nil {
+		return authorization, oauthEnabled
+	}
+
+	authHeader := apiRequest.Header.Get("Authorization")
+	splitHeader := strings.Split(authHeader, " ")
+	if len(splitHeader) == 2 {
+		tokenType := splitHeader[0]
+		token := splitHeader[1]
 		temp := sha256.Sum256([]byte(token))
-		tokenShaSum = temp[0:16] // using a partial shasum to avoid sharing a token when sharing debug logs
-	} else {
+		tokenShaSum = hex.EncodeToString(temp[0:16]) + "[...]"
+		tokenDetails = fmt.Sprintf(" (type=%s)", tokenType)
+	}
+
+	if config.GetBool(configuration.OAUTH_AUTH_ENABLED) {
+		oauthEnabled = "Enabled"
 		token, err := auth.GetOAuthToken(config)
 		if token != nil && err == nil {
-			temp := sha256.Sum256([]byte(token.AccessToken))
-			tokenShaSum = temp[0:16] // using a partial shasum to avoid sharing a token when sharing debug logs
-			tokenDetails = fmt.Sprintf(" (type=oauth; expriy=%v)", token.Expiry.UTC())
+			tokenDetails = fmt.Sprintf(" (type=oauth; expiry=%v)", token.Expiry.UTC())
 		}
 	}
+
+	authorization = fmt.Sprintf("%s %s", tokenShaSum, tokenDetails)
+
+	return authorization, oauthEnabled
+}
+
+func writeLogHeader(config configuration.Configuration, networkAccess networking.NetworkAccess) {
+	authorization, oauthEnabled := logHeaderAuthorizationInfo(config, networkAccess)
 
 	org := config.GetString(configuration.ORGANIZATION)
 	insecureHTTPS := "false"
@@ -255,12 +283,7 @@ func writeLogHeader(config configuration.Configuration) {
 	}
 
 	tablePrint := func(name string, value string) {
-		debugLogger.Printf("%-15s %s", name+":", value)
-	}
-
-	oauthEnabled := "Disabled"
-	if config.GetBool(configuration.OAUTH_AUTH_ENABLED) {
-		oauthEnabled = "Enabled"
+		debugLogger.Printf("%-22s %s", name+":", value)
 	}
 
 	tablePrint("Version", cliv2.GetFullVersion())
@@ -269,8 +292,9 @@ func writeLogHeader(config configuration.Configuration) {
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
 	tablePrint("Organization", org)
 	tablePrint("Insecure HTTPS", insecureHTTPS)
-	tablePrint("OAuth auth", oauthEnabled)
-	tablePrint("Authorization", hex.EncodeToString(tokenShaSum)+tokenDetails)
+	tablePrint("Authorization", authorization)
+	tablePrint("Features", "")
+	tablePrint("  --auth-type=oauth", oauthEnabled)
 
 }
 
@@ -315,14 +339,14 @@ func MainWithErrorCode() int {
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, engine)
 
-	if debugEnabled {
-		writeLogHeader(config)
-	}
-
 	// init NetworkAccess
 	networkAccess := engine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
 	//networkAccess.AddHeaderField("User-agent", "snyk-cli/"+cliv2.GetFullVersion())
+
+	if debugEnabled {
+		writeLogHeader(config, networkAccess)
+	}
 
 	extraCaCertFile := config.GetString(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV)
 	if len(extraCaCertFile) > 0 {
