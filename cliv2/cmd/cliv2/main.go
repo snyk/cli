@@ -238,36 +238,37 @@ func displayError(err error) {
 func logHeaderAuthorizationInfo(config configuration.Configuration, networkAccess networking.NetworkAccess) (string, string) {
 	oauthEnabled := "Disabled"
 	authorization := ""
+	tokenShaSum := ""
+	tokenDetails := ""
 
 	apiRequest := &http.Request{
 		URL:    config.GetUrl(configuration.API_URL),
 		Header: http.Header{},
 	}
 	err := networkAccess.GetAuthenticator().AddAuthenticationHeader(apiRequest)
-	if err == nil {
-		tokenShaSum := []byte{}
-		tokenDetails := ""
-
-		authHeader := apiRequest.Header.Get("Authorization")
-		splitHeader := strings.Split(authHeader, " ")
-		if len(splitHeader) == 2 {
-			tokenType := splitHeader[0]
-			token := splitHeader[1]
-			temp := sha256.Sum256([]byte(token))
-			tokenShaSum = temp[0:16]
-			tokenDetails = fmt.Sprintf(" (type=%s)", tokenType)
-
-			if config.GetBool(configuration.OAUTH_AUTH_ENABLED) {
-				oauthEnabled = "Enabled"
-				token, err := auth.GetOAuthToken(config)
-				if token != nil && err == nil {
-					tokenDetails = fmt.Sprintf(" (type=oauth; expriy=%v)", token.Expiry.UTC())
-				}
-			}
-		}
-
-		authorization = hex.EncodeToString(tokenShaSum) + tokenDetails
+	if err != nil {
+		return authorization, oauthEnabled
 	}
+
+	authHeader := apiRequest.Header.Get("Authorization")
+	splitHeader := strings.Split(authHeader, " ")
+	if len(splitHeader) == 2 {
+		tokenType := splitHeader[0]
+		token := splitHeader[1]
+		temp := sha256.Sum256([]byte(token))
+		tokenShaSum = hex.EncodeToString(temp[0:16]) + "[...]"
+		tokenDetails = fmt.Sprintf(" (type=%s)", tokenType)
+	}
+
+	if config.GetBool(configuration.OAUTH_AUTH_ENABLED) {
+		oauthEnabled = "Enabled"
+		token, err := auth.GetOAuthToken(config)
+		if token != nil && err == nil {
+			tokenDetails = fmt.Sprintf(" (type=oauth; expiry=%v)", token.Expiry.UTC())
+		}
+	}
+
+	authorization = fmt.Sprintf("%s %s", tokenShaSum, tokenDetails)
 
 	return authorization, oauthEnabled
 }
