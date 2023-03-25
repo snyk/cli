@@ -342,7 +342,7 @@ func MainWithErrorCode() int {
 	// init NetworkAccess
 	networkAccess := engine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
-	//networkAccess.AddHeaderField("User-agent", "snyk-cli/"+cliv2.GetFullVersion())
+	networkAccess.AddHeaderField("User-Agent", "snyk-cli/"+cliv2.GetFullVersion())
 
 	if debugEnabled {
 		writeLogHeader(config, networkAccess)
