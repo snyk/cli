@@ -58,7 +58,7 @@ func legacycliWorkflow(
 	debugLogger := invocation.GetLogger()
 	networkAccess := invocation.GetNetworkAccess()
 
-	oauthIsAvailable := config.GetBool(configuration.OAUTH_AUTH_ENABLED)
+	oauthIsAvailable := config.GetBool(configuration.FF_OAUTH_AUTH_FLOW_ENABLED)
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
