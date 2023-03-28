@@ -277,9 +277,9 @@ Use for projects that contain a Gradle initialization script.
 
 When you are monitoring a .NET project using NuGet `PackageReference` uses the project name in `project.assets.json` if found.
 
-### `--file=.sln`
+### `--file=<filename>.sln`
 
-Test all .NET projects included in the given `.sln` file.
+Test all .NET projects included in the given `.sln` file. Projects referred to must have supported manifests. See [Snyk for .NET](https://docs.snyk.io/scan-application-code/snyk-open-source/snyk-open-source-supported-languages-and-package-managers/snyk-for-.net#snyk-cli-for-.net-projects)
 
 Example: `snyk test --file=myApp.sln`
 
