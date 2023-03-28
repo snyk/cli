@@ -8,16 +8,16 @@
 
 The `snyk code test` command tests for any known security issues using Static Code Analysis.
 
-For more information see [Using Snyk Code via the CLI](../../products/snyk-code/cli-for-snyk-code/).
+For more information see [Using Snyk Code via the CLI](../../scan-application-code/snyk-code/cli-for-snyk-code/).
 
-For instructions on ignoring issues with `snyk code test` see [Excluding directories and files from the Snyk Code CLI test](../../products/snyk-code/cli-for-snyk-code/excluding-directories-and-files-from-the-snyk-code-cli-test.md).
+For instructions on ignoring issues with `snyk code test` see [Excluding directories and files from the Snyk Code CLI test](../../scan-application-code/snyk-code/cli-for-snyk-code/excluding-directories-and-files-from-the-snyk-code-cli-test.md).
 
 ## Exit codes
 
 Possible exit codes and their meaning:
 
-**0**: success, no vulnerabilities found\
-**1**: action_needed, vulnerabilities found\
+**0**: success (scan completed), no vulnerabilities found\
+**1**: action_needed (scan completed), vulnerabilities found\
 **2**: failure, try to re-run command\
 **3**: failure, no supported projects detected
 

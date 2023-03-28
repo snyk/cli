@@ -26,6 +26,10 @@ Possible exit codes and their meaning:
 
 You can use environment variables to configure the Snyk CLI and and set variables for connecting with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
 
+## Code execution warning
+
+Before scanning your code, review the [Code execution warning for Snyk CLI](https://docs.snyk.io/snyk-cli/code-execution-warning-for-snyk-cli)
+
 ## Debug
 
 Use the `-d` option to output the debug logs.
@@ -48,7 +52,7 @@ The exit code is 2 and the scan ends. No vulnerability information is reported f
 
 To perform the scan, resolve the error and scan again.
 
-Note: If you do not use `--fail-fast`, Snyk scans all the projects but does not report any vulnerabilities for projects it could not scan due to misconfiguration or another error.
+**Note**: If you do not use `--fail-fast`, Snyk scans all the projects but does not report any vulnerabilities for projects it could not scan due to misconfiguration or another error.
 
 ### `--detection-depth=<DEPTH>`
 
@@ -72,6 +76,10 @@ Prune dependency trees, removing duplicate sub-dependencies.
 
 Continues to find all vulnerabilities, but may not find all of the vulnerable paths.
 
+Use this option if any big projects fail to be tested.
+
+Default: false
+
 ### `--print-deps`
 
 Print the dependency tree before sending it for analysis.
@@ -84,7 +92,9 @@ Set or override the remote URL for the repository that you would like to monitor
 
 Include development-only dependencies. Applicable only for some package managers, for example, `devDependencies` in npm or `:development` dependencies in Gemfile.
 
-Default: scan only production dependencies.
+**Note**: This option can be used with Maven, npm, and Yarn projects.
+
+Default: false, scan only production dependencies.
 
 ### `--org=<ORG_ID>`
 
@@ -108,11 +118,15 @@ Specify a package file.
 
 When testing locally or monitoring a project, you can specify the file that Snyk should inspect for package information. When the file is not specified, Snyk tries to detect the appropriate file for your project.
 
+See also the section on [Options for Python projects](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-python-projects)
+
 ### `--package-manager=<PACKAGE_MANAGER_NAME>`
 
 Specify the name of the package manager when the filename specified with the `--file=<FILE>` option is not standard. This allows Snyk to find the file.
 
 Example: `$ snyk monitor --file=req.txt --package-manager=pip`
+
+For more information see [Options for Python projects](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-python-projects)
 
 ### `--unmanaged`
 
@@ -150,7 +164,7 @@ Manually pass a path to a `.snyk` policy file.
 
 Print results on the console as a JSON data structure.
 
-Note: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Editing project attributes from the Snyk CLI](https://docs.snyk.io/features/user-and-group-management/managing-users-and-permissions/managing-permissions#editing-project-attributes-from-the-snyk-cli)
+**Note**: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Editing project attributes from the Snyk CLI](https://docs.snyk.io/features/user-and-group-management/managing-users-and-permissions/managing-permissions#editing-project-attributes-from-the-snyk-cli)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -178,7 +192,13 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
-Set the project tags to one or more values (comma-separated key value pairs with an "=" separator), for example, `--project-tags=department=finance,team=alpha` To clear the project tags set `--project-tags=`
+Set the project tags to one or more values (comma-separated key value pairs with an "=" separator).
+
+Example, `--project-tags=department=finance,team=alpha`
+
+To clear the project tags set `--project-tags=`
+
+For more information including allowable characters see [Project tags](https://docs.snyk.io/snyk-web-ui/introduction-to-snyk-projects/project-tags)
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
@@ -188,13 +208,15 @@ This is an alias for `--project-tags`
 
 For more information about Maven CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven)
 
+**Note**: The `--dev` option can be used with Maven projects. See also the [`--dev` option help](https://docs.snyk.io/snyk-cli/commands/monitor#dev)
+
 ### `--maven-aggregate-project`
 
 Use `--maven-aggregate-project` instead of `--all-projects` when scanning Maven aggregate projects, that is, ones that use modules and inheritance.
 
-When scanning these types of projects, Snyk performs a compile to ensure all modules are resolvable by the Maven reactor.&#x20;
+When scanning these types of projects, Snyk performs a compile to ensure all modules are resolvable by the Maven reactor.
 
-Be sure to run the scan in the same directory as the root pom.xml file.&#x20;
+Be sure to run the scan in the same directory as the root pom.xml file.
 
 Snyk reports test results per pom.xml file.
 
@@ -236,7 +258,7 @@ Use for projects that contain a Gradle initialization script.
 
 ### `--assets-project-name`
 
-When monitoring a .NET project using NuGet `PackageReference` use the project name in `project.assets.json`, if found.
+When you are monitoring a .NET project using NuGet `PackageReference` uses the project name in `project.assets.json` if found.
 
 ### `--packages-folder`
 
@@ -250,7 +272,15 @@ Example: `snyk monitor --file=my-project.sln --project-name-prefix=my-group/`
 
 This is useful when you have multiple projects with the same name in other `.sln` files.
 
-## Option for npm projects
+## Options for npm projects
+
+**Note**: You can use the following options with npm projects:
+
+`--dev`. See the [`--dev` option help](https://docs.snyk.io/snyk-cli/commands/monitor#dev)
+
+`--all-projects` to scan and detect npm projects and all other projects in the directory. See the [`--all-projects` option help](https://docs.snyk.io/snyk-cli/commands/monitor#all-projects)
+
+`--prune-repeated-subdependencies, -p`. See the [--prune-repeated subdependencies option help](https://docs.snyk.io/snyk-cli/commands/monitor#prune-repeated-subdependencies-p)
 
 ### `--strict-out-of-sync=true|false`
 
@@ -260,6 +290,12 @@ Default: true
 
 ## Options for Yarn projects
 
+**Note**: You can use the following options with Yarn projects:
+
+`--dev.` See the [`--dev` option help](https://docs.snyk.io/snyk-cli/commands/monitor#dev)
+
+`--prune-repeated-subdependencies, -p.` See the [--prune-repeated subdependencies option help](https://docs.snyk.io/snyk-cli/commands/monitor#prune-repeated-subdependencies-p)
+
 ### `--strict-out-of-sync=true|false`
 
 Control monitoring out-of-sync lockfiles.
@@ -268,7 +304,13 @@ Default: true
 
 ### `--yarn-workspaces`
 
-Detect and scan Yarn workspaces. You can specify how many sub-directories to search using `--detection-depth` and exclude directories and files using `--exclude`. Alternatively scan Yarn workspaces with other projects using `--all-projects`
+Detect and scan Yarn Workspaces only when a lockfile is in the root.
+
+You can specify how many sub-directories to search using `--detection-depth`.
+
+You can exclude directories and files using `--exclude`.
+
+Default:`--all-projects` automatically detects and scans Yarn Workspaces.with other projects.&#x20;
 
 ## Option for CocoaPods projects
 
@@ -282,13 +324,35 @@ Default: false
 
 ### `--command=<COMMAND>`
 
-Indicate which specific Python commands to use based on Python version. The default is `python` which executes your default python version. Run 'python -V' to find out what version it is. If you are using multiple Python versions, use this parameter to specify the correct Python command for execution.
+Indicate which specific Python commands to use based on the Python version.
 
-Default: `python` Example: `--command=python3`
+Snyk uses Python in order to scan and find your dependencies. If you are using multiple Python versions, use this parameter to specify the correct Python command for execution.
+
+Default: `python` This executes your default python version. Run `python -V` to find out what your default version is.
+
+Example: `snyk monitor --command=python3`
 
 ### `--skip-unresolved=true|false`
 
-Allow skipping packages that are not found in the environment.
+Skip packages that cannot be found in the environment, for example, private packages that cannot be accessed from the machine running the scan.
+
+### `--file=` for Python
+
+For a Python project, specify a particular file to monitor.
+
+By default, Snyk scans the requirements.txt file at the top level of the project.
+
+Snyk can recognize any manifest files specified with this option based on `--file=req.txt`. Each (\*) is a wildcard and `req` can appear anywhere in the file name.
+
+For example, Snyk recognizes your manifest file when you have renamed it to r`equirements-dev.txt`.
+
+### `--package-manager=` for Python
+
+Add`--package-manager=pip` to your command if the file name is not `requirements.txt`.
+
+This option is mandatory if you specify a value for the `--file` parameter that is not to a `requirements.txt` file. The test fails without this parameter. Specify this parameter with the value `pip`.
+
+For complete information about the command see [`--package-manager=<PACKAGE_MANAGER_NAME>`](https://docs.snyk.io/snyk-cli/commands/monitor#package-manager-less-than-package_manager_name-greater-than)``
 
 ## Options for scanning using `--unmanaged`
 
@@ -302,7 +366,7 @@ The following `snyk monitor` options can be used with `--unmanaged` as documente
 
 `--target-reference=<TARGET_REFERENCE>`
 
-`--project-name=<PROJECT_NAME>`
+`--project-name=<c-project>`
 
 There are also special options.
 
@@ -310,7 +374,7 @@ There are also special options.
 
 Specify the maximum level of archive extraction.
 
-Usage: `--max-depth=1`&#x20;
+Usage: `--max-depth=1`
 
 Use 0 (zero, the default) to disable archive extraction completely.
 
@@ -318,7 +382,7 @@ Use 0 (zero, the default) to disable archive extraction completely.
 
 Display dependencies.
 
-Use use this option to see what files contributed to each dependency identified.
+Use this option to see what files contributed to each dependency identified.
 
 To see how confident Snyk is about the identified dependency and its version, use the `--print-deps` or `--print-dep-paths` option.
 
@@ -333,3 +397,7 @@ Use a double dash (`--`) after the complete Snyk command to pass options (argume
 The format is `snyk <command> -- [<context-specific_options>]`
 
 Example: `snyk monitor -- --build-cache`
+
+**Note:** Do not use double quotes in any `-- [<context-specific_options>]`.
+
+Example: Use `snyk monitor --org=myorg -- -s settings.xml` NOT `snyk monitor --org=myorg -- "-s settings.xml"`
