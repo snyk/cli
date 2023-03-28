@@ -22,8 +22,8 @@ See the Maven options section of the [test command help](test.md); `snyk test --
 
 Possible exit codes and their meaning:
 
-**0**: success, Log4Shell not found\
-**1**: action_needed, Log4Shell found\
+**0**: success (scan completed), Log4Shell not found\
+**1**: action_needed (scan completed), Log4Shell found\
 **2**: failure, try to re-run command
 
 ## Debug
