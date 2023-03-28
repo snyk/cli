@@ -34,7 +34,7 @@ Optional. Select the package manager manifest file to use as the basis for the S
 
 ### `--format=<cyclonedx1.4+json|spdx2.3+json|cyclonedx1.4+xml>`
 
-Optional. Specify the output format for the SBOM to be produced.
+Specify the output format for the SBOM to be produced.
 
 The supported formats are CycloneDX 1.4 JSON or XML and SPDX 2.3 JSON.
 
@@ -52,11 +52,11 @@ Optional. Instruct the CLI to autodetect the package manager manifest file to us
 
 Generate an SBOM and display it in the local console.
 
-`snyk sbom --format=cyclonedx+json`
+`snyk sbom --format=cyclonedx1.4+json`
 
 Generate an SBOM and write it to a local file.
 
-`snyk sbom --format=cyclonedx+json > mySBOM.json`
+`snyk sbom --format=cyclonedx1.4+json > mySBOM.json`
 
 ## Share your feedback
 
