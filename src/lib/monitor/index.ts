@@ -265,13 +265,13 @@ async function monitorDepTree(
     return body as MonitorResult;
   } else {
     const userMessage = body && body.userMessage;
+    debug(
+      'the header snyk-request-id is' + res.headers['snyk-request-id'] ??
+        'undefined',
+    );
     if (!userMessage && res.statusCode === 504) {
       throw new ConnectionTimeoutError();
     } else {
-      debug(
-        'the header snyk-request-id is' + res.headers['snyk-request-id'] ??
-          'undefined',
-      );
       throw new MonitorError(res.statusCode, userMessage);
     }
   }
