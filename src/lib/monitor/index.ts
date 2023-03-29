@@ -268,7 +268,10 @@ async function monitorDepTree(
     if (!userMessage && res.statusCode === 504) {
       throw new ConnectionTimeoutError();
     } else {
-      debug("the header snyk-request-id is" + res.headers["snyk-request-id"] ?? 'undefined');
+      debug(
+        'the header snyk-request-id is' + res.headers['snyk-request-id'] ??
+          'undefined',
+      );
       throw new MonitorError(res.statusCode, userMessage);
     }
   }
