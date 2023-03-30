@@ -2,7 +2,7 @@ import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer } from '../../acceptance/fake-server';
 import { isCLIV2 } from '../util/isCLIV2';
 
-jest.setTimeout(1000 * 60 * 5); // 5 minutes
+jest.setTimeout(1000 * 30); // 30 seconds
 
 describe('cli token precedence', () => {
   let server: ReturnType<typeof fakeServer>;
