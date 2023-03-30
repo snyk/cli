@@ -92,11 +92,13 @@ For more information see [Project attributes](https://docs.snyk.io/getting-start
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
-Set the project tags to one or more values (comma-separated key values pairs with an "=" separator).
+Set the project tags to one or more values (comma-separated key value pairs with an "=" separator).
 
 Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
+
+For more information including allowable characters see [Project tags](https://docs.snyk.io/snyk-web-ui/introduction-to-snyk-projects/project-tags)
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
@@ -106,21 +108,23 @@ This is an alias for `--project-tags`
 
 Allow detection of vulnerabilities in your application dependencies from container images, as well as from the operating system, all in one single scan.
 
-In CLI version 1.962.0 and higher, use the `--app-vulns` option with the the `--json` option to see the operating system as well as application vulnerabilities in JSON format in the results.
+In CLI versions 1.1090.0 (2023-01-24) and higher, Snyk scans for application dependencies in your image by default; you do not need to specify the `--app-vulns` option.
+
+In CLI versions 1.962.0 through v1.1089.0, use the `--app-vulns` option with the the `--json` option to see the operating system as well as application vulnerabilities in JSON format in the results.
 
 For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
 
 ### `--exclude-app-vulns`
 
-Allow disabling scans for app vulnerabilities in advance of `app-vulns` being enabled by default.
+Allow disabling scans for app vulnerabilities; in CLI versions 1.1090.0 (2023-01-24) and higher, `app-vulns` is enabled by default.
 
-Cannot be used with `--app-vulns`.
+In earlier releases, cannot be used with `--app-vulns`.
 
 For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
 
 ### `--nested-jars-depth`
 
-When using `--app-vulns` use the `--nested-jars-depth` option to set how many levels of nested jars Snyk is to unpack. Depth must be a number.
+When `app-vulns` is enabled, use the `--nested-jars-depth` option to set how many levels of nested jars Snyk is to unpack. Depth must be a number.
 
 ### `--exclude-base-image-vulns`
 

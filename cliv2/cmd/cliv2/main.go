@@ -260,7 +260,7 @@ func logHeaderAuthorizationInfo(config configuration.Configuration, networkAcces
 		tokenDetails = fmt.Sprintf(" (type=%s)", tokenType)
 	}
 
-	if config.GetBool(configuration.OAUTH_AUTH_ENABLED) {
+	if config.GetBool(configuration.FF_OAUTH_AUTH_FLOW_ENABLED) {
 		oauthEnabled = "Enabled"
 		token, err := auth.GetOAuthToken(config)
 		if token != nil && err == nil {
@@ -305,7 +305,7 @@ func MainWithErrorCode() int {
 	_ = rootCommand.ParseFlags(os.Args)
 
 	// create engine
-	engine = app.CreateAppEngine()
+	engine = app.CreateAppEngineWithLogger(debugLogger)
 	config = engine.GetConfiguration()
 	err = config.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
@@ -342,7 +342,7 @@ func MainWithErrorCode() int {
 	// init NetworkAccess
 	networkAccess := engine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
-	//networkAccess.AddHeaderField("User-agent", "snyk-cli/"+cliv2.GetFullVersion())
+	networkAccess.AddHeaderField("User-Agent", "snyk-cli/"+cliv2.GetFullVersion())
 
 	if debugEnabled {
 		writeLogHeader(config, networkAccess)
