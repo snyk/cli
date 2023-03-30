@@ -98,9 +98,7 @@ describe('cli token precedence', () => {
       beforeEach(async () => {
         // inject config
         for (const key in auth.snykConfig) {
-          await runSnykCLI(`config set ${key}=${auth.snykConfig[key]}`, {
-            env,
-          });
+          await runSnykCLI(`config set ${key}=${auth.snykConfig[key]}`);
         }
       });
 
