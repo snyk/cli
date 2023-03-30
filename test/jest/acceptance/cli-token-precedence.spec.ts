@@ -65,15 +65,15 @@ describe('cli token precedence', () => {
     name: string;
     expectedAuthType: string;
     expectedToken: string;
-    configSetting?: Record<string, string>;
+    snykConfig?: Record<string, string>;
   };
 
   const snykAPIConfig: AuthConfig = {
     name: 'snykAPI',
     expectedAuthType: 'token',
     expectedToken: 'snykApiToken',
-    configSetting: {
-      token: 'snykApiToken',
+    snykConfig: {
+      api: 'snykApiToken',
     },
   };
 
@@ -87,7 +87,7 @@ describe('cli token precedence', () => {
     name: 'snykOAuth',
     expectedAuthType: 'Bearer',
     expectedToken: 'configAccessToken',
-    configSetting: {
+    snykConfig: {
       internal_oauth_token_storage: JSON.stringify(internalOAuthTokenStorage),
       internal_snyk_oauth_enabled: '1',
     },
@@ -95,14 +95,17 @@ describe('cli token precedence', () => {
 
   [snykAPIConfig, snykOAuthConfig].forEach((auth) => {
     describe(`when ${auth.name} is set in config`, () => {
+      beforeEach(async () => {
+        // inject config
+        for (const key in auth.snykConfig) {
+          await runSnykCLI(`config set ${key}=${auth.snykConfig[key]}`, {
+            env,
+          });
+        }
+      });
+
       if (isCLIV2()) {
         it(`should use ${auth.name} auth type set in config`, async () => {
-          for (const key in auth.configSetting) {
-            await runSnykCLI(`config set ${key}=${auth.configSetting[key]}`, {
-              env,
-            });
-          }
-
           await runSnykCLI(`-d`, { env });
           const authHeader = server.popRequest().headers?.authorization;
           expect(authHeader).toEqual(
