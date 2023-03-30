@@ -63,6 +63,7 @@ async function prepareTestConfig(
     iacCachePath,
     userRulesBundlePath: config.IAC_BUNDLE_PATH,
     userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
+    userRulesClientURL: config.IAC_RULES_CLIENT_URL,
     severityThreshold: options.severityThreshold,
     report: !!options.report,
     targetReference: options['target-reference'],
