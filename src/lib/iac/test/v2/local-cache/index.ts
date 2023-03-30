@@ -1,5 +1,5 @@
 import { TestConfig } from '../types';
-import { getLocalRulesBundle } from './rules-bundle';
+import { overrideDevelopmentPaths } from './rules-bundle';
 import { initPolicyEngine } from './policy-engine';
 import { createDirIfNotExists } from '../../../file-utils';
 import { CustomError } from '../../../../errors';
@@ -8,6 +8,7 @@ import { FailedToInitLocalCacheError } from '../../../../../cli/commands/test/ia
 interface LocalCache {
   policyEnginePath: string;
   rulesBundlePath: string;
+  rulesClientURL: string;
 }
 
 export async function initLocalCache(
@@ -17,9 +18,9 @@ export async function initLocalCache(
     await createDirIfNotExists(testConfig.iacCachePath);
 
     const policyEnginePath = await initPolicyEngine(testConfig);
-    const rulesBundlePath = getLocalRulesBundle();
+    const { rulesBundlePath, rulesClientURL } = overrideDevelopmentPaths();
 
-    return { policyEnginePath, rulesBundlePath };
+    return { policyEnginePath, rulesBundlePath, rulesClientURL };
   } catch (err) {
     throw err instanceof CustomError ? err : new FailedToInitLocalCacheError();
   }
