@@ -8,9 +8,9 @@ require (
 	github.com/gofrs/flock v0.8.1
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.9.1
-	github.com/snyk/cli-extension-sbom v0.0.0-20230227081105-8d914d783ad3
-	github.com/snyk/go-application-framework v0.0.0-20230328170739-33c1de01f488
-	github.com/snyk/go-httpauth v0.0.0-20220915135832-0edf62cf8cdd
+	github.com/snyk/cli-extension-sbom v0.0.0-20230331093938-3d6a5dfdae22
+	github.com/snyk/go-application-framework v0.0.0-20230329114722-428327e7b1f3
+	github.com/snyk/go-httpauth v0.0.0-20230328170530-1af63c87b650
 	github.com/snyk/snyk-iac-capture v0.6.0
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
