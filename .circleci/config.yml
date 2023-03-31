@@ -1035,8 +1035,8 @@ workflows:
           name: v2 / Jest Acceptance Tests (alpine/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build (alpine/amd64)
-          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_alpine_amd64
+            - v2 / Rename alpine/amd64 artifact
+          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-alpine
       - test-linux:
           filters:
             branches:
@@ -1100,6 +1100,7 @@ workflows:
             - v2 / Rename linux/arm64 artifact
             - v2 / Rename macos/amd64 artifact
             - v2 / Rename windows/amd64 artifact
+            - v2 / Rename alpine/amd64 artifact
       - test-in-proxy-environment-linux-amd64:
           filters:
             branches:
