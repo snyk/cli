@@ -1,10 +1,12 @@
-# SBOM (beta)
+# SBOM
 
 ## Usage
 
-**Note:** In order to try out the SBOM generation feature, you must use a minimum of CLI version 1.1071.0.
+**Feature availability:** This feature is available to customers on Snyk Enterprise plans.
 
-`snyk sbom --experimental [--file=<file>] --format=<cyclonedx1.4+json|spdx2.3+json|cyclonedx1.4+xml> [--unmanaged] [--targetDirectory=<targetDirectory>]`
+**Note:** In order to run the SBOM generation feature, you must use a minimum of CLI version 1.1071.0.
+
+`$ snyk sbom --format=<cyclonedx1.4+json|spdx2.3+json|cyclonedx1.4+xml> [--file=<file>] [--unmanaged] [--org=<ORG_ID>] [<TARGET_DIRECTORY>]`
 
 ## Description
 
@@ -15,8 +17,7 @@ The `snyk sbom` command enables you to produce an SBOM for a local software proj
 Possible exit codes and their meaning:
 
 **0**: success (process completed), SBOM created successfully\
-**2**: failure, try to re-run command\
-**3**: failure, no supported projects detected
+**2**: failure, try to re-run command
 
 ## Debug
 
@@ -24,27 +25,39 @@ Use the `-d` option to output the debug logs.
 
 ## Options
 
-### `--experimental`
-
-Specify while the `snyk sbom` command is in beta.
-
-### `[--file=<file>]`
-
-Optional. Select the package manager manifest file to use as the basis for the SBOM to be produced.
-
-### `--format=<cyclonedx1.4+json|spdx2.3+json|cyclonedx1.4+xml>`
+### `--format=<cyclonedx1.4+json|cyclonedx1.4+xml|spdx2.3+json>`
 
 Specify the output format for the SBOM to be produced.
 
 The supported formats are CycloneDX 1.4 JSON or XML and SPDX 2.3 JSON.
 
+### `[--file=<file>]`
+
+Optional. Select the package manager manifest file to use as the basis for the SBOM to be produced.
+
 ### `[--unmanaged]`
 
 Optional. Instruct the CLI to build an SBOM based on the unmanaged C/C++ source libraries that are locally available.
 
-### `[--targetDirectory=<targetDirectory]`
+### `[--org=<ORG_ID>]`
 
-Optional. Instruct the CLI to autodetect the package manager manifest file to use within the specified directory.
+Optional. Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. The `<ORG_ID>` influences some features availability and private test limits.
+
+If you have multiple organizations, you can set a default from the CLI using:
+
+`$ snyk config set org=<ORG_ID>`
+
+Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
+
+Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
+
+**Note:** You can also use `--org=<orgslugname>.` The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
+
+For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
+
+### `[<TARGET_DIRECTORY>]`
+
+Optional. Instruct the CLI to autodetect a package manager manifest file to use within the specified directory. If `--file` is set, this option will be ignored.
 
 **Note:** Support for the `--all-projects` option is planned for later versions.
 
@@ -52,16 +65,8 @@ Optional. Instruct the CLI to autodetect the package manager manifest file to us
 
 Generate an SBOM and display it in the local console.
 
-`snyk sbom --format=cyclonedx1.4+json`
+`$ snyk sbom --format=cyclonedx1.4+json`
 
 Generate an SBOM and write it to a local file.
 
-`snyk sbom --format=cyclonedx1.4+json > mySBOM.json`
-
-## Share your feedback
-
-The `snyk sbom` command is offered in beta in order to gather feedback, so your comments are welcome.
-
-Snyk wants to hear what works or does not work with the current options, and what else you would like to see in the future in this area.
-
-If you have a shared Slack channel with Snyk, an account team, or contact with the product team, you are welcome to provide feedback directly. Otherwise you may submit feedback through a request to [Snyk Support](https://support.snyk.io/hc/en-us/requests/new)
+`$ snyk sbom --format=cyclonedx1.4+json > mySBOM.json`

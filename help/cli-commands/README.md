@@ -44,6 +44,10 @@ Commands to find and manage security issues in Infrastructure as Code files.
 
 Find security issues using static code analysis.
 
+### [`snyk sbom`](sbom.md) <a href="#snyk-sbom" id="snyk-sbom"></a>
+
+Produce an SBOM for a local software project in an ecosystem supported by Snyk.
+
 ### [`snyk log4shell`](log4shell.md)
 
 Find Log4Shell vulnerability.
