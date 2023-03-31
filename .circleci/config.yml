@@ -984,7 +984,7 @@ workflows:
           name: v2 / Rename linux/arm64 artifact
           requires:
             - v2 / Build (linux/arm64)
-      - v2-rename-alpine-arm64-artifact:
+      - v2-rename-alpine-amd64-artifact:
           name: v2 / Rename alpine/amd64 artifact
           requires:
             - v2 / Build (alpine/amd64)
