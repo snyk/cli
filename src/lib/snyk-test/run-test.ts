@@ -30,6 +30,8 @@ import {
   NoSupportedManifestsFoundError,
   NotFoundError,
   errorMessageWithRetry,
+  BadGatewayError,
+  ServiceUnavailableError,
 } from '../errors';
 import * as snyk from '../';
 import { isCI } from '../is-ci';
@@ -68,6 +70,7 @@ import { assembleEcosystemPayloads } from './assemble-payloads';
 import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
+import { sleep } from '../common';
 
 const debug = debugModule('snyk:run-test');
 
@@ -234,13 +237,35 @@ async function sendAndParseResults(
     response: any;
   };
   const requests: (() => Promise<TestResponse>)[] = [];
-  for (const payload of payloads) {
+  for (const originalPayload of payloads) {
     const request = async (): Promise<TestResponse> => {
-      /** sendTestPayload() deletes the request.body from the payload once completed. */
-      const originalPayload = Object.assign({}, payload);
-      const response = await sendTestPayload(payload);
-      return { payload, originalPayload, response };
+      let remainingAttempts = 3;
+      let error;
+
+      while (remainingAttempts-- > 0) {
+        debug('sendTestPayload remaining attempts:', remainingAttempts);
+        try {
+          /** sendTestPayload() deletes the request.body from the payload once completed. */
+          const payload = Object.assign({}, originalPayload);
+          const response = await sendTestPayload(payload);
+          return { payload, originalPayload, response };
+        } catch (err) {
+          error = err;
+          if (
+            err instanceof InternalServerError ||
+            err instanceof BadGatewayError ||
+            err instanceof ServiceUnavailableError
+          ) {
+            await sleep(500);
+          } else {
+            break;
+          }
+        }
+      }
+
+      throw error;
     };
+
     requests.push(request);
   }
 
@@ -514,6 +539,14 @@ function handleTestHttpErrorResponse(res, body) {
       break;
     case 500:
       err = new InternalServerError(userMessage);
+      err.innerError = body.stack;
+      break;
+    case 502:
+      err = new BadGatewayError(userMessage);
+      err.innerError = body.stack;
+      break;
+    case 503:
+      err = new ServiceUnavailableError(userMessage);
       err.innerError = body.stack;
       break;
     default:
