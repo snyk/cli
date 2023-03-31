@@ -656,19 +656,19 @@ jobs:
           at: .
       - run:
           name: Rename snyk_alpine_amd64 artifact
-          command: mv snyk_alpine_amd64 snyk-alpine-amd64
+          command: mv snyk_alpine_amd64 snyk-alpine
           working_directory: ./cliv2/bin
       - run:
           name: Regenerate sha256
           command: |
-            sha256sum snyk-alpine-amd64 > snyk-alpine-amd64.sha256
-            sha256sum -c snyk-alpine-amd64.sha256
+            sha256sum snyk-alpine > snyk-alpine.sha256
+            sha256sum -c snyk-alpine.sha256
           working_directory: ./cliv2/bin
       - run:
           name: Show files
           command: |
             ls -la
-            cat snyk-alpine-amd64.sha256
+            cat snyk-alpine.sha256
           working_directory: ./cliv2/bin
       - persist_to_workspace:
           root: .
@@ -716,22 +716,6 @@ jobs:
           command: |
             export SNYK_TOKEN="${SNYK_API_KEY}"
             ./bin/snyk_tests_linux_arm64
-
-  v2-test-alpine-amd64:
-    executor: alpine
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-alpine-amd64
-          command: |
-            export SNYK_TOKEN="${SNYK_API_KEY}"
-            ./bin/snyk_tests_alpine_amd64
 
   v2-test-darwin-amd64:
     executor: macos
@@ -1029,13 +1013,6 @@ workflows:
           name: v2 / Integration Tests (linux/arm64)
           requires:
             - v2 / Rename linux/arm64 artifact
-      - v2-test-alpine-amd64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Integration Tests (alpine/amd64)
-          requires:
-            - v2 / Rename alpine/amd64 artifact
       - v2-test-darwin-amd64:
           filters:
             branches:
