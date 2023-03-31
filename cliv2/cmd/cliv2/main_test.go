@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"testing"
 
 	"github.com/snyk/go-application-framework/pkg/configuration"
@@ -17,8 +18,13 @@ func cleanup() {
 
 func Test_MainWithErrorCode(t *testing.T) {
 	defer cleanup()
+	oldArgs := append([]string{}, os.Args...)
+	os.Args = []string{"snyk", "--version"}
+	defer func() { os.Args = oldArgs }()
+
 	err := MainWithErrorCode()
-	assert.Equal(t, err, 0)
+
+	assert.Equal(t, 0, err)
 }
 
 func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
