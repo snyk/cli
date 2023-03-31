@@ -647,6 +647,34 @@ jobs:
           paths:
             - ./cliv2/bin
 
+  v2-rename-alpine-amd64-artifact:
+    executor: alpine
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Rename snyk_alpine_amd64 artifact
+          command: mv snyk_alpine_amd64 snyk-alpine-amd64
+          working_directory: ./cliv2/bin
+      - run:
+          name: Regenerate sha256
+          command: |
+            shasum -a 256 snyk-alpine-amd64 > snyk-alpine-amd64.sha256
+            shasum -a 256 -c snyk-alpine-amd64.sha256
+          working_directory: ./cliv2/bin
+      - run:
+          name: Show files
+          command: |
+            ls -la
+            cat snyk-alpine-amd64.sha256
+          working_directory: ./cliv2/bin
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./cliv2/bin
+
   v2-prepare-release:
     executor: docker-node
     working_directory: /home/circleci/snyk
@@ -672,6 +700,7 @@ jobs:
           command: |
             export SNYK_TOKEN="${SNYK_API_KEY}"
             ./bin/snyk_tests_linux_amd64
+  
   v2-test-linux-arm64:
     executor: arm64
     working_directory: /home/circleci/snyk
@@ -687,6 +716,22 @@ jobs:
           command: |
             export SNYK_TOKEN="${SNYK_API_KEY}"
             ./bin/snyk_tests_linux_arm64
+
+  v2-test-alpine-amd64:
+    executor: alpine
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run integration tests
+          working_directory: ./cliv2
+          environment:
+            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-alpine-amd64
+          command: |
+            export SNYK_TOKEN="${SNYK_API_KEY}"
+            ./bin/snyk_tests_alpine_amd64
 
   v2-test-darwin-amd64:
     executor: macos
@@ -719,6 +764,7 @@ jobs:
           command: |
             $env:SNYK_TOKEN = $env:SNYK_API_KEY
             ./bin/snyk_tests_windows_amd64.exe
+  
   v2-sign-darwin-amd64:
     executor: macos
     working_directory: /Users/distiller/snyk
@@ -938,6 +984,10 @@ workflows:
           name: v2 / Rename linux/arm64 artifact
           requires:
             - v2 / Build (linux/arm64)
+      - v2-rename-alpine-arm64-artifact:
+          name: v2 / Rename alpine/amd64 artifact
+          requires:
+            - v2 / Build (alpine/amd64)
       - v2-build-artifact:
           name: v2 / Build (darwin/amd64)
           requires:
@@ -979,6 +1029,13 @@ workflows:
           name: v2 / Integration Tests (linux/arm64)
           requires:
             - v2 / Rename linux/arm64 artifact
+      - v2-test-alpine-amd64:
+          filters:
+            branches:
+              ignore: master
+          name: v2 / Integration Tests (alpine/amd64)
+          requires:
+            - v2 / Rename alpine/amd64 artifact
       - v2-test-darwin-amd64:
           filters:
             branches:
