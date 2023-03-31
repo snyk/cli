@@ -661,8 +661,8 @@ jobs:
       - run:
           name: Regenerate sha256
           command: |
-            sha1sum -a 256 snyk-alpine-amd64 > snyk-alpine-amd64.sha256
-            sha1sum -a 256 -c snyk-alpine-amd64.sha256
+            sha256sum snyk-alpine-amd64 > snyk-alpine-amd64.sha256
+            sha256sum -c snyk-alpine-amd64.sha256
           working_directory: ./cliv2/bin
       - run:
           name: Show files
