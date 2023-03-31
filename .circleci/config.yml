@@ -700,7 +700,7 @@ jobs:
           command: |
             export SNYK_TOKEN="${SNYK_API_KEY}"
             ./bin/snyk_tests_linux_amd64
-  
+
   v2-test-linux-arm64:
     executor: arm64
     working_directory: /home/circleci/snyk
@@ -764,7 +764,7 @@ jobs:
           command: |
             $env:SNYK_TOKEN = $env:SNYK_API_KEY
             ./bin/snyk_tests_windows_amd64.exe
-  
+
   v2-sign-darwin-amd64:
     executor: macos
     working_directory: /Users/distiller/snyk
