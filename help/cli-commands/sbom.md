@@ -6,7 +6,7 @@
 
 **Note:** In order to run the SBOM generation feature, you must use a minimum of CLI version 1.1071.0.
 
-`$ snyk sbom --format=<cyclonedx1.4+json|spdx2.3+json|cyclonedx1.4+xml> [--file=<file>] [--unmanaged] [--org=<ORG_ID>] [<TARGET_DIRECTORY>]`
+`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml>|spdx2.3+json [--file=<file>] [--unmanaged] [--org=<ORG_ID>] [<TARGET_DIRECTORY>]`
 
 ## Description
 
