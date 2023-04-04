@@ -85,6 +85,8 @@ export interface IssueData {
   packageManager?: SupportedProjectTypes;
   from?: string[];
   name?: string;
+  type?: string | undefined;
+  legalInstructionsArray?: LegalInstruction[];
 }
 
 export interface IssueDataUnmanaged extends IssueData {

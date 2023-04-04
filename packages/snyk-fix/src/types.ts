@@ -76,7 +76,14 @@ export interface IssuesData {
     id: string;
     severity: SEVERITY;
     title: string;
+    type?: string | undefined;
+    legalInstructionsArray?: LegalInstruction[];
   };
+}
+
+export interface LegalInstruction {
+  licenseName: string;
+  legalContent: string;
 }
 
 /* Remediation Data
