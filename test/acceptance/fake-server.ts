@@ -21,6 +21,7 @@ export type FakeServer = {
   setDepGraphResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
+  setStatusCode: (c: number) => void;
   setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
   unauthorizeAction: (action: string, reason?: string) => void;
   listen: (port: string | number, callback: () => void) => void;
@@ -39,7 +40,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let requests: express.Request[] = [];
   let featureFlags: Map<string, boolean> = featureFlagDefaults();
   let unauthorizedActions = new Map();
+  // the status code to return for the next request, overriding statusCode
   let nextStatusCode: number | undefined = undefined;
+  // the status code to return for all the requests
+  let statusCode: number | undefined = undefined;
   let nextResponse: any = undefined;
   let depGraphResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
@@ -77,6 +81,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setNextStatusCode = (code: number) => {
     nextStatusCode = code;
+  };
+
+  const setStatusCode = (code: number) => {
+    statusCode = code;
   };
 
   const setFeatureFlag = (featureFlag: string, enabled: boolean) => {
@@ -129,7 +137,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     if (
       req.url?.includes('/iac-org-settings') ||
       req.url?.includes('/cli-config/feature-flags/') ||
-      (!nextResponse && !nextStatusCode)
+      (!nextResponse && !nextStatusCode && !statusCode)
     ) {
       return next();
     }
@@ -139,6 +147,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       const code = nextStatusCode;
       nextStatusCode = undefined;
       res.status(code);
+    } else if (statusCode) {
+      res.status(statusCode);
     }
     res.send(response);
   });
@@ -574,6 +584,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setDepGraphResponse,
     setNextResponse,
     setNextStatusCode,
+    setStatusCode,
     setFeatureFlag,
     unauthorizeAction,
     listen,
