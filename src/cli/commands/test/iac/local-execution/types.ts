@@ -169,6 +169,7 @@ export interface PolicyMetadata {
   resolve: string;
   references: string[];
   // Included only in new policies
+  // Only custom rules will have a string remediation field
   remediation?: Partial<
     Record<'terraform' | 'cloudformation' | 'arm' | 'kubernetes', string>
   >;

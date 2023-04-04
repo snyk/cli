@@ -30,6 +30,12 @@ export async function scanFiles(
       const { validatedResult, invalidIssues } = validateResultFromCustomRules(
         result,
       );
+      validatedResult.violatedPolicies.forEach((policy) => {
+        // custom rules will have a remediation field that is a string, so we need to map it to the resolve field.
+        if (typeof policy.remediation === 'string') {
+          policy.resolve = policy.remediation;
+        }
+      });
       scannedFiles.push(validatedResult);
       failedScans = [...failedScans, ...invalidIssues];
     } else {
