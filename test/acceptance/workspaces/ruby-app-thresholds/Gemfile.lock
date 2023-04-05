@@ -1,26 +1,28 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    crass (1.0.4)
+    crass (1.0.6)
     lynx (0.4.0)
-    mini_portile2 (2.3.0)
-    nokogiri (1.8.5)
-      mini_portile2 (~> 2.3.0)
-    nokogumbo (1.5.0)
-      nokogiri
-    sanitize (4.6.2)
+    mini_portile2 (2.8.1)
+    nokogiri (1.14.2)
+      mini_portile2 (~> 2.8.0)
+      racc (~> 1.4)
+    nokogumbo (2.0.5)
+      nokogiri (~> 1.8, >= 1.8.4)
+    racc (1.6.2)
+    sanitize (5.2.1)
       crass (~> 1.0.2)
-      nokogiri (>= 1.4.4)
-      nokogumbo (~> 1.4)
-    yard (0.8.0)
+      nokogiri (>= 1.8.0)
+      nokogumbo (~> 2.0)
+    yard (0.9.20)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   lynx (= 0.4.0)
-  sanitize (= 4.6.2)
-  yard (= 0.8.0)
+  sanitize (= 5.2.1)
+  yard (= 0.9.20)
 
 BUNDLED WITH
-   1.16.5
+   1.17.3
