@@ -1,4 +1,4 @@
 source :rubygems
 
-gem "json"
+gem "json", ">= 2.3.0"
 gem "xml-simple"
