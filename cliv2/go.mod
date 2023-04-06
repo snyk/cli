@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/snyk/cli-extension-sbom v0.0.0-20230331093938-3d6a5dfdae22
-	github.com/snyk/go-application-framework v0.0.0-20230404140303-619207af7ffe
+	github.com/snyk/go-application-framework v0.0.0-20230411133750-4e6236fd6efb
 	github.com/snyk/go-httpauth v0.0.0-20230328170530-1af63c87b650
 	github.com/snyk/snyk-iac-capture v0.6.0
 	github.com/spf13/cobra v1.6.0
