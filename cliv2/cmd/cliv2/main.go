@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -35,6 +36,12 @@ var helpProvided bool
 var debugLogger = log.New(os.Stderr, "", 0)
 
 const unknownCommandMessage string = "unknown command"
+
+type JsonErrorStruct struct {
+	Ok       bool   `json:"ok"`
+	ErrorMsg string `json:"error"`
+	Path     string `json:"path"`
+}
 
 type HandleError int
 
@@ -92,12 +99,12 @@ func runCommand(cmd *cobra.Command, args []string) error {
 	debugLogger.Println("Running", name)
 
 	if len(args) > 0 {
-		config.Set("targetDirectory", args[0])
+		config.Set(configuration.INPUT_DIRECTORY, args[0])
 	}
 
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 	if err == nil {
-		_, err = engine.InvokeWithInput(workflow.NewWorkflowIdentifier("output"), data)
+		_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
 	} else {
 		debugLogger.Println("Failed to execute the command!", err)
 	}
@@ -255,7 +262,18 @@ func handleError(err error) HandleError {
 func displayError(err error) {
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); !ok {
-			fmt.Println(err)
+			if config.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
+				jsonError := JsonErrorStruct{
+					Ok:       false,
+					ErrorMsg: err.Error(),
+					Path:     config.GetString(configuration.INPUT_DIRECTORY),
+				}
+
+				jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
+				fmt.Println(string(jsonErrorBuffer))
+			} else {
+				fmt.Println(err)
+			}
 		}
 	}
 }

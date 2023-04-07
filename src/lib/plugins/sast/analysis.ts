@@ -111,7 +111,9 @@ async function getCodeAnalysis(
       reportOptions: {
         enabled: options.report ?? false,
         projectName: options['project-name'],
+        targetName: options['target-name'],
         targetRef: options['target-reference'],
+        remoteRepoUrl: options['remote-repo-url'],
       },
     }),
     analysisContext: {
