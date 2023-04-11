@@ -391,16 +391,6 @@ func MainWithErrorCode() int {
 		writeLogHeader(config, networkAccess)
 	}
 
-	extraCaCertFile := config.GetString(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV)
-	if len(extraCaCertFile) > 0 {
-		err = networkAccess.AddRootCAs(extraCaCertFile)
-		if err != nil {
-			debugLogger.Printf("Failed to AddRootCAs from '%s' (%v)\n", extraCaCertFile, err)
-		} else {
-			debugLogger.Println("Using additional CAs from file:", extraCaCertFile)
-		}
-	}
-
 	// init Analytics
 	cliAnalytics := engine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
