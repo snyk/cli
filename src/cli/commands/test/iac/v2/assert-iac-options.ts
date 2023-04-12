@@ -43,7 +43,7 @@ const keys: (keyof IaCTestFlags)[] = [
 const allowed = new Set<string>(keys);
 
 export function assertIacV2Options(options: IaCTestFlags): void {
-  // We process the process.argv so we don't get default values.
+  // We process the process.argv so we don't get default values
   for (const key of Object.keys(options)) {
     // The _ property is a special case that contains non
     // flag strings passed to the command line (usually files)
