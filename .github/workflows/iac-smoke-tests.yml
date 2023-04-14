@@ -2,7 +2,7 @@ name: Infrastructure as Code Smoke Tests
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 23 * * *'
   release:
     types: [published]
   workflow_call:
