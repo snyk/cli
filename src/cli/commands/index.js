@@ -11,6 +11,7 @@ const commands = {
   config: async (...args) => callModule(import('./config'), args),
   'update-exclude-policy': async (...args) =>
     callModule(import('./update-exclude-policy'), args),
+  'client-sbom': async (...args) => callModule(import('./client-sbom'), args),
   describe: async (...args) => callModule(import('./describe'), args),
   help: async (...args) => callModule(import('./help'), args),
   ignore: async (...args) => callModule(import('./ignore'), args),

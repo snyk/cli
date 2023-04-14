@@ -15,6 +15,26 @@ export class CommandResult {
   }
 }
 
+export class ClientSbomCommandResult extends CommandResult {
+  protected cyclonedxJsonResult: string;
+
+  public getCyclonedxJsonResult(): string {
+    return this.cyclonedxJsonResult;
+  }
+
+  constructor(stdout: string, cyclonedxJsonResult: string) {
+    super(stdout);
+    this.cyclonedxJsonResult = cyclonedxJsonResult;
+  }
+
+  public static createClientSbomCommandResult(
+    stdout: string,
+    cyclonedxJsonResult: string,
+  ): ClientSbomCommandResult {
+    return new ClientSbomCommandResult(stdout, cyclonedxJsonResult);
+  }
+}
+
 export abstract class TestCommandResult extends CommandResult {
   protected jsonResult = '';
   protected sarifResult = '';

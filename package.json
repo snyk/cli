@@ -59,6 +59,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
+    "@cyclonedx/cyclonedx-library": "^1.13.3",
     "@open-policy-agent/opa-wasm": "^1.6.0",
     "@sentry/node": "^7.34.0",
     "@snyk/cli-interface": "2.12.0",

@@ -14,7 +14,7 @@ import * as runtime from './runtime';
 import * as analytics from '../lib/analytics';
 import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
-import { TestCommandResult } from './commands/types';
+import { ClientSbomCommandResult, TestCommandResult } from './commands/types';
 import { copy } from './copy';
 import { spinner } from '../lib/spinner';
 import * as errors from '../lib/errors/legacy-errors';
@@ -32,6 +32,7 @@ import { IaCErrorCodes } from './commands/test/iac/local-execution/types';
 import stripAnsi from 'strip-ansi';
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';
+import { CyclonedxJsonFileOutputBadInputError } from '../lib/errors/cyclonedx-json-file-output-bad-input-error';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
 import { saveJsonToFileCreatingDirectoryIfRequired } from '../lib/json-file-output';
 import {
@@ -77,6 +78,13 @@ async function runCommand(args: Args) {
     await saveResultsToFile(args.options, 'json', jsonResults);
     const sarifResults = (commandResult as TestCommandResult).getSarifResult();
     await saveResultsToFile(args.options, 'sarif', sarifResults);
+  } else if (args.command === 'client-sbom') {
+    const cyclonedxJsonResults = (commandResult as ClientSbomCommandResult).getCyclonedxJsonResult();
+    await saveResultsToFile(
+      args.options,
+      'cyclonedx-json',
+      cyclonedxJsonResults,
+    );
   }
 
   return res;
@@ -283,6 +291,23 @@ export async function main(): Promise<void> {
       throw new InvalidDetectionDepthValue();
     }
 
+    if (
+      globalArgs.options['cyclonedx-json-file-output'] &&
+      globalArgs.command !== 'client-sbom'
+    ) {
+      throw new UnsupportedOptionCombinationError([
+        globalArgs.command,
+        'cyclonedx-json-file-output',
+      ]);
+    }
+
+    if (globalArgs.options['cyclonedx-json'] && globalArgs.command !== 'client-sbom') {
+      throw new UnsupportedOptionCombinationError([
+        globalArgs.command,
+        'cyclonedx-json',
+      ]);
+    }
+
     validateUnsupportedSarifCombinations(globalArgs);
 
     validateOutputFile(
@@ -294,6 +319,11 @@ export async function main(): Promise<void> {
       globalArgs.options,
       'sarif',
       new SarifFileOutputEmptyError(),
+    );
+    validateOutputFile(
+      globalArgs.options,
+      'cyclonedx-json',
+      new CyclonedxJsonFileOutputBadInputError(),
     );
 
     res = await runCommand(globalArgs);

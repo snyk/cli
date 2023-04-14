@@ -1,7 +1,18 @@
 import {
   CommandResult,
+  ClientSbomCommandResult,
   TestCommandResult,
 } from '../../../../../src/cli/commands/types';
+
+test('createClientSbomCommandResult', () => {
+  const hrRes = ClientSbomCommandResult.createClientSbomCommandResult(
+    'hr result',
+    '{ json result}',
+  );
+  expect(hrRes.toString()).toEqual('hr result');
+  expect(hrRes.getDisplayResults()).toEqual('hr result');
+  expect(hrRes.getCyclonedxJsonResult()).toEqual('{ json result}');
+});
 
 test('createHumanReadableTestCommandResult', () => {
   const hrRes = TestCommandResult.createHumanReadableTestCommandResult(
