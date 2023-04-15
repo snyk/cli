@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -35,6 +36,20 @@ var helpProvided bool
 var debugLogger = log.New(os.Stderr, "", 0)
 
 const unknownCommandMessage string = "unknown command"
+
+type JsonErrorStruct struct {
+	Ok       bool   `json:"ok"`
+	ErrorMsg string `json:"error"`
+	Path     string `json:"path"`
+}
+
+type HandleError int
+
+const (
+	handleErrorFallbackToLegacyCLI HandleError = iota
+	handleErrorShowHelp            HandleError = iota
+	handleErrorUnhandled           HandleError = iota
+)
 
 func getDebugLogger(config configuration.Configuration) *log.Logger {
 	debug := config.GetBool(configuration.DEBUG)
@@ -84,12 +99,12 @@ func runCommand(cmd *cobra.Command, args []string) error {
 	debugLogger.Println("Running", name)
 
 	if len(args) > 0 {
-		config.Set("targetDirectory", args[0])
+		config.Set(configuration.INPUT_DIRECTORY, args[0])
 	}
 
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 	if err == nil {
-		_, err = engine.InvokeWithInput(workflow.NewWorkflowIdentifier("output"), data)
+		_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
 	} else {
 		debugLogger.Println("Failed to execute the command!", err)
 	}
@@ -116,13 +131,18 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *log.Logger) {
 	}
 }
 
-func help(cmd *cobra.Command, args []string) {
+func help(cmd *cobra.Command, args []string) error {
 	helpProvided = true
-	defaultCmd(cmd, args) // TODO handle error
+	args = append(os.Args[1:], "--help")
+	return defaultCmd(cmd, args)
 }
 
 func defaultCmd(cmd *cobra.Command, args []string) error {
+	// prepare the invocation of the legacy CLI by
+	// * enabling stdio
+	// * by specifying the raw cmd args for it
 	config.Set(configuration.WORKFLOW_USE_STDIO, true)
+	config.Set(configuration.RAW_CMD_ARGS, args)
 	_, err := engine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
 	return err
 }
@@ -185,13 +205,16 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 func prepareRootCommand() *cobra.Command {
 	rootCommand := cobra.Command{
 		Use: "snyk",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return defaultCmd(cmd, os.Args[1:])
+		},
 	}
 
 	// help for all commands is handled by the legacy cli
 	// TODO: discuss how to move help to extensions
 	helpCommand := cobra.Command{
-		Use: "help",
-		Run: help,
+		Use:  "help",
+		RunE: help,
 	}
 
 	// some static/global cobra configuration
@@ -201,16 +224,22 @@ func prepareRootCommand() *cobra.Command {
 	rootCommand.FParseErrWhitelist.UnknownFlags = true
 
 	// ensure that help and usage information comes from the legacy cli instead of cobra's default help
-	rootCommand.SetHelpFunc(help)
+	rootCommand.SetHelpFunc(func(c *cobra.Command, args []string) { _ = help(c, args) })
 	rootCommand.SetHelpCommand(&helpCommand)
 	rootCommand.PersistentFlags().AddFlagSet(getGlobalFLags())
 
 	return &rootCommand
 }
 
-func doFallback(err error) (fallback bool) {
-	fallback = false
+func handleError(err error) HandleError {
+	resultError := handleErrorUnhandled
 	preCondition := err != nil && helpProvided == false
+
+	// Cases:
+	// - error from extension -> ignore
+	// - error unknown command -> fallback
+	// - error known command but unknown flag -> help
+
 	if preCondition {
 		errString := err.Error()
 		flagError := strings.Contains(errString, "unknown flag") ||
@@ -219,18 +248,32 @@ func doFallback(err error) (fallback bool) {
 		commandError := strings.Contains(errString, unknownCommandMessage)
 
 		// filter for known cobra errors, since cobra errors shall trigger a fallback, but not others.
-		if commandError || flagError {
-			fallback = true
+		if commandError {
+			resultError = handleErrorFallbackToLegacyCLI
+		} else if flagError {
+			// handle flag errors explicitly since we need to delegate the help to the legacy CLI. This includes disabling the cobra default help/usage
+			resultError = handleErrorShowHelp
 		}
 	}
 
-	return fallback
+	return resultError
 }
 
 func displayError(err error) {
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); !ok {
-			fmt.Println(err)
+			if config.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
+				jsonError := JsonErrorStruct{
+					Ok:       false,
+					ErrorMsg: err.Error(),
+					Path:     config.GetString(configuration.INPUT_DIRECTORY),
+				}
+
+				jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
+				fmt.Println(string(jsonErrorBuffer))
+			} else {
+				fmt.Println(err)
+			}
 		}
 	}
 }
@@ -348,16 +391,6 @@ func MainWithErrorCode() int {
 		writeLogHeader(config, networkAccess)
 	}
 
-	extraCaCertFile := config.GetString(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV)
-	if len(extraCaCertFile) > 0 {
-		err = networkAccess.AddRootCAs(extraCaCertFile)
-		if err != nil {
-			debugLogger.Printf("Failed to AddRootCAs from '%s' (%v)\n", extraCaCertFile, err)
-		} else {
-			debugLogger.Println("Using additional CAs from file:", extraCaCertFile)
-		}
-	}
-
 	// init Analytics
 	cliAnalytics := engine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
@@ -369,10 +402,13 @@ func MainWithErrorCode() int {
 	// run the extensible cli
 	err = rootCommand.Execute()
 
-	// fallback to the legacy cli
-	if doFallback(err) {
+	// fallback to the legacy cli or show help
+	handleErrorResult := handleError(err)
+	if handleErrorResult == handleErrorFallbackToLegacyCLI {
 		debugLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)\n", err)
-		err = defaultCmd(nil, []string{})
+		err = defaultCmd(nil, os.Args[1:])
+	} else if handleErrorResult == handleErrorShowHelp {
+		err = help(nil, []string{})
 	}
 
 	if err != nil {

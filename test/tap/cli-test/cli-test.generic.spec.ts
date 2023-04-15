@@ -405,7 +405,7 @@ export const GenericTests: AcceptanceTests = {
     'error 500 handling': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 
-      params.server.setNextStatusCode(500);
+      params.server.setStatusCode(500);
 
       try {
         await params.cli.test('ruby-app-thresholds');

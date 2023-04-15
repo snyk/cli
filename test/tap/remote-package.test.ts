@@ -187,7 +187,7 @@ test('test for existing remote package with dev-deps only', async (t) => {
 
 test('test for non-existing', async (t) => {
   try {
-    server.setNextStatusCode(500);
+    server.setStatusCode(500);
     const res = await cli.test('@123');
     t.fail('should fail, instead received ' + res);
   } catch (error) {

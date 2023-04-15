@@ -829,6 +829,13 @@ describe('Test snyk code', () => {
       localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
     };
 
+    const reportOptions = {
+      projectName: 'test-project-name',
+      targetName: 'test-target-name',
+      targetRef: 'test-target-ref',
+      remoteRepoUrl: 'https://github.com/owner/repo',
+    };
+
     analyzeFoldersMock.mockResolvedValue(
       sampleAnalyzeFoldersWithReportAndIgnoresResponse,
     );
@@ -837,9 +844,23 @@ describe('Test snyk code', () => {
       {
         path: '',
         code: true,
+        report: true,
+        'project-name': reportOptions.projectName,
+        'target-name': reportOptions.targetName,
+        'target-reference': reportOptions.targetRef,
+        'remote-repo-url': reportOptions.remoteRepoUrl,
       },
       sastSettings,
       'test-id',
+    );
+
+    expect(analyzeFoldersMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reportOptions: {
+          enabled: true,
+          ...reportOptions,
+        },
+      }),
     );
 
     const expectedReportResults = {

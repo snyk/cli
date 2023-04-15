@@ -110,7 +110,7 @@ Default: `<ORG_ID>` that is the current preferred organization in your [Account 
 
 Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
 
-For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
+For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--file=<FILE>`
 
@@ -310,7 +310,7 @@ You can specify how many sub-directories to search using `--detection-depth`.
 
 You can exclude directories and files using `--exclude`.
 
-Default:`--all-projects` automatically detects and scans Yarn Workspaces.with other projects.&#x20;
+Default:`--all-projects` automatically detects and scans Yarn Workspaces.with other projects.
 
 ## Option for CocoaPods projects
 
@@ -352,7 +352,7 @@ Add`--package-manager=pip` to your command if the file name is not `requirements
 
 This option is mandatory if you specify a value for the `--file` parameter that is not to a `requirements.txt` file. The test fails without this parameter. Specify this parameter with the value `pip`.
 
-For complete information about the command see [`--package-manager=<PACKAGE_MANAGER_NAME>`](https://docs.snyk.io/snyk-cli/commands/monitor#package-manager-less-than-package_manager_name-greater-than)``
+For complete information about the command see [`--package-manager=<PACKAGE_MANAGER_NAME>`](https://docs.snyk.io/snyk-cli/commands/monitor#package-manager-less-than-package_manager_name-greater-than)\`\`
 
 ## Options for scanning using `--unmanaged`
 
