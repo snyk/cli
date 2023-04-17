@@ -93,7 +93,7 @@ export async function processNpmWorkspaces(
       const rootLockfileName = pathUtil.join(rootDir, 'package-lock.json');
       const lockContent = getFileContents(root, rootLockfileName);
 
-      const res = lockFileParser.parseNpmLockV2Project(
+      const res = await lockFileParser.parseNpmLockV2Project(
         packageJson.content,
         lockContent.content,
         {
