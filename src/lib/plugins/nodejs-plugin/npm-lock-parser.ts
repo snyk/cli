@@ -125,14 +125,14 @@ async function buildDepGraph(
         options,
       );
     case NodeLockfileVersion.YarnLockV2:
-      return lockFileParser.parseYarnLockV2Project(
+      return await lockFileParser.parseYarnLockV2Project(
         manifestFileContents,
         lockFileContents,
         options,
       );
     case NodeLockfileVersion.NpmLockV2:
     case NodeLockfileVersion.NpmLockV3:
-      return lockFileParser.parseNpmLockV2Project(
+      return await lockFileParser.parseNpmLockV2Project(
         manifestFileContents,
         lockFileContents,
         options,
