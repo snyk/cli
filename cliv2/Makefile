@@ -101,7 +101,7 @@ $(CACHE_DIR)/version.mk: $(CACHE_DIR)
 ifeq ($(CLI_V1_VERSION_TAG), $(_EMPTY))
 	$(eval CLI_V1_VERSION_TAG := $(shell curl --fail --progress-bar -L https://static.snyk.io/cli/latest/version))
 endif
-	@echo "CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG)\nCLI_V2_VERSION_TAG=$(CLI_V2_VERSION_TAG)" > $(CACHE_DIR)/version.mk
+	@printf "CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG)\nCLI_V2_VERSION_TAG=$(CLI_V2_VERSION_TAG)" > $(CACHE_DIR)/version.mk
 	@echo "$(LOG_PREFIX) Using cliv1 version ( $(CLI_V1_VERSION_TAG) )"
 	@echo "$(LOG_PREFIX) Building cliv2 version ( $(CLI_V2_VERSION_TAG) )"
 
@@ -112,7 +112,7 @@ $(CACHE_DIR):
 	@mkdir $@
 
 $(CACHE_DIR)/variables.mk: $(CACHE_DIR)
-	@echo "GOOS=$(GOOS)\nGOARCH=$(GOARCH)\n" > $(CACHE_DIR)/variables.mk
+	@printf "GOOS=$(GOOS)\nGOARCH=$(GOARCH)\n" > $(CACHE_DIR)/variables.mk
 
 $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT):
 	@echo "$(LOG_PREFIX) Generating ( $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) )"
