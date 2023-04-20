@@ -10,6 +10,7 @@ import {
 } from './format/output-format';
 import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
+import { CodeClientError } from './errors';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
 
@@ -78,13 +79,7 @@ export const codePlugin: EcosystemPlugin = {
     } catch (error) {
       let err: Error;
       if (isCodeClientError(error)) {
-        const isUnauthorized = isUnauthorizedError(error)
-          ? 'Unauthorized: '
-          : '';
-        err = new FailedToRunTestError(
-          `${isUnauthorized}Failed to run 'code test'`,
-          error.statusCode,
-        );
+        err = throwCodeClientError(error);
       } else if (error instanceof Error) {
         err = error;
       } else if (isUnauthorizedError(error)) {
@@ -108,6 +103,44 @@ function isCodeClientError(error: object): boolean {
     error.hasOwnProperty('statusCode') &&
     error.hasOwnProperty('statusText') &&
     error.hasOwnProperty('apiName')
+  );
+}
+
+function throwCodeClientError(error: {
+  apiName: string;
+  statusCode: number;
+  statusText: string;
+}): Error {
+  const REPORT_CODES_MESSAGES = {
+    'Report feature is disabled':
+      'Make sure this feature is enabled by contacting support.',
+    'Analysis result set too large':
+      'This repository may exceed the size limit.',
+  };
+  switch (error.apiName) {
+    case 'initReport':
+    case 'getReport': {
+      let additionalHelp =
+        REPORT_CODES_MESSAGES[error.statusText] ??
+        REPORT_CODES_MESSAGES[error.statusCode];
+      // The FF is likely off if we have a 400 when calling the initReport API
+      // In this case override the additionalHelp to reflect this, as we don't want this message in every 400
+      if (error.apiName === 'initReport' && error.statusCode === 400) {
+        additionalHelp = REPORT_CODES_MESSAGES['Report feature is disabled'];
+      }
+
+      return new CodeClientError(
+        error.statusCode,
+        error.statusText,
+        'report',
+        additionalHelp,
+      );
+    }
+  }
+  const isUnauthorized = isUnauthorizedError(error) ? 'Unauthorized: ' : '';
+  return new FailedToRunTestError(
+    `${isUnauthorized}Failed to run 'code test'`,
+    error.statusCode,
   );
 }
 
