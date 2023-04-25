@@ -149,22 +149,7 @@ async function getCodeAnalysis(
     result.analysisResults.sarif,
   );
 
-  // Filter ignored issues when using report
-  if (options.report) {
-    result.analysisResults.sarif = filterIgnoredIssues(
-      result.analysisResults.sarif,
-    );
-  }
-
   return result as CodeAnalysisResults;
-}
-
-function filterIgnoredIssues(codeAnalysis: Log): Log {
-  const results = codeAnalysis.runs[0].results;
-  codeAnalysis.runs[0].results = results?.filter(
-    (rule) => (rule.suppressions?.length ?? 0) === 0,
-  );
-  return codeAnalysis;
 }
 
 function severityToAnalysisSeverity(severity: SEVERITY): AnalysisSeverity {
