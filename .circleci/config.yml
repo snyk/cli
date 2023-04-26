@@ -36,12 +36,12 @@ executors:
     resource_class: large
   arm64:
     machine:
-      image: ubuntu-2204:current
+      image: ubuntu-2204:2023.02.1
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   linux:
     machine:
-      image: ubuntu-2204:current
+      image: ubuntu-2204:2023.02.1
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   macos:
