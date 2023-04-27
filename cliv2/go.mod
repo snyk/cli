@@ -8,8 +8,9 @@ require (
 	github.com/gofrs/flock v0.8.1
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.9.1
+	github.com/rs/zerolog v1.29.1
 	github.com/snyk/cli-extension-sbom v0.0.0-20230331093938-3d6a5dfdae22
-	github.com/snyk/go-application-framework v0.0.0-20230411133750-4e6236fd6efb
+	github.com/snyk/go-application-framework v0.0.0-20230427110433-9dbd3b509e6f
 	github.com/snyk/go-httpauth v0.0.0-20230328170530-1af63c87b650
 	github.com/snyk/snyk-iac-capture v0.6.0
 	github.com/spf13/cobra v1.6.0
@@ -36,6 +37,8 @@ require (
 	github.com/jcmturner/gokrb5/v8 v8.4.3 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
+	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect

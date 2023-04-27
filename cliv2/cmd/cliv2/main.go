@@ -6,13 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 
+	"github.com/rs/zerolog"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -33,7 +34,23 @@ import (
 var engine workflow.Engine
 var config configuration.Configuration
 var helpProvided bool
-var debugLogger = log.New(os.Stderr, "", 0)
+var debugLogger = zerolog.New(zerolog.ConsoleWriter{
+	Out:        os.Stderr,
+	TimeFormat: time.RFC3339,
+	NoColor:    true,
+	PartsOrder: []string{
+		zerolog.TimestampFieldName,
+		"ext",
+		"separator",
+		zerolog.CallerFieldName,
+		zerolog.MessageFieldName,
+	},
+	FieldsExclude: []string{"ext", "separator"},
+	FormatTimestamp: func(i interface{}) string {
+		t, _ := time.Parse(time.RFC3339, i.(string))
+		return strings.ToUpper(fmt.Sprintf("%s", t.UTC().Format(time.RFC3339)))
+	},
+}).With().Str("ext", "main").Str("separator", "-").Timestamp().Logger()
 
 const unknownCommandMessage string = "unknown command"
 
@@ -51,17 +68,13 @@ const (
 	handleErrorUnhandled           HandleError = iota
 )
 
-func getDebugLogger(config configuration.Configuration) *log.Logger {
+func getDebugLogger(config configuration.Configuration) *zerolog.Logger {
 	debug := config.GetBool(configuration.DEBUG)
 	if !debug {
-		debugLogger.SetOutput(io.Discard)
-	} else {
-		debugFlags := config.GetInt(configuration.DEBUG_FORMAT)
-		debugLogger.SetFlags(debugFlags)
-		debugLogger.SetPrefix("main - ")
+		debugLogger = debugLogger.Output(io.Discard)
 	}
 
-	return debugLogger
+	return &debugLogger
 }
 
 func main() {
@@ -91,12 +104,12 @@ func runCommand(cmd *cobra.Command, args []string) error {
 
 	err := config.AddFlagSet(cmd.Flags())
 	if err != nil {
-		debugLogger.Println("Failed to add flags", err)
+		debugLogger.Print("Failed to add flags", err)
 		return err
 	}
 
 	name := getFullCommandString(cmd)
-	debugLogger.Println("Running", name)
+	debugLogger.Print("Running", name)
 
 	if len(args) > 0 {
 		config.Set(configuration.INPUT_DIRECTORY, args[0])
@@ -106,19 +119,19 @@ func runCommand(cmd *cobra.Command, args []string) error {
 	if err == nil {
 		_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
 	} else {
-		debugLogger.Println("Failed to execute the command!", err)
+		debugLogger.Print("Failed to execute the command!", err)
 	}
 
 	return err
 }
 
-func sendAnalytics(analytics analytics.Analytics, debugLogger *log.Logger) {
-	debugLogger.Println("Sending Analytics")
+func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
+	debugLogger.Print("Sending Analytics")
 
 	res, err := analytics.Send()
 	successfullySend := res != nil && 200 <= res.StatusCode && res.StatusCode < 300
 	if err == nil && successfullySend {
-		debugLogger.Println("Analytics sucessfully send")
+		debugLogger.Print("Analytics sucessfully send")
 	} else {
 		var details string
 		if res != nil {
@@ -127,7 +140,7 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *log.Logger) {
 			details = err.Error()
 		}
 
-		debugLogger.Println("Failed to send Analytics:", details)
+		debugLogger.Print("Failed to send Analytics:", details)
 	}
 }
 
@@ -348,15 +361,15 @@ func MainWithErrorCode() int {
 	_ = rootCommand.ParseFlags(os.Args)
 
 	// create engine
-	engine = app.CreateAppEngineWithLogger(debugLogger)
-	config = engine.GetConfiguration()
+	config = configuration.New()
 	err = config.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
-		debugLogger.Println("Failed to add flags to root command", err)
+		debugLogger.Print("Failed to add flags to root command", err)
 	}
 
 	debugEnabled := config.GetBool(configuration.DEBUG)
 	debugLogger := getDebugLogger(config)
+	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(config))
 
 	if noProxyAuth := config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		config.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
@@ -370,7 +383,7 @@ func MainWithErrorCode() int {
 	// init engine
 	err = engine.Init()
 	if err != nil {
-		debugLogger.Println("Failed to init Workflow Engine!", err)
+		debugLogger.Print("Failed to init Workflow Engine!", err)
 		return constants.SNYK_EXIT_CODE_ERROR
 	}
 
