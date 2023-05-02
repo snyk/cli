@@ -116,11 +116,11 @@ Allow disabling scans for app vulnerabilities; in CLI versions 1.1090.0 (2023-01
 
 In earlier releases, cannot be used with `--app-vulns`.
 
-For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
+For more information, see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
 
 ### `--nested-jars-depth`
 
-When `app-vulns` is enabled, use the `--nested-jars-depth` option to set how many levels of nested jars Snyk is to unpack. Depth must be a number.
+When `app-vulns` is enabled, use the `--nested-jars-depth=n` option to set how many levels of nested jars Snyk is to unpack. Depth must be a number.
 
 ### `--exclude-base-image-vulns`
 
@@ -156,4 +156,8 @@ Specify a password to use when connecting to a container registry. This is ignor
 
 `$ snyk container test app:latest --file=Dockerfile --policy-path=path/to/.snyk`
 
-For more information and examples see [Advanced Snyk Container CLI usage](https://docs.snyk.io/snyk-container/snyk-cli-for-container-security/advanced-snyk-container-cli-usage)
+### Refer to a container image by its digest
+
+`$ snyk container test app@sha256:17cb37098f0efb819c075eea4ff2a495be909a396e86ece317a6e3a8968e025c --file=Dockerfile`
+
+For more information and examples, see [Advanced Snyk Container CLI usage](https://docs.snyk.io/snyk-container/snyk-cli-for-container-security/advanced-snyk-container-cli-usage)
