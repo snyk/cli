@@ -375,7 +375,7 @@ Snyk uses Python in order to scan and find your dependencies. If you are using m
 
 Default: `python` This executes your default python version. Run `python -V` to find out what your default version is.
 
-Example: `snyk test--command=python3`
+Example: `snyk test --command=python3`
 
 ### `--skip-unresolved=true|false`
 
@@ -389,7 +389,7 @@ Default: Snyk scans the requirements.txt file at the top level of the project.
 
 Snyk can recognize any manifest files specified with this option based on `--file=req.txt`. Each (\*) is a wildcard and `req` can appear anywhere in the file name.
 
-For example, Snyk recognizes your manifest file when you have renamed it to r`equirements-dev.txt`.
+For example, Snyk recognizes your manifest file when you have renamed it to `requirements-dev.txt`.
 
 ### `--package-manager=` for Python
 
@@ -397,7 +397,7 @@ Add`--package-manager=pip` to your command if the file name is not `requirements
 
 This option is mandatory if you specify a value for the `--file` parameter that is not to a `requirements.txt` file. The test fails without this parameter. Specify this parameter with the value `pip`.
 
-For complete information about the command see [`--package-manager=<PACKAGE_MANAGER_NAME>`](https://docs.snyk.io/snyk-cli/commands/test#package-manager-less-than-package_manager_name-greater-than)\`\`
+For complete information about the command see [`--package-manager=<PACKAGE_MANAGER_NAME>`](https://docs.snyk.io/snyk-cli/commands/test#package-manager-less-than-package_manager_name-greater-than).
 
 ## Options for Go projects
 
@@ -433,7 +433,7 @@ Use 0 (zero, the default) to disable archive extraction completely.
 
 Display dependencies.
 
-Use use this option to see what files contributed to each dependency identified.
+Use this option to see what files contributed to each dependency identified.
 
 To see how confident Snyk is about the identified dependency and its version, use the `--print-deps` or `--print-dep-paths` option.
 
