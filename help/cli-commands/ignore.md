@@ -72,6 +72,8 @@ Human-readable `<REASON>` to ignore this issue.
 
 Default: none
 
+**Note**: Not supported for Snyk Code.
+
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 
 Path to a `.snyk` policy file to pass manually.

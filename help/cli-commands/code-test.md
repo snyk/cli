@@ -29,7 +29,7 @@ You can use environment variables to configure the Snyk CLI and set variables fo
 
 Use the `-d` option to output the debug logs.
 
-## Options for the code test subcommand
+## Options
 
 ### `--org=<ORG_ID>`
 
@@ -46,6 +46,20 @@ Default: `<ORG_ID>` that is the current preferred organization in your [Account 
 Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
 
 For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
+
+### `--report`
+
+**NEW** option: Share results with the Snyk Web UI.
+
+**Feature availability**: This feature is currently in Closed Beta. To obtain access, contact your Snyk account representative.
+
+This creates a project in your Snyk account with a snapshot of the current configuration issues or appends the snapshot to an existing project.
+
+After using this option, log in to the Snyk website and view your projects to see the snapshot.
+
+Example: `$ snyk code test --report` --project-name="PROJECT_NAME"
+
+For more information see [Publishing CLI results to a Snyk Project](https://docs.snyk.io/scan-application-code/snyk-code/cli-for-snyk-code/publishing-cli-results-to-a-snyk-project-and-ignoring-cli-results#publishing-cli-results-to-a-snyk-project)
 
 ### `--json`
 
