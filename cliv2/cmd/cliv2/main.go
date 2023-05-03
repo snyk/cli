@@ -109,7 +109,7 @@ func runCommand(cmd *cobra.Command, args []string) error {
 	}
 
 	name := getFullCommandString(cmd)
-	debugLogger.Print("Running", name)
+	debugLogger.Print("Running ", name)
 
 	if len(args) > 0 {
 		config.Set(configuration.INPUT_DIRECTORY, args[0])
