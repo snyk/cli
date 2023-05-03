@@ -10,10 +10,10 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	github.com/snyk/cli-extension-sbom v0.0.0-20230331093938-3d6a5dfdae22
-	github.com/snyk/go-application-framework v0.0.0-20230427110433-9dbd3b509e6f
+	github.com/snyk/go-application-framework v0.0.0-20230503080200-ff9b694e294a
 	github.com/snyk/go-httpauth v0.0.0-20230328170530-1af63c87b650
 	github.com/snyk/snyk-iac-capture v0.6.0
-	github.com/spf13/cobra v1.6.0
+	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
 )
@@ -29,7 +29,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.1 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.7.6 // indirect
