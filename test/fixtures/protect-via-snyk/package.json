@@ -4,7 +4,7 @@
   "description": "protect-test",
   "main": "index.js",
   "dependencies": {
-    "semver": "^7.3.8",
+    "semver": "^7.4.0",
     "get-uri": "4.0.0",
     "snyk": "1.1118.0"
   },
