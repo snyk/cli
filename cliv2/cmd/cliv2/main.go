@@ -418,7 +418,7 @@ func MainWithErrorCode() int {
 	// fallback to the legacy cli or show help
 	handleErrorResult := handleError(err)
 	if handleErrorResult == handleErrorFallbackToLegacyCLI {
-		debugLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)\n", err)
+		debugLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(nil, os.Args[1:])
 	} else if handleErrorResult == handleErrorShowHelp {
 		err = help(nil, []string{})
@@ -431,7 +431,7 @@ func MainWithErrorCode() int {
 	displayError(err)
 
 	exitCode := cliv2.DeriveExitCode(err)
-	debugLogger.Printf("Exiting with %d\n", exitCode)
+	debugLogger.Printf("Exiting with %d", exitCode)
 
 	return exitCode
 }
