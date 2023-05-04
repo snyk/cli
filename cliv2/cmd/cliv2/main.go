@@ -82,6 +82,32 @@ func main() {
 	os.Exit(errorCode)
 }
 
+func initApplicationConfiguration(config configuration.Configuration) {
+	config.AddAlternativeKeys(configuration.AUTHENTICATION_TOKEN, []string{"snyk_token", "snyk_cfg_api", "api"})
+	config.AddAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN, []string{"snyk_oauth_token", "snyk_docker_token"})
+	config.AddAlternativeKeys(configuration.API_URL, []string{"endpoint"})
+	config.AddAlternativeKeys(configuration.ADD_TRUSTED_CA_FILE, []string{"NODE_EXTRA_CA_CERTS"})
+
+	config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, func(existingValue any) any {
+		alternativeBearerKeys := config.GetAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN)
+		alternativeAuthKeys := config.GetAlternativeKeys(configuration.AUTHENTICATION_TOKEN)
+		alternativeKeys := append(alternativeBearerKeys, alternativeAuthKeys...)
+
+		for _, key := range alternativeKeys {
+			hasPrefix := strings.HasPrefix(key, "snyk_")
+			if hasPrefix {
+				formattedKey := strings.ToUpper(key)
+				_, ok := os.LookupEnv(formattedKey)
+				if ok {
+					debugLogger.Printf("Found environment variable %s, disabling OAuth flow", formattedKey)
+					return false
+				}
+			}
+		}
+		return existingValue
+	})
+}
+
 func getFullCommandString(cmd *cobra.Command) string {
 	fullCommandPath := []string{cmd.Name()}
 	fn := func(c *cobra.Command) {
@@ -369,6 +395,8 @@ func MainWithErrorCode() int {
 
 	debugEnabled := config.GetBool(configuration.DEBUG)
 	debugLogger := getDebugLogger(config)
+
+	initApplicationConfiguration(config)
 	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(config))
 
 	if noProxyAuth := config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
