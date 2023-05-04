@@ -169,12 +169,13 @@ describe('cli token precedence', () => {
           it('SNYK_OAUTH_TOKEN should NOT override other env var', async () => {
             env = {
               ...env,
-              INTERNAL_OAUTH_TOKEN_STORAGE: snykOAuthConfig.snykConfig.internal_oauth_token_storage,
+              INTERNAL_OAUTH_TOKEN_STORAGE:
+                snykOAuthConfig.snykConfig.internal_oauth_token_storage,
               SNYK_OAUTH_TOKEN: 'snkyOAuthToken',
             };
-  
+
             await runSnykCLI(`-d`, { env });
-  
+
             const authHeader = server.popRequest().headers?.authorization;
             expect(authHeader).toEqual(`Bearer ${auth.expectedToken}`);
           });
