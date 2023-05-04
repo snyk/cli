@@ -10,16 +10,27 @@ import { CodeTestResults } from '../types';
 
 const debug = Debug('code-output');
 
-export function getCodeDisplayedOutput(
-  testResults: CodeTestResults,
-  meta: string,
-  prefix: string,
-): string {
+function filterIgnoredIssues(analysisResults: Sarif.Result[]): Sarif.Result[] {
+  return analysisResults.filter(
+    (rule) => (rule.suppressions?.length ?? 0) === 0,
+  );
+}
+
+export function getCodeDisplayedOutput(args: {
+  testResults: CodeTestResults;
+  meta: string;
+  prefix: string;
+  shouldFilterIgnored: boolean;
+}): string {
   let issues: { [index: string]: string[] } = {};
 
-  const sarif = testResults.analysisResults.sarif;
+  const sarif = args.testResults.analysisResults.sarif;
   if (sarif.runs[0].results) {
-    const results: Sarif.Result[] = sarif.runs[0].results;
+    // Filter ignored issues (suppressions) from the sarif to display in the cli output
+    // The sarif will remain unchanged and contain the suppressions
+    const results: Sarif.Result[] = args.shouldFilterIgnored
+      ? filterIgnoredIssues(sarif.runs[0].results)
+      : sarif.runs[0].results;
 
     const rulesMap: {
       [ruleId: string]: Sarif.ReportingDescriptor;
@@ -34,21 +45,21 @@ export function getCodeDisplayedOutput(
   const codeIssueSummary = getCodeIssuesSummary(issues);
 
   let summary =
-    prefix +
+    args.prefix +
     issuesText +
     '\n' +
     summaryOKText +
     '\n\n' +
-    meta +
+    args.meta +
     '\n\n' +
     chalk.bold('Summary:') +
     '\n\n' +
     codeIssueSummary +
     '\n\n';
 
-  if (testResults.reportResults) {
+  if (args.testResults.reportResults) {
     summary +=
-      getCodeReportDisplayedOutput(testResults.reportResults.reportUrl) +
+      getCodeReportDisplayedOutput(args.testResults.reportResults.reportUrl) +
       '\n\n';
   }
 

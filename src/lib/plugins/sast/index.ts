@@ -12,6 +12,7 @@ import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
+import * as cloneDeep from 'lodash.clonedeep';
 
 const debug = debugLib('snyk-code');
 
@@ -44,7 +45,8 @@ export const codePlugin: EcosystemPlugin = {
         throw new NoSupportedSastFiles();
       }
 
-      const sarifTypedResult = testResults?.analysisResults?.sarif;
+      // cloneDeep is used so the sarif is not changed when using the testResults getting the displayed output
+      const sarifTypedResult = cloneDeep(testResults?.analysisResults?.sarif);
 
       const numOfIssues = sarifTypedResult.runs?.[0].results?.length || 0;
       analytics.add('sast-issues-found', numOfIssues);
@@ -54,7 +56,13 @@ export const codePlugin: EcosystemPlugin = {
       }
       const meta = getMeta({ ...options, org: newOrg }, path);
       const prefix = getPrefix(path);
-      let readableResult = getCodeDisplayedOutput(testResults, meta, prefix);
+      let readableResult = getCodeDisplayedOutput({
+        testResults,
+        meta,
+        prefix,
+        shouldFilterIgnored: options['report'] ?? false,
+      });
+
       if (numOfIssues > 0 && options['no-markdown']) {
         sarifTypedResult.runs?.[0].results?.forEach(({ message }) => {
           delete message.markdown;
