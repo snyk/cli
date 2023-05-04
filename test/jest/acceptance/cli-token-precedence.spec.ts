@@ -164,7 +164,7 @@ describe('cli token precedence', () => {
             expect(authHeader).toEqual(`token ${env.SNYK_CFG_API}`);
           });
         });
-      } else {
+      } else if (isCLIV2()) {
         describe('when INTERNAL_OAUTH_TOKEN_STORAGE env var is set', () => {
           it('SNYK_OAUTH_TOKEN should NOT override other env var', async () => {
             env = {
