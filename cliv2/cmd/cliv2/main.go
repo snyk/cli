@@ -82,6 +82,7 @@ func main() {
 	os.Exit(errorCode)
 }
 
+// Initialize the given configuration with CLI specific aspects
 func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.AUTHENTICATION_TOKEN, []string{"snyk_token", "snyk_cfg_api", "api"})
 	config.AddAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN, []string{"snyk_oauth_token", "snyk_docker_token"})
@@ -89,7 +90,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.ADD_TRUSTED_CA_FILE, []string{"NODE_EXTRA_CA_CERTS"})
 
 	config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, func(existingValue any) any {
-		// if the CONFIG_KEY_OAUTH_TOKEN is specified as env var, we don#t apply any additional logic
+		// if the CONFIG_KEY_OAUTH_TOKEN is specified as env var, we don't apply any additional logic
 		_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
 		if !ok {
 			alternativeBearerKeys := config.GetAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN)
