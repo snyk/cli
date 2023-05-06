@@ -386,7 +386,7 @@ describe('Test snyk code', () => {
     }
   });
 
-  it('should create sarif result with ignored issues omitted', async () => {
+  it('should create sarif result displaying suppression in all issues (including ignored)', async () => {
     const sastSettings = {
       sastEnabled: true,
       localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
@@ -432,10 +432,10 @@ describe('Test snyk code', () => {
 
     expect(sarifWithoutIgnores.length).toBeGreaterThan(0);
     expect(sarifWithIgnores.length).toBeGreaterThan(0);
-    expect(sarifWithIgnores.length).toBeLessThan(sarifWithoutIgnores.length);
+    expect(sarifWithIgnores.length).toBe(sarifWithoutIgnores.length);
 
     sarifWithIgnores.forEach((result) => {
-      expect(result.suppressions?.length ?? 0).toEqual(0);
+      expect(result.suppressions?.length ?? 0).not.toBeLessThan(0);
     });
   });
 

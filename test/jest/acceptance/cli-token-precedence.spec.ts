@@ -65,7 +65,7 @@ describe('cli token precedence', () => {
     name: string;
     expectedAuthType: string;
     expectedToken: string;
-    snykConfig?: Record<string, string>;
+    snykConfig: Record<string, string>;
   };
 
   const snykAPIConfig: AuthConfig = {
@@ -138,31 +138,49 @@ describe('cli token precedence', () => {
         });
       });
 
-      describe('when token env vars are set', () => {
-        it('SNYK_TOKEN should override config', async () => {
-          env = {
-            ...env,
-            SNYK_TOKEN: 'snykToken',
-          };
+      if (snykOAuthConfig.name != auth.name) {
+        describe('when token env vars are set', () => {
+          it('SNYK_TOKEN should override config', async () => {
+            env = {
+              ...env,
+              SNYK_TOKEN: 'snykToken',
+            };
 
-          await runSnykCLI(`-d`, { env });
+            await runSnykCLI(`-d`, { env });
 
-          const authHeader = server.popRequest().headers?.authorization;
-          expect(authHeader).toEqual(`token ${env.SNYK_TOKEN}`);
+            const authHeader = server.popRequest().headers?.authorization;
+            expect(authHeader).toEqual(`token ${env.SNYK_TOKEN}`);
+          });
+
+          it('SNYK_CFG_API should override config', async () => {
+            env = {
+              ...env,
+              SNYK_CFG_API: 'snykCfgApiToken',
+            };
+
+            await runSnykCLI(`-d`, { env });
+
+            const authHeader = server.popRequest().headers?.authorization;
+            expect(authHeader).toEqual(`token ${env.SNYK_CFG_API}`);
+          });
         });
+      } else if (isCLIV2()) {
+        describe('when INTERNAL_OAUTH_TOKEN_STORAGE env var is set', () => {
+          it('SNYK_OAUTH_TOKEN should NOT override other env var', async () => {
+            env = {
+              ...env,
+              INTERNAL_OAUTH_TOKEN_STORAGE:
+                snykOAuthConfig.snykConfig.internal_oauth_token_storage,
+              SNYK_OAUTH_TOKEN: 'snkyOAuthToken',
+            };
 
-        it('SNYK_CFG_API should override config', async () => {
-          env = {
-            ...env,
-            SNYK_CFG_API: 'snykCfgApiToken',
-          };
+            await runSnykCLI(`-d`, { env });
 
-          await runSnykCLI(`-d`, { env });
-
-          const authHeader = server.popRequest().headers?.authorization;
-          expect(authHeader).toEqual(`token ${env.SNYK_CFG_API}`);
+            const authHeader = server.popRequest().headers?.authorization;
+            expect(authHeader).toEqual(`Bearer ${auth.expectedToken}`);
+          });
         });
-      });
+      }
     });
   });
 });
