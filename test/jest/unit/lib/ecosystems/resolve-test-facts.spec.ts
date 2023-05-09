@@ -146,7 +146,6 @@ describe('resolve and test facts', () => {
     });
 
     const [testResults, errors] = await resolveAndTestFacts(
-      'cpp',
       scanResults,
       {} as Options,
     );
@@ -187,7 +186,6 @@ describe('resolve and test facts', () => {
       });
 
       const [testResults, errors] = await resolveAndTestFacts(
-        'cpp',
         scanResults,
         {} as Options,
       );
@@ -236,7 +234,6 @@ describe('resolve and test facts', () => {
 
     const addAnalyticsSpy = jest.spyOn(analytics, 'add');
     const [testResults, errors] = await resolveAndTestFacts(
-      'cpp',
       scanResults,
       {} as Options,
     );
@@ -301,7 +298,6 @@ describe('resolve and test facts', () => {
     });
 
     const [testResults, errors] = await resolveAndTestFacts(
-      'cpp',
       scanResults,
       {} as Options,
     );
@@ -349,7 +345,6 @@ describe('resolve and test facts', () => {
     });
 
     const [testResults, errors] = await resolveAndTestFacts(
-      'cpp',
       scanResults,
       {} as Options,
     );
@@ -377,7 +372,6 @@ describe('resolve and test facts', () => {
     });
 
     const [testResults, errors] = await resolveAndTestFacts(
-      'cpp',
       scanResults,
       {} as Options,
     );
@@ -411,7 +405,6 @@ describe('resolve and test facts', () => {
     });
 
     const [testResults, errors] = await resolveAndTestFacts(
-      'cpp',
       scanResults,
       {} as Options,
     );
@@ -451,7 +444,6 @@ describe('resolve and test facts', () => {
     });
 
     const [testResults, errors] = await resolveAndTestFacts(
-      'cpp',
       scanResults,
       {} as Options,
     );

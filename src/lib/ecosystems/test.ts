@@ -81,7 +81,7 @@ export async function selectAndExecuteTestStrategy(
   options: Options & PolicyOptions,
 ): Promise<[TestResult[], string[]]> {
   return isUnmanagedEcosystem(ecosystem)
-    ? await resolveAndTestFacts(ecosystem, scanResultsByPath, options)
+    ? await resolveAndTestFacts(scanResultsByPath, options)
     : await testDependencies(scanResultsByPath, options);
 }
 
