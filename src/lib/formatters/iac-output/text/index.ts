@@ -18,5 +18,5 @@ export {
   formatFailuresList,
   failuresTipOutput,
 } from './failures';
-export { IaCTestFailure } from './types';
+export { IaCTestFailure, IaCTestWarning } from './types';
 export { formatSnykIacTestTestData, formatTestData } from './formatters';
