@@ -82,6 +82,30 @@ async function runCommand(args: Args) {
   return res;
 }
 
+function calculateExitCode(args: any, error: any): number {
+  if (args.command === 'test' && args.options?.unmanaged) {
+    return error.code === 'VULNS' ? EXIT_CODES.VULNS_FOUND : error.code;
+  }
+
+  const noSupportedManifestsFound = error.message?.includes(
+    'Could not detect supported target files in',
+  );
+  const noSupportedSastFiles = error instanceof NoSupportedSastFiles;
+  const noSupportedIaCFiles = error.code === IaCErrorCodes.NoFilesToScanError;
+  const noSupportedProjectsDetected =
+    noSupportedManifestsFound || noSupportedSastFiles || noSupportedIaCFiles;
+
+  if (noSupportedProjectsDetected) {
+    return EXIT_CODES.NO_SUPPORTED_PROJECTS_DETECTED;
+  }
+
+  if (error.code === 'VULNS') {
+    return EXIT_CODES.VULNS_FOUND;
+  }
+
+  return EXIT_CODES.ERROR;
+}
+
 async function handleError(args, error) {
   spinner.clearAll();
 
@@ -93,32 +117,8 @@ async function handleError(args, error) {
     error.userMessage = error.nestedUserMessage || error.userMessage;
   }
 
-  let command = 'bad-command';
-  let exitCode = EXIT_CODES.ERROR;
-
-  const vulnsFound = error.code === 'VULNS';
-
-  if (args.command === 'test' && args.options?.unmanaged) {
-    exitCode = vulnsFound ? EXIT_CODES.VULNS_FOUND : error.code;
-  } else {
-    const noSupportedManifestsFound = error.message?.includes(
-      'Could not detect supported target files in',
-    );
-    const noSupportedSastFiles = error instanceof NoSupportedSastFiles;
-    const noSupportedIaCFiles = error.code === IaCErrorCodes.NoFilesToScanError;
-    const noSupportedProjectsDetected =
-      noSupportedManifestsFound || noSupportedSastFiles || noSupportedIaCFiles;
-
-    if (noSupportedProjectsDetected) {
-      exitCode = EXIT_CODES.NO_SUPPORTED_PROJECTS_DETECTED;
-    }
-
-    if (vulnsFound) {
-      // this isn't a bad command, so we won't record it as such
-      command = args.command;
-      exitCode = EXIT_CODES.VULNS_FOUND;
-    }
-  }
+  const exitCode = calculateExitCode(args, error);
+  const vulnsFound = exitCode == EXIT_CODES.VULNS_FOUND;
 
   if (args.options.debug && !args.options.json) {
     const output = vulnsFound ? error.message : error.stack;
@@ -131,20 +131,18 @@ async function handleError(args, error) {
       ? error.message
       : stripAnsi(error.json || error.stack);
     console.log(output);
-  } else {
-    if (!args.options.quiet) {
-      const result = errors.message(error);
-      if (args.options.copy) {
-        copy(result);
-        console.log('Result copied to clipboard');
-      } else {
-        if (`${error.code}`.indexOf('AUTH_') === 0) {
-          // remove the last few lines
-          const erase = ansiEscapes.eraseLines(4);
-          process.stdout.write(erase);
-        }
-        console.log(result);
+  } else if (!args.options.quiet) {
+    const result = errors.message(error);
+    if (args.options.copy) {
+      copy(result);
+      console.log('Result copied to clipboard');
+    } else {
+      if (`${error.code}`.indexOf('AUTH_') === 0) {
+        // remove the last few lines
+        const erase = ansiEscapes.eraseLines(4);
+        process.stdout.write(erase);
       }
+      console.log(result);
     }
   }
 
@@ -180,7 +178,7 @@ async function handleError(args, error) {
 
   const res = analytics.addDataAndSend({
     args: obfuscateArgs(args.options._),
-    command,
+    command: vulnsFound ? args.command : 'bad-command',
     org: args.options.org,
   });
 
