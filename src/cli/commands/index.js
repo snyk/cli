@@ -1,4 +1,5 @@
 const abbrev = require('abbrev');
+const { isIacDescribeDisabled } = require('../../lib/disabled-features');
 
 // Wrapper for Commonjs compatibility
 async function callModule(mod, args) {
@@ -11,7 +12,6 @@ const commands = {
   config: async (...args) => callModule(import('./config'), args),
   'update-exclude-policy': async (...args) =>
     callModule(import('./update-exclude-policy'), args),
-  describe: async (...args) => callModule(import('./describe'), args),
   help: async (...args) => callModule(import('./help'), args),
   ignore: async (...args) => callModule(import('./ignore'), args),
   monitor: async (...args) => callModule(import('./monitor'), args),
@@ -26,6 +26,10 @@ const commands = {
   log4shell: async (...args) => callModule(import('./log4shell'), args),
   apps: async (...args) => callModule(import('./apps'), args),
 };
+
+if (!isIacDescribeDisabled) {
+  commands.describe = async (...args) => callModule(import('./describe'), args);
+}
 
 commands.aliases = abbrev(Object.keys(commands));
 commands.aliases.t = 'test';

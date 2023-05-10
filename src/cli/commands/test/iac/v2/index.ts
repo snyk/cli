@@ -11,6 +11,7 @@ import { getFlag } from '../index';
 import { IaCTestFlags } from '../local-execution/types';
 import { findAndLoadPolicy } from '../../../../../lib/policy';
 import { assertIacV2Options } from './assert-iac-options';
+import { isIacCloudContextDisabled } from '../../../../../lib/disabled-features';
 
 export async function test(
   paths: string[],
@@ -52,7 +53,9 @@ async function prepareTestConfig(
   const policy = await findAndLoadPolicy(process.cwd(), 'iac', options);
   const scan = options.scan ?? 'resource-changes';
   const varFile = options['var-file'];
-  const cloudContext = getFlag(options, 'cloud-context');
+  const cloudContext = !isIacCloudContextDisabled
+    ? getFlag(options, 'cloud-context')
+    : undefined;
   const snykCloudEnvironment = getFlag(options, 'snyk-cloud-environment');
   const insecure = options.insecure;
   const customRules = options['custom-rules'];

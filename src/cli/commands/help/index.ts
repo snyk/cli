@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { isIacDescribeDisabled } from '../../../lib/disabled-features';
 import { MethodArgs } from '../../args';
 import { renderMarkdown } from './markdown-renderer';
 
@@ -8,6 +9,12 @@ export function findHelpFile(
   helpFolderPath = '../../help/cli-commands', // this is a relative path from the webpack dist directory,
 ): string {
   while (helpArgs.length > 0) {
+    // if iac describe command is disabled, we should not return the help for it (and downfall to the iac one)
+    if (isIacDescribeDisabled && helpArgs.includes('describe')) {
+      helpArgs = helpArgs.slice(0, -1);
+      continue;
+    }
+
     // cleanse the filename to only contain letters
     // aka: /\W/g but figured this was easier to read
     const file = `${helpArgs.join('-').replace(/[^a-z0-9-]/gi, '')}.md`;
