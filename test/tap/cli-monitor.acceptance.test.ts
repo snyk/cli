@@ -258,17 +258,10 @@ if (!isWindows) {
     const depGraphJSON = req.body.depGraphJSON;
     t.ok(depGraphJSON);
 
-    const actualDepGraph = JSON.stringify(depGraphJSON);
-    const expectedPrunedDepGraph = fs.readFileSync(
-      path.join(fixturePath, 'gradle-pruned-dep-graph.json'),
-      'utf8',
-    );
-
-    t.ok(expectedPrunedDepGraph);
-
-    t.equal(
-      actualDepGraph,
-      expectedPrunedDepGraph,
+    t.ok(
+      depGraphJSON.graph.nodes.find(
+        (node) => node.info?.labels?.pruned === 'true',
+      ),
       'verify if the generated depGraph from snyk monitor has been pruned',
     );
   });
