@@ -124,7 +124,7 @@ When `app-vulns` is enabled, use the `--nested-jars-depth=n` option to set how m
 
 ### `--exclude-base-image-vulns`
 
-Do not show vulnerabilities introduced only by the base image. Available when using `snyk container test` only.
+Do not show vulnerabilities introduced only by the base image. Available when using `snyk container test` only. Works for operating system packages only.
 
 ### `--platform=<PLATFORM>`
 
