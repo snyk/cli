@@ -28,6 +28,13 @@ export async function hasFeatureFlag(
   featureFlag: string,
   options: Options,
 ): Promise<boolean | undefined> {
+  if (
+    featureFlag === 'iacIntegratedExperience' &&
+    config.API.includes('snykgov')
+  ) {
+    return true;
+  }
+
   const { code, error, ok } = await isFeatureFlagSupportedForOrg(
     featureFlag,
     options.org,
