@@ -115,8 +115,32 @@ $ snyk ignore --id='npm:qs:20170213' --expiry='2021-01-10' --reason='Module not 
 ### Ignore a specific vulnerability with a resource path specified
 
 ```
-$ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc@11.9.0 > istanbul-lib-report@1.1.3 > path-parse@1.0.5' --reason='Module not affected by this vulnerability'
+$ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc@11.9.0 > istanbul-lib-report@1.1.3 > path-parse@1.0.5' --reason='Module not affected by this vulnerability'$ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc@11.9.0
 ```
+
+### Ignore a specific vulnerability with a resource path specified (Windows)&#x20;
+
+In this example, `snyk iac test` on Windows returned a Path containing single quotes and a File specification containing back slashes:
+
+Rule: [https://snyk.io/security-rules/SNYK-CC-TF-118](https://snyk.io/security-rules/SNYK-CC-TF-118)\
+Path: resource > aws_iam_role\[OrganizationAccountAccessRole] > assume_role_policy\['Statement']\[0]\
+File: terraform\environment\com\iam.tf\
+
+The corresponding `snyk ignore` command would be:
+
+`snyk ignore --id=SNYK-CC-TF-118 --path="terraform\environment\com\iam.tf > resource > aws_iam_role[OrganizationAccountAccessRole] > assume_role_policy['Statement'][0]"`
+
+### Ignore a specific vulnerability with a resource path specified (Linux, Mac OS)&#x20;
+
+In this example, `snyk iac test` on Linux or Mac OS returned a Path containing single quotes and a File specification containing forward slashes:
+
+Rule: [https://snyk.io/security-rules/SNYK-CC-TF-118](https://snyk.io/security-rules/SNYK-CC-TF-118)\
+Path: resource > aws_iam_role\[OrganizationAccountAccessRole] > assume_role_policy\['Statement']\[0]\
+File: terraform/environment/com/iam.tf
+
+The corresponding `snyk ignore` command would be:
+
+`snyk ignore --id=SNYK-CC-TF-118 --path="terraform/environment/com/iam.tf > resource > aws_iam_role[OrganizationAccountAccessRole] > assume_role_policy['Statement'][0]"`
 
 ### Ignore a specific vulnerability for 30 days
 
