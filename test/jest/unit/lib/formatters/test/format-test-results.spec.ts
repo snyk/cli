@@ -16,6 +16,30 @@ describe('extractDataToSendFromResults', () => {
       fs.readFileSync('test/fixtures/basic-npm/mappedResults.json', 'utf-8'),
     );
 
+    it('docker - should not fail due to missing vulns', () => {
+      const noVulnerabilityFixture = JSON.parse(
+        fs.readFileSync(
+          'test/fixtures/basic-npm/noVulnerabilities.json',
+          'utf-8',
+        ),
+      );
+
+      const options = {
+        json: true,
+        docker: true,
+      } as Options;
+      const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
+      const res = extractDataToSendFromResults(
+        noVulnerabilityFixture,
+        noVulnerabilityFixture,
+        options,
+      );
+      expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
+      expect(res.stringifiedData).not.toBe('');
+      expect(res.stringifiedJsonData).not.toBe('');
+      expect(res.stringifiedSarifData).toBe('');
+    });
+
     it('should not create any JSON unless it is needed per options', () => {
       const options = {} as Options;
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');

@@ -386,7 +386,7 @@ describe('Test snyk code', () => {
     }
   });
 
-  it('should create sarif result with ignored issues omitted', async () => {
+  it('should create sarif result displaying suppression in all issues (including ignored)', async () => {
     const sastSettings = {
       sastEnabled: true,
       localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
@@ -432,10 +432,10 @@ describe('Test snyk code', () => {
 
     expect(sarifWithoutIgnores.length).toBeGreaterThan(0);
     expect(sarifWithIgnores.length).toBeGreaterThan(0);
-    expect(sarifWithIgnores.length).toBeLessThan(sarifWithoutIgnores.length);
+    expect(sarifWithIgnores.length).toBe(sarifWithoutIgnores.length);
 
     sarifWithIgnores.forEach((result) => {
-      expect(result.suppressions?.length ?? 0).toEqual(0);
+      expect(result.suppressions?.length ?? 0).not.toBeLessThan(0);
     });
   });
 
@@ -754,6 +754,71 @@ describe('Test snyk code', () => {
       }),
     ).rejects.toHaveProperty('message', "Failed to run 'code test'");
   });
+
+  it.each([
+    [
+      'disabled FF',
+      {
+        apiName: 'initReport',
+        statusCode: 400,
+        statusText: 'Bad request',
+      },
+      'Make sure this feature is enabled by contacting support.',
+    ],
+    [
+      'SARIF too large',
+      {
+        apiName: 'getReport',
+        statusCode: 400,
+        statusText: 'Analysis result set too large',
+      },
+      'The findings for this project may exceed the allowed size limit.',
+    ],
+    [
+      'analysis failed',
+      {
+        apiName: 'getReport',
+        statusCode: 500,
+        statusText: 'Analysis failed',
+      },
+      "One or more of Snyk's services may be temporarily unavailable.",
+    ],
+    [
+      'bad gateway',
+      {
+        apiName: 'initReport',
+        statusCode: 502,
+        statusText: 'Bad Gateway',
+      },
+      "One or more of Snyk's services may be temporarily unavailable.",
+    ],
+  ])(
+    'When code-client fails in the report flow, throw customized message for %s',
+    async (testName, codeClientError, expectedErrorUserMessage) => {
+      jest
+        .spyOn(analysis, 'getCodeTestResults')
+        .mockRejectedValue(codeClientError);
+
+      isSastEnabledForOrgSpy.mockResolvedValueOnce({
+        sastEnabled: true,
+        localCodeEngine: {
+          enabled: false,
+        },
+      });
+      trackUsageSpy.mockResolvedValue({});
+
+      await expect(
+        ecosystems.testEcosystem('code', ['.'], {
+          path: '',
+          code: true,
+          report: true,
+        }),
+      ).rejects.toHaveProperty(
+        'userMessage',
+        expect.stringContaining(expectedErrorUserMessage),
+      );
+    },
+  );
 
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);

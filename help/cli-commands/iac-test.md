@@ -149,7 +149,9 @@ Set or override the remote URL for the repository.
 
 **NEW** option: Share results with the Snyk Web UI.
 
-This creates a project in your Snyk account with a snapshot of the current configuration issues. After using this option, log in to the Snyk website and view your projects to see the monitor.
+This creates a project in your Snyk account with a snapshot of the current configuration issues or appends the snapshot to an existing project.
+
+After using this option, log in to the Snyk website and view your projects to see the snapshot.
 
 Example: `$ snyk iac test --report`
 
