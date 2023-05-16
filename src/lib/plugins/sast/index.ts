@@ -10,6 +10,7 @@ import {
 } from './format/output-format';
 import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
+import { CodeClientError } from './errors';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
 import * as cloneDeep from 'lodash.clonedeep';
@@ -86,13 +87,7 @@ export const codePlugin: EcosystemPlugin = {
     } catch (error) {
       let err: Error;
       if (isCodeClientError(error)) {
-        const isUnauthorized = isUnauthorizedError(error)
-          ? 'Unauthorized: '
-          : '';
-        err = new FailedToRunTestError(
-          `${isUnauthorized}Failed to run 'code test'`,
-          error.statusCode,
-        );
+        err = resolveCodeClientError(error);
       } else if (error instanceof Error) {
         err = error;
       } else if (isUnauthorizedError(error)) {
@@ -116,6 +111,47 @@ function isCodeClientError(error: object): boolean {
     error.hasOwnProperty('statusCode') &&
     error.hasOwnProperty('statusText') &&
     error.hasOwnProperty('apiName')
+  );
+}
+
+const genericErrorHelpMessages = {
+  500: "One or more of Snyk's services may be temporarily unavailable.",
+  502: "One or more of Snyk's services may be temporarily unavailable.",
+};
+
+const apiSpecificErrorHelpMessages = {
+  initReport: {
+    ...genericErrorHelpMessages,
+    400: 'Make sure this feature is enabled by contacting support.',
+  },
+  getReport: {
+    ...genericErrorHelpMessages,
+    'Analysis result set too large':
+      'The findings for this project may exceed the allowed size limit.',
+  },
+};
+
+function resolveCodeClientError(error: {
+  apiName: string;
+  statusCode: number;
+  statusText: string;
+}): Error {
+  // For now only report includes custom client errors
+  if (error.apiName === 'initReport' || error.apiName === 'getReport') {
+    const additionalHelp =
+      apiSpecificErrorHelpMessages[error.apiName][error.statusText] ??
+      apiSpecificErrorHelpMessages[error.apiName][error.statusCode];
+
+    return new CodeClientError(
+      error.statusCode,
+      error.statusText,
+      additionalHelp,
+    );
+  }
+  const isUnauthorized = isUnauthorizedError(error) ? 'Unauthorized: ' : '';
+  return new FailedToRunTestError(
+    `${isUnauthorized}Failed to run 'code test'`,
+    error.statusCode,
   );
 }
 
