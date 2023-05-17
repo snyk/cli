@@ -34,6 +34,15 @@ export type IaCTestFailure = {
   failureReason: string | undefined;
 };
 
+export type IaCTestWarning = {
+  filePath: string;
+  warningReason: string | undefined;
+  term: string | undefined;
+  modules: string[] | undefined;
+  module: string | undefined;
+  expressions: string[] | undefined;
+};
+
 export type Issue = Pick<
   AnnotatedIacIssue,
   | 'id'
