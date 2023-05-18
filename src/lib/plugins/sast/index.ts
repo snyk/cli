@@ -77,7 +77,7 @@ export const codePlugin: EcosystemPlugin = {
         shouldFilterIgnored: hasIgnoredIssues,
       });
 
-      if (numOfIssues > 0 && options['no-markdown']) {
+      if (options['no-markdown']) {
         sarifRunResults.forEach(({ message }) => {
           delete message.markdown;
         });
