@@ -78,16 +78,26 @@ export const codePlugin: EcosystemPlugin = {
           delete message.markdown;
         });
       }
+
+      const shouldStringifyResult =
+        options['sarif-file-output'] ||
+        options.sarif ||
+        options['json-file-output'] ||
+        options.json;
+      const stringifiedResult = shouldStringifyResult
+        ? jsonStringifyLargeObject(sarifTypedResult)
+        : '';
+
       let sarifResult: string | undefined;
       if (options['sarif-file-output']) {
-        sarifResult = jsonStringifyLargeObject(sarifTypedResult);
+        sarifResult = stringifiedResult;
       }
       let jsonResult: string | undefined;
       if (options['json-file-output']) {
-        jsonResult = jsonStringifyLargeObject(sarifTypedResult);
+        jsonResult = stringifiedResult;
       }
       if (options.sarif || options.json) {
-        readableResult = jsonStringifyLargeObject(sarifTypedResult);
+        readableResult = stringifiedResult;
       }
 
       if (numOfIssues > 0) {
