@@ -7,16 +7,9 @@ import { colorTextBySeverity, SEVERITY } from '../../../snyk-test/common';
 import { rightPadWithSpaces } from '../../../right-pad';
 import { Options } from '../../../types';
 import { CodeTestResults } from '../types';
+import { filterIgnoredIssues } from '../utils';
 
 const debug = Debug('code-output');
-
-export function filterIgnoredIssues(
-  analysisResults: Sarif.Result[],
-): Sarif.Result[] {
-  return analysisResults.filter(
-    (rule) => (rule.suppressions?.length ?? 0) === 0,
-  );
-}
 
 export function getCodeDisplayedOutput(args: {
   testResults: CodeTestResults;
