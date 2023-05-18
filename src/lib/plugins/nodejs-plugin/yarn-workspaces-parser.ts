@@ -93,7 +93,7 @@ export async function processYarnWorkspaces(
         ? pathUtil.dirname(yarnWorkspacesFilesMap[packageJsonFileName].root)
         : pathUtil.dirname(packageJsonFileName);
       const rootYarnLockfileName = pathUtil.join(rootDir, 'yarn.lock');
-      const yarnLock = await getFileContents(root, rootYarnLockfileName);
+      const yarnLock = getFileContents(root, rootYarnLockfileName);
 
       if (
         rootWorkspaceManifestContent.hasOwnProperty('resolutions') &&
