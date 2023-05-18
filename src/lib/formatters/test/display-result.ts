@@ -38,6 +38,9 @@ export function displayResult(
   if (options.iac && res.targetFile) {
     testingPath = res.targetFile;
   }
+  if (options.allProjects && res.displayTargetFile) {
+    testingPath = res.displayTargetFile;
+  }
   const prefix = chalk.bold.white('\nTesting ' + testingPath + '...\n\n');
 
   // handle errors by extracting their message
@@ -55,6 +58,8 @@ export function displayResult(
     pathOrDepsText += res.dependencyCount + ' dependencies';
   } else if (options.iac && res.targetFile) {
     pathOrDepsText += res.targetFile;
+  } else if (options.allProjects && res.displayTargetFile) {
+    pathOrDepsText += res.displayTargetFile;
   } else {
     pathOrDepsText += options.path;
   }
