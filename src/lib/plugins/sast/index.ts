@@ -7,6 +7,7 @@ import {
   getCodeDisplayedOutput,
   getPrefix,
   getMeta,
+  filterIgnoredIssues,
 } from './format/output-format';
 import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
@@ -49,8 +50,16 @@ export const codePlugin: EcosystemPlugin = {
       // cloneDeep is used so the sarif is not changed when using the testResults getting the displayed output
       const sarifTypedResult = cloneDeep(testResults?.analysisResults?.sarif);
 
-      const numOfIssues = sarifTypedResult.runs?.[0].results?.length || 0;
+      // Report flow includes ignored issues (suppressions) in the results.
+      const hasIgnoredIssues = options['report'] ?? false;
+
+      // If suppressions are included in results filter them out to get real issue count
+      const foundIssues = hasIgnoredIssues
+        ? filterIgnoredIssues(sarifTypedResult.runs?.[0].results)
+        : sarifTypedResult.runs?.[0].results;
+      const numOfIssues = foundIssues.length || 0;
       analytics.add('sast-issues-found', numOfIssues);
+
       let newOrg = options.org;
       if (!newOrg && sastSettings.org) {
         newOrg = sastSettings.org;
@@ -61,7 +70,7 @@ export const codePlugin: EcosystemPlugin = {
         testResults,
         meta,
         prefix,
-        shouldFilterIgnored: options['report'] ?? false,
+        shouldFilterIgnored: hasIgnoredIssues,
       });
 
       if (numOfIssues > 0 && options['no-markdown']) {
@@ -80,9 +89,11 @@ export const codePlugin: EcosystemPlugin = {
       if (options.sarif || options.json) {
         readableResult = jsonStringifyLargeObject(sarifTypedResult);
       }
+
       if (numOfIssues > 0) {
         throwIssuesError({ readableResult, sarifResult, jsonResult });
       }
+
       return sarifResult ? { readableResult, sarifResult } : { readableResult };
     } catch (error) {
       let err: Error;

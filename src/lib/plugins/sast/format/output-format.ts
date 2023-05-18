@@ -10,7 +10,9 @@ import { CodeTestResults } from '../types';
 
 const debug = Debug('code-output');
 
-function filterIgnoredIssues(analysisResults: Sarif.Result[]): Sarif.Result[] {
+export function filterIgnoredIssues(
+  analysisResults: Sarif.Result[],
+): Sarif.Result[] {
   return analysisResults.filter(
     (rule) => (rule.suppressions?.length ?? 0) === 0,
   );
