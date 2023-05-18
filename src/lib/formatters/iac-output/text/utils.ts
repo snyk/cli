@@ -4,6 +4,7 @@ import { SEVERITY } from '../../../snyk-test/common';
 interface IacOutputColors {
   severities: SeverityColor;
   failure: Chalk;
+  warning: Chalk;
   success: Chalk;
   info: Chalk;
   title: Chalk;
@@ -22,6 +23,7 @@ export const colors: IacOutputColors = {
     low: chalk.reset,
   },
   failure: chalk.red,
+  warning: chalk.yellow,
   success: chalk.green,
   info: chalk.reset,
   title: chalk.reset.bold,

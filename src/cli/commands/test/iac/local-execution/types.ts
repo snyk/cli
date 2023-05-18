@@ -404,6 +404,12 @@ export enum IaCErrorCodes {
   EntitlementNotEnabled = 2201,
   ReadSettings = 2202,
   FeatureFlagNotEnabled = 2203,
+
+  // snyk-iac-test non-fatal errors
+  SubmoduleLoadingError = 3000,
+  MissingRemoteSubmodulesError = 3001,
+  EvaluationError = 3002,
+  MissingTermError = 3003,
 }
 
 export interface TestReturnValue {

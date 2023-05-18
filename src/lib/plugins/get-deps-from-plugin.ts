@@ -40,8 +40,6 @@ export async function getDepsFromPlugin(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
 ): Promise<pluginApi.MultiProjectResult | MultiProjectResultCustom> {
-  let inspectRes: pluginApi.InspectResult;
-
   if (Object.keys(multiProjectProcessors).some((key) => options[key])) {
     const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
     const levelsDeep = options.detectionDepth;
@@ -61,7 +59,7 @@ export async function getDepsFromPlugin(
     }
     // enable full sub-project scan for gradle
     options.allSubProjects = true;
-    inspectRes = await multiProjectProcessors[scanType].handler(
+    const inspectRes = await multiProjectProcessors[scanType].handler(
       root,
       options,
       targetFiles,
@@ -100,7 +98,7 @@ export async function getDepsFromPlugin(
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);
   }
-  inspectRes = await getSinglePluginResult(root, options);
+  const inspectRes = await getSinglePluginResult(root, options);
 
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package && !inspectRes.dependencyGraph) {
