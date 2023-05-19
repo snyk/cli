@@ -89,25 +89,23 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.API_URL, []string{"endpoint"})
 	config.AddAlternativeKeys(configuration.ADD_TRUSTED_CA_FILE, []string{"NODE_EXTRA_CA_CERTS"})
 
-	config.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, func(existingValue any) any {
-		// if the CONFIG_KEY_OAUTH_TOKEN is specified as env var, we don't apply any additional logic
-		_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
-		if !ok {
-			alternativeBearerKeys := config.GetAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN)
-			for _, key := range alternativeBearerKeys {
-				hasPrefix := strings.HasPrefix(key, "snyk_")
-				if hasPrefix {
-					formattedKey := strings.ToUpper(key)
-					_, ok := os.LookupEnv(formattedKey)
-					if ok {
-						debugLogger.Printf("Found environment variable %s, disabling OAuth flow", formattedKey)
-						return false
-					}
+	// if the CONFIG_KEY_OAUTH_TOKEN is specified as env var, we don't apply any additional logic
+	_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
+	if !ok {
+		alternativeBearerKeys := config.GetAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN)
+		for _, key := range alternativeBearerKeys {
+			hasPrefix := strings.HasPrefix(key, "snyk_")
+			if hasPrefix {
+				formattedKey := strings.ToUpper(key)
+				_, ok := os.LookupEnv(formattedKey)
+				if ok {
+					debugLogger.Printf("Found environment variable %s, disabling OAuth flow", formattedKey)
+					config.Set(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, false)
+					break
 				}
 			}
 		}
-		return existingValue
-	})
+	}
 }
 
 func getFullCommandString(cmd *cobra.Command) string {
