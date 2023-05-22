@@ -43,6 +43,12 @@ describe('Test snyk code', () => {
       '/../../../fixtures/sast/sample-analyze-folders-with-report-and-ignores-response.json',
     ),
   );
+  const sampleAnalyzeFoldersWithReportAndIgnoresOnlyResponse = loadJson(
+    path.join(
+      __dirname,
+      '/../../../fixtures/sast/sample-analyze-folders-with-report-and-ignores-only-response.json',
+    ),
+  );
 
   const isWindows = os.platform().indexOf('win') === 0;
   const fixturePath = path.join(__dirname, '../../../fixtures', 'sast');
@@ -386,7 +392,7 @@ describe('Test snyk code', () => {
     }
   });
 
-  it('should create sarif result displaying suppression in all issues (including ignored)', async () => {
+  it('should create sarif result including suppressions (ignored issues) - for report flow', async () => {
     const sastSettings = {
       sastEnabled: true,
       localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
@@ -434,9 +440,63 @@ describe('Test snyk code', () => {
     expect(sarifWithIgnores.length).toBeGreaterThan(0);
     expect(sarifWithIgnores.length).toBe(sarifWithoutIgnores.length);
 
+    let numSuppressions = 0;
     sarifWithIgnores.forEach((result) => {
-      expect(result.suppressions?.length ?? 0).not.toBeLessThan(0);
+      numSuppressions += result.suppressions?.length ?? 0;
     });
+    expect(numSuppressions).toBeGreaterThan(0);
+  });
+
+  it('should exit with correct code (1) when ignored issues are found - for report flow', async () => {
+    const options: ArgsOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+      report: true,
+      projectName: 'test-project',
+      _: [],
+      _doubleDashArgs: [],
+    };
+
+    analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersWithReportAndIgnoresResponse,
+    );
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    await expect(snykTest('some/path', options)).rejects.toThrowError();
+  });
+
+  it('should exit with correct code (0) when only ignored issues are found - for report flow', async () => {
+    const options: ArgsOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+      report: true,
+      projectName: 'test-project',
+      _: [],
+      _doubleDashArgs: [],
+    };
+
+    analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersWithReportAndIgnoresOnlyResponse,
+    );
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    await expect(snykTest('some/path', options)).resolves.not.toThrowError();
   });
 
   describe('Default org test in CLI output', () => {
