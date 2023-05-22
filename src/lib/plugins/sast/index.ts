@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import * as Sarif from 'sarif';
 import * as debugLib from 'debug';
 import { v4 as uuidv4 } from 'uuid';
 import { getCodeTestResults } from './analysis';
@@ -11,6 +12,7 @@ import {
 import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
 import { CodeClientError } from './errors';
+import { filterIgnoredIssues } from './utils';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
 import * as cloneDeep from 'lodash.clonedeep';
@@ -47,10 +49,21 @@ export const codePlugin: EcosystemPlugin = {
       }
 
       // cloneDeep is used so the sarif is not changed when using the testResults getting the displayed output
-      const sarifTypedResult = cloneDeep(testResults?.analysisResults?.sarif);
+      const sarifTypedResult = cloneDeep(
+        testResults?.analysisResults?.sarif,
+      ) as Sarif.Log;
+      const sarifRunResults = sarifTypedResult.runs?.[0].results ?? [];
 
-      const numOfIssues = sarifTypedResult.runs?.[0].results?.length || 0;
+      // Report flow includes ignored issues (suppressions) in the results.
+      const hasIgnoredIssues = options['report'] ?? false;
+
+      // If suppressions are included in results filter them out to get real issue count
+      const foundIssues = hasIgnoredIssues
+        ? filterIgnoredIssues(sarifRunResults)
+        : sarifRunResults;
+      const numOfIssues = foundIssues.length || 0;
       analytics.add('sast-issues-found', numOfIssues);
+
       let newOrg = options.org;
       if (!newOrg && sastSettings.org) {
         newOrg = sastSettings.org;
@@ -61,28 +74,40 @@ export const codePlugin: EcosystemPlugin = {
         testResults,
         meta,
         prefix,
-        shouldFilterIgnored: options['report'] ?? false,
+        shouldFilterIgnored: hasIgnoredIssues,
       });
 
-      if (numOfIssues > 0 && options['no-markdown']) {
-        sarifTypedResult.runs?.[0].results?.forEach(({ message }) => {
+      if (options['no-markdown']) {
+        sarifRunResults.forEach(({ message }) => {
           delete message.markdown;
         });
       }
+
+      const shouldStringifyResult =
+        options['sarif-file-output'] ||
+        options.sarif ||
+        options['json-file-output'] ||
+        options.json;
+      const stringifiedResult = shouldStringifyResult
+        ? jsonStringifyLargeObject(sarifTypedResult)
+        : '';
+
       let sarifResult: string | undefined;
       if (options['sarif-file-output']) {
-        sarifResult = jsonStringifyLargeObject(sarifTypedResult);
+        sarifResult = stringifiedResult;
       }
       let jsonResult: string | undefined;
       if (options['json-file-output']) {
-        jsonResult = jsonStringifyLargeObject(sarifTypedResult);
+        jsonResult = stringifiedResult;
       }
       if (options.sarif || options.json) {
-        readableResult = jsonStringifyLargeObject(sarifTypedResult);
+        readableResult = stringifiedResult;
       }
+
       if (numOfIssues > 0) {
         throwIssuesError({ readableResult, sarifResult, jsonResult });
       }
+
       return sarifResult ? { readableResult, sarifResult } : { readableResult };
     } catch (error) {
       let err: Error;
