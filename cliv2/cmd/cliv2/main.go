@@ -88,6 +88,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN, []string{"snyk_oauth_token", "snyk_docker_token"})
 	config.AddAlternativeKeys(configuration.API_URL, []string{"endpoint"})
 	config.AddAlternativeKeys(configuration.ADD_TRUSTED_CA_FILE, []string{"NODE_EXTRA_CA_CERTS"})
+	config.AddAlternativeKeys(configuration.ANALYTICS_DISABLED, []string{"snyk_analytics_disabled", "disable-analytics", "disable_analytics", "snyk_cfg_disable_analytics"})
 
 	// if the CONFIG_KEY_OAUTH_TOKEN is specified as env var, we don't apply any additional logic
 	_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
@@ -157,7 +158,7 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 	res, err := analytics.Send()
 	successfullySend := res != nil && 200 <= res.StatusCode && res.StatusCode < 300
 	if err == nil && successfullySend {
-		debugLogger.Print("Analytics sucessfully send")
+		debugLogger.Print("Analytics successfully send")
 	} else {
 		var details string
 		if res != nil {
@@ -170,13 +171,13 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 	}
 }
 
-func help(cmd *cobra.Command, args []string) error {
+func help(_ *cobra.Command, args []string) error {
 	helpProvided = true
 	args = append(os.Args[1:], "--help")
-	return defaultCmd(cmd, args)
+	return defaultCmd(args)
 }
 
-func defaultCmd(cmd *cobra.Command, args []string) error {
+func defaultCmd(args []string) error {
 	// prepare the invocation of the legacy CLI by
 	// * enabling stdio
 	// * by specifying the raw cmd args for it
@@ -193,7 +194,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	return globalFLags
 }
 
-func emptyCommandFunction(cmd *cobra.Command, args []string) error {
+func emptyCommandFunction(_ *cobra.Command, _ []string) error {
 	return fmt.Errorf(unknownCommandMessage)
 }
 
@@ -245,7 +246,7 @@ func prepareRootCommand() *cobra.Command {
 	rootCommand := cobra.Command{
 		Use: "snyk",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			return defaultCmd(cmd, os.Args[1:])
+			return defaultCmd(os.Args[1:])
 		},
 	}
 
@@ -447,7 +448,7 @@ func MainWithErrorCode() int {
 	handleErrorResult := handleError(err)
 	if handleErrorResult == handleErrorFallbackToLegacyCLI {
 		debugLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
-		err = defaultCmd(nil, os.Args[1:])
+		err = defaultCmd(os.Args[1:])
 	} else if handleErrorResult == handleErrorShowHelp {
 		err = help(nil, []string{})
 	}
