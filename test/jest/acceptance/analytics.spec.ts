@@ -29,8 +29,17 @@ describe('analytics module', () => {
     });
   });
 
+  beforeEach(() => {
+    runSnykCLI(`config unset disable-analytics`);
+    runSnykCLI(`config unset SNYK_DISABLE_ANALYTICS`);
+    runSnykCLI(`config unset SNYK_CFG_DISABLE_ANALYTICS`);
+  });
+
   afterEach(() => {
     server.restore();
+    runSnykCLI(`config unset disable-analytics`);
+    runSnykCLI(`config unset SNYK_DISABLE_ANALYTICS`);
+    runSnykCLI(`config unset SNYK_CFG_DISABLE_ANALYTICS`);
   });
 
   afterAll((done) => {
@@ -90,17 +99,17 @@ describe('analytics module', () => {
           integrationVersion: '1.2.3',
           // prettier-ignore
           metrics: {
-            'network_time': {
-              type: 'timer',
-              values: expect.any(Array),
-              total: expect.any(Number),
-            },
-            'cpu_time': {
-              type: 'synthetic',
-              values: [expect.any(Number)],
-              total: expect.any(Number),
-            },
-          },
+                        'network_time': {
+                            type: 'timer',
+                            values: expect.any(Array),
+                            total: expect.any(Number),
+                        },
+                        'cpu_time': {
+                            type: 'synthetic',
+                            values: [expect.any(Number)],
+                            total: expect.any(Number),
+                        },
+                    },
           nodeVersion: expect.any(String),
           os: expect.any(String),
           standalone: expect.any(Boolean),
@@ -176,17 +185,17 @@ describe('analytics module', () => {
           integrationVersion: '1.2.3',
           // prettier-ignore
           metrics: {
-            'network_time': {
-              type: 'timer',
-              values: expect.any(Array),
-              total: expect.any(Number),
-            },
-            'cpu_time': {
-              type: 'synthetic',
-              values: [expect.any(Number)],
-              total: expect.any(Number),
-            },
-          },
+                        'network_time': {
+                            type: 'timer',
+                            values: expect.any(Array),
+                            total: expect.any(Number),
+                        },
+                        'cpu_time': {
+                            type: 'synthetic',
+                            values: [expect.any(Number)],
+                            total: expect.any(Number),
+                        },
+                    },
           nodeVersion: expect.any(String),
           os: expect.any(String),
           standalone: expect.any(Boolean),
@@ -245,17 +254,17 @@ describe('analytics module', () => {
           integrationVersion: '1.2.3',
           // prettier-ignore
           metrics: {
-            'network_time': {
-              type: 'timer',
-              values: expect.any(Array),
-              total: expect.any(Number),
-            },
-            'cpu_time': {
-              type: 'synthetic',
-              values: [expect.any(Number)],
-              total: expect.any(Number),
-            },
-          },
+                        'network_time': {
+                            type: 'timer',
+                            values: expect.any(Array),
+                            total: expect.any(Number),
+                        },
+                        'cpu_time': {
+                            type: 'synthetic',
+                            values: [expect.any(Number)],
+                            total: expect.any(Number),
+                        },
+                    },
           nodeVersion: expect.any(String),
           os: expect.any(String),
           standalone: expect.any(Boolean),
@@ -325,17 +334,17 @@ describe('analytics module', () => {
           integrationVersion: '1.2.3',
           // prettier-ignore
           metrics: {
-            'network_time': {
-              type: 'timer',
-              values: expect.any(Array),
-              total: expect.any(Number),
-            },
-            'cpu_time': {
-              type: 'synthetic',
-              values: [expect.any(Number)],
-              total: expect.any(Number),
-            },
-          },
+                        'network_time': {
+                            type: 'timer',
+                            values: expect.any(Array),
+                            total: expect.any(Number),
+                        },
+                        'cpu_time': {
+                            type: 'synthetic',
+                            values: [expect.any(Number)],
+                            total: expect.any(Number),
+                        },
+                    },
           nodeVersion: expect.any(String),
           os: expect.any(String),
           standalone: expect.any(Boolean),
@@ -386,17 +395,17 @@ describe('analytics module', () => {
           integrationVersion: '1.2.3',
           // prettier-ignore
           metrics: {
-            'network_time': {
-              type: 'timer',
-              values: expect.any(Array),
-              total: expect.any(Number),
-            },
-            'cpu_time': {
-              type: 'synthetic',
-              values: [expect.any(Number)],
-              total: expect.any(Number),
-            },
-          },
+                        'network_time': {
+                            type: 'timer',
+                            values: expect.any(Array),
+                            total: expect.any(Number),
+                        },
+                        'cpu_time': {
+                            type: 'synthetic',
+                            values: [expect.any(Number)],
+                            total: expect.any(Number),
+                        },
+                    },
           nodeVersion: expect.any(String),
           os: expect.any(String),
           standalone: expect.any(Boolean),
@@ -466,13 +475,51 @@ describe('analytics module', () => {
     });
   });
 
-  it("won't send analytics if disable analytics is set", async () => {
+  it("won't send analytics if disable analytics is set via SNYK_DISABLE_ANALYTICS", async () => {
     const { code } = await runSnykCLI(`version`, {
       env: {
         ...env,
         SNYK_DISABLE_ANALYTICS: '1',
       },
     });
+    expect(code).toBe(0);
+
+    const requests = server.getRequests().filter((value) => {
+      return value.url == '/api/v1/analytics/cli';
+    });
+
+    const lastRequest = requests.pop();
+    expect(lastRequest).toBeUndefined();
+  });
+  it("won't send analytics if disable analytics is set via SNYK_CFG_DISABLE_ANALYTICS", async () => {
+    const { code } = await runSnykCLI(`version`, {
+      env: {
+        ...env,
+        SNYK_CFG_DISABLE_ANALYTICS: '1',
+      },
+    });
+    expect(code).toBe(0);
+
+    const requests = server.getRequests().filter((value) => {
+      return value.url == '/api/v1/analytics/cli';
+    });
+
+    const lastRequest = requests.pop();
+    expect(lastRequest).toBeUndefined();
+  });
+  it("won't send analytics if disable analytics is set via config and disable-analytics", async () => {
+    const envWithDisabledAnalytics = {
+      ...env,
+      SNYK_DISABLE_ANALYTICS: '1',
+    };
+
+    // set config
+    await runSnykCLI(`config set disable-analytics=1`, {
+      env: envWithDisabledAnalytics,
+    });
+
+    const { code } = await runSnykCLI(`version`);
+
     expect(code).toBe(0);
 
     const requests = server.getRequests().filter((value) => {
