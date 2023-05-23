@@ -439,6 +439,21 @@ jobs:
           command: ./release-scripts/handle-failed-release.sh
           when: on_fail
 
+  # release-dry-run:
+  #   executor: docker-node
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: .
+  #     - gh/setup:
+  #         token: HAMMERHEAD_GITHUB_PAT
+  #         version: << pipeline.parameters.gh_version >>
+  #     - aws-cli/install:
+  #         version: << pipeline.parameters.aws_version >>
+  #     - run:
+  #         name: Publishing dry-run
+  #         command: make release-dry-run
+
   test-release:
     parameters:
       executor:
@@ -917,6 +932,12 @@ workflows:
             branches:
               only:
                 - master
+      # - dry-run-release:
+      #     name: Dry Run Release
+      #     context:
+      #       - team-hammerhead-common-deploy-tokens
+      #     requires:
+      #       - Pre-Release
       - test-release:
           name: Test Release (<< matrix.executor >>)
           matrix:
