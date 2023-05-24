@@ -29,17 +29,8 @@ describe('analytics module', () => {
     });
   });
 
-  beforeEach(() => {
-    runSnykCLI(`config unset disable-analytics`);
-    runSnykCLI(`config unset SNYK_DISABLE_ANALYTICS`);
-    runSnykCLI(`config unset SNYK_CFG_DISABLE_ANALYTICS`);
-  });
-
   afterEach(() => {
     server.restore();
-    runSnykCLI(`config unset disable-analytics`);
-    runSnykCLI(`config unset SNYK_DISABLE_ANALYTICS`);
-    runSnykCLI(`config unset SNYK_CFG_DISABLE_ANALYTICS`);
   });
 
   afterAll((done) => {
@@ -507,6 +498,7 @@ describe('analytics module', () => {
     const lastRequest = requests.pop();
     expect(lastRequest).toBeUndefined();
   });
+
   it("won't send analytics if disable analytics is set via config and disable-analytics", async () => {
     const envWithDisabledAnalytics = {
       ...env,
@@ -518,7 +510,14 @@ describe('analytics module', () => {
       env: envWithDisabledAnalytics,
     });
 
-    const { code } = await runSnykCLI(`version`);
+    const { code } = await runSnykCLI(`version`, {
+      env: env,
+    });
+
+    // unset config
+    await runSnykCLI(`config unset disable-analytics`, {
+      env: envWithDisabledAnalytics,
+    });
 
     expect(code).toBe(0);
 
@@ -528,5 +527,18 @@ describe('analytics module', () => {
 
     const lastRequest = requests.pop();
     expect(lastRequest).toBeUndefined();
+  });
+
+  it("won't send analytics if disable analytics is set via --DISABLE_ANALYTICS", async () => {
+    const { code } = await runSnykCLI(`version -d --DISABLE_ANALYTICS`, {
+      env: env,
+    });
+    expect(code).toBe(0);
+
+    const requests = server.getRequests().filter((value) => {
+      return value.url == '/api/v1/analytics/cli';
+    });
+
+    expect(requests.length).toBe(0);
   });
 });

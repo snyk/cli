@@ -53,7 +53,10 @@ var debugLogger = zerolog.New(zerolog.ConsoleWriter{
 	},
 }).With().Str("ext", "main").Str("separator", "-").Timestamp().Logger()
 
-const unknownCommandMessage string = "unknown command"
+const (
+	unknownCommandMessage  string = "unknown command"
+	disable_analytics_flag string = "DISABLE_ANALYTICS"
+)
 
 type JsonErrorStruct struct {
 	Ok       bool   `json:"ok"`
@@ -89,7 +92,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN, []string{"snyk_oauth_token", "snyk_docker_token"})
 	config.AddAlternativeKeys(configuration.API_URL, []string{"endpoint"})
 	config.AddAlternativeKeys(configuration.ADD_TRUSTED_CA_FILE, []string{"NODE_EXTRA_CA_CERTS"})
-	config.AddAlternativeKeys(configuration.ANALYTICS_DISABLED, []string{"snyk_analytics_disabled", "disable-analytics", "disable_analytics", "snyk_cfg_disable_analytics"})
+	config.AddAlternativeKeys(configuration.ANALYTICS_DISABLED, []string{"snyk_analytics_disabled", "snyk_cfg_disable_analytics", "disable-analytics", "disable_analytics"})
 
 	// if the CONFIG_KEY_OAUTH_TOKEN is specified as env var, we don't apply any additional logic
 	_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
@@ -192,6 +195,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalConfiguration := workflow.GetGlobalConfiguration()
 	globalFLags := workflow.FlagsetFromConfigurationOptions(globalConfiguration)
 	globalFLags.Bool(basic_workflows.PROXY_NOAUTH, false, "")
+	globalFLags.Bool(disable_analytics_flag, false, "")
 	return globalFLags
 }
 
@@ -366,6 +370,11 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 		insecureHTTPS = "true"
 	}
 
+	analytics := "enabled"
+	if config.GetBool(configuration.ANALYTICS_DISABLED) {
+		analytics = "disabled"
+	}
+
 	tablePrint := func(name string, value string) {
 		debugLogger.Printf("%-22s %s", name+":", value)
 	}
@@ -376,6 +385,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
 	tablePrint("Organization", org)
 	tablePrint("Insecure HTTPS", insecureHTTPS)
+	tablePrint("Analytics", analytics)
 	tablePrint("Authorization", authorization)
 	tablePrint("Features", "")
 	tablePrint("  --auth-type=oauth", oauthEnabled)
