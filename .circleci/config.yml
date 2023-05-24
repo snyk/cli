@@ -429,6 +429,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+      - gh/setup:
+          token: HAMMERHEAD_GITHUB_PAT
+          version: << pipeline.parameters.gh_version >>
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
