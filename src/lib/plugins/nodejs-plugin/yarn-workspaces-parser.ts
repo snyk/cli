@@ -12,6 +12,7 @@ import {
 } from '../get-multi-plugin-result';
 import { getFileContents } from '../../get-file-contents';
 import { NoSupportedManifestsFoundError } from '../../errors';
+import { DepGraph } from '@snyk/dep-graph';
 
 export async function processYarnWorkspaces(
   root: string,
@@ -51,7 +52,6 @@ export async function processYarnWorkspaces(
     },
     scannedProjects: [],
   };
-  let rootWorkspaceManifestContent = {};
   // the folders must be ordered highest first
   for (const directory of Object.keys(yarnTargetFiles)) {
     debug(`Processing ${directory} as a potential Yarn workspace`);
@@ -63,6 +63,7 @@ export async function processYarnWorkspaces(
       ...yarnWorkspacesMap,
       ...getWorkspacesMap(packageJson),
     };
+
     for (const workspaceRoot of Object.keys(yarnWorkspacesMap)) {
       const match = packageJsonBelongsToWorkspace(
         packageJsonFileName,
@@ -78,7 +79,6 @@ export async function processYarnWorkspaces(
       }
       if (packageJsonFileName === workspaceRoot) {
         isRootPackageJson = true;
-        rootWorkspaceManifestContent = JSON.parse(packageJson.content);
       }
     }
 
@@ -88,36 +88,57 @@ export async function processYarnWorkspaces(
       );
       continue;
     }
+
     try {
       const rootDir = isYarnWorkspacePackage
         ? pathUtil.dirname(yarnWorkspacesFilesMap[packageJsonFileName].root)
         : pathUtil.dirname(packageJsonFileName);
       const rootYarnLockfileName = pathUtil.join(rootDir, 'yarn.lock');
       const yarnLock = getFileContents(root, rootYarnLockfileName);
-
-      if (
-        rootWorkspaceManifestContent.hasOwnProperty('resolutions') &&
-        lockFileParser.getYarnLockfileType(yarnLock.content) ===
-          lockFileParser.LockfileType.yarn2
-      ) {
-        const parsedManifestContent = JSON.parse(packageJson.content);
-        packageJson.content = JSON.stringify({
-          ...parsedManifestContent,
-          resolutions: rootWorkspaceManifestContent['resolutions'],
-        });
-      }
-
-      const res = await lockFileParser.buildDepTree(
-        packageJson.content,
+      const lockfileVersion = lockFileParser.getYarnLockfileVersion(
         yarnLock.content,
-        settings.dev,
-        lockFileParser.LockfileType.yarn,
-        settings.strictOutOfSync !== false,
       );
+
+      let res: DepGraph;
+      switch (lockfileVersion) {
+        case lockFileParser.NodeLockfileVersion.YarnLockV1:
+          res = await lockFileParser.parseYarnLockV1Project(
+            packageJson.content,
+            yarnLock.content,
+            {
+              includeDevDeps: settings.dev || false,
+              includeOptionalDeps: false,
+              includePeerDeps: false,
+              pruneLevel: 'withinTopLevelDeps',
+              strictOutOfSync:
+                settings.strictOutOfSync === undefined
+                  ? true
+                  : settings.strictOutOfSync,
+            },
+          );
+          break;
+        case lockFileParser.NodeLockfileVersion.YarnLockV2:
+          res = await lockFileParser.parseYarnLockV2Project(
+            packageJson.content,
+            yarnLock.content,
+            {
+              includeDevDeps: settings.dev || false,
+              includeOptionalDeps: false,
+              pruneWithinTopLevelDeps: true,
+              strictOutOfSync:
+                settings.strictOutOfSync === undefined
+                  ? true
+                  : settings.strictOutOfSync,
+            },
+          );
+          break;
+        default:
+          throw new Error('Failed to build dep graph from current project');
+      }
       const project: ScannedProjectCustom = {
         packageManager: 'yarn',
         targetFile: pathUtil.relative(root, packageJson.fileName),
-        depTree: res as any,
+        depGraph: res as any,
         plugin: {
           name: 'snyk-nodejs-lockfile-parser',
           runtime: process.version,
