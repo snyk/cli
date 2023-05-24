@@ -208,13 +208,10 @@ release-pre:
 	@./release-scripts/validate-repository.sh
 	@echo "-- Validating artifacts"
 	@./release-scripts/validate-checksums.sh
+	@echo "-- Validating upload permissions"
+	@./release-scripts/upload-artifacts.sh --dry-run latest github npm
 	@echo "-- Publishing to S3 /version"
 	@./release-scripts/upload-artifacts.sh version
-
-.PHONY: release-dry-run
-release-dry-run:
-	@echo "-- Dry run"
-	@./release-scripts/upload-artifacts.sh --dry-run latest github npm
 
 .PHONY: release-final
 release-final:
