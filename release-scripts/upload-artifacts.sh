@@ -65,8 +65,7 @@ upload_github() {
     
     echo "DRY RUN: deleting draft from GitHub..."
     gh release delete "${VERSION_TAG}" \
-      --yes \
-      --cleanup-tag
+      --yes
   else
     echo "Uploading to GitHub..."
     gh release create "${VERSION_TAG}" "${StaticFiles[@]}" \
