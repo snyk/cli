@@ -437,10 +437,10 @@ jobs:
       - run:
           name: Pre-Publishing
           command: make release-pre
-      # - run:
-      #     name: Handling failed release
-      #     command: ./release-scripts/handle-failed-release.sh
-      #     when: on_fail
+      - run:
+          name: Handling failed release
+          command: ./release-scripts/handle-failed-release.sh
+          when: on_fail
 
   test-release:
     parameters:
@@ -907,19 +907,19 @@ workflows:
           type: approval
           requires:
             - Prepare Release
-          # filters:
-          #   branches:
-          #     only:
-          #       - master
+          filters:
+            branches:
+              only:
+                - master
       - pre-release:
           name: Pre-Release
           context: team-hammerhead-common-deploy-tokens
           requires:
             - Release?
-          # filters:
-          #   branches:
-          #     only:
-          #       - master
+          filters:
+            branches:
+              only:
+                - master
       - test-release:
           name: Test Release (<< matrix.executor >>)
           matrix:
