@@ -437,10 +437,10 @@ jobs:
       - run:
           name: Pre-Publishing
           command: make release-pre
-      - run:
-          name: Handling failed release
-          command: ./release-scripts/handle-failed-release.sh
-          when: on_fail
+      # - run:
+      #     name: Handling failed release
+      #     command: ./release-scripts/handle-failed-release.sh
+      #     when: on_fail
 
   test-release:
     parameters:
