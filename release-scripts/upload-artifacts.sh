@@ -96,11 +96,11 @@ upload_s3() {
   if [ "${DRY_RUN}" == true ]; then
     echo "DRY RUN: uploading to S3..."
     for filename in "${StaticFiles[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/ --dryrun true/
+      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/ --dryrun
     done
 
-    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/ --dryrun true/
-    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/ --dryrun true/
+    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/ --dryrun
+    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/ --dryrun
   else
     echo "Uploading to S3..."
     for filename in "${StaticFiles[@]}"; do
