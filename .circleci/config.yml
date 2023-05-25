@@ -465,9 +465,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - gh/setup:
-          token: HAMMERHEAD_GITHUB_PAT
-          version: << pipeline.parameters.gh_version >>
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
@@ -487,8 +484,6 @@ jobs:
       - gh/setup:
           token: HAMMERHEAD_GITHUB_PAT
           version: << pipeline.parameters.gh_version >>
-      - aws-cli/install:
-          version: << pipeline.parameters.aws_version >>
       - run:
           name: Publish to GitHub
           command: ./release-scripts/upload-artifacts.sh github
@@ -503,11 +498,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - gh/setup:
-          token: HAMMERHEAD_GITHUB_PAT
-          version: << pipeline.parameters.gh_version >>
-      - aws-cli/install:
-          version: << pipeline.parameters.aws_version >>
       - run:
           name: Publish to npm
           command: ./release-scripts/upload-artifacts.sh npm
