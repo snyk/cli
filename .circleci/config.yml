@@ -459,7 +459,23 @@ jobs:
           command: bash ./release-scripts/handle-failed-release.sh
           when: on_fail
 
-  release:
+  release-s3:
+    executor: docker-node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - aws-cli/install:
+          version: << pipeline.parameters.aws_version >>
+      - run:
+          name: Publish to S3
+          command: ./release-scripts/upload-artifacts.sh latest
+      - run:
+          name: Handling failed release
+          command: ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
+  release-github:
     executor: docker-node
     steps:
       - checkout
@@ -468,11 +484,23 @@ jobs:
       - gh/setup:
           token: HAMMERHEAD_GITHUB_PAT
           version: << pipeline.parameters.gh_version >>
-      - aws-cli/install:
-          version: << pipeline.parameters.aws_version >>
       - run:
-          name: Publishing
-          command: make release-final
+          name: Publish to GitHub
+          command: ./release-scripts/upload-artifacts.sh github
+      - run:
+          name: Handling failed release
+          command: ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
+  release-npm:
+    executor: docker-node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Publish to npm
+          command: ./release-scripts/upload-artifacts.sh npm
       - run:
           name: Handling failed release
           command: ./release-scripts/handle-failed-release.sh
@@ -931,13 +959,31 @@ workflows:
             branches:
               only:
                 - master
-      - release:
-          name: Release
+      - release-s3:
+          name: Release S3
           context: team-hammerhead-common-deploy-tokens
           requires:
             - Test Release (docker-node)
             - Test Release (win/default)
             - Test Release (macos)
+          filters:
+            branches:
+              only:
+                - master
+      - release-github:
+          name: Release GitHub
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - Release S3
+          filters:
+            branches:
+              only:
+                - master
+      - release-npm:
+          name: Release npm
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - Release GitHub
           filters:
             branches:
               only:
