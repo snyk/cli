@@ -22,7 +22,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         t.equal(
           e.message,
           '\nTesting yarn-workspace-out-of-sync...\n\n' +
-            'Dependency snyk was not found in yarn.lock.' +
+            'Dependency snyk@1.320.0 was not found in yarn.lock.' +
             ' Your package.json and yarn.lock are probably out of sync.' +
             ' Please run "yarn install" and try again.',
           'Contains enough info about err',
