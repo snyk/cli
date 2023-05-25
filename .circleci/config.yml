@@ -974,9 +974,7 @@ workflows:
           name: Release GitHub
           context: team-hammerhead-common-deploy-tokens
           requires:
-            - Test Release (docker-node)
-            - Test Release (win/default)
-            - Test Release (macos)
+            - Release S3
           filters:
             branches:
               only:
@@ -985,9 +983,7 @@ workflows:
           name: Release npm
           context: team-hammerhead-common-deploy-tokens
           requires:
-            - Test Release (docker-node)
-            - Test Release (win/default)
-            - Test Release (macos)
+            - Release GitHub
           filters:
             branches:
               only:
