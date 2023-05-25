@@ -213,7 +213,3 @@ release-pre:
 	@echo "-- Publishing to S3 /version"
 	@./release-scripts/upload-artifacts.sh version
 
-.PHONY: release-final
-release-final:
-	@echo "-- Publishing"
-	@./release-scripts/upload-artifacts.sh latest github npm
