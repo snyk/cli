@@ -92,27 +92,28 @@ upload_npm() {
 }
 
 upload_s3() {
+  version_target=$1
   if [ "${DRY_RUN}" == true ]; then
     echo "DRY RUN: uploading to S3..."
     for filename in "${StaticFiles[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/ --dryrun
+      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
     done
 
-    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/ --dryrun
-    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/ --dryrun
+    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
+    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
   else
     echo "Uploading to S3..."
     for filename in "${StaticFiles[@]}"; do
-      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/
+      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
     done
 
-    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/
-    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/
+    aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
+    aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
   fi
 }
 
 # Capture valid flags
-while getopts ":h:t:-:" opt; do
+while getopts ":h:-:" opt; do
   case ${opt} in
     h)
       show_help
@@ -160,6 +161,6 @@ for arg in "${@}"; do
   
   # Upload files to S3 bucket
   else
-    upload_s3
+    upload_s3 "${target}"
   fi  
 done
