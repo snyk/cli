@@ -1,13 +1,13 @@
 import * as pathLib from 'path';
 import * as cloneDeep from 'lodash.clonedeep';
 
-import * as requestLib from '../../../../../../../../../src/lib/request';
+import * as requestLib from '../../../../../../../../../src/lib/request/request';
 import {
   fetchCacheResource,
   InvalidUserPathError,
   lookupLocal,
 } from '../../../../../../../../../src/lib/iac/test/v2/local-cache/utils';
-import { CustomError } from '../../../../../../../../../src/lib/errors';
+import { Readable } from 'stream';
 
 describe('lookupLocal', () => {
   const iacCachePath = pathLib.join('iac', 'cache', 'path');
@@ -115,14 +115,8 @@ describe('fetchCacheResource', () => {
     const testCacheResourcBuffer = Buffer.from('test-cache-resource-content');
 
     const makeRequestSpy = jest
-      .spyOn(requestLib, 'makeRequest')
-      .mockResolvedValue({
-        body: testCacheResourcBuffer,
-        res: {
-          statusCode: 200,
-          body: testCacheResourcBuffer,
-        } as any,
-      } as any);
+      .spyOn(requestLib, 'streamRequest')
+      .mockResolvedValue(Readable.from(testCacheResourcBuffer));
 
     // Act
     await fetchCacheResource(testCacheResourceUrl);
@@ -130,6 +124,9 @@ describe('fetchCacheResource', () => {
     // Assert
     expect(makeRequestSpy).toHaveBeenCalledWith({
       url: testCacheResourceUrl,
+      body: null,
+      headers: {},
+      method: 'get',
     });
   });
 
@@ -144,24 +141,6 @@ describe('fetchCacheResource', () => {
       await expect(
         fetchCacheResource(testCacheResourceUrl),
       ).rejects.toThrowError();
-    });
-  });
-  describe('when an error response is received', () => {
-    it('throws an error', async () => {
-      // Arrange
-      const testCacheResourceUrl = 'test-cache-resource-url';
-
-      jest.spyOn(requestLib, 'makeRequest').mockResolvedValue({
-        body: '',
-        res: {
-          statusCode: 500,
-        },
-      } as any);
-
-      // Act + Assert
-      await expect(fetchCacheResource(testCacheResourceUrl)).rejects.toThrow(
-        CustomError,
-      );
     });
   });
 });
