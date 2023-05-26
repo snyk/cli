@@ -10,8 +10,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20230523125328-59db55ecc135
-	github.com/snyk/cli-extension-sbom v0.0.0-20230331093938-3d6a5dfdae22
-	github.com/snyk/go-application-framework v0.0.0-20230519090414-ce080e28fec1
+	github.com/snyk/cli-extension-sbom v0.0.0-20230526074203-8198a7341fbc
+	github.com/snyk/go-application-framework v0.0.0-20230526065140-1fabe799e3f9
 	github.com/snyk/go-httpauth v0.0.0-20230512081507-800aedece3cb
 	github.com/snyk/snyk-iac-capture v0.6.0
 	github.com/spf13/cobra v1.7.0

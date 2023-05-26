@@ -61,6 +61,7 @@ func legacycliWorkflow(
 	oauthIsAvailable := config.GetBool(configuration.FF_OAUTH_AUTH_FLOW_ENABLED)
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
+	isDebug := config.GetBool(configuration.DEBUG)
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
 	insecure := config.GetBool(configuration.INSECURE_HTTPS)
 	proxyAuthenticationMechanismString := config.GetString(configuration.PROXY_AUTHENTICATION_MECHANISM)
@@ -132,7 +133,11 @@ func legacycliWorkflow(
 	proxyInfo := wrapperProxy.ProxyInfo()
 	err = cli.Execute(proxyInfo, FilteredArgs(args))
 
-	if useStdIo == false {
+	if !useStdIo {
+		if isDebug {
+			debugLogger.Println(errBuffer.String())
+		}
+
 		data := workflow.NewData(DATATYPEID_LEGACY_CLI_STDOUT, "text/plain", outBuffer.Bytes())
 		output = append(output, data)
 	}

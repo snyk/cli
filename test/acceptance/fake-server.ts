@@ -515,9 +515,23 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200).send({});
   });
 
-  app.post(basePath.replace('v1', 'hidden') + '/orgs/:org/sbom', (req, res) => {
-    res.status(200).send({});
-  });
+  app.post(
+    basePath.replace('v1', 'hidden') + '/orgs/:org/sbom',
+    express.json(),
+    (req, res) => {
+      let bom: Record<string, unknown> = { bomFormat: 'CycloneDX' };
+
+      if (Array.isArray(req.body.depGraphs) && req.body.subject) {
+        // Return a fixture of an all-projects SBOM.
+        bom = {
+          ...bom,
+          metadata: { component: { name: req.body.subject.name } },
+        };
+      }
+
+      res.status(200).send(bom);
+    },
+  );
 
   app.get(basePath + '/download/driftctl', (req, res) => {
     const fixturePath = getFixturePath('iac');
