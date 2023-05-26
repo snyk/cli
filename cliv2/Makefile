@@ -10,7 +10,8 @@ HASH_ALGORITHM = 256
 CLI_V2_VERSION_TAG = 
 CLI_V1_VERSION_TAG = 
 CLI_V1_LOCATION = 
-USE_LEGACY_EXECUTABLE_NAME = 
+USE_LEGACY_EXECUTABLE_NAME =
+LDFLAGS = -s -w
 
 # Make directories per convention
 prefix = /usr/local
@@ -157,7 +158,7 @@ configure: $(V2_DIRECTORY)/cliv2.version $(CACHE_DIR) $(CACHE_DIR)/version.mk $(
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
-	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
+	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING): 
 	@echo "$(LOG_PREFIX) Generating checksum ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
