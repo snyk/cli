@@ -10,7 +10,7 @@ The `snyk sbom` feature requires an internet connection.
 
 ## Usage
 
-`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml>|spdx2.3+json> [--file=<file>] [--unmanaged] [--org=<ORG_ID>] [<TARGET_DIRECTORY>]`
+`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|spdx2.3+json> [--file=] [--unmanaged] [--org=<ORG_ID>] [--all-projects] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [<TARGET_DIRECTORY>]`
 
 ## Description
 
@@ -69,11 +69,33 @@ By default, the `sbom` command detects a supported manifest file in the current 
 
 Generate an SBOM for unmanaged software projects.
 
+### `[--all-projects]`
+
+Optional. Use for monorepos and directories with multiple projects or manifest files.
+
+Auto-detect all projects in the working directory (including Yarn workspaces) and generate a single SBOM based on their contents.
+
+### `[--exclude=<NAME>[,<NAME>...]]`
+
+Can be used with `--all-projects` to indicate directory names and file names to exclude. Must be comma separated.
+
+Example: `$ snyk sbom --all-projects --exclude=dir1,file2`
+
+This will exclude any directories named `dir1` and `file2` when scanning for project manifest files.
+
+### `[--detection-depth=<DEPTH>]`
+
+Use with `--all-projects` to indicate how many subdirectories to search. `DEPTH` must be a number, 1 or greater; zero (0) is the current directory.
+
+Default: 4
+
+### `[--prune-repeated-subdependencies|-p]`
+
+Prune dependency trees, removing duplicate sub-dependencies.
+
 ### `[<TARGET_DIRECTORY>]`
 
 Optional. Instruct the CLI to autodetect a package manager manifest file to use within the specified directory. If `--file` is set, this option will be ignored.
-
-**Note:** Support for the `--all-projects` option is planned for later versions.
 
 ## Examples for the snyk sbom command
 
@@ -92,3 +114,7 @@ Optional. Instruct the CLI to autodetect a package manager manifest file to use 
 ### Create a CycloneDX XML document for a Maven project
 
 `$ snyk sbom --file=pom.xml --format=cyclonedx1.4+xml`
+
+### Create a CycloneDX JSON document for a monorepo
+
+`$ snyk sbom --format=cyclonedx1.4+json --all-projects`
