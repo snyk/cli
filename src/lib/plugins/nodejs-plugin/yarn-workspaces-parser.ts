@@ -52,6 +52,8 @@ export async function processYarnWorkspaces(
     },
     scannedProjects: [],
   };
+
+  let rootWorkspaceManifestContent = {};
   // the folders must be ordered highest first
   for (const directory of Object.keys(yarnTargetFiles)) {
     debug(`Processing ${directory} as a potential Yarn workspace`);
@@ -79,6 +81,7 @@ export async function processYarnWorkspaces(
       }
       if (packageJsonFileName === workspaceRoot) {
         isRootPackageJson = true;
+        rootWorkspaceManifestContent = JSON.parse(packageJson.content);
       }
     }
 
@@ -129,6 +132,12 @@ export async function processYarnWorkspaces(
                 settings.strictOutOfSync === undefined
                   ? true
                   : settings.strictOutOfSync,
+            },
+            {
+              isWorkspacePkg: true,
+              isRoot: isRootPackageJson,
+              rootResolutions:
+                rootWorkspaceManifestContent?.['resolutions'] || {},
             },
           );
           break;
