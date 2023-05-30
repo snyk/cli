@@ -1,0 +1,62 @@
+b32aa0576d3a579ec29ec8d40dea4b4f5af1dce2	not-for-merge	branch 'main' of https://github.com/apple/swift-atomics
+6e09389a3d013bea562c33a7c43cbc513fc5c247	not-for-merge	'refs/pull/11/head' of https://github.com/apple/swift-atomics
+7658766e6137f85ba027ac4789317b725b8dc652	not-for-merge	'refs/pull/12/head' of https://github.com/apple/swift-atomics
+55a062c4a86102455fc32e1d1fec7672a165e7ca	not-for-merge	'refs/pull/14/head' of https://github.com/apple/swift-atomics
+47c88d732f0769bd7d4534781e172733c1cb621f	not-for-merge	'refs/pull/17/head' of https://github.com/apple/swift-atomics
+09ddcdd88da7a0dc6ac8a4a454b546253464d41b	not-for-merge	'refs/pull/20/head' of https://github.com/apple/swift-atomics
+1e43df378fdeecc3ce687672b74225ea4fc587c3	not-for-merge	'refs/pull/23/head' of https://github.com/apple/swift-atomics
+7e101a5653b91a91d84ff9cf4f5303e0fa9c1938	not-for-merge	'refs/pull/24/head' of https://github.com/apple/swift-atomics
+907a24f5f288b8d601cb1a5400cf2b771e7be8d2	not-for-merge	'refs/pull/25/head' of https://github.com/apple/swift-atomics
+7294d12edd142b55cdf3a0f96874a7f35c9c385d	not-for-merge	'refs/pull/26/head' of https://github.com/apple/swift-atomics
+a2e04c3c60bf55d6ba900351068735315e617c8d	not-for-merge	'refs/pull/28/head' of https://github.com/apple/swift-atomics
+c711547ac1467b63d4c78cf5901b8216cdb02372	not-for-merge	'refs/pull/29/head' of https://github.com/apple/swift-atomics
+f659ecc1bb836125f1cf63707104934ef905174f	not-for-merge	'refs/pull/30/head' of https://github.com/apple/swift-atomics
+d8a2baf4d58ac2f52adcb084d13e1d2dd0fedcf0	not-for-merge	'refs/pull/31/head' of https://github.com/apple/swift-atomics
+38049a4a30d613a33bbb907b04ea91d1ce8b98bd	not-for-merge	'refs/pull/32/head' of https://github.com/apple/swift-atomics
+d4a3aae83bec87eee2c8545a265a910c567f0d87	not-for-merge	'refs/pull/34/head' of https://github.com/apple/swift-atomics
+b58a624375564ab138ad131e040dcafe3cbd0bdd	not-for-merge	'refs/pull/35/head' of https://github.com/apple/swift-atomics
+1d4afa40d7b3e36195e323fc7afc7a366af62984	not-for-merge	'refs/pull/36/head' of https://github.com/apple/swift-atomics
+5d07eab6feba55e06d3380880b5a4e7570f796fd	not-for-merge	'refs/pull/38/head' of https://github.com/apple/swift-atomics
+0e10d28288f9ad100ad46a4ec4a0ffc8732d51aa	not-for-merge	'refs/pull/39/head' of https://github.com/apple/swift-atomics
+4fb7f05a27138a9162cd7a1c3b8d859c91850598	not-for-merge	'refs/pull/4/head' of https://github.com/apple/swift-atomics
+8e5d52727e973985c921d3d6153412881f0dabae	not-for-merge	'refs/pull/40/head' of https://github.com/apple/swift-atomics
+3d0a97769f0b9ef144eda096449e5c5e3aac44ca	not-for-merge	'refs/pull/42/head' of https://github.com/apple/swift-atomics
+2468fa3eac88d73dcdbc71402e352fd16c302d5c	not-for-merge	'refs/pull/43/head' of https://github.com/apple/swift-atomics
+2e0f2aa421f6e117c8fdd7d3340363e6fb45acce	not-for-merge	'refs/pull/44/head' of https://github.com/apple/swift-atomics
+e220ff33c3efb5dc3a3998e6375175ff5789285e	not-for-merge	'refs/pull/46/head' of https://github.com/apple/swift-atomics
+44bf6b59dc11d5cc2c29d796b382bcacaba42228	not-for-merge	'refs/pull/48/head' of https://github.com/apple/swift-atomics
+ca87c443e8fbd7afbf21580cfedd0c1c52272197	not-for-merge	'refs/pull/49/head' of https://github.com/apple/swift-atomics
+432e5bd9fe00490cb820c7a070e2f5b69ff6b2db	not-for-merge	'refs/pull/5/head' of https://github.com/apple/swift-atomics
+f62b0d33b4cc916ff1ec05e568e42fd133817198	not-for-merge	'refs/pull/50/head' of https://github.com/apple/swift-atomics
+681881b6685f942bd74b40ecba20956f0fffc2b6	not-for-merge	'refs/pull/52/head' of https://github.com/apple/swift-atomics
+907ce2a79e8ac5f3dff0fc9dc4f2fe940b56b6f4	not-for-merge	'refs/pull/58/head' of https://github.com/apple/swift-atomics
+42691f8636c58ae1c4b9d83fc6349847e8ee76aa	not-for-merge	'refs/pull/6/head' of https://github.com/apple/swift-atomics
+3366a367c5dd0a06214a592fe279b7258e2cf0ae	not-for-merge	'refs/pull/60/head' of https://github.com/apple/swift-atomics
+72034b49082fd1c0d76690ad24731c2bcbc2c897	not-for-merge	'refs/pull/65/head' of https://github.com/apple/swift-atomics
+3a39dbae0c8b9544684d544af66ae0d787322c37	not-for-merge	'refs/pull/67/head' of https://github.com/apple/swift-atomics
+275fb6be61acbdd90982e64dd26a9a4d2442098c	not-for-merge	'refs/pull/68/head' of https://github.com/apple/swift-atomics
+cb7a3b2d35e7dfb501be705c657323cf301e95f5	not-for-merge	'refs/pull/69/head' of https://github.com/apple/swift-atomics
+ad1fb15167f74e05ce1662625952c86a3b3d1b3c	not-for-merge	'refs/pull/7/head' of https://github.com/apple/swift-atomics
+0f2c36bf75400e5f5e93a0a39ad67460d834cde3	not-for-merge	'refs/pull/70/head' of https://github.com/apple/swift-atomics
+8ca2dee2bf3cea31cf1f9fb96ef4c37e7ccdf86a	not-for-merge	'refs/pull/71/head' of https://github.com/apple/swift-atomics
+46e4e960ac6128f1e510e70f724f933385a13508	not-for-merge	'refs/pull/72/head' of https://github.com/apple/swift-atomics
+79718d92d371893106eed2ca0f6c923abf994536	not-for-merge	'refs/pull/73/head' of https://github.com/apple/swift-atomics
+7feb1c17912944ea989ce9d8cbfd44e8d2c071d3	not-for-merge	'refs/pull/74/head' of https://github.com/apple/swift-atomics
+11a0547baa79060bcf3f881f18346f1d6a28482a	not-for-merge	'refs/pull/76/head' of https://github.com/apple/swift-atomics
+5a9973dc1d887b5ca4ef758ca10f043dc368dda7	not-for-merge	'refs/pull/77/head' of https://github.com/apple/swift-atomics
+58a95f7984f5a0e4c2f3057bf30bd5c65cf58a47	not-for-merge	'refs/pull/78/head' of https://github.com/apple/swift-atomics
+e53eff6f1727ee1713df5a5e47446004ab7754d2	not-for-merge	'refs/pull/80/head' of https://github.com/apple/swift-atomics
+b1ecf114a576df36916fdc22f3c031c5a41702a7	not-for-merge	'refs/pull/81/head' of https://github.com/apple/swift-atomics
+581634cdaf01db228f75ad17806669ee76d2b6df	not-for-merge	'refs/pull/82/head' of https://github.com/apple/swift-atomics
+8faf7003f8401420f3a8e56b87f6fd63bdec110c	not-for-merge	'refs/pull/83/head' of https://github.com/apple/swift-atomics
+c95665ddba7e80489bb05e8e47ecd55874f14c09	not-for-merge	'refs/pull/84/head' of https://github.com/apple/swift-atomics
+a79829bbcf3f886a18698bec24c0e69ace60c528	not-for-merge	'refs/pull/85/head' of https://github.com/apple/swift-atomics
+40bd3bac4f0df421e4bf1527fcfd86a6e4a0b10a	not-for-merge	'refs/pull/9/head' of https://github.com/apple/swift-atomics
+b97750eb1815973a377cb85ea2f6c62374a9995d	not-for-merge	tag '0.0.1' of https://github.com/apple/swift-atomics
+26e346cd64f6b92d4089e7fafe2f8e82f60ddb8c	not-for-merge	tag '0.0.2' of https://github.com/apple/swift-atomics
+3e95ba32cd1b4c877f6163e8eea54afc4e63bf9f	not-for-merge	tag '0.0.3' of https://github.com/apple/swift-atomics
+46a69523595b5142b30b20f922a1324586bdc96f	not-for-merge	tag '1.0.0' of https://github.com/apple/swift-atomics
+59f7fbf47952b50aceb2c09d3c12e0a120e82456	not-for-merge	tag '1.0.1' of https://github.com/apple/swift-atomics
+919eb1d83e02121cdb434c7bfc1f0c66ef17febe	not-for-merge	tag '1.0.2' of https://github.com/apple/swift-atomics
+ff3d2212b6b093db7f177d0855adbc4ef9c5f036	not-for-merge	tag '1.0.3' of https://github.com/apple/swift-atomics
+6c89474e62719ddcc1e9614989fff2f68208fe10	not-for-merge	tag '1.1.0' of https://github.com/apple/swift-atomics

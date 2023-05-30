@@ -1,0 +1,12 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = true
+	ignorecase = true
+	precomposeunicode = true
+	symlinks = true
+	usebuiltinfsmonitor = false
+[remote "origin"]
+	url = https://github.com/apple/swift-nio-http2.git
+	fetch = +refs/*:refs/*
+	mirror = true

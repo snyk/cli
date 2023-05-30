@@ -1,0 +1,183 @@
+b4a6dc26fa25c48543ed8eb0682c427541ae566c	not-for-merge	branch 'jw-no-prod' of https://github.com/apple/swift-nio-transport-services
+41f4098903878418537020075a4d8a6e20a0b182	not-for-merge	branch 'main' of https://github.com/apple/swift-nio-transport-services
+553f2f73ed8bf40987c4663c512d9e94f77f36cf	not-for-merge	branch 'swift-nio-transport-services-swift-4-maintenance' of https://github.com/apple/swift-nio-transport-services
+d963aea718bcc21d95b9cb8a20556ae81748241f	not-for-merge	branch 'tomerd-patch-1' of https://github.com/apple/swift-nio-transport-services
+ceaf344f8209eb9adf0b79e4484a3f2b63ae83e1	not-for-merge	'refs/pull/1/head' of https://github.com/apple/swift-nio-transport-services
+06853e7a8bef7f28116b4a15d66e8267d8b70dbe	not-for-merge	'refs/pull/101/head' of https://github.com/apple/swift-nio-transport-services
+ba7d186cefa7dc74d30a5c46a600a16af4069517	not-for-merge	'refs/pull/102/head' of https://github.com/apple/swift-nio-transport-services
+2c5df14b10b882ddf88475554449ea00ba8728ba	not-for-merge	'refs/pull/103/head' of https://github.com/apple/swift-nio-transport-services
+66daa3c77688e3d978dd1b60f2d1d6ccfaa61c0f	not-for-merge	'refs/pull/105/head' of https://github.com/apple/swift-nio-transport-services
+49aff15960c4be66127ace3d3abe480417c40b01	not-for-merge	'refs/pull/107/head' of https://github.com/apple/swift-nio-transport-services
+0ad72b333c00a080cd79ade98302654a5d046bd0	not-for-merge	'refs/pull/108/head' of https://github.com/apple/swift-nio-transport-services
+c33dc9a2603c47217c58106b03832e8905fc1062	not-for-merge	'refs/pull/109/head' of https://github.com/apple/swift-nio-transport-services
+7080888809c7367f72471cb724a972e2f8302497	not-for-merge	'refs/pull/11/head' of https://github.com/apple/swift-nio-transport-services
+ffa1a5ace2f2cec5a5495685b7e10d4088e9d5fd	not-for-merge	'refs/pull/112/head' of https://github.com/apple/swift-nio-transport-services
+862378ee24cfa990b4d8b481c57c3b0bace4d6b2	not-for-merge	'refs/pull/113/head' of https://github.com/apple/swift-nio-transport-services
+1c55748cf647fcfe6ef3b8636d9181946b3c4f0d	not-for-merge	'refs/pull/113/merge' of https://github.com/apple/swift-nio-transport-services
+b90d5801feaa654c1440fed410b13cb643795450	not-for-merge	'refs/pull/114/head' of https://github.com/apple/swift-nio-transport-services
+f4d258c4488ba7896753899adb7220e126595a8e	not-for-merge	'refs/pull/115/head' of https://github.com/apple/swift-nio-transport-services
+402cc918e5aa2c4590525120bc93ca3fb8efbedd	not-for-merge	'refs/pull/116/head' of https://github.com/apple/swift-nio-transport-services
+0ae8012d4766101cf1d2a9d3402ac9aa30254c19	not-for-merge	'refs/pull/117/head' of https://github.com/apple/swift-nio-transport-services
+20b6b1a13f1510c2998302146e77a0f46d8c7cfa	not-for-merge	'refs/pull/118/head' of https://github.com/apple/swift-nio-transport-services
+09cec471bafb17b3f6b3d7b0afd720188393e81c	not-for-merge	'refs/pull/118/merge' of https://github.com/apple/swift-nio-transport-services
+b4a6dc26fa25c48543ed8eb0682c427541ae566c	not-for-merge	'refs/pull/119/head' of https://github.com/apple/swift-nio-transport-services
+b57a312824ec9f751b1fe900592373c8533d73cf	not-for-merge	'refs/pull/12/head' of https://github.com/apple/swift-nio-transport-services
+b6bbd55926a95e7140cd71518b1665447a638fa4	not-for-merge	'refs/pull/122/head' of https://github.com/apple/swift-nio-transport-services
+6c539af110f744a8a629e88dab40f066158f3cd2	not-for-merge	'refs/pull/123/head' of https://github.com/apple/swift-nio-transport-services
+ab38a52133d8985c72ae868ce3bbb549f68f231e	not-for-merge	'refs/pull/125/head' of https://github.com/apple/swift-nio-transport-services
+92449d057c5b72ab632e04aef0aa4215aa24e081	not-for-merge	'refs/pull/127/head' of https://github.com/apple/swift-nio-transport-services
+96e326e68b5749e6197e6fb3638879ad9352e788	not-for-merge	'refs/pull/128/head' of https://github.com/apple/swift-nio-transport-services
+298eb51c432aed2a1a40e8b28034ef9fcfa34589	not-for-merge	'refs/pull/13/head' of https://github.com/apple/swift-nio-transport-services
+c0914e4dd00b8d64f2e2d6507441a31473537622	not-for-merge	'refs/pull/130/head' of https://github.com/apple/swift-nio-transport-services
+7cb03ef7b401703b0e18f5497fe38449318cf6fe	not-for-merge	'refs/pull/136/head' of https://github.com/apple/swift-nio-transport-services
+ba96539000037fa0a07144e826016a00d36f44b9	not-for-merge	'refs/pull/136/merge' of https://github.com/apple/swift-nio-transport-services
+dff22e0f8ce34f2c11a8734d6ae9e5b5a0758f8d	not-for-merge	'refs/pull/138/head' of https://github.com/apple/swift-nio-transport-services
+d963aea718bcc21d95b9cb8a20556ae81748241f	not-for-merge	'refs/pull/139/head' of https://github.com/apple/swift-nio-transport-services
+f1ea387837e9d74854af66ee305b6ad925dfb599	not-for-merge	'refs/pull/140/head' of https://github.com/apple/swift-nio-transport-services
+a21ec730ef313c29aea485f6db3c13ec3c731327	not-for-merge	'refs/pull/141/head' of https://github.com/apple/swift-nio-transport-services
+6d1472d86d565c2e80c2604abd702a35c9789a6c	not-for-merge	'refs/pull/142/head' of https://github.com/apple/swift-nio-transport-services
+2f8ae4660827ebb28724ca0e5390584620011dec	not-for-merge	'refs/pull/143/head' of https://github.com/apple/swift-nio-transport-services
+4e9d46c4a550bad6fb8828402ec35f985df72f8f	not-for-merge	'refs/pull/144/head' of https://github.com/apple/swift-nio-transport-services
+abe0a76817c2d26e3da25b099b622bb763010ce0	not-for-merge	'refs/pull/146/head' of https://github.com/apple/swift-nio-transport-services
+ddfe0487b32e86c545b97020cc9439a009d04503	not-for-merge	'refs/pull/148/head' of https://github.com/apple/swift-nio-transport-services
+2d398e619ceff9a6433abd433f32289e809ca71c	not-for-merge	'refs/pull/149/head' of https://github.com/apple/swift-nio-transport-services
+c36062917bbff9437e468fce8b3f1d9b5271f8eb	not-for-merge	'refs/pull/15/head' of https://github.com/apple/swift-nio-transport-services
+891fd81e5daa4318c8a522510466f967de61cea1	not-for-merge	'refs/pull/150/head' of https://github.com/apple/swift-nio-transport-services
+55e65b2fb2950e076356d4d4b1a158796eede154	not-for-merge	'refs/pull/151/head' of https://github.com/apple/swift-nio-transport-services
+d67dc97a108078e19b2452c3abe1444ac03221c2	not-for-merge	'refs/pull/152/head' of https://github.com/apple/swift-nio-transport-services
+e847ead5f810fd816b9126597cd598a411c874ac	not-for-merge	'refs/pull/153/head' of https://github.com/apple/swift-nio-transport-services
+86245bfcb5737e34daeeb9c5a3436edcefe32ae1	not-for-merge	'refs/pull/154/head' of https://github.com/apple/swift-nio-transport-services
+f0b67962c4853b44d3bdd6d94c43490254c4a7b9	not-for-merge	'refs/pull/155/head' of https://github.com/apple/swift-nio-transport-services
+8bd3b05f16cc2d585ad9b1f202ed62ceac37985e	not-for-merge	'refs/pull/156/head' of https://github.com/apple/swift-nio-transport-services
+7b77a3be3739938096df1134ba0d71586a88567c	not-for-merge	'refs/pull/157/head' of https://github.com/apple/swift-nio-transport-services
+48a6a95f67101a478a92f3b8233c333d52176001	not-for-merge	'refs/pull/158/head' of https://github.com/apple/swift-nio-transport-services
+40b632c150e434a95197308cf27036bf66ae54df	not-for-merge	'refs/pull/16/head' of https://github.com/apple/swift-nio-transport-services
+1ea09a3813654c9361e5d700c080044f8bd96863	not-for-merge	'refs/pull/160/head' of https://github.com/apple/swift-nio-transport-services
+b5c31d0f50152ee6af530aec42eb047842d8a919	not-for-merge	'refs/pull/161/head' of https://github.com/apple/swift-nio-transport-services
+cb3478ac5028a327b4686f7a8973b6c82168bf9f	not-for-merge	'refs/pull/162/head' of https://github.com/apple/swift-nio-transport-services
+1ea6dfffbb65840d6db0036c8df815b1f85b79e4	not-for-merge	'refs/pull/163/head' of https://github.com/apple/swift-nio-transport-services
+57223014898cbe0d4cdaad6ef28745f45a7276c2	not-for-merge	'refs/pull/164/head' of https://github.com/apple/swift-nio-transport-services
+5e84d7c0ce0c3ec8dc3b779248ce5ed6420adb32	not-for-merge	'refs/pull/165/head' of https://github.com/apple/swift-nio-transport-services
+eb38e057dc02e8d523ce76dda806bfe4399391cf	not-for-merge	'refs/pull/166/head' of https://github.com/apple/swift-nio-transport-services
+2d147b3098892ae5e373dec75617ef6ce59f93be	not-for-merge	'refs/pull/167/head' of https://github.com/apple/swift-nio-transport-services
+8c834ec29b96e97980bb8f809929d4246f7779d0	not-for-merge	'refs/pull/168/head' of https://github.com/apple/swift-nio-transport-services
+6b80a53ff99934a85cefac11551de9ca4c08d855	not-for-merge	'refs/pull/169/head' of https://github.com/apple/swift-nio-transport-services
+595f53f8af81e93815abd5a45b6f6398e3406a2b	not-for-merge	'refs/pull/17/head' of https://github.com/apple/swift-nio-transport-services
+ae6df4bcc7802205b829a8a4505279e10ff3b387	not-for-merge	'refs/pull/170/head' of https://github.com/apple/swift-nio-transport-services
+4256e89a5de083f112ab080df50cc1d5492b1eb7	not-for-merge	'refs/pull/171/head' of https://github.com/apple/swift-nio-transport-services
+f1febb1934c0c945d2f9ed82dfff82d041e84347	not-for-merge	'refs/pull/172/head' of https://github.com/apple/swift-nio-transport-services
+c49c62d3118a3f11fff2d84197384bbe4ecff372	not-for-merge	'refs/pull/173/head' of https://github.com/apple/swift-nio-transport-services
+aadf8a4a2b3cdb4a62896cf91ed81091563b69d7	not-for-merge	'refs/pull/174/head' of https://github.com/apple/swift-nio-transport-services
+7516fb4b683864fa5408e0f628163d6b96a3318e	not-for-merge	'refs/pull/174/merge' of https://github.com/apple/swift-nio-transport-services
+039a1448b727260b9808586be4ef69124b635001	not-for-merge	'refs/pull/175/head' of https://github.com/apple/swift-nio-transport-services
+410be6e13e4b7876b0362cc6a5d04cb7395e7ea7	not-for-merge	'refs/pull/175/merge' of https://github.com/apple/swift-nio-transport-services
+13a6a6fac201b79614db80f9337fd5e769a56557	not-for-merge	'refs/pull/176/head' of https://github.com/apple/swift-nio-transport-services
+022d063fd76ca380a0364a43672cb5ee7e722ae4	not-for-merge	'refs/pull/176/merge' of https://github.com/apple/swift-nio-transport-services
+fa1abe90074bbb73f8ba8f31b32b0a806c3a7a1f	not-for-merge	'refs/pull/18/head' of https://github.com/apple/swift-nio-transport-services
+13a4bbd698c62ce530e46ed88a1b055942bcd46f	not-for-merge	'refs/pull/19/head' of https://github.com/apple/swift-nio-transport-services
+4e67d5d1c8a1129227fa465e13bc3e51b4ce05cd	not-for-merge	'refs/pull/2/head' of https://github.com/apple/swift-nio-transport-services
+9840b2ac8cdc4435b69334a9e0c72ab043302fb4	not-for-merge	'refs/pull/20/head' of https://github.com/apple/swift-nio-transport-services
+1bbd82b4bc87a612a1dd2a4b1e3ecb6d8da56678	not-for-merge	'refs/pull/22/head' of https://github.com/apple/swift-nio-transport-services
+94932581ef5f5b195a3f922efd022316b9020b01	not-for-merge	'refs/pull/23/head' of https://github.com/apple/swift-nio-transport-services
+1a1344a8a54ab6ecaea151d35ba958c82bed7ee0	not-for-merge	'refs/pull/24/head' of https://github.com/apple/swift-nio-transport-services
+14637657eee2e05a0c21180af0e8e51cc06e7e8b	not-for-merge	'refs/pull/25/head' of https://github.com/apple/swift-nio-transport-services
+5864199be78219f87302a6f0366260aab327cb31	not-for-merge	'refs/pull/26/head' of https://github.com/apple/swift-nio-transport-services
+382cecb8ee4c2e50dce02ebe28f6727a48378afb	not-for-merge	'refs/pull/27/head' of https://github.com/apple/swift-nio-transport-services
+f23178b2ffddb4cd1a64593cdbbdecba95405d8b	not-for-merge	'refs/pull/29/head' of https://github.com/apple/swift-nio-transport-services
+a0f9ecf074a21f75344e27a205b3f62392122753	not-for-merge	'refs/pull/3/head' of https://github.com/apple/swift-nio-transport-services
+9d4e3b91647c7aedc237d7cc5d1d34a786d52581	not-for-merge	'refs/pull/30/head' of https://github.com/apple/swift-nio-transport-services
+e0e79f41e05b7e6cee4983a6e8ee9aa6e76209bc	not-for-merge	'refs/pull/31/head' of https://github.com/apple/swift-nio-transport-services
+35e6f66c25fff4904d33e5b2e47e7d24176bf600	not-for-merge	'refs/pull/32/head' of https://github.com/apple/swift-nio-transport-services
+e00904f1809f3092809787452c83411226362c8e	not-for-merge	'refs/pull/33/head' of https://github.com/apple/swift-nio-transport-services
+3d4f0625becb1523ba744747a3356ac1d5e623bd	not-for-merge	'refs/pull/34/head' of https://github.com/apple/swift-nio-transport-services
+8c88e1be0721b489f1127d4d352d8fea5b238cc7	not-for-merge	'refs/pull/37/head' of https://github.com/apple/swift-nio-transport-services
+87e508f934ad4f70048914434e37c49122eed44f	not-for-merge	'refs/pull/38/head' of https://github.com/apple/swift-nio-transport-services
+eae85188a6b9c2b393687129516cd21f5c4019c9	not-for-merge	'refs/pull/40/head' of https://github.com/apple/swift-nio-transport-services
+c9dfa2f3e2db61a80cd9f4d523d616ccc251d965	not-for-merge	'refs/pull/41/head' of https://github.com/apple/swift-nio-transport-services
+d8de296383e17b5078fdd211088bb52db4006a2b	not-for-merge	'refs/pull/42/head' of https://github.com/apple/swift-nio-transport-services
+132eb935a68c8f77d63a35da86afcf1658d5f93d	not-for-merge	'refs/pull/45/head' of https://github.com/apple/swift-nio-transport-services
+783401710d65b59feca551caf439b5efd76841f0	not-for-merge	'refs/pull/46/head' of https://github.com/apple/swift-nio-transport-services
+38166eecc22187bc2cbd7e43f3a1b87db170825f	not-for-merge	'refs/pull/47/head' of https://github.com/apple/swift-nio-transport-services
+53182899a94059c6fc6feddf0cdc477c39904288	not-for-merge	'refs/pull/48/head' of https://github.com/apple/swift-nio-transport-services
+24a2d50a2ba9871f5a844bccb37e50688cd663e3	not-for-merge	'refs/pull/49/head' of https://github.com/apple/swift-nio-transport-services
+586a695117753e07e67c7eb3c43b91bf77e4ab2d	not-for-merge	'refs/pull/51/head' of https://github.com/apple/swift-nio-transport-services
+706160a432c64f90a949c66a81d6bbe073cf8b2c	not-for-merge	'refs/pull/52/head' of https://github.com/apple/swift-nio-transport-services
+5c50964db4106b6e2462ae95ab29141e3ac70dae	not-for-merge	'refs/pull/54/head' of https://github.com/apple/swift-nio-transport-services
+05e914ced4f25d67b3c293b11c53fb2276962ae2	not-for-merge	'refs/pull/55/head' of https://github.com/apple/swift-nio-transport-services
+fa3053176cf319a17c63ed33e11ea87dd03c0c86	not-for-merge	'refs/pull/58/head' of https://github.com/apple/swift-nio-transport-services
+b7a16d18ab41fb920e93c841987cb011d63b22fb	not-for-merge	'refs/pull/59/head' of https://github.com/apple/swift-nio-transport-services
+061264f7d1a58b31dc1c645cdee1a081144014d8	not-for-merge	'refs/pull/6/head' of https://github.com/apple/swift-nio-transport-services
+9e35c79ea214c8b98eae4caa4dbcd8699360dc4e	not-for-merge	'refs/pull/61/head' of https://github.com/apple/swift-nio-transport-services
+12b72cb3dd707e38044adedd07a53101748fba9c	not-for-merge	'refs/pull/62/head' of https://github.com/apple/swift-nio-transport-services
+b40f906b57e58dd5fa2a31ba134af4377112016b	not-for-merge	'refs/pull/63/head' of https://github.com/apple/swift-nio-transport-services
+0b2dc41d3fae44bc05fc75aa4f5ff6bd0263647c	not-for-merge	'refs/pull/65/head' of https://github.com/apple/swift-nio-transport-services
+fa5f5aad92b9a0e5e08ca76d32203ca84ec71c45	not-for-merge	'refs/pull/66/head' of https://github.com/apple/swift-nio-transport-services
+93bddaeffbb361caf61685cf183f15f1bd1a18f9	not-for-merge	'refs/pull/67/head' of https://github.com/apple/swift-nio-transport-services
+54d5079cbd6cfc2cc4fde204e0a6135ca049ca54	not-for-merge	'refs/pull/68/head' of https://github.com/apple/swift-nio-transport-services
+69d8df19b60f3637ab1e7a45c8034b852f7fe478	not-for-merge	'refs/pull/68/merge' of https://github.com/apple/swift-nio-transport-services
+b7d87b69cb9613c26c49f2d15dc44acbc33bb2b5	not-for-merge	'refs/pull/69/head' of https://github.com/apple/swift-nio-transport-services
+56ebb3a988551af2dac440c3c9bd803ab7d67fb4	not-for-merge	'refs/pull/7/head' of https://github.com/apple/swift-nio-transport-services
+7eda91cd151ffff020531c3ca14aced630a46767	not-for-merge	'refs/pull/71/head' of https://github.com/apple/swift-nio-transport-services
+375aee6f45009147b068b59612f75f5d2c6252bf	not-for-merge	'refs/pull/72/head' of https://github.com/apple/swift-nio-transport-services
+8dfcd98ee4ff6805c72a76bfe067d32367e28526	not-for-merge	'refs/pull/73/head' of https://github.com/apple/swift-nio-transport-services
+63dfb3049ec32c67856e73143b07e9433f48f6db	not-for-merge	'refs/pull/74/head' of https://github.com/apple/swift-nio-transport-services
+4b44f29d9d623e510a4192e511ee4990bfda47c2	not-for-merge	'refs/pull/76/head' of https://github.com/apple/swift-nio-transport-services
+ab0c36cccf4a16968bd67fb9294e6df78d3cac17	not-for-merge	'refs/pull/77/head' of https://github.com/apple/swift-nio-transport-services
+dbb4b36c666f6db1ebf27406212a54091d49ed32	not-for-merge	'refs/pull/78/head' of https://github.com/apple/swift-nio-transport-services
+33728a225afe493172de888b882e58f6fa28fc81	not-for-merge	'refs/pull/80/head' of https://github.com/apple/swift-nio-transport-services
+a718885d61300df5ca5e2840db12429a95337165	not-for-merge	'refs/pull/82/head' of https://github.com/apple/swift-nio-transport-services
+a803c452edabb2f04ff4d91d63b67e301f042e9b	not-for-merge	'refs/pull/84/head' of https://github.com/apple/swift-nio-transport-services
+b256709dcacec807b48abfecdbc39b2e08588fb1	not-for-merge	'refs/pull/85/head' of https://github.com/apple/swift-nio-transport-services
+48e3325094090a7a3b8b07d245c9330f26e44586	not-for-merge	'refs/pull/87/head' of https://github.com/apple/swift-nio-transport-services
+3a1a97683afab2b40ce525e1612c7f95fa38ac32	not-for-merge	'refs/pull/89/head' of https://github.com/apple/swift-nio-transport-services
+63de07e606f87b62efdaf37eae9287fd30b9015b	not-for-merge	'refs/pull/9/head' of https://github.com/apple/swift-nio-transport-services
+758a7e86d3050e2806115f2700e3e0926f7cc723	not-for-merge	'refs/pull/90/head' of https://github.com/apple/swift-nio-transport-services
+1f1eea5d166b92795500ab1939df80aacc61b9f3	not-for-merge	'refs/pull/91/head' of https://github.com/apple/swift-nio-transport-services
+9ac7068c8d964744b9a6e863bf49b67efe8643e8	not-for-merge	'refs/pull/93/head' of https://github.com/apple/swift-nio-transport-services
+4c9521e737cdec9c5e96fcd67c768ead01d77ec1	not-for-merge	'refs/pull/95/head' of https://github.com/apple/swift-nio-transport-services
+7db5d04ed75b971d38b1f5a2ac822defe482d1e2	not-for-merge	'refs/pull/96/head' of https://github.com/apple/swift-nio-transport-services
+b71106139199295a89235f428097f78bd8cdcfe3	not-for-merge	'refs/pull/98/head' of https://github.com/apple/swift-nio-transport-services
+a85678bae7bae481609f4f2effa8442b80568621	not-for-merge	'refs/pull/99/head' of https://github.com/apple/swift-nio-transport-services
+6475881aea9ca0289e550bfb2a5aa476d68cacc7	not-for-merge	tag '0.1.0' of https://github.com/apple/swift-nio-transport-services
+897eb363f5ffc6ca995d57182cb1bf9a8f43a867	not-for-merge	tag '0.2.0' of https://github.com/apple/swift-nio-transport-services
+fb2a2413b17a5c2e31fe744c6a06e02ec8a3a24e	not-for-merge	tag '0.2.1' of https://github.com/apple/swift-nio-transport-services
+a9cece8a6d79a659a4d701db499f4266f6e128e7	not-for-merge	tag '0.3.0' of https://github.com/apple/swift-nio-transport-services
+73f758b5daaa6c4b5301f5ca489524da61f5eae8	not-for-merge	tag '0.3.1' of https://github.com/apple/swift-nio-transport-services
+fb5d37a1e158daf3f7189587323d5d7f2f338d8c	not-for-merge	tag '0.4.0' of https://github.com/apple/swift-nio-transport-services
+e9c1e41fd1a4e4c5908322c49d1db38795c13a12	not-for-merge	tag '0.5.0' of https://github.com/apple/swift-nio-transport-services
+e45546cec952bde5b09be32416371b1e3a88f2b0	not-for-merge	tag '0.5.1' of https://github.com/apple/swift-nio-transport-services
+1c2269d04b2abc575d72ba0e645d688ab8d4922d	not-for-merge	tag '0.5.2' of https://github.com/apple/swift-nio-transport-services
+553f2f73ed8bf40987c4663c512d9e94f77f36cf	not-for-merge	tag '0.5.3' of https://github.com/apple/swift-nio-transport-services
+a1374e9d5eb15a339c980f41006a1b2a99d789fe	not-for-merge	tag '1.0.0' of https://github.com/apple/swift-nio-transport-services
+e1685ae770ca1175409a766aaf344c3491007181	not-for-merge	tag '1.0.0-convergence.1' of https://github.com/apple/swift-nio-transport-services
+e95a1e26d5eca3297eacb33b13a588e9fc416121	not-for-merge	tag '1.0.1' of https://github.com/apple/swift-nio-transport-services
+3d0713dc43defc2f14488633548999ce63463461	not-for-merge	tag '1.0.2' of https://github.com/apple/swift-nio-transport-services
+d59370d89af5e647fa14779b693cb5378602aa6d	not-for-merge	tag '1.0.3' of https://github.com/apple/swift-nio-transport-services
+eec3aed641cfc8a8937a678f9245dce985478815	not-for-merge	tag '1.1.0' of https://github.com/apple/swift-nio-transport-services
+6cba688855180e0ebf21f40d80987556986cfe03	not-for-merge	tag '1.1.1' of https://github.com/apple/swift-nio-transport-services
+657537c2cf1845f8d5201ecc4e48f21f21841128	not-for-merge	tag '1.10.0' of https://github.com/apple/swift-nio-transport-services
+39587bceccda72780e2a8a8c5e857e42a9df2fa8	not-for-merge	tag '1.11.0' of https://github.com/apple/swift-nio-transport-services
+5fd5ba4d3ec6b981b74eedf451d736d6ab85dd0e	not-for-merge	tag '1.11.1' of https://github.com/apple/swift-nio-transport-services
+9571a61d236c5253b6a255a2d13fac536a1e2625	not-for-merge	tag '1.11.2' of https://github.com/apple/swift-nio-transport-services
+e7f5278a26442dc46783ba7e063643d524e414a0	not-for-merge	tag '1.11.3' of https://github.com/apple/swift-nio-transport-services
+8ab824b140d0ebcd87e9149266ddc353e3705a3e	not-for-merge	tag '1.11.4' of https://github.com/apple/swift-nio-transport-services
+1a4692acb88156e3da1b0c6732a8a38b2a744166	not-for-merge	tag '1.12.0' of https://github.com/apple/swift-nio-transport-services
+2cb54f91ddafc90832c5fa247faf5798d0a7c204	not-for-merge	tag '1.13.0' of https://github.com/apple/swift-nio-transport-services
+4e02d9cf35cabfb538c96613272fb027dd0c8692	not-for-merge	tag '1.13.1' of https://github.com/apple/swift-nio-transport-services
+b39e53ad428dc3fddeb96d1907b2921eddda0e40	not-for-merge	tag '1.14.0' of https://github.com/apple/swift-nio-transport-services
+b6e37a0d442745760d6ed0195d8f283d3ce0414a	not-for-merge	tag '1.14.1' of https://github.com/apple/swift-nio-transport-services
+c0d9a144cfaec8d3d596aadde3039286a266c15c	not-for-merge	tag '1.15.0' of https://github.com/apple/swift-nio-transport-services
+59b966415dd336db6f388bbfe3fb43cfa549b981	not-for-merge	tag '1.16.0' of https://github.com/apple/swift-nio-transport-services
+41f4098903878418537020075a4d8a6e20a0b182	not-for-merge	tag '1.17.0' of https://github.com/apple/swift-nio-transport-services
+e30bf63ea1b47132de05771216ccd1e2a5123bd0	not-for-merge	tag '1.2.0' of https://github.com/apple/swift-nio-transport-services
+80b11dc13261e0e52f75ea3a0b2e04f24e925019	not-for-merge	tag '1.2.1' of https://github.com/apple/swift-nio-transport-services
+c7f06384dc5ce7e8506de5ed9b59e35b4d88c64b	not-for-merge	tag '1.3.0' of https://github.com/apple/swift-nio-transport-services
+46cc01e461bfb4001b3ccd8fe016d5b6d354e42a	not-for-merge	tag '1.4.0' of https://github.com/apple/swift-nio-transport-services
+409fddd45c21b5f6c971e40f23701d69bd61772e	not-for-merge	tag '1.5.0' of https://github.com/apple/swift-nio-transport-services
+85a67aea7caf5396ed599543dd23cffeb6dbbf96	not-for-merge	tag '1.5.1' of https://github.com/apple/swift-nio-transport-services
+2ac8fde712c1b1a147ecb7065824a40d2c09d0cb	not-for-merge	tag '1.6.0' of https://github.com/apple/swift-nio-transport-services
+f9a95e9bbb4ed70dd6e1e25d65c46e37187f7730	not-for-merge	tag '1.7.0' of https://github.com/apple/swift-nio-transport-services
+d40a5e34e5b35f4f961cb34aeb2e0a02f42a945f	not-for-merge	tag '1.8.0' of https://github.com/apple/swift-nio-transport-services
+bb56586c4cab9a79dce6ec4738baddb5802c5de7	not-for-merge	tag '1.9.0' of https://github.com/apple/swift-nio-transport-services
+5a352330c09a323e59ebd99afdf4ca3964c217bc	not-for-merge	tag '1.9.1' of https://github.com/apple/swift-nio-transport-services
+1d28d48e071727f4558a8a4bb1894472abc47a58	not-for-merge	tag '1.9.2' of https://github.com/apple/swift-nio-transport-services
