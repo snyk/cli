@@ -48,7 +48,7 @@ executors:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '13.3.0'
-    resource_class: medium
+    resource_class: macos.x86.medium.gen2
 
 commands:
   install_sdks_windows:
