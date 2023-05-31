@@ -10,7 +10,7 @@ The `snyk sbom` feature requires an internet connection.
 
 ## Usage
 
-`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|spdx2.3+json> [--file=] [--unmanaged] [--org=<ORG_ID>] [--all-projects] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [<TARGET_DIRECTORY>]`
+`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|spdx2.3+json> [--file=<FILE>] [--unmanaged] [--org=<ORG_ID>] [--all-projects] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [<TARGET_DIRECTORY>]`
 
 ## Description
 
@@ -74,6 +74,14 @@ Generate an SBOM for unmanaged software projects.
 Optional. Use for monorepos and directories with multiple projects or manifest files.
 
 Auto-detect all projects in the working directory (including Yarn workspaces) and generate a single SBOM based on their contents.
+
+### `[--name=<NAME>]`
+
+Use in combination with `--all-projects` to provide the name of the software which the SBOM describes. If not specified, this defaults to the name of current working directory.
+
+### `[--version=<VERSION>]`
+
+Use in combination with `--all-projects` to provide the version of the software which the SBOM describes. This is omitted if not set explicitly.
 
 ### `[--exclude=<NAME>[,<NAME>...]]`
 
