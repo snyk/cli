@@ -46,4 +46,4 @@ snyk iac rules init
 
 `What do you want to initialize? project`
 
-`Project name: project1 ✔`
+`Project name: project1  ✔`
