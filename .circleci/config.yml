@@ -402,6 +402,12 @@ jobs:
             cp cliv2/bin/snyk-linux-arm64 binary-releases/snyk-linux-arm64
             cp cliv2/bin/snyk-linux-arm64.sha256 binary-releases/snyk-linux-arm64.sha256
       - run:
+          name: Copy alpine cliv2 binaries to binary-releases staging area
+          command: |
+            ls -la cliv2/bin
+            cp cliv2/bin/snyk-alpine binary-releases/snyk-alpine
+            cp cliv2/bin/snyk-alpine.sha256 binary-releases/snyk-alpine.sha256
+      - run:
           name: Making TS-Binary-Wrapper (snyk.tgz)
           command: make binary-releases/snyk.tgz
       - run:
