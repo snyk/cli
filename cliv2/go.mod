@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
-	github.com/snyk/cli-extension-iac-rules v0.0.0-20230525100639-98d6755d43d7
+	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
 	github.com/snyk/cli-extension-sbom v0.0.0-20230526074203-8198a7341fbc
 	github.com/snyk/go-application-framework v0.0.0-20230526065140-1fabe799e3f9
 	github.com/snyk/go-httpauth v0.0.0-20230512081507-800aedece3cb

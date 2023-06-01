@@ -574,8 +574,8 @@ github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQD
 github.com/sahilm/fuzzy v0.1.0/go.mod h1:VFvziUEIMCrT6A6tw2RFIXPXXmzXbOsSHF0DOI8ZK9Y=
 github.com/sergi/go-diff v1.2.0 h1:XU+rvMAioB0UC3q1MFrIQy4Vo5/4VsRDQQXHsEya6xQ=
 github.com/sirupsen/logrus v1.9.0 h1:trlNQbNUG3OdDrDil03MCb1H2o9nJ1x4/5LYw7byDE0=
-github.com/snyk/cli-extension-iac-rules v0.0.0-20230525100639-98d6755d43d7 h1:+TDTl/jnYO/yNUxWBG5S7VZdzZlbau32ekOvIaqxTX0=
-github.com/snyk/cli-extension-iac-rules v0.0.0-20230525100639-98d6755d43d7/go.mod h1:5/IYYTgf32pST7St4GhS3KNz32WE17Ys+Hdb5Pqxex0=
+github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce h1:WchwuyPX4mEr7tFCGD6EsjwTDipFWfLxs4Wps6KB3b4=
+github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce/go.mod h1:5/IYYTgf32pST7St4GhS3KNz32WE17Ys+Hdb5Pqxex0=
 github.com/snyk/cli-extension-sbom v0.0.0-20230526074203-8198a7341fbc h1:hJzxC5ievJ+lwudvkDwzvifRUtLtima7vTXs8ePDrJE=
 github.com/snyk/cli-extension-sbom v0.0.0-20230526074203-8198a7341fbc/go.mod h1:m0SL0IQ33c9uC5TI+Xo6bx0Dj8L1GgHxCaO/ZyGwhhw=
 github.com/snyk/go-application-framework v0.0.0-20230526065140-1fabe799e3f9 h1:FS0NA9lcbrW4Oha217+DppFXlECeWcHa8RBIKIK3+Qs=
