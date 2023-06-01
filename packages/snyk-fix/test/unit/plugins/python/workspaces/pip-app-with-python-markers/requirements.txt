@@ -16,7 +16,7 @@ clickclick==1.2.2
 configparser==3.7.4 ; python_version == '2.7'
 connexion[swagger-ui]==2.2.0
 constantly==15.1.0
-cryptography==2.6.1
+cryptography==41.0.0
 cssselect==1.0.3
 cython==0.29.7
 enum34==1.1.6 ; python_version < '2.6'
