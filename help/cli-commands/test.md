@@ -225,11 +225,23 @@ Be sure to run the scan in the same directory as the root pom.xml file.
 
 Snyk reports test results per pom.xml file.
 
+### `--scan-unmanaged`
+
+To test individual JAR, WAR, and AAR files, you need to use the following:&#x20;
+
+```
+--scan-unmanaged --file=<JAR_FILE_NAME>
+```
+
 ### `--scan-all-unmanaged`
 
-Auto-detect maven jars, aars, and wars in given directory. To test individually use `--file=<JAR_FILE_NAME>`
+Auto-detect maven JAR, WAR, and AAR files in a given folder.&#x20;
 
-**Note**: Custom-built jar files, even with open source dependencies, are out of scope.
+```
+--scan-all-unmanaged
+```
+
+**Note**: Custom-built JAR files, even with open source dependencies, are not supported.
 
 ## Options for Gradle projects
 

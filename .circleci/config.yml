@@ -48,7 +48,7 @@ executors:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '13.3.0'
-    resource_class: medium
+    resource_class: macos.x86.medium.gen2
 
 commands:
   install_sdks_windows:
@@ -402,6 +402,12 @@ jobs:
             cp cliv2/bin/snyk-linux-arm64 binary-releases/snyk-linux-arm64
             cp cliv2/bin/snyk-linux-arm64.sha256 binary-releases/snyk-linux-arm64.sha256
       - run:
+          name: Copy alpine cliv2 binaries to binary-releases staging area
+          command: |
+            ls -la cliv2/bin
+            cp cliv2/bin/snyk-alpine binary-releases/snyk-alpine
+            cp cliv2/bin/snyk-alpine.sha256 binary-releases/snyk-alpine.sha256
+      - run:
           name: Making TS-Binary-Wrapper (snyk.tgz)
           command: make binary-releases/snyk.tgz
       - run:
@@ -429,6 +435,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+      - gh/setup:
+          token: HAMMERHEAD_GITHUB_PAT
+          version: << pipeline.parameters.gh_version >>
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
@@ -456,20 +465,48 @@ jobs:
           command: bash ./release-scripts/handle-failed-release.sh
           when: on_fail
 
-  release:
+  release-s3:
+    executor: docker-node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - aws-cli/install:
+          version: << pipeline.parameters.aws_version >>
+      - run:
+          name: Publish to S3
+          command: ./release-scripts/upload-artifacts.sh latest
+      - run:
+          name: Handling failed release
+          command: ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
+  release-github:
     executor: docker-node
     steps:
       - checkout
       - attach_workspace:
           at: .
       - gh/setup:
-          token: GH_TOKEN
+          token: HAMMERHEAD_GITHUB_PAT
           version: << pipeline.parameters.gh_version >>
-      - aws-cli/install:
-          version: << pipeline.parameters.aws_version >>
       - run:
-          name: Publishing
-          command: make release-final
+          name: Publish to GitHub
+          command: ./release-scripts/upload-artifacts.sh github
+      - run:
+          name: Handling failed release
+          command: ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
+  release-npm:
+    executor: docker-node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Publish to npm
+          command: ./release-scripts/upload-artifacts.sh npm
       - run:
           name: Handling failed release
           command: ./release-scripts/handle-failed-release.sh
@@ -910,7 +947,7 @@ workflows:
                 - master
       - pre-release:
           name: Pre-Release
-          context: nodejs-app-release
+          context: team-hammerhead-common-deploy-tokens
           requires:
             - Release?
           filters:
@@ -928,13 +965,31 @@ workflows:
             branches:
               only:
                 - master
-      - release:
-          name: Release
-          context: nodejs-app-release
+      - release-s3:
+          name: Release S3
+          context: team-hammerhead-common-deploy-tokens
           requires:
             - Test Release (docker-node)
             - Test Release (win/default)
             - Test Release (macos)
+          filters:
+            branches:
+              only:
+                - master
+      - release-github:
+          name: Release GitHub
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - Release S3
+          filters:
+            branches:
+              only:
+                - master
+      - release-npm:
+          name: Release npm
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - Release GitHub
           filters:
             branches:
               only:

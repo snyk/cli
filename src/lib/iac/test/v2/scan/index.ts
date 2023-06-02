@@ -14,7 +14,8 @@ import { api, getOAuthToken } from '../../../../api-token';
 import envPaths from 'env-paths';
 import { restoreEnvProxy } from '../../../env-utils';
 
-const debug = newDebug('snyk-iac');
+const debug = newDebug('snyk:iac');
+const debugOutput = newDebug('snyk:iac:output');
 
 export const systemCachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 
@@ -88,7 +89,13 @@ async function scanWithConfig(
     throw new ScanError(`spawning process: ${child.error}`);
   }
 
-  return mapSnykIacTestOutputToTestOutput(await readJson(outputPath));
+  const results = await readJson(outputPath);
+
+  if (debugOutput.enabled) {
+    debugOutput('snyk-iac-test output:\n', JSON.stringify(results, null, 2));
+  }
+
+  return mapSnykIacTestOutputToTestOutput(results);
 }
 
 async function readJson(path: string) {
