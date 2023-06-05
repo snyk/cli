@@ -519,13 +519,26 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     basePath.replace('v1', 'hidden') + '/orgs/:org/sbom',
     express.json(),
     (req, res) => {
+      const depGraph: void | Record<string, any> = req.body.depGraph;
+      const depGraphs: void | Record<string, any>[] = req.body.depGraphs;
       let bom: Record<string, unknown> = { bomFormat: 'CycloneDX' };
 
-      if (Array.isArray(req.body.depGraphs) && req.body.subject) {
+      if (Array.isArray(depGraphs) && req.body.subject) {
         // Return a fixture of an all-projects SBOM.
         bom = {
           ...bom,
           metadata: { component: { name: req.body.subject.name } },
+          components: depGraphs
+            .flatMap(({ pkgs }) => pkgs)
+            .map(({ info: { name } }) => ({ name })),
+        };
+      }
+
+      if (depGraph) {
+        bom = {
+          ...bom,
+          metadata: { component: { name: depGraph.pkgs[0]?.info.name } },
+          components: depGraph.pkgs.map(({ info: { name } }) => ({ name })),
         };
       }
 

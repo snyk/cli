@@ -36,24 +36,63 @@ describe('snyk sbom --all-projects (mocked server only)', () => {
     });
   });
 
-  test('`sbom mono-repo-project` generates an SBOM for multiple projects', async () => {
+  // Test currently fails to mis-configuration of test runner environments.
+  // `snyk test` fails for Pipfile, build.sbt and requirements.txt.
+  // TODO: fix environments and un-skip test.
+  // See: HEAD-351.
+  test.skip('`sbom mono-repo-project` generates an SBOM for multiple projects', async () => {
+    if (!isCLIV2()) {
+      return;
+    }
+
     const project = await createProjectFromWorkspace('mono-repo-project');
 
-    if (isCLIV2()) {
-      const { code, stdout } = await runSnykCLI(
-        `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --debug --all-projects`,
-        {
-          cwd: project.path(),
-          env,
-        },
-      );
+    const { code, stdout, stderr } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --debug --all-projects`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+    let bom;
 
-      expect(code).toEqual(0);
-      expect(stdout).toEqual(
-        expect.stringContaining(
-          '{"bomFormat":"CycloneDX","metadata":{"component":{"name":"mono-repo-project"}}}',
-        ),
-      );
+    console.log(stderr);
+
+    expect(code).toEqual(0);
+    expect(() => {
+      bom = JSON.parse(stdout);
+    }).not.toThrow();
+    expect(bom.metadata.component.name).toEqual('mono-repo-project');
+    expect(bom.components).toHaveLength(50);
+  });
+
+  test('`sbom mono-repo-project-manifests-only` generates an SBOM for multiple projects', async () => {
+    if (!isCLIV2()) {
+      return;
     }
+
+    const project = await createProjectFromWorkspace(
+      'mono-repo-project-manifests-only',
+    );
+
+    const { code, stdout, stderr } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --debug --all-projects`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+    let bom;
+
+    console.log(stderr);
+
+    expect(code).toEqual(0);
+    expect(() => {
+      bom = JSON.parse(stdout);
+    }).not.toThrow();
+    expect(bom.metadata.component.name).toEqual(
+      'mono-repo-project-manifests-only',
+    );
+    expect(bom.components).toHaveLength(36);
   });
 });
