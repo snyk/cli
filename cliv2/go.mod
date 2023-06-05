@@ -11,7 +11,7 @@ require (
 	github.com/rs/zerolog v1.29.1
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
 	github.com/snyk/cli-extension-sbom v0.0.0-20230602151400-cab2667514a0
-	github.com/snyk/go-application-framework v0.0.0-20230602151048-31fbf2587cab
+	github.com/snyk/go-application-framework v0.0.0-20230605084749-eb0d39a8104f
 	github.com/snyk/go-httpauth v0.0.0-20230512081507-800aedece3cb
 	github.com/snyk/snyk-iac-capture v0.6.0
 	github.com/spf13/cobra v1.7.0
