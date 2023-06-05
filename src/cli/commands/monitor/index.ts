@@ -176,8 +176,10 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
         label: string;
         name: string;
       }> = [{ label: 'Swift PM', name: 'swift' }];
-      const unsupportedPackageManager = unsupportedPackageManagers.find(
-        (pm) => pm.name === packageManager,
+      const unsupportedPackageManager = unsupportedPackageManagers.find((pm) =>
+        packageManager
+          ? pm.name === packageManager
+          : pm.name === detect.detectPackageManager(path, options),
       );
       if (unsupportedPackageManager) {
         return `${unsupportedPackageManager.label} projects do not currently support "snyk monitor"`;
