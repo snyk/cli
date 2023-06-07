@@ -40,7 +40,7 @@ RUN wget https://download.swift.org/swift-5.8.1-release/amazonlinux2-aarch64/swi
 RUN tar zxf swift-5.8.1-RELEASE-amazonlinux2-aarch64.tar.gz
 RUN ls
 ENV PATH="/go/swift-5.8.1-RELEASE-amazonlinux2-aarch64/usr/bin:$PATH"
-
+RUN echo "export PATH=/go/swift-5.8.1-RELEASE-amazonlinux2-aarch64/usr/bin:${PATH}" >> ~/.bashrc
 # install scala
 RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list
 RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list
