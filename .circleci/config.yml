@@ -348,13 +348,9 @@ jobs:
           command: npm install
       - run:
           name: Running Tap tests
-          command: |
-            wget https://download.swift.org/swift-5.8.1-release/amazonlinux2/swift-5.8.1-RELEASE/swift-5.8.1-RELEASE-amazonlinux2.tar.gz
-            tar zxf swift-5.8.1-RELEASE-amazonlinux2.tar.gz
-            export PATH="$(pwd)/swift-5.8.1-RELEASE-amazonlinux2/usr/bin:$PATH"
-            swift --version
+          command:
             npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
-              $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
+            $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
   build-artifact:
     parameters:
