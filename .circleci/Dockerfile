@@ -35,6 +35,12 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # install aws cli
 RUN pip install awscli --upgrade --user
 
+# install swift cli
+RUN wget https://download.swift.org/swift-5.8.1-release/amazonlinux2-aarch64/swift-5.8.1-RELEASE/swift-5.8.1-RELEASE-amazonlinux2-aarch64.tar.gz
+RUN tar zxf swift-5.8.1-RELEASE-amazonlinux2-aarch64.tar.gz
+RUN ls
+ENV PATH="/go/swift-5.8.1-RELEASE-amazonlinux2-aarch64/usr/bin:$PATH"
+
 # install scala
 RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list
 RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list
