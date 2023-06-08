@@ -36,11 +36,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN pip install awscli --upgrade --user
 
 # install swift cli
-RUN wget https://download.swift.org/swift-5.8.1-release/amazonlinux2-aarch64/swift-5.8.1-RELEASE/swift-5.8.1-RELEASE-amazonlinux2-aarch64.tar.gz
-RUN tar zxf swift-5.8.1-RELEASE-amazonlinux2-aarch64.tar.gz
-RUN ls
-ENV PATH="/go/swift-5.8.1-RELEASE-amazonlinux2-aarch64/usr/bin:$PATH"
-RUN echo "export PATH=/go/swift-5.8.1-RELEASE-amazonlinux2-aarch64/usr/bin:${PATH}" >> ~/.bashrc
+RUN wget https://download.swift.org/swift-5.8.1-release/amazonlinux2/swift-5.8.1-RELEASE/swift-5.8.1-RELEASE-amazonlinux2.tar.gz
+RUN tar zxf swift-5.8.1-RELEASE-amazonlinux2.tar.gz
+
 # install scala
 RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list
 RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list
@@ -54,7 +52,7 @@ RUN curl -sSL https://github.com/mtrojnar/osslsigncode/releases/download/2.5/oss
 RUN cd osslsigncode-2.5 && mkdir -p build && cd build && cmake -S .. && make install && cd .. && cd ..
 RUN rm -rf osslsigncode-2.5*
 
-ENV PATH=/usr/local/bin/:$PATH
+ENV PATH=/go/swift-5.8.1-RELEASE-amazonlinux2/usr/bin:/usr/local/bin/:$PATH
 
 # pre-install npm packages
 ADD package.json /tmp/package.json
