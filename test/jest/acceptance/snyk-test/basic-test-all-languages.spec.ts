@@ -6,6 +6,16 @@ import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
 
 jest.setTimeout(1000 * 60);
 
+const getOrgSlug = () => {
+  const orgSlug = process.env.TEST_SNYK_ORG_SLUGNAME;
+
+  if (!orgSlug) {
+    throw 'No TEST_SNYK_ORG_SLUGNAME env variable set';
+  }
+
+  return orgSlug;
+};
+
 describe('`snyk test` of basic projects for each language/ecosystem', () => {
   let server;
   let env: Record<string, string>;
@@ -127,10 +137,32 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
 
     const { code } = await runSnykCLI('test -d', {
       cwd: project.path(),
-      env,
     });
 
     expect(code).toEqual(0);
+  });
+
+  test('run `snyk test` on an unmanaged project', async () => {
+    const project = await createProjectFromWorkspace('unmanaged');
+
+    const { code } = await runSnykCLI('test --unmanaged -d', {
+      cwd: project.path(),
+    });
+
+    expect(code).toEqual(1);
+  });
+
+  test('run `snyk test` on an unmanaged project with a org-slug', async () => {
+    const project = await createProjectFromWorkspace('unmanaged');
+
+    const { code } = await runSnykCLI(
+      `test --unmanaged --org=${getOrgSlug()} -d`,
+      {
+        cwd: project.path(),
+      },
+    );
+
+    expect(code).toEqual(1);
   });
 
   test('run `snyk test` on a hex project', async () => {

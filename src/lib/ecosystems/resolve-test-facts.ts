@@ -28,7 +28,7 @@ import {
   convertDepGraph,
   convertMapCasing,
   convertToCamelCase,
-  getSelf,
+  getOrg,
 } from './unmanaged/utils';
 import { sleep } from '../common';
 import { SEVERITY } from '../snyk-test/common';
@@ -54,10 +54,6 @@ export async function resolveAndTestFacts(
 
     throw error;
   }
-}
-
-async function getOrgDefaultContext(): Promise<string> {
-  return (await getSelf())?.data.attributes.default_org_context;
 }
 
 export async function submitHashes(
@@ -162,7 +158,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
   const packageManager = 'Unmanaged (C/C++)';
   const displayTargetFile = '';
 
-  const orgId = options.org || (await getOrgDefaultContext()) || '';
+  const orgId = await getOrg(options.org);
   const target_severity: SEVERITY = options.severityThreshold || SEVERITY.LOW;
 
   if (orgId === '') {
