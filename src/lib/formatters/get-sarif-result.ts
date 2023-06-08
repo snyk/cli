@@ -18,7 +18,7 @@ export function getResults(testResult): sarif.Result[] {
         {
           physicalLocation: {
             artifactLocation: {
-              uri: testResult.displayTargetFile,
+              uri: testResult.displayTargetFile || testResult.path,
             },
             region: {
               startLine: vuln.lineNumber || 1,
