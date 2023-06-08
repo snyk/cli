@@ -132,6 +132,19 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
+  test('snyk test --maven-aggregate-project --project-name=blah', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `test --maven-aggregate-project --project-name=blah`,
+      {
+        env,
+      },
+    );
+    expect(stdout).toMatch(
+      'The following option combination is not currently supported: maven-aggregate-project + project-name',
+    );
+    expect(code).toEqual(2);
+  });
+
   [
     'file',
     'package-manager',
