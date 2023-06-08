@@ -216,6 +216,22 @@ if (!isWindows) {
     );
   });
 
+  test('`monitor swift`', async (t) => {
+    chdirWorkspaces();
+    await cli.monitor('swift');
+    const req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.equal(
+      req.headers['x-snyk-cli-version'],
+      versionNumber,
+      'sends version number',
+    );
+    const depGraphJSON = req.body.depGraphJSON;
+    t.ok(depGraphJSON);
+    t.match(req.url, '/monitor/swift/graph', 'puts at correct url');
+    t.ok(req.body.targetFile, './Package.swift');
+  });
+
   test('`monitor npm-out-of-sync graph monitor`', async (t) => {
     chdirWorkspaces();
     await cli.monitor('npm-out-of-sync-graph', {

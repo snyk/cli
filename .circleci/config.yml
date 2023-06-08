@@ -348,9 +348,9 @@ jobs:
           command: npm install
       - run:
           name: Running Tap tests
-          command: |
+          command:
             npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
-              $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
+            $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
   build-artifact:
     parameters:

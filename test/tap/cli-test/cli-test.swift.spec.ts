@@ -32,7 +32,6 @@ export const SwiftTests: AcceptanceTests = {
       await params.cli.test('swift-app');
 
       const req = params.server.popRequest();
-      console.log('here -->');
       t.equal(req.method, 'POST', 'makes POST request');
       t.equal(
         req.headers['x-snyk-cli-version'],
