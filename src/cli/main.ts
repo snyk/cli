@@ -249,6 +249,7 @@ export async function main(): Promise<void> {
         '--group-issues is currently not supported for Snyk IaC.',
       ]);
     }
+
     if (
       globalArgs.options['group-issues'] &&
       !globalArgs.options['json'] &&
@@ -256,6 +257,16 @@ export async function main(): Promise<void> {
     ) {
       throw new UnsupportedOptionCombinationError([
         'JSON output is required to use --group-issues, try adding --json.',
+      ]);
+    }
+
+    if (
+      globalArgs.options['mavenAggregateProject'] &&
+      globalArgs.options['project-name']
+    ) {
+      throw new UnsupportedOptionCombinationError([
+        'maven-aggregate-project',
+        'project-name',
       ]);
     }
 
