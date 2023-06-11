@@ -61,7 +61,7 @@ describe('iac test text output', () => {
         EOL +
         '           resource' +
         EOL +
-        '  Rule:    https://snyk.io/security-rules/SNYK-CC-TF-20' +
+        '  Rule:    https://security.snyk.io/rules/cloud/SNYK-CC-TF-20' +
         EOL +
         '  Path:    resources[1] > properties > networkRuleCollections[0] > properties >' +
         EOL +
