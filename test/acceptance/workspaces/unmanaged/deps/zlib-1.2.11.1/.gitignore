@@ -1,0 +1,7 @@
+zlib.pc
+libz.a
+configure.log
+zconf.h.included
+cmake-build
+zconf.h
+Makefile

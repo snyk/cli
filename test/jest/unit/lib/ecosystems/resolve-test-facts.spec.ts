@@ -1,4 +1,5 @@
 import { Options } from '../../../../../src/lib/types';
+import { v4 as uuidv4 } from 'uuid';
 import * as pollingTest from '../../../../../src/lib/polling/polling-test';
 import * as featureFlags from '../../../../../src/lib/feature-flags/index';
 import * as common from '../../../../../src/lib/polling/common';
@@ -15,9 +16,25 @@ import {
   getDepGraphResponse,
   getDepGraphResponseInProgress,
 } from './fixtures/get-dep-graph-response';
-import * as request from '../../../../../src/lib/request/request';
+import * as request from '../../../../../src/lib/request/promise';
 
 describe('resolve and test facts', () => {
+  beforeEach(() => {
+    const orgId = uuidv4();
+
+    jest.spyOn(request, 'makeRequestRest').mockResolvedValue({
+      data: {
+        attributes: {
+          default_org_context: orgId,
+        },
+      },
+    });
+
+    jest.spyOn(request, 'makeRequest').mockResolvedValue({
+      orgs: [{ id: orgId, slug: 'org1' }],
+    });
+  });
+
   afterEach(() => jest.restoreAllMocks());
 
   it('successfully resolving and testing file-signatures fact for c/c++ projects with unmanaged-deps service', async () => {
@@ -25,12 +42,6 @@ describe('resolve and test facts', () => {
     jest
       .spyOn(featureFlags, 'hasFeatureFlag')
       .mockResolvedValueOnce(hasFeatureFlag);
-
-    jest.spyOn(request, 'makeRequest').mockImplementationOnce(async () => ({
-      res: {} as any,
-      body:
-        '{ "data":{"attributes":{"default_org_context": "xx111x11-11bd-1e1e-1111-ff111b111f11"}}}',
-    }));
 
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
@@ -62,17 +73,47 @@ describe('resolve and test facts', () => {
     expect(errors).toEqual([]);
   });
 
-  it('successfully resolving and testing file-signatures fact after a retry for c/c++ projects with unmanaged-deps service', async () => {
+  it('successfully resolving and testing file-signatures fact for c/c++ projects with unmanaged-deps service when org slug is provided', async () => {
     const hasFeatureFlag: boolean | undefined = true;
     jest
       .spyOn(featureFlags, 'hasFeatureFlag')
       .mockResolvedValueOnce(hasFeatureFlag);
 
-    jest.spyOn(request, 'makeRequest').mockImplementationOnce(async () => ({
-      res: {} as any,
-      body:
-        '{ "data":{"attributes":{"default_org_context": "xx111x11-11bd-1e1e-1111-ff111b111f11"}}}',
-    }));
+    jest.spyOn(common, 'delayNextStep').mockImplementation();
+
+    jest.spyOn(pollingTest, 'createDepGraph').mockResolvedValueOnce({
+      data: createDepgraphResponse,
+      jsonapi: { version: 'v1.0' } as JsonApi,
+      links: { self: '' } as Links,
+    });
+
+    jest.spyOn(pollingTest, 'getDepGraph').mockResolvedValue({
+      data: getDepGraphResponse,
+      jsonapi: { version: 'v1.0' } as JsonApi,
+      links: { self: '' } as Links,
+    });
+
+    jest.spyOn(pollingTest, 'getIssues').mockResolvedValueOnce({
+      data: issuesResponseData,
+      jsonapi: { version: 'v1.0' } as JsonApi,
+      links: { self: '' } as Links,
+    });
+
+    const [testResults, errors] = await resolveAndTestFacts(
+      'cpp',
+      scanResults,
+      { org: 'org1' } as Options,
+    );
+
+    expect(testResults).toEqual(expectedTestResult);
+    expect(errors).toEqual([]);
+  });
+
+  it('successfully resolving and testing file-signatures fact after a retry for c/c++ projects with unmanaged-deps service', async () => {
+    const hasFeatureFlag: boolean | undefined = true;
+    jest
+      .spyOn(featureFlags, 'hasFeatureFlag')
+      .mockResolvedValueOnce(hasFeatureFlag);
 
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
@@ -116,12 +157,6 @@ describe('resolve and test facts', () => {
       .spyOn(featureFlags, 'hasFeatureFlag')
       .mockResolvedValueOnce(hasFeatureFlag);
 
-    jest.spyOn(request, 'makeRequest').mockImplementationOnce(async () => ({
-      res: {} as any,
-      body:
-        '{ "data":{"attributes":{"default_org_context": "xx111x11-11bd-1e1e-1111-ff111b111f11"}}}',
-    }));
-
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
     jest.spyOn(pollingTest, 'createDepGraph').mockImplementation(() => {
@@ -143,12 +178,6 @@ describe('resolve and test facts', () => {
     jest
       .spyOn(featureFlags, 'hasFeatureFlag')
       .mockResolvedValueOnce(hasFeatureFlag);
-
-    jest.spyOn(request, 'makeRequest').mockImplementationOnce(async () => ({
-      res: {} as any,
-      body:
-        '{ "data":{"attributes":{"default_org_context": "xx111x11-11bd-1e1e-1111-ff111b111f11"}}}',
-    }));
 
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
@@ -177,12 +206,6 @@ describe('resolve and test facts', () => {
     jest
       .spyOn(featureFlags, 'hasFeatureFlag')
       .mockResolvedValueOnce(hasFeatureFlag);
-
-    jest.spyOn(request, 'makeRequest').mockImplementationOnce(async () => ({
-      res: {} as any,
-      body:
-        '{ "data":{"attributes":{"default_org_context": "xx111x11-11bd-1e1e-1111-ff111b111f11"}}}',
-    }));
 
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
