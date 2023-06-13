@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:11.7-slim
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
