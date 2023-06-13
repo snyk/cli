@@ -10,7 +10,7 @@ The `snyk sbom` feature requires an internet connection.
 
 ## Usage
 
-`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|spdx2.3+json> [--file=<FILE>] [--unmanaged] [--org=<ORG_ID>] [--all-projects] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [<TARGET_DIRECTORY>]`
+`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|spdx2.3+json> [--file=<FILE>] [--unmanaged] [--org=<ORG_ID>] [--dev] [--all-projects] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [--json-file-output=<OUTPUT_FILE_PATH>] [<TARGET_DIRECTORY>]`
 
 ## Description
 
@@ -29,7 +29,7 @@ Possible exit codes and their meaning:
 
 ## Debug
 
-Use the `-d` option to output the debug logs.
+Use the `-d` or `--debug` option to output the debug logs.
 
 ## Options
 
@@ -69,6 +69,12 @@ By default, the `sbom` command detects a supported manifest file in the current 
 
 Generate an SBOM for unmanaged software projects.
 
+### `[--dev]`
+
+Include development-only dependencies. Applicable only for some package managers, for example, `devDependencies` in npm or `:development` dependencies in Gemfile.
+
+Default: false, scan only production dependencies.
+
 ### `[--all-projects]`
 
 Optional. Use for monorepos and directories with multiple projects or manifest files.
@@ -105,15 +111,23 @@ Prune dependency trees, removing duplicate sub-dependencies.
 
 Optional. Instruct the CLI to autodetect a package manager manifest file to use within the specified directory. If `--file` is set, this option will be ignored.
 
+### `[--json-file-output]`
+
+Optional. Save the SBOM output as a JSON data structure directly to the specified file. This requires the SBOM `--format` to include `+json`.
+
 ## Examples for the snyk sbom command
 
 ### Create a CycloneDX JSON document for a local software project
 
 `$ snyk sbom --format=cyclonedx1.4+json`
 
-### Create a CycloneDX JSON document and write it to a local file
+### Create a CycloneDX JSON document and redirect stdout to a file
 
 `$ snyk sbom --format=cyclonedx1.4+json > mySBOM.json`
+
+### Create an SPDX JSON document and write it to a file
+
+`$ snyk sbom --format spdx2.3+json --json-file-output mySBOM.json`
 
 ### Create an SPDX 2.3 JSON document for an unmanaged software project
 
