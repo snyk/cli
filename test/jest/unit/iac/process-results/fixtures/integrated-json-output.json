@@ -61,7 +61,7 @@
           "resolve": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field."
         },
         "lineNumber": -1,
-        "documentation": "https://snyk.io/security-rules/SNYK-CC-00151",
+        "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151",
         "isGeneratedByCustomRule": false,
         "path": [],
         "compliance": [],
@@ -91,7 +91,7 @@
           "resolve": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
         },
         "lineNumber": -1,
-        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-5",
+        "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-5",
         "isGeneratedByCustomRule": false,
         "path": [
           "ingress",
@@ -160,7 +160,7 @@
           "resolve": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field."
         },
         "lineNumber": 5,
-        "documentation": "https://snyk.io/security-rules/SNYK-CC-00151",
+        "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151",
         "isGeneratedByCustomRule": false,
         "path": [],
         "compliance": [],
@@ -190,7 +190,7 @@
           "resolve": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
         },
         "lineNumber": 16,
-        "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-5",
+        "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-5",
         "isGeneratedByCustomRule": false,
         "path": [
           "ingress",

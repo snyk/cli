@@ -119,7 +119,7 @@ export function generateCloudConfigResults({
       severity: anotherPolicyStub.severity,
       lineNumber: withLineNumber ? 3 : -1,
       documentation: !isGeneratedByCustomRule
-        ? 'https://snyk.io/security-rules/SNYK-CC-K8S-2'
+        ? 'https://security.snyk.io/rules/cloud/SNYK-CC-K8S-2'
         : undefined,
       isGeneratedByCustomRule,
     },
@@ -139,7 +139,7 @@ export function generateCloudConfigResults({
       severity: yetAnotherPolicyStub.severity,
       lineNumber: withLineNumber ? 3 : -1,
       documentation: !isGeneratedByCustomRule
-        ? 'https://snyk.io/security-rules/SNYK-CC-K8S-3'
+        ? 'https://security.snyk.io/rules/cloud/SNYK-CC-K8S-3'
         : undefined,
       isGeneratedByCustomRule,
     },

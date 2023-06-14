@@ -2,10 +2,11 @@ import * as camelCase from 'lodash.camelcase';
 import { DepGraphData } from '@snyk/dep-graph';
 import { GraphNode } from '@snyk/dep-graph/dist/core/types';
 import config from '../../config';
-import { makeRequestRest } from '../../request/promise';
+import { makeRequest, makeRequestRest } from '../../request/promise';
 import { pollDepGraphAttributes, submitHashes } from '../resolve-test-facts';
 import { ScanResult } from '../types';
 import { DepGraphDataOpenAPI } from './types';
+import { getAuthHeader } from '../../api-token';
 
 function mapKey(object, iteratee) {
   object = Object(object);
@@ -68,6 +69,34 @@ interface SelfResponse {
   };
 }
 
+interface OrgsResponse {
+  orgs: {
+    group: string;
+    name: string;
+    url: string;
+    id: string;
+    slug: string;
+  }[];
+}
+
+export async function getOrgIdFromSlug(slug: string): Promise<string> {
+  const res = await makeRequest<OrgsResponse>({
+    method: 'GET',
+    headers: {
+      Authorization: getAuthHeader(),
+    },
+    url: config.API + '/orgs',
+  });
+
+  for (const org of res.orgs) {
+    if (org.slug === slug) {
+      return org.id;
+    }
+  }
+
+  return '';
+}
+
 export function getSelf() {
   return makeRequestRest<SelfResponse>({
     method: 'GET',
@@ -75,11 +104,30 @@ export function getSelf() {
   });
 }
 
+export async function getOrgDefaultContext(): Promise<string> {
+  return (await getSelf())?.data.attributes.default_org_context;
+}
+
+export function isUUID(str) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
+
+export async function getOrg(org?: string | null) {
+  let orgId = org || (await getOrgDefaultContext()) || '';
+
+  if (!isUUID(orgId)) {
+    orgId = await getOrgIdFromSlug(orgId);
+  }
+
+  return orgId;
+}
+
 export async function getUnmanagedDepGraph(scans: {
   [dir: string]: ScanResult[];
 }) {
   const results: DepGraphDataOpenAPI[] = [];
-  const orgId = (await getSelf())?.data.attributes.default_org_context;
+  const orgId = await getOrgDefaultContext();
 
   for (const [, scanResults] of Object.entries(scans)) {
     for (const scanResult of scanResults) {

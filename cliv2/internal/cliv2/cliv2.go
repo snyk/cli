@@ -74,7 +74,7 @@ func (c *CLI) Init() (err error) {
 	if len(c.CacheDirectory) > 0 {
 		// ensure the specified base cache directory exists, this needs to be done even before acquiring the lock
 		if _, err = os.Stat(c.CacheDirectory); os.IsNotExist(err) {
-			err = os.Mkdir(c.CacheDirectory, local_utils.CACHEDIR_PERMISSION)
+			err = os.MkdirAll(c.CacheDirectory, local_utils.CACHEDIR_PERMISSION)
 			if err != nil {
 				return fmt.Errorf("Cache directory path is invalid: %w", err)
 			}

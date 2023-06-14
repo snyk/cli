@@ -48,7 +48,7 @@ executors:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '13.3.0'
-    resource_class: medium
+    resource_class: macos.x86.medium.gen2
 
 commands:
   install_sdks_windows:
@@ -348,9 +348,9 @@ jobs:
           command: npm install
       - run:
           name: Running Tap tests
-          command: |
+          command:
             npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
-              $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
+            $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
   build-artifact:
     parameters:
@@ -401,6 +401,12 @@ jobs:
             ls -la cliv2/bin
             cp cliv2/bin/snyk-linux-arm64 binary-releases/snyk-linux-arm64
             cp cliv2/bin/snyk-linux-arm64.sha256 binary-releases/snyk-linux-arm64.sha256
+      - run:
+          name: Copy alpine cliv2 binaries to binary-releases staging area
+          command: |
+            ls -la cliv2/bin
+            cp cliv2/bin/snyk-alpine binary-releases/snyk-alpine
+            cp cliv2/bin/snyk-alpine.sha256 binary-releases/snyk-alpine.sha256
       - run:
           name: Making TS-Binary-Wrapper (snyk.tgz)
           command: make binary-releases/snyk.tgz
