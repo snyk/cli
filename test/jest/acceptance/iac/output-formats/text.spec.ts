@@ -94,7 +94,7 @@ describe('iac test text output', () => {
         EOL +
         '✗ Files with issues: 3' +
         EOL +
-        '  Ignored issues: 8' +
+        '  Ignored issues: 12' +
         EOL +
         '  Total issues: ',
     );
