@@ -31,7 +31,7 @@
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
                                 "lineNumber": 21,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
                         "projectType": "terraformconfig"
@@ -66,7 +66,7 @@
                                         "impact": "Without this setting enabled the instances can be terminated by accident. This setting should only be used for instances with high availability requirements. Enabling this may prevent IaC workflows from updating the instance, for example terraform will not be able to terminate the instance to update instance type",
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
                         "projectType": "terraformconfig"
@@ -102,7 +102,7 @@
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
                                 "lineNumber": 1,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
                         "projectType": "terraformconfig"
@@ -138,7 +138,7 @@
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
                                 "lineNumber": 2,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
                         "projectType": "terraformconfig"
@@ -174,7 +174,7 @@
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
                                 "lineNumber": 3,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
                         "projectType": "terraformconfig"
@@ -210,7 +210,7 @@
                                         "resolve": "Set `disable_api_termination` attribute  with value `true`"
                                 },
                                 "lineNumber": 4,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-AWS-426"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
                         "projectType": "terraformconfig"
@@ -247,7 +247,7 @@
                                         "resolve": "Set `DisableApiTermination` attribute with value `true`"
                                 },
                                 "lineNumber": 5,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-426"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-AWS-426"
                         },
                         "targetFile": "bastion.yml",
                         "projectType": "cloudformationconfig"
@@ -285,7 +285,7 @@
                                         "resolve": "Set `Properties.KmsKeyId` attribute with customer managed key id"
                                 },
                                 "lineNumber": 6,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-AWS-415"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-AWS-415"
                         },
                         "targetFile": "bastion.yml",
                         "projectType": "cloudformationconfig"
@@ -323,7 +323,7 @@
                                         "resolve": "Set `imagePullPolicy` attribute to `Always`"
                                 },
                                 "lineNumber": 7,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-42"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-K8S-42"
                         },
                         "targetFile": "k8s.yaml",
                         "projectType": "k8sconfig"
@@ -363,7 +363,7 @@
                                         "resolve": "Set `securityContext.readOnlyRootFilesystem` to `true`"
                                 },
                                 "lineNumber": 8,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-8"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-K8S-8"
                         },
                         "targetFile": "k8s.yaml",
                         "projectType": "k8sconfig"
@@ -398,7 +398,7 @@
                                         "resolve": "Add `container.apparmor.security.beta.kubernetes.io/<container-name>` annotation with value `runtime/default` or `localhost/<name-of-profile`"
                                 },
                                 "lineNumber": 9,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-32"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-K8S-32"
                         },
                         "targetFile": "k8s.yaml",
                         "projectType": "k8sconfig"
@@ -439,7 +439,7 @@
                                         "resolve": "Set `resources.limits.memory` value"
                                 },
                                 "lineNumber": 10,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-4"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-K8S-4"
                         },
                         "targetFile": "k8s.yaml",
                         "projectType": "k8sconfig"
@@ -481,7 +481,7 @@
                                         "resolve": "Add `resources.limits.cpu` field with required CPU limit value"
                                 },
                                 "lineNumber": 11,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-5"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-K8S-5"
                         },
                         "targetFile": "k8s.yaml",
                         "projectType": "k8sconfig"
@@ -519,7 +519,7 @@
                                         "resolve": "Remove secret value from `user_data` attribute"
                                 },
                                 "lineNumber": -1,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-123"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-123"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
                         "projectType": "terraformconfig"
@@ -555,7 +555,7 @@
                                         "resolve": "Remove secret value from `user_data` attribute"
                                 },
                                 "lineNumber": 13,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-123"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-123"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
                         "projectType": "terraformconfig"
@@ -591,7 +591,7 @@
                                         "resolve": "Remove secret value from `user_data` attribute"
                                 },
                                 "lineNumber": 14,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-123"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-123"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
                         "projectType": "terraformconfig"
@@ -627,7 +627,7 @@
                                         "resolve": "Remove secret value from `user_data` attribute"
                                 },
                                 "lineNumber": 15,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-123"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-123"
                         },
                         "targetFile": "aws_ec2_metadata_secrets.tf",
                         "projectType": "terraformconfig"
@@ -667,7 +667,7 @@
                                         "resolve": "Remove `securityContext.privileged` attribute, or set value to `false`"
                                 },
                                 "lineNumber": 16,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-1"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-K8S-1"
                         },
                         "targetFile": "k8s.yaml",
                         "projectType": "k8sconfig"
@@ -710,7 +710,7 @@
                                         "resolve": "Set `BlockDeviceMappings.Encrypted` attribute of root device to `true`"
                                 },
                                 "lineNumber": 17,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-53"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-53"
                         },
                         "targetFile": "bastion.yml",
                         "projectType": "cloudformationconfig"
@@ -750,7 +750,7 @@
                                         "resolve": "Set `securityContext.runAsNonRoot` to `true`"
                                 },
                                 "lineNumber": 18,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-10"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-K8S-10"
                         },
                         "targetFile": "k8s.yaml",
                         "projectType": "k8sconfig"
@@ -790,7 +790,7 @@
                                         "resolve": "Add `ALL` to `securityContext.capabilities.drop` list, and add only required capabilities in `securityContext.capabilities.add`"
                                 },
                                 "lineNumber": 19,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-6"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-K8S-6"
                         },
                         "targetFile": "k8s.yaml",
                         "projectType": "k8sconfig"
@@ -830,7 +830,7 @@
                                         "resolve": "Set `securityContext.allowPrivilegeEscalation` to `false`"
                                 },
                                 "lineNumber": 20,
-                                "documentation": "https://snyk.io/security-rules/SNYK-CC-K8S-9"
+                                "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-K8S-9"
                         },
                         "targetFile": "k8s.yaml",
                         "projectType": "k8sconfig"

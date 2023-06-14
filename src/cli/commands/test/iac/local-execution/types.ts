@@ -158,7 +158,7 @@ export interface PolicyMetadata {
   type?: string;
   subType: string;
   title: string;
-  documentation?: string; // e.g. "https://snyk.io/security-rules/SNYK-CC-K8S-2",
+  documentation?: string; // e.g. "https://security.snyk.io/rules/cloud/SNYK-CC-XXX",
   isGeneratedByCustomRule?: boolean;
   // Legacy field, still included in WASM eval output, but not in use. (not included in new policies)
   description?: string;

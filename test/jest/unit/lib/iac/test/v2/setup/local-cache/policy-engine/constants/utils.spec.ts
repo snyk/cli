@@ -43,7 +43,6 @@ describe('getChecksum', () => {
     expectedFileName
     ${`snyk-iac-test_${policyEngineReleaseVersion}_Darwin_arm64`}
     ${`snyk-iac-test_${policyEngineReleaseVersion}_Darwin_x86_64`}
-    ${`snyk-iac-test_${policyEngineReleaseVersion}_Windows_arm64.exe`}
     ${`snyk-iac-test_${policyEngineReleaseVersion}_Windows_x86_64.exe`}
     ${`snyk-iac-test_${policyEngineReleaseVersion}_Linux_arm64`}
     ${`snyk-iac-test_${policyEngineReleaseVersion}_Linux_x86_64`}
