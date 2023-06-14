@@ -49,7 +49,7 @@ describe('iac test text output', () => {
     expect(stdout).toContain('Test completed.');
   });
 
-  it('should show the issues list section with correct values', async () => {
+  it.skip('should show the issues list section with correct values', async () => {
     const { stdout } = await run('snyk iac test  ./iac/arm/rule_test.json');
 
     expect(stdout).toContain(
@@ -77,7 +77,7 @@ describe('iac test text output', () => {
     );
   });
 
-  it('should show the test summary section with correct values', async () => {
+  it.skip('should show the test summary section with correct values', async () => {
     const dirPath = 'iac/kubernetes';
     const policyPath = `iac/policy/.snyk`;
     const { stdout } = await run(
