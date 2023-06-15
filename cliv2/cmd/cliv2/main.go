@@ -323,7 +323,10 @@ func displayError(err error) {
 	}
 }
 
-func logHeaderAuthorizationInfo(config configuration.Configuration, networkAccess networking.NetworkAccess) (string, string) {
+func logHeaderAuthorizationInfo(
+	config configuration.Configuration,
+	networkAccess networking.NetworkAccess,
+) (string, string) {
 	oauthEnabled := "Disabled"
 	authorization := ""
 	tokenShaSum := ""
@@ -439,7 +442,10 @@ func MainWithErrorCode() int {
 	// init NetworkAccess
 	networkAccess := engine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
-	networkAccess.AddHeaderField("User-Agent", "snyk-cli/"+cliv2.GetFullVersion())
+	networkAccess.AddHeaderField(
+		"User-Agent",
+		networking.UserAgentFromConfig(config, "snyk-cli", cliv2.GetFullVersion()).String(),
+	)
 
 	if debugEnabled {
 		writeLogHeader(config, networkAccess)
