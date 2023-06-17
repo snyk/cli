@@ -14,8 +14,8 @@ import { api, getOAuthToken } from '../../../../api-token';
 import envPaths from 'env-paths';
 import { restoreEnvProxy } from '../../../env-utils';
 
-const debug = newDebug('snyk:iac');
-const debugOutput = newDebug('snyk:iac:output');
+const debug = newDebug('snyk-iac');
+const debugOutput = newDebug('snyk-iac:output');
 
 export const systemCachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 

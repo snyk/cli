@@ -11,7 +11,7 @@ CLI_V2_VERSION_TAG =
 CLI_V1_VERSION_TAG = 
 CLI_V1_LOCATION = 
 USE_LEGACY_EXECUTABLE_NAME =
-LDFLAGS = -s -w
+LDFLAGS = -s -w -X main.InternalOS=$(GOOS)
 
 # Make directories per convention
 prefix = /usr/local

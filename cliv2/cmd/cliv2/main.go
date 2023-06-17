@@ -32,6 +32,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
+var InternalOS string
 var engine workflow.Engine
 var config configuration.Configuration
 var helpProvided bool
@@ -141,6 +142,7 @@ func runCommand(cmd *cobra.Command, args []string) error {
 
 	name := getFullCommandString(cmd)
 	debugLogger.Print("Running ", name)
+	engine.GetAnalytics().SetCommand(name)
 
 	if len(args) > 0 {
 		config.Set(configuration.INPUT_DIRECTORY, args[0])
@@ -323,7 +325,10 @@ func displayError(err error) {
 	}
 }
 
-func logHeaderAuthorizationInfo(config configuration.Configuration, networkAccess networking.NetworkAccess) (string, string) {
+func logHeaderAuthorizationInfo(
+	config configuration.Configuration,
+	networkAccess networking.NetworkAccess,
+) (string, string) {
 	oauthEnabled := "Disabled"
 	authorization := ""
 	tokenShaSum := ""
@@ -380,7 +385,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	}
 
 	tablePrint("Version", cliv2.GetFullVersion())
-	tablePrint("Platform", runtime.GOOS+" "+runtime.GOARCH)
+	tablePrint("Platform", InternalOS+" "+runtime.GOARCH)
 	tablePrint("API", config.GetString(configuration.API_URL))
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
 	tablePrint("Organization", org)
@@ -439,7 +444,13 @@ func MainWithErrorCode() int {
 	// init NetworkAccess
 	networkAccess := engine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
-	networkAccess.AddHeaderField("User-Agent", "snyk-cli/"+cliv2.GetFullVersion())
+	networkAccess.AddHeaderField(
+		"User-Agent",
+		networking.UserAgent(
+			networking.UaWithConfig(config),
+			networking.UaWithApplication("snyk-cli", cliv2.GetFullVersion()),
+			networking.UaWithOS(InternalOS)).String(),
+	)
 
 	if debugEnabled {
 		writeLogHeader(config, networkAccess)
@@ -449,6 +460,7 @@ func MainWithErrorCode() int {
 	cliAnalytics := engine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args[1:])
+	cliAnalytics.SetOperatingSystem(InternalOS)
 	if config.GetBool(configuration.ANALYTICS_DISABLED) == false {
 		defer sendAnalytics(cliAnalytics, debugLogger)
 	}
