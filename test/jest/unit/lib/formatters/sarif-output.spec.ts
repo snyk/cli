@@ -155,5 +155,6 @@ function getTestResult(
     uniqueCount: 42,
     projectName: 'PROJECT_NAME',
     foundProjectCount: 22,
+    displayTargetFile: 'Dockerfile',
   };
 }
