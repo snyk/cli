@@ -7,6 +7,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "semver": "^2.3.2"
+    "semver": "^7.5.2"
   }
 }
