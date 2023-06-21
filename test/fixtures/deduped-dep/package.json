@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@remy/vuln-test": "^1.0.1",
-    "semver": "^2.3.2"
+    "semver": "^7.5.2"
   },
   "devDependencies": {},
   "scripts": {
