@@ -17,7 +17,7 @@ src/cli/commands/test @snyk/snyk-open-source
 src/cli/commands/monitor @snyk/snyk-open-source
 help/  @snyk/hammerhead
 src/cli/commands/test/iac/ @snyk/cloud-dev-ex
-src/cli/commands/describe.ts @snyk/cloud-context
+src/cli/commands/describe.ts @snyk/cloud-dev-ex
 src/cli/commands/update-exclude-policy.ts @snyk/cloud-dev-ex
 src/cli/commands/apps @snyk/moose
 src/lib/apps @snyk/moose
@@ -37,8 +37,8 @@ test/fixtures/container-app-vulns/ @snyk/lumos
 test/fixtures/container-projects/ @snyk/lumos
 test/fixtures/docker/ @snyk/lumos
 test/fixtures/iac/ @snyk/cloud-dev-ex
-test/fixtures/iac/drift @snyk/cloud-context
-test/fixtures/iac/capture @snyk/cloud-context
+test/fixtures/iac/drift @snyk/cloud-dev-ex
+test/fixtures/iac/capture @snyk/cloud-dev-ex
 test/smoke/iac/ @snyk/cloud-dev-ex
 test/smoke/spec/snyk_code_spec.sh @snyk/zenith
 test/smoke/spec/snyk_basic_spec.sh @snyk/hammerhead
@@ -48,15 +48,15 @@ test/jest/unit/lib/formatters/iac-output/ @snyk/cloud-dev-ex
 test/jest/unit/lib/formatters/test/format-test-results.spec.ts @snyk/hammerhead @snyk/snyk-open-source @snyk/lumos
 test/jest/unit/iac/ @snyk/cloud-dev-ex
 test/jest/unit/cli/commands/test/iac @snyk/cloud-dev-ex
-test/jest/unit/lib/iac/drift/ @snyk/cloud-context
+test/jest/unit/lib/iac/drift/ @snyk/cloud-dev-ex
 test/jest/unit/lib/iac/test/ @snyk/cloud-dev-ex
 test/jest/acceptance/iac/ @snyk/cloud-dev-ex
-test/jest/acceptance/iac/describe.spec.ts @snyk/cloud-context
-test/jest/acceptance/iac/capture.spec.ts @snyk/cloud-context
+test/jest/acceptance/iac/describe.spec.ts @snyk/cloud-dev-ex
+test/jest/acceptance/iac/capture.spec.ts @snyk/cloud-dev-ex
 test/jest/acceptance/snyk-apps @snyk/moose
 src/lib/code-config.ts @snyk/nebula
-src/lib/errors/describe-required-argument-error.ts @snyk/cloud-context
-src/lib/errors/describe-exclusive-argument-error.ts @snyk/cloud-context
+src/lib/errors/describe-required-argument-error.ts @snyk/cloud-dev-ex
+src/lib/errors/describe-exclusive-argument-error.ts @snyk/cloud-dev-ex
 src/lib/errors/no-supported-sast-files-found.ts @snyk/zenith
 test/jest/util/ @snyk/hammerhead
 dangerfile.js @snyk/hammerhead
