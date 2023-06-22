@@ -116,13 +116,11 @@ func legacycliWorkflow(
 
 	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
 
-	if oauthIsAvailable {
-		proxyHeaderFunc := func(req *http.Request) error {
-			err := networkAccess.AddHeaders(req)
-			return err
-		}
-		wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
+	proxyHeaderFunc := func(req *http.Request) error {
+		err := networkAccess.AddHeaders(req)
+		return err
 	}
+	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
 
 	err = wrapperProxy.Start()
 	if err != nil {
