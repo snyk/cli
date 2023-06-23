@@ -9,6 +9,8 @@ orbs:
   gh: circleci/github-cli@2.1.0
   # https://circleci.com/developer/orbs/orb/circleci/go
   go: circleci/go@1.7.1
+  # https://github.com/snyk/prodsec-orb
+  prodsec: snyk/prodsec-orb@1.0
 
 parameters:
   aws_version:
@@ -845,6 +847,11 @@ workflows:
     jobs:
       - build:
           name: Build
+      - prodsec/secrets-scan:
+          name: Scan repository for secrets
+          context:
+            - snyk-bot-slack
+          channel: hammerhead-alerts
       - test-jest:
           filters:
             branches:
