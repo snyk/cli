@@ -43,7 +43,7 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "alpine/kubernetes-monitor"
+                  "uri": "Dockerfile"
                 },
                 "region": {
                   "startLine": 1
