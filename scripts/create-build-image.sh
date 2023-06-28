@@ -10,11 +10,11 @@ pushd "$SCRIPT_DIR/.."
   export NODEVERSION
 
   BASE_IMG_NAME=$DOCKER_USERNAME/cli-build
-  docker buildx build --build-arg NODEVERSION="$NODEVERSION" --platform linux/amd64 -t "$BASE_IMG_NAME":latest -f .circleci/Dockerfile .
+  docker buildx build --build-arg NODEVERSION="$NODEVERSION" --build-arg ARCH="x86_64" --platform linux/amd64 -t "$BASE_IMG_NAME":latest -f .circleci/Dockerfile .
   docker tag "$BASE_IMG_NAME":latest "$BASE_IMG_NAME":"$NOW"
 
   ARM64=$BASE_IMG_NAME-arm64
-  docker buildx build --build-arg NODEVERSION="$NODEVERSION" --platform linux/arm64 -t "$ARM64":latest -f .circleci/Dockerfile .
+  docker buildx build --build-arg NODEVERSION="$NODEVERSION" --build-arg ARCH="aarch64" --platform linux/arm64 -t "$ARM64":latest -f .circleci/Dockerfile .
   docker tag "$ARM64":latest "$ARM64:$NOW"
 
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
