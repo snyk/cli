@@ -22,7 +22,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.19.4'
+    default: '1.20.5'
 
 executors:
   alpine:
@@ -30,7 +30,7 @@ executors:
       - image: alpine:3.17
   docker-node:
     docker:
-      - image: bastiandoetsch209/cli-build:latest
+      - image: bastiandoetsch209/cli-build:20230613-040119
     # Using RAM Disk. https://circleci.com/docs/2.0/executor-types/#ram-disks
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
