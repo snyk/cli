@@ -30,9 +30,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     elixir \
     composer \
     jq \
-    cmake \
-    libssl-dev \
-    libcurl4-openssl-dev \
     faketime
 
 
@@ -58,10 +55,6 @@ RUN chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
 RUN apt-get update
 RUN apt-get install sbt
 RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
-
-RUN curl -sSL https://github.com/mtrojnar/osslsigncode/releases/download/2.5/osslsigncode-2.5.tar.gz > osslsigncode-2.5.tar.gz && tar -xzf osslsigncode-2.5.tar.gz
-RUN cd osslsigncode-2.5 && mkdir -p build && cd build && cmake -S .. && make install && cd .. && cd ..
-RUN rm -rf osslsigncode-2.5*
 
 ENV PATH=/go/swift-5.8.1-RELEASE-amazonlinux2/usr/bin:/usr/local/bin/:$PATH
 
