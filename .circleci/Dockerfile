@@ -3,6 +3,8 @@ FROM --platform=$BUILDPLATFORM golang:1.20
 # install "normal" stuff
 
 ARG NODEVERSION
+ARG ARCH
+
 RUN echo "Node version: $NODEVERSION"
 RUN apt-get update
 RUN curl -sL https://deb.nodesource.com/setup_$NODEVERSION.x | bash -
@@ -14,8 +16,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     make \
     maven \
     gradle \
-    openjdk-11-jdk-headless \
-    openjdk-11-jre-headless \
+    openjdk-17-jdk-headless \
+    openjdk-17-jre-headless \
     python3 \
     python3-pip \
     python-is-python3 \
@@ -24,16 +26,22 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     gnupg \
     -yqq \
     nodejs \
+    npm \
     elixir \
     composer \
     jq \
-    cmake \
-    libssl-dev \
-    libcurl4-openssl-dev \
     faketime
 
+
 # install aws cli
-RUN pip install awscli --upgrade --user
+ADD .circleci/awscli-publickey.pub awscli-publickey.pub
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$ARCH.zip" -o "awscliv2.zip"
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$ARCH.zip.sig" -o "awscliv2.sig"
+RUN gpg --import awscli-publickey.pub
+RUN gpg --verify awscliv2.sig awscliv2.zip
+RUN unzip awscliv2.zip
+RUN sudo ./aws/install
+RUN rm -rf "awscli*"
 
 # install swift cli
 RUN wget https://download.swift.org/swift-5.8.1-release/amazonlinux2/swift-5.8.1-RELEASE/swift-5.8.1-RELEASE-amazonlinux2.tar.gz
@@ -48,16 +56,7 @@ RUN apt-get update
 RUN apt-get install sbt
 RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
 
-RUN curl -sSL https://github.com/mtrojnar/osslsigncode/releases/download/2.5/osslsigncode-2.5.tar.gz > osslsigncode-2.5.tar.gz && tar -xzf osslsigncode-2.5.tar.gz
-RUN cd osslsigncode-2.5 && mkdir -p build && cd build && cmake -S .. && make install && cd .. && cd ..
-RUN rm -rf osslsigncode-2.5*
-
 ENV PATH=/go/swift-5.8.1-RELEASE-amazonlinux2/usr/bin:/usr/local/bin/:$PATH
-
-# pre-install npm packages
-ADD package.json /tmp/package.json
-RUN cd /tmp && npm install -g
-RUN rm /tmp/package.json
 
 RUN useradd circleci --create-home
 RUN echo "circleci ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
