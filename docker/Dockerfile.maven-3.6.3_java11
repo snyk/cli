@@ -1,4 +1,4 @@
-FROM openjdk:11-jdk-slim
+FROM openjdk:21-ea-28-jdk-slim
 
 MAINTAINER Snyk Ltd
 
