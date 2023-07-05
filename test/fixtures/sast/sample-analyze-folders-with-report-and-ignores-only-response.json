@@ -1,0 +1,304 @@
+{
+  "connection": { 
+    "baseURL": "http://proxy.acme--snyk-url.io",
+    "sessionToken": "912D0461-5CCD-417B-8073-1305D1D896C2", 
+    "source": "snyk-cli"
+  },
+  "analysisOptions": { "severity": 1 },
+  "fileOptions": {
+    "paths": ["../goof"],
+    "symlinksEnabled": false
+  },
+  "fileBundle": {
+    "bundleHash": "FFD4CE2E-74CE-4FC8-B868-CC707FD31389",
+    "baseDir": "../goof",
+    "supportedFiles": {
+      "extensions": [
+        ".java",
+        ".es",
+        ".es6",
+        ".htm",
+        ".html",
+        ".js",
+        ".jsx",
+        ".ts",
+        ".tsx",
+        ".vue"
+      ],
+      "configFiles": [
+        ".dcignore",
+        ".gitignore"
+      ]
+    },
+    "fileIgnores": [
+      "**/.git",
+      "sample-project/goof/**/.DS_Store",
+      "sample-project/goof/**/node_modules",
+      "sample-project/goof/**/*.sock",
+      "sample-project/goof/**/.sass-cache",
+      "sample-project/goof/**/sass",
+      "sample-project/goof/**/config.rb",
+      "sample-project/goof/**/npm-debug.log"
+    ]
+  },
+  "analysisResults": {
+    "type": "sarif",
+    "sarif": {
+      "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+      "version": "2.1.0",
+      "runs": [
+        {
+          "tool": {
+            "driver": {
+              "name": "SnykCode",
+              "semanticVersion": "1.0.0",
+              "version": "1.0.0",
+              "rules": [
+                {
+                  "id": "javascript/HttpToHttps",
+                  "name": "HttpToHttps",
+                  "shortDescription": {
+                    "text": "Cleartext Transmission of Sensitive Information"
+                  },
+                  "defaultConfiguration": {
+                    "level": "warning"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "http",
+                      "server"
+                    ],
+                    "categories":["Security"],
+                    "precision": "very-high",
+                    "cwe": [
+                      "CWE-319"
+                    ]
+                  }
+                },
+                {
+                  "id": "javascript/DisablePoweredBy",
+                  "name": "DisablePoweredBy",
+                  "shortDescription": {
+                    "text": "Information Exposure"
+                  },
+                  "defaultConfiguration": {
+                    "level": "warning"
+                  },
+                  "help": {
+                    "markdown": "",
+                    "text": ""
+                  },
+                  "properties": {
+                    "tags": [
+                      "javascript",
+                      "maintenance",
+                      "express",
+                      "server",
+                      "helmet"
+                    ],
+                    "categories":["Security"],
+                    "precision": "very-high",
+                    "cwe": [
+                      "CWE-200"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "results": [
+            {
+              "ruleId": "javascript/HttpToHttps",
+              "ruleIndex": 0,
+              "level": "warning",
+              "message": {
+                "text": "http (used in require) is an insecure protocol and should not be used in new code.",
+                "markdown": "{0} (used in {1}) is an insecure protocol and should not be used in new code.",
+                "arguments": [
+                  "[http](0)",
+                  "[require](1)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/app.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 12,
+                      "endLine": 12,
+                      "startColumn": 12,
+                      "endColumn": 26
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "app.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 12,
+                                "endLine": 12,
+                                "startColumn": 20,
+                                "endColumn": 25
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "location": {
+                            "id": 1,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "app.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 12,
+                                "endLine": 12,
+                                "startColumn": 12,
+                                "endColumn": 26
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": [
+                {
+                  "justification": "test-ignore-1",
+                  "kind": "external"
+                }
+              ]
+            },
+            {
+              "ruleId": "javascript/DisablePoweredBy",
+              "ruleIndex": 1,
+              "level": "warning",
+              "message": {
+                "text": "Disable X-Powered-By header for your Express app (consider using Helmet middleware), because it exposes information about the used framework to potential attackers.",
+                "markdown": "Disable X-Powered-By header for your {0} (consider using Helmet middleware), because it exposes information about the used framework to potential attackers.",
+                "arguments": [
+                  "[Express app](0)"
+                ]
+              },
+              "locations": [
+                {
+                  "physicalLocation": {
+                    "artifactLocation": {
+                      "uri": "sample-project/goof/app.js",
+                      "uriBaseId": "%SRCROOT%"
+                    },
+                    "region": {
+                      "startLine": 27,
+                      "endLine": 27,
+                      "startColumn": 11,
+                      "endColumn": 19
+                    }
+                  }
+                }
+              ],
+              "fingerprints": {
+                "0": "8ecbfa60577a4d25a3c18f790761ea95"
+              },
+              "codeFlows": [
+                {
+                  "threadFlows": [
+                    {
+                      "locations": [
+                        {
+                          "location": {
+                            "id": 0,
+                            "physicalLocation": {
+                              "artifactLocation": {
+                                "uri": "app.js",
+                                "uriBaseId": "%SRCROOT%"
+                              },
+                              "region": {
+                                "startLine": 27,
+                                "endLine": 27,
+                                "startColumn": 11,
+                                "endColumn": 19
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "suppressions": [
+                {
+                  "justification": "test-ignore-2",
+                  "kind": "external"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "coverage": [
+              {
+                "files": 8,
+                "isSupported": true,
+                "lang": "JavaScript"
+              },
+              {
+                "files": 1,
+                "isSupported": true,
+                "lang": "HTML"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "status": "COMPLETE",
+    "timing": {
+      "fetchingCode": 3,
+      "analysis": 5043,
+      "queue": 5
+    },
+    "coverage": [
+      {
+        "files": 8,
+        "isSupported": true,
+        "lang": "JavaScript"
+      },
+      {
+        "files": 1,
+        "isSupported": true,
+        "lang": "HTML"
+      }
+    ]
+  },
+  "reportResults": {
+    "projectId": "test-project-id",
+    "snapshotId": "test-snapshot-id",
+    "reportUrl": "test/report/url"
+  }
+}

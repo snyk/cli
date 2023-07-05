@@ -37,33 +37,21 @@ git pull --ff-only
 If you encounter vague errors without a clear solution at any point, try starting over by cloning a new copy or cleaning the project.
 
 ```
-npm run clean
+make clean
 ```
 
 ## Building
 
-Install project dependencies.
+To build the project, run the following command in the root of the repository.
 
 ```sh
-npm ci
+make build
 ```
 
-Build the project.
+Run the build binary like this.
 
 ```sh
-npm run build
-```
-
-Ensure the build is working. The version should be `1.0.0-monorepo`.
-
-```sh
-npx . --version
-```
-
-For faster rebuilds, you can watch for changes. This command will keep running so you will want to run this in a separate terminal or background.
-
-```
-npm run watch
+./binary-releases/snyk-macos --version
 ```
 
 ## Running tests

@@ -122,17 +122,28 @@ async function buildDepGraph(
       return await lockFileParser.parseYarnLockV1Project(
         manifestFileContents,
         lockFileContents,
-        options,
+        {
+          includeDevDeps: options.includeDevDeps,
+          includeOptionalDeps: options.includeOptionalDeps,
+          includePeerDeps: options.includePeerDeps || false,
+          pruneLevel: 'withinTopLevelDeps',
+          strictOutOfSync: options.strictOutOfSync,
+        },
       );
     case NodeLockfileVersion.YarnLockV2:
-      return lockFileParser.parseYarnLockV2Project(
+      return await lockFileParser.parseYarnLockV2Project(
         manifestFileContents,
         lockFileContents,
-        options,
+        {
+          includeDevDeps: options.includeDevDeps,
+          includeOptionalDeps: options.includeOptionalDeps,
+          pruneWithinTopLevelDeps: true,
+          strictOutOfSync: options.strictOutOfSync,
+        },
       );
     case NodeLockfileVersion.NpmLockV2:
     case NodeLockfileVersion.NpmLockV3:
-      return lockFileParser.parseNpmLockV2Project(
+      return await lockFileParser.parseNpmLockV2Project(
         manifestFileContents,
         lockFileContents,
         options,

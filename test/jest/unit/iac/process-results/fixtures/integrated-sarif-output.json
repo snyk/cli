@@ -42,7 +42,7 @@
                   "severity": "medium"
                 }
               },
-              "helpUri": "https://snyk.io/security-rules/SNYK-CC-00151"
+              "helpUri": "https://security.snyk.io/rules/cloud/SNYK-CC-00151"
             },
             {
               "id": "SNYK-CC-TF-5",
@@ -68,7 +68,7 @@
                   "severity": "medium"
                 }
               },
-              "helpUri": "https://snyk.io/security-rules/SNYK-CC-TF-5"
+              "helpUri": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-5"
             }
           ]
         }

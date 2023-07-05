@@ -96,23 +96,28 @@ async function handleError(args, error) {
   let command = 'bad-command';
   let exitCode = EXIT_CODES.ERROR;
 
-  const noSupportedManifestsFound = error.message?.includes(
-    'Could not detect supported target files in',
-  );
-  const noSupportedSastFiles = error instanceof NoSupportedSastFiles;
-  const noSupportedIaCFiles = error.code === IaCErrorCodes.NoFilesToScanError;
-  const noSupportedProjectsDetected =
-    noSupportedManifestsFound || noSupportedSastFiles || noSupportedIaCFiles;
-
-  if (noSupportedProjectsDetected) {
-    exitCode = EXIT_CODES.NO_SUPPORTED_PROJECTS_DETECTED;
-  }
-
   const vulnsFound = error.code === 'VULNS';
-  if (vulnsFound) {
-    // this isn't a bad command, so we won't record it as such
-    command = args.command;
-    exitCode = EXIT_CODES.VULNS_FOUND;
+
+  if (args.command === 'test' && args.options?.unmanaged) {
+    exitCode = vulnsFound ? EXIT_CODES.VULNS_FOUND : error.code;
+  } else {
+    const noSupportedManifestsFound = error.message?.includes(
+      'Could not detect supported target files in',
+    );
+    const noSupportedSastFiles = error instanceof NoSupportedSastFiles;
+    const noSupportedIaCFiles = error.code === IaCErrorCodes.NoFilesToScanError;
+    const noSupportedProjectsDetected =
+      noSupportedManifestsFound || noSupportedSastFiles || noSupportedIaCFiles;
+
+    if (noSupportedProjectsDetected) {
+      exitCode = EXIT_CODES.NO_SUPPORTED_PROJECTS_DETECTED;
+    }
+
+    if (vulnsFound) {
+      // this isn't a bad command, so we won't record it as such
+      command = args.command;
+      exitCode = EXIT_CODES.VULNS_FOUND;
+    }
   }
 
   if (args.options.debug && !args.options.json) {
@@ -244,6 +249,7 @@ export async function main(): Promise<void> {
         '--group-issues is currently not supported for Snyk IaC.',
       ]);
     }
+
     if (
       globalArgs.options['group-issues'] &&
       !globalArgs.options['json'] &&
@@ -251,6 +257,16 @@ export async function main(): Promise<void> {
     ) {
       throw new UnsupportedOptionCombinationError([
         'JSON output is required to use --group-issues, try adding --json.',
+      ]);
+    }
+
+    if (
+      globalArgs.options['mavenAggregateProject'] &&
+      globalArgs.options['project-name']
+    ) {
+      throw new UnsupportedOptionCombinationError([
+        'maven-aggregate-project',
+        'project-name',
       ]);
     }
 
@@ -406,22 +422,6 @@ function validateUnsupportedSarifCombinations(args) {
       args.command,
       'sarif-file-output',
     ]);
-  }
-
-  if (
-    args.options['sarif'] &&
-    args.options['docker'] &&
-    !args.options['file']
-  ) {
-    throw new MissingOptionError('sarif', ['--file']);
-  }
-
-  if (
-    args.options['sarif-file-output'] &&
-    args.options['docker'] &&
-    !args.options['file']
-  ) {
-    throw new MissingOptionError('sarif-file-output', ['--file']);
   }
 }
 

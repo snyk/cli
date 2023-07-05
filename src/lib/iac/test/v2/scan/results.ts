@@ -28,6 +28,9 @@ export function mapSnykIacTestOutputToTestOutput(
   }
 
   const errors = snykIacOutput.errors?.map((err) => new SnykIacTestError(err));
+  const warnings = snykIacOutput.warnings?.map(
+    (err) => new SnykIacTestError(err),
+  );
 
   const errWithoutPath = errors?.find((err) => !err.fields?.path);
 
@@ -39,12 +42,14 @@ export function mapSnykIacTestOutputToTestOutput(
     results: snykIacOutput.results,
     settings: snykIacOutput.settings,
     errors,
+    warnings,
   };
 }
 
 export interface TestOutput {
   results?: Results;
   errors?: SnykIacTestError[];
+  warnings?: SnykIacTestError[];
   settings: Settings;
 }
 
@@ -52,6 +57,7 @@ export interface SnykIacTestOutput {
   results?: Results;
   rawResults?: PolicyEngineTypes.Results;
   errors?: ScanError[];
+  warnings?: ScanError[];
   settings: Settings;
 }
 

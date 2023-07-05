@@ -90,7 +90,7 @@ describe('snyk fix', () => {
 
   it('fails when api requests fail', async () => {
     const project = await createProjectFromWorkspace('no-vulns');
-    server.setNextStatusCode(500);
+    server.setStatusCode(500);
     const { code, stdout, stderr } = await runSnykCLI(
       'fix --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
       {

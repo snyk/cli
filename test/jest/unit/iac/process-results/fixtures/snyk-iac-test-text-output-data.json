@@ -17,7 +17,7 @@
           "remediation": {
             "terraform": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field."
           },
-          "documentation": "https://snyk.io/security-rules/SNYK-CC-00151"
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151"
         },
         "targetFile": "plan.json",
         "projectType": "terraformconfig"
@@ -42,7 +42,7 @@
           "remediation": {
             "terraform": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
           },
-          "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-5"
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-5"
         },
         "targetFile": "plan.json",
         "projectType": "terraformconfig"
@@ -63,7 +63,7 @@
           "remediation": {
             "terraform": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field."
           },
-          "documentation": "https://snyk.io/security-rules/SNYK-CC-00151"
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151"
         },
         "targetFile": "vpc_group.tf",
         "projectType": "terraformconfig"
@@ -88,7 +88,7 @@
           "remediation": {
             "terraform": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
           },
-          "documentation": "https://snyk.io/security-rules/SNYK-CC-TF-5"
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-5"
         },
         "targetFile": "vpc_group.tf",
         "projectType": "terraformconfig"

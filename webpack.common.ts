@@ -9,6 +9,7 @@ export default {
     clean: true,
     path: path.resolve(__dirname, 'dist/cli/'),
     filename: 'index.js',
+    hashFunction: 'sha256',
     library: {
       name: 'snyk',
       type: 'commonjs2',

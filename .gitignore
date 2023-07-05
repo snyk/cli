@@ -24,6 +24,10 @@ key.pem
 **/tsconfig.tsbuildinfo
 __outputs__
 *.tgz
+/ts-binary-wrapper/LICENSE
+/ts-binary-wrapper/README.md
+/ts-binary-wrapper/SECURITY.md
+/ts-binary-wrapper/src/generated
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

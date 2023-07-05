@@ -10,6 +10,7 @@ import {
   formatSnykIacTestTestData,
   getIacDisplayedIssues,
   IaCTestFailure,
+  IaCTestWarning,
   shareResultsTip,
   spinnerSuccessMessage,
 } from '../../../formatters/iac-output/text';
@@ -33,6 +34,7 @@ import {
   contentPadding,
 } from '../../../formatters/iac-output/text/utils';
 import * as wrapAnsi from 'wrap-ansi';
+import { formatIacTestWarnings } from '../../../formatters/iac-output/text/failures/list';
 
 export function buildOutput({
   scanResult,
@@ -145,6 +147,19 @@ function buildTextOutput({
     getIacDisplayedIssues(testData.resultsBySeverity, {
       shouldShowLineNumbers: true,
     });
+
+  if (scanResult.warnings) {
+    const testWarnings: IaCTestWarning[] = scanResult.warnings.map((error) => ({
+      filePath: error.fields.path,
+      warningReason: error.userMessage,
+      term: error.fields.term,
+      module: error.fields.module,
+      modules: error.fields.modules,
+      expressions: error.fields.expressions,
+    }));
+
+    response += EOL.repeat(2) + formatIacTestWarnings(testWarnings);
+  }
 
   if (scanResult.errors) {
     const testFailures: IaCTestFailure[] = scanResult.errors.map((error) => ({

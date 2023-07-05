@@ -65,3 +65,6 @@ export enum FAIL_ON {
 }
 
 export type FailOn = 'all' | 'upgradable' | 'patchable';
+
+export const RETRY_ATTEMPTS = 3;
+export const RETRY_DELAY = 500;

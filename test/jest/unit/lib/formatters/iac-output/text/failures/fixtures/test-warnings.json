@@ -1,0 +1,38 @@
+[
+    {
+        "filePath": "path/to/file",
+        "warningReason": "missing term value warning",
+        "term": "term"
+    },
+    {
+        "filePath": "path/to/another/file",
+        "warningReason": "missing term value warning",
+        "term": "term"
+    },
+    {
+        "filePath": "path/to/file",
+        "warningReason": "Could not load modules",
+        "modules": [
+            "module1",
+            "module2"
+        ]
+    },
+    {
+        "filePath": "path/to/file",
+        "warningReason": "Failed to load module",
+        "module": "module1"
+    },
+    {
+        "filePath": "path/to/file",
+        "warningReason": "Failed to load module",
+        "module": "module2"
+    },
+    {
+        "filePath": "path/to/file",
+        "warningReason": "evaluation error",
+        "expressions": [
+            "expression1",
+            "expression2"
+        ]
+    }
+]

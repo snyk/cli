@@ -107,7 +107,7 @@ Default: `<ORG_ID>` that is the current preferred organization in your [Account 
 
 **Note:** You can also use `--org=<orgslugname>.` The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
 
-For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
+For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--file=<FILE>`
 
@@ -181,6 +181,8 @@ Save test output as a JSON data structure directly to the specified file, regard
 
 Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file.
 
+For open-source, Snyk creates a file whether or not issues are found. In contrast, for SAST, if no issues are found, Snyk does not create a `json` file.
+
 Example: `$ snyk test --json-file-output=vuln.json`
 
 If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/invalid-string-length-error-when-scanning-projects)
@@ -225,11 +227,23 @@ Be sure to run the scan in the same directory as the root pom.xml file.
 
 Snyk reports test results per pom.xml file.
 
+### `--scan-unmanaged`
+
+To test individual JAR, WAR, and AAR files, use the following:&#x20;
+
+```
+--scan-unmanaged --file=<JAR_FILE_NAME>
+```
+
 ### `--scan-all-unmanaged`
 
-Auto-detect maven jars, aars, and wars in given directory. To test individually use `--file=<JAR_FILE_NAME>`
+Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.&#x20;
 
-**Note**: Custom-built jar files, even with open source dependencies, are out of scope.
+```
+--scan-all-unmanaged
+```
+
+**Note**: Custom-built JAR files, even with open source dependencies, are not supported.
 
 ## Options for Gradle projects
 

@@ -100,7 +100,7 @@ function formatScanResult(
       severity: policy.severity,
       lineNumber,
       documentation: !isGeneratedByCustomRule
-        ? `https://snyk.io/security-rules/${policy.publicId}`
+        ? `https://security.snyk.io/rules/cloud/${policy.publicId}`
         : undefined,
       isGeneratedByCustomRule,
     };

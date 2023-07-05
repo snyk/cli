@@ -43,6 +43,12 @@ describe('Test snyk code', () => {
       '/../../../fixtures/sast/sample-analyze-folders-with-report-and-ignores-response.json',
     ),
   );
+  const sampleAnalyzeFoldersWithReportAndIgnoresOnlyResponse = loadJson(
+    path.join(
+      __dirname,
+      '/../../../fixtures/sast/sample-analyze-folders-with-report-and-ignores-only-response.json',
+    ),
+  );
 
   const isWindows = os.platform().indexOf('win') === 0;
   const fixturePath = path.join(__dirname, '../../../fixtures', 'sast');
@@ -386,7 +392,7 @@ describe('Test snyk code', () => {
     }
   });
 
-  it('should create sarif result with ignored issues omitted', async () => {
+  it('should create sarif result including suppressions (ignored issues) - for report flow', async () => {
     const sastSettings = {
       sastEnabled: true,
       localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
@@ -432,11 +438,65 @@ describe('Test snyk code', () => {
 
     expect(sarifWithoutIgnores.length).toBeGreaterThan(0);
     expect(sarifWithIgnores.length).toBeGreaterThan(0);
-    expect(sarifWithIgnores.length).toBeLessThan(sarifWithoutIgnores.length);
+    expect(sarifWithIgnores.length).toBe(sarifWithoutIgnores.length);
 
+    let numSuppressions = 0;
     sarifWithIgnores.forEach((result) => {
-      expect(result.suppressions?.length ?? 0).toEqual(0);
+      numSuppressions += result.suppressions?.length ?? 0;
     });
+    expect(numSuppressions).toBeGreaterThan(0);
+  });
+
+  it('should exit with correct code (1) when ignored issues are found - for report flow', async () => {
+    const options: ArgsOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+      report: true,
+      projectName: 'test-project',
+      _: [],
+      _doubleDashArgs: [],
+    };
+
+    analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersWithReportAndIgnoresResponse,
+    );
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    await expect(snykTest('some/path', options)).rejects.toThrowError();
+  });
+
+  it('should exit with correct code (0) when only ignored issues are found - for report flow', async () => {
+    const options: ArgsOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+      report: true,
+      projectName: 'test-project',
+      _: [],
+      _doubleDashArgs: [],
+    };
+
+    analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersWithReportAndIgnoresOnlyResponse,
+    );
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    await expect(snykTest('some/path', options)).resolves.not.toThrowError();
   });
 
   describe('Default org test in CLI output', () => {
@@ -755,6 +815,71 @@ describe('Test snyk code', () => {
     ).rejects.toHaveProperty('message', "Failed to run 'code test'");
   });
 
+  it.each([
+    [
+      'disabled FF',
+      {
+        apiName: 'initReport',
+        statusCode: 400,
+        statusText: 'Bad request',
+      },
+      'Make sure this feature is enabled by contacting support.',
+    ],
+    [
+      'SARIF too large',
+      {
+        apiName: 'getReport',
+        statusCode: 400,
+        statusText: 'Analysis result set too large',
+      },
+      'The findings for this project may exceed the allowed size limit.',
+    ],
+    [
+      'analysis failed',
+      {
+        apiName: 'getReport',
+        statusCode: 500,
+        statusText: 'Analysis failed',
+      },
+      "One or more of Snyk's services may be temporarily unavailable.",
+    ],
+    [
+      'bad gateway',
+      {
+        apiName: 'initReport',
+        statusCode: 502,
+        statusText: 'Bad Gateway',
+      },
+      "One or more of Snyk's services may be temporarily unavailable.",
+    ],
+  ])(
+    'When code-client fails in the report flow, throw customized message for %s',
+    async (testName, codeClientError, expectedErrorUserMessage) => {
+      jest
+        .spyOn(analysis, 'getCodeTestResults')
+        .mockRejectedValue(codeClientError);
+
+      isSastEnabledForOrgSpy.mockResolvedValueOnce({
+        sastEnabled: true,
+        localCodeEngine: {
+          enabled: false,
+        },
+      });
+      trackUsageSpy.mockResolvedValue({});
+
+      await expect(
+        ecosystems.testEcosystem('code', ['.'], {
+          path: '',
+          code: true,
+          report: true,
+        }),
+      ).rejects.toHaveProperty(
+        'userMessage',
+        expect.stringContaining(expectedErrorUserMessage),
+      );
+    },
+  );
+
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
     const sessionToken = `token ${fakeApiKey}`;
@@ -829,6 +954,13 @@ describe('Test snyk code', () => {
       localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
     };
 
+    const reportOptions = {
+      projectName: 'test-project-name',
+      targetName: 'test-target-name',
+      targetRef: 'test-target-ref',
+      remoteRepoUrl: 'https://github.com/owner/repo',
+    };
+
     analyzeFoldersMock.mockResolvedValue(
       sampleAnalyzeFoldersWithReportAndIgnoresResponse,
     );
@@ -837,9 +969,23 @@ describe('Test snyk code', () => {
       {
         path: '',
         code: true,
+        report: true,
+        'project-name': reportOptions.projectName,
+        'target-name': reportOptions.targetName,
+        'target-reference': reportOptions.targetRef,
+        'remote-repo-url': reportOptions.remoteRepoUrl,
       },
       sastSettings,
       'test-id',
+    );
+
+    expect(analyzeFoldersMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reportOptions: {
+          enabled: true,
+          ...reportOptions,
+        },
+      }),
     );
 
     const expectedReportResults = {

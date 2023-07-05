@@ -59,7 +59,9 @@ describe('getIacDisplayedIssues', () => {
            requirements. Enabling this may prevent IaC workflows from updating
            the instance, for example terraform will not be able to terminate the
            instance to update instance type
-  Rule:    ${chalk.underline('https://snyk.io/security-rules/SNYK-CC-AWS-426')}
+  Rule:    ${chalk.underline(
+    'https://security.snyk.io/rules/cloud/SNYK-CC-AWS-426',
+  )}
   Path:    resource > aws_instance[denied] > disable_api_termination
   File:    aws_ec2_metadata_secrets.tf
   Resolve: Set \`disable_api_termination\` attribute  with value \`true\``,
@@ -72,7 +74,9 @@ describe('getIacDisplayedIssues', () => {
   Info:    The root block device for ec2 instance is not encrypted. That should
            someone gain unauthorized access to the data they would be able to
            read the contents.
-  Rule:    ${chalk.underline('https://snyk.io/security-rules/SNYK-CC-TF-53')}
+  Rule:    ${chalk.underline(
+    'https://security.snyk.io/rules/cloud/SNYK-CC-TF-53',
+  )}
   Path:    [DocId: 0] > Resources > BastionHost > Properties >
            BlockDeviceMappings
   File:    bastion.yml
@@ -87,7 +91,9 @@ describe('getIacDisplayedIssues', () => {
   Info:    Container is running in privileged mode. Compromised container could
            potentially modify the underlying host’s kernel by loading
            unauthorized modules (i.e. drivers).
-  Rule:    ${chalk.underline('https://snyk.io/security-rules/SNYK-CC-K8S-1')}
+  Rule:    ${chalk.underline(
+    'https://security.snyk.io/rules/cloud/SNYK-CC-K8S-1',
+  )}
   Path:    [DocId: 0] > input > spec > template > spec > containers[web] >
            securityContext > privileged
   File:    k8s.yaml
@@ -196,7 +202,9 @@ describe('getIacDisplayedIssues', () => {
            requirements. Enabling this may prevent IaC workflows from updating
            the instance, for example terraform will not be able to terminate the
            instance to update instance type
-  Rule:    ${chalk.underline('https://snyk.io/security-rules/SNYK-CC-AWS-426')}
+  Rule:    ${chalk.underline(
+    'https://security.snyk.io/rules/cloud/SNYK-CC-AWS-426',
+  )}
   Path:    resource > aws_instance[denied_3] > disable_api_termination
   File:    aws_ec2_metadata_secrets.tf
   Resolve: Set \`disable_api_termination\` attribute  with value \`true\``,
@@ -218,7 +226,9 @@ describe('getIacDisplayedIssues', () => {
   Info:    Secret keys have been hardcoded in user_data script. Anyone with
            access to VCS will be able to obtain the secret keys, and access the
            unauthorized resources
-  Rule:    ${chalk.underline('https://snyk.io/security-rules/SNYK-CC-TF-123')}
+  Rule:    ${chalk.underline(
+    'https://security.snyk.io/rules/cloud/SNYK-CC-TF-123',
+  )}
   Path:    resource > aws_instance[denied_2] >
            user_data_base64[aws_access_key_id]
   File:    aws_ec2_metadata_secrets.tf

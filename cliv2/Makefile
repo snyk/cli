@@ -10,7 +10,8 @@ HASH_ALGORITHM = 256
 CLI_V2_VERSION_TAG = 
 CLI_V1_VERSION_TAG = 
 CLI_V1_LOCATION = 
-USE_LEGACY_EXECUTABLE_NAME = 
+USE_LEGACY_EXECUTABLE_NAME =
+LDFLAGS = -s -w -X main.InternalOS=$(GOOS)
 
 # Make directories per convention
 prefix = /usr/local
@@ -101,7 +102,7 @@ $(CACHE_DIR)/version.mk: $(CACHE_DIR)
 ifeq ($(CLI_V1_VERSION_TAG), $(_EMPTY))
 	$(eval CLI_V1_VERSION_TAG := $(shell curl --fail --progress-bar -L https://static.snyk.io/cli/latest/version))
 endif
-	@echo "CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG)\nCLI_V2_VERSION_TAG=$(CLI_V2_VERSION_TAG)" > $(CACHE_DIR)/version.mk
+	@printf "CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG)\nCLI_V2_VERSION_TAG=$(CLI_V2_VERSION_TAG)" > $(CACHE_DIR)/version.mk
 	@echo "$(LOG_PREFIX) Using cliv1 version ( $(CLI_V1_VERSION_TAG) )"
 	@echo "$(LOG_PREFIX) Building cliv2 version ( $(CLI_V2_VERSION_TAG) )"
 
@@ -112,7 +113,7 @@ $(CACHE_DIR):
 	@mkdir $@
 
 $(CACHE_DIR)/variables.mk: $(CACHE_DIR)
-	@echo "GOOS=$(GOOS)\nGOARCH=$(GOARCH)\n" > $(CACHE_DIR)/variables.mk
+	@printf "GOOS=$(GOOS)\nGOARCH=$(GOARCH)\n" > $(CACHE_DIR)/variables.mk
 
 $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT):
 	@echo "$(LOG_PREFIX) Generating ( $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) )"
@@ -157,7 +158,7 @@ configure: $(V2_DIRECTORY)/cliv2.version $(CACHE_DIR) $(CACHE_DIR)/version.mk $(
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
-	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
+	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING): 
 	@echo "$(LOG_PREFIX) Generating checksum ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
@@ -275,6 +276,7 @@ clean:
 install:
 	@echo "$(LOG_PREFIX) Installing $(V2_EXECUTABLE_NAME) ( $(DESTDIR)$(bindir) $(CLI_V1_VERSION_TAG))"
 	@mkdir -p $(DESTDIR)$(bindir)
+	@rm -f $(DESTDIR)$(bindir)/$(V2_EXECUTABLE_NAME)
 	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(DESTDIR)$(bindir)
 	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) $(DESTDIR)$(bindir)
 	@cp $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) $(DESTDIR)$(bindir)

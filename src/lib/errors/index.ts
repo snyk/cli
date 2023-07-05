@@ -10,6 +10,8 @@ export { ConnectionTimeoutError } from './connection-timeout-error';
 export { FailedToLoadPolicyError } from './failed-to-load-policy-error';
 export { PolicyNotFoundError } from './policy-not-found-error';
 export { InternalServerError } from './internal-server-error';
+export { BadGatewayError } from './bad-gateway-error';
+export { ServiceUnavailableError } from './service-unavailable-error';
 export { FailedToGetVulnerabilitiesError } from './failed-to-get-vulnerabilities-error';
 export { FailedToGetVulnsFromUnavailableResource } from './failed-to-get-vulns-from-unavailable-resource';
 export { UnsupportedPackageManagerError } from './unsupported-package-manager-error';

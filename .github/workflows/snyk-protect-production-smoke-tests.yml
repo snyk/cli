@@ -6,7 +6,7 @@ on:
   release:
     types: [published]
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 23 * * *'
 
 jobs:
   smoke-test:
