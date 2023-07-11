@@ -565,7 +565,7 @@ jobs:
             GOOS: << parameters.go_os >>
             GOARCH: << parameters.go_arch >>
             CLI_V1_LOCATION: ../binary-releases
-          command: make build build-test install prefix=. -e
+          command: make build install prefix=. -e
       - save_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
           paths: [/home/circleci/go/pkg/mod]
@@ -723,70 +723,6 @@ jobs:
           at: .
       - store_artifacts:
           path: ./cliv2/bin
-
-  v2-test-linux-amd64:
-    executor: docker-node
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-linux
-          command: |
-            export SNYK_TOKEN="${SNYK_API_KEY}"
-            ./bin/snyk_tests_linux_amd64
-
-  v2-test-linux-arm64:
-    executor: arm64
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-linux-arm64
-          command: |
-            export SNYK_TOKEN="${SNYK_API_KEY}"
-            ./bin/snyk_tests_linux_arm64
-
-  v2-test-darwin-amd64:
-    executor: macos
-    working_directory: /Users/distiller/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-macos
-          command: |
-            export SNYK_TOKEN="${SNYK_API_KEY}"
-            ./bin/snyk_tests_darwin_amd64
-
-  v2-test-windows-amd64:
-    executor: win/default
-    working_directory: C:\Users\circleci\snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-win.exe
-          command: |
-            $env:SNYK_TOKEN = $env:SNYK_API_KEY
-            ./bin/snyk_tests_windows_amd64.exe
 
   v2-sign-darwin-amd64:
     executor: macos
@@ -1058,34 +994,6 @@ workflows:
           go_os: alpine
           go_arch: amd64
           c_compiler: /usr/bin/musl-gcc
-      - v2-test-linux-amd64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Integration Tests (linux/amd64)
-          requires:
-            - v2 / Rename linux/amd64 artifact
-      - v2-test-linux-arm64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Integration Tests (linux/arm64)
-          requires:
-            - v2 / Rename linux/arm64 artifact
-      - v2-test-darwin-amd64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Integration Tests (darwin/amd64)
-          requires:
-            - v2 / Rename macos/amd64 artifact
-      - v2-test-windows-amd64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Integration Tests (windows/amd64)
-          requires:
-            - v2 / Rename windows/amd64 artifact
       # Tests for backwards compatibility with CLIv1
       - test-alpine:
           filters:

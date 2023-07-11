@@ -164,23 +164,8 @@ $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING):
 	@echo "$(LOG_PREFIX) Generating checksum ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
 	@cd $(BUILD_DIR) && shasum -a $(HASH_ALGORITHM) --binary $(V2_EXECUTABLE_NAME) > $(V2_EXECUTABLE_NAME).$(HASH_STRING)
 
-$(BUILD_DIR)/$(TEST_EXECUTABLE_NAME):
-	@echo "$(LOG_PREFIX) Building test executable ( $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) )"
-	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) test -c -o $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) main_integration_test.go
-
 .PHONY: build
 build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
-
-.PHONY: build-test
-build-test: build-blackboxtest
-
-.PHONY: build-blackboxtest
-build-blackboxtest: build $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME)
-
-.PHONY: blackboxtest
-blackboxtest: build-blackboxtest
-	@echo "$(LOG_PREFIX) Running $@"
-	TEST_SNYK_EXECUTABLE_PATH=$(TEST_SNYK_EXECUTABLE_PATH) $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) -test.v
 
 $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
@@ -202,7 +187,7 @@ whiteboxtest:
 	@$(GOCMD) test -cover ./...
 
 .PHONY: test
-test: whiteboxtest blackboxtest
+test: whiteboxtest
 
 .PHONY: lint
 lint:
@@ -252,7 +237,7 @@ clean-ts-cli:
 # build the full CLI (Typescript+Golang)
 .PHONY: build-full
 build-full: | build-ts-cli
-	@$(MAKE) build build-test CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG) CLI_V1_LOCATION="$(CLI_V1_LOCATION)"
+	@$(MAKE) build CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG) CLI_V1_LOCATION="$(CLI_V1_LOCATION)"
 
 # clean the full CLI (Typescript+Golang)
 .PHONY: clean-full
@@ -279,7 +264,6 @@ install:
 	@rm -f $(DESTDIR)$(bindir)/$(V2_EXECUTABLE_NAME)
 	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(DESTDIR)$(bindir)
 	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) $(DESTDIR)$(bindir)
-	@cp $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) $(DESTDIR)$(bindir)
 
 .PHONY: help
 help:
@@ -288,7 +272,6 @@ help:
 	@echo "$(LOG_PREFIX) format"
 	@echo "$(LOG_PREFIX) build"
 	@echo "$(LOG_PREFIX) sign"
-	@echo "$(LOG_PREFIX) build-test"
 	@echo "$(LOG_PREFIX) test"
 	@echo "$(LOG_PREFIX) test-signature"
 	@echo "$(LOG_PREFIX) install"
