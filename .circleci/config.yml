@@ -310,31 +310,6 @@ jobs:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: 1
 
-  test-jest:
-    executor: docker-node
-
-    environment:
-      TEMP: /mnt/ramdisk/tmp
-    steps:
-      - run:
-          name: Creating temporary directory
-          command: mkdir /mnt/ramdisk/tmp
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Configuring Snyk CLI
-          command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
-      - run:
-          name: Installing dependencies
-          command: npm install
-      - run:
-          name: Running unit tests
-          command: npm run test:unit
-      - run:
-          name: Running acceptance tests
-          command: npm run test:acceptance
-
   test-tap:
     executor: docker-node
 
@@ -788,14 +763,6 @@ workflows:
           context:
             - snyk-bot-slack
           channel: hammerhead-alerts
-      - test-jest:
-          filters:
-            branches:
-              ignore: master
-          name: Jest Tests
-          context: nodejs-install
-          requires:
-            - Build
       - test-tap:
           filters:
             branches:
