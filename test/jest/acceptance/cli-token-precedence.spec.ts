@@ -1,6 +1,5 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer } from '../../acceptance/fake-server';
-import { isCLIV2 } from '../util/isCLIV2';
 
 jest.setTimeout(1000 * 30); // 30 seconds
 
@@ -102,15 +101,13 @@ describe('cli token precedence', () => {
         }
       });
 
-      if (isCLIV2()) {
-        it(`should use ${auth.name} auth type set in config`, async () => {
-          await runSnykCLI(`-d`, { env });
-          const authHeader = server.popRequest().headers?.authorization;
-          expect(authHeader).toEqual(
-            `${auth.expectedAuthType} ${auth.expectedToken}`,
-          );
-        });
-      }
+      it(`should use ${auth.name} auth type set in config`, async () => {
+        await runSnykCLI(`-d`, { env });
+        const authHeader = server.popRequest().headers?.authorization;
+        expect(authHeader).toEqual(
+          `${auth.expectedAuthType} ${auth.expectedToken}`,
+        );
+      });
 
       describe('when oauth env vars are set', () => {
         it('SNYK_OAUTH_TOKEN should override config', async () => {
@@ -164,7 +161,7 @@ describe('cli token precedence', () => {
             expect(authHeader).toEqual(`token ${env.SNYK_CFG_API}`);
           });
         });
-      } else if (isCLIV2()) {
+      } else {
         describe('when INTERNAL_OAUTH_TOKEN_STORAGE env var is set', () => {
           it('SNYK_OAUTH_TOKEN should NOT override other env var', async () => {
             env = {

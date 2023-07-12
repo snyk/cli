@@ -12,6 +12,7 @@ CLI_V1_VERSION_TAG =
 CLI_V1_LOCATION = 
 USE_LEGACY_EXECUTABLE_NAME =
 LDFLAGS = -s -w -X main.InternalOS=$(GOOS)
+SHASUM_CMD = shasum
 
 # Make directories per convention
 prefix = /usr/local
@@ -84,15 +85,21 @@ V1_DOWNLOAD_LINK = https://static.snyk.io/cli/v$(CLI_V1_VERSION_TAG)/$(V1_EXECUT
 V1_EMBEDDED_FILE_TEMPLATE = $(V1_DIRECTORY)/embedded_binary_template.txt
 V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
 V1_WORKING_DIR = $(WORKING_DIR)/..
-V1_BUILD_TYPE = build
+V1_BUILD_TYPE = build:prod
 V1_BINARY_FOLDER = ts-cli-binaries
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 TEST_SNYK_EXECUTABLE_PATH=$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 TEST_EXECUTABLE_NAME = $(TEST_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE_POSTFIX)
-SIGN_SCRIPT = sign_$(_GO_OS).sh
-ISSIGNED_SCRIPT = issigned_$(_GO_OS).sh
+SIGN_SCRIPT = $(WORKING_DIR)/scripts/sign_$(_GO_OS).sh
+ISSIGNED_SCRIPT = $(WORKING_DIR)/scripts/issigned_$(_GO_OS).sh
 EMBEDDED_DATA_DIR = $(WORKING_DIR)/internal/embedded/_data
 
+ifeq ($(GOHOSTOS), windows)
+	SPECIAL_SHELL = powershell
+	SHASUM_CMD = $(SPECIAL_SHELL) $(WORKING_DIR)/scripts/shasum.ps1
+	SIGN_SCRIPT = $(SPECIAL_SHELL) $(WORKING_DIR)/scripts/sign_$(GOHOSTOS).ps1
+	ISSIGNED_SCRIPT = $(SPECIAL_SHELL) $(WORKING_DIR)/scripts/issigned_$(GOHOSTOS).ps1
+endif
 
 # some make file variables
 LOG_PREFIX = --
@@ -146,7 +153,7 @@ endif
 .PHONY: _validate_sha_v1
 _validate_sha_v1: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 	@echo "$(LOG_PREFIX) Validating checksum ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) )"
-	@cd $(V1_DIRECTORY) && shasum -b -q -a $(HASH_ALGORITHM) -c $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
+	@cd $(V1_DIRECTORY) && $(SHASUM_CMD) -b -q -a $(HASH_ALGORITHM) -c $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 
 # separate dependency target
 .PHONY: dependencies
@@ -160,12 +167,8 @@ $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
 	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING): 
-	@echo "$(LOG_PREFIX) Generating checksum ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
-	@cd $(BUILD_DIR) && shasum -a $(HASH_ALGORITHM) --binary $(V2_EXECUTABLE_NAME) > $(V2_EXECUTABLE_NAME).$(HASH_STRING)
-
 .PHONY: build
-build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
+build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 
 $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
@@ -197,31 +200,26 @@ lint:
 format:
 	gofmt -w -l -e .
 
-.PHONY: $(SIGN_SCRIPT)
-$(SIGN_SCRIPT): 
+.PHONY: SIGN_SCRIPT
+SIGN_SCRIPT:
 	@echo "$(LOG_PREFIX) Running $(SIGN_SCRIPT) ( $(BUILD_DIR) )"
-	@scripts/$(SIGN_SCRIPT) $(BUILD_DIR) $(V2_EXECUTABLE_NAME)
+	$(SIGN_SCRIPT) $(BUILD_DIR) $(V2_EXECUTABLE_NAME)
 
-.PHONY: _cleanup_sha_v2
-_cleanup_sha_v2:
-	@echo "$(LOG_PREFIX) Removing ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
-	@rm -f $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
-
-.PHONY: $(ISSIGNED_SCRIPT)
-$(ISSIGNED_SCRIPT): 
-	@scripts/$(ISSIGNED_SCRIPT) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
+.PHONY: ISSIGNED_SCRIPT
+ISSIGNED_SCRIPT:
+	$(ISSIGNED_SCRIPT) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 
 
 .PHONY: sign
-sign: _cleanup_sha_v2 $(SIGN_SCRIPT) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) $(ISSIGNED_SCRIPT)
+sign: SIGN_SCRIPT ISSIGNED_SCRIPT
 
 .PHONY: test-signature
-test-signature: $(ISSIGNED_SCRIPT)
+test-signature: ISSIGNED_SCRIPT
 
 # Typescript CLI targets
 $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
-	@cd $(V1_WORKING_DIR) && npm ci && npm run $(V1_BUILD_TYPE)
+	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
 	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 	
 .PHONY: build-ts-cli
@@ -263,7 +261,6 @@ install:
 	@mkdir -p $(DESTDIR)$(bindir)
 	@rm -f $(DESTDIR)$(bindir)/$(V2_EXECUTABLE_NAME)
 	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(DESTDIR)$(bindir)
-	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) $(DESTDIR)$(bindir)
 
 .PHONY: help
 help:

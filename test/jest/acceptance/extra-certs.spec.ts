@@ -2,11 +2,6 @@ import { runSnykCLI } from '../util/runSnykCLI';
 import * as fs from 'fs';
 import { runCommand } from '../util/runCommand';
 import { fakeServer } from '../../../test/acceptance/fake-server';
-import { isCLIV2 } from '../util/isCLIV2';
-
-if (isCLIV2()) {
-  console.debug('isCLIV2');
-}
 
 jest.setTimeout(1000 * 60 * 1);
 describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
@@ -81,32 +76,30 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
 
     let res3 = { code: 2 };
     let res4 = { code: 0 };
-    if (isCLIV2()) {
-      // invoke WITHOUT additional certificate set => succeeds
-      res3 = await runSnykCLI(
-        `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
-        {
-          env: {
-            ...process.env,
-            SNYK_API: SNYK_API,
-            SNYK_TOKEN: token,
-          },
+    // invoke WITHOUT additional certificate set => succeeds
+    res3 = await runSnykCLI(
+      `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
+      {
+        env: {
+          ...process.env,
+          SNYK_API: SNYK_API,
+          SNYK_TOKEN: token,
         },
-      );
+      },
+    );
 
-      // invoke WITH additional certificate set => succeeds
-      res4 = await runSnykCLI(
-        `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
-        {
-          env: {
-            ...process.env,
-            NODE_EXTRA_CA_CERTS: 'cliv2/mytestcert.crt',
-            SNYK_API: SNYK_API,
-            SNYK_TOKEN: token,
-          },
+    // invoke WITH additional certificate set => succeeds
+    res4 = await runSnykCLI(
+      `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
+      {
+        env: {
+          ...process.env,
+          NODE_EXTRA_CA_CERTS: 'cliv2/mytestcert.crt',
+          SNYK_API: SNYK_API,
+          SNYK_TOKEN: token,
         },
-      );
-    }
+      },
+    );
 
     await server.closePromise();
 

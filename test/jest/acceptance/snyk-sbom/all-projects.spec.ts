@@ -1,7 +1,6 @@
 import { createProjectFromWorkspace } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
-import { isCLIV2 } from '../../util/isCLIV2';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -41,10 +40,6 @@ describe('snyk sbom --all-projects (mocked server only)', () => {
   // TODO: fix environments and un-skip test.
   // See: HEAD-351.
   test.skip('`sbom mono-repo-project` generates an SBOM for multiple projects', async () => {
-    if (!isCLIV2()) {
-      return;
-    }
-
     const project = await createProjectFromWorkspace('mono-repo-project');
 
     const { code, stdout, stderr } = await runSnykCLI(
@@ -67,10 +62,6 @@ describe('snyk sbom --all-projects (mocked server only)', () => {
   });
 
   test('`sbom mono-repo-project-manifests-only` generates an SBOM for multiple projects', async () => {
-    if (!isCLIV2()) {
-      return;
-    }
-
     const project = await createProjectFromWorkspace(
       'mono-repo-project-manifests-only',
     );
