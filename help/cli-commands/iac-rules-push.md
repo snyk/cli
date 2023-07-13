@@ -37,5 +37,5 @@ $ snyk iac rules push
 ### Delete a bundle
 
 ```
-$ snyk iac rules --delete
+$ snyk iac rules push --delete
 ```
