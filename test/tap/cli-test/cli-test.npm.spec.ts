@@ -45,6 +45,19 @@ export const NpmTests: AcceptanceTests = {
       );
     },
 
+    '`test npm-package with lockfile v3 bundled deps`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const res = await params.cli.test('npm-package-lockfile-v3-bundled-deps');
+      t.match(
+        res,
+        /Tested 570 dependencies for known vulnerabilities/,
+        'should succeed scanning npm lock v3 with bundled deps',
+      );
+    },
+
     'test npm-package remoteUrl': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
       process.env.GIT_DIR = 'npm-package/gitdir';
