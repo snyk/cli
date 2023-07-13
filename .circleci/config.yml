@@ -78,6 +78,7 @@ commands:
           name: Installing sdks and tools
           command: |
             brew install go gradle python elixir composer gradle@6 maven sbt
+            python3 -m pip install pipenv --user
 
   install_sdks_linux:
     steps:
@@ -108,6 +109,7 @@ commands:
             jq
 
             pip install awscli --upgrade --user
+            pip install pipenv --user
 
             echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
             echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
@@ -249,6 +251,7 @@ jobs:
           name: Installing Node.js + other test dependencies
           command: |
             apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
+            pip3 install pipenv
       - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"

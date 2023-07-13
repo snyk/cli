@@ -1,13 +1,22 @@
+import { spawnSync } from 'child_process';
+import * as fs from 'fs';
 import { fakeServer } from '../../../acceptance/fake-server';
+import {
+  createProject,
+  createProjectFromWorkspace,
+} from '../../util/createProject';
+import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
-import { createProjectFromWorkspace } from '../../util/createProject';
+
+// Check for existance of pipenv in the environment
+const hasPipEnv = spawnSync('pipenv', ['--version']).status === 0;
 
 jest.setTimeout(1000 * 60);
 describe('snyk fix', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
-  beforeAll((done) => {
+  beforeAll(async () => {
     const apiPath = '/api/v1';
     const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
     env = {
@@ -18,15 +27,15 @@ describe('snyk fix', () => {
     };
 
     server = fakeServer(apiPath, env.SNYK_TOKEN);
-    server.listen(apiPort, () => done());
+    await server.listenPromise(apiPort);
   });
 
   afterEach(() => {
     server.restore();
   });
 
-  afterAll((done) => {
-    server.close(() => done());
+  afterAll(async () => {
+    await server.closePromise();
   });
 
   it('succeeds when there are no vulns to fix', async () => {
@@ -102,4 +111,44 @@ describe('snyk fix', () => {
     expect(stdout).toMatch('No successful fixes');
     expect(stderr).toBe('');
   });
+
+  // Skip this test in environments without pipenv (currently windows & linux
+  // docker images).
+  (hasPipEnv ? it : it.skip)(
+    'runs successfully on a pipenv project',
+    async () => {
+      const project = await createProject('snyk-fix-pipenv');
+      const opts = {
+        cwd: project.path(),
+        env,
+      };
+
+      // Setup environment
+      await runCommand('pipenv', ['sync'], opts);
+
+      server.setDepGraphResponse(
+        JSON.parse(
+          fs.readFileSync(__dirname + '/dep-graph-response.json', 'utf-8'),
+        ),
+      );
+
+      // Attempt to fix
+      const { code, stdout, stderr } = await runSnykCLI('fix', opts);
+
+      // Print some output if we exit with non-zero to help debugging.
+      // Jest will just fail on the first error.
+      if (code !== 0) {
+        console.log(
+          `---DEBUG START---code: ${code}\nstdout:\n${stdout}\n\nstderr:\n${stderr}\n---DEBUG END---`,
+        );
+      }
+
+      // eslint-disable-next-line jest/no-standalone-expect
+      expect(code).toBe(0);
+      // eslint-disable-next-line jest/no-standalone-expect
+      expect(stdout).toMatch(/Upgraded pylint from 2\.6\.0 to 2\.\d+\.\d+/);
+      // eslint-disable-next-line jest/no-standalone-expect
+      expect(stderr).toBe('');
+    },
+  );
 });
