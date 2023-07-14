@@ -239,6 +239,24 @@ export const runDriftCTL = async ({
 }): Promise<DriftctlExecutionResult> => {
   const path = await findOrDownload();
   await validateArgs(options);
+
+  if (options.kind === 'describe') {
+    const descOptions = options as DescribeOptions;
+
+    if (
+      descOptions.deep ||
+      descOptions.all ||
+      descOptions['only-managed'] ||
+      descOptions.drift
+    ) {
+      process.stderr.write(
+        `DEPRECATION NOTICE: Drift detection of managed resources,\n` +
+          `including --only-managed and --drift has been deprecated.\n` +
+          `The end-of-life date for drift detection of managed resources is September 30. 2023.\n\n`,
+      );
+    }
+  }
+
   const args = await generateArgs(options, driftIgnore);
 
   if (!stdio) {
