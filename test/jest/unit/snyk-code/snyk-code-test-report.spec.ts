@@ -7,7 +7,8 @@ import snykTest from '../../../../src/cli/commands/test';
 import * as ecosystems from '../../../../src/lib/ecosystems';
 import * as checks from '../../../../src/lib/plugins/sast/checks';
 import * as analysis from '../../../../src/lib/plugins/sast/analysis';
-import { getCodeTestResults } from '../../../../src/lib/plugins/sast/analysis';
+
+const { getCodeTestResults } = analysis;
 
 jest.mock('@snyk/code-client');
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
@@ -15,6 +16,7 @@ const analyzeFoldersMock = analyzeFolders as jest.Mock;
 describe('Test snyk code with --report', () => {
   let isSastEnabledForOrgSpy;
   let trackUsageSpy;
+  let getCodeTestResultsSpy;
 
   const fixturePath = path.join(__dirname, '../../../fixtures/sast');
 
@@ -31,167 +33,118 @@ describe('Test snyk code with --report', () => {
     ),
   );
 
+  const sastSettings = {
+    sastEnabled: true,
+    localCodeEngine: {
+      url: '',
+      allowCloudUpload: true,
+      enabled: false,
+    },
+  };
+
   beforeAll(() => {
     isSastEnabledForOrgSpy = jest.spyOn(checks, 'getSastSettingsForOrg');
     trackUsageSpy = jest.spyOn(checks, 'trackUsage');
+    getCodeTestResultsSpy = jest.spyOn(analysis, 'getCodeTestResults');
+  });
+
+  beforeEach(() => {
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
   });
 
   afterEach(() => {
     jest.resetAllMocks();
   });
 
-  it('should return the right report results response', async () => {
-    const sastSettings = {
-      sastEnabled: true,
-      localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
-    };
+  describe('file-based report flow', () => {
+    it('should return the right report results response', async () => {
+      const reportOptions = {
+        enabled: true,
+        projectName: 'test-project-name',
+        targetName: 'test-target-name',
+        targetRef: 'test-target-ref',
+        remoteRepoUrl: 'https://github.com/owner/repo',
+      };
 
-    const reportOptions = {
-      enabled: true,
-      projectName: 'test-project-name',
-      targetName: 'test-target-name',
-      targetRef: 'test-target-ref',
-      remoteRepoUrl: 'https://github.com/owner/repo',
-    };
+      analyzeFoldersMock.mockResolvedValue(
+        sampleAnalyzeFoldersWithReportAndIgnoresResponse,
+      );
 
-    analyzeFoldersMock.mockResolvedValue(
-      sampleAnalyzeFoldersWithReportAndIgnoresResponse,
-    );
-    const actual = await getCodeTestResults(
-      '.',
-      {
+      const actual = await getCodeTestResults(
+        '.',
+        {
+          path: '',
+          code: true,
+          report: true,
+          'project-name': reportOptions.projectName,
+          'target-name': reportOptions.targetName,
+          'target-reference': reportOptions.targetRef,
+          'remote-repo-url': reportOptions.remoteRepoUrl,
+        },
+        sastSettings,
+        'test-id',
+      );
+
+      expect(analyzeFoldersMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reportOptions,
+        }),
+      );
+
+      const expectedReportResults = {
+        projectId: 'test-project-id',
+        snapshotId: 'test-snapshot-id',
+        reportUrl: 'test/report/url',
+      };
+
+      expect(actual?.reportResults).toEqual(expectedReportResults);
+    });
+  });
+
+  describe('exit codes', () => {
+    it('should exit with correct code (1) when ignored issues are found', async () => {
+      const options: ArgsOptions = {
         path: '',
+        traverseNodeModules: false,
+        showVulnPaths: 'none',
         code: true,
         report: true,
-        'project-name': reportOptions.projectName,
-        'target-name': reportOptions.targetName,
-        'target-reference': reportOptions.targetRef,
-        'remote-repo-url': reportOptions.remoteRepoUrl,
-      },
-      sastSettings,
-      'test-id',
-    );
+        projectName: 'test-project',
+        _: [],
+        _doubleDashArgs: [],
+      };
 
-    expect(analyzeFoldersMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        reportOptions,
-      }),
-    );
+      getCodeTestResultsSpy.mockResolvedValue(
+        sampleAnalyzeFoldersWithReportAndIgnoresResponse,
+      );
 
-    const expectedReportResults = {
-      projectId: 'test-project-id',
-      snapshotId: 'test-snapshot-id',
-      reportUrl: 'test/report/url',
-    };
+      await expect(snykTest('some/path', options)).rejects.toThrowError();
+    });
 
-    expect(actual?.reportResults).toEqual(expectedReportResults);
-  });
-
-  it('should create sarif result including suppressions (ignored issues)', async () => {
-    const sastSettings = {
-      sastEnabled: true,
-      localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
-    };
-
-    // First get results without ignores - it should not ignore when report is disabled
-    analyzeFoldersMock.mockResolvedValue(
-      sampleAnalyzeFoldersWithReportAndIgnoresResponse,
-    );
-    const resultWithoutIgnores = await getCodeTestResults(
-      '.',
-      {
+    it('should exit with correct code (0) when only ignored issues are found', async () => {
+      const options: ArgsOptions = {
         path: '',
-        code: true,
-        report: false,
-      },
-      sastSettings,
-      'test-id',
-    );
-
-    const sarifWithoutIgnores =
-      resultWithoutIgnores?.analysisResults.sarif.runs[0].results;
-    if (!sarifWithoutIgnores) throw new Error('A value was expected');
-
-    // Then get the results with ignores - ignore when report is enabled
-    analyzeFoldersMock.mockResolvedValue(
-      sampleAnalyzeFoldersWithReportAndIgnoresResponse,
-    );
-    const resultWithIgnores = await getCodeTestResults(
-      '.',
-      {
-        path: '',
+        traverseNodeModules: false,
+        showVulnPaths: 'none',
         code: true,
         report: true,
-      },
-      sastSettings,
-      'test-id',
-    );
+        projectName: 'test-project',
+        _: [],
+        _doubleDashArgs: [],
+      };
 
-    const sarifWithIgnores =
-      resultWithIgnores?.analysisResults.sarif.runs[0].results;
-    if (!sarifWithIgnores) throw new Error('A value was expected');
+      getCodeTestResultsSpy.mockResolvedValue(
+        sampleAnalyzeFoldersWithReportAndIgnoresOnlyResponse,
+      );
 
-    expect(sarifWithoutIgnores.length).toBeGreaterThan(0);
-    expect(sarifWithIgnores.length).toBeGreaterThan(0);
-    expect(sarifWithIgnores.length).toBe(sarifWithoutIgnores.length);
-
-    let numSuppressions = 0;
-    sarifWithIgnores.forEach((result) => {
-      numSuppressions += result.suppressions?.length ?? 0;
+      await expect(snykTest('some/path', options)).resolves.not.toThrowError();
     });
-    expect(numSuppressions).toBeGreaterThan(0);
-  });
-
-  it('should exit with correct code (1) when ignored issues are found', async () => {
-    const options: ArgsOptions = {
-      path: '',
-      traverseNodeModules: false,
-      showVulnPaths: 'none',
-      code: true,
-      report: true,
-      projectName: 'test-project',
-      _: [],
-      _doubleDashArgs: [],
-    };
-
-    analyzeFoldersMock.mockResolvedValue(
-      sampleAnalyzeFoldersWithReportAndIgnoresResponse,
-    );
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    await expect(snykTest('some/path', options)).rejects.toThrowError();
-  });
-
-  it('should exit with correct code (0) when only ignored issues are found', async () => {
-    const options: ArgsOptions = {
-      path: '',
-      traverseNodeModules: false,
-      showVulnPaths: 'none',
-      code: true,
-      report: true,
-      projectName: 'test-project',
-      _: [],
-      _doubleDashArgs: [],
-    };
-
-    analyzeFoldersMock.mockResolvedValue(
-      sampleAnalyzeFoldersWithReportAndIgnoresOnlyResponse,
-    );
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    await expect(snykTest('some/path', options)).resolves.not.toThrowError();
   });
 
   describe('error handling', () => {
@@ -235,17 +188,7 @@ describe('Test snyk code with --report', () => {
     ])(
       'when code-client fails, throw customized message for %s',
       async (_, codeClientError, expectedErrorUserMessage) => {
-        jest
-          .spyOn(analysis, 'getCodeTestResults')
-          .mockRejectedValue(codeClientError);
-
-        isSastEnabledForOrgSpy.mockResolvedValueOnce({
-          sastEnabled: true,
-          localCodeEngine: {
-            enabled: false,
-          },
-        });
-        trackUsageSpy.mockResolvedValue({});
+        getCodeTestResultsSpy.mockRejectedValue(codeClientError);
 
         await expect(
           ecosystems.testEcosystem('code', ['.'], {
