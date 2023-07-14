@@ -1,7 +1,10 @@
 import {
   analyzeFolders,
+  analyzeScmProject,
   AnalysisSeverity,
   MAX_FILE_SIZE,
+  FileAnalysis,
+  ScmAnalysis,
 } from '@snyk/code-client';
 import { ReportingDescriptor, Result } from 'sarif';
 import { SEVERITY } from '../../snyk-test/legacy';
@@ -59,7 +62,7 @@ async function getCodeAnalysis(
   options: Options,
   sastSettings: SastSettings,
   requestId: string,
-) {
+): Promise<CodeAnalysisResults | null> {
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
     validateLocalCodeEngineUrl(sastSettings.localCodeEngine.url);
@@ -97,48 +100,75 @@ async function getCodeAnalysis(
     ? severityToAnalysisSeverity(options.severityThreshold)
     : AnalysisSeverity.info;
 
-  const result = await analyzeFolders({
-    connection: {
-      baseURL,
-      sessionToken,
-      source,
-      requestId,
-      org,
-    },
-    analysisOptions: { severity },
-    fileOptions: { paths: [root] },
-    ...(options.report && {
-      reportOptions: {
-        enabled: options.report ?? false,
-        projectName: options['project-name'],
-        targetName: options['target-name'],
-        targetRef: options['target-reference'],
-        remoteRepoUrl: options['remote-repo-url'],
-      },
-    }),
-    analysisContext: {
-      initiator: 'CLI',
-      flow: source,
-      projectName: config.PROJECT_NAME,
-      org: {
-        name: sastSettings.org || 'unknown',
-        displayName: 'unknown',
-        publicId: 'unknown',
-        flags: {},
-      },
-    },
-    languages: sastSettings.supportedLanguages,
-  });
+  const connectionOptions = {
+    baseURL,
+    sessionToken,
+    source,
+    requestId,
+    org,
+  };
 
-  if (result?.fileBundle.skippedOversizedFiles?.length) {
-    debug(
-      '\n',
-      chalk.yellow(
-        `Warning!\nFiles were skipped in the analysis due to their size being greater than ${MAX_FILE_SIZE}B. Skipped files: ${[
-          ...result.fileBundle.skippedOversizedFiles,
-        ].join(', ')}`,
-      ),
-    );
+  const analysisOptions = { severity };
+
+  const analysisContext = {
+    initiator: 'CLI',
+    flow: source,
+    projectName: config.PROJECT_NAME,
+    org: {
+      name: sastSettings.org || 'unknown',
+      displayName: 'unknown',
+      publicId: 'unknown',
+      flags: {},
+    },
+  } as const;
+
+  let result: FileAnalysis | ScmAnalysis | null = null;
+
+  // When the "report" arg is provided the test results are published on the platform.
+  const isReportFlow = options.report ?? false;
+  // We differentiate between file-based reporting flows
+  // and SCM-based ones by looking at the "project-id" arg.
+  const isScmReportFlow = isReportFlow && options['project-id'];
+
+  if (isScmReportFlow) {
+    // Run an SCM analysis test with reporting.
+    result = await analyzeScmProject({
+      connection: connectionOptions,
+      analysisOptions,
+      reportOptions: {
+        projectId: options['project-id'],
+        commitId: options['commit-id'],
+      },
+    });
+  } else {
+    // Run a file-based test, optionally with reporting.
+    result = await analyzeFolders({
+      connection: connectionOptions,
+      analysisOptions,
+      fileOptions: { paths: [root] },
+      ...(isReportFlow && {
+        reportOptions: {
+          enabled: true,
+          projectName: options['project-name'],
+          targetName: options['target-name'],
+          targetRef: options['target-reference'],
+          remoteRepoUrl: options['remote-repo-url'],
+        },
+      }),
+      analysisContext,
+      languages: sastSettings.supportedLanguages,
+    });
+
+    if (result?.fileBundle.skippedOversizedFiles?.length) {
+      debug(
+        '\n',
+        chalk.yellow(
+          `Warning!\nFiles were skipped in the analysis due to their size being greater than ${MAX_FILE_SIZE}B. Skipped files: ${[
+            ...result.fileBundle.skippedOversizedFiles,
+          ].join(', ')}`,
+        ),
+      );
+    }
   }
 
   if (!result || result.analysisResults.type !== 'sarif') {

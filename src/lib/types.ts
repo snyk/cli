@@ -87,6 +87,9 @@ export interface Options {
   report?: boolean;
   'var-file'?: string;
   'target-name'?: string;
+  // Used only with the Code (SAST) plugin. Allows running tests with reporting for existing projects.
+  'project-id'?: string;
+  'commit-id'?: string;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
