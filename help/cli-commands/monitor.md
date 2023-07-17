@@ -40,7 +40,9 @@ See also subsequent sections for options for specific build environments, packag
 
 ### `--all-projects`
 
-Auto-detect all projects in the working directory (including Yarn workspaces).
+Auto-detect all projects in the working directory, including Yarn workspaces.
+
+**Note**: Gradle projects are treated as sub-projects. Therefore `--exclude` does not work with Gradle projects.
 
 For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/hc/en-us/articles/360000910577-Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files-)
 
@@ -73,7 +75,7 @@ This will exclude any directories and files named `dir1` and `file2` when scanni
 **Note**: `--exclude=dir1` will find both `./dir1`, and `./src/dir1`.\
 However, `--exclude=./src/dir1` will result in an error because it includes a path.
 
-**Note**: this option is not supported for Gradle sub-projects.
+**Note**: When `--all-projects` is used with Gradle, the projects are treated as sub-projects. The `--exclude` option is not supported for Gradle sub-projects.
 
 ### `--prune-repeated-subdependencies`, `-p`
 
