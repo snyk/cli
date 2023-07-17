@@ -114,6 +114,11 @@ async function getCodeAnalysis(
     initiator: 'CLI',
     flow: source,
     projectName: config.PROJECT_NAME,
+    project: {
+      name: options['project-name'] || config.PROJECT_NAME || 'unknown',
+      publicId: options['project-id'] || 'unknown',
+      type: 'sast',
+    },
     org: {
       name: sastSettings.org || 'unknown',
       displayName: 'unknown',

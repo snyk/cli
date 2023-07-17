@@ -518,6 +518,7 @@ describe('Test snyk code', () => {
             name: 'defaultOrg',
             publicId: 'unknown',
           },
+          project: expect.any(Object),
         },
         analysisOptions: expect.any(Object),
         connection: expect.any(Object),
@@ -749,8 +750,9 @@ describe('Test snyk code', () => {
       analysisContext: {
         flow: 'snyk-cli',
         initiator: 'CLI',
-        org: expect.anything(),
+        org: expect.any(Object),
         projectName: undefined,
+        project: expect.any(Object),
       },
       languages: undefined,
     };
@@ -851,8 +853,9 @@ describe('Test snyk code', () => {
         analysisContext: {
           flow: 'snyk-cli',
           initiator: 'CLI',
-          org: expect.anything(),
+          org: expect.any(Object),
           projectName: undefined,
+          project: expect.any(Object),
         },
         languages: undefined,
       };
