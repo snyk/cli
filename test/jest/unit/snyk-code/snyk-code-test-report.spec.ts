@@ -98,6 +98,15 @@ describe('Test snyk code with --report', () => {
       expect(analyzeFoldersMock).toHaveBeenCalledWith(
         expect.objectContaining({
           reportOptions,
+          analysisContext: expect.objectContaining({
+            flow: 'snyk-cli',
+            initiator: 'CLI',
+            project: {
+              name: reportOptions.projectName,
+              publicId: 'unknown',
+              type: 'sast',
+            },
+          }),
         }),
       );
 
@@ -136,6 +145,15 @@ describe('Test snyk code with --report', () => {
       expect(analyzeScmProjectMock).toHaveBeenCalledWith(
         expect.objectContaining({
           reportOptions,
+          analysisContext: expect.objectContaining({
+            flow: 'snyk-cli',
+            initiator: 'CLI',
+            project: {
+              name: 'unknown',
+              publicId: reportOptions.projectId,
+              type: 'sast',
+            },
+          }),
         }),
       );
 

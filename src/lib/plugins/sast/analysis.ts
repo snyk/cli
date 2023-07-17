@@ -144,6 +144,7 @@ async function getCodeAnalysis(
         projectId: options['project-id'],
         commitId: options['commit-id'],
       },
+      analysisContext,
     });
   } else {
     // Run a file-based test, optionally with reporting.
