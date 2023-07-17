@@ -1,7 +1,7 @@
 *  @snyk/hammerhead @snyk/snyk-open-source
 
 # monorepo packages
-packages/snyk-fix/ @snyk/tech-services
+packages/snyk-fix/ @snyk/fix
 packages/snyk-protect/ @snyk/hammerhead
 packages/cli-alert/ @snyk/hammerhead
 packages/iac-cli-alert/ @snyk/cloud-dev-ex
