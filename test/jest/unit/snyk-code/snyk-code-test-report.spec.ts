@@ -168,7 +168,7 @@ describe('Test snyk code with --report', () => {
   });
 
   describe('exit codes', () => {
-    it('should exit with correct code (1) when ignored issues are found', async () => {
+    it('should exit with correct code (1) when issues are found (including ignored issues)', async () => {
       const options: ArgsOptions = {
         path: '',
         traverseNodeModules: false,
