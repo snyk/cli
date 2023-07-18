@@ -31,6 +31,27 @@ import { getCodeClientProxyUrl } from '../../code-config';
 
 const debug = debugLib('snyk-code');
 
+type GetCodeAnalysisArgs = {
+  options: Options;
+  fileOptions: {
+    paths: string[];
+  };
+  connectionOptions: {
+    org?: string;
+    source: string;
+    baseURL: string;
+    requestId: string;
+    sessionToken: string;
+  };
+  analysisOptions: {
+    severity: AnalysisSeverity;
+  };
+  supportedLanguages?: string[];
+};
+
+/**
+ * Bootstrap and trigger a Code test, then return the results.
+ */
 export async function getCodeTestResults(
   root: string,
   options: Options,
@@ -39,41 +60,15 @@ export async function getCodeTestResults(
 ): Promise<CodeTestResults | null> {
   await spinner.clearAll();
   analysisProgressUpdate();
-  const codeAnalysis = await getCodeAnalysis(
-    root,
-    options,
-    sastSettings,
-    requestId,
-  );
-  spinner.clearAll();
 
-  if (!codeAnalysis) {
-    return null;
-  }
-
-  return {
-    reportResults: codeAnalysis.reportResults,
-    analysisResults: codeAnalysis.analysisResults,
-  };
-}
-
-async function getCodeAnalysis(
-  root: string,
-  options: Options,
-  sastSettings: SastSettings,
-  requestId: string,
-): Promise<CodeAnalysisResults | null> {
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
     validateLocalCodeEngineUrl(sastSettings.localCodeEngine.url);
   }
 
-  const source = 'snyk-cli';
   const baseURL = isLocalCodeEngineEnabled
     ? sastSettings.localCodeEngine.url
     : getCodeClientProxyUrl();
-
-  const org = sastSettings.org;
 
   // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
   // This ensures we support lowercase http(s)_proxy values as well
@@ -94,33 +89,66 @@ async function getCodeAnalysis(
     });
   }
 
-  const sessionToken = getAuthHeader();
-
-  const severity = options.severityThreshold
-    ? severityToAnalysisSeverity(options.severityThreshold)
-    : AnalysisSeverity.info;
-
-  const connectionOptions = {
-    baseURL,
-    sessionToken,
-    source,
-    requestId,
-    org,
+  const analysisArgs = {
+    options,
+    fileOptions: {
+      paths: [root],
+    },
+    connectionOptions: {
+      baseURL,
+      sessionToken: getAuthHeader(),
+      source: 'snyk-cli',
+      requestId,
+      org: sastSettings.org,
+    },
+    analysisOptions: {
+      severity: options.severityThreshold
+        ? severityToAnalysisSeverity(options.severityThreshold)
+        : AnalysisSeverity.info,
+    },
+    supportedLanguages: sastSettings.supportedLanguages,
   };
 
-  const analysisOptions = { severity };
+  const codeAnalysis = await getCodeAnalysis(analysisArgs);
+
+  spinner.clearAll();
+
+  if (!codeAnalysis) {
+    return null;
+  }
+
+  return {
+    reportResults: codeAnalysis.reportResults,
+    analysisResults: codeAnalysis.analysisResults,
+  };
+}
+
+/**
+ * Performs Code analysis and returns normalised results.
+ * Analysis method (i.e. file-based or SCM) is chosen based on flow options.
+ */
+async function getCodeAnalysis(
+  args: GetCodeAnalysisArgs,
+): Promise<CodeAnalysisResults | null> {
+  const {
+    options,
+    fileOptions,
+    analysisOptions,
+    connectionOptions,
+    supportedLanguages,
+  } = args;
 
   const analysisContext = {
     initiator: 'CLI',
-    flow: source,
-    projectName: config.PROJECT_NAME,
+    flow: connectionOptions.source,
+    projectName: config.PROJECT_NAME, // back-compat
     project: {
       name: options['project-name'] || config.PROJECT_NAME || 'unknown',
       publicId: options['project-id'] || 'unknown',
       type: 'sast',
     },
     org: {
-      name: sastSettings.org || 'unknown',
+      name: connectionOptions.org || 'unknown',
       displayName: 'unknown',
       publicId: 'unknown',
       flags: {},
@@ -151,7 +179,7 @@ async function getCodeAnalysis(
     result = await analyzeFolders({
       connection: connectionOptions,
       analysisOptions,
-      fileOptions: { paths: [root] },
+      fileOptions,
       ...(isReportFlow && {
         reportOptions: {
           enabled: true,
@@ -162,7 +190,7 @@ async function getCodeAnalysis(
         },
       }),
       analysisContext,
-      languages: sastSettings.supportedLanguages,
+      languages: supportedLanguages,
     });
 
     if (result?.fileBundle.skippedOversizedFiles?.length) {
