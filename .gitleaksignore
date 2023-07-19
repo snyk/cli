@@ -77,5 +77,5 @@ ac6208df74be9a21f2d14caaaee8aec98195b336:test/fixtures/iac/terraform-plan/tf-pla
 cba65a3a91c64db2ee92c87e5972602b6c959586:test/fixtures/sast/sample-analyze-folders-response.json:generic-api-key:3
 6380d9d4147491cadee99113701516ebb8242836:src/cli/commands/test/iac-local-execution/parsers/hcl2json.js:generic-api-key:9827
 c2de35484dcad696a6ee32f2fa317d5cfaffc133:test/fixtures/code/sample-analyze-folders-response.json:generic-api-key:3
-dc5190fcfbbc315bab3ed99a14262242c55bf9b2:test/fixtures/sast/sample-analyze-scm-project-response.json:generic-api-key:4
+668e99c11a12699d9b1aca20cf48e1969055acf5:test/fixtures/sast/sample-analyze-scm-project-response.json:generic-api-key:4
 0fb9746f823f48b2802269569e8575f4dfd3d95d:help/cli-commands/iac-test.md:snyk-api-token:219
