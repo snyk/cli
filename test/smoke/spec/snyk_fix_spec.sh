@@ -23,7 +23,7 @@ Describe "Snyk fix command logged out"
     It "not authed"
       When run snyk fix
       The status should be failure
-      The output should include "Not authorised"
+      The output should include "is not supported"
       The stderr should equal ""
     End
   End
