@@ -334,7 +334,7 @@ describe('drift analytics', () => {
   });
 });
 
-const loadPolicyFixture = async (name: string): Promise<Policy> => {
+const loadPolicyFixture = async (name: string) => {
   const policyPath = path.join(__dirname, 'fixtures', name);
   const policyText = fs.readFileSync(policyPath, 'utf-8');
   return await snykPolicy.loadFromText(policyText);
@@ -369,7 +369,7 @@ describe('driftignoreFromPolicy', () => {
       ['*', '!aws_iam_*', 'aws_s3_*', 'aws_s3_bucket.*', 'aws_s3_bucket.name*'],
     ],
   ])('%s', async (_, policy, expected) => {
-    expect(driftignoreFromPolicy(await policy)).toEqual(expected);
+    expect(driftignoreFromPolicy((await policy) as Policy)).toEqual(expected);
   });
 });
 
@@ -490,7 +490,7 @@ describe('updateExcludeInPolicy', () => {
     ],
   ])('%s', async (_, policyPath, options: GenDriftIgnoreOptions, expected) => {
     const policy = await loadPolicyFixture(policyPath);
-    updateExcludeInPolicy(policy, analysis, options);
+    updateExcludeInPolicy(policy as Policy, analysis, options);
     expect(policy.exclude).toEqual(expected);
   });
 });

@@ -59,7 +59,7 @@ describe('filterIgnoredIssues fn', () => {
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      policy as Policy,
+      (policy as unknown) as Policy,
     );
 
     expect(filteredIssues).toEqual([
@@ -132,7 +132,7 @@ describe('filterIgnoredIssues fn', () => {
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      policy as Policy,
+      (policy as unknown) as Policy,
     );
 
     expect(filteredIssues).toEqual(issues);
@@ -165,7 +165,7 @@ describe('filterIgnoredIssues fn', () => {
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      policy as Policy,
+      (policy as unknown) as Policy,
     );
 
     expect(filteredIssues).toEqual([]);
@@ -202,7 +202,7 @@ describe('filterIgnoredIssues fn', () => {
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      policy as Policy,
+      (policy as unknown) as Policy,
     );
 
     expect(filteredIssues).toEqual([]);

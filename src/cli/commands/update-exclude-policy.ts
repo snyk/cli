@@ -13,7 +13,7 @@ import {
 import { Policy } from '../../lib/policy/find-and-load-policy';
 import * as analytics from '../../lib/analytics';
 
-export default async (...args: MethodArgs): Promise<any> => {
+export default async (...args: MethodArgs) => {
   const { options } = processCommandArgs(...args);
 
   // Ensure that this update-exclude-policy command can only be runned when using `snyk iac update-exclude-policy`
@@ -42,7 +42,7 @@ export default async (...args: MethodArgs): Promise<any> => {
     // Add analytics
     analytics.add('is-iac-drift', true);
 
-    let policy: Policy;
+    let policy: snykPolicyLib.Policy;
     try {
       policy = await snykPolicyLib.load();
     } catch (error) {
@@ -53,7 +53,7 @@ export default async (...args: MethodArgs): Promise<any> => {
         throw error;
       }
     }
-    await updateExcludeInPolicy(policy, analysis, options);
+    await updateExcludeInPolicy(policy as Policy, analysis, options);
     await snykPolicyLib.save(policy);
   } catch (e) {
     const err = new Error('Error running `iac update-exclude-policy` ' + e);

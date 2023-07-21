@@ -50,8 +50,6 @@ export async function findAndLoadPolicy(
   return policy;
 }
 
-export interface Policy {
-  filter(vulns: any, root?: string, matchStrategy?: string): any;
+export interface Policy extends Omit<snykPolicyLib.Policy, 'exclude'> {
   exclude?: { [key: string]: string[] };
-  ignore?: any;
 }

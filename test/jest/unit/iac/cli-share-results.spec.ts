@@ -16,7 +16,9 @@ describe('CLI Share Results', () => {
   let envelopeFormattersSpy: jest.SpiedFunction<typeof envelopeFormatters.convertIacResultToScanResult>;
 
   beforeAll(async () => {
-    snykPolicy = await snykPolicyLib.load('test/jest/unit/iac/fixtures');
+    snykPolicy = (await snykPolicyLib.load(
+      'test/jest/unit/iac/fixtures',
+    )) as Policy;
   });
 
   beforeEach(() => {

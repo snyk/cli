@@ -1,5 +1,6 @@
 import { filterIgnoredIssues } from '../../../../../src/cli/commands/test/iac/local-execution/process-results/policy';
 import { FormattedResult } from '../../../../../src/cli/commands/test/iac/local-execution/types';
+import { Policy } from '../../../../../src/lib/policy/find-and-load-policy';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as snykPolicy from 'snyk-policy';
@@ -16,7 +17,7 @@ async function filterFixture(policyName: string) {
 
   // The policy library modifies its input. In order to write meaningful
   // assertions, deep-clone the original fixture.
-  const filtered = filterIgnoredIssues(policy, cloneDeep(fixture));
+  const filtered = filterIgnoredIssues(policy as Policy, cloneDeep(fixture));
 
   return {
     fixture: fixture,

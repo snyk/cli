@@ -55,7 +55,7 @@ export function filterIgnoredIssues(
     }
 
     const expiredIgnoreRule =
-      new Date(allResourcesRule['*'].expires) < new Date();
+      new Date(allResourcesRule['*'].expires!) < new Date();
     if (!expiredIgnoreRule) {
       delete filteredIssuesData[issue.issueId];
       return false;
