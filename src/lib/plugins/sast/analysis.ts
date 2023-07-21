@@ -1,7 +1,10 @@
 import {
   analyzeFolders,
+  analyzeScmProject,
   AnalysisSeverity,
   MAX_FILE_SIZE,
+  FileAnalysis,
+  ScmAnalysis,
 } from '@snyk/code-client';
 import { ReportingDescriptor, Result } from 'sarif';
 import { SEVERITY } from '../../snyk-test/legacy';
@@ -28,6 +31,27 @@ import { getCodeClientProxyUrl } from '../../code-config';
 
 const debug = debugLib('snyk-code');
 
+type GetCodeAnalysisArgs = {
+  options: Options;
+  fileOptions: {
+    paths: string[];
+  };
+  connectionOptions: {
+    org?: string;
+    source: string;
+    baseURL: string;
+    requestId: string;
+    sessionToken: string;
+  };
+  analysisOptions: {
+    severity: AnalysisSeverity;
+  };
+  supportedLanguages?: string[];
+};
+
+/**
+ * Bootstrap and trigger a Code test, then return the results.
+ */
 export async function getCodeTestResults(
   root: string,
   options: Options,
@@ -36,41 +60,15 @@ export async function getCodeTestResults(
 ): Promise<CodeTestResults | null> {
   await spinner.clearAll();
   analysisProgressUpdate();
-  const codeAnalysis = await getCodeAnalysis(
-    root,
-    options,
-    sastSettings,
-    requestId,
-  );
-  spinner.clearAll();
 
-  if (!codeAnalysis) {
-    return null;
-  }
-
-  return {
-    reportResults: codeAnalysis.reportResults,
-    analysisResults: codeAnalysis.analysisResults,
-  };
-}
-
-async function getCodeAnalysis(
-  root: string,
-  options: Options,
-  sastSettings: SastSettings,
-  requestId: string,
-) {
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
     validateLocalCodeEngineUrl(sastSettings.localCodeEngine.url);
   }
 
-  const source = 'snyk-cli';
   const baseURL = isLocalCodeEngineEnabled
     ? sastSettings.localCodeEngine.url
     : getCodeClientProxyUrl();
-
-  const org = sastSettings.org;
 
   // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
   // This ensures we support lowercase http(s)_proxy values as well
@@ -91,54 +89,120 @@ async function getCodeAnalysis(
     });
   }
 
-  const sessionToken = getAuthHeader();
-
-  const severity = options.severityThreshold
-    ? severityToAnalysisSeverity(options.severityThreshold)
-    : AnalysisSeverity.info;
-
-  const result = await analyzeFolders({
-    connection: {
+  const analysisArgs = {
+    options,
+    fileOptions: {
+      paths: [root],
+    },
+    connectionOptions: {
       baseURL,
-      sessionToken,
-      source,
+      sessionToken: getAuthHeader(),
+      source: 'snyk-cli',
       requestId,
-      org,
+      org: sastSettings.org,
     },
-    analysisOptions: { severity },
-    fileOptions: { paths: [root] },
-    ...(options.report && {
-      reportOptions: {
-        enabled: options.report ?? false,
-        projectName: options['project-name'],
-        targetName: options['target-name'],
-        targetRef: options['target-reference'],
-        remoteRepoUrl: options['remote-repo-url'],
-      },
-    }),
-    analysisContext: {
-      initiator: 'CLI',
-      flow: source,
-      projectName: config.PROJECT_NAME,
-      org: {
-        name: sastSettings.org || 'unknown',
-        displayName: 'unknown',
-        publicId: 'unknown',
-        flags: {},
-      },
+    analysisOptions: {
+      severity: options.severityThreshold
+        ? severityToAnalysisSeverity(options.severityThreshold)
+        : AnalysisSeverity.info,
     },
-    languages: sastSettings.supportedLanguages,
-  });
+    supportedLanguages: sastSettings.supportedLanguages,
+  };
 
-  if (result?.fileBundle.skippedOversizedFiles?.length) {
-    debug(
-      '\n',
-      chalk.yellow(
-        `Warning!\nFiles were skipped in the analysis due to their size being greater than ${MAX_FILE_SIZE}B. Skipped files: ${[
-          ...result.fileBundle.skippedOversizedFiles,
-        ].join(', ')}`,
-      ),
-    );
+  const codeAnalysis = await getCodeAnalysis(analysisArgs);
+
+  spinner.clearAll();
+
+  if (!codeAnalysis) {
+    return null;
+  }
+
+  return {
+    reportResults: codeAnalysis.reportResults,
+    analysisResults: codeAnalysis.analysisResults,
+  };
+}
+
+/**
+ * Performs Code analysis and returns normalised results.
+ * Analysis method (i.e. file-based or SCM) is chosen based on flow options.
+ */
+async function getCodeAnalysis(
+  args: GetCodeAnalysisArgs,
+): Promise<CodeAnalysisResults | null> {
+  const {
+    options,
+    fileOptions,
+    analysisOptions,
+    connectionOptions,
+    supportedLanguages,
+  } = args;
+
+  const analysisContext = {
+    initiator: 'CLI',
+    flow: connectionOptions.source,
+    projectName: config.PROJECT_NAME, // back-compat
+    project: {
+      name: options['project-name'] || config.PROJECT_NAME || 'unknown',
+      publicId: options['project-id'] || 'unknown',
+      type: 'sast',
+    },
+    org: {
+      name: connectionOptions.org || 'unknown',
+      displayName: 'unknown',
+      publicId: 'unknown',
+      flags: {},
+    },
+  } as const;
+
+  let result: FileAnalysis | ScmAnalysis | null = null;
+
+  // When the "report" arg is provided the test results are published on the platform.
+  const isReportFlow = options.report ?? false;
+  // We differentiate between file-based reporting flows
+  // and SCM-based ones by looking at the "project-id" arg.
+  const isScmReportFlow = isReportFlow && options['project-id'];
+
+  if (isScmReportFlow) {
+    // Run an SCM analysis test with reporting.
+    result = await analyzeScmProject({
+      connection: connectionOptions,
+      analysisOptions,
+      reportOptions: {
+        projectId: options['project-id'],
+        commitId: options['commit-id'],
+      },
+      analysisContext,
+    });
+  } else {
+    // Run a file-based test, optionally with reporting.
+    result = await analyzeFolders({
+      connection: connectionOptions,
+      analysisOptions,
+      fileOptions,
+      ...(isReportFlow && {
+        reportOptions: {
+          enabled: true,
+          projectName: options['project-name'],
+          targetName: options['target-name'],
+          targetRef: options['target-reference'],
+          remoteRepoUrl: options['remote-repo-url'],
+        },
+      }),
+      analysisContext,
+      languages: supportedLanguages,
+    });
+
+    if (result?.fileBundle.skippedOversizedFiles?.length) {
+      debug(
+        '\n',
+        chalk.yellow(
+          `Warning!\nFiles were skipped in the analysis due to their size being greater than ${MAX_FILE_SIZE}B. Skipped files: ${[
+            ...result.fileBundle.skippedOversizedFiles,
+          ].join(', ')}`,
+        ),
+      );
+    }
   }
 
   if (!result || result.analysisResults.type !== 'sarif') {

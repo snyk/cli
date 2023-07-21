@@ -3,6 +3,7 @@ import {
   AnalysisResultSarif,
   FileAnalysis,
   ReportResult,
+  ScmAnalysis,
 } from '@snyk/code-client';
 
 interface LocalCodeEngine {
@@ -31,6 +32,6 @@ export interface CodeTestResults {
   analysisResults: AnalysisResultSarif;
 }
 
-export interface CodeAnalysisResults extends FileAnalysis {
-  analysisResults: AnalysisResultSarif;
-}
+export type CodeAnalysisResults =
+  | (FileAnalysis & { analysisResults: AnalysisResultSarif })
+  | ScmAnalysis;

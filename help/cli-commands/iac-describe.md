@@ -1,5 +1,8 @@
 # IaC describe
 
+**DEPRECATION NOTICE: Drift detection of managed resources**\
+Drift detection of managed resources, including `snyk iac describe --only-managed and snyk iac describe --drift` has been deprecated. The end-of-life date for drift detection of managed resources is September 30. 2023.
+
 ## Usage
 
 **Note:** This feature is available in Snyk CLI version v1.876.0 or greater.
