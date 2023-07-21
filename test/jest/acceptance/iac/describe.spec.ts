@@ -172,7 +172,7 @@ describe('iac describe', () => {
       );
 
       expect(stdout).toBe('');
-      expect(stderr).toBe('');
+      expect(stderr).toContain('DEPRECATION NOTICE');
       expect(exitCode).toBe(0);
 
       const output = fs.readFileSync(outputFile).toString();

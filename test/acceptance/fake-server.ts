@@ -21,6 +21,8 @@ export type FakeServer = {
   setDepGraphResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
+  setStatusCode: (c: number) => void;
+  setStatusCodes: (c: number[]) => void;
   setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
   unauthorizeAction: (action: string, reason?: string) => void;
   listen: (port: string | number, callback: () => void) => void;
@@ -39,12 +41,17 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let requests: express.Request[] = [];
   let featureFlags: Map<string, boolean> = featureFlagDefaults();
   let unauthorizedActions = new Map();
+  // the status code to return for the next request, overriding statusCode
   let nextStatusCode: number | undefined = undefined;
+  // the status code to return for all the requests
+  let statusCode: number | undefined = undefined;
+  let statusCodes: number[] = [];
   let nextResponse: any = undefined;
   let depGraphResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
 
   const restore = () => {
+    statusCode = undefined;
     requests = [];
     depGraphResponse = undefined;
     featureFlags = featureFlagDefaults();
@@ -77,6 +84,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setNextStatusCode = (code: number) => {
     nextStatusCode = code;
+  };
+
+  const setStatusCode = (code: number) => {
+    statusCode = code;
+  };
+
+  const setStatusCodes = (codes: number[]) => {
+    statusCodes = codes;
   };
 
   const setFeatureFlag = (featureFlag: string, enabled: boolean) => {
@@ -129,7 +144,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     if (
       req.url?.includes('/iac-org-settings') ||
       req.url?.includes('/cli-config/feature-flags/') ||
-      (!nextResponse && !nextStatusCode)
+      (!nextResponse && !nextStatusCode && !statusCode)
     ) {
       return next();
     }
@@ -139,7 +154,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       const code = nextStatusCode;
       nextStatusCode = undefined;
       res.status(code);
+    } else if (statusCode) {
+      res.status(statusCode);
     }
+
     res.send(response);
   });
 
@@ -192,6 +210,12 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         userMessage:
           'Org missing-org was not found or you may not have the correct permissions',
       });
+      return next();
+    }
+
+    const statusCode = statusCodes.shift();
+    if (statusCode && statusCode !== 200) {
+      res.sendStatus(statusCode);
       return next();
     }
 
@@ -491,9 +515,36 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200).send({});
   });
 
-  app.post(basePath.replace('v1', 'hidden') + '/orgs/:org/sbom', (req, res) => {
-    res.status(200).send({});
-  });
+  app.post(
+    basePath.replace('v1', 'hidden') + '/orgs/:org/sbom',
+    express.json(),
+    (req, res) => {
+      const depGraph: void | Record<string, any> = req.body.depGraph;
+      const depGraphs: void | Record<string, any>[] = req.body.depGraphs;
+      let bom: Record<string, unknown> = { bomFormat: 'CycloneDX' };
+
+      if (Array.isArray(depGraphs) && req.body.subject) {
+        // Return a fixture of an all-projects SBOM.
+        bom = {
+          ...bom,
+          metadata: { component: { name: req.body.subject.name } },
+          components: depGraphs
+            .flatMap(({ pkgs }) => pkgs)
+            .map(({ info: { name } }) => ({ name })),
+        };
+      }
+
+      if (depGraph) {
+        bom = {
+          ...bom,
+          metadata: { component: { name: depGraph.pkgs[0]?.info.name } },
+          components: depGraph.pkgs.map(({ info: { name } }) => ({ name })),
+        };
+      }
+
+      res.status(200).send(bom);
+    },
+  );
 
   app.get(basePath + '/download/driftctl', (req, res) => {
     const fixturePath = getFixturePath('iac');
@@ -574,6 +625,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setDepGraphResponse,
     setNextResponse,
     setNextStatusCode,
+    setStatusCode,
+    setStatusCodes,
     setFeatureFlag,
     unauthorizeAction,
     listen,

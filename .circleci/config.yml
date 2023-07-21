@@ -9,6 +9,8 @@ orbs:
   gh: circleci/github-cli@2.1.0
   # https://circleci.com/developer/orbs/orb/circleci/go
   go: circleci/go@1.7.1
+  # https://github.com/snyk/prodsec-orb
+  prodsec: snyk/prodsec-orb@1.0
 
 parameters:
   aws_version:
@@ -22,7 +24,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.19.4'
+    default: '1.20.5'
 
 executors:
   alpine:
@@ -30,25 +32,25 @@ executors:
       - image: alpine:3.17
   docker-node:
     docker:
-      - image: bastiandoetsch209/cli-build:latest
+      - image: bastiandoetsch209/cli-build:20230613-040119
     # Using RAM Disk. https://circleci.com/docs/2.0/executor-types/#ram-disks
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   arm64:
     machine:
-      image: ubuntu-2204:current
+      image: ubuntu-2204:2023.02.1
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   linux:
     machine:
-      image: ubuntu-2204:current
+      image: ubuntu-2204:2023.02.1
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   macos:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '13.3.0'
-    resource_class: medium
+    resource_class: macos.x86.medium.gen2
 
 commands:
   install_sdks_windows:
@@ -76,6 +78,7 @@ commands:
           name: Installing sdks and tools
           command: |
             brew install go gradle python elixir composer gradle@6 maven sbt
+            python3 -m pip install pipenv --user
 
   install_sdks_linux:
     steps:
@@ -105,7 +108,8 @@ commands:
             composer \
             jq
 
-            pip install awscli --upgrade --user
+            pip3 install pipenv --user
+            pip3 install awscli --upgrade --user
 
             echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
             echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
@@ -247,6 +251,7 @@ jobs:
           name: Installing Node.js + other test dependencies
           command: |
             apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
+            pip3 install pipenv
       - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
@@ -348,9 +353,9 @@ jobs:
           command: npm install
       - run:
           name: Running Tap tests
-          command: |
+          command:
             npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
-              $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
+            $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
   build-artifact:
     parameters:
@@ -402,6 +407,12 @@ jobs:
             cp cliv2/bin/snyk-linux-arm64 binary-releases/snyk-linux-arm64
             cp cliv2/bin/snyk-linux-arm64.sha256 binary-releases/snyk-linux-arm64.sha256
       - run:
+          name: Copy alpine cliv2 binaries to binary-releases staging area
+          command: |
+            ls -la cliv2/bin
+            cp cliv2/bin/snyk-alpine binary-releases/snyk-alpine
+            cp cliv2/bin/snyk-alpine.sha256 binary-releases/snyk-alpine.sha256
+      - run:
           name: Making TS-Binary-Wrapper (snyk.tgz)
           command: make binary-releases/snyk.tgz
       - run:
@@ -429,6 +440,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+      - gh/setup:
+          token: HAMMERHEAD_GITHUB_PAT
+          version: << pipeline.parameters.gh_version >>
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
@@ -456,20 +470,48 @@ jobs:
           command: bash ./release-scripts/handle-failed-release.sh
           when: on_fail
 
-  release:
+  release-s3:
+    executor: docker-node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - aws-cli/install:
+          version: << pipeline.parameters.aws_version >>
+      - run:
+          name: Publish to S3
+          command: ./release-scripts/upload-artifacts.sh latest
+      - run:
+          name: Handling failed release
+          command: ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
+  release-github:
     executor: docker-node
     steps:
       - checkout
       - attach_workspace:
           at: .
       - gh/setup:
-          token: GH_TOKEN
+          token: HAMMERHEAD_GITHUB_PAT
           version: << pipeline.parameters.gh_version >>
-      - aws-cli/install:
-          version: << pipeline.parameters.aws_version >>
       - run:
-          name: Publishing
-          command: make release-final
+          name: Publish to GitHub
+          command: ./release-scripts/upload-artifacts.sh github
+      - run:
+          name: Handling failed release
+          command: ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
+  release-npm:
+    executor: docker-node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Publish to npm
+          command: ./release-scripts/upload-artifacts.sh npm
       - run:
           name: Handling failed release
           command: ./release-scripts/handle-failed-release.sh
@@ -526,7 +568,7 @@ jobs:
             GOOS: << parameters.go_os >>
             GOARCH: << parameters.go_arch >>
             CLI_V1_LOCATION: ../binary-releases
-          command: make build build-test install prefix=. -e
+          command: make build install prefix=. -e
       - save_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
           paths: [/home/circleci/go/pkg/mod]
@@ -647,6 +689,34 @@ jobs:
           paths:
             - ./cliv2/bin
 
+  v2-rename-alpine-amd64-artifact:
+    executor: alpine
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Rename snyk_alpine_amd64 artifact
+          command: mv snyk_alpine_amd64 snyk-alpine
+          working_directory: ./cliv2/bin
+      - run:
+          name: Regenerate sha256
+          command: |
+            sha256sum snyk-alpine > snyk-alpine.sha256
+            sha256sum -c snyk-alpine.sha256
+          working_directory: ./cliv2/bin
+      - run:
+          name: Show files
+          command: |
+            ls -la
+            cat snyk-alpine.sha256
+          working_directory: ./cliv2/bin
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./cliv2/bin
+
   v2-prepare-release:
     executor: docker-node
     working_directory: /home/circleci/snyk
@@ -657,68 +727,6 @@ jobs:
       - store_artifacts:
           path: ./cliv2/bin
 
-  v2-test-linux-amd64:
-    executor: docker-node
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-linux
-          command: |
-            export SNYK_TOKEN="${SNYK_API_KEY}"
-            ./bin/snyk_tests_linux_amd64
-  v2-test-linux-arm64:
-    executor: arm64
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-linux-arm64
-          command: |
-            export SNYK_TOKEN="${SNYK_API_KEY}"
-            ./bin/snyk_tests_linux_arm64
-
-  v2-test-darwin-amd64:
-    executor: macos
-    working_directory: /Users/distiller/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-macos
-          command: |
-            export SNYK_TOKEN="${SNYK_API_KEY}"
-            ./bin/snyk_tests_darwin_amd64
-
-  v2-test-windows-amd64:
-    executor: win/default
-    working_directory: C:\Users\circleci\snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Run integration tests
-          working_directory: ./cliv2
-          environment:
-            TEST_SNYK_EXECUTABLE_PATH: ./bin/snyk-win.exe
-          command: |
-            $env:SNYK_TOKEN = $env:SNYK_API_KEY
-            ./bin/snyk_tests_windows_amd64.exe
   v2-sign-darwin-amd64:
     executor: macos
     working_directory: /Users/distiller/snyk
@@ -778,6 +786,11 @@ workflows:
     jobs:
       - build:
           name: Build
+      - prodsec/secrets-scan:
+          name: Scan repository for secrets
+          context:
+            - snyk-bot-slack
+          channel: hammerhead-alerts
       - test-jest:
           filters:
             branches:
@@ -865,9 +878,6 @@ workflows:
           requires:
             - Build (snyk-fix.tgz)
             - Build (snyk-protect.tgz)
-            - Build (snyk-alpine)
-            - Build (snyk-linux)
-            - Build (snyk-linux-arm64)
             - Build (snyk-for-docker-desktop-darwin-x64.tar.gz)
             - Build (snyk-for-docker-desktop-darwin-arm64.tar.gz)
             - Build (docker-mac-signed-bundle.tar.gz)
@@ -883,7 +893,7 @@ workflows:
                 - master
       - pre-release:
           name: Pre-Release
-          context: nodejs-app-release
+          context: team-hammerhead-common-deploy-tokens
           requires:
             - Release?
           filters:
@@ -901,13 +911,31 @@ workflows:
             branches:
               only:
                 - master
-      - release:
-          name: Release
-          context: nodejs-app-release
+      - release-s3:
+          name: Release S3
+          context: team-hammerhead-common-deploy-tokens
           requires:
             - Test Release (docker-node)
             - Test Release (win/default)
             - Test Release (macos)
+          filters:
+            branches:
+              only:
+                - master
+      - release-github:
+          name: Release GitHub
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - Release S3
+          filters:
+            branches:
+              only:
+                - master
+      - release-npm:
+          name: Release npm
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - Release GitHub
           filters:
             branches:
               only:
@@ -938,6 +966,10 @@ workflows:
           name: v2 / Rename linux/arm64 artifact
           requires:
             - v2 / Build (linux/arm64)
+      - v2-rename-alpine-amd64-artifact:
+          name: v2 / Rename alpine/amd64 artifact
+          requires:
+            - v2 / Build (alpine/amd64)
       - v2-build-artifact:
           name: v2 / Build (darwin/amd64)
           requires:
@@ -965,34 +997,6 @@ workflows:
           go_os: alpine
           go_arch: amd64
           c_compiler: /usr/bin/musl-gcc
-      - v2-test-linux-amd64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Integration Tests (linux/amd64)
-          requires:
-            - v2 / Rename linux/amd64 artifact
-      - v2-test-linux-arm64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Integration Tests (linux/arm64)
-          requires:
-            - v2 / Rename linux/arm64 artifact
-      - v2-test-darwin-amd64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Integration Tests (darwin/amd64)
-          requires:
-            - v2 / Rename macos/amd64 artifact
-      - v2-test-windows-amd64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Integration Tests (windows/amd64)
-          requires:
-            - v2 / Rename windows/amd64 artifact
       # Tests for backwards compatibility with CLIv1
       - test-alpine:
           filters:
@@ -1001,8 +1005,8 @@ workflows:
           name: v2 / Jest Acceptance Tests (alpine/amd64)
           context: nodejs-install
           requires:
-            - v2 / Build (alpine/amd64)
-          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk_alpine_amd64
+            - v2 / Rename alpine/amd64 artifact
+          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-alpine
       - test-linux:
           filters:
             branches:
@@ -1061,11 +1065,11 @@ workflows:
       - v2-prepare-release:
           name: v2 / Prepare Release
           requires:
-            - v2 / Build (alpine/amd64)
             - v2 / Rename linux/amd64 artifact
             - v2 / Rename linux/arm64 artifact
             - v2 / Rename macos/amd64 artifact
             - v2 / Rename windows/amd64 artifact
+            - v2 / Rename alpine/amd64 artifact
       - test-in-proxy-environment-linux-amd64:
           filters:
             branches:

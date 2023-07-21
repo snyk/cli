@@ -9,6 +9,7 @@ import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 import * as theme from '../../lib/theme';
 import { jsonStringifyLargeObject } from '../../lib/json';
+import * as pMap from 'p-map';
 
 import {
   AffectedPackages,
@@ -22,18 +23,21 @@ import {
 } from './legacy';
 import {
   AuthFailedError,
+  BadGatewayError,
   DockerImageNotFoundError,
+  errorMessageWithRetry,
   FailedToGetVulnerabilitiesError,
   FailedToGetVulnsFromUnavailableResource,
   FailedToRunTestError,
   InternalServerError,
   NoSupportedManifestsFoundError,
   NotFoundError,
-  errorMessageWithRetry,
+  ServiceUnavailableError,
 } from '../errors';
 import * as snyk from '../';
 import { isCI } from '../is-ci';
 import * as common from './common';
+import { RETRY_ATTEMPTS, RETRY_DELAY } from './common';
 import config from '../config';
 import * as analytics from '../analytics';
 import { maybePrintDepGraph, maybePrintDepTree } from '../print-deps';
@@ -56,9 +60,9 @@ import { extractPackageManager } from '../plugins/extract-package-manager';
 import { getExtraProjectCount } from '../plugins/get-extra-project-count';
 import { findAndLoadPolicy } from '../policy';
 import {
+  DepTreeFromResolveDeps,
   Payload,
   PayloadBody,
-  DepTreeFromResolveDeps,
   TestDependenciesRequest,
 } from './types';
 import { getAuthHeader } from '../api-token';
@@ -68,6 +72,7 @@ import { assembleEcosystemPayloads } from './assemble-payloads';
 import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
+import { sleep } from '../common';
 
 const debug = debugModule('snyk:run-test');
 
@@ -233,36 +238,43 @@ async function sendAndParseResults(
     originalPayload: Payload;
     response: any;
   };
-  const requests: (() => Promise<TestResponse>)[] = [];
-  for (const payload of payloads) {
-    const request = async (): Promise<TestResponse> => {
-      /** sendTestPayload() deletes the request.body from the payload once completed. */
-      const originalPayload = Object.assign({}, payload);
-      const response = await sendTestPayload(payload);
-      return { payload, originalPayload, response };
-    };
-    requests.push(request);
-  }
 
-  // Start block adapted from https://gist.github.com/jcouyang/632709f30e12a7879a73e9e132c0d56b?permalink_comment_id=3591045#gistcomment-3591045
-  let index = 0;
-  const responses: TestResponse[] = [];
+  const sendRequest = async (
+    originalPayload: Payload,
+  ): Promise<TestResponse> => {
+    let step = 0;
+    let error;
 
-  const execRequest = async () => {
-    while (index < requests.length) {
-      // index is shared across "threads", so capture the current value for this
-      // iteration on this "thread" and increment it for the rest of the world.
-      const curIndex = index++;
-      responses[curIndex] = await requests[curIndex]();
+    while (step < RETRY_ATTEMPTS) {
+      debug(`sendTestPayload retry step ${step} out of ${RETRY_ATTEMPTS}`);
+      try {
+        /** sendTestPayload() deletes the request.body from the payload once completed. */
+        const payload = Object.assign({}, originalPayload);
+        const response = await sendTestPayload(payload);
+
+        return { payload, originalPayload, response };
+      } catch (err) {
+        error = err;
+        step++;
+
+        if (
+          err instanceof InternalServerError ||
+          err instanceof BadGatewayError ||
+          err instanceof ServiceUnavailableError
+        ) {
+          await sleep(RETRY_DELAY);
+        } else {
+          break;
+        }
+      }
     }
+
+    throw error;
   };
 
-  const threads: Promise<void>[] = [];
-  for (let thread = 0; thread < MAX_CONCURRENCY; thread++) {
-    threads.push(execRequest());
-  }
-  await Promise.all(threads);
-  // End block adapted from https://gist.github.com/jcouyang/632709f30e12a7879a73e9e132c0d56b?permalink_comment_id=3591045#gistcomment-3591045
+  const responses = await pMap(payloads, sendRequest, {
+    concurrency: MAX_CONCURRENCY,
+  });
 
   for (const { payload, originalPayload, response } of responses) {
     const {
@@ -486,6 +498,9 @@ function sendTestPayload(
       }
       if (res.statusCode !== 200) {
         const err = handleTestHttpErrorResponse(res, body);
+        debug('sendTestPayload request URL:', payload.url);
+        debug('sendTestPayload response status code:', res.statusCode);
+        debug('sendTestPayload response body:', body);
         return reject(err);
       }
 
@@ -511,6 +526,14 @@ function handleTestHttpErrorResponse(res, body) {
       break;
     case 500:
       err = new InternalServerError(userMessage);
+      err.innerError = body.stack;
+      break;
+    case 502:
+      err = new BadGatewayError(userMessage);
+      err.innerError = body.stack;
+      break;
+    case 503:
+      err = new ServiceUnavailableError(userMessage);
       err.innerError = body.stack;
       break;
     default:

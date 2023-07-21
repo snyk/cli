@@ -64,6 +64,7 @@ describe('initLocalCache', () => {
     const expected = {
       policyEnginePath: testPolicyEnginePath,
       rulesBundlePath: '',
+      rulesClientURL: '',
     };
     const res = await initLocalCache(testTestConfig);
 

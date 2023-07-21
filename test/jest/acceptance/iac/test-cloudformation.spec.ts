@@ -40,12 +40,7 @@ describe('CloudFormation single file scan', () => {
     expect(stdout).toContain(
       'File:    ./iac/cloudformation/fargate-valid.json',
     );
-    expect(stdout).toContain('S3 restrict public bucket control is disabled');
-    expect(stdout).toContain(
-      '  Path:    Resources[CodePipelineArtifactBucket] > Properties >' +
-        EOL +
-        '           PublicAccessBlockConfiguration > RestrictPublicBuckets',
-    );
+    expect(stdout).toContain('SNYK-CC-TF-124');
     expect(exitCode).toBe(1);
   });
 

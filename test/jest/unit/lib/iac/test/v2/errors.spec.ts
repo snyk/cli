@@ -3,7 +3,7 @@ import { getErrorUserMessage } from '../../../../../../../src/lib/iac/test/v2/er
 describe('getErrorUserMessage', () => {
   it('returns INVALID_SNYK_IAC_TEST_ERROR for an invalid snyk-iac-test error code', () => {
     expect(getErrorUserMessage(0, '')).toEqual('INVALID_SNYK_IAC_TEST_ERROR');
-    expect(getErrorUserMessage(3000, '')).toEqual(
+    expect(getErrorUserMessage(4000, '')).toEqual(
       'INVALID_SNYK_IAC_TEST_ERROR',
     );
   });
@@ -33,6 +33,14 @@ describe('getErrorUserMessage', () => {
     ${2112}
     ${2113}
     ${2114}
+    ${2115}
+    ${2116}
+    ${2200}
+    ${2203}
+    ${3000}
+    ${3001}
+    ${3002}
+    ${3003}
   `(
     'returns a user message for a valid snyk-iac-test error code - $expectedErrorCode',
     ({ expectedErrorCode }) => {

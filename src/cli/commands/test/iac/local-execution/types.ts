@@ -158,7 +158,7 @@ export interface PolicyMetadata {
   type?: string;
   subType: string;
   title: string;
-  documentation?: string; // e.g. "https://snyk.io/security-rules/SNYK-CC-K8S-2",
+  documentation?: string; // e.g. "https://security.snyk.io/rules/cloud/SNYK-CC-XXX",
   isGeneratedByCustomRule?: boolean;
   // Legacy field, still included in WASM eval output, but not in use. (not included in new policies)
   description?: string;
@@ -169,6 +169,7 @@ export interface PolicyMetadata {
   resolve: string;
   references: string[];
   // Included only in new policies
+  // Only custom rules will have a string remediation field
   remediation?: Partial<
     Record<'terraform' | 'cloudformation' | 'arm' | 'kubernetes', string>
   >;
@@ -403,6 +404,12 @@ export enum IaCErrorCodes {
   EntitlementNotEnabled = 2201,
   ReadSettings = 2202,
   FeatureFlagNotEnabled = 2203,
+
+  // snyk-iac-test non-fatal errors
+  SubmoduleLoadingError = 3000,
+  MissingRemoteSubmodulesError = 3001,
+  EvaluationError = 3002,
+  MissingTermError = 3003,
 }
 
 export interface TestReturnValue {

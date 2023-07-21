@@ -60,7 +60,9 @@ export async function parse(
   );
   if (
     lockfileVersion === NodeLockfileVersion.YarnLockV1 ||
-    lockfileVersion === NodeLockfileVersion.YarnLockV2
+    lockfileVersion === NodeLockfileVersion.YarnLockV2 ||
+    lockfileVersion === NodeLockfileVersion.NpmLockV2 ||
+    lockfileVersion === NodeLockfileVersion.NpmLockV3
   ) {
     return await buildDepGraph(
       root,
@@ -120,10 +122,28 @@ async function buildDepGraph(
       return await lockFileParser.parseYarnLockV1Project(
         manifestFileContents,
         lockFileContents,
-        options,
+        {
+          includeDevDeps: options.includeDevDeps,
+          includeOptionalDeps: options.includeOptionalDeps,
+          includePeerDeps: options.includePeerDeps || false,
+          pruneLevel: 'withinTopLevelDeps',
+          strictOutOfSync: options.strictOutOfSync,
+        },
       );
     case NodeLockfileVersion.YarnLockV2:
-      return lockFileParser.parseYarnLockV2Project(
+      return await lockFileParser.parseYarnLockV2Project(
+        manifestFileContents,
+        lockFileContents,
+        {
+          includeDevDeps: options.includeDevDeps,
+          includeOptionalDeps: options.includeOptionalDeps,
+          pruneWithinTopLevelDeps: true,
+          strictOutOfSync: options.strictOutOfSync,
+        },
+      );
+    case NodeLockfileVersion.NpmLockV2:
+    case NodeLockfileVersion.NpmLockV3:
+      return await lockFileParser.parseNpmLockV2Project(
         manifestFileContents,
         lockFileContents,
         options,

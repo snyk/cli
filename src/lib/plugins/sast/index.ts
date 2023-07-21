@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import * as Sarif from 'sarif';
 import * as debugLib from 'debug';
 import { v4 as uuidv4 } from 'uuid';
 import { getCodeTestResults } from './analysis';
@@ -10,8 +11,11 @@ import {
 } from './format/output-format';
 import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
+import { CodeClientError } from './errors';
+import { filterIgnoredIssues } from './utils';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
+import * as cloneDeep from 'lodash.clonedeep';
 
 const debug = debugLib('snyk-code');
 
@@ -44,47 +48,71 @@ export const codePlugin: EcosystemPlugin = {
         throw new NoSupportedSastFiles();
       }
 
-      const sarifTypedResult = testResults?.analysisResults?.sarif;
+      // cloneDeep is used so the sarif is not changed when using the testResults getting the displayed output
+      const sarifTypedResult = cloneDeep(
+        testResults?.analysisResults?.sarif,
+      ) as Sarif.Log;
+      const sarifRunResults = sarifTypedResult.runs?.[0].results ?? [];
 
-      const numOfIssues = sarifTypedResult.runs?.[0].results?.length || 0;
+      // Report flow includes ignored issues (suppressions) in the results.
+      const hasIgnoredIssues = options['report'] ?? false;
+
+      // If suppressions are included in results filter them out to get real issue count
+      const foundIssues = hasIgnoredIssues
+        ? filterIgnoredIssues(sarifRunResults)
+        : sarifRunResults;
+      const numOfIssues = foundIssues.length || 0;
       analytics.add('sast-issues-found', numOfIssues);
+
       let newOrg = options.org;
       if (!newOrg && sastSettings.org) {
         newOrg = sastSettings.org;
       }
       const meta = getMeta({ ...options, org: newOrg }, path);
       const prefix = getPrefix(path);
-      let readableResult = getCodeDisplayedOutput(testResults, meta, prefix);
-      if (numOfIssues > 0 && options['no-markdown']) {
-        sarifTypedResult.runs?.[0].results?.forEach(({ message }) => {
+      let readableResult = getCodeDisplayedOutput({
+        testResults,
+        meta,
+        prefix,
+        shouldFilterIgnored: hasIgnoredIssues,
+      });
+
+      if (options['no-markdown']) {
+        sarifRunResults.forEach(({ message }) => {
           delete message.markdown;
         });
       }
+
+      const shouldStringifyResult =
+        options['sarif-file-output'] ||
+        options.sarif ||
+        options['json-file-output'] ||
+        options.json;
+      const stringifiedResult = shouldStringifyResult
+        ? jsonStringifyLargeObject(sarifTypedResult)
+        : '';
+
       let sarifResult: string | undefined;
       if (options['sarif-file-output']) {
-        sarifResult = jsonStringifyLargeObject(sarifTypedResult);
+        sarifResult = stringifiedResult;
       }
       let jsonResult: string | undefined;
       if (options['json-file-output']) {
-        jsonResult = jsonStringifyLargeObject(sarifTypedResult);
+        jsonResult = stringifiedResult;
       }
       if (options.sarif || options.json) {
-        readableResult = jsonStringifyLargeObject(sarifTypedResult);
+        readableResult = stringifiedResult;
       }
+
       if (numOfIssues > 0) {
         throwIssuesError({ readableResult, sarifResult, jsonResult });
       }
+
       return sarifResult ? { readableResult, sarifResult } : { readableResult };
     } catch (error) {
       let err: Error;
       if (isCodeClientError(error)) {
-        const isUnauthorized = isUnauthorizedError(error)
-          ? 'Unauthorized: '
-          : '';
-        err = new FailedToRunTestError(
-          `${isUnauthorized}Failed to run 'code test'`,
-          error.statusCode,
-        );
+        err = resolveCodeClientError(error);
       } else if (error instanceof Error) {
         err = error;
       } else if (isUnauthorizedError(error)) {
@@ -108,6 +136,47 @@ function isCodeClientError(error: object): boolean {
     error.hasOwnProperty('statusCode') &&
     error.hasOwnProperty('statusText') &&
     error.hasOwnProperty('apiName')
+  );
+}
+
+const genericErrorHelpMessages = {
+  500: "One or more of Snyk's services may be temporarily unavailable.",
+  502: "One or more of Snyk's services may be temporarily unavailable.",
+};
+
+const apiSpecificErrorHelpMessages = {
+  initReport: {
+    ...genericErrorHelpMessages,
+    400: 'Make sure this feature is enabled by contacting support.',
+  },
+  getReport: {
+    ...genericErrorHelpMessages,
+    'Analysis result set too large':
+      'The findings for this project may exceed the allowed size limit.',
+  },
+};
+
+function resolveCodeClientError(error: {
+  apiName: string;
+  statusCode: number;
+  statusText: string;
+}): Error {
+  // For now only report includes custom client errors
+  if (error.apiName === 'initReport' || error.apiName === 'getReport') {
+    const additionalHelp =
+      apiSpecificErrorHelpMessages[error.apiName][error.statusText] ??
+      apiSpecificErrorHelpMessages[error.apiName][error.statusCode];
+
+    return new CodeClientError(
+      error.statusCode,
+      error.statusText,
+      additionalHelp,
+    );
+  }
+  const isUnauthorized = isUnauthorizedError(error) ? 'Unauthorized: ' : '';
+  return new FailedToRunTestError(
+    `${isUnauthorized}Failed to run 'code test'`,
+    error.statusCode,
   );
 }
 

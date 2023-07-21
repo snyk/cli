@@ -1,5 +1,8 @@
 # IaC describe
 
+**DEPRECATION NOTICE: Drift detection of managed resources**\
+Drift detection of managed resources, including `snyk iac describe --only-managed and snyk iac describe --drift` has been deprecated. The end-of-life date for drift detection of managed resources is September 30. 2023.
+
 ## Usage
 
 **Note:** This feature is available in Snyk CLI version v1.876.0 or greater.
@@ -62,7 +65,7 @@ Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. Ove
 
 Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
 
-For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
+For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--from=<STATE>[,<STATE>...]`
 

@@ -2,7 +2,8 @@ import * as createDebugLogger from 'debug';
 import * as path from 'path';
 
 import { CustomError } from '../../../../errors';
-import { makeRequest } from '../../../../request';
+import { streamRequest } from '../../../../request/request';
+import { ReadableStream } from 'needle';
 
 const debugLogger = createDebugLogger('snyk-iac');
 
@@ -41,13 +42,30 @@ export class InvalidUserPathError extends CustomError {
 }
 
 export async function fetchCacheResource(url: string): Promise<Buffer> {
-  const { res, body: cacheResourceBuffer } = await makeRequest({
-    url,
+  const stream = await streamRequest({
+    body: null,
+    headers: {},
+    method: 'get',
+    url: url,
   });
 
-  if (res.statusCode !== 200) {
-    throw new CustomError(`Failed to download cache resource from ${url}`);
-  }
+  return streamToBuffer(stream);
+}
 
-  return cacheResourceBuffer;
+async function streamToBuffer(stream: ReadableStream): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+
+    stream.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+
+    stream.on('end', () => {
+      resolve(Buffer.concat(chunks));
+    });
+
+    stream.on('error', (err) => {
+      reject(err);
+    });
+  });
 }

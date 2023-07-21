@@ -1,0 +1,12 @@
+[[source]]
+url = "https://pypi.org/simple/"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pylint = "==2.6.0"
+toml = "==0.10.1"
+
+[dev-packages]
+
+[requires]

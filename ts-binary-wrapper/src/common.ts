@@ -245,7 +245,7 @@ export function downloadExecutable(
     const options = new URL(downloadUrl);
     const temp = path.join(__dirname, Date.now().toString());
     const fileStream = fs.createWriteStream(temp);
-    const shasum = createHash('sha256');
+    const shasum = createHash('sha256').setEncoding('hex');
 
     const cleanupAfterError = (error: Error) => {
       try {
@@ -259,16 +259,9 @@ export function downloadExecutable(
 
     // shasum events
     shasum.on('error', cleanupAfterError);
-
     // filestream events
-    fileStream.on('error', (e) => {
-      cleanupAfterError(e);
-    });
-
-    fileStream.on('finish', () => {
-      // compare shasums
-      const actualShasum = shasum.digest('hex');
-
+    fileStream.on('error', cleanupAfterError).on('close', () => {
+      const actualShasum = shasum.read();
       const debugMessage =
         'Shasums:\n- actual:   ' +
         actualShasum +
@@ -293,10 +286,9 @@ export function downloadExecutable(
       "Downloading from '" + downloadUrl + "' to '" + filename + "'",
     );
 
-    const req = https.request(options, (res) => {
+    const req = https.get(options, (res) => {
       // response events
-      res.on('error', cleanupAfterError);
-      res.on('end', () => {
+      res.on('error', cleanupAfterError).on('end', () => {
         shasum.end();
         fileStream.end();
       });
@@ -306,11 +298,7 @@ export function downloadExecutable(
       res.pipe(shasum);
     });
 
-    req.on('error', (e) => {
-      cleanupAfterError(e);
-    });
-
-    req.on('response', (incoming) => {
+    req.on('error', cleanupAfterError).on('response', (incoming) => {
       if (
         incoming.statusCode &&
         !(200 <= incoming.statusCode && incoming.statusCode < 300)
@@ -357,8 +345,7 @@ export async function logError(
 
   // finally log the error to the console as well
   if (printToConsole) {
-    console.error('\n');
-    console.error(err);
+    console.error('\n' + err);
     formatErrorMessage(err.message);
   }
 }

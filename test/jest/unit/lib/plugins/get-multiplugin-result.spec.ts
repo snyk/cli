@@ -1,16 +1,16 @@
 import * as pathLib from 'path';
 import { SupportedPackageManagers } from '../../../../../src/lib/package-managers';
-import { filterOutProcessedWorkspaces } from '../../../../../src/lib/plugins/get-multi-plugin-result';
+import { filterOutProcessedYarnWorkspaces } from '../../../../../src/lib/plugins/get-multi-plugin-result';
 
 const root = '../../../../acceptance/workspaces/yarn-workspaces';
-describe('filterOutProcessedWorkspaces', () => {
+describe('filterOutProcessedYarnWorkspaces', () => {
   test('all package.json belong to the same workspace', () => {
     const allTargetFiles = [
       'yarn.lock',
       'packages/tomatoes/yarn.lock',
       'packages/apples/package.json',
     ];
-    const unprocessedFiles = filterOutProcessedWorkspaces(
+    const unprocessedFiles = filterOutProcessedYarnWorkspaces(
       root,
       scannedProjects as any,
       allTargetFiles,
@@ -23,7 +23,7 @@ describe('filterOutProcessedWorkspaces', () => {
       'packages/tomatoes/yarn.lock',
       'packages/apples/package.json',
     ].map((p) => pathLib.resolve(root, p));
-    const unprocessedFiles = filterOutProcessedWorkspaces(
+    const unprocessedFiles = filterOutProcessedYarnWorkspaces(
       root,
       scannedProjects as any,
       allTargetFiles,
@@ -37,7 +37,7 @@ describe('filterOutProcessedWorkspaces', () => {
       'not-part-of-workspace-yarn/yarn.lock',
       'packages/apples/package.json',
     ].map((p) => pathLib.resolve(root, p));
-    const unprocessedFiles = filterOutProcessedWorkspaces(
+    const unprocessedFiles = filterOutProcessedYarnWorkspaces(
       root,
       scannedProjects as any,
       allTargetFiles,
@@ -55,7 +55,7 @@ describe('filterOutProcessedWorkspaces', () => {
       'not-part-of-workspace-yarn/yarn.lock',
       'packages/apples/package.json',
     ].map((p) => pathLib.resolve(root, p));
-    const unprocessedFiles = filterOutProcessedWorkspaces(
+    const unprocessedFiles = filterOutProcessedYarnWorkspaces(
       root,
       scannedProjects as any,
       allTargetFiles,
@@ -76,7 +76,7 @@ describe('filterOutProcessedWorkspaces', () => {
       'packages/apples/package.json',
       'packages/apples/Pipfile',
     ].map((p) => pathLib.resolve(root, p));
-    const unprocessedFiles = filterOutProcessedWorkspaces(
+    const unprocessedFiles = filterOutProcessedYarnWorkspaces(
       root,
       scannedProjects as any,
       allTargetFiles,

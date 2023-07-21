@@ -1,0 +1,17 @@
+{
+  "name": "npm-package-lockfile-v2",
+  "version": "1.0.0",
+  "description": "Simple NPM package",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "snyk",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "2.2.0"
+  },
+  "devDependencies": {
+    "object-assign": "4.1.1"
+  }
+}

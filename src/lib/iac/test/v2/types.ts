@@ -5,6 +5,7 @@ export interface TestConfig {
   iacCachePath: string;
   userRulesBundlePath?: string;
   userPolicyEnginePath?: string;
+  userRulesClientURL?: string;
   report: boolean;
   severityThreshold?: SEVERITY;
   targetReference?: string;

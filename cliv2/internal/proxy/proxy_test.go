@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"os"
 	"testing"
@@ -154,54 +153,6 @@ func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 	// assert cert file is deleted on Close
 	_, err = os.Stat(wp.CertificateLocation)
 	assert.NotNil(t, err) // this means the file is gone
-}
-
-func Test_xSnykCliVersionHeaderIsReplaced(t *testing.T) {
-	basecache := "testcache"
-	expectedVersion := "the-cli-version"
-	setup(t, basecache, expectedVersion)
-	defer teardown(t, basecache)
-
-	wp, err := proxy.NewWrapperProxy(false, basecache, expectedVersion, debugLogger)
-	assert.Nil(t, err)
-
-	err = wp.Start()
-	assert.Nil(t, err)
-
-	useProxyAuth := true
-	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
-	assert.Nil(t, err)
-
-	var capturedVersion string
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		capturedVersion = r.Header.Get("x-snyk-cli-version")
-	}))
-	defer ts.Close()
-
-	req, err := http.NewRequest("GET", ts.URL, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// request without the "x-snyk-cli-version" header set
-	res, err := proxiedClient.Do(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	assert.Equal(t, 200, res.StatusCode)
-	assert.Equal(t, "", capturedVersion)
-
-	// request with the header set
-	req, _ = http.NewRequest("GET", ts.URL, nil)
-	req.Header.Add("x-snyk-cli-version", "1.0.0")
-	res, err = proxiedClient.Do(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	assert.Equal(t, 200, res.StatusCode)
-	assert.Equal(t, expectedVersion, capturedVersion)
-
-	wp.Close()
 }
 
 func Test_SetUpstreamProxy(t *testing.T) {

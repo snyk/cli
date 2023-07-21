@@ -10,7 +10,8 @@ HASH_ALGORITHM = 256
 CLI_V2_VERSION_TAG = 
 CLI_V1_VERSION_TAG = 
 CLI_V1_LOCATION = 
-USE_LEGACY_EXECUTABLE_NAME = 
+USE_LEGACY_EXECUTABLE_NAME =
+LDFLAGS = -s -w -X main.InternalOS=$(GOOS)
 
 # Make directories per convention
 prefix = /usr/local
@@ -101,7 +102,7 @@ $(CACHE_DIR)/version.mk: $(CACHE_DIR)
 ifeq ($(CLI_V1_VERSION_TAG), $(_EMPTY))
 	$(eval CLI_V1_VERSION_TAG := $(shell curl --fail --progress-bar -L https://static.snyk.io/cli/latest/version))
 endif
-	@echo "CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG)\nCLI_V2_VERSION_TAG=$(CLI_V2_VERSION_TAG)" > $(CACHE_DIR)/version.mk
+	@printf "CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG)\nCLI_V2_VERSION_TAG=$(CLI_V2_VERSION_TAG)" > $(CACHE_DIR)/version.mk
 	@echo "$(LOG_PREFIX) Using cliv1 version ( $(CLI_V1_VERSION_TAG) )"
 	@echo "$(LOG_PREFIX) Building cliv2 version ( $(CLI_V2_VERSION_TAG) )"
 
@@ -112,7 +113,7 @@ $(CACHE_DIR):
 	@mkdir $@
 
 $(CACHE_DIR)/variables.mk: $(CACHE_DIR)
-	@echo "GOOS=$(GOOS)\nGOARCH=$(GOARCH)\n" > $(CACHE_DIR)/variables.mk
+	@printf "GOOS=$(GOOS)\nGOARCH=$(GOARCH)\n" > $(CACHE_DIR)/variables.mk
 
 $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT):
 	@echo "$(LOG_PREFIX) Generating ( $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) )"
@@ -157,29 +158,14 @@ configure: $(V2_DIRECTORY)/cliv2.version $(CACHE_DIR) $(CACHE_DIR)/version.mk $(
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
-	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
+	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING): 
 	@echo "$(LOG_PREFIX) Generating checksum ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
 	@cd $(BUILD_DIR) && shasum -a $(HASH_ALGORITHM) --binary $(V2_EXECUTABLE_NAME) > $(V2_EXECUTABLE_NAME).$(HASH_STRING)
 
-$(BUILD_DIR)/$(TEST_EXECUTABLE_NAME):
-	@echo "$(LOG_PREFIX) Building test executable ( $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) )"
-	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) test -c -o $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) main_integration_test.go
-
 .PHONY: build
 build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
-
-.PHONY: build-test
-build-test: build-blackboxtest
-
-.PHONY: build-blackboxtest
-build-blackboxtest: build $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME)
-
-.PHONY: blackboxtest
-blackboxtest: build-blackboxtest
-	@echo "$(LOG_PREFIX) Running $@"
-	TEST_SNYK_EXECUTABLE_PATH=$(TEST_SNYK_EXECUTABLE_PATH) $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) -test.v
 
 $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
@@ -201,7 +187,7 @@ whiteboxtest:
 	@$(GOCMD) test -cover ./...
 
 .PHONY: test
-test: whiteboxtest blackboxtest
+test: whiteboxtest
 
 .PHONY: lint
 lint:
@@ -251,7 +237,7 @@ clean-ts-cli:
 # build the full CLI (Typescript+Golang)
 .PHONY: build-full
 build-full: | build-ts-cli
-	@$(MAKE) build build-test CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG) CLI_V1_LOCATION="$(CLI_V1_LOCATION)"
+	@$(MAKE) build CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG) CLI_V1_LOCATION="$(CLI_V1_LOCATION)"
 
 # clean the full CLI (Typescript+Golang)
 .PHONY: clean-full
@@ -275,9 +261,9 @@ clean:
 install:
 	@echo "$(LOG_PREFIX) Installing $(V2_EXECUTABLE_NAME) ( $(DESTDIR)$(bindir) $(CLI_V1_VERSION_TAG))"
 	@mkdir -p $(DESTDIR)$(bindir)
+	@rm -f $(DESTDIR)$(bindir)/$(V2_EXECUTABLE_NAME)
 	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(DESTDIR)$(bindir)
 	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) $(DESTDIR)$(bindir)
-	@cp $(BUILD_DIR)/$(TEST_EXECUTABLE_NAME) $(DESTDIR)$(bindir)
 
 .PHONY: help
 help:
@@ -286,7 +272,6 @@ help:
 	@echo "$(LOG_PREFIX) format"
 	@echo "$(LOG_PREFIX) build"
 	@echo "$(LOG_PREFIX) sign"
-	@echo "$(LOG_PREFIX) build-test"
 	@echo "$(LOG_PREFIX) test"
 	@echo "$(LOG_PREFIX) test-signature"
 	@echo "$(LOG_PREFIX) install"

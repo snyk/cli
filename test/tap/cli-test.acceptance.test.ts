@@ -113,6 +113,7 @@ test(GenericTests.language, async (t) => {
         { chdirWorkspaces },
       ),
     );
+    server.restore();
   }
 });
 
@@ -125,6 +126,7 @@ test(AllProjectsTests.language, async (t) => {
         { chdirWorkspaces },
       ),
     );
+    server.restore();
   }
 });
 

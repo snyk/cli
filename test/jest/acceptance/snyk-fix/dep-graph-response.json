@@ -1,0 +1,515 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "pylint@2.6.0": {
+        "pkg": {
+          "name": "pylint",
+          "version": "2.6.0"
+        },
+        "issues": {
+          "SNYK-PYTHON-PYLINT-1089548": {
+            "issueId": "SNYK-PYTHON-PYLINT-1089548",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isRuntime": false,
+              "isPinnable": true
+            }
+          },
+          "SNYK-PYTHON-PYLINT-609883": {
+            "issueId": "SNYK-PYTHON-PYLINT-609883",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isRuntime": false,
+              "isPinnable": true
+            }
+          }
+        }
+      },
+      "isort@5.12.0": {
+        "pkg": {
+          "name": "isort",
+          "version": "5.12.0"
+        },
+        "issues": {
+          "snyk:lic:pip:isort:MIT": {
+            "issueId": "snyk:lic:pip:isort:MIT",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isRuntime": false,
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "mccabe@0.6.1": {
+        "pkg": {
+          "name": "mccabe",
+          "version": "0.6.1"
+        },
+        "issues": {
+          "snyk:lic:pip:mccabe:MIT": {
+            "issueId": "snyk:lic:pip:mccabe:MIT",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isRuntime": false,
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "toml@0.10.1": {
+        "pkg": {
+          "name": "toml",
+          "version": "0.10.1"
+        },
+        "issues": {
+          "snyk:lic:pip:toml:MIT": {
+            "issueId": "snyk:lic:pip:toml:MIT",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isRuntime": false,
+              "isPinnable": false
+            }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "SNYK-PYTHON-PYLINT-1089548": {
+        "id": "SNYK-PYTHON-PYLINT-1089548",
+        "title": "Regular Expression Denial of Service (ReDoS)",
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "credit": ["Yeting Li"],
+        "semver": {
+          "vulnerable": ["[,2.7.0)"]
+        },
+        "exploit": "Not Defined",
+        "fixedIn": ["2.7.0"],
+        "patches": [],
+        "insights": {
+          "triageAdvice": null
+        },
+        "language": "python",
+        "severity": "medium",
+        "cvssScore": 5.3,
+        "functions": [],
+        "malicious": false,
+        "isDisputed": false,
+        "moduleName": "pylint",
+        "references": [
+          {
+            "url": "https://github.com/PyCQA/pylint/commit/5405dd5115d598fa69e49538d50ec79202b1b52e",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/PyCQA/pylint/issues/3811",
+            "title": "GitHub Issue"
+          },
+          {
+            "url": "https://github.com/PyCQA/pylint/releases/tag/pylint-2.7.0",
+            "title": "GitHub Release"
+          }
+        ],
+        "cvssDetails": [],
+        "description": "## Overview\n[pylint](https://github.com/PyCQA/pylint) is a Python static code analysis tool which looks for programming errors, helps enforcing a coding standard, sniffs for code smells and offers simple refactoring suggestions.\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) via the `SPECIAL` and `PRIVATE` attributes in `pylint/pylint/pyreverse/utils.py`. The ReDoS is mainly due to the pattern `[^\\W_]+\\w*`, and can be exploited with an input string such as `\"__\"+\"1\"*5000 + \"!\"`.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `pylint` to version 2.7.0 or higher.\n## References\n- [GitHub Commit](https://github.com/PyCQA/pylint/commit/5405dd5115d598fa69e49538d50ec79202b1b52e)\n- [GitHub Issue](https://github.com/PyCQA/pylint/issues/3811)\n- [GitHub Release](https://github.com/PyCQA/pylint/releases/tag/pylint-2.7.0)\n",
+        "epssDetails": null,
+        "identifiers": {
+          "CVE": [],
+          "CWE": ["CWE-400"]
+        },
+        "packageName": "pylint",
+        "proprietary": false,
+        "creationTime": "2021-03-29T16:03:09.945565Z",
+        "functions_new": [],
+        "alternativeIds": [],
+        "disclosureTime": "2021-03-29T16:00:18Z",
+        "packageManager": "pip",
+        "publicationTime": "2021-03-30T14:57:05.188672Z",
+        "modificationTime": "2021-03-30T14:57:05.190970Z",
+        "socialTrendAlert": false,
+        "severityWithCritical": "medium"
+      },
+      "SNYK-PYTHON-PYLINT-609883": {
+        "id": "SNYK-PYTHON-PYLINT-609883",
+        "title": "Regular Expression Denial of Service (ReDoS)",
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H/E:U/RL:U/RC:C",
+        "credit": ["Yeting Li"],
+        "semver": {
+          "vulnerable": ["[0,2.6.1)"]
+        },
+        "exploit": "Unproven",
+        "fixedIn": ["2.6.1"],
+        "patches": [],
+        "insights": {
+          "triageAdvice": null
+        },
+        "language": "python",
+        "severity": "high",
+        "cvssScore": 8.1,
+        "functions": [],
+        "malicious": false,
+        "isDisputed": false,
+        "moduleName": "pylint",
+        "references": [
+          {
+            "url": "https://github.com/PyCQA/pylint/commit/5405dd5115d598fa69e49538d50ec79202b1b52e",
+            "title": "GitHub Commit"
+          },
+          {
+            "url": "https://github.com/PyCQA/pylint/issues/3811",
+            "title": "GitHub Issue"
+          },
+          {
+            "url": "https://github.com/PyCQA/pylint/pull/3816",
+            "title": "GitHub PR 1"
+          },
+          {
+            "url": "https://github.com/PyCQA/pylint/pull/3828",
+            "title": "GitHub PR 2"
+          }
+        ],
+        "cvssDetails": [],
+        "description": "## Overview\n[pylint](https://github.com/PyCQA/pylint) is a Python static code analysis tool which looks for programming errors, helps enforcing a coding standard, sniffs for code smells and offers simple refactoring suggestions.\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS). A regular expression denial of service issue exists in `pyreverse`. The ambiguities of vulnerable regular expressions are removed, making the repaired regular expressions safer and faster matching.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `pylint` to version 2.6.1 or higher.\n## References\n- [GitHub Commit](https://github.com/PyCQA/pylint/commit/5405dd5115d598fa69e49538d50ec79202b1b52e)\n- [GitHub Issue](https://github.com/PyCQA/pylint/issues/3811)\n- [GitHub PR 1](https://github.com/PyCQA/pylint/pull/3816)\n- [GitHub PR 2](https://github.com/PyCQA/pylint/pull/3828)\n",
+        "epssDetails": null,
+        "identifiers": {
+          "CVE": [],
+          "CWE": ["CWE-400"]
+        },
+        "packageName": "pylint",
+        "proprietary": false,
+        "creationTime": "2020-09-07T11:58:25.375388Z",
+        "functions_new": [],
+        "alternativeIds": [],
+        "disclosureTime": "2020-09-07T11:55:06Z",
+        "packageManager": "pip",
+        "publicationTime": "2020-09-11T14:06:02Z",
+        "modificationTime": "2021-02-17T12:37:31.052056Z",
+        "socialTrendAlert": false,
+        "severityWithCritical": "high"
+      },
+      "snyk:lic:pip:isort:MIT": {
+        "id": "snyk:lic:pip:isort:MIT",
+        "type": "license",
+        "title": "MIT license",
+        "semver": {
+          "vulnerable": ["[1.0.1,)"]
+        },
+        "license": "MIT",
+        "language": "python",
+        "description": "MIT license",
+        "packageName": "isort",
+        "creationTime": "2023-06-14T20:28:08.363Z",
+        "packageManager": "pip",
+        "publicationTime": "2023-06-14T20:28:08.363Z",
+        "severity": "high",
+        "severityWithCritical": "high"
+      },
+      "snyk:lic:pip:mccabe:MIT": {
+        "id": "snyk:lic:pip:mccabe:MIT",
+        "type": "license",
+        "title": "MIT license",
+        "semver": {
+          "vulnerable": ["[0,)"]
+        },
+        "license": "MIT",
+        "language": "python",
+        "description": "MIT license",
+        "packageName": "mccabe",
+        "creationTime": "2023-06-14T22:21:05.042Z",
+        "packageManager": "pip",
+        "publicationTime": "2023-06-14T22:21:05.042Z",
+        "severity": "high",
+        "severityWithCritical": "high"
+      },
+      "snyk:lic:pip:toml:MIT": {
+        "id": "snyk:lic:pip:toml:MIT",
+        "type": "license",
+        "title": "MIT license",
+        "semver": {
+          "vulnerable": ["[0,)"]
+        },
+        "license": "MIT",
+        "language": "python",
+        "description": "MIT license",
+        "packageName": "toml",
+        "creationTime": "2023-06-15T08:33:31.008Z",
+        "packageManager": "pip",
+        "publicationTime": "2023-06-15T08:33:31.008Z",
+        "severity": "high",
+        "severityWithCritical": "high"
+      }
+    },
+    "remediation": {
+      "unresolved": [
+        {
+          "id": "SNYK-PYTHON-PYLINT-1089548",
+          "title": "Regular Expression Denial of Service (ReDoS)",
+          "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+          "credit": ["Yeting Li"],
+          "semver": {
+            "vulnerable": ["[,2.7.0)"]
+          },
+          "exploit": "Not Defined",
+          "fixedIn": ["2.7.0"],
+          "patches": [],
+          "insights": {
+            "triageAdvice": null
+          },
+          "language": "python",
+          "severity": "medium",
+          "cvssScore": 5.3,
+          "functions": [],
+          "malicious": false,
+          "isDisputed": false,
+          "moduleName": "pylint",
+          "references": [
+            {
+              "url": "https://github.com/PyCQA/pylint/commit/5405dd5115d598fa69e49538d50ec79202b1b52e",
+              "title": "GitHub Commit"
+            },
+            {
+              "url": "https://github.com/PyCQA/pylint/issues/3811",
+              "title": "GitHub Issue"
+            },
+            {
+              "url": "https://github.com/PyCQA/pylint/releases/tag/pylint-2.7.0",
+              "title": "GitHub Release"
+            }
+          ],
+          "cvssDetails": [],
+          "description": "## Overview\n[pylint](https://github.com/PyCQA/pylint) is a Python static code analysis tool which looks for programming errors, helps enforcing a coding standard, sniffs for code smells and offers simple refactoring suggestions.\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) via the `SPECIAL` and `PRIVATE` attributes in `pylint/pylint/pyreverse/utils.py`. The ReDoS is mainly due to the pattern `[^\\W_]+\\w*`, and can be exploited with an input string such as `\"__\"+\"1\"*5000 + \"!\"`.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `pylint` to version 2.7.0 or higher.\n## References\n- [GitHub Commit](https://github.com/PyCQA/pylint/commit/5405dd5115d598fa69e49538d50ec79202b1b52e)\n- [GitHub Issue](https://github.com/PyCQA/pylint/issues/3811)\n- [GitHub Release](https://github.com/PyCQA/pylint/releases/tag/pylint-2.7.0)\n",
+          "epssDetails": null,
+          "identifiers": {
+            "CVE": [],
+            "CWE": ["CWE-400"]
+          },
+          "packageName": "pylint",
+          "proprietary": false,
+          "creationTime": "2021-03-29T16:03:09.945565Z",
+          "functions_new": [],
+          "alternativeIds": [],
+          "disclosureTime": "2021-03-29T16:00:18Z",
+          "packageManager": "pip",
+          "publicationTime": "2021-03-30T14:57:05.188672Z",
+          "modificationTime": "2021-03-30T14:57:05.190970Z",
+          "socialTrendAlert": false,
+          "packagePopularityRank": 99,
+          "from": ["snyk-fix-pyenv@0.0.0", "pylint@2.6.0"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "isRuntime": false,
+          "name": "pylint",
+          "version": "2.6.0",
+          "severityWithCritical": "medium"
+        },
+        {
+          "id": "SNYK-PYTHON-PYLINT-609883",
+          "title": "Regular Expression Denial of Service (ReDoS)",
+          "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H/E:U/RL:U/RC:C",
+          "credit": ["Yeting Li"],
+          "semver": {
+            "vulnerable": ["[0,2.6.1)"]
+          },
+          "exploit": "Unproven",
+          "fixedIn": ["2.6.1"],
+          "patches": [],
+          "insights": {
+            "triageAdvice": null
+          },
+          "language": "python",
+          "severity": "high",
+          "cvssScore": 8.1,
+          "functions": [],
+          "malicious": false,
+          "isDisputed": false,
+          "moduleName": "pylint",
+          "references": [
+            {
+              "url": "https://github.com/PyCQA/pylint/commit/5405dd5115d598fa69e49538d50ec79202b1b52e",
+              "title": "GitHub Commit"
+            },
+            {
+              "url": "https://github.com/PyCQA/pylint/issues/3811",
+              "title": "GitHub Issue"
+            },
+            {
+              "url": "https://github.com/PyCQA/pylint/pull/3816",
+              "title": "GitHub PR 1"
+            },
+            {
+              "url": "https://github.com/PyCQA/pylint/pull/3828",
+              "title": "GitHub PR 2"
+            }
+          ],
+          "cvssDetails": [],
+          "description": "## Overview\n[pylint](https://github.com/PyCQA/pylint) is a Python static code analysis tool which looks for programming errors, helps enforcing a coding standard, sniffs for code smells and offers simple refactoring suggestions.\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS). A regular expression denial of service issue exists in `pyreverse`. The ambiguities of vulnerable regular expressions are removed, making the repaired regular expressions safer and faster matching.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `pylint` to version 2.6.1 or higher.\n## References\n- [GitHub Commit](https://github.com/PyCQA/pylint/commit/5405dd5115d598fa69e49538d50ec79202b1b52e)\n- [GitHub Issue](https://github.com/PyCQA/pylint/issues/3811)\n- [GitHub PR 1](https://github.com/PyCQA/pylint/pull/3816)\n- [GitHub PR 2](https://github.com/PyCQA/pylint/pull/3828)\n",
+          "epssDetails": null,
+          "identifiers": {
+            "CVE": [],
+            "CWE": ["CWE-400"]
+          },
+          "packageName": "pylint",
+          "proprietary": false,
+          "creationTime": "2020-09-07T11:58:25.375388Z",
+          "functions_new": [],
+          "alternativeIds": [],
+          "disclosureTime": "2020-09-07T11:55:06Z",
+          "packageManager": "pip",
+          "publicationTime": "2020-09-11T14:06:02Z",
+          "modificationTime": "2021-02-17T12:37:31.052056Z",
+          "socialTrendAlert": false,
+          "packagePopularityRank": 99,
+          "from": ["snyk-fix-pyenv@0.0.0", "pylint@2.6.0"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "isRuntime": false,
+          "name": "pylint",
+          "version": "2.6.0",
+          "severityWithCritical": "high"
+        },
+        {
+          "id": "snyk:lic:pip:isort:MIT",
+          "type": "license",
+          "title": "MIT license",
+          "semver": {
+            "vulnerable": ["[1.0.1,)"]
+          },
+          "license": "MIT",
+          "language": "python",
+          "description": "MIT license",
+          "packageName": "isort",
+          "creationTime": "2023-06-14T20:28:08.363Z",
+          "packageManager": "pip",
+          "publicationTime": "2023-06-14T20:28:08.363Z",
+          "severity": "high",
+          "from": ["snyk-fix-pyenv@0.0.0", "pylint@2.6.0", "isort@5.12.0"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": false,
+          "isRuntime": false,
+          "name": "isort",
+          "version": "5.12.0",
+          "severityWithCritical": "high"
+        },
+        {
+          "id": "snyk:lic:pip:mccabe:MIT",
+          "type": "license",
+          "title": "MIT license",
+          "semver": {
+            "vulnerable": ["[0,)"]
+          },
+          "license": "MIT",
+          "language": "python",
+          "description": "MIT license",
+          "packageName": "mccabe",
+          "creationTime": "2023-06-14T22:21:05.042Z",
+          "packageManager": "pip",
+          "publicationTime": "2023-06-14T22:21:05.042Z",
+          "severity": "high",
+          "from": ["snyk-fix-pyenv@0.0.0", "pylint@2.6.0", "mccabe@0.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": false,
+          "isRuntime": false,
+          "name": "mccabe",
+          "version": "0.6.1",
+          "severityWithCritical": "high"
+        },
+        {
+          "id": "snyk:lic:pip:toml:MIT",
+          "type": "license",
+          "title": "MIT license",
+          "semver": {
+            "vulnerable": ["[0,)"]
+          },
+          "license": "MIT",
+          "language": "python",
+          "description": "MIT license",
+          "packageName": "toml",
+          "creationTime": "2023-06-15T08:33:31.008Z",
+          "packageManager": "pip",
+          "publicationTime": "2023-06-15T08:33:31.008Z",
+          "severity": "high",
+          "from": ["snyk-fix-pyenv@0.0.0", "pylint@2.6.0", "toml@0.10.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": false,
+          "isRuntime": false,
+          "name": "toml",
+          "version": "0.10.1",
+          "severityWithCritical": "high"
+        }
+      ],
+      "upgrade": {},
+      "patch": {},
+      "ignore": {},
+      "pin": {
+        "pylint@2.6.0": {
+          "upgradeTo": "pylint@2.7.0",
+          "vulns": ["SNYK-PYTHON-PYLINT-1089548", "SNYK-PYTHON-PYLINT-609883"],
+          "isTransitive": false
+        }
+      }
+    }
+  },
+  "meta": {
+    "isPrivate": true,
+    "isLicensesEnabled": true,
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.25.1\nignore: {}\npatch: {}\n",
+    "ignoreSettings": {
+      "adminOnly": false,
+      "reasonRequired": false,
+      "disregardFilesystemIgnores": false
+    },
+    "org": "aron.carroll-ac3",
+    "licensesPolicy": {
+      "severities": {},
+      "orgLicenseRules": {
+        "AAL": {
+          "licenseType": "AAL",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "AFL-1.1": {
+          "licenseType": "AFL-1.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MIT": {
+          "licenseType": "MIT",
+          "severity": "high",
+          "instructions": ""
+        },
+        "Apache-1.0": {
+          "licenseType": "Apache-1.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "Apache-1.1": {
+          "licenseType": "Apache-1.1",
+          "severity": "high",
+          "instructions": ""
+        },
+        "Apache-2.0": {
+          "licenseType": "Apache-2.0",
+          "severity": "high",
+          "instructions": ""
+        }
+      }
+    }
+  },
+  "alerts": [],
+  "filesystemPolicy": false
+}

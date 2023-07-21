@@ -25,7 +25,8 @@ jobs:
           if [[ $(git -C ./cli status --porcelain) ]]; then
             echo "Documentation changes detected"
             cd ./cli
-            npx prettier --write ./help/cli-commands
+            npm clean-install
+            npx prettier --write ./help/cli-commands/*.md
             git --no-pager diff --name-only
             git add .
             git commit -m "docs: synchronizing help from snyk/user-docs"

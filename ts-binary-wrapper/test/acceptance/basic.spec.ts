@@ -8,7 +8,7 @@ jest.setTimeout(60 * 1000);
 
 describe('Basic acceptance test', () => {
   const envSetup = new TestEnvironmentSetup();
-  const cliVersionForTesting = '1.1080.0';
+  const cliVersionForTesting = '1.1143.0';
 
   beforeEach(async () => {
     process.env.SNYK_DISABLE_ANALYTICS = '1';
@@ -42,8 +42,16 @@ describe('Basic acceptance test', () => {
       'node ' + bootstrapScript + ' exec',
       { shell: true },
     );
-    console.debug(resultBootstrap.stdout.toString());
-    console.error(resultBootstrap.stderr.toString());
+
+    if (resultBootstrap.status != 0) {
+      console.debug(resultBootstrap.stdout.toString());
+      console.error(resultBootstrap.stderr.toString());
+    }
+
+    // The binary wrapper should not output anything to stdout
+    // as it will conflict with stdout from the CLI leading to incidents
+    expect(resultBootstrap.stdout.toString()).toEqual('');
+
     expect(resultBootstrap.status).toEqual(0);
     expect(fs.existsSync(executable)).toBeTruthy();
 
@@ -59,10 +67,7 @@ describe('Basic acceptance test', () => {
 
     expect(resultIndex.status).toEqual(0);
     expect(
-      resultIndex.stdout
-        .toString()
-        .trim()
-        .startsWith(cliVersionForTesting),
+      resultIndex.stdout.toString().includes(cliVersionForTesting),
     ).toBeTruthy();
 
     fs.unlinkSync(executable);
@@ -97,12 +102,14 @@ describe('Basic acceptance test', () => {
 
     expect(fs.existsSync(executable)).toBeTruthy();
     expect(resultIndex.status).toEqual(0);
+    // The binary wrapper should not output anything to stdout
+    // Assert the only stdout is from the CLI --version flag
     expect(
       resultIndex.stdout
         .toString()
-        .trim()
-        .startsWith(cliVersionForTesting),
-    ).toBeTruthy();
+        .split(' ')[0]
+        .trim(),
+    ).toEqual(cliVersionForTesting);
 
     fs.unlinkSync(executable);
   });
@@ -203,8 +210,11 @@ describe('Basic acceptance test', () => {
       'node ' + bootstrapScript + ' exec',
       { shell: true, env: { ...process.env } },
     );
-    console.debug(resultBootstrap.stdout.toString());
-    console.error(resultBootstrap.stderr.toString());
+
+    if (resultBootstrap.status != 0) {
+      console.debug(resultBootstrap.stdout.toString());
+      console.error(resultBootstrap.stderr.toString());
+    }
 
     const expectedErrorMessage = 'ECONNREFUSED';
     const expectedError = resultBootstrap.stderr
