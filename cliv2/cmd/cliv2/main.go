@@ -99,6 +99,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
 	if !ok {
 		alternativeBearerKeys := config.GetAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN)
+		alternativeBearerKeys = append(alternativeBearerKeys, configuration.AUTHENTICATION_BEARER_TOKEN)
 		for _, key := range alternativeBearerKeys {
 			hasPrefix := strings.HasPrefix(key, "snyk_")
 			if hasPrefix {
