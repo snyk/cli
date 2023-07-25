@@ -90,7 +90,7 @@ func main() {
 // Initialize the given configuration with CLI specific aspects
 func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.AUTHENTICATION_TOKEN, []string{"snyk_cfg_api", "api"})
-	config.AddAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN, []string{"snyk_oauth_token", "snyk_docker_token"})
+	config.AddAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN, []string{"snyk_docker_token"})
 	config.AddAlternativeKeys(configuration.API_URL, []string{"endpoint"})
 	config.AddAlternativeKeys(configuration.ADD_TRUSTED_CA_FILE, []string{"NODE_EXTRA_CA_CERTS"})
 	config.AddAlternativeKeys(configuration.ANALYTICS_DISABLED, []string{"snyk_analytics_disabled", "snyk_cfg_disable_analytics", "disable-analytics", "disable_analytics"})
@@ -99,6 +99,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
 	if !ok {
 		alternativeBearerKeys := config.GetAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN)
+		alternativeBearerKeys = append(alternativeBearerKeys, configuration.AUTHENTICATION_BEARER_TOKEN)
 		for _, key := range alternativeBearerKeys {
 			hasPrefix := strings.HasPrefix(key, "snyk_")
 			if hasPrefix {
