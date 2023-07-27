@@ -222,16 +222,6 @@ Example:
 
 `$ snyk iac test --snyk-cloud-environment=0d19dc1a-c2aa-4719-89ee-5f281dd92a20`
 
-### `--cloud-context=<ENVIRONMENT>`
-
-Scan your cloud environment and use the result to suppress issues. For information on how to authenticate with your cloud provider, see [Adding cloud context to your IaC test](https://docs.snyk.io/scan-cloud-deployment/snyk-infrastructure-as-code/integrated-infrastructure-as-code/adding-cloud-context-to-your-iac-test)
-
-This option is only supported for Integrated IaC (Limited Availability).
-
-Example:
-
-`$ snyk iac test --cloud-context=aws`
-
 ## Examples for snyk iac test command
 
 For more information see [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/scan-cloud-deployment/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
