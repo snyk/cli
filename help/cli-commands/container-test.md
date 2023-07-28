@@ -79,11 +79,11 @@ Example: `$ snyk container test --json-file-output=vuln.json`
 
 ### `--sarif`
 
-Return results in SARIF format. Note this requires the test to be run with `--file` as well.
+Return results in SARIF format.&#x20;
 
 ### `--sarif-file-output=<OUTPUT_FILE_PATH>`
 
-Save test output in SARIF format directly to the `<OUTPUT_FILE_PATH>` file, regardless of whether or not you use the `--sarif` option. Note this requires the test to be run with `--file` as well.
+Save test output in SARIF format directly to the `<OUTPUT_FILE_PATH>` file, regardless of whether or not you use the `--sarif` option.&#x20;
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 

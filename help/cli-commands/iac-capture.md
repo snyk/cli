@@ -46,7 +46,7 @@ For more information see the article [How to select the organization to use in t
 Generate the mapping artifact from Terraform state in the standard input instead of looking for state files in the `PATH`.
 
 ```
-$ terraform pull | snyk iac capture --stdin
+$ terraform state pull | snyk iac capture --stdin
 ```
 
 ### `PATH`
@@ -80,5 +80,5 @@ $ snyk iac capture /path/to/state.tfstate
 ### Capture from states pulled with Terraform in the standard input
 
 ```
-$ terraform pull | snyk iac capture --stdin
+$ terraform state pull | snyk iac capture --stdin
 ```

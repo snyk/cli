@@ -24,7 +24,7 @@ Use the `-d` option to output the debug logs.
 
 ### `--delete`
 
-Delete a bundle from an organization, responding to the prompts to specify `bundle id` and `organization id`.
+Delete a previously-pushed bundle from an Organization. The Organization can be manually overridden by using the `--org` flag.
 
 ## Examples for snyk iac rules push command
 
