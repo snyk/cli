@@ -16,8 +16,8 @@ export type FormattedOutputResultsBySeverity = {
 
 export type FormattedOutputResult = {
   issue: Issue;
-  targetFile: string;
   projectType: IacProjectType | State.InputTypeEnum;
+  targetFile?: string;
 };
 
 export interface IacTestCounts {
