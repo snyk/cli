@@ -4,6 +4,7 @@ import {
   createProjectFromWorkspace,
 } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { isCLIV2 } from '../util/isCLIV2';
 
 jest.setTimeout(1000 * 30);
 
@@ -51,8 +52,10 @@ describe('analytics module', () => {
       return value.url == '/api/v1/analytics/cli';
     });
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    requests.pop();
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      requests.pop();
+    }
 
     const lastRequest = requests.pop();
 
@@ -126,8 +129,10 @@ describe('analytics module', () => {
       return value.url == '/api/v1/analytics/cli';
     });
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    requests.pop();
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      requests.pop();
+    }
 
     const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
@@ -204,8 +209,10 @@ describe('analytics module', () => {
       return value.url == '/api/v1/analytics/cli';
     });
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    requests.pop();
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      requests.pop();
+    }
 
     const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
@@ -280,8 +287,10 @@ describe('analytics module', () => {
       return value.url.includes('/api/v1/analytics/cli');
     });
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    requests.pop();
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      requests.pop();
+    }
 
     const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
@@ -349,8 +358,10 @@ describe('analytics module', () => {
       return value.url == '/api/v1/analytics/cli';
     });
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    requests.pop();
+    if (isCLIV2()) {
+      // in this case an extra analytics event is being sent, which needs to be dropped
+      requests.pop();
+    }
 
     const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({

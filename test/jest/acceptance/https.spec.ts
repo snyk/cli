@@ -3,6 +3,7 @@ import { fakeServer, FakeServer } from '../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../util/createProject';
 import { getFixturePath } from '../util/getFixturePath';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { isCLIV2 } from '../util/isCLIV2';
 import * as os from 'os';
 
 jest.setTimeout(1000 * 30);
@@ -71,7 +72,11 @@ describe('https', () => {
         env,
       });
 
-      expect(stdout).toContain('socket hang up');
+      expect(stdout).toContain(
+        isCLIV2()
+          ? 'socket hang up' // cliv2's proxy will drop the connection, but its debug logs will say why.
+          : 'certificate has expired',
+      );
       expect(code).toBe(2);
     });
 
