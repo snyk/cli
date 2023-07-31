@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"strings"
 )
 
 func ComputeSHA256(filePath string, debugLogger *log.Logger) (string, error) {
@@ -32,5 +31,5 @@ func ValidateFile(filePath string, expectedSHA256 string, debugLogger *log.Logge
 	debugLogger.Println("  expected: ", expectedSHA256)
 	debugLogger.Println("  actual:   ", hashStr)
 
-	return strings.ToLower(strings.TrimSpace(hashStr)) == strings.ToLower(strings.TrimSpace(expectedSHA256)), nil
+	return hashStr == expectedSHA256, nil
 }

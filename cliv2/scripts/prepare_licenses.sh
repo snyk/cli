@@ -1,11 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
-BASEDIR=$(dirname "$0")
-PYTHON_VERSION=""
 
-if python3 -c 'print("python3")' > /dev/null 2>&1; then
-    PYTHON_VERSION="3"
-fi
+function manualLicenseDownload
+{
+    mkdir -p "./internal/embedded/_data/licenses/$2"
+    curl -L --progress-bar --fail "$1" > "./internal/embedded/_data/licenses/$2/LICENSE"
+}
 
-PIP_BREAK_SYSTEM_PACKAGES=1 pip$PYTHON_VERSION install requests
-python$PYTHON_VERSION $BASEDIR/prepare_licenses.py
+# try to find all licenses via the go.mod file
+export GOBIN=$(pwd)/_cache
+go install github.com/google/go-licenses@latest
+PATH="$PATH:$GOBIN" go-licenses save ./... --save_path=./internal/embedded/_data/licenses --force --ignore github.com/snyk/cli/cliv2/
+
+manualLicenseDownload "https://raw.githubusercontent.com/davecgh/go-spew/master/LICENSE" github.com/davecgh/go-spew
+manualLicenseDownload "https://raw.githubusercontent.com/alexbrainman/sspi/master/LICENSE" github.com/alexbrainman/sspi
+manualLicenseDownload "https://raw.githubusercontent.com/pmezard/go-difflib/master/LICENSE" github.com/pmezard/go-difflib
+manualLicenseDownload "https://go.dev/LICENSE?m=text" go.dev
+
+# clean up and print result
+pushd . > /dev/null
+cd ./internal/embedded/_data/licenses
+find . -type f -name '*.*' -delete
+find . -type f -name '*' -exec echo "    {}" \;
+popd > /dev/null
