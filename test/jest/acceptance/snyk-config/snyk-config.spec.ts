@@ -1,7 +1,6 @@
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../../util/createProject';
-import { isCLIV2 } from '../../util/isCLIV2';
 
 jest.setTimeout(1000 * 60);
 
@@ -82,21 +81,19 @@ describe('snyk config set endpoint', () => {
     const requestCount1 = server.getRequests().length;
     expect(requestCount1).toBeGreaterThan(requestCount0);
 
-    if (isCLIV2()) {
-      // generate an sbom against the endpoint
-      const resultSBOM = await runSnykCLI(
-        `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
-        {
-          env: env,
-        },
-      );
-      expect(resultSBOM.code).toEqual(0);
-      expect(resultSBOM.stderr).toContain(endpoint);
-      expect(resultSBOM.stderr).not.toContain('snyk.io');
+    // generate an sbom against the endpoint
+    const resultSBOM = await runSnykCLI(
+      `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
+      {
+        env: env,
+      },
+    );
+    expect(resultSBOM.code).toEqual(0);
+    expect(resultSBOM.stderr).toContain(endpoint);
+    expect(resultSBOM.stderr).not.toContain('snyk.io');
 
-      const requestCount2 = server.getRequests().length;
-      expect(requestCount2).toBeGreaterThan(requestCount1);
-    }
+    const requestCount2 = server.getRequests().length;
+    expect(requestCount2).toBeGreaterThan(requestCount1);
 
     await runSnykCLI('config unset endpoint');
   });

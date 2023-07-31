@@ -80,15 +80,33 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     });
 
     console.debug('Using: ' + pythonCommand);
-
-    const pipResult = await runCommand(
+    let pipResult = await runCommand(
       pythonCommand,
-      ['-m', 'pip', 'install', '-r', 'requirements.txt'],
+      [
+        '-m',
+        'pip',
+        'install',
+        '-r',
+        'requirements.txt',
+        '--break-system-packages',
+      ],
       {
         shell: true,
         cwd: project.path(),
       },
     );
+
+    if (pipResult && pipResult.code != 0) {
+      pipResult = await runCommand(
+        pythonCommand,
+        ['-m', 'pip', 'install', '-r', 'requirements.txt'],
+        {
+          shell: true,
+          cwd: project.path(),
+        },
+      );
+    }
+
     expect(pipResult.code).toEqual(0);
 
     const { code } = await runSnykCLI('test -d --command=' + pythonCommand, {
@@ -102,10 +120,16 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   test('run `snyk test` on a gradle project', async () => {
     const project = await createProjectFromWorkspace('gradle-app');
 
-    const { code } = await runSnykCLI('test -d', {
+    const { code, stderr, stdout } = await runSnykCLI('test -d', {
       cwd: project.path(),
       env,
     });
+
+    if (code != 0) {
+      console.debug(stderr);
+      console.debug('---------------------------');
+      console.debug(stdout);
+    }
 
     expect(code).toEqual(0);
   });
