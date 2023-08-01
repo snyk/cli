@@ -41,8 +41,8 @@ export function getIacDisplayedIssues(
       const issuesOutput = severityResults
         .sort(
           (severityResult1, severityResult2) =>
-            severityResult1.targetFile.localeCompare(
-              severityResult2.targetFile,
+            severityResult1.targetFile?.localeCompare(
+              severityResult2.targetFile as string,
             ) ||
             severityResult1.issue.id.localeCompare(severityResult2.issue.id),
         )
