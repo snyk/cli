@@ -47,6 +47,9 @@ security import "$APPLE_SIGNING_SECRETS" -P "$APPLE_SIGNING_SECRETS_PASSWORD" -k
 rm $APPLE_SIGNING_SECRETS
 security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
 
+# wait for security commands to finish before running codesign
+sleep 5
+
 echo "$LOG_PREFIX Signing binary $APP_PATH"
 codesign -s "$APPLE_SIGNING_IDENTITY" -v "$APP_PATH" --timestamp --options runtime 
 
@@ -78,3 +81,4 @@ xcrun notarytool submit "$ZIP_PATH" --keychain-profile "$KEYCHAIN_PROFILE" --wai
 echo "$LOG_PREFIX Cleaning up"
 security list-keychains -s "$OLD_KEYCHAIN_NAMES"
 security delete-keychain "$KEYCHAIN_NAME"
+rm "$ZIP_PATH"
