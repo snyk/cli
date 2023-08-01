@@ -27,6 +27,46 @@ executors:
       image: ubuntu-2204:2023.02.1
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
+  linux-base-edge-amd64:
+    docker:
+      - image: cimg/base:edge
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: small
+  linux-base-202004-amd64:
+    docker:
+      - image: cimg/base:current-20.04
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: small
+  linux-base-202204-amd64:
+    docker:
+      - image: cimg/base:current-22.04
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: small
+  linux-ubuntu-latest-amd64:
+    docker:
+      - image: ubuntu:latest
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: small
+  linux-ubuntu-latest-arm64:
+    docker:
+      - image: ubuntu:latest
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.medium
+  linux-base-edge-arm64:
+    docker:
+      - image: cimg/base:edge
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.medium
+  linux-base-202004-arm64:
+    docker:
+      - image: cimg/base:current-20.04
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.medium
+  linux-base-202204-arm64:
+    docker:
+      - image: cimg/base:current-22.04
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.medium
   macos-amd64:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
@@ -109,6 +149,10 @@ commands:
           when: on_fail
 
   prepare-workspace:
+    parameters:
+      executor:
+        type: string
+        default: linux-base-edge-amd64
     steps:
       - checkout
       - attach_workspace:
@@ -345,9 +389,17 @@ workflows:
 
       - test-release:
           name: e2e tests (<< matrix.executor >>)
+          context: team_hammerhead-cli
           matrix:
             parameters:
-              executor: ['docker-amd64', 'win/server-2019', 'macos-amd64']
+              executor:
+                - 'docker-amd64'
+                - 'win/server-2019'
+                - 'macos-amd64'
+          #                - 'linux-base-edge-amd64'
+          #                - 'linux-base-202004-amd64'
+          #                - 'linux-base-202204-amd64'
+          #                - 'linux-ubuntu-latest-amd64'
           requires:
             - upload version
           filters:
@@ -719,12 +771,46 @@ jobs:
     parameters:
       executor:
         type: string
+    #      cli_version:
+    #        type: string
+    #        default: mkdir -p binary-releases && echo '1.1187.0' > binary-releases/version && echo $(cat binary-releases/version)
     executor: << parameters.executor >>
     steps:
       - prepare-workspace
-      - run:
-          name: Validating NPM artifacts
-          command: bash ./release-scripts/validate-npm-artifacts.sh
+      - when:
+          condition:
+            matches:
+              pattern: '^macos.*'
+              value: << parameters.executor >>
+          steps:
+            - run: brew install coreutils curl
+      - when:
+          condition:
+            matches:
+              pattern: '^linux-ubuntu.*'
+              value: << parameters.executor >>
+          steps:
+            - run: apt update && apt install -y sudo curl
+      #      - when:
+      #          condition:
+      #            matches:
+      #              pattern: '^[linux|docker].*'
+      #              value: << parameters.executor >>
+      #          steps:
+      #            - snyk/scan:
+      #                command: version
+      #                token-variable: TEST_SNYK_TOKEN
+      #                monitor-on-build: false
+      #                cli-version: eval $(<< parameters.cli_version >>)
+      - when:
+          condition:
+            matches:
+              pattern: '^[docker|win|macos].*'
+              value: << parameters.executor >>
+          steps:
+            - run:
+                name: Validating NPM artifacts
+                command: bash ./release-scripts/validate-npm-artifacts.sh
       - failed-release-notification
 
   release-s3:

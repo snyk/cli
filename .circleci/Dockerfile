@@ -1,4 +1,4 @@
-FROM --platform=$TARGETPLATFORM golang:1.20
+FROM --platform=$TARGETPLATFORM golang:1.20-bullseye
 
 # install "normal" stuff
 
@@ -29,7 +29,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     jq \
     faketime \
     zip \
-    nodejs=$(apt-cache policy nodejs|grep nodesource|xargs|cut -d " " -f1)
+    nodejs=$(apt-cache policy nodejs | grep nodesource | xargs | cut -d " " -f2)
 RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
 
 # install aws cli
