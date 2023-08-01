@@ -166,6 +166,28 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
+  test('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic', async () => {
+    const prerequisite = await runCommand('dotnet', ['--version']).catch(
+      function() {
+        return { code: 1, stderr: '', stdout: '' };
+      },
+    );
+
+    if (prerequisite.code !== 0 && !dontSkip) {
+      return;
+    }
+
+    const project = await createProjectFromWorkspace('nuget-app-6');
+
+    const all = await runSnykCLI('test -d --dotnet-runtime-resolution', {
+      cwd: project.path(),
+    });
+
+    console.log('all:', JSON.stringify(all));
+
+    expect(all.code).toEqual(0);
+  });
+
   test('run `snyk test` on an unmanaged project', async () => {
     const project = await createProjectFromWorkspace('unmanaged');
 
