@@ -145,7 +145,7 @@ commands:
     steps:
       - run:
           name: Handling failed release
-          command: bash ./release-scripts/handle-failed-release.sh
+          command: bash echo "huhu" #TODO ./release-scripts/handle-failed-release.sh
           when: on_fail
 
   prepare-workspace:
@@ -391,6 +391,22 @@ workflows:
       #              only:
       #                - master
 
+      - npm-validation:
+          name: Validate NPM artifacts
+          context: team_hammerhead-cli
+          matrix:
+            parameters:
+              executor:
+                - 'docker-amd64'
+                - 'win/server-2019'
+                - 'macos-amd64'
+          requires:
+            - upload version
+      #          filters:
+      #            branches:
+      #              only:
+      #                - master
+
       - test-release:
           name: e2e tests (<< matrix.executor >>)
           context: team_hammerhead-cli
@@ -411,11 +427,12 @@ workflows:
                 - 'linux-ubuntu-focal-arm64'
                 - 'alpine'
           requires:
-            - upload version
+            - Validate NPM artifacts
       #          filters:
       #            branches:
       #              only:
       #                - master
+
       - release-s3:
           name: upload latest
           context: team-hammerhead-common-deploy-tokens
@@ -778,6 +795,19 @@ jobs:
           command: make release-pre
       - failed-release-notification
 
+  npm-validation:
+    parameters:
+      executor:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - prepare-workspace
+      - run:
+          name: Validating NPM artifacts
+          command: bash ./release-scripts/validate-npm-artifacts.sh
+      - failed-release-notification
+
+
   test-release:
     parameters:
       executor:
@@ -831,16 +861,6 @@ jobs:
                 command: |
                   PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests
                   python3 scripts/install-snyk.py $(cat binary-releases/version)
-      - when:
-          condition:
-            matches:
-              pattern: '^[docker|win|macos].*'
-              value: << parameters.executor >>
-          steps:
-            - run:
-                name: Validating NPM artifacts
-                command: bash ./release-scripts/validate-npm-artifacts.sh
-      - failed-release-notification
 
   release-s3:
     executor: docker-amd64
