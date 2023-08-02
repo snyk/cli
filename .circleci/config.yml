@@ -371,11 +371,11 @@ workflows:
       #            branches:
       #              only: master
 
-      #      - should-release:
-      #          name: release?
-      #          type: approval
-      #          requires:
-      #            - create deployment artifacts
+      - should-release:
+          name: release?
+          type: approval
+          requires:
+            - create deployment artifacts
       #          filters:
       #            branches:
       #              only:
