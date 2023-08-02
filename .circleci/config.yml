@@ -834,7 +834,7 @@ jobs:
       - when:
           condition:
             matches:
-              pattern: '^[docker-amd64|win|macos].*'
+              pattern: '^[docker|win|macos].*'
               value: << parameters.executor >>
           steps:
             - run:
