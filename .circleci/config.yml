@@ -193,6 +193,9 @@ workflows:
           context: hammerhead-snyk-orb-snyk-creds
           requires:
             - prepare-build
+          filters:
+            branches:
+              ignore: master
 
       - test-code:
           context:
@@ -200,6 +203,9 @@ workflows:
             - team_hammerhead-cli
           requires:
             - prepare-build
+          filters:
+            branches:
+              ignore: master
 
       - build-special-artifacts:
           name: build fix & protect
