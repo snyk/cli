@@ -485,8 +485,9 @@ jobs:
           additional-arguments: --all-projects --exclude=test,dist
       - snyk/scan:
           command: code test
-          fail-on-issues: false
+          fail-on-issues: true
           monitor-on-build: false
+          severity-threshold: high
 
   test-code:
     executor: docker-amd64
