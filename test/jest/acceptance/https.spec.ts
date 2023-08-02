@@ -71,7 +71,7 @@ describe('https', () => {
         env,
       });
 
-      expect(stdout).toContain('socket hang up');
+      expect(stdout).toContain('certificate has expired');
       expect(code).toBe(2);
     });
 
