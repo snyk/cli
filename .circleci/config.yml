@@ -809,7 +809,6 @@ jobs:
           command: bash ./release-scripts/validate-npm-artifacts.sh
       - failed-release-notification
 
-
   test-release:
     parameters:
       executor:
