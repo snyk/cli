@@ -13,13 +13,13 @@ pushd "$SCRIPT_DIR/.."
 
   BASE_IMG_NAME=$DOCKER_USERNAME/cli-build
   docker buildx build --build-arg NODEVERSION="$NODEVERSION" --build-arg ARCH="x86_64" --platform linux/amd64 -t "$BASE_IMG_NAME":latest -f .circleci/Dockerfile .
-  docker tag "$BASE_IMG_NAME":latest "$BASE_IMG_NAME":"$NOW"
-  docker push "$BASE_IMG_NAME":latest
+  docker tag "$BASE_IMG_NAME:latest" "$BASE_IMG_NAME:$NOW"
+  docker push "$BASE_IMG_NAME:latest"
   docker push "$BASE_IMG_NAME:$NOW"
 
   BASE_IMG_NAME=$DOCKER_USERNAME/cli-build-arm64
   docker buildx build --build-arg NODEVERSION="$NODEVERSION" --build-arg ARCH="aarch64" --platform linux/arm64 -t "$BASE_IMG_NAME":latest -f .circleci/Dockerfile .
-  docker tag "$BASE_IMG_NAME":latest "$BASE_IMG_NAME":"$NOW"
-  docker push "$BASE_IMG_NAME":latest
+  docker tag "$BASE_IMG_NAME:latest" "$BASE_IMG_NAME:$NOW"
+  docker push "$BASE_IMG_NAME:latest"
   docker push "$BASE_IMG_NAME:$NOW"
 popd
