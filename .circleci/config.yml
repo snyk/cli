@@ -145,7 +145,7 @@ commands:
     steps:
       - run:
           name: Handling failed release
-          command: bash echo "huhu" #TODO ./release-scripts/handle-failed-release.sh
+          command: bash ./release-scripts/handle-failed-release.sh
           when: on_fail
 
   prepare-workspace:
