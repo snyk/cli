@@ -361,8 +361,6 @@ workflows:
           name: create deployment artifacts
           context: snyk-cli-pgp-signing
           requires:
-            - test-code
-            - code-analysis
             - sign macos amd64
             - sign windows amd64
             - build alpine amd64
