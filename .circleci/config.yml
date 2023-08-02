@@ -520,7 +520,6 @@ jobs:
 
   test-code:
     executor: docker-amd64
-    parallelism: 4
     steps:
       - prepare-workspace
       - run:
