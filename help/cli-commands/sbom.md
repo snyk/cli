@@ -103,6 +103,11 @@ Example: `$ snyk sbom --all-projects --exclude=dir1,file2`
 
 This will exclude any directories named `dir1` and `file2` when scanning for project manifest files.
 
+**Note**: `--exclude=dir1` will find both `./dir1`, and `./src/dir1`.\
+However, `--exclude=./src/dir1` will result in an error because it includes a path.
+
+**Note**: When `--all-projects` is used with Gradle, the projects are treated as sub-projects. The `--exclude` option is not supported for Gradle sub-projects.
+
 ### `[--detection-depth=<DEPTH>]`
 
 Use with `--all-projects` to indicate how many subdirectories to search. `DEPTH` must be a number, 1 or greater; zero (0) is the current directory.
