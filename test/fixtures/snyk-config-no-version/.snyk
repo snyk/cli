@@ -42,8 +42,6 @@ patch:
     - 'handlebars@4.0.3 > uglify-js@2.4.24':
         patched: '2015-11-20T16:37:39.554Z'
 exclude:
-  global:
-    
   code:
     - some/path
     - some/file
