@@ -340,9 +340,9 @@ workflows:
           go_arch: amd64
           executor: win/default
           install_deps_extension: windows-make
-      #          filters:
-      #            branches:
-      #              only: master
+          filters:
+            branches:
+              only: master
 
       - sign:
           name: sign macos amd64
@@ -353,9 +353,9 @@ workflows:
           go_arch: amd64
           executor: macos-amd64
           install_deps_extension: noop
-      #          filters:
-      #            branches:
-      #              only: master
+          filters:
+            branches:
+              only: master
 
       - create_deployment_artifacts:
           name: create deployment artifacts
@@ -367,29 +367,27 @@ workflows:
             - build linux amd64
             - build linux arm64
             - build fix & protect
-      #          filters:
-      #            branches:
-      #              only: master
+          filters:
+            branches:
+              only: master
 
       - should-release:
           name: release?
           type: approval
           requires:
             - create deployment artifacts
-      #          filters:
-      #            branches:
-      #              only:
-      #                - master
+          filters:
+            branches:
+              only: master
 
       - pre-release:
           name: upload version
           context: team-hammerhead-common-deploy-tokens
           requires:
             - release?
-      #          filters:
-      #            branches:
-      #              only:
-      #                - master
+          filters:
+            branches:
+              only: master
 
       - npm-validation:
           name: Validate NPM artifacts (<< matrix.executor >>)
@@ -402,10 +400,9 @@ workflows:
                 - 'macos-amd64'
           requires:
             - upload version
-      #          filters:
-      #            branches:
-      #              only:
-      #                - master
+          filters:
+            branches:
+              only: master
 
       - test-release:
           name: e2e tests (<< matrix.executor >>)
@@ -427,25 +424,35 @@ workflows:
                 - 'linux-ubuntu-focal-arm64'
                 - 'alpine'
           requires:
-            - Validate NPM artifacts (docker-amd64)
-            - Validate NPM artifacts (win/server-2019)
-            - Validate NPM artifacts (macos-amd64)
-      #          filters:
-      #            branches:
-      #              only:
-      #                - master
+            - upload version
+          filters:
+            branches:
+              only: master
 
       - release-s3:
           name: upload latest
           context: team-hammerhead-common-deploy-tokens
           requires:
+            - Validate NPM artifacts (docker-amd64)
+            - Validate NPM artifacts (win/server-2019)
+            - Validate NPM artifacts (macos-amd64)
             - e2e tests (docker-amd64)
+            - e2e tests (docker-arm64)
             - e2e tests (win/server-2019)
             - e2e tests (macos-amd64)
+            - e2e tests (linux-ubuntu-latest-amd64)
+            - e2e tests (linux-ubuntu-mantic-amd64)
+            - e2e tests (linux-ubuntu-jammy-amd64)
+            - e2e tests (linux-ubuntu-focal-amd64)
+            - e2e tests (linux-ubuntu-latest-arm64)
+            - e2e tests (linux-ubuntu-mantic-arm64)
+            - e2e tests (linux-ubuntu-jammy-arm64)
+            - e2e tests (linux-ubuntu-focal-arm64)
+            - e2e tests (alpine)
           filters:
             branches:
-              only:
-                - master
+              only: master
+
       - release-github:
           name: upload github
           context: team-hammerhead-common-deploy-tokens
