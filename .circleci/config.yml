@@ -813,6 +813,7 @@ jobs:
               pattern: '^win.*'
               value: << parameters.executor >>
           steps:
+            - install-deps-windows-full
             - run:
                 name: Checking Snyk CLI
                 shell: bash.exe
