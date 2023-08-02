@@ -340,9 +340,9 @@ workflows:
           go_arch: amd64
           executor: win/default
           install_deps_extension: windows-make
-          filters:
-            branches:
-              only: master
+      #          filters:
+      #            branches:
+      #              only: master
 
       - sign:
           name: sign macos amd64
@@ -353,9 +353,9 @@ workflows:
           go_arch: amd64
           executor: macos-amd64
           install_deps_extension: noop
-          filters:
-            branches:
-              only: master
+      #          filters:
+      #            branches:
+      #              only: master
 
       - create_deployment_artifacts:
           name: create deployment artifacts
@@ -367,29 +367,29 @@ workflows:
             - build linux amd64
             - build linux arm64
             - build fix & protect
-          filters:
-            branches:
-              only: master
+      #          filters:
+      #            branches:
+      #              only: master
 
-      - should-release:
-          name: release?
-          type: approval
-          requires:
-            - create deployment artifacts
-          filters:
-            branches:
-              only:
-                - master
+      #      - should-release:
+      #          name: release?
+      #          type: approval
+      #          requires:
+      #            - create deployment artifacts
+      #          filters:
+      #            branches:
+      #              only:
+      #                - master
 
       - pre-release:
           name: upload version
           context: team-hammerhead-common-deploy-tokens
           requires:
             - release?
-          filters:
-            branches:
-              only:
-                - master
+      #          filters:
+      #            branches:
+      #              only:
+      #                - master
 
       - test-release:
           name: e2e tests (<< matrix.executor >>)
@@ -412,10 +412,10 @@ workflows:
                 - 'alpine'
           requires:
             - upload version
-          filters:
-            branches:
-              only:
-                - master
+      #          filters:
+      #            branches:
+      #              only:
+      #                - master
       - release-s3:
           name: upload latest
           context: team-hammerhead-common-deploy-tokens
