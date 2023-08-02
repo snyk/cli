@@ -1,18 +1,168 @@
 version: '2.1'
 
 orbs:
-  # https://circleci.com/developer/orbs/orb/circleci/windows
-  win: circleci/windows@2.4.1
-  # https://circleci.com/developer/orbs/orb/circleci/aws-cli
-  aws-cli: circleci/aws-cli@2.0.3
-  # https://circleci.com/developer/orbs/orb/circleci/github-cli
-  gh: circleci/github-cli@2.1.0
-  # https://circleci.com/developer/orbs/orb/circleci/go
-  go: circleci/go@1.7.1
-  # https://github.com/snyk/prodsec-orb
   prodsec: snyk/prodsec-orb@1.0
+  snyk: snyk/snyk@1.7.0
+  go: circleci/go@1.7.1
+  win: circleci/windows@5.0
+  aws-cli: circleci/aws-cli@2.0.3
+  gh: circleci/github-cli@2.1.0
+
+executors:
+  alpine:
+    docker:
+      - image: alpine:3.17
+  docker-amd64:
+    docker:
+      - image: bastiandoetsch209/cli-build:20230802-090444
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: large
+  docker-arm64:
+    docker:
+      - image: bastiandoetsch209/cli-build-arm64:20230802-090444
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.large
+  linux-amd64:
+    machine:
+      image: ubuntu-2204:2023.02.1
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: large
+  linux-base-edge-amd64:
+    docker:
+      - image: cimg/base:edge
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: small
+  linux-base-202004-amd64:
+    docker:
+      - image: cimg/base:current-20.04
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: small
+  linux-base-202204-amd64:
+    docker:
+      - image: cimg/base:current-22.04
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: small
+  linux-ubuntu-latest-amd64:
+    docker:
+      - image: ubuntu:latest
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: small
+  linux-ubuntu-latest-arm64:
+    docker:
+      - image: ubuntu:latest
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.medium
+  linux-base-edge-arm64:
+    docker:
+      - image: cimg/base:edge
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.medium
+  linux-base-202004-arm64:
+    docker:
+      - image: cimg/base:current-20.04
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.medium
+  linux-base-202204-arm64:
+    docker:
+      - image: cimg/base:current-22.04
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.medium
+  macos-amd64:
+    macos:
+      # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
+      xcode: '14.3.1'
+    resource_class: macos.x86.medium.gen2
+  macos-arm64:
+    macos:
+      # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
+      xcode: '14.3.1'
+    resource_class: macos.m1.large.gen1
+
+commands:
+  install-deps-windows-full:
+    steps:
+      - restore_cache:
+          name: Restoring Chocolatey cache
+          keys:
+            - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+      - run:
+          name: Install Windows dependencies
+          shell: bash.exe
+          command: |
+            choco uninstall nodejs -y
+            choco uninstall nodejs.install -y
+            choco install .circleci/chocolatey.config --no-progress -y
+            choco install nodejs --version=$(head .nvmrc) --no-progress -y
+      - save_cache:
+          name: Saving Chocolatey cache
+          key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          paths:
+            - ~\AppData\Local\Temp\chocolatey
+
+  install-deps-windows-make:
+    steps:
+      - restore_cache:
+          name: Restoring Chocolatey cache
+          keys:
+            - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+      - run:
+          name: Install Windows dependencies
+          shell: bash.exe
+          command: |
+            choco install make --no-progress -y
+      - save_cache:
+          name: Saving Chocolatey cache
+          key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          paths:
+            - ~\AppData\Local\Temp\chocolatey
+
+  install-deps-windows-node:
+    steps:
+      - restore_cache:
+          name: Restoring Chocolatey cache
+          keys:
+            - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+      - run:
+          name: Install Windows dependencies
+          shell: bash.exe
+          command: |
+            choco uninstall nodejs -y
+            choco uninstall nodejs.install -y
+            choco install nodejs --version=$(head .nvmrc) --no-progress -y
+      - save_cache:
+          name: Saving Chocolatey cache
+          key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          paths:
+            - ~\AppData\Local\Temp\chocolatey
+
+  install-deps-noop:
+    steps:
+      - run:
+          name: No dependencies to install
+          command: echo all done!
+
+  failed-release-notification:
+    steps:
+      - run:
+          name: Handling failed release
+          command: bash ./release-scripts/handle-failed-release.sh
+          when: on_fail
+
+  prepare-workspace:
+    parameters:
+      executor:
+        type: string
+        default: linux-base-edge-amd64
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
 
 parameters:
+  go_version:
+    type: string
+    # https://go.dev/doc/devel/release
+    default: '1.20.6'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -21,153 +171,524 @@ parameters:
     type: string
     # https://github.com/cli/cli/releases
     default: '2.7.0'
-  go_version:
-    type: string
-    # https://go.dev/doc/devel/release
-    default: '1.20.5'
 
-executors:
-  alpine:
-    docker:
-      - image: alpine:3.17
-  docker-node:
-    docker:
-      - image: bastiandoetsch209/cli-build:20230613-040119
-    # Using RAM Disk. https://circleci.com/docs/2.0/executor-types/#ram-disks
-    working_directory: /mnt/ramdisk/snyk
-    resource_class: large
-  arm64:
-    machine:
-      image: ubuntu-2204:2023.02.1
-    working_directory: /mnt/ramdisk/snyk
-    resource_class: arm.large
-  linux:
-    machine:
-      image: ubuntu-2204:2023.02.1
-    working_directory: /mnt/ramdisk/snyk
-    resource_class: large
-  macos:
-    macos:
-      # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
-      xcode: '13.3.0'
-    resource_class: macos.x86.medium.gen2
+####################################################################################################
+# WORKFLOWS
+####################################################################################################
 
-commands:
-  install_sdks_windows:
-    steps:
-      - run:
-          name: Removing pre-installed NodeJS
-          command: |
-            $current_node_version = node --version
-            nvm uninstall $current_node_version
-      - restore_cache:
-          name: Restoring Chocolatey cache
-          keys:
-            - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-      - run:
-          name: Installing SDKs
-          command: choco install .circleci/chocolatey.config --no-progress
-      - save_cache:
-          name: Saving Chocolatey cache
-          key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-          paths:
-            - ~\AppData\Local\Temp\chocolatey
-  install_sdks_macos:
-    steps:
-      - run:
-          name: Installing sdks and tools
-          command: |
-            brew install go gradle python elixir composer gradle@6 maven sbt
-            python3 -m pip install pipenv --user
+workflows:
+  version: 2
+  test_and_release:
+    jobs:
+      - prodsec/secrets-scan:
+          name: secrets-scan
+          context: snyk-bot-slack
+          channel: hammerhead-alerts
 
-  install_sdks_linux:
-    steps:
-      - run:
-          name: Installing sdks and tools
-          command: |
-            sudo apt-get update
-            sudo curl -sL https://deb.nodesource.com/setup_16.x | sudo bash -
-            sudo apt-get install -y \
-            golang-go \
-            musl-tools \
-            git \
-            vim \
-            make \
-            maven \
-            gradle \
-            openjdk-11-jdk-headless \
-            openjdk-11-jre-headless \
-            python3 \
-            python3-pip \
-            python-is-python3 \
-            apt-transport-https \
-            gnupg \
-            -yqq \
-            nodejs \
-            elixir \
-            composer \
-            jq
+      - prepare-build:
+          requires:
+            - secrets-scan
 
-            pip3 install pipenv --user
-            pip3 install awscli --upgrade --user
+      - code-analysis:
+          context: hammerhead-snyk-orb-snyk-creds
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore: master
 
-            echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
-            echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
-            sudo curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import
-            sudo chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
-            sudo apt-get update
-            sudo apt-get install sbt
-  install_shellspec_dependencies:
-    steps:
-      - run:
-          name: Installing ShellSpec
-          command: |
-            ./test/smoke/install-shellspec.sh --yes
-            sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
+      - test-code:
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore: master
+
+      - build-special-artifacts:
+          name: build fix & protect
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build linux amd64
+          go_os: linux
+          go_arch: amd64
+          executor: docker-amd64
+          artifact: snyk-linux
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build linux arm64
+          go_os: linux
+          go_arch: arm64
+          executor: docker-arm64
+          artifact: snyk-linux-arm64
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build alpine amd64
+          go_os: alpine
+          go_arch: amd64
+          executor: docker-amd64
+          artifact: snyk-alpine
+          c_compiler: /usr/bin/musl-gcc
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build macOS amd64
+          go_os: darwin
+          go_arch: amd64
+          executor: macos-amd64
+          artifact: snyk-macos
+          requires:
+            - prepare-build
+
+      - build-windows-artifact:
+          context: snyk-windows-signing
+          name: build windows amd64
+          go_os: windows
+          go_arch: amd64
+          requires:
+            - prepare-build
+
+      - regression-tests:
+          name: regression-tests
+          context: nodejs-install
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - build linux amd64
+          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
+
+      - acceptance-tests-linux:
+          name: acceptance-tests linux amd64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - build linux amd64
+          executor: docker-amd64
+          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
+
+      - acceptance-tests-linux:
+          name: acceptance-tests linux arm64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - build linux arm64
+          executor: docker-arm64
+          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux-arm64
+
+      - acceptance-tests-linux:
+          name: acceptance-tests alpine amd64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - build alpine amd64
+          executor: docker-amd64
+          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-alpine
+
+      - acceptance-tests-macos:
+          name: acceptance-tests macOS amd64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - build macOS amd64
+          executor: macos-amd64
+          test_snyk_command: /Users/distiller/snyk/binary-releases/snyk-macos
+
+      - acceptance-tests-windows:
+          name: acceptance-tests windows amd64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - build windows amd64
+          test_snyk_command: binary-releases\\snyk-win.exe
+
+      - sign:
+          name: sign windows amd64
+          context: snyk-windows-signing
+          requires:
+            - build windows amd64
+          go_os: windows
+          go_arch: amd64
+          executor: win/default
+          install_deps_extension: windows-make
+          filters:
+            branches:
+              only: master
+
+      - sign:
+          name: sign macos amd64
+          context: snyk-macos-signing
+          requires:
+            - build macOS amd64
+          go_os: darwin
+          go_arch: amd64
+          executor: macos-amd64
+          install_deps_extension: noop
+          filters:
+            branches:
+              only: master
+
+      - create_deployment_artifacts:
+          name: create deployment artifacts
+          context: snyk-cli-pgp-signing
+          requires:
+            - sign macos amd64
+            - sign windows amd64
+            - build alpine amd64
+            - build linux amd64
+            - build linux arm64
+            - build fix & protect
+          filters:
+            branches:
+              only: master
+
+      - should-release:
+          name: release?
+          type: approval
+          requires:
+            - create deployment artifacts
+          filters:
+            branches:
+              only:
+                - master
+
+      - pre-release:
+          name: upload version
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - release?
+          filters:
+            branches:
+              only:
+                - master
+
+      - test-release:
+          name: e2e tests (<< matrix.executor >>)
+          context: team_hammerhead-cli
+          matrix:
+            parameters:
+              executor:
+                - 'docker-amd64'
+                - 'win/server-2019'
+                - 'macos-amd64'
+          #                - 'linux-base-edge-amd64'
+          #                - 'linux-base-202004-amd64'
+          #                - 'linux-base-202204-amd64'
+          #                - 'linux-ubuntu-latest-amd64'
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - master
+      - release-s3:
+          name: upload latest
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - e2e tests (docker-amd64)
+            - e2e tests (win/server-2019)
+            - e2e tests (macos-amd64)
+          filters:
+            branches:
+              only:
+                - master
+      - release-github:
+          name: upload github
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - upload latest
+          filters:
+            branches:
+              only:
+                - master
+      - release-npm:
+          name: upload npm
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - upload github
+          filters:
+            branches:
+              only:
+                - master
+
+####################################################################################################
+# JOBS
+####################################################################################################
+
 jobs:
-  build:
-    executor: docker-node
-
+  prepare-build:
+    executor: docker-amd64
     steps:
       - checkout
       - run:
           name: Installing dependencies
-          command: npm install
+          command: npm ci
       - run:
-          name: Linting project
-          command: npm run lint
-      - run:
-          name: Building project
-          command: |
-            make pre-build
-            npm run build:prod
-      - run:
-          name: Deciding version
+          name: Set version
           command: make binary-releases/version
-
+      - run:
+          # required for one unit test (ts-binary-wrapper/test/unit/common.spec.ts:15:30)
+          # consider removing this run
+          name: Pre-Build
+          command: make pre-build
+      - run:
+          name: Build TypeScript CLI
+          command: npm run build:prod
       - persist_to_workspace:
           root: .
           paths:
-            - dist/
-            - packages/*/dist
-            - pysrc
-            - ts-binary-wrapper/
+            - binary-releases/*
+            - node_modules/*
+            - ts-binary-wrapper/*
+            - dist/*
+            - packages/*
+
+  code-analysis:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Linting project
+          command: |
+            npm run lint
+            pushd cliv2 
+              make lint configure
+            popd
+      - snyk/scan:
+          fail-on-issues: true
+          severity-threshold: critical
+          additional-arguments: --all-projects --exclude=test,dist
+      - snyk/scan:
+          command: code test
+          fail-on-issues: true
+          monitor-on-build: false
+          severity-threshold: high
+
+  test-code:
+    executor: docker-amd64
+    parallelism: 4
+    steps:
+      - prepare-workspace
+      - run:
+          name: Configuring artifact
+          command: node ./bin/snyk config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
+      - run:
+          name: Running TS unit tests
+          command: npm run test:unit
+      - run:
+          name: Running Go unit tests
+          working_directory: ./cliv2
+          command: make configure whiteboxtest
+      - run:
+          name: Running Tap tests
+          command:
+            npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
+            $(circleci tests glob "test/tap/*.test.*" | circleci tests split --split-by=timings)
+
+  build-special-artifacts:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Building snyk-fix.tgz
+          command: make binary-releases/snyk-fix.tgz
+      - run:
+          name: Building snyk-protect.tgz
+          command: make binary-releases/snyk-protect.tgz
+      - persist_to_workspace:
+          root: .
+          paths:
+            - binary-releases/snyk-fix.tgz
+            - binary-releases/snyk-protect.tgz
+
+  build-windows-artifact:
+    parameters:
+      go_os:
+        type: string
+      go_arch:
+        type: string
+    executor:
+      name: win/default
+      size: large
+    steps:
+      - prepare-workspace
+      - install-deps-windows-full
+      - run:
+          name: Build Windows
+          shell: powershell
+          command: make build GOOS=windows GOARCH=amd64
+          environment:
+            CGO_ENABLED: 1
+      - store_artifacts:
+          path: binary-releases
+      - persist_to_workspace:
+          root: .
+          paths:
+            - binary-releases/snyk-*
             - binary-releases/version
-  regression-test:
+
+  build-artifact:
+    parameters:
+      go_os:
+        type: string
+      go_arch:
+        type: string
+      c_compiler:
+        type: string
+        default: ''
+      executor:
+        type: string
+      artifact:
+        type: string
+    executor: << parameters.executor >>
+    environment:
+      HOSTTYPE: << parameters.go_arch >>
+    steps:
+      - prepare-workspace
+      - go/install:
+          version: << pipeline.parameters.go_version >>
+      - restore_cache:
+          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+      - run:
+          name: Build << parameters.go_os >>/<< parameters.go_arch >>
+          environment:
+            CC: << parameters.c_compiler >>
+            CGO_ENABLED: 1
+          command: make build GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
+      - save_cache:
+          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
+          paths: [/home/circleci/go/pkg/mod]
+      - store_artifacts:
+          path: binary-releases
+      - persist_to_workspace:
+          root: .
+          paths:
+            - binary-releases/snyk-*
+
+  acceptance-tests-linux:
     parameters:
       test_snyk_command:
         type: string
-    executor: docker-node
-
+      executor:
+        type: string
+    executor: << parameters.executor >>
     steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - install_shellspec_dependencies
+      - prepare-workspace
+      - run:
+          name: Configuring artifact
+          command: << parameters.test_snyk_command >> config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
+      - run:
+          name: Running acceptance tests
+          command: npm run test:acceptance -- --selectProjects snyk
+          environment:
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+            TEST_SNYK_DONT_SKIP_ANYTHING: 1
+
+  acceptance-tests-macos:
+    working_directory: /Users/distiller/snyk
+    environment:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    parameters:
+      test_snyk_command:
+        type: string
+      executor:
+        type: string
+      items:
+        type: string
+        default: go gradle python elixir composer gradle@6 maven sbt
+    executor: << parameters.executor >>
+    steps:
+      - prepare-workspace
+      - restore_cache:
+          key: acceptance-tests-macos-<< parameters.items >>
+      - run:
+          name: Installing sdks and tools via homebrew
+          command: |
+            brew install << parameters.items >>
+      - save_cache:
+          key: acceptance-tests-macos-<< parameters.items >>
+          paths:
+            - ~/Library/Caches/Homebrew
+      - run:
+          name: Configuring artifact
+          command: << parameters.test_snyk_command >> config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
+      - run:
+          name: Running acceptance tests
+          command: npm run test:acceptance -- --selectProjects snyk
+          environment:
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+            TEST_SNYK_DONT_SKIP_ANYTHING: 1
+
+  acceptance-tests-windows:
+    parameters:
+      test_snyk_command:
+        type: string
+    executor:
+      name: win/default
+      size: large
+    steps:
+      - prepare-workspace
+      - install-deps-windows-full
+      - run:
+          name: Configuring artifact
+          command: << parameters.test_snyk_command >> config set "api=$env:TEST_SNYK_TOKEN" # many tests require the token to be in the config
+      - run:
+          name: Running acceptance tests
+          command: |
+            Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+            RefreshEnv
+            npm install
+            npm run test:acceptance -- --selectProjects snyk
+          environment:
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+
+  regression-tests:
+    parameters:
+      test_snyk_command:
+        type: string
+        default: /mnt/ramdisk/snyk/binary-files/snyk-linux
+    executor: docker-amd64
+    working_directory: /mnt/ramdisk/snyk
+    steps:
+      - prepare-workspace
+      - run:
+          name: Install ShellSpec Deps
+          command: |
+            ./test/smoke/install-shellspec.sh --yes
+            sudo ln -s ~/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
       - run:
           name: Installing test fixture dependencies
           working_directory: ./test/fixtures/basic-npm
-          command: npm install
+          command: npm i
       - run:
           name: Installing Snyk CLI
           command: |
@@ -180,238 +701,37 @@ jobs:
             echo "Checkout the README in test/smoke folder for more details about this step"
             unset SNYK_API
             unset SNYK_API_KEY
-            shellspec -f d -e REGRESSION_TEST=1
+            shellspec -f d -e REGRESSION_TEST=1 -e PIP_BREAK_SYSTEM_PACKAGES=1
 
-  test-windows:
+  sign:
     parameters:
-      test_snyk_command:
+      go_os:
         type: string
-    executor: win/default
-
-    working_directory: C:\Users\circleci\snyk
-    steps:
-      - run:
-          name: Configuring Git
-          command: git config --global core.autocrlf false
-      - checkout
-      - attach_workspace:
-          at: .
-      - install_sdks_windows
-      - run:
-          name: Configuring artifact
-          command: << parameters.test_snyk_command >> config set "api=$env:SNYK_API_KEY"
-      - run:
-          name: Installing dependencies
-          command: npm install
-      - run:
-          name: Testing artifact
-          command: npm run test:acceptance -- --selectProjects snyk
-          environment:
-            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-
-  test-macos:
-    parameters:
-      test_snyk_command:
+      go_arch:
         type: string
-    executor: macos
-
-    working_directory: /Users/distiller/snyk
-    environment:
-      HOMEBREW_NO_AUTO_UPDATE: 1
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - install_sdks_macos
-      - run:
-          name: Configuring artifact
-          command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
-      - run:
-          name: Installing dependencies
-          command: npm install
-      - run:
-          name: Testing artifact
-          command: npm run test:acceptance -- --selectProjects snyk
-          environment:
-            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-            TEST_SNYK_DONT_SKIP_ANYTHING: 1
-
-  test-alpine:
-    parameters:
-      test_snyk_command:
+      executor:
         type: string
-    executor: alpine
-
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Installing Node.js + other test dependencies
-          command: |
-            apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
-            pip3 install pipenv
-      - run:
-          name: Configuring artifact
-          command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
-      - run:
-          name: Installing dependencies
-          command: npm install
-      - run:
-          name: Testing artifact
-          command: npm run test:acceptance -- --selectProjects snyk
-          environment:
-            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-
-  test-linux:
-    parameters:
-      test_snyk_command:
+      install_deps_extension:
         type: string
-    executor: docker-node
-
-    working_directory: /home/circleci/snyk
+    executor: << parameters.executor >>
     steps:
-      - checkout
-      - attach_workspace:
-          at: .
+      - prepare-workspace
+      - install-deps-<< parameters.install_deps_extension >>
       - run:
-          name: Configuring artifact
-          command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
-      - run:
-          name: Installing dependencies
-          command: npm install
-      - run:
-          name: Testing artifact
-          command: npm run test:acceptance -- --selectProjects snyk
-          environment:
-            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-            TEST_SNYK_DONT_SKIP_ANYTHING: 1
-
-  test-linux-arm64:
-    parameters:
-      test_snyk_command:
-        type: string
-    executor: arm64
-
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - install_sdks_linux
-      - run:
-          name: Configuring artifact
-          command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
-      - run:
-          name: Installing dependencies
-          command: npm install
-      - run:
-          name: Testing artifact
-          command: npm run test:acceptance -- --selectProjects snyk
-          environment:
-            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-            TEST_SNYK_DONT_SKIP_ANYTHING: 1
-
-  test-jest:
-    executor: docker-node
-
-    environment:
-      TEMP: /mnt/ramdisk/tmp
-    steps:
-      - run:
-          name: Creating temporary directory
-          command: mkdir /mnt/ramdisk/tmp
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Configuring Snyk CLI
-          command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
-      - run:
-          name: Installing dependencies
-          command: npm install
-      - run:
-          name: Running unit tests
-          command: npm run test:unit
-      - run:
-          name: Running acceptance tests
-          command: npm run test:acceptance
-
-  test-tap:
-    executor: docker-node
-
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Configuring Snyk CLI
-          command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
-      - run:
-          name: Installing dependencies
-          command: npm install
-      - run:
-          name: Running Tap tests
-          command:
-            npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
-            $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
-
-  build-artifact:
-    parameters:
-      artifact:
-        type: string
-    executor: docker-node
-
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Building artifact
-          command: make binary-releases/<< parameters.artifact >>
+          name: Signing << parameters.go_os >> artifact
+          command: make sign GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
       - persist_to_workspace:
           root: .
           paths:
-            - binary-releases/<< parameters.artifact >>
-            - binary-releases/<< parameters.artifact >>.sha256
+            - binary-releases/snyk-*
 
-  prepare-release:
-    executor: docker-node
+  create_deployment_artifacts:
+    executor: docker-amd64
     steps:
-      - checkout
-      - attach_workspace:
-          at: .
+      - prepare-workspace
       - run:
-          name: Copy Windows cliv2 binaries to binary-releases staging area
-          command: |
-            ls -la cliv2/bin
-            cp cliv2/bin/snyk-win.exe binary-releases/snyk-win.exe
-            cp cliv2/bin/snyk-win.exe.sha256 binary-releases/snyk-win.exe.sha256
-      - run:
-          name: Copy macOS cliv2 binaries to binary-releases staging area
-          command: |
-            ls -la cliv2/bin
-            cp cliv2/bin/snyk-macos binary-releases/snyk-macos
-            cp cliv2/bin/snyk-macos.sha256 binary-releases/snyk-macos.sha256
-      - run:
-          name: Copy linux cliv2 binaries to binary-releases staging area
-          command: |
-            ls -la cliv2/bin
-            cp cliv2/bin/snyk-linux binary-releases/snyk-linux
-            cp cliv2/bin/snyk-linux.sha256 binary-releases/snyk-linux.sha256
-      - run:
-          name: Copy linux arm64 cliv2 binaries to binary-releases staging area
-          command: |
-            ls -la cliv2/bin
-            cp cliv2/bin/snyk-linux-arm64 binary-releases/snyk-linux-arm64
-            cp cliv2/bin/snyk-linux-arm64.sha256 binary-releases/snyk-linux-arm64.sha256
-      - run:
-          name: Copy alpine cliv2 binaries to binary-releases staging area
-          command: |
-            ls -la cliv2/bin
-            cp cliv2/bin/snyk-alpine binary-releases/snyk-alpine
-            cp cliv2/bin/snyk-alpine.sha256 binary-releases/snyk-alpine.sha256
+          name: Creating all shasums
+          command: find binary-releases -name "snyk-*" -exec make {}.sha256 \;
       - run:
           name: Making TS-Binary-Wrapper (snyk.tgz)
           command: make binary-releases/snyk.tgz
@@ -424,22 +744,24 @@ jobs:
       - run:
           name: Making release notes
           command: make binary-releases/RELEASE_NOTES.md
-      - store_artifacts:
-          path: ./binary-releases
       - run:
           name: Validating artifacts
           command: ./release-scripts/validate-checksums.sh
+      - store_artifacts:
+          path: ./binary-releases
       - persist_to_workspace:
           root: .
           paths:
-            - binary-releases
+            - binary-releases/sha256sums.txt.asc
+            - binary-releases/release.json
+            - binary-releases/RELEASE_NOTES.md
+            - binary-releases/snyk.tgz
+            - binary-releases/snyk-*.sha256
 
   pre-release:
-    executor: docker-node
+    executor: docker-amd64
     steps:
-      - checkout
-      - attach_workspace:
-          at: .
+      - prepare-workspace
       - gh/setup:
           token: HAMMERHEAD_GITHUB_PAT
           version: << pipeline.parameters.gh_version >>
@@ -448,632 +770,82 @@ jobs:
       - run:
           name: Pre-Publishing
           command: make release-pre
-      - run:
-          name: Handling failed release
-          command: ./release-scripts/handle-failed-release.sh
-          when: on_fail
+      - failed-release-notification
 
   test-release:
     parameters:
       executor:
         type: string
+    #      cli_version:
+    #        type: string
+    #        default: mkdir -p binary-releases && echo '1.1187.0' > binary-releases/version && echo $(cat binary-releases/version)
     executor: << parameters.executor >>
     steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Validating NPM artifacts
-          command: bash ./release-scripts/validate-npm-artifacts.sh
-      - run:
-          name: Handling failed release
-          command: bash ./release-scripts/handle-failed-release.sh
-          when: on_fail
+      - prepare-workspace
+      - when:
+          condition:
+            matches:
+              pattern: '^macos.*'
+              value: << parameters.executor >>
+          steps:
+            - run: brew install coreutils curl
+      - when:
+          condition:
+            matches:
+              pattern: '^linux-ubuntu.*'
+              value: << parameters.executor >>
+          steps:
+            - run: apt update && apt install -y sudo curl
+      #      - when:
+      #          condition:
+      #            matches:
+      #              pattern: '^[linux|docker].*'
+      #              value: << parameters.executor >>
+      #          steps:
+      #            - snyk/scan:
+      #                command: version
+      #                token-variable: TEST_SNYK_TOKEN
+      #                monitor-on-build: false
+      #                cli-version: eval $(<< parameters.cli_version >>)
+      - when:
+          condition:
+            matches:
+              pattern: '^[docker|win|macos].*'
+              value: << parameters.executor >>
+          steps:
+            - run:
+                name: Validating NPM artifacts
+                command: bash ./release-scripts/validate-npm-artifacts.sh
+      - failed-release-notification
 
   release-s3:
-    executor: docker-node
+    executor: docker-amd64
     steps:
-      - checkout
-      - attach_workspace:
-          at: .
+      - prepare-workspace
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
           name: Publish to S3
           command: ./release-scripts/upload-artifacts.sh latest
-      - run:
-          name: Handling failed release
-          command: ./release-scripts/handle-failed-release.sh
-          when: on_fail
+      - failed-release-notification
 
   release-github:
-    executor: docker-node
+    executor: docker-amd64
     steps:
-      - checkout
-      - attach_workspace:
-          at: .
+      - prepare-workspace
       - gh/setup:
           token: HAMMERHEAD_GITHUB_PAT
           version: << pipeline.parameters.gh_version >>
       - run:
           name: Publish to GitHub
           command: ./release-scripts/upload-artifacts.sh github
-      - run:
-          name: Handling failed release
-          command: ./release-scripts/handle-failed-release.sh
-          when: on_fail
+      - failed-release-notification
 
   release-npm:
-    executor: docker-node
+    executor: docker-amd64
     steps:
-      - checkout
-      - attach_workspace:
-          at: .
+      - prepare-workspace
       - run:
           name: Publish to npm
           command: ./release-scripts/upload-artifacts.sh npm
-      - run:
-          name: Handling failed release
-          command: ./release-scripts/handle-failed-release.sh
-          when: on_fail
-
-  #
-  # Snyk CLI v2 Jobs
-  #
-  v2-lint-and-test:
-    executor: docker-node
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Lint
-          working_directory: ./cliv2
-          command: make lint
-      - restore_cache:
-          key: go-unit-test-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-      - run:
-          name: Run unit tests
-          working_directory: ./cliv2
-          command: make configure whiteboxtest
-      - save_cache:
-          key: go-unit-test-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths: [./go/pkg/mod]
-
-  v2-build-artifact:
-    parameters:
-      go_os:
-        type: string
-      go_arch:
-        type: string
-      c_compiler:
-        type: string
-        default: ''
-    executor: docker-node
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - go/install:
-          version: << pipeline.parameters.go_version >>
-      - restore_cache:
-          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-      - run: sudo apt-get install musl-tools
-      - run:
-          name: Build << parameters.go_os >>/<< parameters.go_arch >>
-          working_directory: ./cliv2
-          environment:
-            CC: << parameters.c_compiler >>
-            GOOS: << parameters.go_os >>
-            GOARCH: << parameters.go_arch >>
-            CLI_V1_LOCATION: ../binary-releases
-          command: make build install prefix=. -e
-      - save_cache:
-          key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
-          paths: [/home/circleci/go/pkg/mod]
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./cliv2/bin
-
-  v2-rename-windows-artifact:
-    executor: docker-node
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Rename snyk_windows_amd64.exe artifact
-          command: mv snyk_windows_amd64.exe snyk-win.exe
-          working_directory: ./cliv2/bin
-      - run:
-          name: Regenerate sha256
-          command: |
-            shasum -a 256 snyk-win.exe > snyk-win.exe.sha256
-            shasum -a 256 -c snyk-win.exe.sha256
-          working_directory: ./cliv2/bin
-      - run:
-          name: Show files
-          command: |
-            ls -la
-            cat snyk-win.exe.sha256
-          working_directory: ./cliv2/bin
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./cliv2/bin
-
-  v2-rename-macos-artifact:
-    executor: docker-node
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Rename snyk_darwin_amd64 artifact
-          command: mv snyk_darwin_amd64 snyk-macos
-          working_directory: ./cliv2/bin
-      - run:
-          name: Regenerate sha256
-          command: |
-            shasum -a 256 snyk-macos > snyk-macos.sha256
-            shasum -a 256 -c snyk-macos.sha256
-          working_directory: ./cliv2/bin
-      - run:
-          name: Show files
-          command: |
-            ls -la
-            cat snyk-macos.sha256
-          working_directory: ./cliv2/bin
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./cliv2/bin
-
-  v2-rename-linux-artifact:
-    executor: docker-node
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Rename snyk_linux_amd64 artifact
-          command: mv snyk_linux_amd64 snyk-linux
-          working_directory: ./cliv2/bin
-      - run:
-          name: Regenerate sha256
-          command: |
-            shasum -a 256 snyk-linux > snyk-linux.sha256
-            shasum -a 256 -c snyk-linux.sha256
-          working_directory: ./cliv2/bin
-      - run:
-          name: Show files
-          command: |
-            ls -la
-            cat snyk-linux.sha256
-          working_directory: ./cliv2/bin
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./cliv2/bin
-
-  v2-rename-linux-arm64-artifact:
-    executor: docker-node
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Rename snyk_linux_arm64 artifact
-          command: mv snyk_linux_arm64 snyk-linux-arm64
-          working_directory: ./cliv2/bin
-      - run:
-          name: Regenerate sha256
-          command: |
-            shasum -a 256 snyk-linux-arm64 > snyk-linux-arm64.sha256
-            shasum -a 256 -c snyk-linux-arm64.sha256
-          working_directory: ./cliv2/bin
-      - run:
-          name: Show files
-          command: |
-            ls -la
-            cat snyk-linux-arm64.sha256
-          working_directory: ./cliv2/bin
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./cliv2/bin
-
-  v2-rename-alpine-amd64-artifact:
-    executor: alpine
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Rename snyk_alpine_amd64 artifact
-          command: mv snyk_alpine_amd64 snyk-alpine
-          working_directory: ./cliv2/bin
-      - run:
-          name: Regenerate sha256
-          command: |
-            sha256sum snyk-alpine > snyk-alpine.sha256
-            sha256sum -c snyk-alpine.sha256
-          working_directory: ./cliv2/bin
-      - run:
-          name: Show files
-          command: |
-            ls -la
-            cat snyk-alpine.sha256
-          working_directory: ./cliv2/bin
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./cliv2/bin
-
-  v2-prepare-release:
-    executor: docker-node
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - store_artifacts:
-          path: ./cliv2/bin
-
-  v2-sign-darwin-amd64:
-    executor: macos
-    working_directory: /Users/distiller/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Signing macOS artifact
-          # --ignore-errors due to 403s from Apple's service.
-          #   We need to sign a new agreement for our dev account.
-          #   We currently don't publish this artifact so it's safe to ignore.
-          command: make sign GOOS=darwin GOARCH=amd64 BUILD_DIR=$PWD/bin --ignore-errors
-          working_directory: ./cliv2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - cliv2/bin/snyk_darwin_amd64
-            - cliv2/bin/snyk_darwin_amd64.sha256
-
-  v2-sign-windows-amd64:
-    executor: docker-node
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Signing windows artifact
-          command: make sign GOOS=windows GOARCH=amd64 BUILD_DIR=$PWD/bin
-          working_directory: ./cliv2
-      - persist_to_workspace:
-          root: .
-          paths:
-            - cliv2/bin/snyk_windows_amd64.exe
-            - cliv2/bin/snyk_windows_amd64.exe.sha256
-
-  test-in-proxy-environment-linux-amd64:
-    executor: linux
-    working_directory: /home/circleci/snyk
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Run acceptance tests in a proxied environment
-          working_directory: ./
-          environment:
-            TEST_SNYK_COMMAND: ./bin/snyk-linux
-          command: |
-            export SNYK_TOKEN="${SNYK_API_KEY}"
-            make acceptance-test-with-proxy
-
-workflows:
-  version: 2
-  test_and_release:
-    jobs:
-      - build:
-          name: Build
-      - prodsec/secrets-scan:
-          name: Scan repository for secrets
-          context:
-            - snyk-bot-slack
-          channel: hammerhead-alerts
-      - test-jest:
-          filters:
-            branches:
-              ignore: master
-          name: Jest Tests
-          context: nodejs-install
-          requires:
-            - Build
-      - test-tap:
-          filters:
-            branches:
-              ignore: master
-          name: Tap Tests
-          context: nodejs-install
-          requires:
-            - Build
-
-      - build-artifact:
-          name: Build (<< matrix.artifact >>)
-          requires:
-            - Build
-          context: snyk-windows-signing
-          matrix:
-            parameters:
-              artifact:
-                - snyk-fix.tgz
-                - snyk-protect.tgz
-                - snyk-alpine
-                - snyk-linux
-                - snyk-linux-arm64
-                - snyk-macos
-                - snyk-win.exe
-                - snyk-for-docker-desktop-darwin-x64.tar.gz
-                - snyk-for-docker-desktop-darwin-arm64.tar.gz
-                - docker-mac-signed-bundle.tar.gz
-      - test-windows:
-          filters:
-            branches:
-              ignore: master
-          name: Acceptance Tests (snyk-win.exe)
-          context: nodejs-install
-          requires:
-            - Build (snyk-win.exe)
-          test_snyk_command: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
-      - test-macos:
-          filters:
-            branches:
-              ignore: master
-          name: Acceptance Tests (snyk-macos)
-          context: nodejs-install
-          requires:
-            - Build (snyk-macos)
-          test_snyk_command: /Users/distiller/snyk/binary-releases/snyk-macos
-      - test-linux:
-          filters:
-            branches:
-              ignore: master
-          name: Acceptance Tests (snyk-linux)
-          context: nodejs-install
-          requires:
-            - Build (snyk-linux)
-          test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux
-      - test-linux-arm64:
-          filters:
-            branches:
-              ignore: master
-          name: Acceptance Tests (snyk-linux-arm64)
-          context: nodejs-install
-          requires:
-            - Build (snyk-linux-arm64)
-          test_snyk_command: /home/circleci/snyk/binary-releases/snyk-linux-arm64
-      - regression-test:
-          filters:
-            branches:
-              ignore: master
-          name: Regression Tests (snyk-linux)
-          context: nodejs-install
-          requires:
-            - Build (snyk-linux)
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
-      - prepare-release:
-          name: Prepare Release
-          context:
-            - snyk-cli-pgp-signing
-          requires:
-            - Build (snyk-fix.tgz)
-            - Build (snyk-protect.tgz)
-            - Build (snyk-for-docker-desktop-darwin-x64.tar.gz)
-            - Build (snyk-for-docker-desktop-darwin-arm64.tar.gz)
-            - Build (docker-mac-signed-bundle.tar.gz)
-            - v2 / Prepare Release
-      - should-release:
-          name: Release?
-          type: approval
-          requires:
-            - Prepare Release
-          filters:
-            branches:
-              only:
-                - master
-      - pre-release:
-          name: Pre-Release
-          context: team-hammerhead-common-deploy-tokens
-          requires:
-            - Release?
-          filters:
-            branches:
-              only:
-                - master
-      - test-release:
-          name: Test Release (<< matrix.executor >>)
-          matrix:
-            parameters:
-              executor: ['docker-node', 'win/default', 'macos']
-          requires:
-            - Pre-Release
-          filters:
-            branches:
-              only:
-                - master
-      - release-s3:
-          name: Release S3
-          context: team-hammerhead-common-deploy-tokens
-          requires:
-            - Test Release (docker-node)
-            - Test Release (win/default)
-            - Test Release (macos)
-          filters:
-            branches:
-              only:
-                - master
-      - release-github:
-          name: Release GitHub
-          context: team-hammerhead-common-deploy-tokens
-          requires:
-            - Release S3
-          filters:
-            branches:
-              only:
-                - master
-      - release-npm:
-          name: Release npm
-          context: team-hammerhead-common-deploy-tokens
-          requires:
-            - Release GitHub
-          filters:
-            branches:
-              only:
-                - master
-
-      #
-      # Snyk CLI v2 Workflow Jobs
-      #
-      - v2-lint-and-test:
-          name: v2 / Lint and Test
-      - v2-build-artifact:
-          name: v2 / Build (linux/amd64)
-          requires:
-            - Build (snyk-linux)
-          go_os: linux
-          go_arch: amd64
-      - v2-rename-linux-artifact:
-          name: v2 / Rename linux/amd64 artifact
-          requires:
-            - v2 / Build (linux/amd64)
-      - v2-build-artifact:
-          name: v2 / Build (linux/arm64)
-          requires:
-            - Build (snyk-linux-arm64)
-          go_os: linux
-          go_arch: arm64
-      - v2-rename-linux-arm64-artifact:
-          name: v2 / Rename linux/arm64 artifact
-          requires:
-            - v2 / Build (linux/arm64)
-      - v2-rename-alpine-amd64-artifact:
-          name: v2 / Rename alpine/amd64 artifact
-          requires:
-            - v2 / Build (alpine/amd64)
-      - v2-build-artifact:
-          name: v2 / Build (darwin/amd64)
-          requires:
-            - Build (snyk-macos)
-          go_os: darwin
-          go_arch: amd64
-      - v2-rename-macos-artifact:
-          name: v2 / Rename macos/amd64 artifact
-          requires:
-            - v2 / Sign (darwin/amd64)
-      - v2-build-artifact:
-          name: v2 / Build (windows/amd64)
-          requires:
-            - Build (snyk-win.exe)
-          go_os: windows
-          go_arch: amd64
-      - v2-rename-windows-artifact:
-          name: v2 / Rename windows/amd64 artifact
-          requires:
-            - v2 / Sign (windows/amd64)
-      - v2-build-artifact:
-          name: v2 / Build (alpine/amd64)
-          requires:
-            - Build (snyk-alpine)
-          go_os: alpine
-          go_arch: amd64
-          c_compiler: /usr/bin/musl-gcc
-      # Tests for backwards compatibility with CLIv1
-      - test-alpine:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Jest Acceptance Tests (alpine/amd64)
-          context: nodejs-install
-          requires:
-            - v2 / Rename alpine/amd64 artifact
-          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-alpine
-      - test-linux:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Jest Acceptance Tests (linux/amd64)
-          context: nodejs-install
-          requires:
-            - v2 / Rename linux/amd64 artifact
-          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-linux
-      - test-linux-arm64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Jest Acceptance Tests (linux/arm64)
-          context: nodejs-install
-          requires:
-            - v2 / Rename linux/arm64 artifact
-          test_snyk_command: /home/circleci/snyk/cliv2/bin/snyk-linux-arm64
-      - test-windows:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Jest Acceptance Tests (windows/amd64)
-          context: nodejs-install
-          requires:
-            - v2 / Rename windows/amd64 artifact
-          test_snyk_command: C:\Users\circleci\snyk\cliv2\bin\snyk-win.exe
-      - test-macos:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Jest Acceptance Tests (darwin/amd64)
-          context: nodejs-install
-          requires:
-            - v2 / Rename macos/amd64 artifact
-          test_snyk_command: /Users/distiller/snyk/cliv2/bin/snyk-macos
-      - regression-test:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Regression Tests (linux/amd64)
-          context: nodejs-install
-          requires:
-            - v2 / Rename linux/amd64 artifact
-          test_snyk_command: /mnt/ramdisk/snyk/cliv2/bin/snyk-linux
-      - v2-sign-darwin-amd64:
-          name: v2 / Sign (darwin/amd64)
-          context: snyk-macos-signing
-          requires:
-            - v2 / Build (darwin/amd64)
-      - v2-sign-windows-amd64:
-          name: v2 / Sign (windows/amd64)
-          context: snyk-windows-signing
-          requires:
-            - v2 / Build (windows/amd64)
-      - v2-prepare-release:
-          name: v2 / Prepare Release
-          requires:
-            - v2 / Rename linux/amd64 artifact
-            - v2 / Rename linux/arm64 artifact
-            - v2 / Rename macos/amd64 artifact
-            - v2 / Rename windows/amd64 artifact
-            - v2 / Rename alpine/amd64 artifact
-      - test-in-proxy-environment-linux-amd64:
-          filters:
-            branches:
-              ignore: master
-          name: v2 / Acceptance Tests With Proxy (linux/amd64)
-          requires:
-            - v2 / Rename linux/amd64 artifact
+      - failed-release-notification

@@ -2,7 +2,6 @@ import { startMockServer } from './helpers';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getFixturePath } from '../../util/getFixturePath';
-import { isCLIV2 } from '../../util/isCLIV2';
 
 jest.setTimeout(50000);
 
@@ -27,10 +26,6 @@ describe('iac capture', () => {
     expect(stderr).toMatch('');
     expect(exitCode).toBe(2);
   });
-
-  if (!isCLIV2()) {
-    return;
-  }
 
   it('Launch capture without states', async () => {
     const { stdout, stderr, exitCode } = await run(

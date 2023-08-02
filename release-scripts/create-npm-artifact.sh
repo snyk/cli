@@ -6,9 +6,11 @@ BINARY_WRAPPER_DIR=${2}
 ROOT=$(pwd)
 
 # create legacy TS tarball
+echo create legacy TS tarball
 mv "$(npm pack)" "${BINARY_OUTPUT_FOLDER}/snyk_legacy.tgz"
 
 # create TS binary wrapper tarball
+echo create TS binary wrapper tarball
 pushd .
 cd "${BINARY_WRAPPER_DIR}"
 mv "$(npm pack)" "${ROOT}/${BINARY_OUTPUT_FOLDER}/snyk_wrapper.tgz"

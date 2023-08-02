@@ -17,5 +17,4 @@ gpg \
     --armor \
     --batch binary-releases/sha256sums.txt
 
-rm binary-releases/sha256sums.txt
 cat binary-releases/sha256sums.txt.asc
