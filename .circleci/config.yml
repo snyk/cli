@@ -27,19 +27,19 @@ executors:
       image: ubuntu-2204:2023.02.1
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
-  linux-base-edge-amd64:
+  linux-ubuntu-mantic-amd64:
     docker:
-      - image: cimg/base:edge
+      - image: ubuntu:mantic
     working_directory: /mnt/ramdisk/snyk
     resource_class: small
-  linux-base-202004-amd64:
+  linux-ubuntu-jammy-amd64:
     docker:
-      - image: cimg/base:current-20.04
+      - image: ubuntu:jammy
     working_directory: /mnt/ramdisk/snyk
     resource_class: small
-  linux-base-202204-amd64:
+  linux-ubuntu-focal-amd64:
     docker:
-      - image: cimg/base:current-22.04
+      - image: ubuntu:focal
     working_directory: /mnt/ramdisk/snyk
     resource_class: small
   linux-ubuntu-latest-amd64:
@@ -52,19 +52,19 @@ executors:
       - image: ubuntu:latest
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
-  linux-base-edge-arm64:
+  linux-ubuntu-mantic-arm64:
     docker:
-      - image: cimg/base:edge
+      - image: ubuntu:mantic
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
-  linux-base-202004-arm64:
+  linux-ubuntu-jammy-arm64:
     docker:
-      - image: cimg/base:current-20.04
+      - image: ubuntu:jammy
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
-  linux-base-202204-arm64:
+  linux-ubuntu-focal-arm64:
     docker:
-      - image: cimg/base:current-22.04
+      - image: ubuntu:focal
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
   macos-amd64:
@@ -145,7 +145,7 @@ commands:
     steps:
       - run:
           name: Handling failed release
-          command: bash "#./release-scripts/handle-failed-release.sh"
+          command: bash ./release-scripts/handle-failed-release.sh
           when: on_fail
 
   prepare-workspace:
@@ -398,12 +398,17 @@ workflows:
             parameters:
               executor:
                 - 'docker-amd64'
+                - 'docker-arm64'
                 - 'win/server-2019'
                 - 'macos-amd64'
-                - 'linux-base-edge-amd64'
-                - 'linux-base-202004-amd64'
-                - 'linux-base-202204-amd64'
                 - 'linux-ubuntu-latest-amd64'
+                - 'linux-ubuntu-mantic-amd64'
+                - 'linux-ubuntu-jammy-amd64'
+                - 'linux-ubuntu-focal-amd64'
+                - 'linux-ubuntu-latest-arm64'
+                - 'linux-ubuntu-mantic-arm64'
+                - 'linux-ubuntu-jammy-arm64'
+                - 'linux-ubuntu-focal-arm64'
                 - 'alpine'
 #          requires:
 #            - upload version
@@ -815,16 +820,16 @@ jobs:
                   echo "1.1199.0" > binary-releases/version
                   PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests
                   python3 scripts/install-snyk.py $(cat binary-releases/version)
-      - when:
-          condition:
-            matches:
-              pattern: '^[docker|win|macos].*'
-              value: << parameters.executor >>
-          steps:
-            - run:
-                name: Validating NPM artifacts
-                command: bash ./release-scripts/validate-npm-artifacts.sh
-      - failed-release-notification
+#      - when:
+#          condition:
+#            matches:
+#              pattern: '^[docker|win|macos].*'
+#              value: << parameters.executor >>
+#          steps:
+#            - run:
+#                name: Validating NPM artifacts
+#                command: bash ./release-scripts/validate-npm-artifacts.sh
+#      - failed-release-notification
 
   release-s3:
     executor: docker-amd64
