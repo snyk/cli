@@ -786,11 +786,18 @@ jobs:
               pattern: '^macos.*'
               value: << parameters.executor >>
           steps:
-            - run: brew install coreutils curl
+            - run: brew install coreutils curl python3
       - when:
           condition:
             matches:
-              pattern: '^linux-ubuntu.*'
+              pattern: '^alpine'
+              value: << parameters.executor >>
+          steps:
+            - run: apk install python3
+      - when:
+          condition:
+            matches:
+              pattern: '^linux.*'
               value: << parameters.executor >>
           steps:
             - run: apt update && apt install -y sudo curl python3 python3-pip python3-requests
