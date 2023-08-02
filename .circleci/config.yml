@@ -392,7 +392,7 @@ workflows:
       #                - master
 
       - npm-validation:
-          name: Validate NPM artifacts
+          name: Validate NPM artifacts (<< matrix.executor >>)
           context: team_hammerhead-cli
           matrix:
             parameters:
@@ -427,7 +427,9 @@ workflows:
                 - 'linux-ubuntu-focal-arm64'
                 - 'alpine'
           requires:
-            - Validate NPM artifacts
+            - Validate NPM artifacts (docker-amd64)
+            - Validate NPM artifacts (win/server-2019)
+            - Validate NPM artifacts (macos-amd64)
       #          filters:
       #            branches:
       #              only:
