@@ -145,7 +145,7 @@ commands:
     steps:
       - run:
           name: Handling failed release
-          command: bash ./release-scripts/handle-failed-release.sh
+          command: bash echo "huhu" #./release-scripts/handle-failed-release.sh
           when: on_fail
 
   prepare-workspace:
@@ -340,9 +340,9 @@ workflows:
           go_arch: amd64
           executor: win/default
           install_deps_extension: windows-make
-          filters:
-            branches:
-              only: master
+      #          filters:
+      #            branches:
+      #              only: master
 
       - sign:
           name: sign macos amd64
@@ -353,9 +353,9 @@ workflows:
           go_arch: amd64
           executor: macos-amd64
           install_deps_extension: noop
-          filters:
-            branches:
-              only: master
+      #          filters:
+      #            branches:
+      #              only: master
 
       - create_deployment_artifacts:
           name: create deployment artifacts
@@ -367,27 +367,27 @@ workflows:
             - build linux amd64
             - build linux arm64
             - build fix & protect
-          filters:
-            branches:
-              only: master
+      #          filters:
+      #            branches:
+      #              only: master
 
       - should-release:
           name: release?
           type: approval
           requires:
             - create deployment artifacts
-          filters:
-            branches:
-              only: master
+      #          filters:
+      #            branches:
+      #              only: master
 
       - pre-release:
           name: upload version
           context: team-hammerhead-common-deploy-tokens
           requires:
             - release?
-          filters:
-            branches:
-              only: master
+      #          filters:
+      #            branches:
+      #              only: master
 
       - npm-validation:
           name: Validate NPM artifacts (<< matrix.executor >>)
@@ -400,9 +400,9 @@ workflows:
                 - 'macos-amd64'
           requires:
             - upload version
-          filters:
-            branches:
-              only: master
+      #          filters:
+      #            branches:
+      #              only: master
 
       - test-release:
           name: e2e tests (<< matrix.executor >>)
@@ -413,6 +413,7 @@ workflows:
                 - 'docker-amd64'
                 - 'docker-arm64'
                 - 'win/server-2019'
+                - 'win/server-2022'
                 - 'macos-amd64'
                 - 'linux-ubuntu-latest-amd64'
                 - 'linux-ubuntu-mantic-amd64'
@@ -425,9 +426,9 @@ workflows:
                 - 'alpine'
           requires:
             - upload version
-          filters:
-            branches:
-              only: master
+      #          filters:
+      #            branches:
+      #              only: master
 
       - release-s3:
           name: upload latest
@@ -844,30 +845,12 @@ jobs:
           steps:
             - run: apt update && apt install -y sudo curl python3 python3-pip python3-requests
 
-      - when:
-          condition:
-            matches:
-              pattern: '^win.*'
-              value: << parameters.executor >>
-          steps:
-            - install-deps-windows-full
-            - run:
-                name: Checking Snyk CLI
-                shell: bash.exe # I wonder if this works without .exe and thus could be merged with the step below
-                command: |
-                  PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests
-                  python scripts/install-snyk.py $(cat binary-releases/version)
-      - when:
-          condition:
-            matches:
-              pattern: '^(docker|macos|alpine|linux).*'
-              value: << parameters.executor >>
-          steps:
-            - run:
-                name: Checking Snyk CLI
-                command: |
-                  PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests
-                  python3 scripts/install-snyk.py $(cat binary-releases/version)
+      - run:
+          name: Checking Snyk CLI
+          shell: bash
+          command: |
+            PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests || PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests 
+            python scripts/install-snyk.py $(cat binary-releases/version) || python3 scripts/install-snyk.py $(cat binary-releases/version)
 
   release-s3:
     executor: docker-amd64
