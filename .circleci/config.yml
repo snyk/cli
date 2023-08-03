@@ -27,44 +27,44 @@ executors:
       image: ubuntu-2204:2023.02.1
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
-  linux-base-edge-amd64:
+  linux-ubuntu-mantic-amd64:
     docker:
-      - image: cimg/base:edge
+      - image: ubuntu:mantic
     working_directory: /mnt/ramdisk/snyk
-    resource_class: small
-  linux-base-202004-amd64:
+    resource_class: medium
+  linux-ubuntu-jammy-amd64:
     docker:
-      - image: cimg/base:current-20.04
+      - image: ubuntu:jammy
     working_directory: /mnt/ramdisk/snyk
-    resource_class: small
-  linux-base-202204-amd64:
+    resource_class: medium
+  linux-ubuntu-focal-amd64:
     docker:
-      - image: cimg/base:current-22.04
+      - image: ubuntu:focal
     working_directory: /mnt/ramdisk/snyk
-    resource_class: small
+    resource_class: medium
   linux-ubuntu-latest-amd64:
     docker:
       - image: ubuntu:latest
     working_directory: /mnt/ramdisk/snyk
-    resource_class: small
+    resource_class: medium
   linux-ubuntu-latest-arm64:
     docker:
       - image: ubuntu:latest
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
-  linux-base-edge-arm64:
+  linux-ubuntu-mantic-arm64:
     docker:
-      - image: cimg/base:edge
+      - image: ubuntu:mantic
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
-  linux-base-202004-arm64:
+  linux-ubuntu-jammy-arm64:
     docker:
-      - image: cimg/base:current-20.04
+      - image: ubuntu:jammy
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
-  linux-base-202204-arm64:
+  linux-ubuntu-focal-arm64:
     docker:
-      - image: cimg/base:current-22.04
+      - image: ubuntu:focal
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
   macos-amd64:
@@ -378,8 +378,7 @@ workflows:
             - create deployment artifacts
           filters:
             branches:
-              only:
-                - master
+              only: master
 
       - pre-release:
           name: upload version
@@ -388,8 +387,22 @@ workflows:
             - release?
           filters:
             branches:
-              only:
-                - master
+              only: master
+
+      - npm-validation:
+          name: Validate NPM artifacts (<< matrix.executor >>)
+          context: team_hammerhead-cli
+          matrix:
+            parameters:
+              executor:
+                - 'docker-amd64'
+                - 'win/server-2019'
+                - 'macos-amd64'
+          requires:
+            - upload version
+          filters:
+            branches:
+              only: master
 
       - test-release:
           name: e2e tests (<< matrix.executor >>)
@@ -398,29 +411,50 @@ workflows:
             parameters:
               executor:
                 - 'docker-amd64'
+                - 'docker-arm64'
                 - 'win/server-2019'
+                - 'win/server-2022'
                 - 'macos-amd64'
-          #                - 'linux-base-edge-amd64'
-          #                - 'linux-base-202004-amd64'
-          #                - 'linux-base-202204-amd64'
-          #                - 'linux-ubuntu-latest-amd64'
+                - 'linux-ubuntu-latest-amd64'
+                - 'linux-ubuntu-mantic-amd64'
+                - 'linux-ubuntu-jammy-amd64'
+                - 'linux-ubuntu-focal-amd64'
+                - 'linux-ubuntu-latest-arm64'
+                - 'linux-ubuntu-mantic-arm64'
+                - 'linux-ubuntu-jammy-arm64'
+                - 'linux-ubuntu-focal-arm64'
+                - 'alpine'
           requires:
             - upload version
           filters:
             branches:
-              only:
-                - master
+              only: master
+
       - release-s3:
           name: upload latest
           context: team-hammerhead-common-deploy-tokens
           requires:
+            - Validate NPM artifacts (docker-amd64)
+            - Validate NPM artifacts (win/server-2019)
+            - Validate NPM artifacts (macos-amd64)
             - e2e tests (docker-amd64)
+            - e2e tests (docker-arm64)
             - e2e tests (win/server-2019)
+            - e2e tests (win/server-2022)
             - e2e tests (macos-amd64)
+            - e2e tests (linux-ubuntu-latest-amd64)
+            - e2e tests (linux-ubuntu-mantic-amd64)
+            - e2e tests (linux-ubuntu-jammy-amd64)
+            - e2e tests (linux-ubuntu-focal-amd64)
+            - e2e tests (linux-ubuntu-latest-arm64)
+            - e2e tests (linux-ubuntu-mantic-arm64)
+            - e2e tests (linux-ubuntu-jammy-arm64)
+            - e2e tests (linux-ubuntu-focal-arm64)
+            - e2e tests (alpine)
           filters:
             branches:
-              only:
-                - master
+              only: master
+
       - release-github:
           name: upload github
           context: team-hammerhead-common-deploy-tokens
@@ -495,7 +529,6 @@ jobs:
 
   test-code:
     executor: docker-amd64
-    parallelism: 4
     steps:
       - prepare-workspace
       - run:
@@ -772,13 +805,22 @@ jobs:
           command: make release-pre
       - failed-release-notification
 
+  npm-validation:
+    parameters:
+      executor:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - prepare-workspace
+      - run:
+          name: Validating NPM artifacts
+          command: bash ./release-scripts/validate-npm-artifacts.sh
+      - failed-release-notification
+
   test-release:
     parameters:
       executor:
         type: string
-    #      cli_version:
-    #        type: string
-    #        default: mkdir -p binary-releases && echo '1.1187.0' > binary-releases/version && echo $(cat binary-releases/version)
     executor: << parameters.executor >>
     steps:
       - prepare-workspace
@@ -788,35 +830,28 @@ jobs:
               pattern: '^macos.*'
               value: << parameters.executor >>
           steps:
-            - run: brew install coreutils curl
+            - run: brew install coreutils curl python3
       - when:
           condition:
             matches:
-              pattern: '^linux-ubuntu.*'
+              pattern: '^alpine'
               value: << parameters.executor >>
           steps:
-            - run: apt update && apt install -y sudo curl
-      #      - when:
-      #          condition:
-      #            matches:
-      #              pattern: '^[linux|docker].*'
-      #              value: << parameters.executor >>
-      #          steps:
-      #            - snyk/scan:
-      #                command: version
-      #                token-variable: TEST_SNYK_TOKEN
-      #                monitor-on-build: false
-      #                cli-version: eval $(<< parameters.cli_version >>)
+            - run: apk add python3 py3-pip bash
       - when:
           condition:
             matches:
-              pattern: '^[docker|win|macos].*'
+              pattern: '^linux.*'
               value: << parameters.executor >>
           steps:
-            - run:
-                name: Validating NPM artifacts
-                command: bash ./release-scripts/validate-npm-artifacts.sh
-      - failed-release-notification
+            - run: apt update && apt install -y sudo curl python3 python3-pip python3-requests
+
+      - run:
+          name: Checking Snyk CLI
+          shell: bash
+          command: |
+            PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests || PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests 
+            python scripts/install-snyk.py $(cat binary-releases/version) || python3 scripts/install-snyk.py $(cat binary-releases/version)
 
   release-s3:
     executor: docker-amd64
