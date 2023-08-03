@@ -836,7 +836,7 @@ jobs:
               pattern: '^alpine'
               value: << parameters.executor >>
           steps:
-            - run: apk add python3 py3-pip
+            - run: apk add python3 py3-pip bash
       - when:
           condition:
             matches:
