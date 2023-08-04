@@ -15,7 +15,8 @@ SHASUM_CMD = shasum
 GOHOSTOS = $(shell go env GOHOSTOS)
 PYTHON = python
 
-ifneq ("", $(shell command -v python3))
+PYTHON_VERSION = $(shell python3 --version)
+ifdef (PYTHON_VERSION)
 	PYTHON = python3
 endif
 
