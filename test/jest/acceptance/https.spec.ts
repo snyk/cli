@@ -66,7 +66,7 @@ describe('https', () => {
   describe('invalid certificate', () => {
     it('rejects connections', async () => {
       const project = await createProjectFromWorkspace('npm-package');
-      const { code} = await runSnykCLI('test', {
+      const { code } = await runSnykCLI('test', {
         cwd: project.path(),
         env,
       });
