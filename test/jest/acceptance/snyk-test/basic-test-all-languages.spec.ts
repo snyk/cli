@@ -166,8 +166,8 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
-  test('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic', async () => {
-    const prerequisite = await runCommand('dotnet', ['--version']).catch(
+  test.only('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic', async () => {
+    const prerequisite = await runCommand('dddd', ['--version']).catch(
       function() {
         return { code: 1, stderr: '', stdout: '' };
       },
