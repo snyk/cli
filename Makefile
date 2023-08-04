@@ -13,6 +13,12 @@ BINARY_RELEASES_FOLDER_TS_CLI = binary-releases
 BINARY_OUTPUT_FOLDER = binary-releases
 SHASUM_CMD = shasum
 GOHOSTOS = $(shell go env GOHOSTOS)
+PYTHON = python
+
+PYTHON_VERSION = $(shell python3 --version)
+ifdef (PYTHON_VERSION)
+	PYTHON = python3
+endif
 
 ifeq ($(GOHOSTOS), windows)
 	SHASUM_CMD = powershell $(WORKING_DIR)/cliv2/scripts/shasum.ps1
@@ -84,7 +90,7 @@ $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_
 # cd $(@D) - changes directory to the target's directory.
 # $(SHASUM_CMD) -a 256 $(shell python -c "print('.'.join('$(@F)'.split('.')[:-1]))") > $(@F) - extract <name> from <name>.<ext> and generate the shasum.
 # $(SHASUM_CMD) -a 256 -c $(@F) - check the shasum.
-	cd $(@D); $(SHASUM_CMD) -a 256 $(shell python -c "print('.'.join('$(@F)'.split('.')[:-1]))") > $(@F); $(SHASUM_CMD) -a 256 -c $(@F)
+	cd $(@D); $(SHASUM_CMD) -a 256 $(shell $(PYTHON) -c "print('.'.join('$(@F)'.split('.')[:-1]))") > $(@F); $(SHASUM_CMD) -a 256 -c $(@F)
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	$(MAKE) pack-binary-wrapper
