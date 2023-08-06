@@ -32,7 +32,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-var InternalOS string
+var internalOS string
 var engine workflow.Engine
 var config configuration.Configuration
 var helpProvided bool
@@ -386,7 +386,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	}
 
 	tablePrint("Version", cliv2.GetFullVersion())
-	tablePrint("Platform", InternalOS+" "+runtime.GOARCH)
+	tablePrint("Platform", internalOS+" "+runtime.GOARCH)
 	tablePrint("API", config.GetString(configuration.API_URL))
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
 	tablePrint("Organization", org)
@@ -450,7 +450,7 @@ func MainWithErrorCode() int {
 		networking.UserAgent(
 			networking.UaWithConfig(config),
 			networking.UaWithApplication("snyk-cli", cliv2.GetFullVersion()),
-			networking.UaWithOS(InternalOS)).String(),
+			networking.UaWithOS(internalOS)).String(),
 	)
 
 	if debugEnabled {
@@ -461,7 +461,7 @@ func MainWithErrorCode() int {
 	cliAnalytics := engine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args[1:])
-	cliAnalytics.SetOperatingSystem(InternalOS)
+	cliAnalytics.SetOperatingSystem(internalOS)
 	if config.GetBool(configuration.ANALYTICS_DISABLED) == false {
 		defer sendAnalytics(cliAnalytics, debugLogger)
 	}

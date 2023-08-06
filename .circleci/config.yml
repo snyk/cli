@@ -1,9 +1,28 @@
 version: '2.1'
 
+parameters:
+  go_download_base_url:
+    type: string
+    default: 'https://storage.googleapis.com/golang/'
+  fips_go_download_base_url:
+    type: string
+    default: 'https://aka.ms/golang/release/latest/'
+  go_version:
+    type: string
+    # https://go.dev/doc/devel/release
+    default: '1.20.6'
+  aws_version:
+    type: string
+    # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
+    default: '2.4.12'
+  gh_version:
+    type: string
+    # https://github.com/cli/cli/releases
+    default: '2.7.0'
+
 orbs:
   prodsec: snyk/prodsec-orb@1.0
   snyk: snyk/snyk@1.7.0
-  go: circleci/go@1.7.1
   win: circleci/windows@5.0
   aws-cli: circleci/aws-cli@2.0.3
   gh: circleci/github-cli@2.1.0
@@ -22,11 +41,6 @@ executors:
       - image: bastiandoetsch209/cli-build-arm64:20230806-080507
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
-  linux-amd64:
-    machine:
-      image: ubuntu-2204:2023.02.1
-    working_directory: /mnt/ramdisk/snyk
-    resource_class: large
   linux-ubuntu-mantic-amd64:
     docker:
       - image: ubuntu:mantic
@@ -77,8 +91,63 @@ executors:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '14.3.1'
     resource_class: macos.m1.large.gen1
+  win-amd64:
+    machine:
+      image: windows-server-2022-gui:2023.07.1
+    resource_class: windows.large
+    shell: powershell
 
 commands:
+  install-go:
+    parameters:
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      base_url:
+        type: string
+      extraction_path:
+        type: string
+      cache_key_file:
+        type: string
+        default: go_cache_key.txt
+    steps:
+      - run:
+          name: Create Cache Key
+          command: |
+            echo << parameters.extraction_path >>-<< parameters.base_url >>-<< parameters.go_target_os >>-<< parameters.go_arch >>-<< pipeline.parameters.go_version >> > << parameters.cache_key_file >>
+            cat << parameters.cache_key_file >>
+      - restore_cache:
+          name: Restoring go binary cache
+          keys:
+            - go-binary-cache-{{ checksum "<< parameters.cache_key_file >>" }}
+      - run:
+          name: Download go binary
+          command: python ./scripts/download_go.py << pipeline.parameters.go_version >> --go_os=<< parameters.go_os >> --go_arch=<< parameters.go_arch >> --base_url=<< parameters.base_url >> --extraction_path=<< parameters.extraction_path >>
+      - save_cache:
+          name: Caching go binary
+          key: go-binary-cache-{{ checksum "<< parameters.cache_key_file >>" }}
+          paths:
+            - << parameters.extraction_path >>/go
+      - unless:
+          condition:
+            equal: ['windows', << parameters.go_os >>]
+          steps:
+            - run:
+                name: Add go binary to PATH
+                command: echo "export PATH=$(realpath << parameters.extraction_path >>/go/bin):\$PATH" >> "$BASH_ENV"
+      - when:
+          condition:
+            equal: ['windows', << parameters.go_os >>]
+          steps:
+            - run:
+                name: Add go binary to PATH
+                command: |
+                  New-Item -Path $profile -ItemType File -Force
+                  '$Env:Path = "<< parameters.extraction_path >>\go\bin;" + $Env:Path' >> $profile
+
   install-deps-windows-full:
     steps:
       - restore_cache:
@@ -158,20 +227,6 @@ commands:
       - attach_workspace:
           at: .
 
-parameters:
-  go_version:
-    type: string
-    # https://go.dev/doc/devel/release
-    default: '1.20.6'
-  aws_version:
-    type: string
-    # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
-    default: '2.4.12'
-  gh_version:
-    type: string
-    # https://github.com/cli/cli/releases
-    default: '2.7.0'
-
 ####################################################################################################
 # WORKFLOWS
 ####################################################################################################
@@ -214,48 +269,93 @@ workflows:
 
       - build-artifact:
           name: build linux amd64
+          go_target_os: linux
           go_os: linux
           go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: docker-amd64
-          artifact: snyk-linux
           requires:
             - prepare-build
 
       - build-artifact:
           name: build linux arm64
+          go_target_os: linux
           go_os: linux
           go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: docker-arm64
-          artifact: snyk-linux-arm64
           requires:
             - prepare-build
 
       - build-artifact:
           name: build alpine amd64
-          go_os: alpine
+          go_target_os: alpine
+          go_os: linux
           go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: docker-amd64
-          artifact: snyk-alpine
           c_compiler: /usr/bin/musl-gcc
           requires:
             - prepare-build
 
       - build-artifact:
           name: build macOS amd64
+          go_target_os: darwin
           go_os: darwin
           go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: macos-amd64
-          artifact: snyk-macos
           requires:
             - prepare-build
 
-      - build-windows-artifact:
-          context: snyk-windows-signing
+      - build-artifact:
           name: build windows amd64
+          go_target_os: windows
           go_os: windows
           go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          install_deps_extension: windows-full
+          install_path: 'C:\'
+          executor: win-amd64
+          context: snyk-windows-signing
           requires:
             - prepare-build
+
+      #      - build-artifact:
+      #          name: build windows amd64
+      #          go_target_os: windows
+      #          go_os: windows
+      #          go_arch: amd64
+      #          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+      #          make_target: build-fips
+      #          install_deps_extension: windows-full
+      #          install_path: 'C:\'
+      #          executor: win-amd64
+      #          context: snyk-windows-signing
+      #          requires:
+      #            - prepare-build
+      #
+      #      - build-artifact:
+      #          name: fips build linux amd64
+      #          go_target_os: linux
+      #          go_os: linux
+      #          go_arch: amd64
+      #          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+      #          make_target: build-fips
+      #          executor: docker-amd64
+      #          requires:
+      #            - prepare-build
+      #
+      #      - build-artifact:
+      #          name: fips build linux arm64
+      #          go_target_os: linux
+      #          go_os: linux
+      #          go_arch: arm64
+      #          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+      #          make_target: build-fips
+      #          executor: docker-arm64
+      #          requires:
+      #            - prepare-build
 
       - regression-tests:
           name: regression-tests
@@ -515,7 +615,7 @@ jobs:
           command: |
             npm run lint
             pushd cliv2 
-              make lint configure
+              make lint
             popd
       - snyk/scan:
           fail-on-issues: true
@@ -540,7 +640,7 @@ jobs:
       - run:
           name: Running Go unit tests
           working_directory: ./cliv2
-          command: make configure whiteboxtest
+          command: make whiteboxtest
       - run:
           name: Running Tap tests
           command:
@@ -563,35 +663,11 @@ jobs:
             - binary-releases/snyk-fix.tgz
             - binary-releases/snyk-protect.tgz
 
-  build-windows-artifact:
-    parameters:
-      go_os:
-        type: string
-      go_arch:
-        type: string
-    executor:
-      name: win/default
-      size: large
-    steps:
-      - prepare-workspace
-      - install-deps-windows-full
-      - run:
-          name: Build Windows
-          shell: powershell
-          command: make build GOOS=windows GOARCH=amd64
-          environment:
-            CGO_ENABLED: 1
-      - store_artifacts:
-          path: binary-releases
-      - persist_to_workspace:
-          root: .
-          paths:
-            - binary-releases/snyk-*
-            - binary-releases/version
-
   build-artifact:
     parameters:
       go_os:
+        type: string
+      go_target_os:
         type: string
       go_arch:
         type: string
@@ -600,23 +676,35 @@ jobs:
         default: ''
       executor:
         type: string
-      artifact:
+      go_download_base_url:
         type: string
+      make_target:
+        type: string
+        default: 'build'
+      install_deps_extension:
+        type: string
+        default: 'noop'
+      install_path:
+        type: string
+        default: '.'
     executor: << parameters.executor >>
-    environment:
-      HOSTTYPE: << parameters.go_arch >>
     steps:
       - prepare-workspace
-      - go/install:
-          version: << pipeline.parameters.go_version >>
+      - install-deps-<< parameters.install_deps_extension >>
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - restore_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
       - run:
-          name: Build << parameters.go_os >>/<< parameters.go_arch >>
+          name: Build << parameters.go_target_os >>/<< parameters.go_arch >>
           environment:
             CC: << parameters.c_compiler >>
             CGO_ENABLED: 1
-          command: make build GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
+          command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >>
       - save_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
           paths: [/home/circleci/go/pkg/mod]
