@@ -135,34 +135,6 @@ commands:
           paths:
             - ~\AppData\Local\Temp\chocolatey
 
-  install-deps-linux:
-    parameters:
-      dotnet_version:
-        type: string
-        default: '7.0'
-    steps:
-      - restore_cache:
-          key: install-deps-linux-v2-{{ arch }}
-      - run:
-          name: Download and install dotnet
-          command: |
-            if ! command -v dotnet &> /dev/null
-            then
-              echo "dotnet could not be found, downloading and installing"
-              curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel << parameters.dotnet_version >>
-              exit
-            fi
-      - run:
-          name: Save dotnet to path
-          command: echo 'export PATH=~/.dotnet/:${PATH}' >> $BASH_ENV
-      - run:
-          name: Check dotnet version
-          command: dotnet --version
-      - save_cache:
-          key: install-deps-linux-v2-{{ arch }}
-          paths:
-            - ~/.dotnet
-
   install-deps-noop:
     steps:
       - run:
@@ -664,7 +636,6 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - prepare-workspace
-      - install-deps-linux
       - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
