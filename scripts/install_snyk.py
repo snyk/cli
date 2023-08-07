@@ -5,7 +5,7 @@ import platform
 
 import requests
 
-
+# export this function
 def get_os_arch():
     system = platform.system()
     machine = platform.machine()

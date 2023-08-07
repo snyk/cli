@@ -851,7 +851,7 @@ jobs:
           shell: bash
           command: |
             PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests || PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests 
-            python scripts/install-snyk.py $(cat binary-releases/version) || python3 scripts/install-snyk.py $(cat binary-releases/version)
+            python scripts/install_snyk.py $(cat binary-releases/version) || python3 scripts/install_snyk.py $(cat binary-releases/version)
 
   release-s3:
     executor: docker-amd64
