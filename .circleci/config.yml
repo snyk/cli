@@ -14,12 +14,12 @@ executors:
       - image: alpine:3.17
   docker-amd64:
     docker:
-      - image: bastiandoetsch209/cli-build:20230802-090444
+      - image: bastiandoetsch209/cli-build:20230806-080507
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-arm64:
     docker:
-      - image: bastiandoetsch209/cli-build-arm64:20230802-090444
+      - image: bastiandoetsch209/cli-build-arm64:20230806-080507
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   linux-amd64:
@@ -134,34 +134,6 @@ commands:
           key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
-
-  install-deps-linux:
-    parameters:
-      dotnet_version:
-        type: string
-        default: '7.0'
-    steps:
-      - restore_cache:
-          key: install-deps-linux-v2-{{ arch }}
-      - run:
-          name: Download and install dotnet
-          command: |
-            if ! command -v dotnet &> /dev/null
-            then
-              echo "dotnet could not be found, downloading and installing"
-              curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel << parameters.dotnet_version >>
-              exit
-            fi
-      - run:
-          name: Save dotnet to path
-          command: echo 'export PATH=~/.dotnet/:${PATH}' >> $BASH_ENV
-      - run:
-          name: Check dotnet version
-          command: dotnet --version
-      - save_cache:
-          key: install-deps-linux-v2-{{ arch }}
-          paths:
-            - ~/.dotnet
 
   install-deps-noop:
     steps:
@@ -664,7 +636,6 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - prepare-workspace
-      - install-deps-linux
       - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config

@@ -51,14 +51,18 @@ RUN mkdir -p /target/global-logging
 RUN chown -R circleci scripts /target && chmod 770 scripts/*
 
 RUN scripts/install-swift.sh $ARCH
+ENV PATH=/usr/local/swift/usr/bin:$PATH
 
 USER circleci
 # install java & scala
 RUN curl -s "https://get.sdkman.io" | bash
 RUN scripts/jvm-install.sh
-
 ENV PATH=/home/circleci/.sdkman/candidates/scala/current/bin:/home/circleci/.sdkman/candidates/sbt/current/bin:/home/circleci/.sdkman/candidates/java/current/bin:$PATH
-ENV PATH=/usr/local/swift/usr/bin:$PATH
+
+# install dotnet
+RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 7.0
+ENV PATH=/home/circleci/.dotnet:$PATH
+
 ENV TEMP=/tmp
 ENV TMP=$TEMP
 ENV TMPDIR=$TEMP
