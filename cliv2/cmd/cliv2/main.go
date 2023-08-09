@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/snyk/go-application-framework/pkg/networking/fips"
 	"io"
 	"net/http"
 	"os"
@@ -385,6 +386,13 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 		debugLogger.Printf("%-22s %s", name+":", value)
 	}
 
+	fipsEnabled := "Disabled"
+	if !fips.IsAvailable() {
+		fipsEnabled = "Not available"
+	} else if config.GetBool(configuration.FIPS_ENABLED) {
+		fipsEnabled = "Enabled"
+	}
+
 	tablePrint("Version", cliv2.GetFullVersion())
 	tablePrint("Platform", internalOS+" "+runtime.GOARCH)
 	tablePrint("API", config.GetString(configuration.API_URL))
@@ -394,7 +402,8 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Analytics", analytics)
 	tablePrint("Authorization", authorization)
 	tablePrint("Features", "")
-	tablePrint("  --auth-type=oauth", oauthEnabled)
+	tablePrint("  oauth", oauthEnabled)
+	tablePrint("  fips", fipsEnabled)
 
 }
 
