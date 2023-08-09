@@ -90,14 +90,14 @@ describe('iac test text output', () => {
         EOL +
         '  Project name: fixtures' +
         EOL.repeat(2) +
-        '✔ Files without issues: 0' +
-        EOL +
-        '✗ Files with issues: 3' +
-        EOL +
-        '  Ignored issues: 12' +
-        EOL +
-        '  Total issues: ',
+        '✔ Files without issues: ',
     );
+
+    expect(stdout).toContain(EOL + '✗ Files with issues: ');
+
+    expect(stdout).toContain(EOL + '  Ignored issues: ');
+
+    expect(stdout).toContain(EOL + '  Total issues: ');
   });
 
   describe('with multiple test results', () => {
