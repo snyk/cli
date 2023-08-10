@@ -28,8 +28,12 @@ import { bootstrap } from 'global-agent';
 import chalk from 'chalk';
 import * as debugLib from 'debug';
 import { getCodeClientProxyUrl } from '../../code-config';
+import { makeRequest } from '../../request';
+import { Global } from '../../../cli/args';
 
 const debug = debugLib('snyk-code');
+
+declare const global: Global;
 
 type GetCodeAnalysisArgs = {
   options: Options;
@@ -64,6 +68,7 @@ export async function getCodeTestResults(
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
     validateLocalCodeEngineUrl(sastSettings.localCodeEngine.url);
+    await logLocalCodeEngineVersion(sastSettings.localCodeEngine.url)
   }
 
   const baseURL = isLocalCodeEngineEnabled
@@ -293,4 +298,34 @@ function validateLocalCodeEngineUrl(localCodeEngineUrl: string): void {
       'Snyk Code Local Engine. Refer to our docs on https://docs.snyk.io/products/snyk-code/deployment-options/snyk-code-local-engine/cli-and-ide to learn more',
     );
   }
+}
+
+async function logLocalCodeEngineVersion(lceUrl = ""): Promise<void> {
+  const scleBaseUrl = lceUrl.replace('/api', '')
+
+  const ignoreUnknownCAoriginalValue = global.ignoreUnknownCA;
+  // `makeRequest` function converts `http` calls to `https`. In some cases, SCLE might be running on http.
+  // This problem is fixed by setting `options.rejectUnauthorized = true`.
+  // Setting `global.ignoreUnknownCA` to true adds rejectUnauthorized=true as an option in `makeRequest`.
+  global.ignoreUnknownCA = true;
+
+  const { res: { body, statusCode } } = await makeRequest({
+    url: `${scleBaseUrl}/status`,
+    method: 'get'
+  })
+
+  // Resetting `global.ignoreUnknownCA` to whatever value it had before I changed it above.
+  global.ignoreUnknownCA = ignoreUnknownCAoriginalValue;
+
+  if (body?.ok && body?.version) {
+    debug(chalk.green(`Snyk Code Local Engine version: ${body.version}`))
+    return;
+  }
+
+  if (body?.ok === false) {
+    console.log(chalk.red(`Snyk Code Local Engine health check failed. statusCode:${statusCode}, version: ${body?.version}`))
+    console.log(chalk.red(`Message: ${JSON.stringify(body?.message)}`))
+    return
+  }
+
 }

@@ -3,9 +3,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import stripAnsi from 'strip-ansi';
 import { analyzeFolders, AnalysisSeverity } from '@snyk/code-client';
+import { makeRequest } from '../../../../src/lib/request';
+import chalk from 'chalk';
 
 jest.mock('@snyk/code-client');
+jest.mock('../../../../src/lib/request');
+jest.mock('chalk');
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
+const makeRequestMock = makeRequest as jest.Mock
 
 import { loadJson } from '../../../utils';
 import * as checks from '../../../../src/lib/plugins/sast/checks';
@@ -929,6 +934,33 @@ describe('Test snyk code', () => {
       'Missing configuration for Snyk Code Local Engine. Refer to our docs on https://docs.snyk.io/products/snyk-code/deployment-options/snyk-code-local-engine/cli-and-ide to learn more',
     );
   });
+
+  it('Local code engine - makes GET /status to get SCLE version', async () => {
+    const sastSettings = {
+      sastEnabled: true,
+      localCodeEngine: {
+        url: 'http://foo.bar',
+        allowCloudUpload: true,
+        enabled: true,
+      },
+    };
+    await getCodeTestResults(
+      '.',
+      {
+        path: '',
+        code: true,
+      },
+      sastSettings,
+      'test-id'
+    )
+
+    const firstArgumentOfMakeRequest = makeRequestMock.mock.calls[0][0]
+    expect(firstArgumentOfMakeRequest).toEqual({
+      method: "get",
+      url: "http://foo.bar/status",
+    })
+  });
+
 });
 
 function stripAscii(asciiStr) {
