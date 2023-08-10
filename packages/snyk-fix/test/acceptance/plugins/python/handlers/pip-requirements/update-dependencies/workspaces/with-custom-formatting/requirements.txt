@@ -1,4 +1,4 @@
 
 #some comment
 
-Django==1.6.1
+Django==3.2.18

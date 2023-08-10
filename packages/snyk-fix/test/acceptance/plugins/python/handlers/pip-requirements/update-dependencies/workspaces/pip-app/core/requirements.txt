@@ -1,1 +1,1 @@
-Django==1.6.1 ; python_version > '1.0'
+Django==3.2.18 ; python_version > '1.0'
