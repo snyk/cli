@@ -210,6 +210,23 @@ commands:
           name: No dependencies to install
           command: echo all done!
 
+  install-deps-macos-full:
+    parameters:
+      items:
+        type: string
+        default: go gradle python elixir composer gradle@6 maven sbt dotnet
+    steps:
+      - restore_cache:
+          key: acceptance-tests-macos-<< parameters.items >>
+      - run:
+          name: Installing sdks and tools via homebrew
+          command: |
+            brew install << parameters.items >>
+      - save_cache:
+          key: acceptance-tests-macos-<< parameters.items >>
+          paths:
+            - ~/Library/Caches/Homebrew
+
   failed-release-notification:
     steps:
       - run:
@@ -334,7 +351,7 @@ workflows:
             - build linux amd64
           test_snyk_command: ./binary-releases/snyk-linux
 
-      - acceptance-tests-linux:
+      - acceptance-tests:
           name: acceptance-tests linux amd64
           context:
             - nodejs-install
@@ -347,7 +364,7 @@ workflows:
           executor: docker-amd64
           test_snyk_command: ./binary-releases/snyk-linux
 
-      - acceptance-tests-linux:
+      - acceptance-tests:
           name: acceptance-tests linux arm64
           context:
             - nodejs-install
@@ -374,7 +391,7 @@ workflows:
           requires:
             - build linux arm64
 
-      - acceptance-tests-linux:
+      - acceptance-tests:
           name: acceptance-tests alpine amd64
           context:
             - nodejs-install
@@ -387,7 +404,7 @@ workflows:
           executor: alpine
           test_snyk_command: ./binary-releases/snyk-alpine
 
-      - acceptance-tests-macos:
+      - acceptance-tests:
           name: acceptance-tests macOS amd64
           context:
             - nodejs-install
@@ -399,6 +416,7 @@ workflows:
             - build macOS amd64
           executor: macos-amd64
           test_snyk_command: ./binary-releases/snyk-macos
+          install_deps_extension: macos-full
 
       - acceptance-tests-windows:
           name: acceptance-tests windows amd64
@@ -738,28 +756,6 @@ jobs:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: 1
 
-  acceptance-tests-linux:
-    parameters:
-      test_snyk_command:
-        type: string
-      executor:
-        type: string
-      environment:
-        type: string
-        default: ''
-    executor: << parameters.executor >>
-    steps:
-      - prepare-workspace
-      - run:
-          name: Configuring artifact
-          command: << parameters.test_snyk_command >> config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
-      - run:
-          name: Running acceptance tests
-          command: npm run test:acceptance -- --selectProjects snyk
-          environment:
-            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-            TEST_SNYK_DONT_SKIP_ANYTHING: 1
-
   acceptance-tests-macos:
     working_directory: /Users/distiller/snyk
     environment:
@@ -839,7 +835,7 @@ jobs:
       - run:
           name: Installing Snyk CLI
           command: |
-            sudo ln -s << parameters.test_snyk_command >> /usr/local/bin/snyk
+            sudo ln -s $(realpath << parameters.test_snyk_command >>) /usr/local/bin/snyk
             snyk --version
       - run:
           name: Running ShellSpec tests
