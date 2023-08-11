@@ -1,5 +1,7 @@
 package main
 
+import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+
 import (
 	"crypto/sha256"
 	"encoding/hex"
@@ -430,12 +432,6 @@ func MainWithErrorCode() int {
 
 	initApplicationConfiguration(config)
 	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(config))
-
-	if fipsErr := fips.Validate(config); fipsErr != nil {
-		// if fips validation fails, an important assumption is not met,
-		// for example somebody is expecting fips to work, but it doesn't.
-		panic(fipsErr)
-	}
 
 	if noProxyAuth := config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		config.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))

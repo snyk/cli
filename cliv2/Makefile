@@ -148,13 +148,6 @@ $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 
 .PHONY: fips
 fips:
-# adapt executable name if fips is used
-ifneq (, $(_EXE_POSTFIX))
-	$(eval V2_EXECUTABLE_NAME := $(subst $(_EXE_POSTFIX),$(_SEPARATOR)$(_FIPS_EXTENSION)$(_EXE_POSTFIX), $(V2_EXECUTABLE_NAME)))
-else
-	$(eval V2_EXECUTABLE_NAME := "$(V2_EXECUTABLE_NAME)$(_SEPARATOR)$(_FIPS_EXTENSION)")
-endif
-
 # assign name of crypto backend to use
 	$(eval FIPS_CRYPTO_BACKEND := $(FIPS_CRYPTO_BACKEND_DEFAULT))
 	@echo "$(LOG_PREFIX) FIPS"
