@@ -375,7 +375,7 @@ workflows:
               ignore: master
           requires:
             - build alpine amd64
-          executor: docker-amd64
+          executor: alpine
           test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-alpine
 
       - acceptance-tests-macos:
