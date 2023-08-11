@@ -13,10 +13,10 @@ BINARY_RELEASES_FOLDER_TS_CLI = binary-releases
 BINARY_OUTPUT_FOLDER = binary-releases
 SHASUM_CMD = shasum
 GOHOSTOS = $(shell go env GOHOSTOS)
-PYTHON = python
+export PYTHON = python
 
 PYTHON_VERSION = $(shell python3 --version)
-ifdef (PYTHON_VERSION)
+ifneq (, $(PYTHON_VERSION))
 	PYTHON = python3
 endif
 
@@ -60,15 +60,18 @@ prepack: $(BINARY_OUTPUT_FOLDER)/version
 	cd $(BINARY_WRAPPER_DIR); npm version "$(shell cat $(WORKING_DIR)/$(BINARY_RELEASES_FOLDER_TS_CLI)/version)" --no-git-tag-version --include-workspace-root
 	npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
 
+.PHONY: clean-package-files
+clean-package-files:
+	@git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json $(BINARY_WRAPPER_DIR)/package.json $(BINARY_WRAPPER_DIR)/package-lock.json 2> /dev/null
+
 .PHONY: clean-prepack
-clean-prepack:
-	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json $(BINARY_WRAPPER_DIR)/package.json $(BINARY_WRAPPER_DIR)/package-lock.json
-	rm -f prepack
+clean-prepack: clean-package-files
+	@rm -f prepack
 
 .PHONY: clean-ts
 clean-ts: 
-	npm run clean
-	rm -f -r $(BINARY_RELEASES_FOLDER_TS_CLI)
+	@npm run clean
+	@rm -f -r $(BINARY_RELEASES_FOLDER_TS_CLI)
 
 $(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc:
 	./release-scripts/sha256sums.txt.asc.sh
@@ -199,9 +202,15 @@ test-binary-wrapper: build-binary-wrapper
 .PHONY: pre-build
 pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI)
 
+.PHONY: build-fips
+build-fips: pre-build
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	@$(MAKE) clean-package-files
+
 .PHONY: build
 build: pre-build
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	@$(MAKE) clean-package-files
 
 .PHONY: sign
 sign:
@@ -209,8 +218,12 @@ sign:
 
 .PHONY: clean
 clean:
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) clean-full
-	$(MAKE) clean-prepack
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) clean-full USE_LEGACY_EXECUTABLE_NAME=1
+	@$(MAKE) clean-prepack
+
+.PHONY: clean-golang
+clean-golang:
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) clean USE_LEGACY_EXECUTABLE_NAME=1
 
 # targets responsible for the testing of CLI build
 .PHONY: acceptance-test-with-proxy

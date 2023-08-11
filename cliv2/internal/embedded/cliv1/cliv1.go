@@ -9,8 +9,8 @@ import (
 	"github.com/snyk/cli/cliv2/internal/utils"
 )
 
-//go:embed cliv1.version
-var snykCLIVersion string
+// The actual version gets injected at build time
+var snykCLIVersion string = "0.0.0"
 
 func CLIV1Version() string {
 	return strings.TrimSpace(snykCLIVersion)

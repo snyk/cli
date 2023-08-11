@@ -1,19 +1,20 @@
-//go:build application
+//go:build !application
+
+// For tests
+
 package cliv1
 
 import (
 	_ "embed"
 )
 
-//go:embed FILENAME
-var snykCLIBytes []byte
+var snykCLIBytes []byte = []byte("\n")
 
 func getCLIv1Filename() string {
 	return "FILENAME"
 }
 
-//go:embed FILENAME.sha256
-var snykCLISHA256 string
+var snykCLISHA256 string = "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
 
 func ExpectedSHA256() string {
 	sha256 := snykCLISHA256[0:64]
