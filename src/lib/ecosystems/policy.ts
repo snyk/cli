@@ -42,14 +42,32 @@ export function filterIgnoredIssues(
     return [issues, issuesData];
   }
 
-  const filteredIssuesData: IssuesData = { ...issuesData };
+  const upperCaseKeys = (obj) => {
+    return Object.keys(obj).reduce((acc, k) => {
+      acc[k.toUpperCase()] = obj[k];
+      return acc;
+    }, {});
+  };
+
+  const policyIgnoreKeyUpperCased = upperCaseKeys({ ...policy.ignore });
+
+  const issuesDataCopy = { ...issuesData };
+  const returnUnfilteredIssuesData =
+    !issues?.length || !Object.keys(policy.ignore)?.length;
+  let filteredIssuesData = returnUnfilteredIssuesData ? issuesDataCopy : {};
+
   const filteredIssues: Issue[] = issues.filter((issue) => {
-    const ignoredIssue = policy.ignore[issue.issueId];
-    if (!ignoredIssue) {
+    const existingIgnoredVulnID = Object.keys(policyIgnoreKeyUpperCased)
+      .find((key) => key === issue?.issueId.toUpperCase())
+      ?.toUpperCase();
+
+    if (!existingIgnoredVulnID) {
       return true;
     }
 
-    const allResourcesRule = ignoredIssue.find((element) => '*' in element);
+    const allResourcesRule = policyIgnoreKeyUpperCased[
+      existingIgnoredVulnID
+    ].find((element) => '*' in element);
     if (!allResourcesRule) {
       return true;
     }
@@ -57,8 +75,15 @@ export function filterIgnoredIssues(
     const expiredIgnoreRule =
       new Date(allResourcesRule['*'].expires) < new Date();
     if (!expiredIgnoreRule) {
-      delete filteredIssuesData[issue.issueId];
+      filteredIssuesData = Object.keys(issuesDataCopy).reduce((acc, key) => {
+        if (!policyIgnoreKeyUpperCased[key.toUpperCase()]) {
+          acc[key] = issuesDataCopy[key];
+        }
+        return acc;
+      }, {});
       return false;
+    } else {
+      filteredIssuesData = issuesDataCopy;
     }
 
     return true;

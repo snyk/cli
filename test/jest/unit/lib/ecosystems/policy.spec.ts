@@ -82,6 +82,116 @@ describe('filterIgnoredIssues fn', () => {
     });
   });
 
+  it('should be case insensitive when filtering not-expired ignored issues', () => {
+    const issues: Issue[] = [
+      {
+        pkgName: 'https://foo.bar|test1',
+        pkgVersion: '1.0.0',
+        issueId: 'snyk-TEST-1',
+        fixInfo: {
+          isPatchable: false,
+          upgradePaths: [],
+        },
+      },
+      {
+        pkgName: 'https://foo.bar|test2',
+        pkgVersion: '2.0.0',
+        issueId: 'SNYK-TEST-2',
+        fixInfo: {
+          isPatchable: false,
+          upgradePaths: [],
+        },
+      },
+      {
+        pkgName: 'https://foo.bar|test2',
+        pkgVersion: '2.0.0',
+        issueId: 'snyk-TEST-3',
+        fixInfo: {
+          isPatchable: false,
+          upgradePaths: [],
+        },
+      },
+    ];
+    const issuesData: IssuesData = {
+      'SNYK-TEST-1': {
+        title: 'Arbitrary Code Execution',
+        severity: SEVERITY.LOW,
+        id: 'SNYK-test-1',
+      },
+      'SNYK-TEST-2': {
+        title: 'Arbitrary Code Execution',
+        severity: SEVERITY.MEDIUM,
+        id: 'SNYK-TEST-2',
+      },
+      'SNyk-teST-3': {
+        title: 'Arbitrary Code Execution',
+        severity: SEVERITY.MEDIUM,
+        id: 'SnYK-TESt-3',
+      },
+      'snyk-test-4': {
+        title: 'Arbitrary Code Execution',
+        severity: SEVERITY.MEDIUM,
+        id: 'SNYK-TEST-4',
+      },
+    };
+    const policy = {
+      ignore: {
+        'SnYk-tEsT-1': [
+          {
+            '*': {
+              reason: 'None Given',
+              created: getCurrentDate(),
+              expires: getFutureDate(),
+            },
+          },
+        ],
+        'SnYk-tEsT-3': [
+          {
+            '*': {
+              reason: 'None Given',
+              created: getCurrentDate(),
+              expires: getFutureDate(),
+            },
+          },
+        ],
+        'SnYk-tEsT-4': [
+          {
+            '*': {
+              reason: 'None Given',
+              created: getCurrentDate(),
+              expires: getFutureDate(),
+            },
+          },
+        ],
+      },
+    };
+
+    const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
+      issues,
+      issuesData,
+      policy as Policy,
+    );
+
+    expect(filteredIssues).toEqual([
+      {
+        pkgName: 'https://foo.bar|test2',
+        pkgVersion: '2.0.0',
+        issueId: 'SNYK-TEST-2',
+        fixInfo: {
+          isPatchable: false,
+          upgradePaths: [],
+        },
+      },
+    ]);
+    expect(filteredIssuesData).toEqual({
+      'SNYK-TEST-2': {
+        title: 'Arbitrary Code Execution',
+        severity: SEVERITY.MEDIUM,
+        id: 'SNYK-TEST-2',
+      },
+    });
+  });
+
   it('should not filter the expired ignored issues', () => {
     const issues: Issue[] = [
       {
