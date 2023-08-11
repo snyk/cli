@@ -2,7 +2,7 @@
 version: v1.24.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-JS-LODASH-590103:
+  SNYK-js-LODASH-590103:
     - '*':
         reason: None Given
         expires: 2021-11-21T21:55:08.466Z

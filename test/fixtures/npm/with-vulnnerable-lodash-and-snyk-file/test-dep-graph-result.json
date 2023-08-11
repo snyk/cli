@@ -73,8 +73,8 @@
               "isPinnable": false
             }
           },
-          "SNYK-JS-LODASH-590103": {
-            "issueId": "SNYK-JS-LODASH-590103",
+          "SNYK-JS-lodash-590103": {
+            "issueId": "SNYK-JS-lodash-590103",
             "fixInfo": {
               "isPatchable": false,
               "upgradePaths": [
@@ -302,7 +302,7 @@
         "socialTrendAlert": false,
         "title": "Prototype Pollution"
       },
-      "SNYK-JS-LODASH-590103": {
+      "snyk-JS-LODASH-590103": {
         "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
         "alternativeIds": [],
         "creationTime": "2020-07-24T12:05:01.916784Z",
@@ -318,7 +318,7 @@
         ],
         "functions": [],
         "functions_new": [],
-        "id": "SNYK-JS-LODASH-590103",
+        "id": "snyk-JS-LODASH-590103",
         "identifiers": {
           "CVE": [],
           "CWE": [
