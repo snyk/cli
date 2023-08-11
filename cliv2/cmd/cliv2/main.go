@@ -426,6 +426,10 @@ func MainWithErrorCode() int {
 	initApplicationConfiguration(config)
 	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(config))
 
+	if fipsErr := fips.Validate(config); fipsErr != nil {
+		panic(fipsErr)
+	}
+
 	if noProxyAuth := config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		config.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
 	}
