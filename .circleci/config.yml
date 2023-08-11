@@ -406,10 +406,13 @@ workflows:
           go_os: windows
           go_arch: amd64
           executor: win/default
+          make_target: sign sign-fips
           install_deps_extension: windows-make
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - sign:
           name: sign macos amd64
@@ -422,7 +425,9 @@ workflows:
           install_deps_extension: noop
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - create_deployment_artifacts:
           name: create deployment artifacts
@@ -436,7 +441,9 @@ workflows:
             - build fix & protect
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - should-release:
           name: release?
@@ -445,7 +452,9 @@ workflows:
             - create deployment artifacts
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - pre-release:
           name: upload version
@@ -454,7 +463,9 @@ workflows:
             - release?
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - npm-validation:
           name: Validate NPM artifacts (<< matrix.executor >>)
@@ -469,7 +480,9 @@ workflows:
             - upload version
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - test-release:
           name: e2e tests (<< matrix.executor >>)
@@ -495,7 +508,9 @@ workflows:
             - upload version
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - release-s3:
           name: upload latest
@@ -801,13 +816,16 @@ jobs:
         type: string
       install_deps_extension:
         type: string
+      make_target:
+        type: string
+        default: 'sign'
     executor: << parameters.executor >>
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
       - run:
           name: Signing << parameters.go_os >> artifact
-          command: make sign GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
+          command: make << parameters.make_target >> GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
       - persist_to_workspace:
           root: .
           paths:
