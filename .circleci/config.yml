@@ -366,6 +366,20 @@ workflows:
           test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux-arm64
 
       - acceptance-tests-linux:
+          name: acceptance-tests fips
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - build linux arm64
+          executor: cbl-mariner-arm64
+          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux-arm64-fips
+          environment: GOFIPS=1
+
+      - acceptance-tests-linux:
           name: acceptance-tests alpine amd64
           context:
             - nodejs-install
@@ -710,7 +724,11 @@ jobs:
         type: string
       executor:
         type: string
+      environment:
+        type: string
+        default: ''
     executor: << parameters.executor >>
+    environment: << parameters.environment >>
     steps:
       - prepare-workspace
       - run:
