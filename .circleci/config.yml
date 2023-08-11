@@ -364,8 +364,7 @@ workflows:
           name: acceptance-tests fips
           executor: docker-arm64
           test_snyk_command: ./binary-releases/snyk-linux-arm64-fips
-          environment:
-            GOFIPS: 1
+          environment: 'GOFIPS: 1'
           context:
             - nodejs-install
             - team_hammerhead-cli
