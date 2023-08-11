@@ -447,7 +447,7 @@ workflows:
             - build windows amd64
           go_os: windows
           go_arch: amd64
-          executor: win/default
+          executor: win-amd64
           make_target: sign sign-fips
           install_deps_extension: windows-make
           filters:
@@ -775,9 +775,7 @@ jobs:
     parameters:
       test_snyk_command:
         type: string
-    executor:
-      name: win/default
-      size: large
+    executor: win-amd64
     steps:
       - prepare-workspace
       - install-deps-windows-full
