@@ -272,7 +272,8 @@ workflows:
           go_target_os: linux
           go_os: linux
           go_arch: amd64
-          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build clean-golang build-fips
           executor: docker-amd64
           requires:
             - prepare-build
@@ -282,7 +283,8 @@ workflows:
           go_target_os: linux
           go_os: linux
           go_arch: arm64
-          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build clean-golang build-fips
           executor: docker-arm64
           requires:
             - prepare-build
@@ -313,49 +315,14 @@ workflows:
           go_target_os: windows
           go_os: windows
           go_arch: amd64
-          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build clean-golang build-fips
           install_deps_extension: windows-full
           install_path: 'C:\'
           executor: win-amd64
           context: snyk-windows-signing
           requires:
             - prepare-build
-
-      #      - build-artifact:
-      #          name: build windows amd64
-      #          go_target_os: windows
-      #          go_os: windows
-      #          go_arch: amd64
-      #          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-      #          make_target: build-fips
-      #          install_deps_extension: windows-full
-      #          install_path: 'C:\'
-      #          executor: win-amd64
-      #          context: snyk-windows-signing
-      #          requires:
-      #            - prepare-build
-      #
-      #      - build-artifact:
-      #          name: fips build linux amd64
-      #          go_target_os: linux
-      #          go_os: linux
-      #          go_arch: amd64
-      #          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-      #          make_target: build-fips
-      #          executor: docker-amd64
-      #          requires:
-      #            - prepare-build
-      #
-      #      - build-artifact:
-      #          name: fips build linux arm64
-      #          go_target_os: linux
-      #          go_os: linux
-      #          go_arch: arm64
-      #          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-      #          make_target: build-fips
-      #          executor: docker-arm64
-      #          requires:
-      #            - prepare-build
 
       - regression-tests:
           name: regression-tests
