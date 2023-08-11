@@ -332,7 +332,7 @@ workflows:
               ignore: master
           requires:
             - build linux amd64
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
+          test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-tests-linux:
           name: acceptance-tests linux amd64
@@ -345,7 +345,7 @@ workflows:
           requires:
             - build linux amd64
           executor: docker-amd64
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
+          test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-tests-linux:
           name: acceptance-tests linux arm64
@@ -358,12 +358,12 @@ workflows:
           requires:
             - build linux arm64
           executor: docker-arm64
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux-arm64
+          test_snyk_command: ./binary-releases/snyk-linux-arm64
 
       - acceptance-tests:
           name: acceptance-tests fips
           executor: docker-arm64
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux-arm64-fips
+          test_snyk_command: ./binary-releases/snyk-linux-arm64-fips
           environment:
             GOFIPS: 1
           context:
@@ -386,7 +386,7 @@ workflows:
           requires:
             - build alpine amd64
           executor: alpine
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-alpine
+          test_snyk_command: ./binary-releases/snyk-alpine
 
       - acceptance-tests-macos:
           name: acceptance-tests macOS amd64
@@ -399,7 +399,7 @@ workflows:
           requires:
             - build macOS amd64
           executor: macos-amd64
-          test_snyk_command: /Users/distiller/snyk/binary-releases/snyk-macos
+          test_snyk_command: ./binary-releases/snyk-macos
 
       - acceptance-tests-windows:
           name: acceptance-tests windows amd64
