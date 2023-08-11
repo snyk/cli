@@ -227,6 +227,14 @@ commands:
           paths:
             - ~/Library/Caches/Homebrew
 
+  install-deps-alpine-full:
+    steps:
+      - run:
+          name: Installing Node.js + other test dependencies
+          command: |
+            apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
+            pip3 install pipenv
+
   failed-release-notification:
     steps:
       - run:
@@ -403,6 +411,8 @@ workflows:
             - build alpine amd64
           executor: alpine
           test_snyk_command: ./binary-releases/snyk-alpine
+          install_deps_extension: alpine-full
+          dont_skip_tests: 0
 
       - acceptance-tests:
           name: acceptance-tests macOS amd64
@@ -738,6 +748,9 @@ jobs:
       gofips:
         type: integer
         default: 0
+      dont_skip_tests:
+        type: integer
+        default: 1
       install_deps_extension:
         type: string
         default: 'noop'
@@ -745,6 +758,8 @@ jobs:
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
+      - run:
+          command: npm install
       - run:
           name: Configuring artifact
           command: << parameters.test_snyk_command >> config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
@@ -754,42 +769,7 @@ jobs:
           environment:
             GOFIPS: << parameters.gofips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-            TEST_SNYK_DONT_SKIP_ANYTHING: 1
-
-  acceptance-tests-macos:
-    working_directory: /Users/distiller/snyk
-    environment:
-      HOMEBREW_NO_AUTO_UPDATE: 1
-    parameters:
-      test_snyk_command:
-        type: string
-      executor:
-        type: string
-      items:
-        type: string
-        default: go gradle python elixir composer gradle@6 maven sbt dotnet
-    executor: << parameters.executor >>
-    steps:
-      - prepare-workspace
-      - restore_cache:
-          key: acceptance-tests-macos-<< parameters.items >>
-      - run:
-          name: Installing sdks and tools via homebrew
-          command: |
-            brew install << parameters.items >>
-      - save_cache:
-          key: acceptance-tests-macos-<< parameters.items >>
-          paths:
-            - ~/Library/Caches/Homebrew
-      - run:
-          name: Configuring artifact
-          command: << parameters.test_snyk_command >> config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
-      - run:
-          name: Running acceptance tests
-          command: npm run test:acceptance -- --selectProjects snyk
-          environment:
-            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-            TEST_SNYK_DONT_SKIP_ANYTHING: 1
+            TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
 
   acceptance-tests-windows:
     parameters:
