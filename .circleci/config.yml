@@ -81,11 +81,6 @@ executors:
       - image: ubuntu:focal
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
-  cbl-mariner-arm64:
-    docker:
-      - image: mcr.microsoft.com/cbl-mariner/base/core:2.0
-    working_directory: /mnt/ramdisk/snyk
-    resource_class: arm.medium
   macos-amd64:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
@@ -365,8 +360,12 @@ workflows:
           executor: docker-arm64
           test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux-arm64
 
-      - acceptance-tests-linux:
+      - acceptance-tests:
           name: acceptance-tests fips
+          executor: docker-arm64
+          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux-arm64-fips
+          environment:
+            GOFIPS: 1
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -375,9 +374,6 @@ workflows:
               ignore: master
           requires:
             - build linux arm64
-          executor: cbl-mariner-arm64
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux-arm64-fips
-          environment: GOFIPS=1
 
       - acceptance-tests-linux:
           name: acceptance-tests alpine amd64
@@ -523,7 +519,6 @@ workflows:
                 - 'linux-ubuntu-jammy-arm64'
                 - 'linux-ubuntu-focal-arm64'
                 - 'alpine'
-                - 'cbl-mariner-arm64'
           requires:
             - upload version
           filters:
@@ -553,7 +548,6 @@ workflows:
             - e2e tests (linux-ubuntu-jammy-arm64)
             - e2e tests (linux-ubuntu-focal-arm64)
             - e2e tests (alpine)
-            - e2e tests (cbl-mariner-arm64)
           filters:
             branches:
               only: master
@@ -718,6 +712,33 @@ jobs:
           paths:
             - binary-releases/snyk-*
 
+  acceptance-tests:
+    parameters:
+      test_snyk_command:
+        type: string
+      executor:
+        type: string
+      environment:
+        type: string
+        default: ''
+      install_deps_extension:
+        type: string
+        default: 'noop'
+    executor: << parameters.executor >>
+    environment: << parameters.environment >>
+    steps:
+      - prepare-workspace
+      - install-deps-<< parameters.install_deps_extension >>
+      - run:
+          name: Configuring artifact
+          command: << parameters.test_snyk_command >> config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
+      - run:
+          name: Running acceptance tests
+          command: npm run test:acceptance -- --selectProjects snyk
+          environment:
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+            TEST_SNYK_DONT_SKIP_ANYTHING: 1
+
   acceptance-tests-linux:
     parameters:
       test_snyk_command:
@@ -728,7 +749,6 @@ jobs:
         type: string
         default: ''
     executor: << parameters.executor >>
-    environment: << parameters.environment >>
     steps:
       - prepare-workspace
       - run:
