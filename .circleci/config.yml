@@ -364,7 +364,7 @@ workflows:
           name: acceptance-tests fips
           executor: docker-arm64
           test_snyk_command: ./binary-releases/snyk-linux-arm64-fips
-          environment: 'GOFIPS: 1'
+          gofips: 1
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -717,14 +717,13 @@ jobs:
         type: string
       executor:
         type: string
-      environment:
-        type: string
-        default: ''
+      gofips:
+        type: integer
+        default: 0
       install_deps_extension:
         type: string
         default: 'noop'
     executor: << parameters.executor >>
-    environment: << parameters.environment >>
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
@@ -735,6 +734,7 @@ jobs:
           name: Running acceptance tests
           command: npm run test:acceptance -- --selectProjects snyk
           environment:
+            GOFIPS: << parameters.gofips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: 1
 
