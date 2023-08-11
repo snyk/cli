@@ -368,6 +368,16 @@ func logHeaderAuthorizationInfo(
 	return authorization, oauthEnabled
 }
 
+func getFipsStatus(config configuration.Configuration) string {
+	fipsEnabled := "Disabled"
+	if !fips.IsAvailable() {
+		fipsEnabled = "Not available"
+	} else if config.GetBool(configuration.FIPS_ENABLED) {
+		fipsEnabled = "Enabled"
+	}
+	return fipsEnabled
+}
+
 func writeLogHeader(config configuration.Configuration, networkAccess networking.NetworkAccess) {
 	authorization, oauthEnabled := logHeaderAuthorizationInfo(config, networkAccess)
 
@@ -386,12 +396,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 		debugLogger.Printf("%-22s %s", name+":", value)
 	}
 
-	fipsEnabled := "Disabled"
-	if !fips.IsAvailable() {
-		fipsEnabled = "Not available"
-	} else if config.GetBool(configuration.FIPS_ENABLED) {
-		fipsEnabled = "Enabled"
-	}
+	fipsEnabled := getFipsStatus(config)
 
 	tablePrint("Version", cliv2.GetFullVersion())
 	tablePrint("Platform", internalOS+" "+runtime.GOARCH)
@@ -427,6 +432,8 @@ func MainWithErrorCode() int {
 	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(config))
 
 	if fipsErr := fips.Validate(config); fipsErr != nil {
+		// if fips validation fails, an important assumption is not met,
+		// for example somebody is expecting fips to work, but it doesn't.
 		panic(fipsErr)
 	}
 
