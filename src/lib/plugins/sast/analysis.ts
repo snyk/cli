@@ -66,7 +66,7 @@ export async function getCodeTestResults(
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
     validateLocalCodeEngineUrl(sastSettings.localCodeEngine.url);
-    if (process.env.DEBUG) {
+    if (options.debug) {
       await logLocalCodeEngineVersion(sastSettings.localCodeEngine.url)
     }
   }
