@@ -23,7 +23,6 @@ parameters:
 orbs:
   prodsec: snyk/prodsec-orb@1.0
   snyk: snyk/snyk@1.7.0
-  win: circleci/windows@5.0
   aws-cli: circleci/aws-cli@2.0.3
   gh: circleci/github-cli@2.1.0
 
@@ -91,10 +90,15 @@ executors:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '14.3.1'
     resource_class: macos.m1.large.gen1
-  win-amd64:
+  win-server2022-amd64:
     machine:
       image: windows-server-2022-gui:2023.07.1
     resource_class: windows.large
+    shell: powershell
+  win-server2019-amd64:
+    machine:
+      image: windows-server-2019-vs2019:2022.08.1
+    resource_class: windows.medium
     shell: powershell
 
 commands:
@@ -316,7 +320,7 @@ workflows:
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           install_deps_extension: windows-full
           install_path: 'C:\'
-          executor: win-amd64
+          executor: win-server2022-amd64
           context: snyk-windows-signing
           requires:
             - prepare-build
@@ -330,7 +334,7 @@ workflows:
       #          make_target: build-fips
       #          install_deps_extension: windows-full
       #          install_path: 'C:\'
-      #          executor: win-amd64
+      #          executor: win-server2022-amd64
       #          context: snyk-windows-signing
       #          requires:
       #            - prepare-build
@@ -438,7 +442,7 @@ workflows:
             - build windows amd64
           go_os: windows
           go_arch: amd64
-          executor: win/default
+          executor: win-server2022-amd64
           install_deps_extension: windows-make
           filters:
             branches:
@@ -496,7 +500,7 @@ workflows:
             parameters:
               executor:
                 - 'docker-amd64'
-                - 'win/server-2019'
+                - 'win-server2019-amd64'
                 - 'macos-amd64'
           requires:
             - upload version
@@ -512,8 +516,8 @@ workflows:
               executor:
                 - 'docker-amd64'
                 - 'docker-arm64'
-                - 'win/server-2019'
-                - 'win/server-2022'
+                - 'win-server2019-amd64'
+                - 'win-server2022-amd64'
                 - 'macos-amd64'
                 - 'linux-ubuntu-latest-amd64'
                 - 'linux-ubuntu-mantic-amd64'
@@ -535,12 +539,12 @@ workflows:
           context: team-hammerhead-common-deploy-tokens
           requires:
             - Validate NPM artifacts (docker-amd64)
-            - Validate NPM artifacts (win/server-2019)
+            - Validate NPM artifacts (win-server2019-amd64)
             - Validate NPM artifacts (macos-amd64)
             - e2e tests (docker-amd64)
             - e2e tests (docker-arm64)
-            - e2e tests (win/server-2019)
-            - e2e tests (win/server-2022)
+            - e2e tests (win-server2019-amd64)
+            - e2e tests (win-server2022-amd64)
             - e2e tests (macos-amd64)
             - e2e tests (linux-ubuntu-latest-amd64)
             - e2e tests (linux-ubuntu-mantic-amd64)
@@ -773,9 +777,7 @@ jobs:
     parameters:
       test_snyk_command:
         type: string
-    executor:
-      name: win/default
-      size: large
+    executor: win-server2022-amd64
     steps:
       - prepare-workspace
       - install-deps-windows-full
