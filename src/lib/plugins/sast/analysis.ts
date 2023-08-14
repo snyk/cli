@@ -31,8 +31,6 @@ import { isLocalCodeEngine, validateLocalCodeEngineUrl, logLocalCodeEngineVersio
 
 const debug = debugLib('snyk-code');
 
-
-
 type GetCodeAnalysisArgs = {
   options: Options;
   fileOptions: {
@@ -63,17 +61,16 @@ export async function getCodeTestResults(
   await spinner.clearAll();
   analysisProgressUpdate();
 
+  let baseURL = getCodeClientProxyUrl();
+
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
-    validateLocalCodeEngineUrl(sastSettings.localCodeEngine.url);
+    baseURL = sastSettings.localCodeEngine.url
+    validateLocalCodeEngineUrl(baseURL);
     if (options.debug) {
-      await logLocalCodeEngineVersion(sastSettings.localCodeEngine.url)
+      await logLocalCodeEngineVersion(baseURL)
     }
   }
-
-  const baseURL = isLocalCodeEngineEnabled
-    ? sastSettings.localCodeEngine.url
-    : getCodeClientProxyUrl();
 
   // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
   // This ensures we support lowercase http(s)_proxy values as well

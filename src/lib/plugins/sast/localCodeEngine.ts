@@ -24,31 +24,42 @@ export function validateLocalCodeEngineUrl(localCodeEngineUrl: string): void {
 }
 
 export async function logLocalCodeEngineVersion(lceUrl = ""): Promise<void> {
-    const scleBaseUrl = lceUrl.replace('/api', '')
+    const lceBaseUrl = lceUrl.replace('/api', '')
+    const isNonSecureHttp = lceBaseUrl.match(/^http:/);
+    let ignoreUnknownCAoriginalValue;
 
-    const ignoreUnknownCAoriginalValue = global.ignoreUnknownCA;
-    // `makeRequest` function converts `http` calls to `https`. In some cases, SCLE might be running on http.
-    // This problem is fixed by setting `options.rejectUnauthorized = true`.
-    // Setting `global.ignoreUnknownCA` to true adds rejectUnauthorized=true as an option in `makeRequest`.
-    global.ignoreUnknownCA = true;
-
-    const { res: { body, statusCode } } = await makeRequest({
-        url: `${scleBaseUrl}/status`,
-        method: 'get'
-    })
-
-    // Resetting `global.ignoreUnknownCA` to whatever value it had before I changed it above.
-    global.ignoreUnknownCA = ignoreUnknownCAoriginalValue;
-
-    if (body?.ok && body?.version) {
-        debug(chalk.green(`Snyk Code Local Engine version: ${body.version}`))
-        return;
+    if (isNonSecureHttp) {
+        ignoreUnknownCAoriginalValue = global.ignoreUnknownCA;
+        // `makeRequest` function converts `http` calls to `https`. In some cases, SCLE might be running on http.
+        // This problem is fixed by setting `options.rejectUnauthorized = true`.
+        // Setting `global.ignoreUnknownCA` to true adds rejectUnauthorized=true as an option in `makeRequest`.
+        global.ignoreUnknownCA = true;
     }
 
-    if (body?.ok === false) {
-        console.log(chalk.red(`Snyk Code Local Engine health check failed. statusCode:${statusCode}, version: ${body?.version}`))
-        console.log(chalk.red(`Message: ${JSON.stringify(body?.message)}`))
-        return
-    }
+    try {
+        const { res: { body, statusCode } } = await makeRequest({
+            url: `${lceBaseUrl}/status`,
+            method: 'get'
+        })
 
+        if (isNonSecureHttp) {
+            // Resetting `global.ignoreUnknownCA` to whatever value it had before I changed it above.
+            global.ignoreUnknownCA = ignoreUnknownCAoriginalValue;
+        }
+
+        if (body?.ok && body?.version) {
+            debug(chalk.green(`Snyk Code Local Engine version: ${body.version}`))
+            return;
+        }
+
+        if (body?.ok === false) {
+            debug(chalk.red(`Snyk Code Local Engine health is not ok. statusCode:${statusCode}, version: ${body?.version}`))
+            debug(chalk.red(`Message: ${JSON.stringify(body?.message)}`))
+            return
+        }
+
+        debug(chalk.red(`Snyk Code Local Engine health check failed. statusCode:${statusCode}, version: ${JSON.stringify(body)}`))
+    } catch (err) {
+        debug("Snyk Code Local Engine health check failed.", err)
+    }
 }
