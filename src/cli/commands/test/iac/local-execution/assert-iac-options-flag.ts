@@ -43,10 +43,7 @@ const keys: (keyof IaCTestFlags)[] = [
   'remote-repo-url',
   'target-name',
 ];
-const integratedKeys: (keyof IaCTestFlags)[] = [
-  'snyk-cloud-environment',
-  'cloud-context',
-];
+const integratedKeys: (keyof IaCTestFlags)[] = ['snyk-cloud-environment'];
 
 const allowed = new Set<string>(keys);
 const integratedOnlyFlags = new Set<string>(integratedKeys);

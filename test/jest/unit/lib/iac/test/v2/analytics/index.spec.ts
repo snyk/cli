@@ -57,9 +57,7 @@ describe('computeIacAnalytics', () => {
       addedAnalytics[key] = value;
     });
 
-    const testConfig = {
-      cloudContext: 'aws',
-    } as TestConfig;
+    const testConfig = {} as TestConfig;
     const testOutput = clonedeep(snykIacTestOutputFixture);
     const expectedAnalytics = clonedeep(iacAnalyticsFixture);
 

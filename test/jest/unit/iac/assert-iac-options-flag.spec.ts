@@ -39,13 +39,6 @@ describe('assertIntegratedIaCOnlyOptions()', () => {
     ).not.toThrow();
   });
 
-  it('Refuses cloud-context flag', () => {
-    const options = ['--cloud-context', 'aws'];
-    expect(() =>
-      assertIntegratedIaCOnlyOptions(org, [...command, ...options, ...files]),
-    ).toThrow(new IntegratedFlagError('cloud-context', org.meta.org));
-  });
-
   it('Refuses snyk-cloud-environment flag', () => {
     const options = ['--snyk-cloud-environment', 'envid'];
     expect(() =>
