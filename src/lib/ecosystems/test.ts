@@ -7,12 +7,14 @@ import { spinner } from '../../lib/spinner';
 import { Ecosystem, ScanResult, TestResult } from './types';
 import { getPlugin } from './plugins';
 import { TestDependenciesResponse } from '../snyk-test/legacy';
-import { assembleQueryString } from '../snyk-test/common';
+import {
+  assembleQueryString,
+  depGraphToOutputString,
+} from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
 import { resolveAndTestFacts } from './resolve-test-facts';
 import { isUnmanagedEcosystem } from './common';
 import { convertDepGraph, getUnmanagedDepGraph } from './unmanaged/utils';
-import { jsonStringifyLargeObject } from '../json';
 
 type ScanResultsByPath = { [dir: string]: ScanResult[] };
 
@@ -92,13 +94,9 @@ export async function formatUnmanagedResults(
   const [result] = await getUnmanagedDepGraph(results);
   const depGraph = convertDepGraph(result);
 
-  const template = `DepGraph data:
-${jsonStringifyLargeObject(depGraph)}
-DepGraph target:
-${target}
-DepGraph end`;
-
-  return TestCommandResult.createJsonTestCommandResult(template);
+  return TestCommandResult.createJsonTestCommandResult(
+    depGraphToOutputString(depGraph, target),
+  );
 }
 
 async function testDependencies(
