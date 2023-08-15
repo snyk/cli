@@ -22,6 +22,7 @@ import snykTest from '../../../../src/cli/commands/test';
 import { jsonStringifyLargeObject } from '../../../../src/lib/json';
 import { ArgsOptions } from '../../../../src/cli/args';
 import * as codeConfig from '../../../../src/lib/code-config';
+import { NeedleResponse } from 'needle';
 
 const { getCodeTestResults } = analysis;
 
@@ -960,6 +961,48 @@ describe('Test snyk code', () => {
       url: "http://foo.bar/status",
     })
   });
+
+  it('Local Code Engine - Scans are not interrupted if /status call fails', async () => {
+    // This test `analyzeFolder` if `/status` call throws.
+
+    makeRequestMock.mockImplementationOnce(() => {
+      return Promise.reject({
+        res: { statusCode: 555 } as NeedleResponse,
+      });
+    });
+
+    const sastSettings = {
+      sastEnabled: true,
+      localCodeEngine: {
+        url: 'http://local-engine/api',
+        allowCloudUpload: false,
+        enabled: true,
+      },
+    };
+
+    const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersResponse,
+    );
+    await getCodeTestResults(
+      '.',
+      {
+        path: '',
+        code: true,
+        debug: true
+      },
+      sastSettings,
+      'test-id',
+    );
+    const statusCalledWith = makeRequestMock.mock.calls[0][0]
+    expect(statusCalledWith).toEqual({
+      method: "get",
+      url: "http://local-engine/status",
+    })
+
+    // if /status call throws are unhandled, `analyzeFolder` is never called
+    expect(analyzeFoldersSpy).toHaveBeenCalled()
+  });
+
 
 });
 
