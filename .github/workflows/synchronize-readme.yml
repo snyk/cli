@@ -1,0 +1,55 @@
+name: Synchronize Readme
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * 1-5' # Mon-Fri at 12
+
+jobs:
+  build:
+    name: synchronize-readme
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          # Setup
+          gh auth setup-git
+          git config --global user.email "noreply@snyk.io"
+          git config --global user.name "$GITHUB_ACTOR"
+
+          # Clone the CLI repository
+          gh repo clone snyk/cli cli -- --depth=1 --quiet
+          git -C ./cli checkout -B $DESTINATION_BRANCH
+
+          # Retrieve the GitBook content. Note: This is a placeholder; you'll need a way to get the content in Markdown format.
+          wget [URL_OF_GITBOOK_CONTENT] -O current_gitbook.md
+          
+          # Replace the README.md content with the GitBook content
+          cp current_gitbook.md ./cli/README.md
+
+          # If changes, commit and create PR
+          if [[ $(git -C ./cli status --porcelain) ]]; then
+            echo "Documentation changes detected"
+            cd ./cli
+            git push -f -u origin $DESTINATION_BRANCH
+
+            export SHA=$( git rev-parse $DESTINATION_BRANCH:README.md )
+            export CONTENT=$( base64 -i README.md )
+            gh api --method PUT /repos/:owner/:repo/contents/README.md \
+              --field message="$MESSAGE" \
+              --field content="$CONTENT" \
+              --field encoding="base64" \
+              --field branch="$DESTINATION_BRANCH" \
+              --field sha="$SHA"
+
+            if [[ ! $(gh pr list --search "$MESSAGE" 2>&1 | grep -e "$MESSAGE";) ]]; then
+              echo "Creating PR"
+              gh pr create --title="$MESSAGE" --body="Automatic PR controlled by GitHub Action." --head $DESTINATION_BRANCH
+            fi
+            echo "PR exists, pushed changes to it."
+          else
+            echo "No documentation changes detected, exiting."
+          fi
+        env:
+          DESTINATION_BRANCH: docs/automatic-gitbook-update
+          MESSAGE: 'docs: synchronizing README from GitBook'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
