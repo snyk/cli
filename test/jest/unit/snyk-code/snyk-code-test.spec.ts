@@ -4,11 +4,10 @@ import * as path from 'path';
 import stripAnsi from 'strip-ansi';
 import { analyzeFolders, AnalysisSeverity } from '@snyk/code-client';
 import { makeRequest } from '../../../../src/lib/request';
-import chalk from 'chalk';
 
 jest.mock('@snyk/code-client');
 jest.mock('../../../../src/lib/request');
-jest.mock('chalk');
+
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
 const makeRequestMock = makeRequest as jest.Mock
 
@@ -949,6 +948,7 @@ describe('Test snyk code', () => {
       {
         path: '',
         code: true,
+        debug: true
       },
       sastSettings,
       'test-id'
