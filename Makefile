@@ -204,7 +204,7 @@ pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI)
 
 .PHONY: build-fips
 build-fips: pre-build
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
 	@$(MAKE) clean-package-files
 
 .PHONY: build
@@ -215,6 +215,10 @@ build: pre-build
 .PHONY: sign
 sign:
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) sign BUILD_DIR=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+
+.PHONY: sign-fips
+sign-fips:
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips sign BUILD_DIR=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
 
 .PHONY: clean
 clean:
