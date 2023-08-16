@@ -15,6 +15,16 @@ declare -a StaticFiles=(
   "binary-releases/sha256sums.txt.asc"
 )
 
+declare -a StaticFilesFIPS=(
+  "binary-releases/fips/snyk-linux"
+  "binary-releases/fips/snyk-linux-arm64"
+  "binary-releases/fips/snyk-win.exe"
+  "binary-releases/fips/snyk-linux.sha256"
+  "binary-releases/fips/snyk-linux-arm64.sha256"
+  "binary-releases/fips/snyk-win.exe.sha256"
+  "binary-releases/fips/sha256sums.txt.asc"
+)
+
 VERSION_TAG="v$(cat binary-releases/version)"
 DRY_RUN=false
 
@@ -92,17 +102,27 @@ upload_s3() {
     for filename in "${StaticFiles[@]}"; do
       aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
     done
-
     aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
     aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
+
+    for filename in "${StaticFilesFIPS[@]}"; do
+      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
+    done
+    aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
+    aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
   else
     echo "Uploading to S3..."
     for filename in "${StaticFiles[@]}"; do
       aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
     done
-
     aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
     aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
+
+    for filename in "${StaticFilesFIPS[@]}"; do
+      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
+    done
+    aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
+    aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
   fi
 }
 

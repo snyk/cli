@@ -32,11 +32,17 @@ help:
 	@echo 'This Makefile is currently only for building release artifacts.'
 	@echo 'Use `npm run` for CLIv1 scripts.'
 
+$(BINARY_OUTPUT_FOLDER)/fips:
+	@mkdir -p $(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips
+
 $(BINARY_RELEASES_FOLDER_TS_CLI):
 	@mkdir -p $(BINARY_RELEASES_FOLDER_TS_CLI)
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/version: | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+
+$(BINARY_OUTPUT_FOLDER)/fips/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/fips
+	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/fips/version
 
 ifneq ($(BINARY_OUTPUT_FOLDER), $(BINARY_RELEASES_FOLDER_TS_CLI))
 $(BINARY_OUTPUT_FOLDER):
@@ -200,10 +206,10 @@ test-binary-wrapper: build-binary-wrapper
 
 # targets responsible for the complete CLI build
 .PHONY: pre-build
-pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI)
+pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI) $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 
 .PHONY: build-fips
-build-fips: pre-build
+build-fips: pre-build $(BINARY_OUTPUT_FOLDER)/fips/version
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
 	@$(MAKE) clean-package-files
 
