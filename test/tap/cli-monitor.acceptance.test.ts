@@ -674,7 +674,13 @@ if (!isWindows) {
     stubExec(t, 'maven-app/mvn-dep-tree-stdout.txt');
     await cli.monitor('maven-app', { file: 'pom.xml', dev: true });
     const req = server.popRequest();
-    const pkg = req.body.package;
+    const depGraphJSON = req.body.depGraphJSON;
+    const pkgName = depGraphJSON.pkgs.find(
+      (pkg) => pkg.info.name === 'com.mycompany.app:maven-app',
+    );
+    const dep = depGraphJSON.pkgs.find(
+      (pkg) => pkg.info.name === 'junit:junit',
+    );
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.equal(
       req.headers['x-snyk-cli-version'],
@@ -682,15 +688,9 @@ if (!isWindows) {
       'sends version number',
     );
     t.match(req.url, '/monitor/maven', 'puts at correct url');
-    t.equal(pkg.name, 'com.mycompany.app:maven-app', 'specifies name');
-    t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
-    t.equal(
-      pkg.dependencies['junit:junit'].name,
-      'junit:junit',
-      'specifies dependency name',
-    );
-    t.notOk(pkg.from, 'no "from" array on root');
-    t.notOk(pkg.dependencies['junit:junit'].from, 'no "from" array on dep');
+    t.ok(pkgName, 'specifies name');
+    t.ok(dep, 'specifies dependency');
+    t.notOk(depGraphJSON.from, 'no "from" array on root');
   });
 
   test('`monitor maven-multi-app`', async (t) => {
@@ -698,7 +698,13 @@ if (!isWindows) {
     stubExec(t, 'maven-multi-app/mvn-dep-tree-stdout.txt');
     await cli.monitor('maven-multi-app', { file: 'pom.xml' });
     const req = server.popRequest();
-    const pkg = req.body.package;
+    const depGraphJSON = req.body.depGraphJSON;
+    const pkgName = depGraphJSON.pkgs.find(
+      (pkg) => pkg.info.name === 'com.mycompany.app:maven-multi-app',
+    );
+    const noMod = depGraphJSON.pkgs.find(
+      (pkg) => pkg.info.name === 'com.mycompany.app:simple-child',
+    );
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.equal(
       req.headers['x-snyk-cli-version'],
@@ -706,13 +712,10 @@ if (!isWindows) {
       'sends version number',
     );
     t.match(req.url, '/monitor/maven', 'puts at correct url');
-    t.equal(pkg.name, 'com.mycompany.app:maven-multi-app', 'specifies name');
+    t.ok(pkgName, 'specifies name');
     // child projects are not included when scanning root project
-    t.notOk(
-      pkg.dependencies?.['com.mycompany.app:simple-child'],
-      'does not include modules',
-    );
-    t.notOk(pkg.from, 'no "from" array on root');
+    t.notOk(noMod, 'does not include modules');
+    t.notOk(depGraphJSON.from, 'no "from" array on root');
   });
 
   test('`monitor maven-multi-app with --project-business-criticality`', async (t) => {
