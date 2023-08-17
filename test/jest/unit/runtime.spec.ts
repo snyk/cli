@@ -34,4 +34,8 @@ describe('verify unsupported nodejs runtime versions', () => {
   it('verifies v8.0.0 is not supported', async () => {
     expect(runtime.isSupported('8.0.0')).toBeFalsy();
   });
+
+  it('verifies v10.0.0 is not supported', async () => {
+    expect(runtime.isSupported('10.0.0')).toBeFalsy();
+  });
 });

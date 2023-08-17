@@ -63,15 +63,14 @@ describe('https', () => {
     });
   });
 
-  describe('expired certificate', () => {
+  describe('invalid certificate', () => {
     it('rejects connections', async () => {
       const project = await createProjectFromWorkspace('npm-package');
-      const { code, stdout } = await runSnykCLI('test', {
+      const { code } = await runSnykCLI('test', {
         cwd: project.path(),
         env,
       });
-
-      expect(stdout).toContain('socket hang up');
+      expect(server.getRequests().length).toBe(0);
       expect(code).toBe(2);
     });
 
@@ -81,6 +80,7 @@ describe('https', () => {
         cwd: project.path(),
         env,
       });
+      expect(server.getRequests().length).toBeGreaterThan(0);
       expect(code).toBe(0);
     });
   });

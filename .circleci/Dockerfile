@@ -53,6 +53,11 @@ RUN chown -R circleci scripts /target && chmod 770 scripts/*
 RUN scripts/install-swift.sh $ARCH
 ENV PATH=/usr/local/swift/usr/bin:$PATH
 
+# install openssl3
+RUN scripts/install_openssl3_fips.sh
+ENV PATH=/usr/local/bin/:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/lib/
+
 USER circleci
 # install java & scala
 RUN curl -s "https://get.sdkman.io" | bash

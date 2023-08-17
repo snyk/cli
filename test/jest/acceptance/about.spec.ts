@@ -1,5 +1,7 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 
+jest.setTimeout(1000 * 10);
+
 describe('--about', () => {
   it('prints open source attribution information', async () => {
     const { code, stdout } = await runSnykCLI(`--about`);

@@ -45,9 +45,6 @@ const (
 	V2_ABOUT   Handler = iota
 )
 
-//go:embed cliv2.version
-var version_prefix string
-
 func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
 	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(cacheDirectory)
 	if err != nil {
@@ -182,13 +179,7 @@ func (c *CLI) ExtractV1Binary() error {
 
 func GetFullVersion() string {
 	v1Version := cliv1.CLIV1Version()
-	v2Version := strings.TrimSpace(version_prefix)
-
-	if len(v2Version) > 0 {
-		return v2Version + "." + v1Version
-	} else {
-		return v1Version
-	}
+	return v1Version
 }
 
 func (c *CLI) GetIntegrationName() string {

@@ -1,5 +1,7 @@
 import config from '../config';
 import { color } from '../theme';
+import { DepGraphData } from '@snyk/dep-graph';
+import { jsonStringifyLargeObject } from '../json';
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -68,3 +70,16 @@ export type FailOn = 'all' | 'upgradable' | 'patchable';
 
 export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY = 500;
+
+// depGraphData formats the given depGrahData with the targetName as expected by
+// the `depgraph` CLI workflow.
+export function depGraphToOutputString(
+  dg: DepGraphData,
+  targetName: string,
+): string {
+  return `DepGraph data:
+${jsonStringifyLargeObject(dg)}
+DepGraph target:
+${targetName}
+DepGraph end`;
+}

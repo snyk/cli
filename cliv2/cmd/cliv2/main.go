@@ -1,10 +1,13 @@
 package main
 
+import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/snyk/go-application-framework/pkg/networking/fips"
 	"io"
 	"net/http"
 	"os"
@@ -32,7 +35,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-var InternalOS string
+var internalOS string
 var engine workflow.Engine
 var config configuration.Configuration
 var helpProvided bool
@@ -367,6 +370,16 @@ func logHeaderAuthorizationInfo(
 	return authorization, oauthEnabled
 }
 
+func getFipsStatus(config configuration.Configuration) string {
+	fipsEnabled := "Disabled"
+	if !fips.IsAvailable() {
+		fipsEnabled = "Not available"
+	} else if config.GetBool(configuration.FIPS_ENABLED) {
+		fipsEnabled = "Enabled"
+	}
+	return fipsEnabled
+}
+
 func writeLogHeader(config configuration.Configuration, networkAccess networking.NetworkAccess) {
 	authorization, oauthEnabled := logHeaderAuthorizationInfo(config, networkAccess)
 
@@ -385,8 +398,10 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 		debugLogger.Printf("%-22s %s", name+":", value)
 	}
 
+	fipsEnabled := getFipsStatus(config)
+
 	tablePrint("Version", cliv2.GetFullVersion())
-	tablePrint("Platform", InternalOS+" "+runtime.GOARCH)
+	tablePrint("Platform", internalOS+" "+runtime.GOARCH)
 	tablePrint("API", config.GetString(configuration.API_URL))
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
 	tablePrint("Organization", org)
@@ -394,7 +409,8 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Analytics", analytics)
 	tablePrint("Authorization", authorization)
 	tablePrint("Features", "")
-	tablePrint("  --auth-type=oauth", oauthEnabled)
+	tablePrint("  oauth", oauthEnabled)
+	tablePrint("  fips", fipsEnabled)
 
 }
 
@@ -450,7 +466,7 @@ func MainWithErrorCode() int {
 		networking.UserAgent(
 			networking.UaWithConfig(config),
 			networking.UaWithApplication("snyk-cli", cliv2.GetFullVersion()),
-			networking.UaWithOS(InternalOS)).String(),
+			networking.UaWithOS(internalOS)).String(),
 	)
 
 	if debugEnabled {
@@ -461,7 +477,7 @@ func MainWithErrorCode() int {
 	cliAnalytics := engine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args[1:])
-	cliAnalytics.SetOperatingSystem(InternalOS)
+	cliAnalytics.SetOperatingSystem(internalOS)
 	if config.GetBool(configuration.ANALYTICS_DISABLED) == false {
 		defer sendAnalytics(cliAnalytics, debugLogger)
 	}

@@ -1,10 +1,28 @@
 version: '2.1'
 
+parameters:
+  go_download_base_url:
+    type: string
+    default: 'https://storage.googleapis.com/golang/'
+  fips_go_download_base_url:
+    type: string
+    default: 'https://aka.ms/golang/release/latest/'
+  go_version:
+    type: string
+    # https://go.dev/doc/devel/release
+    default: '1.20.6'
+  aws_version:
+    type: string
+    # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
+    default: '2.4.12'
+  gh_version:
+    type: string
+    # https://github.com/cli/cli/releases
+    default: '2.7.0'
+
 orbs:
   prodsec: snyk/prodsec-orb@1.0
   snyk: snyk/snyk@1.7.0
-  go: circleci/go@1.7.1
-  win: circleci/windows@5.0
   aws-cli: circleci/aws-cli@2.0.3
   gh: circleci/github-cli@2.1.0
 
@@ -14,19 +32,14 @@ executors:
       - image: alpine:3.17
   docker-amd64:
     docker:
-      - image: bastiandoetsch209/cli-build:20230806-080507
+      - image: bastiandoetsch209/cli-build:20230815-154734
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-arm64:
     docker:
-      - image: bastiandoetsch209/cli-build-arm64:20230806-080507
+      - image: bastiandoetsch209/cli-build-arm64:20230815-154734
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
-  linux-amd64:
-    machine:
-      image: ubuntu-2204:2023.02.1
-    working_directory: /mnt/ramdisk/snyk
-    resource_class: large
   linux-ubuntu-mantic-amd64:
     docker:
       - image: ubuntu:mantic
@@ -77,14 +90,74 @@ executors:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '14.3.1'
     resource_class: macos.m1.large.gen1
+  win-server2022-amd64:
+    machine:
+      image: windows-server-2022-gui:2023.07.1
+    resource_class: windows.large
+    shell: powershell
+  win-server2019-amd64:
+    machine:
+      image: windows-server-2019-vs2019:2022.08.1
+    resource_class: windows.medium
+    shell: powershell
 
 commands:
+  install-go:
+    parameters:
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      base_url:
+        type: string
+      extraction_path:
+        type: string
+      cache_key_file:
+        type: string
+        default: go_cache_key.txt
+    steps:
+      - run:
+          name: Create Cache Key
+          command: |
+            echo << parameters.extraction_path >>-<< parameters.base_url >>-<< parameters.go_target_os >>-<< parameters.go_arch >>-<< pipeline.parameters.go_version >> > << parameters.cache_key_file >>
+            cat << parameters.cache_key_file >>
+      - restore_cache:
+          name: Restoring go binary cache
+          keys:
+            - go-binary-cache-{{ checksum "<< parameters.cache_key_file >>" }}
+      - run:
+          name: Download go binary
+          command: python ./scripts/download_go.py << pipeline.parameters.go_version >> --go_os=<< parameters.go_os >> --go_arch=<< parameters.go_arch >> --base_url=<< parameters.base_url >> --extraction_path=<< parameters.extraction_path >>
+      - save_cache:
+          name: Caching go binary
+          key: go-binary-cache-{{ checksum "<< parameters.cache_key_file >>" }}
+          paths:
+            - << parameters.extraction_path >>/go
+      - unless:
+          condition:
+            equal: ['windows', << parameters.go_os >>]
+          steps:
+            - run:
+                name: Add go binary to PATH
+                command: echo "export PATH=$(realpath << parameters.extraction_path >>/go/bin):\$PATH" >> "$BASH_ENV"
+      - when:
+          condition:
+            equal: ['windows', << parameters.go_os >>]
+          steps:
+            - run:
+                name: Add go binary to PATH
+                command: |
+                  New-Item -Path $profile -ItemType File -Force
+                  '$Env:Path = "<< parameters.extraction_path >>\go\bin;" + $Env:Path' >> $profile
+
   install-deps-windows-full:
     steps:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -95,7 +168,7 @@ commands:
             choco install nodejs --version=$(head .nvmrc) --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
 
@@ -104,7 +177,7 @@ commands:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -112,7 +185,7 @@ commands:
             choco install make --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
 
@@ -121,7 +194,7 @@ commands:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -131,7 +204,7 @@ commands:
             choco install nodejs --version=$(head .nvmrc) --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
 
@@ -140,6 +213,31 @@ commands:
       - run:
           name: No dependencies to install
           command: echo all done!
+
+  install-deps-macos-full:
+    parameters:
+      items:
+        type: string
+        default: go gradle python elixir composer gradle@6 maven sbt dotnet
+    steps:
+      - restore_cache:
+          key: acceptance-tests-macos-<< parameters.items >>
+      - run:
+          name: Installing sdks and tools via homebrew
+          command: |
+            brew install << parameters.items >>
+      - save_cache:
+          key: acceptance-tests-macos-<< parameters.items >>
+          paths:
+            - ~/Library/Caches/Homebrew
+
+  install-deps-alpine-full:
+    steps:
+      - run:
+          name: Installing Node.js + other test dependencies
+          command: |
+            apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
+            pip3 install pipenv
 
   failed-release-notification:
     steps:
@@ -157,20 +255,6 @@ commands:
       - checkout
       - attach_workspace:
           at: .
-
-parameters:
-  go_version:
-    type: string
-    # https://go.dev/doc/devel/release
-    default: '1.20.6'
-  aws_version:
-    type: string
-    # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
-    default: '2.4.12'
-  gh_version:
-    type: string
-    # https://github.com/cli/cli/releases
-    default: '2.7.0'
 
 ####################################################################################################
 # WORKFLOWS
@@ -214,46 +298,58 @@ workflows:
 
       - build-artifact:
           name: build linux amd64
+          go_target_os: linux
           go_os: linux
           go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build clean-golang build-fips
           executor: docker-amd64
-          artifact: snyk-linux
           requires:
             - prepare-build
 
       - build-artifact:
           name: build linux arm64
+          go_target_os: linux
           go_os: linux
           go_arch: arm64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build clean-golang build-fips
           executor: docker-arm64
-          artifact: snyk-linux-arm64
           requires:
             - prepare-build
 
       - build-artifact:
           name: build alpine amd64
-          go_os: alpine
+          go_target_os: alpine
+          go_os: linux
           go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: docker-amd64
-          artifact: snyk-alpine
           c_compiler: /usr/bin/musl-gcc
           requires:
             - prepare-build
 
       - build-artifact:
           name: build macOS amd64
+          go_target_os: darwin
           go_os: darwin
           go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: macos-amd64
-          artifact: snyk-macos
           requires:
             - prepare-build
 
-      - build-windows-artifact:
-          context: snyk-windows-signing
+      - build-artifact:
           name: build windows amd64
+          go_target_os: windows
           go_os: windows
           go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build clean-golang build-fips
+          install_deps_extension: windows-full
+          install_path: 'C:\'
+          executor: win-server2022-amd64
+          context: snyk-windows-signing
           requires:
             - prepare-build
 
@@ -265,9 +361,9 @@ workflows:
               ignore: master
           requires:
             - build linux amd64
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
+          test_snyk_command: ./binary-releases/snyk-linux
 
-      - acceptance-tests-linux:
+      - acceptance-tests:
           name: acceptance-tests linux amd64
           context:
             - nodejs-install
@@ -278,9 +374,9 @@ workflows:
           requires:
             - build linux amd64
           executor: docker-amd64
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux
+          test_snyk_command: ./binary-releases/snyk-linux
 
-      - acceptance-tests-linux:
+      - acceptance-tests:
           name: acceptance-tests linux arm64
           context:
             - nodejs-install
@@ -291,9 +387,23 @@ workflows:
           requires:
             - build linux arm64
           executor: docker-arm64
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-linux-arm64
+          test_snyk_command: ./binary-releases/snyk-linux-arm64
 
-      - acceptance-tests-linux:
+      - acceptance-tests:
+          name: acceptance-tests fips linux arm64
+          executor: docker-arm64
+          test_snyk_command: ./binary-releases/fips/snyk-linux-arm64
+          fips: 1
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: master
+          requires:
+            - build linux arm64
+
+      - acceptance-tests:
           name: acceptance-tests alpine amd64
           context:
             - nodejs-install
@@ -303,10 +413,12 @@ workflows:
               ignore: master
           requires:
             - build alpine amd64
-          executor: docker-amd64
-          test_snyk_command: /mnt/ramdisk/snyk/binary-releases/snyk-alpine
+          executor: alpine
+          test_snyk_command: ./binary-releases/snyk-alpine
+          install_deps_extension: alpine-full
+          dont_skip_tests: 0
 
-      - acceptance-tests-macos:
+      - acceptance-tests:
           name: acceptance-tests macOS amd64
           context:
             - nodejs-install
@@ -317,9 +429,10 @@ workflows:
           requires:
             - build macOS amd64
           executor: macos-amd64
-          test_snyk_command: /Users/distiller/snyk/binary-releases/snyk-macos
+          test_snyk_command: ./binary-releases/snyk-macos
+          install_deps_extension: macos-full
 
-      - acceptance-tests-windows:
+      - acceptance-tests:
           name: acceptance-tests windows amd64
           context:
             - nodejs-install
@@ -329,7 +442,11 @@ workflows:
               ignore: master
           requires:
             - build windows amd64
+          executor: win-server2022-amd64
           test_snyk_command: binary-releases\\snyk-win.exe
+          install_deps_extension: windows-full
+          dont_skip_tests: 0
+          pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
 
       - sign:
           name: sign windows amd64
@@ -338,11 +455,14 @@ workflows:
             - build windows amd64
           go_os: windows
           go_arch: amd64
-          executor: win/default
+          make_target: sign sign-fips
+          executor: win-server2022-amd64
           install_deps_extension: windows-make
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - sign:
           name: sign macos amd64
@@ -355,7 +475,9 @@ workflows:
           install_deps_extension: noop
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - create_deployment_artifacts:
           name: create deployment artifacts
@@ -369,7 +491,9 @@ workflows:
             - build fix & protect
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - should-release:
           name: release?
@@ -378,7 +502,9 @@ workflows:
             - create deployment artifacts
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - pre-release:
           name: upload version
@@ -387,7 +513,9 @@ workflows:
             - release?
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - npm-validation:
           name: Validate NPM artifacts (<< matrix.executor >>)
@@ -396,13 +524,15 @@ workflows:
             parameters:
               executor:
                 - 'docker-amd64'
-                - 'win/server-2019'
+                - 'win-server2019-amd64'
                 - 'macos-amd64'
           requires:
             - upload version
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - test-release:
           name: e2e tests (<< matrix.executor >>)
@@ -412,8 +542,8 @@ workflows:
               executor:
                 - 'docker-amd64'
                 - 'docker-arm64'
-                - 'win/server-2019'
-                - 'win/server-2022'
+                - 'win-server2019-amd64'
+                - 'win-server2022-amd64'
                 - 'macos-amd64'
                 - 'linux-ubuntu-latest-amd64'
                 - 'linux-ubuntu-mantic-amd64'
@@ -428,19 +558,21 @@ workflows:
             - upload version
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - '/.*e2e.*/'
 
       - release-s3:
           name: upload latest
           context: team-hammerhead-common-deploy-tokens
           requires:
             - Validate NPM artifacts (docker-amd64)
-            - Validate NPM artifacts (win/server-2019)
+            - Validate NPM artifacts (win-server2019-amd64)
             - Validate NPM artifacts (macos-amd64)
             - e2e tests (docker-amd64)
             - e2e tests (docker-arm64)
-            - e2e tests (win/server-2019)
-            - e2e tests (win/server-2022)
+            - e2e tests (win-server2019-amd64)
+            - e2e tests (win-server2022-amd64)
             - e2e tests (macos-amd64)
             - e2e tests (linux-ubuntu-latest-amd64)
             - e2e tests (linux-ubuntu-mantic-amd64)
@@ -515,7 +647,7 @@ jobs:
           command: |
             npm run lint
             pushd cliv2 
-              make lint configure
+              make lint
             popd
       - snyk/scan:
           fail-on-issues: true
@@ -540,7 +672,7 @@ jobs:
       - run:
           name: Running Go unit tests
           working_directory: ./cliv2
-          command: make configure whiteboxtest
+          command: make whiteboxtest
       - run:
           name: Running Tap tests
           command:
@@ -563,35 +695,11 @@ jobs:
             - binary-releases/snyk-fix.tgz
             - binary-releases/snyk-protect.tgz
 
-  build-windows-artifact:
-    parameters:
-      go_os:
-        type: string
-      go_arch:
-        type: string
-    executor:
-      name: win/default
-      size: large
-    steps:
-      - prepare-workspace
-      - install-deps-windows-full
-      - run:
-          name: Build Windows
-          shell: powershell
-          command: make build GOOS=windows GOARCH=amd64
-          environment:
-            CGO_ENABLED: 1
-      - store_artifacts:
-          path: binary-releases
-      - persist_to_workspace:
-          root: .
-          paths:
-            - binary-releases/snyk-*
-            - binary-releases/version
-
   build-artifact:
     parameters:
       go_os:
+        type: string
+      go_target_os:
         type: string
       go_arch:
         type: string
@@ -600,23 +708,35 @@ jobs:
         default: ''
       executor:
         type: string
-      artifact:
+      go_download_base_url:
         type: string
+      make_target:
+        type: string
+        default: 'build'
+      install_deps_extension:
+        type: string
+        default: 'noop'
+      install_path:
+        type: string
+        default: '.'
     executor: << parameters.executor >>
-    environment:
-      HOSTTYPE: << parameters.go_arch >>
     steps:
       - prepare-workspace
-      - go/install:
-          version: << pipeline.parameters.go_version >>
+      - install-deps-<< parameters.install_deps_extension >>
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - restore_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
       - run:
-          name: Build << parameters.go_os >>/<< parameters.go_arch >>
+          name: Build << parameters.go_target_os >>/<< parameters.go_arch >>
           environment:
             CC: << parameters.c_compiler >>
             CGO_ENABLED: 1
-          command: make build GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
+          command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >>
       - save_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
           paths: [/home/circleci/go/pkg/mod]
@@ -626,83 +746,41 @@ jobs:
           root: .
           paths:
             - binary-releases/snyk-*
+            - binary-releases/fips/snyk-*
 
-  acceptance-tests-linux:
+  acceptance-tests:
     parameters:
       test_snyk_command:
         type: string
       executor:
         type: string
+      fips:
+        type: integer
+        default: 0
+      dont_skip_tests:
+        type: integer
+        default: 1
+      install_deps_extension:
+        type: string
+        default: 'noop'
+      pre_test_cmds:
+        type: string
+        default: 'echo Running tests'
     executor: << parameters.executor >>
     steps:
       - prepare-workspace
+      - install-deps-<< parameters.install_deps_extension >>
       - run:
-          name: Configuring artifact
-          command: << parameters.test_snyk_command >> config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
-      - run:
-          name: Running acceptance tests
-          command: npm run test:acceptance -- --selectProjects snyk
-          environment:
-            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-            TEST_SNYK_DONT_SKIP_ANYTHING: 1
-
-  acceptance-tests-macos:
-    working_directory: /Users/distiller/snyk
-    environment:
-      HOMEBREW_NO_AUTO_UPDATE: 1
-    parameters:
-      test_snyk_command:
-        type: string
-      executor:
-        type: string
-      items:
-        type: string
-        default: go gradle python elixir composer gradle@6 maven sbt dotnet
-    executor: << parameters.executor >>
-    steps:
-      - prepare-workspace
-      - restore_cache:
-          key: acceptance-tests-macos-<< parameters.items >>
-      - run:
-          name: Installing sdks and tools via homebrew
-          command: |
-            brew install << parameters.items >>
-      - save_cache:
-          key: acceptance-tests-macos-<< parameters.items >>
-          paths:
-            - ~/Library/Caches/Homebrew
-      - run:
-          name: Configuring artifact
-          command: << parameters.test_snyk_command >> config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
-      - run:
-          name: Running acceptance tests
-          command: npm run test:acceptance -- --selectProjects snyk
-          environment:
-            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-            TEST_SNYK_DONT_SKIP_ANYTHING: 1
-
-  acceptance-tests-windows:
-    parameters:
-      test_snyk_command:
-        type: string
-    executor:
-      name: win/default
-      size: large
-    steps:
-      - prepare-workspace
-      - install-deps-windows-full
-      - run:
-          name: Configuring artifact
-          command: << parameters.test_snyk_command >> config set "api=$env:TEST_SNYK_TOKEN" # many tests require the token to be in the config
+          command: npm install
       - run:
           name: Running acceptance tests
           command: |
-            Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
-            RefreshEnv
-            npm install
+            << parameters.pre_test_cmds >>
             npm run test:acceptance -- --selectProjects snyk
           environment:
+            TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+            TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
 
   regression-tests:
     parameters:
@@ -725,7 +803,7 @@ jobs:
       - run:
           name: Installing Snyk CLI
           command: |
-            sudo ln -s << parameters.test_snyk_command >> /usr/local/bin/snyk
+            sudo ln -s $(realpath << parameters.test_snyk_command >>) /usr/local/bin/snyk
             snyk --version
       - run:
           name: Running ShellSpec tests
@@ -746,13 +824,16 @@ jobs:
         type: string
       install_deps_extension:
         type: string
+      make_target:
+        type: string
+        default: 'sign'
     executor: << parameters.executor >>
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
       - run:
           name: Signing << parameters.go_os >> artifact
-          command: make sign GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
+          command: make << parameters.make_target >> GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
       - persist_to_workspace:
           root: .
           paths:

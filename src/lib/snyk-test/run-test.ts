@@ -8,7 +8,6 @@ import { icon } from '../theme';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 import * as theme from '../../lib/theme';
-import { jsonStringifyLargeObject } from '../../lib/json';
 import * as pMap from 'p-map';
 
 import {
@@ -747,7 +746,7 @@ async function assembleLocalPayloads(
 
       // print dep graph if `--print-graph` is set
       if (options['print-graph'] && !options['print-deps']) {
-        await spinner.clear<void>(spinnerLbl)();
+        spinner.clear<void>(spinnerLbl)();
         let root: depGraphLib.DepGraph;
         if (scannedProject.depGraph) {
           root = pkg as depGraphLib.DepGraph;
@@ -759,9 +758,9 @@ async function assembleLocalPayloads(
           );
         }
 
-        console.log('DepGraph data:');
-        console.log(jsonStringifyLargeObject(root.toJSON()));
-        console.log('DepGraph target:\n' + targetFile + '\nDepGraph end');
+        console.log(
+          common.depGraphToOutputString(root.toJSON(), targetFile || ''),
+        );
       }
 
       const body: PayloadBody = {

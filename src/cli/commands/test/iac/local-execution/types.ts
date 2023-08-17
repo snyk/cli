@@ -215,7 +215,6 @@ export type IaCTestFlags = Pick<
   rules?: string;
   // Enables Snyk Cloud custom rules
   'custom-rules'?: boolean;
-  'cloud-context'?: string;
   'snyk-cloud-environment'?: string;
   // Tags and attributes
   'project-tags'?: string;
