@@ -20,9 +20,9 @@ jobs:
           gh repo clone snyk/cli cli -- --depth=1 --quiet
           git -C ./cli checkout -B $DESTINATION_BRANCH
 
-          # Retrieve the GitBook content. Note: This is a placeholder; you'll need a way to get the content in Markdown format.
-          wget [URL_OF_GITBOOK_CONTENT] -O current_gitbook.md
-          
+          # Retrieve the GitBook content
+          wget https://raw.githubusercontent.com/snyk/user-docs/main/docs/snyk-cli/getting-started-with-the-cli.md -O current_gitbook.md
+
           # Replace the README.md content with the GitBook content
           cp current_gitbook.md ./cli/README.md
 
@@ -44,8 +44,9 @@ jobs:
             if [[ ! $(gh pr list --search "$MESSAGE" 2>&1 | grep -e "$MESSAGE";) ]]; then
               echo "Creating PR"
               gh pr create --title="$MESSAGE" --body="Automatic PR controlled by GitHub Action." --head $DESTINATION_BRANCH
+            else
+              echo "PR exists, pushed changes to it."
             fi
-            echo "PR exists, pushed changes to it."
           else
             echo "No documentation changes detected, exiting."
           fi
@@ -53,3 +54,4 @@ jobs:
           DESTINATION_BRANCH: docs/automatic-gitbook-update
           MESSAGE: 'docs: synchronizing README from GitBook'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
