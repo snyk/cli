@@ -19,15 +19,17 @@ import {
   CodeAnalysisResults,
 } from './types';
 import { analysisProgressUpdate } from './utils';
-import {
-  FeatureNotSupportedBySnykCodeError,
-} from './errors';
+import { FeatureNotSupportedBySnykCodeError } from './errors';
 import { getProxyForUrl } from 'proxy-from-env';
 import { bootstrap } from 'global-agent';
 import chalk from 'chalk';
 import * as debugLib from 'debug';
 import { getCodeClientProxyUrl } from '../../code-config';
-import { isLocalCodeEngine, validateLocalCodeEngineUrl, logLocalCodeEngineVersion } from './localCodeEngine'
+import {
+  isLocalCodeEngine,
+  validateLocalCodeEngineUrl,
+  logLocalCodeEngineVersion,
+} from './localCodeEngine';
 
 const debug = debugLib('snyk-code');
 
@@ -65,10 +67,10 @@ export async function getCodeTestResults(
 
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
-    baseURL = sastSettings.localCodeEngine.url
+    baseURL = sastSettings.localCodeEngine.url;
     validateLocalCodeEngineUrl(baseURL);
     if (options.debug) {
-      await logLocalCodeEngineVersion(baseURL)
+      await logLocalCodeEngineVersion(baseURL);
     }
   }
 

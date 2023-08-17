@@ -9,7 +9,7 @@ jest.mock('@snyk/code-client');
 jest.mock('../../../../src/lib/request');
 
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
-const makeRequestMock = makeRequest as jest.Mock
+const makeRequestMock = makeRequest as jest.Mock;
 
 import { loadJson } from '../../../utils';
 import * as checks from '../../../../src/lib/plugins/sast/checks';
@@ -949,17 +949,17 @@ describe('Test snyk code', () => {
       {
         path: '',
         code: true,
-        debug: true
+        debug: true,
       },
       sastSettings,
-      'test-id'
-    )
+      'test-id',
+    );
 
-    const firstArgumentOfMakeRequest = makeRequestMock.mock.calls[0][0]
+    const firstArgumentOfMakeRequest = makeRequestMock.mock.calls[0][0];
     expect(firstArgumentOfMakeRequest).toEqual({
-      method: "get",
-      url: "http://foo.bar/status",
-    })
+      method: 'get',
+      url: 'http://foo.bar/status',
+    });
   });
 
   it('Local Code Engine - Scans are not interrupted if /status call fails', async () => {
@@ -988,22 +988,20 @@ describe('Test snyk code', () => {
       {
         path: '',
         code: true,
-        debug: true
+        debug: true,
       },
       sastSettings,
       'test-id',
     );
-    const statusCalledWith = makeRequestMock.mock.calls[0][0]
+    const statusCalledWith = makeRequestMock.mock.calls[0][0];
     expect(statusCalledWith).toEqual({
-      method: "get",
-      url: "http://local-engine/status",
-    })
+      method: 'get',
+      url: 'http://local-engine/status',
+    });
 
     // if /status call throws are unhandled, `analyzeFolder` is never called
-    expect(analyzeFoldersSpy).toHaveBeenCalled()
+    expect(analyzeFoldersSpy).toHaveBeenCalled();
   });
-
-
 });
 
 function stripAscii(asciiStr) {
