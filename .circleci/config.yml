@@ -881,6 +881,8 @@ jobs:
       - run:
           name: Signing << parameters.go_os >> artifact
           command: make << parameters.make_target >> GOOS=<< parameters.go_os >> GOARCH=<< parameters.go_arch >>
+      - store_artifacts:
+          path: ./binary-releases
       - persist_to_workspace:
           root: .
           paths:
