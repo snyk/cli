@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0-monorepo",
+  "assets": {
+    "snyk-linux": {
+      "url": "https://static.snyk.io/fips/cli/v1.0.0-monorepo/snyk-linux",
+      "sha256": "snyk-linux-sha256",
+      "sha256Url": "https://static.snyk.io/fips/cli/v1.0.0-monorepo/snyk-linux.sha256"
+    },
+    "snyk-linux-arm64": {
+      "url": "https://static.snyk.io/fips/cli/v1.0.0-monorepo/snyk-linux-arm64",
+      "sha256": "snyk-linux-arm64-sha256",
+      "sha256Url": "https://static.snyk.io/fips/cli/v1.0.0-monorepo/snyk-linux-arm64.sha256"
+    },
+    "snyk-win.exe": {
+      "url": "https://static.snyk.io/fips/cli/v1.0.0-monorepo/snyk-win.exe",
+      "sha256": "snyk-win.exe-sha256",
+      "sha256Url": "https://static.snyk.io/fips/cli/v1.0.0-monorepo/snyk-win.exe.sha256"
+    }
+  },
+  "schemaVersion": 1
+}

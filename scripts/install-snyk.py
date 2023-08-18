@@ -37,15 +37,15 @@ def get_os_arch():
         return None, None
 
 
-def download_snyk_cli(version):
+def download_snyk_cli(version, base_url):
     os_type, arch_type = get_os_arch()
 
     if not os_type or not arch_type:
         return
 
-    filename = get_filename(arch_type, os_type)
+    filename, outputFilename = get_filename(arch_type, os_type)
 
-    url = f"https://static.snyk.io/cli/v{version}/{filename}"
+    url = f"{base_url}/cli/v{version}/{filename}"
 
     response = requests.get(url)
 
@@ -68,10 +68,11 @@ def download_snyk_cli(version):
 
             # Make the file executable
             os.chmod(filename, 0o755)
+            os.rename(filename, outputFilename)
 
             print("Running 'snyk -v' to check the version:")
 
-            executable = os.path.join(os.getcwd(), filename)
+            executable = os.path.join(os.getcwd(), outputFilename)
             os.system(f"{executable} -v")
 
         else:
@@ -83,6 +84,9 @@ def download_snyk_cli(version):
 
 def get_filename(arch_type, os_type):
     filename = ""
+    outputFilename = "snyk"
+    suffix = ""
+
     if os_type == 'linux' and arch_type == 'arm64':
         filename = "snyk-linux-arm64"
     if os_type == 'linux' and arch_type == 'amd64':
@@ -91,10 +95,15 @@ def get_filename(arch_type, os_type):
         if stat_result:
             filename = "snyk-alpine"
     if os_type == 'windows' and arch_type == 'amd64':
-        filename = "snyk-win.exe"
+        filename = "snyk-win"
+        suffix = ".exe"
     if os_type == 'macos':
         filename = "snyk-macos"
-    return filename
+
+    filename = filename + suffix
+    outputFilename = outputFilename + suffix
+
+    return (filename, outputFilename)
 
 
 def verify_checksum(file_path, expected_checksum):
@@ -111,8 +120,9 @@ def verify_checksum(file_path, expected_checksum):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download and install a specific version of Snyk CLI.")
     parser.add_argument("version", help="Version of Snyk CLI to download (e.g., 1.123.456)")
+    parser.add_argument("--base_url", help="Base URL to download from")
 
     args = parser.parse_args()
     version = args.version
 
-    download_snyk_cli(version)
+    download_snyk_cli(version, args.base_url)

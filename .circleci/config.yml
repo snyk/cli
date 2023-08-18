@@ -1,6 +1,12 @@
 version: '2.1'
 
 parameters:
+  cli_download_base_url:
+    type: string
+    default: 'https://static.snyk.io/'
+  fips_cli_download_base_url:
+    type: string
+    default: 'https://static.snyk.io/fips/'
   go_download_base_url:
     type: string
     default: 'https://storage.googleapis.com/golang/'
@@ -100,6 +106,10 @@ executors:
       image: windows-server-2019-vs2019:2022.08.1
     resource_class: windows.medium
     shell: powershell
+  cbl-mariner:
+    docker:
+      - image: mcr.microsoft.com/cbl-mariner/base/python:3.9.14-6-cm2.0.20230805-arm64
+    resource_class: arm.medium
 
 commands:
   install-go:
@@ -241,10 +251,14 @@ commands:
 
   failed-release-notification:
     steps:
-      - run:
-          name: Handling failed release
-          command: bash ./release-scripts/handle-failed-release.sh
-          when: on_fail
+      - when:
+          condition:
+            equal: [master, << pipeline.git.branch >>]
+          steps:
+            - run:
+                name: Handling failed release
+                command: bash ./release-scripts/handle-failed-release.sh
+                when: on_fail
 
   prepare-workspace:
     parameters:
@@ -562,6 +576,36 @@ workflows:
                 - master
                 - '/.*e2e.*/'
 
+      - test-release:
+          name: e2e fips tests (cbl-mariner)
+          context: team_hammerhead-cli
+          cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
+          setup_steps:
+            - run: tdnf install -y tar ca-certificates
+          executor: 'cbl-mariner'
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - master
+                - '/.*e2e.*/'
+
+      - test-release:
+          name: e2e fips tests (win-server2022-amd64)
+          context: team_hammerhead-cli
+          cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
+          setup_steps:
+            - run: Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\FipsAlgorithmPolicy' -Name 'Enabled' -Value '1'
+          executor: 'win-server2022-amd64'
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - master
+                - '/.*e2e.*/'
+
       - release-s3:
           name: upload latest
           context: team-hammerhead-common-deploy-tokens
@@ -583,6 +627,8 @@ workflows:
             - e2e tests (linux-ubuntu-jammy-arm64)
             - e2e tests (linux-ubuntu-focal-arm64)
             - e2e tests (alpine)
+            - e2e fips tests (cbl-mariner)
+            - e2e fips tests (win-server2022-amd64)
           filters:
             branches:
               only: master
@@ -620,7 +666,7 @@ jobs:
           command: npm ci
       - run:
           name: Set version
-          command: make binary-releases/version
+          command: make binary-releases/version binary-releases/fips/version
       - run:
           # required for one unit test (ts-binary-wrapper/test/unit/common.spec.ts:15:30)
           # consider removing this run
@@ -633,6 +679,7 @@ jobs:
           root: .
           paths:
             - binary-releases/*
+            - binary-releases/fips/*
             - node_modules/*
             - ts-binary-wrapper/*
             - dist/*
@@ -838,6 +885,7 @@ jobs:
           root: .
           paths:
             - binary-releases/snyk-*
+            - binary-releases/fips/snyk-*
 
   create_deployment_artifacts:
     executor: docker-amd64
@@ -868,9 +916,12 @@ jobs:
           paths:
             - binary-releases/sha256sums.txt.asc
             - binary-releases/release.json
+            - binary-releases/snyk-*.sha256
+            - binary-releases/fips/sha256sums.txt.asc
+            - binary-releases/fips/release.json
+            - binary-releases/fips/snyk-*.sha256
             - binary-releases/RELEASE_NOTES.md
             - binary-releases/snyk.tgz
-            - binary-releases/snyk-*.sha256
 
   pre-release:
     executor: docker-amd64
@@ -902,8 +953,15 @@ jobs:
     parameters:
       executor:
         type: string
+      cli_download_base_url:
+        type: string
+        default: << pipeline.parameters.cli_download_base_url >>
+      setup_steps:
+        type: steps
+        default: []
     executor: << parameters.executor >>
     steps:
+      - steps: << parameters.setup_steps >>
       - prepare-workspace
       - when:
           condition:
@@ -932,7 +990,8 @@ jobs:
           shell: bash
           command: |
             PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests || PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests 
-            python scripts/install-snyk.py $(cat binary-releases/version) || python3 scripts/install-snyk.py $(cat binary-releases/version)
+            python scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >>  $(cat binary-releases/version) || python3 scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >> $(cat binary-releases/version)
+            SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk whoami --experimental
 
   release-s3:
     executor: docker-amd64
