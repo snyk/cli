@@ -19,15 +19,17 @@ import {
   CodeAnalysisResults,
 } from './types';
 import { analysisProgressUpdate } from './utils';
-import {
-  FeatureNotSupportedBySnykCodeError,
-  MissingConfigurationError,
-} from './errors';
+import { FeatureNotSupportedBySnykCodeError } from './errors';
 import { getProxyForUrl } from 'proxy-from-env';
 import { bootstrap } from 'global-agent';
 import chalk from 'chalk';
 import * as debugLib from 'debug';
 import { getCodeClientProxyUrl } from '../../code-config';
+import {
+  isLocalCodeEngine,
+  validateLocalCodeEngineUrl,
+  logLocalCodeEngineVersion,
+} from './localCodeEngine';
 
 const debug = debugLib('snyk-code');
 
@@ -61,14 +63,16 @@ export async function getCodeTestResults(
   await spinner.clearAll();
   analysisProgressUpdate();
 
+  let baseURL = getCodeClientProxyUrl();
+
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
-    validateLocalCodeEngineUrl(sastSettings.localCodeEngine.url);
+    baseURL = sastSettings.localCodeEngine.url;
+    validateLocalCodeEngineUrl(baseURL);
+    if (options.debug) {
+      await logLocalCodeEngineVersion(baseURL);
+    }
   }
-
-  const baseURL = isLocalCodeEngineEnabled
-    ? sastSettings.localCodeEngine.url
-    : getCodeClientProxyUrl();
 
   // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
   // This ensures we support lowercase http(s)_proxy values as well
@@ -279,18 +283,4 @@ function getSecurityResultsOnly(
   }, []);
 
   return securityResults;
-}
-
-function isLocalCodeEngine(sastSettings: SastSettings): boolean {
-  const { sastEnabled, localCodeEngine } = sastSettings;
-
-  return sastEnabled && localCodeEngine.enabled;
-}
-
-function validateLocalCodeEngineUrl(localCodeEngineUrl: string): void {
-  if (localCodeEngineUrl.length === 0) {
-    throw new MissingConfigurationError(
-      'Snyk Code Local Engine. Refer to our docs on https://docs.snyk.io/products/snyk-code/deployment-options/snyk-code-local-engine/cli-and-ide to learn more',
-    );
-  }
 }
