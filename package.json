@@ -66,7 +66,7 @@
     "@snyk/code-client": "^4.19.1",
     "@snyk/dep-graph": "^2.6.1",
     "@snyk/docker-registry-v2-client": "^2.10.0",
-    "@snyk/fix": "file:packages/snyk-fix",
+    "@snyk/fix": "1.1193.0",
     "@snyk/gemfile": "1.2.0",
     "@snyk/snyk-cocoapods-plugin": "2.5.3",
     "@snyk/snyk-hex-plugin": "1.1.6",

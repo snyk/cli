@@ -4,9 +4,9 @@
   "description": "protect-test",
   "main": "index.js",
   "dependencies": {
-    "semver": "^2.3.2",
-    "get-uri": "2.0.2",
-    "snyk": "*"
+    "semver": "^7.4.0",
+    "get-uri": "4.0.0",
+    "snyk": "1.1150.0"
   },
   "scripts": {
     "env": "env",
