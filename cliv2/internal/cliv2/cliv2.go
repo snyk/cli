@@ -28,6 +28,7 @@ type Handler int
 type CLI struct {
 	DebugLogger      *log.Logger
 	CacheDirectory   string
+	WorkingDirectory string
 	v1BinaryLocation string
 	stdin            io.Reader
 	stdout           io.Writer
@@ -55,6 +56,7 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
 	cli := CLI{
 		DebugLogger:      debugLogger,
 		CacheDirectory:   cacheDirectory,
+		WorkingDirectory: "",
 		v1BinaryLocation: v1BinaryLocation,
 		stdin:            os.Stdin,
 		stdout:           os.Stdout,
@@ -191,7 +193,7 @@ func (c *CLI) GetBinaryLocation() string {
 }
 
 func (c *CLI) printVersion() {
-	fmt.Println(GetFullVersion())
+	fmt.Fprintln(c.stdout, GetFullVersion())
 }
 
 func (c *CLI) commandVersion(passthroughArgs []string) error {
@@ -226,8 +228,8 @@ func (c *CLI) commandAbout(proxyInfo *proxy.ProxyInfo, passthroughArgs []string)
 			}
 
 			fmt.Printf("Package: %s \n", strings.ReplaceAll(strings.ReplaceAll(fPath, "/licenses/", ""), "/"+f.Name(), ""))
-			fmt.Println(string(data))
-			fmt.Print(separator)
+			fmt.Fprintln(c.stdout, string(data))
+			fmt.Fprint(c.stdout, separator)
 		}
 	}
 
@@ -327,6 +329,10 @@ func (c *CLI) PrepareV1Command(
 	snykCmd = exec.Command(cmd, args...)
 	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation)
 
+	if len(c.WorkingDirectory) > 0 {
+		snykCmd.Dir = c.WorkingDirectory
+	}
+
 	return snykCmd, err
 }
 
@@ -363,7 +369,7 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 
 	if err != nil {
 		if evWarning, ok := err.(EnvironmentWarning); ok {
-			fmt.Println("WARNING! ", evWarning)
+			fmt.Fprintln(c.stdout, "WARNING! ", evWarning)
 		}
 	}
 
