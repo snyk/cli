@@ -163,7 +163,7 @@ function isLocalCodeEngine(sastSettings: SastSettings): boolean {
 function validateLocalCodeEngineUrl(localCodeEngineUrl: string): void {
   if (localCodeEngineUrl.length === 0) {
     throw new MissingConfigurationError(
-      'Snyk Code Local Engine. Refer to our docs to learn more: https://docs.snyk.io/products/snyk-code/deployment-options/snyk-code-local-engine/cli-and-ide',
+      'Snyk Code Local Engine. Refer to our docs to learn more: https://docs.snyk.io/scan-applications/snyk-code/snyk-code-local-engine#using-the-cli-and-ides-with-the-snyk-code-local-engine',
     );
   }
 }
