@@ -162,29 +162,27 @@ describe('snyk test --all-projects (mocked server only)', () => {
         env,
       },
     );
-    const backendRequests = server.popRequests(2);
-    expect(backendRequests).toHaveLength(2);
-    expect(backendRequests[0].method).toEqual('POST');
-    expect(backendRequests[0].headers['x-snyk-cli-version']).toBeDefined();
-    expect(backendRequests[0].url).toMatch('/api/v1/test-dep-graph');
-    expect(backendRequests[0].body.depGraph).not.toBeNull();
     const vulnerableFolderPath =
       process.platform === 'win32'
         ? 'vulnerable\\package-lock.json'
         : 'vulnerable/package-lock.json';
 
-    expect(backendRequests[1].method).toEqual('POST');
-    expect(backendRequests[1].headers['x-snyk-cli-version']).toBeDefined();
-    expect(backendRequests[1].url).toMatch('/api/v1/test-dep-graph');
-    expect(backendRequests[1].body.depGraph).not.toBeNull();
-    expect(backendRequests[1].body.depGraph.pkgManager.name).toBe('npm');
-    // local policy found and sent to backend
-    expect(backendRequests[1].body.policy).toMatch('npm:node-uuid:20160328');
-    expect(
-      backendRequests[1].body.targetFileRelativePath.endsWith(
-        vulnerableFolderPath,
-      ),
-    ).toBeTruthy();
+    const backendRequests = server.popRequests(2);
+    expect(backendRequests).toHaveLength(2);
+    let policyCount = 0;
+    backendRequests.forEach((req) => {
+      expect(req.method).toEqual('POST');
+      expect(req.headers['x-snyk-cli-version']).toBeDefined();
+      expect(req.url).toMatch('/api/v1/test-dep-graph');
+      expect(req.body.depGraph).not.toBeNull();
+      expect(req.body.depGraph.pkgManager.name).toBe('npm');
+      // local policy found and sent to backend
+      if (req.body.targetFileRelativePath.endsWith(vulnerableFolderPath)) {
+        expect(req.body.policy).toMatch('npm:node-uuid:20160328');
+        policyCount += 1;
+      }
+    });
+    expect(policyCount).toBe(1);
 
     expect(code).toEqual(0);
 
