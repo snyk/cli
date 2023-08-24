@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
@@ -440,6 +441,7 @@ func MainWithErrorCode() int {
 	// initialize the extensions -> they register themselves at the engine
 	engine.AddExtensionInitializer(basic_workflows.Init)
 	engine.AddExtensionInitializer(sbom.Init)
+	engine.AddExtensionInitializer(depgraph.Init)
 	engine.AddExtensionInitializer(capture.Init)
 	engine.AddExtensionInitializer(iacrules.Init)
 
