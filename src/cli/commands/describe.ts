@@ -15,6 +15,7 @@ import { findAndLoadPolicy } from '../../lib/policy';
 import { DescribeRequiredArgumentError } from '../../lib/errors/describe-required-argument-error';
 import help from './help';
 import { DCTL_EXIT_CODES, runDriftCTL } from '../../lib/iac/drift/driftctl';
+import * as theme from '../../lib/theme';
 
 export default async (...args: MethodArgs): Promise<any> => {
   const { options } = processCommandArgs(...args);
@@ -23,6 +24,11 @@ export default async (...args: MethodArgs): Promise<any> => {
   // Avoid `snyk describe` direct usage
   if (options.iac != true) {
     return legacyError('describe');
+  }
+
+  if (config.API.includes('snykgov')) {
+    const helpMsg = await help('fedramp');
+    console.log(theme.color.status.warn(helpMsg));
   }
 
   // Ensure that we are allowed to run that command
