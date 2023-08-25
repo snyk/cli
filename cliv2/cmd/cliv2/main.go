@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/snyk/go-application-framework/pkg/networking/fips"
 	"io"
 	"net/http"
 	"os"
@@ -23,12 +22,14 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
+	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/networking"
+	"github.com/snyk/go-application-framework/pkg/networking/fips"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
@@ -444,6 +445,7 @@ func MainWithErrorCode() int {
 	engine.AddExtensionInitializer(depgraph.Init)
 	engine.AddExtensionInitializer(capture.Init)
 	engine.AddExtensionInitializer(iacrules.Init)
+	engine.AddExtensionInitializer(container.Init)
 
 	// init engine
 	err = engine.Init()
