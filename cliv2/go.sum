@@ -582,8 +582,8 @@ github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce h1:Wc
 github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce/go.mod h1:5/IYYTgf32pST7St4GhS3KNz32WE17Ys+Hdb5Pqxex0=
 github.com/snyk/cli-extension-sbom v0.0.0-20230608154310-6573cedca977 h1:kW8XGQ3hseTP6WbGrO4Q6ssqGejT02hleNzxfWga72E=
 github.com/snyk/cli-extension-sbom v0.0.0-20230608154310-6573cedca977/go.mod h1:O/cjwCbKhJQWyXHPmNbZ7ToQKnhyw0VUp1Qhim3WEcw=
-github.com/snyk/go-application-framework v0.0.0-20230824100808-1f8a164e0d24 h1:C+Sh7C9VRSKIA3RLht0QzzmjZboDutoHySG+xZNZi50=
-github.com/snyk/go-application-framework v0.0.0-20230824100808-1f8a164e0d24/go.mod h1:Aun65T/AmzxjZe9jZZBqia6RHwoS7oq8QB2UfQIcPjU=
+github.com/snyk/go-application-framework v0.0.0-20230825084328-b839e0e50201 h1:5oHKA6Zs/c2oJ6MEznPn4grAJyedzltm9ms3o9ojU0Y=
+github.com/snyk/go-application-framework v0.0.0-20230825084328-b839e0e50201/go.mod h1:Aun65T/AmzxjZe9jZZBqia6RHwoS7oq8QB2UfQIcPjU=
 github.com/snyk/go-httpauth v0.0.0-20230512081507-800aedece3cb h1:UwbUBfe1u5MYLhtCNOsFEM98tfEUWqgmaXam/UxU88Q=
 github.com/snyk/go-httpauth v0.0.0-20230512081507-800aedece3cb/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v0.22.0 h1:od9pduGrXyfWO791X+8M1qmnvWUxaIXh0gBzGKqeseA=
