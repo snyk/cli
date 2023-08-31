@@ -3,7 +3,6 @@ import { fakeServer, FakeServer } from '../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../util/createProject';
 import { getFixturePath } from '../util/getFixturePath';
 import { runSnykCLI } from '../util/runSnykCLI';
-import { isCLIV2 } from '../util/isCLIV2';
 import * as os from 'os';
 
 jest.setTimeout(1000 * 30);
@@ -64,19 +63,14 @@ describe('https', () => {
     });
   });
 
-  describe('expired certificate', () => {
+  describe('invalid certificate', () => {
     it('rejects connections', async () => {
       const project = await createProjectFromWorkspace('npm-package');
-      const { code, stdout } = await runSnykCLI('test', {
+      const { code } = await runSnykCLI('test', {
         cwd: project.path(),
         env,
       });
-
-      expect(stdout).toContain(
-        isCLIV2()
-          ? 'socket hang up' // cliv2's proxy will drop the connection, but its debug logs will say why.
-          : 'certificate has expired',
-      );
+      expect(server.getRequests().length).toBe(0);
       expect(code).toBe(2);
     });
 
@@ -86,6 +80,7 @@ describe('https', () => {
         cwd: project.path(),
         env,
       });
+      expect(server.getRequests().length).toBeGreaterThan(0);
       expect(code).toBe(0);
     });
   });

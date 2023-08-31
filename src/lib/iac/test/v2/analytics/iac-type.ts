@@ -75,7 +75,9 @@ function getFilesCountByPackageManager(
         acc[packageManager] = new Set();
       }
 
-      acc[packageManager].add(resource.file);
+      if (resource.file) {
+        acc[packageManager].add(resource.file);
+      }
 
       return acc;
     }, {} as { [packageManager in PackageManager]: Set<string> }),

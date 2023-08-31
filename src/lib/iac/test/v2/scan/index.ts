@@ -113,14 +113,7 @@ function processFlags(
   outputPath: string,
   policyPath: string,
 ) {
-  const flags = [
-    '-cache-dir',
-    systemCachePath,
-    '-bundle',
-    rulesBundlePath,
-    '-policy',
-    policyPath,
-  ];
+  const flags = ['-bundle', rulesBundlePath, '-policy', policyPath];
 
   flags.push('-output', outputPath);
 
@@ -154,10 +147,6 @@ function processFlags(
 
   if (options.varFile) {
     flags.push('-var-file', options.varFile);
-  }
-
-  if (options.cloudContext) {
-    flags.push('-cloud-context', options.cloudContext);
   }
 
   if (options.snykCloudEnvironment) {

@@ -48,6 +48,10 @@ Define the API endpoint to use.
 
 Turn off analytics reporting.
 
+### `org`
+
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization.&#x20;
+
 ### `oci-registry-url`
 
 Configure the OCI registry used in IaC scanning with custom rules.

@@ -1,6 +1,6 @@
 import { gte } from 'semver';
 
-const MIN_RUNTIME = '12.0.0';
+const MIN_RUNTIME = '14.0.0';
 
 export const supportedRange = `>= ${MIN_RUNTIME}`;
 

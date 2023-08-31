@@ -1,7 +1,4 @@
 {
-    "iac-cloud-context": "cloud-context",
-    "iac-cloud-context-cloud-provider": "aws",
-    "iac-cloud-context-suppressed-issues-count": 0,
     "iac-type": {
       "terraformconfig": {
         "count": 2,

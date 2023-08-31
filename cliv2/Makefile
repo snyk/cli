@@ -5,13 +5,15 @@ GOOS = $(shell go env GOOS)
 GOARCH = $(shell go env GOARCH)
 GOHOSTOS = $(shell go env GOHOSTOS)
 GOHOSTARCH = $(shell go env GOHOSTARCH)
+FIPS_CRYPTO_BACKEND_DEFAULT = opensslcrypto
+FIPS_CRYPTO_BACKEND =
 HASH = sha
 HASH_ALGORITHM = 256
-CLI_V2_VERSION_TAG = 
-CLI_V1_VERSION_TAG = 
+CLI_V1_VERSION_TAG = 0.0.0
 CLI_V1_LOCATION = 
 USE_LEGACY_EXECUTABLE_NAME =
-LDFLAGS = -s -w -X main.InternalOS=$(GOOS)
+LDFLAGS = -s -w
+SHASUM_CMD = shasum
 
 # Make directories per convention
 prefix = /usr/local
@@ -32,12 +34,13 @@ _GO_OS = $(GOOS)
 _V1_OS = $(GOOS)
 _V1_ARCH = $(GOARCH)
 _EMPTY =
-_EXE_POSTFIX = 
+_EXE_POSTFIX =
+_FIPS_EXTENSION = fips
 _SEPARATOR = _
 
 ifeq ($(_V1_OS), darwin)
 	_V1_OS = macos
-#temporarily irgnoring any architecture for macos v1 binaries, this will enable to natively compile v2 as darwin arm64 and bundle v1 as amd64
+#temporarily ignoring any architecture for macos v1 binaries, this will enable to natively compile v2 as darwin arm64 and bundle v1 as amd64
 	_V1_ARCH = 
 else ifeq ($(_V1_OS), windows)
 	_V1_OS = win
@@ -54,15 +57,6 @@ else
 	V1_PLATFORM_STING = $(_V1_OS)-$(_V1_ARCH)
 endif
 
-# find out whether to download CLIv1 executable
-_V1_DOWNLOAD = true
-ifneq ($(CLI_V1_LOCATION), $(_EMPTY)) 
-	ifeq ($(CLI_V1_VERSION_TAG), $(_EMPTY))
-		CLI_V1_VERSION_TAG = $(shell cat "$(CLI_V1_LOCATION)/version")
-	endif
-	_V1_DOWNLOAD = false
-endif
-
 ifeq ($(_GO_OS), alpine)
 	_GO_OS = linux
 endif
@@ -75,36 +69,35 @@ V2_EXECUTABLE_NAME = $(APPLICATION_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE
 
 ifneq ($(USE_LEGACY_EXECUTABLE_NAME), $(_EMPTY))
 	V2_EXECUTABLE_NAME = $(V1_EXECUTABLE_NAME)
+	_SEPARATOR = -
 endif 
 
 V1_EXECUTABLE_NAME = $(APPLICATION_NAME)-$(V1_PLATFORM_STING)$(_EXE_POSTFIX)
 V2_DIRECTORY = $(WORKING_DIR)/internal/cliv2
 V1_DIRECTORY = $(WORKING_DIR)/internal/embedded/cliv1
-V1_DOWNLOAD_LINK = https://static.snyk.io/cli/v$(CLI_V1_VERSION_TAG)/$(V1_EXECUTABLE_NAME)
 V1_EMBEDDED_FILE_TEMPLATE = $(V1_DIRECTORY)/embedded_binary_template.txt
 V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
 V1_WORKING_DIR = $(WORKING_DIR)/..
-V1_BUILD_TYPE = build
+V1_BUILD_TYPE = build:prod
 V1_BINARY_FOLDER = ts-cli-binaries
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
-TEST_SNYK_EXECUTABLE_PATH=$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
-TEST_EXECUTABLE_NAME = $(TEST_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE_POSTFIX)
-SIGN_SCRIPT = sign_$(_GO_OS).sh
-ISSIGNED_SCRIPT = issigned_$(_GO_OS).sh
+SIGN_SCRIPT = $(WORKING_DIR)/scripts/sign_$(_GO_OS).sh
+ISSIGNED_SCRIPT = $(WORKING_DIR)/scripts/issigned_$(_GO_OS).sh
 EMBEDDED_DATA_DIR = $(WORKING_DIR)/internal/embedded/_data
 
+ifeq ($(GOHOSTOS), windows)
+	SPECIAL_SHELL = powershell
+	SHASUM_CMD = $(SPECIAL_SHELL) $(WORKING_DIR)/scripts/shasum.ps1
+	SIGN_SCRIPT = $(SPECIAL_SHELL) $(WORKING_DIR)/scripts/sign_$(GOHOSTOS).ps1
+	ISSIGNED_SCRIPT = $(SPECIAL_SHELL) $(WORKING_DIR)/scripts/issigned_$(GOHOSTOS).ps1
+endif
+
+ifeq ($(_GO_OS), windows)
+	FIPS_CRYPTO_BACKEND_DEFAULT = cngcrypto
+endif
 
 # some make file variables
 LOG_PREFIX = --
-
-# determine the latest cli version if no version was explicitly defined
-$(CACHE_DIR)/version.mk: $(CACHE_DIR)
-ifeq ($(CLI_V1_VERSION_TAG), $(_EMPTY))
-	$(eval CLI_V1_VERSION_TAG := $(shell curl --fail --progress-bar -L https://static.snyk.io/cli/latest/version))
-endif
-	@printf "CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG)\nCLI_V2_VERSION_TAG=$(CLI_V2_VERSION_TAG)" > $(CACHE_DIR)/version.mk
-	@echo "$(LOG_PREFIX) Using cliv1 version ( $(CLI_V1_VERSION_TAG) )"
-	@echo "$(LOG_PREFIX) Building cliv2 version ( $(CLI_V2_VERSION_TAG) )"
 
 $(BUILD_DIR):
 	@mkdir $@
@@ -113,59 +106,54 @@ $(CACHE_DIR):
 	@mkdir $@
 
 $(CACHE_DIR)/variables.mk: $(CACHE_DIR)
-	@printf "GOOS=$(GOOS)\nGOARCH=$(GOARCH)\n" > $(CACHE_DIR)/variables.mk
+	@printf "GOOS=$(GOOS)\nGOARCH=$(GOARCH)\nUSE_LEGACY_EXECUTABLE_NAME=$(USE_LEGACY_EXECUTABLE_NAME)\n" > $(CACHE_DIR)/variables.mk
 
 $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT):
 	@echo "$(LOG_PREFIX) Generating ( $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) )"
 	@sed -e 's/FILENAME/$(V1_EXECUTABLE_NAME)/g' $(V1_EMBEDDED_FILE_TEMPLATE) > $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
 
-$(V1_DIRECTORY)/cliv1.version:
-	@echo "$(CLI_V1_VERSION_TAG)" > $(V1_DIRECTORY)/cliv1.version
-
-$(V2_DIRECTORY)/cliv2.version:
-	@echo "$(CLI_V2_VERSION_TAG)" > $(V2_DIRECTORY)/cliv2.version
-
-$(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME): $(V1_DIRECTORY)/cliv1.version
-ifeq ($(_V1_DOWNLOAD), true)
-	@echo "$(LOG_PREFIX) Downloading cliv1 executable ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) )"
-	@curl --fail --progress-bar -Lo $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DOWNLOAD_LINK)
-else
+$(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Copying cliv1 executable ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) )"
 	@cp $(CLI_V1_LOCATION)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
-endif
 
 $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING): $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
-ifeq ($(_V1_DOWNLOAD), true)
-	@echo "$(LOG_PREFIX) Downloading cliv1 checksum ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) )"
-	@curl --fail --progress-bar -Lo $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) $(V1_DOWNLOAD_LINK).$(HASH_STRING)
-else
 	@echo "$(LOG_PREFIX) Copying cliv1 checksum ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) )"
 	@cp $(CLI_V1_LOCATION)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
-endif
 
 .PHONY: _validate_sha_v1
 _validate_sha_v1: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 	@echo "$(LOG_PREFIX) Validating checksum ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) )"
-	@cd $(V1_DIRECTORY) && shasum -b -q -a $(HASH_ALGORITHM) -c $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
+	@cd $(V1_DIRECTORY) && $(SHASUM_CMD) -b -q -a $(HASH_ALGORITHM) -c $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 
 # separate dependency target
 .PHONY: dependencies
 dependencies: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) _validate_sha_v1
 
+.PHONY: summary
+summary:
+	@echo "$(LOG_PREFIX) Build Summary"
+	@echo "$(LOG_PREFIX)  Using Go installation:        $(shell which go)"
+	@echo "$(LOG_PREFIX)  Non-Standard Crypto-Backend:  $(FIPS_CRYPTO_BACKEND)"
+	@echo "$(LOG_PREFIX)  Building Binary:              $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)"
+	@echo "$(LOG_PREFIX)  Building version:             $(CLI_V1_VERSION_TAG)"
+
+
 # prepare the workspace and cache global parameters
 .PHONY: configure
-configure: $(V2_DIRECTORY)/cliv2.version $(CACHE_DIR) $(CACHE_DIR)/version.mk $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
+configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
-	@GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -ldflags="$(LDFLAGS)" -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
+	@GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG)" -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING): 
-	@echo "$(LOG_PREFIX) Generating checksum ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
-	@cd $(BUILD_DIR) && shasum -a $(HASH_ALGORITHM) --binary $(V2_EXECUTABLE_NAME) > $(V2_EXECUTABLE_NAME).$(HASH_STRING)
+.PHONY: fips
+fips:
+# assign name of crypto backend to use
+	$(eval FIPS_CRYPTO_BACKEND := $(FIPS_CRYPTO_BACKEND_DEFAULT))
+	@echo "$(LOG_PREFIX) FIPS"
 
 .PHONY: build
-build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
+build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 
 $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
@@ -176,13 +164,13 @@ $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
 
 $(CACHE_DIR)/prepare-3rd-party-licenses: 
 	@echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"
-	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) scripts/prepare_licenses.sh > $(CACHE_DIR)/prepare-3rd-party-licenses
+	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) scripts/prepare_licenses.sh > $(CACHE_DIR)/prepare-3rd-party-licenses 2> /dev/null
 
 .PHONY: generate
 generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go
 
 .PHONY: whiteboxtest
-whiteboxtest: 
+whiteboxtest:
 	@echo "$(LOG_PREFIX) Running $@"
 	@$(GOCMD) test -cover ./...
 
@@ -197,31 +185,26 @@ lint:
 format:
 	gofmt -w -l -e .
 
-.PHONY: $(SIGN_SCRIPT)
-$(SIGN_SCRIPT): 
+.PHONY: SIGN_SCRIPT
+SIGN_SCRIPT:
 	@echo "$(LOG_PREFIX) Running $(SIGN_SCRIPT) ( $(BUILD_DIR) )"
-	@scripts/$(SIGN_SCRIPT) $(BUILD_DIR) $(V2_EXECUTABLE_NAME)
+	$(SIGN_SCRIPT) $(BUILD_DIR) $(V2_EXECUTABLE_NAME)
 
-.PHONY: _cleanup_sha_v2
-_cleanup_sha_v2:
-	@echo "$(LOG_PREFIX) Removing ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) )"
-	@rm -f $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING)
-
-.PHONY: $(ISSIGNED_SCRIPT)
-$(ISSIGNED_SCRIPT): 
-	@scripts/$(ISSIGNED_SCRIPT) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
+.PHONY: ISSIGNED_SCRIPT
+ISSIGNED_SCRIPT:
+	$(ISSIGNED_SCRIPT) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 
 
 .PHONY: sign
-sign: _cleanup_sha_v2 $(SIGN_SCRIPT) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) $(ISSIGNED_SCRIPT)
+sign: SIGN_SCRIPT ISSIGNED_SCRIPT
 
 .PHONY: test-signature
-test-signature: $(ISSIGNED_SCRIPT)
+test-signature: ISSIGNED_SCRIPT
 
 # Typescript CLI targets
 $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
-	@cd $(V1_WORKING_DIR) && npm ci && npm run $(V1_BUILD_TYPE)
+	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
 	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 	
 .PHONY: build-ts-cli
@@ -236,8 +219,7 @@ clean-ts-cli:
 
 # build the full CLI (Typescript+Golang)
 .PHONY: build-full
-build-full: | build-ts-cli
-	@$(MAKE) build CLI_V1_VERSION_TAG=$(CLI_V1_VERSION_TAG) CLI_V1_LOCATION="$(CLI_V1_LOCATION)"
+build-full: build-ts-cli build
 
 # clean the full CLI (Typescript+Golang)
 .PHONY: clean-full
@@ -248,28 +230,27 @@ all: build-full
 
 .PHONY: clean
 clean:
+	@echo "$(LOG_PREFIX) Cleaning ( $(DESTDIR)$(bindir)/$(V2_EXECUTABLE_NAME) )"
 	@$(GOCMD) clean
 	@rm -f -r $(BUILD_DIR)
 	@rm -f -r $(CACHE_DIR)
 	@rm -f $(V1_DIRECTORY)/$(APPLICATION_NAME)-*
 	@rm -f $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
-	@rm -f $(V1_DIRECTORY)/cliv1.version
-	@rm -f $(V2_DIRECTORY)/cliv2.version
 	@rm -f -r $(EMBEDDED_DATA_DIR)/licenses
 
 .PHONY: install
 install:
-	@echo "$(LOG_PREFIX) Installing $(V2_EXECUTABLE_NAME) ( $(DESTDIR)$(bindir) $(CLI_V1_VERSION_TAG))"
+	@echo "$(LOG_PREFIX) Installing ( $(DESTDIR)$(bindir)/$(V2_EXECUTABLE_NAME) )"
 	@mkdir -p $(DESTDIR)$(bindir)
 	@rm -f $(DESTDIR)$(bindir)/$(V2_EXECUTABLE_NAME)
 	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(DESTDIR)$(bindir)
-	@cp $(BUILD_DIR)/$(V2_EXECUTABLE_NAME).$(HASH_STRING) $(DESTDIR)$(bindir)
 
 .PHONY: help
 help:
 	@echo "\n Main targets (Golang only):"
 	@echo "$(LOG_PREFIX) lint"
 	@echo "$(LOG_PREFIX) format"
+	@echo "$(LOG_PREFIX) fips"
 	@echo "$(LOG_PREFIX) build"
 	@echo "$(LOG_PREFIX) sign"
 	@echo "$(LOG_PREFIX) test"
@@ -282,9 +263,7 @@ help:
 	@echo "\nAvailable parameter:"
 	@echo "$(LOG_PREFIX) GOOS                       Specify Operating System to compile for (see golang GOOS, default=$(GOOS))"
 	@echo "$(LOG_PREFIX) GOARCH                     Specify Architecture to compile for (see golang GOARCH, default=$(GOARCH))"
-	@echo "$(LOG_PREFIX) CLI_V2_VERSION_TAG         Version of the CLIv2 without the CLIv1 version (default=$(CLI_V2_VERSION_TAG))"
 	@echo "$(LOG_PREFIX) CLI_V1_VERSION_TAG         Version of the CLIv1 to bundle"
 	@echo "$(LOG_PREFIX) CLI_V1_LOCATION            Filesystem location of CLIv1 binaries to bundle, if specified, CLI_V1_VERSION_TAG is also required"
-	@echo "$(LOG_PREFIX) TEST_SNYK_EXECUTABLE_PATH  Filesystem location of binary under test (default=$(TEST_SNYK_EXECUTABLE_PATH))"
-	@echo "$(LOG_PREFIX) prefix                     Installation prefix (default=$(prefix))"	
+	@echo "$(LOG_PREFIX) prefix                     Installation prefix (default=$(prefix))"
 	@echo "$(LOG_PREFIX) DESTDIR                    For staged installations"

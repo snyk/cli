@@ -1,5 +1,4 @@
 import { runSnykCLI } from '../util/runSnykCLI';
-import { isCLIV2 } from '../util/isCLIV2';
 import { fakeServer, FakeServer } from '../../../test/acceptance/fake-server';
 import * as path from 'path';
 import {
@@ -31,9 +30,7 @@ function getConnectionRefusedRegExp(): string | RegExp {
   );
   // When running this for v1, the message is more predictable:
   // `Error: connect ECONNREFUSED 127.0.0.1:${fakeServerPort}`
-  const expectedMessageRegex = isCLIV2()
-    ? cliv2MessageRegex
-    : `Error: connect ECONNREFUSED 127.0.0.1:${fakeServerPort}`;
+  const expectedMessageRegex = cliv2MessageRegex;
 
   return expectedMessageRegex;
 }
@@ -225,32 +222,10 @@ describe('Proxy configuration behavior', () => {
       const expectedMessageRegex = getConnectionRefusedRegExp();
       expect(stderr).toMatch(expectedMessageRegex);
     });
-
-    if (!isCLIV2()) {
-      // This scenario should actually work, an http request should directly go through and not hit the proxy if protocol upgrade is disabled.
-      it('needle behavior - only HTTPS Proxy is set but HTTP request (without protocol upgrade) fails.', async () => {
-        const { code, stderr } = await runSnykCLI(`woof -d`, {
-          env: {
-            ...process.env,
-            HTTPS_PROXY: FAKE_HTTP_PROXY,
-            SNYK_API: SNYK_API_HTTP,
-            SNYK_HTTP_PROTOCOL_UPGRADE: '0',
-          },
-        });
-
-        expect(code).toBe(2);
-
-        // Incorrect behavior when Needle tries to upgrade connection after 301 http->https and the Agent option is set to a strict http/s protocol.
-        // See lines with `keepAlive` in request.ts for more details
-        expect(stderr).toContain(
-          'TypeError [ERR_INVALID_PROTOCOL]: Protocol "https:" not supported. Expected "http:"',
-        );
-      });
-    }
   });
 });
 
-jest.setTimeout(1000 * 60 * 1);
+jest.setTimeout(1000 * 60);
 describe('Proxy Authentication (all platforms)', () => {
   if (canTestRun()) {
     let server: FakeServer;
@@ -283,43 +258,41 @@ describe('Proxy Authentication (all platforms)', () => {
       unlink(path.join(scriptsPath, KRB5_CONFIG_FILE), () => {});
     });
 
-    if (isCLIV2()) {
-      it('fails to run snyk test due to disabled proxy authentication', async () => {
-        const logOnEntry = await getProxyAccessLog();
+    it('fails to run snyk test due to disabled proxy authentication', async () => {
+      const logOnEntry = await getProxyAccessLog();
 
-        // run snyk test
-        const args: string[] = ['--proxy-noauth', project.path()];
-        const cli = await runCliWithProxy(env, args);
-        await expect(cli).toExitWith(2);
+      // run snyk test
+      const args: string[] = ['--proxy-noauth', project.path()];
+      const cli = await runCliWithProxy(env, args);
+      await expect(cli).toExitWith(2);
 
-        const logOnExit = await getProxyAccessLog();
-        const additionalLogEntries = logOnExit.substring(logOnEntry.length);
-        expect(additionalLogEntries.includes('TCP_DENIED/407')).toBeTruthy();
-        expect(
-          additionalLogEntries.includes(
-            'CONNECT ' + hostnameFakeServer + ':' + port,
-          ),
-        ).toBeFalsy();
-      });
+      const logOnExit = await getProxyAccessLog();
+      const additionalLogEntries = logOnExit.substring(logOnEntry.length);
+      expect(additionalLogEntries.includes('TCP_DENIED/407')).toBeTruthy();
+      expect(
+        additionalLogEntries.includes(
+          'CONNECT ' + hostnameFakeServer + ':' + port,
+        ),
+      ).toBeFalsy();
+    });
 
-      it('successfully runs snyk test with proxy (AnyAuth)', async () => {
-        const logOnEntry = await getProxyAccessLog();
+    it('successfully runs snyk test with proxy (AnyAuth)', async () => {
+      const logOnEntry = await getProxyAccessLog();
 
-        // run snyk test
-        const args: string[] = [project.path()];
-        const cli = await runCliWithProxy(env, args);
-        await expect(cli).toExitWith(0);
+      // run snyk test
+      const args: string[] = [project.path()];
+      const cli = await runCliWithProxy(env, args);
+      await expect(cli).toExitWith(0);
 
-        const logOnExit = await getProxyAccessLog();
-        const additionalLogEntries = logOnExit.substring(logOnEntry.length);
-        expect(additionalLogEntries.includes('TCP_TUNNEL/200')).toBeTruthy();
-        expect(
-          additionalLogEntries.includes(
-            'CONNECT ' + hostnameFakeServer + ':' + port,
-          ),
-        ).toBeTruthy();
-      });
-    }
+      const logOnExit = await getProxyAccessLog();
+      const additionalLogEntries = logOnExit.substring(logOnEntry.length);
+      expect(additionalLogEntries.includes('TCP_TUNNEL/200')).toBeTruthy();
+      expect(
+        additionalLogEntries.includes(
+          'CONNECT ' + hostnameFakeServer + ':' + port,
+        ),
+      ).toBeTruthy();
+    });
 
     it('successfully runs snyk test with proxy (Basic)', async () => {
       const logOnEntry = await getProxyAccessLog();
@@ -343,7 +316,7 @@ describe('Proxy Authentication (all platforms)', () => {
 });
 
 describe('Proxy Authentication (Non-Windows)', () => {
-  if (canTestRun() && !os.platform().includes('win32') && isCLIV2()) {
+  if (canTestRun() && !os.platform().includes('win32')) {
     let server: FakeServer;
     let env: Record<string, string>;
     let project: TestProject;

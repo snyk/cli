@@ -21,7 +21,7 @@
     "snyk": "bin/snyk"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=14"
   },
   "workspaces": [
     "packages/*"
@@ -63,7 +63,7 @@
     "@sentry/node": "^7.34.0",
     "@snyk/cli-interface": "2.12.0",
     "@snyk/cloud-config-parser": "^1.14.5",
-    "@snyk/code-client": "^4.19.0",
+    "@snyk/code-client": "^4.19.1",
     "@snyk/dep-graph": "^2.6.1",
     "@snyk/docker-registry-v2-client": "^2.10.0",
     "@snyk/fix": "file:packages/snyk-fix",
@@ -105,7 +105,7 @@
     "lodash.values": "^4.3.0",
     "marked": "^4.0.1",
     "micromatch": "4.0.2",
-    "needle": "3.0.0",
+    "needle": "3.2.0",
     "open": "^7.0.3",
     "ora": "5.4.0",
     "os-name": "^5.1.0",
@@ -115,13 +115,13 @@
     "semver": "^6.0.0",
     "snyk-config": "4.0.0",
     "snyk-cpp-plugin": "2.22.2",
-    "snyk-docker-plugin": "6.5.1",
+    "snyk-docker-plugin": "6.5.7",
     "snyk-go-plugin": "1.23.0",
     "snyk-gradle-plugin": "3.27.0",
     "snyk-module": "3.1.0",
-    "snyk-mvn-plugin": "2.33.0",
+    "snyk-mvn-plugin": "3.0.0",
     "snyk-nodejs-lockfile-parser": "1.52.1",
-    "snyk-nuget-plugin": "1.24.1",
+    "snyk-nuget-plugin": "1.31.0",
     "snyk-php-plugin": "1.9.2",
     "snyk-policy": "^1.25.0",
     "snyk-python-plugin": "^1.25.3",

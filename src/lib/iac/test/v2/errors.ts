@@ -34,7 +34,7 @@ const snykIacTestErrorsUserMessages = {
     'An error occurred while processing results. Please run the command again with the `-d` flag for more information.',
   SubmoduleLoadingError: `Error loading submodule. Run 'terraform validate' to get more information`,
   MissingRemoteSubmodulesError: `Could not load some remote modules. Run 'terraform init' if you would like to include them in the evaluation`,
-  EvaluationError: 'Evaluation error',
+  EvaluationError: 'Skipping evaluation',
   MissingTermError: 'Missing term - term has been assigned as the name itself',
 };
 

@@ -6,21 +6,29 @@ NOW=$(date "+%Y%m%d-%H%M%S")
 
 
 pushd "$SCRIPT_DIR/.."
-  NODEVERSION=$(head -1 .nvmrc | cut -f1 -d '.')
+  NODEVERSION=$(head -1 .nvmrc)
   export NODEVERSION
-
-  BASE_IMG_NAME=$DOCKER_USERNAME/cli-build
-  docker buildx build --build-arg NODEVERSION="$NODEVERSION" --build-arg ARCH="x86_64" --platform linux/amd64 -t "$BASE_IMG_NAME":latest -f .circleci/Dockerfile .
-  docker tag "$BASE_IMG_NAME":latest "$BASE_IMG_NAME":"$NOW"
-
-  ARM64=$BASE_IMG_NAME-arm64
-  docker buildx build --build-arg NODEVERSION="$NODEVERSION" --build-arg ARCH="aarch64" --platform linux/arm64 -t "$ARM64":latest -f .circleci/Dockerfile .
-  docker tag "$ARM64":latest "$ARM64:$NOW"
 
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
-  docker push "$BASE_IMG_NAME":latest
-  docker push "$BASE_IMG_NAME:$NOW"
-  docker push "$ARM64":latest
-  docker push "$ARM64:$NOW"
+  BASE_IMG_NAME=$DOCKER_USERNAME/cli-build
+  docker buildx build \
+    --build-arg NODEVERSION="$NODEVERSION" \
+    --build-arg ARCH="x86_64" \
+    --platform linux/amd64 \
+    --tag "$BASE_IMG_NAME":$NOW \
+    --tag "$BASE_IMG_NAME":latest \
+    --push \
+    --file .circleci/Dockerfile .
+
+  BASE_IMG_NAME=$DOCKER_USERNAME/cli-build-arm64
+  docker buildx build \
+    --build-arg NODEVERSION="$NODEVERSION" \
+    --build-arg ARCH="aarch64" \
+    --platform linux/arm64 \
+    --tag "$BASE_IMG_NAME":$NOW \
+    --tag "$BASE_IMG_NAME":latest \
+    --push \
+    --file .circleci/Dockerfile .
+
 popd

@@ -5,11 +5,24 @@
 # Documentation: https://www.gnu.org/software/make/manual/make.html
 #
 
+WORKING_DIR = $(CURDIR)
 PKG := npx pkg ./ --compress Brotli
 BINARY_WRAPPER_DIR = ts-binary-wrapper
 EXTENSIBLE_CLI_DIR = cliv2
 BINARY_RELEASES_FOLDER_TS_CLI = binary-releases
 BINARY_OUTPUT_FOLDER = binary-releases
+SHASUM_CMD = shasum
+GOHOSTOS = $(shell go env GOHOSTOS)
+export PYTHON = python
+
+PYTHON_VERSION = $(shell python3 --version)
+ifneq (, $(PYTHON_VERSION))
+	PYTHON = python3
+endif
+
+ifeq ($(GOHOSTOS), windows)
+	SHASUM_CMD = powershell $(WORKING_DIR)/cliv2/scripts/shasum.ps1
+endif
 
 .DEFAULT: help
 .PHONY: help
@@ -19,11 +32,17 @@ help:
 	@echo 'This Makefile is currently only for building release artifacts.'
 	@echo 'Use `npm run` for CLIv1 scripts.'
 
+$(BINARY_OUTPUT_FOLDER)/fips:
+	@mkdir -p $(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips
+
 $(BINARY_RELEASES_FOLDER_TS_CLI):
 	@mkdir -p $(BINARY_RELEASES_FOLDER_TS_CLI)
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/version: | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+
+$(BINARY_OUTPUT_FOLDER)/fips/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/fips
+	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/fips/version
 
 ifneq ($(BINARY_OUTPUT_FOLDER), $(BINARY_RELEASES_FOLDER_TS_CLI))
 $(BINARY_OUTPUT_FOLDER):
@@ -44,18 +63,21 @@ endif
 prepack: $(BINARY_OUTPUT_FOLDER)/version
 	@echo "'make prepack' was run. Run 'make clean-prepack' to rollback your package.json changes and this file." > prepack
 	npm version "$(shell cat $(BINARY_RELEASES_FOLDER_TS_CLI)/version)" --no-git-tag-version --workspaces --include-workspace-root
-	cd $(BINARY_WRAPPER_DIR) && npm version "$(shell cat $(CURDIR)/$(BINARY_RELEASES_FOLDER_TS_CLI)/version)" --no-git-tag-version --include-workspace-root
+	cd $(BINARY_WRAPPER_DIR); npm version "$(shell cat $(WORKING_DIR)/$(BINARY_RELEASES_FOLDER_TS_CLI)/version)" --no-git-tag-version --include-workspace-root
 	npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
 
+.PHONY: clean-package-files
+clean-package-files:
+	@git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json $(BINARY_WRAPPER_DIR)/package.json $(BINARY_WRAPPER_DIR)/package-lock.json 2> /dev/null
+
 .PHONY: clean-prepack
-clean-prepack:
-	git checkout package.json package-lock.json packages/*/package.json packages/*/package-lock.json $(BINARY_WRAPPER_DIR)/package.json $(BINARY_WRAPPER_DIR)/package-lock.json
-	rm -f prepack
+clean-prepack: clean-package-files
+	@rm -f prepack
 
 .PHONY: clean-ts
 clean-ts: 
-	npm run clean
-	rm -f -r $(BINARY_RELEASES_FOLDER_TS_CLI)
+	@npm run clean
+	@rm -f -r $(BINARY_RELEASES_FOLDER_TS_CLI)
 
 $(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc:
 	./release-scripts/sha256sums.txt.asc.sh
@@ -72,8 +94,12 @@ $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_
 
 # Generates a shasum of a target with the same name.
 # See "Automatic Variables" in GNU Make docs (linked at the top)
-%.sha256: %
-	cd $(@D); shasum -a 256 $(<F) > $(@F); shasum -a 256 -c $(@F)
+%.sha256:
+# command breakdown:
+# cd $(@D) - changes directory to the target's directory.
+# $(SHASUM_CMD) -a 256 $(shell python -c "print('.'.join('$(@F)'.split('.')[:-1]))") > $(@F) - extract <name> from <name>.<ext> and generate the shasum.
+# $(SHASUM_CMD) -a 256 -c $(@F) - check the shasum.
+	cd $(@D); $(SHASUM_CMD) -a 256 $(shell $(PYTHON) -c "print('.'.join('$(@F)'.split('.')[:-1]))") > $(@F); $(SHASUM_CMD) -a 256 -c $(@F)
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	$(MAKE) pack-binary-wrapper
@@ -81,11 +107,9 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-fix.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	mv $(shell npm pack --workspace '@snyk/fix') $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-fix.tgz
-	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-fix.tgz.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	mv $(shell npm pack --workspace '@snyk/protect') $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz
-	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	$(PKG) -t node16-alpine-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine
@@ -109,7 +133,7 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos: prepack | $(BINARY_RELEASES_FOLDER_
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	$(PKG) -t node16-win-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe
-	./cliv2/scripts/sign_windows.sh $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-win.exe
+	powershell $(WORKING_DIR)/cliv2/scripts/sign_windows.ps1 $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-win.exe
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-for-docker-desktop-darwin-x64.tar.gz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
@@ -150,7 +174,7 @@ $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 .PHONY: build-binary-wrapper
 build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
-	@cd $(BINARY_WRAPPER_DIR) && npm run build
+	@cd $(BINARY_WRAPPER_DIR); npm run build
 	
 .PHONY: clean-binary-wrapper
 clean-binary-wrapper:
@@ -162,7 +186,7 @@ clean-binary-wrapper:
 	@rm -rf $(BINARY_WRAPPER_DIR)/src/generated
 	@rm -rf $(BINARY_WRAPPER_DIR)/help
 	@rm -rf $(BINARY_WRAPPER_DIR)/pysrc
-	@cd $(BINARY_WRAPPER_DIR) && npm run clean
+	@cd $(BINARY_WRAPPER_DIR); npm run clean
 
 .PHONY: pre-build-binary-wrapper
 pre-build-binary-wrapper: $(BINARY_WRAPPER_DIR)/README.md $(BINARY_WRAPPER_DIR)/SECURITY.md $(BINARY_WRAPPER_DIR)/LICENSE $(BINARY_WRAPPER_DIR)/src/generated/binary-deployments.json
@@ -177,21 +201,39 @@ pack-binary-wrapper: build-binary-wrapper
 .PHONY: test-binary-wrapper
 test-binary-wrapper: build-binary-wrapper
 	@echo "-- Testing binary wrapper"
-	@cd $(BINARY_WRAPPER_DIR) && npm run test
+	@cd $(BINARY_WRAPPER_DIR); npm run test
 
 
 # targets responsible for the complete CLI build
 .PHONY: pre-build
-pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI)
+pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI) $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+
+.PHONY: build-fips
+build-fips: pre-build $(BINARY_OUTPUT_FOLDER)/fips/version
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
+	@$(MAKE) clean-package-files
 
 .PHONY: build
 build: pre-build
-	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) build-full install bindir=$(CURDIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	@$(MAKE) clean-package-files
+
+.PHONY: sign
+sign:
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) sign BUILD_DIR=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+
+.PHONY: sign-fips
+sign-fips:
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips sign BUILD_DIR=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
 
 .PHONY: clean
 clean:
-	@cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) clean-full
-	$(MAKE) clean-prepack
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) clean-full USE_LEGACY_EXECUTABLE_NAME=1
+	@$(MAKE) clean-prepack
+
+.PHONY: clean-golang
+clean-golang:
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) clean USE_LEGACY_EXECUTABLE_NAME=1
 
 # targets responsible for the testing of CLI build
 .PHONY: acceptance-test-with-proxy

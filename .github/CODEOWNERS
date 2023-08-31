@@ -25,6 +25,7 @@ src/lib/container @snyk/lumos
 src/lib/plugins @snyk/snyk-open-source
 test/fixtures/sast/ @snyk/zenith
 src/lib/plugins/sast/ @snyk/zenith
+src/lib/plugins/sast/localCodeEngine.ts @snyk/nebula
 test/jest/unit/snyk-code/ @snyk/zenith
 src/lib/formatters/iac-output/ @snyk/cloud-dev-ex
 src/lib/formatters/sarif-output.ts @snyk/container

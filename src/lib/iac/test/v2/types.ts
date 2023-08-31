@@ -15,7 +15,6 @@ export interface TestConfig {
   scan: string;
   varFile?: string;
   depthDetection?: number;
-  cloudContext?: string;
   snykCloudEnvironment?: string;
   insecure?: boolean;
   org?: string;

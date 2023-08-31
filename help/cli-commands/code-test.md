@@ -8,9 +8,9 @@
 
 The `snyk code test` command tests for any known security issues using Static Code Analysis.
 
-For more information see [Using Snyk Code via the CLI](../../scan-application-code/snyk-code/cli-for-snyk-code/).
+For more information see [Using Snyk Code via the CLI](../../scan-applications/snyk-code/using-snyk-code-from-the-cli/).
 
-For instructions on ignoring issues with `snyk code test` see [Excluding directories and files from the Snyk Code CLI test](../../scan-application-code/snyk-code/cli-for-snyk-code/excluding-directories-and-files-from-the-snyk-code-cli-test.md).
+For instructions on ignoring issues with `snyk code test` see [Excluding directories and files from the Snyk Code CLI test](../../scan-applications/snyk-code/using-snyk-code-from-the-cli/excluding-directories-and-files-from-the-snyk-code-cli-test.md).
 
 ## Exit codes
 
@@ -57,7 +57,7 @@ This creates a project in your Snyk account with a snapshot of the current confi
 
 After using this option, log in to the Snyk website and view your projects to see the snapshot.
 
-Example: `$ snyk code test --report` --project-name="PROJECT_NAME"
+Example: `$ snyk code test --report --project-name="PROJECT_NAME"`
 
 For more information see [Publishing CLI results to a Snyk Project](https://docs.snyk.io/scan-application-code/snyk-code/cli-for-snyk-code/publishing-cli-results-to-a-snyk-project-and-ignoring-cli-results#publishing-cli-results-to-a-snyk-project)
 

@@ -14,10 +14,9 @@ export function getIacCloudContext(
   testConfig: TestConfig,
   testOutput: TestOutput,
 ): IacCloudContext {
-  let iacCloudContext;
-  if (testConfig.cloudContext) {
-    iacCloudContext = 'cloud-context';
-  } else if (testConfig.snykCloudEnvironment) {
+  let iacCloudContext: string | undefined;
+
+  if (testConfig.snykCloudEnvironment) {
     iacCloudContext = 'snyk-cloud-environment';
   }
 
@@ -31,7 +30,6 @@ export function getIacCloudContext(
 
   return {
     iacCloudContext,
-    iacCloudContextCloudProvider: testConfig.cloudContext,
     iacCloudContextSuppressedIssuesCount,
   };
 }

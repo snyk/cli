@@ -52,7 +52,6 @@ async function prepareTestConfig(
   const policy = await findAndLoadPolicy(process.cwd(), 'iac', options);
   const scan = options.scan ?? 'resource-changes';
   const varFile = options['var-file'];
-  const cloudContext = getFlag(options, 'cloud-context');
   const snykCloudEnvironment = getFlag(options, 'snyk-cloud-environment');
   const insecure = options.insecure;
   const customRules = options['custom-rules'];
@@ -73,7 +72,6 @@ async function prepareTestConfig(
     scan,
     varFile,
     depthDetection,
-    cloudContext,
     snykCloudEnvironment,
     insecure,
     org,

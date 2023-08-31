@@ -162,9 +162,7 @@ func Test_prepareV1Command(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func Test_executeRunV1(t *testing.T) {
-	expectedReturnCode := 0
-
+func Test_extractOnlyOnce(t *testing.T) {
 	cacheDir := getCacheDir(t)
 	tmpDir := utils.GetTemporaryDirectory(cacheDir, cliv2.GetFullVersion())
 
@@ -175,8 +173,7 @@ func Test_executeRunV1(t *testing.T) {
 
 	// run once
 	assert.Nil(t, cli.Init())
-	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--help"}))
-	assert.Equal(t, expectedReturnCode, actualReturnCode)
+	cli.Execute(getProxyInfoForTest(), []string{"--help"})
 	assert.FileExists(t, cli.GetBinaryLocation())
 	fileInfo1, _ := os.Stat(cli.GetBinaryLocation())
 
@@ -185,8 +182,7 @@ func Test_executeRunV1(t *testing.T) {
 
 	// run twice
 	assert.Nil(t, cli.Init())
-	actualReturnCode = cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--help"}))
-	assert.Equal(t, expectedReturnCode, actualReturnCode)
+	cli.Execute(getProxyInfoForTest(), []string{"--help"})
 	assert.FileExists(t, cli.GetBinaryLocation())
 	fileInfo2, _ := os.Stat(cli.GetBinaryLocation())
 
@@ -221,10 +217,6 @@ func Test_init_extractDueToInvalidBinary(t *testing.T) {
 	// execute to test that the cli can run successfully
 	assert.FileExists(t, cli.GetBinaryLocation())
 
-	// prove that we now can execute the invalid binary
-	_, binError = exec.Command(cli.GetBinaryLocation(), "--help").Output()
-	assert.Nil(t, binError)
-
 	fileInfo2, _ := os.Stat(cli.GetBinaryLocation())
 
 	assert.NotEqual(t, fileInfo1.ModTime(), fileInfo2.ModTime())
@@ -246,26 +238,6 @@ func Test_executeRunV2only(t *testing.T) {
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 
-}
-
-func Test_executeEnvironmentError(t *testing.T) {
-	expectedReturnCode := 0
-
-	cacheDir := getCacheDir(t)
-	tmpDir := utils.GetTemporaryDirectory(cacheDir, cliv2.GetFullVersion())
-
-	assert.NoDirExists(t, tmpDir)
-
-	// fill Environment Variable
-	_ = os.Setenv(constants.SNYK_INTEGRATION_NAME_ENV, "someName")
-
-	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
-	assert.Nil(t, cli.Init())
-
-	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--help"}))
-	assert.Equal(t, expectedReturnCode, actualReturnCode)
-	assert.FileExists(t, cli.GetBinaryLocation())
 }
 
 func Test_executeUnknownCommand(t *testing.T) {

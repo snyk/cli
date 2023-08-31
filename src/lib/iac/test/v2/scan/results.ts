@@ -112,10 +112,10 @@ export interface Rule {
 export interface Resource {
   id: string;
   type: string;
-  path?: any[];
-  formattedPath: string;
-  file: string;
   kind: ResourceKind;
+  formattedPath: string;
+  path?: any[];
+  file?: string;
   line?: number;
   column?: number;
 }
