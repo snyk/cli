@@ -5,6 +5,7 @@ GOOS = $(shell go env GOOS)
 GOARCH = $(shell go env GOARCH)
 GOHOSTOS = $(shell go env GOHOSTOS)
 GOHOSTARCH = $(shell go env GOHOSTARCH)
+LS_COMMIT_HASH = $(shell cat go.mod | grep snyk-ls | cut -d "-" -f 4)
 FIPS_CRYPTO_BACKEND_DEFAULT = opensslcrypto
 FIPS_CRYPTO_BACKEND =
 HASH = sha
@@ -136,6 +137,7 @@ summary:
 	@echo "$(LOG_PREFIX)  Non-Standard Crypto-Backend:  $(FIPS_CRYPTO_BACKEND)"
 	@echo "$(LOG_PREFIX)  Building Binary:              $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)"
 	@echo "$(LOG_PREFIX)  Building version:             $(CLI_V1_VERSION_TAG)"
+	@echo "$(LOG_PREFIX)  LS version:                   $(LS_COMMIT_HASH)"
 
 
 # prepare the workspace and cache global parameters
@@ -144,7 +146,7 @@ configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_E
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
-	@GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG)" -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
+	@GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG)" -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
 .PHONY: fips
 fips:
