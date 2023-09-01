@@ -33,6 +33,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
+	snykls "github.com/snyk/snyk-ls/ls_extension"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -445,6 +446,8 @@ func MainWithErrorCode() int {
 	engine.AddExtensionInitializer(depgraph.Init)
 	engine.AddExtensionInitializer(capture.Init)
 	engine.AddExtensionInitializer(iacrules.Init)
+	// TODO: re-enable when snyk-ls in CLI is ready
+	// engine.AddExtensionInitializer(snykls.Init)
 
 	// init engine
 	err = engine.Init()
