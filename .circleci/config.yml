@@ -985,7 +985,7 @@ jobs:
               pattern: '^linux.*'
               value: << parameters.executor >>
           steps:
-            - run: apt update && apt install -y sudo curl python3 python3-pip python3-requests
+            - run: echo UTC > /etc/timezone && apt update && apt install -y sudo curl python3 python3-pip python3-requests
 
       - run:
           name: Checking Snyk CLI
