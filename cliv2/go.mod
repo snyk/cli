@@ -15,7 +15,7 @@ require (
 	github.com/snyk/go-application-framework v0.0.0-20230825084328-b839e0e50201
 	github.com/snyk/go-httpauth v0.0.0-20230726132335-d454674305a7
 	github.com/snyk/snyk-iac-capture v0.6.0
-	github.com/snyk/snyk-ls v0.0.0-20230901094152-c55a34347876
+	github.com/snyk/snyk-ls v0.0.0-20230901155643-31770bf57616
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
@@ -49,7 +49,7 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/creachadair/jrpc2 v1.1.1 // indirect
-	github.com/creachadair/mds v0.2.0 // indirect
+	github.com/creachadair/mds v0.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
 	github.com/erikgeiser/promptkit v0.8.0 // indirect
@@ -109,7 +109,7 @@ require (
 	github.com/muesli/termenv v0.13.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.51.0 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
+	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/peterh/liner v1.2.2 // indirect
 	github.com/pingcap/errors v0.11.4 // indirect
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect

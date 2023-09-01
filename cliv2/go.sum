@@ -268,8 +268,8 @@ github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f/go.mod h1:E3G3o1h8I7cfc
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/creachadair/jrpc2 v1.1.1 h1:xa7p3C5eSvwn/dFwCCmksp+RyQ/ytFY0NYzY7npsoI0=
 github.com/creachadair/jrpc2 v1.1.1/go.mod h1:KajsO5dx7yfcwmuRJb5SHXsCVTzBoq7EsPzu5wxnsc0=
-github.com/creachadair/mds v0.2.0 h1:+h1nwbdBgrZVi5+dEqPwMw20gwcVkQ9v7XzuiC3AHCg=
-github.com/creachadair/mds v0.2.0/go.mod h1:PmXHgspUECelJVsAgDxWvjblna5BGjPxdEpr7SIEvNs=
+github.com/creachadair/mds v0.2.3 h1:Svuw/AXrUUMxGHdRyuDsWJ36oFJRprqP8+iI86XzZjM=
+github.com/creachadair/mds v0.2.3/go.mod h1:PmXHgspUECelJVsAgDxWvjblna5BGjPxdEpr7SIEvNs=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -568,8 +568,8 @@ github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6
 github.com/open-policy-agent/opa v0.51.0 h1:2hS5xhos8HtkN+mgpqMhNJSFtn/1n/h3wh+AeTPJg6Q=
 github.com/open-policy-agent/opa v0.51.0/go.mod h1:OjmwLfXdeR7skSxrt8Yd3ScXTqPxyJn7GeTRJrcEerU=
 github.com/pact-foundation/pact-go v1.7.0 h1:5iyVyg+avkWz9Jn7cefRmlPbXu+KMZvWblIe15v4fc8=
-github.com/pelletier/go-toml/v2 v2.0.9 h1:uH2qQXheeefCCkuBBSLi7jCiSmj3VRh2+Goq2N7Xxu0=
-github.com/pelletier/go-toml/v2 v2.0.9/go.mod h1:tJU2Z3ZkXwnxa4DPO899bsyIoywizdUvyaeZurnPPDc=
+github.com/pelletier/go-toml/v2 v2.1.0 h1:FnwAJ4oYMvbT/34k9zzHuZNrhlz48GB3/s6at6/MHO4=
+github.com/pelletier/go-toml/v2 v2.1.0/go.mod h1:tJU2Z3ZkXwnxa4DPO899bsyIoywizdUvyaeZurnPPDc=
 github.com/peterh/liner v1.2.2 h1:aJ4AOodmL+JxOZZEL2u9iJf8omNRpqHc/EbrK+3mAXw=
 github.com/peterh/liner v1.2.2/go.mod h1:xFwJyiKIXJZUKItq5dGHZSTBRAuG/CpeNpWLyiNRNwI=
 github.com/pingcap/errors v0.11.4 h1:lFuQV/oaUMGcD2tqt+01ROSmJs75VG1ToEOkZIZ4nE4=
@@ -627,8 +627,8 @@ github.com/snyk/policy-engine v0.22.0 h1:od9pduGrXyfWO791X+8M1qmnvWUxaIXh0gBzGKq
 github.com/snyk/policy-engine v0.22.0/go.mod h1:Vvy/9VMXoABS3JlLqhTlAPWkB5LgbLh7LGn3gBwAqdY=
 github.com/snyk/snyk-iac-capture v0.6.0 h1:P9GWIyvl+F23XZOCuJvzGV6tME/vxbKpZM7/9dw48as=
 github.com/snyk/snyk-iac-capture v0.6.0/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20230901094152-c55a34347876 h1:NCzjkI/YMVPoQwjuGGNR0o8YkzzpyeIMh3n3X3P1J20=
-github.com/snyk/snyk-ls v0.0.0-20230901094152-c55a34347876/go.mod h1:uEeXTc5wh3mU4B0nxPoLBsZYI5PQ2WQWxhv4K74NPZE=
+github.com/snyk/snyk-ls v0.0.0-20230901155643-31770bf57616 h1:71+JIf0hRKPRSNlWDxqfVSegapnGgllMnh98maDV0cw=
+github.com/snyk/snyk-ls v0.0.0-20230901155643-31770bf57616/go.mod h1:uEeXTc5wh3mU4B0nxPoLBsZYI5PQ2WQWxhv4K74NPZE=
 github.com/sourcegraph/go-lsp v0.0.0-20200429204803-219e11d77f5d h1:afLbh+ltiygTOB37ymZVwKlJwWZn+86syPTbrrOAydY=
 github.com/sourcegraph/go-lsp v0.0.0-20200429204803-219e11d77f5d/go.mod h1:SULmZY7YNBsvNiQbrb/BEDdEJ84TGnfyUQxaHt8t8rY=
 github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
