@@ -1042,20 +1042,6 @@ jobs:
     steps:
       - prepare-workspace
       - run:
-          name: Dispatch build-and-publish workflow at snyk-images
-          command: |
-            RESPONSE=$(curl -L \
-              -X POST \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/snyk/snyk-images/dispatches \
-              -d '{"event_type":"build_and_push_images"}' \
-              -w "%{http_code}" \
-              -o /dev/null)
-            if [ "$RESPONSE" -eq 204 ]; then
-              echo "Successfully triggered the workflow."
-            else
-              echo "Failed to trigger the workflow. HTTP response code: $RESPONSE."
-              exit 1
-            fi
+          name: Trigger build-and-publish workflow at snyk-images
+          command: ./release-scripts/upload-artifacts.sh
+      - failed-release-notification

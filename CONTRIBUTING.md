@@ -288,7 +288,6 @@ You may see some "Docker Hub" checks on your merge commit fail. This is normal a
 
 After the `release-npm` job successfully completes, an automated process generates the Docker images for Snyk CLI. These images are then published to DockerHub under the repository [`snyk/snyk`](https://hub.docker.com/r/snyk/snyk).
 
-
 ---
 
 Questions? Ask Hammerhead 🔨
