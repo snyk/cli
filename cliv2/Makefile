@@ -137,7 +137,7 @@ summary:
 	@echo "$(LOG_PREFIX)  Non-Standard Crypto-Backend:  $(FIPS_CRYPTO_BACKEND)"
 	@echo "$(LOG_PREFIX)  Building Binary:              $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)"
 	@echo "$(LOG_PREFIX)  Building version:             $(CLI_V1_VERSION_TAG)"
-	@echo "$(LOG_PREFIX)  LS version:             			$(LS_COMMIT_HASH)"
+	@echo "$(LOG_PREFIX)  LS version:                   $(LS_COMMIT_HASH)"
 
 
 # prepare the workspace and cache global parameters
