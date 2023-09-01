@@ -446,8 +446,7 @@ func MainWithErrorCode() int {
 	engine.AddExtensionInitializer(depgraph.Init)
 	engine.AddExtensionInitializer(capture.Init)
 	engine.AddExtensionInitializer(iacrules.Init)
-	// TODO: re-enable when snyk-ls in CLI is ready
-	// engine.AddExtensionInitializer(snykls.Init)
+	engine.AddExtensionInitializer(snykls.Init)
 
 	// init engine
 	err = engine.Init()
