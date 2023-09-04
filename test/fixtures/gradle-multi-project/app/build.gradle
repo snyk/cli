@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.example'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':lib')
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+}

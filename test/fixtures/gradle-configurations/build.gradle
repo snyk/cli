@@ -1,0 +1,30 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.example'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+def testAttribute = Attribute.of('test.snykattr', String)
+
+dependencies.attributesSchema {
+    attribute(testAttribute)
+}
+
+configurations {
+    api {
+        attributes {
+            attribute(testAttribute, 'api')
+        }
+    }
+}
+
+dependencies {
+    api 'org.jooq:jooq:3.18.6'
+    implementation 'com.google.guava:guava:23.0'
+    testImplementation 'junit:junit:4.+'
+}
