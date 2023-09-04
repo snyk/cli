@@ -44,6 +44,15 @@ async function prepareTestConfig(
 ): Promise<TestConfig> {
   const iacCachePath = pathLib.join(systemCachePath, 'iac');
 
+  // When running in a case-insensitive file system (for example, in macOS),
+  // Node consider the current working directory to be the `realpath`, while Go
+  // consider it to be the `pwd`. To prevent confusion when passing the path of
+  // the current working directory as an input path, let's make every path
+  // relative and let snyk-iac-test figure them out according to what it
+  // considers the current working directory to be.
+
+  const relativePaths = paths.map((p) => pathLib.relative(process.cwd(), p));
+
   const org = (options.org as string) || config.org;
   const targetName = getFlag(options, 'target-name');
   const remoteRepoUrl = getFlag(options, 'remote-repo-url');
@@ -58,7 +67,7 @@ async function prepareTestConfig(
   const experimental = options.experimental;
 
   return {
-    paths,
+    paths: relativePaths,
     iacCachePath,
     userRulesBundlePath: config.IAC_BUNDLE_PATH,
     userPolicyEnginePath: config.IAC_POLICY_ENGINE_PATH,
