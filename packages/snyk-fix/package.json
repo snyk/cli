@@ -36,11 +36,11 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@snyk/dep-graph": "^1.21.0",
+    "@snyk/dep-graph": "1.31.0",
     "@snyk/fix-pipenv-pipfile": "^0.7.1",
     "@snyk/fix-poetry": "^0.9.1",
     "chalk": "4.1.1",
-    "debug": "^4.3.1",
+    "debug": "4.3.4",
     "lodash.groupby": "4.6.0",
     "lodash.sortby": "^4.7.0",
     "ora": "5.4.0",
