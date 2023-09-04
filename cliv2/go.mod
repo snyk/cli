@@ -9,9 +9,9 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.30.0
-	github.com/snyk/cli-extension-dep-graph v0.0.0-20230821114325-956f460c443c
+	github.com/snyk/cli-extension-dep-graph v0.0.0-20230831101913-402a467e32e7
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
-	github.com/snyk/cli-extension-sbom v0.0.0-20230608154310-6573cedca977
+	github.com/snyk/cli-extension-sbom v0.0.0-20230831113416-7ffac8738181
 	github.com/snyk/go-application-framework v0.0.0-20230825084328-b839e0e50201
 	github.com/snyk/go-httpauth v0.0.0-20230726132335-d454674305a7
 	github.com/snyk/snyk-iac-capture v0.6.0
