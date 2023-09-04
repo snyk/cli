@@ -9,9 +9,10 @@ if [ "${TAG_FOUND}" != "" ]; then
     exit 1
 fi
 
-aws s3 ls s3://"${PUBLIC_S3_BUCKET}"/cli/"${VERSION_TAG}"/
-if [ "${?}" -eq "0" ]; then
-    echo "Version ${VERSION_TAG} has already been released."
+npm view snyk versions | grep '${VERSION_TAG}'
+retVal=$?
+if [ $retVal -ne 1 ]; then
+    echo "Version ${VERSION_TAG} has already been released to npm."
     exit 1
 fi
 
