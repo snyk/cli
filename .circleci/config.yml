@@ -1043,5 +1043,5 @@ jobs:
       - prepare-workspace
       - run:
           name: Trigger build-and-publish workflow at snyk-images
-          command: ./release-scripts/upload-artifacts.sh
+          command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
       - failed-release-notification
