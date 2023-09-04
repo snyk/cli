@@ -209,6 +209,26 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(1);
   });
 
+  test('run `snyk test` on an unmanaged project with purls', async () => {
+    const project = await createProjectFromWorkspace('unmanaged');
+
+    const { stdout } = await runSnykCLI(`test --unmanaged -d`, {
+      cwd: project.path(),
+    });
+
+    stdout.includes('purl: pkg:generic/zlib@');
+  });
+
+  test('run `snyk test --json` on an unmanaged project with purls', async () => {
+    const project = await createProjectFromWorkspace('unmanaged');
+
+    const { stdout } = await runSnykCLI(`test --unmanaged -d --json`, {
+      cwd: project.path(),
+    });
+
+    stdout.includes('"purl": "pkg:generic/zlib@');
+  });
+
   test('run `snyk test` on a hex project', async () => {
     const prerequisite = await runCommand('mix', ['--version']).catch(
       function() {

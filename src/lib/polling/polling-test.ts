@@ -24,7 +24,7 @@ export async function getIssues(
 ): Promise<GetIssuesResponse> {
   const payload = {
     method: 'POST',
-    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/issues?version=2022-06-29~experimental`,
+    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/issues?version=2023-09-01~experimental`,
     body: issuesRequestAttributes,
   };
 
@@ -37,7 +37,7 @@ export async function getDepGraph(
 ): Promise<GetDepGraphResponse> {
   const payload = {
     method: 'GET',
-    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs/${id}?version=2022-05-23~experimental`,
+    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs/${id}?version=2023-09-01~experimental`,
   };
 
   return await makeRequestRest<GetDepGraphResponse>(payload);
@@ -49,7 +49,7 @@ export async function createDepGraph(
 ): Promise<CreateDepGraphResponse> {
   const payload = {
     method: 'POST',
-    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs?version=2022-05-23~experimental`,
+    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs?version=2023-09-01~experimental`,
     body: hashes,
   };
 
