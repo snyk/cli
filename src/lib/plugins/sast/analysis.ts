@@ -27,7 +27,6 @@ import * as debugLib from 'debug';
 import { getCodeClientProxyUrl } from '../../code-config';
 import {
   isLocalCodeEngine,
-  validateLocalCodeEngineUrl,
   logLocalCodeEngineVersion,
 } from './localCodeEngine';
 
@@ -68,7 +67,6 @@ export async function getCodeTestResults(
   const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
   if (isLocalCodeEngineEnabled) {
     baseURL = sastSettings.localCodeEngine.url;
-    validateLocalCodeEngineUrl(baseURL);
     if (options.debug) {
       await logLocalCodeEngineVersion(baseURL);
     }
