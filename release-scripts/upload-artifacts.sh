@@ -56,6 +56,12 @@ show_help() {
   echo ""
   echo "  This will perform a dry run of uploading artifacts to GitHub, npm, and S3 for version v1.0.0"
   echo ""
+  echo -e "\033[1;33mTrigger Build and Publish Snyk Images:\033[0m"  # Set color to yellow
+  echo ""
+  echo "  upload-artifacts.sh trigger-snyk-images"
+  echo ""
+  echo "  This will trigger the build-and-publish workflow in the snyk-images repository."
+  echo ""
 }
 
 upload_github() {
@@ -92,6 +98,25 @@ upload_npm() {
     npm publish ./binary-releases/snyk-fix.tgz
     npm publish ./binary-releases/snyk-protect.tgz
     npm publish ./binary-releases/snyk.tgz
+  fi
+}
+
+trigger_build_snyk_images() {
+  echo "Triggering build-and-publish workflow at snyk-images..."
+  RESPONSE=$(curl -L \
+    -X POST \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    https://api.github.com/repos/snyk/snyk-images/dispatches \
+    -d '{"event_type":"build_and_push_images"}' \
+    -w "%{http_code}" \
+    -o /dev/null)
+  if [ "$RESPONSE" -eq 204 ]; then
+    echo "Successfully triggered build-and-publish workflow at snyk-images."
+  else
+    echo "Failed to trigger build-and-publish workflow at snyk-images. HTTP response code: $RESPONSE."
+    exit 1
   fi
 }
 
@@ -172,6 +197,10 @@ for arg in "${@}"; do
   # Upload files to npm
   elif [ "${arg}" == "npm" ]; then
     upload_npm
+
+  # Trigger building Snyk images in snyk-images repository
+  elif [ "${arg}" == "trigger-snyk-images" ]; then
+    trigger_build_snyk_images
   
   # Upload files to S3 bucket
   else

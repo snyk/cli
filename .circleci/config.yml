@@ -652,6 +652,16 @@ workflows:
               only:
                 - master
 
+      - trigger-building-snyk-images:
+          name: Trigger building snyk-images
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - upload npm
+          filters:
+            branches:
+              only:
+                - master
+
 ####################################################################################################
 # JOBS
 ####################################################################################################
@@ -1025,4 +1035,13 @@ jobs:
       - run:
           name: Publish to npm
           command: ./release-scripts/upload-artifacts.sh npm
+      - failed-release-notification
+
+  trigger-building-snyk-images:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Trigger build-and-publish workflow at snyk-images
+          command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
       - failed-release-notification

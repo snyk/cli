@@ -284,6 +284,10 @@ If your release pipeline fails at any step, notify Hammerhead.
 
 You may see some "Docker Hub" checks on your merge commit fail. This is normal and safe to ignore.
 
+## Snyk CLI Docker Images
+
+After the `release-npm` job successfully completes, an automated process generates the Docker images for Snyk CLI. These images are then published to DockerHub under the repository [`snyk/snyk`](https://hub.docker.com/r/snyk/snyk).
+
 ---
 
 Questions? Ask Hammerhead 🔨
