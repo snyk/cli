@@ -237,7 +237,7 @@ clean:
 	@rm -f -r $(BUILD_DIR)
 	@rm -f -r $(CACHE_DIR)
 	@rm -f $(V1_DIRECTORY)/$(APPLICATION_NAME)-*
-	@rm -f $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
+	@rm -f $(V1_DIRECTORY)/embedded*.go
 	@rm -f -r $(EMBEDDED_DATA_DIR)/licenses
 
 .PHONY: install
