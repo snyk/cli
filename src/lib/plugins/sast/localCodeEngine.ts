@@ -1,7 +1,6 @@
 import * as debugLib from 'debug';
 import chalk from 'chalk';
 
-import { MissingConfigurationError } from './errors';
 import { makeRequest } from '../../request';
 import { Global } from '../../../cli/args';
 import { SastSettings } from './types';
@@ -13,14 +12,6 @@ export function isLocalCodeEngine(sastSettings: SastSettings): boolean {
   const { sastEnabled, localCodeEngine } = sastSettings;
 
   return sastEnabled && localCodeEngine.enabled;
-}
-
-export function validateLocalCodeEngineUrl(localCodeEngineUrl: string): void {
-  if (localCodeEngineUrl.length === 0) {
-    throw new MissingConfigurationError(
-      'Snyk Code Local Engine. Refer to our docs on https://docs.snyk.io/products/snyk-code/deployment-options/snyk-code-local-engine/cli-and-ide to learn more',
-    );
-  }
 }
 
 export async function logLocalCodeEngineVersion(lceUrl = ''): Promise<void> {

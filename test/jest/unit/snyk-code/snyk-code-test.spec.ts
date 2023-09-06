@@ -910,31 +910,6 @@ describe('Test snyk code', () => {
     );
   });
 
-  it('Local code engine - should throw error, when enabled and url is missing', async () => {
-    const sastSettings = {
-      sastEnabled: true,
-      localCodeEngine: {
-        url: '',
-        allowCloudUpload: true,
-        enabled: true,
-      },
-    };
-
-    await expect(
-      getCodeTestResults(
-        '.',
-        {
-          path: '',
-          code: true,
-        },
-        sastSettings,
-        'test-id',
-      ),
-    ).rejects.toThrowError(
-      'Missing configuration for Snyk Code Local Engine. Refer to our docs on https://docs.snyk.io/products/snyk-code/deployment-options/snyk-code-local-engine/cli-and-ide to learn more',
-    );
-  });
-
   it('Local code engine - makes GET /status to get SCLE version', async () => {
     const sastSettings = {
       sastEnabled: true,
