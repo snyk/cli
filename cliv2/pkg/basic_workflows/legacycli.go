@@ -92,6 +92,11 @@ func legacycliWorkflow(
 		cli.AppendEnvironmentVariables(env)
 	}
 
+	var additionalEnv []string
+	addEnvVarIfNotEmpty(additionalEnv, "SNYK_CFG_ORG", config.GetString(configuration.ORGANIZATION))
+	addEnvVarIfNotEmpty(additionalEnv, "SNYK_API", config.GetString(configuration.API_URL))
+	cli.AppendEnvironmentVariables(additionalEnv)
+
 	if oauthIsAvailable {
 		// The Legacy CLI doesn't support oauth authentication. Oauth authentication is implemented in the Extensible CLI and is added
 		// to the legacy CLI by forwarding network traffic through the internal proxy of the Extensible CLI.
@@ -164,4 +169,11 @@ func legacycliWorkflow(
 	}
 
 	return output, err
+}
+
+func addEnvVarIfNotEmpty(list []string, key string, value string) []string {
+	if value != "" {
+		list = append(list, key+"="+value)
+	}
+	return list
 }
