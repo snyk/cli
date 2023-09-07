@@ -194,7 +194,7 @@ Note: This option supersedes`--remote-repo-url`, if both options are used togeth
 
 This can be used in combination with the `--report` option.
 
-Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference.
+Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference.
 
 Example, setting to the current Git branch:
 

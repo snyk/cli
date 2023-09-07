@@ -141,8 +141,6 @@ For C++ only, scan all files for known open source dependencies.
 
 For options you can use with `--unmanaged` see [Options for scanning using `--unmanaged`](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-scanning-using-unmanaged)
 
-For more information see [Snyk for C/C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)
-
 ### `--ignore-policy`
 
 Ignore all set policies, the current policy in the `.snyk` file, org level ignores, and the project policy on snyk.io.
@@ -159,9 +157,9 @@ Example: `$ snyk monitor --project-name=my-project`
 
 ### `--target-reference=<TARGET_REFERENCE>`
 
-Specify a reference which differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Supported for Snyk Open Source and use with `--unmanaged`.
+Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Supported for Snyk Open Source and use with `--unmanaged`.
 
-For more information see [Separating projects by branch or version](https://docs.snyk.io/snyk-cli/secure-your-projects-in-the-long-term/grouping-projects-by-branch-or-version)
+For more information see [Group projects by branch or version](https://docs.snyk.io/snyk-cli/secure-your-projects-in-the-long-term/grouping-projects-by-branch-or-version)
 
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 
@@ -213,8 +211,6 @@ This is an alias for `--project-tags`
 
 ## Options for Maven projects
 
-For more information about Maven CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven)
-
 **Note**: The `--dev` option can be used with Maven projects. See also the [`--dev` option help](https://docs.snyk.io/snyk-cli/commands/monitor#dev)
 
 ### `--maven-aggregate-project`
@@ -246,8 +242,6 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.&
 **Note**: Custom-built JAR files, even with open-source dependencies, are not supported.
 
 ## Options for Gradle projects
-
-For more information about Gradle CLI options see [Snyk for Java and Kotlin](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven)
 
 ### `--sub-project=<NAME>`, `--gradle-sub-project=<NAME>`
 
@@ -404,8 +398,6 @@ Display dependencies.
 Use this option to see what files contributed to each dependency identified.
 
 To see how confident Snyk is about the identified dependency and its version, use the `--print-deps` or `--print-dep-paths` option.
-
-For more information on uses of CLI options for C/C++ projects see [Snyk for C / C++](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-c-c++)
 
 ## Options for build tools
 
