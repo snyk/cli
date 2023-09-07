@@ -15,12 +15,13 @@ import (
 	"strings"
 
 	"github.com/gofrs/flock"
+	"github.com/snyk/go-application-framework/pkg/utils"
+
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 	local_utils "github.com/snyk/cli/cliv2/internal/utils"
-	"github.com/snyk/go-application-framework/pkg/utils"
 )
 
 type Handler int
@@ -243,7 +244,8 @@ func determineHandler(passthroughArgs []string) Handler {
 		utils.Contains(passthroughArgs, "-v") ||
 		utils.Contains(passthroughArgs, "version") {
 		result = V2_VERSION
-	} else if utils.Contains(passthroughArgs, "--about") {
+	} else if utils.Contains(passthroughArgs, "--about") ||
+		utils.Contains(passthroughArgs, "about") {
 		result = V2_ABOUT
 	}
 
@@ -355,6 +357,7 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 			constants.SNYK_HTTPS_PROXY_ENV_SYSTEM,
 			constants.SNYK_HTTP_PROXY_ENV_SYSTEM,
 			constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM,
+			constants.SNYK_ANALYTICS_DISABLED_ENV,
 		}
 
 		for _, key := range listedEnvironmentVariables {

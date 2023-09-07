@@ -26,6 +26,11 @@ export default function getWoof(args: MethodArgs): string {
     for (const option in options) {
       console.debug(`${option}:::`, options[option], `:::${option}`);
     }
+
+    const envVal = options.env as string;
+    if (envVal) {
+      console.debug(envVal + '=' + process.env[envVal]);
+    }
   }
 
   return woofs[lang];
