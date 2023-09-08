@@ -13,6 +13,11 @@ module.exports = async function() {
     process.env.TEST_SNYK_COMMAND = getCliBinaryPath();
   }
 
+  let token = 'UNSET';
+  if (process.env.TEST_SNYK_TOKEN !== undefined) {
+    token = '***';
+  }
+
   console.info(
     '\n------------------------------------------------------------------------------------------------------' +
       '\n Binary under test   [TEST_SNYK_COMMAND] .............. ' +
@@ -21,6 +26,10 @@ module.exports = async function() {
       !isDontSkipTestsEnabled() +
       '\n Run FIPS tests      [TEST_SNYK_FIPS] ................. ' +
       fipsTestsEnabled() +
+      '\n Organization        [TEST_SNYK_ORG_SLUGNAME] ......... ' +
+      process.env.TEST_SNYK_ORG_SLUGNAME +
+      '\n Token               [TEST_SNYK_TOKEN] ................ ' +
+      token +
       '\n------------------------------------------------------------------------------------------------------',
   );
 

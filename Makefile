@@ -255,3 +255,8 @@ release-pre:
 	@echo "-- Publishing to S3 /version"
 	@./release-scripts/upload-artifacts.sh version
 
+.PHONY: format
+format:
+	@echo "-- Formatting code"
+	@npm run format
+	@pushd cliv2; $(MAKE) format; popd
