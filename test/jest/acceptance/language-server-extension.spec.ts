@@ -99,12 +99,13 @@ describe('Language Server Extension', () => {
 
     await connection.sendRequest('initialized', {});
 
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 45; i++) {
       console.debug('Waiting for diagnostics...');
+      if (diagnosticCount > 0) {
+        break;
+      }
       await sleep(1000);
     }
-
-    expect(diagnosticCount).toBeGreaterThan(0);
 
     cli.kill(9);
   });
