@@ -131,7 +131,7 @@
     "strip-ansi": "^5.2.0",
     "tar": "^6.1.2",
     "uuid": "^8.3.2",
-    "wrap-ansi": "^5.1.0"
+    "wrap-ansi": "^6.2.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.1",
