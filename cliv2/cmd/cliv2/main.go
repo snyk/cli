@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"runtime"
+	"regexp"
 	"strings"
 	"time"
 
@@ -337,19 +337,21 @@ func displayError(err error) {
 func logHeaderAuthorizationInfo(
 	config configuration.Configuration,
 	networkAccess networking.NetworkAccess,
-) (string, string) {
+) (string, string, string) {
 	oauthEnabled := "Disabled"
 	authorization := ""
 	tokenShaSum := ""
 	tokenDetails := ""
+	userAgent := ""
 
 	apiRequest := &http.Request{
 		URL:    config.GetUrl(configuration.API_URL),
 		Header: http.Header{},
 	}
-	err := networkAccess.GetAuthenticator().AddAuthenticationHeader(apiRequest)
+
+	err := networkAccess.AddHeaders(apiRequest)
 	if err != nil {
-		return authorization, oauthEnabled
+		return authorization, oauthEnabled, userAgent
 	}
 
 	authHeader := apiRequest.Header.Get("Authorization")
@@ -370,9 +372,17 @@ func logHeaderAuthorizationInfo(
 		}
 	}
 
+	userAgent = apiRequest.Header.Get("User-Agent")
+	platformFromUserAgent := strings.Split(userAgent, " ")
+	if len(platformFromUserAgent) > 1 {
+		userAgent = strings.Join(platformFromUserAgent[1:], " ")
+		r, _ := regexp.Compile("[();]")
+		userAgent = strings.TrimSpace(r.ReplaceAllString(userAgent, " "))
+	}
+
 	authorization = fmt.Sprintf("%s %s", tokenShaSum, tokenDetails)
 
-	return authorization, oauthEnabled
+	return authorization, oauthEnabled, userAgent
 }
 
 func getFipsStatus(config configuration.Configuration) string {
@@ -386,7 +396,7 @@ func getFipsStatus(config configuration.Configuration) string {
 }
 
 func writeLogHeader(config configuration.Configuration, networkAccess networking.NetworkAccess) {
-	authorization, oauthEnabled := logHeaderAuthorizationInfo(config, networkAccess)
+	authorization, oauthEnabled, userAgent := logHeaderAuthorizationInfo(config, networkAccess)
 
 	org := config.GetString(configuration.ORGANIZATION)
 	insecureHTTPS := "false"
@@ -406,7 +416,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	fipsEnabled := getFipsStatus(config)
 
 	tablePrint("Version", cliv2.GetFullVersion())
-	tablePrint("Platform", internalOS+" "+runtime.GOARCH)
+	tablePrint("Platform", userAgent)
 	tablePrint("API", config.GetString(configuration.API_URL))
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
 	tablePrint("Organization", org)
