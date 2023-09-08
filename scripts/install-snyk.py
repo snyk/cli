@@ -80,10 +80,11 @@ def download_snyk_cli(download_version, base_url):
             executable = os.path.join(os.getcwd(), output_filename)
             os.system(f"{executable} -v")
 
+            return 0
         else:
             os.remove(downloaded_file_path)
             print("SHA256 checksum verification failed. Downloaded file deleted.")
-        return 0
+            return 1
     else:
         print(f"Failed to download Snyk CLI {download_version}")
         return 1
