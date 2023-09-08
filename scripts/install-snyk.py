@@ -125,13 +125,13 @@ def verify_checksum(file_path, expected_checksum):
     return sha256.hexdigest() == expected_checksum
 
 
-def get_latest_version(input_version):
+def get_version(input_version):
     if input_version == "latest":
         url = "https://api.github.com/repos/snyk/cli/releases/latest"
         response = requests.get(url)
         if response.status_code == 200:
             json = response.json()
-            retrieved_version = json["tag_name"]
+            retrieved_version = json["tag_name"].replace("v", "")
             print(f"Latest version of Snyk CLI is {retrieved_version}")
             return retrieved_version
         else:
@@ -153,9 +153,9 @@ if __name__ == "__main__":
     for retry in range(1, args.retry + 1):
         print("Trying to download: #" + str(retry) + " of #" + str(args.retry))
 
-        get_latest_version(args.version)
+        version = get_version(args.version)
 
-        ret_value = download_snyk_cli(args.version, args.base_url)
+        ret_value = download_snyk_cli(version, args.base_url)
         if ret_value == 0:
             break
         else:
