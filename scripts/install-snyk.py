@@ -124,6 +124,23 @@ def verify_checksum(file_path, expected_checksum):
     return sha256.hexdigest() == expected_checksum
 
 
+def get_latest_version(input_version):
+    if input_version == "latest":
+        url = "https://api.github.com/repos/snyk/cli/releases/latest"
+        response = requests.get(url)
+        if response.status_code == 200:
+            json = response.json()
+            retrieved_version = json["tag_name"]
+            print(f"Latest version of Snyk CLI is {retrieved_version}")
+            return retrieved_version
+        else:
+            print(f"Failed to determine version number of latest version of Snyk CLI. Returning 'latest'")
+            print(f"Response code from github: {response.status_code}")
+            return "latest"
+    else:
+        return input_version
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download and install a specific version of Snyk CLI.")
     parser.add_argument("version", help="Version of Snyk CLI to download (e.g., 1.123.456)")
@@ -134,10 +151,13 @@ if __name__ == "__main__":
 
     for retry in range(1, args.retry + 1):
         print("Trying to download: #" + str(retry) + " of #" + str(args.retry))
+
+        get_latest_version(args.version)
+
         ret_value = download_snyk_cli(args.version, args.base_url)
         if ret_value == 0:
             break
         else:
             sleep_time = retry * 10
-            print("Failed to download Snyk CLI. Retrying in "+str(sleep_time) +" seconds...")
+            print("Failed to download Snyk CLI. Retrying in " + str(sleep_time) + " seconds...")
             time.sleep(sleep_time)
