@@ -631,6 +631,8 @@ github.com/snyk/snyk-iac-capture v0.6.0 h1:P9GWIyvl+F23XZOCuJvzGV6tME/vxbKpZM7/9
 github.com/snyk/snyk-iac-capture v0.6.0/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
 github.com/snyk/snyk-ls v0.0.0-20230901155643-31770bf57616 h1:71+JIf0hRKPRSNlWDxqfVSegapnGgllMnh98maDV0cw=
 github.com/snyk/snyk-ls v0.0.0-20230901155643-31770bf57616/go.mod h1:uEeXTc5wh3mU4B0nxPoLBsZYI5PQ2WQWxhv4K74NPZE=
+github.com/snyk/snyk-ls v0.0.0-20230906121259-8d1fe40c3bae h1:+J8gt9ksP5wpXsvwRnfmJi4rg1fkEnRaxYuuELp/b54=
+github.com/snyk/snyk-ls v0.0.0-20230906121259-8d1fe40c3bae/go.mod h1:uEeXTc5wh3mU4B0nxPoLBsZYI5PQ2WQWxhv4K74NPZE=
 github.com/sourcegraph/go-lsp v0.0.0-20200429204803-219e11d77f5d h1:afLbh+ltiygTOB37ymZVwKlJwWZn+86syPTbrrOAydY=
 github.com/sourcegraph/go-lsp v0.0.0-20200429204803-219e11d77f5d/go.mod h1:SULmZY7YNBsvNiQbrb/BEDdEJ84TGnfyUQxaHt8t8rY=
 github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
