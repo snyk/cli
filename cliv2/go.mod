@@ -1,6 +1,8 @@
 module github.com/snyk/cli/cliv2
 
-go 1.18
+go 1.21
+
+toolchain go1.21.0
 
 require (
 	github.com/elazarl/goproxy v0.0.0-20230808193330-2592e75ae04a
@@ -12,10 +14,10 @@ require (
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20230831101913-402a467e32e7
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
 	github.com/snyk/cli-extension-sbom v0.0.0-20230831113416-7ffac8738181
-	github.com/snyk/go-application-framework v0.0.0-20230825084328-b839e0e50201
+	github.com/snyk/go-application-framework v0.0.0-20230911124155-af80929f69be
 	github.com/snyk/go-httpauth v0.0.0-20230726132335-d454674305a7
 	github.com/snyk/snyk-iac-capture v0.6.0
-	github.com/snyk/snyk-ls v0.0.0-20230901155643-31770bf57616
+	github.com/snyk/snyk-ls v0.0.0-20230911113224-cb7bcc70eca0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
@@ -37,7 +39,7 @@ require (
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/apparentlymart/go-versions v1.0.1 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
-	github.com/aws/aws-sdk-go v1.44.122 // indirect
+	github.com/aws/aws-sdk-go v1.45.6 // indirect
 	github.com/aymanbagabas/go-osc52 v1.2.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect

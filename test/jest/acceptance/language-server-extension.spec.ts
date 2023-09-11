@@ -28,6 +28,16 @@ describe('Language Server Extension', () => {
     expect(result.stdout).not.toEqual(cliResult.stdout);
   });
 
+  it('get ls protocol version', async () => {
+    const result = await runSnykCLI('language-server -p -d');
+    if (result.code != 0) {
+      console.debug(result.stderr);
+      console.debug(result.stdout);
+    }
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('development');
+  });
+
   it('run and wait for diagnostics', async () => {
     let cmd = '';
     if (process.env.TEST_SNYK_COMMAND !== undefined) {
@@ -40,8 +50,6 @@ describe('Language Server Extension', () => {
       new rpc.StreamMessageReader(cli.stdout),
       new rpc.StreamMessageWriter(cli.stdin),
     );
-
-    await sleep(3000);
 
     // create an RPC endpoint for the process
     connection.listen();
