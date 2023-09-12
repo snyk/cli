@@ -19,6 +19,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python3 \
     python3-pip \
     python-is-python3 \
+    python3-requests \
+    python3-yaml \
     pipenv \
     apt-transport-https \
     curl \
@@ -67,7 +69,6 @@ ENV PATH=/home/circleci/.sdkman/candidates/scala/current/bin:/home/circleci/.sdk
 # install dotnet
 RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 7.0
 ENV PATH=/home/circleci/.dotnet:$PATH
-
 ENV TEMP=/tmp
 ENV TMP=$TEMP
 ENV TMPDIR=$TEMP

@@ -13,6 +13,7 @@ declare -a StaticFiles=(
   "binary-releases/snyk-macos.sha256"
   "binary-releases/snyk-win.exe.sha256"
   "binary-releases/sha256sums.txt.asc"
+  "binary-releases/ls-protocol-version-*"
 )
 
 declare -a StaticFilesFIPS=(
@@ -23,6 +24,7 @@ declare -a StaticFilesFIPS=(
   "binary-releases/fips/snyk-linux-arm64.sha256"
   "binary-releases/fips/snyk-win.exe.sha256"
   "binary-releases/fips/sha256sums.txt.asc"
+  "binary-releases/fips/ls-protocol-version-*"
 )
 
 VERSION_TAG="v$(cat binary-releases/version)"

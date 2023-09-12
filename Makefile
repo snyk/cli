@@ -5,6 +5,8 @@
 # Documentation: https://www.gnu.org/software/make/manual/make.html
 #
 
+#use bash instead of sh
+export SHELL=/bin/bash
 WORKING_DIR = $(CURDIR)
 PKG := npx pkg ./ --compress Brotli
 BINARY_WRAPPER_DIR = ts-binary-wrapper
@@ -14,12 +16,10 @@ export BINARY_OUTPUT_FOLDER = binary-releases
 SHASUM_CMD = shasum
 GOHOSTOS = $(shell go env GOHOSTOS)
 export PYTHON = python
-export PIP = pip
 
 PYTHON_VERSION = $(shell python3 --version)
 ifneq (, $(PYTHON_VERSION))
 	PYTHON = python3
-	PIP = pip3
 endif
 
 ifeq ($(GOHOSTOS), windows)
@@ -266,4 +266,4 @@ format:
 .PHONY: ls-protocol-metadata
 ls-protocol-metadata: $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 	@echo "-- Generating protocol metadata"
-	@pushd $(EXTENSIBLE_CLI_DIR); $(MAKE) ls-protocol-metadata bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER); popd
+	@pushd $(EXTENSIBLE_CLI_DIR) && $(MAKE) generate-ls-protocol-metadata bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) && popd

@@ -144,7 +144,7 @@ summary:
 .PHONY: configure
 configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) ls-protocol-metadata
+$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
 	@GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG)" -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/main.go
 
@@ -214,13 +214,15 @@ build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME)
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/version))
 	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/)
 
-.PHONY: ls-protocol-metadata
-ls-protocol-metadata: build-ts-cli
+.PHONY: generate-ls-protocol-metadata
+generate-ls-protocol-metadata:
+	$(eval CLI_V1_VERSION_TAG := $(shell cat $(DESTDIR)$(bindir)/version))
 	@echo "$(LOG_PREFIX) Determining LS protocol version"
-	@$(PIP) -q install requests pyyaml
 	@echo "$(LOG_PREFIX) Writing protocol version file to $(DESTDIR)$(bindir)"
 	$(eval LS_PROTOCOL_VERSION := $(shell $(PYTHON) $(WORKING_DIR)/../release-scripts/write-ls-protocol-version.py $(LS_COMMIT_HASH) $(CLI_V1_VERSION_TAG) $(DESTDIR)$(bindir)))
 	@echo "$(LOG_PREFIX) LS protocol version: $(LS_PROTOCOL_VERSION)"
+	@echo "$(LOG_PREFIX) Copying LS protocol version file to $(DESTDIR)$(bindir)/fips"
+	@mkdir -p $(DESTDIR)$(bindir)/fips && cp $(DESTDIR)$(bindir)/ls-protocol-version-* $(DESTDIR)$(bindir)/fips/ls-protocol-version-*
 
 .PHONY: clean-ts-cli
 clean-ts-cli:
@@ -247,7 +249,6 @@ clean:
 	@rm -f $(V1_DIRECTORY)/$(APPLICATION_NAME)-*
 	@rm -f $(V1_DIRECTORY)/embedded*.go
 	@rm -f -r $(EMBEDDED_DATA_DIR)/licenses
-	@rm -f $(WORKING_DIR)
 
 .PHONY: install
 install:
