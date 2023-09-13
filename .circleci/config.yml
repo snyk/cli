@@ -789,6 +789,12 @@ jobs:
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - install-go:
+          go_os: linux
+          go_target_os: linux
+          go_arch: amd64
+          base_url: << pipeline.parameters.go_download_base_url >>
+          extraction_path: '.'
       - run:
           name: Linting project
           command: |
@@ -830,6 +836,19 @@ jobs:
       - run:
           name: Configuring artifact
           command: node ./bin/snyk config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
+      - run:
+          name: Running TS unit tests
+          command: npm run test:unit
+      - install-go:
+          go_os: linux
+          go_target_os: linux
+          go_arch: amd64
+          base_url: << pipeline.parameters.go_download_base_url >>
+          extraction_path: '.'
+      - run:
+          name: Running Go unit tests
+          working_directory: ./cliv2
+          command: make whiteboxtest
       - run:
           name: Running Tap tests
           no_output_timeout: '30m' # the whole set of tests regularly takes 25+ minutes.
