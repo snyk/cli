@@ -462,6 +462,10 @@ workflows:
           requires:
             - build linux amd64
           executor: docker-amd64
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-tests:
@@ -475,6 +479,10 @@ workflows:
           requires:
             - build linux arm64
           executor: docker-arm64
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           test_snyk_command: ./binary-releases/snyk-linux-arm64
 
       - acceptance-tests:
@@ -482,6 +490,10 @@ workflows:
           executor: docker-arm64
           test_snyk_command: ./binary-releases/fips/snyk-linux-arm64
           fips: 1
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -502,6 +514,10 @@ workflows:
           requires:
             - build alpine amd64
           executor: alpine
+          go_target_os: alpine
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           test_snyk_command: ./binary-releases/snyk-alpine
           install_deps_extension: alpine-full
           dont_skip_tests: 0
@@ -518,6 +534,10 @@ workflows:
             - build macOS arm64
           executor: macos-arm64
           test_snyk_command: ./binary-releases/snyk-macos-arm64
+          go_target_os: darwin
+          go_os: darwin
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           install_deps_extension: macos-full
 
       - acceptance-tests:
@@ -534,6 +554,10 @@ workflows:
           test_snyk_command: binary-releases\\snyk-win.exe
           install_deps_extension: windows-full
           dont_skip_tests: 0
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
 
       - sign:
@@ -930,6 +954,17 @@ jobs:
 
   acceptance-tests:
     parameters:
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      go_download_base_url:
+        type: string
+      install_path:
+        type: string
+        default: '.'
       test_snyk_command:
         type: string
       executor:
@@ -950,6 +985,12 @@ jobs:
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - run:
           command: npm install
       - run:
