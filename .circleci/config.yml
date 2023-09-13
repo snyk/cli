@@ -968,7 +968,9 @@ jobs:
           command: ./release-scripts/validate-checksums.sh
       - run:
           name: Generate Protocol Version File
-          command: make ls-protocol-metadata
+          command: |
+            make ls-protocol-metadata
+            cp binary-releases/ls-protocol-version-* binary-releases/fips/
       - store_artifacts:
           path: ./binary-releases
       - persist_to_workspace:

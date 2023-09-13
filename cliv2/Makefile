@@ -221,8 +221,6 @@ generate-ls-protocol-metadata:
 	@echo "$(LOG_PREFIX) Writing protocol version file to $(DESTDIR)$(bindir)"
 	$(eval LS_PROTOCOL_VERSION := $(shell $(PYTHON) $(WORKING_DIR)/../release-scripts/write-ls-protocol-version.py $(LS_COMMIT_HASH) $(CLI_V1_VERSION_TAG) $(DESTDIR)$(bindir)))
 	@echo "$(LOG_PREFIX) LS protocol version: $(LS_PROTOCOL_VERSION)"
-	@echo "$(LOG_PREFIX) Copying LS protocol version file to $(DESTDIR)$(bindir)/fips"
-	@mkdir -p $(DESTDIR)$(bindir)/fips && cp $(DESTDIR)$(bindir)/ls-protocol-version-* $(DESTDIR)$(bindir)/fips/ls-protocol-version-*
 
 .PHONY: clean-ts-cli
 clean-ts-cli:
