@@ -1,4 +1,4 @@
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 
 import { formatLegalInstructions } from '../../../../../src/lib/formatters/legal-license-instructions';
 

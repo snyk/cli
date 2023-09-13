@@ -36,7 +36,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@snyk/dep-graph": "^1.21.0",
+    "@snyk/dep-graph": "^2.7.4",
     "@snyk/fix-pipenv-pipfile": "^0.7.1",
     "@snyk/fix-poetry": "^0.9.1",
     "chalk": "4.1.1",

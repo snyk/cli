@@ -22,7 +22,7 @@ import {
 import { convertEngineToSarifResults } from './sarif';
 import { CustomError, FormattedCustomError } from '../../../errors';
 import { SnykIacTestError } from './errors';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import * as path from 'path';
 import { getErrorStringCode } from '../../../../cli/commands/test/iac/local-execution/error-utils';
 import {

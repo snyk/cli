@@ -17,4 +17,9 @@ ignore:
         reason: Based on default version number
         expires: 2030-01-10T00:00:00.000Z
         created: 2023-03-03T14:33:35.717Z
+  SNYK-JS-SEMVER-3247795:
+    - '*':
+        reason: No newer versions to upgrade to
+        expires: 2024-09-13T00:00:00.000Z
+        created: 2023-09-13T14:33:35.717Z
 patch: {}

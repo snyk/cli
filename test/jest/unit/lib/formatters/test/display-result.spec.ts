@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { displayResult } from '../../../../../../src/lib/formatters/test/display-result';
 import { getWorkspacePath } from '../../../../util/getWorkspacePath';
 import { getFixturePath } from '../../../../util/getFixturePath';

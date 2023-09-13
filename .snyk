@@ -7,6 +7,11 @@ ignore:
         reason: Not affecting Snyk CLI. No upgrade path currently available
         expires: 2022-02-01T00:00:00.000Z
         created: 2021-11-29T17:25:19.200Z
+  SNYK-JS-LODASHSET-1320032:
+    - '*':
+        reason: No upgrade path currently available
+        expires: 2024-09-13T13:14:22.120Z
+        created: 2023-09-13T13:14:22.120Z
   'snyk:lic:npm:shescape:MPL-2.0':
     - '*':
         reason: --about lists all dependency licenses which is a requirement of MPL-2.0
