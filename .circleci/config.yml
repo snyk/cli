@@ -794,7 +794,7 @@ jobs:
           go_target_os: linux
           go_arch: amd64
           base_url: << pipeline.parameters.go_download_base_url >>
-          extraction_path: '.'
+          extraction_path: '/tmp'
       - run:
           name: Linting project
           command: |
