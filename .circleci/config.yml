@@ -16,7 +16,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.20.6'
+    default: '1.21.1'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
