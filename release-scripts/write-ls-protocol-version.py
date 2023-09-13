@@ -6,7 +6,7 @@ import yaml
 import sys
 
 
-def get_goreleaser_yaml(commit):
+def get_goreleaser_yaml(commit) -> int:
     # Define the GitHub repository URL and API endpoint
     api_url = f'https://api.github.com/repos/snyk/snyk-ls/contents/.goreleaser.yaml?ref={commit}'
 
@@ -31,13 +31,16 @@ def get_goreleaser_yaml(commit):
             for env_var in env_variables:
                 if isinstance(env_var, str) and env_var.startswith("LS_PROTOCOL_VERSION="):
                     prot_version = env_var.split('=')[1]
-                    return prot_version
+                    return int(prot_version)
 
-            return "LS_PROTOCOL_VERSION not found in .goreleaser.yaml"
+            print("LS_PROTOCOL_VERSION not found in .goreleaser.yaml")
+            return -1
         else:
-            return f"Failed to fetch .goreleaser.yaml content: {content_response.status_code}"
+            print(f"Failed to fetch .goreleaser.yaml content: {content_response.status_code}")
+            return -2
     else:
-        return f"Failed to retrieve commit information: {response.status_code}"
+        print(f"Failed to retrieve commit information: {response.status_code}")
+        return -3
 
 
 if __name__ == "__main__":
@@ -47,7 +50,12 @@ if __name__ == "__main__":
 
     commit_hash = sys.argv[1]
     ls_protocol_version = get_goreleaser_yaml(commit_hash)
+    if ls_protocol_version < 0:
+        print("Failed to retrieve LS_PROTOCOL_VERSION")
+        sys.exit(1)
+
     with open(os.path.join(sys.argv[3], f"ls-protocol-version-{ls_protocol_version}"), 'w') as writer:
         writer.write(sys.argv[2])
 
     print(ls_protocol_version)
+    sys.exit(0)

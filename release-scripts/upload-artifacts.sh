@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+PROTOCOL_VERSION_FILE=$(basename "$(/bin/ls binary-releases/ls-protocol-version*)")
+
 declare -a StaticFiles=(
+  "binary-releases/$PROTOCOL_VERSION_FILE"
   "binary-releases/snyk-alpine"
   "binary-releases/snyk-linux"
   "binary-releases/snyk-linux-arm64"
@@ -13,10 +16,10 @@ declare -a StaticFiles=(
   "binary-releases/snyk-macos.sha256"
   "binary-releases/snyk-win.exe.sha256"
   "binary-releases/sha256sums.txt.asc"
-  "binary-releases/ls-protocol-version-*"
 )
 
 declare -a StaticFilesFIPS=(
+  "binary-releases/fips/$PROTOCOL_VERSION_FILE"
   "binary-releases/fips/snyk-linux"
   "binary-releases/fips/snyk-linux-arm64"
   "binary-releases/fips/snyk-win.exe"
@@ -24,7 +27,6 @@ declare -a StaticFilesFIPS=(
   "binary-releases/fips/snyk-linux-arm64.sha256"
   "binary-releases/fips/snyk-win.exe.sha256"
   "binary-releases/fips/sha256sums.txt.asc"
-  "binary-releases/fips/ls-protocol-version-*"
 )
 
 VERSION_TAG="v$(cat binary-releases/version)"

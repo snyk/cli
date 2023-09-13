@@ -182,7 +182,7 @@ commands:
           paths:
             - ~\AppData\Local\Temp\chocolatey
       - install-deps-python:
-          executor: win-something
+          os: win
 
   install-deps-windows-make:
     steps:
@@ -201,7 +201,7 @@ commands:
           paths:
             - ~\AppData\Local\Temp\chocolatey
       - install-deps-python:
-          executor: win-something
+          os: win
 
   install-deps-windows-node:
     steps:
@@ -230,7 +230,7 @@ commands:
 
   install-deps-python:
     parameters:
-      executor:
+      os:
         type: string
         default: linux
       modules:
@@ -274,7 +274,7 @@ commands:
           paths:
             - ~/Library/Caches/Homebrew
       - install-deps-python:
-          executor: macos-something
+          os: macos
 
   install-deps-macos-build:
     parameters:
@@ -283,7 +283,7 @@ commands:
         default: go gradle python elixir composer gradle@6 maven sbt dotnet
     steps:
       - install-deps-python:
-          executor: macos-something
+          os: macos
 
   install-deps-alpine-full:
     steps:
