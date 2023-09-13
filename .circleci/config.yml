@@ -235,13 +235,13 @@ commands:
         default: linux
       modules:
         type: string
-        default: requests PyYAML
+        default: pipenv requests PyYAML
     steps:
       - when:
           condition:
             matches:
               pattern: '^(linux.*|macos.*|alpine.*|docker.*)'
-              value: << parameters.executor >>
+              value: << parameters.os >>
           steps:
             - run:
                 name: Installing python modules
@@ -250,7 +250,7 @@ commands:
           condition:
             matches:
               pattern: '^(win.*|cbl-mariner.*)'
-              value: << parameters.executor >>
+              value: << parameters.os >>
           steps:
             - run:
                 shell: bash.exe
