@@ -8,6 +8,7 @@ import {
   TerraformPlanScanMode,
 } from './types';
 import { Options, TestOptions } from '../../../../../lib/types';
+import { IacV2Name } from '../../../../../lib/iac/constants';
 
 const keys: (keyof IaCTestFlags)[] = [
   'org',
@@ -72,7 +73,7 @@ export class FlagError extends CustomError {
 export class IntegratedFlagError extends CustomError {
   constructor(key: string, org: string) {
     const flag = getFlagName(key);
-    const msg = `Flag "${flag}" is only supported when using Integrated IaC. To enable it for your organisation "${org}", please contact Snyk support.`;
+    const msg = `Flag "${flag}" is only supported when using ${IacV2Name}. To enable it for your organisation "${org}", please contact Snyk support.`;
     super(msg);
     this.code = IaCErrorCodes.FlagError;
     this.strCode = getErrorStringCode(this.code);
@@ -160,7 +161,7 @@ export function assertIaCOptionsFlags(argv: string[]): void {
 
 /**
  * Check that the flags used for the v1 flow do not contain any flag that are
- * only usable with the new integrated iac (v2) flow
+ * only usable with the new IaC+ flow
  * @param settings organisation settings, used to get the org name
  * @param argv command line args
  */
