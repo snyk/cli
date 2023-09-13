@@ -235,7 +235,7 @@ commands:
         default: linux
       modules:
         type: string
-        default: pipenv requests PyYAML
+        default: requests PyYAML
     steps:
       - when:
           condition:
