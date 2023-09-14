@@ -33,3 +33,7 @@ export const iacRemediationTypes: { [k in IacProjectTypes]?: string } = {
   k8sconfig: 'kubernetes',
   terraformconfig: 'terraform',
 };
+
+export const IacV2Name = 'IaC+';
+
+export const IacV2ShortLink = 'https://snyk.co/iac+';
