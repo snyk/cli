@@ -41,8 +41,6 @@ describe('Language Server Extension', () => {
       new rpc.StreamMessageWriter(cli.stdin),
     );
 
-    await sleep(3000);
-
     // create an RPC endpoint for the process
     connection.listen();
 

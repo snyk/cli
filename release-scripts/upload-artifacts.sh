@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+PROTOCOL_VERSION_FILE=$(basename "$(/bin/ls binary-releases/ls-protocol-version*)")
+
 declare -a StaticFiles=(
+  "binary-releases/$PROTOCOL_VERSION_FILE"
   "binary-releases/snyk-alpine"
   "binary-releases/snyk-linux"
   "binary-releases/snyk-linux-arm64"
@@ -16,6 +19,7 @@ declare -a StaticFiles=(
 )
 
 declare -a StaticFilesFIPS=(
+  "binary-releases/fips/$PROTOCOL_VERSION_FILE"
   "binary-releases/fips/snyk-linux"
   "binary-releases/fips/snyk-linux-arm64"
   "binary-releases/fips/snyk-win.exe"

@@ -38,12 +38,12 @@ executors:
       - image: alpine:3.17
   docker-amd64:
     docker:
-      - image: bastiandoetsch209/cli-build:20230815-154734
+      - image: bastiandoetsch209/cli-build:20230912-103845
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-arm64:
     docker:
-      - image: bastiandoetsch209/cli-build-arm64:20230815-154734
+      - image: bastiandoetsch209/cli-build-arm64:20230912-103845
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   linux-ubuntu-mantic-amd64:
@@ -181,6 +181,8 @@ commands:
           key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
+      - install-deps-python:
+          os: win
 
   install-deps-windows-make:
     steps:
@@ -198,6 +200,8 @@ commands:
           key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
+      - install-deps-python:
+          os: win
 
   install-deps-windows-node:
     steps:
@@ -224,6 +228,35 @@ commands:
           name: No dependencies to install
           command: echo all done!
 
+  install-deps-python:
+    parameters:
+      os:
+        type: string
+        default: linux
+      modules:
+        type: string
+        default: requests PyYAML
+    steps:
+      - when:
+          condition:
+            matches:
+              pattern: '^(linux.*|macos.*|alpine.*|docker.*)'
+              value: << parameters.os >>
+          steps:
+            - run:
+                name: Installing python modules
+                command: python3 -m pip install << parameters.modules >>
+      - when:
+          condition:
+            matches:
+              pattern: '^(win.*|cbl-mariner.*)'
+              value: << parameters.os >>
+          steps:
+            - run:
+                shell: bash.exe
+                name: Installing python modules
+                command: python -m pip install << parameters.modules >>
+
   install-deps-macos-full:
     parameters:
       items:
@@ -240,6 +273,17 @@ commands:
           key: acceptance-tests-macos-<< parameters.items >>
           paths:
             - ~/Library/Caches/Homebrew
+      - install-deps-python:
+          os: macos
+
+  install-deps-macos-build:
+    parameters:
+      items:
+        type: string
+        default: go gradle python elixir composer gradle@6 maven sbt dotnet
+    steps:
+      - install-deps-python:
+          os: macos
 
   install-deps-alpine-full:
     steps:
@@ -247,7 +291,7 @@ commands:
           name: Installing Node.js + other test dependencies
           command: |
             apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
-            pip3 install pipenv
+            pip3 install pipenv requests PyYAML
 
   failed-release-notification:
     steps:
@@ -350,6 +394,7 @@ workflows:
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: macos-amd64
+          install_deps_extension: macos-build
           requires:
             - prepare-build
 
@@ -921,6 +966,11 @@ jobs:
       - run:
           name: Validating artifacts
           command: ./release-scripts/validate-checksums.sh
+      - run:
+          name: Generate Protocol Version File
+          command: |
+            make ls-protocol-metadata
+            cp binary-releases/ls-protocol-version-* binary-releases/fips/
       - store_artifacts:
           path: ./binary-releases
       - persist_to_workspace:
@@ -934,6 +984,8 @@ jobs:
             - binary-releases/fips/snyk-*.sha256
             - binary-releases/RELEASE_NOTES.md
             - binary-releases/snyk.tgz
+            - binary-releases/ls-protocol-version-*
+            - binary-releases/fips/ls-protocol-version-*
 
   pre-release:
     executor: docker-amd64
