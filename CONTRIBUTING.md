@@ -288,6 +288,15 @@ You may see some "Docker Hub" checks on your merge commit fail. This is normal a
 
 After the `release-npm` job successfully completes, an automated process generates the Docker images for Snyk CLI. These images are then published to DockerHub under the repository [`snyk/snyk`](https://hub.docker.com/r/snyk/snyk).
 
+## Upgrading the go-application-framework
+
+If you have made changes to the `go-application-framework`, you can run `python3 scripts/upgrade-go-application-framework.py`. This will;
+
+- Fetch the most recent commit from master of the framework
+- Go get that version of the framework
+
+You can then raise a pr with the relevant changes.
+
 ---
 
 Questions? Ask Hammerhead 🔨
