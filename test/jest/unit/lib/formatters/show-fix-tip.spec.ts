@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { showFixTip } from '../../../../../src/lib/formatters/show-fix-tip';
 import { SupportedProjectTypes } from '../../../../../src/lib/types';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { getFixturePath } from '../../../util/getFixturePath';
 
 describe('showFixTip', () => {

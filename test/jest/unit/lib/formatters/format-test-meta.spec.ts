@@ -1,4 +1,4 @@
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 
 import { formatTestMeta } from '../../../../../src/lib/formatters/format-test-meta';
 import { TestResult } from '../../../../../src/lib/snyk-test/legacy';

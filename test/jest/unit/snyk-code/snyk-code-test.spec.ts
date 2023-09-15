@@ -1,7 +1,7 @@
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { analyzeFolders, AnalysisSeverity } from '@snyk/code-client';
 import { makeRequest } from '../../../../src/lib/request';
 

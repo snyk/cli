@@ -1,7 +1,7 @@
 import * as policy from 'snyk-policy';
 import * as fs from 'fs';
 import { display } from '../../../src/lib/display-policy';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { getFixturePath } from '../util/getFixturePath';
 
 it('test sensibly bails if gets an old .snyk format', async () => {
