@@ -63,7 +63,7 @@
     "@sentry/node": "^7.34.0",
     "@snyk/cli-interface": "2.12.0",
     "@snyk/cloud-config-parser": "^1.14.5",
-    "@snyk/code-client": "^4.19.1",
+    "@snyk/code-client": "^4.22.0",
     "@snyk/dep-graph": "^2.7.4",
     "@snyk/docker-registry-v2-client": "^2.10.0",
     "@snyk/fix": "file:packages/snyk-fix",
