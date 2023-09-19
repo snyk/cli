@@ -114,6 +114,47 @@ describe('cli-monitor-utils test', () => {
     expect(res).toEqual('project-name-override');
   });
 
+  it('getProjectName returns gradle project name from scanned project meta', () => {
+    const scannedProject: ScannedProject = {
+      depGraph: {} as any,
+      meta: {
+        gradleProjectName: 'my-gradle-project',
+      },
+      targetFile: '/tmp/build.gradle',
+    };
+
+    const res = utils.getProjectName(scannedProject, {
+      method: 'cli',
+      packageManager: 'gradle',
+      'policy-path': '',
+      'project-name': '',
+      isDocker: false,
+      prune: false,
+    });
+    expect(res).toEqual('my-gradle-project');
+  });
+
+  it('getProjectName returns project name from scanned project meta when project-name is provided via option', () => {
+    const scannedProject: ScannedProject = {
+      depGraph: {} as any,
+      meta: {
+        gradleProjectName: 'my-gradle-project',
+        projectName: 'meta-gradle-project',
+      },
+      targetFile: '/tmp/build.gradle',
+    };
+
+    const res = utils.getProjectName(scannedProject, {
+      method: 'cli',
+      packageManager: 'gradle',
+      'policy-path': '',
+      'project-name': 'project-name-from-option',
+      isDocker: false,
+      prune: false,
+    });
+    expect(res).toEqual('meta-gradle-project');
+  });
+
   it('getTargetFile returns name from scanned project if container', () => {
     const scannedProject: ScannedProject = stubScannedProjectContainer();
     const res = utils.getTargetFile(scannedProject, getStubPluginMeta());

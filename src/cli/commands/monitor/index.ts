@@ -280,11 +280,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
           const res: MonitorResult = await promiseOrCleanup(
             snykMonitor(
               path,
-              generateMonitorMeta(
-                options,
-                extractedPackageManager,
-                projectName,
-              ),
+              generateMonitorMeta(options, extractedPackageManager),
               projectDeps,
               options,
               projectDeps.plugin as PluginMetadata,
@@ -350,17 +346,12 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   throw new Error(output);
 }
 
-function generateMonitorMeta(
-  options,
-  packageManager?,
-  projectName?,
-): MonitorMeta {
+function generateMonitorMeta(options, packageManager?): MonitorMeta {
   return {
     method: 'cli',
     packageManager,
     'policy-path': options['policy-path'],
-    'project-name':
-      options['project-name'] || projectName || config.PROJECT_NAME,
+    'project-name': options['project-name'] || config.PROJECT_NAME,
     isDocker: !!options.docker,
     prune: !!options.pruneRepeatedSubdependencies,
     'remote-repo-url': options['remote-repo-url'],
