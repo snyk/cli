@@ -43,6 +43,10 @@ export function getProjectName(
     return scannedProject.meta.projectName;
   }
 
+  if (scannedProject.meta?.gradleProjectName) {
+    return scannedProject.meta.gradleProjectName;
+  }
+
   return meta['project-name'];
 }
 
