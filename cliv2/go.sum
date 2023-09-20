@@ -653,8 +653,8 @@ github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce h1:Wc
 github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce/go.mod h1:5/IYYTgf32pST7St4GhS3KNz32WE17Ys+Hdb5Pqxex0=
 github.com/snyk/cli-extension-sbom v0.0.0-20230831113416-7ffac8738181 h1:BMiPwr4/sD71Jfrvorgy+L2E7PCkbT36c4wo2N+BKPg=
 github.com/snyk/cli-extension-sbom v0.0.0-20230831113416-7ffac8738181/go.mod h1:O/cjwCbKhJQWyXHPmNbZ7ToQKnhyw0VUp1Qhim3WEcw=
-github.com/snyk/container-cli v0.0.0-20230913123839-91b568e2fbd7 h1:mDQr5bRNaJoUVuqI6kwuOUBXXYT1B4JTKzbrzikjvdE=
-github.com/snyk/container-cli v0.0.0-20230913123839-91b568e2fbd7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
+github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f h1:ghajT5PEiLP8XNFIdc7Yn4Th74RH/9Q++dDOp6Cb9eo=
+github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
 github.com/snyk/go-application-framework v0.0.0-20230915105125-18e4f97ef870 h1:R8xLYCVSC8aBVWlIevP4tBOHFdUr6UzWNYzuZqAEzJE=
 github.com/snyk/go-application-framework v0.0.0-20230915105125-18e4f97ef870/go.mod h1:kuw/MMZ4rnQYMVGDTIkoJGyEEAl0DoHqEN6ZiYbNbSA=
 github.com/snyk/go-httpauth v0.0.0-20230726132335-d454674305a7 h1:m8C34vcouY2vEvow2gV/uAZ0LKiV7vhwC5HI15nUDX4=
