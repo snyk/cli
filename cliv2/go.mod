@@ -12,7 +12,7 @@ require (
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20230831101913-402a467e32e7
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
 	github.com/snyk/cli-extension-sbom v0.0.0-20230831113416-7ffac8738181
-	github.com/snyk/container-cli v0.0.0-20230913123839-91b568e2fbd7
+	github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f
 	github.com/snyk/go-application-framework v0.0.0-20230915105125-18e4f97ef870
 	github.com/snyk/go-httpauth v0.0.0-20230726132335-d454674305a7
 	github.com/snyk/snyk-iac-capture v0.6.0
