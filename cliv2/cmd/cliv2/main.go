@@ -352,7 +352,7 @@ func logHeaderAuthorizationInfo(
 
 	err := networkAccess.AddHeaders(apiRequest)
 	if err != nil {
-		return authorization, oauthEnabled, userAgent
+		debugLogger.Print(err)
 	}
 
 	authHeader := apiRequest.Header.Get("Authorization")
@@ -370,6 +370,8 @@ func logHeaderAuthorizationInfo(
 		token, err := auth.GetOAuthToken(config)
 		if token != nil && err == nil {
 			tokenDetails = fmt.Sprintf(" (type=oauth; expiry=%v)", token.Expiry.UTC())
+			temp := sha256.Sum256([]byte(token.AccessToken))
+			tokenShaSum = hex.EncodeToString(temp[0:16]) + "[...]"
 		}
 	}
 
