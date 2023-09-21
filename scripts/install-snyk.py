@@ -40,6 +40,9 @@ def get_os_arch():
 
 
 def download_snyk_cli(download_version, base_url):
+    success = 0
+    fail = 1
+
     os_type, arch_type = get_os_arch()
 
     if not os_type or not arch_type:
@@ -83,10 +86,11 @@ def download_snyk_cli(download_version, base_url):
         else:
             os.remove(downloaded_file_path)
             print("SHA256 checksum verification failed. Downloaded file deleted.")
-        return 0
+            return fail
+        return success
     else:
         print(f"Failed to download Snyk CLI {download_version}")
-        return 1
+        return fail
 
 
 def get_filename(arch_type, os_type):
