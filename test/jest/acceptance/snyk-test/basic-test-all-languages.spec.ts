@@ -209,7 +209,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
         return;
       }
 
-      const project = await createProjectFromWorkspace('nuget-app-6');
+      const project = await createProjectFromWorkspace('nuget-app-6-7');
 
       let command = 'test -d --dotnet-runtime-resolution';
       if (targetFramework) {
