@@ -51,7 +51,7 @@ def download_snyk_cli(download_version, base_url):
     filename, output_filename = get_filename(arch_type, os_type)
 
     if download_version != "latest":
-        download_version = f"v{download_version}"
+        download_version = f"v{download_version}" if download_version[0] != 'v' else download_version
 
     url = f"{base_url}/cli/{download_version}/{filename}"
 
