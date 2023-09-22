@@ -1,5 +1,4 @@
-FROM --platform=$TARGETPLATFORM golang:1.20-bullseye
-
+FROM --platform=$TARGETPLATFORM golang:1.21.1-bullseye
 # install "normal" stuff
 
 ARG NODEVERSION
