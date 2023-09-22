@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Swagger.Net</name>
+    </assembly>
+    <members>
+        <member name="M:Swagger.Net.SwaggerGen.CreateResourceListing(System.Web.Http.Controllers.HttpActionContext,System.Boolean)">
+            <summary>
+            Create a resource listing
+            </summary>
+            <param name="actionContext">Current action context</param>
+            <param name="includeResourcePath">Should the resource path property be included in the response</param>
+            <returns>A resource Listing</returns>
+        </member>
+        <member name="M:Swagger.Net.SwaggerGen.CreateResourceListing(System.Web.Http.Controllers.HttpControllerContext,System.Boolean)">
+            <summary>
+            Create a resource listing
+            </summary>
+            <param name="actionContext">Current controller context</param>
+            <param name="includeResourcePath">Should the resource path property be included in the response</param>
+            <returns>A resrouce listing</returns>
+        </member>
+        <member name="M:Swagger.Net.SwaggerGen.CreateResourceApi(System.Web.Http.Description.ApiDescription)">
+            <summary>
+            Create an api element 
+            </summary>
+            <param name="api">Description of the api via the ApiExplorer</param>
+            <returns>A resource api</returns>
+        </member>
+        <member name="M:Swagger.Net.SwaggerGen.CreateResourceApiOperation(System.Web.Http.Description.ApiDescription,Swagger.Net.XmlCommentDocumentationProvider)">
+            <summary>
+            Creates an api operation
+            </summary>
+            <param name="api">Description of the api via the ApiExplorer</param>
+            <param name="docProvider">Access to the XML docs written in code</param>
+            <returns>An api operation</returns>
+        </member>
+        <member name="M:Swagger.Net.SwaggerGen.CreateResourceApiOperationParameter(System.Web.Http.Description.ApiDescription,System.Web.Http.Description.ApiParameterDescription,Swagger.Net.XmlCommentDocumentationProvider)">
+            <summary>
+            Creates an operation parameter
+            </summary>
+            <param name="api">Description of the api via the ApiExplorer</param>
+            <param name="param">Description of a parameter on an operation via the ApiExplorer</param>
+            <param name="docProvider">Access to the XML docs written in code</param>
+            <returns>An operation parameter</returns>
+        </member>
+        <member name="T:Swagger.Net.SwaggerActionFilter">
+            <summary>
+            Determines if any request hit the Swagger route. Moves on if not, otherwise responds with JSON Swagger spec doc
+            </summary>
+        </member>
+        <member name="M:Swagger.Net.SwaggerActionFilter.OnActionExecuting(System.Web.Http.Controllers.HttpActionContext)">
+            <summary>
+            Executes each request to give either a JSON Swagger spec doc or passes through the request
+            </summary>
+            <param name="actionContext">Context of the action</param>
+        </member>
+        <member name="M:Swagger.Net.SwaggerController.Get">
+            <summary>
+            Get the resource description of the api for swagger documentation
+            </summary>
+            <remarks>It is very convenient to have this information available for generating clients. This is the entry point for the swagger UI
+            </remarks>
+            <returns>JSON document representing structure of API</returns>
+        </member>
+        <member name="T:Swagger.Net.XmlCommentDocumentationProvider">
+            <summary>
+            Accesses the XML doc blocks written in code to further document the API.
+            All credit goes to: <see cref="!:http://blogs.msdn.com/b/yaohuang1/archive/2012/05/21/asp-net-web-api-generating-a-web-api-help-page-using-apiexplorer.aspx"/>
+            </summary>
+        </member>
+    </members>
+</doc>
