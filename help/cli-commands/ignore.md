@@ -44,6 +44,10 @@ exclude:
       created: <CREATION TIME>
 ```
 
+**Note**: The `--file-path` \[exclude] option is available only for Snyk Code (SAST) tests or Open Source `--unmanaged` tests and will not work for other test types.
+
+Ignoring issues or vulnerabilities using the .snyk file is not supported for Snyk Code
+
 ## Debug
 
 Use the `-d` option to output the debug logs.
@@ -156,15 +160,17 @@ Ignore a specific file, used by `snyk test --unmanaged` until 2031-01-20, with a
 $ snyk ignore --file-path='./deps/curl-7.58.0/src/tool_msgs.c' --expiry='2031-01-20' --reason='patched file'
 ```
 
-### Ignore files or folders using glob expression
+### Ignore files or folders using glob expression - Snyk Code and `unmanaged` only
 
-Ignore files matching a glob expression by adding them to a specific group. Applies to Snyk Code; does not apply to Snyk Open Source, Container, or Infrastructure as Code.
+To ignore files matching a glob expression, add them to a specific group.
+
+This applies to Snyk Code; it does not apply to Snyk Open Source except `unmanaged`, to Container, or to IaC.
 
 ```
 $ snyk ignore --file-path='./**/vendor/**/*.cpp' --file-path-group='global'
 ```
 
-## More information about snyk ignore command
+## More information about the `snyk ignore` command
 
 For more information see:
 

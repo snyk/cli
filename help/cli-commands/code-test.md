@@ -89,6 +89,8 @@ Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regar
 
 Use to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
-### `--severity-threshold=<low|medium|high|critical>`
+### `--severity-threshold=<low|medium|high>`
 
-Report only vulnerabilities at the specified level or higher. Note that the Snyk Code configuration issues do not currently use the `critical` severity level.
+Report only vulnerabilities at the specified level or higher.
+
+**Note**: The Snyk Code configuration issues do not use the `critical` severity level.
