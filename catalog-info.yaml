@@ -7,5 +7,5 @@ metadata:
     github.com/team-slug: snyk/hammerhead
 spec:
   type: external-tooling
-  lifecycle: "-"
+  lifecycle: '-'
   owner: hammerhead
