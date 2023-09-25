@@ -184,6 +184,21 @@ commands:
       - install-deps-python:
           os: win
 
+  install-deps-windows-signing:
+    steps:
+      - run:
+          name: Install DigiCert Keylocker Tools
+          command: |
+            cd C:\
+            curl.exe -X GET  https://one.digicert.com/signingmanager/api-ui/v1/releases/smtools-windows-x64.msi/download -H "x-api-key:$env:SM_API_KEY" -o smtools-windows-x64.msi
+            msiexec.exe /i smtools-windows-x64.msi /quiet /qn | Wait-Process
+            & 'C:\Program Files\DigiCert\DigiCert One Signing Manager Tools\smksp_cert_sync.exe'
+
+  install-deps-windows-full-signing:
+    steps:
+      - install-deps-windows-full
+      - install-deps-windows-signing
+
   install-deps-windows-make:
     steps:
       - restore_cache:
@@ -202,6 +217,7 @@ commands:
             - ~\AppData\Local\Temp\chocolatey
       - install-deps-python:
           os: win
+      - install-deps-windows-signing
 
   install-deps-windows-node:
     steps:
@@ -405,7 +421,7 @@ workflows:
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           make_target: build clean-golang build-fips
-          install_deps_extension: windows-full
+          install_deps_extension: windows-full-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
           context: snyk-windows-signing
