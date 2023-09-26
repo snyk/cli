@@ -213,7 +213,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
 
       let command = 'test -d --dotnet-runtime-resolution';
       if (targetFramework) {
-        command = `test -d --dotnet-runtime-resolution --target-framework=${targetFramework}`;
+        command = `test -d --dotnet-runtime-resolution --dotnet-target-framework=${targetFramework}`;
       }
 
       const { code } = await runSnykCLI(command, {
