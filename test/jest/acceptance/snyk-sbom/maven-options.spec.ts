@@ -8,7 +8,7 @@ describe('snyk sbom: maven options (mocked server only)', () => {
   let env: Record<string, string>;
 
   beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '58584';
+    const port = process.env.PORT || process.env.SNYK_PORT || '58587';
     const baseApi = '/api/v1';
     env = {
       ...process.env,
