@@ -279,6 +279,9 @@ commands:
         type: string
         default: go gradle python elixir composer gradle@6 maven sbt dotnet
     steps:
+      - run:
+          name: Installing Rosetta
+          command: softwareupdate --install-rosetta --agree-to-license
       - restore_cache:
           key: acceptance-tests-macos-<< parameters.items >>
       - run:
@@ -298,6 +301,9 @@ commands:
         type: string
         default: go gradle python elixir composer gradle@6 maven sbt dotnet
     steps:
+      - run:
+          name: Installing Rosetta
+          command: softwareupdate --install-rosetta --agree-to-license
       - install-deps-python:
           os: macos
 
