@@ -114,11 +114,11 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz: prepack | $(BINARY_RELEASES_F
 	mv $(shell npm pack --workspace '@snyk/protect') $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node16-alpine-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine
+	$(PKG) -t node18-alpine-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node16-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
+	$(PKG) -t node18-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux.sha256
 
 # Why `--no-bytecode` for Linux/arm64:
@@ -126,15 +126,15 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_
 #   environment. So disabling until we can support it. It's an optimisation.
 #   https://github.com/vercel/pkg#targets
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node16-linux-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64 --no-bytecode
+	$(PKG) -t node18-linux-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64 --no-bytecode
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node16-macos-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos
+	$(PKG) -t node18-macos-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node16-win-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe
+	$(PKG) -t node18-win-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe
 	powershell $(WORKING_DIR)/cliv2/scripts/sign_windows.ps1 $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-win.exe
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe.sha256
 
