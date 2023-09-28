@@ -8,9 +8,9 @@ For details see the [CLI documentation](https://docs.snyk.io/features/snyk-cli)
 
 ## How to get started
 
-1. Authenticate by running `snyk auth`
-2. Test your local project with `snyk test`
-3. Get alerted for new vulnerabilities with `snyk monitor`
+1. Authenticate by running `snyk auth`.
+2. Test your local project with `snyk test`.
+3. Get alerted for new vulnerabilities with `snyk monitor`.
 
 ## Available commands
 
@@ -24,25 +24,25 @@ Authenticate Snyk CLI with a Snyk account.
 
 ### [`snyk test`](test.md)
 
-Test a project for open source vulnerabilities and license issues.
+Test a project for open-source vulnerabilities and license issues.
 
-**Note**: Use `snyk test --unmanaged` to scan all files for known open source dependencies (C/C++ only).
+**Note**: Use `snyk test --unmanaged` to scan all files for known open-source dependencies (C/C++ only).
 
 ### [`snyk monitor`](monitor.md)
 
-Snapshot and continuously monitor a project for open source vulnerabilities and license issues.
+Snapshot and continuously monitor a project for open-source vulnerabilities and license issues.
 
 ### [`snyk container`](container.md)
 
-Test container images for vulnerabilities.
+These commands test and continuously monitor container images for vulnerabilities and generate an SBOM for a container image.
 
 ### [`snyk iac`](iac.md)
 
-Commands to find and manage security issues in Infrastructure as Code files.
+These commands find and report security issues in Infrastructure as Code files; detect, track, and alert on infrastructure drift and unmanaged resources; and create a .driftigore file.
 
 ### [`snyk code`](code.md)
 
-Find security issues using static code analysis.
+The `snyk code test` command finds security issues using Static Code Analysis.
 
 ### [`snyk sbom`](sbom.md)
 
