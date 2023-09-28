@@ -7,6 +7,7 @@ on:
     types: [published]
   schedule:
     - cron: '0 23 * * *'
+  workflow_dispatch:
 
 jobs:
   smoke_test:
