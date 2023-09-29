@@ -54,14 +54,21 @@ async function scanWithConfig(
 ): Promise<TestOutput> {
   const env = { ...process.env };
 
+  const apiUrl = config.API_REST_URL;
+  if (apiUrl.startsWith('http://')) {
+    console.warn(
+      '\nYou configured the Snyk CLI to use an API URL with an HTTP scheme. This option is insecure and might prevent the Snyk CLI from working correctly.',
+    );
+  }
+
   env['SNYK_IAC_TEST_API_REST_URL'] =
-    process.env['SNYK_IAC_TEST_API_REST_URL'] || getApiUrl();
+    process.env['SNYK_IAC_TEST_API_REST_URL'] || apiUrl;
   env['SNYK_IAC_TEST_API_REST_TOKEN'] =
     process.env['SNYK_IAC_TEST_API_REST_TOKEN'] || getApiToken();
   env['SNYK_IAC_TEST_API_REST_OAUTH_TOKEN'] =
     process.env['SNYK_IAC_TEST_API_REST_OAUTH_TOKEN'] || getOAuthToken();
   env['SNYK_IAC_TEST_API_V1_URL'] =
-    process.env['SNYK_IAC_TEST_API_V1_URL'] || getApiUrl();
+    process.env['SNYK_IAC_TEST_API_V1_URL'] || apiUrl;
   env['SNYK_IAC_TEST_API_V1_TOKEN'] =
     process.env['SNYK_IAC_TEST_API_V1_TOKEN'] || getApiToken();
   env['SNYK_IAC_TEST_API_V1_OAUTH_TOKEN'] =
@@ -244,10 +251,6 @@ async function remove(path: string) {
       }
     });
   });
-}
-
-function getApiUrl() {
-  return config.API_REST_URL;
 }
 
 function getApiToken() {
