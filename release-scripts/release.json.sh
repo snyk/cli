@@ -12,6 +12,7 @@ if [[ $(uname -s) == "Darwin" ]];then
     sed -i "" "s|snyk-linux-sha256|$(cat binary-releases/snyk-linux.sha256)|" "${OUTPUT_FILE}"
     sed -i "" "s|snyk-linux-arm64-sha256|$(cat binary-releases/snyk-linux-arm64.sha256)|" "${OUTPUT_FILE}"
     sed -i "" "s|snyk-macos-sha256|$(cat binary-releases/snyk-macos.sha256)|" "${OUTPUT_FILE}"
+    sed -i "" "s|snyk-macos-arm64-sha256|$(cat binary-releases/snyk-macos-arm64.sha256)|" "${OUTPUT_FILE}"
     sed -i "" "s|snyk-win.exe-sha256|$(cat binary-releases/snyk-win.exe.sha256)|" "${OUTPUT_FILE}"
 else
     echo "this is Linux"
@@ -20,6 +21,7 @@ else
     sed -i "s|snyk-linux-sha256|$(cat binary-releases/snyk-linux.sha256)|" "${OUTPUT_FILE}"
     sed -i "s|snyk-linux-arm64-sha256|$(cat binary-releases/snyk-linux-arm64.sha256)|" "${OUTPUT_FILE}"
     sed -i "s|snyk-macos-sha256|$(cat binary-releases/snyk-macos.sha256)|" "${OUTPUT_FILE}"
+    sed -i "s|snyk-macos-arm64-sha256|$(cat binary-releases/snyk-macos-arm64.sha256)|" "${OUTPUT_FILE}"
     sed -i "s|snyk-win.exe-sha256|$(cat binary-releases/snyk-win.exe.sha256)|" "${OUTPUT_FILE}"
 fi
 
