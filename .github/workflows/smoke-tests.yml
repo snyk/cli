@@ -25,7 +25,7 @@ jobs:
             os: windows
           # For binary, use only the Node 14
           - snyk_install_method: binary
-            node_version: 14
+            node_version: 12
           - snyk_install_method: binary
             node_version: 16
           # No need to run brew tests on some Platforms
