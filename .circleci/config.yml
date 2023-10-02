@@ -86,16 +86,11 @@ executors:
       - image: ubuntu:focal
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
-  macos-amd64:
-    macos:
-      # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
-      xcode: '14.3.1'
-    resource_class: macos.x86.medium.gen2
   macos-arm64:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '14.3.1'
-    resource_class: macos.m1.large.gen1
+    resource_class: macos.m1.medium.gen1
   win-server2022-amd64:
     machine:
       image: windows-server-2022-gui:2023.07.1
@@ -279,6 +274,9 @@ commands:
         type: string
         default: go gradle python elixir composer gradle@6 maven sbt dotnet
     steps:
+      - run:
+          name: Installing Rosetta
+          command: softwareupdate --install-rosetta --agree-to-license
       - restore_cache:
           key: acceptance-tests-macos-<< parameters.items >>
       - run:
@@ -298,6 +296,9 @@ commands:
         type: string
         default: go gradle python elixir composer gradle@6 maven sbt dotnet
     steps:
+      - run:
+          name: Installing Rosetta
+          command: softwareupdate --install-rosetta --agree-to-license
       - install-deps-python:
           os: macos
 
@@ -409,7 +410,18 @@ workflows:
           go_os: darwin
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          executor: macos-amd64
+          executor: macos-arm64
+          install_deps_extension: macos-build
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build macOS arm64
+          go_target_os: darwin
+          go_os: darwin
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: macos-arm64
           install_deps_extension: macos-build
           requires:
             - prepare-build
@@ -502,9 +514,9 @@ workflows:
             branches:
               ignore: master
           requires:
-            - build macOS amd64
-          executor: macos-amd64
-          test_snyk_command: ./binary-releases/snyk-macos
+            - build macOS arm64
+          executor: macos-arm64
+          test_snyk_command: ./binary-releases/snyk-macos-arm64
           install_deps_extension: macos-full
 
       - acceptance-tests:
@@ -546,7 +558,22 @@ workflows:
             - build macOS amd64
           go_os: darwin
           go_arch: amd64
-          executor: macos-amd64
+          executor: macos-arm64
+          install_deps_extension: noop
+          filters:
+            branches:
+              only:
+                - master
+                - '/.*e2e.*/'
+
+      - sign:
+          name: sign macos arm64
+          context: snyk-macos-signing
+          requires:
+            - build macOS arm64
+          go_os: darwin
+          go_arch: arm64
+          executor: macos-arm64
           install_deps_extension: noop
           filters:
             branches:
@@ -559,6 +586,7 @@ workflows:
           context: snyk-cli-pgp-signing
           requires:
             - sign macos amd64
+            - sign macos arm64
             - sign windows amd64
             - build alpine amd64
             - build linux amd64
@@ -600,7 +628,7 @@ workflows:
               executor:
                 - 'docker-amd64'
                 - 'win-server2019-amd64'
-                - 'macos-amd64'
+                - 'macos-arm64'
           requires:
             - upload version
           filters:
@@ -619,7 +647,7 @@ workflows:
                 - 'docker-arm64'
                 - 'win-server2019-amd64'
                 - 'win-server2022-amd64'
-                - 'macos-amd64'
+                - 'macos-arm64'
                 - 'linux-ubuntu-latest-amd64'
                 - 'linux-ubuntu-mantic-amd64'
                 - 'linux-ubuntu-jammy-amd64'
@@ -673,12 +701,12 @@ workflows:
           requires:
             - Validate NPM artifacts (docker-amd64)
             - Validate NPM artifacts (win-server2019-amd64)
-            - Validate NPM artifacts (macos-amd64)
+            - Validate NPM artifacts (macos-arm64)
             - e2e tests (docker-amd64)
             - e2e tests (docker-arm64)
             - e2e tests (win-server2019-amd64)
             - e2e tests (win-server2022-amd64)
-            - e2e tests (macos-amd64)
+            - e2e tests (macos-arm64)
             - e2e tests (linux-ubuntu-latest-amd64)
             - e2e tests (linux-ubuntu-mantic-amd64)
             - e2e tests (linux-ubuntu-jammy-amd64)
