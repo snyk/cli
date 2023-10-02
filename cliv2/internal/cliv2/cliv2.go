@@ -264,6 +264,7 @@ func PrepareV1EnvironmentVariables(
 	integrationVersion string,
 	proxyAddress string,
 	caCertificateLocation string,
+	orgid string,
 ) (result []string, err error) {
 
 	inputAsMap := utils.ToKeyValueMap(input, "=")
@@ -308,6 +309,7 @@ func PrepareV1EnvironmentVariables(
 		inputAsMap[constants.SNYK_HTTPS_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
+		inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = orgid
 
 		// merge user defined (external) and internal no_proxy configuration
 		if len(inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM]) > 0 {
@@ -334,9 +336,10 @@ func (c *CLI) PrepareV1Command(
 	integrationVersion string,
 ) (snykCmd *exec.Cmd, err error) {
 	proxyAddress := fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, proxyInfo.Password, proxyInfo.Port)
+	orgid := c.globalConfig.GetString(configuration.ORGANIZATION)
 
 	snykCmd = exec.Command(cmd, args...)
-	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation)
+	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, orgid)
 
 	if len(c.WorkingDirectory) > 0 {
 		snykCmd.Dir = c.WorkingDirectory
@@ -347,19 +350,13 @@ func (c *CLI) PrepareV1Command(
 
 func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
 
-	// add additional parameter
-	extendedArguments := passThroughArgs
-	if orgid := c.globalConfig.GetString(configuration.ORGANIZATION); len(orgid) > 0 {
-		extendedArguments = append(extendedArguments, "--orgid="+orgid)
-	}
-
-	snykCmd, err := c.PrepareV1Command(c.v1BinaryLocation, extendedArguments, proxyInfo, c.GetIntegrationName(), GetFullVersion())
+	snykCmd, err := c.PrepareV1Command(c.v1BinaryLocation, passThroughArgs, proxyInfo, c.GetIntegrationName(), GetFullVersion())
 
 	if c.DebugLogger.Writer() != io.Discard {
 		c.DebugLogger.Println("Launching: ")
 		c.DebugLogger.Println("  ", c.v1BinaryLocation)
 		c.DebugLogger.Println(" With Arguments:")
-		c.DebugLogger.Println("  ", strings.Join(extendedArguments, ", "))
+		c.DebugLogger.Println("  ", strings.Join(passThroughArgs, ", "))
 		c.DebugLogger.Println(" With Environment: ")
 
 		variablesMap := utils.ToKeyValueMap(snykCmd.Env, "=")

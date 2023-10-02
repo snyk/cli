@@ -56,10 +56,11 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_SYSTEM_NO_PROXY=noProxy",
 		"SNYK_SYSTEM_HTTP_PROXY=httpProxy",
 		"SNYK_SYSTEM_HTTPS_PROXY=httpsProxy",
+		"SNYK_INTERNAL_ORGID=orgid",
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",noProxy",
 	}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", "orgid")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -82,10 +83,11 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 		"SNYK_SYSTEM_NO_PROXY=",
 		"SNYK_SYSTEM_HTTP_PROXY=",
 		"SNYK_SYSTEM_HTTPS_PROXY=",
+		"SNYK_INTERNAL_ORGID=orgid",
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY,
 	}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", "orgid")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -108,10 +110,11 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 		"SNYK_SYSTEM_NO_PROXY=312123",
 		"SNYK_SYSTEM_HTTP_PROXY=exists",
 		"SNYK_SYSTEM_HTTPS_PROXY=already",
+		"SNYK_INTERNAL_ORGID=orgid",
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",312123",
 	}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation")
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", "orgid")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -124,7 +127,7 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists"}
 	expected := input
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused")
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", "orgid")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
