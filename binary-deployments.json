@@ -1,7 +1,7 @@
 {
   "darwin": {
     "amd64": "snyk-macos",
-    "arm64": "snyk-macos"
+    "arm64": "snyk-macos-arm64"
   },
   "windows": {
     "amd64": "snyk-win.exe"

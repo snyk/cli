@@ -17,13 +17,14 @@ const supportedPlatforms = JSON.parse(binaryDeployments);
 
 describe('Determine Binary Name', () => {
   it('Determine Binary Name (darwin)', async () => {
-    const expected = supportedPlatforms['darwin']['amd64'];
+    const expectedamd64 = supportedPlatforms['darwin']['amd64'];
+    const expectedarm64 = supportedPlatforms['darwin']['arm64'];
     const actualx64 = common.determineBinaryName('darwin', 'x64');
     const actualarm64 = common.determineBinaryName('darwin', 'arm64');
     const actualamd64 = common.determineBinaryName('darwin', 'amd64');
-    expect(actualx64).toEqual(expected);
-    expect(actualarm64).toEqual(expected);
-    expect(actualamd64).toEqual(expected);
+    expect(actualx64).toEqual(expectedamd64);
+    expect(actualarm64).toEqual(expectedarm64);
+    expect(actualamd64).toEqual(expectedamd64);
   });
 
   it('Determine Binary Name (win)', async () => {
