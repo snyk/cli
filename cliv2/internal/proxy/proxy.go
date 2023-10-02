@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/google/uuid"
+	"github.com/snyk/go-application-framework/pkg/configuration"
 
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
@@ -49,11 +50,14 @@ const (
 	PROXY_USERNAME = "snykcli"
 )
 
-func NewWrapperProxy(insecureSkipVerify bool, cacheDirectory string, cliVersion string, debugLogger *log.Logger) (*WrapperProxy, error) {
+func NewWrapperProxy(config configuration.Configuration, cliVersion string, debugLogger *log.Logger) (*WrapperProxy, error) {
 	var p WrapperProxy
 	p.DebugLogger = debugLogger
 	p.cliVersion = cliVersion
 	p.addHeaderFunc = func(request *http.Request) error { return nil }
+
+	cacheDirectory := config.GetString(configuration.CACHE_PATH)
+	insecureSkipVerify := config.GetBool(configuration.INSECURE_HTTPS)
 
 	certName := "snyk-embedded-proxy"
 	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, p.DebugLogger)

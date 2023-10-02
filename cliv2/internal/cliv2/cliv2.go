@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/flock"
+	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/utils"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -35,6 +36,7 @@ type CLI struct {
 	stdout           io.Writer
 	stderr           io.Writer
 	env              []string
+	globalConfig     configuration.Configuration
 }
 
 type EnvironmentWarning struct {
@@ -47,7 +49,10 @@ const (
 	V2_ABOUT   Handler = iota
 )
 
-func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
+func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger) (*CLI, error) {
+
+	cacheDirectory := config.GetString(configuration.CACHE_PATH)
+
 	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(cacheDirectory)
 	if err != nil {
 		fmt.Println(err)
@@ -63,6 +68,7 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
 		stdout:           os.Stdout,
 		stderr:           os.Stderr,
 		env:              os.Environ(),
+		globalConfig:     config,
 	}
 
 	return &cli, nil
@@ -340,13 +346,20 @@ func (c *CLI) PrepareV1Command(
 }
 
 func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
-	snykCmd, err := c.PrepareV1Command(c.v1BinaryLocation, passThroughArgs, proxyInfo, c.GetIntegrationName(), GetFullVersion())
+
+	// add additional parameter
+	extendedArguments := passThroughArgs
+	if orgid := c.globalConfig.GetString(configuration.ORGANIZATION); len(orgid) > 0 {
+		extendedArguments = append(extendedArguments, "--orgid="+orgid)
+	}
+
+	snykCmd, err := c.PrepareV1Command(c.v1BinaryLocation, extendedArguments, proxyInfo, c.GetIntegrationName(), GetFullVersion())
 
 	if c.DebugLogger.Writer() != io.Discard {
 		c.DebugLogger.Println("Launching: ")
 		c.DebugLogger.Println("  ", c.v1BinaryLocation)
 		c.DebugLogger.Println(" With Arguments:")
-		c.DebugLogger.Println("  ", strings.Join(passThroughArgs, ", "))
+		c.DebugLogger.Println("  ", strings.Join(extendedArguments, ", "))
 		c.DebugLogger.Println(" With Environment: ")
 
 		variablesMap := utils.ToKeyValueMap(snykCmd.Env, "=")

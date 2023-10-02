@@ -12,11 +12,13 @@ import (
 	"os"
 	"testing"
 
+	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/networking/certs"
+	"github.com/snyk/go-httpauth/pkg/httpauth"
+
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 	"github.com/snyk/cli/cliv2/internal/utils"
-	"github.com/snyk/go-application-framework/pkg/networking/certs"
-	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -80,7 +82,11 @@ func Test_closingProxyDeletesTempCert(t *testing.T) {
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(false, basecache, version, debugLogger)
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, basecache)
+	config.Set(configuration.INSECURE_HTTPS, false)
+
+	wp, err := proxy.NewWrapperProxy(config, version, debugLogger)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -101,10 +107,14 @@ func basicAuthValue(username string, password string) string {
 func Test_canGoThroughProxy(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, basecache)
+	config.Set(configuration.INSECURE_HTTPS, false)
+
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(false, basecache, version, debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, debugLogger)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -130,10 +140,14 @@ func Test_canGoThroughProxy(t *testing.T) {
 func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, basecache)
+	config.Set(configuration.INSECURE_HTTPS, false)
+
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(false, basecache, version, debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, debugLogger)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -158,6 +172,10 @@ func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 func Test_SetUpstreamProxy(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, basecache)
+	config.Set(configuration.INSECURE_HTTPS, false)
+
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
@@ -178,7 +196,7 @@ func Test_SetUpstreamProxy(t *testing.T) {
 		httpauth.UnknownMechanism,
 	}
 
-	objectUnderTest, err = proxy.NewWrapperProxy(false, basecache, version, debugLogger)
+	objectUnderTest, err = proxy.NewWrapperProxy(config, version, debugLogger)
 	assert.Nil(t, err)
 
 	// running different cases
@@ -210,6 +228,10 @@ func Test_SetUpstreamProxy(t *testing.T) {
 func Test_appendExtraCaCert(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, basecache)
+	config.Set(configuration.INSECURE_HTTPS, false)
+
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
@@ -219,7 +241,7 @@ func Test_appendExtraCaCert(t *testing.T) {
 
 	os.Setenv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV, file.Name())
 
-	wp, err := proxy.NewWrapperProxy(false, basecache, version, debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, debugLogger)
 	assert.Nil(t, err)
 
 	certsPem, err := os.ReadFile(wp.CertificateLocation)

@@ -10,6 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/snyk/go-application-framework/pkg/configuration"
+
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
@@ -144,7 +146,9 @@ func getProxyInfoForTest() *proxy.ProxyInfo {
 func Test_prepareV1Command(t *testing.T) {
 	expectedArgs := []string{"hello", "world"}
 	cacheDir := getCacheDir(t)
-	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, cacheDir)
+	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 
 	snykCmd, err := cli.PrepareV1Command(
 		"someExecutable",
@@ -165,11 +169,13 @@ func Test_prepareV1Command(t *testing.T) {
 func Test_extractOnlyOnce(t *testing.T) {
 	cacheDir := getCacheDir(t)
 	tmpDir := utils.GetTemporaryDirectory(cacheDir, cliv2.GetFullVersion())
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, cacheDir)
 
 	assert.NoDirExists(t, tmpDir)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
+	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 
 	// run once
 	assert.Nil(t, cli.Init())
@@ -192,11 +198,13 @@ func Test_extractOnlyOnce(t *testing.T) {
 func Test_init_extractDueToInvalidBinary(t *testing.T) {
 	cacheDir := getCacheDir(t)
 	tmpDir := utils.GetTemporaryDirectory(cacheDir, cliv2.GetFullVersion())
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, cacheDir)
 
 	assert.NoDirExists(t, tmpDir)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
+	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 
 	// fill binary with invalid data
 	_ = os.MkdirAll(tmpDir, 0755)
@@ -227,11 +235,13 @@ func Test_executeRunV2only(t *testing.T) {
 
 	cacheDir := getCacheDir(t)
 	tmpDir := utils.GetTemporaryDirectory(cacheDir, cliv2.GetFullVersion())
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, cacheDir)
 
 	assert.NoDirExists(t, tmpDir)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
+	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 	assert.Nil(t, cli.Init())
 
 	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--version"}))
@@ -244,9 +254,11 @@ func Test_executeUnknownCommand(t *testing.T) {
 	expectedReturnCode := constants.SNYK_EXIT_CODE_ERROR
 
 	cacheDir := getCacheDir(t)
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, cacheDir)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
+	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 	assert.Nil(t, cli.Init())
 
 	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"bogusCommand"}))
@@ -255,9 +267,11 @@ func Test_executeUnknownCommand(t *testing.T) {
 
 func Test_clearCache(t *testing.T) {
 	cacheDir := getCacheDir(t)
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, cacheDir)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
+	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 	assert.Nil(t, cli.Init())
 
 	// create folders and files in cache dir
@@ -287,9 +301,11 @@ func Test_clearCache(t *testing.T) {
 
 func Test_clearCacheBigCache(t *testing.T) {
 	cacheDir := getCacheDir(t)
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, cacheDir)
 
 	// create instance under test
-	cli, _ := cliv2.NewCLIv2(cacheDir, discardLogger)
+	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 	assert.Nil(t, cli.Init())
 
 	// create folders and files in cache dir
