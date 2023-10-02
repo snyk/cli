@@ -291,6 +291,7 @@ func PrepareV1EnvironmentVariables(
 			constants.SNYK_NPM_HTTP_PROXY_ENV,
 			constants.SNYK_NPM_PROXY_ENV,
 			constants.SNYK_NPM_ALL_PROXY,
+			constants.SNYK_OPENSSL_CONF,
 		}
 
 		for _, key := range blackList {

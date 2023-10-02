@@ -55,4 +55,10 @@ module.exports = async function() {
   if (process.env.TEST_SNYK_TOKEN !== undefined) {
     await runSnykCLI(`config set api=${process.env.TEST_SNYK_TOKEN}`);
   }
+
+  console.error(
+    '\n------------------------------------------------------------' +
+      '\n Environment successfully setup! Starting to run tests now!' +
+      '\n------------------------------------------------------------',
+  );
 };
