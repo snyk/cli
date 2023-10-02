@@ -442,7 +442,7 @@ workflows:
 
       - regression-tests:
           name: regression-tests
-          context: nodejs-install
+          context: team_hammerhead-cli
           filters:
             branches:
               ignore: master

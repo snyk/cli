@@ -12,7 +12,7 @@ spec_helper_configure() {
   }
 
   snyk_login() {
-    snyk config set api="${SMOKE_TESTS_SNYK_TOKEN}" 1> /dev/null
+    snyk config set api="${TEST_SNYK_TOKEN}" 1> /dev/null
   }
 
   snyk_logout() {
