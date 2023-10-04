@@ -46,7 +46,7 @@ func FilteredArgs(args []string, unknownArgs []string) []string {
 		filteredArgs = pkg_utils.RemoveSimilar(filteredArgs, element)
 	}
 
-	if len(unknownArgs) > 0 {
+	if len(unknownArgs) > 0 && !pkg_utils.Contains(args, "--") {
 		filteredArgs = append(filteredArgs, "--")
 		filteredArgs = append(filteredArgs, unknownArgs...)
 	}
