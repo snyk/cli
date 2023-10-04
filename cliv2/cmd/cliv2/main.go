@@ -226,8 +226,8 @@ func defaultCmd(args []string) error {
 }
 
 func getGlobalFLags() *pflag.FlagSet {
-	globalConfiguration := workflow.GetGlobalConfiguration()
-	globalFLags := workflow.FlagsetFromConfigurationOptions(globalConfiguration)
+	globalConfigurationOptions := workflow.GetGlobalConfiguration()
+	globalFLags := workflow.FlagsetFromConfigurationOptions(globalConfigurationOptions)
 	globalFLags.Bool(basic_workflows.PROXY_NOAUTH, false, "")
 	globalFLags.Bool(disable_analytics_flag, false, "")
 	return globalFLags
