@@ -150,7 +150,7 @@ func legacycliWorkflow(
 
 	// run the cli
 	proxyInfo := wrapperProxy.ProxyInfo()
-	err = cli.Execute(proxyInfo, FilteredArgs(args, config.GetStringSlice("internal_unknown_arguments")))
+	err = cli.Execute(proxyInfo, FilteredArgs(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
 
 	if !useStdIo {
 		outWriter.Flush()

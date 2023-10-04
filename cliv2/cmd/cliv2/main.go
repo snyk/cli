@@ -153,7 +153,7 @@ func updateConfigFromParameter(config configuration.Configuration, args []string
 			doubleDashPosition = i
 		}
 	}
-	config.Set("internal_unknown_arguments", doubleDashArgs)
+	config.Set(configuration.UNKNOWN_ARGS, doubleDashArgs)
 
 	// only consider the first positional argument as input directory if it is not behind a double dash.
 	if len(args) > 0 && !utils.Contains(doubleDashArgs, args[0]) {

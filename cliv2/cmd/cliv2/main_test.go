@@ -208,7 +208,7 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 			actualInputDir := config.GetString(configuration.INPUT_DIRECTORY)
 			assert.Equal(t, expectedInputDir, actualInputDir)
 
-			actualUnknownArgs := config.GetStringSlice("internal_unknown_arguments")
+			actualUnknownArgs := config.GetStringSlice(configuration.UNKNOWN_ARGS)
 			assert.Equal(t, expectedUnknownArgs, actualUnknownArgs)
 		})
 	}
