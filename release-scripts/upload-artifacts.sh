@@ -9,11 +9,13 @@ declare -a StaticFiles=(
   "binary-releases/snyk-linux"
   "binary-releases/snyk-linux-arm64"
   "binary-releases/snyk-macos"
+  "binary-releases/snyk-macos-arm64"
   "binary-releases/snyk-win.exe"
   "binary-releases/snyk-alpine.sha256"
   "binary-releases/snyk-linux.sha256"
   "binary-releases/snyk-linux-arm64.sha256"
   "binary-releases/snyk-macos.sha256"
+  "binary-releases/snyk-macos-arm64.sha256"
   "binary-releases/snyk-win.exe.sha256"
   "binary-releases/sha256sums.txt.asc"
 )

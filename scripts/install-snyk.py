@@ -104,8 +104,10 @@ def get_filename(arch_type, os_type):
     if os_type == 'windows' and arch_type == 'amd64':
         filename = "snyk-win"
         suffix = ".exe"
-    if os_type == 'macos':
+    if os_type == 'macos' and arch_type == 'amd64':
         filename = "snyk-macos"
+    if os_type == 'macos' and arch_type == 'arm64':
+        filename = "snyk-macos-arm64"
 
     filename = filename + suffix
     output_filename = output_filename + suffix

@@ -135,6 +135,10 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos: prepack | $(BINARY_RELEASES_FOLDER_
 	$(PKG) -t node$(PKG_NODE_VERSION)-macos-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos.sha256
 
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PKG) -t node$(PKG_NODE_VERSION)-macos-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64 --no-bytecode
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64.sha256
+
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	$(PKG) -t node$(PKG_NODE_VERSION)-win-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe
 	powershell $(WORKING_DIR)/cliv2/scripts/sign_windows.ps1 $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-win.exe
