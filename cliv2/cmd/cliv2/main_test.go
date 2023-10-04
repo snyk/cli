@@ -12,7 +12,7 @@ import (
 
 func cleanup() {
 	helpProvided = false
-	config = nil
+	globalConfiguration = nil
 	engine = nil
 }
 
@@ -87,9 +87,9 @@ func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	defer cleanup()
 
-	config = configuration.New()
-	config.Set(configuration.DEBUG, true)
-	engine = workflow.NewWorkFlowEngine(config)
+	globalConfiguration = configuration.New()
+	globalConfiguration.Set(configuration.DEBUG, true)
+	engine = workflow.NewWorkFlowEngine(globalConfiguration)
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		return []workflow.Data{}, nil
