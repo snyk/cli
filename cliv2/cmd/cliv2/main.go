@@ -142,23 +142,7 @@ func getFullCommandString(cmd *cobra.Command) string {
 	return name
 }
 
-// main workflow
-func runCommand(cmd *cobra.Command, args []string) error {
-	return runMainWorkflow(cmd, args, globalConfiguration, os.Args)
-}
-
-func runMainWorkflow(cmd *cobra.Command, args []string, config configuration.Configuration, rawArgs []string) error {
-
-	err := config.AddFlagSet(cmd.Flags())
-	if err != nil {
-		debugLogger.Print("Failed to add flags", err)
-		return err
-	}
-
-	name := getFullCommandString(cmd)
-	debugLogger.Print("Running ", name)
-	engine.GetAnalytics().SetCommand(name)
-
+func updateConfigFromParameter(config configuration.Configuration, args []string, rawArgs []string) {
 	// extract everything behind --
 	doubleDashArgs := []string{}
 	doubleDashPosition := -1
@@ -175,6 +159,26 @@ func runMainWorkflow(cmd *cobra.Command, args []string, config configuration.Con
 	if len(args) > 0 && !utils.Contains(doubleDashArgs, args[0]) {
 		config.Set(configuration.INPUT_DIRECTORY, args[0])
 	}
+}
+
+// main workflow
+func runCommand(cmd *cobra.Command, args []string) error {
+	return runMainWorkflow(globalConfiguration, cmd, args, os.Args)
+}
+
+func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, args []string, rawArgs []string) error {
+
+	err := config.AddFlagSet(cmd.Flags())
+	if err != nil {
+		debugLogger.Print("Failed to add flags", err)
+		return err
+	}
+
+	updateConfigFromParameter(config, args, rawArgs)
+
+	name := getFullCommandString(cmd)
+	debugLogger.Print("Running ", name)
+	engine.GetAnalytics().SetCommand(name)
 
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 	if err == nil {
