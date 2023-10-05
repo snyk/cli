@@ -163,6 +163,7 @@ func updateConfigFromParameter(config configuration.Configuration, args []string
 
 // main workflow
 func runCommand(cmd *cobra.Command, args []string) error {
+	// since cobra doesn't tell us if -- was found, os.Args is required in addition
 	return runMainWorkflow(globalConfiguration, cmd, args, os.Args)
 }
 
