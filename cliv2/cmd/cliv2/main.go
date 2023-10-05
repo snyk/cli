@@ -139,12 +139,12 @@ func getFullCommandString(cmd *cobra.Command) string {
 func updateConfigFromParameter(config configuration.Configuration, args []string, rawArgs []string) {
 	// extract everything behind --
 	doubleDashArgs := []string{}
-	doubleDashFond := false
+	doubleDashFound := false
 	for _, v := range rawArgs {
-		if doubleDashFond {
+		if doubleDashFound {
 			doubleDashArgs = append(doubleDashArgs, v)
 		} else if v == "--" {
-			doubleDashFond = true
+			doubleDashFound = true
 		}
 	}
 	config.Set(configuration.UNKNOWN_ARGS, doubleDashArgs)
