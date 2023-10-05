@@ -29,6 +29,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/networking"
+	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
@@ -43,7 +44,7 @@ import (
 
 var internalOS string
 var engine workflow.Engine
-var config configuration.Configuration
+var globalConfiguration configuration.Configuration
 var helpProvided bool
 var debugLogger = zerolog.New(zerolog.ConsoleWriter{
 	Out:        os.Stderr,
@@ -141,8 +142,31 @@ func getFullCommandString(cmd *cobra.Command) string {
 	return name
 }
 
+func updateConfigFromParameter(config configuration.Configuration, args []string, rawArgs []string) {
+	// extract everything behind --
+	doubleDashArgs := []string{}
+	doubleDashPosition := -1
+	for i, v := range rawArgs {
+		if doubleDashPosition >= 0 {
+			doubleDashArgs = append(doubleDashArgs, v)
+		} else if v == "--" {
+			doubleDashPosition = i
+		}
+	}
+	config.Set(configuration.UNKNOWN_ARGS, doubleDashArgs)
+
+	// only consider the first positional argument as input directory if it is not behind a double dash.
+	if len(args) > 0 && !utils.Contains(doubleDashArgs, args[0]) {
+		config.Set(configuration.INPUT_DIRECTORY, args[0])
+	}
+}
+
 // main workflow
 func runCommand(cmd *cobra.Command, args []string) error {
+	return runMainWorkflow(globalConfiguration, cmd, args, os.Args)
+}
+
+func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, args []string, rawArgs []string) error {
 
 	err := config.AddFlagSet(cmd.Flags())
 	if err != nil {
@@ -150,13 +174,11 @@ func runCommand(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	updateConfigFromParameter(config, args, rawArgs)
+
 	name := getFullCommandString(cmd)
 	debugLogger.Print("Running ", name)
 	engine.GetAnalytics().SetCommand(name)
-
-	if len(args) > 0 {
-		config.Set(configuration.INPUT_DIRECTORY, args[0])
-	}
 
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 	if err == nil {
@@ -197,15 +219,15 @@ func defaultCmd(args []string) error {
 	// prepare the invocation of the legacy CLI by
 	// * enabling stdio
 	// * by specifying the raw cmd args for it
-	config.Set(configuration.WORKFLOW_USE_STDIO, true)
-	config.Set(configuration.RAW_CMD_ARGS, args)
+	globalConfiguration.Set(configuration.WORKFLOW_USE_STDIO, true)
+	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
 	_, err := engine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
 	return err
 }
 
 func getGlobalFLags() *pflag.FlagSet {
-	globalConfiguration := workflow.GetGlobalConfiguration()
-	globalFLags := workflow.FlagsetFromConfigurationOptions(globalConfiguration)
+	globalConfigurationOptions := workflow.GetGlobalConfiguration()
+	globalFLags := workflow.FlagsetFromConfigurationOptions(globalConfigurationOptions)
 	globalFLags.Bool(basic_workflows.PROXY_NOAUTH, false, "")
 	globalFLags.Bool(disable_analytics_flag, false, "")
 	return globalFLags
@@ -319,11 +341,11 @@ func handleError(err error) HandleError {
 func displayError(err error) {
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); !ok {
-			if config.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
+			if globalConfiguration.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
 				jsonError := JsonErrorStruct{
 					Ok:       false,
 					ErrorMsg: err.Error(),
-					Path:     config.GetString(configuration.INPUT_DIRECTORY),
+					Path:     globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
 				}
 
 				jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
@@ -439,20 +461,20 @@ func MainWithErrorCode() int {
 	_ = rootCommand.ParseFlags(os.Args)
 
 	// create engine
-	config = configuration.New()
-	err = config.AddFlagSet(rootCommand.LocalFlags())
+	globalConfiguration = configuration.New()
+	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
 		debugLogger.Print("Failed to add flags to root command", err)
 	}
 
-	debugEnabled := config.GetBool(configuration.DEBUG)
-	debugLogger := getDebugLogger(config)
+	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
+	debugLogger := getDebugLogger(globalConfiguration)
 
-	initApplicationConfiguration(config)
-	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(config))
+	initApplicationConfiguration(globalConfiguration)
+	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(globalConfiguration))
 
-	if noProxyAuth := config.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
-		config.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
+	if noProxyAuth := globalConfiguration.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
+		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
 	}
 
 	// initialize the extensions -> they register themselves at the engine
@@ -485,13 +507,13 @@ func MainWithErrorCode() int {
 	networkAccess.AddHeaderField(
 		"User-Agent",
 		networking.UserAgent(
-			networking.UaWithConfig(config),
+			networking.UaWithConfig(globalConfiguration),
 			networking.UaWithApplication("snyk-cli", cliv2.GetFullVersion()),
 			networking.UaWithOS(internalOS)).String(),
 	)
 
 	if debugEnabled {
-		writeLogHeader(config, networkAccess)
+		writeLogHeader(globalConfiguration, networkAccess)
 	}
 
 	// init Analytics
@@ -499,7 +521,7 @@ func MainWithErrorCode() int {
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args[1:])
 	cliAnalytics.SetOperatingSystem(internalOS)
-	if config.GetBool(configuration.ANALYTICS_DISABLED) == false {
+	if globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) == false {
 		defer sendAnalytics(cliAnalytics, debugLogger)
 	}
 

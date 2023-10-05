@@ -5,14 +5,16 @@ import (
 	"testing"
 
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/workflow"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 )
 
 func cleanup() {
 	helpProvided = false
-	config = nil
+	globalConfiguration = nil
 	engine = nil
 }
 
@@ -87,9 +89,9 @@ func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	defer cleanup()
 
-	config = configuration.New()
-	config.Set(configuration.DEBUG, true)
-	engine = workflow.NewWorkFlowEngine(config)
+	globalConfiguration = configuration.New()
+	globalConfiguration.Set(configuration.DEBUG, true)
+	engine = workflow.NewWorkFlowEngine(globalConfiguration)
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		return []workflow.Data{}, nil
@@ -144,4 +146,70 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	assert.True(t, cmd2.HasSubCommands())
 	assert.Equal(t, "cmd2", cmd2.Name())
 	assert.True(t, cmd2.Hidden)
+}
+
+func Test_runMainWorkflow_unknownargs(t *testing.T) {
+
+	tests := map[string]struct {
+		inputDir    string
+		unknownArgs []string
+	}{
+		"input dir with unknown arguments":    {inputDir: "a/b/c", unknownArgs: []string{"a", "b", "c"}},
+		"no input dir with unknown arguments": {inputDir: "", unknownArgs: []string{"a", "b", "c"}},
+		"input dir without unknown arguments": {inputDir: "a", unknownArgs: []string{}},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+
+			expectedInputDir := tc.inputDir
+			expectedUnknownArgs := tc.unknownArgs
+
+			defer cleanup()
+			globalConfiguration = configuration.New()
+			globalConfiguration.Set(configuration.DEBUG, true)
+			engine = workflow.NewWorkFlowEngine(globalConfiguration)
+
+			fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+				return []workflow.Data{}, nil
+			}
+
+			// setup workflow engine to contain a workflow with subcommands
+			commandList := []string{"command", localworkflows.WORKFLOWID_OUTPUT_WORKFLOW.Host}
+			for _, v := range commandList {
+				workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+				workflowId1 := workflow.NewWorkflowIdentifier(v)
+				_, err := engine.Register(workflowId1, workflowConfig, fn)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			_ = engine.Init()
+
+			config := configuration.NewInMemory()
+			cmd := &cobra.Command{
+				Use: "command",
+			}
+
+			positionalArgs := []string{expectedInputDir}
+			positionalArgs = append(positionalArgs, expectedUnknownArgs...)
+
+			rawArgs := []string{"app", "command", "--sad", expectedInputDir}
+			if len(expectedUnknownArgs) > 0 {
+				rawArgs = append(rawArgs, "--")
+				rawArgs = append(rawArgs, expectedUnknownArgs...)
+			}
+
+			// call method under test
+			err := runMainWorkflow(config, cmd, positionalArgs, rawArgs)
+			assert.Nil(t, err)
+
+			actualInputDir := config.GetString(configuration.INPUT_DIRECTORY)
+			assert.Equal(t, expectedInputDir, actualInputDir)
+
+			actualUnknownArgs := config.GetStringSlice(configuration.UNKNOWN_ARGS)
+			assert.Equal(t, expectedUnknownArgs, actualUnknownArgs)
+		})
+	}
 }

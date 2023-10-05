@@ -1,5 +1,7 @@
 import { fakeServer } from '../../../acceptance/fake-server';
 import { runSnykSbomCliCycloneDxJsonForFixture } from './common';
+import { createProjectFromFixture } from '../../util/createProject';
+import { runSnykCLI } from '../../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -65,5 +67,29 @@ describe('snyk sbom: maven options (mocked server only)', () => {
 
     expect(sbom.metadata.component.name).toMatch(/^snyk-test-maven-jars-/);
     expect(sbom.components.length).toBeGreaterThanOrEqual(3);
+  });
+
+  test('`sbom using double dash (--) to specify a settings.xml for the underlying maven command', async () => {
+    const project = await createProjectFromFixture('maven-aggregate-project');
+
+    const { code: code2, stderr } = await runSnykCLI(
+      `sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.4+json --debug --maven-aggregate-project -- -s settings.xml`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+    expect(code2).toEqual(2);
+    console.log(stderr);
+
+    const { code: code0 } = await runSnykCLI(
+      `sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.4+json --debug --maven-aggregate-project`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code0).toEqual(0);
   });
 });

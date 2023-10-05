@@ -38,13 +38,19 @@ func Init(engine workflow.Engine) error {
 	return nil
 }
 
-func FilteredArgs(args []string) []string {
+func FilteredArgs(args []string, unknownArgs []string) []string {
 	// filter args not meant to be forwarded to CLIv1 or an Extensions
 	elementsToFilter := []string{"--" + PROXY_NOAUTH}
 	filteredArgs := args
 	for _, element := range elementsToFilter {
 		filteredArgs = pkg_utils.RemoveSimilar(filteredArgs, element)
 	}
+
+	if len(unknownArgs) > 0 && !pkg_utils.Contains(args, "--") {
+		filteredArgs = append(filteredArgs, "--")
+		filteredArgs = append(filteredArgs, unknownArgs...)
+	}
+
 	return filteredArgs
 }
 
@@ -144,7 +150,7 @@ func legacycliWorkflow(
 
 	// run the cli
 	proxyInfo := wrapperProxy.ProxyInfo()
-	err = cli.Execute(proxyInfo, FilteredArgs(args))
+	err = cli.Execute(proxyInfo, FilteredArgs(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
 
 	if !useStdIo {
 		outWriter.Flush()
