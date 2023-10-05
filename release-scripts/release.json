@@ -21,7 +21,7 @@
       "sha256": "snyk-macos-sha256",
       "sha256Url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-macos.sha256"
     },
-    "snyk-macos-arm64 ": {
+    "snyk-macos-arm64": {
       "url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-macos-arm64",
       "sha256": "snyk-macos-arm64-sha256",
       "sha256Url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-macos-arm64.sha256"
