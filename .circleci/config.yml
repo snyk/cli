@@ -802,7 +802,7 @@ jobs:
       - snyk/scan:
           command: code test
           fail-on-issues: true
-          monitor-on-build: false
+          monitor-on-build: true
           severity-threshold: high
 
   test-code:
