@@ -21,6 +21,7 @@ interface Config {
   API_V3_URL?: string;
   disableSuggestions: string;
   org: string;
+  orgId?: string;
   ROOT: string;
   timeout: number;
   PROJECT_NAME: string;
@@ -71,7 +72,7 @@ if (!config.org && org) {
   config.org = org;
 }
 
-config['orgid'] = getOrganizationID();
+config.orgId = getOrganizationID();
 
 // client request timeout
 // to change, set this config key to the desired value in seconds
