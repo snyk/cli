@@ -47,11 +47,11 @@ Describe "Snyk CLI Authorization"
   End
 
   It "updates config file if given legit token"
-    When run snyk auth "${SMOKE_TESTS_SNYK_TOKEN}"
+    When run snyk auth "${TEST_SNYK_TOKEN}"
     The output should include "Your account has been authenticated. Snyk is now ready to be used."
     The status should be success
     # TODO: unusable with our current docker issues
     The stderr should equal ""
-    The result of "print_snyk_config()" should include "api: ${SMOKE_TESTS_SNYK_TOKEN}"
+    The result of "print_snyk_config()" should include "api: ${TEST_SNYK_TOKEN}"
   End
 End

@@ -108,7 +108,7 @@ jobs:
       - name: Run npm test with Root user
         if: ${{ matrix.snyk_install_method == 'npm-root-user' }}
         env:
-          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+          TEST_SNYK_TOKEN: ${{ secrets.TEST_SNYK_TOKEN }}
         run: |
           docker build -t snyk-docker-root -f ./test/smoke/docker-root/Dockerfile ./test
           docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN snyk-docker-root
