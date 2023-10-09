@@ -146,7 +146,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     for retry in range(1, args.retry + 1):
-        print("Trying to download: #" + str(retry) + " of #" + str(args.retry))
+        print(
+            "Trying to download version "
+            + str(args.version)
+            + ": #"
+            + str(retry)
+            + " of #"
+            + str(args.retry)
+        )
         ret_value = download_snyk_cli(args.version, args.base_url)
         if ret_value == 0:
             break
