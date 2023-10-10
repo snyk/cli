@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/flock"
+	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/utils"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -35,6 +36,7 @@ type CLI struct {
 	stdout           io.Writer
 	stderr           io.Writer
 	env              []string
+	globalConfig     configuration.Configuration
 }
 
 type EnvironmentWarning struct {
@@ -47,7 +49,10 @@ const (
 	V2_ABOUT   Handler = iota
 )
 
-func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
+func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger) (*CLI, error) {
+
+	cacheDirectory := config.GetString(configuration.CACHE_PATH)
+
 	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(cacheDirectory)
 	if err != nil {
 		fmt.Println(err)
@@ -63,6 +68,7 @@ func NewCLIv2(cacheDirectory string, debugLogger *log.Logger) (*CLI, error) {
 		stdout:           os.Stdout,
 		stderr:           os.Stderr,
 		env:              os.Environ(),
+		globalConfig:     config,
 	}
 
 	return &cli, nil
@@ -258,6 +264,7 @@ func PrepareV1EnvironmentVariables(
 	integrationVersion string,
 	proxyAddress string,
 	caCertificateLocation string,
+	orgid string,
 ) (result []string, err error) {
 
 	inputAsMap := utils.ToKeyValueMap(input, "=")
@@ -302,6 +309,7 @@ func PrepareV1EnvironmentVariables(
 		inputAsMap[constants.SNYK_HTTPS_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
+		inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = orgid
 
 		// merge user defined (external) and internal no_proxy configuration
 		if len(inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM]) > 0 {
@@ -328,9 +336,10 @@ func (c *CLI) PrepareV1Command(
 	integrationVersion string,
 ) (snykCmd *exec.Cmd, err error) {
 	proxyAddress := fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, proxyInfo.Password, proxyInfo.Port)
+	orgid := c.globalConfig.GetString(configuration.ORGANIZATION)
 
 	snykCmd = exec.Command(cmd, args...)
-	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation)
+	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, orgid)
 
 	if len(c.WorkingDirectory) > 0 {
 		snykCmd.Dir = c.WorkingDirectory
@@ -340,6 +349,7 @@ func (c *CLI) PrepareV1Command(
 }
 
 func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
+
 	snykCmd, err := c.PrepareV1Command(c.v1BinaryLocation, passThroughArgs, proxyInfo, c.GetIntegrationName(), GetFullVersion())
 
 	if c.DebugLogger.Writer() != io.Discard {

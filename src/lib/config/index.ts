@@ -7,6 +7,7 @@ import {
   getHiddenApiUrl,
   getRootUrl,
 } from './api-url';
+import { getOrganizationID } from '../organization';
 
 const DEFAULT_TIMEOUT = 5 * 60; // in seconds
 interface Config {
@@ -20,6 +21,7 @@ interface Config {
   API_V3_URL?: string;
   disableSuggestions: string;
   org: string;
+  orgId?: string;
   ROOT: string;
   timeout: number;
   PROJECT_NAME: string;
@@ -69,6 +71,8 @@ const org = userConfig.get('org');
 if (!config.org && org) {
   config.org = org;
 }
+
+config.orgId = getOrganizationID();
 
 // client request timeout
 // to change, set this config key to the desired value in seconds

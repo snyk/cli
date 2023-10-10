@@ -72,9 +72,7 @@ func legacycliWorkflow(
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
 	isDebug := config.GetBool(configuration.DEBUG)
-	cacheDirectory := config.GetString(configuration.CACHE_PATH)
 	workingDirectory := config.GetString(configuration.WORKING_DIRECTORY)
-	insecure := config.GetBool(configuration.INSECURE_HTTPS)
 	proxyAuthenticationMechanismString := config.GetString(configuration.PROXY_AUTHENTICATION_MECHANISM)
 	proxyAuthenticationMechanism := httpauth.AuthenticationMechanismFromString(proxyAuthenticationMechanismString)
 	analyticsDisabled := config.GetBool(configuration.ANALYTICS_DISABLED)
@@ -85,7 +83,7 @@ func legacycliWorkflow(
 
 	// init cli object
 	var cli *cliv2.CLI
-	cli, err = cliv2.NewCLIv2(cacheDirectory, debugLogger)
+	cli, err = cliv2.NewCLIv2(config, debugLogger)
 	if err != nil {
 		return output, err
 	}
@@ -129,7 +127,7 @@ func legacycliWorkflow(
 	}
 
 	// init proxy object
-	wrapperProxy, err := proxy.NewWrapperProxy(insecure, cacheDirectory, cliv2.GetFullVersion(), debugLogger)
+	wrapperProxy, err := proxy.NewWrapperProxy(config, cliv2.GetFullVersion(), debugLogger)
 	if err != nil {
 		return output, errors.Wrap(err, "Failed to create proxy!")
 	}
