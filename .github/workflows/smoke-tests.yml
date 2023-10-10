@@ -84,11 +84,11 @@ jobs:
       - name: Run alpine test
         if: ${{ matrix.snyk_install_method == 'alpine-binary' }}
         env:
-          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+          TEST_SNYK_TOKEN: ${{ secrets.TEST_SNYK_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker build -t snyk-cli-alpine -f ./test/smoke/alpine/Dockerfile ./test
-          docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN -eGITHUB_TOKEN snyk-cli-alpine
+          docker run -eCI=1 -eTEST_SNYK_TOKEN -eGITHUB_TOKEN snyk-cli-alpine
 
       - name: Install snyk from Docker bundle
         if: ${{ matrix.snyk_install_method == 'docker-bundle' && matrix.os == 'macos' }}
@@ -108,10 +108,10 @@ jobs:
       - name: Run npm test with Root user
         if: ${{ matrix.snyk_install_method == 'npm-root-user' }}
         env:
-          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+          TEST_SNYK_TOKEN: ${{ secrets.TEST_SNYK_TOKEN }}
         run: |
           docker build -t snyk-docker-root -f ./test/smoke/docker-root/Dockerfile ./test
-          docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN snyk-docker-root
+          docker run -eCI=1 -eTEST_SNYK_TOKEN snyk-docker-root
 
       - name: Install Snyk with binary - Non-Windows
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
@@ -181,7 +181,7 @@ jobs:
         working-directory: test/smoke
         shell: bash -l {0} # run bash with --login flag to load .bash_profile that's used by yarn install method
         env:
-          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+          TEST_SNYK_TOKEN: ${{ secrets.TEST_SNYK_TOKEN }}
         run: |
           which snyk
           snyk version
@@ -192,6 +192,6 @@ jobs:
         working-directory: test/smoke
         shell: powershell
         env:
-          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+          TEST_SNYK_TOKEN: ${{ secrets.TEST_SNYK_TOKEN }}
         run: |
           sh ./run-shellspec-win.sh

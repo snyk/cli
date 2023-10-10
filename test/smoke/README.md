@@ -87,7 +87,7 @@ This will open a browser in one instance unless it's disabled with `SMOKE_TESTS_
 To run the Alpine test in Docker locally (you probably don't want to…):
 
 ```
- docker build -f ./test/smoke/alpine/Dockerfile -t snyk-cli-alpine ./test/ && docker run --rm -eSMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN snyk-cli-alpine
+ docker build -f ./test/smoke/alpine/Dockerfile -t snyk-cli-alpine ./test/ && docker run --rm -eTEST_SNYK_TOKEN=$SNYK_API_TOKEN snyk-cli-alpine
 ```
 
 _Note: Alpine image is not copying/mounting everything, so you might need to add anything new to the `test/smoke/alpine/Dockerfile`_
