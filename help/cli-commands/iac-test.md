@@ -99,7 +99,7 @@ Allowed values: `critical, high, medium, low`
 
 For more information see Project attributes
 
-This option is not supported for Integrated IaC (Limited Availability).
+This option is not supported for IaC+.
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -111,7 +111,7 @@ Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`,
 
 For more information see [Project attributes](https://docs.snyk.io/manage-issues/introduction-to-snyk-projects/project-attributes)
 
-This option is not supported for Integrated IaC (Limited Availability).
+This option is not supported for IaC+.
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
 
@@ -123,7 +123,7 @@ Allowed values: `production`, `development`, `sandbox`
 
 For more information see [Project attributes](https://docs.snyk.io/manage-issues/introduction-to-snyk-projects/project-attributes)
 
-This option is not supported for Integrated IaC (Limited Availability).
+This option is not supported for IaC+.
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
@@ -135,7 +135,7 @@ Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
 
-This option is not supported for Integrated IaC (Limited Availability).
+This option is not supported for IaC+.
 
 For more information including allowable characters see [Project tags](https://docs.snyk.io/manage-issues/introduction-to-snyk-projects/project-tags)
 
@@ -169,7 +169,7 @@ Example: Scan the configuration files using custom rules and internal Snyk rules
 
 Note: This option can not be used in combination with the `--report` option.
 
-This option is not supported for Integrated IaC (Limited Availability).
+This option is not supported for IaC+.
 
 ### `--severity-threshold=<low|medium|high|critical>`
 
@@ -216,7 +216,7 @@ Example:
 
 Use the last scan from your Snyk Cloud Environment to suppress issues. For more information, see [Adding cloud context to your IaC test](https://docs.snyk.io/scan-cloud-deployment/snyk-infrastructure-as-code/integrated-infrastructure-as-code/adding-cloud-context-to-your-iac-test)
 
-This option is only supported for Integrated IaC (Limited Availability).
+This option is only supported for IaC+.
 
 Example:
 
