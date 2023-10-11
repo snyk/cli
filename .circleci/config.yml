@@ -227,6 +227,8 @@ commands:
             choco uninstall nodejs -y
             choco uninstall nodejs.install -y
             choco install nodejs --version=$(head .nvmrc) --no-progress -y
+            echo "Installed Node.js version:"
+            node -v
       - save_cache:
           name: Saving Chocolatey cache
           key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}

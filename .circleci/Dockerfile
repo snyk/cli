@@ -32,6 +32,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     faketime \
     zip \
     nodejs=$(apt-cache policy nodejs | grep nodesource | xargs | cut -d " " -f2)
+RUN node -v
 RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
 
 # install aws cli
