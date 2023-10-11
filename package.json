@@ -21,7 +21,7 @@
     "snyk": "bin/snyk"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "workspaces": [
     "packages/*"
