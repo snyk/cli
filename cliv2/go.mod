@@ -15,7 +15,7 @@ require (
 	github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f
 	github.com/snyk/go-application-framework v0.0.0-20231010111039-f5b82b5eeb81
 	github.com/snyk/go-httpauth v0.0.0-20230726132335-d454674305a7
-	github.com/snyk/snyk-iac-capture v0.6.0
+	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20230911152618-39fc0f68d431
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
