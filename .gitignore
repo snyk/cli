@@ -43,6 +43,6 @@ test/**/.gradle
 test-output
 test-results
 tap-output
-
+.tap
 # Jest
 coverage
