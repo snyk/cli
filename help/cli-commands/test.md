@@ -6,7 +6,9 @@
 
 ## Description
 
-The `snyk test` command checks projects for open source vulnerabilities and license issues. The test command tries to auto-detect supported manifest files with dependencies and test those.
+The `snyk test` command checks projects for open-source vulnerabilities and license issues. The test command tries to auto-detect supported manifest files with dependencies and test those.
+
+**Note:** There are specific `snyk test` commands for the Snyk Code, Container, and IaC scanning methods: `code test`, `container test`, and `iac test`.
 
 ## Exit codes
 
