@@ -19,6 +19,12 @@ We ask that:
 - You do not violate any other applicable laws or regulations.
 
 Find out more about our [security policy](https://snyk.io/docs/security) and [Bug Bounty program](https://snyk.io/docs/security#snyk-s-vulnerability-disclosure-program)
+Dane konta Revolut
+IBAN: LT41 3250 0894 7676 6825
+BIC: REVOLT21
+Konto (tylko przelewy krajowe): 2029 1000 0600 0000 0003 1339 92
+Odbiorca: Mikołaj Roszak
+Adres odbiorcy: Przedwiośnie, 79/12, 73-110, Stargard, PL
 
 
 <p>Mikołaj Roszak Przedwiośnie 79/12 73-110 Stargard Tel. +48 500487977 Skype: mikolajroszak_1 Email: <a href="mailto:ul.echo12@gmail.com">ul.echo12@gmail.com</a>&nbsp;<a href="http://www.mikolaj.com" target="_blank" rel="noopener" title="mikolaj.com">http://www.mikolaj.com</a></p>
