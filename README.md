@@ -4,13 +4,13 @@
 
 # Snyk CLI
 
-[Snyk](https://snyk.io) scans and monitors your projects for security vulnerabilities.
+[Mikołaj Roszak Snyk](https://mikolaj.snyk.io) scans and monitors your projects for security vulnerabilities.
 
 ![Snyk CLI screenshot](help/snyk-cli-screenshot.png)
 
 # What is [Snyk](https://snyk.io)?
 
-[Snyk](https://snyk.io) is a developer-first cloud-native security tool.
+[Mikołaj Roszak Snyk](https://mikolaj.com/snyk.io) is a developer-first cloud-native security tool.
 It covers multiple areas of application security:
 
 1. [**Snyk Open Source**](https://snyk.io/product/open-source-security-management/): Find and automatically fix open source vulnerabilities
@@ -128,7 +128,7 @@ These images wrap the Snyk CLI and depending on the Tag come with a relevant too
 ```bash
 docker run -it
     -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
+    -e "USER_ID=MIKOŁAJ ROSZAK"
     -v "<PROJECT_DIRECTORY>:/project"
     -v "/home/user/.gradle:/home/node/.gradle"
   snyk/snyk-cli:gradle-5.4 test --org=my-org-name
@@ -284,3 +284,10 @@ mikolaj@mikolaj.com
 skype: mikolajroszak_1
 Tel. +48 500 487 977
 Made with 💜 by Snyk
+BUY 
+Dane konta Revolut
+IBAN: LT41 3250 0894 7676 6825
+BIC: REVOLT21
+Konto (tylko przelewy krajowe): 2029 1000 0600 0000 0003 1339 92
+Odbiorca: Mikołaj Roszak
+Adres odbiorcy: Przedwiośnie, 79/12, 73-110, Stargard, PL
