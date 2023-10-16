@@ -261,7 +261,7 @@ export const RubyTests: AcceptanceTests = {
         t.fail('should have thrown');
       } catch (err) {
         const req = params.server.popRequest();
-        t.is(req.query.severityThreshold, 'low');
+        t.equal(req.query.severityThreshold, 'low');
 
         const res = JSON.parse(err.message);
 
@@ -270,12 +270,12 @@ export const RubyTests: AcceptanceTests = {
           'test-result-low-severity.json',
         );
 
-        t.deepEqual(
+        t.same(
           omit(res, ['vulnerabilities']),
           omit(expected, ['vulnerabilities']),
           'metadata is ok',
         );
-        t.deepEqual(
+        t.same(
           sortBy(res.vulnerabilities, 'id'),
           sortBy(expected.vulnerabilities, 'id'),
           'vulns are the same',
@@ -303,7 +303,7 @@ export const RubyTests: AcceptanceTests = {
         t.fail('should have thrown');
       } catch (err) {
         const req = params.server.popRequest();
-        t.is(req.query.severityThreshold, 'medium');
+        t.equal(req.query.severityThreshold, 'medium');
 
         const res = err.message;
 
@@ -360,7 +360,7 @@ export const RubyTests: AcceptanceTests = {
         t.fail('should have thrown');
       } catch (err) {
         const req = params.server.popRequest();
-        t.is(req.query.severityThreshold, 'medium');
+        t.equal(req.query.severityThreshold, 'medium');
 
         const res = JSON.parse(err.message);
 
@@ -369,12 +369,12 @@ export const RubyTests: AcceptanceTests = {
           'test-result-medium-severity.json',
         );
 
-        t.deepEqual(
+        t.same(
           omit(res, ['vulnerabilities']),
           omit(expected, ['vulnerabilities']),
           'metadata is ok',
         );
-        t.deepEqual(
+        t.same(
           sortBy(res.vulnerabilities, 'id'),
           sortBy(expected.vulnerabilities, 'id'),
           'vulns are the same',
@@ -402,7 +402,7 @@ export const RubyTests: AcceptanceTests = {
         t.fail('should have thrown');
       } catch (err) {
         const req = params.server.popRequest();
-        t.is(req.query.severityThreshold, 'high');
+        t.equal(req.query.severityThreshold, 'high');
 
         const res = err.message;
 
@@ -435,7 +435,7 @@ export const RubyTests: AcceptanceTests = {
         t.fail('should have thrown');
       } catch (err) {
         const req = params.server.popRequest();
-        t.is(req.query.severityThreshold, 'high');
+        t.equal(req.query.severityThreshold, 'high');
 
         const res = JSON.parse(err.message);
 
@@ -444,12 +444,12 @@ export const RubyTests: AcceptanceTests = {
           'test-result-high-severity.json',
         );
 
-        t.deepEqual(
+        t.same(
           omit(res, ['vulnerabilities']),
           omit(expected, ['vulnerabilities']),
           'metadata is ok',
         );
-        t.deepEqual(
+        t.same(
           sortBy(res.vulnerabilities, 'id'),
           sortBy(expected.vulnerabilities, 'id'),
           'vulns are the same',
@@ -477,7 +477,7 @@ export const RubyTests: AcceptanceTests = {
         t.fail('should have thrown');
       } catch (err) {
         const req = params.server.popRequest();
-        t.is(req.query.severityThreshold, 'critical');
+        t.equal(req.query.severityThreshold, 'critical');
 
         const res = err.message;
 
@@ -510,7 +510,7 @@ export const RubyTests: AcceptanceTests = {
         t.fail('should have thrown');
       } catch (err) {
         const req = params.server.popRequest();
-        t.is(req.query.severityThreshold, 'critical');
+        t.equal(req.query.severityThreshold, 'critical');
 
         const res = JSON.parse(err.message);
 
@@ -519,12 +519,12 @@ export const RubyTests: AcceptanceTests = {
           'test-result-critical-severity.json',
         );
 
-        t.deepEqual(
+        t.same(
           omit(res, ['vulnerabilities']),
           omit(expected, ['vulnerabilities']),
           'metadata is ok',
         );
-        t.deepEqual(
+        t.same(
           sortBy(res.vulnerabilities, 'id'),
           sortBy(expected.vulnerabilities, 'id'),
           'vulns are the same',
@@ -552,12 +552,12 @@ export const RubyTests: AcceptanceTests = {
           'test-result.json',
         );
 
-        t.deepEqual(
+        t.same(
           omit(res, ['vulnerabilities']),
           omit(expected, ['vulnerabilities']),
           'metadata is ok',
         );
-        t.deepEqual(
+        t.same(
           sortBy(res.vulnerabilities, 'id'),
           sortBy(expected.vulnerabilities, 'id'),
           'vulns are the same',
@@ -590,12 +590,12 @@ export const RubyTests: AcceptanceTests = {
           'test-result-cloud-ignore.json',
         );
 
-        t.deepEqual(
+        t.same(
           omit(res, ['vulnerabilities']),
           omit(expected, ['vulnerabilities']),
           'metadata is ok',
         );
-        t.deepEqual(
+        t.same(
           sortBy(res.vulnerabilities, 'id'),
           sortBy(expected.vulnerabilities, 'id'),
           'vulns are the same',
@@ -621,7 +621,7 @@ export const RubyTests: AcceptanceTests = {
         'test-result.json',
       );
 
-      t.deepEqual(res, expected, '--json output is the same');
+      t.same(res, expected, '--json output is the same');
     },
 
     '`test ruby-app-no-vulns` public': (params, utils) => async (t) => {
@@ -646,7 +646,7 @@ export const RubyTests: AcceptanceTests = {
         { isPrivate: false },
       );
 
-      t.deepEqual(res, expected, '--json output is the same');
+      t.same(res, expected, '--json output is the same');
     },
 
     '`test` returns correct meta when target file specified': (

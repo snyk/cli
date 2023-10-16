@@ -42,7 +42,7 @@ export const DockerTests: AcceptanceTests = {
         'sends version number',
       );
       t.match(req.url, '/test-dependencies', 'posts to correct url');
-      t.deepEqual(
+      t.same(
         req.body,
         {
           scanResult: {
@@ -116,7 +116,7 @@ export const DockerTests: AcceptanceTests = {
         'sends version number',
       );
       t.match(req.url, '/test-dependencies', 'posts to correct url');
-      t.deepEqual(
+      t.same(
         req.body,
         {
           scanResult: {
@@ -255,7 +255,7 @@ export const DockerTests: AcceptanceTests = {
         'sends version number',
       );
       t.match(req.url, '/test-dependencies', 'posts to correct url');
-      t.deepEqual(
+      t.same(
         req.body,
         {
           scanResult: {
@@ -387,7 +387,7 @@ export const DockerTests: AcceptanceTests = {
         'sends version number',
       );
       t.match(req.url, '/test-dependencies', 'posts to correct url');
-      t.deepEqual(
+      t.same(
         req.body,
         {
           scanResult: {
@@ -462,7 +462,7 @@ export const DockerTests: AcceptanceTests = {
       });
       const req = params.server.popRequest();
       t.match(req.url, '/test-dependencies', 'posts to correct url');
-      t.deepEqual(
+      t.same(
         req.body,
         {
           scanResult: {
@@ -539,7 +539,7 @@ export const DockerTests: AcceptanceTests = {
         'sends version number',
       );
       t.match(req.url, '/test-dependencies', 'posts to correct url');
-      t.deepEqual(
+      t.same(
         req.body,
         {
           scanResult: {
@@ -753,7 +753,7 @@ export const DockerTests: AcceptanceTests = {
       const sarifResults = require(getFixturePath(
         'docker/sarif-container-result.json',
       ));
-      t.deepEqual(results, sarifResults, 'stdout containing sarif results');
+      t.same(results, sarifResults, 'stdout containing sarif results');
       t.end();
     },
 
@@ -769,7 +769,7 @@ export const DockerTests: AcceptanceTests = {
       const sarifResults = require(getFixturePath(
         'docker/sarif-with-file-container-result.json',
       ));
-      t.deepEqual(results, sarifResults, 'stdout containing sarif results');
+      t.same(results, sarifResults, 'stdout containing sarif results');
       t.end();
     },
 
@@ -785,7 +785,7 @@ export const DockerTests: AcceptanceTests = {
       const sarifStringifiedResults = JSON.parse(
         testableObject.sarifStringifiedResults,
       );
-      t.deepEqual(
+      t.same(
         results,
         sarifStringifiedResults,
         'stdout and stringified sarif results are the same',

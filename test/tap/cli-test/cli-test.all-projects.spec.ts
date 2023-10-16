@@ -351,29 +351,29 @@ export const AllProjectsTests: AcceptanceTests = {
     //         allProjects: true,
     //         detectionDepth: 7,
     //       });
-    //       t.equals(
+    //       t.equal(
     //         spyPlugin.withArgs('rubygems').callCount,
     //         19,
     //         'calls rubygems plugin 19 times',
     //       );
-    //       t.equals(
+    //       t.equal(
     //         spyPlugin.withArgs('npm').callCount,
     //         19,
     //         'calls npm plugin 19 times',
     //       );
-    //       t.equals(
+    //       t.equal(
     //         spyPlugin.withArgs('gradle').callCount,
     //         2,
     //         'calls gradle plugin 2 times',
     //       );
     //       // TODO: the mock does not contain the arguments the plugin is called with
     //       // review this
-    //       // t.equals(
+    //       // t.equal(
     //       //   spyPlugin.withArgs('gradle').args[0][1].allSubProjects,
     //       //   true,
     //       //   'calls gradle plugin with allSubProjects property',
     //       // );
-    //       t.equals(
+    //       t.equal(
     //         spyPlugin.withArgs('maven').callCount,
     //         6,
     //         'calls maven plugin 6 times',

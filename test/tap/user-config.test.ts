@@ -14,7 +14,7 @@ test('can unset config values', async (t) => {
       return config('set', 'foo=10');
     })
     .then(function(v) {
-      t.pass('value set', v);
+      t.pass('value set ' + v);
       return config('get', 'foo');
     })
     .then(function(value) {
@@ -46,7 +46,7 @@ test('can set config values with = inside', async (t) => {
       return config('set', 'foo=10=');
     })
     .then(function(v) {
-      t.pass('value set', v);
+      t.pass('value set ' + v);
       return config('get', 'foo');
     })
     .then(function(value) {

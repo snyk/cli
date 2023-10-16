@@ -68,7 +68,7 @@ export const NpmTests: AcceptanceTests = {
         'http://github.com/snyk/npm-package',
         'git remoteUrl is passed',
       );
-      t.equals(
+      t.equal(
         req.body.target.branch,
         'master',
         'correct branch passed to request',
@@ -92,7 +92,7 @@ export const NpmTests: AcceptanceTests = {
         'foo',
         'specified remoteUrl is passed',
       );
-      t.equals(
+      t.equal(
         req.body.target.branch,
         'master',
         'correct branch passed to request',
