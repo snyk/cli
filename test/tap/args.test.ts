@@ -111,7 +111,7 @@ test('test command line test --strict-out-of-sync=false', (t) => {
     '--strict-out-of-sync=false',
   ];
   const result = args(cliArgs);
-  t.equal(result.options.strictOutOfSync, false);
+  t.notOk(result.options.strictOutOfSync);
   t.end();
 });
 

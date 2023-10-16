@@ -60,13 +60,13 @@ const stubMeta: MonitorMeta = {
 test('isContainer returns false if image name is undefined', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProjectContainerWithNoImageName();
-  t.equal(container.isContainer(scannedProject), false);
+  t.notOk(container.isContainer(scannedProject));
 });
 
 test('isContainer returns false if image name is empty', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProjectContainerWithEmptyImageName();
-  t.equal(container.isContainer(scannedProject), false);
+  t.notOk(container.isContainer(scannedProject));
 });
 
 test('isContainer returns true if image name exists in meta', (t) => {
@@ -78,7 +78,7 @@ test('isContainer returns true if image name exists in meta', (t) => {
 test('isContainer returns false if meta is missing', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProject();
-  t.equal(container.isContainer(scannedProject), false);
+  t.notOk(container.isContainer(scannedProject));
 });
 
 test('getContainerTargetFile returns nothing if not a container project', (t) => {
