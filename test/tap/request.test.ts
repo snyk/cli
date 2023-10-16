@@ -21,7 +21,6 @@ afterEach((done) => {
   delete process.env.http_proxy;
   delete process.env.no_proxy;
   global.ignoreUnknownCA = false;
-  done();
 });
 
 test('request calls needle as expected and returns status code and body', (t) => {
