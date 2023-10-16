@@ -73,7 +73,7 @@ test('test without authentication', async (t) => {
     await cli.test('semver@2');
     t.fail('test should not pass if not authenticated');
   } catch (error) {
-    t.deepEquals(error.strCode, 'NO_API_TOKEN', 'string code is as expected');
+    t.same(error.strCode, 'NO_API_TOKEN', 'string code is as expected');
     t.match(
       error.message,
       '`snyk` requires an authenticated account. Please run `snyk auth` and try again.',
@@ -86,7 +86,7 @@ test('test without authentication', async (t) => {
 test('auth via key', async (t) => {
   try {
     const res = await cli.auth(apiKey);
-    t.notEqual(res.toLowerCase().indexOf('ready'), -1, 'snyk auth worked');
+    t.not(res.toLowerCase().indexOf('ready'), -1, 'snyk auth worked');
   } catch (e) {
     t.threw(e);
   }
@@ -261,7 +261,7 @@ test('snyk ignore - all options', async (t) => {
       'policy-path': dir,
     });
     const pol = await policy.load(dir);
-    t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
+    t.same(pol.ignore, fullPolicy, 'policy written correctly');
     clock.restore();
   } catch (err) {
     t.throws(err, 'ignore should succeed');
@@ -297,27 +297,29 @@ test('snyk ignore - default options', async (t) => {
       'policy-path': dir,
     });
     const pol = await policy.load(dir);
-    t.true(pol.ignore.ID3, 'policy ID written correctly');
-    t.is(
+    t.ok(pol.ignore.ID3, 'policy ID written correctly');
+    t.equal(
       pol.ignore.ID3[0]['*'].reason,
       'None Given',
       'policy (default) reason written correctly',
     );
     const expiryFromNow = pol.ignore.ID3[0]['*'].expires - Date.now();
     // not more than 30 days ahead, not less than (30 days - 1 minute)
-    t.true(
+    t.ok(
       expiryFromNow <= 30 * 24 * 60 * 60 * 1000 &&
         expiryFromNow >= 30 * 24 * 59 * 60 * 1000,
       'policy (default) expiry written correctly',
     );
-    t.strictEquals(
+    // in Tap 18, .equal() performs a strict equality check (===)
+    t.equal(
       pol.ignore.ID3[0]['*'].created.getTime(),
       new Date().getTime(),
       'created date is the current date',
     );
     clock.restore();
   } catch (e) {
-    t.fail(e, 'ignore should succeed');
+    t.fail('ignore should succeed');
+    throw e;
   }
 });
 
@@ -401,7 +403,7 @@ test('monitor --json no supported target files', async (t) => {
     }
 
     const keyList = ['error', 'path'];
-    t.equals(jsonResponse.ok, false, 'result is an error');
+    t.equal(jsonResponse.ok, false, 'result is an error');
 
     keyList.forEach((k) => {
       t.ok(get(jsonResponse, k, null), `${k} present`);

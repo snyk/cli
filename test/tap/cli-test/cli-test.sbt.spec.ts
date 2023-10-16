@@ -43,18 +43,18 @@ export const SbtTests: AcceptanceTests = {
           'sbt-simple-struts/legacy-res-json.json',
         ));
 
-        t.deepEqual(
+        t.same(
           omit(res, ['vulnerabilities', 'packageManager']),
           omit(expected, ['vulnerabilities', 'packageManager']),
           'metadata is ok',
         );
         // NOTE: decided to keep this discrepancy
-        t.is(
+        t.equal(
           res.packageManager,
           'sbt',
           'pacakgeManager is sbt, altough it was mavn with the legacy api',
         );
-        t.deepEqual(
+        t.same(
           sortBy(res.vulnerabilities, 'id'),
           sortBy(expected.vulnerabilities, 'id'),
           'vulns are the same',

@@ -32,7 +32,7 @@ test('request calls needle as expected and returns status code and body', (t) =>
   return request
     .makeRequest(payload)
     .then((response) => {
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',
@@ -70,7 +70,7 @@ test('request to localhost calls needle as expected', (t) => {
   return request
     .makeRequest(payload)
     .then((response) => {
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',
@@ -109,7 +109,7 @@ test('request with timeout calls needle as expected', (t) => {
   return request
     .makeRequest(payload)
     .then((response) => {
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',
@@ -151,7 +151,7 @@ test('request with query string calls needle as expected', (t) => {
   return request
     .makeRequest(payload)
     .then((response) => {
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',
@@ -190,7 +190,7 @@ test('request with json calls needle as expected', (t) => {
   return request
     .makeRequest(payload)
     .then((response) => {
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',
@@ -231,7 +231,7 @@ test('request with custom header calls needle as expected', (t) => {
   return request
     .makeRequest(payload)
     .then((response) => {
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',
@@ -271,7 +271,7 @@ test('request with https proxy calls needle as expected', (t) => {
   return request
     .makeRequest(payload)
     .then((response) => {
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',
@@ -320,7 +320,7 @@ test('request with http proxy calls needle as expected', (t) => {
   return request
     .makeRequest(payload)
     .then((response) => {
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',
@@ -360,7 +360,7 @@ test('request with no proxy calls needle as expected', (t) => {
   return request
     .makeRequest(payload)
     .then((response) => {
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',
@@ -399,7 +399,7 @@ test('request with insecure calls needle as expected', (t) => {
   return request
     .makeRequest(payload)
     .then((response) => {
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',
@@ -442,7 +442,7 @@ test('request rejects if needle fails', (t) => {
     .makeRequest(payload)
     .then(() => t.fail('should have failed'))
     .catch((e) => {
-      t.equals(e, 'Unexpected Error', 'rejects error');
+      t.equal(e, 'Unexpected Error', 'rejects error');
     });
 });
 
@@ -456,7 +456,7 @@ test('request calls needle as expected and will not update HTTP to HTTPS if envv
     .makeRequest(payload)
     .then((response) => {
       process.env.SNYK_HTTP_PROTOCOL_UPGRADE = '1';
-      t.deepEquals(
+      t.same(
         response,
         { res: { statusCode: 200 }, body: 'text' },
         'response ok',

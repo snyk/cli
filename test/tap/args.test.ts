@@ -12,7 +12,7 @@ test('test command line arguments', (t) => {
     '-Pjaxen',
   ];
   const result = args(cliArgs);
-  t.deepEqual(result.options._doubleDashArgs, ['-Paxis', '-Pjaxen']);
+  t.same(result.options._doubleDashArgs, ['-Paxis', '-Pjaxen']);
   t.end();
 });
 

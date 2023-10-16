@@ -48,14 +48,14 @@ test('Make sure that target is sent correctly', async (t) => {
     .resolves('master');
 
   const { data } = await getFakeServerRequestBody();
-  t.true(requestSpy.calledOnce, 'needle.request was not called once');
-  t.true(!isEmpty(data.target), 'target passed to request');
-  t.true(
+  t.ok(requestSpy.calledOnce, 'needle.request was not called once');
+  t.ok(!isEmpty(data.target), 'target passed to request');
+  t.ok(
     !isEmpty(data.targetFileRelativePath),
     'targetFileRelativePath passed to request',
   );
-  t.equals(data.target.branch, 'master', 'correct branch passed to request');
-  t.equals(
+  t.equal(data.target.branch, 'master', 'correct branch passed to request');
+  t.equal(
     data.target.remoteUrl,
     'http://github.com/snyk/project.git',
     'correct name passed to request',
@@ -75,8 +75,8 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
   const requestSpy = sinon.spy(requestLib, 'request');
   const { data } = await getFakeServerRequestBody();
 
-  t.true(requestSpy.calledOnce, 'needle.request was not called once');
-  t.true(isEmpty(data.target), 'empty target passed to request');
+  t.ok(requestSpy.calledOnce, 'needle.request was not called once');
+  t.ok(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
     'snyk' + path.sep + 'package-lock.json',
@@ -92,8 +92,8 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
   const requestSpy = sinon.spy(requestLib, 'request');
   const { data } = await getFakeServerRequestBody();
 
-  t.true(requestSpy.calledOnce, 'needle.request was not called once');
-  t.true(isEmpty(data.target), 'empty target passed to request');
+  t.ok(requestSpy.calledOnce, 'needle.request was not called once');
+  t.ok(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
     'snyk' + path.sep + 'package-lock.json',
