@@ -55,7 +55,7 @@ test/jest/acceptance/iac/ @snyk/cloud-dev-ex
 test/jest/acceptance/iac/describe.spec.ts @snyk/cloud-dev-ex
 test/jest/acceptance/iac/capture.spec.ts @snyk/cloud-dev-ex
 test/jest/acceptance/snyk-apps @snyk/moose
-src/lib/code-config.ts @snyk/nebula
+src/lib/code-config.ts @snyk/pulsar
 src/lib/errors/describe-required-argument-error.ts @snyk/cloud-dev-ex
 src/lib/errors/describe-exclusive-argument-error.ts @snyk/cloud-dev-ex
 src/lib/errors/no-supported-sast-files-found.ts @snyk/zenith

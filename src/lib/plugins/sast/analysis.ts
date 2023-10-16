@@ -39,6 +39,7 @@ type GetCodeAnalysisArgs = {
   };
   connectionOptions: {
     org?: string;
+    orgId?: string;
     source: string;
     baseURL: string;
     requestId: string;
@@ -102,6 +103,7 @@ export async function getCodeTestResults(
       source: 'snyk-cli',
       requestId,
       org: sastSettings.org,
+      orgId: config.orgId,
     },
     analysisOptions: {
       severity: options.severityThreshold
