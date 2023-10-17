@@ -12,7 +12,6 @@ import config from '../../lib/config';
 import { addIacDriftAnalytics } from './test/iac/local-execution/analytics';
 import * as analytics from '../../lib/analytics';
 import { findAndLoadPolicy } from '../../lib/policy';
-import help from './help';
 import { DCTL_EXIT_CODES, runDriftCTL } from '../../lib/iac/drift/driftctl';
 
 export default async (...args: MethodArgs): Promise<any> => {

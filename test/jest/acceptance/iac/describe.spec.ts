@@ -121,17 +121,14 @@ describe('iac describe', () => {
   });
 
   it('Launch driftctl from SNYK_DRIFTCTL_PATH with html output', async () => {
-    const { stdout, stderr, exitCode } = await run(
-      `snyk iac describe --html`,
-      {
-        SNYK_FIXTURE_OUTPUT_PATH: outputFile,
-        SNYK_DRIFTCTL_PATH: path.join(
-          getFixturePath('iac'),
-          'drift',
-          'args-echo.sh',
-        ),
-      },
-    );
+    const { stdout, stderr, exitCode } = await run(`snyk iac describe --html`, {
+      SNYK_FIXTURE_OUTPUT_PATH: outputFile,
+      SNYK_DRIFTCTL_PATH: path.join(
+        getFixturePath('iac'),
+        'drift',
+        'args-echo.sh',
+      ),
+    });
 
     const output = fs.readFileSync(outputFile).toString();
     const expectedPipedOutput = fs
