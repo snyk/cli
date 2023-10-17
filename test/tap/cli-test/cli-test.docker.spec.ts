@@ -196,7 +196,7 @@ export const DockerTests: AcceptanceTests = {
           msg,
           'From: apt/libapt-pkg5.0@1.6.3ubuntu0.1 > bzip2/libbz2-1.0@1.0.6-8.1',
         );
-        t.false(
+        t.notOk(
           msg.includes('vulnerable paths'),
           'docker should not includes number of vulnerable paths',
         );
@@ -421,7 +421,7 @@ export const DockerTests: AcceptanceTests = {
         'calls docker plugin with expected arguments',
       );
       const policyString = req.body.scanResult.policy;
-      t.false(policyString, 'policy not sent');
+      t.notOk(policyString, 'policy not sent');
     },
 
     '`test foo:latest --docker` supports custom policy': (
@@ -634,7 +634,7 @@ export const DockerTests: AcceptanceTests = {
           msg,
           'Info: https://security.snyk.io/vuln/SNYK-UPSTREAM-NODE-72359',
         );
-        t.false(
+        t.notOk(
           msg.includes('vulnerable paths'),
           'docker should not includes number of vulnerable paths',
         );
