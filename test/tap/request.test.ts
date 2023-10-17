@@ -15,7 +15,7 @@ const request = proxyquire('../../src/lib/request', {
   },
 });
 
-afterEach((done) => {
+afterEach(() => {
   needleStub.resetHistory();
   delete process.env.https_proxy;
   delete process.env.http_proxy;
