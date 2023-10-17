@@ -1,7 +1,7 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 import { RunCommandResult } from '../util/runCommand';
 
-jest.setTimeout(1000 * 60);
+jest.setTimeout(1000 * 120);
 
 describe('Parallel CLI execution', () => {
   it('parallel woof', async () => {

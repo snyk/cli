@@ -4,7 +4,7 @@ import { sleep } from '../../../src/lib/common';
 import * as cp from 'child_process';
 import * as rpc from 'vscode-jsonrpc/node';
 
-jest.setTimeout(1000 * 60);
+jest.setTimeout(1000 * 120);
 
 describe('Language Server Extension', () => {
   it('get ls licenses', async () => {

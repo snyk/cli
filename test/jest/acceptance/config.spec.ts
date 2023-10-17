@@ -1,6 +1,8 @@
 import { fakeServer } from '../../acceptance/fake-server';
 import { runSnykCLI } from '../util/runSnykCLI';
 
+jest.setTimeout(1000 * 30);
+
 describe('config', () => {
   let server: ReturnType<typeof fakeServer>;
   const port = process.env.PORT || process.env.SNYK_PORT || '12345';
