@@ -4,7 +4,6 @@ import {
   driftignoreFromPolicy,
   parseDriftAnalysisResults,
   updateExcludeInPolicy,
-  validateArgs,
 } from '../../../../../../src/lib/iac/drift';
 import envPaths from 'env-paths';
 import { EXIT_CODES } from '../../../../../../src/cli/exit-codes';
@@ -13,15 +12,12 @@ import * as path from 'path';
 import {
   DescribeOptions,
   DriftAnalysis,
-  DriftCTLOptions,
   GenDriftIgnoreOptions,
 } from '../../../../../../src/lib/iac/types';
 import { addIacDriftAnalytics } from '../../../../../../src/cli/commands/test/iac/local-execution/analytics';
 import * as analytics from '../../../../../../src/lib/analytics';
 import * as snykPolicy from 'snyk-policy';
 import { Policy } from '../../../../../../src/lib/policy/find-and-load-policy';
-import { DescribeRequiredArgumentError } from '../../../../../../src/lib/errors/describe-required-argument-error';
-import { DescribeExclusiveArgumentError } from '../../../../../../src/lib/errors/describe-exclusive-argument-error';
 import {
   DCTL_EXIT_CODES,
   driftctlVersion,
@@ -52,44 +48,6 @@ describe('driftctl integration', () => {
     ]);
   });
 
-  it('describe: --all enable deep mode', async () => {
-    {
-      const args = await generateArgs(
-        { kind: 'describe', all: true } as DescribeOptions,
-        [],
-      );
-      expect(args).toEqual([
-        'scan',
-        '--no-version-check',
-        '--output',
-        'json://stdout',
-        '--deep',
-        '--config-dir',
-        paths.cache,
-        '--to',
-        'aws+tf',
-      ]);
-    }
-
-    {
-      const args = await generateArgs(
-        { kind: 'describe', all: true, deep: true } as DescribeOptions,
-        [],
-      );
-      expect(args).toEqual([
-        'scan',
-        '--no-version-check',
-        '--output',
-        'json://stdout',
-        '--deep',
-        '--config-dir',
-        paths.cache,
-        '--to',
-        'aws+tf',
-      ]);
-    }
-  });
-
   it('describe: passing options generate correct arguments', async () => {
     const args = await generateArgs(
       {
@@ -99,7 +57,6 @@ describe('driftctl integration', () => {
         'tf-provider-version': 'tfproviderversion',
         'tfc-endpoint': 'tfcendpoint',
         'tfc-token': 'tfctoken',
-        deep: true,
         driftignore: 'driftignore',
         filter: 'filter',
         from: 'from',
@@ -107,8 +64,6 @@ describe('driftctl integration', () => {
         quiet: true,
         strict: true,
         to: 'to',
-        'only-managed': true,
-        'only-unmanaged': true,
       } as DescribeOptions,
       ['*', '!aws_s3_bucket'],
     );
@@ -129,9 +84,6 @@ describe('driftctl integration', () => {
       '--tf-provider-version',
       'tfproviderversion',
       '--strict',
-      '--deep',
-      '--only-managed',
-      '--only-unmanaged',
       '--driftignore',
       'driftignore',
       '--tf-lockfile',
@@ -168,24 +120,6 @@ describe('driftctl integration', () => {
       '--to',
       'aws+tf',
     ]);
-  });
-
-  it('describe: argument are validated correctly', async () => {
-    expect(() => {
-      validateArgs({ kind: 'describe' });
-    }).toThrow(new DescribeRequiredArgumentError());
-
-    expect(() => {
-      validateArgs({ kind: 'describe', all: true } as DriftCTLOptions);
-    }).not.toThrow();
-
-    expect(() => {
-      validateArgs({
-        kind: 'describe',
-        all: true,
-        drift: true,
-      } as DriftCTLOptions);
-    }).toThrow(new DescribeExclusiveArgumentError());
   });
 
   it('run driftctl: exit code is translated', () => {
@@ -227,23 +161,6 @@ describe('parseDriftAnalysisResults', () => {
           type: 'aws_iam_access_key',
         },
       ],
-      differences: [
-        {
-          res: {
-            id: 'AKIA5QYBVVD25KFXJHYJ',
-            type: 'aws_iam_access_key',
-          },
-          changelog: [
-            {
-              computed: false,
-              from: 'Active',
-              path: ['status'],
-              to: 'Inactive',
-              type: 'update',
-            },
-          ],
-        },
-      ],
       managed: [
         {
           id: 'AKIA5QYBVVD25KFXJHYJ',
@@ -254,17 +171,11 @@ describe('parseDriftAnalysisResults', () => {
           type: 'aws_iam_user',
         },
       ],
-      options: {
-        deep: true,
-        only_managed: false,
-        only_unmanaged: false,
-      },
       provider_name: 'AWS',
       provider_version: '2.18.5',
       scan_duration: 123,
       summary: {
         total_missing: 2,
-        total_changed: 1,
         total_iac_source_count: 3,
         total_managed: 2,
         total_resources: 6,
@@ -290,14 +201,14 @@ describe('drift analytics', () => {
 
   it('should add most of all drift analytics depending on a given analysis', () => {
     const addAnalyticsSpy = jest.spyOn(analytics, 'add');
-    const options: DescribeOptions = { kind: 'describe', deep: true };
+    const options: DescribeOptions = { kind: 'describe' };
     const driftAnalysisFile = fs.readFileSync(
       path.resolve(__dirname, `fixtures/driftctl-analysis.json`),
     );
     const analysis = parseDriftAnalysisResults(driftAnalysisFile.toString());
     addIacDriftAnalytics(analysis, options);
 
-    expect(addAnalyticsSpy).toHaveBeenCalledTimes(12);
+    expect(addAnalyticsSpy).toHaveBeenCalledTimes(11);
     expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-coverage', 33);
     expect(addAnalyticsSpy).toHaveBeenCalledWith(
       'iac-drift-total-resources',
@@ -309,7 +220,6 @@ describe('drift analytics', () => {
     );
     expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-total-managed', 2);
     expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-total-missing', 2);
-    expect(addAnalyticsSpy).toHaveBeenCalledWith('iac-drift-total-changed', 1);
     expect(addAnalyticsSpy).toHaveBeenCalledWith(
       'iac-drift-iac-source-count',
       3,
@@ -387,7 +297,6 @@ describe('updateExcludeInPolicy', () => {
       {},
       {
         'iac-drift': [
-          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
           'aws_iam_user.test-driftctl2',
           'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
           'aws_s3_bucket_policy.driftctl',
@@ -402,7 +311,6 @@ describe('updateExcludeInPolicy', () => {
       {
         foo: ['bar'],
         'iac-drift': [
-          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
           'aws_iam_user.test-driftctl2',
           'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
           'aws_s3_bucket_policy.driftctl',
@@ -416,7 +324,6 @@ describe('updateExcludeInPolicy', () => {
       {},
       {
         'iac-drift': [
-          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
           'aws_iam_user.test-driftctl2',
           'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
           'aws_s3_bucket_policy.driftctl',
@@ -437,22 +344,6 @@ describe('updateExcludeInPolicy', () => {
           'aws_s3_bucket.*',
           'aws_s3_bucket.name*',
           // Following exclude are the new ones
-          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
-          'aws_iam_user.test-driftctl2',
-          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
-          'aws_s3_bucket_policy.driftctl',
-          'aws_s3_bucket_notification.driftctl',
-        ],
-      },
-    ],
-    [
-      'with exclude changed option',
-      'policy-no-excludes.yml',
-      {
-        'exclude-changed': true,
-      },
-      {
-        'iac-drift': [
           'aws_iam_user.test-driftctl2',
           'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
           'aws_s3_bucket_policy.driftctl',
@@ -468,7 +359,6 @@ describe('updateExcludeInPolicy', () => {
       },
       {
         'iac-drift': [
-          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
           'aws_s3_bucket_policy.driftctl',
           'aws_s3_bucket_notification.driftctl',
         ],
@@ -482,7 +372,6 @@ describe('updateExcludeInPolicy', () => {
       },
       {
         'iac-drift': [
-          'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
           'aws_iam_user.test-driftctl2',
           'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
         ],
@@ -501,39 +390,14 @@ describe('Test describe output', () => {
     return fs.readFileSync(filePath, 'utf-8');
   };
 
-  it('test output for known analysis with --all', () => {
-    const analysis = JSON.parse(loadFile('alldeep.json'));
+  it('test output for known analysis', () => {
+    const analysis = JSON.parse(loadFile('all.json'));
     const options: DescribeOptions = {
       kind: 'describe',
-      all: true,
     };
     const hrAnalysis = getHumanReadableAnalysis(options, analysis);
 
-    const expectedOutput = loadFile('alldeep.console');
-    expect(hrAnalysis).toBe(expectedOutput);
-  });
-
-  it('test output for known analysis with --only-managed', () => {
-    const analysis = JSON.parse(loadFile('only-managed.json'));
-    const options: DescribeOptions = {
-      kind: 'describe',
-      'only-managed': true,
-    };
-    const hrAnalysis = getHumanReadableAnalysis(options, analysis);
-
-    const expectedOutput = loadFile('only-managed.console');
-    expect(hrAnalysis).toBe(expectedOutput);
-  });
-
-  it('test output for known analysis with --only-unmanaged', () => {
-    const analysis = JSON.parse(loadFile('only-unmanaged.json'));
-    const options: DescribeOptions = {
-      kind: 'describe',
-      'only-unmanaged': true,
-    };
-    const hrAnalysis = getHumanReadableAnalysis(options, analysis);
-
-    const expectedOutput = loadFile('only-unmanaged.console');
+    const expectedOutput = loadFile('all.console');
     expect(hrAnalysis).toBe(expectedOutput);
   });
 });

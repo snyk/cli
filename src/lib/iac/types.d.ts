@@ -14,7 +14,6 @@ export interface FmtOptions extends DriftCTLOptions {
 }
 
 export interface GenDriftIgnoreOptions {
-  'exclude-changed'?: boolean;
   'exclude-missing'?: boolean;
   'exclude-unmanaged'?: boolean;
 }
@@ -28,11 +27,6 @@ export interface DescribeOptions extends DriftCTLOptions {
   'tfc-endpoint'?: string;
   'tf-provider-version'?: string;
   strict?: true;
-  deep?: true;
-  'only-managed'?: true;
-  drift?: true;
-  'only-unmanaged'?: true;
-  all?: true;
   driftignore?: string;
   'tf-lockfile'?: string;
   'config-dir'?: string;
@@ -61,25 +55,10 @@ export type DriftResourceAttributes = Map<string, unknown>;
 
 export type DriftAnalysisSummary = {
   total_resources: number;
-  total_changed: number;
   total_unmanaged: number;
   total_missing: number;
   total_managed: number;
   total_iac_source_count: number;
-};
-
-export type DriftAnalysisDifference = {
-  res: DriftResource;
-  changelog: DriftChange[];
-};
-
-export type DriftChange = {
-  type: string;
-  path: string[];
-  from: unknown;
-  to: unknown;
-  computed: boolean;
-  json_string?: boolean;
 };
 
 export type DriftAlert = {
@@ -90,19 +69,11 @@ export type DriftAlerts = {
   [key: string]: DriftAlert[];
 };
 
-export type DriftAnalysisOptions = {
-  deep: boolean;
-  only_managed: boolean;
-  only_unmanaged: boolean;
-};
-
 export type DriftAnalysis = {
-  options: DriftAnalysisOptions;
   summary: DriftAnalysisSummary;
   managed?: DriftResource[];
   unmanaged?: DriftResource[];
   missing?: DriftResource[];
-  differences?: DriftAnalysisDifference[];
   alerts?: DriftAlerts;
   coverage: number;
   scan_duration: number;
@@ -112,10 +83,6 @@ export type DriftAnalysis = {
 
 interface AnalysisByType {
   count: number;
-}
-
-export interface DiffByType extends AnalysisByType {
-  diffByType: Map<string, DriftAnalysisDifference[]>;
 }
 
 export interface MissingByType extends AnalysisByType {

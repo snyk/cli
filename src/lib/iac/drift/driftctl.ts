@@ -14,7 +14,6 @@ import {
   createIgnorePattern,
   verifyServiceMappingExists,
 } from '../service-mappings';
-import { validateArgs } from '../drift';
 import * as debugLib from 'debug';
 import { makeRequest } from '../../request';
 import * as child_process from 'child_process';
@@ -150,14 +149,6 @@ const generateScanFlags = async (
     args.push('--strict');
   }
 
-  if (options.deep || options.all) {
-    args.push('--deep');
-  }
-
-  if (options['only-managed'] || options.drift) {
-    args.push('--only-managed');
-  }
-
   if (options['only-unmanaged']) {
     args.push('--only-unmanaged');
   }
@@ -238,24 +229,6 @@ export const runDriftCTL = async ({
   stdio?: StdioOptions;
 }): Promise<DriftctlExecutionResult> => {
   const path = await findOrDownload();
-  await validateArgs(options);
-
-  if (options.kind === 'describe') {
-    const descOptions = options as DescribeOptions;
-
-    if (
-      descOptions.deep ||
-      descOptions.all ||
-      descOptions['only-managed'] ||
-      descOptions.drift
-    ) {
-      process.stderr.write(
-        `DEPRECATION NOTICE: Drift detection of managed resources,\n` +
-          `including --only-managed and --drift has been deprecated.\n` +
-          `The end-of-life date for drift detection of managed resources is September 30. 2023.\n\n`,
-      );
-    }
-  }
 
   const args = await generateArgs(options, driftIgnore);
 

@@ -1,12 +1,6 @@
 {
-	"options": {
-		"deep": true,
-		"only_managed": false,
-		"only_unmanaged": false
-	},
 	"summary": {
 		"total_resources": 48,
-		"total_changed": 3,
 		"total_unmanaged": 35,
 		"total_missing": 5,
 		"total_managed": 8,
@@ -317,77 +311,6 @@
 				"namespace": "",
 				"internal_name": "lb_ec2_ro"
 			}
-		}
-	],
-	"differences": [
-		{
-			"res": {
-				"id": "arn:aws:iam::526954929923:policy/sqshandlingpolicy",
-				"type": "aws_iam_policy",
-				"source": {
-					"source": "tfstate://../driftctl/terraform.tfstate",
-					"namespace": "",
-					"internal_name": "sqshandlingpolicy"
-				}
-			},
-			"changelog": [
-				{
-					"type": "update",
-					"path": [
-						"policy"
-					],
-					"from": "{\"Statement\":[{\"Action\":[\"sqs:ReceiveMessage\",\"sqs:DeleteMessage\",\"sqs:GetQueueAttributes\"],\"Effect\":\"Allow\",\"Resource\":\"*\"}],\"Version\":\"2012-10-17\"}",
-					"to": "{\"Statement\":[{\"Action\":\"sqs:*\",\"Effect\":\"Allow\",\"Resource\":\"*\",\"Sid\":\"VisualEditor0\"}],\"Version\":\"2012-10-17\"}",
-					"computed": false
-				}
-			]
-		},
-		{
-			"res": {
-				"id": "bucketwithenvtag",
-				"type": "aws_s3_bucket",
-				"source": {
-					"source": "tfstate://../driftctl/terraform.tfstate",
-					"namespace": "",
-					"internal_name": "bucket-with-env-tag"
-				}
-			},
-			"changelog": [
-				{
-					"type": "create",
-					"path": [
-						"tags",
-						"ThisTagIsNew"
-					],
-					"from": null,
-					"to": "True",
-					"computed": false
-				}
-			]
-		},
-		{
-			"res": {
-				"id": "bucketwithouttags",
-				"type": "aws_s3_bucket",
-				"source": {
-					"source": "tfstate://../driftctl/terraform.tfstate",
-					"namespace": "",
-					"internal_name": "bucket-without-tags"
-				}
-			},
-			"changelog": [
-				{
-					"type": "create",
-					"path": [
-						"tags"
-					],
-					"from": null,
-					"to": {
-						"Environement": "Prod"
-					},
-					"computed": false
-				}
-			]
 		}
 	],
 	"coverage": 16,

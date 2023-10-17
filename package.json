@@ -84,7 +84,6 @@
     "glob": "^7.1.7",
     "global-agent": "^2.1.12",
     "jest-json-schema": "^6.1.0",
-    "jsondiffpatch": "^0.4.1",
     "lodash.assign": "^4.2.0",
     "lodash.camelcase": "^4.3.0",
     "lodash.capitalize": "^4.2.1",

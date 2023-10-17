@@ -91,7 +91,6 @@ export function addIacDriftAnalytics(
   analytics.add('iac-drift-total-unmanaged', analysis.summary.total_unmanaged);
   analytics.add('iac-drift-total-managed', analysis.summary.total_managed);
   analytics.add('iac-drift-total-missing', analysis.summary.total_missing);
-  analytics.add('iac-drift-total-changed', analysis.summary.total_changed);
   analytics.add(
     'iac-drift-iac-source-count',
     analysis.summary.total_iac_source_count,

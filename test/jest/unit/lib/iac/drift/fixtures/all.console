@@ -3,55 +3,6 @@
   Info:    Resources under IaC, but different to terraform states.
   Resolve: Reapply IaC resources or update into terraform.
 
-[1mChanged resources: 3[22m
-
-[34mState: [1mtfstate://../driftctl/terraform.tfstate[22m [ Changed Resources: [1m3[22m ][39m
-
-  Resource Type: aws_iam_policy
-    ID: [1marn:aws:iam::526954929923:policy/sqshandlingpolicy[22m
-    [33m~[39m policy:
-    {
-      Statement: [
-        0: {
-          Action: [31m[[39m
-    [31m        "sqs:ReceiveMessage",[39m
-    [31m        "sqs:DeleteMessage",[39m
-    [31m        "sqs:GetQueueAttributes"[39m
-    [31m      ][39m => [32m"sqs:*"[39m
-          [90mEffect: [39m[90m"Allow"[39m
-          [90mResource: [39m[90m"*"[39m
-          [32mSid: [39m[32m"VisualEditor0"[39m
-        }
-      ]
-      [90mVersion: [39m[90m"2012-10-17"[39m
-    }
-
-  Resource Type: aws_s3_bucket
-    ID: [1mbucketwithenvtag[22m
-    [32m+[39m tags.ThisTagIsNew: [1mnull[22m => [32mTrue[39m
-
-    ID: [1mbucketwithouttags[22m
-    [32m+[39m tags: [1mnull[22m => [32m{"Environement":"Prod"}[39m
-
-[1mMissing resources: 5[22m
-
-[34mState: [1mGenerated[22m [ Missing Resources: [1m2[22m ][39m
-
-  Resource Type: aws_iam_policy_attachment
-    ID: [1mloadbalancer-arn:aws:iam::526954929923:policy/s3listingpolicy[22m
-    ID: [1mloadbalancer-arn:aws:iam::526954929923:policy/sqshandlingpolicy[22m
-
-[34mState: [1mtfstate://../driftctl/terraform.tfstate[22m [ Missing Resources: [1m3[22m ][39m
-
-  Resource Type: aws_iam_access_key
-    ID: [1mAKIAXVMHWD4BSY5AP345[22m
-
-  Resource Type: aws_iam_user
-    ID: [1mloadbalancer[22m
-
-  Resource Type: aws_iam_user_policy
-    ID: [1mloadbalancer:lb_ec2_ro[22m
-
 [1mUnmanaged resources: 35[22m
 
 [34mService: [1mUnidentified[22m [ Unmanaged Resources: [1m2[22m ][39m
@@ -133,10 +84,28 @@
   Resource Type: aws_internet_gateway
     ID: [1migw-037afbaa8a4926de5[22m
 
+[1mMissing resources: 5[22m
+
+[34mState: [1mGenerated[22m [ Missing Resources: [1m2[22m ][39m
+
+  Resource Type: aws_iam_policy_attachment
+    ID: [1mloadbalancer-arn:aws:iam::526954929923:policy/s3listingpolicy[22m
+    ID: [1mloadbalancer-arn:aws:iam::526954929923:policy/sqshandlingpolicy[22m
+
+[34mState: [1mtfstate://../driftctl/terraform.tfstate[22m [ Missing Resources: [1m3[22m ][39m
+
+  Resource Type: aws_iam_access_key
+    ID: [1mAKIAXVMHWD4BSY5AP345[22m
+
+  Resource Type: aws_iam_user
+    ID: [1mloadbalancer[22m
+
+  Resource Type: aws_iam_user_policy
+    ID: [1mloadbalancer:lb_ec2_ro[22m
+
 [1mTest Summary[22m
 
   Managed Resources: [1m8[22m
-  Changed Resources: [1m3[22m
   Missing Resources: [1m5[22m
   Unmanaged Resources: [1m35[22m
 

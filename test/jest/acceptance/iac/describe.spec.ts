@@ -48,7 +48,7 @@ describe('iac describe', () => {
 
   it('describe fail without the right entitlement', async () => {
     const { stdout, stderr, exitCode } = await run(
-      `snyk iac describe --all --org=no-iac-drift-entitlements`,
+      `snyk iac describe --org=no-iac-drift-entitlements`,
       {
         SNYK_DRIFTCTL_PATH: './iac/drift/args-echo',
       },
@@ -66,7 +66,7 @@ describe('iac describe', () => {
   }
 
   it('Test when driftctl scan exit in error', async () => {
-    const { stdout, stderr, exitCode } = await run(`snyk iac describe  --all`, {
+    const { stdout, stderr, exitCode } = await run(`snyk iac describe`, {
       SNYK_FIXTURE_OUTPUT_PATH: outputFile,
       DCTL_EXIT_CODE: '2',
       SNYK_DRIFTCTL_PATH: path.join(
@@ -82,7 +82,7 @@ describe('iac describe', () => {
   });
 
   it('Launch driftctl from SNYK_DRIFTCTL_PATH env var when org has the entitlement', async () => {
-    const { stdout, stderr, exitCode } = await run(`snyk iac describe  --all`, {
+    const { stdout, stderr, exitCode } = await run(`snyk iac describe`, {
       SNYK_FIXTURE_OUTPUT_PATH: outputFile,
       SNYK_DRIFTCTL_PATH: path.join(
         getFixturePath('iac'),
@@ -96,7 +96,7 @@ describe('iac describe', () => {
     // First invocation of driftctl scan triggered by describe cmd
     expect(output).toContain('DCTL_IS_SNYK=true');
     expect(output).toContain(
-      `ARGS=scan --no-version-check --output json://stdout --deep --config-dir ${paths.cache} --to aws+tf`,
+      `ARGS=scan --no-version-check --output json://stdout --config-dir ${paths.cache} --to aws+tf`,
     );
 
     // no second invocation with console output
@@ -106,9 +106,23 @@ describe('iac describe', () => {
     expect(exitCode).toBe(0);
   });
 
+  it('Download and launch driftctl when executable is not found and org has the entitlement', async () => {
+    const cachedir = path.join(os.tmpdir(), 'driftctl_download_' + Date.now());
+    const { stderr, exitCode } = await run(`snyk iac describe`, {
+      SNYK_DRIFTCTL_URL: apiUrl + '/download/driftctl',
+      SNYK_CACHE_PATH: cachedir,
+    });
+
+    expect(stderr).toMatch('download ok');
+    expect(exitCode).toBe(2);
+    expect(
+      fs.existsSync(path.join(cachedir, 'driftctl_' + driftctlVersion)),
+    ).toBe(true);
+  });
+
   it('Launch driftctl from SNYK_DRIFTCTL_PATH with html output', async () => {
     const { stdout, stderr, exitCode } = await run(
-      `snyk iac describe  --all --html`,
+      `snyk iac describe --html`,
       {
         SNYK_FIXTURE_OUTPUT_PATH: outputFile,
         SNYK_DRIFTCTL_PATH: path.join(
@@ -129,7 +143,7 @@ describe('iac describe', () => {
     // First invocation of driftctl scan triggered by describe cmd
     expect(output).toContain('DCTL_IS_SNYK=true');
     expect(output).toContain(
-      `ARGS=scan --no-version-check --output json://stdout --deep --config-dir ${paths.cache} --to aws+tf`,
+      `ARGS=scan --no-version-check --output json://stdout --config-dir ${paths.cache} --to aws+tf`,
     );
 
     // Second invocation of driftctl fmt triggered by describe cmd
@@ -159,8 +173,8 @@ describe('iac describe', () => {
     });
 
     it('Launch driftctl with html output format', async () => {
-      const { stdout, stderr, exitCode } = await run(
-        `snyk iac describe --all --html-file-output=${htmlFile}`,
+      const { stdout, exitCode } = await run(
+        `snyk iac describe --html-file-output=${htmlFile}`,
         {
           SNYK_FIXTURE_OUTPUT_PATH: outputFile,
           SNYK_DRIFTCTL_PATH: path.join(
@@ -172,7 +186,6 @@ describe('iac describe', () => {
       );
 
       expect(stdout).toBe('');
-      expect(stderr).toContain('DEPRECATION NOTICE');
       expect(exitCode).toBe(0);
 
       const output = fs.readFileSync(outputFile).toString();
@@ -180,7 +193,7 @@ describe('iac describe', () => {
       // First invocation of driftctl scan triggered by describe cmd
       expect(output).toContain('DCTL_IS_SNYK=true');
       expect(output).toContain(
-        `ARGS=scan --no-version-check --output json://stdout --deep --config-dir ${paths.cache} --to aws+tf`,
+        `ARGS=scan --no-version-check --output json://stdout --config-dir ${paths.cache} --to aws+tf`,
       );
 
       // Second invocation of driftctl fmt triggered by describe cmd
@@ -189,20 +202,6 @@ describe('iac describe', () => {
         `ARGS=fmt --no-version-check --output html://${htmlFile}`,
       );
     });
-  });
-
-  it('Download and launch driftctl when executable is not found and org has the entitlement', async () => {
-    const cachedir = path.join(os.tmpdir(), 'driftctl_download_' + Date.now());
-    const { stderr, exitCode } = await run(`snyk iac describe --all`, {
-      SNYK_DRIFTCTL_URL: apiUrl + '/download/driftctl',
-      SNYK_CACHE_PATH: cachedir,
-    });
-
-    expect(stderr).toMatch('download ok');
-    expect(exitCode).toBe(2);
-    expect(
-      fs.existsSync(path.join(cachedir, 'driftctl_' + driftctlVersion)),
-    ).toBe(true);
   });
 });
 

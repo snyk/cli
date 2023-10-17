@@ -3,60 +3,13 @@ import {
   DescribeOptions,
   DriftAnalysis,
   DriftctlExecutionResult,
-  DriftCTLOptions,
   GenDriftIgnoreOptions,
 } from './types';
 import { Policy } from '../policy/find-and-load-policy';
-import { DescribeExclusiveArgumentError } from '../errors/describe-exclusive-argument-error';
-import { DescribeRequiredArgumentError } from '../errors/describe-required-argument-error';
 import snykLogoSVG from './assets/snyk-logo';
 import snykFaviconBase64 from './assets/snyk-favicon';
 import { getHumanReadableAnalysis } from './drift/output';
 import { runDriftCTL } from './drift/driftctl';
-
-export const DescribeExclusiveArgs = [
-  'all',
-  'only-managed',
-  'drift',
-  'only-unmanaged',
-];
-
-export const DescribeRequiredArgs = [
-  'all',
-  'only-managed',
-  'drift',
-  'only-unmanaged',
-];
-
-export const validateArgs = (options: DriftCTLOptions): void => {
-  if (options.kind === 'describe') {
-    return validateDescribeArgs(options as DescribeOptions);
-  }
-};
-
-const validateDescribeArgs = (options: DescribeOptions): void => {
-  // Check that there is no more than one of the exclusive arguments
-  let count = 0;
-  for (const describeExclusiveArg of DescribeExclusiveArgs) {
-    if (options[describeExclusiveArg]) {
-      count++;
-    }
-  }
-  if (count > 1) {
-    throw new DescribeExclusiveArgumentError();
-  }
-
-  // Check we have one of the required arguments
-  count = 0;
-  for (const describeRequiredArgs of DescribeRequiredArgs) {
-    if (options[describeRequiredArgs]) {
-      count++;
-    }
-  }
-  if (count === 0) {
-    throw new DescribeRequiredArgumentError();
-  }
-};
 
 export const parseDriftAnalysisResults = (input: string): DriftAnalysis => {
   return JSON.parse(input) as DriftAnalysis;
@@ -77,10 +30,6 @@ export const updateExcludeInPolicy = (
 ): void => {
   const excludedResources = driftignoreFromPolicy(policy);
   const addResource = (res) => excludedResources.push(`${res.type}.${res.id}`);
-
-  if (!options['exclude-changed'] && analysis.summary.total_changed > 0) {
-    analysis.differences?.forEach((change) => addResource(change.res));
-  }
 
   if (!options['exclude-missing'] && analysis.summary.total_missing > 0) {
     analysis.missing?.forEach((res) => addResource(res));
