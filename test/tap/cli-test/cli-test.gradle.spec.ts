@@ -72,7 +72,7 @@ export const GradleTests: AcceptanceTests = {
       const res = commandResult.getDisplayResults();
       const meta = res.slice(res.indexOf('Organization:')).split('\n');
 
-      t.false(
+      t.notOk(
         ((spyPlugin.args[0] as any)[2] as any).allSubProjects,
         '`allSubProjects` option is not sent',
       );
