@@ -247,7 +247,7 @@ export const NpmTests: AcceptanceTests = {
         });
         t.fail('Should fail');
       } catch (e) {
-        t.includes(
+        t.match(
           e.message,
           '--file=package.json',
           'Contains enough info about err',

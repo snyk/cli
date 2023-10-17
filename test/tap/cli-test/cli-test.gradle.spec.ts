@@ -264,7 +264,7 @@ export const GradleTests: AcceptanceTests = {
           'target file displayed',
         );
         t.match(meta[3], /Project name:\s+tree/, 'sub-project displayed');
-        t.includes(meta[3], `tree${i}`, 'sub-project displayed');
+        t.match(meta[3], `tree${i}`, 'sub-project displayed');
         t.match(meta[4], /Open source:\s+no/, 'open source displayed');
         t.match(meta[5], /Project path:\s+gradle-app/, 'path displayed');
         t.notMatch(
