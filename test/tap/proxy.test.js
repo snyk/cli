@@ -137,11 +137,13 @@ test('request respects proxy environment variables', async (t) => {
 
     proxy.listen(proxyPort);
     try {
-      const result = await makeRequest({
+      await makeRequest({
         method: 'post',
         url: httpRequestHost + requestPath,
       });
-    } catch (e) {}
+    } catch (e) {
+      // an exception is expected
+    }
     proxy.close();
   });
 
@@ -184,11 +186,13 @@ test('request respects proxy environment variables', async (t) => {
 
     proxy.listen(proxyPort);
     try {
-      const result = await makeRequest({
+      await makeRequest({
         method: 'post',
         url: httpRequestHost + requestPath,
       });
-    } catch (e) {}
+    } catch (e) {
+      // an exception is expected
+    }
     proxy.close();
   });
 });
