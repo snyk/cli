@@ -1077,10 +1077,13 @@ jobs:
       - run:
           name: Checking Snyk CLI
           shell: bash
+          environment:
+            SNYK_DISABLE_ANALYTICS: 1
           command: |
             PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests || PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests 
             python scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >>  $(cat binary-releases/version) || python3 scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >> $(cat binary-releases/version)
-            SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk whoami --experimental
+            SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk whoami --experimental -d
+            SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk legacycli -d
 
   release-s3:
     executor: docker-amd64
