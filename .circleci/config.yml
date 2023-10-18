@@ -214,27 +214,6 @@ commands:
           os: win
       - install-deps-windows-signing
 
-  install-deps-windows-node:
-    steps:
-      - restore_cache:
-          name: Restoring Chocolatey cache
-          keys:
-            - chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-      - run:
-          name: Install Windows dependencies
-          shell: bash.exe
-          command: |
-            choco uninstall nodejs -y
-            choco uninstall nodejs.install -y
-            choco install nodejs --version=$(head .nvmrc) --no-progress -y
-            echo "Installed Node.js version:"
-            node -v
-      - save_cache:
-          name: Saving Chocolatey cache
-          key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-          paths:
-            - ~\AppData\Local\Temp\chocolatey
-
   install-deps-noop:
     steps:
       - run:
