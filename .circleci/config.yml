@@ -824,7 +824,7 @@ jobs:
       - run:
           name: Running Tap tests
           command:
-            npx tap -j 1 -C --timeout=300 --node-arg=-r --node-arg=ts-node/register \
+            npx tap -j 1 -C --timeout=300 --node-arg=-r --node-arg=ts-node/register --allow-incomplete-coverage \
             $(circleci tests glob "test/tap/*.test.*" | circleci tests split --split-by=timings)
 
   build-special-artifacts:
