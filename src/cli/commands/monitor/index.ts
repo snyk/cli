@@ -40,7 +40,6 @@ import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { getContributors } from '../../../lib/monitor/dev-count-analysis';
 import {
   FailedToRunTestError,
-  MonitorError,
   MissingArgError,
   ValidationError,
 } from '../../../lib/errors';
@@ -49,7 +48,12 @@ import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
 import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 import { processCommandArgs } from '../process-command-args';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
-
+import {
+  cliOutputFormatter,
+} from '../../../lib/formatters/cliErrorFormatter';
+import {
+  UnableToCreateMonitorError
+} from "@snyk/error-catalog-nodejs-public/src/catalogs/CLI-error-catalog";
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
 const appVulnsReleaseWarningMsg = `${theme.icon.WARNING} Important: Beginning January 24th, 2023, application dependencies in container
@@ -231,7 +235,10 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
         failedResults.forEach((result) => {
           results.push({
             ok: false,
-            data: new MonitorError(500, result.errMessage),
+            data: new UnableToCreateMonitorError(
+              'Unexpected issues when fetching dependancies from plugin',
+              { result },
+            ),
             path: result.targetFile || '',
           });
         });
@@ -305,7 +312,13 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
         } catch (err) {
           // pushing this error allow this inner loop to keep scanning the projects
           // even if 1 in 100 fails
-          results.push({ ok: false, data: err, path });
+          results.push({
+            ok: false,
+            data: new UnableToCreateMonitorError('Error creating monitor', {
+              err,
+            }),
+            path,
+          });
         }
       }
     } catch (err) {
@@ -325,17 +338,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       if (res.ok) {
         return res.data;
       }
-
-      const errorMessage =
-        res.data && res.data.userMessage
-          ? chalk.bold.red(res.data.userMessage)
-          : res.data
-          ? res.data.message
-          : 'Unknown error occurred.';
-
-      return (
-        chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') + errorMessage
-      );
+      return cliOutputFormatter.error(res.data);
     })
     .join('\n' + SEPARATOR);
 

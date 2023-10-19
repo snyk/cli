@@ -4,7 +4,6 @@ export { MissingTargetFileError } from './missing-targetfile-error';
 export { NoSupportedManifestsFoundError } from './no-supported-manifests-found';
 export { NoSupportedSastFiles } from './no-supported-sast-files-found';
 export { CustomError } from './custom-error';
-export { MonitorError } from './monitor-error';
 export { ValidationError } from './validation-error';
 export { ConnectionTimeoutError } from './connection-timeout-error';
 export { FailedToLoadPolicyError } from './failed-to-load-policy-error';

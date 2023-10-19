@@ -9,11 +9,7 @@ import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
 import { formatErrorMonitorOutput, formatMonitorOutput } from '../formatters';
 import { getExtraProjectCount } from '../plugins/get-extra-project-count';
-import {
-  AuthFailedError,
-  DockerImageNotFoundError,
-  MonitorError,
-} from '../errors';
+import { AuthFailedError, DockerImageNotFoundError } from '../errors';
 import {
   Ecosystem,
   ScanResult,
@@ -33,6 +29,11 @@ import {
 } from '../../cli/commands/monitor';
 import { isUnmanagedEcosystem } from './common';
 import { findAndLoadPolicy } from '../policy';
+import {
+  cliOutputFormatter,
+  isErrorOfTypeProblemError,
+} from '../formatters/cliErrorFormatter';
+import { UnableToCreateMonitorError } from '@snyk/error-catalog-nodejs-public/src/catalogs/CLI-error-catalog';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -165,7 +166,14 @@ async function monitorDependencies(
           throw AuthFailedError();
         }
         if (error.code >= 400 && error.code < 500) {
-          throw new MonitorError(error.code, error.message);
+          throw new UnableToCreateMonitorError(
+            'Could not monitor dependencies in ' + path,
+            {
+              error: error.message,
+              path,
+              scanResult,
+            },
+          );
         }
         errors.push({
           error: 'Could not monitor dependencies in ' + path,
@@ -218,7 +226,10 @@ export async function getFormattedMonitorOutput(
   for (const monitorError of errors) {
     results.push({
       ok: false,
-      data: new MonitorError(500, monitorError.error),
+      data: new UnableToCreateMonitorError(
+        'Unable to create monitor for ' + monitorError.path,
+        monitorError,
+      ),
       path: monitorError.path,
     });
   }
@@ -228,17 +239,7 @@ export async function getFormattedMonitorOutput(
       if (res.ok) {
         return res.data;
       }
-
-      const errorMessage =
-        res.data && res.data.userMessage
-          ? chalk.bold.red(res.data.userMessage)
-          : res.data
-          ? res.data.message
-          : 'Unknown error occurred.';
-
-      return (
-        chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') + errorMessage
-      );
+      return cliOutputFormatter.error(res.data);
     })
     .join('\n' + SEPARATOR);
 

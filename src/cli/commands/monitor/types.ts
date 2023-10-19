@@ -1,4 +1,4 @@
-import { MonitorError } from '../../../lib/errors';
+import { ProblemError } from '@snyk/error-catalog-nodejs-public';
 
 export interface GoodResult {
   ok: true;
@@ -9,6 +9,6 @@ export interface GoodResult {
 
 export interface BadResult {
   ok: false;
-  data: MonitorError;
+  data: ProblemError;
   path: string;
 }

@@ -21,7 +21,6 @@ import {
 } from '../types';
 import * as projectMetadata from '../project-metadata';
 import {
-  MonitorError,
   ConnectionTimeoutError,
   FailedToRunTestError,
   errorMessageWithRetry,
@@ -43,6 +42,7 @@ import {
   getTargetFile,
 } from './utils';
 import { countPathsToGraphRoot } from '../utils';
+import { UnableToCreateMonitorError } from '@snyk/error-catalog-nodejs-public/src/catalogs/CLI-error-catalog';
 
 const debug = Debug('snyk');
 
@@ -269,7 +269,10 @@ async function monitorDepTree(
     if (!userMessage && res.statusCode === 504) {
       throw new ConnectionTimeoutError();
     } else {
-      throw new MonitorError(res.statusCode, userMessage);
+      throw new UnableToCreateMonitorError(
+        'Unable to create monitor, unexpected error from API',
+        { userMessage, path: '/monitor/' + packageManager, target },
+      );
     }
   }
 }
@@ -384,7 +387,11 @@ export async function monitorDepGraph(
     if (!userMessage && res.statusCode === 504) {
       throw new ConnectionTimeoutError();
     } else {
-      throw new MonitorError(res.statusCode, userMessage);
+      throw new UnableToCreateMonitorError(userMessage, {
+        url: `${config.API}/monitor/${packageManager}/graph`,
+        method: 'PUT',
+        response: res.body,
+      });
     }
   }
 }
@@ -518,7 +525,10 @@ async function monitorDepGraphFromDepTree(
     if (!userMessage && res.statusCode === 504) {
       throw new ConnectionTimeoutError();
     } else {
-      throw new MonitorError(res.statusCode, userMessage);
+      throw new UnableToCreateMonitorError(
+        'Unexpected error when posting depGraph to Snyk API',
+        { userMessage, path: `/monitor/${packageManager}/graph`, target },
+      );
     }
   }
 }

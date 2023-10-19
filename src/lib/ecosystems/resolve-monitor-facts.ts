@@ -10,8 +10,9 @@ import {
   pollingMonitorWithTokenUntilDone,
 } from '../polling/polling-monitor';
 import { extractAndApplyPluginAnalytics } from './plugin-analytics';
-import { AuthFailedError, MonitorError } from '../errors';
+import { AuthFailedError } from '../errors';
 import { extractResolutionMetaFromScanResult } from '../polling/common';
+import { UnableToCreateMonitorError } from '@snyk/error-catalog-nodejs-public/src/catalogs/CLI-error-catalog';
 
 export async function resolveAndMonitorFacts(
   scans: {
@@ -58,7 +59,10 @@ export async function resolveAndMonitorFacts(
         }
 
         if (error.code >= 400 && error.code < 500) {
-          throw new MonitorError(error.code, error.message);
+          throw new UnableToCreateMonitorError(
+            'Could not monitor dependencies in ' + path,
+            error,
+          );
         }
         errors.push({
           error: 'Could not monitor dependencies in ' + path,
