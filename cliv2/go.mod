@@ -13,7 +13,7 @@ require (
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
 	github.com/snyk/cli-extension-sbom v0.0.0-20230926124903-9705d7d47d8f
 	github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f
-	github.com/snyk/go-application-framework v0.0.0-20231020092822-0fc994b2fd59
+	github.com/snyk/go-application-framework v0.0.0-20231020152829-1d64d967af62
 	github.com/snyk/go-httpauth v0.0.0-20230925093100-dfb05155efc1
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20231018080541-3a486664f5ac
