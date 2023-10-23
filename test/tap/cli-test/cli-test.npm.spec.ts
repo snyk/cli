@@ -68,7 +68,7 @@ export const NpmTests: AcceptanceTests = {
         'http://github.com/snyk/npm-package',
         'git remoteUrl is passed',
       );
-      t.equals(
+      t.equal(
         req.body.target.branch,
         'master',
         'correct branch passed to request',
@@ -92,7 +92,7 @@ export const NpmTests: AcceptanceTests = {
         'foo',
         'specified remoteUrl is passed',
       );
-      t.equals(
+      t.equal(
         req.body.target.branch,
         'master',
         'correct branch passed to request',
@@ -247,7 +247,7 @@ export const NpmTests: AcceptanceTests = {
         });
         t.fail('Should fail');
       } catch (e) {
-        t.includes(
+        t.match(
           e.message,
           '--file=package.json',
           'Contains enough info about err',

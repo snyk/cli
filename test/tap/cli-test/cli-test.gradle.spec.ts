@@ -72,7 +72,7 @@ export const GradleTests: AcceptanceTests = {
       const res = commandResult.getDisplayResults();
       const meta = res.slice(res.indexOf('Organization:')).split('\n');
 
-      t.false(
+      t.notOk(
         ((spyPlugin.args[0] as any)[2] as any).allSubProjects,
         '`allSubProjects` option is not sent',
       );
@@ -110,7 +110,7 @@ export const GradleTests: AcceptanceTests = {
       await params.cli.test('gradle-app', {
         allSubProjects: true,
       });
-      t.true(((spyPlugin.args[0] as any)[2] as any).allSubProjects);
+      t.ok(((spyPlugin.args[0] as any)[2] as any).allSubProjects);
     },
     '`test gradle-app --all-sub-projects` with policy': (
       params,
@@ -130,7 +130,7 @@ export const GradleTests: AcceptanceTests = {
       await params.cli.test('gradle-app', {
         allSubProjects: true,
       });
-      t.true(((spyPlugin.args[0] as any)[2] as any).allSubProjects);
+      t.ok(((spyPlugin.args[0] as any)[2] as any).allSubProjects);
 
       let policyCount = 0;
       params.server
@@ -229,7 +229,7 @@ export const GradleTests: AcceptanceTests = {
         allSubProjects: true,
       });
       const res = commandResult.getDisplayResults();
-      t.true(
+      t.ok(
         ((spyPlugin.args[0] as any)[2] as any).allSubProjects,
         '`allSubProjects` option is sent',
       );
@@ -237,7 +237,7 @@ export const GradleTests: AcceptanceTests = {
       const tests = res
         .split('Testing gradle-app...')
         .filter((s) => !!s.trim());
-      t.equals(tests.length, 2, 'two projects tested independently');
+      t.equal(tests.length, 2, 'two projects tested independently');
       t.match(
         res,
         /Tested 2 projects/,
@@ -264,7 +264,7 @@ export const GradleTests: AcceptanceTests = {
           'target file displayed',
         );
         t.match(meta[3], /Project name:\s+tree/, 'sub-project displayed');
-        t.includes(meta[3], `tree${i}`, 'sub-project displayed');
+        t.match(meta[3], `tree${i}`, 'sub-project displayed');
         t.match(meta[4], /Open source:\s+no/, 'open source displayed');
         t.match(meta[5], /Project path:\s+gradle-app/, 'path displayed');
         t.notMatch(

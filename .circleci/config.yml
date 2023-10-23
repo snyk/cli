@@ -38,12 +38,12 @@ executors:
       - image: alpine:3.17
   docker-amd64:
     docker:
-      - image: bastiandoetsch209/cli-build:20230912-103845
+      - image: bastiandoetsch209/cli-build:20231012-101806
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-arm64:
     docker:
-      - image: bastiandoetsch209/cli-build-arm64:20230912-103845
+      - image: bastiandoetsch209/cli-build-arm64:20231012-101806
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   linux-ubuntu-mantic-amd64:
@@ -213,25 +213,6 @@ commands:
       - install-deps-python:
           os: win
       - install-deps-windows-signing
-
-  install-deps-windows-node:
-    steps:
-      - restore_cache:
-          name: Restoring Chocolatey cache
-          keys:
-            - chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-      - run:
-          name: Install Windows dependencies
-          shell: bash.exe
-          command: |
-            choco uninstall nodejs -y
-            choco uninstall nodejs.install -y
-            choco install nodejs --version=$(head .nvmrc) --no-progress -y
-      - save_cache:
-          name: Saving Chocolatey cache
-          key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-          paths:
-            - ~\AppData\Local\Temp\chocolatey
 
   install-deps-noop:
     steps:
@@ -822,7 +803,7 @@ jobs:
       - run:
           name: Running Tap tests
           command:
-            npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
+            npx tap -j 1 -C --timeout=300 --node-arg=-r --node-arg=ts-node/register --allow-incomplete-coverage \
             $(circleci tests glob "test/tap/*.test.*" | circleci tests split --split-by=timings)
 
   build-special-artifacts:
@@ -1096,10 +1077,13 @@ jobs:
       - run:
           name: Checking Snyk CLI
           shell: bash
+          environment:
+            SNYK_DISABLE_ANALYTICS: 1
           command: |
             PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests || PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests 
             python scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >>  $(cat binary-releases/version) || python3 scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >> $(cat binary-releases/version)
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk whoami --experimental
+            SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk woof
 
   release-s3:
     executor: docker-amd64

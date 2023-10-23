@@ -149,7 +149,7 @@ export const AllProjectsTests: AcceptanceTests = {
         'did not call rubygems plugin',
       );
       t.ok(spyPlugin.withArgs('npm').notCalled, 'did not call npm plugin');
-      t.equals(
+      t.equal(
         spyPlugin.withArgs('maven').callCount,
         2,
         'calls maven plugin twice',
@@ -444,7 +444,7 @@ export const AllProjectsTests: AcceptanceTests = {
         'did not call rubygems plugin',
       );
       t.ok(spyPlugin.withArgs('npm').notCalled, 'did not call npm plugin');
-      t.equals(
+      t.equal(
         spyPlugin.withArgs('maven').callCount,
         1,
         'calls maven plugin once, excluding simple-child',

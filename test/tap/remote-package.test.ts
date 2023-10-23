@@ -56,7 +56,7 @@ test('cli tests for online repos', async (t) => {
     const res = error.message;
     const pos = res.toLowerCase().indexOf('vulnerability found');
     t.pass(res);
-    t.notEqual(pos, -1, 'correctly found vulnerability: ' + res);
+    t.not(pos, -1, 'correctly found vulnerability: ' + res);
   }
 
   try {
@@ -82,7 +82,7 @@ test('multiple test arguments', async (t) => {
       .trim()
       .split('\n')
       .pop();
-    t.equals(
+    t.equal(
       lastLine,
       'Tested 2 projects, no vulnerable paths were found.',
       'successfully tested semver@4, qs@6',
@@ -100,7 +100,7 @@ test('multiple test arguments', async (t) => {
       .trim()
       .split('\n')
       .pop();
-    t.equals(
+    t.equal(
       lastLine,
       'Tested 2 projects, 1 contained vulnerable paths.',
       'successfully tested semver@4, qs@1',
@@ -116,7 +116,7 @@ test('multiple test arguments', async (t) => {
       .trim()
       .split('\n')
       .pop();
-    t.equals(
+    t.equal(
       lastLine,
       'Tested 2 projects, 1 contained vulnerable paths.',
       'successfully tested semver@2, qs@6',
@@ -132,7 +132,7 @@ test('multiple test arguments', async (t) => {
       .trim()
       .split('\n')
       .pop();
-    t.equals(
+    t.equal(
       lastLine,
       'Tested 2 projects, 2 contained vulnerable paths.',
       'successfully tested semver@2, qs@1',
@@ -150,7 +150,7 @@ test('test for existing remote package with dev-deps only with --dev', async (t)
       .trim()
       .split('\n')
       .pop();
-    t.deepEqual(
+    t.same(
       lastLine,
       '✔ Tested lodash@4.17.11 for known vulnerabilities, no vulnerable paths found.',
       'successfully tested lodash@4.17.11',
@@ -175,7 +175,7 @@ test('test for existing remote package with dev-deps only', async (t) => {
       .split('\n')
       .pop();
 
-    t.deepEqual(
+    t.same(
       lastLine,
       'Tip: Snyk only tests production dependencies by default. You can try re-running with the `--dev` flag.',
       'tip text as expected',
@@ -196,7 +196,7 @@ test('test for non-existing', async (t) => {
       .trim()
       .split('\n')
       .pop();
-    t.deepEqual(
+    t.same(
       lastLine,
       'Internal server error',
       'expected error: Internal server error',

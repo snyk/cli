@@ -15,34 +15,34 @@ const requestPath = '/api/v1/verify/token';
  * (http_proxy, https_proxy, no_proxy)
  * see https://www.gnu.org/software/wget/manual/html_node/Proxies.html
  */
-test('request respects proxy environment variables', function(t) {
+test('request respects proxy environment variables', async (t) => {
   t.plan(6);
 
-  t.test('direct http access', function(t) {
+  t.test('direct http access', async (t) => {
     const nockClient = nock(httpRequestHost)
       .post(requestPath)
       .reply(200, {});
-    return makeRequest({ method: 'post', url: httpRequestHost + requestPath })
-      .then(function() {
-        t.ok(nockClient.isDone(), 'direct call without a proxy');
-        nock.cleanAll();
-      })
-      .catch((err) => t.fail(err.message));
+    const result = await makeRequest({
+      method: 'post',
+      url: httpRequestHost + requestPath,
+    });
+    t.equal(result.res.statusCode, 200, '');
+    t.ok(nockClient.isDone(), 'direct call without a proxy');
   });
 
-  t.test('direct https access', function(t) {
+  t.test('direct https access', async (t) => {
     const nockClient = nock(httpsRequestHost)
       .post(requestPath)
       .reply(200, {});
-    return makeRequest({ method: 'post', url: httpsRequestHost + requestPath })
-      .then(function() {
-        t.ok(nockClient.isDone(), 'direct call without a proxy');
-        nock.cleanAll();
-      })
-      .catch((err) => t.fail(err.message));
+    const result = await makeRequest({
+      method: 'post',
+      url: httpsRequestHost + requestPath,
+    });
+    t.equal(result.res.statusCode, 200, '');
+    t.ok(nockClient.isDone(), 'direct call without a proxy');
   });
 
-  t.test('http_proxy', function(t) {
+  t.test('http_proxy', async (t) => {
     // NO_PROXY is set in CircleCI and brakes test purpose
     const tmpNoProxy = process.env.NO_PROXY;
     delete process.env.NO_PROXY;
@@ -62,15 +62,15 @@ test('request respects proxy environment variables', function(t) {
     });
     proxy.listen(proxyPort);
     // http is only supported for localhost
-    return makeRequest({ method: 'post', url: httpRequestHost + requestPath })
-      .catch((err) => t.fail(err.message))
-      .then(() => {
-        t.equal(process.env.http_proxy, process.env.HTTP_PROXY);
-        proxy.close();
-      });
+    const result = await makeRequest({
+      method: 'post',
+      url: httpRequestHost + requestPath,
+    });
+    t.equal(result.res.statusCode, 200, '');
+    proxy.close();
   });
 
-  t.test('HTTP_PROXY', function(t) {
+  t.test('HTTP_PROXY', async (t) => {
     // NO_PROXY is set in CircleCI and brakes test purpose
     const tmpNoProxy = process.env.NO_PROXY;
     delete process.env.NO_PROXY;
@@ -89,14 +89,15 @@ test('request respects proxy environment variables', function(t) {
     });
     proxy.listen(proxyPort);
     // http is only supported for localhost
-    return makeRequest({ method: 'post', url: httpRequestHost + requestPath })
-      .catch((err) => t.fail(err.message))
-      .then(() => {
-        proxy.close();
-      });
+    const result = await makeRequest({
+      method: 'post',
+      url: httpRequestHost + requestPath,
+    });
+    t.equal(result.res.statusCode, 200, '');
+    proxy.close();
   });
 
-  t.test('https_proxy', function(t) {
+  t.test('https_proxy', async (t) => {
     // NO_PROXY is set in CircleCI and brakes test purpose
     const tmpNoProxy = process.env.NO_PROXY;
     delete process.env.NO_PROXY;
@@ -135,15 +136,18 @@ test('request respects proxy environment variables', function(t) {
     });
 
     proxy.listen(proxyPort);
-    return makeRequest({ method: 'post', url: httpsRequestHost + requestPath })
-      .catch(() => {}) // client socket being closed generates an error here
-      .then(() => {
-        t.equal(process.env.https_proxy, process.env.HTTPS_PROXY);
-        proxy.close();
+    try {
+      await makeRequest({
+        method: 'post',
+        url: httpRequestHost + requestPath,
       });
+    } catch (e) {
+      // an exception is expected
+    }
+    proxy.close();
   });
 
-  t.test('HTTPS_PROXY', function(t) {
+  t.test('HTTPS_PROXY', async (t) => {
     // NO_PROXY is set in CircleCI and brakes test purpose
     const tmpNoProxy = process.env.NO_PROXY;
     delete process.env.NO_PROXY;
@@ -181,10 +185,14 @@ test('request respects proxy environment variables', function(t) {
     });
 
     proxy.listen(proxyPort);
-    return makeRequest({ method: 'post', url: httpsRequestHost + requestPath })
-      .catch(() => {}) // client socket being closed generates an error here
-      .then(() => {
-        proxy.close();
+    try {
+      await makeRequest({
+        method: 'post',
+        url: httpRequestHost + requestPath,
       });
+    } catch (e) {
+      // an exception is expected
+    }
+    proxy.close();
   });
 });

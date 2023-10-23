@@ -141,7 +141,7 @@ export const PythonTests: AcceptanceTests = {
         });
         t.fail('should throw, since there are vulns');
       } catch (e) {
-        t.equals(
+        t.equal(
           e.message.trim(),
           fs
             .readFileSync('pip-app-transitive-vuln/cli-output.txt', 'utf8')
@@ -203,7 +203,7 @@ export const PythonTests: AcceptanceTests = {
         });
         t.fail('should throw, since there are vulns');
       } catch (e) {
-        t.equals(
+        t.equal(
           e.message.trim(),
           fs
             .readFileSync(
