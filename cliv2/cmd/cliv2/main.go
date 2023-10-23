@@ -77,12 +77,29 @@ const (
 	handleErrorUnhandled           HandleError = iota
 )
 
-func getDebugLogger(config configuration.Configuration) *zerolog.Logger {
+func getDebugLevel(config configuration.Configuration) zerolog.Level {
+	loglevel := zerolog.DebugLevel
+	if loglevelString := config.GetString("snyk_loglevel"); loglevelString != "" {
+		var err error
+		loglevel, err = zerolog.ParseLevel(loglevelString)
+		if err == nil {
+			debugLogger.Log().Msgf("Setting log level to %s", loglevelString)
+		} else {
+			debugLogger.Log().Msgf("%v", err)
+			loglevel = zerolog.DebugLevel
+		}
+	}
+	return loglevel
+}
+
+func initDebugLogger(config configuration.Configuration) *zerolog.Logger {
 	debug := config.GetBool(configuration.DEBUG)
 	if !debug {
 		debugLogger = debugLogger.Output(io.Discard)
+	} else {
+		loglevel := getDebugLevel(config)
+		debugLogger = debugLogger.Level(loglevel)
 	}
-
 	return &debugLogger
 }
 
@@ -366,7 +383,7 @@ func MainWithErrorCode() int {
 	}
 
 	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
-	debugLogger := getDebugLogger(globalConfiguration)
+	debugLogger := initDebugLogger(globalConfiguration)
 
 	initApplicationConfiguration(globalConfiguration)
 	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(globalConfiguration))
