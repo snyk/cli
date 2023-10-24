@@ -10,7 +10,7 @@ The `snyk code test` command tests for any known security issues using Static Co
 
 For more information see [Using Snyk Code via the CLI](../../scan-applications/snyk-code/using-snyk-code-from-the-cli/).
 
-For instructions on ignoring issues with `snyk code test` see [Excluding directories and files from the Snyk Code CLI test](../../scan-applications/snyk-code/using-snyk-code-from-the-cli/excluding-directories-and-files-from-the-snyk-code-cli-test.md).
+For instructions on ignoring issues with `snyk code test` see [Excluding directories and files from the Snyk Code CLI test](../../scan-application-code/snyk-code/cli-for-snyk-code/excluding-directories-and-files-from-the-snyk-code-cli-test.md).
 
 ## Exit codes
 

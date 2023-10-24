@@ -1,8 +1,5 @@
 # IaC describe
 
-**DEPRECATION NOTICE: Drift detection of managed resources**\
-Drift detection of managed resources, including `snyk iac describe --only-managed and snyk iac describe --drift` has been deprecated. The end-of-life date for drift detection of managed resources is September 30. 2023.
-
 ## Usage
 
 **Note:** This feature is available in Snyk CLI version v1.876.0 or greater.
@@ -11,10 +8,9 @@ Drift detection of managed resources, including `snyk iac describe --only-manage
 
 ## Description
 
-The `snyk iac describe` command detects infrastructure drift and unmanaged resources. It compares resources in your Terraform state file against actual resources in your cloud provider and outputs a report.
+The `snyk iac describe` command detects unmanaged infrastructure resources. It compares resources in your Terraform state file against actual resources in your cloud provider and outputs a report.
 
 - Resources in your Terraform state files are **managed resources**.
-- Changes to managed resources not reflected in the Terraform state file are **drifts**.
 - Resources that exist but are not in your Terraform state file are **unmanaged resources**.
 
 For detailed information and examples, see [IaC describe command examples](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/iac-describe-command-examples)
@@ -26,7 +22,7 @@ For a list of related commands see the snyk [iac help](iac.md); `iac --help`
 Possible exit codes and their meaning:
 
 **0**: success, no drift found\
-**1**: drifts or unmanaged resources found\
+**1**: unmanaged resources found\
 **2**: failure
 
 ## Configure the Snyk CLI
@@ -41,22 +37,6 @@ You can set environment variables to configure the Terraform provider used by th
 
 Use the `-d` option to output the debug logs.
 
-## Required options
-
-**Note:** To use the `describe` command, you **must use one of these options**:
-
-### `--only-unmanaged`
-
-Report resources not found in any Terraform states.
-
-### `--only-managed` or `--drift`
-
-Scan managed resources found in Terraform states for changes.
-
-### `--all`
-
-Scan both managed and unmanaged resources.
-
 ## Optional arguments
 
 ### `--org=<ORG_ID>`
@@ -65,13 +45,13 @@ Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. Ove
 
 Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
 
-For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
+For more information, see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--from=<STATE>[,<STATE>...]`
 
 Specify multiple Terraform state files to be read. Glob patterns are supported.
 
-For more information including **a list of supported IaC sources** and how to use them, see [IAC Sources usage](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/iac-sources-usage)
+For more information, including **a list of supported IaC sources** and how to use them, see [IAC Sources usage](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/iac-sources-usage)
 
 ### `--to=<PROVIDER+TYPE>`
 
@@ -135,21 +115,13 @@ Filter rules allow you to build a JMESPath expression to include or exclude a se
 
 To filter on resource attributes, deep mode must be enabled. Deep mode is enabled by default for `--all` and `--only-managed`. To enable deep mode while using `--only-unmanaged`, use the `--deep` option.
 
-For more information see [Filter results](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/filter-results)
-
-### `--deep`
-
-Enable deep mode. Deep mode enables you to use the `--filter` option to include or exclude resources in the report based on their attributes.
-
-Deep mode is enabled by default for `--all` and `--only-managed`. Use `--deep` if you want to filter on attributes while using `--only-unmanaged`.
-
-For more information see [Filter results](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/filter-results)
+For more information, see [Filter results](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/filter-results)
 
 ### `--strict`
 
 Enable strict mode.
 
-The `iac describe` command ignores service-linked resources by default (like service-linked AWS IAM roles, their policies and policy attachments). To include those resources in the report you can enable **strict mode**. Note that this can create noise when used with an AWS account.
+The `iac describe` command ignores service-linked resources by default (like service-linked AWS IAM roles, their policies, and policy attachments). To include those resources in the report you can enable **strict mode**. Note that this can create noise when used with an AWS account.
 
 ## Options for policies
 
@@ -183,22 +155,22 @@ Output the report as html into a file.
 
 For more examples, see [IaC describe command examples](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/iac-describe-command-examples)
 
-### Detect drift and unmanaged resources on AWS with a single local Terraform state
+### Detect unmanaged resources on AWS with a single local Terraform state
 
 ```
-$ snyk iac describe --all --from="tfstate://terraform.tfstate"
+$ snyk iac describe --from="tfstate://terraform.tfstate"
 ```
 
 ### Specify AWS credentials
 
 ```
-$ AWS_ACCESS_KEY_ID=XXX AWS_SECRET_ACCESS_KEY=XXX snyk iac describe --all
+$ AWS_ACCESS_KEY_ID=XXX AWS_SECRET_ACCESS_KEY=XXX snyk iac describe
 ```
 
 ### Use an AWS named profile
 
 ```
-$ AWS_PROFILE=profile_name snyk iac describe --all
+$ AWS_PROFILE=profile_name snyk iac describe
 ```
 
 ### Use a single Terraform state stored on an S3 backend
@@ -210,11 +182,11 @@ $ snyk iac describe --from="tfstate+s3://my-bucket/path/to/state.tfstate"
 ### Aggregate multiple Terraform states
 
 ```
-$ snyk iac describe --all --from="tfstate://terraform_S3.tfstate,tfstate://terraform_VPC.tfstate"
+$ snyk iac describe --from="tfstate://terraform_S3.tfstate,tfstate://terraform_VPC.tfstate"
 ```
 
 ### Aggregate many Terraform states, using glob pattern
 
 ```
-$ snyk iac describe --all --from="tfstate://path/to/**/*.tfstate"
+$ snyk iac describe --from="tfstate://path/to/**/*.tfstate"
 ```

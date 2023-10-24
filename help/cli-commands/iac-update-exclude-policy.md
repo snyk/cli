@@ -1,4 +1,4 @@
-# IAC update-exclude-policy
+# IaC update-exclude-policy
 
 ## Usage
 
@@ -29,10 +29,6 @@ Use the `-d` option to output the debug logs.
 
 ## Options
 
-### `--exclude-changed`
-
-Exclude resources that changed on cloud provider.
-
 ### `--exclude-missing`
 
 Exclude missing resources.
@@ -44,5 +40,5 @@ Exclude resources not managed by IaC.
 ## Example
 
 ```
-$ snyk iac describe --json --all | snyk iac update-exclude-policy
+$ snyk iac describe --json | snyk iac update-exclude-policy
 ```
