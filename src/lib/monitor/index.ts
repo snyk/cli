@@ -73,6 +73,7 @@ interface Meta {
   dockerImageId?: string;
   dockerBaseImage?: string;
   projectName: string;
+  targetRuntime?: string;
 }
 
 export async function monitor(
@@ -351,6 +352,7 @@ export async function monitorDepGraph(
         monitorGraph: true,
         versionBuildInfo: JSON.stringify(scannedProject.meta?.versionBuildInfo),
         gradleProjectName: scannedProject.meta?.gradleProjectName,
+        targetRuntime: scannedProject.meta?.targetRuntime,
       },
       policy: policy ? policy.toString() : undefined,
       depGraphJSON: depGraph, // depGraph will be auto serialized to JSON on send
