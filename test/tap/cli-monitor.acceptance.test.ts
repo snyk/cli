@@ -512,6 +512,15 @@ if (!isWindows) {
     t.same(req.body.projectAttributes.lifecycle, ['production', 'sandbox']);
   });
 
+  test('`monitor nuget package with --dotnet-runtime-resolution enabled`', async (t) => {
+    chdirWorkspaces();
+    await cli.monitor('nuget-app-6', {
+      'dotnet-runtime-resolution': true,
+    });
+    const req = server.popRequest();
+    t.same(req.body.meta.targetRuntime, 'net6.0');
+  });
+
   test('`monitor npm-package with --project-tags`', async (t) => {
     chdirWorkspaces();
     await cli.monitor('npm-package', {
