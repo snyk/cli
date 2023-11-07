@@ -734,6 +734,37 @@ describe('Test snyk code', () => {
     ).rejects.toHaveProperty('message', "Failed to run 'code test'");
   });
 
+  it('When code-client fails with details, show message with failure details', async () => {
+    const codeClientErrorWithDetail = {
+      apiName: 'getAnalysis',
+      statusCode: 422,
+      statusText: 'Analysis failed',
+      detail: 'Analysis failed, more info: https://snyk.io',
+    };
+
+    jest
+      .spyOn(analysis, 'getCodeTestResults')
+      .mockRejectedValue(codeClientErrorWithDetail);
+
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    await expect(
+      ecosystems.testEcosystem('code', ['.'], {
+        path: '',
+        code: true,
+      }),
+    ).rejects.toHaveProperty(
+      'userMessage',
+      'There was a problem running Code analysis. Analysis failed, more info: https://snyk.io.',
+    );
+  });
+
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
     const sessionToken = `token ${fakeApiKey}`;
