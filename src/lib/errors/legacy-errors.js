@@ -53,7 +53,6 @@ const codes = {
   411: errors.endpoint, // try to post to a weird endpoint
   403: errors.endpoint,
   401: errors.auth,
-  400: errors.invalidSeverityThreshold,
   Unauthorized: errors.auth,
   MISSING_NODE_MODULES: errors.nodeModules,
   OLD_DOTFILE_FORMAT: errors.oldsnyk,
