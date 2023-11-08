@@ -13,10 +13,10 @@ require (
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
 	github.com/snyk/cli-extension-sbom v0.0.0-20230926124903-9705d7d47d8f
 	github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f
-	github.com/snyk/go-application-framework v0.0.0-20231020152829-1d64d967af62
+	github.com/snyk/go-application-framework v0.0.0-20231026115736-80ebca949279
 	github.com/snyk/go-httpauth v0.0.0-20230925093100-dfb05155efc1
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20231018080541-3a486664f5ac
+	github.com/snyk/snyk-ls v0.0.0-20231106161140-a4a183152e2f
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
@@ -118,6 +118,7 @@ require (
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/puzpuzpuz/xsync v1.5.2 // indirect
+	github.com/puzpuzpuz/xsync/v3 v3.0.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
@@ -139,6 +140,7 @@ require (
 	github.com/ulikunitz/xz v0.5.11 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
+	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	github.com/yashtewari/glob-intersection v0.1.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
