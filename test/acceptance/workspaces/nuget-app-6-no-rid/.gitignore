@@ -1,0 +1,4 @@
+bin/
+obj/**
+obj/**/
+!*.assets.json
