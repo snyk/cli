@@ -25,7 +25,7 @@ An SBOM can be generated for all supported Open Source package managers as well 
 Possible exit codes and their meaning:
 
 **0**: success (process completed), SBOM created successfully\
-**2**: failure, try to re-run command
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Debug
 
@@ -211,6 +211,8 @@ Use the absolute or relative path, including the name of the folder where your d
 ### `--strict-out-of-sync=true|false`
 
 Prevent testing out-of-sync lockfiles.
+
+To use this option, you must use a minimum CLI version of 1.1228.0.
 
 If there are out-of-sync lockfiles in the project, the `sbom` command fails when `--strict-out-of-sync=true`.
 

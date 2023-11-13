@@ -6,16 +6,20 @@
 
 ## Description
 
-The `snyk container monitor` command captures the container image layers and dependencies and monitor for vulnerabilities on [snyk.io](https://snyk.io)
+The `snyk container monitor` command captures the container image layers and dependencies in a project and monitors that snapshot for vulnerabilities, sending the results to [snyk.io](https://snyk.io)
 
-For more information see [Snyk CLI for container security](https://docs.snyk.io/products/snyk-container/snyk-cli-for-container-security)
+Use the `container monitor` command before integrating your code into production, to take a snapshot of the code to be monitored in order to avoid pushing vulnerabilities into production. Choose a test frequency in your Settings if you want to change the frequency from the default, which is daily.
+
+If you make changes to your code, you must run the `container monitor` command again.
+
+For more information, see [Snyk CLI for container security](https://docs.snyk.io/products/snyk-container/snyk-cli-for-container-security)
 
 ## Exit codes
 
 Possible exit codes and their meaning:
 
 **0**: success, image layers and dependencies captured\
-**2**: failure, try to re-run command\
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.\
 **3**: failure, no supported projects detected
 
 ## Configure the Snyk CLI

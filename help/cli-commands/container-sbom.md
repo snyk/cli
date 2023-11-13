@@ -25,7 +25,7 @@ A SBOM can be generated for operating system dependencies as well as application
 Possible exit codes and their meaning:
 
 **0**: success (process completed), SBOM created successfully\
-**2**: failure, try to re-run command
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.
 
 ## Debug
 
