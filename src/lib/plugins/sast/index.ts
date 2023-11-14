@@ -11,7 +11,7 @@ import {
 } from './format/output-format';
 import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
-import { CodeClientError } from './errors';
+import { CodeClientErrorWithDetail, CodeClientError } from './errors';
 import { filterIgnoredIssues } from './utils';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
@@ -111,7 +111,9 @@ export const codePlugin: EcosystemPlugin = {
       return sarifResult ? { readableResult, sarifResult } : { readableResult };
     } catch (error) {
       let err: Error;
-      if (isCodeClientError(error)) {
+      if (isCodeClientErrorWithDetail(error)) {
+        err = resolveCodeClientErrorWithDetail(error);
+      } else if (isCodeClientError(error)) {
         err = resolveCodeClientError(error);
       } else if (error instanceof Error) {
         err = error;
@@ -177,6 +179,23 @@ function resolveCodeClientError(error: {
   return new FailedToRunTestError(
     `${isUnauthorized}Failed to run 'code test'`,
     error.statusCode,
+  );
+}
+
+function resolveCodeClientErrorWithDetail(error: any) {
+  return new CodeClientErrorWithDetail(
+    error.statusText,
+    error.statusCode,
+    error.detail,
+  );
+}
+
+function isCodeClientErrorWithDetail(error: any): boolean {
+  return (
+    error.hasOwnProperty('statusCode') &&
+    error.hasOwnProperty('statusText') &&
+    error.hasOwnProperty('detail') &&
+    error.hasOwnProperty('apiName')
   );
 }
 
