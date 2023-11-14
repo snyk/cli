@@ -264,7 +264,7 @@ func PrepareV1EnvironmentVariables(
 	integrationVersion string,
 	proxyAddress string,
 	caCertificateLocation string,
-	orgid string,
+	config configuration.Configuration,
 ) (result []string, err error) {
 
 	inputAsMap := utils.ToKeyValueMap(input, "=")
@@ -309,7 +309,8 @@ func PrepareV1EnvironmentVariables(
 		inputAsMap[constants.SNYK_HTTPS_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
-		inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = orgid
+		inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
+		inputAsMap[constants.SNYK_INTERNAL_ENDPOINT_ENV] = config.GetString(configuration.API_URL)
 
 		// merge user defined (external) and internal no_proxy configuration
 		if len(inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM]) > 0 {
@@ -336,10 +337,9 @@ func (c *CLI) PrepareV1Command(
 	integrationVersion string,
 ) (snykCmd *exec.Cmd, err error) {
 	proxyAddress := fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, proxyInfo.Password, proxyInfo.Port)
-	orgid := c.globalConfig.GetString(configuration.ORGANIZATION)
 
 	snykCmd = exec.Command(cmd, args...)
-	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, orgid)
+	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, c.globalConfig)
 
 	if len(c.WorkingDirectory) > 0 {
 		snykCmd.Dir = c.WorkingDirectory
@@ -369,6 +369,7 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 			constants.SNYK_HTTP_PROXY_ENV_SYSTEM,
 			constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM,
 			constants.SNYK_ANALYTICS_DISABLED_ENV,
+			constants.SNYK_INTERNAL_ENDPOINT_ENV,
 		}
 
 		for _, key := range listedEnvironmentVariables {
