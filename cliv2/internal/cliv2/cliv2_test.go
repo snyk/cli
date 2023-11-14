@@ -146,6 +146,46 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
+
+	config := configuration.NewInMemory()
+
+	t.Run("Values not set", func(t *testing.T) {
+		input := []string{}
+		notExpected := []string{"SNYK_API=", "SNYK_CFG_ORG="}
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config)
+
+		assert.NotContains(t, actual, notExpected)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Values explicitly set api", func(t *testing.T) {
+		input := []string{}
+		expected := []string{"SNYK_API=https://api.snyky.io"}
+
+		config.Set(configuration.API_URL, "https://api.snyky.io")
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config)
+
+		assert.NotContains(t, actual, expected)
+		assert.Nil(t, err)
+	})
+
+	t.Run("Values explicitly set org", func(t *testing.T) {
+		input := []string{}
+		expected := []string{"SNYK_CFG_ORG=my-org"}
+
+		config.Set(configuration.ORGANIZATION, "my-org")
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config)
+
+		assert.NotContains(t, actual, expected)
+		assert.Nil(t, err)
+	})
+
+}
+
 func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) {
 
 	orgid := "orgid"

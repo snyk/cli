@@ -310,7 +310,14 @@ func PrepareV1EnvironmentVariables(
 		inputAsMap[constants.SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
 		inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
-		inputAsMap[constants.SNYK_INTERNAL_ENDPOINT_ENV] = config.GetString(configuration.API_URL)
+
+		if value, valueIsSet := config.GetAndIsSet(configuration.API_URL); valueIsSet {
+			inputAsMap[constants.SNYK_ENDPOINT_ENV] = value.(string)
+		}
+
+		if value, valueIsSet := config.GetAndIsSet(configuration.ORGANIZATION); valueIsSet {
+			inputAsMap[constants.SNYK_ORG_ENV] = value.(string)
+		}
 
 		// merge user defined (external) and internal no_proxy configuration
 		if len(inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM]) > 0 {
@@ -369,7 +376,8 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 			constants.SNYK_HTTP_PROXY_ENV_SYSTEM,
 			constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM,
 			constants.SNYK_ANALYTICS_DISABLED_ENV,
-			constants.SNYK_INTERNAL_ENDPOINT_ENV,
+			constants.SNYK_ENDPOINT_ENV,
+			constants.SNYK_ORG_ENV,
 		}
 
 		for _, key := range listedEnvironmentVariables {
