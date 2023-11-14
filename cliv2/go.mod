@@ -16,7 +16,7 @@ require (
 	github.com/snyk/go-application-framework v0.0.0-20231117124326-6dff117c23a7
 	github.com/snyk/go-httpauth v0.0.0-20230925093100-dfb05155efc1
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20231110143802-54d54e374783
+	github.com/snyk/snyk-ls v0.0.0-20231114150608-4bb0b45433fa
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
@@ -150,7 +150,7 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.15.0 // indirect
-	golang.org/x/exp v0.0.0-20231108232855-2478ac86f678 // indirect
+	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/oauth2 v0.14.0 // indirect
