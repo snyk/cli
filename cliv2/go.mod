@@ -3,7 +3,7 @@ module github.com/snyk/cli/cliv2
 go 1.18
 
 require (
-	github.com/elazarl/goproxy v0.0.0-20230808193330-2592e75ae04a
+	github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a
 	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
 	github.com/gofrs/flock v0.8.1
 	github.com/google/uuid v1.4.0
@@ -164,7 +164,7 @@ require (
 	google.golang.org/genproto v0.0.0-20230913181813-007df8e322eb // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230913181813-007df8e322eb // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230920204549-e6e6cdab5c13 // indirect
-	google.golang.org/grpc v1.58.2 // indirect
+	google.golang.org/grpc v1.58.3 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
