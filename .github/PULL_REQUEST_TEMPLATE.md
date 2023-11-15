@@ -5,7 +5,7 @@ Please check the boxes once done.
 The pull request must:
 
 - **Reviewer Documentation**
-    - [ ] follow [CONTRIBUTING](https://github.com/snyk/snyk/blob/master/CONTRIBUTING.md) rules
+    - [ ] follow [CONTRIBUTING](https://github.com/snyk/cli/blob/master/CONTRIBUTING.md) rules
     - [ ] be accompanied by a detailed description of the changes
     - [ ] contain a risk assessment of the change (Low | Medium | High) with regards to breaking existing functionality. A change e.g. of an underlying language plugin can completely break the functionality for that language, but appearing as only a version change in the dependencies.
     - [ ] highlight breaking API if applicable
@@ -13,7 +13,7 @@ The pull request must:
     - [ ] contain testing instructions in case that the reviewer wants to manual verify as well, to add to the manual testing done by the author.
     - [ ] link to the link to the PR for the User-facing documentation
 - **User facing Documentation**
-    - [ ] update any relevant documentation in gitbook by submitting a gitbook PR.
+    - [ ] update any relevant documentation in gitbook by submitting a gitbook PR, and including the PR link here
     - [ ] ensure that the message of the final single commit is descriptive and prefixed with either `feat:` or `fix:` , others might be used in rare occasions as well, if there is no need to document the changes in the release notes. The changes or fixes should be described in detail in the commit message for the changelog & release notes.
 - **Testing**
     - [ ] Changes, removals and additions to functionality must be covered by acceptance / integration tests or smoke tests - either already existing ones, or new ones, created by the author of the PR.
@@ -31,7 +31,7 @@ For Node projects: It’s important to make sure changes in `package.json` are a
 ****************************If a dependency is not necessary, don’t add it.**************************** 
 
 When adding a new package as a dependency, make sure that the change is absolutely necessary. We would like to refrain from adding new dependencies when possible.
-Documentation PRs in gitbook are reviewed by #ask-content. They will also advise on the best phrasing and structuring if needed.
+Documentation PRs in gitbook are reviewed by Snyk's content team. They will also advise on the best phrasing and structuring if needed.
 
 ## Pull Request Approval
 
