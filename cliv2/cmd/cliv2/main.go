@@ -117,6 +117,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.API_URL, []string{"endpoint"})
 	config.AddAlternativeKeys(configuration.ADD_TRUSTED_CA_FILE, []string{"NODE_EXTRA_CA_CERTS"})
 	config.AddAlternativeKeys(configuration.ANALYTICS_DISABLED, []string{strings.ToLower(constants.SNYK_ANALYTICS_DISABLED_ENV), "snyk_cfg_disable_analytics", "disable-analytics", "disable_analytics"})
+	config.AddAlternativeKeys(configuration.ORGANIZATION, []string{"snyk_cfg_org"})
 
 	// if the CONFIG_KEY_OAUTH_TOKEN is specified as env var, we don't apply any additional logic
 	_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
