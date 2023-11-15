@@ -265,6 +265,7 @@ func PrepareV1EnvironmentVariables(
 	proxyAddress string,
 	caCertificateLocation string,
 	config configuration.Configuration,
+	args []string,
 ) (result []string, err error) {
 
 	inputAsMap := utils.ToKeyValueMap(input, "=")
@@ -311,12 +312,15 @@ func PrepareV1EnvironmentVariables(
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
 		inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
 
-		if value, valueIsSet := config.GetAndIsSet(configuration.API_URL); valueIsSet {
-			inputAsMap[constants.SNYK_ENDPOINT_ENV] = value.(string)
+		if config.IsSet(configuration.API_URL) {
+			inputAsMap[constants.SNYK_ENDPOINT_ENV] = config.GetString(configuration.API_URL)
 		}
 
-		if value, valueIsSet := config.GetAndIsSet(configuration.ORGANIZATION); valueIsSet {
-			inputAsMap[constants.SNYK_ORG_ENV] = value.(string)
+		_, orgEnVarExists := inputAsMap[constants.SNYK_ORG_ENV]
+		if !utils.ContainsPrefix(args, "--org=") &&
+			!orgEnVarExists &&
+			config.IsSet(configuration.ORGANIZATION) {
+			inputAsMap[constants.SNYK_ORG_ENV] = config.GetString(configuration.ORGANIZATION)
 		}
 
 		// merge user defined (external) and internal no_proxy configuration
@@ -346,7 +350,7 @@ func (c *CLI) PrepareV1Command(
 	proxyAddress := fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, proxyInfo.Password, proxyInfo.Port)
 
 	snykCmd = exec.Command(cmd, args...)
-	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, c.globalConfig)
+	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, c.globalConfig, args)
 
 	if len(c.WorkingDirectory) > 0 {
 		snykCmd.Dir = c.WorkingDirectory
@@ -381,7 +385,9 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 		}
 
 		for _, key := range listedEnvironmentVariables {
-			c.DebugLogger.Println("  ", key, "=", variablesMap[key])
+			if value, exists := variablesMap[key]; exists {
+				c.DebugLogger.Println("  ", key, "=", value)
+			}
 		}
 
 	}

@@ -64,11 +64,12 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_SYSTEM_HTTP_PROXY=httpProxy",
 		"SNYK_SYSTEM_HTTPS_PROXY=httpsProxy",
 		"SNYK_INTERNAL_ORGID=" + orgid,
+		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",noProxy",
 	}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config)
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -99,11 +100,12 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 		"SNYK_SYSTEM_HTTP_PROXY=",
 		"SNYK_SYSTEM_HTTPS_PROXY=",
 		"SNYK_INTERNAL_ORGID=" + orgid,
+		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY,
 	}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config)
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -134,11 +136,12 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 		"SNYK_SYSTEM_HTTP_PROXY=exists",
 		"SNYK_SYSTEM_HTTPS_PROXY=already",
 		"SNYK_INTERNAL_ORGID=" + orgid,
+		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",312123",
 	}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config)
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -154,7 +157,7 @@ func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
 		input := []string{}
 		notExpected := []string{"SNYK_API=", "SNYK_CFG_ORG="}
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config)
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
 
 		assert.NotContains(t, actual, notExpected)
 		assert.Nil(t, err)
@@ -166,7 +169,7 @@ func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
 
 		config.Set(configuration.API_URL, "https://api.snyky.io")
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config)
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
 
 		assert.NotContains(t, actual, expected)
 		assert.Nil(t, err)
@@ -178,7 +181,7 @@ func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
 
 		config.Set(configuration.ORGANIZATION, "my-org")
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config)
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
 
 		assert.NotContains(t, actual, expected)
 		assert.Nil(t, err)
@@ -198,7 +201,7 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists"}
 	expected := input
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config)
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, []string{})
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -207,6 +210,51 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) 
 	warn, ok := err.(cliv2.EnvironmentWarning)
 	assert.True(t, ok)
 	assert.NotNil(t, warn)
+}
+
+func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting_Org(t *testing.T) {
+
+	orgid := "orgid"
+	testapi := "https://api.snyky.io"
+
+	config := configuration.NewInMemory()
+	config.Set(configuration.ORGANIZATION, orgid)
+	config.Set(configuration.API_URL, testapi)
+
+	notExpected := "SNYK_CFG_ORG=" + orgid
+
+	t.Run("config value is used", func(t *testing.T) {
+		input := []string{}
+		args := []string{"-d"}
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, args)
+		assert.Nil(t, err)
+
+		assert.Contains(t, actual, notExpected)
+	})
+
+	t.Run("cmd arg is given, config value not used", func(t *testing.T) {
+		input := []string{}
+		args := []string{"-d", "--org=something"}
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, args)
+		assert.Nil(t, err)
+
+		assert.NotContains(t, actual, notExpected)
+	})
+
+	t.Run("env var is given, config value not used", func(t *testing.T) {
+		expectedOrgEnvVar := "SNYK_CFG_ORG=myorg"
+		input := []string{"something=hello", expectedOrgEnvVar}
+		args := []string{"-d"}
+
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, args)
+		assert.Nil(t, err)
+
+		assert.NotContains(t, actual, notExpected)
+		assert.Contains(t, actual, expectedOrgEnvVar)
+	})
+
 }
 
 func getProxyInfoForTest() *proxy.ProxyInfo {
