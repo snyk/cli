@@ -80,8 +80,15 @@ describe('https', () => {
         cwd: project.path(),
         env,
       });
-      expect(server.getRequests().length).toBeGreaterThan(0);
+      expect(server.getRequests().length).toBeGreaterThan(1);
       expect(code).toBe(0);
+
+      // get rid of the first entry which has another User Agent
+      server.getRequests().reverse().pop()
+
+      for(var r of server.getRequests()) {
+        expect(r.headers["user-agent"]).toContain("snyk-cli/")
+      }
     });
   });
 });
