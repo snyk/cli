@@ -665,8 +665,8 @@ github.com/snyk/cli-extension-sbom v0.0.0-20230926124903-9705d7d47d8f h1:U3DQ9wn
 github.com/snyk/cli-extension-sbom v0.0.0-20230926124903-9705d7d47d8f/go.mod h1:O/cjwCbKhJQWyXHPmNbZ7ToQKnhyw0VUp1Qhim3WEcw=
 github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f h1:ghajT5PEiLP8XNFIdc7Yn4Th74RH/9Q++dDOp6Cb9eo=
 github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
-github.com/snyk/go-application-framework v0.0.0-20231113083350-f8b61e9b23e5 h1:Po8dmmQKc6G0Fwx2hU9OOTf9AaV9wKvDcENee1WUrgU=
-github.com/snyk/go-application-framework v0.0.0-20231113083350-f8b61e9b23e5/go.mod h1:YGuE2uaW3PG7Q3CcVpCdu/tOFhv5eUjcTNlYIcw6FDo=
+github.com/snyk/go-application-framework v0.0.0-20231116141714-376c41e7746c h1:SyNg+dd4U+AMhGAoNZ8jPDLBNX7lp0YzViTUU0fuIjE=
+github.com/snyk/go-application-framework v0.0.0-20231116141714-376c41e7746c/go.mod h1:YGuE2uaW3PG7Q3CcVpCdu/tOFhv5eUjcTNlYIcw6FDo=
 github.com/snyk/go-httpauth v0.0.0-20230925093100-dfb05155efc1 h1:2HfjHQxOjWyD5jKJQtiZV9mptamqikAvE/H4gilFk30=
 github.com/snyk/go-httpauth v0.0.0-20230925093100-dfb05155efc1/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v0.22.0 h1:od9pduGrXyfWO791X+8M1qmnvWUxaIXh0gBzGKqeseA=
