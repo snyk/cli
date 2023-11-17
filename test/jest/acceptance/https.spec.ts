@@ -84,10 +84,13 @@ describe('https', () => {
       expect(code).toBe(0);
 
       // get rid of the first entry which has another User Agent
-      server.getRequests().reverse().pop()
+      server
+        .getRequests()
+        .reverse()
+        .pop();
 
-      for(const r of server.getRequests()) {
-        expect(r.headers["user-agent"]).toContain("snyk-cli/")
+      for (const r of server.getRequests()) {
+        expect(r.headers['user-agent']).toContain('snyk-cli/');
       }
     });
   });
