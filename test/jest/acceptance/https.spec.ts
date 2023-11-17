@@ -86,7 +86,7 @@ describe('https', () => {
       // get rid of the first entry which has another User Agent
       server.getRequests().reverse().pop()
 
-      for(var r of server.getRequests()) {
+      for(const r of server.getRequests()) {
         expect(r.headers["user-agent"]).toContain("snyk-cli/")
       }
     });
