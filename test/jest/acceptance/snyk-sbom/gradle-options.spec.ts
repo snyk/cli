@@ -41,7 +41,7 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
       env,
     );
 
-    expect(sbom.metadata.component.name).toEqual('gradle-multi-project/lib');
+    expect(sbom.metadata.component.name).toEqual('example-multi-project/lib');
     expect(sbom.components.length).toBeGreaterThan(1);
   });
 
@@ -52,7 +52,7 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
       env,
     );
 
-    expect(sbom.metadata.component.name).toEqual('gradle-multi-project/lib');
+    expect(sbom.metadata.component.name).toEqual('example-multi-project/lib');
     expect(sbom.components.length).toBeGreaterThan(1);
   });
 
@@ -65,9 +65,9 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
 
     expect(sbom.metadata.component.name).toEqual('gradle-multi-project');
     const listedComponentNames = sbom.components.map((it) => it.name);
-    expect(listedComponentNames).toContain('gradle-multi-project');
-    expect(listedComponentNames).toContain('gradle-multi-project/lib');
-    expect(listedComponentNames).toContain('gradle-multi-project/app');
+    expect(listedComponentNames).toContain('example-multi-project');
+    expect(listedComponentNames).toContain('example-multi-project/lib');
+    expect(listedComponentNames).toContain('example-multi-project/app');
   });
 
   test('`sbom --configuration-matching=<CONFIGURATION_REGEX>` generates an SBOM only for matching configuration', async () => {
