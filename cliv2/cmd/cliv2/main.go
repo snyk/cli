@@ -31,6 +31,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
+
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
@@ -79,7 +81,7 @@ const (
 
 func getDebugLevel(config configuration.Configuration) zerolog.Level {
 	loglevel := zerolog.DebugLevel
-	if loglevelString := config.GetString("snyk_loglevel"); loglevelString != "" {
+	if loglevelString := config.GetString("snyk_log_level"); loglevelString != "" {
 		var err error
 		loglevel, err = zerolog.ParseLevel(loglevelString)
 		if err == nil {
@@ -115,6 +117,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.API_URL, []string{"endpoint"})
 	config.AddAlternativeKeys(configuration.ADD_TRUSTED_CA_FILE, []string{"NODE_EXTRA_CA_CERTS"})
 	config.AddAlternativeKeys(configuration.ANALYTICS_DISABLED, []string{strings.ToLower(constants.SNYK_ANALYTICS_DISABLED_ENV), "snyk_cfg_disable_analytics", "disable-analytics", "disable_analytics"})
+	config.AddAlternativeKeys(configuration.ORGANIZATION, []string{"snyk_cfg_org"})
 
 	// if the CONFIG_KEY_OAUTH_TOKEN is specified as env var, we don't apply any additional logic
 	_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
@@ -371,6 +374,7 @@ func displayError(err error) {
 
 func MainWithErrorCode() int {
 	var err error
+	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
 	rootCommand := prepareRootCommand()
 	_ = rootCommand.ParseFlags(os.Args)
@@ -386,7 +390,7 @@ func MainWithErrorCode() int {
 	debugLogger := initDebugLogger(globalConfiguration)
 
 	initApplicationConfiguration(globalConfiguration)
-	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(globalConfiguration))
+	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
 
 	if noProxyAuth := globalConfiguration.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
@@ -423,7 +427,7 @@ func MainWithErrorCode() int {
 		"User-Agent",
 		networking.UserAgent(
 			networking.UaWithConfig(globalConfiguration),
-			networking.UaWithApplication("snyk-cli", cliv2.GetFullVersion()),
+			networking.UaWithRuntimeInfo(rInfo),
 			networking.UaWithOS(internalOS)).String(),
 	)
 
