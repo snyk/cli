@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -211,5 +212,21 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 			actualUnknownArgs := config.GetStringSlice(configuration.UNKNOWN_ARGS)
 			assert.Equal(t, expectedUnknownArgs, actualUnknownArgs)
 		})
+	}
+}
+
+func Test_setTimeout(t *testing.T) {
+	exitedCh := make(chan struct{})
+	fakeExit := func() {
+		close(exitedCh)
+	}
+	config := configuration.New()
+	config.Set(configuration.TIMEOUT, 1)
+	setTimeout(config, fakeExit)
+	select {
+	case <-exitedCh:
+		break
+	case <-time.After(5 * time.Second):
+		t.Fatal("timeout func never executed")
 	}
 }
