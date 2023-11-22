@@ -5,7 +5,7 @@ import config from '../../config';
 import { assembleQueryString } from '../../snyk-test/common';
 import { SastSettings, TrackUsageResponse } from './types';
 
-export async function getSastSettingsForOrg(org): Promise<SastSettings> {
+export async function getSastSettingsForOrg(org: string): Promise<SastSettings> {
   const response = await makeRequest({
     method: 'GET',
     headers: {

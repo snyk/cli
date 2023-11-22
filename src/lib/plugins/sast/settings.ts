@@ -5,13 +5,16 @@ import { getSastSettingsForOrg, trackUsage } from './checks';
 
 import {
   AuthFailedError,
+  CustomError,
   FailedToRunTestError,
   FeatureNotSupportedForOrgError,
   NotFoundError,
 } from '../../errors';
 
 export async function getSastSettings(options: Options): Promise<SastSettings> {
-  const org = options.org || config.org;
+  const org = options.org || config.org || config.orgId;
+
+  if (!org) throw new CustomError('orgId is required to fetch sast settings');
 
   // This is an unexpected path, code plugin executed for non-code command.
   if (!options.code) {
