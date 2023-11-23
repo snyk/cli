@@ -661,8 +661,8 @@ github.com/snyk/cli-extension-dep-graph v0.0.0-20230926124856-b0fdf1ee6f73 h1:rw
 github.com/snyk/cli-extension-dep-graph v0.0.0-20230926124856-b0fdf1ee6f73/go.mod h1:QF3v8HBpOpyudYNCuR8LqfULutO76c91sBdLzD+pBJU=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce h1:WchwuyPX4mEr7tFCGD6EsjwTDipFWfLxs4Wps6KB3b4=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce/go.mod h1:5/IYYTgf32pST7St4GhS3KNz32WE17Ys+Hdb5Pqxex0=
-github.com/snyk/cli-extension-sbom v0.0.0-20230926124903-9705d7d47d8f h1:U3DQ9wnHJzs8NcM+kkjxDkOa/zkqLeiUs+eL/dLHsic=
-github.com/snyk/cli-extension-sbom v0.0.0-20230926124903-9705d7d47d8f/go.mod h1:O/cjwCbKhJQWyXHPmNbZ7ToQKnhyw0VUp1Qhim3WEcw=
+github.com/snyk/cli-extension-sbom v0.0.0-20231123083311-52b1cecc1a7a h1:oRrk9bvMXdAVhRt84Y8G06+Op7fYQYrRuslngG9BPZk=
+github.com/snyk/cli-extension-sbom v0.0.0-20231123083311-52b1cecc1a7a/go.mod h1:IwRGWjRuNkY08O7NJb7u3JuQkroEB8Qi1MlASpZVu1Q=
 github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f h1:ghajT5PEiLP8XNFIdc7Yn4Th74RH/9Q++dDOp6Cb9eo=
 github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
 github.com/snyk/go-application-framework v0.0.0-20231121110922-9719383f0706 h1:z/g5P0kS7bedN07rNChlPEifKvAe9+hufGEEifPNcJg=

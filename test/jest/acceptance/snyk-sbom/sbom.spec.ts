@@ -54,4 +54,27 @@ describe('snyk sbom (mocked server only)', () => {
     expect(bom.metadata.component.name).toEqual('npm-package');
     expect(bom.components).toHaveLength(3);
   });
+
+  test('`sbom` includes a tool name in the document', async () => {
+    const project = await createProjectFromWorkspace('npm-package');
+
+    const { stdout } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --debug`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+    const bom = JSON.parse(stdout);
+
+    expect(bom.metadata.tools).toEqual(
+      expect.arrayContaining([
+        {
+          vendor: 'Snyk',
+          name: 'snyk-cli',
+          version: expect.any(String),
+        },
+      ]),
+    );
+  });
 });
