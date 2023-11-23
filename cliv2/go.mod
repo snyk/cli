@@ -13,7 +13,7 @@ require (
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
 	github.com/snyk/cli-extension-sbom v0.0.0-20230926124903-9705d7d47d8f
 	github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f
-	github.com/snyk/go-application-framework v0.0.0-20231121110922-9719383f0706
+	github.com/snyk/go-application-framework v0.0.0-20231123150220-95811b95cf77
 	github.com/snyk/go-httpauth v0.0.0-20231117135515-eb445fea7530
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20231114150608-4bb0b45433fa
@@ -173,3 +173,4 @@ require (
 
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
+

@@ -404,6 +404,8 @@ func MainWithErrorCode() int {
 	engine.AddExtensionInitializer(iacrules.Init)
 	engine.AddExtensionInitializer(snykls.Init)
 	engine.AddExtensionInitializer(container.Init)
+	engine.AddExtensionInitializer(localworkflows.InitEuEnvironmentWorkflow)
+	engine.AddExtensionInitializer(localworkflows.InitAuEnvironmentWorkflow)
 
 	// init engine
 	err = engine.Init()
