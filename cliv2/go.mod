@@ -11,7 +11,7 @@ require (
 	github.com/rs/zerolog v1.31.0
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20230926124856-b0fdf1ee6f73
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
-	github.com/snyk/cli-extension-sbom v0.0.0-20230926124903-9705d7d47d8f
+	github.com/snyk/cli-extension-sbom v0.0.0-20231123083311-52b1cecc1a7a
 	github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f
 	github.com/snyk/go-application-framework v0.0.0-20231121110922-9719383f0706
 	github.com/snyk/go-httpauth v0.0.0-20231117135515-eb445fea7530

@@ -521,6 +521,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     (req, res) => {
       const depGraph: void | Record<string, any> = req.body.depGraph;
       const depGraphs: void | Record<string, any>[] = req.body.depGraphs;
+      const tools: void | Record<string, any>[] = req.body.tools;
       let bom: Record<string, unknown> = { bomFormat: 'CycloneDX' };
 
       if (Array.isArray(depGraphs) && req.body.subject) {
@@ -539,6 +540,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           ...bom,
           metadata: { component: { name: depGraph.pkgs[0]?.info.name } },
           components: depGraph.pkgs.map(({ info: { name } }) => ({ name })),
+        };
+      }
+
+      if (Array.isArray(tools)) {
+        bom.metadata = {
+          ...(bom.metadata as any),
+          tools: [...tools, { name: 'fake-server' }],
         };
       }
 
