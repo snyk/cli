@@ -96,6 +96,15 @@ async function handleError(args, error) {
   let command = 'bad-command';
   let exitCode = EXIT_CODES.ERROR;
 
+  // If Snyk CLI is running in CI mode (SNYK_CI=1), differentiate authorization
+  if (process.env.SNYK_CI === '1') {
+    if (error.code === 401 || error.code === 403) {
+      exitCode = EXIT_CODES.EX_NOPERM;
+    } else if (error.code >= 400 && error.code < 500) {
+      exitCode = EXIT_CODES.EX_UNAVAILABLE;
+    }
+  }
+
   const vulnsFound = error.code === 'VULNS';
 
   if (args.command === 'test' && args.options?.unmanaged) {
