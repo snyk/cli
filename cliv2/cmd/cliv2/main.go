@@ -4,7 +4,9 @@ package main
 import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,6 +15,9 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
@@ -24,7 +29,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
-
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
@@ -32,10 +36,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
-
 	snykls "github.com/snyk/snyk-ls/ls_extension"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 var internalOS string
@@ -355,7 +356,8 @@ func handleError(err error) HandleError {
 
 func displayError(err error) {
 	if err != nil {
-		if _, ok := err.(*exec.ExitError); !ok {
+		var exitError *exec.ExitError
+		if !errors.As(err, &exitError) {
 			if globalConfiguration.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
 				jsonError := JsonErrorStruct{
 					Ok:       false,
@@ -366,7 +368,11 @@ func displayError(err error) {
 				jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
 				fmt.Println(string(jsonErrorBuffer))
 			} else {
-				fmt.Println(err)
+				if errors.Is(err, context.DeadlineExceeded) {
+					fmt.Println("command timed out")
+				} else {
+					fmt.Println(err)
+				}
 			}
 		}
 	}
@@ -479,8 +485,9 @@ func setTimeout(config configuration.Configuration, onTimeout func()) {
 	}
 	debugLogger.Printf("Command timeout set for %d seconds", timeout)
 	go func() {
-		<-time.After(time.Duration(timeout) * time.Second)
-		fmt.Fprintf(os.Stderr, "command timed out\n")
+		const gracePeriodForSubProcesses = 3
+		<-time.After(time.Duration(timeout+gracePeriodForSubProcesses) * time.Second)
+		fmt.Fprintf(os.Stdout, "command timed out")
 		onTimeout()
 	}()
 }
