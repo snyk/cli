@@ -477,9 +477,7 @@ func Test_setTimeout(t *testing.T) {
 	cli.SetV1BinaryLocation("/bin/sleep")
 	err := cli.Execute(getProxyInfoForTest(), []string{"2"})
 
-	// process should be terminated with sigkill
-	exitCode := err.(*exec.ExitError).ExitCode()
-	assert.Equal(t, -1, exitCode)
+	assert.ErrorIs(t, err, context.DeadlineExceeded)
 
 	// ensure that -1 is correctly mapped if timeout is set
 	assert.Equal(t, constants.SNYK_EXIT_CODE_EX_UNAVAILABLE, cliv2.DeriveExitCode(err, config))
