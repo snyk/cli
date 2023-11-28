@@ -367,8 +367,7 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 	if timeout == 0 {
 		ctx = context.Background()
 	} else {
-		deadline := time.Now().Add(time.Duration(timeout) * time.Second)
-		ctx, cancel = context.WithDeadline(context.Background(), deadline)
+		ctx, cancel = context.WithTimeout(context.Background(), time.Duration(timeout) * time.Second)
 		defer cancel()
 	}
 
