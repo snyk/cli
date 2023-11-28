@@ -4,7 +4,9 @@ Entry point class for the CLIv2 version.
 package cliv2
 
 import (
+	"context"
 	_ "embed"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -13,6 +15,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gofrs/flock"
 	"github.com/snyk/go-application-framework/pkg/configuration"
@@ -72,6 +75,11 @@ func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger) (*CLI
 	}
 
 	return &cli, nil
+}
+
+// SetV1BinaryLocation for testing purposes
+func (c *CLI) SetV1BinaryLocation(filePath string) {
+	c.v1BinaryLocation = filePath
 }
 
 func (c *CLI) Init() (err error) {
@@ -200,7 +208,7 @@ func (c *CLI) GetBinaryLocation() string {
 }
 
 func (c *CLI) printVersion() {
-	fmt.Fprintln(c.stdout, GetFullVersion())
+	_, _ = fmt.Fprintln(c.stdout, GetFullVersion())
 }
 
 func (c *CLI) commandVersion(passthroughArgs []string) error {
@@ -235,8 +243,8 @@ func (c *CLI) commandAbout(proxyInfo *proxy.ProxyInfo, passthroughArgs []string)
 			}
 
 			fmt.Printf("Package: %s \n", strings.ReplaceAll(strings.ReplaceAll(fPath, "/licenses/", ""), "/"+f.Name(), ""))
-			fmt.Fprintln(c.stdout, string(data))
-			fmt.Fprint(c.stdout, separator)
+			_, _ = fmt.Fprintln(c.stdout, string(data))
+			_, _ = fmt.Fprint(c.stdout, separator)
 		}
 	}
 
@@ -340,16 +348,9 @@ func PrepareV1EnvironmentVariables(
 
 }
 
-func (c *CLI) PrepareV1Command(
-	cmd string,
-	args []string,
-	proxyInfo *proxy.ProxyInfo,
-	integrationName string,
-	integrationVersion string,
-) (snykCmd *exec.Cmd, err error) {
+func (c *CLI) PrepareV1Command(ctx context.Context, cmd string, args []string, proxyInfo *proxy.ProxyInfo, integrationName string, integrationVersion string) (snykCmd *exec.Cmd, err error) {
 	proxyAddress := fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, proxyInfo.Password, proxyInfo.Port)
-
-	snykCmd = exec.Command(cmd, args...)
+	snykCmd = exec.CommandContext(ctx, cmd, args...)
 	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, c.globalConfig, args)
 
 	if len(c.WorkingDirectory) > 0 {
@@ -360,8 +361,18 @@ func (c *CLI) PrepareV1Command(
 }
 
 func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
+	timeout := c.globalConfig.GetInt(configuration.TIMEOUT)
+	var ctx context.Context
+	var cancel context.CancelFunc
+	if timeout == 0 {
+		ctx = context.Background()
+	} else {
+		deadline := time.Now().Add(time.Duration(timeout) * time.Second)
+		ctx, cancel = context.WithDeadline(context.Background(), deadline)
+		defer cancel()
+	}
 
-	snykCmd, err := c.PrepareV1Command(c.v1BinaryLocation, passThroughArgs, proxyInfo, c.GetIntegrationName(), GetFullVersion())
+	snykCmd, err := c.PrepareV1Command(ctx, c.v1BinaryLocation, passThroughArgs, proxyInfo, c.GetIntegrationName(), GetFullVersion())
 
 	if c.DebugLogger.Writer() != io.Discard {
 		c.DebugLogger.Println("Launching: ")
@@ -397,13 +408,16 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 	snykCmd.Stderr = c.stderr
 
 	if err != nil {
-		if evWarning, ok := err.(EnvironmentWarning); ok {
-			fmt.Fprintln(c.stdout, "WARNING! ", evWarning)
+		var evWarning EnvironmentWarning
+		if errors.As(err, &evWarning) {
+			_, _ = fmt.Fprintln(c.stdout, "WARNING! ", evWarning)
 		}
 	}
 
 	err = snykCmd.Run()
-
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		_, _ = fmt.Fprintln(c.stdout, "command timed out")
+	}
 	return err
 }
 
@@ -423,15 +437,16 @@ func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) erro
 	return err
 }
 
-func DeriveExitCode(err error) int {
+func DeriveExitCode(err error, config configuration.Configuration) int {
 	returnCode := constants.SNYK_EXIT_CODE_OK
 
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
+		var exitError *exec.ExitError
+		if errors.As(err, &exitError) {
 			returnCode = exitError.ExitCode()
-		} else {
-			// got an error but it's not an ExitError
-			returnCode = constants.SNYK_EXIT_CODE_ERROR
+			if returnCode == -1 && config.GetInt(configuration.TIMEOUT) > 0 {
+				returnCode = constants.SNYK_EXIT_CODE_EX_UNAVAILABLE
+			}
 		}
 	}
 

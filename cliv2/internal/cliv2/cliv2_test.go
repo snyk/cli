@@ -1,11 +1,13 @@
 package cliv2_test
 
 import (
+	"context"
 	"io"
 	"log"
 	"os"
 	"os/exec"
 	"path"
+	"runtime"
 	"sort"
 	"testing"
 	"time"
@@ -273,6 +275,7 @@ func Test_prepareV1Command(t *testing.T) {
 	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 
 	snykCmd, err := cli.PrepareV1Command(
+		context.Background(),
 		"someExecutable",
 		expectedArgs,
 		getProxyInfoForTest(),
@@ -301,7 +304,7 @@ func Test_extractOnlyOnce(t *testing.T) {
 
 	// run once
 	assert.Nil(t, cli.Init())
-	cli.Execute(getProxyInfoForTest(), []string{"--help"})
+	_ = cli.Execute(getProxyInfoForTest(), []string{"--help"})
 	assert.FileExists(t, cli.GetBinaryLocation())
 	fileInfo1, _ := os.Stat(cli.GetBinaryLocation())
 
@@ -310,7 +313,7 @@ func Test_extractOnlyOnce(t *testing.T) {
 
 	// run twice
 	assert.Nil(t, cli.Init())
-	cli.Execute(getProxyInfoForTest(), []string{"--help"})
+	_ = cli.Execute(getProxyInfoForTest(), []string{"--help"})
 	assert.FileExists(t, cli.GetBinaryLocation())
 	fileInfo2, _ := os.Stat(cli.GetBinaryLocation())
 
@@ -366,7 +369,7 @@ func Test_executeRunV2only(t *testing.T) {
 	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 	assert.Nil(t, cli.Init())
 
-	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--version"}))
+	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--version"}), config)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 
@@ -383,7 +386,7 @@ func Test_executeUnknownCommand(t *testing.T) {
 	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 	assert.Nil(t, cli.Init())
 
-	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"bogusCommand"}))
+	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"bogusCommand"}), config)
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 }
 
@@ -459,4 +462,25 @@ func Test_clearCacheBigCache(t *testing.T) {
 	// check if directories that need to exist still exist
 	assert.DirExists(t, dir6)
 	assert.FileExists(t, currentVersion)
+}
+
+func Test_setTimeout(t *testing.T) {
+	if //goland:noinspection ALL
+	runtime.GOOS == "windows" {
+		t.Skip("Skipping test on windows")
+	}
+	config := configuration.NewInMemory()
+	cli, _ := cliv2.NewCLIv2(config, discardLogger)
+	config.Set(configuration.TIMEOUT, 1)
+
+	// sleep for 2s
+	cli.SetV1BinaryLocation("/bin/sleep")
+	err := cli.Execute(getProxyInfoForTest(), []string{"2"})
+
+	// process should be terminated with sigkill
+	exitCode := err.(*exec.ExitError).ExitCode()
+	assert.Equal(t, -1, exitCode)
+
+	// ensure that -1 is correctly mapped if timeout is set
+	assert.Equal(t, constants.SNYK_EXIT_CODE_EX_UNAVAILABLE, cliv2.DeriveExitCode(err, config))
 }

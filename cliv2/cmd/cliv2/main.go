@@ -466,7 +466,7 @@ func MainWithErrorCode() int {
 
 	displayError(err)
 
-	exitCode := cliv2.DeriveExitCode(err)
+	exitCode := cliv2.DeriveExitCode(err, globalConfiguration)
 	debugLogger.Printf("Exiting with %d", exitCode)
 
 	return exitCode
@@ -479,8 +479,9 @@ func setTimeout(config configuration.Configuration, onTimeout func()) {
 	}
 	debugLogger.Printf("Command timeout set for %d seconds", timeout)
 	go func() {
-		<-time.After(time.Duration(timeout) * time.Second)
-		fmt.Fprintf(os.Stderr, "command timed out\n")
+		// we wait a bit longer than the timeout to ensure that the command has enough time to finish
+		<-time.After(time.Duration(timeout+5) * time.Second)
+		fmt.Fprintf(os.Stdout, "command timed out")
 		onTimeout()
 	}()
 }
