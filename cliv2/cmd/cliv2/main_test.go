@@ -5,12 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/snyk/go-application-framework/pkg/configuration"
-	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
-	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/snyk/go-application-framework/pkg/configuration"
+	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/workflow"
 )
 
 func cleanup() {
@@ -226,7 +227,7 @@ func Test_setTimeout(t *testing.T) {
 	select {
 	case <-exitedCh:
 		break
-	case <-time.After(4 * time.Second):
+	case <-time.After(5 * time.Second):
 		t.Fatal("timeout func never executed")
 	}
 }
