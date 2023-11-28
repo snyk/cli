@@ -8,7 +8,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
+
 	"github.com/rs/zerolog"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
@@ -18,25 +27,15 @@ import (
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
+	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
-	"github.com/snyk/snyk-iac-capture/pkg/capture"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"io"
-	"os"
-	"os/exec"
-	"strings"
-	"time"
-)
-
-import (
-	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
+	"github.com/snyk/snyk-iac-capture/pkg/capture"
 	snykls "github.com/snyk/snyk-ls/ls_extension"
 )
 
@@ -486,8 +485,8 @@ func setTimeout(config configuration.Configuration, onTimeout func()) {
 	}
 	debugLogger.Printf("Command timeout set for %d seconds", timeout)
 	go func() {
-		// we wait a bit longer than the timeout to ensure that the command has enough time to finish
-		<-time.After(time.Duration(timeout+5) * time.Second)
+		const gracePeriodForSubProcesses = 3
+		<-time.After(time.Duration(timeout+gracePeriodForSubProcesses) * time.Second)
 		fmt.Fprintf(os.Stdout, "command timed out")
 		onTimeout()
 	}()

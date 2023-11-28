@@ -348,7 +348,14 @@ func PrepareV1EnvironmentVariables(
 
 }
 
-func (c *CLI) PrepareV1Command(ctx context.Context, cmd string, args []string, proxyInfo *proxy.ProxyInfo, integrationName string, integrationVersion string) (snykCmd *exec.Cmd, err error) {
+func (c *CLI) PrepareV1Command(
+	ctx context.Context,
+	cmd string,
+	args []string,
+	proxyInfo *proxy.ProxyInfo,
+	integrationName string,
+	integrationVersion string,
+) (snykCmd *exec.Cmd, err error) {
 	proxyAddress := fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, proxyInfo.Password, proxyInfo.Port)
 	snykCmd = exec.CommandContext(ctx, cmd, args...)
 	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, c.globalConfig, args)
@@ -367,7 +374,7 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 	if timeout == 0 {
 		ctx = context.Background()
 	} else {
-		ctx, cancel = context.WithTimeout(context.Background(), time.Duration(timeout) * time.Second)
+		ctx, cancel = context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 		defer cancel()
 	}
 
