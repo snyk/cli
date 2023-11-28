@@ -470,7 +470,8 @@ func Test_setTimeout(t *testing.T) {
 		t.Skip("Skipping test on windows")
 	}
 	config := configuration.NewInMemory()
-	cli, _ := cliv2.NewCLIv2(config, discardLogger)
+	cli, err := cliv2.NewCLIv2(config, discardLogger)
+	assert.NoError(t, err)
 	config.Set(configuration.TIMEOUT, 1)
 
 	// sleep for 2s
