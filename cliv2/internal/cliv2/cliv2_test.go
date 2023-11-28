@@ -369,7 +369,7 @@ func Test_executeRunV2only(t *testing.T) {
 	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 	assert.Nil(t, cli.Init())
 
-	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--version"}), config)
+	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--version"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
 
@@ -386,7 +386,7 @@ func Test_executeUnknownCommand(t *testing.T) {
 	cli, _ := cliv2.NewCLIv2(config, discardLogger)
 	assert.Nil(t, cli.Init())
 
-	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"bogusCommand"}), config)
+	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"bogusCommand"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 }
 
@@ -480,5 +480,5 @@ func Test_setTimeout(t *testing.T) {
 	assert.ErrorIs(t, err, context.DeadlineExceeded)
 
 	// ensure that -1 is correctly mapped if timeout is set
-	assert.Equal(t, constants.SNYK_EXIT_CODE_EX_UNAVAILABLE, cliv2.DeriveExitCode(err, config))
+	assert.Equal(t, constants.SNYK_EXIT_CODE_EX_UNAVAILABLE, cliv2.DeriveExitCode(err))
 }

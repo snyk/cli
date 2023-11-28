@@ -4,14 +4,10 @@ package main
 import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
-	"os"
-	"os/exec"
-	"strings"
-	"time"
-
 	"github.com/rs/zerolog"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
@@ -22,20 +18,26 @@ import (
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
-	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
-
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
-	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
-
-	snykls "github.com/snyk/snyk-ls/ls_extension"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"io"
+	"os"
+	"os/exec"
+	"strings"
+	"time"
+)
+
+import (
+	"github.com/snyk/go-application-framework/pkg/auth"
+	"github.com/snyk/go-httpauth/pkg/httpauth"
+	snykls "github.com/snyk/snyk-ls/ls_extension"
 )
 
 var internalOS string
@@ -355,7 +357,8 @@ func handleError(err error) HandleError {
 
 func displayError(err error) {
 	if err != nil {
-		if _, ok := err.(*exec.ExitError); !ok {
+		var exitError *exec.ExitError
+		if !errors.As(err, &exitError) {
 			if globalConfiguration.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
 				jsonError := JsonErrorStruct{
 					Ok:       false,
@@ -366,7 +369,11 @@ func displayError(err error) {
 				jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
 				fmt.Println(string(jsonErrorBuffer))
 			} else {
-				fmt.Println(err)
+				if errors.Is(err, context.DeadlineExceeded) {
+					fmt.Println("command timed out")
+				} else {
+					fmt.Println(err)
+				}
 			}
 		}
 	}
@@ -466,7 +473,7 @@ func MainWithErrorCode() int {
 
 	displayError(err)
 
-	exitCode := cliv2.DeriveExitCode(err, globalConfiguration)
+	exitCode := cliv2.DeriveExitCode(err)
 	debugLogger.Printf("Exiting with %d", exitCode)
 
 	return exitCode

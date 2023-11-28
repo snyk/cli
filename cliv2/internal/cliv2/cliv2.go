@@ -416,7 +416,6 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 
 	err = snykCmd.Run()
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		_, _ = fmt.Fprintln(c.stdout, "command timed out")
 		return ctx.Err()
 	}
 	return err
@@ -438,7 +437,7 @@ func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) erro
 	return err
 }
 
-func DeriveExitCode(err error, config configuration.Configuration) int {
+func DeriveExitCode(err error) int {
 	returnCode := constants.SNYK_EXIT_CODE_OK
 
 	if err != nil {
