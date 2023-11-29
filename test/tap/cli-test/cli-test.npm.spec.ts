@@ -288,5 +288,24 @@ export const NpmTests: AcceptanceTests = {
         'depGraph looks fine',
       );
     },
+    '`test npm-package-with-overrides` correctly completes test': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      await params.cli.test('npm-package-with-overrides');
+      const req = params.server.popRequest();
+      const depGraph = req.body.depGraph;
+      t.same(
+        depGraph.pkgs.map((p) => p.id).includes('semver@6.0.0'),
+        false,
+        'override pkg original version not present',
+      );
+      t.same(
+        depGraph.pkgs.map((p) => p.id).includes('semver@7.5.2'),
+        true,
+        'override pkg is correct version',
+      );
+    },
   },
 };
