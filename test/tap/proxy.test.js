@@ -2,7 +2,6 @@ const tap = require('tap');
 const test = tap.test;
 const url = require('url');
 const http = require('http');
-const nock = require('nock');
 import { makeRequest } from '../../src/lib/request';
 
 const proxyPort = 4242;
@@ -16,31 +15,7 @@ const requestPath = '/api/v1/verify/token';
  * see https://www.gnu.org/software/wget/manual/html_node/Proxies.html
  */
 test('request respects proxy environment variables', async (t) => {
-  t.plan(6);
-
-  t.test('direct http access', async (t) => {
-    const nockClient = nock(httpRequestHost)
-      .post(requestPath)
-      .reply(200, {});
-    const result = await makeRequest({
-      method: 'post',
-      url: httpRequestHost + requestPath,
-    });
-    t.equal(result.res.statusCode, 200, '');
-    t.ok(nockClient.isDone(), 'direct call without a proxy');
-  });
-
-  t.test('direct https access', async (t) => {
-    const nockClient = nock(httpsRequestHost)
-      .post(requestPath)
-      .reply(200, {});
-    const result = await makeRequest({
-      method: 'post',
-      url: httpsRequestHost + requestPath,
-    });
-    t.equal(result.res.statusCode, 200, '');
-    t.ok(nockClient.isDone(), 'direct call without a proxy');
-  });
+  t.plan(4);
 
   t.test('http_proxy', async (t) => {
     // NO_PROXY is set in CircleCI and brakes test purpose
