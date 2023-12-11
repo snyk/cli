@@ -1,0 +1,7 @@
+{
+  "name": "npm-scoped-sub-dep",
+  "dependencies": {
+    "@semantic-release/npm": "^10.0.0",
+    "@storybook/addon-essentials": "^7.4.5"
+  }
+}
