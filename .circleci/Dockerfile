@@ -68,7 +68,7 @@ RUN scripts/jvm-install.sh
 ENV PATH=/home/circleci/.sdkman/candidates/scala/current/bin:/home/circleci/.sdkman/candidates/sbt/current/bin:/home/circleci/.sdkman/candidates/java/current/bin:$PATH
 
 # install dotnet
-RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 7.0
+RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
 ENV PATH=/home/circleci/.dotnet:$PATH
 ENV TEMP=/tmp
 ENV TMP=$TEMP
