@@ -307,5 +307,40 @@ export const NpmTests: AcceptanceTests = {
         'override pkg is correct version',
       );
     },
+    '`test npm-lock-v2-with-npm-prefixed-sub-dep-version` correctly completes test': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      await params.cli.test('npm-lock-v2-with-npm-prefixed-sub-dep-version');
+      const req = params.server.popRequest();
+      const depGraph = req.body.depGraph;
+      t.same(
+        depGraph.pkgs.map((p) => p.id).includes('string-width-cjs@4.2.3'),
+        true,
+        'npm prefixed subdep has a numbered version',
+      );
+    },
+    '`test npm-lock-v2-with-simple-version-range-override` correctly completes test': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      await params.cli.test('npm-lock-v2-with-simple-version-range-override');
+      const req = params.server.popRequest();
+      const depGraph = req.body.depGraph;
+      t.notOk(
+        depGraph.pkgs
+          .map((p) => p.id)
+          .find((el: string) => el.startsWith('uuid@8')),
+        'no uuid version matching ^8',
+      );
+      t.ok(
+        depGraph.pkgs
+          .map((p) => p.id)
+          .find((el: string) => el.startsWith('uuid@9')),
+        'uuid version matching ^9',
+      );
+    },
   },
 };
