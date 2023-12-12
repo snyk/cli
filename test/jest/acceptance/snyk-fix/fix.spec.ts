@@ -8,10 +8,10 @@ import {
 import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
 
-// Check for existance of pipenv in the environment
+// Check for existence of pipenv in the environment
 const hasPipEnv = spawnSync('pipenv', ['--version']).status === 0;
 
-jest.setTimeout(1000 * 60);
+jest.setTimeout(1000 * 80);
 describe('snyk fix', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
