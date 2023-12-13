@@ -1,0 +1,1 @@
+dragon-upgrader == 0.1.0; python_version >= '3.12'
