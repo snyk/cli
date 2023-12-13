@@ -14,7 +14,6 @@ import {
   createIgnorePattern,
   verifyServiceMappingExists,
 } from '../service-mappings';
-import { validateArgs } from '../drift';
 import * as debugLib from 'debug';
 import { makeRequest } from '../../request';
 import * as child_process from 'child_process';
@@ -36,29 +35,29 @@ export const DCTL_EXIT_CODES = {
   EXIT_ERROR: 2,
 };
 
-export const driftctlVersion = 'v0.36.0';
+export const driftctlVersion = 'v0.40.0';
 
 const driftctlChecksums = {
   driftctl_darwin_amd64:
-    'c9b44613694931d5033d16cf6396c2611d115f3c6971c8215c04b6ce321e9bb5',
+    '4eb86bd4a1e965c2552879795434143f1db974b2d795581b9ddb69d0bd8a245a',
   'driftctl_windows_386.exe':
-    'e37505fa9875b3d3c29fdfffebbe03f60154aae3e8d7057cad469dfceec47151',
+    'a02f079cb128ba46396db9654bc8bb8066ebde0539ebbeb401a40a81dfc8f733',
   driftctl_darwin_arm64:
-    'a18cb7039bf67bf0addf628887cfd12488895492d7e0c3a31a0a51005bc0d583',
+    'dfdee8138eb817cc066b8bf915c808fbd53536ee1757b34ca6e518e1c2ad1ba5',
   driftctl_linux_arm64:
-    '6dcc235d511546cc3573f5a7b3fc2a825a4dff7e08df481a55f5826ac6802059',
+    '8816f1378138c2ce585c762e109b5fdd41b7144b915e97759ceae946db023540',
   'driftctl_windows_arm.exe':
-    'c7bf2d1f268a5c4b6985d02a0d2e98ecf43ef5bc4de14360568f0233e206e471',
+    '6217151b4168e93ffdd6e005cb1cf03768f371cd6b412f53605fde46343c08d1',
   driftctl_linux_amd64:
-    'f2b388a6f92772e35320cb2240b68dab2c62c87d4a84ffc88bb42020cb0ab805',
+    '84e2462454956a4df794a24e0f4d2351299212d772b8602fc5070e6174ac1324',
   'driftctl_windows_amd64.exe':
-    '696e067ee37c156b175c51e55481e823fb8601c8d69133cb12ba8a3f2e22aa68',
+    '1561fd04e3d428c39ae95f81214517bbf62e8333156bf538a2d385005e350c8b',
   'driftctl_windows_arm64.exe':
-    '5531adc30e0d1431b692062bbc7c91536d86f5f5d212a5bd3083fec6007f0be5',
+    '76f939d836da64fa9dab63f0eeffd09a0de7e353b034296b8f1582cdff6f2a61',
   driftctl_linux_arm:
-    'c6bcd8987f633d310b9872c5635112d8fd479f4117518aa4864fa38874c7869e',
+    '7f669ca49e152779a09587ff0e58dedd3996229cc8ff3e5cdc371895eaa994f6',
   driftctl_linux_386:
-    '864ff0810466ed2917b3347866b5da80fae43e2487b18a563f1d7f299e5f1518',
+    'e6bbdf341148e81511d30dd5afe2fa2ef08f3b0b75079bf0bde2b790d75beb8a',
 };
 
 const dctlBaseUrl = 'https://static.snyk.io/cli/driftctl/';
@@ -150,14 +149,6 @@ const generateScanFlags = async (
     args.push('--strict');
   }
 
-  if (options.deep || options.all) {
-    args.push('--deep');
-  }
-
-  if (options['only-managed'] || options.drift) {
-    args.push('--only-managed');
-  }
-
   if (options['only-unmanaged']) {
     args.push('--only-unmanaged');
   }
@@ -238,24 +229,6 @@ export const runDriftCTL = async ({
   stdio?: StdioOptions;
 }): Promise<DriftctlExecutionResult> => {
   const path = await findOrDownload();
-  await validateArgs(options);
-
-  if (options.kind === 'describe') {
-    const descOptions = options as DescribeOptions;
-
-    if (
-      descOptions.deep ||
-      descOptions.all ||
-      descOptions['only-managed'] ||
-      descOptions.drift
-    ) {
-      process.stderr.write(
-        `DEPRECATION NOTICE: Drift detection of managed resources,\n` +
-          `including --only-managed and --drift has been deprecated.\n` +
-          `The end-of-life date for drift detection of managed resources is September 30. 2023.\n\n`,
-      );
-    }
-  }
 
   const args = await generateArgs(options, driftIgnore);
 

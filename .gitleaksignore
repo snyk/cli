@@ -79,3 +79,6 @@ cba65a3a91c64db2ee92c87e5972602b6c959586:test/fixtures/sast/sample-analyze-folde
 c2de35484dcad696a6ee32f2fa317d5cfaffc133:test/fixtures/code/sample-analyze-folders-response.json:generic-api-key:3
 668e99c11a12699d9b1aca20cf48e1969055acf5:test/fixtures/sast/sample-analyze-scm-project-response.json:generic-api-key:4
 0fb9746f823f48b2802269569e8575f4dfd3d95d:help/cli-commands/iac-test.md:snyk-api-token:219
+168e6f2b48bc294e558d648626a1e00ccd85decc:test/jest/unit/lib/iac/drift/fixtures/all.console:aws-access-token:98
+4c12242de73be79ebd768468e065790f0b9d23a7:test/jest/unit/lib/iac/drift/fixtures/all.console:aws-access-token:98
+25f37b4c609380452b0b96c3853b69e4dc29bb48:test/jest/unit/lib/iac/drift/fixtures/all.console:aws-access-token:98

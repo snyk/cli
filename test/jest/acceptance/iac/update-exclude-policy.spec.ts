@@ -59,7 +59,6 @@ describe('iac update-exclude-policy', () => {
     const policy = await findAndLoadPolicy(tmpFolderPath, 'iac', {});
     const expectedExcludes = {
       'iac-drift': [
-        'aws_iam_access_key.AKIA5QYBVVD25KFXJHYJ',
         'aws_iam_user.test-driftctl2',
         'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
         'aws_s3_bucket_policy.driftctl',

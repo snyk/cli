@@ -1,9 +1,6 @@
 import {
   DescribeOptions,
-  DiffByType,
   DriftAnalysis,
-  DriftAnalysisDifference,
-  DriftChange,
   DriftResource,
   MissingByType,
   UnmanagedByType,
@@ -11,201 +8,20 @@ import {
 import { findServiceMappingForType } from '../service-mappings';
 import chalk from 'chalk';
 import { leftPad } from 'snyk-cpp-plugin/dist/display/common';
-import {
-  create as createDiffPatch,
-  console as consoleFormatter,
-} from 'jsondiffpatch';
 
 export function getHumanReadableAnalysis(
   option: DescribeOptions,
   analysis: DriftAnalysis,
 ): string {
   let output = getHumanReadableHeader();
+  output += getHumanReadableUnmanaged(analysis);
 
-  if (!option['only-unmanaged']) {
-    output += getHumanReadableManaged(analysis);
+  if (analysis.missing && analysis.missing.length > 0) {
+    output += getHumanReadableMissing(analysis);
   }
-  if (!option['only-managed'] && !option.drift) {
-    output += getHumanReadableUnmanaged(analysis);
-  }
+
   output += getHumanReadableSummary(analysis);
 
-  return output;
-}
-
-function changeAsString(obj: unknown): string {
-  if (typeof obj === 'string') {
-    return obj;
-  }
-  return JSON.stringify(obj);
-}
-
-function isJsonDiff(driftChange: DriftChange): boolean {
-  if (!(typeof driftChange.from === 'string')) {
-    return false;
-  }
-
-  try {
-    JSON.parse(driftChange.from);
-  } catch (e) {
-    return false;
-  }
-
-  return true;
-}
-
-function getNonJsonDiff(driftChange: DriftChange): string {
-  let output = '';
-  switch (driftChange.type) {
-    case 'create':
-      output += chalk.green('+') + ' ' + driftChange.path.join('.') + ': ';
-      output +=
-        chalk.bold(changeAsString(driftChange.from)) +
-        ' => ' +
-        chalk.green(changeAsString(driftChange.to));
-      break;
-    case 'update':
-      output += chalk.yellow('~') + ' ' + driftChange.path.join('.') + ': ';
-      output +=
-        chalk.bold(changeAsString(driftChange.from)) +
-        ' => ' +
-        chalk.yellow(changeAsString(driftChange.to));
-      break;
-    case 'delete':
-      output += chalk.red('-') + ' ' + driftChange.path.join('.') + ': ';
-      output += chalk.red(changeAsString(driftChange.from));
-      break;
-    default:
-      output += driftChange.path.join('.') + ': ';
-      output +=
-        chalk.bold(changeAsString(driftChange.from)) +
-        ' => ' +
-        chalk.bold(changeAsString(driftChange.to));
-      break;
-  }
-  output += '\n';
-  return output;
-}
-
-function getJsonDiff(driftChange: DriftChange): string {
-  let output = '';
-
-  let from = null;
-  if (driftChange.from) {
-    from = JSON.parse(driftChange.from as string);
-  }
-
-  let to = null;
-  if (driftChange.to) {
-    to = JSON.parse(driftChange.to as string);
-  }
-
-  let diffStr = '';
-  const diffPatch = createDiffPatch().diff(from, to);
-  if (diffPatch) {
-    diffStr = consoleFormatter.format(diffPatch, from);
-  }
-
-  switch (driftChange.type) {
-    case 'create':
-      output += chalk.green('+') + ' ' + driftChange.path.join('.') + ':\n';
-      break;
-    case 'update':
-      output += chalk.yellow('~') + ' ' + driftChange.path.join('.') + ':\n';
-      break;
-    case 'delete':
-      output += chalk.red('-') + ' ' + driftChange.path.join('.') + ':\n';
-      break;
-    default:
-      output += driftChange.path.join('.') + ':\n';
-      break;
-  }
-
-  for (const elem of diffStr.split('\n')) {
-    output += addLine(leftPad(elem, 4));
-  }
-
-  return output;
-}
-
-function getHumanReadableDrift(analysis: DriftAnalysis): string {
-  let output = '';
-  if (!analysis.differences || analysis.differences.length <= 0) {
-    return '';
-  }
-  const diffByStates = new Map<string, DiffByType>();
-
-  for (const difference of analysis.differences) {
-    let statefile = 'Generated';
-    if (difference.res.source) {
-      statefile = difference.res.source.source;
-    }
-
-    if (!diffByStates.has(statefile)) {
-      diffByStates.set(statefile, {
-        diffByType: new Map<string, DriftAnalysisDifference[]>(),
-        count: 0,
-      });
-    }
-    const hrDiffs = mustGet(diffByStates, statefile);
-    const type = difference.res.type;
-    if (!hrDiffs.diffByType.has(type)) {
-      hrDiffs.diffByType.set(type, []);
-    }
-    hrDiffs.diffByType.get(type)?.push(difference);
-    hrDiffs.count++;
-  }
-
-  output += addLine(
-    chalk.bold('Changed resources: ' + analysis.differences.length),
-  );
-  output += '\n';
-  for (const state of [...diffByStates.keys()].sort()) {
-    const hrDiffs = mustGet(diffByStates, state);
-    output += addLine(
-      chalk.blue(
-        'State: ' +
-          chalk.bold(state) +
-          ' [ Changed Resources: ' +
-          chalk.bold(hrDiffs.count.toString()) +
-          ' ]',
-      ),
-    );
-    output += '\n';
-    for (const type of [...hrDiffs.diffByType.keys()].sort()) {
-      output += addLine(leftPad('Resource Type: ' + type, 2));
-      const diffs = mustGet(hrDiffs.diffByType, type);
-
-      for (const diff of diffs) {
-        output += leftPad('ID: ' + chalk.bold(diff.res.id), 4);
-        if (
-          diff.res.human_readable_attributes &&
-          diff.res.human_readable_attributes.size > 0
-        ) {
-          for (const humanReadableAttribute of [
-            ...diff.res.human_readable_attributes.keys(),
-          ].sort()) {
-            output +=
-              ' ' +
-              humanReadableAttribute +
-              ': ' +
-              diff.res.human_readable_attributes.get(humanReadableAttribute);
-          }
-        }
-        output += '\n';
-
-        for (const driftChange of diff.changelog) {
-          output += leftPad('');
-          if (isJsonDiff(driftChange)) {
-            output += getJsonDiff(driftChange);
-          } else {
-            output += getNonJsonDiff(driftChange);
-          }
-        }
-        output += '\n';
-      }
-    }
-  }
   return output;
 }
 
@@ -258,17 +74,6 @@ function getHumanReadableMissing(analysis: DriftAnalysis): string {
       const driftResources = mustGet(hrMissing.missingByType, type);
       output += getHumanReadableResourceList(driftResources) + '\n';
     }
-  }
-  return output;
-}
-
-function getHumanReadableManaged(analysis: DriftAnalysis): string {
-  let output = '';
-  if (analysis.differences && analysis.differences.length > 0) {
-    output += getHumanReadableDrift(analysis);
-  }
-  if (analysis.missing && analysis.missing.length > 0) {
-    output += getHumanReadableMissing(analysis);
   }
   return output;
 }
@@ -380,15 +185,6 @@ function getHumanReadableSummary(analysis: DriftAnalysis): string {
     output += addLine(
       leftPad(
         'Managed Resources: ' + chalk.bold(analysis.managed.length.toString()),
-        2,
-      ),
-    );
-  }
-  if (analysis.differences) {
-    output += addLine(
-      leftPad(
-        'Changed Resources: ' +
-          chalk.bold(analysis.differences.length.toString()),
         2,
       ),
     );
