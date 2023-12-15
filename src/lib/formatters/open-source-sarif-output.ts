@@ -28,6 +28,9 @@ export function createSarifOutputForOpenSource(
       tool: {
         driver: {
           name: 'Snyk Open Source',
+          properties: {
+            artifactsScanned: testResult.dependencyCount,
+          },
           rules: getRules(testResult),
         },
       },
@@ -52,7 +55,7 @@ export function getRules(testResult: TestResult): sarif.ReportingDescriptor[] {
   const groupedVulnerabilities = groupBy(testResult.vulnerabilities, 'id');
   return map(
     groupedVulnerabilities,
-    ([vuln, ...moreVulns]): sarif.ReportingDescriptor => {
+    ([vuln, ...moreVulns]: AnnotatedIssue[]): sarif.ReportingDescriptor => {
       const cves = vuln.identifiers?.CVE?.join();
       return {
         id: vuln.id,
@@ -84,6 +87,7 @@ ${vuln.description}`.replace(/##\s/g, '# '),
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             testResult.packageManager!,
           ],
+          cvssv3_baseScore: vuln.cvssScore,
         },
       };
     },

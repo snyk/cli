@@ -104,6 +104,8 @@ interface AnnotatedIssue extends IssueData {
   isPatchable: boolean;
   severity: SEVERITY;
   originalSeverity?: SEVERITY;
+  cvssScore?: number;
+  lineNumber?: number;
 
   // These fields present for "node_module" based scans to allow remediation
   bundled?: any;
@@ -183,6 +185,7 @@ export interface TestResult extends LegacyVulnApiResult {
   foundProjectCount?: number;
   scanResult?: ScanResult;
   hasUnknownVersions?: boolean;
+  path?: string;
 }
 
 interface UpgradePathItem {
