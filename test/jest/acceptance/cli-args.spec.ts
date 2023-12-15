@@ -245,7 +245,6 @@ describe('cli args', () => {
   });
 
   [
-    'auth',
     'config',
     'help',
     'ignore',

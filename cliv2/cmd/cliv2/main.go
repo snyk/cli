@@ -21,9 +21,6 @@ import (
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
-	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
@@ -37,6 +34,10 @@ import (
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 	snykls "github.com/snyk/snyk-ls/ls_extension"
+
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
+	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
 var internalOS string
@@ -227,7 +228,8 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 
 func help(_ *cobra.Command, args []string) error {
 	helpProvided = true
-	args = append(os.Args[1:], "--help")
+	args = utils.RemoveSimilar(os.Args[1:], "--") // remove all double dash arguments to avoid issues with the help command
+	args = append(args, "--help")
 	return defaultCmd(args)
 }
 
