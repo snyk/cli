@@ -106,9 +106,7 @@ function setupRequest(payload: Payload) {
     parsedUrl.protocol === 'http:'
       ? new http.Agent({ keepAlive: true })
       : new https.Agent({ keepAlive: true });
-  const options: needle.NeedleOptions & {
-    use_proxy_from_env_var: boolean | undefined; // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/67880
-  } = {
+  const options: needle.NeedleOptions = {
     use_proxy_from_env_var: false,
     json: payload.json,
     parse: payload.parse,
