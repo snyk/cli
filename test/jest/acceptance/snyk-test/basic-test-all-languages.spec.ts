@@ -117,6 +117,23 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
+  test('fails `snyk test` on a python project with wrong command exits with code 2', async () => {
+    const project = await createProjectFromWorkspace('pip-app');
+    let wrongPythonCommand = 'pthon';
+
+    await runCommand(wrongPythonCommand, ['--version']).catch(function() {
+      wrongPythonCommand = 'pthon3';
+    });
+
+    const result = await runSnykCLI('test -d --command=' + wrongPythonCommand, {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(result.code).toEqual(2);
+    expect(result.stderr).toMatch(wrongPythonCommand);
+  });
+
   test('run `snyk test` on a gradle project', async () => {
     const project = await createProjectFromWorkspace('gradle-app');
 
