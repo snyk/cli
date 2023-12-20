@@ -1,5 +1,4 @@
 import { fakeServer } from '../../acceptance/fake-server';
-import { createProjectFromWorkspace } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60);
@@ -30,16 +29,22 @@ describe('Auth', () => {
   });
 
   it('successfully uses oauth client credentials grant to authenticate', async () => {
-    const {code} = await runSnykCLI(`auth --auth-type=oauth --client-id a --client-secret b`, {
-      env,
-    });
+    const { code } = await runSnykCLI(
+      `auth --auth-type=oauth --client-id a --client-secret b`,
+      {
+        env,
+      },
+    );
     expect(code).toEqual(0);
   });
 
   it('fails to us oauth client credentials grant to authenticate', async () => {
-    const {code} = await runSnykCLI(`auth --auth-type=oauth --client-id wrong --client-secret b`, {
-      env,
-    });
+    const { code } = await runSnykCLI(
+      `auth --auth-type=oauth --client-id wrong --client-secret b`,
+      {
+        env,
+      },
+    );
     expect(code).toEqual(2);
   });
 });
