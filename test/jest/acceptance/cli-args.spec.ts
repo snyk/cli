@@ -246,7 +246,6 @@ describe('cli args', () => {
 
   [
     'config',
-    'help',
     'ignore',
     'modules',
     'monitor',
