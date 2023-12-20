@@ -113,8 +113,6 @@ Use filter rules.
 
 Filter rules allow you to build a JMESPath expression to include or exclude a set of resources from the report.
 
-To filter on resource attributes, deep mode must be enabled. Deep mode is enabled by default for `--all` and `--only-managed`. To enable deep mode while using `--only-unmanaged`, use the `--deep` option.
-
 For more information, see [Filter results](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/filter-results)
 
 ### `--strict`
