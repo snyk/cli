@@ -16,7 +16,7 @@ Possible exit codes and their meaning:
 
 **0**: success (scan completed), no vulnerabilities found\
 **1**: action_needed (scan completed), vulnerabilities found\
-**2**: failure, try to re-run command\
+**2**: failure, try to re-run command. Use `-d` to output the debug logs.\
 **3**: failure, no supported projects detected
 
 ## Configure the Snyk CLI
@@ -96,7 +96,7 @@ Report only vulnerabilities at the specified level or higher.
 Fail only when there are vulnerabilities that can be fixed.
 
 - `all`: fail when there is at least one vulnerability that can be either upgraded or patched.
-- `upgradable`: fail when there is at least one vulnerability that can be upgraded.
+- `upgradable`: fail when there is at least one vulnerability for which Snyk has a computed remediation available.
 
 To fail on any Snyk discoverable vulnerability (the default behavior), do not use the `--fail-on` option. If vulnerabilities do not have a Snyk-computed fix and this option is being used, tests pass.
 
