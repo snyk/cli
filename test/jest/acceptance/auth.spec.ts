@@ -36,6 +36,14 @@ describe('Auth', () => {
       },
     );
     expect(code).toEqual(0);
+
+    // delete test token
+    await runSnykCLI(
+        `config unset INTERNAL_OAUTH_TOKEN_STORAGE`,
+        {
+          env,
+        },
+    );
   });
 
   it('fails to us oauth client credentials grant to authenticate', async () => {
