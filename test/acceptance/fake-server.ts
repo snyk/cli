@@ -584,6 +584,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     // client credentials grant: expecting client id = a and client secret = b
     if (req.headers.authorization?.includes('Basic YTpi')) {
       res.status(200).send(fake_oauth_token);
+      return;
     }
 
     res.status(401).send({});
