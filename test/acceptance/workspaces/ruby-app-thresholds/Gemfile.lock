@@ -2,7 +2,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     crass (1.0.4)
-    lynx (0.4.0)
+    lynx (1.0.0)
     mini_portile2 (2.3.0)
     nokogiri (1.8.5)
       mini_portile2 (~> 2.3.0)
@@ -18,7 +18,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  lynx (= 0.4.0)
+  lynx (= 1.0.0)
   sanitize (= 4.6.2)
   yard (= 0.8.0)
 
