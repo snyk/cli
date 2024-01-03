@@ -255,8 +255,6 @@ github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWR
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
 github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
-github.com/cmars/go-application-framework v0.0.0-20231121235901-2a517c3dca80 h1:/ih3AkS+EPO51JoSgJCbS5D+5ErEEYQ5Kv3UDtBOhKU=
-github.com/cmars/go-application-framework v0.0.0-20231121235901-2a517c3dca80/go.mod h1:Yz/qxFyfhf0xbA+z8Vzr5IM9IDG+BS+2PiGaP1yAsEw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
 github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
@@ -667,10 +665,8 @@ github.com/snyk/cli-extension-sbom v0.0.0-20231123083311-52b1cecc1a7a h1:oRrk9bv
 github.com/snyk/cli-extension-sbom v0.0.0-20231123083311-52b1cecc1a7a/go.mod h1:IwRGWjRuNkY08O7NJb7u3JuQkroEB8Qi1MlASpZVu1Q=
 github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f h1:ghajT5PEiLP8XNFIdc7Yn4Th74RH/9Q++dDOp6Cb9eo=
 github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
-github.com/snyk/go-application-framework v0.0.0-20231121110922-9719383f0706 h1:z/g5P0kS7bedN07rNChlPEifKvAe9+hufGEEifPNcJg=
-github.com/snyk/go-application-framework v0.0.0-20231121110922-9719383f0706/go.mod h1:Yz/qxFyfhf0xbA+z8Vzr5IM9IDG+BS+2PiGaP1yAsEw=
-github.com/snyk/go-application-framework v0.0.0-20231122083330-bbb0d2002b01 h1:2WL20Lgh2YSifXNJ4zw3tZqX2Qa4CqM2C2m0+oWtKGw=
-github.com/snyk/go-application-framework v0.0.0-20231122083330-bbb0d2002b01/go.mod h1:Yz/qxFyfhf0xbA+z8Vzr5IM9IDG+BS+2PiGaP1yAsEw=
+github.com/snyk/go-application-framework v0.0.0-20231222162659-c767e4a7440b h1:NNiXGaKELaFmejlw5BOWf8dVThl8iisU9Yhx+FSUrL4=
+github.com/snyk/go-application-framework v0.0.0-20231222162659-c767e4a7440b/go.mod h1:Yz/qxFyfhf0xbA+z8Vzr5IM9IDG+BS+2PiGaP1yAsEw=
 github.com/snyk/go-httpauth v0.0.0-20231117135515-eb445fea7530 h1:s9PHNkL6ueYRiAKNfd8OVxlUOqU3qY0VDbgCD1f6WQY=
 github.com/snyk/go-httpauth v0.0.0-20231117135515-eb445fea7530/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v0.22.0 h1:od9pduGrXyfWO791X+8M1qmnvWUxaIXh0gBzGKqeseA=

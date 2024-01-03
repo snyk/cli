@@ -577,6 +577,19 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+  app.post(basePath.replace('/v1', '') + '/oauth2/token', (req, res) => {
+    const fake_oauth_token =
+      '{"access_token":"access_token_value","token_type":"b","expiry":"3023-12-20T08:49:15.504539Z"}';
+
+    // client credentials grant: expecting client id = a and client secret = b
+    if (req.headers.authorization?.includes('Basic YTpi')) {
+      res.status(200).send(fake_oauth_token);
+      return;
+    }
+
+    res.status(401).send({});
+  });
+
   const listenPromise = (port: string | number) => {
     return new Promise<void>((resolve) => {
       server = http.createServer(app).listen(Number(port), resolve);
