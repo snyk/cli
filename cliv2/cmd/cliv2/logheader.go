@@ -36,7 +36,7 @@ func logHeaderAuthorizationInfo(
 
 	err := networkAccess.AddHeaders(apiRequest)
 	if err != nil {
-		debugLogger.Print(err)
+		globalLogger.Print(err)
 	}
 
 	authHeader := apiRequest.Header.Get("Authorization")
@@ -97,7 +97,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	}
 
 	tablePrint := func(name string, value string) {
-		debugLogger.Printf("%-22s %s", name+":", value)
+		globalLogger.Printf("%-22s %s", name+":", value)
 	}
 
 	fipsEnabled := getFipsStatus(config)

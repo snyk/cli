@@ -126,10 +126,7 @@ func legacycliWorkflow(
 		errWriter = bufio.NewWriter(&errBuffer)
 		cli.SetIoStreams(in, outWriter, errWriter)
 	} else {
-		scrubDict := map[string]bool{}
-		pointer := config.GetString(configuration.AUTHENTICATION_TOKEN)
-		scrubDict[pointer] = true
-
+		scrubDict := logging.GetScrubDictFromConfig(config)
 		scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
 		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}

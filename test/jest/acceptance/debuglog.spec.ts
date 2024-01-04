@@ -17,6 +17,7 @@ describe('debug log', () => {
         ...process.env,
         SNYK_DISABLE_ANALYTICS: '1',
         DEBUG: '*',
+        SNYK_LOG_LEVEL: 'trace',
         SNYK_TOKEN: token
       },
     });
