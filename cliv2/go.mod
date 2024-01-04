@@ -1,6 +1,8 @@
 module github.com/snyk/cli/cliv2
 
-go 1.18
+go 1.21
+
+toolchain go1.21.5
 
 require (
 	github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a
@@ -13,7 +15,7 @@ require (
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
 	github.com/snyk/cli-extension-sbom v0.0.0-20231123083311-52b1cecc1a7a
 	github.com/snyk/container-cli v0.0.0-20230920093251-fe865879a91f
-	github.com/snyk/go-application-framework v0.0.0-20231222162659-c767e4a7440b
+	github.com/snyk/go-application-framework v0.0.0-20240103162526-aea591663ca6
 	github.com/snyk/go-httpauth v0.0.0-20231117135515-eb445fea7530
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20231124091213-5a223c21e0aa
