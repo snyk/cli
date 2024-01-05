@@ -25,8 +25,8 @@ describe('debug log', () => {
   it('redacts token from config file', async () => {
     const project = await createProjectFromWorkspace('cocoapods-app');
 
-    const config = await runSnykCLI('config get api')
-    const expectedToken = config.stdout.trim()
+    const config = await runSnykCLI('config get api');
+    const expectedToken = config.stdout.trim();
 
     const { stderr } = await runSnykCLI('test -d', {
       cwd: project.path(),
@@ -38,7 +38,7 @@ describe('debug log', () => {
       },
     });
 
-    expect(expectedToken).not.toBeFalsy()
+    expect(expectedToken).not.toBeFalsy();
     expect(stderr).not.toContain(expectedToken);
   });
 });
