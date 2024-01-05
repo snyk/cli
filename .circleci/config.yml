@@ -799,7 +799,7 @@ jobs:
       - run:
           name: Running Go unit tests
           working_directory: ./cliv2
-          command: make whiteboxtest
+          command: make openboxtest
       - run:
           name: Running Tap tests
           command:
