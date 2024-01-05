@@ -356,10 +356,12 @@ func MainWithErrorCode() int {
 		fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)
 	}
 
+	// ensure to init configuration before using it
+	initApplicationConfiguration(globalConfiguration)
+
 	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
 	globalLogger = initDebugLogger(globalConfiguration)
 
-	initApplicationConfiguration(globalConfiguration)
 	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
 
 	if noProxyAuth := globalConfiguration.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {

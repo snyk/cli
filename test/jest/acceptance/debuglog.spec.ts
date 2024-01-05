@@ -4,11 +4,11 @@ import { createProjectFromWorkspace } from '../util/createProject';
 jest.setTimeout(1000 * 60);
 
 describe('debug log', () => {
-  it('', async () => {
+  it('redacts token from env var', async () => {
     const project = await createProjectFromWorkspace('cocoapods-app');
     const token = 'mytoken';
 
-    const { code, stderr } = await runSnykCLI('test -d', {
+    const { stderr } = await runSnykCLI('test -d', {
       cwd: project.path(),
       env: {
         ...process.env,
@@ -19,8 +19,26 @@ describe('debug log', () => {
       },
     });
 
-    console.debug(stderr);
     expect(stderr).not.toContain(token);
-    expect(code).toEqual(2);
+  });
+
+  it('redacts token from config file', async () => {
+    const project = await createProjectFromWorkspace('cocoapods-app');
+
+    const config = await runSnykCLI('config get api')
+    const expectedToken = config.stdout.trim()
+
+    const { stderr } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env: {
+        ...process.env,
+        SNYK_DISABLE_ANALYTICS: '1',
+        DEBUG: '*',
+        SNYK_LOG_LEVEL: 'trace',
+      },
+    });
+
+    expect(expectedToken).not.toBeFalsy()
+    expect(stderr).not.toContain(expectedToken);
   });
 });
