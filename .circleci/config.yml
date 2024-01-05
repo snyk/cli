@@ -308,7 +308,6 @@ commands:
         type: string
         default: linux-base-edge-amd64
     steps:
-      - checkout
       - attach_workspace:
           at: .
 
@@ -758,12 +757,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - binary-releases/*
-            - binary-releases/fips/*
-            - node_modules/*
-            - ts-binary-wrapper/*
-            - dist/*
-            - packages/*
+            - '*'
 
   code-analysis:
     executor: docker-amd64
