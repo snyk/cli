@@ -48,25 +48,8 @@ var engine workflow.Engine
 var globalConfiguration configuration.Configuration
 var helpProvided bool
 
-var tempLogger zerolog.Logger = zerolog.New(io.Discard)
-var globalLogger *zerolog.Logger = &tempLogger
-var consoleWriter = zerolog.ConsoleWriter{
-	Out:        os.Stderr,
-	TimeFormat: time.RFC3339,
-	NoColor:    true,
-	PartsOrder: []string{
-		zerolog.TimestampFieldName,
-		"ext",
-		"separator",
-		zerolog.CallerFieldName,
-		zerolog.MessageFieldName,
-	},
-	FieldsExclude: []string{"ext", "separator"},
-	FormatTimestamp: func(i interface{}) string {
-		t, _ := time.Parse(time.RFC3339, i.(string))
-		return strings.ToUpper(fmt.Sprintf("%s", t.UTC().Format(time.RFC3339)))
-	},
-}
+var noopLogger zerolog.Logger = zerolog.New(io.Discard)
+var globalLogger *zerolog.Logger = &noopLogger
 
 const (
 	unknownCommandMessage  string = "unknown command"
@@ -103,12 +86,30 @@ func getDebugLevel(config configuration.Configuration, logger *zerolog.Logger) z
 }
 
 func initDebugLogger(config configuration.Configuration) *zerolog.Logger {
-	localLogger := zerolog.New(logging.NewScrubbingWriter(zerolog.MultiLevelWriter(consoleWriter), logging.GetScrubDictFromConfig(config))).With().Str("ext", "main").Str("separator", "-").Timestamp().Logger()
 	debug := config.GetBool(configuration.DEBUG)
 	if !debug {
-		debugLogger := localLogger.Output(io.Discard)
-		return &debugLogger
+		return &noopLogger
 	} else {
+		var consoleWriter = zerolog.ConsoleWriter{
+			Out:        os.Stderr,
+			TimeFormat: time.RFC3339,
+			NoColor:    true,
+			PartsOrder: []string{
+				zerolog.TimestampFieldName,
+				"ext",
+				"separator",
+				zerolog.CallerFieldName,
+				zerolog.MessageFieldName,
+			},
+			FieldsExclude: []string{"ext", "separator"},
+			FormatTimestamp: func(i interface{}) string {
+				t, _ := time.Parse(time.RFC3339, i.(string))
+				return strings.ToUpper(fmt.Sprintf("%s", t.UTC().Format(time.RFC3339)))
+			},
+		}
+
+		scrubLogger := logging.NewScrubbingWriter(zerolog.MultiLevelWriter(consoleWriter), logging.GetScrubDictFromConfig(config))
+		localLogger := zerolog.New(scrubLogger).With().Str("ext", "main").Str("separator", "-").Timestamp().Logger()
 		loglevel := getDebugLevel(config, &localLogger)
 		debugLogger := localLogger.Level(loglevel)
 		return &debugLogger
