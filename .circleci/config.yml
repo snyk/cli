@@ -337,7 +337,27 @@ workflows:
             branches:
               ignore: master
 
-      - test-code:
+      - test-node:
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore: master
+
+      - test-go:
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore: master
+
+      - test-legacy-tap:
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -786,20 +806,30 @@ jobs:
           monitor-on-build: true
           severity-threshold: high
 
-  test-code:
+  test-node:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Running TS unit tests
+          command: npm run test:unit
+
+  test-go:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Running Go unit tests
+          working_directory: ./cliv2
+          command: make openboxtest
+
+  test-legacy-tap:
     executor: docker-amd64
     steps:
       - prepare-workspace
       - run:
           name: Configuring artifact
           command: node ./bin/snyk config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
-      - run:
-          name: Running TS unit tests
-          command: npm run test:unit
-      - run:
-          name: Running Go unit tests
-          working_directory: ./cliv2
-          command: make whiteboxtest
       - run:
           name: Running Tap tests
           command:
