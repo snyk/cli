@@ -32,7 +32,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "apples@workspace:packages/apples"
   dependencies:
-    node-uuid: 1.0.0
+    node-uuid: 1.4.8
   languageName: unknown
   linkType: soft
 
@@ -325,17 +325,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2.2.0":
-  version: 2.2.0
-  resolution: "node-fetch@npm:2.2.0"
-  checksum: 74c2957c3123d31fe3c5d543925f680d0a19d90732d98e7433bd0cd7747c18ce1bd6490ad53600af459cf70d1215de1ccb51eeaffdd735863394b33b92d6092d
+"node-fetch@npm:2.6.7":
+  version: 2.6.7
+  resolution: "node-fetch@npm:2.6.7"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: 9eef3f9934c690719ece12c1a7e97109bbdbb90a63bbcca57da93a7ee1aa03723ee3d2fffbbea937d7c1ec6e2ba9beb659ab232a9ae6acc42f1a646e0284c136
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.3.0":
-  version: 2.6.1
-  resolution: "node-fetch@npm:2.6.1"
-  checksum: cbb171635e538162b977eac5dfe7a1e07a9a02e991924377a6435502291e2f823d306b95aabc455caebf4a118ccf836868462bc70ccc3095af02bb9da61fda37
+"node-fetch@npm:^2.6.7":
+  version: 2.7.0
+  resolution: "node-fetch@npm:2.7.0"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: 0f9852fee47118f121efa41f04377f65776e66e78671d71fec0ecf7b5fb748c175467fe6b51fa3e55c363aa8bdd5e4b20612038969416dbea46f97ef3b626ac5
   languageName: node
   linkType: hard
 
@@ -467,7 +481,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    node-fetch: ^2.3.0
+    node-fetch: ^2.6.7
     wsrun: ^3.6.2
   languageName: unknown
   linkType: soft
@@ -584,10 +598,34 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "tomatoes@workspace:packages/tomatoes"
   dependencies:
-    node-fetch: 2.2.0
+    node-fetch: 2.6.7
     object-assign: 4.1.1
   languageName: unknown
   linkType: soft
+
+"tr46@npm:~0.0.3":
+  version: 0.0.3
+  resolution: "tr46@npm:0.0.3"
+  checksum: 37bdfff7c5b5f8feeb0d06d3fda1d8474d8b08a9f0bf453fd339eb0dc13939ed5a2b24d29d9a308674d6a7267a3a4f3a95e91538b87d0e76c14d83c33899a29f
+  languageName: node
+  linkType: hard
+
+"webidl-conversions@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "webidl-conversions@npm:3.0.1"
+  checksum: 25ef547ff199f5a942f367f86c92b79bad77c27ad9baa51ed994de4ee91834d6246a120e24c4d6f2c6aba6b940238a5f6a0ed5f5ab0f24f6a863a2be75dd7644
+  languageName: node
+  linkType: hard
+
+"whatwg-url@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "whatwg-url@npm:5.0.0"
+  dependencies:
+    tr46: ~0.0.3
+    webidl-conversions: ^3.0.0
+  checksum: 55eca009f57013000f73721611e14cf7215bf2f19e9950b06f3214cfbd29f06eeea759748fa09016a05dca72a2213e49333ef4cbc911ba236a427a0b0060f415
+  languageName: node
+  linkType: hard
 
 "which-module@npm:^2.0.0":
   version: 2.0.0
