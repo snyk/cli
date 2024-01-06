@@ -1,4 +1,4 @@
 source :rubygems
 
 gem "json"
-gem "lynx", "1.0.0"
+gem "lynx", "1.1.0"

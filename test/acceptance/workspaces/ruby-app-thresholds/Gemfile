@@ -2,4 +2,4 @@ source :rubygems
 
 gem "sanitize", "6.1.0"
 gem "yard", "0.9.34"
-gem "lynx", "1.0.0"
+gem "lynx", "1.1.0"
