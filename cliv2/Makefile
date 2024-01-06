@@ -169,13 +169,13 @@ $(CACHE_DIR)/prepare-3rd-party-licenses:
 .PHONY: generate
 generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go
 
-.PHONY: whiteboxtest
-whiteboxtest:
+.PHONY: openboxtest
+openboxtest:
 	@echo "$(LOG_PREFIX) Running $@"
 	@$(GOCMD) test -cover ./...
 
 .PHONY: test
-test: whiteboxtest
+test: openboxtest
 
 .PHONY: lint
 lint:
