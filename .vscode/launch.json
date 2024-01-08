@@ -7,13 +7,7 @@
       "name": "Tap Current File",
       "console": "integratedTerminal",
       "program": "${workspaceFolder}/node_modules/.bin/tap",
-      "args": [
-        "${relativeFile}",
-        "-Rspec",
-        "--timeout=300",
-        "--node-arg=-r",
-        "--node-arg=ts-node/register"
-      ]
+      "args": ["${relativeFile}", "-Rspec", "--timeout=300"]
     },
     {
       "type": "node",
