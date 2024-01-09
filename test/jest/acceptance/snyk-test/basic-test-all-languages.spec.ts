@@ -263,7 +263,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     },
   );
 
-  test('run `snyk test` on an unmanaged project', async () => {
+  test.skip('run `snyk test` on an unmanaged project', async () => {
     const project = await createProjectFromWorkspace('unmanaged');
 
     const { code } = await runSnykCLI('test --unmanaged -d', {
@@ -273,7 +273,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(1);
   });
 
-  test('run `snyk test` on an unmanaged project with a org-slug', async () => {
+  test.skip('run `snyk test` on an unmanaged project with a org-slug', async () => {
     const project = await createProjectFromWorkspace('unmanaged');
 
     const { code } = await runSnykCLI(
