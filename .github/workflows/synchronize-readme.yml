@@ -35,6 +35,8 @@ jobs:
           if [[ $(git -C ./cli status --porcelain) ]]; then
             echo "Documentation changes detected"
             cd ./cli
+            npm clean-install
+            npx prettier --write ./cli/README.md
             git push -f -u origin $DESTINATION_BRANCH
 
             export SHA=$( git rev-parse $DESTINATION_BRANCH:README.md )
