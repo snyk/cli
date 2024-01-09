@@ -4,10 +4,10 @@
 
 [Snyk](https://snyk.io/) is a developer-first, cloud-native security tool to scan and monitor your software development projects for security vulnerabilities. Snyk scans multiple content types for security issues:
 
-* [**Snyk Open Source**](https://docs.snyk.io/scan-using-snyk/snyk-open-source): Find and automatically fix open-source vulnerabilities
-* [**Snyk Code**](https://docs.snyk.io/scan-using-snyk/snyk-code): Find and fix vulnerabilities in your application code in real time
-* [**Snyk Container**](https://docs.snyk.io/scan-using-snyk/snyk-container): Find and fix vulnerabilities in container images and Kubernetes applications
-* [**Snyk Infrastructure as Code**](https://docs.snyk.io/scan-using-snyk/scan-infrastructure): Find and fix insecure configurations in Terraform and Kubernetes code
+- [**Snyk Open Source**](https://docs.snyk.io/scan-using-snyk/snyk-open-source): Find and automatically fix open-source vulnerabilities
+- [**Snyk Code**](https://docs.snyk.io/scan-using-snyk/snyk-code): Find and fix vulnerabilities in your application code in real time
+- [**Snyk Container**](https://docs.snyk.io/scan-using-snyk/snyk-container): Find and fix vulnerabilities in container images and Kubernetes applications
+- [**Snyk Infrastructure as Code**](https://docs.snyk.io/scan-using-snyk/scan-infrastructure): Find and fix insecure configurations in Terraform and Kubernetes code
 
 [Learn more about what Snyk can do and sign up for a free account](https://snyk.io/).
 
@@ -52,10 +52,10 @@ To scan a **Kubernetes (K8s) file** run the following:\
 
 For details about using the Snyk CLI to scan each content type, see the following:
 
-* [Snyk CLI for Snyk Open Source](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-open-source) and the CLI help for the [`test`](https://docs.snyk.io/snyk-cli/commands/test) and [`monitor`](https://docs.snyk.io/snyk-cli/commands/monitor) commands
-* [Snyk CLI for Snyk Code](https://docs.snyk.io/snyk-cli/commands/code) and the [Snyk Code CLI help](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-code)
-* [Snyk CLI for Snyk Container](https://docs.snyk.io/snyk-cli/commands/container), including Docker scanning, and the [Snyk Container CLI help](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container)
-* [Snyk CLI for Snyk IaC](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac), including Terraform and Kubernetes (K8s) Projects, and the [Snyk IAC CLI help](https://docs.snyk.io/snyk-cli/commands/iac)
+- [Snyk CLI for Snyk Open Source](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-open-source) and the CLI help for the [`test`](https://docs.snyk.io/snyk-cli/commands/test) and [`monitor`](https://docs.snyk.io/snyk-cli/commands/monitor) commands
+- [Snyk CLI for Snyk Code](https://docs.snyk.io/snyk-cli/commands/code) and the [Snyk Code CLI help](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-code)
+- [Snyk CLI for Snyk Container](https://docs.snyk.io/snyk-cli/commands/container), including Docker scanning, and the [Snyk Container CLI help](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container)
+- [Snyk CLI for Snyk IaC](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac), including Terraform and Kubernetes (K8s) Projects, and the [Snyk IAC CLI help](https://docs.snyk.io/snyk-cli/commands/iac)
 
 ## Monitor your Open Source or Container Project
 
@@ -67,11 +67,11 @@ This creates a snapshot of your current dependencies so Snyk can regularly scan 
 > snyk monitor
 Monitoring /project (project-name)...
 
-Explore this snapshot at 
+Explore this snapshot at
 https://app.snyk.io/org/my-org/project/29361c2c-9005-4692
 -8df4-88f1c040fa7c/history/e1c994b3-de5d-482b-9281-eab4236c851e
 
-Notifications about newly disclosed issues related to these 
+Notifications about newly disclosed issues related to these
 dependencies will be emailed to you.
 ```
 
@@ -87,9 +87,9 @@ Snyk allows unlimited tests for public repositories. If you are on the Free plan
 
 If you run out of tests on an open-source Project, follow these steps:
 
-* Run `snyk monitor`.
-* Open the Snyk UI and navigate to the **settings** of the Project.
-* Enter the URL of your open-source repository in **Git remote URL**.
+- Run `snyk monitor`.
+- Open the Snyk UI and navigate to the **settings** of the Project.
+- Enter the URL of your open-source repository in **Git remote URL**.
 
 ## Additional information about the Snyk CLI
 
@@ -97,13 +97,13 @@ Run `snyk help` or see the [CLI commands and options summary](https://docs.snyk.
 
 See the course [Introduction to the Snyk CLI](https://learn.snyk.io/lesson/snyk-cli/https://learn.snyk.io/lesson/snyk-cli/) for a quick video training session.
 
-Snyk also provides a [cheat sheet](https://res.cloudinary.com/snyk/image/upload/v1664236143/cheat-sheets/cheat-sheet-snyk-cli-v3.pdf) ([blog post](https://snyk.io/blog/snyk-cli-cheat-sheet/)) and a [video tutorial](https://www.youtube.com/watch?v=xp\_LtchEkT8).
+Snyk also provides a [cheat sheet](https://res.cloudinary.com/snyk/image/upload/v1664236143/cheat-sheets/cheat-sheet-snyk-cli-v3.pdf) ([blog post](https://snyk.io/blog/snyk-cli-cheat-sheet/)) and a [video tutorial](https://www.youtube.com/watch?v=xp_LtchEkT8).
 
 In particular, see the information about the following options that you may find useful:
 
-* `--severity-threshold=low|medium|high|critical`: Report only vulnerabilities of the specified level or higher.
-* `--json`: Print results in JSON format.
-* `--all-projects`: Auto-detect all Projects in the working directory.
+- `--severity-threshold=low|medium|high|critical`: Report only vulnerabilities of the specified level or higher.
+- `--json`: Print results in JSON format.
+- `--all-projects`: Auto-detect all Projects in the working directory.
 
 For detailed information about the CLI, see the [CLI docs](https://docs.snyk.io/snyk-cli).
 
