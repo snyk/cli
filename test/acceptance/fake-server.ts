@@ -119,6 +119,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   [basePath + '/verify/callback', basePath + '/verify/token'].map((url) => {
     app.post(url, (req, res) => {
+      console.debug('Received verify callback', req.headers);
       if (req.body.api === snykToken) {
         return res.send({
           ok: true,
@@ -137,6 +138,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       res.send({
         ok: false,
       });
+    });
+  });
+
+  app.get('/login', (req, res, next) => {
+    res.status(200);
+    res.send({
+      ok: true,
     });
   });
 
