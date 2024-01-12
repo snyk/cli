@@ -32,7 +32,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "apples@workspace:packages/apples"
   dependencies:
-    node-uuid: 1.0.0
+    node-uuid: 1.4.8
   languageName: unknown
   linkType: soft
 
@@ -130,6 +130,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"data-uri-to-buffer@npm:^4.0.0":
+  version: 4.0.1
+  resolution: "data-uri-to-buffer@npm:4.0.1"
+  checksum: 37b220cda1b13bcd4db278b2e8775205c26bc756d61246a574d7e4fc7783751f0a4fc6b034f1f7b350615ebde6e035c1c5e8bbb164db4933bbbaa4b79e75c125
+  languageName: node
+  linkType: hard
+
 "decamelize@npm:^1.1.1":
   version: 1.2.0
   resolution: "decamelize@npm:1.2.0"
@@ -159,12 +166,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fetch-blob@npm:^3.1.2, fetch-blob@npm:^3.1.4":
+  version: 3.2.0
+  resolution: "fetch-blob@npm:3.2.0"
+  dependencies:
+    node-domexception: ^1.0.0
+    web-streams-polyfill: ^3.0.3
+  checksum: 2d1fc14c66f945ed20c22c7f7f2bcf02b87c57f172e562f8a427cf34b2eb2dc8811c0c9ada755cec9d657fc45d1023970889e79e040c0f09e983858e89aebbd2
+  languageName: node
+  linkType: hard
+
 "find-up@npm:^2.1.0":
   version: 2.1.0
   resolution: "find-up@npm:2.1.0"
   dependencies:
     locate-path: ^2.0.0
   checksum: 9dedb89f936b572f7c9fda3f66ebe146b0000fe9ef16fad94a77c25ce9585962e910bb32c1e08bab9b423985ff20221d2af4b7e4130b27c0f5f60c1aad3f6a7f
+  languageName: node
+  linkType: hard
+
+"formdata-polyfill@npm:^4.0.10":
+  version: 4.0.10
+  resolution: "formdata-polyfill@npm:4.0.10"
+  dependencies:
+    fetch-blob: ^3.1.2
+  checksum: 525e045498be835665b7721f8a4b5b0fee10dc221247de977e89c20e4a91df8637f917d299bc30bd4b1dc2ff26e9d61f0aad75d1e7cb40e24eb9388e2c1fe903
   languageName: node
   linkType: hard
 
@@ -325,17 +351,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2.2.0":
-  version: 2.2.0
-  resolution: "node-fetch@npm:2.2.0"
-  checksum: 74c2957c3123d31fe3c5d543925f680d0a19d90732d98e7433bd0cd7747c18ce1bd6490ad53600af459cf70d1215de1ccb51eeaffdd735863394b33b92d6092d
+"node-domexception@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "node-domexception@npm:1.0.0"
+  checksum: b014e8200542bfa2a811d6bea6f7766b9c64884e8f219369986af1a5726abfc76186e72e612cd606df4040b298781a454fea1c7152d2c7515c37f388c8a5d67e
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.3.0":
-  version: 2.6.1
-  resolution: "node-fetch@npm:2.6.1"
-  checksum: cbb171635e538162b977eac5dfe7a1e07a9a02e991924377a6435502291e2f823d306b95aabc455caebf4a118ccf836868462bc70ccc3095af02bb9da61fda37
+"node-fetch@npm:3.3.2, node-fetch@npm:^3.3.2":
+  version: 3.3.2
+  resolution: "node-fetch@npm:3.3.2"
+  dependencies:
+    data-uri-to-buffer: ^4.0.0
+    fetch-blob: ^3.1.4
+    formdata-polyfill: ^4.0.10
+  checksum: 01af30d2ff578c256f31c06c276c3860a470edb9e80c08775710c770c17f3f660a7484db1d2e7ffc2edb0532ce0ce01fd66f85924fd752ed3642a4de4d84aa85
   languageName: node
   linkType: hard
 
@@ -467,7 +497,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    node-fetch: ^2.3.0
+    node-fetch: ^3.3.2
     wsrun: ^3.6.2
   languageName: unknown
   linkType: soft
@@ -584,10 +614,17 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "tomatoes@workspace:packages/tomatoes"
   dependencies:
-    node-fetch: 2.2.0
+    node-fetch: 3.3.2
     object-assign: 4.1.1
   languageName: unknown
   linkType: soft
+
+"web-streams-polyfill@npm:^3.0.3":
+  version: 3.3.2
+  resolution: "web-streams-polyfill@npm:3.3.2"
+  checksum: 581dd47c2c3dd642ec00b83c789cc3815273236b9ab2106cf02496032527bb4513726408360be7e50c35c4b8929289a1b5d2f97889d26a9c3b22405d226e7d19
+  languageName: node
+  linkType: hard
 
 "which-module@npm:^2.0.0":
   version: 2.0.0
