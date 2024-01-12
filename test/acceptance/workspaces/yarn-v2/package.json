@@ -2,6 +2,6 @@
   "name": "yarn-v2",
   "version": "1.0.0",
   "dependencies": {
-    "lodash": "4.17.0"
+    "lodash": "4.17.21"
   }
 }
