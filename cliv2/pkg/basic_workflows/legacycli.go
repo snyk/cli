@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/logging"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
@@ -124,6 +125,10 @@ func legacycliWorkflow(
 		outWriter = bufio.NewWriter(&outBuffer)
 		errWriter = bufio.NewWriter(&errBuffer)
 		cli.SetIoStreams(in, outWriter, errWriter)
+	} else {
+		scrubDict := logging.GetScrubDictFromConfig(config)
+		scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
+		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}
 
 	// init proxy object

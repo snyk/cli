@@ -73,6 +73,8 @@ test('request respects proxy environment variables', async (t) => {
   });
 
   t.test('https_proxy', async (t) => {
+    t.plan(3);
+
     // NO_PROXY is set in CircleCI and brakes test purpose
     const tmpNoProxy = process.env.NO_PROXY;
     delete process.env.NO_PROXY;
@@ -89,6 +91,7 @@ test('request respects proxy environment variables', async (t) => {
     proxy.setTimeout(1000);
     proxy.on('connect', (req, cltSocket) => {
       const proxiedUrl = url.parse(`https://${req.url}`);
+      t.equal(req.method, 'CONNECT', 'Proxy for HTTPS using CONNECT');
       t.equal(
         proxiedUrl.hostname,
         url.parse(httpsRequestHost).hostname,
@@ -114,7 +117,7 @@ test('request respects proxy environment variables', async (t) => {
     try {
       await makeRequest({
         method: 'post',
-        url: httpRequestHost + requestPath,
+        url: httpsRequestHost + requestPath,
       });
     } catch (e) {
       // an exception is expected
@@ -123,6 +126,8 @@ test('request respects proxy environment variables', async (t) => {
   });
 
   t.test('HTTPS_PROXY', async (t) => {
+    t.plan(3);
+
     // NO_PROXY is set in CircleCI and brakes test purpose
     const tmpNoProxy = process.env.NO_PROXY;
     delete process.env.NO_PROXY;
@@ -138,6 +143,7 @@ test('request respects proxy environment variables', async (t) => {
     proxy.setTimeout(1000);
     proxy.on('connect', (req, cltSocket) => {
       const proxiedUrl = url.parse(`https://${req.url}`);
+      t.equal(req.method, 'CONNECT', 'Proxy for HTTPS using CONNECT');
       t.equal(
         proxiedUrl.hostname,
         url.parse(httpsRequestHost).hostname,
@@ -163,7 +169,7 @@ test('request respects proxy environment variables', async (t) => {
     try {
       await makeRequest({
         method: 'post',
-        url: httpRequestHost + requestPath,
+        url: httpsRequestHost + requestPath,
       });
     } catch (e) {
       // an exception is expected

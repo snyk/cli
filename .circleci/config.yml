@@ -38,12 +38,12 @@ executors:
       - image: alpine:3.17
   docker-amd64:
     docker:
-      - image: bastiandoetsch209/cli-build:20231012-101806
+      - image: bastiandoetsch209/cli-build:20231210-192113
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-arm64:
     docker:
-      - image: bastiandoetsch209/cli-build-arm64:20231012-101806
+      - image: bastiandoetsch209/cli-build-arm64:20231210-192113
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   linux-ubuntu-mantic-amd64:
@@ -832,9 +832,13 @@ jobs:
           command: node ./bin/snyk config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
       - run:
           name: Running Tap tests
-          command:
-            npx tap -j 1 -C --timeout=300 --node-arg=-r --node-arg=ts-node/register --allow-incomplete-coverage \
+          no_output_timeout: '30m' # the whole set of tests regularly takes 25+ minutes.
+          command: >
+            npx tap -j 1 -C --timeout=300 -R junit --reporter-file=tap-junit.xml
+            --node-arg=-r --node-arg=ts-node/register --allow-incomplete-coverage
             $(circleci tests glob "test/tap/*.test.*" | circleci tests split --split-by=timings)
+      - store_test_results:
+          path: tap-junit.xml
 
   build-special-artifacts:
     executor: docker-amd64

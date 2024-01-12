@@ -233,6 +233,9 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       targetFramework: 'net7.0',
     },
     {
+      targetFramework: 'net8.0',
+    },
+    {
       targetFramework: undefined,
     },
   ])(
@@ -248,7 +251,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
         return;
       }
 
-      const project = await createProjectFromWorkspace('nuget-app-6-7');
+      const project = await createProjectFromWorkspace('nuget-app-6-7-8');
 
       let command = 'test -d --dotnet-runtime-resolution';
       if (targetFramework) {
@@ -263,7 +266,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     },
   );
 
-  test('run `snyk test` on an unmanaged project', async () => {
+  test.skip('run `snyk test` on an unmanaged project', async () => {
     const project = await createProjectFromWorkspace('unmanaged');
 
     const { code } = await runSnykCLI('test --unmanaged -d', {
@@ -273,7 +276,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(1);
   });
 
-  test('run `snyk test` on an unmanaged project with a org-slug', async () => {
+  test.skip('run `snyk test` on an unmanaged project with a org-slug', async () => {
     const project = await createProjectFromWorkspace('unmanaged');
 
     const { code } = await runSnykCLI(

@@ -44,23 +44,9 @@ var internalOS string
 var engine workflow.Engine
 var globalConfiguration configuration.Configuration
 var helpProvided bool
-var debugLogger = zerolog.New(zerolog.ConsoleWriter{
-	Out:        os.Stderr,
-	TimeFormat: time.RFC3339,
-	NoColor:    true,
-	PartsOrder: []string{
-		zerolog.TimestampFieldName,
-		"ext",
-		"separator",
-		zerolog.CallerFieldName,
-		zerolog.MessageFieldName,
-	},
-	FieldsExclude: []string{"ext", "separator"},
-	FormatTimestamp: func(i interface{}) string {
-		t, _ := time.Parse(time.RFC3339, i.(string))
-		return strings.ToUpper(fmt.Sprintf("%s", t.UTC().Format(time.RFC3339)))
-	},
-}).With().Str("ext", "main").Str("separator", "-").Timestamp().Logger()
+
+var noopLogger zerolog.Logger = zerolog.New(io.Discard)
+var globalLogger *zerolog.Logger = &noopLogger
 
 const (
 	unknownCommandMessage  string = "unknown command"
@@ -80,32 +66,6 @@ const (
 	handleErrorShowHelp            HandleError = iota
 	handleErrorUnhandled           HandleError = iota
 )
-
-func getDebugLevel(config configuration.Configuration) zerolog.Level {
-	loglevel := zerolog.DebugLevel
-	if loglevelString := config.GetString("snyk_log_level"); loglevelString != "" {
-		var err error
-		loglevel, err = zerolog.ParseLevel(loglevelString)
-		if err == nil {
-			debugLogger.Log().Msgf("Setting log level to %s", loglevelString)
-		} else {
-			debugLogger.Log().Msgf("%v", err)
-			loglevel = zerolog.DebugLevel
-		}
-	}
-	return loglevel
-}
-
-func initDebugLogger(config configuration.Configuration) *zerolog.Logger {
-	debug := config.GetBool(configuration.DEBUG)
-	if !debug {
-		debugLogger = debugLogger.Output(io.Discard)
-	} else {
-		loglevel := getDebugLevel(config)
-		debugLogger = debugLogger.Level(loglevel)
-	}
-	return &debugLogger
-}
 
 func main() {
 	errorCode := MainWithErrorCode()
@@ -132,7 +92,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 				formattedKey := strings.ToUpper(key)
 				_, ok := os.LookupEnv(formattedKey)
 				if ok {
-					debugLogger.Printf("Found environment variable %s, disabling OAuth flow", formattedKey)
+					globalLogger.Printf("Found environment variable %s, disabling OAuth flow", formattedKey)
 					config.Set(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, false)
 					break
 				}
@@ -187,21 +147,21 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 
 	err := config.AddFlagSet(cmd.Flags())
 	if err != nil {
-		debugLogger.Print("Failed to add flags", err)
+		globalLogger.Print("Failed to add flags", err)
 		return err
 	}
 
 	updateConfigFromParameter(config, args, rawArgs)
 
 	name := getFullCommandString(cmd)
-	debugLogger.Print("Running ", name)
+	globalLogger.Print("Running ", name)
 	engine.GetAnalytics().SetCommand(name)
 
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 	if err == nil {
 		_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
 	} else {
-		debugLogger.Print("Failed to execute the command!", err)
+		globalLogger.Print("Failed to execute the command!", err)
 	}
 
 	return err
@@ -391,14 +351,16 @@ func MainWithErrorCode() int {
 	globalConfiguration = configuration.New()
 	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
-		debugLogger.Print("Failed to add flags to root command", err)
+		fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)
 	}
 
-	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
-	debugLogger := initDebugLogger(globalConfiguration)
-
+	// ensure to init configuration before using it
 	initApplicationConfiguration(globalConfiguration)
-	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(debugLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
+
+	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
+	globalLogger = initDebugLogger(globalConfiguration)
+
+	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
 
 	if noProxyAuth := globalConfiguration.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
@@ -416,7 +378,7 @@ func MainWithErrorCode() int {
 	// init engine
 	err = engine.Init()
 	if err != nil {
-		debugLogger.Print("Failed to init Workflow Engine!", err)
+		globalLogger.Print("Failed to init Workflow Engine!", err)
 		return constants.SNYK_EXIT_CODE_ERROR
 	}
 
@@ -449,7 +411,7 @@ func MainWithErrorCode() int {
 	cliAnalytics.SetCmdArguments(os.Args[1:])
 	cliAnalytics.SetOperatingSystem(internalOS)
 	if globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) == false {
-		defer sendAnalytics(cliAnalytics, debugLogger)
+		defer sendAnalytics(cliAnalytics, globalLogger)
 	}
 
 	setTimeout(globalConfiguration, func() {
@@ -462,7 +424,7 @@ func MainWithErrorCode() int {
 	// fallback to the legacy cli or show help
 	handleErrorResult := handleError(err)
 	if handleErrorResult == handleErrorFallbackToLegacyCLI {
-		debugLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
+		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(os.Args[1:])
 	} else if handleErrorResult == handleErrorShowHelp {
 		err = help(nil, []string{})
@@ -475,7 +437,7 @@ func MainWithErrorCode() int {
 	displayError(err)
 
 	exitCode := cliv2.DeriveExitCode(err)
-	debugLogger.Printf("Exiting with %d", exitCode)
+	globalLogger.Printf("Exiting with %d", exitCode)
 
 	return exitCode
 }
@@ -485,7 +447,7 @@ func setTimeout(config configuration.Configuration, onTimeout func()) {
 	if timeout == 0 {
 		return
 	}
-	debugLogger.Printf("Command timeout set for %d seconds", timeout)
+	globalLogger.Printf("Command timeout set for %d seconds", timeout)
 	go func() {
 		const gracePeriodForSubProcesses = 3
 		<-time.After(time.Duration(timeout+gracePeriodForSubProcesses) * time.Second)
