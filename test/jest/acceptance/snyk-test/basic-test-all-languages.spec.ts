@@ -233,6 +233,9 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       targetFramework: 'net7.0',
     },
     {
+      targetFramework: 'net8.0',
+    },
+    {
       targetFramework: undefined,
     },
   ])(
@@ -248,7 +251,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
         return;
       }
 
-      const project = await createProjectFromWorkspace('nuget-app-6-7');
+      const project = await createProjectFromWorkspace('nuget-app-6-7-8');
 
       let command = 'test -d --dotnet-runtime-resolution';
       if (targetFramework) {
