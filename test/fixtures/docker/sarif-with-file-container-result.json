@@ -6,6 +6,9 @@
       "tool": {
         "driver": {
           "name": "Snyk Container",
+          "properties": {
+            "artifactsScanned": 2
+          },
           "rules": [
             {
               "id": "SNYK-LINUX-BZIP2-106947",
@@ -26,7 +29,8 @@
                 "tags": [
                   "security",
                   "deb"
-                ]
+                ],
+                "cvssv3_baseScore": 6.5
               }
             }
           ]
@@ -48,7 +52,12 @@
                 "region": {
                   "startLine": 1
                 }
-              }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "bzip2@1.0.6-8.1"
+                }
+              ]
             }
           ]
         }

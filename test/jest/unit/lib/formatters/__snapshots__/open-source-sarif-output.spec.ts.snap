@@ -7,9 +7,22 @@ Object {
     Object {
       "results": Array [
         Object {
+          "fixes": Array [
+            Object {
+              "artifactChanges": Array [],
+              "description": Object {
+                "text": "Upgrade to jimp@0.2.28",
+              },
+            },
+          ],
           "level": "error",
           "locations": Array [
             Object {
+              "logicalLocations": Array [
+                Object {
+                  "fullyQualifiedName": "ajv@6.12.2",
+                },
+              ],
               "physicalLocation": Object {
                 "artifactLocation": Object {
                   "uri": "package.json",
@@ -29,6 +42,9 @@ Object {
       "tool": Object {
         "driver": Object {
           "name": "Snyk Open Source",
+          "properties": Object {
+            "artifactsScanned": 969,
+          },
           "rules": Array [
             Object {
               "fullDescription": Object {
@@ -46,6 +62,7 @@ Object {
               },
               "id": "SNYK-JS-AJV-584908",
               "properties": Object {
+                "cvssv3_baseScore": 7.5,
                 "tags": Array [
                   "security",
                   "CWE-400",

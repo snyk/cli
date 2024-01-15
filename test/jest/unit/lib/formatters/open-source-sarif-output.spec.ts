@@ -3,7 +3,12 @@ import { SEVERITY, TestResult } from '../../../../../src/lib/snyk-test/legacy';
 
 describe('createSarifOutputForOpenSource', () => {
   it('general', () => {
-    const testFile = getTestResult();
+    const testFile = getTestResult(
+      {}, // testResultOverride
+      {
+        cvssScore: 7.5, // vulnOverride
+      },
+    );
     const sarif = createSarifOutputForOpenSource([testFile]);
     expect(sarif).toMatchSnapshot();
   });

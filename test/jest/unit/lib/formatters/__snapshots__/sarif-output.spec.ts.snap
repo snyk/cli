@@ -7,9 +7,15 @@ Object {
     Object {
       "results": Array [
         Object {
+          "fixes": undefined,
           "level": "error",
           "locations": Array [
             Object {
+              "logicalLocations": Array [
+                Object {
+                  "fullyQualifiedName": "expat@2.2.5-r0",
+                },
+              ],
               "physicalLocation": Object {
                 "artifactLocation": Object {
                   "uri": "Dockerfile",
@@ -29,6 +35,9 @@ Object {
       "tool": Object {
         "driver": Object {
           "name": "Snyk Container",
+          "properties": Object {
+            "artifactsScanned": 969,
+          },
           "rules": Array [
             Object {
               "defaultConfiguration": Object {
@@ -61,6 +70,7 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
               },
               "id": "SNYK-LINUX-EXPAT-450908",
               "properties": Object {
+                "cvssv3_baseScore": 7.5,
                 "tags": Array [
                   "security",
                   "CWE-611",
@@ -87,9 +97,15 @@ Object {
     Object {
       "results": Array [
         Object {
+          "fixes": undefined,
           "level": "error",
           "locations": Array [
             Object {
+              "logicalLocations": Array [
+                Object {
+                  "fullyQualifiedName": "expat@2.2.5-r0",
+                },
+              ],
               "physicalLocation": Object {
                 "artifactLocation": Object {
                   "uri": "Dockerfile",
@@ -109,6 +125,9 @@ Object {
       "tool": Object {
         "driver": Object {
           "name": "Snyk Container",
+          "properties": Object {
+            "artifactsScanned": 969,
+          },
           "rules": Array [
             Object {
               "defaultConfiguration": Object {
@@ -141,6 +160,7 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
               },
               "id": "SNYK-LINUX-EXPAT-450908",
               "properties": Object {
+                "cvssv3_baseScore": 7.5,
                 "tags": Array [
                   "security",
                   "npm",
@@ -166,9 +186,15 @@ Object {
     Object {
       "results": Array [
         Object {
+          "fixes": undefined,
           "level": "error",
           "locations": Array [
             Object {
+              "logicalLocations": Array [
+                Object {
+                  "fullyQualifiedName": "expat@2.2.5-r0",
+                },
+              ],
               "physicalLocation": Object {
                 "artifactLocation": Object {
                   "uri": "Dockerfile",
@@ -188,6 +214,9 @@ Object {
       "tool": Object {
         "driver": Object {
           "name": "Snyk Container",
+          "properties": Object {
+            "artifactsScanned": 969,
+          },
           "rules": Array [
             Object {
               "defaultConfiguration": Object {
@@ -220,6 +249,7 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
               },
               "id": "SNYK-LINUX-EXPAT-450908",
               "properties": Object {
+                "cvssv3_baseScore": 7.5,
                 "tags": Array [
                   "security",
                   "CWE-611",

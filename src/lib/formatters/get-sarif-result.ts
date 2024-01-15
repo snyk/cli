@@ -2,13 +2,13 @@ import * as sarif from 'sarif';
 import * as groupBy from 'lodash.groupby';
 import * as map from 'lodash.map';
 
-import { SEVERITY, AnnotatedIssue } from '../snyk-test/legacy';
+import { SEVERITY, TestResult, AnnotatedIssue } from '../snyk-test/legacy';
 
-export function getResults(testResult): sarif.Result[] {
+export function getResults(testResult: TestResult): sarif.Result[] {
   const groupedVulnerabilities = groupBy(testResult.vulnerabilities, 'id');
   return map(
     groupedVulnerabilities,
-    ([vuln]): sarif.Result => ({
+    ([vuln]: AnnotatedIssue[]): sarif.Result => ({
       ruleId: vuln.id,
       level: getLevel(vuln),
       message: {
@@ -27,8 +27,24 @@ export function getResults(testResult): sarif.Result[] {
               startLine: vuln.lineNumber || 1,
             },
           },
+          logicalLocations: [
+            {
+              fullyQualifiedName: `${vuln.packageName}@${vuln.version}`,
+            },
+          ],
         },
       ],
+      fixes:
+        vuln.upgradePath?.length >= 2
+          ? [
+              {
+                description: {
+                  text: `Upgrade to ${vuln.upgradePath[1]}`,
+                },
+                artifactChanges: [],
+              },
+            ]
+          : undefined,
     }),
   );
 }
@@ -46,7 +62,10 @@ export function getLevel(vuln: AnnotatedIssue) {
   }
 }
 
-function getArtifactLocationUri(targetFile: string, path: string): string {
+function getArtifactLocationUri(
+  targetFile: string | undefined,
+  path: string | undefined,
+): string {
   if (targetFile) {
     return targetFile;
   }
@@ -55,5 +74,5 @@ function getArtifactLocationUri(targetFile: string, path: string): string {
   // present. In this case we use the test result path which contains the image reference (e.g. alpine:3.18.0).
   // Also, Github Code Scanning returns an error when the artifact location uri from the uploaded sarif file contains
   // a colon (e.g. alpine:3.18.0 is not valid, but alpine_3.18.0 is valid), so we are replacing colon characters.
-  return path.replace(/:/g, '_');
+  return path ? path.replace(/:/g, '_') : '';
 }

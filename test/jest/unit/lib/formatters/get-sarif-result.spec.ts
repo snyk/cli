@@ -46,6 +46,7 @@ describe('Retrieving sarif result', () => {
     expect(result).toEqual([
       {
         ruleId: 'SNYK-LINUX-EXPAT-450908',
+        fixes: undefined,
         level: 'error',
         message: {
           text:
@@ -53,6 +54,11 @@ describe('Retrieving sarif result', () => {
         },
         locations: [
           {
+            logicalLocations: [
+              {
+                fullyQualifiedName: 'expat@2.2.5-r0',
+              },
+            ],
             physicalLocation: {
               artifactLocation: { uri: want.resultLocationUri },
               region: { startLine: 1 },
@@ -64,7 +70,10 @@ describe('Retrieving sarif result', () => {
   });
 });
 
-function getTestResult(testResultOverride = {}, vulnOverride = {}): TestResult {
+function getTestResult(
+  testResultOverride = {},
+  vulnOverride = { cvssScore: 7.5 },
+): TestResult {
   return {
     vulnerabilities: [
       {
