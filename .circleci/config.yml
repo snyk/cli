@@ -872,7 +872,7 @@ jobs:
       - run:
           name: Running Go unit tests
           working_directory: ./cliv2
-          command: make whiteboxtest
+          command: make openboxtest
       - run:
           name: Running Tap tests
           no_output_timeout: '30m' # the whole set of tests regularly takes 25+ minutes.
