@@ -1,4 +1,4 @@
-FROM --platform=$TARGETPLATFORM golang:1.21-bullseye
+FROM --platform=$TARGETPLATFORM golang:1.21.4-bullseye
 
 # install "normal" stuff
 
