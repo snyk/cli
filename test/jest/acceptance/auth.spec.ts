@@ -7,6 +7,7 @@ describe('Auth', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
   let initialConfig: Record<string, string> = {};
+  const serverToken = 'random'
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
@@ -17,7 +18,7 @@ describe('Auth', () => {
       SNYK_DISABLE_ANALYTICS: '1',
     };
 
-    server = fakeServer(apiPath, 'random');
+    server = fakeServer(apiPath, serverToken);
     server.listen(apiPort, () => done());
   });
 
@@ -40,7 +41,6 @@ describe('Auth', () => {
 
   afterEach(async () => {
     server.restore();
-    console.debug('after server restore\n');
 
     // reset config to initial state
     await runSnykCLI('config clear', { env });
@@ -53,7 +53,6 @@ describe('Auth', () => {
 
   afterAll((done) => {
     server.close(() => done());
-    console.debug('after server close\n');
   });
 
   it('successfully uses oauth client credentials grant to authenticate', async () => {
@@ -87,18 +86,17 @@ describe('Auth', () => {
       env,
     });
     expect(resultConfigSet.code).toEqual(0);
-    console.debug('before Snyk Auth\n');
 
     const { code } = await runSnykCLI(`auth`, {
       env,
     });
-    console.debug('after Snyk Auth and before config get\n');
+
     const resultConfigGet = await runSnykCLI('config get api', {
       env,
     });
-    console.debug('after config get\n');
+
     expect(code).toEqual(0);
     expect(resultConfigGet.code).toEqual(0);
-    expect(resultConfigGet.stdout).toContain('invalid');
+    expect(resultConfigGet.stdout).toContain(serverToken);
   });
 });
