@@ -1,28 +1,15 @@
 import * as fs from 'fs';
-import { fakeServer, FakeServer } from '../../acceptance/fake-server';
+import {
+  fakeServer,
+  FakeServer,
+  getFirstIPv4Address,
+} from '../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../util/createProject';
 import { getFixturePath } from '../util/getFixturePath';
 import { runSnykCLI } from '../util/runSnykCLI';
 import * as os from 'os';
 
 jest.setTimeout(1000 * 30);
-
-function getFirstIPv4Address(): string {
-  let ipaddress = '';
-
-  const interfaces = os.networkInterfaces();
-  for (const [, group] of Object.entries(interfaces)) {
-    if (group) {
-      for (const inter of group) {
-        if (inter && inter.family == 'IPv4' && inter.address != '127.0.0.1') {
-          ipaddress = inter.address;
-          break;
-        }
-      }
-    }
-  }
-  return ipaddress;
-}
 
 describe('https', () => {
   let server: FakeServer;

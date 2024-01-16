@@ -92,6 +92,7 @@ describe('Auth', () => {
     });
     expect(resultConfigSet.code).toEqual(0);
 
+    // run command under test
     const { code, stderr } = await runSnykCLI(`auth --auth-type=token -d`, {
       env,
     });
