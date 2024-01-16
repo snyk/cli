@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as http from 'http';
 import * as https from 'https';
 import * as path from 'path';
+import * as net from 'net';
 import { getFixturePath } from '../jest/util/getFixturePath';
 
 const featureFlagDefaults = (): Map<string, boolean> => {
@@ -49,6 +50,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let nextResponse: any = undefined;
   let depGraphResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
+  const sockets = new Set();
 
   const restore = () => {
     statusCode = undefined;
@@ -116,6 +118,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     requests.push(req);
     next();
   });
+
+
+
 
   [basePath + '/verify/callback', basePath + '/verify/token'].map((url) => {
     app.post(url, (req, res) => {
@@ -601,6 +606,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   const listenPromise = (port: string | number) => {
     return new Promise<void>((resolve) => {
       server = http.createServer(app).listen(Number(port), resolve);
+
+      server?.on('connection', (socket) => {
+        sockets.add(socket);
+      });
     });
   };
 
@@ -636,6 +645,11 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   };
 
   const close = (callback: () => void) => {
+    for (const socket of sockets) {
+      (socket as net.Socket)?.destroy();
+      sockets.delete(socket);
+    }
+
     closePromise().then(callback);
   };
 
