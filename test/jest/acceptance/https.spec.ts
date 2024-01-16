@@ -7,7 +7,6 @@ import {
 import { createProjectFromWorkspace } from '../util/createProject';
 import { getFixturePath } from '../util/getFixturePath';
 import { runSnykCLI } from '../util/runSnykCLI';
-import * as os from 'os';
 
 jest.setTimeout(1000 * 30);
 
