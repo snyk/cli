@@ -14,7 +14,7 @@ export function jsonStringifyLargeObject(obj: any): string {
   } catch (err) {
     // if that doesn't work, try non-pretty print
     debug('JSON.stringify failed - trying again without pretty print', err);
-    res = JSON.stringify(obj);
+    res = JSON.stringify(obj); // TODO: Stop doing this, it can still fail ungracefully
     return res;
   }
 }

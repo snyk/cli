@@ -1,5 +1,6 @@
 import { gte } from 'semver';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
+import { pipeline } from 'stream';
 import * as path from 'path';
 
 export const MIN_VERSION_FOR_MKDIR_RECURSIVE = '10.12.0';
@@ -68,6 +69,35 @@ export async function writeContentsToFileSwallowingErrors(
   });
 }
 
+export async function writeContentsObjectToFileSwallowingErrors(
+  jsonOutputFile: string,
+  contents: Record<string, unknown>,
+): Promise<void> {
+  try {
+    const ws = createWriteStream(jsonOutputFile, { flags: 'w' });
+
+    ws.write(contents);
+
+    // TODO: chunk the object and write chunks to file
+    // question: preferable to pass buffered object around instead?
+  
+    // Handle any errors that occur during the write process 
+    ws.on('error', (err) => {
+      console.error(err);
+      return;
+    });
+    ws.on('finish', () => {
+      return;
+    })
+  
+    // Close the stream when finished 
+    ws.end('\n');   
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+}
+
 export async function saveJsonToFileCreatingDirectoryIfRequired(
   jsonOutputFile: string,
   contents: string,
@@ -76,5 +106,16 @@ export async function saveJsonToFileCreatingDirectoryIfRequired(
   const createDirSuccess = createDirectory(dirPath);
   if (createDirSuccess) {
     await writeContentsToFileSwallowingErrors(jsonOutputFile, contents);
+  }
+}
+
+export async function saveJsonPayloadToFileCreatingDirectoryIfRequired(
+  jsonOutputFile: string,
+  jsonPayload: Record<string, unknown>,
+): Promise<void> {
+  const dirPath = path.dirname(jsonOutputFile);
+  const createDirSuccess = createDirectory(dirPath);
+  if (createDirSuccess) {
+    await writeContentsObjectToFileSwallowingErrors(jsonOutputFile, jsonPayload);
   }
 }

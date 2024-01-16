@@ -33,7 +33,7 @@ import stripAnsi = require('strip-ansi');
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
-import { saveJsonToFileCreatingDirectoryIfRequired } from '../lib/json-file-output';
+import { saveJsonPayloadToFileCreatingDirectoryIfRequired, saveJsonToFileCreatingDirectoryIfRequired } from '../lib/json-file-output';
 import {
   Options,
   TestOptions,
@@ -157,8 +157,17 @@ async function handleError(args, error) {
     }
   }
 
-  await saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
-  await saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
+  // TODO: refactor this
+  if (error.jsonPayload) {
+    // send raw jsonPayload instead of stringified payload
+    await saveResultsToFile(args.options, 'json', '', error.jsonPayload);
+    await saveResultsToFile(args.options, 'sarif', '', error.jsonPayload);
+  } else {
+    // fallback to original behaviour
+    await saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
+    await saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
+  }
+
 
   const analyticsError = vulnsFound
     ? {
@@ -208,6 +217,7 @@ function getFullPath(filepathFragment: string): string {
 async function saveJsonResultsToFile(
   stringifiedJson: string,
   jsonOutputFile: string,
+  jsonPayload?: Record<string, unknown>
 ) {
   if (!jsonOutputFile) {
     console.error('empty jsonOutputFile');
@@ -219,10 +229,13 @@ async function saveJsonResultsToFile(
     return;
   }
 
-  await saveJsonToFileCreatingDirectoryIfRequired(
-    jsonOutputFile,
-    stringifiedJson,
-  );
+  // save to file with jsonPayload object instead of stringifiedJson
+  if (jsonPayload) {
+    await saveJsonPayloadToFileCreatingDirectoryIfRequired(jsonOutputFile, jsonPayload);
+  } else {
+    await saveJsonToFileCreatingDirectoryIfRequired(jsonOutputFile,stringifiedJson);
+  }
+
 }
 
 function checkRuntime() {
@@ -438,13 +451,14 @@ async function saveResultsToFile(
   options: ArgsOptions,
   outputType: string,
   jsonResults: string,
+  jsonPayload?: Record<string, unknown>
 ) {
   const flag = `${outputType}-file-output`;
   const outputFile = options[flag];
-  if (outputFile && jsonResults) {
+  if (outputFile && (jsonResults || jsonPayload)) {
     const outputFileStr = outputFile as string;
     const fullOutputFilePath = getFullPath(outputFileStr);
-    await saveJsonResultsToFile(stripAnsi(jsonResults), fullOutputFilePath);
+    await saveJsonResultsToFile(stripAnsi(jsonResults), fullOutputFilePath, jsonPayload);
   }
 }
 

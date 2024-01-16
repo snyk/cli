@@ -332,6 +332,7 @@ export default async function test(
     error.userMessage = vulnerableResults[0].userMessage;
     error.jsonStringifiedResults = stringifiedJsonData;
     error.sarifStringifiedResults = stringifiedSarifData;
+    error.jsonPayload = dataToSend
     throw error;
   }
 

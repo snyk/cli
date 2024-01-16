@@ -29,6 +29,19 @@
         "${workspaceRoot}/node_modules/.bin/jest",
         "--runInBand"
       ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Legacy CLI",
+      "console": "integratedTerminal",
+      "program": "${workspaceFolder}/src/cli/index.ts",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "args": [
+        "test",
+        "--json-file-output=./json-file-output.ignoreme.json",
+      ]
     }
   ]
 }
