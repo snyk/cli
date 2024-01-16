@@ -1,5 +1,6 @@
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { runSnykCLI } from '../util/runSnykCLI';
+import {getCliConfig, restoreCliConfig} from "../../acceptance/config-helper";
 
 jest.setTimeout(1000 * 60);
 
@@ -8,6 +9,26 @@ describe('Auth', () => {
   let env: Record<string, string>;
   let initialConfig: Record<string, string> = {};
   const serverToken = 'random';
+
+  const ciEnvs = new Set([
+    'SNYK_CI',
+    'CI',
+    'CONTINUOUS_INTEGRATION',
+    'BUILD_ID',
+    'BUILD_NUMBER',
+    'TEAMCITY_VERSION',
+    'TRAVIS',
+    'CIRCLECI',
+    'JENKINS_URL',
+    'HUDSON_URL',
+    'bamboo.buildKey',
+    'PHPCI',
+    'GOCD_SERVER_HOST',
+    'BUILDKITE',
+    'TF_BUILD',
+    'SYSTEM_TEAMFOUNDATIONSERVERURI', // for Azure DevOps Pipelines
+  ]);
+
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
@@ -19,42 +40,27 @@ describe('Auth', () => {
       SNYK_HTTP_PROTOCOL_UPGRADE: '0',
     };
 
+    ciEnvs.forEach((value   ) => {
+      delete env[value]
+    })
+
     server = fakeServer(apiPath, serverToken);
     server.listen(apiPort, () => done());
-  });
-
-  beforeAll(async () => {
-    // save initial config
-    const { stdout } = await runSnykCLI('config', { env });
-    if (stdout) {
-      initialConfig = stdout
-        .trim()
-        .split('\n')
-        .reduce((acc, line) => {
-          const [key, value] = line.split(': ');
-          return {
-            ...acc,
-            [key]: value,
-          };
-        }, {});
-    }
-  });
-
-  afterEach(async () => {
-    server.restore();
-
-    // reset config to initial state
-    await runSnykCLI('config clear', { env });
-    if (Object.keys(initialConfig).length > 0) {
-      for (const key in initialConfig) {
-        await runSnykCLI(`config set ${key}=${initialConfig[key]}`, { env });
-      }
-    }
   });
 
   afterAll((done) => {
     server.close(() => done());
   });
+
+  beforeEach(async () => {
+    initialConfig = await getCliConfig();
+  });
+
+  afterEach(async () => {
+    server.restore();
+    await restoreCliConfig(initialConfig)
+  });
+
 
   it('successfully uses oauth client credentials grant to authenticate', async () => {
     const { code } = await runSnykCLI(
