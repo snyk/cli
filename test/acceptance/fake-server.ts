@@ -6,6 +6,7 @@ import * as https from 'https';
 import * as path from 'path';
 import * as net from 'net';
 import { getFixturePath } from '../jest/util/getFixturePath';
+import * as os from "os";
 
 const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([
@@ -14,6 +15,24 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['containerCliAppVulnsEnabled', true],
   ]);
 };
+
+
+export function getFirstIPv4Address(): string {
+  let ipaddress = '';
+
+  const interfaces = os.networkInterfaces();
+  for (const [, group] of Object.entries(interfaces)) {
+    if (group) {
+      for (const inter of group) {
+        if (inter && inter.family == 'IPv4' && inter.address != '127.0.0.1') {
+          ipaddress = inter.address;
+          break;
+        }
+      }
+    }
+  }
+  return ipaddress;
+}
 
 export type FakeServer = {
   getRequests: () => express.Request[];
@@ -124,19 +143,22 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   [basePath + '/verify/callback', basePath + '/verify/token'].map((url) => {
     app.post(url, (req, res) => {
-      console.debug('Received verify callback', req.headers);
-      if (req.body.api === snykToken) {
-        return res.send({
-          ok: true,
-          api: snykToken,
-        });
-      }
 
-      if (req.body.token) {
-        return res.send({
-          ok: true,
-          api: snykToken,
-        });
+
+      if(req.header("Authorization") === undefined) {
+        if (req.body.api === snykToken) {
+          return res.send({
+            ok: true,
+            api: snykToken,
+          });
+        }
+
+        if (req.body.token) {
+          return res.send({
+            ok: true,
+            api: snykToken,
+          });
+        }
       }
 
       res.status(401);
@@ -148,9 +170,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.get('/login', (req, res, next) => {
     res.status(200);
-    res.send({
-      ok: true,
-    });
+    res.send("Test Authenticated!");
   });
 
   app.use((req, res, next) => {

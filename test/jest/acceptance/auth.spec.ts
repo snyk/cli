@@ -1,4 +1,4 @@
-import { fakeServer } from '../../acceptance/fake-server';
+import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { runSnykCLI } from '../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60);
@@ -14,8 +14,9 @@ describe('Auth', () => {
     const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
     env = {
       ...process.env,
-      SNYK_API: 'http://localhost:' + apiPort + apiPath,
+      SNYK_API: 'http://'+getFirstIPv4Address()+':' + apiPort + apiPath,
       SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_HTTP_PROTOCOL_UPGRADE: '0',
     };
 
     server = fakeServer(apiPath, serverToken);
@@ -81,15 +82,17 @@ describe('Auth', () => {
   });
 
   // Tests for existing token is invalid (for when config value is set incorrectly)  config set api=invalid
-  it.only('successfully unsets token when config value is set incorrectly', async () => {
+  it('ignore existing token when running auth', async () => {
     const resultConfigSet = await runSnykCLI('config set api=invalid', {
       env,
     });
     expect(resultConfigSet.code).toEqual(0);
 
-    const { code } = await runSnykCLI(`auth`, {
+    const { code, stderr } = await runSnykCLI(`auth --auth-type=token -d`, {
       env,
     });
+
+    console.debug(stderr)
 
     const resultConfigGet = await runSnykCLI('config get api', {
       env,
