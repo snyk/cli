@@ -6,7 +6,7 @@ import * as https from 'https';
 import * as path from 'path';
 import * as net from 'net';
 import { getFixturePath } from '../jest/util/getFixturePath';
-import * as os from "os";
+import * as os from 'os';
 
 const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([
@@ -15,7 +15,6 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['containerCliAppVulnsEnabled', true],
   ]);
 };
-
 
 export function getFirstIPv4Address(): string {
   let ipaddress = '';
@@ -138,14 +137,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     next();
   });
 
-
-
-
   [basePath + '/verify/callback', basePath + '/verify/token'].map((url) => {
     app.post(url, (req, res) => {
-
-
-      if(req.header("Authorization") === undefined) {
+      if (req.header('Authorization') === undefined) {
         if (req.body.api === snykToken) {
           return res.send({
             ok: true,
@@ -168,9 +162,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
-  app.get('/login', (req, res, next) => {
+  app.get('/login', (req, res) => {
     res.status(200);
-    res.send("Test Authenticated!");
+    res.send('Test Authenticated!');
   });
 
   app.use((req, res, next) => {

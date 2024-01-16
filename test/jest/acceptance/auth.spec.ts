@@ -7,14 +7,14 @@ describe('Auth', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
   let initialConfig: Record<string, string> = {};
-  const serverToken = 'random'
+  const serverToken = 'random';
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
     const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
     env = {
       ...process.env,
-      SNYK_API: 'http://'+getFirstIPv4Address()+':' + apiPort + apiPath,
+      SNYK_API: 'http://' + getFirstIPv4Address() + ':' + apiPort + apiPath,
       SNYK_DISABLE_ANALYTICS: '1',
       SNYK_HTTP_PROTOCOL_UPGRADE: '0',
     };
@@ -92,7 +92,7 @@ describe('Auth', () => {
       env,
     });
 
-    console.debug(stderr)
+    console.debug(stderr);
 
     const resultConfigGet = await runSnykCLI('config get api', {
       env,
