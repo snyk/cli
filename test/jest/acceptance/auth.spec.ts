@@ -1,6 +1,6 @@
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { runSnykCLI } from '../util/runSnykCLI';
-import {getCliConfig, restoreCliConfig} from "../../acceptance/config-helper";
+import { getCliConfig, restoreCliConfig } from '../../acceptance/config-helper';
 
 jest.setTimeout(1000 * 60);
 
@@ -29,7 +29,6 @@ describe('Auth', () => {
     'SYSTEM_TEAMFOUNDATIONSERVERURI', // for Azure DevOps Pipelines
   ]);
 
-
   beforeAll((done) => {
     const apiPath = '/api/v1';
     const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
@@ -40,9 +39,9 @@ describe('Auth', () => {
       SNYK_HTTP_PROTOCOL_UPGRADE: '0',
     };
 
-    ciEnvs.forEach((value   ) => {
-      delete env[value]
-    })
+    ciEnvs.forEach((value) => {
+      delete env[value];
+    });
 
     server = fakeServer(apiPath, serverToken);
     server.listen(apiPort, () => done());
@@ -58,9 +57,8 @@ describe('Auth', () => {
 
   afterEach(async () => {
     server.restore();
-    await restoreCliConfig(initialConfig)
+    await restoreCliConfig(initialConfig);
   });
-
 
   it('successfully uses oauth client credentials grant to authenticate', async () => {
     const { code } = await runSnykCLI(
