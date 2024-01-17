@@ -49,9 +49,7 @@ For more information, see the article [How to select the organization to use in 
 
 ### `--report`
 
-**NEW** option: Share results with the Snyk Web UI.
-
-**Feature availability**: This feature is currently in Closed Beta. To obtain access, contact your Snyk account representative.
+Share results with the Snyk Web UI.
 
 This creates a project in your Snyk account with a snapshot of the current configuration issues or appends the snapshot to an existing project.
 
