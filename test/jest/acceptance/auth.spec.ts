@@ -1,6 +1,7 @@
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { getCliConfig, restoreCliConfig } from '../../acceptance/config-helper';
+import { ciEnvs } from '../../../src/lib/is-ci';
 
 jest.setTimeout(1000 * 60);
 
@@ -9,26 +10,6 @@ describe('Auth', () => {
   let env: Record<string, string>;
   let initialConfig: Record<string, string> = {};
   const serverToken = 'random';
-
-  // Reference: https://github.com/snyk/cli/blob/master/src/lib/is-ci.ts
-  const ciEnvs = new Set([
-    'SNYK_CI',
-    'CI',
-    'CONTINUOUS_INTEGRATION',
-    'BUILD_ID',
-    'BUILD_NUMBER',
-    'TEAMCITY_VERSION',
-    'TRAVIS',
-    'CIRCLECI',
-    'JENKINS_URL',
-    'HUDSON_URL',
-    'bamboo.buildKey',
-    'PHPCI',
-    'GOCD_SERVER_HOST',
-    'BUILDKITE',
-    'TF_BUILD',
-    'SYSTEM_TEAMFOUNDATIONSERVERURI', // for Azure DevOps Pipelines
-  ]);
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
