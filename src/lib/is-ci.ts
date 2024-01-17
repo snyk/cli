@@ -1,4 +1,4 @@
-const ciEnvs = new Set([
+export const ciEnvs = new Set([
   'SNYK_CI',
   'CI',
   'CONTINUOUS_INTEGRATION',

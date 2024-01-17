@@ -4,7 +4,9 @@ import * as fs from 'fs';
 import * as http from 'http';
 import * as https from 'https';
 import * as path from 'path';
+import * as net from 'net';
 import { getFixturePath } from '../jest/util/getFixturePath';
+import * as os from 'os';
 
 const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([
@@ -13,6 +15,23 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['containerCliAppVulnsEnabled', true],
   ]);
 };
+
+export function getFirstIPv4Address(): string {
+  let ipaddress = '';
+
+  const interfaces = os.networkInterfaces();
+  for (const [, group] of Object.entries(interfaces)) {
+    if (group) {
+      for (const inter of group) {
+        if (inter && inter.family == 'IPv4' && inter.address != '127.0.0.1') {
+          ipaddress = inter.address;
+          break;
+        }
+      }
+    }
+  }
+  return ipaddress;
+}
 
 export type FakeServer = {
   getRequests: () => express.Request[];
@@ -49,6 +68,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let nextResponse: any = undefined;
   let depGraphResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
+  const sockets = new Set();
 
   const restore = () => {
     statusCode = undefined;
@@ -119,18 +139,20 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   [basePath + '/verify/callback', basePath + '/verify/token'].map((url) => {
     app.post(url, (req, res) => {
-      if (req.body.api === snykToken) {
-        return res.send({
-          ok: true,
-          api: snykToken,
-        });
-      }
+      if (req.header('Authorization') === undefined) {
+        if (req.body.api === snykToken) {
+          return res.send({
+            ok: true,
+            api: snykToken,
+          });
+        }
 
-      if (req.body.token) {
-        return res.send({
-          ok: true,
-          api: snykToken,
-        });
+        if (req.body.token) {
+          return res.send({
+            ok: true,
+            api: snykToken,
+          });
+        }
       }
 
       res.status(401);
@@ -138,6 +160,11 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         ok: false,
       });
     });
+  });
+
+  app.get('/login', (req, res) => {
+    res.status(200);
+    res.send('Test Authenticated!');
   });
 
   app.use((req, res, next) => {
@@ -593,6 +620,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   const listenPromise = (port: string | number) => {
     return new Promise<void>((resolve) => {
       server = http.createServer(app).listen(Number(port), resolve);
+
+      server?.on('connection', (socket) => {
+        sockets.add(socket);
+      });
     });
   };
 
@@ -628,6 +659,11 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   };
 
   const close = (callback: () => void) => {
+    for (const socket of sockets) {
+      (socket as net.Socket)?.destroy();
+      sockets.delete(socket);
+    }
+
     closePromise().then(callback);
   };
 
