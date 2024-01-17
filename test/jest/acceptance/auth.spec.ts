@@ -10,6 +10,7 @@ describe('Auth', () => {
   let initialConfig: Record<string, string> = {};
   const serverToken = 'random';
 
+  // Reference: https://github.com/snyk/cli/blob/master/src/lib/is-ci.ts
   const ciEnvs = new Set([
     'SNYK_CI',
     'CI',
