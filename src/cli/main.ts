@@ -235,7 +235,6 @@ async function saveJsonResultsToFile(
   } else {
     await saveJsonToFileCreatingDirectoryIfRequired(jsonOutputFile,stringifiedJson);
   }
-
 }
 
 function checkRuntime() {

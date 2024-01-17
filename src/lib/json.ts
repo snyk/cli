@@ -12,9 +12,7 @@ export function jsonStringifyLargeObject(obj: any): string {
     res = JSON.stringify(obj, null, 2);
     return res;
   } catch (err) {
-    // if that doesn't work, try non-pretty print
-    debug('JSON.stringify failed - trying again without pretty print', err);
-    res = JSON.stringify(obj); // TODO: Stop doing this, it can still fail ungracefully
+    debug('JSON.stringify failed - try using --json-file-output=<filePath> for very large objects', err);
     return res;
   }
 }

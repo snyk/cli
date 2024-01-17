@@ -2,18 +2,18 @@ import { Transform, Writable } from 'stream';
 import * as _ from 'lodash';
 
 interface IStreams {
-  stream: Writable;
+  destination: Writable;
   data: unknown;
   setWriteData<T>(data: T): IStreams
   write(data: unknown): void
 }
 
 export class Streams implements IStreams {
-  stream: Writable;
+  destination: Writable;
   data: unknown;
 
   constructor(stream: Writable) {
-    this.stream = stream;
+    this.destination = stream;
   }
 
   setWriteData<T>(data: T): Streams {
@@ -22,7 +22,7 @@ export class Streams implements IStreams {
   }
 
   write() {
-    if (_.isEmpty(this.data)) {
+    if (_.isUndefined(this.data)) {
       console.log('No data to stream');
       return;
     }
@@ -36,21 +36,19 @@ export class Streams implements IStreams {
         }
       });
 
-      jsonStream.pipe(this.stream);
+      jsonStream.pipe(this.destination);
       jsonStream.write(this.data);
       jsonStream.end();
 
-      this.stream.on('finish', () => {
+      jsonStream.on('finish', () => {
+        return;
+      })
+      jsonStream.on('error', (err) => {
+        console.error('Error while writing data: ', err);
         return;
       });
-
-      this.stream.on('error', (err) => {
-        console.error(err);
-        return;
-      });
-
     } catch (error) {
-      console.error(`Error writing to file: ${error.message}`);
+      console.error(`Error writing data: ${error}`);
     }
   }
 }
