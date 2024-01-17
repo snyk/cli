@@ -1,6 +1,6 @@
 import { gte } from 'semver';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
-import { pipeline } from 'stream';
+import { Transform } from 'stream';
 import * as path from 'path';
 
 export const MIN_VERSION_FOR_MKDIR_RECURSIVE = '10.12.0';
@@ -69,32 +69,35 @@ export async function writeContentsToFileSwallowingErrors(
   });
 }
 
-export async function writeContentsObjectToFileSwallowingErrors(
+export async function writeObjectToFileSwallowingErrors(
   jsonOutputFile: string,
   contents: Record<string, unknown>,
 ): Promise<void> {
   try {
-    const ws = createWriteStream(jsonOutputFile, { flags: 'w' });
+    const writeStream = createWriteStream(jsonOutputFile);
 
-    ws.write(contents);
+    const jsonStream = new Transform({
+      objectMode: true,
+      transform(chunk: any, encoding: string, callback: (error: Error | null, data: any) => void) {
+        const jsonChunk = JSON.stringify(chunk) + '\n';
+        callback(null, jsonChunk);
+      }
+    });
 
-    // TODO: chunk the object and write chunks to file
-    // question: preferable to pass buffered object around instead?
-  
-    // Handle any errors that occur during the write process 
-    ws.on('error', (err) => {
+    jsonStream.pipe(writeStream);
+
+    jsonStream.write(contents);
+    jsonStream.end();
+
+    writeStream.on('finish', () => { return });
+    writeStream.on('error', (err) => {
       console.error(err);
       return;
     });
-    ws.on('finish', () => {
-      return;
-    })
-  
-    // Close the stream when finished 
-    ws.end('\n');   
+
+    console.log(`JSON data written to ${jsonOutputFile} successfully!`);
   } catch (error) {
-    console.error(error);
-    return;
+    console.error(`Error writing to file: ${error.message}`);
   }
 }
 
@@ -109,13 +112,13 @@ export async function saveJsonToFileCreatingDirectoryIfRequired(
   }
 }
 
-export async function saveJsonPayloadToFileCreatingDirectoryIfRequired(
+export async function saveObjectToFileCreatingDirectoryIfRequired(
   jsonOutputFile: string,
   jsonPayload: Record<string, unknown>,
 ): Promise<void> {
   const dirPath = path.dirname(jsonOutputFile);
   const createDirSuccess = createDirectory(dirPath);
   if (createDirSuccess) {
-    await writeContentsObjectToFileSwallowingErrors(jsonOutputFile, jsonPayload);
+    await writeObjectToFileSwallowingErrors(jsonOutputFile, jsonPayload);
   }
 }

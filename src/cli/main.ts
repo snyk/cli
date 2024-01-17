@@ -33,7 +33,7 @@ import stripAnsi = require('strip-ansi');
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
-import { saveJsonPayloadToFileCreatingDirectoryIfRequired, saveJsonToFileCreatingDirectoryIfRequired } from '../lib/json-file-output';
+import { saveObjectToFileCreatingDirectoryIfRequired, saveJsonToFileCreatingDirectoryIfRequired } from '../lib/json-file-output';
 import {
   Options,
   TestOptions,
@@ -231,7 +231,7 @@ async function saveJsonResultsToFile(
 
   // save to file with jsonPayload object instead of stringifiedJson
   if (jsonPayload) {
-    await saveJsonPayloadToFileCreatingDirectoryIfRequired(jsonOutputFile, jsonPayload);
+    await saveObjectToFileCreatingDirectoryIfRequired(jsonOutputFile, jsonPayload);
   } else {
     await saveJsonToFileCreatingDirectoryIfRequired(jsonOutputFile,stringifiedJson);
   }
