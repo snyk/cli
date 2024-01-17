@@ -2,6 +2,7 @@ import { gte } from 'semver';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
 import { Transform } from 'stream';
 import * as path from 'path';
+import { Streams } from '../lib/streams';
 
 export const MIN_VERSION_FOR_MKDIR_RECURSIVE = '10.12.0';
 
@@ -69,38 +70,6 @@ export async function writeContentsToFileSwallowingErrors(
   });
 }
 
-export async function writeObjectToFileSwallowingErrors(
-  jsonOutputFile: string,
-  contents: Record<string, unknown>,
-): Promise<void> {
-  try {
-    const writeStream = createWriteStream(jsonOutputFile);
-
-    const jsonStream = new Transform({
-      objectMode: true,
-      transform(chunk: any, encoding: string, callback: (error: Error | null, data: any) => void) {
-        const jsonChunk = JSON.stringify(chunk) + '\n';
-        callback(null, jsonChunk);
-      }
-    });
-
-    jsonStream.pipe(writeStream);
-
-    jsonStream.write(contents);
-    jsonStream.end();
-
-    writeStream.on('finish', () => { return });
-    writeStream.on('error', (err) => {
-      console.error(err);
-      return;
-    });
-
-    console.log(`JSON data written to ${jsonOutputFile} successfully!`);
-  } catch (error) {
-    console.error(`Error writing to file: ${error.message}`);
-  }
-}
-
 export async function saveJsonToFileCreatingDirectoryIfRequired(
   jsonOutputFile: string,
   contents: string,
@@ -119,6 +88,9 @@ export async function saveObjectToFileCreatingDirectoryIfRequired(
   const dirPath = path.dirname(jsonOutputFile);
   const createDirSuccess = createDirectory(dirPath);
   if (createDirSuccess) {
-    await writeObjectToFileSwallowingErrors(jsonOutputFile, jsonPayload);
+    const fileStream = new Streams(createWriteStream(jsonOutputFile));
+    fileStream
+      .setWriteData<Record<string, unknown>>(jsonPayload)
+      .write();
   }
 }
