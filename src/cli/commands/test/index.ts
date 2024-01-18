@@ -349,6 +349,7 @@ export default async function test(
     response,
     stringifiedJsonData,
     stringifiedSarifData,
+    dataToSend
   );
 }
 

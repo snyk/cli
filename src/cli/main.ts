@@ -74,7 +74,8 @@ async function runCommand(args: Args) {
   // also save the json (in error.json) to file if option is set
   if (args.command === 'test') {
     const jsonResults = (commandResult as TestCommandResult).getJsonResult();
-    await saveResultsToFile(args.options, 'json', jsonResults);
+    const jsonPayload = (commandResult as TestCommandResult).getJsonData()
+    await saveResultsToFile(args.options, 'json', jsonResults, jsonPayload);
     const sarifResults = (commandResult as TestCommandResult).getSarifResult();
     await saveResultsToFile(args.options, 'sarif', sarifResults);
   }
