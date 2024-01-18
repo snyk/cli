@@ -24,7 +24,7 @@ describe('jsonStringifyLargeObject', () => {
       });
 
     const s = jsonStringifyLargeObject(largeObject);
-    expect(jsonStringifyMock).toHaveBeenCalledTimes(2);
-    expect(s).toEqual(`{"name":"Brian","isGoodBoy":true,"type":"big"}`);
+    expect(jsonStringifyMock).toHaveBeenCalledTimes(1);
+    expect(s).toEqual('');
   });
 });

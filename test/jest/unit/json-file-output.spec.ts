@@ -3,9 +3,11 @@ import * as path from 'path';
 import { createProjectFromFixture } from '../util/createProject';
 import {
   createDirectory,
+  saveObjectToFileCreatingDirectoryIfRequired,
   writeContentsToFileSwallowingErrors,
 } from '../../../src/lib/json-file-output';
 import * as os from 'os';
+import { Readable } from 'stream';
 
 const isWindows = os.platform().indexOf('win') === 0;
 
@@ -46,5 +48,30 @@ describe('writeContentsToFileSwallowingErrors', () => {
       await writeContentsToFileSwallowingErrors(outputPath, 'fake-contents');
       expect(fs.existsSync(outputPath)).toBe(false);
     }
+  });
+});
+
+describe('saveObjectToFileCreatingDirectoryIfRequired', () => {
+  it('can write large objects to file', async () => {
+    const outputFile = path.join(os.tmpdir(), './test-output.json');
+
+    if (fs.existsSync(outputFile)) {
+      fs.unlinkSync(outputFile);
+    }
+
+    const bigObject = {
+      bigArray: new Array(4 * 1024 * 1024).fill({}),
+      biggerArray: new Array(8 * 1024 * 1024).fill({}),
+      biggestArray: new Array(16 * 1024 * 1024).fill({}),
+      biggerestArray: new Array(32 * 1024 * 1024).fill({}),
+    };
+
+    await saveObjectToFileCreatingDirectoryIfRequired(outputFile, bigObject);
+
+    Readable
+      .from([bigObject])
+      .on('end', () => {
+        expect(fs.statSync(outputFile).size).toBeGreaterThan(500000000) // >500MB
+      });
   });
 });

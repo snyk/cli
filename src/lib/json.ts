@@ -17,7 +17,7 @@ export function jsonStringifyLargeObject(obj: any, options?: Options): string {
       console.warn("'--json' does not work for very large objects - try using '--json-file-output=<filePath>' instead");
     }
 
-    debug('JSON.stringify failed: ', err)
+    debug('jsonStringifyLargeObject failed: ', err)
     return res;
   }
 }

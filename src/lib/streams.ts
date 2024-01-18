@@ -1,12 +1,14 @@
-import { Transform, Writable } from 'stream';
 import * as _ from 'lodash';
+import debug = require('debug');
+import { Transform, Writable } from 'stream';
 
 interface IStreams {
   destination: Writable;
   data: unknown;
   setWriteData<T>(data: T): IStreams
-  write(data: unknown): void
+  write(): void
 }
+
 
 export class Streams implements IStreams {
   destination: Writable;
@@ -23,19 +25,20 @@ export class Streams implements IStreams {
 
   write() {
     if (_.isUndefined(this.data)) {
-      console.log('No data to stream');
+      debug('No data to stream');
       return;
     }
 
     try {
       const jsonStream = new Transform({
         objectMode: true,
-        transform(chunk: Record<string, unknown>, encoding: string, callback: (error: Error | null, data: any) => void) {
+        transform(chunk: unknown, encoding: string, callback: (error: Error | null, data: any) => void) {
           const jsonChunk = JSON.stringify(chunk, null, 2) + '\n';
           callback(null, jsonChunk);
         }
       });
 
+      jsonStream.read()
       jsonStream.pipe(this.destination);
       jsonStream.write(this.data);
       jsonStream.end();
