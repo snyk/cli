@@ -1,4 +1,4 @@
-import { Options } from "./types";
+import { Options } from './types';
 
 const debug = require('debug')('snyk-json');
 
@@ -14,10 +14,12 @@ export function jsonStringifyLargeObject(obj: any, options?: Options): string {
     return res;
   } catch (err) {
     if (options?.json) {
-      console.warn("'--json' does not work for very large objects - try using '--json-file-output=<filePath>' instead");
+      console.warn(
+        "'--json' does not work for very large objects - try using '--json-file-output=<filePath>' instead",
+      );
     }
 
-    debug('jsonStringifyLargeObject failed: ', err)
+    debug('jsonStringifyLargeObject failed: ', err);
     return res;
   }
 }

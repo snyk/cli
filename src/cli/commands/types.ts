@@ -36,13 +36,13 @@ export abstract class TestCommandResult extends CommandResult {
     humanReadableResult: string,
     jsonResult: string,
     sarifResult?: string,
-    jsonData?: Record<string, unknown>
+    jsonData?: Record<string, unknown>,
   ): HumanReadableTestCommandResult {
     return new HumanReadableTestCommandResult(
       humanReadableResult,
       jsonResult,
       sarifResult,
-      jsonData
+      jsonData,
     );
   }
 
@@ -64,7 +64,7 @@ class HumanReadableTestCommandResult extends TestCommandResult {
     humanReadableResult: string,
     jsonResult: string,
     sarifResult?: string,
-    jsonData?: Record<string, unknown>
+    jsonData?: Record<string, unknown>,
   ) {
     super(humanReadableResult);
     this.jsonResult = jsonResult;

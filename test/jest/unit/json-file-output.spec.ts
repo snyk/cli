@@ -68,10 +68,8 @@ describe('saveObjectToFileCreatingDirectoryIfRequired', () => {
 
     await saveObjectToFileCreatingDirectoryIfRequired(outputFile, bigObject);
 
-    Readable
-      .from([bigObject])
-      .on('end', () => {
-        expect(fs.statSync(outputFile).size).toBeGreaterThan(500000000) // >500MB
-      });
+    Readable.from([bigObject]).on('end', () => {
+      expect(fs.statSync(outputFile).size).toBeGreaterThan(500000000); // >500MB
+    });
   });
 });

@@ -334,7 +334,7 @@ export default async function test(
     error.sarifStringifiedResults = stringifiedSarifData;
     // conditionally set jsonPayload for now, to determine whether to stream data to destination
     if (stringifiedJsonData.length === 0) {
-      error.jsonPayload = dataToSend
+      error.jsonPayload = dataToSend;
     }
     throw error;
   }
@@ -349,7 +349,7 @@ export default async function test(
     response,
     stringifiedJsonData,
     stringifiedSarifData,
-    dataToSend
+    dataToSend,
   );
 }
 

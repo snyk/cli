@@ -1,6 +1,5 @@
 import { gte } from 'semver';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
-import { Transform } from 'stream';
 import * as path from 'path';
 import { Streams } from '../lib/streams';
 
@@ -89,8 +88,6 @@ export async function saveObjectToFileCreatingDirectoryIfRequired(
   const createDirSuccess = createDirectory(dirPath);
   if (createDirSuccess) {
     const fileStream = new Streams(createWriteStream(jsonOutputFile));
-    fileStream
-      .setWriteData<Record<string, unknown>>(jsonPayload)
-      .write();
+    fileStream.setWriteData<Record<string, unknown>>(jsonPayload).write();
   }
 }
