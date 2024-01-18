@@ -835,7 +835,7 @@ jobs:
           no_output_timeout: '30m' # the whole set of tests regularly takes 25+ minutes.
           command: >
             npx tap -j 1 -C --timeout=300 -R junit --reporter-file=tap-junit.xml
-            --node-arg=-r --node-arg=ts-node/register --allow-incomplete-coverage
+            --allow-incomplete-coverage
             $(circleci tests glob "test/tap/*.test.*" | circleci tests split --split-by=timings)
       - store_test_results:
           path: tap-junit.xml
