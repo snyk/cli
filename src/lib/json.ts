@@ -1,3 +1,5 @@
+import { Options } from "./types";
+
 const debug = require('debug')('snyk-json');
 
 /**
@@ -5,14 +7,17 @@ const debug = require('debug')('snyk-json');
  * If it does exceed the string limit, try again without pretty-print to hopefully come out below the string limit.
  * @param obj the object from which you want to get a JSON string
  */
-export function jsonStringifyLargeObject(obj: any): string {
+export function jsonStringifyLargeObject(obj: any, options?: Options): string {
   let res = '';
   try {
-    // first try pretty-print
     res = JSON.stringify(obj, null, 2);
     return res;
   } catch (err) {
-    debug('JSON.stringify failed - try using --json-file-output=<filePath> for very large objects', err);
+    if (options?.json) {
+      console.warn("'--json' does not work for very large objects - try using '--json-file-output=<filePath>' instead");
+    }
+
+    debug('JSON.stringify failed: ', err)
     return res;
   }
 }

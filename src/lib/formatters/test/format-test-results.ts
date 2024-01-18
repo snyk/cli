@@ -102,7 +102,7 @@ export function extractDataToSendFromResults(
 
   let stringifiedJsonData = '';
   if (options.json || options['json-file-output']) {
-    stringifiedJsonData = jsonStringifyLargeObject(jsonData);
+    stringifiedJsonData = jsonStringifyLargeObject(jsonData, options);
   }
 
   const dataToSend = options.sarif ? sarifData : jsonData;
