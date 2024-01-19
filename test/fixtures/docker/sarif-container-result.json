@@ -30,7 +30,8 @@
                   "security",
                   "deb"
                 ],
-                "cvssv3_baseScore": 6.5
+                "cvssv3_baseScore": 6.5,
+                "security-severity": 6.5
               }
             }
           ]

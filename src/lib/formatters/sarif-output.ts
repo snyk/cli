@@ -82,7 +82,8 @@ export function getTool(testResult): sarif.Tool {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             testResult.packageManager!,
           ],
-          cvssv3_baseScore: vuln.cvssScore,
+          cvssv3_baseScore: vuln.cvssScore, // AWS
+          'security-severity': vuln.cvssScore, // GitHub
         },
       };
     })
