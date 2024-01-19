@@ -50,8 +50,9 @@ export abstract class TestCommandResult extends CommandResult {
     stdout: string,
     jsonResult?: string,
     sarifResult?: string,
+    jsonPayload?: Record<string, unknown>
   ): JsonTestCommandResult {
-    return new JsonTestCommandResult(stdout, jsonResult, sarifResult);
+    return new JsonTestCommandResult(stdout, jsonResult, sarifResult, jsonPayload);
   }
 }
 
@@ -90,7 +91,7 @@ class HumanReadableTestCommandResult extends TestCommandResult {
 }
 
 class JsonTestCommandResult extends TestCommandResult {
-  constructor(stdout: string, jsonResult?: string, sarifResult?: string) {
+  constructor(stdout: string, jsonResult?: string, sarifResult?: string, jsonData?: Record<string, unknown>) {
     super(stdout);
     if (jsonResult) {
       this.jsonResult = jsonResult;
@@ -99,6 +100,9 @@ class JsonTestCommandResult extends TestCommandResult {
       this.sarifResult = sarifResult;
     } else {
       this.jsonResult = stdout;
+    }
+    if (jsonData) {
+      this.jsonData = jsonData;
     }
   }
 

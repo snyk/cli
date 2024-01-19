@@ -47,6 +47,7 @@ import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-erro
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
 import { obfuscateArgs } from '../lib/utils';
 import { EXIT_CODES } from './exit-codes';
+const isEmpty = require('lodash/isEmpty');
 
 const debug = Debug('snyk');
 
@@ -161,11 +162,9 @@ async function handleError(args, error) {
     }
   }
 
-  // TODO: refactor this
   if (error.jsonPayload) {
     // send raw jsonPayload instead of stringified payload
     await saveResultsToFile(args.options, 'json', '', error.jsonPayload);
-    await saveResultsToFile(args.options, 'sarif', '', error.jsonPayload);
   } else {
     // fallback to original behaviour
     await saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
@@ -237,7 +236,7 @@ async function saveJsonResultsToFile(
   }
 
   // save to file with jsonPayload object instead of stringifiedJson
-  if (jsonPayload) {
+  if (jsonPayload && !isEmpty(jsonPayload)) {
     await saveObjectToFileCreatingDirectoryIfRequired(
       jsonOutputFile,
       jsonPayload,
