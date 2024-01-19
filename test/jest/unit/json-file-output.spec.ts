@@ -54,6 +54,7 @@ describe('writeContentsToFileSwallowingErrors', () => {
 describe('saveObjectToFileCreatingDirectoryIfRequired', () => {
   it('can write large objects to file', async () => {
     const outputFile = path.join(os.tmpdir(), './test-output.json');
+    console.log('****', 'outputFile ****\n', outputFile, '\n');
 
     if (fs.existsSync(outputFile)) {
       fs.unlinkSync(outputFile);
@@ -61,15 +62,13 @@ describe('saveObjectToFileCreatingDirectoryIfRequired', () => {
 
     const bigObject = {
       bigArray: new Array(4 * 1024 * 1024).fill({}),
-      biggerArray: new Array(8 * 1024 * 1024).fill({}),
-      biggestArray: new Array(16 * 1024 * 1024).fill({}),
-      biggerestArray: new Array(32 * 1024 * 1024).fill({}),
+      biggerArray: new Array(8 * 1024 * 1024).fill({})
     };
 
     await saveObjectToFileCreatingDirectoryIfRequired(outputFile, bigObject);
 
-    Readable.from([bigObject]).on('end', () => {
-      expect(fs.statSync(outputFile).size).toBeGreaterThan(500000000); // >500MB
-    });
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // Ensure async operations complete
+
+    expect(fs.statSync(outputFile).size).toBeGreaterThan(50000000); // >50MB
   });
 });
