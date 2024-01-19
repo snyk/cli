@@ -54,7 +54,6 @@ describe('writeContentsToFileSwallowingErrors', () => {
 describe('saveObjectToFileCreatingDirectoryIfRequired', () => {
   it('can write large objects to file', async () => {
     const outputFile = path.join(os.tmpdir(), './test-output.json');
-    console.log('****', 'outputFile ****\n', outputFile, '\n');
 
     if (fs.existsSync(outputFile)) {
       fs.unlinkSync(outputFile);
