@@ -9,7 +9,23 @@ Object {
         Object {
           "fixes": Array [
             Object {
-              "artifactChanges": Array [],
+              "artifactChanges": Array [
+                Object {
+                  "artifactLocation": Object {
+                    "uri": "package.json",
+                  },
+                  "replacements": Array [
+                    Object {
+                      "deletedRegion": Object {
+                        "startLine": 1,
+                      },
+                      "insertedContent": Object {
+                        "text": "jimp@0.2.28",
+                      },
+                    },
+                  ],
+                },
+              ],
               "description": Object {
                 "text": "Upgrade to jimp@0.2.28",
               },

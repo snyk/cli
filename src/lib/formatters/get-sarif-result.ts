@@ -41,7 +41,26 @@ export function getResults(testResult: TestResult): sarif.Result[] {
                 description: {
                   text: `Upgrade to ${vuln.upgradePath[1]}`,
                 },
-                artifactChanges: [],
+                artifactChanges: [
+                  {
+                    artifactLocation: {
+                      uri: getArtifactLocationUri(
+                        testResult.displayTargetFile,
+                        testResult.path,
+                      ),
+                    },
+                    replacements: [
+                      {
+                        deletedRegion: {
+                          startLine: vuln.lineNumber || 1,
+                        },
+                        insertedContent: {
+                          text: vuln.upgradePath[1] as string,
+                        },
+                      },
+                    ],
+                  },
+                ],
               },
             ]
           : undefined,
