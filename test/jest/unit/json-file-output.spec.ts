@@ -7,7 +7,6 @@ import {
   writeContentsToFileSwallowingErrors,
 } from '../../../src/lib/json-file-output';
 import * as os from 'os';
-import { Readable } from 'stream';
 
 const isWindows = os.platform().indexOf('win') === 0;
 

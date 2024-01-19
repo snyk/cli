@@ -41,7 +41,6 @@ export class Streams implements IStreams {
         },
       });
 
-      jsonStream.read();
       jsonStream.pipe(this.destination);
       jsonStream.write(this.data);
       jsonStream.end();
