@@ -60,13 +60,11 @@ describe('saveObjectToFileCreatingDirectoryIfRequired', () => {
 
     const bigObject = {
       bigArray: new Array(4 * 1024 * 1024).fill({}),
-      biggerArray: new Array(8 * 1024 * 1024).fill({})
+      biggerArray: new Array(8 * 1024 * 1024).fill({}),
     };
 
     await saveObjectToFileCreatingDirectoryIfRequired(outputFile, bigObject);
-
     await new Promise((resolve) => setTimeout(resolve, 2000)); // Ensure async operations complete
-
     expect(fs.statSync(outputFile).size).toBeGreaterThan(50000000); // >50MB
   });
 });
