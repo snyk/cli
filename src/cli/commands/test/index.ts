@@ -214,7 +214,7 @@ export default async function test(
         stringifiedData,
         stringifiedJsonData,
         stringifiedSarifData,
-        stringifiedJsonData.length === 0 ? dataToSend : null
+        stringifiedJsonData.length === 0 ? dataToSend : null,
       );
     }
 
@@ -229,7 +229,7 @@ export default async function test(
             stringifiedData,
             stringifiedJsonData,
             stringifiedSarifData,
-            stringifiedJsonData.length === 0 ? dataToSend : null
+            stringifiedJsonData.length === 0 ? dataToSend : null,
           );
         }
       }
@@ -312,7 +312,7 @@ export default async function test(
           response,
           stringifiedJsonData,
           stringifiedSarifData,
-          stringifiedJsonData.length === 0 ? dataToSend : null
+          stringifiedJsonData.length === 0 ? dataToSend : null,
         );
       }
     }
@@ -347,12 +347,12 @@ export default async function test(
   response += getProtectUpgradeWarningForPaths(
     packageJsonPathsWithSnykDepForProtect,
   );
-  
+
   return TestCommandResult.createHumanReadableTestCommandResult(
     response,
     stringifiedJsonData,
     stringifiedSarifData,
-    stringifiedJsonData.length === 0 ? dataToSend : null
+    stringifiedJsonData.length === 0 ? dataToSend : null,
   );
 }
 
