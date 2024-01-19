@@ -36,6 +36,7 @@ export class Streams implements IStreams {
           encoding: string,
           callback: (error: Error | null, data: any) => void,
         ) {
+          console.log('chunk: ', chunk);
           const jsonChunk = JSON.stringify(chunk, null, 2) + '\n';
           callback(null, jsonChunk);
         },

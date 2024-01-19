@@ -1,4 +1,5 @@
 import { fakeServer } from '../../acceptance/fake-server';
+import * as fs from 'fs';
 import { createProjectFromWorkspace } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
 
@@ -109,4 +110,154 @@ describe('test --json-file-output', () => {
     expect(code).toEqual(0);
     expect(await project.read(outputPath)).toEqual(stdout);
   });
+
+  // skip for now, this will break fake-server
+  it.skip('test --json-file-ouput handles responses larger than 512Mb limit in v8', async () => {
+    const project = await createProjectFromWorkspace(
+      'extra-large-response-payload',
+    );
+    const outputFilename = 'json-file-output.json';
+    const response = await project.readJSON('vulns-result.json');
+    response.result.issuesData['SNYK-JS-YARN-451572'] = {
+      CVSSv3: 'CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:L/A:H/E:P/RL:O/RC:C',
+      alternativeIds: [],
+      creationTime: '2019-07-15T09:33:20.212098Z',
+      credit: ['Сковорода Никита Андреевич'],
+      cvssScore: 8.2,
+      description:
+        '## Overview\n\n[yarn](https://yarnpkg.com/) is a Fast, reliable, and secure dependency management.\n\n\nAffected versions of this package are vulnerable to Man-in-the-Middle (MitM).\nNpm credentials such as `_authToken` were found to be sent over clear text when processing scoped packages that are listed as resolved. This could allow a suitably positioned attacker to eavesdrop and compromise the sent credentials.\n\n## Remediation\n\nUpgrade `yarn` to version 1.17.3 or higher.\n\n\n## References\n\n- [Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection](https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md)\n\n- [GitHub Commit](https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932)\n\n- [HackerOne Report](https://hackerone.com/reports/640904)\n',
+      disclosureTime: '2019-07-12T09:30:13Z',
+      exploit: 'Proof of Concept',
+      fixedIn: ['1.17.3'],
+      functions: [],
+      functions_new: [],
+      id: 'SNYK-JS-YARN-451571',
+      identifiers: { CVE: ['CVE-2019-5448'], CWE: ['CWE-300'] },
+      language: 'js',
+      modificationTime: '2019-07-15T15:25:40.382392Z',
+      moduleName: 'yarn',
+      packageManager: 'npm',
+      packageName: 'yarn',
+      patches: [],
+      publicationTime: '2019-07-15T09:29:56Z',
+      references: [
+        {
+          title:
+            'Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection',
+          url: 'https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md',
+        },
+        {
+          title: 'GitHub Commit',
+          url:
+            'https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932',
+        },
+        {
+          title: 'HackerOne Report',
+          url: 'https://hackerone.com/reports/640904',
+        },
+      ],
+      semver: { vulnerable: ['<1.17.3'] },
+      severity: 'high',
+      title: 'Man-in-the-Middle (MitM)',
+      isPinnable: false,
+      bigArray: new Array(270 * 1024).fill({
+        CVSSv3: 'CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:L/A:H/E:P/RL:O/RC:C',
+        alternativeIds: [],
+        creationTime: '2019-07-15T09:33:20.212098Z',
+        credit: ['Сковорода Никита Андреевич'],
+        cvssScore: 8.2,
+        description:
+          '## Overview\n\n[yarn](https://yarnpkg.com/) is a Fast, reliable, and secure dependency management.\n\n\nAffected versions of this package are vulnerable to Man-in-the-Middle (MitM).\nNpm credentials such as `_authToken` were found to be sent over clear text when processing scoped packages that are listed as resolved. This could allow a suitably positioned attacker to eavesdrop and compromise the sent credentials.\n\n## Remediation\n\nUpgrade `yarn` to version 1.17.3 or higher.\n\n\n## References\n\n- [Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection](https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md)\n\n- [GitHub Commit](https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932)\n\n- [HackerOne Report](https://hackerone.com/reports/640904)\n',
+        disclosureTime: '2019-07-12T09:30:13Z',
+        exploit: 'Proof of Concept',
+        fixedIn: ['1.17.3'],
+        functions: [],
+        functions_new: [],
+        id: 'SNYK-JS-YARN-451571',
+        identifiers: { CVE: ['CVE-2019-5448'], CWE: ['CWE-300'] },
+        language: 'js',
+        modificationTime: '2019-07-15T15:25:40.382392Z',
+        moduleName: 'yarn',
+        packageManager: 'npm',
+        packageName: 'yarn',
+        patches: [],
+        publicationTime: '2019-07-15T09:29:56Z',
+        references: [
+          {
+            title:
+              'Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection',
+            url: 'https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md',
+          },
+          {
+            title: 'GitHub Commit',
+            url:
+              'https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932',
+          },
+          {
+            title: 'HackerOne Report',
+            url: 'https://hackerone.com/reports/640904',
+          },
+        ],
+        semver: { vulnerable: ['<1.17.3'] },
+        severity: 'high',
+        title: 'Man-in-the-Middle (MitM)',
+        isPinnable: false,
+      }),
+      biggerArray: new Array(1 * 1024 * 1024).fill({
+        sample: 'foo',
+      }),
+    };
+    server.setDepGraphResponse(response);
+
+    const { code, stderr } = await runSnykCLI(
+      `test --json-file-output=${outputFilename}`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    console.log({ stderr });
+    const outputPath = await project.path(outputFilename);
+    expect(code).toEqual(1);
+    console.log({
+      outputPath,
+      outputPathSize: humanFileSize(fs.statSync(outputPath).size),
+    });
+    expect(fs.statSync(outputPath).size).toBeGreaterThan(0); // >50MB
+  });
 });
+
+/**
+ * Format bytes as human-readable text.
+ *
+ * @param bytes Number of bytes.
+ * @param si True to use metric (SI) units, aka powers of 1000. False to use
+ *           binary (IEC), aka powers of 1024.
+ * @param dp Number of decimal places to display.
+ *
+ * @return Formatted string.
+ */
+function humanFileSize(bytes, si = false, dp = 1) {
+  const thresh = si ? 1000 : 1024;
+
+  if (Math.abs(bytes) < thresh) {
+    return bytes + ' B';
+  }
+
+  const units = si
+    ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+    : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+  let u = -1;
+  const r = 10 ** dp;
+
+  do {
+    bytes /= thresh;
+    ++u;
+  } while (
+    Math.round(Math.abs(bytes) * r) / r >= thresh &&
+    u < units.length - 1
+  );
+
+  return bytes.toFixed(dp) + ' ' + units[u];
+}
