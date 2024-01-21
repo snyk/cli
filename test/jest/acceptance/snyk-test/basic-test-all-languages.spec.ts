@@ -225,6 +225,39 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     },
   );
 
+  test('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with a custom output path', async () => {
+    const prerequisite = await runCommand('dotnet', ['--version']).catch(
+      function() {
+        return { code: 1, stderr: '', stdout: '' };
+      },
+    );
+
+    if (prerequisite.code !== 0 && !dontSkip) {
+      return;
+    }
+
+    await runCommand('dotnet', ['restore']);
+
+    const project = await createProjectFromWorkspace(
+      'nuget-app-8-custom-output-path',
+    );
+
+    const { code, stderr, stdout } = await runSnykCLI(
+      'test -d --dotnet-runtime-resolution --file=random-output/company/obj/project.assets.json',
+      {
+        cwd: project.path(),
+      },
+    );
+
+    if (code !== 0) {
+      console.debug(stderr);
+      console.debug('---------------------------');
+      console.debug(stdout);
+    }
+
+    expect(code).toEqual(0);
+  });
+
   test.each([
     {
       targetFramework: 'net6.0',
