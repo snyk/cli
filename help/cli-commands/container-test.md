@@ -8,8 +8,6 @@
 
 The `snyk container test` command tests container images for any known vulnerabilities.
 
-For more information see [Snyk CLI for container security](https://docs.snyk.io/products/snyk-container/snyk-cli-for-container-security)
-
 ## Exit codes
 
 Possible exit codes and their meaning:
@@ -37,19 +35,17 @@ Print the dependency tree before sending it for analysis.
 
 ### `--org=<ORG_ID>`
 
-Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. The `<ORG_ID>` influences some features availability and private test limits.
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences some features availability and private test limits.
 
-If you have multiple organizations, you can set a default from the CLI using:
+If you have multiple Organizations, you can set a default from the CLI using:
 
 `$ snyk config set org=<ORG_ID>`
 
-Set a default to ensure all newly tested and monitored projects are tested and monitored under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
+Set a default to ensure all newly tested and monitored projects are tested and monitored under your default Organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
+Default: `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)
 
-Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
-
-For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
+Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
 ### `--file=<FILE_PATH>`
 
@@ -65,7 +61,7 @@ Manually pass a path to a `.snyk` policy file.
 
 ### `--json`
 
-Print results ion the console as a JSON data structure.
+Print results on the console as a JSON data structure.
 
 Example: `$ snyk container test --json`
 
@@ -110,15 +106,11 @@ In CLI versions 1.1090.0 (2023-01-24) and higher, Snyk scans for application dep
 
 In CLI versions 1.962.0 through v1.1089.0, use the `--app-vulns` option with the the `--json` option to see the operating system as well as application vulnerabilities in JSON format in the results.
 
-For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
-
 ### `--exclude-app-vulns`
 
 Allow disabling scans for app vulnerabilities; in CLI versions 1.1090.0 (2023-01-24) and higher, `app-vulns` is enabled by default.
 
 In earlier releases, cannot be used with `--app-vulns`.
-
-For more information, see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
 
 ### `--nested-jars-depth`
 

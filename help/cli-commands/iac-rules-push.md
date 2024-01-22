@@ -2,7 +2,7 @@
 
 ## Usage
 
-**Feature availability:** This feature is in beta.
+**Feature availability:** This feature is in Early Access.
 
 `snyk iac rules push [<OPTIONS>]`
 

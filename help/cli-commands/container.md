@@ -4,7 +4,7 @@
 
 The `snyk container` commands test and continuously monitor container images for vulnerabilities and generate an SBOM for a container image.
 
-For more information, see [Snyk CLI for container security](https://docs.snyk.io/products/snyk-container/snyk-cli-for-container-security)
+For more information, see [Snyk CLI for Snyk Container](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container)
 
 ## `snyk container` commands and the help docs
 

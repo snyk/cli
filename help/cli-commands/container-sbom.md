@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-**Feature availability:** This feature is currently in [Early Availability](https://docs.snyk.io/more-info/snyk-feature-release-process) and is available to customers on Snyk Enterprise plans.
+**Feature availability:** This feature is currently in Early Availability and is available to customers on Snyk Enterprise plans.
 
-**Note:** In order to run the SBOM generation feature, you must use a minimum of CLI version 1.1226.0.
+**Note:** In order to use the SBOM generation feature, you must use a minimum of CLI version 1.1226.0.
 
 The `snyk container sbom` feature requires an internet connection.
 
@@ -16,9 +16,9 @@ The `snyk container sbom` feature requires an internet connection.
 
 The `snyk container sbom` command generates an SBOM for a container image.
 
-Supported formats includes CycloneDX v1.4 (JSON or XML) and SPDX v2.3 (JSON).
+Supported formats include CycloneDX v1.4 (JSON or XML) and SPDX v2.3 (JSON).
 
-A SBOM can be generated for operating system dependencies as well as application dependencies within the image. Unmanned dependencies are currently not supported.
+An SBOM can be generated for operating system dependencies as well as application dependencies within the image. Unmanaged dependencies are currently not supported.
 
 ## Exit codes
 
@@ -41,23 +41,23 @@ Set the desired SBOM output format. Available options are `cyclonedx1.4+json`, `
 
 ### `[--org=<ORG_ID>]`
 
-Specify the `<ORG_ID>` (name or UUID) to run Snyk commands tied to a specific organization. The `<ORG_ID>` influences some features availability and private test limits.
+Specify the `<ORG_ID>` (name or UUID) to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences some features availability and private test limits.
 
-Use this option when your default organization does not have API entitlement.
+Use this option when your default Organization does not have API entitlement.
 
-If this option is omitted, the default organization for your account will be used.
+If this option is omitted, the default Organization for your account will be used.
 
-This is the `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)&#x20;
+This is the `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)&#x20;
 
-Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
+Set a default to ensure all newly tested projects are tested under your default Organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
 If you have multiple organizations, you can set a default from the CLI using:
 
 `$ snyk config set org=<ORG_ID>`
 
-**Note:** You can also use `--org=<orgslugname>.` The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
+**Note:** You can also use `--org=<orgslugname>.` The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
-For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
+For more information, see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `[--exclude-app-vulns]`
 
@@ -65,7 +65,7 @@ Snyk scans and generates an SBOM for operating system dependencies as well as ap
 
 You can disable generation for application dependencies by adding `--exclude-app-vulns`.
 
-For more information about application scanning, see [Detect application vulnerabilities in container images](https://docs.snyk.io/scan-applications/snyk-container/use-snyk-container/detect-application-vulnerabilities-in-container-images)
+For more information about application scanning, see [Detect application vulnerabilities in container images](https://docs.snyk.io/scan-using-snyk/snyk-container/use-snyk-container-from-the-web-ui/detect-application-vulnerabilities-in-container-images)
 
 ### `<IMAGE>`
 

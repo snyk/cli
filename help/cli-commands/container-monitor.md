@@ -36,19 +36,19 @@ Use the `-d` option to output the debug logs.
 
 ### `--org=<ORG_ID>`
 
-Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. The `<ORG_ID>` influences some features availability and private test limits.
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences some features availability and private test limits.
 
 If you have multiple organizations, you can set a default from the CLI using:
 
 `$ snyk config set org=<ORG_ID>`
 
-Set a default to ensure all newly tested and monitored projects are tested and monitored under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
+Set a default to ensure all newly tested and monitored projects are tested and monitored under your default Organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
+Default: `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)
 
-Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
+Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
-For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
+For more information see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--file=<FILE_PATH>`
 
@@ -68,7 +68,7 @@ Print results on the console as a JSON data structure.
 
 Example: `$ snyk container test --json`
 
-**Note**: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Editing project attributes from the Snyk CLI](https://docs.snyk.io/features/user-and-group-management/managing-users-and-permissions/managing-permissions#editing-project-attributes-from-the-snyk-cli)
+**Note**: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Permissions (role) required to edit Project attributes from the Snyk CLI](https://docs.snyk.io/snyk-admin/manage-permissions-and-roles/manage-member-roles#permissions-role-required-to-edit-project-attributes-from-the-snyk-cli)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -76,7 +76,7 @@ Set the project environment to one or more values (comma-separated). To clear th
 
 Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`
 
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE]...>`
 
@@ -84,7 +84,7 @@ Set the project lifecycle to one or more values (comma-separated). To clear the 
 
 Allowed values: `production, development, sandbox`
 
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
 
@@ -92,7 +92,7 @@ Set the project business criticality to one or more values (comma-separated). To
 
 Allowed values: `critical`, `high`, `medium`, `low`
 
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
@@ -102,7 +102,7 @@ Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
 
-For more information including allowable characters see [Project tags](https://docs.snyk.io/snyk-web-ui/introduction-to-snyk-projects/project-tags)
+For more information including allowable characters see [Project tags](https://docs.snyk.io/snyk-admin/snyk-projects/project-tags)
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
@@ -116,7 +116,7 @@ In CLI versions 1.1090.0 (2023-01-24) and higher, Snyk scans for application dep
 
 In CLI versions 1.962.0 through v1.1089.0, use the `--app-vulns` option with the the `--json` option to see the operating system as well as application vulnerabilities in JSON format in the results.
 
-For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
+For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/scan-using-snyk/snyk-container/use-snyk-container-from-the-web-ui/detect-application-vulnerabilities-in-container-images)
 
 ### `--exclude-app-vulns`
 
@@ -124,7 +124,7 @@ Allow disabling scans for app vulnerabilities; in CLI versions 1.1090.0 (2023-01
 
 In earlier releases, cannot be used with `--app-vulns`.
 
-For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/detecting-application-vulnerabilities-in-container-images)
+For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/scan-using-snyk/snyk-container/use-snyk-container-from-the-web-ui/detect-application-vulnerabilities-in-container-images)
 
 ### `--nested-jars-depth`
 

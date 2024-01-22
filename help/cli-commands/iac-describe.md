@@ -13,7 +13,7 @@ The `snyk iac describe` command detects unmanaged infrastructure resources. It c
 - Resources in your Terraform state files are **managed resources**.
 - Resources that exist but are not in your Terraform state file are **unmanaged resources**.
 
-For detailed information and examples, see [IaC describe command examples](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/iac-describe-command-examples)
+For detailed information and examples, see [IaC describe command examples](https://docs.snyk.io/scan-using-snyk/scan-infrastructure/iac+-code-to-cloud-capabilities/detect-drift-and-manually-created-resources/iac-describe-command-examples)
 
 For a list of related commands see the snyk [iac help](iac.md); `iac --help`
 
@@ -31,7 +31,7 @@ You can use environment variables and set variables for connecting with the Snyk
 
 ## Configure the Terraform provider
 
-You can set environment variables to configure the Terraform provider used by the `describe` command; see [Configure cloud providers](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/configure-cloud-providers)
+You can set environment variables to configure the Terraform provider used by the `describe` command; see [Configure cloud providers](https://docs.snyk.io/scan-using-snyk/scan-infrastructure/iac+-code-to-cloud-capabilities/detect-drift-and-manually-created-resources/configure-cloud-providers)
 
 ## Debug
 
@@ -41,17 +41,17 @@ Use the `-d` option to output the debug logs.
 
 ### `--org=<ORG_ID>`
 
-Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. Overrides the default `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific Snyk Organization. Overrides the default `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)
 
-Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
+Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
-For more information, see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
+For more information, see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--from=<STATE>[,<STATE>...]`
 
 Specify multiple Terraform state files to be read. Glob patterns are supported.
 
-For more information, including **a list of supported IaC sources** and how to use them, see [IAC Sources usage](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/iac-sources-usage)
+For more information, including **a list of supported IaC sources** and how to use them, see [IAC Sources usage](https://docs.snyk.io/scan-using-snyk/scan-infrastructure/iac+-code-to-cloud-capabilities/detect-drift-and-manually-created-resources/iac-sources-usage)
 
 ### `--to=<PROVIDER+TYPE>`
 
@@ -113,7 +113,7 @@ Use filter rules.
 
 Filter rules allow you to build a JMESPath expression to include or exclude a set of resources from the report.
 
-For more information, see [Filter results](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/filter-results)
+For more information, see [Filter results](https://docs.snyk.io/scan-using-snyk/scan-infrastructure/iac+-code-to-cloud-capabilities/detect-drift-and-manually-created-resources/filter-rules)
 
 ### `--strict`
 
@@ -151,7 +151,7 @@ Output the report as html into a file.
 
 ## Examples for snyk iac describe command
 
-For more examples, see [IaC describe command examples](https://docs.snyk.io/products/snyk-infrastructure-as-code/detect-drift-and-manually-created-resources/iac-describe-command-examples)
+For more examples, see [IaC describe command examples](https://docs.snyk.io/scan-using-snyk/scan-infrastructure/iac+-code-to-cloud-capabilities/detect-drift-and-manually-created-resources/iac-describe-command-examples)
 
 ### Detect unmanaged resources on AWS with a single local Terraform state
 
@@ -183,7 +183,7 @@ $ snyk iac describe --from="tfstate+s3://my-bucket/path/to/state.tfstate"
 $ snyk iac describe --from="tfstate://terraform_S3.tfstate,tfstate://terraform_VPC.tfstate"
 ```
 
-### Aggregate many Terraform states, using glob pattern
+### Aggregate many Terraform states using glob pattern
 
 ```
 $ snyk iac describe --from="tfstate://path/to/**/*.tfstate"

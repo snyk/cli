@@ -4,7 +4,7 @@
 
 **Feature availability:** This feature is available to customers on Snyk Enterprise plans.
 
-**Note:** In order to run the SBOM generation feature, you must use a minimum of CLI version 1.1071.0.
+**Note:** In order to use the SBOM generation feature, you must use a minimum of CLI version 1.1071.0.
 
 The `snyk sbom` feature requires an internet connection.
 
@@ -41,23 +41,23 @@ Set the desired SBOM output format. Available options are `cyclonedx1.4+json`, `
 
 ### `[--org=<ORG_ID>]`
 
-Specify the `<ORG_ID>` (name or UUID) to run Snyk commands tied to a specific organization. The `<ORG_ID>` influences some features availability and private test limits.
+Specify the `<ORG_ID>` (name or UUID) to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences some features availability and private test limits.
 
-Use this option when your default organization does not have API entitlement.
+Use this option when your default Organization does not have API entitlement.
 
-If this option is omitted, the default organization for your account will be used.
+If this option is omitted, the default Organization for your account will be used.
 
-This is the `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
+This is the `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)
 
-Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
+Set a default to ensure all newly tested projects are tested under your default Organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-If you have multiple organizations, you can set a default from the CLI using:
+If you have multiple Organizations, you can set a default from the CLI using:
 
 `$ snyk config set org=<ORG_ID>`
 
 **Note:** You can also use `--org=<orgslugname>.` The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
 
-For more information see the article [How to select the organization to use in the CLI](https://support.snyk.io/hc/en-us/articles/360000920738-How-to-select-the-organization-to-use-in-the-CLI)
+For more information, see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `[--file=<file>] or [--f=<file>]`
 
@@ -89,15 +89,15 @@ Auto-detect all projects in the working directory (including Yarn workspaces) an
 
 ### `[--name=<NAME>]`
 
-Use in combination with `--all-projects` to provide the name of the software which the SBOM describes. If not specified, this defaults to the name of current working directory.
+Use in combination with `--all-projects` to provide the name of the software which the SBOM describes. If not specified, this defaults to the name of the current working directory.
 
 ### `[--version=<VERSION>]`
 
-Use in combination with `--all-projects` to provide the version of the software which the SBOM describes. This is omitted if not set explicitly.
+Use in combination with `--all-projects` to provide the version of the software that the SBOM describes. This is omitted if not set explicitly.
 
 ### `[--exclude=<NAME>[,<NAME>...]]`
 
-Can be used with `--all-projects` to indicate directory names and file names to exclude. Must be comma separated.
+Can be used with `--all-projects` to indicate directory names and file names to exclude. Must be comma-separated.
 
 Example: `$ snyk sbom --all-projects --exclude=dir1,file2`
 
@@ -105,8 +105,6 @@ This will exclude any directories named `dir1` and `file2` when scanning for pro
 
 **Note**: `--exclude=dir1` will find both `./dir1`, and `./src/dir1`.\
 However, `--exclude=./src/dir1` will result in an error because it includes a path.
-
-**Note**: When `--all-projects` is used with Gradle, the projects are treated as sub-projects. The `--exclude` option is not supported for Gradle sub-projects.
 
 ### `[--detection-depth=<DEPTH>]`
 
@@ -152,11 +150,11 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.
 
 ### `--sub-project=<NAME>`, `--gradle-sub-project=<NAME>`
 
-For Gradle "multi project" configurations, scan a specific sub-project.
+For Gradle multi project configurations, scan a specific sub-project.
 
 ### `--all-sub-projects`
 
-For "multi project" configurations, scan all sub-projects.
+For multi project configurations, scan all sub-projects.
 
 ### `--all-projects`
 
@@ -164,7 +162,7 @@ See also the `--all-projects` option information in the Options section of this 
 
 Use for monorepos. This detects all supported manifests.
 
-For Gradle monorepos Snyk looks only for root level `build.gradle` and `build.gradle.kts` files and applies the same logic as `--all-sub-projects` behind the scenes.
+For Gradle monorepos, Snyk looks only for root level `build.gradle` and `build.gradle.kts` files and applies the same logic as `--all-sub-projects` behind the scenes.
 
 This option is designed to be run in the root of your monorepo.
 
@@ -282,7 +280,7 @@ Use `0` (zero, the default) to disable archive extraction completely.
 
 ### `-- [<CONTEXT-SPECIFIC_OPTIONS>]`
 
-Use a double dash (`--`) after the complete Snyk command to pass additional options (arguments, flags) that follow directly to the build tool, for example Gradle or Maven.
+Use a double dash (`--`) after the complete Snyk command to pass additional options (arguments, flags) that follow directly to the build tool, for example, Gradle or Maven.
 
 Example: `snyk sbom -- -s settings.xml`
 
