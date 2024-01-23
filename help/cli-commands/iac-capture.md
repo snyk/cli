@@ -12,9 +12,9 @@ The `snyk iac capture` command generates a mapping artifact that contains the mi
 
 Snyk uses this information to link Cloud issues to their originating IaC files. The links can be viewed in the Snyk Web UI.
 
-For more information, see [Fix Cloud issues in IaC](https://docs.snyk.io/scan-cloud-deployment/snyk-cloud/snyk-cloud-issues/fix-cloud-issues-in-iac)
+For more information, see [Fix Cloud issues in IaC](https://docs.snyk.io/scan-using-snyk/scan-infrastructure/iac+-code-to-cloud-capabilities/fix-cloud-issues-in-iac)
 
-For a list of related commands see the [snyk iac](iac.md) help; `iac --help`
+For a list of related commands, see the [snyk iac](iac.md) help; `iac --help`
 
 ## Exit codes
 
@@ -35,11 +35,11 @@ Use the `-d` option to output the debug logs.
 
 ### `--org=<ORG_ID>`
 
-Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. Overrides the default `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific Snyk Organization. Overrides the default `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)
 
-Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
+Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
-For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
+For more information, see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--stdin`
 

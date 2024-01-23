@@ -10,17 +10,17 @@ The `snyk auth` command authenticates your machine to associate the Snyk CLI wit
 
 Running `$ snyk auth` opens a browser window with prompts to log in to your Snyk account and authenticate. No repository permissions are needed at this stage, only your email address.
 
-When you have authenticated you can start using the CLI; see [Getting started with the CLI](https://docs.snyk.io/snyk-cli/getting-started-with-the-cli)
+When you have authenticated, you can start using the CLI; see [Getting started with the CLI](https://docs.snyk.io/snyk-cli/getting-started-with-the-cli)
 
 ## Value
 
-In some environments and configurations you must use the `<API_TOKEN>`; see [Authenticate the CLI with your account](https://docs.snyk.io/features/snyk-cli/authenticate-the-cli-with-your-account)
+In some environments and configurations, you must use the `<API_TOKEN>`; see [Authenticate the CLI with your account](https://docs.snyk.io/snyk-cli/authenticate-the-cli-with-your-account)
 
-The value may be a user token or a service account; see [Service accounts](https://docs.snyk.io/features/integrations/managing-integrations/service-accounts)
+The value may be a user token or a service account; see [Service accounts](https://docs.snyk.io/enterprise-setup/service-accounts)
 
-In a CI/CD environment use the `SNYK_TOKEN` environment variable; see [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
+In a CI/CD environment, use the `SNYK_TOKEN` environment variable; see [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli)
 
-After setting this environment variable you can use CLI commands.
+After setting this environment variable, you can use CLI commands.
 
 ## Debug
 

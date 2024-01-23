@@ -174,5 +174,5 @@ $ snyk ignore --file-path='./**/vendor/**/*.cpp' --file-path-group='global'
 
 For more information see:
 
-- [Ignore vulnerabilities using Snyk CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/ignore-vulnerabilities-using-snyk-cli)
-- [IaC ignores using the .snyk policy file](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code/iac-ignores-using-the-.snyk-policy-file)
+- [Ignore vulnerabilities using Snyk CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/ignore-vulnerabilities-using-the-snyk-cli)
+- [IaC ignores using the .snyk policy file](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac/iac-ignores-using-the-.snyk-policy-file)

@@ -10,7 +10,7 @@ The `snyk config` command manages your local Snyk CLI config file, a JSON file l
 
 Example: `~/.config/configstore/snyk.json`
 
-This command does not manage the `.snyk` file that is part of your project. See the [`snyk policy`](policy.md) and [`snyk ignore`](ignore.md) commands.
+This command does not manage the `.snyk` file that is part of your project. See the [`snyk policy` ](policy.md)and [`snyk ignore`](ignore.md) commands.
 
 ## Debug
 
@@ -50,7 +50,7 @@ Turn off analytics reporting.
 
 ### `org`
 
-Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization.&#x20;
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific Snyk Organization.&#x20;
 
 ### `oci-registry-url`
 

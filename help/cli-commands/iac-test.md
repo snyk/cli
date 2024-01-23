@@ -10,7 +10,7 @@ The `snyk iac test` command tests for any known security issue.
 
 For a list of related commands see the [snyk iac](iac.md) help; `iac --help`
 
-For more information see [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/scan-cloud-deployment/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
+For more information see [Snyk CLI for IaC](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac)
 
 ## Exit codes
 
@@ -41,23 +41,21 @@ Example: `--detection-depth=3` limits search to the specified directory (or the 
 
 ### `--org=<ORG_ID>`
 
-Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. The `<ORG_ID>` influences private test limits.
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences private test limits.
 
-If you have multiple organizations, you can set a default from the CLI using:
+If you have multiple Organizations, you can set a default from the CLI using:
 
 `$ snyk config set org=<ORG_ID>`
 
-Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
+Set a default to ensure all newly tested projects are tested under your default Organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
+Default: `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)
 
-Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
-
-For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
+Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
 ### `--ignore-policy`
 
-Ignore all set policies, the current policy in the `.snyk` file, org level ignores, and the project policy on snyk.io.
+Ignore all set policies, the current policy in the `.snyk` file, rg level ignores, and the project policy on snyk.io.
 
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 

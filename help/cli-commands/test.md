@@ -21,7 +21,7 @@ Possible exit codes and their meaning:
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
+You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli)
 
 ## Code execution warning
 
@@ -38,8 +38,6 @@ See also subsequent sections for options for specific build environments, packag
 ### `--all-projects`
 
 Auto-detect all projects in the working directory, including Yarn workspaces.
-
-**Note**: Gradle projects are treated as sub-projects. Therefore `--exclude` does not work with Gradle projects.
 
 For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/hc/en-us/articles/360000910577-Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files-)
 
@@ -74,8 +72,6 @@ This will exclude any directories and files named `dir1` and `file2` when scanni
 **Note**: `--exclude=dir1` will find both `./dir1`, and `./src/dir1`.\
 However, `--exclude=./src/dir1` will result in an error because it includes a path.
 
-**Note**: When `--all-projects` is used with Gradle, the projects are treated as sub-projects. The `--exclude` option is not supported for Gradle sub-projects.
-
 ### `--prune-repeated-subdependencies`, `-p`
 
 Prune dependency trees, removing duplicate sub-dependencies.
@@ -104,19 +100,19 @@ Default: false, scan only production dependencies.
 
 ### `--org=<ORG_ID>`
 
-Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. The `<ORG_ID>` influences some features availability and private test limits.
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences some features availability and private test limits.
 
-If you have multiple organizations, you can set a default from the CLI using:
+If you have multiple Organizations, you can set a default from the CLI using:
 
 `$ snyk config set org=<ORG_ID>`
 
-Set a default to ensure all newly tested projects are tested under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
+Set a default to ensure all newly tested projects are tested under your default Organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
+Default: `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)
 
-**Note:** You can also use `--org=<orgslugname>.` The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
+**Note:** You can also use `--org=<orgslugname>.` The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
-For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
+For more information see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--file=<FILE>`
 
@@ -142,7 +138,7 @@ For options you can use with `--unmanaged` see [Options for scanning using `--un
 
 ### `--ignore-policy`
 
-Ignore all set policies, the current policy in the `.snyk` file, org level ignores, and the project policy on snyk.io.
+Ignore all set policies, the current policy in the `.snyk` file, Org level ignores, and the project policy on snyk.io.
 
 ### `--trust-policies`
 
@@ -152,7 +148,7 @@ Apply and use ignore rules from the Snyk policies in your dependencies; otherwis
 
 Display the dependency paths from the top level dependencies down to the vulnerable packages. Not supported with `--json-file-output`.
 
-Default: `some` (a few example paths shown). `false` is an alias for `none`
+Default: `some`, a few example paths shown. `false` is an alias for `none`
 
 Example: `--show-vulnerable-paths=none`
 
@@ -164,11 +160,11 @@ Specify a custom Snyk project name.
 
 Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Supported for Snyk Open Source except for use with `--unmanaged`.
 
-For more information see [Group projects by branch or version](https://docs.snyk.io/snyk-cli/secure-your-projects-in-the-long-term/grouping-projects-by-branch-or-version)
+For more information see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
 
 You can use `--target-reference=<TARGET_REFERENCE>` when running tests to apply the same ignores and policies as for a monitored target.
 
-For more information see [Ignore issues](https://docs.snyk.io/features/fixing-and-prioritizing-issues/issue-management/ignore-issues)
+For more information see [Ignore issues](https://docs.snyk.io/scan-using-snyk/find-and-manage-priority-issues/ignore-issues)
 
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 
@@ -180,7 +176,7 @@ Print results on the console as a JSON data structure.
 
 Example: `$ snyk test --json`
 
-If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/invalid-string-length-error-when-scanning-projects)
+If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/invalid-string-length-error-when-scanning-projects)
 
 ### `--json-file-output=<OUTPUT_FILE_PATH>`
 
@@ -188,11 +184,11 @@ Save test output as a JSON data structure directly to the specified file, regard
 
 Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file.
 
-For open-source, Snyk creates a file whether or not issues are found. In contrast, for SAST, if no issues are found, Snyk does not create a `json` file.
+For open source, Snyk creates a file whether or not issues are found. In contrast, for SAST, if no issues are found, Snyk does not create a `json` file.
 
 Example: `$ snyk test --json-file-output=vuln.json`
 
-If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/invalid-string-length-error-when-scanning-projects)
+If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/invalid-string-length-error-when-scanning-projects)
 
 ### `--sarif`
 
@@ -250,15 +246,15 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.&
 
 ## Options for Gradle projects
 
-**Note:** If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/invalid-string-length-error-when-scanning-projects)
+**Note:** If you see the invalid string length error, refer to I[nvalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/invalid-string-length-error-when-scanning-projects)
 
 ### `--sub-project=<NAME>`, `--gradle-sub-project=<NAME>`
 
-For Gradle "multi project" configurations, test a specific sub-project.
+For Gradle multi project configurations, test a specific sub-project.
 
 ### `--all-sub-projects`
 
-For "multi project" configurations, test all sub-projects.
+For multi project configurations, test all sub-projects.
 
 ### `--all-projects`
 
@@ -396,23 +392,23 @@ Example: `snyk test--command=python3`
 
 Skip packages that cannot be found in the environment, for example, private packages that cannot be accessed from the machine running the scan.
 
-### `--file=` for Python
+### `--file=<FILE_for_Python>`
 
 For a Python project, specify a particular file to test.
 
 Default: Snyk scans the requirements.txt file at the top level of the project.
 
-Snyk can recognize any manifest files specified with this option based on `--file=req.txt`. Each (\*) is a wildcard and `req` can appear anywhere in the file name.
+Snyk can recognize any manifest files specified with this option based on `--file=req*.txt`. The `*` is a wildcard and `req` can appear anywhere in the file name.
 
-For example, Snyk recognizes your manifest file when you have renamed it to r`equirements-dev.txt`.
+For example, Snyk recognizes your manifest file when you have renamed it to `requirements-dev.txt`.
 
-### `--package-manager=` for Python
+### `--package-manager=pip`
 
 Add`--package-manager=pip` to your command if the file name is not `requirements.txt`.
 
 This option is mandatory if you specify a value for the `--file` parameter that is not to a `requirements.txt` file. The test fails without this parameter. Specify this parameter with the value `pip`.
 
-For complete information about the command see [`--package-manager=<PACKAGE_MANAGER_NAME>`](https://docs.snyk.io/snyk-cli/commands/test#package-manager-less-than-package_manager_name-greater-than)\`\`
+For complete information about the command see [`--package-manager=<PACKAGE_MANAGER_NAME>`](https://docs.snyk.io/snyk-cli/commands/test#package-manager-less-than-package_manager_name-greater-than)
 
 ## Options for Go projects
 

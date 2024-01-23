@@ -20,7 +20,7 @@ For Snyk Container, see [`snyk container` help](https://docs.snyk.io/snyk-cli/co
 
 The `monitor` command is not supported for Snyk Code.
 
-For Snyk Infrastructure as Code follow the instructions in "Regularly testing IaC files" on [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/products/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
+For Snyk Infrastructure as Code follow the instructions in "Regularly testing IaC files" on [Snyk CLI for IaC](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac)
 
 ## Exit codes
 
@@ -32,7 +32,7 @@ Possible exit codes and their meaning:
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and and set variables for connecting with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
+You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli)
 
 ## Code execution warning
 
@@ -49,8 +49,6 @@ See also subsequent sections for options for specific build environments, packag
 ### `--all-projects`
 
 Auto-detect all projects in the working directory, including Yarn workspaces.
-
-**Note**: Gradle projects are treated as sub-projects. Therefore `--exclude` does not work with Gradle projects.
 
 For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/hc/en-us/articles/360000910577-Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files-)
 
@@ -83,8 +81,6 @@ This will exclude any directories and files named `dir1` and `file2` when scanni
 **Note**: `--exclude=dir1` will find both `./dir1`, and `./src/dir1`.\
 However, `--exclude=./src/dir1` will result in an error because it includes a path.
 
-**Note**: When `--all-projects` is used with Gradle, the projects are treated as sub-projects. The `--exclude` option is not supported for Gradle sub-projects.
-
 ### `--prune-repeated-subdependencies`, `-p`
 
 Prune dependency trees, removing duplicate sub-dependencies.
@@ -113,19 +109,19 @@ Default: false, scan only production dependencies.
 
 ### `--org=<ORG_ID>`
 
-Specify the `<ORG_ID>` to run Snyk commands tied to a specific organization. The `<ORG_ID>` influences some features availability and private test limits.
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences some features availability and private test limits.
 
-If you have multiple organizations, you can set a default from the CLI using:
+If you have multiple Organizations, you can set a default from the CLI using:
 
 `$ snyk config set org=<ORG_`ID`>`
 
-Set a default to ensure all newly monitored projects are created under your default organization. If you need to override the default, use the `--org=<ORG_ID>` option.
+Set a default to ensure all newly monitored projects are created under your default Organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
-Default: `<ORG_ID>` that is the current preferred organization in your [Account settings](https://app.snyk.io/account)
+Default: `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)
 
-Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The organization slug name works in the CLI, but not in the API.
+Note that you can also use `--org=<orgslugname>`. The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
-For more information see the article [How to select the organization to use in the CLI](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/how-to-select-the-organization-to-use-in-the-cli)
+For more information see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--file=<FILE>`
 
@@ -167,7 +163,7 @@ Example: `$ snyk monitor --project-name=my-project`
 
 Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Supported for Snyk Open Source and use with `--unmanaged`.
 
-For more information see [Group projects by branch or version](https://docs.snyk.io/snyk-cli/secure-your-projects-in-the-long-term/grouping-projects-by-branch-or-version)
+For more information see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
 
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 
@@ -177,7 +173,7 @@ Manually pass a path to a `.snyk` policy file.
 
 Print results on the console as a JSON data structure.
 
-**Note**: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Editing project attributes from the Snyk CLI](https://docs.snyk.io/features/user-and-group-management/managing-users-and-permissions/managing-permissions#editing-project-attributes-from-the-snyk-cli)
+**Note**: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Permissions (role) required to edit Project attributes from the Snyk CLI](https://docs.snyk.io/snyk-admin/manage-permissions-and-roles/manage-member-roles#permissions-role-required-to-edit-project-attributes-from-the-snyk-cli)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -193,7 +189,7 @@ Set the project lifecycle project attribute to one or more values (comma-separat
 
 Allowed values: `production, development, sandbox`
 
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-tags)
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
 
@@ -201,7 +197,7 @@ Set the project business criticality project attribute to one or more values (co
 
 Allowed values: `critical, high, medium, low`
 
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-tags)
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
@@ -211,7 +207,7 @@ Example, `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
 
-For more information including allowable characters see [Project tags](https://docs.snyk.io/snyk-web-ui/introduction-to-snyk-projects/project-tags)
+For more information including allowable characters see [Project tags](https://docs.snyk.io/snyk-admin/snyk-projects/project-tags)
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
@@ -357,17 +353,17 @@ Example: `snyk monitor --command=python3`
 
 Skip packages that cannot be found in the environment, for example, private packages that cannot be accessed from the machine running the scan.
 
-### `--file=` for Python
+### `--file=<FILE_for_Python>`
 
 For a Python project, specify a particular file to monitor.
 
-By default, Snyk scans the requirements.txt file at the top level of the project.
+Default: Snyk scans the requirements.txt file at the top level of the project.
 
-Snyk can recognize any manifest files specified with this option based on `--file=req.txt`. Each (\*) is a wildcard and `req` can appear anywhere in the file name.
+Snyk can recognize any manifest files specified with this option based on `--file=req*.txt`. The `*` is a wildcard and `req` can appear anywhere in the file name.
 
-For example, Snyk recognizes your manifest file when you have renamed it to r`equirements-dev.txt`.
+For example, Snyk recognizes your manifest file when you have renamed it to `requirements-dev.txt`.
 
-### `--package-manager=` for Python
+### `--package-manager=pip`
 
 Add`--package-manager=pip` to your command if the file name is not `requirements.txt`.
 
