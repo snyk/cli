@@ -33,7 +33,7 @@ describe('test --json-file-output', () => {
 
   it('test with --json returns without error and with JSON return type when no vulns found', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
-    server.setDepGraphResponse(await project.readJSON('vulns-result.json'));
+    server.setCustomResponse(await project.readJSON('vulns-result.json'));
 
     const { code, stdout } = await runSnykCLI(`test --json`, {
       cwd: project.path(),
@@ -49,7 +49,7 @@ describe('test --json-file-output', () => {
 
   it('test without --json returns without error and with a string return type when no vulns found', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
-    server.setDepGraphResponse(await project.readJSON('vulns-result.json'));
+    server.setCustomResponse(await project.readJSON('vulns-result.json'));
 
     const { code, stdout } = await runSnykCLI(`test`, {
       cwd: project.path(),
@@ -65,7 +65,7 @@ describe('test --json-file-output', () => {
 
   it('test with --json throws error and error contains json output with vulnerabilities when vulns found', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-fixable');
-    server.setDepGraphResponse(await project.readJSON('vulns-result.json'));
+    server.setCustomResponse(await project.readJSON('vulns-result.json'));
 
     const { code, stdout } = await runSnykCLI(`test --json`, {
       cwd: project.path(),
@@ -121,7 +121,7 @@ describe('test --json-file-output', () => {
     response.result.issuesData["SNYK-ALPINE319-OPENSSL-6148881"].references = new Array(2 * 1024 * 1024)
       .fill(reference);
 
-    server.setDepGraphResponse(response);
+    server.setCustomResponse(response);
 
     const { code } = await runSnykCLI(
       `container test alpine:latest --json-file-output=${outputFilename}`,

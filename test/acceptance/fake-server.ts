@@ -37,7 +37,7 @@ export type FakeServer = {
   getRequests: () => express.Request[];
   popRequest: () => express.Request;
   popRequests: (num: number) => express.Request[];
-  setDepGraphResponse: (next: Record<string, unknown>) => void;
+  setCustomResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
   setStatusCode: (c: number) => void;
@@ -66,14 +66,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let statusCode: number | undefined = undefined;
   let statusCodes: number[] = [];
   let nextResponse: any = undefined;
-  let depGraphResponse: Record<string, unknown> | undefined = undefined;
+  let customResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
   const sockets = new Set();
 
   const restore = () => {
     statusCode = undefined;
     requests = [];
-    depGraphResponse = undefined;
+    customResponse = undefined;
     featureFlags = featureFlagDefaults();
     unauthorizedActions = new Map();
   };
@@ -90,8 +90,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     return requests.splice(requests.length - num, num);
   };
 
-  const setDepGraphResponse = (next: typeof depGraphResponse) => {
-    depGraphResponse = next;
+  const setCustomResponse = (next: typeof customResponse) => {
+    customResponse = next;
   };
 
   const setNextResponse = (response: string | Record<string, unknown>) => {
@@ -246,8 +246,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       return next();
     }
 
-    if (depGraphResponse) {
-      res.send(depGraphResponse);
+    if (customResponse) {
+      res.send(customResponse);
       return next();
     }
 
@@ -322,8 +322,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       return;
     }
 
-    if (depGraphResponse) {
-      res.send(depGraphResponse);
+    if (customResponse) {
+      res.send(customResponse);
       return;
     }
 
@@ -684,7 +684,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     getRequests,
     popRequest,
     popRequests,
-    setDepGraphResponse,
+    setCustomResponse: setCustomResponse,
     setNextResponse,
     setNextStatusCode,
     setStatusCode,
