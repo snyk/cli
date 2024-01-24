@@ -1,267 +1,533 @@
 {
-  "result": {
-    "affectedPkgs": {
-      "yarn@1.17.1": {
-        "pkg": { "name": "yarn", "version": "1.17.1" },
-        "issues": {
-          "SNYK-JS-YARN-451571": {
-            "issueId": "SNYK-JS-YARN-451571",
-            "fixInfo": {
-              "isPatchable": false,
-              "upgradePaths": [
-                {
-                  "path": [
-                    { "name": "upgradable-app", "version": "1.0.0" },
-                    {
-                      "name": "yarn",
-                      "version": "1.17.1",
-                      "newVersion": "1.17.3"
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-          "SNYK-JS-YARN-451572": {
-            "issueId": "SNYK-JS-YARN-451572",
-            "fixInfo": {
-              "isPatchable": false,
-              "upgradePaths": [
-                {
-                  "path": [
-                    { "name": "upgradable-app", "version": "1.0.0" },
-                    {
-                      "name": "yarn",
-                      "version": "1.17.1",
-                      "newVersion": "1.17.3"
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-          "SNYK-JS-YARN-451573": {
-            "issueId": "SNYK-JS-YARN-451573",
-            "fixInfo": {
-              "isPatchable": false,
-              "upgradePaths": [
-                {
-                  "path": [
-                    { "name": "upgradable-app", "version": "1.0.0" },
-                    {
-                      "name": "yarn",
-                      "version": "1.17.1",
-                      "newVersion": "1.17.3"
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-          "SNYK-JS-YARN-451574": {
-            "issueId": "SNYK-JS-YARN-451574",
-            "fixInfo": {
-              "isPatchable": false,
-              "upgradePaths": [
-                {
-                  "path": [
-                    { "name": "upgradable-app", "version": "1.0.0" },
-                    {
-                      "name": "yarn",
-                      "version": "1.17.1",
-                      "newVersion": "1.17.3"
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        }
-      }
-    },
-    "issuesData": {
-      "SNYK-JS-YARN-451571": {
-        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:L/A:H/E:P/RL:O/RC:C",
-        "alternativeIds": [],
-        "creationTime": "2019-07-15T09:33:20.212098Z",
-        "credit": ["Сковорода Никита Андреевич"],
-        "cvssScore": 8.2,
-        "description": "## Overview\n\n[yarn](https://yarnpkg.com/) is a Fast, reliable, and secure dependency management.\n\n\nAffected versions of this package are vulnerable to Man-in-the-Middle (MitM).\nNpm credentials such as `_authToken` were found to be sent over clear text when processing scoped packages that are listed as resolved. This could allow a suitably positioned attacker to eavesdrop and compromise the sent credentials.\n\n## Remediation\n\nUpgrade `yarn` to version 1.17.3 or higher.\n\n\n## References\n\n- [Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection](https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md)\n\n- [GitHub Commit](https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932)\n\n- [HackerOne Report](https://hackerone.com/reports/640904)\n",
-        "disclosureTime": "2019-07-12T09:30:13Z",
-        "exploit": "Proof of Concept",
-        "fixedIn": ["1.17.3"],
-        "functions": [],
-        "functions_new": [],
-        "id": "SNYK-JS-YARN-451571",
-        "identifiers": { "CVE": ["CVE-2019-5448"], "CWE": ["CWE-300"] },
-        "language": "js",
-        "modificationTime": "2019-07-15T15:25:40.382392Z",
-        "moduleName": "yarn",
-        "packageManager": "npm",
-        "packageName": "yarn",
-        "patches": [],
-        "publicationTime": "2019-07-15T09:29:56Z",
-        "references": [
-          {
-            "title": "Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection",
-            "url": "https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md"
-          },
-          {
-            "title": "GitHub Commit",
-            "url": "https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932"
-          },
-          {
-            "title": "HackerOne Report",
-            "url": "https://hackerone.com/reports/640904"
-          }
-        ],
-        "semver": { "vulnerable": ["<1.17.3"] },
-        "severity": "high",
-        "title": "Man-in-the-Middle (MitM)",
-        "isPinnable": false
-      },
-      "SNYK-JS-YARN-451572": {
-        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:L/A:H/E:P/RL:O/RC:C",
-        "alternativeIds": [],
-        "creationTime": "2019-07-15T09:33:20.212098Z",
-        "credit": ["Сковорода Никита Андреевич"],
-        "cvssScore": 8.2,
-        "description": "## Overview\n\n[yarn](https://yarnpkg.com/) is a Fast, reliable, and secure dependency management.\n\n\nAffected versions of this package are vulnerable to Man-in-the-Middle (MitM).\nNpm credentials such as `_authToken` were found to be sent over clear text when processing scoped packages that are listed as resolved. This could allow a suitably positioned attacker to eavesdrop and compromise the sent credentials.\n\n## Remediation\n\nUpgrade `yarn` to version 1.17.3 or higher.\n\n\n## References\n\n- [Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection](https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md)\n\n- [GitHub Commit](https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932)\n\n- [HackerOne Report](https://hackerone.com/reports/640904)\n",
-        "disclosureTime": "2019-07-12T09:30:13Z",
-        "exploit": "Proof of Concept",
-        "fixedIn": ["1.17.3"],
-        "functions": [],
-        "functions_new": [],
-        "id": "SNYK-JS-YARN-451572",
-        "identifiers": { "CVE": ["CVE-2019-5448"], "CWE": ["CWE-300"] },
-        "language": "js",
-        "modificationTime": "2019-07-15T15:25:40.382392Z",
-        "moduleName": "yarn",
-        "packageManager": "npm",
-        "packageName": "yarn",
-        "patches": [],
-        "publicationTime": "2019-07-15T09:29:56Z",
-        "references": [
-          {
-            "title": "Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection",
-            "url": "https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md"
-          },
-          {
-            "title": "GitHub Commit",
-            "url": "https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932"
-          },
-          {
-            "title": "HackerOne Report",
-            "url": "https://hackerone.com/reports/640904"
-          }
-        ],
-        "semver": { "vulnerable": ["<1.17.3"] },
-        "severity": "high",
-        "title": "Man-in-the-Middle (MitM)",
-        "isPinnable": false
-      },
-      "SNYK-JS-YARN-451573": {
-        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:L/A:H/E:P/RL:O/RC:C",
-        "alternativeIds": [],
-        "creationTime": "2019-07-15T09:33:20.212098Z",
-        "credit": ["Сковорода Никита Андреевич"],
-        "cvssScore": 8.2,
-        "description": "## Overview\n\n[yarn](https://yarnpkg.com/) is a Fast, reliable, and secure dependency management.\n\n\nAffected versions of this package are vulnerable to Man-in-the-Middle (MitM).\nNpm credentials such as `_authToken` were found to be sent over clear text when processing scoped packages that are listed as resolved. This could allow a suitably positioned attacker to eavesdrop and compromise the sent credentials.\n\n## Remediation\n\nUpgrade `yarn` to version 1.17.3 or higher.\n\n\n## References\n\n- [Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection](https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md)\n\n- [GitHub Commit](https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932)\n\n- [HackerOne Report](https://hackerone.com/reports/640904)\n",
-        "disclosureTime": "2019-07-12T09:30:13Z",
-        "exploit": "Proof of Concept",
-        "fixedIn": ["1.17.3"],
-        "functions": [],
-        "functions_new": [],
-        "id": "SNYK-JS-YARN-451573",
-        "identifiers": { "CVE": ["CVE-2019-5448"], "CWE": ["CWE-300"] },
-        "language": "js",
-        "modificationTime": "2019-07-15T15:25:40.382392Z",
-        "moduleName": "yarn",
-        "packageManager": "npm",
-        "packageName": "yarn",
-        "patches": [],
-        "publicationTime": "2019-07-15T09:29:56Z",
-        "references": [
-          {
-            "title": "Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection",
-            "url": "https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md"
-          },
-          {
-            "title": "GitHub Commit",
-            "url": "https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932"
-          },
-          {
-            "title": "HackerOne Report",
-            "url": "https://hackerone.com/reports/640904"
-          }
-        ],
-        "semver": { "vulnerable": ["<1.17.3"] },
-        "severity": "high",
-        "title": "Man-in-the-Middle (MitM)",
-        "isPinnable": false
-      },
-      "SNYK-JS-YARN-451574": {
-        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:L/A:H/E:P/RL:O/RC:C",
-        "alternativeIds": [],
-        "creationTime": "2019-07-15T09:33:20.212098Z",
-        "credit": ["Сковорода Никита Андреевич"],
-        "cvssScore": 8.2,
-        "description": "## Overview\n\n[yarn](https://yarnpkg.com/) is a Fast, reliable, and secure dependency management.\n\n\nAffected versions of this package are vulnerable to Man-in-the-Middle (MitM).\nNpm credentials such as `_authToken` were found to be sent over clear text when processing scoped packages that are listed as resolved. This could allow a suitably positioned attacker to eavesdrop and compromise the sent credentials.\n\n## Remediation\n\nUpgrade `yarn` to version 1.17.3 or higher.\n\n\n## References\n\n- [Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection](https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md)\n\n- [GitHub Commit](https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932)\n\n- [HackerOne Report](https://hackerone.com/reports/640904)\n",
-        "disclosureTime": "2019-07-12T09:30:13Z",
-        "exploit": "Proof of Concept",
-        "fixedIn": ["1.17.3"],
-        "functions": [],
-        "functions_new": [],
-        "id": "SNYK-JS-YARN-451574",
-        "identifiers": { "CVE": ["CVE-2019-5448"], "CWE": ["CWE-300"] },
-        "language": "js",
-        "modificationTime": "2019-07-15T15:25:40.382392Z",
-        "moduleName": "yarn",
-        "packageManager": "npm",
-        "packageName": "yarn",
-        "patches": [],
-        "publicationTime": "2019-07-15T09:29:56Z",
-        "references": [
-          {
-            "title": "Blog - Yarn transferred npm credentials over Unencrypted HTTP Connection",
-            "url": "https://github.com/ChALkeR/notes/blob/master/Yarn-vuln.md"
-          },
-          {
-            "title": "GitHub Commit",
-            "url": "https://github.com/yarnpkg/yarn/commit/2f08a7405cc3f6fe47c30293050bb0ac94850932"
-          },
-          {
-            "title": "HackerOne Report",
-            "url": "https://hackerone.com/reports/640904"
-          }
-        ],
-        "semver": { "vulnerable": ["<1.17.3"] },
-        "severity": "high",
-        "title": "Man-in-the-Middle (MitM)",
-        "isPinnable": false
-      }
-    },
-    "remediation": {
-      "unresolved": [],
-      "upgrade": {
-        "yarn@1.17.1": {
-          "upgradeTo": "yarn@1.17.3",
-          "upgrades": ["yarn@1.17.1"],
-          "vulns": ["SNYK-JS-YARN-451571"]
-        }
-      },
-      "patch": {},
-      "ignore": {},
-      "pin": {}
-    }
-  },
   "meta": {
     "isPrivate": true,
-    "isLicensesEnabled": false,
-    "licensesPolicy": { "severities": {}, "orgLicenseRules": {} },
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.14.1\nignore: {}\npatch: {}\n",
-    "ignoreSettings": null,
-    "org": "gitphill"
+    "isLicensesEnabled": true,
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.25.1\nignore: {}\npatch: {}\n",
+    "ignoreSettings": {
+      "adminOnly": false,
+      "reasonRequired": false,
+      "disregardFilesystemIgnores": false
+    },
+    "org": "test_org",
+    "licensesPolicy": {
+      "severities": {},
+      "orgLicenseRules": {
+        "AGPL-1.0": {
+          "licenseType": "AGPL-1.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "AGPL-3.0": {
+          "licenseType": "AGPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "Artistic-1.0": {
+          "licenseType": "Artistic-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "Artistic-2.0": {
+          "licenseType": "Artistic-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CDDL-1.0": {
+          "licenseType": "CDDL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CPOL-1.02": {
+          "licenseType": "CPOL-1.02",
+          "severity": "high",
+          "instructions": ""
+        },
+        "EPL-1.0": {
+          "licenseType": "EPL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "GPL-2.0": {
+          "licenseType": "GPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "GPL-3.0": {
+          "licenseType": "GPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "LGPL-2.0": {
+          "licenseType": "LGPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-2.1": {
+          "licenseType": "LGPL-2.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-3.0": {
+          "licenseType": "LGPL-3.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-1.1": {
+          "licenseType": "MPL-1.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-2.0": {
+          "licenseType": "MPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MS-RL": {
+          "licenseType": "MS-RL",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "SimPL-2.0": {
+          "licenseType": "SimPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "Afmparse": {
+          "licenseType": "Afmparse",
+          "severity": "high",
+          "instructions": ""
+        }
+      }
+    }
   },
-  "filesystemPolicy": false
+  "result": {
+    "issuesData": {
+      "SNYK-ALPINE319-OPENSSL-6148881": {
+        "id": "SNYK-ALPINE319-OPENSSL-6148881",
+        "cpes": [],
+        "title": "Out-of-bounds Write",
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:H",
+        "credit": [""],
+        "semver": { "vulnerable": ["<3.1.4-r3"] },
+        "exploit": "Not Defined",
+        "fixedIn": ["3.1.4-r3"],
+        "patches": [],
+        "insights": { "triageAdvice": null },
+        "language": "linux",
+        "severity": "medium",
+        "cvssScore": 6.5,
+        "malicious": false,
+        "isDisputed": false,
+        "references": [
+          {
+            "url": "https://github.com/openssl/openssl/commit/050d26383d4e264966fb83428e72d5d48f402d35",
+            "title": "https://github.com/openssl/openssl/commit/050d26383d4e264966fb83428e72d5d48f402d35"
+          },
+          {
+            "url": "https://github.com/openssl/openssl/commit/5b139f95c9a47a55a0c54100f3837b1eee942b04",
+            "title": "https://github.com/openssl/openssl/commit/5b139f95c9a47a55a0c54100f3837b1eee942b04"
+          },
+          {
+            "url": "https://github.com/openssl/openssl/commit/f3fc5808fe9ff74042d639839610d03b8fdcc015",
+            "title": "https://github.com/openssl/openssl/commit/f3fc5808fe9ff74042d639839610d03b8fdcc015"
+          },
+          {
+            "url": "https://www.openssl.org/news/secadv/20240109.txt",
+            "title": "https://www.openssl.org/news/secadv/20240109.txt"
+          },
+          {
+            "url": "http://www.openwall.com/lists/oss-security/2024/01/09/1",
+            "title": "http://www.openwall.com/lists/oss-security/2024/01/09/1"
+          }
+        ],
+        "cvssDetails": [
+          {
+            "assigner": "Red Hat",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+            "cvssV3BaseScore": 5.9,
+            "modificationTime": "2024-01-10T13:34:49.407262Z"
+          },
+          {
+            "assigner": "SUSE",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L",
+            "cvssV3BaseScore": 6.5,
+            "modificationTime": "2024-01-23T11:03:54.062787Z"
+          },
+          {
+            "assigner": "NVD",
+            "severity": "medium",
+            "cvssV3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:H",
+            "cvssV3BaseScore": 6.5,
+            "modificationTime": "2024-01-24T01:11:18.316654Z"
+          }
+        ],
+        "description": "## NVD Description\n**_Note:_** _Versions mentioned in the description apply only to the upstream `openssl` package and not the `openssl` package as distributed by `Alpine`._\n_See `How to fix?` for `Alpine:3.19` relevant fixed versions and status._\n\nIssue summary: The POLY1305 MAC (message authentication code) implementation\ncontains a bug that might corrupt the internal state of applications running\non PowerPC CPU based platforms if the CPU provides vector instructions.\n\nImpact summary: If an attacker can influence whether the POLY1305 MAC\nalgorithm is used, the application state might be corrupted with various\napplication dependent consequences.\n\nThe POLY1305 MAC (message authentication code) implementation in OpenSSL for\nPowerPC CPUs restores the contents of vector registers in a different order\nthan they are saved. Thus the contents of some of these vector registers\nare corrupted when returning to the caller. The vulnerable code is used only\non newer PowerPC processors supporting the PowerISA 2.07 instructions.\n\nThe consequences of this kind of internal application state corruption can\nbe various - from no consequences, if the calling application does not\ndepend on the contents of non-volatile XMM registers at all, to the worst\nconsequences, where the attacker could get complete control of the application\nprocess. However unless the compiler uses the vector registers for storing\npointers, the most likely consequence, if any, would be an incorrect result\nof some application dependent calculations or a crash leading to a denial of\nservice.\n\nThe POLY1305 MAC algorithm is most frequently used as part of the\nCHACHA20-POLY1305 AEAD (authenticated encryption with associated data)\nalgorithm. The most common usage of this AEAD cipher is with TLS protocol\nversions 1.2 and 1.3. If this cipher is enabled on the server a malicious\nclient can influence whether this AEAD cipher is used. This implies that\nTLS server applications using OpenSSL can be potentially impacted. However\nwe are currently not aware of any concrete application that would be affected\nby this issue therefore we consider this a Low severity security issue.\n## Remediation\nUpgrade `Alpine:3.19` `openssl` to version 3.1.4-r3 or higher.\n## References\n- [openssl-security@openssl.org](https://github.com/openssl/openssl/commit/050d26383d4e264966fb83428e72d5d48f402d35)\n- [openssl-security@openssl.org](https://github.com/openssl/openssl/commit/5b139f95c9a47a55a0c54100f3837b1eee942b04)\n- [openssl-security@openssl.org](https://github.com/openssl/openssl/commit/f3fc5808fe9ff74042d639839610d03b8fdcc015)\n- [openssl-security@openssl.org](https://www.openssl.org/news/secadv/20240109.txt)\n- [openssl-security@openssl.org](http://www.openwall.com/lists/oss-security/2024/01/09/1)\n",
+        "epssDetails": {
+          "percentile": "0.12098",
+          "probability": "0.00045",
+          "modelVersion": "v2023.03.01"
+        },
+        "identifiers": {
+          "CVE": ["CVE-2023-6129"],
+          "CWE": ["CWE-787"],
+          "ALTERNATIVE": []
+        },
+        "nvdSeverity": "medium",
+        "packageName": "openssl",
+        "creationTime": "2024-01-10T02:59:36.976637Z",
+        "disclosureTime": "2024-01-09T17:15:12.147000Z",
+        "packageManager": "alpine:3.19",
+        "publicationTime": "2024-01-10T02:59:36.982837Z",
+        "modificationTime": "2024-01-24T01:11:18.316654Z",
+        "socialTrendAlert": false,
+        "relativeImportance": null,
+        "severityWithCritical": "medium"
+      }
+    },
+    "issues": [
+      {
+        "pkgName": "openssl/libcrypto3",
+        "pkgVersion": "3.1.4-r2",
+        "issueId": "SNYK-ALPINE319-OPENSSL-6148881",
+        "fixInfo": {
+          "isPatchable": false,
+          "upgradePaths": [
+            {
+              "path": [
+                { "name": "docker-image|alpine", "version": "latest" },
+                {
+                  "name": "openssl/libcrypto3",
+                  "version": "3.1.4-r2",
+                  "newVersion": "3.1.4-r3"
+                }
+              ]
+            },
+            {
+              "path": [
+                { "name": "apk-tools/apk-tools", "version": "2.14.0-r5" },
+                {
+                  "name": "openssl/libcrypto3",
+                  "version": "3.1.4-r2",
+                  "newVersion": "3.1.4-r3"
+                }
+              ]
+            },
+            {
+              "path": [
+                { "name": "busybox/ssl_client", "version": "1.36.1-r15" },
+                {
+                  "name": "openssl/libcrypto3",
+                  "version": "3.1.4-r2",
+                  "newVersion": "3.1.4-r3"
+                }
+              ]
+            },
+            {
+              "path": [
+                { "name": "openssl/libssl3", "version": "3.1.4-r2" },
+                {
+                  "name": "openssl/libcrypto3",
+                  "version": "3.1.4-r2",
+                  "newVersion": "3.1.4-r3"
+                }
+              ]
+            }
+          ],
+          "nearestFixedInVersion": "3.1.4-r3",
+          "isRuntime": false,
+          "isPinnable": false
+        }
+      },
+      {
+        "pkgName": "openssl/libssl3",
+        "pkgVersion": "3.1.4-r2",
+        "issueId": "SNYK-ALPINE319-OPENSSL-6148881",
+        "fixInfo": {
+          "isPatchable": false,
+          "upgradePaths": [
+            {
+              "path": [
+                { "name": "docker-image|alpine", "version": "latest" },
+                {
+                  "name": "openssl/libssl3",
+                  "version": "3.1.4-r2",
+                  "newVersion": "3.1.4-r3"
+                }
+              ]
+            },
+            {
+              "path": [
+                { "name": "apk-tools/apk-tools", "version": "2.14.0-r5" },
+                {
+                  "name": "openssl/libssl3",
+                  "version": "3.1.4-r2",
+                  "newVersion": "3.1.4-r3"
+                }
+              ]
+            },
+            {
+              "path": [
+                { "name": "busybox/ssl_client", "version": "1.36.1-r15" },
+                {
+                  "name": "openssl/libssl3",
+                  "version": "3.1.4-r2",
+                  "newVersion": "3.1.4-r3"
+                }
+              ]
+            }
+          ],
+          "nearestFixedInVersion": "3.1.4-r3",
+          "isRuntime": false,
+          "isPinnable": false
+        }
+      }
+    ],
+    "docker": {},
+    "depGraphData": {
+      "schemaVersion": "1.3.0",
+      "pkgManager": {
+        "name": "apk",
+        "repositories": [{ "alias": "alpine:3.19.0" }]
+      },
+      "pkgs": [
+        {
+          "id": "docker-image|alpine@latest",
+          "info": { "name": "docker-image|alpine", "version": "latest" }
+        },
+        {
+          "id": "alpine-baselayout/alpine-baselayout-data@3.4.3-r2",
+          "info": {
+            "name": "alpine-baselayout/alpine-baselayout-data",
+            "version": "3.4.3-r2"
+          }
+        },
+        {
+          "id": "musl/musl@1.2.4_git20230717-r4",
+          "info": { "name": "musl/musl", "version": "1.2.4_git20230717-r4" }
+        },
+        {
+          "id": "busybox/busybox@1.36.1-r15",
+          "info": { "name": "busybox/busybox", "version": "1.36.1-r15" }
+        },
+        {
+          "id": "busybox/busybox-binsh@1.36.1-r15",
+          "info": { "name": "busybox/busybox-binsh", "version": "1.36.1-r15" }
+        },
+        {
+          "id": "alpine-baselayout/alpine-baselayout@3.4.3-r2",
+          "info": {
+            "name": "alpine-baselayout/alpine-baselayout",
+            "version": "3.4.3-r2"
+          }
+        },
+        {
+          "id": "alpine-keys/alpine-keys@2.4-r1",
+          "info": { "name": "alpine-keys/alpine-keys", "version": "2.4-r1" }
+        },
+        {
+          "id": "ca-certificates/ca-certificates-bundle@20230506-r0",
+          "info": {
+            "name": "ca-certificates/ca-certificates-bundle",
+            "version": "20230506-r0"
+          }
+        },
+        {
+          "id": "openssl/libcrypto3@3.1.4-r2",
+          "info": { "name": "openssl/libcrypto3", "version": "3.1.4-r2" }
+        },
+        {
+          "id": "openssl/libssl3@3.1.4-r2",
+          "info": { "name": "openssl/libssl3", "version": "3.1.4-r2" }
+        },
+        {
+          "id": "zlib/zlib@1.3-r2",
+          "info": { "name": "zlib/zlib", "version": "1.3-r2" }
+        },
+        {
+          "id": "apk-tools/apk-tools@2.14.0-r5",
+          "info": { "name": "apk-tools/apk-tools", "version": "2.14.0-r5" }
+        },
+        {
+          "id": "busybox/ssl_client@1.36.1-r15",
+          "info": { "name": "busybox/ssl_client", "version": "1.36.1-r15" }
+        },
+        {
+          "id": "pax-utils/scanelf@1.3.7-r2",
+          "info": { "name": "pax-utils/scanelf", "version": "1.3.7-r2" }
+        },
+        {
+          "id": "musl/musl-utils@1.2.4_git20230717-r4",
+          "info": {
+            "name": "musl/musl-utils",
+            "version": "1.2.4_git20230717-r4"
+          }
+        },
+        {
+          "id": "libc-dev/libc-utils@0.7.2-r5",
+          "info": { "name": "libc-dev/libc-utils", "version": "0.7.2-r5" }
+        }
+      ],
+      "graph": {
+        "rootNodeId": "root-node",
+        "nodes": [
+          {
+            "nodeId": "root-node",
+            "pkgId": "docker-image|alpine@latest",
+            "deps": [
+              { "nodeId": "alpine-baselayout/alpine-baselayout@3.4.3-r2" },
+              { "nodeId": "alpine-baselayout/alpine-baselayout-data@3.4.3-r2" },
+              { "nodeId": "alpine-keys/alpine-keys@2.4-r1" },
+              { "nodeId": "apk-tools/apk-tools@2.14.0-r5" },
+              { "nodeId": "busybox/busybox@1.36.1-r15|2" },
+              { "nodeId": "busybox/busybox-binsh@1.36.1-r15|2" },
+              { "nodeId": "busybox/ssl_client@1.36.1-r15" },
+              {
+                "nodeId": "ca-certificates/ca-certificates-bundle@20230506-r0"
+              },
+              { "nodeId": "libc-dev/libc-utils@0.7.2-r5" },
+              { "nodeId": "musl/musl@1.2.4_git20230717-r4" },
+              { "nodeId": "musl/musl-utils@1.2.4_git20230717-r4|2" },
+              { "nodeId": "openssl/libcrypto3@3.1.4-r2|2" },
+              { "nodeId": "openssl/libssl3@3.1.4-r2|2" },
+              { "nodeId": "pax-utils/scanelf@1.3.7-r2|2" },
+              { "nodeId": "zlib/zlib@1.3-r2|2" }
+            ]
+          },
+          {
+            "nodeId": "alpine-baselayout/alpine-baselayout-data@3.4.3-r2",
+            "pkgId": "alpine-baselayout/alpine-baselayout-data@3.4.3-r2",
+            "deps": []
+          },
+          {
+            "nodeId": "musl/musl@1.2.4_git20230717-r4",
+            "pkgId": "musl/musl@1.2.4_git20230717-r4",
+            "deps": []
+          },
+          {
+            "nodeId": "busybox/busybox@1.36.1-r15|1",
+            "pkgId": "busybox/busybox@1.36.1-r15",
+            "deps": [{ "nodeId": "musl/musl@1.2.4_git20230717-r4" }]
+          },
+          {
+            "nodeId": "busybox/busybox@1.36.1-r15|2",
+            "pkgId": "busybox/busybox@1.36.1-r15",
+            "deps": []
+          },
+          {
+            "nodeId": "busybox/busybox-binsh@1.36.1-r15|1",
+            "pkgId": "busybox/busybox-binsh@1.36.1-r15",
+            "deps": [{ "nodeId": "busybox/busybox@1.36.1-r15|1" }]
+          },
+          {
+            "nodeId": "busybox/busybox-binsh@1.36.1-r15|2",
+            "pkgId": "busybox/busybox-binsh@1.36.1-r15",
+            "deps": []
+          },
+          {
+            "nodeId": "alpine-baselayout/alpine-baselayout@3.4.3-r2",
+            "pkgId": "alpine-baselayout/alpine-baselayout@3.4.3-r2",
+            "deps": [
+              { "nodeId": "alpine-baselayout/alpine-baselayout-data@3.4.3-r2" },
+              { "nodeId": "busybox/busybox-binsh@1.36.1-r15|1" }
+            ]
+          },
+          {
+            "nodeId": "alpine-keys/alpine-keys@2.4-r1",
+            "pkgId": "alpine-keys/alpine-keys@2.4-r1",
+            "deps": []
+          },
+          {
+            "nodeId": "ca-certificates/ca-certificates-bundle@20230506-r0",
+            "pkgId": "ca-certificates/ca-certificates-bundle@20230506-r0",
+            "deps": []
+          },
+          {
+            "nodeId": "openssl/libcrypto3@3.1.4-r2|1",
+            "pkgId": "openssl/libcrypto3@3.1.4-r2",
+            "deps": [{ "nodeId": "musl/musl@1.2.4_git20230717-r4" }]
+          },
+          {
+            "nodeId": "openssl/libcrypto3@3.1.4-r2|2",
+            "pkgId": "openssl/libcrypto3@3.1.4-r2",
+            "deps": []
+          },
+          {
+            "nodeId": "openssl/libssl3@3.1.4-r2|1",
+            "pkgId": "openssl/libssl3@3.1.4-r2",
+            "deps": [
+              { "nodeId": "musl/musl@1.2.4_git20230717-r4" },
+              { "nodeId": "openssl/libcrypto3@3.1.4-r2|2" }
+            ]
+          },
+          {
+            "nodeId": "openssl/libssl3@3.1.4-r2|2",
+            "pkgId": "openssl/libssl3@3.1.4-r2",
+            "deps": []
+          },
+          {
+            "nodeId": "zlib/zlib@1.3-r2|1",
+            "pkgId": "zlib/zlib@1.3-r2",
+            "deps": [{ "nodeId": "musl/musl@1.2.4_git20230717-r4" }]
+          },
+          {
+            "nodeId": "zlib/zlib@1.3-r2|2",
+            "pkgId": "zlib/zlib@1.3-r2",
+            "deps": []
+          },
+          {
+            "nodeId": "apk-tools/apk-tools@2.14.0-r5",
+            "pkgId": "apk-tools/apk-tools@2.14.0-r5",
+            "deps": [
+              {
+                "nodeId": "ca-certificates/ca-certificates-bundle@20230506-r0"
+              },
+              { "nodeId": "musl/musl@1.2.4_git20230717-r4" },
+              { "nodeId": "openssl/libcrypto3@3.1.4-r2|1" },
+              { "nodeId": "openssl/libssl3@3.1.4-r2|1" },
+              { "nodeId": "zlib/zlib@1.3-r2|1" }
+            ]
+          },
+          {
+            "nodeId": "busybox/ssl_client@1.36.1-r15",
+            "pkgId": "busybox/ssl_client@1.36.1-r15",
+            "deps": [
+              { "nodeId": "musl/musl@1.2.4_git20230717-r4" },
+              { "nodeId": "openssl/libcrypto3@3.1.4-r2|2" },
+              { "nodeId": "openssl/libssl3@3.1.4-r2|2" }
+            ]
+          },
+          {
+            "nodeId": "pax-utils/scanelf@1.3.7-r2|1",
+            "pkgId": "pax-utils/scanelf@1.3.7-r2",
+            "deps": [{ "nodeId": "musl/musl@1.2.4_git20230717-r4" }]
+          },
+          {
+            "nodeId": "pax-utils/scanelf@1.3.7-r2|2",
+            "pkgId": "pax-utils/scanelf@1.3.7-r2",
+            "deps": []
+          },
+          {
+            "nodeId": "musl/musl-utils@1.2.4_git20230717-r4|1",
+            "pkgId": "musl/musl-utils@1.2.4_git20230717-r4",
+            "deps": [
+              { "nodeId": "musl/musl@1.2.4_git20230717-r4" },
+              { "nodeId": "pax-utils/scanelf@1.3.7-r2|1" }
+            ]
+          },
+          {
+            "nodeId": "musl/musl-utils@1.2.4_git20230717-r4|2",
+            "pkgId": "musl/musl-utils@1.2.4_git20230717-r4",
+            "deps": []
+          },
+          {
+            "nodeId": "libc-dev/libc-utils@0.7.2-r5",
+            "pkgId": "libc-dev/libc-utils@0.7.2-r5",
+            "deps": [{ "nodeId": "musl/musl-utils@1.2.4_git20230717-r4|1" }]
+          }
+        ]
+      }
+    }
+  }
 }

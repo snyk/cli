@@ -322,6 +322,11 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       return;
     }
 
+    if (depGraphResponse) {
+      res.send(depGraphResponse);
+      return;
+    }
+
     res.send({
       result: {
         issues: [],
