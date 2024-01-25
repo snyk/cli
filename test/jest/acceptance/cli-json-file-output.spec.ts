@@ -117,9 +117,12 @@ describe('test --json-file-output', () => {
     );
     const outputFilename = 'json-file-output.json';
     const response = await project.readJSON('vulns-result.json');
-    const reference = response.result.issuesData["SNYK-ALPINE319-OPENSSL-6148881"].references[0];
-    response.result.issuesData["SNYK-ALPINE319-OPENSSL-6148881"].references = new Array(2 * 1024 * 1024)
-      .fill(reference);
+    const reference =
+      response.result.issuesData['SNYK-ALPINE319-OPENSSL-6148881']
+        .references[0];
+    response.result.issuesData[
+      'SNYK-ALPINE319-OPENSSL-6148881'
+    ].references = new Array(2 * 1024 * 1024).fill(reference);
 
     server.setCustomResponse(response);
 
