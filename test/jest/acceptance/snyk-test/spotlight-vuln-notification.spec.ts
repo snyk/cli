@@ -37,7 +37,7 @@ describe('spotlight vuln notification', () => {
   it('includes spotlight vuln notification for Log4j SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720', async () => {
     const project = await createProjectFromFixture('mvn-log4j-fixture');
 
-    server.setDepGraphResponse(
+    server.setCustomResponse(
       await project.readJSON('test-dep-graph-response.json'),
     );
 

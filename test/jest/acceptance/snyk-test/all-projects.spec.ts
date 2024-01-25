@@ -113,7 +113,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
   test('`test ruby-app --all-projects`', async () => {
     const project = await createProjectFromWorkspace('ruby-app');
 
-    server.setDepGraphResponse(
+    server.setCustomResponse(
       await project.readJSON('test-graph-result.json'),
     );
 
@@ -131,7 +131,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
 
   test('`test ruby-app-thresholds --all-projects --ignore-policy`', async () => {
     const project = await createProjectFromWorkspace('ruby-app-thresholds');
-    server.setDepGraphResponse(
+    server.setCustomResponse(
       await project.readJSON('test-graph-result-medium-severity.json'),
     );
     const { code, stdout, stderr } = await runSnykCLI(

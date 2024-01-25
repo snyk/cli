@@ -32,7 +32,7 @@ describe('OAuth Token', () => {
 
   it('uses oauth token for authorised requests when testing projects', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
-    server.setDepGraphResponse(await project.readJSON('vulns-result.json'));
+    server.setCustomResponse(await project.readJSON('vulns-result.json'));
 
     const { code } = await runSnykCLI(`test --json`, {
       cwd: project.path(),
@@ -53,7 +53,7 @@ describe('OAuth Token', () => {
 
   it('uses oauth token for authorised requests when monitoring projects', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
-    server.setDepGraphResponse(await project.readJSON('vulns-result.json'));
+    server.setCustomResponse(await project.readJSON('vulns-result.json'));
 
     const { code } = await runSnykCLI(`monitor --json`, {
       cwd: project.path(),

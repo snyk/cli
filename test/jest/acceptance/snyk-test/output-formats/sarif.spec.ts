@@ -39,7 +39,7 @@ describe('snyk test --sarif', () => {
     const project = await createProjectFromFixture(
       'npm/with-vulnerable-lodash-dep',
     );
-    server.setDepGraphResponse(
+    server.setCustomResponse(
       await project.readJSON('test-dep-graph-result.json'),
     );
 

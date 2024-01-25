@@ -39,7 +39,7 @@ describe('snyk test with patched vulnerabilities', () => {
       'project-with-patchable-dep-fixture-and-snyk-patched',
     );
 
-    server.setDepGraphResponse(
+    server.setCustomResponse(
       await project.readJSON('test-dep-graph-response.json'),
     );
 

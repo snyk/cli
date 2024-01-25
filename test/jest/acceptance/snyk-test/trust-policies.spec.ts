@@ -36,7 +36,7 @@ describe('trust policies', () => {
 
   test('`snyk test` detects suggested ignore policies', async () => {
     const project = await createProject('qs-package');
-    server.setDepGraphResponse(
+    server.setCustomResponse(
       await project.readJSON('test-dep-graph-result.json'),
     );
 
@@ -55,7 +55,7 @@ describe('trust policies', () => {
 
   test('`snyk test --trust-policies` applies suggested ignore policies', async () => {
     const project = await createProject('qs-package');
-    server.setDepGraphResponse(
+    server.setCustomResponse(
       await project.readJSON('test-dep-graph-result-trust-policies.json'),
     );
 
