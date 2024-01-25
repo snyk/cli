@@ -113,9 +113,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
   test('`test ruby-app --all-projects`', async () => {
     const project = await createProjectFromWorkspace('ruby-app');
 
-    server.setCustomResponse(
-      await project.readJSON('test-graph-result.json'),
-    );
+    server.setCustomResponse(await project.readJSON('test-graph-result.json'));
 
     const { code, stdout, stderr } = await runSnykCLI('test --all-projects', {
       cwd: project.path(),

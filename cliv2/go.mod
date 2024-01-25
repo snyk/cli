@@ -1,8 +1,6 @@
 module github.com/snyk/cli/cliv2
 
-go 1.21
-
-toolchain go1.21.6
+go 1.18
 
 require (
 	github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a

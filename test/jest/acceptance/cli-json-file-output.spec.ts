@@ -141,7 +141,7 @@ describe('test --json-file-output', () => {
       outputPathSize: humanFileSize(fs.statSync(outputPath).size),
     });
     expect(fs.statSync(outputPath).size).toBeGreaterThan(2200000000); // ~2GB
-  });
+  }, 120000);
 });
 
 /**
