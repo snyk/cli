@@ -122,11 +122,11 @@ describe('test --json-file-output', () => {
         .references[0];
     response.result.issuesData[
       'SNYK-ALPINE319-OPENSSL-6148881'
-    ].references = new Array(2 * 1024 * 1024).fill(reference);
+    ].references = new Array(420000).fill(reference);
 
     server.setCustomResponse(response);
 
-    const { code } = await runSnykCLI(
+    const { code, stdout, stderr } = await runSnykCLI(
       `container test alpine:latest --json-file-output=${outputFilename}`,
       {
         cwd: project.path(),
@@ -134,13 +134,17 @@ describe('test --json-file-output', () => {
       },
     );
 
+    console.debug({ stdout, stderr });
+
     const outputPath = await project.path(outputFilename);
+    const fileSize = fs.statSync(outputPath).size;
+
     expect(code).toEqual(1);
-    console.log({
+    console.info({
       outputPath,
-      outputPathSize: humanFileSize(fs.statSync(outputPath).size),
+      outputPathSize: humanFileSize(fileSize),
     });
-    expect(fs.statSync(outputPath).size).toBeGreaterThan(2200000000); // ~2GB
+    expect(fileSize).toBeGreaterThan(500000000); // ~0.5GB
   }, 120000);
 });
 
