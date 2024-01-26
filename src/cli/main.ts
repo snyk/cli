@@ -162,7 +162,7 @@ async function handleError(args, error) {
     }
   }
 
-  if (error.jsonPayload) {
+  if (error.jsonPayload && !isEmpty(error.jsonPayload)) {
     // send raw jsonPayload instead of stringified payload
     await saveResultsToFile(args.options, 'json', '', error.jsonPayload);
   } else {

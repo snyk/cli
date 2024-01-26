@@ -214,7 +214,7 @@ export default async function test(
         stringifiedData,
         stringifiedJsonData,
         stringifiedSarifData,
-        stringifiedJsonData.length === 0 ? dataToSend : null,
+        dataToSend,
       );
     }
 
@@ -229,7 +229,7 @@ export default async function test(
             stringifiedData,
             stringifiedJsonData,
             stringifiedSarifData,
-            stringifiedJsonData.length === 0 ? dataToSend : null,
+            dataToSend,
           );
         }
       }
@@ -312,7 +312,7 @@ export default async function test(
           response,
           stringifiedJsonData,
           stringifiedSarifData,
-          stringifiedJsonData.length === 0 ? dataToSend : null,
+          dataToSend,
         );
       }
     }
@@ -352,7 +352,7 @@ export default async function test(
     response,
     stringifiedJsonData,
     stringifiedSarifData,
-    stringifiedJsonData.length === 0 ? dataToSend : null,
+    dataToSend,
   );
 }
 
