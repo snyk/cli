@@ -102,7 +102,14 @@ export function extractDataToSendFromResults(
 
   let stringifiedJsonData = '';
   if (options.json || options['json-file-output']) {
-    stringifiedJsonData = jsonStringifyLargeObject(jsonData, options);
+    stringifiedJsonData = jsonStringifyLargeObject(jsonData);
+  }
+
+  // TODO: Remove this when we support streaming JSON to stdout
+  if (stringifiedJsonData.length === 0 && options['json']) {
+    console.warn(
+      "'--json' does not work for very large objects - try just using '--json-file-output=<filePath>' instead",
+    );
   }
 
   const dataToSend = options.sarif ? sarifData : jsonData;

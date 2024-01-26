@@ -106,7 +106,6 @@ describe('test --json-file-output', () => {
         env,
       },
     );
-
     expect(code).toEqual(0);
     expect(await project.read(outputPath)).toEqual(stdout);
   });
@@ -133,13 +132,13 @@ describe('test --json-file-output', () => {
         env,
       },
     );
+    expect(code).toEqual(1);
 
     console.debug({ stdout, stderr });
 
     const outputPath = await project.path(outputFilename);
     const fileSize = fs.statSync(outputPath).size;
 
-    expect(code).toEqual(1);
     console.info({
       outputPath,
       outputPathSize: humanFileSize(fileSize),

@@ -80,7 +80,7 @@ export async function saveJsonToFileCreatingDirectoryIfRequired(
   }
 }
 
-export async function saveObjectToFileCreatingDirectoryIfRequired(
+export async function saveObjectToFile(
   jsonOutputFile: string,
   jsonPayload: Record<string, unknown>,
 ): Promise<void> {

@@ -207,6 +207,8 @@ export default async function test(
     stringifiedSarifData,
   } = extractDataToSendFromResults(results, mappedResults, options);
 
+  const jsonPayload = stringifiedJsonData.length === 0 ? dataToSend : null;
+
   if (options.json || options.sarif) {
     // if all results are ok (.ok == true)
     if (mappedResults.every((res) => res.ok)) {
@@ -214,7 +216,7 @@ export default async function test(
         stringifiedData,
         stringifiedJsonData,
         stringifiedSarifData,
-        dataToSend,
+        jsonPayload,
       );
     }
 
@@ -229,7 +231,7 @@ export default async function test(
             stringifiedData,
             stringifiedJsonData,
             stringifiedSarifData,
-            dataToSend,
+            jsonPayload,
           );
         }
       }
@@ -312,7 +314,7 @@ export default async function test(
           response,
           stringifiedJsonData,
           stringifiedSarifData,
-          dataToSend,
+          jsonPayload,
         );
       }
     }
@@ -352,7 +354,7 @@ export default async function test(
     response,
     stringifiedJsonData,
     stringifiedSarifData,
-    dataToSend,
+    jsonPayload,
   );
 }
 

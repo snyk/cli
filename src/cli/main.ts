@@ -34,7 +34,7 @@ import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid
 import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
 import {
-  saveObjectToFileCreatingDirectoryIfRequired,
+  saveObjectToFile,
   saveJsonToFileCreatingDirectoryIfRequired,
 } from '../lib/json-file-output';
 import {
@@ -162,7 +162,7 @@ async function handleError(args, error) {
     }
   }
 
-  if (error.jsonPayload && !isEmpty(error.jsonPayload)) {
+  if (error.jsonPayload) {
     // send raw jsonPayload instead of stringified payload
     await saveResultsToFile(args.options, 'json', '', error.jsonPayload);
   } else {
@@ -237,7 +237,7 @@ async function saveJsonResultsToFile(
 
   // save to file with jsonPayload object instead of stringifiedJson
   if (jsonPayload && !isEmpty(jsonPayload)) {
-    await saveObjectToFileCreatingDirectoryIfRequired(
+    await saveObjectToFile(
       jsonOutputFile,
       jsonPayload,
     );
