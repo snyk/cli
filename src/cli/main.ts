@@ -168,12 +168,8 @@ async function handleError(args, error) {
   } else {
     // fallback to original behaviour
     await saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
-    await saveResultsToFile(
-      args.options,
-      'sarif',
-      error.sarifStringifiedResults,
-    );
   }
+  await saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
 
   const analyticsError = vulnsFound
     ? {
