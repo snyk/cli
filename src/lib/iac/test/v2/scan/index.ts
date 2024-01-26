@@ -242,7 +242,7 @@ async function readFile(path: string) {
 }
 
 async function remove(path: string) {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     rimraf(path, (err) => {
       if (err) {
         reject(err);

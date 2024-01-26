@@ -16,6 +16,7 @@ import { findAndLoadPolicy } from '../../lib/policy';
 import { DCTL_EXIT_CODES, runDriftCTL } from '../../lib/iac/drift/driftctl';
 import { IaCErrorCodes } from './test/iac/local-execution/types';
 import { getErrorStringCode } from './test/iac/local-execution/error-utils';
+import { DescribeOptions } from '../../lib/iac/types';
 
 export class FlagError extends CustomError {
   constructor(flag: string) {
@@ -66,9 +67,9 @@ export default async (...args: MethodArgs): Promise<any> => {
 
     // Parse analysis JSON and add to analytics
     const analysis = parseDriftAnalysisResults(describe.stdout);
-    addIacDriftAnalytics(analysis, options);
+    addIacDriftAnalytics(analysis, options as DescribeOptions);
 
-    const output = await processAnalysis(options, describe);
+    const output = await processAnalysis(options as DescribeOptions, describe);
     process.stdout.write(output);
   } catch (e) {
     return Promise.reject(e);
