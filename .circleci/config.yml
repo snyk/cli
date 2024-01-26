@@ -181,13 +181,23 @@ commands:
 
   install-deps-windows-signing:
     steps:
+      - restore_cache:
+          name: Restoring DigitCert cache
+          keys:
+            - digicert-cache-v3-{{ arch }}
       - run:
           name: Install DigiCert Keylocker Tools
           command: |
             cd C:\
-            curl.exe -X GET  https://one.digicert.com/signingmanager/api-ui/v1/releases/smtools-windows-x64.msi/download -H "x-api-key:$env:SM_API_KEY" -o smtools-windows-x64.msi
+            curl.exe -X GET  https://one.digicert.com/signingmanager/api-ui/v1/releases/smtools-windows-x64.msi/download -H "x-api-key:$env:SM_API_KEY" -o ~/Downloads/smtools-windows-x64.msi
+            mv ~/Downloads/smtools-windows-x64.msi .
             msiexec.exe /i smtools-windows-x64.msi /quiet /qn | Wait-Process
             & 'C:\Program Files\DigiCert\DigiCert One Signing Manager Tools\smksp_cert_sync.exe'
+      - save_cache:
+          name: Saving DigitCert cache
+          key: digicert-cache-v3-{{ arch }}
+          paths:
+            - ~/Downloads/smtools-windows-x64.msi
 
   install-deps-windows-full-signing:
     steps:
