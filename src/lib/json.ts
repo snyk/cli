@@ -13,13 +13,21 @@ export function jsonStringifyLargeObject(obj: any, options?: Options): string {
     res = JSON.stringify(obj, null, 2);
     return res;
   } catch (err) {
-    if (options?.json) {
-      console.warn(
-        "'--json' does not work for very large objects - try using '--json-file-output=<filePath>' instead",
-      );
-    }
+    try {
+      // if that doesn't work, try non-pretty print
+      debug('JSON.stringify failed - trying again without pretty print', err);
+      res = JSON.stringify(obj);
+      return res;
+    } catch (error) {
+      // if that doesn't work, suggest using --json-file-output to stream to file
+      if (options?.json) {
+        console.warn(
+          "'--json' does not work for very large objects - try using '--json-file-output=<filePath>' instead",
+        );
+      }
 
-    debug('jsonStringifyLargeObject failed: ', err);
-    return res;
+      debug('jsonStringifyLargeObject failed: ', error);
+      return res;
+    }
   }
 }
