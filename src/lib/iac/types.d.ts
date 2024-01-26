@@ -19,7 +19,7 @@ export interface GenDriftIgnoreOptions {
 }
 
 export interface DescribeOptions extends DriftCTLOptions {
-  quiet?: true;
+  quiet?: boolean;
   filter?: string;
   to?: string;
   'fetch-tfstate-headers'?: string;
