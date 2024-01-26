@@ -1,7 +1,7 @@
 import * as debugLib from 'debug';
 import * as pathLib from 'path';
-const sortBy = require('lodash.sortby');
-const groupBy = require('lodash.groupby');
+import sortBy = require('lodash.sortby');
+import groupBy = require('lodash.groupby');
 
 import {
   EntityToFix,

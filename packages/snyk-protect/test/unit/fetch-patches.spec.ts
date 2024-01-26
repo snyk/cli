@@ -2,6 +2,7 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import { fetchPatches, getAllPatches } from '../../src/lib/fetch-patches';
 import { VulnPatches } from '../../src/lib/types';
+import * as httpModule from '../../src/lib/http';
 
 const getExpectedPatchDiff = (): Promise<string> => {
   const patchedLodashPath = path.resolve(
@@ -138,8 +139,6 @@ describe('getAllPatches', () => {
 
   it('works when for vuln that has multiple applicable patches and more than one diff per patch', async () => {
     // this is a contrived example designed to test theoretically possible but never-gonna-happen scenario.
-    const httpModule = require('../../src/lib/http');
-
     const mockApiResponse = {
       packageName: 'lodash',
       vulnerableVersions: ['<4.17.16'],
