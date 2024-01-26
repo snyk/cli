@@ -237,10 +237,7 @@ async function saveJsonResultsToFile(
 
   // save to file with jsonPayload object instead of stringifiedJson
   if (jsonPayload && !isEmpty(jsonPayload)) {
-    await saveObjectToFile(
-      jsonOutputFile,
-      jsonPayload,
-    );
+    await saveObjectToFile(jsonOutputFile, jsonPayload);
   } else {
     await saveJsonToFileCreatingDirectoryIfRequired(
       jsonOutputFile,

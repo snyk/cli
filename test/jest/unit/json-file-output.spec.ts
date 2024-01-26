@@ -71,4 +71,3 @@ describe('saveObjectToFileCreatingDirectoryIfRequired', () => {
     expect(fs.statSync(outputFile).size).toBeGreaterThan(0); // >50MB
   });
 });
-
