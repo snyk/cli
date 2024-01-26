@@ -185,7 +185,7 @@ commands:
           name: Generate Cache Key
           command: |
             date +%U%Y >> ~/cache_key.txt
-            echo ~/cache_key.txt
+            cat ~/cache_key.txt
       - restore_cache:
           name: Restoring DigitCert cache
           keys:
