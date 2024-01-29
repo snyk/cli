@@ -207,6 +207,8 @@ export default async function test(
     stringifiedSarifData,
   } = extractDataToSendFromResults(results, mappedResults, options);
 
+  const jsonPayload = stringifiedJsonData.length === 0 ? dataToSend : null;
+
   if (options.json || options.sarif) {
     // if all results are ok (.ok == true)
     if (mappedResults.every((res) => res.ok)) {
@@ -214,6 +216,7 @@ export default async function test(
         stringifiedData,
         stringifiedJsonData,
         stringifiedSarifData,
+        jsonPayload,
       );
     }
 
@@ -228,6 +231,7 @@ export default async function test(
             stringifiedData,
             stringifiedJsonData,
             stringifiedSarifData,
+            jsonPayload,
           );
         }
       }
@@ -310,6 +314,7 @@ export default async function test(
           response,
           stringifiedJsonData,
           stringifiedSarifData,
+          jsonPayload,
         );
       }
     }
@@ -332,6 +337,10 @@ export default async function test(
     error.userMessage = vulnerableResults[0].userMessage;
     error.jsonStringifiedResults = stringifiedJsonData;
     error.sarifStringifiedResults = stringifiedSarifData;
+    // conditionally set jsonPayload for now, to determine whether to stream data to destination
+    if (stringifiedJsonData.length === 0) {
+      error.jsonPayload = dataToSend;
+    }
     throw error;
   }
 
@@ -345,6 +354,7 @@ export default async function test(
     response,
     stringifiedJsonData,
     stringifiedSarifData,
+    jsonPayload,
   );
 }
 

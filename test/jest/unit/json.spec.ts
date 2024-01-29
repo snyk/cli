@@ -19,12 +19,26 @@ describe('jsonStringifyLargeObject', () => {
     const jsonStringifyMock = jest
       .spyOn(JSON, 'stringify')
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .mockImplementationOnce((any) => {
+      .mockImplementationOnce(() => {
         throw new Error('fake error to simulate an `Invalid string length`');
       });
 
     const s = jsonStringifyLargeObject(largeObject);
     expect(jsonStringifyMock).toHaveBeenCalledTimes(2);
     expect(s).toEqual(`{"name":"Brian","isGoodBoy":true,"type":"big"}`);
+  });
+
+  it('returns empty string on fallback failure', () => {
+    const largeObject = {
+      name: 'Brian',
+      isGoodBoy: true,
+      type: 'big',
+    };
+    jest.spyOn(JSON, 'stringify').mockImplementation(() => {
+      throw new Error('fake error to simulate an `Invalid string length`');
+    });
+
+    const s = jsonStringifyLargeObject(largeObject);
+    expect(s).toEqual('');
   });
 });

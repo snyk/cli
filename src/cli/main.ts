@@ -33,7 +33,10 @@ import stripAnsi = require('strip-ansi');
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
-import { saveJsonToFileCreatingDirectoryIfRequired } from '../lib/json-file-output';
+import {
+  saveObjectToFile,
+  saveJsonToFileCreatingDirectoryIfRequired,
+} from '../lib/json-file-output';
 import {
   Options,
   TestOptions,
@@ -44,6 +47,7 @@ import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-erro
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
 import { obfuscateArgs } from '../lib/utils';
 import { EXIT_CODES } from './exit-codes';
+const isEmpty = require('lodash/isEmpty');
 
 const debug = Debug('snyk');
 
@@ -74,7 +78,8 @@ async function runCommand(args: Args) {
   // also save the json (in error.json) to file if option is set
   if (args.command === 'test') {
     const jsonResults = (commandResult as TestCommandResult).getJsonResult();
-    await saveResultsToFile(args.options, 'json', jsonResults);
+    const jsonPayload = (commandResult as TestCommandResult).getJsonData();
+    await saveResultsToFile(args.options, 'json', jsonResults, jsonPayload);
     const sarifResults = (commandResult as TestCommandResult).getSarifResult();
     await saveResultsToFile(args.options, 'sarif', sarifResults);
   }
@@ -157,7 +162,13 @@ async function handleError(args, error) {
     }
   }
 
-  await saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
+  if (error.jsonPayload) {
+    // send raw jsonPayload instead of stringified payload
+    await saveResultsToFile(args.options, 'json', '', error.jsonPayload);
+  } else {
+    // fallback to original behaviour
+    await saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
+  }
   await saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
 
   const analyticsError = vulnsFound
@@ -208,6 +219,7 @@ function getFullPath(filepathFragment: string): string {
 async function saveJsonResultsToFile(
   stringifiedJson: string,
   jsonOutputFile: string,
+  jsonPayload?: Record<string, unknown>,
 ) {
   if (!jsonOutputFile) {
     console.error('empty jsonOutputFile');
@@ -219,10 +231,15 @@ async function saveJsonResultsToFile(
     return;
   }
 
-  await saveJsonToFileCreatingDirectoryIfRequired(
-    jsonOutputFile,
-    stringifiedJson,
-  );
+  // save to file with jsonPayload object instead of stringifiedJson
+  if (jsonPayload && !isEmpty(jsonPayload)) {
+    await saveObjectToFile(jsonOutputFile, jsonPayload);
+  } else {
+    await saveJsonToFileCreatingDirectoryIfRequired(
+      jsonOutputFile,
+      stringifiedJson,
+    );
+  }
 }
 
 function checkRuntime() {
@@ -438,13 +455,18 @@ async function saveResultsToFile(
   options: ArgsOptions,
   outputType: string,
   jsonResults: string,
+  jsonPayload?: Record<string, unknown>,
 ) {
   const flag = `${outputType}-file-output`;
   const outputFile = options[flag];
-  if (outputFile && jsonResults) {
+  if (outputFile && (jsonResults || jsonPayload)) {
     const outputFileStr = outputFile as string;
     const fullOutputFilePath = getFullPath(outputFileStr);
-    await saveJsonResultsToFile(stripAnsi(jsonResults), fullOutputFilePath);
+    await saveJsonResultsToFile(
+      stripAnsi(jsonResults),
+      fullOutputFilePath,
+      jsonPayload,
+    );
   }
 }
 

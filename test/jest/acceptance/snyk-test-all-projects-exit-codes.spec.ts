@@ -39,7 +39,7 @@ describe('snyk test --all-projects with one project that has errors', () => {
       const project = await createProject(
         'snyk-test-all-projects-exit-codes/project-with-issues-and-project-with-error',
       );
-      server.setDepGraphResponse(
+      server.setCustomResponse(
         await project.readJSON('test-dep-graph-result.json'),
       );
       const { code, stderr } = await runSnykCLI(`test --all-projects`, {
@@ -56,7 +56,7 @@ describe('snyk test --all-projects with one project that has errors', () => {
       const project = await createProject(
         'snyk-test-all-projects-exit-codes/project-with-issues-and-project-with-error',
       );
-      server.setDepGraphResponse(
+      server.setCustomResponse(
         await project.readJSON('test-dep-graph-result.json'),
       );
       const { code, stderr } = await runSnykCLI(

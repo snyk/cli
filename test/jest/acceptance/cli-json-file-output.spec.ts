@@ -1,6 +1,8 @@
 import { fakeServer } from '../../acceptance/fake-server';
+import * as fs from 'fs';
 import { createProjectFromWorkspace } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { humanFileSize } from '../../utils';
 
 jest.setTimeout(1000 * 60);
 
@@ -32,7 +34,7 @@ describe('test --json-file-output', () => {
 
   it('test with --json returns without error and with JSON return type when no vulns found', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
-    server.setDepGraphResponse(await project.readJSON('vulns-result.json'));
+    server.setCustomResponse(await project.readJSON('vulns-result.json'));
 
     const { code, stdout } = await runSnykCLI(`test --json`, {
       cwd: project.path(),
@@ -48,7 +50,7 @@ describe('test --json-file-output', () => {
 
   it('test without --json returns without error and with a string return type when no vulns found', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
-    server.setDepGraphResponse(await project.readJSON('vulns-result.json'));
+    server.setCustomResponse(await project.readJSON('vulns-result.json'));
 
     const { code, stdout } = await runSnykCLI(`test`, {
       cwd: project.path(),
@@ -64,7 +66,7 @@ describe('test --json-file-output', () => {
 
   it('test with --json throws error and error contains json output with vulnerabilities when vulns found', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-fixable');
-    server.setDepGraphResponse(await project.readJSON('vulns-result.json'));
+    server.setCustomResponse(await project.readJSON('vulns-result.json'));
 
     const { code, stdout } = await runSnykCLI(`test --json`, {
       cwd: project.path(),
@@ -105,8 +107,43 @@ describe('test --json-file-output', () => {
         env,
       },
     );
-
     expect(code).toEqual(0);
     expect(await project.read(outputPath)).toEqual(stdout);
   });
+
+  it('test --json-file-ouput handles responses larger than 512Mb string size limit in v8', async () => {
+    const project = await createProjectFromWorkspace(
+      'extra-large-response-payload',
+    );
+    const outputFilename = 'json-file-output.json';
+    const response = await project.readJSON('vulns-result.json');
+    const reference =
+      response.result.issuesData['SNYK-ALPINE319-OPENSSL-6148881']
+        .references[0];
+    response.result.issuesData[
+      'SNYK-ALPINE319-OPENSSL-6148881'
+    ].references = new Array(420000).fill(reference);
+
+    server.setCustomResponse(response);
+
+    const { code, stdout, stderr } = await runSnykCLI(
+      `container test hello-world:latest --json-file-output=${outputFilename}`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    console.debug({ stdout, stderr });
+    expect(code).toEqual(1);
+
+    const outputPath = await project.path(outputFilename);
+    const fileSize = fs.statSync(outputPath).size;
+
+    console.info({
+      outputPath,
+      outputPathSize: humanFileSize(fileSize),
+    });
+    expect(fileSize).toBeGreaterThan(500000000); // ~0.5GB
+  }, 120000);
 });

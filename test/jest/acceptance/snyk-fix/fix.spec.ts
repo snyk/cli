@@ -126,7 +126,7 @@ describe('snyk fix', () => {
       // Setup environment
       await runCommand('pipenv', ['sync'], opts);
 
-      server.setDepGraphResponse(
+      server.setCustomResponse(
         JSON.parse(
           fs.readFileSync(__dirname + '/dep-graph-response.json', 'utf-8'),
         ),

@@ -87,7 +87,7 @@ describe('`test` command with `--print-graph` option', () => {
     const project = await createProjectFromFixture(
       'npm/with-vulnerable-lodash-dep',
     );
-    server.setDepGraphResponse(
+    server.setCustomResponse(
       await project.readJSON('test-dep-graph-result.json'),
     );
     const { code, stdout } = await runSnykCLI('test --print-graph', {
