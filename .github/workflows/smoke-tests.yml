@@ -89,7 +89,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker build -t snyk-cli-alpine -f ./test/smoke/alpine/Dockerfile ./test
-          docker run -eCI=1 -eTEST_SNYK_TOKEN -eGITHUB_TOKEN snyk-cli-alpine
+          docker run -eCI=1 -eTEST_SNYK_TOKEN -eGITHUB_TOKEN -eTEST_SNYK_API snyk-cli-alpine
 
       - name: Install snyk from Docker bundle
         if: ${{ matrix.snyk_install_method == 'docker-bundle' && matrix.os == 'macos' }}
@@ -113,7 +113,7 @@ jobs:
           TEST_SNYK_API: ${{ secrets.TEST_SNYK_API }}
         run: |
           docker build -t snyk-docker-root -f ./test/smoke/docker-root/Dockerfile ./test
-          docker run -eCI=1 -eTEST_SNYK_TOKEN snyk-docker-root
+          docker run -eCI=1 -eTEST_SNYK_TOKEN -eTEST_SNYK_API snyk-docker-root
 
       - name: Install Snyk with binary - Non-Windows
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
