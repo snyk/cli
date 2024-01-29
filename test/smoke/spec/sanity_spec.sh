@@ -7,7 +7,7 @@
 
 Describe "Snyk CLI"
   It "have Snyk CLI available"
-    When run which snyk
+    When run ${TEST_SNYK_COMMAND} --help
     The output should include "/snyk"
     The status should be success
     The stderr should equal ""
