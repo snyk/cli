@@ -295,8 +295,6 @@ snyk code --help
 
 If you need support using Snyk CLI, please [contact support](https://support.snyk.io).
 
-We do not actively monitor GitHub Issues so any issues there may go unnoticed.
-
 # Contributing
 
 If you are an external contributor, before working on any contributions, please first [contact support](https://support.snyk.io) to discuss the issue or feature request with us.
