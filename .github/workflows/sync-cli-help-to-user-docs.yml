@@ -33,7 +33,7 @@ jobs:
             git push --force --set-upstream origin docs/automatic-gitbook-update
             if [[ ! $(gh pr view docs/automatic-gitbook-update 2>&1 | grep -q "no open pull requests";) ]]; then
               echo "Creating PR"
-              gh pr create --title="Synchronizing CLI help from user-docs" --body="Automatic PR controlled by GitHub Action" --head docs/automatic-gitbook-update
+              gh pr create --title="docs: Synchronizing CLI help from user-docs" --body="Automatic PR controlled by GitHub Action" --head docs/automatic-gitbook-update
             fi
             echo "PR exists, pushed changes to it."
           else
