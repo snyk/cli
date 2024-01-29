@@ -127,15 +127,15 @@ describe('test --json-file-output', () => {
     server.setCustomResponse(response);
 
     const { code, stdout, stderr } = await runSnykCLI(
-      `container test alpine:latest --json-file-output=${outputFilename}`,
+      `container test hello-world:latest --json-file-output=${outputFilename}`,
       {
         cwd: project.path(),
         env,
       },
     );
-    expect(code).toEqual(1);
 
     console.debug({ stdout, stderr });
+    expect(code).toEqual(1);
 
     const outputPath = await project.path(outputFilename);
     const fileSize = fs.statSync(outputPath).size;
