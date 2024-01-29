@@ -60,7 +60,7 @@ spec_helper_configure() {
 "
 
   echo "------------------------------------------------------------------------------------------------------"
-  echo " Binary under test   [TEST_TEST_SNYK_COMMAND] ....... ${TEST_SNYK_COMMAND:=$ORIGINAL_SNYK_EXECUTABLE}"
+  echo " Binary under test   [TEST_SNYK_COMMAND] ............ ${TEST_SNYK_COMMAND:=$ORIGINAL_SNYK_EXECUTABLE}"
   echo " API Endpoint        [TEST_SNYK_API] ................ ${TEST_SNYK_API}"
   echo " Token               [TEST_SNYK_TOKEN] .............. ***"
   echo "------------------------------------------------------------------------------------------------------"
