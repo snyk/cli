@@ -59,13 +59,19 @@ spec_helper_configure() {
 ╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝       ╚═╝   ╚══════╝╚══════╝   ╚═╝   ╚══════╝
 "
 
-  echo "Using this 'snyk' executable:"
-  echo "${SNYK_COMMAND:=$ORIGINAL_SNYK_EXECUTABLE}"
-  echo " "
-  echo "You may override it with envvar SNYK_COMMAND - e.g. SNYK_COMMAND=\"node ./bin/snyk\" to test a local build"
+  echo "------------------------------------------------------------------------------------------------------"
+  echo " Binary under test   [TEST_SNYK_COMMAND] ............ ${TEST_SNYK_COMMAND:=$ORIGINAL_SNYK_EXECUTABLE}"
+  echo " API Endpoint        [TEST_SNYK_API] ................ ${TEST_SNYK_API}"
+  echo " Token               [TEST_SNYK_TOKEN] .............. ***"
+  echo "------------------------------------------------------------------------------------------------------"
   echo " "
 
+  # ensure a clean test environment
+  unset SNYK_API
+  unset SNYK_API_KEY
+  export SNYK_API=${TEST_SNYK_API}
+
   snyk() {
-    eval "${SNYK_COMMAND:=$ORIGINAL_SNYK_EXECUTABLE}" "$@"
+    eval "${TEST_SNYK_COMMAND:=$ORIGINAL_SNYK_EXECUTABLE}" "$@"
   }
 }

@@ -85,10 +85,11 @@ jobs:
         if: ${{ matrix.snyk_install_method == 'alpine-binary' }}
         env:
           TEST_SNYK_TOKEN: ${{ secrets.TEST_SNYK_TOKEN }}
+          TEST_SNYK_API: ${{ secrets.TEST_SNYK_API }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker build -t snyk-cli-alpine -f ./test/smoke/alpine/Dockerfile ./test
-          docker run -eCI=1 -eTEST_SNYK_TOKEN -eGITHUB_TOKEN snyk-cli-alpine
+          docker run -eCI=1 -eTEST_SNYK_TOKEN -eGITHUB_TOKEN -eTEST_SNYK_API snyk-cli-alpine
 
       - name: Install snyk from Docker bundle
         if: ${{ matrix.snyk_install_method == 'docker-bundle' && matrix.os == 'macos' }}
@@ -109,9 +110,10 @@ jobs:
         if: ${{ matrix.snyk_install_method == 'npm-root-user' }}
         env:
           TEST_SNYK_TOKEN: ${{ secrets.TEST_SNYK_TOKEN }}
+          TEST_SNYK_API: ${{ secrets.TEST_SNYK_API }}
         run: |
           docker build -t snyk-docker-root -f ./test/smoke/docker-root/Dockerfile ./test
-          docker run -eCI=1 -eTEST_SNYK_TOKEN snyk-docker-root
+          docker run -eCI=1 -eTEST_SNYK_TOKEN -eTEST_SNYK_API snyk-docker-root
 
       - name: Install Snyk with binary - Non-Windows
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
@@ -182,6 +184,7 @@ jobs:
         shell: bash -l {0} # run bash with --login flag to load .bash_profile that's used by yarn install method
         env:
           TEST_SNYK_TOKEN: ${{ secrets.TEST_SNYK_TOKEN }}
+          TEST_SNYK_API: ${{ secrets.TEST_SNYK_API }}
         run: |
           which snyk
           snyk version
@@ -193,5 +196,6 @@ jobs:
         shell: powershell
         env:
           TEST_SNYK_TOKEN: ${{ secrets.TEST_SNYK_TOKEN }}
+          TEST_SNYK_API: ${{ secrets.TEST_SNYK_API }}
         run: |
           sh ./run-shellspec-win.sh
