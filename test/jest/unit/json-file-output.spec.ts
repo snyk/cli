@@ -3,9 +3,11 @@ import * as path from 'path';
 import { createProjectFromFixture } from '../util/createProject';
 import {
   createDirectory,
+  saveObjectToFile,
   writeContentsToFileSwallowingErrors,
 } from '../../../src/lib/json-file-output';
 import * as os from 'os';
+import { humanFileSize } from '../../utils';
 
 const isWindows = os.platform().indexOf('win') === 0;
 
@@ -46,5 +48,25 @@ describe('writeContentsToFileSwallowingErrors', () => {
       await writeContentsToFileSwallowingErrors(outputPath, 'fake-contents');
       expect(fs.existsSync(outputPath)).toBe(false);
     }
+  });
+});
+
+describe('saveObjectToFile', () => {
+  it('can write objects to file', async () => {
+    const project = await createProjectFromFixture('json-file-output');
+    const outputFile = project.path('test-output.json');
+
+    const payload = require('../../fixtures/lodash@4.17.11-vuln.json');
+
+    await saveObjectToFile(outputFile, payload);
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // Ensure async operations complete
+    console.log({
+      outputFile,
+      outputFileSize: humanFileSize(fs.statSync(outputFile).size),
+    });
+    expect(fs.statSync(outputFile).size).toBeGreaterThan(0); // >50MB
+
+    const savedFile = fs.readFileSync(outputFile, 'utf8');
+    expect(JSON.parse(savedFile)).toMatchObject(payload);
   });
 });

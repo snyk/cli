@@ -18,6 +18,7 @@ export class CommandResult {
 export abstract class TestCommandResult extends CommandResult {
   protected jsonResult = '';
   protected sarifResult = '';
+  protected jsonData = {};
 
   public getJsonResult(): string {
     return this.jsonResult;
@@ -27,15 +28,21 @@ export abstract class TestCommandResult extends CommandResult {
     return this.sarifResult;
   }
 
+  public getJsonData(): Record<string, unknown> {
+    return this.jsonData;
+  }
+
   public static createHumanReadableTestCommandResult(
     humanReadableResult: string,
     jsonResult: string,
     sarifResult?: string,
+    jsonData?: Record<string, unknown>,
   ): HumanReadableTestCommandResult {
     return new HumanReadableTestCommandResult(
       humanReadableResult,
       jsonResult,
       sarifResult,
+      jsonData,
     );
   }
 
@@ -43,24 +50,35 @@ export abstract class TestCommandResult extends CommandResult {
     stdout: string,
     jsonResult?: string,
     sarifResult?: string,
+    jsonPayload?: Record<string, unknown>,
   ): JsonTestCommandResult {
-    return new JsonTestCommandResult(stdout, jsonResult, sarifResult);
+    return new JsonTestCommandResult(
+      stdout,
+      jsonResult,
+      sarifResult,
+      jsonPayload,
+    );
   }
 }
 
 class HumanReadableTestCommandResult extends TestCommandResult {
   protected jsonResult = '';
   protected sarifResult = '';
+  protected jsonData = {};
 
   constructor(
     humanReadableResult: string,
     jsonResult: string,
     sarifResult?: string,
+    jsonData?: Record<string, unknown>,
   ) {
     super(humanReadableResult);
     this.jsonResult = jsonResult;
     if (sarifResult) {
       this.sarifResult = sarifResult;
+    }
+    if (jsonData) {
+      this.jsonData = jsonData;
     }
   }
 
@@ -71,10 +89,19 @@ class HumanReadableTestCommandResult extends TestCommandResult {
   public getSarifResult(): string {
     return this.sarifResult;
   }
+
+  public getJsonData(): Record<string, unknown> {
+    return this.jsonData;
+  }
 }
 
 class JsonTestCommandResult extends TestCommandResult {
-  constructor(stdout: string, jsonResult?: string, sarifResult?: string) {
+  constructor(
+    stdout: string,
+    jsonResult?: string,
+    sarifResult?: string,
+    jsonData?: Record<string, unknown>,
+  ) {
     super(stdout);
     if (jsonResult) {
       this.jsonResult = jsonResult;
@@ -83,6 +110,9 @@ class JsonTestCommandResult extends TestCommandResult {
       this.sarifResult = sarifResult;
     } else {
       this.jsonResult = stdout;
+    }
+    if (jsonData) {
+      this.jsonData = jsonData;
     }
   }
 

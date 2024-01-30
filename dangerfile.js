@@ -1,9 +1,7 @@
-const { danger, warn, fail, message } = require('danger');
+const { danger, warn, fail } = require('danger');
 const fs = require('fs');
 
 const MAX_COMMIT_MESSAGE_LENGTH = 72;
-const SMOKE_TEST_BRANCH = 'smoke/';
-const SMOKE_TEST_WORKFLOW_FILE_PATH = '.github/workflows/smoke-tests.yml';
 
 if (danger.github && danger.github.pr) {
   const ghCommits = danger.github.commits;
@@ -55,22 +53,6 @@ if (danger.github && danger.github.pr) {
     const joinedFileList = newTestFiles.map((f) => '- `' + f + '`').join('\n');
     const msg = `Looks like you added a new Tap test. Consider making it a Jest test instead. See files in \`test/jest/(unit|acceptance)\` for examples. Files found:\n${joinedFileList}`;
     warn(msg);
-  }
-
-  // Smoke test modification check
-  const modifiedSmokeTest =
-    danger.git.modified_files.some((f) => f.startsWith('test/smoke/')) ||
-    danger.git.created_files.some((f) => f.startsWith('test/smoke/')) ||
-    danger.git.modified_files.includes(SMOKE_TEST_WORKFLOW_FILE_PATH);
-
-  const isOnSmokeTestBranch = danger.github.pr.head.ref.startsWith(
-    SMOKE_TEST_BRANCH,
-  );
-
-  if (modifiedSmokeTest && !isOnSmokeTestBranch) {
-    message(
-      `You are modifying something in \`test/smoke\` directory, yet you are not on the branch starting with ${SMOKE_TEST_BRANCH}. You can prefix your branch with ${SMOKE_TEST_BRANCH} and Smoke tests will trigger for this PR.`,
-    );
   }
 
   // Enforce usage of ES6 modules

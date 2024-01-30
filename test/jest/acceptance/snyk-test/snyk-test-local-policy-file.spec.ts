@@ -40,7 +40,7 @@ describe('`snyk test` with `--file=`', () => {
       const project = await createProjectFromFixture(
         'npm/with-vulnerable-lodash-dep',
       );
-      server.setDepGraphResponse(
+      server.setCustomResponse(
         await project.readJSON('test-dep-graph-result.json'),
       );
 
@@ -64,7 +64,7 @@ describe('`snyk test` with `--file=`', () => {
       const project = await createProjectFromFixture(
         'npm/with-vulnerable-lodash-dep',
       );
-      server.setDepGraphResponse(
+      server.setCustomResponse(
         await project.readJSON('test-dep-graph-result.json'),
       );
 
@@ -86,7 +86,7 @@ describe('`snyk test` with `--file=`', () => {
       const project = await createProjectFromFixture(
         'npm/with-vulnnerable-lodash-and-snyk-file',
       );
-      server.setDepGraphResponse(
+      server.setCustomResponse(
         await project.readJSON('test-dep-graph-result.json'),
       );
 
@@ -117,7 +117,7 @@ describe('`snyk test` with `--file=`', () => {
       const project = await createProjectFromFixture(
         'npm/with-vulnnerable-lodash-and-snyk-file',
       );
-      server.setDepGraphResponse(
+      server.setCustomResponse(
         await project.readJSON('test-dep-graph-result.json'),
       );
 

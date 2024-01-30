@@ -8,13 +8,17 @@ const debug = require('debug')('snyk-json');
 export function jsonStringifyLargeObject(obj: any): string {
   let res = '';
   try {
-    // first try pretty-print
     res = JSON.stringify(obj, null, 2);
     return res;
   } catch (err) {
-    // if that doesn't work, try non-pretty print
-    debug('JSON.stringify failed - trying again without pretty print', err);
-    res = JSON.stringify(obj);
-    return res;
+    try {
+      // if that doesn't work, try non-pretty print
+      debug('JSON.stringify failed - trying again without pretty print', err);
+      res = JSON.stringify(obj);
+      return res;
+    } catch (error) {
+      debug('jsonStringifyLargeObject failed: ', error);
+      return res;
+    }
   }
 }
