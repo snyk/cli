@@ -11,6 +11,9 @@ const setupOutput = () => {
     read: async () => {
       return (await fse.readFile(outputPath, 'utf-8')).trim();
     },
+    exists: async () => {
+      return (await fse.existsSync(outputPath));
+    },
     mkdir: async () => {
       await fse.ensureDir(dir);
     },
@@ -81,6 +84,27 @@ describe('saveJsonToFileCreatingDirectoryIfRequired', () => {
       await saveJsonToFileCreatingDirectoryIfRequired(output.path, input);
 
       await expect(output.read()).resolves.toEqual(input);
+    });
+  });
+
+  describe('supports empty content', () => {
+    it('with empty content', async () => {
+      const input = '';
+
+      await saveJsonToFileCreatingDirectoryIfRequired(output.path, input);
+
+      await expect(output.exists()).resolves.toEqual(false);
+    });
+
+    it('with content', async () => {
+      const input = JSON.stringify({
+        ok: true,
+        somekey: 'someval',
+      });
+
+      await saveJsonToFileCreatingDirectoryIfRequired(output.path, input);
+
+      await expect(output.exists()).resolves.toEqual(true);
     });
   });
 });

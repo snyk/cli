@@ -2,6 +2,7 @@ import { gte } from 'semver';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
 import * as path from 'path';
 import { JsonStreamStringify } from 'json-stream-stringify';
+const isEmpty = require('lodash/isEmpty');
 
 export const MIN_VERSION_FOR_MKDIR_RECURSIVE = '10.12.0';
 
@@ -75,8 +76,10 @@ export async function saveJsonToFileCreatingDirectoryIfRequired(
 ): Promise<void> {
   const dirPath = path.dirname(jsonOutputFile);
   const createDirSuccess = createDirectory(dirPath);
-  if (createDirSuccess) {
-    await writeContentsToFileSwallowingErrors(jsonOutputFile, contents);
+  if (contents && !isEmpty(contents.trim())) {
+    if (createDirSuccess) {
+      await writeContentsToFileSwallowingErrors(jsonOutputFile, contents);
+    }
   }
 }
 
