@@ -79,7 +79,7 @@ clean-prepack: clean-package-files
 	@rm -f prepack
 
 .PHONY: clean-ts
-clean-ts: 
+clean-ts:
 	@npm run clean
 	@rm -f -r $(BINARY_RELEASES_FOLDER_TS_CLI)
 
@@ -183,7 +183,7 @@ $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
 	@cd $(BINARY_WRAPPER_DIR); npm run build
-	
+
 .PHONY: clean-binary-wrapper
 clean-binary-wrapper:
 	@rm -f $(BINARY_WRAPPER_DIR)/config.default.json
@@ -273,3 +273,18 @@ format:
 ls-protocol-metadata: $(BINARY_RELEASES_FOLDER_TS_CLI)/version
 	@echo "-- Generating protocol metadata"
 	@pushd $(EXTENSIBLE_CLI_DIR) && $(MAKE) generate-ls-protocol-metadata bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) && popd
+
+.PHONY: run
+run: build require-args
+	$(wildcard $(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/snyk-*) $(ARGS)
+
+.PHONY: run-ts
+run-ts: require-args
+	@npm install
+	npm run dev "$(ARGS)"
+
+.PHONY: require-args
+require-args:
+ifndef ARGS
+	$(error cannot run: ARGS is undefined)
+endif
