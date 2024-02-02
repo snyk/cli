@@ -459,7 +459,7 @@ async function saveResultsToFile(
 ) {
   const flag = `${outputType}-file-output`;
   const outputFile = options[flag];
-  if (outputFile && (jsonResults || jsonPayload)) {
+  if (outputFile && (jsonResults || !isEmpty(jsonPayload))) {
     const outputFileStr = outputFile as string;
     const fullOutputFilePath = getFullPath(outputFileStr);
     await saveJsonResultsToFile(

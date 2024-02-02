@@ -146,4 +146,17 @@ describe('test --json-file-output', () => {
     });
     expect(fileSize).toBeGreaterThan(500000000); // ~0.5GB
   }, 120000);
+
+  it('test --json-file-ouput does not write an empty file if no issues are found', async () => {
+    const project = await createProjectFromWorkspace('golang-gomodules');
+    const outputFilename = project.path() + '/shouldnt_be_there.json';
+
+    const { code } = await runSnykCLI(
+      `code test --json-file-output=${outputFilename} ${project.path()}`,
+    );
+
+    const fileExists = fs.existsSync(outputFilename);
+    expect(fileExists).toBeFalsy();
+    expect(code).toEqual(0);
+  });
 });
