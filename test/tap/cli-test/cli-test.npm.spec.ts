@@ -342,5 +342,19 @@ export const NpmTests: AcceptanceTests = {
         'uuid version matching ^9',
       );
     },
+    '`test npm-package-with-dist-tag-subdependency` correctly completes test': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      await params.cli.test('npm-package-with-dist-tag-subdependency');
+      const req = params.server.popRequest();
+      const depGraph = req.body.depGraph;
+      t.same(
+        depGraph.pkgs.map((p) => p.id).includes('cdktf-cli@0.20.3'),
+        true,
+        'npm subdep with dist tag has a numbered version',
+      );
+    },
   },
 };
