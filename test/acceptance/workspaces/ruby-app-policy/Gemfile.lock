@@ -8,6 +8,9 @@ GEM
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     racc (1.7.3)
+    rack (3.0.9)
+    rack-protection (1.5.5)
+      rack
     sanitize (6.1.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
