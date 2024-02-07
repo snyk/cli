@@ -259,7 +259,7 @@ release-pre:
 	@echo "-- Validating artifacts"
 	@./release-scripts/validate-checksums.sh
 	@echo "-- Validating upload permissions"
-	@./release-scripts/upload-artifacts.sh --dry-run latest github npm
+	@./release-scripts/upload-artifacts.sh --dry-run preview latest github npm
 	@echo "-- Publishing to S3 /version"
 	@./release-scripts/upload-artifacts.sh version
 
