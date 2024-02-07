@@ -6,11 +6,15 @@ set -euo pipefail
 CURRENT_VERSION="$(npm view snyk version)"
 RELEASE_BRANCH="master"
 if [ "${CIRCLE_BRANCH:-}" == "${RELEASE_BRANCH}" ]; then
-    NEXT_VERSION="$(npx semver "${CURRENT_VERSION}" -i minor)"
+    # Note that the output file here is determind by
+    # the configuration in .releaserc.json
+    echo "On release branch, incrementing version semantic-release in dry-run" 1>&2
+    npx semantic-release@22 --dry-run --quiet
 else
-    NEXT_VERSION="${CURRENT_VERSION}-dev.$(git rev-parse HEAD)"
+    echo "Not on release branch, creating dev version" 1>&2
+    echo "${CURRENT_VERSION}-dev.$(git rev-parse HEAD)" > "$BINARY_OUTPUT_FOLDER/version"
 fi
 echo "Current version: ${CURRENT_VERSION}" 1>&2
-echo "Next version:    ${NEXT_VERSION}" 1>&2
+echo "Next version:    $(cat "$BINARY_OUTPUT_FOLDER/version")" 1>&2
 
-echo "${NEXT_VERSION}"
+echo "Updated $BINARY_OUTPUT_FOLDER/version" 1>&2

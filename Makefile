@@ -42,7 +42,7 @@ $(BINARY_RELEASES_FOLDER_TS_CLI):
 	@mkdir -p $(BINARY_RELEASES_FOLDER_TS_CLI)
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/version: | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+	./release-scripts/next-version.sh
 
 $(BINARY_OUTPUT_FOLDER)/fips/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/fips
 	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/fips/version

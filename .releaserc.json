@@ -1,0 +1,13 @@
+{
+  "branches": [{ "name": "master" }],
+  "tagFormat": "v${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    [
+      "@semantic-release/exec",
+      {
+        "verifyReleaseCmd": "echo \"${nextRelease.version}\" > \"$BINARY_OUTPUT_FOLDER/version\""
+      }
+    ]
+  ]
+}
