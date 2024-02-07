@@ -1,5 +1,5 @@
-import { fakeServer } from '../../acceptance/fake-server';
-import { runSnykCLI } from '../util/runSnykCLI';
+import { fakeServer } from '../../../acceptance/fake-server';
+import { runSnykCLI } from '../../util/runSnykCLI';
 
 jest.setTimeout(1000 * 30);
 
