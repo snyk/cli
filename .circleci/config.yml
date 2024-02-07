@@ -1170,8 +1170,8 @@ jobs:
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
-          name: Publish to S3 ( << parameter.deployment >> )
-          command: ./release-scripts/upload-artifacts.sh --dry-run << parameter.deployment >>
+          name: Publish to S3 ( << parameters.deployment >> )
+          command: ./release-scripts/upload-artifacts.sh --dry-run << parameters.deployment >>
       - failed-release-notification
 
   release-github:
