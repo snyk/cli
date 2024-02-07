@@ -751,9 +751,9 @@ workflows:
             - e2e tests (alpine)
             - e2e fips tests (cbl-mariner)
             - e2e fips tests (win-server2022-amd64)
-      #          filters:
-      #            branches:
-      #              only: master
+          filters:
+            branches:
+              only: master
 
       - release-s3:
           name: upload latest
