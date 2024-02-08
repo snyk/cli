@@ -90,6 +90,8 @@ Print the dependency tree before sending it for analysis.
 
 Set or override the remote URL for the repository that you would like to monitor.
 
+Groups all Projects found under a single Target.
+
 ### `--dev`
 
 Include development-only dependencies. Applicable only for some package managers, for example, `devDependencies` in npm or `:development` dependencies in Gemfile.
