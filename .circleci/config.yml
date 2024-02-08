@@ -728,7 +728,8 @@ workflows:
                 - '/.*e2e.*/'
 
       - release-s3:
-          name: upload latest
+          name: upload preview
+          deployment: preview
           context: team-hammerhead-common-deploy-tokens
           requires:
             - Validate NPM artifacts (docker-amd64)
@@ -750,6 +751,16 @@ workflows:
             - e2e tests (alpine)
             - e2e fips tests (cbl-mariner)
             - e2e fips tests (win-server2022-amd64)
+          filters:
+            branches:
+              only: master
+
+      - release-s3:
+          name: upload latest
+          deployment: latest
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - upload preview
           filters:
             branches:
               only: master
@@ -1149,14 +1160,18 @@ jobs:
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk woof
 
   release-s3:
+    parameters:
+      deployment:
+        type: string
+        default: latest
     executor: docker-amd64
     steps:
       - prepare-workspace
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
-          name: Publish to S3
-          command: ./release-scripts/upload-artifacts.sh latest
+          name: Publish to S3 ( << parameters.deployment >> )
+          command: ./release-scripts/upload-artifacts.sh << parameters.deployment >>
       - failed-release-notification
 
   release-github:
