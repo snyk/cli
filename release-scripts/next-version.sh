@@ -6,7 +6,7 @@ set -euo pipefail
 CURRENT_VERSION="$(npm view snyk version)"
 RELEASE_BRANCH="master"
 if [ "${CIRCLE_BRANCH:-}" == "${RELEASE_BRANCH}" ]; then
-    NEXT_VERSION="$(npx semver "${CURRENT_VERSION}" -i minor)"
+    NEXT_VERSION="v$(convco version --bump)"
 else
     NEXT_VERSION="${CURRENT_VERSION}-dev.$(git rev-parse HEAD)"
 fi
