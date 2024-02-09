@@ -1,3 +1,9 @@
+FROM --platform=$BUILDPLATFORM rust:1.76-bullseye AS builder
+WORKDIR /
+RUN apt-get update
+RUN apt-get install -y cmake
+RUN cargo install convco
+
 FROM --platform=$TARGETPLATFORM golang:1.20-bullseye
 
 # install "normal" stuff
@@ -57,7 +63,7 @@ RUN scripts/install-swift.sh $ARCH
 ENV PATH=/usr/local/swift/usr/bin:$PATH
 
 # install openssl3
-RUN scripts/install_openssl3_fips.sh
+# RUN scripts/install_openssl3_fips.sh
 ENV PATH=/usr/local/bin/:$PATH
 ENV LD_LIBRARY_PATH=/usr/local/lib/
 
@@ -73,6 +79,9 @@ ENV PATH=/home/circleci/.dotnet:$PATH
 ENV TEMP=/tmp
 ENV TMP=$TEMP
 ENV TMPDIR=$TEMP
+
+# install convco
+COPY --from=builder /usr/local/cargo/bin/convco ./convco
 
 WORKDIR /
 ENTRYPOINT [""]
