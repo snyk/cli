@@ -139,7 +139,7 @@
     "@types/cross-spawn": "^6.0.2",
     "@types/express": "^4.17.13",
     "@types/fs-extra": "^9.0.11",
-    "@types/jest": "^27.0.1",
+    "@types/jest": "^28.1.8",
     "@types/lodash": "^4.14.161",
     "@types/needle": "^3.3.0",
     "@types/node": "^14.14.31",
