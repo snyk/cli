@@ -3,7 +3,7 @@ set -euo pipefail
 # Checks the latest version of Snyk CLI on npm and decides the next version.
 # Only output the next version to stdout. All other output should go to stderr.
 
-CURRENT_VERSION="$(npm view snyk version)"
+CURRENT_VERSION="$(git describe --tags `git rev-list --tags --max-count=1`)"
 RELEASE_BRANCH="master"
 if [ "${CIRCLE_BRANCH:-}" == "${RELEASE_BRANCH}" ]; then
     NEXT_VERSION="v$(convco version --bump)"
