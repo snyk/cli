@@ -63,7 +63,7 @@ RUN scripts/install-swift.sh $ARCH
 ENV PATH=/usr/local/swift/usr/bin:$PATH
 
 # install openssl3
-# RUN scripts/install_openssl3_fips.sh
+RUN scripts/install_openssl3_fips.sh
 ENV PATH=/usr/local/bin/:$PATH
 ENV LD_LIBRARY_PATH=/usr/local/lib/
 
