@@ -121,7 +121,7 @@
     "snyk-gradle-plugin": "4.1.0",
     "snyk-module": "3.1.0",
     "snyk-mvn-plugin": "3.1.0",
-    "snyk-nuget-plugin": "2.4.0",
+    "snyk-nuget-plugin": "2.4.1",
     "snyk-nodejs-lockfile-parser": "1.52.11",
     "snyk-php-plugin": "1.9.2",
     "snyk-policy": "^1.25.0",
