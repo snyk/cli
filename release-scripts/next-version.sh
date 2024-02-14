@@ -4,7 +4,7 @@ set -euo pipefail
 # Only output the next version to stdout. All other output should go to stderr.
 
 RELEASE_BRANCH="master"
-NEXT_VERSION="v$(convco version --bump)"
+NEXT_VERSION="v$(/home/circleci/.cargo/bin/convco version --bump)"
 
 if [ "${CIRCLE_BRANCH:-}" != "${RELEASE_BRANCH}" ]; then
     NEXT_VERSION="${NEXT_VERSION}-dev.$(git rev-parse HEAD)"

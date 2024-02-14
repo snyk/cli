@@ -808,7 +808,10 @@ jobs:
           command: npm ci
       - run:
           name: Set version
-          command: make binary-releases/version binary-releases/fips/version
+          command: |
+            whoami
+            echo $PATH
+            make binary-releases/version binary-releases/fips/version
       - run:
           # required for one unit test (ts-binary-wrapper/test/unit/common.spec.ts:15:30)
           # consider removing this run
