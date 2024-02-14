@@ -1,9 +1,3 @@
-FROM --platform=$BUILDPLATFORM rust:1.76-bullseye AS builder
-WORKDIR /
-RUN apt-get update
-RUN apt-get install -y cmake
-RUN cargo install convco
-
 FROM --platform=$TARGETPLATFORM golang:1.20-bullseye
 
 # install "normal" stuff
@@ -37,6 +31,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     jq \
     faketime \
     zip \
+    cmake \
     nodejs=$(apt-cache policy nodejs | grep nodesource | xargs | cut -d " " -f2)
 RUN node -v
 RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
@@ -80,8 +75,9 @@ ENV TEMP=/tmp
 ENV TMP=$TEMP
 ENV TMPDIR=$TEMP
 
-# install convco
-COPY --from=builder /usr/local/cargo/bin/convco ./convco
+# install rust and convco
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN ~/.cargo/bin/cargo install convco
 
 WORKDIR /
 ENTRYPOINT [""]
