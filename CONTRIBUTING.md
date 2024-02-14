@@ -108,7 +108,7 @@ Place fixtures in `./test/fixtures`. Keep them minimal to reduce maintenance. Us
 You can run acceptance tests with:
 
 ```
-npm run test:acceptance -- --selectProjects snyk
+npm run test:acceptance -- --selectProjects coreCli
 ```
 
 ### Smoke Tests
