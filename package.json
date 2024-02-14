@@ -41,7 +41,7 @@
     "watch": "npm run build-cli:dev -- --watch",
     "test": "npm run test:unit && npm run test:acceptance && npm run test:tap",
     "test:unit": "jest --runInBand --testPathPattern '/test(/jest)?/unit/'",
-    "test:acceptance": "jest --runInBand --testPathPattern '/test(/jest)?/acceptance/'",
+    "test:acceptance": "jest --runInBand --testPathPattern \"/test(/jest)?/acceptance/\"",
     "test:tap": "tap -Rspec --timeout=300 test/tap/*.test.* ",
     "test:smoke": "./scripts/run-smoke-tests-locally.sh",
     "dev": "ts-node ./src/cli/index.ts"
