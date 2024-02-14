@@ -78,6 +78,7 @@ ENV TMPDIR=$TEMP
 # install rust and convco
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN ~/.cargo/bin/cargo install convco
+ENV PATH=/home/circleci/.cargo/bin:$PATH
 
 WORKDIR /
 ENTRYPOINT [""]
