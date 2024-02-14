@@ -823,6 +823,7 @@ jobs:
           root: .
           paths:
             - binary-releases/*
+            - ts-cli-binaries/*
             - binary-releases/fips/*
             - node_modules/*
             - ts-binary-wrapper/*
