@@ -38,12 +38,12 @@ executors:
       - image: alpine:3.17
   docker-amd64:
     docker:
-      - image: bastiandoetsch209/cli-build:20240213-130132
+      - image: bastiandoetsch209/cli-build:20240214-092014
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-arm64:
     docker:
-      - image: bastiandoetsch209/cli-build-arm64:20240213-130132
+      - image: bastiandoetsch209/cli-build-arm64:20240214-092014
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   linux-ubuntu-mantic-amd64:
