@@ -870,7 +870,6 @@ jobs:
 
   test-legacy-tap:
     executor: docker-amd64
-    parallelism: 2
     steps:
       - prepare-workspace
       - run:
