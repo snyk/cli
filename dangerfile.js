@@ -12,7 +12,7 @@ if (danger.github && danger.github.pr) {
     const firstLineRegex = /^(feat|fix|chore|test|docs|refactor|revert)(\(.*\))?:(.+)$/;
     if (!firstLineRegex.test(firstLine)) {
       fail(
-        `"[${firstLine}](${url})" is not using a valid commit message format. For commit guidelines, see: [CONTRIBUTING](https://github.com/snyk/snyk/blob/master/CONTRIBUTING.md#creating-commits).`,
+        `"[${firstLine}](${url})" is not using a valid commit message format. For commit guidelines, see: [CONTRIBUTING](https://github.com/snyk/snyk/blob/main/CONTRIBUTING.md#creating-commits).`,
       );
     }
 
@@ -87,7 +87,7 @@ if (danger.github && danger.github.pr) {
 
   if (modifiedHelp || createdHelp) {
     warn(
-      'Please make changes to `snyk help` text in [Gitbook](https://docs.snyk.io/snyk-cli/commands). Changes will be automatically synchronised to Snyk CLI as a [scheduled PR](https://github.com/snyk/snyk/actions/workflows/sync-cli-help-to-user-docs.yml).\nFor more information, see: [`help/README.md`](https://github.com/snyk/snyk/tree/master/help/README.md).',
+      'Please make changes to `snyk help` text in [Gitbook](https://docs.snyk.io/snyk-cli/commands). Changes will be automatically synchronised to Snyk CLI as a [scheduled PR](https://github.com/snyk/snyk/actions/workflows/sync-cli-help-to-user-docs.yml).\nFor more information, see: [`help/README.md`](https://github.com/snyk/snyk/tree/main/help/README.md).',
     );
   }
 }
