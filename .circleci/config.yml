@@ -326,7 +326,7 @@ commands:
     steps:
       - when:
           condition:
-            equal: [master, << pipeline.git.branch >>]
+            equal: [main, << pipeline.git.branch >>]
           steps:
             - run:
                 name: Handling failed release
@@ -366,7 +366,7 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: master
+              ignore: main
 
       - test-node:
           context:
@@ -376,7 +376,7 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: master
+              ignore: main
 
       - test-go:
           context:
@@ -386,7 +386,7 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: master
+              ignore: main
 
       - test-legacy-tap:
           context:
@@ -396,7 +396,7 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: master
+              ignore: main
 
       - build-special-artifacts:
           name: build fix & protect
@@ -477,7 +477,7 @@ workflows:
           context: team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build linux amd64
           test_snyk_command: ./binary-releases/snyk-linux
@@ -489,7 +489,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build linux amd64
           executor: docker-amd64
@@ -502,7 +502,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build linux arm64
           executor: docker-arm64
@@ -518,7 +518,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build linux arm64
 
@@ -529,7 +529,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build alpine amd64
           executor: alpine
@@ -544,7 +544,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build macOS arm64
           executor: macos-arm64
@@ -558,7 +558,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build windows amd64
           executor: win-server2022-amd64
@@ -580,7 +580,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - sign:
@@ -595,7 +595,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - sign:
@@ -610,7 +610,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - create_deployment_artifacts:
@@ -627,7 +627,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - should-release:
@@ -638,7 +638,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - pre-release:
@@ -649,7 +649,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - npm-validation:
@@ -666,7 +666,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - test-release:
@@ -694,7 +694,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - test-release:
@@ -709,7 +709,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - test-release:
@@ -724,7 +724,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - release-s3:
@@ -753,7 +753,7 @@ workflows:
             - e2e fips tests (win-server2022-amd64)
           filters:
             branches:
-              only: master
+              only: main
 
       - release-s3:
           name: upload latest
@@ -763,7 +763,7 @@ workflows:
             - upload preview
           filters:
             branches:
-              only: master
+              only: main
 
       - release-github:
           name: upload github
@@ -773,7 +773,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
       - release-npm:
           name: upload npm
           context: team-hammerhead-common-deploy-tokens
@@ -782,7 +782,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
 
       - trigger-building-snyk-images:
           name: Trigger building snyk-images
@@ -792,7 +792,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
 
 ####################################################################################################
 # JOBS

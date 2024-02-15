@@ -185,7 +185,7 @@ async function run() {
       await octokit.actions.listWorkflowRuns({
         owner: 'snyk',
         repo: 'snyk',
-        branch: 'master',
+        branch: 'main',
         workflow_id: smokeTestsID,
       })
     ).data;
