@@ -5,7 +5,7 @@ Please check the boxes once done.
 The pull request must:
 
 - **Reviewer Documentation**
-    - [ ] follow [CONTRIBUTING](https://github.com/snyk/cli/blob/master/CONTRIBUTING.md) rules
+    - [ ] follow [CONTRIBUTING](https://github.com/snyk/cli/blob/main/CONTRIBUTING.md) rules
     - [ ] be accompanied by a detailed description of the changes
     - [ ] contain a risk assessment of the change (Low | Medium | High) with regards to breaking existing functionality. A change e.g. of an underlying language plugin can completely break the functionality for that language, but appearing as only a version change in the dependencies.
     - [ ] highlight breaking API if applicable

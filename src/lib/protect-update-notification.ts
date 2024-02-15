@@ -20,7 +20,7 @@ export function getProtectUpgradeWarningForPaths(
         message += theme.color.status.warn(`  - ${p}` + EOL);
       });
 
-      const githubReadmeUrlShort = 'https://snyk.co/ud1cR'; // https://github.com/snyk/snyk/tree/master/packages/snyk-protect#migrating-from-snyk-protect-to-snykprotect
+      const githubReadmeUrlShort = 'https://snyk.co/ud1cR'; // https://github.com/snyk/snyk/tree/main/packages/snyk-protect#migrating-from-snyk-protect-to-snykprotect
 
       message += theme.color.status.warn(
         `For more information and migration instructions, see ${githubReadmeUrlShort}` +

@@ -117,4 +117,4 @@ The Snyk CLI project is open-source, but Snyk does not encourage outside contrib
 
 ## Security
 
-For any security issues or concerns, see the [SECURITY.md](https://github.com/snyk/snyk/blob/master/SECURITY.md) file in the GitHub repository.
+For any security issues or concerns, see the [SECURITY.md](https://github.com/snyk/snyk/blob/main/SECURITY.md) file in the GitHub repository.
