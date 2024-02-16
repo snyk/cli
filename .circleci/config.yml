@@ -906,7 +906,7 @@ jobs:
           name: Linting project
           command: |
             npm run lint
-            pushd cliv2
+            pushd cliv2 
             make lint
             popd
       - snyk/scan:
