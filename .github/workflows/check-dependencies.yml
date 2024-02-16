@@ -2,7 +2,7 @@ name: 'Check Dependencies'
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, main]
 
 jobs:
   check-dependencies:
