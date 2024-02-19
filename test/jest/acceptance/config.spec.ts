@@ -17,7 +17,7 @@ describe('config', () => {
 
   beforeAll(() => {
     server = fakeServer(baseURL, '123456789');
-    return new Promise((resolve) => server.listen(port, resolve));
+    return new Promise<void>((resolve) => server.listen(port, resolve));
   });
 
   afterEach(() => {
@@ -25,7 +25,7 @@ describe('config', () => {
     server.restore();
   });
 
-  afterAll(() => new Promise(server.close));
+  afterAll(() => new Promise<void>(server.close));
 
   it('loads API_REST_URL from config key if set', async () => {
     const env = {

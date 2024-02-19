@@ -982,7 +982,7 @@ jobs:
           name: Running acceptance tests
           command: |
             << parameters.pre_test_cmds >>
-            npm run test:acceptance -- --selectProjects snyk
+            npm run test:acceptance -- --selectProjects coreCli
           environment:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>

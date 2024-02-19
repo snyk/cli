@@ -1,7 +1,7 @@
 const { createJestConfig } = require('./test/createJestConfig');
 
 module.exports = createJestConfig({
-  displayName: 'snyk',
+  displayName: 'coreCli',
   projects: ['<rootDir>', '<rootDir>/packages/*'],
   globalSetup: './test/setup.js',
 });

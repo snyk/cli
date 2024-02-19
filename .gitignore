@@ -46,3 +46,5 @@ tap-output
 .tap
 # Jest
 coverage
+test/fixtures/basic-swift/.build
+test/fixtures/basic-swift/Package.resolved
