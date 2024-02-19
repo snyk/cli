@@ -107,9 +107,9 @@ Place fixtures in `./test/fixtures`. Keep them minimal to reduce maintenance. Us
 
 Before running the tests locally you will need to:
 
-* Set the `TEST_SNYK_TOKEN` environment variable with a [valid API token](https://docs.snyk.io/snyk-api/authentication-for-api).
-* Run `make build` to ensure you have binary
-* Set `TEST_SNYK_COMMAND` to the path of the built binary for you environment, for example: `./binary-releases/snyk-macos`
+- Set the `TEST_SNYK_TOKEN` environment variable with a [valid API token](https://docs.snyk.io/snyk-api/authentication-for-api).
+- Run `make build` to ensure you have binary
+- Set `TEST_SNYK_COMMAND` to the path of the built binary for your environment, for example: `./binary-releases/snyk-macos`
 
 You can run acceptance tests with:
 
