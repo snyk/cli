@@ -4,8 +4,8 @@ metadata:
   name: cli
   annotations:
     github.com/project-slug: snyk/cli
-    github.com/team-slug: snyk/hammerhead
+    github.com/team-slug: snyk/cli
 spec:
   type: external-tooling
   lifecycle: '-'
-  owner: hammerhead
+  owner: cli
