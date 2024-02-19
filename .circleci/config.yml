@@ -857,6 +857,8 @@ jobs:
       - run:
           name: Running TS unit tests
           command: npm run test:unit
+      - store_test_results:
+          path: test/reports
 
   test-go:
     executor: docker-amd64
