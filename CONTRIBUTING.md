@@ -27,7 +27,7 @@ git clone git@github.com/snyk/cli.git
 cd snyk
 ```
 
-You will now be on our `master` branch. You should never commit to this branch, but you should keep it up-to-date to ensure you have the latest changes.
+You will now be on our `main` branch. You should never commit to this branch, but you should keep it up-to-date to ensure you have the latest changes.
 
 ```sh
 git fetch
@@ -105,10 +105,16 @@ Use [fake-server](./test/acceptance/fake-server.ts) to mock any Snyk API calls. 
 
 Place fixtures in `./test/fixtures`. Keep them minimal to reduce maintenance. Use [`createProject`](./test/jest/util/createProject.ts) to use your fixtures in isolated working directories for your tests.
 
+Before running the tests locally you will need to:
+
+- Set the `TEST_SNYK_TOKEN` environment variable with a [valid API token](https://docs.snyk.io/snyk-api/authentication-for-api).
+- Run `make build` to ensure you have binary
+- Set `TEST_SNYK_COMMAND` to the path of the built binary for your environment, for example: `./binary-releases/snyk-macos`
+
 You can run acceptance tests with:
 
 ```
-npm run test:acceptance -- --selectProjects snyk
+npm run test:acceptance -- --selectProjects coreCli
 ```
 
 ### Smoke Tests
@@ -278,7 +284,7 @@ Once you have received the necessary approvals, you can merge.
 
 ## Creating a release
 
-Merges will create a [release pipeline](https://app.circleci.com/pipelines/github/snyk/cli?branch=master&filter=all) which will build and test your changes against a range of target platforms.
+Merges will create a [release pipeline](https://app.circleci.com/pipelines/github/snyk/cli?branch=main&filter=all) which will build and test your changes against a range of target platforms.
 
 Once all tests have passed, you will be given the choice to publish a new release containing your changes.
 
@@ -298,7 +304,7 @@ After the `release-npm` job successfully completes, an automated process generat
 
 If you have made changes to the `go-application-framework`, you can run `python3 scripts/upgrade-go-application-framework.py`. This will;
 
-- Fetch the most recent commit from master of the framework
+- Fetch the most recent commit from main of the framework
 - Go get that version of the framework
 
 You can then raise a pr with the relevant changes.

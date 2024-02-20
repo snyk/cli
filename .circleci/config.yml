@@ -1,4 +1,4 @@
-version: '2.1'
+version: 2.1
 
 parameters:
   cli_download_base_url:
@@ -27,8 +27,8 @@ parameters:
     default: '2.7.0'
 
 orbs:
-  prodsec: snyk/prodsec-orb@1.0
-  snyk: snyk/snyk@1.7.0
+  prodsec: snyk/prodsec-orb@1
+  snyk: snyk/snyk@2.0.3
   aws-cli: circleci/aws-cli@2.0.3
   gh: circleci/github-cli@2.1.0
 
@@ -38,12 +38,12 @@ executors:
       - image: alpine:3.17
   docker-amd64:
     docker:
-      - image: bastiandoetsch209/cli-build:20231210-192113
+      - image: bastiandoetsch209/cli-build:20240214-145818
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-arm64:
     docker:
-      - image: bastiandoetsch209/cli-build-arm64:20231210-192113
+      - image: bastiandoetsch209/cli-build-arm64:20240214-145818
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   linux-ubuntu-mantic-amd64:
@@ -326,7 +326,7 @@ commands:
     steps:
       - when:
           condition:
-            equal: [master, << pipeline.git.branch >>]
+            equal: [main, << pipeline.git.branch >>]
           steps:
             - run:
                 name: Handling failed release
@@ -348,25 +348,24 @@ commands:
 ####################################################################################################
 
 workflows:
-  version: 2
   test_and_release:
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
           context: snyk-bot-slack
-          channel: hammerhead-alerts
+          channel: cli-alerts
 
       - prepare-build:
           requires:
             - secrets-scan
 
       - code-analysis:
-          context: hammerhead-snyk-orb-snyk-creds
+          context: devex_cli
           requires:
             - prepare-build
           filters:
             branches:
-              ignore: master
+              ignore: main
 
       - test-node:
           context:
@@ -376,7 +375,7 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: master
+              ignore: main
 
       - test-go:
           context:
@@ -386,7 +385,7 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: master
+              ignore: main
 
       - test-legacy-tap:
           context:
@@ -396,7 +395,7 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: master
+              ignore: main
 
       - build-special-artifacts:
           name: build fix & protect
@@ -477,7 +476,7 @@ workflows:
           context: team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build linux amd64
           test_snyk_command: ./binary-releases/snyk-linux
@@ -489,7 +488,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build linux amd64
           executor: docker-amd64
@@ -502,7 +501,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build linux arm64
           executor: docker-arm64
@@ -518,7 +517,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build linux arm64
 
@@ -529,7 +528,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build alpine amd64
           executor: alpine
@@ -544,7 +543,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build macOS arm64
           executor: macos-arm64
@@ -558,7 +557,7 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: master
+              ignore: main
           requires:
             - build windows amd64
           executor: win-server2022-amd64
@@ -580,7 +579,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - sign:
@@ -595,7 +594,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - sign:
@@ -610,7 +609,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - create_deployment_artifacts:
@@ -627,7 +626,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - should-release:
@@ -638,7 +637,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - pre-release:
@@ -649,7 +648,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - npm-validation:
@@ -666,7 +665,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - test-release:
@@ -694,7 +693,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - test-release:
@@ -709,7 +708,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - test-release:
@@ -724,7 +723,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - '/.*e2e.*/'
 
       - release-s3:
@@ -753,7 +752,7 @@ workflows:
             - e2e fips tests (win-server2022-amd64)
           filters:
             branches:
-              only: master
+              only: main
 
       - release-s3:
           name: upload latest
@@ -763,7 +762,7 @@ workflows:
             - upload preview
           filters:
             branches:
-              only: master
+              only: main
 
       - release-github:
           name: upload github
@@ -773,7 +772,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
       - release-npm:
           name: upload npm
           context: team-hammerhead-common-deploy-tokens
@@ -782,7 +781,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
 
       - trigger-building-snyk-images:
           name: Trigger building snyk-images
@@ -792,7 +791,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
 
 ####################################################################################################
 # JOBS
@@ -808,7 +807,9 @@ jobs:
           command: npm ci
       - run:
           name: Set version
-          command: make binary-releases/version binary-releases/fips/version
+          command: |
+            make binary-releases/version binary-releases/fips/version 
+            make ts-cli-binaries/version BINARY_RELEASES_FOLDER_TS_CLI=ts-cli-binaries
       - run:
           # required for one unit test (ts-binary-wrapper/test/unit/common.spec.ts:15:30)
           # consider removing this run
@@ -821,6 +822,7 @@ jobs:
           root: .
           paths:
             - binary-releases/*
+            - ts-cli-binaries/*
             - binary-releases/fips/*
             - node_modules/*
             - ts-binary-wrapper/*
@@ -836,7 +838,7 @@ jobs:
           command: |
             npm run lint
             pushd cliv2 
-              make lint
+            make lint
             popd
       - snyk/scan:
           fail-on-issues: true
@@ -979,7 +981,7 @@ jobs:
           name: Running acceptance tests
           command: |
             << parameters.pre_test_cmds >>
-            npm run test:acceptance -- --selectProjects snyk
+            npm run test:acceptance -- --selectProjects coreCli
           environment:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>

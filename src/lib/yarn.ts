@@ -22,7 +22,7 @@ export function yarn(
 
   method += ' ' + flags.join(' ');
 
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const cmd = 'yarn ' + method + ' ' + packages.join(' ');
     if (!cwd) {
       cwd = process.cwd();
