@@ -1,4 +1,4 @@
-version: '2.1'
+version: 2.1
 
 parameters:
   cli_download_base_url:
@@ -27,8 +27,8 @@ parameters:
     default: '2.7.0'
 
 orbs:
-  prodsec: snyk/prodsec-orb@1.0
-  snyk: snyk/snyk@1.7.0
+  prodsec: snyk/prodsec-orb@1
+  snyk: snyk/snyk@2.0.3
   aws-cli: circleci/aws-cli@2.0.3
   gh: circleci/github-cli@2.1.0
 
@@ -348,20 +348,19 @@ commands:
 ####################################################################################################
 
 workflows:
-  version: 2
   test_and_release:
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
           context: snyk-bot-slack
-          channel: hammerhead-alerts
+          channel: cli-alerts
 
       - prepare-build:
           requires:
             - secrets-scan
 
       - code-analysis:
-          context: hammerhead-snyk-orb-snyk-creds
+          context: devex_cli
           requires:
             - prepare-build
           filters:
@@ -839,7 +838,7 @@ jobs:
           command: |
             npm run lint
             pushd cliv2 
-              make lint
+            make lint
             popd
       - snyk/scan:
           fail-on-issues: true
