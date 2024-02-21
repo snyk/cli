@@ -2,7 +2,7 @@ name: Infrastructure as Code Smoke Tests (Pull Requests)
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   check_for_changed_iac_files:
