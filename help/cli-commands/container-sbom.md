@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-**Feature availability:** This feature is currently in Early Availability and is available to customers on Snyk Enterprise plans.
+**Feature availability:** This feature is currently in Early Access and is available to customers on Snyk Enterprise plans.
 
 **Note:** In order to use the SBOM generation feature, you must use a minimum of CLI version 1.1226.0.
 
