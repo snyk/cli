@@ -494,6 +494,19 @@ workflows:
           executor: docker-amd64
           test_snyk_command: ./binary-releases/snyk-linux
 
+      - acceptance-test-with-proxy:
+          name: acceptance-tests-with-proxy linux amd64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: main
+          requires:
+            - build linux amd64
+          executor: docker-amd64
+          test_snyk_command: ./binary-releases/snyk-linux
+
       - acceptance-tests:
           name: acceptance-tests linux arm64
           context:
@@ -986,6 +999,35 @@ jobs:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
+  
+  acceptance-test-with-proxy:
+    parameters:
+      test_snyk_command:
+        type: string
+      executor:
+        type: string
+      fips:
+        type: integer
+        default: 0
+      dont_skip_tests:
+        type: integer
+        default: 1
+      install_deps_extension:
+        type: string
+        default: 'noop'
+      pre_test_cmds:
+        type: string
+        default: 'echo Running tests'
+    executor: << parameters.executor >>
+    steps:
+      - prepare-workspace
+      - install-deps-<< parameters.install_deps_extension >>
+      - run:
+          name: Run proxy tests
+          command: make clean acceptance-test-with-proxy
+          environment:
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+            TEST_SNYK_TOKEN: ${TEST_SNYK_TOKEN}
 
   regression-tests:
     parameters:
