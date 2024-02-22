@@ -504,7 +504,7 @@ workflows:
               ignore: main
           requires:
             - build linux amd64
-          executor: docker-amd64
+          # executor: linux-ubuntu-latest-amd64
           test_snyk_command: ./binary-releases/snyk-linux
 
       # - acceptance-tests:
@@ -1004,8 +1004,8 @@ jobs:
     parameters:
       test_snyk_command:
         type: string
-      executor:
-        type: string
+      # executor:
+      #   type: string
       fips:
         type: integer
         default: 0
@@ -1018,7 +1018,9 @@ jobs:
       pre_test_cmds:
         type: string
         default: 'echo Running tests'
-    executor: << parameters.executor >>
+    # executor: << parameters.executor >>
+    docker:
+      - image: cimg/base:2022.06
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
@@ -1026,7 +1028,10 @@ jobs:
           docker_layer_caching: true
       - run:
           name: Run proxy tests
-          command: make acceptance-test-with-proxy
+          # command: make acceptance-test-with-proxy
+          command: |
+            docker build -t acceptance-test-with-proxy -f ./test/acceptance/environments/proxy/Dockerfile .
+            docker run --rm --cap-add=NET_ADMIN --env "TEST_SNYK_COMMAND=$(TEST_SNYK_COMMAND)" acceptance-test-with-proxy npm run test:acceptance
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_TOKEN: ${TEST_SNYK_TOKEN}
