@@ -1024,7 +1024,7 @@ jobs:
       - install-deps-<< parameters.install_deps_extension >>
       - run:
           name: Run proxy tests
-          command: make clean acceptance-test-with-proxy
+          command: make acceptance-test-with-proxy
           environment:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_TOKEN: ${TEST_SNYK_TOKEN}
