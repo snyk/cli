@@ -382,6 +382,10 @@ workflows:
           context: snyk-bot-slack
           channel: cli-alerts
 
+      - security-scans:
+          context: devex_cli
+
+
       - prepare-build:
           requires:
             - secrets-scan
@@ -1305,3 +1309,12 @@ jobs:
       - run:
           name: No operation
           command: echo Nothing to be done!
+
+  security-scans:
+    resource_class: small
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - prodsec/security_scans:
+          mode: auto
