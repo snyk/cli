@@ -16,7 +16,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.20.6'
+    default: '1.21.7'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -808,7 +808,7 @@ jobs:
       - run:
           name: Set version
           command: |
-            make binary-releases/version binary-releases/fips/version 
+            make binary-releases/version binary-releases/fips/version
             make ts-cli-binaries/version BINARY_RELEASES_FOLDER_TS_CLI=ts-cli-binaries
       - run:
           # required for one unit test (ts-binary-wrapper/test/unit/common.spec.ts:15:30)
@@ -837,7 +837,7 @@ jobs:
           name: Linting project
           command: |
             npm run lint
-            pushd cliv2 
+            pushd cliv2
             make lint
             popd
       - snyk/scan:
@@ -1156,7 +1156,7 @@ jobs:
           environment:
             SNYK_DISABLE_ANALYTICS: 1
           command: |
-            PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests || PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests 
+            PIP_BREAK_SYSTEM_PACKAGES=1 pip install --user --upgrade requests || PIP_BREAK_SYSTEM_PACKAGES=1 pip3 install --user --upgrade requests
             python scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >>  $(cat binary-releases/version) || python3 scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >> $(cat binary-releases/version)
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk whoami --experimental
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk woof
