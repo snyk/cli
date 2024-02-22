@@ -248,8 +248,7 @@ clean-golang:
 acceptance-test-with-proxy: pre-build
 	@echo "-- Running acceptance tests in a proxied environment"
 	@docker build -t acceptance-test-with-proxy -f ./test/acceptance/environments/proxy/Dockerfile .
-	@docker run --rm --cap-add=NET_ADMIN acceptance-test-with-proxy ./node_modules/.bin/jest ./ts-binary-wrapper/test/acceptance/basic.spec.ts
-# TODO: Run all acceptance tests behind a proxy using npm run test:acceptance
+	@docker run --rm --cap-add=NET_ADMIN --env "TEST_SNYK_TOKEN=$(TEST_SNYK_TOKEN)" --env "TEST_SNYK_COMMAND=$(TEST_SNYK_COMMAND)" acceptance-test-with-proxy npm run test:acceptance
 
 # targets responsible for the CLI release
 .PHONY: release-pre
