@@ -12,9 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM node:gallium
+# FROM node:gallium
+FROM ubuntu:24.04
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y sudo git squid curl git traceroute net-tools iptables vim make golang
+RUN apt-get install -y \
+    sudo \
+    git \
+    squid \
+    curl \
+    traceroute \
+    net-tools \
+    iptables \
+    vim \
+    make \
+    golang \
+    zip \
+    nodejs \
+    npm \
+    openjdk-11-jdk \
+    python3-pip \
+    maven
+
+# Install Gradle
+RUN curl -L https://services.gradle.org/distributions/gradle-8.6-bin.zip -o gradle.zip
+RUN unzip gradle.zip
+RUN mv gradle-8.6 /usr/local/gradle
+ENV GRADLE_HOME=/usr/local/gradle
+ENV PATH=$PATH:$GRADLE_HOME/bin
+
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
 
