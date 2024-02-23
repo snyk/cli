@@ -105,6 +105,9 @@ executors:
     docker:
       - image: mcr.microsoft.com/cbl-mariner/base/python:3.9.14-6-cm2.0.20230805-arm64
     resource_class: arm.medium
+  cci-cimg-base:
+    docker:
+      - image: cimg/base:2024.01
 
 commands:
   install-go:
@@ -512,7 +515,7 @@ workflows:
               ignore: main
           requires:
             - build linux amd64
-          # executor: linux-ubuntu-latest-amd64
+          executor: cci-cimg-base
           test_snyk_command: ./binary-releases/snyk-linux
           install_deps_extension: linux-proxy
 
@@ -1013,8 +1016,8 @@ jobs:
     parameters:
       test_snyk_command:
         type: string
-      # executor:
-      #   type: string
+      executor:
+        type: string
       fips:
         type: integer
         default: 0
@@ -1027,9 +1030,7 @@ jobs:
       pre_test_cmds:
         type: string
         default: 'echo Running tests'
-    # executor: << parameters.executor >>
-    docker:
-      - image: cimg/base:2024.01
+    executor: << parameters.executor >>
     environment:
       TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
     steps:
@@ -1040,9 +1041,6 @@ jobs:
       - run:
           name: Run proxy tests
           command: make acceptance-test-with-proxy
-          # command: |
-          #   docker build -t acceptance-test-with-proxy -f ./test/acceptance/environments/proxy/Dockerfile .
-          #   docker run --rm --cap-add=NET_ADMIN --env "TEST_SNYK_COMMAND=$(TEST_SNYK_COMMAND)" acceptance-test-with-proxy npm run test:acceptance
 
   regression-tests:
     parameters:
