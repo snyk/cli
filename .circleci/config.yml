@@ -515,7 +515,7 @@ workflows:
               ignore: main
           requires:
             - build linux amd64
-          executor: cci-cimg-base
+          executor: docker-amd64
           test_snyk_command: ./binary-releases/snyk-linux
           install_deps_extension: linux-proxy
 
