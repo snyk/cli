@@ -515,9 +515,13 @@ workflows:
               ignore: main
           requires:
             - build linux amd64
-          executor: docker-amd64
+          executor: cci-cimg-base
           test_snyk_command: ./binary-releases/snyk-linux
           install_deps_extension: linux-proxy
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
 
       # - acceptance-tests:
       #     name: acceptance-tests linux arm64
@@ -1030,12 +1034,32 @@ jobs:
       pre_test_cmds:
         type: string
         default: 'echo Running tests'
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      c_compiler:
+        type: string
+        default: ''
+      go_download_base_url:
+        type: string
+      install_path:
+        type: string
+        default: '.'
     executor: << parameters.executor >>
     environment:
       TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
