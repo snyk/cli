@@ -105,9 +105,10 @@ executors:
     docker:
       - image: mcr.microsoft.com/cbl-mariner/base/python:3.9.14-6-cm2.0.20230805-arm64
     resource_class: arm.medium
-  cci-cimg-base:
-    docker:
-      - image: cimg/base:2024.01
+  cci-ubuntu-machine:
+    machine:
+      image: ubuntu-2204:2024.01.1
+    resource_class: medium
 
 commands:
   install-go:
@@ -515,13 +516,9 @@ workflows:
               ignore: main
           requires:
             - build linux amd64
-          executor: cci-cimg-base
+          executor: cci-ubuntu-machine
           test_snyk_command: ./binary-releases/snyk-linux
           install_deps_extension: linux-proxy
-          go_target_os: linux
-          go_os: linux
-          go_arch: amd64
-          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
 
       # - acceptance-tests:
       #     name: acceptance-tests linux arm64
@@ -1034,34 +1031,12 @@ jobs:
       pre_test_cmds:
         type: string
         default: 'echo Running tests'
-      go_os:
-        type: string
-      go_target_os:
-        type: string
-      go_arch:
-        type: string
-      c_compiler:
-        type: string
-        default: ''
-      go_download_base_url:
-        type: string
-      install_path:
-        type: string
-        default: '.'
     executor: << parameters.executor >>
     environment:
       TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
-      - install-go:
-          go_os: << parameters.go_os >>
-          go_target_os: << parameters.go_target_os >>
-          go_arch: << parameters.go_arch >>
-          base_url: << parameters.go_download_base_url >>
-          extraction_path: << parameters.install_path >>
-      - setup_remote_docker:
-          docker_layer_caching: true
       - run:
           name: Run proxy tests
           command: make acceptance-test-with-proxy
