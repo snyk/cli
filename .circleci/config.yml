@@ -322,6 +322,14 @@ commands:
             apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
             pip3 install pipenv requests PyYAML
 
+  install-deps-linux-proxy:
+    steps:
+      - run:
+          name: Installing proxy test dependencies
+          command: |
+            sudo apt update
+            sudo apt install make 
+
   failed-release-notification:
     steps:
       - when:
@@ -506,6 +514,7 @@ workflows:
             - build linux amd64
           # executor: linux-ubuntu-latest-amd64
           test_snyk_command: ./binary-releases/snyk-linux
+          install_deps_extension: linux-proxy
 
       # - acceptance-tests:
       #     name: acceptance-tests linux arm64
@@ -1020,10 +1029,9 @@ jobs:
         default: 'echo Running tests'
     # executor: << parameters.executor >>
     docker:
-      - image: cimg/base:2022.06
+      - image: cimg/base:2024.01
     environment:
       TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-      TEST_SNYK_TOKEN: ${TEST_SNYK_TOKEN}
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
@@ -1031,10 +1039,10 @@ jobs:
           docker_layer_caching: true
       - run:
           name: Run proxy tests
-          # command: make acceptance-test-with-proxy
-          command: |
-            docker build -t acceptance-test-with-proxy -f ./test/acceptance/environments/proxy/Dockerfile .
-            docker run --rm --cap-add=NET_ADMIN --env "TEST_SNYK_COMMAND=$(TEST_SNYK_COMMAND)" acceptance-test-with-proxy npm run test:acceptance
+          command: make acceptance-test-with-proxy
+          # command: |
+          #   docker build -t acceptance-test-with-proxy -f ./test/acceptance/environments/proxy/Dockerfile .
+          #   docker run --rm --cap-add=NET_ADMIN --env "TEST_SNYK_COMMAND=$(TEST_SNYK_COMMAND)" acceptance-test-with-proxy npm run test:acceptance
 
   regression-tests:
     parameters:
