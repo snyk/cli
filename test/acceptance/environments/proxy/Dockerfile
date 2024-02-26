@@ -24,33 +24,36 @@ RUN curl -sL https://deb.nodesource.com/setup_$(echo $NODEVERSION | cut -f1 -d '
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     sudo \
-    vim \
+    curl \
     make \
     maven \
     gradle \
+    elixir \
+    composer \
+    nodejs=$(apt-cache policy nodejs | grep nodesource | xargs | cut -d " " -f2) \
+    # convco deps
+    cmake \
+    # python deps
     python3 \
     python3-pip \
     python-is-python3 \
     python3-requests \
     python3-yaml \
     pipenv \
-    apt-transport-https \
-    curl \
-    elixir \
-    composer \
+    # proxy deps
     squid \
     zip \
     traceroute \
     net-tools \
-    iptables \
-    nodejs=$(apt-cache policy nodejs | grep nodesource | xargs | cut -d " " -f2)
+    iptables
+
 RUN node -v
 RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
 
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 
-RUN useradd snyk --create-home
-RUN echo "snyk ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN useradd circleci --create-home
+RUN echo "circleci ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 RUN mkdir -p /app
 COPY . /app
@@ -59,9 +62,9 @@ RUN rm -rf /app/build /app/.bin
 RUN cp /app/test/acceptance/environments/proxy/entrypoint.sh /bin
 
 RUN chmod +x /bin/entrypoint.sh
-RUN chmod 777 /app && chown -R snyk /app
+RUN chmod 777 /app && chown -R circleci /app
 
-USER snyk
+USER circleci
 
 RUN cd /app && npm install
 
