@@ -13,32 +13,42 @@
 # limitations under the License.
 
 # FROM node:gallium
-FROM ubuntu:24.04
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y \
-    sudo \
-    git \
+# FROM ubuntu:24.04
+# RUN apt-get update && apt-get upgrade -y
+# RUN apt-get install -y \
+#     sudo \
+#     git \
+#     squid \
+#     curl \
+#     traceroute \
+#     net-tools \
+#     iptables \
+#     vim \
+#     make \
+#     golang \
+#     zip \
+#     nodejs \
+#     npm \
+#     openjdk-11-jdk \
+#     python3-pip \
+#     maven
+
+# # Install Gradle
+# RUN curl -L https://services.gradle.org/distributions/gradle-8.6-bin.zip -o gradle.zip
+# RUN unzip gradle.zip
+# RUN mv gradle-8.6 /usr/local/gradle
+# ENV GRADLE_HOME=/usr/local/gradle
+# ENV PATH=$PATH:$GRADLE_HOME/bin
+
+# build on exisiting image in .circleci/Dockerfile
+FROM bastiandoetsch209/cli-build:20240214-145818
+
+RUN apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     squid \
-    curl \
     traceroute \
     net-tools \
-    iptables \
-    vim \
-    make \
-    golang \
-    zip \
-    nodejs \
-    npm \
-    openjdk-11-jdk \
-    python3-pip \
-    maven
-
-# Install Gradle
-RUN curl -L https://services.gradle.org/distributions/gradle-8.6-bin.zip -o gradle.zip
-RUN unzip gradle.zip
-RUN mv gradle-8.6 /usr/local/gradle
-ENV GRADLE_HOME=/usr/local/gradle
-ENV PATH=$PATH:$GRADLE_HOME/bin
+    iptables
 
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
