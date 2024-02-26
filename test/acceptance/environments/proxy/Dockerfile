@@ -12,46 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# FROM node:gallium
-# FROM ubuntu:24.04
-# RUN apt-get update && apt-get upgrade -y
-# RUN apt-get install -y \
-#     sudo \
-#     git \
-#     squid \
-#     curl \
-#     traceroute \
-#     net-tools \
-#     iptables \
-#     vim \
-#     make \
-#     golang \
-#     zip \
-#     nodejs \
-#     npm \
-#     openjdk-11-jdk \
-#     python3-pip \
-#     maven
+FROM --platform=$TARGETPLATFORM golang:1.20-bullseye
 
-# # Install Gradle
-# RUN curl -L https://services.gradle.org/distributions/gradle-8.6-bin.zip -o gradle.zip
-# RUN unzip gradle.zip
-# RUN mv gradle-8.6 /usr/local/gradle
-# ENV GRADLE_HOME=/usr/local/gradle
-# ENV PATH=$PATH:$GRADLE_HOME/bin
+# install "normal" stuff
 
-# build on exisiting image in .circleci/Dockerfile
-FROM bastiandoetsch209/cli-build:20240214-145818
+ARG NODEVERSION
+ARG ARCH
 
+RUN echo "Required Node version: $NODEVERSION"
+RUN curl -sL https://deb.nodesource.com/setup_$(echo $NODEVERSION | cut -f1 -d '.').x | bash -
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    sudo \
+    vim \
+    make \
+    maven \
+    gradle \
+    python3 \
+    python3-pip \
+    python-is-python3 \
+    python3-requests \
+    python3-yaml \
+    pipenv \
+    apt-transport-https \
+    curl \
+    elixir \
+    composer \
     squid \
+    zip \
     traceroute \
     net-tools \
-    iptables
+    iptables \
+    nodejs=$(apt-cache policy nodejs | grep nodesource | xargs | cut -d " " -f2)
+RUN node -v
+RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
 
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
-RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
 
 RUN useradd snyk --create-home
 RUN echo "snyk ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -66,7 +62,26 @@ RUN chmod +x /bin/entrypoint.sh
 RUN chmod 777 /app && chown -R snyk /app
 
 USER snyk
+
 RUN cd /app && npm install
+
+# install java & scala
+RUN curl -s "https://get.sdkman.io" | bash
+RUN /app/scripts/jvm-install.sh
+ENV PATH=/home/circleci/.sdkman/candidates/scala/current/bin:/home/circleci/.sdkman/candidates/sbt/current/bin:/home/circleci/.sdkman/candidates/java/current/bin:$PATH
+
+# install dotnet
+RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
+ENV PATH=/home/circleci/.dotnet:$PATH
+ENV TEMP=/tmp
+ENV TMP=$TEMP
+ENV TMPDIR=$TEMP
+
+# install rust and convco
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN ~/.cargo/bin/cargo install convco
+ENV PATH=/home/circleci/.cargo/bin:$PATH
+
 ENV http_proxy="http://localhost:3128"
 ENV https_proxy="http://localhost:3128"
 ENV no_proxy "localhost,127.0.0.1"
