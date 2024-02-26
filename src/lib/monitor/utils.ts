@@ -47,6 +47,10 @@ export function getProjectName(
     return scannedProject.meta.gradleProjectName;
   }
 
+  if (meta.assetsProjectName && !meta['project-name']) {
+    return scannedProject.depTree?.name;
+  }
+
   return meta['project-name'];
 }
 
