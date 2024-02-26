@@ -7,7 +7,7 @@ import * as path from 'path';
 
 const errorContextMessage = 'Runtime';
 const fallbackScript = path.join(__dirname, '..', 'dist', 'cli', 'index.js');
-const legacyCLIflag = '--legacy-cli';
+const typescriptCliFlag = '--legacy-cli';
 
 function run(executable: string): number {
   let cliArguments = common.getCliArguments(argv);
@@ -22,9 +22,9 @@ function run(executable: string): number {
 }
 
 (async () => {
-  let fallbackToLegacyCLI = argv.includes(legacyCLIflag);
+  let fallbackToTypescriptCli = argv.includes(typescriptCliFlag);
 
-  if (fallbackToLegacyCLI === false) {
+  if (fallbackToTypescriptCli === false) {
     try {
       const config = common.getCurrentConfiguration();
       const executable = config.getLocalLocation();
@@ -45,19 +45,19 @@ function run(executable: string): number {
       // run the executable
       process.exit(run(executable));
     } catch (error) {
-      fallbackToLegacyCLI = true;
+      fallbackToTypescriptCli = true;
       await common.logError(errorContextMessage, error);
     }
   } else {
     // if --legacy-clli is enabled create a log messaeg
     await common.logError(
       errorContextMessage,
-      Error(legacyCLIflag + ' is set'),
+      Error(typescriptCliFlag + ' is set'),
       false,
     );
   }
 
-  if (fallbackToLegacyCLI) {
+  if (fallbackToTypescriptCli) {
     common.formatErrorMessage('legacy-cli');
     const exitCode = run(fallbackScript);
     common.formatErrorMessage('legacy-cli');

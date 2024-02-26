@@ -185,7 +185,7 @@ func (c *CLI) ExtractV1Binary() error {
 			c.DebugLogger.Println("Extracted cliv1 successfully")
 		} else {
 			c.DebugLogger.Println("Extracted cliv1 is not valid")
-			return fmt.Errorf("failed to extract legacy cli")
+			return fmt.Errorf("failed to extract Typescript CLI")
 		}
 	} else {
 		c.DebugLogger.Println("Extraction not required")

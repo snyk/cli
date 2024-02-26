@@ -20,7 +20,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/proxy"
 )
 
-var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("legacycli")
+var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("typescriptcli")
 var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stdout")
 
 const (
@@ -28,13 +28,13 @@ const (
 )
 
 func Init(engine workflow.Engine) error {
-	flagset := pflag.NewFlagSet("legacycli", pflag.ContinueOnError)
-	flagset.StringSlice(configuration.RAW_CMD_ARGS, os.Args[1:], "Command line arguments for the legacy CLI.")
+	flagset := pflag.NewFlagSet("typescriptcli", pflag.ContinueOnError)
+	flagset.StringSlice(configuration.RAW_CMD_ARGS, os.Args[1:], "Command line arguments for the Typescript CLI.")
 	flagset.Bool(configuration.WORKFLOW_USE_STDIO, false, "Use StdIn and StdOut")
 	flagset.String(configuration.WORKING_DIRECTORY, "", "CLI working directory")
 
 	config := workflow.ConfigurationOptionsFromFlagset(flagset)
-	entry, _ := engine.Register(WORKFLOWID_LEGACY_CLI, config, legacycliWorkflow)
+	entry, _ := engine.Register(WORKFLOWID_LEGACY_CLI, config, typescriptcliWorkflow)
 	entry.SetVisibility(false)
 	return nil
 }
@@ -55,7 +55,7 @@ func finalizeArguments(args []string, unknownArgs []string) []string {
 	return filteredArgs
 }
 
-func legacycliWorkflow(
+func typescriptcliWorkflow(
 	invocation workflow.InvocationContext,
 	_ []workflow.Data,
 ) (output []workflow.Data, err error) {
@@ -98,9 +98,9 @@ func legacycliWorkflow(
 	}
 
 	if oauthIsAvailable {
-		// The Legacy CLI doesn't support oauth authentication. Oauth authentication is implemented in the Extensible CLI and is added
-		// to the legacy CLI by forwarding network traffic through the internal proxy of the Extensible CLI.
-		// The legacy CLI always expects some sort of token to be available, otherwise some functionality isn't available. This is why we inject
+		// The Typescript CLI doesn't support oauth authentication. Oauth authentication is implemented in the Extensible CLI and is added
+		// to the Typescript CLI by forwarding network traffic through the internal proxy of the Extensible CLI.
+		// The Typescript CLI always expects some sort of token to be available, otherwise some functionality isn't available. This is why we inject
 		// a random token value to bypass these checks and replace the proper authentication headers in the internal proxy.
 		// Injecting the real token here and not in the proxy would create an issue when the token expires during CLI execution.
 		if oauth := config.GetString(auth.CONFIG_KEY_OAUTH_TOKEN); len(oauth) > 0 {

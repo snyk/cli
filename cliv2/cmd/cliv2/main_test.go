@@ -130,8 +130,8 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	assert.Equal(t, handleErrorUnhandled, handleError(subcmd2.RunE(subcmd2, []string{})))
 	assert.Equal(t, handleErrorUnhandled, handleError(subcmd3.RunE(subcmd3, []string{})))
 	assert.Equal(t, handleErrorUnhandled, handleError(something.RunE(something, []string{})))
-	assert.Equal(t, handleErrorFallbackToLegacyCLI, handleError(subcmd1.RunE(subcmd1, []string{})))
-	assert.Equal(t, handleErrorFallbackToLegacyCLI, handleError(cmd2.RunE(cmd2, []string{})))
+	assert.Equal(t, handleErrorFallbackTotypescriptcli, handleError(subcmd1.RunE(subcmd1, []string{})))
+	assert.Equal(t, handleErrorFallbackTotypescriptcli, handleError(cmd2.RunE(cmd2, []string{})))
 	assert.Equal(t, handleErrorShowHelp, handleError(parseError))
 
 	assert.True(t, subcmd1.DisableFlagParsing)

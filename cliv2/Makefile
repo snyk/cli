@@ -203,7 +203,7 @@ test-signature: ISSIGNED_SCRIPT
 
 # Typescript CLI targets
 $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME):
-	@echo "$(LOG_PREFIX) Building legacy CLI"
+	@echo "$(LOG_PREFIX) Building Typescript CLI"
 	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
 	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 
@@ -222,7 +222,7 @@ generate-ls-protocol-metadata:
 
 .PHONY: clean-ts-cli
 clean-ts-cli:
-	@echo "$(LOG_PREFIX) Cleaning legacy CLI"
+	@echo "$(LOG_PREFIX) Cleaning Typescript CLI"
 	@$(MAKE) -C $(V1_WORKING_DIR) clean-ts BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 
 # build the full CLI (Typescript+Golang)

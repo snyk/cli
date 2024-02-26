@@ -1,8 +1,6 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-
 import (
 	"context"
 	"encoding/json"
@@ -15,9 +13,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
@@ -26,6 +21,13 @@ import (
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
+	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
@@ -33,11 +35,8 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
-	snykls "github.com/snyk/snyk-ls/ls_extension"
 
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
-	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
+	snykls "github.com/snyk/snyk-ls/ls_extension"
 )
 
 var internalOS string
@@ -62,9 +61,9 @@ type JsonErrorStruct struct {
 type HandleError int
 
 const (
-	handleErrorFallbackToLegacyCLI HandleError = iota
-	handleErrorShowHelp            HandleError = iota
-	handleErrorUnhandled           HandleError = iota
+	handleErrorFallbackTotypescriptcli HandleError = iota
+	handleErrorShowHelp                HandleError = iota
+	handleErrorUnhandled               HandleError = iota
 )
 
 func main() {
@@ -194,7 +193,7 @@ func help(_ *cobra.Command, args []string) error {
 }
 
 func defaultCmd(args []string) error {
-	// prepare the invocation of the legacy CLI by
+	// prepare the invocation of the Typescript CLI by
 	// * enabling stdio
 	// * by specifying the raw cmd args for it
 	globalConfiguration.Set(configuration.WORKFLOW_USE_STDIO, true)
@@ -267,7 +266,7 @@ func prepareRootCommand() *cobra.Command {
 		},
 	}
 
-	// help for all commands is handled by the legacy cli
+	// help for all commands is handled by the Typescript CLI
 	// TODO: discuss how to move help to extensions
 	helpCommand := cobra.Command{
 		Use:  "help",
@@ -280,7 +279,7 @@ func prepareRootCommand() *cobra.Command {
 	rootCommand.SilenceUsage = true
 	rootCommand.FParseErrWhitelist.UnknownFlags = true
 
-	// ensure that help and usage information comes from the legacy cli instead of cobra's default help
+	// ensure that help and usage information comes from the Typescript CLI instead of cobra's default help
 	rootCommand.SetHelpFunc(func(c *cobra.Command, args []string) { _ = help(c, args) })
 	rootCommand.SetHelpCommand(&helpCommand)
 	rootCommand.PersistentFlags().AddFlagSet(getGlobalFLags())
@@ -306,9 +305,9 @@ func handleError(err error) HandleError {
 
 		// filter for known cobra errors, since cobra errors shall trigger a fallback, but not others.
 		if commandError {
-			resultError = handleErrorFallbackToLegacyCLI
+			resultError = handleErrorFallbackTotypescriptcli
 		} else if flagError {
-			// handle flag errors explicitly since we need to delegate the help to the legacy CLI. This includes disabling the cobra default help/usage
+			// handle flag errors explicitly since we need to delegate the help to the Typescript CLI. This includes disabling the cobra default help/usage
 			resultError = handleErrorShowHelp
 		}
 	}
@@ -421,10 +420,10 @@ func MainWithErrorCode() int {
 	// run the extensible cli
 	err = rootCommand.Execute()
 
-	// fallback to the legacy cli or show help
+	// fallback to the Typescript CLI or show help
 	handleErrorResult := handleError(err)
-	if handleErrorResult == handleErrorFallbackToLegacyCLI {
-		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
+	if handleErrorResult == handleErrorFallbackTotypescriptcli {
+		globalLogger.Printf("Using Typescript CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(os.Args[1:])
 	} else if handleErrorResult == handleErrorShowHelp {
 		err = help(nil, []string{})
