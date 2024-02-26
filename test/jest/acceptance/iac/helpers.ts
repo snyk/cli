@@ -21,13 +21,14 @@ export async function startMockServer() {
   const SNYK_API = SNYK_HOST + BASE_API;
 
   const env: Record<string, string> = {
+    ...process.env,
     PATH: process.env.PATH ?? '',
     SNYK_TOKEN,
     SNYK_API,
     SNYK_HOST,
     // Override any local config set via `snyk config set`
     SNYK_CFG_API: SNYK_TOKEN,
-    SNYK_CFG_ENDPOINT: SNYK_API,
+    SNYK_CFG_ENDPOINT: SNYK_API
   };
 
   return {
