@@ -8,7 +8,7 @@ set -exuo pipefail # ensures that the script exits on any error, and that all co
 # Example usage:
 #   export DOCKER_USERNAME=<your-docker-hub-username>
 #   export DOCKER_PASSWORD=<a-docker-hub-personal-access-token>
-#   ./scripts/create-build-image.sh
+#   ./scripts/create-test-image.sh
 
 # Determine the directory where the script is located.
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
