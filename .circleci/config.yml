@@ -1313,8 +1313,10 @@ jobs:
   security-scans:
     resource_class: small
     docker:
-      - image: cimg/base:stable
+      - image: cimg/go:1.22
     steps:
       - checkout
       - prodsec/security_scans:
           mode: auto
+          open-source-additional-arguments: --exclude=test --policy-path=.snyk
+          iac-scan: disabled

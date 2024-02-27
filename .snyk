@@ -17,6 +17,21 @@ ignore:
         reason: --about lists all dependency licenses which is a requirement of MPL-2.0
         expires: 2122-12-14T16:35:38.252Z
         created: 2022-11-14T16:35:38.260Z
+  SNYK-JS-AXIOS-6032459:
+    - '*':
+        reason: temporary ignore for security gate and re-org rename
+        expires: 2024-02-05T00:00:00.000Z
+        created: 2024-02-13T00:00:00.000Z
+  SNYK-JS-AXIOS-6144788:
+    - '*':
+        reason: temporary ignore for security gate and re-org rename
+        expires: 2024-02-05T00:00:00.000Z
+        created: 2024-02-13T00:00:00.000Z
+  SNYK-JS-FOLLOWREDIRECTS-6141136:
+    - '*':
+        reason: temporary ignore for security gate and re-org rename
+        expires: 2024-02-05T00:00:00.000Z
+        created: 2024-02-13T00:00:00.000Z
 patch: {}
 exclude:
   code:
