@@ -508,6 +508,8 @@ workflows:
 
       - acceptance-test-with-proxy:
           name: acceptance-tests-with-proxy linux amd64
+          executor: cci-ubuntu-machine
+          test_snyk_command: ./binary-releases/snyk-linux
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -516,9 +518,21 @@ workflows:
               ignore: main
           requires:
             - build linux amd64
-          executor: cci-ubuntu-machine
-          test_snyk_command: ./binary-releases/snyk-linux
           install_deps_extension: linux-proxy
+
+      - acceptance-test-with-proxy:
+          name: acceptance-tests-with-proxy fips linux amd64
+          executor: cci-ubuntu-machine
+          test_snyk_command: ./binary-releases/fips/snyk-linux-amd64
+          fips: 1
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: main
+          requires:
+            - build linux amd64
 
       # - acceptance-tests:
       #     name: acceptance-tests linux arm64
