@@ -20,17 +20,27 @@ ignore:
   SNYK-JS-AXIOS-6032459:
     - '*':
         reason: temporary ignore for security gate and re-org rename
-        expires: 2024-02-05T00:00:00.000Z
+        expires: 2024-03-05T00:00:00.000Z
         created: 2024-02-13T00:00:00.000Z
   SNYK-JS-AXIOS-6144788:
     - '*':
         reason: temporary ignore for security gate and re-org rename
-        expires: 2024-02-05T00:00:00.000Z
+        expires: 2024-03-05T00:00:00.000Z
         created: 2024-02-13T00:00:00.000Z
   SNYK-JS-FOLLOWREDIRECTS-6141136:
     - '*':
         reason: temporary ignore for security gate and re-org rename
-        expires: 2024-02-05T00:00:00.000Z
+        expires: 2024-03-05T00:00:00.000Z
+        created: 2024-02-13T00:00:00.000Z
+  SNYK-JS-FOLLOWREDIRECTS-6141137:
+    - '*':
+        reason: temporary ignore for security gate and re-org rename
+        expires: 2024-03-05T00:00:00.000Z
+        created: 2024-02-13T00:00:00.000Z
+  SNYK-JS-SEMVER-3247795:
+    - '*':
+        reason: temporary ignore for security gate and re-org rename
+        expires: 2024-03-05T00:00:00.000Z
         created: 2024-02-13T00:00:00.000Z
 patch: {}
 exclude:
