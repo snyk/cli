@@ -1321,3 +1321,4 @@ jobs:
           mode: auto
           open-source-additional-arguments: --exclude=test --policy-path=.snyk
           iac-scan: disabled
+          release-branch: master
