@@ -84,10 +84,11 @@ RUN /app/scripts/install-swift.sh $ARCH
 ENV PATH=/usr/local/swift/usr/bin:$PATH
 
 # install openssl3
-RUN /app/scripts/install_openssl3_fips.sh
+RUN /app/scripts/install_openssl3_fips.sh /app/
 ENV PATH=/usr/local/bin/:$PATH
 ENV LD_LIBRARY_PATH=/usr/local/lib/
 
+RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 USER circleci
 
 # install deps
@@ -111,7 +112,6 @@ RUN ~/.cargo/bin/cargo install convco
 ENV PATH=/home/circleci/.cargo/bin:$PATH
 
 # setup proxy
-RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 ENV http_proxy="http://localhost:3128"
 ENV https_proxy="http://localhost:3128"
 ENV no_proxy "localhost,127.0.0.1"
