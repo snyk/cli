@@ -24,12 +24,21 @@ RUN curl -sL https://deb.nodesource.com/setup_$(echo $NODEVERSION | cut -f1 -d '
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     sudo \
-    curl \
+    musl-tools \
+    git \
+    vim \
     make \
     maven \
     gradle \
+    apt-transport-https \
+    curl \
+    gnupg \
+    -yqq \
     elixir \
     composer \
+    jq \
+    faketime \
+    zip \
     nodejs=$(apt-cache policy nodejs | grep nodesource | xargs | cut -d " " -f2) \
     # convco deps
     cmake \
@@ -42,7 +51,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     pipenv \
     # proxy deps
     squid \
-    zip \
     traceroute \
     net-tools \
     iptables
@@ -50,22 +58,40 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN node -v
 RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
 
-RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
+# install aws cli
+ADD .circleci/awscli-publickey.pub awscli-publickey.pub
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$ARCH.zip" -o "awscliv2.zip"
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$ARCH.zip.sig" -o "awscliv2.sig"
+RUN gpg --import awscli-publickey.pub
+RUN gpg --verify awscliv2.sig awscliv2.zip
+RUN unzip awscliv2.zip
+RUN sudo ./aws/install
+RUN rm -rf "awscli*"
 
 RUN useradd circleci --create-home
 RUN echo "circleci ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
+# install snyk
 RUN mkdir -p /app
+RUN mkdir -p /target/global-logging
 COPY . /app
-
 RUN rm -rf /app/build /app/.bin
-RUN cp /app/test/acceptance/environments/proxy/entrypoint.sh /bin
-
+RUN cp /app/scripts/environments/proxy/entrypoint.sh /bin
 RUN chmod +x /bin/entrypoint.sh
 RUN chmod 777 /app && chown -R circleci /app
 
+RUN /app/scripts/install-swift.sh $ARCH
+ENV PATH=/usr/local/swift/usr/bin:$PATH
+
+# install openssl3
+RUN /app/scripts/install_openssl3_fips.sh /app/
+ENV PATH=/usr/local/bin/:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/lib/
+
+RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 USER circleci
 
+# install deps
 RUN cd /app && npm install
 
 # install java & scala
@@ -85,9 +111,11 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN ~/.cargo/bin/cargo install convco
 ENV PATH=/home/circleci/.cargo/bin:$PATH
 
+# setup proxy
 ENV http_proxy="http://localhost:3128"
 ENV https_proxy="http://localhost:3128"
 ENV no_proxy "localhost,127.0.0.1"
 RUN env
+
 WORKDIR /app
 ENTRYPOINT ["/bin/entrypoint.sh"]
