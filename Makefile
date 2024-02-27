@@ -247,7 +247,7 @@ clean-golang:
 .PHONY: acceptance-test-with-proxy
 acceptance-test-with-proxy: pre-build
 	@echo "-- Running acceptance tests in a proxied environment"
-	@docker build --build-arg NODEVERSION=$(PKG_NODE_VERSION) -t acceptance-test-with-proxy -f ./scripts/environments/proxy/Dockerfile .
+	@docker buildx build --build-arg NODEVERSION=$(PKG_NODE_VERSION) -t acceptance-test-with-proxy -f ./scripts/environments/proxy/Dockerfile .
 	@docker run --rm --cap-add=NET_ADMIN --env "TEST_SNYK_COMMAND=$(TEST_SNYK_COMMAND)" --env "TEST_SNYK_TOKEN=$(TEST_SNYK_TOKEN)" acceptance-test-with-proxy npm run test:acceptance
 
 # targets responsible for the CLI release
