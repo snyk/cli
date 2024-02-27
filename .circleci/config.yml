@@ -389,6 +389,7 @@ workflows:
       - prepare-build:
           requires:
             - secrets-scan
+            - security-scans
 
       - code-analysis:
           context: devex_cli
