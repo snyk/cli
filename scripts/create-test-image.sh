@@ -29,7 +29,7 @@ pushd "$SCRIPT_DIR/.."
     --tag "$BASE_IMG_NAME":$NOW \
     --tag "$BASE_IMG_NAME":latest \
     --push \
-    --file test/acceptance/environments/proxy/Dockerfile .
+    --file ./scripts/environments/proxy/Dockerfile .
 
   BASE_IMG_NAME=$DOCKER_USERNAME/cli-test-arm64
   docker buildx build \
@@ -39,6 +39,6 @@ pushd "$SCRIPT_DIR/.."
     --tag "$BASE_IMG_NAME":$NOW \
     --tag "$BASE_IMG_NAME":latest \
     --push \
-    --file test/acceptance/environments/proxy/Dockerfile .
+    --file ./scripts/environments/proxy/Dockerfile .
 
 popd
