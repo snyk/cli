@@ -523,7 +523,7 @@ workflows:
       - acceptance-test-with-proxy:
           name: acceptance-tests-with-proxy fips linux amd64
           executor: cci-ubuntu-machine
-          test_snyk_command: ./binary-releases/fips/snyk-linux-amd64
+          test_snyk_command: ./binary-releases/fips/snyk-linux
           fips: 1
           context:
             - nodejs-install
