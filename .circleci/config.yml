@@ -1017,7 +1017,7 @@ jobs:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
-  
+
   acceptance-test-with-proxy:
     parameters:
       test_snyk_command:

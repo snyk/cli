@@ -28,7 +28,7 @@ export async function startMockServer() {
     SNYK_HOST,
     // Override any local config set via `snyk config set`
     SNYK_CFG_API: SNYK_TOKEN,
-    SNYK_CFG_ENDPOINT: SNYK_API
+    SNYK_CFG_ENDPOINT: SNYK_API,
   };
 
   return {
