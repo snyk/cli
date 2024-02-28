@@ -320,9 +320,9 @@ if (!isWindows) {
       async inspect() {
         return {
           plugin: { name: 'sbt' },
-          package: require(getWorkspacePath(
-            'sbt-simple-struts/monitor-graph-result.json',
-          )),
+          package: require(
+            getWorkspacePath('sbt-simple-struts/monitor-graph-result.json'),
+          ),
         };
       },
     };

@@ -330,8 +330,8 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
         res.data && res.data.userMessage
           ? chalk.bold.red(res.data.userMessage)
           : res.data
-          ? res.data.message
-          : 'Unknown error occurred.';
+            ? res.data.message
+            : 'Unknown error occurred.';
 
       return (
         chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') + errorMessage

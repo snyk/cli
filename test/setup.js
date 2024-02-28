@@ -8,7 +8,7 @@ const {
 } = require('./jest/util/fipsTestHelper');
 const { runSnykCLI } = require('./jest/util/runSnykCLI');
 
-module.exports = async function() {
+module.exports = async function () {
   if (process.env.TEST_SNYK_COMMAND) {
     process.env.TEST_SNYK_COMMAND = getCliBinaryPath();
   }

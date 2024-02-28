@@ -180,11 +180,8 @@ export async function resolveAndTestFactsUnmanagedDeps(
           extractAndApplyPluginAnalytics(scanResult.analytics, id);
         }
 
-        const {
-          start_time,
-          dep_graph_data,
-          component_details,
-        } = await pollDepGraphAttributes(id, orgId);
+        const { start_time, dep_graph_data, component_details } =
+          await pollDepGraphAttributes(id, orgId);
 
         const {
           issues,

@@ -59,13 +59,15 @@ const stubMeta: MonitorMeta = {
 
 test('isContainer returns false if image name is undefined', (t) => {
   t.plan(1);
-  const scannedProject: ScannedProject = stubScannedProjectContainerWithNoImageName();
+  const scannedProject: ScannedProject =
+    stubScannedProjectContainerWithNoImageName();
   t.notOk(container.isContainer(scannedProject));
 });
 
 test('isContainer returns false if image name is empty', (t) => {
   t.plan(1);
-  const scannedProject: ScannedProject = stubScannedProjectContainerWithEmptyImageName();
+  const scannedProject: ScannedProject =
+    stubScannedProjectContainerWithEmptyImageName();
   t.notOk(container.isContainer(scannedProject));
 });
 
