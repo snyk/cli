@@ -31,8 +31,9 @@ export function generatePins(
   const pinnedRequirements = Object.keys(standardizedPins)
     .map((pkgNameAtVersion) => {
       const [pkgName, version] = pkgNameAtVersion.split('@');
-      const newVersion =
-        standardizedPins[pkgNameAtVersion].upgradeTo.split('@')[1];
+      const newVersion = standardizedPins[pkgNameAtVersion].upgradeTo.split(
+        '@',
+      )[1];
       const newRequirement = `${standardizePackageName(
         pkgName,
       )}>=${newVersion}`;

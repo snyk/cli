@@ -46,8 +46,10 @@ export async function parseFiles(
   );
 
   if (tfFileData.length > 0) {
-    const { parsedFiles: parsedTfFiles, failedFiles: failedTfFiles } =
-      parseTerraformFiles(tfFileData);
+    const {
+      parsedFiles: parsedTfFiles,
+      failedFiles: failedTfFiles,
+    } = parseTerraformFiles(tfFileData);
     parsedFiles = parsedFiles.concat(parsedTfFiles);
     failedFiles = failedFiles.concat(failedTfFiles);
   }

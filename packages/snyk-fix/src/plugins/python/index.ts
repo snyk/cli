@@ -30,8 +30,9 @@ export async function pythonFix(
     },
   };
   const results = handlerResult.python;
-  const { entitiesPerType, skipped: notSupported } =
-    mapEntitiesPerHandlerType(entities);
+  const { entitiesPerType, skipped: notSupported } = mapEntitiesPerHandlerType(
+    entities,
+  );
   results.skipped.push(...notSupported);
 
   spinner.stopAndPersist({
@@ -56,8 +57,9 @@ export async function pythonFix(
         const handler = loadHandler(projectType as SUPPORTED_HANDLER_TYPES);
         // drop unsupported Python entities early so only potentially fixable items get
         // attempted to be fixed
-        const { fixable, skipped: notFixable } =
-          await partitionByFixable(projectsToFix);
+        const { fixable, skipped: notFixable } = await partitionByFixable(
+          projectsToFix,
+        );
         results.skipped.push(...notFixable);
 
         const { failed, skipped, succeeded } = await handler(fixable, options);

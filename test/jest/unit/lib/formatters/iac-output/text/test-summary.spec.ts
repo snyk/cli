@@ -82,10 +82,10 @@ describe('formatIacTestSummary', () => {
 ${colors.failure.bold('✗')} Files with issues: ${colors.info.bold('3')}
   Ignored issues: ${colors.info.bold('3')}
   Total issues: ${colors.info.bold('22')} [ ${colors.severities.critical(
-    '0 critical',
-  )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
-    '4 medium',
-  )}, ${colors.severities.low('13 low')} ]`,
+        '0 critical',
+      )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
+        '4 medium',
+      )}, ${colors.severities.low('13 low')} ]`,
     );
 
     expect(result).not.toContain('suppressed issues');
@@ -106,10 +106,10 @@ ${colors.failure.bold('✗')} Files with issues: ${colors.info.bold('3')}
   Ignored issues: ${colors.info.bold('3')}
   Cloud context - suppressed issues: ${colors.info.bold('42')}
   Total issues: ${colors.info.bold('22')} [ ${colors.severities.critical(
-    '0 critical',
-  )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
-    '4 medium',
-  )}, ${colors.severities.low('13 low')} ]`,
+        '0 critical',
+      )}, ${colors.severities.high('5 high')}, ${colors.severities.medium(
+        '4 medium',
+      )}, ${colors.severities.low('13 low')} ]`,
     );
   });
 });

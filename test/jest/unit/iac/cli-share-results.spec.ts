@@ -13,9 +13,7 @@ import * as snykPolicyLib from 'snyk-policy';
 describe('CLI Share Results', () => {
   let snykPolicy: Policy;
   let requestSpy: jest.SpiedFunction<typeof request.makeRequest>;
-  let envelopeFormattersSpy: jest.SpiedFunction<
-    typeof envelopeFormatters.convertIacResultToScanResult
-  >;
+  let envelopeFormattersSpy: jest.SpiedFunction<typeof envelopeFormatters.convertIacResultToScanResult>;
 
   beforeAll(async () => {
     snykPolicy = await snykPolicyLib.load('test/jest/unit/iac/fixtures');
@@ -54,8 +52,10 @@ describe('CLI Share Results', () => {
     expect(firstCall[0]).toEqual(scanResults[0]);
     expect(secondCall[0]).toEqual(scanResults[1]);
 
-    const [firstCallResult, secondCallResult] =
-      envelopeFormattersSpy.mock.results;
+    const [
+      firstCallResult,
+      secondCallResult,
+    ] = envelopeFormattersSpy.mock.results;
 
     expect(firstCallResult.value).toEqual(expectedEnvelopeFormatterResults[0]);
     expect(secondCallResult.value).toEqual(expectedEnvelopeFormatterResults[1]);
@@ -79,8 +79,10 @@ describe('CLI Share Results', () => {
     expect(firstCall[0]).toEqual(scanResults[0]);
     expect(secondCall[0]).toEqual(scanResults[1]);
 
-    const [firstCallResult, secondCallResult] =
-      envelopeFormattersSpy.mock.results;
+    const [
+      firstCallResult,
+      secondCallResult,
+    ] = envelopeFormattersSpy.mock.results;
 
     expect(firstCallResult.value).toEqual(
       expectedEnvelopeFormatterResultsWithPolicy[0],
@@ -93,8 +95,9 @@ describe('CLI Share Results', () => {
   describe('when given a target reference', () => {
     it("should include it in the Envelope's ScanResult interface", async () => {
       const testTargetRef = 'test-target-ref';
-      const expectedEnvelopeFormatterResults =
-        createEnvelopeFormatterResultsWithTargetRef(testTargetRef);
+      const expectedEnvelopeFormatterResults = createEnvelopeFormatterResultsWithTargetRef(
+        testTargetRef,
+      );
 
       await shareResults({
         results: scanResults,
@@ -115,8 +118,10 @@ describe('CLI Share Results', () => {
       expect(firstCall[0]).toEqual(scanResults[0]);
       expect(secondCall[0]).toEqual(scanResults[1]);
 
-      const [firstCallResult, secondCallResult] =
-        envelopeFormattersSpy.mock.results;
+      const [
+        firstCallResult,
+        secondCallResult,
+      ] = envelopeFormattersSpy.mock.results;
       expect(firstCallResult.value).toEqual(
         expectedEnvelopeFormatterResults[0],
       );

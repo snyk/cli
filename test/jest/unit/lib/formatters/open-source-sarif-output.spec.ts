@@ -32,11 +32,10 @@ describe('createSarifOutputForOpenSource', () => {
           displayTargetFile: `${time}/${lockFileName}`,
         });
         const sarif = createSarifOutputForOpenSource([testFile]);
-        const uri =
-          sarif.runs?.[0]?.results?.[0].locations?.[0]?.physicalLocation?.artifactLocation?.uri?.replace(
-            `${time}/`,
-            '',
-          );
+        const uri = sarif.runs?.[0]?.results?.[0].locations?.[0]?.physicalLocation?.artifactLocation?.uri?.replace(
+          `${time}/`,
+          '',
+        );
         expect(uri).toMatchSnapshot();
       }),
     );

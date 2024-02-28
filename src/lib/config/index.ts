@@ -38,7 +38,9 @@ interface Config {
 }
 
 // TODO: fix the types!
-const config = snykConfig.loadConfig(__dirname + '/../..') as unknown as Config;
+const config = (snykConfig.loadConfig(
+  __dirname + '/../..',
+) as unknown) as Config;
 const defaultApiUrl = 'https://api.snyk.io';
 
 const configDefinedApiUrl = userConfig.get('endpoint');

@@ -253,7 +253,9 @@ function filterOutAppliedUpgrades(
   return pinRemediation;
 }
 
-function sortByDirectory(entities: EntityToFix[]): {
+function sortByDirectory(
+  entities: EntityToFix[],
+): {
   [dir: string]: Array<{
     entity: EntityToFix;
     dir: string;
@@ -272,7 +274,9 @@ function sortByDirectory(entities: EntityToFix[]): {
   return groupBy(sorted, 'dir');
 }
 
-export async function selectFileForPinning(entity: EntityToFix): Promise<{
+export async function selectFileForPinning(
+  entity: EntityToFix,
+): Promise<{
   fileName: string;
   fileContent: string;
 }> {
@@ -283,8 +287,9 @@ export async function selectFileForPinning(entity: EntityToFix): Promise<{
   let fileName = base;
   let requirementsTxt = await workspace.readFile(targetFile);
 
-  const { containsRequire, matches } =
-    await containsRequireDirective(requirementsTxt);
+  const { containsRequire, matches } = await containsRequireDirective(
+    requirementsTxt,
+  );
   const constraintsMatch = matches.filter((m) => m.includes('c'));
   if (containsRequire && constraintsMatch[0]) {
     // prefer to pin in constraints file if present

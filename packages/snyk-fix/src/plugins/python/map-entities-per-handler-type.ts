@@ -6,7 +6,9 @@ import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
 
 const debug = debugLib('snyk-fix:python');
 
-export function mapEntitiesPerHandlerType(entities: EntityToFix[]): {
+export function mapEntitiesPerHandlerType(
+  entities: EntityToFix[],
+): {
   skipped: Array<WithUserMessage<EntityToFix>>;
   entitiesPerType: {
     [projectType in SUPPORTED_HANDLER_TYPES]: EntityToFix[];

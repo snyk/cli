@@ -39,10 +39,11 @@ export const maxLineWidth = process.stdout.columns
 export const countSuppressedIssues = (
   suppressedIssues: Record<string, string[]>,
 ): number => {
-  return Object.values(suppressedIssues).reduce(function (
+  return Object.values(suppressedIssues).reduce(function(
     count,
     resourcesForRuleId,
   ) {
     return (count += resourcesForRuleId.length);
-  }, 0);
+  },
+  0);
 };

@@ -118,8 +118,9 @@ function referencedResourcesResolver(
           resolvedResource[key] = resourceExpressions[key];
         }
       }
-      scanInput[inputKey][type][getResourceName(index, name)] =
-        resolvedResource;
+      scanInput[inputKey][type][
+        getResourceName(index, name)
+      ] = resolvedResource;
     }
   }
 

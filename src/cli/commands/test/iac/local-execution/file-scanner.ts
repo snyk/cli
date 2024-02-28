@@ -14,7 +14,9 @@ import { getErrorStringCode } from './error-utils';
 import { IacFileInDirectory } from '../../../../../lib/types';
 import { SEVERITIES } from '../../../../../lib/snyk-test/common';
 
-export async function scanFiles(parsedFiles: Array<IacFileParsed>): Promise<{
+export async function scanFiles(
+  parsedFiles: Array<IacFileParsed>,
+): Promise<{
   scannedFiles: IacFileScanResult[];
   failedScans: IacFileInDirectory[];
 }> {
@@ -25,8 +27,9 @@ export async function scanFiles(parsedFiles: Array<IacFileParsed>): Promise<{
     const policyEngine = await getPolicyEngine(parsedFile.engineType);
     const result = policyEngine.scanFile(parsedFile);
     if (parsedFile.engineType === EngineType.Custom) {
-      const { validatedResult, invalidIssues } =
-        validateResultFromCustomRules(result);
+      const { validatedResult, invalidIssues } = validateResultFromCustomRules(
+        result,
+      );
       validatedResult.violatedPolicies.forEach((policy) => {
         // custom rules will have a remediation field that is a string, so we need to map it to the resolve field.
         if (typeof policy.remediation === 'string') {
@@ -51,7 +54,9 @@ async function getPolicyEngine(engineType: EngineType): Promise<PolicyEngine> {
   return policyEngineCache[engineType]!;
 }
 
-export function validateResultFromCustomRules(result: IacFileScanResult): {
+export function validateResultFromCustomRules(
+  result: IacFileScanResult,
+): {
   validatedResult: IacFileScanResult;
   invalidIssues: IacFileInDirectory[];
 } {
@@ -119,8 +124,10 @@ let policyEngineCache: { [key in EngineType]: PolicyEngine | null } = {
 async function buildPolicyEngine(
   engineType: EngineType,
 ): Promise<PolicyEngine> {
-  const [policyEngineCoreDataPath, policyEngineMetaDataPath] =
-    getLocalCachePath(engineType);
+  const [
+    policyEngineCoreDataPath,
+    policyEngineMetaDataPath,
+  ] = getLocalCachePath(engineType);
 
   try {
     const wasmFile = fs.readFileSync(policyEngineCoreDataPath);

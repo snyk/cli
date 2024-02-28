@@ -55,8 +55,9 @@ export async function parse(
   debug(resolveModuleSpinnerLabel);
 
   const strictOutOfSync = options.strictOutOfSync !== false;
-  const lockfileVersion =
-    lockFileParser.getLockfileVersionFromFile(lockFileFullPath);
+  const lockfileVersion = lockFileParser.getLockfileVersionFromFile(
+    lockFileFullPath,
+  );
   if (
     lockfileVersion === NodeLockfileVersion.YarnLockV1 ||
     lockfileVersion === NodeLockfileVersion.YarnLockV2 ||

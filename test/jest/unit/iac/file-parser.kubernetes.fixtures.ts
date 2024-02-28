@@ -213,14 +213,13 @@ export const insufficientIndentationYamlErrorFileDataStub: IacFileData = {
   filePath: 'dont-care',
   fileType: 'yml',
 };
-export const expectedInsufficientIndentationYamlErrorFileParsingResult: IacFileParsed =
-  {
-    ...insufficientIndentationYamlErrorFileDataStub,
-    docId: 0,
-    projectType: IacProjectType.CLOUDFORMATION,
-    engineType: EngineType.CloudFormation,
-    jsonContent: yamlWithInsufficientIndentationFileJSON,
-  };
+export const expectedInsufficientIndentationYamlErrorFileParsingResult: IacFileParsed = {
+  ...insufficientIndentationYamlErrorFileDataStub,
+  docId: 0,
+  projectType: IacProjectType.CLOUDFORMATION,
+  engineType: EngineType.CloudFormation,
+  jsonContent: yamlWithInsufficientIndentationFileJSON,
+};
 
 export const expectedKubernetesYamlParsingResult: IacFileParsed = {
   ...kubernetesYamlFileDataStub,

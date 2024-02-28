@@ -48,7 +48,8 @@ export function testPlatformSupport() {
     if (analytics.allowAnalytics()) {
       const sentryError = new Error('Unsupported Platform: ' + currentPlatform);
       Sentry.init({
-        dsn: 'https://3e845233db8c4f43b4c4b9245f1d7bd6@o30291.ingest.sentry.io/4504599528079360',
+        dsn:
+          'https://3e845233db8c4f43b4c4b9245f1d7bd6@o30291.ingest.sentry.io/4504599528079360',
         release: version.getVersion(),
       });
       Sentry.captureException(sentryError);

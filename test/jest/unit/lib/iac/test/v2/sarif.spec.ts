@@ -40,8 +40,9 @@ describe('convertEngineToSarifResults', () => {
     integratedSarifOutputFixtureContent,
   );
 
-  integratedSarifOutputFixture.runs[0].originalUriBaseIds!.PROJECTROOT.uri =
-    pathToFileURL(process.cwd() + '/').href;
+  integratedSarifOutputFixture.runs[0].originalUriBaseIds!.PROJECTROOT.uri = pathToFileURL(
+    process.cwd() + '/',
+  ).href;
 
   it('returns expected SARIF result', () => {
     const result = convertEngineToSarifResults(snykIacTestFixture);

@@ -144,8 +144,7 @@ describe('parseFiles', () => {
     [
       {
         fileStub: insufficientIndentationYamlErrorFileDataStub,
-        expectedParsingResult:
-          expectedInsufficientIndentationYamlErrorFileParsingResult,
+        expectedParsingResult: expectedInsufficientIndentationYamlErrorFileParsingResult,
       },
     ],
   ])(

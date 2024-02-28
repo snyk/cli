@@ -5,7 +5,9 @@ import {
   TestResult as LegacyTestResult,
 } from '../../../lib/snyk-test/legacy';
 
-function convertVulnerabilities(vulns: AnnotatedIssue[]): {
+function convertVulnerabilities(
+  vulns: AnnotatedIssue[],
+): {
   issuesData: IssuesData;
   issues: Issue[];
 } {

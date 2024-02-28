@@ -101,6 +101,6 @@ function getIntroducedThrough(vuln: AnnotatedIssue) {
   return vuln.from.length > 2
     ? `${firstFrom}, ${secondFrom} and others`
     : vuln.from.length === 2
-      ? `${firstFrom} and ${secondFrom}`
-      : firstFrom;
+    ? `${firstFrom} and ${secondFrom}`
+    : firstFrom;
 }

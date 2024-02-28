@@ -313,21 +313,24 @@ describe('Test snyk code', () => {
 
   it.each([
     {
-      name: 'should write only sarif result to file when only `--sarif-file-output` is used',
+      name:
+        'should write only sarif result to file when only `--sarif-file-output` is used',
       options: {
         'sarif-file-output': true,
         'json-file-output': false,
       },
     },
     {
-      name: 'should write only json result to file when only `--json-file-output` is used',
+      name:
+        'should write only json result to file when only `--json-file-output` is used',
       options: {
         'sarif-file-output': false,
         'json-file-output': true,
       },
     },
     {
-      name: 'should write sarif and json results to file when `--sarif-file-output` and `--json-file-output` are used',
+      name:
+        'should write sarif and json results to file when `--sarif-file-output` and `--json-file-output` are used',
       options: {
         'sarif-file-output': true,
         'json-file-output': true,
@@ -557,8 +560,9 @@ describe('Test snyk code', () => {
         await ecosystems.testEcosystem('code', ['some/path'], options);
       } catch (error) {
         const errMessage = error.message.trim();
-        const expectedOutput =
-          jsonStringifyLargeObject(sampleSarifResponse).trim();
+        const expectedOutput = jsonStringifyLargeObject(
+          sampleSarifResponse,
+        ).trim();
 
         // exit code 1
         expect(error.code).toBe('VULNS');
@@ -591,8 +595,9 @@ describe('Test snyk code', () => {
       await snykTest('some/path', options);
     } catch (error) {
       const errMessage = error.message.trim();
-      const expectedOutput =
-        jsonStringifyLargeObject(sampleSarifResponse).trim();
+      const expectedOutput = jsonStringifyLargeObject(
+        sampleSarifResponse,
+      ).trim();
 
       // exit code 1
       expect(error.code).toBe('VULNS');

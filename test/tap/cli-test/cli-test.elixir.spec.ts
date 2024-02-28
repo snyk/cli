@@ -5,112 +5,116 @@ import * as depGraphLib from '@snyk/dep-graph';
 export const ElixirTests: AcceptanceTests = {
   language: 'Elixir',
   tests: {
-    '`test elixir --file=mix.exs`':
-      (params, utils, snykHttpClient) => async (t) => {
-        utils.chdirWorkspaces();
-        const plugin = {
-          async inspect() {
-            return {
-              scannedProjects: await getScannedProjects(),
-              plugin: {
-                name: 'testplugin',
-                runtime: 'testruntime',
-                targetFile: 'mix.exs',
-              },
-            };
-          },
-        };
-        const spyPlugin = sinon.spy(plugin, 'inspect');
-
-        const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
-        t.teardown(loadPlugin.restore);
-        loadPlugin.withArgs('hex').returns(plugin);
-
-        await params.cli.test('elixir-hex', {
-          file: 'mix.exs',
-        });
-        const req = params.server.popRequest();
-        t.equal(req.method, 'POST', 'makes POST request');
-        t.equal(
-          req.headers['x-snyk-cli-version'],
-          params.versionNumber,
-          'sends version number',
-        );
-        t.match(req.url, '/test-dep-graph', 'posts to correct url');
-        t.equal(req.body.depGraph.pkgManager.name, 'hex');
-        t.equal(req.body.targetFile, 'mix.exs', 'specifies target');
-        t.same(
-          spyPlugin.getCall(0).args,
-          [
-            'elixir-hex',
-            'mix.exs',
-            {
-              args: null,
-              file: 'mix.exs',
-              org: null,
-              projectName: null,
-              packageManager: 'hex',
-              path: 'elixir-hex',
-              showVulnPaths: 'some',
+    '`test elixir --file=mix.exs`': (params, utils, snykHttpClient) => async (
+      t,
+    ) => {
+      utils.chdirWorkspaces();
+      const plugin = {
+        async inspect() {
+          return {
+            scannedProjects: await getScannedProjects(),
+            plugin: {
+              name: 'testplugin',
+              runtime: 'testruntime',
+              targetFile: 'mix.exs',
             },
-            snykHttpClient,
-          ],
-          'calls golang plugin',
-        );
-      },
+          };
+        },
+      };
+      const spyPlugin = sinon.spy(plugin, 'inspect');
 
-    '`test elixir-hex` auto-detects hex':
-      (params, utils, snykHttpClient) => async (t) => {
-        utils.chdirWorkspaces();
-        const plugin = {
-          async inspect() {
-            return {
-              scannedProjects: await getScannedProjects(),
-              plugin: {
-                name: 'testplugin',
-                runtime: 'testruntime',
-                targetFile: 'mix.exs',
-              },
-            };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('hex').returns(plugin);
+
+      await params.cli.test('elixir-hex', {
+        file: 'mix.exs',
+      });
+      const req = params.server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(
+        req.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
+      t.match(req.url, '/test-dep-graph', 'posts to correct url');
+      t.equal(req.body.depGraph.pkgManager.name, 'hex');
+      t.equal(req.body.targetFile, 'mix.exs', 'specifies target');
+      t.same(
+        spyPlugin.getCall(0).args,
+        [
+          'elixir-hex',
+          'mix.exs',
+          {
+            args: null,
+            file: 'mix.exs',
+            org: null,
+            projectName: null,
+            packageManager: 'hex',
+            path: 'elixir-hex',
+            showVulnPaths: 'some',
           },
-        };
-        const spyPlugin = sinon.spy(plugin, 'inspect');
+          snykHttpClient,
+        ],
+        'calls golang plugin',
+      );
+    },
 
-        const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
-        t.teardown(loadPlugin.restore);
-        loadPlugin.withArgs('hex').returns(plugin);
-
-        await params.cli.test('elixir-hex');
-
-        const req = params.server.popRequest();
-        t.equal(req.method, 'POST', 'makes POST request');
-        t.equal(
-          req.headers['x-snyk-cli-version'],
-          params.versionNumber,
-          'sends version number',
-        );
-        t.match(req.url, '/test-dep-graph', 'posts to correct url');
-        t.equal(req.body.depGraph.pkgManager.name, 'hex');
-        t.equal(req.body.targetFile, 'mix.exs', 'specifies target');
-        t.same(
-          spyPlugin.getCall(0).args,
-          [
-            'elixir-hex',
-            'mix.exs',
-            {
-              args: null,
-              file: 'mix.exs',
-              org: null,
-              projectName: null,
-              packageManager: 'hex',
-              path: 'elixir-hex',
-              showVulnPaths: 'some',
+    '`test elixir-hex` auto-detects hex': (
+      params,
+      utils,
+      snykHttpClient,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const plugin = {
+        async inspect() {
+          return {
+            scannedProjects: await getScannedProjects(),
+            plugin: {
+              name: 'testplugin',
+              runtime: 'testruntime',
+              targetFile: 'mix.exs',
             },
-            snykHttpClient,
-          ],
-          'calls elixir-hex plugin',
-        );
-      },
+          };
+        },
+      };
+      const spyPlugin = sinon.spy(plugin, 'inspect');
+
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('hex').returns(plugin);
+
+      await params.cli.test('elixir-hex');
+
+      const req = params.server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(
+        req.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
+      t.match(req.url, '/test-dep-graph', 'posts to correct url');
+      t.equal(req.body.depGraph.pkgManager.name, 'hex');
+      t.equal(req.body.targetFile, 'mix.exs', 'specifies target');
+      t.same(
+        spyPlugin.getCall(0).args,
+        [
+          'elixir-hex',
+          'mix.exs',
+          {
+            args: null,
+            file: 'mix.exs',
+            org: null,
+            projectName: null,
+            packageManager: 'hex',
+            path: 'elixir-hex',
+            showVulnPaths: 'some',
+          },
+          snykHttpClient,
+        ],
+        'calls elixir-hex plugin',
+      );
+    },
   },
 };
 

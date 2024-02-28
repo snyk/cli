@@ -31,8 +31,9 @@ export async function extractProvenance(
     ...provenance,
     [relativeTargetFileName]: parseRequirementsFile(requirementsTxt),
   };
-  const { containsRequire, matches } =
-    await containsRequireDirective(requirementsTxt);
+  const { containsRequire, matches } = await containsRequireDirective(
+    requirementsTxt,
+  );
   if (containsRequire) {
     for (const match of matches) {
       const requiredFilePath = match[2];

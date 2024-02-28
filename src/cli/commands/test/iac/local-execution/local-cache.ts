@@ -14,7 +14,9 @@ import envPaths from 'env-paths';
 const debug = Debug('iac-local-cache');
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
-const uuid = Math.random().toString(36).substring(2);
+const uuid = Math.random()
+  .toString(36)
+  .substring(2);
 export const LOCAL_POLICY_ENGINE_DIR = cachePath + '/iac-data/' + uuid;
 
 const KUBERNETES_POLICY_ENGINE_WASM_PATH = path.join(

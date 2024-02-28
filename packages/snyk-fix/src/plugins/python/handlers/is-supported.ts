@@ -33,7 +33,9 @@ export async function isSupported(
   return { supported: true };
 }
 
-export async function partitionByFixable(entities: EntityToFix[]): Promise<{
+export async function partitionByFixable(
+  entities: EntityToFix[],
+): Promise<{
   skipped: Array<WithUserMessage<EntityToFix>>;
   fixable: EntityToFix[];
 }> {

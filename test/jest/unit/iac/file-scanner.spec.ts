@@ -152,8 +152,9 @@ describe('validateResultFromCustomRules', () => {
   };
 
   it('does not filter out valid policies', () => {
-    const { validatedResult, invalidIssues } =
-      validateResultFromCustomRules(result);
+    const { validatedResult, invalidIssues } = validateResultFromCustomRules(
+      result,
+    );
     expect(validatedResult.violatedPolicies).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ publicId: 'CUSTOM-RULE-VALID' }),
@@ -163,8 +164,9 @@ describe('validateResultFromCustomRules', () => {
   });
 
   it('filters out policies with invalid severity', () => {
-    const { validatedResult, invalidIssues } =
-      validateResultFromCustomRules(result);
+    const { validatedResult, invalidIssues } = validateResultFromCustomRules(
+      result,
+    );
     expect(validatedResult.violatedPolicies).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ publicId: 'CUSTOM-RULE-INVALID-SEVERITY' }),
@@ -182,8 +184,9 @@ describe('validateResultFromCustomRules', () => {
   });
 
   it('filters out policies with lowercase publicId', () => {
-    const { validatedResult, invalidIssues } =
-      validateResultFromCustomRules(result);
+    const { validatedResult, invalidIssues } = validateResultFromCustomRules(
+      result,
+    );
     expect(validatedResult.violatedPolicies).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -203,8 +206,9 @@ describe('validateResultFromCustomRules', () => {
   });
 
   it('filters out policies with conflicting publicId', () => {
-    const { validatedResult, invalidIssues } =
-      validateResultFromCustomRules(result);
+    const { validatedResult, invalidIssues } = validateResultFromCustomRules(
+      result,
+    );
     expect(validatedResult.violatedPolicies).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ publicId: 'SNYK-CC-CUSTOM-RULE-INVALID' }),

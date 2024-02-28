@@ -11,9 +11,8 @@ export default function about(): void {
       `${licenseNotice.name} \u00B7 ${licenseNotice.version} \u00B7 ${licenseNotice.license}`,
     );
     console.log(
-      `Author(s): ${
-        licenseNotice.author || 'Not filled'
-      } \u00B7 Package: ${licenseNotice.source || ''}`,
+      `Author(s): ${licenseNotice.author ||
+        'Not filled'} \u00B7 Package: ${licenseNotice.source || ''}`,
     );
     console.log(`${licenseNotice.licenseText || ''}`); // WTFPL is not required the embed its license text
     console.log('\n+-+-+-+-+-+-+');

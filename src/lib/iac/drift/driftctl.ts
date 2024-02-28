@@ -331,7 +331,7 @@ async function download(url, destination: string): Promise<boolean> {
 
   await spinner('Downloading...');
   return new Promise<boolean>((resolve, reject) => {
-    makeRequest(payload, function (err, res, body) {
+    makeRequest(payload, function(err, res, body) {
       try {
         if (err) {
           reject(
@@ -368,7 +368,10 @@ function validateChecksum(body: string) {
     return;
   }
 
-  const computedHash = crypto.createHash('sha256').update(body).digest('hex');
+  const computedHash = crypto
+    .createHash('sha256')
+    .update(body)
+    .digest('hex');
   const givenHash = driftctlChecksums[driftctlFileName()];
 
   if (computedHash != givenHash) {

@@ -7,8 +7,11 @@ import { addIacAnalytics } from './analytics';
 export { TestConfig } from './types';
 
 export async function test(testConfig: TestConfig): Promise<TestOutput> {
-  const { policyEnginePath, rulesBundlePath, rulesClientURL } =
-    await initLocalCache(testConfig);
+  const {
+    policyEnginePath,
+    rulesBundlePath,
+    rulesClientURL,
+  } = await initLocalCache(testConfig);
 
   const testOutput = await scan(
     testConfig,

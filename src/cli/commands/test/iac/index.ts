@@ -16,9 +16,7 @@ import { buildOutput, buildSpinner, printHeader } from './output';
 import { InvalidArgumentError } from './local-execution/assert-iac-options-flag';
 import { IaCTestFlags } from './local-execution/types';
 
-export default async function (
-  ...args: MethodArgs
-): Promise<TestCommandResult> {
+export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const { options: originalOptions, paths } = processCommandArgs(...args);
 
   const options = setDefaultTestOptions(originalOptions);
@@ -50,18 +48,22 @@ export default async function (
 
   printHeader(options);
 
-  const { iacOutputMeta, iacScanFailures, iacIgnoredIssuesCount, results } =
-    await scan(
-      iacOrgSettings,
-      options,
-      testSpinner,
-      paths,
-      orgPublicId,
-      buildOciRegistry,
-      projectRoot,
-      remoteRepoUrl,
-      targetName,
-    );
+  const {
+    iacOutputMeta,
+    iacScanFailures,
+    iacIgnoredIssuesCount,
+    results,
+  } = await scan(
+    iacOrgSettings,
+    options,
+    testSpinner,
+    paths,
+    orgPublicId,
+    buildOciRegistry,
+    projectRoot,
+    remoteRepoUrl,
+    targetName,
+  );
 
   return buildOutput({
     results,

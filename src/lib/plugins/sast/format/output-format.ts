@@ -136,9 +136,9 @@ function getIssues(
   return issues;
 }
 
-function getRulesMap(rules: Sarif.ReportingDescriptor[]): {
-  [ruleId: string]: Sarif.ReportingDescriptor;
-} {
+function getRulesMap(
+  rules: Sarif.ReportingDescriptor[],
+): { [ruleId: string]: Sarif.ReportingDescriptor } {
   const rulesMapByID = rules.reduce((acc, rule) => {
     acc[rule.id] = rule;
     return acc;

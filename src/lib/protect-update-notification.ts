@@ -87,8 +87,9 @@ export function getPackageJsonPathsContainingSnykDependency(
             directoryWithPackageJson,
             'package.json',
           );
-          const packageJsonContainsSnykDep =
-            checkPackageJsonForSnykDependency(packageJsonPath);
+          const packageJsonContainsSnykDep = checkPackageJsonForSnykDependency(
+            packageJsonPath,
+          );
           if (packageJsonContainsSnykDep) {
             packageJsonPathsWithSnykDepForProtect.push(packageJsonPath);
           }
@@ -98,8 +99,9 @@ export function getPackageJsonPathsContainingSnykDependency(
       paths.forEach((testPath) => {
         if (packageJsonFileExistsInDirectory(testPath)) {
           const packageJsonPath = path.resolve(testPath, 'package.json');
-          const packageJsonContainsSnykDep =
-            checkPackageJsonForSnykDependency(packageJsonPath);
+          const packageJsonContainsSnykDep = checkPackageJsonForSnykDependency(
+            packageJsonPath,
+          );
           if (packageJsonContainsSnykDep) {
             packageJsonPathsWithSnykDepForProtect.push(packageJsonPath);
           }

@@ -40,9 +40,9 @@ before('setup', async (t) => {
 });
 
 test('runTest annotates results with remediation data when using node_modules', async (t) => {
-  const vulns = require(
-    getFixturePath('npm-package-with-git-url/test-graph-result.json'),
-  );
+  const vulns = require(getFixturePath(
+    'npm-package-with-git-url/test-graph-result.json',
+  ));
   server.setNextResponse(vulns);
 
   const result = await runTest(

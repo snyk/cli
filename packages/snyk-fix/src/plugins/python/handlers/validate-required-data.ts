@@ -3,7 +3,9 @@ import { MissingFileNameError } from '../../../lib/errors/missing-file-name';
 import { NoFixesCouldBeAppliedError } from '../../../lib/errors/no-fixes-applied';
 import { EntityToFix, RemediationChanges, Workspace } from '../../../types';
 
-export function validateRequiredData(entity: EntityToFix): {
+export function validateRequiredData(
+  entity: EntityToFix,
+): {
   remediation: RemediationChanges;
   targetFile: string;
   workspace: Workspace;

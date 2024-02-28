@@ -138,7 +138,8 @@ describe('test', () => {
           "Test Failures\n\n  The Snyk CLI couldn't find any valid IaC configuration files to scan\n  Path: invalid_file.txt",
         formattedUserMessage:
           "Test Failures\n\n  The Snyk CLI couldn't find any valid IaC configuration files to scan\n  Path: invalid_file.txt",
-        json: '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
+        json:
+          '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
         jsonStringifiedResults:
           '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
         sarifStringifiedResults: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
@@ -189,7 +190,8 @@ describe('test', () => {
             ),
             jsonStringifiedResults:
               '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
-            json: '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+            json:
+              '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
           }),
         );
       });
@@ -253,7 +255,8 @@ describe('test', () => {
             '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
           formattedUserMessage:
             '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
-          json: '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
+          json:
+            '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
           jsonStringifiedResults:
             '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
           sarifStringifiedResults: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
@@ -307,7 +310,8 @@ describe('test', () => {
               ),
               jsonStringifiedResults:
                 '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
-              json: '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
+              json:
+                '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "no loadable input: path/to/test",\n    "path": "path/to/test"\n  }\n]',
             }),
           );
         });
