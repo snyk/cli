@@ -326,14 +326,6 @@ commands:
             apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
             pip3 install pipenv requests PyYAML
 
-  install-deps-linux-proxy:
-    steps:
-      - run:
-          name: Installing proxy test dependencies
-          command: |
-            sudo apt update
-            sudo apt install make 
-
   failed-release-notification:
     steps:
       - when:
@@ -371,48 +363,48 @@ workflows:
           requires:
             - secrets-scan
 
-      # - code-analysis:
-      #     context: devex_cli
-      #     requires:
-      #       - prepare-build
-      #     filters:
-      #       branches:
-      #         ignore: main
+      - code-analysis:
+          context: devex_cli
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore: main
 
-      # - test-node:
-      #     context:
-      #       - nodejs-install
-      #       - team_hammerhead-cli
-      #     requires:
-      #       - prepare-build
-      #     filters:
-      #       branches:
-      #         ignore: main
+      - test-node:
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore: main
 
-      # - test-go:
-      #     context:
-      #       - nodejs-install
-      #       - team_hammerhead-cli
-      #     requires:
-      #       - prepare-build
-      #     filters:
-      #       branches:
-      #         ignore: main
+      - test-go:
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore: main
 
-      # - test-legacy-tap:
-      #     context:
-      #       - nodejs-install
-      #       - team_hammerhead-cli
-      #     requires:
-      #       - prepare-build
-      #     filters:
-      #       branches:
-      #         ignore: main
+      - test-legacy-tap:
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          requires:
+            - prepare-build
+          filters:
+            branches:
+              ignore: main
 
-      # - build-special-artifacts:
-      #     name: build fix & protect
-      #     requires:
-      #       - prepare-build
+      - build-special-artifacts:
+          name: build fix & protect
+          requires:
+            - prepare-build
 
       - build-artifact:
           name: build linux amd64
@@ -425,86 +417,86 @@ workflows:
           requires:
             - prepare-build
 
-      # - build-artifact:
-      #     name: build linux arm64
-      #     go_target_os: linux
-      #     go_os: linux
-      #     go_arch: arm64
-      #     go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-      #     make_target: build clean-golang build-fips
-      #     executor: docker-arm64
-      #     requires:
-      #       - prepare-build
+      - build-artifact:
+          name: build linux arm64
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build clean-golang build-fips
+          executor: docker-arm64
+          requires:
+            - prepare-build
 
-      # - build-artifact:
-      #     name: build alpine amd64
-      #     go_target_os: alpine
-      #     go_os: linux
-      #     go_arch: amd64
-      #     go_download_base_url: << pipeline.parameters.go_download_base_url >>
-      #     executor: docker-amd64
-      #     c_compiler: /usr/bin/musl-gcc
-      #     requires:
-      #       - prepare-build
+      - build-artifact:
+          name: build alpine amd64
+          go_target_os: alpine
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: docker-amd64
+          c_compiler: /usr/bin/musl-gcc
+          requires:
+            - prepare-build
 
-      # - build-artifact:
-      #     name: build macOS amd64
-      #     go_target_os: darwin
-      #     go_os: darwin
-      #     go_arch: amd64
-      #     go_download_base_url: << pipeline.parameters.go_download_base_url >>
-      #     executor: macos-arm64
-      #     install_deps_extension: macos-build
-      #     requires:
-      #       - prepare-build
+      - build-artifact:
+          name: build macOS amd64
+          go_target_os: darwin
+          go_os: darwin
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: macos-arm64
+          install_deps_extension: macos-build
+          requires:
+            - prepare-build
 
-      # - build-artifact:
-      #     name: build macOS arm64
-      #     go_target_os: darwin
-      #     go_os: darwin
-      #     go_arch: arm64
-      #     go_download_base_url: << pipeline.parameters.go_download_base_url >>
-      #     executor: macos-arm64
-      #     install_deps_extension: macos-build
-      #     requires:
-      #       - prepare-build
+      - build-artifact:
+          name: build macOS arm64
+          go_target_os: darwin
+          go_os: darwin
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: macos-arm64
+          install_deps_extension: macos-build
+          requires:
+            - prepare-build
 
-      # - build-artifact:
-      #     name: build windows amd64
-      #     go_target_os: windows
-      #     go_os: windows
-      #     go_arch: amd64
-      #     go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-      #     make_target: build clean-golang build-fips
-      #     install_deps_extension: windows-full-signing
-      #     install_path: 'C:\'
-      #     executor: win-server2022-amd64
-      #     context: snyk-windows-signing
-      #     requires:
-      #       - prepare-build
+      - build-artifact:
+          name: build windows amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build clean-golang build-fips
+          install_deps_extension: windows-full-signing
+          install_path: 'C:\'
+          executor: win-server2022-amd64
+          context: snyk-windows-signing
+          requires:
+            - prepare-build
 
-      # - regression-tests:
-      #     name: regression-tests
-      #     context: team_hammerhead-cli
-      #     filters:
-      #       branches:
-      #         ignore: main
-      #     requires:
-      #       - build linux amd64
-      #     test_snyk_command: ./binary-releases/snyk-linux
+      - regression-tests:
+          name: regression-tests
+          context: team_hammerhead-cli
+          filters:
+            branches:
+              ignore: main
+          requires:
+            - build linux amd64
+          test_snyk_command: ./binary-releases/snyk-linux
 
-      # - acceptance-tests:
-      #     name: acceptance-tests linux amd64
-      #     context:
-      #       - nodejs-install
-      #       - team_hammerhead-cli
-      #     filters:
-      #       branches:
-      #         ignore: main
-      #     requires:
-      #       - build linux amd64
-      #     executor: docker-amd64
-      #     test_snyk_command: ./binary-releases/snyk-linux
+      - acceptance-tests:
+          name: acceptance-tests linux amd64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: main
+          requires:
+            - build linux amd64
+          executor: docker-amd64
+          test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-test-with-proxy:
           name: acceptance-tests-with-proxy linux amd64
@@ -518,7 +510,6 @@ workflows:
               ignore: main
           requires:
             - build linux amd64
-          install_deps_extension: linux-proxy
 
       - acceptance-test-with-proxy:
           name: acceptance-tests-with-proxy fips linux amd64
@@ -534,304 +525,304 @@ workflows:
           requires:
             - build linux amd64
 
-      # - acceptance-tests:
-      #     name: acceptance-tests linux arm64
-      #     context:
-      #       - nodejs-install
-      #       - team_hammerhead-cli
-      #     filters:
-      #       branches:
-      #         ignore: main
-      #     requires:
-      #       - build linux arm64
-      #     executor: docker-arm64
-      #     test_snyk_command: ./binary-releases/snyk-linux-arm64
+      - acceptance-tests:
+          name: acceptance-tests linux arm64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: main
+          requires:
+            - build linux arm64
+          executor: docker-arm64
+          test_snyk_command: ./binary-releases/snyk-linux-arm64
 
-      # - acceptance-tests:
-      #     name: acceptance-tests fips linux arm64
-      #     executor: docker-arm64
-      #     test_snyk_command: ./binary-releases/fips/snyk-linux-arm64
-      #     fips: 1
-      #     context:
-      #       - nodejs-install
-      #       - team_hammerhead-cli
-      #     filters:
-      #       branches:
-      #         ignore: main
-      #     requires:
-      #       - build linux arm64
+      - acceptance-tests:
+          name: acceptance-tests fips linux arm64
+          executor: docker-arm64
+          test_snyk_command: ./binary-releases/fips/snyk-linux-arm64
+          fips: 1
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: main
+          requires:
+            - build linux arm64
 
-      # - acceptance-tests:
-      #     name: acceptance-tests alpine amd64
-      #     context:
-      #       - nodejs-install
-      #       - team_hammerhead-cli
-      #     filters:
-      #       branches:
-      #         ignore: main
-      #     requires:
-      #       - build alpine amd64
-      #     executor: alpine
-      #     test_snyk_command: ./binary-releases/snyk-alpine
-      #     install_deps_extension: alpine-full
-      #     dont_skip_tests: 0
+      - acceptance-tests:
+          name: acceptance-tests alpine amd64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: main
+          requires:
+            - build alpine amd64
+          executor: alpine
+          test_snyk_command: ./binary-releases/snyk-alpine
+          install_deps_extension: alpine-full
+          dont_skip_tests: 0
 
-      # - acceptance-tests:
-      #     name: acceptance-tests macOS amd64
-      #     context:
-      #       - nodejs-install
-      #       - team_hammerhead-cli
-      #     filters:
-      #       branches:
-      #         ignore: main
-      #     requires:
-      #       - build macOS arm64
-      #     executor: macos-arm64
-      #     test_snyk_command: ./binary-releases/snyk-macos-arm64
-      #     install_deps_extension: macos-full
+      - acceptance-tests:
+          name: acceptance-tests macOS amd64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: main
+          requires:
+            - build macOS arm64
+          executor: macos-arm64
+          test_snyk_command: ./binary-releases/snyk-macos-arm64
+          install_deps_extension: macos-full
 
-      # - acceptance-tests:
-      #     name: acceptance-tests windows amd64
-      #     context:
-      #       - nodejs-install
-      #       - team_hammerhead-cli
-      #     filters:
-      #       branches:
-      #         ignore: main
-      #     requires:
-      #       - build windows amd64
-      #     executor: win-server2022-amd64
-      #     test_snyk_command: binary-releases\\snyk-win.exe
-      #     install_deps_extension: windows-full
-      #     dont_skip_tests: 0
-      #     pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
+      - acceptance-tests:
+          name: acceptance-tests windows amd64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore: main
+          requires:
+            - build windows amd64
+          executor: win-server2022-amd64
+          test_snyk_command: binary-releases\\snyk-win.exe
+          install_deps_extension: windows-full
+          dont_skip_tests: 0
+          pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
 
-      # - sign:
-      #     name: sign windows amd64
-      #     context: snyk-windows-signing
-      #     requires:
-      #       - build windows amd64
-      #     go_os: windows
-      #     go_arch: amd64
-      #     make_target: sign sign-fips
-      #     executor: win-server2022-amd64
-      #     install_deps_extension: windows-make
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - '/.*e2e.*/'
+      - sign:
+          name: sign windows amd64
+          context: snyk-windows-signing
+          requires:
+            - build windows amd64
+          go_os: windows
+          go_arch: amd64
+          make_target: sign sign-fips
+          executor: win-server2022-amd64
+          install_deps_extension: windows-make
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
-      # - sign:
-      #     name: sign macos amd64
-      #     context: snyk-macos-signing
-      #     requires:
-      #       - build macOS amd64
-      #     go_os: darwin
-      #     go_arch: amd64
-      #     executor: macos-arm64
-      #     install_deps_extension: noop
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - '/.*e2e.*/'
+      - sign:
+          name: sign macos amd64
+          context: snyk-macos-signing
+          requires:
+            - build macOS amd64
+          go_os: darwin
+          go_arch: amd64
+          executor: macos-arm64
+          install_deps_extension: noop
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
-      # - sign:
-      #     name: sign macos arm64
-      #     context: snyk-macos-signing
-      #     requires:
-      #       - build macOS arm64
-      #     go_os: darwin
-      #     go_arch: arm64
-      #     executor: macos-arm64
-      #     install_deps_extension: noop
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - '/.*e2e.*/'
+      - sign:
+          name: sign macos arm64
+          context: snyk-macos-signing
+          requires:
+            - build macOS arm64
+          go_os: darwin
+          go_arch: arm64
+          executor: macos-arm64
+          install_deps_extension: noop
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
-      # - create_deployment_artifacts:
-      #     name: create deployment artifacts
-      #     context: snyk-cli-pgp-signing
-      #     requires:
-      #       - sign macos amd64
-      #       - sign macos arm64
-      #       - sign windows amd64
-      #       - build alpine amd64
-      #       - build linux amd64
-      #       - build linux arm64
-      #       - build fix & protect
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - '/.*e2e.*/'
+      - create_deployment_artifacts:
+          name: create deployment artifacts
+          context: snyk-cli-pgp-signing
+          requires:
+            - sign macos amd64
+            - sign macos arm64
+            - sign windows amd64
+            - build alpine amd64
+            - build linux amd64
+            - build linux arm64
+            - build fix & protect
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
-      # - should-release:
-      #     name: release?
-      #     type: approval
-      #     requires:
-      #       - create deployment artifacts
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - '/.*e2e.*/'
+      - should-release:
+          name: release?
+          type: approval
+          requires:
+            - create deployment artifacts
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
-      # - pre-release:
-      #     name: upload version
-      #     context: team-hammerhead-common-deploy-tokens
-      #     requires:
-      #       - release?
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - '/.*e2e.*/'
+      - pre-release:
+          name: upload version
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - release?
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
-      # - npm-validation:
-      #     name: Validate NPM artifacts (<< matrix.executor >>)
-      #     context: team_hammerhead-cli
-      #     matrix:
-      #       parameters:
-      #         executor:
-      #           - 'docker-amd64'
-      #           - 'win-server2019-amd64'
-      #           - 'macos-arm64'
-      #     requires:
-      #       - upload version
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - '/.*e2e.*/'
+      - npm-validation:
+          name: Validate NPM artifacts (<< matrix.executor >>)
+          context: team_hammerhead-cli
+          matrix:
+            parameters:
+              executor:
+                - 'docker-amd64'
+                - 'win-server2019-amd64'
+                - 'macos-arm64'
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
-      # - test-release:
-      #     name: e2e tests (<< matrix.executor >>)
-      #     context: team_hammerhead-cli
-      #     matrix:
-      #       parameters:
-      #         executor:
-      #           - 'docker-amd64'
-      #           - 'docker-arm64'
-      #           - 'win-server2019-amd64'
-      #           - 'win-server2022-amd64'
-      #           - 'macos-arm64'
-      #           - 'linux-ubuntu-latest-amd64'
-      #           - 'linux-ubuntu-mantic-amd64'
-      #           - 'linux-ubuntu-jammy-amd64'
-      #           - 'linux-ubuntu-focal-amd64'
-      #           - 'linux-ubuntu-latest-arm64'
-      #           - 'linux-ubuntu-mantic-arm64'
-      #           - 'linux-ubuntu-jammy-arm64'
-      #           - 'linux-ubuntu-focal-arm64'
-      #           - 'alpine'
-      #     requires:
-      #       - upload version
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - '/.*e2e.*/'
+      - test-release:
+          name: e2e tests (<< matrix.executor >>)
+          context: team_hammerhead-cli
+          matrix:
+            parameters:
+              executor:
+                - 'docker-amd64'
+                - 'docker-arm64'
+                - 'win-server2019-amd64'
+                - 'win-server2022-amd64'
+                - 'macos-arm64'
+                - 'linux-ubuntu-latest-amd64'
+                - 'linux-ubuntu-mantic-amd64'
+                - 'linux-ubuntu-jammy-amd64'
+                - 'linux-ubuntu-focal-amd64'
+                - 'linux-ubuntu-latest-arm64'
+                - 'linux-ubuntu-mantic-arm64'
+                - 'linux-ubuntu-jammy-arm64'
+                - 'linux-ubuntu-focal-arm64'
+                - 'alpine'
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
-      # - test-release:
-      #     name: e2e fips tests (cbl-mariner)
-      #     context: team_hammerhead-cli
-      #     cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
-      #     setup_steps:
-      #       - run: tdnf install -y tar ca-certificates
-      #     executor: 'cbl-mariner'
-      #     requires:
-      #       - upload version
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - '/.*e2e.*/'
+      - test-release:
+          name: e2e fips tests (cbl-mariner)
+          context: team_hammerhead-cli
+          cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
+          setup_steps:
+            - run: tdnf install -y tar ca-certificates
+          executor: 'cbl-mariner'
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
-      # - test-release:
-      #     name: e2e fips tests (win-server2022-amd64)
-      #     context: team_hammerhead-cli
-      #     cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
-      #     setup_steps:
-      #       - run: Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\FipsAlgorithmPolicy' -Name 'Enabled' -Value '1'
-      #     executor: 'win-server2022-amd64'
-      #     requires:
-      #       - upload version
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      #           - '/.*e2e.*/'
+      - test-release:
+          name: e2e fips tests (win-server2022-amd64)
+          context: team_hammerhead-cli
+          cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
+          setup_steps:
+            - run: Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\FipsAlgorithmPolicy' -Name 'Enabled' -Value '1'
+          executor: 'win-server2022-amd64'
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
-      # - release-s3:
-      #     name: upload preview
-      #     deployment: preview
-      #     context: team-hammerhead-common-deploy-tokens
-      #     requires:
-      #       - Validate NPM artifacts (docker-amd64)
-      #       - Validate NPM artifacts (win-server2019-amd64)
-      #       - Validate NPM artifacts (macos-arm64)
-      #       - e2e tests (docker-amd64)
-      #       - e2e tests (docker-arm64)
-      #       - e2e tests (win-server2019-amd64)
-      #       - e2e tests (win-server2022-amd64)
-      #       - e2e tests (macos-arm64)
-      #       - e2e tests (linux-ubuntu-latest-amd64)
-      #       - e2e tests (linux-ubuntu-mantic-amd64)
-      #       - e2e tests (linux-ubuntu-jammy-amd64)
-      #       - e2e tests (linux-ubuntu-focal-amd64)
-      #       - e2e tests (linux-ubuntu-latest-arm64)
-      #       - e2e tests (linux-ubuntu-mantic-arm64)
-      #       - e2e tests (linux-ubuntu-jammy-arm64)
-      #       - e2e tests (linux-ubuntu-focal-arm64)
-      #       - e2e tests (alpine)
-      #       - e2e fips tests (cbl-mariner)
-      #       - e2e fips tests (win-server2022-amd64)
-      #     filters:
-      #       branches:
-      #         only: main
+      - release-s3:
+          name: upload preview
+          deployment: preview
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - Validate NPM artifacts (docker-amd64)
+            - Validate NPM artifacts (win-server2019-amd64)
+            - Validate NPM artifacts (macos-arm64)
+            - e2e tests (docker-amd64)
+            - e2e tests (docker-arm64)
+            - e2e tests (win-server2019-amd64)
+            - e2e tests (win-server2022-amd64)
+            - e2e tests (macos-arm64)
+            - e2e tests (linux-ubuntu-latest-amd64)
+            - e2e tests (linux-ubuntu-mantic-amd64)
+            - e2e tests (linux-ubuntu-jammy-amd64)
+            - e2e tests (linux-ubuntu-focal-amd64)
+            - e2e tests (linux-ubuntu-latest-arm64)
+            - e2e tests (linux-ubuntu-mantic-arm64)
+            - e2e tests (linux-ubuntu-jammy-arm64)
+            - e2e tests (linux-ubuntu-focal-arm64)
+            - e2e tests (alpine)
+            - e2e fips tests (cbl-mariner)
+            - e2e fips tests (win-server2022-amd64)
+          filters:
+            branches:
+              only: main
 
-      # - release-s3:
-      #     name: upload latest
-      #     deployment: latest
-      #     context: team-hammerhead-common-deploy-tokens
-      #     requires:
-      #       - upload preview
-      #     filters:
-      #       branches:
-      #         only: main
+      - release-s3:
+          name: upload latest
+          deployment: latest
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - upload preview
+          filters:
+            branches:
+              only: main
 
-      # - release-github:
-      #     name: upload github
-      #     context: team-hammerhead-common-deploy-tokens
-      #     requires:
-      #       - upload latest
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
-      # - release-npm:
-      #     name: upload npm
-      #     context: team-hammerhead-common-deploy-tokens
-      #     requires:
-      #       - upload github
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
+      - release-github:
+          name: upload github
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - upload latest
+          filters:
+            branches:
+              only:
+                - main
+      - release-npm:
+          name: upload npm
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - upload github
+          filters:
+            branches:
+              only:
+                - main
 
-      # - trigger-building-snyk-images:
-      #     name: Trigger building snyk-images
-      #     context: team-hammerhead-common-deploy-tokens
-      #     requires:
-      #       - upload npm
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
+      - trigger-building-snyk-images:
+          name: Trigger building snyk-images
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - upload npm
+          filters:
+            branches:
+              only:
+                - main
 
 ####################################################################################################
 # JOBS

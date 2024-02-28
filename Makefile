@@ -248,7 +248,9 @@ clean-golang:
 .PHONY: acceptance-test-with-proxy
 acceptance-test-with-proxy: pre-build
 	@echo "-- Running acceptance tests in a proxied environment"
+# TODO: docker buildx step can be removed once https://github.com/snyk/cli/pull/5079 is merged and we deploy a test image defined in ./scriptes/create-test-image.sh
 	@docker buildx build --build-arg NODEVERSION=$(PKG_NODE_VERSION) --build-arg ARCH=$(ARCH) -t acceptance-test-with-proxy -f ./scripts/environments/proxy/Dockerfile .
+# TODO: 'acceptance-test-with-proxy' needs to be replaced with the deployed test image defined in ./scriptes/create-test-image.sh
 	@docker run --rm --cap-add=NET_ADMIN --env "TEST_SNYK_COMMAND=$(TEST_SNYK_COMMAND)" --env "TEST_SNYK_TOKEN=$(TEST_SNYK_TOKEN)" acceptance-test-with-proxy npm run test:acceptance
 
 # targets responsible for the CLI release
