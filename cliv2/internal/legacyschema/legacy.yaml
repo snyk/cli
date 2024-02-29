@@ -230,10 +230,10 @@ components:
           type: integer
           nullable: true
         bundled:
-          type: object  # Placeholder for any data type
+          type: object # Placeholder for any data type
           nullable: true
         shrinkwrap:
-          type: object  # Placeholder for any data type
+          type: object # Placeholder for any data type
           nullable: true
         __filename:
           type: string
@@ -248,7 +248,7 @@ components:
         title:
           type: string
         patch:
-          type: object  # Placeholder for any data type
+          type: object # Placeholder for any data type
           nullable: true
         note:
           type: string
@@ -275,10 +275,10 @@ components:
           type: string
           nullable: true
         dockerfileInstruction:
-          type: object  # Placeholder for any data type
+          type: object # Placeholder for any data type
           nullable: true
         dockerBaseImage:
-          type: object  # Placeholder for any data type
+          type: object # Placeholder for any data type
           nullable: true
 
     IgnoreSettings:
@@ -342,10 +342,10 @@ components:
           type: object
           properties:
             baseImage:
-              type: object  # Placeholder for any data type
+              type: object # Placeholder for any data type
               nullable: true
             binariesVulns:
-              type: object  # Placeholder for any data type (unknown type)
+              type: object # Placeholder for any data type (unknown type)
             baseImageRemediation:
               $ref: '#/components/schemas/BaseImageRemediation'
               nullable: true
@@ -356,7 +356,7 @@ components:
           type: boolean
           nullable: true
         uniqueCount:
-          type: object  # Placeholder for any data type (unknown type)
+          type: object # Placeholder for any data type (unknown type)
         remediation:
           $ref: '#/components/schemas/RemediationChanges'
           nullable: true
@@ -372,7 +372,7 @@ components:
             $ref: '#/components/schemas/BaseImageRemediationAdvice'
         message:
           type: string
-          nullable: true  # Update based on TODO comment
+          nullable: true # Update based on TODO comment
 
     BaseImageRemediationAdvice:
       type: object
@@ -481,7 +481,7 @@ components:
               $ref: '#/components/schemas/TestDepGraphResult'
               nullable: true
             baseImage:
-              type: object  # Placeholder for any data type
+              type: object # Placeholder for any data type
               nullable: true
         remediation:
           $ref: '#/components/schemas/RemediationChanges'
@@ -586,7 +586,7 @@ components:
     Ignores:
       type: object
       additionalProperties:
-        $ref: "#/components/schemas/Ignore"
+        $ref: '#/components/schemas/Ignore'
 
     Ignore:
       type: object
@@ -690,7 +690,7 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/PatchRemediation'
         ignore:
-          type: object  # Placeholder for unknown data type
+          type: object # Placeholder for unknown data type
         pin:
           $ref: '#/components/schemas/DependencyPins'
 
@@ -826,7 +826,7 @@ components:
         name:
           type: string
         data:
-          type: object  # Placeholder for any data type
+          type: object # Placeholder for any data type
 
     Facts:
       type: object
@@ -834,7 +834,7 @@ components:
         type:
           type: string
         data:
-          type: object  # Placeholder for any data type
+          type: object # Placeholder for any data type
 
     Finding:
       type: object
@@ -842,7 +842,7 @@ components:
         type:
           $ref: '#/components/schemas/FindingType'
         data:
-          type: object  # Placeholder for any data type
+          type: object # Placeholder for any data type
 
     FindingType:
       type: string

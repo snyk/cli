@@ -18,7 +18,7 @@ components:
           type: string
           nullable: true
         purl:
-          type: string  # Assuming PurlString is just a string
+          type: string # Assuming PurlString is just a string
           format: uri
           nullable: true
 
