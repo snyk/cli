@@ -20,6 +20,11 @@ const (
 	AnnotatedIssueExtraTypeLicense AnnotatedIssueExtraType = "license"
 )
 
+// Defines values for FindingType.
+const (
+	IacIssue FindingType = "iacIssue"
+)
+
 // Defines values for IacProjectTypes.
 const (
 	Armconfig            IacProjectTypes = "armconfig"
@@ -70,6 +75,12 @@ const (
 type AffectedPackages map[string]struct {
 	Issues *map[string]Issue `json:"issues,omitempty"`
 	Pkg    *Pkg              `json:"pkg,omitempty"`
+}
+
+// Analytics defines model for Analytics.
+type Analytics struct {
+	Data *map[string]interface{} `json:"data,omitempty"`
+	Name *string                 `json:"name,omitempty"`
 }
 
 // AnnotatedIssue defines model for AnnotatedIssue.
@@ -205,11 +216,19 @@ type BasicResultData struct {
 // CallPath defines model for CallPath.
 type CallPath = []string
 
+// ContainerTarget defines model for ContainerTarget.
+type ContainerTarget struct {
+	Image *string `json:"image,omitempty"`
+}
+
 // DependencyPins defines model for DependencyPins.
 type DependencyPins map[string]PinRemediation
 
 // DependencyUpdates defines model for DependencyUpdates.
 type DependencyUpdates map[string]UpgradeRemediation
+
+// DepsFilePaths defines model for DepsFilePaths.
+type DepsFilePaths map[string][]string
 
 // DockerIssue defines model for DockerIssue.
 type DockerIssue struct {
@@ -256,11 +275,38 @@ type DockerIssueExtra struct {
 	NearestFixedInVersion *string                 `json:"nearestFixedInVersion"`
 }
 
+// Facts defines model for Facts.
+type Facts struct {
+	Data *map[string]interface{} `json:"data,omitempty"`
+	Type *string                 `json:"type,omitempty"`
+}
+
+// FileSignaturesDetails defines model for FileSignaturesDetails.
+type FileSignaturesDetails map[string]struct {
+	Confidence *float32  `json:"confidence,omitempty"`
+	FilePaths  *[]string `json:"filePaths,omitempty"`
+}
+
+// Finding defines model for Finding.
+type Finding struct {
+	Data *map[string]interface{} `json:"data,omitempty"`
+	Type *FindingType            `json:"type,omitempty"`
+}
+
+// FindingType defines model for FindingType.
+type FindingType string
+
 // FixInfo defines model for FixInfo.
 type FixInfo struct {
 	IsPatchable           *bool          `json:"isPatchable,omitempty"`
 	NearestFixedInVersion *string        `json:"nearestFixedInVersion"`
 	UpgradePaths          *[]UpgradePath `json:"upgradePaths,omitempty"`
+}
+
+// GitTarget defines model for GitTarget.
+type GitTarget struct {
+	Branch    *string `json:"branch"`
+	RemoteUrl *string `json:"remoteUrl"`
 }
 
 // GroupedVuln defines model for GroupedVuln.
@@ -282,6 +328,13 @@ type GroupedVuln struct {
 
 // IacProjectTypes defines model for IacProjectTypes.
 type IacProjectTypes string
+
+// Identity defines model for Identity.
+type Identity struct {
+	Args       *map[string]string `json:"args,omitempty"`
+	TargetFile *string            `json:"targetFile"`
+	Type       *string            `json:"type,omitempty"`
+}
 
 // Ignore defines model for Ignore.
 type Ignore struct {
@@ -436,6 +489,9 @@ type LegalInstruction struct {
 	LicenseName  *string `json:"licenseName,omitempty"`
 }
 
+// NamedTarget defines model for NamedTarget.
+type NamedTarget = GitTarget
+
 // Patch defines model for Patch.
 type Patch struct {
 	Id               *string   `json:"id,omitempty"`
@@ -479,6 +535,23 @@ type RemediationChanges struct {
 	Pin        *DependencyPins              `json:"pin,omitempty"`
 	Unresolved *[]IssueData                 `json:"unresolved,omitempty"`
 	Upgrade    *DependencyUpdates           `json:"upgrade,omitempty"`
+}
+
+// ScanResult defines model for ScanResult.
+type ScanResult struct {
+	Analytics       *[]Analytics       `json:"analytics"`
+	Facts           *[]Facts           `json:"facts,omitempty"`
+	Findings        *[]Finding         `json:"findings"`
+	Identity        *Identity          `json:"identity,omitempty"`
+	Name            *string            `json:"name"`
+	Policy          *string            `json:"policy"`
+	Target          *ScanResult_Target `json:"target,omitempty"`
+	TargetReference *string            `json:"targetReference"`
+}
+
+// ScanResult_Target defines model for ScanResult.Target.
+type ScanResult_Target struct {
+	union json.RawMessage
 }
 
 // Severity defines model for Severity.
@@ -530,21 +603,29 @@ type TestDependenciesResponse struct {
 
 // TestDependenciesResult defines model for TestDependenciesResult.
 type TestDependenciesResult struct {
-	DepGraphData    *externalRef0.DepGraphData `json:"depGraphData,omitempty"`
-	DependencyCount *int                       `json:"dependencyCount,omitempty"`
-	DepsFilePaths   *map[string]interface{}    `json:"depsFilePaths"`
+	DepGraphData    *externalRef0.DepGraphData            `json:"depGraphData,omitempty"`
+	DependencyCount *int                                  `json:"dependencyCount,omitempty"`
+	DepsFilePaths   *TestDependenciesResult_DepsFilePaths `json:"depsFilePaths,omitempty"`
 	Docker          *struct {
 		BaseImage            *string               `json:"baseImage,omitempty"`
 		BaseImageRemediation *BaseImageRemediation `json:"baseImageRemediation,omitempty"`
 		BinariesVulns        *TestDepGraphResult   `json:"binariesVulns,omitempty"`
 	} `json:"docker,omitempty"`
-	FileSignaturesDetails *map[string]interface{}        `json:"fileSignaturesDetails,omitempty"`
+	FileSignaturesDetails *FileSignaturesDetails         `json:"fileSignaturesDetails,omitempty"`
 	Issues                *[]Issue                       `json:"issues,omitempty"`
 	IssuesData            *map[string]IssueDataUnmanaged `json:"issuesData,omitempty"`
 	PackageManager        *SupportedProjectTypes         `json:"packageManager,omitempty"`
 	Path                  *string                        `json:"path,omitempty"`
 	Remediation           *RemediationChanges            `json:"remediation,omitempty"`
 	Vulnerabilities       *[]IssueData                   `json:"vulnerabilities,omitempty"`
+}
+
+// TestDependenciesResultDepsFilePaths1 defines model for .
+type TestDependenciesResultDepsFilePaths1 = interface{}
+
+// TestDependenciesResult_DepsFilePaths defines model for TestDependenciesResult.DepsFilePaths.
+type TestDependenciesResult_DepsFilePaths struct {
+	union json.RawMessage
 }
 
 // TestResult defines model for TestResult.
@@ -572,7 +653,7 @@ type TestResult struct {
 	ProjectId          *string                    `json:"projectId"`
 	ProjectName        *string                    `json:"projectName"`
 	Remediation        *RemediationChanges        `json:"remediation,omitempty"`
-	ScanResult         *map[string]interface{}    `json:"scanResult"`
+	ScanResult         *ScanResult                `json:"scanResult,omitempty"`
 	SeverityThreshold  *string                    `json:"severityThreshold"`
 	Summary            *string                    `json:"summary,omitempty"`
 	TargetFile         *string                    `json:"targetFile"`
@@ -602,14 +683,14 @@ type TestResult_LicensesPolicy struct {
 
 // TestResultExtra defines model for TestResultExtra.
 type TestResultExtra struct {
-	DisplayTargetFile  *string                 `json:"displayTargetFile"`
-	FoundProjectCount  *int                    `json:"foundProjectCount"`
-	HasUnknownVersions *bool                   `json:"hasUnknownVersions,omitempty"`
-	Path               *string                 `json:"path"`
-	ProjectName        *string                 `json:"projectName"`
-	ScanResult         *map[string]interface{} `json:"scanResult"`
-	TargetFile         *string                 `json:"targetFile"`
-	TargetFilePath     *string                 `json:"targetFilePath"`
+	DisplayTargetFile  *string     `json:"displayTargetFile"`
+	FoundProjectCount  *int        `json:"foundProjectCount"`
+	HasUnknownVersions *bool       `json:"hasUnknownVersions,omitempty"`
+	Path               *string     `json:"path"`
+	ProjectName        *string     `json:"projectName"`
+	ScanResult         *ScanResult `json:"scanResult,omitempty"`
+	TargetFile         *string     `json:"targetFile"`
+	TargetFilePath     *string     `json:"targetFilePath"`
 }
 
 // Upgrade defines model for Upgrade.
@@ -1229,6 +1310,94 @@ func (t *LegacyVulnApiResultExtra_LicensesPolicy) UnmarshalJSON(b []byte) error 
 	return err
 }
 
+// AsGitTarget returns the union data inside the ScanResult_Target as a GitTarget
+func (t ScanResult_Target) AsGitTarget() (GitTarget, error) {
+	var body GitTarget
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromGitTarget overwrites any union data inside the ScanResult_Target as the provided GitTarget
+func (t *ScanResult_Target) FromGitTarget(v GitTarget) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeGitTarget performs a merge with any union data inside the ScanResult_Target, using the provided GitTarget
+func (t *ScanResult_Target) MergeGitTarget(v GitTarget) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsContainerTarget returns the union data inside the ScanResult_Target as a ContainerTarget
+func (t ScanResult_Target) AsContainerTarget() (ContainerTarget, error) {
+	var body ContainerTarget
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromContainerTarget overwrites any union data inside the ScanResult_Target as the provided ContainerTarget
+func (t *ScanResult_Target) FromContainerTarget(v ContainerTarget) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeContainerTarget performs a merge with any union data inside the ScanResult_Target, using the provided ContainerTarget
+func (t *ScanResult_Target) MergeContainerTarget(v ContainerTarget) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNamedTarget returns the union data inside the ScanResult_Target as a NamedTarget
+func (t ScanResult_Target) AsNamedTarget() (NamedTarget, error) {
+	var body NamedTarget
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNamedTarget overwrites any union data inside the ScanResult_Target as the provided NamedTarget
+func (t *ScanResult_Target) FromNamedTarget(v NamedTarget) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNamedTarget performs a merge with any union data inside the ScanResult_Target, using the provided NamedTarget
+func (t *ScanResult_Target) MergeNamedTarget(v NamedTarget) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ScanResult_Target) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ScanResult_Target) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsIacProjectTypes returns the union data inside the SupportedProjectTypes as a IacProjectTypes
 func (t SupportedProjectTypes) AsIacProjectTypes() (IacProjectTypes, error) {
 	var body IacProjectTypes
@@ -1287,6 +1456,68 @@ func (t SupportedProjectTypes) MarshalJSON() ([]byte, error) {
 }
 
 func (t *SupportedProjectTypes) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsDepsFilePaths returns the union data inside the TestDependenciesResult_DepsFilePaths as a DepsFilePaths
+func (t TestDependenciesResult_DepsFilePaths) AsDepsFilePaths() (DepsFilePaths, error) {
+	var body DepsFilePaths
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDepsFilePaths overwrites any union data inside the TestDependenciesResult_DepsFilePaths as the provided DepsFilePaths
+func (t *TestDependenciesResult_DepsFilePaths) FromDepsFilePaths(v DepsFilePaths) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDepsFilePaths performs a merge with any union data inside the TestDependenciesResult_DepsFilePaths, using the provided DepsFilePaths
+func (t *TestDependenciesResult_DepsFilePaths) MergeDepsFilePaths(v DepsFilePaths) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsTestDependenciesResultDepsFilePaths1 returns the union data inside the TestDependenciesResult_DepsFilePaths as a TestDependenciesResultDepsFilePaths1
+func (t TestDependenciesResult_DepsFilePaths) AsTestDependenciesResultDepsFilePaths1() (TestDependenciesResultDepsFilePaths1, error) {
+	var body TestDependenciesResultDepsFilePaths1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromTestDependenciesResultDepsFilePaths1 overwrites any union data inside the TestDependenciesResult_DepsFilePaths as the provided TestDependenciesResultDepsFilePaths1
+func (t *TestDependenciesResult_DepsFilePaths) FromTestDependenciesResultDepsFilePaths1(v TestDependenciesResultDepsFilePaths1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeTestDependenciesResultDepsFilePaths1 performs a merge with any union data inside the TestDependenciesResult_DepsFilePaths, using the provided TestDependenciesResultDepsFilePaths1
+func (t *TestDependenciesResult_DepsFilePaths) MergeTestDependenciesResultDepsFilePaths1(v TestDependenciesResultDepsFilePaths1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t TestDependenciesResult_DepsFilePaths) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *TestDependenciesResult_DepsFilePaths) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }

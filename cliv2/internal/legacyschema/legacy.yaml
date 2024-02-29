@@ -410,7 +410,7 @@ components:
           type: integer
           nullable: true
         scanResult:
-          type: object  # TODO: Placeholder for any data type (ScanResult type not provided)
+          $ref: '#/components/schemas/ScanResult'
           nullable: true
         hasUnknownVersions:
           type: boolean
@@ -524,12 +524,13 @@ components:
           $ref: '#/components/schemas/RemediationChanges'
           nullable: true
         depsFilePaths:
-          type: object  # TODO: Placeholder for any data type (DepsFilePaths type not provided)
-          nullable: true
+          oneOf:
+            - $ref: '#/components/schemas/DepsFilePaths'
+            - type: null
         depGraphData:
           $ref: '../depgraph/depgraph.yaml#/components/schemas/DepGraphData'
         fileSignaturesDetails:
-          type: object  # TODO: Placeholder for any data type (FileSignaturesDetails type not provided)
+          $ref: '#/components/schemas/FileSignaturesDetails'
         vulnerabilities:
           type: array
           items:
@@ -729,3 +730,121 @@ components:
         - 'armconfig'
         - 'customconfig'
         - 'multiiacconfig'
+
+    FileSignaturesDetails:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          confidence:
+            type: number
+          filePaths:
+            type: array
+            items:
+              type: string
+
+    DepsFilePaths:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: string
+
+    ScanResult:
+      type: object
+      properties:
+        identity:
+          $ref: '#/components/schemas/Identity'
+        facts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Facts'
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Finding'
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        policy:
+          type: string
+          nullable: true
+        target:
+          oneOf:
+            - $ref: '#/components/schemas/GitTarget'
+            - $ref: '#/components/schemas/ContainerTarget'
+            - $ref: '#/components/schemas/NamedTarget'
+        analytics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Analytics'
+          nullable: true
+        targetReference:
+          type: string
+          nullable: true
+
+    Identity:
+      type: object
+      properties:
+        type:
+          type: string
+        targetFile:
+          type: string
+          nullable: true
+        args:
+          type: object
+          additionalProperties:
+            type: string
+
+    GitTarget:
+      type: object
+      properties:
+        remoteUrl:
+          type: string
+          nullable: true
+        branch:
+          type: string
+          nullable: true
+
+    ContainerTarget:
+      type: object
+      properties:
+        image:
+          type: string
+
+    NamedTarget:
+      allOf:
+        - $ref: '#/components/schemas/GitTarget'
+      properties:
+        name:
+          type: string
+
+    Analytics:
+      type: object
+      properties:
+        name:
+          type: string
+        data:
+          type: object  # Placeholder for any data type
+
+    Facts:
+      type: object
+      properties:
+        type:
+          type: string
+        data:
+          type: object  # Placeholder for any data type
+
+    Finding:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/FindingType'
+        data:
+          type: object  # Placeholder for any data type
+
+    FindingType:
+      type: string
+      enum:
+        - iacIssue
