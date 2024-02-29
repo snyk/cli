@@ -1,0 +1,731 @@
+# Legacy CLI JSON schema types
+
+# Derived from the following prompt, with cleanup:
+#
+#   "Write OpenAPI 3.0 schema components for the following Typescript interfaces:"
+#
+# For the interfaces and enums declared and referenced in
+# src/lib/snyk-test/legacy.ts
+
+components:
+  schemas:
+    Pkg:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+          nullable: true
+    Patch:
+      type: object
+      properties:
+        version:
+          type: string
+        id:
+          type: string
+        urls:
+          type: array
+          items:
+            type: string
+        modificationTime:
+          type: string
+    Severity:
+      type: string
+      enum:
+        - low
+        - medium
+        - high
+        - critical
+    VulnMetaData:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - license
+            - vuln
+        name:
+          type: string
+        info:
+          type: string
+        severity:
+          $ref: '#/components/schemas/Severity'
+        severityValue:
+          type: number
+        isNew:
+          type: boolean
+        version:
+          type: string
+        packageManager:
+          $ref: '#/components/schemas/SupportedPackageManagers'
+    GroupedVuln:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnotatedIssue'
+        metadata:
+          $ref: '#/components/schemas/VulnMetaData'
+        isIgnored:
+          type: boolean
+        title:
+          type: string
+        note:
+          type: string
+          nullable: true
+        severity:
+          $ref: '#/components/schemas/Severity'
+        originalSeverity:
+          $ref: '#/components/schemas/Severity'
+          nullable: true
+        isNew:
+          type: boolean
+        name:
+          type: string
+        version:
+          type: string
+        isFixable:
+          type: boolean
+        fixedIn:
+          type: array
+          items:
+            type: string
+        legalInstructionsArray:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalInstruction'
+    LegalInstruction:
+      type: object
+      properties:
+        licenseName:
+          type: string
+        legalContent:
+          type: string
+    IssueData:
+      type: object
+      properties:
+        id:
+          type: string
+        packageName:
+          type: string
+        version:
+          type: string
+        moduleName:
+          type: string
+          nullable: true
+        below:
+          type: string
+        semver:
+          type: object
+          properties:
+            vulnerable:
+              oneOf:
+                - type: string
+                - type: array
+                  items:
+                    type: string
+            vulnerableHashes:
+              type: array
+              items:
+                type: string
+              nullable: true
+            vulnerableByDistro:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+        patches:
+          type: array
+          items:
+            $ref: '#/components/schemas/Patch'
+        isNew:
+          type: boolean
+        description:
+          type: string
+        title:
+          type: string
+        severity:
+          $ref: '#/components/schemas/Severity'
+        fixedIn:
+          type: array
+          items:
+            type: string
+        legalInstructions:
+          type: string
+          nullable: true
+        packageManager:
+          $ref: '#/components/schemas/SupportedProjectTypes'
+        from:
+          type: array
+          items:
+            type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+    IssueDataUnmanaged:
+      allOf:
+        - $ref: '#/components/schemas/IssueData'
+      properties:
+        upgradePath:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - type: boolean
+        isPatchable:
+          type: boolean
+    CallPath:
+      type: array
+      items:
+        type: string
+    AnnotatedIssue:
+      allOf:
+        - $ref: '#/components/schemas/IssueData'
+        - $ref: '#/components/schemas/AnnotatedIssueExtra'
+
+    AnnotatedIssueExtra:
+      type: object
+      properties:
+        credit:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        version:
+          type: string
+        from:
+          type: array
+          items:
+            type: string
+        upgradePath:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - type: boolean
+        isUpgradable:
+          type: boolean
+        isPatchable:
+          type: boolean
+        severity:
+          $ref: '#/components/schemas/Severity'
+        originalSeverity:
+          $ref: '#/components/schemas/Severity'
+          nullable: true
+        cvssScore:
+          type: number
+          nullable: true
+        lineNumber:
+          type: integer
+          nullable: true
+        bundled:
+          type: object  # Placeholder for any data type
+          nullable: true
+        shrinkwrap:
+          type: object  # Placeholder for any data type
+          nullable: true
+        __filename:
+          type: string
+          nullable: true
+        parentDepType:
+          type: string
+        type:
+          type: string
+          enum:
+            - license
+          nullable: true
+        title:
+          type: string
+        patch:
+          type: object  # Placeholder for any data type
+          nullable: true
+        note:
+          type: string
+          nullable: true
+        publicationTime:
+          type: string
+          nullable: true
+        identifiers:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    DockerIssue:
+      allOf:
+        - $ref: '#/components/schemas/IssueData'
+        - $ref: '#/components/schemas/DockerIssueExtra'
+
+    DockerIssueExtra:
+      type: object
+      properties:
+        nearestFixedInVersion:
+          type: string
+          nullable: true
+        dockerfileInstruction:
+          type: object  # Placeholder for any data type
+          nullable: true
+        dockerBaseImage:
+          type: object  # Placeholder for any data type
+          nullable: true
+
+    IgnoreSettings:
+      type: object
+      properties:
+        adminOnly:
+          type: boolean
+        reasonRequired:
+          type: boolean
+        disregardFilesystemIgnores:
+          type: boolean
+
+    BasicResultData:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        payloadType:
+          type: string
+          nullable: true
+        org:
+          type: string
+        isPrivate:
+          type: boolean
+        summary:
+          type: string
+        packageManager:
+          $ref: '#/components/schemas/SupportedProjectTypes'
+          nullable: true
+        severityThreshold:
+          type: string
+          nullable: true
+        platform:
+          type: string
+          nullable: true
+
+    LegacyVulnApiResult:
+      allOf:
+        - $ref: '#/components/schemas/BasicResultData'
+        - $ref: '#/components/schemas/LegacyVulnApiResultExtra'
+
+    LegacyVulnApiResultExtra:
+      properties:
+        vulnerabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnnotatedIssue'
+        dependencyCount:
+          type: integer
+        policy:
+          type: string
+        licensesPolicy:
+          oneOf:
+            - type: object
+            - type: null
+        ignoreSettings:
+          oneOf:
+            - $ref: '#/components/schemas/IgnoreSettings'
+            - type: null
+        docker:
+          type: object
+          properties:
+            baseImage:
+              type: object  # Placeholder for any data type
+              nullable: true
+            binariesVulns:
+              type: object  # Placeholder for any data type (unknown type)
+            baseImageRemediation:
+              $ref: '#/components/schemas/BaseImageRemediation'
+              nullable: true
+        projectId:
+          type: string
+          nullable: true
+        filesystemPolicy:
+          type: boolean
+          nullable: true
+        uniqueCount:
+          type: object  # Placeholder for any data type (unknown type)
+        remediation:
+          $ref: '#/components/schemas/RemediationChanges'
+          nullable: true
+
+    BaseImageRemediation:
+      type: object
+      properties:
+        code:
+          type: string
+        advice:
+          type: array
+          items:
+            $ref: '#/components/schemas/BaseImageRemediationAdvice'
+        message:
+          type: string
+          nullable: true  # Update based on TODO comment
+
+    BaseImageRemediationAdvice:
+      type: object
+      properties:
+        message:
+          type: string
+        bold:
+          type: boolean
+          nullable: true
+        color:
+          type: string
+          nullable: true
+
+    TestResult:
+      allOf:
+        - $ref: '#/components/schemas/LegacyVulnApiResult'
+        - $ref: '#/components/schemas/TestResultExtra'
+
+    TestResultExtra:
+      type: object
+      properties:
+        targetFile:
+          type: string
+          nullable: true
+        projectName:
+          type: string
+          nullable: true
+        targetFilePath:
+          type: string
+          nullable: true
+        displayTargetFile:
+          type: string
+          nullable: true
+        foundProjectCount:
+          type: integer
+          nullable: true
+        scanResult:
+          type: object  # TODO: Placeholder for any data type (ScanResult type not provided)
+          nullable: true
+        hasUnknownVersions:
+          type: boolean
+        path:
+          type: string
+          nullable: true
+
+    UpgradePathItem:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        newVersion:
+          type: string
+          nullable: true
+        isDropped:
+          type: boolean
+          nullable: true
+
+    UpgradePath:
+      type: object
+      properties:
+        path:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpgradePathItem'
+
+    FixInfo:
+      type: object
+      properties:
+        upgradePaths:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpgradePath'
+        isPatchable:
+          type: boolean
+        nearestFixedInVersion:
+          type: string
+          nullable: true
+
+    AffectedPackages:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          pkg:
+            $ref: '#/components/schemas/Pkg'
+          issues:
+            type: object
+            additionalProperties:
+              $ref: '#/components/schemas/Issue'
+
+    TestDepGraphResult:
+      type: object
+      properties:
+        issuesData:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/IssueData'
+        affectedPkgs:
+          $ref: '#/components/schemas/AffectedPackages'
+        docker:
+          type: object
+          properties:
+            binariesVulns:
+              $ref: '#/components/schemas/TestDepGraphResult'
+              nullable: true
+            baseImage:
+              type: object  # Placeholder for any data type
+              nullable: true
+        remediation:
+          $ref: '#/components/schemas/RemediationChanges'
+          nullable: true
+
+    Issue:
+      type: object
+      properties:
+        pkgName:
+          type: string
+        pkgVersion:
+          type: string
+          nullable: true
+        issueId:
+          type: string
+        fixInfo:
+          $ref: '#/components/schemas/FixInfo'
+
+    TestDependenciesResult:
+      type: object
+      properties:
+        issuesData:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/IssueDataUnmanaged'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+        docker:
+          type: object
+          properties:
+            baseImage:
+              type: string
+            baseImageRemediation:
+              $ref: '#/components/schemas/BaseImageRemediation'
+            binariesVulns:
+              $ref: '#/components/schemas/TestDepGraphResult'
+        remediation:
+          $ref: '#/components/schemas/RemediationChanges'
+          nullable: true
+        depsFilePaths:
+          type: object  # TODO: Placeholder for any data type (DepsFilePaths type not provided)
+          nullable: true
+        depGraphData:
+          type: object  # TODO: Placeholder for any data type (depGraphLib.DepGraphData type not provided)
+        fileSignaturesDetails:
+          type: object  # TODO: Placeholder for any data type (FileSignaturesDetails type not provided)
+        vulnerabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/IssueData'
+        path:
+          type: string
+        dependencyCount:
+          type: integer
+        packageManager:
+          $ref: '#/components/schemas/SupportedProjectTypes'
+
+    TestDepGraphMeta:
+      type: object
+      properties:
+        isPublic:
+          type: boolean
+        isLicensesEnabled:
+          type: boolean
+        licensesPolicy:
+          type: object
+          properties:
+            severities:
+              type: object
+              additionalProperties:
+                type: string
+        projectId:
+          type: string
+          nullable: true
+        ignoreSettings:
+          $ref: '#/components/schemas/IgnoreSettings'
+          nullable: true
+        policy:
+          type: string
+        org:
+          type: string
+
+    TestDepGraphResponse:
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/TestDepGraphResult'
+        meta:
+          $ref: '#/components/schemas/TestDepGraphMeta'
+
+    TestDependenciesResponse:
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/TestDependenciesResult'
+        meta:
+          $ref: '#/components/schemas/TestDepGraphMeta'
+
+    Ignores:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/Ignore"
+
+    Ignore:
+      type: object
+      properties:
+        paths:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        meta:
+          type: object
+          properties:
+            days:
+              type: integer
+              nullable: true
+            reason:
+              type: string
+              nullable: true
+
+    PatchObject:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          patched:
+            type: string
+
+    Upgrade:
+      type: object
+      properties:
+        upgradeTo:
+          type: string
+
+    UpgradeVulns:
+      allOf:
+        - $ref: '#/components/schemas/Upgrade'
+        - $ref: '#/components/schemas/UpgradeVulnsExtra'
+
+    UpgradeVulnsExtra:
+      type: object
+      properties:
+        vulns:
+          type: array
+          items:
+            type: string
+
+    UpgradeRemediation:
+      allOf:
+        - $ref: '#/components/schemas/UpgradeVulns'
+        - $ref: '#/components/schemas/UpgradeRemediationExtra'
+
+    UpgradeRemediationExtra:
+      type: object
+      properties:
+        upgrades:
+          type: array
+          items:
+            type: string
+
+    PatchRemediation:
+      type: object
+      properties:
+        paths:
+          type: array
+          items:
+            $ref: '#/components/schemas/PatchObject'
+
+    DependencyUpdates:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/UpgradeRemediation'
+
+    PinRemediation:
+      allOf:
+        - $ref: '#/components/schemas/UpgradeVulns'
+        - $ref: '#/components/schemas/PinRemediationExtra'
+
+    PinRemediationExtra:
+      type: object
+      properties:
+        isTransitive:
+          type: boolean
+
+    DependencyPins:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/PinRemediation'
+
+    RemediationChanges:
+      type: object
+      properties:
+        unresolved:
+          type: array
+          items:
+            $ref: '#/components/schemas/IssueData'
+        upgrade:
+          $ref: '#/components/schemas/DependencyUpdates'
+        patch:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PatchRemediation'
+        ignore:
+          type: object  # Placeholder for unknown data type
+        pin:
+          $ref: '#/components/schemas/DependencyPins'
+
+    SupportedPackageManagers:
+      type: string
+      enum:
+        - 'rubygems'
+        - 'npm'
+        - 'yarn'
+        - 'maven'
+        - 'pip'
+        - 'sbt'
+        - 'gradle'
+        - 'golangdep'
+        - 'govendor'
+        - 'gomodules'
+        - 'nuget'
+        - 'paket'
+        - 'composer'
+        - 'cocoapods'
+        - 'poetry'
+        - 'hex'
+        - 'Unmanaged (C/C++)'
+        - 'swift'
+
+    SupportedProjectTypes:
+      oneOf:
+        - $ref: '#/components/schemas/IacProjectTypes'
+        - $ref: '#/components/schemas/SupportedPackageManagers'
+
+    IacProjectTypes:
+      type: string
+      enum:
+        - 'k8sconfig'
+        - 'terraformconfig'
+        - 'cloudformationconfig'
+        - 'armconfig'
+        - 'customconfig'
+        - 'multiiacconfig'

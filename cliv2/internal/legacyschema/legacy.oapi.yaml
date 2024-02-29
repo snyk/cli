@@ -1,0 +1,6 @@
+package: legacyschema
+generate:
+  models: true
+output-options:
+  skip-prune: true
+output: legacy.gen.go
