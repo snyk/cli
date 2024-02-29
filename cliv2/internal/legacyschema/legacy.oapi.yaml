@@ -1,6 +1,8 @@
 package: legacyschema
 generate:
   models: true
+import-mapping:
+  ../depgraph/depgraph.yaml: github.com/snyk/cli/cliv2/internal/depgraph
 output-options:
   skip-prune: true
 output: legacy.gen.go

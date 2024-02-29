@@ -527,7 +527,7 @@ components:
           type: object  # TODO: Placeholder for any data type (DepsFilePaths type not provided)
           nullable: true
         depGraphData:
-          type: object  # TODO: Placeholder for any data type (depGraphLib.DepGraphData type not provided)
+          $ref: '../depgraph/depgraph.yaml#/components/schemas/DepGraphData'
         fileSignaturesDetails:
           type: object  # TODO: Placeholder for any data type (FileSignaturesDetails type not provided)
         vulnerabilities:

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 
 	"github.com/oapi-codegen/runtime"
+	externalRef0 "github.com/snyk/cli/cliv2/internal/depgraph"
 )
 
 // Defines values for AnnotatedIssueType.
@@ -529,9 +530,9 @@ type TestDependenciesResponse struct {
 
 // TestDependenciesResult defines model for TestDependenciesResult.
 type TestDependenciesResult struct {
-	DepGraphData    *map[string]interface{} `json:"depGraphData,omitempty"`
-	DependencyCount *int                    `json:"dependencyCount,omitempty"`
-	DepsFilePaths   *map[string]interface{} `json:"depsFilePaths"`
+	DepGraphData    *externalRef0.DepGraphData `json:"depGraphData,omitempty"`
+	DependencyCount *int                       `json:"dependencyCount,omitempty"`
+	DepsFilePaths   *map[string]interface{}    `json:"depsFilePaths"`
 	Docker          *struct {
 		BaseImage            *string               `json:"baseImage,omitempty"`
 		BaseImageRemediation *BaseImageRemediation `json:"baseImageRemediation,omitempty"`

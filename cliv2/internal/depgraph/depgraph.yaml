@@ -1,0 +1,130 @@
+components:
+  schemas:
+    Pkg:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+          nullable: true
+
+    PkgInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+          nullable: true
+        purl:
+          type: string  # Assuming PurlString is just a string
+          format: uri
+          nullable: true
+
+    VersionProvenance:
+      type: object
+      properties:
+        type:
+          type: string
+        location:
+          type: string
+        property:
+          type: object
+          properties:
+            name:
+              type: string
+          nullable: true
+
+    NodeInfo:
+      type: object
+      properties:
+        versionProvenance:
+          $ref: '#/components/schemas/VersionProvenance'
+          nullable: true
+        labels:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/NodeInfoLabel'
+
+    NodeInfoLabel:
+      type: object
+      properties:
+        type:
+          type: string
+        scope:
+          type: string
+          enum:
+            - 'dev'
+            - 'prod'
+        pruned:
+          type: string
+          enum:
+            - 'cyclic'
+            - 'true'
+
+    Node:
+      type: object
+      properties:
+        info:
+          $ref: '#/components/schemas/NodeInfo'
+
+    GraphNode:
+      type: object
+      properties:
+        nodeId:
+          type: string
+        pkgId:
+          type: string
+        info:
+          $ref: '#/components/schemas/NodeInfo'
+          nullable: true
+        deps:
+          type: array
+          items:
+            type: object
+            properties:
+              nodeId:
+                type: string
+
+    PkgManager:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+          nullable: true
+        repositories:
+          type: array
+          items:
+            type: object
+            properties:
+              alias:
+                type: string
+
+    DepGraphData:
+      type: object
+      properties:
+        schemaVersion:
+          type: string
+        pkgManager:
+          $ref: '#/components/schemas/PkgManager'
+        pkgs:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              info:
+                $ref: '#/components/schemas/PkgInfo'
+        graph:
+          type: object
+          properties:
+            rootNodeId:
+              type: string
+            nodes:
+              type: array
+              items:
+                $ref: '#/components/schemas/GraphNode'
