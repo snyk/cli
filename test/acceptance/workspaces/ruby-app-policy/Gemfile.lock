@@ -11,7 +11,7 @@ GEM
     sanitize (6.1.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
-    yard (0.9.35)
+    yard (0.9.36)
 
 PLATFORMS
   ruby
@@ -19,7 +19,7 @@ PLATFORMS
 DEPENDENCIES
   lynx (= 1.0.0)
   sanitize (= 6.1.0)
-  yard (= 0.9.35)
+  yard (= 0.9.36)
 
 BUNDLED WITH
    1.16.5
