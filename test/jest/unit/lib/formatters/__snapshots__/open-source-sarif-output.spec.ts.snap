@@ -79,6 +79,7 @@ Object {
               "id": "SNYK-JS-AJV-584908",
               "properties": Object {
                 "cvssv3_baseScore": 7.5,
+                "security-severity": 7.5,
                 "tags": Array [
                   "security",
                   "CWE-400",
