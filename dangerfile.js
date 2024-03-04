@@ -9,7 +9,7 @@ if (danger.github && danger.github.pr) {
     const { message, url } = commit;
     const [firstLine] = message.split('\n', 1);
 
-    const firstLineRegex = /^(feat|fix|chore|test|docs|refactor|revert)(\(.*\))?:(.+)$/;
+    const firstLineRegex = /^(feat|fix|chore|test|docs|refactor|revert)(\([a-z0-9]+\))?:(.+)$/;
     if (!firstLineRegex.test(firstLine)) {
       fail(
         `"[${firstLine}](${url})" is not using a valid commit message format. For commit guidelines, see: [CONTRIBUTING](https://github.com/snyk/snyk/blob/main/CONTRIBUTING.md#creating-commits).`,
