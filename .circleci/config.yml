@@ -852,11 +852,15 @@ jobs:
 
   test-node:
     executor: docker-amd64
+    environment:
+      JEST_JUNIT_OUTPUT_DIR: test/reports
     steps:
       - prepare-workspace
       - run:
           name: Running TS unit tests
           command: npm run test:unit
+      - store_test_results:
+          path: test/reports
 
   test-go:
     executor: docker-amd64
