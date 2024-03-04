@@ -247,7 +247,7 @@ clean-golang:
 .PHONY: acceptance-test-with-proxy
 acceptance-test-with-proxy: pre-build
 	@echo "-- Running acceptance tests in a proxied environment"
-	@docker build -t acceptance-test-with-proxy -f ./test/acceptance/environments/proxy/Dockerfile .
+	@docker build -t acceptance-test-with-proxy -f ./scripts/environments/proxy/Dockerfile .
 	@docker run --rm --cap-add=NET_ADMIN acceptance-test-with-proxy ./node_modules/.bin/jest ./ts-binary-wrapper/test/acceptance/basic.spec.ts
 # TODO: Run all acceptance tests behind a proxy using npm run test:acceptance
 
