@@ -88,7 +88,7 @@ ${vuln.description}`.replace(/##\s/g, '# '),
             testResult.packageManager!,
           ],
           cvssv3_baseScore: vuln.cvssScore, // AWS
-          'security-severity': vuln.cvssScore, // GitHub
+          'security-severity': String(vuln.cvssScore), // GitHub
         },
       };
     },
