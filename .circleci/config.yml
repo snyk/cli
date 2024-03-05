@@ -984,6 +984,7 @@ jobs:
           command: npm install
       - run:
           name: Running acceptance tests
+          no_output_timeout: 30m
           command: |
             << parameters.pre_test_cmds >>
             npm run test:acceptance -- --selectProjects coreCli
@@ -991,6 +992,11 @@ jobs:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
+            JEST_JUNIT_OUTPUT_DIR: test/reports
+      - store_test_results:
+          path: test/reports
+      - store_artifacts:
+          path: test/reports
 
   regression-tests:
     parameters:
