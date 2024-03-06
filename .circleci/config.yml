@@ -36,6 +36,7 @@ executors:
   alpine:
     docker:
       - image: alpine:3.17
+    resource_class: xlarge
   generic-ubuntu:
     docker:
       - image: ubuntu:latest
@@ -49,6 +50,11 @@ executors:
       - image: snyklabs/cli-build:20240319-123447
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
+  docker-amd64-xl:
+    docker:
+      - image: bastiandoetsch209/cli-build:20240214-145818
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: xlarge
   docker-arm64:
     docker:
       - image: snyklabs/cli-build-arm64:20240319-123447
@@ -512,7 +518,7 @@ workflows:
               ignore: main
           requires:
             - build linux amd64
-          executor: docker-amd64
+          executor: docker-amd64-xl
           test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-tests:
@@ -1050,6 +1056,7 @@ jobs:
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
             JEST_JUNIT_OUTPUT_DIR: test/reports
+            NODE_OPTIONS: --max-old-space-size=4096
       - store_test_results:
           path: test/reports
       - store_artifacts:

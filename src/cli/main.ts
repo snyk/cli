@@ -1,5 +1,6 @@
 import * as Debug from 'debug';
 import * as pathLib from 'path';
+import { JsonStreamStringify } from 'json-stream-stringify';
 
 // import args as a first internal module
 import { args as argsLib, Args, ArgsOptions } from './args';
@@ -144,7 +145,13 @@ async function handleError(args, error) {
     const output = vulnsFound
       ? error.message
       : stripAnsi(error.json || error.stack);
-    console.log(output);
+    if (error.jsonPayload) {
+      new JsonStreamStringify(error.jsonPayload, undefined, 2).pipe(
+        process.stdout,
+      );
+    } else {
+      console.log(output);
+    }
   } else {
     if (!args.options.quiet) {
       const result = errors.message(error);

@@ -76,4 +76,52 @@ describe('test --json', () => {
     expect(code).toEqual(1);
     expect(stdout).not.toBe('');
   });
+
+  describe('handling responses larger than 512Mb string size limit in v8', () => {
+    it('container test --json', async () => {
+      const issueID = 'SNYK-ALPINE319-OPENSSL-6148881';
+      const project = await createProjectFromWorkspace(
+        'extra-large-response-payload',
+      );
+      const response = await project.readJSON('vulns-result.json');
+      const reference = response.result.issuesData[issueID].references[0];
+      response.result.issuesData[issueID].references = new Array(420000).fill(
+        reference,
+      );
+
+      server.setCustomResponse(response);
+
+      const imageName = 'hello-world:latest';
+      const { code, stdoutBuffer, stderrBuffer } = await runSnykCLI(
+        `container test --platform=linux/amd64 ${imageName} --json`,
+        {
+          cwd: project.path(),
+          env,
+          bufferOutput: true,
+        },
+      );
+
+      if (stderrBuffer && stderrBuffer.length > 0)
+        console.log(stderrBuffer?.toString('utf8'));
+
+      let hasExpectedPathString = false;
+      let hasExpectedVulnerabilitiesString = false;
+
+      const Parser = require('jsonparse');
+      const p = new Parser();
+      p.onValue = function(value) {
+        if (this.key === 'path' && value === imageName) {
+          hasExpectedPathString = true;
+        } else if (this.key === 'vulnerabilities') {
+          hasExpectedVulnerabilitiesString = true;
+        }
+      };
+
+      p.write(stdoutBuffer);
+
+      expect(code).toEqual(1);
+      expect(hasExpectedVulnerabilitiesString).toBeTruthy();
+      expect(hasExpectedPathString).toBeTruthy();
+    }, 120000);
+  });
 });
