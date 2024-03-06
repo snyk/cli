@@ -3,9 +3,7 @@ package proxy_test
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -31,7 +29,7 @@ func helper_getHttpClient(gateway *proxy.WrapperProxy, useProxyAuth bool) (*http
 		rootCAs = x509.NewCertPool()
 	}
 
-	proxyCertBytes, err := ioutil.ReadFile(gateway.CertificateLocation)
+	proxyCertBytes, err := os.ReadFile(gateway.CertificateLocation)
 	if err != nil {
 		return nil, err
 	}
@@ -67,11 +65,13 @@ func helper_getHttpClient(gateway *proxy.WrapperProxy, useProxyAuth bool) (*http
 }
 
 func setup(t *testing.T, baseCache string, version string) {
+	t.Helper()
 	err := utils.CreateAllDirectories(baseCache, version)
 	assert.Nil(t, err)
 }
 
 func teardown(t *testing.T, baseCache string) {
+	t.Helper()
 	err := os.RemoveAll(baseCache)
 	assert.Nil(t, err)
 }
@@ -98,10 +98,6 @@ func Test_closingProxyDeletesTempCert(t *testing.T) {
 	// assert cert file is deleted
 	_, err = os.Stat(wp.CertificateLocation)
 	assert.NotNil(t, err) // this means the file is gone
-}
-
-func basicAuthValue(username string, password string) string {
-	return base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
 }
 
 func Test_canGoThroughProxy(t *testing.T) {
@@ -235,11 +231,14 @@ func Test_appendExtraCaCert(t *testing.T) {
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	certPem, _, _ := certs.MakeSelfSignedCert("mycert", []string{"dns"}, debugLogger)
-	file, _ := os.CreateTemp("", "")
-	file.Write(certPem)
+	certPem, _, err := certs.MakeSelfSignedCert("mycert", []string{"dns"}, debugLogger)
+	assert.NoError(t, err)
+	file, err := os.CreateTemp("", "")
+	assert.NoError(t, err)
+	_, err = file.Write(certPem)
+	assert.NoError(t, err)
 
-	os.Setenv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV, file.Name())
+	t.Setenv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV, file.Name())
 
 	wp, err := proxy.NewWrapperProxy(config, version, debugLogger)
 	assert.Nil(t, err)
@@ -252,6 +251,5 @@ func Test_appendExtraCaCert(t *testing.T) {
 	assert.Equal(t, 2, len(certsList))
 
 	// cleanup
-	os.Unsetenv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV)
 	os.Remove(file.Name())
 }

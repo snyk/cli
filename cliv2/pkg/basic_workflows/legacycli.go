@@ -120,7 +120,7 @@ func legacycliWorkflow(
 		return output, err
 	}
 
-	if useStdIo == false {
+	if !useStdIo {
 		in := bytes.NewReader([]byte{})
 		outWriter = bufio.NewWriter(&outBuffer)
 		errWriter = bufio.NewWriter(&errBuffer)
@@ -141,8 +141,8 @@ func legacycliWorkflow(
 	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
 
 	proxyHeaderFunc := func(req *http.Request) error {
-		err := networkAccess.AddHeaders(req)
-		return err
+		headersErr := networkAccess.AddHeaders(req)
+		return headersErr
 	}
 	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
 

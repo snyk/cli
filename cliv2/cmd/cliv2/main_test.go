@@ -151,7 +151,6 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 }
 
 func Test_runMainWorkflow_unknownargs(t *testing.T) {
-
 	tests := map[string]struct {
 		inputDir    string
 		unknownArgs []string
@@ -163,7 +162,6 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-
 			expectedInputDir := tc.inputDir
 			expectedUnknownArgs := tc.unknownArgs
 
