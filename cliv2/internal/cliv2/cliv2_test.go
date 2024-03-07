@@ -33,7 +33,6 @@ func getCacheDir(t *testing.T) string {
 }
 
 func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
-
 	orgid := "orgid"
 	testapi := "https://api.snyky.io"
 
@@ -80,7 +79,6 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 }
 
 func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testing.T) {
-
 	orgid := "orgid"
 	testapi := "https://api.snyky.io"
 
@@ -116,7 +114,6 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 }
 
 func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
-
 	orgid := "orgid"
 	testapi := "https://api.snyky.io"
 
@@ -152,7 +149,6 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 }
 
 func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
-
 	config := configuration.NewInMemory()
 
 	t.Run("Values not set", func(t *testing.T) {
@@ -188,11 +184,9 @@ func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
 		assert.NotContains(t, actual, expected)
 		assert.Nil(t, err)
 	})
-
 }
 
 func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) {
-
 	orgid := "orgid"
 	testapi := "https://api.snyky.io"
 
@@ -215,7 +209,6 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) 
 }
 
 func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting_Org(t *testing.T) {
-
 	orgid := "orgid"
 	testapi := "https://api.snyky.io"
 
@@ -256,7 +249,6 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting_Org(t *testing
 		assert.NotContains(t, actual, notExpected)
 		assert.Contains(t, actual, expectedOrgEnvVar)
 	})
-
 }
 
 func getProxyInfoForTest() *proxy.ProxyInfo {
@@ -307,17 +299,21 @@ func Test_extractOnlyOnce(t *testing.T) {
 
 	// run once
 	err = cli.Execute(getProxyInfoForTest(), []string{"--help"})
+	assert.Error(t, err) // invalid binary expected here
 	assert.FileExists(t, cli.GetBinaryLocation())
-	fileInfo1, _ := os.Stat(cli.GetBinaryLocation())
+	fileInfo1, err := os.Stat(cli.GetBinaryLocation())
+	assert.NoError(t, err)
 
 	// sleep shortly to ensure that ModTimes would be different
 	time.Sleep(500 * time.Millisecond)
 
 	// run twice
 	assert.Nil(t, cli.Init())
-	_ = cli.Execute(getProxyInfoForTest(), []string{"--help"})
+	err = cli.Execute(getProxyInfoForTest(), []string{"--help"})
+	assert.Error(t, err) // invalid binary expected here
 	assert.FileExists(t, cli.GetBinaryLocation())
-	fileInfo2, _ := os.Stat(cli.GetBinaryLocation())
+	fileInfo2, err := os.Stat(cli.GetBinaryLocation())
+	assert.NoError(t, err)
 
 	assert.Equal(t, fileInfo1.ModTime(), fileInfo2.ModTime())
 }
@@ -376,7 +372,6 @@ func Test_executeRunV2only(t *testing.T) {
 	actualReturnCode := cliv2.DeriveExitCode(cli.Execute(getProxyInfoForTest(), []string{"--version"}))
 	assert.Equal(t, expectedReturnCode, actualReturnCode)
 	assert.FileExists(t, cli.GetBinaryLocation())
-
 }
 
 func Test_executeUnknownCommand(t *testing.T) {

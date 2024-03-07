@@ -4,12 +4,12 @@ package main
 import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 
 import (
-	"fmt"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
+
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/logging"
 )
@@ -48,7 +48,7 @@ func initDebugLogger(config configuration.Configuration) *zerolog.Logger {
 			FieldsExclude: []string{"ext", "separator"},
 			FormatTimestamp: func(i interface{}) string {
 				t, _ := time.Parse(time.RFC3339, i.(string))
-				return strings.ToUpper(fmt.Sprintf("%s", t.UTC().Format(time.RFC3339)))
+				return strings.ToUpper(t.UTC().Format(time.RFC3339))
 			},
 		}
 

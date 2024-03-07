@@ -11,11 +11,16 @@ FIPS_CRYPTO_BACKEND =
 HASH = sha
 HASH_ALGORITHM = 256
 CLI_V1_VERSION_TAG = 0.0.0
-CLI_V1_LOCATION = 
+CLI_V1_LOCATION =
 USE_LEGACY_EXECUTABLE_NAME =
 LDFLAGS = -s -w
 SHASUM_CMD = shasum
 export LS_PROTOCOL_VERSION=
+
+# Build tools
+GO_BIN := $(shell pwd)/.bin
+OVERRIDE_GOCI_LINT_V := v1.55.2
+SHELL := env PATH=$(GO_BIN):$(PATH) $(SHELL)
 
 # Make directories per convention
 prefix = /usr/local
@@ -48,12 +53,12 @@ else ifeq ($(_V1_OS), windows)
 endif
 
 ifeq ($(_V1_ARCH), amd64)
-	_V1_ARCH = 
+	_V1_ARCH =
 endif
 
 ifeq ($(_V1_ARCH), $(_EMPTY))
 	V1_PLATFORM_STING = $(_V1_OS)
-else 
+else
 	V1_PLATFORM_STING = $(_V1_OS)-$(_V1_ARCH)
 endif
 
@@ -70,7 +75,7 @@ V2_EXECUTABLE_NAME = $(APPLICATION_NAME)$(_SEPARATOR)$(V2_PLATFORM_STRING)$(_EXE
 ifneq ($(USE_LEGACY_EXECUTABLE_NAME), $(_EMPTY))
 	V2_EXECUTABLE_NAME = $(V1_EXECUTABLE_NAME)
 	_SEPARATOR = -
-endif 
+endif
 
 V1_EXECUTABLE_NAME = $(APPLICATION_NAME)-$(V1_PLATFORM_STING)$(_EXE_POSTFIX)
 V2_DIRECTORY = $(WORKING_DIR)/internal/cliv2
@@ -162,7 +167,7 @@ $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
 
 
-$(CACHE_DIR)/prepare-3rd-party-licenses: 
+$(CACHE_DIR)/prepare-3rd-party-licenses:
 	@echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"
 	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) scripts/prepare_licenses.sh > $(CACHE_DIR)/prepare-3rd-party-licenses 2> /dev/null
 
@@ -178,8 +183,11 @@ openboxtest:
 test: openboxtest
 
 .PHONY: lint
-lint:
-	./scripts/lint.sh
+lint: $(TOOLS_BIN)/golangci-lint
+	golangci-lint run -v
+
+$(TOOLS_BIN)/golangci-lint:
+	curl -sSfL 'https://raw.githubusercontent.com/golangci/golangci-lint/${OVERRIDE_GOCI_LINT_V}/install.sh' | sh -s -- -b ${GO_BIN} ${OVERRIDE_GOCI_LINT_V}
 
 .PHONY: format
 format:
@@ -266,7 +274,7 @@ help:
 	@echo "$(LOG_PREFIX) install"
 	@echo "$(LOG_PREFIX) clean"
 	@echo "\nFull local targets (Typescript + Golang):"
-	@echo "$(LOG_PREFIX) build-full"               
+	@echo "$(LOG_PREFIX) build-full"
 	@echo "$(LOG_PREFIX) clean-full"
 	@echo "\nAvailable parameter:"
 	@echo "$(LOG_PREFIX) GOOS                       Specify Operating System to compile for (see golang GOOS, default=$(GOOS))"

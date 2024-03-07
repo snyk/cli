@@ -53,7 +53,6 @@ const (
 )
 
 func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger) (*CLI, error) {
-
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
 
 	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(cacheDirectory)
@@ -221,7 +220,6 @@ func (c *CLI) commandVersion(passthroughArgs []string) error {
 }
 
 func (c *CLI) commandAbout(proxyInfo *proxy.ProxyInfo, passthroughArgs []string) error {
-
 	err := c.executeV1Default(proxyInfo, passthroughArgs)
 	if err != nil {
 		return err
@@ -229,7 +227,10 @@ func (c *CLI) commandAbout(proxyInfo *proxy.ProxyInfo, passthroughArgs []string)
 
 	const separator = "\n+-+-+-+-+-+-+\n\n\n"
 
-	allEmbeddedFiles := embedded.ListFiles()
+	allEmbeddedFiles, err := embedded.ListFiles()
+	if err != nil {
+		return err
+	}
 	for i := range allEmbeddedFiles {
 		f := &allEmbeddedFiles[i]
 		fPath := f.Path()
@@ -275,7 +276,6 @@ func PrepareV1EnvironmentVariables(
 	config configuration.Configuration,
 	args []string,
 ) (result []string, err error) {
-
 	inputAsMap := utils.ToKeyValueMap(input, "=")
 	result = input
 
@@ -295,7 +295,6 @@ func PrepareV1EnvironmentVariables(
 	inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_HTTP_NO_PROXY_ENV)
 
 	if err == nil {
-
 		// apply blacklist: ensure that no existing no_proxy or other configuration causes redirecting internal communication that is meant to stay between cliv1 and cliv2
 		blackList := []string{
 			constants.SNYK_HTTPS_PROXY_ENV,
@@ -345,7 +344,6 @@ func PrepareV1EnvironmentVariables(
 	}
 
 	return result, err
-
 }
 
 func (c *CLI) PrepareV1Command(
@@ -406,7 +404,6 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 				c.DebugLogger.Println("  ", key, "=", value)
 			}
 		}
-
 	}
 
 	snykCmd.Stdin = c.stdin

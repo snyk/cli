@@ -24,10 +24,7 @@ func logHeaderAuthorizationInfo(
 	networkAccess networking.NetworkAccess,
 ) (string, string, string) {
 	oauthEnabled := "Disabled"
-	authorization := ""
-	tokenShaSum := ""
-	tokenDetails := ""
-	userAgent := ""
+	var authorization, tokenShaSum, tokenDetails, userAgent string
 
 	apiRequest := &http.Request{
 		URL:    config.GetUrl(configuration.API_URL),
@@ -113,5 +110,4 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Features", "")
 	tablePrint("  oauth", oauthEnabled)
 	tablePrint("  fips", fipsEnabled)
-
 }

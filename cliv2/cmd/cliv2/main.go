@@ -144,7 +144,6 @@ func runCommand(cmd *cobra.Command, args []string) error {
 }
 
 func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, args []string, rawArgs []string) error {
-
 	err := config.AddFlagSet(cmd.Flags())
 	if err != nil {
 		globalLogger.Print("Failed to add flags", err)
@@ -171,24 +170,28 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 	debugLogger.Print("Sending Analytics")
 
 	res, err := analytics.Send()
-	successfullySend := res != nil && 200 <= res.StatusCode && res.StatusCode < 300
-	if err == nil && successfullySend {
+	if err != nil {
+		debugLogger.Err(err).Msg("Failed to send Analytics")
+		return
+	}
+	defer res.Body.Close()
+
+	successfullySend := 200 <= res.StatusCode && res.StatusCode < 300
+	if successfullySend {
 		debugLogger.Print("Analytics successfully send")
 	} else {
 		var details string
 		if res != nil {
 			details = res.Status
-		} else if err != nil {
-			details = err.Error()
 		}
 
 		debugLogger.Print("Failed to send Analytics:", details)
 	}
 }
 
-func help(_ *cobra.Command, args []string) error {
+func help(_ *cobra.Command, _ []string) error {
 	helpProvided = true
-	args = utils.RemoveSimilar(os.Args[1:], "--") // remove all double dash arguments to avoid issues with the help command
+	args := utils.RemoveSimilar(os.Args[1:], "--") // remove all double dash arguments to avoid issues with the help command
 	args = append(args, "--help")
 	return defaultCmd(args)
 }
@@ -290,7 +293,7 @@ func prepareRootCommand() *cobra.Command {
 
 func handleError(err error) HandleError {
 	resultError := handleErrorUnhandled
-	preCondition := err != nil && helpProvided == false
+	preCondition := err != nil && !helpProvided
 
 	// Cases:
 	// - error from extension -> ignore
@@ -410,7 +413,7 @@ func MainWithErrorCode() int {
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args[1:])
 	cliAnalytics.SetOperatingSystem(internalOS)
-	if globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) == false {
+	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		defer sendAnalytics(cliAnalytics, globalLogger)
 	}
 
