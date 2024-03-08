@@ -355,9 +355,13 @@ workflows:
           context: snyk-bot-slack
           channel: cli-alerts
 
+      - security-scans:
+          context: devex_cli
+
       - prepare-build:
           requires:
             - secrets-scan
+            - security-scans
 
       - code-analysis:
           context: devex_cli
@@ -837,7 +841,7 @@ jobs:
           name: Linting project
           command: |
             npm run lint
-            pushd cliv2
+            pushd cliv2 
             make lint
             popd
       - snyk/scan:
@@ -1209,3 +1213,15 @@ jobs:
           name: Trigger build-and-publish workflow at snyk-images
           command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
       - failed-release-notification
+
+  security-scans:
+    resource_class: small
+    docker:
+      - image: cimg/go:1.22
+    steps:
+      - checkout
+      - prodsec/security_scans:
+          mode: auto
+          open-source-additional-arguments: --exclude=test --policy-path=.snyk
+          iac-scan: disabled
+          release-branch: master
