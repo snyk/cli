@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# This script determines the appropriate release channel for a project based on
+# the current Git branch. The script should always return a string value that
+# matches one of the supported channels.
+#
+# The following release channels are supported:
+# - stable
+# - rc
+# - preview
+# - dev
+
+
 # enable support for stable, preview and other release channels
 ENABLE_STABLE_CHANNELS=false
 
