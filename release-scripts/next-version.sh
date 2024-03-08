@@ -9,7 +9,7 @@ CURRENT_TAG="$(git describe --tags `git rev-list --tags --max-count=1`)"
 RELEASE_CHANNEL="$($(dirname "$0")/determine-release-channel.sh)"
 
 valid_version_postfixes=("preview" "rc")
-postfix=""
+postfix="-dev.$(git rev-parse HEAD)"
 
 if [ "$RELEASE_CHANNEL" != "" ]; then
   # Check if the input string is in the list of valid strings
@@ -21,8 +21,8 @@ if [ "$RELEASE_CHANNEL" != "" ]; then
   done
 fi
 
-if [ "$RELEASE_CHANNEL" == "dev" ]; then
-  postfix="-dev.$(git rev-parse HEAD)"
+if [ "$RELEASE_CHANNEL" == "stable" ]; then
+  postfix=""
 fi
 
 NEXT_VERSION="${NEXT_VERSION}${postfix}"
