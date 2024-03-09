@@ -589,11 +589,11 @@ workflows:
           make_target: sign sign-fips
           executor: win-server2022-amd64
           install_deps_extension: windows-make
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/.*e2e.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
       - sign:
           name: sign macos amd64
@@ -604,11 +604,11 @@ workflows:
           go_arch: amd64
           executor: macos-arm64
           install_deps_extension: noop
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/.*e2e.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
       - sign:
           name: sign macos arm64
@@ -619,11 +619,11 @@ workflows:
           go_arch: arm64
           executor: macos-arm64
           install_deps_extension: noop
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/.*e2e.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
       - create_deployment_artifacts:
           name: create deployment artifacts
@@ -636,33 +636,33 @@ workflows:
             - build linux amd64
             - build linux arm64
             - build fix & protect
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/.*e2e.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
       - should-release:
           name: release?
           type: approval
           requires:
             - create deployment artifacts
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/.*e2e.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
       - pre-release:
           name: upload version
           context: team-hammerhead-common-deploy-tokens
           requires:
             - release?
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/.*e2e.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
       - npm-validation:
           name: Validate NPM artifacts (<< matrix.executor >>)
@@ -675,11 +675,11 @@ workflows:
                 - 'macos-arm64'
           requires:
             - upload version
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/.*e2e.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
       - test-release:
           name: e2e tests (<< matrix.executor >>)
@@ -703,11 +703,11 @@ workflows:
                 - 'alpine'
           requires:
             - upload version
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/.*e2e.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
       - test-release:
           name: e2e fips tests (cbl-mariner)
@@ -718,11 +718,11 @@ workflows:
           executor: 'cbl-mariner'
           requires:
             - upload version
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/.*e2e.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/.*e2e.*/'
 
       - test-release:
           name: e2e fips tests (win-server2022-amd64)
@@ -733,41 +733,40 @@ workflows:
           executor: 'win-server2022-amd64'
           requires:
             - upload version
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/release.*/'
-      #                - '/.*e2e.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
 
       - noop:
           name: Start Deployments
           requires:
-            - secrets-scan
-      #            - Validate NPM artifacts (docker-amd64)
-      #            - Validate NPM artifacts (win-server2019-amd64)
-      #            - Validate NPM artifacts (macos-arm64)
-      #            - e2e tests (docker-amd64)
-      #            - e2e tests (docker-arm64)
-      #            - e2e tests (win-server2019-amd64)
-      #            - e2e tests (win-server2022-amd64)
-      #            - e2e tests (macos-arm64)
-      #            - e2e tests (linux-ubuntu-latest-amd64)
-      #            - e2e tests (linux-ubuntu-mantic-amd64)
-      #            - e2e tests (linux-ubuntu-jammy-amd64)
-      #            - e2e tests (linux-ubuntu-focal-amd64)
-      #            - e2e tests (linux-ubuntu-latest-arm64)
-      #            - e2e tests (linux-ubuntu-mantic-arm64)
-      #            - e2e tests (linux-ubuntu-jammy-arm64)
-      #            - e2e tests (linux-ubuntu-focal-arm64)
-      #            - e2e tests (alpine)
-      #            - e2e fips tests (cbl-mariner)
-      #            - e2e fips tests (win-server2022-amd64)
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/release.*/'
+            - Validate NPM artifacts (docker-amd64)
+            - Validate NPM artifacts (win-server2019-amd64)
+            - Validate NPM artifacts (macos-arm64)
+            - e2e tests (docker-amd64)
+            - e2e tests (docker-arm64)
+            - e2e tests (win-server2019-amd64)
+            - e2e tests (win-server2022-amd64)
+            - e2e tests (macos-arm64)
+            - e2e tests (linux-ubuntu-latest-amd64)
+            - e2e tests (linux-ubuntu-mantic-amd64)
+            - e2e tests (linux-ubuntu-jammy-amd64)
+            - e2e tests (linux-ubuntu-focal-amd64)
+            - e2e tests (linux-ubuntu-latest-arm64)
+            - e2e tests (linux-ubuntu-mantic-arm64)
+            - e2e tests (linux-ubuntu-jammy-arm64)
+            - e2e tests (linux-ubuntu-focal-arm64)
+            - e2e tests (alpine)
+            - e2e fips tests (cbl-mariner)
+            - e2e fips tests (win-server2022-amd64)
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
 
       - release-s3:
           name: upload preview
@@ -775,11 +774,11 @@ workflows:
           context: team-hammerhead-common-deploy-tokens
           requires:
             - Start Deployments
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/release.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
 
       - release-s3:
           name: upload release candidate
@@ -787,11 +786,11 @@ workflows:
           context: team-hammerhead-common-deploy-tokens
           requires:
             - Start Deployments
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/release.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
 
       - release-s3:
           name: upload latest/stable
@@ -799,44 +798,44 @@ workflows:
           context: team-hammerhead-common-deploy-tokens
           requires:
             - Start Deployments
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/release.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
 
       - release-github:
           name: upload github
           context: team-hammerhead-common-deploy-tokens
           requires:
             - upload latest/stable
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/release.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
 
       - release-npm:
           name: upload npm
           context: team-hammerhead-common-deploy-tokens
           requires:
             - upload github
-      #          filters:
-      #            branches:
-      #              only:
-      #                - main
-      #                - '/release.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
 
       - trigger-building-snyk-images:
           name: Trigger building snyk-images
           context: team-hammerhead-common-deploy-tokens
           requires:
             - upload npm
-#          filters:
-#            branches:
-#              only:
-#                - main
-#                - '/release.*/'
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
 
 ####################################################################################################
 # JOBS
@@ -1231,7 +1230,7 @@ jobs:
           version: << pipeline.parameters.aws_version >>
       - run:
           name: Publish to S3 ( << parameters.deployment >> )
-          command: echo << parameters.deployment >>
+          command: ./release-scripts/upload-artifacts.sh << parameters.deployment >>
       - failed-release-notification
 
   release-github:
@@ -1245,7 +1244,7 @@ jobs:
           version: << pipeline.parameters.gh_version >>
       - run:
           name: Publish to GitHub
-          command: echo github
+          command: ./release-scripts/upload-artifacts.sh github
       - failed-release-notification
 
   release-npm:
@@ -1256,7 +1255,7 @@ jobs:
           deployment: stable
       - run:
           name: Publish to npm
-          command: echo npm
+          command: ./release-scripts/upload-artifacts.sh npm
       - failed-release-notification
 
   trigger-building-snyk-images:
@@ -1267,7 +1266,7 @@ jobs:
           deployment: stable
       - run:
           name: Trigger build-and-publish workflow at snyk-images
-          command: echo trigger-snyk-images
+          command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
       - failed-release-notification
 
   noop:
