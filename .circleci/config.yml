@@ -1230,7 +1230,7 @@ jobs:
           version: << pipeline.parameters.aws_version >>
       - run:
           name: Publish to S3 ( << parameters.deployment >> )
-          command: ./release-scripts/upload-artifacts.sh << parameters.deployment >>
+          command: ./release-scripts/upload-artifacts.sh --dry-run << parameters.deployment >>
       - failed-release-notification
 
   release-github:
@@ -1244,7 +1244,7 @@ jobs:
           version: << pipeline.parameters.gh_version >>
       - run:
           name: Publish to GitHub
-          command: ./release-scripts/upload-artifacts.sh github
+          command: ./release-scripts/upload-artifacts.sh --dry-run github
       - failed-release-notification
 
   release-npm:
@@ -1255,7 +1255,7 @@ jobs:
           deployment: stable
       - run:
           name: Publish to npm
-          command: ./release-scripts/upload-artifacts.sh npm
+          command: ./release-scripts/upload-artifacts.sh --dry-run npm
       - failed-release-notification
 
   trigger-building-snyk-images:
@@ -1266,7 +1266,7 @@ jobs:
           deployment: stable
       - run:
           name: Trigger build-and-publish workflow at snyk-images
-          command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
+          command: ./release-scripts/upload-artifacts.sh --dry-run trigger-snyk-images
       - failed-release-notification
 
   noop:
