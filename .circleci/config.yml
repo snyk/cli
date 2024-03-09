@@ -743,7 +743,7 @@ workflows:
       - noop:
           name: Start Deployments
           requires:
-            - create deployment artifacts
+            - secrets-scan
       #            - Validate NPM artifacts (docker-amd64)
       #            - Validate NPM artifacts (win-server2019-amd64)
       #            - Validate NPM artifacts (macos-arm64)
