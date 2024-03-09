@@ -2,6 +2,7 @@
 set -euo pipefail
 
 PROTOCOL_VERSION_FILE=$(basename "$(/bin/ls binary-releases/ls-protocol-version*)")
+DRY_RUN=true
 
 declare -a StaticFiles=(
   "binary-releases/$PROTOCOL_VERSION_FILE"
