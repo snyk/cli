@@ -1272,4 +1272,6 @@ jobs:
   noop:
     executor: docker-amd64
     steps:
-      - failed-release-notification
+      - run:
+          name: No operation
+          command: echo Nothing to be done!
