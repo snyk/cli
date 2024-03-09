@@ -352,7 +352,7 @@ commands:
           name: Shall deployment be done
           command: |
             if [ "$(./release-scripts/skip-deployment.sh << parameters.deployment >>)" == true ]; then
-              echo The current branch doesn't deploy to << parameters.deployment >>
+              echo The current branch does not deploy to << parameters.deployment >>
               circleci-agent step halt
             fi
 
