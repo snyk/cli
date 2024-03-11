@@ -403,7 +403,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
           requires:
-            - prepare-build
+            - secrets-scan
           filters:
             branches:
               ignore: main
