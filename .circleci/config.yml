@@ -40,6 +40,10 @@ executors:
     docker:
       - image: ubuntu:latest
     resource_class: small
+  circle-go:
+    docker:
+      - image: cimg/go:1.20
+    resource_class: medium+
   docker-amd64:
     docker:
       - image: bastiandoetsch209/cli-build:20240214-145818
@@ -911,7 +915,7 @@ jobs:
           path: test/reports
 
   test-go:
-    executor: docker-amd64
+    executor: circle-go
     steps:
       - prepare-workspace
       - run:
