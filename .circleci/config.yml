@@ -36,6 +36,10 @@ executors:
   alpine:
     docker:
       - image: alpine:3.17
+  generic-ubuntu:
+    docker:
+      - image: ubuntu:latest
+    resource_class: small
   docker-amd64:
     docker:
       - image: bastiandoetsch209/cli-build:20240214-145818
@@ -1270,7 +1274,7 @@ jobs:
       - failed-release-notification
 
   noop:
-    executor: docker-amd64
+    executor: generic-ubuntu
     steps:
       - run:
           name: No operation
