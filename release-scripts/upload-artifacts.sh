@@ -211,5 +211,10 @@ for arg in "${@}"; do
   # Upload files to S3 bucket
   else
     upload_s3 "${target}"
+
+    # stable and latest are the same target
+    if [ "${target}" == "stable" ]; then
+      upload_s3 "latest"
+    fi
   fi
 done

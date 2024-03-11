@@ -12,8 +12,7 @@ set -euo pipefail
 # - dev
 
 
-# enable support for stable, preview and other release channels
-ENABLE_STABLE_CHANNELS=false
+ENABLE_STABLE_CHANNELS=$($(dirname "$0")/enable-stable-release-channels.sh)
 
 CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 if [ $ENABLE_STABLE_CHANNELS == true ]; then # support for stable, preview and release candidate

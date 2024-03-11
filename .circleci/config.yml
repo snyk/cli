@@ -36,6 +36,10 @@ executors:
   alpine:
     docker:
       - image: alpine:3.17
+  generic-ubuntu:
+    docker:
+      - image: ubuntu:latest
+    resource_class: small
   docker-amd64:
     docker:
       - image: bastiandoetsch209/cli-build:20240214-145818
@@ -342,6 +346,19 @@ commands:
       - checkout
       - attach_workspace:
           at: .
+
+  shall-deploy:
+    parameters:
+      deployment:
+        type: string
+    steps:
+      - run:
+          name: Shall deployment be done
+          command: |
+            if [ "$(./release-scripts/skip-deployment.sh << parameters.deployment >>)" == true ]; then
+              echo The current branch does not deploy to \"<< parameters.deployment >>\"
+              circleci-agent step halt
+            fi
 
 ####################################################################################################
 # WORKFLOWS
@@ -724,12 +741,11 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
-      - release-s3:
-          name: upload preview
-          deployment: preview
-          context: team-hammerhead-common-deploy-tokens
+      - noop:
+          name: Start Deployments
           requires:
             - Validate NPM artifacts (docker-amd64)
             - Validate NPM artifacts (win-server2019-amd64)
@@ -752,27 +768,57 @@ workflows:
             - e2e fips tests (win-server2022-amd64)
           filters:
             branches:
-              only: main
+              only:
+                - main
+                - '/release.*/'
 
       - release-s3:
-          name: upload latest
-          deployment: latest
+          name: upload preview
+          deployment: preview
           context: team-hammerhead-common-deploy-tokens
           requires:
-            - upload preview
+            - Start Deployments
           filters:
             branches:
-              only: main
+              only:
+                - main
+                - '/release.*/'
+
+      - release-s3:
+          name: upload release candidate
+          deployment: rc
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - Start Deployments
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+
+      - release-s3:
+          name: upload latest/stable
+          deployment: stable
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - Start Deployments
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
 
       - release-github:
           name: upload github
           context: team-hammerhead-common-deploy-tokens
           requires:
-            - upload latest
+            - upload latest/stable
           filters:
             branches:
               only:
                 - main
+                - '/release.*/'
+
       - release-npm:
           name: upload npm
           context: team-hammerhead-common-deploy-tokens
@@ -782,6 +828,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
 
       - trigger-building-snyk-images:
           name: Trigger building snyk-images
@@ -792,6 +839,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
 
 ####################################################################################################
 # JOBS
@@ -1176,10 +1224,12 @@ jobs:
     parameters:
       deployment:
         type: string
-        default: latest
+        default: stable
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - shall-deploy:
+          deployment: << parameters.deployment >>
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
@@ -1191,6 +1241,8 @@ jobs:
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - shall-deploy:
+          deployment: stable
       - gh/setup:
           token: HAMMERHEAD_GITHUB_PAT
           version: << pipeline.parameters.gh_version >>
@@ -1203,6 +1255,8 @@ jobs:
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - shall-deploy:
+          deployment: stable
       - run:
           name: Publish to npm
           command: ./release-scripts/upload-artifacts.sh npm
@@ -1212,7 +1266,16 @@ jobs:
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - shall-deploy:
+          deployment: stable
       - run:
           name: Trigger build-and-publish workflow at snyk-images
           command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
       - failed-release-notification
+
+  noop:
+    executor: generic-ubuntu
+    steps:
+      - run:
+          name: No operation
+          command: echo Nothing to be done!
