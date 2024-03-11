@@ -861,9 +861,19 @@ jobs:
     executor: docker-amd64
     steps:
       - checkout
+      - restore_cache:
+          name: Restore npm cache
+          keys:
+            - prepare-build-npm-deps-{{ checksum "package-lock.json" }}
+            - prepare-build-npm-deps
       - run:
           name: Installing dependencies
-          command: npm ci
+          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+      - save_cache:
+          name: Save npm cache
+          key: prepare-build-npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - .npm
       - run:
           name: Set version
           command: |
