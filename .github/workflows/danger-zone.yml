@@ -1,6 +1,7 @@
 name: 'Danger Zone'
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
     branches: [master, main]
 
 jobs:
