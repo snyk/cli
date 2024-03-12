@@ -85,7 +85,7 @@ Required. The image for which you will generate an SBOM document.
 
 ### Create a SPDX JSON document for an image while excluding application dependencies
 
-`$ snyk container sbom --format=spdx2.3+json redis:latest ----exclude-app-vulns`
+`$ snyk container sbom --format=spdx2.3+json redis:latest --exclude-app-vulns`
 
 ### Refer to a container image by its digest
 
