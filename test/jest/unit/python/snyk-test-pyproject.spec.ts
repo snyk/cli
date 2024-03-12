@@ -10,7 +10,7 @@ import { getFixturePath } from '../../util/getFixturePath';
 jest.mock('../../../../src/lib/plugins/index');
 jest.mock('../../../../src/lib/request/request');
 
-const mockedLoadPlugin = jest.mocked(loadPlugin, true);
+const mockedLoadPlugin = jest.mocked(loadPlugin, { shallow: true });
 const mockedMakeRequest = jest.mocked(makeRequest);
 
 describe('snyk test for python project', () => {
