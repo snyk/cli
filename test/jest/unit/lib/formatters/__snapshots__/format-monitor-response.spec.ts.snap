@@ -9,7 +9,7 @@ Monitoring src/lib/jens...
 Detected 0 dependencies (no project created)"
 `;
 
-exports[`formatErrorMonitorOutput maven monitor error with --json 1`] = `"{\\"org\\":\\"test-org\\",\\"id\\":\\"123\\",\\"path\\":\\"src/lib/jens\\",\\"licensesPolicy\\":{},\\"uri\\":\\"https://example.com/project\\",\\"isMonitored\\":true,\\"trialStarted\\":false,\\"packageManager\\":\\"maven\\"}"`;
+exports[`formatErrorMonitorOutput maven monitor error with --json 1`] = `"{"org":"test-org","id":"123","path":"src/lib/jens","licensesPolicy":{},"uri":"https://example.com/project","isMonitored":true,"trialStarted":false,"packageManager":"maven"}"`;
 
 exports[`formatErrorMonitorOutput npm with project name 1`] = `
 "

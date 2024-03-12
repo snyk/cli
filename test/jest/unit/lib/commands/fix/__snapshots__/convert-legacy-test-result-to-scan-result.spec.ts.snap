@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Convert legacy TestResult to ScanResult can convert npm test result with no remediation 1`] = `
-Object {
-  "facts": Array [],
-  "identity": Object {
+{
+  "facts": [],
+  "identity": {
     "targetFile": "package-lock.json",
     "type": "npm",
   },
@@ -13,14 +13,14 @@ version: v1.19.0
 ignore: {}
 patch: {}
 ",
-  "target": Object {},
+  "target": {},
 }
 `;
 
 exports[`Convert legacy TestResult to ScanResult can convert npm test result with remediation 1`] = `
-Object {
-  "facts": Array [],
-  "identity": Object {
+{
+  "facts": [],
+  "identity": {
     "targetFile": "package-lock.json",
     "type": "npm",
   },
@@ -30,14 +30,14 @@ version: v1.19.0
 ignore: {}
 patch: {}
 ",
-  "target": Object {},
+  "target": {},
 }
 `;
 
 exports[`Convert legacy TestResult to ScanResult can convert pip test result with remediation (pins) 1`] = `
-Object {
-  "facts": Array [],
-  "identity": Object {
+{
+  "facts": [],
+  "identity": {
     "targetFile": "requirements.txt",
     "type": "pip",
   },
@@ -47,6 +47,6 @@ version: v1.19.0
 ignore: {}
 patch: {}
 ",
-  "target": Object {},
+  "target": {},
 }
 `;
