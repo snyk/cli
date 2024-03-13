@@ -15,7 +15,11 @@ The **Snyk CLI brings the functionality of Snyk into your development workflow**
 
 <figure><img src="https://github.com/snyk/user-docs/raw/HEAD/docs/.gitbook/assets/snyk-cli-screenshot.png" alt="Snyk CLI test command output example"><figcaption><p>Snyk CLI test command output</p></figcaption></figure>
 
-Snyk CLI scanning **supports many languages and tools.** For detailed information, see the [summary of supported environments](https://docs.snyk.io/getting-started/introducing-snyk#how-can-snyk-work-in-my-environment).
+Snyk CLI scanning **supports many languages and tools.** For detailed information, see the following:
+
+- [Supported languages and frameworks for Open Source and Code](https://docs.snyk.io/getting-started/supported-languages-frameworks-and-feature-availability-overview)
+- [Supported operating system distributions for Container](https://docs.snyk.io/scan-with-snyk/snyk-container/how-snyk-container-works/supported-operating-system-distributions)
+- [Supported IaC Lanuages and cloud providers](https://docs.snyk.io/scan-with-snyk/snyk-iac/supported-iac-languages-cloud-providers-and-cloud-resources)
 
 This page explains how to install, authenticate, and start scanning using the CLI. Snyk also has an onboarding wizard to guide you through these steps. For a demonstration, view [Starting with Snyk: an overview of the CLI onboarding flow](https://www.youtube.com/watch?v=adj3VF82-v8).
 
@@ -37,7 +41,7 @@ Look at the `test` command **report** in your terminal. The report shows the vul
 
 ## Scan your development Project
 
-**Note:** Before using the Snyk CLI to test your Open Source Project for vulnerabilities, with limited exceptions, you must **build your Project**. For details, see [Which Projects must be built before testing with CLI?](https://support.snyk.io/hc/en-us/articles/360015552617-Which-projects-must-be-built-before-testing-with-CLI-)
+**Note:** Before using the Snyk CLI to test your Open Source Project for vulnerabilities, with limited exceptions, you must **build your Project**. For details, see [Open Source Projects that must be built before testing](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-open-source/open-source-projects-that-must-be-built-before-testing-with-the-snyk-cli).
 
 In addition, depending on the language of your open-source Project, you may need to **set up your language environment** before using the Snyk CLI. For details, refer to [Supported languages, frameworks, and feature availability overview.](https://docs.snyk.io/scan-using-snyk/supported-languages-and-frameworks/supported-languages-frameworks-and-feature-availability-overview)
 
@@ -115,6 +119,10 @@ For detailed information about the CLI, see the [CLI docs](https://docs.snyk.io/
 
 The Snyk CLI project is open-source, but Snyk does not encourage outside contributors.
 
+You may look into [design decisions for the Snyk CLI](https://github.com/snyk/snyk/blob/master/help/_about-this-project/README.md).
+
+The Snyk CLI repository is a monorepo that also covers other projects and tools, such as [@snyk/protect](https://github.com/snyk/snyk/tree/master/packages/snyk-protect), also available at [npm package for snyk-protect command](https://www.npmjs.com/package/@snyk/protect).
+
 ## Security
 
-For any security issues or concerns, see the [SECURITY.md](https://github.com/snyk/snyk/blob/main/SECURITY.md) file in the GitHub repository.
+For any security issues or concerns, see the [SECURITY.md](https://github.com/snyk/snyk/blob/master/SECURITY.md) file in the GitHub repository.
