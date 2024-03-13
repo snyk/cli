@@ -8,7 +8,8 @@
 #use bash instead of sh
 export SHELL=/bin/bash
 WORKING_DIR = $(CURDIR)
-PKG := npx pkg ./ --compress Brotli --options max_old_space_size=32768
+# pkg cmd with options to be shared across builds
+PKG_CMD := npx pkg ./ --compress Brotli --options max_old_space_size=32768
 PKG_NODE_VERSION := $(shell head -1 .nvmrc | cut -f1 -d '.')
 BINARY_WRAPPER_DIR = ts-binary-wrapper
 EXTENSIBLE_CLI_DIR = cliv2
@@ -116,11 +117,11 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz: prepack | $(BINARY_RELEASES_F
 	mv $(shell npm pack --workspace '@snyk/protect') $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node$(PKG_NODE_VERSION)-alpine-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine
+	$(PKG_CMD) -t node$(PKG_NODE_VERSION)-alpine-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node$(PKG_NODE_VERSION)-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
+	$(PKG_CMD) -t node$(PKG_NODE_VERSION)-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux.sha256
 
 # Why `--no-bytecode` for Linux/arm64:
@@ -128,19 +129,19 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_
 #   environment. So disabling until we can support it. It's an optimisation.
 #   https://github.com/vercel/pkg#targets
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node$(PKG_NODE_VERSION)-linux-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64 --no-bytecode
+	$(PKG_CMD) -t node$(PKG_NODE_VERSION)-linux-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64 --no-bytecode
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node$(PKG_NODE_VERSION)-macos-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos
+	$(PKG_CMD) -t node$(PKG_NODE_VERSION)-macos-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node$(PKG_NODE_VERSION)-macos-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64 --no-bytecode
+	$(PKG_CMD) -t node$(PKG_NODE_VERSION)-macos-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64 --no-bytecode
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node$(PKG_NODE_VERSION)-win-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe
+	$(PKG_CMD) -t node$(PKG_NODE_VERSION)-win-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe
 	powershell $(WORKING_DIR)/cliv2/scripts/sign_windows.ps1 $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-win.exe
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe.sha256
 
