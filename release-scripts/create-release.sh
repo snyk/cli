@@ -54,7 +54,7 @@ if [[ "$CURRENT_MAJOR" -gt "$LATEST_MAJOR" || "$CURRENT_MINOR" -gt "$LATEST_MINO
     # the next version following the pattern: release/${Major}.${Minor}
     MAJOR_MINOR_BRANCH=release/${CURRENT_MAJOR}.${CURRENT_MINOR}
     git checkout -b $MAJOR_MINOR_BRANCH
-    git push origin $MAJOR_MINOR_BRANCH
+    git push --dry-run origin $MAJOR_MINOR_BRANCH # dry-run for testing purposes
 elif [[ "$CURRENT_PATCH" -gt "$LATEST_PATCH" ]]; then
     # If only the Patch version changes, update the existing release branch
     PATCH_BRANCH=release${LATEST_MAJOR}.${LATEST_MINOR}
@@ -68,4 +68,5 @@ elif [[ "$CURRENT_PATCH" -gt "$LATEST_PATCH" ]]; then
             exit 1
         fi
     fi
+    git push --dry-run origin $PATCH_BRANCH # dry-run for testing purposes
 fi
