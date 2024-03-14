@@ -7,9 +7,15 @@ set -euo pipefail
 RC_BRANCH="release-candidate"
 DEFAULT_BRANCH="main"
 
+# check if `dry-run` arg is passed
+DRY_RUN_MODE=${1:-false}
+if [[ $DRY_RUN_MODE == "dry-run" ]]; then
+    DRY_RUN_MODE=true
+fi
+
 # Checkout Release Candidate branch
-git checkout origin/$RC_BRANCH
-git pull origin/$RC_BRANCH
+git checkout $RC_BRANCH
+git pull origin $RC_BRANCH
 
 # Check if the script runs on the ‘release-candidate’ branch, otherwise FAIL
 echo "Validating branch..."
@@ -35,7 +41,7 @@ if [[ "$CURRENT_VERSION" != "$RELEASE_VERSION" ]]; then
   echo "Version file version: '$CURRENT_VERSION', is not equal to RELEASE_NOTES.md version: '$RELEASE_VERSION'. Please ensure the versions are equal before continuing."
   exit 1
 fi
-
+echo "Current version: $CURRENT_VERSION"
 # Check whether a new major, minor, or patch version has been created
 echo "Checking for new versions..."
 
@@ -54,10 +60,17 @@ if [[ "$CURRENT_MAJOR" -gt "$LATEST_MAJOR" || "$CURRENT_MINOR" -gt "$LATEST_MINO
     # the next version following the pattern: release/${Major}.${Minor}
     MAJOR_MINOR_BRANCH=release/${CURRENT_MAJOR}.${CURRENT_MINOR}
     git checkout -b $MAJOR_MINOR_BRANCH
-    git push --dry-run origin $MAJOR_MINOR_BRANCH # dry-run for testing purposes
+
+    if [[ $DRY_RUN_MODE == true ]]; then
+        echo "Dry running git push"
+        git push --dry-run origin $MAJOR_MINOR_BRANCH
+    else
+        echo "Pushing new release branch '$MAJOR_MINOR_BRANCH'"
+        git push origin $MAJOR_MINOR_BRANCH
+    fi
 elif [[ "$CURRENT_PATCH" -gt "$LATEST_PATCH" ]]; then
     # If only the Patch version changes, update the existing release branch
-    PATCH_BRANCH=release${LATEST_MAJOR}.${LATEST_MINOR}
+    PATCH_BRANCH=release/${LATEST_MAJOR}.${LATEST_MINOR}
     # Check if curent release branch (PATCH_BRANCH) is behind release candidate branch
     # merge release candidate branch into current release branch
     git checkout $PATCH_BRANCH
@@ -68,5 +81,12 @@ elif [[ "$CURRENT_PATCH" -gt "$LATEST_PATCH" ]]; then
             exit 1
         fi
     fi
-    git push --dry-run origin $PATCH_BRANCH # dry-run for testing purposes
+
+    if [[ $DRY_RUN_MODE == true ]]; then
+        echo "Dry running git push"
+        git push --dry-run origin $PATCH_BRANCH
+    else
+        echo "Pushing updated release branch '$PATCH_BRANCH'"
+        git push origin $MAJOR_MINOR_BRANCH
+    fi
 fi
