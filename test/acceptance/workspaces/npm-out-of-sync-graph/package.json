@@ -12,7 +12,7 @@
     "debug": "4.1.0",
     "undefsafe": "^1.0.0",
     "aws-sdk": "^2.1533.0",
-    "axios": "^0.18.0",
+    "axios": "^0.28.0",
     "bignumber.js": "^7.2.1",
     "body-parser": "^1.18.2"
   },
