@@ -2,8 +2,8 @@ name: Synchronize Readme
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 12 * * 1-5' # Mon-Fri at 12
+  #schedule:
+  #  - cron: '0 12 * * 1-5' # Mon-Fri at 12
 
 jobs:
   build:
