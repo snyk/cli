@@ -48,3 +48,4 @@ tap-output
 coverage
 test/fixtures/basic-swift/.build
 test/fixtures/basic-swift/Package.resolved
+scripts/Brewfile.lock.json
