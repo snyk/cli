@@ -46,12 +46,12 @@ executors:
     resource_class: medium+
   docker-amd64:
     docker:
-      - image: bastiandoetsch209/cli-build:20240214-145818
+      - image: snyklabs/cli-build:20240319-123447
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-arm64:
     docker:
-      - image: bastiandoetsch209/cli-build-arm64:20240214-145818
+      - image: snyklabs/cli-build-arm64:20240319-123447
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   linux-ubuntu-mantic-amd64:
