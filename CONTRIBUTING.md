@@ -4,18 +4,10 @@
 
 ## Prerequisites
 
-You will need the following software installed:
-
-- Git
-- Node.js (and bundled npm)
-  - Use whichever version is in [`.nvmrc`](./.nvmrc).
-
-Open a terminal and make sure they are available.
-
+To install the required development dependencies in homebrew based environments, execute the following script from the root directory.
+The only additional prerequisite is having [homebrew](https://brew.sh/) installed. 
 ```sh
-git --version
-node --version
-npm --version
+./scripts/install-dev-dependencies.sh
 ```
 
 ## Setting up
