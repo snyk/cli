@@ -5,7 +5,8 @@
 ## Prerequisites
 
 To install the required development dependencies in homebrew based environments, execute the following script from the root directory.
-The only additional prerequisite is having [homebrew](https://brew.sh/) installed. 
+The only additional prerequisite is having [homebrew](https://brew.sh/) installed.
+
 ```sh
 ./scripts/install-dev-dependencies.sh
 ```
