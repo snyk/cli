@@ -259,6 +259,11 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		parentCommand.RunE = runCommand
 		parentCommand.Hidden = !workflowEntry.IsVisible()
 		parentCommand.DisableFlagParsing = false
+
+		// special case for snyk code test, since it requires relaxed flag validation
+		if currentCommandString == "code test" {
+			parentCommand.FParseErrWhitelist.UnknownFlags = true
+		}
 	}
 }
 
