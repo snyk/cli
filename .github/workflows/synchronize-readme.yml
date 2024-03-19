@@ -2,8 +2,8 @@ name: Synchronize Readme
 
 on:
   workflow_dispatch:
-  #schedule:
-  #  - cron: '0 12 * * 1-5' # Mon-Fri at 12
+  schedule:
+    - cron: '0 12 * * 1-5' # Mon-Fri at 12
 
 jobs:
   build:
@@ -28,6 +28,10 @@ jobs:
               -e "s|../.gitbook/assets/|https://github.com/snyk/user-docs/raw/HEAD/docs/.gitbook/assets/|g" \
               current_gitbook.md
 
+          # Run prettier
+          npm clean-install
+          npx prettier --write current_gitbook.md
+          
           # Replace the README.md content with the GitBook content
           cp current_gitbook.md ./cli/README.md
 
@@ -35,8 +39,6 @@ jobs:
           if [[ $(git -C ./cli status --porcelain) ]]; then
             echo "Documentation changes detected"
             cd ./cli
-            npm clean-install
-            npx prettier --write README.md
             git push -f -u origin $DESTINATION_BRANCH
 
             export SHA=$( git rev-parse $DESTINATION_BRANCH:README.md )
