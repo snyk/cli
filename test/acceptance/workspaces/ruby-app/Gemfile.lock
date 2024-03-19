@@ -1,15 +1,15 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    json (2.0.2)
-    lynx (0.4.0)
+    json (2.3.0)
+    lynx (1.0.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   json
-  lynx (= 0.4.0)
+  lynx (= 1.0.0)
 
 BUNDLED WITH
    1.13.5
