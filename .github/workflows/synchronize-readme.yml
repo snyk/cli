@@ -31,7 +31,7 @@ jobs:
           # Run prettier
           npm clean-install
           npx prettier --write current_gitbook.md
-          
+
           # Replace the README.md content with the GitBook content
           cp current_gitbook.md ./cli/README.md
 
