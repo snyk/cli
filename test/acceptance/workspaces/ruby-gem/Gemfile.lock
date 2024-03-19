@@ -6,14 +6,14 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    rake (10.5.0)
+    rake (12.3.3)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   bundler (~> 1.13)
-  rake (~> 10.0)
+  rake (~> 12.3)
   ruby-gem!
 
 BUNDLED WITH
