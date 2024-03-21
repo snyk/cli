@@ -14,10 +14,11 @@ describe('code', () => {
   describe('test', () => {
     jest.setTimeout(60000);
     it('supports unknown flags', async () => {
+      const { stdout: baselineStdOut } = await runSnykCLI('code test --help');
       const { stdout, stderr } = await runSnykCLI('code test --unknown-flag');
 
       // We do not render the help message for unknown flags
-      expect(stdout).not.toContain('snyk code test [<OPTIONS>] [<PATH>]');
+      expect(stdout).not.toContain(baselineStdOut);
       expect(stdout).toContain('Testing ');
       expect(stderr).toBe('');
     });
