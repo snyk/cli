@@ -253,8 +253,8 @@ export default async function test(
     err.jsonStringifiedResults = stringifiedJsonData;
     err.sarifStringifiedResults = stringifiedSarifData;
     // set jsonPayload if we failed to stringify it
-    if (stringifiedJsonData.length === 0) {
-      err.jsonPayload = dataToSend;
+    if (jsonPayload) {
+      err.jsonPayload = jsonPayload;
     }
     throw err;
   }
