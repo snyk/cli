@@ -16,13 +16,26 @@ import (
 	"io"
 	"net/http"
 	"os/exec"
+	"regexp"
 )
 
 type Commit struct {
 	SHA string `json:"sha"`
 }
 
+func isValidRepository(name string) bool {
+	if name == "" {
+		return false
+	}
+
+	match, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", name)
+	return match
+}
+
 func getLatestCommitSHA(name string) (string, error) {
+	if !isValidRepository(name) {
+		return "", fmt.Errorf("Invalid repository name: %s", name)
+	}
 	url := fmt.Sprintf("https://api.github.com/repos/snyk/%s/commits", name)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
