@@ -259,6 +259,11 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		parentCommand.RunE = runCommand
 		parentCommand.Hidden = !workflowEntry.IsVisible()
 		parentCommand.DisableFlagParsing = false
+
+		// special case for snyk code test, to preserve backwards compatibility we will need to relax flag validation
+		if currentCommandString == "code test" {
+			parentCommand.FParseErrWhitelist.UnknownFlags = true
+		}
 	}
 }
 
@@ -377,6 +382,7 @@ func MainWithErrorCode() int {
 	engine.AddExtensionInitializer(iacrules.Init)
 	engine.AddExtensionInitializer(snykls.Init)
 	engine.AddExtensionInitializer(container.Init)
+	engine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 
 	// init engine
 	err = engine.Init()
