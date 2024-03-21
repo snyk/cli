@@ -11,6 +11,7 @@ export const config: Options = {
     'conventional-changelog-cli', // used for generating release notes
     'ts-node', // used for various scripts to avoid separate compile step
     'jest-junit', // used for CI test reporting
+    '@types/node', // node types used for alerts
   ],
   ignoreDirs: ['node_modules', 'dist', 'fixtures', 'test-output'],
 };
