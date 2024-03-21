@@ -1,59 +1,59 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Error handling Snyk fix returns error when called with unsupported type 1`] = `
-Object {
-  "exceptions": Object {
-    "npm": Object {
-      "originals": Array [
-        Object {
-          "options": Object {
+{
+  "exceptions": {
+    "npm": {
+      "originals": [
+        {
+          "options": {
             "command": "python3",
           },
-          "scanResult": Object {
-            "facts": Array [
-              Object {
+          "scanResult": {
+            "facts": [
+              {
                 "data": "not-implemented",
                 "type": "not-implemented",
               },
             ],
-            "identity": Object {
+            "identity": {
               "targetFile": "package.json",
               "type": "npm",
             },
           },
-          "testResult": Object {
+          "testResult": {
             "depGraphData": "",
-            "issues": Array [
-              Object {
-                "fixInfo": Object {},
+            "issues": [
+              {
+                "fixInfo": {},
                 "issueId": "VULN_ID_1",
                 "pkgName": "package@version",
               },
             ],
-            "issuesData": Object {
-              "vuln-id": Object {
+            "issuesData": {
+              "vuln-id": {
                 "id": "VULN_ID_1",
                 "severity": "high",
                 "title": "Fake vuln",
               },
             },
-            "remediation": Object {
-              "ignore": Object {},
-              "patch": Object {},
-              "pin": Object {
-                "django@1.6.1": Object {
+            "remediation": {
+              "ignore": {},
+              "patch": {},
+              "pin": {
+                "django@1.6.1": {
                   "isTransitive": false,
                   "upgradeTo": "django@2.0.1",
-                  "vulns": Array [
+                  "vulns": [
                     "vuln-id",
                   ],
                 },
               },
-              "unresolved": Array [],
-              "upgrade": Object {},
+              "unresolved": [],
+              "upgrade": {},
             },
           },
-          "workspace": Object {
+          "workspace": {
             "path": ".",
             "readFile": [Function],
             "writeFile": [Function],
@@ -81,20 +81,20 @@ Summary:
   
 
 Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
-  "meta": Object {
+  "meta": {
     "failed": 1,
     "fixableIssues": 1,
     "fixed": 0,
     "fixedIssues": 0,
     "totalIssues": 1,
   },
-  "results": Object {},
+  "results": {},
 }
 `;
 
 exports[`Error handling Snyk fix returns error when manifest can not be parsed 1`] = `
-Object {
-  "exceptions": Object {},
+{
+  "exceptions": {},
   "fixSummary": "
 Successful fixes:
 
@@ -109,23 +109,23 @@ Summary:
   1 issues are fixable
   1 issues were successfully fixed
 ",
-  "meta": Object {
+  "meta": {
     "failed": 0,
     "fixableIssues": 1,
     "fixed": 1,
     "fixedIssues": 1,
     "totalIssues": 1,
   },
-  "results": Object {
-    "python": Object {
-      "failed": Array [],
-      "skipped": Array [],
-      "succeeded": Array [
-        Object {
-          "changes": Array [
-            Object {
+  "results": {
+    "python": {
+      "failed": [],
+      "skipped": [],
+      "succeeded": [
+        {
+          "changes": [
+            {
               "from": "django@1.6.1",
-              "issueIds": Array [
+              "issueIds": [
                 "vuln-id",
               ],
               "success": true,
@@ -133,55 +133,55 @@ Summary:
               "userMessage": "Pinned django from 1.6.1 to 2.0.1",
             },
           ],
-          "original": Object {
-            "options": Object {
+          "original": {
+            "options": {
               "command": "python3",
             },
-            "scanResult": Object {
-              "facts": Array [
-                Object {
+            "scanResult": {
+              "facts": [
+                {
                   "data": "not-implemented",
                   "type": "not-implemented",
                 },
               ],
-              "identity": Object {
+              "identity": {
                 "targetFile": "requirements.txt",
                 "type": "pip",
               },
             },
-            "testResult": Object {
+            "testResult": {
               "depGraphData": "",
-              "issues": Array [
-                Object {
-                  "fixInfo": Object {},
+              "issues": [
+                {
+                  "fixInfo": {},
                   "issueId": "VULN_ID_1",
                   "pkgName": "package@version",
                 },
               ],
-              "issuesData": Object {
-                "vuln-id": Object {
+              "issuesData": {
+                "vuln-id": {
                   "id": "VULN_ID_1",
                   "severity": "high",
                   "title": "Fake vuln",
                 },
               },
-              "remediation": Object {
-                "ignore": Object {},
-                "patch": Object {},
-                "pin": Object {
-                  "django@1.6.1": Object {
+              "remediation": {
+                "ignore": {},
+                "patch": {},
+                "pin": {
+                  "django@1.6.1": {
                     "isTransitive": false,
                     "upgradeTo": "django@2.0.1",
-                    "vulns": Array [
+                    "vulns": [
                       "vuln-id",
                     ],
                   },
                 },
-                "unresolved": Array [],
-                "upgrade": Object {},
+                "unresolved": [],
+                "upgrade": {},
               },
             },
-            "workspace": Object {
+            "workspace": {
               "path": ".",
               "readFile": [Function],
               "writeFile": [Function],
@@ -195,8 +195,8 @@ Summary:
 `;
 
 exports[`Snyk fix Snyk fix returns results for supported & unsupported type 1`] = `
-Object {
-  "exceptions": Object {},
+{
+  "exceptions": {},
   "fixSummary": "
 Successful fixes:
 
@@ -215,23 +215,23 @@ Summary:
   2 issues are fixable
   2 issues were successfully fixed
 ",
-  "meta": Object {
+  "meta": {
     "failed": 0,
     "fixableIssues": 2,
     "fixed": 2,
     "fixedIssues": 2,
     "totalIssues": 2,
   },
-  "results": Object {
-    "python": Object {
-      "failed": Array [],
-      "skipped": Array [],
-      "succeeded": Array [
-        Object {
-          "changes": Array [
-            Object {
+  "results": {
+    "python": {
+      "failed": [],
+      "skipped": [],
+      "succeeded": [
+        {
+          "changes": [
+            {
               "from": "django@1.6.1",
-              "issueIds": Array [
+              "issueIds": [
                 "vuln-id",
               ],
               "success": true,
@@ -239,66 +239,66 @@ Summary:
               "userMessage": "Upgraded django from 1.6.1 to 2.0.1",
             },
           ],
-          "original": Object {
-            "options": Object {
+          "original": {
+            "options": {
               "command": "python3",
             },
-            "scanResult": Object {
-              "facts": Array [
-                Object {
+            "scanResult": {
+              "facts": [
+                {
                   "data": "not-implemented",
                   "type": "not-implemented",
                 },
               ],
-              "identity": Object {
+              "identity": {
                 "targetFile": "Pipfile",
                 "type": "pip",
               },
             },
-            "testResult": Object {
+            "testResult": {
               "depGraphData": "",
-              "issues": Array [
-                Object {
-                  "fixInfo": Object {},
+              "issues": [
+                {
+                  "fixInfo": {},
                   "issueId": "VULN_ID_1",
                   "pkgName": "package@version",
                 },
               ],
-              "issuesData": Object {
-                "vuln-id": Object {
+              "issuesData": {
+                "vuln-id": {
                   "id": "VULN_ID_1",
                   "severity": "high",
                   "title": "Fake vuln",
                 },
               },
-              "remediation": Object {
-                "ignore": Object {},
-                "patch": Object {},
-                "pin": Object {
-                  "django@1.6.1": Object {
+              "remediation": {
+                "ignore": {},
+                "patch": {},
+                "pin": {
+                  "django@1.6.1": {
                     "isTransitive": false,
                     "upgradeTo": "django@2.0.1",
-                    "vulns": Array [
+                    "vulns": [
                       "vuln-id",
                     ],
                   },
                 },
-                "unresolved": Array [],
-                "upgrade": Object {},
+                "unresolved": [],
+                "upgrade": {},
               },
             },
-            "workspace": Object {
+            "workspace": {
               "path": ".",
               "readFile": [Function],
               "writeFile": [Function],
             },
           },
         },
-        Object {
-          "changes": Array [
-            Object {
+        {
+          "changes": [
+            {
               "from": "django@1.6.1",
-              "issueIds": Array [
+              "issueIds": [
                 "vuln-id",
               ],
               "success": true,
@@ -306,55 +306,55 @@ Summary:
               "userMessage": "Upgraded django from 1.6.1 to 2.0.1",
             },
           ],
-          "original": Object {
-            "options": Object {
+          "original": {
+            "options": {
               "command": "python3",
             },
-            "scanResult": Object {
-              "facts": Array [
-                Object {
+            "scanResult": {
+              "facts": [
+                {
                   "data": "not-implemented",
                   "type": "not-implemented",
                 },
               ],
-              "identity": Object {
+              "identity": {
                 "targetFile": "requirements.txt",
                 "type": "pip",
               },
             },
-            "testResult": Object {
+            "testResult": {
               "depGraphData": "",
-              "issues": Array [
-                Object {
-                  "fixInfo": Object {},
+              "issues": [
+                {
+                  "fixInfo": {},
                   "issueId": "VULN_ID_1",
                   "pkgName": "package@version",
                 },
               ],
-              "issuesData": Object {
-                "vuln-id": Object {
+              "issuesData": {
+                "vuln-id": {
                   "id": "VULN_ID_1",
                   "severity": "high",
                   "title": "Fake vuln",
                 },
               },
-              "remediation": Object {
-                "ignore": Object {},
-                "patch": Object {},
-                "pin": Object {
-                  "django@1.6.1": Object {
+              "remediation": {
+                "ignore": {},
+                "patch": {},
+                "pin": {
+                  "django@1.6.1": {
                     "isTransitive": false,
                     "upgradeTo": "django@2.0.1",
-                    "vulns": Array [
+                    "vulns": [
                       "vuln-id",
                     ],
                   },
                 },
-                "unresolved": Array [],
-                "upgrade": Object {},
+                "unresolved": [],
+                "upgrade": {},
               },
             },
-            "workspace": Object {
+            "workspace": {
               "path": ".",
               "readFile": [Function],
               "writeFile": [Function],
@@ -367,19 +367,19 @@ Summary:
 }
 `;
 
-exports[`Snyk fix Snyk fix returns results for supported type 1`] = `Object {}`;
+exports[`Snyk fix Snyk fix returns results for supported type 1`] = `{}`;
 
 exports[`Snyk fix Snyk fix returns results for supported type 2`] = `
-Object {
-  "python": Object {
-    "failed": Array [],
-    "skipped": Array [],
-    "succeeded": Array [
-      Object {
-        "changes": Array [
-          Object {
+{
+  "python": {
+    "failed": [],
+    "skipped": [],
+    "succeeded": [
+      {
+        "changes": [
+          {
             "from": "django@1.6.1",
-            "issueIds": Array [
+            "issueIds": [
               "vuln-id",
             ],
             "success": true,
@@ -387,66 +387,66 @@ Object {
             "userMessage": "Upgraded django from 1.6.1 to 2.0.1",
           },
         ],
-        "original": Object {
-          "options": Object {
+        "original": {
+          "options": {
             "command": "python3",
           },
-          "scanResult": Object {
-            "facts": Array [
-              Object {
+          "scanResult": {
+            "facts": [
+              {
                 "data": "not-implemented",
                 "type": "not-implemented",
               },
             ],
-            "identity": Object {
+            "identity": {
               "targetFile": "requirements.txt",
               "type": "pip",
             },
           },
-          "testResult": Object {
+          "testResult": {
             "depGraphData": "",
-            "issues": Array [
-              Object {
-                "fixInfo": Object {},
+            "issues": [
+              {
+                "fixInfo": {},
                 "issueId": "VULN_ID_1",
                 "pkgName": "package@version",
               },
             ],
-            "issuesData": Object {
-              "vuln-id": Object {
+            "issuesData": {
+              "vuln-id": {
                 "id": "VULN_ID_1",
                 "severity": "high",
                 "title": "Fake vuln",
               },
             },
-            "remediation": Object {
-              "ignore": Object {},
-              "patch": Object {},
-              "pin": Object {
-                "django@1.6.1": Object {
+            "remediation": {
+              "ignore": {},
+              "patch": {},
+              "pin": {
+                "django@1.6.1": {
                   "isTransitive": false,
                   "upgradeTo": "django@2.0.1",
-                  "vulns": Array [
+                  "vulns": [
                     "vuln-id",
                   ],
                 },
               },
-              "unresolved": Array [],
-              "upgrade": Object {},
+              "unresolved": [],
+              "upgrade": {},
             },
           },
-          "workspace": Object {
+          "workspace": {
             "path": ".",
             "readFile": [Function],
             "writeFile": [MockFunction] {
-              "calls": Array [
-                Array [
+              "calls": [
+                [
                   "requirements.txt",
                   "django===2.0.1",
                 ],
               ],
-              "results": Array [
-                Object {
+              "results": [
+                {
                   "type": "return",
                   "value": Promise {},
                 },
