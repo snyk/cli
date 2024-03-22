@@ -40,6 +40,11 @@ export async function getDepsFromPlugin(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
 ): Promise<pluginApi.MultiProjectResult | MultiProjectResultCustom> {
+  // enable unpruned depgraphs when printing the graph.
+  if (options['print-graph']) {
+    options.unpruned = true;
+  }
+
   if (Object.keys(multiProjectProcessors).some((key) => options[key])) {
     const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
     const levelsDeep = options.detectionDepth;
@@ -59,6 +64,7 @@ export async function getDepsFromPlugin(
     }
     // enable full sub-project scan for gradle
     options.allSubProjects = true;
+
     const inspectRes = await multiProjectProcessors[scanType].handler(
       root,
       options,
