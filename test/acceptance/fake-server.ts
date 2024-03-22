@@ -312,7 +312,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     return next();
   });
 
-  app.post(basePath + '/test-dependencies', (req, res) => {
+  app.post(basePath + '/test-dependencies', (req, res, next) => {
     if (req.query.org && req.query.org === 'missing-org') {
       res.status(404).send({
         code: 404,
@@ -324,7 +324,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
     if (customResponse) {
       res.send(customResponse);
-      return;
+      return next();
     }
 
     res.send({
