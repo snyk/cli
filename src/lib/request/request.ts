@@ -11,6 +11,7 @@ import { Payload } from './types';
 import { getVersion } from '../version';
 import * as https from 'https';
 import * as http from 'http';
+import { jsonStringifyLargeObject } from '../json';
 
 const debug = debugModule('snyk:req');
 const snykDebug = debugModule('snyk');
@@ -46,7 +47,7 @@ function setupRequest(payload: Payload) {
     debug('compressing request body');
     const json = JSON.stringify(body);
     if (json.length < 1e4) {
-      debug(JSON.stringify(body, null, 2));
+      debug(json);
     }
 
     // always compress going upstream
@@ -58,7 +59,7 @@ function setupRequest(payload: Payload) {
 
     let callGraphLength: number | null = null;
     if (body.callGraph) {
-      callGraphLength = JSON.stringify(body.callGraph).length;
+      callGraphLength = jsonStringifyLargeObject(body.callGraph).length;
       snykDebug('call graph size:', callGraphLength);
     }
 
@@ -84,7 +85,7 @@ function setupRequest(payload: Payload) {
   }
 
   try {
-    debug('request payload: ', JSON.stringify(payload));
+    debug('request payload: ', jsonStringifyLargeObject(payload));
   } catch (e) {
     debug('request payload is too big to log', e);
   }
@@ -139,7 +140,6 @@ export async function makeRequest(
   payload: Payload,
 ): Promise<{ res: needle.NeedleResponse; body: any }> {
   const { method, url, data, options } = setupRequest(payload);
-  debug(data);
 
   return new Promise((resolve, reject) => {
     needle.request(method, url, data, options, (err, res, respBody) => {
@@ -147,7 +147,7 @@ export async function makeRequest(
       debug(
         'response (%s): ',
         (res || {}).statusCode,
-        JSON.stringify(respBody),
+        jsonStringifyLargeObject(respBody),
       );
       if (err) {
         return reject(err);

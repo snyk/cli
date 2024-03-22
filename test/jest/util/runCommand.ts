@@ -5,9 +5,13 @@ type RunCommandResult = {
   code: number;
   stdout: string;
   stderr: string;
+  stdoutBuffer?: Buffer;
+  stderrBuffer?: Buffer;
 };
 
-type RunCommandOptions = SpawnOptionsWithoutStdio;
+// bufferOutput sets the RunCommandResult stdoutBuffer and stderrBuffer
+// useful if the stdout or stderr string output is too large for the v8 engine
+type RunCommandOptions = SpawnOptionsWithoutStdio & { bufferOutput?: boolean };
 
 const runCommand = (
   command: string,
@@ -32,11 +36,21 @@ const runCommand = (
     });
 
     child.on('close', (code) => {
-      resolve({
+      const result: RunCommandResult = {
         code: code || 0,
-        stdout: Buffer.concat(stdout).toString('utf-8'),
-        stderr: Buffer.concat(stderr).toString('utf-8'),
-      });
+        stdout: '',
+        stderr: '',
+      };
+
+      if (options?.bufferOutput) {
+        result.stdoutBuffer = Buffer.concat(stdout);
+        result.stderrBuffer = Buffer.concat(stderr);
+      } else {
+        result.stdout = Buffer.concat(stdout).toString('utf-8');
+        result.stderr = Buffer.concat(stderr).toString('utf-8');
+      }
+
+      resolve(result);
     });
   });
 };
