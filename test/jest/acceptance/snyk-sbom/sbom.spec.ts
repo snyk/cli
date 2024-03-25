@@ -1,6 +1,7 @@
 import { createProjectFromWorkspace } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
+import * as fs from 'fs';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -72,6 +73,35 @@ describe('snyk sbom (mocked server only)', () => {
     );
     const bom = JSON.parse(stdout);
 
+    expect(bom.metadata.tools).toEqual(
+      expect.arrayContaining([
+        {
+          vendor: 'Snyk',
+          name: 'snyk-cli',
+          version: expect.any(String),
+        },
+      ]),
+    );
+  });
+
+  test('`sbom` is written to a file - CycloneDX 1.4', async () => {
+    const project = await createProjectFromWorkspace('npm-package');
+
+    const { code } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --debug --json-file-output sbom.json`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toEqual(0);
+
+    const sbomFileContent = fs.readFileSync(
+      project.path() + '/sbom.json',
+      'utf8',
+    );
+    const bom = JSON.parse(sbomFileContent);
     expect(bom.metadata.tools).toEqual(
       expect.arrayContaining([
         {
