@@ -553,33 +553,57 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     (req, res) => {
       const depGraph: void | Record<string, any> = req.body.depGraph;
       const depGraphs: void | Record<string, any>[] = req.body.depGraphs;
-      const tools: void | Record<string, any>[] = req.body.tools;
-      let bom: Record<string, unknown> = { bomFormat: 'CycloneDX' };
+      const tools = req.body.tools || [];
+      let name = '';
+      let components;
+
+      let bom: Record<string, any> = { bomFormat: 'CycloneDX' };
 
       if (Array.isArray(depGraphs) && req.body.subject) {
         // Return a fixture of an all-projects SBOM.
-        bom = {
-          ...bom,
-          metadata: { component: { name: req.body.subject.name } },
-          components: depGraphs
-            .flatMap(({ pkgs }) => pkgs)
-            .map(({ info: { name } }) => ({ name })),
-        };
+        name = req.body.subject.name;
+        components = depGraphs
+          .flatMap(({ pkgs }) => pkgs)
+          .map(({ info: { name } }) => ({ name }));
+      } else if (depGraph) {
+        name = depGraph.pkgs[0]?.info.name;
+        components = depGraph.pkgs.map(({ info: { name } }) => ({ name }));
       }
 
-      if (depGraph) {
-        bom = {
-          ...bom,
-          metadata: { component: { name: depGraph.pkgs[0]?.info.name } },
-          components: depGraph.pkgs.map(({ info: { name } }) => ({ name })),
-        };
-      }
-
-      if (Array.isArray(tools)) {
-        bom.metadata = {
-          ...(bom.metadata as any),
-          tools: [...tools, { name: 'fake-server' }],
-        };
+      switch (req.query.format) {
+        case 'spdx2.3+json':
+          bom = {
+            spdxVersion: 'SPDX-2.3',
+            name,
+            packages: components,
+            creators: [...tools, 'fake-server'],
+          };
+          break;
+        case 'cyclonedx1.4+json':
+          bom = {
+            specVersion: '1.4',
+            $schema: 'http://cyclonedx.org/schema/bom-1.4.schema.json',
+            components,
+            metadata: {
+              component: { name },
+              tools: [...tools, { name: 'fake-server', version: '42' }],
+            },
+          };
+          break;
+        case 'cyclonedx1.5+json':
+          bom = {
+            specVersion: '1.5',
+            $schema: 'http://cyclonedx.org/schema/bom-1.5.schema.json',
+            components,
+            metadata: {
+              component: { name },
+              tools: {
+                components: [...tools, { name: 'fake-server' }],
+                services: [{ name: 'fake-server', version: '42' }],
+              },
+            },
+          };
+          break;
       }
 
       res.status(200).send(bom);
