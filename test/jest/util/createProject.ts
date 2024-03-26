@@ -49,6 +49,8 @@ const createProject = async (
 
 /**
  * Workaround until we move all fixtures to ./test/fixtures
+ * 
+ * @deprecated Use createProject instead.
  */
 const createProjectFromWorkspace = async (
   fixtureName: string,
