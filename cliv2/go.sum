@@ -658,6 +658,8 @@ github.com/snyk/cli-extension-sbom v0.0.0-20240314090036-46535b380426 h1:MXbip3n
 github.com/snyk/cli-extension-sbom v0.0.0-20240314090036-46535b380426/go.mod h1:g2VgZU79btvZrAP3oHZGv3tHD9POVOx5a3DY894rS4w=
 github.com/snyk/code-client-go v0.3.1 h1:jCYBRJJ/qVlPRqJONwmwpMCMe7s/lulbJQE6KUe2DW0=
 github.com/snyk/code-client-go v0.3.1/go.mod h1:D+cfqDbuZE1S106bY3Tr+ZXLb9BR16kKBtvlf0xdyNA=
+github.com/snyk/code-client-go v1.0.1 h1:zs1kAY4BFoob9z0TafEmnS3lJsoM1cCpjncU+8vyEIo=
+github.com/snyk/code-client-go v1.0.1/go.mod h1:+1AS/NlWgDcyJcl/2yOPmrvMhg27Lh5uDCSOFWkdDsg=
 github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1 h1:9RKY9NdX5DrJAoVXDP0JiqrXT+4Nb9NH8pjEcA0NsLA=
 github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
 github.com/snyk/go-application-framework v0.0.0-20240325175807-5cb112133ceb h1:ovhyFAt2BDPNmzJ1M2KuGz0s2GSfiY9VoMF4/EvMG00=
@@ -670,6 +672,8 @@ github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRX
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
 github.com/snyk/snyk-ls v0.0.0-20240318135323-bd809c95fbe4 h1:ckxsi32571LM2im35ZXBffLTEVL50yop6gZ3dsr6JtA=
 github.com/snyk/snyk-ls v0.0.0-20240318135323-bd809c95fbe4/go.mod h1:hUnThwpQo1pHbwkZCHrLfjFoSExFtnWIXSpdesQlwEo=
+github.com/snyk/snyk-ls v0.0.0-20240326135306-d7816c30b0a7 h1:gj6kkbaomlU39qmj4n8N3InUPFoe/J//EZYOUZUV0KY=
+github.com/snyk/snyk-ls v0.0.0-20240326135306-d7816c30b0a7/go.mod h1:Fvc7SyLVLFLCG+GX/Lc3yyweXFonEM+IZtLx40gmBlQ=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
