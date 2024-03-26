@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { getServerPort } from '../../util/getServerPort';
 
 describe('container test projects behavior with --app-vulns, --file and --exclude-base-image-vulns flags', () => {
   it('should find nothing when only vulns are in base image', async () => {
@@ -109,7 +110,7 @@ describe('container test projects behavior with --json flag', () => {
   let env: Record<string, string>;
 
   beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const port = getServerPort(process);
     const baseApi = '/api/v1';
     env = {
       ...process.env,

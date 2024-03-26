@@ -4,13 +4,14 @@ import {
   createProjectFromWorkspace,
 } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { getServerPort } from '../util/getServerPort';
 
 jest.setTimeout(1000 * 30);
 
 describe('analytics module', () => {
   let server;
   let env: Record<string, string>;
-  const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+  const port = getServerPort(process);
 
   beforeAll((done) => {
     const baseApi = '/api/v1';

@@ -3,6 +3,8 @@ import { UnsupportedOptionCombinationError } from '../../../src/lib/errors/unsup
 import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer } from '../../acceptance/fake-server';
 import { createProject } from '../util/createProject';
+import { getServerPort } from '../util/getServerPort';
+
 import * as os from 'os';
 
 const isWindows = os.platform().indexOf('win') === 0;
@@ -14,7 +16,7 @@ describe('cli args', () => {
   let env: Record<string, string>;
 
   beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const port = getServerPort(process);
     const baseApi = '/api/v1';
     env = {
       ...process.env,
