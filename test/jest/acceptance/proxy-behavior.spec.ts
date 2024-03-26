@@ -10,6 +10,7 @@ import {
   TestCLI,
   startSnykCLI,
 } from '../../../test/jest/util/startSnykCLI';
+import { getServerPort } from '../util/getServerPort';
 import { unlink } from 'fs';
 import { execSync } from 'child_process';
 import * as os from 'os';
@@ -48,7 +49,7 @@ const containerName = 'proxy_authentication_container';
 const hostnameFakeServer = 'host.docker.internal';
 const hostnameProxy = 'proxy.snyk.local';
 const proxyPort = '3128';
-const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+const port = getServerPort(process);
 const baseApi = '/api/v1';
 const SNYK_API = 'http://' + hostnameFakeServer + ':' + port + baseApi;
 const HTTP_PROXY_WITH_USER = 'http://patch:dogsrule@localhost:' + proxyPort;

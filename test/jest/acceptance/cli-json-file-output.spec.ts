@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { createProjectFromWorkspace } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { humanFileSize } from '../../utils';
+import { getServerPort } from '../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
@@ -12,7 +13,7 @@ describe('test --json-file-output', () => {
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
-    const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const apiPort = getServerPort(process);
     env = {
       ...process.env,
       SNYK_API: 'http://localhost:' + apiPort + apiPath,

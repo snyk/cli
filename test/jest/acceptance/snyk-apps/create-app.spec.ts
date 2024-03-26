@@ -1,5 +1,6 @@
 import { fakeServer, FakeServer } from '../../../acceptance/fake-server';
 import { startSnykCLI, TestCLI } from '../../util/startSnykCLI';
+import { getServerPort } from '../../util/getServerPort';
 
 describe('snyk-apps: create app', () => {
   let server: FakeServer;
@@ -7,7 +8,7 @@ describe('snyk-apps: create app', () => {
   let env: Record<string, string>;
 
   beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const port = getServerPort(process);
     const baseApi = '/rest';
     env = {
       ...process.env,

@@ -2,6 +2,7 @@ import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { getCliConfig, restoreCliConfig } from '../../acceptance/config-helper';
 import { ciEnvs } from '../../../src/lib/is-ci';
+import { getServerPort } from '../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
@@ -13,7 +14,7 @@ describe('Auth', () => {
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
-    const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const apiPort = getServerPort(process);
     env = {
       ...process.env,
       SNYK_API: 'http://' + getFirstIPv4Address() + ':' + apiPort + apiPath,
