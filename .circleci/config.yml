@@ -41,6 +41,10 @@ executors:
     docker:
       - image: ubuntu:latest
     resource_class: small
+  circle-go-node:
+    docker:
+      - image: cimg/go:1.20-node
+    resource_class: medium+
   circle-go:
     docker:
       - image: cimg/go:1.20
@@ -899,7 +903,7 @@ jobs:
             - packages/*
 
   code-analysis:
-    executor: docker-amd64
+    executor: circle-go-node
     steps:
       - prepare-workspace
       - run:
