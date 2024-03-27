@@ -178,5 +178,41 @@ describe('code', () => {
       );
       expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
     });
+
+    const failedCodeTestMessage = "Failed to run 'code test'";
+
+    // This is caused by the retry logic in the code-client
+    // which defaults to 10 retries with a 5 second delay
+    jest.setTimeout(60000);
+    it.each([
+      [{ code: 401 }, `Unauthorized: ${failedCodeTestMessage}`],
+      [{ code: 429 }, failedCodeTestMessage],
+      [{ code: 500 }, failedCodeTestMessage], // TODO this causes the test to hang. Think it is due to retry logic
+    ])(
+      'should fail - when server returns %p',
+      async (errorCodeObj, expectedResult) => {
+        const { path } = await createProjectFromFixture(
+          'sast/shallow_sast_webgoat',
+        );
+        server.setOrgSetting('sast', true);
+        deepCodeServer.setNextStatusCode(errorCodeObj.code);
+        deepCodeServer.setNextResponse({
+          statusCode: errorCodeObj.code,
+          statusText: 'Unauthorized action',
+          apiName: 'code',
+        });
+
+        const { stdout, code, stderr } = await runSnykCLI(
+          `code test ${path()}`,
+          {
+            env,
+          },
+        );
+
+        expect(stderr).toBe('');
+        expect(stdout).toContain(expectedResult);
+        expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
+      },
+    );
   });
 });

@@ -495,10 +495,7 @@ describe('Test snyk code', () => {
     }
   });
 
-  it.each([
-    [{ code: 401 }, `Unauthorized: ${failedCodeTestMessage}`],
-    [{ code: 500 }, failedCodeTestMessage],
-  ])(
+  it.each([[{ code: 500 }, failedCodeTestMessage]])(
     'given %p argument, we fail with error message %p',
     async (errorCodeObj, expectedResult) => {
       const codeClientError = {
