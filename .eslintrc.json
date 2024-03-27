@@ -52,8 +52,8 @@
         "jest/no-done-callback": "warn",
         "jest/valid-title": "warn",
         "jest/no-conditional-expect": "warn",
-        "jest/no-try-expect": "warn",
         "jest/no-identical-title": "warn",
+        "jest/no-alias-methods": "warn",
         "@typescript-eslint/ban-ts-comment": "warn"
       }
     }
