@@ -19,7 +19,7 @@ export LS_PROTOCOL_VERSION=
 
 # Build tools
 GO_BIN := $(shell pwd)/.bin
-OVERRIDE_GOCI_LINT_V := v1.55.2
+OVERRIDE_GOCI_LINT_V := v1.57.1
 SHELL := env PATH=$(GO_BIN):$(PATH) $(SHELL)
 
 # Make directories per convention
