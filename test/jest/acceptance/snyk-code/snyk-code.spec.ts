@@ -37,6 +37,7 @@ describe('code', () => {
   });
 
   afterEach(() => {
+    server.restore();
     deepCodeServer.restore();
   });
 
@@ -89,6 +90,12 @@ describe('code', () => {
       expect(stderr).toBe('');
       expect(stdout).toContain(`Awesome! No issues were found.`);
       expect(code).toBe(EXIT_CODE_SUCCESS);
+
+      expect(
+        server
+          .getRequests()
+          .filter((req) => req.originalUrl.endsWith('/analytics/cli')),
+      ).toHaveLength(2);
     });
 
     it('should succeed - with correct exit code', async () => {
@@ -108,7 +115,6 @@ describe('code', () => {
       expect(stderr).toBe('');
       expect(stripAnsi(stdout)).toContain('✗ [Medium] Information Exposure');
       expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
-
     });
 
     it('should show error if sast is not enabled', async () => {
