@@ -914,6 +914,7 @@ jobs:
       - install-deps-node:
           cache_prefix: prepare-build-
       - restore_cache:
+          name: Restore golangci-lint cache
           key: golangci-lint-{{ checksum "cliv2/go.sum" }}
       - run:
           name: Linting project
@@ -925,6 +926,7 @@ jobs:
             make lint
             popd
       - save_cache:
+          name: Save golangci-lint cache
           key: golangci-lint-{{ checksum "cliv2/go.sum" }}
           paths:
             - ~/.cache/golangci-lint
