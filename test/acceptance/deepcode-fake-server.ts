@@ -93,14 +93,12 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   app.use((req, res, next) => {
     if (nextStatusCode) {
       const code = nextStatusCode;
-      // nextStatusCode = undefined;
       res.status(code);
     }
 
     if (nextResponse) {
       const response = nextResponse;
-      res.send(nextResponse);
-      // nextResponse = undefined;
+      res.send(response);
       return;
     }
     next();

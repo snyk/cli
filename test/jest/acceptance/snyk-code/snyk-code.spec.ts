@@ -214,5 +214,35 @@ describe('code', () => {
         expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
       },
     );
+
+    it("use remote LCE's url as base when LCE is enabled", async () => {
+      const localCodeEngineUrl = fakeDeepCodeServer();
+      localCodeEngineUrl.listen(() => {});
+
+      const { path } = await createProjectFromFixture(
+        'sast/shallow_sast_webgoat',
+      );
+      server.setOrgSetting('sast', true);
+      server.setLocalCodeEngineConfiguration({
+        enabled: true,
+        allowCloudUpload: true,
+        url: 'http://localhost:' + localCodeEngineUrl.getPort(),
+      });
+      localCodeEngineUrl.setSarifResponse(
+        require('../../../fixtures/sast/sample-sarif.json'),
+      );
+
+      const { stdout, code, stderr } = await runSnykCLI(`code test ${path()}`, {
+        env,
+      });
+
+      expect(deepCodeServer.getRequests().length).toBe(0);
+      expect(localCodeEngineUrl.getRequests().length).toBeGreaterThan(0);
+      expect(stderr).toBe('');
+      expect(stripAnsi(stdout)).toContain('✗ [Medium] Information Exposure');
+      expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+
+      await localCodeEngineUrl.close(() => {});
+    });
   });
 });

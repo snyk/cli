@@ -42,6 +42,7 @@ export type FakeServer = {
   setNextStatusCode: (c: number) => void;
   setStatusCode: (c: number) => void;
   setStatusCodes: (c: number[]) => void;
+  setLocalCodeEngineConfiguration: (next: Record<string, unknown>) => void;
   setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
   setOrgSetting: (setting: string, enabled: boolean) => void;
   unauthorizeAction: (action: string, reason?: string) => void;
@@ -61,6 +62,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let requests: express.Request[] = [];
   let featureFlags: Map<string, boolean> = featureFlagDefaults();
   let availableSettings: Map<string, boolean> = new Map();
+  let localCodeEngineConfiguration: Record<string, unknown> = {
+    enabled: false,
+  };
   let unauthorizedActions = new Map();
   // the status code to return for the next request, overriding statusCode
   let nextStatusCode: number | undefined = undefined;
@@ -95,6 +99,16 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setCustomResponse = (next: typeof customResponse) => {
     customResponse = next;
+  };
+
+  const setLocalCodeEngineConfiguration = (
+    response: string | Record<string, unknown>,
+  ) => {
+    if (typeof response === 'string') {
+      localCodeEngineConfiguration = JSON.parse(response);
+      return;
+    }
+    localCodeEngineConfiguration = response;
   };
 
   const setNextResponse = (response: string | Record<string, unknown>) => {
@@ -414,9 +428,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         return res.send({
           ok: true,
           sastEnabled: true,
-          localCodeEngine: {
-            enabled: false,
-          },
+          localCodeEngine: localCodeEngineConfiguration,
         });
       }
 
@@ -753,6 +765,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     popRequest,
     popRequests,
     setCustomResponse: setCustomResponse,
+    setLocalCodeEngineConfiguration,
     setNextResponse,
     setNextStatusCode,
     setStatusCode,
