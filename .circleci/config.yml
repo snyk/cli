@@ -389,7 +389,7 @@ workflows:
       - code-analysis:
           context: devex_cli
           requires:
-            - prepare-build
+            - secrets-scan
           filters:
             branches:
               ignore: main
@@ -902,13 +902,21 @@ jobs:
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - restore_cache:
+          key: golangci-lint-{{ checksum "cliv2/go.sum" }}
       - run:
           name: Linting project
+          environment:
+            GOLANGCI_LINT_CACHE: ~/.cache/golangci-lint
           command: |
             npm run lint
             pushd cliv2
             make lint
             popd
+      - save_cache:
+          key: golangci-lint-{{ checksum "cliv2/go.sum" }}
+          paths:
+            - ~/.cache/golangci-lint
       - snyk/scan:
           fail-on-issues: true
           severity-threshold: critical
