@@ -56,7 +56,7 @@ describe('formatIssuesWithRemediation', () => {
       stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
     ).toMatchSnapshot();
   });
-  
+
   it('with upgrades & patches', () => {
     const withRemediation = JSON.parse(
       fs.readFileSync(
@@ -109,5 +109,33 @@ describe('formatIssuesWithRemediation', () => {
     expect(
       stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
     ).toMatchSnapshot();
+  });
+
+  it('includes severity change reason', () => {
+    const withRemediation = JSON.parse(
+      fs.readFileSync(
+        getFixturePath('sca-dep-graph-with-annotation/test-graph-results.json'),
+        'utf8',
+      ),
+    );
+    const groupedVulns = groupVulnerabilities(withRemediation.vulnerabilities);
+
+    const sortedGroupedVulns = orderBy(
+      groupedVulns,
+      ['metadata.severityValue', 'metadata.name'],
+      ['asc', 'desc'],
+    );
+
+    const res = formatIssuesWithRemediation(
+      sortedGroupedVulns,
+      withRemediation.remediation,
+      { showVulnPaths: 'all' },
+    );
+    const plainText = res.join('\n');
+    expect(plainText).toContain('Severity reason: Not a long running service');
+
+    // Severity reason should only appear when attribute is present
+    const rgex = new RegExp(/Severity reason/, 'g');
+    expect(plainText.match(rgex)).toHaveLength(1);
   });
 });

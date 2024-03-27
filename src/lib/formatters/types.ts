@@ -12,6 +12,7 @@ export interface BasicVulnInfo {
   legalInstructions?: LegalInstruction[];
   paths: string[][];
   note: string | false;
+  severityReason?: string;
 }
 
 interface TopLevelPackageUpgrade {
