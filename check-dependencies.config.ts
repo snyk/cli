@@ -12,6 +12,10 @@ export const config: Options = {
     'ts-node', // used for various scripts to avoid separate compile step
     'jest-junit', // used for CI test reporting
     '@types/node', // node types used for alerts
+    // used for linting
+    'typescript-eslint',
+    '@typescript-eslint/parser',
+    '@typescript-eslint/eslint-plugin',
   ],
   ignoreDirs: ['node_modules', 'dist', 'fixtures', 'test-output'],
 };
