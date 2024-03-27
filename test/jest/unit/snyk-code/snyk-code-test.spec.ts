@@ -125,96 +125,6 @@ describe('Test snyk code', () => {
     );
   });
 
-  it('should fail - when we do not support files', async () => {
-    const options: Options & TestOptions = {
-      path: '',
-      traverseNodeModules: false,
-      showVulnPaths: 'none',
-      code: true,
-    };
-
-    analyzeFoldersMock.mockResolvedValue(null);
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    expect.hasAssertions();
-    try {
-      await ecosystems.testEcosystem('code', ['some/path'], options);
-    } catch (error) {
-      const errMessage = stripAscii(stripAnsi(error.message.trim()));
-
-      expect(error.code).toBe(422);
-      expect(errMessage).toContain('We found 0 supported files');
-    }
-  });
-
-  it('succeed testing - with correct exit code', async () => {
-    const options: Options & TestOptions = {
-      path: '',
-      traverseNodeModules: false,
-      showVulnPaths: 'none',
-      code: true,
-    };
-
-    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    expect.hasAssertions();
-    try {
-      await ecosystems.testEcosystem('code', ['some/path'], options);
-    } catch (error) {
-      const errMessage = stripAscii(stripAnsi(error.message.trim()));
-      const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
-
-      // exit code 1
-      expect(error.code).toBe('VULNS');
-      expect(errMessage).toBe(expectedOutput);
-    }
-  });
-
-  it('should succeed testing from the cli test command - with correct exit code', async () => {
-    const options: ArgsOptions = {
-      path: '',
-      traverseNodeModules: false,
-      showVulnPaths: 'none',
-      code: true,
-      _: [],
-      _doubleDashArgs: [],
-    };
-
-    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    expect.hasAssertions();
-    try {
-      await snykTest('some/path', options);
-    } catch (error) {
-      const errMessage = stripAscii(stripAnsi(error.message.trim()));
-      const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
-
-      // exit code 1
-      expect(error.code).toBe('VULNS');
-      expect(errMessage).toBe(expectedOutput);
-    }
-  });
-
   it('should throw error when response code is not 200', async () => {
     const error = {
       code: 401,
@@ -253,26 +163,6 @@ describe('Test snyk code', () => {
     } catch (error) {
       expect(error).toEqual(expected);
     }
-  });
-
-  it('should show error if sast is not enabled', async () => {
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: false,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-
-    await expect(
-      snykTest('some/path', {
-        code: true,
-        _: [],
-        _doubleDashArgs: [],
-      }),
-    ).rejects.toHaveProperty(
-      'userMessage',
-      'Snyk Code is not supported for org: enable in Settings > Snyk Code',
-    );
   });
 
   it('should show org not found error according to response from api', async () => {
@@ -532,45 +422,6 @@ describe('Test snyk code', () => {
     }
   });
 
-  it.each([
-    ['sarif', { sarif: true }],
-    ['json', { json: true }],
-  ])(
-    'succeed testing with correct exit code - with %p output',
-    async (optionsName, optionsObject) => {
-      const options: Options & TestOptions = {
-        path: '',
-        traverseNodeModules: false,
-        showVulnPaths: 'none',
-        code: true,
-        ...optionsObject,
-      };
-
-      analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-      isSastEnabledForOrgSpy.mockResolvedValueOnce({
-        sastEnabled: true,
-        localCodeEngine: {
-          enabled: false,
-        },
-      });
-      trackUsageSpy.mockResolvedValue({});
-
-      expect.hasAssertions();
-      try {
-        await ecosystems.testEcosystem('code', ['some/path'], options);
-      } catch (error) {
-        const errMessage = error.message.trim();
-        const expectedOutput = jsonStringifyLargeObject(
-          sampleSarifResponse,
-        ).trim();
-
-        // exit code 1
-        expect(error.code).toBe('VULNS');
-        expect(errMessage).toBe(expectedOutput);
-      }
-    },
-  );
-
   it('succeed testing with correct exit code - with sarif output', async () => {
     const options: ArgsOptions = {
       path: '',
@@ -644,42 +495,7 @@ describe('Test snyk code', () => {
     }
   });
 
-  it('succeed testing with correct exit code - and analytics added', async () => {
-    const analyticSend = jest.spyOn(analytics, 'add');
-
-    const options: Options & TestOptions = {
-      path: '',
-      traverseNodeModules: false,
-      showVulnPaths: 'none',
-      code: true,
-    };
-
-    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    try {
-      await ecosystems.testEcosystem('code', ['some/path'], options);
-    } catch (error) {
-      const errMessage = stripAscii(stripAnsi(error.message.trim()));
-      const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
-
-      // exit code 1
-      expect(error.code).toBe('VULNS');
-      expect(errMessage).toBe(expectedOutput);
-      expect(analyticSend).toBeCalledTimes(2);
-    }
-  });
-
-  it.each([
-    [{ code: 401 }, `Unauthorized: ${failedCodeTestMessage}`],
-    [{ code: 500 }, failedCodeTestMessage],
-  ])(
+  it.each([[{ code: 500 }, failedCodeTestMessage]])(
     'given %p argument, we fail with error message %p',
     async (errorCodeObj, expectedResult) => {
       const codeClientError = {
@@ -841,106 +657,6 @@ describe('Test snyk code', () => {
     );
 
     expect(actual?.analysisResults.sarif).toEqual(sampleSarifResponse);
-  });
-
-  it.each([
-    [
-      "use LCE's url as base when LCE is enabled",
-      LCEbaseURL,
-      {
-        sastEnabled: true,
-        localCodeEngine: {
-          url: LCEbaseURL,
-          allowCloudUpload: false,
-          enabled: true,
-        },
-      },
-    ],
-    [
-      "use cloud solution when LCE's feature is not enabled",
-      baseURL,
-      {
-        sastEnabled: true,
-        localCodeEngine: {
-          url: LCEbaseURL,
-          allowCloudUpload: true,
-          enabled: false,
-        },
-      },
-    ],
-  ])(
-    'Local code engine - analyzeFolders should %s',
-    async (msg, url, sastSettings) => {
-      const sessionToken = expect.any(String);
-      const source = expect.any(String);
-      const severity = AnalysisSeverity.info;
-      const paths: string[] = ['.'];
-
-      const codeAnalysisArgs = {
-        connection: {
-          baseURL: url,
-          sessionToken,
-          source,
-          requestId: 'test-id',
-          orgId: '',
-        },
-        analysisOptions: {
-          severity,
-        },
-        fileOptions: { paths },
-        analysisContext: {
-          flow: 'snyk-cli',
-          initiator: 'CLI',
-          org: expect.any(Object),
-          projectName: undefined,
-          project: expect.any(Object),
-        },
-        languages: undefined,
-      };
-
-      const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
-        sampleAnalyzeFoldersResponse,
-      );
-      await getCodeTestResults(
-        '.',
-        {
-          path: '',
-          code: true,
-        },
-        sastSettings,
-        'test-id',
-      );
-
-      expect(analyzeFoldersSpy.mock.calls[0]).toEqual([codeAnalysisArgs]);
-    },
-  );
-
-  it('Local Code Engine - Always calls code-client with url coming from sastSettings', async () => {
-    const sastSettings = {
-      sastEnabled: true,
-      localCodeEngine: {
-        url: 'http://lce:31111/api',
-        allowCloudUpload: false,
-        enabled: true,
-      },
-    };
-
-    const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
-      sampleAnalyzeFoldersResponse,
-    );
-    await getCodeTestResults(
-      '.',
-      {
-        path: '',
-        code: true,
-      },
-      sastSettings,
-      'test-id',
-    );
-
-    expect(analyzeFoldersSpy.mock.calls[0][0].connection.baseURL).toBe(
-      'http://lce:31111/api',
-    );
   });
 
   it('Local code engine - makes GET /status to get SCLE version', async () => {

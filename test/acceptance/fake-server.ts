@@ -42,7 +42,9 @@ export type FakeServer = {
   setNextStatusCode: (c: number) => void;
   setStatusCode: (c: number) => void;
   setStatusCodes: (c: number[]) => void;
+  setLocalCodeEngineConfiguration: (next: Record<string, unknown>) => void;
   setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
+  setOrgSetting: (setting: string, enabled: boolean) => void;
   unauthorizeAction: (action: string, reason?: string) => void;
   listen: (port: string | number, callback: () => void) => void;
   listenPromise: (port: string | number) => Promise<void>;
@@ -59,6 +61,10 @@ export type FakeServer = {
 export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let requests: express.Request[] = [];
   let featureFlags: Map<string, boolean> = featureFlagDefaults();
+  let availableSettings: Map<string, boolean> = new Map();
+  let localCodeEngineConfiguration: Record<string, unknown> = {
+    enabled: false,
+  };
   let unauthorizedActions = new Map();
   // the status code to return for the next request, overriding statusCode
   let nextStatusCode: number | undefined = undefined;
@@ -75,6 +81,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     requests = [];
     customResponse = undefined;
     featureFlags = featureFlagDefaults();
+    availableSettings = new Map();
     unauthorizedActions = new Map();
   };
 
@@ -92,6 +99,16 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setCustomResponse = (next: typeof customResponse) => {
     customResponse = next;
+  };
+
+  const setLocalCodeEngineConfiguration = (
+    response: string | Record<string, unknown>,
+  ) => {
+    if (typeof response === 'string') {
+      localCodeEngineConfiguration = JSON.parse(response);
+      return;
+    }
+    localCodeEngineConfiguration = response;
   };
 
   const setNextResponse = (response: string | Record<string, unknown>) => {
@@ -116,6 +133,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setFeatureFlag = (featureFlag: string, enabled: boolean) => {
     featureFlags.set(featureFlag, enabled);
+  };
+
+  const setOrgSetting = (setting: string, enabled: boolean) => {
+    availableSettings.set(setting, enabled);
   };
 
   const unauthorizeAction = (
@@ -385,6 +406,41 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       uri:
         'http://example-url/project/project-public-id/history/snapshot-public-id',
       projectName: 'test-project',
+    });
+  });
+
+  app.get(basePath + '/cli-config/settings/:setting', (req, res) => {
+    const org = req.query.org;
+    const setting = req.params.setting;
+    if (org === 'no-flag') {
+      res.send({
+        ok: false,
+        userMessage: `Org ${org} doesn't have '${setting}' feature enabled'`,
+      });
+      return;
+    }
+
+    if (availableSettings.has(setting)) {
+      const settingEnabled = availableSettings.get(setting);
+      // TODO: Refactor to support passing in an org setting with additional
+      // properties, e.g. localCodeEngine.
+      if (settingEnabled && setting === 'sast') {
+        return res.send({
+          ok: true,
+          sastEnabled: true,
+          localCodeEngine: localCodeEngineConfiguration,
+        });
+      }
+
+      return res.send({
+        ok: false,
+        userMessage: `Org ${org} doesn't have '${setting}' feature enabled'`,
+      });
+    }
+
+    // default: return false for all feature flags
+    res.send({
+      ok: false,
     });
   });
 
@@ -709,11 +765,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     popRequest,
     popRequests,
     setCustomResponse: setCustomResponse,
+    setLocalCodeEngineConfiguration,
     setNextResponse,
     setNextStatusCode,
     setStatusCode,
     setStatusCodes,
     setFeatureFlag,
+    setOrgSetting,
     unauthorizeAction,
     listen,
     listenPromise,
