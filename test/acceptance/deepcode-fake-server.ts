@@ -8,6 +8,8 @@ export type FakeDeepCodeServer = {
   popRequests: (num: number) => express.Request[];
   setCustomResponse: (next: Record<string, unknown>) => void;
   setFiltersResponse: (next: Record<string, unknown>) => void;
+  setNextResponse: (r: any) => void;
+  setNextStatusCode: (code: number) => void;
   setSarifResponse: (r: any) => void;
   listen: (callback: () => void) => void;
   restore: () => void;
@@ -22,6 +24,9 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   };
   let sarifResponse: Record<string, unknown> | null = null;
   let requests: express.Request[] = [];
+  // the status code to return for the next request, overriding statusCode
+  let nextResponse: Record<string, unknown> | undefined = undefined;
+  let nextStatusCode: number | undefined = undefined;
   let customResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
   const sockets = new Set();
@@ -29,6 +34,8 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   const restore = () => {
     requests = [];
     customResponse = undefined;
+    nextResponse = undefined;
+    nextStatusCode = undefined;
     sarifResponse = null;
     filtersResponse = { configFiles: [], extensions: ['.java', '.js'] };
   };
@@ -57,6 +64,18 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     filtersResponse = response;
   };
 
+  const setNextResponse = (response: string | Record<string, unknown>) => {
+    if (typeof response === 'string') {
+      nextResponse = JSON.parse(response);
+      return;
+    }
+    nextResponse = response;
+  };
+
+  const setNextStatusCode = (code: number) => {
+    nextStatusCode = code;
+  };
+
   const setSarifResponse = (response: string | Record<string, unknown>) => {
     if (typeof response === 'string') {
       sarifResponse = JSON.parse(response);
@@ -68,6 +87,22 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   const app = express();
   app.use((req, res, next) => {
     requests.push(req);
+    next();
+  });
+
+  app.use((req, res, next) => {
+    if (nextStatusCode) {
+      const code = nextStatusCode;
+      // nextStatusCode = undefined;
+      res.status(code);
+    }
+
+    if (nextResponse) {
+      const response = nextResponse;
+      res.send(nextResponse);
+      // nextResponse = undefined;
+      return;
+    }
     next();
   });
 
@@ -149,6 +184,8 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     setCustomResponse: setCustomResponse,
     setFiltersResponse,
     setSarifResponse,
+    setNextResponse,
+    setNextStatusCode,
     listen,
     restore,
     close,
