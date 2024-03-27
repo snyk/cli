@@ -233,8 +233,8 @@ function filterOutAppliedUpgrades(
   const pins = remediation.pin;
   const normalizedAppliedRemediation = upgradeChanges
     .map((c) => {
-      if (c.success && c.from) {
-        const [pkgName, versionAndMore] = c.from?.split('@');
+      if (c.success && c.from && c.from.includes('@')) {
+        const [pkgName, versionAndMore] = (c?.from || '').split('@');
         return `${standardizePackageName(pkgName)}@${versionAndMore}`;
       }
       return false;
