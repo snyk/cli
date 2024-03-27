@@ -156,6 +156,7 @@ export interface MonitorMeta {
   prune: boolean;
   'remote-repo-url'?: string;
   targetReference?: string;
+  assetsProjectName?: boolean;
 }
 
 export interface Tag {

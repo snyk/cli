@@ -114,6 +114,64 @@ describe('cli-monitor-utils test', () => {
     expect(res).toEqual('project-name-override');
   });
 
+  it('getProjectName returns nuget project name from scanned project meta when --assets-project-name is provided via options', () => {
+    const scannedProject: ScannedProject = {
+      depTree: {
+        dependencies: {
+          'Microsoft.Extensions.FileProviders.Embedded': {
+            name: 'Microsoft.Extensions.FileProviders.Embedded',
+            version: '6.0.22',
+          },
+        },
+        name: 'nuget-project-assets-name',
+        packageFormatVersion: 'nuget:0.0.0',
+        version: '0.0.1',
+        targetFile: 'project.assets.json',
+      },
+      targetFile: 'project.assets.json',
+    };
+
+    const res = utils.getProjectName(scannedProject, {
+      method: 'cli',
+      packageManager: 'nuget',
+      'policy-path': '',
+      'project-name': '',
+      isDocker: false,
+      prune: false,
+      assetsProjectName: true,
+    });
+    expect(res).toEqual('nuget-project-assets-name');
+  });
+
+  it('getProjectName overrides --assets-project-name with value from --project-name flag', () => {
+    const scannedProject: ScannedProject = {
+      depTree: {
+        dependencies: {
+          'Microsoft.Extensions.FileProviders.Embedded': {
+            name: 'Microsoft.Extensions.FileProviders.Embedded',
+            version: '6.0.22',
+          },
+        },
+        name: 'nuget-project-assets-name',
+        packageFormatVersion: 'nuget:0.0.0',
+        version: '0.0.1',
+        targetFile: 'project.assets.json',
+      },
+      targetFile: 'project.assets.json',
+    };
+
+    const res = utils.getProjectName(scannedProject, {
+      method: 'cli',
+      packageManager: 'nuget',
+      'policy-path': '',
+      'project-name': 'project-name-from-option',
+      isDocker: false,
+      prune: false,
+      assetsProjectName: true,
+    });
+    expect(res).toEqual('project-name-from-option');
+  });
+
   it('getProjectName returns gradle project name from scanned project meta', () => {
     const scannedProject: ScannedProject = {
       depGraph: {} as any,
