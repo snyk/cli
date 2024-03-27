@@ -394,7 +394,7 @@ export function printPath(path: string[], slice = 1) {
   return path.slice(slice).join(PATH_SEPARATOR);
 }
 
-export function formatIssue(
+function formatIssue(
   id: string,
   title: string,
   severity: SEVERITY,
