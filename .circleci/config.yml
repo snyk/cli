@@ -175,6 +175,26 @@ commands:
                   New-Item -Path $profile -ItemType File -Force
                   '$Env:Path = "<< parameters.extraction_path >>\go\bin;" + $Env:Path' >> $profile
 
+  install-deps-node:
+    parameters:
+      cache_prefix:
+        type: string
+        default: ''
+    steps:
+      - restore_cache:
+          name: Restore npm cache
+          keys:
+            - << parameters.cache_prefix >>npm-deps-{{ checksum "package-lock.json" }}
+            - << parameters.cache_prefix >>npm-deps
+      - run:
+          name: Installing dependencies
+          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+      - save_cache:
+          name: Save npm cache
+          key: << parameters.cache_prefix >>npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - .npm
+
   install-deps-windows-full:
     steps:
       - restore_cache:
@@ -393,7 +413,7 @@ workflows:
       - code-analysis:
           context: devex_cli
           requires:
-            - prepare-build
+            - secrets-scan
           filters:
             branches:
               ignore: main
@@ -865,19 +885,8 @@ jobs:
     executor: docker-amd64
     steps:
       - checkout
-      - restore_cache:
-          name: Restore npm cache
-          keys:
-            - prepare-build-npm-deps-{{ checksum "package-lock.json" }}
-            - prepare-build-npm-deps
-      - run:
-          name: Installing dependencies
-          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
-      - save_cache:
-          name: Save npm cache
-          key: prepare-build-npm-deps-{{ checksum "package-lock.json" }}
-          paths:
-            - .npm
+      - install-deps-node:
+          cache_prefix: prepare-build-
       - run:
           name: Set version
           command: |
@@ -906,6 +915,8 @@ jobs:
     executor: circle-go-node
     steps:
       - prepare-workspace
+      - install-deps-node:
+          cache_prefix: prepare-build-
       - run:
           name: Linting project
           command: |
