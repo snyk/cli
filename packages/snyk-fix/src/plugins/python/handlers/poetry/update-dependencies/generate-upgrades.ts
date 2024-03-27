@@ -56,8 +56,6 @@ export async function generateUpgrades(
       // transitive and it could have come from a dev or prod dep
       // since we can't tell right now let be pinned into production deps
       upgrades.push(upgrade);
-    } else if (prodTopLevelDeps.includes(pkgName)) {
-      upgrades.push(upgrade);
     } else if (entity.options.dev && devTopLevelDeps.includes(pkgName)) {
       devUpgrades.push(upgrade);
     } else {
