@@ -90,4 +90,6 @@ if (!config.ROOT) {
 
 config.PUBLIC_VULN_DB_URL = 'https://security.snyk.io';
 
+config.CODE_CLIENT_PROXY_URL = process.env.SNYK_CODE_CLIENT_PROXY_URL || '';
+
 export default config;

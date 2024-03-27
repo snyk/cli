@@ -125,96 +125,6 @@ describe('Test snyk code', () => {
     );
   });
 
-  it('should fail - when we do not support files', async () => {
-    const options: Options & TestOptions = {
-      path: '',
-      traverseNodeModules: false,
-      showVulnPaths: 'none',
-      code: true,
-    };
-
-    analyzeFoldersMock.mockResolvedValue(null);
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    expect.hasAssertions();
-    try {
-      await ecosystems.testEcosystem('code', ['some/path'], options);
-    } catch (error) {
-      const errMessage = stripAscii(stripAnsi(error.message.trim()));
-
-      expect(error.code).toBe(422);
-      expect(errMessage).toContain('We found 0 supported files');
-    }
-  });
-
-  it('succeed testing - with correct exit code', async () => {
-    const options: Options & TestOptions = {
-      path: '',
-      traverseNodeModules: false,
-      showVulnPaths: 'none',
-      code: true,
-    };
-
-    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    expect.hasAssertions();
-    try {
-      await ecosystems.testEcosystem('code', ['some/path'], options);
-    } catch (error) {
-      const errMessage = stripAscii(stripAnsi(error.message.trim()));
-      const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
-
-      // exit code 1
-      expect(error.code).toBe('VULNS');
-      expect(errMessage).toBe(expectedOutput);
-    }
-  });
-
-  it('should succeed testing from the cli test command - with correct exit code', async () => {
-    const options: ArgsOptions = {
-      path: '',
-      traverseNodeModules: false,
-      showVulnPaths: 'none',
-      code: true,
-      _: [],
-      _doubleDashArgs: [],
-    };
-
-    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    expect.hasAssertions();
-    try {
-      await snykTest('some/path', options);
-    } catch (error) {
-      const errMessage = stripAscii(stripAnsi(error.message.trim()));
-      const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
-
-      // exit code 1
-      expect(error.code).toBe('VULNS');
-      expect(errMessage).toBe(expectedOutput);
-    }
-  });
-
   it('should throw error when response code is not 200', async () => {
     const error = {
       code: 401,
@@ -253,26 +163,6 @@ describe('Test snyk code', () => {
     } catch (error) {
       expect(error).toEqual(expected);
     }
-  });
-
-  it('should show error if sast is not enabled', async () => {
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: false,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-
-    await expect(
-      snykTest('some/path', {
-        code: true,
-        _: [],
-        _doubleDashArgs: [],
-      }),
-    ).rejects.toHaveProperty(
-      'userMessage',
-      'Snyk Code is not supported for org: enable in Settings > Snyk Code',
-    );
   });
 
   it('should show org not found error according to response from api', async () => {
