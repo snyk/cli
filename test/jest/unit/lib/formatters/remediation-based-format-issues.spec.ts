@@ -138,4 +138,40 @@ describe('formatIssuesWithRemediation', () => {
     const rgex = new RegExp(/Severity reason/, 'g');
     expect(plainText.match(rgex)).toHaveLength(1);
   });
+
+  it('includes user note and reason when available', () => {
+    const withRemediation = JSON.parse(
+      fs.readFileSync(
+        getFixturePath(
+          'sca-dep-graph-with-annotation/test-graph-user-note-results.json',
+        ),
+        'utf8',
+      ),
+    );
+    const groupedVulns = groupVulnerabilities(withRemediation.vulnerabilities);
+
+    const sortedGroupedVulns = orderBy(
+      groupedVulns,
+      ['metadata.severityValue', 'metadata.name'],
+      ['asc', 'desc'],
+    );
+
+    const res = formatIssuesWithRemediation(
+      sortedGroupedVulns,
+      withRemediation.remediation,
+      { showVulnPaths: 'all' },
+    );
+    const plainText = res.join('\n');
+    expect(plainText).toContain('User note: Papercut');
+    expect(plainText).toContain(
+      'Note reason: This vulnerability is a papercut and can be ignored',
+    );
+
+    // User note should only appear when attribute is present
+    const rgex = new RegExp(/User note/, 'g');
+    expect(plainText.match(rgex)).toHaveLength(1);
+
+    const rgex2 = new RegExp(/Note reason/, 'g');
+    expect(plainText.match(rgex2)).toHaveLength(1);
+  });
 });

@@ -13,6 +13,8 @@ export interface BasicVulnInfo {
   paths: string[][];
   note: string | false;
   severityReason?: string;
+  userNote?: string;
+  userNoteReason?: string;
 }
 
 interface TopLevelPackageUpgrade {

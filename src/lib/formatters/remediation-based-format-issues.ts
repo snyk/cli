@@ -46,6 +46,8 @@ export function formatIssuesWithRemediation(
       legalInstructions: vuln.legalInstructionsArray,
       paths: vuln.list.map((v) => v.from),
       severityReason: vuln.severityReason,
+      userNote: vuln.userNote,
+      userNoteReason: vuln.userNoteReason,
     };
 
     if (vulnData.type === 'license') {
@@ -153,6 +155,8 @@ function constructLicenseText(
       undefined, // We can never override license rules, so no originalSeverity here
       basicLicenseInfo[id].legalInstructions,
       basicLicenseInfo[id].severityReason,
+      basicLicenseInfo[id].userNote,
+      basicLicenseInfo[id].userNoteReason,
     );
     licenseTextArray.push('\n' + licenseText);
   }
@@ -197,6 +201,8 @@ function constructPatchesText(
       basicVulnInfo[id].originalSeverity,
       [],
       basicVulnInfo[id]?.severityReason,
+      basicVulnInfo[id]?.userNote,
+      basicVulnInfo[id]?.userNoteReason,
     );
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
@@ -230,6 +236,8 @@ function thisUpgradeFixes(
         basicVulnInfo[id].originalSeverity,
         [],
         basicVulnInfo[id]?.severityReason,
+        basicVulnInfo[id]?.userNote,
+        basicVulnInfo[id]?.userNoteReason,
       ),
     )
     .join('\n');
@@ -383,6 +391,8 @@ function constructUnfixableText(
         issueInfo.originalSeverity,
         [],
         issueInfo?.severityReason,
+        issueInfo?.userNote,
+        issueInfo?.userNoteReason,
       ) + `${extraInfo}`,
     );
   }
@@ -412,6 +422,8 @@ function formatIssue(
   originalSeverity?: SEVERITY,
   legalInstructions?: LegalInstruction[],
   severityReason?: string,
+  userNote?: string,
+  userNoteReason?: string,
 ): string {
   const newBadge = isNew ? ' (new)' : '';
   const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';
@@ -470,7 +482,9 @@ function formatIssue(
         )}:\n    ${legalLicenseInstructionsText}`
       : '') +
     (note ? `${chalk.bold('\n    Note')}:\n    ${note}` : '') +
-    (severityReason ? '\nSeverity reason: ' + severityReason : '')
+    (severityReason ? '\n    Severity reason: ' + severityReason : '') +
+    (userNote ? '\n    User note: ' + userNote : '') +
+    (userNoteReason ? '\n    Note reason: ' + userNoteReason : '')
   );
 }
 
