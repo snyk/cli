@@ -422,45 +422,6 @@ describe('Test snyk code', () => {
     }
   });
 
-  it.each([
-    ['sarif', { sarif: true }],
-    ['json', { json: true }],
-  ])(
-    'succeed testing with correct exit code - with %p output',
-    async (optionsName, optionsObject) => {
-      const options: Options & TestOptions = {
-        path: '',
-        traverseNodeModules: false,
-        showVulnPaths: 'none',
-        code: true,
-        ...optionsObject,
-      };
-
-      analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-      isSastEnabledForOrgSpy.mockResolvedValueOnce({
-        sastEnabled: true,
-        localCodeEngine: {
-          enabled: false,
-        },
-      });
-      trackUsageSpy.mockResolvedValue({});
-
-      expect.hasAssertions();
-      try {
-        await ecosystems.testEcosystem('code', ['some/path'], options);
-      } catch (error) {
-        const errMessage = error.message.trim();
-        const expectedOutput = jsonStringifyLargeObject(
-          sampleSarifResponse,
-        ).trim();
-
-        // exit code 1
-        expect(error.code).toBe('VULNS');
-        expect(errMessage).toBe(expectedOutput);
-      }
-    },
-  );
-
   it('succeed testing with correct exit code - with sarif output', async () => {
     const options: ArgsOptions = {
       path: '',
