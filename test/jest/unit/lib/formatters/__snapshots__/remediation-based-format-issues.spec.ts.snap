@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`with license issues 1`] = `
+exports[`formatIssuesWithRemediation with license issues 1`] = `
 "
 
 Issues to fix by upgrading:
@@ -47,7 +47,7 @@ License issues:
     ○ for LGPL-3.0 license: I am legal license instruction"
 `;
 
-exports[`with pins & unfixable & showVulnsPaths = all 1`] = `
+exports[`formatIssuesWithRemediation with pins & unfixable & showVulnsPaths = all 1`] = `
 "
 
 Issues to fix by upgrading dependencies:
@@ -64,7 +64,7 @@ Issues with no direct upgrade or patch:
   This issue was fixed in versions: 2.2.18, 3.0.12, 3.1.6"
 `;
 
-exports[`with showVulnPaths = some 1`] = `
+exports[`formatIssuesWithRemediation with showVulnPaths = some 1`] = `
 "
 
 Issues to fix by upgrading dependencies:
@@ -79,7 +79,7 @@ Issues with no direct upgrade or patch:
   This issue was fixed in versions: 2.2.18, 3.0.12, 3.1.6"
 `;
 
-exports[`with upgrades & patches 1`] = `
+exports[`formatIssuesWithRemediation with upgrades & patches 1`] = `
 "
 
 Issues to fix by upgrading:

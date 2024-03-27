@@ -380,6 +380,9 @@ export function groupVulnerabilities(
       map[curr.id].dockerBaseImage = curr.dockerBaseImage;
       map[curr.id].nearestFixedInVersion = curr.nearestFixedInVersion;
       map[curr.id].legalInstructionsArray = curr.legalInstructionsArray;
+      map[curr.id].severityReason = curr.severityReason;
+      map[curr.id].userNote = curr.userNote;
+      map[curr.id].userNoteReason = curr.userNoteReason;
     }
 
     map[curr.id].list.push(curr);

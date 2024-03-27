@@ -45,6 +45,9 @@ export function formatIssuesWithRemediation(
       note: vuln.note,
       legalInstructions: vuln.legalInstructionsArray,
       paths: vuln.list.map((v) => v.from),
+      severityReason: vuln.severityReason,
+      userNote: vuln.userNote,
+      userNoteReason: vuln.userNoteReason,
     };
 
     if (vulnData.type === 'license') {
@@ -151,6 +154,9 @@ function constructLicenseText(
       basicLicenseInfo[id].note,
       undefined, // We can never override license rules, so no originalSeverity here
       basicLicenseInfo[id].legalInstructions,
+      basicLicenseInfo[id].severityReason,
+      basicLicenseInfo[id].userNote,
+      basicLicenseInfo[id].userNoteReason,
     );
     licenseTextArray.push('\n' + licenseText);
   }
@@ -193,6 +199,10 @@ function constructPatchesText(
       testOptions,
       basicVulnInfo[id].note,
       basicVulnInfo[id].originalSeverity,
+      [],
+      basicVulnInfo[id]?.severityReason,
+      basicVulnInfo[id]?.userNote,
+      basicVulnInfo[id]?.userNoteReason,
     );
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
@@ -225,6 +235,9 @@ function thisUpgradeFixes(
         basicVulnInfo[id].note,
         basicVulnInfo[id].originalSeverity,
         [],
+        basicVulnInfo[id]?.severityReason,
+        basicVulnInfo[id]?.userNote,
+        basicVulnInfo[id]?.userNoteReason,
       ),
     )
     .join('\n');
@@ -377,6 +390,9 @@ function constructUnfixableText(
         issueInfo.note,
         issueInfo.originalSeverity,
         [],
+        issueInfo?.severityReason,
+        issueInfo?.userNote,
+        issueInfo?.userNoteReason,
       ) + `${extraInfo}`,
     );
   }
@@ -394,7 +410,7 @@ export function printPath(path: string[], slice = 1) {
   return path.slice(slice).join(PATH_SEPARATOR);
 }
 
-export function formatIssue(
+function formatIssue(
   id: string,
   title: string,
   severity: SEVERITY,
@@ -405,6 +421,9 @@ export function formatIssue(
   note: string | false,
   originalSeverity?: SEVERITY,
   legalInstructions?: LegalInstruction[],
+  severityReason?: string,
+  userNote?: string,
+  userNoteReason?: string,
 ): string {
   const newBadge = isNew ? ' (new)' : '';
   const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';
@@ -462,7 +481,10 @@ export function formatIssue(
           '\n    Legal instructions',
         )}:\n    ${legalLicenseInstructionsText}`
       : '') +
-    (note ? `${chalk.bold('\n    Note')}:\n    ${note}` : '')
+    (note ? `${chalk.bold('\n    Note')}:\n    ${note}` : '') +
+    (severityReason ? '\n    Severity reason: ' + severityReason : '') +
+    (userNote ? '\n    User note: ' + userNote : '') +
+    (userNoteReason ? '\n    Note reason: ' + userNoteReason : '')
   );
 }
 
