@@ -918,7 +918,7 @@ jobs:
       - run:
           name: Linting project
           environment:
-            GOLANGCI_LINT_CACHE: ~/.cache/golangci-lint
+            GOLANGCI_LINT_CACHE: /home/circleci/.cache/golangci-lint
           command: |
             npm run lint
             pushd cliv2
