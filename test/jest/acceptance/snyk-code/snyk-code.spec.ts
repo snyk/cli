@@ -108,6 +108,7 @@ describe('code', () => {
       expect(stderr).toBe('');
       expect(stripAnsi(stdout)).toContain('✗ [Medium] Information Exposure');
       expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+
     });
 
     it('should show error if sast is not enabled', async () => {
@@ -124,6 +125,52 @@ describe('code', () => {
       expect(stderr).toBe('');
       expect(stdout).toContain('Snyk Code is not supported for org');
       expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
+    });
+
+    it.each([['sarif'], ['json']])(
+      'succeed testing with correct exit code - with %p output',
+      async (optionsName) => {
+        const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+        const { path } = await createProjectFromFixture(
+          'sast/shallow_sast_webgoat',
+        );
+        server.setOrgSetting('sast', true);
+        deepCodeServer.setSarifResponse(sarifPayload);
+
+        const { stdout, stderr, code } = await runSnykCLI(
+          `code test ${path()} --${optionsName}`,
+          {
+            env,
+          },
+        );
+
+        expect(stderr).toBe('');
+        expect(JSON.parse(stdout)).toEqual(sarifPayload);
+        expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+      },
+    );
+
+    it('succeed testing with correct exit code - with sarif oputput and no markdown', async () => {
+      const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+      const { path } = await createProjectFromFixture(
+        'sast/shallow_sast_webgoat',
+      );
+      server.setOrgSetting('sast', true);
+      deepCodeServer.setSarifResponse(sarifPayload);
+
+      const { stdout, stderr, code } = await runSnykCLI(
+        `code test ${path()} --sarif --no-markdown`,
+        {
+          env,
+        },
+      );
+
+      expect(stderr).toBe('');
+      const output = JSON.parse(stdout);
+      expect(Object.keys(output.runs[0].results[0].message)).not.toContain(
+        'markdown',
+      );
+      expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
     });
   });
 });
