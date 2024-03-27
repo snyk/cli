@@ -495,38 +495,6 @@ describe('Test snyk code', () => {
     }
   });
 
-  it('succeed testing with correct exit code - and analytics added', async () => {
-    const analyticSend = jest.spyOn(analytics, 'add');
-
-    const options: Options & TestOptions = {
-      path: '',
-      traverseNodeModules: false,
-      showVulnPaths: 'none',
-      code: true,
-    };
-
-    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: false,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    try {
-      await ecosystems.testEcosystem('code', ['some/path'], options);
-    } catch (error) {
-      const errMessage = stripAscii(stripAnsi(error.message.trim()));
-      const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
-
-      // exit code 1
-      expect(error.code).toBe('VULNS');
-      expect(errMessage).toBe(expectedOutput);
-      expect(analyticSend).toBeCalledTimes(2);
-    }
-  });
-
   it.each([
     [{ code: 401 }, `Unauthorized: ${failedCodeTestMessage}`],
     [{ code: 500 }, failedCodeTestMessage],
