@@ -1,7 +1,6 @@
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
-import stripAnsi = require('strip-ansi');
 import { analyzeFolders, AnalysisSeverity } from '@snyk/code-client';
 import { makeRequest } from '../../../../src/lib/request';
 
@@ -17,11 +16,9 @@ import { config as userConfig } from '../../../../src/lib/user-config';
 import * as analysis from '../../../../src/lib/plugins/sast/analysis';
 import { Options, TestOptions } from '../../../../src/lib/types';
 import * as ecosystems from '../../../../src/lib/ecosystems';
-import * as analytics from '../../../../src/lib/analytics';
 import snykTest from '../../../../src/cli/commands/test';
 import { jsonStringifyLargeObject } from '../../../../src/lib/json';
 import { ArgsOptions } from '../../../../src/cli/args';
-import * as codeConfig from '../../../../src/lib/code-config';
 import { NeedleResponse } from 'needle';
 
 const { getCodeTestResults } = analysis;
@@ -33,8 +30,6 @@ describe('Test snyk code', () => {
 
   const failedCodeTestMessage = "Failed to run 'code test'";
   const fakeApiKey = '123456789';
-  const baseURL = codeConfig.getCodeClientProxyUrl();
-  const LCEbaseURL = 'https://my-proxy-server';
 
   const fixturePath = path.join(__dirname, '../../../fixtures/sast');
 
