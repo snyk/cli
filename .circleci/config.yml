@@ -881,8 +881,7 @@ jobs:
     executor: docker-amd64
     steps:
       - checkout
-      - install-deps-node:
-          cache_prefix: prepare-build-
+      - install-deps-node
       - run:
           name: Set version
           command: |
@@ -911,8 +910,7 @@ jobs:
     executor: docker-amd64
     steps:
       - prepare-workspace
-      - install-deps-node:
-          cache_prefix: prepare-build-
+      - install-deps-node
       - restore_cache:
           name: Restore golangci-lint cache
           key: golangci-lint-{{ checksum "cliv2/go.sum" }}
