@@ -231,6 +231,8 @@ Be sure to run the scan in the same directory as the root `pom.xml` file.
 
 Snyk reports the test results per individual `pom.xml` file within the aggregate project.
 
+**Note:** You can use `--all-projects` when scanning Maven aggregate projects, but you cannot use `--all-projects` with `--maven-aggregate-project`.
+
 ### `--scan-unmanaged`
 
 To monitor individual JAR, WAR, and AAR files, use the following:&#x20;
