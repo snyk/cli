@@ -37,11 +37,6 @@ ignore:
         reason: temporary ignore for security gate and re-org rename
         expires: 2024-03-05T00:00:00.000Z
         created: 2024-02-13T00:00:00.000Z
-  SNYK-JS-SEMVER-3247795:
-    - '*':
-        reason: temporary ignore for security gate and re-org rename
-        expires: 2024-03-05T00:00:00.000Z
-        created: 2024-02-13T00:00:00.000Z
 patch: {}
 exclude:
   code:
