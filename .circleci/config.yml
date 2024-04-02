@@ -382,13 +382,9 @@ workflows:
           context: snyk-bot-slack
           channel: cli-alerts
 
-      - security-scans:
-          context: devex_cli
-
       - prepare-build:
           requires:
             - secrets-scan
-            - security-scans
 
       - code-analysis:
           context: devex_cli
@@ -913,15 +909,11 @@ jobs:
             pushd cliv2 
             make lint
             popd
-      - snyk/scan:
-          fail-on-issues: true
-          severity-threshold: critical
-          additional-arguments: --all-projects --exclude=test,dist
-      - snyk/scan:
-          command: code test
-          fail-on-issues: true
-          monitor-on-build: true
-          severity-threshold: high
+      - prodsec/security_scans:
+          mode: auto
+          open-source-additional-arguments: --exclude=test,dist
+          iac-scan: disabled
+          release-branch: main
 
   test-node:
     executor: docker-amd64
@@ -1309,15 +1301,3 @@ jobs:
       - run:
           name: No operation
           command: echo Nothing to be done!
-
-  security-scans:
-    resource_class: small
-    docker:
-      - image: cimg/go:1.22
-    steps:
-      - checkout
-      - prodsec/security_scans:
-          mode: auto
-          open-source-additional-arguments: --exclude=test
-          iac-scan: disabled
-          release-branch: main
