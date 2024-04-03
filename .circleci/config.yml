@@ -45,6 +45,10 @@ executors:
     docker:
       - image: cimg/go:1.20
     resource_class: medium+
+  circle-node:
+    docker:
+      - image: cimg/node:18.20
+    resource_class: medium+
   docker-amd64:
     docker:
       - image: snyklabs/cli-build:20240319-123447
@@ -920,7 +924,7 @@ jobs:
           severity-threshold: high
 
   test-node:
-    executor: docker-amd64
+    executor: circle-node
     environment:
       JEST_JUNIT_OUTPUT_DIR: test/reports
     steps:
