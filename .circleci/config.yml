@@ -906,18 +906,14 @@ jobs:
           name: Linting project
           command: |
             npm run lint
-            pushd cliv2
+            pushd cliv2 
             make lint
             popd
-      - snyk/scan:
-          fail-on-issues: true
-          severity-threshold: critical
-          additional-arguments: --all-projects --exclude=test,dist
-      - snyk/scan:
-          command: code test
-          fail-on-issues: true
-          monitor-on-build: true
-          severity-threshold: high
+      - prodsec/security_scans:
+          mode: auto
+          open-source-additional-arguments: --exclude=test,dist
+          iac-scan: disabled
+          release-branch: main
 
   test-node:
     executor: docker-amd64
