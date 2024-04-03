@@ -40,7 +40,7 @@
     "build-cli:prod": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.prod.ts",
     "watch": "npm run build-cli:dev -- --watch",
     "test": "npm run test:unit && npm run test:acceptance && npm run test:tap",
-    "test:unit": "jest --runInBand --testPathPattern '/test(/jest)?/unit/' --reporters=jest-junit",
+    "test:unit": "jest --testPathPattern '/test(/jest)?/unit/' --reporters=jest-junit",
     "test:acceptance": "jest --maxWorkers=1 --testPathPattern \"/test(/jest)?/acceptance/\" --reporters=jest-junit",
     "test:tap": "tap -Rspec --timeout=300 test/tap/*.test.* ",
     "test:smoke": "./scripts/run-smoke-tests-locally.sh",
