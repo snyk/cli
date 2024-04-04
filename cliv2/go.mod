@@ -10,7 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.32.0
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20230926124856-b0fdf1ee6f73
-	github.com/snyk/cli-extension-iac-rules v0.0.0-20230601153200-c572cfce46ce
+	github.com/snyk/cli-extension-iac-rules v0.0.0-20240404084125-0098857e0e1a
 	github.com/snyk/cli-extension-sbom v0.0.0-20240314090036-46535b380426
 	github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1
 	github.com/snyk/go-application-framework v0.0.0-20240325175807-5cb112133ceb
@@ -177,7 +177,7 @@ require (
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
 	golang.org/x/mod v0.16.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/oauth2 v0.18.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
