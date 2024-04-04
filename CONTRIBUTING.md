@@ -295,6 +295,14 @@ If your release pipeline fails at any step, notify Hammerhead.
 
 You may see some "Docker Hub" checks on your merge commit fail. This is normal and safe to ignore.
 
+### Creating a stable hot-fix release
+
+* Create a new branch based on the latest stable release branch, using the convention: `hotfix/v1.234.5-uniq-string` or run `./release-scripts/create-hotfix-branch.sh`
+* Propose the fix into the hotfix candidate branch. This could be a cherry-pick, but because main may have diverged significantly, the fix might need to be rewritten for the hotfix branch.
+  * The contributor is responsible for proposing an appropriate patch.
+* Create a PR which targets the stable release branch
+* Merge hotfix branch into stable
+
 ## Snyk CLI Docker Images
 
 After the `release-npm` job successfully completes, an automated process generates the Docker images for Snyk CLI. These images are then published to DockerHub under the repository [`snyk/snyk`](https://hub.docker.com/r/snyk/snyk).
