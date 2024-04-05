@@ -143,13 +143,10 @@ export async function makeRequest(
 
   return new Promise((resolve, reject) => {
     needle.request(method, url, data, options, (err, res, respBody) => {
-      debug(err);
-      debug(
-        'response (%s): ',
-        (res || {}).statusCode,
-        jsonStringifyLargeObject(respBody),
-      );
+      // respBody potentially very large, do not output it in debug
+      debug('response (%s)', (res || {}).statusCode);
       if (err) {
+        debug('response err: %s', err);
         return reject(err);
       }
 

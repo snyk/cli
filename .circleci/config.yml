@@ -387,6 +387,10 @@ workflows:
             - secrets-scan
 
       - code-analysis:
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           context: devex_cli
           requires:
             - prepare-build
@@ -405,6 +409,10 @@ workflows:
               ignore: main
 
       - test-go:
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -899,25 +907,40 @@ jobs:
             - packages/*
 
   code-analysis:
+    parameters:
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      go_download_base_url:
+        type: string
+      install_path:
+        type: string
+        default: '/tmp'
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - run:
           name: Linting project
           command: |
             npm run lint
             pushd cliv2
-            make lint
+              export CGO_ENABLED=1
+              make lint
             popd
-      - snyk/scan:
-          fail-on-issues: true
-          severity-threshold: critical
-          additional-arguments: --all-projects --exclude=test,dist
-      - snyk/scan:
-          command: code test
-          fail-on-issues: true
-          monitor-on-build: true
-          severity-threshold: high
+      - prodsec/security_scans:
+          mode: auto
+          open-source-additional-arguments: --exclude=test,dist
+          iac-scan: disabled
+          release-branch: main
 
   test-node:
     executor: docker-amd64
@@ -932,9 +955,27 @@ jobs:
           path: test/reports
 
   test-go:
-    executor: circle-go
+    executor: docker-amd64
+    parameters:
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      go_download_base_url:
+        type: string
+      install_path:
+        type: string
+        default: '.'
     steps:
       - prepare-workspace
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - run:
           name: Running Go unit tests
           working_directory: ./cliv2
