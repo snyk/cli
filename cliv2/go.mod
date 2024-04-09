@@ -16,7 +16,7 @@ require (
 	github.com/snyk/go-application-framework v0.0.0-20240404113733-1ee20e5f3ae4
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20240402143951-9d7d19ca1a78
+	github.com/snyk/snyk-ls v0.0.0-20240408072540-75df46322994
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
@@ -54,7 +54,7 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/creachadair/jrpc2 v1.2.0 // indirect
-	github.com/creachadair/mds v0.14.0 // indirect
+	github.com/creachadair/mds v0.14.3 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.4 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/deepmap/oapi-codegen v1.16.2 // indirect
@@ -66,7 +66,7 @@ require (
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gertd/go-pluralize v0.2.1 // indirect
-	github.com/getkin/kin-openapi v0.123.0 // indirect
+	github.com/getkin/kin-openapi v0.124.0 // indirect
 	github.com/getsentry/sentry-go v0.27.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
@@ -150,7 +150,7 @@ require (
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/skeema/knownhosts v1.2.2 // indirect
-	github.com/snyk/code-client-go v1.2.0 // indirect
+	github.com/snyk/code-client-go v1.3.0 // indirect
 	github.com/snyk/policy-engine v0.22.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
@@ -174,20 +174,19 @@ require (
 	go.lsp.dev/uri v0.3.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
-	golang.org/x/mod v0.16.0 // indirect
-	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/oauth2 v0.18.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/term v0.18.0 // indirect
+	golang.org/x/crypto v0.22.0 // indirect
+	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect
+	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/oauth2 v0.19.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/term v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.19.0 // indirect
+	golang.org/x/tools v0.20.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.153.0 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20231106174013-bbf56f31fb17 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231106174013-bbf56f31fb17 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
