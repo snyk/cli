@@ -179,10 +179,17 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 				return fmt.Errorf("invalid payload type: %T", data[i].GetPayload())
 			}
 
-			type Summary struct {
-				TotalIssues int `json:"totalIssueCount"`
+			type TestSummary struct {
+				Results []struct {
+					Severity string `json:"severity"`
+					Total    int    `json:"total"`
+					Open     int    `json:"open"`
+					Ignored  int    `json:"ignored"`
+				} `json:"results"`
+				Type string `json:"type"`
 			}
-			summary := Summary{}
+
+			summary := TestSummary{}
 
 			err := json.Unmarshal(singleData, &summary)
 			if err != nil {
@@ -191,8 +198,10 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 
 			// We are missing an understanding of ignored issues here
 			// this should be supported in the future
-			if summary.TotalIssues > 1 {
-				return fmt.Errorf("vulnerabilities found")
+			for _, result := range summary.Results {
+				if result.Open > 0 {
+					return fmt.Errorf("vulnerabilities found")
+				}
 			}
 
 			return nil

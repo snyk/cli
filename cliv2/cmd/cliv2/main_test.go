@@ -237,7 +237,7 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 	t.Run("workflow with test findings", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		data := workflow.NewData(workflowIdentifier, "application/json; type=snyk-test-summary", []byte(`{"totalIssueCount" : 99, "results": [{"severity": "critical", "total": 99, "active": 97, "ignored": 2}]}`))
+		data := workflow.NewData(workflowIdentifier, "application/json; type=snyk-test-summary", []byte(`{"results": [{"severity": "critical", "total": 99, "open": 97, "ignored": 2}]}`))
 		err := getErrorFromWorkFlowData([]workflow.Data{data})
 		require.NotNil(t, err)
 		assert.Equal(t, "vulnerabilities found", err.Error())
@@ -246,7 +246,7 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 	t.Run("workflow with empty testing findings", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		data := workflow.NewData(workflowIdentifier, "application/json; type=snyk-test-summary", []byte(`{"totalIssueCount" : 0, "results": [{"severity": "critical", "total": 0, "active": 0, "ignored": 0}]}`))
+		data := workflow.NewData(workflowIdentifier, "application/json; type=snyk-test-summary", []byte(`{"results": [{"severity": "critical", "total": 0, "open": 0, "ignored": 0}]}`))
 		err := getErrorFromWorkFlowData([]workflow.Data{data})
 		assert.Nil(t, err)
 	})
