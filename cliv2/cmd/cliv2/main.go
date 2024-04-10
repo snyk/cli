@@ -159,11 +159,46 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 	if err == nil {
 		_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
+		if err == nil {
+			globalLogger.Print("Command executed successfully")
+			err = getErrorFromWorkFlowData(data)
+		}
 	} else {
 		globalLogger.Print("Failed to execute the command!", err)
 	}
 
 	return err
+}
+
+func getErrorFromWorkFlowData(data []workflow.Data) error {
+	for i := range data {
+		mimeType := data[i].GetContentType()
+		if strings.EqualFold(mimeType, "application/json; type=snyk-test-summary") {
+			singleData, ok := data[i].GetPayload().([]byte)
+			if !ok {
+				return fmt.Errorf("invalid payload type: %T", data[i].GetPayload())
+			}
+
+			type Summary struct {
+				TotalIssues int `json:"totalIssueCount"`
+			}
+			summary := Summary{}
+
+			err := json.Unmarshal(singleData, &summary)
+			if err != nil {
+				return fmt.Errorf("failed to unmarshal json: %w", err)
+			}
+
+			// We are missing an understanding of ignored issues here
+			// this should be supported in the future
+			if summary.TotalIssues > 1 {
+				return fmt.Errorf("vulnerabilities found")
+			}
+
+			return nil
+		}
+	}
+	return nil
 }
 
 func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {

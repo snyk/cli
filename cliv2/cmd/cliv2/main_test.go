@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -212,6 +213,43 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 			assert.Equal(t, expectedUnknownArgs, actualUnknownArgs)
 		})
 	}
+}
+
+func Test_getErrorFromWorkFlowData(t *testing.T) {
+	t.Run("nil error", func(t *testing.T) {
+		err := getErrorFromWorkFlowData(nil)
+		assert.Nil(t, err)
+	})
+	t.Run("workflow error", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		data := workflow.NewData(workflowIdentifier, "application/json", []byte(`{"error": "test error"}`))
+		err := getErrorFromWorkFlowData([]workflow.Data{data})
+		assert.Nil(t, err)
+	})
+	t.Run("workflow without errors", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		data := workflow.NewData(workflowIdentifier, "application/json", []byte(`{"error": "test error"}`))
+		err := getErrorFromWorkFlowData([]workflow.Data{data})
+		assert.Nil(t, err)
+	})
+	t.Run("workflow with test findings", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		data := workflow.NewData(workflowIdentifier, "application/json; type=snyk-test-summary", []byte(`{"totalIssueCount" : 99, "results": [{"severity": "critical", "total": 99, "active": 97, "ignored": 2}]}`))
+		err := getErrorFromWorkFlowData([]workflow.Data{data})
+		require.NotNil(t, err)
+		assert.Equal(t, "vulnerabilities found", err.Error())
+	})
+
+	t.Run("workflow with empty testing findings", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		data := workflow.NewData(workflowIdentifier, "application/json; type=snyk-test-summary", []byte(`{"totalIssueCount" : 0, "results": [{"severity": "critical", "total": 0, "active": 0, "ignored": 0}]}`))
+		err := getErrorFromWorkFlowData([]workflow.Data{data})
+		assert.Nil(t, err)
+	})
 }
 
 func Test_setTimeout(t *testing.T) {
