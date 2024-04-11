@@ -15,7 +15,11 @@ import {
 } from '../../lib/snyk-test/legacy';
 import { colorTextBySeverity } from '../../lib/snyk-test/common';
 import { formatLegalInstructions } from './legal-license-instructions';
-import { BasicVulnInfo, UpgradesByAffectedPackage } from './types';
+import {
+  AppliedPolicyRules,
+  BasicVulnInfo,
+  UpgradesByAffectedPackage,
+} from './types';
 import { PATH_SEPARATOR } from '../constants';
 import { getSeverityValue } from './get-severity-value';
 import { getVulnerabilityUrl } from './get-vuln-url';
@@ -46,8 +50,7 @@ export function formatIssuesWithRemediation(
       legalInstructions: vuln.legalInstructionsArray,
       paths: vuln.list.map((v) => v.from),
       severityReason: vuln.severityReason,
-      userNote: vuln.userNote,
-      userNoteReason: vuln.userNoteReason,
+      appliedPolicyRules: vuln.appliedPolicyRules,
     };
 
     if (vulnData.type === 'license') {
@@ -155,8 +158,7 @@ function constructLicenseText(
       undefined, // We can never override license rules, so no originalSeverity here
       basicLicenseInfo[id].legalInstructions,
       basicLicenseInfo[id].severityReason,
-      basicLicenseInfo[id].userNote,
-      basicLicenseInfo[id].userNoteReason,
+      basicLicenseInfo[id].appliedPolicyRules,
     );
     licenseTextArray.push('\n' + licenseText);
   }
@@ -201,8 +203,7 @@ function constructPatchesText(
       basicVulnInfo[id].originalSeverity,
       [],
       basicVulnInfo[id]?.severityReason,
-      basicVulnInfo[id]?.userNote,
-      basicVulnInfo[id]?.userNoteReason,
+      basicVulnInfo[id]?.appliedPolicyRules,
     );
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
@@ -236,8 +237,7 @@ function thisUpgradeFixes(
         basicVulnInfo[id].originalSeverity,
         [],
         basicVulnInfo[id]?.severityReason,
-        basicVulnInfo[id]?.userNote,
-        basicVulnInfo[id]?.userNoteReason,
+        basicVulnInfo[id]?.appliedPolicyRules,
       ),
     )
     .join('\n');
@@ -391,8 +391,7 @@ function constructUnfixableText(
         issueInfo.originalSeverity,
         [],
         issueInfo?.severityReason,
-        issueInfo?.userNote,
-        issueInfo?.userNoteReason,
+        issueInfo?.appliedPolicyRules,
       ) + `${extraInfo}`,
     );
   }
@@ -422,8 +421,7 @@ function formatIssue(
   originalSeverity?: SEVERITY,
   legalInstructions?: LegalInstruction[],
   severityReason?: string,
-  userNote?: string,
-  userNoteReason?: string,
+  appliedPolicyRules?: AppliedPolicyRules,
 ): string {
   const newBadge = isNew ? ' (new)' : '';
   const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';
@@ -465,6 +463,15 @@ function formatIssue(
   if (originalSeverity && originalSeverity !== severity) {
     originalSeverityStr = ` (originally ${titleCaseText(originalSeverity)})`;
   }
+
+  const { value: userNote, reason: userNoteReason } =
+    appliedPolicyRules?.annotation || {};
+
+  console.log({
+    appliedPolicyRules,
+    userNote,
+    userNoteReason,
+  });
 
   return (
     colorTextBySeverity(

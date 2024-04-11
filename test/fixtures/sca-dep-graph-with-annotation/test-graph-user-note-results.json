@@ -59,8 +59,12 @@
         "pip-app@0.0.0",
         "django@1.6.1"
       ],
-      "userNote": "Papercut",
-      "userNoteReason": "This vulnerability is a papercut and can be ignored",
+      "appliedPolicyRules": {
+        "annotation": {
+          "value": "Papercut",
+          "reason": "This vulnerability is a papercut and can be ignored"
+        }
+      },
       "upgradePath": [],
       "isUpgradable": false,
       "isPatchable": false,

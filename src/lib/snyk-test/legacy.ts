@@ -8,6 +8,7 @@ import {
 import { SupportedPackageManagers } from '../package-managers';
 import { Options, SupportedProjectTypes, TestOptions } from '../types';
 import { SEVERITIES } from './common';
+import { AppliedPolicyRules } from '../formatters/types';
 
 interface Pkg {
   name: string;
@@ -57,8 +58,7 @@ export interface GroupedVuln {
   fixedIn: string[];
   legalInstructionsArray?: LegalInstruction[];
   severityReason?: string;
-  userNote?: string;
-  userNoteReason?: string;
+  appliedPolicyRules?: AppliedPolicyRules;
 }
 
 export interface LegalInstruction {

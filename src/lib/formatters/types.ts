@@ -14,7 +14,27 @@ export interface BasicVulnInfo {
   note: string | false;
   severityReason?: string;
   userNote?: string;
-  userNoteReason?: string;
+  appliedPolicyRules?: AppliedPolicyRules;
+}
+
+export interface AppliedPolicyRules {
+  annotation?: {
+    value: string;
+    reason?: string;
+  };
+  severityChange?: {
+    newSeverity?: SEVERITY;
+    originalSeverity?: SEVERITY;
+  };
+  ignore?: {
+    path: string[];
+    source?: string;
+    created: string;
+    expires?: string;
+    reason: string;
+    disregardIfFixable: boolean;
+    reasonType: string;
+  };
 }
 
 interface TopLevelPackageUpgrade {
