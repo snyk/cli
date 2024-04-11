@@ -157,7 +157,6 @@ function constructLicenseText(
       basicLicenseInfo[id].note,
       undefined, // We can never override license rules, so no originalSeverity here
       basicLicenseInfo[id].legalInstructions,
-      basicLicenseInfo[id].severityReason,
       basicLicenseInfo[id].appliedPolicyRules,
     );
     licenseTextArray.push('\n' + licenseText);
@@ -202,7 +201,6 @@ function constructPatchesText(
       basicVulnInfo[id].note,
       basicVulnInfo[id].originalSeverity,
       [],
-      basicVulnInfo[id]?.severityReason,
       basicVulnInfo[id]?.appliedPolicyRules,
     );
     patchedTextArray.push(patchedText + thisPatchFixes);
@@ -236,7 +234,6 @@ function thisUpgradeFixes(
         basicVulnInfo[id].note,
         basicVulnInfo[id].originalSeverity,
         [],
-        basicVulnInfo[id]?.severityReason,
         basicVulnInfo[id]?.appliedPolicyRules,
       ),
     )
@@ -390,7 +387,6 @@ function constructUnfixableText(
         issueInfo.note,
         issueInfo.originalSeverity,
         [],
-        issueInfo?.severityReason,
         issueInfo?.appliedPolicyRules,
       ) + `${extraInfo}`,
     );
@@ -420,7 +416,6 @@ function formatIssue(
   note: string | false,
   originalSeverity?: SEVERITY,
   legalInstructions?: LegalInstruction[],
-  severityReason?: string,
   appliedPolicyRules?: AppliedPolicyRules,
 ): string {
   const newBadge = isNew ? ' (new)' : '';
@@ -467,11 +462,7 @@ function formatIssue(
   const { value: userNote, reason: userNoteReason } =
     appliedPolicyRules?.annotation || {};
 
-  console.log({
-    appliedPolicyRules,
-    userNote,
-    userNoteReason,
-  });
+  const { reason: severityReason } = appliedPolicyRules?.severityChange || {};
 
   return (
     colorTextBySeverity(

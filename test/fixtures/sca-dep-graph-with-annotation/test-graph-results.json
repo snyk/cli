@@ -52,14 +52,23 @@
           "[3.1a1,3.1.6)"
         ]
       },
-      "severity": "low",
-      "severityWithCritical": "low",
+      "severity": "medium",
+      "originalSeverity": "low",
+      "severityWithCritical": "medium",
       "title": "Directory Traversal",
       "from": [
         "pip-app@0.0.0",
         "django@1.6.1"
       ],
-      "severityReason": "Not a long running service",
+      "appliedPolicyRules": {
+        "annotation": {
+        },
+        "severityChange": {
+          "newSeverity": "medium",
+          "originalSeverity": "low",
+          "reason": "Not a long running service"
+        }
+      },
       "upgradePath": [],
       "isUpgradable": false,
       "isPatchable": false,

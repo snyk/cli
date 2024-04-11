@@ -25,6 +25,7 @@ export interface AppliedPolicyRules {
   severityChange?: {
     newSeverity?: SEVERITY;
     originalSeverity?: SEVERITY;
+    reason?: string;
   };
   ignore?: {
     path: string[];
