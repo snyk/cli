@@ -23,7 +23,7 @@ import (
 func cleanup() {
 	helpProvided = false
 	globalConfiguration = nil
-	engine = nil
+	globalEngine = nil
 }
 
 func Test_MainWithErrorCode(t *testing.T) {
@@ -99,7 +99,7 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 
 	globalConfiguration = configuration.New()
 	globalConfiguration.Set(configuration.DEBUG, true)
-	engine = workflow.NewWorkFlowEngine(globalConfiguration)
+	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		return []workflow.Data{}, nil
@@ -110,17 +110,17 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	for _, v := range commandList {
 		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 		workflowId1 := workflow.NewWorkflowIdentifier(v)
-		_, err := engine.Register(workflowId1, workflowConfig, fn)
+		_, err := globalEngine.Register(workflowId1, workflowConfig, fn)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
 
-	_ = engine.Init()
+	_ = globalEngine.Init()
 	rootCommand := prepareRootCommand()
 
 	// invoke method under test
-	createCommandsForWorkflows(rootCommand, engine)
+	createCommandsForWorkflows(rootCommand, globalEngine)
 
 	// test that root subcmd2 has expected subcommands
 	cmd, _, _ := rootCommand.Find([]string{"cmd"})
@@ -174,7 +174,7 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 			defer cleanup()
 			globalConfiguration = configuration.New()
 			globalConfiguration.Set(configuration.DEBUG, true)
-			engine = workflow.NewWorkFlowEngine(globalConfiguration)
+			globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
 
 			fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 				return []workflow.Data{}, nil
@@ -185,13 +185,13 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 			for _, v := range commandList {
 				workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 				workflowId1 := workflow.NewWorkflowIdentifier(v)
-				_, err := engine.Register(workflowId1, workflowConfig, fn)
+				_, err := globalEngine.Register(workflowId1, workflowConfig, fn)
 				if err != nil {
 					t.Fatal(err)
 				}
 			}
 
-			_ = engine.Init()
+			_ = globalEngine.Init()
 
 			config := configuration.NewInMemory()
 			cmd := &cobra.Command{
@@ -297,10 +297,10 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	defer cleanup()
 	globalConfiguration = configuration.New()
 	globalConfiguration.Set(configuration.DEBUG, true)
-	engine = workflow.NewWorkFlowEngine(globalConfiguration)
+	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
 
 	testCmnd := "subcmd1"
-	addEmptyWorkflows(t, engine, []string{"output"})
+	addEmptyWorkflows(t, globalEngine, []string{"output"})
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
@@ -330,16 +330,16 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
 	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 
-	entry, err := engine.Register(wrkflowId, workflowConfig, fn)
+	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
 	assert.Nil(t, err)
 	assert.NotNil(t, entry)
 
-	err = engine.Init()
+	err = globalEngine.Init()
 	assert.NoError(t, err)
 
 	// invoke method under test
 	logger := zerolog.New(os.Stderr)
-	err = runWorkflowAndProcessData(engine, &logger, testCmnd)
+	err = runWorkflowAndProcessData(globalEngine, &logger, testCmnd)
 	assert.ErrorIs(t, err, clierrors.ErrorWithExitCode{
 		ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
 	})

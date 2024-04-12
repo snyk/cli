@@ -3,7 +3,6 @@ package main
 // !!! This import needs to be the first import, please do not change this !!!
 import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 
-
 import (
 	"context"
 	"encoding/json"
@@ -43,7 +42,7 @@ import (
 )
 
 var internalOS string
-var engine workflow.Engine
+var globalEngine workflow.Engine
 var globalConfiguration configuration.Configuration
 var helpProvided bool
 
@@ -157,9 +156,9 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	name := getFullCommandString(cmd)
 	globalLogger.Print("Running ", name)
 	// TODO: Rename as globalEngine
-	engine.GetAnalytics().SetCommand(name)
+	globalEngine.GetAnalytics().SetCommand(name)
 
-	err = runWorkflowAndProcessData(engine, globalLogger, name)
+	err = runWorkflowAndProcessData(globalEngine, globalLogger, name)
 
 	return err
 }
@@ -257,7 +256,7 @@ func defaultCmd(args []string) error {
 	// * by specifying the raw cmd args for it
 	globalConfiguration.Set(configuration.WORKFLOW_USE_STDIO, true)
 	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
-	_, err := engine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
+	_, err := globalEngine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
 	return err
 }
 
@@ -423,39 +422,39 @@ func MainWithErrorCode() int {
 	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
 	globalLogger = initDebugLogger(globalConfiguration)
 
-	engine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
+	globalEngine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
 
 	if noProxyAuth := globalConfiguration.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
 	}
 
 	// initialize the extensions -> they register themselves at the engine
-	engine.AddExtensionInitializer(basic_workflows.Init)
-	engine.AddExtensionInitializer(sbom.Init)
-	engine.AddExtensionInitializer(depgraph.Init)
-	engine.AddExtensionInitializer(capture.Init)
-	engine.AddExtensionInitializer(iacrules.Init)
-	engine.AddExtensionInitializer(snykls.Init)
-	engine.AddExtensionInitializer(container.Init)
-	engine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
+	globalEngine.AddExtensionInitializer(basic_workflows.Init)
+	globalEngine.AddExtensionInitializer(sbom.Init)
+	globalEngine.AddExtensionInitializer(depgraph.Init)
+	globalEngine.AddExtensionInitializer(capture.Init)
+	globalEngine.AddExtensionInitializer(iacrules.Init)
+	globalEngine.AddExtensionInitializer(snykls.Init)
+	globalEngine.AddExtensionInitializer(container.Init)
+	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 
 	// init engine
-	err = engine.Init()
+	err = globalEngine.Init()
 	if err != nil {
 		globalLogger.Print("Failed to init Workflow Engine!", err)
 		return constants.SNYK_EXIT_CODE_ERROR
 	}
 
 	// add output flags as persistent flags
-	outputWorkflow, _ := engine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
+	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
 	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
 	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
 
 	// add workflows as commands
-	createCommandsForWorkflows(rootCommand, engine)
+	createCommandsForWorkflows(rootCommand, globalEngine)
 
 	// init NetworkAccess
-	networkAccess := engine.GetNetworkAccess()
+	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
 	networkAccess.AddHeaderField(
 		"User-Agent",
@@ -470,7 +469,7 @@ func MainWithErrorCode() int {
 	}
 
 	// init Analytics
-	cliAnalytics := engine.GetAnalytics()
+	cliAnalytics := globalEngine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args[1:])
 	cliAnalytics.SetOperatingSystem(internalOS)
