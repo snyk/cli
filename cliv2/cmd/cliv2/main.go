@@ -154,19 +154,27 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 
 	name := getFullCommandString(cmd)
 	globalLogger.Print("Running ", name)
+	// TODO: Rename as globalEngine
 	engine.GetAnalytics().SetCommand(name)
 
-	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
-	if err == nil {
-		_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
-		if err == nil {
-			globalLogger.Print("Command executed successfully")
-			err = getErrorFromWorkFlowData(data)
-		}
-	} else {
-		globalLogger.Print("Failed to execute the command!", err)
-	}
+	
+	err = theActualMainWorkflow(engine, globalLogger, name)
 
+	return err
+}
+
+func theActualMainWorkflow(engine workflow.Engine, logger *zerolog.Logger, name string)error {
+	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
+
+	if err == nil {
+			_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
+			if err == nil {
+				logger.Print("Command executed successfully")
+				err = getErrorFromWorkFlowData(data)
+			}
+		} else {
+			logger.Print("Failed to execute the command!", err)
+		}
 	return err
 }
 

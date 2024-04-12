@@ -1,18 +1,20 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
 	"time"
 
+	"github.com/rs/zerolog"
+	"github.com/snyk/go-application-framework/pkg/configuration"
+	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
+	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/snyk/go-application-framework/pkg/configuration"
-	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
-	"github.com/snyk/go-application-framework/pkg/workflow"
 )
 
 func cleanup() {
@@ -250,6 +252,73 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		err := getErrorFromWorkFlowData([]workflow.Data{data})
 		assert.Nil(t, err)
 	})
+}
+
+func addEmptyWorkflows(t *testing.T, engine workflow.Engine, commandList []string) {
+	for _, v := range commandList {
+		fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+			return []workflow.Data{}, nil
+		}
+
+		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+		workflowId1 := workflow.NewWorkflowIdentifier(v)
+		_, err := engine.Register(workflowId1, workflowConfig, fn)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func Test_theActualMainWorkflow(t *testing.T) {
+	defer cleanup()
+	globalConfiguration = configuration.New()
+	globalConfiguration.Set(configuration.DEBUG, true)
+	engine = workflow.NewWorkFlowEngine(globalConfiguration)
+
+	testCmnd := "subcmd1"
+	addEmptyWorkflows(t, engine, []string{"output"})
+
+	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
+		testSummary := json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{
+				{
+					Severity: "critical",
+					Total:    10,
+					Open:     10,
+					Ignored:  0,
+				},
+			},
+			Type: "sast",
+		}
+		json, err := json.Marshal(testSummary)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		data := workflow.NewData(typeId, "application/json; type=snyk-test-summary",
+			json,
+		)
+		return []workflow.Data{
+			data,
+		}, nil
+	}
+
+	// setup workflow engine to contain a workflow with subcommands
+	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
+	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+
+	entry, err := engine.Register(wrkflowId, workflowConfig, fn)
+	assert.Nil(t, err)
+	assert.NotNil(t, entry)
+
+	err = engine.Init()
+	assert.NoError(t, err)
+
+	// invoke method under test
+	logger := zerolog.New(os.Stderr)
+	err = theActualMainWorkflow(engine, &logger, testCmnd)
+	assert.Error(t, err)
 }
 
 func Test_setTimeout(t *testing.T) {
