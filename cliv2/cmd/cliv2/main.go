@@ -2,7 +2,6 @@ package main
 
 // !!! This import needs to be the first import, please do not change this !!!
 import (
-	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 )
 
@@ -37,7 +36,8 @@ import (
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 	snykls "github.com/snyk/snyk-ls/ls_extension"
-
+	
+	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
