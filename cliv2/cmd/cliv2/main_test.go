@@ -11,6 +11,7 @@ import (
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
@@ -241,7 +242,17 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 	t.Run("workflow with test findings", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		data := workflow.NewData(workflowIdentifier, "application/json; type=snyk-test-summary", []byte(`{"results": [{"severity": "critical", "total": 99, "open": 97, "ignored": 2}]}`))
+		payload, err := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    99,
+				Open:     97,
+				Ignored:  2,
+			}},
+			Type: "sast",
+		})
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, payload)
 		err := getErrorFromWorkFlowData([]workflow.Data{data})
 		require.NotNil(t, err)
 		assert.ErrorIs(t, err, cli_errors.ErrorWithExitCode{ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND})
@@ -250,8 +261,18 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 	t.Run("workflow with empty testing findings", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		data := workflow.NewData(workflowIdentifier, "application/json; type=snyk-test-summary", []byte(`{"results": [{"severity": "critical", "total": 0, "open": 0, "ignored": 0}]}`))
-		err := getErrorFromWorkFlowData([]workflow.Data{data})
+		d, err := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    0,
+				Open:     0,
+				Ignored:  0,
+			}},
+			Type: "sast",
+		})
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
+		err = getErrorFromWorkFlowData([]workflow.Data{data})
 		assert.Nil(t, err)
 	})
 }
@@ -299,7 +320,7 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		data := workflow.NewData(typeId, "application/json; type=snyk-test-summary",
+		data := workflow.NewData(typeId, content_type.TEST_SUMMARY,
 			json,
 		)
 		return []workflow.Data{

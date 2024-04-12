@@ -448,8 +448,6 @@ func DeriveExitCode(err error) int {
 		var exitError *exec.ExitError
 		var errorWithExitCode *cli_errors.ErrorWithExitCode
 
-		strErr := err.Error()
-
 		if errors.As(err, &exitError) {
 			returnCode = exitError.ExitCode()
 		} else if errors.Is(err, context.DeadlineExceeded) {
