@@ -244,7 +244,7 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		data := workflow.NewData(workflowIdentifier, "application/json; type=snyk-test-summary", []byte(`{"results": [{"severity": "critical", "total": 99, "open": 97, "ignored": 2}]}`))
 		err := getErrorFromWorkFlowData([]workflow.Data{data})
 		require.NotNil(t, err)
-		assert.Equal(t, "vulnerabilities found", err.Error())
+		assert.ErrorIs(t, err, cli_errors.ErrorWithExitCode{ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND})
 	})
 
 	t.Run("workflow with empty testing findings", func(t *testing.T) {
@@ -257,6 +257,7 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 }
 
 func addEmptyWorkflows(t *testing.T, engine workflow.Engine, commandList []string) {
+	t.Helper()
 	for _, v := range commandList {
 		fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 			return []workflow.Data{}, nil
