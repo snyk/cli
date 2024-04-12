@@ -77,18 +77,20 @@ func getLatestCommitSHA(name string) (string, error) {
 }
 
 func upgradeGoMod(name, commitSHA string) error {
-	cmd := exec.Command("go", "get", "-u", fmt.Sprintf("github.com/snyk/%s@%s", name, commitSHA))
+	cmd := exec.Command("go", "get", fmt.Sprintf("github.com/snyk/%s@%s", name, commitSHA))
 	cmd.Dir = "./cliv2"
 	if err := cmd.Run(); err != nil {
 		return err
 	}
 
+	fmt.Println("🧹 Running go mod tidy...")
 	cmd = exec.Command("go", "mod", "tidy")
 	cmd.Dir = "./cliv2"
 	if err := cmd.Run(); err != nil {
 		return err
 	}
 
+	fmt.Println("🚀 Upgrade successful for:", name)
 	return nil
 }
 
