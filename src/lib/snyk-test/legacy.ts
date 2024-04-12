@@ -57,7 +57,6 @@ export interface GroupedVuln {
   isFixable: boolean;
   fixedIn: string[];
   legalInstructionsArray?: LegalInstruction[];
-  severityReason?: string;
   appliedPolicyRules?: AppliedPolicyRules;
 }
 

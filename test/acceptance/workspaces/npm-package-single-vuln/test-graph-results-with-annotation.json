@@ -6,13 +6,7 @@
         "issues": {
           "SNYK-JS-CXCT-535487": {
             "issueId": "SNYK-JS-CXCT-535487",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] },
-            "appliedPolicyRules": {
-              "annotation": {
-                "value": "This is a test user note",
-                "reason": "This vulnerability is a papercut and can be ignored"
-              }
-            }
+            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
           }
         }
       }
@@ -88,7 +82,7 @@
           ],
           "semver": { "vulnerable": ["*"] },
           "severity": "high",
-          "title": "Malicious 󠅮󠅰󠅭Package",
+          "title": "Malicious 󠅮󠅰󠅭Package for you",
           "isPinnable": false,
           "from": ["no-fix-app@1.0.0", "cxct@0.0.1-security"],
           "upgradePath": [],

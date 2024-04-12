@@ -49,7 +49,6 @@ export function formatIssuesWithRemediation(
       note: vuln.note,
       legalInstructions: vuln.legalInstructionsArray,
       paths: vuln.list.map((v) => v.from),
-      severityReason: vuln.severityReason,
       appliedPolicyRules: vuln.appliedPolicyRules,
     };
 
