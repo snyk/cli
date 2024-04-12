@@ -8,7 +8,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/snyk/cli/cliv2/internal/constants"
-	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
+	clierrors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -253,9 +253,9 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		})
 		assert.Nil(t, err)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, payload)
-		err := getErrorFromWorkFlowData([]workflow.Data{data})
+		err = getErrorFromWorkFlowData([]workflow.Data{data})
 		require.NotNil(t, err)
-		assert.ErrorIs(t, err, cli_errors.ErrorWithExitCode{ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND})
+		assert.ErrorIs(t, err, clierrors.ErrorWithExitCode{ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND})
 	})
 
 	t.Run("workflow with empty testing findings", func(t *testing.T) {
@@ -315,14 +315,12 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 			},
 			Type: "sast",
 		}
-		json, err := json.Marshal(testSummary)
+		d, err := json.Marshal(testSummary)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		data := workflow.NewData(typeId, content_type.TEST_SUMMARY,
-			json,
-		)
+		data := workflow.NewData(typeId, content_type.TEST_SUMMARY, d)
 		return []workflow.Data{
 			data,
 		}, nil
@@ -342,7 +340,7 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	// invoke method under test
 	logger := zerolog.New(os.Stderr)
 	err = runWorkflowAndProcessData(engine, &logger, testCmnd)
-	assert.ErrorIs(t, err, cli_errors.ErrorWithExitCode{
+	assert.ErrorIs(t, err, clierrors.ErrorWithExitCode{
 		ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
 	})
 }
