@@ -450,10 +450,6 @@ func DeriveExitCode(err error) int {
 
 		strErr := err.Error()
 
-		if strErr == "vulnerabilities found" {
-			return constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND
-		}
-
 		if errors.As(err, &exitError) {
 			returnCode = exitError.ExitCode()
 		} else if errors.Is(err, context.DeadlineExceeded) {
