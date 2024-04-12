@@ -203,7 +203,7 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 
 			err := json.Unmarshal(singleData, &summary)
 			if err != nil {
-				return fmt.Errorf("failed to unmarshal json: %w", err)
+				return fmt.Errorf("failed to parse test summary payload: %w", err)
 			}
 
 			// We are missing an understanding of ignored issues here
