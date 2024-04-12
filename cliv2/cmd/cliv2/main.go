@@ -27,6 +27,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -181,7 +182,7 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 func getErrorFromWorkFlowData(data []workflow.Data) error {
 	for i := range data {
 		mimeType := data[i].GetContentType()
-		if strings.EqualFold(mimeType, "application/json; type=snyk-test-summary") {
+		if strings.EqualFold(mimeType, content_type.TEST_SUMMARY) {
 			singleData, ok := data[i].GetPayload().([]byte)
 			if !ok {
 				return fmt.Errorf("invalid payload type: %T", data[i].GetPayload())
