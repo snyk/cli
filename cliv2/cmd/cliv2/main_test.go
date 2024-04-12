@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli/cliv2/internal/constants"
+	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
@@ -269,7 +271,7 @@ func addEmptyWorkflows(t *testing.T, engine workflow.Engine, commandList []strin
 	}
 }
 
-func Test_theActualMainWorkflow(t *testing.T) {
+func Test_runWorkflowAndProcessData(t *testing.T) {
 	defer cleanup()
 	globalConfiguration = configuration.New()
 	globalConfiguration.Set(configuration.DEBUG, true)
@@ -317,8 +319,10 @@ func Test_theActualMainWorkflow(t *testing.T) {
 
 	// invoke method under test
 	logger := zerolog.New(os.Stderr)
-	err = theActualMainWorkflow(engine, &logger, testCmnd)
-	assert.Error(t, err)
+	err = runWorkflowAndProcessData(engine, &logger, testCmnd)
+	assert.ErrorIs(t, err, cli_errors.ErrorWithExitCode{
+		ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
+	})
 }
 
 func Test_setTimeout(t *testing.T) {

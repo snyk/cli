@@ -1,7 +1,10 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+import (
+	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+)
 
 import (
 	"context"
@@ -157,24 +160,23 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	// TODO: Rename as globalEngine
 	engine.GetAnalytics().SetCommand(name)
 
-	
-	err = theActualMainWorkflow(engine, globalLogger, name)
+	err = runWorkflowAndProcessData(engine, globalLogger, name)
 
 	return err
 }
 
-func theActualMainWorkflow(engine workflow.Engine, logger *zerolog.Logger, name string)error {
+func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, name string) error {
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 
 	if err == nil {
-			_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
-			if err == nil {
-				logger.Print("Command executed successfully")
-				err = getErrorFromWorkFlowData(data)
-			}
-		} else {
-			logger.Print("Failed to execute the command!", err)
+		_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
+		if err == nil {
+			logger.Print("Command executed successfully")
+			err = getErrorFromWorkFlowData(data)
 		}
+	} else {
+		logger.Print("Failed to execute the command!", err)
+	}
 	return err
 }
 
@@ -208,7 +210,9 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 			// this should be supported in the future
 			for _, result := range summary.Results {
 				if result.Open > 0 {
-					return fmt.Errorf("vulnerabilities found")
+					return cli_errors.ErrorWithExitCode{
+						ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
+					}
 				}
 			}
 

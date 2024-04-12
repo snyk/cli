@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/gofrs/flock"
+	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/utils"
 
@@ -445,6 +446,7 @@ func DeriveExitCode(err error) int {
 
 	if err != nil {
 		var exitError *exec.ExitError
+		var errorWithExitCode *cli_errors.ErrorWithExitCode
 
 		strErr := err.Error()
 
@@ -456,6 +458,8 @@ func DeriveExitCode(err error) int {
 			returnCode = exitError.ExitCode()
 		} else if errors.Is(err, context.DeadlineExceeded) {
 			returnCode = constants.SNYK_EXIT_CODE_EX_UNAVAILABLE
+		} else if errors.As(err, &errorWithExitCode) {
+			returnCode = errorWithExitCode.ExitCode
 		} else {
 			// got an error but it's not an ExitError
 			returnCode = constants.SNYK_EXIT_CODE_ERROR
