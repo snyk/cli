@@ -55,6 +55,12 @@ You can run tests using standard Jest commands. See: [Jest CLI docs](https://jes
 npx jest --runInBand <path>
 ```
 
+For closed box tests (like User Journey tests, acceptance tests, ...) you will have to specify the binary under test by setting the environment variable **TEST_SNYK_COMMAND**.
+
+```
+TEST_SNYK_COMMAND=./binary-releases/snyk-macos npx jest --runInBand <path>
+```
+
 If you are working on a specific project, you can filter by project.
 
 ```
