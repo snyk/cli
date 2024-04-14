@@ -7,7 +7,13 @@ const testFixture = getFixturePath('find-files');
 
 test('find all files in test fixture', async (t) => {
   // six levels deep to find all
-  const { files: result, allFilesFound } = await find(testFixture, [], [], 6);
+  const { files: result, allFilesFound } = await find(
+    testFixture,
+    [],
+    [],
+    new Set<string>([]),
+    6,
+  );
   const expected = [
     path.join(
       testFixture,
@@ -70,7 +76,13 @@ test('find all files in test fixture', async (t) => {
 
 test('find all files in test fixture ignoring node_modules', async (t) => {
   // six levels deep to ensure node_modules is tested
-  const { files: result } = await find(testFixture, ['node_modules'], [], 6);
+  const { files: result } = await find(
+    testFixture,
+    ['node_modules'],
+    [],
+    new Set<string>([]),
+    6,
+  );
   const expected = [
     path.join(
       testFixture,
@@ -104,6 +116,7 @@ test('find package.json file in test fixture ignoring node_modules', async (t) =
     nodeModulesPath,
     [],
     ['package.json'],
+    new Set<string>([]),
     6,
   );
   const expected = [];
@@ -117,6 +130,7 @@ test('find Package.swift file in test fixture ignoring .build folder', async (t)
     nodeModulesPath,
     [],
     ['Package.swift'],
+    new Set<string>([]),
     6,
   );
   const expected = [];
@@ -128,6 +142,7 @@ test('find Package.swift file in test fixture ignoring test.build folder ', asyn
     nodeModulesPath,
     [],
     ['Package.swift'],
+    new Set<string>([]),
     6,
   );
   const expected = [
@@ -138,7 +153,13 @@ test('find Package.swift file in test fixture ignoring test.build folder ', asyn
 
 test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
   // six levels deep to ensure node_modules is tested
-  const { files: result } = await find(testFixture, [], ['package.json'], 6);
+  const { files: result } = await find(
+    testFixture,
+    [],
+    ['package.json'],
+    new Set<string>([]),
+    6,
+  );
   const expected = [
     path.join(testFixture, 'npm', 'package.json'),
     path.join(testFixture, 'npm-with-lockfile', 'package.json'),
@@ -154,6 +175,7 @@ test('find package-lock.json file in test fixture (ignore package.json in the sa
     npmLockfilePath,
     [],
     ['package.json', 'package-lock.json'],
+    new Set<string>([]),
     1,
   );
   const expected = [path.join(npmLockfilePath, 'package-lock.json')];
@@ -167,6 +189,7 @@ test('find build.gradle file in test fixture (ignore build.gradle in the same fo
     buildGradle,
     [],
     ['build.gradle.kts', 'build.gradle'],
+    new Set<string>([]),
     1,
   );
   const expected = [path.join(buildGradle, 'build.gradle')];
@@ -180,6 +203,7 @@ test('find Gemfile.lock file in test fixture (ignore Gemfile in the same folder)
     npmLockfilePath,
     [],
     ['Gemfile', 'Gemfile.lock'],
+    new Set<string>([]),
     1,
   );
   const expected = [path.join(npmLockfilePath, 'Gemfile.lock')];
@@ -193,6 +217,7 @@ test('find yarn.lock file in test fixture (ignore package.json in the same folde
     yarnLockfilePath,
     [],
     ['package.json', 'yarn.lock'],
+    new Set<string>([]),
     1,
   );
   const expected = [path.join(yarnLockfilePath, 'yarn.lock')];
@@ -201,7 +226,13 @@ test('find yarn.lock file in test fixture (ignore package.json in the same folde
 
 test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
   // four levels deep to ensure node_modules is tested
-  const { files: result } = await find(testFixture, [], ['package.json'], 4);
+  const { files: result } = await find(
+    testFixture,
+    [],
+    ['package.json'],
+    new Set<string>([]),
+    4,
+  );
   const expected = [
     path.join(testFixture, 'npm', 'package.json'),
     path.join(testFixture, 'npm-with-lockfile', 'package.json'),

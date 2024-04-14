@@ -1,3 +1,9 @@
+export const PNPM_FEATURE_FLAG = 'enablePnpmCli';
+
+export const PACKAGE_MANAGERS_FEATURE_FLAGS_MAP = {
+  pnpm: PNPM_FEATURE_FLAG,
+};
+
 export type SupportedPackageManagers =
   | 'rubygems'
   | 'npm'
@@ -17,6 +23,8 @@ export type SupportedPackageManagers =
   | 'hex'
   | 'Unmanaged (C/C++)'
   | 'swift';
+
+export type SupportedPackageManagersUnderFeatureFlag = 'pnpm';
 
 export enum SUPPORTED_MANIFEST_FILES {
   GEMFILE = 'Gemfile',
@@ -51,6 +59,10 @@ export enum SUPPORTED_MANIFEST_FILES {
   PACKAGE_SWIFT = 'Package.swift',
 }
 
+export enum SUPPORTED_MANIFEST_FILES_UNDER_FF {
+  PNPM_LOCK = 'pnpm-lock.yaml',
+}
+
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   readonly [packageManager in SupportedPackageManagers]: string;
 } = {
@@ -72,6 +84,12 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   hex: 'Hex',
   'Unmanaged (C/C++)': 'Unmanaged (C/C++)',
   swift: 'Swift',
+};
+
+export const SUPPORTED_PACKAGE_MANAGER_UNDER_FF_NAME: {
+  readonly [packageManager in SupportedPackageManagersUnderFeatureFlag]: string;
+} = {
+  pnpm: 'pnpm',
 };
 
 export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [

@@ -15,12 +15,14 @@ import {
   detectPackageFile,
   AUTO_DETECTABLE_FILES,
   detectPackageManagerFromFile,
+  AUTO_DETECTABLE_FILES_UNDER_FF,
 } from '../detect';
 import analytics = require('../analytics');
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
+import { PACKAGE_MANAGERS_FEATURE_FLAGS_MAP } from '../package-managers';
 
 const debug = debugModule('snyk-test');
 
@@ -39,15 +41,25 @@ const multiProjectProcessors = {
 export async function getDepsFromPlugin(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
+  featureFlags: Set<string> = new Set<string>(),
 ): Promise<pluginApi.MultiProjectResult | MultiProjectResultCustom> {
   if (Object.keys(multiProjectProcessors).some((key) => options[key])) {
     const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
+
+    const files = multiProjectProcessors[scanType].files;
+    Object.keys(AUTO_DETECTABLE_FILES_UNDER_FF).forEach((pkgManager) => {
+      if (featureFlags.has(PACKAGE_MANAGERS_FEATURE_FLAGS_MAP[pkgManager])) {
+        files.push(AUTO_DETECTABLE_FILES_UNDER_FF[pkgManager]);
+      }
+    });
+
     const { files: targetFiles, allFilesFound } = await find(
       root,
       ignore,
-      multiProjectProcessors[scanType].files,
+      files,
+      featureFlags,
       levelsDeep,
     );
     debug(
@@ -63,13 +75,14 @@ export async function getDepsFromPlugin(
       root,
       options,
       targetFiles,
+      featureFlags,
     );
     const scannedProjects = inspectRes.scannedProjects;
     const analyticData = {
       scannedProjects: scannedProjects.length,
       targetFiles,
       packageManagers: targetFiles.map((file) =>
-        detectPackageManagerFromFile(file),
+        detectPackageManagerFromFile(file, featureFlags),
       ),
       levelsDeep,
       ignore,
@@ -93,12 +106,12 @@ export async function getDepsFromPlugin(
   // TODO: is this needed for the auto detect handling above?
   // don't override options.file if scanning multiple files at once
   if (!options.scanAllUnmanaged) {
-    options.file = options.file || detectPackageFile(root);
+    options.file = options.file || detectPackageFile(root, featureFlags);
   }
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);
   }
-  const inspectRes = await getSinglePluginResult(root, options);
+  const inspectRes = await getSinglePluginResult(root, options, featureFlags);
 
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package && !inspectRes.dependencyGraph) {

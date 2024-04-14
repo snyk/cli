@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.3.0",
+  "pkgManager": {
+    "name": "pnpm"
+  },
+  "pkgs": [
+    {
+      "id": "yarn-1-workspace-with-isolated-pkgs@1.0.0",
+      "info": {
+        "name": "yarn-1-workspace-with-isolated-pkgs",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "react@18.0.0",
+      "info": {
+        "name": "react",
+        "version": "18.0.0"
+      }
+    },
+    {
+      "id": "loose-envify@1.4.0",
+      "info": {
+        "name": "loose-envify",
+        "version": "1.4.0"
+      }
+    },
+    {
+      "id": "js-tokens@4.0.0",
+      "info": {
+        "name": "js-tokens",
+        "version": "4.0.0"
+      }
+    }
+  ],
+  "graph": {
+    "rootNodeId": "root-node",
+    "nodes": [
+      {
+        "nodeId": "root-node",
+        "pkgId": "yarn-1-workspace-with-isolated-pkgs@1.0.0",
+        "deps": [
+          {
+            "nodeId": "react@18.0.0"
+          }
+        ]
+      },
+      {
+        "nodeId": "react@18.0.0",
+        "pkgId": "react@18.0.0",
+        "deps": [
+          {
+            "nodeId": "loose-envify@1.4.0"
+          }
+        ],
+        "info": {
+          "labels": {
+            "scope": "prod"
+          }
+        }
+      },
+      {
+        "nodeId": "loose-envify@1.4.0",
+        "pkgId": "loose-envify@1.4.0",
+        "deps": [
+          {
+            "nodeId": "js-tokens@4.0.0"
+          }
+        ],
+        "info": {
+          "labels": {
+            "scope": "prod"
+          }
+        }
+      },
+      {
+        "nodeId": "js-tokens@4.0.0",
+        "pkgId": "js-tokens@4.0.0",
+        "deps": [],
+        "info": {
+          "labels": {
+            "scope": "prod"
+          }
+        }
+      }
+    ]
+  }
+}

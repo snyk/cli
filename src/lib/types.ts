@@ -1,4 +1,7 @@
-import { SupportedPackageManagers } from './package-managers';
+import {
+  SupportedPackageManagers,
+  SupportedPackageManagersUnderFeatureFlag,
+} from './package-managers';
 import { IacProjectTypes, IacFileTypes } from './iac/constants';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 import { SEVERITY } from './snyk-test/legacy';
@@ -228,7 +231,10 @@ export interface OutputDataTypes {
   stringifiedSarifData: string;
 }
 
-export type SupportedProjectTypes = IacProjectTypes | SupportedPackageManagers;
+export type SupportedProjectTypes =
+  | IacProjectTypes
+  | SupportedPackageManagers
+  | SupportedPackageManagersUnderFeatureFlag;
 
 // TODO: finish typing this there are many more!
 export type SupportedUserReachableFacingCliArgs =

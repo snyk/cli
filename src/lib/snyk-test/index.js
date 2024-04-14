@@ -6,6 +6,8 @@ const chalk = require('chalk');
 const pm = require('../package-managers');
 const { UnsupportedPackageManagerError } = require('../errors');
 const { isMultiProjectScan } = require('../is-multi-project-scan');
+const { hasFeatureFlag } = require('../feature-flags');
+const { PNPM_FEATURE_FLAG } = require('../package-managers');
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -28,10 +30,21 @@ async function test(root, options, callback) {
 
 async function executeTest(root, options) {
   try {
+    const hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
+
+    const featureFlags = hasPnpmSupport
+      ? new Set([PNPM_FEATURE_FLAG])
+      : new Set([]);
+
     if (!options.allProjects) {
-      options.packageManager = detect.detectPackageManager(root, options);
+      options.packageManager = detect.detectPackageManager(
+        root,
+        options,
+        featureFlags,
+      );
     }
-    return run(root, options).then((results) => {
+
+    return run(root, options, featureFlags).then((results) => {
       for (const res of results) {
         if (!res.packageManager) {
           res.packageManager = options.packageManager;
@@ -51,13 +64,19 @@ async function executeTest(root, options) {
   }
 }
 
-function run(root, options) {
+function run(root, options, featureFlags) {
   const projectType = options.packageManager;
-  validateProjectType(options, projectType);
-  return runTest(projectType, root, options);
+  validateProjectType(options, projectType, featureFlags);
+  return runTest(projectType, root, options, featureFlags);
 }
 
-function validateProjectType(options, projectType) {
+function validateProjectType(options, projectType, featureFlags) {
+  if (
+    pm.SUPPORTED_PACKAGE_MANAGER_UNDER_FF_NAME[projectType] &&
+    featureFlags.has(pm.PACKAGE_MANAGERS_FEATURE_FLAGS_MAP[projectType])
+  ) {
+    return;
+  }
   if (
     !(
       options.docker ||

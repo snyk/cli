@@ -3,7 +3,10 @@ import * as debugModule from 'debug';
 import { PackageExpanded } from 'snyk-resolve-deps';
 
 import { pluckPolicies } from '.';
-import { SupportedPackageManagers } from '../package-managers';
+import {
+  SupportedPackageManagers,
+  SupportedPackageManagersUnderFeatureFlag,
+} from '../package-managers';
 import { PackageJson, PolicyOptions } from '../types';
 import * as analytics from '../analytics';
 
@@ -11,13 +14,18 @@ const debug = debugModule('snyk');
 
 export async function findAndLoadPolicy(
   root: string,
-  scanType: SupportedPackageManagers | 'docker' | 'iac' | 'cpp',
+  scanType:
+    | SupportedPackageManagers
+    | SupportedPackageManagersUnderFeatureFlag
+    | 'docker'
+    | 'iac'
+    | 'cpp',
   options: PolicyOptions,
   pkg?: PackageExpanded,
   scannedProjectFolder?: string,
 ): Promise<Policy | undefined> {
   const isDocker = scanType === 'docker';
-  const isNodeProject = ['npm', 'yarn'].includes(scanType);
+  const isNodeProject = ['npm', 'yarn', 'pnpm'].includes(scanType);
   // monitor
   let policyLocations: string[] = [
     options['policy-path'] || scannedProjectFolder || root,

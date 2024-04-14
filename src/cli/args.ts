@@ -44,6 +44,7 @@ const DEBUG_DEFAULT_NAMESPACES = [
   'snyk-sbt-plugin',
   'snyk-mvn-plugin',
   'snyk-yarn-workspaces',
+  'snyk-pnpm-workspaces',
 ];
 
 function dashToCamelCase(dash) {

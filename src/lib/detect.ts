@@ -5,6 +5,9 @@ import { NoSupportedManifestsFoundError } from './errors';
 import {
   SupportedPackageManagers,
   SUPPORTED_MANIFEST_FILES,
+  SUPPORTED_MANIFEST_FILES_UNDER_FF,
+  SupportedPackageManagersUnderFeatureFlag,
+  PACKAGE_MANAGERS_FEATURE_FLAGS_MAP,
 } from './package-managers';
 
 const debug = debugLib('snyk-detect');
@@ -65,6 +68,10 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'Package.swift',
 ];
 
+export const AUTO_DETECTABLE_FILES_UNDER_FF = {
+  pnpm: 'pnpm-lock.yaml',
+};
+
 // when file is specified with --file, we look it up here
 // this is also used when --all-projects flag is enabled and auto detection plugin is triggered
 const DETECTABLE_PACKAGE_MANAGERS: {
@@ -102,7 +109,29 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   [SUPPORTED_MANIFEST_FILES.PACKAGE_SWIFT]: 'swift',
 };
 
-export function isPathToPackageFile(path: string) {
+export const DETECTABLE_PACKAGE_MANAGERS_UNDER_FF: {
+  [key in SUPPORTED_MANIFEST_FILES_UNDER_FF]: SupportedPackageManagersUnderFeatureFlag;
+} = {
+  [SUPPORTED_MANIFEST_FILES_UNDER_FF.PNPM_LOCK]: 'pnpm',
+};
+
+export function isPathToPackageFile(
+  path: string,
+  featureFlags: Set<string> = new Set<string>(),
+) {
+  for (const fileName of Object.keys(DETECTABLE_PACKAGE_MANAGERS)) {
+    if (
+      path.endsWith(fileName) &&
+      featureFlags.has(
+        PACKAGE_MANAGERS_FEATURE_FLAGS_MAP[
+          DETECTABLE_PACKAGE_MANAGERS_UNDER_FF[fileName]
+        ],
+      )
+    ) {
+      return true;
+    }
+  }
+
   for (const fileName of DETECTABLE_FILES) {
     if (path.endsWith(fileName)) {
       return true;
@@ -111,7 +140,11 @@ export function isPathToPackageFile(path: string) {
   return false;
 }
 
-export function detectPackageManager(root: string, options) {
+export function detectPackageManager(
+  root: string,
+  options,
+  featureFlags: Set<string> = new Set<string>(),
+) {
   // If user specified a package manager let's use it.
   if (options.packageManager) {
     return options.packageManager;
@@ -133,14 +166,14 @@ export function detectPackageManager(root: string, options) {
         );
       }
       file = options.file;
-      packageManager = detectPackageManagerFromFile(file);
+      packageManager = detectPackageManagerFromFile(file, featureFlags);
     } else if (options.scanAllUnmanaged) {
       packageManager = 'maven';
     } else {
       debug('no file specified. Trying to autodetect in base folder ' + root);
-      file = detectPackageFile(root);
+      file = detectPackageFile(root, featureFlags);
       if (file) {
-        packageManager = detectPackageManagerFromFile(file);
+        packageManager = detectPackageManagerFromFile(file, featureFlags);
       }
     }
   } else {
@@ -169,20 +202,36 @@ export function isLocalFolder(root: string) {
   }
 }
 
-export function detectPackageFile(root) {
+export function detectPackageFile(
+  root: string,
+  featureFlags: Set<string> = new Set<string>(),
+) {
+  for (const file of Object.keys(DETECTABLE_PACKAGE_MANAGERS_UNDER_FF)) {
+    if (
+      fs.existsSync(pathLib.resolve(root, file)) &&
+      featureFlags.has(
+        PACKAGE_MANAGERS_FEATURE_FLAGS_MAP[
+          DETECTABLE_PACKAGE_MANAGERS_UNDER_FF[file]
+        ],
+      )
+    ) {
+      return file;
+    }
+  }
+
   for (const file of DETECTABLE_FILES) {
     if (fs.existsSync(pathLib.resolve(root, file))) {
       debug('found package file ' + file + ' in ' + root);
       return file;
     }
   }
-
   debug('no package file found in ' + root);
 }
 
 export function detectPackageManagerFromFile(
   file: string,
-): SupportedPackageManagers {
+  featureFlags: Set<string> = new Set<string>(),
+): SupportedPackageManagers | SupportedPackageManagersUnderFeatureFlag {
   let key = pathLib.basename(file);
 
   // TODO: fix this to use glob matching instead
@@ -199,9 +248,26 @@ export function detectPackageManagerFromFile(
     key = '.war';
   }
 
-  if (!(key in DETECTABLE_PACKAGE_MANAGERS)) {
+  if (
+    !(key in DETECTABLE_PACKAGE_MANAGERS) &&
+    !(key in DETECTABLE_PACKAGE_MANAGERS_UNDER_FF)
+  ) {
     // we throw and error here because the file was specified by the user
     throw new Error('Could not detect package manager for file: ' + file);
+  }
+
+  if (key in DETECTABLE_PACKAGE_MANAGERS_UNDER_FF) {
+    if (
+      featureFlags.has(
+        PACKAGE_MANAGERS_FEATURE_FLAGS_MAP[
+          DETECTABLE_PACKAGE_MANAGERS_UNDER_FF[key]
+        ],
+      )
+    ) {
+      return DETECTABLE_PACKAGE_MANAGERS_UNDER_FF[key];
+    } else {
+      throw new Error('Could not detect package manager for file: ' + file);
+    }
   }
 
   return DETECTABLE_PACKAGE_MANAGERS[key];

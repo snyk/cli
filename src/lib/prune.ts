@@ -5,7 +5,10 @@ import { DepTree } from './types';
 import config from './config';
 import { TooManyVulnPaths } from './errors';
 import * as analytics from '../lib/analytics';
-import { SupportedPackageManagers } from './package-managers';
+import {
+  SupportedPackageManagers,
+  SupportedPackageManagersUnderFeatureFlag,
+} from './package-managers';
 import { countPathsToGraphRoot } from './utils';
 
 const debug = _debug('snyk:prune');
@@ -14,7 +17,9 @@ const { depTreeToGraph, graphToDepTree } = legacy;
 
 export async function pruneGraph(
   depGraph: DepGraph,
-  packageManager: SupportedPackageManagers,
+  packageManager:
+    | SupportedPackageManagers
+    | SupportedPackageManagersUnderFeatureFlag,
   pruneIsRequired = false,
 ): Promise<DepGraph> {
   const prePrunePathsCount = countPathsToGraphRoot(depGraph);

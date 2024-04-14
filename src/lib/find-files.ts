@@ -5,6 +5,7 @@ const sortBy = require('lodash.sortby');
 const groupBy = require('lodash.groupby');
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
+import { PNPM_FEATURE_FLAG } from './package-managers';
 
 const debug = debugModule('snyk:find-files');
 
@@ -61,6 +62,7 @@ export async function find(
   path: string,
   ignore: string[] = [],
   filter: string[] = [],
+  featureFlags: Set<string> = new Set<string>(),
   levelsDeep = 4,
 ): Promise<FindFilesRes> {
   const found: string[] = [];
@@ -90,6 +92,7 @@ export async function find(
         path,
         ignore,
         filter,
+        featureFlags,
         levelsDeep,
       );
       found.push(...files);
@@ -109,7 +112,10 @@ export async function find(
         } files: ${filteredOutFiles.join(', ')}`,
       );
     }
-    return { files: filterForDefaultManifests(found), allFilesFound: foundAll };
+    return {
+      files: filterForDefaultManifests(found, featureFlags),
+      allFilesFound: foundAll,
+    };
   } catch (err) {
     throw new Error(`Error finding files in path '${path}'.\n${err.message}`);
   }
@@ -131,6 +137,7 @@ async function findInDirectory(
   path: string,
   ignore: string[] = [],
   filter: string[] = [],
+  featureFlags: Set<string> = new Set<string>(),
   levelsDeep = 4,
 ): Promise<FindFilesRes> {
   const files = await readDirectory(path);
@@ -142,7 +149,7 @@ async function findInDirectory(
         debug('File does not seem to exist, skipping: ', file);
         return { files: [], allFilesFound: [] };
       }
-      return find(resolvedPath, ignore, filter, levelsDeep);
+      return find(resolvedPath, ignore, filter, featureFlags, levelsDeep);
     });
 
   const found = await Promise.all(toFind);
@@ -158,7 +165,10 @@ async function findInDirectory(
   };
 }
 
-function filterForDefaultManifests(files: string[]): string[] {
+function filterForDefaultManifests(
+  files: string[],
+  featureFlags: Set<string> = new Set<string>(),
+): string[] {
   // take all the files in the same dir & filter out
   // based on package Manager
   if (files.length <= 1) {
@@ -173,7 +183,7 @@ function filterForDefaultManifests(files: string[]): string[] {
     .map((p) => ({
       path: p,
       ...pathLib.parse(p),
-      packageManager: detectProjectTypeFromFile(p),
+      packageManager: detectProjectTypeFromFile(p, featureFlags),
     }));
   const sorted = sortBy(beforeSort, 'dir');
   const foundFiles = groupBy(sorted, 'dir');
@@ -202,11 +212,12 @@ function filterForDefaultManifests(files: string[]): string[] {
       const defaultManifestFileName = chooseBestManifest(
         filesPerPackageManager,
         packageManager,
+        featureFlags,
       );
       if (defaultManifestFileName) {
         const shouldSkip = shouldSkipAddingFile(
           packageManager,
-          filesPerPackageManager[0].path,
+          filesPerPackageManager[0].path, // defaultManifestFileName?
           filteredFiles,
         );
         if (shouldSkip) {
@@ -219,10 +230,16 @@ function filterForDefaultManifests(files: string[]): string[] {
   return filteredFiles;
 }
 
-function detectProjectTypeFromFile(file: string): string | null {
+function detectProjectTypeFromFile(
+  file: string,
+  featureFlags: Set<string> = new Set<string>(),
+): string | null {
   try {
-    const packageManager = detectPackageManagerFromFile(file);
+    const packageManager = detectPackageManagerFromFile(file, featureFlags);
     if (['yarn', 'npm'].includes(packageManager)) {
+      return 'node';
+    }
+    if (featureFlags.has(PNPM_FEATURE_FLAG) && packageManager === 'pnpm') {
       return 'node';
     }
     return packageManager;
@@ -256,11 +273,18 @@ function shouldSkipAddingFile(
 function chooseBestManifest(
   files: Array<{ base: string; path: string }>,
   projectType: string,
+  featureFlags: Set<string> = new Set<string>([]),
 ): string | null {
   switch (projectType) {
     case 'node': {
+      const nodeLockfiles = ['package-lock.json', 'yarn.lock'];
+      if (featureFlags.has(PNPM_FEATURE_FLAG)) {
+        nodeLockfiles.push('pnpm-lock.yaml');
+      }
       const lockFile = files.filter((path) =>
-        ['package-lock.json', 'yarn.lock'].includes(path.base),
+        ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml'].includes(
+          path.base,
+        ),
       )[0];
       debug(
         `Encountered multiple node lockfiles files, defaulting to ${lockFile.path}`,

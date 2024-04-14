@@ -1,0 +1,8 @@
+{
+    "name": "pnpm-2-workspace-with-cross-ref",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "private": true
+  }
+  
