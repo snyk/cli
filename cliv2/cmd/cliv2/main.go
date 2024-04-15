@@ -1,7 +1,11 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+import (
+
+"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
+_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+)
 
 import (
 	"context"
@@ -188,17 +192,7 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 				return fmt.Errorf("invalid payload type: %T", data[i].GetPayload())
 			}
 
-			type TestSummary struct {
-				Results []struct {
-					Severity string `json:"severity"`
-					Total    int    `json:"total"`
-					Open     int    `json:"open"`
-					Ignored  int    `json:"ignored"`
-				} `json:"results"`
-				Type string `json:"type"`
-			}
-
-			summary := TestSummary{}
+			summary := json_schemas.TestSummary{}
 
 			err := json.Unmarshal(singleData, &summary)
 			if err != nil {
