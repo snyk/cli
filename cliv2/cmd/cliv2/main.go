@@ -2,9 +2,7 @@ package main
 
 // !!! This import needs to be the first import, please do not change this !!!
 import (
-
-"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
-_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 )
 
 import (
@@ -32,6 +30,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -160,7 +159,6 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 
 	name := getFullCommandString(cmd)
 	globalLogger.Print("Running ", name)
-	// TODO: Rename as globalEngine
 	globalEngine.GetAnalytics().SetCommand(name)
 
 	err = runWorkflowAndProcessData(globalEngine, globalLogger, name)
@@ -174,7 +172,6 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 	if err == nil {
 		_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
 		if err == nil {
-			logger.Print("Command executed successfully")
 			err = getErrorFromWorkFlowData(data)
 		}
 	} else {
@@ -373,11 +370,12 @@ func handleError(err error) HandleError {
 	return resultError
 }
 
-func displayError(err error) {
+func displayError(err error, output io.Writer, config configuration.Configuration) {
 	if err != nil {
 		var exitError *exec.ExitError
 		if !errors.As(err, &exitError) {
-			if globalConfiguration.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
+			// Test 3
+			if config.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
 				jsonError := JsonErrorStruct{
 					Ok:       false,
 					ErrorMsg: err.Error(),
@@ -385,12 +383,12 @@ func displayError(err error) {
 				}
 
 				jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-				fmt.Println(string(jsonErrorBuffer))
+				fmt.Fprintln(output, string(jsonErrorBuffer))
 			} else {
 				if errors.Is(err, context.DeadlineExceeded) {
-					fmt.Println("command timed out")
+					fmt.Fprintln(output, "command timed out")
 				} else {
-					fmt.Println(err)
+					fmt.Fprintln(output, err)
 				}
 			}
 		}
@@ -492,7 +490,8 @@ func MainWithErrorCode() int {
 		cliAnalytics.AddError(err)
 	}
 
-	displayError(err)
+	// TODO: Add Tests
+	displayError(err, os.Stdout, globalConfiguration)
 
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Exiting with %d", exitCode)

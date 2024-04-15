@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
+	"os/exec"
 	"testing"
 	"time"
 
@@ -358,5 +362,41 @@ func Test_setTimeout(t *testing.T) {
 		break
 	case <-time.After(5 * time.Second):
 		t.Fatal("timeout func never executed")
+	}
+}
+
+func Test_displayError(t *testing.T) {
+	t.Run("prints out generic error messages", func(t *testing.T) {
+		var b bytes.Buffer
+		config := configuration.New()
+		err := errors.New("test error")
+		displayError(err, &b, config)
+
+		assert.Equal(t, "test error\n", b.String())
+	})
+
+	scenarios := []struct {
+		name string
+		err  error
+	}{
+		{
+			name: "exec.Error",
+			err:  &exec.Error{},
+		},
+		{
+			name: "clierrors.ErrorWithExitCode",
+			err:  clierrors.ErrorWithExitCode{ExitCode: 42},
+		},
+	}
+
+	for _, scenario := range scenarios {
+		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
+			var b bytes.Buffer
+			config := configuration.New()
+			err := scenario.err
+			displayError(err, &b, config)
+
+			assert.Contains(t, b.String(), "")
+		})
 	}
 }
