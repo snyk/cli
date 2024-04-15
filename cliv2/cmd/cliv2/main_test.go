@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"github.com/snyk/cli/cliv2/internal/constants"
-	clierrors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -22,6 +20,9 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/snyk/cli/cliv2/internal/constants"
+	clierrors "github.com/snyk/cli/cliv2/internal/errors"
 )
 
 func cleanup() {
@@ -380,8 +381,8 @@ func Test_displayError(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "exec.Error",
-			err:  &exec.Error{},
+			name: "exec.ExitError",
+			err:  &exec.ExitError{},
 		},
 		{
 			name: "clierrors.ErrorWithExitCode",
@@ -396,7 +397,7 @@ func Test_displayError(t *testing.T) {
 			err := scenario.err
 			displayError(err, &b, config)
 
-			assert.Contains(t, b.String(), "")
+			assert.Equal(t, "", b.String())
 		})
 	}
 }

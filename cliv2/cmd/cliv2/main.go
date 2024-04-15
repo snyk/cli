@@ -2,6 +2,8 @@ package main
 
 // !!! This import needs to be the first import, please do not change this !!!
 import (
+	"os/exec"
+
 	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 )
 
@@ -12,7 +14,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -373,23 +374,26 @@ func handleError(err error) HandleError {
 func displayError(err error, output io.Writer, config configuration.Configuration) {
 	if err != nil {
 		var exitError *exec.ExitError
-		if !errors.As(err, &exitError) {
-			// Test 3
-			if config.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
-				jsonError := JsonErrorStruct{
-					Ok:       false,
-					ErrorMsg: err.Error(),
-					Path:     globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
-				}
+		isExitError := errors.As(err, &exitError)
+		isErrorWithCode := errors.As(err, &cli_errors.ErrorWithExitCode{})
+		if isExitError || isErrorWithCode {
+			return
+		}
 
-				jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-				fmt.Fprintln(output, string(jsonErrorBuffer))
+		if config.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
+			jsonError := JsonErrorStruct{
+				Ok:       false,
+				ErrorMsg: err.Error(),
+				Path:     globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
+			}
+
+			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
+			fmt.Fprintln(output, string(jsonErrorBuffer))
+		} else {
+			if errors.Is(err, context.DeadlineExceeded) {
+				fmt.Fprintln(output, "command timed out")
 			} else {
-				if errors.Is(err, context.DeadlineExceeded) {
-					fmt.Fprintln(output, "command timed out")
-				} else {
-					fmt.Fprintln(output, err)
-				}
+				fmt.Fprintln(output, err)
 			}
 		}
 	}
