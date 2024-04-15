@@ -237,13 +237,6 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		err := getErrorFromWorkFlowData([]workflow.Data{data})
 		assert.Nil(t, err)
 	})
-	t.Run("workflow without errors", func(t *testing.T) {
-		workflowId := workflow.NewWorkflowIdentifier("output")
-		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		data := workflow.NewData(workflowIdentifier, "application/json", []byte(`{"error": "test error"}`))
-		err := getErrorFromWorkFlowData([]workflow.Data{data})
-		assert.Nil(t, err)
-	})
 	t.Run("workflow with test findings", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")

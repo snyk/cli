@@ -491,7 +491,6 @@ func MainWithErrorCode() int {
 		cliAnalytics.AddError(err)
 	}
 
-	// TODO: Add Tests
 	displayError(err, os.Stdout, globalConfiguration)
 
 	exitCode := cliv2.DeriveExitCode(err)
