@@ -354,7 +354,7 @@ func Test_setTimeout(t *testing.T) {
 	fakeExit := func() {
 		close(exitedCh)
 	}
-	config := configuration.New()
+	config := configuration.NewInMemory()
 	config.Set(configuration.TIMEOUT, 1)
 	setTimeout(config, fakeExit)
 	select {
@@ -368,7 +368,7 @@ func Test_setTimeout(t *testing.T) {
 func Test_displayError(t *testing.T) {
 	t.Run("prints out generic error messages", func(t *testing.T) {
 		var b bytes.Buffer
-		config := configuration.New()
+		config := configuration.NewInMemory()
 		err := errors.New("test error")
 		displayError(err, &b, config)
 
@@ -392,7 +392,7 @@ func Test_displayError(t *testing.T) {
 	for _, scenario := range scenarios {
 		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
 			var b bytes.Buffer
-			config := configuration.New()
+			config := configuration.NewInMemory()
 			err := scenario.err
 			displayError(err, &b, config)
 
