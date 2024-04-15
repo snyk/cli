@@ -603,6 +603,53 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200).send({});
   });
 
+  app.post(`/rest/orgs/:orgId/sbom_tests`, (req, res) => {
+    const response = {
+      "data": {
+        "id": "4b341b8a-4697-4e35-928b-4b9ae37f8ea8",
+        "type": "sbom_tests"
+      },
+      "jsonapi": {
+        "version": "1.0"
+      },
+      "links": {
+        "self": "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests?version=2023-08-31~beta",
+        "related": "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta"
+      }
+    };
+    res.status(201);
+    res.send(response);
+  });
+
+  app.get(`/rest/orgs/:orgId/sbom_tests/:id`, (req, res) => {
+    const response = {
+      "data": {
+        "id": "4b341b8a-4697-4e35-928b-4b9ae37f8ea8",
+        "type": "sbom_tests",
+        "attributes": {
+          "status": "finished"
+        }
+      },
+      "jsonapi": {
+        "version": "1.0"
+      },
+      "links": {
+        "self": "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta",
+        "related": "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8/results?version=2023-08-31~beta"
+      }
+    };
+    res.status(303);
+    res.send(response);
+  });
+
+  app.get(`/rest/orgs/:orgId/sbom_tests/:id/results`, (req, res) => {
+    const body = fs.readFileSync(
+      path.resolve(getFixturePath('sbom'), 'npm-sbom-test-response.json'),
+      'utf8',
+    );
+    res.send(JSON.parse(body));
+  });
+
   app.post(
     basePath.replace('v1', 'hidden') + '/orgs/:org/sbom',
     express.json(),
