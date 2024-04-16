@@ -45,7 +45,9 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   };
 
   const popRequest = () => {
-    return requests.pop()!;
+    const request = requests?.pop();
+    if (request) return request;
+    else throw new Error('No request found in requests array');
   };
 
   const popRequests = (num: number) => {
@@ -85,6 +87,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   };
 
   const app = express();
+
   app.use((req, res, next) => {
     requests.push(req);
     next();
@@ -179,7 +182,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     getRequests,
     popRequest,
     popRequests,
-    setCustomResponse: setCustomResponse,
+    setCustomResponse,
     setFiltersResponse,
     setSarifResponse,
     setNextResponse,
