@@ -198,7 +198,7 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 			// this should be supported in the future
 			for _, result := range summary.Results {
 				if result.Open > 0 {
-					return cli_errors.ErrorWithExitCode{
+					return &cli_errors.ErrorWithExitCode{
 						ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
 					}
 				}
@@ -371,8 +371,9 @@ func handleError(err error) HandleError {
 func displayError(err error, output io.Writer, config configuration.Configuration) {
 	if err != nil {
 		var exitError *exec.ExitError
+		var exitCode *cli_errors.ErrorWithExitCode
 		isExitError := errors.As(err, &exitError)
-		isErrorWithCode := errors.As(err, &cli_errors.ErrorWithExitCode{})
+		isErrorWithCode := errors.As(err, &exitCode)
 		if isExitError || isErrorWithCode {
 			return
 		}
