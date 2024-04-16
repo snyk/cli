@@ -8,6 +8,7 @@ const woofs = {
   cs: ' Haf!',
   uk: ' Гав!',
   de: 'Wuff!',
+  ro: ' Ham!',
   cat: 'Meow?',
 };
 
