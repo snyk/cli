@@ -3,8 +3,13 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 import { getServerPort } from '../../util/getServerPort';
+import { matchers } from 'jest-json-schema';
+
 const stripAnsi = require('strip-ansi');
 
+expect.extend(matchers);
+
+const SARIF_SCHEMA = require('./snyk-code-sarif-output-schema.json');
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_ACTION_NEEDED = 1;
 const EXIT_CODE_FAIL_WITH_ERROR = 2;
@@ -244,5 +249,37 @@ describe('code', () => {
 
       await localCodeEngineUrl.close(() => {});
     });
+  });
+
+  describe.only('native workflow', () => {
+    // setup required params to trigger native workflow
+    const nativeWorkflowEnvVars = {
+      // internal GAF feature flag for consistent ignores
+      INTERNAL_SNYK_CODE_IGNORES_ENABLED: "true",
+    };
+
+    it.each([['sarif'], ['json']])(
+      'should match sarif schema',
+      async (option) => {
+        const projectPath = 'test/fixtures/sast/shallow_sast_webgoat';
+
+        const { stdout, stderr, code } = await runSnykCLI(
+          `code test ${projectPath} --${option}`,
+          {
+            env: {
+              ...env,
+              ...nativeWorkflowEnvVars,
+            },
+          },
+        );
+
+        if (stderr) console.log('STDERR: ', stderr);
+
+        expect(code).toBe(2);
+
+        const jsonOutput = JSON.parse(stdout);
+        expect(jsonOutput).toMatchSchema(SARIF_SCHEMA);
+      },
+    );
   });
 });
