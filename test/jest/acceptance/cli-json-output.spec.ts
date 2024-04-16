@@ -2,6 +2,7 @@ import { fakeServer } from '../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../util/createProject';
 import { getServerPort } from '../util/getServerPort';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { AppliedPolicyRules } from '../../../src/lib/formatters/types';
 import * as Parser from 'jsonparse';
 
 jest.setTimeout(1000 * 60);
@@ -132,5 +133,36 @@ describe('test --json', () => {
       expect(hasExpectedPathString).toBeTruthy();
       expect(hasReferenceCount).toBeTruthy();
     }, 120000);
+  });
+
+  describe('when policy data is available', () => {
+    it('includes a user note and reason', async () => {
+      const project = await createProjectFromWorkspace(
+        'npm-package-single-vuln',
+      );
+      server.setCustomResponse(
+        await project.readJSON('test-graph-results-with-annotation.json'),
+      );
+
+      const { code, stdout } = await runSnykCLI(`test --json`, {
+        cwd: project.path(),
+        env,
+      });
+
+      const expectedPolicyData: AppliedPolicyRules = {
+        annotation: {
+          value: 'This is a test user note',
+          reason: 'This vulnerability is a papercut and can be ignored',
+        },
+      };
+
+      const returnedJson = JSON.parse(stdout);
+      const actualPolicyData =
+        returnedJson.vulnerabilities[0].appliedPolicyRules;
+
+      expect(actualPolicyData).toStrictEqual(expectedPolicyData);
+      expect(code).toEqual(1);
+      expect(server.getRequests().length).toBeGreaterThanOrEqual(1);
+    });
   });
 });
