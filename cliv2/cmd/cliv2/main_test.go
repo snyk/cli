@@ -21,6 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	clierrors "github.com/snyk/cli/cliv2/internal/errors"
 )
@@ -253,7 +254,9 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, payload)
 		err = getErrorFromWorkFlowData([]workflow.Data{data})
 		require.NotNil(t, err)
-		assert.ErrorIs(t, err, clierrors.ErrorWithExitCode{ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND})
+		var expectedError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, err, &expectedError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, expectedError.ExitCode)
 	})
 
 	t.Run("workflow with empty testing findings", func(t *testing.T) {
@@ -338,9 +341,13 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	// invoke method under test
 	logger := zerolog.New(os.Stderr)
 	err = runWorkflowAndProcessData(globalEngine, &logger, testCmnd)
-	assert.ErrorIs(t, err, clierrors.ErrorWithExitCode{
-		ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
-	})
+
+	var expectedError *clierrors.ErrorWithExitCode
+	assert.ErrorAs(t, err, &expectedError)
+	assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, expectedError.ExitCode)
+
+	actualCode := cliv2.DeriveExitCode(err)
+	assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualCode)
 }
 
 func Test_setTimeout(t *testing.T) {
@@ -379,7 +386,7 @@ func Test_displayError(t *testing.T) {
 		},
 		{
 			name: "clierrors.ErrorWithExitCode",
-			err:  clierrors.ErrorWithExitCode{ExitCode: 42},
+			err:  &clierrors.ErrorWithExitCode{ExitCode: 42},
 		},
 	}
 

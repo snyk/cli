@@ -18,9 +18,10 @@ import (
 	"time"
 
 	"github.com/gofrs/flock"
-	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/utils"
+
+	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/embedded"
