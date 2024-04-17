@@ -9,7 +9,7 @@ const stripAnsi = require('strip-ansi');
 
 expect.extend(matchers);
 
-const SARIF_SCHEMA = require('./snyk-code-sarif-output-schema.json');
+const SARIF_SCHEMA = require('../../../fixtures/code/snyk-code-sarif-output-schema.json');
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_ACTION_NEEDED = 1;
 const EXIT_CODE_FAIL_WITH_ERROR = 2;
@@ -30,7 +30,7 @@ describe('code', () => {
 
   beforeAll((done) => {
     deepCodeServer = fakeDeepCodeServer();
-    deepCodeServer.listen(() => {});
+    deepCodeServer.listen(() => { });
     env = {
       ...initialEnvVars,
       SNYK_CODE_CLIENT_PROXY_URL: `http://localhost:${deepCodeServer.getPort()}`,
@@ -47,7 +47,7 @@ describe('code', () => {
   });
 
   afterAll((done) => {
-    deepCodeServer.close(() => {});
+    deepCodeServer.close(() => { });
     server.close(() => {
       done();
     });
@@ -222,7 +222,7 @@ describe('code', () => {
 
     it("use remote LCE's url as base when LCE is enabled", async () => {
       const localCodeEngineUrl = fakeDeepCodeServer();
-      localCodeEngineUrl.listen(() => {});
+      localCodeEngineUrl.listen(() => { });
 
       const { path } = await createProjectFromFixture(
         'sast/shallow_sast_webgoat',
@@ -247,39 +247,81 @@ describe('code', () => {
       expect(stripAnsi(stdout)).toContain('✗ [Medium] Information Exposure');
       expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
-      await localCodeEngineUrl.close(() => {});
+      await localCodeEngineUrl.close(() => { });
     });
-  });
 
-  describe.only('native workflow', () => {
-    // setup required params to trigger native workflow
-    const nativeWorkflowEnvVars = {
-      // internal GAF feature flag for consistent ignores
-      INTERNAL_SNYK_CODE_IGNORES_ENABLED: "true",
-    };
+    // TODO: unskip once Go based snyk code is implemented
+    describe.skip('native workflow', () => {
+      // setup required params to trigger native workflow
+      const nativeWorkflowEnvVars = {
+        // internal GAF feature flag for consistent ignores
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
+      };
 
-    it.each([['sarif'], ['json']])(
-      'should match sarif schema',
-      async (option) => {
-        const projectPath = 'test/fixtures/sast/shallow_sast_webgoat';
-
-        const { stdout, stderr, code } = await runSnykCLI(
-          `code test ${projectPath} --${option}`,
-          {
-            env: {
-              ...env,
-              ...nativeWorkflowEnvVars,
-            },
-          },
+      it('should succeed - when no errors found', async () => {
+        const { path } = await createProjectFromFixture(
+          'sast-empty/shallow_empty',
         );
+
+        const { stdout, code, stderr } = await runSnykCLI(`code test ${path()}`, {
+          env: {
+            ...process.env,
+            ...nativeWorkflowEnvVars,
+          },
+        });
 
         if (stderr) console.log('STDERR: ', stderr);
 
-        expect(code).toBe(2);
+        expect(stderr).toBe('');
+        expect(stdout).toContain(`Awesome! No issues were found.`);
+        expect(code).toBe(EXIT_CODE_SUCCESS);
+      });
 
-        const jsonOutput = JSON.parse(stdout);
-        expect(jsonOutput).toMatchSchema(SARIF_SCHEMA);
-      },
-    );
+      it('should succeed - with correct exit code', async () => {
+        const { path } = await createProjectFromFixture(
+          'sast/shallow_sast_webgoat',
+        );
+
+        const { stdout, stderr, code } = await runSnykCLI(`code test ${path()}`, {
+          env: {
+            ...process.env,
+            ...nativeWorkflowEnvVars,
+          },
+        });
+
+        if (stderr) console.log('STDERR: ', stderr);
+
+        // We do not render the help message for unknown flags
+        expect(stderr).toBe('');
+        expect(stripAnsi(stdout)).toContain('✗ [Medium] Information Exposure');
+        expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+      });
+
+      it.each([['sarif'], ['json']])(
+        '--%s output should match sarif schema',
+        async (option) => {
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+
+          const { stdout, stderr, code } = await runSnykCLI(
+            `code test ${path()} --${option}`,
+            {
+              env: {
+                ...process.env,
+                ...nativeWorkflowEnvVars,
+              },
+            },
+          );
+
+          if (stderr) console.log('STDERR: ', stderr);
+
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+
+          const jsonOutput = JSON.parse(stdout);
+          expect(jsonOutput).toMatchSchema(SARIF_SCHEMA);
+        },
+      );
+    });
   });
 });
