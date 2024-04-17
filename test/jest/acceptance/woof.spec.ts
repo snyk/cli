@@ -33,14 +33,12 @@ describe('woof', () => {
   });
 
   // test each supported language code
-  languages.forEach(({ langCode, expectedWoof }) => {
-    it(`Woofs in ${langCode}`, async () => {
-      const { stdout, code, stderr } = await runSnykCLI(
-        `woof --language=${langCode}`,
-      );
-      expect(stdout).toContain(expectedWoof);
-      expect(code).toBe(0);
-      expect(stderr).toBe('');
-    });
+  test.each(languages)('Woofs in %s', async ({ langCode, expectedWoof }) => {
+    const { stdout, code, stderr } = await runSnykCLI(
+      `woof --language=${langCode}`,
+    );
+    expect(stdout).toContain(expectedWoof);
+    expect(code).toBe(0);
+    expect(stderr).toBe('');
   });
 });
