@@ -8,7 +8,7 @@ To install the required development dependencies in homebrew based environments,
 The only additional prerequisite is having [homebrew](https://brew.sh/) installed.
 
 ```sh
-./scripts/install-dev-dependencies.sh
+make install-deps
 ```
 
 ## Setting up
@@ -35,18 +35,12 @@ make clean
 
 ## Building
 
-To build the project, run the following commands in the root of the repository.
-
-The _install-dev-dependencies.sh_ script created a venv with the necessary dependencies, we need to activate it:
-
-```sh
-source .venv/bin/activate
-```
+To build the project, run the following command in the root of the repository.
 
 Now we trigger the build process:
 
 ```sh
-make build
+make build-local
 ```
 
 Run the build binary like this, depending on your architecture:
