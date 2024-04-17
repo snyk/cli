@@ -20,7 +20,11 @@ import (
 )
 
 type Commit struct {
-	SHA string `json:"sha"`
+	SHA    string `json:"sha"`
+	Commit struct {
+		Message string `json:"message"`
+	} `json:"commit"`
+	Url string `json:"html_url"`
 }
 
 func isValidRepository(name string) bool {
@@ -73,6 +77,10 @@ func getLatestCommitSHA(name string) (string, error) {
 		return "", fmt.Errorf("No commits found for repository %s", name)
 	}
 
+	fmt.Println("🔍 The most recent commit for", name)
+	fmt.Println("Message: ", commits[0].Commit.Message)
+	fmt.Println("Sha:     ", commits[0].SHA)
+	fmt.Println("URL:     ", commits[0].Url)
 	return commits[0].SHA, nil
 }
 
@@ -99,8 +107,7 @@ func upgradeDep(name string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("The most recent commit SHA for %s is: %s\n", name, commitSHA)
-
+	
 	if err := upgradeGoMod(name, commitSHA); err != nil {
 		return err
 	}
