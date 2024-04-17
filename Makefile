@@ -288,3 +288,16 @@ require-args:
 ifndef ARGS
 	$(error cannot run: ARGS is undefined)
 endif
+
+# targets responsible for local dev environment
+# install local dependencies
+install-deps:
+	@bash $(WORKING_DIR)/scripts/install-dev-dependencies.sh
+
+# trigger build using the local .venv for python
+build-local: pre-build
+	@( \
+    	source $(WORKING_DIR)/.venv/bin/activate; \
+    	cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1; \
+	)
+	$(MAKE) clean-package-files
