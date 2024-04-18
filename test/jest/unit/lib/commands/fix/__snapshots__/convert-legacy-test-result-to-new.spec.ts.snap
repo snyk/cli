@@ -1,51 +1,51 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Convert legacy TestResult to ScanResult can convert npm test result with no remediation 1`] = `
-Object {
-  "depGraphData": Object {},
-  "issues": Array [
-    Object {
-      "fixInfo": Object {},
+{
+  "depGraphData": {},
+  "issues": [
+    {
+      "fixInfo": {},
       "issueId": "npm:node-uuid:20160328",
       "pkgName": "node-uuid",
       "pkgVersion": "1.4.0",
     },
-    Object {
-      "fixInfo": Object {},
+    {
+      "fixInfo": {},
       "issueId": "npm:qs:20140806",
       "pkgName": "qs",
       "pkgVersion": "0.0.6",
     },
-    Object {
-      "fixInfo": Object {},
+    {
+      "fixInfo": {},
       "issueId": "npm:qs:20140806-1",
       "pkgName": "qs",
       "pkgVersion": "0.0.6",
     },
-    Object {
-      "fixInfo": Object {},
+    {
+      "fixInfo": {},
       "issueId": "npm:qs:20170213",
       "pkgName": "qs",
       "pkgVersion": "0.0.6",
     },
   ],
-  "issuesData": Object {
-    "npm:node-uuid:20160328": Object {
+  "issuesData": {
+    "npm:node-uuid:20160328": {
       "id": "npm:node-uuid:20160328",
       "severity": "low",
       "title": "Insecure Randomness",
     },
-    "npm:qs:20140806": Object {
+    "npm:qs:20140806": {
       "id": "npm:qs:20140806",
       "severity": "low",
       "title": "Denial of Service (DoS)",
     },
-    "npm:qs:20140806-1": Object {
+    "npm:qs:20140806-1": {
       "id": "npm:qs:20140806-1",
       "severity": "low",
       "title": "Denial of Service (DoS)",
     },
-    "npm:qs:20170213": Object {
+    "npm:qs:20170213": {
       "id": "npm:qs:20170213",
       "severity": "low",
       "title": "Prototype Override Protection Bypass",
@@ -56,80 +56,80 @@ Object {
 `;
 
 exports[`Convert legacy TestResult to ScanResult can convert npm test result with remediation 1`] = `
-Object {
-  "depGraphData": Object {},
-  "issues": Array [
-    Object {
-      "fixInfo": Object {},
+{
+  "depGraphData": {},
+  "issues": [
+    {
+      "fixInfo": {},
       "issueId": "npm:node-uuid:20160328",
       "pkgName": "node-uuid",
       "pkgVersion": "1.4.0",
     },
-    Object {
-      "fixInfo": Object {},
+    {
+      "fixInfo": {},
       "issueId": "npm:qs:20140806",
       "pkgName": "qs",
       "pkgVersion": "0.0.6",
     },
-    Object {
-      "fixInfo": Object {},
+    {
+      "fixInfo": {},
       "issueId": "npm:qs:20140806-1",
       "pkgName": "qs",
       "pkgVersion": "0.0.6",
     },
-    Object {
-      "fixInfo": Object {},
+    {
+      "fixInfo": {},
       "issueId": "npm:qs:20170213",
       "pkgName": "qs",
       "pkgVersion": "0.0.6",
     },
   ],
-  "issuesData": Object {
-    "npm:node-uuid:20160328": Object {
+  "issuesData": {
+    "npm:node-uuid:20160328": {
       "id": "npm:node-uuid:20160328",
       "severity": "low",
       "title": "Insecure Randomness",
     },
-    "npm:qs:20140806": Object {
+    "npm:qs:20140806": {
       "id": "npm:qs:20140806",
       "severity": "low",
       "title": "Denial of Service (DoS)",
     },
-    "npm:qs:20140806-1": Object {
+    "npm:qs:20140806-1": {
       "id": "npm:qs:20140806-1",
       "severity": "low",
       "title": "Denial of Service (DoS)",
     },
-    "npm:qs:20170213": Object {
+    "npm:qs:20170213": {
       "id": "npm:qs:20170213",
       "severity": "low",
       "title": "Prototype Override Protection Bypass",
     },
   },
-  "remediation": Object {
-    "ignore": Object {},
-    "patch": Object {
-      "npm:node-uuid:20160328": Object {
-        "paths": Array [
-          Object {
-            "ms": Object {
+  "remediation": {
+    "ignore": {},
+    "patch": {
+      "npm:node-uuid:20160328": {
+        "paths": [
+          {
+            "ms": {
               "patched": "2019-11-29T15:08:55.159Z",
             },
           },
         ],
       },
     },
-    "pin": Object {},
-    "unresolved": Array [],
-    "upgrade": Object {
-      "qs@0.0.6": Object {
+    "pin": {},
+    "unresolved": [],
+    "upgrade": {
+      "qs@0.0.6": {
         "upgradeTo": "qs@6.0.4",
-        "upgrades": Array [
+        "upgrades": [
           "qs@0.0.6",
           "qs@0.0.6",
           "qs@0.0.6",
         ],
-        "vulns": Array [
+        "vulns": [
           "npm:qs:20170213",
           "npm:qs:20140806",
           "npm:qs:20140806-1",
@@ -141,52 +141,52 @@ Object {
 `;
 
 exports[`Convert legacy TestResult to ScanResult can convert pip test result with remediation (pins) 1`] = `
-Object {
-  "depGraphData": Object {},
-  "issues": Array [
-    Object {
-      "fixInfo": Object {},
+{
+  "depGraphData": {},
+  "issues": [
+    {
+      "fixInfo": {},
       "issueId": "SNYK-PYTHON-DJANGO-1066259",
       "pkgName": "django",
       "pkgVersion": "1.6.1",
     },
-    Object {
-      "fixInfo": Object {},
+    {
+      "fixInfo": {},
       "issueId": "SNYK-PYTHON-DJANGO-72888",
       "pkgName": "django",
       "pkgVersion": "1.6.1",
     },
   ],
-  "issuesData": Object {
-    "SNYK-PYTHON-DJANGO-1066259": Object {
+  "issuesData": {
+    "SNYK-PYTHON-DJANGO-1066259": {
       "id": "SNYK-PYTHON-DJANGO-1066259",
       "severity": "low",
       "title": "Directory Traversal",
     },
-    "SNYK-PYTHON-DJANGO-72888": Object {
+    "SNYK-PYTHON-DJANGO-72888": {
       "id": "SNYK-PYTHON-DJANGO-72888",
       "severity": "medium",
       "title": "Content Spoofing",
     },
   },
-  "remediation": Object {
-    "ignore": Object {},
-    "patch": Object {},
-    "pin": Object {
-      "django@1.6.1": Object {
+  "remediation": {
+    "ignore": {},
+    "patch": {},
+    "pin": {
+      "django@1.6.1": {
         "isTransitive": false,
         "upgradeTo": "django@2.2.18",
-        "vulns": Array [
+        "vulns": [
           "SNYK-PYTHON-DJANGO-72888",
         ],
       },
     },
-    "unresolved": Array [
-      Object {
+    "unresolved": [
+      {
         "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N",
-        "alternativeIds": Array [],
+        "alternativeIds": [],
         "creationTime": "2021-02-01T13:11:56.558734Z",
-        "credit": Array [
+        "credit": [
           "Wang Baohua",
         ],
         "cvssScore": 3.1,
@@ -197,7 +197,7 @@ Affected versions of this package are vulnerable to Directory Traversal via the 
 
 ## Details
 
-A Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with \\"dot-dot-slash (../)\\" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.
+A Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with "dot-dot-slash (../)" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.
 
 Directory Traversal vulnerabilities can be generally divided into two types:
 
@@ -231,23 +231,23 @@ Upgrade \`django\` to version 2.2.18, 3.0.12, 3.1.6 or higher.
 ",
         "disclosureTime": "2021-02-01T12:56:31Z",
         "exploit": "Not Defined",
-        "fixedIn": Array [
+        "fixedIn": [
           "2.2.18",
           "3.0.12",
           "3.1.6",
         ],
-        "from": Array [
+        "from": [
           "pip-app@0.0.0",
           "django@1.6.1",
         ],
-        "functions": Array [],
-        "functions_new": Array [],
+        "functions": [],
+        "functions_new": [],
         "id": "SNYK-PYTHON-DJANGO-1066259",
-        "identifiers": Object {
-          "CVE": Array [
+        "identifiers": {
+          "CVE": [
             "CVE-2021-3281",
           ],
-          "CWE": Array [
+          "CWE": [
             "CWE-22",
           ],
         },
@@ -260,21 +260,21 @@ Upgrade \`django\` to version 2.2.18, 3.0.12, 3.1.6 or higher.
         "name": "django",
         "packageManager": "pip",
         "packageName": "django",
-        "patches": Array [],
+        "patches": [],
         "proprietary": false,
         "publicationTime": "2021-02-01T15:11:08.261009Z",
-        "references": Array [
-          Object {
+        "references": [
+          {
             "title": "Django Advisory",
             "url": "https://www.djangoproject.com/weblog/2021/feb/01/security-releases/",
           },
-          Object {
+          {
             "title": "GitHub Commit",
             "url": "https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23",
           },
         ],
-        "semver": Object {
-          "vulnerable": Array [
+        "semver": {
+          "vulnerable": [
             "[1.4,2.2.18)",
             "[3.0a1,3.0.12)",
             "[3.1a1,3.1.6)",
@@ -283,11 +283,11 @@ Upgrade \`django\` to version 2.2.18, 3.0.12, 3.1.6 or higher.
         "severity": "low",
         "severityWithCritical": "low",
         "title": "Directory Traversal",
-        "upgradePath": Array [],
+        "upgradePath": [],
         "version": "1.6.1",
       },
     ],
-    "upgrade": Object {},
+    "upgrade": {},
   },
 }
 `;

@@ -12,6 +12,7 @@ import stripAnsi = require('strip-ansi');
 import * as os from 'os';
 import * as isDocker from '../../src/lib/is-docker';
 import { fakeServer } from '../acceptance/fake-server';
+import { getServerPort } from '../jest/util/getServerPort';
 
 type Ignore = {
   [path: string]: {
@@ -25,7 +26,7 @@ type Policy = {
   [id: string]: Ignore[];
 };
 
-const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+const port = getServerPort(process);
 
 const apiKey = '123456789';
 let oldKey;

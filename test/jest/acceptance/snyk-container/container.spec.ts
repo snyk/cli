@@ -185,7 +185,7 @@ DepGraph end`,
       });
     });
 
-    it('should print sbom for image', async () => {
+    it('should print sbom for image - spdx', async () => {
       const {
         code,
         stdout,
@@ -201,7 +201,62 @@ DepGraph end`,
       expect(() => {
         sbom = JSON.parse(stdout);
       }).not.toThrow();
-      expect(sbom.metadata.component.name).toEqual('gcr.io/distroless/static');
+      expect(sbom.name).toEqual('gcr.io/distroless/static');
+      expect(sbom.spdxVersion).toEqual('SPDX-2.3');
+      expect(sbom.packages).toHaveLength(
+        TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
+      );
+    });
+
+    it('should print sbom for image - cyclonedx 1.4', async () => {
+      const {
+        code,
+        stdout,
+        stderr,
+      } = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.4+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
+        { env },
+      );
+
+      let sbom: any;
+      assertCliExitCode(code, 0, stderr);
+
+      expect(() => {
+        sbom = JSON.parse(stdout);
+      }).not.toThrow();
+
+      expect(sbom.specVersion).toEqual('1.4');
+      expect(sbom['$schema']).toEqual(
+        'http://cyclonedx.org/schema/bom-1.4.schema.json',
+      );
+
+      expect(sbom.components).toHaveLength(
+        TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
+      );
+    });
+
+    it('should print sbom for image - cyclonedx 1.5', async () => {
+      const {
+        code,
+        stdout,
+        stderr,
+      } = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.5+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
+        { env },
+      );
+
+      let sbom: any;
+      assertCliExitCode(code, 0, stderr);
+
+      expect(() => {
+        sbom = JSON.parse(stdout);
+      }).not.toThrow();
+
+      expect(sbom.specVersion).toEqual('1.5');
+      expect(sbom['$schema']).toEqual(
+        'http://cyclonedx.org/schema/bom-1.5.schema.json',
+      );
+
       expect(sbom.components).toHaveLength(
         TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
       );

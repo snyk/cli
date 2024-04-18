@@ -18,10 +18,15 @@ module.exports = async function() {
     token = '***';
   }
 
+  const { stdout: version } = await runSnykCLI('version');
+  const SNYK_VERSION = version.trim();
+
   console.info(
     '\n------------------------------------------------------------------------------------------------------' +
       '\n Binary under test   [TEST_SNYK_COMMAND] .............. ' +
       process.env.TEST_SNYK_COMMAND +
+      '\n Version under test  .................................. ' +
+      SNYK_VERSION +
       '\n Allow to skip tests [TEST_SNYK_DONT_SKIP_ANYTHING] ... ' +
       !isDontSkipTestsEnabled() +
       '\n Run FIPS tests      [TEST_SNYK_FIPS] ................. ' +

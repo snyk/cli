@@ -36,18 +36,28 @@ executors:
   alpine:
     docker:
       - image: alpine:3.17
+    resource_class: xlarge
   generic-ubuntu:
     docker:
       - image: ubuntu:latest
     resource_class: small
+  circle-go:
+    docker:
+      - image: cimg/go:1.20
+    resource_class: medium+
   docker-amd64:
+    docker:
+      - image: snyklabs/cli-build:20240319-123447
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: large
+  docker-amd64-xl:
     docker:
       - image: bastiandoetsch209/cli-build:20240214-145818
     working_directory: /mnt/ramdisk/snyk
-    resource_class: large
+    resource_class: xlarge
   docker-arm64:
     docker:
-      - image: bastiandoetsch209/cli-build-arm64:20240214-145818
+      - image: snyklabs/cli-build-arm64:20240319-123447
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   linux-ubuntu-mantic-amd64:
@@ -107,7 +117,7 @@ executors:
     shell: powershell
   cbl-mariner:
     docker:
-      - image: mcr.microsoft.com/cbl-mariner/base/python:3.9.14-6-cm2.0.20230805-arm64
+      - image: mcr.microsoft.com/cbl-mariner/base/python:3.9.14-8-cm2.0.20240301-arm64
     resource_class: arm.medium
 
 commands:
@@ -377,6 +387,10 @@ workflows:
             - secrets-scan
 
       - code-analysis:
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           context: devex_cli
           requires:
             - prepare-build
@@ -395,11 +409,15 @@ workflows:
               ignore: main
 
       - test-go:
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           context:
             - nodejs-install
             - team_hammerhead-cli
           requires:
-            - prepare-build
+            - secrets-scan
           filters:
             branches:
               ignore: main
@@ -508,7 +526,7 @@ workflows:
               ignore: main
           requires:
             - build linux amd64
-          executor: docker-amd64
+          executor: docker-amd64-xl
           test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-tests:
@@ -581,6 +599,7 @@ workflows:
           test_snyk_command: binary-releases\\snyk-win.exe
           install_deps_extension: windows-full
           dont_skip_tests: 0
+          shards: 4
           pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
 
       - sign:
@@ -850,9 +869,19 @@ jobs:
     executor: docker-amd64
     steps:
       - checkout
+      - restore_cache:
+          name: Restore npm cache
+          keys:
+            - prepare-build-npm-deps-{{ checksum "package-lock.json" }}
+            - prepare-build-npm-deps
       - run:
           name: Installing dependencies
-          command: npm ci
+          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+      - save_cache:
+          name: Save npm cache
+          key: prepare-build-npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - .npm
       - run:
           name: Set version
           command: |
@@ -878,25 +907,40 @@ jobs:
             - packages/*
 
   code-analysis:
+    parameters:
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      go_download_base_url:
+        type: string
+      install_path:
+        type: string
+        default: '/tmp'
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - run:
           name: Linting project
           command: |
             npm run lint
             pushd cliv2
-            make lint
+              export CGO_ENABLED=1
+              make lint
             popd
-      - snyk/scan:
-          fail-on-issues: true
-          severity-threshold: critical
-          additional-arguments: --all-projects --exclude=test,dist
-      - snyk/scan:
-          command: code test
-          fail-on-issues: true
-          monitor-on-build: true
-          severity-threshold: high
+      - prodsec/security_scans:
+          mode: auto
+          open-source-additional-arguments: --exclude=test,dist
+          iac-scan: disabled
+          release-branch: main
 
   test-node:
     executor: docker-amd64
@@ -912,8 +956,26 @@ jobs:
 
   test-go:
     executor: docker-amd64
+    parameters:
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      go_download_base_url:
+        type: string
+      install_path:
+        type: string
+        default: '.'
     steps:
       - prepare-workspace
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - run:
           name: Running Go unit tests
           working_directory: ./cliv2
@@ -1024,7 +1086,11 @@ jobs:
       pre_test_cmds:
         type: string
         default: 'echo Running tests'
+      shards:
+        type: integer
+        default: 3
     executor: << parameters.executor >>
+    parallelism: << parameters.shards >>
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
@@ -1035,12 +1101,13 @@ jobs:
           no_output_timeout: 30m
           command: |
             << parameters.pre_test_cmds >>
-            npm run test:acceptance -- --selectProjects coreCli
+            npm run test:acceptance -- --selectProjects coreCli --shard=$(expr $CIRCLE_NODE_INDEX + 1)/<< parameters.shards >>
           environment:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
             TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
             JEST_JUNIT_OUTPUT_DIR: test/reports
+            NODE_OPTIONS: --max-old-space-size=4096
       - store_test_results:
           path: test/reports
       - store_artifacts:

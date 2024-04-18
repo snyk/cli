@@ -63,7 +63,10 @@
         "lineNumber": -1,
         "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151",
         "isGeneratedByCustomRule": false,
-        "path": [],
+        "path": [
+          "resource",
+          "aws_vpc[mainvpc]"
+        ],
         "compliance": [],
         "description": "VPC flow logging should be enabled. AWS VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC.\nUsers can use the flow logs to detect anomalous traffic or insight during security workflows.\n"
       },
@@ -94,10 +97,11 @@
         "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-5",
         "isGeneratedByCustomRule": false,
         "path": [
-          "ingress",
-          0,
-          "cidr_blocks",
-          0
+          "input",
+          "resource",
+          "aws_default_security_group[default]",
+          "ingress[0]",
+          "cidr_blocks[0]"
         ],
         "compliance": [],
         "description": "Configuring all VPC default security groups to restrict all traffic encourages least privilege security\ngroup development and mindful placement of AWS resources into security groups which in turn reduces the exposure of those resources.\n"
@@ -162,7 +166,10 @@
         "lineNumber": 5,
         "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151",
         "isGeneratedByCustomRule": false,
-        "path": [],
+        "path": [
+          "resource",
+          "aws_vpc[mainvpc]"
+        ],
         "compliance": [],
         "description": "VPC flow logging should be enabled. AWS VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC.\nUsers can use the flow logs to detect anomalous traffic or insight during security workflows.\n"
       },
@@ -193,10 +200,11 @@
         "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-5",
         "isGeneratedByCustomRule": false,
         "path": [
-          "ingress",
-          0,
-          "cidr_blocks",
-          0
+          "input",
+          "resource",
+          "aws_default_security_group[default]",
+          "ingress[0]",
+          "cidr_blocks[0]"
         ],
         "compliance": [],
         "description": "Configuring all VPC default security groups to restrict all traffic encourages least privilege security\ngroup development and mindful placement of AWS resources into security groups which in turn reduces the exposure of those resources.\n"
