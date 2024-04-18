@@ -605,17 +605,19 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.post(`/rest/orgs/:orgId/sbom_tests`, (req, res) => {
     const response = {
-      "data": {
-        "id": "4b341b8a-4697-4e35-928b-4b9ae37f8ea8",
-        "type": "sbom_tests"
+      data: {
+        id: '4b341b8a-4697-4e35-928b-4b9ae37f8ea8',
+        type: 'sbom_tests',
       },
-      "jsonapi": {
-        "version": "1.0"
+      jsonapi: {
+        version: '1.0',
       },
-      "links": {
-        "self": "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests?version=2023-08-31~beta",
-        "related": "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta"
-      }
+      links: {
+        self:
+          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests?version=2023-08-31~beta',
+        related:
+          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
+      },
     };
     res.status(201);
     res.send(response);
@@ -623,20 +625,22 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.get(`/rest/orgs/:orgId/sbom_tests/:id`, (req, res) => {
     const response = {
-      "data": {
-        "id": "4b341b8a-4697-4e35-928b-4b9ae37f8ea8",
-        "type": "sbom_tests",
-        "attributes": {
-          "status": "finished"
-        }
+      data: {
+        id: '4b341b8a-4697-4e35-928b-4b9ae37f8ea8',
+        type: 'sbom_tests',
+        attributes: {
+          status: 'finished',
+        },
       },
-      "jsonapi": {
-        "version": "1.0"
+      jsonapi: {
+        version: '1.0',
       },
-      "links": {
-        "self": "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta",
-        "related": "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8/results?version=2023-08-31~beta"
-      }
+      links: {
+        self:
+          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
+        related:
+          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8/results?version=2023-08-31~beta',
+      },
     };
     res.status(303);
     res.send(response);
