@@ -28,10 +28,11 @@ echo "Generating release notes…"
 # Delete existing release notes
 if [ -f binary-releases/RELEASE_NOTES.md ]; then
   rm binary-releases/RELEASE_NOTES.md
+  rm binary-releases/version
 fi
 
 # Generate the release notes baseline from the commits
-make binary-releases/RELEASE_NOTES.md format
+make binary-releases/RELEASE_NOTES.md clean-package-files format
 
 # Commit and push the release notes
 git add -f binary-releases/RELEASE_NOTES.md
