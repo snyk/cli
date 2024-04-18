@@ -31,7 +31,7 @@ if [ -f binary-releases/RELEASE_NOTES.md ]; then
 fi
 
 # Generate the release notes baseline from the commits
-make binary-releases/RELEASE_NOTES.md
+make binary-releases/RELEASE_NOTES.md format
 
 # Commit and push the release notes
 git add -f binary-releases/RELEASE_NOTES.md
