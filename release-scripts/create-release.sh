@@ -29,7 +29,7 @@ echo "Validating next version..."
 
 # Get version from version file
 VERSION_FILE="./binary-releases/version"
-CURRENT_VERSION=$(npx semver -c $(cat $VERSION_FILE))
+CURRENT_VERSION=$(npx semver --coerce $(cat $VERSION_FILE))
 
 # Get version from RELEASE_NOTES.md
 RELEASE_NOTES_MD="./binary-releases/RELEASE_NOTES.md"
