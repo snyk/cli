@@ -263,6 +263,16 @@ release-pre:
 	@echo "-- Publishing to S3 /version"
 	@./release-scripts/upload-artifacts.sh version
 
+.PHONY: release-mgt-prepare
+release-mgt-prepare:
+	@echo "-- Preparing release"
+	@./release-scripts/prepare-release.sh
+
+.PHONY: release-mgt-create
+release-mgt-create:
+	@echo "-- Creating stable release"
+	@./release-scripts/create-release.sh
+
 .PHONY: format
 format:
 	@echo "-- Formatting code"
