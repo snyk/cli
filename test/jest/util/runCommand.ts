@@ -11,7 +11,10 @@ type RunCommandResult = {
 
 // bufferOutput sets the RunCommandResult stdoutBuffer and stderrBuffer
 // useful if the stdout or stderr string output is too large for the v8 engine
-type RunCommandOptions = SpawnOptionsWithoutStdio & { bufferOutput?: boolean };
+type RunCommandOptions = SpawnOptionsWithoutStdio & {
+  bufferOutput?: boolean;
+  logErrors?: boolean;
+};
 
 const runCommand = (
   command: string,
@@ -48,6 +51,10 @@ const runCommand = (
       } else {
         result.stdout = Buffer.concat(stdout).toString('utf-8');
         result.stderr = Buffer.concat(stderr).toString('utf-8');
+      }
+
+      if (options?.logErrors && result.code !== 0) {
+        console.log('stderr:', result.stderr);
       }
 
       resolve(result);
