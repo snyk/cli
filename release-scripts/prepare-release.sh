@@ -48,3 +48,8 @@ else
     exit 1
 fi
 
+echo "\n#################################################################################################"
+echo "# Next Steps:"
+echo  "# 1. [optional] take a look at the release notes, edit and push changes if necessary. (binary-releases/RELEASE_NOTES.md)"
+echo  "# 2. Mark the created PR for review and merge it as soon as approved."
+echo "#################################################################################################"
