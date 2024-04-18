@@ -14,6 +14,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os/exec"
 	"regexp"
@@ -32,7 +33,10 @@ func isValidRepository(name string) bool {
 		return false
 	}
 
-	match, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", name)
+	match, err := regexp.MatchString("^[a-zA-Z0-9-]+$", name)
+	if err != nil {
+		log.Fatal("Not able to validate repo name", err)
+	}
 	return match
 }
 
@@ -52,12 +56,8 @@ func getLatestCommitSHA(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
 
-		}
-	}(resp.Body)
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("Failed to fetch commits. Status code: %d", resp.StatusCode)
@@ -107,7 +107,7 @@ func upgradeDep(name string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	if err := upgradeGoMod(name, commitSHA); err != nil {
 		return err
 	}
