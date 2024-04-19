@@ -10,18 +10,8 @@ DEFAULT_BRANCH="main"
 TMP_BRANCH=tmp/$(date +%s)-$RC_BRANCH
 
 # Update Release Candidate branch
-git checkout -b $TMP_BRANCH origin/$RC_BRANCH
+git checkout -b $TMP_BRANCH origin/$DEFAULT_BRANCH
 git pull
-
-# Check if release candidate is behind default branch, merge default branch into release candidate
-if git rev-list --left-right --count $DEFAULT_BRANCH...$RC_BRANCH | awk '{print $1}' | grep -q '[1-9]'; then
-    git merge --quiet -m "chore: merge $DEFAULT_BRANCH into $RC_BRANCH $(date)" --no-edit --no-ff $DEFAULT_BRANCH
-    if [ $? -ne 0 ]; then
-        echo "Merge conflict occurred. Please resolve conflicts and try again."
-        exit 1
-    fi
-fi
-
 
 echo "Generating release notes…"
 
@@ -49,7 +39,8 @@ else
     exit 1
 fi
 
-echo "\n#################################################################################################"
+echo ""
+echo "#################################################################################################"
 echo "# Next Steps:"
 echo  "# 1. [optional] take a look at the release notes, edit and push changes if necessary. (binary-releases/RELEASE_NOTES.md)"
 echo  "# 2. Mark the created PR for review and merge it as soon as approved."
