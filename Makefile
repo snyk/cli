@@ -98,7 +98,7 @@ $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_
 
 	# if the releease notes are generated locally, the version contains something like X.Y.Z-dev.hash
 	# the replacement below ensures that the version in the RELEASE_NOTES.md is X.Y.Z
-	sed -i '' -e "s/$(shell cat $(BINARY_OUTPUT_FOLDER)/version)/$(shell npx semver --coerce $(shell cat $(BINARY_OUTPUT_FOLDER)/version))/g" $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
+	sed -i -e "s/$(shell cat $(BINARY_OUTPUT_FOLDER)/version)/$(shell npx semver --coerce $(shell cat $(BINARY_OUTPUT_FOLDER)/version))/g" $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
 
 # Generates a shasum of a target with the same name.
 # See "Automatic Variables" in GNU Make docs (linked at the top)
