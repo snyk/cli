@@ -3,24 +3,36 @@ const fs = require('fs');
 
 const MAX_COMMIT_MESSAGE_LENGTH = 72;
 
+function checkCommitMessage(commitMessage, url) {
+  const firstLineRegex = /^(feat|fix|chore|test|docs|refactor|revert)(\([a-z0-9-_]+\))?:(.+)$/;
+  if (!firstLineRegex.test(commitMessage)) {
+    fail(
+      `"[${commitMessage}](${url})" is not using a valid commit message format. For commit guidelines, see: [CONTRIBUTING](https://github.com/snyk/snyk/blob/main/CONTRIBUTING.md#creating-commits).`,
+    );
+  }
+
+  if (commitMessage.length >= MAX_COMMIT_MESSAGE_LENGTH) {
+    warn(
+      `"[${commitMessage}](${url})" is too long. Keep the first line of your commit message under ${MAX_COMMIT_MESSAGE_LENGTH} characters.`,
+    );
+  }
+}
+
 if (danger.github && danger.github.pr) {
   const ghCommits = danger.github.commits;
   for (const { commit } of ghCommits) {
     const { message, url } = commit;
     const [firstLine] = message.split('\n', 1);
 
-    const firstLineRegex = /^(feat|fix|chore|test|docs|refactor|revert)(\([a-z0-9]+\))?:(.+)$/;
-    if (!firstLineRegex.test(firstLine)) {
-      fail(
-        `"[${firstLine}](${url})" is not using a valid commit message format. For commit guidelines, see: [CONTRIBUTING](https://github.com/snyk/snyk/blob/main/CONTRIBUTING.md#creating-commits).`,
-      );
-    }
+    checkCommitMessage(firstLine, url);
+  }
 
-    if (firstLine.length >= MAX_COMMIT_MESSAGE_LENGTH) {
-      warn(
-        `"[${firstLine}](${url})" is too long. Keep the first line of your commit message under ${MAX_COMMIT_MESSAGE_LENGTH} characters.`,
-      );
-    }
+  if (ghCommits.length > 1) {
+    // If there is more than one commit in the PR when merging,
+    // the squash commit will be generated from the PR title
+    const prTitle = danger.github.pr.title;
+
+    checkCommitMessage(prTitle, danger.github.pr.html_url);
   }
 
   // Forgotten tests check

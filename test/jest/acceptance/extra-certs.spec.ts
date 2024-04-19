@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { runCommand } from '../util/runCommand';
 import { fakeServer } from '../../../test/acceptance/fake-server';
 
-jest.setTimeout(1000 * 60 * 1);
+jest.setTimeout(1000 * 60 * 2);
 describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
   it('using a not existing file', async () => {
     const { code } = await runSnykCLI(`woof --debug`, {

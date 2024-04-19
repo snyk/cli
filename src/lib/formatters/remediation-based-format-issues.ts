@@ -15,7 +15,11 @@ import {
 } from '../../lib/snyk-test/legacy';
 import { colorTextBySeverity } from '../../lib/snyk-test/common';
 import { formatLegalInstructions } from './legal-license-instructions';
-import { BasicVulnInfo, UpgradesByAffectedPackage } from './types';
+import {
+  AppliedPolicyRules,
+  BasicVulnInfo,
+  UpgradesByAffectedPackage,
+} from './types';
 import { PATH_SEPARATOR } from '../constants';
 import { getSeverityValue } from './get-severity-value';
 import { getVulnerabilityUrl } from './get-vuln-url';
@@ -45,6 +49,7 @@ export function formatIssuesWithRemediation(
       note: vuln.note,
       legalInstructions: vuln.legalInstructionsArray,
       paths: vuln.list.map((v) => v.from),
+      appliedPolicyRules: vuln.appliedPolicyRules,
     };
 
     if (vulnData.type === 'license') {
@@ -140,18 +145,19 @@ function constructLicenseText(
   const licenseTextArray = [chalk.bold.green('\nLicense issues:')];
 
   for (const id of Object.keys(basicLicenseInfo)) {
-    const licenseText = formatIssue(
+    const licenseText = formatIssue({
       id,
-      basicLicenseInfo[id].title,
-      basicLicenseInfo[id].severity,
-      basicLicenseInfo[id].isNew,
-      `${basicLicenseInfo[id].name}@${basicLicenseInfo[id].version}`,
-      basicLicenseInfo[id].paths,
+      title: basicLicenseInfo[id].title,
+      severity: basicLicenseInfo[id].severity,
+      isNew: basicLicenseInfo[id].isNew,
+      vulnerableModule: `${basicLicenseInfo[id].name}@${basicLicenseInfo[id].version}`,
+      paths: basicLicenseInfo[id].paths,
       testOptions,
-      basicLicenseInfo[id].note,
-      undefined, // We can never override license rules, so no originalSeverity here
-      basicLicenseInfo[id].legalInstructions,
-    );
+      note: basicLicenseInfo[id].note,
+      originalSeverity: undefined, // We can never override license rules, so no originalSeverity here
+      legalInstructions: basicLicenseInfo[id].legalInstructions,
+      appliedPolicyRules: basicLicenseInfo[id].appliedPolicyRules,
+    });
     licenseTextArray.push('\n' + licenseText);
   }
   return licenseTextArray;
@@ -183,17 +189,19 @@ function constructPatchesText(
     const patchedText = `\n  Patch available for ${chalk.bold.whiteBright(
       packageAtVersion,
     )}\n`;
-    const thisPatchFixes = formatIssue(
+    const thisPatchFixes = formatIssue({
       id,
-      basicVulnInfo[id].title,
-      basicVulnInfo[id].severity,
-      basicVulnInfo[id].isNew,
-      `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
-      basicVulnInfo[id].paths,
+      title: basicVulnInfo[id].title,
+      severity: basicVulnInfo[id].severity,
+      isNew: basicVulnInfo[id].isNew,
+      vulnerableModule: `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
+      paths: basicVulnInfo[id].paths,
       testOptions,
-      basicVulnInfo[id].note,
-      basicVulnInfo[id].originalSeverity,
-    );
+      note: basicVulnInfo[id].note,
+      originalSeverity: basicVulnInfo[id].originalSeverity,
+      legalInstructions: [],
+      appliedPolicyRules: basicVulnInfo[id]?.appliedPolicyRules,
+    });
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
 
@@ -214,18 +222,19 @@ function thisUpgradeFixes(
     )
     .filter((id) => basicVulnInfo[id].type !== 'license')
     .map((id) =>
-      formatIssue(
+      formatIssue({
         id,
-        basicVulnInfo[id].title,
-        basicVulnInfo[id].severity,
-        basicVulnInfo[id].isNew,
-        `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
-        basicVulnInfo[id].paths,
+        title: basicVulnInfo[id].title,
+        severity: basicVulnInfo[id].severity,
+        isNew: basicVulnInfo[id].isNew,
+        vulnerableModule: `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
+        paths: basicVulnInfo[id].paths,
         testOptions,
-        basicVulnInfo[id].note,
-        basicVulnInfo[id].originalSeverity,
-        [],
-      ),
+        note: basicVulnInfo[id].note,
+        originalSeverity: basicVulnInfo[id].originalSeverity,
+        legalInstructions: [],
+        appliedPolicyRules: basicVulnInfo[id]?.appliedPolicyRules,
+      }),
     )
     .join('\n');
 }
@@ -366,18 +375,19 @@ function constructUnfixableText(
           )}`
         : '\n  No upgrade or patch available';
     unfixableIssuesTextArray.push(
-      formatIssue(
-        issue.id,
-        issue.title,
-        issue.severity,
-        issue.isNew,
-        `${issue.packageName}@${issue.version}`,
-        issueInfo.paths,
+      formatIssue({
+        id: issue.id,
+        title: issue.title,
+        severity: issue.severity,
+        isNew: issue.isNew,
+        vulnerableModule: `${issue.packageName}@${issue.version}`,
+        paths: issueInfo.paths,
         testOptions,
-        issueInfo.note,
-        issueInfo.originalSeverity,
-        [],
-      ) + `${extraInfo}`,
+        note: issueInfo.note,
+        originalSeverity: issueInfo.originalSeverity,
+        legalInstructions: [],
+        appliedPolicyRules: issueInfo?.appliedPolicyRules,
+      }) + `${extraInfo}`,
     );
   }
 
@@ -394,18 +404,34 @@ export function printPath(path: string[], slice = 1) {
   return path.slice(slice).join(PATH_SEPARATOR);
 }
 
-export function formatIssue(
-  id: string,
-  title: string,
-  severity: SEVERITY,
-  isNew: boolean,
-  vulnerableModule: string,
-  paths: string[][],
-  testOptions: TestOptions,
-  note: string | false,
-  originalSeverity?: SEVERITY,
-  legalInstructions?: LegalInstruction[],
-): string {
+interface IssueForDisplay {
+  id: string;
+  title: string;
+  severity: SEVERITY;
+  isNew: boolean;
+  vulnerableModule: string;
+  paths: string[][];
+  testOptions: TestOptions;
+  note: string | false;
+  originalSeverity?: SEVERITY;
+  legalInstructions?: LegalInstruction[];
+  appliedPolicyRules?: AppliedPolicyRules;
+}
+
+function formatIssue(issue: IssueForDisplay): string {
+  const {
+    id,
+    title,
+    severity,
+    isNew,
+    vulnerableModule,
+    paths,
+    testOptions,
+    note,
+    originalSeverity,
+    legalInstructions,
+    appliedPolicyRules,
+  } = issue;
   const newBadge = isNew ? ' (new)' : '';
   const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';
   let legalLicenseInstructionsText;
@@ -447,6 +473,11 @@ export function formatIssue(
     originalSeverityStr = ` (originally ${titleCaseText(originalSeverity)})`;
   }
 
+  const { value: userNote, reason: userNoteReason } =
+    appliedPolicyRules?.annotation || {};
+
+  const { reason: severityReason } = appliedPolicyRules?.severityChange || {};
+
   return (
     colorTextBySeverity(
       severity,
@@ -462,7 +493,10 @@ export function formatIssue(
           '\n    Legal instructions',
         )}:\n    ${legalLicenseInstructionsText}`
       : '') +
-    (note ? `${chalk.bold('\n    Note')}:\n    ${note}` : '')
+    (note ? `${chalk.bold('\n    Note')}:\n    ${note}` : '') +
+    (severityReason ? '\n    Severity reason: ' + severityReason : '') +
+    (userNote ? '\n    User note: ' + userNote : '') +
+    (userNoteReason ? '\n    Note reason: ' + userNoteReason : '')
   );
 }
 

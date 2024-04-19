@@ -2,8 +2,9 @@ import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
 import * as sinon from 'sinon';
 import { fakeServer } from '../acceptance/fake-server';
+import { getServerPort } from '../jest/util/getServerPort';
 
-const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+const port = getServerPort(process);
 
 const apiKey = '123456789';
 let oldkey;

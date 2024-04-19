@@ -4,8 +4,9 @@ import stripAnsi = require('strip-ansi');
 import * as isAuthed from '../../src/cli/commands/auth/is-authed';
 import * as errors from '../../src/lib/errors/legacy-errors';
 import { fakeServer } from '../acceptance/fake-server';
+import { getServerPort } from '../jest/util/getServerPort';
 
-const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+const port = getServerPort(process);
 
 const apiKey = '123456789';
 const BASE_API = '/api/v1';

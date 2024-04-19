@@ -1,6 +1,7 @@
 import * as Debug from 'debug';
 import { EOL } from 'os';
 const cloneDeep = require('lodash.clonedeep');
+const omit = require('lodash.omit');
 const assign = require('lodash.assign');
 import chalk from 'chalk';
 import { MissingArgError } from '../../../lib/errors';
@@ -236,8 +237,7 @@ export default async function test(
         }
       }
       err.code = 'VULNS';
-      const dataToSendNoVulns = dataToSend;
-      delete dataToSendNoVulns.vulnerabilities;
+      const dataToSendNoVulns = omit(dataToSend, 'vulnerabilities');
       err.jsonNoVulns = dataToSendNoVulns;
     }
 
@@ -252,6 +252,10 @@ export default async function test(
     err.json = stringifiedData;
     err.jsonStringifiedResults = stringifiedJsonData;
     err.sarifStringifiedResults = stringifiedSarifData;
+    // set jsonPayload if we failed to stringify it
+    if (jsonPayload) {
+      err.jsonPayload = jsonPayload;
+    }
     throw err;
   }
 

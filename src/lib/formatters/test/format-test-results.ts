@@ -105,13 +105,6 @@ export function extractDataToSendFromResults(
     stringifiedJsonData = jsonStringifyLargeObject(jsonData);
   }
 
-  // TODO: Remove this when we support streaming JSON to stdout
-  if (stringifiedJsonData.length === 0 && options['json']) {
-    console.warn(
-      "'--json' does not work for very large objects - try just using '--json-file-output=<filePath>' instead",
-    );
-  }
-
   const dataToSend = options.sarif ? sarifData : jsonData;
   const stringifiedData = options.sarif
     ? stringifiedSarifData
@@ -387,6 +380,8 @@ export function groupVulnerabilities(
       map[curr.id].dockerBaseImage = curr.dockerBaseImage;
       map[curr.id].nearestFixedInVersion = curr.nearestFixedInVersion;
       map[curr.id].legalInstructionsArray = curr.legalInstructionsArray;
+      map[curr.id].severityReason = curr.severityReason;
+      map[curr.id].appliedPolicyRules = curr.appliedPolicyRules;
     }
 
     map[curr.id].list.push(curr);
