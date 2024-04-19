@@ -1,1 +1,0 @@
-Test fixture for version flag

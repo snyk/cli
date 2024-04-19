@@ -6,7 +6,6 @@
   },
   "include": ["./src/**/*"],
   "references": [
-    { "path": "packages/snyk-protect" },
     { "path": "packages/snyk-fix" }
   ]
 }

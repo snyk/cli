@@ -1006,14 +1006,10 @@ jobs:
       - run:
           name: Building snyk-fix.tgz
           command: make binary-releases/snyk-fix.tgz
-      - run:
-          name: Building snyk-protect.tgz
-          command: make binary-releases/snyk-protect.tgz
       - persist_to_workspace:
           root: .
           paths:
             - binary-releases/snyk-fix.tgz
-            - binary-releases/snyk-protect.tgz
 
   build-artifact:
     parameters:

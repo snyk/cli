@@ -96,13 +96,11 @@ upload_npm() {
     echo "DRY RUN: uploading to npm..."
     npm config set '//registry.npmjs.org/:_authToken' "${HAMMERHEAD_NPM_TOKEN}"
     npm publish --dry-run ./binary-releases/snyk-fix.tgz
-    npm publish --dry-run ./binary-releases/snyk-protect.tgz
     npm publish --dry-run ./binary-releases/snyk.tgz
   else
     echo "Uploading to npm..."
     npm config set '//registry.npmjs.org/:_authToken' "${HAMMERHEAD_NPM_TOKEN}"
     npm publish ./binary-releases/snyk-fix.tgz
-    npm publish ./binary-releases/snyk-protect.tgz
     npm publish ./binary-releases/snyk.tgz
   fi
 }

@@ -121,8 +121,6 @@ The Snyk CLI project is open-source, but Snyk does not encourage outside contrib
 
 You may look into [design decisions for the Snyk CLI](https://github.com/snyk/snyk/blob/master/help/_about-this-project/README.md).
 
-The Snyk CLI repository is a monorepo that also covers other projects and tools, such as [@snyk/protect](https://github.com/snyk/snyk/tree/master/packages/snyk-protect), also available at [npm package for snyk-protect command](https://www.npmjs.com/package/@snyk/protect).
-
 ## Security
 
 For any security issues or concerns, see the [SECURITY.md](https://github.com/snyk/snyk/blob/master/SECURITY.md) file in the GitHub repository.
