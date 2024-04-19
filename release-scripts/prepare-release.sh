@@ -28,10 +28,11 @@ echo "Generating release notes…"
 # Delete existing release notes
 if [ -f binary-releases/RELEASE_NOTES.md ]; then
   rm binary-releases/RELEASE_NOTES.md
+  rm binary-releases/version
 fi
 
 # Generate the release notes baseline from the commits
-make binary-releases/RELEASE_NOTES.md
+make binary-releases/RELEASE_NOTES.md clean-package-files format
 
 # Commit and push the release notes
 git add -f binary-releases/RELEASE_NOTES.md
@@ -48,3 +49,8 @@ else
     exit 1
 fi
 
+echo "\n#################################################################################################"
+echo "# Next Steps:"
+echo  "# 1. [optional] take a look at the release notes, edit and push changes if necessary. (binary-releases/RELEASE_NOTES.md)"
+echo  "# 2. Mark the created PR for review and merge it as soon as approved."
+echo "#################################################################################################"
