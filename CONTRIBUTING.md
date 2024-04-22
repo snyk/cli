@@ -4,18 +4,11 @@
 
 ## Prerequisites
 
-You will need the following software installed:
-
-- Git
-- Node.js (and bundled npm)
-  - Use whichever version is in [`.nvmrc`](./.nvmrc).
-
-Open a terminal and make sure they are available.
+To install the required development dependencies in homebrew based environments, execute the following script from the root directory.
+The only additional prerequisite is having [homebrew](https://brew.sh/) installed.
 
 ```sh
-git --version
-node --version
-npm --version
+./scripts/install-dev-dependencies.sh
 ```
 
 ## Setting up
@@ -60,6 +53,12 @@ You can run tests using standard Jest commands. See: [Jest CLI docs](https://jes
 
 ```
 npx jest --runInBand <path>
+```
+
+For closed box tests (like User Journey tests, acceptance tests, ...) you will have to specify the binary under test by setting the environment variable **TEST_SNYK_COMMAND**.
+
+```
+TEST_SNYK_COMMAND=./binary-releases/snyk-macos npx jest --runInBand <path>
 ```
 
 If you are working on a specific project, you can filter by project.

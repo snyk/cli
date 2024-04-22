@@ -1,5 +1,6 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer } from '../../acceptance/fake-server';
+import { getServerPort } from '../util/getServerPort';
 
 jest.setTimeout(1000 * 30); // 30 seconds
 
@@ -8,7 +9,7 @@ describe('cli token precedence', () => {
   let env: Record<string, string>;
   let initialConfig: Record<string, string> = {};
 
-  const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+  const port = getServerPort(process);
   const baseApi = '/api/v1';
   const initialEnvVars = {
     ...process.env,

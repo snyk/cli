@@ -3,6 +3,7 @@ import { getWorkspaceJSON } from '../../../acceptance/workspace-helper';
 import { createProject } from '../../util/createProject';
 import { requireSnykToken } from '../../util/requireSnykToken';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { getServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
@@ -17,7 +18,7 @@ describe('snyk test with missing node_modules', () => {
       'no-vulns',
       'vulns-result.json',
     );
-    const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const port = getServerPort(process);
     const BASE_API = '/api/v1';
     env = {
       ...process.env,
