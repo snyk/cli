@@ -616,6 +616,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - sign:
@@ -631,6 +632,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - sign:
@@ -646,6 +648,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - create_deployment_artifacts:
@@ -663,6 +666,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - should-release:
@@ -674,6 +678,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - pre-release:
@@ -685,6 +690,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - npm-validation:
@@ -702,6 +708,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - test-release:
@@ -730,6 +737,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - test-release:
@@ -745,6 +753,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - test-release:
