@@ -12,17 +12,11 @@ import * as cocoapodsPlugin from '@snyk/snyk-cocoapods-plugin';
 import * as hexPlugin from '@snyk/snyk-hex-plugin';
 import * as swiftPlugin from 'snyk-swiftpm-plugin';
 import * as types from './types';
-import {
-  SupportedPackageManagers,
-  SupportedPackageManagersUnderFeatureFlag,
-} from '../package-managers';
+import { SupportedPackageManagers } from '../package-managers';
 import { UnsupportedPackageManagerError } from '../errors';
 
 export function loadPlugin(
-  packageManager:
-    | SupportedPackageManagers
-    | SupportedPackageManagersUnderFeatureFlag
-    | undefined,
+  packageManager: SupportedPackageManagers | undefined,
 ): types.Plugin {
   switch (packageManager) {
     case 'npm': {
@@ -70,19 +64,6 @@ export function loadPlugin(
     case 'swift': {
       return swiftPlugin;
     }
-    default: {
-      throw new UnsupportedPackageManagerError(packageManager);
-    }
-  }
-}
-
-export function loadPluginUnderFeatureFlag(
-  packageManager:
-    | SupportedPackageManagers
-    | SupportedPackageManagersUnderFeatureFlag
-    | undefined,
-): types.Plugin {
-  switch (packageManager) {
     case 'pnpm': {
       return nodejsPlugin;
     }

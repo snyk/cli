@@ -71,12 +71,10 @@ function run(root, options, featureFlags) {
 }
 
 function validateProjectType(options, projectType, featureFlags) {
-  if (
-    pm.SUPPORTED_PACKAGE_MANAGER_UNDER_FF_NAME[projectType] &&
-    featureFlags.has(pm.PACKAGE_MANAGERS_FEATURE_FLAGS_MAP[projectType])
-  ) {
-    return;
+  if (projectType === 'pnpm' && !featureFlags.has(PNPM_FEATURE_FLAG)) {
+    throw new UnsupportedPackageManagerError(projectType);
   }
+
   if (
     !(
       options.docker ||

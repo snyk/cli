@@ -5,7 +5,10 @@ const sortBy = require('lodash.sortby');
 const groupBy = require('lodash.groupby');
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
-import { PNPM_FEATURE_FLAG } from './package-managers';
+import {
+  PNPM_FEATURE_FLAG,
+  SUPPORTED_MANIFEST_FILES,
+} from './package-managers';
 
 const debug = debugModule('snyk:find-files');
 
@@ -277,14 +280,15 @@ function chooseBestManifest(
 ): string | null {
   switch (projectType) {
     case 'node': {
-      const nodeLockfiles = ['package-lock.json', 'yarn.lock'];
+      const nodeLockfiles = [
+        SUPPORTED_MANIFEST_FILES.PACKAGE_LOCK_JSON as string,
+        SUPPORTED_MANIFEST_FILES.YARN_LOCK as string,
+      ];
       if (featureFlags.has(PNPM_FEATURE_FLAG)) {
-        nodeLockfiles.push('pnpm-lock.yaml');
+        nodeLockfiles.push(SUPPORTED_MANIFEST_FILES.PNPM_LOCK as string);
       }
       const lockFile = files.filter((path) =>
-        ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml'].includes(
-          path.base,
-        ),
+        nodeLockfiles.includes(path.base),
       )[0];
       debug(
         `Encountered multiple node lockfiles files, defaulting to ${lockFile.path}`,

@@ -1,9 +1,6 @@
 import * as cliInterface from '@snyk/cli-interface';
 import { ScannedProjectCustom } from './get-multi-plugin-result';
-import {
-  SupportedPackageManagers,
-  SupportedPackageManagersUnderFeatureFlag,
-} from '../package-managers';
+import { SupportedPackageManagers } from '../package-managers';
 
 export function extractPackageManager(
   scannedProject: ScannedProjectCustom,
@@ -11,10 +8,7 @@ export function extractPackageManager(
   options: {
     packageManager?: SupportedPackageManagers;
   },
-):
-  | SupportedPackageManagers
-  | SupportedPackageManagersUnderFeatureFlag
-  | undefined {
+): SupportedPackageManagers | undefined {
   // try and use the package Manager from the plugin
   // result if present
   const packageManager =

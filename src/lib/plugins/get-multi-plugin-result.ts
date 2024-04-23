@@ -9,8 +9,8 @@ import { TestOptions, Options, MonitorOptions } from '../types';
 import { detectPackageManagerFromFile } from '../detect';
 import {
   PNPM_FEATURE_FLAG,
+  SUPPORTED_MANIFEST_FILES,
   SupportedPackageManagers,
-  SupportedPackageManagersUnderFeatureFlag,
 } from '../package-managers';
 import { getSinglePluginResult } from './get-single-plugin-result';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
@@ -25,9 +25,7 @@ import { processPnpmWorkspaces } from 'snyk-nodejs-plugin';
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
   extends cliInterface.legacyCommon.ScannedProject {
-  packageManager:
-    | SupportedPackageManagers
-    | SupportedPackageManagersUnderFeatureFlag;
+  packageManager: SupportedPackageManagers;
   plugin: PluginMetadata;
   callGraph?: CallGraph;
 }
@@ -42,6 +40,26 @@ export interface MultiProjectResultCustom
   scannedProjects: ScannedProjectCustom[];
   failedResults?: FailedProjectScanError[];
 }
+
+type WorkspaceParameters = {
+  processingFunction: Function;
+  lockFile: string;
+};
+
+const NODE_WORKSPACES_MAP: Record<string, WorkspaceParameters> = {
+  pnpm: {
+    processingFunction: processPnpmWorkspaces,
+    lockFile: SUPPORTED_MANIFEST_FILES.PNPM_LOCK,
+  },
+  npm: {
+    processingFunction: processNpmWorkspaces,
+    lockFile: SUPPORTED_MANIFEST_FILES.PACKAGE_LOCK_JSON,
+  },
+  yarn: {
+    processingFunction: processYarnWorkspaces,
+    lockFile: SUPPORTED_MANIFEST_FILES.YARN_LOCK,
+  },
+};
 
 export async function getMultiPluginResult(
   root: string,
@@ -60,7 +78,7 @@ export async function getMultiPluginResult(
     const {
       scannedProjects: scannedPnpmResults,
       unprocessedFiles,
-    } = await processPnpmWorkspacesProjects(root, options, targetFiles);
+    } = await processWorkspacesProjects(root, options, targetFiles, 'pnpm');
     unprocessedFilesfromWorkspaces = unprocessedFiles;
     allResults.push(...scannedPnpmResults);
   }
@@ -68,20 +86,22 @@ export async function getMultiPluginResult(
   const {
     scannedProjects: scannedYarnResults,
     unprocessedFiles: unprocessedFilesFromYarn,
-  } = await processYarnWorkspacesProjects(
+  } = await processWorkspacesProjects(
     root,
     options,
     unprocessedFilesfromWorkspaces,
+    'yarn',
   );
   allResults.push(...scannedYarnResults);
 
   const {
     scannedProjects: scannedNpmResults,
     unprocessedFiles,
-  } = await processNpmWorkspacesProjects(
+  } = await processWorkspacesProjects(
     root,
     options,
     unprocessedFilesFromYarn,
+    'npm',
   );
   allResults.push(...scannedNpmResults);
 
@@ -99,7 +119,6 @@ export async function getMultiPluginResult(
       const inspectRes = await getSinglePluginResult(
         root,
         optionsClone,
-        featureFlags,
         optionsClone.file,
       );
       let resultWithScannedProjects: cliInterface.legacyPlugin.MultiProjectResult;
@@ -160,16 +179,19 @@ export async function getMultiPluginResult(
   };
 }
 
-async function processPnpmWorkspacesProjects(
+async function processWorkspacesProjects(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
   targetFiles: string[],
+  packageManager: 'npm' | 'yarn' | 'pnpm',
 ): Promise<{
   scannedProjects: ScannedProjectCustom[];
   unprocessedFiles: string[];
 }> {
   try {
-    const { scannedProjects } = await processPnpmWorkspaces(
+    const { scannedProjects } = await NODE_WORKSPACES_MAP[
+      packageManager
+    ].processingFunction(
       root,
       {
         strictOutOfSync: options.strictOutOfSync,
@@ -182,73 +204,14 @@ async function processPnpmWorkspacesProjects(
       root,
       scannedProjects,
       targetFiles,
-      'pnpm-lock.yaml',
+      NODE_WORKSPACES_MAP[packageManager].lockFile,
     );
     return { scannedProjects, unprocessedFiles };
   } catch (e) {
-    debug('Error during detecting or processing Pnpm Workspaces: ', e);
-    return { scannedProjects: [], unprocessedFiles: targetFiles };
-  }
-}
-
-async function processYarnWorkspacesProjects(
-  root: string,
-  options: Options & (TestOptions | MonitorOptions),
-  targetFiles: string[],
-): Promise<{
-  scannedProjects: ScannedProjectCustom[];
-  unprocessedFiles: string[];
-}> {
-  try {
-    const { scannedProjects } = await processYarnWorkspaces(
-      root,
-      {
-        strictOutOfSync: options.strictOutOfSync,
-        dev: options.dev,
-      },
-      targetFiles,
+    debug(
+      `Error during detecting or processing ${packageManager} Workspaces: `,
+      e,
     );
-
-    const unprocessedFiles = filterOutProcessedWorkspaces(
-      root,
-      scannedProjects,
-      targetFiles,
-      'yarn.lock',
-    );
-    return { scannedProjects, unprocessedFiles };
-  } catch (e) {
-    debug('Error during detecting or processing Yarn Workspaces: ', e);
-    return { scannedProjects: [], unprocessedFiles: targetFiles };
-  }
-}
-
-async function processNpmWorkspacesProjects(
-  root: string,
-  options: Options & (TestOptions | MonitorOptions),
-  targetFiles: string[],
-): Promise<{
-  scannedProjects: ScannedProjectCustom[];
-  unprocessedFiles: string[];
-}> {
-  try {
-    const { scannedProjects } = await processNpmWorkspaces(
-      root,
-      {
-        strictOutOfSync: options.strictOutOfSync,
-        dev: options.dev,
-      },
-      targetFiles,
-    );
-
-    const unprocessedFiles = filterOutProcessedWorkspaces(
-      root,
-      scannedProjects,
-      targetFiles,
-      'package-lock.json',
-    );
-    return { scannedProjects, unprocessedFiles };
-  } catch (e) {
-    debug('Error during detecting or processing Npm Workspaces: ', e);
     return { scannedProjects: [], unprocessedFiles: targetFiles };
   }
 }

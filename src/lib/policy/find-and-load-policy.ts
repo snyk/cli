@@ -3,10 +3,7 @@ import * as debugModule from 'debug';
 import { PackageExpanded } from 'snyk-resolve-deps';
 
 import { pluckPolicies } from '.';
-import {
-  SupportedPackageManagers,
-  SupportedPackageManagersUnderFeatureFlag,
-} from '../package-managers';
+import { SupportedPackageManagers } from '../package-managers';
 import { PackageJson, PolicyOptions } from '../types';
 import * as analytics from '../analytics';
 
@@ -14,12 +11,7 @@ const debug = debugModule('snyk');
 
 export async function findAndLoadPolicy(
   root: string,
-  scanType:
-    | SupportedPackageManagers
-    | SupportedPackageManagersUnderFeatureFlag
-    | 'docker'
-    | 'iac'
-    | 'cpp',
+  scanType: SupportedPackageManagers | 'docker' | 'iac' | 'cpp',
   options: PolicyOptions,
   pkg?: PackageExpanded,
   scannedProjectFolder?: string,

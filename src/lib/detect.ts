@@ -5,14 +5,13 @@ import { NoSupportedManifestsFoundError } from './errors';
 import {
   SupportedPackageManagers,
   SUPPORTED_MANIFEST_FILES,
-  SUPPORTED_MANIFEST_FILES_UNDER_FF,
-  SupportedPackageManagersUnderFeatureFlag,
-  PACKAGE_MANAGERS_FEATURE_FLAGS_MAP,
+  PNPM_FEATURE_FLAG,
 } from './package-managers';
 
 const debug = debugLib('snyk-detect');
 
 const DETECTABLE_FILES: string[] = [
+  'pnpm-lock.yaml',
   'yarn.lock',
   'package-lock.json',
   'package.json',
@@ -41,6 +40,7 @@ const DETECTABLE_FILES: string[] = [
 ];
 
 export const AUTO_DETECTABLE_FILES: string[] = [
+  'pnpm-lock.yaml',
   'package-lock.json',
   'yarn.lock',
   'package.json',
@@ -68,10 +68,6 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'Package.swift',
 ];
 
-export const AUTO_DETECTABLE_FILES_UNDER_FF = {
-  pnpm: 'pnpm-lock.yaml',
-};
-
 // when file is specified with --file, we look it up here
 // this is also used when --all-projects flag is enabled and auto detection plugin is triggered
 const DETECTABLE_PACKAGE_MANAGERS: {
@@ -88,6 +84,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   [SUPPORTED_MANIFEST_FILES.BUILD_GRADLE_KTS]: 'gradle',
   [SUPPORTED_MANIFEST_FILES.BUILD_SBT]: 'sbt',
   [SUPPORTED_MANIFEST_FILES.YARN_LOCK]: 'yarn',
+  [SUPPORTED_MANIFEST_FILES.PNPM_LOCK]: 'pnpm',
   [SUPPORTED_MANIFEST_FILES.PACKAGE_JSON]: 'npm',
   [SUPPORTED_MANIFEST_FILES.PIPFILE]: 'pip',
   [SUPPORTED_MANIFEST_FILES.SETUP_PY]: 'pip',
@@ -109,31 +106,15 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   [SUPPORTED_MANIFEST_FILES.PACKAGE_SWIFT]: 'swift',
 };
 
-export const DETECTABLE_PACKAGE_MANAGERS_UNDER_FF: {
-  [key in SUPPORTED_MANIFEST_FILES_UNDER_FF]: SupportedPackageManagersUnderFeatureFlag;
-} = {
-  [SUPPORTED_MANIFEST_FILES_UNDER_FF.PNPM_LOCK]: 'pnpm',
-};
-
 export function isPathToPackageFile(
   path: string,
   featureFlags: Set<string> = new Set<string>(),
 ) {
-  for (const fileName of Object.keys(DETECTABLE_PACKAGE_MANAGERS)) {
-    if (
-      path.endsWith(fileName) &&
-      featureFlags.has(
-        PACKAGE_MANAGERS_FEATURE_FLAGS_MAP[
-          DETECTABLE_PACKAGE_MANAGERS_UNDER_FF[fileName]
-        ],
-      )
-    ) {
-      return true;
-    }
-  }
-
   for (const fileName of DETECTABLE_FILES) {
     if (path.endsWith(fileName)) {
+      if (!isFileCompatible(fileName, featureFlags)) {
+        continue;
+      }
       return true;
     }
   }
@@ -202,25 +183,31 @@ export function isLocalFolder(root: string) {
   }
 }
 
+function isFileCompatible(
+  file: string,
+  featureFlags: Set<string> = new Set<string>(),
+) {
+  if (
+    file === SUPPORTED_MANIFEST_FILES.PNPM_LOCK &&
+    !featureFlags.has(PNPM_FEATURE_FLAG)
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function detectPackageFile(
   root: string,
   featureFlags: Set<string> = new Set<string>(),
 ) {
-  for (const file of Object.keys(DETECTABLE_PACKAGE_MANAGERS_UNDER_FF)) {
-    if (
-      fs.existsSync(pathLib.resolve(root, file)) &&
-      featureFlags.has(
-        PACKAGE_MANAGERS_FEATURE_FLAGS_MAP[
-          DETECTABLE_PACKAGE_MANAGERS_UNDER_FF[file]
-        ],
-      )
-    ) {
-      return file;
-    }
-  }
-
   for (const file of DETECTABLE_FILES) {
     if (fs.existsSync(pathLib.resolve(root, file))) {
+      if (!isFileCompatible(file, featureFlags)) {
+        debug(
+          `found pnpm lockfile ${file} in ${root}, but ${PNPM_FEATURE_FLAG} not enabled`,
+        );
+        continue;
+      }
       debug('found package file ' + file + ' in ' + root);
       return file;
     }
@@ -231,7 +218,7 @@ export function detectPackageFile(
 export function detectPackageManagerFromFile(
   file: string,
   featureFlags: Set<string> = new Set<string>(),
-): SupportedPackageManagers | SupportedPackageManagersUnderFeatureFlag {
+): SupportedPackageManagers {
   let key = pathLib.basename(file);
 
   // TODO: fix this to use glob matching instead
@@ -248,26 +235,13 @@ export function detectPackageManagerFromFile(
     key = '.war';
   }
 
-  if (
-    !(key in DETECTABLE_PACKAGE_MANAGERS) &&
-    !(key in DETECTABLE_PACKAGE_MANAGERS_UNDER_FF)
-  ) {
+  if (!(key in DETECTABLE_PACKAGE_MANAGERS)) {
     // we throw and error here because the file was specified by the user
     throw new Error('Could not detect package manager for file: ' + file);
   }
 
-  if (key in DETECTABLE_PACKAGE_MANAGERS_UNDER_FF) {
-    if (
-      featureFlags.has(
-        PACKAGE_MANAGERS_FEATURE_FLAGS_MAP[
-          DETECTABLE_PACKAGE_MANAGERS_UNDER_FF[key]
-        ],
-      )
-    ) {
-      return DETECTABLE_PACKAGE_MANAGERS_UNDER_FF[key];
-    } else {
-      throw new Error('Could not detect package manager for file: ' + file);
-    }
+  if (!isFileCompatible(key, featureFlags)) {
+    throw new Error('Could not detect package manager for file: ' + file);
   }
 
   return DETECTABLE_PACKAGE_MANAGERS[key];

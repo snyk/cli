@@ -15,14 +15,12 @@ import {
   detectPackageFile,
   AUTO_DETECTABLE_FILES,
   detectPackageManagerFromFile,
-  AUTO_DETECTABLE_FILES_UNDER_FF,
 } from '../detect';
 import analytics = require('../analytics');
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
-import { PACKAGE_MANAGERS_FEATURE_FLAGS_MAP } from '../package-managers';
 
 const debug = debugModule('snyk-test');
 
@@ -48,17 +46,10 @@ export async function getDepsFromPlugin(
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
 
-    const files = multiProjectProcessors[scanType].files;
-    Object.keys(AUTO_DETECTABLE_FILES_UNDER_FF).forEach((pkgManager) => {
-      if (featureFlags.has(PACKAGE_MANAGERS_FEATURE_FLAGS_MAP[pkgManager])) {
-        files.push(AUTO_DETECTABLE_FILES_UNDER_FF[pkgManager]);
-      }
-    });
-
     const { files: targetFiles, allFilesFound } = await find(
       root,
       ignore,
-      files,
+      multiProjectProcessors[scanType].files,
       featureFlags,
       levelsDeep,
     );
@@ -111,7 +102,7 @@ export async function getDepsFromPlugin(
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);
   }
-  const inspectRes = await getSinglePluginResult(root, options, featureFlags);
+  const inspectRes = await getSinglePluginResult(root, options);
 
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package && !inspectRes.dependencyGraph) {

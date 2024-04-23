@@ -72,7 +72,10 @@ import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
 import { sleep } from '../common';
-import { PNPM_FEATURE_FLAG } from '../package-managers';
+import {
+  PNPM_FEATURE_FLAG,
+  SUPPORTED_MANIFEST_FILES,
+} from '../package-managers';
 
 const debug = debugModule('snyk:run-test');
 
@@ -832,7 +835,7 @@ async function assembleLocalPayloads(
 
       if (packageManager === 'pnpm' && featureFlags.has(PNPM_FEATURE_FLAG)) {
         const isLockFileBased =
-          targetFile && targetFile.endsWith('pnpm-lock.yaml');
+          targetFile && targetFile.endsWith(SUPPORTED_MANIFEST_FILES.PNPM_LOCK);
         if (!isLockFileBased || options.traverseNodeModules) {
           payload.modules = pkg as DepTreeFromResolveDeps; // See the output of resolve-deps
         }
