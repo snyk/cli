@@ -10,8 +10,7 @@ export async function getSinglePluginResult(
   options: Options & (TestOptions | MonitorOptions),
   targetFile?: string,
 ): Promise<pluginApi.InspectResult> {
-  let plugin: types.Plugin;
-  plugin = plugins.loadPlugin(options.packageManager);
+  const plugin: types.Plugin = plugins.loadPlugin(options.packageManager);
   const moduleInfo = ModuleInfo(plugin, options.policy);
   const inspectRes: pluginApi.InspectResult = await moduleInfo.inspect(
     root,

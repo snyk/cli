@@ -46,13 +46,13 @@ export async function getDepsFromPlugin(
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
 
-    const { files: targetFiles, allFilesFound } = await find(
-      root,
+    const { files: targetFiles, allFilesFound } = await find({
+      path: root,
       ignore,
-      multiProjectProcessors[scanType].files,
+      filter: multiProjectProcessors[scanType].files,
       featureFlags,
       levelsDeep,
-    );
+    });
     debug(
       `auto detect manifest files, found ${targetFiles.length}`,
       targetFiles,

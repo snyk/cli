@@ -19,11 +19,11 @@ export async function getExtraProjectCount(
     return inspectResult.plugin.meta.allSubProjectNames.length;
   }
   try {
-    const { files: extraTargetFiles } = await find(
-      root,
-      [],
-      AUTO_DETECTABLE_FILES,
-    );
+    const { files: extraTargetFiles } = await find({
+      path: root,
+      ignore: [],
+      filter: AUTO_DETECTABLE_FILES,
+    });
     const foundProjectsCount =
       extraTargetFiles.length > 1 ? extraTargetFiles.length - 1 : undefined;
     return foundProjectsCount;
