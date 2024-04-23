@@ -723,8 +723,8 @@ github.com/skeema/knownhosts v1.2.2 h1:Iug2P4fLmDw9f41PB6thxUkNUkJzB5i+1/exaj40L
 github.com/skeema/knownhosts v1.2.2/go.mod h1:xYbVRSPxqBZFrdmDyMmsOs+uX1UZC3nTN3ThzgDxUwo=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20230926124856-b0fdf1ee6f73 h1:rwdJzpPWkWWf7csbv871GoKgRGwJ4GVNXMSsO0cRuLk=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20230926124856-b0fdf1ee6f73/go.mod h1:QF3v8HBpOpyudYNCuR8LqfULutO76c91sBdLzD+pBJU=
-github.com/snyk/cli-extension-iac-rules v0.0.0-20240404084125-0098857e0e1a h1:pvj3bsgPMmYma56TU+rjFsulqS2kV1D2kBg1mVb8Et4=
-github.com/snyk/cli-extension-iac-rules v0.0.0-20240404084125-0098857e0e1a/go.mod h1:4c6XS4n6mWbJM9md3r4B2NFgjs2tyi8GzGlz1BbWIx0=
+github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672 h1:AkLej8Lk//vFex1fiygSYFrQTUd0xP+GyRbsI+m2kwQ=
+github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672/go.mod h1:2vKTUsW73sVbDcyD19iNLfN0so2GSu9BE3k/fqG0mjA=
 github.com/snyk/cli-extension-sbom v0.0.0-20240418082712-4732b4b2d7b3 h1:2dOzIy4L0LRH7EnMw//80K510ZgoXiDPpylpGNRSZTI=
 github.com/snyk/cli-extension-sbom v0.0.0-20240418082712-4732b4b2d7b3/go.mod h1:lqmQT+QdzLdfi7qsqIH4qvCsSWu+P09GDFwQcmFfC0g=
 github.com/snyk/code-client-go v1.5.3 h1:EnHogM2uNnvkrfIJbkOGa9X1bOkU6bJR/QRQCwbK9gQ=
