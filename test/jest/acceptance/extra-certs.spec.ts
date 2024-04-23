@@ -41,7 +41,7 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
       { cwd: 'cliv2', env: { ...process.env, SNYK_DNS_NAMES: 'localhost' } },
     );
 
-    console.debug(res.stderr);
+    console.log(res.stderr);
     expect(res.code).toBe(0);
 
     // setup https server
