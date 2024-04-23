@@ -21,3 +21,5 @@ patch: {}
 exclude:
   code:
     - test/**
+    # Remove the following line, once we can apply consistent ignores via the Web UI
+    - scripts/upgrade-snyk-go-dependencies.go
