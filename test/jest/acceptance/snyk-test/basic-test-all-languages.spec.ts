@@ -1,4 +1,7 @@
-import { createProjectFromWorkspace } from '../../util/createProject';
+import {
+  createProjectFromFixture,
+  createProjectFromWorkspace,
+} from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { runCommand } from '../../util/runCommand';
@@ -407,5 +410,47 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     } else {
       console.warn('sbt not found, skipping test!');
     }
+  });
+
+  test('run `snyk test` on a pnpm project', async () => {
+    const project = await createProjectFromFixture('pnpm-app');
+
+    const { code } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+  });
+
+  test('run `snyk test` on a pnpm project without `enablePnpmCli` feature flag enabled', async () => {
+    server.setFeatureFlag('enablePnpmCli', false);
+    const project = await createProjectFromFixture('pnpm-app');
+
+    const { code, stdout } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(stdout).toMatch('Target file:       package.json');
+    expect(stdout).toMatch('Package manager:   npm');
+
+    expect(code).toEqual(0);
+  });
+
+  test('run `snyk test` on a pnpm project with `enablePnpmCli` feature flag enabled', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture('pnpm-app');
+
+    const { code, stdout } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(stdout).toMatch('Target file:       pnpm-lock.yaml');
+    expect(stdout).toMatch('Package manager:   pnpm');
+
+    expect(code).toEqual(0);
   });
 });
