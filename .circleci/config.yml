@@ -396,7 +396,9 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
 
       - test-node:
           context:
@@ -406,7 +408,9 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
 
       - test-go:
           go_target_os: linux
@@ -420,7 +424,9 @@ workflows:
             - secrets-scan
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
 
       - test-legacy-tap:
           context:
@@ -430,7 +436,9 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
 
       - build-special-artifacts:
           name: build fix & protect
@@ -511,7 +519,9 @@ workflows:
           context: team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build linux amd64
           test_snyk_command: ./binary-releases/snyk-linux
@@ -523,7 +533,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build linux amd64
           executor: docker-amd64-xl
@@ -536,7 +548,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build linux arm64
           executor: docker-arm64
@@ -552,7 +566,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build linux arm64
 
@@ -563,7 +579,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build alpine amd64
           executor: alpine
@@ -578,7 +596,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build macOS arm64
           executor: macos-arm64
@@ -592,7 +612,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build windows amd64
           executor: win-server2022-amd64
@@ -616,6 +638,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - sign:
@@ -631,6 +654,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - sign:
@@ -646,6 +670,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - create_deployment_artifacts:
@@ -663,6 +688,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - should-release:
@@ -674,6 +700,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - pre-release:
@@ -685,6 +712,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - npm-validation:
@@ -702,6 +730,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - test-release:
@@ -730,6 +759,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - test-release:
@@ -745,6 +775,7 @@ workflows:
             branches:
               only:
                 - main
+                - '/release.*/'
                 - '/.*e2e.*/'
 
       - test-release:
