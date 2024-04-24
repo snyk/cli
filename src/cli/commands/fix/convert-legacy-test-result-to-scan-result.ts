@@ -1,8 +1,8 @@
 import { ScanResult } from '../../../lib/ecosystems/types';
-import { TestResult } from '../../../lib/snyk-test/legacy';
+import { LegacyTestResult } from '../../../lib/snyk-test/legacy';
 
 export function convertLegacyTestResultToScanResult(
-  testResult: TestResult,
+  testResult: LegacyTestResult,
 ): ScanResult {
   if (!testResult.packageManager) {
     throw new Error(

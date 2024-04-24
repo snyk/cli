@@ -1,8 +1,8 @@
-import { TestResult } from '../../../lib/snyk-test/legacy';
+import { LegacyTestResult } from '../../../lib/snyk-test/legacy';
 
 export function getPathWithOptionalProjectName(
   currPath: string,
-  testResult: Pick<TestResult, 'projectName'>,
+  testResult: Pick<LegacyTestResult, 'projectName'>,
 ): string {
   let projectName = testResult.projectName;
   if (projectName) {

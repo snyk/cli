@@ -7,7 +7,7 @@ import {
   Options,
   TestOptions,
 } from '../../../../lib/types';
-import { TestResult } from '../../../../lib/snyk-test/legacy';
+import { LegacyTestResult } from '../../../../lib/snyk-test/legacy';
 
 import * as utils from '../utils';
 import { spinnerMessage } from '../../../../lib/formatters/iac-output/text';
@@ -80,7 +80,7 @@ export async function scan(
       testOpts.path = path;
       testOpts.projectName = testOpts['project-name'];
 
-      let res: (TestResult | TestResult[]) | Error;
+      let res: (LegacyTestResult | LegacyTestResult[]) | Error;
       try {
         assertIntegratedIaCOnlyOptions(iacOrgSettings, process.argv);
         assertIaCOptionsFlags(process.argv);

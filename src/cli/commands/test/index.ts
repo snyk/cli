@@ -11,7 +11,10 @@ import * as snyk from '../../../lib';
 import { Options, TestOptions } from '../../../lib/types';
 import { MethodArgs } from '../../args';
 import { TestCommandResult } from '../../commands/types';
-import { LegacyVulnApiResult, TestResult } from '../../../lib/snyk-test/legacy';
+import {
+  LegacyVulnApiResult,
+  LegacyTestResult,
+} from '../../../lib/snyk-test/legacy';
 
 import {
   summariseErrorResults,
@@ -151,7 +154,7 @@ export default async function test(
     testOpts.path = path;
     testOpts.projectName = testOpts['project-name'];
 
-    let res: (TestResult | TestResult[]) | Error;
+    let res: (LegacyTestResult | LegacyTestResult[]) | Error;
     try {
       res = await snyk.test(path, testOpts);
     } catch (error) {

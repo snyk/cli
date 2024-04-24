@@ -3,7 +3,7 @@ import * as upperFirst from 'lodash.upperfirst';
 import * as groupBy from 'lodash.groupby';
 import * as map from 'lodash.map';
 
-import { TestResult, AnnotatedIssue } from '../snyk-test/legacy';
+import { LegacyTestResult, AnnotatedIssue } from '../snyk-test/legacy';
 import { getResults } from './get-sarif-result';
 
 const LOCK_FILES_TO_MANIFEST_MAP = {
@@ -18,7 +18,7 @@ const LOCK_FILES_TO_MANIFEST_MAP = {
 };
 
 export function createSarifOutputForOpenSource(
-  testResults: TestResult[],
+  testResults: LegacyTestResult[],
 ): sarif.Log {
   return {
     $schema:
@@ -39,7 +39,9 @@ export function createSarifOutputForOpenSource(
   };
 }
 
-function replaceLockfileWithManifest(testResult: TestResult): TestResult {
+function replaceLockfileWithManifest(
+  testResult: LegacyTestResult,
+): LegacyTestResult {
   let targetFile = testResult.displayTargetFile || '';
   for (const [key, replacer] of Object.entries(LOCK_FILES_TO_MANIFEST_MAP)) {
     targetFile = targetFile.replace(new RegExp(key, 'g'), replacer);
@@ -51,7 +53,9 @@ function replaceLockfileWithManifest(testResult: TestResult): TestResult {
   };
 }
 
-export function getRules(testResult: TestResult): sarif.ReportingDescriptor[] {
+export function getRules(
+  testResult: LegacyTestResult,
+): sarif.ReportingDescriptor[] {
   const groupedVulnerabilities = groupBy(testResult.vulnerabilities, 'id');
   return map(
     groupedVulnerabilities,

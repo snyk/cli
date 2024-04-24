@@ -7,7 +7,7 @@ import {
 import {
   GroupedVuln,
   SEVERITY,
-  TestResult,
+  LegacyTestResult,
   VulnMetaData,
 } from '../../snyk-test/legacy';
 import chalk from 'chalk';
@@ -135,7 +135,7 @@ export function createErrorMappedResultsForJsonOutput(results) {
 }
 
 export function getDisplayedOutput(
-  res: TestResult,
+  res: LegacyTestResult,
   options: Options & TestOptions,
   testedInfoText: string,
   localPackageTest: any,
@@ -254,7 +254,7 @@ export function dockerUserCTA(options) {
 
 function getDockerSuggestionText(
   options: Options & TestOptions,
-  result: TestResult,
+  result: LegacyTestResult,
 ): string {
   if (
     config?.disableSuggestions === 'true' ||

@@ -1,12 +1,12 @@
 import chalk from 'chalk';
 
 import { isLocalFolder } from '../detect';
-import { TestResult } from '../snyk-test/legacy';
+import { LegacyTestResult } from '../snyk-test/legacy';
 import { Options, SupportedProjectTypes, TestOptions } from '../types';
 
 export function showFixTip(
   projectType: SupportedProjectTypes,
-  res: TestResult,
+  res: LegacyTestResult,
   options: TestOptions & Options,
 ): string {
   const snykFixSupported: SupportedProjectTypes[] = ['pip', 'poetry'];

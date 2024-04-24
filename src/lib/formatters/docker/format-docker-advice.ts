@@ -1,10 +1,10 @@
 import chalk from 'chalk';
 import {
-  TestResult,
+  LegacyTestResult,
   BaseImageRemediationAdvice,
 } from '../../../lib/snyk-test/legacy';
 
-export function dockerRemediationForDisplay(res: TestResult) {
+export function dockerRemediationForDisplay(res: LegacyTestResult) {
   if (!res.docker || !res.docker.baseImageRemediation) {
     return '';
   }

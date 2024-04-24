@@ -18,7 +18,7 @@ import {
   LegacyVulnApiResult,
   TestDependenciesResponse,
   TestDepGraphResponse,
-  TestResult,
+  LegacyTestResult,
 } from './legacy';
 import {
   AuthFailedError,
@@ -224,8 +224,8 @@ async function sendAndParseResults(
   spinnerLbl: string,
   root: string,
   options: Options & TestOptions,
-): Promise<TestResult[]> {
-  const results: TestResult[] = [];
+): Promise<LegacyTestResult[]> {
+  const results: LegacyTestResult[] = [];
 
   await spinner.clear<void>(spinnerLbl)();
   if (!options.quiet) {
@@ -331,13 +331,13 @@ export async function runTest(
   projectType: SupportedProjectTypes | undefined,
   root: string,
   options: Options & TestOptions,
-): Promise<TestResult[]> {
+): Promise<LegacyTestResult[]> {
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
     const payloads = await assemblePayloads(root, options);
 
     if (options['print-graph'] && !options['print-deps']) {
-      const results: TestResult[] = [];
+      const results: LegacyTestResult[] = [];
       return results;
     }
 
@@ -392,7 +392,7 @@ async function parseRes(
   payloadPolicy: string | undefined,
   root: string,
   dockerfilePackages: any,
-): Promise<TestResult> {
+): Promise<LegacyTestResult> {
   // TODO: docker doesn't have a package manager
   // so this flow will not be applicable
   // refactor to separate

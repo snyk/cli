@@ -7,7 +7,7 @@ import {
   TestOptions,
 } from '../../../lib/types';
 import { isLocalFolder } from '../../../lib/detect';
-import { TestResult } from '../../../lib/snyk-test/legacy';
+import { LegacyTestResult } from '../../../lib/snyk-test/legacy';
 
 import {
   dockerRemediationForDisplay,
@@ -25,7 +25,7 @@ import { showMultiScanTip } from '../show-multi-scan-tip';
 import * as theme from '../../theme';
 
 export function displayResult(
-  res: TestResult,
+  res: LegacyTestResult,
   options: Options & TestOptions,
   foundProjectCount?: number,
 ) {
@@ -117,7 +117,7 @@ export function displayResult(
   // NOT OK => We found some vulns, let's format the vulns info
 
   return getDisplayedOutput(
-    res as TestResult,
+    res as LegacyTestResult,
     options,
     testedInfoText,
     localPackageTest,

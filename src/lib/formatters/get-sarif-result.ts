@@ -2,9 +2,13 @@ import * as sarif from 'sarif';
 import * as groupBy from 'lodash.groupby';
 import * as map from 'lodash.map';
 
-import { SEVERITY, TestResult, AnnotatedIssue } from '../snyk-test/legacy';
+import {
+  SEVERITY,
+  LegacyTestResult,
+  AnnotatedIssue,
+} from '../snyk-test/legacy';
 
-export function getResults(testResult: TestResult): sarif.Result[] {
+export function getResults(testResult: LegacyTestResult): sarif.Result[] {
   const groupedVulnerabilities = groupBy(testResult.vulnerabilities, 'id');
   return map(
     groupedVulnerabilities,

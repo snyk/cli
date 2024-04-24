@@ -7,7 +7,7 @@ import { SEVERITY } from '../../../../../lib/snyk-test/common';
 import {
   AnnotatedIssue,
   IgnoreSettings,
-  TestResult,
+  LegacyTestResult,
 } from '../../../../../lib/snyk-test/legacy';
 import {
   IacFileInDirectory,
@@ -412,7 +412,7 @@ export enum IaCErrorCodes {
 }
 
 export interface TestReturnValue {
-  results: TestResult | TestResult[];
+  results: LegacyTestResult | LegacyTestResult[];
   failures?: IacFileInDirectory[];
   ignoreCount: number;
 }

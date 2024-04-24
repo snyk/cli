@@ -179,7 +179,7 @@ export interface BaseImageRemediationAdvice {
   color?: string;
 }
 
-export interface TestResult extends LegacyVulnApiResult {
+export interface LegacyTestResult extends LegacyVulnApiResult {
   targetFile?: string;
   projectName?: string;
   targetFilePath?: string;

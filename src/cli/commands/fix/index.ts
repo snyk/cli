@@ -4,7 +4,7 @@ import * as ora from 'ora';
 
 import { MethodArgs } from '../../args';
 import * as snyk from '../../../lib';
-import { TestResult } from '../../../lib/snyk-test/legacy';
+import { LegacyTestResult } from '../../../lib/snyk-test/legacy';
 import * as analytics from '../../../lib/analytics';
 
 import { convertLegacyTestResultToFixEntities } from './convert-legacy-tests-results-to-fix-entities';
@@ -123,12 +123,14 @@ async function runSnykTestLegacy(
         projectName: options['project-name'],
       };
 
-      const testResults: TestResult[] = [];
+      const testResults: LegacyTestResult[] = [];
 
-      const testResultForPath: TestResult | TestResult[] = await snyk.test(
-        path,
-        { ...snykTestOptions, quiet: true },
-      );
+      const testResultForPath:
+        | LegacyTestResult
+        | LegacyTestResult[] = await snyk.test(path, {
+        ...snykTestOptions,
+        quiet: true,
+      });
       testResults.push(
         ...(Array.isArray(testResultForPath)
           ? testResultForPath

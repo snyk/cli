@@ -13,7 +13,7 @@ import {
 } from './types';
 import { addIacAnalytics } from './analytics';
 import { TestLimitReachedError } from './usage-tracking';
-import { TestResult } from '../../../../../lib/snyk-test/legacy';
+import { LegacyTestResult } from '../../../../../lib/snyk-test/legacy';
 import {
   applyCustomSeverities,
   loadContentForFiles,
@@ -134,7 +134,7 @@ export async function test(
 
   // TODO: add support for proper typing of old TestResult interface.
   return {
-    results: (filteredIssues as unknown) as TestResult[],
+    results: (filteredIssues as unknown) as LegacyTestResult[],
     failures,
     ignoreCount,
   };

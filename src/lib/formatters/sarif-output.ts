@@ -1,11 +1,11 @@
 import * as sarif from 'sarif';
 import * as upperFirst from 'lodash.upperfirst';
-import { AnnotatedIssue, TestResult } from '../snyk-test/legacy';
+import { AnnotatedIssue, LegacyTestResult } from '../snyk-test/legacy';
 import { SEVERITY } from '../snyk-test/legacy';
 import { getResults } from './get-sarif-result';
 
 export function createSarifOutputForContainers(
-  testResults: TestResult[],
+  testResults: LegacyTestResult[],
 ): sarif.Log {
   const sarifRes: sarif.Log = {
     $schema:

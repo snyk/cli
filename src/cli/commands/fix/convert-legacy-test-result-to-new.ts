@@ -2,7 +2,7 @@ import { DepGraphData } from '@snyk/dep-graph';
 import { IssuesData, Issue, TestResult } from '../../../lib/ecosystems/types';
 import {
   AnnotatedIssue,
-  TestResult as LegacyTestResult,
+  LegacyTestResult,
 } from '../../../lib/snyk-test/legacy';
 
 function convertVulnerabilities(

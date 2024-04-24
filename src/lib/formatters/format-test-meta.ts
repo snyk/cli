@@ -1,11 +1,11 @@
 import chalk from 'chalk';
 import { rightPadWithSpaces } from '../../lib/right-pad';
 import { TestOptions, Options } from '../../lib/types';
-import { TestResult } from '../../lib/snyk-test/legacy';
+import { LegacyTestResult } from '../../lib/snyk-test/legacy';
 import { IacTestResponse } from '../../lib/snyk-test/iac-test-result';
 
 export function formatTestMeta(
-  res: TestResult | IacTestResponse,
+  res: LegacyTestResult | IacTestResponse,
   options: Options & TestOptions,
 ): string {
   const padToLength = 19; // chars to align
@@ -52,7 +52,7 @@ export function formatTestMeta(
     );
   }
   if (res.payloadType !== 'k8sconfig') {
-    const legacyRes: TestResult = res as TestResult;
+    const legacyRes: LegacyTestResult = res as LegacyTestResult;
     if (legacyRes.docker && legacyRes.docker.baseImage) {
       meta.push(
         chalk.bold(rightPadWithSpaces('Base image: ', padToLength)) +
