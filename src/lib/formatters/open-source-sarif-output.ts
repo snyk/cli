@@ -5,6 +5,7 @@ import * as map from 'lodash.map';
 
 import { TestResult, AnnotatedIssue } from '../snyk-test/legacy';
 import { getResults } from './get-sarif-result';
+import { getVersion } from '../../lib/version';
 
 const LOCK_FILES_TO_MANIFEST_MAP = {
   'Gemfile.lock': 'Gemfile',
@@ -28,6 +29,8 @@ export function createSarifOutputForOpenSource(
       tool: {
         driver: {
           name: 'Snyk Open Source',
+          version: getVersion(),
+          informationUri: 'https://docs.snyk.io/',
           properties: {
             artifactsScanned: testResult.dependencyCount,
           },
