@@ -29,6 +29,7 @@ export function createSarifOutputForOpenSource(
       tool: {
         driver: {
           name: 'Snyk Open Source',
+          semanticVersion: getVersion(),
           version: getVersion(),
           informationUri: 'https://docs.snyk.io/',
           properties: {

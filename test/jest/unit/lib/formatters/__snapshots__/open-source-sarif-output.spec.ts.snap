@@ -92,6 +92,7 @@ exports[`createSarifOutputForOpenSource general 1`] = `
               },
             },
           ],
+          "semanticVersion": "1.0.0-monorepo",
           "version": "1.0.0-monorepo",
         },
       },

@@ -37,6 +37,7 @@ export function getTool(testResult): sarif.Tool {
   const tool: sarif.Tool = {
     driver: {
       name: 'Snyk Container',
+      semanticVersion: getVersion(),
       version: getVersion(),
       informationUri: 'https://docs.snyk.io/',
       properties: {
