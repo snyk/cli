@@ -1,7 +1,11 @@
-import { createProjectFromWorkspace } from '../../util/createProject';
+import * as fs from 'fs';
+
+import {
+  createProject,
+  createProjectFromWorkspace,
+} from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
-import * as fs from 'fs';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -168,5 +172,19 @@ describe('snyk sbom (mocked server only)', () => {
         },
       ]),
     );
+  });
+
+  test('`sbom` retains the exit error code of the underlying SCA process', async () => {
+    const project = await createProject('empty');
+
+    const { code } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.5+json --debug`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toBe(3);
   });
 });
