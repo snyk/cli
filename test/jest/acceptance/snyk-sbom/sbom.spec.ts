@@ -177,7 +177,7 @@ describe('snyk sbom (mocked server only)', () => {
   test('`sbom` retains the exit error code of the underlying SCA process', async () => {
     const project = await createProject('empty');
 
-    const { code } = await runSnykCLI(
+    const { code, stdout } = await runSnykCLI(
       `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.5+json --debug`,
       {
         cwd: project.path(),
@@ -186,5 +186,8 @@ describe('snyk sbom (mocked server only)', () => {
     );
 
     expect(code).toBe(3);
+    expect(stdout).toContain(
+      'An error occurred while running the underlying analysis needed to generate the SBOM.',
+    );
   });
 });

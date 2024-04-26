@@ -400,4 +400,18 @@ func Test_displayError(t *testing.T) {
 			assert.Equal(t, "", b.String())
 		})
 	}
+
+	t.Run("prints messages of error wrapping exec.ExitError", func(t *testing.T) {
+		var b bytes.Buffer
+		config := configuration.NewInMemory()
+		err := &wrErr{wraps: &exec.ExitError{}}
+		displayError(err, &b, config)
+
+		assert.Equal(t, "something went wrong\n", b.String())
+	})
 }
+
+type wrErr struct{ wraps error }
+
+func (e *wrErr) Error() string { return "something went wrong" }
+func (e *wrErr) Unwrap() error { return e.wraps }
