@@ -57,6 +57,7 @@ exports[`createSarifOutputForOpenSource general 1`] = `
       ],
       "tool": {
         "driver": {
+          "informationUri": "https://docs.snyk.io/",
           "name": "Snyk Open Source",
           "properties": {
             "artifactsScanned": 969,
@@ -91,6 +92,8 @@ exports[`createSarifOutputForOpenSource general 1`] = `
               },
             },
           ],
+          "semanticVersion": "1.0.0-monorepo",
+          "version": "1.0.0-monorepo",
         },
       },
     },
