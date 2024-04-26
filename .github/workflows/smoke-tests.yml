@@ -18,14 +18,12 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
         snyk_install_method: [binary, npm, yarn, brew]
-        node_version: [14, 16, 18]
+        node_version: [16, 18]
         exclude:
           # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
           - snyk_install_method: yarn
             os: windows
-          # For binary, use only the Node 14
-          - snyk_install_method: binary
-            node_version: 12
+          # For binary, use only the Node 18
           - snyk_install_method: binary
             node_version: 16
           # No need to run brew tests on some Platforms
