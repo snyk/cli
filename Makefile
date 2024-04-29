@@ -96,6 +96,9 @@ $(BINARY_OUTPUT_FOLDER)/release.json:
 $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	npx conventional-changelog-cli -l -r 1 -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
 
+$(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips
+	@cp $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md
+
 # Generates a shasum of a target with the same name.
 # See "Automatic Variables" in GNU Make docs (linked at the top)
 %.sha256:
