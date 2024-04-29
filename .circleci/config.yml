@@ -1220,7 +1220,7 @@ jobs:
           command: make binary-releases/release.json
       - run:
           name: Making release notes
-          command: make binary-releases/RELEASE_NOTES.md
+          command: make binary-releases/RELEASE_NOTES.md binary-releases/fips/RELEASE_NOTES.md
       - run:
           name: Validating artifacts
           command: ./release-scripts/validate-checksums.sh
