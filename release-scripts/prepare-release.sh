@@ -24,6 +24,10 @@ fi
 # Generate the release notes baseline from the commits
 make binary-releases/RELEASE_NOTES.md clean-package-files format
 
+# if the release notes are generated locally, the version contains something like X.Y.Z-dev.hash
+# the replacement below ensures that the version in the RELEASE_NOTES.md is X.Y.Z
+sed -i "version" -e "s/$(cat binary-releases/version)/$(npx semver --coerce $(cat binary-releases/version))/g" binary-releases/RELEASE_NOTES.md
+
 # Commit and push the release notes
 git add -f binary-releases/RELEASE_NOTES.md
 git commit -m "docs: update release notes"
