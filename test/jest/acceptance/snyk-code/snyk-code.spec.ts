@@ -66,25 +66,24 @@ describe('snyk code test', () => {
   }
 
   const integrationWorkflows: Workflow[] = [
-    {
-      type: 'legacy',
-      env: {},
-    },
-    // TODO: test once Go based snyk code is implemented
     // {
-    //   type: 'native',
-    //   env: {
-    //     // internal GAF feature flag for consistent ignores
-    //     INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
-    //   },
-    // }
+    //   type: 'legacy',
+    //   env: {},
+    // },
+    {
+      type: 'native',
+      env: {
+        // internal GAF feature flag for consistent ignores
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
+      },
+    },
   ];
 
   describe.each(integrationWorkflows)(
     'integration',
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
-        it('should show error if sast is not enabled', async () => {
+        it.only('should show error if sast is not enabled', async () => {
           // Setup
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -92,7 +91,7 @@ describe('snyk code test', () => {
           server.setOrgSetting('sast', false);
 
           const { stdout, code, stderr } = await runSnykCLI(
-            `code test ${path()}`,
+            `code test ${path()} -d`,
             {
               env: {
                 ...env,

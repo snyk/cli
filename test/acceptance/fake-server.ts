@@ -113,6 +113,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   };
 
   const setNextResponse = (response: string | Record<string, unknown>) => {
+    console.log(`Fake server setNextResponse: ${response}`)
     if (typeof response === 'string') {
       nextResponse = JSON.parse(response);
       return;
