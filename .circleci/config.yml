@@ -397,7 +397,6 @@ workflows:
           filters:
             branches:
               ignore:
-                - main
                 - '/release.*/'
 
       - test-node:
