@@ -1,3 +1,7 @@
+---
+description: Generate an SBOM document from a local file system.
+---
+
 # SBOM
 
 ## Prerequisites

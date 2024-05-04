@@ -264,7 +264,7 @@ function vulnerabilitiesToIacIssues(
       lineNumber: v.resource.line || -1,
       documentation: v.rule.documentation, // only works for rules available on snyk.io
       isGeneratedByCustomRule: !!v.rule.isGeneratedByCustomRule,
-      path: v.resource.path || [], // needs to be fixed, currently doesn't show the full path
+      path: v?.resource?.formattedPath.split('.') || [],
       compliance: [],
       description: v.rule.description,
     };

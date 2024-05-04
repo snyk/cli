@@ -94,7 +94,10 @@ $(BINARY_OUTPUT_FOLDER)/release.json:
 #   :(exclude) syntax: https://git-scm.com/docs/gitglossary.html#Documentation/gitglossary.txt-exclude
 # Release notes uses version from package.json so we need to prepack beforehand.
 $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	npx conventional-changelog-cli -p angular -l -r 1 > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
+	npx conventional-changelog-cli -l -r 1 -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
+
+$(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips
+	@cp $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md
 
 # Generates a shasum of a target with the same name.
 # See "Automatic Variables" in GNU Make docs (linked at the top)
@@ -262,6 +265,16 @@ release-pre:
 	@./release-scripts/upload-artifacts.sh --dry-run preview latest github npm
 	@echo "-- Publishing to S3 /version"
 	@./release-scripts/upload-artifacts.sh version
+
+.PHONY: release-mgt-prepare
+release-mgt-prepare:
+	@echo "-- Preparing release"
+	@./release-scripts/prepare-release.sh
+
+.PHONY: release-mgt-create
+release-mgt-create:
+	@echo "-- Creating stable release"
+	@./release-scripts/create-release.sh
 
 .PHONY: format
 format:

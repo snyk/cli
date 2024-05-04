@@ -380,6 +380,7 @@ describe('cli args', () => {
       {
         env,
         cwd: project.path(),
+        logErrors: true,
       },
     );
 
@@ -401,6 +402,7 @@ describe('cli args', () => {
       {
         env,
         cwd: project.path(),
+        logErrors: true,
       },
     );
 
@@ -419,6 +421,7 @@ describe('cli args', () => {
       {
         env,
         cwd: project.path(),
+        logErrors: true,
       },
     );
 
@@ -436,6 +439,7 @@ describe('cli args', () => {
       {
         env,
         cwd: project.path(),
+        logErrors: true,
       },
     );
 
@@ -458,6 +462,7 @@ describe('cli args', () => {
         {
           env,
           cwd: project.path(),
+          logErrors: true,
         },
       );
       const jsonOutput = JSON.parse(stdout);

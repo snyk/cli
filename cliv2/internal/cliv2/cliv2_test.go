@@ -2,6 +2,7 @@ package cliv2_test
 
 import (
 	"context"
+	"errors"
 	"io"
 	"log"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
@@ -483,4 +485,24 @@ func Test_setTimeout(t *testing.T) {
 
 	// ensure that -1 is correctly mapped if timeout is set
 	assert.Equal(t, constants.SNYK_EXIT_CODE_EX_UNAVAILABLE, cliv2.DeriveExitCode(err))
+}
+
+func TestDeriveExitCode(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      error
+		expected int
+	}{
+		{name: "no error", err: nil, expected: constants.SNYK_EXIT_CODE_OK},
+		{name: "error with exit code", err: &cli_errors.ErrorWithExitCode{ExitCode: 42}, expected: 42},
+		{name: "context.DeadlineExceeded", err: context.DeadlineExceeded, expected: constants.SNYK_EXIT_CODE_EX_UNAVAILABLE},
+		{name: "other error", err: errors.New("some other error"), expected: constants.SNYK_EXIT_CODE_ERROR},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			exitCode := cliv2.DeriveExitCode(tc.err)
+			assert.Equal(t, tc.expected, exitCode)
+		})
+	}
 }

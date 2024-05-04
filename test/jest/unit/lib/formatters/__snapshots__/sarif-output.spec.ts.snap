@@ -34,6 +34,7 @@ exports[`createSarifOutputForContainers general with critical severity issue wit
       ],
       "tool": {
         "driver": {
+          "informationUri": "https://docs.snyk.io/",
           "name": "Snyk Container",
           "properties": {
             "artifactsScanned": 969,
@@ -83,6 +84,8 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
               },
             },
           ],
+          "semanticVersion": "1.0.0-monorepo",
+          "version": "1.0.0-monorepo",
         },
       },
     },
@@ -125,6 +128,7 @@ exports[`createSarifOutputForContainers general with critical severity issue wit
       ],
       "tool": {
         "driver": {
+          "informationUri": "https://docs.snyk.io/",
           "name": "Snyk Container",
           "properties": {
             "artifactsScanned": 969,
@@ -173,6 +177,8 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
               },
             },
           ],
+          "semanticVersion": "1.0.0-monorepo",
+          "version": "1.0.0-monorepo",
         },
       },
     },
@@ -215,6 +221,7 @@ exports[`createSarifOutputForContainers general with high severity issue 1`] = `
       ],
       "tool": {
         "driver": {
+          "informationUri": "https://docs.snyk.io/",
           "name": "Snyk Container",
           "properties": {
             "artifactsScanned": 969,
@@ -264,6 +271,8 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
               },
             },
           ],
+          "semanticVersion": "1.0.0-monorepo",
+          "version": "1.0.0-monorepo",
         },
       },
     },
