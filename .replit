@@ -1,0 +1,19 @@
+modules = ["nodejs-20:v8-20230920-bd784b9"]
+hidden = [".config", "package-lock.json"]
+run = "npm i @snyk/protect"
+compile = "npm install"
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix", "package.json", "package-lock.json"]
+
+[nix]
+channel = "stable-23_05"
+
+[unitTest]
+language = "nodejs"
+
+[deployment]
+run = ["sh", "-c", "npm i @snyk/protect"]
+deploymentTarget = "cloudrun"
+ignorePorts = false
+build = ["sh", "-c", "npm install"]
