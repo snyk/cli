@@ -370,8 +370,9 @@ func handleError(err error) HandleError {
 
 func displayError(err error, output io.Writer, config configuration.Configuration) {
 	if err != nil {
+		var exitError *exec.ExitError
 		var exitCode *cli_errors.ErrorWithExitCode
-		_, isExitError := err.(*exec.ExitError)
+		isExitError := errors.As(err, &exitError)
 		isErrorWithCode := errors.As(err, &exitCode)
 		if isExitError || isErrorWithCode {
 			return

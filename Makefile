@@ -94,10 +94,11 @@ $(BINARY_OUTPUT_FOLDER)/release.json:
 #   :(exclude) syntax: https://git-scm.com/docs/gitglossary.html#Documentation/gitglossary.txt-exclude
 # Release notes uses version from package.json so we need to prepack beforehand.
 $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	npx conventional-changelog-cli -l -r 1 -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
+	npx conventional-changelog-cli -p angular -l -r 1 > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
 
-$(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips
-	@cp $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md
+	# if the releease notes are generated locally, the version contains something like X.Y.Z-dev.hash
+	# the replacement below ensures that the version in the RELEASE_NOTES.md is X.Y.Z
+	sed -i -e "s/$(shell cat $(BINARY_OUTPUT_FOLDER)/version)/$(shell npx semver --coerce $(shell cat $(BINARY_OUTPUT_FOLDER)/version))/g" $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
 
 # Generates a shasum of a target with the same name.
 # See "Automatic Variables" in GNU Make docs (linked at the top)

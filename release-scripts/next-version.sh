@@ -7,17 +7,21 @@ NEXT_VERSION="$(convco version --bump)"
 CURRENT_TAG="$(git describe --tags `git rev-list --tags --max-count=1`)"
 RELEASE_CHANNEL="$($(dirname "$0")/determine-release-channel.sh)"
 
-valid_version_postfixes=("preview" "rc" "dev")
-postfix=""
+valid_version_postfixes=("preview" "rc")
+postfix="-dev.$(git rev-parse HEAD)"
 
 if [ "$RELEASE_CHANNEL" != "" ]; then
   # Check if the input string is in the list of valid strings
   for valid_str in "${valid_version_postfixes[@]}"; do
     if [ "$RELEASE_CHANNEL" == "$valid_str" ]; then
-        postfix="-$RELEASE_CHANNEL.$(git rev-parse HEAD)"
+        postfix="-$RELEASE_CHANNEL"
         break
     fi
   done
+fi
+
+if [ "$RELEASE_CHANNEL" == "stable" ]; then
+  postfix=""
 fi
 
 NEXT_VERSION="${NEXT_VERSION}${postfix}"

@@ -12,7 +12,6 @@ export const config: Options = {
     'ts-node', // used for various scripts to avoid separate compile step
     'jest-junit', // used for CI test reporting
     '@types/node', // node types used for alerts
-    'conventional-changelog-conventionalcommits', // used to configure generating release notes
   ],
   ignoreDirs: ['node_modules', 'dist', 'fixtures', 'test-output'],
 };
