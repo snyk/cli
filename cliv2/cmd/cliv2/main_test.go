@@ -591,7 +591,6 @@ func Test_displayError(t *testing.T) {
 		actualCode := cliv2.DeriveExitCode(err)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualCode)
 	})
-
 }
 
 type wrErr struct{ wraps error }

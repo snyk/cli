@@ -1,13 +1,7 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import (
-
-"slices"
-
-
-_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-)
+import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 
 import (
 	"context"
@@ -17,6 +11,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 	"time"
 
@@ -172,14 +167,12 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 
 func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, name string) error {
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
-	configuration := engine.GetConfiguration()
-
-	fmt.Println(configuration.GetString("severity-threshold"))
+	config := engine.GetConfiguration()
 
 	if err == nil {
 		_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
 		if err == nil {
-			err = getErrorFromWorkFlowData(data, configuration.GetString("severity-threshold"))
+			err = getErrorFromWorkFlowData(data, config.GetString("severity-threshold"))
 		}
 	} else {
 		logger.Print("Failed to execute the command!", err)
@@ -198,14 +191,12 @@ func getErrorFromWorkFlowData(data []workflow.Data, minSeverity string) error {
 
 			summary := json_schemas.TestSummary{}
 			err := json.Unmarshal(singleData, &summary)
-			// Severity order
+
 			defaultSummary := json_schemas.NewTestSummary("sast")
 			severityOrder := defaultSummary.SeverityOrderAsc
-			if (len(summary.SeverityOrderAsc) > 0) {
+			if len(summary.SeverityOrderAsc) > 0 {
 				severityOrder = summary.SeverityOrderAsc
 			}
-
-			// Min severity level
 			minSeverityLevel := slices.Index(severityOrder, minSeverity)
 
 			if err != nil {
@@ -215,7 +206,6 @@ func getErrorFromWorkFlowData(data []workflow.Data, minSeverity string) error {
 			// We are missing an understanding of ignored issues here
 			// this should be supported in the future
 			for _, result := range summary.Results {
-				// Get Severity Indexlega
 				satisfySeverityLevel := slices.Index(severityOrder, result.Severity) >= minSeverityLevel
 
 				if satisfySeverityLevel && result.Open > 0 {
