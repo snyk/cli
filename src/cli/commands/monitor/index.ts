@@ -103,7 +103,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     } else if (options['app-vulns']) {
       options['exclude-app-vulns'] = false;
     } else {
-      options['exclude-app-vulns'] = !(await hasFeatureFlag(
+      options['exclude-app-vulns'] = !(`await hasFeatureFlag(
         'containerCliAppVulnsEnabled',
         options,
       ));

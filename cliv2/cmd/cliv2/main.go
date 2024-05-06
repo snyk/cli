@@ -1,7 +1,13 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+import (
+
+"slices"
+
+
+_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+)
 
 import (
 	"context"
@@ -179,6 +185,11 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 }
 
 func getErrorFromWorkFlowData(data []workflow.Data) error {
+	// Severity order
+	severityOrder := []string{"low", "medium", "high", "critical"}
+	// Min severity level
+	minSeverityLevel := slices.Index(severityOrder, "high")
+
 	for i := range data {
 		mimeType := data[i].GetContentType()
 		if strings.EqualFold(mimeType, content_type.TEST_SUMMARY) {
@@ -188,8 +199,8 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 			}
 
 			summary := json_schemas.TestSummary{}
-
 			err := json.Unmarshal(singleData, &summary)
+
 			if err != nil {
 				return fmt.Errorf("failed to parse test summary payload: %w", err)
 			}
@@ -197,7 +208,10 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 			// We are missing an understanding of ignored issues here
 			// this should be supported in the future
 			for _, result := range summary.Results {
-				if result.Open > 0 {
+				// Get Severity Index
+				satisfySeverityLevel := slices.Index(severityOrder, result.Severity) >= minSeverityLevel
+
+				if satisfySeverityLevel && result.Open > 0 {
 					return &cli_errors.ErrorWithExitCode{
 						ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
 					}
