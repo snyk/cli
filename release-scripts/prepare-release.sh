@@ -22,11 +22,13 @@ if [ -f binary-releases/RELEASE_NOTES.md ]; then
 fi
 
 # Generate the release notes baseline from the commits
-make binary-releases/RELEASE_NOTES.md clean-package-files format
+make binary-releases/RELEASE_NOTES.md format
 
 # if the release notes are generated locally, the version contains something like X.Y.Z-dev.hash
 # the replacement below ensures that the version in the RELEASE_NOTES.md is X.Y.Z
-sed -i "version" -e "s/$(cat binary-releases/version)/$(npx semver --coerce $(cat binary-releases/version))/g" binary-releases/RELEASE_NOTES.md
+VERSION_TO_REPLACE=$(npm pkg get version | tr -d '"')
+VERSION_TO_REPLACE_WITH=$(npx semver --coerce $(cat binary-releases/version))
+sed -i "version" -e "s/$VERSION_TO_REPLACE/$VERSION_TO_REPLACE_WITH/g" binary-releases/RELEASE_NOTES.md
 
 # Commit and push the release notes
 git add -f binary-releases/RELEASE_NOTES.md

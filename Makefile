@@ -93,7 +93,7 @@ $(BINARY_OUTPUT_FOLDER)/release.json:
 #   We're using this to remove CLIv2 changes in v1's changelogs.
 #   :(exclude) syntax: https://git-scm.com/docs/gitglossary.html#Documentation/gitglossary.txt-exclude
 # Release notes uses version from package.json so we need to prepack beforehand.
-$(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+$(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md:
 	npx conventional-changelog-cli -l -r 1 -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
 
 $(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips
