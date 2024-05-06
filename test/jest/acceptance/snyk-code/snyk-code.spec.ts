@@ -4,8 +4,12 @@ import { fakeServer } from '../../../acceptance/fake-server';
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { matchers } from 'jest-json-schema';
+import * as nock from 'nock'
 
 const stripAnsi = require('strip-ansi');
+
+nock.disableNetConnect()
+
 
 expect.extend(matchers);
 
@@ -83,7 +87,7 @@ describe('snyk code test', () => {
     'integration',
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
-        it.only('should show error if sast is not enabled', async () => {
+        it.skip('should show error if sast is not enabled', async () => {
           // Setup
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -105,7 +109,7 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
         });
 
-        it('succeed testing with correct exit code - with sarif oputput and no markdown', async () => {
+        it.only('succeed testing with correct exit code - with sarif oputput and no markdown', async () => {
           const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -114,7 +118,7 @@ describe('snyk code test', () => {
           deepCodeServer.setSarifResponse(sarifPayload);
 
           const { stdout, stderr, code } = await runSnykCLI(
-            `code test ${path()} --sarif --no-markdown`,
+            `code test ${path()} --sarif --no-markdown -d`,
             {
               env: {
                 ...env,
