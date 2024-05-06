@@ -32,6 +32,7 @@ func Init(engine workflow.Engine) error {
 	flagset.StringSlice(configuration.RAW_CMD_ARGS, os.Args[1:], "Command line arguments for the legacy CLI.")
 	flagset.Bool(configuration.WORKFLOW_USE_STDIO, false, "Use StdIn and StdOut")
 	flagset.String(configuration.WORKING_DIRECTORY, "", "CLI working directory")
+	flagset.String("severity-threshold", "low", "Minimum severity level to report (low|medium|high|critical)")
 
 	config := workflow.ConfigurationOptionsFromFlagset(flagset)
 	entry, _ := engine.Register(WORKFLOWID_LEGACY_CLI, config, legacycliWorkflow)

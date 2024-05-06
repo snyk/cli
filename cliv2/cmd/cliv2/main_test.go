@@ -228,14 +228,14 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 
 func Test_getErrorFromWorkFlowData(t *testing.T) {
 	t.Run("nil error", func(t *testing.T) {
-		err := getErrorFromWorkFlowData(nil)
+		err := getErrorFromWorkFlowData(nil, "low")
 		assert.Nil(t, err)
 	})
 	t.Run("workflow error", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
 		data := workflow.NewData(workflowIdentifier, "application/json", []byte(`{"error": "test error"}`))
-		err := getErrorFromWorkFlowData([]workflow.Data{data})
+		err := getErrorFromWorkFlowData([]workflow.Data{data}, "low")
 		assert.Nil(t, err)
 	})
 	t.Run("workflow with test findings", func(t *testing.T) {
@@ -252,7 +252,27 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		})
 		assert.Nil(t, err)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, payload)
-		err = getErrorFromWorkFlowData([]workflow.Data{data})
+		err = getErrorFromWorkFlowData([]workflow.Data{data}, "low")
+		require.NotNil(t, err)
+		var expectedError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, err, &expectedError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, expectedError.ExitCode)
+	})
+	t.Run("workflow with test findings equal to threshold", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		payload, err := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "medium",
+				Total:    99,
+				Open:     97,
+				Ignored:  2,
+			}},
+			Type: "sast",
+		})
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, payload)
+		err = getErrorFromWorkFlowData([]workflow.Data{data}, "medium")
 		require.NotNil(t, err)
 		var expectedError *clierrors.ErrorWithExitCode
 		assert.ErrorAs(t, err, &expectedError)
@@ -273,7 +293,7 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		})
 		assert.Nil(t, err)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
-		err = getErrorFromWorkFlowData([]workflow.Data{data})
+		err = getErrorFromWorkFlowData([]workflow.Data{data}, "low")
 		assert.Nil(t, err)
 	})
 }
@@ -351,6 +371,60 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualCode)
 	})
 
+	t.Run("return vulns found exit code [low]", func(t *testing.T) {
+		defer cleanup()
+		globalConfiguration = configuration.New()
+		globalConfiguration.Set(configuration.DEBUG, true)
+		globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+
+		testCmnd := "subcmd1"
+		addEmptyWorkflows(t, globalEngine, []string{"output"})
+
+		fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+			typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
+			testSummary := json_schemas.TestSummary{
+				Results: []json_schemas.TestSummaryResult{
+					{
+						Severity: "low",
+						Total:    10,
+						Open:     10,
+						Ignored:  0,
+					},
+				},
+				Type: "sast",
+			}
+			d, err := json.Marshal(testSummary)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			data := workflow.NewData(typeId, content_type.TEST_SUMMARY, d)
+			return []workflow.Data{
+				data,
+			}, nil
+		}
+
+		// setup workflow engine to contain a workflow with subcommands
+		wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
+		flagSet := pflag.NewFlagSet("pla", pflag.ContinueOnError)
+		flagSet.String("severity-threshold", "low", "Minimum severity level to report (low|medium|high)")
+		workflowConfig := workflow.ConfigurationOptionsFromFlagset(flagSet)
+
+		entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
+		assert.Nil(t, err)
+		assert.NotNil(t, entry)
+
+		err = globalEngine.Init()
+		assert.NoError(t, err)
+
+		// invoke method under test
+		logger := zerolog.New(os.Stderr)
+		err = runWorkflowAndProcessData(globalEngine, &logger, testCmnd)
+
+		actualCode := cliv2.DeriveExitCode(err)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualCode)
+	})
+
 	t.Run("filters out vulns that do not meet severity threshold", func(t *testing.T) {
 		defer cleanup()
 		globalConfiguration = configuration.New()
@@ -386,7 +460,9 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 
 		// setup workflow engine to contain a workflow with subcommands
 		wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
-		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+		flagSet := pflag.NewFlagSet("pla", pflag.ContinueOnError)
+		flagSet.String("severity-threshold", "medium", "Minimum severity level to report (low|medium|high)")
+		workflowConfig := workflow.ConfigurationOptionsFromFlagset(flagSet)
 
 		entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
 		assert.Nil(t, err)
@@ -463,6 +539,59 @@ func Test_displayError(t *testing.T) {
 
 		assert.Equal(t, "something went wrong\n", b.String())
 	})
+
+	t.Run("return vulns found error for low severity issues", func(t *testing.T) {
+		defer cleanup()
+		globalConfiguration = configuration.New()
+		globalConfiguration.Set(configuration.DEBUG, true)
+		globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+
+		testCmnd := "subcmd1"
+		addEmptyWorkflows(t, globalEngine, []string{"output"})
+
+		fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+			typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
+			testSummary := json_schemas.TestSummary{
+				Results: []json_schemas.TestSummaryResult{
+					{
+						Severity: "low",
+						Total:    10,
+						Open:     10,
+						Ignored:  0,
+					},
+				},
+				Type: "sast",
+			}
+			d, err := json.Marshal(testSummary)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			data := workflow.NewData(typeId, content_type.TEST_SUMMARY, d)
+			return []workflow.Data{
+				data,
+			}, nil
+		}
+
+		// setup workflow engine to contain a workflow with subcommands
+		wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
+		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+
+		entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
+		assert.Nil(t, err)
+		assert.NotNil(t, entry)
+
+		err = globalEngine.Init()
+		assert.NoError(t, err)
+
+		// invoke method under test
+		logger := zerolog.New(os.Stderr)
+		err = runWorkflowAndProcessData(globalEngine, &logger, testCmnd)
+
+		actualCode := cliv2.DeriveExitCode(err)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualCode)
+	})
+
 }
 
 type wrErr struct{ wraps error }

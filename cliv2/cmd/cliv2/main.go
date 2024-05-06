@@ -172,11 +172,14 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 
 func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, name string) error {
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
+	configuration := engine.GetConfiguration()
+
+	fmt.Println(configuration.GetString("severity-threshold"))
 
 	if err == nil {
 		_, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
 		if err == nil {
-			err = getErrorFromWorkFlowData(data)
+			err = getErrorFromWorkFlowData(data, configuration.GetString("severity-threshold"))
 		}
 	} else {
 		logger.Print("Failed to execute the command!", err)
@@ -184,12 +187,7 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 	return err
 }
 
-func getErrorFromWorkFlowData(data []workflow.Data) error {
-	// Severity order
-	severityOrder := []string{"low", "medium", "high", "critical"}
-	// Min severity level
-	minSeverityLevel := slices.Index(severityOrder, "high")
-
+func getErrorFromWorkFlowData(data []workflow.Data, minSeverity string) error {
 	for i := range data {
 		mimeType := data[i].GetContentType()
 		if strings.EqualFold(mimeType, content_type.TEST_SUMMARY) {
@@ -200,6 +198,15 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 
 			summary := json_schemas.TestSummary{}
 			err := json.Unmarshal(singleData, &summary)
+			// Severity order
+			defaultSummary := json_schemas.NewTestSummary("sast")
+			severityOrder := defaultSummary.SeverityOrderAsc
+			if (len(summary.SeverityOrderAsc) > 0) {
+				severityOrder = summary.SeverityOrderAsc
+			}
+
+			// Min severity level
+			minSeverityLevel := slices.Index(severityOrder, minSeverity)
 
 			if err != nil {
 				return fmt.Errorf("failed to parse test summary payload: %w", err)
@@ -208,7 +215,7 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 			// We are missing an understanding of ignored issues here
 			// this should be supported in the future
 			for _, result := range summary.Results {
-				// Get Severity Index
+				// Get Severity Indexlega
 				satisfySeverityLevel := slices.Index(severityOrder, result.Severity) >= minSeverityLevel
 
 				if satisfySeverityLevel && result.Open > 0 {
