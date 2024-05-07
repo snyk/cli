@@ -39,6 +39,8 @@ describe('snyk container', () => {
         id: 'base-files@11.1+deb11u7',
         info: {
           name: 'base-files',
+          purl:
+            'pkg:deb/debian/base-files@11.1%2Bdeb11u7?distro=debian-bullseye',
           version: '11.1+deb11u7',
         },
       },
@@ -46,6 +48,7 @@ describe('snyk container', () => {
         id: 'netbase@6.3',
         info: {
           name: 'netbase',
+          purl: 'pkg:deb/debian/netbase@6.3?distro=debian-bullseye',
           version: '6.3',
         },
       },
@@ -53,6 +56,8 @@ describe('snyk container', () => {
         id: 'tzdata@2021a-1+deb11u10',
         info: {
           name: 'tzdata',
+          purl:
+            'pkg:deb/debian/tzdata@2021a-1%2Bdeb11u10?distro=debian-bullseye',
           version: '2021a-1+deb11u10',
         },
       },
