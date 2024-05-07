@@ -667,15 +667,52 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
       let bom: Record<string, any> = { bomFormat: 'CycloneDX' };
 
+      interface dependency {
+        ref: string;
+        dependsOn: string[];
+      }
+
+      const dependencies: dependency[] = [];
+
+      const addDependencies = (
+        nodeIdMap: { [key: string]: string },
+        element: any,
+      ) => {
+        dependencies.push({
+          ref: element.pkgId,
+          dependsOn: element.deps.map((d: any) => nodeIdMap[d.nodeId]),
+        });
+      };
+
       if (Array.isArray(depGraphs) && req.body.subject) {
         // Return a fixture of an all-projects SBOM.
         name = req.body.subject.name;
         components = depGraphs
           .flatMap(({ pkgs }) => pkgs)
           .map(({ info: { name } }) => ({ name }));
+
+        const nodeIdMap: { [key: string]: string } = {};
+
+        depGraphs.forEach((g: any) => {
+          g.graph.nodes.forEach((element: any) => {
+            nodeIdMap[element.nodeId] = element.pkgId;
+          });
+        });
+
+        depGraphs.forEach((g: any) => {
+          g.graph.nodes.forEach((e: any) => addDependencies(nodeIdMap, e));
+        });
       } else if (depGraph) {
         name = depGraph.pkgs[0]?.info.name;
         components = depGraph.pkgs.map(({ info: { name } }) => ({ name }));
+
+        const nodeIdMap: { [key: string]: string } = {};
+
+        depGraph.graph.nodes.forEach((element: any) => {
+          nodeIdMap[element.nodeId] = element.pkgId;
+        });
+
+        depGraph.graph.nodes.forEach((e: any) => addDependencies(nodeIdMap, e));
       }
 
       switch (req.query.format) {
@@ -692,6 +729,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
             specVersion: '1.4',
             $schema: 'http://cyclonedx.org/schema/bom-1.4.schema.json',
             components,
+            dependencies: dependencies,
             metadata: {
               component: { name },
               tools: [...tools, { name: 'fake-server', version: '42' }],
