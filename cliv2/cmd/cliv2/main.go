@@ -168,7 +168,8 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 
 	if err == nil {
-		output, err := engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
+		var output []workflow.Data
+		output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
 		if err == nil {
 			err = getErrorFromWorkFlowData(output)
 		}

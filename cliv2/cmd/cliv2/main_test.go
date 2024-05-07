@@ -281,12 +281,31 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 func addEmptyWorkflows(t *testing.T, engine workflow.Engine, commandList []string) {
 	t.Helper()
 	for _, v := range commandList {
+		workflowId1 := workflow.NewWorkflowIdentifier(v)
+
 		fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
-			return []workflow.Data{}, nil
+			summaryPayload, _ := json.Marshal(json_schemas.TestSummary{
+				Results: []json_schemas.TestSummaryResult{{
+					Severity: "critical",
+					Total:    99,
+					Open:     97,
+					Ignored:  2,
+				}, {
+					Severity: "medium",
+					Total:    99,
+					Open:     97,
+					Ignored:  2,
+				}},
+				Type: "sast",
+			})
+			data := workflow.NewData(workflow.NewTypeIdentifier(workflowId1, "workflowData"), content_type.TEST_SUMMARY, summaryPayload)
+			return []workflow.Data{
+				data,
+			}, nil
 		}
 
 		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
-		workflowId1 := workflow.NewWorkflowIdentifier(v)
+
 		_, err := engine.Register(workflowId1, workflowConfig, fn)
 		if err != nil {
 			t.Fatal(err)
@@ -327,7 +346,7 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 		}, nil
 	}
 
-	// setup workflow engine to contain a workflow with subcommands
+	// setup workflow engine to contain a workflow with subqcommands
 	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
 	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 
