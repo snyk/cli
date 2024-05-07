@@ -278,41 +278,6 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 	})
 }
 
-func addEmptyWorkflows(t *testing.T, engine workflow.Engine, commandList []string) {
-	t.Helper()
-	for _, v := range commandList {
-		workflowId1 := workflow.NewWorkflowIdentifier(v)
-
-		fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
-			summaryPayload, _ := json.Marshal(json_schemas.TestSummary{
-				Results: []json_schemas.TestSummaryResult{{
-					Severity: "critical",
-					Total:    99,
-					Open:     97,
-					Ignored:  2,
-				}, {
-					Severity: "medium",
-					Total:    99,
-					Open:     97,
-					Ignored:  2,
-				}},
-				Type: "sast",
-			})
-			data := workflow.NewData(workflow.NewTypeIdentifier(workflowId1, "workflowData"), content_type.TEST_SUMMARY, summaryPayload)
-			return []workflow.Data{
-				data,
-			}, nil
-		}
-
-		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
-
-		_, err := engine.Register(workflowId1, workflowConfig, fn)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-}
-
 func Test_runWorkflowAndProcessData(t *testing.T) {
 	defer cleanup()
 	globalConfiguration = configuration.New()
@@ -320,7 +285,35 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
 
 	testCmnd := "subcmd1"
-	addEmptyWorkflows(t, globalEngine, []string{"output"})
+	workflowId1 := workflow.NewWorkflowIdentifier("output")
+
+	outputFn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+		summaryPayload, _ := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    99,
+				Open:     97,
+				Ignored:  2,
+			}, {
+				Severity: "medium",
+				Total:    99,
+				Open:     97,
+				Ignored:  2,
+			}},
+			Type: "sast",
+		})
+		data := workflow.NewData(workflow.NewTypeIdentifier(workflowId1, "workflowData"), content_type.TEST_SUMMARY, summaryPayload)
+		return []workflow.Data{
+			data,
+		}, nil
+	}
+
+	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+
+	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
@@ -348,7 +341,6 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 
 	// setup workflow engine to contain a workflow with subqcommands
 	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
-	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 
 	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
 	assert.Nil(t, err)
