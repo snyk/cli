@@ -15,6 +15,7 @@ describe('FIPS', () => {
     it('panic when FIPS is not enabled in the environment', async () => {
       const result = await runSnykCLI('whoami --experimental -d', {
         env: fipsDisabled,
+        logErrors: true
       });
       if (result.code != 2) {
         console.debug(result.stderr);
@@ -27,6 +28,7 @@ describe('FIPS', () => {
       it('do not panic when FIPS is enabled in the environment', async () => {
         const result = await runSnykCLI('whoami --experimental -d', {
           env: fipsEnabled,
+          logErrors: true
         });
         if (result.code != 0) {
           console.debug(result.stderr);
