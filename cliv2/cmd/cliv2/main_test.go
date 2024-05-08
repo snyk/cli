@@ -328,7 +328,9 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 			},
 			Type: "sast",
 		}
-		d, err := json.Marshal(testSummary)
+
+		var d []byte
+		d, err = json.Marshal(testSummary)
 		if err != nil {
 			t.Fatal(err)
 		}
