@@ -107,7 +107,7 @@ executors:
     resource_class: macos.m1.medium.gen1
   win-server2022-amd64:
     machine:
-      image: windows-server-2022-gui:2023.07.1
+      image: windows-server-2022-gui:2024.01.1
     resource_class: windows.large
     shell: powershell
   win-server2019-amd64:

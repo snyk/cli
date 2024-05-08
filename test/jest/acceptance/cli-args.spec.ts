@@ -376,7 +376,7 @@ describe('cli args', () => {
     const sarifPath = 'snyk-direct-sarif-test-output.json';
 
     const { code, stdout } = await runSnykCLI(
-      `container test hello-world --file=Dockerfile --sarif-file-output=${sarifPath} --json-file-output=${jsonPath}`,
+      `container test docker-archive:hello-world-linux.tar --file=Dockerfile --sarif-file-output=${sarifPath} --json-file-output=${jsonPath}`,
       {
         env,
         cwd: project.path(),
@@ -398,7 +398,7 @@ describe('cli args', () => {
     const sarifPath = 'snyk-direct-sarif-test-output.json';
 
     const { code, stdout } = await runSnykCLI(
-      `container test hello-world --sarif --file=Dockerfile --sarif-file-output=${sarifPath}`,
+      `container test docker-archive:hello-world-linux.tar --sarif --file=Dockerfile --sarif-file-output=${sarifPath}`,
       {
         env,
         cwd: project.path(),
@@ -417,7 +417,7 @@ describe('cli args', () => {
     const sarifPath = 'snyk-direct-sarif-test-output.json';
 
     const { code } = await runSnykCLI(
-      `container test hello-world --file=Dockerfile --sarif-file-output=${sarifPath}`,
+      `container test docker-archive:hello-world-linux.tar --file=Dockerfile --sarif-file-output=${sarifPath}`,
       {
         env,
         cwd: project.path(),
@@ -435,7 +435,7 @@ describe('cli args', () => {
     const sarifPath = 'snyk-direct-sarif-test-output.json';
 
     const { code, stdout } = await runSnykCLI(
-      `container test hello-world --json --file=Dockerfile --sarif-file-output=${sarifPath}`,
+      `container test docker-archive:hello-world-linux.tar --json --file=Dockerfile --sarif-file-output=${sarifPath}`,
       {
         env,
         cwd: project.path(),
