@@ -341,7 +341,7 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 		}, nil
 	}
 
-	// setup workflow engine to contain a workflow with subqcommands
+	// setup workflow engine to contain a workflow with subcommands
 	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
 
 	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
