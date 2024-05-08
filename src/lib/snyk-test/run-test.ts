@@ -490,6 +490,9 @@ function sendTestPayload(
   const payloadBody = payload.body as any;
   const filesystemPolicy =
     payload.body && !!(payloadBody?.policy || payloadBody?.scanResult?.policy);
+
+  debug('sendTestPayload request remoteUrl:', payloadBody?.target?.remoteUrl);
+  debug('sendTestPayload request branch:', payloadBody?.target?.branch);
   return new Promise((resolve, reject) => {
     makeRequest(payload, (error, res, body) => {
       if (error) {
