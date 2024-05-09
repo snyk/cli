@@ -50,3 +50,4 @@ test/fixtures/basic-swift/.build
 test/fixtures/basic-swift/Package.resolved
 scripts/Brewfile.lock.json
 test/fixtures/**/go.sum
+.venv
