@@ -49,6 +49,7 @@ import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
 import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 import { processCommandArgs } from '../process-command-args';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
+import { PNPM_FEATURE_FLAG } from '../../../lib/package-managers';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -158,6 +159,12 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     );
   }
 
+  const hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
+
+  const featureFlags = hasPnpmSupport
+    ? new Set<string>([PNPM_FEATURE_FLAG])
+    : new Set<string>();
+
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of paths) {
     debug(`Processing ${path}...`);
@@ -170,7 +177,11 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       } else if (options.docker) {
         analysisType = 'docker';
       } else {
-        packageManager = detect.detectPackageManager(path, options);
+        packageManager = detect.detectPackageManager(
+          path,
+          options,
+          featureFlags,
+        );
       }
       const unsupportedPackageManagers: Array<{
         label: string;
@@ -185,7 +196,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       const targetFile =
         !options.scanAllUnmanaged && options.docker && !options.file // snyk monitor --docker (without --file)
           ? undefined
-          : options.file || detect.detectPackageFile(path);
+          : options.file || detect.detectPackageFile(path, featureFlags);
 
       const displayPath = pathUtil.relative(
         '.',
@@ -206,11 +217,15 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       // each plugin will be asked to scan once per path
       // some return single InspectResult & newer ones return Multi
       const inspectResult = await promiseOrCleanup(
-        getDepsFromPlugin(path, {
-          ...options,
+        getDepsFromPlugin(
           path,
-          packageManager,
-        }),
+          {
+            ...options,
+            path,
+            packageManager,
+          },
+          featureFlags,
+        ),
         spinner.clear(analyzingDepsSpinnerLabel),
       );
       analytics.add('pluginName', inspectResult.plugin.name);

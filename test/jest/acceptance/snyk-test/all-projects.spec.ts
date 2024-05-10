@@ -1,4 +1,7 @@
-import { createProjectFromWorkspace } from '../../util/createProject';
+import {
+  createProjectFromFixture,
+  createProjectFromWorkspace,
+} from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { getServerPort } from '../../util/getServerPort';
@@ -225,5 +228,56 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(stdout).toMatch('Target file:       composer.lock');
     expect(stdout).toMatch('Package manager:   composer');
     expect(stderr).toEqual('');
+  });
+
+  test('`test node workspaces --all-projects`', async () => {
+    server.setFeatureFlag('enablePnpmCli', false);
+    const project = await createProjectFromFixture('workspace-multi-type');
+
+    const { code, stdout } = await runSnykCLI('test --all-projects', {
+      cwd: project.path(),
+      env,
+    });
+
+    const backendRequests = server.popRequests(1);
+    expect(backendRequests).toHaveLength(1);
+
+    backendRequests.forEach((req) => {
+      expect(req.method).toEqual('POST');
+      expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
+      expect(req.url).toMatch('/api/v1/test');
+    });
+
+    expect(code).toEqual(0);
+
+    expect(stdout).toMatch('Package manager:   npm');
+    expect(stdout).toMatch('Package manager:   yarn');
+    expect(stdout).not.toMatch('Package manager:   pnpm');
+  });
+
+  test('`test node workspaces --all-projects with `enablePnpmCli` feature flag`', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture('workspace-multi-type');
+
+    const { code, stdout } = await runSnykCLI('test --all-projects', {
+      cwd: project.path(),
+      env,
+    });
+
+    const backendRequests = server.popRequests(1);
+    expect(backendRequests).toHaveLength(1);
+
+    backendRequests.forEach((req) => {
+      expect(req.method).toEqual('POST');
+      expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
+      expect(req.url).toMatch('/api/v1/test');
+    });
+
+    expect(code).toEqual(0);
+
+    expect(stdout).toMatch('Package manager:   npm');
+    expect(stdout).toMatch('Package manager:   yarn');
+    expect(stdout).toMatch('Package manager:   pnpm');
   });
 });

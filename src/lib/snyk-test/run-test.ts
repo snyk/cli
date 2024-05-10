@@ -72,6 +72,10 @@ import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
 import { sleep } from '../common';
+import {
+  PNPM_FEATURE_FLAG,
+  SUPPORTED_MANIFEST_FILES,
+} from '../package-managers';
 
 const debug = debugModule('snyk:run-test');
 
@@ -331,10 +335,11 @@ export async function runTest(
   projectType: SupportedProjectTypes | undefined,
   root: string,
   options: Options & TestOptions,
+  featureFlags: Set<string> = new Set<string>(),
 ): Promise<TestResult[]> {
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
-    const payloads = await assemblePayloads(root, options);
+    const payloads = await assemblePayloads(root, options, featureFlags);
 
     if (options['print-graph'] && !options['print-deps']) {
       const results: TestResult[] = [];
@@ -548,6 +553,7 @@ function handleTestHttpErrorResponse(res, body) {
 function assemblePayloads(
   root: string,
   options: Options & TestOptions,
+  featureFlags: Set<string> = new Set<string>(),
 ): Promise<Payload[]> {
   let isLocal;
   if (options.docker) {
@@ -563,7 +569,7 @@ function assemblePayloads(
     return assembleEcosystemPayloads(ecosystem, options);
   }
   if (isLocal) {
-    return assembleLocalPayloads(root, options);
+    return assembleLocalPayloads(root, options, featureFlags);
   }
   return assembleRemotePayloads(root, options);
 }
@@ -572,6 +578,7 @@ function assemblePayloads(
 async function assembleLocalPayloads(
   root,
   options: Options & TestOptions & PolicyOptions,
+  featureFlags: Set<string> = new Set<string>(),
 ): Promise<Payload[]> {
   // For --all-projects packageManager is yet undefined here. Use 'all'
   let analysisTypeText = 'all dependencies for ';
@@ -594,7 +601,7 @@ async function assembleLocalPayloads(
       await spinner(spinnerLbl);
     }
 
-    const deps = await getDepsFromPlugin(root, options);
+    const deps = await getDepsFromPlugin(root, options, featureFlags);
     const failedResults = (deps as MultiProjectResultCustom).failedResults;
     if (failedResults?.length) {
       await spinner.clear<void>(spinnerLbl)();
@@ -825,6 +832,14 @@ async function assembleLocalPayloads(
         qs: common.assembleQueryString(options),
         body,
       };
+
+      if (packageManager === 'pnpm' && featureFlags.has(PNPM_FEATURE_FLAG)) {
+        const isLockFileBased =
+          targetFile && targetFile.endsWith(SUPPORTED_MANIFEST_FILES.PNPM_LOCK);
+        if (!isLockFileBased || options.traverseNodeModules) {
+          payload.modules = pkg as DepTreeFromResolveDeps; // See the output of resolve-deps
+        }
+      }
 
       if (packageManager && ['yarn', 'npm'].indexOf(packageManager) !== -1) {
         const isLockFileBased =

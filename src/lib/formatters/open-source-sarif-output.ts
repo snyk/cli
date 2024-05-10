@@ -11,6 +11,7 @@ const LOCK_FILES_TO_MANIFEST_MAP = {
   'Gemfile.lock': 'Gemfile',
   'package-lock.json': 'package.json',
   'yarn.lock': 'package.json',
+  'pnpm-lock.yaml': 'package.json',
   'Gopkg.lock': 'Gopkg.toml',
   'go.sum': 'go.mod',
   'composer.lock': 'composer.json',

@@ -13,6 +13,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['cliFailFast', false],
     ['iacIntegratedExperience', false],
     ['containerCliAppVulnsEnabled', true],
+    ['enablePnpmCli', false],
   ]);
 };
 
