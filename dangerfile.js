@@ -4,7 +4,7 @@ const fs = require('fs');
 const MAX_COMMIT_MESSAGE_LENGTH = 72;
 
 function checkCommitMessage(commitMessage, url) {
-  const firstLineRegex = /^(feat|fix|chore|test|docs|refactor|revert)(\([a-z0-9-_]+\))?:(.+)$/;
+  const firstLineRegex = /^Merge.*|(feat|fix|chore|test|docs|refactor|revert)(\([a-z0-9-_]+\))?:(.+)$/;
   if (!firstLineRegex.test(commitMessage)) {
     fail(
       `"[${commitMessage}](${url})" is not using a valid commit message format. For commit guidelines, see: [CONTRIBUTING](https://github.com/snyk/snyk/blob/main/CONTRIBUTING.md#creating-commits).`,
