@@ -6,6 +6,7 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a
 	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
 	github.com/gofrs/flock v0.8.1
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.32.0
@@ -13,7 +14,7 @@ require (
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672
 	github.com/snyk/cli-extension-sbom v0.0.0-20240426130148-b83c2ebc75c4
 	github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1
-	github.com/snyk/go-application-framework v0.0.0-20240513152548-b611783f3132
+	github.com/snyk/go-application-framework v0.0.0-20240513171215-89c2703f0240
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20240510163626-041f744c3180
@@ -75,7 +76,6 @@ require (
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/gomarkdown/markdown v0.0.0-20240419095408-642f0ee99ae2 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
@@ -202,4 +202,4 @@ require (
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
 
-//replace github.com/snyk/go-application-framework => ../../go-application-framework
+replace github.com/snyk/go-application-framework => ../../go-application-framework
