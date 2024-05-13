@@ -389,10 +389,11 @@ func displayError(err error, output io.Writer, config configuration.Configuratio
 			fmt.Fprintln(output, string(jsonErrorBuffer))
 		} else {
 			if errors.Is(err, context.DeadlineExceeded) {
-				fmt.Fprintln(output, "command timed out")
-			} else {
-				fmt.Fprintln(output, err)
+				err = fmt.Errorf("command timed out")
 			}
+
+			uiError := globalEngine.GetUserInterface().OutputError(err)
+			globalLogger.Err(uiError).Msg("ui failed show error")
 		}
 	}
 }
