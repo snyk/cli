@@ -735,6 +735,8 @@ github.com/snyk/go-application-framework v0.0.0-20240508135435-dbabe7469be4 h1:M
 github.com/snyk/go-application-framework v0.0.0-20240508135435-dbabe7469be4/go.mod h1:vaYv1/l5tZzVFXtko7wil2yfPaahEMri+QNerrDPRU8=
 github.com/snyk/go-application-framework v0.0.0-20240510091317-8a869a815993 h1:pF7WlPAE+FLUkBC/bTK1Y32M85SpJAWZh2x/IIL6y8k=
 github.com/snyk/go-application-framework v0.0.0-20240510091317-8a869a815993/go.mod h1:vaYv1/l5tZzVFXtko7wil2yfPaahEMri+QNerrDPRU8=
+github.com/snyk/go-application-framework v0.0.0-20240513084431-c979e605f576 h1:UsAz/pHNDwBZo0sbCk1ngDQzUtfP5D/5cUCJgrYSEqc=
+github.com/snyk/go-application-framework v0.0.0-20240513084431-c979e605f576/go.mod h1:vaYv1/l5tZzVFXtko7wil2yfPaahEMri+QNerrDPRU8=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v0.30.11 h1:wUy5LMar2vccMbNM62MSBRdjAQAhAbIm7aNXXO+g2tk=
