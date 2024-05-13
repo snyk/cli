@@ -1,7 +1,10 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+import (
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+	"github.com/snyk/go-application-framework/pkg/ui"
+)
 
 import (
 	"context"
@@ -369,7 +372,7 @@ func handleError(err error) HandleError {
 	return resultError
 }
 
-func displayError(err error, output io.Writer, config configuration.Configuration) {
+func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration) {
 	if err != nil {
 		var exitCode *cli_errors.ErrorWithExitCode
 		_, isExitError := err.(*exec.ExitError)
@@ -386,13 +389,13 @@ func displayError(err error, output io.Writer, config configuration.Configuratio
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-			fmt.Fprintln(output, string(jsonErrorBuffer))
+			userInterface.Output(string(jsonErrorBuffer))
 		} else {
 			if errors.Is(err, context.DeadlineExceeded) {
 				err = fmt.Errorf("command timed out")
 			}
 
-			uiError := globalEngine.GetUserInterface().OutputError(err)
+			uiError := userInterface.OutputError(err)
 			globalLogger.Err(uiError).Msg("ui failed show error")
 		}
 	}
@@ -493,7 +496,7 @@ func MainWithErrorCode() int {
 		cliAnalytics.AddError(err)
 	}
 
-	displayError(err, os.Stdout, globalConfiguration)
+	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
 
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Exiting with %d", exitCode)
