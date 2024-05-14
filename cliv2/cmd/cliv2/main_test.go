@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,11 +9,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
+	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -380,13 +381,15 @@ func Test_setTimeout(t *testing.T) {
 }
 
 func Test_displayError(t *testing.T) {
-	t.Run("prints out generic error messages", func(t *testing.T) {
-		var b bytes.Buffer
-		config := configuration.NewInMemory()
-		err := errors.New("test error")
-		displayError(err, &b, config)
+	mockController := gomock.NewController(t)
+	userInterface := mocks.NewMockUserInterface(mockController)
 
-		assert.Equal(t, "test error\n", b.String())
+	t.Run("prints out generic error messages", func(t *testing.T) {
+		err := errors.New("test error")
+		userInterface.EXPECT().OutputError(err).Times(1)
+
+		config := configuration.NewInMemory()
+		displayError(err, userInterface, config)
 	})
 
 	scenarios := []struct {
@@ -405,22 +408,18 @@ func Test_displayError(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
-			var b bytes.Buffer
 			config := configuration.NewInMemory()
 			err := scenario.err
-			displayError(err, &b, config)
-
-			assert.Equal(t, "", b.String())
+			displayError(err, userInterface, config)
 		})
 	}
 
 	t.Run("prints messages of error wrapping exec.ExitError", func(t *testing.T) {
-		var b bytes.Buffer
-		config := configuration.NewInMemory()
 		err := &wrErr{wraps: &exec.ExitError{}}
-		displayError(err, &b, config)
+		userInterface.EXPECT().OutputError(err).Times(1)
 
-		assert.Equal(t, "something went wrong\n", b.String())
+		config := configuration.NewInMemory()
+		displayError(err, userInterface, config)
 	})
 }
 

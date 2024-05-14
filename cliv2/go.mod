@@ -6,6 +6,7 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a
 	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
 	github.com/gofrs/flock v0.8.1
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.32.0
@@ -13,7 +14,7 @@ require (
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672
 	github.com/snyk/cli-extension-sbom v0.0.0-20240426130148-b83c2ebc75c4
 	github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1
-	github.com/snyk/go-application-framework v0.0.0-20240513111557-0f09a5c36e29
+	github.com/snyk/go-application-framework v0.0.0-20240514092950-6354c46f27a0
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20240510163626-041f744c3180
@@ -75,7 +76,6 @@ require (
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/gomarkdown/markdown v0.0.0-20240419095408-642f0ee99ae2 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
@@ -150,6 +150,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/skeema/knownhosts v1.2.2 // indirect
 	github.com/snyk/code-client-go v1.5.5 // indirect
+	github.com/snyk/error-catalog-golang-public v0.0.0-20240425141803-2516e42296c3 // indirect
 	github.com/snyk/policy-engine v0.30.11 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
