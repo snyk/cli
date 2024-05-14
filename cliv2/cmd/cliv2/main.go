@@ -1,10 +1,7 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import (
-	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-	"github.com/snyk/go-application-framework/pkg/ui"
-)
+import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 
 import (
 	"context"
@@ -39,6 +36,8 @@ import (
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 	snykls "github.com/snyk/snyk-ls/ls_extension"
+
+	"github.com/snyk/go-application-framework/pkg/ui"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
