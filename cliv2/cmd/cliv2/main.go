@@ -37,6 +37,8 @@ import (
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 	snykls "github.com/snyk/snyk-ls/ls_extension"
 
+	"github.com/snyk/go-application-framework/pkg/ui"
+
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
@@ -369,7 +371,7 @@ func handleError(err error) HandleError {
 	return resultError
 }
 
-func displayError(err error, output io.Writer, config configuration.Configuration) {
+func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration) {
 	if err != nil {
 		var exitCode *cli_errors.ErrorWithExitCode
 		_, isExitError := err.(*exec.ExitError)
@@ -386,13 +388,14 @@ func displayError(err error, output io.Writer, config configuration.Configuratio
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-			fmt.Fprintln(output, string(jsonErrorBuffer))
+			userInterface.Output(string(jsonErrorBuffer))
 		} else {
 			if errors.Is(err, context.DeadlineExceeded) {
-				fmt.Fprintln(output, "command timed out")
-			} else {
-				fmt.Fprintln(output, err)
+				err = fmt.Errorf("command timed out")
 			}
+
+			uiError := userInterface.OutputError(err)
+			globalLogger.Err(uiError).Msg("ui failed show error")
 		}
 	}
 }
@@ -492,7 +495,7 @@ func MainWithErrorCode() int {
 		cliAnalytics.AddError(err)
 	}
 
-	displayError(err, os.Stdout, globalConfiguration)
+	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
 
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Exiting with %d", exitCode)
