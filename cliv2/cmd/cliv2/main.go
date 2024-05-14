@@ -139,6 +139,7 @@ func updateConfigFromParameter(config configuration.Configuration, args []string
 	// only consider the first positional argument as input directory if it is not behind a double dash.
 	if len(args) > 0 && !utils.Contains(doubleDashArgs, args[0]) {
 		config.Set(configuration.INPUT_DIRECTORY, args[0])
+		config.Set(localworkflows.ConfigurationNewAuthenticationToken, args[0])
 	}
 }
 
