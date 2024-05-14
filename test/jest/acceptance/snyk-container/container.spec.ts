@@ -117,6 +117,42 @@ describe('snyk container', () => {
       await expect(cli).toDisplay(`yum @ 4.9.0`, { timeout: 60 * 1000 });
     });
 
+    it('npm depGraph is generated in an npm image with lockfiles', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/npm7-with-package-lock-file.tar --print-deps`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Package manager:   npm');
+    });
+
+    it('npm depGraph is generated in an npm image without package-lock.json file', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/npm7-without-package-lock-file.tar --print-deps`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Package manager:   npm');
+    });
+
+    it('npm depGraph is generated in an npm image without package-lock.json and package.json file', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/npm7-without-package-and-lock-file.tar --print-deps`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Package manager:   npm');
+    });
+
+    it('npm depGraph is generated in an npm image with lockfiles image', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/npm7-without-package-lock-file.tar --print-deps`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Package manager:   npm');
+    });
+
     it('finds dependencies in oci image (library/ubuntu)', async () => {
       cli = await startSnykCLI(
         'container test library/ubuntu@sha256:7a57c69fe1e9d5b97c5fe649849e79f2cfc3bf11d10bbd5218b4eb61716aebe6 --print-deps',

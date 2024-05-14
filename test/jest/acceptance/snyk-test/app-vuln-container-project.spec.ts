@@ -44,11 +44,28 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     );
     const jsonOutput = JSON.parse(stdout);
     expect(Array.isArray(jsonOutput)).toBeFalsy();
-    expect(jsonOutput.applications).toBeUndefined();
     expect(jsonOutput.ok).toEqual(false);
     expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
     expect(code).toEqual(1);
   }, 30000);
+
+  it('should find vulns on an npm project application image without package-lock.json file', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/npm7-without-package-lock-file.tar --json --app-vulns`,
+    );
+    const jsonOutput = JSON.parse(stdout);
+    expect(Array.isArray(jsonOutput)).toBeFalsy();
+    expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
+    expect(code).toEqual(1);
+  }, 60000);
+
+  it('should find vulns on an npm project application image without package.json and package-lock.json file', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/npm7-without-package-and-lock-file.tar --print-deps --app-vulns`,
+    );
+    expect(code).toEqual(1);
+    expect(stdout).toContain('Package manager:   npm');
+  }, 60000);
 
   it('should show app vulns tip when available', async () => {
     const { stdout } = await runSnykCLI(
