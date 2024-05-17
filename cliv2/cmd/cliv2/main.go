@@ -253,6 +253,7 @@ func sendInstrumentation(a analytics.Analytics) {
 	globalLogger.Printf("%v", err)
 
 	response, err := globalEngine.GetNetworkAccess().GetHttpClient().Do(request)
+	defer response.Body.Close()
 	globalLogger.Printf("%v", response)
 
 	globalLogger.Println(string(v2InstrumentationData))
