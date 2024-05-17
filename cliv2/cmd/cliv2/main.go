@@ -14,10 +14,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"github.com/google/uuid"
+	v20240307 "github.com/snyk/go-application-framework/pkg/analytics/2024-03-07"
 
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
@@ -53,6 +55,7 @@ var helpProvided bool
 
 var noopLogger zerolog.Logger = zerolog.New(io.Discard)
 var globalLogger *zerolog.Logger = &noopLogger
+var requestId = uuid.NewString()
 
 const (
 	unknownCommandMessage  string = "unknown command"
@@ -238,6 +241,21 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 
 		debugLogger.Print("Failed to send Analytics:", details)
 	}
+}
+
+func sendInstrumentation(a analytics.Analytics) {
+	api := globalConfiguration.GetString(configuration.API_URL)
+	org := globalConfiguration.GetString(configuration.ORGANIZATION)
+	data := analytics.GetV2InstrumentationObject(a.GetInstrumentation())
+	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
+	request, err := v20240307.NewCreateAnalyticsRequest(api+"/hidden/", utils.ValueOf(uuid.Parse(org)), &v20240307.CreateAnalyticsParams{Version: "2024-03-07~experimental"}, data)
+	globalLogger.Printf("%v", request)
+	globalLogger.Printf("%v", err)
+
+	response, err := globalEngine.GetNetworkAccess().GetHttpClient().Do(request)
+	globalLogger.Printf("%v", response)
+
+	globalLogger.Println(string(v2InstrumentationData))
 }
 
 func help(_ *cobra.Command, _ []string) error {
@@ -455,8 +473,6 @@ func MainWithErrorCode() int {
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, globalEngine)
 
-	requestId := uuid.NewString()
-
 	// init NetworkAccess
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
@@ -474,13 +490,15 @@ func MainWithErrorCode() int {
 	// init Analytics
 	cliAnalytics := globalEngine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
-	cliAnalytics.SetCmdArguments(os.Args[1:])
+	cliAnalytics.SetCmdArguments(os.Args)
 	cliAnalytics.SetOperatingSystem(internalOS)
 	cliAnalytics.GetInstrumentation().SetUserAgent(ua)
 	cliAnalytics.GetInstrumentation().SetInteractionId(analytics.AssembleUrnFromUUID(requestId))
+	cliAnalytics.GetInstrumentation().SetTargetId("pkg:") // TODO use method when existing
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		defer sendAnalytics(cliAnalytics, globalLogger)
 	}
+	defer sendInstrumentation(cliAnalytics)
 
 	setTimeout(globalConfiguration, func() {
 		os.Exit(constants.SNYK_EXIT_CODE_EX_UNAVAILABLE)
