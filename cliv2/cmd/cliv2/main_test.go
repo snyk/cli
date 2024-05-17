@@ -228,15 +228,18 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 }
 
 func Test_getErrorFromWorkFlowData(t *testing.T) {
+	engine := workflow.NewWorkFlowEngine(configuration.New())
+	engine.Init()
+
 	t.Run("nil error", func(t *testing.T) {
-		err := getErrorFromWorkFlowData(nil)
+		err := getErrorFromWorkFlowData(engine, nil)
 		assert.Nil(t, err)
 	})
 	t.Run("workflow error", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
 		data := workflow.NewData(workflowIdentifier, "application/json", []byte(`{"error": "test error"}`))
-		err := getErrorFromWorkFlowData([]workflow.Data{data})
+		err := getErrorFromWorkFlowData(engine, []workflow.Data{data})
 		assert.Nil(t, err)
 	})
 	t.Run("workflow with test findings", func(t *testing.T) {
@@ -253,7 +256,7 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		})
 		assert.Nil(t, err)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, payload)
-		err = getErrorFromWorkFlowData([]workflow.Data{data})
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
 		require.NotNil(t, err)
 		var expectedError *clierrors.ErrorWithExitCode
 		assert.ErrorAs(t, err, &expectedError)
@@ -274,7 +277,7 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		})
 		assert.Nil(t, err)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
-		err = getErrorFromWorkFlowData([]workflow.Data{data})
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
 		assert.Nil(t, err)
 	})
 }

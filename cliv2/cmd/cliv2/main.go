@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -174,7 +175,7 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 		var output []workflow.Data
 		output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
 		if err == nil {
-			err = getErrorFromWorkFlowData(output)
+			err = getErrorFromWorkFlowData(engine, output)
 		}
 	} else {
 		logger.Print("Failed to execute the command!", err)
@@ -182,7 +183,7 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 	return err
 }
 
-func getErrorFromWorkFlowData(data []workflow.Data) error {
+func getErrorFromWorkFlowData(engine workflow.Engine, data []workflow.Data) error {
 	for i := range data {
 		mimeType := data[i].GetContentType()
 		if strings.EqualFold(mimeType, content_type.TEST_SUMMARY) {
@@ -197,6 +198,8 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 			if err != nil {
 				return fmt.Errorf("failed to parse test summary payload: %w", err)
 			}
+
+			engine.GetAnalytics().GetInstrumentation().SetTestSummary(summary)
 
 			// We are missing an understanding of ignored issues here
 			// this should be supported in the future
@@ -452,15 +455,16 @@ func MainWithErrorCode() int {
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, globalEngine)
 
+	requestId := uuid.NewString()
+
 	// init NetworkAccess
+	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
+	networkAccess.AddHeaderField("snyk-request-id", requestId)
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
 	networkAccess.AddHeaderField(
 		"User-Agent",
-		networking.UserAgent(
-			networking.UaWithConfig(globalConfiguration),
-			networking.UaWithRuntimeInfo(rInfo),
-			networking.UaWithOS(internalOS)).String(),
+		ua.String(),
 	)
 
 	if debugEnabled {
@@ -472,6 +476,8 @@ func MainWithErrorCode() int {
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args[1:])
 	cliAnalytics.SetOperatingSystem(internalOS)
+	cliAnalytics.GetInstrumentation().SetUserAgent(ua)
+	cliAnalytics.GetInstrumentation().SetInteractionId(analytics.AssembleUrnFromUUID(requestId))
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		defer sendAnalytics(cliAnalytics, globalLogger)
 	}
