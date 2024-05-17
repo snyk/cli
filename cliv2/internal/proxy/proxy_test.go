@@ -10,8 +10,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
+	gafUtils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -21,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var debugLogger *log.Logger = log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
+var debugLogger = zerolog.New(os.Stderr).With().Timestamp().Logger()
 
 func helper_getHttpClient(gateway *proxy.WrapperProxy, useProxyAuth bool) (*http.Client, error) {
 	rootCAs, _ := x509.SystemCertPool()
@@ -86,7 +88,7 @@ func Test_closingProxyDeletesTempCert(t *testing.T) {
 	config.Set(configuration.CACHE_PATH, basecache)
 	config.Set(configuration.INSECURE_HTTPS, false)
 
-	wp, err := proxy.NewWrapperProxy(config, version, debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -110,7 +112,7 @@ func Test_canGoThroughProxy(t *testing.T) {
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(config, version, debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -143,7 +145,7 @@ func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(config, version, debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -192,7 +194,7 @@ func Test_SetUpstreamProxy(t *testing.T) {
 		httpauth.UnknownMechanism,
 	}
 
-	objectUnderTest, err = proxy.NewWrapperProxy(config, version, debugLogger)
+	objectUnderTest, err = proxy.NewWrapperProxy(config, version, &debugLogger)
 	assert.Nil(t, err)
 
 	// running different cases
@@ -231,7 +233,8 @@ func Test_appendExtraCaCert(t *testing.T) {
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	certPem, _, err := certs.MakeSelfSignedCert("mycert", []string{"dns"}, debugLogger)
+	loggerWrapper := log.New(&gafUtils.ToZeroLogDebug{Logger: &debugLogger}, "", 0)
+	certPem, _, err := certs.MakeSelfSignedCert("mycert", []string{"dns"}, loggerWrapper)
 	assert.NoError(t, err)
 	file, err := os.CreateTemp("", "")
 	assert.NoError(t, err)
@@ -240,7 +243,7 @@ func Test_appendExtraCaCert(t *testing.T) {
 
 	t.Setenv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV, file.Name())
 
-	wp, err := proxy.NewWrapperProxy(config, version, debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger)
 	assert.Nil(t, err)
 
 	certsPem, err := os.ReadFile(wp.CertificateLocation)
