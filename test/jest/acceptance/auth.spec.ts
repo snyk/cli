@@ -36,6 +36,10 @@ describe('Auth', () => {
 
   beforeEach(async () => {
     initialConfig = await getCliConfig();
+    // delete config
+    await runSnykCLI(`config clear`, {
+      env,
+    });
   });
 
   afterEach(async () => {
@@ -51,11 +55,6 @@ describe('Auth', () => {
       },
     );
     expect(code).toEqual(0);
-
-    // delete test token
-    await runSnykCLI(`config unset INTERNAL_OAUTH_TOKEN_STORAGE`, {
-      env,
-    });
   });
 
   it('fails to us oauth client credentials grant to authenticate', async () => {
@@ -81,6 +80,20 @@ describe('Auth', () => {
     });
 
     console.debug(stderr);
+
+    const resultConfigGet = await runSnykCLI('config get api', {
+      env,
+    });
+
+    expect(code).toEqual(0);
+    expect(resultConfigGet.code).toEqual(0);
+    expect(resultConfigGet.stdout).toContain(serverToken);
+  });
+
+  it('fall back to API token based authentication for IDEs per default', async () => {
+    const { code } = await runSnykCLI(`auth`, {
+      env: { ...env, SNYK_INTEGRATION_NAME: 'VS_CODE' },
+    });
 
     const resultConfigGet = await runSnykCLI('config get api', {
       env,
