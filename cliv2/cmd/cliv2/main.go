@@ -1,8 +1,6 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-
 import (
 	"context"
 	"encoding/json"
@@ -14,10 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-uuid"
 	"github.com/rs/zerolog"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
@@ -26,6 +22,10 @@ import (
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
@@ -35,12 +35,12 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
-	snykls "github.com/snyk/snyk-ls/ls_extension"
-
-	"github.com/snyk/go-application-framework/pkg/ui"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
+	"github.com/snyk/go-application-framework/pkg/ui"
+	snykls "github.com/snyk/snyk-ls/ls_extension"
+
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
@@ -462,6 +462,15 @@ func MainWithErrorCode() int {
 			networking.UaWithRuntimeInfo(rInfo),
 			networking.UaWithOS(internalOS)).String(),
 	)
+
+	// Generate interaction UUID
+	interactionId, err := uuid.GenerateUUID()
+	if err != nil {
+		globalLogger.Print("Failed to generate interaction UUID!", err)
+	} else {
+		// Add interaction id to request header
+		networkAccess.AddHeaderField("snyk-request-id", interactionId)
+	}
 
 	if debugEnabled {
 		writeLogHeader(globalConfiguration, networkAccess)
