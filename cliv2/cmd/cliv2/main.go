@@ -248,7 +248,7 @@ func sendInstrumentation(a analytics.Analytics) {
 	org := globalConfiguration.GetString(configuration.ORGANIZATION)
 	data := analytics.GetV2InstrumentationObject(a.GetInstrumentation())
 	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
-	request, err := v20240307.NewCreateAnalyticsRequest(api+"/hidden/", utils.ValueOf(uuid.Parse(org)), &v20240307.CreateAnalyticsParams{Version: "2024-03-07~experimental"}, data)
+	request, err := v20240307.NewCreateAnalyticsRequest(api+"/hidden/", utils.ValueOf(uuid.Parse(org)), &v20240307.CreateAnalyticsParams{Version: "2024-03-07~experimental"}, *data)
 	globalLogger.Printf("%v", request)
 	globalLogger.Printf("%v", err)
 
