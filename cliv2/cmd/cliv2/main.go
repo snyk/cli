@@ -19,8 +19,6 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/google/uuid"
-	v20240307 "github.com/snyk/go-application-framework/pkg/analytics/2024-03-07"
-
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
@@ -243,21 +241,22 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 	}
 }
 
-func sendInstrumentation(a analytics.Analytics) {
-	api := globalConfiguration.GetString(configuration.API_URL)
-	org := globalConfiguration.GetString(configuration.ORGANIZATION)
-	data := analytics.GetV2InstrumentationObject(a.GetInstrumentation())
-	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
-	request, err := v20240307.NewCreateAnalyticsRequest(api+"/hidden/", utils.ValueOf(uuid.Parse(org)), &v20240307.CreateAnalyticsParams{Version: "2024-03-07~experimental"}, *data)
-	globalLogger.Printf("%v", request)
-	globalLogger.Printf("%v", err)
-
-	response, err := globalEngine.GetNetworkAccess().GetHttpClient().Do(request)
-	defer response.Body.Close()
-	globalLogger.Printf("%v", response)
-
-	globalLogger.Println(string(v2InstrumentationData))
-}
+// TODO: delete once CLI-303 implemented
+//func sendInstrumentation(a analytics.Analytics) {
+//	api := globalConfiguration.GetString(configuration.API_URL)
+//	org := globalConfiguration.GetString(configuration.ORGANIZATION)
+//	data := analytics.GetV2InstrumentationObject(a.GetInstrumentation())
+//	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
+//	request, err := v20240307.NewCreateAnalyticsRequest(api+"/hidden/", utils.ValueOf(uuid.Parse(org)), &v20240307.CreateAnalyticsParams{Version: "2024-03-07~experimental"}, *data)
+//	globalLogger.Printf("%v", request)
+//	globalLogger.Printf("%v", err)
+//
+//	response, err := globalEngine.GetNetworkAccess().GetHttpClient().Do(request)
+//	defer response.Body.Close()
+//	globalLogger.Printf("%v", response)
+//
+//	globalLogger.Println(string(v2InstrumentationData))
+//}
 
 func help(_ *cobra.Command, _ []string) error {
 	helpProvided = true
@@ -499,7 +498,7 @@ func MainWithErrorCode() int {
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		defer sendAnalytics(cliAnalytics, globalLogger)
 	}
-	defer sendInstrumentation(cliAnalytics)
+	//defer sendInstrumentation(cliAnalytics)
 
 	setTimeout(globalConfiguration, func() {
 		os.Exit(constants.SNYK_EXIT_CODE_EX_UNAVAILABLE)
