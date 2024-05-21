@@ -38,6 +38,7 @@ import (
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 	snykls "github.com/snyk/snyk-ls/ls_extension"
 
+	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/ui"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
@@ -241,22 +242,16 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 	}
 }
 
-// TODO: delete once CLI-303 implemented
-//func sendInstrumentation(a analytics.Analytics) {
-//	api := globalConfiguration.GetString(configuration.API_URL)
-//	org := globalConfiguration.GetString(configuration.ORGANIZATION)
-//	data := analytics.GetV2InstrumentationObject(a.GetInstrumentation())
-//	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
-//	request, err := v20240307.NewCreateAnalyticsRequest(api+"/hidden/", utils.ValueOf(uuid.Parse(org)), &v20240307.CreateAnalyticsParams{Version: "2024-03-07~experimental"}, *data)
-//	globalLogger.Printf("%v", request)
-//	globalLogger.Printf("%v", err)
-//
-//	response, err := globalEngine.GetNetworkAccess().GetHttpClient().Do(request)
-//	defer response.Body.Close()
-//	globalLogger.Printf("%v", response)
-//
-//	globalLogger.Println(string(v2InstrumentationData))
-//}
+func sendInstrumentation(a analytics.Analytics, logger *zerolog.Logger) {
+	// TODO: actually send data once CLI-303 is implemented
+	data, err := analytics.GetV2InstrumentationObject(a.GetInstrumentation())
+	if err != nil {
+		logger.Err(err).Msg("Failed to derive data object.")
+	}
+
+	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
+	logger.Printf("%v", string(v2InstrumentationData))
+}
 
 func help(_ *cobra.Command, _ []string) error {
 	helpProvided = true
@@ -488,17 +483,21 @@ func MainWithErrorCode() int {
 	}
 
 	// init Analytics
+	knownCommands, knownFlags := instrumentation.GetKnownCommandsAndFlags(globalEngine)
 	cliAnalytics := globalEngine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args)
 	cliAnalytics.SetOperatingSystem(internalOS)
 	cliAnalytics.GetInstrumentation().SetUserAgent(ua)
-	cliAnalytics.GetInstrumentation().SetInteractionId(analytics.AssembleUrnFromUUID(requestId))
+	cliAnalytics.GetInstrumentation().SetInteractionId(instrumentation.AssembleUrnFromUUID(requestId))
+	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategoryFromArgs(os.Args, knownCommands, knownFlags))
+	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
+
 	cliAnalytics.GetInstrumentation().SetTargetId("pkg:") // TODO use method when existing
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		defer sendAnalytics(cliAnalytics, globalLogger)
 	}
-	//defer sendInstrumentation(cliAnalytics)
+	defer sendInstrumentation(cliAnalytics, globalLogger)
 
 	setTimeout(globalConfiguration, func() {
 		os.Exit(constants.SNYK_EXIT_CODE_EX_UNAVAILABLE)
