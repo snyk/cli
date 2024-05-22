@@ -242,9 +242,9 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 	}
 }
 
-func sendInstrumentation(a analytics.Analytics, logger *zerolog.Logger) {
+func sendInstrumentation(instrumentor analytics.InstrumentationCollector, logger *zerolog.Logger) {
 	// TODO: actually send data once CLI-303 is implemented
-	data, err := analytics.GetV2InstrumentationObject(a.GetInstrumentation())
+	data, err := analytics.GetV2InstrumentationObject(instrumentor)
 	if err != nil {
 		logger.Err(err).Msg("Failed to derive data object.")
 	}
@@ -496,7 +496,7 @@ func MainWithErrorCode() int {
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		defer sendAnalytics(cliAnalytics, globalLogger)
 	}
-	defer sendInstrumentation(cliAnalytics, globalLogger)
+	defer sendInstrumentation(cliAnalytics.GetInstrumentation(), globalLogger)
 
 	setTimeout(globalConfiguration, func() {
 		os.Exit(constants.SNYK_EXIT_CODE_EX_UNAVAILABLE)
