@@ -491,6 +491,7 @@ func MainWithErrorCode() int {
 	cliAnalytics.GetInstrumentation().SetInteractionId(instrumentation.AssembleUrnFromUUID(interactionId))
 	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategoryFromArgs(os.Args, knownCommands, knownFlags))
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
+	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
 
 	cliAnalytics.GetInstrumentation().SetTargetId("pkg:") // TODO use method when existing
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
@@ -522,6 +523,10 @@ func MainWithErrorCode() int {
 
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Exiting with %d", exitCode)
+
+	if exitCode == 2 {
+		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
+	}
 
 	return exitCode
 }
