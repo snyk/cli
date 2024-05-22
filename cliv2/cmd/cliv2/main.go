@@ -250,7 +250,7 @@ func sendInstrumentation(a analytics.Analytics, logger *zerolog.Logger) {
 	}
 
 	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
-	logger.Printf("%v", string(v2InstrumentationData))
+	logger.Trace().Msgf("Instrumentation: %v", string(v2InstrumentationData))
 }
 
 func help(_ *cobra.Command, _ []string) error {
