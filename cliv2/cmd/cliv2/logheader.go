@@ -107,6 +107,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Insecure HTTPS", insecureHTTPS)
 	tablePrint("Analytics", analytics)
 	tablePrint("Authorization", authorization)
+	tablePrint("Interaction", interactionId)
 	tablePrint("Features", "")
 	tablePrint("  oauth", oauthEnabled)
 	tablePrint("  fips", fipsEnabled)

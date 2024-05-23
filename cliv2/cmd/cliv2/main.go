@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/google/uuid"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
@@ -37,6 +38,7 @@ import (
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 	snykls "github.com/snyk/snyk-ls/ls_extension"
 
+	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/ui"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
@@ -52,6 +54,7 @@ var helpProvided bool
 
 var noopLogger zerolog.Logger = zerolog.New(io.Discard)
 var globalLogger *zerolog.Logger = &noopLogger
+var interactionId = uuid.NewString()
 
 const (
 	unknownCommandMessage  string = "unknown command"
@@ -174,7 +177,7 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 		var output []workflow.Data
 		output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
 		if err == nil {
-			err = getErrorFromWorkFlowData(output)
+			err = getErrorFromWorkFlowData(engine, output)
 		}
 	} else {
 		logger.Print("Failed to execute the command!", err)
@@ -182,7 +185,7 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 	return err
 }
 
-func getErrorFromWorkFlowData(data []workflow.Data) error {
+func getErrorFromWorkFlowData(engine workflow.Engine, data []workflow.Data) error {
 	for i := range data {
 		mimeType := data[i].GetContentType()
 		if strings.EqualFold(mimeType, content_type.TEST_SUMMARY) {
@@ -197,6 +200,8 @@ func getErrorFromWorkFlowData(data []workflow.Data) error {
 			if err != nil {
 				return fmt.Errorf("failed to parse test summary payload: %w", err)
 			}
+
+			engine.GetAnalytics().GetInstrumentation().SetTestSummary(summary)
 
 			// We are missing an understanding of ignored issues here
 			// this should be supported in the future
@@ -235,6 +240,17 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 
 		debugLogger.Print("Failed to send Analytics:", details)
 	}
+}
+
+func sendInstrumentation(instrumentor analytics.InstrumentationCollector, logger *zerolog.Logger) {
+	// TODO: actually send data once CLI-303 is implemented
+	data, err := analytics.GetV2InstrumentationObject(instrumentor)
+	if err != nil {
+		logger.Err(err).Msg("Failed to derive data object.")
+	}
+
+	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
+	logger.Trace().Msgf("Instrumentation: %v", string(v2InstrumentationData))
 }
 
 func help(_ *cobra.Command, _ []string) error {
@@ -402,6 +418,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 }
 
 func MainWithErrorCode() int {
+	startTime := time.Now()
 	var err error
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
@@ -453,14 +470,12 @@ func MainWithErrorCode() int {
 	createCommandsForWorkflows(rootCommand, globalEngine)
 
 	// init NetworkAccess
+	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
 	networkAccess.AddHeaderField(
 		"User-Agent",
-		networking.UserAgent(
-			networking.UaWithConfig(globalConfiguration),
-			networking.UaWithRuntimeInfo(rInfo),
-			networking.UaWithOS(internalOS)).String(),
+		ua.String(),
 	)
 
 	if debugEnabled {
@@ -468,13 +483,22 @@ func MainWithErrorCode() int {
 	}
 
 	// init Analytics
+	knownCommands, knownFlags := instrumentation.GetKnownCommandsAndFlags(globalEngine)
 	cliAnalytics := globalEngine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
-	cliAnalytics.SetCmdArguments(os.Args[1:])
+	cliAnalytics.SetCmdArguments(os.Args)
 	cliAnalytics.SetOperatingSystem(internalOS)
+	cliAnalytics.GetInstrumentation().SetUserAgent(ua)
+	cliAnalytics.GetInstrumentation().SetInteractionId(instrumentation.AssembleUrnFromUUID(interactionId))
+	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategoryFromArgs(os.Args, knownCommands, knownFlags))
+	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
+	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
+
+	cliAnalytics.GetInstrumentation().SetTargetId("pkg:") // TODO use method when existing
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		defer sendAnalytics(cliAnalytics, globalLogger)
 	}
+	defer sendInstrumentation(cliAnalytics.GetInstrumentation(), globalLogger)
 
 	setTimeout(globalConfiguration, func() {
 		os.Exit(constants.SNYK_EXIT_CODE_EX_UNAVAILABLE)
@@ -500,6 +524,12 @@ func MainWithErrorCode() int {
 
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Exiting with %d", exitCode)
+
+	cliAnalytics.GetInstrumentation().SetDuration(time.Since(startTime))
+	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
+	if exitCode == 2 {
+		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
+	}
 
 	return exitCode
 }
