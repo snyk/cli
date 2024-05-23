@@ -524,6 +524,7 @@ func MainWithErrorCode() int {
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Exiting with %d", exitCode)
 
+	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
 		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
 	}
