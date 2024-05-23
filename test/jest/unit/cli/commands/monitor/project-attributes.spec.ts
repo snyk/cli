@@ -1,9 +1,9 @@
-import { generateProjectAttributes } from '../../../../src/cli/commands/monitor';
+import { generateProjectAttributes } from '../../../../../../src/cli/commands/monitor';
 import {
   PROJECT_CRITICALITY,
   PROJECT_ENVIRONMENT,
   PROJECT_LIFECYCLE,
-} from '../../../../src/lib/types';
+} from '../../../../../../src/lib/types';
 
 describe('project attributes (--lifecycle, --environment, --business-criticality)', () => {
   it('returns undefined when they are all missing, for each option', () => {
