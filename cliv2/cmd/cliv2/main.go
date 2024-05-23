@@ -418,6 +418,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 }
 
 func MainWithErrorCode() int {
+	startTime := time.Now()
 	var err error
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
@@ -524,6 +525,7 @@ func MainWithErrorCode() int {
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Exiting with %d", exitCode)
 
+	cliAnalytics.GetInstrumentation().SetDuration(time.Now().Sub(startTime))
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
 		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
