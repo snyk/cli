@@ -4,18 +4,11 @@
 
 ## Prerequisites
 
-You will need the following software installed:
-
-- Git
-- Node.js (and bundled npm)
-  - Use whichever version is in [`.nvmrc`](./.nvmrc).
-
-Open a terminal and make sure they are available.
+To install the required development dependencies in homebrew based environments, execute the following script from the root directory.
+The only additional prerequisite is having [homebrew](https://brew.sh/) installed.
 
 ```sh
-git --version
-node --version
-npm --version
+./scripts/install-dev-dependencies.sh
 ```
 
 ## Setting up
@@ -60,6 +53,12 @@ You can run tests using standard Jest commands. See: [Jest CLI docs](https://jes
 
 ```
 npx jest --runInBand <path>
+```
+
+For closed box tests (like User Journey tests, acceptance tests, ...) you will have to specify the binary under test by setting the environment variable **TEST_SNYK_COMMAND**.
+
+```
+TEST_SNYK_COMMAND=./binary-releases/snyk-macos npx jest --runInBand <path>
 ```
 
 If you are working on a specific project, you can filter by project.
@@ -219,12 +218,6 @@ docs: update contributing guide
 We often get questions on how to contribute to this repo. What versions to use, what the workflow is, and so on. This change updates our CONTRIBUTING guide to answer those types of questions.
 ```
 
-### No breaking changes
-
-Your changes must be backwards compatible and cannot break existing user pipelines.
-
-Don't use `BREAKING CHANGE` or exclamation mark `!` from the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
-
 ### Commit types
 
 The commit type is used to summarize intent and to automate various steps.
@@ -233,11 +226,23 @@ The commit type is used to summarize intent and to automate various steps.
 | ---------- | ----------------------------------------------- |
 | `feat`     | A new user-facing feature.                      |
 | `fix`      | A bug fix for an existing feature.              |
-| `refactor` | Changes which do not affect existing features.  |
-| `test`     | Changes to tests for existing features.         |
-| `docs`     | Changes to documentation for existing features. |
 | `chore`    | Build, workflow and pipeline changes.           |
+| `test`     | Changes to tests for existing features.         |
+| `refactor` | Changes which do not affect existing features.  |
+| `docs`     | Changes to documentation for existing features. |
 | `revert`   | Reverting a previous commit.                    |
+
+### Writing commit messages
+
+When writing your commit message, keep in mind that it will be used to build our user-facing release notes. To ensure everyone benefits from your changes, please write messages that are clear and concise, even for those unfamiliar with the code itself.
+
+Focus on the _what_ rather than the _how_. Instead of "Upgraded external-dependency" explain the impact this has on users: "Improved search accuracy to deliver more relevant results". This way, users can easily see the value of upgrading to the latest release.
+
+### No breaking changes
+
+Your changes must be backwards compatible and cannot break existing user pipelines.
+
+Don't use `BREAKING CHANGE` or exclamation mark `!` from the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
 ## Pushing changes
 

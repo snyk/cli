@@ -1,23 +1,36 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
+	"os/exec"
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
+	"github.com/rs/zerolog"
+	"github.com/snyk/go-application-framework/pkg/configuration"
+	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
+	"github.com/snyk/go-application-framework/pkg/mocks"
+	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
-	"github.com/snyk/go-application-framework/pkg/configuration"
-	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
-	"github.com/snyk/go-application-framework/pkg/workflow"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
+	clierrors "github.com/snyk/cli/cliv2/internal/errors"
 )
 
 func cleanup() {
 	helpProvided = false
 	globalConfiguration = nil
-	engine = nil
+	globalEngine = nil
 }
 
 func Test_MainWithErrorCode(t *testing.T) {
@@ -93,7 +106,7 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 
 	globalConfiguration = configuration.New()
 	globalConfiguration.Set(configuration.DEBUG, true)
-	engine = workflow.NewWorkFlowEngine(globalConfiguration)
+	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		return []workflow.Data{}, nil
@@ -104,17 +117,17 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 	for _, v := range commandList {
 		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 		workflowId1 := workflow.NewWorkflowIdentifier(v)
-		_, err := engine.Register(workflowId1, workflowConfig, fn)
+		_, err := globalEngine.Register(workflowId1, workflowConfig, fn)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
 
-	_ = engine.Init()
+	_ = globalEngine.Init()
 	rootCommand := prepareRootCommand()
 
 	// invoke method under test
-	createCommandsForWorkflows(rootCommand, engine)
+	createCommandsForWorkflows(rootCommand, globalEngine)
 
 	// test that root subcmd2 has expected subcommands
 	cmd, _, _ := rootCommand.Find([]string{"cmd"})
@@ -151,7 +164,6 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 }
 
 func Test_runMainWorkflow_unknownargs(t *testing.T) {
-
 	tests := map[string]struct {
 		inputDir    string
 		unknownArgs []string
@@ -163,14 +175,13 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-
 			expectedInputDir := tc.inputDir
 			expectedUnknownArgs := tc.unknownArgs
 
 			defer cleanup()
 			globalConfiguration = configuration.New()
 			globalConfiguration.Set(configuration.DEBUG, true)
-			engine = workflow.NewWorkFlowEngine(globalConfiguration)
+			globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
 
 			fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 				return []workflow.Data{}, nil
@@ -181,13 +192,13 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 			for _, v := range commandList {
 				workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 				workflowId1 := workflow.NewWorkflowIdentifier(v)
-				_, err := engine.Register(workflowId1, workflowConfig, fn)
+				_, err := globalEngine.Register(workflowId1, workflowConfig, fn)
 				if err != nil {
 					t.Fatal(err)
 				}
 			}
 
-			_ = engine.Init()
+			_ = globalEngine.Init()
 
 			config := configuration.NewInMemory()
 			cmd := &cobra.Command{
@@ -216,12 +227,152 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 	}
 }
 
+func Test_getErrorFromWorkFlowData(t *testing.T) {
+	engine := workflow.NewWorkFlowEngine(configuration.New())
+	engine.Init()
+
+	t.Run("nil error", func(t *testing.T) {
+		err := getErrorFromWorkFlowData(engine, nil)
+		assert.Nil(t, err)
+	})
+	t.Run("workflow error", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		data := workflow.NewData(workflowIdentifier, "application/json", []byte(`{"error": "test error"}`))
+		err := getErrorFromWorkFlowData(engine, []workflow.Data{data})
+		assert.Nil(t, err)
+	})
+	t.Run("workflow with test findings", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		payload, err := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    99,
+				Open:     97,
+				Ignored:  2,
+			}},
+			Type: "sast",
+		})
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, payload)
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
+		require.NotNil(t, err)
+		var expectedError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, err, &expectedError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, expectedError.ExitCode)
+	})
+
+	t.Run("workflow with empty testing findings", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		d, err := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    0,
+				Open:     0,
+				Ignored:  0,
+			}},
+			Type: "sast",
+		})
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
+		assert.Nil(t, err)
+	})
+}
+
+func Test_runWorkflowAndProcessData(t *testing.T) {
+	defer cleanup()
+	globalConfiguration = configuration.New()
+	globalConfiguration.Set(configuration.DEBUG, true)
+	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+
+	testCmnd := "subcmd1"
+	workflowId1 := workflow.NewWorkflowIdentifier("output")
+
+	outputFn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+		summaryPayload, _ := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    99,
+				Open:     97,
+				Ignored:  2,
+			}, {
+				Severity: "medium",
+				Total:    99,
+				Open:     97,
+				Ignored:  2,
+			}},
+			Type: "sast",
+		})
+		data := workflow.NewData(workflow.NewTypeIdentifier(workflowId1, "workflowData"), content_type.TEST_SUMMARY, summaryPayload)
+		return []workflow.Data{
+			data,
+		}, nil
+	}
+
+	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+
+	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
+		testSummary := json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{
+				{
+					Severity: "critical",
+					Total:    10,
+					Open:     10,
+					Ignored:  0,
+				},
+			},
+			Type: "sast",
+		}
+
+		var d []byte
+		d, err = json.Marshal(testSummary)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		data := workflow.NewData(typeId, content_type.TEST_SUMMARY, d)
+		return []workflow.Data{
+			data,
+		}, nil
+	}
+
+	// setup workflow engine to contain a workflow with subcommands
+	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
+
+	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
+	assert.Nil(t, err)
+	assert.NotNil(t, entry)
+
+	err = globalEngine.Init()
+	assert.NoError(t, err)
+
+	// invoke method under test
+	logger := zerolog.New(os.Stderr)
+	err = runWorkflowAndProcessData(globalEngine, &logger, testCmnd)
+
+	var expectedError *clierrors.ErrorWithExitCode
+	assert.ErrorAs(t, err, &expectedError)
+	assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, expectedError.ExitCode)
+
+	actualCode := cliv2.DeriveExitCode(err)
+	assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualCode)
+}
+
 func Test_setTimeout(t *testing.T) {
 	exitedCh := make(chan struct{})
 	fakeExit := func() {
 		close(exitedCh)
 	}
-	config := configuration.New()
+	config := configuration.NewInMemory()
 	config.Set(configuration.TIMEOUT, 1)
 	setTimeout(config, fakeExit)
 	select {
@@ -231,3 +382,51 @@ func Test_setTimeout(t *testing.T) {
 		t.Fatal("timeout func never executed")
 	}
 }
+
+func Test_displayError(t *testing.T) {
+	mockController := gomock.NewController(t)
+	userInterface := mocks.NewMockUserInterface(mockController)
+
+	t.Run("prints out generic error messages", func(t *testing.T) {
+		err := errors.New("test error")
+		userInterface.EXPECT().OutputError(err).Times(1)
+
+		config := configuration.NewInMemory()
+		displayError(err, userInterface, config)
+	})
+
+	scenarios := []struct {
+		name string
+		err  error
+	}{
+		{
+			name: "exec.ExitError",
+			err:  &exec.ExitError{},
+		},
+		{
+			name: "clierrors.ErrorWithExitCode",
+			err:  &clierrors.ErrorWithExitCode{ExitCode: 42},
+		},
+	}
+
+	for _, scenario := range scenarios {
+		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
+			config := configuration.NewInMemory()
+			err := scenario.err
+			displayError(err, userInterface, config)
+		})
+	}
+
+	t.Run("prints messages of error wrapping exec.ExitError", func(t *testing.T) {
+		err := &wrErr{wraps: &exec.ExitError{}}
+		userInterface.EXPECT().OutputError(err).Times(1)
+
+		config := configuration.NewInMemory()
+		displayError(err, userInterface, config)
+	})
+}
+
+type wrErr struct{ wraps error }
+
+func (e *wrErr) Error() string { return "something went wrong" }
+func (e *wrErr) Unwrap() error { return e.wraps }

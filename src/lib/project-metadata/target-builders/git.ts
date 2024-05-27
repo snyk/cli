@@ -1,6 +1,9 @@
 import * as url from 'url';
 import subProcess = require('../../sub-process');
 import { GitTarget } from '../types';
+import * as debugModule from 'debug';
+
+const debug = debugModule('snyk:git');
 
 // for scp-like syntax [user@]server:project.git
 const originRegex = /(.+@)?(.+):(.+$)/;
@@ -44,6 +47,7 @@ export async function getInfo({
   } catch (err) {
     // Swallowing exception since we don't want to break the monitor if there is a problem
     // executing git commands.
+    debug('getInfo error getting target remoteUrl:', err);
   }
 
   try {
@@ -55,6 +59,7 @@ export async function getInfo({
   } catch (err) {
     // Swallowing exception since we don't want to break the monitor if there is a problem
     // executing git commands.
+    debug('getInfo error getting target branch:', err);
   }
 
   return target;

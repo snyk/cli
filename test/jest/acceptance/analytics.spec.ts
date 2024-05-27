@@ -4,15 +4,16 @@ import {
   createProjectFromWorkspace,
 } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { getServerPort } from '../util/getServerPort';
 
 jest.setTimeout(1000 * 30);
 
 describe('analytics module', () => {
   let server;
   let env: Record<string, string>;
+  const port = getServerPort(process);
 
   beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '12345';
     const baseApi = '/api/v1';
     env = {
       ...process.env,
@@ -58,7 +59,7 @@ describe('analytics module', () => {
 
     expect(lastRequest).toMatchObject({
       headers: {
-        host: 'localhost:12345',
+        host: `localhost:${port}`,
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
@@ -132,7 +133,7 @@ describe('analytics module', () => {
     const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
       headers: {
-        host: 'localhost:12345',
+        host: `localhost:${port}`,
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
@@ -210,7 +211,7 @@ describe('analytics module', () => {
     const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
       headers: {
-        host: 'localhost:12345',
+        host: `localhost:${port}`,
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
@@ -355,7 +356,7 @@ describe('analytics module', () => {
     const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
       headers: {
-        host: 'localhost:12345',
+        host: `localhost:${port}`,
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
@@ -407,7 +408,7 @@ describe('analytics module', () => {
     const lastRequest = server.popRequest();
     expect(lastRequest).toMatchObject({
       headers: {
-        host: 'localhost:12345',
+        host: `localhost:${port}`,
         'content-length': expect.any(String),
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',

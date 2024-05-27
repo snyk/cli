@@ -39,6 +39,8 @@ describe('snyk container', () => {
         id: 'base-files@11.1+deb11u7',
         info: {
           name: 'base-files',
+          purl:
+            'pkg:deb/debian/base-files@11.1%2Bdeb11u7?distro=debian-bullseye',
           version: '11.1+deb11u7',
         },
       },
@@ -46,6 +48,7 @@ describe('snyk container', () => {
         id: 'netbase@6.3',
         info: {
           name: 'netbase',
+          purl: 'pkg:deb/debian/netbase@6.3?distro=debian-bullseye',
           version: '6.3',
         },
       },
@@ -53,6 +56,8 @@ describe('snyk container', () => {
         id: 'tzdata@2021a-1+deb11u10',
         info: {
           name: 'tzdata',
+          purl:
+            'pkg:deb/debian/tzdata@2021a-1%2Bdeb11u10?distro=debian-bullseye',
           version: '2021a-1+deb11u10',
         },
       },
@@ -110,6 +115,42 @@ describe('snyk container', () => {
         'container test amazonlinux:2022.0.20220504.1 --print-deps',
       );
       await expect(cli).toDisplay(`yum @ 4.9.0`, { timeout: 60 * 1000 });
+    });
+
+    it('npm depGraph is generated in an npm image with lockfiles', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/npm7-with-package-lock-file.tar --print-deps`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Package manager:   npm');
+    });
+
+    it('npm depGraph is generated in an npm image without package-lock.json file', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/npm7-without-package-lock-file.tar --print-deps`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Package manager:   npm');
+    });
+
+    it('npm depGraph is generated in an npm image without package-lock.json and package.json file', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/npm7-without-package-and-lock-file.tar --print-deps`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Package manager:   npm');
+    });
+
+    it('npm depGraph is generated in an npm image with lockfiles image', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/npm7-without-package-lock-file.tar --print-deps`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Package manager:   npm');
     });
 
     it('finds dependencies in oci image (library/ubuntu)', async () => {
@@ -185,7 +226,7 @@ DepGraph end`,
       });
     });
 
-    it('should print sbom for image', async () => {
+    it('should print sbom for image - spdx', async () => {
       const {
         code,
         stdout,
@@ -201,7 +242,62 @@ DepGraph end`,
       expect(() => {
         sbom = JSON.parse(stdout);
       }).not.toThrow();
-      expect(sbom.metadata.component.name).toEqual('gcr.io/distroless/static');
+      expect(sbom.name).toEqual('gcr.io/distroless/static');
+      expect(sbom.spdxVersion).toEqual('SPDX-2.3');
+      expect(sbom.packages).toHaveLength(
+        TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
+      );
+    });
+
+    it('should print sbom for image - cyclonedx 1.4', async () => {
+      const {
+        code,
+        stdout,
+        stderr,
+      } = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.4+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
+        { env },
+      );
+
+      let sbom: any;
+      assertCliExitCode(code, 0, stderr);
+
+      expect(() => {
+        sbom = JSON.parse(stdout);
+      }).not.toThrow();
+
+      expect(sbom.specVersion).toEqual('1.4');
+      expect(sbom['$schema']).toEqual(
+        'http://cyclonedx.org/schema/bom-1.4.schema.json',
+      );
+
+      expect(sbom.components).toHaveLength(
+        TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
+      );
+    });
+
+    it('should print sbom for image - cyclonedx 1.5', async () => {
+      const {
+        code,
+        stdout,
+        stderr,
+      } = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.5+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
+        { env },
+      );
+
+      let sbom: any;
+      assertCliExitCode(code, 0, stderr);
+
+      expect(() => {
+        sbom = JSON.parse(stdout);
+      }).not.toThrow();
+
+      expect(sbom.specVersion).toEqual('1.5');
+      expect(sbom['$schema']).toEqual(
+        'http://cyclonedx.org/schema/bom-1.5.schema.json',
+      );
+
       expect(sbom.components).toHaveLength(
         TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
       );

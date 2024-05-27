@@ -3,6 +3,7 @@ import * as upperFirst from 'lodash.upperfirst';
 import { AnnotatedIssue, TestResult } from '../snyk-test/legacy';
 import { SEVERITY } from '../snyk-test/legacy';
 import { getResults } from './get-sarif-result';
+import { getVersion } from '../version';
 
 export function createSarifOutputForContainers(
   testResults: TestResult[],
@@ -36,6 +37,9 @@ export function getTool(testResult): sarif.Tool {
   const tool: sarif.Tool = {
     driver: {
       name: 'Snyk Container',
+      semanticVersion: getVersion(),
+      version: getVersion(),
+      informationUri: 'https://docs.snyk.io/',
       properties: {
         artifactsScanned: testResult.dependencyCount,
       },
@@ -82,7 +86,8 @@ export function getTool(testResult): sarif.Tool {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             testResult.packageManager!,
           ],
-          cvssv3_baseScore: vuln.cvssScore,
+          cvssv3_baseScore: vuln.cvssScore, // AWS
+          'security-severity': String(vuln.cvssScore), // GitHub
         },
       };
     })

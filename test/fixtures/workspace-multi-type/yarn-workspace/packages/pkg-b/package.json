@@ -1,0 +1,7 @@
+{
+    "name": "pkg-b",
+    "version": "1.0.0",
+    "dependencies": {
+      "accepts": "1.3.7"
+    }
+  }

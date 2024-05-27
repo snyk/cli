@@ -7,7 +7,10 @@ const testFixture = getFixturePath('find-files');
 
 test('find all files in test fixture', async (t) => {
   // six levels deep to find all
-  const { files: result, allFilesFound } = await find(testFixture, [], [], 6);
+  const { files: result, allFilesFound } = await find({
+    path: testFixture,
+    levelsDeep: 6,
+  });
   const expected = [
     path.join(
       testFixture,
@@ -70,7 +73,11 @@ test('find all files in test fixture', async (t) => {
 
 test('find all files in test fixture ignoring node_modules', async (t) => {
   // six levels deep to ensure node_modules is tested
-  const { files: result } = await find(testFixture, ['node_modules'], [], 6);
+  const { files: result } = await find({
+    path: testFixture,
+    ignore: ['node_modules'],
+    levelsDeep: 6,
+  });
   const expected = [
     path.join(
       testFixture,
@@ -100,12 +107,11 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
 test('find package.json file in test fixture ignoring node_modules', async (t) => {
   // six levels deep to ensure node_modules is tested
   const nodeModulesPath = path.join(testFixture, 'node_modules');
-  const { files: result } = await find(
-    nodeModulesPath,
-    [],
-    ['package.json'],
-    6,
-  );
+  const { files: result } = await find({
+    path: nodeModulesPath,
+    filter: ['package.json'],
+    levelsDeep: 6,
+  });
   const expected = [];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
@@ -113,23 +119,21 @@ test('find package.json file in test fixture ignoring node_modules', async (t) =
 test('find Package.swift file in test fixture ignoring .build folder', async (t) => {
   // six levels deep to ensure .build is tested
   const nodeModulesPath = path.join(testFixture, '.build');
-  const { files: result } = await find(
-    nodeModulesPath,
-    [],
-    ['Package.swift'],
-    6,
-  );
+  const { files: result } = await find({
+    path: nodeModulesPath,
+    filter: ['Package.swift'],
+    levelsDeep: 6,
+  });
   const expected = [];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
 test('find Package.swift file in test fixture ignoring test.build folder ', async (t) => {
   const nodeModulesPath = path.join(testFixture, 'swift', 'test.build');
-  const { files: result } = await find(
-    nodeModulesPath,
-    [],
-    ['Package.swift'],
-    6,
-  );
+  const { files: result } = await find({
+    path: nodeModulesPath,
+    filter: ['Package.swift'],
+    levelsDeep: 6,
+  });
   const expected = [
     path.join(testFixture, 'swift', 'test.build', 'Package.swift'),
   ];
@@ -138,7 +142,11 @@ test('find Package.swift file in test fixture ignoring test.build folder ', asyn
 
 test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
   // six levels deep to ensure node_modules is tested
-  const { files: result } = await find(testFixture, [], ['package.json'], 6);
+  const { files: result } = await find({
+    path: testFixture,
+    filter: ['package.json'],
+    levelsDeep: 6,
+  });
   const expected = [
     path.join(testFixture, 'npm', 'package.json'),
     path.join(testFixture, 'npm-with-lockfile', 'package.json'),
@@ -150,12 +158,11 @@ test('find package.json file in test fixture (by default ignoring node_modules)'
 test('find package-lock.json file in test fixture (ignore package.json in the same folder)', async (t) => {
   const npmLockfilePath = path.join(testFixture, 'npm-with-lockfile');
 
-  const { files: result } = await find(
-    npmLockfilePath,
-    [],
-    ['package.json', 'package-lock.json'],
-    1,
-  );
+  const { files: result } = await find({
+    path: npmLockfilePath,
+    filter: ['package.json', 'package-lock.json'],
+    levelsDeep: 1,
+  });
   const expected = [path.join(npmLockfilePath, 'package-lock.json')];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
@@ -163,12 +170,11 @@ test('find package-lock.json file in test fixture (ignore package.json in the sa
 test('find build.gradle file in test fixture (ignore build.gradle in the same folder)', async (t) => {
   const buildGradle = path.join(testFixture, 'gradle-and-kotlin');
 
-  const { files: result } = await find(
-    buildGradle,
-    [],
-    ['build.gradle.kts', 'build.gradle'],
-    1,
-  );
+  const { files: result } = await find({
+    path: buildGradle,
+    filter: ['build.gradle.kts', 'build.gradle'],
+    levelsDeep: 1,
+  });
   const expected = [path.join(buildGradle, 'build.gradle')];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
@@ -176,12 +182,11 @@ test('find build.gradle file in test fixture (ignore build.gradle in the same fo
 test('find Gemfile.lock file in test fixture (ignore Gemfile in the same folder)', async (t) => {
   const npmLockfilePath = path.join(testFixture, 'ruby');
 
-  const { files: result } = await find(
-    npmLockfilePath,
-    [],
-    ['Gemfile', 'Gemfile.lock'],
-    1,
-  );
+  const { files: result } = await find({
+    path: npmLockfilePath,
+    filter: ['Gemfile', 'Gemfile.lock'],
+    levelsDeep: 1,
+  });
   const expected = [path.join(npmLockfilePath, 'Gemfile.lock')];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
@@ -189,19 +194,22 @@ test('find Gemfile.lock file in test fixture (ignore Gemfile in the same folder)
 test('find yarn.lock file in test fixture (ignore package.json in the same folder)', async (t) => {
   const yarnLockfilePath = path.join(testFixture, 'yarn');
 
-  const { files: result } = await find(
-    yarnLockfilePath,
-    [],
-    ['package.json', 'yarn.lock'],
-    1,
-  );
+  const { files: result } = await find({
+    path: yarnLockfilePath,
+    filter: ['package.json', 'yarn.lock'],
+    levelsDeep: 1,
+  });
   const expected = [path.join(yarnLockfilePath, 'yarn.lock')];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
 
 test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
   // four levels deep to ensure node_modules is tested
-  const { files: result } = await find(testFixture, [], ['package.json'], 4);
+  const { files: result } = await find({
+    path: testFixture,
+    filter: ['package.json'],
+    levelsDeep: 4,
+  });
   const expected = [
     path.join(testFixture, 'npm', 'package.json'),
     path.join(testFixture, 'npm-with-lockfile', 'package.json'),
@@ -211,13 +219,19 @@ test('find package.json file in test fixture (by default ignoring node_modules)'
 });
 
 test('find Gemfile file in test fixture', async (t) => {
-  const { files: result } = await find(testFixture, [], ['Gemfile']);
+  const { files: result } = await find({
+    path: testFixture,
+    filter: ['Gemfile'],
+  });
   const expected = [path.join(testFixture, 'ruby', 'Gemfile')];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
 
 test('find pom.xml files in test fixture', async (t) => {
-  const { files: result } = await find(testFixture, [], ['pom.xml']);
+  const { files: result } = await find({
+    path: testFixture,
+    filter: ['pom.xml'],
+  });
   const expected = [
     path.join(testFixture, 'maven', 'pom.xml'),
     path.join(testFixture, 'mvn', 'pom.xml'),
@@ -227,7 +241,7 @@ test('find pom.xml files in test fixture', async (t) => {
 
 test('find path that does not exist', async (t) => {
   try {
-    await find('does-not-exist');
+    await find({ path: 'does-not-exist' });
     t.fail('expected exception to be thrown');
   } catch (err) {
     t.match(
@@ -240,7 +254,7 @@ test('find path that does not exist', async (t) => {
 
 test('find path is empty string', async (t) => {
   try {
-    await find('');
+    await find({ path: '' });
     t.fail('expected exception to be thrown');
   } catch (err) {
     t.match(

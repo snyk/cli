@@ -1,8 +1,12 @@
-import { createProjectFromWorkspace } from '../../util/createProject';
+import {
+  createProjectFromFixture,
+  createProjectFromWorkspace,
+} from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { runCommand } from '../../util/runCommand';
 import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
+import { getServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
@@ -22,7 +26,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   let dontSkip: boolean;
 
   beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const port = getServerPort(process);
     const baseApi = '/api/v1';
     env = {
       ...process.env,
@@ -192,6 +196,12 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     },
     {
       fixture: 'nuget-app-7-windows',
+    },
+    {
+      fixture: 'nuget-app-netstandard20',
+    },
+    {
+      fixture: 'nuget-app-8-with-azure-functions',
     },
   ])(
     'run `snyk test` on a nuget project using v2 dotnet runtime resolution logic for $fixture',
@@ -400,5 +410,47 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     } else {
       console.warn('sbt not found, skipping test!');
     }
+  });
+
+  test('run `snyk test` on a pnpm project', async () => {
+    const project = await createProjectFromFixture('pnpm-app');
+
+    const { code } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+  });
+
+  test('run `snyk test` on a pnpm project without `enablePnpmCli` feature flag enabled', async () => {
+    server.setFeatureFlag('enablePnpmCli', false);
+    const project = await createProjectFromFixture('pnpm-app');
+
+    const { code, stdout } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(stdout).toMatch('Target file:       package.json');
+    expect(stdout).toMatch('Package manager:   npm');
+
+    expect(code).toEqual(0);
+  });
+
+  test('run `snyk test` on a pnpm project with `enablePnpmCli` feature flag enabled', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture('pnpm-app');
+
+    const { code, stdout } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(stdout).toMatch('Target file:       pnpm-lock.yaml');
+    expect(stdout).toMatch('Package manager:   pnpm');
+
+    expect(code).toEqual(0);
   });
 });

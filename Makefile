@@ -93,8 +93,11 @@ $(BINARY_OUTPUT_FOLDER)/release.json:
 #   We're using this to remove CLIv2 changes in v1's changelogs.
 #   :(exclude) syntax: https://git-scm.com/docs/gitglossary.html#Documentation/gitglossary.txt-exclude
 # Release notes uses version from package.json so we need to prepack beforehand.
-$(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	npx conventional-changelog-cli -p angular -l -r 1 > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
+$(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md:
+	npx conventional-changelog-cli -l -r 1 -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
+
+$(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips
+	@cp $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md
 
 # Generates a shasum of a target with the same name.
 # See "Automatic Variables" in GNU Make docs (linked at the top)
@@ -247,7 +250,7 @@ clean-golang:
 .PHONY: acceptance-test-with-proxy
 acceptance-test-with-proxy: pre-build
 	@echo "-- Running acceptance tests in a proxied environment"
-	@docker build -t acceptance-test-with-proxy -f ./test/acceptance/environments/proxy/Dockerfile .
+	@docker build -t acceptance-test-with-proxy -f ./scripts/environments/proxy/Dockerfile .
 	@docker run --rm --cap-add=NET_ADMIN acceptance-test-with-proxy ./node_modules/.bin/jest ./ts-binary-wrapper/test/acceptance/basic.spec.ts
 # TODO: Run all acceptance tests behind a proxy using npm run test:acceptance
 
@@ -262,6 +265,16 @@ release-pre:
 	@./release-scripts/upload-artifacts.sh --dry-run preview latest github npm
 	@echo "-- Publishing to S3 /version"
 	@./release-scripts/upload-artifacts.sh version
+
+.PHONY: release-mgt-prepare
+release-mgt-prepare:
+	@echo "-- Preparing release"
+	@./release-scripts/prepare-release.sh
+
+.PHONY: release-mgt-create
+release-mgt-create:
+	@echo "-- Creating stable release"
+	@./release-scripts/create-release.sh
 
 .PHONY: format
 format:

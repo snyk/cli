@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -18,6 +17,7 @@ type ProcessOutput struct {
 }
 
 func getBinPath(t *testing.T) string {
+	t.Helper()
 	cliBinPath := os.Getenv("TEST_SNYK_EXECUTABLE_PATH")
 
 	_, err := os.Stat(cliBinPath)
@@ -30,6 +30,7 @@ func getBinPath(t *testing.T) string {
 }
 
 func LaunchAsProccess(t *testing.T, args []string) *ProcessOutput {
+	t.Helper()
 	snykCLIPath := getBinPath(t)
 	t.Log("snykCLIPath:", snykCLIPath)
 
@@ -68,6 +69,7 @@ type TestProject struct {
 }
 
 func SetupTestProject(t *testing.T) *TestProject {
+	t.Helper()
 	snykCLIPath := getBinPath(t)
 	t.Log("snykCLIPath:", snykCLIPath)
 
@@ -102,11 +104,13 @@ func SetupTestProject(t *testing.T) *TestProject {
 }
 
 func (tp *TestProject) CopyFixture(t *testing.T, fixturePath string) error {
+	t.Helper()
 	err := copyDir(fixturePath, tp.TestDirectoryPath)
 	return err
 }
 
 func SetupTestProjectWithFixture(t *testing.T, fixturePath string) *TestProject {
+	t.Helper()
 	testProject := SetupTestProject(t)
 	err := testProject.CopyFixture(t, fixturePath)
 	if err != nil {
@@ -116,6 +120,7 @@ func SetupTestProjectWithFixture(t *testing.T, fixturePath string) *TestProject 
 }
 
 func (tp *TestProject) LaunchCLI(t *testing.T, args []string) *ProcessOutput {
+	t.Helper()
 	t.Log("TestDirectoryPath:", tp.TestDirectoryPath)
 	t.Log("SnykCliPath:", tp.SnykCliPath)
 
@@ -189,7 +194,7 @@ func copyDir(sourceDir, destinationDir string) error {
 		return fmt.Errorf("%s is not a directory", destinationDir)
 	}
 
-	files, err := ioutil.ReadDir(sourceDir)
+	files, err := os.ReadDir(sourceDir)
 	if err != nil {
 		return err
 	}

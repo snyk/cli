@@ -1,10 +1,15 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 
-const sortBy = require('lodash.sortby');
-const groupBy = require('lodash.groupby');
+import * as sortBy from 'lodash.sortby';
+import * as groupBy from 'lodash.groupby';
+import * as assign from 'lodash.assign';
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
+import {
+  PNPM_FEATURE_FLAG,
+  SUPPORTED_MANIFEST_FILES,
+} from './package-managers';
 
 const debug = debugModule('snyk:find-files');
 
@@ -49,6 +54,30 @@ interface FindFilesRes {
 
 const ignoreFolders = ['node_modules', '.build'];
 
+interface FindFilesConfig {
+  path: string;
+  ignore?: string[];
+  filter?: string[];
+  levelsDeep?: number;
+  featureFlags?: Set<string>;
+}
+
+type DefaultFindConfig = {
+  path: string;
+  ignore: string[];
+  filter: string[];
+  levelsDeep: number;
+  featureFlags: Set<string>;
+};
+
+const defaultFindConfig: DefaultFindConfig = {
+  path: '',
+  ignore: [],
+  filter: [],
+  levelsDeep: 4,
+  featureFlags: new Set<string>(),
+};
+
 /**
  * Find all files in given search path. Returns paths to files found.
  *
@@ -57,45 +86,36 @@ const ignoreFolders = ['node_modules', '.build'];
  * @param filter (optional) file names to find. If not provided all files are returned.
  * @param levelsDeep (optional) how many levels deep to search, defaults to two, this path and one sub directory.
  */
-export async function find(
-  path: string,
-  ignore: string[] = [],
-  filter: string[] = [],
-  levelsDeep = 4,
-): Promise<FindFilesRes> {
+export async function find(findConfig: FindFilesConfig): Promise<FindFilesRes> {
+  const config: DefaultFindConfig = assign({}, defaultFindConfig, findConfig);
   const found: string[] = [];
   const foundAll: string[] = [];
 
   // ensure we ignore find against node_modules path and .build folder for swift.
-  if (path.endsWith('node_modules') || path.endsWith('/.build')) {
+  if (config.path.endsWith('node_modules') || config.path.endsWith('/.build')) {
     return { files: found, allFilesFound: foundAll };
   }
 
   // ensure dependencies folders is always ignored
   for (const folder of ignoreFolders) {
-    if (!ignore.includes(folder)) {
-      ignore.push(folder);
+    if (!config.ignore.includes(folder)) {
+      config.ignore.push(folder);
     }
   }
 
   try {
-    if (levelsDeep < 0) {
+    if (config.levelsDeep < 0) {
       return { files: found, allFilesFound: foundAll };
     } else {
-      levelsDeep--;
+      config.levelsDeep--;
     }
-    const fileStats = await getStats(path);
+    const fileStats = await getStats(config.path);
     if (fileStats.isDirectory()) {
-      const { files, allFilesFound } = await findInDirectory(
-        path,
-        ignore,
-        filter,
-        levelsDeep,
-      );
+      const { files, allFilesFound } = await findInDirectory(config);
       found.push(...files);
       foundAll.push(...allFilesFound);
     } else if (fileStats.isFile()) {
-      const fileFound = findFile(path, filter);
+      const fileFound = findFile(config.path, config.filter);
       if (fileFound) {
         found.push(fileFound);
         foundAll.push(fileFound);
@@ -109,9 +129,14 @@ export async function find(
         } files: ${filteredOutFiles.join(', ')}`,
       );
     }
-    return { files: filterForDefaultManifests(found), allFilesFound: foundAll };
+    return {
+      files: filterForDefaultManifests(found, config.featureFlags),
+      allFilesFound: foundAll,
+    };
   } catch (err) {
-    throw new Error(`Error finding files in path '${path}'.\n${err.message}`);
+    throw new Error(
+      `Error finding files in path '${config.path}'.\n${err.message}`,
+    );
   }
 }
 
@@ -128,21 +153,23 @@ function findFile(path: string, filter: string[] = []): string | null {
 }
 
 async function findInDirectory(
-  path: string,
-  ignore: string[] = [],
-  filter: string[] = [],
-  levelsDeep = 4,
+  findConfig: FindFilesConfig,
 ): Promise<FindFilesRes> {
-  const files = await readDirectory(path);
+  const config: DefaultFindConfig = assign({}, defaultFindConfig, findConfig);
+  const files = await readDirectory(config.path);
   const toFind = files
-    .filter((file) => !ignore.includes(file))
+    .filter((file) => !config.ignore.includes(file))
     .map((file) => {
-      const resolvedPath = pathLib.resolve(path, file);
+      const resolvedPath = pathLib.resolve(config.path, file);
       if (!fs.existsSync(resolvedPath)) {
         debug('File does not seem to exist, skipping: ', file);
         return { files: [], allFilesFound: [] };
       }
-      return find(resolvedPath, ignore, filter, levelsDeep);
+      const findconfig = {
+        ...config,
+        path: resolvedPath,
+      };
+      return find(findconfig);
     });
 
   const found = await Promise.all(toFind);
@@ -158,7 +185,10 @@ async function findInDirectory(
   };
 }
 
-function filterForDefaultManifests(files: string[]): string[] {
+function filterForDefaultManifests(
+  files: string[],
+  featureFlags: Set<string> = new Set<string>(),
+): string[] {
   // take all the files in the same dir & filter out
   // based on package Manager
   if (files.length <= 1) {
@@ -173,7 +203,7 @@ function filterForDefaultManifests(files: string[]): string[] {
     .map((p) => ({
       path: p,
       ...pathLib.parse(p),
-      packageManager: detectProjectTypeFromFile(p),
+      packageManager: detectProjectTypeFromFile(p, featureFlags),
     }));
   const sorted = sortBy(beforeSort, 'dir');
   const foundFiles = groupBy(sorted, 'dir');
@@ -202,11 +232,12 @@ function filterForDefaultManifests(files: string[]): string[] {
       const defaultManifestFileName = chooseBestManifest(
         filesPerPackageManager,
         packageManager,
+        featureFlags,
       );
       if (defaultManifestFileName) {
         const shouldSkip = shouldSkipAddingFile(
           packageManager,
-          filesPerPackageManager[0].path,
+          filesPerPackageManager[0].path, // defaultManifestFileName?
           filteredFiles,
         );
         if (shouldSkip) {
@@ -219,10 +250,16 @@ function filterForDefaultManifests(files: string[]): string[] {
   return filteredFiles;
 }
 
-function detectProjectTypeFromFile(file: string): string | null {
+function detectProjectTypeFromFile(
+  file: string,
+  featureFlags: Set<string> = new Set<string>(),
+): string | null {
   try {
-    const packageManager = detectPackageManagerFromFile(file);
+    const packageManager = detectPackageManagerFromFile(file, featureFlags);
     if (['yarn', 'npm'].includes(packageManager)) {
+      return 'node';
+    }
+    if (featureFlags.has(PNPM_FEATURE_FLAG) && packageManager === 'pnpm') {
       return 'node';
     }
     return packageManager;
@@ -256,11 +293,19 @@ function shouldSkipAddingFile(
 function chooseBestManifest(
   files: Array<{ base: string; path: string }>,
   projectType: string,
+  featureFlags: Set<string> = new Set<string>([]),
 ): string | null {
   switch (projectType) {
     case 'node': {
+      const nodeLockfiles = [
+        SUPPORTED_MANIFEST_FILES.PACKAGE_LOCK_JSON as string,
+        SUPPORTED_MANIFEST_FILES.YARN_LOCK as string,
+      ];
+      if (featureFlags.has(PNPM_FEATURE_FLAG)) {
+        nodeLockfiles.push(SUPPORTED_MANIFEST_FILES.PNPM_LOCK as string);
+      }
       const lockFile = files.filter((path) =>
-        ['package-lock.json', 'yarn.lock'].includes(path.base),
+        nodeLockfiles.includes(path.base),
       )[0];
       debug(
         `Encountered multiple node lockfiles files, defaulting to ${lockFile.path}`,

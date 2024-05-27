@@ -7,6 +7,7 @@ import {
 } from '../../util/createProject';
 import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { getServerPort } from '../../util/getServerPort';
 
 // Check for existence of pipenv in the environment
 const hasPipEnv = spawnSync('pipenv', ['--version']).status === 0;
@@ -18,7 +19,7 @@ describe('snyk fix', () => {
 
   beforeAll(async () => {
     const apiPath = '/api/v1';
-    const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const apiPort = getServerPort(process);
     env = {
       ...process.env,
       SNYK_API: 'http://localhost:' + apiPort + apiPath,

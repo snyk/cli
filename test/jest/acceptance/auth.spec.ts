@@ -2,6 +2,7 @@ import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { getCliConfig, restoreCliConfig } from '../../acceptance/config-helper';
 import { ciEnvs } from '../../../src/lib/is-ci';
+import { getServerPort } from '../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
@@ -13,7 +14,7 @@ describe('Auth', () => {
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
-    const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const apiPort = getServerPort(process);
     env = {
       ...process.env,
       SNYK_API: 'http://' + getFirstIPv4Address() + ':' + apiPort + apiPath,
@@ -35,6 +36,10 @@ describe('Auth', () => {
 
   beforeEach(async () => {
     initialConfig = await getCliConfig();
+    // delete config
+    await runSnykCLI(`config clear`, {
+      env,
+    });
   });
 
   afterEach(async () => {
@@ -50,11 +55,6 @@ describe('Auth', () => {
       },
     );
     expect(code).toEqual(0);
-
-    // delete test token
-    await runSnykCLI(`config unset INTERNAL_OAUTH_TOKEN_STORAGE`, {
-      env,
-    });
   });
 
   it('fails to us oauth client credentials grant to authenticate', async () => {
@@ -80,6 +80,20 @@ describe('Auth', () => {
     });
 
     console.debug(stderr);
+
+    const resultConfigGet = await runSnykCLI('config get api', {
+      env,
+    });
+
+    expect(code).toEqual(0);
+    expect(resultConfigGet.code).toEqual(0);
+    expect(resultConfigGet.stdout).toContain(serverToken);
+  });
+
+  it('fall back to API token based authentication for IDEs per default', async () => {
+    const { code } = await runSnykCLI(`auth`, {
+      env: { ...env, SNYK_INTEGRATION_NAME: 'VS_CODE' },
+    });
 
     const resultConfigGet = await runSnykCLI('config get api', {
       env,

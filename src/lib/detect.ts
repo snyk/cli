@@ -5,11 +5,13 @@ import { NoSupportedManifestsFoundError } from './errors';
 import {
   SupportedPackageManagers,
   SUPPORTED_MANIFEST_FILES,
+  PNPM_FEATURE_FLAG,
 } from './package-managers';
 
 const debug = debugLib('snyk-detect');
 
 const DETECTABLE_FILES: string[] = [
+  'pnpm-lock.yaml',
   'yarn.lock',
   'package-lock.json',
   'package.json',
@@ -38,6 +40,7 @@ const DETECTABLE_FILES: string[] = [
 ];
 
 export const AUTO_DETECTABLE_FILES: string[] = [
+  'pnpm-lock.yaml',
   'package-lock.json',
   'yarn.lock',
   'package.json',
@@ -81,6 +84,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   [SUPPORTED_MANIFEST_FILES.BUILD_GRADLE_KTS]: 'gradle',
   [SUPPORTED_MANIFEST_FILES.BUILD_SBT]: 'sbt',
   [SUPPORTED_MANIFEST_FILES.YARN_LOCK]: 'yarn',
+  [SUPPORTED_MANIFEST_FILES.PNPM_LOCK]: 'pnpm',
   [SUPPORTED_MANIFEST_FILES.PACKAGE_JSON]: 'npm',
   [SUPPORTED_MANIFEST_FILES.PIPFILE]: 'pip',
   [SUPPORTED_MANIFEST_FILES.SETUP_PY]: 'pip',
@@ -102,16 +106,26 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   [SUPPORTED_MANIFEST_FILES.PACKAGE_SWIFT]: 'swift',
 };
 
-export function isPathToPackageFile(path: string) {
+export function isPathToPackageFile(
+  path: string,
+  featureFlags: Set<string> = new Set<string>(),
+) {
   for (const fileName of DETECTABLE_FILES) {
     if (path.endsWith(fileName)) {
+      if (!isFileCompatible(fileName, featureFlags)) {
+        continue;
+      }
       return true;
     }
   }
   return false;
 }
 
-export function detectPackageManager(root: string, options) {
+export function detectPackageManager(
+  root: string,
+  options,
+  featureFlags: Set<string> = new Set<string>(),
+) {
   // If user specified a package manager let's use it.
   if (options.packageManager) {
     return options.packageManager;
@@ -133,14 +147,14 @@ export function detectPackageManager(root: string, options) {
         );
       }
       file = options.file;
-      packageManager = detectPackageManagerFromFile(file);
+      packageManager = detectPackageManagerFromFile(file, featureFlags);
     } else if (options.scanAllUnmanaged) {
       packageManager = 'maven';
     } else {
       debug('no file specified. Trying to autodetect in base folder ' + root);
-      file = detectPackageFile(root);
+      file = detectPackageFile(root, featureFlags);
       if (file) {
-        packageManager = detectPackageManagerFromFile(file);
+        packageManager = detectPackageManagerFromFile(file, featureFlags);
       }
     }
   } else {
@@ -169,19 +183,41 @@ export function isLocalFolder(root: string) {
   }
 }
 
-export function detectPackageFile(root) {
+function isFileCompatible(
+  file: string,
+  featureFlags: Set<string> = new Set<string>(),
+) {
+  if (
+    file === SUPPORTED_MANIFEST_FILES.PNPM_LOCK &&
+    !featureFlags.has(PNPM_FEATURE_FLAG)
+  ) {
+    return false;
+  }
+  return true;
+}
+
+export function detectPackageFile(
+  root: string,
+  featureFlags: Set<string> = new Set<string>(),
+) {
   for (const file of DETECTABLE_FILES) {
     if (fs.existsSync(pathLib.resolve(root, file))) {
+      if (!isFileCompatible(file, featureFlags)) {
+        debug(
+          `found pnpm lockfile ${file} in ${root}, but ${PNPM_FEATURE_FLAG} not enabled`,
+        );
+        continue;
+      }
       debug('found package file ' + file + ' in ' + root);
       return file;
     }
   }
-
   debug('no package file found in ' + root);
 }
 
 export function detectPackageManagerFromFile(
   file: string,
+  featureFlags: Set<string> = new Set<string>(),
 ): SupportedPackageManagers {
   let key = pathLib.basename(file);
 
@@ -201,6 +237,10 @@ export function detectPackageManagerFromFile(
 
   if (!(key in DETECTABLE_PACKAGE_MANAGERS)) {
     // we throw and error here because the file was specified by the user
+    throw new Error('Could not detect package manager for file: ' + file);
+  }
+
+  if (!isFileCompatible(key, featureFlags)) {
     throw new Error('Could not detect package manager for file: ' + file);
   }
 

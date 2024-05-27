@@ -1,7 +1,10 @@
+export const PNPM_FEATURE_FLAG = 'enablePnpmCli';
+
 export type SupportedPackageManagers =
   | 'rubygems'
   | 'npm'
   | 'yarn'
+  | 'pnpm'
   | 'maven'
   | 'pip'
   | 'sbt'
@@ -30,6 +33,7 @@ export enum SUPPORTED_MANIFEST_FILES {
   BUILD_GRADLE_KTS = 'build.gradle.kts',
   BUILD_SBT = 'build.sbt',
   YARN_LOCK = 'yarn.lock',
+  PNPM_LOCK = 'pnpm-lock.yaml',
   PACKAGE_JSON = 'package.json',
   PIPFILE = 'Pipfile',
   SETUP_PY = 'setup.py',
@@ -57,6 +61,7 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   rubygems: 'RubyGems',
   npm: 'npm',
   yarn: 'Yarn',
+  pnpm: 'pnpm',
   maven: 'Maven',
   pip: 'pip',
   sbt: 'SBT',

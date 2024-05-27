@@ -1,6 +1,7 @@
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../../util/createProject';
+import { getServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
@@ -19,7 +20,7 @@ test('returns value in one line', async () => {
 
 describe('snyk config set endpoint', () => {
   let server: FakeServer;
-  const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+  const port = getServerPort(process);
   const baseApi = '/api';
   const token = '123456789';
 

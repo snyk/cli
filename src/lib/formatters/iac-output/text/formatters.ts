@@ -214,11 +214,5 @@ function extractResolve(vulnerability: Vulnerability): string {
 }
 
 function formatCloudConfigPath(vulnerability: Vulnerability): string[] {
-  const cloudConfigPath = vulnerability.resource.id.split('.');
-
-  if (vulnerability.resource.path) {
-    cloudConfigPath.push(...vulnerability.resource.path);
-  }
-
-  return cloudConfigPath;
+  return vulnerability.resource.formattedPath.split('.');
 }

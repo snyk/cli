@@ -21,7 +21,7 @@ pushd "$SCRIPT_DIR/.."
 
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
-  BASE_IMG_NAME=$DOCKER_USERNAME/cli-build
+  BASE_IMG_NAME=${DOCKER_REPO:-${DOCKER_USERNAME}}/cli-build
   docker buildx build \
     --build-arg NODEVERSION="$NODEVERSION" \
     --build-arg ARCH="x86_64" \
@@ -31,7 +31,7 @@ pushd "$SCRIPT_DIR/.."
     --push \
     --file .circleci/Dockerfile .
 
-  BASE_IMG_NAME=$DOCKER_USERNAME/cli-build-arm64
+  BASE_IMG_NAME=${DOCKER_REPO:-${DOCKER_USERNAME}}/cli-build-arm64
   docker buildx build \
     --build-arg NODEVERSION="$NODEVERSION" \
     --build-arg ARCH="aarch64" \
