@@ -4,7 +4,4 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 
 ### Bug Fixes
 
-* **dependencies:** Upgrade go-getter to v1.7.4 to fix vulnerabilities ([#5252](https://github.com/snyk/snyk/issues/5252))
-
-
-
+- **dependencies:** Upgrade go-getter to v1.7.4 to fix vulnerabilities ([#5252](https://github.com/snyk/snyk/issues/5252))
