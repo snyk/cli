@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 	"time"
 
@@ -261,6 +262,15 @@ func help(_ *cobra.Command, _ []string) error {
 }
 
 func defaultCmd(args []string) error {
+	for _, v := range args {
+		isCommand := slices.Contains(instrumentation.KNOWN_COMMANDS, v)
+		isFlag := strings.HasPrefix(v, "-")
+		if !isCommand && !isFlag {
+			globalConfiguration.Set(configuration.INPUT_DIRECTORY, v)
+			break
+		}
+	}
+
 	// prepare the invocation of the legacy CLI by
 	// * enabling stdio
 	// * by specifying the raw cmd args for it
@@ -484,6 +494,7 @@ func MainWithErrorCode() int {
 
 	// init Analytics
 	knownCommands, knownFlags := instrumentation.GetKnownCommandsAndFlags(globalEngine)
+
 	cliAnalytics := globalEngine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args)
@@ -494,7 +505,6 @@ func MainWithErrorCode() int {
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
 
-	cliAnalytics.GetInstrumentation().SetTargetId("pkg:") // TODO use method when existing
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		defer sendAnalytics(cliAnalytics, globalLogger)
 	}
@@ -525,6 +535,11 @@ func MainWithErrorCode() int {
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Exiting with %d", exitCode)
 
+	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId)
+	if targetIdError != nil {
+		globalLogger.Printf("Failed to derive target id, %v", targetIdError)
+	}
+	cliAnalytics.GetInstrumentation().SetTargetId(targetId)
 	cliAnalytics.GetInstrumentation().SetDuration(time.Since(startTime))
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
