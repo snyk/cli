@@ -8,7 +8,7 @@
 
 ## Description
 
-The `snyk iac capture` command generates a mapping artifact that contains the minimum amount of information needed to generate, from Terraform state files, resource mappings from code to Cloud, such as resource IDs and names, and sends the mapping artifact to Snyk.
+The `snyk iac capture` command generates a mapping artifact that contains the minimum amount of information needed to generate resource mappings from code to Cloud from Terraform state files, such as resource IDs and names, and sends the mapping artifact to Snyk.
 
 Snyk uses this information to link Cloud issues to their originating IaC files. The links can be viewed in the Snyk Web UI.
 
