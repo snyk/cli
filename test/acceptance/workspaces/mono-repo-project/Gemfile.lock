@@ -28,7 +28,6 @@ GEM
     httparty (0.8.1)
       multi_json
       multi_xml
-      multi_json (1.12.1)
     multi_xml (0.5.5)
     nokogiri (1.16.3)
       mini_portile2 (~> 2.8.2)
