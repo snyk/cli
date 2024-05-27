@@ -39,17 +39,20 @@ const multiProjectProcessors = {
 export async function getDepsFromPlugin(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
+  featureFlags: Set<string> = new Set<string>(),
 ): Promise<pluginApi.MultiProjectResult | MultiProjectResultCustom> {
   if (Object.keys(multiProjectProcessors).some((key) => options[key])) {
     const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
-    const { files: targetFiles, allFilesFound } = await find(
-      root,
+
+    const { files: targetFiles, allFilesFound } = await find({
+      path: root,
       ignore,
-      multiProjectProcessors[scanType].files,
+      filter: multiProjectProcessors[scanType].files,
+      featureFlags,
       levelsDeep,
-    );
+    });
     debug(
       `auto detect manifest files, found ${targetFiles.length}`,
       targetFiles,
@@ -63,13 +66,14 @@ export async function getDepsFromPlugin(
       root,
       options,
       targetFiles,
+      featureFlags,
     );
     const scannedProjects = inspectRes.scannedProjects;
     const analyticData = {
       scannedProjects: scannedProjects.length,
       targetFiles,
       packageManagers: targetFiles.map((file) =>
-        detectPackageManagerFromFile(file),
+        detectPackageManagerFromFile(file, featureFlags),
       ),
       levelsDeep,
       ignore,
@@ -93,7 +97,7 @@ export async function getDepsFromPlugin(
   // TODO: is this needed for the auto detect handling above?
   // don't override options.file if scanning multiple files at once
   if (!options.scanAllUnmanaged) {
-    options.file = options.file || detectPackageFile(root);
+    options.file = options.file || detectPackageFile(root, featureFlags);
   }
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);

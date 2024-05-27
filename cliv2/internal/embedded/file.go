@@ -22,10 +22,10 @@ type File struct {
 	cachedData []byte
 }
 
-func ListFiles() []File {
+func ListFiles() ([]File, error) {
 	var result []File
 
-	fs.WalkDir(data, rootDirectory, func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(data, rootDirectory, func(path string, d fs.DirEntry, err error) error {
 		if !d.IsDir() {
 			f := File{
 				name: d.Name(),
@@ -33,11 +33,13 @@ func ListFiles() []File {
 			}
 			result = append(result, f)
 		}
-
 		return err
 	})
+	if err != nil {
+		return nil, err
+	}
 
-	return result
+	return result, nil
 }
 
 func (f *File) data() ([]byte, error) {

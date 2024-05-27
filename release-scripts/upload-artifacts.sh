@@ -135,12 +135,14 @@ upload_s3() {
     done
     aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
     aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
+    aws s3 cp "binary-releases/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/ --dryrun
 
     for filename in "${StaticFilesFIPS[@]}"; do
       aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
     done
     aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
     aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
+    aws s3 cp "binary-releases/fips/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
   else
     echo "Uploading to S3..."
     for filename in "${StaticFiles[@]}"; do
@@ -148,12 +150,14 @@ upload_s3() {
     done
     aws s3 cp "binary-releases/release.json" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
     aws s3 cp "binary-releases/version" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
+    aws s3 cp "binary-releases/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
 
     for filename in "${StaticFilesFIPS[@]}"; do
       aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
     done
     aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
     aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
+    aws s3 cp "binary-releases/fips/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
   fi
 }
 
@@ -211,5 +215,10 @@ for arg in "${@}"; do
   # Upload files to S3 bucket
   else
     upload_s3 "${target}"
+
+    # stable and latest are the same target
+    if [ "${target}" == "stable" ]; then
+      upload_s3 "latest"
+    fi
   fi
 done

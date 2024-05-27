@@ -1,6 +1,7 @@
 import { createProjectFromFixture } from '../../../util/createProject';
 import { runSnykCLI } from '../../../util/runSnykCLI';
 import { fakeServer } from '../../../../acceptance/fake-server';
+import { getServerPort } from '../../../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
@@ -9,7 +10,7 @@ describe('snyk test --sarif', () => {
   let env: Record<string, string>;
 
   beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const port = getServerPort(process);
     const baseApi = '/api/v1';
     env = {
       ...process.env,
@@ -51,6 +52,7 @@ describe('snyk test --sarif', () => {
 
     expect(stdout).toContain('"artifactsScanned": 1');
     expect(stdout).toContain('"cvssv3_baseScore": 5.3');
+    expect(stdout).toContain('"security-severity": "5.3"');
     expect(stdout).toContain('"fullyQualifiedName": "lodash@4.17.15"');
     expect(stdout).toContain('Upgrade to lodash@4.17.17');
   });

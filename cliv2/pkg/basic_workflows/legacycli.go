@@ -66,7 +66,8 @@ func legacycliWorkflow(
 	var errWriter *bufio.Writer
 
 	config := invocation.GetConfiguration()
-	debugLogger := invocation.GetLogger()
+	debugLogger := invocation.GetEnhancedLogger() // uses zerolog
+	debugLoggerDefault := invocation.GetLogger()  // uses log
 	networkAccess := invocation.GetNetworkAccess()
 
 	oauthIsAvailable := config.GetBool(configuration.FF_OAUTH_AUTH_FLOW_ENABLED)
@@ -78,13 +79,13 @@ func legacycliWorkflow(
 	proxyAuthenticationMechanism := httpauth.AuthenticationMechanismFromString(proxyAuthenticationMechanismString)
 	analyticsDisabled := config.GetBool(configuration.ANALYTICS_DISABLED)
 
-	debugLogger.Println("Arguments:", args)
-	debugLogger.Println("Use StdIO:", useStdIo)
-	debugLogger.Println("Working directory:", workingDirectory)
+	debugLogger.Print("Arguments:", args)
+	debugLogger.Print("Use StdIO:", useStdIo)
+	debugLogger.Print("Working directory:", workingDirectory)
 
 	// init cli object
 	var cli *cliv2.CLI
-	cli, err = cliv2.NewCLIv2(config, debugLogger)
+	cli, err = cliv2.NewCLIv2(config, debugLoggerDefault)
 	if err != nil {
 		return output, err
 	}
@@ -108,9 +109,9 @@ func legacycliWorkflow(
 			if _, ok := envMap[constants.SNYK_OAUTH_ACCESS_TOKEN_ENV]; !ok {
 				env := []string{constants.SNYK_OAUTH_ACCESS_TOKEN_ENV + "=randomtoken"}
 				cli.AppendEnvironmentVariables(env)
-				debugLogger.Println("Authentication: Oauth token handling delegated to Extensible CLI.")
+				debugLogger.Print("Authentication: Oauth token handling delegated to Extensible CLI.")
 			} else {
-				debugLogger.Println("Authentication: Using oauth token from Environment Variable.")
+				debugLogger.Print("Authentication: Using oauth token from Environment Variable.")
 			}
 		}
 	}
@@ -120,7 +121,7 @@ func legacycliWorkflow(
 		return output, err
 	}
 
-	if useStdIo == false {
+	if !useStdIo {
 		in := bytes.NewReader([]byte{})
 		outWriter = bufio.NewWriter(&outBuffer)
 		errWriter = bufio.NewWriter(&errBuffer)
@@ -141,8 +142,8 @@ func legacycliWorkflow(
 	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
 
 	proxyHeaderFunc := func(req *http.Request) error {
-		err := networkAccess.AddHeaders(req)
-		return err
+		headersErr := networkAccess.AddHeaders(req)
+		return headersErr
 	}
 	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
 
@@ -160,7 +161,7 @@ func legacycliWorkflow(
 		errWriter.Flush()
 
 		if isDebug {
-			debugLogger.Println(errBuffer.String())
+			debugLogger.Print(errBuffer.String())
 		}
 
 		contentType := "text/plain"

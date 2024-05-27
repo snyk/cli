@@ -11,3 +11,4 @@ _cache
 .vscode
 bin
 internal/embedded/_data
+/.bin/

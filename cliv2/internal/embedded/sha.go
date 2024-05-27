@@ -3,13 +3,13 @@ package embedded
 import (
 	"crypto/sha256"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 )
 
 func ComputeSHA256(filePath string, debugLogger *log.Logger) (string, error) {
-	fileBytes, err := ioutil.ReadFile(filePath)
+	fileBytes, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", err
 	}
@@ -32,5 +32,5 @@ func ValidateFile(filePath string, expectedSHA256 string, debugLogger *log.Logge
 	debugLogger.Println("  expected: ", expectedSHA256)
 	debugLogger.Println("  actual:   ", hashStr)
 
-	return strings.ToLower(strings.TrimSpace(hashStr)) == strings.ToLower(strings.TrimSpace(expectedSHA256)), nil
+	return strings.EqualFold(strings.TrimSpace(hashStr), strings.TrimSpace(expectedSHA256)), nil
 }

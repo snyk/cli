@@ -1,72 +1,73 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`createSarifOutputForOpenSource general 1`] = `
-Object {
+{
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": Array [
-    Object {
-      "results": Array [
-        Object {
-          "fixes": Array [
-            Object {
-              "artifactChanges": Array [
-                Object {
-                  "artifactLocation": Object {
+  "runs": [
+    {
+      "results": [
+        {
+          "fixes": [
+            {
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
                     "uri": "package.json",
                   },
-                  "replacements": Array [
-                    Object {
-                      "deletedRegion": Object {
+                  "replacements": [
+                    {
+                      "deletedRegion": {
                         "startLine": 1,
                       },
-                      "insertedContent": Object {
+                      "insertedContent": {
                         "text": "jimp@0.2.28",
                       },
                     },
                   ],
                 },
               ],
-              "description": Object {
+              "description": {
                 "text": "Upgrade to jimp@0.2.28",
               },
             },
           ],
           "level": "error",
-          "locations": Array [
-            Object {
-              "logicalLocations": Array [
-                Object {
+          "locations": [
+            {
+              "logicalLocations": [
+                {
                   "fullyQualifiedName": "ajv@6.12.2",
                 },
               ],
-              "physicalLocation": Object {
-                "artifactLocation": Object {
+              "physicalLocation": {
+                "artifactLocation": {
                   "uri": "package.json",
                 },
-                "region": Object {
+                "region": {
                   "startLine": 1,
                 },
               },
             },
           ],
-          "message": Object {
+          "message": {
             "text": "This file introduces a vulnerable ajv package with a critical severity vulnerability.",
           },
           "ruleId": "SNYK-JS-AJV-584908",
         },
       ],
-      "tool": Object {
-        "driver": Object {
+      "tool": {
+        "driver": {
+          "informationUri": "https://docs.snyk.io/",
           "name": "Snyk Open Source",
-          "properties": Object {
+          "properties": {
             "artifactsScanned": 969,
           },
-          "rules": Array [
-            Object {
-              "fullDescription": Object {
+          "rules": [
+            {
+              "fullDescription": {
                 "text": "(CVE-2020-15366) ajv@6.12.2",
               },
-              "help": Object {
+              "help": {
                 "markdown": "* Package Manager: npm
 * Vulnerable module: ajv
 * Introduced through: PROJECT_NAME@1.0.0, jimp@0.2.28 and others
@@ -77,19 +78,22 @@ Object {
                 "text": "",
               },
               "id": "SNYK-JS-AJV-584908",
-              "properties": Object {
+              "properties": {
                 "cvssv3_baseScore": 7.5,
-                "tags": Array [
+                "security-severity": "7.5",
+                "tags": [
                   "security",
                   "CWE-400",
                   "npm",
                 ],
               },
-              "shortDescription": Object {
+              "shortDescription": {
                 "text": "Critical severity - Prototype Pollution vulnerability in ajv",
               },
             },
           ],
+          "semanticVersion": "1.0.0-monorepo",
+          "version": "1.0.0-monorepo",
         },
       },
     },

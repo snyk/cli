@@ -46,7 +46,7 @@ The `snyk code test` command finds security issues using Static Code Analysis.
 
 ### [`snyk sbom`](sbom.md)
 
-Produce an SBOM for a local software project in an ecosystem supported by Snyk.
+Generate or test an SBOM document in ecosystems supported by Snyk.
 
 ### [`snyk log4shell`](log4shell.md)
 

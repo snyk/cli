@@ -1,0 +1,10 @@
+brew 'fnm'
+brew 'git'
+brew 'go'
+brew 'gitleaks'
+brew 'pre-commit'
+brew 'convco'
+brew 'python'
+brew 'gnupg'
+
+cask 'github'

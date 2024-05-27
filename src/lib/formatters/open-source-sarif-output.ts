@@ -5,11 +5,13 @@ import * as map from 'lodash.map';
 
 import { TestResult, AnnotatedIssue } from '../snyk-test/legacy';
 import { getResults } from './get-sarif-result';
+import { getVersion } from '../../lib/version';
 
 const LOCK_FILES_TO_MANIFEST_MAP = {
   'Gemfile.lock': 'Gemfile',
   'package-lock.json': 'package.json',
   'yarn.lock': 'package.json',
+  'pnpm-lock.yaml': 'package.json',
   'Gopkg.lock': 'Gopkg.toml',
   'go.sum': 'go.mod',
   'composer.lock': 'composer.json',
@@ -28,6 +30,9 @@ export function createSarifOutputForOpenSource(
       tool: {
         driver: {
           name: 'Snyk Open Source',
+          semanticVersion: getVersion(),
+          version: getVersion(),
+          informationUri: 'https://docs.snyk.io/',
           properties: {
             artifactsScanned: testResult.dependencyCount,
           },
@@ -87,7 +92,8 @@ ${vuln.description}`.replace(/##\s/g, '# '),
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             testResult.packageManager!,
           ],
-          cvssv3_baseScore: vuln.cvssScore,
+          cvssv3_baseScore: vuln.cvssScore, // AWS
+          'security-severity': String(vuln.cvssScore), // GitHub
         },
       };
     },

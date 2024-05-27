@@ -6,7 +6,8 @@ import * as pythonPlugin from 'snyk-python-plugin';
 import * as goPlugin from 'snyk-go-plugin';
 import * as nugetPlugin from 'snyk-nuget-plugin';
 import * as phpPlugin from 'snyk-php-plugin';
-import * as nodejsPlugin from './nodejs-plugin';
+import * as legacyNodejsPlugin from './nodejs-plugin';
+import * as nodejsPlugin from 'snyk-nodejs-plugin';
 import * as cocoapodsPlugin from '@snyk/snyk-cocoapods-plugin';
 import * as hexPlugin from '@snyk/snyk-hex-plugin';
 import * as swiftPlugin from 'snyk-swiftpm-plugin';
@@ -19,7 +20,7 @@ export function loadPlugin(
 ): types.Plugin {
   switch (packageManager) {
     case 'npm': {
-      return nodejsPlugin;
+      return legacyNodejsPlugin;
     }
     case 'rubygems': {
       return rubygemsPlugin;
@@ -34,7 +35,7 @@ export function loadPlugin(
       return sbtPlugin;
     }
     case 'yarn': {
-      return nodejsPlugin;
+      return legacyNodejsPlugin;
     }
     case 'pip':
     case 'poetry': {
@@ -62,6 +63,9 @@ export function loadPlugin(
     }
     case 'swift': {
       return swiftPlugin;
+    }
+    case 'pnpm': {
+      return nodejsPlugin;
     }
     default: {
       throw new UnsupportedPackageManagerError(packageManager);

@@ -114,6 +114,8 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 **Note:** You can also use `--org=<orgslugname>.` The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
+`orgslugname` must match the slug name as displayed in the URL of your org in the Snyk UI: `https://snyk.io/org/[orgslugname]`. The orgname does not work.
+
 For more information see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--file=<FILE>`
@@ -224,13 +226,15 @@ To fail on any Snyk-discoverable vulnerability (the default behavior), do not us
 
 ### `--maven-aggregate-project`
 
-Use `--maven-aggregate-project` instead of `--all-projects` when scanning Maven aggregate projects, that is, ones that use modules and inheritance.
+Use `--maven-aggregate-project` instead of `--all-projects` when scanning Maven aggregate projects, that is, projects that use modules and inheritance.
 
-When scanning these types of projects, Snyk performs a compile to ensure all modules are resolvable by the Maven reactor.
+Using `--maven-aggregate-project` instructs Snyk to perform a compilation step to ensure all modules within the project are resolvable by the Maven reactor. This ensures a comprehensive scan that includes dependencies of all sub-modules.
 
-Be sure to run the scan in the same directory as the root pom.xml file.
+Be sure to run the scan in the same directory as the root `pom.xml` file.
 
-Snyk reports test results per pom.xml file.
+Snyk reports the test results per individual `pom.xml` file within the aggregate project.
+
+**Note:** You can use `--all-projects` when scanning Maven aggregate projects, but you cannot use `--all-projects` with `--maven-aggregate-project`.
 
 ### `--scan-unmanaged`
 

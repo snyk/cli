@@ -1,52 +1,53 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`createSarifOutputForContainers general with critical severity issue without CVE 1`] = `
-Object {
+{
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": Array [
-    Object {
-      "results": Array [
-        Object {
+  "runs": [
+    {
+      "results": [
+        {
           "fixes": undefined,
           "level": "error",
-          "locations": Array [
-            Object {
-              "logicalLocations": Array [
-                Object {
+          "locations": [
+            {
+              "logicalLocations": [
+                {
                   "fullyQualifiedName": "expat@2.2.5-r0",
                 },
               ],
-              "physicalLocation": Object {
-                "artifactLocation": Object {
+              "physicalLocation": {
+                "artifactLocation": {
                   "uri": "Dockerfile",
                 },
-                "region": Object {
+                "region": {
                   "startLine": 1,
                 },
               },
             },
           ],
-          "message": Object {
+          "message": {
             "text": "This file introduces a vulnerable expat package with a critical severity vulnerability.",
           },
           "ruleId": "SNYK-LINUX-EXPAT-450908",
         },
       ],
-      "tool": Object {
-        "driver": Object {
+      "tool": {
+        "driver": {
+          "informationUri": "https://docs.snyk.io/",
           "name": "Snyk Container",
-          "properties": Object {
+          "properties": {
             "artifactsScanned": 969,
           },
-          "rules": Array [
-            Object {
-              "defaultConfiguration": Object {
+          "rules": [
+            {
+              "defaultConfiguration": {
                 "level": "error",
               },
-              "fullDescription": Object {
+              "fullDescription": {
                 "text": "expat@2.2.5-r0",
               },
-              "help": Object {
+              "help": {
                 "markdown": "## Overview
 In libexpat in Expat before 2.2.7, XML input including XML names that contain a large number of colons could make the XML parser consume a high amount of RAM and CPU resources while processing (enough to be usable for denial-of-service attacks).
 
@@ -69,19 +70,22 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
                 "text": "",
               },
               "id": "SNYK-LINUX-EXPAT-450908",
-              "properties": Object {
+              "properties": {
                 "cvssv3_baseScore": 7.5,
-                "tags": Array [
+                "security-severity": "7.5",
+                "tags": [
                   "security",
                   "CWE-611",
                   "npm",
                 ],
               },
-              "shortDescription": Object {
+              "shortDescription": {
                 "text": "Critical severity - XML External Entity (XXE) Injection vulnerability in expat",
               },
             },
           ],
+          "semanticVersion": "1.0.0-monorepo",
+          "version": "1.0.0-monorepo",
         },
       },
     },
@@ -91,52 +95,53 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
 `;
 
 exports[`createSarifOutputForContainers general with critical severity issue without CWE 1`] = `
-Object {
+{
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": Array [
-    Object {
-      "results": Array [
-        Object {
+  "runs": [
+    {
+      "results": [
+        {
           "fixes": undefined,
           "level": "error",
-          "locations": Array [
-            Object {
-              "logicalLocations": Array [
-                Object {
+          "locations": [
+            {
+              "logicalLocations": [
+                {
                   "fullyQualifiedName": "expat@2.2.5-r0",
                 },
               ],
-              "physicalLocation": Object {
-                "artifactLocation": Object {
+              "physicalLocation": {
+                "artifactLocation": {
                   "uri": "Dockerfile",
                 },
-                "region": Object {
+                "region": {
                   "startLine": 1,
                 },
               },
             },
           ],
-          "message": Object {
+          "message": {
             "text": "This file introduces a vulnerable expat package with a critical severity vulnerability.",
           },
           "ruleId": "SNYK-LINUX-EXPAT-450908",
         },
       ],
-      "tool": Object {
-        "driver": Object {
+      "tool": {
+        "driver": {
+          "informationUri": "https://docs.snyk.io/",
           "name": "Snyk Container",
-          "properties": Object {
+          "properties": {
             "artifactsScanned": 969,
           },
-          "rules": Array [
-            Object {
-              "defaultConfiguration": Object {
+          "rules": [
+            {
+              "defaultConfiguration": {
                 "level": "error",
               },
-              "fullDescription": Object {
+              "fullDescription": {
                 "text": "(CVE-2018-20843) expat@2.2.5-r0",
               },
-              "help": Object {
+              "help": {
                 "markdown": "## Overview
 In libexpat in Expat before 2.2.7, XML input including XML names that contain a large number of colons could make the XML parser consume a high amount of RAM and CPU resources while processing (enough to be usable for denial-of-service attacks).
 
@@ -159,18 +164,21 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
                 "text": "",
               },
               "id": "SNYK-LINUX-EXPAT-450908",
-              "properties": Object {
+              "properties": {
                 "cvssv3_baseScore": 7.5,
-                "tags": Array [
+                "security-severity": "7.5",
+                "tags": [
                   "security",
                   "npm",
                 ],
               },
-              "shortDescription": Object {
+              "shortDescription": {
                 "text": "Critical severity - XML External Entity (XXE) Injection vulnerability in expat",
               },
             },
           ],
+          "semanticVersion": "1.0.0-monorepo",
+          "version": "1.0.0-monorepo",
         },
       },
     },
@@ -180,52 +188,53 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
 `;
 
 exports[`createSarifOutputForContainers general with high severity issue 1`] = `
-Object {
+{
   "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-  "runs": Array [
-    Object {
-      "results": Array [
-        Object {
+  "runs": [
+    {
+      "results": [
+        {
           "fixes": undefined,
           "level": "error",
-          "locations": Array [
-            Object {
-              "logicalLocations": Array [
-                Object {
+          "locations": [
+            {
+              "logicalLocations": [
+                {
                   "fullyQualifiedName": "expat@2.2.5-r0",
                 },
               ],
-              "physicalLocation": Object {
-                "artifactLocation": Object {
+              "physicalLocation": {
+                "artifactLocation": {
                   "uri": "Dockerfile",
                 },
-                "region": Object {
+                "region": {
                   "startLine": 1,
                 },
               },
             },
           ],
-          "message": Object {
+          "message": {
             "text": "This file introduces a vulnerable expat package with a high severity vulnerability.",
           },
           "ruleId": "SNYK-LINUX-EXPAT-450908",
         },
       ],
-      "tool": Object {
-        "driver": Object {
+      "tool": {
+        "driver": {
+          "informationUri": "https://docs.snyk.io/",
           "name": "Snyk Container",
-          "properties": Object {
+          "properties": {
             "artifactsScanned": 969,
           },
-          "rules": Array [
-            Object {
-              "defaultConfiguration": Object {
+          "rules": [
+            {
+              "defaultConfiguration": {
                 "level": "error",
               },
-              "fullDescription": Object {
+              "fullDescription": {
                 "text": "(CVE-2018-20843) expat@2.2.5-r0",
               },
-              "help": Object {
+              "help": {
                 "markdown": "## Overview
 In libexpat in Expat before 2.2.7, XML input including XML names that contain a large number of colons could make the XML parser consume a high amount of RAM and CPU resources while processing (enough to be usable for denial-of-service attacks).
 
@@ -248,19 +257,22 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
                 "text": "",
               },
               "id": "SNYK-LINUX-EXPAT-450908",
-              "properties": Object {
+              "properties": {
                 "cvssv3_baseScore": 7.5,
-                "tags": Array [
+                "security-severity": "7.5",
+                "tags": [
                   "security",
                   "CWE-611",
                   "npm",
                 ],
               },
-              "shortDescription": Object {
+              "shortDescription": {
                 "text": "High severity - XML External Entity (XXE) Injection vulnerability in expat",
               },
             },
           ],
+          "semanticVersion": "1.0.0-monorepo",
+          "version": "1.0.0-monorepo",
         },
       },
     },

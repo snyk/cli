@@ -10,6 +10,9 @@ export const config: Options = {
     'pkg', // used for binary builds
     'conventional-changelog-cli', // used for generating release notes
     'ts-node', // used for various scripts to avoid separate compile step
+    'jest-junit', // used for CI test reporting
+    '@types/node', // node types used for alerts
+    'conventional-changelog-conventionalcommits', // used to configure generating release notes
   ],
   ignoreDirs: ['node_modules', 'dist', 'fixtures', 'test-output'],
 };

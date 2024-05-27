@@ -1,7 +1,8 @@
 name: 'Danger Zone'
 on:
   pull_request:
-    branches: [master, main]
+    types: [opened, synchronize, reopened, edited]
+    branches: [master, main, release-candidate]
 
 jobs:
   build:
@@ -9,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: '16.16.0'
+          node-version: '18.19.1'
           cache: 'npm'
       - run: npm ci
       - run: npx danger ci

@@ -7,6 +7,7 @@ import {
 import { createProjectFromWorkspace } from '../util/createProject';
 import { getFixturePath } from '../util/getFixturePath';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { getServerPort } from '../util/getServerPort';
 
 jest.setTimeout(1000 * 30);
 
@@ -18,7 +19,7 @@ describe('https', () => {
     const ipaddress = getFirstIPv4Address();
     console.log('Using ip: ' + ipaddress);
 
-    const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const port = getServerPort(process);
     const baseApi = '/api/v1';
     env = {
       ...process.env,

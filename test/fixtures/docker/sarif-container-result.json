@@ -6,6 +6,9 @@
       "tool": {
         "driver": {
           "name": "Snyk Container",
+          "semanticVersion": "1.0.0-monorepo",
+          "version": "1.0.0-monorepo",
+          "informationUri": "https://docs.snyk.io/",
           "properties": {
             "artifactsScanned": 2
           },
@@ -30,7 +33,8 @@
                   "security",
                   "deb"
                 ],
-                "cvssv3_baseScore": 6.5
+                "cvssv3_baseScore": 6.5,
+                "security-severity": "6.5"
               }
             }
           ]

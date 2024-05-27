@@ -17,7 +17,7 @@ export async function findAndLoadPolicy(
   scannedProjectFolder?: string,
 ): Promise<Policy | undefined> {
   const isDocker = scanType === 'docker';
-  const isNodeProject = ['npm', 'yarn'].includes(scanType);
+  const isNodeProject = ['npm', 'yarn', 'pnpm'].includes(scanType);
   // monitor
   let policyLocations: string[] = [
     options['policy-path'] || scannedProjectFolder || root,
