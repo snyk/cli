@@ -261,6 +261,8 @@ For Gradle "multi project" configurations, monitor a specific sub-project.
 
 For "multi project" configurations, monitor all sub-projects.
 
+Both a build.gradle file and a settings.gradle file, or equivalent files, based on the package manager, must exist in the current directory.
+
 ### `--configuration-matching=<CONFIGURATION_REGEX>`
 
 Resolve dependencies using only configuration(s) that match the specified Java regular expression.
@@ -294,6 +296,26 @@ When monitoring a .NET project, use this option to add a custom prefix to the na
 Example: `snyk monitor --file=my-project.sln --project-name-prefix=my-group/`
 
 This is useful when you have multiple projects with the same name in other `.sln` files.
+
+## Options for .NET projects
+
+### `--dotnet-runtime-resolution`
+
+**Note:** This option in in Early Access and may change until it is released.
+
+Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](https://docs.snyk.io/getting-started/supported-languages-and-frameworks/.net/improved-.net-scanning)
+
+Example: `snyk test --dotnet-runtime-resolution`
+
+### `--dotnet-target-framework`
+
+**Note:** This option in in Early Access and may change until it is released.
+
+Optional. You may use this option if your solution contains multiple `<TargetFramework>` directives. If you do not specify the option `--dotnet-target-framework`, all supported Target Frameworks will be scanned.
+
+The Target Framework specified with this option should be defined following the standard [naming convention](https://learn.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks)
+
+Example: `snyk test --dotnet-runtime-resolution --dotnet-target-framework=net6.0`
 
 ## Options for npm projects
 
