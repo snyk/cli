@@ -1,8 +1,7 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-
+import 	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 import (
 	"context"
 	"encoding/json"
@@ -14,35 +13,35 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-
 	"github.com/google/uuid"
+	"github.com/rs/zerolog"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/instrumentation"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
+	"github.com/snyk/go-application-framework/pkg/ui"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
+
 	snykls "github.com/snyk/snyk-ls/ls_extension"
 
-	"github.com/snyk/go-application-framework/pkg/instrumentation"
-	"github.com/snyk/go-application-framework/pkg/ui"
-
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
@@ -251,15 +250,45 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 	}
 }
 
-func sendInstrumentation(instrumentor analytics.InstrumentationCollector, logger *zerolog.Logger) {
-	// TODO: actually send data once CLI-303 is implemented
+func sendInstrumentation(eng workflow.Engine, instrumentor analytics.InstrumentationCollector, logger *zerolog.Logger) {
+	// Avoid duplicate data to be send for IDE integrations that use the CLI
+	integration := globalConfiguration.GetString(configuration.INTEGRATION_NAME)
+	if utils.IsSnykIde(integration) {
+		logger.Print("Called from IDE, not sending instrumentation")
+		return
+	}
+
+	logger.Print("Sending Instrumentation")
 	data, err := analytics.GetV2InstrumentationObject(instrumentor)
 	if err != nil {
-		logger.Err(err).Msg("Failed to derive data object.")
+		logger.Err(err).Msg("Failed to derive data object")
 	}
 
 	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
 	logger.Trace().Msgf("Instrumentation: %v", string(v2InstrumentationData))
+
+	inputData := workflow.NewData(
+		workflow.NewTypeIdentifier(localworkflows.WORKFLOWID_REPORT_ANALYTICS, "reportAnalytics"),
+		"application/json",
+		v2InstrumentationData,
+	)
+
+	logger.Trace().Msg("Reporting instrumentation data")
+	localConfiguration := globalConfiguration.Clone()
+	// the report analytics workflow needs --experimental to run
+	// we pass the flag here so that we report at every interaction
+	localConfiguration.Set(configuration.FLAG_EXPERIMENTAL, true)
+	_, err = eng.InvokeWithInputAndConfig(
+		localworkflows.WORKFLOWID_REPORT_ANALYTICS,
+		[]workflow.Data{inputData},
+		localConfiguration,
+	)
+
+	if err != nil {
+		logger.Err(err).Msg("Failed to send Instrumentation")
+	} else {
+		logger.Print("Instrumentation successfully sent")
+	}
 }
 
 func help(_ *cobra.Command, _ []string) error {
@@ -510,7 +539,7 @@ func MainWithErrorCode() int {
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		defer sendAnalytics(cliAnalytics, globalLogger)
 	}
-	defer sendInstrumentation(cliAnalytics.GetInstrumentation(), globalLogger)
+	defer sendInstrumentation(globalEngine, cliAnalytics.GetInstrumentation(), globalLogger)
 
 	setTimeout(globalConfiguration, func() {
 		os.Exit(constants.SNYK_EXIT_CODE_EX_UNAVAILABLE)
