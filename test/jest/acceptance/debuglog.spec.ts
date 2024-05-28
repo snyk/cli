@@ -1,5 +1,8 @@
 import { runSnykCLI } from '../util/runSnykCLI';
-import { createProjectFromWorkspace } from '../util/createProject';
+import {
+  createProject,
+  createProjectFromWorkspace,
+} from '../util/createProject';
 
 jest.setTimeout(1000 * 60);
 
@@ -16,10 +19,12 @@ describe('debug log', () => {
         DEBUG: '*',
         SNYK_LOG_LEVEL: 'trace',
         SNYK_TOKEN: token,
+        HTTP_PROXY: 'http://user:password@myproxy.com',
       },
     });
 
     expect(stderr).not.toContain(token);
+    expect(stderr).not.toContain('http://user:password@myproxy.com');
   });
 
   it('redacts token from config file', async () => {
@@ -40,5 +45,26 @@ describe('debug log', () => {
 
     expect(expectedToken).not.toBeFalsy();
     expect(stderr).not.toContain(expectedToken);
+  });
+
+  it('redacts externally injected bearer token', async () => {
+    const project = await createProject('cocoapods-app');
+
+    const expectedToken = 'my-bearer-token';
+
+    const { stderr } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env: {
+        ...process.env,
+        SNYK_DISABLE_ANALYTICS: '1',
+        DEBUG: '*',
+        SNYK_LOG_LEVEL: 'trace',
+        SNYK_OAUTH_TOKEN: expectedToken,
+      },
+    });
+
+    expect(expectedToken).not.toBeFalsy();
+    expect(stderr).not.toContain(expectedToken);
+    expect(stderr).toContain('Bearer ***');
   });
 });
