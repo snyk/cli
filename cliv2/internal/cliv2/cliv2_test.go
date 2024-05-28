@@ -509,13 +509,13 @@ func TestDeriveExitCode(t *testing.T) {
 }
 
 func Test_determineInputDirectory(t *testing.T) {
-	t.Run("", func(t *testing.T) {
+	t.Run("input directory given as positional argument", func(t *testing.T) {
 		expected := "./myfolder/somewhere/"
 		actual := cliv2.DetermineInputDirectory([]string{"iac", "test", "--remote-repo-url=something ", expected, " -d", "--project-tags=t1,t2", "--", "-DVerbose", "true", "/somefolder/here.file"})
 		assert.Equal(t, expected, actual)
 	})
 
-	t.Run("", func(t *testing.T) {
+	t.Run("no input directory specified in arguments", func(t *testing.T) {
 		expected := ""
 		actual := cliv2.DetermineInputDirectory([]string{"iac", "test", "--remote-repo-url=something", "-d", "--project-tags=t1,t2", "--", "-DVerbose", "true", "/somefolder/here.file"})
 		assert.Equal(t, expected, actual)
