@@ -11,6 +11,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
+	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -263,7 +264,7 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, expectedError.ExitCode)
 	})
 
-	t.Run("workflow with empty testing findings", func(t *testing.T) {
+	t.Run("workflow with zero count test summary", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
 		d, err := json.Marshal(json_schemas.TestSummary{
@@ -279,6 +280,63 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
 		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
 		assert.Nil(t, err)
+	})
+
+	t.Run("workflow with empty test summary and unsupported error annotation", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		d, err := json.Marshal(json_schemas.NewTestSummary("sast"))
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
+		data.AddError(code.NewUnsupportedProjectError(""))
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
+
+		var expectedError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, err, &expectedError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS, expectedError.ExitCode)
+	})
+
+	t.Run("workflow with empty testing and unsupported project error annotation", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		d, err := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    0,
+				Open:     0,
+				Ignored:  0,
+			}},
+			Artifacts: 0,
+			Type:      "sast",
+		})
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
+		data.AddError(code.NewUnsupportedProjectError(""))
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
+
+		var expectedError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, err, &expectedError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS, expectedError.ExitCode)
+	})
+
+	t.Run("workflow with empty testing and misc error annotation", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		d, err := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    0,
+				Open:     0,
+				Ignored:  0,
+			}},
+			Artifacts: 0,
+			Type:      "sast",
+		})
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
+		data.AddError(code.NewAnalysisFileCountLimitExceededError(""))
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
+		assert.NoError(t, err)
 	})
 }
 
