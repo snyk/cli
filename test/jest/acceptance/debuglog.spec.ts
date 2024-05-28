@@ -1,5 +1,8 @@
 import { runSnykCLI } from '../util/runSnykCLI';
-import { createProject, createProjectFromWorkspace } from '../util/createProject';
+import {
+  createProject,
+  createProjectFromWorkspace,
+} from '../util/createProject';
 
 jest.setTimeout(1000 * 60);
 
