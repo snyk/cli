@@ -14,11 +14,13 @@ import (
 	"os/exec"
 	"path"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/gofrs/flock"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/utils"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
@@ -471,4 +473,19 @@ func (c *CLI) SetIoStreams(stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 	c.stdin = stdin
 	c.stdout = stdout
 	c.stderr = stderr
+}
+
+func DetermineInputDirectory(args []string) string {
+	for _, v := range args {
+		if v == "--" {
+			break
+		}
+
+		isCommand := slices.Contains(instrumentation.KNOWN_COMMANDS, v)
+		isFlag := strings.HasPrefix(v, "-")
+		if !isCommand && !isFlag {
+			return v
+		}
+	}
+	return ""
 }
