@@ -1,5 +1,5 @@
 import { runSnykCLI } from '../util/runSnykCLI';
-import { createProjectFromWorkspace } from '../util/createProject';
+import { createProject, createProjectFromWorkspace } from '../util/createProject';
 
 jest.setTimeout(1000 * 60);
 
@@ -44,8 +44,8 @@ describe('debug log', () => {
     expect(stderr).not.toContain(expectedToken);
   });
 
-  it('redacts extenally injected bearer token', async () => {
-    const project = await createProjectFromWorkspace('cocoapods-app');
+  it('redacts externally injected bearer token', async () => {
+    const project = await createProject('cocoapods-app');
 
     const expectedToken = 'my-bearer-token';
 
@@ -62,6 +62,6 @@ describe('debug log', () => {
 
     expect(expectedToken).not.toBeFalsy();
     expect(stderr).not.toContain(expectedToken);
-    expect(stderr).toContain('Bearer ');
+    expect(stderr).toContain('Bearer ***');
   });
 });
