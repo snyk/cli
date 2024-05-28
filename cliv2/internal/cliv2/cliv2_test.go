@@ -13,8 +13,9 @@ import (
 	"testing"
 	"time"
 
-	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+
+	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -505,4 +506,19 @@ func TestDeriveExitCode(t *testing.T) {
 			assert.Equal(t, tc.expected, exitCode)
 		})
 	}
+}
+
+func Test_determineInputDirectory(t *testing.T) {
+
+	t.Run("", func(t *testing.T) {
+		expected := "./myfolder/somwhere/"
+		actual := cliv2.DetermineInputDirectory([]string{"iac", "test", "--remote-repo-url=something ", expected, " -d", "--project-tags=t1,t2", "--", "-DVerbose", "true", "/somefolder/here.file"})
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("", func(t *testing.T) {
+		expected := ""
+		actual := cliv2.DetermineInputDirectory([]string{"iac", "test", "--remote-repo-url=something", "-d", "--project-tags=t1,t2", "--", "-DVerbose", "true", "/somefolder/here.file"})
+		assert.Equal(t, expected, actual)
+	})
 }

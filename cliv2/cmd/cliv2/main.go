@@ -11,7 +11,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"slices"
 	"strings"
 	"time"
 
@@ -262,13 +261,9 @@ func help(_ *cobra.Command, _ []string) error {
 }
 
 func defaultCmd(args []string) error {
-	for _, v := range args {
-		isCommand := slices.Contains(instrumentation.KNOWN_COMMANDS, v)
-		isFlag := strings.HasPrefix(v, "-")
-		if !isCommand && !isFlag {
-			globalConfiguration.Set(configuration.INPUT_DIRECTORY, v)
-			break
-		}
+	inputDirectory := cliv2.DetermineInputDirectory(args)
+	if len(inputDirectory) > 0 {
+		globalConfiguration.Set(configuration.INPUT_DIRECTORY, inputDirectory)
 	}
 
 	// prepare the invocation of the legacy CLI by
@@ -494,7 +489,6 @@ func MainWithErrorCode() int {
 
 	// init Analytics
 	knownCommands, knownFlags := instrumentation.GetKnownCommandsAndFlags(globalEngine)
-
 	cliAnalytics := globalEngine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args)
