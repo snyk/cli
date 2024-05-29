@@ -156,7 +156,6 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   app.use(express.json({ type: 'application/vnd.api+json', strict: false }));
   app.use((req, res, next) => {
     requests.push(req);
-    console.log(req.method, req.url, req.body);
     next();
   });
 
