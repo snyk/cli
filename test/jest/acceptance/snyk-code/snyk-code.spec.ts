@@ -4,11 +4,11 @@ import { fakeServer } from '../../../acceptance/fake-server';
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { matchers } from 'jest-json-schema';
-import * as nock from 'nock'
+// import * as nock from 'nock'
 
 const stripAnsi = require('strip-ansi');
 
-nock.disableNetConnect()
+// nock.disableNetConnect()
 
 
 expect.extend(matchers);
@@ -72,7 +72,9 @@ describe('snyk code test', () => {
   const integrationWorkflows: Workflow[] = [
     // {
     //   type: 'legacy',
-    //   env: {},
+    //   env: {
+    //     INTERNAL_SNYK_CODE_CLIENT_ENABLED: 'false',
+    //   },
     // },
     {
       type: 'native',
@@ -87,7 +89,7 @@ describe('snyk code test', () => {
     'integration',
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
-        it.skip('should show error if sast is not enabled', async () => {
+        it('should show error if sast is not enabled', async () => {
           // Setup
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -95,7 +97,7 @@ describe('snyk code test', () => {
           server.setOrgSetting('sast', false);
 
           const { stdout, code, stderr } = await runSnykCLI(
-            `code test ${path()} -d`,
+            `code test ${path()}`,
             {
               env: {
                 ...env,
@@ -109,7 +111,7 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
         });
 
-        it.only('succeed testing with correct exit code - with sarif oputput and no markdown', async () => {
+        it('succeed testing with correct exit code - with sarif output and no markdown', async () => {
           const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -118,7 +120,7 @@ describe('snyk code test', () => {
           deepCodeServer.setSarifResponse(sarifPayload);
 
           const { stdout, stderr, code } = await runSnykCLI(
-            `code test ${path()} --sarif --no-markdown -d`,
+            `code test ${path()} --sarif --no-markdown`,
             {
               env: {
                 ...env,
@@ -143,7 +145,6 @@ describe('snyk code test', () => {
         it.each([
           [{ code: 401 }, `Unauthorized: ${failedCodeTestMessage}`],
           [{ code: 429 }, failedCodeTestMessage],
-          // [{ code: 500 }, failedCodeTestMessage], // TODO this causes the test to hang. Think it is due to retry logic
         ])(
           'should fail - when server returns %p',
           async (errorCodeObj, expectedResult) => {
