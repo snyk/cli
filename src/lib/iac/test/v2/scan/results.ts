@@ -39,12 +39,87 @@ export function mapSnykIacTestOutputToTestOutput(
   }
 
   return {
-    results: snykIacOutput.results,
+    results: enhanceResultsWithPassedVulerabilities(snykIacOutput.results, snykIacOutput.rawResults),
     settings: snykIacOutput.settings,
     errors,
     warnings,
   };
 }
+
+export function enhanceResultsWithPassedVulerabilities(results: SnykIacTestResults | undefined, rawResults?: PolicyEngineTypes.Results): Results | undefined {
+  if (!results) {
+    return undefined;
+  }
+
+  return {
+    ...results,
+    passedVulnerabilities: buildPassedVulnerabilitiesFromRawResults(rawResults)
+  }
+}
+
+function buildPassedVulnerabilitiesFromRawResults(
+  rawResults?: PolicyEngineTypes.Results,
+): PassedVulnerability[] {
+  if (!rawResults) {
+    return [];
+  }
+
+  const passedVulnerabilities: PassedVulnerability[] = [];
+
+  for (const resourceResult of rawResults.results) {
+    resourceResult.rule_results
+      .filter((ruleResults) => ruleResults.results.length)
+      .forEach((ruleResults) => {
+        ruleResults.results
+          .filter((ruleResult) => ruleResult.passed)
+          .forEach((ruleResult) => {
+            const filePath = resolveResourcePath(ruleResult, resourceResult);
+            if (filePath) {
+              const vulnerability = buildPassedVulnerabilityFromRawResult(resourceResult, ruleResults, ruleResult, filePath);
+              passedVulnerabilities.push(vulnerability);
+            }
+          });
+      })
+    }
+  return passedVulnerabilities;
+}
+function buildPassedVulnerabilityFromRawResult(resourceResult: PolicyEngineTypes.Result, ruleResult: PolicyEngineTypes.RuleResults, result: PolicyEngineTypes.RuleResult, filePath: string): PassedVulnerability {
+  const vulnerability: PassedVulnerability = {
+    rule: {
+      id: ruleResult.id,
+      title: ruleResult.title,
+      description: ruleResult.description,
+      category: ruleResult.category,
+    },
+    resource: {
+      id: result.resource_id,
+      type: result.resource_type,
+      file: filePath,
+    },
+    ignored: result.ignored
+  };
+
+  if (result.severity) {
+      vulnerability.severity = severityMap[result.severity]
+  }
+
+  return vulnerability;
+}
+
+function resolveResourcePath(ruleResult: PolicyEngineTypes.RuleResult, resourceResult: PolicyEngineTypes.Result): string | null {
+  if (ruleResult.resource_type && ruleResult.resource_id) {
+    return resourceResult.input.resources[ruleResult.resource_type]?.[ruleResult.resource_id]?.meta?.location[0]?.filepath;
+  }
+  return null;
+}
+
+const severityMap: Record<PolicyEngineTypes.RuleResult.SeverityEnum, SEVERITY> = {
+  [PolicyEngineTypes.RuleResult.SeverityEnum.Low]: SEVERITY.LOW,
+  [PolicyEngineTypes.RuleResult.SeverityEnum.Medium]: SEVERITY.MEDIUM,
+  [PolicyEngineTypes.RuleResult.SeverityEnum.High]: SEVERITY.HIGH,
+  [PolicyEngineTypes.RuleResult.SeverityEnum.Critical]: SEVERITY.CRITICAL
+};
+
 
 export interface TestOutput {
   results?: Results;
@@ -54,18 +129,24 @@ export interface TestOutput {
 }
 
 export interface SnykIacTestOutput {
-  results?: Results;
+  results?: SnykIacTestResults;
   rawResults?: PolicyEngineTypes.Results;
   errors?: ScanError[];
   warnings?: ScanError[];
   settings: Settings;
 }
 
-export interface Results {
-  resources?: Resource[];
+export interface SnykIacTestResults {
+  // formattedPath is not included in the results
+  resources?: Omit<Resource, "formattedPath">[];
   vulnerabilities?: Vulnerability[];
   metadata: Metadata;
   scanAnalytics: ScanAnalytics;
+}
+
+
+export interface Results extends SnykIacTestResults{
+  passedVulnerabilities: PassedVulnerability[];
 }
 
 export interface Metadata {
@@ -86,7 +167,7 @@ export interface IgnoreSettings {
 
 export interface ScanAnalytics {
   suppressedResults?: Record<string, string[]>;
-  ignoredCount: number;
+  ignoredCount?: number;
 }
 
 export interface Vulnerability {
@@ -96,6 +177,13 @@ export interface Vulnerability {
   severity: SEVERITY;
   ignored: boolean;
   resource: Resource;
+}
+
+export interface PassedVulnerability {
+  rule: Partial<Rule>;
+  severity?: SEVERITY;
+  ignored: boolean;
+  resource: Partial<Resource>;
 }
 
 export interface Rule {

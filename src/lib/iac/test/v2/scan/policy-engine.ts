@@ -17,7 +17,7 @@ export interface Results {
    * @type {string}
    * @memberof Results
    */
-  formatVersion: Results.FormatVersionEnum;
+  format_version: Results.FormatVersionEnum;
   /**
    *
    * @type {Array<Result>}
@@ -30,7 +30,7 @@ export interface Results {
  * @export
  * @namespace Results
  */
-namespace Results {
+export namespace Results {
   /**
    * @export
    * @enum {string}
@@ -52,7 +52,7 @@ namespace Results {
  * @export
  * @interface Result
  */
-interface Result {
+export interface Result {
   /**
    *
    * @type {State}
@@ -84,7 +84,7 @@ interface State {
    * @type {string}
    * @memberof State
    */
-  formatVersion: State.FormatVersionEnum;
+  format_version: State.FormatVersionEnum;
   /**
    * The type of input that this state was generated from. This value factors into which rules are run for this input.
    * @type {string}
@@ -96,7 +96,7 @@ interface State {
    * @type {string}
    * @memberof State
    */
-  environmentProvider: State.EnvironmentProviderEnum;
+  environment_provider: State.EnvironmentProviderEnum;
   /**
    * This object is intended to hold any input type-specific or  environment-specific fields, e.g. account_id or filepath.
    * @type {{ [key: string]: ModelObject; }}
@@ -171,7 +171,7 @@ interface ResourceState {
    * @type {string}
    * @memberof ResourceState
    */
-  resourceType: string;
+  resource_type: string;
   /**
    * This field is a component of uniquely identifying a resource. It will resolve to different values depending on the input type and environment provider. For example, in a runtime AWS environment, this will be the region. For an IaC Terraform resource, this will be the module path. Customers of the API can set this to something that makes sense for them and parse it back.
    * @type {string}
@@ -251,7 +251,7 @@ export interface RuleResults {
    * @type {string}
    * @memberof RuleResults
    */
-  serviceGroup?: string;
+  service_group?: string;
   /**
    * A map of rule set ID to a map of versions to a list of control IDs
    * @type {{ [key: string]: { [key: string]: Array<string>; }; }}
@@ -263,7 +263,7 @@ export interface RuleResults {
    * @type {Array<string>}
    * @memberof RuleResults
    */
-  resourceTypes?: Array<string>;
+  resource_types?: Array<string>;
   /**
    *
    * @type {Array<RuleResult>}
@@ -313,19 +313,19 @@ export interface RuleResult {
    * @type {string}
    * @memberof RuleResult
    */
-  resourceId?: string;
+  resource_id?: string;
   /**
    * The namespace of the primary resource (if any) associated with this result
    * @type {string}
    * @memberof RuleResult
    */
-  resourceNamespace?: string;
+  resource_namespace?: string;
   /**
    * The type of resource (if any) associated with this result. This will typically be used with \"missing resource\" rules.
    * @type {string}
    * @memberof RuleResult
    */
-  resourceType?: string;
+  resource_type?: string;
   /**
    * A Markdown-formatted set of remediation steps to resolve the issue identified by the rule
    * @type {string}
@@ -356,16 +356,16 @@ export interface RuleResult {
  * @export
  * @namespace RuleResult
  */
-namespace RuleResult {
+export namespace RuleResult {
   /**
    * @export
    * @enum {string}
    */
   export enum SeverityEnum {
-    Low = <any>'Low',
-    Medium = <any>'Medium',
-    High = <any>'High',
-    Critical = <any>'Critical',
+    Low = 'low',
+    Medium = 'medium',
+    High = 'high',
+    Critical = 'critical',
   }
 }
 
