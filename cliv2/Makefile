@@ -233,7 +233,7 @@ generate-ls-protocol-metadata:
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(DESTDIR)$(bindir)/version))
 	@echo "$(LOG_PREFIX) Determining LS protocol version"
 	@echo "$(LOG_PREFIX) Writing protocol version file to $(DESTDIR)$(bindir)"
-	$(eval LS_PROTOCOL_VERSION := $(shell $(PYTHON) $(WORKING_DIR)/../release-scripts/write-ls-protocol-version.py $(LS_COMMIT_HASH) $(CLI_V1_VERSION_TAG) $(DESTDIR)$(bindir)))
+	$(eval LS_PROTOCOL_VERSION := $(shell $(GOCMD) run $(WORKING_DIR)/../release-scripts/write-ls-protocol-version.go $(LS_COMMIT_HASH) $(CLI_V1_VERSION_TAG) $(DESTDIR)$(bindir)))
 	@echo "$(LOG_PREFIX) LS protocol version: $(LS_PROTOCOL_VERSION)"
 
 .PHONY: clean-ts-cli
