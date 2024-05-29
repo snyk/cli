@@ -213,6 +213,15 @@ func getErrorFromWorkFlowData(engine workflow.Engine, data []workflow.Data) erro
 				}
 			}
 
+			dataErrors := data[i].GetErrorList()
+			for _, dataError := range dataErrors {
+				if dataError.ErrorCode == "SNYK-CODE-0006" {
+					return errors.Join(dataError, &cli_errors.ErrorWithExitCode{
+						ExitCode: constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
+					})
+				}
+			}
+
 			return nil
 		}
 	}
@@ -395,9 +404,8 @@ func handleError(err error) HandleError {
 
 func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration) {
 	if err != nil {
-		var exitCode *cli_errors.ErrorWithExitCode
 		_, isExitError := err.(*exec.ExitError)
-		isErrorWithCode := errors.As(err, &exitCode)
+		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
 		if isExitError || isErrorWithCode {
 			return
 		}
