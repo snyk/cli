@@ -5,7 +5,7 @@
     {
       "originalUriBaseIds": {
         "PROJECTROOT": {
-          "uri": "file:///Users/yairzohar/snyk/cli/",
+          "uri": "file:///Users/sergiub/snyk/cli/",
           "description": {
             "text": "The root directory for all project files."
           }
@@ -19,13 +19,39 @@
           "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",
           "rules": [
             {
-              "id": "SNYK-CC-00151",
-              "name": "VpcFlowLoggingShouldBeEnabled",
+              "id": "SNYK-CC-00024",
+              "name": "VpcDefaultSecurityGroupAllowsUnrestrictedIngressTraffic",
               "shortDescription": {
-                "text": "Medium severity - VPC flow logging should be enabled"
+                "text": "Medium severity - VPC default security group allows unrestricted ingress traffic"
               },
               "fullDescription": {
-                "text": "VPC flow logging should be enabled. AWS VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC.\nUsers can use the flow logs to detect anomalous traffic or insight during security workflows.\n"
+                "text": "Configuring all VPC default security groups to restrict all inbound traffic encourages least privilege security group development and mindful placement of AWS resources into security groups, which in turn reduces the exposure of those resources."
+              },
+              "help": {
+                "text": "Remove any invalid ingress block from the aws_security_group or aws_default_security_group.",
+                "markdown": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "problem": {
+                  "severity": "medium"
+                }
+              },
+              "helpUri": "https://security.snyk.io/rules/cloud/SNYK-CC-00024"
+            },
+            {
+              "id": "SNYK-CC-00151",
+              "name": "VpcFlowLoggingIsNotEnabled",
+              "shortDescription": {
+                "text": "Medium severity - VPC flow logging is not enabled"
+              },
+              "fullDescription": {
+                "text": "VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows."
               },
               "help": {
                 "text": "Reference the aws_vpc in an aws_flog_log vpc_id field.",
@@ -43,32 +69,6 @@
                 }
               },
               "helpUri": "https://security.snyk.io/rules/cloud/SNYK-CC-00151"
-            },
-            {
-              "id": "SNYK-CC-TF-5",
-              "name": "VpcDefaultSecurityGroupAllowsUnrestrictedIngressTraffic",
-              "shortDescription": {
-                "text": "Medium severity - VPC default security group allows unrestricted ingress traffic"
-              },
-              "fullDescription": {
-                "text": "Configuring all VPC default security groups to restrict all traffic encourages least privilege security\ngroup development and mindful placement of AWS resources into security groups which in turn reduces the exposure of those resources.\n"
-              },
-              "help": {
-                "text": "Remove any invalid ingress block from the aws_security_group or aws_default_security_group.",
-                "markdown": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
-              },
-              "defaultConfiguration": {
-                "level": "warning"
-              },
-              "properties": {
-                "tags": [
-                  "security"
-                ],
-                "problem": {
-                  "severity": "medium"
-                }
-              },
-              "helpUri": "https://security.snyk.io/rules/cloud/SNYK-CC-TF-5"
             }
           ]
         }
@@ -77,6 +77,25 @@
         "id": "snyk-iac"
       },
       "results": [
+        {
+          "ruleId": "SNYK-CC-00024",
+          "message": {
+            "text": "This line contains a potential medium severity misconfiguration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "plan.json",
+                  "uriBaseId": "PROJECTROOT"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
         {
           "ruleId": "SNYK-CC-00151",
           "message": {
@@ -97,7 +116,7 @@
           ]
         },
         {
-          "ruleId": "SNYK-CC-TF-5",
+          "ruleId": "SNYK-CC-00024",
           "message": {
             "text": "This line contains a potential medium severity misconfiguration"
           },
@@ -105,11 +124,11 @@
             {
               "physicalLocation": {
                 "artifactLocation": {
-                  "uri": "plan.json",
+                  "uri": "vpc_group.tf",
                   "uriBaseId": "PROJECTROOT"
                 },
                 "region": {
-                  "startLine": 1
+                  "startLine": 16
                 }
               }
             }
@@ -129,25 +148,6 @@
                 },
                 "region": {
                   "startLine": 5
-                }
-              }
-            }
-          ]
-        },
-        {
-          "ruleId": "SNYK-CC-TF-5",
-          "message": {
-            "text": "This line contains a potential medium severity misconfiguration"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "vpc_group.tf",
-                  "uriBaseId": "PROJECTROOT"
-                },
-                "region": {
-                  "startLine": 16
                 }
               }
             }
