@@ -2,7 +2,7 @@
 // fields must be produced in the JSON output, and they must have those values
 // to keep backwards compatibility.
 
-import { Resource, TestOutput, Vulnerability } from './scan/results';
+import { PassedVulnerability, Resource, TestOutput, Vulnerability } from './scan/results';
 import * as path from 'path';
 import { IacProjectType, iacRemediationTypes } from '../../constants';
 import { State } from './scan/policy-engine';
@@ -29,6 +29,7 @@ export interface Result {
   projectType: IacProjectType | State.InputTypeEnum;
   ok: boolean;
   infrastructureAsCodeIssues: IacIssue[];
+  infrastructureAsCodeSuccesses: IacSuccess[];
   error?: string;
 }
 
@@ -75,6 +76,16 @@ export interface IacIssue {
   compliance?: string[][];
   description: string;
 }
+export interface IacSuccess {
+  id?: string;
+  severity?: string;
+  title?: string;
+  description?: string;
+  type?: IacProjectType | State.InputTypeEnum;
+  subType?: string;
+  isIgnored: boolean;
+  documentation?: string;
+}
 
 export interface Remediation {
   cloudformation?: string;
@@ -113,9 +124,9 @@ export function convertEngineToJsonResults({
     output.push(resourcesToResult(results, projectName, file, resources));
   }
 
-  for (const [file, vulnerabilities] of Object.entries(vulnerabilityGroups)) {
+  for (const [file, {vulnerabilities, passedVulnerabilities }] of Object.entries(vulnerabilityGroups)) {
     output.push(
-      vulnerabilitiesToResult(results, projectName, file, vulnerabilities),
+      vulnerabilitiesToResult(results, projectName, file, vulnerabilities, passedVulnerabilities),
     );
   }
 
@@ -123,7 +134,7 @@ export function convertEngineToJsonResults({
 }
 
 function groupResourcesByFile(results: TestOutput) {
-  const groups: Record<string, Resource[]> = {};
+  const groups = {};
 
   if (results.results?.resources) {
     for (const resource of results.results.resources) {
@@ -139,14 +150,30 @@ function groupResourcesByFile(results: TestOutput) {
 }
 
 function groupVulnerabilitiesByFile(results: TestOutput) {
-  const groups: Record<string, Vulnerability[]> = {};
+  const groups: Record<string, { vulnerabilities: Vulnerability[], passedVulnerabilities: PassedVulnerability[] }> = {};
 
   if (results.results?.vulnerabilities) {
     for (const vulnerability of results.results.vulnerabilities) {
       if (vulnerability.resource.file) {
-        const vulnerabilities = groups[vulnerability.resource.file] || [];
-        vulnerabilities.push(vulnerability);
-        groups[vulnerability.resource.file] = vulnerabilities;
+        const vulnerabilityInfo = groups[vulnerability.resource.file] || {
+          vulnerabilities: [],
+          passedVulnerabilities: [],
+        };
+        vulnerabilityInfo.vulnerabilities.push(vulnerability);
+        groups[vulnerability.resource.file] = vulnerabilityInfo;
+      }
+    }
+  }
+
+  if (results.results?.passedVulnerabilities) {
+    for (const passedVulnerability of results.results.passedVulnerabilities) {
+      if (passedVulnerability.resource.file) {
+        const vulnerabilityInfo = groups[passedVulnerability.resource.file] || {
+          vulnerabilities: [],
+          passedVulnerabilities: [],
+        };
+        vulnerabilityInfo.passedVulnerabilities.push(passedVulnerability);
+        groups[passedVulnerability.resource.file] = vulnerabilityInfo;
       }
     }
   }
@@ -156,7 +183,7 @@ function groupVulnerabilitiesByFile(results: TestOutput) {
 
 function findFilesWithoutIssues(
   resourceGroups: Record<string, Resource[]>,
-  vulnerabilityGroups: Record<string, Vulnerability[]>,
+  vulnerabilityGroups: Record<string, unknown>,
 ) {
   const groups: Record<string, Resource[]> = {};
 
@@ -197,6 +224,7 @@ function resourcesToResult(
     projectType: kind,
     ok: true,
     infrastructureAsCodeIssues: [],
+    infrastructureAsCodeSuccesses: [],
   };
 }
 
@@ -205,12 +233,16 @@ function vulnerabilitiesToResult(
   projectName: string,
   file: string,
   vulnerabilities: Vulnerability[],
+  passedVulnerabilities: PassedVulnerability[],
 ): Result {
   const kind = vulnerabilitiesToKind(vulnerabilities);
   const ignoreSettings = testOutput.settings.ignoreSettings;
   const meta = orgSettingsToMeta(testOutput, ignoreSettings);
   const infrastructureAsCodeIssues = vulnerabilitiesToIacIssues(
     vulnerabilities,
+  );
+  const infrastructureAsCodeSuccesses = passedVulnerabilitiesToIacSuccesses(
+    passedVulnerabilities,
   );
 
   return {
@@ -231,6 +263,7 @@ function vulnerabilitiesToResult(
     projectType: kind,
     ok: false,
     infrastructureAsCodeIssues,
+    infrastructureAsCodeSuccesses
   };
 }
 
@@ -267,6 +300,28 @@ function vulnerabilitiesToIacIssues(
       path: v?.resource?.formattedPath.split('.') || [],
       compliance: [],
       description: v.rule.description,
+    };
+  });
+}
+
+  // TODO IAC-2962: add "path" for the resource, but this requires changes in the `snyk-iac-test` output for the resources embedded in the raw_results
+  // "formattedPath" needs to be added to the resource in the raw_results
+  // see https://github.com/snyk/snyk-iac-test/blob/b0bfedfb47cee7098fa386f2f74dc35543f06c41/pkg/results/results.go#L179
+  // TODO IAC-2962: add "type" for the resource, but this requires changes in the `snyk-iac-test` output for the resources embedded in the raw_results
+  // "kind" needs to be added to the resource in the raw_results
+  // see https://github.com/snyk/snyk-iac-test/blob/b0bfedfb47cee7098fa386f2f74dc35543f06c41/pkg/results/results.go#L204
+function passedVulnerabilitiesToIacSuccesses(
+  vulnerabilities: PassedVulnerability[],
+): IacSuccess[] {
+
+  return vulnerabilities.map((v) => {
+    return {
+      severity: v.severity,
+      description: v.rule.description,
+      title: v.rule.title,
+      subType: v.resource.type,
+      id: v.rule.id,
+      isIgnored: v.ignored
     };
   });
 }
