@@ -2,7 +2,12 @@
 // fields must be produced in the JSON output, and they must have those values
 // to keep backwards compatibility.
 
-import { PassedVulnerability, Resource, TestOutput, Vulnerability } from './scan/results';
+import {
+  PassedVulnerability,
+  Resource,
+  TestOutput,
+  Vulnerability,
+} from './scan/results';
 import * as path from 'path';
 import { IacProjectType, iacRemediationTypes } from '../../constants';
 import { State } from './scan/policy-engine';
@@ -124,9 +129,18 @@ export function convertEngineToJsonResults({
     output.push(resourcesToResult(results, projectName, file, resources));
   }
 
-  for (const [file, {vulnerabilities, passedVulnerabilities }] of Object.entries(vulnerabilityGroups)) {
+  for (const [
+    file,
+    { vulnerabilities, passedVulnerabilities },
+  ] of Object.entries(vulnerabilityGroups)) {
     output.push(
-      vulnerabilitiesToResult(results, projectName, file, vulnerabilities, passedVulnerabilities),
+      vulnerabilitiesToResult(
+        results,
+        projectName,
+        file,
+        vulnerabilities,
+        passedVulnerabilities,
+      ),
     );
   }
 
@@ -150,7 +164,13 @@ function groupResourcesByFile(results: TestOutput) {
 }
 
 function groupVulnerabilitiesByFile(results: TestOutput) {
-  const groups: Record<string, { vulnerabilities: Vulnerability[], passedVulnerabilities: PassedVulnerability[] }> = {};
+  const groups: Record<
+    string,
+    {
+      vulnerabilities: Vulnerability[];
+      passedVulnerabilities: PassedVulnerability[];
+    }
+  > = {};
 
   if (results.results?.vulnerabilities) {
     for (const vulnerability of results.results.vulnerabilities) {
@@ -263,7 +283,7 @@ function vulnerabilitiesToResult(
     projectType: kind,
     ok: false,
     infrastructureAsCodeIssues,
-    infrastructureAsCodeSuccesses
+    infrastructureAsCodeSuccesses,
   };
 }
 
@@ -304,16 +324,15 @@ function vulnerabilitiesToIacIssues(
   });
 }
 
-  // TODO IAC-2962: add "path" for the resource, but this requires changes in the `snyk-iac-test` output for the resources embedded in the raw_results
-  // "formattedPath" needs to be added to the resource in the raw_results
-  // see https://github.com/snyk/snyk-iac-test/blob/b0bfedfb47cee7098fa386f2f74dc35543f06c41/pkg/results/results.go#L179
-  // TODO IAC-2962: add "type" for the resource, but this requires changes in the `snyk-iac-test` output for the resources embedded in the raw_results
-  // "kind" needs to be added to the resource in the raw_results
-  // see https://github.com/snyk/snyk-iac-test/blob/b0bfedfb47cee7098fa386f2f74dc35543f06c41/pkg/results/results.go#L204
+// TODO IAC-2962: add "path" for the resource, but this requires changes in the `snyk-iac-test` output for the resources embedded in the raw_results
+// "formattedPath" needs to be added to the resource in the raw_results
+// see https://github.com/snyk/snyk-iac-test/blob/b0bfedfb47cee7098fa386f2f74dc35543f06c41/pkg/results/results.go#L179
+// TODO IAC-2962: add "type" for the resource, but this requires changes in the `snyk-iac-test` output for the resources embedded in the raw_results
+// "kind" needs to be added to the resource in the raw_results
+// see https://github.com/snyk/snyk-iac-test/blob/b0bfedfb47cee7098fa386f2f74dc35543f06c41/pkg/results/results.go#L204
 function passedVulnerabilitiesToIacSuccesses(
   vulnerabilities: PassedVulnerability[],
 ): IacSuccess[] {
-
   return vulnerabilities.map((v) => {
     return {
       severity: v.severity,
@@ -321,7 +340,7 @@ function passedVulnerabilitiesToIacSuccesses(
       title: v.rule.title,
       subType: v.resource.type,
       id: v.rule.id,
-      isIgnored: v.ignored
+      isIgnored: v.ignored,
     };
   });
 }
