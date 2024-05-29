@@ -7,9 +7,6 @@ import { checkOSSPaths } from '../../../lib/check-paths';
 import * as theme from '../../../lib/theme';
 
 import {
-  MonitorOptions,
-  MonitorMeta,
-  MonitorResult,
   Options,
   Contributor,
   ProjectAttributes,
@@ -18,28 +15,21 @@ import {
   PROJECT_LIFECYCLE,
   Tag,
 } from '../../../lib/types';
-import config from '../../../lib/config';
+
 import * as detect from '../../../lib/detect';
 import { GoodResult, BadResult } from './types';
 import { spinner } from '../../../lib/spinner';
 import * as analytics from '../../../lib/analytics';
 import { MethodArgs } from '../../args';
 import { apiOrOAuthTokenExists } from '../../../lib/api-token';
-import { maybePrintDepTree, maybePrintDepGraph } from '../../../lib/print-deps';
-import { monitor as snykMonitor } from '../../../lib/monitor';
 import { processJsonMonitorResponse } from './process-json-monitor';
 import snyk = require('../../../lib'); // TODO(kyegupov): fix import
-import { formatMonitorOutput } from '../../../lib/formatters';
 import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
-import { getExtraProjectCount } from '../../../lib/plugins/get-extra-project-count';
-import { extractPackageManager } from '../../../lib/plugins/extract-package-manager';
 import { MultiProjectResultCustom } from '../../../lib/plugins/get-multi-plugin-result';
 import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-multi-plugin-res-to-multi-custom';
 import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
-import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { getContributors } from '../../../lib/monitor/dev-count-analysis';
 import {
-  FailedToRunTestError,
   MonitorError,
   MissingArgError,
   ValidationError,
@@ -50,6 +40,8 @@ import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 import { processCommandArgs } from '../process-command-args';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
 import { PNPM_FEATURE_FLAG } from '../../../lib/package-managers';
+import { promiseOrCleanup } from './utils';
+import { monitorProcessChunksCommand } from './process-chunks';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -58,18 +50,6 @@ images will be scanned by default when using the snyk container test/monitor
 commands. If you are using Snyk in a CI pipeline, action may be required. Read
 https://snyk.io/blog/securing-container-applications-using-the-snyk-cli/ for
 more info.`;
-
-// This is used instead of `let x; try { x = await ... } catch { cleanup }` to avoid
-// declaring the type of x as possibly undefined.
-async function promiseOrCleanup<T>(
-  p: Promise<T>,
-  cleanup: (x?) => void,
-): Promise<T> {
-  return p.catch((error) => {
-    cleanup();
-    throw error;
-  });
-}
 
 // Returns an array of Registry responses (one per every sub-project scanned), a single response,
 // or an error message.
@@ -265,72 +245,18 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       await spinner(postingMonitorSpinnerLabel);
 
       // Post the project dependencies to the Registry
-      for (const projectDeps of perProjectResult.scannedProjects) {
-        try {
-          if (!projectDeps.depGraph && !projectDeps.depTree) {
-            debug(
-              'scannedProject is missing depGraph or depTree, cannot run test/monitor',
-            );
-            throw new FailedToRunTestError(
-              'Your monitor request could not be completed. Please email support@snyk.io',
-            );
-          }
-          const extractedPackageManager = extractPackageManager(
-            projectDeps,
-            perProjectResult,
-            options as MonitorOptions & Options,
-          );
+      const monitorResults = await monitorProcessChunksCommand(
+        path,
+        inspectResult,
+        perProjectResult,
+        contributors,
+        options,
+        targetFile,
+      );
 
-          analytics.add('packageManager', extractedPackageManager);
-
-          const projectName = getProjectName(projectDeps);
-          if (projectDeps.depGraph) {
-            debug(`Processing ${projectDeps.depGraph.rootPkg?.name}...`);
-            maybePrintDepGraph(options, projectDeps.depGraph);
-          }
-
-          if (projectDeps.depTree) {
-            debug(`Processing ${projectDeps.depTree.name}...`);
-            maybePrintDepTree(options, projectDeps.depTree);
-          }
-
-          const tFile = projectDeps.targetFile || targetFile;
-          const targetFileRelativePath =
-            projectDeps.plugin.targetFile ||
-            (tFile && pathUtil.join(pathUtil.resolve(path), tFile)) ||
-            '';
-
-          const res: MonitorResult = await promiseOrCleanup(
-            snykMonitor(
-              path,
-              generateMonitorMeta(options, extractedPackageManager),
-              projectDeps,
-              options,
-              projectDeps.plugin as PluginMetadata,
-              targetFileRelativePath,
-              contributors,
-              generateProjectAttributes(options),
-              generateTags(options),
-            ),
-            spinner.clear(postingMonitorSpinnerLabel),
-          );
-
-          res.path = path;
-          const monOutput = formatMonitorOutput(
-            extractedPackageManager,
-            res,
-            options,
-            projectName,
-            await getExtraProjectCount(path, options, inspectResult),
-          );
-          // push a good result
-          results.push({ ok: true, data: monOutput, path, projectName });
-        } catch (err) {
-          // pushing this error allow this inner loop to keep scanning the projects
-          // even if 1 in 100 fails
-          results.push({ ok: false, data: err, path });
-        }
-      }
+      monitorResults.forEach((res) => {
+        results.push(res);
+      });
     } catch (err) {
       // push this error, the loop continues
       results.push({ ok: false, data: err, path });
@@ -367,20 +293,6 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   throw new Error(output);
-}
-
-function generateMonitorMeta(options, packageManager?): MonitorMeta {
-  return {
-    method: 'cli',
-    packageManager,
-    'policy-path': options['policy-path'],
-    'project-name': options['project-name'] || config.PROJECT_NAME,
-    isDocker: !!options.docker,
-    prune: !!options.pruneRepeatedSubdependencies,
-    'remote-repo-url': options['remote-repo-url'],
-    targetReference: options['target-reference'],
-    assetsProjectName: options['assets-project-name'],
-  };
 }
 
 /**
@@ -521,12 +433,4 @@ function validateMonitorPath(path: string, isDocker?: boolean): void {
   if (!exists && !isDocker) {
     throw new Error('"' + path + '" is not a valid path for "snyk monitor"');
   }
-}
-
-function getProjectName(projectDeps): string {
-  return (
-    projectDeps.meta?.gradleProjectName ||
-    projectDeps.depGraph?.rootPkg?.name ||
-    projectDeps.depTree?.name
-  );
 }
