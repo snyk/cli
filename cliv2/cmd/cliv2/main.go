@@ -1,7 +1,8 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import 	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+
 import (
 	"context"
 	"encoding/json"
