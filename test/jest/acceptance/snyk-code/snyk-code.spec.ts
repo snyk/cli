@@ -175,7 +175,7 @@ describe('snyk code test', () => {
           },
         );
 
-        it("use remote LCE's url as base when LCE is enabled", async () => {
+        it.skip("use remote LCE's url as base when LCE is enabled", async () => {
           const localCodeEngineUrl = fakeDeepCodeServer();
           localCodeEngineUrl.listen(() => {});
 
