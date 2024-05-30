@@ -56,7 +56,7 @@ describe('analytics module', () => {
       return JSON.stringify(req.body).includes('upgradable-snyk-protect-paths');
     });
 
-    expect(requests.length).toEqual(1);
+    expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
       query: {},
       body: {
@@ -91,7 +91,7 @@ describe('analytics module', () => {
       return JSON.stringify(req.body).includes('upgradable-snyk-protect-paths');
     });
 
-    expect(requests.length).toEqual(1);
+    expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
       query: {},
       body: {
@@ -141,7 +141,8 @@ describe('analytics module', () => {
       return JSON.stringify(req.body).includes('upgradable-snyk-protect-paths');
     });
 
-    expect(requests.length).toEqual(1);
+    expect(requests[0].url).toEqual('/api/v1/analytics/cli');
+    expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
       query: {},
       body: {
@@ -175,7 +176,8 @@ describe('analytics module', () => {
       return JSON.stringify(req.body).includes('upgradable-snyk-protect-paths');
     });
 
-    expect(requests.length).toEqual(1);
+    expect(requests[0].url).toEqual('/api/v1/analytics/cli');
+    expect(requests).toHaveLength(1);
     expect(requests[0]).toMatchObject({
       query: {},
       body: {

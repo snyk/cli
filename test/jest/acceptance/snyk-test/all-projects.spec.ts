@@ -149,7 +149,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       return req.query.ignorePolicy;
     });
 
-    expect(requests).toBeTruthy(); // should request to ignore the policy
+    expect(requests).toHaveLength(1);
     expect(stdout).toMatch(
       'Tested 7 dependencies for known vulnerabilities, found 5 vulnerabilities, 6 vulnerable paths.',
     );
@@ -175,7 +175,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       return req.url.includes('/api/v1/test-dep-graph');
     });
 
-    expect(backendRequests.length).toEqual(2);
+    expect(backendRequests).toHaveLength(2);
     let policyCount = 0;
     backendRequests.forEach((req) => {
       expect(req.method).toEqual('POST');
@@ -223,7 +223,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       return req.url.includes('/api/v1/test');
     });
 
-    expect(backendRequests.length).toEqual(1);
+    expect(backendRequests).toHaveLength(1);
     backendRequests.forEach((req: any) => {
       expect(req.method).toEqual('POST');
       expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
@@ -250,7 +250,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       return req.url.includes('/api/v1/test');
     });
 
-    expect(backendRequests.length).toEqual(6);
+    expect(backendRequests).toHaveLength(6);
     backendRequests.forEach((req: any) => {
       expect(req.method).toEqual('POST');
       expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
@@ -278,7 +278,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       return req.url.includes('/api/v1/test');
     });
 
-    expect(backendRequests.length).toEqual(10);
+    expect(backendRequests).toHaveLength(10);
     backendRequests.forEach((req: any) => {
       expect(req.method).toEqual('POST');
       expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
