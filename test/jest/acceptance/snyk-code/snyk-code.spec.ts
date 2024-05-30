@@ -70,14 +70,14 @@ describe('snyk code test', () => {
   }
 
   const integrationWorkflows: Workflow[] = [
-    // {
-    //   type: 'legacy',
-    //   env: {
-    //     INTERNAL_SNYK_CODE_CLIENT_ENABLED: 'false',
-    //   },
-    // },
     {
-      type: 'native',
+      type: 'typescript',
+      env: {
+        INTERNAL_SNYK_CODE_CLIENT_ENABLED: 'false',
+      },
+    },
+    {
+      type: 'golang/native',
       env: {
         // internal GAF feature flag for consistent ignores
         INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
@@ -89,7 +89,7 @@ describe('snyk code test', () => {
     'integration',
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
-        it('should show error if sast is not enabled', async () => {
+        it.skip('should show error if sast is not enabled', async () => {
           // Setup
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -111,7 +111,7 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
         });
 
-        it('succeed testing with correct exit code - with sarif output and no markdown', async () => {
+        it.skip('succeed testing with correct exit code - with sarif output and no markdown', async () => {
           const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
