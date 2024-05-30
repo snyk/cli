@@ -1,10 +1,13 @@
 import * as process from 'process';
 
-import * as Debug from 'debug';
-const debug = Debug('snyk');
+import { JsonStreamStringify } from 'json-stream-stringify';
+
+import * as cppPlugin from 'snyk-cpp-plugin';
 
 import { getSinglePluginResult } from '../../lib/plugins/get-single-plugin-result';
 import { detectPackageManager } from '../../lib/detect';
+import * as Debug from 'debug';
+const debug = Debug('snyk');
 
 /**
  * ecosystem provides an entrypoint for driving legacy Snyk SCA ecosystem modules.
@@ -14,10 +17,10 @@ import { detectPackageManager } from '../../lib/detect';
  * undocumented and comes with no guarantees of compatibility. It should be
  * regarded as entirely internal to the CLI.
  *
- * Command line arguments are parsed. This command reads a pre-created
- * options JSON object from stdin, loads the appropriate ecosystem module, and
- * executes it to produce a dependency graph which is then writen to standard
- * output.
+ * This command reads an options JSON object from stdin, loads the appropriate
+ * ecosystem module, and executes it to produce a dependency graph which is then
+ * writen to standard output. The idea here is that the Go CLI would have
+ * already parsed argv and drives this entrypoint.
  *
  * If an exception is thrown, an object with the key `error` is produced.
  *
@@ -33,13 +36,18 @@ export default async function ecosystem(): Promise<void> {
     debug('snyk ecosystem called with options: %O', options);
 
     const root = options.path ?? process.cwd();
-    options.packageManager = detectPackageManager(root, options);
+    options.packageManager =
+      options.packageManager ?? detectPackageManager(root, options);
 
-    const res = await getSinglePluginResult(root, options);
-    console.log(JSON.stringify(res));
+    const res: Promise<any> = (options.packageManager === 'cpp') ?
+      cppPlugin.scan({ unmanaged: true, ...options }) :
+      getSinglePluginResult(root, options);
+    const jsonStream = new JsonStreamStringify(res);
+    jsonStream.pipe(process.stdout);
+
   } catch (err) {
     debug('snyk ecosystem failed with error: %O', err);
-    console.log(JSON.stringify({error: err}));
+    console.error(JSON.stringify({ error: err }));
   }
 }
 
