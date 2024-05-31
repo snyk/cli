@@ -12,9 +12,9 @@ const stripAnsi = require('strip-ansi');
 
 expect.extend(matchers);
 
-const SARIF_SCHEMA = require('../../../fixtures/snyk-code/sarif-schema.json');
 const EXIT_CODE_ACTION_NEEDED = 1;
 const EXIT_CODE_FAIL_WITH_ERROR = 2;
+const EXIT_CODE_NO_SUPPORTED_FILES = 3;
 
 describe('snyk code test', () => {
   let server: ReturnType<typeof fakeServer>;
@@ -73,7 +73,7 @@ describe('snyk code test', () => {
     {
       type: 'typescript',
       env: {
-        INTERNAL_SNYK_CODE_CLIENT_ENABLED: 'false',
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: "false" 
       },
     },
     {
@@ -137,7 +137,7 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
         });
 
-        it.skip('should fail with correct exit code - when testing empty project', async () => {
+        it('should fail with correct exit code - when testing empty project', async () => {
           const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
           const { path } = await createProjectFromFixture(
             'sast/unsupported-files',
@@ -152,7 +152,7 @@ describe('snyk code test', () => {
             },
           });
 
-          expect(code).toBe(3);
+          expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
         });
 
         const failedCodeTestMessage = "Failed to run 'code test'";
