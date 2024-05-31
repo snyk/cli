@@ -1,14 +1,15 @@
+/**
+ *
+ * - Remove instances of `--remote-repo-url=something`
+ */
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { matchers } from 'jest-json-schema';
-// import * as nock from 'nock'
 
 const stripAnsi = require('strip-ansi');
-
-// nock.disableNetConnect()
 
 expect.extend(matchers);
 
@@ -74,7 +75,7 @@ describe('snyk code test', () => {
     {
       type: 'typescript',
       env: {
-        INTERNAL_SNYK_CODE_IGNORES_ENABLED: "false" 
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
       },
     },
     {
@@ -117,10 +118,10 @@ describe('snyk code test', () => {
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
           );
-          
+
           server.setOrgSetting('sast', true);
-          server.setFinding(sarifPayload)
-          
+          server.setFinding(sarifPayload);
+
           deepCodeServer.setFiltersResponse({
             configFiles: [],
             extensions: ['.java'],
@@ -141,7 +142,7 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_SUCCESS);
         });
 
-        it('succeed testing with correct exit code - with sarif output', async () => {
+        it('should succeed with correct exit code - with sarif output', async () => {
           const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -185,45 +186,7 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
         });
 
-        const failedCodeTestMessage = "Failed to run 'code test'";
-
-        // This is caused by the retry logic in the code-client
-        // which defaults to 10 retries with a 5 second delay
-        jest.setTimeout(60000);
-        it.skip.each([
-          [{ code: 401 }, `Unauthorized: ${failedCodeTestMessage}`],
-          [{ code: 429 }, failedCodeTestMessage],
-        ])(
-          'should fail - when server returns %p',
-          async (errorCodeObj, expectedResult) => {
-            const { path } = await createProjectFromFixture(
-              'sast/shallow_sast_webgoat',
-            );
-            server.setOrgSetting('sast', true);
-            deepCodeServer.setNextStatusCode(errorCodeObj.code);
-            deepCodeServer.setNextResponse({
-              statusCode: errorCodeObj.code,
-              statusText: 'Unauthorized action',
-              apiName: 'code',
-            });
-
-            const { stdout, code, stderr } = await runSnykCLI(
-              `code test ${path()}`,
-              {
-                env: {
-                  ...env,
-                  ...integrationEnv,
-                },
-              },
-            );
-
-            expect(stderr).toBe('');
-            expect(stdout).toContain(expectedResult);
-            expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
-          },
-        );
-
-        it.skip("use remote LCE's url as base when LCE is enabled", async () => {
+        it("use remote LCE's url as base when LCE is enabled", async () => {
           const localCodeEngineUrl = fakeDeepCodeServer();
           localCodeEngineUrl.listen(() => {});
 
@@ -250,9 +213,9 @@ describe('snyk code test', () => {
             },
           );
 
+          expect(stderr).toBe('');
           expect(deepCodeServer.getRequests().length).toBe(0);
           expect(localCodeEngineUrl.getRequests().length).toBeGreaterThan(0);
-          expect(stderr).toBe('');
           expect(stripAnsi(stdout)).toContain(
             '✗ [Medium] Information Exposure',
           );

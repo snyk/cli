@@ -57,7 +57,7 @@ export type FakeServer = {
   close: (callback: () => void) => void;
   closePromise: () => Promise<void>;
   getPort: () => number;
-  setFinding: (f: any) => void
+  setFinding: (f: any) => void;
 };
 
 export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
@@ -87,6 +87,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     availableSettings = new Map();
     unauthorizedActions = new Map();
     finding = require('../fixtures/sast/sample-sarif.json');
+    localCodeEngineConfiguration = {
+      enabled: false,
+    };
   };
 
   const getRequests = () => {
@@ -143,9 +146,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     availableSettings.set(setting, enabled);
   };
 
-  const setFinding = (_finding: any) =>{
-    finding = _finding
-  }
+  const setFinding = (_finding: any) => {
+    finding = _finding;
+  };
 
   const unauthorizeAction = (
     action: string,
