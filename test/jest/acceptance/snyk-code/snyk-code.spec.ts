@@ -226,4 +226,40 @@ describe('snyk code test', () => {
       });
     },
   );
+
+  describe.each(integrationWorkflows)(
+    'user journey',
+    ({type, env: integrationEnv}) => {  
+      describe(`${type} workflow`, () => {
+        jest.setTimeout(60000);
+        it('should succeed - when no vulnerabilities found', async () => {
+          const sarifPayload = require('../../../fixtures/sast/empty-sarif.json');
+          const { path } = await createProjectFromFixture(
+            'sast-empty/shallow_empty',
+          );
+
+          
+          deepCodeServer.setFiltersResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+          deepCodeServer.setSarifResponse(sarifPayload);
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=something`,
+            {
+              env: {
+                ...process.env,
+                SNYK_API: 'https://api.dev.snyk.io',
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_SUCCESS);
+        });
+      });
+    },
+  )
 });
