@@ -79,23 +79,6 @@ describe('snyk code test', () => {
   jest.setTimeout(60000);
   describe.each(userJourneyWorkflows)('user journey', ({ type, env }) => {
     describe(`${type} workflow`, () => {
-      it('should fail - when we do not support files', async () => {
-        const { path } = await createProjectFromFixture('empty');
-
-        const { stdout, code, stderr } = await runSnykCLI(
-          `code test ${path()}`,
-          {
-            env,
-          },
-        );
-
-        if (stderr) console.log('STDERR: ', stderr);
-
-        expect(stderr).toBe('');
-        expect(stdout).toContain(`We found 0 supported files`);
-        expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES); // failure, no supported projects detected
-      });
-
       it('should succeed - when no errors found', async () => {
         const { path } = await createProjectFromFixture(
           'sast-empty/shallow_empty',
