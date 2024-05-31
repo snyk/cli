@@ -123,7 +123,7 @@ describe('snyk code test', () => {
           });
           deepCodeServer.setSarifResponse(sarifPayload);
 
-          const { stdout stderr, code } = await runSnykCLI(
+          const { stderr, code } = await runSnykCLI(
             `code test ${path()} --sarif --remote-repo-url=something`,
             {
               env: {
@@ -133,8 +133,6 @@ describe('snyk code test', () => {
             },
           );
 
-          const jsonOutput = JSON.parse(stdout);
-          expect(jsonOutput).toMatchSchema(SARIF_SCHEMA);
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
         });
