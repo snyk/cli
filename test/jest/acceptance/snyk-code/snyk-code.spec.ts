@@ -88,7 +88,7 @@ describe('snyk code test', () => {
   ];
 
   describe.each(integrationWorkflows)(
-    'user journey',
+    `integration`,
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
         it('should show error if sast is not enabled', async () => {
