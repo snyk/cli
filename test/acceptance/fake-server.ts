@@ -57,6 +57,7 @@ export type FakeServer = {
   close: (callback: () => void) => void;
   closePromise: () => Promise<void>;
   getPort: () => number;
+  setFinding: (f: any) => void
 };
 
 export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
@@ -76,6 +77,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let customResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
   const sockets = new Set();
+  let finding = require('../fixtures/sast/sample-sarif.json');
 
   const restore = () => {
     statusCode = undefined;
@@ -84,6 +86,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     featureFlags = featureFlagDefaults();
     availableSettings = new Map();
     unauthorizedActions = new Map();
+    finding = require('../fixtures/sast/sample-sarif.json');
   };
 
   const getRequests = () => {
@@ -139,6 +142,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   const setOrgSetting = (setting: string, enabled: boolean) => {
     availableSettings.set(setting, enabled);
   };
+
+  const setFinding = (_finding: any) =>{
+    finding = _finding
+  }
 
   const unauthorizeAction = (
     action: string,
@@ -711,8 +718,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.get(`/api/rest/findings/:findingId`, (req, res) => {
     // sarif document
-    const sarifDocument = require('../fixtures/sast/sample-sarif.json');
-    return res.status(200).send(sarifDocument);
+    return res.status(200).send(finding);
   });
 
   app.post(`/api/rest/orgs/:orgId/scans`, (req, res) => {
@@ -966,6 +972,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   };
 
   return {
+    setFinding,
     getRequests,
     popRequest,
     popRequests,

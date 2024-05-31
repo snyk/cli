@@ -12,6 +12,7 @@ const stripAnsi = require('strip-ansi');
 
 expect.extend(matchers);
 
+const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_ACTION_NEEDED = 1;
 const EXIT_CODE_FAIL_WITH_ERROR = 2;
 const EXIT_CODE_NO_SUPPORTED_FILES = 3;
@@ -109,6 +110,35 @@ describe('snyk code test', () => {
           expect(stderr).toBe('');
           expect(stdout).toContain('Snyk Code is not supported for org');
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
+        });
+
+        it('should succeed - when no vulnerabilities found', async () => {
+          const sarifPayload = require('../../../fixtures/sast/empty-sarif.json');
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+          
+          server.setOrgSetting('sast', true);
+          server.setFinding(sarifPayload)
+          
+          deepCodeServer.setFiltersResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+          deepCodeServer.setSarifResponse(sarifPayload);
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=something`,
+            {
+              env: {
+                ...env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_SUCCESS);
         });
 
         it('succeed testing with correct exit code - with sarif output', async () => {
