@@ -12,6 +12,7 @@ const stripAnsi = require('strip-ansi');
 
 expect.extend(matchers);
 
+const SARIF_SCHEMA = require('../../../fixtures/snyk-code/sarif-schema.json');
 const EXIT_CODE_ACTION_NEEDED = 1;
 const EXIT_CODE_FAIL_WITH_ERROR = 2;
 
@@ -122,7 +123,7 @@ describe('snyk code test', () => {
           });
           deepCodeServer.setSarifResponse(sarifPayload);
 
-          const { stderr, code } = await runSnykCLI(
+          const { stdout stderr, code } = await runSnykCLI(
             `code test ${path()} --sarif --remote-repo-url=something`,
             {
               env: {
@@ -132,6 +133,8 @@ describe('snyk code test', () => {
             },
           );
 
+          const jsonOutput = JSON.parse(stdout);
+          expect(jsonOutput).toMatchSchema(SARIF_SCHEMA);
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
         });
