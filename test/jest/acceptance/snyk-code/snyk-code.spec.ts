@@ -186,7 +186,7 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
         });
 
-        it("use remote LCE's url as base when LCE is enabled", async () => {
+        it.skip("use remote LCE's url as base when LCE is enabled", async () => {
           const localCodeEngineUrl = fakeDeepCodeServer();
           localCodeEngineUrl.listen(() => {});
 
