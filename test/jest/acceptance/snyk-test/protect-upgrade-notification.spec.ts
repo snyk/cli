@@ -52,11 +52,12 @@ describe('analytics module', () => {
     );
     expect(stdout).toContain(project.path('package.json'));
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    server.popRequest();
+    const requests = server.getRequests().filter((req: any) => {
+      return JSON.stringify(req.body).includes('upgradable-snyk-protect-paths');
+    });
 
-    const lastRequest = server.popRequest();
-    expect(lastRequest).toMatchObject({
+    expect(requests).toHaveLength(1);
+    expect(requests[0]).toMatchObject({
       query: {},
       body: {
         data: {
@@ -86,11 +87,12 @@ describe('analytics module', () => {
     );
     expect(stdout).toContain(project.path('package.json'));
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    server.popRequest();
+    const requests = server.getRequests().filter((req: any) => {
+      return JSON.stringify(req.body).includes('upgradable-snyk-protect-paths');
+    });
 
-    const lastRequest = server.popRequest();
-    expect(lastRequest).toMatchObject({
+    expect(requests).toHaveLength(1);
+    expect(requests[0]).toMatchObject({
       query: {},
       body: {
         data: {
@@ -135,11 +137,13 @@ describe('analytics module', () => {
       project.path('with-package-json-without-snyk-dep/package.json'),
     );
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    server.popRequest();
+    const requests = server.getRequests().filter((req: any) => {
+      return JSON.stringify(req.body).includes('upgradable-snyk-protect-paths');
+    });
 
-    const lastRequest = server.popRequest();
-    expect(lastRequest).toMatchObject({
+    expect(requests[0].url).toEqual('/api/v1/analytics/cli');
+    expect(requests).toHaveLength(1);
+    expect(requests[0]).toMatchObject({
       query: {},
       body: {
         data: {
@@ -168,11 +172,13 @@ describe('analytics module', () => {
     );
     expect(stdout).not.toContain(project.path('package.json'));
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    server.popRequest();
+    const requests = server.getRequests().filter((req: any) => {
+      return JSON.stringify(req.body).includes('upgradable-snyk-protect-paths');
+    });
 
-    const lastRequest = server.popRequest();
-    expect(lastRequest).toMatchObject({
+    expect(requests[0].url).toEqual('/api/v1/analytics/cli');
+    expect(requests).toHaveLength(1);
+    expect(requests[0]).toMatchObject({
       query: {},
       body: {
         data: {
