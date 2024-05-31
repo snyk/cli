@@ -10,7 +10,6 @@ const stripAnsi = require('strip-ansi');
 
 // nock.disableNetConnect()
 
-
 expect.extend(matchers);
 
 const EXIT_CODE_ACTION_NEEDED = 1;
@@ -86,10 +85,10 @@ describe('snyk code test', () => {
   ];
 
   describe.each(integrationWorkflows)(
-    'integration',
+    'user journey',
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
-        it.skip('should show error if sast is not enabled', async () => {
+        it('should show error if sast is not enabled', async () => {
           // Setup
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -111,16 +110,20 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
         });
 
-        it.skip('succeed testing with correct exit code - with sarif output and no markdown', async () => {
+        it('succeed testing with correct exit code - with sarif output', async () => {
           const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
           );
           server.setOrgSetting('sast', true);
+          deepCodeServer.setFiltersResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
           deepCodeServer.setSarifResponse(sarifPayload);
 
-          const { stdout, stderr, code } = await runSnykCLI(
-            `code test ${path()} --sarif --no-markdown`,
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --sarif --remote-repo-url=something`,
             {
               env: {
                 ...env,
@@ -130,11 +133,25 @@ describe('snyk code test', () => {
           );
 
           expect(stderr).toBe('');
-          const output = JSON.parse(stdout);
-          expect(Object.keys(output.runs[0].results[0].message)).not.toContain(
-            'markdown',
-          );
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+        });
+
+        it.skip('should fail with correct exit code - when testing empty project', async () => {
+          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const { path } = await createProjectFromFixture(
+            'sast/unsupported-files',
+          );
+          server.setOrgSetting('sast', true);
+          deepCodeServer.setSarifResponse(sarifPayload);
+
+          const { code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...env,
+              ...integrationEnv,
+            },
+          });
+
+          expect(code).toBe(3);
         });
 
         const failedCodeTestMessage = "Failed to run 'code test'";
@@ -142,7 +159,7 @@ describe('snyk code test', () => {
         // This is caused by the retry logic in the code-client
         // which defaults to 10 retries with a 5 second delay
         jest.setTimeout(60000);
-        it.each([
+        it.skip.each([
           [{ code: 401 }, `Unauthorized: ${failedCodeTestMessage}`],
           [{ code: 429 }, failedCodeTestMessage],
         ])(

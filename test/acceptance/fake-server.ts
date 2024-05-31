@@ -228,8 +228,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   // Supporting new code test
   app.get('/deeproxy/filters', (req, res) => {
     return res.send({
-      configFiles: ["test"],
-      extensions: ["test"],
+      configFiles: [],
+      extensions: ['.java'],
+    });
+  });
+  app.post('/deeproxy/bundle', (req, res) => {
+    return res.send({
+      bundleHash: 'bb9c7152-a449-411d-945b-1d67c0977ed0',
+      missingFiles: [],
     });
   });
 
@@ -618,6 +624,100 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       res.status(201).send({});
     },
   );
+
+  app.get(`/api/rest/self`, (req, res) => {
+    return res.send({
+      data: {
+        attributes: {
+          avatar_url: 'https://snyk.io/avatar.png',
+          default_org_context: '18fc9d51-9570-4000-853d-0092ae842101',
+          email: 'user@someorg.com',
+          name: 'user',
+          username: 'username',
+        },
+        id: '55a348e2-c3ad-4bbc-b40e-9b232d1f4121',
+        type: 'user',
+      },
+      jsonapi: {
+        version: '1.0',
+      },
+      links: {
+        first: 'https://example.com/api/resource',
+        last: 'https://example.com/api/resource',
+        next: 'https://example.com/api/resource',
+        prev: 'https://example.com/api/resource',
+        related: 'https://example.com/api/resource',
+        self: 'https://example.com/api/resource',
+      },
+    });
+  });
+
+  app.post(`/api/hidden/orgs/:orgId/workspaces`, (req, res) => {
+    return res.status(201).send({
+      data: {
+        attributes: {
+          file_filters: {
+            exclusion_globs: ['string'],
+            inclusion_globs: ['string'],
+          },
+          remote_url: 'string',
+          resolved_version: 'string',
+          target_id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          type: 'target_workspace_attributes',
+        },
+        common: {
+          created_at: '2024-05-30T15:37:06.649Z',
+          status: 'PENDING',
+        },
+        id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        operation_id: 'string',
+        type: 'workspace',
+      },
+      jsonapi: {
+        version: '1.0',
+      },
+      links: {
+        self: {
+          href: 'https://example.com/api/resource',
+        },
+      },
+    });
+  });
+
+  app.get(`/api/rest/orgs/:orgId/scans/:scanId`, (req, res) => {
+    return res
+      .status(200)
+      .contentType('application.json')
+      .send({
+        data: {
+          attributes: {
+            components: [
+              {
+                created_at: '2000-02-01T12:30:00Z',
+                findings_url: 'http://localhost:12345/api/rest/findings/123',
+                id: 'e1078795-1ea3-4410-8b8e-af045d1c04b7',
+                name: 'string',
+                type: 'string',
+              },
+            ],
+            created_at: '2000-02-01T12:30:00Z',
+            status: 'done',
+          },
+          id: '3894f067-7e21-4d96-874a-b0697d1c974e',
+          type: 'string',
+        },
+      });
+  });
+
+  app.get(`/api/rest/findings/:findingId`, (req, res) => {
+    // sarif document
+    const sarifDocument = require('../fixtures/sast/sample-sarif.json');
+    return res.status(200).send(sarifDocument);
+  });
+
+  app.post(`/api/rest/orgs/:orgId/scans`, (req, res) => {
+    return res.status(200).send({});
+  });
 
   app.post(`/rest/orgs/:orgId/sbom_tests`, (req, res) => {
     const response = {
