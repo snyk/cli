@@ -3,13 +3,12 @@ import * as depGraphLib from '@snyk/dep-graph';
 import { DepDict, Options, MonitorOptions } from './types';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 import { countPathsToGraphRoot } from './utils';
-import { jsonStringifyLargeObject } from './json';
+import { writeJson } from './json';
 
 export async function maybePrintDepGraph(
   options: Options | MonitorOptions,
   depGraph: depGraphLib.DepGraph,
 ) {
-  // TODO @boost: remove this logic once we get a valid depGraph print format
   const graphPathsCount = countPathsToGraphRoot(depGraph);
   const hasTooManyPaths = graphPathsCount > config.PRUNE_DEPS_THRESHOLD;
 
@@ -25,8 +24,7 @@ export async function maybePrintDepGraph(
         console.warn(
           '--print-deps --json option not yet supported for large projects. Displaying graph json output instead',
         );
-        // TODO @boost: add as output graphviz 'dot' file to visualize?
-        console.log(jsonStringifyLargeObject(depGraph.toJSON()));
+        writeJson(depGraph.toJSON(), process.stdout);
       } else {
         console.warn(
           '--print-deps option not yet supported for large projects. Try with --json.',
@@ -45,7 +43,7 @@ export function maybePrintDepTree(
   if (options['print-deps']) {
     if (options.json) {
       // Will produce 2 JSON outputs, one for the deps, one for the vuln scan.
-      console.log(jsonStringifyLargeObject(rootPackage));
+      writeJson(rootPackage, process.stdout);
     } else {
       printDepsForTree({ [rootPackage.name!]: rootPackage });
     }

@@ -76,6 +76,7 @@ import {
   PNPM_FEATURE_FLAG,
   SUPPORTED_MANIFEST_FILES,
 } from '../package-managers';
+import { writeJson } from '../json';
 
 const debug = debugModule('snyk:run-test');
 
@@ -378,8 +379,8 @@ export async function runTest(
 
     throw new FailedToRunTestError(
       error.userMessage ||
-        error.message ||
-        `Failed to test ${projectType} project`,
+      error.message ||
+      `Failed to test ${projectType} project`,
       error.code,
       error.innerError,
     );
@@ -609,8 +610,8 @@ async function assembleLocalPayloads(
         console.warn(
           chalk.bold.red(
             `${icon.ISSUE} ${failedResults.length}/${failedResults.length +
-              deps.scannedProjects
-                .length} potential projects failed to get dependencies.`,
+            deps.scannedProjects
+              .length} potential projects failed to get dependencies.`,
           ),
         );
         failedResults.forEach((f) => {
@@ -672,8 +673,8 @@ async function assembleLocalPayloads(
         | DepTree
         | depGraphLib.DepGraph
         | undefined = scannedProject.depGraph
-        ? scannedProject.depGraph
-        : scannedProject.depTree;
+          ? scannedProject.depGraph
+          : scannedProject.depTree;
 
       if (options['print-deps']) {
         if (scannedProject.depGraph) {
@@ -707,9 +708,9 @@ async function assembleLocalPayloads(
       // Forcing options.path to be a string as pathUtil requires is to be stringified
       const targetFileRelativePath = targetFile
         ? pathUtil.resolve(
-            pathUtil.resolve(`${options.path || root}`),
-            targetFile,
-          )
+          pathUtil.resolve(`${options.path || root}`),
+          targetFile,
+        )
         : '';
 
       let targetFileDir;
@@ -768,9 +769,7 @@ async function assembleLocalPayloads(
           );
         }
 
-        console.log(
-          common.depGraphToOutputString(root.toJSON(), targetFile || ''),
-        );
+        common.depGraphToOutputStream(root.toJSON(), targetFile || '', process.stdout);
       }
 
       const body: PayloadBody = {

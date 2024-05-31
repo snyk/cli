@@ -83,6 +83,8 @@ export const codePlugin: EcosystemPlugin = {
         });
       }
 
+      // TODO(cmars): untangle this logic and use writeJson here... if we need
+      // this function at all. IIUC Snyk Code is tested by a Go workflow now.
       const shouldStringifyResult =
         options['sarif-file-output'] ||
         options.sarif ||

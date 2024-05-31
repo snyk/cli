@@ -1,7 +1,7 @@
 import config from '../config';
 import { color } from '../theme';
 import { DepGraphData } from '@snyk/dep-graph';
-import { jsonStringifyLargeObject } from '../json';
+import { jsonStringifyLargeObject, writeJson } from '../json';
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -82,4 +82,17 @@ ${jsonStringifyLargeObject(dg)}
 DepGraph target:
 ${targetName}
 DepGraph end`;
+}
+
+export function depGraphToOutputStream(
+  dg: DepGraphData,
+  targetName: string,
+  out: NodeJS.WritableStream,
+): void {
+  out.write(`DepGraph data:\n`);
+  writeJson(dg, out);
+  out.write(`
+DepGraph target:
+${targetName}
+DepGraph end`);
 }
