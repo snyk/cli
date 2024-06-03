@@ -15,7 +15,7 @@ CLI_V1_LOCATION =
 USE_LEGACY_EXECUTABLE_NAME =
 LDFLAGS = -s -w
 SHASUM_CMD = shasum
-export LS_PROTOCOL_VERSION=
+LS_PROTOCOL_VERSION=
 
 # Build tools
 GO_BIN := $(shell pwd)/.bin
@@ -110,8 +110,8 @@ $(BUILD_DIR):
 $(CACHE_DIR):
 	@mkdir $@
 
-$(CACHE_DIR)/variables.mk: $(CACHE_DIR)
-	@printf "GOOS=$(GOOS)\nGOARCH=$(GOARCH)\nUSE_LEGACY_EXECUTABLE_NAME=$(USE_LEGACY_EXECUTABLE_NAME)\n" > $(CACHE_DIR)/variables.mk
+$(CACHE_DIR)/variables.mk: $(CACHE_DIR) generate-ls-protocol-metadata
+	@printf "GOOS=$(GOOS)\nGOARCH=$(GOARCH)\nUSE_LEGACY_EXECUTABLE_NAME=$(USE_LEGACY_EXECUTABLE_NAME)\nLS_PROTOCOL_VERSION=$(LS_PROTOCOL_VERSION)\n" > $(CACHE_DIR)/variables.mk
 
 $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT):
 	@echo "$(LOG_PREFIX) Generating ( $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) )"
@@ -142,12 +142,13 @@ summary:
 	@echo "$(LOG_PREFIX)  Building Binary:              $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)"
 	@echo "$(LOG_PREFIX)  Building version:             $(CLI_V1_VERSION_TAG)"
 	@echo "$(LOG_PREFIX)  LS version:                   $(LS_COMMIT_HASH)"
+	@echo "$(LOG_PREFIX)  LS protocol version:          $(LS_PROTOCOL_VERSION)"
 
 # prepare the workspace and cache global parameters
 .PHONY: configure
 configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
+$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
 	@echo "$(LOG_PREFIX)  LDFLAGS:     $(LDFLAGS)"
 	@echo "$(LOG_PREFIX)  GCFLAGS:     $(GCFLAGS)"	
@@ -230,11 +231,12 @@ build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME)
 
 .PHONY: generate-ls-protocol-metadata
 generate-ls-protocol-metadata:
+ifndef LS_PROTOCOL_VERSION
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(DESTDIR)$(bindir)/version))
 	@echo "$(LOG_PREFIX) Determining LS protocol version"
 	@echo "$(LOG_PREFIX) Writing protocol version file to $(DESTDIR)$(bindir)"
 	$(eval LS_PROTOCOL_VERSION := $(shell $(GOCMD) run $(WORKING_DIR)/../release-scripts/write-ls-protocol-version.go $(LS_COMMIT_HASH) $(CLI_V1_VERSION_TAG) $(DESTDIR)$(bindir)))
-	@echo "$(LOG_PREFIX) LS protocol version: $(LS_PROTOCOL_VERSION)"
+endif
 
 .PHONY: clean-ts-cli
 clean-ts-cli:
