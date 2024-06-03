@@ -8,7 +8,8 @@ const debug = require('debug')('snyk-json');
 export function jsonStringifyLargeObject(obj: any): string {
   let res = '';
   try {
-    res = JSON.stringify(obj, null, 2);
+    // TODO: replace with json-stream-stringify because this will still OOM
+    //res = JSON.stringify(obj, null, 2);
     return res;
   } catch (err) {
     debug('jsonStringifyLargeObject failed: ', err);

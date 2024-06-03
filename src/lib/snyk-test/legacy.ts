@@ -335,6 +335,11 @@ export interface RemediationChanges {
   pin: DependencyPins;
 }
 
+// Maximum number of vulns that will be enriched with full vulnerability path
+// information. Note this isn't a complete OOM solution because there could be
+// many dep-graphs in a single scan with this limit.
+const MAX_VULNS_FULL_ISSUE_DATA = 50_000;
+
 function convertTestDepGraphResultToLegacy(
   res: TestDepGraphResponse,
   depGraph: depGraphLib.DepGraph,
@@ -374,26 +379,39 @@ function convertTestDepGraphResultToLegacy(
           pkgIssue.issueId,
           legacyFromPath,
         );
+
         const upgradePath = upgradePathsMap[vulnPathString] || [];
 
         // TODO: we need the full issue-data for every path only for the --json output,
         //   consider picking only the required fields,
         //   and append the full data only for --json, to minimize chance of out-of-memory
-        const annotatedIssue = Object.assign(
-          {},
-          result.issuesData[pkgIssue.issueId],
-          {
-            from: legacyFromPath,
-            upgradePath,
-            isUpgradable: !!upgradePath[0] || !!upgradePath[1],
-            isPatchable: pkgIssue.fixInfo.isPatchable,
-            name: pkgInfo.pkg.name,
-            version: pkgInfo.pkg.version as string,
-            nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
-          },
-        ) as AnnotatedIssue & DockerIssue; // TODO(kyegupov): get rid of type assertion
+        const annotatedIssue = (vulns.length > MAX_VULNS_FULL_ISSUE_DATA) ?
+          Object.assign(result.issuesData[pkgIssue.issueId],
+            {
+              from: legacyFromPath,
+              upgradePath,
+              isUpgradable: !!upgradePath[0] || !!upgradePath[1],
+              isPatchable: pkgIssue.fixInfo.isPatchable,
+              name: pkgInfo.pkg.name,
+              version: pkgInfo.pkg.version as string,
+              nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
+            },
+          ) :
+          Object.assign(
+            {},
+            result.issuesData[pkgIssue.issueId],
+            {
+              from: legacyFromPath,
+              upgradePath,
+              isUpgradable: !!upgradePath[0] || !!upgradePath[1],
+              isPatchable: pkgIssue.fixInfo.isPatchable,
+              name: pkgInfo.pkg.name,
+              version: pkgInfo.pkg.version as string,
+              nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
+            },
+          );
 
-        vulns.push(annotatedIssue);
+        vulns.push(annotatedIssue as AnnotatedIssue & DockerIssue);
       }
     }
   }
@@ -407,7 +425,7 @@ function convertTestDepGraphResultToLegacy(
         const pkgAndVersion = (pkgInfo.pkg.name +
           '@' +
           pkgInfo.pkg.version) as string;
-        const annotatedIssue = (Object.assign(
+        const annotatedIssue = Object.assign(
           {},
           binariesVulns.issuesData[pkgIssue.issueId],
           {
@@ -419,8 +437,8 @@ function convertTestDepGraphResultToLegacy(
             version: pkgInfo.pkg.version as string,
             nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
           },
-        ) as any) as AnnotatedIssue; // TODO(kyegupov): get rid of forced type assertion
-        vulns.push(annotatedIssue);
+        );
+        vulns.push(annotatedIssue as any as AnnotatedIssue);
       }
     }
   }
