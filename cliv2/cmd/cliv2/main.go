@@ -274,7 +274,6 @@ func sendInstrumentation(eng workflow.Engine, instrumentor analytics.Instrumenta
 		v2InstrumentationData,
 	)
 
-	logger.Trace().Msg("Reporting instrumentation data")
 	localConfiguration := globalConfiguration.Clone()
 	// the report analytics workflow needs --experimental to run
 	// we pass the flag here so that we report at every interaction
