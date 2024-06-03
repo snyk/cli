@@ -2,40 +2,36 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func getGoreleaserYAML(commit string) (int, error) {
-	apiURL := fmt.Sprintf("https://raw.githubusercontent.com/snyk/snyk-ls/%s/.goreleaser.yaml", commit)
-
-	req, err := http.NewRequest("GET", apiURL, nil)
+	err := exec.Command("go", "install", "github.com/snyk/snyk-ls@"+commit).Run()
 	if err != nil {
-		return -3, fmt.Errorf("failed to retrieve commit information: %w", err)
+		return -3, fmt.Errorf("go install failed: %w", err)
 	}
-
-	client := http.Client{}
-	resp, err := client.Do(req)
+	modCacheDir, err := goModCache()
 	if err != nil {
-		return -3, err
+		return -3, fmt.Errorf("failed to locate go module cache: %w", err)
 	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return -3, fmt.Errorf("failed to retrieve commit information: status code %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
+	snykLsPkgPaths, err := filepath.Glob(filepath.Join(modCacheDir, "github.com", "snyk", "snyk-ls@v*-"+commit[:12]))
 	if err != nil {
-		return -3, fmt.Errorf("failed to read response body: %w", err)
+		return -3, fmt.Errorf("failed to match snyk-ls: %w", err)
+	}
+	if len(snykLsPkgPaths) == 0 {
+		return -3, fmt.Errorf("snyk-ls @ %s not found in module cache; try `go get`?", commit)
+	}
+	goReleaserContents, err := os.ReadFile(filepath.Join(snykLsPkgPaths[0], ".goreleaser.yaml"))
+	if err != nil {
+		return -3, fmt.Errorf("failed to read goreleaser file: %w", err)
 	}
 
-	envSection := extractLSProtocolVersion(body)
+	envSection := extractLSProtocolVersion(goReleaserContents)
 	if envSection == "" {
 		return -1, fmt.Errorf("LS_PROTOCOL_VERSION not found in .goreleaser.yaml")
 	}
@@ -46,6 +42,14 @@ func getGoreleaserYAML(commit string) (int, error) {
 	}
 
 	return protocolVersion, nil
+}
+
+func goModCache() (string, error) {
+	stdout, err := exec.Command("go", "env", "GOMODCACHE").Output()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(stdout)), nil
 }
 
 func extractLSProtocolVersion(yamlContent []byte) string {
