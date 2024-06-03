@@ -19,8 +19,6 @@ import (
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
@@ -29,6 +27,9 @@ import (
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -252,9 +253,8 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 }
 
 func sendInstrumentation(eng workflow.Engine, instrumentor analytics.InstrumentationCollector, logger *zerolog.Logger) {
-	// Avoid duplicate data to be send for IDE integrations that use the CLI
-	integration := globalConfiguration.GetString(configuration.INTEGRATION_NAME)
-	if utils.IsSnykIde(integration) {
+	// Avoid duplicate data to be sent for IDE integrations that use the CLI
+	if !shallSendInstrumentation(eng.GetConfiguration(), instrumentor) {
 		logger.Print("Called from IDE, not sending instrumentation")
 		return
 	}
@@ -274,7 +274,6 @@ func sendInstrumentation(eng workflow.Engine, instrumentor analytics.Instrumenta
 		v2InstrumentationData,
 	)
 
-	logger.Trace().Msg("Reporting instrumentation data")
 	localConfiguration := globalConfiguration.Clone()
 	// the report analytics workflow needs --experimental to run
 	// we pass the flag here so that we report at every interaction
@@ -572,7 +571,11 @@ func MainWithErrorCode() int {
 		globalLogger.Printf("Failed to derive target id, %v", targetIdError)
 	}
 	cliAnalytics.GetInstrumentation().SetTargetId(targetId)
-	cliAnalytics.GetInstrumentation().SetDuration(time.Since(startTime))
+
+	if cliAnalytics.GetInstrumentation().GetDuration() == 0 {
+		cliAnalytics.GetInstrumentation().SetDuration(time.Since(startTime))
+	}
+
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
 		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
