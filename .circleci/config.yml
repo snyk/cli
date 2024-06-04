@@ -674,6 +674,10 @@ workflows:
 
       - create_deployment_artifacts:
           name: create deployment artifacts
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           context: snyk-cli-pgp-signing
           requires:
             - sign macos amd64
@@ -1202,9 +1206,27 @@ jobs:
             - binary-releases/fips/snyk-*
 
   create_deployment_artifacts:
+    parameters:
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      go_download_base_url:
+        type: string
+      install_path:
+        type: string
+        default: '.'
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - run:
           name: Creating all shasums
           command: find binary-releases -name "snyk-*" -exec make {}.sha256 \;
