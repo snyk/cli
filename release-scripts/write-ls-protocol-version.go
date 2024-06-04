@@ -11,9 +11,9 @@ import (
 )
 
 func getGoreleaserYAML(commit string) (int, error) {
-	err := exec.Command("go", "install", "github.com/snyk/snyk-ls@"+commit).Run()
+	installOutput, err := exec.Command("go", "install", "github.com/snyk/snyk-ls@"+commit).CombinedOutput()
 	if err != nil {
-		return -3, fmt.Errorf("go install failed: %w", err)
+		return -3, fmt.Errorf("go install failed: %w: %q", err, string(installOutput))
 	}
 	modCacheDir, err := goModCache()
 	if err != nil {
