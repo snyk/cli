@@ -18,7 +18,7 @@ func shallSendInstrumentation(config configuration.Configuration, instrumentor a
 	isSnykIde := utils.IsSnykIde(integration)
 	isReportCommand := strings.Contains(category, instrumentationCommand)
 
-	if isSnykIde && !isReportCommand {
+	if isSnykIde || isReportCommand {
 		return false
 	}
 

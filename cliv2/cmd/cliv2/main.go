@@ -255,7 +255,7 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 func sendInstrumentation(eng workflow.Engine, instrumentor analytics.InstrumentationCollector, logger *zerolog.Logger) {
 	// Avoid duplicate data to be sent for IDE integrations that use the CLI
 	if !shallSendInstrumentation(eng.GetConfiguration(), instrumentor) {
-		logger.Print("Called from IDE, not sending instrumentation")
+		logger.Print("This CLI call is not instrumented!")
 		return
 	}
 
@@ -266,21 +266,13 @@ func sendInstrumentation(eng workflow.Engine, instrumentor analytics.Instrumenta
 	}
 
 	v2InstrumentationData := utils.ValueOf(json.Marshal(data))
-	logger.Trace().Msgf("Instrumentation: %v", string(v2InstrumentationData))
-
-	inputData := workflow.NewData(
-		workflow.NewTypeIdentifier(localworkflows.WORKFLOWID_REPORT_ANALYTICS, "reportAnalytics"),
-		"application/json",
-		v2InstrumentationData,
-	)
-
 	localConfiguration := globalConfiguration.Clone()
 	// the report analytics workflow needs --experimental to run
 	// we pass the flag here so that we report at every interaction
 	localConfiguration.Set(configuration.FLAG_EXPERIMENTAL, true)
-	_, err = eng.InvokeWithInputAndConfig(
+	localConfiguration.Set("inputData", string(v2InstrumentationData))
+	_, err = eng.InvokeWithConfig(
 		localworkflows.WORKFLOWID_REPORT_ANALYTICS,
-		[]workflow.Data{inputData},
 		localConfiguration,
 	)
 
