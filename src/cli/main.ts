@@ -15,7 +15,7 @@ import * as runtime from './runtime';
 import * as analytics from '../lib/analytics';
 import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
-import { TestCommandResult } from './commands/types';
+import { JsonDocument, TestCommandResult } from './commands/types';
 import { copy } from './copy';
 import { spinner } from '../lib/spinner';
 import * as errors from '../lib/errors/legacy-errors';
@@ -36,7 +36,6 @@ import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
 import {
   saveObjectToFile,
-  saveJsonToFileCreatingDirectoryIfRequired,
 } from '../lib/json-file-output';
 import {
   Options,
@@ -78,10 +77,9 @@ async function runCommand(args: Args) {
 
   // also save the json (in error.json) to file if option is set
   if (args.command === 'test') {
-    const jsonResults = (commandResult as TestCommandResult).getJsonResult();
     const jsonPayload = (commandResult as TestCommandResult).getJsonData();
-    await saveResultsToFile(args.options, 'json', jsonResults, jsonPayload);
-    const sarifResults = (commandResult as TestCommandResult).getSarifResult();
+    await saveResultsToFile(args.options, 'json', jsonPayload);
+    const sarifResults = (commandResult as TestCommandResult).getSarifData();
     await saveResultsToFile(args.options, 'sarif', sarifResults);
   }
 
@@ -145,8 +143,8 @@ async function handleError(args, error) {
     const output = vulnsFound
       ? error.message
       : stripAnsi(error.json || error.stack);
-    if (error.jsonPayload) {
-      new JsonStreamStringify(error.jsonPayload, undefined, 2).pipe(
+    if (error.jsonData) {
+      new JsonStreamStringify(error.jsonData, undefined, 2).pipe(
         process.stdout,
       );
     } else {
@@ -169,14 +167,12 @@ async function handleError(args, error) {
     }
   }
 
-  if (error.jsonPayload) {
-    // send raw jsonPayload instead of stringified payload
-    await saveResultsToFile(args.options, 'json', '', error.jsonPayload);
-  } else {
-    // fallback to original behaviour
-    await saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
+  if (error.jsonData) {
+    await saveResultsToFile(args.options, 'json', error.jsonData);
   }
-  await saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
+  if (error.sarifData) {
+    await saveResultsToFile(args.options, 'sarif', error.sarifData);
+  }
 
   const analyticsError = vulnsFound
     ? {
@@ -224,9 +220,8 @@ function getFullPath(filepathFragment: string): string {
 }
 
 async function saveJsonResultsToFile(
-  stringifiedJson: string,
   jsonOutputFile: string,
-  jsonPayload?: Record<string, unknown>,
+  jsonPayload?: JsonDocument,
 ) {
   if (!jsonOutputFile) {
     console.error('empty jsonOutputFile');
@@ -238,14 +233,8 @@ async function saveJsonResultsToFile(
     return;
   }
 
-  // save to file with jsonPayload object instead of stringifiedJson
   if (jsonPayload && !isEmpty(jsonPayload)) {
     await saveObjectToFile(jsonOutputFile, jsonPayload);
-  } else {
-    await saveJsonToFileCreatingDirectoryIfRequired(
-      jsonOutputFile,
-      stringifiedJson,
-    );
   }
 }
 
@@ -461,16 +450,14 @@ function validateUnsupportedSarifCombinations(args) {
 async function saveResultsToFile(
   options: ArgsOptions,
   outputType: string,
-  jsonResults: string,
-  jsonPayload?: Record<string, unknown>,
+  jsonPayload?: JsonDocument,
 ) {
   const flag = `${outputType}-file-output`;
   const outputFile = options[flag];
-  if (outputFile && (jsonResults || !isEmpty(jsonPayload))) {
+  if (outputFile && !isEmpty(jsonPayload)) {
     const outputFileStr = outputFile as string;
     const fullOutputFilePath = getFullPath(outputFileStr);
     await saveJsonResultsToFile(
-      stripAnsi(jsonResults),
       fullOutputFilePath,
       jsonPayload,
     );

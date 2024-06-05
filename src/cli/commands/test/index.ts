@@ -202,26 +202,20 @@ export default async function test(
   const mappedResults = createErrorMappedResultsForJsonOutput(results);
 
   const {
-    stdout: dataToSend,
-    stringifiedData,
-    stringifiedJsonData,
-    stringifiedSarifData,
+    dataToSend,
+    jsonData,
+    sarifData,
   } = extractDataToSendFromResults(results, mappedResults, options);
-
-  const jsonPayload = stringifiedJsonData.length === 0 ? dataToSend : null;
 
   if (options.json || options.sarif) {
     // if all results are ok (.ok == true)
     if (mappedResults.every((res) => res.ok)) {
       return TestCommandResult.createJsonTestCommandResult(
-        stringifiedData,
-        stringifiedJsonData,
-        stringifiedSarifData,
-        jsonPayload,
+        jsonData, sarifData,
       );
     }
 
-    const err = new Error(stringifiedData) as any;
+    const err = new Error() as any;
 
     if (foundVulnerabilities) {
       if (options.failOn) {
@@ -229,10 +223,7 @@ export default async function test(
         if (!fail) {
           // return here to prevent failure
           return TestCommandResult.createJsonTestCommandResult(
-            stringifiedData,
-            stringifiedJsonData,
-            stringifiedSarifData,
-            jsonPayload,
+            jsonData, sarifData,
           );
         }
       }
@@ -249,13 +240,8 @@ export default async function test(
       // the first error.
       err.code = errorResults[0].code;
     }
-    err.json = stringifiedData;
-    err.jsonStringifiedResults = stringifiedJsonData;
-    err.sarifStringifiedResults = stringifiedSarifData;
-    // set jsonPayload if we failed to stringify it
-    if (jsonPayload) {
-      err.jsonPayload = jsonPayload;
-    }
+    err.jsonData = jsonData;
+    err.sarifData = sarifData;
     throw err;
   }
 
@@ -315,10 +301,7 @@ export default async function test(
         );
 
         return TestCommandResult.createHumanReadableTestCommandResult(
-          response,
-          stringifiedJsonData,
-          stringifiedSarifData,
-          jsonPayload,
+          response, jsonData, sarifData,
         );
       }
     }
@@ -339,12 +322,8 @@ export default async function test(
     // first one
     error.code = vulnerableResults[0].code || 'VULNS';
     error.userMessage = vulnerableResults[0].userMessage;
-    error.jsonStringifiedResults = stringifiedJsonData;
-    error.sarifStringifiedResults = stringifiedSarifData;
-    // conditionally set jsonPayload for now, to determine whether to stream data to destination
-    if (stringifiedJsonData.length === 0) {
-      error.jsonPayload = dataToSend;
-    }
+    error.jsonData
+    error.sarifData
     throw error;
   }
 
@@ -356,9 +335,8 @@ export default async function test(
 
   return TestCommandResult.createHumanReadableTestCommandResult(
     response,
-    stringifiedJsonData,
-    stringifiedSarifData,
-    jsonPayload,
+    jsonData,
+    sarifData,
   );
 }
 

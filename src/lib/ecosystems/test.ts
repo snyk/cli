@@ -2,7 +2,7 @@ import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
 import { Options, PolicyOptions } from '../types';
-import { TestCommandResult } from '../../cli/commands/types';
+import { JsonDocument, TestCommandResult } from '../../cli/commands/types';
 import { spinner } from '../../lib/spinner';
 import { Ecosystem, ScanResult, TestResult } from './types';
 import { getPlugin } from './plugins';
@@ -31,10 +31,11 @@ export async function testEcosystem(
       paths,
       options,
     );
+    // TODO(cmars, 2024-06-04): what still uses this code path? Can we remove it?
     return TestCommandResult.createHumanReadableTestCommandResult(
       res,
-      '',
-      sarifRes,
+      undefined,
+      sarifRes ? JSON.parse(sarifRes) : undefined,
     );
   }
   const results: ScanResultsByPath = {};
@@ -57,9 +58,8 @@ export async function testEcosystem(
     options,
   );
 
-  const stringifiedData = JSON.stringify(testResults, null, 2);
   if (options.json) {
-    return TestCommandResult.createJsonTestCommandResult(stringifiedData);
+    return TestCommandResult.createJsonTestCommandResult(testResults as any as JsonDocument);
   }
   const emptyResults: ScanResult[] = [];
   const scanResults = emptyResults.concat(...Object.values(results));
@@ -73,7 +73,7 @@ export async function testEcosystem(
 
   return TestCommandResult.createHumanReadableTestCommandResult(
     readableResult,
-    stringifiedData,
+    testResults as any as JsonDocument,
   );
 }
 
@@ -94,8 +94,8 @@ export async function formatUnmanagedResults(
   const [result] = await getUnmanagedDepGraph(results);
   const depGraph = convertDepGraph(result);
 
-  return TestCommandResult.createJsonTestCommandResult(
-    depGraphToOutputString(depGraph, target),
+  return TestCommandResult.createHumanReadableTestCommandResult(
+    depGraphToOutputString(depGraph, target)
   );
 }
 

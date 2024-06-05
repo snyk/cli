@@ -59,7 +59,6 @@ export function buildOutput({
 
   if (options.json || options.sarif) {
     return TestCommandResult.createJsonTestCommandResult(
-      responseData,
       jsonData,
       sarifData,
     );
@@ -121,7 +120,8 @@ function buildTestCommandResultData({
     });
   }
 
-  return { responseData, jsonData, sarifData };
+  // TODO(cmars, 2024-06-05): refactor iac to provide objects so we don't have to re-parse here
+  return { responseData, jsonData: JSON.parse(jsonData), sarifData: JSON.parse(sarifData) };
 }
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
