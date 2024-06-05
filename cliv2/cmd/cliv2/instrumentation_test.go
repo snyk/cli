@@ -24,5 +24,5 @@ func Test_shallSendInstrumentation(t *testing.T) {
 	// case: analytics report command called from an IDE
 	instrumentor.SetCategory([]string{"analytics", "report", "inputData"})
 	actual = shallSendInstrumentation(config, instrumentor)
-	assert.True(t, actual)
+	assert.False(t, actual)
 }
