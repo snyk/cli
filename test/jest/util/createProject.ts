@@ -71,7 +71,7 @@ const createProjectFromFixture = async (
 };
 
 export {
-  createProjectFromFixture as createProject,
+  createProject,
   createProjectFromFixture,
   createProjectFromWorkspace,
 };
