@@ -517,14 +517,13 @@ func MainWithErrorCode() int {
 	}
 
 	// init Analytics
-	knownCommands, knownFlags := instrumentation.GetKnownCommandsAndFlags(globalEngine)
 	cliAnalytics := globalEngine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
 	cliAnalytics.SetCmdArguments(os.Args)
 	cliAnalytics.SetOperatingSystem(internalOS)
 	cliAnalytics.GetInstrumentation().SetUserAgent(ua)
 	cliAnalytics.GetInstrumentation().SetInteractionId(instrumentation.AssembleUrnFromUUID(interactionId))
-	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategoryFromArgs(os.Args, knownCommands, knownFlags))
+	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategory(os.Args, globalEngine))
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
 
