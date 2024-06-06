@@ -604,6 +604,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200).send({});
   });
 
+  app.post(
+    basePath.replace('v1', 'hidden') + `/orgs/:orgId/analytics`,
+    (req, res) => {
+      res.status(201).send({});
+    },
+  );
+
   app.post(`/rest/orgs/:orgId/sbom_tests`, (req, res) => {
     const response = {
       data: {
