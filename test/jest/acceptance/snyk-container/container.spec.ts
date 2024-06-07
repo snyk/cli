@@ -3,6 +3,7 @@ import { startSnykCLI, TestCLI } from '../../util/startSnykCLI';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
 import { RunCommandOptions, RunCommandResult } from '../../util/runCommand';
+import { getServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
@@ -301,6 +302,55 @@ DepGraph end`,
       expect(sbom.components).toHaveLength(
         TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
       );
+    });
+  });
+
+  describe('snyk container monitor supports --target-reference', () => {
+    let server: ReturnType<typeof fakeServer>;
+    let env: Record<string, string>;
+
+    beforeAll((done) => {
+      const port = getServerPort(process);
+      const baseApi = '/api/v1';
+      env = {
+        ...process.env,
+        SNYK_API: 'http://localhost:' + port + baseApi,
+        SNYK_HOST: 'http://localhost:' + port,
+        SNYK_TOKEN: '123456789',
+        SNYK_DISABLE_ANALYTICS: '1',
+        DEBUG: 'snyk*',
+      };
+      server = fakeServer(baseApi, env.SNYK_TOKEN);
+      server.listen(port, () => {
+        done();
+      });
+    });
+
+    afterEach(() => {
+      server.restore();
+    });
+
+    afterAll((done) => {
+      server.close(() => done());
+    });
+
+    it('forwards value of target-reference to monitor-dependencies endpoint', async () => {
+      const { code } = await runSnykCLI(
+        `container monitor ${TEST_DISTROLESS_STATIC_IMAGE} --target-reference=test-target-ref`,
+        {
+          env,
+        },
+      );
+      expect(code).toEqual(0);
+
+      const monitorRequests = server
+        .getRequests()
+        .filter((request) => request.url?.includes('/monitor-dependencies'));
+
+      expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
+      monitorRequests.forEach((request) => {
+        expect(request.body.scanResult.targetReference).toBe('test-target-ref');
+      });
     });
   });
 
