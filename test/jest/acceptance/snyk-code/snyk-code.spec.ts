@@ -92,7 +92,6 @@ describe('snyk code test', () => {
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
         it('should show error if sast is not enabled', async () => {
-          // Setup
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
           );
@@ -168,6 +167,58 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
         });
 
+        it('should succeed with correct exit code - with json output', async () => {
+          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+          server.setOrgSetting('sast', true);
+          deepCodeServer.setFiltersResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+          deepCodeServer.setSarifResponse(sarifPayload);
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --json --remote-repo-url=something`,
+            {
+              env: {
+                ...env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+        });
+
+        it('should succeed with correct exit code - normal output', async () => {
+          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+          server.setOrgSetting('sast', true);
+          deepCodeServer.setFiltersResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+          deepCodeServer.setSarifResponse(sarifPayload);
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=something`,
+            {
+              env: {
+                ...env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+        });
+
         it('should fail with correct exit code - when testing empty project', async () => {
           const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
           const { path } = await createProjectFromFixture(
@@ -229,28 +280,19 @@ describe('snyk code test', () => {
 
   describe.each(integrationWorkflows)(
     'user journey',
-    ({type, env: integrationEnv}) => {  
+    ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
         jest.setTimeout(60000);
         it('should succeed - when no vulnerabilities found', async () => {
-          const sarifPayload = require('../../../fixtures/sast/empty-sarif.json');
           const { path } = await createProjectFromFixture(
             'sast-empty/shallow_empty',
           );
-
-          
-          deepCodeServer.setFiltersResponse({
-            configFiles: [],
-            extensions: ['.java'],
-          });
-          deepCodeServer.setSarifResponse(sarifPayload);
 
           const { stderr, code } = await runSnykCLI(
             `code test ${path()} --remote-repo-url=something`,
             {
               env: {
                 ...process.env,
-                SNYK_API: 'https://api.dev.snyk.io',
                 ...integrationEnv,
               },
             },
@@ -259,7 +301,65 @@ describe('snyk code test', () => {
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_SUCCESS);
         });
+
+        it('should succeed with correct exit code', async () => {
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=something`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+        });
+
+        it('should fail with correct exit code - when testing empty project', async () => {
+          const { path } = await createProjectFromFixture(
+            'sast/unsupported-files',
+          );
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=something`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
+        });
+
+        it('should fail with correct exit code - when using invalid token', async () => {
+          const { path } = await createProjectFromFixture(
+            'sast/unsupported-files',
+          );
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=something`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+                SNYK_TOKEN: 'woof',
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
+        });
       });
     },
-  )
+  );
 });
