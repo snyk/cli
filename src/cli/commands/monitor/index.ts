@@ -371,6 +371,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
     prune: !!options.pruneRepeatedSubdependencies,
     'remote-repo-url': options['remote-repo-url'],
     targetReference: options['target-reference'],
+    assetsProjectName: options['assets-project-name'],
   };
 }
 
