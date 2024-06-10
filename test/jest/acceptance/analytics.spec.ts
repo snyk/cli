@@ -52,11 +52,7 @@ describe('analytics module', () => {
       return value.url == '/api/v1/analytics/cli';
     });
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    requests.pop();
-
-    const lastRequest = requests.pop();
-
+    const lastRequest = requests[requests.length - 1];
     expect(lastRequest).toMatchObject({
       headers: {
         host: `localhost:${port}`,
@@ -127,10 +123,7 @@ describe('analytics module', () => {
       return value.url == '/api/v1/analytics/cli';
     });
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    requests.pop();
-
-    const lastRequest = requests.pop();
+    const lastRequest = requests[requests.length - 1];
     expect(lastRequest).toMatchObject({
       headers: {
         host: `localhost:${port}`,
@@ -206,9 +199,10 @@ describe('analytics module', () => {
     });
 
     // in this case an extra analytics event is being sent, which needs to be dropped
-    requests.pop();
+    // requests.pop();
 
-    const lastRequest = requests.pop();
+    // const lastRequest = requests.pop();
+    const lastRequest = requests[requests.length - 1];
     expect(lastRequest).toMatchObject({
       headers: {
         host: `localhost:${port}`,
@@ -284,7 +278,8 @@ describe('analytics module', () => {
     // in this case an extra analytics event is being sent, which needs to be dropped
     requests.pop();
 
-    const lastRequest = requests.pop();
+    // const lastRequest = requests.pop();
+    const lastRequest = requests[requests.length - 1];
     expect(lastRequest).toMatchObject({
       query: {},
       body: {
@@ -350,10 +345,7 @@ describe('analytics module', () => {
       return value.url == '/api/v1/analytics/cli';
     });
 
-    // in this case an extra analytics event is being sent, which needs to be dropped
-    requests.pop();
-
-    const lastRequest = requests.pop();
+    const lastRequest = requests[requests.length - 1];
     expect(lastRequest).toMatchObject({
       headers: {
         host: `localhost:${port}`,
