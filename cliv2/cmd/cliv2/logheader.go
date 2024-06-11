@@ -93,13 +93,18 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 		analytics = "disabled"
 	}
 
+	stableVersion := "stable"
+	if config.GetBool(configuration.IS_UNSTABLE_VERSION) {
+		stableVersion = "unstable"
+	}
+
 	tablePrint := func(name string, value string) {
 		globalLogger.Printf("%-22s %s", name+":", value)
 	}
 
 	fipsEnabled := getFipsStatus(config)
 
-	tablePrint("Version", cliv2.GetFullVersion())
+	tablePrint("Version", fmt.Sprintf("%s (%s)", cliv2.GetFullVersion(), stableVersion))
 	tablePrint("Platform", userAgent)
 	tablePrint("API", config.GetString(configuration.API_URL))
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
