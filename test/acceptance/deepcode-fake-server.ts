@@ -125,16 +125,14 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   });
 
   app.get('/filters', (req, res) => {
-    console.log('\nCALLING FILTERS\n');
     res.status(200);
     res.send(filtersResponse);
   });
 
-  app.get('/deeproxy/filters', (req, res) => {
-    console.log('Hello words');
-    res.status(200);
-    res.send(deepProxyFiltersResponse);
-  });
+  // app.get('/deeproxy/filters', (req, res) => {
+  //   res.status(200);
+  //   res.send(deepProxyFiltersResponse);
+  // });
 
   app.post('/bundle', (req, res) => {
     res.status(200);
@@ -146,7 +144,6 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   });
 
   app.post('/analysis', (req, res) => {
-    console.log('\nCALLING ANALYSIS\n');
     res.status(200);
     res.send({
       timing: {
@@ -197,7 +194,6 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
 
   const getPort = () => {
     const address = server?.address();
-    console.log('****', 'address ****\n', address, '\n');
     if (address && typeof address === 'object') {
       return address.port;
     }
