@@ -225,6 +225,15 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     }
   });
 
+  app.get('/deeproxy/filters', (req, res) => {
+    console.log('Hello words');
+    res.status(200);
+    if (customResponse) {
+      res.send(customResponse);
+    }
+    res.send({});
+  });
+
   app.post(basePath + '/vuln/:registry', (req, res, next) => {
     const vulnerabilities = [];
     if (req.query.org && req.query.org === 'missing-org') {

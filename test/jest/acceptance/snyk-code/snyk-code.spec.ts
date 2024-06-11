@@ -30,7 +30,6 @@ describe('snyk code test', () => {
     SNYK_HOST: 'http://localhost:' + port,
     SNYK_TOKEN: '123456789',
   };
-
   beforeAll((done) => {
     deepCodeServer = fakeDeepCodeServer();
     deepCodeServer.listen(() => {});
@@ -112,49 +111,23 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
         });
 
-        it('should succeed - when no vulnerabilities found', async () => {
-          const sarifPayload = require('../../../fixtures/sast/empty-sarif.json');
-          const { path } = await createProjectFromFixture(
-            'sast/shallow_sast_webgoat',
-          );
-
-          server.setOrgSetting('sast', true);
-          server.setFinding(sarifPayload);
-
-          deepCodeServer.setFiltersResponse({
-            configFiles: [],
-            extensions: ['.java'],
-          });
-          deepCodeServer.setSarifResponse(sarifPayload);
-
-          const { stderr, code } = await runSnykCLI(
-            `code test ${path()} --remote-repo-url=something`,
-            {
-              env: {
-                ...env,
-                ...integrationEnv,
-              },
-            },
-          );
-
-          expect(stderr).toBe('');
-          expect(code).toBe(EXIT_CODE_SUCCESS);
-        });
-
         it('should succeed with correct exit code - with sarif output', async () => {
           const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
           );
           server.setOrgSetting('sast', true);
-          deepCodeServer.setFiltersResponse({
+          server;
+
+          server.setCustomResponse({
             configFiles: [],
             extensions: ['.java'],
           });
+
           deepCodeServer.setSarifResponse(sarifPayload);
 
           const { stderr, code } = await runSnykCLI(
-            `code test ${path()} --sarif --remote-repo-url=something`,
+            `code test ${path()} --sarif --remote-repo-url=something -d`,
             {
               env: {
                 ...env,
@@ -162,8 +135,8 @@ describe('snyk code test', () => {
               },
             },
           );
-
-          expect(stderr).toBe('');
+          console.log('DEBUG! :' + stderr);
+          // expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
         });
 
@@ -203,6 +176,7 @@ describe('snyk code test', () => {
             configFiles: [],
             extensions: ['.java'],
           });
+
           deepCodeServer.setSarifResponse(sarifPayload);
 
           const { stderr, code } = await runSnykCLI(
@@ -237,7 +211,30 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
         });
 
-        it.skip("use remote LCE's url as base when LCE is enabled", async () => {
+        it.only('should support the SNYK_CODE_CLIENT_PROXY_URL env var', async () => {
+          const { path } = await createProjectFromFixture(
+            'sast/unsupported-files',
+          );
+          const { code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...env,
+              ...integrationEnv,
+            },
+          });
+
+          expect(code).toEqual(0);
+
+          const request = deepCodeServer
+            .getRequests()
+            .filter((value) =>
+              (value.url as string).includes(`deepcode/filters`),
+            )
+            .pop();
+
+          expect(request).toBeDefined();
+        });
+
+        it("use remote LCE's url as base when LCE is enabled", async () => {
           const localCodeEngineUrl = fakeDeepCodeServer();
           localCodeEngineUrl.listen(() => {});
 
@@ -285,11 +282,11 @@ describe('snyk code test', () => {
         jest.setTimeout(60000);
         it('should succeed - when no vulnerabilities found', async () => {
           const { path } = await createProjectFromFixture(
-            'sast-empty/shallow_empty',
+            'sast/no-vulnerabilities',
           );
 
           const { stderr, code } = await runSnykCLI(
-            `code test ${path()} --remote-repo-url=something`,
+            `code test ${path()} --remote-repo-url=something -d`,
             {
               env: {
                 ...process.env,

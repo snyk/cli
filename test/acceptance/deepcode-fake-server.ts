@@ -8,6 +8,7 @@ export type FakeDeepCodeServer = {
   popRequests: (num: number) => express.Request[];
   setCustomResponse: (next: Record<string, unknown>) => void;
   setFiltersResponse: (next: Record<string, unknown>) => void;
+  setDeepProxyFiltersResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (code: number) => void;
   setSarifResponse: (r: any) => void;
@@ -19,6 +20,10 @@ export type FakeDeepCodeServer = {
 
 export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   let filtersResponse: Record<string, unknown> | null = {
+    configFiles: [],
+    extensions: ['.java'],
+  };
+  let deepProxyFiltersResponse: Record<string, unknown> | null = {
     configFiles: [],
     extensions: ['.java'],
   };
@@ -38,6 +43,10 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     nextStatusCode = undefined;
     sarifResponse = null;
     filtersResponse = { configFiles: [], extensions: ['.java', '.js'] };
+    deepProxyFiltersResponse = {
+      configFiles: [],
+      extensions: ['.java', '.js'],
+    };
   };
 
   const getRequests = () => {
@@ -64,6 +73,16 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     filtersResponse = response;
   };
 
+  const setDeepProxyFiltersResponse = (
+    response: string | Record<string, unknown>,
+  ) => {
+    if (typeof response === 'string') {
+      deepProxyFiltersResponse = JSON.parse(response);
+      return;
+    }
+    deepProxyFiltersResponse = response;
+  };
+
   const setNextResponse = (response: string | Record<string, unknown>) => {
     if (typeof response === 'string') {
       nextResponse = JSON.parse(response);
@@ -85,6 +104,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   };
 
   const app = express();
+
   app.use((req, res, next) => {
     requests.push(req);
     next();
@@ -105,8 +125,15 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   });
 
   app.get('/filters', (req, res) => {
+    console.log('\nCALLING FILTERS\n');
     res.status(200);
     res.send(filtersResponse);
+  });
+
+  app.get('/deeproxy/filters', (req, res) => {
+    console.log('Hello words');
+    res.status(200);
+    res.send(deepProxyFiltersResponse);
   });
 
   app.post('/bundle', (req, res) => {
@@ -119,6 +146,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   });
 
   app.post('/analysis', (req, res) => {
+    console.log('\nCALLING ANALYSIS\n');
     res.status(200);
     res.send({
       timing: {
@@ -169,6 +197,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
 
   const getPort = () => {
     const address = server?.address();
+    console.log('****', 'address ****\n', address, '\n');
     if (address && typeof address === 'object') {
       return address.port;
     }
@@ -181,6 +210,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     popRequests,
     setCustomResponse: setCustomResponse,
     setFiltersResponse,
+    setDeepProxyFiltersResponse,
     setSarifResponse,
     setNextResponse,
     setNextStatusCode,
