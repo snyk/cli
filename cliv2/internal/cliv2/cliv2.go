@@ -311,7 +311,7 @@ func PrepareV1EnvironmentVariables(
 			constants.SNYK_NPM_PROXY_ENV,
 			constants.SNYK_NPM_ALL_PROXY,
 			constants.SNYK_OPENSSL_CONF,
-			constants.SNYK_INTERNAL_IS_UNSTABLE_ENV,
+			constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED,
 		}
 
 		for _, key := range blackList {
@@ -324,8 +324,8 @@ func PrepareV1EnvironmentVariables(
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
 		inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
 
-		if config.GetBool(configuration.IS_UNSTABLE_VERSION) {
-			inputAsMap[constants.SNYK_INTERNAL_IS_UNSTABLE_ENV] = "1"
+		if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
+			inputAsMap[constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED] = "1"
 		}
 
 		if config.IsSet(configuration.API_URL) {
