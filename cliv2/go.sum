@@ -738,8 +738,8 @@ github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672 h1:Ak
 github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672/go.mod h1:2vKTUsW73sVbDcyD19iNLfN0so2GSu9BE3k/fqG0mjA=
 github.com/snyk/cli-extension-sbom v0.0.0-20240523084359-a2830fadb001 h1:EP9cL93+Lqw/wP/C80Sx+pyMYrqQY2NiuLDrad0lZ9w=
 github.com/snyk/cli-extension-sbom v0.0.0-20240523084359-a2830fadb001/go.mod h1:lqmQT+QdzLdfi7qsqIH4qvCsSWu+P09GDFwQcmFfC0g=
-github.com/snyk/code-client-go v1.7.0 h1:87asu/+hy+tb2OUKfdv65Xs2hKS8To0An13STdfQ+DA=
-github.com/snyk/code-client-go v1.7.0/go.mod h1:orU911flV1kJQOlxxx0InUQkAfpBrcERsb2olfnlI8s=
+github.com/snyk/code-client-go v1.7.1 h1:YvnLUPmMRdSHw8spiTQed6z+f4IXQytMwP6mN5HC4qQ=
+github.com/snyk/code-client-go v1.7.1/go.mod h1:orU911flV1kJQOlxxx0InUQkAfpBrcERsb2olfnlI8s=
 github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1 h1:9RKY9NdX5DrJAoVXDP0JiqrXT+4Nb9NH8pjEcA0NsLA=
 github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
 github.com/snyk/error-catalog-golang-public v0.0.0-20240605115201-8461850930e6 h1:0t2lDRZY9zn/zgmY9sbRZ4WZFFR+7lIV/4+CMPUhJOs=
@@ -752,8 +752,8 @@ github.com/snyk/policy-engine v0.30.11 h1:wUy5LMar2vccMbNM62MSBRdjAQAhAbIm7aNXXO
 github.com/snyk/policy-engine v0.30.11/go.mod h1:O6nwYXbb+SNDrYVWBwkieOwVuwXNKBHuXLm//fLz9Dw=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20240607091914-f5958eca36e3 h1:TsOrS46pkRCGyk75HFssUrsjebMCRXO9ApoLqRPdhY8=
-github.com/snyk/snyk-ls v0.0.0-20240607091914-f5958eca36e3/go.mod h1:EmXkgg24aVM9d3dzqxRahFdKyFs2X2KprAazDhmt9jQ=
+github.com/snyk/snyk-ls v0.0.0-20240611125743-7ba12dae3aee h1:b3f0PPYpYs7vt30JU34/WHjdIQcyuGEatAEjz6Mwlpo=
+github.com/snyk/snyk-ls v0.0.0-20240611125743-7ba12dae3aee/go.mod h1:hVmErsJqCrrSrkRt1ALwGY+Ml5sPIJBrxxTzd3sxyNE=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
