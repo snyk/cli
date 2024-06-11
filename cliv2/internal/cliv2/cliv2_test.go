@@ -42,7 +42,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 	config := configuration.NewInMemory()
 	config.Set(configuration.ORGANIZATION, orgid)
 	config.Set(configuration.API_URL, testapi)
-	config.Set(configuration.IS_UNSTABLE_VERSION, true)
+	config.Set(configuration.PREVIEW_FEATURES_ENABLED, true)
 
 	input := []string{
 		"something=1",
@@ -70,7 +70,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_SYSTEM_HTTPS_PROXY=httpsProxy",
 		"SNYK_INTERNAL_ORGID=" + orgid,
 		"SNYK_CFG_ORG=" + orgid,
-		"SNYK_INTERNAL_IS_UNSTABLE=1",
+		"SNYK_INTERNAL_PREVIEW_FEATURES=1",
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",noProxy",
 	}
