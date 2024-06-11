@@ -225,6 +225,24 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     }
   });
 
+  // needed for code-client-go
+  app.get('/deeproxy/filters', (req, res) => {
+    res.status(200);
+    if (customResponse) {
+      res.send(customResponse);
+    }
+    res.send({});
+  });
+  
+  // needed for code-client-go
+  app.post('/deeproxy/bundle', (req, res) => {
+    res.status(200);
+    res.send({
+      bundleHash: 'faa6b7161c14f933ef4ca79a18ad9283eab362d5e6d3a977125eb95b37c377d8',
+      missingFiles: [],
+    });
+  });
+
   app.post(basePath + '/vuln/:registry', (req, res, next) => {
     const vulnerabilities = [];
     if (req.query.org && req.query.org === 'missing-org') {
@@ -611,6 +629,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+  // needed for code-client-go
+  app.post(
+    basePath.replace('v1', 'hidden') + `/orgs/:orgId/workspaces`,
+    (req, res) => {
+      res.status(201).send({});
+    },
+  );
+
   app.post(`/rest/orgs/:orgId/sbom_tests`, (req, res) => {
     const response = {
       data: {
@@ -773,7 +799,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   // Post state mapping artifact
   app.post(
     basePath.replace('v1', 'hidden') +
-      '/orgs/:orgId/cloud/mappings_artifact/tfstate',
+    '/orgs/:orgId/cloud/mappings_artifact/tfstate',
     (req, res) => {
       const { orgId } = req.params;
       const artifact = path.join(

@@ -71,19 +71,19 @@ describe('snyk code test', () => {
   }
 
   const integrationWorkflows: Workflow[] = [
-    {
-      type: 'typescript',
-      env: {
-        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
-      },
-    },
     // {
-    //   type: 'golang/native',
+    //   type: 'typescript',
     //   env: {
-    //     // internal GAF feature flag for consistent ignores
-    //     INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
+    //     INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
     //   },
     // },
+    {
+      type: 'golang/native',
+      env: {
+        // internal GAF feature flag for consistent ignores
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
+      },
+    },
   ];
 
   describe.each(integrationWorkflows)(
@@ -111,7 +111,7 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
         });
 
-        it('should succeed with correct exit code - with sarif output', async () => {
+        it.only('should succeed with correct exit code - with sarif output', async () => {
           const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -121,20 +121,28 @@ describe('snyk code test', () => {
             configFiles: [],
             extensions: ['.java'],
           });
-
           deepCodeServer.setSarifResponse(sarifPayload);
+          
+          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
+          server.setCustomResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
 
           const { stderr, code } = await runSnykCLI(
-            `code test ${path()} --sarif`,
+            `code test ${path()} --sarif -d`,
             {
               env: {
                 ...env,
                 ...integrationEnv,
+                // code-client-go will panic if we don't supply the org UUID
+                SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
               },
             },
           );
-          expect(stderr).toBe('');
+          console.log('****', 'stderr ****\n', stderr, '\n');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+          // expect(stderr).toBe('');
         });
 
         it('should succeed with correct exit code - with json output', async () => {

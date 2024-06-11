@@ -129,11 +129,6 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     res.send(filtersResponse);
   });
 
-  // app.get('/deeproxy/filters', (req, res) => {
-  //   res.status(200);
-  //   res.send(deepProxyFiltersResponse);
-  // });
-
   app.post('/bundle', (req, res) => {
     res.status(200);
 
@@ -204,7 +199,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     getRequests,
     popRequest,
     popRequests,
-    setCustomResponse: setCustomResponse,
+    setCustomResponse,
     setFiltersResponse,
     setDeepProxyFiltersResponse,
     setSarifResponse,
