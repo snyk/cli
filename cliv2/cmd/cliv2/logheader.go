@@ -80,7 +80,7 @@ func getFipsStatus(config configuration.Configuration) string {
 }
 
 func writeLogHeader(config configuration.Configuration, networkAccess networking.NetworkAccess) {
-	authorization, oauthEnabled, userAgent := logHeaderAuthorizationInfo(config, networkAccess)
+	authorization, _, userAgent := logHeaderAuthorizationInfo(config, networkAccess)
 
 	org := config.GetString(configuration.ORGANIZATION)
 	insecureHTTPS := "false"
@@ -93,9 +93,9 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 		analytics = "disabled"
 	}
 
-	stableVersion := "stable"
-	if config.GetBool(configuration.IS_UNSTABLE_VERSION) {
-		stableVersion = "unstable"
+	previewFeaturesEnabled := "disabled"
+	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
+		previewFeaturesEnabled = "enabled"
 	}
 
 	tablePrint := func(name string, value string) {
@@ -104,7 +104,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 
 	fipsEnabled := getFipsStatus(config)
 
-	tablePrint("Version", fmt.Sprintf("%s (%s)", cliv2.GetFullVersion(), stableVersion))
+	tablePrint("Version", cliv2.GetFullVersion())
 	tablePrint("Platform", userAgent)
 	tablePrint("API", config.GetString(configuration.API_URL))
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
@@ -114,6 +114,6 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Authorization", authorization)
 	tablePrint("Interaction", interactionId)
 	tablePrint("Features", "")
-	tablePrint("  oauth", oauthEnabled)
+	tablePrint("  preview", previewFeaturesEnabled)
 	tablePrint("  fips", fipsEnabled)
 }
