@@ -1,25 +1,25 @@
-import * as debugLib from 'debug';
-import * as ora from 'ora';
+import * as debugLib from "debug";
+import * as ora from "ora";
 
-import { EntityToFix, FixOptions } from '../../../../types';
-import { checkPackageToolSupported } from '../../../package-tool-supported';
-import { PluginFixResponse } from '../../../types';
-import { updateDependencies } from './update-dependencies';
+import { EntityToFix, FixOptions } from "../../../../types";
+import { checkPackageToolSupported } from "../../../package-tool-supported";
+import { PluginFixResponse } from "../../../types";
+import { updateDependencies } from "./update-dependencies";
 
-const debug = debugLib('snyk-fix:python:Pipfile');
+const debug = debugLib("snyk-fix:python:Pipfile");
 
 export async function pipenvPipfile(
   fixable: EntityToFix[],
-  options: FixOptions,
+  options: FixOptions
 ): Promise<PluginFixResponse> {
   debug(`Preparing to fix ${fixable.length} Python Pipfile projects`);
   const handlerResult: PluginFixResponse = {
     succeeded: [],
     failed: [],
-    skipped: [],
+    skipped: []
   };
 
-  await checkPackageToolSupported('pipenv', options);
+  await checkPackageToolSupported("pipenv", options);
   for (const [index, entity] of fixable.entries()) {
     const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
     const spinnerMessage = `Fixing Pipfile ${index + 1}/${fixable.length}`;
@@ -28,7 +28,7 @@ export async function pipenvPipfile(
 
     const { failed, succeeded, skipped } = await updateDependencies(
       entity,
-      options,
+      options
     );
     handlerResult.succeeded.push(...succeeded);
     handlerResult.failed.push(...failed);

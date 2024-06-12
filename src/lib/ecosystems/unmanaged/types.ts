@@ -1,7 +1,7 @@
-import { SEVERITY } from '../../snyk-test/common';
-import { PkgInfo } from '@snyk/dep-graph';
-import { UpgradePath, DepsFilePaths } from '../types';
-import { SupportedProjectTypes } from '../../types';
+import { SEVERITY } from "../../snyk-test/common";
+import { PkgInfo } from "@snyk/dep-graph";
+import { UpgradePath, DepsFilePaths } from "../types";
+import { SupportedProjectTypes } from "../../types";
 
 export interface HashFormat {
   format: number;

@@ -1,44 +1,44 @@
-import { AuthFailedError } from '../errors';
-import { Options, PolicyOptions } from '../types';
-import { spinner } from '../../lib/spinner';
+import { AuthFailedError } from "../errors";
+import { Options, PolicyOptions } from "../types";
+import { spinner } from "../../lib/spinner";
 import {
   Ecosystem,
   ScanResult,
   TestResult,
-  FileSignaturesDetails,
-} from './types';
+  FileSignaturesDetails
+} from "./types";
 import {
   CreateDepGraphResponse,
   GetIssuesResponse,
   FileHashes,
-  Attributes,
-} from './unmanaged/types';
+  Attributes
+} from "./unmanaged/types";
 import {
   requestTestPollingToken,
   pollingTestWithTokenUntilDone,
   createDepGraph,
   getDepGraph,
-  getIssues,
-} from '../polling/polling-test';
-import { extractAndApplyPluginAnalytics } from './plugin-analytics';
-import { findAndLoadPolicy } from '../policy';
-import { filterIgnoredIssues } from './policy';
-import { IssueDataUnmanaged, Issue } from '../snyk-test/legacy';
+  getIssues
+} from "../polling/polling-test";
+import { extractAndApplyPluginAnalytics } from "./plugin-analytics";
+import { findAndLoadPolicy } from "../policy";
+import { filterIgnoredIssues } from "./policy";
+import { IssueDataUnmanaged, Issue } from "../snyk-test/legacy";
 import {
   convertDepGraph,
   convertMapCasing,
   convertToCamelCase,
-  getOrg,
-} from './unmanaged/utils';
-import { sleep } from '../common';
-import { SEVERITY } from '../snyk-test/common';
+  getOrg
+} from "./unmanaged/utils";
+import { sleep } from "../common";
+import { SEVERITY } from "../snyk-test/common";
 
 export async function resolveAndTestFacts(
   ecosystem: Ecosystem,
   scans: {
     [dir: string]: ScanResult[];
   },
-  options: Options & PolicyOptions,
+  options: Options & PolicyOptions
 ): Promise<[TestResult[], string[]]> {
   try {
     return await resolveAndTestFactsUnmanagedDeps(scans, options);
@@ -47,8 +47,8 @@ export async function resolveAndTestFacts(
 
     if (unauthorized) {
       throw AuthFailedError(
-        'Unauthorized request to unmanaged service',
-        error.code,
+        "Unauthorized request to unmanaged service",
+        error.code
       );
     }
 
@@ -58,7 +58,7 @@ export async function resolveAndTestFacts(
 
 export async function submitHashes(
   hashes: FileHashes,
-  orgId: string,
+  orgId: string
 ): Promise<string> {
   const response: CreateDepGraphResponse = await createDepGraph(hashes, orgId);
 
@@ -67,7 +67,7 @@ export async function submitHashes(
 
 export async function pollDepGraphAttributes(
   id: string,
-  orgId: string,
+  orgId: string
 ): Promise<Attributes> {
   const minIntervalMs = 2000;
   const maxIntervalMs = 20000;
@@ -93,7 +93,7 @@ export async function pollDepGraphAttributes(
     return graph.data.attributes;
   }
 
-  throw new Error('max retries reached');
+  throw new Error("max retries reached");
 }
 
 async function fetchIssues(
@@ -101,19 +101,19 @@ async function fetchIssues(
   dep_graph_data,
   component_details,
   target_severity: SEVERITY,
-  orgId: string,
+  orgId: string
 ) {
   const response: GetIssuesResponse = await getIssues(
     {
       dep_graph: dep_graph_data,
       start_time,
       component_details,
-      target_severity,
+      target_severity
     },
-    orgId,
+    orgId
   );
 
-  const issues = response.data.result.issues.map((issue) => {
+  const issues = response.data.result.issues.map(issue => {
     const converted = convertToCamelCase<Issue>(issue);
     converted.fixInfo = convertToCamelCase(converted.fixInfo);
     return converted;
@@ -126,15 +126,15 @@ async function fetchIssues(
   const depGraphData = convertDepGraph(response.data.result.dep_graph);
 
   const dependencyCount = response.data.result.dep_graph.graph.nodes.find(
-    (graphNode) => {
-      return graphNode.node_id === 'root-node';
-    },
+    graphNode => {
+      return graphNode.node_id === "root-node";
+    }
   )?.deps?.length;
 
   const depsFilePaths = response.data.result.deps_file_paths;
 
   const fileSignaturesDetails = convertMapCasing<FileSignaturesDetails>(
-    response.data.result.file_signatures_details,
+    response.data.result.file_signatures_details
   );
 
   return {
@@ -143,7 +143,7 @@ async function fetchIssues(
     depGraphData,
     dependencyCount,
     depsFilePaths,
-    fileSignaturesDetails,
+    fileSignaturesDetails
   };
 }
 
@@ -151,18 +151,18 @@ export async function resolveAndTestFactsUnmanagedDeps(
   scans: {
     [dir: string]: ScanResult[];
   },
-  options: Options & PolicyOptions,
+  options: Options & PolicyOptions
 ): Promise<[TestResult[], string[]]> {
   const results: any[] = [];
   const errors: string[] = [];
-  const packageManager = 'Unmanaged (C/C++)';
-  const displayTargetFile = '';
+  const packageManager = "Unmanaged (C/C++)";
+  const displayTargetFile = "";
 
   const orgId = await getOrg(options.org);
   const target_severity: SEVERITY = options.severityThreshold || SEVERITY.LOW;
 
-  if (orgId === '') {
-    errors.push('organisation-id missing');
+  if (orgId === "") {
+    errors.push("organisation-id missing");
     return [results, errors];
   }
 
@@ -173,7 +173,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
       try {
         const id = await submitHashes(
           { hashes: scanResult?.facts[0]?.data },
-          orgId,
+          orgId
         );
 
         if (scanResult.analytics) {
@@ -183,7 +183,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
         const {
           start_time,
           dep_graph_data,
-          component_details,
+          component_details
         } = await pollDepGraphAttributes(id, orgId);
 
         const {
@@ -192,17 +192,17 @@ export async function resolveAndTestFactsUnmanagedDeps(
           depGraphData,
           dependencyCount,
           depsFilePaths,
-          fileSignaturesDetails,
+          fileSignaturesDetails
         } = await fetchIssues(
           start_time,
           dep_graph_data,
           component_details,
           target_severity,
-          orgId,
+          orgId
         );
 
         const issuesMap: Map<string, Issue> = new Map();
-        issues.forEach((i) => {
+        issues.forEach(i => {
           issuesMap[i.issueId] = i;
         });
 
@@ -220,27 +220,27 @@ export async function resolveAndTestFactsUnmanagedDeps(
           vulnerabilities.push(issueData);
         }
 
-        const policy = await findAndLoadPolicy(path, 'cpp', options);
+        const policy = await findAndLoadPolicy(path, "cpp", options);
 
         const [issuesFiltered, issuesDataFiltered] = filterIgnoredIssues(
           issues,
           issuesData,
-          policy,
+          policy
         );
 
         extractAndApplyPluginAnalytics([
           {
-            name: 'packageManager',
-            data: depGraphData?.pkgManager?.name ?? '',
+            name: "packageManager",
+            data: depGraphData?.pkgManager?.name ?? ""
           },
           {
-            name: 'unmanagedDependencyCount',
-            data: depGraphData?.pkgs.length ?? 0,
+            name: "unmanagedDependencyCount",
+            data: depGraphData?.pkgs.length ?? 0
           },
           {
-            name: 'unmanagedIssuesCount',
-            data: issues.length ?? 0,
-          },
+            name: "unmanagedIssuesCount",
+            data: issues.length ?? 0
+          }
         ]);
 
         results.push({
@@ -253,7 +253,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
           path,
           dependencyCount,
           packageManager,
-          displayTargetFile,
+          displayTargetFile
         });
       } catch (error) {
         const hasStatusCodeError = error.code >= 400 && error.code <= 500;
@@ -262,7 +262,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
           continue;
         }
 
-        const failedPath = path ? `in ${path}` : '.';
+        const failedPath = path ? `in ${path}` : ".";
         errors.push(`Could not test dependencies ${failedPath}`);
       }
     }
@@ -277,12 +277,12 @@ export async function resolveAndTestFactsRegistry(
   scans: {
     [dir: string]: ScanResult[];
   },
-  options: Options & PolicyOptions,
+  options: Options & PolicyOptions
 ): Promise<[TestResult[], string[]]> {
   const results: any[] = [];
   const errors: string[] = [];
-  const packageManager = 'Unmanaged (C/C++)';
-  const displayTargetFile = '';
+  const packageManager = "Unmanaged (C/C++)";
+  const displayTargetFile = "";
 
   for (const [path, scanResults] of Object.entries(scans)) {
     await spinner(`Resolving and Testing fileSignatures in ${path}`);
@@ -300,18 +300,18 @@ export async function resolveAndTestFactsRegistry(
           options,
           pollInterval,
           attemptsCount,
-          maxAttempts,
+          maxAttempts
         );
 
-        const policy = await findAndLoadPolicy(path, 'cpp', options);
+        const policy = await findAndLoadPolicy(path, "cpp", options);
         const [issues, issuesData] = filterIgnoredIssues(
           response.issues,
           response.issuesData,
-          policy,
+          policy
         );
 
         const issuesMap: Map<string, Issue> = new Map();
-        response.issues.forEach((i) => {
+        response.issues.forEach(i => {
           issuesMap[i.issueId] = i;
         });
 
@@ -331,9 +331,9 @@ export async function resolveAndTestFactsRegistry(
         }
 
         const dependencyCount = response?.depGraphData?.graph?.nodes?.find(
-          (graphNode) => {
-            return graphNode.nodeId === 'root-node';
-          },
+          graphNode => {
+            return graphNode.nodeId === "root-node";
+          }
         )?.deps?.length;
 
         results.push({
@@ -346,7 +346,7 @@ export async function resolveAndTestFactsRegistry(
           path,
           dependencyCount,
           packageManager,
-          displayTargetFile,
+          displayTargetFile
         });
       } catch (error) {
         const hasStatusCodeError = error.code >= 400 && error.code <= 500;
@@ -354,7 +354,7 @@ export async function resolveAndTestFactsRegistry(
           errors.push(error.message);
           continue;
         }
-        const failedPath = path ? `in ${path}` : '.';
+        const failedPath = path ? `in ${path}` : ".";
         errors.push(`Could not test dependencies ${failedPath}`);
       }
     }

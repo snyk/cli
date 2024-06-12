@@ -11,20 +11,20 @@ import {
   TerraformPlanResourceChange,
   IaCErrorCodes,
   TerraformPlanReferencedResource,
-  TerraformPlanExpression,
-} from '../types';
-import { CustomError } from '../../../../../../lib/errors';
-import { getErrorStringCode } from '../error-utils';
-import { IacProjectType } from '../../../../../../lib/iac/constants';
+  TerraformPlanExpression
+} from "../types";
+import { CustomError } from "../../../../../../lib/errors";
+import { getErrorStringCode } from "../error-utils";
+import { IacProjectType } from "../../../../../../lib/iac/constants";
 
 function terraformPlanReducer(
   scanInput: TerraformScanInput,
-  resource: TerraformPlanResource,
+  resource: TerraformPlanResource
 ): TerraformScanInput {
   // TODO: investigate if this reduction logic covers all edge-cases (nested modules, similar names, etc')
   const { type, name, mode, index, values } = resource;
   const inputKey: keyof TerraformScanInput =
-    mode === 'data' ? 'data' : 'resource';
+    mode === "data" ? "data" : "resource";
   if (scanInput[inputKey][type]) {
     // add new resources of the same type with different names
     scanInput[inputKey][type][getResourceName(index, name)] = values || {};
@@ -37,7 +37,7 @@ function terraformPlanReducer(
 }
 
 function getExpressions(
-  expressions: Record<string, TerraformPlanExpression>,
+  expressions: Record<string, TerraformPlanExpression>
 ): Record<string, string> {
   const result: Record<string, string> = {};
   // expressions can be nested. we are only doing 1 depth to resolve top level depenencies
@@ -64,7 +64,7 @@ function getResourceName(index: string | number, name: string): string {
 function resourceChangeReducer(
   scanInput: TerraformScanInput,
   resource: TerraformPlanResourceChange,
-  isFullScan: boolean,
+  isFullScan: boolean
 ): TerraformScanInput {
   // TODO: investigate if we need to address also `after_unknown` field.
   const { actions, after } = resource.change || { actions: [], after: {} };
@@ -78,7 +78,7 @@ function resourceChangeReducer(
 
 function isValidResourceActions(
   action: ResourceActions,
-  isFullScan: boolean,
+  isFullScan: boolean
 ): boolean {
   const VALID_ACTIONS = isFullScan
     ? VALID_RESOURCE_ACTIONS_FOR_FULL_SCAN
@@ -88,24 +88,24 @@ function isValidResourceActions(
       return false;
     }
     return validAction.every(
-      (field: string, idx: number) => action[idx] === field,
+      (field: string, idx: number) => action[idx] === field
     );
   });
 }
 
 function referencedResourcesResolver(
   scanInput: TerraformScanInput,
-  resources: TerraformPlanReferencedResource[],
+  resources: TerraformPlanReferencedResource[]
 ): TerraformScanInput {
   // check root module for references in first depth of attributes
   for (const resource of resources) {
     const { type, name, mode, index, expressions } = resource;
 
     // don't care about references in data sources for time being
-    if (mode == 'data') {
+    if (mode == "data") {
       continue;
     }
-    const inputKey: keyof TerraformScanInput = 'resource';
+    const inputKey: keyof TerraformScanInput = "resource";
 
     // only update the references in resources that have some resolved attributes already
     const resolvedResource: any =
@@ -128,28 +128,28 @@ function referencedResourcesResolver(
 }
 
 function extractResourceChanges(
-  terraformPlanJson: TerraformPlanJson,
+  terraformPlanJson: TerraformPlanJson
 ): Array<TerraformPlanResourceChange> {
   return terraformPlanJson.resource_changes || [];
 }
 
 function extractReferencedResources(
-  terraformPlanJson: TerraformPlanJson,
+  terraformPlanJson: TerraformPlanJson
 ): Array<TerraformPlanReferencedResource> {
   return terraformPlanJson.configuration?.root_module?.resources || [];
 }
 
 function extractResourcesForScan(
   terraformPlanJson: TerraformPlanJson,
-  isFullScan = false,
+  isFullScan = false
 ): TerraformScanInput {
   const resourceChanges = extractResourceChanges(terraformPlanJson);
   const scanInput = resourceChanges.reduce(
     (memo, curr) => resourceChangeReducer(memo, curr, isFullScan),
     {
       resource: {},
-      data: {},
-    },
+      data: {}
+    }
   );
 
   const referencedResources = extractReferencedResources(terraformPlanJson);
@@ -165,7 +165,7 @@ export function isTerraformPlan(terraformPlanJson: TerraformPlanJson): boolean {
 export function tryParsingTerraformPlan(
   terraformPlanFile: IacFileData,
   terraformPlanJson: TerraformPlanJson,
-  { isFullScan }: { isFullScan: boolean } = { isFullScan: false },
+  { isFullScan }: { isFullScan: boolean } = { isFullScan: false }
 ): Array<IacFileParsed> {
   try {
     return [
@@ -173,8 +173,8 @@ export function tryParsingTerraformPlan(
         ...terraformPlanFile,
         jsonContent: extractResourcesForScan(terraformPlanJson, isFullScan),
         engineType: EngineType.Terraform,
-        projectType: IacProjectType.TERRAFORM,
-      },
+        projectType: IacProjectType.TERRAFORM
+      }
     ];
   } catch (err) {
     throw new FailedToExtractResourcesInTerraformPlanError();
@@ -185,11 +185,11 @@ export function tryParsingTerraformPlan(
 export class FailedToExtractResourcesInTerraformPlanError extends CustomError {
   constructor(message?: string) {
     super(
-      message || 'Failed to extract resources from Terraform plan JSON file',
+      message || "Failed to extract resources from Terraform plan JSON file"
     );
     this.code = IaCErrorCodes.FailedToExtractResourcesInTerraformPlanError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
-      'We failed to extract resource changes from the Terraform plan file, please contact support@snyk.io, if possible with a redacted version of the file';
+      "We failed to extract resource changes from the Terraform plan file, please contact support@snyk.io, if possible with a redacted version of the file";
   }
 }

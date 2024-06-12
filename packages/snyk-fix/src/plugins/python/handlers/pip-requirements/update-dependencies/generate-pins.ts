@@ -1,13 +1,13 @@
-import { DependencyPins, FixChangesSummary } from '../../../../../types';
-import { calculateRelevantFixes } from './calculate-relevant-fixes';
-import { isDefined } from './is-defined';
-import { Requirement } from './requirements-file-parser';
-import { standardizePackageName } from '../../../standardize-package-name';
+import { DependencyPins, FixChangesSummary } from "../../../../../types";
+import { calculateRelevantFixes } from "./calculate-relevant-fixes";
+import { isDefined } from "./is-defined";
+import { Requirement } from "./requirements-file-parser";
+import { standardizePackageName } from "../../../standardize-package-name";
 
 export function generatePins(
   requirements: Requirement[],
   updates: DependencyPins,
-  referenceFileInChanges?: string,
+  referenceFileInChanges?: string
 ): {
   pinnedRequirements: string[];
   changes: FixChangesSummary[];
@@ -18,24 +18,24 @@ export function generatePins(
   const standardizedPins = calculateRelevantFixes(
     requirements,
     updates,
-    'transitive-pins',
+    "transitive-pins"
   );
 
   if (Object.keys(standardizedPins).length === 0) {
     return {
       pinnedRequirements: [],
-      changes: [],
+      changes: []
     };
   }
   const changes: FixChangesSummary[] = [];
   const pinnedRequirements = Object.keys(standardizedPins)
-    .map((pkgNameAtVersion) => {
-      const [pkgName, version] = pkgNameAtVersion.split('@');
+    .map(pkgNameAtVersion => {
+      const [pkgName, version] = pkgNameAtVersion.split("@");
       const newVersion = standardizedPins[pkgNameAtVersion].upgradeTo.split(
-        '@',
+        "@"
       )[1];
       const newRequirement = `${standardizePackageName(
-        pkgName,
+        pkgName
       )}>=${newVersion}`;
       changes.push({
         from: `${pkgName}@${version}`,
@@ -43,10 +43,10 @@ export function generatePins(
         issueIds: standardizedPins[pkgNameAtVersion].vulns,
         success: true,
         userMessage: `Pinned ${standardizePackageName(
-          pkgName,
+          pkgName
         )} from ${version} to ${newVersion}${
-          referenceFileInChanges ? ` (pinned in ${referenceFileInChanges})` : ''
-        }`,
+          referenceFileInChanges ? ` (pinned in ${referenceFileInChanges})` : ""
+        }`
       });
       return `${newRequirement} # not directly required, pinned by Snyk to avoid a vulnerability`;
     })
@@ -54,6 +54,6 @@ export function generatePins(
 
   return {
     pinnedRequirements,
-    changes,
+    changes
   };
 }

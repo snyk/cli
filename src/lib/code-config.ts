@@ -1,4 +1,4 @@
-import config from './config';
+import config from "./config";
 
 export function getCodeClientProxyUrl(): string {
   const url = new URL(config.API);
@@ -6,10 +6,10 @@ export function getCodeClientProxyUrl(): string {
   const routeToAPI = isFedramp(domain);
   return (
     config.CODE_CLIENT_PROXY_URL ||
-    domain.replace(/\/\/(ap[pi]\.)?/, routeToAPI ? '//api.' : '//deeproxy.')
+    domain.replace(/\/\/(ap[pi]\.)?/, routeToAPI ? "//api." : "//deeproxy.")
   );
 }
 
 function isFedramp(domain: string): boolean {
-  return domain.includes('snykgov.io');
+  return domain.includes("snykgov.io");
 }

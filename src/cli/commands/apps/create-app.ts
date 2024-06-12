@@ -1,4 +1,4 @@
-import * as Debug from 'debug';
+import * as Debug from "debug";
 import {
   EAppsURL,
   getAppsURL,
@@ -6,10 +6,10 @@ import {
   handleRestError,
   ICreateAppRequest,
   ICreateAppResponse,
-  SNYK_APP_DEBUG,
-} from '../../../lib/apps';
-import { makeRequestRest } from '../../../lib/request/promise';
-import { spinner } from '../../../lib/spinner';
+  SNYK_APP_DEBUG
+} from "../../../lib/apps";
+import { makeRequestRest } from "../../../lib/request/promise";
+import { spinner } from "../../../lib/spinner";
 
 const debug = Debug(SNYK_APP_DEBUG);
 
@@ -22,33 +22,33 @@ const debug = Debug(SNYK_APP_DEBUG);
  * @returns {String} response formatted string
  */
 export async function createApp(
-  data: ICreateAppRequest,
+  data: ICreateAppRequest
 ): Promise<string | void> {
-  debug('App data', data);
+  debug("App data", data);
   const {
     orgId,
     snykAppName: name,
     snykAppRedirectUris: redirectUris,
     snykAppScopes: scopes,
-    context,
+    context
   } = data;
   const payload = {
-    method: 'POST',
+    method: "POST",
     url: getAppsURL(EAppsURL.CREATE_APP, { orgId }),
     body: {
       name,
       redirect_uris: redirectUris,
       scopes,
-      context,
+      context
     },
     qs: {
-      version: '2022-03-11~experimental',
+      version: "2022-03-11~experimental"
     },
-    noCompression: true,
+    noCompression: true
   };
 
   try {
-    await spinner('Creating your Snyk App');
+    await spinner("Creating your Snyk App");
     const response = await makeRequestRest<ICreateAppResponse>(payload);
     debug(response);
     spinner.clearAll();

@@ -1,13 +1,13 @@
-import { UnsupportedTypeError } from '../lib/errors/unsupported-type-error';
-import { pythonFix } from './python';
-import { FixHandler } from './types';
+import { UnsupportedTypeError } from "../lib/errors/unsupported-type-error";
+import { pythonFix } from "./python";
+import { FixHandler } from "./types";
 
 export function loadPlugin(type: string): FixHandler {
   switch (type) {
-    case 'pip': {
+    case "pip": {
       return pythonFix;
     }
-    case 'poetry': {
+    case "poetry": {
       return pythonFix;
     }
     default: {

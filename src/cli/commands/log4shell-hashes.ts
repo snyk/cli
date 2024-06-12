@@ -14,237 +14,237 @@ export type VulnerableSignatures = {
 
 export const vulnerableSignatures: VulnerableSignatures = {
   IfBVtiwVRT8NeXCp2ZTKtw: {
-    filename: 'JndiManager.class',
-    versions: ['2.13.2', '2.13.1', '2.13.0', '2.13.3'],
+    filename: "JndiManager.class",
+    versions: ["2.13.2", "2.13.1", "2.13.0", "2.13.3"]
   },
   CsWz5uabp3ZWg3mOZpowsg: {
-    filename: 'log4j-core-2.13.2.jar',
-    versions: ['2.13.2'],
+    filename: "log4j-core-2.13.2.jar",
+    versions: ["2.13.2"]
   },
-  '8MQ62soq/HHGzID4UbOIGA': {
-    filename: 'log4j-core-2.4.1.jar',
-    versions: ['2.4.1'],
+  "8MQ62soq/HHGzID4UbOIGA": {
+    filename: "log4j-core-2.4.1.jar",
+    versions: ["2.4.1"]
   },
   RyyOH7qg5hUg4CXCVbXRaA: {
-    filename: 'log4j-core-2.6.2.jar',
-    versions: ['2.6.2'],
+    filename: "log4j-core-2.6.2.jar",
+    versions: ["2.6.2"]
   },
-  '7Q4xglxv2kNCP7ODV6QrPQ': {
-    filename: 'MessagePatternConverter.class',
-    versions: ['2.16.0'],
+  "7Q4xglxv2kNCP7ODV6QrPQ": {
+    filename: "MessagePatternConverter.class",
+    versions: ["2.16.0"]
   },
   geBDOuAGAsDk0AQk0hOwqw: {
-    filename: 'log4j-core-2.15.0.jar',
-    versions: ['2.15.0'],
+    filename: "log4j-core-2.15.0.jar",
+    versions: ["2.15.0"]
   },
-  'miPB9v/sgl70HMwQVBogkA': {
-    filename: 'JndiManager.java',
-    versions: ['2.8.2-sources', '2.8-sources', '2.7-sources', '2.8.1-sources'],
+  "miPB9v/sgl70HMwQVBogkA": {
+    filename: "JndiManager.java",
+    versions: ["2.8.2-sources", "2.8-sources", "2.7-sources", "2.8.1-sources"]
   },
   WCRxHWxoFi61NcxNv3SF0w: {
-    filename: 'JndiManager.class',
-    versions: ['2.12.1', '2.12.0'],
+    filename: "JndiManager.class",
+    versions: ["2.12.1", "2.12.0"]
   },
-  'xtIzvI6c/l2mkAWdJ9n4jw': {
-    filename: 'log4j-core-2.8.jar',
-    versions: ['2.8'],
+  "xtIzvI6c/l2mkAWdJ9n4jw": {
+    filename: "log4j-core-2.8.jar",
+    versions: ["2.8"]
   },
   zH1V7WnMX9NANbFcbt95oA: {
-    filename: 'log4j-core-2.13.3.jar',
-    versions: ['2.13.3'],
+    filename: "log4j-core-2.13.3.jar",
+    versions: ["2.13.3"]
   },
-  'EQqz4+TzeAkh6O5d3jNzrQ': {
-    filename: 'log4j-core-2.3.jar',
-    versions: ['2.3'],
+  "EQqz4+TzeAkh6O5d3jNzrQ": {
+    filename: "log4j-core-2.3.jar",
+    versions: ["2.3"]
   },
-  'VSPxRPrvK/ygijyosr7Nag': {
-    filename: 'log4j-core-2.6.jar',
-    versions: ['2.6'],
+  "VSPxRPrvK/ygijyosr7Nag": {
+    filename: "log4j-core-2.6.jar",
+    versions: ["2.6"]
   },
-  'C1fpJhCjMxrxWn6Q+LNTnQ': {
-    filename: 'Interpolator.class',
-    versions: ['2.16.0'],
+  "C1fpJhCjMxrxWn6Q+LNTnQ": {
+    filename: "Interpolator.class",
+    versions: ["2.16.0"]
   },
-  'QVwT58hQX7BW1UDqwpty+g': {
-    filename: 'JndiManager.class',
-    versions: ['2.7', '2.8.1', '2.8'],
+  "QVwT58hQX7BW1UDqwpty+g": {
+    filename: "JndiManager.class",
+    versions: ["2.7", "2.8.1", "2.8"]
   },
   zXChiI7N0xHBmQ54SGfOHg: {
-    filename: 'log4j-core-2.0.jar',
-    versions: ['2.0'],
+    filename: "log4j-core-2.0.jar",
+    versions: ["2.0"]
   },
-  'txoT/V3yUWlPyhFiQAA7Ig': {
-    filename: 'log4j-core-2.13.0.jar',
-    versions: ['2.13.0'],
+  "txoT/V3yUWlPyhFiQAA7Ig": {
+    filename: "log4j-core-2.13.0.jar",
+    versions: ["2.13.0"]
   },
   VHuz7S3rhW0OO713wnuWJQ: {
-    filename: 'log4j-core-2.8.1.jar',
-    versions: ['2.8.1'],
+    filename: "log4j-core-2.8.1.jar",
+    versions: ["2.8.1"]
   },
   SlF3oXJ2S9pvRHK5S6F8yw: {
-    filename: 'log4j-core-2.8.2.jar',
-    versions: ['2.8.2'],
+    filename: "log4j-core-2.8.2.jar",
+    versions: ["2.8.2"]
   },
   ToAy4jACKoyI3X1SbwtnCw: {
-    filename: 'JndiManager.java',
+    filename: "JndiManager.java",
     versions: [
-      '2.9.0-sources',
-      '2.9.1-sources',
-      '2.10.0-sources',
-      '2.11.0-sources',
-      '2.11.1-sources',
-    ],
+      "2.9.0-sources",
+      "2.9.1-sources",
+      "2.10.0-sources",
+      "2.11.0-sources",
+      "2.11.1-sources"
+    ]
   },
-  'oZNwOQSj8Y+zyQqHfrXIpw': {
-    filename: 'JndiManager.class',
-    versions: ['2.8.2'],
+  "oZNwOQSj8Y+zyQqHfrXIpw": {
+    filename: "JndiManager.class",
+    versions: ["2.8.2"]
   },
-  '+/pfM6tLKab91SRz7nuDTQ': {
-    filename: 'log4j-core-2.0.1.jar',
-    versions: ['2.0.1'],
+  "+/pfM6tLKab91SRz7nuDTQ": {
+    filename: "log4j-core-2.0.1.jar",
+    versions: ["2.0.1"]
   },
-  'Kr7CzmZeDVKaPyj/+7st0w': {
-    filename: 'log4j-core-2.11.0.jar',
-    versions: ['2.11.0'],
+  "Kr7CzmZeDVKaPyj/+7st0w": {
+    filename: "log4j-core-2.11.0.jar",
+    versions: ["2.11.0"]
   },
-  'AHnJByMGWZaPD8DkGmq8+Q': {
-    filename: 'log4j-core-2.4.jar',
-    versions: ['2.4'],
+  "AHnJByMGWZaPD8DkGmq8+Q": {
+    filename: "log4j-core-2.4.jar",
+    versions: ["2.4"]
   },
-  '3o0BzBX9DHT+qLu2aOKJ9Q': {
-    filename: 'log4j-core-2.0-rc2.jar',
-    versions: ['2.0-rc2.jar'],
+  "3o0BzBX9DHT+qLu2aOKJ9Q": {
+    filename: "log4j-core-2.0-rc2.jar",
+    versions: ["2.0-rc2.jar"]
   },
-  'siQt4Gd75lFdbO+/SOfl1Q': {
-    filename: 'log4j-core-2.11.1.jar',
-    versions: ['2.11.1'],
+  "siQt4Gd75lFdbO+/SOfl1Q": {
+    filename: "log4j-core-2.11.1.jar",
+    versions: ["2.11.1"]
   },
   jTMVRLLnsgrRZt68olUNcw: {
-    filename: 'log4j-core-2.1.jar',
-    versions: ['2.1'],
+    filename: "log4j-core-2.1.jar",
+    versions: ["2.1"]
   },
-  '3Q4+C0BAg+xpYYqrtQuKwA': {
-    filename: 'log4j-core-2.5.jar',
-    versions: ['2.5'],
+  "3Q4+C0BAg+xpYYqrtQuKwA": {
+    filename: "log4j-core-2.5.jar",
+    versions: ["2.5"]
   },
   BP3XAYCdF0ZcF8fmA7GyAg: {
-    filename: 'JndiManager.class',
-    versions: ['2.11.1', '2.9.1', '2.11.0', '2.11.2', '2.10.0', '2.9.0'],
+    filename: "JndiManager.class",
+    versions: ["2.11.1", "2.9.1", "2.11.0", "2.11.2", "2.10.0", "2.9.0"]
   },
   FS7LPOCUrFvJ6jnWEi4oFA: {
-    filename: 'log4j-core-2.0-beta9.jar',
-    versions: ['2.0-beta9.jar'],
+    filename: "log4j-core-2.0-beta9.jar",
+    versions: ["2.0-beta9.jar"]
   },
-  'SPfzzaUwMKh+jDh9jR5CZQ': {
-    filename: 'log4j-core-2.6.1.jar',
-    versions: ['2.6.1'],
+  "SPfzzaUwMKh+jDh9jR5CZQ": {
+    filename: "log4j-core-2.6.1.jar",
+    versions: ["2.6.1"]
   },
-  'axX0LDM6w5q6z+7rGIUqRA': {
-    filename: 'JndiManager.class',
-    versions: ['2.1', '2.2', '2.3'],
+  "axX0LDM6w5q6z+7rGIUqRA": {
+    filename: "JndiManager.class",
+    versions: ["2.1", "2.2", "2.3"]
   },
-  'XkvKXtILlKsZu2WDbak/lg': {
-    filename: 'log4j-core-2.2.jar',
-    versions: ['2.2'],
+  "XkvKXtILlKsZu2WDbak/lg": {
+    filename: "log4j-core-2.2.jar",
+    versions: ["2.2"]
   },
   lI3aeHWTNAp68aGOMot7fw: {
-    filename: 'log4j-core-2.14.1.jar',
-    versions: ['2.14.1'],
+    filename: "log4j-core-2.14.1.jar",
+    versions: ["2.14.1"]
   },
-  'K2Pg5QY/2sz2aaHiY4Tz/Q': {
-    filename: 'log4j-core-2.7.jar',
-    versions: ['2.7'],
+  "K2Pg5QY/2sz2aaHiY4Tz/Q": {
+    filename: "log4j-core-2.7.jar",
+    versions: ["2.7"]
   },
-  'iyJgsczmQUT2MQh2+UsWOA': {
-    filename: 'JndiManager.class',
-    versions: ['2.4', '2.4.1', '2.5'],
+  "iyJgsczmQUT2MQh2+UsWOA": {
+    filename: "JndiManager.class",
+    versions: ["2.4", "2.4.1", "2.5"]
   },
-  'CI3xE60kmrcr8Zt/ALhj1Q': {
-    filename: 'log4j-core-2.0-rc1.jar',
-    versions: ['2.0-rc1.jar'],
+  "CI3xE60kmrcr8Zt/ALhj1Q": {
+    filename: "log4j-core-2.0-rc1.jar",
+    versions: ["2.0-rc1.jar"]
   },
-  '3JkBHwR+Y9zHQbWraNEW2w': {
-    filename: 'log4j-core-2.10.0.jar',
-    versions: ['2.10.0'],
+  "3JkBHwR+Y9zHQbWraNEW2w": {
+    filename: "log4j-core-2.10.0.jar",
+    versions: ["2.10.0"]
   },
-  'XFJ4IdEISn7z4D1AFE/1Mg': {
-    filename: 'log4j-core-2.12.0.jar',
-    versions: ['2.12.0'],
+  "XFJ4IdEISn7z4D1AFE/1Mg": {
+    filename: "log4j-core-2.12.0.jar",
+    versions: ["2.12.0"]
   },
   n0GSikGCAN4iMt0yblIsxw: {
-    filename: 'log4j-core-2.16.0.jar',
-    versions: ['2.16.0'],
+    filename: "log4j-core-2.16.0.jar",
+    versions: ["2.16.0"]
   },
-  'XSU+U/qZPhIv8BIiGqSeww': {
-    filename: 'JndiManager.class',
-    versions: ['2.15.0'],
+  "XSU+U/qZPhIv8BIiGqSeww": {
+    filename: "JndiManager.class",
+    versions: ["2.15.0"]
   },
-  'NbG1m0kl+RbQmdW4+7nykQ': {
-    filename: 'JndiManager.java',
+  "NbG1m0kl+RbQmdW4+7nykQ": {
+    filename: "JndiManager.java",
     versions: [
-      '2.11.2-sources',
-      '2.12.1-sources',
-      '2.13.0-sources',
-      '2.13.1-sources',
-      '2.13.2-sources',
-      '2.14.1-sources',
-      '2.12.0-sources',
-      '2.13.3-sources',
-      '2.14.0-sources',
-    ],
+      "2.11.2-sources",
+      "2.12.1-sources",
+      "2.13.0-sources",
+      "2.13.1-sources",
+      "2.13.2-sources",
+      "2.14.1-sources",
+      "2.12.0-sources",
+      "2.13.3-sources",
+      "2.14.0-sources"
+    ]
   },
-  'Kn94Du0/K5zJ8p4blmlGjw': {
-    filename: 'JndiManager.java',
+  "Kn94Du0/K5zJ8p4blmlGjw": {
+    filename: "JndiManager.java",
     versions: [
-      '2.4-sources',
-      '2.2-sources',
-      '2.3-sources',
-      '2.5-sources',
-      '2.6.1-sources',
-      '2.6.2-sources',
-      '2.6-sources',
-      '2.1-sources',
-      '2.4.1-sources',
-    ],
+      "2.4-sources",
+      "2.2-sources",
+      "2.3-sources",
+      "2.5-sources",
+      "2.6.1-sources",
+      "2.6.2-sources",
+      "2.6-sources",
+      "2.1-sources",
+      "2.4.1-sources"
+    ]
   },
-  '02XkgiFBT5P+7wk6G/YH7w': {
-    filename: 'log4j-core-2.13.1.jar',
-    versions: ['2.13.1'],
+  "02XkgiFBT5P+7wk6G/YH7w": {
+    filename: "log4j-core-2.13.1.jar",
+    versions: ["2.13.1"]
   },
-  '+rZGJX+UWwsqfOPhw+POXw': {
-    filename: 'log4j-core-2.9.0.jar',
-    versions: ['2.9.0'],
+  "+rZGJX+UWwsqfOPhw+POXw": {
+    filename: "log4j-core-2.9.0.jar",
+    versions: ["2.9.0"]
   },
-  'lC9Cnqy4AV4Y2PWZls++5g': {
-    filename: 'log4j-core-2.9.1.jar',
-    versions: ['2.9.1'],
+  "lC9Cnqy4AV4Y2PWZls++5g": {
+    filename: "log4j-core-2.9.1.jar",
+    versions: ["2.9.1"]
   },
-  'yL2LXFqqoHo9y/V94BySZg': {
-    filename: 'log4j-core-2.11.2.jar',
-    versions: ['2.11.2'],
+  "yL2LXFqqoHo9y/V94BySZg": {
+    filename: "log4j-core-2.11.2.jar",
+    versions: ["2.11.2"]
   },
   ATi6HBkdXHVP0OPDphwDBw: {
-    filename: 'log4j-core-2.12.1.jar',
-    versions: ['2.12.1'],
+    filename: "log4j-core-2.12.1.jar",
+    versions: ["2.12.1"]
   },
-  'hiwAsuhU+cDx6NhAnSPYmQ': {
-    filename: 'log4j-core-2.14.0.jar',
-    versions: ['2.14.0'],
+  "hiwAsuhU+cDx6NhAnSPYmQ": {
+    filename: "log4j-core-2.14.0.jar",
+    versions: ["2.14.0"]
   },
-  'uhz4+B57MccJdoVhuoq1WA': {
-    filename: 'JndiManager.class',
-    versions: ['2.16.0'],
+  "uhz4+B57MccJdoVhuoq1WA": {
+    filename: "JndiManager.class",
+    versions: ["2.16.0"]
   },
-  'O9n0G4nOT+jMv3PkMZWlzg': {
-    filename: 'JndiManager.class',
-    versions: ['2.6.1', '2.6', '2.6.2'],
+  "O9n0G4nOT+jMv3PkMZWlzg": {
+    filename: "JndiManager.class",
+    versions: ["2.6.1", "2.6", "2.6.2"]
   },
-  '8dYwxIkoCWpITkuVzLFioA': {
-    filename: 'JndiManager.class',
-    versions: ['2.14.0', '2.14.1'],
+  "8dYwxIkoCWpITkuVzLFioA": {
+    filename: "JndiManager.class",
+    versions: ["2.14.0", "2.14.1"]
   },
   jAzz6wRxVKT44W2vWiCTGQ: {
-    filename: 'log4j-core-2.0.2.jar',
-    versions: ['2.0.2'],
-  },
+    filename: "log4j-core-2.0.2.jar",
+    versions: ["2.0.2"]
+  }
 };

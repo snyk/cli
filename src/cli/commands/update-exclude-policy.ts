@@ -1,17 +1,17 @@
-import { MethodArgs } from '../args';
-import { processCommandArgs } from './process-command-args';
-import * as legacyError from '../../lib/errors/legacy-errors';
-import * as fs from 'fs';
-import * as snykPolicyLib from 'snyk-policy';
-import { getIacOrgSettings } from './test/iac/local-execution/org-settings/get-iac-org-settings';
-import { UnsupportedEntitlementCommandError } from './test/iac/local-execution/assert-iac-options-flag';
-import config from '../../lib/config';
+import { MethodArgs } from "../args";
+import { processCommandArgs } from "./process-command-args";
+import * as legacyError from "../../lib/errors/legacy-errors";
+import * as fs from "fs";
+import * as snykPolicyLib from "snyk-policy";
+import { getIacOrgSettings } from "./test/iac/local-execution/org-settings/get-iac-org-settings";
+import { UnsupportedEntitlementCommandError } from "./test/iac/local-execution/assert-iac-options-flag";
+import config from "../../lib/config";
 import {
   parseDriftAnalysisResults,
-  updateExcludeInPolicy,
-} from '../../lib/iac/drift';
-import { Policy } from '../../lib/policy/find-and-load-policy';
-import * as analytics from '../../lib/analytics';
+  updateExcludeInPolicy
+} from "../../lib/iac/drift";
+import { Policy } from "../../lib/policy/find-and-load-policy";
+import * as analytics from "../../lib/analytics";
 
 export default async (...args: MethodArgs): Promise<any> => {
   const { options } = processCommandArgs(...args);
@@ -19,7 +19,7 @@ export default async (...args: MethodArgs): Promise<any> => {
   // Ensure that this update-exclude-policy command can only be runned when using `snyk iac update-exclude-policy`
   // Avoid `snyk update-exclude-policy` direct usage
   if (options.iac != true) {
-    return legacyError('update-exclude-policy');
+    return legacyError("update-exclude-policy");
   }
 
   // Ensure that we are allowed to run that command
@@ -28,8 +28,8 @@ export default async (...args: MethodArgs): Promise<any> => {
   const iacOrgSettings = await getIacOrgSettings(orgPublicId);
   if (!iacOrgSettings.entitlements?.iacDrift) {
     throw new UnsupportedEntitlementCommandError(
-      'update-exclude-policy',
-      'iacDrift',
+      "update-exclude-policy",
+      "iacDrift"
     );
   }
 
@@ -40,13 +40,13 @@ export default async (...args: MethodArgs): Promise<any> => {
     const analysis = parseDriftAnalysisResults(fs.readFileSync(0).toString());
 
     // Add analytics
-    analytics.add('is-iac-drift', true);
+    analytics.add("is-iac-drift", true);
 
     let policy: Policy;
     try {
       policy = await snykPolicyLib.load();
     } catch (error) {
-      if (error.code === 'ENOENT') {
+      if (error.code === "ENOENT") {
         // policy file does not exist - create it
         policy = await snykPolicyLib.create();
       } else {
@@ -56,7 +56,7 @@ export default async (...args: MethodArgs): Promise<any> => {
     await updateExcludeInPolicy(policy, analysis, options);
     await snykPolicyLib.save(policy);
   } catch (e) {
-    const err = new Error('Error running `iac update-exclude-policy` ' + e);
+    const err = new Error("Error running `iac update-exclude-policy` " + e);
     return Promise.reject(err);
   }
 };

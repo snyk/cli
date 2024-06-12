@@ -1,9 +1,9 @@
-import * as debugLib from 'debug';
-import { standardizePackageName } from '../../../standardize-package-name';
+import * as debugLib from "debug";
+import { standardizePackageName } from "../../../standardize-package-name";
 
-const debug = debugLib('snyk-fix:python:requirements-file-parser');
+const debug = debugLib("snyk-fix:python:requirements-file-parser");
 
-type VersionComparator = '<' | '<=' | '!=' | '==' | '>=' | '>' | '~=';
+type VersionComparator = "<" | "<=" | "!=" | "==" | ">=" | ">" | "~=";
 
 export interface Requirement {
   originalText: string;
@@ -25,10 +25,10 @@ export interface ParsedRequirements {
   endsWithNewLine: boolean;
 }
 export function parseRequirementsFile(
-  requirementsFile: string,
+  requirementsFile: string
 ): ParsedRequirements {
-  const endsWithNewLine = requirementsFile.endsWith('\n');
-  const lines = requirementsFile.replace(/\n$/, '').split('\n');
+  const endsWithNewLine = requirementsFile.endsWith("\n");
+  const lines = requirementsFile.replace(/\n$/, "").split("\n");
   const requirements: Requirement[] = [];
   lines.map((requirementText: string, line: number) => {
     const requirement = extractDependencyDataFromLine(requirementText, line);
@@ -41,7 +41,7 @@ export function parseRequirementsFile(
 
 function extractDependencyDataFromLine(
   requirementText: string,
-  line: number,
+  line: number
 ): Requirement | void {
   try {
     const requirement: Requirement = { originalText: requirementText, line };
@@ -53,10 +53,10 @@ function extractDependencyDataFromLine(
     // - Comments i.e. # This is a comment
     // - Local files i.e. file:../../lib/project#egg=MyProject
     if (
-      requirementText === '' ||
-      trimmedText.startsWith('-e') ||
-      trimmedText.startsWith('#') ||
-      trimmedText.startsWith('file:')
+      requirementText === "" ||
+      trimmedText.startsWith("-e") ||
+      trimmedText.startsWith("#") ||
+      trimmedText.startsWith("file:")
     ) {
       return requirement;
     }
@@ -73,13 +73,13 @@ function extractDependencyDataFromLine(
       requirement.extras = result[4];
     }
     if (!(requirement.version && requirement.name)) {
-      throw new Error('Failed to extract dependency data');
+      throw new Error("Failed to extract dependency data");
     }
     return requirement;
   } catch (err) {
     debug(
       { error: err.message, requirementText, line },
-      'failed to parse requirement',
+      "failed to parse requirement"
     );
     return { originalText: requirementText, line };
   }

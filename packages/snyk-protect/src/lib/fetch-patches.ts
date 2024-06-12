@@ -1,11 +1,11 @@
-import { PatchInfo, Patch, VulnPatches, VulnIdAndPackageName } from './types';
-import { request } from './http';
-import { getApiBaseUrl } from './snyk-api';
+import { PatchInfo, Patch, VulnPatches, VulnIdAndPackageName } from "./types";
+import { request } from "./http";
+import { getApiBaseUrl } from "./snyk-api";
 
 export async function fetchPatches(
   vulnId: string,
   packageName: string,
-  packageVersion: string,
+  packageVersion: string
 ): Promise<Patch[]> {
   const apiBaseUrl = getApiBaseUrl();
   const apiUrl = `${apiBaseUrl}/v1/patches/${vulnId}?packageVersion=${packageVersion}`;
@@ -17,7 +17,7 @@ export async function fetchPatches(
 
   const jsonRes = JSON.parse(body);
   if (jsonRes.packageName !== packageName) {
-    throw new Error('packageName in response not equal to packageName');
+    throw new Error("packageName in response not equal to packageName");
   }
   const patches = jsonRes.patches;
   const patchInfos: PatchInfo[] = patches; // patchInfos is an array and each element has a .url which is also an array
@@ -32,7 +32,7 @@ export async function fetchPatches(
 
     patchDiffs.push({
       patchableVersions: p.patchableVersions,
-      patchDiffs: diffs,
+      patchDiffs: diffs
     });
   }
   return patchDiffs;
@@ -42,7 +42,7 @@ export async function fetchPatches(
 // This is because the backend data model for a vuln is such that a vuln can have N patches (logical patches) and each patch can have N urls (corresponding to physical patches).
 export async function getAllPatches(
   vulnIdAndPackageNames: VulnIdAndPackageName[],
-  packageNameToVersionsMap: Map<string, string[]>,
+  packageNameToVersionsMap: Map<string, string[]>
 ): Promise<Map<string, VulnPatches[]>> {
   const packageAtVersionsToPatches = new Map<string, VulnPatches[]>();
   for (const vpn of vulnIdAndPackageNames) {
@@ -53,11 +53,11 @@ export async function getAllPatches(
         const patches = await fetchPatches(
           vpn.vulnId,
           vpn.packageName,
-          packageVersion,
+          packageVersion
         );
         const vulnIdAndDiffs: VulnPatches = {
           vulnId: vpn.vulnId,
-          patches,
+          patches
         };
         if (packageAtVersionsToPatches.has(packageNameAtVersion)) {
           packageAtVersionsToPatches
@@ -65,7 +65,7 @@ export async function getAllPatches(
             ?.push(vulnIdAndDiffs); // TODO what if this is a duplicate?
         } else {
           packageAtVersionsToPatches.set(packageNameAtVersion, [
-            vulnIdAndDiffs,
+            vulnIdAndDiffs
           ]);
         }
       }

@@ -1,13 +1,13 @@
-import { AnalyticsPayload, ProtectResult } from './types';
-import { postJson } from './http';
-import { getApiBaseUrl } from './snyk-api';
-import * as os from 'os';
-import { readFileSync, existsSync } from 'fs';
-import * as path from 'path';
+import { AnalyticsPayload, ProtectResult } from "./types";
+import { postJson } from "./http";
+import { getApiBaseUrl } from "./snyk-api";
+import * as os from "os";
+import { readFileSync, existsSync } from "fs";
+import * as path from "path";
 
 function getVersion(): string {
   return JSON.parse(
-    readFileSync(path.resolve(__dirname, '../../package.json'), 'utf-8'),
+    readFileSync(path.resolve(__dirname, "../../package.json"), "utf-8")
   ).version;
 }
 
@@ -18,8 +18,8 @@ function getAnalyticsData(result: ProtectResult): AnalyticsPayload {
     version: getVersion(),
     nodeVersion: process.version,
     metadata: {
-      protectResult: result,
-    },
+      protectResult: result
+    }
   };
 }
 
@@ -31,7 +31,7 @@ export async function sendAnalytics(result: ProtectResult) {
     const apiBaseUrl = getApiBaseUrl();
     const apiUrl = `${apiBaseUrl}/v1/analytics/cli`;
     const data = {
-      data: getAnalyticsData(result),
+      data: getAnalyticsData(result)
     };
     await postJson(apiUrl, data);
   } catch (err) {
@@ -43,10 +43,10 @@ function allowAnalytics(): boolean {
   try {
     const snykConfigFile = getSnykConfigFilePath();
     if (existsSync(snykConfigFile)) {
-      const config = JSON.parse(readFileSync(snykConfigFile, 'utf-8'));
+      const config = JSON.parse(readFileSync(snykConfigFile, "utf-8"));
       if (
-        config['disable-analytics'] === '1' ||
-        config['disable-analytics'] === 1
+        config["disable-analytics"] === "1" ||
+        config["disable-analytics"] === 1
       ) {
         return false;
       }
@@ -63,6 +63,6 @@ function allowAnalytics(): boolean {
 function getSnykConfigFilePath(): string {
   return (
     process.env.SNYK_CONFIG_FILE ||
-    path.resolve(os.homedir(), '.config', 'configstore', 'snyk.json')
+    path.resolve(os.homedir(), ".config", "configstore", "snyk.json")
   );
 }

@@ -1,11 +1,11 @@
-import { Options } from '../../lib/types';
+import { Options } from "../../lib/types";
 
 export function processCommandArgs<CommandOptions>(
   ...args
 ): { paths: string[]; options: Options & CommandOptions } {
   let options = ({} as any) as Options & CommandOptions;
 
-  if (typeof args[args.length - 1] === 'object') {
+  if (typeof args[args.length - 1] === "object") {
     options = (args.pop() as any) as Options & CommandOptions;
   }
   args = args.filter(Boolean);

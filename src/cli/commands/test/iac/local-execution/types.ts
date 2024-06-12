@@ -1,36 +1,36 @@
 import {
   IacFileTypes,
   IacProjectType,
-  IacProjectTypes,
-} from '../../../../../lib/iac/constants';
-import { SEVERITY } from '../../../../../lib/snyk-test/common';
+  IacProjectTypes
+} from "../../../../../lib/iac/constants";
+import { SEVERITY } from "../../../../../lib/snyk-test/common";
 import {
   AnnotatedIssue,
   IgnoreSettings,
-  TestResult,
-} from '../../../../../lib/snyk-test/legacy';
+  TestResult
+} from "../../../../../lib/snyk-test/legacy";
 import {
   IacFileInDirectory,
   Options,
   TestOptions,
-  PolicyOptions,
-} from '../../../../../lib/types';
+  PolicyOptions
+} from "../../../../../lib/types";
 
 export interface IacFileData extends IacFileInDirectory {
   fileContent: string;
 }
 
 enum ValidFileType {
-  Terraform = 'tf',
-  JSON = 'json',
-  YAML = 'yaml',
-  YML = 'yml',
-  TFVARS = 'tfvars',
+  Terraform = "tf",
+  JSON = "json",
+  YAML = "yaml",
+  YML = "yml",
+  TFVARS = "tfvars"
 }
 export const VALID_FILE_TYPES: string[] = Object.values(ValidFileType);
 export const VALID_TERRAFORM_FILE_TYPES: string[] = [
   ValidFileType.Terraform,
-  ValidFileType.TFVARS,
+  ValidFileType.TFVARS
 ];
 
 export interface IacFileParsed extends IacFileData {
@@ -100,9 +100,9 @@ export type FormattedResult = {
 export type IacCustomPolicies = Record<string, { severity?: string }>;
 
 export enum RulesOrigin {
-  Local = 'local',
-  Remote = 'remote',
-  Internal = 'internal',
+  Local = "local",
+  Remote = "remote",
+  Internal = "internal"
 }
 
 export interface IacCustomRules {
@@ -139,7 +139,7 @@ export interface OpaWasmInstance {
 
 export type SafeAnalyticsOutput = Omit<
   IacFileParsed | IacFileParseFailure,
-  'fileContent' | 'jsonContent' | 'engineType'
+  "fileContent" | "jsonContent" | "engineType"
 >;
 
 export enum EngineType {
@@ -147,7 +147,7 @@ export enum EngineType {
   Terraform,
   CloudFormation,
   ARM,
-  Custom,
+  Custom
 }
 
 export interface PolicyMetadata {
@@ -162,7 +162,7 @@ export interface PolicyMetadata {
   isGeneratedByCustomRule?: boolean;
   // Legacy field, still included in WASM eval output, but not in use. (not included in new policies)
   description?: string;
-  severity: SEVERITY | 'none'; // the 'null' value can be provided by the backend
+  severity: SEVERITY | "none"; // the 'null' value can be provided by the backend
   msg: string;
   issue: string;
   impact: string;
@@ -171,7 +171,7 @@ export interface PolicyMetadata {
   // Included only in new policies
   // Only custom rules will have a string remediation field
   remediation?: Partial<
-    Record<'terraform' | 'cloudformation' | 'arm' | 'kubernetes', string>
+    Record<"terraform" | "cloudformation" | "arm" | "kubernetes", string>
   >;
   docId?: number;
 }
@@ -180,47 +180,47 @@ export interface PolicyMetadata {
 // TODO: Needs to be fixed at the args module level.
 export type IaCTestFlags = Pick<
   Options & TestOptions & PolicyOptions,
-  | 'org'
-  | 'insecure'
-  | 'debug'
-  | 'experimental'
-  | 'detectionDepth'
-  | 'severityThreshold'
-  | 'json'
-  | 'sarif'
-  | 'report'
-  | 'target-reference'
-  | 'var-file'
+  | "org"
+  | "insecure"
+  | "debug"
+  | "experimental"
+  | "detectionDepth"
+  | "severityThreshold"
+  | "json"
+  | "sarif"
+  | "report"
+  | "target-reference"
+  | "var-file"
 
   // PolicyOptions
-  | 'ignore-policy'
-  | 'policy-path'
+  | "ignore-policy"
+  | "policy-path"
   // Tags
-  | 'tags'
+  | "tags"
   // Report options
-  | 'remote-repo-url'
-  | 'target-name'
+  | "remote-repo-url"
+  | "target-name"
 > & {
   // Supported flags not yet covered by Options or TestOptions
-  'json-file-output'?: string;
-  'sarif-file-output'?: string;
+  "json-file-output"?: string;
+  "sarif-file-output"?: string;
   v?: boolean;
   version?: boolean;
   h?: boolean;
-  help?: 'help';
+  help?: "help";
   q?: boolean;
   quiet?: boolean;
   path?: string;
   // Allows the caller to provide the path to a WASM bundle.
   rules?: string;
   // Enables Snyk Cloud custom rules
-  'custom-rules'?: boolean;
-  'snyk-cloud-environment'?: string;
+  "custom-rules"?: boolean;
+  "snyk-cloud-environment"?: string;
   // Tags and attributes
-  'project-tags'?: string;
-  'project-environment'?: string;
-  'project-lifecycle'?: string;
-  'project-business-criticality'?: string;
+  "project-tags"?: string;
+  "project-environment"?: string;
+  "project-lifecycle"?: string;
+  "project-business-criticality"?: string;
 } & TerraformPlanFlags;
 
 // Flags specific for Terraform plan scanning
@@ -229,8 +229,8 @@ interface TerraformPlanFlags {
 }
 
 export enum TerraformPlanScanMode {
-  DeltaScan = 'resource-changes', // default value
-  FullScan = 'planned-values',
+  DeltaScan = "resource-changes", // default value
+  FullScan = "planned-values"
 }
 
 export interface TerraformPlanResource {
@@ -243,7 +243,7 @@ export interface TerraformPlanResource {
 }
 
 export interface TerraformPlanResourceChange
-  extends Omit<TerraformPlanResource, 'values'> {
+  extends Omit<TerraformPlanResource, "values"> {
   change: {
     actions: ResourceActions;
     before: Record<string, unknown> | null; // will be null when the action is `create`
@@ -277,26 +277,26 @@ export interface TerraformScanInput {
 
 // taken from: https://www.terraform.io/docs/internals/json-format.html#change-representation
 export type ResourceActions =
-  | ['no-op']
-  | ['create']
-  | ['read']
-  | ['update']
-  | ['delete', 'create'] // resources you cannot update in place
-  | ['create', 'delete'] // for zero-downtime upgrades
-  | ['delete'];
+  | ["no-op"]
+  | ["create"]
+  | ["read"]
+  | ["update"]
+  | ["delete", "create"] // resources you cannot update in place
+  | ["create", "delete"] // for zero-downtime upgrades
+  | ["delete"];
 
 // we will be scanning the `create` & `update` actions only.
 export const VALID_RESOURCE_ACTIONS_FOR_DELTA_SCAN: ResourceActions[] = [
-  ['create'],
-  ['update'],
-  ['create', 'delete'],
-  ['delete', 'create'],
+  ["create"],
+  ["update"],
+  ["create", "delete"],
+  ["delete", "create"]
 ];
 
 // scans all actions including 'no-op' in order to iterate on all resources.
 export const VALID_RESOURCE_ACTIONS_FOR_FULL_SCAN: ResourceActions[] = [
-  ['no-op'],
-  ...VALID_RESOURCE_ACTIONS_FOR_DELTA_SCAN,
+  ["no-op"],
+  ...VALID_RESOURCE_ACTIONS_FOR_DELTA_SCAN
 ];
 
 // Error codes used for Analytics & Debugging
@@ -408,7 +408,7 @@ export enum IaCErrorCodes {
   SubmoduleLoadingError = 3000,
   MissingRemoteSubmodulesError = 3001,
   EvaluationError = 3002,
-  MissingTermError = 3003,
+  MissingTermError = 3003
 }
 
 export interface TestReturnValue {
@@ -424,16 +424,16 @@ export interface OCIRegistryURLComponents {
 }
 
 export enum PerformanceAnalyticsKey {
-  InitLocalCache = 'cache-init-ms',
-  FileLoading = 'file-loading-ms',
-  FileParsing = 'file-parsing-ms',
-  FileScanning = 'file-scanning-ms',
-  OrgSettings = 'org-settings-ms',
-  CustomSeverities = 'custom-severities-ms',
-  ResultFormatting = 'results-formatting-ms',
-  UsageTracking = 'usage-tracking-ms',
-  CacheCleanup = 'cache-cleanup-ms',
-  Total = 'total-iac-ms',
+  InitLocalCache = "cache-init-ms",
+  FileLoading = "file-loading-ms",
+  FileParsing = "file-parsing-ms",
+  FileScanning = "file-scanning-ms",
+  OrgSettings = "org-settings-ms",
+  CustomSeverities = "custom-severities-ms",
+  ResultFormatting = "results-formatting-ms",
+  UsageTracking = "usage-tracking-ms",
+  CacheCleanup = "cache-cleanup-ms",
+  Total = "total-iac-ms"
 }
 
 export interface ShareResultsOutput {

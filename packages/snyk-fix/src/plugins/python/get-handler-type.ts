@@ -1,10 +1,10 @@
-import * as pathLib from 'path';
+import * as pathLib from "path";
 
-import { EntityToFix } from '../../types';
-import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
+import { EntityToFix } from "../../types";
+import { SUPPORTED_HANDLER_TYPES } from "./supported-handler-types";
 
 export function getHandlerType(
-  entity: EntityToFix,
+  entity: EntityToFix
 ): SUPPORTED_HANDLER_TYPES | null {
   const targetFile = entity.scanResult.identity.targetFile;
 
@@ -20,23 +20,23 @@ export function getHandlerType(
   const path = pathLib.parse(targetFile);
   if (isRequirementsTxtManifest(targetFile)) {
     return SUPPORTED_HANDLER_TYPES.REQUIREMENTS;
-  } else if (['Pipfile'].includes(path.base)) {
+  } else if (["Pipfile"].includes(path.base)) {
     return SUPPORTED_HANDLER_TYPES.PIPFILE;
-  } else if (['pyproject.toml', 'poetry.lock'].includes(path.base)) {
+  } else if (["pyproject.toml", "poetry.lock"].includes(path.base)) {
     return SUPPORTED_HANDLER_TYPES.POETRY;
   }
   return null;
 }
 
 export function isRequirementsTxtManifest(targetFile: string): boolean {
-  return targetFile.endsWith('.txt');
+  return targetFile.endsWith(".txt");
 }
 
 function getTypeFromPackageManager(packageManager: string) {
   switch (packageManager) {
-    case 'pip':
+    case "pip":
       return SUPPORTED_HANDLER_TYPES.REQUIREMENTS;
-    case 'poetry':
+    case "poetry":
       return SUPPORTED_HANDLER_TYPES.POETRY;
     default:
       return null;

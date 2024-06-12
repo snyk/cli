@@ -1,4 +1,4 @@
-import * as registryClient from '@snyk/docker-registry-v2-client';
+import * as registryClient from "@snyk/docker-registry-v2-client";
 
 export type GetManifestResponse = {
   schemaVersion: number;
@@ -20,14 +20,14 @@ export interface OciRegistry {
 
 export class RemoteOciRegistry implements OciRegistry {
   private static options = {
-    acceptManifest: 'application/vnd.oci.image.manifest.v1+json',
-    acceptLayers: 'application/vnd.oci.image.layer.v1.tar+gzip',
+    acceptManifest: "application/vnd.oci.image.manifest.v1+json",
+    acceptLayers: "application/vnd.oci.image.layer.v1.tar+gzip"
   };
 
   constructor(
     private registry: string,
     private username?: string,
-    private password?: string,
+    private password?: string
   ) {}
 
   getManifest(repository: string, tag: string): Promise<GetManifestResponse> {
@@ -37,13 +37,13 @@ export class RemoteOciRegistry implements OciRegistry {
       tag,
       this.username,
       this.password,
-      RemoteOciRegistry.options,
+      RemoteOciRegistry.options
     );
   }
 
   async getLayer(
     repository: string,
-    digest: string,
+    digest: string
   ): Promise<GetLayerResponse> {
     const blob = await registryClient.getLayer(
       this.registry,
@@ -51,7 +51,7 @@ export class RemoteOciRegistry implements OciRegistry {
       digest,
       this.username,
       this.password,
-      RemoteOciRegistry.options,
+      RemoteOciRegistry.options
     );
     return { blob };
   }

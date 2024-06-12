@@ -1,46 +1,46 @@
-import { InspectResult } from '@snyk/cli-interface/legacy/plugin';
-import chalk from 'chalk';
-import config from '../config';
-import { isCI } from '../is-ci';
-import { makeRequest } from '../request/promise';
-import { Contributor, MonitorResult, Options, PolicyOptions } from '../types';
-import { spinner } from '../../lib/spinner';
-import { getPlugin } from './plugins';
-import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
-import { formatErrorMonitorOutput, formatMonitorOutput } from '../formatters';
-import { getExtraProjectCount } from '../plugins/get-extra-project-count';
+import { InspectResult } from "@snyk/cli-interface/legacy/plugin";
+import chalk from "chalk";
+import config from "../config";
+import { isCI } from "../is-ci";
+import { makeRequest } from "../request/promise";
+import { Contributor, MonitorResult, Options, PolicyOptions } from "../types";
+import { spinner } from "../../lib/spinner";
+import { getPlugin } from "./plugins";
+import { BadResult, GoodResult } from "../../cli/commands/monitor/types";
+import { formatErrorMonitorOutput, formatMonitorOutput } from "../formatters";
+import { getExtraProjectCount } from "../plugins/get-extra-project-count";
 import {
   AuthFailedError,
   DockerImageNotFoundError,
-  MonitorError,
-} from '../errors';
+  MonitorError
+} from "../errors";
 import {
   Ecosystem,
   ScanResult,
   EcosystemMonitorResult,
   EcosystemMonitorError,
   MonitorDependenciesRequest,
-  MonitorDependenciesResponse,
-} from './types';
-import { findAndLoadPolicyForScanResult } from './policy';
-import { getAuthHeader } from '../api-token';
-import { resolveAndMonitorFacts } from './resolve-monitor-facts';
+  MonitorDependenciesResponse
+} from "./types";
+import { findAndLoadPolicyForScanResult } from "./policy";
+import { getAuthHeader } from "../api-token";
+import { resolveAndMonitorFacts } from "./resolve-monitor-facts";
 import {
   generateProjectAttributes,
   generateTags,
   validateProjectAttributes,
-  validateTags,
-} from '../../cli/commands/monitor';
-import { isUnmanagedEcosystem } from './common';
-import { findAndLoadPolicy } from '../policy';
+  validateTags
+} from "../../cli/commands/monitor";
+import { isUnmanagedEcosystem } from "./common";
+import { findAndLoadPolicy } from "../policy";
 
-const SEPARATOR = '\n-------------------------------------------------------\n';
+const SEPARATOR = "\n-------------------------------------------------------\n";
 
 export async function monitorEcosystem(
   ecosystem: Ecosystem,
   paths: string[],
   options: Options & PolicyOptions,
-  contributors?: Contributor[],
+  contributors?: Contributor[]
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const plugin = getPlugin(ecosystem);
 
@@ -55,21 +55,21 @@ export async function monitorEcosystem(
       const pluginResponse = await plugin.scan(options);
       scanResultsByPath[path] = pluginResponse.scanResults;
 
-      const policy = await findAndLoadPolicy(path, 'cpp', options);
+      const policy = await findAndLoadPolicy(path, "cpp", options);
       if (policy) {
         scanResultsByPath[path].forEach(
-          (scanResult) => (scanResult.policy = policy.toString()),
+          scanResult => (scanResult.policy = policy.toString())
         );
       }
     } catch (error) {
       if (
-        ecosystem === 'docker' &&
+        ecosystem === "docker" &&
         error.statusCode === 401 &&
-        error.message === 'authentication required'
+        error.message === "authentication required"
       ) {
         throw new DockerImageNotFoundError(path);
       }
-      if (ecosystem === 'docker' && error.message === 'invalid image format') {
+      if (ecosystem === "docker" && error.message === "invalid image format") {
         throw new DockerImageNotFoundError(path);
       }
 
@@ -82,7 +82,7 @@ export async function monitorEcosystem(
     ecosystem,
     scanResultsByPath,
     options,
-    contributors,
+    contributors
   );
   return [monitorResults, errors];
 }
@@ -91,7 +91,7 @@ async function selectAndExecuteMonitorStrategy(
   ecosystem: Ecosystem,
   scanResultsByPath: { [dir: string]: ScanResult[] },
   options: Options,
-  contributors?: Contributor[],
+  contributors?: Contributor[]
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   return isUnmanagedEcosystem(ecosystem)
     ? await resolveAndMonitorFacts(scanResultsByPath, options, contributors)
@@ -100,11 +100,11 @@ async function selectAndExecuteMonitorStrategy(
 
 export async function generateMonitorDependenciesRequest(
   scanResult: ScanResult,
-  options: Options,
+  options: Options
 ): Promise<MonitorDependenciesRequest> {
   // WARNING! This mutates the payload. The project name logic should be handled in the plugin.
   scanResult.name =
-    options['project-name'] || config.PROJECT_NAME || scanResult.name;
+    options["project-name"] || config.PROJECT_NAME || scanResult.name;
   // WARNING! This mutates the payload. Policy logic should be in the plugin.
   const policy = await findAndLoadPolicyForScanResult(scanResult, options);
   if (policy !== undefined) {
@@ -113,10 +113,10 @@ export async function generateMonitorDependenciesRequest(
 
   return {
     scanResult,
-    method: 'cli',
-    projectName: options['project-name'] || config.PROJECT_NAME || undefined,
+    method: "cli",
+    projectName: options["project-name"] || config.PROJECT_NAME || undefined,
     tags: generateTags(options),
-    attributes: generateProjectAttributes(options),
+    attributes: generateProjectAttributes(options)
   };
 }
 
@@ -124,7 +124,7 @@ async function monitorDependencies(
   scans: {
     [dir: string]: ScanResult[];
   },
-  options: Options,
+  options: Options
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const results: EcosystemMonitorResult[] = [];
   const errors: EcosystemMonitorError[] = [];
@@ -133,32 +133,32 @@ async function monitorDependencies(
     for (const scanResult of scanResults) {
       const monitorDependenciesRequest = await generateMonitorDependenciesRequest(
         scanResult,
-        options,
+        options
       );
 
       const configOrg = config.org ? decodeURIComponent(config.org) : undefined;
 
       const payload = {
-        method: 'PUT',
+        method: "PUT",
         url: `${config.API}/monitor-dependencies`,
         json: true,
         headers: {
-          'x-is-ci': isCI(),
-          authorization: getAuthHeader(),
+          "x-is-ci": isCI(),
+          authorization: getAuthHeader()
         },
         body: monitorDependenciesRequest,
         qs: {
-          org: options.org || configOrg,
-        },
+          org: options.org || configOrg
+        }
       };
       try {
         const response = await makeRequest<MonitorDependenciesResponse>(
-          payload,
+          payload
         );
         results.push({
           ...response,
           path,
-          scanResult,
+          scanResult
         });
       } catch (error) {
         if (error.code === 401) {
@@ -168,9 +168,9 @@ async function monitorDependencies(
           throw new MonitorError(error.code, error.message);
         }
         errors.push({
-          error: 'Could not monitor dependencies in ' + path,
+          error: "Could not monitor dependencies in " + path,
           path,
-          scanResult,
+          scanResult
         });
       }
     }
@@ -183,10 +183,10 @@ export async function getFormattedMonitorOutput(
   results: Array<GoodResult | BadResult>,
   monitorResults: EcosystemMonitorResult[],
   errors: EcosystemMonitorError[],
-  options: Options,
+  options: Options
 ): Promise<string> {
   for (const monitorResult of monitorResults) {
-    let monOutput = '';
+    let monOutput = "";
     if (monitorResult.ok) {
       monOutput = formatMonitorOutput(
         monitorResult.scanResult.identity.type,
@@ -198,33 +198,33 @@ export async function getFormattedMonitorOutput(
           options,
           // TODO: Fix to pass the old "inspectResult.plugin.meta.allSubProjectNames", which ecosystem uses this?
           // "allSubProjectNames" can become a Fact returned by a plugin.
-          {} as InspectResult,
-        ),
+          {} as InspectResult
+        )
       );
     } else {
       monOutput = formatErrorMonitorOutput(
         monitorResult.scanResult.identity.type,
         monitorResult as MonitorResult,
-        options,
+        options
       );
     }
     results.push({
       ok: true,
       data: monOutput,
       path: monitorResult.path,
-      projectName: monitorResult.id,
+      projectName: monitorResult.id
     });
   }
   for (const monitorError of errors) {
     results.push({
       ok: false,
       data: new MonitorError(500, monitorError.error),
-      path: monitorError.path,
+      path: monitorError.path
     });
   }
 
   const outputString = results
-    .map((res) => {
+    .map(res => {
       if (res.ok) {
         return res.data;
       }
@@ -234,15 +234,15 @@ export async function getFormattedMonitorOutput(
           ? chalk.bold.red(res.data.userMessage)
           : res.data
           ? res.data.message
-          : 'Unknown error occurred.';
+          : "Unknown error occurred.";
 
       return (
-        chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') + errorMessage
+        chalk.bold.white("\nMonitoring " + res.path + "...\n\n") + errorMessage
       );
     })
-    .join('\n' + SEPARATOR);
+    .join("\n" + SEPARATOR);
 
-  if (results.every((res) => res.ok)) {
+  if (results.every(res => res.ok)) {
     return outputString;
   }
 

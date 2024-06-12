@@ -1,4 +1,4 @@
-import { EntityToFix, WithUserMessage } from '../../../types';
+import { EntityToFix, WithUserMessage } from "../../../types";
 
 interface Supported {
   supported: true;
@@ -10,23 +10,23 @@ interface NotSupported {
 }
 
 export function projectTypeSupported(
-  res: Supported | NotSupported,
+  res: Supported | NotSupported
 ): res is Supported {
-  return !('reason' in res);
+  return !("reason" in res);
 }
 
 export async function isSupported(
-  entity: EntityToFix,
+  entity: EntityToFix
 ): Promise<Supported | NotSupported> {
   const remediationData = entity.testResult.remediation;
 
   if (!remediationData) {
-    return { supported: false, reason: 'No remediation data available' };
+    return { supported: false, reason: "No remediation data available" };
   }
   if (!remediationData.pin || Object.keys(remediationData.pin).length === 0) {
     return {
       supported: false,
-      reason: 'There is no actionable remediation to apply',
+      reason: "There is no actionable remediation to apply"
     };
   }
 
@@ -34,7 +34,7 @@ export async function isSupported(
 }
 
 export async function partitionByFixable(
-  entities: EntityToFix[],
+  entities: EntityToFix[]
 ): Promise<{
   skipped: Array<WithUserMessage<EntityToFix>>;
   fixable: EntityToFix[];
@@ -49,7 +49,7 @@ export async function partitionByFixable(
     }
     skipped.push({
       original: entity,
-      userMessage: isSupportedResponse.reason,
+      userMessage: isSupportedResponse.reason
     });
   }
   return { fixable, skipped };

@@ -1,18 +1,18 @@
-import * as debugLib from 'debug';
+import * as debugLib from "debug";
 
-import { PluginFixResponse } from '../../../../types';
+import { PluginFixResponse } from "../../../../types";
 import {
   EntityToFix,
   FixChangesSummary,
-  FixOptions,
-} from '../../../../../types';
+  FixOptions
+} from "../../../../../types";
 
-import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
-import { generateUpgrades } from './generate-upgrades';
-import { pipenvAdd } from './pipenv-add';
-import { isSuccessfulChange } from '../../attempted-changes-summary';
+import { NoFixesCouldBeAppliedError } from "../../../../../lib/errors/no-fixes-applied";
+import { generateUpgrades } from "./generate-upgrades";
+import { pipenvAdd } from "./pipenv-add";
+import { isSuccessfulChange } from "../../attempted-changes-summary";
 
-const debug = debugLib('snyk-fix:python:Pipfile');
+const debug = debugLib("snyk-fix:python:Pipfile");
 
 function chooseFixStrategy(options: FixOptions) {
   return options.sequentialFix ? fixSequentially : fixAll;
@@ -20,7 +20,7 @@ function chooseFixStrategy(options: FixOptions) {
 
 export async function updateDependencies(
   entity: EntityToFix,
-  options: FixOptions,
+  options: FixOptions
 ): Promise<PluginFixResponse> {
   const handlerResult = await chooseFixStrategy(options)(entity, options);
   return handlerResult;
@@ -28,19 +28,19 @@ export async function updateDependencies(
 
 async function fixAll(
   entity: EntityToFix,
-  options: FixOptions,
+  options: FixOptions
 ): Promise<PluginFixResponse> {
   const handlerResult: PluginFixResponse = {
     succeeded: [],
     failed: [],
-    skipped: [],
+    skipped: []
   };
   const changes: FixChangesSummary[] = [];
   try {
     const { upgrades } = await generateUpgrades(entity);
     if (!upgrades.length) {
       throw new NoFixesCouldBeAppliedError(
-        'Failed to calculate package updates to apply',
+        "Failed to calculate package updates to apply"
       );
     }
     // TODO: for better support we need to:
@@ -57,25 +57,25 @@ async function fixAll(
       throw new NoFixesCouldBeAppliedError();
     }
 
-    if (!changes.some((c) => isSuccessfulChange(c))) {
+    if (!changes.some(c => isSuccessfulChange(c))) {
       handlerResult.failed.push({
         original: entity,
-        changes,
+        changes
       });
     } else {
       handlerResult.succeeded.push({
         original: entity,
-        changes,
+        changes
       });
     }
   } catch (error) {
     debug(
-      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
+      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`
     );
     handlerResult.failed.push({
       original: entity,
       error,
-      tip: error.tip,
+      tip: error.tip
     });
   }
   return handlerResult;
@@ -83,12 +83,12 @@ async function fixAll(
 
 async function fixSequentially(
   entity: EntityToFix,
-  options: FixOptions,
+  options: FixOptions
 ): Promise<PluginFixResponse> {
   const handlerResult: PluginFixResponse = {
     succeeded: [],
     failed: [],
-    skipped: [],
+    skipped: []
   };
   const { upgrades } = await generateUpgrades(entity);
   // TODO: for better support we need to:
@@ -102,7 +102,7 @@ async function fixSequentially(
   try {
     if (!upgrades.length) {
       throw new NoFixesCouldBeAppliedError(
-        'Failed to calculate package updates to apply',
+        "Failed to calculate package updates to apply"
       );
     }
     // update prod dependencies first
@@ -116,25 +116,25 @@ async function fixSequentially(
       throw new NoFixesCouldBeAppliedError();
     }
 
-    if (!changes.some((c) => isSuccessfulChange(c))) {
+    if (!changes.some(c => isSuccessfulChange(c))) {
       handlerResult.failed.push({
         original: entity,
-        changes,
+        changes
       });
     } else {
       handlerResult.succeeded.push({
         original: entity,
-        changes,
+        changes
       });
     }
   } catch (error) {
     debug(
-      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
+      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`
     );
     handlerResult.failed.push({
       original: entity,
       tip: error.tip,
-      error,
+      error
     });
   }
   return handlerResult;

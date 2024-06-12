@@ -1,11 +1,11 @@
-import { DepGraphData } from '@snyk/dep-graph';
-import { SEVERITY } from '../snyk-test/common';
-import { RemediationChanges } from '../snyk-test/legacy';
-import { Options, ProjectAttributes, Tag } from '../types';
+import { DepGraphData } from "@snyk/dep-graph";
+import { SEVERITY } from "../snyk-test/common";
+import { RemediationChanges } from "../snyk-test/legacy";
+import { Options, ProjectAttributes, Tag } from "../types";
 
-export type Ecosystem = 'cpp' | 'docker' | 'code';
+export type Ecosystem = "cpp" | "docker" | "code";
 
-export type FindingType = 'iacIssue';
+export type FindingType = "iacIssue";
 
 export interface PluginResponse {
   scanResults: ScanResult[];
@@ -114,11 +114,11 @@ export interface EcosystemPlugin {
     scanResults: ScanResult[],
     testResults: TestResult[],
     errors: string[],
-    options: Options,
+    options: Options
   ) => Promise<string>;
   test?: (
     paths: string[],
-    options: Options,
+    options: Options
   ) => Promise<{ readableResult: string; sarifResult?: string }>;
 }
 
@@ -153,7 +153,7 @@ export interface MonitorDependenciesRequest {
    */
   projectName?: string;
   policy?: string;
-  method?: 'cli';
+  method?: "cli";
   tags?: Tag[];
   attributes?: ProjectAttributes;
 }

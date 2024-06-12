@@ -1,28 +1,28 @@
-import { makeRequest } from '../../../../../lib/request';
-import config from '../../../../../lib/config';
-import { getAuthHeader } from '../../../../../lib/api-token';
-import { CustomError } from '../../../../../lib/errors';
+import { makeRequest } from "../../../../../lib/request";
+import config from "../../../../../lib/config";
+import { getAuthHeader } from "../../../../../lib/api-token";
+import { CustomError } from "../../../../../lib/errors";
 
 export async function trackUsage(
   formattedResults: TrackableResult[],
-  org: string, // e.g. "my.org"
+  org: string // e.g. "my.org"
 ): Promise<void> {
-  const trackingData = formattedResults.map((res) => {
+  const trackingData = formattedResults.map(res => {
     return {
       isPrivate: res.meta.isPrivate,
-      issuesPrevented: res.result.cloudConfigResults.length,
+      issuesPrevented: res.result.cloudConfigResults.length
     };
   });
   const trackingResponse = await makeRequest({
-    method: 'POST',
+    method: "POST",
     headers: {
-      Authorization: getAuthHeader(),
+      Authorization: getAuthHeader()
     },
     url: `${config.API}/track-iac-usage/cli`,
     body: { results: trackingData },
     qs: { org },
     gzip: true,
-    json: true,
+    json: true
   });
   switch (trackingResponse.res.statusCode) {
     case 200:
@@ -31,8 +31,8 @@ export async function trackUsage(
       throw new TestLimitReachedError();
     default:
       throw new CustomError(
-        'An error occurred while attempting to track test usage: ' +
-          JSON.stringify(trackingResponse.res.body),
+        "An error occurred while attempting to track test usage: " +
+          JSON.stringify(trackingResponse.res.body)
       );
   }
 }
@@ -40,7 +40,7 @@ export async function trackUsage(
 export class TestLimitReachedError extends CustomError {
   constructor() {
     super(
-      'Test limit reached! You have exceeded your infrastructure as code test allocation for this billing period.',
+      "Test limit reached! You have exceeded your infrastructure as code test allocation for this billing period."
     );
   }
 }

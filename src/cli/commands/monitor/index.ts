@@ -1,10 +1,10 @@
-import chalk from 'chalk';
-import * as fs from 'fs';
-import * as Debug from 'debug';
-import * as pathUtil from 'path';
-import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { checkOSSPaths } from '../../../lib/check-paths';
-import * as theme from '../../../lib/theme';
+import chalk from "chalk";
+import * as fs from "fs";
+import * as Debug from "debug";
+import * as pathUtil from "path";
+import { legacyPlugin as pluginApi } from "@snyk/cli-interface";
+import { checkOSSPaths } from "../../../lib/check-paths";
+import * as theme from "../../../lib/theme";
 
 import {
   MonitorOptions,
@@ -16,42 +16,42 @@ import {
   PROJECT_CRITICALITY,
   PROJECT_ENVIRONMENT,
   PROJECT_LIFECYCLE,
-  Tag,
-} from '../../../lib/types';
-import config from '../../../lib/config';
-import * as detect from '../../../lib/detect';
-import { GoodResult, BadResult } from './types';
-import { spinner } from '../../../lib/spinner';
-import * as analytics from '../../../lib/analytics';
-import { MethodArgs } from '../../args';
-import { apiOrOAuthTokenExists } from '../../../lib/api-token';
-import { maybePrintDepTree, maybePrintDepGraph } from '../../../lib/print-deps';
-import { monitor as snykMonitor } from '../../../lib/monitor';
-import { processJsonMonitorResponse } from './process-json-monitor';
-import snyk = require('../../../lib'); // TODO(kyegupov): fix import
-import { formatMonitorOutput } from '../../../lib/formatters';
-import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
-import { getExtraProjectCount } from '../../../lib/plugins/get-extra-project-count';
-import { extractPackageManager } from '../../../lib/plugins/extract-package-manager';
-import { MultiProjectResultCustom } from '../../../lib/plugins/get-multi-plugin-result';
-import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-multi-plugin-res-to-multi-custom';
-import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
-import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
-import { getContributors } from '../../../lib/monitor/dev-count-analysis';
+  Tag
+} from "../../../lib/types";
+import config from "../../../lib/config";
+import * as detect from "../../../lib/detect";
+import { GoodResult, BadResult } from "./types";
+import { spinner } from "../../../lib/spinner";
+import * as analytics from "../../../lib/analytics";
+import { MethodArgs } from "../../args";
+import { apiOrOAuthTokenExists } from "../../../lib/api-token";
+import { maybePrintDepTree, maybePrintDepGraph } from "../../../lib/print-deps";
+import { monitor as snykMonitor } from "../../../lib/monitor";
+import { processJsonMonitorResponse } from "./process-json-monitor";
+import snyk = require("../../../lib"); // TODO(kyegupov): fix import
+import { formatMonitorOutput } from "../../../lib/formatters";
+import { getDepsFromPlugin } from "../../../lib/plugins/get-deps-from-plugin";
+import { getExtraProjectCount } from "../../../lib/plugins/get-extra-project-count";
+import { extractPackageManager } from "../../../lib/plugins/extract-package-manager";
+import { MultiProjectResultCustom } from "../../../lib/plugins/get-multi-plugin-result";
+import { convertMultiResultToMultiCustom } from "../../../lib/plugins/convert-multi-plugin-res-to-multi-custom";
+import { convertSingleResultToMultiCustom } from "../../../lib/plugins/convert-single-splugin-res-to-multi-custom";
+import { PluginMetadata } from "@snyk/cli-interface/legacy/plugin";
+import { getContributors } from "../../../lib/monitor/dev-count-analysis";
 import {
   FailedToRunTestError,
   MonitorError,
   MissingArgError,
-  ValidationError,
-} from '../../../lib/errors';
-import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
-import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
-import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
-import { processCommandArgs } from '../process-command-args';
-import { hasFeatureFlag } from '../../../lib/feature-flags';
+  ValidationError
+} from "../../../lib/errors";
+import { isMultiProjectScan } from "../../../lib/is-multi-project-scan";
+import { getEcosystem, monitorEcosystem } from "../../../lib/ecosystems";
+import { getFormattedMonitorOutput } from "../../../lib/ecosystems/monitor";
+import { processCommandArgs } from "../process-command-args";
+import { hasFeatureFlag } from "../../../lib/feature-flags";
 
-const SEPARATOR = '\n-------------------------------------------------------\n';
-const debug = Debug('snyk');
+const SEPARATOR = "\n-------------------------------------------------------\n";
+const debug = Debug("snyk");
 const appVulnsReleaseWarningMsg = `${theme.icon.WARNING} Important: Beginning January 24th, 2023, application dependencies in container
 images will be scanned by default when using the snyk container test/monitor
 commands. If you are using Snyk in a CI pipeline, action may be required. Read
@@ -62,9 +62,9 @@ more info.`;
 // declaring the type of x as possibly undefined.
 async function promiseOrCleanup<T>(
   p: Promise<T>,
-  cleanup: (x?) => void,
+  cleanup: (x?) => void
 ): Promise<T> {
-  return p.catch((error) => {
+  return p.catch(error => {
     cleanup();
     throw error;
   });
@@ -80,9 +80,9 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     snyk.id = options.id;
   }
 
-  if (options.allSubProjects && options['project-name']) {
+  if (options.allSubProjects && options["project-name"]) {
     throw new Error(
-      '`--all-sub-projects` is currently not compatible with `--project-name`',
+      "`--all-sub-projects` is currently not compatible with `--project-name`"
     );
   }
 
@@ -90,22 +90,22 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     checkOSSPaths(paths, options);
   }
 
-  if (options.docker && options['remote-repo-url']) {
-    throw new Error('`--remote-repo-url` is not supported for container scans');
+  if (options.docker && options["remote-repo-url"]) {
+    throw new Error("`--remote-repo-url` is not supported for container scans");
   }
   if (options.docker) {
     // order is important here, we want:
     // 1) exclude-app-vulns set -> no app vulns
     // 2) app-vulns set -> app-vulns
     // 3) neither set -> containerAppVulnsEnabled
-    if (options['exclude-app-vulns']) {
-      options['exclude-app-vulns'] = true;
-    } else if (options['app-vulns']) {
-      options['exclude-app-vulns'] = false;
+    if (options["exclude-app-vulns"]) {
+      options["exclude-app-vulns"] = true;
+    } else if (options["app-vulns"]) {
+      options["exclude-app-vulns"] = false;
     } else {
-      options['exclude-app-vulns'] = !(await hasFeatureFlag(
-        'containerCliAppVulnsEnabled',
-        options,
+      options["exclude-app-vulns"] = !(await hasFeatureFlag(
+        "containerCliAppVulnsEnabled",
+        options
       ));
 
       // we can't print the warning message with JSON output as that would make
@@ -113,9 +113,9 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       // We also only want to print the message if the user did not overwrite
       // the default with one of the flags.
       if (
-        options['exclude-app-vulns'] &&
-        !options['json'] &&
-        !options['sarif']
+        options["exclude-app-vulns"] &&
+        !options["json"] &&
+        !options["sarif"]
       ) {
         console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
       }
@@ -135,7 +135,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     try {
       contributors = await getContributors();
     } catch (err) {
-      debug('error getting repo contributors', err);
+      debug("error getting repo contributors", err);
     }
   }
 
@@ -145,7 +145,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       ecosystem,
       paths,
       options,
-      contributors,
+      contributors
     );
 
     const [monitorResults, monitorErrors] = commandResult;
@@ -154,7 +154,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       results,
       monitorResults,
       monitorErrors,
-      options,
+      options
     );
   }
 
@@ -163,12 +163,12 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     debug(`Processing ${path}...`);
     try {
       validateMonitorPath(path, options.docker);
-      let analysisType = 'all';
+      let analysisType = "all";
       let packageManager;
       if (isMultiProjectScan(options)) {
-        analysisType = 'all';
+        analysisType = "all";
       } else if (options.docker) {
-        analysisType = 'docker';
+        analysisType = "docker";
       } else {
         packageManager = detect.detectPackageManager(path, options);
       }
@@ -177,7 +177,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
         name: string;
       }> = [];
       const unsupportedPackageManager = unsupportedPackageManagers.find(
-        (pm) => pm.name === packageManager,
+        pm => pm.name === packageManager
       );
       if (unsupportedPackageManager) {
         return `${unsupportedPackageManager.label} projects do not currently support "snyk monitor"`;
@@ -188,20 +188,20 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
           : options.file || detect.detectPackageFile(path);
 
       const displayPath = pathUtil.relative(
-        '.',
-        pathUtil.join(path, targetFile || ''),
+        ".",
+        pathUtil.join(path, targetFile || "")
       );
 
       const analyzingDepsSpinnerLabel =
-        'Analyzing ' +
+        "Analyzing " +
         (packageManager ? packageManager : analysisType) +
-        ' dependencies for ' +
+        " dependencies for " +
         displayPath;
 
       await spinner(analyzingDepsSpinnerLabel);
 
       // Scan the project dependencies via a plugin
-      debug('getDepsFromPlugin ...');
+      debug("getDepsFromPlugin ...");
 
       // each plugin will be asked to scan once per path
       // some return single InspectResult & newer ones return Multi
@@ -209,11 +209,11 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
         getDepsFromPlugin(path, {
           ...options,
           path,
-          packageManager,
+          packageManager
         }),
-        spinner.clear(analyzingDepsSpinnerLabel),
+        spinner.clear(analyzingDepsSpinnerLabel)
       );
-      analytics.add('pluginName', inspectResult.plugin.name);
+      analytics.add("pluginName", inspectResult.plugin.name);
 
       // We send results from "all-sub-projects" scanning as different Monitor objects
       // multi result will become default, so start migrating code to always work with it
@@ -228,17 +228,17 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       const failedResults = (inspectResult as MultiProjectResultCustom)
         .failedResults;
       if (failedResults?.length) {
-        failedResults.forEach((result) => {
+        failedResults.forEach(result => {
           results.push({
             ok: false,
             data: new MonitorError(500, result.errMessage),
-            path: result.targetFile || '',
+            path: result.targetFile || ""
           });
         });
       }
 
       const postingMonitorSpinnerLabel =
-        'Posting monitor snapshot for ' + displayPath + ' ...';
+        "Posting monitor snapshot for " + displayPath + " ...";
       await spinner(postingMonitorSpinnerLabel);
 
       // Post the project dependencies to the Registry
@@ -246,19 +246,19 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
         try {
           if (!projectDeps.depGraph && !projectDeps.depTree) {
             debug(
-              'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+              "scannedProject is missing depGraph or depTree, cannot run test/monitor"
             );
             throw new FailedToRunTestError(
-              'Your monitor request could not be completed. Please email support@snyk.io',
+              "Your monitor request could not be completed. Please email support@snyk.io"
             );
           }
           const extractedPackageManager = extractPackageManager(
             projectDeps,
             perProjectResult,
-            options as MonitorOptions & Options,
+            options as MonitorOptions & Options
           );
 
-          analytics.add('packageManager', extractedPackageManager);
+          analytics.add("packageManager", extractedPackageManager);
 
           const projectName = getProjectName(projectDeps);
           if (projectDeps.depGraph) {
@@ -275,7 +275,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
           const targetFileRelativePath =
             projectDeps.plugin.targetFile ||
             (tFile && pathUtil.join(pathUtil.resolve(path), tFile)) ||
-            '';
+            "";
 
           const res: MonitorResult = await promiseOrCleanup(
             snykMonitor(
@@ -287,9 +287,9 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
               targetFileRelativePath,
               contributors,
               generateProjectAttributes(options),
-              generateTags(options),
+              generateTags(options)
             ),
-            spinner.clear(postingMonitorSpinnerLabel),
+            spinner.clear(postingMonitorSpinnerLabel)
           );
 
           res.path = path;
@@ -298,7 +298,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
             res,
             options,
             projectName,
-            await getExtraProjectCount(path, options, inspectResult),
+            await getExtraProjectCount(path, options, inspectResult)
           );
           // push a good result
           results.push({ ok: true, data: monOutput, path, projectName });
@@ -321,7 +321,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   const output = results
-    .map((res) => {
+    .map(res => {
       if (res.ok) {
         return res.data;
       }
@@ -331,15 +331,15 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
           ? chalk.bold.red(res.data.userMessage)
           : res.data
           ? res.data.message
-          : 'Unknown error occurred.';
+          : "Unknown error occurred.";
 
       return (
-        chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') + errorMessage
+        chalk.bold.white("\nMonitoring " + res.path + "...\n\n") + errorMessage
       );
     })
-    .join('\n' + SEPARATOR);
+    .join("\n" + SEPARATOR);
 
-  if (results.every((res) => res.ok)) {
+  if (results.every(res => res.ok)) {
     return output;
   }
 
@@ -348,14 +348,14 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
 
 function generateMonitorMeta(options, packageManager?): MonitorMeta {
   return {
-    method: 'cli',
+    method: "cli",
     packageManager,
-    'policy-path': options['policy-path'],
-    'project-name': options['project-name'] || config.PROJECT_NAME,
+    "policy-path": options["policy-path"],
+    "project-name": options["project-name"] || config.PROJECT_NAME,
     isDocker: !!options.docker,
     prune: !!options.pruneRepeatedSubdependencies,
-    'remote-repo-url': options['remote-repo-url'],
-    targetReference: options['target-reference'],
+    "remote-repo-url": options["remote-repo-url"],
+    targetReference: options["target-reference"]
   };
 }
 
@@ -370,7 +370,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
 function getProjectAttribute<T>(
   attribute: string,
   permitted: Record<string, T>,
-  options: Options,
+  options: Options
 ): T[] | undefined {
   const permittedValues: T[] = Object.values(permitted);
 
@@ -381,7 +381,7 @@ function getProjectAttribute<T>(
   // Explicit flag to clear the existing values for this attribute already set on the project
   // e.g. if you specify --environment=
   // then this means you want to remove existing environment values on the project.
-  if (options[attribute] === '') {
+  if (options[attribute] === "") {
     return [];
   }
 
@@ -389,16 +389,16 @@ function getProjectAttribute<T>(
   // accidentally clearing the existing values.
   if (options[attribute] === true) {
     throw new ValidationError(
-      `--${attribute} must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --${attribute}=`,
+      `--${attribute} must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --${attribute}=`
     );
   }
 
-  const values = options[attribute].split(',');
-  const extra = values.filter((value) => !permittedValues.includes(value));
+  const values = options[attribute].split(",");
+  const extra = values.filter(value => !permittedValues.includes(value));
   if (extra.length > 0) {
     throw new ValidationError(
-      `${extra.length} invalid ${attribute}: ${extra.join(', ')}. ` +
-        `Possible values are: ${permittedValues.join(', ')}`,
+      `${extra.length} invalid ${attribute}: ${extra.join(", ")}. ` +
+        `Possible values are: ${permittedValues.join(", ")}`
     );
   }
 
@@ -414,20 +414,20 @@ export function validateProjectAttributes(options): void {
 export function generateProjectAttributes(options): ProjectAttributes {
   return {
     criticality: getProjectAttribute(
-      'project-business-criticality',
+      "project-business-criticality",
       PROJECT_CRITICALITY,
-      options,
+      options
     ),
     environment: getProjectAttribute(
-      'project-environment',
+      "project-environment",
       PROJECT_ENVIRONMENT,
-      options,
+      options
     ),
     lifecycle: getProjectAttribute(
-      'project-lifecycle',
+      "project-lifecycle",
       PROJECT_LIFECYCLE,
-      options,
-    ),
+      options
+    )
   };
 }
 
@@ -442,20 +442,20 @@ export function generateProjectAttributes(options): ProjectAttributes {
  * @returns List of parsed tags or undefined if they are to be left untouched.
  */
 export function generateTags(options): Tag[] | undefined {
-  if (options['project-tags'] === undefined && options['tags'] === undefined) {
+  if (options["project-tags"] === undefined && options["tags"] === undefined) {
     return undefined;
   }
 
-  if (options['project-tags'] !== undefined && options['tags'] !== undefined) {
+  if (options["project-tags"] !== undefined && options["tags"] !== undefined) {
     throw new ValidationError(
-      'Only one of --tags or --project-tags may be specified, not both',
+      "Only one of --tags or --project-tags may be specified, not both"
     );
   }
 
   const rawTags =
-    options['tags'] === undefined ? options['project-tags'] : options['tags'];
+    options["tags"] === undefined ? options["project-tags"] : options["tags"];
 
-  if (rawTags === '') {
+  if (rawTags === "") {
     return [];
   }
 
@@ -463,23 +463,23 @@ export function generateTags(options): Tag[] | undefined {
   // accidentally clearing the existing tags;
   if (rawTags === true) {
     throw new ValidationError(
-      `--project-tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --project-tags=`,
+      `--project-tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --project-tags=`
     );
   }
 
-  const keyEqualsValuePairs = rawTags.split(',');
+  const keyEqualsValuePairs = rawTags.split(",");
 
   const tags: Tag[] = [];
   for (const keyEqualsValue of keyEqualsValuePairs) {
-    const parts = keyEqualsValue.split('=');
+    const parts = keyEqualsValue.split("=");
     if (parts.length !== 2) {
       throw new ValidationError(
-        `The tag "${keyEqualsValue}" does not have an "=" separating the key and value. For example: --project-tag=KEY=VALUE`,
+        `The tag "${keyEqualsValue}" does not have an "=" separating the key and value. For example: --project-tag=KEY=VALUE`
       );
     }
     tags.push({
       key: parts[0],
-      value: parts[1],
+      value: parts[1]
     });
   }
 

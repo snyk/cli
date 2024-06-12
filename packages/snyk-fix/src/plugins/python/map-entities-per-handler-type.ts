@@ -1,13 +1,13 @@
-import * as debugLib from 'debug';
+import * as debugLib from "debug";
 
-import { EntityToFix, WithUserMessage } from '../../types';
-import { getHandlerType } from './get-handler-type';
-import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
+import { EntityToFix, WithUserMessage } from "../../types";
+import { getHandlerType } from "./get-handler-type";
+import { SUPPORTED_HANDLER_TYPES } from "./supported-handler-types";
 
-const debug = debugLib('snyk-fix:python');
+const debug = debugLib("snyk-fix:python");
 
 export function mapEntitiesPerHandlerType(
-  entities: EntityToFix[],
+  entities: EntityToFix[]
 ): {
   skipped: Array<WithUserMessage<EntityToFix>>;
   entitiesPerType: {
@@ -19,7 +19,7 @@ export function mapEntitiesPerHandlerType(
   } = {
     [SUPPORTED_HANDLER_TYPES.REQUIREMENTS]: [],
     [SUPPORTED_HANDLER_TYPES.PIPFILE]: [],
-    [SUPPORTED_HANDLER_TYPES.POETRY]: [],
+    [SUPPORTED_HANDLER_TYPES.POETRY]: []
   };
 
   const skipped: Array<WithUserMessage<EntityToFix>> = [];

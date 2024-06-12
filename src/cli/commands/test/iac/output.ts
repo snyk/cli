@@ -1,7 +1,7 @@
-import { EOL } from 'os';
+import { EOL } from "os";
 
-import { TestCommandResult } from '../../types';
-import { mapIacTestResult } from '../../../../lib/snyk-test/iac-test-result';
+import { TestCommandResult } from "../../types";
+import { mapIacTestResult } from "../../../../lib/snyk-test/iac-test-result";
 
 import {
   failuresTipOutput,
@@ -13,28 +13,28 @@ import {
   spinnerSuccessMessage,
   IaCTestFailure,
   shouldLogUserMessages,
-  iacTestTitle,
-} from '../../../../lib/formatters/iac-output/text';
-import { extractDataToSendFromResults } from '../../../../lib/formatters/test/format-test-results';
+  iacTestTitle
+} from "../../../../lib/formatters/iac-output/text";
+import { extractDataToSendFromResults } from "../../../../lib/formatters/test/format-test-results";
 
-import { isIacShareResultsOptions } from './local-execution/assert-iac-options-flag';
-import * as ora from 'ora';
-import { CustomError, FormattedCustomError } from '../../../../lib/errors';
+import { isIacShareResultsOptions } from "./local-execution/assert-iac-options-flag";
+import * as ora from "ora";
+import { CustomError, FormattedCustomError } from "../../../../lib/errors";
 import {
   IacFileInDirectory,
   IacOutputMeta,
   Options,
-  TestOptions,
-} from '../../../../lib/types';
-import { IaCTestFlags } from './local-execution/types';
+  TestOptions
+} from "../../../../lib/types";
+import { IaCTestFlags } from "./local-execution/types";
 import {
   shareCustomRulesDisclaimer,
   shareResultsTip,
-  formatTestData,
-} from '../../../../lib/formatters/iac-output/text';
-import { formatShareResultsOutputV2 } from '../../../../lib/formatters/iac-output/text/share-results';
+  formatTestData
+} from "../../../../lib/formatters/iac-output/text";
+import { formatShareResultsOutputV2 } from "../../../../lib/formatters/iac-output/text/share-results";
 
-const SEPARATOR = '\n-------------------------------------------------------\n';
+const SEPARATOR = "\n-------------------------------------------------------\n";
 
 export function buildSpinner(options: IaCTestFlags) {
   if (shouldLogUserMessages(options)) {
@@ -56,7 +56,7 @@ export function buildOutput({
   iacOutputMeta,
   iacScanFailures,
   iacIgnoredIssuesCount,
-  testSpinner,
+  testSpinner
 }: {
   results: any[];
   options: Options & TestOptions;
@@ -70,7 +70,7 @@ export function buildOutput({
   // this is any[] to follow the resArray type above
   const successResults: any[] = [],
     errorResults: any[] = [];
-  results.forEach((result) => {
+  results.forEach(result => {
     if (!(result instanceof Error)) {
       successResults.push(result);
     } else {
@@ -79,11 +79,11 @@ export function buildOutput({
   });
 
   const vulnerableResults = successResults.filter(
-    (res) =>
+    res =>
       (res.vulnerabilities && res.vulnerabilities.length) ||
       (res.result &&
         res.result.cloudConfigResults &&
-        res.result.cloudConfigResults.length),
+        res.result.cloudConfigResults.length)
   );
   const hasErrors = errorResults.length;
   const isPartialSuccess = !hasErrors || successResults.length;
@@ -104,23 +104,23 @@ export function buildOutput({
     stdout: dataToSend,
     stringifiedData,
     stringifiedJsonData,
-    stringifiedSarifData,
+    stringifiedSarifData
   } = extractDataToSendFromResults(results, mappedResults, options);
 
   if (options.json || options.sarif) {
     // if all results are ok (.ok == true)
-    if (mappedResults.every((res) => res.ok)) {
+    if (mappedResults.every(res => res.ok)) {
       return TestCommandResult.createJsonTestCommandResult(
         stringifiedData,
         stringifiedJsonData,
-        stringifiedSarifData,
+        stringifiedSarifData
       );
     }
 
     const err = new Error(stringifiedData) as any;
 
     if (foundVulnerabilities) {
-      err.code = 'VULNS';
+      err.code = "VULNS";
       const dataToSendNoVulns = dataToSend;
       delete dataToSendNoVulns.vulnerabilities;
       err.jsonNoVulns = dataToSendNoVulns;
@@ -140,12 +140,12 @@ export function buildOutput({
     throw err;
   }
 
-  let response = '';
+  let response = "";
 
   const newOutputTestData = formatTestData({
     oldFormattedResults: successResults,
     ignoresCount: iacIgnoredIssuesCount,
-    iacOutputMeta: iacOutputMeta,
+    iacOutputMeta: iacOutputMeta
   });
 
   if (isPartialSuccess) {
@@ -158,15 +158,15 @@ export function buildOutput({
   if (iacScanFailures.length || hasErrors) {
     errorResultsLength = iacScanFailures.length || errorResults.length;
 
-    const thrownErrors: IaCTestFailure[] = errorResults.map((err) => ({
+    const thrownErrors: IaCTestFailure[] = errorResults.map(err => ({
       filePath: err.path,
-      failureReason: err.message,
+      failureReason: err.message
     }));
 
     const allTestFailures: IaCTestFailure[] = iacScanFailures
-      .map((f) => ({
+      .map(f => ({
         filePath: f.filePath,
-        failureReason: f.failureReason,
+        failureReason: f.failureReason
       }))
       .concat(thrownErrors);
 
@@ -178,7 +178,7 @@ export function buildOutput({
       const error: CustomError = allTestFailures
         ? new FormattedCustomError(
             errorResults[0].message,
-            formatFailuresList(allTestFailures),
+            formatFailuresList(allTestFailures)
           )
         : new CustomError(response);
       error.code = errorResults[0].code;
@@ -200,7 +200,7 @@ export function buildOutput({
   }
 
   if (results.length > 1) {
-    response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : '';
+    response += errorResultsLength ? EOL.repeat(2) + failuresTipOutput : "";
   }
 
   response += EOL;
@@ -211,7 +211,7 @@ export function buildOutput({
       projectName: iacOutputMeta.projectName,
       orgName: iacOutputMeta.orgName,
       isIacCustomRulesEntitlementEnabled,
-      isIacShareCliResultsCustomRulesSupported,
+      isIacShareCliResultsCustomRulesSupported
     });
     response += EOL;
   }
@@ -226,7 +226,7 @@ export function buildOutput({
     // translation
     // HACK as there can be different errors, and we pass only the
     // first one
-    error.code = vulnerableResults[0].code || 'VULNS';
+    error.code = vulnerableResults[0].code || "VULNS";
     error.userMessage = vulnerableResults[0].userMessage;
     error.jsonStringifiedResults = stringifiedJsonData;
     error.sarifStringifiedResults = stringifiedSarifData;
@@ -236,7 +236,7 @@ export function buildOutput({
   return TestCommandResult.createHumanReadableTestCommandResult(
     response,
     stringifiedJsonData,
-    stringifiedSarifData,
+    stringifiedSarifData
   );
 }
 
@@ -245,7 +245,7 @@ export function buildShareResultsSummary({
   projectName,
   options,
   isIacCustomRulesEntitlementEnabled,
-  isIacShareCliResultsCustomRulesSupported,
+  isIacShareCliResultsCustomRulesSupported
 }: {
   orgName: string;
   projectName: string;
@@ -253,7 +253,7 @@ export function buildShareResultsSummary({
   isIacCustomRulesEntitlementEnabled: boolean;
   isIacShareCliResultsCustomRulesSupported: boolean;
 }): string {
-  let response = '';
+  let response = "";
 
   response += SEPARATOR + EOL + formatShareResultsOutput(orgName, projectName);
 
@@ -261,7 +261,7 @@ export function buildShareResultsSummary({
     shouldPrintShareCustomRulesDisclaimer(
       options,
       isIacCustomRulesEntitlementEnabled,
-      isIacShareCliResultsCustomRulesSupported,
+      isIacShareCliResultsCustomRulesSupported
     )
   ) {
     response += EOL + EOL + shareCustomRulesDisclaimer;
@@ -275,7 +275,7 @@ export function buildShareResultsSummaryV2({
   projectName,
   options,
   isIacCustomRulesEntitlementEnabled,
-  isIacShareCliResultsCustomRulesSupported,
+  isIacShareCliResultsCustomRulesSupported
 }: {
   orgName: string;
   projectName: string;
@@ -283,7 +283,7 @@ export function buildShareResultsSummaryV2({
   isIacCustomRulesEntitlementEnabled: boolean;
   isIacShareCliResultsCustomRulesSupported: boolean;
 }): string {
-  let response = '';
+  let response = "";
 
   response +=
     SEPARATOR + EOL + formatShareResultsOutputV2(orgName, projectName);
@@ -292,7 +292,7 @@ export function buildShareResultsSummaryV2({
     shouldPrintShareCustomRulesDisclaimer(
       options,
       isIacCustomRulesEntitlementEnabled,
-      isIacShareCliResultsCustomRulesSupported,
+      isIacShareCliResultsCustomRulesSupported
     )
   ) {
     response += EOL + EOL + shareCustomRulesDisclaimer;
@@ -308,7 +308,7 @@ export function shouldPrintShareResultsTip(options: IaCTestFlags): boolean {
 function shouldPrintShareCustomRulesDisclaimer(
   options: IaCTestFlags,
   isIacCustomRulesEntitlementEnabled: boolean,
-  isIacShareCliResultsCustomRulesSupported: boolean,
+  isIacShareCliResultsCustomRulesSupported: boolean
 ): boolean {
   return (
     shouldLogUserMessages(options) &&

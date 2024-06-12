@@ -1,7 +1,7 @@
-import { EntityToFix } from './types';
+import { EntityToFix } from "./types";
 
 export function partitionByVulnerable(
-  entities: EntityToFix[],
+  entities: EntityToFix[]
 ): { vulnerable: EntityToFix[]; notVulnerable: EntityToFix[] } {
   const vulnerable: EntityToFix[] = [];
   const notVulnerable: EntityToFix[] = [];

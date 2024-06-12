@@ -1,4 +1,4 @@
-export type AppContext = 'tenant' | 'user';
+export type AppContext = "tenant" | "user";
 
 export interface IGetAppsURLOpts {
   orgId?: string;
@@ -37,7 +37,7 @@ export interface IRestErrorResponse {
       detail: string;
       source?: any;
       meta?: any;
-    },
+    }
   ];
 }
 

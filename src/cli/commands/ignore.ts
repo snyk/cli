@@ -1,22 +1,22 @@
-import * as policy from 'snyk-policy';
-import chalk from 'chalk';
-import * as authorization from '../../lib/authorization';
-import * as auth from './auth/is-authed';
-import { apiTokenExists } from '../../lib/api-token';
-import { isCI } from '../../lib/is-ci';
-import { IgnoreRules, MethodResult } from './types';
+import * as policy from "snyk-policy";
+import chalk from "chalk";
+import * as authorization from "../../lib/authorization";
+import * as auth from "./auth/is-authed";
+import { apiTokenExists } from "../../lib/api-token";
+import { isCI } from "../../lib/is-ci";
+import { IgnoreRules, MethodResult } from "./types";
 
-import * as Debug from 'debug';
-const debug = Debug('snyk');
+import * as Debug from "debug";
+const debug = Debug("snyk");
 
-import { MisconfiguredAuthInCI } from '../../lib/errors/misconfigured-auth-in-ci-error';
+import { MisconfiguredAuthInCI } from "../../lib/errors/misconfigured-auth-in-ci-error";
 
 export default function ignore(options): Promise<MethodResult> {
-  debug('snyk ignore called with options: %O', options);
+  debug("snyk ignore called with options: %O", options);
 
   return auth
     .isAuthed()
-    .then((authed) => {
+    .then(authed => {
       if (!authed) {
         if (isCI()) {
           throw MisconfiguredAuthInCI();
@@ -25,16 +25,16 @@ export default function ignore(options): Promise<MethodResult> {
       apiTokenExists();
     })
     .then(() => {
-      return authorization.actionAllowed('cliIgnore', options);
+      return authorization.actionAllowed("cliIgnore", options);
     })
-    .then((cliIgnoreAuthorization) => {
+    .then(cliIgnoreAuthorization => {
       if (!cliIgnoreAuthorization.allowed) {
-        debug('snyk ignore called when disallowed');
+        debug("snyk ignore called when disallowed");
         console.log(chalk.bold.red(cliIgnoreAuthorization.reason));
         return;
       }
 
-      const isFilePathProvided = !!options['file-path'];
+      const isFilePathProvided = !!options["file-path"];
 
       if (isFilePathProvided) {
         return excludeFilePathPattern(options);
@@ -46,38 +46,38 @@ export default function ignore(options): Promise<MethodResult> {
 
 export function ignoreIssue(options): Promise<MethodResult> {
   if (!options.id) {
-    throw Error('idRequired');
+    throw Error("idRequired");
   }
 
   options.expiry = new Date(options.expiry);
   if (options.expiry.getTime() !== options.expiry.getTime()) {
-    debug('No/invalid expiry given, using the default 30 days');
+    debug("No/invalid expiry given, using the default 30 days");
     options.expiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   }
 
   if (!options.reason) {
-    options.reason = 'None Given';
+    options.reason = "None Given";
   }
 
   const isPathProvided = !!options.path;
   if (!isPathProvided) {
-    options.path = '*';
+    options.path = "*";
   }
 
   debug(
     `changing policy: ignore "%s", for %s, reason: "%s", until: %o`,
     options.id,
-    isPathProvided ? 'all paths' : `path: '${options.path}'`,
+    isPathProvided ? "all paths" : `path: '${options.path}'`,
     options.reason,
-    options.expiry,
+    options.expiry
   );
 
-  return load(options['policy-path']).then(async (pol) => {
+  return load(options["policy-path"]).then(async pol => {
     let ignoreRulePathDataIdx = -1;
     const ignoreParams = {
       reason: options.reason,
       expires: options.expiry,
-      created: new Date(),
+      created: new Date()
     };
 
     const ignoreRules: IgnoreRules = pol.ignore;
@@ -86,13 +86,13 @@ export function ignoreIssue(options): Promise<MethodResult> {
 
     // Checking if the ignore-rule for this issue exists for the provided path.
     ignoreRulePathDataIdx = issueIgnorePaths.findIndex(
-      (ignoreMetadata) => !!ignoreMetadata[options.path],
+      ignoreMetadata => !!ignoreMetadata[options.path]
     );
 
     // If an ignore-rule for this path doesn't exist, create one.
     if (ignoreRulePathDataIdx === -1) {
       issueIgnorePaths.push({
-        [options.path]: ignoreParams,
+        [options.path]: ignoreParams
       });
     }
     // Otherwise, update the existing rule's metadata.
@@ -104,23 +104,23 @@ export function ignoreIssue(options): Promise<MethodResult> {
 
     pol.ignore = ignoreRules;
 
-    return await policy.save(pol, options['policy-path']);
+    return await policy.save(pol, options["policy-path"]);
   });
 }
 
 export async function excludeFilePathPattern(options): Promise<MethodResult> {
-  const pattern = options['file-path'];
-  const group = options['file-path-group'] || 'global';
-  const policyPath = options['policy-path'];
+  const pattern = options["file-path"];
+  const group = options["file-path-group"] || "global";
+  const policyPath = options["policy-path"];
 
   const excludeOptions = {};
 
   if (options.reason !== undefined) {
-    excludeOptions['reason'] = options.reason;
+    excludeOptions["reason"] = options.reason;
   }
 
   if (options.expiry !== undefined) {
-    excludeOptions['expires'] = new Date(options.expiry);
+    excludeOptions["expires"] = new Date(options.expiry);
   }
 
   debug(`changing policy: ignore "%s" added to "%s"`, pattern, policyPath);
@@ -132,12 +132,12 @@ export async function excludeFilePathPattern(options): Promise<MethodResult> {
 }
 
 async function load(path: string) {
-  return policy.load(path).catch((error) => {
-    if (error.code === 'ENOENT') {
+  return policy.load(path).catch(error => {
+    if (error.code === "ENOENT") {
       // file does not exist - create it
       return policy.create();
     }
 
-    throw Error('policyFile');
+    throw Error("policyFile");
   });
 }

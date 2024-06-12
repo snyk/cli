@@ -22,7 +22,7 @@ jobs:
         id: codeowners
         uses: SvanBoxel/codeowners-action@v2.2
         with:
-          file_match_info: 'true'
+          file_match_info: "true"
           path: ./.github/CODEOWNERS
 
       - name: Get changed files

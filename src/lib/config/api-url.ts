@@ -24,11 +24,11 @@
   In a backwards compatible way.
 */
 
-import * as path from 'path';
-import * as Debug from 'debug';
-import { color } from '../theme';
+import * as path from "path";
+import * as Debug from "debug";
+import { color } from "../theme";
 
-const debug = Debug('snyk');
+const debug = Debug("snyk");
 
 /**
  * @description Get a Base URL for Snyk APIs
@@ -41,7 +41,7 @@ const debug = Debug('snyk');
 export function getBaseApiUrl(
   defaultUrl: string,
   envvarDefinedApiUrl?: string,
-  configDefinedApiUrl?: string,
+  configDefinedApiUrl?: string
 ): string {
   const defaultBaseApiUrl = stripV1FromApiUrl(defaultUrl);
   // Use SNYK_API envvar by default
@@ -49,7 +49,7 @@ export function getBaseApiUrl(
     return validateUrlOrReturnDefault(
       envvarDefinedApiUrl,
       "'SNYK_API' environment variable",
-      defaultBaseApiUrl,
+      defaultBaseApiUrl
     );
   }
 
@@ -57,7 +57,7 @@ export function getBaseApiUrl(
     return validateUrlOrReturnDefault(
       configDefinedApiUrl,
       "'endpoint' config option. See 'snyk config' command. The value of 'endpoint' is currently set as",
-      defaultBaseApiUrl,
+      defaultBaseApiUrl
     );
   }
 
@@ -74,22 +74,22 @@ export function getBaseApiUrl(
 function validateUrlOrReturnDefault(
   urlString: string,
   optionName: string,
-  defaultUrl: string,
+  defaultUrl: string
 ): string {
   const parsedEndpoint = parseURLWithoutThrowing(urlString);
   // Endpoint option must be a valid URL including protocol
   if (!parsedEndpoint || !parsedEndpoint.protocol || !parsedEndpoint.host) {
     console.error(
       color.status.error(
-        `Invalid ${optionName} '${urlString}'. Value must be a valid URL including protocol. Using default Snyk API URL '${defaultUrl}'`,
-      ),
+        `Invalid ${optionName} '${urlString}'. Value must be a valid URL including protocol. Using default Snyk API URL '${defaultUrl}'`
+      )
     );
     return defaultUrl;
   }
   // TODO: this debug is not printed when using the --debug flag, because flags are parsed after config. Making it async works around this
   setTimeout(
     () => debug(`Using a custom Snyk API ${optionName} '${urlString}'`),
-    1,
+    1
   );
   return stripV1FromApiUrl(urlString);
 }
@@ -110,7 +110,7 @@ function parseURLWithoutThrowing(urlString: string): URL | undefined {
 function stripV1FromApiUrl(url: string): string {
   const parsedUrl = new URL(url);
   if (/\/v1\/?$/.test(parsedUrl.pathname)) {
-    parsedUrl.pathname = parsedUrl.pathname.replace(/\/v1\/?$/, '/');
+    parsedUrl.pathname = parsedUrl.pathname.replace(/\/v1\/?$/, "/");
     return parsedUrl.toString();
   }
   return url;
@@ -118,7 +118,7 @@ function stripV1FromApiUrl(url: string): string {
 
 export function getV1ApiUrl(baseApiUrl: string): string {
   const parsedBaseUrl = new URL(baseApiUrl);
-  parsedBaseUrl.pathname = path.join(parsedBaseUrl.pathname, 'v1');
+  parsedBaseUrl.pathname = path.join(parsedBaseUrl.pathname, "v1");
   return parsedBaseUrl.toString();
 }
 
@@ -133,22 +133,22 @@ export function getV1ApiUrl(baseApiUrl: string): string {
 export function getRestApiUrl(
   baseApiUrl: string,
   envvarDefinedRestApiUrl?: string,
-  envvarDefinedRestV3Url?: string,
+  envvarDefinedRestV3Url?: string
 ): string {
   // REST API URL should always look like this: https://api.$DOMAIN/rest
   const parsedBaseUrl = new URL(baseApiUrl);
-  parsedBaseUrl.pathname = '/rest';
+  parsedBaseUrl.pathname = "/rest";
 
-  if (parsedBaseUrl.host?.startsWith('app.')) {
+  if (parsedBaseUrl.host?.startsWith("app.")) {
     // Rewrite app.snyk.io/ to api.snyk.io/rest
-    parsedBaseUrl.host = parsedBaseUrl.host.replace(/^app\./, 'api.');
+    parsedBaseUrl.host = parsedBaseUrl.host.replace(/^app\./, "api.");
   } else if (
     // Ignore localhosts and URLs with api. already defined
-    !parsedBaseUrl.host?.startsWith('localhost') &&
-    !parsedBaseUrl.host?.startsWith('api.')
+    !parsedBaseUrl.host?.startsWith("localhost") &&
+    !parsedBaseUrl.host?.startsWith("api.")
   ) {
     // Otherwise add the api. subdomain
-    parsedBaseUrl.host = 'api.' + parsedBaseUrl.host;
+    parsedBaseUrl.host = "api." + parsedBaseUrl.host;
   }
 
   const defaultRestApiUrl = parsedBaseUrl.toString();
@@ -158,7 +158,7 @@ export function getRestApiUrl(
     return validateUrlOrReturnDefault(
       envvarDefinedRestV3Url,
       "'SNYK_API_V3_URL' environment variable",
-      defaultRestApiUrl,
+      defaultRestApiUrl
     );
   }
 
@@ -166,7 +166,7 @@ export function getRestApiUrl(
     return validateUrlOrReturnDefault(
       envvarDefinedRestApiUrl,
       "'SNYK_API_REST_URL' environment variable",
-      defaultRestApiUrl,
+      defaultRestApiUrl
     );
   }
 
@@ -176,7 +176,7 @@ export function getRestApiUrl(
 export function getHiddenApiUrl(restUrl: string): string {
   const parsedBaseUrl = new URL(restUrl);
 
-  parsedBaseUrl.pathname = '/hidden';
+  parsedBaseUrl.pathname = "/hidden";
 
   return parsedBaseUrl.toString();
 }
@@ -187,8 +187,8 @@ export function getRootUrl(apiUrlString: string): string {
   // given an api url that starts with api means, that we can replace "api" by "app".
 
   const apiUrl = new URL(apiUrlString);
-  apiUrl.host = apiUrl.host.replace(/^api\./, '');
+  apiUrl.host = apiUrl.host.replace(/^api\./, "");
 
-  const rootUrl = apiUrl.protocol + '//' + apiUrl.host;
+  const rootUrl = apiUrl.protocol + "//" + apiUrl.host;
   return rootUrl;
 }

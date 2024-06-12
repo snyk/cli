@@ -1,21 +1,21 @@
-import { FormattedResult, PolicyMetadata } from '../types';
-import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { FormattedResult, PolicyMetadata } from "../types";
+import { Policy } from "../../../../../../lib/policy/find-and-load-policy";
 
 export function filterIgnoredIssues(
   policy: Policy | undefined,
-  results: FormattedResult[],
+  results: FormattedResult[]
 ) {
   if (!policy) {
     return { filteredIssues: results, ignoreCount: 0 };
   }
-  const vulns = results.map((res) =>
-    policy.filter(toIaCVulnAdapter(res), undefined, 'exact'),
+  const vulns = results.map(res =>
+    policy.filter(toIaCVulnAdapter(res), undefined, "exact")
   );
   const ignoreCount: number = vulns.reduce(
     (totalIgnored, vuln) => totalIgnored + vuln.filtered.ignore.length,
-    0,
+    0
   );
-  const filteredIssues = vulns.map((vuln) => toFormattedResult(vuln));
+  const filteredIssues = vulns.map(vuln => toFormattedResult(vuln));
   return { filteredIssues, ignoreCount };
 }
 
@@ -38,32 +38,30 @@ type AnnotatedResult = PolicyMetadata & {
 
 function toIaCVulnAdapter(result: FormattedResult): IacVulnAdapter {
   return {
-    vulnerabilities: result.result.cloudConfigResults.map(
-      (cloudConfigResult) => {
-        const annotatedResult = cloudConfigResult as AnnotatedResult;
+    vulnerabilities: result.result.cloudConfigResults.map(cloudConfigResult => {
+      const annotatedResult = cloudConfigResult as AnnotatedResult;
 
-        // Copy the cloudConfigPath array to avoid modifying the original with
-        // splice.
-        // Insert the targetFile into the path so that it is taken into account
-        // when determining whether an ignore rule should be applied.
-        const path = [...annotatedResult.cloudConfigPath];
-        path.splice(0, 0, result.targetFile);
+      // Copy the cloudConfigPath array to avoid modifying the original with
+      // splice.
+      // Insert the targetFile into the path so that it is taken into account
+      // when determining whether an ignore rule should be applied.
+      const path = [...annotatedResult.cloudConfigPath];
+      path.splice(0, 0, result.targetFile);
 
-        return {
-          id: cloudConfigResult.id as string,
-          from: path,
-        };
-      },
-    ),
-    originalResult: result,
+      return {
+        id: cloudConfigResult.id as string,
+        from: path
+      };
+    }),
+    originalResult: result
   };
 }
 
 function toFormattedResult(adapter: IacVulnAdapter): FormattedResult {
   const original = adapter.originalResult;
   const filteredCloudConfigResults = original.result.cloudConfigResults.filter(
-    (res) => {
-      return adapter.vulnerabilities.some((vuln) => {
+    res => {
+      return adapter.vulnerabilities.some(vuln => {
         if (vuln.id !== res.id) {
           return false;
         }
@@ -85,7 +83,7 @@ function toFormattedResult(adapter: IacVulnAdapter): FormattedResult {
         }
         return true;
       });
-    },
+    }
   );
   original.result.cloudConfigResults = filteredCloudConfigResults;
   return original;

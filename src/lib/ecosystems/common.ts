@@ -1,5 +1,5 @@
-import { Ecosystem } from './types';
+import { Ecosystem } from "./types";
 
 export function isUnmanagedEcosystem(ecosystem: Ecosystem): boolean {
-  return ecosystem === 'cpp';
+  return ecosystem === "cpp";
 }

@@ -1,22 +1,22 @@
-import * as fs from 'fs';
-import * as pathLib from 'path';
-import { extractProvenance } from '../../../../../../../src/plugins/python/handlers/pip-requirements/extract-version-provenance';
-import { parseRequirementsFile } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
+import * as fs from "fs";
+import * as pathLib from "path";
+import { extractProvenance } from "../../../../../../../src/plugins/python/handlers/pip-requirements/extract-version-provenance";
+import { parseRequirementsFile } from "../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser";
 
-describe('extractProvenance', () => {
-  const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
-  it('can extract and parse 1 required files', async () => {
+describe("extractProvenance", () => {
+  const workspacesPath = pathLib.resolve(__dirname, "workspaces");
+  it("can extract and parse 1 required files", async () => {
     // Arrange
-    const targetFile = pathLib.resolve(workspacesPath, 'with-require/dev.txt');
+    const targetFile = pathLib.resolve(workspacesPath, "with-require/dev.txt");
 
     const workspace = {
       path: workspacesPath,
       readFile: async (path: string) => {
-        return fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
+        return fs.readFileSync(pathLib.resolve(workspacesPath, path), "utf-8");
       },
       writeFile: async () => {
         return;
-      },
+      }
     };
     const { dir, base } = pathLib.parse(targetFile);
 
@@ -24,30 +24,30 @@ describe('extractProvenance', () => {
     const result = await extractProvenance(workspace, dir, dir, base);
     // Assert
     const baseTxt = fs.readFileSync(
-      pathLib.resolve(workspacesPath, 'with-require/base.txt'),
-      'utf-8',
+      pathLib.resolve(workspacesPath, "with-require/base.txt"),
+      "utf-8"
     );
-    const devTxt = fs.readFileSync(targetFile, 'utf-8');
+    const devTxt = fs.readFileSync(targetFile, "utf-8");
 
-    expect(result['dev.txt']).toEqual(parseRequirementsFile(devTxt));
-    expect(result['base.txt']).toEqual(parseRequirementsFile(baseTxt));
+    expect(result["dev.txt"]).toEqual(parseRequirementsFile(devTxt));
+    expect(result["base.txt"]).toEqual(parseRequirementsFile(baseTxt));
   });
 
-  it('can extract and parse 1 required files', async () => {
+  it("can extract and parse 1 required files", async () => {
     // Arrange
     const targetFile = pathLib.resolve(
       workspacesPath,
-      'with-require-folder-up/reqs/requirements.txt',
+      "with-require-folder-up/reqs/requirements.txt"
     );
 
     const workspace = {
       path: workspacesPath,
       readFile: async (path: string) => {
-        return fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
+        return fs.readFileSync(pathLib.resolve(workspacesPath, path), "utf-8");
       },
       writeFile: async () => {
         return;
-      },
+      }
     };
     const { dir, base } = pathLib.parse(targetFile);
 
@@ -55,29 +55,29 @@ describe('extractProvenance', () => {
     const result = await extractProvenance(workspace, dir, dir, base);
     // Assert
     const baseTxt = fs.readFileSync(
-      pathLib.resolve(workspacesPath, 'with-require-folder-up/base.txt'),
-      'utf-8',
+      pathLib.resolve(workspacesPath, "with-require-folder-up/base.txt"),
+      "utf-8"
     );
-    const requirementsTxt = fs.readFileSync(targetFile, 'utf-8');
+    const requirementsTxt = fs.readFileSync(targetFile, "utf-8");
 
-    expect(result['requirements.txt']).toEqual(
-      parseRequirementsFile(requirementsTxt),
+    expect(result["requirements.txt"]).toEqual(
+      parseRequirementsFile(requirementsTxt)
     );
-    expect(result['../base.txt']).toEqual(parseRequirementsFile(baseTxt));
+    expect(result["../base.txt"]).toEqual(parseRequirementsFile(baseTxt));
   });
-  it('can extract and parse all required files with both -r and -c', async () => {
+  it("can extract and parse all required files with both -r and -c", async () => {
     // Arrange
-    const folder = 'with-multiple-requires';
+    const folder = "with-multiple-requires";
     const targetFile = pathLib.resolve(workspacesPath, `${folder}/dev.txt`);
 
     const workspace = {
       path: workspacesPath,
       readFile: async (path: string) => {
-        return fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
+        return fs.readFileSync(pathLib.resolve(workspacesPath, path), "utf-8");
       },
       writeFile: async () => {
         return;
-      },
+      }
     };
     const { dir, base } = pathLib.parse(targetFile);
 
@@ -85,45 +85,45 @@ describe('extractProvenance', () => {
     const result = await extractProvenance(workspace, dir, dir, base);
     // Assert
     const baseTxt = fs.readFileSync(
-      pathLib.resolve(workspacesPath, pathLib.join(folder, 'base.txt')),
-      'utf-8',
+      pathLib.resolve(workspacesPath, pathLib.join(folder, "base.txt")),
+      "utf-8"
     );
     const reqsBaseTxt = fs.readFileSync(
-      pathLib.resolve(workspacesPath, pathLib.join(folder, 'reqs', 'base.txt')),
-      'utf-8',
+      pathLib.resolve(workspacesPath, pathLib.join(folder, "reqs", "base.txt")),
+      "utf-8"
     );
-    const devTxt = fs.readFileSync(targetFile, 'utf-8');
+    const devTxt = fs.readFileSync(targetFile, "utf-8");
     const constraintsTxt = fs.readFileSync(
       pathLib.resolve(
         workspacesPath,
-        pathLib.join(folder, 'reqs', 'constraints.txt'),
+        pathLib.join(folder, "reqs", "constraints.txt")
       ),
-      'utf-8',
+      "utf-8"
     );
 
-    expect(result['dev.txt']).toEqual(parseRequirementsFile(devTxt));
-    expect(result['base.txt']).toEqual(parseRequirementsFile(baseTxt));
-    expect(result['reqs/base.txt']).toEqual(parseRequirementsFile(reqsBaseTxt));
-    expect(result['reqs/constraints.txt']).toEqual(
-      parseRequirementsFile(constraintsTxt),
+    expect(result["dev.txt"]).toEqual(parseRequirementsFile(devTxt));
+    expect(result["base.txt"]).toEqual(parseRequirementsFile(baseTxt));
+    expect(result["reqs/base.txt"]).toEqual(parseRequirementsFile(reqsBaseTxt));
+    expect(result["reqs/constraints.txt"]).toEqual(
+      parseRequirementsFile(constraintsTxt)
     );
   });
-  it('can extract and parse all required files with nested -r and -c', async () => {
+  it("can extract and parse all required files with nested -r and -c", async () => {
     // Arrange
-    const folder = 'with-nested-requires';
+    const folder = "with-nested-requires";
     const targetFile = pathLib.resolve(
       workspacesPath,
-      `${folder}/requirements.txt`,
+      `${folder}/requirements.txt`
     );
 
     const workspace = {
       path: workspacesPath,
       readFile: async (path: string) => {
-        return fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
+        return fs.readFileSync(pathLib.resolve(workspacesPath, path), "utf-8");
       },
       writeFile: async () => {
         return;
-      },
+      }
     };
     const { dir, base } = pathLib.parse(targetFile);
 
@@ -134,53 +134,53 @@ describe('extractProvenance', () => {
     const prodTxt = fs.readFileSync(
       pathLib.resolve(
         workspacesPath,
-        pathLib.join(folder, 'requirements', 'prod.txt'),
+        pathLib.join(folder, "requirements", "prod.txt")
       ),
-      'utf-8',
+      "utf-8"
     );
     const reqsBaseTxt = fs.readFileSync(
       pathLib.resolve(
         workspacesPath,
-        pathLib.join(folder, 'requirements', 'base.txt'),
+        pathLib.join(folder, "requirements", "base.txt")
       ),
-      'utf-8',
+      "utf-8"
     );
-    const requirementsTxt = fs.readFileSync(targetFile, 'utf-8');
+    const requirementsTxt = fs.readFileSync(targetFile, "utf-8");
     const constraintsTxt = fs.readFileSync(
       pathLib.resolve(
         workspacesPath,
-        pathLib.join(folder, 'requirements', 'constraints.txt'),
+        pathLib.join(folder, "requirements", "constraints.txt")
       ),
-      'utf-8',
+      "utf-8"
     );
 
-    expect(result['requirements/prod.txt']).toEqual(
-      parseRequirementsFile(prodTxt),
+    expect(result["requirements/prod.txt"]).toEqual(
+      parseRequirementsFile(prodTxt)
     );
-    expect(result['requirements.txt']).toEqual(
-      parseRequirementsFile(requirementsTxt),
+    expect(result["requirements.txt"]).toEqual(
+      parseRequirementsFile(requirementsTxt)
     );
-    expect(result['requirements/base.txt']).toEqual(
-      parseRequirementsFile(reqsBaseTxt),
+    expect(result["requirements/base.txt"]).toEqual(
+      parseRequirementsFile(reqsBaseTxt)
     );
-    expect(result['requirements/constraints.txt']).toEqual(
-      parseRequirementsFile(constraintsTxt),
+    expect(result["requirements/constraints.txt"]).toEqual(
+      parseRequirementsFile(constraintsTxt)
     );
   });
 
-  it('can extract and parse all required files when -r is recursive', async () => {
+  it("can extract and parse all required files when -r is recursive", async () => {
     // Arrange
-    const folder = 'with-recursive-requires';
+    const folder = "with-recursive-requires";
     const targetFile = pathLib.resolve(workspacesPath, `${folder}/dev.txt`);
 
     const workspace = {
       path: workspacesPath,
       readFile: async (path: string) => {
-        return fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
+        return fs.readFileSync(pathLib.resolve(workspacesPath, path), "utf-8");
       },
       writeFile: async () => {
         return;
-      },
+      }
     };
     const { dir, base } = pathLib.parse(targetFile);
 
@@ -189,18 +189,18 @@ describe('extractProvenance', () => {
     // Assert
     const baseTxt = fs.readFileSync(
       pathLib.resolve(workspacesPath, `${folder}/base.txt`),
-      'utf-8',
+      "utf-8"
     );
-    const devTxt = fs.readFileSync(targetFile, 'utf-8');
+    const devTxt = fs.readFileSync(targetFile, "utf-8");
     const constraintsTxt = fs.readFileSync(
       pathLib.resolve(workspacesPath, `${folder}/constraints.txt`),
-      'utf-8',
+      "utf-8"
     );
 
-    expect(result['dev.txt']).toEqual(parseRequirementsFile(devTxt));
-    expect(result['base.txt']).toEqual(parseRequirementsFile(baseTxt));
-    expect(result['constraints.txt']).toEqual(
-      parseRequirementsFile(constraintsTxt),
+    expect(result["dev.txt"]).toEqual(parseRequirementsFile(devTxt));
+    expect(result["base.txt"]).toEqual(parseRequirementsFile(baseTxt));
+    expect(result["constraints.txt"]).toEqual(
+      parseRequirementsFile(constraintsTxt)
     );
   });
 });

@@ -1,12 +1,12 @@
-import { isSupported } from '../../../../src/plugins/python/handlers/is-supported';
-import { generateEntityToFix } from '../../../helpers/generate-entity-to-fix';
+import { isSupported } from "../../../../src/plugins/python/handlers/is-supported";
+import { generateEntityToFix } from "../../../helpers/generate-entity-to-fix";
 
-describe('isSupported', () => {
-  it('with missing remediation is not supported', async () => {
+describe("isSupported", () => {
+  it("with missing remediation is not supported", async () => {
     const entity = generateEntityToFix(
-      'pip',
-      'requirements.txt',
-      JSON.stringify({}),
+      "pip",
+      "requirements.txt",
+      JSON.stringify({})
     );
     // @ts-ignore: for test purpose only
     delete entity.testResult.remediation;
@@ -14,11 +14,11 @@ describe('isSupported', () => {
     expect(res.supported).toBeFalsy();
   });
 
-  it('with empty Pins is not supported', async () => {
+  it("with empty Pins is not supported", async () => {
     const entity = generateEntityToFix(
-      'poetry',
-      'pyproject.toml',
-      JSON.stringify({}),
+      "poetry",
+      "pyproject.toml",
+      JSON.stringify({})
     );
     // @ts-ignore: for test purpose only
     delete entity.testResult.remediation;
@@ -26,45 +26,45 @@ describe('isSupported', () => {
     entity.testResult.remediation = {
       unresolved: [],
       upgrade: {
-        'django@1.6.1': {
-          upgradeTo: 'django@2.0.1',
-          vulns: ['vuln-id'],
-          isTransitive: false,
-        },
+        "django@1.6.1": {
+          upgradeTo: "django@2.0.1",
+          vulns: ["vuln-id"],
+          isTransitive: false
+        }
       },
       patch: {},
       ignore: {},
-      pin: {},
+      pin: {}
     };
     const res = await isSupported(entity);
     expect(res.supported).toBeFalsy();
   });
-  it('with -r directive in the manifest is supported', async () => {
+  it("with -r directive in the manifest is supported", async () => {
     const entity = generateEntityToFix(
-      'pip',
-      'requirements.txt',
-      '-r prod.txt\nDjango==1.6.1',
+      "pip",
+      "requirements.txt",
+      "-r prod.txt\nDjango==1.6.1"
     );
     const res = await isSupported(entity);
     expect(res.supported).toBeTruthy();
   });
-  it('with -c directive in the manifest is supported', async () => {
+  it("with -c directive in the manifest is supported", async () => {
     const entity = generateEntityToFix(
-      'pip',
-      'requirements.txt',
-      '-c constraints.txt',
+      "pip",
+      "requirements.txt",
+      "-c constraints.txt"
     );
     const res = await isSupported(entity);
     expect(res.supported).toBeTruthy();
   });
-  it('with -e directive in the manifest is supported', async () => {
-    const entity = generateEntityToFix('pip', 'requirements.txt', '-e .');
+  it("with -e directive in the manifest is supported", async () => {
+    const entity = generateEntityToFix("pip", "requirements.txt", "-e .");
     entity.testResult.remediation!.pin = {
-      'django@1.6.1': {
-        upgradeTo: 'django@2.0.1',
+      "django@1.6.1": {
+        upgradeTo: "django@2.0.1",
         vulns: [],
-        isTransitive: false,
-      },
+        isTransitive: false
+      }
     };
     const res = await isSupported(entity);
     expect(res.supported).toBeTruthy();

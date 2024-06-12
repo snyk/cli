@@ -1,23 +1,23 @@
-import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { Policy } from "../../../../../../lib/policy/find-and-load-policy";
 import {
   IacOutputMeta,
   ProjectAttributes,
-  Tag,
-} from '../../../../../../lib/types';
+  Tag
+} from "../../../../../../lib/types";
 import {
   FormattedResult,
   IacFileScanResult,
   IacOrgSettings,
-  IaCTestFlags,
-} from '../types';
-import { processResults } from './process-results';
+  IaCTestFlags
+} from "../types";
+import { processResults } from "./process-results";
 
 export interface ResultsProcessor {
   processResults(
     resultsWithCustomSeverities: IacFileScanResult[],
     policy: Policy | undefined,
     tags: Tag[] | undefined,
-    attributes: ProjectAttributes | undefined,
+    attributes: ProjectAttributes | undefined
   ): Promise<{
     filteredIssues: FormattedResult[];
     ignoreCount: number;
@@ -30,14 +30,14 @@ export class SingleGroupResultsProcessor implements ResultsProcessor {
     private orgPublicId: string,
     private iacOrgSettings: IacOrgSettings,
     private options: IaCTestFlags,
-    private meta: IacOutputMeta,
+    private meta: IacOutputMeta
   ) {}
 
   processResults(
     resultsWithCustomSeverities: IacFileScanResult[],
     policy: Policy | undefined,
     tags: Tag[] | undefined,
-    attributes: ProjectAttributes | undefined,
+    attributes: ProjectAttributes | undefined
   ): Promise<{ filteredIssues: FormattedResult[]; ignoreCount: number }> {
     return processResults(
       resultsWithCustomSeverities,
@@ -48,7 +48,7 @@ export class SingleGroupResultsProcessor implements ResultsProcessor {
       attributes,
       this.options,
       this.projectRoot,
-      this.meta,
+      this.meta
     );
   }
 }

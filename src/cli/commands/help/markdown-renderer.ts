@@ -1,18 +1,18 @@
-import { marked } from 'marked';
-import chalk from 'chalk';
-import { reflowText } from './reflow-text';
+import { marked } from "marked";
+import chalk from "chalk";
+import { reflowText } from "./reflow-text";
 
 // stateful variable to control left-padding by header level
 let currentHeader = 1;
-const listItemSeparator = 'LISTITEMSEPARATOR'; // Helper string for rendering ListItems
+const listItemSeparator = "LISTITEMSEPARATOR"; // Helper string for rendering ListItems
 
 /**
  * @description get padding spaces depending on the last header level used
  * @returns string
  */
 function getLeftTextPadding(): string {
-  return '  '.repeat(
-    currentHeader === 1 || currentHeader === 2 ? 1 : currentHeader - 1,
+  return "  ".repeat(
+    currentHeader === 1 || currentHeader === 2 ? 1 : currentHeader - 1
   );
 }
 
@@ -22,7 +22,7 @@ function getLeftTextPadding(): string {
  */
 const defaultMaximumLineWidth = 100;
 function getIdealTextWidth(maximumLineWidth = defaultMaximumLineWidth): number {
-  if (typeof process.stdout.columns === 'number') {
+  if (typeof process.stdout.columns === "number") {
     if (process.stdout.columns < maximumLineWidth) {
       return process.stdout.columns - getLeftTextPadding().length - 5;
     }
@@ -40,7 +40,7 @@ const renderer = {
   },
   link(href, title, text) {
     // Don't render links to relative paths (like local files)
-    if (href.startsWith('./') || !href.includes('://')) {
+    if (href.startsWith("./") || !href.includes("://")) {
       return text;
     }
     const renderedLink = chalk.bold.blueBright(href);
@@ -57,20 +57,20 @@ const renderer = {
       body
         .split(listItemSeparator)
         .map((listItem, listItemIndex) => {
-          const bulletPoint = ordered ? `${listItemIndex + start}. ` : '-  ';
+          const bulletPoint = ordered ? `${listItemIndex + start}. ` : "-  ";
           return reflowText(listItem, getIdealTextWidth())
-            .split('\n')
+            .split("\n")
             .map((listItemLine, listItemLineIndex) => {
               if (!listItemLine) {
-                return '';
+                return "";
               }
               return `${getLeftTextPadding()}${
-                listItemLineIndex === 0 ? bulletPoint : '   '
+                listItemLineIndex === 0 ? bulletPoint : "   "
               }${listItemLine}`;
             })
-            .join('\n');
+            .join("\n");
         })
-        .join('\n') + '\n'
+        .join("\n") + "\n"
     );
   },
   listitem(text) {
@@ -79,9 +79,9 @@ const renderer = {
   paragraph(text) {
     return (
       reflowText(text, getIdealTextWidth())
-        .split('\n')
-        .map((s) => getLeftTextPadding() + chalk.reset() + s)
-        .join('\n') + '\n\n'
+        .split("\n")
+        .map(s => getLeftTextPadding() + chalk.reset() + s)
+        .join("\n") + "\n\n"
     );
   },
   codespan(text) {
@@ -90,9 +90,9 @@ const renderer = {
   code(code) {
     return (
       code
-        .split('\n')
-        .map((s) => getLeftTextPadding() + chalk.reset() + s)
-        .join('\n') + '\n\n'
+        .split("\n")
+        .map(s => getLeftTextPadding() + chalk.reset() + s)
+        .join("\n") + "\n\n"
     );
   },
   heading(text, level) {
@@ -110,25 +110,25 @@ const renderer = {
         coloring = chalk.bold;
         break;
     }
-    return `${'  '.repeat(level === 1 ? 0 : currentHeader - 2)}${coloring(
-      text,
+    return `${"  ".repeat(level === 1 ? 0 : currentHeader - 2)}${coloring(
+      text
     )}\n`;
-  },
+  }
 };
 
 marked.use({ renderer });
 marked.setOptions({
-  mangle: false,
+  mangle: false
 });
 
 const htmlUnescapes = {
-  '&amp;': '&',
-  '&lt;': '<',
-  '&gt;': '>',
-  '&quot;': '"',
-  '&#39;': "'",
-  '&#96;': '`',
-  '&#x20;': '',
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#39;": "'",
+  "&#96;": "`",
+  "&#x20;": ""
 };
 
 /**
@@ -138,7 +138,7 @@ const htmlUnescapes = {
  */
 function unescape(text: string): string {
   Object.entries(htmlUnescapes).forEach(([escapedChar, unescapedChar]) => {
-    const escapedCharRegExp = new RegExp(escapedChar, 'g');
+    const escapedCharRegExp = new RegExp(escapedChar, "g");
     text = text.replace(escapedCharRegExp, unescapedChar);
   });
   return text;

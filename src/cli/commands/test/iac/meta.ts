@@ -1,6 +1,6 @@
-import { IacOutputMeta } from '../../../../lib/types';
-import { IacOrgSettings } from './local-execution/types';
-import * as pathLib from 'path';
+import { IacOutputMeta } from "../../../../lib/types";
+import { IacOrgSettings } from "./local-execution/types";
+import * as pathLib from "path";
 
 export interface GitRepository {
   readonly path: string;
@@ -17,12 +17,12 @@ export async function buildMeta(
   orgSettings: IacOrgSettings,
   projectRoot: string,
   remoteRepoUrl?: string,
-  targetName?: string,
+  targetName?: string
 ): Promise<IacOutputMeta> {
   const gitRemoteUrl = await getGitRemoteUrl(
     repositoryFinder,
     projectRoot,
-    remoteRepoUrl,
+    remoteRepoUrl
   );
   const projectName = getProjectName(projectRoot, gitRemoteUrl, targetName);
   const orgName = getOrgName(orgSettings);
@@ -32,7 +32,7 @@ export async function buildMeta(
 function getProjectName(
   projectRoot: string,
   gitRemoteUrl?: string,
-  targetName?: string,
+  targetName?: string
 ): string {
   if (targetName) {
     return targetName;
@@ -51,7 +51,7 @@ function getOrgName(orgSettings: IacOrgSettings): string {
 async function getGitRemoteUrl(
   repositoryFinder: GitRepositoryFinder,
   projectRoot: string,
-  remoteRepoUrl?: string,
+  remoteRepoUrl?: string
 ): Promise<string | undefined> {
   if (remoteRepoUrl) {
     return remoteRepoUrl;
@@ -78,7 +78,7 @@ export function getProjectNameFromGitUrl(url: string) {
     /^ssh:\/\/([^@]+@)?[^:/]+(:[^/]+)?\/(?<name>.*).git\/?$/,
     /^(git|https?|ftp):\/\/[^:/]+(:[^/]+)?\/(?<name>.*).git\/?$/,
     /^[^@]+@[^:]+:(?<name>.*).git$/,
-    /^(https?):\/\/github.com\/(?<name>.*)$/,
+    /^(https?):\/\/github.com\/(?<name>.*)$/
   ];
 
   const trimmed = url.trim();

@@ -1,20 +1,20 @@
-import { MethodArgs } from '../../../args';
-import { TestCommandResult } from '../../types';
+import { MethodArgs } from "../../../args";
+import { TestCommandResult } from "../../types";
 
-import { validateCredentials } from '../validate-credentials';
-import { validateTestOptions } from '../validate-test-options';
-import { setDefaultTestOptions } from '../set-default-test-options';
-import { processCommandArgs } from '../../process-command-args';
+import { validateCredentials } from "../validate-credentials";
+import { validateTestOptions } from "../validate-test-options";
+import { setDefaultTestOptions } from "../set-default-test-options";
+import { processCommandArgs } from "../../process-command-args";
 
-import { hasFeatureFlag } from '../../../../lib/feature-flags';
-import { buildDefaultOciRegistry } from './local-execution/rules/rules';
-import { getIacOrgSettings } from './local-execution/measurable-methods';
-import config from '../../../../lib/config';
-import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
-import { scan } from './scan';
-import { buildOutput, buildSpinner, printHeader } from './output';
-import { InvalidArgumentError } from './local-execution/assert-iac-options-flag';
-import { IaCTestFlags } from './local-execution/types';
+import { hasFeatureFlag } from "../../../../lib/feature-flags";
+import { buildDefaultOciRegistry } from "./local-execution/rules/rules";
+import { getIacOrgSettings } from "./local-execution/measurable-methods";
+import config from "../../../../lib/config";
+import { UnsupportedEntitlementError } from "../../../../lib/errors/unsupported-entitlement-error";
+import { scan } from "./scan";
+import { buildOutput, buildSpinner, printHeader } from "./output";
+import { InvalidArgumentError } from "./local-execution/assert-iac-options-flag";
+import { IaCTestFlags } from "./local-execution/types";
 
 export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const { options: originalOptions, paths } = processCommandArgs(...args);
@@ -22,24 +22,24 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
   const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
-  const remoteRepoUrl = getFlag(options, 'remote-repo-url');
-  const targetName = getFlag(options, 'target-name');
+  const remoteRepoUrl = getFlag(options, "remote-repo-url");
+  const targetName = getFlag(options, "target-name");
 
   const orgPublicId = (options.org as string) ?? config.org;
   const iacOrgSettings = await getIacOrgSettings(orgPublicId);
 
   if (!iacOrgSettings.entitlements?.infrastructureAsCode) {
-    throw new UnsupportedEntitlementError('infrastructureAsCode');
+    throw new UnsupportedEntitlementError("infrastructureAsCode");
   }
 
   const buildOciRegistry = () => buildDefaultOciRegistry(iacOrgSettings);
 
   const isIacShareCliResultsCustomRulesSupported = Boolean(
-    await hasFeatureFlag('iacShareCliResultsCustomRules', options),
+    await hasFeatureFlag("iacShareCliResultsCustomRules", options)
   );
 
   const isIacCustomRulesEntitlementEnabled = Boolean(
-    iacOrgSettings.entitlements?.iacCustomRulesEntitlement,
+    iacOrgSettings.entitlements?.iacCustomRulesEntitlement
   );
 
   const testSpinner = buildSpinner(options);
@@ -52,7 +52,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     iacOutputMeta,
     iacScanFailures,
     iacIgnoredIssuesCount,
-    results,
+    results
   } = await scan(
     iacOrgSettings,
     options,
@@ -62,7 +62,7 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     buildOciRegistry,
     projectRoot,
     remoteRepoUrl,
-    targetName,
+    targetName
   );
 
   return buildOutput({
@@ -73,13 +73,13 @@ export default async function(...args: MethodArgs): Promise<TestCommandResult> {
     iacOutputMeta,
     iacScanFailures,
     iacIgnoredIssuesCount,
-    testSpinner,
+    testSpinner
   });
 }
 
 export function getFlag(
   options: IaCTestFlags,
-  flag: string,
+  flag: string
 ): string | undefined {
   const flagValue = options[flag];
 
@@ -87,7 +87,7 @@ export function getFlag(
     return;
   }
   // if the user does not provide a value, it will be of boolean type
-  if (typeof flagValue !== 'string') {
+  if (typeof flagValue !== "string") {
     throw new InvalidArgumentError(flag);
   }
 

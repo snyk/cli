@@ -1,9 +1,9 @@
-import { GoodResult, BadResult } from './types';
+import { GoodResult, BadResult } from "./types";
 
 export function processJsonMonitorResponse(
-  results: Array<GoodResult | BadResult>,
+  results: Array<GoodResult | BadResult>
 ): string {
-  let dataToSend = results.map((result) => {
+  let dataToSend = results.map(result => {
     if (result.ok) {
       const jsonData = JSON.parse(result.data);
       if (result.projectName) {
@@ -17,7 +17,7 @@ export function processJsonMonitorResponse(
   dataToSend = dataToSend.length === 1 ? dataToSend[0] : dataToSend;
   const stringifiedData = JSON.stringify(dataToSend, null, 2);
 
-  if (results.every((res) => res.ok)) {
+  if (results.every(res => res.ok)) {
     return stringifiedData;
   }
   const err = new Error(stringifiedData) as any;

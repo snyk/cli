@@ -1,6 +1,6 @@
-import { callHandlingUnexpectedErrors } from '../lib/unexpected-error';
-import { EXIT_CODES } from './exit-codes';
-import { testPlatformSupport } from '../lib/common';
+import { callHandlingUnexpectedErrors } from "../lib/unexpected-error";
+import { EXIT_CODES } from "./exit-codes";
+import { testPlatformSupport } from "../lib/common";
 
 /**
  * By using a dynamic import, we can add error handlers before evaluating any
@@ -9,6 +9,6 @@ import { testPlatformSupport } from '../lib/common';
  */
 callHandlingUnexpectedErrors(async () => {
   testPlatformSupport();
-  const { main } = await import('./main');
+  const { main } = await import("./main");
   await main();
 }, EXIT_CODES.ERROR);

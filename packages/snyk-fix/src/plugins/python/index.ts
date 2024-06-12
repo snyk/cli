@@ -1,24 +1,24 @@
-import * as debugLib from 'debug';
-import * as pMap from 'p-map';
-import * as ora from 'ora';
-import * as chalk from 'chalk';
+import * as debugLib from "debug";
+import * as pMap from "p-map";
+import * as ora from "ora";
+import * as chalk from "chalk";
 
-import { EntityToFix, FixOptions } from '../../types';
-import { FailedToFix, FixHandlerResultByPlugin } from '../types';
-import { loadHandler } from './load-handler';
-import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
-import { mapEntitiesPerHandlerType } from './map-entities-per-handler-type';
-import { partitionByFixable } from './handlers/is-supported';
-import { CustomError } from '../../lib/errors/custom-error';
+import { EntityToFix, FixOptions } from "../../types";
+import { FailedToFix, FixHandlerResultByPlugin } from "../types";
+import { loadHandler } from "./load-handler";
+import { SUPPORTED_HANDLER_TYPES } from "./supported-handler-types";
+import { mapEntitiesPerHandlerType } from "./map-entities-per-handler-type";
+import { partitionByFixable } from "./handlers/is-supported";
+import { CustomError } from "../../lib/errors/custom-error";
 
-const debug = debugLib('snyk-fix:python');
+const debug = debugLib("snyk-fix:python");
 
 export async function pythonFix(
   entities: EntityToFix[],
-  options: FixOptions,
+  options: FixOptions
 ): Promise<FixHandlerResultByPlugin> {
   const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
-  const spinnerMessage = 'Looking for supported Python items';
+  const spinnerMessage = "Looking for supported Python items";
   spinner.text = spinnerMessage;
   spinner.start();
 
@@ -26,23 +26,23 @@ export async function pythonFix(
     python: {
       succeeded: [],
       failed: [],
-      skipped: [],
-    },
+      skipped: []
+    }
   };
   const results = handlerResult.python;
   const { entitiesPerType, skipped: notSupported } = mapEntitiesPerHandlerType(
-    entities,
+    entities
   );
   results.skipped.push(...notSupported);
 
   spinner.stopAndPersist({
     text: spinnerMessage,
-    symbol: chalk.green('\n✔'),
+    symbol: chalk.green("\n✔")
   });
 
   await pMap(
     Object.keys(entitiesPerType),
-    async (projectType) => {
+    async projectType => {
       const projectsToFix: EntityToFix[] = entitiesPerType[projectType];
       if (!projectsToFix.length) {
         return;
@@ -58,7 +58,7 @@ export async function pythonFix(
         // drop unsupported Python entities early so only potentially fixable items get
         // attempted to be fixed
         const { fixable, skipped: notFixable } = await partitionByFixable(
-          projectsToFix,
+          projectsToFix
         );
         results.skipped.push(...notFixable);
 
@@ -68,25 +68,25 @@ export async function pythonFix(
         results.succeeded.push(...succeeded);
       } catch (e) {
         debug(
-          `Failed to fix ${projectsToFix.length} ${projectType} projects.\nError: ${e.message}`,
+          `Failed to fix ${projectsToFix.length} ${projectType} projects.\nError: ${e.message}`
         );
         results.failed.push(...generateFailed(projectsToFix, e as CustomError));
       }
       spinner.stopAndPersist({
         text: processedMessage,
-        symbol: chalk.green('✔'),
+        symbol: chalk.green("✔")
       });
     },
     {
-      concurrency: 5,
-    },
+      concurrency: 5
+    }
   );
   return handlerResult;
 }
 
 function generateFailed(
   projectsToFix: EntityToFix[],
-  error: CustomError,
+  error: CustomError
 ): FailedToFix[] {
   const failed: FailedToFix[] = [];
   for (const project of projectsToFix) {

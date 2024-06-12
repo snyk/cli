@@ -1,8 +1,8 @@
-import { pipRequirementsTxt } from './handlers/pip-requirements';
-import { pipenvPipfile } from './handlers/pipenv-pipfile';
-import { poetry } from './handlers/poetry';
+import { pipRequirementsTxt } from "./handlers/pip-requirements";
+import { pipenvPipfile } from "./handlers/pipenv-pipfile";
+import { poetry } from "./handlers/poetry";
 
-import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
+import { SUPPORTED_HANDLER_TYPES } from "./supported-handler-types";
 
 export function loadHandler(type: SUPPORTED_HANDLER_TYPES) {
   switch (type) {
@@ -16,7 +16,7 @@ export function loadHandler(type: SUPPORTED_HANDLER_TYPES) {
       return poetry;
     }
     default: {
-      throw new Error('No handler available for requested project type');
+      throw new Error("No handler available for requested project type");
     }
   }
 }

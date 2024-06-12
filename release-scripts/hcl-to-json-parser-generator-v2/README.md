@@ -37,11 +37,11 @@ The module exposes one function:
 
 - `func parseModule(files map[string]interface{}) map[string]interface{}` this takes a map of files as input and returns a map of parsedFiles and failedFiles as output:
   ```javascript
-  const { parseHCL2JSON } = require('./hcltojson-v2');
-  const fileContent = fs.readFileSync('../path/to/terraform.tf', 'utf-8');
+  const { parseHCL2JSON } = require("./hcltojson-v2");
+  const fileContent = fs.readFileSync("../path/to/terraform.tf", "utf-8");
   const { parsedFiles, failedFiles } = parseModule({
-    '../path/to/terraform.tf': fileContent,
-    'file2.tf': 'content2',
+    "../path/to/terraform.tf": fileContent,
+    "file2.tf": "content2"
   });
   ```
 

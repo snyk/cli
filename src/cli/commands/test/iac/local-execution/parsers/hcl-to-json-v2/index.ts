@@ -1,6 +1,6 @@
 // This artifact was generated using GopherJS and https://github.com/snyk/snyk-iac-parsers
 
-const gopherJsArtifact: HclToJsonArtifact = require('./parser');
+const gopherJsArtifact: HclToJsonArtifact = require("./parser");
 
 type FilePath = string;
 type FileContent = string;

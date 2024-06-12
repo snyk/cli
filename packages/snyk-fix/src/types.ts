@@ -1,5 +1,5 @@
-import { DepGraphData } from '@snyk/dep-graph';
-import { CustomError } from './lib/errors/custom-error';
+import { DepGraphData } from "@snyk/dep-graph";
+import { CustomError } from "./lib/errors/custom-error";
 
 /* Scan Result
  * this data is returned by the CLI plugins to identify
@@ -157,10 +157,10 @@ export interface PatchObject {
 }
 
 export enum SEVERITY {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical',
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+  CRITICAL = "critical"
 }
 
 /* End Remediation Data
@@ -170,7 +170,7 @@ export enum SEVERITY {
  * Types for concepts introduced as part of this lib
  */
 
-export type SupportedScanTypes = 'pip';
+export type SupportedScanTypes = "pip";
 
 export interface Workspace {
   path: string;

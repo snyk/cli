@@ -1,17 +1,17 @@
-import * as debugLib from 'debug';
+import * as debugLib from "debug";
 
-import { PluginFixResponse } from '../../../../types';
+import { PluginFixResponse } from "../../../../types";
 import {
   EntityToFix,
   FixChangesSummary,
-  FixOptions,
-} from '../../../../../types';
-import { generateUpgrades } from './generate-upgrades';
-import { poetryAdd } from './poetry-add';
-import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
-import { isSuccessfulChange } from '../../attempted-changes-summary';
+  FixOptions
+} from "../../../../../types";
+import { generateUpgrades } from "./generate-upgrades";
+import { poetryAdd } from "./poetry-add";
+import { NoFixesCouldBeAppliedError } from "../../../../../lib/errors/no-fixes-applied";
+import { isSuccessfulChange } from "../../attempted-changes-summary";
 
-const debug = debugLib('snyk-fix:python:Poetry');
+const debug = debugLib("snyk-fix:python:Poetry");
 
 function chooseFixStrategy(options: FixOptions) {
   return options.sequentialFix ? fixSequentially : fixAll;
@@ -19,7 +19,7 @@ function chooseFixStrategy(options: FixOptions) {
 
 export async function updateDependencies(
   entity: EntityToFix,
-  options: FixOptions,
+  options: FixOptions
 ): Promise<PluginFixResponse> {
   const handlerResult = await chooseFixStrategy(options)(entity, options);
   return handlerResult;
@@ -27,12 +27,12 @@ export async function updateDependencies(
 
 async function fixAll(
   entity: EntityToFix,
-  options: FixOptions,
+  options: FixOptions
 ): Promise<PluginFixResponse> {
   const handlerResult: PluginFixResponse = {
     succeeded: [],
     failed: [],
-    skipped: [],
+    skipped: []
   };
   const { upgrades, devUpgrades } = await generateUpgrades(entity);
 
@@ -44,7 +44,7 @@ async function fixAll(
   try {
     if (![...upgrades, ...devUpgrades].length) {
       throw new NoFixesCouldBeAppliedError(
-        'Failed to calculate package updates to apply',
+        "Failed to calculate package updates to apply"
       );
     }
     // update prod dependencies first
@@ -56,32 +56,32 @@ async function fixAll(
     if (devUpgrades.length) {
       const installDev = true;
       changes.push(
-        ...(await poetryAdd(entity, options, devUpgrades, installDev)),
+        ...(await poetryAdd(entity, options, devUpgrades, installDev))
       );
     }
 
     if (!changes.length) {
       throw new NoFixesCouldBeAppliedError();
     }
-    if (!changes.some((c) => isSuccessfulChange(c))) {
+    if (!changes.some(c => isSuccessfulChange(c))) {
       handlerResult.failed.push({
         original: entity,
-        changes,
+        changes
       });
     } else {
       handlerResult.succeeded.push({
         original: entity,
-        changes,
+        changes
       });
     }
   } catch (error) {
     debug(
-      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
+      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`
     );
     handlerResult.failed.push({
       original: entity,
       tip: error.tip,
-      error,
+      error
     });
   }
   return handlerResult;
@@ -89,12 +89,12 @@ async function fixAll(
 
 async function fixSequentially(
   entity: EntityToFix,
-  options: FixOptions,
+  options: FixOptions
 ): Promise<PluginFixResponse> {
   const handlerResult: PluginFixResponse = {
     succeeded: [],
     failed: [],
-    skipped: [],
+    skipped: []
   };
   const { upgrades, devUpgrades } = await generateUpgrades(entity);
   // TODO: for better support we need to:
@@ -105,7 +105,7 @@ async function fixSequentially(
   try {
     if (![...upgrades, ...devUpgrades].length) {
       throw new NoFixesCouldBeAppliedError(
-        'Failed to calculate package updates to apply',
+        "Failed to calculate package updates to apply"
       );
     }
     // update prod dependencies first
@@ -120,32 +120,32 @@ async function fixSequentially(
       for (const upgrade of devUpgrades) {
         const installDev = true;
         changes.push(
-          ...(await poetryAdd(entity, options, [upgrade], installDev)),
+          ...(await poetryAdd(entity, options, [upgrade], installDev))
         );
       }
     }
     if (!changes.length) {
       throw new NoFixesCouldBeAppliedError();
     }
-    if (!changes.some((c) => isSuccessfulChange(c))) {
+    if (!changes.some(c => isSuccessfulChange(c))) {
       handlerResult.failed.push({
         original: entity,
-        changes,
+        changes
       });
     } else {
       handlerResult.succeeded.push({
         original: entity,
-        changes,
+        changes
       });
     }
   } catch (error) {
     debug(
-      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
+      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`
     );
     handlerResult.failed.push({
       original: entity,
       tip: error.tip,
-      error,
+      error
     });
   }
   return handlerResult;

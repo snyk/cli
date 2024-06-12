@@ -1,19 +1,19 @@
-import { filterIgnoredIssues } from './policy';
-import { formatAndShareResults } from './share-results';
-import { formatScanResults } from '../measurable-methods';
-import * as cloneDeep from 'lodash.clonedeep';
-import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { filterIgnoredIssues } from "./policy";
+import { formatAndShareResults } from "./share-results";
+import { formatScanResults } from "../measurable-methods";
+import * as cloneDeep from "lodash.clonedeep";
+import { Policy } from "../../../../../../lib/policy/find-and-load-policy";
 import {
   IacOutputMeta,
   ProjectAttributes,
-  Tag,
-} from '../../../../../../lib/types';
+  Tag
+} from "../../../../../../lib/types";
 import {
   FormattedResult,
   IacFileScanResult,
   IacOrgSettings,
-  IaCTestFlags,
-} from '../types';
+  IaCTestFlags
+} from "../types";
 
 export async function processResults(
   resultsWithCustomSeverities: IacFileScanResult[],
@@ -24,7 +24,7 @@ export async function processResults(
   attributes: ProjectAttributes | undefined,
   options: IaCTestFlags,
   projectRoot: string,
-  meta: IacOutputMeta,
+  meta: IacOutputMeta
 ): Promise<{
   filteredIssues: FormattedResult[];
   ignoreCount: number;
@@ -45,7 +45,7 @@ export async function processResults(
       tags,
       attributes,
       projectRoot,
-      meta,
+      meta
     }));
   }
 
@@ -55,7 +55,7 @@ export async function processResults(
     iacOrgSettings.meta,
     projectPublicIds,
     projectRoot,
-    gitRemoteUrl,
+    gitRemoteUrl
   );
 
   return filterIgnoredIssues(policy, formattedResults);

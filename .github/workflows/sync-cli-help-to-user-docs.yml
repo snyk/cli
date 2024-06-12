@@ -3,7 +3,7 @@ name: Synchronize Help
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 12 * * 1-5' # Mon-Fri at 12
+    - cron: "0 12 * * 1-5" # Mon-Fri at 12
   push:
     branches: [chore/docs-action]
 

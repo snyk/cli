@@ -7,5 +7,5 @@ metadata:
     github.com/team-slug: snyk/cli
 spec:
   type: external-tooling
-  lifecycle: '-'
+  lifecycle: "-"
   owner: cli

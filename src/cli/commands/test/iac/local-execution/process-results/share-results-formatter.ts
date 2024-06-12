@@ -1,19 +1,19 @@
-import { IacFileScanResult, IacShareResultsFormat } from '../types';
-import * as path from 'path';
-import { IacOutputMeta } from '../../../../../../lib/types';
+import { IacFileScanResult, IacShareResultsFormat } from "../types";
+import * as path from "path";
+import { IacOutputMeta } from "../../../../../../lib/types";
 
 export function formatShareResults(
   projectRoot: string,
   scanResults: IacFileScanResult[],
-  meta: IacOutputMeta,
+  meta: IacOutputMeta
 ): IacShareResultsFormat[] {
   const resultsGroupedByFilePath = groupByFilePath(scanResults);
 
-  return resultsGroupedByFilePath.map((result) => {
+  return resultsGroupedByFilePath.map(result => {
     const { projectName, targetFile } = computePaths(
       projectRoot,
       result.filePath,
-      meta,
+      meta
     );
 
     return {
@@ -23,20 +23,20 @@ export function formatShareResults(
       fileType: result.fileType,
       projectType: result.projectType,
       violatedPolicies: result.violatedPolicies.filter(
-        (violatedPolicy) => violatedPolicy.severity !== 'none',
-      ),
+        violatedPolicy => violatedPolicy.severity !== "none"
+      )
     };
   });
 }
 
 function groupByFilePath(scanResults: IacFileScanResult[]) {
   const groupedByFilePath = scanResults.reduce((memo, scanResult) => {
-    scanResult.violatedPolicies.forEach((violatedPolicy) => {
+    scanResult.violatedPolicies.forEach(violatedPolicy => {
       violatedPolicy.docId = scanResult.docId;
     });
     if (memo[scanResult.filePath]) {
       memo[scanResult.filePath].violatedPolicies.push(
-        ...scanResult.violatedPolicies,
+        ...scanResult.violatedPolicies
       );
     } else {
       memo[scanResult.filePath] = scanResult;
@@ -50,16 +50,16 @@ function groupByFilePath(scanResults: IacFileScanResult[]) {
 function computePaths(
   projectRoot: string,
   filePath: string,
-  meta: IacOutputMeta,
+  meta: IacOutputMeta
 ): { targetFilePath: string; projectName: string; targetFile: string } {
   const projectDirectory = path.resolve(projectRoot);
   const absoluteFilePath = path.resolve(filePath);
   const relativeFilePath = path.relative(projectDirectory, absoluteFilePath);
-  const unixRelativeFilePath = relativeFilePath.split(path.sep).join('/');
+  const unixRelativeFilePath = relativeFilePath.split(path.sep).join("/");
 
   return {
     targetFilePath: absoluteFilePath,
     projectName: meta.projectName,
-    targetFile: unixRelativeFilePath,
+    targetFile: unixRelativeFilePath
   };
 }

@@ -1,7 +1,7 @@
-import { DependencyPins, DependencyUpdates, TestResult } from '../../types';
+import { DependencyPins, DependencyUpdates, TestResult } from "../../types";
 
 export function hasFixableIssues(
-  results: TestResult[],
+  results: TestResult[]
 ): {
   hasFixes: boolean;
   count: number;
@@ -29,12 +29,12 @@ export function hasFixableIssues(
 
   return {
     hasFixes,
-    count,
+    count
   };
 }
 
 function getUpgradableIssues(
-  updates: DependencyUpdates | DependencyPins,
+  updates: DependencyUpdates | DependencyPins
 ): number {
   const issues: string[] = [];
   for (const id of Object.keys(updates)) {

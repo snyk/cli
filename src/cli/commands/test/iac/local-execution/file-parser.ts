@@ -1,9 +1,9 @@
-import { detectConfigType } from './parsers/config-type-detection';
-import { FailedToParseTerraformFileError } from './parsers/terraform-file-parser';
+import { detectConfigType } from "./parsers/config-type-detection";
+import { FailedToParseTerraformFileError } from "./parsers/terraform-file-parser";
 import {
   isTerraformPlan,
-  tryParsingTerraformPlan,
-} from './parsers/terraform-plan-parser';
+  tryParsingTerraformPlan
+} from "./parsers/terraform-plan-parser";
 
 import {
   EngineType,
@@ -14,41 +14,41 @@ import {
   IaCTestFlags,
   ParsingResults,
   TerraformPlanScanMode,
-  VALID_TERRAFORM_FILE_TYPES,
-} from './types';
-import * as analytics from '../../../../../lib/analytics';
-import { CustomError } from '../../../../../lib/errors';
-import { getErrorStringCode } from './error-utils';
-import { parseYAMLOrJSONFileData } from './yaml-parser';
-import hclToJsonV2 from './parsers/hcl-to-json-v2';
-import { IacProjectType } from '../../../../../lib/iac/constants';
+  VALID_TERRAFORM_FILE_TYPES
+} from "./types";
+import * as analytics from "../../../../../lib/analytics";
+import { CustomError } from "../../../../../lib/errors";
+import { getErrorStringCode } from "./error-utils";
+import { parseYAMLOrJSONFileData } from "./yaml-parser";
+import hclToJsonV2 from "./parsers/hcl-to-json-v2";
+import { IacProjectType } from "../../../../../lib/iac/constants";
 
-import * as Debug from 'debug';
+import * as Debug from "debug";
 
-const debug = Debug('snyk-test');
+const debug = Debug("snyk-test");
 
 export async function parseFiles(
   filesData: IacFileData[],
-  options: IaCTestFlags = {},
+  options: IaCTestFlags = {}
 ): Promise<ParsingResults> {
   let tfFileData: IacFileData[] = [];
   let nonTfFileData: IacFileData[] = [];
-  tfFileData = filesData.filter((fileData) =>
-    VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType),
+  tfFileData = filesData.filter(fileData =>
+    VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType)
   );
   nonTfFileData = filesData.filter(
-    (fileData) => !VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType),
+    fileData => !VALID_TERRAFORM_FILE_TYPES.includes(fileData.fileType)
   );
 
   let { parsedFiles, failedFiles } = parseNonTerraformFiles(
     nonTfFileData,
-    options,
+    options
   );
 
   if (tfFileData.length > 0) {
     const {
       parsedFiles: parsedTfFiles,
-      failedFiles: failedTfFiles,
+      failedFiles: failedTfFiles
     } = parseTerraformFiles(tfFileData);
     parsedFiles = parsedFiles.concat(parsedTfFiles);
     failedFiles = failedFiles.concat(failedTfFiles);
@@ -56,13 +56,13 @@ export async function parseFiles(
 
   return {
     parsedFiles,
-    failedFiles,
+    failedFiles
   };
 }
 
 export function parseNonTerraformFiles(
   filesData: IacFileData[],
-  options: IaCTestFlags,
+  options: IaCTestFlags
 ): ParsingResults {
   const parsedFiles: IacFileParsed[] = [];
   const failedFiles: IacFileParseFailure[] = [];
@@ -76,7 +76,7 @@ export function parseNonTerraformFiles(
 
   return {
     parsedFiles,
-    failedFiles,
+    failedFiles
   };
 }
 
@@ -90,7 +90,7 @@ export function parseTerraformFiles(filesData: IacFileData[]): ParsingResults {
 
   const parsingResults: ParsingResults = {
     parsedFiles: [],
-    failedFiles: [],
+    failedFiles: []
   };
   for (const fileData of filesData) {
     if (parsedFiles[fileData.filePath]) {
@@ -98,21 +98,21 @@ export function parseTerraformFiles(filesData: IacFileData[]): ParsingResults {
         ...fileData,
         jsonContent: JSON.parse(parsedFiles[fileData.filePath]),
         projectType: IacProjectType.TERRAFORM,
-        engineType: EngineType.Terraform,
+        engineType: EngineType.Terraform
       });
     } else if (failedFiles[fileData.filePath]) {
       if (debugLogs[fileData.filePath]) {
         debug(
-          'File %s failed to parse with: %s',
+          "File %s failed to parse with: %s",
           fileData.filePath,
-          debugLogs[fileData.filePath],
+          debugLogs[fileData.filePath]
         );
       }
       parsingResults.failedFiles.push(
         generateFailedParsedFile(
           fileData,
-          new FailedToParseTerraformFileError(fileData.filePath),
-        ),
+          new FailedToParseTerraformFileError(fileData.filePath)
+        )
       );
     }
   }
@@ -121,7 +121,7 @@ export function parseTerraformFiles(filesData: IacFileData[]): ParsingResults {
 
 function generateFailedParsedFile(
   { fileType, filePath, fileContent }: IacFileData,
-  err: Error,
+  err: Error
 ) {
   return {
     err,
@@ -130,29 +130,29 @@ function generateFailedParsedFile(
     filePath,
     fileContent,
     engineType: null,
-    jsonContent: null,
+    jsonContent: null
   };
 }
 
 export function tryParseIacFile(
   fileData: IacFileData,
-  options: IaCTestFlags = {},
+  options: IaCTestFlags = {}
 ): IacFileParsed[] {
-  analytics.add('iac-terraform-plan', false);
+  analytics.add("iac-terraform-plan", false);
   switch (fileData.fileType) {
-    case 'yaml':
-    case 'yml': {
+    case "yaml":
+    case "yml": {
       const parsedIacFile = parseYAMLOrJSONFileData(fileData);
       return detectConfigType(fileData, parsedIacFile);
     }
-    case 'json': {
+    case "json": {
       const parsedIacFile = parseYAMLOrJSONFileData(fileData);
       // the Kubernetes file can have more than one JSON object in it
       // but the Terraform plan can only have one
       if (parsedIacFile.length === 1 && isTerraformPlan(parsedIacFile[0])) {
-        analytics.add('iac-terraform-plan', true);
+        analytics.add("iac-terraform-plan", true);
         return tryParsingTerraformPlan(fileData, parsedIacFile[0], {
-          isFullScan: options.scan === TerraformPlanScanMode.FullScan,
+          isFullScan: options.scan === TerraformPlanScanMode.FullScan
         });
       } else {
         return detectConfigType(fileData, parsedIacFile);
@@ -165,7 +165,7 @@ export function tryParseIacFile(
 
 export class UnsupportedFileTypeError extends CustomError {
   constructor(fileType: string) {
-    super('Unsupported file extension');
+    super("Unsupported file extension");
     this.code = IaCErrorCodes.UnsupportedFileTypeError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Unable to process the file with extension ${fileType}. Supported file extensions are tf, yml, yaml & json.\nMore information can be found by running \`snyk iac test --help\` or through our documentation:\nhttps://support.snyk.io/hc/en-us/articles/360012429477-Test-your-Kubernetes-files-with-our-CLI-tool\nhttps://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files-with-our-CLI-tool`;

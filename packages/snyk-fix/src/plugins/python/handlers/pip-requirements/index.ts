@@ -1,7 +1,7 @@
-import * as debugLib from 'debug';
-import * as pathLib from 'path';
-const sortBy = require('lodash.sortby');
-const groupBy = require('lodash.groupby');
+import * as debugLib from "debug";
+import * as pathLib from "path";
+const sortBy = require("lodash.sortby");
+const groupBy = require("lodash.groupby");
 
 import {
   EntityToFix,
@@ -9,47 +9,47 @@ import {
   FixOptions,
   Issue,
   RemediationChanges,
-  Workspace,
-} from '../../../../types';
-import { FixedCache, PluginFixResponse } from '../../../types';
-import { updateDependencies } from './update-dependencies';
-import { NoFixesCouldBeAppliedError } from '../../../../lib/errors/no-fixes-applied';
-import { extractProvenance } from './extract-version-provenance';
+  Workspace
+} from "../../../../types";
+import { FixedCache, PluginFixResponse } from "../../../types";
+import { updateDependencies } from "./update-dependencies";
+import { NoFixesCouldBeAppliedError } from "../../../../lib/errors/no-fixes-applied";
+import { extractProvenance } from "./extract-version-provenance";
 import {
   ParsedRequirements,
-  parseRequirementsFile,
-} from './update-dependencies/requirements-file-parser';
-import { standardizePackageName } from '../../standardize-package-name';
-import { containsRequireDirective } from './contains-require-directive';
-import { validateRequiredData } from '../validate-required-data';
-import { formatDisplayName } from '../../../../lib/output-formatters/format-display-name';
+  parseRequirementsFile
+} from "./update-dependencies/requirements-file-parser";
+import { standardizePackageName } from "../../standardize-package-name";
+import { containsRequireDirective } from "./contains-require-directive";
+import { validateRequiredData } from "../validate-required-data";
+import { formatDisplayName } from "../../../../lib/output-formatters/format-display-name";
 
-const debug = debugLib('snyk-fix:python:requirements.txt');
+const debug = debugLib("snyk-fix:python:requirements.txt");
 
 export async function pipRequirementsTxt(
   fixable: EntityToFix[],
-  options: FixOptions,
+  options: FixOptions
 ): Promise<PluginFixResponse> {
   debug(`Preparing to fix ${fixable.length} Python requirements.txt projects`);
   const handlerResult: PluginFixResponse = {
     succeeded: [],
     failed: [],
-    skipped: [],
+    skipped: []
   };
 
   const ordered = sortByDirectory(fixable);
   let fixedFilesCache: FixedCache = {};
   for (const dir of Object.keys(ordered)) {
     debug(`Fixing entities in directory ${dir}`);
-    const entitiesPerDirectory = ordered[dir].map((e) => e.entity);
+    const entitiesPerDirectory = ordered[dir].map(e => e.entity);
     const { failed, succeeded, skipped, fixedCache } = await fixAll(
       entitiesPerDirectory,
       options,
-      fixedFilesCache,
+      fixedFilesCache
     );
     fixedFilesCache = {
       ...fixedFilesCache,
-      ...fixedCache,
+      ...fixedCache
     };
     handlerResult.succeeded.push(...succeeded);
     handlerResult.failed.push(...failed);
@@ -61,12 +61,12 @@ export async function pipRequirementsTxt(
 async function fixAll(
   entities: EntityToFix[],
   options: FixOptions,
-  fixedCache: FixedCache,
+  fixedCache: FixedCache
 ): Promise<PluginFixResponse & { fixedCache: FixedCache }> {
   const handlerResult: PluginFixResponse = {
     succeeded: [],
     failed: [],
-    skipped: [],
+    skipped: []
   };
   for (const entity of entities) {
     const targetFile = entity.scanResult.identity.targetFile!;
@@ -76,7 +76,7 @@ async function fixAll(
       const filePath = pathLib.normalize(pathLib.join(dir, base));
       if (
         Object.keys(fixedCache).includes(
-          pathLib.normalize(pathLib.join(dir, base)),
+          pathLib.normalize(pathLib.join(dir, base))
         )
       ) {
         handlerResult.succeeded.push({
@@ -88,21 +88,21 @@ async function fixAll(
                 entity.workspace.path,
                 {
                   type: entity.scanResult.identity.type,
-                  targetFile: fixedCache[filePath].fixedIn,
-                },
+                  targetFile: fixedCache[filePath].fixedIn
+                }
               )}`,
               issueIds: getFixedEntityIssues(
                 fixedCache[filePath].issueIds,
-                entity.testResult.issues,
-              ),
-            },
-          ],
+                entity.testResult.issues
+              )
+            }
+          ]
         });
         continue;
       }
       const { changes, fixedMeta } = await applyAllFixes(entity, options);
       if (!changes.length) {
-        debug('Manifest has not changed!');
+        debug("Manifest has not changed!");
         throw new NoFixesCouldBeAppliedError();
       }
 
@@ -110,12 +110,12 @@ async function fixAll(
       // the test result is for 1 entry entity.
       const uniqueIssueIds = new Set<string>();
       for (const c of changes) {
-        c.issueIds.map((i) => uniqueIssueIds.add(i));
+        c.issueIds.map(i => uniqueIssueIds.add(i));
       }
-      Object.keys(fixedMeta).forEach((f) => {
+      Object.keys(fixedMeta).forEach(f => {
         fixedCache[f] = {
           fixedIn: targetFile,
-          issueIds: Array.from(uniqueIssueIds),
+          issueIds: Array.from(uniqueIssueIds)
         };
       });
       handlerResult.succeeded.push({ original: entity, changes });
@@ -136,7 +136,7 @@ export async function fixIndividualRequirementsTxt(
   remediation: RemediationChanges,
   parsedRequirements: ParsedRequirements,
   options: FixOptions,
-  directUpgradesOnly: boolean,
+  directUpgradesOnly: boolean
 ): Promise<{ changes: FixChangesSummary[] }> {
   const entryFilePath = pathLib.normalize(pathLib.join(dir, entryFileName));
   const fullFilePath = pathLib.normalize(pathLib.join(dir, fileName));
@@ -146,10 +146,10 @@ export async function fixIndividualRequirementsTxt(
     directUpgradesOnly,
     entryFilePath !== fullFilePath
       ? formatDisplayName(workspace.path, {
-          type: 'pip',
-          targetFile: fullFilePath,
+          type: "pip",
+          targetFile: fullFilePath
         })
-      : undefined,
+      : undefined
   );
 
   if (!changes.length) {
@@ -157,10 +157,10 @@ export async function fixIndividualRequirementsTxt(
   }
 
   if (!options.dryRun) {
-    debug('Writing changes to file');
+    debug("Writing changes to file");
     await workspace.writeFile(pathLib.join(dir, fileName), updatedManifest);
   } else {
-    debug('Skipping writing changes to file in --dry-run mode');
+    debug("Skipping writing changes to file in --dry-run mode");
   }
 
   return { changes };
@@ -168,7 +168,7 @@ export async function fixIndividualRequirementsTxt(
 
 export async function applyAllFixes(
   entity: EntityToFix,
-  options: FixOptions,
+  options: FixOptions
 ): Promise<{
   changes: FixChangesSummary[];
   fixedMeta: { [filePath: string]: FixChangesSummary[] };
@@ -176,7 +176,7 @@ export async function applyAllFixes(
   const {
     remediation,
     targetFile: entryFileName,
-    workspace,
+    workspace
   } = validateRequiredData(entity);
   const fixedMeta: {
     [filePath: string]: FixChangesSummary[];
@@ -195,7 +195,7 @@ export async function applyAllFixes(
       remediation,
       provenance[fileName],
       options,
-      skipApplyingPins,
+      skipApplyingPins
     );
     upgradeChanges.push(...changes);
     fixedMeta[pathLib.normalize(pathLib.join(dir, fileName))] = upgradeChanges;
@@ -204,7 +204,7 @@ export async function applyAllFixes(
   /* Apply all left over remediation as pins in the entry targetFile */
   const toPin: RemediationChanges = filterOutAppliedUpgrades(
     remediation,
-    upgradeChanges,
+    upgradeChanges
   );
   const directUpgradesOnly = false;
   const fileForPinning = await selectFileForPinning(entity);
@@ -216,7 +216,7 @@ export async function applyAllFixes(
     toPin,
     parseRequirementsFile(fileForPinning.fileContent),
     options,
-    directUpgradesOnly,
+    directUpgradesOnly
   );
 
   return { changes: [...upgradeChanges, ...pinnedChanges], fixedMeta };
@@ -224,27 +224,27 @@ export async function applyAllFixes(
 
 function filterOutAppliedUpgrades(
   remediation: RemediationChanges,
-  upgradeChanges: FixChangesSummary[],
+  upgradeChanges: FixChangesSummary[]
 ): RemediationChanges {
   const pinRemediation: RemediationChanges = {
     ...remediation,
-    pin: {}, // delete the pin remediation so we can collect un-applied remediation
+    pin: {} // delete the pin remediation so we can collect un-applied remediation
   };
   const pins = remediation.pin;
   const normalizedAppliedRemediation = upgradeChanges
-    .map((c) => {
+    .map(c => {
       if (c.success && c.from) {
-        const [pkgName, versionAndMore] = c.from?.split('@');
+        const [pkgName, versionAndMore] = c.from?.split("@");
         return `${standardizePackageName(pkgName)}@${versionAndMore}`;
       }
       return false;
     })
     .filter(Boolean);
   for (const pkgAtVersion of Object.keys(pins)) {
-    const [pkgName, versionAndMore] = pkgAtVersion.split('@');
+    const [pkgName, versionAndMore] = pkgAtVersion.split("@");
     if (
       !normalizedAppliedRemediation.includes(
-        `${standardizePackageName(pkgName)}@${versionAndMore}`,
+        `${standardizePackageName(pkgName)}@${versionAndMore}`
       )
     ) {
       pinRemediation.pin[pkgAtVersion] = pins[pkgAtVersion];
@@ -254,7 +254,7 @@ function filterOutAppliedUpgrades(
 }
 
 function sortByDirectory(
-  entities: EntityToFix[],
+  entities: EntityToFix[]
 ): {
   [dir: string]: Array<{
     entity: EntityToFix;
@@ -265,17 +265,17 @@ function sortByDirectory(
     name: string;
   }>;
 } {
-  const mapped = entities.map((e) => ({
+  const mapped = entities.map(e => ({
     entity: e,
-    ...pathLib.parse(e.scanResult.identity.targetFile!),
+    ...pathLib.parse(e.scanResult.identity.targetFile!)
   }));
 
-  const sorted = sortBy(mapped, 'dir');
-  return groupBy(sorted, 'dir');
+  const sorted = sortBy(mapped, "dir");
+  return groupBy(sorted, "dir");
 }
 
 export async function selectFileForPinning(
-  entity: EntityToFix,
+  entity: EntityToFix
 ): Promise<{
   fileName: string;
   fileContent: string;
@@ -288,9 +288,9 @@ export async function selectFileForPinning(
   let requirementsTxt = await workspace.readFile(targetFile);
 
   const { containsRequire, matches } = await containsRequireDirective(
-    requirementsTxt,
+    requirementsTxt
   );
-  const constraintsMatch = matches.filter((m) => m.includes('c'));
+  const constraintsMatch = matches.filter(m => m.includes("c"));
   if (containsRequire && constraintsMatch[0]) {
     // prefer to pin in constraints file if present
     fileName = constraintsMatch[0][2];
@@ -301,7 +301,7 @@ export async function selectFileForPinning(
 
 function getFixedEntityIssues(
   fixedIssueIds: string[],
-  issues: Issue[],
+  issues: Issue[]
 ): string[] {
   const fixed: string[] = [];
   for (const { issueId } of issues) {

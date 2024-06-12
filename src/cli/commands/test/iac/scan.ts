@@ -1,34 +1,34 @@
-import * as cloneDeep from 'lodash.clonedeep';
-import * as assign from 'lodash.assign';
+import * as cloneDeep from "lodash.clonedeep";
+import * as assign from "lodash.assign";
 
 import {
   IacFileInDirectory,
   IacOutputMeta,
   Options,
-  TestOptions,
-} from '../../../../lib/types';
-import { TestResult } from '../../../../lib/snyk-test/legacy';
+  TestOptions
+} from "../../../../lib/types";
+import { TestResult } from "../../../../lib/snyk-test/legacy";
 
-import * as utils from '../utils';
-import { spinnerMessage } from '../../../../lib/formatters/iac-output/text';
+import * as utils from "../utils";
+import { spinnerMessage } from "../../../../lib/formatters/iac-output/text";
 
-import { test as iacTest } from './local-execution';
+import { test as iacTest } from "./local-execution";
 import {
   assertIaCOptionsFlags,
-  assertIntegratedIaCOnlyOptions,
-} from './local-execution/assert-iac-options-flag';
-import { initRules } from './local-execution/rules/rules';
-import { cleanLocalCache } from './local-execution/measurable-methods';
-import * as ora from 'ora';
-import { IaCErrorCodes, IacOrgSettings } from './local-execution/types';
-import * as pathLib from 'path';
-import { CustomError } from '../../../../lib/errors';
-import { OciRegistry } from './local-execution/rules/oci-registry';
-import { SingleGroupResultsProcessor } from './local-execution/process-results';
-import { getErrorStringCode } from './local-execution/error-utils';
-import { getRepositoryRootForPath } from '../../../../lib/iac/git';
-import { getInfo } from '../../../../lib/project-metadata/target-builders/git';
-import { buildMeta, GitRepository, GitRepositoryFinder } from './meta';
+  assertIntegratedIaCOnlyOptions
+} from "./local-execution/assert-iac-options-flag";
+import { initRules } from "./local-execution/rules/rules";
+import { cleanLocalCache } from "./local-execution/measurable-methods";
+import * as ora from "ora";
+import { IaCErrorCodes, IacOrgSettings } from "./local-execution/types";
+import * as pathLib from "path";
+import { CustomError } from "../../../../lib/errors";
+import { OciRegistry } from "./local-execution/rules/oci-registry";
+import { SingleGroupResultsProcessor } from "./local-execution/process-results";
+import { getErrorStringCode } from "./local-execution/error-utils";
+import { getRepositoryRootForPath } from "../../../../lib/iac/git";
+import { getInfo } from "../../../../lib/project-metadata/target-builders/git";
+import { buildMeta, GitRepository, GitRepositoryFinder } from "./meta";
 
 export async function scan(
   iacOrgSettings: IacOrgSettings,
@@ -39,7 +39,7 @@ export async function scan(
   buildOciRules: () => OciRegistry,
   projectRoot: string,
   remoteRepoUrl?: string,
-  targetName?: string,
+  targetName?: string
 ): Promise<{
   iacOutputMeta: IacOutputMeta;
   iacScanFailures: IacFileInDirectory[];
@@ -56,7 +56,7 @@ export async function scan(
     iacOrgSettings,
     projectRoot,
     remoteRepoUrl,
-    targetName,
+    targetName
   );
 
   let iacScanFailures: IacFileInDirectory[] = [];
@@ -67,7 +67,7 @@ export async function scan(
       buildOciRules,
       iacOrgSettings,
       options,
-      orgPublicId,
+      orgPublicId
     );
 
     testSpinner?.start(spinnerMessage);
@@ -78,14 +78,14 @@ export async function scan(
       // these options later.
       const testOpts = cloneDeep(options);
       testOpts.path = path;
-      testOpts.projectName = testOpts['project-name'];
+      testOpts.projectName = testOpts["project-name"];
 
       let res: (TestResult | TestResult[]) | Error;
       try {
         assertIntegratedIaCOnlyOptions(iacOrgSettings, process.argv);
         assertIaCOptionsFlags(process.argv);
 
-        if (pathLib.relative(projectRoot, path).includes('..')) {
+        if (pathLib.relative(projectRoot, path).includes("..")) {
           throw new CurrentWorkingDirectoryTraversalError(path, projectRoot);
         }
 
@@ -94,7 +94,7 @@ export async function scan(
           orgPublicId,
           iacOrgSettings,
           testOpts,
-          iacOutputMeta,
+          iacOutputMeta
         );
 
         const { results, failures, ignoreCount } = await iacTest(
@@ -102,7 +102,7 @@ export async function scan(
           path,
           testOpts,
           iacOrgSettings,
-          rulesOrigin,
+          rulesOrigin
         );
 
         res = results;
@@ -122,7 +122,7 @@ export async function scan(
           resArray[i].filename ||
           utils.getPathWithOptionalProjectName(path, resArray[i]);
         results.push(
-          assign(resArray[i], { path: pathWithOptionalProjectName }),
+          assign(resArray[i], { path: pathWithOptionalProjectName })
         );
         // currently testOpts are identical for each test result returned even if it's for multiple projects.
         // we want to return the project names, so will need to be crafty in a way that makes sense.
@@ -131,8 +131,8 @@ export async function scan(
         } else {
           resultOptions.push(
             assign(cloneDeep(testOpts), {
-              projectName: testOpts.projectNames[i],
-            }),
+              projectName: testOpts.projectNames[i]
+            })
           );
         }
       }
@@ -146,7 +146,7 @@ export async function scan(
     iacScanFailures,
     iacIgnoredIssuesCount,
     results,
-    resultOptions,
+    resultOptions
   };
 }
 
@@ -158,7 +158,7 @@ function formatTestError(error) {
     errorResponse = error;
   } else if (Array.isArray(error)) {
     return error.map(formatTestError);
-  } else if (typeof error !== 'object') {
+  } else if (typeof error !== "object") {
     errorResponse = new Error(error);
   } else {
     try {
@@ -175,7 +175,7 @@ class CurrentWorkingDirectoryTraversalError extends CustomError {
   public projectRoot: string;
 
   constructor(path: string, projectRoot: string) {
-    super('Path is outside the current working directory');
+    super("Path is outside the current working directory");
     this.code = IaCErrorCodes.CurrentWorkingDirectoryTraversalError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Path is outside the current working directory`;
@@ -190,7 +190,7 @@ class DefaultGitRepository implements GitRepository {
   async readRemoteUrl() {
     const gitInfo = await getInfo({
       isFromContainer: false,
-      cwd: this.path,
+      cwd: this.path
     });
     return gitInfo?.remoteUrl;
   }

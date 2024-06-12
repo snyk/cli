@@ -1,18 +1,18 @@
-import * as camelCase from 'lodash.camelcase';
-import { DepGraphData } from '@snyk/dep-graph';
-import { GraphNode } from '@snyk/dep-graph/dist/core/types';
-import config from '../../config';
-import { makeRequest, makeRequestRest } from '../../request/promise';
-import { pollDepGraphAttributes, submitHashes } from '../resolve-test-facts';
-import { ScanResult } from '../types';
-import { DepGraphDataOpenAPI } from './types';
-import { getAuthHeader } from '../../api-token';
+import * as camelCase from "lodash.camelcase";
+import { DepGraphData } from "@snyk/dep-graph";
+import { GraphNode } from "@snyk/dep-graph/dist/core/types";
+import config from "../../config";
+import { makeRequest, makeRequestRest } from "../../request/promise";
+import { pollDepGraphAttributes, submitHashes } from "../resolve-test-facts";
+import { ScanResult } from "../types";
+import { DepGraphDataOpenAPI } from "./types";
+import { getAuthHeader } from "../../api-token";
 
 function mapKey(object, iteratee) {
   object = Object(object);
   const result = {};
 
-  Object.keys(object).forEach((key) => {
+  Object.keys(object).forEach(key => {
     const value = object[key];
     result[iteratee(value, key, object)] = value;
   });
@@ -33,15 +33,15 @@ export function convertMapCasing<T>(obj: any): T {
 }
 
 export function convertObjectArrayCasing<T>(arr: any[]): T[] {
-  return arr.map((item) => convertToCamelCase<T>(item));
+  return arr.map(item => convertToCamelCase<T>(item));
 }
 
 export function convertDepGraph<T>(depGraphOpenApi: T) {
   const depGraph: DepGraphData = convertToCamelCase(depGraphOpenApi);
   depGraph.graph = convertToCamelCase(depGraph.graph);
-  const nodes: GraphNode[] = depGraph.graph.nodes.map((graphNode) => {
+  const nodes: GraphNode[] = depGraph.graph.nodes.map(graphNode => {
     const node: GraphNode = convertToCamelCase(graphNode);
-    node.deps = node.deps.map((dep) => convertToCamelCase(dep));
+    node.deps = node.deps.map(dep => convertToCamelCase(dep));
     return node;
   });
 
@@ -81,11 +81,11 @@ interface OrgsResponse {
 
 export async function getOrgIdFromSlug(slug: string): Promise<string> {
   const res = await makeRequest<OrgsResponse>({
-    method: 'GET',
+    method: "GET",
     headers: {
-      Authorization: getAuthHeader(),
+      Authorization: getAuthHeader()
     },
-    url: config.API + '/orgs',
+    url: config.API + "/orgs"
   });
 
   for (const org of res.orgs) {
@@ -94,13 +94,13 @@ export async function getOrgIdFromSlug(slug: string): Promise<string> {
     }
   }
 
-  return '';
+  return "";
 }
 
 export function getSelf() {
   return makeRequestRest<SelfResponse>({
-    method: 'GET',
-    url: `${config.API_REST_URL}/self?version=2022-08-12~experimental`,
+    method: "GET",
+    url: `${config.API_REST_URL}/self?version=2022-08-12~experimental`
   });
 }
 
@@ -114,7 +114,7 @@ export function isUUID(str) {
 }
 
 export async function getOrg(org?: string | null) {
-  let orgId = org || (await getOrgDefaultContext()) || '';
+  let orgId = org || (await getOrgDefaultContext()) || "";
 
   if (!isUUID(orgId)) {
     orgId = await getOrgIdFromSlug(orgId);
@@ -133,7 +133,7 @@ export async function getUnmanagedDepGraph(scans: {
     for (const scanResult of scanResults) {
       const taskId = await submitHashes(
         { hashes: scanResult?.facts[0]?.data },
-        orgId,
+        orgId
       );
 
       const { dep_graph_data } = await pollDepGraphAttributes(taskId, orgId);

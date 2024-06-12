@@ -1,9 +1,9 @@
-import { Options } from '../types';
-import { Ecosystem } from './types';
+import { Options } from "../types";
+import { Ecosystem } from "./types";
 
-export { testEcosystem } from './test';
-export { monitorEcosystem } from './monitor';
-export { getPlugin } from './plugins';
+export { testEcosystem } from "./test";
+export { monitorEcosystem } from "./monitor";
+export { getPlugin } from "./plugins";
 
 /**
  * Ecosystems are listed here if you opt in to the new plugin test flow.
@@ -15,21 +15,21 @@ export { getPlugin } from './plugins';
  */
 export function getEcosystemForTest(options: Options): Ecosystem | null {
   if (options.unmanaged) {
-    return 'cpp';
+    return "cpp";
   }
   if (options.code) {
-    return 'code';
+    return "code";
   }
   return null;
 }
 
 export function getEcosystem(options: Options): Ecosystem | null {
   if (options.unmanaged) {
-    return 'cpp';
+    return "cpp";
   }
 
   if (options.docker) {
-    return 'docker';
+    return "docker";
   }
   return null;
 }

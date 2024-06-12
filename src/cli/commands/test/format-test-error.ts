@@ -12,7 +12,7 @@ export function formatTestError(error) {
   let errorResponse;
   if (error instanceof Error) {
     errorResponse = error;
-  } else if (typeof error !== 'object') {
+  } else if (typeof error !== "object") {
     errorResponse = new Error(error);
   } else {
     try {

@@ -1,24 +1,24 @@
-import { Contributor, Options } from '../types';
-import { spinner } from '../../lib/spinner';
+import { Contributor, Options } from "../types";
+import { spinner } from "../../lib/spinner";
 import {
   ScanResult,
   EcosystemMonitorError,
-  EcosystemMonitorResult,
-} from './types';
+  EcosystemMonitorResult
+} from "./types";
 import {
   requestMonitorPollingToken,
-  pollingMonitorWithTokenUntilDone,
-} from '../polling/polling-monitor';
-import { extractAndApplyPluginAnalytics } from './plugin-analytics';
-import { AuthFailedError, MonitorError } from '../errors';
-import { extractResolutionMetaFromScanResult } from '../polling/common';
+  pollingMonitorWithTokenUntilDone
+} from "../polling/polling-monitor";
+import { extractAndApplyPluginAnalytics } from "./plugin-analytics";
+import { AuthFailedError, MonitorError } from "../errors";
+import { extractResolutionMetaFromScanResult } from "../polling/common";
 
 export async function resolveAndMonitorFacts(
   scans: {
     [dir: string]: ScanResult[];
   },
   options: Options,
-  contributors?: Contributor[],
+  contributors?: Contributor[]
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const results: EcosystemMonitorResult[] = [];
   const errors: EcosystemMonitorError[] = [];
@@ -42,13 +42,13 @@ export async function resolveAndMonitorFacts(
           attemptsCount,
           maxAttempts,
           resolutionMeta,
-          contributors,
+          contributors
         );
 
         const ecosystemMonitorResult: EcosystemMonitorResult = {
           ...response,
           path,
-          scanResult,
+          scanResult
         };
 
         results.push(ecosystemMonitorResult);
@@ -61,9 +61,9 @@ export async function resolveAndMonitorFacts(
           throw new MonitorError(error.code, error.message);
         }
         errors.push({
-          error: 'Could not monitor dependencies in ' + path,
+          error: "Could not monitor dependencies in " + path,
           path,
-          scanResult,
+          scanResult
         });
       }
     }

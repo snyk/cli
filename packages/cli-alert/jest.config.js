@@ -1,3 +1,3 @@
-const { createJestConfig } = require('../../test/createJestConfig');
+const { createJestConfig } = require("../../test/createJestConfig");
 
-module.exports = createJestConfig({ displayName: '@snyk/cli-alert' });
+module.exports = createJestConfig({ displayName: "@snyk/cli-alert" });

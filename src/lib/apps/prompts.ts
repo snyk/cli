@@ -1,5 +1,5 @@
-import { CreateAppPromptData } from './constants';
-import { validInput, validateAllURL, validateUUID } from './input-validator';
+import { CreateAppPromptData } from "./constants";
+import { validInput, validateAllURL, validateUUID } from "./input-validator";
 
 /**
  * Prompts for $snyk apps create command
@@ -7,33 +7,33 @@ import { validInput, validateAllURL, validateUUID } from './input-validator';
 export const createAppPrompts = [
   {
     name: CreateAppPromptData.SNYK_APP_NAME.name,
-    type: 'input',
+    type: "input",
     message: CreateAppPromptData.SNYK_APP_NAME.message,
-    validate: validInput,
+    validate: validInput
   },
   {
     name: CreateAppPromptData.SNYK_APP_REDIRECT_URIS.name,
-    type: 'input',
+    type: "input",
     message: CreateAppPromptData.SNYK_APP_REDIRECT_URIS.message,
-    validate: validateAllURL,
+    validate: validateAllURL
   },
   {
     name: CreateAppPromptData.SNYK_APP_SCOPES.name,
-    type: 'input',
+    type: "input",
     message: CreateAppPromptData.SNYK_APP_SCOPES.message,
-    validate: validInput,
+    validate: validInput
   },
   {
     name: CreateAppPromptData.SNYK_APP_ORG_ID.name,
-    type: 'input',
+    type: "input",
     message: CreateAppPromptData.SNYK_APP_ORG_ID.message,
-    validate: validateUUID,
+    validate: validateUUID
   },
   {
     name: CreateAppPromptData.SNYK_APP_CONTEXT.name,
-    type: 'select',
+    type: "select",
     message: CreateAppPromptData.SNYK_APP_CONTEXT.message,
-    choices: ['tenant', 'user'],
-    initial: 'tenant',
-  },
+    choices: ["tenant", "user"],
+    initial: "tenant"
+  }
 ];

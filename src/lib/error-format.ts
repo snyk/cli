@@ -1,7 +1,7 @@
 export function abridgeErrorMessage(
   msg: string,
   maxLen: number,
-  ellipsis = ' ... ',
+  ellipsis = " ... "
 ): string {
   if (msg.length <= maxLen) {
     return msg;

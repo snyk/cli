@@ -1,11 +1,11 @@
-import { MissingApiTokenError } from '../lib/errors';
+import { MissingApiTokenError } from "../lib/errors";
 
-import config from './config';
-import { config as userConfig } from './user-config';
+import config from "./config";
+import { config as userConfig } from "./user-config";
 
 export function api() {
   // note: config.TOKEN will potentially come via the environment
-  return config.api || config.TOKEN || userConfig.get('api');
+  return config.api || config.TOKEN || userConfig.get("api");
 }
 
 export function getOAuthToken(): string | undefined {

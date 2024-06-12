@@ -1,58 +1,58 @@
-import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
-import * as poetryFix from '@snyk/fix-poetry';
+import * as pipenvPipfileFix from "@snyk/fix-pipenv-pipfile";
+import * as poetryFix from "@snyk/fix-poetry";
 
-import { checkPackageToolSupported } from '../../../src/plugins/package-tool-supported';
+import { checkPackageToolSupported } from "../../../src/plugins/package-tool-supported";
 
-jest.mock('@snyk/fix-pipenv-pipfile');
-jest.mock('@snyk/fix-poetry');
+jest.mock("@snyk/fix-pipenv-pipfile");
+jest.mock("@snyk/fix-poetry");
 
-describe('checkPackageToolSupported', () => {
-  it('pipenv fix package called with correct data', async () => {
+describe("checkPackageToolSupported", () => {
+  it("pipenv fix package called with correct data", async () => {
     // Arrange
     const isPipenvSupportedVersionSpy = jest
-      .spyOn(pipenvPipfileFix, 'isPipenvSupportedVersion')
+      .spyOn(pipenvPipfileFix, "isPipenvSupportedVersion")
       .mockReturnValue({
         supported: true,
-        versions: ['123.123.123'],
+        versions: ["123.123.123"]
       });
     const isPipenvInstalledSpy = jest
-      .spyOn(pipenvPipfileFix, 'isPipenvInstalled')
+      .spyOn(pipenvPipfileFix, "isPipenvInstalled")
       .mockResolvedValue({
-        version: '123.123.123',
+        version: "123.123.123"
       });
 
     // Act
-    await checkPackageToolSupported('pipenv', {});
+    await checkPackageToolSupported("pipenv", {});
 
     // Assert
     expect(isPipenvInstalledSpy).toHaveBeenCalled();
     expect(isPipenvInstalledSpy).toHaveBeenNthCalledWith(1);
 
     expect(isPipenvSupportedVersionSpy).toHaveBeenCalled();
-    expect(isPipenvSupportedVersionSpy).toHaveBeenCalledWith('123.123.123');
+    expect(isPipenvSupportedVersionSpy).toHaveBeenCalledWith("123.123.123");
   });
-  it('poetry fix package called with correct data', async () => {
+  it("poetry fix package called with correct data", async () => {
     // Arrange
     const isPipenvSupportedVersionSpy = jest
-      .spyOn(poetryFix, 'isPoetrySupportedVersion')
+      .spyOn(poetryFix, "isPoetrySupportedVersion")
       .mockReturnValue({
         supported: true,
-        versions: ['1', '2'],
+        versions: ["1", "2"]
       });
     const isPipenvInstalledSpy = jest
-      .spyOn(poetryFix, 'isPoetryInstalled')
+      .spyOn(poetryFix, "isPoetryInstalled")
       .mockResolvedValue({
-        version: '3',
+        version: "3"
       });
 
     // Act
-    await checkPackageToolSupported('poetry', {});
+    await checkPackageToolSupported("poetry", {});
 
     // Assert
     expect(isPipenvInstalledSpy).toHaveBeenCalled();
     expect(isPipenvInstalledSpy).toHaveBeenNthCalledWith(1);
 
     expect(isPipenvSupportedVersionSpy).toHaveBeenCalled();
-    expect(isPipenvSupportedVersionSpy).toHaveBeenCalledWith('3');
+    expect(isPipenvSupportedVersionSpy).toHaveBeenCalledWith("3");
   });
 });

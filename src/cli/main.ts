@@ -1,25 +1,25 @@
-import * as Debug from 'debug';
-import * as pathLib from 'path';
-import { JsonStreamStringify } from 'json-stream-stringify';
+import * as Debug from "debug";
+import * as pathLib from "path";
+import { JsonStreamStringify } from "json-stream-stringify";
 
 // import args as a first internal module
-import { args as argsLib, Args, ArgsOptions } from './args';
+import { args as argsLib, Args, ArgsOptions } from "./args";
 // parse args as a first thing; argsLib modifies global namespace
 // therefore it is better to do it as a first thing to prevent bugs
 // when modules use this global setting during their require phase
 // TODO(code): remove once https://app.stepsize.com/issue/c2f6253e-7240-436f-943c-23a897558156/2-http-libraries-in-cli is solved
 const globalArgs = argsLib(process.argv);
 // assert supported node runtime version
-import * as runtime from './runtime';
+import * as runtime from "./runtime";
 // require analytics as soon as possible to start measuring execution time
-import * as analytics from '../lib/analytics';
-import * as alerts from '../lib/alerts';
-import * as sln from '../lib/sln';
-import { TestCommandResult } from './commands/types';
-import { copy } from './copy';
-import { spinner } from '../lib/spinner';
-import * as errors from '../lib/errors/legacy-errors';
-import * as ansiEscapes from 'ansi-escapes';
+import * as analytics from "../lib/analytics";
+import * as alerts from "../lib/alerts";
+import * as sln from "../lib/sln";
+import { TestCommandResult } from "./commands/types";
+import { copy } from "./copy";
+import { spinner } from "../lib/spinner";
+import * as errors from "../lib/errors/legacy-errors";
+import * as ansiEscapes from "ansi-escapes";
 
 import {
   FileFlagBadInputError,
@@ -27,30 +27,30 @@ import {
   UnsupportedOptionCombinationError,
   ExcludeFlagBadInputError,
   CustomError,
-  NoSupportedSastFiles,
-} from '../lib/errors';
-import { IaCErrorCodes } from './commands/test/iac/local-execution/types';
-import stripAnsi = require('strip-ansi');
-import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
-import { modeValidation } from './modes';
-import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
+  NoSupportedSastFiles
+} from "../lib/errors";
+import { IaCErrorCodes } from "./commands/test/iac/local-execution/types";
+import stripAnsi = require("strip-ansi");
+import { ExcludeFlagInvalidInputError } from "../lib/errors/exclude-flag-invalid-input";
+import { modeValidation } from "./modes";
+import { JsonFileOutputBadInputError } from "../lib/errors/json-file-output-bad-input-error";
 import {
   saveObjectToFile,
-  saveJsonToFileCreatingDirectoryIfRequired,
-} from '../lib/json-file-output';
+  saveJsonToFileCreatingDirectoryIfRequired
+} from "../lib/json-file-output";
 import {
   Options,
   TestOptions,
   MonitorOptions,
-  SupportedUserReachableFacingCliArgs,
-} from '../lib/types';
-import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-error';
-import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
-import { obfuscateArgs } from '../lib/utils';
-import { EXIT_CODES } from './exit-codes';
-const isEmpty = require('lodash/isEmpty');
+  SupportedUserReachableFacingCliArgs
+} from "../lib/types";
+import { SarifFileOutputEmptyError } from "../lib/errors/empty-sarif-output-error";
+import { InvalidDetectionDepthValue } from "../lib/errors/invalid-detection-depth-value";
+import { obfuscateArgs } from "../lib/utils";
+import { EXIT_CODES } from "./exit-codes";
+const isEmpty = require("lodash/isEmpty");
 
-const debug = Debug('snyk');
+const debug = Debug("snyk");
 
 async function runCommand(args: Args) {
   const commandResult = await args.method(...args.options._);
@@ -58,7 +58,7 @@ async function runCommand(args: Args) {
   const res = analytics.addDataAndSend({
     args: obfuscateArgs(args.options._),
     command: args.command,
-    org: args.options.org,
+    org: args.options.org
   });
 
   if (!commandResult) {
@@ -70,19 +70,19 @@ async function runCommand(args: Args) {
   if (result && !args.options.quiet) {
     if (args.options.copy) {
       copy(result);
-      console.log('Result copied to clipboard');
+      console.log("Result copied to clipboard");
     } else {
       console.log(result);
     }
   }
 
   // also save the json (in error.json) to file if option is set
-  if (args.command === 'test') {
+  if (args.command === "test") {
     const jsonResults = (commandResult as TestCommandResult).getJsonResult();
     const jsonPayload = (commandResult as TestCommandResult).getJsonData();
-    await saveResultsToFile(args.options, 'json', jsonResults, jsonPayload);
+    await saveResultsToFile(args.options, "json", jsonResults, jsonPayload);
     const sarifResults = (commandResult as TestCommandResult).getSarifResult();
-    await saveResultsToFile(args.options, 'sarif', sarifResults);
+    await saveResultsToFile(args.options, "sarif", sarifResults);
   }
 
   return res;
@@ -91,7 +91,7 @@ async function runCommand(args: Args) {
 async function handleError(args, error) {
   spinner.clearAll();
 
-  if (typeof error === 'object') {
+  if (typeof error === "object") {
     error.stack = error.nestedStack || error.stack;
     error.userMessage = error.nestedUserMessage || error.userMessage;
     error.code = error.nestedCode || error.code;
@@ -99,11 +99,11 @@ async function handleError(args, error) {
     error.userMessage = error.nestedUserMessage || error.userMessage;
   }
 
-  let command = 'bad-command';
+  let command = "bad-command";
   let exitCode = EXIT_CODES.ERROR;
 
   // If Snyk CLI is running in CI mode (SNYK_CI=1), differentiate authorization
-  if (process.env.SNYK_CI === '1') {
+  if (process.env.SNYK_CI === "1") {
     if (error.code === 401 || error.code === 403) {
       exitCode = EXIT_CODES.EX_NOPERM;
     } else if (error.code >= 400 && error.code < 500) {
@@ -111,13 +111,13 @@ async function handleError(args, error) {
     }
   }
 
-  const vulnsFound = error.code === 'VULNS';
+  const vulnsFound = error.code === "VULNS";
 
-  if (args.command === 'test' && args.options?.unmanaged) {
+  if (args.command === "test" && args.options?.unmanaged) {
     exitCode = vulnsFound ? EXIT_CODES.VULNS_FOUND : error.code;
   } else {
     const noSupportedManifestsFound = error.message?.includes(
-      'Could not detect supported target files in',
+      "Could not detect supported target files in"
     );
     const noSupportedSastFiles = error instanceof NoSupportedSastFiles;
     const noSupportedIaCFiles = error.code === IaCErrorCodes.NoFilesToScanError;
@@ -147,7 +147,7 @@ async function handleError(args, error) {
       : stripAnsi(error.json || error.stack);
     if (error.jsonPayload) {
       new JsonStreamStringify(error.jsonPayload, undefined, 2).pipe(
-        process.stdout,
+        process.stdout
       );
     } else {
       console.log(output);
@@ -157,9 +157,9 @@ async function handleError(args, error) {
       const result = errors.message(error);
       if (args.options.copy) {
         copy(result);
-        console.log('Result copied to clipboard');
+        console.log("Result copied to clipboard");
       } else {
-        if (`${error.code}`.indexOf('AUTH_') === 0) {
+        if (`${error.code}`.indexOf("AUTH_") === 0) {
           // remove the last few lines
           const erase = ansiEscapes.eraseLines(4);
           process.stdout.write(erase);
@@ -171,44 +171,44 @@ async function handleError(args, error) {
 
   if (error.jsonPayload) {
     // send raw jsonPayload instead of stringified payload
-    await saveResultsToFile(args.options, 'json', '', error.jsonPayload);
+    await saveResultsToFile(args.options, "json", "", error.jsonPayload);
   } else {
     // fallback to original behaviour
-    await saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
+    await saveResultsToFile(args.options, "json", error.jsonStringifiedResults);
   }
-  await saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
+  await saveResultsToFile(args.options, "sarif", error.sarifStringifiedResults);
 
   const analyticsError = vulnsFound
     ? {
         stack: error.jsonNoVulns,
         code: error.code,
-        message: 'Vulnerabilities found',
+        message: "Vulnerabilities found"
       }
     : {
         stack: error.stack,
         code: error.code,
-        message: error.message,
+        message: error.message
       };
 
   if (!vulnsFound && !error.stack) {
     // log errors that are not error objects
-    analytics.add('error', true);
-    analytics.add('command', args.command);
+    analytics.add("error", true);
+    analytics.add("command", args.command);
   } else {
-    analytics.add('error-message', analyticsError.message);
+    analytics.add("error-message", analyticsError.message);
     // Note that error.stack would also contain the error message
     // (see https://nodejs.org/api/errors.html#errors_error_stack)
-    analytics.add('error', analyticsError.stack);
-    analytics.add('error-code', error.code);
-    analytics.add('error-details', error.innerError);
-    analytics.add('error-str-code', error.strCode);
-    analytics.add('command', args.command);
+    analytics.add("error", analyticsError.stack);
+    analytics.add("error-code", error.code);
+    analytics.add("error-details", error.innerError);
+    analytics.add("error-str-code", error.strCode);
+    analytics.add("command", args.command);
   }
 
   const res = analytics.addDataAndSend({
     args: obfuscateArgs(args.options._),
     command,
-    org: args.options.org,
+    org: args.options.org
   });
 
   return { res, exitCode };
@@ -226,15 +226,15 @@ function getFullPath(filepathFragment: string): string {
 async function saveJsonResultsToFile(
   stringifiedJson: string,
   jsonOutputFile: string,
-  jsonPayload?: Record<string, unknown>,
+  jsonPayload?: Record<string, unknown>
 ) {
   if (!jsonOutputFile) {
-    console.error('empty jsonOutputFile');
+    console.error("empty jsonOutputFile");
     return;
   }
 
   if (jsonOutputFile.constructor.name !== String.name) {
-    console.error('--json-output-file should be a filename path');
+    console.error("--json-output-file should be a filename path");
     return;
   }
 
@@ -244,7 +244,7 @@ async function saveJsonResultsToFile(
   } else {
     await saveJsonToFileCreatingDirectoryIfRequired(
       jsonOutputFile,
-      stringifiedJson,
+      stringifiedJson
     );
   }
 }
@@ -253,10 +253,10 @@ function checkRuntime() {
   if (!runtime.isSupported(process.versions.node)) {
     console.error(
       `Node.js version ${process.versions.node} is an unsupported Node.js ` +
-        `runtime! Supported runtime range is '${runtime.supportedRange}'`,
+        `runtime! Supported runtime range is '${runtime.supportedRange}'`
     );
     console.error(
-      'Please upgrade your Node.js runtime. The last version of Snyk CLI that supports Node.js v8 is v1.454.0.',
+      "Please upgrade your Node.js runtime. The last version of Snyk CLI that supports Node.js v8 is v1.454.0."
     );
     process.exit(EXIT_CODES.ERROR);
   }
@@ -274,53 +274,53 @@ export async function main(): Promise<void> {
     modeValidation(globalArgs);
     // TODO: fix this, we do transformation to options and teh type doesn't reflect it
     validateUnsupportedOptionCombinations(
-      (globalArgs.options as unknown) as AllSupportedCliOptions,
+      (globalArgs.options as unknown) as AllSupportedCliOptions
     );
 
-    if (globalArgs.options['group-issues'] && globalArgs.options['iac']) {
+    if (globalArgs.options["group-issues"] && globalArgs.options["iac"]) {
       throw new UnsupportedOptionCombinationError([
-        '--group-issues is currently not supported for Snyk IaC.',
+        "--group-issues is currently not supported for Snyk IaC."
       ]);
     }
 
     if (
-      globalArgs.options['group-issues'] &&
-      !globalArgs.options['json'] &&
-      !globalArgs.options['json-file-output']
+      globalArgs.options["group-issues"] &&
+      !globalArgs.options["json"] &&
+      !globalArgs.options["json-file-output"]
     ) {
       throw new UnsupportedOptionCombinationError([
-        'JSON output is required to use --group-issues, try adding --json.',
+        "JSON output is required to use --group-issues, try adding --json."
       ]);
     }
 
     if (
-      globalArgs.options['mavenAggregateProject'] &&
-      globalArgs.options['project-name']
+      globalArgs.options["mavenAggregateProject"] &&
+      globalArgs.options["project-name"]
     ) {
       throw new UnsupportedOptionCombinationError([
-        'maven-aggregate-project',
-        'project-name',
+        "maven-aggregate-project",
+        "project-name"
       ]);
     }
 
     if (
       globalArgs.options.file &&
-      typeof globalArgs.options.file === 'string' &&
+      typeof globalArgs.options.file === "string" &&
       (globalArgs.options.file as string).match(/\.sln$/)
     ) {
-      if (globalArgs.options['project-name']) {
+      if (globalArgs.options["project-name"]) {
         throw new UnsupportedOptionCombinationError([
-          'file=*.sln',
-          'project-name',
+          "file=*.sln",
+          "project-name"
         ]);
       }
       sln.updateArgs(globalArgs);
-    } else if (typeof globalArgs.options.file === 'boolean') {
+    } else if (typeof globalArgs.options.file === "boolean") {
       throw new FileFlagBadInputError();
     }
 
     if (
-      typeof globalArgs.options.detectionDepth !== 'undefined' &&
+      typeof globalArgs.options.detectionDepth !== "undefined" &&
       (globalArgs.options.detectionDepth <= 0 ||
         Number.isNaN(globalArgs.options.detectionDepth))
     ) {
@@ -331,13 +331,13 @@ export async function main(): Promise<void> {
 
     validateOutputFile(
       globalArgs.options,
-      'json',
-      new JsonFileOutputBadInputError(),
+      "json",
+      new JsonFileOutputBadInputError()
     );
     validateOutputFile(
       globalArgs.options,
-      'sarif',
-      new SarifFileOutputEmptyError(),
+      "sarif",
+      new SarifFileOutputEmptyError()
     );
 
     res = await runCommand(globalArgs);
@@ -357,7 +357,7 @@ export async function main(): Promise<void> {
   }
 
   if (!process.env.TAP && failed) {
-    debug('Exit code: ' + exitCode);
+    debug("Exit code: " + exitCode);
     process.exitCode = exitCode;
   }
 
@@ -365,31 +365,31 @@ export async function main(): Promise<void> {
 }
 
 function validateUnsupportedOptionCombinations(
-  options: AllSupportedCliOptions,
+  options: AllSupportedCliOptions
 ): void {
   const unsupportedAllProjectsCombinations: {
     [name: string]: SupportedUserReachableFacingCliArgs;
   } = {
-    'project-name': 'project-name',
-    file: 'file',
-    yarnWorkspaces: 'yarn-workspaces',
-    packageManager: 'package-manager',
-    docker: 'docker',
-    allSubProjects: 'all-sub-projects',
+    "project-name": "project-name",
+    file: "file",
+    yarnWorkspaces: "yarn-workspaces",
+    packageManager: "package-manager",
+    docker: "docker",
+    allSubProjects: "all-sub-projects"
   };
 
   const unsupportedYarnWorkspacesCombinations: {
     [name: string]: SupportedUserReachableFacingCliArgs;
   } = {
-    'project-name': 'project-name',
-    file: 'file',
-    packageManager: 'package-manager',
-    docker: 'docker',
-    allSubProjects: 'all-sub-projects',
+    "project-name": "project-name",
+    file: "file",
+    packageManager: "package-manager",
+    docker: "docker",
+    allSubProjects: "all-sub-projects"
   };
 
   if (options.scanAllUnmanaged && options.file) {
-    throw new UnsupportedOptionCombinationError(['file', 'scan-all-unmanaged']);
+    throw new UnsupportedOptionCombinationError(["file", "scan-all-unmanaged"]);
   }
 
   if (options.allProjects) {
@@ -397,7 +397,7 @@ function validateUnsupportedOptionCombinations(
       if (options[option]) {
         throw new UnsupportedOptionCombinationError([
           unsupportedAllProjectsCombinations[option],
-          'all-projects',
+          "all-projects"
         ]);
       }
     }
@@ -408,7 +408,7 @@ function validateUnsupportedOptionCombinations(
       if (options[option]) {
         throw new UnsupportedOptionCombinationError([
           unsupportedAllProjectsCombinations[option],
-          'yarn-workspaces',
+          "yarn-workspaces"
         ]);
       }
     }
@@ -416,12 +416,12 @@ function validateUnsupportedOptionCombinations(
 
   if (options.exclude) {
     if (!(options.allProjects || options.yarnWorkspaces)) {
-      throw new MissingOptionError('--exclude', [
-        '--yarn-workspaces',
-        '--all-projects',
+      throw new MissingOptionError("--exclude", [
+        "--yarn-workspaces",
+        "--all-projects"
       ]);
     }
-    if (typeof options.exclude !== 'string') {
+    if (typeof options.exclude !== "string") {
       throw new ExcludeFlagBadInputError();
     }
     if (options.exclude.indexOf(pathLib.sep) > -1) {
@@ -431,29 +431,29 @@ function validateUnsupportedOptionCombinations(
 }
 
 function validateUnsupportedSarifCombinations(args) {
-  if (args.options['json-file-output'] && args.command !== 'test') {
+  if (args.options["json-file-output"] && args.command !== "test") {
     throw new UnsupportedOptionCombinationError([
       args.command,
-      'json-file-output',
+      "json-file-output"
     ]);
   }
 
-  if (args.options['sarif'] && args.command !== 'test') {
-    throw new UnsupportedOptionCombinationError([args.command, 'sarif']);
+  if (args.options["sarif"] && args.command !== "test") {
+    throw new UnsupportedOptionCombinationError([args.command, "sarif"]);
   }
 
-  if (args.options['sarif'] && args.options['json']) {
+  if (args.options["sarif"] && args.options["json"]) {
     throw new UnsupportedOptionCombinationError([
       args.command,
-      'sarif',
-      'json',
+      "sarif",
+      "json"
     ]);
   }
 
-  if (args.options['sarif-file-output'] && args.command !== 'test') {
+  if (args.options["sarif-file-output"] && args.command !== "test") {
     throw new UnsupportedOptionCombinationError([
       args.command,
-      'sarif-file-output',
+      "sarif-file-output"
     ]);
   }
 }
@@ -462,7 +462,7 @@ async function saveResultsToFile(
   options: ArgsOptions,
   outputType: string,
   jsonResults: string,
-  jsonPayload?: Record<string, unknown>,
+  jsonPayload?: Record<string, unknown>
 ) {
   const flag = `${outputType}-file-output`;
   const outputFile = options[flag];
@@ -472,7 +472,7 @@ async function saveResultsToFile(
     await saveJsonResultsToFile(
       stripAnsi(jsonResults),
       fullOutputFilePath,
-      jsonPayload,
+      jsonPayload
     );
   }
 }
@@ -480,7 +480,7 @@ async function saveResultsToFile(
 function validateOutputFile(
   options: ArgsOptions,
   outputType: string,
-  error: CustomError,
+  error: CustomError
 ) {
   const fileOutputValue = options[`${outputType}-file-output`];
 
@@ -488,7 +488,7 @@ function validateOutputFile(
     return;
   }
 
-  if (!fileOutputValue || typeof fileOutputValue !== 'string') {
+  if (!fileOutputValue || typeof fileOutputValue !== "string") {
     throw error;
   }
   // On Windows, seems like quotes get passed in

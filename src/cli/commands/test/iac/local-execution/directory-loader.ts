@@ -1,7 +1,7 @@
-import * as path from 'path';
-import { makeFileAndDirectoryGenerator } from './file-utils';
-import { VALID_FILE_TYPES } from './types';
-import { isLocalFolder } from '../../../../../lib/detect';
+import * as path from "path";
+import { makeFileAndDirectoryGenerator } from "./file-utils";
+import { VALID_FILE_TYPES } from "./types";
+import { isLocalFolder } from "../../../../../lib/detect";
 
 /**
  * Gets all nested directories for the path that we ran a scan.
@@ -11,7 +11,7 @@ import { isLocalFolder } from '../../../../../lib/detect';
  */
 export function getAllDirectoriesForPath(
   pathToScan: string,
-  maxDepth?: number,
+  maxDepth?: number
 ): string[] {
   // if it is a single file (it has an extension), we return the current path
   if (!isLocalFolder(pathToScan)) {
@@ -28,7 +28,7 @@ export function getAllDirectoriesForPath(
  */
 function* getAllDirectoriesForPathGenerator(
   pathToScan: string,
-  maxDepth?: number,
+  maxDepth?: number
 ): Generator<string> {
   for (const filePath of makeFileAndDirectoryGenerator(pathToScan, maxDepth)) {
     if (filePath.directory) yield filePath.directory;
@@ -43,7 +43,7 @@ function* getAllDirectoriesForPathGenerator(
  */
 export function getFilesForDirectory(
   pathToScan: string,
-  currentDirectory: string,
+  currentDirectory: string
 ): string[] {
   if (!isLocalFolder(pathToScan)) {
     if (
@@ -64,7 +64,7 @@ export function getFilesForDirectory(
  * @returns {Generator<string>} - a generator which holds all the filepaths
  */
 export function* getFilesForDirectoryGenerator(
-  pathToScan: string,
+  pathToScan: string
 ): Generator<string> {
   for (const filePath of makeFileAndDirectoryGenerator(pathToScan)) {
     if (filePath.file && filePath.file.dir !== pathToScan) {
@@ -86,7 +86,7 @@ export const shouldBeParsed = (pathToScan: string): boolean =>
 
 export const getFileType = (pathToScan: string): string => {
   const extension = path.extname(pathToScan);
-  if (extension.startsWith('.')) {
+  if (extension.startsWith(".")) {
     return extension.substr(1);
   }
   return extension;
@@ -105,8 +105,8 @@ function isIgnoredFile(pathToScan: string, currentDirectory: string): boolean {
   // e.g. './my-folder/terraform.tf', or '../my-folder/terraform.tf'
   const resolvedPath = path.resolve(currentDirectory, currentDirectory);
   return (
-    resolvedPath.startsWith('.') || // Unix-like hidden files
-    resolvedPath.startsWith('~') || // vim
-    (resolvedPath.startsWith('#') && resolvedPath.endsWith('#')) // emacs
+    resolvedPath.startsWith(".") || // Unix-like hidden files
+    resolvedPath.startsWith("~") || // vim
+    (resolvedPath.startsWith("#") && resolvedPath.endsWith("#")) // emacs
   );
 }

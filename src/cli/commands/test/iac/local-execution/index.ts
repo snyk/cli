@@ -1,5 +1,5 @@
-import { existsSync } from 'fs';
-import { isLocalFolder } from '../../../../../lib/detect';
+import { existsSync } from "fs";
+import { isLocalFolder } from "../../../../../lib/detect";
 import {
   EngineType,
   IaCErrorCodes,
@@ -9,29 +9,29 @@ import {
   IaCTestFlags,
   RulesOrigin,
   SafeAnalyticsOutput,
-  TestReturnValue,
-} from './types';
-import { addIacAnalytics } from './analytics';
-import { TestLimitReachedError } from './usage-tracking';
-import { TestResult } from '../../../../../lib/snyk-test/legacy';
+  TestReturnValue
+} from "./types";
+import { addIacAnalytics } from "./analytics";
+import { TestLimitReachedError } from "./usage-tracking";
+import { TestResult } from "../../../../../lib/snyk-test/legacy";
 import {
   applyCustomSeverities,
   loadContentForFiles,
   parseFiles,
   scanFiles,
-  trackUsage,
-} from './measurable-methods';
-import { findAndLoadPolicy } from '../../../../../lib/policy';
-import { ResultsProcessor } from './process-results';
-import { generateProjectAttributes, generateTags } from '../../../monitor';
+  trackUsage
+} from "./measurable-methods";
+import { findAndLoadPolicy } from "../../../../../lib/policy";
+import { ResultsProcessor } from "./process-results";
+import { generateProjectAttributes, generateTags } from "../../../monitor";
 import {
   getAllDirectoriesForPath,
-  getFilesForDirectory,
-} from './directory-loader';
-import { CustomError } from '../../../../../lib/errors';
-import { getErrorStringCode } from './error-utils';
-import { NoFilesToScanError } from './file-loader';
-import { Tag } from '../../../../../lib/types';
+  getFilesForDirectory
+} from "./directory-loader";
+import { CustomError } from "../../../../../lib/errors";
+import { getErrorStringCode } from "./error-utils";
+import { NoFilesToScanError } from "./file-loader";
+import { Tag } from "../../../../../lib/types";
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -40,20 +40,20 @@ export async function test(
   pathToScan: string,
   options: IaCTestFlags,
   iacOrgSettings: IacOrgSettings,
-  rulesOrigin: RulesOrigin,
+  rulesOrigin: RulesOrigin
 ): Promise<TestReturnValue> {
   // Parse tags and attributes right now, so we can exit early if the user
   // provided invalid values.
   const tags = parseTags(options);
   const attributes = parseAttributes(options);
 
-  const policy = await findAndLoadPolicy(pathToScan, 'iac', options);
+  const policy = await findAndLoadPolicy(pathToScan, "iac", options);
 
   let allParsedFiles: IacFileParsed[] = [],
     allFailedFiles: IacFileParseFailure[] = [];
   const allDirectories = getAllDirectoriesForPath(
     pathToScan,
-    options.detectionDepth,
+    options.detectionDepth
   );
 
   // we load and parse files directory by directory
@@ -61,19 +61,19 @@ export async function test(
   for (const currentDirectory of allDirectories) {
     const filePathsInDirectory = getFilesForDirectory(
       pathToScan,
-      currentDirectory,
+      currentDirectory
     );
     if (
       currentDirectory === pathToScan &&
       shouldLoadVarDefinitionsFile(options)
     ) {
-      const varDefinitionsFilePath = options['var-file'];
+      const varDefinitionsFilePath = options["var-file"];
       filePathsInDirectory.push(varDefinitionsFilePath);
     }
     const filesToParse = await loadContentForFiles(filePathsInDirectory);
     const { parsedFiles, failedFiles } = await parseFiles(
       filesToParse,
-      options,
+      options
     );
     allParsedFiles = allParsedFiles.concat(parsedFiles);
     allFailedFiles = allFailedFiles.concat(failedFiles);
@@ -84,17 +84,17 @@ export async function test(
       throw new NoFilesToScanError();
     } else {
       // we throw an array of errors in order to get the path of the files which generated an error
-      throw allFailedFiles.map((f) => f.err);
+      throw allFailedFiles.map(f => f.err);
     }
   }
 
   // Duplicate all the files and run them through the custom engine.
   if (rulesOrigin !== RulesOrigin.Internal) {
     allParsedFiles.push(
-      ...allParsedFiles.map((file) => ({
+      ...allParsedFiles.map(file => ({
         ...file,
-        engineType: EngineType.Custom,
-      })),
+        engineType: EngineType.Custom
+      }))
     );
   }
   // NOTE: No file or parsed file data should leave this function.
@@ -107,14 +107,14 @@ export async function test(
 
   const resultsWithCustomSeverities = await applyCustomSeverities(
     scannedFiles,
-    iacOrgSettings.customPolicies,
+    iacOrgSettings.customPolicies
   );
 
   const { filteredIssues, ignoreCount } = await resultsProcessor.processResults(
     resultsWithCustomSeverities,
     policy,
     tags,
-    attributes,
+    attributes
   );
 
   try {
@@ -129,14 +129,14 @@ export async function test(
 
   addIacAnalytics(filteredIssues, {
     ignoredIssuesCount: ignoreCount,
-    rulesOrigin,
+    rulesOrigin
   });
 
   // TODO: add support for proper typing of old TestResult interface.
   return {
     results: (filteredIssues as unknown) as TestResult[],
     failures,
-    ignoreCount,
+    ignoreCount
   };
 }
 
@@ -144,13 +144,13 @@ export function removeFileContent({
   filePath,
   fileType,
   failureReason,
-  projectType,
+  projectType
 }: IacFileParsed | IacFileParseFailure): SafeAnalyticsOutput {
   return {
     filePath,
     fileType,
     failureReason,
-    projectType,
+    projectType
   };
 }
 
@@ -167,11 +167,11 @@ function parseAttributes(options: IaCTestFlags) {
 }
 
 function shouldLoadVarDefinitionsFile(
-  options: IaCTestFlags,
-): options is IaCTestFlags & { 'var-file': string } {
-  if (options['var-file']) {
-    if (!existsSync(options['var-file'])) {
-      throw new InvalidVarFilePath(options['var-file']);
+  options: IaCTestFlags
+): options is IaCTestFlags & { "var-file": string } {
+  if (options["var-file"]) {
+    if (!existsSync(options["var-file"])) {
+      throw new InvalidVarFilePath(options["var-file"]);
     }
     return true;
   }
@@ -180,7 +180,7 @@ function shouldLoadVarDefinitionsFile(
 
 export class InvalidVarFilePath extends CustomError {
   constructor(path: string, message?: string) {
-    super(message || 'Invalid path to variable definitions file');
+    super(message || "Invalid path to variable definitions file");
     this.code = IaCErrorCodes.InvalidVarFilePath;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to locate a variable definitions file at: "${path}". The file at the provided path does not exist`;

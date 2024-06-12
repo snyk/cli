@@ -1,13 +1,13 @@
-import * as snykConfig from 'snyk-config';
-import { config as userConfig } from '../user-config';
+import * as snykConfig from "snyk-config";
+import { config as userConfig } from "../user-config";
 import {
   getBaseApiUrl,
   getRestApiUrl,
   getV1ApiUrl,
   getHiddenApiUrl,
-  getRootUrl,
-} from './api-url';
-import { getOrganizationID } from '../organization';
+  getRootUrl
+} from "./api-url";
+import { getOrganizationID } from "../organization";
 
 const DEFAULT_TIMEOUT = 5 * 60; // in seconds
 interface Config {
@@ -39,17 +39,17 @@ interface Config {
 
 // TODO: fix the types!
 const config = (snykConfig.loadConfig(
-  __dirname + '/../..',
+  __dirname + "/../.."
 ) as unknown) as Config;
-const defaultApiUrl = 'https://api.snyk.io';
+const defaultApiUrl = "https://api.snyk.io";
 
-const configDefinedApiUrl = userConfig.get('endpoint');
+const configDefinedApiUrl = userConfig.get("endpoint");
 const envvarDefinedApiUrl = process.env.SNYK_API;
 
 const snykApiBaseUrl = getBaseApiUrl(
   defaultApiUrl,
   envvarDefinedApiUrl,
-  configDefinedApiUrl,
+  configDefinedApiUrl
 );
 config.API = getV1ApiUrl(snykApiBaseUrl);
 
@@ -57,17 +57,17 @@ config.API = getV1ApiUrl(snykApiBaseUrl);
 config.API_REST_URL = getRestApiUrl(
   snykApiBaseUrl,
   process.env.API_REST_URL || config.API_REST_URL,
-  process.env.API_V3_URL || config.API_V3_URL,
+  process.env.API_V3_URL || config.API_V3_URL
 );
 
 config.API_HIDDEN_URL = getHiddenApiUrl(config.API_REST_URL);
 
-const disableSuggestions = userConfig.get('disableSuggestions');
+const disableSuggestions = userConfig.get("disableSuggestions");
 if (disableSuggestions) {
   config.disableSuggestions = disableSuggestions;
 }
 
-const org = userConfig.get('org');
+const org = userConfig.get("org");
 if (!config.org && org) {
   config.org = org;
 }
@@ -77,7 +77,7 @@ config.orgId = getOrganizationID();
 // client request timeout
 // to change, set this config key to the desired value in seconds
 // invalid (non-numeric) value will fallback to the default
-const timeout = userConfig.get('timeout');
+const timeout = userConfig.get("timeout");
 if (!config.timeout) {
   config.timeout = timeout && +timeout ? +timeout : DEFAULT_TIMEOUT;
 }
@@ -88,8 +88,8 @@ if (!config.ROOT) {
   config.ROOT = getRootUrl(config.API);
 }
 
-config.PUBLIC_VULN_DB_URL = 'https://security.snyk.io';
+config.PUBLIC_VULN_DB_URL = "https://security.snyk.io";
 
-config.CODE_CLIENT_PROXY_URL = process.env.SNYK_CODE_CLIENT_PROXY_URL || '';
+config.CODE_CLIENT_PROXY_URL = process.env.SNYK_CODE_CLIENT_PROXY_URL || "";
 
 export default config;

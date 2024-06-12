@@ -1,10 +1,10 @@
-import * as policy from 'snyk-policy';
-import { display } from '../../lib/display-policy';
+import * as policy from "snyk-policy";
+import { display } from "../../lib/display-policy";
 import {
   FailedToLoadPolicyError,
   PolicyNotFoundError,
-  CustomError,
-} from '../../lib/errors';
+  CustomError
+} from "../../lib/errors";
 
 export default async function displayPolicy(path?: string): Promise<string> {
   try {
@@ -14,7 +14,7 @@ export default async function displayPolicy(path?: string): Promise<string> {
     return await display(loadedPolicy);
   } catch (error) {
     let adaptedError: CustomError;
-    if (error.code === 'ENOENT') {
+    if (error.code === "ENOENT") {
       adaptedError = new PolicyNotFoundError();
     } else {
       adaptedError = new FailedToLoadPolicyError();

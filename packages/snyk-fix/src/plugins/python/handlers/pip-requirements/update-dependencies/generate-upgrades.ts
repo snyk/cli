@@ -1,13 +1,13 @@
-import { DependencyPins, FixChangesSummary } from '../../../../../types';
-import { standardizePackageName } from '../../../standardize-package-name';
-import { calculateRelevantFixes } from './calculate-relevant-fixes';
-import { Requirement } from './requirements-file-parser';
-import { UpgradedRequirements } from './types';
+import { DependencyPins, FixChangesSummary } from "../../../../../types";
+import { standardizePackageName } from "../../../standardize-package-name";
+import { calculateRelevantFixes } from "./calculate-relevant-fixes";
+import { Requirement } from "./requirements-file-parser";
+import { UpgradedRequirements } from "./types";
 
 export function generateUpgrades(
   requirements: Requirement[],
   updates: DependencyPins,
-  referenceFileInChanges?: string,
+  referenceFileInChanges?: string
 ): {
   updatedRequirements: UpgradedRequirements;
   changes: FixChangesSummary[];
@@ -18,12 +18,12 @@ export function generateUpgrades(
   const normalizedUpgrades = calculateRelevantFixes(
     requirements,
     updates,
-    'direct-upgrades',
+    "direct-upgrades"
   );
   if (Object.keys(normalizedUpgrades).length === 0) {
     return {
       updatedRequirements: {},
-      changes: [],
+      changes: []
     };
   }
 
@@ -36,14 +36,14 @@ export function generateUpgrades(
       versionComparator,
       version,
       originalText,
-      extras,
+      extras
     }) => {
       // Defensive patching; if any of these are undefined, return
       if (
-        typeof name === 'undefined' ||
-        typeof versionComparator === 'undefined' ||
-        typeof version === 'undefined' ||
-        originalText === ''
+        typeof name === "undefined" ||
+        typeof versionComparator === "undefined" ||
+        typeof version === "undefined" ||
+        originalText === ""
       ) {
         return;
       }
@@ -52,19 +52,19 @@ export function generateUpgrades(
       // the upgrade, but keep the rest of the content
       const upgrade = Object.keys(normalizedUpgrades).filter(
         (packageVersionUpgrade: string) => {
-          const [pkgName, versionAndMore] = packageVersionUpgrade.split('@');
+          const [pkgName, versionAndMore] = packageVersionUpgrade.split("@");
           return `${standardizePackageName(
-            pkgName,
+            pkgName
           )}@${versionAndMore}`.startsWith(
-            `${standardizePackageName(name)}@${version}`,
+            `${standardizePackageName(name)}@${version}`
           );
-        },
+        }
       )[0];
 
       if (!upgrade) {
         return;
       }
-      const newVersion = normalizedUpgrades[upgrade].upgradeTo.split('@')[1];
+      const newVersion = normalizedUpgrades[upgrade].upgradeTo.split("@")[1];
       const updatedRequirement = `${originalName}${versionComparator}${newVersion}`;
       changes.push({
         issueIds: normalizedUpgrades[upgrade].vulns,
@@ -74,17 +74,17 @@ export function generateUpgrades(
         userMessage: `Upgraded ${originalName} from ${version} to ${newVersion}${
           referenceFileInChanges
             ? ` (upgraded in ${referenceFileInChanges})`
-            : ''
-        }`,
+            : ""
+        }`
       });
       updatedRequirements[originalText] = `${updatedRequirement}${
-        extras ? extras : ''
+        extras ? extras : ""
       }`;
-    },
+    }
   );
 
   return {
     updatedRequirements,
-    changes,
+    changes
   };
 }

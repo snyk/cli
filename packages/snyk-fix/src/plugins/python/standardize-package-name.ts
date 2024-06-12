@@ -5,5 +5,5 @@
  *
  */
 export function standardizePackageName(name: string): string {
-  return name.replace('_', '-').toLowerCase();
+  return name.replace("_", "-").toLowerCase();
 }

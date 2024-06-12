@@ -3,12 +3,12 @@ import {
   FixOptions,
   WithError,
   WithAttemptedFixChanges,
-  WithUserMessage,
-} from '../types';
+  WithUserMessage
+} from "../types";
 
 export type FixHandler = (
   entities: EntityToFix[],
-  options: FixOptions,
+  options: FixOptions
 ) => Promise<FixHandlerResultByPlugin>;
 
 export type FailedToFix =
@@ -16,7 +16,7 @@ export type FailedToFix =
   | WithError<EntityToFix>;
 
 export function isWithError(r: FailedToFix): r is WithError<EntityToFix> {
-  return 'error' in r;
+  return "error" in r;
 }
 
 export interface PluginFixResponse {

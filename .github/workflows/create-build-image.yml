@@ -2,7 +2,7 @@ name: Create Build Image
 
 on:
   schedule:
-    - cron: '0 4 * * 2'
+    - cron: "0 4 * * 2"
   workflow_dispatch:
 
 jobs:

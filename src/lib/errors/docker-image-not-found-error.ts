@@ -1,4 +1,4 @@
-import { CustomError } from './custom-error';
+import { CustomError } from "./custom-error";
 
 export class DockerImageNotFoundError extends CustomError {
   private static ERROR_CODE = 404;

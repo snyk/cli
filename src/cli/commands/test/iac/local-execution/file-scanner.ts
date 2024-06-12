@@ -4,18 +4,18 @@ import {
   IacFileParsed,
   IacFileScanResult,
   OpaWasmInstance,
-  PolicyMetadata,
-} from './types';
-import { loadPolicy } from '@open-policy-agent/opa-wasm';
-import * as fs from 'fs';
-import { getLocalCachePath } from './local-cache';
-import { CustomError } from '../../../../../lib/errors';
-import { getErrorStringCode } from './error-utils';
-import { IacFileInDirectory } from '../../../../../lib/types';
-import { SEVERITIES } from '../../../../../lib/snyk-test/common';
+  PolicyMetadata
+} from "./types";
+import { loadPolicy } from "@open-policy-agent/opa-wasm";
+import * as fs from "fs";
+import { getLocalCachePath } from "./local-cache";
+import { CustomError } from "../../../../../lib/errors";
+import { getErrorStringCode } from "./error-utils";
+import { IacFileInDirectory } from "../../../../../lib/types";
+import { SEVERITIES } from "../../../../../lib/snyk-test/common";
 
 export async function scanFiles(
-  parsedFiles: Array<IacFileParsed>,
+  parsedFiles: Array<IacFileParsed>
 ): Promise<{
   scannedFiles: IacFileScanResult[];
   failedScans: IacFileInDirectory[];
@@ -28,11 +28,11 @@ export async function scanFiles(
     const result = policyEngine.scanFile(parsedFile);
     if (parsedFile.engineType === EngineType.Custom) {
       const { validatedResult, invalidIssues } = validateResultFromCustomRules(
-        result,
+        result
       );
-      validatedResult.violatedPolicies.forEach((policy) => {
+      validatedResult.violatedPolicies.forEach(policy => {
         // custom rules will have a remediation field that is a string, so we need to map it to the resolve field.
-        if (typeof policy.remediation === 'string') {
+        if (typeof policy.remediation === "string") {
           policy.resolve = policy.remediation;
         }
       });
@@ -55,7 +55,7 @@ async function getPolicyEngine(engineType: EngineType): Promise<PolicyEngine> {
 }
 
 export function validateResultFromCustomRules(
-  result: IacFileScanResult,
+  result: IacFileScanResult
 ): {
   validatedResult: IacFileScanResult;
   invalidIssues: IacFileInDirectory[];
@@ -63,9 +63,9 @@ export function validateResultFromCustomRules(
   const invalidIssues: IacFileInDirectory[] = [];
   const filteredViolatedPolicies: PolicyMetadata[] = [];
   for (const violatedPolicy of result.violatedPolicies) {
-    let failureReason = '';
+    let failureReason = "";
     const invalidSeverity = !SEVERITIES.find(
-      (s) => s.verboseName === violatedPolicy.severity,
+      s => s.verboseName === violatedPolicy.severity
     );
     if (invalidSeverity) {
       failureReason = `Invalid severity level for custom rule ${violatedPolicy.publicId}. Change to low, medium, high, or critical`;
@@ -77,7 +77,7 @@ export function validateResultFromCustomRules(
         violatedPolicy.publicId
       }. Change to ${violatedPolicy.publicId.toUpperCase()}`;
     }
-    const invalidSnykPublicId = violatedPolicy.publicId.startsWith('SNYK-CC-');
+    const invalidSnykPublicId = violatedPolicy.publicId.startsWith("SNYK-CC-");
     if (invalidSnykPublicId) {
       failureReason = `Invalid publicId for custom rule ${violatedPolicy.publicId}. Change to a publicId that does not start with SNYK-CC-`;
     }
@@ -86,7 +86,7 @@ export function validateResultFromCustomRules(
       invalidIssues.push({
         filePath: result.filePath,
         fileType: result.fileType,
-        failureReason,
+        failureReason
       });
     } else {
       filteredViolatedPolicies.push(violatedPolicy);
@@ -96,9 +96,9 @@ export function validateResultFromCustomRules(
   return {
     validatedResult: {
       ...result,
-      violatedPolicies: filteredViolatedPolicies,
+      violatedPolicies: filteredViolatedPolicies
     },
-    invalidIssues,
+    invalidIssues
   };
 }
 
@@ -109,7 +109,7 @@ export function clearPolicyEngineCache() {
     [EngineType.Terraform]: null,
     [EngineType.CloudFormation]: null,
     [EngineType.ARM]: null,
-    [EngineType.Custom]: null,
+    [EngineType.Custom]: null
   };
 }
 
@@ -118,26 +118,26 @@ let policyEngineCache: { [key in EngineType]: PolicyEngine | null } = {
   [EngineType.Terraform]: null,
   [EngineType.CloudFormation]: null,
   [EngineType.ARM]: null,
-  [EngineType.Custom]: null,
+  [EngineType.Custom]: null
 };
 
 async function buildPolicyEngine(
-  engineType: EngineType,
+  engineType: EngineType
 ): Promise<PolicyEngine> {
   const [
     policyEngineCoreDataPath,
-    policyEngineMetaDataPath,
+    policyEngineMetaDataPath
   ] = getLocalCachePath(engineType);
 
   try {
     const wasmFile = fs.readFileSync(policyEngineCoreDataPath);
     const policyMetaData = fs.readFileSync(policyEngineMetaDataPath);
     const policyMetadataAsJson: Record<string, any> = JSON.parse(
-      policyMetaData.toString(),
+      policyMetaData.toString()
     );
 
     const opaWasmInstance: OpaWasmInstance = await loadPolicy(
-      Buffer.from(wasmFile),
+      Buffer.from(wasmFile)
     );
     opaWasmInstance.setData(policyMetadataAsJson);
 
@@ -161,7 +161,7 @@ class PolicyEngine {
       const violatedPolicies = this.evaluate(iacFile.jsonContent);
       return {
         ...iacFile,
-        violatedPolicies,
+        violatedPolicies
       };
     } catch (err) {
       // TODO: to distinguish between different failure reasons
@@ -172,19 +172,19 @@ class PolicyEngine {
 
 export class FailedToBuildPolicyEngine extends CustomError {
   constructor(message?: string) {
-    super(message || 'Failed to build policy engine');
+    super(message || "Failed to build policy engine");
     this.code = IaCErrorCodes.FailedToBuildPolicyEngine;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
-      'We were unable to run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output';
+      "We were unable to run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output";
   }
 }
 export class FailedToExecutePolicyEngine extends CustomError {
   constructor(message?: string) {
-    super(message || 'Failed to execute policy engine');
+    super(message || "Failed to execute policy engine");
     this.code = IaCErrorCodes.FailedToExecutePolicyEngine;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
-      'We were unable to run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output';
+      "We were unable to run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output";
   }
 }

@@ -1,41 +1,41 @@
-import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
+import * as pipenvPipfileFix from "@snyk/fix-pipenv-pipfile";
 
-import * as snykFix from '../../src';
-import { generateEntityToFix } from '../helpers/generate-entity-to-fix';
+import * as snykFix from "../../src";
+import { generateEntityToFix } from "../helpers/generate-entity-to-fix";
 
-jest.mock('@snyk/fix-pipenv-pipfile');
+jest.mock("@snyk/fix-pipenv-pipfile");
 
-describe('Snyk fix', () => {
+describe("Snyk fix", () => {
   beforeAll(() => {
-    jest.spyOn(pipenvPipfileFix, 'isPipenvSupportedVersion').mockReturnValue({
+    jest.spyOn(pipenvPipfileFix, "isPipenvSupportedVersion").mockReturnValue({
       supported: true,
-      versions: ['123.123.123'],
+      versions: ["123.123.123"]
     });
-    jest.spyOn(pipenvPipfileFix, 'isPipenvInstalled').mockResolvedValue({
-      version: '123.123.123',
+    jest.spyOn(pipenvPipfileFix, "isPipenvInstalled").mockResolvedValue({
+      version: "123.123.123"
     });
-    jest.spyOn(pipenvPipfileFix, 'pipenvInstall').mockResolvedValue({
+    jest.spyOn(pipenvPipfileFix, "pipenvInstall").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'pipenv install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "pipenv install",
+      duration: 123
     });
   });
 
-  it('Snyk fix returns results for supported type', async () => {
+  it("Snyk fix returns results for supported type", async () => {
     // Arrange
     const projectTestResult = generateEntityToFix(
-      'pip',
-      'requirements.txt',
-      'django===1.6.1',
+      "pip",
+      "requirements.txt",
+      "django===1.6.1"
     );
-    const writeFileSpy = jest.spyOn(projectTestResult.workspace, 'writeFile');
+    const writeFileSpy = jest.spyOn(projectTestResult.workspace, "writeFile");
 
     // Act
     const res = await snykFix.fix([projectTestResult], {
       quiet: true,
-      stripAnsi: true,
+      stripAnsi: true
     });
 
     // Assert
@@ -44,71 +44,71 @@ describe('Snyk fix', () => {
     expect(res.results).toMatchSnapshot();
   });
 
-  it('Snyk fix returns results for supported type in dryRun mode (no write)', async () => {
+  it("Snyk fix returns results for supported type in dryRun mode (no write)", async () => {
     // Arrange
     const projectTestResult = generateEntityToFix(
-      'pip',
-      'requirements.txt',
-      'django===1.6.1',
+      "pip",
+      "requirements.txt",
+      "django===1.6.1"
     );
-    const writeFileSpy = jest.spyOn(projectTestResult.workspace, 'writeFile');
+    const writeFileSpy = jest.spyOn(projectTestResult.workspace, "writeFile");
     // Act
     await snykFix.fix([projectTestResult], {
       quiet: true,
-      dryRun: true,
+      dryRun: true
     });
 
     // Assert
     expect(writeFileSpy).not.toHaveBeenCalled();
   });
 
-  it('Snyk fix returns results for supported & unsupported type', async () => {
+  it("Snyk fix returns results for supported & unsupported type", async () => {
     // Arrange
     const projectTestResult = generateEntityToFix(
-      'pip',
-      'requirements.txt',
-      'django===1.6.1',
+      "pip",
+      "requirements.txt",
+      "django===1.6.1"
     );
-    const pipfileProjectTestResult = generateEntityToFix('pip', 'Pipfile', '');
+    const pipfileProjectTestResult = generateEntityToFix("pip", "Pipfile", "");
 
     // Act
     const res = await snykFix.fix(
       [projectTestResult, pipfileProjectTestResult],
-      { quiet: true, stripAnsi: true, dryRun: true },
+      { quiet: true, stripAnsi: true, dryRun: true }
     );
 
     // Assert
     expect(res).toMatchSnapshot();
   });
 
-  it('Snyk fix returns results as expected', async () => {
+  it("Snyk fix returns results as expected", async () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
-      'pip',
-      'prod.txt',
-      'django===1.6.1',
+      "pip",
+      "prod.txt",
+      "django===1.6.1"
     );
     const txtDevProjectTestResult = generateEntityToFix(
-      'pip',
-      'dev.txt',
-      'django===1.6.1',
+      "pip",
+      "dev.txt",
+      "django===1.6.1"
     );
-    const pipfileProjectTestResult = generateEntityToFix('pip', 'Pipfile', '');
+    const pipfileProjectTestResult = generateEntityToFix("pip", "Pipfile", "");
 
     // Act
     const res = await snykFix.fix(
       [
         txtDevProjectTestResult,
         txtProdProjectTestResult,
-        pipfileProjectTestResult,
+        pipfileProjectTestResult
       ],
-      { quiet: true, stripAnsi: true, dryRun: true },
+      { quiet: true, stripAnsi: true, dryRun: true }
     );
 
     // Assert
     expect(res.exceptions).toEqual({});
     expect(Object.keys(res.results)).toHaveLength(1);
-    expect(Object.keys(res.results)[0]).toEqual('python');
+    expect(Object.keys(res.results)[0]).toEqual("python");
     // skipped unsupported
     expect(res.results.python.skipped).toHaveLength(0);
 
@@ -116,73 +116,73 @@ describe('Snyk fix', () => {
     expect(res.results.python.failed).toHaveLength(0);
     expect(res.results.python.succeeded).toHaveLength(3);
     expect(
-      res.results.python.succeeded[0].original.scanResult.identity.targetFile,
-    ).toEqual('Pipfile');
+      res.results.python.succeeded[0].original.scanResult.identity.targetFile
+    ).toEqual("Pipfile");
     expect(
-      res.results.python.succeeded[1].original.scanResult.identity.targetFile,
-    ).toEqual('dev.txt');
+      res.results.python.succeeded[1].original.scanResult.identity.targetFile
+    ).toEqual("dev.txt");
     expect(
-      res.results.python.succeeded[2].original.scanResult.identity.targetFile,
-    ).toEqual('prod.txt');
+      res.results.python.succeeded[2].original.scanResult.identity.targetFile
+    ).toEqual("prod.txt");
   });
-  it('Snyk fix returns results as expected when 1 fails to fix', async () => {
+  it("Snyk fix returns results as expected when 1 fails to fix", async () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
-      'pip',
-      'prod.txt',
-      'django===1.6.1',
+      "pip",
+      "prod.txt",
+      "django===1.6.1"
     );
     const txtDevProjectTestResult = generateEntityToFix(
-      'pip',
-      'dev.txt',
-      'django===1.6.1',
+      "pip",
+      "dev.txt",
+      "django===1.6.1"
     );
     jest
-      .spyOn(txtDevProjectTestResult.workspace, 'readFile')
+      .spyOn(txtDevProjectTestResult.workspace, "readFile")
       .mockImplementation(() => {
-        throw new Error('Test Error: Invalid encoding');
+        throw new Error("Test Error: Invalid encoding");
       });
-    const pipfileProjectTestResult = generateEntityToFix('pip', 'Pipfile', '');
+    const pipfileProjectTestResult = generateEntityToFix("pip", "Pipfile", "");
 
     // Act
     const res = await snykFix.fix(
       [
         txtDevProjectTestResult,
         txtProdProjectTestResult,
-        pipfileProjectTestResult,
+        pipfileProjectTestResult
       ],
-      { quiet: true, stripAnsi: true, dryRun: true },
+      { quiet: true, stripAnsi: true, dryRun: true }
     );
 
     // Assert
     expect(res.exceptions).toEqual({});
     expect(Object.keys(res.results)).toHaveLength(1);
-    expect(Object.keys(res.results)[0]).toEqual('python');
+    expect(Object.keys(res.results)[0]).toEqual("python");
 
     expect(res.results.python.skipped).toHaveLength(0);
 
     expect(res.results.python.failed[0]).toEqual({
-      error: new Error('Test Error: Invalid encoding'),
-      original: txtDevProjectTestResult,
+      error: new Error("Test Error: Invalid encoding"),
+      original: txtDevProjectTestResult
     });
 
     expect(res.results.python.failed).toHaveLength(1);
     expect(res.results.python.succeeded).toHaveLength(2);
 
     expect(
-      res.results.python.succeeded[0].original.scanResult.identity.targetFile,
-    ).toEqual('Pipfile');
+      res.results.python.succeeded[0].original.scanResult.identity.targetFile
+    ).toEqual("Pipfile");
     expect(
-      res.results.python.succeeded[1].original.scanResult.identity.targetFile,
-    ).toEqual('prod.txt');
+      res.results.python.succeeded[1].original.scanResult.identity.targetFile
+    ).toEqual("prod.txt");
   });
 
-  it('Snyk fix returns results as expected when remediation data is empty', async () => {
+  it("Snyk fix returns results as expected when remediation data is empty", async () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
-      'pip',
-      'prod.txt',
-      'django===1.6.1',
+      "pip",
+      "prod.txt",
+      "django===1.6.1"
     );
     // @ts-ignore: for test purpose only
     delete txtProdProjectTestResult.testResult.remediation;
@@ -190,77 +190,77 @@ describe('Snyk fix', () => {
     // Act
     const res = await snykFix.fix([txtProdProjectTestResult], {
       quiet: true,
-      stripAnsi: true,
+      stripAnsi: true
     });
     // Assert
     expect(res.exceptions).toEqual({});
     expect(Object.keys(res.results)).toHaveLength(1);
-    expect(Object.keys(res.results)[0]).toEqual('python');
+    expect(Object.keys(res.results)[0]).toEqual("python");
 
     // first *.txt throws because remediation is empty
     expect(res.results.python.failed).toHaveLength(0);
     expect(res.results.python.skipped).toHaveLength(1);
     expect(
-      res.results.python.skipped[0].original.scanResult.identity.targetFile,
-    ).toEqual('prod.txt');
+      res.results.python.skipped[0].original.scanResult.identity.targetFile
+    ).toEqual("prod.txt");
     expect(res.results.python.skipped[0].userMessage).toEqual(
-      'No remediation data available',
+      "No remediation data available"
     );
   });
 });
 
-describe('groupEntitiesPerScanType', () => {
-  it('correctly groups related entities per handler type (pip)', () => {
+describe("groupEntitiesPerScanType", () => {
+  it("correctly groups related entities per handler type (pip)", () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
-      'pip',
-      'prod.txt',
-      'django===1.6.1',
+      "pip",
+      "prod.txt",
+      "django===1.6.1"
     );
     const txtDevProjectTestResult = generateEntityToFix(
-      'pip',
-      'dev.txt',
-      'django===1.6.1',
+      "pip",
+      "dev.txt",
+      "django===1.6.1"
     );
     const pipfileProjectTestResult = generateEntityToFix(
-      'pip',
-      'Pipfile',
-      'django===1.6.1',
+      "pip",
+      "Pipfile",
+      "django===1.6.1"
     );
 
     // Act
     const res = snykFix.groupEntitiesPerScanType([
       txtProdProjectTestResult,
       txtDevProjectTestResult,
-      pipfileProjectTestResult,
+      pipfileProjectTestResult
     ]);
 
     // Assert
-    expect(Object.keys(res)[0]).toEqual('pip');
+    expect(Object.keys(res)[0]).toEqual("pip");
     expect(Object.keys(res)[0]).toHaveLength(3);
   });
-  it('correctly groups related entities per handler type (mixed)', () => {
+  it("correctly groups related entities per handler type (mixed)", () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
-      'pip',
-      'prod.txt',
-      'django===1.6.1',
+      "pip",
+      "prod.txt",
+      "django===1.6.1"
     );
     const txtDevProjectTestResult = generateEntityToFix(
-      'pip',
-      'dev.txt',
-      'django===1.6.1',
+      "pip",
+      "dev.txt",
+      "django===1.6.1"
     );
     const npmProjectTestResult = generateEntityToFix(
-      'npm',
-      'package.json',
-      'django===1.6.1',
+      "npm",
+      "package.json",
+      "django===1.6.1"
     );
 
     const poetryProjectTestResult = generateEntityToFix(
-      'poetry',
-      'poetry.lock',
-      'django===1.6.1',
+      "poetry",
+      "poetry.lock",
+      "django===1.6.1"
     );
 
     // Act
@@ -268,32 +268,32 @@ describe('groupEntitiesPerScanType', () => {
       txtProdProjectTestResult,
       txtDevProjectTestResult,
       npmProjectTestResult,
-      poetryProjectTestResult,
+      poetryProjectTestResult
     ]);
 
     // Assert
-    expect(Object.keys(res).sort()).toEqual(['npm', 'pip', 'poetry']);
+    expect(Object.keys(res).sort()).toEqual(["npm", "pip", "poetry"]);
     expect(res.npm).toHaveLength(1);
     expect(res.pip).toHaveLength(2);
     expect(res.poetry).toHaveLength(1);
   });
 
-  it('correctly groups related entities per handler type with missing type', () => {
+  it("correctly groups related entities per handler type with missing type", () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
-      'pip',
-      'prod.txt',
-      'django===1.6.1',
+      "pip",
+      "prod.txt",
+      "django===1.6.1"
     );
     const txtDevProjectTestResult = generateEntityToFix(
-      'pip',
-      'dev.txt',
-      'django===1.6.1',
+      "pip",
+      "dev.txt",
+      "django===1.6.1"
     );
     const missingProjectTestResult = generateEntityToFix(
-      'npm',
-      'package.json',
-      'django===1.6.1',
+      "npm",
+      "package.json",
+      "django===1.6.1"
     );
     // @ts-ignore: for test purpose only
     delete missingProjectTestResult.scanResult.identity.type;
@@ -302,44 +302,44 @@ describe('groupEntitiesPerScanType', () => {
     const res = snykFix.groupEntitiesPerScanType([
       txtProdProjectTestResult,
       txtDevProjectTestResult,
-      missingProjectTestResult,
+      missingProjectTestResult
     ]);
 
     // Assert
-    expect(Object.keys(res).sort()).toEqual(['missing-type', 'pip']);
-    expect(res['missing-type']).toHaveLength(1);
+    expect(Object.keys(res).sort()).toEqual(["missing-type", "pip"]);
+    expect(res["missing-type"]).toHaveLength(1);
     expect(res.pip).toHaveLength(2);
   });
 });
 
-describe('Error handling', () => {
-  it('Snyk fix returns error when called with unsupported type', async () => {
+describe("Error handling", () => {
+  it("Snyk fix returns error when called with unsupported type", async () => {
     // Arrange
     const projectTestResult = generateEntityToFix(
-      'npm',
-      'package.json',
-      JSON.stringify({}),
+      "npm",
+      "package.json",
+      JSON.stringify({})
     );
     // Act
     const res = await snykFix.fix([projectTestResult], {
       quiet: true,
-      stripAnsi: true,
+      stripAnsi: true
     });
     // Assert
     expect(res).toMatchSnapshot();
   });
 
-  it('Snyk fix returns error when manifest can not be parsed', async () => {
+  it("Snyk fix returns error when manifest can not be parsed", async () => {
     // Arrange
     const projectTestResult = generateEntityToFix(
-      'pip',
-      'requirements.txt',
-      'django@===1.6.1', // invalid requirements
+      "pip",
+      "requirements.txt",
+      "django@===1.6.1" // invalid requirements
     );
     // Act
     const res = await snykFix.fix([projectTestResult], {
       quiet: true,
-      stripAnsi: true,
+      stripAnsi: true
     });
     // Assert
     expect(res).toMatchSnapshot();

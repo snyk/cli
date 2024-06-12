@@ -1,15 +1,15 @@
-import { IacCustomPolicies, IacFileScanResult } from '../types';
-import _ = require('lodash');
-import { SEVERITY } from '../../../../../../lib/snyk-test/common';
+import { IacCustomPolicies, IacFileScanResult } from "../types";
+import _ = require("lodash");
+import { SEVERITY } from "../../../../../../lib/snyk-test/common";
 
 export async function applyCustomSeverities(
   scannedFiles: IacFileScanResult[],
-  customPolicies: IacCustomPolicies,
+  customPolicies: IacCustomPolicies
 ): Promise<IacFileScanResult[]> {
   if (Object.keys(customPolicies).length > 0) {
-    return scannedFiles.map((file) => {
+    return scannedFiles.map(file => {
       const updatedScannedFiles = _.cloneDeep(file);
-      updatedScannedFiles.violatedPolicies.forEach((existingPolicy) => {
+      updatedScannedFiles.violatedPolicies.forEach(existingPolicy => {
         const customPolicyForPublicID = customPolicies[existingPolicy.publicId];
         if (customPolicyForPublicID) {
           existingPolicy.severity =

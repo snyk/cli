@@ -1,4 +1,4 @@
-import { IssuesData } from '../../types';
+import { IssuesData } from "../../types";
 
 export function getTotalIssueCount(issueData: IssuesData[]): number {
   let total = 0;

@@ -1,13 +1,13 @@
-import * as debugLib from 'debug';
+import * as debugLib from "debug";
 
-import { DependencyPins, FixChangesSummary } from '../../../../../types';
-import { generatePins } from './generate-pins';
-import { applyUpgrades } from './apply-upgrades';
-import { ParsedRequirements } from './requirements-file-parser';
-import { generateUpgrades } from './generate-upgrades';
-import { FailedToParseManifest } from '../../../../../lib/errors/failed-to-parse-manifest';
+import { DependencyPins, FixChangesSummary } from "../../../../../types";
+import { generatePins } from "./generate-pins";
+import { applyUpgrades } from "./apply-upgrades";
+import { ParsedRequirements } from "./requirements-file-parser";
+import { generateUpgrades } from "./generate-upgrades";
+import { FailedToParseManifest } from "../../../../../lib/errors/failed-to-parse-manifest";
 
-const debug = debugLib('snyk-fix:python:update-dependencies');
+const debug = debugLib("snyk-fix:python:update-dependencies");
 
 /*
  * Given contents of manifest file(s) and a set of upgrades, apply the given
@@ -20,29 +20,29 @@ export function updateDependencies(
   parsedRequirementsData: ParsedRequirements,
   updates: DependencyPins,
   directUpgradesOnly = false,
-  referenceFileInChanges?: string,
+  referenceFileInChanges?: string
 ): {
   updatedManifest: string;
   changes: FixChangesSummary[];
 } {
   const {
     requirements,
-    endsWithNewLine: shouldEndWithNewLine,
+    endsWithNewLine: shouldEndWithNewLine
   } = parsedRequirementsData;
   if (!requirements.length) {
     debug(
-      'Error: Expected to receive parsed manifest data. Is manifest empty?',
+      "Error: Expected to receive parsed manifest data. Is manifest empty?"
     );
     throw new FailedToParseManifest();
   }
-  debug('Finished parsing manifest');
+  debug("Finished parsing manifest");
 
   const { updatedRequirements, changes: upgradedChanges } = generateUpgrades(
     requirements,
     updates,
-    referenceFileInChanges,
+    referenceFileInChanges
   );
-  debug('Finished generating upgrades to apply');
+  debug("Finished generating upgrades to apply");
 
   let pinnedRequirements: string[] = [];
   let pinChanges: FixChangesSummary[] = [];
@@ -50,25 +50,25 @@ export function updateDependencies(
     ({ pinnedRequirements, changes: pinChanges } = generatePins(
       requirements,
       updates,
-      referenceFileInChanges,
+      referenceFileInChanges
     ));
-    debug('Finished generating pins to apply');
+    debug("Finished generating pins to apply");
   }
 
   let updatedManifest = [
     ...applyUpgrades(requirements, updatedRequirements),
-    ...pinnedRequirements,
-  ].join('\n');
+    ...pinnedRequirements
+  ].join("\n");
 
   // This is a bit of a hack, but an easy one to follow. If a file ends with a
   // new line, ensure we keep it this way. Don't hijack customers formatting.
   if (shouldEndWithNewLine) {
-    updatedManifest += '\n';
+    updatedManifest += "\n";
   }
-  debug('Finished applying changes to manifest');
+  debug("Finished applying changes to manifest");
 
   return {
     updatedManifest,
-    changes: [...pinChanges, ...upgradedChanges],
+    changes: [...pinChanges, ...upgradedChanges]
   };
 }

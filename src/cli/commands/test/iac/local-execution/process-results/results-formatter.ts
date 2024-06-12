@@ -5,22 +5,22 @@ import {
   IacFileScanResult,
   IaCTestFlags,
   PolicyMetadata,
-  TestMeta,
-} from '../types';
-import { SEVERITY, SEVERITIES } from '../../../../../../lib/snyk-test/common';
-import { IacProjectType } from '../../../../../../lib/iac/constants';
-import { CustomError } from '../../../../../../lib/errors';
-import { extractLineNumber, getFileTypeForParser } from './extract-line-number';
-import { getErrorStringCode } from '../error-utils';
+  TestMeta
+} from "../types";
+import { SEVERITY, SEVERITIES } from "../../../../../../lib/snyk-test/common";
+import { IacProjectType } from "../../../../../../lib/iac/constants";
+import { CustomError } from "../../../../../../lib/errors";
+import { extractLineNumber, getFileTypeForParser } from "./extract-line-number";
+import { getErrorStringCode } from "../error-utils";
 import {
   MapsDocIdToTree,
   getTrees,
-  parsePath,
-} from '@snyk/cloud-config-parser';
-import * as path from 'path';
-import { isLocalFolder } from '../../../../../../lib/detect';
+  parsePath
+} from "@snyk/cloud-config-parser";
+import * as path from "path";
+import { isLocalFolder } from "../../../../../../lib/detect";
 
-const severitiesArray = SEVERITIES.map((s) => s.verboseName);
+const severitiesArray = SEVERITIES.map(s => s.verboseName);
 
 export function formatScanResults(
   scanResults: IacFileScanResult[],
@@ -28,7 +28,7 @@ export function formatScanResults(
   meta: TestMeta,
   projectPublicIds: Record<string, string>,
   projectRoot: string,
-  gitRemoteUrl?: string,
+  gitRemoteUrl?: string
 ): FormattedResult[] {
   try {
     const groupedByFile = scanResults.reduce((memo, scanResult) => {
@@ -36,7 +36,7 @@ export function formatScanResults(
 
       if (memo[scanResult.filePath]) {
         memo[scanResult.filePath].result.cloudConfigResults.push(
-          ...res.result.cloudConfigResults,
+          ...res.result.cloudConfigResults
         );
       } else {
         res.meta.gitRemoteUrl = gitRemoteUrl;
@@ -56,14 +56,14 @@ const engineTypeToProjectType = {
   [EngineType.Terraform]: IacProjectType.TERRAFORM,
   [EngineType.CloudFormation]: IacProjectType.CLOUDFORMATION,
   [EngineType.ARM]: IacProjectType.ARM,
-  [EngineType.Custom]: IacProjectType.CUSTOM,
+  [EngineType.Custom]: IacProjectType.CUSTOM
 };
 
 function formatScanResult(
   scanResult: IacFileScanResult,
   meta: TestMeta,
   options: IaCTestFlags,
-  projectRoot: string,
+  projectRoot: string
 ): FormattedResult {
   const fileType = getFileTypeForParser(scanResult.fileType);
   const isGeneratedByCustomRule = scanResult.engineType === EngineType.Custom;
@@ -76,11 +76,11 @@ function formatScanResult(
     // we still pass an undefined tree and not calculated line number for those
   }
 
-  const formattedIssues = scanResult.violatedPolicies.map((policy) => {
+  const formattedIssues = scanResult.violatedPolicies.map(policy => {
     const cloudConfigPath =
       scanResult.docId !== undefined
         ? [`[DocId: ${scanResult.docId}]`].concat(parsePath(policy.msg))
-        : policy.msg.split('.');
+        : policy.msg.split(".");
 
     const lineNumber: number = treeByDocId
       ? extractLineNumber(cloudConfigPath, fileType, treeByDocId)
@@ -95,36 +95,36 @@ function formatScanResult(
       iacDescription: {
         issue: policy.issue,
         impact: policy.impact,
-        resolve: policy.resolve,
+        resolve: policy.resolve
       },
       severity: policy.severity,
       lineNumber,
       documentation: !isGeneratedByCustomRule
         ? `https://security.snyk.io/rules/cloud/${policy.publicId}`
         : undefined,
-      isGeneratedByCustomRule,
+      isGeneratedByCustomRule
     };
   });
 
   const { targetFilePath, projectName, targetFile } = computePaths(
     projectRoot,
     scanResult.filePath,
-    options.path,
+    options.path
   );
   return {
     result: {
       cloudConfigResults: filterPoliciesBySeverity(
         formattedIssues,
-        options.severityThreshold,
+        options.severityThreshold
       ),
-      projectType: scanResult.projectType,
+      projectType: scanResult.projectType
     },
     meta: {
       ...meta,
-      projectId: '', // we do not have a project at this stage
-      policy: '',
+      projectId: "", // we do not have a project at this stage
+      policy: "",
       isPrivate: true,
-      isLicensesEnabled: false,
+      isLicensesEnabled: false
     },
     filesystemPolicy: false, // we do not have the concept of policy
     vulnerabilities: [],
@@ -134,29 +134,29 @@ function formatScanResult(
     targetFile,
     projectName,
     org: meta.org,
-    policy: '', // we do not have the concept of policy
+    policy: "", // we do not have the concept of policy
     isPrivate: true,
     targetFilePath,
-    packageManager: engineTypeToProjectType[scanResult.engineType],
+    packageManager: engineTypeToProjectType[scanResult.engineType]
   };
 }
 
 export function filterPoliciesBySeverity(
   violatedPolicies: PolicyMetadata[],
-  severityThreshold?: SEVERITY,
+  severityThreshold?: SEVERITY
 ): PolicyMetadata[] {
   if (!severityThreshold || severityThreshold === SEVERITY.LOW) {
-    return violatedPolicies.filter((violatedPolicy) => {
-      return violatedPolicy.severity !== 'none';
+    return violatedPolicies.filter(violatedPolicy => {
+      return violatedPolicy.severity !== "none";
     });
   }
 
   const severitiesToInclude = severitiesArray.slice(
-    severitiesArray.indexOf(severityThreshold),
+    severitiesArray.indexOf(severityThreshold)
   );
-  return violatedPolicies.filter((policy) => {
+  return violatedPolicies.filter(policy => {
     return (
-      policy.severity !== 'none' &&
+      policy.severity !== "none" &&
       severitiesToInclude.includes(policy.severity)
     );
   });
@@ -164,20 +164,20 @@ export function filterPoliciesBySeverity(
 
 export class FailedToFormatResults extends CustomError {
   constructor(message?: string) {
-    super(message || 'Failed to format results');
+    super(message || "Failed to format results");
     this.code = IaCErrorCodes.FailedToFormatResults;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
-      'We failed printing the results, please contact support@snyk.io';
+      "We failed printing the results, please contact support@snyk.io";
   }
 }
 
 function computePaths(
   projectRoot: string,
   filePath: string,
-  pathArg = '.',
+  pathArg = "."
 ): { targetFilePath: string; projectName: string; targetFile: string } {
-  const targetFilePath = path.resolve(filePath, '.');
+  const targetFilePath = path.resolve(filePath, ".");
 
   // the absolute path is needed to compute the full project path
   const cmdPath = path.resolve(pathArg);
@@ -201,6 +201,6 @@ function computePaths(
   return {
     targetFilePath,
     projectName: path.basename(projectRoot),
-    targetFile,
+    targetFile
   };
 }

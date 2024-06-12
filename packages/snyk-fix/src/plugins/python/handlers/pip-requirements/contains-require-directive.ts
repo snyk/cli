@@ -3,10 +3,10 @@
  * https://pip.pypa.io/en/stable/reference/pip_install/#options
  */
 export async function containsRequireDirective(
-  requirementsTxt: string,
+  requirementsTxt: string
 ): Promise<{ containsRequire: boolean; matches: RegExpMatchArray[] }> {
   const allMatches: RegExpMatchArray[] = [];
-  const REQUIRE_PATTERN = new RegExp(/^[^\S\n]*-(r|c)\s+(.+)/, 'gm');
+  const REQUIRE_PATTERN = new RegExp(/^[^\S\n]*-(r|c)\s+(.+)/, "gm");
   const matches = getAllMatchedGroups(REQUIRE_PATTERN, requirementsTxt);
   for (const match of matches) {
     if (match && match.length > 1) {

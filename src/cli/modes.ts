@@ -1,5 +1,5 @@
-import * as abbrev from 'abbrev';
-import { UnsupportedOptionCombinationError, CustomError } from '../lib/errors';
+import * as abbrev from "abbrev";
+import { UnsupportedOptionCombinationError, CustomError } from "../lib/errors";
 
 interface ModeData {
   allowedCommands: Array<string>;
@@ -8,36 +8,36 @@ interface ModeData {
 
 const modes: Record<string, ModeData> = {
   unmanaged: {
-    allowedCommands: ['test', 'monitor'],
+    allowedCommands: ["test", "monitor"],
     config: (args): [] => {
-      args['unmanaged'] = true;
+      args["unmanaged"] = true;
       return args;
-    },
+    }
   },
   container: {
-    allowedCommands: ['test', 'monitor'],
+    allowedCommands: ["test", "monitor"],
     config: (args): [] => {
-      args['docker'] = true;
+      args["docker"] = true;
 
       return args;
-    },
+    }
   },
   iac: {
-    allowedCommands: ['test', 'update-exclude-policy', 'describe'],
+    allowedCommands: ["test", "update-exclude-policy", "describe"],
     config: (args): [] => {
-      args['iac'] = true;
+      args["iac"] = true;
 
       return args;
-    },
+    }
   },
   code: {
-    allowedCommands: ['test'],
+    allowedCommands: ["test"],
     config: (args): [] => {
-      args['code'] = true;
+      args["code"] = true;
 
       return args;
-    },
-  },
+    }
+  }
 };
 
 export function parseMode(mode: string, args): string {
@@ -54,13 +54,13 @@ export function parseMode(mode: string, args): string {
 }
 
 export function modeValidation(args: object) {
-  const mode = args['command'];
-  const commands: Array<string> = args['options']._;
+  const mode = args["command"];
+  const commands: Array<string> = args["options"]._;
 
   if (isValidMode(mode) && commands.length <= 1) {
     const allowed = modes[mode].allowedCommands
-      .join(', ')
-      .replace(/, ([^,]*)$/, ' or $1');
+      .join(", ")
+      .replace(/, ([^,]*)$/, " or $1");
     const message = `use snyk ${mode} with ${allowed}`;
 
     throw new CustomError(message);
@@ -78,8 +78,8 @@ export function displayModeHelp(mode: string, args) {
   if (isValidMode(mode)) {
     const command: string = args._[0];
 
-    if (!isValidCommand(mode, command) || args['help']) {
-      args['help'] = mode;
+    if (!isValidCommand(mode, command) || args["help"]) {
+      args["help"] = mode;
     }
   }
 

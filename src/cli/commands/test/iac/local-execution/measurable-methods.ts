@@ -1,15 +1,15 @@
-import { parseFiles } from './file-parser';
-import { scanFiles } from './file-scanner';
-import { formatScanResults } from './process-results/results-formatter';
-import { trackUsage } from './usage-tracking';
-import { cleanLocalCache, initLocalCache } from './local-cache';
-import { applyCustomSeverities } from './org-settings/apply-custom-severities';
-import { getIacOrgSettings } from './org-settings/get-iac-org-settings';
-import { test } from './index';
-import { pull } from './rules/oci-pull';
-import { performanceAnalyticsObject } from './analytics';
-import { PerformanceAnalyticsKey } from './types';
-import { loadContentForFiles } from './file-loader';
+import { parseFiles } from "./file-parser";
+import { scanFiles } from "./file-scanner";
+import { formatScanResults } from "./process-results/results-formatter";
+import { trackUsage } from "./usage-tracking";
+import { cleanLocalCache, initLocalCache } from "./local-cache";
+import { applyCustomSeverities } from "./org-settings/apply-custom-severities";
+import { getIacOrgSettings } from "./org-settings/get-iac-org-settings";
+import { test } from "./index";
+import { pull } from "./rules/oci-pull";
+import { performanceAnalyticsObject } from "./analytics";
+import { PerformanceAnalyticsKey } from "./types";
+import { loadContentForFiles } from "./file-loader";
 
 // Unwrap a promise: https://stackoverflow.com/questions/48011353/how-to-unwrap-type-of-a-promise
 type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
@@ -21,7 +21,7 @@ export function asyncPerformanceAnalyticsDecorator<
   T extends (...args: any[]) => Promise<any>
 >(
   measurableMethod: T,
-  analyticsKey: PerformanceAnalyticsKey,
+  analyticsKey: PerformanceAnalyticsKey
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
   return async function(...args) {
     const startTime = Date.now();
@@ -36,7 +36,7 @@ export function performanceAnalyticsDecorator<
   T extends (...args: any[]) => any
 >(
   measurableMethod: T,
-  analyticsKey: PerformanceAnalyticsKey,
+  analyticsKey: PerformanceAnalyticsKey
 ): (...args: Parameters<T>) => ReturnType<T> {
   return function(...args) {
     const startTime = Date.now();
@@ -49,57 +49,57 @@ export function performanceAnalyticsDecorator<
 
 const measurableInitLocalCache = asyncPerformanceAnalyticsDecorator(
   initLocalCache,
-  PerformanceAnalyticsKey.InitLocalCache,
+  PerformanceAnalyticsKey.InitLocalCache
 );
 
 const measurableParseFiles = asyncPerformanceAnalyticsDecorator(
   parseFiles,
-  PerformanceAnalyticsKey.FileParsing,
+  PerformanceAnalyticsKey.FileParsing
 );
 
 const measurableloadContentForFiles = asyncPerformanceAnalyticsDecorator(
   loadContentForFiles,
-  PerformanceAnalyticsKey.FileLoading,
+  PerformanceAnalyticsKey.FileLoading
 );
 
 const measurableScanFiles = asyncPerformanceAnalyticsDecorator(
   scanFiles,
-  PerformanceAnalyticsKey.FileScanning,
+  PerformanceAnalyticsKey.FileScanning
 );
 
 const measurableGetIacOrgSettings = asyncPerformanceAnalyticsDecorator(
   getIacOrgSettings,
-  PerformanceAnalyticsKey.OrgSettings,
+  PerformanceAnalyticsKey.OrgSettings
 );
 
 const measurableApplyCustomSeverities = asyncPerformanceAnalyticsDecorator(
   applyCustomSeverities,
-  PerformanceAnalyticsKey.CustomSeverities,
+  PerformanceAnalyticsKey.CustomSeverities
 );
 
 const measurableCleanLocalCache = performanceAnalyticsDecorator(
   cleanLocalCache,
-  PerformanceAnalyticsKey.CacheCleanup,
+  PerformanceAnalyticsKey.CacheCleanup
 );
 
 const measurableFormatScanResults = performanceAnalyticsDecorator(
   formatScanResults,
-  PerformanceAnalyticsKey.ResultFormatting,
+  PerformanceAnalyticsKey.ResultFormatting
 );
 
 const measurableTrackUsage = asyncPerformanceAnalyticsDecorator(
   trackUsage,
-  PerformanceAnalyticsKey.UsageTracking,
+  PerformanceAnalyticsKey.UsageTracking
 );
 
 const measurableLocalTest = asyncPerformanceAnalyticsDecorator(
   test,
-  PerformanceAnalyticsKey.Total,
+  PerformanceAnalyticsKey.Total
 );
 
 const measurableOciPull = asyncPerformanceAnalyticsDecorator(
   pull,
-  PerformanceAnalyticsKey.Total,
+  PerformanceAnalyticsKey.Total
 );
 
 export {
@@ -113,5 +113,5 @@ export {
   measurableTrackUsage as trackUsage,
   measurableCleanLocalCache as cleanLocalCache,
   measurableLocalTest as localTest,
-  measurableOciPull as pull,
+  measurableOciPull as pull
 };

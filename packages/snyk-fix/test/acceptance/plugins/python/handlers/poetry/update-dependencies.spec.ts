@@ -1,46 +1,46 @@
-import * as pathLib from 'path';
-import * as poetryFix from '@snyk/fix-poetry';
+import * as pathLib from "path";
+import * as poetryFix from "@snyk/fix-poetry";
 
-import * as snykFix from '../../../../../../src';
+import * as snykFix from "../../../../../../src";
 import {
   generateEntityToFixWithFileReadWrite,
-  generateTestResult,
-} from '../../../../../helpers/generate-entity-to-fix';
+  generateTestResult
+} from "../../../../../helpers/generate-entity-to-fix";
 
-jest.mock('@snyk/fix-poetry');
+jest.mock("@snyk/fix-poetry");
 
-describe('fix Poetry Python projects', () => {
+describe("fix Poetry Python projects", () => {
   let poetryFixStub: jest.SpyInstance;
   beforeAll(() => {
-    jest.spyOn(poetryFix, 'isPoetrySupportedVersion').mockReturnValue({
+    jest.spyOn(poetryFix, "isPoetrySupportedVersion").mockReturnValue({
       supported: true,
-      versions: ['1.1.1'],
+      versions: ["1.1.1"]
     });
-    jest.spyOn(poetryFix, 'isPoetryInstalled').mockResolvedValue({
-      version: '1.1.1',
+    jest.spyOn(poetryFix, "isPoetryInstalled").mockResolvedValue({
+      version: "1.1.1"
     });
   });
 
   beforeEach(() => {
-    poetryFixStub = jest.spyOn(poetryFix, 'poetryAdd');
+    poetryFixStub = jest.spyOn(poetryFix, "poetryAdd");
   });
 
   afterEach(() => {
     poetryFixStub.mockClear();
   });
 
-  const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
+  const workspacesPath = pathLib.resolve(__dirname, "workspaces");
 
-  it('shows expected changes with lockfile in --dry-run mode', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+  it("shows expected changes with lockfile in --dry-run mode", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install",
+      duration: 123
     });
     // Arrange
-    const targetFile = 'simple/pyproject.toml';
+    const targetFile = "simple/pyproject.toml";
 
     const testResult = {
       ...generateTestResult(),
@@ -50,31 +50,31 @@ describe('fix Poetry Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'six@1.1.6': {
-            upgradeTo: 'six@2.0.1',
-            vulns: ['VULN-six'],
-            isTransitive: false,
+          "six@1.1.6": {
+            upgradeTo: "six@2.0.1",
+            vulns: ["VULN-six"],
+            isTransitive: false
           },
-          'transitive@1.0.0': {
-            upgradeTo: 'transitive@1.1.1',
+          "transitive@1.0.0": {
+            upgradeTo: "transitive@1.1.1",
             vulns: [],
-            isTransitive: true,
-          },
-        },
-      },
+            isTransitive: true
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
-      testResult,
+      testResult
     );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
       stripAnsi: true,
-      dryRun: true,
+      dryRun: true
     });
     // Assert
     expect(result).toMatchObject({
@@ -89,38 +89,38 @@ describe('fix Poetry Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Upgraded six from 1.1.6 to 2.0.1',
+                  userMessage: "Upgraded six from 1.1.6 to 2.0.1"
                 },
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  userMessage: "Pinned transitive from 1.0.0 to 1.1.1"
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
     expect(poetryFixStub.mock.calls).toHaveLength(0);
   });
 
-  it('error is bubbled up', async () => {
+  it("error is bubbled up", async () => {
     const err = `SolverProblemError
 
     Because package-A (2.6) depends on package-B (>=1.19)
     and package-C (2.2.1) depends on package-B (>=1.16.0,<1.19.0), package-D (2.6) is incompatible with package-C (2.2.1).
     So, because package-Z depends on both  package-C (2.2.1) and package-D (2.6), version solving failed`;
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 1,
-      stdout: '',
+      stdout: "",
       stderr: `Resolving dependencies... (1.7s)
       ${err}`,
-      command: 'poetry install six==2.0.1 transitive==1.1.1',
-      duration: 123,
+      command: "poetry install six==2.0.1 transitive==1.1.1",
+      duration: 123
     });
 
     // Arrange
-    const targetFile = 'simple/pyproject.toml';
+    const targetFile = "simple/pyproject.toml";
 
     const testResult = {
       ...generateTestResult(),
@@ -130,31 +130,31 @@ describe('fix Poetry Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'six@1.1.6': {
-            upgradeTo: 'six@2.0.1',
-            vulns: ['VULN-six'],
-            isTransitive: false,
+          "six@1.1.6": {
+            upgradeTo: "six@2.0.1",
+            vulns: ["VULN-six"],
+            isTransitive: false
           },
-          'transitive@1.0.0': {
-            upgradeTo: 'transitive@1.1.1',
+          "transitive@1.0.0": {
+            upgradeTo: "transitive@1.1.1",
             vulns: [],
-            isTransitive: true,
-          },
-        },
-      },
+            isTransitive: true
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
-      testResult,
+      testResult
     );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
       stripAnsi: true,
-      dryRun: false,
+      dryRun: false
     });
     // Assert
     expect(result).toMatchObject({
@@ -166,58 +166,58 @@ describe('fix Poetry Python projects', () => {
               original: entityToFix,
               changes: [
                 {
-                  from: 'six@1.1.6',
-                  issueIds: ['VULN-six'],
+                  from: "six@1.1.6",
+                  issueIds: ["VULN-six"],
                   reason: err,
                   success: false,
                   tip:
-                    'Try running `poetry install six==2.0.1 transitive==1.1.1`',
-                  to: 'six@2.0.1',
-                  userMessage: 'Failed to upgrade six from 1.1.6 to 2.0.1',
+                    "Try running `poetry install six==2.0.1 transitive==1.1.1`",
+                  to: "six@2.0.1",
+                  userMessage: "Failed to upgrade six from 1.1.6 to 2.0.1"
                 },
                 {
-                  from: 'transitive@1.0.0',
+                  from: "transitive@1.0.0",
                   issueIds: [],
                   reason: err,
                   success: false,
                   tip:
-                    'Try running `poetry install six==2.0.1 transitive==1.1.1`',
-                  to: 'transitive@1.1.1',
-                  userMessage: 'Failed to pin transitive from 1.0.0 to 1.1.1',
-                },
-              ],
-            },
+                    "Try running `poetry install six==2.0.1 transitive==1.1.1`",
+                  to: "transitive@1.1.1",
+                  userMessage: "Failed to pin transitive from 1.0.0 to 1.1.1"
+                }
+              ]
+            }
           ],
           skipped: [],
-          succeeded: [],
-        },
-      },
+          succeeded: []
+        }
+      }
     });
-    expect(result.fixSummary).toContain('SolverProblemError');
+    expect(result.fixSummary).toContain("SolverProblemError");
     expect(result.fixSummary).toContain(
-      'Tip:     Try running `poetry install six==2.0.1 transitive==1.1.1`',
+      "Tip:     Try running `poetry install six==2.0.1 transitive==1.1.1`"
     );
-    expect(result.fixSummary).toContain('✖ No successful fixes');
+    expect(result.fixSummary).toContain("✖ No successful fixes");
     expect(poetryFixStub).toHaveBeenCalledTimes(1);
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['six==2.0.1', 'transitive==1.1.1'],
+      pathLib.resolve(workspacesPath, "simple"),
+      ["six==2.0.1", "transitive==1.1.1"],
       {
-        python: 'python3',
-      },
+        python: "python3"
+      }
     );
   });
 
-  it('Calls the plugin with expected parameters (upgrade & pin)', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+  it("Calls the plugin with expected parameters (upgrade & pin)", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install",
+      duration: 123
     });
     // Arrange
-    const targetFile = 'simple/pyproject.toml';
+    const targetFile = "simple/pyproject.toml";
 
     const testResult = {
       ...generateTestResult(),
@@ -227,30 +227,30 @@ describe('fix Poetry Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'six@1.1.6': {
-            upgradeTo: 'six@2.0.1',
-            vulns: ['VULN-six'],
-            isTransitive: false,
+          "six@1.1.6": {
+            upgradeTo: "six@2.0.1",
+            vulns: ["VULN-six"],
+            isTransitive: false
           },
-          'transitive@1.0.0': {
-            upgradeTo: 'transitive@1.1.1',
+          "transitive@1.0.0": {
+            upgradeTo: "transitive@1.1.1",
             vulns: [],
-            isTransitive: true,
-          },
-        },
-      },
+            isTransitive: true
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
-      testResult,
+      testResult
     );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
-      stripAnsi: true,
+      stripAnsi: true
     });
     // Assert
     expect(result).toMatchObject({
@@ -265,38 +265,38 @@ describe('fix Poetry Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Upgraded six from 1.1.6 to 2.0.1',
+                  userMessage: "Upgraded six from 1.1.6 to 2.0.1"
                 },
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  userMessage: "Pinned transitive from 1.0.0 to 1.1.1"
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
     expect(poetryFixStub.mock.calls).toHaveLength(1);
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['six==2.0.1', 'transitive==1.1.1'],
+      pathLib.resolve(workspacesPath, "simple"),
+      ["six==2.0.1", "transitive==1.1.1"],
       {
-        python: 'python3',
-      },
+        python: "python3"
+      }
     );
   });
 
-  it('Calls the plugin with expected parameters with --dev (upgrade & pin)', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+  it("Calls the plugin with expected parameters with --dev (upgrade & pin)", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install",
+      duration: 123
     });
     // Arrange
-    const targetFile = 'simple/pyproject.toml';
+    const targetFile = "simple/pyproject.toml";
 
     const testResult = {
       ...generateTestResult(),
@@ -306,23 +306,23 @@ describe('fix Poetry Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'six@1.1.6': {
-            upgradeTo: 'six@2.0.1',
-            vulns: ['VULN-six'],
-            isTransitive: false,
+          "six@1.1.6": {
+            upgradeTo: "six@2.0.1",
+            vulns: ["VULN-six"],
+            isTransitive: false
           },
-          'transitive@1.0.0': {
-            upgradeTo: 'transitive@1.1.1',
-            vulns: ['vuln-transitive'],
-            isTransitive: true,
+          "transitive@1.0.0": {
+            upgradeTo: "transitive@1.1.1",
+            vulns: ["vuln-transitive"],
+            isTransitive: true
           },
-          'json-api@0.1.21': {
-            upgradeTo: 'json-api@0.1.22',
-            vulns: ['SNYK-1'],
-            isTransitive: false,
-          },
-        },
-      },
+          "json-api@0.1.21": {
+            upgradeTo: "json-api@0.1.22",
+            vulns: ["SNYK-1"],
+            isTransitive: false
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
@@ -330,14 +330,14 @@ describe('fix Poetry Python projects', () => {
       targetFile,
       testResult,
       {
-        dev: true,
-      },
+        dev: true
+      }
     );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
-      stripAnsi: true,
+      stripAnsi: true
     });
 
     // Assert
@@ -352,56 +352,56 @@ describe('fix Poetry Python projects', () => {
               original: entityToFix,
               changes: [
                 {
-                  from: 'six@1.1.6',
-                  to: 'six@2.0.1',
-                  issueIds: ['VULN-six'],
+                  from: "six@1.1.6",
+                  to: "six@2.0.1",
+                  issueIds: ["VULN-six"],
                   success: true,
-                  userMessage: 'Upgraded six from 1.1.6 to 2.0.1',
+                  userMessage: "Upgraded six from 1.1.6 to 2.0.1"
                 },
                 {
-                  from: 'transitive@1.0.0',
-                  to: 'transitive@1.1.1',
-                  issueIds: ['vuln-transitive'],
+                  from: "transitive@1.0.0",
+                  to: "transitive@1.1.1",
+                  issueIds: ["vuln-transitive"],
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                  userMessage: "Pinned transitive from 1.0.0 to 1.1.1"
                 },
                 {
-                  from: 'json-api@0.1.21',
-                  to: 'json-api@0.1.22',
-                  issueIds: ['SNYK-1'],
+                  from: "json-api@0.1.21",
+                  to: "json-api@0.1.22",
+                  issueIds: ["SNYK-1"],
                   success: true,
-                  userMessage: 'Upgraded json-api from 0.1.21 to 0.1.22',
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  userMessage: "Upgraded json-api from 0.1.21 to 0.1.22"
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
     expect(poetryFixStub.mock.calls).toHaveLength(2);
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['six==2.0.1', 'transitive==1.1.1'],
-      {},
+      pathLib.resolve(workspacesPath, "simple"),
+      ["six==2.0.1", "transitive==1.1.1"],
+      {}
     );
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['json-api==0.1.22'],
+      pathLib.resolve(workspacesPath, "simple"),
+      ["json-api==0.1.22"],
       {
-        dev: true,
-      },
+        dev: true
+      }
     );
   });
-  it('pins a transitive dep with custom python interpreter via --command', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+  it("pins a transitive dep with custom python interpreter via --command", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install",
+      duration: 123
     });
     // Arrange
-    const targetFile = 'simple/poetry.lock';
+    const targetFile = "simple/poetry.lock";
 
     const testResult = {
       ...generateTestResult(),
@@ -411,13 +411,13 @@ describe('fix Poetry Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'markupsafe@2.0.1': {
-            upgradeTo: 'markupsafe@2.1.0',
-            vulns: ['SNYK-1'],
-            isTransitive: true,
-          },
-        },
-      },
+          "markupsafe@2.0.1": {
+            upgradeTo: "markupsafe@2.1.0",
+            vulns: ["SNYK-1"],
+            isTransitive: true
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
@@ -425,14 +425,14 @@ describe('fix Poetry Python projects', () => {
       targetFile,
       testResult,
       {
-        command: 'python2',
-      },
+        command: "python2"
+      }
     );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
-      stripAnsi: true,
+      stripAnsi: true
     });
     // Assert
     expect(result).toMatchObject({
@@ -447,33 +447,33 @@ describe('fix Poetry Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Pinned markupsafe from 2.0.1 to 2.1.0',
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  userMessage: "Pinned markupsafe from 2.0.1 to 2.1.0"
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
     expect(poetryFixStub.mock.calls).toHaveLength(1);
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['markupsafe==2.1.0'],
+      pathLib.resolve(workspacesPath, "simple"),
+      ["markupsafe==2.1.0"],
       {
-        python: 'python2',
-      },
+        python: "python2"
+      }
     );
   });
-  it('shows expected changes when updating a dev dep', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+  it("shows expected changes when updating a dev dep", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install",
+      duration: 123
     });
     // Arrange
-    const targetFile = 'with-dev-deps/pyproject.toml';
+    const targetFile = "with-dev-deps/pyproject.toml";
 
     const testResult = {
       ...generateTestResult(),
@@ -483,13 +483,13 @@ describe('fix Poetry Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'json-api@0.1.21': {
-            upgradeTo: 'json-api@0.1.22',
-            vulns: ['SNYK-1'],
-            isTransitive: false,
-          },
-        },
-      },
+          "json-api@0.1.21": {
+            upgradeTo: "json-api@0.1.22",
+            vulns: ["SNYK-1"],
+            isTransitive: false
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
@@ -497,14 +497,14 @@ describe('fix Poetry Python projects', () => {
       targetFile,
       testResult,
       {
-        dev: true,
-      },
+        dev: true
+      }
     );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
-      stripAnsi: true,
+      stripAnsi: true
     });
     // Assert
     expect(result).toMatchObject({
@@ -519,63 +519,63 @@ describe('fix Poetry Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Upgraded json-api from 0.1.21 to 0.1.22',
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  userMessage: "Upgraded json-api from 0.1.21 to 0.1.22"
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
     expect(poetryFixStub.mock.calls).toHaveLength(1);
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'with-dev-deps'),
-      ['json-api==0.1.22'],
+      pathLib.resolve(workspacesPath, "with-dev-deps"),
+      ["json-api==0.1.22"],
       {
-        dev: true,
-      },
+        dev: true
+      }
     );
   });
 
   it.todo(
-    'upgrade fails since the env already has the right versions (full failure)',
+    "upgrade fails since the env already has the right versions (full failure)"
   );
 
-  it.todo('upgrade of dev deps fails (partial failure)');
+  it.todo("upgrade of dev deps fails (partial failure)");
 });
 
-describe('fix Poetry Python projects fix sequentially', () => {
+describe("fix Poetry Python projects fix sequentially", () => {
   let poetryFixStub: jest.SpyInstance;
   beforeAll(() => {
-    jest.spyOn(poetryFix, 'isPoetrySupportedVersion').mockReturnValue({
+    jest.spyOn(poetryFix, "isPoetrySupportedVersion").mockReturnValue({
       supported: true,
-      versions: ['1.1.1'],
+      versions: ["1.1.1"]
     });
-    jest.spyOn(poetryFix, 'isPoetryInstalled').mockResolvedValue({
-      version: '1.1.1',
+    jest.spyOn(poetryFix, "isPoetryInstalled").mockResolvedValue({
+      version: "1.1.1"
     });
   });
 
   beforeEach(() => {
-    poetryFixStub = jest.spyOn(poetryFix, 'poetryAdd');
+    poetryFixStub = jest.spyOn(poetryFix, "poetryAdd");
   });
 
   afterEach(() => {
     poetryFixStub.mockClear();
   });
 
-  const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
+  const workspacesPath = pathLib.resolve(__dirname, "workspaces");
 
-  it('shows expected changes with lockfile in --dry-run mode', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+  it("shows expected changes with lockfile in --dry-run mode", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install",
+      duration: 123
     });
     // Arrange
-    const targetFile = 'simple/pyproject.toml';
+    const targetFile = "simple/pyproject.toml";
 
     const testResult = {
       ...generateTestResult(),
@@ -585,24 +585,24 @@ describe('fix Poetry Python projects fix sequentially', () => {
         patch: {},
         ignore: {},
         pin: {
-          'six@1.1.6': {
-            upgradeTo: 'six@2.0.1',
-            vulns: ['VULN-six'],
-            isTransitive: false,
+          "six@1.1.6": {
+            upgradeTo: "six@2.0.1",
+            vulns: ["VULN-six"],
+            isTransitive: false
           },
-          'transitive@1.0.0': {
-            upgradeTo: 'transitive@1.1.1',
+          "transitive@1.0.0": {
+            upgradeTo: "transitive@1.1.1",
             vulns: [],
-            isTransitive: true,
-          },
-        },
-      },
+            isTransitive: true
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
-      testResult,
+      testResult
     );
 
     // Act
@@ -610,7 +610,7 @@ describe('fix Poetry Python projects fix sequentially', () => {
       quiet: true,
       stripAnsi: true,
       dryRun: true,
-      sequentialFix: true,
+      sequentialFix: true
     });
     // Assert
     expect(result).toMatchObject({
@@ -625,31 +625,31 @@ describe('fix Poetry Python projects fix sequentially', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Upgraded six from 1.1.6 to 2.0.1',
-                  from: 'six@1.1.6',
-                  to: 'six@2.0.1',
-                  issueIds: ['VULN-six'],
+                  userMessage: "Upgraded six from 1.1.6 to 2.0.1",
+                  from: "six@1.1.6",
+                  to: "six@2.0.1",
+                  issueIds: ["VULN-six"]
                 },
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
-                  from: 'transitive@1.0.0',
-                  to: 'transitive@1.1.1',
-                  issueIds: [],
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  userMessage: "Pinned transitive from 1.0.0 to 1.1.1",
+                  from: "transitive@1.0.0",
+                  to: "transitive@1.1.1",
+                  issueIds: []
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
     expect(poetryFixStub.mock.calls).toHaveLength(0);
   });
 
-  it('error is bubbled up', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValueOnce({
+  it("error is bubbled up", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValueOnce({
       exitCode: 1,
-      stdout: '',
+      stdout: "",
       stderr: `Resolving dependencies... (1.7s)
 
       SolverProblemError
@@ -657,19 +657,19 @@ describe('fix Poetry Python projects fix sequentially', () => {
       Because package-A (2.6) depends on package-B (>=1.19)
       and package-C (2.2.1) depends on package-B (>=1.16.0,<1.19.0), package-D (2.6) is incompatible with package-C (2.2.1).
       So, because package-Z depends on both  package-C (2.2.1) and package-D (2.6), version solving failed.`,
-      command: 'poetry install six==2.0.1',
-      duration: 123,
+      command: "poetry install six==2.0.1",
+      duration: 123
     });
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValueOnce({
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValueOnce({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install transitive==1.1.1',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install transitive==1.1.1",
+      duration: 123
     });
 
     // Arrange
-    const targetFile = 'simple/pyproject.toml';
+    const targetFile = "simple/pyproject.toml";
 
     const testResult = {
       ...generateTestResult(),
@@ -679,24 +679,24 @@ describe('fix Poetry Python projects fix sequentially', () => {
         patch: {},
         ignore: {},
         pin: {
-          'six@1.1.6': {
-            upgradeTo: 'six@2.0.1',
-            vulns: ['VULN-six'],
-            isTransitive: false,
+          "six@1.1.6": {
+            upgradeTo: "six@2.0.1",
+            vulns: ["VULN-six"],
+            isTransitive: false
           },
-          'transitive@1.0.0': {
-            upgradeTo: 'transitive@1.1.1',
+          "transitive@1.0.0": {
+            upgradeTo: "transitive@1.1.1",
             vulns: [],
-            isTransitive: true,
-          },
-        },
-      },
+            isTransitive: true
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
-      testResult,
+      testResult
     );
 
     // Act
@@ -704,7 +704,7 @@ describe('fix Poetry Python projects fix sequentially', () => {
       quiet: true,
       stripAnsi: true,
       dryRun: false,
-      sequentialFix: true,
+      sequentialFix: true
     });
     // Assert
     expect(result).toMatchObject({
@@ -718,65 +718,65 @@ describe('fix Poetry Python projects fix sequentially', () => {
               original: entityToFix,
               changes: [
                 {
-                  from: 'six@1.1.6',
-                  issueIds: ['VULN-six'],
+                  from: "six@1.1.6",
+                  issueIds: ["VULN-six"],
                   reason: `SolverProblemError
 
       Because package-A (2.6) depends on package-B (>=1.19)
       and package-C (2.2.1) depends on package-B (>=1.16.0,<1.19.0), package-D (2.6) is incompatible with package-C (2.2.1).
       So, because package-Z depends on both  package-C (2.2.1) and package-D (2.6), version solving failed`,
                   success: false,
-                  tip: 'Try running `poetry install six==2.0.1`',
-                  to: 'six@2.0.1',
-                  userMessage: 'Failed to upgrade six from 1.1.6 to 2.0.1',
+                  tip: "Try running `poetry install six==2.0.1`",
+                  to: "six@2.0.1",
+                  userMessage: "Failed to upgrade six from 1.1.6 to 2.0.1"
                 },
                 {
-                  from: 'transitive@1.0.0',
+                  from: "transitive@1.0.0",
                   issueIds: [],
                   success: true,
-                  to: 'transitive@1.1.1',
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  to: "transitive@1.1.1",
+                  userMessage: "Pinned transitive from 1.0.0 to 1.1.1"
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
-    expect(result.fixSummary).toContain('SolverProblemError');
+    expect(result.fixSummary).toContain("SolverProblemError");
     expect(result.fixSummary).toContain(
-      'Tip:     Try running `poetry install six==2.0.1`',
+      "Tip:     Try running `poetry install six==2.0.1`"
     );
     expect(result.fixSummary).toContain(
-      'Pinned transitive from 1.0.0 to 1.1.1',
+      "Pinned transitive from 1.0.0 to 1.1.1"
     );
     expect(poetryFixStub).toHaveBeenCalledTimes(2);
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['six==2.0.1'],
+      pathLib.resolve(workspacesPath, "simple"),
+      ["six==2.0.1"],
       {
-        python: 'python3',
-      },
+        python: "python3"
+      }
     );
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['transitive==1.1.1'],
+      pathLib.resolve(workspacesPath, "simple"),
+      ["transitive==1.1.1"],
       {
-        python: 'python3',
-      },
+        python: "python3"
+      }
     );
   });
 
-  it('Calls the plugin with expected parameters (upgrade & pin)', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+  it("Calls the plugin with expected parameters (upgrade & pin)", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install",
+      duration: 123
     });
     // Arrange
-    const targetFile = 'simple/pyproject.toml';
+    const targetFile = "simple/pyproject.toml";
 
     const testResult = {
       ...generateTestResult(),
@@ -786,31 +786,31 @@ describe('fix Poetry Python projects fix sequentially', () => {
         patch: {},
         ignore: {},
         pin: {
-          'six@1.1.6': {
-            upgradeTo: 'six@2.0.1',
-            vulns: ['VULN-six'],
-            isTransitive: false,
+          "six@1.1.6": {
+            upgradeTo: "six@2.0.1",
+            vulns: ["VULN-six"],
+            isTransitive: false
           },
-          'transitive@1.0.0': {
-            upgradeTo: 'transitive@1.1.1',
+          "transitive@1.0.0": {
+            upgradeTo: "transitive@1.1.1",
             vulns: [],
-            isTransitive: true,
-          },
-        },
-      },
+            isTransitive: true
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
-      testResult,
+      testResult
     );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
       stripAnsi: true,
-      sequentialFix: true,
+      sequentialFix: true
     });
     // Assert
     expect(result).toMatchObject({
@@ -825,45 +825,45 @@ describe('fix Poetry Python projects fix sequentially', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Upgraded six from 1.1.6 to 2.0.1',
+                  userMessage: "Upgraded six from 1.1.6 to 2.0.1"
                 },
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  userMessage: "Pinned transitive from 1.0.0 to 1.1.1"
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
     expect(poetryFixStub.mock.calls).toHaveLength(2);
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['six==2.0.1'],
+      pathLib.resolve(workspacesPath, "simple"),
+      ["six==2.0.1"],
       {
-        python: 'python3',
-      },
+        python: "python3"
+      }
     );
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['transitive==1.1.1'],
+      pathLib.resolve(workspacesPath, "simple"),
+      ["transitive==1.1.1"],
       {
-        python: 'python3',
-      },
+        python: "python3"
+      }
     );
   });
 
-  it('Calls the plugin with expected parameters with --dev (upgrade & pin)', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+  it("Calls the plugin with expected parameters with --dev (upgrade & pin)", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install",
+      duration: 123
     });
     // Arrange
-    const targetFile = 'simple/pyproject.toml';
+    const targetFile = "simple/pyproject.toml";
 
     const testResult = {
       ...generateTestResult(),
@@ -873,23 +873,23 @@ describe('fix Poetry Python projects fix sequentially', () => {
         patch: {},
         ignore: {},
         pin: {
-          'six@1.1.6': {
-            upgradeTo: 'six@2.0.1',
-            vulns: ['VULN-six'],
-            isTransitive: false,
+          "six@1.1.6": {
+            upgradeTo: "six@2.0.1",
+            vulns: ["VULN-six"],
+            isTransitive: false
           },
-          'transitive@1.0.0': {
-            upgradeTo: 'transitive@1.1.1',
-            vulns: ['vuln-transitive'],
-            isTransitive: true,
+          "transitive@1.0.0": {
+            upgradeTo: "transitive@1.1.1",
+            vulns: ["vuln-transitive"],
+            isTransitive: true
           },
-          'json-api@0.1.21': {
-            upgradeTo: 'json-api@0.1.22',
-            vulns: ['SNYK-1'],
-            isTransitive: false,
-          },
-        },
-      },
+          "json-api@0.1.21": {
+            upgradeTo: "json-api@0.1.22",
+            vulns: ["SNYK-1"],
+            isTransitive: false
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
@@ -897,15 +897,15 @@ describe('fix Poetry Python projects fix sequentially', () => {
       targetFile,
       testResult,
       {
-        dev: true,
-      },
+        dev: true
+      }
     );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
       stripAnsi: true,
-      sequentialFix: true,
+      sequentialFix: true
     });
 
     // Assert
@@ -920,61 +920,61 @@ describe('fix Poetry Python projects fix sequentially', () => {
               original: entityToFix,
               changes: [
                 {
-                  from: 'six@1.1.6',
-                  to: 'six@2.0.1',
-                  issueIds: ['VULN-six'],
+                  from: "six@1.1.6",
+                  to: "six@2.0.1",
+                  issueIds: ["VULN-six"],
                   success: true,
-                  userMessage: 'Upgraded six from 1.1.6 to 2.0.1',
+                  userMessage: "Upgraded six from 1.1.6 to 2.0.1"
                 },
                 {
-                  from: 'transitive@1.0.0',
-                  to: 'transitive@1.1.1',
-                  issueIds: ['vuln-transitive'],
+                  from: "transitive@1.0.0",
+                  to: "transitive@1.1.1",
+                  issueIds: ["vuln-transitive"],
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                  userMessage: "Pinned transitive from 1.0.0 to 1.1.1"
                 },
                 {
-                  from: 'json-api@0.1.21',
-                  to: 'json-api@0.1.22',
-                  issueIds: ['SNYK-1'],
+                  from: "json-api@0.1.21",
+                  to: "json-api@0.1.22",
+                  issueIds: ["SNYK-1"],
                   success: true,
-                  userMessage: 'Upgraded json-api from 0.1.21 to 0.1.22',
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  userMessage: "Upgraded json-api from 0.1.21 to 0.1.22"
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
     expect(poetryFixStub.mock.calls).toHaveLength(3);
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['transitive==1.1.1'],
-      {},
+      pathLib.resolve(workspacesPath, "simple"),
+      ["transitive==1.1.1"],
+      {}
     );
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['six==2.0.1'],
-      {},
+      pathLib.resolve(workspacesPath, "simple"),
+      ["six==2.0.1"],
+      {}
     );
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['json-api==0.1.22'],
+      pathLib.resolve(workspacesPath, "simple"),
+      ["json-api==0.1.22"],
       {
-        dev: true,
-      },
+        dev: true
+      }
     );
   });
-  it('pins a transitive dep with custom python interpreter via --command', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+  it("pins a transitive dep with custom python interpreter via --command", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install",
+      duration: 123
     });
     // Arrange
-    const targetFile = 'simple/poetry.lock';
+    const targetFile = "simple/poetry.lock";
 
     const testResult = {
       ...generateTestResult(),
@@ -984,13 +984,13 @@ describe('fix Poetry Python projects fix sequentially', () => {
         patch: {},
         ignore: {},
         pin: {
-          'markupsafe@2.0.1': {
-            upgradeTo: 'markupsafe@2.1.0',
-            vulns: ['SNYK-1'],
-            isTransitive: true,
-          },
-        },
-      },
+          "markupsafe@2.0.1": {
+            upgradeTo: "markupsafe@2.1.0",
+            vulns: ["SNYK-1"],
+            isTransitive: true
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
@@ -998,15 +998,15 @@ describe('fix Poetry Python projects fix sequentially', () => {
       targetFile,
       testResult,
       {
-        command: 'python2',
-      },
+        command: "python2"
+      }
     );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
       stripAnsi: true,
-      sequentialFix: true,
+      sequentialFix: true
     });
     // Assert
     expect(result).toMatchObject({
@@ -1021,33 +1021,33 @@ describe('fix Poetry Python projects fix sequentially', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Pinned markupsafe from 2.0.1 to 2.1.0',
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  userMessage: "Pinned markupsafe from 2.0.1 to 2.1.0"
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
     expect(poetryFixStub.mock.calls).toHaveLength(1);
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'simple'),
-      ['markupsafe==2.1.0'],
+      pathLib.resolve(workspacesPath, "simple"),
+      ["markupsafe==2.1.0"],
       {
-        python: 'python2',
-      },
+        python: "python2"
+      }
     );
   });
-  it('shows expected changes when updating a dev dep', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+  it("shows expected changes when updating a dev dep", async () => {
+    jest.spyOn(poetryFix, "poetryAdd").mockResolvedValue({
       exitCode: 0,
-      stdout: '',
-      stderr: '',
-      command: 'poetry install',
-      duration: 123,
+      stdout: "",
+      stderr: "",
+      command: "poetry install",
+      duration: 123
     });
     // Arrange
-    const targetFile = 'with-dev-deps/pyproject.toml';
+    const targetFile = "with-dev-deps/pyproject.toml";
 
     const testResult = {
       ...generateTestResult(),
@@ -1057,13 +1057,13 @@ describe('fix Poetry Python projects fix sequentially', () => {
         patch: {},
         ignore: {},
         pin: {
-          'json-api@0.1.21': {
-            upgradeTo: 'json-api@0.1.22',
-            vulns: ['SNYK-1'],
-            isTransitive: false,
-          },
-        },
-      },
+          "json-api@0.1.21": {
+            upgradeTo: "json-api@0.1.22",
+            vulns: ["SNYK-1"],
+            isTransitive: false
+          }
+        }
+      }
     };
 
     const entityToFix = generateEntityToFixWithFileReadWrite(
@@ -1071,15 +1071,15 @@ describe('fix Poetry Python projects fix sequentially', () => {
       targetFile,
       testResult,
       {
-        dev: true,
-      },
+        dev: true
+      }
     );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
       stripAnsi: true,
-      sequentialFix: true,
+      sequentialFix: true
     });
     // Assert
     expect(result).toMatchObject({
@@ -1094,27 +1094,27 @@ describe('fix Poetry Python projects fix sequentially', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Upgraded json-api from 0.1.21 to 0.1.22',
-                },
-              ],
-            },
-          ],
-        },
-      },
+                  userMessage: "Upgraded json-api from 0.1.21 to 0.1.22"
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
     expect(poetryFixStub.mock.calls).toHaveLength(1);
     expect(poetryFixStub).toHaveBeenCalledWith(
-      pathLib.resolve(workspacesPath, 'with-dev-deps'),
-      ['json-api==0.1.22'],
+      pathLib.resolve(workspacesPath, "with-dev-deps"),
+      ["json-api==0.1.22"],
       {
-        dev: true,
-      },
+        dev: true
+      }
     );
   });
 
   it.todo(
-    'upgrade fails since the env already has the right versions (full failure)',
+    "upgrade fails since the env already has the right versions (full failure)"
   );
 
-  it.todo('upgrade of dev deps fails (partial failure)');
+  it.todo("upgrade of dev deps fails (partial failure)");
 });

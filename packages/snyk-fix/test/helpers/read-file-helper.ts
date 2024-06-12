@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as pathLib from 'path';
+import * as fs from "fs";
+import * as pathLib from "path";
 
 export function readFileHelper(workspacesPath: string, path: string): string {
   // because we write multiple time the file
@@ -9,13 +9,13 @@ export function readFileHelper(workspacesPath: string, path: string): string {
   const fixedPath = pathLib.resolve(
     workspacesPath,
     res.dir,
-    `fixed-${res.base}`,
+    `fixed-${res.base}`
   );
   let file;
   try {
-    file = fs.readFileSync(fixedPath, 'utf-8');
+    file = fs.readFileSync(fixedPath, "utf-8");
   } catch (e) {
-    file = fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
+    file = fs.readFileSync(pathLib.resolve(workspacesPath, path), "utf-8");
   }
   return file;
 }

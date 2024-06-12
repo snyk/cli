@@ -1,14 +1,14 @@
-import { isFeatureFlagSupportedForOrg } from '../../../../../../lib/feature-flags';
-import { shareResults } from './cli-share-results';
-import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { isFeatureFlagSupportedForOrg } from "../../../../../../lib/feature-flags";
+import { shareResults } from "./cli-share-results";
+import { Policy } from "../../../../../../lib/policy/find-and-load-policy";
 import {
   IacOutputMeta,
   ProjectAttributes,
-  Tag,
-} from '../../../../../../lib/types';
-import { FeatureFlagError } from '../assert-iac-options-flag';
-import { formatShareResults } from './share-results-formatter';
-import { IacFileScanResult, IaCTestFlags, ShareResultsOutput } from '../types';
+  Tag
+} from "../../../../../../lib/types";
+import { FeatureFlagError } from "../assert-iac-options-flag";
+import { formatShareResults } from "./share-results-formatter";
+import { IacFileScanResult, IaCTestFlags, ShareResultsOutput } from "../types";
 
 export async function formatAndShareResults({
   results,
@@ -18,7 +18,7 @@ export async function formatAndShareResults({
   tags,
   attributes,
   projectRoot,
-  meta,
+  meta
 }: {
   results: IacFileScanResult[];
   options: IaCTestFlags;
@@ -30,11 +30,11 @@ export async function formatAndShareResults({
   meta: IacOutputMeta;
 }): Promise<ShareResultsOutput> {
   const isCliReportEnabled = await isFeatureFlagSupportedForOrg(
-    'iacCliShareResults',
-    orgPublicId,
+    "iacCliShareResults",
+    orgPublicId
   );
   if (!isCliReportEnabled.ok) {
-    throw new FeatureFlagError('report', 'iacCliShareResults');
+    throw new FeatureFlagError("report", "iacCliShareResults");
   }
 
   const formattedResults = formatShareResults(projectRoot, results, meta);
@@ -45,6 +45,6 @@ export async function formatAndShareResults({
     tags,
     attributes,
     options,
-    meta,
+    meta
   });
 }

@@ -31,9 +31,9 @@ export type PatchedModule = {
 };
 
 export enum ProtectResultType {
-  NO_SNYK_FILE = 'NO_SNYK_FILE',
-  NOTHING_TO_PATCH = 'NOTHING_TO_PATCH',
-  APPLIED_PATCHES = 'APPLIED_PATCHES',
+  NO_SNYK_FILE = "NO_SNYK_FILE",
+  NOTHING_TO_PATCH = "NOTHING_TO_PATCH",
+  APPLIED_PATCHES = "APPLIED_PATCHES"
 }
 
 export type AnalyticsPayload = {

@@ -1,27 +1,27 @@
-import * as pathLib from 'path';
-import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
-import * as debugLib from 'debug';
+import * as pathLib from "path";
+import * as pipenvPipfileFix from "@snyk/fix-pipenv-pipfile";
+import * as debugLib from "debug";
 
 import {
   EntityToFix,
   FixChangesSummary,
-  FixOptions,
-} from '../../../../../types';
-import { validateRequiredData } from '../../validate-required-data';
+  FixOptions
+} from "../../../../../types";
+import { validateRequiredData } from "../../validate-required-data";
 
 import {
   generateFailedChanges,
-  generateSuccessfulChanges,
-} from '../../attempted-changes-summary';
-import { CommandFailedError } from '../../../../../lib/errors/command-failed-to-run-error';
-import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
+  generateSuccessfulChanges
+} from "../../attempted-changes-summary";
+import { CommandFailedError } from "../../../../../lib/errors/command-failed-to-run-error";
+import { NoFixesCouldBeAppliedError } from "../../../../../lib/errors/no-fixes-applied";
 
-const debug = debugLib('snyk-fix:python:pipenvAdd');
+const debug = debugLib("snyk-fix:python:pipenvAdd");
 
 export async function pipenvAdd(
   entity: EntityToFix,
   options: FixOptions,
-  upgrades: string[],
+  upgrades: string[]
 ): Promise<FixChangesSummary[]> {
   const changes: FixChangesSummary[] = [];
   let pipenvCommand;
@@ -34,11 +34,11 @@ export async function pipenvAdd(
         stderr,
         stdout,
         command,
-        exitCode,
+        exitCode
       } = await pipenvPipfileFix.pipenvInstall(dir, upgrades, {
-        python: entity.options.command,
+        python: entity.options.command
       });
-      debug('`pipenv add` returned:', { stderr, stdout, command });
+      debug("`pipenv add` returned:", { stderr, stdout, command });
       if (exitCode !== 0) {
         pipenvCommand = command;
         throwPipenvError(stderr, stdout, command);
@@ -47,7 +47,7 @@ export async function pipenvAdd(
     changes.push(...generateSuccessfulChanges(upgrades, remediation.pin));
   } catch (error) {
     changes.push(
-      ...generateFailedChanges(upgrades, remediation.pin, error, pipenvCommand),
+      ...generateFailedChanges(upgrades, remediation.pin, error, pipenvCommand)
     );
   }
   return changes;
@@ -55,9 +55,9 @@ export async function pipenvAdd(
 
 function throwPipenvError(stderr: string, stdout: string, command?: string) {
   const incompatibleDeps =
-    'There are incompatible versions in the resolved dependencies';
-  const lockingFailed = 'Locking failed';
-  const versionNotFound = 'Could not find a version that matches';
+    "There are incompatible versions in the resolved dependencies";
+  const lockingFailed = "Locking failed";
+  const versionNotFound = "Could not find a version that matches";
 
   const errorsToBubbleUp = [incompatibleDeps, lockingFailed, versionNotFound];
 

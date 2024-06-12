@@ -1,60 +1,60 @@
-import { CustomError } from '../../../../../lib/errors';
-import { args } from '../../../../args';
-import { getErrorStringCode } from './error-utils';
+import { CustomError } from "../../../../../lib/errors";
+import { args } from "../../../../args";
+import { getErrorStringCode } from "./error-utils";
 import {
   IaCErrorCodes,
   IacOrgSettings,
   IaCTestFlags,
-  TerraformPlanScanMode,
-} from './types';
-import { Options, TestOptions } from '../../../../../lib/types';
-import { IacV2Name } from '../../../../../lib/iac/constants';
+  TerraformPlanScanMode
+} from "./types";
+import { Options, TestOptions } from "../../../../../lib/types";
+import { IacV2Name } from "../../../../../lib/iac/constants";
 
 const keys: (keyof IaCTestFlags)[] = [
-  'org',
-  'debug',
-  'insecure',
-  'detectionDepth',
-  'severityThreshold',
-  'rules',
-  'json',
-  'sarif',
-  'json-file-output',
-  'sarif-file-output',
-  'v',
-  'version',
-  'h',
-  'help',
-  'q',
-  'quiet',
-  'scan',
-  'report',
+  "org",
+  "debug",
+  "insecure",
+  "detectionDepth",
+  "severityThreshold",
+  "rules",
+  "json",
+  "sarif",
+  "json-file-output",
+  "sarif-file-output",
+  "v",
+  "version",
+  "h",
+  "help",
+  "q",
+  "quiet",
+  "scan",
+  "report",
   // Tags and attributes
-  'tags',
-  'project-tags',
-  'project-environment',
-  'project-lifecycle',
-  'project-business-criticality',
-  'target-reference',
-  'var-file',
+  "tags",
+  "project-tags",
+  "project-environment",
+  "project-lifecycle",
+  "project-business-criticality",
+  "target-reference",
+  "var-file",
   // PolicyOptions
-  'ignore-policy',
-  'policy-path',
+  "ignore-policy",
+  "policy-path",
   // Report options
-  'remote-repo-url',
-  'target-name',
+  "remote-repo-url",
+  "target-name"
 ];
-const integratedKeys: (keyof IaCTestFlags)[] = ['snyk-cloud-environment'];
+const integratedKeys: (keyof IaCTestFlags)[] = ["snyk-cloud-environment"];
 
 const allowed = new Set<string>(keys);
 const integratedOnlyFlags = new Set<string>(integratedKeys);
 
 function camelcaseToDash(key: string) {
-  return key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+  return key.replace(/[A-Z]/g, m => "-" + m.toLowerCase());
 }
 
 function getFlagName(key: string) {
-  const dashes = key.length === 1 ? '-' : '--';
+  const dashes = key.length === 1 ? "-" : "--";
   const flag = camelcaseToDash(key);
   return `${dashes}${flag}`;
 }
@@ -112,7 +112,7 @@ export class UnsupportedEntitlementFlagError extends CustomError {
   constructor(key: string, entitlementName: string) {
     const flag = getFlagName(key);
     super(
-      `Unsupported flag: ${flag} - Missing the ${entitlementName} entitlement`,
+      `Unsupported flag: ${flag} - Missing the ${entitlementName} entitlement`
     );
     this.code = IaCErrorCodes.UnsupportedEntitlementFlagError;
     this.strCode = getErrorStringCode(this.code);
@@ -123,7 +123,7 @@ export class UnsupportedEntitlementFlagError extends CustomError {
 export class UnsupportedEntitlementCommandError extends CustomError {
   constructor(key: string, entitlementName: string) {
     super(
-      `Unsupported command: ${key} - Missing the ${entitlementName} entitlement`,
+      `Unsupported command: ${key} - Missing the ${entitlementName} entitlement`
     );
     this.code = IaCErrorCodes.UnsupportedEntitlementFlagError;
     this.strCode = getErrorStringCode(this.code);
@@ -149,7 +149,7 @@ export function assertIaCOptionsFlags(argv: string[]): void {
     // The _ property is a special case that contains non
     // flag strings passed to the command line (usually files)
     // and `iac` is the command provided.
-    if (key !== '_' && key !== 'iac' && !allowed.has(key)) {
+    if (key !== "_" && key !== "iac" && !allowed.has(key)) {
       throw new FlagError(key);
     }
   }
@@ -167,7 +167,7 @@ export function assertIaCOptionsFlags(argv: string[]): void {
  */
 export function assertIntegratedIaCOnlyOptions(
   settings: IacOrgSettings,
-  argv: string[],
+  argv: string[]
 ): void {
   // We process the process.argv so we don't get default values.
   const parsed = args(argv);
@@ -175,7 +175,7 @@ export function assertIntegratedIaCOnlyOptions(
     // The _ property is a special case that contains non
     // flag strings passed to the command line (usually files)
     // and `iac` is the command provided.
-    if (key !== '_' && key !== 'iac' && integratedOnlyFlags.has(key)) {
+    if (key !== "_" && key !== "iac" && integratedOnlyFlags.has(key)) {
       throw new IntegratedFlagError(key, settings.meta.org);
     }
   }
@@ -183,25 +183,25 @@ export function assertIntegratedIaCOnlyOptions(
 
 const SUPPORTED_TF_PLAN_SCAN_MODES = [
   TerraformPlanScanMode.DeltaScan,
-  TerraformPlanScanMode.FullScan,
+  TerraformPlanScanMode.FullScan
 ];
 
 export function assertTerraformPlanModes(scanModeArgValue: string) {
   if (
     !SUPPORTED_TF_PLAN_SCAN_MODES.includes(
-      scanModeArgValue as TerraformPlanScanMode,
+      scanModeArgValue as TerraformPlanScanMode
     )
   ) {
     throw new FlagValueError(
-      'scan',
+      "scan",
       scanModeArgValue,
-      SUPPORTED_TF_PLAN_SCAN_MODES.join(', '),
+      SUPPORTED_TF_PLAN_SCAN_MODES.join(", ")
     );
   }
 }
 
 export function isIacShareResultsOptions(
-  options: Options & TestOptions,
+  options: Options & TestOptions
 ): boolean | undefined {
   return options.iac && options.report;
 }

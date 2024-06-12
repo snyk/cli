@@ -1,3 +1,3 @@
-import { createJestConfig } from '../test/createJestConfig';
+import { createJestConfig } from "../test/createJestConfig";
 
-export default createJestConfig({ displayName: 'cliv2' });
+export default createJestConfig({ displayName: "cliv2" });

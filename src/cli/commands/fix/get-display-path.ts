@@ -1,6 +1,6 @@
-import * as pathLib from 'path';
+import * as pathLib from "path";
 
-import { isLocalFolder } from '../../../lib/detect';
+import { isLocalFolder } from "../../../lib/detect";
 
 export function getDisplayPath(path: string): string {
   if (!isLocalFolder(path)) {

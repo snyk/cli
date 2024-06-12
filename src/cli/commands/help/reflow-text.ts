@@ -30,32 +30,32 @@ SOFTWARE.
 // See http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
 function textLength(str: string): number {
   // eslint-disable-next-line no-control-regex
-  return str.replace(/\u001b\[(?:\d{1,3})(?:;\d{1,3})*m/g, '').length;
+  return str.replace(/\u001b\[(?:\d{1,3})(?:;\d{1,3})*m/g, "").length;
 }
 
 // Munge \n's and spaces in "text" so that the number of
 // characters between \n's is less than or equal to "width".
 export function reflowText(text: string, width: number): string {
-  const HARD_RETURN = '\r|\n';
-  const HARD_RETURN_GFM_RE = new RegExp(HARD_RETURN + '|<br ?/?>');
+  const HARD_RETURN = "\r|\n";
+  const HARD_RETURN_GFM_RE = new RegExp(HARD_RETURN + "|<br ?/?>");
 
   const splitRe = HARD_RETURN_GFM_RE;
   const sections = text.split(splitRe);
   const reflowed = [] as string[];
 
-  sections.forEach((section) => {
+  sections.forEach(section => {
     // Split the section by escape codes so that we can
     // deal with them separately.
     // eslint-disable-next-line no-control-regex
     const fragments = section.split(/(\u001b\[(?:\d{1,3})(?:;\d{1,3})*m)/g);
     let column = 0;
-    let currentLine = '';
+    let currentLine = "";
     let lastWasEscapeChar = false;
 
     while (fragments.length) {
       const fragment = fragments[0];
 
-      if (fragment === '') {
+      if (fragment === "") {
         fragments.splice(0, 1);
         lastWasEscapeChar = false;
         continue;
@@ -89,10 +89,10 @@ export function reflowText(text: string, width: number): string {
             // If the new word is longer than the required width
             // split this word into smaller parts.
             const w = word.substr(0, width - column);
-            if (addSpace) currentLine += ' ';
+            if (addSpace) currentLine += " ";
             currentLine += w;
             reflowed.push(currentLine);
-            currentLine = '';
+            currentLine = "";
             column = 0;
 
             word = word.substr(w.length);
@@ -113,7 +113,7 @@ export function reflowText(text: string, width: number): string {
           }
         } else {
           if (addSpace) {
-            currentLine += ' ';
+            currentLine += " ";
             column++;
           }
 
@@ -130,5 +130,5 @@ export function reflowText(text: string, width: number): string {
     if (textLength(currentLine)) reflowed.push(currentLine);
   });
 
-  return reflowed.join('\n');
+  return reflowed.join("\n");
 }

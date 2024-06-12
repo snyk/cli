@@ -1,27 +1,27 @@
-import config from '../config';
-import { isCI } from '../is-ci';
-import { makeRequest } from '../request/promise';
-import { Options, PolicyOptions } from '../types';
-import { TestCommandResult } from '../../cli/commands/types';
-import { spinner } from '../../lib/spinner';
-import { Ecosystem, ScanResult, TestResult } from './types';
-import { getPlugin } from './plugins';
-import { TestDependenciesResponse } from '../snyk-test/legacy';
+import config from "../config";
+import { isCI } from "../is-ci";
+import { makeRequest } from "../request/promise";
+import { Options, PolicyOptions } from "../types";
+import { TestCommandResult } from "../../cli/commands/types";
+import { spinner } from "../../lib/spinner";
+import { Ecosystem, ScanResult, TestResult } from "./types";
+import { getPlugin } from "./plugins";
+import { TestDependenciesResponse } from "../snyk-test/legacy";
 import {
   assembleQueryString,
-  depGraphToOutputString,
-} from '../snyk-test/common';
-import { getAuthHeader } from '../api-token';
-import { resolveAndTestFacts } from './resolve-test-facts';
-import { isUnmanagedEcosystem } from './common';
-import { convertDepGraph, getUnmanagedDepGraph } from './unmanaged/utils';
+  depGraphToOutputString
+} from "../snyk-test/common";
+import { getAuthHeader } from "../api-token";
+import { resolveAndTestFacts } from "./resolve-test-facts";
+import { isUnmanagedEcosystem } from "./common";
+import { convertDepGraph, getUnmanagedDepGraph } from "./unmanaged/utils";
 
 type ScanResultsByPath = { [dir: string]: ScanResult[] };
 
 export async function testEcosystem(
   ecosystem: Ecosystem,
   paths: string[],
-  options: Options & PolicyOptions,
+  options: Options & PolicyOptions
 ): Promise<TestCommandResult> {
   const plugin = getPlugin(ecosystem);
   // TODO: this is an intermediate step before consolidating ecosystem plugins
@@ -29,12 +29,12 @@ export async function testEcosystem(
   if (plugin.test) {
     const { readableResult: res, sarifResult: sarifRes } = await plugin.test(
       paths,
-      options,
+      options
     );
     return TestCommandResult.createHumanReadableTestCommandResult(
       res,
-      '',
-      sarifRes,
+      "",
+      sarifRes
     );
   }
   const results: ScanResultsByPath = {};
@@ -46,7 +46,7 @@ export async function testEcosystem(
   }
   spinner.clearAll();
 
-  if (isUnmanagedEcosystem(ecosystem) && options['print-graph']) {
+  if (isUnmanagedEcosystem(ecosystem) && options["print-graph"]) {
     const [target] = paths;
     return formatUnmanagedResults(results, target);
   }
@@ -54,7 +54,7 @@ export async function testEcosystem(
   const [testResults, errors] = await selectAndExecuteTestStrategy(
     ecosystem,
     results,
-    options,
+    options
   );
 
   const stringifiedData = JSON.stringify(testResults, null, 2);
@@ -68,19 +68,19 @@ export async function testEcosystem(
     scanResults,
     testResults,
     errors,
-    options,
+    options
   );
 
   return TestCommandResult.createHumanReadableTestCommandResult(
     readableResult,
-    stringifiedData,
+    stringifiedData
   );
 }
 
 export async function selectAndExecuteTestStrategy(
   ecosystem: Ecosystem,
   scanResultsByPath: { [dir: string]: ScanResult[] },
-  options: Options & PolicyOptions,
+  options: Options & PolicyOptions
 ): Promise<[TestResult[], string[]]> {
   return isUnmanagedEcosystem(ecosystem)
     ? await resolveAndTestFacts(ecosystem, scanResultsByPath, options)
@@ -89,13 +89,13 @@ export async function selectAndExecuteTestStrategy(
 
 export async function formatUnmanagedResults(
   results: ScanResultsByPath,
-  target: string,
+  target: string
 ): Promise<TestCommandResult> {
   const [result] = await getUnmanagedDepGraph(results);
   const depGraph = convertDepGraph(result);
 
   return TestCommandResult.createJsonTestCommandResult(
-    depGraphToOutputString(depGraph, target),
+    depGraphToOutputString(depGraph, target)
   );
 }
 
@@ -103,7 +103,7 @@ async function testDependencies(
   scans: {
     [dir: string]: ScanResult[];
   },
-  options: Options,
+  options: Options
 ): Promise<[TestResult[], string[]]> {
   const results: TestResult[] = [];
   const errors: string[] = [];
@@ -111,30 +111,30 @@ async function testDependencies(
     await spinner(`Testing dependencies in ${path}`);
     for (const scanResult of scanResults) {
       const payload = {
-        method: 'POST',
+        method: "POST",
         url: `${config.API}/test-dependencies`,
         json: true,
         headers: {
-          'x-is-ci': isCI(),
-          authorization: getAuthHeader(),
+          "x-is-ci": isCI(),
+          authorization: getAuthHeader()
         },
         body: {
-          scanResult,
+          scanResult
         },
-        qs: assembleQueryString(options),
+        qs: assembleQueryString(options)
       };
       try {
         const response = await makeRequest<TestDependenciesResponse>(payload);
         results.push({
           issues: response.result.issues,
           issuesData: response.result.issuesData,
-          depGraphData: response.result.depGraphData,
+          depGraphData: response.result.depGraphData
         });
       } catch (error) {
         if (error.code >= 400 && error.code < 500) {
           throw new Error(error.message);
         }
-        errors.push('Could not test dependencies in ' + path);
+        errors.push("Could not test dependencies in " + path);
       }
     }
   }

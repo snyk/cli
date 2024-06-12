@@ -1,4 +1,4 @@
-import { CustomError, ERROR_CODES } from './custom-error';
+import { CustomError, ERROR_CODES } from "./custom-error";
 
 export class CommandFailedError extends CustomError {
   public command?: string;

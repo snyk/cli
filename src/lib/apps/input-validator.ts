@@ -1,4 +1,4 @@
-import * as uuid from 'uuid';
+import * as uuid from "uuid";
 
 /**
  *
@@ -11,9 +11,9 @@ import * as uuid from 'uuid';
  */
 export function validateAllURL(input: string): string | boolean {
   const trimmedInput = input.trim();
-  let errMessage = '';
-  for (const i of trimmedInput.split(',')) {
-    if (typeof validURL(i) == 'string')
+  let errMessage = "";
+  for (const i of trimmedInput.split(",")) {
+    if (typeof validURL(i) == "string")
       errMessage = errMessage + `\n${validURL(i)}`;
   }
 
@@ -46,7 +46,7 @@ export function validURL(input: string): boolean | string {
  * and boolean true if valid
  */
 export function validateUUID(input: string): boolean | string {
-  return uuid.validate(input) ? true : 'Invalid UUID provided';
+  return uuid.validate(input) ? true : "Invalid UUID provided";
 }
 
 /**
@@ -55,6 +55,6 @@ export function validateUUID(input: string): boolean | string {
  * and boolean true if valid
  */
 export function validInput(input: string): string | boolean {
-  if (!input) return 'Please enter something';
+  if (!input) return "Please enter something";
   return true;
 }

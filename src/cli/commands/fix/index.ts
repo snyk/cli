@@ -1,27 +1,27 @@
-import * as Debug from 'debug';
-import * as snykFix from '@snyk/fix';
-import * as ora from 'ora';
+import * as Debug from "debug";
+import * as snykFix from "@snyk/fix";
+import * as ora from "ora";
 
-import { MethodArgs } from '../../args';
-import * as snyk from '../../../lib';
-import { TestResult } from '../../../lib/snyk-test/legacy';
-import * as analytics from '../../../lib/analytics';
+import { MethodArgs } from "../../args";
+import * as snyk from "../../../lib";
+import { TestResult } from "../../../lib/snyk-test/legacy";
+import * as analytics from "../../../lib/analytics";
 
-import { convertLegacyTestResultToFixEntities } from './convert-legacy-tests-results-to-fix-entities';
-import { formatTestError } from '../test/format-test-error';
-import { processCommandArgs } from '../process-command-args';
-import { validateCredentials } from '../test/validate-credentials';
-import { validateTestOptions } from '../test/validate-test-options';
-import { setDefaultTestOptions } from '../test/set-default-test-options';
-import { validateFixCommandIsSupported } from './validate-fix-command-is-supported';
-import { Options, TestOptions } from '../../../lib/types';
-import { getDisplayPath } from './get-display-path';
-import chalk from 'chalk';
-import { icon, color } from '../../../lib/theme';
-import { checkOSSPaths } from '../../../lib/check-paths';
+import { convertLegacyTestResultToFixEntities } from "./convert-legacy-tests-results-to-fix-entities";
+import { formatTestError } from "../test/format-test-error";
+import { processCommandArgs } from "../process-command-args";
+import { validateCredentials } from "../test/validate-credentials";
+import { validateTestOptions } from "../test/validate-test-options";
+import { setDefaultTestOptions } from "../test/set-default-test-options";
+import { validateFixCommandIsSupported } from "./validate-fix-command-is-supported";
+import { Options, TestOptions } from "../../../lib/types";
+import { getDisplayPath } from "./get-display-path";
+import chalk from "chalk";
+import { icon, color } from "../../../lib/theme";
+import { checkOSSPaths } from "../../../lib/check-paths";
 
-const debug = Debug('snyk-fix');
-const snykFixFeatureFlag = 'cliSnykFix';
+const debug = Debug("snyk-fix");
+const snykFixFeatureFlag = "cliSnykFix";
 
 interface FixOptions {
   dryRun?: boolean;
@@ -30,7 +30,7 @@ interface FixOptions {
 }
 export default async function fix(...args: MethodArgs): Promise<string> {
   const { options: rawOptions, paths } = await processCommandArgs<FixOptions>(
-    ...args,
+    ...args
   );
   const options = setDefaultTestOptions<FixOptions>(rawOptions);
   debug(options);
@@ -46,10 +46,10 @@ export default async function fix(...args: MethodArgs): Promise<string> {
   results.push(...(await runSnykTestLegacy(options, paths)));
   // fix
   debug(
-    `Organization has ${snykFixFeatureFlag} feature flag enabled for experimental Snyk fix functionality`,
+    `Organization has ${snykFixFeatureFlag} feature flag enabled for experimental Snyk fix functionality`
   );
   const vulnerableResults = results.filter(
-    (res) => Object.keys(res.testResult.issues).length,
+    res => Object.keys(res.testResult.issues).length
   );
   const { dryRun, quiet, sequential: sequentialFix } = options;
   const { fixSummary, meta, results: resultsByPlugin } = await snykFix.fix(
@@ -57,8 +57,8 @@ export default async function fix(...args: MethodArgs): Promise<string> {
     {
       dryRun,
       quiet,
-      sequentialFix,
-    },
+      sequentialFix
+    }
   );
 
   setSnykFixAnalytics(
@@ -66,7 +66,7 @@ export default async function fix(...args: MethodArgs): Promise<string> {
     meta,
     results,
     resultsByPlugin,
-    vulnerableResults,
+    vulnerableResults
   );
   // `snyk test` did not return any test results
   if (results.length === 0) {
@@ -92,16 +92,16 @@ export default async function fix(...args: MethodArgs): Promise<string> {
  */
 async function runSnykTestLegacy(
   options: Options & TestOptions & FixOptions,
-  paths: string[],
+  paths: string[]
 ): Promise<snykFix.EntityToFix[]> {
   const results: snykFix.EntityToFix[] = [];
   const stdOutSpinner = ora({
     isSilent: options.quiet,
-    stream: process.stdout,
+    stream: process.stdout
   });
   const stdErrSpinner = ora({
     isSilent: options.quiet,
-    stream: process.stdout,
+    stream: process.stdout
   });
   stdErrSpinner.start();
   stdOutSpinner.start();
@@ -120,29 +120,29 @@ async function runSnykTestLegacy(
       const snykTestOptions = {
         ...options,
         path,
-        projectName: options['project-name'],
+        projectName: options["project-name"]
       };
 
       const testResults: TestResult[] = [];
 
       const testResultForPath: TestResult | TestResult[] = await snyk.test(
         path,
-        { ...snykTestOptions, quiet: true },
+        { ...snykTestOptions, quiet: true }
       );
       testResults.push(
         ...(Array.isArray(testResultForPath)
           ? testResultForPath
-          : [testResultForPath]),
+          : [testResultForPath])
       );
       const newRes = convertLegacyTestResultToFixEntities(
         testResults,
         path,
-        options,
+        options
       );
       results.push(...newRes);
       stdOutSpinner.stopAndPersist({
         text: spinnerMessage,
-        symbol: `\n${icon.RUN}`,
+        symbol: `\n${icon.RUN}`
       });
     } catch (error) {
       const testError = formatTestError(error);
@@ -151,11 +151,11 @@ async function runSnykTestLegacy(
         `\n  Tip: run \`snyk test ${displayPath} -d\` for more information.`;
       stdOutSpinner.stopAndPersist({
         text: spinnerMessage,
-        symbol: `\n${icon.RUN}`,
+        symbol: `\n${icon.RUN}`
       });
       stdErrSpinner.stopAndPersist({
         text: userMessage,
-        symbol: chalk.red(' '),
+        symbol: chalk.red(" ")
       });
       debug(userMessage);
     }
@@ -170,33 +170,33 @@ function setSnykFixAnalytics(
   meta: snykFix.FixedMeta,
   snykTestResponses: snykFix.EntityToFix[],
   resultsByPlugin: snykFix.FixHandlerResultByPlugin,
-  vulnerableResults: snykFix.EntityToFix[],
+  vulnerableResults: snykFix.EntityToFix[]
 ) {
   // Analytics # of projects
-  analytics.add('snykFixFailedProjects', meta.failed);
-  analytics.add('snykFixFixedProjects', meta.fixed);
-  analytics.add('snykFixTotalProjects', snykTestResponses.length);
-  analytics.add('snykFixVulnerableProjects', vulnerableResults.length);
+  analytics.add("snykFixFailedProjects", meta.failed);
+  analytics.add("snykFixFixedProjects", meta.fixed);
+  analytics.add("snykFixTotalProjects", snykTestResponses.length);
+  analytics.add("snykFixVulnerableProjects", vulnerableResults.length);
 
   // Analytics # of issues
-  analytics.add('snykFixFixableIssues', meta.fixableIssues);
-  analytics.add('snykFixFixedIssues', meta.fixedIssues);
-  analytics.add('snykFixTotalIssues', meta.totalIssues);
+  analytics.add("snykFixFixableIssues", meta.fixableIssues);
+  analytics.add("snykFixFixedIssues", meta.fixedIssues);
+  analytics.add("snykFixTotalIssues", meta.totalIssues);
 
-  analytics.add('snykFixSummary', fixSummary);
+  analytics.add("snykFixSummary", fixSummary);
 
   // Analytics for errors
   for (const plugin of Object.keys(resultsByPlugin)) {
     const errors: string[] = [];
     const failedToFix = resultsByPlugin[plugin].failed;
     for (const failed of failedToFix) {
-      if ('error' in failed) {
+      if ("error" in failed) {
         errors.push(failed.error.message);
       }
-      if ('changes' in failed) {
-        errors.push(...failed.changes.map((f) => JSON.stringify(f)));
+      if ("changes" in failed) {
+        errors.push(...failed.changes.map(f => JSON.stringify(f)));
       }
     }
-    analytics.add('snykFixErrors', { [plugin]: errors });
+    analytics.add("snykFixErrors", { [plugin]: errors });
   }
 }

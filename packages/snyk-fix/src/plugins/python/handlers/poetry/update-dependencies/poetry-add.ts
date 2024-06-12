@@ -1,27 +1,27 @@
-import * as pathLib from 'path';
-import * as debugLib from 'debug';
+import * as pathLib from "path";
+import * as debugLib from "debug";
 
-import * as poetryFix from '@snyk/fix-poetry';
+import * as poetryFix from "@snyk/fix-poetry";
 
 import {
   EntityToFix,
   FixChangesSummary,
-  FixOptions,
-} from '../../../../../types';
-import { validateRequiredData } from '../../validate-required-data';
+  FixOptions
+} from "../../../../../types";
+import { validateRequiredData } from "../../validate-required-data";
 import {
   generateFailedChanges,
-  generateSuccessfulChanges,
-} from '../../attempted-changes-summary';
-import { CommandFailedError } from '../../../../../lib/errors/command-failed-to-run-error';
-import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
-const debug = debugLib('snyk-fix:python:poetryAdd');
+  generateSuccessfulChanges
+} from "../../attempted-changes-summary";
+import { CommandFailedError } from "../../../../../lib/errors/command-failed-to-run-error";
+import { NoFixesCouldBeAppliedError } from "../../../../../lib/errors/no-fixes-applied";
+const debug = debugLib("snyk-fix:python:poetryAdd");
 
 export async function poetryAdd(
   entity: EntityToFix,
   options: FixOptions,
   upgrades: string[],
-  dev?: boolean,
+  dev?: boolean
 ): Promise<FixChangesSummary[]> {
   const changes: FixChangesSummary[] = [];
   let poetryCommand;
@@ -35,10 +35,10 @@ export async function poetryAdd(
         upgrades,
         {
           dev,
-          python: entity.options.command ?? undefined,
-        },
+          python: entity.options.command ?? undefined
+        }
       );
-      debug('`poetry add` returned:', { stderr, stdout, command });
+      debug("`poetry add` returned:", { stderr, stdout, command });
 
       if (exitCode !== 0) {
         poetryCommand = command;
@@ -48,17 +48,17 @@ export async function poetryAdd(
     changes.push(...generateSuccessfulChanges(upgrades, remediation.pin));
   } catch (error) {
     changes.push(
-      ...generateFailedChanges(upgrades, remediation.pin, error, poetryCommand),
+      ...generateFailedChanges(upgrades, remediation.pin, error, poetryCommand)
     );
   }
   return changes;
 }
 
 function throwPoetryError(stderr: string, stdout: string, command?: string) {
-  const ALREADY_UP_TO_DATE = 'No dependencies to install or update';
+  const ALREADY_UP_TO_DATE = "No dependencies to install or update";
   const INCOMPATIBLE_PYTHON = new RegExp(
     /Python requirement (.*) is not compatible/g,
-    'gm',
+    "gm"
   );
   const SOLVER_PROBLEM = /SolverProblemError(.* version solving failed)/gms;
 
@@ -67,7 +67,7 @@ function throwPoetryError(stderr: string, stdout: string, command?: string) {
   if (incompatiblePythonError) {
     throw new CommandFailedError(
       `The current project's Python requirement ${incompatiblePythonError[1]} is not compatible with some of the required packages`,
-      command,
+      command
     );
   }
   const solverProblemError =
@@ -81,8 +81,8 @@ function throwPoetryError(stderr: string, stdout: string, command?: string) {
     stdout.includes(ALREADY_UP_TO_DATE)
   ) {
     throw new CommandFailedError(
-      'No dependencies could be updated as they seem to be at the correct versions. Make sure installed dependencies in the environment match those in the lockfile by running `poetry update`',
-      command,
+      "No dependencies could be updated as they seem to be at the correct versions. Make sure installed dependencies in the environment match those in the lockfile by running `poetry update`",
+      command
     );
   }
   throw new NoFixesCouldBeAppliedError();

@@ -1,30 +1,30 @@
-import { promises as fs } from 'fs';
-import * as path from 'path';
-import { IaCErrorCodes, OCIRegistryURLComponents } from '../types';
-import { CustomError } from '../../../../../../lib/errors';
-import { getErrorStringCode } from '../error-utils';
-import { LOCAL_POLICY_ENGINE_DIR } from '../local-cache';
-import * as Debug from 'debug';
-import { createIacDir } from '../file-utils';
-import { OciRegistry } from './oci-registry';
-const debug = Debug('iac-oci-pull');
+import { promises as fs } from "fs";
+import * as path from "path";
+import { IaCErrorCodes, OCIRegistryURLComponents } from "../types";
+import { CustomError } from "../../../../../../lib/errors";
+import { getErrorStringCode } from "../error-utils";
+import { LOCAL_POLICY_ENGINE_DIR } from "../local-cache";
+import * as Debug from "debug";
+import { createIacDir } from "../file-utils";
+import { OciRegistry } from "./oci-registry";
+const debug = Debug("iac-oci-pull");
 
-export const CUSTOM_RULES_TARBALL = 'custom-bundle.tar.gz';
+export const CUSTOM_RULES_TARBALL = "custom-bundle.tar.gz";
 
 export function extractOCIRegistryURLComponents(
-  OCIRegistryURL: string,
+  OCIRegistryURL: string
 ): OCIRegistryURLComponents {
   try {
-    const urlWithoutProtocol = OCIRegistryURL.includes('://')
-      ? OCIRegistryURL.split('://')[1]
+    const urlWithoutProtocol = OCIRegistryURL.includes("://")
+      ? OCIRegistryURL.split("://")[1]
       : OCIRegistryURL;
 
-    const firstSlashIdx = urlWithoutProtocol.indexOf('/');
+    const firstSlashIdx = urlWithoutProtocol.indexOf("/");
     const [registryHost, repoWithTag] = [
       urlWithoutProtocol.substring(0, firstSlashIdx),
-      urlWithoutProtocol.substring(firstSlashIdx + 1),
+      urlWithoutProtocol.substring(firstSlashIdx + 1)
     ];
-    const [repo, tag = 'latest'] = repoWithTag.split(':');
+    const [repo, tag = "latest"] = repoWithTag.split(":");
     if (firstSlashIdx === -1 || !registryHost || !repoWithTag || !repo) {
       throw new InvalidRemoteRegistryURLError(OCIRegistryURL);
     }
@@ -48,7 +48,7 @@ export function extractOCIRegistryURLComponents(
 export async function pull(
   registry: OciRegistry,
   repository: string,
-  tag: string,
+  tag: string
 ): Promise<string> {
   const { schemaVersion, layers } = await registry.getManifest(repository, tag);
   if (schemaVersion !== 2) {
@@ -56,14 +56,14 @@ export async function pull(
   }
   // We assume that we will always have an artifact of a single layer
   if (layers.length > 1) {
-    debug('There were more than one layers found in the OCI Artifact.');
+    debug("There were more than one layers found in the OCI Artifact.");
   }
   const { blob } = await registry.getLayer(repository, layers[0].digest);
 
   try {
     const downloadPath: string = path.join(
       LOCAL_POLICY_ENGINE_DIR,
-      CUSTOM_RULES_TARBALL,
+      CUSTOM_RULES_TARBALL
     );
     createIacDir();
     await fs.writeFile(downloadPath, blob);
@@ -75,17 +75,17 @@ export async function pull(
 
 export class FailedToBuildOCIArtifactError extends CustomError {
   constructor(message?: string) {
-    super(message || 'Could not build OCI Artifact');
+    super(message || "Could not build OCI Artifact");
     this.code = IaCErrorCodes.FailedToBuildOCIArtifactError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
-      'We were unable to build the remote OCI Artifact locally, please ensure that the local directory is writeable.';
+      "We were unable to build the remote OCI Artifact locally, please ensure that the local directory is writeable.";
   }
 }
 
 export class InvalidManifestSchemaVersionError extends CustomError {
   constructor(message?: string) {
-    super(message || 'Invalid manifest schema version');
+    super(message || "Invalid manifest schema version");
     this.code = IaCErrorCodes.InvalidRemoteRegistryURLError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Invalid manifest schema version: ${message}. We currently support Image Manifest Version 2, Schema 2`;
@@ -94,11 +94,11 @@ export class InvalidManifestSchemaVersionError extends CustomError {
 
 export class InvalidRemoteRegistryURLError extends CustomError {
   constructor(url?: string) {
-    super('Invalid URL for Remote Registry');
+    super("Invalid URL for Remote Registry");
     this.code = IaCErrorCodes.InvalidRemoteRegistryURLError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `The provided remote registry URL${
-      url ? `: "${url}"` : ''
+      url ? `: "${url}"` : ""
     } is invalid. Please check it again.`;
   }
 }

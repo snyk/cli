@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { FoundPhysicalPackage } from './types';
+import * as fs from "fs";
+import * as path from "path";
+import { FoundPhysicalPackage } from "./types";
 
 /**
  * Check if a physical module (given by folderPath) is one of the package names we are interested in for patching.
@@ -11,23 +11,23 @@ import { FoundPhysicalPackage } from './types';
  */
 function checkPhysicalModule(
   folderPath: string,
-  packageNamesOfInterest: Readonly<string[]>,
+  packageNamesOfInterest: Readonly<string[]>
 ): FoundPhysicalPackage | undefined {
   const folderName = path.basename(folderPath);
   if (packageNamesOfInterest.includes(folderName)) {
-    const packageJsonPath = path.resolve(folderPath, 'package.json');
+    const packageJsonPath = path.resolve(folderPath, "package.json");
     if (
       fs.existsSync(packageJsonPath) &&
       fs.lstatSync(packageJsonPath).isFile()
     ) {
       const { name, version } = JSON.parse(
-        fs.readFileSync(packageJsonPath, 'utf8'),
+        fs.readFileSync(packageJsonPath, "utf8")
       );
       if (packageNamesOfInterest.includes(name)) {
         const foundPackage: FoundPhysicalPackage = {
           packageName: name,
           packageVersion: version,
-          path: folderPath,
+          path: folderPath
         };
         return foundPackage;
       }
@@ -45,27 +45,27 @@ function checkPhysicalModule(
  */
 export function findPhysicalModules(
   pathToCheck: string,
-  packageNamesOfInterest: Readonly<string[]>,
+  packageNamesOfInterest: Readonly<string[]>
 ): FoundPhysicalPackage[] {
   if (fs.existsSync(pathToCheck) && fs.lstatSync(pathToCheck).isDirectory()) {
     const foundPhysicalPackages: FoundPhysicalPackage[] = [];
     const foundAtThisLocation = checkPhysicalModule(
       pathToCheck,
-      packageNamesOfInterest,
+      packageNamesOfInterest
     );
     if (foundAtThisLocation) {
       foundPhysicalPackages.push(foundAtThisLocation);
     }
 
-    const folderNodeModules = path.resolve(pathToCheck, 'node_modules');
+    const folderNodeModules = path.resolve(pathToCheck, "node_modules");
     if (
       fs.existsSync(folderNodeModules) &&
       fs.lstatSync(folderNodeModules).isDirectory()
     ) {
-      fs.readdirSync(folderNodeModules).forEach((p) => {
+      fs.readdirSync(folderNodeModules).forEach(p => {
         const foundPhysicalPackagesInSubModules = findPhysicalModules(
           path.resolve(folderNodeModules, p),
-          packageNamesOfInterest,
+          packageNamesOfInterest
         );
         foundPhysicalPackages.push(...foundPhysicalPackagesInSubModules);
       });

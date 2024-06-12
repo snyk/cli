@@ -3,28 +3,28 @@ version: 2.1
 parameters:
   cli_download_base_url:
     type: string
-    default: 'https://static.snyk.io/'
+    default: "https://static.snyk.io/"
   fips_cli_download_base_url:
     type: string
-    default: 'https://static.snyk.io/fips/'
+    default: "https://static.snyk.io/fips/"
   go_download_base_url:
     type: string
-    default: 'https://storage.googleapis.com/golang/'
+    default: "https://storage.googleapis.com/golang/"
   fips_go_download_base_url:
     type: string
-    default: 'https://aka.ms/golang/release/latest/'
+    default: "https://aka.ms/golang/release/latest/"
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.21.7'
+    default: "1.21.7"
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
-    default: '2.4.12'
+    default: "2.4.12"
   gh_version:
     type: string
     # https://github.com/cli/cli/releases
-    default: '2.7.0'
+    default: "2.7.0"
 
 orbs:
   prodsec: snyk/prodsec-orb@1
@@ -103,7 +103,7 @@ executors:
   macos-arm64:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
-      xcode: '14.3.1'
+      xcode: "14.3.1"
     resource_class: macos.m1.medium.gen1
   win-server2022-amd64:
     machine:
@@ -156,14 +156,14 @@ commands:
             - << parameters.extraction_path >>/go
       - unless:
           condition:
-            equal: ['windows', << parameters.go_os >>]
+            equal: ["windows", << parameters.go_os >>]
           steps:
             - run:
                 name: Add go binary to PATH
                 command: echo "export PATH=$(realpath << parameters.extraction_path >>/go/bin):\$PATH" >> "$BASH_ENV"
       - when:
           condition:
-            equal: ['windows', << parameters.go_os >>]
+            equal: ["windows", << parameters.go_os >>]
           steps:
             - run:
                 name: Add go binary to PATH
@@ -277,7 +277,7 @@ commands:
       - when:
           condition:
             matches:
-              pattern: '^(linux.*|macos.*|alpine.*|docker.*)'
+              pattern: "^(linux.*|macos.*|alpine.*|docker.*)"
               value: << parameters.os >>
           steps:
             - run:
@@ -286,7 +286,7 @@ commands:
       - when:
           condition:
             matches:
-              pattern: '^(win.*|cbl-mariner.*)'
+              pattern: "^(win.*|cbl-mariner.*)"
               value: << parameters.os >>
           steps:
             - run:
@@ -616,7 +616,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/.*e2e.*/'
+                - "/.*e2e.*/"
 
       - sign:
           name: sign macos amd64
@@ -631,7 +631,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/.*e2e.*/'
+                - "/.*e2e.*/"
 
       - sign:
           name: sign macos arm64
@@ -646,7 +646,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/.*e2e.*/'
+                - "/.*e2e.*/"
 
       - create_deployment_artifacts:
           name: create deployment artifacts
@@ -663,7 +663,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/.*e2e.*/'
+                - "/.*e2e.*/"
 
       - should-release:
           name: release?
@@ -674,7 +674,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/.*e2e.*/'
+                - "/.*e2e.*/"
 
       - pre-release:
           name: upload version
@@ -685,7 +685,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/.*e2e.*/'
+                - "/.*e2e.*/"
 
       - npm-validation:
           name: Validate NPM artifacts (<< matrix.executor >>)
@@ -693,16 +693,16 @@ workflows:
           matrix:
             parameters:
               executor:
-                - 'docker-amd64'
-                - 'win-server2019-amd64'
-                - 'macos-arm64'
+                - "docker-amd64"
+                - "win-server2019-amd64"
+                - "macos-arm64"
           requires:
             - upload version
           filters:
             branches:
               only:
                 - main
-                - '/.*e2e.*/'
+                - "/.*e2e.*/"
 
       - test-release:
           name: e2e tests (<< matrix.executor >>)
@@ -710,27 +710,27 @@ workflows:
           matrix:
             parameters:
               executor:
-                - 'docker-amd64'
-                - 'docker-arm64'
-                - 'win-server2019-amd64'
-                - 'win-server2022-amd64'
-                - 'macos-arm64'
-                - 'linux-ubuntu-latest-amd64'
-                - 'linux-ubuntu-mantic-amd64'
-                - 'linux-ubuntu-jammy-amd64'
-                - 'linux-ubuntu-focal-amd64'
-                - 'linux-ubuntu-latest-arm64'
-                - 'linux-ubuntu-mantic-arm64'
-                - 'linux-ubuntu-jammy-arm64'
-                - 'linux-ubuntu-focal-arm64'
-                - 'alpine'
+                - "docker-amd64"
+                - "docker-arm64"
+                - "win-server2019-amd64"
+                - "win-server2022-amd64"
+                - "macos-arm64"
+                - "linux-ubuntu-latest-amd64"
+                - "linux-ubuntu-mantic-amd64"
+                - "linux-ubuntu-jammy-amd64"
+                - "linux-ubuntu-focal-amd64"
+                - "linux-ubuntu-latest-arm64"
+                - "linux-ubuntu-mantic-arm64"
+                - "linux-ubuntu-jammy-arm64"
+                - "linux-ubuntu-focal-arm64"
+                - "alpine"
           requires:
             - upload version
           filters:
             branches:
               only:
                 - main
-                - '/.*e2e.*/'
+                - "/.*e2e.*/"
 
       - test-release:
           name: e2e fips tests (cbl-mariner)
@@ -738,14 +738,14 @@ workflows:
           cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
           setup_steps:
             - run: tdnf install -y tar ca-certificates
-          executor: 'cbl-mariner'
+          executor: "cbl-mariner"
           requires:
             - upload version
           filters:
             branches:
               only:
                 - main
-                - '/.*e2e.*/'
+                - "/.*e2e.*/"
 
       - test-release:
           name: e2e fips tests (win-server2022-amd64)
@@ -753,15 +753,15 @@ workflows:
           cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
           setup_steps:
             - run: Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\FipsAlgorithmPolicy' -Name 'Enabled' -Value '1'
-          executor: 'win-server2022-amd64'
+          executor: "win-server2022-amd64"
           requires:
             - upload version
           filters:
             branches:
               only:
                 - main
-                - '/release.*/'
-                - '/.*e2e.*/'
+                - "/release.*/"
+                - "/.*e2e.*/"
 
       - noop:
           name: Start Deployments
@@ -789,7 +789,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - "/release.*/"
 
       - release-s3:
           name: upload preview
@@ -801,7 +801,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - "/release.*/"
 
       - release-s3:
           name: upload release candidate
@@ -813,7 +813,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - "/release.*/"
 
       - release-s3:
           name: upload latest/stable
@@ -825,7 +825,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - "/release.*/"
 
       - release-github:
           name: upload github
@@ -836,7 +836,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - "/release.*/"
 
       - release-npm:
           name: upload npm
@@ -847,7 +847,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - "/release.*/"
 
       - trigger-building-snyk-images:
           name: Trigger building snyk-images
@@ -858,7 +858,7 @@ workflows:
             branches:
               only:
                 - main
-                - '/release.*/'
+                - "/release.*/"
 
 ####################################################################################################
 # JOBS
@@ -918,7 +918,7 @@ jobs:
         type: string
       install_path:
         type: string
-        default: '/tmp'
+        default: "/tmp"
     executor: docker-amd64
     steps:
       - prepare-workspace
@@ -967,7 +967,7 @@ jobs:
         type: string
       install_path:
         type: string
-        default: '.'
+        default: "."
     steps:
       - prepare-workspace
       - install-go:
@@ -991,7 +991,7 @@ jobs:
           command: node ./bin/snyk config set "api=${TEST_SNYK_TOKEN}" # many tests require the token to be in the config
       - run:
           name: Running Tap tests
-          no_output_timeout: '30m' # the whole set of tests regularly takes 25+ minutes.
+          no_output_timeout: "30m" # the whole set of tests regularly takes 25+ minutes.
           command: >
             npx tap -j 1 -C --timeout=300 -R junit --reporter-file=tap-junit.xml
             --allow-incomplete-coverage
@@ -1025,20 +1025,20 @@ jobs:
         type: string
       c_compiler:
         type: string
-        default: ''
+        default: ""
       executor:
         type: string
       go_download_base_url:
         type: string
       make_target:
         type: string
-        default: 'build'
+        default: "build"
       install_deps_extension:
         type: string
-        default: 'noop'
+        default: "noop"
       install_path:
         type: string
-        default: '.'
+        default: "."
     executor: << parameters.executor >>
     steps:
       - prepare-workspace
@@ -1082,10 +1082,10 @@ jobs:
         default: 1
       install_deps_extension:
         type: string
-        default: 'noop'
+        default: "noop"
       pre_test_cmds:
         type: string
-        default: 'echo Running tests'
+        default: "echo Running tests"
       shards:
         type: integer
         default: 3
@@ -1155,7 +1155,7 @@ jobs:
         type: string
       make_target:
         type: string
-        default: 'sign'
+        default: "sign"
     executor: << parameters.executor >>
     steps:
       - prepare-workspace
@@ -1257,21 +1257,21 @@ jobs:
       - when:
           condition:
             matches:
-              pattern: '^macos.*'
+              pattern: "^macos.*"
               value: << parameters.executor >>
           steps:
             - run: brew install coreutils curl python3
       - when:
           condition:
             matches:
-              pattern: '^alpine'
+              pattern: "^alpine"
               value: << parameters.executor >>
           steps:
             - run: apk add python3 py3-pip bash
       - when:
           condition:
             matches:
-              pattern: '^linux.*'
+              pattern: "^linux.*"
               value: << parameters.executor >>
           steps:
             - run: echo UTC > /etc/timezone && apt update && apt install -y sudo curl python3 python3-pip python3-requests

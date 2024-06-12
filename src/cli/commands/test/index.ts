@@ -1,54 +1,54 @@
-import * as Debug from 'debug';
-import { EOL } from 'os';
-const cloneDeep = require('lodash.clonedeep');
-const omit = require('lodash.omit');
-const assign = require('lodash.assign');
-import chalk from 'chalk';
-import { MissingArgError } from '../../../lib/errors';
-import * as theme from '../../../lib/theme';
+import * as Debug from "debug";
+import { EOL } from "os";
+const cloneDeep = require("lodash.clonedeep");
+const omit = require("lodash.omit");
+const assign = require("lodash.assign");
+import chalk from "chalk";
+import { MissingArgError } from "../../../lib/errors";
+import * as theme from "../../../lib/theme";
 
-import * as snyk from '../../../lib';
-import { Options, TestOptions } from '../../../lib/types';
-import { MethodArgs } from '../../args';
-import { TestCommandResult } from '../../commands/types';
-import { LegacyVulnApiResult, TestResult } from '../../../lib/snyk-test/legacy';
+import * as snyk from "../../../lib";
+import { Options, TestOptions } from "../../../lib/types";
+import { MethodArgs } from "../../args";
+import { TestCommandResult } from "../../commands/types";
+import { LegacyVulnApiResult, TestResult } from "../../../lib/snyk-test/legacy";
 
 import {
   summariseErrorResults,
-  summariseVulnerableResults,
-} from '../../../lib/formatters';
-import * as utils from './utils';
-import { getEcosystemForTest, testEcosystem } from '../../../lib/ecosystems';
-import { hasFixes, hasPatches, hasUpgrades } from '../../../lib/vuln-helpers';
-import { FailOn } from '../../../lib/snyk-test/common';
+  summariseVulnerableResults
+} from "../../../lib/formatters";
+import * as utils from "./utils";
+import { getEcosystemForTest, testEcosystem } from "../../../lib/ecosystems";
+import { hasFixes, hasPatches, hasUpgrades } from "../../../lib/vuln-helpers";
+import { FailOn } from "../../../lib/snyk-test/common";
 import {
   createErrorMappedResultsForJsonOutput,
-  extractDataToSendFromResults,
-} from '../../../lib/formatters/test/format-test-results';
+  extractDataToSendFromResults
+} from "../../../lib/formatters/test/format-test-results";
 
-import { validateCredentials } from './validate-credentials';
-import { validateTestOptions } from './validate-test-options';
-import { setDefaultTestOptions } from './set-default-test-options';
-import { processCommandArgs } from '../process-command-args';
-import { formatTestError } from './format-test-error';
-import { displayResult } from '../../../lib/formatters/test/display-result';
-import * as analytics from '../../../lib/analytics';
+import { validateCredentials } from "./validate-credentials";
+import { validateTestOptions } from "./validate-test-options";
+import { setDefaultTestOptions } from "./set-default-test-options";
+import { processCommandArgs } from "../process-command-args";
+import { formatTestError } from "./format-test-error";
+import { displayResult } from "../../../lib/formatters/test/display-result";
+import * as analytics from "../../../lib/analytics";
 
 import {
   getPackageJsonPathsContainingSnykDependency,
-  getProtectUpgradeWarningForPaths,
-} from '../../../lib/protect-update-notification';
+  getProtectUpgradeWarningForPaths
+} from "../../../lib/protect-update-notification";
 import {
   containsSpotlightVulnIds,
-  notificationForSpotlightVulns,
-} from '../../../lib/spotlight-vuln-notification';
-import iacTestCommand from './iac';
-import * as iacTestCommandV2 from './iac/v2';
-import { hasFeatureFlag } from '../../../lib/feature-flags';
-import { checkOSSPaths } from '../../../lib/check-paths';
+  notificationForSpotlightVulns
+} from "../../../lib/spotlight-vuln-notification";
+import iacTestCommand from "./iac";
+import * as iacTestCommandV2 from "./iac/v2";
+import { hasFeatureFlag } from "../../../lib/feature-flags";
+import { checkOSSPaths } from "../../../lib/check-paths";
 
-const debug = Debug('snyk-test');
-const SEPARATOR = '\n-------------------------------------------------------\n';
+const debug = Debug("snyk-test");
+const SEPARATOR = "\n-------------------------------------------------------\n";
 
 const appVulnsReleaseWarningMsg = `${theme.icon.WARNING} Important: Beginning January 24th, 2023, application dependencies in container
 images will be scanned by default when using the snyk container test/monitor
@@ -66,7 +66,7 @@ export default async function test(
   const options = setDefaultTestOptions(originalOptions);
   if (originalOptions.iac) {
     // temporary placeholder for the "new" flow that integrates with UPE
-    if (await hasFeatureFlag('iacIntegratedExperience', options)) {
+    if (await hasFeatureFlag("iacIntegratedExperience", options)) {
       return await iacTestCommandV2.test(paths, originalOptions);
     } else {
       return await iacTestCommand(...args);
@@ -82,12 +82,12 @@ export default async function test(
 
   const packageJsonPathsWithSnykDepForProtect: string[] = getPackageJsonPathsContainingSnykDependency(
     options.file,
-    paths,
+    paths
   );
 
   analytics.add(
-    'upgradable-snyk-protect-paths',
-    packageJsonPathsWithSnykDepForProtect.length,
+    "upgradable-snyk-protect-paths",
+    packageJsonPathsWithSnykDepForProtect.length
   );
 
   // Handles no image arg provided to the container command until
@@ -101,14 +101,14 @@ export default async function test(
     // 1) exclude-app-vulns set -> no app vulns
     // 2) app-vulns set -> app-vulns
     // 3) neither set -> containerAppVulnsEnabled
-    if (options['exclude-app-vulns']) {
-      options['exclude-app-vulns'] = true;
-    } else if (options['app-vulns']) {
-      options['exclude-app-vulns'] = false;
+    if (options["exclude-app-vulns"]) {
+      options["exclude-app-vulns"] = true;
+    } else if (options["app-vulns"]) {
+      options["exclude-app-vulns"] = false;
     } else {
-      options['exclude-app-vulns'] = !(await hasFeatureFlag(
-        'containerCliAppVulnsEnabled',
-        options,
+      options["exclude-app-vulns"] = !(await hasFeatureFlag(
+        "containerCliAppVulnsEnabled",
+        options
       ));
 
       // we can't print the warning message with JSON output as that would make
@@ -116,9 +116,9 @@ export default async function test(
       // We also only want to print the message if the user did not overwrite
       // the default with one of the flags.
       if (
-        options['exclude-app-vulns'] &&
-        !options['json'] &&
-        !options['sarif']
+        options["exclude-app-vulns"] &&
+        !options["json"] &&
+        !options["sarif"]
       ) {
         console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
       }
@@ -149,7 +149,7 @@ export default async function test(
     // these options later.
     const testOpts = cloneDeep(options);
     testOpts.path = path;
-    testOpts.projectName = testOpts['project-name'];
+    testOpts.projectName = testOpts["project-name"];
 
     let res: (TestResult | TestResult[]) | Error;
     try {
@@ -168,7 +168,7 @@ export default async function test(
     for (let i = 0; i < resArray.length; i++) {
       const pathWithOptionalProjectName = utils.getPathWithOptionalProjectName(
         path,
-        resArray[i],
+        resArray[i]
       );
       results.push(assign(resArray[i], { path: pathWithOptionalProjectName }));
       // currently testOpts are identical for each test result returned even if it's for multiple projects.
@@ -178,21 +178,21 @@ export default async function test(
       } else {
         resultOptions.push(
           assign(cloneDeep(testOpts), {
-            projectName: testOpts.projectNames[i],
-          }),
+            projectName: testOpts.projectNames[i]
+          })
         );
       }
     }
   }
 
   const vulnerableResults = results.filter(
-    (res) =>
+    res =>
       (res.vulnerabilities && res.vulnerabilities.length) ||
       (res.result &&
         res.result.cloudConfigResults &&
-        res.result.cloudConfigResults.length),
+        res.result.cloudConfigResults.length)
   );
-  const errorResults = results.filter((res) => res instanceof Error);
+  const errorResults = results.filter(res => res instanceof Error);
   const notSuccess = errorResults.length > 0;
   const foundVulnerabilities = vulnerableResults.length > 0;
 
@@ -205,19 +205,19 @@ export default async function test(
     stdout: dataToSend,
     stringifiedData,
     stringifiedJsonData,
-    stringifiedSarifData,
+    stringifiedSarifData
   } = extractDataToSendFromResults(results, mappedResults, options);
 
   const jsonPayload = stringifiedJsonData.length === 0 ? dataToSend : null;
 
   if (options.json || options.sarif) {
     // if all results are ok (.ok == true)
-    if (mappedResults.every((res) => res.ok)) {
+    if (mappedResults.every(res => res.ok)) {
       return TestCommandResult.createJsonTestCommandResult(
         stringifiedData,
         stringifiedJsonData,
         stringifiedSarifData,
-        jsonPayload,
+        jsonPayload
       );
     }
 
@@ -232,12 +232,12 @@ export default async function test(
             stringifiedData,
             stringifiedJsonData,
             stringifiedSarifData,
-            jsonPayload,
+            jsonPayload
           );
         }
       }
-      err.code = 'VULNS';
-      const dataToSendNoVulns = omit(dataToSend, 'vulnerabilities');
+      err.code = "VULNS";
+      const dataToSendNoVulns = omit(dataToSend, "vulnerabilities");
       err.jsonNoVulns = dataToSendNoVulns;
     }
 
@@ -264,29 +264,29 @@ export default async function test(
       return displayResult(
         results[i] as LegacyVulnApiResult,
         resultOptions[i],
-        result.foundProjectCount,
+        result.foundProjectCount
       );
     })
     .join(`\n${SEPARATOR}`);
 
   if (notSuccess) {
     debug(`Failed to test ${errorResults.length} projects, errors:`);
-    errorResults.forEach((err) => {
+    errorResults.forEach(err => {
       const errString = err.stack ? err.stack.toString() : err.toString();
-      debug('error: %s', errString);
+      debug("error: %s", errString);
     });
   }
 
-  let summaryMessage = '';
+  let summaryMessage = "";
   const errorResultsLength = errorResults.length;
 
   if (results.length > 1) {
-    const projects = results.length === 1 ? 'project' : 'projects';
+    const projects = results.length === 1 ? "project" : "projects";
     summaryMessage =
       `\n\n\nTested ${results.length} ${projects}` +
       summariseVulnerableResults(vulnerableResults, options) +
       summariseErrorResults(errorResultsLength) +
-      '\n';
+      "\n";
   }
 
   if (notSuccess) {
@@ -311,14 +311,14 @@ export default async function test(
         response += chalk.bold.green(summaryMessage);
         response += EOL + EOL;
         response += getProtectUpgradeWarningForPaths(
-          packageJsonPathsWithSnykDepForProtect,
+          packageJsonPathsWithSnykDepForProtect
         );
 
         return TestCommandResult.createHumanReadableTestCommandResult(
           response,
           stringifiedJsonData,
           stringifiedSarifData,
-          jsonPayload,
+          jsonPayload
         );
       }
     }
@@ -328,7 +328,7 @@ export default async function test(
     response += EOL + EOL;
     const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
     const spotlightVulnsMsg = notificationForSpotlightVulns(
-      foundSpotlightVulnIds,
+      foundSpotlightVulnIds
     );
     response += spotlightVulnsMsg;
 
@@ -337,7 +337,7 @@ export default async function test(
     // translation
     // HACK as there can be different errors, and we pass only the
     // first one
-    error.code = vulnerableResults[0].code || 'VULNS';
+    error.code = vulnerableResults[0].code || "VULNS";
     error.userMessage = vulnerableResults[0].userMessage;
     error.jsonStringifiedResults = stringifiedJsonData;
     error.sarifStringifiedResults = stringifiedSarifData;
@@ -351,26 +351,26 @@ export default async function test(
   response += chalk.bold.green(summaryMessage);
   response += EOL + EOL;
   response += getProtectUpgradeWarningForPaths(
-    packageJsonPathsWithSnykDepForProtect,
+    packageJsonPathsWithSnykDepForProtect
   );
 
   return TestCommandResult.createHumanReadableTestCommandResult(
     response,
     stringifiedJsonData,
     stringifiedSarifData,
-    jsonPayload,
+    jsonPayload
   );
 }
 
 function shouldFail(vulnerableResults: any[], failOn: FailOn) {
   // find reasons not to fail
-  if (failOn === 'all') {
+  if (failOn === "all") {
     return hasFixes(vulnerableResults);
   }
-  if (failOn === 'upgradable') {
+  if (failOn === "upgradable") {
     return hasUpgrades(vulnerableResults);
   }
-  if (failOn === 'patchable') {
+  if (failOn === "patchable") {
     return hasPatches(vulnerableResults);
   }
   // should fail by default when there are vulnerable results

@@ -1,9 +1,9 @@
-import { Requirement } from './requirements-file-parser';
-import { UpgradedRequirements } from './types';
+import { Requirement } from "./requirements-file-parser";
+import { UpgradedRequirements } from "./types";
 
 export function applyUpgrades(
   originalRequirements: Requirement[],
-  upgradedRequirements: UpgradedRequirements,
+  upgradedRequirements: UpgradedRequirements
 ): string[] {
   const updated: string[] = [];
   for (const requirement of originalRequirements) {

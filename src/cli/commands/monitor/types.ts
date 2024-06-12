@@ -1,4 +1,4 @@
-import { MonitorError } from '../../../lib/errors';
+import { MonitorError } from "../../../lib/errors";
 
 export interface GoodResult {
   ok: true;
