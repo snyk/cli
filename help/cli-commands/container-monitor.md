@@ -60,6 +60,12 @@ For more detailed advice, include the path to the Dockerfile for the image.
 
 Specify a custom Snyk project name.
 
+### `--target-reference=<TARGET_REFERENCE>`
+
+Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference.
+
+For more information see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
+
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 
 Manually pass a path to a `.snyk` policy file.

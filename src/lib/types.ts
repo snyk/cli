@@ -133,6 +133,7 @@ export interface MonitorOptions {
   'project-name'?: string;
   'print-deps'?: boolean;
   'print-dep-paths'?: boolean;
+  'target-reference'?: string;
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
@@ -156,6 +157,7 @@ export interface MonitorMeta {
   prune: boolean;
   'remote-repo-url'?: string;
   targetReference?: string;
+  assetsProjectName?: boolean;
 }
 
 export interface Tag {
