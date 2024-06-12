@@ -1,7 +1,7 @@
-import * as fse from 'fs-extra';
-import * as os from 'os';
-import * as path from 'path';
-import { getFixturePath } from './getFixturePath';
+import * as fse from "fs-extra";
+import * as os from "os";
+import * as path from "path";
+import { getFixturePath } from "./getFixturePath";
 
 export type TestProject = {
   path: (filePath?: string) => string;
@@ -16,34 +16,34 @@ export type TestProject = {
  */
 const createProject = async (
   fixtureName: string,
-  fixturePath: string,
+  fixturePath: string
 ): Promise<TestProject> => {
   const tempFolder = await fse.promises.realpath(
     await fse.promises.mkdtemp(
       path.resolve(
         os.tmpdir(),
-        `snyk-test-${fixtureName.replace(/[/\\]/g, '-')}-`,
-      ),
-    ),
+        `snyk-test-${fixtureName.replace(/[/\\]/g, "-")}-`
+      )
+    )
   );
 
   const projectPath = path.resolve(tempFolder, fixtureName);
   await fse.copy(fixturePath, projectPath);
 
   return {
-    path: (filePath = '') => path.resolve(projectPath, filePath),
+    path: (filePath = "") => path.resolve(projectPath, filePath),
     read: (filePath: string) => {
       const fullFilePath = path.resolve(projectPath, filePath);
-      return fse.readFile(fullFilePath, 'utf-8');
+      return fse.readFile(fullFilePath, "utf-8");
     },
     readJSON: async (filePath: string) => {
       const fullFilePath = path.resolve(projectPath, filePath);
-      const strJson = await fse.readFile(fullFilePath, 'utf-8');
+      const strJson = await fse.readFile(fullFilePath, "utf-8");
       return JSON.parse(strJson);
     },
     remove: () => {
       return fse.remove(tempFolder);
-    },
+    }
   };
 };
 
@@ -53,11 +53,11 @@ const createProject = async (
  * @deprecated Use createProject instead.
  */
 const createProjectFromWorkspace = async (
-  fixtureName: string,
+  fixtureName: string
 ): Promise<TestProject> => {
   return createProject(
     fixtureName,
-    path.join(__dirname, '../../acceptance/workspaces/' + fixtureName),
+    path.join(__dirname, "../../acceptance/workspaces/" + fixtureName)
   );
 };
 
@@ -65,7 +65,7 @@ const createProjectFromWorkspace = async (
  * Once createProjectFromWorkspace is removed, this can be "createProject".
  */
 const createProjectFromFixture = async (
-  fixtureName: string,
+  fixtureName: string
 ): Promise<TestProject> => {
   return createProject(fixtureName, getFixturePath(fixtureName));
 };
@@ -73,5 +73,5 @@ const createProjectFromFixture = async (
 export {
   createProjectFromFixture as createProject,
   createProjectFromFixture,
-  createProjectFromWorkspace,
+  createProjectFromWorkspace
 };

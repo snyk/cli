@@ -1,187 +1,187 @@
-import * as utils from '../../../src/lib/monitor/utils';
-import { ScannedProject, DepTree } from '@snyk/cli-interface/legacy/common';
-import * as fs from 'fs';
-import { MonitorMeta } from '../../../src/lib/types';
-import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
+import * as utils from "../../../src/lib/monitor/utils";
+import { ScannedProject, DepTree } from "@snyk/cli-interface/legacy/common";
+import * as fs from "fs";
+import { MonitorMeta } from "../../../src/lib/types";
+import { PluginMetadata } from "@snyk/cli-interface/legacy/plugin";
 
 function stubScannedProjectContainer() {
   return {
     depTree: {},
     meta: {
-      imageName: 'some-image',
+      imageName: "some-image"
     },
-    targetFile: '/tmp/package.json',
+    targetFile: "/tmp/package.json"
   };
 }
 
 function stubScannedProject() {
   return {
-    depTree: {},
+    depTree: {}
   };
 }
 
 function getStubDepTree(): DepTree {
   return {
-    name: 'my-project',
+    name: "my-project"
   };
 }
 
 function getStubDepGraph() {
   return JSON.parse(
-    fs.readFileSync('./test/fixtures/dep-graph/dep-graph.json').toString(),
+    fs.readFileSync("./test/fixtures/dep-graph/dep-graph.json").toString()
   );
 }
 
 function getStubMeta(): MonitorMeta {
   return {
-    method: 'cli',
-    packageManager: 'npm',
-    'policy-path': '',
-    'project-name': '',
+    method: "cli",
+    packageManager: "npm",
+    "policy-path": "",
+    "project-name": "",
     isDocker: true,
-    prune: false,
+    prune: false
   };
 }
 
 function getOverrideNameStubMeta(): MonitorMeta {
   return {
-    method: 'cli',
-    packageManager: 'npm',
-    'policy-path': '',
-    'project-name': 'project-name-override',
+    method: "cli",
+    packageManager: "npm",
+    "policy-path": "",
+    "project-name": "project-name-override",
     isDocker: true,
-    prune: false,
+    prune: false
   };
 }
 
 function getStubPluginMeta(): PluginMetadata {
   return {
-    name: 'my-plugin',
-    targetFile: '/tmp2/package.json',
+    name: "my-plugin",
+    targetFile: "/tmp2/package.json"
   };
 }
 
-describe('cli-monitor-utils test', () => {
-  it('getNameDepTree returns name from scanned project if container', () => {
+describe("cli-monitor-utils test", () => {
+  it("getNameDepTree returns name from scanned project if container", () => {
     const scannedProject: ScannedProject = stubScannedProjectContainer();
     const res = utils.getNameDepTree(
       scannedProject,
       getStubDepTree(),
-      getStubMeta(),
+      getStubMeta()
     );
-    expect(res).toEqual('some-image:/tmp/package.json');
+    expect(res).toEqual("some-image:/tmp/package.json");
   });
 
-  it('getNameDepTree returns name from depTree if not container', () => {
+  it("getNameDepTree returns name from depTree if not container", () => {
     const scannedProject: ScannedProject = stubScannedProject();
     const res = utils.getNameDepTree(
       scannedProject,
       getStubDepTree(),
-      getStubMeta(),
+      getStubMeta()
     );
-    expect(res).toEqual('my-project');
+    expect(res).toEqual("my-project");
   });
 
-  it('getNameDepGraph returns name from scanned project if container', () => {
+  it("getNameDepGraph returns name from scanned project if container", () => {
     const scannedProject: ScannedProject = stubScannedProjectContainer();
     const res = utils.getNameDepGraph(
       scannedProject,
       getStubDepGraph(),
-      getStubMeta(),
+      getStubMeta()
     );
-    expect(res).toEqual('some-image:/tmp/package.json');
+    expect(res).toEqual("some-image:/tmp/package.json");
   });
 
-  it('getNameDepGraph returns name from depGraph if not container', () => {
+  it("getNameDepGraph returns name from depGraph if not container", () => {
     const scannedProject: ScannedProject = stubScannedProject();
     const res = utils.getNameDepGraph(
       scannedProject,
       getStubDepGraph(),
-      getStubMeta(),
+      getStubMeta()
     );
-    expect(res).toEqual('my-project');
+    expect(res).toEqual("my-project");
   });
 
-  it('getProjectName returns name from scanned project if container', () => {
+  it("getProjectName returns name from scanned project if container", () => {
     const scannedProject: ScannedProject = stubScannedProjectContainer();
     const res = utils.getProjectName(scannedProject, getStubMeta());
-    expect(res).toEqual('some-image');
+    expect(res).toEqual("some-image");
   });
 
-  it('getProjectName returns name from meta if not container', () => {
+  it("getProjectName returns name from meta if not container", () => {
     const scannedProject: ScannedProject = stubScannedProject();
     const res = utils.getProjectName(scannedProject, getOverrideNameStubMeta());
-    expect(res).toEqual('project-name-override');
+    expect(res).toEqual("project-name-override");
   });
 
-  it('getProjectName returns gradle project name from scanned project meta', () => {
+  it("getProjectName returns gradle project name from scanned project meta", () => {
     const scannedProject: ScannedProject = {
       depGraph: {} as any,
       meta: {
-        gradleProjectName: 'my-gradle-project',
+        gradleProjectName: "my-gradle-project"
       },
-      targetFile: '/tmp/build.gradle',
+      targetFile: "/tmp/build.gradle"
     };
 
     const res = utils.getProjectName(scannedProject, {
-      method: 'cli',
-      packageManager: 'gradle',
-      'policy-path': '',
-      'project-name': '',
+      method: "cli",
+      packageManager: "gradle",
+      "policy-path": "",
+      "project-name": "",
       isDocker: false,
-      prune: false,
+      prune: false
     });
-    expect(res).toEqual('my-gradle-project');
+    expect(res).toEqual("my-gradle-project");
   });
 
-  it('getProjectName returns project name from scanned project meta when project-name is provided via option', () => {
+  it("getProjectName returns project name from scanned project meta when project-name is provided via option", () => {
     const scannedProject: ScannedProject = {
       depGraph: {} as any,
       meta: {
-        gradleProjectName: 'my-gradle-project',
-        projectName: 'meta-gradle-project',
+        gradleProjectName: "my-gradle-project",
+        projectName: "meta-gradle-project"
       },
-      targetFile: '/tmp/build.gradle',
+      targetFile: "/tmp/build.gradle"
     };
 
     const res = utils.getProjectName(scannedProject, {
-      method: 'cli',
-      packageManager: 'gradle',
-      'policy-path': '',
-      'project-name': 'project-name-from-option',
+      method: "cli",
+      packageManager: "gradle",
+      "policy-path": "",
+      "project-name": "project-name-from-option",
       isDocker: false,
-      prune: false,
+      prune: false
     });
-    expect(res).toEqual('meta-gradle-project');
+    expect(res).toEqual("meta-gradle-project");
   });
 
-  it('getProjectName returns project name when project-name is provided via option', () => {
+  it("getProjectName returns project name when project-name is provided via option", () => {
     const scannedProject: ScannedProject = {
       depGraph: {} as any,
-      meta: { gradleProjectName: 'my-gradle-project' },
-      targetFile: '/tmp/build.gradle',
+      meta: { gradleProjectName: "my-gradle-project" },
+      targetFile: "/tmp/build.gradle"
     };
 
     const res = utils.getProjectName(scannedProject, {
-      method: 'cli',
-      packageManager: 'gradle',
-      'policy-path': '',
-      'project-name': 'project-name-from-option',
+      method: "cli",
+      packageManager: "gradle",
+      "policy-path": "",
+      "project-name": "project-name-from-option",
       isDocker: false,
-      prune: false,
+      prune: false
     });
-    expect(res).toEqual('project-name-from-option');
+    expect(res).toEqual("project-name-from-option");
   });
 
-  it('getTargetFile returns name from scanned project if container', () => {
+  it("getTargetFile returns name from scanned project if container", () => {
     const scannedProject: ScannedProject = stubScannedProjectContainer();
     const res = utils.getTargetFile(scannedProject, getStubPluginMeta());
-    expect(res).toEqual('/tmp/package.json');
+    expect(res).toEqual("/tmp/package.json");
   });
 
-  it('getTargetFile returns name from plugin meta if not container', () => {
+  it("getTargetFile returns name from plugin meta if not container", () => {
     const scannedProject: ScannedProject = stubScannedProject();
     const res = utils.getTargetFile(scannedProject, getStubPluginMeta());
-    expect(res).toEqual('/tmp2/package.json');
+    expect(res).toEqual("/tmp2/package.json");
   });
 });

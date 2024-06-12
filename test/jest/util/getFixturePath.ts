@@ -1,4 +1,4 @@
-import * as path from 'path';
+import * as path from "path";
 
 /**
  * Gets the path to a fixture.
@@ -7,5 +7,5 @@ import * as path from 'path';
  * other tests. Only use this when createProject is unfeasible.
  */
 export function getFixturePath(fixtureName: string): string {
-  return path.join(__dirname, '../../fixtures', fixtureName);
+  return path.join(__dirname, "../../fixtures", fixtureName);
 }

@@ -1,24 +1,24 @@
-import * as path from 'path';
-import { fakeServer } from '../../../acceptance/fake-server';
-import { createProjectFromFixture } from '../../util/createProject';
-import { runSnykCLI } from '../../util/runSnykCLI';
-import { getServerPort } from '../../util/getServerPort';
+import * as path from "path";
+import { fakeServer } from "../../../acceptance/fake-server";
+import { createProjectFromFixture } from "../../util/createProject";
+import { runSnykCLI } from "../../util/runSnykCLI";
+import { getServerPort } from "../../util/getServerPort";
 
 jest.setTimeout(1000 * 60);
 
-describe('`snyk test` with `--file=`', () => {
+describe("`snyk test` with `--file=`", () => {
   let server;
   let env: Record<string, string>;
 
-  beforeAll((done) => {
+  beforeAll(done => {
     const port = getServerPort(process);
-    const baseApi = '/api/v1';
+    const baseApi = "/api/v1";
     env = {
       ...process.env,
-      SNYK_API: 'http://localhost:' + port + baseApi,
-      SNYK_HOST: 'http://localhost:' + port,
-      SNYK_TOKEN: '123456789',
-      SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_API: "http://localhost:" + port + baseApi,
+      SNYK_HOST: "http://localhost:" + port,
+      SNYK_TOKEN: "123456789",
+      SNYK_DISABLE_ANALYTICS: "1"
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
     server.listen(port, () => {
@@ -30,115 +30,115 @@ describe('`snyk test` with `--file=`', () => {
     server.restore();
   });
 
-  afterAll((done) => {
+  afterAll(done => {
     server.close(() => {
       done();
     });
   });
 
-  describe('without `.snyk` file', () => {
-    it('policy field is empty in payload when using relative path', async () => {
+  describe("without `.snyk` file", () => {
+    it("policy field is empty in payload when using relative path", async () => {
       const project = await createProjectFromFixture(
-        'npm/with-vulnerable-lodash-dep',
+        "npm/with-vulnerable-lodash-dep"
       );
       server.setCustomResponse(
-        await project.readJSON('test-dep-graph-result.json'),
+        await project.readJSON("test-dep-graph-result.json")
       );
 
       const cwd = __dirname;
       const relPath = path.relative(
         cwd,
-        path.join(project.path(), 'package-lock.json'),
+        path.join(project.path(), "package-lock.json")
       );
 
       const { stdout } = await runSnykCLI(`test --file=${relPath}`, {
         cwd,
-        env,
+        env
       });
 
       const testDepGraphRequest = server.getRequests()[0];
       expect(testDepGraphRequest.body.policy).not.toBeDefined();
-      expect(stdout).toContain('SNYK-JS-LODASH-590103');
+      expect(stdout).toContain("SNYK-JS-LODASH-590103");
     });
 
-    it('policy field is empty in payload when using absolute path', async () => {
+    it("policy field is empty in payload when using absolute path", async () => {
       const project = await createProjectFromFixture(
-        'npm/with-vulnerable-lodash-dep',
+        "npm/with-vulnerable-lodash-dep"
       );
       server.setCustomResponse(
-        await project.readJSON('test-dep-graph-result.json'),
+        await project.readJSON("test-dep-graph-result.json")
       );
 
-      const absPath = path.resolve(project.path(), 'package-lock.json');
+      const absPath = path.resolve(project.path(), "package-lock.json");
 
       const { stdout } = await runSnykCLI(`test --file=${absPath}`, {
         cwd: __dirname,
-        env,
+        env
       });
 
       const testDepGraphRequest = server.getRequests()[0];
       expect(testDepGraphRequest.body.policy).not.toBeDefined();
-      expect(stdout).toContain('SNYK-JS-LODASH-590103');
+      expect(stdout).toContain("SNYK-JS-LODASH-590103");
     });
   });
 
-  describe('with `.snyk` file', () => {
-    it('picks up the `.snyk` file when using relative path', async () => {
+  describe("with `.snyk` file", () => {
+    it("picks up the `.snyk` file when using relative path", async () => {
       const project = await createProjectFromFixture(
-        'npm/with-vulnnerable-lodash-and-snyk-file',
+        "npm/with-vulnnerable-lodash-and-snyk-file"
       );
       server.setCustomResponse(
-        await project.readJSON('test-dep-graph-result.json'),
+        await project.readJSON("test-dep-graph-result.json")
       );
 
       const cwd = __dirname;
       const relPath = path.relative(
         cwd,
-        path.join(project.path(), 'package-lock.json'),
+        path.join(project.path(), "package-lock.json")
       );
 
       const { stdout } = await runSnykCLI(`test --file=${relPath}`, {
         cwd,
-        env,
+        env
       });
 
       // check that we're including the policy file in the request and that the policy
       // includes the ignored vuln id from the .snyk file
-      const testDepGraphRequest = server.getRequests().find((value) => {
-        return value.url == '/api/v1/test-dep-graph?org=';
+      const testDepGraphRequest = server.getRequests().find(value => {
+        return value.url == "/api/v1/test-dep-graph?org=";
       });
       expect(testDepGraphRequest.body.policy).toBeDefined();
       expect(testDepGraphRequest.body.policy).toContain(
-        'SNYK-JS-LODASH-590103',
+        "SNYK-JS-LODASH-590103"
       );
-      expect(stdout).not.toContain('SNYK-JS-LODASH-590103');
+      expect(stdout).not.toContain("SNYK-JS-LODASH-590103");
     });
 
-    it('picks up the `.snyk` file when using absolute path', async () => {
+    it("picks up the `.snyk` file when using absolute path", async () => {
       const project = await createProjectFromFixture(
-        'npm/with-vulnnerable-lodash-and-snyk-file',
+        "npm/with-vulnnerable-lodash-and-snyk-file"
       );
       server.setCustomResponse(
-        await project.readJSON('test-dep-graph-result.json'),
+        await project.readJSON("test-dep-graph-result.json")
       );
 
-      const absPath = path.resolve(project.path(), 'package-lock.json');
+      const absPath = path.resolve(project.path(), "package-lock.json");
 
       const { stdout } = await runSnykCLI(`test --file=${absPath}`, {
         cwd: __dirname,
-        env,
+        env
       });
 
       // check that we're including the policy file in the request and that the policy
       // includes the ignored vuln id from the .snyk file
-      const testDepGraphRequest = server.getRequests().find((value) => {
-        return value.url == '/api/v1/test-dep-graph?org=';
+      const testDepGraphRequest = server.getRequests().find(value => {
+        return value.url == "/api/v1/test-dep-graph?org=";
       });
       expect(testDepGraphRequest.body.policy).toBeDefined();
       expect(testDepGraphRequest.body.policy).toContain(
-        'SNYK-JS-LODASH-590103',
+        "SNYK-JS-LODASH-590103"
       );
-      expect(stdout).not.toContain('SNYK-JS-LODASH-590103');
+      expect(stdout).not.toContain("SNYK-JS-LODASH-590103");
     });
   });
 });

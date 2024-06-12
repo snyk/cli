@@ -1,14 +1,14 @@
 import {
   ChildProcessWithoutNullStreams,
-  SpawnOptionsWithoutStdio,
-} from 'child_process';
-import { spawn } from 'cross-spawn';
-import * as semver from 'semver';
-import { Readable } from 'stream';
-import { CLI_BIN_PATH } from './constants';
+  SpawnOptionsWithoutStdio
+} from "child_process";
+import { spawn } from "cross-spawn";
+import * as semver from "semver";
+import { Readable } from "stream";
+import { CLI_BIN_PATH } from "./constants";
 
 // https://nodejs.org/docs/latest-v16.x/api/child_process.html#event-spawn
-const SUPPORTS_SPAWN_EVENT = semver.satisfies(process.version, '>=15.1.0');
+const SUPPORTS_SPAWN_EVENT = semver.satisfies(process.version, ">=15.1.0");
 
 // Timeout for a single assertion.
 const DEFAULT_ASSERTION_TIMEOUT = 5_000;
@@ -29,21 +29,21 @@ class AssertionTimeoutError extends Error {
 const createMatchableOutput = (outputStream: Readable) => {
   type OutputMatcher = () => void;
 
-  let output = '';
+  let output = "";
   const matchers = new Set<OutputMatcher>();
 
   const waitUntilMatches = (
     expected: string | RegExp,
-    { timeout = DEFAULT_ASSERTION_TIMEOUT } = {},
+    { timeout = DEFAULT_ASSERTION_TIMEOUT } = {}
   ) => {
     return new Promise<void>((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         matchers.delete(matcher);
-        reject(new AssertionTimeoutError('waitUntilMatches', timeout));
+        reject(new AssertionTimeoutError("waitUntilMatches", timeout));
       }, timeout);
 
       const matches =
-        typeof expected === 'string'
+        typeof expected === "string"
           ? () => output.includes(expected)
           : () => expected.test(output);
 
@@ -60,7 +60,7 @@ const createMatchableOutput = (outputStream: Readable) => {
     });
   };
 
-  outputStream.on('data', (chunk) => {
+  outputStream.on("data", chunk => {
     output += chunk.toString();
     for (const matcher of matchers) {
       matcher();
@@ -69,7 +69,7 @@ const createMatchableOutput = (outputStream: Readable) => {
 
   return {
     waitUntilMatches,
-    get: (): string => output,
+    get: (): string => output
   };
 };
 
@@ -86,29 +86,29 @@ const createTestCLI = (child: ChildProcessWithoutNullStreams) => {
    * Waits for process to exit and provides the exit code.
    */
   const wait = async ({
-    timeout = DEFAULT_ASSERTION_TIMEOUT,
+    timeout = DEFAULT_ASSERTION_TIMEOUT
   } = {}): Promise<number> => {
     if (child.killed) {
       return child.exitCode || 0;
     }
     return new Promise((resolve, reject) => {
       const onTimeout = () => {
-        child.removeListener('error', onError);
-        child.removeListener('close', onClose);
-        reject(new AssertionTimeoutError('wait', timeout));
+        child.removeListener("error", onError);
+        child.removeListener("close", onClose);
+        reject(new AssertionTimeoutError("wait", timeout));
       };
-      const onError = (error) => {
+      const onError = error => {
         clearTimeout(timeoutId);
         reject(error);
       };
-      const onClose = (code) => {
+      const onClose = code => {
         clearTimeout(timeoutId);
         resolve(code || 0);
       };
 
       const timeoutId = setTimeout(onTimeout, timeout);
-      child.once('error', onError);
-      child.once('close', onClose);
+      child.once("error", onError);
+      child.once("close", onClose);
     });
   };
 
@@ -117,7 +117,7 @@ const createTestCLI = (child: ChildProcessWithoutNullStreams) => {
    */
   const input = async (input: string) => {
     return new Promise<void>((resolve, reject) => {
-      child.stdin.write(input, (err) => {
+      child.stdin.write(input, err => {
         if (err) {
           reject(err);
           return;
@@ -133,14 +133,14 @@ const createTestCLI = (child: ChildProcessWithoutNullStreams) => {
    * command.
    */
   const answer = async (answer: string) => {
-    return input(answer + '\r');
+    return input(answer + "\r");
   };
 
   const stop = async () => {
     if (child.killed) {
       return;
     }
-    child.kill('SIGKILL');
+    child.kill("SIGKILL");
   };
 
   return {
@@ -150,7 +150,7 @@ const createTestCLI = (child: ChildProcessWithoutNullStreams) => {
     input,
     answer,
     stop,
-    wait,
+    wait
   };
 };
 
@@ -164,15 +164,15 @@ export const startCommand = async (
   {
     startTimeout = DEFAULT_ASSERTION_TIMEOUT,
     ...options
-  }: StartCommandOptions = {},
+  }: StartCommandOptions = {}
 ): Promise<TestCLI> => {
   const child = spawn(command, args, options);
   return new Promise((resolve, reject) => {
     const onTimeout = () => {
       cleanup();
-      reject(new AssertionTimeoutError('startCommand', startTimeout));
+      reject(new AssertionTimeoutError("startCommand", startTimeout));
     };
-    const onError = (err) => {
+    const onError = err => {
       cleanup();
       reject(err);
     };
@@ -181,14 +181,14 @@ export const startCommand = async (
       resolve(createTestCLI(child));
     };
     const cleanup = () => {
-      child.removeListener('error', onError);
-      child.removeListener('spawn', onSpawn);
+      child.removeListener("error", onError);
+      child.removeListener("spawn", onSpawn);
       clearTimeout(timeoutId);
     };
 
     const timeoutId = setTimeout(onTimeout, startTimeout);
-    child.once('error', onError);
-    child.once('spawn', onSpawn);
+    child.once("error", onError);
+    child.once("spawn", onSpawn);
 
     if (!SUPPORTS_SPAWN_EVENT) {
       const onInterval = () => {
@@ -209,13 +209,13 @@ export const startCommand = async (
  */
 export const startSnykCLI = async (
   argsString: string,
-  options?: StartCommandOptions,
+  options?: StartCommandOptions
 ): Promise<TestCLI> => {
-  const args = argsString.split(' ').filter((v) => !!v);
+  const args = argsString.split(" ").filter(v => !!v);
   if (process.env.TEST_SNYK_COMMAND) {
     return startCommand(process.env.TEST_SNYK_COMMAND, args, options);
   }
-  return startCommand('node', [CLI_BIN_PATH, ...args], options);
+  return startCommand("node", [CLI_BIN_PATH, ...args], options);
 };
 
 type CustomMatcherOptions = { timeout?: number };
@@ -241,25 +241,25 @@ expect.extend({
     this: jest.MatcherUtils,
     cli: TestCLI,
     expected: string | RegExp,
-    { timeout = this.isNot ? 0 : undefined }: CustomMatcherOptions = {},
+    { timeout = this.isNot ? 0 : undefined }: CustomMatcherOptions = {}
   ) {
     try {
       await cli.stdout.waitUntilMatches(expected, { timeout });
       return {
         message: () => `expected process to not display "${expected}"`,
-        pass: true,
+        pass: true
       };
     } catch (err) {
       const result = {
         code: cli.process.exitCode,
         stdout: cli.stdout.get(),
-        stderr: cli.stderr.get(),
+        stderr: cli.stderr.get()
       };
-      console.debug('toDisplay error', result);
+      console.debug("toDisplay error", result);
       return {
         message: () =>
           `expected process to display "${expected}" (${err.message})`,
-        pass: false,
+        pass: false
       };
     }
   },
@@ -270,19 +270,19 @@ expect.extend({
     this: jest.MatcherUtils,
     cli: TestCLI,
     expected: string,
-    { timeout = this.isNot ? 0 : undefined }: CustomMatcherOptions = {},
+    { timeout = this.isNot ? 0 : undefined }: CustomMatcherOptions = {}
   ) {
     try {
       await cli.stderr.waitUntilMatches(expected, { timeout });
       return {
         message: () => `expected process to not display error "${expected}"`,
-        pass: true,
+        pass: true
       };
     } catch (err) {
       return {
         message: () =>
           `expected process to display error "${expected}" (${err.message})`,
-        pass: false,
+        pass: false
       };
     }
   },
@@ -293,31 +293,31 @@ expect.extend({
     this: jest.MatcherUtils,
     cli: TestCLI,
     expected: number,
-    { timeout = this.isNot ? 0 : undefined }: CustomMatcherOptions = {},
+    { timeout = this.isNot ? 0 : undefined }: CustomMatcherOptions = {}
   ) {
     try {
       const actual = await cli.wait({ timeout });
       if (actual === expected) {
         return {
           message: () => `expected process to not exit with ${expected}.`,
-          pass: true,
+          pass: true
         };
       }
-      console.debug('-> Stdout\n' + cli.stdout.get());
-      console.debug('-> Stderr\n' + cli.stderr.get());
+      console.debug("-> Stdout\n" + cli.stdout.get());
+      console.debug("-> Stderr\n" + cli.stderr.get());
       return {
         message: () =>
           `expected process to exit with ${expected} but was ${actual}.`,
-        pass: false,
+        pass: false
       };
     } catch (err) {
       return {
         message: () =>
           `expected process to exit with ${expected} but did not exit. (${err.message})`,
-        pass: false,
+        pass: false
       };
     }
-  },
+  }
 });
 
 /**

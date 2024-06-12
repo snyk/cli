@@ -5,7 +5,7 @@ const requireSnykToken = (): string => {
     process.env.TEST_SNYK_TOKEN; // circle ci
 
   if (!result) {
-    throw new Error('No Snyk Token found in test environment.');
+    throw new Error("No Snyk Token found in test environment.");
   }
 
   return result;

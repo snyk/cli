@@ -1,28 +1,28 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { IacFileData } from '../../../../src/cli/commands/test/iac/local-execution/types';
+import * as fs from "fs";
+import * as path from "path";
+import { IacFileData } from "../../../../src/cli/commands/test/iac/local-execution/types";
 
 export enum PlanOutputCase {
-  Create = 'tf-plan-create', // plan with create actions
-  Destroy = 'tf-plan-destroy', // plan with destroy actions
-  NoOp = 'tf-plan-no-op', // plan with no-op actions
-  Update = 'tf-plan-update', // plan with updates actions
-  V4 = 'tf-plan-v4', // plan with updates actions
-  Null = 'tf-plan-null', // plan using null resource (no expressions)
+  Create = "tf-plan-create", // plan with create actions
+  Destroy = "tf-plan-destroy", // plan with destroy actions
+  NoOp = "tf-plan-no-op", // plan with no-op actions
+  Update = "tf-plan-update", // plan with updates actions
+  V4 = "tf-plan-v4", // plan with updates actions
+  Null = "tf-plan-null" // plan using null resource (no expressions)
 }
 
 export function getTfPlanData(planOutputCase: PlanOutputCase) {
   const tfPlanFile = fs.readFileSync(
     path.resolve(
       __dirname,
-      `../../../fixtures/iac/terraform-plan/${planOutputCase}.json`,
-    ),
+      `../../../fixtures/iac/terraform-plan/${planOutputCase}.json`
+    )
   );
 
   const iacFileData: IacFileData = {
     fileContent: tfPlanFile.toString(),
-    filePath: 'dont-care',
-    fileType: 'json',
+    filePath: "dont-care",
+    fileType: "json"
   };
 
   return iacFileData;
@@ -30,7 +30,7 @@ export function getTfPlanData(planOutputCase: PlanOutputCase) {
 
 export function getExpectedResult(
   isFullScan: boolean,
-  planOutputCase: PlanOutputCase,
+  planOutputCase: PlanOutputCase
 ) {
   const tfPlanExpectedResources = JSON.parse(
     fs
@@ -38,11 +38,11 @@ export function getExpectedResult(
         path.resolve(
           __dirname,
           `../../../fixtures/iac/terraform-plan/expected-parser-results/${
-            isFullScan ? 'full-scan' : 'delta-scan'
-          }/${planOutputCase}.resources.json`,
-        ),
+            isFullScan ? "full-scan" : "delta-scan"
+          }/${planOutputCase}.resources.json`
+        )
       )
-      .toString(),
+      .toString()
   );
 
   return tfPlanExpectedResources;
@@ -53,7 +53,7 @@ type ScanModeTestCase = [{ isFullScan: boolean }];
 type PlanOutputTestCase = [PlanOutputCase];
 export const scanModeCases: ScanModeTestCase[] = [
   [{ isFullScan: false }],
-  [{ isFullScan: true }],
+  [{ isFullScan: true }]
 ];
 export const planOutputCases: PlanOutputTestCase[] = [
   [PlanOutputCase.Create],
@@ -61,5 +61,5 @@ export const planOutputCases: PlanOutputTestCase[] = [
   [PlanOutputCase.NoOp],
   [PlanOutputCase.Update],
   [PlanOutputCase.V4],
-  [PlanOutputCase.Null],
+  [PlanOutputCase.Null]
 ];

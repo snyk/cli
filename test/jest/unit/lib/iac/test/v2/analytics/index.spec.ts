@@ -1,59 +1,59 @@
-import * as clonedeep from 'lodash.clonedeep';
-import * as path from 'path';
-import * as analytics from '../../../../../../../../src/lib/analytics';
-import * as fs from 'fs';
+import * as clonedeep from "lodash.clonedeep";
+import * as path from "path";
+import * as analytics from "../../../../../../../../src/lib/analytics";
+import * as fs from "fs";
 
-import { SnykIacTestOutput } from '../../../../../../../../src/lib/iac/test/v2/scan/results';
+import { SnykIacTestOutput } from "../../../../../../../../src/lib/iac/test/v2/scan/results";
 import {
   addIacAnalytics,
-  IacAnalytics,
-} from '../../../../../../../../src/lib/iac/test/v2/analytics';
-import { TestConfig } from '../../../../../../../../src/lib/iac/test/v2/types';
+  IacAnalytics
+} from "../../../../../../../../src/lib/iac/test/v2/analytics";
+import { TestConfig } from "../../../../../../../../src/lib/iac/test/v2/types";
 
 jest.mock(
-  '../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants',
+  "../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants",
   () => ({
     ...jest.requireActual(
-      '../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants',
+      "../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants"
     ),
-    policyEngineReleaseVersion: 'test-policy-engine-release-version',
-  }),
+    policyEngineReleaseVersion: "test-policy-engine-release-version"
+  })
 );
 
-describe('computeIacAnalytics', () => {
+describe("computeIacAnalytics", () => {
   const snykIacTestOutputFixture: SnykIacTestOutput = JSON.parse(
     fs.readFileSync(
       path.join(
         __dirname,
-        '..',
-        '..',
-        '..',
-        '..',
-        '..',
-        'iac',
-        'process-results',
-        'fixtures',
-        'snyk-iac-test-results.json',
+        "..",
+        "..",
+        "..",
+        "..",
+        "..",
+        "iac",
+        "process-results",
+        "fixtures",
+        "snyk-iac-test-results.json"
       ),
-      'utf-8',
-    ),
+      "utf-8"
+    )
   );
 
   const iacAnalyticsFixture: IacAnalytics = JSON.parse(
     fs.readFileSync(
-      path.join(__dirname, 'fixtures', 'iac-analytics.json'),
-      'utf-8',
-    ),
+      path.join(__dirname, "fixtures", "iac-analytics.json"),
+      "utf-8"
+    )
   );
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('sends the expected analytics', async () => {
+  it("sends the expected analytics", async () => {
     // Arrange
     const addedAnalytics: Record<string, any> = {};
-    jest.spyOn(analytics, 'add').mockImplementation((key, value) => {
+    jest.spyOn(analytics, "add").mockImplementation((key, value) => {
       addedAnalytics[key] = value;
     });
 

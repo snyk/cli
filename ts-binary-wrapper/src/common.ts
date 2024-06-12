@@ -1,25 +1,25 @@
 // must be set before we import 'global-agent/bootstrap'
-process.env.GLOBAL_AGENT_ENVIRONMENT_VARIABLE_NAMESPACE = '';
+process.env.GLOBAL_AGENT_ENVIRONMENT_VARIABLE_NAMESPACE = "";
 process.env.HTTPS_PROXY =
-  process.env.HTTPS_PROXY ?? process.env.https_proxy ?? '';
-process.env.HTTP_PROXY = process.env.HTTP_PROXY ?? process.env.http_proxy ?? '';
-process.env.NO_PROXY = process.env.NO_PROXY ?? process.env.no_proxy ?? '';
+  process.env.HTTPS_PROXY ?? process.env.https_proxy ?? "";
+process.env.HTTP_PROXY = process.env.HTTP_PROXY ?? process.env.http_proxy ?? "";
+process.env.NO_PROXY = process.env.NO_PROXY ?? process.env.no_proxy ?? "";
 
-import 'global-agent/bootstrap';
-import * as path from 'path';
-import * as os from 'os';
-import * as fs from 'fs';
-import { spawnSync } from 'child_process';
-import * as https from 'https';
-import { createHash } from 'crypto';
-import * as Sentry from '@sentry/node';
+import "global-agent/bootstrap";
+import * as path from "path";
+import * as os from "os";
+import * as fs from "fs";
+import { spawnSync } from "child_process";
+import * as https from "https";
+import { createHash } from "crypto";
+import * as Sentry from "@sentry/node";
 
-export const versionFile = path.join(__dirname, 'generated', 'version');
-export const shasumFile = path.join(__dirname, 'generated', 'sha256sums.txt');
+export const versionFile = path.join(__dirname, "generated", "version");
+export const shasumFile = path.join(__dirname, "generated", "sha256sums.txt");
 const binaryDeploymentsFilePath = path.join(
   __dirname,
-  'generated',
-  'binary-deployments.json',
+  "generated",
+  "binary-deployments.json"
 );
 
 export class WrapperConfiguration {
@@ -30,7 +30,7 @@ export class WrapperConfiguration {
   public constructor(
     version: string,
     binaryName: string,
-    expectedSha256sum: string,
+    expectedSha256sum: string
   ) {
     this.version = version;
     this.binaryName = binaryName;
@@ -46,8 +46,8 @@ export class WrapperConfiguration {
   }
 
   public getDownloadLocation(): string {
-    const baseUrl = 'https://static.snyk.io/cli/v';
-    return baseUrl + this.version + '/' + this.binaryName;
+    const baseUrl = "https://static.snyk.io/cli/v";
+    return baseUrl + this.version + "/" + this.binaryName;
   }
 
   public getLocalLocation(): string {
@@ -65,23 +65,23 @@ export function determineBinaryName(platform: string, arch: string): string {
   let archname = arch;
 
   switch (osname) {
-    case 'win32':
-      osname = 'windows';
+    case "win32":
+      osname = "windows";
       break;
-    case 'linux': {
+    case "linux": {
       let isAlpine = false;
       try {
-        const result = spawnSync('cat /etc/os-release', { shell: true });
+        const result = spawnSync("cat /etc/os-release", { shell: true });
         isAlpine = result.stdout
           .toString()
           .toLowerCase()
-          .includes('id=alpine');
+          .includes("id=alpine");
       } catch {
         isAlpine = false;
       }
 
       if (isAlpine) {
-        osname = 'alpine';
+        osname = "alpine";
       }
 
       break;
@@ -89,9 +89,9 @@ export function determineBinaryName(platform: string, arch: string): string {
   }
 
   switch (arch) {
-    case 'x64':
-    case 'amd64':
-      archname = 'amd64';
+    case "x64":
+    case "amd64":
+      archname = "amd64";
       break;
   }
 
@@ -100,13 +100,13 @@ export function determineBinaryName(platform: string, arch: string): string {
 
   if (binaryName === undefined) {
     const defaultErrorMsg =
-      ' The current platform (' +
+      " The current platform (" +
       osname +
-      ' ' +
+      " " +
       archname +
-      ') is not supported by Snyk.\n' +
-      ' You may want to consider using Docker to run Snyk, for details see: https://docs.snyk.io/snyk-cli/install-the-snyk-cli#snyk-cli-in-a-docker-image\n' +
-      ' If you experience errors please check http://support.snyk.io/.';
+      ") is not supported by Snyk.\n" +
+      " You may want to consider using Docker to run Snyk, for details see: https://docs.snyk.io/snyk-cli/install-the-snyk-cli#snyk-cli-in-a-docker-image\n" +
+      " If you experience errors please check http://support.snyk.io/.";
     throw Error(getWarningMessage(defaultErrorMsg));
   }
 
@@ -118,17 +118,17 @@ export function getCurrentVersion(filename: string): string {
     const version = fs.readFileSync(filename);
     return version.toString().trim();
   } catch {
-    return '';
+    return "";
   }
 }
 
 export function getCurrentSha256sum(
   binaryName: string,
-  filename: string,
+  filename: string
 ): string {
   try {
     const allsums = fs.readFileSync(filename).toString();
-    const re = new RegExp('^([a-zA-Z0-9]+)[\\s\\*]+' + binaryName + '$', 'mig');
+    const re = new RegExp("^([a-zA-Z0-9]+)[\\s\\*]+" + binaryName + "$", "mig");
     const result = re.exec(allsums);
     if (result) {
       return result[1];
@@ -137,7 +137,7 @@ export function getCurrentSha256sum(
     //
   }
 
-  return 'unknown-shasum-' + binaryName;
+  return "unknown-shasum-" + binaryName;
 }
 
 export function getCurrentConfiguration(): WrapperConfiguration {
@@ -153,10 +153,10 @@ export function getCliArguments(inputArgv: string[]): string[] {
 }
 
 export function debugEnabled(cliArguments: string[]): boolean {
-  let debugIndex = cliArguments.indexOf('--debug');
+  let debugIndex = cliArguments.indexOf("--debug");
 
   if (debugIndex < 0) {
-    debugIndex = cliArguments.indexOf('-d');
+    debugIndex = cliArguments.indexOf("-d");
   }
 
   return debugIndex >= 0;
@@ -174,12 +174,12 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   const debug = debugEnabled(cliArguments);
 
   if (debug) {
-    console.error('Executing: ' + executable + ' ' + cliArguments.join(' '));
+    console.error("Executing: " + executable + " " + cliArguments.join(" "));
   }
 
   const res = spawnSync(executable, cliArguments, {
     shell: false,
-    stdio: 'inherit',
+    stdio: "inherit"
   });
 
   if (res.status !== null) {
@@ -191,7 +191,7 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   } else {
     console.error(res);
     if (!formatErrorMessage((res.error as SpawnError).code)) {
-      console.error('Failed to spawn child process. (' + executable + ')');
+      console.error("Failed to spawn child process. (" + executable + ")");
     }
 
     return 2;
@@ -205,28 +205,28 @@ export function getWarningMessage(message: string): string {
 export function formatErrorMessage(message: string): boolean {
   const eaccesWarning =
     "You don't have the permissions to install Snyk. Please try the following options:\n" +
-    '* If you are installing with increased privileges (for example sudo), try adding --unsafe-perm as a parameter to npm install\n' +
-    '* If you run NPM <= 6, please upgrade to a later version.\n' +
-    'If the problems persist please check http://support.snyk.io/.';
+    "* If you are installing with increased privileges (for example sudo), try adding --unsafe-perm as a parameter to npm install\n" +
+    "* If you run NPM <= 6, please upgrade to a later version.\n" +
+    "If the problems persist please check http://support.snyk.io/.";
 
   const certificateError =
-    'If you are running Snyk in an environment that intercepts SSL traffic, please specify\n' +
-    'your custom CA certificates via the NODE_EXTRA_CA_CERTS environment variable.\n' +
-    'See https://nodejs.org/api/cli.html#node_extra_ca_certsfile for additional information.';
+    "If you are running Snyk in an environment that intercepts SSL traffic, please specify\n" +
+    "your custom CA certificates via the NODE_EXTRA_CA_CERTS environment variable.\n" +
+    "See https://nodejs.org/api/cli.html#node_extra_ca_certsfile for additional information.";
 
   const degradedCLIWarning =
-    'You are currently running a degraded version of the Snyk CLI.\n' +
-    'As a result, some features of the CLI will be unavailable.\n' +
-    'For information on how to resolve this, please see this article: https://docs.snyk.io/snyk-cli/installing-snyk-cli-as-a-binary-via-npm\n' +
-    'For any assistance, please check http://support.snyk.io/.';
+    "You are currently running a degraded version of the Snyk CLI.\n" +
+    "As a result, some features of the CLI will be unavailable.\n" +
+    "For information on how to resolve this, please see this article: https://docs.snyk.io/snyk-cli/installing-snyk-cli-as-a-binary-via-npm\n" +
+    "For any assistance, please check http://support.snyk.io/.";
 
-  let warning = '';
+  let warning = "";
 
-  if (message.includes('EACCES')) {
+  if (message.includes("EACCES")) {
     warning = eaccesWarning;
-  } else if (message.includes('certificate')) {
+  } else if (message.includes("certificate")) {
     warning = certificateError;
-  } else if (message.includes('legacy-cli')) {
+  } else if (message.includes("legacy-cli")) {
     warning = degradedCLIWarning;
   } else {
     return false;
@@ -239,13 +239,13 @@ export function formatErrorMessage(message: string): boolean {
 export function downloadExecutable(
   downloadUrl: string,
   filename: string,
-  filenameShasum: string,
+  filenameShasum: string
 ): Promise<Error | undefined> {
   return new Promise<Error | undefined>(function(resolve) {
     const options = new URL(downloadUrl);
     const temp = path.join(__dirname, Date.now().toString());
     const fileStream = fs.createWriteStream(temp);
-    const shasum = createHash('sha256').setEncoding('hex');
+    const shasum = createHash("sha256").setEncoding("hex");
 
     const cleanupAfterError = (error: Error) => {
       try {
@@ -258,37 +258,37 @@ export function downloadExecutable(
     };
 
     // shasum events
-    shasum.on('error', cleanupAfterError);
+    shasum.on("error", cleanupAfterError);
     // filestream events
-    fileStream.on('error', cleanupAfterError).on('close', () => {
+    fileStream.on("error", cleanupAfterError).on("close", () => {
       const actualShasum = shasum.read();
       const debugMessage =
-        'Shasums:\n- actual:   ' +
+        "Shasums:\n- actual:   " +
         actualShasum +
-        '\n- expected: ' +
+        "\n- expected: " +
         filenameShasum;
 
       if (filenameShasum && actualShasum != filenameShasum) {
-        cleanupAfterError(Error('Shasum comparison failed!\n' + debugMessage));
+        cleanupAfterError(Error("Shasum comparison failed!\n" + debugMessage));
       } else {
         console.error(debugMessage);
 
         // finally rename the file and change permissions
         fs.renameSync(temp, filename);
         fs.chmodSync(filename, 0o755);
-        console.error('Downloaded successfull! ');
+        console.error("Downloaded successfull! ");
       }
 
       resolve(undefined);
     });
 
     console.error(
-      "Downloading from '" + downloadUrl + "' to '" + filename + "'",
+      "Downloading from '" + downloadUrl + "' to '" + filename + "'"
     );
 
-    const req = https.get(options, (res) => {
+    const req = https.get(options, res => {
       // response events
-      res.on('error', cleanupAfterError).on('end', () => {
+      res.on("error", cleanupAfterError).on("end", () => {
         shasum.end();
         fileStream.end();
       });
@@ -298,7 +298,7 @@ export function downloadExecutable(
       res.pipe(shasum);
     });
 
-    req.on('error', cleanupAfterError).on('response', (incoming) => {
+    req.on("error", cleanupAfterError).on("response", incoming => {
       if (
         incoming.statusCode &&
         !(200 <= incoming.statusCode && incoming.statusCode < 300)
@@ -306,14 +306,14 @@ export function downloadExecutable(
         req.destroy();
         cleanupAfterError(
           Error(
-            'Download failed! Server Response: ' +
+            "Download failed! Server Response: " +
               incoming.statusCode +
-              ' ' +
+              " " +
               incoming.statusMessage +
-              ' (' +
+              " (" +
               downloadUrl +
-              ')',
-          ),
+              ")"
+          )
         );
       }
     });
@@ -325,19 +325,19 @@ export function downloadExecutable(
 export async function logError(
   context: string,
   err,
-  printToConsole = true,
+  printToConsole = true
 ): Promise<void> {
   if (isAnalyticsEnabled()) {
     // init error reporting
     const version = getCurrentVersion(versionFile);
     Sentry.init({
       dsn:
-        'https://3e845233db8c4f43b4c4b9245f1d7bd6@o30291.ingest.sentry.io/4504599528079360',
-      release: version,
+        "https://3e845233db8c4f43b4c4b9245f1d7bd6@o30291.ingest.sentry.io/4504599528079360",
+      release: version
     });
 
     // report error
-    const sentryError = new Error('[' + context + '] ' + err.message);
+    const sentryError = new Error("[" + context + "] " + err.message);
     sentryError.stack = err.stack;
     Sentry.captureException(sentryError);
     await Sentry.close();
@@ -345,15 +345,15 @@ export async function logError(
 
   // finally log the error to the console as well
   if (printToConsole) {
-    console.error('\n' + err);
+    console.error("\n" + err);
     formatErrorMessage(err.message);
   }
 }
 
 export function isAnalyticsEnabled(): boolean {
   if (
-    process.env.snyk_disable_analytics == '1' ||
-    process.env.SNYK_DISABLE_ANALYTICS == '1'
+    process.env.snyk_disable_analytics == "1" ||
+    process.env.SNYK_DISABLE_ANALYTICS == "1"
   ) {
     return false;
   }

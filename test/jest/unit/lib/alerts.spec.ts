@@ -2,41 +2,41 @@ import {
   Alert,
   displayAlerts,
   hasAlert,
-  registerAlerts,
-} from '../../../../src/lib/alerts';
+  registerAlerts
+} from "../../../../src/lib/alerts";
 
 const createTestAlert = (id: string): Alert => {
   return {
     msg: `Test Alert Message ${id}`,
     name: `test-alert-name-${id}`,
-    type: 'info',
+    type: "info"
   };
 };
 
-test('no alerts', () => {
-  const alert = createTestAlert('1');
+test("no alerts", () => {
+  const alert = createTestAlert("1");
   expect(hasAlert(alert.name)).toEqual(false);
-  expect(displayAlerts()).toEqual('');
+  expect(displayAlerts()).toEqual("");
 });
 
-test('register an alert', () => {
-  const alert = createTestAlert('1');
+test("register an alert", () => {
+  const alert = createTestAlert("1");
   registerAlerts([alert]);
   expect(hasAlert(alert.name)).toEqual(true);
   expect(displayAlerts()).toMatch(alert.msg);
 });
 
-test('register the same alert multiple times', () => {
-  const alert = createTestAlert('1');
+test("register the same alert multiple times", () => {
+  const alert = createTestAlert("1");
   registerAlerts([alert]);
   registerAlerts([alert]);
   expect(hasAlert(alert.name)).toEqual(true);
   expect(displayAlerts()).toMatch(alert.msg);
 });
 
-test('register two different alerts', () => {
-  const alert1 = createTestAlert('1');
-  const alert2 = createTestAlert('2');
+test("register two different alerts", () => {
+  const alert1 = createTestAlert("1");
+  const alert2 = createTestAlert("2");
 
   registerAlerts([alert1]);
   registerAlerts([alert2]);

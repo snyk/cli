@@ -1,4 +1,4 @@
-import * as path from 'path';
+import * as path from "path";
 
 /**
  * Gets the path to a workspace.
@@ -7,5 +7,5 @@ import * as path from 'path';
  * other tests. Only use this when createProject is unfeasible.
  */
 export function getWorkspacePath(name: string): string {
-  return path.join(__dirname, '../../acceptance/workspaces', name);
+  return path.join(__dirname, "../../acceptance/workspaces", name);
 }

@@ -1,18 +1,18 @@
-import { TestEnvironmentSetup } from '../util/prepareEnvironment';
-import * as common from '../../src/common';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as child_process from 'child_process';
+import { TestEnvironmentSetup } from "../util/prepareEnvironment";
+import * as common from "../../src/common";
+import * as fs from "fs";
+import * as path from "path";
+import * as child_process from "child_process";
 
 jest.setTimeout(60 * 1000);
 
-describe('Basic acceptance test', () => {
+describe("Basic acceptance test", () => {
   const envSetup = new TestEnvironmentSetup();
   const cliVersionForTesting =
-    '1.1228.0-dev.b6d3a5aed7033dd2fe9fcc1330effeca0e4250b2';
+    "1.1228.0-dev.b6d3a5aed7033dd2fe9fcc1330effeca0e4250b2";
 
   beforeEach(async () => {
-    process.env.SNYK_DISABLE_ANALYTICS = '1';
+    process.env.SNYK_DISABLE_ANALYTICS = "1";
     await envSetup.prepareEnvironment(cliVersionForTesting);
   });
 
@@ -21,7 +21,7 @@ describe('Basic acceptance test', () => {
     envSetup.cleanupDirectories();
   });
 
-  it('Bootstrap binary & execute a command', () => {
+  it("Bootstrap binary & execute a command", () => {
     const config = common.getCurrentConfiguration();
     const executable = config
       .getLocalLocation()
@@ -35,13 +35,13 @@ describe('Basic acceptance test', () => {
 
     expect(fs.existsSync(executable)).toBeFalsy();
 
-    const indexScript = path.join(envSetup.outputfolder, 'index.js');
-    const bootstrapScript = path.join(envSetup.outputfolder, 'bootstrap.js');
+    const indexScript = path.join(envSetup.outputfolder, "index.js");
+    const bootstrapScript = path.join(envSetup.outputfolder, "bootstrap.js");
 
     // run system under test: bootsrap
     const resultBootstrap = child_process.spawnSync(
-      'node ' + bootstrapScript + ' exec',
-      { shell: true },
+      "node " + bootstrapScript + " exec",
+      { shell: true }
     );
 
     if (resultBootstrap.status != 0) {
@@ -51,15 +51,15 @@ describe('Basic acceptance test', () => {
 
     // The binary wrapper should not output anything to stdout
     // as it will conflict with stdout from the CLI leading to incidents
-    expect(resultBootstrap.stdout.toString()).toEqual('');
+    expect(resultBootstrap.stdout.toString()).toEqual("");
 
     expect(resultBootstrap.status).toEqual(0);
     expect(fs.existsSync(executable)).toBeTruthy();
 
     // run system under test: index
     const resultIndex = child_process.spawnSync(
-      'node ' + indexScript + ' --version',
-      { shell: true },
+      "node " + indexScript + " --version",
+      { shell: true }
     );
 
     if (resultIndex.status != 0) {
@@ -68,13 +68,13 @@ describe('Basic acceptance test', () => {
 
     expect(resultIndex.status).toEqual(0);
     expect(
-      resultIndex.stdout.toString().includes(cliVersionForTesting),
+      resultIndex.stdout.toString().includes(cliVersionForTesting)
     ).toBeTruthy();
 
     fs.unlinkSync(executable);
   });
 
-  it('Execute a command without bootstrap', () => {
+  it("Execute a command without bootstrap", () => {
     const config = common.getCurrentConfiguration();
     const executable = config
       .getLocalLocation()
@@ -88,12 +88,12 @@ describe('Basic acceptance test', () => {
 
     expect(fs.existsSync(executable)).toBeFalsy();
 
-    const indexScript = path.join(envSetup.outputfolder, 'index.js');
+    const indexScript = path.join(envSetup.outputfolder, "index.js");
 
     // run system under test: index
     const resultIndex = child_process.spawnSync(
-      'node ' + indexScript + ' --version',
-      { shell: true },
+      "node " + indexScript + " --version",
+      { shell: true }
     );
 
     if (resultIndex.status != 0) {
@@ -108,14 +108,14 @@ describe('Basic acceptance test', () => {
     expect(
       resultIndex.stdout
         .toString()
-        .split(' ')[0]
-        .trim(),
+        .split(" ")[0]
+        .trim()
     ).toEqual(cliVersionForTesting);
 
     fs.unlinkSync(executable);
   });
 
-  it('Execute with --legacy-cli', () => {
+  it("Execute with --legacy-cli", () => {
     const config = common.getCurrentConfiguration();
     const executable = config
       .getLocalLocation()
@@ -129,23 +129,23 @@ describe('Basic acceptance test', () => {
 
     expect(fs.existsSync(executable)).toBeFalsy();
 
-    const indexScript = path.join(envSetup.outputfolder, 'index.js');
+    const indexScript = path.join(envSetup.outputfolder, "index.js");
 
     // run system under test: index
     const resultIndex = child_process.spawnSync(
-      'node ' + indexScript + ' --legacy-cli --version',
-      { shell: true },
+      "node " + indexScript + " --legacy-cli --version",
+      { shell: true }
     );
 
     expect(fs.existsSync(executable)).toBeFalsy();
     expect(resultIndex.status).not.toEqual(0); // we expect this to fail, since the legacy cli is not available in the test, still we want to see that the logic around is working properly
-    expect(resultIndex.stdout.toString()).toEqual('');
+    expect(resultIndex.stdout.toString()).toEqual("");
     expect(resultIndex.stderr.toString()).toContain(
-      'You are currently running a degraded version of the Snyk CLI.',
+      "You are currently running a degraded version of the Snyk CLI."
     );
   });
 
-  it('Execute with a failing download', () => {
+  it("Execute with a failing download", () => {
     const config = common.getCurrentConfiguration();
     const executable = config
       .getLocalLocation()
@@ -159,31 +159,31 @@ describe('Basic acceptance test', () => {
 
     expect(fs.existsSync(executable)).toBeFalsy();
 
-    const indexScript = path.join(envSetup.outputfolder, 'index.js');
+    const indexScript = path.join(envSetup.outputfolder, "index.js");
 
     // introduce error state by deleting the generated folder
-    fs.rmdirSync(path.join(envSetup.outputfolder, 'generated'), {
-      recursive: true,
+    fs.rmdirSync(path.join(envSetup.outputfolder, "generated"), {
+      recursive: true
     });
 
     // run system under test: index
     const resultIndex = child_process.spawnSync(
-      'node ' + indexScript + ' --version',
-      { shell: true },
+      "node " + indexScript + " --version",
+      { shell: true }
     );
 
     expect(fs.existsSync(executable)).toBeFalsy();
     expect(resultIndex.status).not.toEqual(0); // we expect this to fail, since the legacy cli is not available in the test, still we want to see that the logic around is working properly
-    expect(resultIndex.stdout.toString()).toEqual('');
+    expect(resultIndex.stdout.toString()).toEqual("");
     expect(resultIndex.stderr.toString()).toContain(
-      'You are currently running a degraded version of the Snyk CLI.',
+      "You are currently running a degraded version of the Snyk CLI."
     );
   });
 
-  it('Bootstrap binary fails when proxy is used but not allowed', () => {
+  it("Bootstrap binary fails when proxy is used but not allowed", () => {
     // only run when proxy is set
     if (!process.env.https_proxy) {
-      console.info('Skipping test because https_proxy is not set');
+      console.info("Skipping test because https_proxy is not set");
       return;
     }
 
@@ -201,15 +201,15 @@ describe('Basic acceptance test', () => {
 
     expect(fs.existsSync(executable)).toBeFalsy();
 
-    const bootstrapScript = path.join(envSetup.outputfolder, 'bootstrap.js');
+    const bootstrapScript = path.join(envSetup.outputfolder, "bootstrap.js");
 
     // set NO_PROXY for snyk.io
-    process.env.NO_PROXY = '*.snyk.io';
+    process.env.NO_PROXY = "*.snyk.io";
 
     // run system under test: index
     const resultBootstrap = child_process.spawnSync(
-      'node ' + bootstrapScript + ' exec',
-      { shell: true, env: { ...process.env } },
+      "node " + bootstrapScript + " exec",
+      { shell: true, env: { ...process.env } }
     );
 
     if (resultBootstrap.status != 0) {
@@ -217,7 +217,7 @@ describe('Basic acceptance test', () => {
       console.error(resultBootstrap.stderr.toString());
     }
 
-    const expectedErrorMessage = 'ECONNREFUSED';
+    const expectedErrorMessage = "ECONNREFUSED";
     const expectedError = resultBootstrap.stderr
       .toString()
       .includes(expectedErrorMessage);

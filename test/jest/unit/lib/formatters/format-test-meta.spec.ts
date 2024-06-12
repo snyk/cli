@@ -1,86 +1,86 @@
-import stripAnsi = require('strip-ansi');
+import stripAnsi = require("strip-ansi");
 
-import { formatTestMeta } from '../../../../../src/lib/formatters/format-test-meta';
-import { TestResult } from '../../../../../src/lib/snyk-test/legacy';
-import { ShowVulnPaths } from '../../../../../src/lib/types';
+import { formatTestMeta } from "../../../../../src/lib/formatters/format-test-meta";
+import { TestResult } from "../../../../../src/lib/snyk-test/legacy";
+import { ShowVulnPaths } from "../../../../../src/lib/types";
 
-describe('formatTestMeta', () => {
-  it('with TargetFile', () => {
+describe("formatTestMeta", () => {
+  it("with TargetFile", () => {
     const testResult: TestResult = {
-      targetFile: 'package.json',
-      packageManager: 'npm',
+      targetFile: "package.json",
+      packageManager: "npm",
       vulnerabilities: [],
       dependencyCount: 8,
-      policy: '',
+      policy: "",
       licensesPolicy: null,
       ignoreSettings: null,
       ok: true,
-      org: 'my-org',
+      org: "my-org",
       isPrivate: false,
-      summary: 'No known vulnerabilities',
+      summary: "No known vulnerabilities"
     };
     const options = {
-      path: '/path/to/test',
-      showVulnPaths: 'all' as ShowVulnPaths,
+      path: "/path/to/test",
+      showVulnPaths: "all" as ShowVulnPaths
     };
     expect(stripAnsi(formatTestMeta(testResult, options))).toMatchSnapshot();
   });
 
-  it('without TargetFile & with license Policy', () => {
+  it("without TargetFile & with license Policy", () => {
     const testResult: TestResult = {
-      packageManager: 'pip',
+      packageManager: "pip",
       vulnerabilities: [],
       dependencyCount: 8,
-      policy: '',
+      policy: "",
       licensesPolicy: {
         severities: {},
         orgLicenseRules: {
-          'AGPL-1.0': {
-            licenseType: 'AGPL-1.0',
-            severity: 'high',
-            instructions: '',
-          },
-        },
+          "AGPL-1.0": {
+            licenseType: "AGPL-1.0",
+            severity: "high",
+            instructions: ""
+          }
+        }
       },
       ignoreSettings: null,
       ok: true,
-      org: 'my-org',
+      org: "my-org",
       isPrivate: false,
-      summary: 'No known vulnerabilities',
+      summary: "No known vulnerabilities"
     };
     const options = {
-      path: '/path/to/test',
-      showVulnPaths: 'all' as ShowVulnPaths,
+      path: "/path/to/test",
+      showVulnPaths: "all" as ShowVulnPaths
     };
     expect(stripAnsi(formatTestMeta(testResult, options))).toMatchSnapshot();
   });
-  it('Docker', () => {
+  it("Docker", () => {
     const testResult: TestResult = {
       vulnerabilities: [],
       dependencyCount: 8,
-      packageManager: 'deb' as any, // this is returned from the backend after test
-      platform: 'linux/amd64',
-      policy: '',
+      packageManager: "deb" as any, // this is returned from the backend after test
+      platform: "linux/amd64",
+      policy: "",
       docker: {
-        baseImage: 'debian:latest',
+        baseImage: "debian:latest"
       },
       licensesPolicy: null,
       ignoreSettings: null,
       ok: true,
-      org: 'my-org',
+      org: "my-org",
       isPrivate: false,
-      summary: 'No known vulnerabilities',
+      summary: "No known vulnerabilities"
     };
     const options = {
-      path: 'my-image:latest',
+      path: "my-image:latest",
       docker: true,
-      showVulnPaths: 'all' as ShowVulnPaths,
+      showVulnPaths: "all" as ShowVulnPaths
     };
     expect(stripAnsi(formatTestMeta(testResult, options))).toMatchSnapshot();
   });
-  it('with filesystem policy', () => {
+  it("with filesystem policy", () => {
     const testResult: TestResult = {
-      packageManager: 'pip',
+      packageManager: "pip",
       vulnerabilities: [],
       dependencyCount: 8,
       filesystemPolicy: true,
@@ -89,22 +89,22 @@ describe('formatTestMeta', () => {
       licensesPolicy: {
         severities: {},
         orgLicenseRules: {
-          'AGPL-1.0': {
-            licenseType: 'AGPL-1.0',
-            severity: 'high',
-            instructions: '',
-          },
-        },
+          "AGPL-1.0": {
+            licenseType: "AGPL-1.0",
+            severity: "high",
+            instructions: ""
+          }
+        }
       },
       ignoreSettings: null,
       ok: true,
-      org: 'my-org',
+      org: "my-org",
       isPrivate: false,
-      summary: 'No known vulnerabilities',
+      summary: "No known vulnerabilities"
     };
     const options = {
-      path: '/path/to/test',
-      showVulnPaths: 'all' as ShowVulnPaths,
+      path: "/path/to/test",
+      showVulnPaths: "all" as ShowVulnPaths
     };
     expect(stripAnsi(formatTestMeta(testResult, options))).toMatchSnapshot();
   });

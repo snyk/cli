@@ -1,151 +1,151 @@
-import stripAnsi = require('strip-ansi');
+import stripAnsi = require("strip-ansi");
 
 import {
   formatErrorMonitorOutput,
-  formatMonitorOutput,
-} from '../../../../../src/lib/formatters';
+  formatMonitorOutput
+} from "../../../../../src/lib/formatters";
 
-describe('formatErrorMonitorOutput', () => {
-  it('maven monitor error', () => {
+describe("formatErrorMonitorOutput", () => {
+  it("maven monitor error", () => {
     const res = formatErrorMonitorOutput(
-      'maven',
+      "maven",
       {
-        org: 'test-org',
-        id: '123',
-        path: 'src/lib/jens',
+        org: "test-org",
+        id: "123",
+        path: "src/lib/jens",
         licensesPolicy: {},
-        uri: 'https://example.com/project',
+        uri: "https://example.com/project",
         isMonitored: true,
-        trialStarted: false,
+        trialStarted: false
       },
-      {},
+      {}
     );
     expect(stripAnsi(res)).toMatchSnapshot();
   });
 
-  it('maven monitor error with --json', () => {
+  it("maven monitor error with --json", () => {
     const res = formatErrorMonitorOutput(
-      'maven',
+      "maven",
       {
-        org: 'test-org',
-        id: '123',
-        path: 'src/lib/jens',
+        org: "test-org",
+        id: "123",
+        path: "src/lib/jens",
         licensesPolicy: {},
-        uri: 'https://example.com/project',
+        uri: "https://example.com/project",
         isMonitored: true,
-        trialStarted: false,
+        trialStarted: false
       },
-      { json: true },
+      { json: true }
     );
     expect(stripAnsi(res)).toMatchSnapshot();
   });
 
-  it('npm with project name', () => {
+  it("npm with project name", () => {
     const res = formatErrorMonitorOutput(
-      'npm',
+      "npm",
       {
-        org: 'test-org',
-        id: '123',
-        path: 'src/lib/jens',
+        org: "test-org",
+        id: "123",
+        path: "src/lib/jens",
         licensesPolicy: {},
-        uri: 'https://example.com/project',
+        uri: "https://example.com/project",
         isMonitored: true,
-        trialStarted: false,
+        trialStarted: false
       },
       {},
-      'custom-name',
+      "custom-name"
     );
     expect(stripAnsi(res)).toMatchSnapshot();
   });
 });
 
-describe('formatMonitorOutput', () => {
-  it('gradle scan with --all-sub-projects', () => {
+describe("formatMonitorOutput", () => {
+  it("gradle scan with --all-sub-projects", () => {
     const monitorResult = {
-      org: 'test-org',
-      id: '123',
-      path: 'src/lib/jens',
+      org: "test-org",
+      id: "123",
+      path: "src/lib/jens",
       licensesPolicy: {},
-      uri: 'https://example.com/project',
+      uri: "https://example.com/project",
       isMonitored: true,
-      trialStarted: false,
+      trialStarted: false
     };
     const res = formatMonitorOutput(
-      'gradle',
+      "gradle",
       monitorResult,
       { allSubProjects: true },
       undefined,
-      7,
+      7
     );
     expect(stripAnsi(res)).toMatchSnapshot();
   });
-  it('gradle scan without --all-sub-projects', () => {
+  it("gradle scan without --all-sub-projects", () => {
     const monitorResult = {
-      org: 'test-org',
-      id: '123',
-      path: 'src/lib/jens',
+      org: "test-org",
+      id: "123",
+      path: "src/lib/jens",
       licensesPolicy: {},
-      uri: 'https://example.com/project',
+      uri: "https://example.com/project",
       isMonitored: true,
-      trialStarted: false,
+      trialStarted: false
     };
-    const res = formatMonitorOutput('gradle', monitorResult, {}, undefined, 7);
+    const res = formatMonitorOutput("gradle", monitorResult, {}, undefined, 7);
     expect(stripAnsi(res)).toMatchSnapshot();
   });
 
-  it('docker', () => {
+  it("docker", () => {
     const monitorResult = {
-      org: 'test-org',
-      id: '123',
-      path: 'src/lib/jens',
+      org: "test-org",
+      id: "123",
+      path: "src/lib/jens",
       licensesPolicy: {},
-      uri: 'https://example.com/project',
+      uri: "https://example.com/project",
       isMonitored: true,
-      trialStarted: false,
+      trialStarted: false
     };
     const res = formatMonitorOutput(
-      'deb',
+      "deb",
       monitorResult,
       { docker: true },
       undefined,
-      7,
+      7
     );
     expect(stripAnsi(res)).toMatchSnapshot();
   });
 
-  it('npm without --all-projects (more projects were detected)', () => {
+  it("npm without --all-projects (more projects were detected)", () => {
     const monitorResult = {
-      org: 'test-org',
-      id: '123',
-      path: 'src/lib/jens',
+      org: "test-org",
+      id: "123",
+      path: "src/lib/jens",
       licensesPolicy: {},
-      uri: 'https://example.com/project',
+      uri: "https://example.com/project",
       isMonitored: true,
-      trialStarted: false,
+      trialStarted: false
     };
-    const res = formatMonitorOutput('npm', monitorResult, {}, undefined, 7);
+    const res = formatMonitorOutput("npm", monitorResult, {}, undefined, 7);
     expect(stripAnsi(res)).toMatchSnapshot();
   });
 
-  it('npm with --all-projects (more projects were detected)', () => {
+  it("npm with --all-projects (more projects were detected)", () => {
     const monitorResult = {
-      org: 'test-org',
-      id: '123',
-      path: 'src/lib/jens',
+      org: "test-org",
+      id: "123",
+      path: "src/lib/jens",
       licensesPolicy: {},
-      uri: 'https://example.com/project',
+      uri: "https://example.com/project",
       isMonitored: true,
-      trialStarted: false,
+      trialStarted: false
     };
     const res = formatMonitorOutput(
-      'npm',
+      "npm",
       monitorResult,
       { allProjects: true },
       undefined,
-      7,
+      7
     );
     expect(stripAnsi(res)).toMatchSnapshot();
   });
 
-  it.todo('--json');
+  it.todo("--json");
 });

@@ -1,41 +1,41 @@
-import * as pathLib from 'path';
-import * as cloneDeep from 'lodash.clonedeep';
-import * as fileUtils from '../../../../../../../../../../src/lib/iac/file-utils';
+import * as pathLib from "path";
+import * as cloneDeep from "lodash.clonedeep";
+import * as fileUtils from "../../../../../../../../../../src/lib/iac/file-utils";
 import {
   InvalidUserPolicyEnginePathError,
-  lookupLocalPolicyEngine,
-} from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/lookup-local';
-import * as utilsLib from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/utils';
-import { policyEngineFileName } from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants';
-import { InvalidUserPathError } from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/utils';
+  lookupLocalPolicyEngine
+} from "../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/lookup-local";
+import * as utilsLib from "../../../../../../../../../../src/lib/iac/test/v2/local-cache/utils";
+import { policyEngineFileName } from "../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants";
+import { InvalidUserPathError } from "../../../../../../../../../../src/lib/iac/test/v2/local-cache/utils";
 
 jest.mock(
-  '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants',
+  "../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants",
   () => ({
-    policyEngineFileName: 'policy-engine-test-file-name',
-  }),
+    policyEngineFileName: "policy-engine-test-file-name"
+  })
 );
 
-describe('lookupLocalPolicyEngine', () => {
-  const iacCachePath = pathLib.join('iac', 'cache', 'path');
+describe("lookupLocalPolicyEngine", () => {
+  const iacCachePath = pathLib.join("iac", "cache", "path");
   const defaultTestConfig = {
-    iacCachePath,
+    iacCachePath
   };
   const cachedPolicyEnginePath = pathLib.join(
     iacCachePath,
-    'policy-engine-test-file-name',
+    "policy-engine-test-file-name"
   );
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('calls `lookupLocal` with the appropriate condition', async () => {
+  it("calls `lookupLocal` with the appropriate condition", async () => {
     // Arrange
     const testConfig = cloneDeep(defaultTestConfig);
 
-    const lookupLocalySpy = jest.spyOn(utilsLib, 'lookupLocal');
-    const isExeSpy = jest.spyOn(fileUtils, 'isExe');
+    const lookupLocalySpy = jest.spyOn(utilsLib, "lookupLocal");
+    const isExeSpy = jest.spyOn(fileUtils, "isExe");
 
     // Act
     await lookupLocalPolicyEngine(testConfig);
@@ -45,16 +45,16 @@ describe('lookupLocalPolicyEngine', () => {
       testConfig.iacCachePath,
       policyEngineFileName,
       undefined,
-      expect.any(Function),
+      expect.any(Function)
     );
     expect(isExeSpy).toBeCalledWith(cachedPolicyEnginePath);
   });
 
-  it('returns undefined when the policy engine is not present locally', async () => {
+  it("returns undefined when the policy engine is not present locally", async () => {
     // Arrange
     const testConfig = cloneDeep(defaultTestConfig);
 
-    jest.spyOn(utilsLib, 'lookupLocal').mockResolvedValue(undefined);
+    jest.spyOn(utilsLib, "lookupLocal").mockResolvedValue(undefined);
 
     // Act
     const res = await lookupLocalPolicyEngine(testConfig);
@@ -63,12 +63,12 @@ describe('lookupLocalPolicyEngine', () => {
     expect(res).toEqual(undefined);
   });
 
-  it('return the path to the policy engine when it is present locally', async () => {
+  it("return the path to the policy engine when it is present locally", async () => {
     // Arrange
     const testConfig = cloneDeep(defaultTestConfig);
 
     jest
-      .spyOn(utilsLib, 'lookupLocal')
+      .spyOn(utilsLib, "lookupLocal")
       .mockResolvedValue(cachedPolicyEnginePath);
 
     // Act
@@ -78,17 +78,17 @@ describe('lookupLocalPolicyEngine', () => {
     expect(res).toEqual(cachedPolicyEnginePath);
   });
 
-  it('return an error when the condition is not met', async () => {
+  it("return an error when the condition is not met", async () => {
     // Arrange
     const testConfig = cloneDeep(defaultTestConfig);
 
     jest
-      .spyOn(utilsLib, 'lookupLocal')
-      .mockRejectedValue(new InvalidUserPathError('test error'));
+      .spyOn(utilsLib, "lookupLocal")
+      .mockRejectedValue(new InvalidUserPathError("test error"));
 
     // Act + Assert
     await expect(lookupLocalPolicyEngine(testConfig)).rejects.toThrow(
-      InvalidUserPolicyEnginePathError,
+      InvalidUserPolicyEnginePathError
     );
   });
 });

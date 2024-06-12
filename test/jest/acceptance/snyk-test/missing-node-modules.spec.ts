@@ -1,81 +1,81 @@
-import { fakeServer } from '../../../acceptance/fake-server';
-import { getWorkspaceJSON } from '../../../acceptance/workspace-helper';
-import { createProject } from '../../util/createProject';
-import { requireSnykToken } from '../../util/requireSnykToken';
-import { runSnykCLI } from '../../util/runSnykCLI';
-import { getServerPort } from '../../util/getServerPort';
+import { fakeServer } from "../../../acceptance/fake-server";
+import { getWorkspaceJSON } from "../../../acceptance/workspace-helper";
+import { createProject } from "../../util/createProject";
+import { requireSnykToken } from "../../util/requireSnykToken";
+import { runSnykCLI } from "../../util/runSnykCLI";
+import { getServerPort } from "../../util/getServerPort";
 
 jest.setTimeout(1000 * 60);
 
-describe('snyk test with missing node_modules', () => {
+describe("snyk test with missing node_modules", () => {
   let server;
   let env: Record<string, string>;
   let noVulnsResult;
 
-  beforeAll((done) => {
+  beforeAll(done => {
     noVulnsResult = getWorkspaceJSON(
-      'fail-on',
-      'no-vulns',
-      'vulns-result.json',
+      "fail-on",
+      "no-vulns",
+      "vulns-result.json"
     );
     const port = getServerPort(process);
-    const BASE_API = '/api/v1';
+    const BASE_API = "/api/v1";
     env = {
       ...process.env,
-      SNYK_API: 'http://localhost:' + port + BASE_API,
-      SNYK_HOST: 'http://localhost:' + port,
+      SNYK_API: "http://localhost:" + port + BASE_API,
+      SNYK_HOST: "http://localhost:" + port,
       SNYK_TOKEN: requireSnykToken(),
-      SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_DISABLE_ANALYTICS: "1"
     };
 
-    const apiKey = '123456789';
+    const apiKey = "123456789";
     server = fakeServer(BASE_API, apiKey);
     server.listen(port, () => {
       done();
     });
   });
 
-  afterAll((done) => {
+  afterAll(done => {
     server.close(() => {
       done();
     });
   });
 
-  test('throws when missing node_modules', async () => {
-    const project = await createProject('npm/npm-3-no-node-modules');
-    const { code, stdout } = await runSnykCLI('test', {
+  test("throws when missing node_modules", async () => {
+    const project = await createProject("npm/npm-3-no-node-modules");
+    const { code, stdout } = await runSnykCLI("test", {
       cwd: project.path(),
-      env,
+      env
     });
-    expect(stdout).toMatch('Missing node_modules folder');
+    expect(stdout).toMatch("Missing node_modules folder");
     expect(code).toEqual(2);
   });
 
-  test('does not throw when missing node_modules & package.json has no dependencies', async () => {
+  test("does not throw when missing node_modules & package.json has no dependencies", async () => {
     server.setNextResponse(noVulnsResult);
-    const project = await createProject('npm/no-dependencies');
+    const project = await createProject("npm/no-dependencies");
     const { code, stdout } = await runSnykCLI(
-      'test --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+      "test --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       {
         cwd: project.path(),
-        env,
-      },
+        env
+      }
     );
-    expect(stdout).toMatch('for known issues, no vulnerable paths found.');
+    expect(stdout).toMatch("for known issues, no vulnerable paths found.");
     expect(code).toEqual(0);
   });
 
-  test('does not throw when missing node_modules & package.json has no dependencies (with --dev)', async () => {
+  test("does not throw when missing node_modules & package.json has no dependencies (with --dev)", async () => {
     server.setNextResponse(noVulnsResult);
-    const project = await createProject('npm/no-dependencies');
+    const project = await createProject("npm/no-dependencies");
     const { code, stdout } = await runSnykCLI(
-      'test --dev --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+      "test --dev --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
       {
         cwd: project.path(),
-        env,
-      },
+        env
+      }
     );
-    expect(stdout).toMatch('for known issues, no vulnerable paths found.');
+    expect(stdout).toMatch("for known issues, no vulnerable paths found.");
     expect(code).toEqual(0);
   });
 });

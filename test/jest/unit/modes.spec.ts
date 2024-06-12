@@ -1,24 +1,24 @@
 import {
   UnsupportedOptionCombinationError,
-  CustomError,
-} from '../../../src/lib/errors';
+  CustomError
+} from "../../../src/lib/errors";
 import {
   parseMode,
   modeValidation,
-  displayModeHelp,
-} from '../../../src/cli/modes';
+  displayModeHelp
+} from "../../../src/cli/modes";
 
-describe('display help message', () => {
-  it('should do nothing when it is missing command', () => {
-    const expectedCommand = 'container';
+describe("display help message", () => {
+  it("should do nothing when it is missing command", () => {
+    const expectedCommand = "container";
     const expectedArgs = {
       _: [],
-      'package-manager': 'pip',
+      "package-manager": "pip"
     };
-    const cliCommand = 'container';
+    const cliCommand = "container";
     const cliArgs = {
       _: [],
-      'package-manager': 'pip',
+      "package-manager": "pip"
     };
 
     const command = parseMode(cliCommand, cliArgs);
@@ -30,20 +30,20 @@ describe('display help message', () => {
     expect(cliArgs).toEqual(expectedArgs);
 
     // verify 'should not set docker option';
-    expect(cliArgs['docker']).toBeFalsy();
+    expect(cliArgs["docker"]).toBeFalsy();
   });
 
   it('should change the command to help with help="container"', () => {
-    const expectedCommand = 'container';
+    const expectedCommand = "container";
     const expectedArgs = {
       _: [],
-      help: 'container',
-      'package-manager': 'pip',
+      help: "container",
+      "package-manager": "pip"
     };
-    const cliCommand = 'container';
+    const cliCommand = "container";
     const cliArgs = {
       _: [],
-      'package-manager': 'pip',
+      "package-manager": "pip"
     };
 
     const command = displayModeHelp(cliCommand, cliArgs);
@@ -56,17 +56,17 @@ describe('display help message', () => {
   });
 
   it('command "container --help" should change the command to help with help="container"', () => {
-    const expectedCommand = 'container';
+    const expectedCommand = "container";
     const expectedArgs = {
       _: [],
-      help: 'container',
-      'package-manager': 'pip',
+      help: "container",
+      "package-manager": "pip"
     };
-    const cliCommand = 'container';
+    const cliCommand = "container";
     const cliArgs = {
       _: [],
       help: true,
-      'package-manager': 'pip',
+      "package-manager": "pip"
     };
 
     const command = displayModeHelp(cliCommand, cliArgs);
@@ -78,17 +78,17 @@ describe('display help message', () => {
   });
 
   it('command "container test --help" should change the command to help with help="container"', () => {
-    const expectedCommand = 'container';
+    const expectedCommand = "container";
     const expectedArgs = {
-      _: ['test'],
-      help: 'container',
-      'package-manager': 'pip',
+      _: ["test"],
+      help: "container",
+      "package-manager": "pip"
     };
-    const cliCommand = 'container';
+    const cliCommand = "container";
     const cliArgs = {
-      _: ['test'],
+      _: ["test"],
       help: true,
-      'package-manager': 'pip',
+      "package-manager": "pip"
     };
 
     const command = displayModeHelp(cliCommand, cliArgs);
@@ -99,143 +99,143 @@ describe('display help message', () => {
   });
 });
 
-describe('when is not a valid mode', () => {
-  it('should do nothing', () => {
-    const cliCommand = 'test';
+describe("when is not a valid mode", () => {
+  it("should do nothing", () => {
+    const cliCommand = "test";
     const cliArgs = {
       _: [],
-      'package-manager': 'pip',
+      "package-manager": "pip"
     };
 
     const command = parseMode(cliCommand, cliArgs);
 
     expect(command).toBe(cliCommand);
     expect(cliArgs).toEqual(cliArgs);
-    expect(cliArgs['docker']).toBeFalsy();
+    expect(cliArgs["docker"]).toBeFalsy();
   });
 });
 
-describe('when have a valid mode and command', () => {
+describe("when have a valid mode and command", () => {
   it('"container test" should set docker option and test command', () => {
-    const expectedCommand = 'test';
+    const expectedCommand = "test";
     const expectedArgs = {
       _: [],
       docker: true,
-      'package-manager': 'pip',
+      "package-manager": "pip"
     };
-    const cliCommand = 'container';
+    const cliCommand = "container";
     const cliArgs = {
-      _: ['test'],
-      'package-manager': 'pip',
+      _: ["test"],
+      "package-manager": "pip"
     };
 
     const command = parseMode(cliCommand, cliArgs);
 
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
-    expect(cliArgs['docker']).toBeTruthy();
+    expect(cliArgs["docker"]).toBeTruthy();
   });
 
   it('"unmanaged test" should set unmanaged option and test command', () => {
-    const expectedCommand = 'test';
+    const expectedCommand = "test";
     const expectedArgs = {
       _: [],
-      unmanaged: true,
+      unmanaged: true
     };
-    const cliCommand = 'unmanaged';
+    const cliCommand = "unmanaged";
     const cliArgs = {
-      _: ['test'],
+      _: ["test"]
     };
 
     const command = parseMode(cliCommand, cliArgs);
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
-    expect(cliArgs['unmanaged']).toBeTruthy();
+    expect(cliArgs["unmanaged"]).toBeTruthy();
   });
 
   it('"unmanaged monitor" should set unmanaged option and monitor command', () => {
-    const expectedCommand = 'monitor';
+    const expectedCommand = "monitor";
     const expectedArgs = {
       _: [],
-      unmanaged: true,
+      unmanaged: true
     };
-    const cliCommand = 'unmanaged';
+    const cliCommand = "unmanaged";
     const cliArgs = {
-      _: ['monitor'],
+      _: ["monitor"]
     };
 
     const command = parseMode(cliCommand, cliArgs);
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
-    expect(cliArgs['unmanaged']).toBeTruthy();
+    expect(cliArgs["unmanaged"]).toBeTruthy();
   });
 });
 
-describe('when have a valid mode, command and exists a command alias', () => {
+describe("when have a valid mode, command and exists a command alias", () => {
   it('"container test" should set docker option and test command', () => {
-    const expectedCommand = 't';
+    const expectedCommand = "t";
     const expectedArgs = {
       _: [],
       docker: true,
-      'package-manager': 'pip',
+      "package-manager": "pip"
     };
-    const cliCommand = 'container';
+    const cliCommand = "container";
     const cliArgs = {
-      _: ['t'],
-      'package-manager': 'pip',
+      _: ["t"],
+      "package-manager": "pip"
     };
 
     const command = parseMode(cliCommand, cliArgs);
 
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
-    expect(cliArgs['docker']).toBeTruthy();
+    expect(cliArgs["docker"]).toBeTruthy();
   });
 });
 
-describe('when have a valid mode and not allowed command', () => {
+describe("when have a valid mode and not allowed command", () => {
   it('"container protect" should not set docker option and return same command', () => {
-    const expectedCommand = 'container';
+    const expectedCommand = "container";
     const expectedArgs = {
-      _: ['protect'],
-      'package-manager': 'pip',
+      _: ["protect"],
+      "package-manager": "pip"
     };
-    const cliCommand = 'container';
+    const cliCommand = "container";
     const cliArgs = {
-      _: ['protect'],
-      'package-manager': 'pip',
+      _: ["protect"],
+      "package-manager": "pip"
     };
 
     const command = parseMode(cliCommand, cliArgs);
 
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
-    expect(cliArgs['docker']).toBeFalsy();
+    expect(cliArgs["docker"]).toBeFalsy();
   });
 });
 
-describe('mode validation', () => {
-  it('when there is no command, throw error', () => {
+describe("mode validation", () => {
+  it("when there is no command, throw error", () => {
     const args = {
-      command: 'container',
+      command: "container",
       options: {
-        _: ['container'],
-      },
+        _: ["container"]
+      }
     };
 
     try {
       modeValidation(args);
     } catch (err) {
       expect(err).toBeInstanceOf(CustomError);
-      expect(err.message).toMatch('use snyk container with test or monitor');
+      expect(err.message).toMatch("use snyk container with test or monitor");
     }
   });
-  it('when command is not valid, throw error', () => {
+  it("when command is not valid, throw error", () => {
     const args = {
-      command: 'container',
+      command: "container",
       options: {
-        _: ['protect', 'container'],
-      },
+        _: ["protect", "container"]
+      }
     };
 
     try {
@@ -243,39 +243,39 @@ describe('mode validation', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(UnsupportedOptionCombinationError);
       expect(err.message).toBe(
-        'The following option combination is not currently supported: container + protect',
+        "The following option combination is not currently supported: container + protect"
       );
     }
   });
 
-  it('when command is valid, do nothing', () => {
+  it("when command is valid, do nothing", () => {
     const args = {
-      command: 'container',
+      command: "container",
       options: {
-        _: ['test', 'container'],
-      },
+        _: ["test", "container"]
+      }
     };
 
     expect(() => modeValidation(args)).not.toThrow();
   });
 
-  it('when there is no valid mode, do nothing', () => {
+  it("when there is no valid mode, do nothing", () => {
     const args = {
-      command: 'test',
+      command: "test",
       options: {
-        _: ['test'],
-      },
+        _: ["test"]
+      }
     };
 
     expect(() => modeValidation(args)).not.toThrow();
   });
 
-  it('when there is no mode, do nothing', () => {
+  it("when there is no mode, do nothing", () => {
     const args = {
-      command: '',
+      command: "",
       options: {
-        _: [],
-      },
+        _: []
+      }
     };
 
     expect(() => modeValidation(args)).not.toThrow();

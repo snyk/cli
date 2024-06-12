@@ -1,6 +1,6 @@
-import { shouldLogUserMessages } from '../../../../../../../src/lib/formatters/iac-output/text';
+import { shouldLogUserMessages } from "../../../../../../../src/lib/formatters/iac-output/text";
 
-describe('shouldLogUserMessages', () => {
+describe("shouldLogUserMessages", () => {
   it.each`
     options                                     | expected
     ${{}}                                       | ${true}
@@ -12,13 +12,13 @@ describe('shouldLogUserMessages', () => {
     ${{ sarif: true, quiet: true }}             | ${false}
     ${{ json: true, sarif: true, quiet: true }} | ${false}
   `(
-    'should return $expected, with options: $options',
+    "should return $expected, with options: $options",
     ({ options, expected }) => {
       // Act
       const result = shouldLogUserMessages(options);
 
       // Assert
       expect(result).toEqual(expected);
-    },
+    }
   );
 });

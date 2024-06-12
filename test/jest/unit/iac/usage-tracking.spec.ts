@@ -1,47 +1,47 @@
 import {
   trackUsage,
-  TestLimitReachedError,
-} from '../../../../src/cli/commands/test/iac/local-execution/usage-tracking';
-import { NeedleResponse } from 'needle';
-import { makeRequest } from '../../../../src/lib/request/request';
-import { CustomError } from '../../../../src/lib/errors';
+  TestLimitReachedError
+} from "../../../../src/cli/commands/test/iac/local-execution/usage-tracking";
+import { NeedleResponse } from "needle";
+import { makeRequest } from "../../../../src/lib/request/request";
+import { CustomError } from "../../../../src/lib/errors";
 
-jest.mock('../../../../src/lib/request/request');
+jest.mock("../../../../src/lib/request/request");
 const mockedMakeRequest = jest.mocked(makeRequest);
 
 const results = [
   {
     meta: {
-      isPrivate: true,
+      isPrivate: true
     },
     result: {
-      cloudConfigResults: ['an issue'],
-    },
+      cloudConfigResults: ["an issue"]
+    }
   },
   {
     meta: {
-      isPrivate: false,
+      isPrivate: false
     },
     result: {
-      cloudConfigResults: [],
-    },
-  },
+      cloudConfigResults: []
+    }
+  }
 ];
 
-const org = 'test-org';
+const org = "test-org";
 
-describe('tracking IaC test usage', () => {
+describe("tracking IaC test usage", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('does not throw an error when backend returns HTTP 200', async () => {
+  it("does not throw an error when backend returns HTTP 200", async () => {
     mockedMakeRequest.mockImplementationOnce(() => {
       return Promise.resolve({
         res: { statusCode: 200 } as NeedleResponse,
         body: {
-          foo: 'bar',
-        },
+          foo: "bar"
+        }
       });
     });
 
@@ -53,45 +53,45 @@ describe('tracking IaC test usage', () => {
       results: [
         {
           isPrivate: true,
-          issuesPrevented: 1,
+          issuesPrevented: 1
         },
         {
           isPrivate: false,
-          issuesPrevented: 0,
-        },
-      ],
+          issuesPrevented: 0
+        }
+      ]
     });
   });
 
-  it('throws TestLimitReachedError when backend returns HTTP 429', async () => {
+  it("throws TestLimitReachedError when backend returns HTTP 429", async () => {
     mockedMakeRequest.mockImplementationOnce(() => {
       return Promise.resolve({
         res: { statusCode: 429 } as NeedleResponse,
         body: {
-          foo: 'bar',
-        },
+          foo: "bar"
+        }
       });
     });
 
     await expect(trackUsage(results, org)).rejects.toThrow(
-      new TestLimitReachedError(),
+      new TestLimitReachedError()
     );
   });
 
-  it('throws CustomError when backend returns HTTP 500', async () => {
+  it("throws CustomError when backend returns HTTP 500", async () => {
     mockedMakeRequest.mockImplementationOnce(() => {
       return Promise.resolve({
-        res: { statusCode: 500, body: { foo: 'bar' } } as NeedleResponse,
+        res: { statusCode: 500, body: { foo: "bar" } } as NeedleResponse,
         body: {
-          foo: 'bar',
-        },
+          foo: "bar"
+        }
       });
     });
 
     await expect(trackUsage(results, org)).rejects.toThrow(
       new CustomError(
-        'An error occurred while attempting to track test usage: {"foo":"bar"}',
-      ),
+        'An error occurred while attempting to track test usage: {"foo":"bar"}'
+      )
     );
   });
 });

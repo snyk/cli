@@ -1,4 +1,4 @@
-import { ArgsOptions } from '../../../../../src/cli/args';
+import { ArgsOptions } from "../../../../../src/cli/args";
 
 /**
  * Test helper to make a proper ArgsOptions[] out of a simpler input.
@@ -8,8 +8,8 @@ import { ArgsOptions } from '../../../../../src/cli/args';
 export function argsFrom(args: { [key: string]: string }): ArgsOptions[] {
   const fullArgs = ([
     {
-      ...args,
-    },
+      ...args
+    }
   ] as any) as ArgsOptions[];
   return fullArgs;
 }

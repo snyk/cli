@@ -1,5 +1,5 @@
-import { SpawnOptionsWithoutStdio } from 'child_process';
-import { spawn } from 'cross-spawn';
+import { SpawnOptionsWithoutStdio } from "child_process";
+import { spawn } from "cross-spawn";
 
 type RunCommandResult = {
   code: number;
@@ -19,42 +19,42 @@ type RunCommandOptions = SpawnOptionsWithoutStdio & {
 const runCommand = (
   command: string,
   args: string[],
-  options?: RunCommandOptions,
+  options?: RunCommandOptions
 ): Promise<RunCommandResult> => {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, options);
     const stdout: Buffer[] = [];
     const stderr: Buffer[] = [];
 
-    child.on('error', (error) => {
+    child.on("error", error => {
       reject(error);
     });
 
-    child.stdout.on('data', (chunk) => {
+    child.stdout.on("data", chunk => {
       stdout.push(Buffer.from(chunk));
     });
 
-    child.stderr.on('data', (chunk) => {
+    child.stderr.on("data", chunk => {
       stderr.push(Buffer.from(chunk));
     });
 
-    child.on('close', (code) => {
+    child.on("close", code => {
       const result: RunCommandResult = {
         code: code || 0,
-        stdout: '',
-        stderr: '',
+        stdout: "",
+        stderr: ""
       };
 
       if (options?.bufferOutput) {
         result.stdoutBuffer = Buffer.concat(stdout);
         result.stderrBuffer = Buffer.concat(stderr);
       } else {
-        result.stdout = Buffer.concat(stdout).toString('utf-8');
-        result.stderr = Buffer.concat(stderr).toString('utf-8');
+        result.stdout = Buffer.concat(stdout).toString("utf-8");
+        result.stderr = Buffer.concat(stderr).toString("utf-8");
       }
 
       if (options?.logErrors && result.code !== 0) {
-        console.log('stderr:', result.stderr);
+        console.log("stderr:", result.stderr);
       }
 
       resolve(result);

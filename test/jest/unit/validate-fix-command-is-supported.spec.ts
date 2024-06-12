@@ -1,80 +1,80 @@
-import { validateFixCommandIsSupported } from '../../../src/cli/commands/fix/validate-fix-command-is-supported';
-import { AuthFailedError } from '../../../src/lib/errors';
-import { FeatureNotSupportedByEcosystemError } from '../../../src/lib/errors/not-supported-by-ecosystem';
-import * as featureFlags from '../../../src/lib/feature-flags';
-import { ShowVulnPaths } from '../../../src/lib/types';
-describe('setDefaultTestOptions', () => {
+import { validateFixCommandIsSupported } from "../../../src/cli/commands/fix/validate-fix-command-is-supported";
+import { AuthFailedError } from "../../../src/lib/errors";
+import { FeatureNotSupportedByEcosystemError } from "../../../src/lib/errors/not-supported-by-ecosystem";
+import * as featureFlags from "../../../src/lib/feature-flags";
+import { ShowVulnPaths } from "../../../src/lib/types";
+describe("setDefaultTestOptions", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-  it('fix is supported for OS projects + enabled FF', () => {
+  it("fix is supported for OS projects + enabled FF", () => {
     jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
+      .spyOn(featureFlags, "isFeatureFlagSupportedForOrg")
       .mockResolvedValue({ ok: true });
-    const options = { path: '/', showVulnPaths: 'all' as ShowVulnPaths };
+    const options = { path: "/", showVulnPaths: "all" as ShowVulnPaths };
     const supported = validateFixCommandIsSupported(options);
     expect(supported).toBeTruthy();
   });
 
-  it('fix is NOT supported for OS projects + disabled FF', async () => {
+  it("fix is NOT supported for OS projects + disabled FF", async () => {
     jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
+      .spyOn(featureFlags, "isFeatureFlagSupportedForOrg")
       .mockResolvedValue({ ok: false });
-    const options = { path: '/', showVulnPaths: 'all' as ShowVulnPaths };
+    const options = { path: "/", showVulnPaths: "all" as ShowVulnPaths };
     await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
-      '`snyk fix` is not supported',
+      "`snyk fix` is not supported"
     );
   });
 
-  it('fix is NOT supported and bubbles up auth error invalid auth token', async () => {
+  it("fix is NOT supported and bubbles up auth error invalid auth token", async () => {
     jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
-      .mockResolvedValue({ ok: false, code: 401, error: 'Invalid auth token' });
-    const options = { path: '/', showVulnPaths: 'all' as ShowVulnPaths };
+      .spyOn(featureFlags, "isFeatureFlagSupportedForOrg")
+      .mockResolvedValue({ ok: false, code: 401, error: "Invalid auth token" });
+    const options = { path: "/", showVulnPaths: "all" as ShowVulnPaths };
     await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
-      AuthFailedError('Invalid auth token', 401),
+      AuthFailedError("Invalid auth token", 401)
     );
   });
 
-  it('fix is NOT supported for --unmanaged + enabled FF', async () => {
+  it("fix is NOT supported for --unmanaged + enabled FF", async () => {
     jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
+      .spyOn(featureFlags, "isFeatureFlagSupportedForOrg")
       .mockResolvedValue({ ok: true });
     const options = {
-      path: '/',
-      showVulnPaths: 'all' as ShowVulnPaths,
-      unmanaged: true,
+      path: "/",
+      showVulnPaths: "all" as ShowVulnPaths,
+      unmanaged: true
     };
     await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
-      new FeatureNotSupportedByEcosystemError('snyk fix', 'cpp'),
+      new FeatureNotSupportedByEcosystemError("snyk fix", "cpp")
     );
   });
 
-  it('fix is NOT supported for --docker + enabled FF', async () => {
+  it("fix is NOT supported for --docker + enabled FF", async () => {
     jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
+      .spyOn(featureFlags, "isFeatureFlagSupportedForOrg")
       .mockResolvedValue({ ok: true });
     const options = {
-      path: '/',
-      showVulnPaths: 'all' as ShowVulnPaths,
-      docker: true,
+      path: "/",
+      showVulnPaths: "all" as ShowVulnPaths,
+      docker: true
     };
     await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
-      new FeatureNotSupportedByEcosystemError('snyk fix', 'docker'),
+      new FeatureNotSupportedByEcosystemError("snyk fix", "docker")
     );
   });
 
-  it('fix is NOT supported for --code + enabled FF', async () => {
+  it("fix is NOT supported for --code + enabled FF", async () => {
     jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
+      .spyOn(featureFlags, "isFeatureFlagSupportedForOrg")
       .mockResolvedValue({ ok: true });
     const options = {
-      path: '/',
-      showVulnPaths: 'all' as ShowVulnPaths,
-      code: true,
+      path: "/",
+      showVulnPaths: "all" as ShowVulnPaths,
+      code: true
     };
     await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
-      new FeatureNotSupportedByEcosystemError('snyk fix', 'code'),
+      new FeatureNotSupportedByEcosystemError("snyk fix", "code")
     );
   });
 });

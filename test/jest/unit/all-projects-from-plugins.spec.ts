@@ -1,51 +1,51 @@
-import { Options } from '../../../src/lib/types';
-import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { getExtraProjectCount } from '../../../src/lib/plugins/get-extra-project-count';
+import { Options } from "../../../src/lib/types";
+import { legacyPlugin as pluginApi } from "@snyk/cli-interface";
+import { getExtraProjectCount } from "../../../src/lib/plugins/get-extra-project-count";
 
-describe('Detect extra projects available that could be tested using --all-projects', () => {
-  it('should return `1` when a single sub-projects is found', async () => {
-    const root = '';
+describe("Detect extra projects available that could be tested using --all-projects", () => {
+  it("should return `1` when a single sub-projects is found", async () => {
+    const root = "";
     const inspectResult = {
-      plugin: { meta: { allSubProjectNames: ['gradle-woof'] } },
+      plugin: { meta: { allSubProjectNames: ["gradle-woof"] } }
     } as pluginApi.InspectResult;
 
     const options = {} as Options;
     const actualResult = await getExtraProjectCount(
       root,
       options,
-      inspectResult,
+      inspectResult
     );
     const expectedResult = 1;
     expect(actualResult).toBe(expectedResult);
   });
 
-  it('should return `extra-project-count = 2` when exists more than a single project', async () => {
-    const root = '';
+  it("should return `extra-project-count = 2` when exists more than a single project", async () => {
+    const root = "";
     const inspectResult = {
-      plugin: { meta: { allSubProjectNames: ['gradle-woof', 'npm-webapp'] } },
+      plugin: { meta: { allSubProjectNames: ["gradle-woof", "npm-webapp"] } }
     } as pluginApi.InspectResult;
 
     const options = {} as Options;
     const actualResult = await getExtraProjectCount(
       root,
       options,
-      inspectResult,
+      inspectResult
     );
     const expectedResult = 2;
     expect(actualResult).toBe(expectedResult);
   });
 
-  it('should return `undefined` when `unmanaged` command for cpp is being used', async () => {
-    const root = '';
+  it("should return `undefined` when `unmanaged` command for cpp is being used", async () => {
+    const root = "";
     const inspectResult = {
-      plugin: { meta: { allSubProjectNames: ['gradle-woof', 'npm-webapp'] } },
+      plugin: { meta: { allSubProjectNames: ["gradle-woof", "npm-webapp"] } }
     } as pluginApi.InspectResult;
 
     const options = { unmanaged: true } as Options;
     const actualResult = await getExtraProjectCount(
       root,
       options,
-      inspectResult,
+      inspectResult
     );
     const expectedResult = undefined;
     expect(actualResult).toBe(expectedResult);

@@ -1,7 +1,7 @@
 import {
   parseFiles,
-  parseTerraformFiles,
-} from '../../../../src/cli/commands/test/iac/local-execution/file-parser';
+  parseTerraformFiles
+} from "../../../../src/cli/commands/test/iac/local-execution/file-parser";
 import {
   duplicateKeyYamlErrorFileDataStub,
   expectedDuplicateKeyYamlErrorFileParsingResult,
@@ -16,28 +16,28 @@ import {
   kubernetesYamlFileDataStub,
   kubernetesYamlInvalidFileDataStub,
   multipleKubernetesYamlsFileDataStub,
-  unrecognisedYamlDataStub,
-} from './file-parser.kubernetes.fixtures';
-import { IacFileData } from '../../../../src/cli/commands/test/iac/local-execution/types';
-import { IacFileTypes } from '../../../../src/lib/iac/constants';
+  unrecognisedYamlDataStub
+} from "./file-parser.kubernetes.fixtures";
+import { IacFileData } from "../../../../src/cli/commands/test/iac/local-execution/types";
+import { IacFileTypes } from "../../../../src/lib/iac/constants";
 import {
   cloudFormationJSONFileDataStub,
   cloudFormationYAMLFileDataStub,
   expectedCloudFormationJSONParsingResult,
-  expectedCloudFormationYAMLParsingResult,
-} from './file-parser.cloudformation.fixtures';
+  expectedCloudFormationYAMLParsingResult
+} from "./file-parser.cloudformation.fixtures";
 import {
   expectedTerraformJsonParsingResult,
   expectedTerraformParsingResult,
   invalidTerraformFileDataStub,
   terraformFileDataStub,
-  terraformPlanDataStub,
-} from './file-parser.terraform.fixtures';
+  terraformPlanDataStub
+} from "./file-parser.terraform.fixtures";
 import {
   armJsonFileDataStub,
   armJsonInvalidFileDataStub,
-  expectedArmParsingResult,
-} from './file-parser.arm.fixtures';
+  expectedArmParsingResult
+} from "./file-parser.arm.fixtures";
 
 const filesToParse: IacFileData[] = [
   kubernetesYamlFileDataStub,
@@ -48,22 +48,22 @@ const filesToParse: IacFileData[] = [
   multipleKubernetesYamlsFileDataStub,
   cloudFormationYAMLFileDataStub,
   cloudFormationJSONFileDataStub,
-  armJsonFileDataStub,
+  armJsonFileDataStub
 ];
 
-describe('parseFiles', () => {
-  it('parses multiple iac files as expected, skipping unrecognised schemas', async () => {
+describe("parseFiles", () => {
+  it("parses multiple iac files as expected, skipping unrecognised schemas", async () => {
     const { parsedFiles, failedFiles } = await parseFiles(filesToParse);
     expect(parsedFiles.length).toEqual(9);
     expect(parsedFiles[0]).toEqual(expectedKubernetesYamlParsingResult);
     expect(parsedFiles[1]).toEqual(expectedKubernetesJsonParsingResult);
     expect(parsedFiles[2]).toEqual(expectedTerraformJsonParsingResult);
     expect(parsedFiles[3]).toEqual(
-      expectedMultipleKubernetesYamlsParsingResult,
+      expectedMultipleKubernetesYamlsParsingResult
     );
     expect(parsedFiles[4]).toEqual({
       ...expectedMultipleKubernetesYamlsParsingResult,
-      docId: 2, // doc, the 2nd doc, is an empty doc, which is ignored. There is also an ignored docId:3.
+      docId: 2 // doc, the 2nd doc, is an empty doc, which is ignored. There is also an ignored docId:3.
     });
     expect(parsedFiles[5]).toEqual(expectedCloudFormationYAMLParsingResult);
     expect(parsedFiles[6]).toEqual(expectedCloudFormationJSONParsingResult);
@@ -72,12 +72,12 @@ describe('parseFiles', () => {
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('does not throw an error if a file parse failed in a directory scan', async () => {
+  it("does not throw an error if a file parse failed in a directory scan", async () => {
     const { parsedFiles, failedFiles } = await parseFiles([
       kubernetesYamlFileDataStub,
       kubernetesYamlInvalidFileDataStub,
       armJsonFileDataStub,
-      armJsonInvalidFileDataStub,
+      armJsonInvalidFileDataStub
     ]);
     expect(parsedFiles.length).toEqual(2);
     expect(parsedFiles[0]).toEqual(expectedKubernetesYamlParsingResult);
@@ -85,48 +85,48 @@ describe('parseFiles', () => {
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('includes unsupported file types in failed files', async () => {
+  it("includes unsupported file types in failed files", async () => {
     const { parsedFiles, failedFiles } = await parseFiles([
       {
-        fileContent: 'file.java',
-        filePath: 'path/to/file',
-        fileType: 'java' as IacFileTypes,
-      },
+        fileContent: "file.java",
+        filePath: "path/to/file",
+        fileType: "java" as IacFileTypes
+      }
     ]);
     expect(parsedFiles.length).toEqual(0);
     expect(failedFiles.length).toEqual(1);
   });
 
-  it('throws an error for invalid JSON file types', async () => {
+  it("throws an error for invalid JSON file types", async () => {
     const { parsedFiles, failedFiles } = await parseFiles([
-      invalidJsonFileDataStub,
+      invalidJsonFileDataStub
     ]);
     expect(parsedFiles.length).toEqual(0);
     expect(failedFiles.length).toEqual(1);
-    expect(failedFiles[0].err.message).toEqual('Failed to parse JSON file');
+    expect(failedFiles[0].err.message).toEqual("Failed to parse JSON file");
   });
 
-  it('throws an error for invalid (syntax) YAML file types', async () => {
+  it("throws an error for invalid (syntax) YAML file types", async () => {
     const { parsedFiles, failedFiles } = await parseFiles([
-      invalidYamlFileDataStub,
+      invalidYamlFileDataStub
     ]);
     expect(parsedFiles.length).toEqual(0);
     expect(failedFiles.length).toEqual(1);
-    expect(failedFiles[0].err.message).toEqual('Failed to parse YAML file');
+    expect(failedFiles[0].err.message).toEqual("Failed to parse YAML file");
   });
 
-  it('returns both parsed and failed files', async () => {
+  it("returns both parsed and failed files", async () => {
     const { parsedFiles, failedFiles } = await parseFiles([
       cloudFormationYAMLFileDataStub,
-      unrecognisedYamlDataStub,
+      unrecognisedYamlDataStub
     ]);
     expect(parsedFiles.length).toEqual(1);
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('returns emptywhen no recognised config types are found', async () => {
+  it("returns emptywhen no recognised config types are found", async () => {
     const { parsedFiles, failedFiles } = await parseFiles([
-      unrecognisedYamlDataStub,
+      unrecognisedYamlDataStub
     ]);
     expect(parsedFiles.length).toEqual(0);
     expect(failedFiles.length).toEqual(0);
@@ -138,65 +138,65 @@ describe('parseFiles', () => {
     [
       {
         fileStub: duplicateKeyYamlErrorFileDataStub,
-        expectedParsingResult: expectedDuplicateKeyYamlErrorFileParsingResult,
-      },
+        expectedParsingResult: expectedDuplicateKeyYamlErrorFileParsingResult
+      }
     ],
     [
       {
         fileStub: insufficientIndentationYamlErrorFileDataStub,
-        expectedParsingResult: expectedInsufficientIndentationYamlErrorFileParsingResult,
-      },
-    ],
+        expectedParsingResult: expectedInsufficientIndentationYamlErrorFileParsingResult
+      }
+    ]
   ])(
     `given an $fileStub with one of the errors to skip, it returns $expectedParsingResult`,
     async ({ fileStub, expectedParsingResult }) => {
       const { parsedFiles } = await parseFiles([fileStub]);
       expect(parsedFiles[0]).toEqual(expectedParsingResult);
-    },
+    }
   );
 });
 
-describe('parseTerraformFiles', () => {
-  it('parses multiple Terraform files as expected', () => {
+describe("parseTerraformFiles", () => {
+  it("parses multiple Terraform files as expected", () => {
     const { parsedFiles, failedFiles } = parseTerraformFiles([
-      terraformFileDataStub,
+      terraformFileDataStub
     ]);
     expect(parsedFiles.length).toEqual(1);
     expect(parsedFiles[0]).toEqual(expectedTerraformParsingResult);
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('parses empty Terraform files', () => {
+  it("parses empty Terraform files", () => {
     const { parsedFiles, failedFiles } = parseTerraformFiles([
-      { ...terraformFileDataStub, fileContent: '' },
+      { ...terraformFileDataStub, fileContent: "" }
     ]);
     expect(parsedFiles.length).toEqual(1);
     expect(parsedFiles[0]).toEqual({
       ...expectedTerraformParsingResult,
-      fileContent: '',
-      jsonContent: {},
+      fileContent: "",
+      jsonContent: {}
     });
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('returns both parsed and failed files', () => {
+  it("returns both parsed and failed files", () => {
     const { parsedFiles, failedFiles } = parseTerraformFiles([
       invalidTerraformFileDataStub,
-      terraformFileDataStub,
+      terraformFileDataStub
     ]);
     expect(parsedFiles.length).toEqual(1);
     expect(parsedFiles[0]).toEqual(expectedTerraformParsingResult);
     expect(failedFiles.length).toEqual(1);
   });
 
-  it('returns if a file parse failed in a file scan', () => {
+  it("returns if a file parse failed in a file scan", () => {
     const { parsedFiles, failedFiles } = parseTerraformFiles([
-      invalidTerraformFileDataStub,
+      invalidTerraformFileDataStub
     ]);
     expect(parsedFiles.length).toEqual(0);
     expect(failedFiles.length).toEqual(1);
     expect(failedFiles[0].err.message).toEqual(
-      'Failed to parse Terraform file',
+      "Failed to parse Terraform file"
     );
   });
 });

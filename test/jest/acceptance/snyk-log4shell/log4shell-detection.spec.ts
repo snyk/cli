@@ -1,26 +1,26 @@
-import { createProjectFromFixture } from '../../util/createProject';
-import { runSnykCLI } from '../../util/runSnykCLI';
+import { createProjectFromFixture } from "../../util/createProject";
+import { runSnykCLI } from "../../util/runSnykCLI";
 
 jest.setTimeout(1000 * 60);
 
-describe('log4shell command', () => {
+describe("log4shell command", () => {
   let env: Record<string, string>;
 
   beforeAll(() => {
     env = {
       ...process.env,
-      SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_DISABLE_ANALYTICS: "1"
     };
   });
 
-  it('detects vulnerable versions of log4j only in jar files', async () => {
+  it("detects vulnerable versions of log4j only in jar files", async () => {
     const project = await createProjectFromFixture(
-      'unmanaged-log4j-fixture/vulnerable',
+      "unmanaged-log4j-fixture/vulnerable"
     );
 
-    const { code, stdout } = await runSnykCLI('log4shell', {
+    const { code, stdout } = await runSnykCLI("log4shell", {
       cwd: project.path(),
-      env,
+      env
     });
 
     const expected = `Please note this command is for already built artifacts. To test source code please use \`snyk test\`.
@@ -55,14 +55,14 @@ We recommend fixing this vulnerability by upgrading to a later version. To learn
     expect(stdout).toContain(expected);
   });
 
-  it('detects vulnerable versions of log4j for mixed file extensions (jar, ear) and nested files', async () => {
+  it("detects vulnerable versions of log4j for mixed file extensions (jar, ear) and nested files", async () => {
     const project = await createProjectFromFixture(
-      'unmanaged-log4j-fixture/vulnerable-mixed-extensions',
+      "unmanaged-log4j-fixture/vulnerable-mixed-extensions"
     );
 
-    const { code, stdout } = await runSnykCLI('log4shell', {
+    const { code, stdout } = await runSnykCLI("log4shell", {
       cwd: project.path(),
-      env,
+      env
     });
 
     const expected = `Please note this command is for already built artifacts. To test source code please use \`snyk test\`.
@@ -86,14 +86,14 @@ We highly recommend fixing this vulnerability. If it cannot be fixed by upgradin
     expect(stdout).toContain(expected);
   });
 
-  it('not detects non-vulnerable versions of log4j', async () => {
+  it("not detects non-vulnerable versions of log4j", async () => {
     const project = await createProjectFromFixture(
-      'unmanaged-log4j-fixture/not-vulnerable',
+      "unmanaged-log4j-fixture/not-vulnerable"
     );
 
-    const { code, stdout } = await runSnykCLI('log4shell', {
+    const { code, stdout } = await runSnykCLI("log4shell", {
       cwd: project.path(),
-      env,
+      env
     });
 
     const expected = `Please note this command is for already built artifacts. To test source code please use \`snyk test\`.
@@ -107,14 +107,14 @@ No known vulnerable version of Log4J was detected
     expect(stdout).toContain(expected);
   });
 
-  it('detects vulnerable versions of nested log4j jar', async () => {
+  it("detects vulnerable versions of nested log4j jar", async () => {
     const project = await createProjectFromFixture(
-      'unmanaged-log4j-fixture/vulnerable-nested',
+      "unmanaged-log4j-fixture/vulnerable-nested"
     );
 
-    const { code, stdout } = await runSnykCLI('log4shell', {
+    const { code, stdout } = await runSnykCLI("log4shell", {
       cwd: project.path(),
-      env,
+      env
     });
 
     const expected = `Please note this command is for already built artifacts. To test source code please use \`snyk test\`.
@@ -139,14 +139,14 @@ We highly recommend fixing this vulnerability. If it cannot be fixed by upgradin
     expect(stdout).toContain(expected);
   });
 
-  it('detects vulnerable versions of log4j without jar', async () => {
+  it("detects vulnerable versions of log4j without jar", async () => {
     const project = await createProjectFromFixture(
-      'unmanaged-log4j-fixture/no-jar',
+      "unmanaged-log4j-fixture/no-jar"
     );
 
-    const { code, stdout } = await runSnykCLI('log4shell', {
+    const { code, stdout } = await runSnykCLI("log4shell", {
       cwd: project.path(),
-      env,
+      env
     });
 
     const expected = `Please note this command is for already built artifacts. To test source code please use \`snyk test\`.
@@ -167,14 +167,14 @@ We highly recommend fixing this vulnerability. If it cannot be fixed by upgradin
     expect(stdout).toContain(expected);
   });
 
-  it('displays DOS message for 2.16.x', async () => {
+  it("displays DOS message for 2.16.x", async () => {
     const project = await createProjectFromFixture(
-      'unmanaged-log4j-fixture/vulnerable-dos',
+      "unmanaged-log4j-fixture/vulnerable-dos"
     );
 
-    const { code, stdout } = await runSnykCLI('log4shell', {
+    const { code, stdout } = await runSnykCLI("log4shell", {
       cwd: project.path(),
-      env,
+      env
     });
 
     const expected = `Please note this command is for already built artifacts. To test source code please use \`snyk test\`.

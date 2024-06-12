@@ -1,41 +1,41 @@
-import * as pathLib from 'path';
-import * as cloneDeep from 'lodash.clonedeep';
+import * as pathLib from "path";
+import * as cloneDeep from "lodash.clonedeep";
 
-import * as lookupLocalLib from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/lookup-local';
-import * as downloadLib from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/download';
-import { initPolicyEngine } from '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine';
+import * as lookupLocalLib from "../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/lookup-local";
+import * as downloadLib from "../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/download";
+import { initPolicyEngine } from "../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine";
 
 jest.mock(
-  '../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants',
+  "../../../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants",
   () => ({
-    policyEngineFileName: 'test-policy-engine-file-name',
-  }),
+    policyEngineFileName: "test-policy-engine-file-name"
+  })
 );
 
-describe('initPolicyEngine', () => {
-  const testIacCachePath = pathLib.join('test', 'iac', 'cache', 'path');
+describe("initPolicyEngine", () => {
+  const testIacCachePath = pathLib.join("test", "iac", "cache", "path");
   const defaultTestTestConfig = {
-    iacCachePath: testIacCachePath,
+    iacCachePath: testIacCachePath
   };
-  const testPolicyEngineFileName = 'test-policy-engine-file-name';
+  const testPolicyEngineFileName = "test-policy-engine-file-name";
   const testCachedPolicyEnginePath = pathLib.join(
     testIacCachePath,
-    testPolicyEngineFileName,
+    testPolicyEngineFileName
   );
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('looks up the Policy Engine executable locally', async () => {
+  it("looks up the Policy Engine executable locally", async () => {
     // Arrange
     const testTestConfig = cloneDeep(defaultTestTestConfig);
 
     const lookupLocalSpy = jest
-      .spyOn(lookupLocalLib, 'lookupLocalPolicyEngine')
+      .spyOn(lookupLocalLib, "lookupLocalPolicyEngine")
       .mockResolvedValue(testCachedPolicyEnginePath);
     jest
-      .spyOn(downloadLib, 'downloadPolicyEngine')
+      .spyOn(downloadLib, "downloadPolicyEngine")
       .mockResolvedValue(testCachedPolicyEnginePath);
 
     // Act
@@ -45,16 +45,16 @@ describe('initPolicyEngine', () => {
     expect(lookupLocalSpy).toHaveBeenCalledWith(testTestConfig);
   });
 
-  describe('when a valid local Policy Engine executable is found', () => {
-    it('returns the local Policy Engine executable path', async () => {
+  describe("when a valid local Policy Engine executable is found", () => {
+    it("returns the local Policy Engine executable path", async () => {
       // Arrange
       const testTestConfig = cloneDeep(defaultTestTestConfig);
 
       jest
-        .spyOn(lookupLocalLib, 'lookupLocalPolicyEngine')
+        .spyOn(lookupLocalLib, "lookupLocalPolicyEngine")
         .mockResolvedValue(testCachedPolicyEnginePath);
       jest
-        .spyOn(downloadLib, 'downloadPolicyEngine')
+        .spyOn(downloadLib, "downloadPolicyEngine")
         .mockResolvedValue(testCachedPolicyEnginePath);
 
       // Act
@@ -64,15 +64,15 @@ describe('initPolicyEngine', () => {
       expect(res).toEqual(testCachedPolicyEnginePath);
     });
 
-    it('does not download the Policy Engine executable', async () => {
+    it("does not download the Policy Engine executable", async () => {
       // Arrange
       const testTestConfig = cloneDeep(defaultTestTestConfig);
 
       jest
-        .spyOn(lookupLocalLib, 'lookupLocalPolicyEngine')
+        .spyOn(lookupLocalLib, "lookupLocalPolicyEngine")
         .mockResolvedValue(testCachedPolicyEnginePath);
       const downloadSpy = jest
-        .spyOn(downloadLib, 'downloadPolicyEngine')
+        .spyOn(downloadLib, "downloadPolicyEngine")
         .mockResolvedValue(testCachedPolicyEnginePath);
 
       // Act
@@ -83,16 +83,16 @@ describe('initPolicyEngine', () => {
     });
   });
 
-  describe('when no valid local Policy Engine executable is found', () => {
-    it('downloads the Policy Engine executable', async () => {
+  describe("when no valid local Policy Engine executable is found", () => {
+    it("downloads the Policy Engine executable", async () => {
       // Arrange
       const testTestConfig = cloneDeep(defaultTestTestConfig);
 
       jest
-        .spyOn(lookupLocalLib, 'lookupLocalPolicyEngine')
+        .spyOn(lookupLocalLib, "lookupLocalPolicyEngine")
         .mockResolvedValue(undefined);
       const downloadSpy = jest
-        .spyOn(downloadLib, 'downloadPolicyEngine')
+        .spyOn(downloadLib, "downloadPolicyEngine")
         .mockResolvedValue(testCachedPolicyEnginePath);
 
       // Act
@@ -102,15 +102,15 @@ describe('initPolicyEngine', () => {
       expect(downloadSpy).toHaveBeenCalledWith(testTestConfig);
     });
 
-    it('returns the path to the downloaded Policy Engine executable', async () => {
+    it("returns the path to the downloaded Policy Engine executable", async () => {
       // Arrange
       const testTestConfig = cloneDeep(defaultTestTestConfig);
 
       jest
-        .spyOn(lookupLocalLib, 'lookupLocalPolicyEngine')
+        .spyOn(lookupLocalLib, "lookupLocalPolicyEngine")
         .mockResolvedValue(undefined);
       jest
-        .spyOn(downloadLib, 'downloadPolicyEngine')
+        .spyOn(downloadLib, "downloadPolicyEngine")
         .mockResolvedValue(testCachedPolicyEnginePath);
 
       // Act

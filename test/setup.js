@@ -1,41 +1,41 @@
-const { getCliBinaryPath } = require('./jest/util/getCliBinaryPath');
+const { getCliBinaryPath } = require("./jest/util/getCliBinaryPath");
 const {
-  isDontSkipTestsEnabled,
-} = require('./jest/util/isDontSkipTestsEnabled');
+  isDontSkipTestsEnabled
+} = require("./jest/util/isDontSkipTestsEnabled");
 const {
   fipsTestsEnabled,
-  getFipsEnabledEnvironment,
-} = require('./jest/util/fipsTestHelper');
-const { runSnykCLI } = require('./jest/util/runSnykCLI');
+  getFipsEnabledEnvironment
+} = require("./jest/util/fipsTestHelper");
+const { runSnykCLI } = require("./jest/util/runSnykCLI");
 
 module.exports = async function() {
   if (process.env.TEST_SNYK_COMMAND) {
     process.env.TEST_SNYK_COMMAND = getCliBinaryPath();
   }
 
-  let token = 'UNSET';
+  let token = "UNSET";
   if (process.env.TEST_SNYK_TOKEN !== undefined) {
-    token = '***';
+    token = "***";
   }
 
-  const { stdout: version } = await runSnykCLI('version');
+  const { stdout: version } = await runSnykCLI("version");
   const SNYK_VERSION = version.trim();
 
   console.info(
-    '\n------------------------------------------------------------------------------------------------------' +
-      '\n Binary under test   [TEST_SNYK_COMMAND] .............. ' +
+    "\n------------------------------------------------------------------------------------------------------" +
+      "\n Binary under test   [TEST_SNYK_COMMAND] .............. " +
       process.env.TEST_SNYK_COMMAND +
-      '\n Version under test  .................................. ' +
+      "\n Version under test  .................................. " +
       SNYK_VERSION +
-      '\n Allow to skip tests [TEST_SNYK_DONT_SKIP_ANYTHING] ... ' +
+      "\n Allow to skip tests [TEST_SNYK_DONT_SKIP_ANYTHING] ... " +
       !isDontSkipTestsEnabled() +
-      '\n Run FIPS tests      [TEST_SNYK_FIPS] ................. ' +
+      "\n Run FIPS tests      [TEST_SNYK_FIPS] ................. " +
       fipsTestsEnabled() +
-      '\n Organization        [TEST_SNYK_ORG_SLUGNAME] ......... ' +
+      "\n Organization        [TEST_SNYK_ORG_SLUGNAME] ......... " +
       process.env.TEST_SNYK_ORG_SLUGNAME +
-      '\n Token               [TEST_SNYK_TOKEN] ................ ' +
+      "\n Token               [TEST_SNYK_TOKEN] ................ " +
       token +
-      '\n------------------------------------------------------------------------------------------------------',
+      "\n------------------------------------------------------------------------------------------------------"
   );
 
   if (
@@ -46,10 +46,10 @@ module.exports = async function() {
     delete process.env.SNYK_TOKEN;
     delete process.env.SNYK_API_KEY;
     console.error(
-      '\n------------------------------------------------------------' +
-        '\n Currently Tests require the environment variable TEST_SNYK_TOKEN to be set.' +
-        '\n This token is automatically stored on the config as some tests require this.' +
-        '\n------------------------------------------------------------',
+      "\n------------------------------------------------------------" +
+        "\n Currently Tests require the environment variable TEST_SNYK_TOKEN to be set." +
+        "\n This token is automatically stored on the config as some tests require this." +
+        "\n------------------------------------------------------------"
     );
   }
 
@@ -62,8 +62,8 @@ module.exports = async function() {
   }
 
   console.error(
-    '\n------------------------------------------------------------' +
-      '\n Environment successfully setup! Starting to run tests now!' +
-      '\n------------------------------------------------------------',
+    "\n------------------------------------------------------------" +
+      "\n Environment successfully setup! Starting to run tests now!" +
+      "\n------------------------------------------------------------"
   );
 };

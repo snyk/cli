@@ -1,10 +1,10 @@
-import { createProjectFromFixture } from '../../util/createProject';
-import { runSnykCLI } from '../../util/runSnykCLI';
+import { createProjectFromFixture } from "../../util/createProject";
+import { runSnykCLI } from "../../util/runSnykCLI";
 
 export async function runSnykSbomCliCycloneDxJsonForFixture(
   fixtureName: string,
   options: string,
-  env: Record<string, string>,
+  env: Record<string, string>
 ): Promise<any> {
   const project = await createProjectFromFixture(fixtureName);
 
@@ -12,8 +12,8 @@ export async function runSnykSbomCliCycloneDxJsonForFixture(
     `sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.4+json --debug ${options}`,
     {
       cwd: project.path(),
-      env,
-    },
+      env
+    }
   );
 
   if (code) {

@@ -1,14 +1,14 @@
-const _ = require('lodash');
-const sinon = require('sinon');
-const tap = require('tap');
+const _ = require("lodash");
+const sinon = require("sinon");
+const tap = require("tap");
 const test = tap.test;
 
-const cli = require('../cli/commands');
-const snyk = require('..');
-const { getFixturePath } = require('../jest/util/getFixturePath');
+const cli = require("../cli/commands");
+const snyk = require("..");
+const { getFixturePath } = require("../jest/util/getFixturePath");
 
-sinon.stub(snyk, 'test', function() {
-  return require(getFixturePath('more-vuln-paths-than-vulns'));
+sinon.stub(snyk, "test", function() {
+  return require(getFixturePath("more-vuln-paths-than-vulns"));
 });
 
 tap.tearDown(function() {
@@ -16,17 +16,17 @@ tap.tearDown(function() {
 });
 
 test('"snyk test --show-vulnerable-paths=false"', function(t) {
-  const options = { 'show-vulnerable-paths': 'false' };
+  const options = { "show-vulnerable-paths": "false" };
   return cli
-    .test('more-vuln-paths-than-vulns', options)
+    .test("more-vuln-paths-than-vulns", options)
     .then(function() {
-      t.fail('Should have found vulns!');
+      t.fail("Should have found vulns!");
     })
     .catch(function(res) {
       const vulnUrls = res.message
         .match(/^- info: (.*)$/gm)
         .map(function(result) {
-          return result.replace(/^- info:\s*/, '');
+          return result.replace(/^- info:\s*/, "");
         });
       t.assert(
         _(vulnUrls)
@@ -35,31 +35,31 @@ test('"snyk test --show-vulnerable-paths=false"', function(t) {
           .every(function(occurances) {
             return occurances === 1;
           }),
-        'displays each vuln only once',
+        "displays each vuln only once"
       );
 
       t.assert(
-        res.message.indexOf('Upgrade') === -1,
-        'does not display upgrade information',
+        res.message.indexOf("Upgrade") === -1,
+        "does not display upgrade information"
       );
       t.assert(
-        res.message.indexOf('- from:') === -1,
-        'does not display vulnerable paths',
+        res.message.indexOf("- from:") === -1,
+        "does not display vulnerable paths"
       );
     });
 });
 
 test('"snyk test"', function(t) {
   return cli
-    .test('more-vuln-paths-than-vulns')
+    .test("more-vuln-paths-than-vulns")
     .then(function() {
-      t.fail('Should have found vulns!');
+      t.fail("Should have found vulns!");
     })
     .catch(function(res) {
       const vulnUrls = res.message
         .match(/^- info: (.*)$/gm)
         .map(function(result) {
-          return result.replace(/^- info:\s*/, '');
+          return result.replace(/^- info:\s*/, "");
         });
       t.assert(
         _(vulnUrls)
@@ -68,15 +68,15 @@ test('"snyk test"', function(t) {
           .some(function(occurances) {
             return occurances > 1;
           }),
-        'duplicates vuln data for each vulnerable-path',
+        "duplicates vuln data for each vulnerable-path"
       );
       t.assert(
-        res.message.indexOf('Upgrade') !== -1,
-        'display upgrade information',
+        res.message.indexOf("Upgrade") !== -1,
+        "display upgrade information"
       );
       t.assert(
-        res.message.indexOf('- from:') !== -1,
-        'displays vulnerable paths',
+        res.message.indexOf("- from:") !== -1,
+        "displays vulnerable paths"
       );
     });
 });

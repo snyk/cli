@@ -1,338 +1,338 @@
-import * as sinon from 'sinon';
-import { AcceptanceTests } from '../cli-test.acceptance.test';
+import * as sinon from "sinon";
+import { AcceptanceTests } from "../cli-test.acceptance.test";
 
 export const GoTests: AcceptanceTests = {
-  language: 'Go',
+  language: "Go",
   tests: {
-    '`test golang-gomodules --file=go.mod`': (
+    "`test golang-gomodules --file=go.mod`": (
       params,
       utils,
-      snykHttpClient,
-    ) => async (t) => {
+      snykHttpClient
+    ) => async t => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
           return {
             package: {},
             plugin: {
-              name: 'testplugin',
-              runtime: 'testruntime',
-              targetFile: 'go.mod',
-            },
+              name: "testplugin",
+              runtime: "testruntime",
+              targetFile: "go.mod"
+            }
           };
-        },
+        }
       };
-      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const spyPlugin = sinon.spy(plugin, "inspect");
 
-      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      const loadPlugin = sinon.stub(params.plugins, "loadPlugin");
       t.teardown(loadPlugin.restore);
-      loadPlugin.withArgs('gomodules').returns(plugin);
+      loadPlugin.withArgs("gomodules").returns(plugin);
 
-      await params.cli.test('golang-gomodules', {
-        file: 'go.mod',
+      await params.cli.test("golang-gomodules", {
+        file: "go.mod"
       });
       const req = params.server.popRequest();
-      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(req.method, "POST", "makes POST request");
       t.equal(
-        req.headers['x-snyk-cli-version'],
+        req.headers["x-snyk-cli-version"],
         params.versionNumber,
-        'sends version number',
+        "sends version number"
       );
-      t.match(req.url, '/test-dep-graph', 'posts to correct url');
-      t.equal(req.body.depGraph.pkgManager.name, 'gomodules');
-      t.equal(req.body.targetFile, 'go.mod', 'specifies target');
+      t.match(req.url, "/test-dep-graph", "posts to correct url");
+      t.equal(req.body.depGraph.pkgManager.name, "gomodules");
+      t.equal(req.body.targetFile, "go.mod", "specifies target");
       t.same(
         spyPlugin.getCall(0).args,
         [
-          'golang-gomodules',
-          'go.mod',
+          "golang-gomodules",
+          "go.mod",
           {
             args: null,
-            file: 'go.mod',
+            file: "go.mod",
             org: null,
             projectName: null,
-            packageManager: 'gomodules',
-            path: 'golang-gomodules',
-            showVulnPaths: 'some',
+            packageManager: "gomodules",
+            path: "golang-gomodules",
+            showVulnPaths: "some"
           },
-          snykHttpClient,
+          snykHttpClient
         ],
-        'calls golang plugin',
+        "calls golang plugin"
       );
     },
 
-    '`test golang-app` auto-detects golang-gomodules': (
+    "`test golang-app` auto-detects golang-gomodules": (
       params,
       utils,
-      snykHttpClient,
-    ) => async (t) => {
+      snykHttpClient
+    ) => async t => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
           return {
             package: {},
             plugin: {
-              name: 'testplugin',
-              runtime: 'testruntime',
-              targetFile: 'go.mod',
-            },
+              name: "testplugin",
+              runtime: "testruntime",
+              targetFile: "go.mod"
+            }
           };
-        },
+        }
       };
-      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const spyPlugin = sinon.spy(plugin, "inspect");
 
-      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      const loadPlugin = sinon.stub(params.plugins, "loadPlugin");
       t.teardown(loadPlugin.restore);
-      loadPlugin.withArgs('gomodules').returns(plugin);
+      loadPlugin.withArgs("gomodules").returns(plugin);
 
-      await params.cli.test('golang-gomodules');
+      await params.cli.test("golang-gomodules");
       const req = params.server.popRequest();
-      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(req.method, "POST", "makes POST request");
       t.equal(
-        req.headers['x-snyk-cli-version'],
+        req.headers["x-snyk-cli-version"],
         params.versionNumber,
-        'sends version number',
+        "sends version number"
       );
-      t.match(req.url, '/test-dep-graph', 'posts to correct url');
-      t.equal(req.body.depGraph.pkgManager.name, 'gomodules');
-      t.equal(req.body.targetFile, 'go.mod', 'specifies target');
+      t.match(req.url, "/test-dep-graph", "posts to correct url");
+      t.equal(req.body.depGraph.pkgManager.name, "gomodules");
+      t.equal(req.body.targetFile, "go.mod", "specifies target");
       t.same(
         spyPlugin.getCall(0).args,
         [
-          'golang-gomodules',
-          'go.mod',
+          "golang-gomodules",
+          "go.mod",
           {
             args: null,
-            file: 'go.mod',
+            file: "go.mod",
             org: null,
             projectName: null,
-            packageManager: 'gomodules',
-            path: 'golang-gomodules',
-            showVulnPaths: 'some',
+            packageManager: "gomodules",
+            path: "golang-gomodules",
+            showVulnPaths: "some"
           },
-          snykHttpClient,
+          snykHttpClient
         ],
-        'calls golang-gomodules plugin',
+        "calls golang-gomodules plugin"
       );
     },
 
-    '`test golang-app --file=Gopkg.lock`': (
+    "`test golang-app --file=Gopkg.lock`": (
       params,
       utils,
-      snykHttpClient,
-    ) => async (t) => {
+      snykHttpClient
+    ) => async t => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
           return {
             package: {},
             plugin: {
-              name: 'testplugin',
-              runtime: 'testruntime',
-              targetFile: 'Gopkg.lock',
-            },
+              name: "testplugin",
+              runtime: "testruntime",
+              targetFile: "Gopkg.lock"
+            }
           };
-        },
+        }
       };
-      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const spyPlugin = sinon.spy(plugin, "inspect");
 
-      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      const loadPlugin = sinon.stub(params.plugins, "loadPlugin");
       t.teardown(loadPlugin.restore);
-      loadPlugin.withArgs('golangdep').returns(plugin);
+      loadPlugin.withArgs("golangdep").returns(plugin);
 
-      await params.cli.test('golang-app', {
-        file: 'Gopkg.lock',
+      await params.cli.test("golang-app", {
+        file: "Gopkg.lock"
       });
       const req = params.server.popRequest();
-      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(req.method, "POST", "makes POST request");
       t.equal(
-        req.headers['x-snyk-cli-version'],
+        req.headers["x-snyk-cli-version"],
         params.versionNumber,
-        'sends version number',
+        "sends version number"
       );
-      t.match(req.url, '/test-dep-graph', 'posts to correct url');
-      t.equal(req.body.depGraph.pkgManager.name, 'golangdep');
-      t.equal(req.body.targetFile, 'Gopkg.lock', 'specifies target');
+      t.match(req.url, "/test-dep-graph", "posts to correct url");
+      t.equal(req.body.depGraph.pkgManager.name, "golangdep");
+      t.equal(req.body.targetFile, "Gopkg.lock", "specifies target");
       t.same(
         spyPlugin.getCall(0).args,
         [
-          'golang-app',
-          'Gopkg.lock',
+          "golang-app",
+          "Gopkg.lock",
           {
             args: null,
-            file: 'Gopkg.lock',
+            file: "Gopkg.lock",
             org: null,
             projectName: null,
-            packageManager: 'golangdep',
-            path: 'golang-app',
-            showVulnPaths: 'some',
+            packageManager: "golangdep",
+            path: "golang-app",
+            showVulnPaths: "some"
           },
-          snykHttpClient,
+          snykHttpClient
         ],
-        'calls golang plugin',
+        "calls golang plugin"
       );
     },
 
-    '`test golang-app --file=vendor/vendor.json`': (
+    "`test golang-app --file=vendor/vendor.json`": (
       params,
       utils,
-      snykHttpClient,
-    ) => async (t) => {
+      snykHttpClient
+    ) => async t => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
           return {
             package: {},
             plugin: {
-              name: 'testplugin',
-              runtime: 'testruntime',
-              targetFile: 'vendor/vendor.json',
-            },
+              name: "testplugin",
+              runtime: "testruntime",
+              targetFile: "vendor/vendor.json"
+            }
           };
-        },
+        }
       };
-      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const spyPlugin = sinon.spy(plugin, "inspect");
 
-      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      const loadPlugin = sinon.stub(params.plugins, "loadPlugin");
       t.teardown(loadPlugin.restore);
-      loadPlugin.withArgs('govendor').returns(plugin);
+      loadPlugin.withArgs("govendor").returns(plugin);
 
-      await params.cli.test('golang-app', {
-        file: 'vendor/vendor.json',
+      await params.cli.test("golang-app", {
+        file: "vendor/vendor.json"
       });
       const req = params.server.popRequest();
-      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(req.method, "POST", "makes POST request");
       t.equal(
-        req.headers['x-snyk-cli-version'],
+        req.headers["x-snyk-cli-version"],
         params.versionNumber,
-        'sends version number',
+        "sends version number"
       );
-      t.match(req.url, '/test-dep-graph', 'posts to correct url');
-      t.equal(req.body.depGraph.pkgManager.name, 'govendor');
-      t.equal(req.body.targetFile, 'vendor/vendor.json', 'specifies target');
+      t.match(req.url, "/test-dep-graph", "posts to correct url");
+      t.equal(req.body.depGraph.pkgManager.name, "govendor");
+      t.equal(req.body.targetFile, "vendor/vendor.json", "specifies target");
       t.same(
         spyPlugin.getCall(0).args,
         [
-          'golang-app',
-          'vendor/vendor.json',
+          "golang-app",
+          "vendor/vendor.json",
           {
             args: null,
-            file: 'vendor/vendor.json',
+            file: "vendor/vendor.json",
             org: null,
             projectName: null,
-            packageManager: 'govendor',
-            path: 'golang-app',
-            showVulnPaths: 'some',
+            packageManager: "govendor",
+            path: "golang-app",
+            showVulnPaths: "some"
           },
-          snykHttpClient,
+          snykHttpClient
         ],
-        'calls golang plugin',
+        "calls golang plugin"
       );
     },
 
-    '`test golang-app` auto-detects golang/dep': (
+    "`test golang-app` auto-detects golang/dep": (
       params,
       utils,
-      snykHttpClient,
-    ) => async (t) => {
+      snykHttpClient
+    ) => async t => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
           return {
             package: {},
             plugin: {
-              name: 'testplugin',
-              runtime: 'testruntime',
-              targetFile: 'Gopkg.lock',
-            },
+              name: "testplugin",
+              runtime: "testruntime",
+              targetFile: "Gopkg.lock"
+            }
           };
-        },
+        }
       };
-      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const spyPlugin = sinon.spy(plugin, "inspect");
 
-      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      const loadPlugin = sinon.stub(params.plugins, "loadPlugin");
       t.teardown(loadPlugin.restore);
-      loadPlugin.withArgs('golangdep').returns(plugin);
+      loadPlugin.withArgs("golangdep").returns(plugin);
 
-      await params.cli.test('golang-app');
+      await params.cli.test("golang-app");
       const req = params.server.popRequest();
-      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(req.method, "POST", "makes POST request");
       t.equal(
-        req.headers['x-snyk-cli-version'],
+        req.headers["x-snyk-cli-version"],
         params.versionNumber,
-        'sends version number',
+        "sends version number"
       );
-      t.match(req.url, '/test-dep-graph', 'posts to correct url');
-      t.equal(req.body.depGraph.pkgManager.name, 'golangdep');
-      t.equal(req.body.targetFile, 'Gopkg.lock', 'specifies target');
+      t.match(req.url, "/test-dep-graph", "posts to correct url");
+      t.equal(req.body.depGraph.pkgManager.name, "golangdep");
+      t.equal(req.body.targetFile, "Gopkg.lock", "specifies target");
       t.same(
         spyPlugin.getCall(0).args,
         [
-          'golang-app',
-          'Gopkg.lock',
+          "golang-app",
+          "Gopkg.lock",
           {
             args: null,
-            file: 'Gopkg.lock',
+            file: "Gopkg.lock",
             org: null,
             projectName: null,
-            packageManager: 'golangdep',
-            path: 'golang-app',
-            showVulnPaths: 'some',
+            packageManager: "golangdep",
+            path: "golang-app",
+            showVulnPaths: "some"
           },
-          snykHttpClient,
+          snykHttpClient
         ],
-        'calls golang plugin',
+        "calls golang plugin"
       );
     },
 
-    '`test golang-app-govendor` auto-detects govendor': (
+    "`test golang-app-govendor` auto-detects govendor": (
       params,
       utils,
-      snykHttpClient,
-    ) => async (t) => {
+      snykHttpClient
+    ) => async t => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
           return {
             package: {},
-            plugin: { name: 'testplugin', runtime: 'testruntime' },
+            plugin: { name: "testplugin", runtime: "testruntime" }
           };
-        },
+        }
       };
-      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const spyPlugin = sinon.spy(plugin, "inspect");
 
-      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      const loadPlugin = sinon.stub(params.plugins, "loadPlugin");
       t.teardown(loadPlugin.restore);
-      loadPlugin.withArgs('govendor').returns(plugin);
+      loadPlugin.withArgs("govendor").returns(plugin);
 
-      await params.cli.test('golang-app-govendor');
+      await params.cli.test("golang-app-govendor");
       const req = params.server.popRequest();
-      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(req.method, "POST", "makes POST request");
       t.equal(
-        req.headers['x-snyk-cli-version'],
+        req.headers["x-snyk-cli-version"],
         params.versionNumber,
-        'sends version number',
+        "sends version number"
       );
-      t.match(req.url, '/test-dep-graph', 'posts to correct url');
-      t.equal(req.body.depGraph.pkgManager.name, 'govendor');
+      t.match(req.url, "/test-dep-graph", "posts to correct url");
+      t.equal(req.body.depGraph.pkgManager.name, "govendor");
       t.same(
         spyPlugin.getCall(0).args,
         [
-          'golang-app-govendor',
-          'vendor/vendor.json',
+          "golang-app-govendor",
+          "vendor/vendor.json",
           {
             args: null,
-            file: 'vendor/vendor.json',
+            file: "vendor/vendor.json",
             org: null,
             projectName: null,
-            packageManager: 'govendor',
-            path: 'golang-app-govendor',
-            showVulnPaths: 'some',
+            packageManager: "govendor",
+            path: "golang-app-govendor",
+            showVulnPaths: "some"
           },
-          snykHttpClient,
+          snykHttpClient
         ],
-        'calls golang plugin',
+        "calls golang plugin"
       );
-    },
-  },
+    }
+  }
 };

@@ -1,6 +1,6 @@
-import * as path from 'path';
-import { runCommand } from '../../util/runCommand';
-import { getFixturePath } from '../../util/getFixturePath';
+import * as path from "path";
+import { runCommand } from "../../util/runCommand";
+import { getFixturePath } from "../../util/getFixturePath";
 
 /**
  * This module cannot be unit tested as it hooks onto the current process where
@@ -12,46 +12,46 @@ import { getFixturePath } from '../../util/getFixturePath';
  * So we're testing it by launching separate standalone scripts in their own
  * NodeJS process.
  */
-describe('callHandlingUnexpectedErrors', () => {
+describe("callHandlingUnexpectedErrors", () => {
   async function runScript(filename: string) {
-    const file = path.resolve(getFixturePath('unexpected-error'), filename);
-    return runCommand('node', ['-r', 'ts-node/register', file]);
+    const file = path.resolve(getFixturePath("unexpected-error"), filename);
+    return runCommand("node", ["-r", "ts-node/register", file]);
   }
 
-  it('calls the provided callable', async () => {
-    const { code, stdout, stderr } = await runScript('resolvedPromise.ts');
-    expect(stderr).toEqual('');
-    expect(stdout).toEqual('Result: resolvedPromise\n');
+  it("calls the provided callable", async () => {
+    const { code, stdout, stderr } = await runScript("resolvedPromise.ts");
+    expect(stderr).toEqual("");
+    expect(stdout).toEqual("Result: resolvedPromise\n");
     expect(code).toEqual(0);
   });
 
-  it('exits when provided callable rejects', async () => {
-    const { code, stdout, stderr } = await runScript('rejectedPromise.ts');
+  it("exits when provided callable rejects", async () => {
+    const { code, stdout, stderr } = await runScript("rejectedPromise.ts");
     expect(stderr).toMatch(
-      'Something unexpected went wrong: Error: rejectedPromise',
+      "Something unexpected went wrong: Error: rejectedPromise"
     );
-    expect(stderr).toMatch('Exit code: 2');
-    expect(stdout).toEqual('');
+    expect(stderr).toMatch("Exit code: 2");
+    expect(stdout).toEqual("");
     expect(code).toEqual(2);
   });
 
-  it('exits on uncaughtException', async () => {
-    const { code, stdout, stderr } = await runScript('uncaughtException.ts');
+  it("exits on uncaughtException", async () => {
+    const { code, stdout, stderr } = await runScript("uncaughtException.ts");
     expect(stderr).toMatch(
-      'Something unexpected went wrong: Error: uncaughtException',
+      "Something unexpected went wrong: Error: uncaughtException"
     );
-    expect(stderr).toMatch('Exit code: 2');
-    expect(stdout).toEqual('');
+    expect(stderr).toMatch("Exit code: 2");
+    expect(stdout).toEqual("");
     expect(code).toEqual(2);
   });
 
-  it('exits on unhandledRejection', async () => {
-    const { code, stdout, stderr } = await runScript('unhandledRejection.ts');
+  it("exits on unhandledRejection", async () => {
+    const { code, stdout, stderr } = await runScript("unhandledRejection.ts");
     expect(stderr).toMatch(
-      'Something unexpected went wrong: Error: unhandledRejection',
+      "Something unexpected went wrong: Error: unhandledRejection"
     );
-    expect(stderr).toMatch('Exit code: 2');
-    expect(stdout).toEqual('');
+    expect(stderr).toMatch("Exit code: 2");
+    expect(stdout).toEqual("");
     expect(code).toEqual(2);
   });
 });

@@ -1,16 +1,16 @@
-import { filterIgnoredIssues } from '../../../../../src/cli/commands/test/iac/local-execution/process-results/policy';
-import { FormattedResult } from '../../../../../src/cli/commands/test/iac/local-execution/types';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as snykPolicy from 'snyk-policy';
-import * as cloneDeep from 'lodash.clonedeep';
+import { filterIgnoredIssues } from "../../../../../src/cli/commands/test/iac/local-execution/process-results/policy";
+import { FormattedResult } from "../../../../../src/cli/commands/test/iac/local-execution/types";
+import * as fs from "fs";
+import * as path from "path";
+import * as snykPolicy from "snyk-policy";
+import * as cloneDeep from "lodash.clonedeep";
 
 async function filterFixture(policyName: string) {
   const policy = await loadPolicy(policyName);
 
   const fixtureContent = fs.readFileSync(
-    path.join(__dirname, 'fixtures', 'formatted-results.json'),
-    'utf-8',
+    path.join(__dirname, "fixtures", "formatted-results.json"),
+    "utf-8"
   );
   const fixture: FormattedResult[] = JSON.parse(fixtureContent);
 
@@ -21,41 +21,41 @@ async function filterFixture(policyName: string) {
   return {
     fixture: fixture,
     filtered: filtered.filteredIssues,
-    ignoreCount: filtered.ignoreCount,
+    ignoreCount: filtered.ignoreCount
   };
 }
 
 async function loadPolicy(policyName: string) {
-  if (policyName === '') {
+  if (policyName === "") {
     return null;
   }
-  const policyPath = path.join(__dirname, 'fixtures', policyName);
-  const policyText = fs.readFileSync(policyPath, 'utf-8');
+  const policyPath = path.join(__dirname, "fixtures", policyName);
+  const policyText = fs.readFileSync(policyPath, "utf-8");
   return await snykPolicy.loadFromText(policyText);
 }
 
 function assertK8sPolicyPruned(
   fixture: FormattedResult[],
-  filtered: FormattedResult[],
+  filtered: FormattedResult[]
 ) {
   expect(filtered[0]).toEqual(fixture[0]);
   expect(filtered[1]).toEqual(fixture[1]);
   const k8sFixture = fixture[2].result.cloudConfigResults;
   const k8sResults = filtered[2].result.cloudConfigResults;
   expect(k8sResults).toHaveLength(k8sFixture.length - 1);
-  expect(k8sResults.some((e) => e.id === 'SNYK-CC-K8S-1')).toEqual(false);
+  expect(k8sResults.some(e => e.id === "SNYK-CC-K8S-1")).toEqual(false);
 }
 
-describe('filtering ignored issues', () => {
-  it('returns the original issues when policy is not loaded', async () => {
-    const { fixture, filtered, ignoreCount } = await filterFixture('');
+describe("filtering ignored issues", () => {
+  it("returns the original issues when policy is not loaded", async () => {
+    const { fixture, filtered, ignoreCount } = await filterFixture("");
     expect(filtered).toEqual(fixture);
     expect(ignoreCount).toEqual(0);
   });
 
-  it('filters ignored issues when path=*', async () => {
+  it("filters ignored issues when path=*", async () => {
     const { fixture, filtered, ignoreCount } = await filterFixture(
-      'policy-ignore-star.yml',
+      "policy-ignore-star.yml"
     );
     assertK8sPolicyPruned(fixture, filtered);
     expect(ignoreCount).toEqual(1);
@@ -64,31 +64,31 @@ describe('filtering ignored issues', () => {
   // This might seem paranoid, but given that our handling of resource paths is
   // in a state of flux, e.g. to support multi-doc YAML properly, having some
   // regression tests around each currently supported config type might be wise.
-  describe('filtering ignored issues by resource path', () => {
-    it('filters ignored issues when path is resource path (Kubernetes)', async () => {
+  describe("filtering ignored issues by resource path", () => {
+    it("filters ignored issues when path is resource path (Kubernetes)", async () => {
       const { fixture, filtered, ignoreCount } = await filterFixture(
-        'policy-ignore-resource-path-kubernetes.yml',
+        "policy-ignore-resource-path-kubernetes.yml"
       );
       assertK8sPolicyPruned(fixture, filtered);
       expect(ignoreCount).toEqual(1);
     });
 
-    it('filters ignored issues when path is resource path (CloudFormation)', async () => {
+    it("filters ignored issues when path is resource path (CloudFormation)", async () => {
       const { fixture, filtered, ignoreCount } = await filterFixture(
-        'policy-ignore-resource-path-cloudformation.yml',
+        "policy-ignore-resource-path-cloudformation.yml"
       );
       expect(filtered[0]).toEqual(fixture[0]);
       expect(filtered[2]).toEqual(fixture[2]);
       const cfFixture = fixture[1].result.cloudConfigResults;
       const cfResults = filtered[1].result.cloudConfigResults;
       expect(cfResults).toHaveLength(cfFixture.length - 1);
-      expect(cfResults.some((e) => e.id === 'SNYK-CC-TF-53')).toEqual(false);
+      expect(cfResults.some(e => e.id === "SNYK-CC-TF-53")).toEqual(false);
       expect(ignoreCount).toEqual(1);
     });
 
-    it('filters ignored issues when path is resource path (Terraform)', async () => {
+    it("filters ignored issues when path is resource path (Terraform)", async () => {
       const { fixture, filtered, ignoreCount } = await filterFixture(
-        'policy-ignore-resource-path-terraform.yml',
+        "policy-ignore-resource-path-terraform.yml"
       );
       expect(filtered[1]).toEqual(fixture[1]);
       expect(filtered[2]).toEqual(fixture[2]);
@@ -99,41 +99,41 @@ describe('filtering ignored issues', () => {
     });
   });
 
-  it('filters no issues when path is non-matching resource path', async () => {
+  it("filters no issues when path is non-matching resource path", async () => {
     const { fixture, filtered, ignoreCount } = await filterFixture(
-      'policy-ignore-resource-path-non-matching.yml',
+      "policy-ignore-resource-path-non-matching.yml"
     );
     expect(filtered).toEqual(fixture);
     expect(ignoreCount).toEqual(0);
   });
 
-  it('filters ignored issues when path is file path', async () => {
+  it("filters ignored issues when path is file path", async () => {
     const { fixture, filtered, ignoreCount } = await filterFixture(
-      'policy-ignore-file-path.yml',
+      "policy-ignore-file-path.yml"
     );
     assertK8sPolicyPruned(fixture, filtered);
     expect(ignoreCount).toEqual(1);
   });
 
-  it('filters no issues when path is file path in the wrong directory', async () => {
+  it("filters no issues when path is file path in the wrong directory", async () => {
     const { fixture, filtered, ignoreCount } = await filterFixture(
-      'policy-ignore-file-path-wrong-dir.yml',
+      "policy-ignore-file-path-wrong-dir.yml"
     );
     expect(filtered).toEqual(fixture);
     expect(ignoreCount).toEqual(0);
   });
 
-  it('filters no issues when path is non-matching file path', async () => {
+  it("filters no issues when path is non-matching file path", async () => {
     const { fixture, filtered, ignoreCount } = await filterFixture(
-      'policy-ignore-file-path-non-matching.yml',
+      "policy-ignore-file-path-non-matching.yml"
     );
     expect(filtered).toEqual(fixture);
     expect(ignoreCount).toEqual(0);
   });
 
-  it('filters no issues when path is non-matching file path but matching resource path', async () => {
+  it("filters no issues when path is non-matching file path but matching resource path", async () => {
     const { fixture, filtered, ignoreCount } = await filterFixture(
-      'policy-ignore-non-matching-file-matching-resource.yml',
+      "policy-ignore-non-matching-file-matching-resource.yml"
     );
     expect(filtered).toEqual(fixture);
     expect(ignoreCount).toEqual(0);

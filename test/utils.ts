@@ -1,6 +1,6 @@
-import { tmpdir } from 'os';
-import { join } from 'path';
-import { mkdir, readFileSync } from 'fs';
+import { tmpdir } from "os";
+import { join } from "path";
+import { mkdir, readFileSync } from "fs";
 
 export function silenceLog() {
   const old = console.log;
@@ -14,7 +14,7 @@ export function silenceLog() {
 
 export async function makeDirectory(path: string): Promise<string> {
   return await new Promise((resolve, reject) => {
-    mkdir(path, (err) => {
+    mkdir(path, err => {
       if (err) {
         reject(err);
       }
@@ -26,17 +26,17 @@ export async function makeDirectory(path: string): Promise<string> {
 export async function makeTmpDirectory(): Promise<string> {
   const dirname = join(
     tmpdir(),
-    'TMP' +
+    "TMP" +
       Math.random()
         .toString(36)
-        .replace(/[^a-z0-9]+/g, '')
-        .substr(2, 12),
+        .replace(/[^a-z0-9]+/g, "")
+        .substr(2, 12)
   );
   return makeDirectory(dirname);
 }
 
 export function loadJson(filename: string) {
-  return JSON.parse(readFileSync(filename, 'utf-8'));
+  return JSON.parse(readFileSync(filename, "utf-8"));
 }
 
 /**
@@ -53,12 +53,12 @@ export function humanFileSize(bytes, si = false, dp = 1) {
   const thresh = si ? 1000 : 1024;
 
   if (Math.abs(bytes) < thresh) {
-    return bytes + ' B';
+    return bytes + " B";
   }
 
   const units = si
-    ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-    : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    ? ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+    : ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
   let u = -1;
   const r = 10 ** dp;
 
@@ -70,5 +70,5 @@ export function humanFileSize(bytes, si = false, dp = 1) {
     u < units.length - 1
   );
 
-  return bytes.toFixed(dp) + ' ' + units[u];
+  return bytes.toFixed(dp) + " " + units[u];
 }
