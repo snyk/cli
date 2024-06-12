@@ -1,4 +1,5 @@
 import { MethodArgs, ArgsOptions } from '../../args';
+import { previewFeaturesEnabled } from '../../../lib/preview-features-enabled';
 
 const woofs = {
   en: 'Woof!',
@@ -31,6 +32,10 @@ export default function getWoof(args: MethodArgs): string {
     const envVal = options.env as string;
     if (envVal) {
       console.debug(envVal + '=' + process.env[envVal]);
+    }
+
+    if (previewFeaturesEnabled()) {
+      console.debug('This is a previewoof!');
     }
   }
 
