@@ -6,10 +6,10 @@
  * It collects the email of a git user and the most recent commit timestamp (both per the `git log`
  * output) and can be disabled by config (see https://snyk.io/policies/tracking-and-analytics/).
  */
-import { exec } from 'child_process';
-import { Contributor } from '../types';
+import { exec } from "child_process";
+import { Contributor } from "../types";
 
-export const SERIOUS_DELIMITER = '_SNYK_SEPARATOR_';
+export const SERIOUS_DELIMITER = "_SNYK_SEPARATOR_";
 export const CONTRIBUTING_DEVELOPER_PERIOD_DAYS = 90;
 // Limit the number of commits returned from `git log` command to stay within maxBuffer limit
 export const MAX_COMMITS_IN_GIT_LOG = 500;
@@ -18,18 +18,18 @@ export async function getContributors(
   { endDate, periodDays, repoPath } = {
     endDate: new Date(),
     periodDays: CONTRIBUTING_DEVELOPER_PERIOD_DAYS,
-    repoPath: process.cwd(),
-  },
+    repoPath: process.cwd()
+  }
 ): Promise<Contributor[]> {
   const timestampStartOfContributingDeveloperPeriod = getTimestampStartOfContributingDevTimeframe(
     endDate,
-    periodDays,
+    periodDays
   );
   const gitLogResults = await runGitLog(
     timestampStartOfContributingDeveloperPeriod,
     Math.floor(endDate.getTime() / 1000),
     repoPath,
-    execShell,
+    execShell
   );
   const stats: GitRepoCommitStats = parseGitLog(gitLogResults);
   return stats.getRepoContributors();
@@ -71,10 +71,10 @@ export class GitRepoCommitStats {
 
   public getUniqueAuthorEmails(): Set<string> {
     const allCommitAuthorHashedEmails: string[] = this.commitInfos.map(
-      (c) => c.authorEmail,
+      c => c.authorEmail
     );
     const uniqueAuthorEmails: Set<string> = new Set(
-      allCommitAuthorHashedEmails,
+      allCommitAuthorHashedEmails
     );
     return uniqueAuthorEmails;
   }
@@ -84,11 +84,11 @@ export class GitRepoCommitStats {
     const contributors: Contributor[] = [];
     for (const nextUniqueAuthorEmail of uniqueAuthorEmails) {
       const latestCommitTimestamp = this.getMostRecentCommitTimestamp(
-        nextUniqueAuthorEmail,
+        nextUniqueAuthorEmail
       );
       contributors.push({
         email: nextUniqueAuthorEmail,
-        lastCommitDate: latestCommitTimestamp,
+        lastCommitDate: latestCommitTimestamp
       });
     }
     return contributors;
@@ -100,7 +100,7 @@ export class GitRepoCommitStats {
         return nextGI.commitTimestamp;
       }
     }
-    return '';
+    return "";
   }
 }
 
@@ -113,7 +113,7 @@ export function parseGitLogLine(logLine: string): GitCommitInfo {
 }
 
 export function parseGitLog(gitLog: string): GitRepoCommitStats {
-  if (gitLog.trim() === '') {
+  if (gitLog.trim() === "") {
     return GitRepoCommitStats.empty();
   }
   const logLines = separateLines(gitLog);
@@ -127,7 +127,7 @@ export function parseGitLog(gitLog: string): GitRepoCommitStats {
  */
 export function getTimestampStartOfContributingDevTimeframe(
   dNow: Date,
-  timespanInDays: number = CONTRIBUTING_DEVELOPER_PERIOD_DAYS,
+  timespanInDays: number = CONTRIBUTING_DEVELOPER_PERIOD_DAYS
 ): number {
   const nowUtcEpocMS = dNow.getTime();
   const nowUtcEpocS = Math.floor(nowUtcEpocMS / 1000);
@@ -141,20 +141,20 @@ export async function runGitLog(
   timestampEpochSecondsStartOfPeriod: number,
   timestampEpochSecondsEndOfPeriod: number,
   repoPath: string,
-  fnShellout: (cmd: string, workingDirectory: string) => Promise<string>,
+  fnShellout: (cmd: string, workingDirectory: string) => Promise<string>
 ): Promise<string> {
   try {
     const gitLogCommand = `git --no-pager log --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI" --after="${timestampEpochSecondsStartOfPeriod}" --until="${timestampEpochSecondsEndOfPeriod}" --max-count=${MAX_COMMITS_IN_GIT_LOG}`;
     const gitLogStdout: string = await fnShellout(gitLogCommand, repoPath);
     return gitLogStdout;
   } catch {
-    return '';
+    return "";
   }
 }
 
 export function separateLines(inputText: string): string[] {
-  const linuxStyleNewLine = '\n';
-  const windowsStyleNewLine = '\r\n';
+  const linuxStyleNewLine = "\n";
+  const windowsStyleNewLine = "\r\n";
   const reg = new RegExp(`${linuxStyleNewLine}|${windowsStyleNewLine}`);
   const lines = inputText.trim().split(reg);
   return lines;
@@ -162,10 +162,10 @@ export function separateLines(inputText: string): string[] {
 
 export function execShell(
   cmd: string,
-  workingDirectory: string,
+  workingDirectory: string
 ): Promise<string> {
   const options = {
-    cwd: workingDirectory,
+    cwd: workingDirectory
   };
 
   return new Promise((resolve, reject) => {
@@ -178,7 +178,7 @@ export function execShell(
           exitCode,
           stdout,
           stderr,
-          error,
+          error
         );
         reject(e);
       } else {
@@ -199,7 +199,7 @@ export class ShellOutError extends Error {
     exitCode: number | undefined,
     stdout: string,
     stderr: string,
-    innerError: Error | undefined,
+    innerError: Error | undefined
   ) {
     super(message);
     this.exitCode = exitCode;

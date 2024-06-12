@@ -1,5 +1,5 @@
-import { getAuthHeader } from '../api-token';
-import * as request from './index';
+import { getAuthHeader } from "../api-token";
+import * as request from "./index";
 
 export async function makeRequest<T>(payload: any): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -10,7 +10,7 @@ export async function makeRequest<T>(payload: any): Promise<T> {
       if (res.statusCode !== 200) {
         return reject({
           code: res.statusCode,
-          message: body?.message,
+          message: body?.message
         });
       }
       resolve(body);
@@ -27,8 +27,8 @@ export async function makeRequest<T>(payload: any): Promise<T> {
 export async function makeRequestRest<T>(payload: any): Promise<T> {
   return new Promise((resolve, reject) => {
     payload.headers = payload.headers ?? {
-      'Content-Type': 'application/vnd.api+json',
-      authorization: getAuthHeader(),
+      "Content-Type": "application/vnd.api+json",
+      authorization: getAuthHeader()
     };
     payload.json = true;
     payload.parse = false; // do not use needle auto parser, using JSON.parse below
@@ -39,11 +39,11 @@ export async function makeRequestRest<T>(payload: any): Promise<T> {
       if (res.statusCode === 400) {
         return reject({
           code: res.statusCode,
-          body: JSON.parse(body as any),
+          body: JSON.parse(body as any)
         });
       } else if (res.statusCode >= 401) {
         return reject({
-          code: res.statusCode,
+          code: res.statusCode
         });
       }
       resolve(JSON.parse(body as any) as T);

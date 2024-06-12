@@ -36,14 +36,14 @@ namespace Results {
    * @enum {string}
    */
   export enum FormatEnum {
-    Results = <any>'results',
+    Results = <any>"results"
   }
   /**
    * @export
    * @enum {string}
    */
   export enum FormatVersionEnum {
-    _100 = <any>'1.0.0',
+    _100 = <any>"1.0.0"
   }
 }
 
@@ -121,36 +121,36 @@ export namespace State {
    * @enum {string}
    */
   export enum FormatEnum {
-    State = <any>'state',
+    State = <any>"state"
   }
   /**
    * @export
    * @enum {string}
    */
   export enum FormatVersionEnum {
-    _100 = <any>'1.0.0',
+    _100 = <any>"1.0.0"
   }
   /**
    * @export
    * @enum {string}
    */
   export enum InputTypeEnum {
-    TfHcl = <any>'tf_hcl',
-    TfPlan = <any>'tf_plan',
-    CloudScan = <any>'cloud_scan',
-    Cfn = <any>'cfn',
-    K8s = <any>'k8s',
-    Arm = <any>'arm',
+    TfHcl = <any>"tf_hcl",
+    TfPlan = <any>"tf_plan",
+    CloudScan = <any>"cloud_scan",
+    Cfn = <any>"cfn",
+    K8s = <any>"k8s",
+    Arm = <any>"arm"
   }
   /**
    * @export
    * @enum {string}
    */
   export enum EnvironmentProviderEnum {
-    Aws = <any>'aws',
-    Azure = <any>'azure',
-    Google = <any>'google',
-    Iac = <any>'iac',
+    Aws = <any>"aws",
+    Azure = <any>"azure",
+    Google = <any>"google",
+    Iac = <any>"iac"
   }
 }
 
@@ -362,10 +362,10 @@ namespace RuleResult {
    * @enum {string}
    */
   export enum SeverityEnum {
-    Low = <any>'Low',
-    Medium = <any>'Medium',
-    High = <any>'High',
-    Critical = <any>'Critical',
+    Low = <any>"Low",
+    Medium = <any>"Medium",
+    High = <any>"High",
+    Critical = <any>"Critical"
   }
 }
 

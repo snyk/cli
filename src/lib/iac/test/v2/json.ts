@@ -2,14 +2,14 @@
 // fields must be produced in the JSON output, and they must have those values
 // to keep backwards compatibility.
 
-import { Resource, TestOutput, Vulnerability } from './scan/results';
-import * as path from 'path';
-import { IacProjectType, iacRemediationTypes } from '../../constants';
-import { State } from './scan/policy-engine';
+import { Resource, TestOutput, Vulnerability } from "./scan/results";
+import * as path from "path";
+import { IacProjectType, iacRemediationTypes } from "../../constants";
+import { State } from "./scan/policy-engine";
 import {
   IacTestError,
-  mapIacTestError,
-} from '../../../snyk-test/iac-test-result';
+  mapIacTestError
+} from "../../../snyk-test/iac-test-result";
 
 export interface Result {
   meta: Meta;
@@ -91,7 +91,7 @@ export interface IacDescription {
 
 export function convertEngineToJsonResults({
   results,
-  projectName,
+  projectName
 }: {
   results: TestOutput;
   projectName: string;
@@ -100,13 +100,13 @@ export function convertEngineToJsonResults({
   const resourceGroups = groupResourcesByFile(results); // all resources grouped by file
   const filesWithoutIssues = findFilesWithoutIssues(
     resourceGroups,
-    vulnerabilityGroups,
+    vulnerabilityGroups
   ); // all resources without issues grouped by file
 
   const output: Array<Result | IacTestError> = [];
 
   if (results.errors) {
-    output.push(...results.errors.map((e) => mapIacTestError(e)));
+    output.push(...results.errors.map(e => mapIacTestError(e)));
   }
 
   for (const [file, resources] of Object.entries(filesWithoutIssues)) {
@@ -115,7 +115,7 @@ export function convertEngineToJsonResults({
 
   for (const [file, vulnerabilities] of Object.entries(vulnerabilityGroups)) {
     output.push(
-      vulnerabilitiesToResult(results, projectName, file, vulnerabilities),
+      vulnerabilitiesToResult(results, projectName, file, vulnerabilities)
     );
   }
 
@@ -156,7 +156,7 @@ function groupVulnerabilitiesByFile(results: TestOutput) {
 
 function findFilesWithoutIssues(
   resourceGroups: Record<string, Resource[]>,
-  vulnerabilityGroups: Record<string, Vulnerability[]>,
+  vulnerabilityGroups: Record<string, Vulnerability[]>
 ) {
   const groups: Record<string, Resource[]> = {};
 
@@ -173,7 +173,7 @@ function resourcesToResult(
   testOutput: TestOutput,
   projectName: string,
   file: string,
-  resources: Resource[],
+  resources: Resource[]
 ): Result {
   const kind = resourcesToKind(resources);
   const ignoreSettings = testOutput.settings.ignoreSettings;
@@ -189,14 +189,14 @@ function resourcesToResult(
     targetFile: file,
     projectName,
     org: testOutput.settings.org,
-    policy: '',
+    policy: "",
     isPrivate: true,
     targetFilePath: path.resolve(file),
     packageManager: kind,
     path: process.cwd(),
     projectType: kind,
     ok: true,
-    infrastructureAsCodeIssues: [],
+    infrastructureAsCodeIssues: []
   };
 }
 
@@ -204,13 +204,13 @@ function vulnerabilitiesToResult(
   testOutput: TestOutput,
   projectName: string,
   file: string,
-  vulnerabilities: Vulnerability[],
+  vulnerabilities: Vulnerability[]
 ): Result {
   const kind = vulnerabilitiesToKind(vulnerabilities);
   const ignoreSettings = testOutput.settings.ignoreSettings;
   const meta = orgSettingsToMeta(testOutput, ignoreSettings);
   const infrastructureAsCodeIssues = vulnerabilitiesToIacIssues(
-    vulnerabilities,
+    vulnerabilities
   );
 
   return {
@@ -223,21 +223,21 @@ function vulnerabilitiesToResult(
     targetFile: file,
     projectName,
     org: testOutput.settings.org,
-    policy: '',
+    policy: "",
     isPrivate: true,
     targetFilePath: path.resolve(file),
     packageManager: kind,
     path: process.cwd(),
     projectType: kind,
     ok: false,
-    infrastructureAsCodeIssues,
+    infrastructureAsCodeIssues
   };
 }
 
 function vulnerabilitiesToIacIssues(
-  vulnerabilities: Vulnerability[],
+  vulnerabilities: Vulnerability[]
 ): IacIssue[] {
-  return vulnerabilities.map((v) => {
+  return vulnerabilities.map(v => {
     const resolve = extractResolve(v);
 
     return {
@@ -246,7 +246,7 @@ function vulnerabilitiesToIacIssues(
       impact: v.rule.description,
       msg: v.resource.formattedPath,
       remediation: {
-        [iacRemediationTypes[v.resource.kind] as string]: resolve,
+        [iacRemediationTypes[v.resource.kind] as string]: resolve
       },
       type: v.resource.kind,
       subType: v.resource.type,
@@ -259,14 +259,14 @@ function vulnerabilitiesToIacIssues(
       iacDescription: {
         issue: v.rule.title,
         impact: v.rule.description,
-        resolve,
+        resolve
       },
       lineNumber: v.resource.line || -1,
       documentation: v.rule.documentation, // only works for rules available on snyk.io
       isGeneratedByCustomRule: !!v.rule.isGeneratedByCustomRule,
-      path: v?.resource?.formattedPath.split('.') || [],
+      path: v?.resource?.formattedPath.split(".") || [],
       compliance: [],
-      description: v.rule.description,
+      description: v.rule.description
     };
   });
 }
@@ -280,26 +280,26 @@ function extractResolve(vulnerability: Vulnerability): string {
 
 // TODO: add correct mapping to our packageManger name (will probably be done in `snyk-iac-test`)
 function resourcesToKind(
-  resources: Resource[],
+  resources: Resource[]
 ): IacProjectType | State.InputTypeEnum {
   for (const r of resources) {
     return r.kind;
   }
-  return '' as IacProjectType | State.InputTypeEnum;
+  return "" as IacProjectType | State.InputTypeEnum;
 }
 
 function vulnerabilitiesToKind(
-  vulnerabilities: Vulnerability[],
+  vulnerabilities: Vulnerability[]
 ): IacProjectType | State.InputTypeEnum {
   for (const v of vulnerabilities) {
     return v.resource.kind;
   }
-  return '' as IacProjectType | State.InputTypeEnum;
+  return "" as IacProjectType | State.InputTypeEnum;
 }
 
 function orgSettingsToMeta(
   testOutput: TestOutput,
-  ignoreSettings: IgnoreSettings,
+  ignoreSettings: IgnoreSettings
 ): Meta {
   const org = testOutput.settings.org;
 
@@ -307,7 +307,7 @@ function orgSettingsToMeta(
     isPrivate: true,
     isLicensesEnabled: false,
     org,
-    policy: '',
-    ignoreSettings,
+    policy: "",
+    ignoreSettings
   };
 }

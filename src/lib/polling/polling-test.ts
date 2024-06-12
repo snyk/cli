@@ -1,31 +1,31 @@
-import config from '../config';
-import { isCI } from '../is-ci';
-import { makeRequest, makeRequestRest } from '../request/promise';
-import { Options } from '../types';
+import config from "../config";
+import { isCI } from "../is-ci";
+import { makeRequest, makeRequestRest } from "../request/promise";
+import { Options } from "../types";
 
-import { assembleQueryString } from '../snyk-test/common';
-import { getAuthHeader } from '../api-token';
-import { ScanResult } from '../ecosystems/types';
+import { assembleQueryString } from "../snyk-test/common";
+import { getAuthHeader } from "../api-token";
+import { ScanResult } from "../ecosystems/types";
 import {
   CreateDepGraphResponse,
   FileHashes,
   GetDepGraphResponse,
   GetIssuesResponse,
-  IssuesRequestAttributes,
-} from '../ecosystems/unmanaged/types';
+  IssuesRequestAttributes
+} from "../ecosystems/unmanaged/types";
 
-import { ResolveAndTestFactsResponse } from './types';
-import { delayNextStep, handleProcessingStatus } from './common';
-import { TestDependenciesResult } from '../snyk-test/legacy';
+import { ResolveAndTestFactsResponse } from "./types";
+import { delayNextStep, handleProcessingStatus } from "./common";
+import { TestDependenciesResult } from "../snyk-test/legacy";
 
 export async function getIssues(
   issuesRequestAttributes: IssuesRequestAttributes,
-  orgId: string,
+  orgId: string
 ): Promise<GetIssuesResponse> {
   const payload = {
-    method: 'POST',
+    method: "POST",
     url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/issues?version=2023-09-01~experimental`,
-    body: issuesRequestAttributes,
+    body: issuesRequestAttributes
   };
 
   return await makeRequestRest<GetIssuesResponse>(payload);
@@ -33,11 +33,11 @@ export async function getIssues(
 
 export async function getDepGraph(
   id: string,
-  orgId: string,
+  orgId: string
 ): Promise<GetDepGraphResponse> {
   const payload = {
-    method: 'GET',
-    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs/${id}?version=2023-09-01~experimental`,
+    method: "GET",
+    url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs/${id}?version=2023-09-01~experimental`
   };
 
   return await makeRequestRest<GetDepGraphResponse>(payload);
@@ -45,12 +45,12 @@ export async function getDepGraph(
 
 export async function createDepGraph(
   hashes: FileHashes,
-  orgId: string,
+  orgId: string
 ): Promise<CreateDepGraphResponse> {
   const payload = {
-    method: 'POST',
+    method: "POST",
     url: `${config.API_HIDDEN_URL}/orgs/${orgId}/unmanaged_ecosystem/depgraphs?version=2023-09-01~experimental`,
-    body: hashes,
+    body: hashes
   };
 
   return await makeRequestRest<CreateDepGraphResponse>(payload);
@@ -59,21 +59,21 @@ export async function createDepGraph(
 export async function requestTestPollingToken(
   options: Options,
   isAsync: boolean,
-  scanResult: ScanResult,
+  scanResult: ScanResult
 ): Promise<ResolveAndTestFactsResponse> {
   const payload = {
-    method: 'POST',
+    method: "POST",
     url: `${config.API}/test-dependencies`,
     json: true,
     headers: {
-      'x-is-ci': isCI(),
-      authorization: getAuthHeader(),
+      "x-is-ci": isCI(),
+      authorization: getAuthHeader()
     },
     body: {
       isAsync,
-      scanResult,
+      scanResult
     },
-    qs: assembleQueryString(options),
+    qs: assembleQueryString(options)
   };
   return await makeRequest<ResolveAndTestFactsResponse>(payload);
 }
@@ -84,17 +84,17 @@ export async function pollingTestWithTokenUntilDone(
   options: Options,
   pollInterval: number,
   attemptsCount: number,
-  maxAttempts = Infinity,
+  maxAttempts = Infinity
 ): Promise<TestDependenciesResult> {
   const payload = {
-    method: 'GET',
+    method: "GET",
     url: `${config.API}/test-dependencies/${token}`,
     json: true,
     headers: {
-      'x-is-ci': isCI(),
-      authorization: getAuthHeader(),
+      "x-is-ci": isCI(),
+      authorization: getAuthHeader()
     },
-    qs: { ...assembleQueryString(options), type },
+    qs: { ...assembleQueryString(options), type }
   };
 
   const response = await makeRequest<ResolveAndTestFactsResponse>(payload);
@@ -111,7 +111,7 @@ export async function pollingTestWithTokenUntilDone(
       vulnerabilities,
       path,
       dependencyCount,
-      packageManager,
+      packageManager
     } = response.result;
     return {
       issues,
@@ -122,7 +122,7 @@ export async function pollingTestWithTokenUntilDone(
       vulnerabilities,
       path,
       dependencyCount,
-      packageManager,
+      packageManager
     };
   }
 
@@ -133,6 +133,6 @@ export async function pollingTestWithTokenUntilDone(
     options,
     pollInterval,
     attemptsCount,
-    maxAttempts,
+    maxAttempts
   );
 }

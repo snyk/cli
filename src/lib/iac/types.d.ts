@@ -10,29 +10,29 @@ interface DriftCTLOptions {
 export interface FmtOptions extends DriftCTLOptions {
   json: boolean;
   html: boolean;
-  'html-file-output': string;
+  "html-file-output": string;
 }
 
 export interface GenDriftIgnoreOptions {
-  'exclude-missing'?: boolean;
-  'exclude-unmanaged'?: boolean;
+  "exclude-missing"?: boolean;
+  "exclude-unmanaged"?: boolean;
 }
 
 export interface DescribeOptions extends DriftCTLOptions {
   quiet?: boolean;
   filter?: string;
   to?: string;
-  'fetch-tfstate-headers'?: string;
-  'tfc-token'?: string;
-  'tfc-endpoint'?: string;
-  'tf-provider-version'?: string;
+  "fetch-tfstate-headers"?: string;
+  "tfc-token"?: string;
+  "tfc-endpoint"?: string;
+  "tf-provider-version"?: string;
   strict?: true;
   driftignore?: string;
-  'tf-lockfile'?: string;
-  'config-dir'?: string;
+  "tf-lockfile"?: string;
+  "config-dir"?: string;
   json?: boolean;
   html?: boolean;
-  'html-file-output'?: string;
+  "html-file-output"?: string;
   service?: string;
   from?: string; // snyk cli args parsing does not support variadic args so this will be coma separated values
   ignore?: string[];

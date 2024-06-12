@@ -1,13 +1,13 @@
-import * as Debug from 'debug';
-import * as path from 'path';
-import * as depGraphLib from '@snyk/dep-graph';
-import * as snyk from '..';
-import { apiOrOAuthTokenExists, getAuthHeader } from '../api-token';
-import { makeRequest } from '../request';
-import config from '../config';
-import * as os from 'os';
-import { isCI } from '../is-ci';
-import * as analytics from '../analytics';
+import * as Debug from "debug";
+import * as path from "path";
+import * as depGraphLib from "@snyk/dep-graph";
+import * as snyk from "..";
+import { apiOrOAuthTokenExists, getAuthHeader } from "../api-token";
+import { makeRequest } from "../request";
+import config from "../config";
+import * as os from "os";
+import { isCI } from "../is-ci";
+import * as analytics from "../analytics";
 import {
   DepTree,
   MonitorMeta,
@@ -17,34 +17,34 @@ import {
   Options,
   Contributor,
   ProjectAttributes,
-  Tag,
-} from '../types';
-import * as projectMetadata from '../project-metadata';
+  Tag
+} from "../types";
+import * as projectMetadata from "../project-metadata";
 import {
   MonitorError,
   ConnectionTimeoutError,
   FailedToRunTestError,
-  errorMessageWithRetry,
-} from '../errors';
-import { pruneGraph } from '../prune';
-import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
-import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
-import { filterOutMissingDeps } from './filter-out-missing-deps';
-import { dropEmptyDeps } from './drop-empty-deps';
-import { pruneTree } from './prune-dep-tree';
-import { findAndLoadPolicy } from '../policy';
-import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
-import { CallGraph, ScannedProject } from '@snyk/cli-interface/legacy/common';
-import { isGitTarget } from '../project-metadata/types';
+  errorMessageWithRetry
+} from "../errors";
+import { pruneGraph } from "../prune";
+import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from "../package-managers";
+import { countTotalDependenciesInTree } from "./count-total-deps-in-tree";
+import { filterOutMissingDeps } from "./filter-out-missing-deps";
+import { dropEmptyDeps } from "./drop-empty-deps";
+import { pruneTree } from "./prune-dep-tree";
+import { findAndLoadPolicy } from "../policy";
+import { PluginMetadata } from "@snyk/cli-interface/legacy/plugin";
+import { CallGraph, ScannedProject } from "@snyk/cli-interface/legacy/common";
+import { isGitTarget } from "../project-metadata/types";
 import {
   getNameDepTree,
   getNameDepGraph,
   getProjectName,
-  getTargetFile,
-} from './utils';
-import { countPathsToGraphRoot } from '../utils';
+  getTargetFile
+} from "./utils";
+import { countPathsToGraphRoot } from "../utils";
 
-const debug = Debug('snyk');
+const debug = Debug("snyk");
 
 interface MonitorBody {
   meta: Meta;
@@ -85,13 +85,13 @@ export async function monitor(
   targetFileRelativePath?: string,
   contributors?: Contributor[],
   projectAttributes?: ProjectAttributes,
-  tags?: Tag[],
+  tags?: Tag[]
 ): Promise<MonitorResult> {
   apiOrOAuthTokenExists();
 
   const packageManager = meta.packageManager;
-  analytics.add('packageManager', packageManager);
-  analytics.add('isDocker', !!meta.isDocker);
+  analytics.add("packageManager", packageManager);
+  analytics.add("isDocker", !!meta.isDocker);
 
   if (scannedProject.depGraph) {
     return await monitorDepGraph(
@@ -103,7 +103,7 @@ export async function monitor(
       targetFileRelativePath,
       contributors,
       projectAttributes,
-      tags,
+      tags
     );
   }
 
@@ -117,7 +117,7 @@ export async function monitor(
       targetFileRelativePath,
       contributors,
       projectAttributes,
-      tags,
+      tags
     );
   }
 
@@ -130,7 +130,7 @@ export async function monitor(
     targetFileRelativePath,
     contributors,
     projectAttributes,
-    tags,
+    tags
   );
 }
 
@@ -143,7 +143,7 @@ async function monitorDepTree(
   targetFileRelativePath?: string,
   contributors?: Contributor[],
   projectAttributes?: ProjectAttributes,
-  tags?: Tag[],
+  tags?: Tag[]
 ): Promise<MonitorResult> {
   let treeMissingDeps: string[] = [];
 
@@ -153,24 +153,24 @@ async function monitorDepTree(
 
   if (!depTree) {
     debug(
-      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      "scannedProject is missing depGraph or depTree, cannot run test/monitor"
     );
     throw new FailedToRunTestError(
-      errorMessageWithRetry('Your monitor request could not be completed.'),
+      errorMessageWithRetry("Your monitor request could not be completed.")
     );
   }
 
   let prePruneDepCount;
   if (meta.prune) {
-    debug('prune used, counting total dependencies');
+    debug("prune used, counting total dependencies");
     prePruneDepCount = countTotalDependenciesInTree(depTree);
-    analytics.add('prePruneDepCount', prePruneDepCount);
-    debug('total dependencies: %d', prePruneDepCount);
-    debug('pruning dep tree');
+    analytics.add("prePruneDepCount", prePruneDepCount);
+    debug("total dependencies: %d", prePruneDepCount);
+    debug("pruning dep tree");
     depTree = await pruneTree(depTree, meta.packageManager);
-    debug('finished pruning dep tree');
+    debug("finished pruning dep tree");
   }
-  if (['npm', 'yarn'].includes(meta.packageManager)) {
+  if (["npm", "yarn"].includes(meta.packageManager)) {
     const { filteredDepTree, missingDeps } = filterOutMissingDeps(depTree);
     depTree = filteredDepTree;
     treeMissingDeps = missingDeps;
@@ -185,16 +185,16 @@ async function monitorDepTree(
 
   const policy = await findAndLoadPolicy(
     root,
-    meta.isDocker ? 'docker' : packageManager!,
+    meta.isDocker ? "docker" : packageManager!,
     options,
     depTree,
-    targetFileDir,
+    targetFileDir
   );
 
   const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
   if (isGitTarget(target) && target.branch) {
-    analytics.add('targetBranch', target.branch);
+    analytics.add("targetBranch", target.branch);
   }
 
   depTree = dropEmptyDeps(depTree);
@@ -203,10 +203,10 @@ async function monitorDepTree(
 
   if (!depTree) {
     debug(
-      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      "scannedProject is missing depGraph or depTree, cannot run test/monitor"
     );
     throw new FailedToRunTestError(
-      errorMessageWithRetry('Your monitor request could not be completed.'),
+      errorMessageWithRetry("Your monitor request could not be completed.")
     );
   }
 
@@ -236,7 +236,7 @@ async function monitorDepTree(
         monitorGraph: false,
         versionBuildInfo: JSON.stringify(scannedProject.meta?.versionBuildInfo),
         gradleProjectName: scannedProject.meta?.gradleProjectName,
-        platform: scannedProject.meta?.platform,
+        platform: scannedProject.meta?.platform
       },
       policy: policy ? policy.toString() : undefined,
       package: depTree,
@@ -250,16 +250,16 @@ async function monitorDepTree(
       targetReference: meta.targetReference,
       contributors,
       projectAttributes,
-      tags,
+      tags
     } as MonitorBody,
     gzip: true,
-    method: 'PUT',
+    method: "PUT",
     headers: {
       authorization: getAuthHeader(),
-      'content-encoding': 'gzip',
+      "content-encoding": "gzip"
     },
-    url: config.API + '/monitor/' + packageManager,
-    json: true,
+    url: config.API + "/monitor/" + packageManager,
+    json: true
   });
 
   if (res.statusCode && res.statusCode >= 200 && res.statusCode <= 299) {
@@ -283,19 +283,19 @@ export async function monitorDepGraph(
   targetFileRelativePath?: string,
   contributors?: Contributor[],
   projectAttributes?: ProjectAttributes,
-  tags?: Tag[],
+  tags?: Tag[]
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
-  analytics.add('monitorDepGraph', true);
+  analytics.add("monitorDepGraph", true);
 
   let depGraph = scannedProject.depGraph;
 
   if (!depGraph) {
     debug(
-      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      "scannedProject is missing depGraph or depTree, cannot run test/monitor"
     );
     throw new FailedToRunTestError(
-      'Your monitor request could not be completed. ',
+      "Your monitor request could not be completed. "
     );
   }
 
@@ -308,15 +308,15 @@ export async function monitorDepGraph(
 
   const policy = await findAndLoadPolicy(
     root,
-    meta.isDocker ? 'docker' : packageManager!,
+    meta.isDocker ? "docker" : packageManager!,
     options,
     undefined,
-    targetFileDir,
+    targetFileDir
   );
 
   const target = await projectMetadata.getInfo(scannedProject, meta);
   if (isGitTarget(target) && target.branch) {
-    analytics.add('targetBranch', target.branch);
+    analytics.add("targetBranch", target.branch);
   }
 
   const pruneIsRequired = options.pruneRepeatedSubdependencies;
@@ -326,10 +326,10 @@ export async function monitorDepGraph(
 
   if (!depGraph) {
     debug(
-      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      "scannedProject is missing depGraph or depTree, cannot run test/monitor"
     );
     throw new FailedToRunTestError(
-      errorMessageWithRetry('Your monitor request could not be completed.'),
+      errorMessageWithRetry("Your monitor request could not be completed.")
     );
   }
 
@@ -352,7 +352,7 @@ export async function monitorDepGraph(
         monitorGraph: true,
         versionBuildInfo: JSON.stringify(scannedProject.meta?.versionBuildInfo),
         gradleProjectName: scannedProject.meta?.gradleProjectName,
-        targetRuntime: scannedProject.meta?.targetRuntime,
+        targetRuntime: scannedProject.meta?.targetRuntime
       },
       policy: policy ? policy.toString() : undefined,
       depGraphJSON: depGraph, // depGraph will be auto serialized to JSON on send
@@ -365,16 +365,16 @@ export async function monitorDepGraph(
       contributors,
       callGraph: callGraphPayload,
       projectAttributes,
-      tags,
+      tags
     } as MonitorBody,
     gzip: true,
-    method: 'PUT',
+    method: "PUT",
     headers: {
       authorization: getAuthHeader(),
-      'content-encoding': 'gzip',
+      "content-encoding": "gzip"
     },
     url: `${config.API}/monitor/${packageManager}/graph`,
-    json: true,
+    json: true
   });
 
   if (res.statusCode && res.statusCode >= 200 && res.statusCode <= 299) {
@@ -398,7 +398,7 @@ async function monitorDepGraphFromDepTree(
   targetFileRelativePath?: string,
   contributors?: Contributor[],
   projectAttributes?: ProjectAttributes,
-  tags?: Tag[],
+  tags?: Tag[]
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
 
@@ -407,10 +407,10 @@ async function monitorDepGraphFromDepTree(
 
   if (!depTree) {
     debug(
-      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      "scannedProject is missing depGraph or depTree, cannot run test/monitor"
     );
     throw new FailedToRunTestError(
-      errorMessageWithRetry('Your monitor request could not be completed'),
+      errorMessageWithRetry("Your monitor request could not be completed")
     );
   }
 
@@ -423,15 +423,15 @@ async function monitorDepGraphFromDepTree(
 
   const policy = await findAndLoadPolicy(
     root,
-    meta.isDocker ? 'docker' : packageManager!,
+    meta.isDocker ? "docker" : packageManager!,
     options,
     // TODO: fix this and send only send when we used resolve-deps for node
     // it should be a ExpandedPkgTree type instead
     depTree,
-    targetFileDir,
+    targetFileDir
   );
 
-  if (['npm', 'yarn'].includes(meta.packageManager)) {
+  if (["npm", "yarn"].includes(meta.packageManager)) {
     const { filteredDepTree, missingDeps } = filterOutMissingDeps(depTree);
     depTree = filteredDepTree;
     treeMissingDeps = missingDeps;
@@ -439,29 +439,29 @@ async function monitorDepGraphFromDepTree(
 
   const depGraph: depGraphLib.DepGraph = await depGraphLib.legacy.depTreeToGraph(
     depTree,
-    packageManager,
+    packageManager
   );
   const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
   if (isGitTarget(target) && target.branch) {
-    analytics.add('targetBranch', target.branch);
+    analytics.add("targetBranch", target.branch);
   }
 
   let prunedGraph = depGraph;
   let prePruneDepCount;
   if (meta.prune) {
-    debug('Trying to prune the graph');
+    debug("Trying to prune the graph");
     prePruneDepCount = countPathsToGraphRoot(depGraph);
-    debug('pre prunedPathsCount: ' + prePruneDepCount);
+    debug("pre prunedPathsCount: " + prePruneDepCount);
     prunedGraph = await pruneGraph(depGraph, packageManager, meta.prune);
   }
 
   if (!depTree) {
     debug(
-      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      "scannedProject is missing depGraph or depTree, cannot run test/monitor"
     );
     throw new FailedToRunTestError(
-      errorMessageWithRetry('Your monitor request could not be completed.'),
+      errorMessageWithRetry("Your monitor request could not be completed.")
     );
   }
   const { res, body } = await makeRequest({
@@ -487,7 +487,7 @@ async function monitorDepGraphFromDepTree(
         projectName: getProjectName(scannedProject, meta),
         prePruneDepCount, // undefined unless 'prune' is used
         missingDeps: treeMissingDeps,
-        monitorGraph: true,
+        monitorGraph: true
       },
       policy: policy ? policy.toString() : undefined,
       depGraphJSON: prunedGraph, // depGraph will be auto serialized to JSON on send
@@ -499,16 +499,16 @@ async function monitorDepGraphFromDepTree(
       targetReference: meta.targetReference,
       contributors,
       projectAttributes,
-      tags,
+      tags
     } as MonitorBody,
     gzip: true,
-    method: 'PUT',
+    method: "PUT",
     headers: {
       authorization: getAuthHeader(),
-      'content-encoding': 'gzip',
+      "content-encoding": "gzip"
     },
     url: `${config.API}/monitor/${packageManager}/graph`,
-    json: true,
+    json: true
   });
 
   if (res.statusCode && res.statusCode >= 200 && res.statusCode <= 299) {

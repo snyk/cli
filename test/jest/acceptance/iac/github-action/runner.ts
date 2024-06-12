@@ -3,15 +3,15 @@ import {
   existsSync,
   unlinkSync,
   readdirSync,
-  statSync,
-} from 'fs';
-import * as path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { pathToFileURL } from 'url';
+  statSync
+} from "fs";
+import * as path from "path";
+import { v4 as uuidv4 } from "uuid";
+import { pathToFileURL } from "url";
 
-import { startMockServer } from '../helpers';
+import { startMockServer } from "../helpers";
 
-const ROOT_DIR = './test/fixtures';
+const ROOT_DIR = "./test/fixtures";
 
 export class GithubActionTestRunner {
   constructor(
@@ -21,15 +21,15 @@ export class GithubActionTestRunner {
     private run: (
       cmd: string,
       env: Record<string, string>,
-      cwd?: string,
+      cwd?: string
     ) => Promise<{ stdout: string; stderr: string; exitCode: number }>,
-    private teardown: () => void,
+    private teardown: () => void
   ) {}
 
   static async build(
     product: string,
     relativeDir: string,
-    inputPath: string,
+    inputPath: string
   ): Promise<GithubActionTestRunner> {
     const command = `snyk ${product} test ${path.join(inputPath)}`;
     const workingDir = path.join(ROOT_DIR, relativeDir);
@@ -41,7 +41,7 @@ export class GithubActionTestRunner {
       workingDir,
       inputPath,
       run,
-      teardown,
+      teardown
     );
   }
 
@@ -61,11 +61,11 @@ export class GithubActionTestRunner {
       const { stderr } = await this.run(
         `${this.command} --sarif-file-output=${sarifOutputFilename}`,
         {},
-        this.workingDir,
+        this.workingDir
       );
-      expect(stderr).toEqual('');
+      expect(stderr).toEqual("");
 
-      return readFileSync(sarifOutputFilename, 'utf-8');
+      return readFileSync(sarifOutputFilename, "utf-8");
     } finally {
       if (existsSync(sarifOutputFilename)) {
         unlinkSync(sarifOutputFilename);
@@ -88,7 +88,7 @@ export class GithubActionTestRunner {
       for (const result of run.results) {
         for (const loc of result.locations) {
           generatedPaths.add(
-            projectRoot + loc.physicalLocation.artifactLocation.uri,
+            projectRoot + loc.physicalLocation.artifactLocation.uri
           );
         }
       }

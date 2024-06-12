@@ -1,2 +1,2 @@
-export { analysisProgressUpdate } from './testEmitter';
-export { filterIgnoredIssues } from './filter';
+export { analysisProgressUpdate } from "./testEmitter";
+export { filterIgnoredIssues } from "./filter";

@@ -1,24 +1,24 @@
-import { fakeServer } from '../../acceptance/fake-server';
-import { createProjectFromWorkspace } from '../util/createProject';
-import { getServerPort } from '../util/getServerPort';
-import { runSnykCLI } from '../util/runSnykCLI';
-import { AppliedPolicyRules } from '../../../src/lib/formatters/types';
-import * as Parser from 'jsonparse';
+import { fakeServer } from "../../acceptance/fake-server";
+import { createProjectFromWorkspace } from "../util/createProject";
+import { getServerPort } from "../util/getServerPort";
+import { runSnykCLI } from "../util/runSnykCLI";
+import { AppliedPolicyRules } from "../../../src/lib/formatters/types";
+import * as Parser from "jsonparse";
 
 jest.setTimeout(1000 * 60);
 
-describe('test --json', () => {
+describe("test --json", () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
-  beforeAll((done) => {
-    const apiPath = '/api/v1';
+  beforeAll(done => {
+    const apiPath = "/api/v1";
     const apiPort = getServerPort(process);
     env = {
       ...process.env,
-      SNYK_API: 'http://localhost:' + apiPort + apiPath,
-      SNYK_TOKEN: '123456789',
-      SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_API: "http://localhost:" + apiPort + apiPath,
+      SNYK_TOKEN: "123456789",
+      SNYK_DISABLE_ANALYTICS: "1"
     };
 
     server = fakeServer(apiPath, env.SNYK_TOKEN);
@@ -29,84 +29,84 @@ describe('test --json', () => {
     server.restore();
   });
 
-  afterAll((done) => {
+  afterAll(done => {
     server.close(() => done());
   });
 
-  it('test with --json returns without error and with JSON return type when no vulns found', async () => {
-    const project = await createProjectFromWorkspace('fail-on/no-vulns');
-    server.setCustomResponse(await project.readJSON('vulns-result.json'));
+  it("test with --json returns without error and with JSON return type when no vulns found", async () => {
+    const project = await createProjectFromWorkspace("fail-on/no-vulns");
+    server.setCustomResponse(await project.readJSON("vulns-result.json"));
 
     const { code, stdout } = await runSnykCLI(`test --json`, {
       cwd: project.path(),
-      env,
+      env
     });
 
     expect(code).toEqual(0);
 
     expect(server.getRequests().length).toBeGreaterThanOrEqual(1);
     const outputObj = JSON.parse(stdout);
-    expect(outputObj).not.toBe('');
+    expect(outputObj).not.toBe("");
   });
 
-  it('test without --json returns without error and with a string return type when no vulns found', async () => {
-    const project = await createProjectFromWorkspace('fail-on/no-vulns');
-    server.setCustomResponse(await project.readJSON('vulns-result.json'));
+  it("test without --json returns without error and with a string return type when no vulns found", async () => {
+    const project = await createProjectFromWorkspace("fail-on/no-vulns");
+    server.setCustomResponse(await project.readJSON("vulns-result.json"));
 
     const { code, stdout } = await runSnykCLI(`test`, {
       cwd: project.path(),
-      env,
+      env
     });
 
     expect(code).toEqual(0);
 
     expect(server.getRequests().length).toBeGreaterThanOrEqual(1);
-    expect(stdout).not.toBe('');
-    expect(typeof stdout).toBe('string');
+    expect(stdout).not.toBe("");
+    expect(typeof stdout).toBe("string");
   });
 
-  it('test with --json throws error and error contains json output with vulnerabilities when vulns found', async () => {
-    const project = await createProjectFromWorkspace('fail-on/no-fixable');
-    server.setCustomResponse(await project.readJSON('vulns-result.json'));
+  it("test with --json throws error and error contains json output with vulnerabilities when vulns found", async () => {
+    const project = await createProjectFromWorkspace("fail-on/no-fixable");
+    server.setCustomResponse(await project.readJSON("vulns-result.json"));
 
     const { code, stdout } = await runSnykCLI(`test --json`, {
       cwd: project.path(),
-      env,
+      env
     });
 
     const returnedJson = JSON.parse(stdout);
     expect(returnedJson.vulnerabilities.length > 0).toBeTruthy();
     expect(code).toEqual(1);
-    expect(stdout).not.toBe('');
+    expect(stdout).not.toBe("");
   });
 
-  describe('handling responses larger than 512Mb string size limit in v8', () => {
-    it('container test --json', async () => {
+  describe("handling responses larger than 512Mb string size limit in v8", () => {
+    it("container test --json", async () => {
       const expectedReferenceNumber = 420000;
-      const issueID = 'SNYK-ALPINE319-OPENSSL-6148881';
+      const issueID = "SNYK-ALPINE319-OPENSSL-6148881";
       const project = await createProjectFromWorkspace(
-        'extra-large-response-payload',
+        "extra-large-response-payload"
       );
-      const response = await project.readJSON('vulns-result.json');
+      const response = await project.readJSON("vulns-result.json");
       const reference = response.result.issuesData[issueID].references[0];
       response.result.issuesData[issueID].references = new Array(
-        expectedReferenceNumber,
+        expectedReferenceNumber
       ).fill(reference);
 
       server.setCustomResponse(response);
 
-      const imageName = 'hello-world:latest';
+      const imageName = "hello-world:latest";
       const { code, stdoutBuffer, stderrBuffer } = await runSnykCLI(
         `container test --platform=linux/amd64 ${imageName} --json`,
         {
           cwd: project.path(),
           env,
-          bufferOutput: true,
-        },
+          bufferOutput: true
+        }
       );
 
       if (stderrBuffer && stderrBuffer.length > 0)
-        console.log(stderrBuffer?.toString('utf8'));
+        console.log(stderrBuffer?.toString("utf8"));
 
       let hasExpectedPathString = false;
       let hasExpectedVulnerabilitiesString = false;
@@ -114,12 +114,12 @@ describe('test --json', () => {
 
       const p = new Parser();
       p.onValue = function(value) {
-        if (this.key === 'path' && value === imageName) {
+        if (this.key === "path" && value === imageName) {
           hasExpectedPathString = true;
-        } else if (this.key === 'vulnerabilities') {
+        } else if (this.key === "vulnerabilities") {
           hasExpectedVulnerabilitiesString = true;
         } else if (
-          this.key === 'references' &&
+          this.key === "references" &&
           value.length === expectedReferenceNumber
         ) {
           hasReferenceCount = true;
@@ -135,25 +135,25 @@ describe('test --json', () => {
     }, 120000);
   });
 
-  describe('when policy data is available', () => {
-    it('includes a user note and reason', async () => {
+  describe("when policy data is available", () => {
+    it("includes a user note and reason", async () => {
       const project = await createProjectFromWorkspace(
-        'npm-package-single-vuln',
+        "npm-package-single-vuln"
       );
       server.setCustomResponse(
-        await project.readJSON('test-graph-results-with-annotation.json'),
+        await project.readJSON("test-graph-results-with-annotation.json")
       );
 
       const { code, stdout } = await runSnykCLI(`test --json`, {
         cwd: project.path(),
-        env,
+        env
       });
 
       const expectedPolicyData: AppliedPolicyRules = {
         annotation: {
-          value: 'This is a test user note',
-          reason: 'This vulnerability is a papercut and can be ignored',
-        },
+          value: "This is a test user note",
+          reason: "This vulnerability is a papercut and can be ignored"
+        }
       };
 
       const returnedJson = JSON.parse(stdout);

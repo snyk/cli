@@ -1,23 +1,23 @@
-import chalk from 'chalk';
-import * as Sarif from 'sarif';
-import * as debugLib from 'debug';
-import { v4 as uuidv4 } from 'uuid';
-import { getCodeTestResults } from './analysis';
-import { getSastSettings } from './settings';
+import chalk from "chalk";
+import * as Sarif from "sarif";
+import * as debugLib from "debug";
+import { v4 as uuidv4 } from "uuid";
+import { getCodeTestResults } from "./analysis";
+import { getSastSettings } from "./settings";
 import {
   getCodeDisplayedOutput,
   getPrefix,
-  getMeta,
-} from './format/output-format';
-import { EcosystemPlugin } from '../../ecosystems/types';
-import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
-import { CodeClientErrorWithDetail, CodeClientError } from './errors';
-import { filterIgnoredIssues } from './utils';
-import { jsonStringifyLargeObject } from '../../json';
-import * as analytics from '../../analytics';
-import * as cloneDeep from 'lodash.clonedeep';
+  getMeta
+} from "./format/output-format";
+import { EcosystemPlugin } from "../../ecosystems/types";
+import { FailedToRunTestError, NoSupportedSastFiles } from "../../errors";
+import { CodeClientErrorWithDetail, CodeClientError } from "./errors";
+import { filterIgnoredIssues } from "./utils";
+import { jsonStringifyLargeObject } from "../../json";
+import * as analytics from "../../analytics";
+import * as cloneDeep from "lodash.clonedeep";
 
-const debug = debugLib('snyk-code');
+const debug = debugLib("snyk-code");
 
 export const codePlugin: EcosystemPlugin = {
   // We currently don't use scan/display. we will need to consolidate ecosystem plugins
@@ -26,13 +26,13 @@ export const codePlugin: EcosystemPlugin = {
     return null as any;
   },
   async display() {
-    return '';
+    return "";
   },
   async test(paths, options) {
     const requestId = uuidv4();
     debug(`Request ID: ${requestId}`);
     try {
-      analytics.add('sast-scan', true);
+      analytics.add("sast-scan", true);
       const sastSettings = await getSastSettings(options);
       // Currently code supports only one path
       const path = paths[0];
@@ -41,7 +41,7 @@ export const codePlugin: EcosystemPlugin = {
         path,
         options,
         sastSettings,
-        requestId,
+        requestId
       );
 
       if (!testResults) {
@@ -50,19 +50,19 @@ export const codePlugin: EcosystemPlugin = {
 
       // cloneDeep is used so the sarif is not changed when using the testResults getting the displayed output
       const sarifTypedResult = cloneDeep(
-        testResults?.analysisResults?.sarif,
+        testResults?.analysisResults?.sarif
       ) as Sarif.Log;
       const sarifRunResults = sarifTypedResult.runs?.[0].results ?? [];
 
       // Report flow includes ignored issues (suppressions) in the results.
-      const hasIgnoredIssues = options['report'] ?? false;
+      const hasIgnoredIssues = options["report"] ?? false;
 
       // If suppressions are included in results filter them out to get real issue count
       const foundIssues = hasIgnoredIssues
         ? filterIgnoredIssues(sarifRunResults)
         : sarifRunResults;
       const numOfIssues = foundIssues.length || 0;
-      analytics.add('sast-issues-found', numOfIssues);
+      analytics.add("sast-issues-found", numOfIssues);
 
       let newOrg = options.org;
       if (!newOrg && sastSettings.org) {
@@ -74,30 +74,30 @@ export const codePlugin: EcosystemPlugin = {
         testResults,
         meta,
         prefix,
-        shouldFilterIgnored: hasIgnoredIssues,
+        shouldFilterIgnored: hasIgnoredIssues
       });
 
-      if (options['no-markdown']) {
+      if (options["no-markdown"]) {
         sarifRunResults.forEach(({ message }) => {
           delete message.markdown;
         });
       }
 
       const shouldStringifyResult =
-        options['sarif-file-output'] ||
+        options["sarif-file-output"] ||
         options.sarif ||
-        options['json-file-output'] ||
+        options["json-file-output"] ||
         options.json;
       const stringifiedResult = shouldStringifyResult
         ? jsonStringifyLargeObject(sarifTypedResult)
-        : '';
+        : "";
 
       let sarifResult: string | undefined;
-      if (options['sarif-file-output']) {
+      if (options["sarif-file-output"]) {
         sarifResult = stringifiedResult;
       }
       let jsonResult: string | undefined;
-      if (options['json-file-output']) {
+      if (options["json-file-output"]) {
         jsonResult = stringifiedResult;
       }
       if (options.sarif || options.json) {
@@ -125,37 +125,37 @@ export const codePlugin: EcosystemPlugin = {
       debug(
         chalk.bold.red(
           `requestId: ${requestId} statusCode:${error.code ||
-            error.statusCode}, message: ${error.statusText || error.message}`,
-        ),
+            error.statusCode}, message: ${error.statusText || error.message}`
+        )
       );
       throw err;
     }
-  },
+  }
 };
 
 function isCodeClientError(error: object): boolean {
   return (
-    error.hasOwnProperty('statusCode') &&
-    error.hasOwnProperty('statusText') &&
-    error.hasOwnProperty('apiName')
+    error.hasOwnProperty("statusCode") &&
+    error.hasOwnProperty("statusText") &&
+    error.hasOwnProperty("apiName")
   );
 }
 
 const genericErrorHelpMessages = {
   500: "One or more of Snyk's services may be temporarily unavailable.",
-  502: "One or more of Snyk's services may be temporarily unavailable.",
+  502: "One or more of Snyk's services may be temporarily unavailable."
 };
 
 const apiSpecificErrorHelpMessages = {
   initReport: {
     ...genericErrorHelpMessages,
-    400: 'Make sure this feature is enabled by contacting support.',
+    400: "Make sure this feature is enabled by contacting support."
   },
   getReport: {
     ...genericErrorHelpMessages,
-    'Analysis result set too large':
-      'The findings for this project may exceed the allowed size limit.',
-  },
+    "Analysis result set too large":
+      "The findings for this project may exceed the allowed size limit."
+  }
 };
 
 function resolveCodeClientError(error: {
@@ -164,7 +164,7 @@ function resolveCodeClientError(error: {
   statusText: string;
 }): Error {
   // For now only report includes custom client errors
-  if (error.apiName === 'initReport' || error.apiName === 'getReport') {
+  if (error.apiName === "initReport" || error.apiName === "getReport") {
     const additionalHelp =
       apiSpecificErrorHelpMessages[error.apiName][error.statusText] ??
       apiSpecificErrorHelpMessages[error.apiName][error.statusCode];
@@ -172,13 +172,13 @@ function resolveCodeClientError(error: {
     return new CodeClientError(
       error.statusCode,
       error.statusText,
-      additionalHelp,
+      additionalHelp
     );
   }
-  const isUnauthorized = isUnauthorizedError(error) ? 'Unauthorized: ' : '';
+  const isUnauthorized = isUnauthorizedError(error) ? "Unauthorized: " : "";
   return new FailedToRunTestError(
     `${isUnauthorized}Failed to run 'code test'`,
-    error.statusCode,
+    error.statusCode
   );
 }
 
@@ -186,16 +186,16 @@ function resolveCodeClientErrorWithDetail(error: any) {
   return new CodeClientErrorWithDetail(
     error.statusText,
     error.statusCode,
-    error.detail,
+    error.detail
   );
 }
 
 function isCodeClientErrorWithDetail(error: any): boolean {
   return (
-    error.hasOwnProperty('statusCode') &&
-    error.hasOwnProperty('statusText') &&
-    error.hasOwnProperty('detail') &&
-    error.hasOwnProperty('apiName')
+    error.hasOwnProperty("statusCode") &&
+    error.hasOwnProperty("statusText") &&
+    error.hasOwnProperty("detail") &&
+    error.hasOwnProperty("apiName")
   );
 }
 
@@ -214,7 +214,7 @@ function throwIssuesError(args: {
   jsonResult: string | undefined;
 }): Error {
   const err = new Error(args.readableResult) as any;
-  err.code = 'VULNS';
+  err.code = "VULNS";
   if (args.sarifResult !== undefined) {
     err.sarifStringifiedResults = args.sarifResult;
   }

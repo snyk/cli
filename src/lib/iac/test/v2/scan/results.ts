@@ -1,38 +1,38 @@
-import { SEVERITY } from '../../../../snyk-test/common';
-import { IacProjectType } from '../../../constants';
-import { SnykIacTestError } from '../errors';
-import * as PolicyEngineTypes from './policy-engine';
-import { IaCErrorCodes } from '../../../../../cli/commands/test/iac/local-execution/types';
-import { UnsupportedEntitlementError } from '../../../../errors/unsupported-entitlement-error';
-import { FailedToGetIacOrgSettingsError } from '../../../../../cli/commands/test/iac/local-execution/org-settings/get-iac-org-settings';
+import { SEVERITY } from "../../../../snyk-test/common";
+import { IacProjectType } from "../../../constants";
+import { SnykIacTestError } from "../errors";
+import * as PolicyEngineTypes from "./policy-engine";
+import { IaCErrorCodes } from "../../../../../cli/commands/test/iac/local-execution/types";
+import { UnsupportedEntitlementError } from "../../../../errors/unsupported-entitlement-error";
+import { FailedToGetIacOrgSettingsError } from "../../../../../cli/commands/test/iac/local-execution/org-settings/get-iac-org-settings";
 
 export function mapSnykIacTestOutputToTestOutput(
-  snykIacOutput: SnykIacTestOutput,
+  snykIacOutput: SnykIacTestOutput
 ): TestOutput {
   const entitlementError = snykIacOutput.errors?.find(
-    (err) => err.code === IaCErrorCodes.EntitlementNotEnabled,
+    err => err.code === IaCErrorCodes.EntitlementNotEnabled
   );
 
   if (entitlementError) {
     throw new UnsupportedEntitlementError(
-      entitlementError?.fields?.entitlement || '',
+      entitlementError?.fields?.entitlement || ""
     );
   }
 
   const readSettingsError = snykIacOutput.errors?.find(
-    (err) => err.code === IaCErrorCodes.ReadSettings,
+    err => err.code === IaCErrorCodes.ReadSettings
   );
 
   if (readSettingsError) {
     throw new FailedToGetIacOrgSettingsError();
   }
 
-  const errors = snykIacOutput.errors?.map((err) => new SnykIacTestError(err));
+  const errors = snykIacOutput.errors?.map(err => new SnykIacTestError(err));
   const warnings = snykIacOutput.warnings?.map(
-    (err) => new SnykIacTestError(err),
+    err => new SnykIacTestError(err)
   );
 
-  const errWithoutPath = errors?.find((err) => !err.fields?.path);
+  const errWithoutPath = errors?.find(err => !err.fields?.path);
 
   if (errWithoutPath) {
     throw errWithoutPath;
@@ -42,7 +42,7 @@ export function mapSnykIacTestOutputToTestOutput(
     results: snykIacOutput.results,
     settings: snykIacOutput.settings,
     errors,
-    warnings,
+    warnings
   };
 }
 

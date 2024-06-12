@@ -1,7 +1,7 @@
-import * as path from 'path';
-import { tryGetSpec } from './try-get-spec';
-import { Spec } from './index';
-import * as types from '../../types';
+import * as path from "path";
+import { tryGetSpec } from "./try-get-spec";
+import { Spec } from "./index";
+import * as types from "../../types";
 
 /* Supported example patterns:
  * Gemfile
@@ -22,14 +22,14 @@ export function canHandle(file: string): boolean {
 export async function gatherSpecs(
   root: string,
   target: string,
-  options: types.Options,
+  options: types.Options
 ): Promise<Spec> {
   const { dir, name } = path.parse(target);
   const isGemfileLock = gemfileLockPattern.test(target);
   // if the target is a Gemfile we treat is as the lockfile
   const gemfileLock = await tryGetSpec(
     root,
-    isGemfileLock ? target : path.join(target + '.lock'),
+    isGemfileLock ? target : path.join(target + ".lock")
   );
 
   if (gemfileLock) {
@@ -39,13 +39,13 @@ export async function gatherSpecs(
         ? path.join(basePackageName, dir)
         : basePackageName,
       targetFile: path.join(dir, name),
-      files: { gemfileLock },
+      files: { gemfileLock }
     };
   } else {
     throw new Error(
-      `Could not read ${target || 'Gemfile.lock'} lockfile: can't test ` +
-        'without dependencies.\nPlease run `bundle install` first or' +
-        ' if this is a custom file name re-run with --file=path/to/custom.gemfile.lock --package-manager=rubygems',
+      `Could not read ${target || "Gemfile.lock"} lockfile: can't test ` +
+        "without dependencies.\nPlease run `bundle install` first or" +
+        " if this is a custom file name re-run with --file=path/to/custom.gemfile.lock --package-manager=rubygems"
     );
   }
 }

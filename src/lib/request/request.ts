@@ -1,20 +1,20 @@
-import { debug as debugModule } from 'debug';
-import * as needle from 'needle';
-import { parse, format } from 'url';
-import * as querystring from 'querystring';
-import * as zlib from 'zlib';
-import config from '../config';
-import { getProxyForUrl } from 'proxy-from-env';
-import { bootstrap } from 'global-agent';
-import { Global } from '../../cli/args';
-import { Payload } from './types';
-import { getVersion } from '../version';
-import * as https from 'https';
-import * as http from 'http';
-import { jsonStringifyLargeObject } from '../json';
+import { debug as debugModule } from "debug";
+import * as needle from "needle";
+import { parse, format } from "url";
+import * as querystring from "querystring";
+import * as zlib from "zlib";
+import config from "../config";
+import { getProxyForUrl } from "proxy-from-env";
+import { bootstrap } from "global-agent";
+import { Global } from "../../cli/args";
+import { Payload } from "./types";
+import { getVersion } from "../version";
+import * as https from "https";
+import * as http from "http";
+import { jsonStringifyLargeObject } from "../json";
 
-const debug = debugModule('snyk:req');
-const snykDebug = debugModule('snyk');
+const debug = debugModule("snyk:req");
+const snykDebug = debugModule("snyk");
 
 declare const global: Global;
 
@@ -39,12 +39,12 @@ function setupRequest(payload: Payload) {
     payload.headers = {};
   }
 
-  payload.headers['x-snyk-cli-version'] = versionNumber;
+  payload.headers["x-snyk-cli-version"] = versionNumber;
 
   const noCompression = payload.noCompression;
 
   if (body && !noCompression) {
-    debug('compressing request body');
+    debug("compressing request body");
     const json = JSON.stringify(body);
     if (json.length < 1e4) {
       debug(json);
@@ -53,45 +53,45 @@ function setupRequest(payload: Payload) {
     // always compress going upstream
     data = zlib.gzipSync(json, { level: 9 });
 
-    snykDebug('sending request to:', payload.url);
-    snykDebug('request body size:', json.length);
-    snykDebug('gzipped request body size:', data.length);
+    snykDebug("sending request to:", payload.url);
+    snykDebug("request body size:", json.length);
+    snykDebug("gzipped request body size:", data.length);
 
     let callGraphLength: number | null = null;
     if (body.callGraph) {
       callGraphLength = jsonStringifyLargeObject(body.callGraph).length;
-      snykDebug('call graph size:', callGraphLength);
+      snykDebug("call graph size:", callGraphLength);
     }
 
-    payload.headers['content-encoding'] = 'gzip';
-    payload.headers['content-length'] = data.length;
+    payload.headers["content-encoding"] = "gzip";
+    payload.headers["content-length"] = data.length;
   }
 
   const parsedUrl = parse(payload.url);
 
   if (
-    parsedUrl.protocol === 'http:' &&
-    parsedUrl.hostname !== 'localhost' &&
-    process.env.SNYK_HTTP_PROTOCOL_UPGRADE !== '0'
+    parsedUrl.protocol === "http:" &&
+    parsedUrl.hostname !== "localhost" &&
+    process.env.SNYK_HTTP_PROTOCOL_UPGRADE !== "0"
   ) {
-    debug('forcing api request to https');
-    parsedUrl.protocol = 'https:';
+    debug("forcing api request to https");
+    parsedUrl.protocol = "https:";
     payload.url = format(parsedUrl);
   }
 
   // prefer config timeout unless payload specified
-  if (!payload.hasOwnProperty('timeout')) {
+  if (!payload.hasOwnProperty("timeout")) {
     payload.timeout = config.timeout * 1000; // s -> ms
   }
 
   try {
-    debug('request payload: ', jsonStringifyLargeObject(payload));
+    debug("request payload: ", jsonStringifyLargeObject(payload));
   } catch (e) {
-    debug('request payload is too big to log', e);
+    debug("request payload is too big to log", e);
   }
 
   const method = (
-    payload.method || 'get'
+    payload.method || "get"
   ).toLowerCase() as needle.NeedleHttpVerbs;
   let url = payload.url;
 
@@ -104,7 +104,7 @@ function setupRequest(payload: Payload) {
   }
 
   const agent =
-    parsedUrl.protocol === 'http:'
+    parsedUrl.protocol === "http:"
       ? new http.Agent({ keepAlive: true })
       : new https.Agent({ keepAlive: true });
   const options: needle.NeedleOptions = {
@@ -115,21 +115,21 @@ function setupRequest(payload: Payload) {
     timeout: payload.timeout,
     follow_max: 5,
     family: payload.family,
-    agent,
+    agent
   };
 
   const proxyUri = getProxyForUrl(url);
   if (proxyUri) {
-    snykDebug('using proxy:', proxyUri);
+    snykDebug("using proxy:", proxyUri);
     bootstrap({
-      environmentVariableNamespace: '',
+      environmentVariableNamespace: ""
     });
   } else {
-    snykDebug('not using proxy');
+    snykDebug("not using proxy");
   }
 
   if (global.ignoreUnknownCA) {
-    debug('Using insecure mode (ignore unknown certificate authority)');
+    debug("Using insecure mode (ignore unknown certificate authority)");
     options.rejectUnauthorized = false;
   }
 
@@ -137,16 +137,16 @@ function setupRequest(payload: Payload) {
 }
 
 export async function makeRequest(
-  payload: Payload,
+  payload: Payload
 ): Promise<{ res: needle.NeedleResponse; body: any }> {
   const { method, url, data, options } = setupRequest(payload);
 
   return new Promise((resolve, reject) => {
     needle.request(method, url, data, options, (err, res, respBody) => {
       // respBody potentially very large, do not output it in debug
-      debug('response (%s)', (res || {}).statusCode);
+      debug("response (%s)", (res || {}).statusCode);
       if (err) {
-        debug('response err: %s', err);
+        debug("response err: %s", err);
         return reject(err);
       }
 
@@ -156,14 +156,14 @@ export async function makeRequest(
 }
 
 export async function streamRequest(
-  payload: Payload,
+  payload: Payload
 ): Promise<needle.ReadableStream> {
   const { method, url, data, options } = setupRequest(payload);
 
   try {
     const result = await needle.request(method, url, data, options);
     const statusCode = await getStatusCode(result);
-    debug('response (%s): <stream>', statusCode);
+    debug("response (%s): <stream>", statusCode);
     return result;
   } catch (e) {
     debug(e);
@@ -173,10 +173,10 @@ export async function streamRequest(
 
 async function getStatusCode(stream: needle.ReadableStream): Promise<number> {
   return new Promise((resolve, reject) => {
-    stream.on('header', (statusCode: number) => {
+    stream.on("header", (statusCode: number) => {
       resolve(statusCode);
     });
-    stream.on('err', (err: Error) => {
+    stream.on("err", (err: Error) => {
       reject(err);
     });
   });

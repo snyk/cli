@@ -1,7 +1,5 @@
-import { Result } from 'sarif';
+import { Result } from "sarif";
 
 export function filterIgnoredIssues(analysisResults: Result[]): Result[] {
-  return analysisResults.filter(
-    (rule) => (rule.suppressions?.length ?? 0) === 0,
-  );
+  return analysisResults.filter(rule => (rule.suppressions?.length ?? 0) === 0);
 }

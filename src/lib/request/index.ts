@@ -1,19 +1,19 @@
-import { makeRequest } from './request';
-import alerts = require('../alerts');
-import { MetricsCollector } from '../metrics';
-import * as needle from 'needle';
+import { makeRequest } from "./request";
+import alerts = require("../alerts");
+import { MetricsCollector } from "../metrics";
+import * as needle from "needle";
 
 // A hybrid async function: both returns a promise and takes a callback
 async function makeRequestWrapper(
-  payload: any,
+  payload: any
 ): Promise<{ res: needle.NeedleResponse; body: any }>;
 async function makeRequestWrapper(
   payload: any,
-  callback: (err: Error | null, res?, body?) => void,
+  callback: (err: Error | null, res?, body?) => void
 ): Promise<void>;
 async function makeRequestWrapper(
   payload: any,
-  callback?: (err: Error | null, res?, body?) => void,
+  callback?: (err: Error | null, res?, body?) => void
 ): Promise<void | { res: needle.NeedleResponse; body: any }> {
   const totalNetworkTimeTimer = MetricsCollector.NETWORK_TIME.createInstance();
   totalNetworkTimeTimer.start();

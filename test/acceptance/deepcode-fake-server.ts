@@ -1,6 +1,6 @@
-import * as express from 'express';
-import * as http from 'http';
-import * as net from 'net';
+import * as express from "express";
+import * as http from "http";
+import * as net from "net";
 
 export type FakeDeepCodeServer = {
   getRequests: () => express.Request[];
@@ -20,7 +20,7 @@ export type FakeDeepCodeServer = {
 export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   let filtersResponse: Record<string, unknown> | null = {
     configFiles: [],
-    extensions: ['.java'],
+    extensions: [".java"]
   };
   let sarifResponse: Record<string, unknown> | null = null;
   let requests: express.Request[] = [];
@@ -37,7 +37,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     nextResponse = undefined;
     nextStatusCode = undefined;
     sarifResponse = null;
-    filtersResponse = { configFiles: [], extensions: ['.java', '.js'] };
+    filtersResponse = { configFiles: [], extensions: [".java", ".js"] };
   };
 
   const getRequests = () => {
@@ -57,7 +57,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   };
 
   const setFiltersResponse = (response: string | Record<string, unknown>) => {
-    if (typeof response === 'string') {
+    if (typeof response === "string") {
       filtersResponse = JSON.parse(response);
       return;
     }
@@ -65,7 +65,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   };
 
   const setNextResponse = (response: string | Record<string, unknown>) => {
-    if (typeof response === 'string') {
+    if (typeof response === "string") {
       nextResponse = JSON.parse(response);
       return;
     }
@@ -77,7 +77,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   };
 
   const setSarifResponse = (response: string | Record<string, unknown>) => {
-    if (typeof response === 'string') {
+    if (typeof response === "string") {
       sarifResponse = JSON.parse(response);
       return;
     }
@@ -104,40 +104,40 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     next();
   });
 
-  app.get('/filters', (req, res) => {
+  app.get("/filters", (req, res) => {
     res.status(200);
     res.send(filtersResponse);
   });
 
-  app.post('/bundle', (req, res) => {
+  app.post("/bundle", (req, res) => {
     res.status(200);
 
     res.send({
-      bundleHash: 'bundle-hash',
-      missingFiles: [],
+      bundleHash: "bundle-hash",
+      missingFiles: []
     });
   });
 
-  app.post('/analysis', (req, res) => {
+  app.post("/analysis", (req, res) => {
     res.status(200);
     res.send({
       timing: {
         fetchingCode: 1,
         analysis: 1,
-        queue: 1,
+        queue: 1
       },
       coverage: [],
-      status: 'COMPLETE',
-      type: 'sarif',
-      sarif: sarifResponse,
+      status: "COMPLETE",
+      type: "sarif",
+      sarif: sarifResponse
     });
   });
 
   const listenPromise = () => {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
       server = http.createServer(app).listen(resolve);
 
-      server?.on('connection', (socket) => {
+      server?.on("connection", socket => {
         sockets.add(socket);
       });
     });
@@ -148,7 +148,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   };
 
   const closePromise = () => {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
       if (!server) {
         resolve();
         return;
@@ -169,10 +169,10 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
 
   const getPort = () => {
     const address = server?.address();
-    if (address && typeof address === 'object') {
+    if (address && typeof address === "object") {
       return address.port;
     }
-    throw new Error('port not found');
+    throw new Error("port not found");
   };
 
   return {
@@ -187,6 +187,6 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     listen,
     restore,
     close,
-    getPort,
+    getPort
   };
 };

@@ -1,9 +1,9 @@
-import { CustomError } from '../../../errors/custom-error';
+import { CustomError } from "../../../errors/custom-error";
 
 export class MissingConfigurationError extends CustomError {
   public readonly action: string;
 
-  constructor(action: string, additionalUserHelp = '') {
+  constructor(action: string, additionalUserHelp = "") {
     super(`Missing configuration for ${action}.`);
     this.code = 422;
     this.action = action;

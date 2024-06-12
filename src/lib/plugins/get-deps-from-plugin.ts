@@ -1,58 +1,58 @@
-import * as debugModule from 'debug';
-import * as pathLib from 'path';
-import chalk from 'chalk';
-import { icon } from '../theme';
-import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { find } from '../find-files';
-import { Options, TestOptions, MonitorOptions } from '../types';
-import { NoSupportedManifestsFoundError } from '../errors';
+import * as debugModule from "debug";
+import * as pathLib from "path";
+import chalk from "chalk";
+import { icon } from "../theme";
+import { legacyPlugin as pluginApi } from "@snyk/cli-interface";
+import { find } from "../find-files";
+import { Options, TestOptions, MonitorOptions } from "../types";
+import { NoSupportedManifestsFoundError } from "../errors";
 import {
   getMultiPluginResult,
-  MultiProjectResultCustom,
-} from './get-multi-plugin-result';
-import { getSinglePluginResult } from './get-single-plugin-result';
+  MultiProjectResultCustom
+} from "./get-multi-plugin-result";
+import { getSinglePluginResult } from "./get-single-plugin-result";
 import {
   detectPackageFile,
   AUTO_DETECTABLE_FILES,
-  detectPackageManagerFromFile,
-} from '../detect';
-import analytics = require('../analytics');
-import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
-import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
-import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
-import { ScannedProject } from '@snyk/cli-interface/legacy/common';
+  detectPackageManagerFromFile
+} from "../detect";
+import analytics = require("../analytics");
+import { convertSingleResultToMultiCustom } from "./convert-single-splugin-res-to-multi-custom";
+import { convertMultiResultToMultiCustom } from "./convert-multi-plugin-res-to-multi-custom";
+import { processYarnWorkspaces } from "./nodejs-plugin/yarn-workspaces-parser";
+import { ScannedProject } from "@snyk/cli-interface/legacy/common";
 
-const debug = debugModule('snyk-test');
+const debug = debugModule("snyk-test");
 
 const multiProjectProcessors = {
   yarnWorkspaces: {
     handler: processYarnWorkspaces,
-    files: ['package.json'],
+    files: ["package.json"]
   },
   allProjects: {
     handler: getMultiPluginResult,
-    files: AUTO_DETECTABLE_FILES,
-  },
+    files: AUTO_DETECTABLE_FILES
+  }
 };
 
 // Force getDepsFromPlugin to return scannedProjects for processing
 export async function getDepsFromPlugin(
   root: string,
-  options: Options & (TestOptions | MonitorOptions),
+  options: Options & (TestOptions | MonitorOptions)
 ): Promise<pluginApi.MultiProjectResult | MultiProjectResultCustom> {
-  if (Object.keys(multiProjectProcessors).some((key) => options[key])) {
-    const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
+  if (Object.keys(multiProjectProcessors).some(key => options[key])) {
+    const scanType = options.yarnWorkspaces ? "yarnWorkspaces" : "allProjects";
     const levelsDeep = options.detectionDepth;
-    const ignore = options.exclude ? options.exclude.split(',') : [];
+    const ignore = options.exclude ? options.exclude.split(",") : [];
     const { files: targetFiles, allFilesFound } = await find(
       root,
       ignore,
       multiProjectProcessors[scanType].files,
-      levelsDeep,
+      levelsDeep
     );
     debug(
       `auto detect manifest files, found ${targetFiles.length}`,
-      targetFiles,
+      targetFiles
     );
     if (targetFiles.length === 0) {
       throw NoSupportedManifestsFoundError([root]);
@@ -62,26 +62,26 @@ export async function getDepsFromPlugin(
     const inspectRes = await multiProjectProcessors[scanType].handler(
       root,
       options,
-      targetFiles,
+      targetFiles
     );
     const scannedProjects = inspectRes.scannedProjects;
     const analyticData = {
       scannedProjects: scannedProjects.length,
       targetFiles,
-      packageManagers: targetFiles.map((file) =>
-        detectPackageManagerFromFile(file),
+      packageManagers: targetFiles.map(file =>
+        detectPackageManagerFromFile(file)
       ),
       levelsDeep,
-      ignore,
+      ignore
     };
     analytics.add(scanType, analyticData);
     debug(
-      `Found ${scannedProjects.length} projects from ${allFilesFound.length} detected manifests`,
+      `Found ${scannedProjects.length} projects from ${allFilesFound.length} detected manifests`
     );
     const userWarningMessage = warnSomeGradleManifestsNotScanned(
       scannedProjects,
       allFilesFound,
-      root,
+      root
     );
 
     if (!options.json && !options.quiet && userWarningMessage) {
@@ -105,8 +105,8 @@ export async function getDepsFromPlugin(
       // something went wrong if both are not present...
       throw Error(
         `error getting dependencies from ${
-          options.docker ? 'docker' : options.packageManager
-        } ` + "plugin: neither 'package' nor 'scannedProjects' were found",
+          options.docker ? "docker" : options.packageManager
+        } ` + "plugin: neither 'package' nor 'scannedProjects' were found"
       );
     }
 
@@ -116,7 +116,7 @@ export async function getDepsFromPlugin(
   // but don't want to send to Registry in the Payload.
   // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
   (options as any).projectNames = inspectRes.scannedProjects.map(
-    (scannedProject) => scannedProject?.depTree?.name,
+    scannedProject => scannedProject?.depTree?.name
   );
   return convertMultiResultToMultiCustom(inspectRes, options.packageManager);
 }
@@ -124,28 +124,28 @@ export async function getDepsFromPlugin(
 export function warnSomeGradleManifestsNotScanned(
   scannedProjects: ScannedProject[],
   allFilesFound: string[],
-  root: string,
+  root: string
 ): string | null {
-  const gradleTargetFilesFilter = (targetFile) =>
+  const gradleTargetFilesFilter = targetFile =>
     targetFile &&
-    (targetFile.endsWith('build.gradle') ||
-      targetFile.endsWith('build.gradle.kts'));
+    (targetFile.endsWith("build.gradle") ||
+      targetFile.endsWith("build.gradle.kts"));
   const scannedGradleFiles = scannedProjects
-    .map((p) => {
+    .map(p => {
       const targetFile = p.meta?.targetFile || p.targetFile;
       return targetFile ? pathLib.resolve(root, targetFile) : null;
     })
     .filter(gradleTargetFilesFilter);
   const detectedGradleFiles = allFilesFound.filter(gradleTargetFilesFilter);
   const diff = detectedGradleFiles.filter(
-    (file) => !scannedGradleFiles.includes(file),
+    file => !scannedGradleFiles.includes(file)
   );
 
   if (diff.length > 0) {
     debug(
       `These Gradle manifests did not return any dependency results:\n${diff.join(
-        ',\n',
-      )}`,
+        ",\n"
+      )}`
     );
     return `${icon.ISSUE} ${diff.length}/${detectedGradleFiles.length} detected Gradle manifests did not return dependencies. They may have errored or were not included as part of a multi-project build. You may need to scan them individually with --file=path/to/file. Run with \`-d\` for more info.`;
   }

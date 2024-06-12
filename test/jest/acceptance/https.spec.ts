@@ -1,31 +1,31 @@
-import * as fs from 'fs';
+import * as fs from "fs";
 import {
   fakeServer,
   FakeServer,
-  getFirstIPv4Address,
-} from '../../acceptance/fake-server';
-import { createProjectFromWorkspace } from '../util/createProject';
-import { getFixturePath } from '../util/getFixturePath';
-import { runSnykCLI } from '../util/runSnykCLI';
-import { getServerPort } from '../util/getServerPort';
+  getFirstIPv4Address
+} from "../../acceptance/fake-server";
+import { createProjectFromWorkspace } from "../util/createProject";
+import { getFixturePath } from "../util/getFixturePath";
+import { runSnykCLI } from "../util/runSnykCLI";
+import { getServerPort } from "../util/getServerPort";
 
 jest.setTimeout(1000 * 30);
 
-describe('https', () => {
+describe("https", () => {
   let server: FakeServer;
   let env: Record<string, string>;
 
   beforeAll(async () => {
     const ipaddress = getFirstIPv4Address();
-    console.log('Using ip: ' + ipaddress);
+    console.log("Using ip: " + ipaddress);
 
     const port = getServerPort(process);
-    const baseApi = '/api/v1';
+    const baseApi = "/api/v1";
     env = {
       ...process.env,
-      SNYK_API: 'https://' + ipaddress + ':' + port + baseApi,
-      SNYK_HOST: 'https://' + ipaddress + ':' + port,
-      SNYK_TOKEN: '123456789',
+      SNYK_API: "https://" + ipaddress + ":" + port + baseApi,
+      SNYK_HOST: "https://" + ipaddress + ":" + port,
+      SNYK_TOKEN: "123456789"
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
     await server.listenWithHttps(port, {
@@ -33,10 +33,10 @@ describe('https', () => {
        * key and cert were generating using the command below:
        * faketime 'last week' openssl req -new -newkey rsa:4096 -days 1 -nodes -x509 -subj '/C=US/ST=Denial/L=Springfield/O=Dis/CN=localhost' -keyout localhost-expired.key -out localhost-expired.cert
        */
-      key: fs.readFileSync(getFixturePath('fake-server/localhost-expired.key')),
+      key: fs.readFileSync(getFixturePath("fake-server/localhost-expired.key")),
       cert: fs.readFileSync(
-        getFixturePath('fake-server/localhost-expired.cert'),
-      ),
+        getFixturePath("fake-server/localhost-expired.cert")
+      )
     });
   });
 
@@ -44,28 +44,28 @@ describe('https', () => {
     server.restore();
   });
 
-  afterAll((done) => {
+  afterAll(done => {
     server.close(() => {
       done();
     });
   });
 
-  describe('invalid certificate', () => {
-    it('rejects connections', async () => {
-      const project = await createProjectFromWorkspace('npm-package');
-      const { code } = await runSnykCLI('test', {
+  describe("invalid certificate", () => {
+    it("rejects connections", async () => {
+      const project = await createProjectFromWorkspace("npm-package");
+      const { code } = await runSnykCLI("test", {
         cwd: project.path(),
-        env,
+        env
       });
       expect(server.getRequests().length).toBe(0);
       expect(code).toBe(2);
     });
 
-    it('accepts connections using --insecure', async () => {
-      const project = await createProjectFromWorkspace('npm-package');
-      const { code } = await runSnykCLI('test --insecure', {
+    it("accepts connections using --insecure", async () => {
+      const project = await createProjectFromWorkspace("npm-package");
+      const { code } = await runSnykCLI("test --insecure", {
         cwd: project.path(),
-        env,
+        env
       });
       expect(server.getRequests().length).toBeGreaterThan(1);
       expect(code).toBe(0);
@@ -77,7 +77,7 @@ describe('https', () => {
         .pop();
 
       for (const r of server.getRequests()) {
-        expect(r.headers['user-agent']).toContain('snyk-cli/');
+        expect(r.headers["user-agent"]).toContain("snyk-cli/");
       }
     });
   });

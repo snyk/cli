@@ -1,9 +1,9 @@
-const debug = require('debug')('snyk-metrics');
+const debug = require("debug")("snyk-metrics");
 
-type MetricType = 'timer' | 'synthetic';
+type MetricType = "timer" | "synthetic";
 export type MetricValue = number | undefined;
-export const METRIC_TYPE_TIMER = 'timer';
-export const METRIC_TYPE_SYNTHETIC = 'synthetic';
+export const METRIC_TYPE_TIMER = "timer";
+export const METRIC_TYPE_SYNTHETIC = "synthetic";
 
 export abstract class MetricInstance {
   abstract getValue(): MetricValue;
@@ -36,7 +36,7 @@ export class TimerMetricInstance extends MetricInstance {
       this.startTimeMs = Date.now();
       debug(`Timer ${this.metricTag} started at ${this.startTimeMs}.`);
     } else {
-      debug('Invalid Timer use: start() called when timer already stopped');
+      debug("Invalid Timer use: start() called when timer already stopped");
     }
   }
 
@@ -46,10 +46,10 @@ export class TimerMetricInstance extends MetricInstance {
       debug(
         `Timer ${this.metricTag} stopped at ${
           this.endTimeMs
-        }. Elapsed time is ${this.getValue()}`,
+        }. Elapsed time is ${this.getValue()}`
       );
     } else {
-      debug('Invalid Timer use: stop() called when timer already stopped');
+      debug("Invalid Timer use: stop() called when timer already stopped");
     }
   }
 }
@@ -77,7 +77,7 @@ export abstract class Metric {
   }
 
   public getValues(): number[] {
-    return this.instances.map((mi) => mi.getValue() || 0);
+    return this.instances.map(mi => mi.getValue() || 0);
   }
 
   public getTotal(): number {
@@ -115,20 +115,20 @@ export class SyntheticMetric extends Metric {
 
 export class MetricsCollector {
   public static NETWORK_TIME: TimerMetric = new TimerMetric(
-    'network_time',
-    'timer',
-    'Total time spent making and waiting on network requests',
+    "network_time",
+    "timer",
+    "Total time spent making and waiting on network requests"
   );
   public static CPU_TIME: SyntheticMetric = new SyntheticMetric(
-    'cpu_time',
-    'synthetic',
-    'Time spent on things other than network requests',
+    "cpu_time",
+    "synthetic",
+    "Time spent on things other than network requests"
   );
 
   public static getAllMetrics(): any[] {
     const metrics: Metric[] = [
       MetricsCollector.NETWORK_TIME,
-      MetricsCollector.CPU_TIME,
+      MetricsCollector.CPU_TIME
     ];
 
     const res: any = {};
@@ -136,7 +136,7 @@ export class MetricsCollector {
       res[m.name] = {
         type: m.metricType,
         values: m.getValues(),
-        total: m.getTotal(),
+        total: m.getTotal()
       };
     }
     return res;

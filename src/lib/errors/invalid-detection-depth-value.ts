@@ -1,4 +1,4 @@
-import { CustomError } from './custom-error';
+import { CustomError } from "./custom-error";
 
 export class InvalidDetectionDepthValue extends CustomError {
   constructor() {

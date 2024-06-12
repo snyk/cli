@@ -1,42 +1,42 @@
-import * as path from 'path';
+import * as path from "path";
 
-import { GithubActionTestRunner } from './runner';
+import { GithubActionTestRunner } from "./runner";
 
 jest.setTimeout(50000);
 
-describe('GitHub action - IaC', () => {
+describe("GitHub action - IaC", () => {
   describe.each([
     {
-      relativeDir: '',
+      relativeDir: "",
       inputPath: path.resolve(
-        './test/fixtures',
-        './iac/kubernetes/pod-valid.json',
-      ), // absolute location to file
+        "./test/fixtures",
+        "./iac/kubernetes/pod-valid.json"
+      ) // absolute location to file
     },
     {
-      relativeDir: '',
-      inputPath: './iac/kubernetes/pod-valid.json', // a file
+      relativeDir: "",
+      inputPath: "./iac/kubernetes/pod-valid.json" // a file
     },
     {
-      relativeDir: '',
-      inputPath: './iac', // one folder down
+      relativeDir: "",
+      inputPath: "./iac" // one folder down
     },
     {
-      relativeDir: 'iac',
-      inputPath: '.', // current directory provided as .
+      relativeDir: "iac",
+      inputPath: "." // current directory provided as .
     },
     {
-      relativeDir: 'iac',
-      inputPath: '', // current directory provided by default
-    },
-  ])('when provided config: %j', ({ relativeDir, inputPath }) => {
+      relativeDir: "iac",
+      inputPath: "" // current directory provided by default
+    }
+  ])("when provided config: %j", ({ relativeDir, inputPath }) => {
     let githubActionTestRunner: GithubActionTestRunner;
 
     beforeAll(async () => {
       githubActionTestRunner = await GithubActionTestRunner.build(
-        'iac',
+        "iac",
         relativeDir,
-        inputPath,
+        inputPath
       );
     });
 

@@ -1,20 +1,20 @@
-import * as depGraphLib from '@snyk/dep-graph';
-import { DepTree } from '../types';
+import * as depGraphLib from "@snyk/dep-graph";
+import { DepTree } from "../types";
 
 export async function pruneTree(
   tree: DepTree,
-  packageManagerName: string,
+  packageManagerName: string
 ): Promise<DepTree> {
   // Pruning requires conversion to the graph first.
   // This is slow.
   const graph = await depGraphLib.legacy.depTreeToGraph(
     tree,
-    packageManagerName,
+    packageManagerName
   );
   const prunedTree: DepTree = (await depGraphLib.legacy.graphToDepTree(
     graph,
     packageManagerName,
-    { deduplicateWithinTopLevelDeps: true },
+    { deduplicateWithinTopLevelDeps: true }
   )) as DepTree;
   // Transplant pruned dependencies in the original tree (we want to keep all other fields):
   tree.dependencies = prunedTree.dependencies;

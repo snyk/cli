@@ -1,8 +1,8 @@
-import { EOL } from 'os';
+import { EOL } from "os";
 
-import { IacFileInDirectory } from '../../../../types';
-import { colors, contentPadding } from '../utils';
-import { IaCTestFailure, IaCTestWarning } from '../types';
+import { IacFileInDirectory } from "../../../../types";
+import { colors, contentPadding } from "../utils";
+import { IaCTestFailure, IaCTestWarning } from "../types";
 
 export function formatIacTestFailures(testFailures: IaCTestFailure[]): string {
   const sectionComponents: string[] = [];
@@ -21,7 +21,7 @@ interface TestFailuresByFailureReason {
 }
 
 function groupTestFailuresByFailureReason(
-  testFailures: IaCTestFailure[],
+  testFailures: IaCTestFailure[]
 ): TestFailuresByFailureReason {
   return testFailures.reduce((groupedFailures, failure) => {
     const reason = failure.failureReason;
@@ -41,17 +41,17 @@ export function formatFailuresList(testFailures: IaCTestFailure[]): string {
   const testFailuresByReason = groupTestFailuresByFailureReason(testFailures);
   return Object.entries(testFailuresByReason)
     .map(([failureReason, testFailures]) =>
-      formatFailure(failureReason, testFailures),
+      formatFailure(failureReason, testFailures)
     )
     .join(EOL.repeat(2));
 }
 
 function formatFailure(
   failureReason: string,
-  testFailures: IacFileInDirectory[],
+  testFailures: IacFileInDirectory[]
 ): string {
-  const pathPrefix = contentPadding + 'Path: ';
-  const pathLeftPadding = ' '.repeat(pathPrefix.length);
+  const pathPrefix = contentPadding + "Path: ";
+  const pathLeftPadding = " ".repeat(pathPrefix.length);
 
   return (
     contentPadding +
@@ -59,7 +59,7 @@ function formatFailure(
     EOL +
     pathPrefix +
     testFailures
-      .map((testFailure) => testFailure.filePath)
+      .map(testFailure => testFailure.filePath)
       .join(EOL + pathLeftPadding)
   );
 }
@@ -78,11 +78,11 @@ export function formatIacTestWarnings(testWarnings: IaCTestWarning[]): string {
 
 function formatWarningsList(testWarnings: IaCTestWarning[]): string {
   const testWarningsByReasonAndPath = groupTestWarningsByReasonAndPath(
-    testWarnings,
+    testWarnings
   );
 
   return Object.values(testWarningsByReasonAndPath)
-    .map((testWarning) => {
+    .map(testWarning => {
       return formatWarning(testWarning);
     })
     .join(EOL.repeat(2));
@@ -97,7 +97,7 @@ type groupedIacTestWarnings = {
 };
 
 function groupTestWarningsByReasonAndPath(
-  testWarnings: IaCTestWarning[],
+  testWarnings: IaCTestWarning[]
 ): { [key: string]: groupedIacTestWarnings } {
   return testWarnings.reduce(
     (groupedWarnings: { [key: string]: groupedIacTestWarnings }, warning) => {
@@ -109,7 +109,7 @@ function groupTestWarningsByReasonAndPath(
             path: warning.filePath,
             terms: [],
             modules: [],
-            expressions: [],
+            expressions: []
           };
         }
 
@@ -124,33 +124,33 @@ function groupTestWarningsByReasonAndPath(
         }
         if (warning.expressions) {
           groupedWarnings[reasonAndPath].expressions.push(
-            ...warning.expressions,
+            ...warning.expressions
           );
         }
       }
 
       return groupedWarnings;
     },
-    {},
+    {}
   );
 }
 
 function formatWarning(testWarnings: groupedIacTestWarnings): string {
-  const pathPrefix = contentPadding + 'Path: ';
+  const pathPrefix = contentPadding + "Path: ";
 
   const fieldsPrefixes: { [field: string]: string } = {};
   if (testWarnings.terms.length) {
-    fieldsPrefixes['terms'] = contentPadding + 'Term: ';
+    fieldsPrefixes["terms"] = contentPadding + "Term: ";
   }
   if (testWarnings.modules.length) {
-    fieldsPrefixes['modules'] = contentPadding + 'Module: ';
+    fieldsPrefixes["modules"] = contentPadding + "Module: ";
   }
   if (testWarnings.expressions.length) {
-    fieldsPrefixes['expressions'] = contentPadding + 'Expression: ';
+    fieldsPrefixes["expressions"] = contentPadding + "Expression: ";
   }
 
   const prefixes = [pathPrefix, ...Object.values(fieldsPrefixes)];
-  const leftPadding = ' '.repeat(Math.max(...prefixes.map((el) => el.length)));
+  const leftPadding = " ".repeat(Math.max(...prefixes.map(el => el.length)));
 
   return (
     contentPadding +
@@ -162,7 +162,7 @@ function formatWarning(testWarnings: groupedIacTestWarnings): string {
       return (
         EOL +
         prefix +
-        testWarnings[field].map((value) => value).join(EOL + leftPadding)
+        testWarnings[field].map(value => value).join(EOL + leftPadding)
       );
     })
   );

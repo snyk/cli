@@ -1,16 +1,16 @@
-import * as capitalize from 'lodash.capitalize';
-import chalk from 'chalk';
-import { EOL } from 'os';
-import * as wrapAnsi from 'wrap-ansi';
-import { iacRemediationTypes } from '../../../../iac/constants';
-import { printPath } from '../../../remediation-based-format-issues';
-import { colors, contentPadding, maxLineWidth } from '../utils';
-import { FormattedOutputResult, Issue } from '../types';
-import { Options } from './types';
+import * as capitalize from "lodash.capitalize";
+import chalk from "chalk";
+import { EOL } from "os";
+import * as wrapAnsi from "wrap-ansi";
+import { iacRemediationTypes } from "../../../../iac/constants";
+import { printPath } from "../../../remediation-based-format-issues";
+import { colors, contentPadding, maxLineWidth } from "../utils";
+import { FormattedOutputResult, Issue } from "../types";
+import { Options } from "./types";
 
 export function formatIssue(
   result: FormattedOutputResult,
-  options?: Options,
+  options?: Options
 ): string {
   const titleOutput = formatTitle(result.issue);
 
@@ -27,7 +27,7 @@ export function formatIssue(
 function formatTitle(issue: Issue): string {
   const severity = issue.severity;
   const titleOutput = colors.severities[severity](
-    `[${capitalize([issue.severity])}] ${chalk.bold(issue.title)}`,
+    `[${capitalize([issue.severity])}] ${chalk.bold(issue.title)}`
   );
 
   return titleOutput;
@@ -45,32 +45,32 @@ function formatInfo(issue: Issue): string | undefined {
     return issueDesc;
   }
 
-  return `${issueDesc}${!issueDesc.endsWith('.') ? '.' : ''} ${issueImpact}`;
+  return `${issueDesc}${!issueDesc.endsWith(".") ? "." : ""} ${issueImpact}`;
 }
 
 function formatProperties(
   result: FormattedOutputResult,
-  options?: Options,
+  options?: Options
 ): string[] {
   const properties = [
-    ['Info', formatInfo(result.issue)],
+    ["Info", formatInfo(result.issue)],
     [
-      'Rule',
+      "Rule",
       result.issue.isGeneratedByCustomRule
         ? `custom rule ${result.issue.id}`
-        : chalk.underline(result.issue.documentation || ''),
+        : chalk.underline(result.issue.documentation || "")
     ],
-    ['Path', printPath(result.issue.cloudConfigPath, 0)],
+    ["Path", printPath(result.issue.cloudConfigPath, 0)],
     [
-      'File',
+      "File",
       `${result.targetFile}${
         options?.shouldShowLineNumbers &&
         isValidLineNumber(result.issue.lineNumber)
           ? `:${result.issue.lineNumber}`
-          : ''
-      }`,
+          : ""
+      }`
     ],
-    ['Resolve', getRemediationText(result)],
+    ["Resolve", getRemediationText(result)]
   ];
 
   const propKeyColWidth = Math.max(...properties.map(([key]) => key!.length));
@@ -83,18 +83,18 @@ function formatProperties(
     .map(([key, value]) => [
       key,
       wrapAnsi(value, propValColWidth, {
-        hard: true,
-      }).replace(/\r?\n|\r/g, EOL + contentPadding + ' '.repeat(indentLength)),
+        hard: true
+      }).replace(/\r?\n|\r/g, EOL + contentPadding + " ".repeat(indentLength))
     ])
     .map(
       ([key, value]) =>
-        `${key}: ${' '.repeat(propKeyColWidth - key.length)}${value}`,
+        `${key}: ${" ".repeat(propKeyColWidth - key.length)}${value}`
     );
 }
 
 function isValidLineNumber(lineNumber: number | undefined): boolean {
   return (
-    typeof lineNumber === 'number' && lineNumber! > 0 && lineNumber! % 1 === 0
+    typeof lineNumber === "number" && lineNumber! > 0 && lineNumber! % 1 === 0
   );
 }
 

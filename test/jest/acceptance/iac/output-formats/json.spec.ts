@@ -1,13 +1,13 @@
-import * as fs from 'fs';
-import * as pathLib from 'path';
-import { matchers } from 'jest-json-schema';
+import * as fs from "fs";
+import * as pathLib from "path";
+import { matchers } from "jest-json-schema";
 
-import { FakeServer } from '../../../../acceptance/fake-server';
-import { startMockServer } from '../helpers';
+import { FakeServer } from "../../../../acceptance/fake-server";
+import { startMockServer } from "../helpers";
 import {
   spinnerMessage,
-  spinnerSuccessMessage,
-} from '../../../../../src/lib/formatters/iac-output/text';
+  spinnerSuccessMessage
+} from "../../../../../src/lib/formatters/iac-output/text";
 
 expect.extend(matchers);
 
@@ -15,53 +15,53 @@ const testResultJsonSchema = JSON.parse(
   fs.readFileSync(
     pathLib.join(
       __dirname,
-      '..',
-      '..',
-      '..',
-      '..',
-      'fixtures',
-      'iac',
-      'output-formats',
-      'test-result-json-schema.json',
+      "..",
+      "..",
+      "..",
+      "..",
+      "fixtures",
+      "iac",
+      "output-formats",
+      "test-result-json-schema.json"
     ),
-    'utf-8',
-  ),
+    "utf-8"
+  )
 );
 
 const testResultsJsonSchema = {
-  type: 'array',
-  items: testResultJsonSchema,
+  type: "array",
+  items: testResultJsonSchema
 };
 
 const testErrorJsonSchema = JSON.parse(
   fs.readFileSync(
     pathLib.join(
       __dirname,
-      '..',
-      '..',
-      '..',
-      '..',
-      'fixtures',
-      'iac',
-      'output-formats',
-      'test-error-json-schema.json',
+      "..",
+      "..",
+      "..",
+      "..",
+      "fixtures",
+      "iac",
+      "output-formats",
+      "test-error-json-schema.json"
     ),
-    'utf-8',
-  ),
+    "utf-8"
+  )
 );
 
 const testErrorsJsonSchema = {
-  type: 'array',
-  items: testErrorJsonSchema,
+  type: "array",
+  items: testErrorJsonSchema
 };
 
 jest.setTimeout(1_000 * 30);
 
-describe('iac test JSON output', () => {
+describe("iac test JSON output", () => {
   let server: FakeServer;
   let run: (
     cmd: string,
-    overrides?: Record<string, string>,
+    overrides?: Record<string, string>
   ) => Promise<{ stdout: string; stderr: string; exitCode: number }>;
   let teardown: () => Promise<unknown>;
 
@@ -77,9 +77,9 @@ describe('iac test JSON output', () => {
     await teardown();
   });
 
-  it('should not show an initial message', async () => {
+  it("should not show an initial message", async () => {
     // Arrange
-    const filePath = './iac/arm/rule_test.json';
+    const filePath = "./iac/arm/rule_test.json";
 
     // Act
     const { stdout } = await run(`snyk iac test --json ${filePath}`);
@@ -88,9 +88,9 @@ describe('iac test JSON output', () => {
     expect(stdout).not.toContain(spinnerMessage);
   });
 
-  it('should not show spinner messages', async () => {
+  it("should not show spinner messages", async () => {
     // Arrange
-    const filePath = './iac/arm/rule_test.json';
+    const filePath = "./iac/arm/rule_test.json";
 
     // Act
     const { stdout } = await run(`snyk iac test --json ${filePath}`);
@@ -100,11 +100,11 @@ describe('iac test JSON output', () => {
     expect(stdout).not.toContain(spinnerSuccessMessage);
   });
 
-  describe('with a single file', () => {
-    describe('when the test is successful', () => {
-      it('should output a result in the correct schema', async () => {
+  describe("with a single file", () => {
+    describe("when the test is successful", () => {
+      it("should output a result in the correct schema", async () => {
         // Arrange
-        const filePath = 'iac/cloudformation/aurora-valid.yml';
+        const filePath = "iac/cloudformation/aurora-valid.yml";
 
         // Act
         const { stdout } = await run(`snyk iac test --json ${filePath}`);
@@ -115,10 +115,10 @@ describe('iac test JSON output', () => {
       });
     });
 
-    describe('when the test fails', () => {
-      it('should output an error in the correct schema', async () => {
+    describe("when the test fails", () => {
+      it("should output an error in the correct schema", async () => {
         // Arrange
-        const filePath = 'iac/only-invalid/invalid-file1.yml';
+        const filePath = "iac/only-invalid/invalid-file1.yml";
 
         // Act
         const { stdout } = await run(`snyk iac test --json ${filePath}`);
@@ -130,11 +130,11 @@ describe('iac test JSON output', () => {
     });
   });
 
-  describe('with multiple files', () => {
-    describe('with some successful tests', () => {
-      it('should output results in the correct schema', async () => {
+  describe("with multiple files", () => {
+    describe("with some successful tests", () => {
+      it("should output results in the correct schema", async () => {
         // Arrange
-        const dirPath = 'iac';
+        const dirPath = "iac";
 
         // Act
         const { stdout } = await run(`snyk iac test --json ${dirPath}`);
@@ -144,14 +144,14 @@ describe('iac test JSON output', () => {
         expect(outputJson).toMatchSchema(testResultsJsonSchema);
       });
 
-      describe('with multiple paths', () => {
-        it('should return valid output', async () => {
+      describe("with multiple paths", () => {
+        it("should return valid output", async () => {
           // Arrange
-          const paths = ['./iac/arm/rule_test.json', './iac/cloudformation'];
+          const paths = ["./iac/arm/rule_test.json", "./iac/cloudformation"];
 
           // Act
           const { stdout, exitCode } = await run(
-            `snyk iac test --json ${paths.join(' ')}`,
+            `snyk iac test --json ${paths.join(" ")}`
           );
 
           // Assert
@@ -165,10 +165,10 @@ describe('iac test JSON output', () => {
       });
     });
 
-    describe('with only failing tests', () => {
-      it('should output errors in the correct schema', async () => {
+    describe("with only failing tests", () => {
+      it("should output errors in the correct schema", async () => {
         // Arrange
-        const dirPath = 'iac/only-invalid';
+        const dirPath = "iac/only-invalid";
 
         // Act
         const { stdout } = await run(`snyk iac test --json ${dirPath}`);

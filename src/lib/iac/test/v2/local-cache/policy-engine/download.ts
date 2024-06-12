@@ -1,28 +1,28 @@
-import * as pathLib from 'path';
-import * as crypto from 'crypto';
-import * as createDebugLogger from 'debug';
+import * as pathLib from "path";
+import * as crypto from "crypto";
+import * as createDebugLogger from "debug";
 
-import { getErrorStringCode } from '../../../../../../cli/commands/test/iac/local-execution/error-utils';
-import { IaCErrorCodes } from '../../../../../../cli/commands/test/iac/local-execution/types';
-import { CustomError } from '../../../../../errors';
-import { TimerMetricInstance } from '../../../../../metrics';
-import { TestConfig } from '../../types';
-import { fetchCacheResource } from '../utils';
+import { getErrorStringCode } from "../../../../../../cli/commands/test/iac/local-execution/error-utils";
+import { IaCErrorCodes } from "../../../../../../cli/commands/test/iac/local-execution/types";
+import { CustomError } from "../../../../../errors";
+import { TimerMetricInstance } from "../../../../../metrics";
+import { TestConfig } from "../../types";
+import { fetchCacheResource } from "../utils";
 import {
   policyEngineChecksum,
   policyEngineFileName,
-  policyEngineReleaseVersion,
-} from './constants';
-import { saveFile } from '../../../../file-utils';
+  policyEngineReleaseVersion
+} from "./constants";
+import { saveFile } from "../../../../file-utils";
 
-const debugLog = createDebugLogger('snyk-iac');
+const debugLog = createDebugLogger("snyk-iac");
 
 export async function downloadPolicyEngine(
-  testConfig: TestConfig,
+  testConfig: TestConfig
 ): Promise<string> {
   let downloadDurationSeconds = 0;
 
-  const timer = new TimerMetricInstance('iac_policy_engine_download');
+  const timer = new TimerMetricInstance("iac_policy_engine_download");
   timer.start();
 
   const dataBuffer = await fetch();
@@ -31,14 +31,14 @@ export async function downloadPolicyEngine(
 
   const cachedPolicyEnginePath = await cache(
     dataBuffer,
-    testConfig.iacCachePath,
+    testConfig.iacCachePath
   );
 
   timer.stop();
   downloadDurationSeconds = Math.round((timer.getValue() as number) / 1000);
 
   debugLog(
-    `Downloaded and cached Policy Engine successfully in ${downloadDurationSeconds} seconds`,
+    `Downloaded and cached Policy Engine successfully in ${downloadDurationSeconds} seconds`
   );
 
   return cachedPolicyEnginePath;
@@ -53,7 +53,7 @@ async function fetch(): Promise<Buffer> {
   } catch (err) {
     throw new FailedToDownloadPolicyEngineError();
   }
-  debugLog('Policy Engine executable was fetched successfully');
+  debugLog("Policy Engine executable was fetched successfully");
 
   return policyEngineDataBuffer;
 }
@@ -67,26 +67,26 @@ export class FailedToDownloadPolicyEngineError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       `Could not fetch cache resource from: ${policyEngineUrl}` +
-      '\nEnsure valid network connection.';
+      "\nEnsure valid network connection.";
   }
 }
 
 function assertValidChecksum(dataBuffer: Buffer): void {
   const computedChecksum = crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(dataBuffer)
-    .digest('hex');
+    .digest("hex");
 
   if (computedChecksum !== policyEngineChecksum) {
     throw new FailedToDownloadPolicyEngineError();
   }
 
-  debugLog('Fetched Policy Engine executable has valid checksum');
+  debugLog("Fetched Policy Engine executable has valid checksum");
 }
 
 async function cache(
   dataBuffer: Buffer,
-  iacCachePath: string,
+  iacCachePath: string
 ): Promise<string> {
   const savePath = pathLib.join(iacCachePath, policyEngineFileName);
 
@@ -110,6 +110,6 @@ export class FailedToCachePolicyEngineError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       `Could not write the downloaded cache resource to: ${savePath}` +
-      '\nEnsure the cache directory is writable.';
+      "\nEnsure the cache directory is writable.";
   }
 }

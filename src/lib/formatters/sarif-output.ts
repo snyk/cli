@@ -1,23 +1,23 @@
-import * as sarif from 'sarif';
-import * as upperFirst from 'lodash.upperfirst';
-import { AnnotatedIssue, TestResult } from '../snyk-test/legacy';
-import { SEVERITY } from '../snyk-test/legacy';
-import { getResults } from './get-sarif-result';
+import * as sarif from "sarif";
+import * as upperFirst from "lodash.upperfirst";
+import { AnnotatedIssue, TestResult } from "../snyk-test/legacy";
+import { SEVERITY } from "../snyk-test/legacy";
+import { getResults } from "./get-sarif-result";
 
 export function createSarifOutputForContainers(
-  testResults: TestResult[],
+  testResults: TestResult[]
 ): sarif.Log {
   const sarifRes: sarif.Log = {
     $schema:
-      'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
-    version: '2.1.0',
-    runs: [],
+      "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+    version: "2.1.0",
+    runs: []
   };
 
-  testResults.forEach((testResult) => {
+  testResults.forEach(testResult => {
     sarifRes.runs.push({
       tool: getTool(testResult),
-      results: getResults(testResult),
+      results: getResults(testResult)
     });
   });
 
@@ -25,22 +25,22 @@ export function createSarifOutputForContainers(
 }
 
 export function getIssueLevel(
-  severity: SEVERITY | 'none',
+  severity: SEVERITY | "none"
 ): sarif.ReportingConfiguration.level {
   return severity === SEVERITY.HIGH || severity === SEVERITY.CRITICAL
-    ? 'error'
-    : 'warning';
+    ? "error"
+    : "warning";
 }
 
 export function getTool(testResult): sarif.Tool {
   const tool: sarif.Tool = {
     driver: {
-      name: 'Snyk Container',
+      name: "Snyk Container",
       properties: {
-        artifactsScanned: testResult.dependencyCount,
+        artifactsScanned: testResult.dependencyCount
       },
-      rules: [],
-    },
+      rules: []
+    }
   };
 
   if (!testResult.vulnerabilities) {
@@ -61,30 +61,30 @@ export function getTool(testResult): sarif.Tool {
         shortDescription: {
           text: `${upperFirst(vuln.severity)} severity - ${
             vuln.title
-          } vulnerability in ${vuln.packageName}`,
+          } vulnerability in ${vuln.packageName}`
         },
         fullDescription: {
           text: cve
             ? `(${cve}) ${vuln.name}@${vuln.version}`
-            : `${vuln.name}@${vuln.version}`,
+            : `${vuln.name}@${vuln.version}`
         },
         help: {
-          text: '',
-          markdown: vuln.description,
+          text: "",
+          markdown: vuln.description
         },
         defaultConfiguration: {
-          level: level,
+          level: level
         },
         properties: {
           tags: [
-            'security',
+            "security",
             ...(vuln.identifiers?.CWE || []),
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            testResult.packageManager!,
+            testResult.packageManager!
           ],
           cvssv3_baseScore: vuln.cvssScore, // AWS
-          'security-severity': String(vuln.cvssScore), // GitHub
-        },
+          "security-severity": String(vuln.cvssScore) // GitHub
+        }
       };
     })
     .filter(Boolean);

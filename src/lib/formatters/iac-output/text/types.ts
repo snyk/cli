@@ -1,8 +1,8 @@
-import { IacProjectType } from '../../../iac/constants';
-import { State } from '../../../iac/test/v2/scan/policy-engine';
-import { AnnotatedIacIssue } from '../../../snyk-test/iac-test-result';
-import { SEVERITY } from '../../../snyk-test/legacy';
-import { IacOutputMeta } from '../../../types';
+import { IacProjectType } from "../../../iac/constants";
+import { State } from "../../../iac/test/v2/scan/policy-engine";
+import { AnnotatedIacIssue } from "../../../snyk-test/iac-test-result";
+import { SEVERITY } from "../../../snyk-test/legacy";
+import { IacOutputMeta } from "../../../types";
 
 export interface IacTestData {
   resultsBySeverity: FormattedOutputResultsBySeverity;
@@ -45,15 +45,15 @@ export type IaCTestWarning = {
 
 export type Issue = Pick<
   AnnotatedIacIssue,
-  | 'id'
-  | 'title'
-  | 'severity'
-  | 'issue'
-  | 'impact'
-  | 'resolve'
-  | 'remediation'
-  | 'lineNumber'
-  | 'isGeneratedByCustomRule'
-  | 'documentation'
-  | 'cloudConfigPath'
+  | "id"
+  | "title"
+  | "severity"
+  | "issue"
+  | "impact"
+  | "resolve"
+  | "remediation"
+  | "lineNumber"
+  | "isGeneratedByCustomRule"
+  | "documentation"
+  | "cloudConfigPath"
 >;

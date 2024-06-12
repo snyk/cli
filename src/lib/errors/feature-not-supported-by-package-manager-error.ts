@@ -1,5 +1,5 @@
-import { CustomError } from './custom-error';
-import { SupportedPackageManagers } from '../package-managers';
+import { CustomError } from "./custom-error";
+import { SupportedPackageManagers } from "../package-managers";
 
 export class FeatureNotSupportedByPackageManagerError extends CustomError {
   public readonly feature: string;
@@ -7,7 +7,7 @@ export class FeatureNotSupportedByPackageManagerError extends CustomError {
   constructor(
     feature: string,
     packageManager: SupportedPackageManagers,
-    additionalUserHelp = '',
+    additionalUserHelp = ""
   ) {
     super(`Unsupported package manager ${packageManager} for ${feature}.`);
     this.code = 422;

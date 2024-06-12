@@ -1,6 +1,6 @@
-import * as tar from 'tar';
-import { promises as fsPromises, constants as fsConstants } from 'fs';
-import { promisify } from 'util';
+import * as tar from "tar";
+import { promises as fsPromises, constants as fsConstants } from "fs";
+import { promisify } from "util";
 
 export async function isExe(path: string): Promise<boolean> {
   try {
@@ -47,7 +47,7 @@ export async function isArchive(path: string): Promise<boolean> {
 
 export async function saveFile(
   dataBuffer: Buffer,
-  savePath: string,
+  savePath: string
 ): Promise<void> {
   await fsPromises.writeFile(savePath, dataBuffer);
   await fsPromises.chmod(savePath, 0o744);

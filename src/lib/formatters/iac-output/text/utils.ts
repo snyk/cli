@@ -1,5 +1,5 @@
-import chalk, { Chalk } from 'chalk';
-import { SEVERITY } from '../../../snyk-test/common';
+import chalk, { Chalk } from "chalk";
+import { SEVERITY } from "../../../snyk-test/common";
 
 interface IacOutputColors {
   severities: SeverityColor;
@@ -20,28 +20,28 @@ export const colors: IacOutputColors = {
     critical: chalk.magenta,
     high: chalk.red,
     medium: chalk.yellow,
-    low: chalk.reset,
+    low: chalk.reset
   },
   failure: chalk.red,
   warning: chalk.yellow,
   success: chalk.green,
   info: chalk.reset,
   title: chalk.reset.bold,
-  suggestion: chalk.gray,
+  suggestion: chalk.gray
 };
 
-export const contentPadding = ' '.repeat(2);
+export const contentPadding = " ".repeat(2);
 
 export const maxLineWidth = process.stdout.columns
   ? Math.min(process.stdout.columns, 80)
   : 80;
 
 export const countSuppressedIssues = (
-  suppressedIssues: Record<string, string[]>,
+  suppressedIssues: Record<string, string[]>
 ): number => {
   return Object.values(suppressedIssues).reduce(function(
     count,
-    resourcesForRuleId,
+    resourcesForRuleId
   ) {
     return (count += resourcesForRuleId.length);
   },

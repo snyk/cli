@@ -1,29 +1,29 @@
-import * as bodyParser from 'body-parser';
-import * as express from 'express';
-import * as fs from 'fs';
-import * as http from 'http';
-import * as https from 'https';
-import * as path from 'path';
-import * as net from 'net';
-import { getFixturePath } from '../jest/util/getFixturePath';
-import * as os from 'os';
+import * as bodyParser from "body-parser";
+import * as express from "express";
+import * as fs from "fs";
+import * as http from "http";
+import * as https from "https";
+import * as path from "path";
+import * as net from "net";
+import { getFixturePath } from "../jest/util/getFixturePath";
+import * as os from "os";
 
 const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([
-    ['cliFailFast', false],
-    ['iacIntegratedExperience', false],
-    ['containerCliAppVulnsEnabled', true],
+    ["cliFailFast", false],
+    ["iacIntegratedExperience", false],
+    ["containerCliAppVulnsEnabled", true]
   ]);
 };
 
 export function getFirstIPv4Address(): string {
-  let ipaddress = '';
+  let ipaddress = "";
 
   const interfaces = os.networkInterfaces();
   for (const [, group] of Object.entries(interfaces)) {
     if (group) {
       for (const inter of group) {
-        if (inter && inter.family == 'IPv4' && inter.address != '127.0.0.1') {
+        if (inter && inter.family == "IPv4" && inter.address != "127.0.0.1") {
           ipaddress = inter.address;
           break;
         }
@@ -50,7 +50,7 @@ export type FakeServer = {
   listenPromise: (port: string | number) => Promise<void>;
   listenWithHttps: (
     port: string | number,
-    options: https.ServerOptions,
+    options: https.ServerOptions
   ) => Promise<void>;
   restore: () => void;
   close: (callback: () => void) => void;
@@ -63,7 +63,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let featureFlags: Map<string, boolean> = featureFlagDefaults();
   let availableSettings: Map<string, boolean> = new Map();
   let localCodeEngineConfiguration: Record<string, unknown> = {
-    enabled: false,
+    enabled: false
   };
   let unauthorizedActions = new Map();
   // the status code to return for the next request, overriding statusCode
@@ -102,9 +102,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   };
 
   const setLocalCodeEngineConfiguration = (
-    response: string | Record<string, unknown>,
+    response: string | Record<string, unknown>
   ) => {
-    if (typeof response === 'string') {
+    if (typeof response === "string") {
       localCodeEngineConfiguration = JSON.parse(response);
       return;
     }
@@ -112,7 +112,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   };
 
   const setNextResponse = (response: string | Record<string, unknown>) => {
-    if (typeof response === 'string') {
+    if (typeof response === "string") {
       nextResponse = JSON.parse(response);
       return;
     }
@@ -141,57 +141,57 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const unauthorizeAction = (
     action: string,
-    reason = 'unauthorized by test',
+    reason = "unauthorized by test"
   ) => {
     unauthorizedActions.set(action, {
       allowed: false,
-      reason,
+      reason
     });
   };
 
   const app = express();
-  app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.json({ limit: "50mb" }));
   // Content-Type for rest API endpoints is 'application/vnd.api+json'
-  app.use(express.json({ type: 'application/vnd.api+json', strict: false }));
+  app.use(express.json({ type: "application/vnd.api+json", strict: false }));
   app.use((req, res, next) => {
     requests.push(req);
     next();
   });
 
-  [basePath + '/verify/callback', basePath + '/verify/token'].map((url) => {
+  [basePath + "/verify/callback", basePath + "/verify/token"].map(url => {
     app.post(url, (req, res) => {
-      if (req.header('Authorization') === undefined) {
+      if (req.header("Authorization") === undefined) {
         if (req.body.api === snykToken) {
           return res.send({
             ok: true,
-            api: snykToken,
+            api: snykToken
           });
         }
 
         if (req.body.token) {
           return res.send({
             ok: true,
-            api: snykToken,
+            api: snykToken
           });
         }
       }
 
       res.status(401);
       res.send({
-        ok: false,
+        ok: false
       });
     });
   });
 
-  app.get('/login', (req, res) => {
+  app.get("/login", (req, res) => {
     res.status(200);
-    res.send('Test Authenticated!');
+    res.send("Test Authenticated!");
   });
 
   app.use((req, res, next) => {
     if (
-      req.url?.includes('/iac-org-settings') ||
-      req.url?.includes('/cli-config/feature-flags/') ||
+      req.url?.includes("/iac-org-settings") ||
+      req.url?.includes("/cli-config/feature-flags/") ||
       (!nextResponse && !nextStatusCode && !statusCode)
     ) {
       return next();
@@ -209,54 +209,54 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send(response);
   });
 
-  app.get(basePath + '/vuln/:registry/:module', (req, res) => {
+  app.get(basePath + "/vuln/:registry/:module", (req, res) => {
     try {
       // Use one of the fixtures if it exists.
       const body = fs.readFileSync(
-        path.resolve(getFixturePath('cli-test-results'), req.params.module),
-        'utf8',
+        path.resolve(getFixturePath("cli-test-results"), req.params.module),
+        "utf8"
       );
       res.send(JSON.parse(body));
     } catch {
       res.send({
-        vulnerabilities: [],
+        vulnerabilities: []
       });
     }
   });
 
-  app.post(basePath + '/vuln/:registry', (req, res, next) => {
+  app.post(basePath + "/vuln/:registry", (req, res, next) => {
     const vulnerabilities = [];
-    if (req.query.org && req.query.org === 'missing-org') {
+    if (req.query.org && req.query.org === "missing-org") {
       res.status(404);
       res.send({
         code: 404,
         userMessage:
-          'Org missing-org was not found or you may not have the correct permissions',
+          "Org missing-org was not found or you may not have the correct permissions"
       });
       return next();
     }
     res.send({
       vulnerabilities,
-      org: 'test-org',
-      isPrivate: true,
+      org: "test-org",
+      isPrivate: true
     });
     return next();
   });
 
-  app.post(basePath + '/vuln/:registry/patches', (req, res, next) => {
+  app.post(basePath + "/vuln/:registry/patches", (req, res, next) => {
     res.send({
-      vulnerabilities: [],
+      vulnerabilities: []
     });
     return next();
   });
 
-  app.post(basePath + '/test-dep-graph', (req, res, next) => {
-    if (req.query.org && req.query.org === 'missing-org') {
+  app.post(basePath + "/test-dep-graph", (req, res, next) => {
+    if (req.query.org && req.query.org === "missing-org") {
       res.status(404);
       res.send({
         code: 404,
         userMessage:
-          'Org missing-org was not found or you may not have the correct permissions',
+          "Org missing-org was not found or you may not have the correct permissions"
       });
       return next();
     }
@@ -275,20 +275,20 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send({
       result: {
         issuesData: {},
-        affectedPkgs: {},
+        affectedPkgs: {}
       },
       meta: {
-        org: 'test-org',
-        isPublic: false,
-      },
+        org: "test-org",
+        isPublic: false
+      }
     });
     return next();
   });
 
-  app.post(basePath + '/docker-jwt/test-dependencies', (req, res, next) => {
+  app.post(basePath + "/docker-jwt/test-dependencies", (req, res, next) => {
     if (
       req.headers.authorization &&
-      !req.headers.authorization.includes('Bearer')
+      !req.headers.authorization.includes("Bearer")
     ) {
       res.status(401).send();
       return;
@@ -299,46 +299,46 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         issues: [],
         issuesData: {},
         depGraphData: {
-          schemaVersion: '1.2.0',
+          schemaVersion: "1.2.0",
           pkgManager: {
-            name: 'rpm',
-            repositories: [{ alias: 'rhel:8.2' }],
+            name: "rpm",
+            repositories: [{ alias: "rhel:8.2" }]
           },
           pkgs: [
             {
-              id: 'docker-image|foo@1.2.3',
+              id: "docker-image|foo@1.2.3",
               info: {
-                name: 'docker-image|foo',
-                version: '1.2.3',
-              },
-            },
+                name: "docker-image|foo",
+                version: "1.2.3"
+              }
+            }
           ],
           graph: {
-            rootNodeId: 'root-node',
+            rootNodeId: "root-node",
             nodes: [
               {
-                nodeId: 'root-node',
-                pkgId: 'docker-image|foo@1.2.3',
-                deps: [],
-              },
-            ],
-          },
-        },
+                nodeId: "root-node",
+                pkgId: "docker-image|foo@1.2.3",
+                deps: []
+              }
+            ]
+          }
+        }
       },
       meta: {
-        org: 'test-org',
-        isPublic: false,
-      },
+        org: "test-org",
+        isPublic: false
+      }
     });
     return next();
   });
 
-  app.post(basePath + '/test-dependencies', (req, res) => {
-    if (req.query.org && req.query.org === 'missing-org') {
+  app.post(basePath + "/test-dependencies", (req, res) => {
+    if (req.query.org && req.query.org === "missing-org") {
       res.status(404).send({
         code: 404,
         userMessage:
-          'Org missing-org was not found or you may not have the correct permissions',
+          "Org missing-org was not found or you may not have the correct permissions"
       });
       return;
     }
@@ -353,69 +353,69 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         issues: [],
         issuesData: {},
         depGraphData: {
-          schemaVersion: '1.2.0',
+          schemaVersion: "1.2.0",
           pkgManager: {
-            name: 'rpm',
-            repositories: [{ alias: 'rhel:8.2' }],
+            name: "rpm",
+            repositories: [{ alias: "rhel:8.2" }]
           },
           pkgs: [
             {
-              id: 'docker-image|foo@1.2.3',
+              id: "docker-image|foo@1.2.3",
               info: {
-                name: 'docker-image|foo',
-                version: '1.2.3',
-              },
-            },
+                name: "docker-image|foo",
+                version: "1.2.3"
+              }
+            }
           ],
           graph: {
-            rootNodeId: 'root-node',
+            rootNodeId: "root-node",
             nodes: [
               {
-                nodeId: 'root-node',
-                pkgId: 'docker-image|foo@1.2.3',
-                deps: [],
-              },
-            ],
-          },
-        },
+                nodeId: "root-node",
+                pkgId: "docker-image|foo@1.2.3",
+                deps: []
+              }
+            ]
+          }
+        }
       },
       meta: {
-        org: 'test-org',
-        isPublic: false,
-      },
+        org: "test-org",
+        isPublic: false
+      }
     });
   });
 
-  app.put(basePath + '/monitor-dependencies', (req, res) => {
-    if (req.query.org && req.query.org === 'missing-org') {
+  app.put(basePath + "/monitor-dependencies", (req, res) => {
+    if (req.query.org && req.query.org === "missing-org") {
       res.status(404).send({
         code: 404,
         userMessage:
-          'Org missing-org was not found or you may not have the correct permissions',
+          "Org missing-org was not found or you may not have the correct permissions"
       });
       return;
     }
 
     res.send({
       ok: true,
-      org: 'test-org',
-      id: 'project-public-id',
+      org: "test-org",
+      id: "project-public-id",
       isMonitored: true,
       trialStarted: true,
       licensesPolicy: {},
       uri:
-        'http://example-url/project/project-public-id/history/snapshot-public-id',
-      projectName: 'test-project',
+        "http://example-url/project/project-public-id/history/snapshot-public-id",
+      projectName: "test-project"
     });
   });
 
-  app.get(basePath + '/cli-config/settings/:setting', (req, res) => {
+  app.get(basePath + "/cli-config/settings/:setting", (req, res) => {
     const org = req.query.org;
     const setting = req.params.setting;
-    if (org === 'no-flag') {
+    if (org === "no-flag") {
       res.send({
         ok: false,
-        userMessage: `Org ${org} doesn't have '${setting}' feature enabled'`,
+        userMessage: `Org ${org} doesn't have '${setting}' feature enabled'`
       });
       return;
     }
@@ -424,33 +424,33 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       const settingEnabled = availableSettings.get(setting);
       // TODO: Refactor to support passing in an org setting with additional
       // properties, e.g. localCodeEngine.
-      if (settingEnabled && setting === 'sast') {
+      if (settingEnabled && setting === "sast") {
         return res.send({
           ok: true,
           sastEnabled: true,
-          localCodeEngine: localCodeEngineConfiguration,
+          localCodeEngine: localCodeEngineConfiguration
         });
       }
 
       return res.send({
         ok: false,
-        userMessage: `Org ${org} doesn't have '${setting}' feature enabled'`,
+        userMessage: `Org ${org} doesn't have '${setting}' feature enabled'`
       });
     }
 
     // default: return false for all feature flags
     res.send({
-      ok: false,
+      ok: false
     });
   });
 
-  app.get(basePath + '/cli-config/feature-flags/:featureFlag', (req, res) => {
+  app.get(basePath + "/cli-config/feature-flags/:featureFlag", (req, res) => {
     const org = req.query.org;
     const flag = req.params.featureFlag;
-    if (org === 'no-flag') {
+    if (org === "no-flag") {
       res.send({
         ok: false,
-        userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
+        userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`
       });
       return;
     }
@@ -459,12 +459,12 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       const ffEnabled = featureFlags.get(flag);
       if (ffEnabled) {
         res.send({
-          ok: true,
+          ok: true
         });
       } else {
         res.send({
           ok: false,
-          userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
+          userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`
         });
       }
       return;
@@ -472,91 +472,91 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
     // default: return true for all feature flags
     res.send({
-      ok: true,
+      ok: true
     });
   });
 
-  app.get(basePath + '/iac-org-settings', (req, res) => {
+  app.get(basePath + "/iac-org-settings", (req, res) => {
     const baseResponse = {
       meta: {
         isPrivate: false,
         isLicensesEnabled: false,
         ignoreSettings: null,
-        org: req.query.org || 'test-org',
+        org: req.query.org || "test-org"
       },
       customPolicies: {},
       customRules: {},
       entitlements: {
         infrastructureAsCode: true,
         iacCustomRulesEntitlement: true,
-        iacDrift: true,
-      },
+        iacDrift: true
+      }
     };
 
-    if (req.query.org === 'no-iac-entitlements') {
+    if (req.query.org === "no-iac-entitlements") {
       return res.status(200).send({
         ...baseResponse,
         entitlements: {
           ...baseResponse.entitlements,
-          infrastructureAsCode: false,
-        },
+          infrastructureAsCode: false
+        }
       });
     }
 
-    if (req.query.org === 'no-custom-rules-entitlements') {
+    if (req.query.org === "no-custom-rules-entitlements") {
       return res.status(200).send({
         ...baseResponse,
         entitlements: {
           ...baseResponse.entitlements,
-          iacCustomRulesEntitlement: false,
-        },
+          iacCustomRulesEntitlement: false
+        }
       });
     }
 
-    if (req.query.org === 'no-iac-drift-entitlements') {
+    if (req.query.org === "no-iac-drift-entitlements") {
       return res.status(200).send({
         ...baseResponse,
         entitlements: {
           ...baseResponse.entitlements,
-          iacDrift: false,
-        },
+          iacDrift: false
+        }
       });
     }
 
-    if (req.query.org === 'custom-policies') {
+    if (req.query.org === "custom-policies") {
       return res.status(200).send({
         ...baseResponse,
         customPolicies: {
-          'SNYK-CC-AZURE-543': { severity: 'none' },
-        },
+          "SNYK-CC-AZURE-543": { severity: "none" }
+        }
       });
     }
 
     res.status(200).send(baseResponse);
   });
 
-  app.get(basePath + '/authorization/:action', (req, res) => {
+  app.get(basePath + "/authorization/:action", (req, res) => {
     const result = unauthorizedActions.get(req.params.action) || {
       allowed: true,
-      reason: 'Default fake server response.',
+      reason: "Default fake server response."
     };
     res.send({ result });
   });
 
-  app.put(basePath + '/monitor/:registry/graph', (req, res, next) => {
+  app.put(basePath + "/monitor/:registry/graph", (req, res, next) => {
     res.send({
-      id: 'monitor',
+      id: "monitor",
       uri: `${req.params.registry}/graph/some/project-id`,
-      isMonitored: true,
+      isMonitored: true
     });
     return next();
   });
 
-  app.put(basePath + '/monitor/:registry', (req, res) => {
+  app.put(basePath + "/monitor/:registry", (req, res) => {
     res.send({
-      id: 'monitor',
+      id: "monitor",
       uri: `${req.params.registry}/some/project-id`,
-      isMonitored: true,
+      isMonitored: true
     });
   });
 
@@ -569,55 +569,55 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send(
       JSON.stringify({
         jsonapi: {
-          version: '1.0',
+          version: "1.0"
         },
         data: {
-          type: 'app',
-          id: '84144c1d-a491-4fe5-94d1-ba143ba71b6d',
+          type: "app",
+          id: "84144c1d-a491-4fe5-94d1-ba143ba71b6d",
           attributes: {
             name,
-            client_id: '9f26c6c6-e04b-4310-8ce4-c3a6289d0633',
+            client_id: "9f26c6c6-e04b-4310-8ce4-c3a6289d0633",
             redirect_uris,
             scopes,
             is_public: false,
-            client_secret: 'super-secret-client-secret',
-            access_token_ttl_seconds: 3600,
+            client_secret: "super-secret-client-secret",
+            access_token_ttl_seconds: 3600
           },
           links: {
-            self: `/orgs/${orgId}/apps?version=2022-03-11~experimental`,
-          },
-        },
-      }),
+            self: `/orgs/${orgId}/apps?version=2022-03-11~experimental`
+          }
+        }
+      })
     );
   });
 
-  app.post(basePath + '/track-iac-usage/cli', (req, res) => {
+  app.post(basePath + "/track-iac-usage/cli", (req, res) => {
     res.status(200).send({});
   });
 
-  app.post(basePath + '/iac-cli-share-results', (req, res) => {
+  app.post(basePath + "/iac-cli-share-results", (req, res) => {
     res.status(200).send({});
   });
 
-  app.post(basePath + '/analytics/cli', (req, res) => {
+  app.post(basePath + "/analytics/cli", (req, res) => {
     res.status(200).send({});
   });
 
   app.post(`/rest/orgs/:orgId/sbom_tests`, (req, res) => {
     const response = {
       data: {
-        id: '4b341b8a-4697-4e35-928b-4b9ae37f8ea8',
-        type: 'sbom_tests',
+        id: "4b341b8a-4697-4e35-928b-4b9ae37f8ea8",
+        type: "sbom_tests"
       },
       jsonapi: {
-        version: '1.0',
+        version: "1.0"
       },
       links: {
         self:
-          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests?version=2023-08-31~beta',
+          "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests?version=2023-08-31~beta",
         related:
-          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
-      },
+          "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta"
+      }
     };
     res.status(201);
     res.send(response);
@@ -626,21 +626,21 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   app.get(`/rest/orgs/:orgId/sbom_tests/:id`, (req, res) => {
     const response = {
       data: {
-        id: '4b341b8a-4697-4e35-928b-4b9ae37f8ea8',
-        type: 'sbom_tests',
+        id: "4b341b8a-4697-4e35-928b-4b9ae37f8ea8",
+        type: "sbom_tests",
         attributes: {
-          status: 'finished',
-        },
+          status: "finished"
+        }
       },
       jsonapi: {
-        version: '1.0',
+        version: "1.0"
       },
       links: {
         self:
-          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
+          "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta",
         related:
-          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8/results?version=2023-08-31~beta',
-      },
+          "/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8/results?version=2023-08-31~beta"
+      }
     };
     res.status(303);
     res.send(response);
@@ -648,23 +648,23 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.get(`/rest/orgs/:orgId/sbom_tests/:id/results`, (req, res) => {
     const body = fs.readFileSync(
-      path.resolve(getFixturePath('sbom'), 'npm-sbom-test-response.json'),
-      'utf8',
+      path.resolve(getFixturePath("sbom"), "npm-sbom-test-response.json"),
+      "utf8"
     );
     res.send(JSON.parse(body));
   });
 
   app.post(
-    basePath.replace('v1', 'hidden') + '/orgs/:org/sbom',
+    basePath.replace("v1", "hidden") + "/orgs/:org/sbom",
     express.json(),
     (req, res) => {
       const depGraph: void | Record<string, any> = req.body.depGraph;
       const depGraphs: void | Record<string, any>[] = req.body.depGraphs;
       const tools = req.body.tools || [];
-      let name = '';
+      let name = "";
       let components;
 
-      let bom: Record<string, any> = { bomFormat: 'CycloneDX' };
+      let bom: Record<string, any> = { bomFormat: "CycloneDX" };
 
       if (Array.isArray(depGraphs) && req.body.subject) {
         // Return a fixture of an all-projects SBOM.
@@ -678,74 +678,74 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       }
 
       switch (req.query.format) {
-        case 'spdx2.3+json':
+        case "spdx2.3+json":
           bom = {
-            spdxVersion: 'SPDX-2.3',
+            spdxVersion: "SPDX-2.3",
             name,
             packages: components,
-            creators: [...tools, 'fake-server'],
+            creators: [...tools, "fake-server"]
           };
           break;
-        case 'cyclonedx1.4+json':
+        case "cyclonedx1.4+json":
           bom = {
-            specVersion: '1.4',
-            $schema: 'http://cyclonedx.org/schema/bom-1.4.schema.json',
+            specVersion: "1.4",
+            $schema: "http://cyclonedx.org/schema/bom-1.4.schema.json",
             components,
             metadata: {
               component: { name },
-              tools: [...tools, { name: 'fake-server', version: '42' }],
-            },
+              tools: [...tools, { name: "fake-server", version: "42" }]
+            }
           };
           break;
-        case 'cyclonedx1.5+json':
+        case "cyclonedx1.5+json":
           bom = {
-            specVersion: '1.5',
-            $schema: 'http://cyclonedx.org/schema/bom-1.5.schema.json',
+            specVersion: "1.5",
+            $schema: "http://cyclonedx.org/schema/bom-1.5.schema.json",
             components,
             metadata: {
               component: { name },
               tools: {
-                components: [...tools, { name: 'fake-server' }],
-                services: [{ name: 'fake-server', version: '42' }],
-              },
-            },
+                components: [...tools, { name: "fake-server" }],
+                services: [{ name: "fake-server", version: "42" }]
+              }
+            }
           };
           break;
       }
 
       res.status(200).send(bom);
-    },
+    }
   );
 
-  app.get(basePath + '/download/driftctl', (req, res) => {
-    const fixturePath = getFixturePath('iac');
-    const path1 = path.join(fixturePath, 'drift', 'download-test.sh');
+  app.get(basePath + "/download/driftctl", (req, res) => {
+    const fixturePath = getFixturePath("iac");
+    const path1 = path.join(fixturePath, "drift", "download-test.sh");
     const body = fs.readFileSync(path1);
     res.send(body);
   });
 
   // Post state mapping artifact
   app.post(
-    basePath.replace('v1', 'hidden') +
-      '/orgs/:orgId/cloud/mappings_artifact/tfstate',
+    basePath.replace("v1", "hidden") +
+      "/orgs/:orgId/cloud/mappings_artifact/tfstate",
     (req, res) => {
       const { orgId } = req.params;
       const artifact = path.join(
-        getFixturePath('iac'),
-        'capture',
-        orgId + '-artifact.json',
+        getFixturePath("iac"),
+        "capture",
+        orgId + "-artifact.json"
       );
       fs.writeFileSync(artifact, JSON.stringify(req.body));
       res.status(201).send({});
-    },
+    }
   );
 
-  app.post(basePath.replace('/v1', '') + '/oauth2/token', (req, res) => {
+  app.post(basePath.replace("/v1", "") + "/oauth2/token", (req, res) => {
     const fake_oauth_token =
       '{"access_token":"access_token_value","token_type":"b","expiry":"3023-12-20T08:49:15.504539Z"}';
 
     // client credentials grant: expecting client id = a and client secret = b
-    if (req.headers.authorization?.includes('Basic YTpi')) {
+    if (req.headers.authorization?.includes("Basic YTpi")) {
       res.status(200).send(fake_oauth_token);
       return;
     }
@@ -754,10 +754,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   const listenPromise = (port: string | number) => {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
       server = http.createServer(app).listen(Number(port), resolve);
 
-      server?.on('connection', (socket) => {
+      server?.on("connection", socket => {
         sockets.add(socket);
       });
     });
@@ -769,14 +769,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const listenWithHttps = (
     port: string | number,
-    options: https.ServerOptions,
+    options: https.ServerOptions
   ): Promise<void> => {
     return new Promise((resolve, reject) => {
       server = https.createServer(options, app);
-      server.once('listening', () => {
+      server.once("listening", () => {
         resolve();
       });
-      server.once('error', (err) => {
+      server.once("error", err => {
         reject(err);
       });
       server.listen(Number(port));
@@ -784,7 +784,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   };
 
   const closePromise = () => {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
       if (!server) {
         resolve();
         return;
@@ -805,10 +805,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const getPort = () => {
     const address = server?.address();
-    if (address && typeof address === 'object') {
+    if (address && typeof address === "object") {
       return address.port;
     }
-    throw new Error('port not found');
+    throw new Error("port not found");
   };
 
   return {
@@ -830,6 +830,6 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     restore,
     close,
     closePromise,
-    getPort,
+    getPort
   };
 };

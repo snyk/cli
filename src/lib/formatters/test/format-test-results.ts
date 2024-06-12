@@ -2,34 +2,34 @@ import {
   Options,
   OutputDataTypes,
   SupportedProjectTypes,
-  TestOptions,
-} from '../../types';
+  TestOptions
+} from "../../types";
 import {
   GroupedVuln,
   SEVERITY,
   TestResult,
-  VulnMetaData,
-} from '../../snyk-test/legacy';
-import chalk from 'chalk';
-import config from '../../config';
-import * as cloneDeep from 'lodash.clonedeep';
-import * as orderBy from 'lodash.orderby';
-import * as analytics from '../../analytics';
-import { formatIssuesWithRemediation } from '../remediation-based-format-issues';
-import { formatIssues } from '../legacy-format-issue';
-import { formatDockerBinariesIssues } from '../docker';
-import { createSarifOutputForContainers } from '../sarif-output';
-import { createSarifOutputForIac } from '../iac-output/sarif';
-import { isNewVuln, isVulnFixable } from '../../vuln-helpers';
-import { jsonStringifyLargeObject } from '../../json';
-import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
-import { getSeverityValue } from '../get-severity-value';
-import { showFixTip } from '../show-fix-tip';
+  VulnMetaData
+} from "../../snyk-test/legacy";
+import chalk from "chalk";
+import config from "../../config";
+import * as cloneDeep from "lodash.clonedeep";
+import * as orderBy from "lodash.orderby";
+import * as analytics from "../../analytics";
+import { formatIssuesWithRemediation } from "../remediation-based-format-issues";
+import { formatIssues } from "../legacy-format-issue";
+import { formatDockerBinariesIssues } from "../docker";
+import { createSarifOutputForContainers } from "../sarif-output";
+import { createSarifOutputForIac } from "../iac-output/sarif";
+import { isNewVuln, isVulnFixable } from "../../vuln-helpers";
+import { jsonStringifyLargeObject } from "../../json";
+import { createSarifOutputForOpenSource } from "../open-source-sarif-output";
+import { getSeverityValue } from "../get-severity-value";
+import { showFixTip } from "../show-fix-tip";
 import {
   DockerFileAnalysisErrorCode,
-  facts as dockerFacts,
-} from 'snyk-docker-plugin/dist';
-import { ScanResult } from '../../ecosystems/types';
+  facts as dockerFacts
+} from "snyk-docker-plugin/dist";
+import { ScanResult } from "../../ecosystems/types";
 
 function createJsonResultOutput(jsonResult, options: Options) {
   const jsonResultClone = cloneDeep(jsonResult);
@@ -40,7 +40,7 @@ function createJsonResultOutput(jsonResult, options: Options) {
 }
 
 function formatJsonVulnerabilityStructure(jsonResult, options: Options) {
-  if (options['group-issues']) {
+  if (options["group-issues"]) {
     // Note: we have to reverse the array to keep the existing behavior so that the json output will stay the same.
     // Since the entire array is reversed before grouping, we reverse it back after grouping to preserve the grouped vulns order.
     const reversedVulnerabilities = jsonResult.vulnerabilities
@@ -52,14 +52,14 @@ function formatJsonVulnerabilityStructure(jsonResult, options: Options) {
           acc[vuln.id] = {
             ...vuln,
             from: [vuln.from],
-            name: [vuln.name],
+            name: [vuln.name]
           };
         } else {
           acc[vuln.id].from.push(vuln.from);
           acc[vuln.id].name.push(vuln.name);
         }
         return acc;
-      }, {}),
+      }, {})
     ).reverse();
   }
 }
@@ -67,11 +67,11 @@ function formatJsonVulnerabilityStructure(jsonResult, options: Options) {
 export function extractDataToSendFromResults(
   results,
   mappedResults,
-  options: Options,
+  options: Options
 ): OutputDataTypes {
   let sarifData = {};
-  let stringifiedSarifData = '';
-  if (options.sarif || options['sarif-file-output']) {
+  let stringifiedSarifData = "";
+  if (options.sarif || options["sarif-file-output"]) {
     if (options.iac) {
       sarifData = createSarifOutputForIac(results);
     } else if (options.docker) {
@@ -82,8 +82,8 @@ export function extractDataToSendFromResults(
     stringifiedSarifData = jsonStringifyLargeObject(sarifData);
   }
 
-  const jsonResults = mappedResults.map((res) =>
-    createJsonResultOutput(res, options),
+  const jsonResults = mappedResults.map(res =>
+    createJsonResultOutput(res, options)
   );
 
   // backwards compat - strip array IFF only one result
@@ -95,13 +95,13 @@ export function extractDataToSendFromResults(
     jsonData = jsonData[0];
     if (jsonData.vulnerabilities?.length === 0) {
       // to avoid confusion with other vulns that might be found
-      jsonData.summary = 'No known operating system vulnerabilities';
+      jsonData.summary = "No known operating system vulnerabilities";
     }
-    jsonData['applications'] = appVulnsData;
+    jsonData["applications"] = appVulnsData;
   }
 
-  let stringifiedJsonData = '';
-  if (options.json || options['json-file-output']) {
+  let stringifiedJsonData = "";
+  if (options.json || options["json-file-output"]) {
     stringifiedJsonData = jsonStringifyLargeObject(jsonData);
   }
 
@@ -114,18 +114,18 @@ export function extractDataToSendFromResults(
     stdout: dataToSend, // this is for the human-readable stdout output and is set even if --json or --sarif is set
     stringifiedData, // this will be used to display either the Snyk or SARIF format JSON to stdout if --json or --sarif is set
     stringifiedJsonData, // this will be used for the --json-file-output=<file.json> option
-    stringifiedSarifData, // this will be used for the --sarif-file-output=<file.json> option
+    stringifiedSarifData // this will be used for the --sarif-file-output=<file.json> option
   };
 }
 
 export function createErrorMappedResultsForJsonOutput(results) {
-  const errorMappedResults = results.map((result) => {
+  const errorMappedResults = results.map(result => {
     // add json for when thrown exception
     if (result instanceof Error) {
       return {
         ok: false,
         error: result.message,
-        path: (result as any).path,
+        path: (result as any).path
       };
     }
     return result;
@@ -144,11 +144,11 @@ export function getDisplayedOutput(
   prefix: string,
   hasUnknownVersions: string,
   multiProjAdvice: string,
-  dockerAdvice: string,
+  dockerAdvice: string
 ): string {
   const vulnCount = res.vulnerabilities && res.vulnerabilities.length;
-  const singleVulnText = res.licensesPolicy ? 'issue' : 'vulnerability';
-  const multipleVulnsText = res.licensesPolicy ? 'issues' : 'vulnerabilities';
+  const singleVulnText = res.licensesPolicy ? "issue" : "vulnerability";
+  const multipleVulnsText = res.licensesPolicy ? "issues" : "vulnerabilities";
 
   // Text will look like so:
   // 'found 232 vulnerabilities, 404 vulnerable paths.'
@@ -161,19 +161,19 @@ export function getDisplayedOutput(
     vulnCountText += `, ${vulnCount} vulnerable `;
 
     if (vulnCount === 1) {
-      vulnCountText += 'path.';
+      vulnCountText += "path.";
     } else {
-      vulnCountText += 'paths.';
+      vulnCountText += "paths.";
     }
   } else {
-    vulnCountText += '.';
+    vulnCountText += ".";
   }
 
   const summary =
-    testedInfoText + ', ' + chalk.red.bold(vulnCountText) + hasUnknownVersions;
+    testedInfoText + ", " + chalk.red.bold(vulnCountText) + hasUnknownVersions;
 
   const fixTip = showFixTip(projectType, res, options);
-  const fixAdvice = fixTip ? `\n\n${fixTip}` : '';
+  const fixAdvice = fixTip ? `\n\n${fixTip}` : "";
 
   const dockerfileWarning = getDockerfileWarning(res.scanResult);
   const dockerSuggestion = getDockerSuggestionText(options, res);
@@ -183,28 +183,28 @@ export function getDisplayedOutput(
   const groupedVulns = groupVulnerabilities(vulns);
   const sortedGroupedVulns: GroupedVuln[] = orderBy(
     groupedVulns,
-    ['metadata.severityValue', 'metadata.name'],
-    ['asc', 'desc'],
+    ["metadata.severityValue", "metadata.name"],
+    ["asc", "desc"]
   );
   const filteredSortedGroupedVulns = sortedGroupedVulns.filter(
-    (vuln) => vuln.metadata.packageManager !== 'upstream',
+    vuln => vuln.metadata.packageManager !== "upstream"
   );
   const binariesSortedGroupedVulns = sortedGroupedVulns.filter(
-    (vuln) => vuln.metadata.packageManager === 'upstream',
+    vuln => vuln.metadata.packageManager === "upstream"
   );
 
   let groupedVulnInfoOutput;
   if (res.remediation) {
-    analytics.add('actionableRemediation', true);
+    analytics.add("actionableRemediation", true);
     groupedVulnInfoOutput = formatIssuesWithRemediation(
       filteredSortedGroupedVulns,
       res.remediation,
-      options,
+      options
     );
   } else {
-    analytics.add('actionableRemediation', false);
-    groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) =>
-      formatIssues(vuln, options),
+    analytics.add("actionableRemediation", false);
+    groupedVulnInfoOutput = filteredSortedGroupedVulns.map(vuln =>
+      formatIssues(vuln, options)
     );
   }
 
@@ -213,24 +213,24 @@ export function getDisplayedOutput(
       ? formatDockerBinariesIssues(
           binariesSortedGroupedVulns,
           res.docker.binariesVulns,
-          options,
+          options
         )
       : [];
 
   let body =
-    groupedVulnInfoOutput.join('\n\n') +
-    '\n\n' +
-    groupedDockerBinariesVulnInfoOutput.join('\n\n') +
-    '\n\n' +
+    groupedVulnInfoOutput.join("\n\n") +
+    "\n\n" +
+    groupedDockerBinariesVulnInfoOutput.join("\n\n") +
+    "\n\n" +
     meta;
 
   if (res.remediation) {
     body = summary + body + fixAdvice;
   } else {
-    body = body + '\n\n' + summary + fixAdvice;
+    body = body + "\n\n" + summary + fixAdvice;
   }
 
-  const ignoredIssues = '';
+  const ignoredIssues = "";
   const dockerCTA = dockerUserCTA(options);
   return (
     prefix +
@@ -247,28 +247,28 @@ export function getDisplayedOutput(
 
 export function dockerUserCTA(options) {
   if (options.isDockerUser) {
-    return '\n\nFor more free scans that keep your images secure, sign up to Snyk at https://dockr.ly/3ePqVcp';
+    return "\n\nFor more free scans that keep your images secure, sign up to Snyk at https://dockr.ly/3ePqVcp";
   }
-  return '';
+  return "";
 }
 
 function getDockerSuggestionText(
   options: Options & TestOptions,
-  result: TestResult,
+  result: TestResult
 ): string {
   if (
-    config?.disableSuggestions === 'true' ||
+    config?.disableSuggestions === "true" ||
     !options.docker ||
     options.isDockerUser
   ) {
-    return '';
+    return "";
   }
 
   const tips: string[] = [];
   // exclude-base-image-vulns flag tip
-  if (options.file && !options['exclude-base-image-vulns']) {
+  if (options.file && !options["exclude-base-image-vulns"]) {
     tips.push(
-      'Pro tip: use `--exclude-base-image-vulns` to exclude from display Docker base image vulnerabilities.',
+      "Pro tip: use `--exclude-base-image-vulns` to exclude from display Docker base image vulnerabilities."
     );
   }
 
@@ -276,65 +276,65 @@ function getDockerSuggestionText(
   if (!options.file && !result?.docker?.baseImage) {
     tips.push(
       `Snyk wasn’t able to auto detect the base image, use \`--file\` option to get base image remediation advice.
-Example: $ snyk container test ${options.path} --file=path/to/Dockerfile`,
+Example: $ snyk container test ${options.path} --file=path/to/Dockerfile`
     );
   }
 
   // disable-app-vulns flag tip
   if (options.docker && result.targetFile && result.uniqueCount > 0) {
     tips.push(
-      'Snyk found some vulnerabilities in your image applications (Snyk searches for these vulnerabilities by default). See https://snyk.co/app-vulns for more information.',
+      "Snyk found some vulnerabilities in your image applications (Snyk searches for these vulnerabilities by default). See https://snyk.co/app-vulns for more information."
     );
   }
 
   if (tips.length === 0) {
-    return '';
+    return "";
   }
 
   return (
-    '\n\n' +
+    "\n\n" +
     tips
       // not sure why the tip to disable tips wasn't marked as white, maybe we should change that too?
-      .map((tip) => chalk.bold.white(tip))
+      .map(tip => chalk.bold.white(tip))
       .concat(
         // add tip to disable tips
         `To remove ${
-          tips.length > 1 ? 'these messages' : 'this message'
-        } in the future, please run \`snyk config set disableSuggestions=true\``,
+          tips.length > 1 ? "these messages" : "this message"
+        } in the future, please run \`snyk config set disableSuggestions=true\``
       )
-      .join('\n\n')
+      .join("\n\n")
   );
 }
 function getDockerfileWarning(scanResult: ScanResult | undefined): string {
   if (!scanResult) {
-    return '';
+    return "";
   }
 
   const fact = scanResult.facts.find(
-    (fact) => fact.type === 'dockerfileAnalysis',
+    fact => fact.type === "dockerfileAnalysis"
   );
   if (!fact) {
-    return '';
+    return "";
   }
 
   const dockerfileAnalysisFact = fact as dockerFacts.DockerfileAnalysisFact;
   if (!dockerfileAnalysisFact.data.error) {
-    return '';
+    return "";
   }
 
   let userMessage = chalk.yellow(
-    '\n\nWarning: Unable to analyse Dockerfile provided through `--file`.',
+    "\n\nWarning: Unable to analyse Dockerfile provided through `--file`."
   );
 
   switch (dockerfileAnalysisFact.data.error.code) {
     case DockerFileAnalysisErrorCode.BASE_IMAGE_NAME_NOT_FOUND:
       userMessage += chalk.yellow(
-        '\n         Dockerfile must begin with a FROM instruction. This may be after parser directives, comments, and globally scoped ARGs.',
+        "\n         Dockerfile must begin with a FROM instruction. This may be after parser directives, comments, and globally scoped ARGs."
       );
       break;
     case DockerFileAnalysisErrorCode.BASE_IMAGE_NON_RESOLVABLE:
       userMessage += chalk.yellow(
-        '\n         Dockerfile must have default values for all ARG instructions.',
+        "\n         Dockerfile must have default values for all ARG instructions."
       );
       break;
   }
@@ -343,20 +343,20 @@ function getDockerfileWarning(scanResult: ScanResult | undefined): string {
 }
 
 function getDockerRemediationDocsLink(dockerAdvice: string, config): string {
-  if (config.disableSuggestions === 'true' || dockerAdvice.length === 0) {
-    return '';
+  if (config.disableSuggestions === "true" || dockerAdvice.length === 0) {
+    return "";
   }
 
   return (
-    chalk.white('\n\nLearn more: ') +
+    chalk.white("\n\nLearn more: ") +
     chalk.white.underline(
-      'https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/base-image-detection',
+      "https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/base-image-detection"
     )
   );
 }
 
 export function groupVulnerabilities(
-  vulns,
+  vulns
 ): {
   [vulnId: string]: GroupedVuln;
 } {
@@ -409,6 +409,6 @@ function metadataForVuln(vuln): VulnMetaData {
     severityValue: getSeverityValue(vuln.severity),
     isNew: isNewVuln(vuln),
     version: vuln.version,
-    packageManager: vuln.packageManager,
+    packageManager: vuln.packageManager
   };
 }

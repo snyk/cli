@@ -1,4 +1,4 @@
-import { CustomError } from './custom-error';
+import { CustomError } from "./custom-error";
 
 export class UnsupportedEntitlementError extends CustomError {
   public readonly entitlement: string;
@@ -7,12 +7,12 @@ export class UnsupportedEntitlementError extends CustomError {
 
   constructor(
     entitlement: string,
-    userMessage = `This feature is currently not enabled for your org. To enable it, please contact snyk support.`,
+    userMessage = `This feature is currently not enabled for your org. To enable it, please contact snyk support.`
   ) {
     super(
       `Unsupported feature - Missing the ${
-        entitlement ? entitlement : 'required'
-      } entitlement`,
+        entitlement ? entitlement : "required"
+      } entitlement`
     );
     this.entitlement = entitlement;
     this.code = UnsupportedEntitlementError.ERROR_CODE;

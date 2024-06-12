@@ -1,44 +1,44 @@
-import { runSnykCLI } from '../util/runSnykCLI';
-import * as fs from 'fs';
-import { runCommand } from '../util/runCommand';
-import { fakeServer } from '../../../test/acceptance/fake-server';
+import { runSnykCLI } from "../util/runSnykCLI";
+import * as fs from "fs";
+import { runCommand } from "../util/runCommand";
+import { fakeServer } from "../../../test/acceptance/fake-server";
 
 jest.setTimeout(1000 * 60 * 2);
-describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
-  it('using a not existing file', async () => {
+describe("Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`", () => {
+  it("using a not existing file", async () => {
     const { code } = await runSnykCLI(`woof --debug`, {
       env: {
         ...process.env,
-        NODE_EXTRA_CA_CERTS: 'doesntexist.crt',
-      },
+        NODE_EXTRA_CA_CERTS: "doesntexist.crt"
+      }
     });
 
     expect(code).toBe(0);
   });
 
-  it('using an invalid file', async () => {
-    const filename = 'someotherfile.txt';
+  it("using an invalid file", async () => {
+    const filename = "someotherfile.txt";
     const writeStream = fs.createWriteStream(filename);
-    writeStream.write('Hello World');
+    writeStream.write("Hello World");
     writeStream.end();
 
     const { code } = await runSnykCLI(`woof --debug`, {
       env: {
         ...process.env,
-        NODE_EXTRA_CA_CERTS: filename,
-      },
+        NODE_EXTRA_CA_CERTS: filename
+      }
     });
 
     expect(code).toBe(0);
     fs.unlink(filename, () => {});
   });
 
-  it('using a valid cert file', async () => {
+  it("using a valid cert file", async () => {
     // generate certificate
     const res = await runCommand(
-      'go',
-      ['run', 'cmd/make-cert/main.go', 'mytestcert'],
-      { cwd: 'cliv2', env: { ...process.env, SNYK_DNS_NAMES: 'localhost' } },
+      "go",
+      ["run", "cmd/make-cert/main.go", "mytestcert"],
+      { cwd: "cliv2", env: { ...process.env, SNYK_DNS_NAMES: "localhost" } }
     );
 
     console.debug(res.stderr);
@@ -46,12 +46,12 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
 
     // setup https server
     const port = 2132;
-    const token = '1234';
-    const baseApi = '/api/v1';
-    const SNYK_API = 'https://localhost:' + port + baseApi;
+    const token = "1234";
+    const baseApi = "/api/v1";
+    const SNYK_API = "https://localhost:" + port + baseApi;
     const server = fakeServer(baseApi, token);
-    const certPem = fs.readFileSync('cliv2/mytestcert.pem');
-    const keyPem = fs.readFileSync('cliv2/mytestcert.key');
+    const certPem = fs.readFileSync("cliv2/mytestcert.pem");
+    const keyPem = fs.readFileSync("cliv2/mytestcert.key");
 
     await server.listenWithHttps(port, { cert: certPem, key: keyPem });
 
@@ -60,18 +60,18 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
       env: {
         ...process.env,
         SNYK_API: SNYK_API,
-        SNYK_TOKEN: token,
-      },
+        SNYK_TOKEN: token
+      }
     });
 
     // invoke WITH additional certificate set => succeeds
     const res2 = await runSnykCLI(`test --debug`, {
       env: {
         ...process.env,
-        NODE_EXTRA_CA_CERTS: 'cliv2/mytestcert.crt',
+        NODE_EXTRA_CA_CERTS: "cliv2/mytestcert.crt",
         SNYK_API: SNYK_API,
-        SNYK_TOKEN: token,
-      },
+        SNYK_TOKEN: token
+      }
     });
 
     let res3 = { code: 2 };
@@ -83,9 +83,9 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
         env: {
           ...process.env,
           SNYK_API: SNYK_API,
-          SNYK_TOKEN: token,
-        },
-      },
+          SNYK_TOKEN: token
+        }
+      }
     );
 
     // invoke WITH additional certificate set => succeeds
@@ -94,11 +94,11 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
       {
         env: {
           ...process.env,
-          NODE_EXTRA_CA_CERTS: 'cliv2/mytestcert.crt',
+          NODE_EXTRA_CA_CERTS: "cliv2/mytestcert.crt",
           SNYK_API: SNYK_API,
-          SNYK_TOKEN: token,
-        },
-      },
+          SNYK_TOKEN: token
+        }
+      }
     );
 
     await server.closePromise();
@@ -107,8 +107,8 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
     expect(res2.code).toBe(0);
     expect(res3.code).toBe(2);
     expect(res4.code).toBe(0);
-    fs.unlink('cliv2/mytestcert.crt', () => {});
-    fs.unlink('cliv2/mytestcert.key', () => {});
-    fs.unlink('cliv2/mytestcert.pem', () => {});
+    fs.unlink("cliv2/mytestcert.crt", () => {});
+    fs.unlink("cliv2/mytestcert.key", () => {});
+    fs.unlink("cliv2/mytestcert.pem", () => {});
   });
 });

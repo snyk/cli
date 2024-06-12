@@ -1,13 +1,13 @@
-import pick = require('lodash.pick');
-import { CustomError } from '../errors';
-import { BasicResultData, SEVERITY, TestDepGraphMeta } from './legacy';
+import pick = require("lodash.pick");
+import { CustomError } from "../errors";
+import { BasicResultData, SEVERITY, TestDepGraphMeta } from "./legacy";
 
 export interface AnnotatedIacIssue {
   id: string;
   publicId: string;
   title: string;
   description?: string;
-  severity: SEVERITY | 'none';
+  severity: SEVERITY | "none";
   isIgnored: boolean;
   cloudConfigPath: string[];
   type?: string;
@@ -21,7 +21,7 @@ export interface AnnotatedIacIssue {
   impact: string;
   resolve: string;
   remediation?: Partial<
-    Record<'terraform' | 'cloudformation' | 'arm' | 'kubernetes', string>
+    Record<"terraform" | "cloudformation" | "arm" | "kubernetes", string>
   >;
   msg: string;
   compliance?: string[][];
@@ -37,7 +37,7 @@ export interface AnnotatedIacIssue {
   };
 }
 
-type FILTERED_OUT_FIELDS = 'cloudConfigPath' | 'name' | 'from';
+type FILTERED_OUT_FIELDS = "cloudConfigPath" | "name" | "from";
 
 export interface IacTestResponse extends BasicResultData {
   path: string;
@@ -53,10 +53,10 @@ export interface IacTestResponse extends BasicResultData {
   };
 }
 
-const IAC_ISSUES_KEY = 'infrastructureAsCodeIssues';
+const IAC_ISSUES_KEY = "infrastructureAsCodeIssues";
 
 export function mapIacTestResult(
-  iacTest: IacTestResponse,
+  iacTest: IacTestResponse
 ): MappedIacTestResponse | IacTestError {
   if (iacTest instanceof CustomError) {
     return mapIacTestError(iacTest);
@@ -72,7 +72,7 @@ export function mapIacTestResult(
     ...filteredIacTest,
     projectType,
     ok: infrastructureAsCodeIssues.length === 0,
-    [IAC_ISSUES_KEY]: infrastructureAsCodeIssues,
+    [IAC_ISSUES_KEY]: infrastructureAsCodeIssues
   };
 }
 
@@ -81,7 +81,7 @@ export function mapIacTestError(error: CustomError) {
     ok: false,
     code: error.code,
     error: error.message,
-    path: (error as any).path,
+    path: (error as any).path
   };
 }
 
@@ -97,7 +97,7 @@ export interface IacTestError {
   path: string;
 }
 
-export interface MappedIacTestResponse extends Omit<IacTestResponse, 'result'> {
+export interface MappedIacTestResponse extends Omit<IacTestResponse, "result"> {
   [IAC_ISSUES_KEY]: MappedAnnotatedIacIssue[];
   projectType: string;
 }
@@ -108,33 +108,33 @@ export interface MappedAnnotatedIacIssue
 }
 
 export function mapIacIssue(
-  iacIssue: AnnotatedIacIssue,
+  iacIssue: AnnotatedIacIssue
 ): MappedAnnotatedIacIssue {
   // filters out & renames properties we're getting from registry and don't need for the JSON output.
   return {
     ...pick(
       iacIssue,
-      'id',
-      'title',
-      'severity',
-      'isIgnored',
-      'type',
-      'subType',
-      'policyEngineType',
-      'documentation',
-      'isGeneratedByCustomRule',
-      'issue',
-      'impact',
-      'resolve',
-      'remediation',
-      'lineNumber',
-      'iacDescription',
-      'publicId',
-      'msg',
-      'description',
-      'references',
+      "id",
+      "title",
+      "severity",
+      "isIgnored",
+      "type",
+      "subType",
+      "policyEngineType",
+      "documentation",
+      "isGeneratedByCustomRule",
+      "issue",
+      "impact",
+      "resolve",
+      "remediation",
+      "lineNumber",
+      "iacDescription",
+      "publicId",
+      "msg",
+      "description",
+      "references"
     ),
     path: iacIssue.cloudConfigPath,
-    compliance: [],
+    compliance: []
   };
 }

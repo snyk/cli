@@ -1,18 +1,18 @@
-import * as sarif from 'sarif';
-import * as groupBy from 'lodash.groupby';
-import * as map from 'lodash.map';
+import * as sarif from "sarif";
+import * as groupBy from "lodash.groupby";
+import * as map from "lodash.map";
 
-import { SEVERITY, TestResult, AnnotatedIssue } from '../snyk-test/legacy';
+import { SEVERITY, TestResult, AnnotatedIssue } from "../snyk-test/legacy";
 
 export function getResults(testResult: TestResult): sarif.Result[] {
-  const groupedVulnerabilities = groupBy(testResult.vulnerabilities, 'id');
+  const groupedVulnerabilities = groupBy(testResult.vulnerabilities, "id");
   return map(
     groupedVulnerabilities,
     ([vuln]: AnnotatedIssue[]): sarif.Result => ({
       ruleId: vuln.id,
       level: getLevel(vuln),
       message: {
-        text: `This file introduces a vulnerable ${vuln.packageName} package with a ${vuln.severity} severity vulnerability.`,
+        text: `This file introduces a vulnerable ${vuln.packageName} package with a ${vuln.severity} severity vulnerability.`
       },
       locations: [
         {
@@ -20,51 +20,51 @@ export function getResults(testResult: TestResult): sarif.Result[] {
             artifactLocation: {
               uri: getArtifactLocationUri(
                 testResult.displayTargetFile,
-                testResult.path,
-              ),
+                testResult.path
+              )
             },
             region: {
-              startLine: vuln.lineNumber || 1,
-            },
+              startLine: vuln.lineNumber || 1
+            }
           },
           logicalLocations: [
             {
-              fullyQualifiedName: `${vuln.packageName}@${vuln.version}`,
-            },
-          ],
-        },
+              fullyQualifiedName: `${vuln.packageName}@${vuln.version}`
+            }
+          ]
+        }
       ],
       fixes:
         vuln.upgradePath?.length >= 2
           ? [
               {
                 description: {
-                  text: `Upgrade to ${vuln.upgradePath[1]}`,
+                  text: `Upgrade to ${vuln.upgradePath[1]}`
                 },
                 artifactChanges: [
                   {
                     artifactLocation: {
                       uri: getArtifactLocationUri(
                         testResult.displayTargetFile,
-                        testResult.path,
-                      ),
+                        testResult.path
+                      )
                     },
                     replacements: [
                       {
                         deletedRegion: {
-                          startLine: vuln.lineNumber || 1,
+                          startLine: vuln.lineNumber || 1
                         },
                         insertedContent: {
-                          text: vuln.upgradePath[1] as string,
-                        },
-                      },
-                    ],
-                  },
-                ],
-              },
+                          text: vuln.upgradePath[1] as string
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
             ]
-          : undefined,
-    }),
+          : undefined
+    })
   );
 }
 
@@ -72,18 +72,18 @@ export function getLevel(vuln: AnnotatedIssue) {
   switch (vuln.severity) {
     case SEVERITY.CRITICAL:
     case SEVERITY.HIGH:
-      return 'error';
+      return "error";
     case SEVERITY.MEDIUM:
-      return 'warning';
+      return "warning";
     case SEVERITY.LOW:
     default:
-      return 'note';
+      return "note";
   }
 }
 
 function getArtifactLocationUri(
   targetFile: string | undefined,
-  path: string | undefined,
+  path: string | undefined
 ): string {
   if (targetFile) {
     return targetFile;
@@ -93,5 +93,5 @@ function getArtifactLocationUri(
   // present. In this case we use the test result path which contains the image reference (e.g. alpine:3.18.0).
   // Also, Github Code Scanning returns an error when the artifact location uri from the uploaded sarif file contains
   // a colon (e.g. alpine:3.18.0 is not valid, but alpine_3.18.0 is valid), so we are replacing colon characters.
-  return path ? path.replace(/:/g, '_') : '';
+  return path ? path.replace(/:/g, "_") : "";
 }

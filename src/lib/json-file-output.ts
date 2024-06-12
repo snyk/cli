@@ -1,9 +1,9 @@
-import { gte } from 'semver';
-import { existsSync, mkdirSync, createWriteStream } from 'fs';
-import * as path from 'path';
-import { JsonStreamStringify } from 'json-stream-stringify';
+import { gte } from "semver";
+import { existsSync, mkdirSync, createWriteStream } from "fs";
+import * as path from "path";
+import { JsonStreamStringify } from "json-stream-stringify";
 
-export const MIN_VERSION_FOR_MKDIR_RECURSIVE = '10.12.0';
+export const MIN_VERSION_FOR_MKDIR_RECURSIVE = "10.12.0";
 
 /**
  * Attempts to create a directory and fails quietly if it cannot. Rather than throwing errors it logs them to stderr and returns false.
@@ -48,18 +48,18 @@ export function createDirectory(newDirectoryFullPath: string): boolean {
  */
 export async function writeContentsToFileSwallowingErrors(
   jsonOutputFile: string,
-  contents: string,
+  contents: string
 ): Promise<void> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     try {
-      const ws = createWriteStream(jsonOutputFile, { flags: 'w' });
-      ws.on('error', (err) => {
+      const ws = createWriteStream(jsonOutputFile, { flags: "w" });
+      ws.on("error", err => {
         console.error(err);
         resolve();
       });
       ws.write(contents);
-      ws.end('\n');
-      ws.on('finish', () => {
+      ws.end("\n");
+      ws.on("finish", () => {
         resolve();
       });
     } catch (err) {
@@ -71,7 +71,7 @@ export async function writeContentsToFileSwallowingErrors(
 
 export async function saveJsonToFileCreatingDirectoryIfRequired(
   jsonOutputFile: string,
-  contents: string,
+  contents: string
 ): Promise<void> {
   const dirPath = path.dirname(jsonOutputFile);
   const createDirSuccess = createDirectory(dirPath);
@@ -82,7 +82,7 @@ export async function saveJsonToFileCreatingDirectoryIfRequired(
 
 export async function saveObjectToFile(
   jsonOutputFile: string,
-  jsonPayload: Record<string, unknown>,
+  jsonPayload: Record<string, unknown>
 ): Promise<void> {
   const dirPath = path.dirname(jsonOutputFile);
   const createDirSuccess = createDirectory(dirPath);

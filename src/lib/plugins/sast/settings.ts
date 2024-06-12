@@ -1,14 +1,14 @@
-import { Options } from '../../types';
-import { SastSettings } from './types';
-import config from '../../config';
-import { getSastSettingsForOrg, trackUsage } from './checks';
+import { Options } from "../../types";
+import { SastSettings } from "./types";
+import config from "../../config";
+import { getSastSettingsForOrg, trackUsage } from "./checks";
 
 import {
   AuthFailedError,
   FailedToRunTestError,
   FeatureNotSupportedForOrgError,
-  NotFoundError,
-} from '../../errors';
+  NotFoundError
+} from "../../errors";
 
 export async function getSastSettings(options: Options): Promise<SastSettings> {
   const org = options.org || config.org;
@@ -26,7 +26,7 @@ export async function getSastSettings(options: Options): Promise<SastSettings> {
   ) {
     throw AuthFailedError(
       sastSettingsResponse.error,
-      sastSettingsResponse.code,
+      sastSettingsResponse.code
     );
   }
 
@@ -37,8 +37,8 @@ export async function getSastSettings(options: Options): Promise<SastSettings> {
   if (!sastSettingsResponse.sastEnabled) {
     throw new FeatureNotSupportedForOrgError(
       org,
-      'Snyk Code',
-      'enable in Settings > Snyk Code',
+      "Snyk Code",
+      "enable in Settings > Snyk Code"
     );
   }
 
@@ -46,7 +46,7 @@ export async function getSastSettings(options: Options): Promise<SastSettings> {
   if (trackUsageResponse.code === 429) {
     throw new FailedToRunTestError(
       trackUsageResponse.userMessage,
-      trackUsageResponse.code,
+      trackUsageResponse.code
     );
   }
   return sastSettingsResponse;

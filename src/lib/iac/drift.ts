@@ -1,22 +1,22 @@
-import * as fs from 'fs';
+import * as fs from "fs";
 import {
   DescribeOptions,
   DriftAnalysis,
   DriftctlExecutionResult,
-  GenDriftIgnoreOptions,
-} from './types';
-import { Policy } from '../policy/find-and-load-policy';
-import snykLogoSVG from './assets/snyk-logo';
-import snykFaviconBase64 from './assets/snyk-favicon';
-import { getHumanReadableAnalysis } from './drift/output';
-import { runDriftCTL } from './drift/driftctl';
+  GenDriftIgnoreOptions
+} from "./types";
+import { Policy } from "../policy/find-and-load-policy";
+import snykLogoSVG from "./assets/snyk-logo";
+import snykFaviconBase64 from "./assets/snyk-favicon";
+import { getHumanReadableAnalysis } from "./drift/output";
+import { runDriftCTL } from "./drift/driftctl";
 
 export const parseDriftAnalysisResults = (input: string): DriftAnalysis => {
   return JSON.parse(input) as DriftAnalysis;
 };
 
 export function driftignoreFromPolicy(policy: Policy | undefined): string[] {
-  const excludeSection = 'iac-drift';
+  const excludeSection = "iac-drift";
   if (!policy || !policy.exclude || !(excludeSection in policy.exclude)) {
     return [];
   }
@@ -26,35 +26,35 @@ export function driftignoreFromPolicy(policy: Policy | undefined): string[] {
 export const updateExcludeInPolicy = (
   policy: Policy,
   analysis: DriftAnalysis,
-  options: GenDriftIgnoreOptions,
+  options: GenDriftIgnoreOptions
 ): void => {
   const excludedResources = driftignoreFromPolicy(policy);
-  const addResource = (res) => excludedResources.push(`${res.type}.${res.id}`);
+  const addResource = res => excludedResources.push(`${res.type}.${res.id}`);
 
-  if (!options['exclude-missing'] && analysis.summary.total_missing > 0) {
-    analysis.missing?.forEach((res) => addResource(res));
+  if (!options["exclude-missing"] && analysis.summary.total_missing > 0) {
+    analysis.missing?.forEach(res => addResource(res));
   }
 
-  if (!options['exclude-unmanaged'] && analysis.summary.total_unmanaged > 0) {
-    analysis.unmanaged?.forEach((res) => addResource(res));
+  if (!options["exclude-unmanaged"] && analysis.summary.total_unmanaged > 0) {
+    analysis.unmanaged?.forEach(res => addResource(res));
   }
 
   if (!policy.exclude) {
     policy.exclude = {};
   }
 
-  policy.exclude['iac-drift'] = excludedResources;
+  policy.exclude["iac-drift"] = excludedResources;
 };
 
 export async function processAnalysis(
   options: DescribeOptions,
-  describe: DriftctlExecutionResult,
+  describe: DriftctlExecutionResult
 ): Promise<string> {
-  if (options.html || options['html-file-output']) {
+  if (options.html || options["html-file-output"]) {
     // we use fmt for html output
     const fmtResult = await runDriftCTL({
-      options: { ...options, kind: 'fmt' },
-      input: describe.stdout,
+      options: { ...options, kind: "fmt" },
+      input: describe.stdout
     });
     const output = processHTMLOutput(options, fmtResult.stdout);
 
@@ -63,7 +63,7 @@ export async function processAnalysis(
       return output;
     }
     // should return an empty string if we use the html-file-output flag
-    return '';
+    return "";
   }
 
   if (options.json) {
@@ -77,17 +77,17 @@ export async function processAnalysis(
 
 export function processHTMLOutput(
   options: DescribeOptions,
-  stdout: string,
+  stdout: string
 ): string {
   if (options.html) {
     stdout = rebrandHTMLOutput(stdout);
   }
 
-  if (options['html-file-output']) {
-    const data = fs.readFileSync(options['html-file-output'], {
-      encoding: 'utf8',
+  if (options["html-file-output"]) {
+    const data = fs.readFileSync(options["html-file-output"], {
+      encoding: "utf8"
     });
-    fs.writeFileSync(options['html-file-output'], rebrandHTMLOutput(data));
+    fs.writeFileSync(options["html-file-output"], rebrandHTMLOutput(data));
   }
 
   return stdout;
@@ -97,28 +97,28 @@ function rebrandHTMLOutput(data: string): string {
   // Replace favicon
   const faviconReplaceRegex = new RegExp(
     '(<link rel="shortcut icon")(.*)(\\/>)',
-    'g',
+    "g"
   );
   data = data.replace(
     faviconReplaceRegex,
-    `<link rel="shortcut icon" type="image/x-icon" href="${snykFaviconBase64}" />`,
+    `<link rel="shortcut icon" type="image/x-icon" href="${snykFaviconBase64}" />`
   );
 
   // Replace HTML title
-  const titleReplaceRegex = new RegExp('(<title>)(.*)(<\\/title>)', 'g');
+  const titleReplaceRegex = new RegExp("(<title>)(.*)(<\\/title>)", "g");
   data = data.replace(
     titleReplaceRegex,
-    `<title>Snyk IaC drift report</title>`,
+    `<title>Snyk IaC drift report</title>`
   );
 
   // Replace header brand logo
   const logoReplaceRegex = new RegExp(
     '(<div id="brand_logo">)((.|\\r|\\n)*?)(<\\/div>)',
-    'g',
+    "g"
   );
   data = data.replace(
     logoReplaceRegex,
-    `<div id="brand_logo">${snykLogoSVG}</div>`,
+    `<div id="brand_logo">${snykLogoSVG}</div>`
   );
 
   return data;

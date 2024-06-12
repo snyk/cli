@@ -1,15 +1,15 @@
-import { FormattedResult } from '../../../../cli/commands/test/iac/local-execution/types';
-import { iacRemediationTypes } from '../../../iac/constants';
-import { Results, Vulnerability } from '../../../iac/test/v2/scan/results';
-import { SEVERITY } from '../../../snyk-test/legacy';
-import { IacOutputMeta } from '../../../types';
+import { FormattedResult } from "../../../../cli/commands/test/iac/local-execution/types";
+import { iacRemediationTypes } from "../../../iac/constants";
+import { Results, Vulnerability } from "../../../iac/test/v2/scan/results";
+import { SEVERITY } from "../../../snyk-test/legacy";
+import { IacOutputMeta } from "../../../types";
 import {
   FormattedOutputResultsBySeverity,
   IacTestCounts,
   IacTestData,
-  Issue,
-} from './types';
-import { countSuppressedIssues } from './utils';
+  Issue
+} from "./types";
+import { countSuppressedIssues } from "./utils";
 
 interface FormatTestDataParams {
   oldFormattedResults: FormattedResult[];
@@ -20,7 +20,7 @@ interface FormatTestDataParams {
 export function formatTestData({
   oldFormattedResults,
   iacOutputMeta: iacTestMeta,
-  ignoresCount,
+  ignoresCount
 }: FormatTestDataParams): IacTestData {
   const resultsBySeverity = formatScanResultsNewOutput(oldFormattedResults);
 
@@ -29,8 +29,8 @@ export function formatTestData({
     metadata: iacTestMeta,
     counts: formatTestCounts(resultsBySeverity, {
       oldFormattedResults,
-      ignoresCount,
-    }),
+      ignoresCount
+    })
   };
 }
 
@@ -38,11 +38,11 @@ function formatTestCounts(
   resultsBySeverity: FormattedOutputResultsBySeverity,
   {
     oldFormattedResults,
-    ignoresCount,
-  }: Pick<FormatTestDataParams, 'ignoresCount' | 'oldFormattedResults'>,
+    ignoresCount
+  }: Pick<FormatTestDataParams, "ignoresCount" | "oldFormattedResults">
 ): IacTestCounts {
   const filesWithIssues = oldFormattedResults.filter(
-    (result) => result.result.cloudConfigResults.length,
+    result => result.result.cloudConfigResults.length
   ).length;
 
   const filesWithoutIssues = oldFormattedResults.length - filesWithIssues;
@@ -50,7 +50,7 @@ function formatTestCounts(
   let totalIssues = 0;
 
   const issuesCountBySeverity = {} as { [key in SEVERITY]: number };
-  Object.values(SEVERITY).forEach((severity) => {
+  Object.values(SEVERITY).forEach(severity => {
     issuesCountBySeverity[severity] = resultsBySeverity[severity]?.length || 0;
     totalIssues += issuesCountBySeverity[severity];
   });
@@ -60,17 +60,17 @@ function formatTestCounts(
     filesWithIssues,
     filesWithoutIssues,
     issuesBySeverity: issuesCountBySeverity,
-    issues: totalIssues,
+    issues: totalIssues
   };
 }
 
 function formatScanResultsNewOutput(
-  oldFormattedResults: FormattedResult[],
+  oldFormattedResults: FormattedResult[]
 ): FormattedOutputResultsBySeverity {
   const newFormattedResults: FormattedOutputResultsBySeverity = {};
 
-  oldFormattedResults.forEach((oldFormattedResult) => {
-    oldFormattedResult.result.cloudConfigResults.forEach((issue) => {
+  oldFormattedResults.forEach(oldFormattedResult => {
+    oldFormattedResult.result.cloudConfigResults.forEach(issue => {
       if (!newFormattedResults[issue.severity]) {
         newFormattedResults[issue.severity] = [];
       }
@@ -78,7 +78,7 @@ function formatScanResultsNewOutput(
       newFormattedResults[issue.severity].push({
         issue,
         targetFile: oldFormattedResult.targetFile,
-        projectType: oldFormattedResult.result.projectType,
+        projectType: oldFormattedResult.result.projectType
       });
     });
   });
@@ -89,16 +89,16 @@ function formatScanResultsNewOutput(
 export function formatSnykIacTestTestData(
   snykIacTestScanResult: Results | undefined,
   projectName: string,
-  orgName: string,
+  orgName: string
 ): IacTestData {
   const resultsBySeverity = formatSnykIacTestScanResultNewOutput(
-    snykIacTestScanResult,
+    snykIacTestScanResult
   );
 
   let totalIssues = 0;
 
   const issuesCountBySeverity = {} as { [key in SEVERITY]: number };
-  Object.values(SEVERITY).forEach((severity) => {
+  Object.values(SEVERITY).forEach(severity => {
     issuesCountBySeverity[severity] = resultsBySeverity[severity]?.length || 0;
     totalIssues += issuesCountBySeverity[severity];
   });
@@ -126,8 +126,8 @@ export function formatSnykIacTestTestData(
       filesWithoutIssues: filesWithoutIssuesCount,
       issues: totalIssues,
       issuesBySeverity: issuesCountBySeverity,
-      contextSuppressedIssues: contextSuppressedIssueCount,
-    },
+      contextSuppressedIssues: contextSuppressedIssueCount
+    }
   };
 }
 
@@ -164,12 +164,12 @@ function countFiles(results?: Results): number {
 }
 
 function formatSnykIacTestScanResultNewOutput(
-  snykIacTestScanResult: Results | undefined,
+  snykIacTestScanResult: Results | undefined
 ): FormattedOutputResultsBySeverity {
   const resultsBySeverity = {} as FormattedOutputResultsBySeverity;
 
   if (snykIacTestScanResult?.vulnerabilities) {
-    snykIacTestScanResult.vulnerabilities.forEach((vulnerability) => {
+    snykIacTestScanResult.vulnerabilities.forEach(vulnerability => {
       if (!resultsBySeverity[vulnerability.severity]) {
         resultsBySeverity[vulnerability.severity] = [];
       }
@@ -177,7 +177,7 @@ function formatSnykIacTestScanResultNewOutput(
       resultsBySeverity[vulnerability.severity]!.push({
         issue: formatSnykIacTestScanVulnerability(vulnerability),
         targetFile: vulnerability.resource.file,
-        projectType: vulnerability.resource.kind,
+        projectType: vulnerability.resource.kind
       });
     });
   }
@@ -186,7 +186,7 @@ function formatSnykIacTestScanResultNewOutput(
 }
 
 function formatSnykIacTestScanVulnerability(
-  vulnerability: Vulnerability,
+  vulnerability: Vulnerability
 ): Issue {
   const resolve = extractResolve(vulnerability);
 
@@ -202,8 +202,8 @@ function formatSnykIacTestScanVulnerability(
     documentation: vulnerability.rule.documentation,
     isGeneratedByCustomRule: vulnerability.rule.isGeneratedByCustomRule,
     remediation: {
-      [iacRemediationTypes[vulnerability.resource.kind]]: resolve,
-    },
+      [iacRemediationTypes[vulnerability.resource.kind]]: resolve
+    }
   };
 }
 function extractResolve(vulnerability: Vulnerability): string {
@@ -214,5 +214,5 @@ function extractResolve(vulnerability: Vulnerability): string {
 }
 
 function formatCloudConfigPath(vulnerability: Vulnerability): string[] {
-  return vulnerability.resource.formattedPath.split('.');
+  return vulnerability.resource.formattedPath.split(".");
 }

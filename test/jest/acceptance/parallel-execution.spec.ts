@@ -1,10 +1,10 @@
-import { runSnykCLI } from '../util/runSnykCLI';
-import { RunCommandResult } from '../util/runCommand';
+import { runSnykCLI } from "../util/runSnykCLI";
+import { RunCommandResult } from "../util/runCommand";
 
 jest.setTimeout(1000 * 120);
 
-describe('Parallel CLI execution', () => {
-  it('parallel woof', async () => {
+describe("Parallel CLI execution", () => {
+  it("parallel woof", async () => {
     const numberOfParallelExecutions = 10;
 
     const singleTestResult: Promise<RunCommandResult>[] = [];

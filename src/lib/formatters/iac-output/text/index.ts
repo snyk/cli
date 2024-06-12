@@ -1,22 +1,22 @@
-export { getIacDisplayedIssues } from './issues-list';
-export { formatIacTestSummary } from './test-summary';
+export { getIacDisplayedIssues } from "./issues-list";
+export { formatIacTestSummary } from "./test-summary";
 export {
   iacTestTitle,
   spinnerMessage,
   spinnerSuccessMessage,
   shouldLogUserMessages,
   customRulesMessage,
-  customRulesReportMessage,
-} from './user-messages';
+  customRulesReportMessage
+} from "./user-messages";
 export {
   formatShareResultsOutput,
   shareResultsTip,
-  shareCustomRulesDisclaimer,
-} from './share-results';
+  shareCustomRulesDisclaimer
+} from "./share-results";
 export {
   formatIacTestFailures,
   formatFailuresList,
-  failuresTipOutput,
-} from './failures';
-export { IaCTestFailure, IaCTestWarning } from './types';
-export { formatSnykIacTestTestData, formatTestData } from './formatters';
+  failuresTipOutput
+} from "./failures";
+export { IaCTestFailure, IaCTestWarning } from "./types";
+export { formatSnykIacTestTestData, formatTestData } from "./formatters";

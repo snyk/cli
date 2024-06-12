@@ -4,5 +4,5 @@ export function rightPadWithSpaces(s: string, padding: number) {
     return s;
   }
 
-  return s + ' '.repeat(padLength);
+  return s + " ".repeat(padLength);
 }

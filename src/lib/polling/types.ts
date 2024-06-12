@@ -1,21 +1,21 @@
 import {
   TestDepGraphMeta,
-  TestDependenciesResult,
-} from '../../lib/snyk-test/legacy';
+  TestDependenciesResult
+} from "../../lib/snyk-test/legacy";
 
 import {
   GitTarget,
   ContainerTarget,
   NamedTarget,
-  MonitorDependenciesResponse,
-} from '../ecosystems/types';
+  MonitorDependenciesResponse
+} from "../ecosystems/types";
 
 export type ResolveFactsStatus =
-  | 'CANCELLED'
-  | 'ERROR'
-  | 'PENDING'
-  | 'RUNNING'
-  | 'OK';
+  | "CANCELLED"
+  | "ERROR"
+  | "PENDING"
+  | "RUNNING"
+  | "OK";
 
 export interface PollingTask {
   pollInterval: number;

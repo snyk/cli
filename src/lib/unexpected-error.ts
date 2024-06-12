@@ -7,22 +7,22 @@
  */
 export async function callHandlingUnexpectedErrors(
   callable: () => Promise<unknown>,
-  exitCode: number,
+  exitCode: number
 ): Promise<void> {
   function handleUnexpectedError(reason: unknown): never {
-    console.error('Something unexpected went wrong:', reason);
-    console.error('Exit code:', exitCode);
+    console.error("Something unexpected went wrong:", reason);
+    console.error("Exit code:", exitCode);
     process.exit(exitCode);
   }
 
-  process.on('uncaughtException', handleUnexpectedError);
+  process.on("uncaughtException", handleUnexpectedError);
 
   /**
    * Since Node 15, 'unhandledRejection' without a handler causes an
    * 'uncaughtException'. However, we also support Node 14 (as of writing)
    * which doesn't have that behaviour. So we still need this handler for now.
    */
-  process.on('unhandledRejection', handleUnexpectedError);
+  process.on("unhandledRejection", handleUnexpectedError);
 
   try {
     await callable();

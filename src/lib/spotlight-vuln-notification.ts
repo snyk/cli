@@ -1,12 +1,12 @@
-import * as theme from './theme';
-import * as createDebug from 'debug';
-import { EOL } from 'os';
-import config from './config';
-import { getVulnerabilityUrl } from './formatters/get-vuln-url';
+import * as theme from "./theme";
+import * as createDebug from "debug";
+import { EOL } from "os";
+import config from "./config";
+import { getVulnerabilityUrl } from "./formatters/get-vuln-url";
 
-const debug = createDebug('snyk-spotlight-vuln-notification');
+const debug = createDebug("snyk-spotlight-vuln-notification");
 
-const spotlightVulnIds = ['SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720'];
+const spotlightVulnIds = ["SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720"];
 
 export function containsSpotlightVulnIds(results: any[]): string[] {
   try {
@@ -22,7 +22,7 @@ export function containsSpotlightVulnIds(results: any[]): string[] {
     }
     return [...spotlightVulnsFound];
   } catch (err) {
-    debug('Error in containsSpotlightVulnIds()', err);
+    debug("Error in containsSpotlightVulnIds()", err);
     return [];
   }
 }
@@ -30,16 +30,16 @@ export function containsSpotlightVulnIds(results: any[]): string[] {
 type VulnerabilityId = string;
 
 export function notificationForSpotlightVulns(
-  foundSpotlightVulnsIds: VulnerabilityId[],
+  foundSpotlightVulnsIds: VulnerabilityId[]
 ) {
   try {
     if (foundSpotlightVulnsIds.length > 0) {
-      let message = '';
+      let message = "";
       for (const vulnId of spotlightVulnIds) {
-        if (vulnId === 'SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720') {
+        if (vulnId === "SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720") {
           message += theme.color.severity.critical(
             `${theme.icon.WARNING} WARNING: Critical severity vulnerabilities were found with Log4j!` +
-              EOL,
+              EOL
           );
 
           for (const vulnId of foundSpotlightVulnsIds) {
@@ -49,7 +49,7 @@ export function notificationForSpotlightVulns(
           message += EOL + EOL;
           message +=
             theme.color.severity.critical(
-              `We highly recommend fixing this vulnerability. If it cannot be fixed by upgrading, see mitigation information here:`,
+              `We highly recommend fixing this vulnerability. If it cannot be fixed by upgrading, see mitigation information here:`
             ) +
             EOL +
             `  - ${config.PUBLIC_VULN_DB_URL}/vuln/SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720` +
@@ -60,9 +60,9 @@ export function notificationForSpotlightVulns(
       }
       return message;
     }
-    return '';
+    return "";
   } catch (err) {
-    debug('Error in notificationForSpotlightVulns()', err);
-    return '';
+    debug("Error in notificationForSpotlightVulns()", err);
+    return "";
   }
 }

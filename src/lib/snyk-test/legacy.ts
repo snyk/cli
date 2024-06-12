@@ -1,14 +1,14 @@
-import * as values from 'lodash.values';
-import * as depGraphLib from '@snyk/dep-graph';
+import * as values from "lodash.values";
+import * as depGraphLib from "@snyk/dep-graph";
 import {
   DepsFilePaths,
   ScanResult,
-  FileSignaturesDetails,
-} from '../ecosystems/types';
-import { SupportedPackageManagers } from '../package-managers';
-import { Options, SupportedProjectTypes, TestOptions } from '../types';
-import { SEVERITIES } from './common';
-import { AppliedPolicyRules } from '../formatters/types';
+  FileSignaturesDetails
+} from "../ecosystems/types";
+import { SupportedPackageManagers } from "../package-managers";
+import { Options, SupportedProjectTypes, TestOptions } from "../types";
+import { SEVERITIES } from "./common";
+import { AppliedPolicyRules } from "../formatters/types";
 
 interface Pkg {
   name: string;
@@ -23,24 +23,24 @@ export interface Patch {
 }
 
 export enum SEVERITY {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical',
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+  CRITICAL = "critical"
 }
 
 export interface VulnMetaData {
   id: string;
   title: string;
   description: string;
-  type: 'license' | 'vuln';
+  type: "license" | "vuln";
   name: string;
   info: string;
   severity: SEVERITY;
   severityValue: number;
   isNew: boolean;
   version: string;
-  packageManager: SupportedPackageManagers | 'upstream';
+  packageManager: SupportedPackageManagers | "upstream";
 }
 
 export interface GroupedVuln {
@@ -115,7 +115,7 @@ interface AnnotatedIssue extends IssueData {
   __filename?: string;
   parentDepType: string;
 
-  type?: 'license';
+  type?: "license";
   title: string;
   patch?: any;
   note?: string | false;
@@ -339,7 +339,7 @@ function convertTestDepGraphResultToLegacy(
   res: TestDepGraphResponse,
   depGraph: depGraphLib.DepGraph,
   packageManager: SupportedProjectTypes | undefined,
-  options: Options & TestOptions,
+  options: Options & TestOptions
 ): LegacyVulnApiResult {
   const result = res.result;
 
@@ -352,10 +352,10 @@ function convertTestDepGraphResultToLegacy(
           const legacyFromPath = pkgPathToLegacyPath(upgradePath.path);
           const vulnPathString = getVulnPathString(
             pkgIssue.issueId,
-            legacyFromPath,
+            legacyFromPath
           );
           upgradePathsMap[vulnPathString] = toLegacyUpgradePath(
-            upgradePath.path,
+            upgradePath.path
           );
         }
       }
@@ -372,7 +372,7 @@ function convertTestDepGraphResultToLegacy(
       for (const pkgIssue of values(pkgInfo.issues)) {
         const vulnPathString = getVulnPathString(
           pkgIssue.issueId,
-          legacyFromPath,
+          legacyFromPath
         );
         const upgradePath = upgradePathsMap[vulnPathString] || [];
 
@@ -389,8 +389,8 @@ function convertTestDepGraphResultToLegacy(
             isPatchable: pkgIssue.fixInfo.isPatchable,
             name: pkgInfo.pkg.name,
             version: pkgInfo.pkg.version as string,
-            nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
-          },
+            nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion
+          }
         ) as AnnotatedIssue & DockerIssue; // TODO(kyegupov): get rid of type assertion
 
         vulns.push(annotatedIssue);
@@ -405,20 +405,20 @@ function convertTestDepGraphResultToLegacy(
     for (const pkgInfo of values(binariesVulns.affectedPkgs)) {
       for (const pkgIssue of values(pkgInfo.issues)) {
         const pkgAndVersion = (pkgInfo.pkg.name +
-          '@' +
+          "@" +
           pkgInfo.pkg.version) as string;
         const annotatedIssue = (Object.assign(
           {},
           binariesVulns.issuesData[pkgIssue.issueId],
           {
-            from: ['Upstream', pkgAndVersion],
+            from: ["Upstream", pkgAndVersion],
             upgradePath: [],
             isUpgradable: false,
             isPatchable: false,
             name: pkgInfo.pkg.name,
             version: pkgInfo.pkg.version as string,
-            nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
-          },
+            nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion
+          }
         ) as any) as AnnotatedIssue; // TODO(kyegupov): get rid of forced type assertion
         vulns.push(annotatedIssue);
       }
@@ -446,14 +446,14 @@ function convertTestDepGraphResultToLegacy(
     docker: result.docker,
     summary: getSummary(vulns, severityThreshold),
     severityThreshold,
-    remediation: result.remediation,
+    remediation: result.remediation
   };
 
   return legacyRes;
 }
 
 function getVulnPathString(issueId: string, vulnPath: string[]) {
-  return issueId + '|' + JSON.stringify(vulnPath);
+  return issueId + "|" + JSON.stringify(vulnPath);
 }
 
 function pkgPathToLegacyPath(pkgPath: Pkg[]): string[] {
@@ -461,11 +461,11 @@ function pkgPathToLegacyPath(pkgPath: Pkg[]): string[] {
 }
 
 function toLegacyUpgradePath(
-  upgradePath: UpgradePathItem[],
+  upgradePath: UpgradePathItem[]
 ): Array<string | boolean> {
   return upgradePath
-    .filter((item) => !item.isDropped)
-    .map((item) => {
+    .filter(item => !item.isDropped)
+    .map(item => {
       if (!item.newVersion) {
         return false;
       }
@@ -475,43 +475,43 @@ function toLegacyUpgradePath(
 }
 
 function toLegacyPkgId(pkg: Pkg) {
-  return `${pkg.name}@${pkg.version || '*'}`;
+  return `${pkg.name}@${pkg.version || "*"}`;
 }
 
 function getSummary(vulns: object[], severityThreshold?: SEVERITY): string {
   const count = vulns.length;
-  let countText = '' + count;
+  let countText = "" + count;
   const severityFilters: string[] = [];
-  const severitiesArray = SEVERITIES.map((s) => s.verboseName);
+  const severitiesArray = SEVERITIES.map(s => s.verboseName);
   if (severityThreshold) {
     severitiesArray
       .slice(severitiesArray.indexOf(severityThreshold))
-      .forEach((sev) => {
+      .forEach(sev => {
         severityFilters.push(sev);
       });
   }
 
   if (!count) {
     if (severityFilters.length) {
-      return `No ${severityFilters.join(' or ')} severity vulnerabilities`;
+      return `No ${severityFilters.join(" or ")} severity vulnerabilities`;
     }
-    return 'No known vulnerabilities';
+    return "No known vulnerabilities";
   }
 
   if (severityFilters.length) {
-    countText += ' ' + severityFilters.join(' or ') + ' severity';
+    countText += " " + severityFilters.join(" or ") + " severity";
   }
 
-  return `${countText} vulnerable dependency ${pl('path', count)}`;
+  return `${countText} vulnerable dependency ${pl("path", count)}`;
 }
 
 function pl(word, count) {
   const ext = {
-    y: 'ies',
-    default: 's',
+    y: "ies",
+    default: "s"
   };
 
-  const last = word.split('').pop();
+  const last = word.split("").pop();
 
   if (count > 1) {
     return word.slice(0, -1) + (ext[last] || last + ext.default);

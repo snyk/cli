@@ -1,10 +1,10 @@
-import { startMockServer, isValidJSONString } from './helpers';
+import { startMockServer, isValidJSONString } from "./helpers";
 
 jest.setTimeout(50000);
 
-describe('Terraform plan scanning', () => {
+describe("Terraform plan scanning", () => {
   let run: (
-    cmd: string,
+    cmd: string
   ) => Promise<{ stdout: string; stderr: string; exitCode: number }>;
   let teardown: () => void;
 
@@ -16,53 +16,53 @@ describe('Terraform plan scanning', () => {
 
   afterAll(async () => teardown());
 
-  it('finds issues in a Terraform plan file', async () => {
+  it("finds issues in a Terraform plan file", async () => {
     const { stdout, exitCode } = await run(
-      `snyk iac test ./iac/terraform-plan/tf-plan-create.json`,
+      `snyk iac test ./iac/terraform-plan/tf-plan-create.json`
     );
 
     expect(stdout).toContain(
-      'File:    ./iac/terraform-plan/tf-plan-create.json',
+      "File:    ./iac/terraform-plan/tf-plan-create.json"
     );
-    expect(stdout).toContain('S3 bucket versioning disabled');
+    expect(stdout).toContain("S3 bucket versioning disabled");
     expect(stdout).toContain(
-      'resource > aws_s3_bucket[terra_ci] > versioning > enabled',
+      "resource > aws_s3_bucket[terra_ci] > versioning > enabled"
     );
     expect(exitCode).toBe(1);
   });
 
-  it('finds issues in a Terraform plan file - explicit delta scan with flag', async () => {
+  it("finds issues in a Terraform plan file - explicit delta scan with flag", async () => {
     const { stdout, exitCode } = await run(
-      `snyk iac test ./iac/terraform-plan/tf-plan-create.json --scan=resource-changes`,
+      `snyk iac test ./iac/terraform-plan/tf-plan-create.json --scan=resource-changes`
     );
 
-    expect(stdout).toContain('Files with issues: 1');
+    expect(stdout).toContain("Files with issues: 1");
     expect(exitCode).toBe(1);
   });
 
-  it('errors when a wrong value is passed to the --scan flag', async () => {
+  it("errors when a wrong value is passed to the --scan flag", async () => {
     const { stdout, exitCode } = await run(
-      `snyk iac test ./iac/terraform-plan/tf-plan-create.json --scan=resrc-changes`,
+      `snyk iac test ./iac/terraform-plan/tf-plan-create.json --scan=resrc-changes`
     );
     expect(stdout).toContain(
-      'Unsupported value "resrc-changes" provided to flag "--scan".',
+      'Unsupported value "resrc-changes" provided to flag "--scan".'
     );
     expect(exitCode).toBe(2);
   });
 
-  it('errors when no value is provided to the --scan flag', async () => {
+  it("errors when no value is provided to the --scan flag", async () => {
     const { stdout, exitCode } = await run(
-      `snyk iac test ./iac/terraform-plan/tf-plan-create.json.json  --scan`,
+      `snyk iac test ./iac/terraform-plan/tf-plan-create.json.json  --scan`
     );
     expect(stdout).toContain(
-      'Unsupported value "true" provided to flag "--scan".',
+      'Unsupported value "true" provided to flag "--scan".'
     );
     expect(exitCode).toBe(2);
   });
 
-  it('succesfully scans a TF-Plan with the --json output flag', async () => {
+  it("succesfully scans a TF-Plan with the --json output flag", async () => {
     const { stdout, exitCode } = await run(
-      `snyk iac test ./iac/terraform-plan/tf-plan-create.json --json`,
+      `snyk iac test ./iac/terraform-plan/tf-plan-create.json --json`
     );
 
     expect(isValidJSONString(stdout)).toBe(true);

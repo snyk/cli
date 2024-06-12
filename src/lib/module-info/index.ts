@@ -1,8 +1,8 @@
-const merge = require('lodash.merge');
-import * as Debug from 'debug';
-import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
+const merge = require("lodash.merge");
+import * as Debug from "debug";
+import { legacyPlugin as pluginApi } from "@snyk/cli-interface";
 
-const debug = Debug('snyk-module-info');
+const debug = Debug("snyk-module-info");
 
 export function ModuleInfo(plugin, policy) {
   return {
@@ -10,23 +10,23 @@ export function ModuleInfo(plugin, policy) {
       root,
       targetFile,
       options,
-      snykHttpClient,
+      snykHttpClient
     ): Promise<pluginApi.SinglePackageResult | pluginApi.MultiProjectResult> {
       const pluginOptions = merge(
         {
-          args: options._doubleDashArgs,
+          args: options._doubleDashArgs
         },
-        options,
+        options
       );
 
-      debug('calling plugin inspect()', { root, targetFile, pluginOptions });
+      debug("calling plugin inspect()", { root, targetFile, pluginOptions });
       const info = await plugin.inspect(
         root,
         targetFile,
         pluginOptions,
-        snykHttpClient,
+        snykHttpClient
       );
-      debug('plugin inspect() done');
+      debug("plugin inspect() done");
 
       // attach policy if not provided by plugin
       if (policy && !info.package.policy) {
@@ -34,6 +34,6 @@ export function ModuleInfo(plugin, policy) {
       }
 
       return info;
-    },
+    }
   };
 }

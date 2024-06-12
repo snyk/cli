@@ -1,4 +1,4 @@
-import { LegalInstruction, SEVERITY } from '../../lib/snyk-test/legacy';
+import { LegalInstruction, SEVERITY } from "../../lib/snyk-test/legacy";
 
 export interface BasicVulnInfo {
   type: string;

@@ -16,7 +16,7 @@ export function hasFixes(testResults: any[]): boolean {
 export function isUpgradable(testResult: any): boolean {
   if (testResult.remediation) {
     const {
-      remediation: { upgrade = {}, pin = {} },
+      remediation: { upgrade = {}, pin = {} }
     } = testResult;
     return Object.keys(upgrade).length > 0 || Object.keys(pin).length > 0;
   }
@@ -32,7 +32,7 @@ export function hasUpgrades(testResults: any[]): boolean {
 export function isPatchable(testResult: any): boolean {
   if (testResult.remediation) {
     const {
-      remediation: { patch = {} },
+      remediation: { patch = {} }
     } = testResult;
     return Object.keys(patch).length > 0;
   }

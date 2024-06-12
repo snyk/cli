@@ -1,19 +1,19 @@
-import { isMultiProjectScan } from '../is-multi-project-scan';
+import { isMultiProjectScan } from "../is-multi-project-scan";
 
 export function showAllProjectsTip(
   packageManager,
   options,
-  foundProjectCount,
+  foundProjectCount
 ): string {
   if (
-    packageManager === 'gradle' ||
+    packageManager === "gradle" ||
     !foundProjectCount ||
     isMultiProjectScan(options)
   ) {
-    return '';
+    return "";
   }
   return (
     `Tip: Detected multiple supported manifests (${foundProjectCount}), ` +
-    'use --all-projects to scan all of them at once.'
+    "use --all-projects to scan all of them at once."
   );
 }

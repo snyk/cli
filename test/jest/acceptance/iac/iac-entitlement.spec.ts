@@ -1,8 +1,8 @@
-import { startMockServer, run as Run } from './helpers';
+import { startMockServer, run as Run } from "./helpers";
 
 jest.setTimeout(50000);
 
-describe('iac test with infrastructureAsCode entitlement', () => {
+describe("iac test with infrastructureAsCode entitlement", () => {
   let run: typeof Run;
   let teardown: () => void;
 
@@ -14,12 +14,12 @@ describe('iac test with infrastructureAsCode entitlement', () => {
 
   afterAll(async () => teardown());
 
-  it('fails to scan because the user is not entitled to infrastructureAsCode', async () => {
+  it("fails to scan because the user is not entitled to infrastructureAsCode", async () => {
     const { stdout, exitCode } = await run(
-      `snyk iac test --org=no-iac-entitlements ./iac/terraform/sg_open_ssh.tf`,
+      `snyk iac test --org=no-iac-entitlements ./iac/terraform/sg_open_ssh.tf`
     );
     expect(stdout).toContain(
-      'This feature is currently not enabled for your org. To enable it, please contact snyk support.',
+      "This feature is currently not enabled for your org. To enable it, please contact snyk support."
     );
     expect(exitCode).toBe(2);
   });

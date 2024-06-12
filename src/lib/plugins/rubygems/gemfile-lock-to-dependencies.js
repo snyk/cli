@@ -1,10 +1,10 @@
-const gemfile = require('@snyk/gemfile');
+const gemfile = require("@snyk/gemfile");
 
 module.exports = gemfileLockToDependencies;
 
 const detectCycles = (dep, chain) => {
   if (chain.indexOf(dep) >= 0) {
-    const error = Error('Cyclic dependency detected in lockfile');
+    const error = Error("Cyclic dependency detected in lockfile");
     const UNPROCESSABLE_ENTITY = 422;
     error.code = UNPROCESSABLE_ENTITY;
     error.meta = { dep, chain };
@@ -25,11 +25,11 @@ const gemfileReducer = (lockFile, allDeps, ancestors) => (deps, dep) => {
     } else {
       deps[dep] = {
         name: dep,
-        version: gemspec.version,
+        version: gemspec.version
       };
       allDeps.set(dep, deps[dep]);
       deps[dep].dependencies = Object.keys(gemspec)
-        .filter((k) => k !== 'version')
+        .filter(k => k !== "version")
         .reduce(gemfileReducer(lockFile, allDeps, ancestors.concat([dep])), {});
     }
   }
@@ -43,7 +43,7 @@ function gemfileLockToDependencies(fileContents) {
     Object.keys(lockFile.dependencies || {})
       // this is required to sanitise git deps with no exact version
       // listed as `rspec!`
-      .map((dep) => dep.match(/[^!]+/)[0])
+      .map(dep => dep.match(/[^!]+/)[0])
       .reduce(gemfileReducer(lockFile, new Map(), []), {})
   );
 }

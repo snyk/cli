@@ -1,9 +1,9 @@
-import * as childProcess from 'child_process';
+import * as childProcess from "child_process";
 
 export function execute(
   command: string,
   args: string[],
-  options?: { cwd: string | undefined },
+  options?: { cwd: string | undefined }
 ): Promise<string> {
   const spawnOptions: childProcess.SpawnOptions = { shell: true };
   if (options && options.cwd) {
@@ -11,22 +11,22 @@ export function execute(
   }
 
   return new Promise((resolve, reject) => {
-    let stdout = '';
-    let stderr = '';
+    let stdout = "";
+    let stderr = "";
 
     const proc = childProcess.spawn(command, args, spawnOptions);
     if (proc.stdout) {
-      proc.stdout.on('data', (data) => {
+      proc.stdout.on("data", data => {
         stdout += data;
       });
     }
     if (proc.stderr) {
-      proc.stderr.on('data', (data) => {
+      proc.stderr.on("data", data => {
         stderr += data;
       });
     }
 
-    proc.on('close', (code) => {
+    proc.on("close", code => {
       if (code !== 0) {
         return reject(stdout || stderr);
       }

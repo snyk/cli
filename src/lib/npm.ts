@@ -1,13 +1,13 @@
-import debugModule = require('debug');
-const debug = debugModule('snyk');
-import { exec } from 'child_process';
+import debugModule = require("debug");
+const debug = debugModule("snyk");
+import { exec } from "child_process";
 
 export default function npm(
   method: string,
   packages: string[] | null,
   live: boolean,
   cwd: string | null,
-  flags: string[] | null,
+  flags: string[] | null
 ): Promise<void> {
   flags = flags || [];
   if (!packages) {
@@ -21,44 +21,44 @@ export default function npm(
   // only if we have packages, then always save, otherwise the command might
   // be something like `npm shrinkwrap'
   if (packages.length && !flags.length) {
-    flags.push('--save');
+    flags.push("--save");
   }
 
-  method += ' ' + flags.join(' ');
+  method += " " + flags.join(" ");
 
   return new Promise((resolve, reject) => {
-    const cmd = 'npm ' + method + ' ' + (packages as string[]).join(' ');
+    const cmd = "npm " + method + " " + (packages as string[]).join(" ");
     if (!cwd) {
       cwd = process.cwd();
     }
-    debug('%s$ %s', cwd, cmd);
+    debug("%s$ %s", cwd, cmd);
 
     if (!live) {
-      debug('[skipping - dry run]');
+      debug("[skipping - dry run]");
       return resolve();
     }
 
     exec(
       cmd,
       {
-        cwd,
+        cwd
       },
       (error, stdout, stderr) => {
         if (error) {
           return reject(error);
         }
 
-        if (stderr.indexOf('ERR!') !== -1) {
+        if (stderr.indexOf("ERR!") !== -1) {
           console.error(stderr.trim());
-          const e = new Error('npm update issues: ' + stderr.trim());
-          (e as any).code = 'FAIL_UPDATE';
+          const e = new Error("npm update issues: " + stderr.trim());
+          (e as any).code = "FAIL_UPDATE";
           return reject(e);
         }
 
-        debug('npm %s complete', method);
+        debug("npm %s complete", method);
 
         resolve();
-      },
+      }
     );
   });
 }
@@ -66,16 +66,16 @@ export default function npm(
 export function getVersion() {
   return new Promise((resolve, reject) => {
     exec(
-      'npm --version',
+      "npm --version",
       {
-        cwd: process.cwd(),
+        cwd: process.cwd()
       },
       (error, stdout) => {
         if (error) {
           return reject(error);
         }
         return resolve(stdout);
-      },
+      }
     );
   });
 }

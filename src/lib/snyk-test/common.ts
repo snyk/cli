@@ -1,7 +1,7 @@
-import config from '../config';
-import { color } from '../theme';
-import { DepGraphData } from '@snyk/dep-graph';
-import { jsonStringifyLargeObject } from '../json';
+import config from "../config";
+import { color } from "../theme";
+import { DepGraphData } from "@snyk/dep-graph";
+import { jsonStringifyLargeObject } from "../json";
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -10,13 +10,13 @@ export function assembleQueryString(options) {
     severityThreshold?: boolean;
     ignorePolicy?: boolean;
   } = {
-    org,
+    org
   };
 
   if (options.severityThreshold) {
     qs.severityThreshold = options.severityThreshold;
   }
-  if (options['ignore-policy']) {
+  if (options["ignore-policy"]) {
     qs.ignorePolicy = true;
   }
 
@@ -24,10 +24,10 @@ export function assembleQueryString(options) {
 }
 
 export enum SEVERITY {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical',
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+  CRITICAL = "critical"
 }
 export const SEVERITIES: Array<{
   verboseName: SEVERITY;
@@ -35,38 +35,38 @@ export const SEVERITIES: Array<{
 }> = [
   {
     verboseName: SEVERITY.LOW,
-    value: 1,
+    value: 1
   },
   {
     verboseName: SEVERITY.MEDIUM,
-    value: 2,
+    value: 2
   },
   {
     verboseName: SEVERITY.HIGH,
-    value: 3,
+    value: 3
   },
   {
     verboseName: SEVERITY.CRITICAL,
-    value: 4,
-  },
+    value: 4
+  }
 ];
 
 export function colorTextBySeverity(
   severity: string,
-  textToColor: string,
+  textToColor: string
 ): string {
-  return (color.severity[(severity || '').toLowerCase()] || color.severity.low)(
-    textToColor,
+  return (color.severity[(severity || "").toLowerCase()] || color.severity.low)(
+    textToColor
   );
 }
 
 export enum FAIL_ON {
-  all = 'all',
-  upgradable = 'upgradable',
-  patchable = 'patchable',
+  all = "all",
+  upgradable = "upgradable",
+  patchable = "patchable"
 }
 
-export type FailOn = 'all' | 'upgradable' | 'patchable';
+export type FailOn = "all" | "upgradable" | "patchable";
 
 export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY = 500;
@@ -75,7 +75,7 @@ export const RETRY_DELAY = 500;
 // the `depgraph` CLI workflow.
 export function depGraphToOutputString(
   dg: DepGraphData,
-  targetName: string,
+  targetName: string
 ): string {
   return `DepGraph data:
 ${jsonStringifyLargeObject(dg)}

@@ -1,4 +1,4 @@
-import { DepTree } from '../types';
+import { DepTree } from "../types";
 
 interface FilteredDepTree {
   filteredDepTree: DepTree;
@@ -12,7 +12,7 @@ export function filterOutMissingDeps(depTree: DepTree): FilteredDepTree {
   if (!depTree.dependencies) {
     return {
       filteredDepTree: depTree,
-      missingDeps,
+      missingDeps
     };
   }
 
@@ -30,11 +30,11 @@ export function filterOutMissingDeps(depTree: DepTree): FilteredDepTree {
   }
   const filteredDepTree: DepTree = {
     ...depTree,
-    dependencies: filteredDeps,
+    dependencies: filteredDeps
   };
 
   return {
     filteredDepTree,
-    missingDeps,
+    missingDeps
   };
 }

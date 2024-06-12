@@ -1,25 +1,25 @@
-import { runSnykCLI } from '../util/runSnykCLI';
-import { fakeServer } from '../../acceptance/fake-server';
-import { getServerPort } from '../util/getServerPort';
+import { runSnykCLI } from "../util/runSnykCLI";
+import { fakeServer } from "../../acceptance/fake-server";
+import { getServerPort } from "../util/getServerPort";
 
 jest.setTimeout(1000 * 30); // 30 seconds
 
-describe('cli token precedence', () => {
+describe("cli token precedence", () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
   let initialConfig: Record<string, string> = {};
 
   const port = getServerPort(process);
-  const baseApi = '/api/v1';
+  const baseApi = "/api/v1";
   const initialEnvVars = {
     ...process.env,
-    SNYK_API: 'http://localhost:' + port + baseApi,
-    SNYK_HOST: 'http://localhost:' + port,
+    SNYK_API: "http://localhost:" + port + baseApi,
+    SNYK_HOST: "http://localhost:" + port
   };
 
-  beforeAll((done) => {
+  beforeAll(done => {
     env = initialEnvVars;
-    server = fakeServer(baseApi, 'snykToken');
+    server = fakeServer(baseApi, "snykToken");
     server.listen(port, () => {
       done();
     });
@@ -27,16 +27,16 @@ describe('cli token precedence', () => {
 
   beforeAll(async () => {
     // save initial config
-    const { stdout } = await runSnykCLI('config', { env });
+    const { stdout } = await runSnykCLI("config", { env });
     if (stdout) {
       initialConfig = stdout
         .trim()
-        .split('\n')
+        .split("\n")
         .reduce((acc, line) => {
-          const [key, value] = line.split(': ');
+          const [key, value] = line.split(": ");
           return {
             ...acc,
-            [key]: value,
+            [key]: value
           };
         }, {});
     }
@@ -47,7 +47,7 @@ describe('cli token precedence', () => {
     env = initialEnvVars;
 
     // reset config to initial state
-    await runSnykCLI('config clear', { env });
+    await runSnykCLI("config clear", { env });
     if (Object.keys(initialConfig).length > 0) {
       for (const key in initialConfig) {
         await runSnykCLI(`config set ${key}=${initialConfig[key]}`, { env });
@@ -55,7 +55,7 @@ describe('cli token precedence', () => {
     }
   });
 
-  afterAll((done) => {
+  afterAll(done => {
     server.close(() => {
       done();
     });
@@ -69,31 +69,31 @@ describe('cli token precedence', () => {
   };
 
   const snykAPIConfig: AuthConfig = {
-    name: 'snykAPI',
-    expectedAuthType: 'token',
-    expectedToken: 'snykApiToken',
+    name: "snykAPI",
+    expectedAuthType: "token",
+    expectedToken: "snykApiToken",
     snykConfig: {
-      api: 'snykApiToken',
-    },
+      api: "snykApiToken"
+    }
   };
 
   const internalOAuthTokenStorage = {
-    access_token: 'configAccessToken',
-    token_type: 'Bearer',
-    refresh_token: 'configRefreshToken',
-    expiry: '3023-03-29T17:47:13.714448+02:00',
+    access_token: "configAccessToken",
+    token_type: "Bearer",
+    refresh_token: "configRefreshToken",
+    expiry: "3023-03-29T17:47:13.714448+02:00"
   };
   const snykOAuthConfig: AuthConfig = {
-    name: 'snykOAuth',
-    expectedAuthType: 'Bearer',
-    expectedToken: 'configAccessToken',
+    name: "snykOAuth",
+    expectedAuthType: "Bearer",
+    expectedToken: "configAccessToken",
     snykConfig: {
       internal_oauth_token_storage: JSON.stringify(internalOAuthTokenStorage),
-      internal_snyk_oauth_enabled: '1',
-    },
+      internal_snyk_oauth_enabled: "1"
+    }
   };
 
-  [snykAPIConfig, snykOAuthConfig].forEach((auth) => {
+  [snykAPIConfig, snykOAuthConfig].forEach(auth => {
     describe(`when ${auth.name} is set in config`, () => {
       beforeEach(async () => {
         // inject config
@@ -106,15 +106,15 @@ describe('cli token precedence', () => {
         await runSnykCLI(`-d`, { env });
         const authHeader = server.popRequest().headers?.authorization;
         expect(authHeader).toEqual(
-          `${auth.expectedAuthType} ${auth.expectedToken}`,
+          `${auth.expectedAuthType} ${auth.expectedToken}`
         );
       });
 
-      describe('when oauth env vars are set', () => {
-        it('SNYK_OAUTH_TOKEN should override config', async () => {
+      describe("when oauth env vars are set", () => {
+        it("SNYK_OAUTH_TOKEN should override config", async () => {
           env = {
             ...env,
-            SNYK_OAUTH_TOKEN: 'snkyOAuthToken',
+            SNYK_OAUTH_TOKEN: "snkyOAuthToken"
           };
 
           await runSnykCLI(`-d`, { env });
@@ -123,10 +123,10 @@ describe('cli token precedence', () => {
           expect(authHeader).toEqual(`Bearer ${env.SNYK_OAUTH_TOKEN}`);
         });
 
-        it('SNYK_DOCKER_TOKEN should override config', async () => {
+        it("SNYK_DOCKER_TOKEN should override config", async () => {
           env = {
             ...env,
-            SNYK_DOCKER_TOKEN: 'snykDockerToken',
+            SNYK_DOCKER_TOKEN: "snykDockerToken"
           };
 
           await runSnykCLI(`-d`, { env });
@@ -137,11 +137,11 @@ describe('cli token precedence', () => {
       });
 
       if (snykOAuthConfig.name != auth.name) {
-        describe('when token env vars are set', () => {
-          it('SNYK_TOKEN should override config', async () => {
+        describe("when token env vars are set", () => {
+          it("SNYK_TOKEN should override config", async () => {
             env = {
               ...env,
-              SNYK_TOKEN: 'snykToken',
+              SNYK_TOKEN: "snykToken"
             };
 
             await runSnykCLI(`-d`, { env });
@@ -150,10 +150,10 @@ describe('cli token precedence', () => {
             expect(authHeader).toEqual(`token ${env.SNYK_TOKEN}`);
           });
 
-          it('SNYK_CFG_API should override config', async () => {
+          it("SNYK_CFG_API should override config", async () => {
             env = {
               ...env,
-              SNYK_CFG_API: 'snykCfgApiToken',
+              SNYK_CFG_API: "snykCfgApiToken"
             };
 
             await runSnykCLI(`-d`, { env });
@@ -163,13 +163,13 @@ describe('cli token precedence', () => {
           });
         });
       } else {
-        describe('when INTERNAL_OAUTH_TOKEN_STORAGE env var is set', () => {
-          it('SNYK_OAUTH_TOKEN should NOT override other env var', async () => {
+        describe("when INTERNAL_OAUTH_TOKEN_STORAGE env var is set", () => {
+          it("SNYK_OAUTH_TOKEN should NOT override other env var", async () => {
             env = {
               ...env,
               INTERNAL_OAUTH_TOKEN_STORAGE:
                 snykOAuthConfig.snykConfig.internal_oauth_token_storage,
-              SNYK_OAUTH_TOKEN: 'snkyOAuthToken',
+              SNYK_OAUTH_TOKEN: "snkyOAuthToken"
             };
 
             await runSnykCLI(`-d`, { env });

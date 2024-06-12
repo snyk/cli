@@ -1,39 +1,39 @@
-const uniq = require('lodash.uniq');
-import chalk from 'chalk';
+const uniq = require("lodash.uniq");
+import chalk from "chalk";
 
-import { Options, TestOptions, ShowVulnPaths } from '../../lib/types';
-import { isLocalFolder } from '../../lib/detect';
-import { parsePackageString as snykModule } from 'snyk-module';
+import { Options, TestOptions, ShowVulnPaths } from "../../lib/types";
+import { isLocalFolder } from "../../lib/detect";
+import { parsePackageString as snykModule } from "snyk-module";
 import {
   PINNING_SUPPORTED_PACKAGE_MANAGERS,
-  SupportedPackageManagers,
-} from '../../lib/package-managers';
+  SupportedPackageManagers
+} from "../../lib/package-managers";
 import {
   GroupedVuln,
   AnnotatedIssue,
   DockerIssue,
-  SEVERITY,
-} from '../../lib/snyk-test/legacy';
-import { formatLegalInstructions } from './legal-license-instructions';
-import { colorTextBySeverity } from '../../lib/snyk-test/common';
-import { PATH_SEPARATOR } from '../constants';
-import { getVulnerabilityUrl } from './get-vuln-url';
+  SEVERITY
+} from "../../lib/snyk-test/legacy";
+import { formatLegalInstructions } from "./legal-license-instructions";
+import { colorTextBySeverity } from "../../lib/snyk-test/common";
+import { PATH_SEPARATOR } from "../constants";
+import { getVulnerabilityUrl } from "./get-vuln-url";
 
 export function formatIssues(
   vuln: GroupedVuln,
-  options: Options & TestOptions,
+  options: Options & TestOptions
 ) {
   const vulnID = vuln.list[0].id;
   const packageManager = options.packageManager!;
   const localPackageTest = isLocalFolder(options.path);
   const uniquePackages = uniq(
-    vuln.list.map((i) => {
+    vuln.list.map(i => {
       if (i.from[1]) {
         return i.from && i.from[1];
       }
       return i.from;
-    }),
-  ).join(', ');
+    })
+  ).join(", ");
 
   const vulnOutput = {
     issueHeading: createSeverityBasedIssueHeading({
@@ -41,24 +41,24 @@ export function formatIssues(
       originalSeverity: vuln.originalSeverity,
       type: vuln.metadata.type,
       packageName: vuln.metadata.name,
-      isNew: false,
+      isNew: false
     }),
-    introducedThrough: '  Introduced through: ' + uniquePackages,
-    description: '  Description: ' + vuln.title,
-    info: '  Info: ' + chalk.underline(getVulnerabilityUrl(vulnID)),
+    introducedThrough: "  Introduced through: " + uniquePackages,
+    description: "  Description: " + vuln.title,
+    info: "  Info: " + chalk.underline(getVulnerabilityUrl(vulnID)),
     fromPaths: createTruncatedVulnsPathsText(vuln.list, options.showVulnPaths),
-    extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
+    extraInfo: vuln.note ? chalk.bold("\n  Note: " + vuln.note) : "",
     remediationInfo:
-      vuln.metadata.type !== 'license' && localPackageTest
+      vuln.metadata.type !== "license" && localPackageTest
         ? createRemediationText(vuln, packageManager)
-        : '',
-    fixedIn: options.docker ? createFixedInText(vuln) : '',
-    dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : '',
+        : "",
+    fixedIn: options.docker ? createFixedInText(vuln) : "",
+    dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : "",
     legalInstructions: vuln.legalInstructionsArray
-      ? chalk.bold('\n  Legal instructions:\n') +
-        ' '.repeat(2) +
+      ? chalk.bold("\n  Legal instructions:\n") +
+        " ".repeat(2) +
         formatLegalInstructions(vuln.legalInstructionsArray, 2)
-      : '',
+      : ""
   };
 
   return (
@@ -89,12 +89,12 @@ function createSeverityBasedIssueHeading({
   originalSeverity,
   type,
   packageName,
-  isNew,
+  isNew
 }: CreateSeverityBasedIssueHeading) {
   // Example: ✗ Medium severity vulnerability found in xmldom
-  const vulnTypeText = type === 'license' ? 'issue' : 'vulnerability';
+  const vulnTypeText = type === "license" ? "issue" : "vulnerability";
 
-  let originalSeverityStr = '';
+  let originalSeverityStr = "";
   if (originalSeverity && originalSeverity !== severity) {
     originalSeverityStr = ` (originally ${titleCaseText(originalSeverity)})`;
   }
@@ -102,13 +102,13 @@ function createSeverityBasedIssueHeading({
   return (
     colorTextBySeverity(
       severity,
-      '✗ ' +
+      "✗ " +
         titleCaseText(severity) +
         ` severity${originalSeverityStr} ` +
         vulnTypeText +
-        ' found in ' +
-        chalk.underline(packageName),
-    ) + chalk.bold.magenta(isNew ? ' (new)' : '')
+        " found in " +
+        chalk.underline(packageName)
+    ) + chalk.bold.magenta(isNew ? " (new)" : "")
   );
 }
 
@@ -126,19 +126,19 @@ function dockerfileInstructionText(vuln) {
     return `\n  Image layer: Introduced by your base image (${vuln.dockerBaseImage})`;
   }
 
-  return '';
+  return "";
 }
 function createTruncatedVulnsPathsText(
   vulnList: AnnotatedIssue[],
-  show: ShowVulnPaths,
+  show: ShowVulnPaths
 ) {
-  if (show === 'none') {
-    return '';
+  if (show === "none") {
+    return "";
   }
-  const numberOfPathsToDisplay = show === 'all' ? 1000 : 3;
-  const fromPathsArray = vulnList.map((i) => i.from);
+  const numberOfPathsToDisplay = show === "all" ? 1000 : 3;
+  const fromPathsArray = vulnList.map(i => i.from);
 
-  const formatedFromPathsArray = fromPathsArray.map((i) => {
+  const formatedFromPathsArray = fromPathsArray.map(i => {
     const fromWithoutBaseProject = i.slice(1);
     // If more than one From path
     if (fromWithoutBaseProject.length) {
@@ -153,13 +153,13 @@ function createTruncatedVulnsPathsText(
   const truncatedText = `\n  and ${notShownPathsNumber} more...`;
   const formattedPathsText = formatedFromPathsArray
     .slice(0, numberOfPathsToDisplay)
-    .join('\n  From: ');
+    .join("\n  From: ");
 
   if (fromPathsArray.length > 0) {
     return (
-      '  From: ' +
+      "  From: " +
       formattedPathsText +
-      (shouldTruncatePaths ? truncatedText : '')
+      (shouldTruncatePaths ? truncatedText : "")
     );
   }
 }
@@ -167,41 +167,41 @@ function createTruncatedVulnsPathsText(
 function createFixedInText(vuln: GroupedVuln): string {
   if ((vuln as DockerIssue).nearestFixedInVersion) {
     return chalk.bold(
-      '\n  Fixed in: ' + (vuln as DockerIssue).nearestFixedInVersion,
+      "\n  Fixed in: " + (vuln as DockerIssue).nearestFixedInVersion
     );
   } else if (vuln.fixedIn && vuln.fixedIn.length > 0) {
-    return chalk.bold('\n  Fixed in: ' + vuln.fixedIn.join(', '));
+    return chalk.bold("\n  Fixed in: " + vuln.fixedIn.join(", "));
   }
 
-  return '';
+  return "";
 }
 
 function createRemediationText(
   vuln: GroupedVuln,
-  packageManager: SupportedPackageManagers,
+  packageManager: SupportedPackageManagers
 ): string {
   if (
     vuln.fixedIn &&
     PINNING_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
   ) {
-    const toVersion = vuln.fixedIn.join(' or ');
-    const transitive = vuln.list.every((i) => i.from.length > 2);
-    const fromVersionArray = vuln.list.map((v) => v.from[1]);
+    const toVersion = vuln.fixedIn.join(" or ");
+    const transitive = vuln.list.every(i => i.from.length > 2);
+    const fromVersionArray = vuln.list.map(v => v.from[1]);
     const fromVersion = fromVersionArray[0];
     if (transitive) {
       return chalk.bold(
-        `\n  Remediation:\n    Pin the transitive dependency ${vuln.name} to version ${toVersion}`,
+        `\n  Remediation:\n    Pin the transitive dependency ${vuln.name} to version ${toVersion}`
       );
     } else {
       return chalk.bold(
-        `\n  Remediation:\n    Upgrade direct dependency ${fromVersion} to ${vuln.name}@${toVersion}`,
+        `\n  Remediation:\n    Upgrade direct dependency ${fromVersion} to ${vuln.name}@${toVersion}`
       );
     }
   }
 
   if (vuln.isFixable === true) {
     const upgradePathsArray = uniq(
-      vuln.list.map((v) => {
+      vuln.list.map(v => {
         const shouldUpgradeItself = !!v.upgradePath[0];
         const shouldUpgradeDirectDep = !!v.upgradePath[1];
 
@@ -212,7 +212,7 @@ function createRemediationText(
           const selfUpgradeInfo =
             v.upgradePath.length > 0
               ? ` (triggers upgrades to ${v.upgradePath.join(PATH_SEPARATOR)})`
-              : '';
+              : "";
           const testedPackageName = snykModule(v.upgradePath[0] as string);
           return (
             `You've tested an outdated version of ${testedPackageName[0]}.` +
@@ -225,16 +225,16 @@ function createRemediationText(
             .join(PATH_SEPARATOR);
           const upgradeTextInfo = v.upgradePath.length
             ? ` (triggers upgrades to ${formattedUpgradePath})`
-            : '';
+            : "";
 
           return `Upgrade direct dependency ${v.from[1]} to ${v.upgradePath[1]}${upgradeTextInfo}`;
         }
 
-        return 'Some paths have no direct dependency upgrade that can address this issue.';
-      }),
+        return "Some paths have no direct dependency upgrade that can address this issue.";
+      })
     );
     return chalk.bold(
-      `\n  Remediation:\n    ${upgradePathsArray.join('\n    ')}`,
+      `\n  Remediation:\n    ${upgradePathsArray.join("\n    ")}`
     );
   }
 
@@ -242,5 +242,5 @@ function createRemediationText(
     return createFixedInText(vuln);
   }
 
-  return '';
+  return "";
 }

@@ -1,29 +1,29 @@
-import * as modulesParser from './npm-modules-parser';
-import * as lockParser from './npm-lock-parser';
-import * as types from '../types';
-import * as analytics from '../../analytics';
-import { MissingTargetFileError } from '../../errors/missing-targetfile-error';
-import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
-import { DepGraph } from '@snyk/dep-graph';
+import * as modulesParser from "./npm-modules-parser";
+import * as lockParser from "./npm-lock-parser";
+import * as types from "../types";
+import * as analytics from "../../analytics";
+import { MissingTargetFileError } from "../../errors/missing-targetfile-error";
+import { MultiProjectResult } from "@snyk/cli-interface/legacy/plugin";
+import { DepGraph } from "@snyk/dep-graph";
 import {
   PkgTree,
   getLockfileVersionFromFile,
-  NodeLockfileVersion,
-} from 'snyk-nodejs-lockfile-parser';
+  NodeLockfileVersion
+} from "snyk-nodejs-lockfile-parser";
 
-import * as path from 'path';
+import * as path from "path";
 
 export async function inspect(
   root: string,
   targetFile: string,
-  options: types.Options = {},
+  options: types.Options = {}
 ): Promise<MultiProjectResult> {
   if (!targetFile) {
     throw MissingTargetFileError(root);
   }
   const isLockFileBased =
-    targetFile.endsWith('package-lock.json') ||
-    targetFile.endsWith('yarn.lock');
+    targetFile.endsWith("package-lock.json") ||
+    targetFile.endsWith("yarn.lock");
 
   const getLockFileDeps = isLockFileBased && !options.traverseNodeModules;
   const depRes: PkgTree | DepGraph = getLockFileDeps
@@ -43,14 +43,14 @@ export async function inspect(
     switch (lockfileVersion) {
       case NodeLockfileVersion.NpmLockV1:
       case NodeLockfileVersion.YarnLockV1:
-        analytics.add('lockfileVersion', 1);
+        analytics.add("lockfileVersion", 1);
         break;
       case NodeLockfileVersion.NpmLockV2:
       case NodeLockfileVersion.YarnLockV2:
-        analytics.add('lockfileVersion', 2);
+        analytics.add("lockfileVersion", 2);
         break;
       case NodeLockfileVersion.NpmLockV3:
-        analytics.add('lockfileVersion', 3);
+        analytics.add("lockfileVersion", 3);
         break;
       default:
         break;
@@ -59,13 +59,13 @@ export async function inspect(
 
   return {
     plugin: {
-      name: 'snyk-nodejs-lockfile-parser',
-      runtime: process.version,
+      name: "snyk-nodejs-lockfile-parser",
+      runtime: process.version
     },
-    scannedProjects,
+    scannedProjects
   };
 }
 
 function isResDepGraph(depRes: PkgTree | DepGraph): depRes is DepGraph {
-  return 'rootPkg' in depRes;
+  return "rootPkg" in depRes;
 }

@@ -1,15 +1,15 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as detect from '../detect';
-import { NoSupportedManifestsFoundError } from '../errors/no-supported-manifests-found';
-import * as Debug from 'debug';
-import { FileFlagBadInputError } from '../errors';
+import * as fs from "fs";
+import * as path from "path";
+import * as detect from "../detect";
+import { NoSupportedManifestsFoundError } from "../errors/no-supported-manifests-found";
+import * as Debug from "debug";
+import { FileFlagBadInputError } from "../errors";
 
-const debug = Debug('snyk');
+const debug = Debug("snyk");
 
 // slnFile should exist.
 // returns array of project paths (path/to/manifest.file)
-export const parsePathsFromSln = (slnFile) => {
+export const parsePathsFromSln = slnFile => {
   // read project scopes from solution file
   // [\s\S] is like ., but with newlines!
   // *? means grab the shortest match
@@ -17,24 +17,24 @@ export const parsePathsFromSln = (slnFile) => {
     loadFile(path.resolve(slnFile)).match(/Project[\s\S]*?EndProject/g) || [];
 
   const paths = projectScopes
-    .map((projectScope) => {
-      const secondArg = projectScope.split(',')[1];
+    .map(projectScope => {
+      const secondArg = projectScope.split(",")[1];
       // expected ` "path/to/manifest.file"`, clean it up
-      return secondArg && secondArg.trim().replace(/"/g, '');
+      return secondArg && secondArg.trim().replace(/"/g, "");
     })
     // drop falsey values
     .filter(Boolean)
     // convert path separators
-    .map((projectPath) => {
+    .map(projectPath => {
       return path.dirname(projectPath.replace(/\\/g, path.sep));
     });
 
-  debug('extracted paths from solution file: ', paths);
+  debug("extracted paths from solution file: ", paths);
   return paths;
 };
 
-export const updateArgs = (args) => {
-  if (!args.options.file || typeof args.options.file !== 'string') {
+export const updateArgs = args => {
+  if (!args.options.file || typeof args.options.file !== "string") {
     throw new FileFlagBadInputError();
   }
 
@@ -46,14 +46,14 @@ export const updateArgs = (args) => {
   const projectFolders = parsePathsFromSln(args.options.file);
 
   const foldersWithSupportedProjects = projectFolders
-    .map((projectPath) => {
+    .map(projectPath => {
       const projectFolder = path.resolve(slnFilePath, projectPath);
       const manifestFile = detect.detectPackageFile(projectFolder);
       return manifestFile ? projectFolder : undefined;
     })
     .filter(Boolean);
 
-  debug('valid project folders in solution: ', projectFolders);
+  debug("valid project folders in solution: ", projectFolders);
 
   if (foldersWithSupportedProjects.length === 0) {
     throw NoSupportedManifestsFoundError([...projectFolders]);
@@ -78,7 +78,7 @@ function addProjectFoldersToArgs(args, projectFolders) {
 function loadFile(filePath) {
   // fs.existsSync doesn't throw an exception; no need for try
   if (!fs.existsSync(filePath)) {
-    throw new Error('File not found: ' + filePath);
+    throw new Error("File not found: " + filePath);
   }
-  return fs.readFileSync(filePath, 'utf8');
+  return fs.readFileSync(filePath, "utf8");
 }

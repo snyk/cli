@@ -1,27 +1,27 @@
-import { SEVERITY } from '../../../../snyk-test/legacy';
-import { ResourceKind, TestOutput } from '../scan/results';
+import { SEVERITY } from "../../../../snyk-test/legacy";
+import { ResourceKind, TestOutput } from "../scan/results";
 
 export function getIacType(testOutput: TestOutput): IacType {
   const resourcesCountByPackageManager = getResourcesCountByPackageManager(
-    testOutput,
+    testOutput
   );
 
   const filesCountByPackageManager = getFilesCountByPackageManager(testOutput);
 
   const vulnAnalyticsByPackageManager = getVulnerabilityAnalyticsByPackageManager(
-    testOutput,
+    testOutput
   );
 
   return Object.keys(resourcesCountByPackageManager).reduce(
     (acc, packageManager) => {
       acc[packageManager] = {
         count: filesCountByPackageManager[packageManager],
-        'resource-count': resourcesCountByPackageManager[packageManager],
-        ...vulnAnalyticsByPackageManager[packageManager],
+        "resource-count": resourcesCountByPackageManager[packageManager],
+        ...vulnAnalyticsByPackageManager[packageManager]
       };
       return acc;
     },
-    {},
+    {}
   );
 }
 
@@ -30,14 +30,14 @@ export type PackageManager = ResourceKind;
 export type IacType = {
   [packageManager in PackageManager]?: {
     count: number;
-    'resource-count': number;
+    "resource-count": number;
   } & {
     [severity in SEVERITY]?: number;
   };
 };
 
 function getResourcesCountByPackageManager(
-  testOutput: TestOutput,
+  testOutput: TestOutput
 ): ResourcesCountByPackageManager {
   if (!testOutput.results?.resources?.length) {
     return {};
@@ -61,7 +61,7 @@ export type ResourcesCountByPackageManager = {
 };
 
 function getFilesCountByPackageManager(
-  testOutput: TestOutput,
+  testOutput: TestOutput
 ): FilesCountByPackageManager {
   if (!testOutput.results?.resources?.length) {
     return {};
@@ -80,7 +80,7 @@ function getFilesCountByPackageManager(
       }
 
       return acc;
-    }, {} as { [packageManager in PackageManager]: Set<string> }),
+    }, {} as { [packageManager in PackageManager]: Set<string> })
   ).reduce((acc, [packageManager, filesSet]) => {
     acc[packageManager] = filesSet.size;
 
@@ -93,7 +93,7 @@ export type FilesCountByPackageManager = {
 };
 
 function getVulnerabilityAnalyticsByPackageManager(
-  testOutput: TestOutput,
+  testOutput: TestOutput
 ): VulnerabilityAnalyticsByPackageManager {
   if (!testOutput.results?.vulnerabilities?.length) {
     return {};

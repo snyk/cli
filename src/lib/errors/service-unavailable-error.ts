@@ -1,9 +1,9 @@
-import { CustomError } from './custom-error';
+import { CustomError } from "./custom-error";
 
 export class ServiceUnavailableError extends CustomError {
   private static ERROR_CODE = 503;
-  private static ERROR_STRING_CODE = 'SERVICE_UNAVAILABLE_ERROR';
-  private static ERROR_MESSAGE = 'Service unavailable error';
+  private static ERROR_STRING_CODE = "SERVICE_UNAVAILABLE_ERROR";
+  private static ERROR_MESSAGE = "Service unavailable error";
 
   constructor(userMessage) {
     super(ServiceUnavailableError.ERROR_MESSAGE);

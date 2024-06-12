@@ -1,23 +1,23 @@
-import * as cloneDeep from 'lodash.clonedeep';
-import * as pathLib from 'path';
-import * as cliInterface from '@snyk/cli-interface';
-import chalk from 'chalk';
-import { icon } from '../theme';
-import * as debugModule from 'debug';
+import * as cloneDeep from "lodash.clonedeep";
+import * as pathLib from "path";
+import * as cliInterface from "@snyk/cli-interface";
+import chalk from "chalk";
+import { icon } from "../theme";
+import * as debugModule from "debug";
 
-import { TestOptions, Options, MonitorOptions } from '../types';
-import { detectPackageManagerFromFile } from '../detect';
-import { SupportedPackageManagers } from '../package-managers';
-import { getSinglePluginResult } from './get-single-plugin-result';
-import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
-import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
-import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
-import { CallGraph } from '@snyk/cli-interface/legacy/common';
-import { errorMessageWithRetry, FailedToRunTestError } from '../errors';
-import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
-import { processNpmWorkspaces } from './nodejs-plugin/npm-workspaces-parser';
+import { TestOptions, Options, MonitorOptions } from "../types";
+import { detectPackageManagerFromFile } from "../detect";
+import { SupportedPackageManagers } from "../package-managers";
+import { getSinglePluginResult } from "./get-single-plugin-result";
+import { convertSingleResultToMultiCustom } from "./convert-single-splugin-res-to-multi-custom";
+import { convertMultiResultToMultiCustom } from "./convert-multi-plugin-res-to-multi-custom";
+import { PluginMetadata } from "@snyk/cli-interface/legacy/plugin";
+import { CallGraph } from "@snyk/cli-interface/legacy/common";
+import { errorMessageWithRetry, FailedToRunTestError } from "../errors";
+import { processYarnWorkspaces } from "./nodejs-plugin/yarn-workspaces-parser";
+import { processNpmWorkspaces } from "./nodejs-plugin/npm-workspaces-parser";
 
-const debug = debugModule('snyk-test');
+const debug = debugModule("snyk-test");
 export interface ScannedProjectCustom
   extends cliInterface.legacyCommon.ScannedProject {
   packageManager: SupportedPackageManagers;
@@ -39,7 +39,7 @@ export interface MultiProjectResultCustom
 export async function getMultiPluginResult(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
-  targetFiles: string[],
+  targetFiles: string[]
 ): Promise<MultiProjectResultCustom> {
   const allResults: ScannedProjectCustom[] = [];
   const failedResults: FailedProjectScanError[] = [];
@@ -48,41 +48,41 @@ export async function getMultiPluginResult(
   // the files need to be proceeded together as they provide context to each other
   const {
     scannedProjects: scannedYarnResults,
-    unprocessedFiles: unprocessedFilesFromYarn,
+    unprocessedFiles: unprocessedFilesFromYarn
   } = await processYarnWorkspacesProjects(root, options, targetFiles);
   allResults.push(...scannedYarnResults);
 
   const {
     scannedProjects: scannedNpmResults,
-    unprocessedFiles,
+    unprocessedFiles
   } = await processNpmWorkspacesProjects(
     root,
     options,
-    unprocessedFilesFromYarn,
+    unprocessedFilesFromYarn
   );
   allResults.push(...scannedNpmResults);
 
-  debug(`Not part of a workspace: ${unprocessedFiles.join(', ')}}`);
+  debug(`Not part of a workspace: ${unprocessedFiles.join(", ")}}`);
 
   // process the rest 1 by 1 sent to relevant plugins
   for (const targetFile of unprocessedFiles) {
     const optionsClone = cloneDeep(options);
     optionsClone.file = pathLib.relative(root, targetFile);
     optionsClone.packageManager = detectPackageManagerFromFile(
-      pathLib.basename(targetFile),
+      pathLib.basename(targetFile)
     );
     try {
       const inspectRes = await getSinglePluginResult(
         root,
         optionsClone,
-        optionsClone.file,
+        optionsClone.file
       );
       let resultWithScannedProjects: cliInterface.legacyPlugin.MultiProjectResult;
 
       if (!cliInterface.legacyPlugin.isMultiResult(inspectRes)) {
         resultWithScannedProjects = convertSingleResultToMultiCustom(
           inspectRes,
-          optionsClone.packageManager,
+          optionsClone.packageManager
         );
       } else {
         resultWithScannedProjects = inspectRes;
@@ -91,29 +91,29 @@ export async function getMultiPluginResult(
       const pluginResultWithCustomScannedProjects = convertMultiResultToMultiCustom(
         resultWithScannedProjects,
         optionsClone.packageManager,
-        optionsClone.file,
+        optionsClone.file
       );
       // annotate the package manager, project name & targetFile to be used
       // for test & monitor
       // TODO: refactor how we display meta to not have to do this
       (options as any).projectNames = resultWithScannedProjects.scannedProjects.map(
-        (scannedProject) => scannedProject?.depTree?.name,
+        scannedProject => scannedProject?.depTree?.name
       );
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
     } catch (error) {
       const errMessage =
-        error.message ?? 'Something went wrong getting dependencies';
+        error.message ?? "Something went wrong getting dependencies";
       // TODO: propagate this all the way back and include in --json output
       failedResults.push({
         targetFile,
         error,
-        errMessage: errMessage,
+        errMessage: errMessage
       });
       debug(
         chalk.bold.red(
-          `\n${icon.ISSUE} Failed to get dependencies for ${targetFile}\nERROR: ${errMessage}\n`,
-        ),
+          `\n${icon.ISSUE} Failed to get dependencies for ${targetFile}\nERROR: ${errMessage}\n`
+        )
       );
     }
   }
@@ -121,24 +121,24 @@ export async function getMultiPluginResult(
   if (!allResults.length) {
     throw new FailedToRunTestError(
       errorMessageWithRetry(
-        `Failed to get dependencies for all ${targetFiles.length} potential projects.`,
-      ),
+        `Failed to get dependencies for all ${targetFiles.length} potential projects.`
+      )
     );
   }
 
   return {
     plugin: {
-      name: 'custom-auto-detect',
+      name: "custom-auto-detect"
     },
     scannedProjects: allResults,
-    failedResults,
+    failedResults
   };
 }
 
 async function processYarnWorkspacesProjects(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
-  targetFiles: string[],
+  targetFiles: string[]
 ): Promise<{
   scannedProjects: ScannedProjectCustom[];
   unprocessedFiles: string[];
@@ -148,19 +148,19 @@ async function processYarnWorkspacesProjects(
       root,
       {
         strictOutOfSync: options.strictOutOfSync,
-        dev: options.dev,
+        dev: options.dev
       },
-      targetFiles,
+      targetFiles
     );
 
     const unprocessedFiles = filterOutProcessedYarnWorkspaces(
       root,
       scannedProjects,
-      targetFiles,
+      targetFiles
     );
     return { scannedProjects, unprocessedFiles };
   } catch (e) {
-    debug('Error during detecting or processing Yarn Workspaces: ', e);
+    debug("Error during detecting or processing Yarn Workspaces: ", e);
     return { scannedProjects: [], unprocessedFiles: targetFiles };
   }
 }
@@ -168,7 +168,7 @@ async function processYarnWorkspacesProjects(
 async function processNpmWorkspacesProjects(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
-  targetFiles: string[],
+  targetFiles: string[]
 ): Promise<{
   scannedProjects: ScannedProjectCustom[];
   unprocessedFiles: string[];
@@ -178,19 +178,19 @@ async function processNpmWorkspacesProjects(
       root,
       {
         strictOutOfSync: options.strictOutOfSync,
-        dev: options.dev,
+        dev: options.dev
       },
-      targetFiles,
+      targetFiles
     );
 
     const unprocessedFiles = filterOutProcessedNpmWorkspaces(
       root,
       scannedProjects,
-      targetFiles,
+      targetFiles
     );
     return { scannedProjects, unprocessedFiles };
   } catch (e) {
-    debug('Error during detecting or processing Npm Workspaces: ', e);
+    debug("Error during detecting or processing Npm Workspaces: ", e);
     return { scannedProjects: [], unprocessedFiles: targetFiles };
   }
 }
@@ -198,29 +198,29 @@ async function processNpmWorkspacesProjects(
 export function filterOutProcessedYarnWorkspaces(
   root: string,
   scannedProjects: ScannedProjectCustom[],
-  allTargetFiles: string[],
+  allTargetFiles: string[]
 ): string[] {
   const targetFiles: string[] = [];
 
   const scanned = scannedProjects
-    .map((p) => p.targetFile!)
-    .map((p) => pathLib.resolve(process.cwd(), root, p));
-  const all = allTargetFiles.map((p) => ({
+    .map(p => p.targetFile!)
+    .map(p => pathLib.resolve(process.cwd(), root, p));
+  const all = allTargetFiles.map(p => ({
     path: pathLib.resolve(process.cwd(), root, p),
-    original: p,
+    original: p
   }));
 
   for (const entry of all) {
     const { path, original } = entry;
     const { base } = pathLib.parse(path);
 
-    if (!['package.json', 'yarn.lock'].includes(base)) {
+    if (!["package.json", "yarn.lock"].includes(base)) {
       targetFiles.push(original);
       continue;
     }
     // standardise to package.json
     // we discover the lockfiles but targetFile is package.json
-    if (!scanned.includes(path.replace('yarn.lock', 'package.json'))) {
+    if (!scanned.includes(path.replace("yarn.lock", "package.json"))) {
       targetFiles.push(original);
       continue;
     }
@@ -231,29 +231,29 @@ export function filterOutProcessedYarnWorkspaces(
 export function filterOutProcessedNpmWorkspaces(
   root: string,
   scannedProjects: ScannedProjectCustom[],
-  allTargetFiles: string[],
+  allTargetFiles: string[]
 ): string[] {
   const targetFiles: string[] = [];
 
   const scanned = scannedProjects
-    .map((p) => p.targetFile!)
-    .map((p) => pathLib.resolve(process.cwd(), root, p));
-  const all = allTargetFiles.map((p) => ({
+    .map(p => p.targetFile!)
+    .map(p => pathLib.resolve(process.cwd(), root, p));
+  const all = allTargetFiles.map(p => ({
     path: pathLib.resolve(process.cwd(), root, p),
-    original: p,
+    original: p
   }));
 
   for (const entry of all) {
     const { path, original } = entry;
     const { base } = pathLib.parse(path);
 
-    if (!['package.json', 'package-lock.json'].includes(base)) {
+    if (!["package.json", "package-lock.json"].includes(base)) {
       targetFiles.push(original);
       continue;
     }
     // standardise to package.json
     // we discover the lockfiles but targetFile is package.json
-    if (!scanned.includes(path.replace('package-lock.json', 'package.json'))) {
+    if (!scanned.includes(path.replace("package-lock.json", "package.json"))) {
       targetFiles.push(original);
       continue;
     }

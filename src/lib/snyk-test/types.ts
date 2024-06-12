@@ -1,7 +1,7 @@
-import * as depGraphLib from '@snyk/dep-graph';
-import { ScanResult } from '../ecosystems/types';
-import { GitTarget, ContainerTarget } from '../project-metadata/types';
-import { DepTree } from '../types';
+import * as depGraphLib from "@snyk/dep-graph";
+import { ScanResult } from "../ecosystems/types";
+import { GitTarget, ContainerTarget } from "../project-metadata/types";
+import { DepTree } from "../types";
 
 export interface PayloadBody {
   depGraph?: depGraphLib.DepGraph; // missing for legacy endpoint (options.vulnEndpoint)
@@ -33,7 +33,7 @@ export interface Payload {
   url: string;
   json: boolean;
   headers: {
-    'x-is-ci': boolean;
+    "x-is-ci": boolean;
     authorization: string;
   };
   body?: PayloadBody | TestDependenciesRequest;

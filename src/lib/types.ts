@@ -1,8 +1,8 @@
-import { SupportedPackageManagers } from './package-managers';
-import { IacProjectTypes, IacFileTypes } from './iac/constants';
-import { legacyCommon as legacyApi } from '@snyk/cli-interface';
-import { SEVERITY } from './snyk-test/legacy';
-import { FailOn } from './snyk-test/common';
+import { SupportedPackageManagers } from "./package-managers";
+import { IacProjectTypes, IacFileTypes } from "./iac/constants";
+import { legacyCommon as legacyApi } from "@snyk/cli-interface";
+import { SEVERITY } from "./snyk-test/legacy";
+import { FailOn } from "./snyk-test/common";
 
 export interface DepDict {
   [name: string]: DepTree;
@@ -10,7 +10,7 @@ export interface DepDict {
 
 export type DepTree = legacyApi.DepTree;
 
-export type ShowVulnPaths = 'none' | 'some' | 'all';
+export type ShowVulnPaths = "none" | "some" | "all";
 
 export interface TestOptions {
   traverseNodeModules?: boolean;
@@ -31,9 +31,9 @@ export interface Contributor {
 }
 
 export interface PolicyOptions {
-  'ignore-policy'?: boolean; // used in snyk/policy lib
-  'trust-policies'?: boolean; // used in snyk/policy lib
-  'policy-path'?: string;
+  "ignore-policy"?: boolean; // used in snyk/policy lib
+  "trust-policies"?: boolean; // used in snyk/policy lib
+  "policy-path"?: string;
   loose?: boolean;
 }
 
@@ -50,19 +50,19 @@ export interface Options {
   vulnEndpoint?: string;
   projectName?: string;
   insecure?: boolean;
-  'dry-run'?: boolean;
+  "dry-run"?: boolean;
   allSubProjects?: boolean;
   mavenAggregateProject?: boolean;
-  'project-name'?: string;
-  'show-vulnerable-paths'?: string;
+  "project-name"?: string;
+  "show-vulnerable-paths"?: string;
   packageManager?: SupportedPackageManagers;
   advertiseSubprojectsCount?: number;
   projectNames?: string[];
   severityThreshold?: SEVERITY;
   dev?: boolean;
-  'print-deps'?: boolean;
-  'print-dep-paths'?: boolean;
-  'remote-repo-url'?: string;
+  "print-deps"?: boolean;
+  "print-dep-paths"?: boolean;
+  "remote-repo-url"?: string;
   criticality?: string;
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
@@ -72,45 +72,45 @@ export interface Options {
   // Used only with the IaC mode & Docker plugin. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
   // Used with the Docker plugin only. Allows application scanning.
-  'app-vulns'?: boolean;
-  'exclude-app-vulns'?: boolean;
+  "app-vulns"?: boolean;
+  "exclude-app-vulns"?: boolean;
   debug?: boolean;
   sarif?: boolean;
-  'group-issues'?: boolean;
+  "group-issues"?: boolean;
   quiet?: boolean;
-  'fail-fast'?: boolean;
+  "fail-fast"?: boolean;
   tags?: string;
-  'target-reference'?: string;
-  'exclude-base-image-vulns'?: boolean;
-  'no-markdown'?: boolean;
-  'max-depth'?: number;
+  "target-reference"?: string;
+  "exclude-base-image-vulns"?: boolean;
+  "no-markdown"?: boolean;
+  "max-depth"?: number;
   report?: boolean;
-  'var-file'?: string;
-  'target-name'?: string;
+  "var-file"?: string;
+  "target-name"?: string;
   // Used only with the Code (SAST) plugin. Allows running tests with reporting for existing projects.
-  'project-id'?: string;
-  'commit-id'?: string;
+  "project-id"?: string;
+  "commit-id"?: string;
 
   // Policy
-  'ignore-policy'?: boolean; // used in snyk/policy lib
-  'trust-policies'?: boolean; // used in snyk/policy lib
-  'policy-path'?: string;
+  "ignore-policy"?: boolean; // used in snyk/policy lib
+  "trust-policies"?: boolean; // used in snyk/policy lib
+  "policy-path"?: string;
   loose?: boolean;
 
   // DescribeOptions
   kind?: string;
   filter?: string;
   to?: string;
-  'fetch-tfstate-headers'?: string;
-  'tfc-token'?: string;
-  'tfc-endpoint'?: string;
-  'tf-provider-version'?: string;
+  "fetch-tfstate-headers"?: string;
+  "tfc-token"?: string;
+  "tfc-endpoint"?: string;
+  "tf-provider-version"?: string;
   strict?: true;
   driftignore?: string;
-  'tf-lockfile'?: string;
-  'config-dir'?: string;
+  "tf-lockfile"?: string;
+  "config-dir"?: string;
   html?: boolean;
-  'html-file-output'?: string;
+  "html-file-output"?: string;
   service?: string;
   from?: string; // snyk cli args parsing does not support variadic args so this will be coma separated values
   ignore?: string[];
@@ -118,8 +118,8 @@ export interface Options {
   id?: string;
 
   // GenDriftIgnoreOptions
-  'exclude-missing'?: boolean;
-  'exclude-unmanaged'?: boolean;
+  "exclude-missing"?: boolean;
+  "exclude-unmanaged"?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -130,9 +130,9 @@ export interface MonitorOptions {
   policy?: string;
   json?: boolean;
   allSubProjects?: boolean;
-  'project-name'?: string;
-  'print-deps'?: boolean;
-  'print-dep-paths'?: boolean;
+  "project-name"?: string;
+  "print-deps"?: boolean;
+  "print-dep-paths"?: boolean;
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
@@ -140,21 +140,21 @@ export interface MonitorOptions {
   // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
   // Used with the Docker plugin only. Allows application scanning.
-  'app-vulns'?: boolean;
-  'exclude-app-vulns'?: boolean;
+  "app-vulns"?: boolean;
+  "exclude-app-vulns"?: boolean;
   initScript?: string;
   yarnWorkspaces?: boolean;
-  'max-depth'?: number;
+  "max-depth"?: number;
 }
 
 export interface MonitorMeta {
-  method: 'cli';
+  method: "cli";
   packageManager: SupportedPackageManagers;
-  'policy-path': string;
-  'project-name': string;
+  "policy-path": string;
+  "project-name": string;
   isDocker: boolean;
   prune: boolean;
-  'remote-repo-url'?: string;
+  "remote-repo-url"?: string;
   targetReference?: string;
 }
 
@@ -170,28 +170,28 @@ export interface ProjectAttributes {
 }
 
 export enum PROJECT_CRITICALITY {
-  CRITICAL = 'critical',
-  HIGH = 'high',
-  MEDIUM = 'medium',
-  LOW = 'low',
+  CRITICAL = "critical",
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low"
 }
 
 export enum PROJECT_ENVIRONMENT {
-  FRONTEND = 'frontend',
-  BACKEND = 'backend',
-  INTERNAL = 'internal',
-  EXTERNAL = 'external',
-  MOBILE = 'mobile',
-  SAAS = 'saas',
-  ONPREM = 'onprem',
-  HOSTED = 'hosted',
-  DISTRIBUTED = 'distributed',
+  FRONTEND = "frontend",
+  BACKEND = "backend",
+  INTERNAL = "internal",
+  EXTERNAL = "external",
+  MOBILE = "mobile",
+  SAAS = "saas",
+  ONPREM = "onprem",
+  HOSTED = "hosted",
+  DISTRIBUTED = "distributed"
 }
 
 export enum PROJECT_LIFECYCLE {
-  PRODUCTION = 'production',
-  DEVELOPMENT = 'development',
-  SANDBOX = 'sandbox',
+  PRODUCTION = "production",
+  DEVELOPMENT = "development",
+  SANDBOX = "sandbox"
 }
 
 export interface PackageJson {
@@ -232,56 +232,56 @@ export type SupportedProjectTypes = IacProjectTypes | SupportedPackageManagers;
 
 // TODO: finish typing this there are many more!
 export type SupportedUserReachableFacingCliArgs =
-  | 'all-projects'
-  | 'all-sub-projects'
-  | 'detection-depth'
-  | 'docker'
-  | 'dry-run'
-  | 'sequential'
-  | 'fail-on'
-  | 'file'
-  | 'gradle-sub-project'
-  | 'ignore-policy'
-  | 'init-script'
-  | 'integration-name'
-  | 'integration-version'
-  | 'json'
-  | 'package-manager'
-  | 'packages-folder'
-  | 'policy'
-  | 'project-name'
-  | 'prune-repeated-subdependencies'
-  | 'rules'
-  | 'scan-all-unmanaged'
-  | 'severity-threshold'
-  | 'show-vulnerable-paths'
-  | 'skip-unresolved'
-  | 'strict-out-of-sync'
-  | 'sub-project'
-  | 'trust-policies'
-  | 'yarn-workspaces'
-  | 'maven-aggregate-project'
-  | 'gradle-normalize-deps';
+  | "all-projects"
+  | "all-sub-projects"
+  | "detection-depth"
+  | "docker"
+  | "dry-run"
+  | "sequential"
+  | "fail-on"
+  | "file"
+  | "gradle-sub-project"
+  | "ignore-policy"
+  | "init-script"
+  | "integration-name"
+  | "integration-version"
+  | "json"
+  | "package-manager"
+  | "packages-folder"
+  | "policy"
+  | "project-name"
+  | "prune-repeated-subdependencies"
+  | "rules"
+  | "scan-all-unmanaged"
+  | "severity-threshold"
+  | "show-vulnerable-paths"
+  | "skip-unresolved"
+  | "strict-out-of-sync"
+  | "sub-project"
+  | "trust-policies"
+  | "yarn-workspaces"
+  | "maven-aggregate-project"
+  | "gradle-normalize-deps";
 
 export enum SupportedCliCommands {
-  version = 'version',
-  about = 'about',
-  help = 'help',
+  version = "version",
+  about = "about",
+  help = "help",
   // config = 'config', // TODO: cleanup `$ snyk config` parsing logic before adding it here
   // auth = 'auth', // TODO: auth does not support argv._ at the moment
-  test = 'test',
-  monitor = 'monitor',
-  fix = 'fix',
-  protect = 'protect',
-  policy = 'policy',
-  ignore = 'ignore',
-  wizard = 'wizard',
-  woof = 'woof',
-  log4shell = 'log4shell',
-  apps = 'apps',
-  drift = 'drift',
-  describe = 'describe',
-  'update-exclude-policy' = 'update-exclude-policy',
+  test = "test",
+  monitor = "monitor",
+  fix = "fix",
+  protect = "protect",
+  policy = "policy",
+  ignore = "ignore",
+  wizard = "wizard",
+  woof = "woof",
+  log4shell = "log4shell",
+  apps = "apps",
+  drift = "drift",
+  describe = "describe",
+  "update-exclude-policy" = "update-exclude-policy"
 }
 
 export interface IacFileInDirectory {

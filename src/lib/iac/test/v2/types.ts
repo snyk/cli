@@ -1,4 +1,4 @@
-import { SEVERITY } from '../../../snyk-test/legacy';
+import { SEVERITY } from "../../../snyk-test/legacy";
 
 export interface TestConfig {
   paths: string[];

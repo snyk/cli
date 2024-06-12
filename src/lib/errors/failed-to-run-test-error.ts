@@ -1,7 +1,7 @@
-import { CustomError } from './custom-error';
+import { CustomError } from "./custom-error";
 
 export class FailedToRunTestError extends CustomError {
-  private static ERROR_MESSAGE = 'Failed to run a test';
+  private static ERROR_MESSAGE = "Failed to run a test";
   public innerError: any | undefined;
 
   constructor(userMessage, errorCode?, innerError?: any) {

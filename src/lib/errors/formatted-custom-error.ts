@@ -1,5 +1,5 @@
-import chalk from 'chalk';
-import { CustomError } from '.';
+import chalk from "chalk";
+import { CustomError } from ".";
 
 export class FormattedCustomError extends CustomError {
   public formattedUserMessage: string;
@@ -7,7 +7,7 @@ export class FormattedCustomError extends CustomError {
   constructor(
     message: string,
     formattedUserMessage: string,
-    userMessage?: string,
+    userMessage?: string
   ) {
     super(message);
     this.userMessage = userMessage || chalk.reset(formattedUserMessage);

@@ -1,9 +1,9 @@
-import { Ora } from 'ora';
-import { EOL } from 'os';
-import { convertEngineToJsonResults } from './json';
-import { TestOutput } from './scan/results';
+import { Ora } from "ora";
+import { EOL } from "os";
+import { convertEngineToJsonResults } from "./json";
+import { TestOutput } from "./scan/results";
 
-import { TestCommandResult } from '../../../../cli/commands/types';
+import { TestCommandResult } from "../../../../cli/commands/types";
 import {
   formatIacTestFailures,
   formatIacTestSummary,
@@ -12,35 +12,35 @@ import {
   IaCTestFailure,
   IaCTestWarning,
   shareResultsTip,
-  spinnerSuccessMessage,
-} from '../../../formatters/iac-output/text';
-import { jsonStringifyLargeObject } from '../../../json';
+  spinnerSuccessMessage
+} from "../../../formatters/iac-output/text";
+import { jsonStringifyLargeObject } from "../../../json";
 import {
   IaCErrorCodes,
-  IaCTestFlags,
-} from '../../../../cli/commands/test/iac/local-execution/types';
-import { convertEngineToSarifResults } from './sarif';
-import { CustomError, FormattedCustomError } from '../../../errors';
-import { SnykIacTestError } from './errors';
-import stripAnsi = require('strip-ansi');
-import * as path from 'path';
-import { getErrorStringCode } from '../../../../cli/commands/test/iac/local-execution/error-utils';
+  IaCTestFlags
+} from "../../../../cli/commands/test/iac/local-execution/types";
+import { convertEngineToSarifResults } from "./sarif";
+import { CustomError, FormattedCustomError } from "../../../errors";
+import { SnykIacTestError } from "./errors";
+import stripAnsi = require("strip-ansi");
+import * as path from "path";
+import { getErrorStringCode } from "../../../../cli/commands/test/iac/local-execution/error-utils";
 import {
   buildShareResultsSummaryV2,
-  shouldPrintShareResultsTip,
-} from '../../../../cli/commands/test/iac/output';
+  shouldPrintShareResultsTip
+} from "../../../../cli/commands/test/iac/output";
 import {
   colors,
-  contentPadding,
-} from '../../../formatters/iac-output/text/utils';
-import * as wrapAnsi from 'wrap-ansi';
-import { formatIacTestWarnings } from '../../../formatters/iac-output/text/failures/list';
-import { IacV2Name, IacV2ShortLink } from '../../constants';
+  contentPadding
+} from "../../../formatters/iac-output/text/utils";
+import * as wrapAnsi from "wrap-ansi";
+import { formatIacTestWarnings } from "../../../formatters/iac-output/text/failures/list";
+import { IacV2Name, IacV2ShortLink } from "../../constants";
 
 export function buildOutput({
   scanResult,
   testSpinner,
-  options,
+  options
 }: {
   scanResult: TestOutput;
   testSpinner?: Ora;
@@ -54,27 +54,27 @@ export function buildOutput({
 
   const { responseData, jsonData, sarifData } = buildTestCommandResultData({
     scanResult,
-    options,
+    options
   });
 
   if (options.json || options.sarif) {
     return TestCommandResult.createJsonTestCommandResult(
       responseData,
       jsonData,
-      sarifData,
+      sarifData
     );
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
     responseData,
     jsonData,
-    sarifData,
+    sarifData
   );
 }
 
 function buildTestCommandResultData({
   scanResult,
-  options,
+  options
 }: {
   scanResult: TestOutput;
   options: any;
@@ -85,18 +85,18 @@ function buildTestCommandResultData({
   const jsonData = jsonStringifyLargeObject(
     convertEngineToJsonResults({
       results: scanResult,
-      projectName,
-    }),
+      projectName
+    })
   );
 
   const sarifData = jsonStringifyLargeObject(
-    convertEngineToSarifResults(scanResult),
+    convertEngineToSarifResults(scanResult)
   );
 
   assertHasSuccessfulScans(
     scanResult,
     { json: jsonData, sarif: sarifData },
-    options,
+    options
   );
 
   let responseData: string;
@@ -108,7 +108,7 @@ function buildTestCommandResultData({
     responseData = buildTextOutput({
       scanResult,
       projectName,
-      options,
+      options
     });
   }
 
@@ -117,55 +117,55 @@ function buildTestCommandResultData({
     throw new FoundIssuesError({
       response: responseData,
       json: jsonData,
-      sarif: sarifData,
+      sarif: sarifData
     });
   }
 
   return { responseData, jsonData, sarifData };
 }
 
-const SEPARATOR = '\n-------------------------------------------------------\n';
+const SEPARATOR = "\n-------------------------------------------------------\n";
 
 function buildTextOutput({
   scanResult,
   projectName,
-  options,
+  options
 }: {
   scanResult: TestOutput;
   projectName: string;
   options: IaCTestFlags;
 }): string {
-  let response = '';
+  let response = "";
 
   const testData = formatSnykIacTestTestData(
     scanResult.results,
     projectName,
-    scanResult.settings.org,
+    scanResult.settings.org
   );
 
   response +=
     EOL +
     getIacDisplayedIssues(testData.resultsBySeverity, {
-      shouldShowLineNumbers: true,
+      shouldShowLineNumbers: true
     });
 
   if (scanResult.warnings) {
-    const testWarnings: IaCTestWarning[] = scanResult.warnings.map((error) => ({
+    const testWarnings: IaCTestWarning[] = scanResult.warnings.map(error => ({
       filePath: error.fields.path,
       warningReason: error.userMessage,
       term: error.fields.term,
       module: error.fields.module,
       modules: error.fields.modules,
-      expressions: error.fields.expressions,
+      expressions: error.fields.expressions
     }));
 
     response += EOL.repeat(2) + formatIacTestWarnings(testWarnings);
   }
 
   if (scanResult.errors) {
-    const testFailures: IaCTestFailure[] = scanResult.errors.map((error) => ({
+    const testFailures: IaCTestFailure[] = scanResult.errors.map(error => ({
       filePath: error.fields.path,
-      failureReason: error.userMessage,
+      failureReason: error.userMessage
     }));
 
     response += EOL.repeat(2) + formatIacTestFailures(testFailures);
@@ -183,7 +183,7 @@ function buildTextOutput({
       projectName,
       options,
       isIacCustomRulesEntitlementEnabled: false, // TODO: update when we add custom rules support
-      isIacShareCliResultsCustomRulesSupported: false, // TODO: update when we add custom rules support
+      isIacShareCliResultsCustomRulesSupported: false // TODO: update when we add custom rules support
     });
     response += EOL;
   }
@@ -193,7 +193,7 @@ function buildTextOutput({
   }
 
   response += EOL;
-  response += colors.title('Info') + EOL;
+  response += colors.title("Info") + EOL;
   response += EOL;
   response += wrapWithPadding(infoMessage(scanResult), 80) + EOL;
 
@@ -202,9 +202,9 @@ function buildTextOutput({
 
 function wrapWithPadding(s: string, columns: number): string {
   return wrapAnsi(s, columns)
-    .split('\n')
-    .map((s) => contentPadding + s)
-    .join('\n');
+    .split("\n")
+    .map(s => contentPadding + s)
+    .join("\n");
 }
 
 function infoMessage(orgSettings: TestOutput): string {
@@ -213,8 +213,8 @@ function infoMessage(orgSettings: TestOutput): string {
 
 function assertHasSuccessfulScans(
   scanResult: TestOutput,
-  responseData: Omit<ResponseData, 'response'>,
-  options: { json?: boolean; sarif?: boolean },
+  responseData: Omit<ResponseData, "response">,
+  options: { json?: boolean; sarif?: boolean }
 ): void {
   const hasResources = !!scanResult.results?.resources?.length;
   const hasErrors = !!scanResult.errors?.length;
@@ -222,7 +222,7 @@ function assertHasSuccessfulScans(
 
   if (!hasSuccessfulScans) {
     const hasLoadableInput = scanResult.errors!.some(
-      (error) => error.code !== IaCErrorCodes.NoLoadableInput,
+      error => error.code !== IaCErrorCodes.NoLoadableInput
     );
 
     throw hasLoadableInput
@@ -244,9 +244,9 @@ export class NoSuccessfulScansError extends FormattedCustomError {
   public fields: { path: string } & Record<string, string>;
 
   constructor(
-    responseData: Omit<ResponseData, 'response'>,
+    responseData: Omit<ResponseData, "response">,
     errors: SnykIacTestError[],
-    options: { json?: boolean; sarif?: boolean },
+    options: { json?: boolean; sarif?: boolean }
   ) {
     const firstErr = errors[0];
     const isText = !options.json && !options.sarif;
@@ -259,12 +259,12 @@ export class NoSuccessfulScansError extends FormattedCustomError {
       message,
       isText
         ? formatIacTestFailures(
-            errors.map((scanError) => ({
+            errors.map(scanError => ({
               failureReason: scanError.userMessage,
-              filePath: scanError.fields.path,
-            })),
+              filePath: scanError.fields.path
+            }))
           )
-        : stripAnsi(message),
+        : stripAnsi(message)
     );
 
     this.code = firstErr.code;
@@ -286,9 +286,9 @@ export class NoSuccessfulScansError extends FormattedCustomError {
 
 export class NoLoadableInputError extends NoSuccessfulScansError {
   constructor(
-    responseData: Omit<ResponseData, 'response'>,
+    responseData: Omit<ResponseData, "response">,
     errors: SnykIacTestError[],
-    options: { json?: boolean; sarif?: boolean },
+    options: { json?: boolean; sarif?: boolean }
   ) {
     super(responseData, errors, options);
 
@@ -303,8 +303,8 @@ export class FoundIssuesError extends CustomError {
 
   constructor(responseData: ResponseData) {
     super(responseData.response);
-    this.code = 'VULNS' as any;
-    this.strCode = 'VULNS';
+    this.code = "VULNS" as any;
+    this.strCode = "VULNS";
     this.userMessage = responseData.response;
     this.jsonStringifiedResults = responseData.json;
     this.sarifStringifiedResults = responseData.sarif;

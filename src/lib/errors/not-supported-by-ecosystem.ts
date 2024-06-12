@@ -1,13 +1,13 @@
-import { CustomError } from './custom-error';
-import { SupportedPackageManagers } from '../package-managers';
-import { Ecosystem } from '../ecosystems/types';
+import { CustomError } from "./custom-error";
+import { SupportedPackageManagers } from "../package-managers";
+import { Ecosystem } from "../ecosystems/types";
 
 export class FeatureNotSupportedByEcosystemError extends CustomError {
   public readonly feature: string;
 
   constructor(
     feature: string,
-    ecosystem: SupportedPackageManagers | Ecosystem,
+    ecosystem: SupportedPackageManagers | Ecosystem
   ) {
     super(`Unsupported ecosystem ${ecosystem} for ${feature}.`);
     this.code = 422;

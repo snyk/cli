@@ -1,12 +1,12 @@
-import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { find } from '../find-files';
-import { AUTO_DETECTABLE_FILES } from '../detect';
-import { Options } from '../types';
+import { legacyPlugin as pluginApi } from "@snyk/cli-interface";
+import { find } from "../find-files";
+import { AUTO_DETECTABLE_FILES } from "../detect";
+import { Options } from "../types";
 
 export async function getExtraProjectCount(
   root: string,
   options: Options,
-  inspectResult: pluginApi.InspectResult,
+  inspectResult: pluginApi.InspectResult
 ): Promise<number | undefined> {
   if (options.docker || options.unmanaged) {
     return undefined;
@@ -22,7 +22,7 @@ export async function getExtraProjectCount(
     const { files: extraTargetFiles } = await find(
       root,
       [],
-      AUTO_DETECTABLE_FILES,
+      AUTO_DETECTABLE_FILES
     );
     const foundProjectsCount =
       extraTargetFiles.length > 1 ? extraTargetFiles.length - 1 : undefined;

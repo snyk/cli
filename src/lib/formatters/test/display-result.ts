@@ -1,33 +1,33 @@
-import chalk from 'chalk';
-import { icon, color } from '../../theme';
-import { isCI } from '../../../lib/is-ci';
+import chalk from "chalk";
+import { icon, color } from "../../theme";
+import { isCI } from "../../../lib/is-ci";
 import {
   Options,
   SupportedProjectTypes,
-  TestOptions,
-} from '../../../lib/types';
-import { isLocalFolder } from '../../../lib/detect';
-import { TestResult } from '../../../lib/snyk-test/legacy';
+  TestOptions
+} from "../../../lib/types";
+import { isLocalFolder } from "../../../lib/detect";
+import { TestResult } from "../../../lib/snyk-test/legacy";
 
 import {
   dockerRemediationForDisplay,
-  formatTestMeta,
-} from '../../../lib/formatters';
+  formatTestMeta
+} from "../../../lib/formatters";
 import {
   IacProjectTypes,
-  TEST_SUPPORTED_IAC_PROJECTS,
-} from '../../../lib/iac/constants';
+  TEST_SUPPORTED_IAC_PROJECTS
+} from "../../../lib/iac/constants";
 import {
   dockerUserCTA,
-  getDisplayedOutput,
-} from '../../../lib/formatters/test/format-test-results';
-import { showMultiScanTip } from '../show-multi-scan-tip';
-import * as theme from '../../theme';
+  getDisplayedOutput
+} from "../../../lib/formatters/test/format-test-results";
+import { showMultiScanTip } from "../show-multi-scan-tip";
+import * as theme from "../../theme";
 
 export function displayResult(
   res: TestResult,
   options: Options & TestOptions,
-  foundProjectCount?: number,
+  foundProjectCount?: number
 ) {
   const meta = formatTestMeta(res, options);
   const dockerAdvice = dockerRemediationForDisplay(res);
@@ -38,7 +38,7 @@ export function displayResult(
   if (options.iac && res.targetFile) {
     testingPath = res.targetFile;
   }
-  const prefix = chalk.bold.white('\nTesting ' + testingPath + '...\n\n');
+  const prefix = chalk.bold.white("\nTesting " + testingPath + "...\n\n");
 
   // handle errors by extracting their message
   if (res instanceof Error) {
@@ -47,12 +47,12 @@ export function displayResult(
   const issuesText =
     res.licensesPolicy ||
     TEST_SUPPORTED_IAC_PROJECTS.includes(projectType as IacProjectTypes)
-      ? 'issues'
-      : 'vulnerabilities';
-  let pathOrDepsText = '';
+      ? "issues"
+      : "vulnerabilities";
+  let pathOrDepsText = "";
 
   if (res.dependencyCount) {
-    pathOrDepsText += res.dependencyCount + ' dependencies';
+    pathOrDepsText += res.dependencyCount + " dependencies";
   } else if (options.iac && res.targetFile) {
     pathOrDepsText += res.targetFile;
   } else {
@@ -63,32 +63,32 @@ export function displayResult(
   const multiProjectTip = showMultiScanTip(
     projectType,
     options,
-    foundProjectCount,
+    foundProjectCount
   );
-  const multiProjAdvice = multiProjectTip ? `\n\n${multiProjectTip}` : '';
+  const multiProjAdvice = multiProjectTip ? `\n\n${multiProjectTip}` : "";
 
   const warningMessage = theme.color.status.warn(
-    `${theme.icon.WARNING} Warning!`,
+    `${theme.icon.WARNING} Warning!`
   );
   const hasUnknownVersions = res.hasUnknownVersions
     ? `\n\n${warningMessage} Some dependencies in this project could not be identified.`
-    : '';
+    : "";
 
   // OK  => no vulns found, return
   if (res.ok && res.vulnerabilities.length === 0) {
     const vulnPathsText = options.showVulnPaths
-      ? 'no vulnerable paths found.'
-      : 'none were found.';
+      ? "no vulnerable paths found."
+      : "none were found.";
     const summaryOKText = color.status.success(
-      `${icon.VALID} ${testedInfoText}, ${vulnPathsText}`,
+      `${icon.VALID} ${testedInfoText}, ${vulnPathsText}`
     );
     const nextStepsText = localPackageTest
-      ? '\n\nNext steps:' +
-        '\n- Run `snyk monitor` to be notified ' +
-        'about new related vulnerabilities.' +
-        '\n- Run `snyk test` as part of ' +
-        'your CI/test.'
-      : '';
+      ? "\n\nNext steps:" +
+        "\n- Run `snyk monitor` to be notified " +
+        "about new related vulnerabilities." +
+        "\n- Run `snyk test` as part of " +
+        "your CI/test."
+      : "";
     // user tested a package@version and got 0 vulns back, but there were dev deps
     // to consider
     // to consider
@@ -97,19 +97,19 @@ export function displayResult(
       localPackageTest ||
       options.dev
     )
-      ? '\n\nTip: Snyk only tests production dependencies by default. You can try re-running with the `--dev` flag.'
-      : '';
+      ? "\n\nTip: Snyk only tests production dependencies by default. You can try re-running with the `--dev` flag."
+      : "";
 
     const dockerCTA = dockerUserCTA(options);
     return (
       prefix +
       meta +
-      '\n\n' +
+      "\n\n" +
       summaryOKText +
       hasUnknownVersions +
       multiProjAdvice +
       (isCI()
-        ? ''
+        ? ""
         : dockerAdvice + nextStepsText + snykPackageTestTip + dockerCTA)
     );
   }
@@ -126,6 +126,6 @@ export function displayResult(
     prefix,
     hasUnknownVersions,
     multiProjAdvice,
-    dockerAdvice,
+    dockerAdvice
   );
 }

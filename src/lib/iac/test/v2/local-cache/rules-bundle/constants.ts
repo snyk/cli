@@ -1,1 +1,1 @@
-export const rulesBundleName = 'bundle-experimental.tar.gz';
+export const rulesBundleName = "bundle-experimental.tar.gz";

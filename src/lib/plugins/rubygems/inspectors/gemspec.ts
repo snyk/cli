@@ -1,6 +1,6 @@
-import * as path from 'path';
-import { Files, tryGetSpec } from './try-get-spec';
-import { Spec } from './index';
+import * as path from "path";
+import { Files, tryGetSpec } from "./try-get-spec";
+import { Spec } from "./index";
 
 const pattern = /\.gemspec$/;
 
@@ -23,7 +23,7 @@ export async function gatherSpecs(root: string, target: string): Promise<Spec> {
 
   const gemfileLock = await tryGetSpec(
     root,
-    path.join(targetDir, 'Gemfile.lock'),
+    path.join(targetDir, "Gemfile.lock")
   );
 
   if (gemfileLock) {
@@ -33,6 +33,6 @@ export async function gatherSpecs(root: string, target: string): Promise<Spec> {
   return {
     packageName: path.basename(root),
     targetFile: path.join(targetDir, targetName),
-    files,
+    files
   };
 }

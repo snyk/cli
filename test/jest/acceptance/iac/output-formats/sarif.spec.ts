@@ -1,17 +1,17 @@
-import { FakeServer } from '../../../../acceptance/fake-server';
-import { isValidJSONString, startMockServer } from '../helpers';
+import { FakeServer } from "../../../../acceptance/fake-server";
+import { isValidJSONString, startMockServer } from "../helpers";
 import {
   spinnerMessage,
-  spinnerSuccessMessage,
-} from '../../../../../src/lib/formatters/iac-output/text';
+  spinnerSuccessMessage
+} from "../../../../../src/lib/formatters/iac-output/text";
 
 jest.setTimeout(1_000 * 30);
 
-describe('iac test SARIF output', () => {
+describe("iac test SARIF output", () => {
   let server: FakeServer;
   let run: (
     cmd: string,
-    overrides?: Record<string, string>,
+    overrides?: Record<string, string>
   ) => Promise<{ stdout: string; stderr: string; exitCode: number }>;
   let teardown: () => Promise<unknown>;
 
@@ -27,9 +27,9 @@ describe('iac test SARIF output', () => {
     await teardown();
   });
 
-  it('should not show an initial message', async () => {
+  it("should not show an initial message", async () => {
     // Arrange
-    const filePath = './iac/arm/rule_test.json';
+    const filePath = "./iac/arm/rule_test.json";
 
     // Act
     const { stdout } = await run(`snyk iac test --sarif ${filePath}`);
@@ -38,9 +38,9 @@ describe('iac test SARIF output', () => {
     expect(stdout).not.toContain(spinnerMessage);
   });
 
-  it('should not show spinner messages', async () => {
+  it("should not show spinner messages", async () => {
     // Arrange
-    const filePath = './iac/arm/rule_test.json';
+    const filePath = "./iac/arm/rule_test.json";
 
     // Act
     const { stdout } = await run(`snyk iac test --sarif ${filePath}`);
@@ -50,14 +50,14 @@ describe('iac test SARIF output', () => {
     expect(stdout).not.toContain(spinnerSuccessMessage);
   });
 
-  describe('with multiple paths', () => {
-    it('should return valid output', async () => {
+  describe("with multiple paths", () => {
+    it("should return valid output", async () => {
       // Arrange
-      const paths = ['./iac/arm/rule_test.json', './iac/cloudformation'];
+      const paths = ["./iac/arm/rule_test.json", "./iac/cloudformation"];
 
       // Act
       const { stdout, exitCode } = await run(
-        `snyk iac test --sarif ${paths.join(' ')}`,
+        `snyk iac test --sarif ${paths.join(" ")}`
       );
 
       // Assert

@@ -1,9 +1,9 @@
-import { CustomError } from '../../../errors/custom-error';
+import { CustomError } from "../../../errors/custom-error";
 
-const messagePrefix = 'There was a problem running Code analysis';
+const messagePrefix = "There was a problem running Code analysis";
 
 export class CodeClientError extends CustomError {
-  constructor(statusCode: number, statusText: string, additionalUserHelp = '') {
+  constructor(statusCode: number, statusText: string, additionalUserHelp = "") {
     super(statusText);
     this.code = statusCode;
     this.userMessage = `${messagePrefix}. ${additionalUserHelp}\nContact support if the problem persists.`;

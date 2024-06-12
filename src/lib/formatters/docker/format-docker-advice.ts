@@ -1,12 +1,12 @@
-import chalk from 'chalk';
+import chalk from "chalk";
 import {
   TestResult,
-  BaseImageRemediationAdvice,
-} from '../../../lib/snyk-test/legacy';
+  BaseImageRemediationAdvice
+} from "../../../lib/snyk-test/legacy";
 
 export function dockerRemediationForDisplay(res: TestResult) {
   if (!res.docker || !res.docker.baseImageRemediation) {
-    return '';
+    return "";
   }
   const { advice, message } = res.docker.baseImageRemediation;
   const out = [] as any[];
@@ -18,14 +18,14 @@ export function dockerRemediationForDisplay(res: TestResult) {
   } else if (message) {
     out.push(message);
   } else {
-    return '';
+    return "";
   }
-  return `\n\n${out.join('\n')}`;
+  return `\n\n${out.join("\n")}`;
 }
 
 function getTerminalStringFormatter({
   color,
-  bold,
+  bold
 }: BaseImageRemediationAdvice) {
   let formatter = chalk;
   if (color && formatter[color]) {

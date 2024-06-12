@@ -1,14 +1,14 @@
 module.exports = test;
 
-const detect = require('../detect');
-const { runTest } = require('./run-test');
-const chalk = require('chalk');
-const pm = require('../package-managers');
-const { UnsupportedPackageManagerError } = require('../errors');
-const { isMultiProjectScan } = require('../is-multi-project-scan');
+const detect = require("../detect");
+const { runTest } = require("./run-test");
+const chalk = require("chalk");
+const pm = require("../package-managers");
+const { UnsupportedPackageManagerError } = require("../errors");
+const { isMultiProjectScan } = require("../is-multi-project-scan");
 
 async function test(root, options, callback) {
-  if (typeof options === 'function') {
+  if (typeof options === "function") {
     callback = options;
     options = {};
   }
@@ -18,7 +18,7 @@ async function test(root, options, callback) {
   const promise = executeTest(root, options);
   if (callback) {
     promise
-      .then((res) => {
+      .then(res => {
         callback(null, res);
       })
       .catch(callback);
@@ -31,7 +31,7 @@ async function executeTest(root, options) {
     if (!options.allProjects) {
       options.packageManager = detect.detectPackageManager(root, options);
     }
-    return run(root, options).then((results) => {
+    return run(root, options).then(results => {
       for (const res of results) {
         if (!res.packageManager) {
           res.packageManager = options.packageManager;
@@ -46,7 +46,7 @@ async function executeTest(root, options) {
     });
   } catch (error) {
     return Promise.reject(
-      chalk.red.bold(error.message ? error.message : error),
+      chalk.red.bold(error.message ? error.message : error)
     );
   }
 }

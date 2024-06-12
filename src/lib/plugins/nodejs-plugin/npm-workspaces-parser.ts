@@ -1,17 +1,17 @@
-import * as baseDebug from 'debug';
-import * as pathUtil from 'path';
-const sortBy = require('lodash.sortby');
-const groupBy = require('lodash.groupby');
-import * as micromatch from 'micromatch';
+import * as baseDebug from "debug";
+import * as pathUtil from "path";
+const sortBy = require("lodash.sortby");
+const groupBy = require("lodash.groupby");
+import * as micromatch from "micromatch";
 
-const debug = baseDebug('snyk-npm-workspaces');
-import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
+const debug = baseDebug("snyk-npm-workspaces");
+import * as lockFileParser from "snyk-nodejs-lockfile-parser";
 import {
   MultiProjectResultCustom,
-  ScannedProjectCustom,
-} from '../get-multi-plugin-result';
-import { getFileContents } from '../../get-file-contents';
-import { NoSupportedManifestsFoundError } from '../../errors';
+  ScannedProjectCustom
+} from "../get-multi-plugin-result";
+import { getFileContents } from "../../get-file-contents";
+import { NoSupportedManifestsFoundError } from "../../errors";
 
 export async function processNpmWorkspaces(
   root: string,
@@ -20,15 +20,15 @@ export async function processNpmWorkspaces(
     dev?: boolean;
     yarnWorkspaces?: boolean;
   },
-  targetFiles: string[],
+  targetFiles: string[]
 ): Promise<MultiProjectResultCustom> {
   // the order of npmTargetFiles folders is important
   // must have the root level most folders at the top
   const mappedAndFiltered = targetFiles
-    .map((p) => ({ path: p, ...pathUtil.parse(p) }))
-    .filter((res) => ['package.json', 'package-lock.json'].includes(res.base));
-  const sorted = sortBy(mappedAndFiltered, 'dir');
-  const grouped = groupBy(sorted, 'dir');
+    .map(p => ({ path: p, ...pathUtil.parse(p) }))
+    .filter(res => ["package.json", "package-lock.json"].includes(res.base));
+  const sorted = sortBy(mappedAndFiltered, "dir");
+  const grouped = groupBy(sorted, "dir");
 
   const npmTargetFiles: {
     [dir: string]: Array<{
@@ -46,32 +46,32 @@ export async function processNpmWorkspaces(
   const workspacesFilesMap = {};
   const result: MultiProjectResultCustom = {
     plugin: {
-      name: 'snyk-nodejs-npm-workspaces',
-      runtime: process.version,
+      name: "snyk-nodejs-npm-workspaces",
+      runtime: process.version
     },
-    scannedProjects: [],
+    scannedProjects: []
   };
   // the folders must be ordered highest first
   for (const directory of Object.keys(npmTargetFiles)) {
     debug(`Processing ${directory} as a potential npm workspace`);
     let isWorkspacePackage = false;
     let isRootPackageJson = false;
-    const packageJsonFileName = pathUtil.join(directory, 'package.json');
+    const packageJsonFileName = pathUtil.join(directory, "package.json");
     const packageJson = getFileContents(root, packageJsonFileName);
     npmWorkspacesMap = {
       ...npmWorkspacesMap,
-      ...getWorkspacesMap(packageJson),
+      ...getWorkspacesMap(packageJson)
     };
     for (const workspaceRoot of Object.keys(npmWorkspacesMap)) {
       const match = packageJsonBelongsToWorkspace(
         packageJsonFileName,
         npmWorkspacesMap,
-        workspaceRoot,
+        workspaceRoot
       );
       if (match) {
         debug(`${packageJsonFileName} matches an existing workspace pattern`);
         workspacesFilesMap[packageJsonFileName] = {
-          root: workspaceRoot,
+          root: workspaceRoot
         };
         isWorkspacePackage = true;
       }
@@ -82,7 +82,7 @@ export async function processNpmWorkspaces(
 
     if (!(isWorkspacePackage || isRootPackageJson)) {
       debug(
-        `${packageJsonFileName} is not part of any detected workspace, skipping`,
+        `${packageJsonFileName} is not part of any detected workspace, skipping`
       );
       continue;
     }
@@ -90,7 +90,7 @@ export async function processNpmWorkspaces(
       const rootDir = isWorkspacePackage
         ? pathUtil.dirname(workspacesFilesMap[packageJsonFileName].root)
         : pathUtil.dirname(packageJsonFileName);
-      const rootLockfileName = pathUtil.join(rootDir, 'package-lock.json');
+      const rootLockfileName = pathUtil.join(rootDir, "package-lock.json");
       const lockContent = getFileContents(root, rootLockfileName);
 
       const res = await lockFileParser.parseNpmLockV2Project(
@@ -100,18 +100,18 @@ export async function processNpmWorkspaces(
           includeDevDeps: settings.dev || false,
           strictOutOfSync: settings.strictOutOfSync || false,
           includeOptionalDeps: false,
-          pruneCycles: true,
-        },
+          pruneCycles: true
+        }
       );
 
       const project: ScannedProjectCustom = {
-        packageManager: 'npm',
+        packageManager: "npm",
         targetFile: pathUtil.relative(root, packageJson.fileName),
         depGraph: res as any,
         plugin: {
-          name: 'snyk-nodejs-lockfile-parser',
-          runtime: process.version,
-        },
+          name: "snyk-nodejs-lockfile-parser",
+          runtime: process.version
+        }
       };
       result.scannedProjects.push(project);
     } catch (e) {
@@ -123,7 +123,7 @@ export async function processNpmWorkspaces(
   }
   if (!result.scannedProjects.length) {
     debug(
-      `No npm workspaces detected in any of the ${targetFiles.length} target files.`,
+      `No npm workspaces detected in any of the ${targetFiles.length} target files.`
     );
   }
   return result;
@@ -149,11 +149,11 @@ export function getWorkspacesMap(file: {
       JSON.parse(file.content).workspaces || false;
     if (rootFileWorkspacesDefinitions && rootFileWorkspacesDefinitions.length) {
       workspacesMap[file.fileName] = {
-        workspaces: rootFileWorkspacesDefinitions,
+        workspaces: rootFileWorkspacesDefinitions
       };
     }
   } catch (e) {
-    debug('Failed to process a workspace', e.message);
+    debug("Failed to process a workspace", e.message);
   }
   return workspacesMap;
 }
@@ -161,20 +161,20 @@ export function getWorkspacesMap(file: {
 export function packageJsonBelongsToWorkspace(
   packageJsonFileName: string,
   workspacesMap: NpmWorkspacesMap,
-  workspaceRoot: string,
+  workspaceRoot: string
 ): boolean {
   const workspaceRootFolder = pathUtil.dirname(
-    workspaceRoot.replace(/\\/g, '/'),
+    workspaceRoot.replace(/\\/g, "/")
   );
   const workspacesGlobs = (
     workspacesMap[workspaceRoot].workspaces || []
-  ).map((workspace) => pathUtil.join(workspaceRootFolder, workspace));
+  ).map(workspace => pathUtil.join(workspaceRootFolder, workspace));
 
   const match = micromatch.isMatch(
-    packageJsonFileName.replace(/\\/g, '/'),
-    workspacesGlobs.map((p) =>
-      pathUtil.normalize(pathUtil.join(p, 'package.json')).replace(/\\/g, '/'),
-    ),
+    packageJsonFileName.replace(/\\/g, "/"),
+    workspacesGlobs.map(p =>
+      pathUtil.normalize(pathUtil.join(p, "package.json")).replace(/\\/g, "/")
+    )
   );
   return match;
 }

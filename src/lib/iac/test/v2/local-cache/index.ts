@@ -1,9 +1,9 @@
-import { TestConfig } from '../types';
-import { overrideDevelopmentPaths } from './rules-bundle';
-import { initPolicyEngine } from './policy-engine';
-import { createDirIfNotExists } from '../../../file-utils';
-import { CustomError } from '../../../../errors';
-import { FailedToInitLocalCacheError } from '../../../../../cli/commands/test/iac/local-execution/local-cache';
+import { TestConfig } from "../types";
+import { overrideDevelopmentPaths } from "./rules-bundle";
+import { initPolicyEngine } from "./policy-engine";
+import { createDirIfNotExists } from "../../../file-utils";
+import { CustomError } from "../../../../errors";
+import { FailedToInitLocalCacheError } from "../../../../../cli/commands/test/iac/local-execution/local-cache";
 
 interface LocalCache {
   policyEnginePath: string;
@@ -12,7 +12,7 @@ interface LocalCache {
 }
 
 export async function initLocalCache(
-  testConfig: TestConfig,
+  testConfig: TestConfig
 ): Promise<LocalCache> {
   try {
     await createDirIfNotExists(testConfig.iacCachePath);

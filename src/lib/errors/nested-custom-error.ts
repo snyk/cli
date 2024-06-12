@@ -1,4 +1,4 @@
-import { CustomError } from './custom-error';
+import { CustomError } from "./custom-error";
 
 export class NestedCustomError extends CustomError {
   constructor(message: string, innerError?: any) {
@@ -21,7 +21,7 @@ export class NestedCustomError extends CustomError {
       stackComponents.push(nestedStack);
     }
 
-    return stackComponents.join('\n' + ' '.repeat(2) + '[cause]: ');
+    return stackComponents.join("\n" + " ".repeat(2) + "[cause]: ");
   }
 
   public get nestedMessage(): string {
@@ -30,7 +30,7 @@ export class NestedCustomError extends CustomError {
     const innerErrorMessage =
       this.innerError?.nestedMessage || this.innerError?.message;
     if (innerErrorMessage) {
-      message += '\nCaused by: ' + innerErrorMessage;
+      message += "\nCaused by: " + innerErrorMessage;
     }
 
     return message;
@@ -59,7 +59,7 @@ export class NestedCustomError extends CustomError {
 
     const nestedErrStr = this.innerError?.toString();
     if (nestedErrStr) {
-      errStr += '\nCaused by: ' + nestedErrStr;
+      errStr += "\nCaused by: " + nestedErrStr;
     }
 
     return errStr;

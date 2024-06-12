@@ -1,11 +1,11 @@
-import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { MultiProjectResultCustom } from './get-multi-plugin-result';
-import { SupportedPackageManagers } from '../package-managers';
-import { CallGraph } from '@snyk/cli-interface/legacy/common';
+import { legacyPlugin as pluginApi } from "@snyk/cli-interface";
+import { MultiProjectResultCustom } from "./get-multi-plugin-result";
+import { SupportedPackageManagers } from "../package-managers";
+import { CallGraph } from "@snyk/cli-interface/legacy/common";
 
 export function convertSingleResultToMultiCustom(
   inspectRes: pluginApi.SinglePackageResult,
-  packageManager?: SupportedPackageManagers,
+  packageManager?: SupportedPackageManagers
 ): MultiProjectResultCustom {
   if (!packageManager) {
     packageManager = inspectRes.plugin
@@ -20,7 +20,7 @@ export function convertSingleResultToMultiCustom(
 
 function convertDepGraphResult(
   inspectRes: pluginApi.SinglePackageResult,
-  packageManager: SupportedPackageManagers,
+  packageManager: SupportedPackageManagers
 ): MultiProjectResultCustom {
   const { plugin, meta, dependencyGraph: depGraph, callGraph } = inspectRes;
   return {
@@ -32,9 +32,9 @@ function convertDepGraphResult(
         callGraph: callGraph as CallGraph,
         meta,
         targetFile: plugin.targetFile,
-        packageManager,
-      },
-    ],
+        packageManager
+      }
+    ]
   };
 }
 
@@ -43,7 +43,7 @@ function convertDepGraphResult(
  */
 function convertDepTreeResult(
   inspectRes: pluginApi.SinglePackageResult,
-  packageManager: SupportedPackageManagers,
+  packageManager: SupportedPackageManagers
 ): MultiProjectResultCustom {
   if (
     inspectRes.package &&
@@ -67,8 +67,8 @@ function convertDepTreeResult(
         callGraph: callGraph as CallGraph,
         meta,
         targetFile: plugin.targetFile,
-        packageManager,
-      },
-    ],
+        packageManager
+      }
+    ]
   };
 }

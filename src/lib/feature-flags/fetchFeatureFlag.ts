@@ -1,22 +1,22 @@
-import { makeRequest } from '../request';
-import { getAuthHeader } from '../api-token';
-import config from '../config';
-import { assembleQueryString } from '../snyk-test/common';
-import { OrgFeatureFlagResponse } from './types';
+import { makeRequest } from "../request";
+import { getAuthHeader } from "../api-token";
+import config from "../config";
+import { assembleQueryString } from "../snyk-test/common";
+import { OrgFeatureFlagResponse } from "./types";
 
 export async function fetchFeatureFlag(
   featureFlag: string,
-  org,
+  org
 ): Promise<OrgFeatureFlagResponse> {
   const response = await makeRequest({
-    method: 'GET',
+    method: "GET",
     headers: {
-      Authorization: getAuthHeader(),
+      Authorization: getAuthHeader()
     },
     qs: assembleQueryString({ org }),
     url: `${config.API}/cli-config/feature-flags/${featureFlag}`,
     gzip: true,
-    json: true,
+    json: true
   });
 
   return (response as any).body;

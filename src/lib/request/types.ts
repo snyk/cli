@@ -1,5 +1,5 @@
-import { OutgoingHttpHeaders } from 'http';
-import { NeedleHttpVerbs } from 'needle';
+import { OutgoingHttpHeaders } from "http";
+import { NeedleHttpVerbs } from "needle";
 
 export interface Payload {
   body: any;
