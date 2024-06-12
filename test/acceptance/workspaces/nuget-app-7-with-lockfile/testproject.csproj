@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.*" />
+    </ItemGroup>
+
+</Project>
