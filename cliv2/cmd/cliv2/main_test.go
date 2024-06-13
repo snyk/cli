@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,11 +9,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
+	"github.com/snyk/error-catalog-golang-public/code"
+	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
+	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -117,9 +120,7 @@ func Test_CreateCommandsForWorkflowWithSubcommands(t *testing.T) {
 		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 		workflowId1 := workflow.NewWorkflowIdentifier(v)
 		_, err := globalEngine.Register(workflowId1, workflowConfig, fn)
-		if err != nil {
-			t.Fatal(err)
-		}
+		assert.NoError(t, err)
 	}
 
 	_ = globalEngine.Init()
@@ -192,9 +193,7 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 				workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 				workflowId1 := workflow.NewWorkflowIdentifier(v)
 				_, err := globalEngine.Register(workflowId1, workflowConfig, fn)
-				if err != nil {
-					t.Fatal(err)
-				}
+				assert.NoError(t, err)
 			}
 
 			_ = globalEngine.Init()
@@ -227,15 +226,18 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 }
 
 func Test_getErrorFromWorkFlowData(t *testing.T) {
+	engine := workflow.NewWorkFlowEngine(configuration.New())
+	engine.Init()
+
 	t.Run("nil error", func(t *testing.T) {
-		err := getErrorFromWorkFlowData(nil)
+		err := getErrorFromWorkFlowData(engine, nil)
 		assert.Nil(t, err)
 	})
 	t.Run("workflow error", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
 		data := workflow.NewData(workflowIdentifier, "application/json", []byte(`{"error": "test error"}`))
-		err := getErrorFromWorkFlowData([]workflow.Data{data})
+		err := getErrorFromWorkFlowData(engine, []workflow.Data{data})
 		assert.Nil(t, err)
 	})
 	t.Run("workflow with test findings", func(t *testing.T) {
@@ -252,14 +254,14 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		})
 		assert.Nil(t, err)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, payload)
-		err = getErrorFromWorkFlowData([]workflow.Data{data})
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
 		require.NotNil(t, err)
 		var expectedError *clierrors.ErrorWithExitCode
 		assert.ErrorAs(t, err, &expectedError)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, expectedError.ExitCode)
 	})
 
-	t.Run("workflow with empty testing findings", func(t *testing.T) {
+	t.Run("workflow with zero count test summary", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
 		d, err := json.Marshal(json_schemas.TestSummary{
@@ -273,25 +275,48 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		})
 		assert.Nil(t, err)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
-		err = getErrorFromWorkFlowData([]workflow.Data{data})
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
 		assert.Nil(t, err)
 	})
-}
 
-func addEmptyWorkflows(t *testing.T, engine workflow.Engine, commandList []string) {
-	t.Helper()
-	for _, v := range commandList {
-		fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
-			return []workflow.Data{}, nil
-		}
+	t.Run("workflow with empty test summary and unsupported error annotation", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		d, err := json.Marshal(json_schemas.NewTestSummary("sast"))
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
+		expectedCodeErr := code.NewUnsupportedProjectError("")
+		data.AddError(expectedCodeErr)
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
 
-		workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
-		workflowId1 := workflow.NewWorkflowIdentifier(v)
-		_, err := engine.Register(workflowId1, workflowConfig, fn)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
+		var actualError *clierrors.ErrorWithExitCode
+		var actualSnykCatalogError snyk_errors.Error
+		assert.ErrorAs(t, err, &actualError)
+		assert.ErrorAs(t, err, &actualSnykCatalogError)
+
+		assert.Equal(t, expectedCodeErr, actualSnykCatalogError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS, actualError.ExitCode)
+	})
+
+	t.Run("workflow with empty testing and misc error annotation", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		d, err := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    0,
+				Open:     0,
+				Ignored:  0,
+			}},
+			Artifacts: 0,
+			Type:      "sast",
+		})
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
+		data.AddError(code.NewAnalysisFileCountLimitExceededError(""))
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
+		assert.NoError(t, err)
+	})
 }
 
 func Test_runWorkflowAndProcessData(t *testing.T) {
@@ -301,7 +326,33 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
 
 	testCmnd := "subcmd1"
-	addEmptyWorkflows(t, globalEngine, []string{"output"})
+	workflowId1 := workflow.NewWorkflowIdentifier("output")
+
+	outputFn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+		summaryPayload, _ := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    99,
+				Open:     97,
+				Ignored:  2,
+			}, {
+				Severity: "medium",
+				Total:    99,
+				Open:     97,
+				Ignored:  2,
+			}},
+			Type: "sast",
+		})
+		data := workflow.NewData(workflow.NewTypeIdentifier(workflowId1, "workflowData"), content_type.TEST_SUMMARY, summaryPayload)
+		return []workflow.Data{
+			data,
+		}, nil
+	}
+
+	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+
+	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
+	assert.NoError(t, err)
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
@@ -316,10 +367,10 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 			},
 			Type: "sast",
 		}
-		d, err := json.Marshal(testSummary)
-		if err != nil {
-			t.Fatal(err)
-		}
+
+		var d []byte
+		d, err = json.Marshal(testSummary)
+		assert.NoError(t, err)
 
 		data := workflow.NewData(typeId, content_type.TEST_SUMMARY, d)
 		return []workflow.Data{
@@ -329,7 +380,6 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 
 	// setup workflow engine to contain a workflow with subcommands
 	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
-	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
 
 	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
 	assert.Nil(t, err)
@@ -367,13 +417,15 @@ func Test_setTimeout(t *testing.T) {
 }
 
 func Test_displayError(t *testing.T) {
-	t.Run("prints out generic error messages", func(t *testing.T) {
-		var b bytes.Buffer
-		config := configuration.NewInMemory()
-		err := errors.New("test error")
-		displayError(err, &b, config)
+	mockController := gomock.NewController(t)
+	userInterface := mocks.NewMockUserInterface(mockController)
 
-		assert.Equal(t, "test error\n", b.String())
+	t.Run("prints out generic error messages", func(t *testing.T) {
+		err := errors.New("test error")
+		userInterface.EXPECT().OutputError(err).Times(1)
+
+		config := configuration.NewInMemory()
+		displayError(err, userInterface, config)
 	})
 
 	scenarios := []struct {
@@ -392,12 +444,22 @@ func Test_displayError(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
-			var b bytes.Buffer
 			config := configuration.NewInMemory()
 			err := scenario.err
-			displayError(err, &b, config)
-
-			assert.Equal(t, "", b.String())
+			displayError(err, userInterface, config)
 		})
 	}
+
+	t.Run("prints messages of error wrapping exec.ExitError", func(t *testing.T) {
+		err := &wrErr{wraps: &exec.ExitError{}}
+		userInterface.EXPECT().OutputError(err).Times(1)
+
+		config := configuration.NewInMemory()
+		displayError(err, userInterface, config)
+	})
 }
+
+type wrErr struct{ wraps error }
+
+func (e *wrErr) Error() string { return "something went wrong" }
+func (e *wrErr) Unwrap() error { return e.wraps }

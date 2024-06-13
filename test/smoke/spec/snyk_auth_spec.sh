@@ -4,7 +4,7 @@ Describe "Snyk CLI Authorization"
   After snyk_logout
 
   It "fails when run in CI without token set"
-    When run snyk auth
+    When run snyk auth --auth-type=token
     The output should include "Snyk is missing auth token in order to run inside CI"
     The status should be failure
     # TODO: unusable with our current docker issues
@@ -28,7 +28,7 @@ Describe "Snyk CLI Authorization"
       Skip if "test is disabled" is_alpine_or_disabled
 
       # Using timeout to not wait for browser confirmation
-      When run timeout 5 snyk auth
+      When run timeout 5 snyk auth --auth-type=token
       The result of function check_auth_output should be success
       The result of function verify_login_url should include "snyk.io/login?token=" # URL found
       The status should be failure
@@ -39,7 +39,7 @@ Describe "Snyk CLI Authorization"
 
 
   It "fails if given bogus token"
-    When run snyk auth abc123
+    When run snyk auth 00000000-0000-0000-0000-000000000000
     The output should include "Authentication failed. Please check the API token"
     The status should be failure
     # TODO: unusable with our current docker issues

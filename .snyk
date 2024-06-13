@@ -31,3 +31,6 @@ patch: {}
 exclude:
   code:
     - test/**
+    # Remove the following line, once we can apply consistent ignores via the Web UIs
+    - scripts/upgrade-snyk-go-dependencies.go
+    - release-scripts/write-ls-protocol-version.go

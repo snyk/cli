@@ -105,6 +105,7 @@ export async function generateMonitorDependenciesRequest(
   // WARNING! This mutates the payload. The project name logic should be handled in the plugin.
   scanResult.name =
     options['project-name'] || config.PROJECT_NAME || scanResult.name;
+  scanResult.targetReference = options['target-reference'];
   // WARNING! This mutates the payload. Policy logic should be in the plugin.
   const policy = await findAndLoadPolicyForScanResult(scanResult, options);
   if (policy !== undefined) {

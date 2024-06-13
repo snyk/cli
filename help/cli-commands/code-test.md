@@ -88,3 +88,11 @@ Use to display the human-readable test output using stdout and, at the same time
 Report only vulnerabilities at the specified level or higher.
 
 **Note**: The Snyk Code configuration issues do not use the `critical` severity level.
+
+### `--include-ignores`
+
+Include ignored vulnerabilities in the results.
+
+**Note**: This option is available if you are an Enterprise customer and in the Consistent Ignores Closed Beta.
+
+Issues will appear in a separate section of the test results.

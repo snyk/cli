@@ -1,4 +1,7 @@
-import { createProjectFromWorkspace } from '../../util/createProject';
+import {
+  createProjectFromFixture,
+  createProjectFromWorkspace,
+} from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { getServerPort } from '../../util/getServerPort';
@@ -142,9 +145,11 @@ describe('snyk test --all-projects (mocked server only)', () => {
     );
 
     expect(code).toEqual(1);
-    const req = server.popRequest();
-    expect(req.query.ignorePolicy).toBeTruthy(); // should request to ignore the policy
+    const requests = server.getRequests().filter((req: any) => {
+      return req.query.ignorePolicy;
+    });
 
+    expect(requests).toHaveLength(1);
     expect(stdout).toMatch(
       'Tested 7 dependencies for known vulnerabilities, found 5 vulnerabilities, 6 vulnerable paths.',
     );
@@ -166,7 +171,10 @@ describe('snyk test --all-projects (mocked server only)', () => {
         ? 'vulnerable\\package-lock.json'
         : 'vulnerable/package-lock.json';
 
-    const backendRequests = server.popRequests(2);
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test-dep-graph');
+    });
+
     expect(backendRequests).toHaveLength(2);
     let policyCount = 0;
     backendRequests.forEach((req) => {
@@ -211,10 +219,12 @@ describe('snyk test --all-projects (mocked server only)', () => {
       env,
     });
 
-    const backendRequests = server.popRequests(1);
-    expect(backendRequests).toHaveLength(1);
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
 
-    backendRequests.forEach((req) => {
+    expect(backendRequests).toHaveLength(1);
+    backendRequests.forEach((req: any) => {
       expect(req.method).toEqual('POST');
       expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
       expect(req.url).toMatch('/api/v1/test');
@@ -225,5 +235,60 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(stdout).toMatch('Target file:       composer.lock');
     expect(stdout).toMatch('Package manager:   composer');
     expect(stderr).toEqual('');
+  });
+
+  test('`test node workspaces --all-projects`', async () => {
+    server.setFeatureFlag('enablePnpmCli', false);
+    const project = await createProjectFromFixture('workspace-multi-type');
+
+    const { code, stdout } = await runSnykCLI('test --all-projects', {
+      cwd: project.path(),
+      env,
+    });
+
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
+
+    expect(backendRequests).toHaveLength(6);
+    backendRequests.forEach((req: any) => {
+      expect(req.method).toEqual('POST');
+      expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
+      expect(req.url).toMatch('/api/v1/test');
+    });
+
+    expect(code).toEqual(0);
+
+    expect(stdout).toMatch('Package manager:   npm');
+    expect(stdout).toMatch('Package manager:   yarn');
+    expect(stdout).not.toMatch('Package manager:   pnpm');
+  });
+
+  test('`test node workspaces --all-projects with `enablePnpmCli` feature flag`', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromFixture('workspace-multi-type');
+
+    const { code, stdout } = await runSnykCLI('test --all-projects', {
+      cwd: project.path(),
+      env,
+    });
+
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
+
+    expect(backendRequests).toHaveLength(10);
+    backendRequests.forEach((req: any) => {
+      expect(req.method).toEqual('POST');
+      expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
+      expect(req.url).toMatch('/api/v1/test');
+    });
+
+    expect(code).toEqual(0);
+
+    expect(stdout).toMatch('Package manager:   npm');
+    expect(stdout).toMatch('Package manager:   yarn');
+    expect(stdout).toMatch('Package manager:   pnpm');
   });
 });

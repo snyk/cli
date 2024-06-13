@@ -12,7 +12,10 @@ import (
 	"os"
 
 	"github.com/google/uuid"
+	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/networking"
+	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
@@ -26,7 +29,7 @@ import (
 
 type WrapperProxy struct {
 	httpServer          *http.Server
-	DebugLogger         *log.Logger
+	DebugLogger         *zerolog.Logger
 	CertificateLocation string
 	upstreamProxy       func(*http.Request) (*url.URL, error)
 	transport           *http.Transport
@@ -50,9 +53,8 @@ const (
 	PROXY_USERNAME = "snykcli"
 )
 
-func NewWrapperProxy(config configuration.Configuration, cliVersion string, debugLogger *log.Logger) (*WrapperProxy, error) {
+func NewWrapperProxy(config configuration.Configuration, cliVersion string, debugLogger *zerolog.Logger) (*WrapperProxy, error) {
 	var p WrapperProxy
-	p.DebugLogger = debugLogger
 	p.cliVersion = cliVersion
 	p.addHeaderFunc = func(request *http.Request) error { return nil }
 
@@ -60,7 +62,8 @@ func NewWrapperProxy(config configuration.Configuration, cliVersion string, debu
 	insecureSkipVerify := config.GetBool(configuration.INSECURE_HTTPS)
 
 	certName := "snyk-embedded-proxy"
-	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, p.DebugLogger)
+	p.DebugLogger = debugLogger
+	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0))
 	if err != nil {
 		return nil, err
 	}
@@ -100,12 +103,11 @@ func NewWrapperProxy(config configuration.Configuration, cliVersion string, debu
 				}
 			}
 
-			p.DebugLogger.Println("Using additional CAs from file: ", extraCaCertFile)
+			debugLogger.Debug().Msgf("Using additional CAs from file: %v", extraCaCertFile)
 		}
 	}
 
-	p.DebugLogger.Println("Temporary CertificateLocation:", p.CertificateLocation)
-
+	debugLogger.Debug().Msgf("Temporary CertificateLocation: %v", p.CertificateLocation)
 	certPEMString := string(certPEMBlock)
 	err = utils.WriteToFile(p.CertificateLocation, certPEMString)
 	if err != nil {
@@ -147,6 +149,8 @@ func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.Proxy
 		p.DebugLogger.Printf("Failed to add header: %s", err)
 	}
 
+	networking.LogRequest(r, p.DebugLogger)
+
 	return r, nil
 }
 
@@ -157,7 +161,7 @@ func (p *WrapperProxy) checkBasicCredentials(user, password string) bool {
 func (p *WrapperProxy) HandleConnect(req string, ctx *goproxy.ProxyCtx) (*goproxy.ConnectAction, string) {
 	basic := auth.BasicConnect("", p.checkBasicCredentials)
 	action, str := basic.HandleConnect(req, ctx)
-	p.DebugLogger.Println("HandleConnect - basic authentication result: ", action, str)
+	p.DebugLogger.Print("HandleConnect - basic authentication result: ", action, str)
 
 	if action == goproxy.OkConnect {
 		action, str = goproxy.AlwaysMitm.HandleConnect(req, ctx)
@@ -169,7 +173,8 @@ func (p *WrapperProxy) HandleConnect(req string, ctx *goproxy.ProxyCtx) (*goprox
 func (p *WrapperProxy) Start() error {
 	proxy := goproxy.NewProxyHttpServer()
 	proxy.Tr = p.transport
-	proxy.Logger = p.DebugLogger
+	// zerolog based logger also works but it will print empty lines between logs
+	proxy.Logger = log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0)
 	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
 	proxy.OnRequest().HandleConnect(p)
 	proxy.Verbose = true
@@ -179,7 +184,7 @@ func (p *WrapperProxy) Start() error {
 
 	p.httpServer = proxyServer
 
-	p.DebugLogger.Println("starting proxy")
+	p.DebugLogger.Print("starting proxy")
 	address := "127.0.0.1:0"
 	l, err := net.Listen("tcp", address)
 	if err != nil {
@@ -187,7 +192,7 @@ func (p *WrapperProxy) Start() error {
 	}
 
 	p.port = l.Addr().(*net.TCPAddr).Port
-	p.DebugLogger.Println("Wrapper proxy is listening on port: ", p.port)
+	p.DebugLogger.Print("Wrapper proxy is listening on port: ", p.port)
 
 	go func() {
 		_ = p.httpServer.Serve(l) // this blocks until the server stops and gives you an error which can be ignored
@@ -209,13 +214,13 @@ func (p *WrapperProxy) Stop() {
 func (p *WrapperProxy) Close() {
 	p.Stop()
 
-	p.DebugLogger.Println("deleting temp cert file:", p.CertificateLocation)
+	p.DebugLogger.Print("deleting temp cert file:", p.CertificateLocation)
 	err := os.Remove(p.CertificateLocation)
 	if err != nil {
-		p.DebugLogger.Println("failed to delete cert file")
-		p.DebugLogger.Println(err)
+		p.DebugLogger.Print("failed to delete cert file")
+		p.DebugLogger.Print(err)
 	} else {
-		p.DebugLogger.Println("deleted temp cert file:", p.CertificateLocation)
+		p.DebugLogger.Print("deleted temp cert file:", p.CertificateLocation)
 	}
 }
 
@@ -238,11 +243,11 @@ func setCAFromBytes(certPEMBlock []byte, keyPEMBlock []byte) error {
 func (p *WrapperProxy) SetUpstreamProxyAuthentication(mechanism httpauth.AuthenticationMechanism) {
 	if mechanism != p.authMechanism {
 		p.authMechanism = mechanism
-		p.DebugLogger.Printf("Enabled Proxy Authentication Mechanism: %s\n", httpauth.StringFromAuthenticationMechanism(p.authMechanism))
+		p.DebugLogger.Printf("Enabled Proxy Authentication Mechanism: %s", httpauth.StringFromAuthenticationMechanism(p.authMechanism))
 	}
 
 	if httpauth.IsSupportedMechanism(p.authMechanism) { // since Negotiate is not covered by the go http stack, we skip its proxy handling and inject a custom Handling via the DialContext
-		p.authenticator = httpauth.NewProxyAuthenticator(p.authMechanism, p.upstreamProxy, p.DebugLogger)
+		p.authenticator = httpauth.NewProxyAuthenticator(p.authMechanism, p.upstreamProxy, log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0))
 		p.transport.DialContext = p.authenticator.DialContext
 		p.transport.Proxy = nil
 	} else { // for other mechanisms like basic we switch back to go default behavior

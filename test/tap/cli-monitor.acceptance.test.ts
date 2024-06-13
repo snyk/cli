@@ -251,68 +251,6 @@ if (!isWindows) {
     );
   });
 
-  test('`monitor gradle --prune-repeated-subdependencies`', async (t) => {
-    chdirWorkspaces();
-
-    const fixturePath = getFixturePath('gradle-prune-repeated-deps');
-    const manifestFile = path.join(fixturePath, 'build.gradle');
-
-    await cli.monitor({
-      file: manifestFile,
-      pruneRepeatedSubdependencies: true,
-    });
-
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.equal(
-      req.headers['x-snyk-cli-version'],
-      versionNumber,
-      'sends version number',
-    );
-    t.match(req.url, '/monitor/gradle/graph', 'puts at correct url');
-    t.same(req.body.meta.monitorGraph, true, 'correct meta set');
-    const depGraphJSON = req.body.depGraphJSON;
-    t.ok(depGraphJSON);
-
-    t.ok(
-      depGraphJSON.graph.nodes.find(
-        (node) => node.info?.labels?.pruned === 'true',
-      ),
-      'verify if the generated depGraph from snyk monitor has been pruned',
-    );
-  });
-
-  test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (t) => {
-    chdirWorkspaces();
-
-    await cli.monitor('npm-package-pruneable', {
-      pruneRepeatedSubdependencies: true,
-    });
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.equal(
-      req.headers['x-snyk-cli-version'],
-      versionNumber,
-      'sends version number',
-    );
-    t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.same(req.body.meta.monitorGraph, true, 'correct meta set');
-    t.ok(req.body.meta.prePruneDepCount, 'sends meta.prePruneDepCount');
-    const depGraphJSON = req.body.depGraphJSON;
-    t.ok(depGraphJSON);
-
-    const packageC1 = depGraphJSON.graph.nodes.find(
-      (pkg) => pkg.nodeId === 'c@1.0.0|1',
-    );
-    const packageC2 = depGraphJSON.graph.nodes.find(
-      (pkg) => pkg.nodeId === 'c@1.0.0|2',
-    );
-    t.notOk(packageC1.info.labels.pruned, 'a.d.c first instance is not pruned');
-    t.ok(packageC2.info.labels.pruned, 'a.d.c second instance is pruned');
-    t.ok(packageC1.deps.length, 'a.d.c has dependencies');
-    t.notOk(packageC2.deps.length, 'a.d.c has no dependencies');
-  });
-
   test('`monitor sbt package`', async (t) => {
     chdirWorkspaces();
 

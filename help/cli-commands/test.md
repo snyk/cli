@@ -252,7 +252,7 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.&
 
 ## Options for Gradle projects
 
-**Note:** If you see the invalid string length error, refer to I[nvalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/invalid-string-length-error-when-scanning-projects)
+**Note:** If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/invalid-string-length-error-when-scanning-projects)
 
 ### `--sub-project=<NAME>`, `--gradle-sub-project=<NAME>`
 
@@ -260,7 +260,9 @@ For Gradle multi project configurations, test a specific sub-project.
 
 ### `--all-sub-projects`
 
-For multi project configurations, test all sub-projects.
+For multi project configurations, test all sub-projects. \
+\
+Both a build.gradle file and a settings.gradle file, or equivalent files, based on the package manager, must exist in the current directory.&#x20;
 
 ### `--all-projects`
 
@@ -325,6 +327,26 @@ When monitoring a .NET project, use this option to add a custom prefix to the na
 Example: `snyk monitor --file=my-project.sln --project-name-prefix=my-group/`
 
 This is useful when you have multiple projects with the same name in other `.sln` files.
+
+## Options for .NET projects
+
+### `--dotnet-runtime-resolution`
+
+**Note:** This option in in Early Access and may change until it is released.
+
+Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](https://docs.snyk.io/getting-started/supported-languages-and-frameworks/.net/improved-.net-scanning)
+
+Example: `snyk test --dotnet-runtime-resolution`
+
+### `--dotnet-target-framework`
+
+**Note:** This option in in Early Access and may change until it is released.
+
+Optional. You may use this option if your solution contains multiple `<TargetFramework>` directives. If you do not specify the option `--dotnet-target-framework`, all supported Target Frameworks will be scanned.
+
+The Target Framework specified with this option should be defined following the standard [naming convention](https://learn.microsoft.com/en-us/dotnet/standard/frameworks#supported-target-frameworks)
+
+Example: `snyk test --dotnet-runtime-resolution --dotnet-target-framework=net6.0`
 
 ## Options for npm projects
 
@@ -392,7 +414,7 @@ Snyk uses Python in order to scan and find your dependencies. If you are using m
 
 Default: `python` This executes your default python version. Run `python -V` to find out what your default version is.
 
-Example: `snyk test--command=python3`
+Example: `snyk test --command=python3`
 
 ### `--skip-unresolved=true|false`
 
@@ -418,7 +440,7 @@ For complete information about the command see [`--package-manager=<PACKAGE_MANA
 
 ## Options for Go projects
 
-Currently the following options are not supported:
+The following options are not supported:
 
 `--fail-on=<all|upgradable|patchable>`
 
@@ -458,7 +480,7 @@ To see how confident Snyk is about the identified dependency and its version, us
 
 ### `-- [<CONTEXT-SPECIFIC_OPTIONS>]`
 
-Use a double dash (`--`) after the complete Snyk command to pass additional options (arguments, flags) that follow directly to the build tool, for example Gradle or Maven.
+Use a double dash (`--`) after the complete Snyk command to pass additional options (arguments, flags) that follow directly to the build tool, for example, Gradle or Maven.
 
 The format is `snyk <command> -- [<context-specific_options>]`
 

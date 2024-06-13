@@ -74,6 +74,41 @@ describe('snyk sbom test (mocked server only)', () => {
     expect(stderr).toEqual('');
   });
 
+  test('`npm CycloneDX JSON with --json`', async () => {
+    const fileToTest = path.resolve(
+      getFixturePath('sbom'),
+      'npm-sbom-cdx15.json',
+    );
+
+    const {
+      code,
+      stdout,
+      stderr,
+    } = await runSnykCLI(
+      `sbom test --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --experimental --file ${fileToTest} --json`,
+      { env },
+    );
+
+    // Verify consistent timestamp format
+    expect(stdout).toContain('"disclosureTime":"2022-10-18T06:00:25Z",');
+    expect(stdout).toContain('"publicationTime":"2022-10-18T06:29:18Z"');
+    expect(stdout).toContain('"creationTime":"2022-10-18T06:10:47Z",');
+
+    // Verify other fields
+    expect(stdout).toContain(
+      '"CVSSv3":"CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",',
+    );
+    expect(stdout).toContain(
+      '"title":"Regular Expression Denial of Service (ReDoS)",',
+    );
+    expect(stdout).toContain('"version":"3.0.4",');
+    expect(stdout).toContain('"name":"minimatch"');
+
+    expect(code).toEqual(1);
+
+    expect(stderr).toEqual('');
+  });
+
   test('`missing experimental flag`', async () => {
     const fileToTest = path.resolve(
       getFixturePath('sbom'),

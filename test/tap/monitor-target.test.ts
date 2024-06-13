@@ -48,7 +48,7 @@ test('Make sure that target is sent correctly', async (t) => {
     .resolves('master');
 
   const { data } = await getFakeServerRequestBody();
-  t.ok(requestSpy.calledOnce, 'needle.request was not called once');
+  t.ok(requestSpy.calledTwice, 'needle.request was not called twice');
   t.ok(!isEmpty(data.target), 'target passed to request');
   t.ok(
     !isEmpty(data.targetFileRelativePath),
@@ -75,7 +75,7 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
   const requestSpy = sinon.spy(requestLib, 'request');
   const { data } = await getFakeServerRequestBody();
 
-  t.ok(requestSpy.calledOnce, 'needle.request was not called once');
+  t.ok(requestSpy.calledTwice, 'needle.request was not called twice');
   t.ok(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
@@ -92,7 +92,7 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
   const requestSpy = sinon.spy(requestLib, 'request');
   const { data } = await getFakeServerRequestBody();
 
-  t.ok(requestSpy.calledOnce, 'needle.request was not called once');
+  t.ok(requestSpy.calledTwice, 'needle.request was not called twice');
   t.ok(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
@@ -135,7 +135,9 @@ test('teardown', async (t) => {
 
 async function getFakeServerRequestBody() {
   await cli.monitor();
-  const req = server.popRequest();
+
+  //The first request in monitor is for retrieving feature flags
+  const req = server.popRequests(2)[1];
   const body = req.body;
 
   return {

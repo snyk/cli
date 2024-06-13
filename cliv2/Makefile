@@ -149,13 +149,21 @@ configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_E
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
-	@GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG)" -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/*.go
+	@echo "$(LOG_PREFIX)  LDFLAGS:     $(LDFLAGS)"
+	@echo "$(LOG_PREFIX)  GCFLAGS:     $(GCFLAGS)"	
+	@GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/*.go
 
 .PHONY: fips
 fips:
 # assign name of crypto backend to use
 	$(eval FIPS_CRYPTO_BACKEND := $(FIPS_CRYPTO_BACKEND_DEFAULT))
 	@echo "$(LOG_PREFIX) FIPS"
+
+.PHONY: debug
+debug:
+	$(eval LDFLAGS := -X github.com/snyk/snyk-ls/application/config.Development=true)
+	$(eval GCFLAGS := -gcflags="all=-N -l")
+	@echo "$(LOG_PREFIX) DEBUG"
 
 .PHONY: build
 build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
@@ -225,7 +233,7 @@ generate-ls-protocol-metadata:
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(DESTDIR)$(bindir)/version))
 	@echo "$(LOG_PREFIX) Determining LS protocol version"
 	@echo "$(LOG_PREFIX) Writing protocol version file to $(DESTDIR)$(bindir)"
-	$(eval LS_PROTOCOL_VERSION := $(shell $(PYTHON) $(WORKING_DIR)/../release-scripts/write-ls-protocol-version.py $(LS_COMMIT_HASH) $(CLI_V1_VERSION_TAG) $(DESTDIR)$(bindir)))
+	$(eval LS_PROTOCOL_VERSION := $(shell $(GOCMD) run $(WORKING_DIR)/../release-scripts/write-ls-protocol-version.go $(LS_COMMIT_HASH) $(CLI_V1_VERSION_TAG) $(DESTDIR)$(bindir)))
 	@echo "$(LOG_PREFIX) LS protocol version: $(LS_PROTOCOL_VERSION)"
 
 .PHONY: clean-ts-cli

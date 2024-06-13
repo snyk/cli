@@ -107,7 +107,7 @@ executors:
     resource_class: macos.m1.medium.gen1
   win-server2022-amd64:
     machine:
-      image: windows-server-2022-gui:2023.07.1
+      image: windows-server-2022-gui:2024.01.1
     resource_class: windows.large
     shell: powershell
   win-server2019-amd64:
@@ -396,7 +396,8 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: main
+              ignore:
+                - '/release.*/'
 
       - test-node:
           context:
@@ -406,7 +407,9 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
 
       - test-go:
           go_target_os: linux
@@ -420,7 +423,9 @@ workflows:
             - secrets-scan
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
 
       - test-legacy-tap:
           context:
@@ -430,7 +435,9 @@ workflows:
             - prepare-build
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
 
       - build-special-artifacts:
           name: build fix & protect
@@ -511,7 +518,9 @@ workflows:
           context: team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build linux amd64
           test_snyk_command: ./binary-releases/snyk-linux
@@ -523,7 +532,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build linux amd64
           executor: docker-amd64-xl
@@ -536,7 +547,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build linux arm64
           executor: docker-arm64
@@ -552,7 +565,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build linux arm64
 
@@ -563,7 +578,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build alpine amd64
           executor: alpine
@@ -578,7 +595,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build macOS arm64
           executor: macos-arm64
@@ -592,7 +611,9 @@ workflows:
             - team_hammerhead-cli
           filters:
             branches:
-              ignore: main
+              ignore:
+                - main
+                - '/release.*/'
           requires:
             - build windows amd64
           executor: win-server2022-amd64
@@ -653,6 +674,10 @@ workflows:
 
       - create_deployment_artifacts:
           name: create deployment artifacts
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
           context: snyk-cli-pgp-signing
           requires:
             - sign macos amd64
@@ -1181,9 +1206,27 @@ jobs:
             - binary-releases/fips/snyk-*
 
   create_deployment_artifacts:
+    parameters:
+      go_os:
+        type: string
+      go_target_os:
+        type: string
+      go_arch:
+        type: string
+      go_download_base_url:
+        type: string
+      install_path:
+        type: string
+        default: '.'
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - run:
           name: Creating all shasums
           command: find binary-releases -name "snyk-*" -exec make {}.sha256 \;
@@ -1198,7 +1241,7 @@ jobs:
           command: make binary-releases/release.json
       - run:
           name: Making release notes
-          command: make binary-releases/RELEASE_NOTES.md
+          command: make binary-releases/RELEASE_NOTES.md binary-releases/fips/RELEASE_NOTES.md
       - run:
           name: Validating artifacts
           command: ./release-scripts/validate-checksums.sh
@@ -1222,6 +1265,7 @@ jobs:
             - binary-releases/snyk.tgz
             - binary-releases/ls-protocol-version-*
             - binary-releases/fips/ls-protocol-version-*
+            - binary-releases/fips/RELEASE_NOTES.md
 
   pre-release:
     executor: docker-amd64

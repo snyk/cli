@@ -1,0 +1,15 @@
+{
+    "name": "npm-workspaces",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+      "express": "4.12"
+    },
+    "workspaces": {
+      "packages": [
+        "packages/a",
+        "packages/b"
+      ]
+    }
+  }

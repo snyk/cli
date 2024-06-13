@@ -6,5 +6,6 @@ brew 'pre-commit'
 brew 'convco'
 brew 'python'
 brew 'gnupg'
+brew 'gh'
 
 cask 'github'

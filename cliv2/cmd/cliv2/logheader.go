@@ -80,7 +80,7 @@ func getFipsStatus(config configuration.Configuration) string {
 }
 
 func writeLogHeader(config configuration.Configuration, networkAccess networking.NetworkAccess) {
-	authorization, oauthEnabled, userAgent := logHeaderAuthorizationInfo(config, networkAccess)
+	authorization, _, userAgent := logHeaderAuthorizationInfo(config, networkAccess)
 
 	org := config.GetString(configuration.ORGANIZATION)
 	insecureHTTPS := "false"
@@ -91,6 +91,11 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	analytics := "enabled"
 	if config.GetBool(configuration.ANALYTICS_DISABLED) {
 		analytics = "disabled"
+	}
+
+	previewFeaturesEnabled := "disabled"
+	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
+		previewFeaturesEnabled = "enabled"
 	}
 
 	tablePrint := func(name string, value string) {
@@ -107,7 +112,8 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Insecure HTTPS", insecureHTTPS)
 	tablePrint("Analytics", analytics)
 	tablePrint("Authorization", authorization)
+	tablePrint("Interaction", interactionId)
 	tablePrint("Features", "")
-	tablePrint("  oauth", oauthEnabled)
+	tablePrint("  preview", previewFeaturesEnabled)
 	tablePrint("  fips", fipsEnabled)
 }

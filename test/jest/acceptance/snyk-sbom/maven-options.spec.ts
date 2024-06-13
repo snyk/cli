@@ -47,6 +47,26 @@ describe('snyk sbom: maven options (mocked server only)', () => {
     expect(sbom.components.length).toBeGreaterThanOrEqual(11);
   });
 
+  test('`sbom --file` generates an SBOM without pruning', async () => {
+    const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
+      'maven-print-graph',
+      '--file=pom.xml',
+      env,
+    );
+
+    expect(sbom.metadata.component.name).toEqual(
+      'io.snyk.example:test-project',
+    );
+    expect(sbom.dependencies.length).toBeGreaterThanOrEqual(7);
+    expect(sbom.dependencies[6].ref).toEqual(
+      'commons-discovery:commons-discovery@0.2',
+    );
+    expect(sbom.dependencies[6].dependsOn.length).toEqual(1);
+    expect(sbom.dependencies[6].dependsOn[0]).toEqual(
+      'commons-logging:commons-logging@1.0.4',
+    );
+  });
+
   test('`sbom --scan-unmanaged --file=<NAME>` generates an SBOM for the specific JAR file', async () => {
     const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
       'maven-jars',

@@ -13,8 +13,9 @@ import (
 	"testing"
 	"time"
 
-	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+
+	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -41,6 +42,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 	config := configuration.NewInMemory()
 	config.Set(configuration.ORGANIZATION, orgid)
 	config.Set(configuration.API_URL, testapi)
+	config.Set(configuration.PREVIEW_FEATURES_ENABLED, true)
 
 	input := []string{
 		"something=1",
@@ -68,6 +70,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_SYSTEM_HTTPS_PROXY=httpsProxy",
 		"SNYK_INTERNAL_ORGID=" + orgid,
 		"SNYK_CFG_ORG=" + orgid,
+		"SNYK_INTERNAL_PREVIEW_FEATURES=1",
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",noProxy",
 	}
@@ -505,4 +508,18 @@ func TestDeriveExitCode(t *testing.T) {
 			assert.Equal(t, tc.expected, exitCode)
 		})
 	}
+}
+
+func Test_determineInputDirectory(t *testing.T) {
+	t.Run("input directory given as positional argument", func(t *testing.T) {
+		expected := "./myfolder/somewhere/"
+		actual := cliv2.DetermineInputDirectory([]string{"iac", "test", "--remote-repo-url=something ", expected, " -d", "--project-tags=t1,t2", "--", "-DVerbose", "true", "/somefolder/here.file"})
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("no input directory specified in arguments", func(t *testing.T) {
+		expected := ""
+		actual := cliv2.DetermineInputDirectory([]string{"iac", "test", "--remote-repo-url=something", "-d", "--project-tags=t1,t2", "--", "-DVerbose", "true", "/somefolder/here.file"})
+		assert.Equal(t, expected, actual)
+	})
 }

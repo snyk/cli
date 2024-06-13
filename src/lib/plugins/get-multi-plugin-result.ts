@@ -7,7 +7,11 @@ import * as debugModule from 'debug';
 
 import { TestOptions, Options, MonitorOptions } from '../types';
 import { detectPackageManagerFromFile } from '../detect';
-import { SupportedPackageManagers } from '../package-managers';
+import {
+  PNPM_FEATURE_FLAG,
+  SUPPORTED_MANIFEST_FILES,
+  SupportedPackageManagers,
+} from '../package-managers';
 import { getSinglePluginResult } from './get-single-plugin-result';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
@@ -16,6 +20,7 @@ import { CallGraph } from '@snyk/cli-interface/legacy/common';
 import { errorMessageWithRetry, FailedToRunTestError } from '../errors';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 import { processNpmWorkspaces } from './nodejs-plugin/npm-workspaces-parser';
+import { processPnpmWorkspaces } from 'snyk-nodejs-plugin';
 
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
@@ -36,29 +41,67 @@ export interface MultiProjectResultCustom
   failedResults?: FailedProjectScanError[];
 }
 
+type WorkspaceParameters = {
+  processingFunction: Function;
+  lockFile: string;
+};
+
+const NODE_WORKSPACES_MAP: Record<string, WorkspaceParameters> = {
+  pnpm: {
+    processingFunction: processPnpmWorkspaces,
+    lockFile: SUPPORTED_MANIFEST_FILES.PNPM_LOCK,
+  },
+  npm: {
+    processingFunction: processNpmWorkspaces,
+    lockFile: SUPPORTED_MANIFEST_FILES.PACKAGE_LOCK_JSON,
+  },
+  yarn: {
+    processingFunction: processYarnWorkspaces,
+    lockFile: SUPPORTED_MANIFEST_FILES.YARN_LOCK,
+  },
+};
+
 export async function getMultiPluginResult(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
   targetFiles: string[],
+  featureFlags: Set<string> = new Set<string>(),
 ): Promise<MultiProjectResultCustom> {
   const allResults: ScannedProjectCustom[] = [];
   const failedResults: FailedProjectScanError[] = [];
 
   // process any workspaces first
   // the files need to be proceeded together as they provide context to each other
+  let unprocessedFilesfromWorkspaces = targetFiles;
+
+  if (featureFlags.has(PNPM_FEATURE_FLAG)) {
+    const {
+      scannedProjects: scannedPnpmResults,
+      unprocessedFiles,
+    } = await processWorkspacesProjects(root, options, targetFiles, 'pnpm');
+    unprocessedFilesfromWorkspaces = unprocessedFiles;
+    allResults.push(...scannedPnpmResults);
+  }
+
   const {
     scannedProjects: scannedYarnResults,
     unprocessedFiles: unprocessedFilesFromYarn,
-  } = await processYarnWorkspacesProjects(root, options, targetFiles);
+  } = await processWorkspacesProjects(
+    root,
+    options,
+    unprocessedFilesfromWorkspaces,
+    'yarn',
+  );
   allResults.push(...scannedYarnResults);
 
   const {
     scannedProjects: scannedNpmResults,
     unprocessedFiles,
-  } = await processNpmWorkspacesProjects(
+  } = await processWorkspacesProjects(
     root,
     options,
     unprocessedFilesFromYarn,
+    'npm',
   );
   allResults.push(...scannedNpmResults);
 
@@ -70,6 +113,7 @@ export async function getMultiPluginResult(
     optionsClone.file = pathLib.relative(root, targetFile);
     optionsClone.packageManager = detectPackageManagerFromFile(
       pathLib.basename(targetFile),
+      featureFlags,
     );
     try {
       const inspectRes = await getSinglePluginResult(
@@ -135,16 +179,19 @@ export async function getMultiPluginResult(
   };
 }
 
-async function processYarnWorkspacesProjects(
+async function processWorkspacesProjects(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
   targetFiles: string[],
+  packageManager: 'npm' | 'yarn' | 'pnpm',
 ): Promise<{
   scannedProjects: ScannedProjectCustom[];
   unprocessedFiles: string[];
 }> {
   try {
-    const { scannedProjects } = await processYarnWorkspaces(
+    const { scannedProjects } = await NODE_WORKSPACES_MAP[
+      packageManager
+    ].processingFunction(
       root,
       {
         strictOutOfSync: options.strictOutOfSync,
@@ -153,53 +200,28 @@ async function processYarnWorkspacesProjects(
       targetFiles,
     );
 
-    const unprocessedFiles = filterOutProcessedYarnWorkspaces(
+    const unprocessedFiles = filterOutProcessedWorkspaces(
       root,
       scannedProjects,
       targetFiles,
+      NODE_WORKSPACES_MAP[packageManager].lockFile,
     );
     return { scannedProjects, unprocessedFiles };
   } catch (e) {
-    debug('Error during detecting or processing Yarn Workspaces: ', e);
+    debug(
+      `Error during detecting or processing ${packageManager} Workspaces: `,
+      e,
+    );
     return { scannedProjects: [], unprocessedFiles: targetFiles };
   }
 }
 
-async function processNpmWorkspacesProjects(
-  root: string,
-  options: Options & (TestOptions | MonitorOptions),
-  targetFiles: string[],
-): Promise<{
-  scannedProjects: ScannedProjectCustom[];
-  unprocessedFiles: string[];
-}> {
-  try {
-    const { scannedProjects } = await processNpmWorkspaces(
-      root,
-      {
-        strictOutOfSync: options.strictOutOfSync,
-        dev: options.dev,
-      },
-      targetFiles,
-    );
-
-    const unprocessedFiles = filterOutProcessedNpmWorkspaces(
-      root,
-      scannedProjects,
-      targetFiles,
-    );
-    return { scannedProjects, unprocessedFiles };
-  } catch (e) {
-    debug('Error during detecting or processing Npm Workspaces: ', e);
-    return { scannedProjects: [], unprocessedFiles: targetFiles };
-  }
-}
-
-export function filterOutProcessedYarnWorkspaces(
+export function filterOutProcessedWorkspaces(
   root: string,
   scannedProjects: ScannedProjectCustom[],
   allTargetFiles: string[],
-): string[] {
+  lockFile: string,
+) {
   const targetFiles: string[] = [];
 
   const scanned = scannedProjects
@@ -214,46 +236,13 @@ export function filterOutProcessedYarnWorkspaces(
     const { path, original } = entry;
     const { base } = pathLib.parse(path);
 
-    if (!['package.json', 'yarn.lock'].includes(base)) {
+    if (!['package.json', lockFile].includes(base)) {
       targetFiles.push(original);
       continue;
     }
     // standardise to package.json
     // we discover the lockfiles but targetFile is package.json
-    if (!scanned.includes(path.replace('yarn.lock', 'package.json'))) {
-      targetFiles.push(original);
-      continue;
-    }
-  }
-  return targetFiles;
-}
-
-export function filterOutProcessedNpmWorkspaces(
-  root: string,
-  scannedProjects: ScannedProjectCustom[],
-  allTargetFiles: string[],
-): string[] {
-  const targetFiles: string[] = [];
-
-  const scanned = scannedProjects
-    .map((p) => p.targetFile!)
-    .map((p) => pathLib.resolve(process.cwd(), root, p));
-  const all = allTargetFiles.map((p) => ({
-    path: pathLib.resolve(process.cwd(), root, p),
-    original: p,
-  }));
-
-  for (const entry of all) {
-    const { path, original } = entry;
-    const { base } = pathLib.parse(path);
-
-    if (!['package.json', 'package-lock.json'].includes(base)) {
-      targetFiles.push(original);
-      continue;
-    }
-    // standardise to package.json
-    // we discover the lockfiles but targetFile is package.json
-    if (!scanned.includes(path.replace('package-lock.json', 'package.json'))) {
+    if (!scanned.includes(path.replace(lockFile, 'package.json'))) {
       targetFiles.push(original);
       continue;
     }
