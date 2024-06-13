@@ -754,6 +754,8 @@ github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRX
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
 github.com/snyk/snyk-ls v0.0.0-20240611125743-7ba12dae3aee h1:b3f0PPYpYs7vt30JU34/WHjdIQcyuGEatAEjz6Mwlpo=
 github.com/snyk/snyk-ls v0.0.0-20240611125743-7ba12dae3aee/go.mod h1:hVmErsJqCrrSrkRt1ALwGY+Ml5sPIJBrxxTzd3sxyNE=
+github.com/snyk/snyk-ls v0.0.0-20240612152726-592e6515b4ee h1:Qcrk0U7fy6bLvEJdAVGWAg1tfCYA0556T+UnSktW4Xo=
+github.com/snyk/snyk-ls v0.0.0-20240612152726-592e6515b4ee/go.mod h1:hVmErsJqCrrSrkRt1ALwGY+Ml5sPIJBrxxTzd3sxyNE=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
