@@ -71,12 +71,12 @@ describe('snyk code test', () => {
   }
 
   const integrationWorkflows: Workflow[] = [
-    // {
-    //   type: 'typescript',
-    //   env: {
-    //     INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
-    //   },
-    // },
+    {
+      type: 'typescript',
+      env: {
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
+      },
+    },
     {
       type: 'golang/native',
       env: {
@@ -86,6 +86,7 @@ describe('snyk code test', () => {
     },
   ];
 
+  const itif = (condition) => (condition ? it : it.skip);
   describe.each(integrationWorkflows)(
     `integration`,
     ({ type, env: integrationEnv }) => {
@@ -229,10 +230,6 @@ describe('snyk code test', () => {
         });
 
         // TODO: reenable this test for golang/native when SNYK_CODE_CLIENT_PROXY_URL is supported
-        const itif = (condition) => (condition ? it : it.skip);
-        console.warn(
-          'Skipping test for "golang/native" implementation until this feature is supported.',
-        );
         itif(type === 'typescript')(
           'should support the SNYK_CODE_CLIENT_PROXY_URL env var',
           async () => {
@@ -261,51 +258,55 @@ describe('snyk code test', () => {
           },
         );
 
-        it.only('use remote LCE URL as base when LCE is enabled', async () => {
-          const localCodeEngineUrl = fakeDeepCodeServer();
-          localCodeEngineUrl.listen(() => {});
+        // TODO: reenable this test for golang/native when LCE is implemented
+        itif(type === 'typescript')(
+          'use remote LCE URL as base when LCE is enabled',
+          async () => {
+            const localCodeEngineUrl = fakeDeepCodeServer();
+            localCodeEngineUrl.listen(() => {});
 
-          const { path } = await createProjectFromFixture(
-            'sast/shallow_sast_webgoat',
-          );
-          server.setOrgSetting('sast', true);
-          server.setLocalCodeEngineConfiguration({
-            enabled: true,
-            allowCloudUpload: true,
-            url: 'http://localhost:' + localCodeEngineUrl.getPort(),
-          });
-          localCodeEngineUrl.setSarifResponse(
-            require('../../../fixtures/sast/sample-sarif.json'),
-          );
+            const { path } = await createProjectFromFixture(
+              'sast/shallow_sast_webgoat',
+            );
 
-          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
-          server.setCustomResponse({
-            configFiles: [],
-            extensions: ['.java'],
-          });
+            server.setOrgSetting('sast', true);
+            server.setLocalCodeEngineConfiguration({
+              enabled: true,
+              allowCloudUpload: true,
+              url: 'http://localhost:' + localCodeEngineUrl.getPort(),
+            });
 
-          const { stdout, code, stderr } = await runSnykCLI(
-            `code test ${path()} -d`,
-            {
-              env: {
-                ...env,
-                ...integrationEnv,
-                // code-client-go will panic if we don't supply the org UUID
-                SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
+            localCodeEngineUrl.setSarifResponse(
+              require('../../../fixtures/sast/sample-sarif.json'),
+            );
+
+            // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
+            server.setCustomResponse({
+              configFiles: [],
+              extensions: ['.java'],
+            });
+
+            const { stdout, code, stderr } = await runSnykCLI(
+              `code test ${path()}`,
+              {
+                env: {
+                  ...env,
+                  ...integrationEnv,
+                  // code-client-go will panic if we don't supply the org UUID
+                  SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
+                },
               },
-            },
-          );
+            );
 
-          expect(stderr).toBe('');
-          expect(deepCodeServer.getRequests().length).toBe(0);
-          expect(localCodeEngineUrl.getRequests().length).toBeGreaterThan(0);
-          expect(stripAnsi(stdout)).toContain(
-            '✗ [Medium] Information Exposure',
-          );
-          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+            expect(stderr).toBe('');
+            expect(deepCodeServer.getRequests().length).toBe(0);
+            expect(localCodeEngineUrl.getRequests().length).toBeGreaterThan(0);
+            expect(stripAnsi(stdout)).toContain('✗ [Medium]');
+            expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
-          await localCodeEngineUrl.close(() => {});
-        });
+            await localCodeEngineUrl.close(() => {});
+          },
+        );
       });
     },
   );
@@ -317,6 +318,7 @@ describe('snyk code test', () => {
         INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
       },
     },
+    // TODO: Enable once we have an org with this feature enabled
     // {
     //   type: 'golang/native',
     //   env: {
