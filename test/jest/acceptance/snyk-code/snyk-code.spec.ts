@@ -355,7 +355,7 @@ describe('snyk code test', () => {
           );
 
           const { stderr, code } = await runSnykCLI(
-            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git -d`,
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git`,
             {
               env: {
                 ...process.env,
@@ -364,8 +364,7 @@ describe('snyk code test', () => {
             },
           );
 
-          console.log('DEBUG! ' + stderr);
-          // expect(stderr).toBe('');
+          expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_SUCCESS);
         });
 
