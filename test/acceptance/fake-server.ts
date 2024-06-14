@@ -91,7 +91,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   };
 
   const popRequest = () => {
-    return requests.pop()!;
+    const request = requests?.pop();
+    if (request) return request;
+    else throw new Error('No request found in requests array');
   };
 
   const popRequests = (num: number) => {

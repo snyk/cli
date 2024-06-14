@@ -1,7 +1,3 @@
-/**
- *
- * - Remove instances of `--remote-repo-url=something`
- */
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
@@ -30,17 +26,20 @@ describe('snyk code test', () => {
     SNYK_HOST: 'http://localhost:' + port,
     SNYK_TOKEN: '123456789',
   };
-  beforeAll((done) => {
+
+  beforeAll(async () => {
+    const cb = () => {
+      return;
+    };
+
     deepCodeServer = fakeDeepCodeServer();
-    deepCodeServer.listen(() => {});
+    deepCodeServer.listen(cb);
     env = {
       ...initialEnvVars,
       SNYK_CODE_CLIENT_PROXY_URL: `http://localhost:${deepCodeServer.getPort()}`,
     };
     server = fakeServer(baseApi, 'snykToken');
-    server.listen(port, () => {
-      done();
-    });
+    server.listen(port, cb);
   });
 
   afterEach(() => {
@@ -48,11 +47,17 @@ describe('snyk code test', () => {
     deepCodeServer.restore();
   });
 
-  afterAll((done) => {
-    deepCodeServer.close(() => {});
-    server.close(() => {
-      done();
-    });
+  afterAll(async () => {
+    const cb = () => {
+      return;
+    };
+
+    try {
+      await deepCodeServer.close(cb);
+      await server.close(cb);
+    } catch (error) {
+      console.error('Error closing mock servers:', error);
+    }
   });
 
   it('prints help info', async () => {
@@ -240,13 +245,15 @@ describe('snyk code test', () => {
             server.setOrgSetting('sast', true);
             deepCodeServer.setSarifResponse(sarifPayload);
 
-            const { code } = await runSnykCLI(`code test ${path()} -d`, {
+            const { code } = await runSnykCLI(`code test ${path()}`, {
               env: {
                 ...env,
                 ...integrationEnv,
               },
             });
 
+            // the itif wrapper confuses eslint, expect() is inside a test block
+            // eslint-disable-next-line jest/no-standalone-expect
             expect(code).toEqual(EXIT_CODE_NO_SUPPORTED_FILES);
 
             const request = deepCodeServer
@@ -254,6 +261,7 @@ describe('snyk code test', () => {
               .filter((value) => (value.url as string).includes(`/filters`))
               .pop();
 
+            // eslint-disable-next-line jest/no-standalone-expect
             expect(request).toBeDefined();
           },
         );
@@ -298,13 +306,19 @@ describe('snyk code test', () => {
               },
             );
 
+            // same as before, expect() is inside a test block
+            // eslint-disable-next-line jest/no-standalone-expect
             expect(stderr).toBe('');
+            // eslint-disable-next-line jest/no-standalone-expect
             expect(deepCodeServer.getRequests().length).toBe(0);
+            // eslint-disable-next-line jest/no-standalone-expect
             expect(localCodeEngineUrl.getRequests().length).toBeGreaterThan(0);
+            // eslint-disable-next-line jest/no-standalone-expect
             expect(stripAnsi(stdout)).toContain('✗ [Medium]');
+            // eslint-disable-next-line jest/no-standalone-expect
             expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
-            await localCodeEngineUrl.close(() => {});
+            localCodeEngineUrl.close(() => {});
           },
         );
       });

@@ -8,7 +8,6 @@ export type FakeDeepCodeServer = {
   popRequests: (num: number) => express.Request[];
   setCustomResponse: (next: Record<string, unknown>) => void;
   setFiltersResponse: (next: Record<string, unknown>) => void;
-  setDeepProxyFiltersResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (code: number) => void;
   setSarifResponse: (r: any) => void;
@@ -20,10 +19,6 @@ export type FakeDeepCodeServer = {
 
 export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   let filtersResponse: Record<string, unknown> | null = {
-    configFiles: [],
-    extensions: ['.java'],
-  };
-  let deepProxyFiltersResponse: Record<string, unknown> | null = {
     configFiles: [],
     extensions: ['.java'],
   };
@@ -43,10 +38,6 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     nextStatusCode = undefined;
     sarifResponse = null;
     filtersResponse = { configFiles: [], extensions: ['.java', '.js'] };
-    deepProxyFiltersResponse = {
-      configFiles: [],
-      extensions: ['.java', '.js'],
-    };
   };
 
   const getRequests = () => {
@@ -54,7 +45,9 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   };
 
   const popRequest = () => {
-    return requests.pop()!;
+    const request = requests?.pop();
+    if (request) return request;
+    else throw new Error('No request found in requests array');
   };
 
   const popRequests = (num: number) => {
@@ -71,16 +64,6 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
       return;
     }
     filtersResponse = response;
-  };
-
-  const setDeepProxyFiltersResponse = (
-    response: string | Record<string, unknown>,
-  ) => {
-    if (typeof response === 'string') {
-      deepProxyFiltersResponse = JSON.parse(response);
-      return;
-    }
-    deepProxyFiltersResponse = response;
   };
 
   const setNextResponse = (response: string | Record<string, unknown>) => {
@@ -201,7 +184,6 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     popRequests,
     setCustomResponse,
     setFiltersResponse,
-    setDeepProxyFiltersResponse,
     setSarifResponse,
     setNextResponse,
     setNextStatusCode,
