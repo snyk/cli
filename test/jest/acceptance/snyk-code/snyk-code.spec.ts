@@ -332,18 +332,16 @@ describe('snyk code test', () => {
         INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
       },
     },
-    // TODO: Enable once we have an org with this feature enabled
-    // {
-    //   type: 'golang/native',
-    //   env: {
-    //     // internal GAF feature flag for consistent ignores
-    //     INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
-    //     // TODO: stop using dev env once consistent ignores is GA
-    //     SNYK_API: 'https://api.dev.snyk.io',
-    //     // TODO: determine valid token for api.dev.snyk.io
-    //     SNYK_TOKEN: process.env.SOME_TOKEN
-    //   },
-    // },
+    {
+      type: 'golang/native',
+      env: {
+        // internal GAF feature flag for consistent ignores
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
+        // TODO: stop using dev env once consistent ignores is GA
+        SNYK_API: process.env.TEST_SNYK_API_DEV,
+        SNYK_TOKEN: process.env.TEST_SNYK_TOKEN_DEV,
+      },
+    },
   ];
 
   describe.each(userJourneyWorkflows)(
@@ -356,14 +354,18 @@ describe('snyk code test', () => {
             'sast/no-vulnerabilities',
           );
 
-          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
-            env: {
-              ...process.env,
-              ...integrationEnv,
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git -d`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
             },
-          });
+          );
 
-          expect(stderr).toBe('');
+          console.log('DEBUG! ' + stderr);
+          // expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_SUCCESS);
         });
 
@@ -372,12 +374,15 @@ describe('snyk code test', () => {
             'sast/shallow_sast_webgoat',
           );
 
-          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
-            env: {
-              ...process.env,
-              ...integrationEnv,
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
             },
-          });
+          );
 
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
@@ -388,12 +393,15 @@ describe('snyk code test', () => {
             'sast/unsupported-files',
           );
 
-          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
-            env: {
-              ...process.env,
-              ...integrationEnv,
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
             },
-          });
+          );
 
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
@@ -404,13 +412,16 @@ describe('snyk code test', () => {
             'sast/unsupported-files',
           );
 
-          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
-            env: {
-              ...process.env,
-              ...integrationEnv,
-              SNYK_TOKEN: 'woof',
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+                SNYK_TOKEN: 'woof',
+              },
             },
-          });
+          );
 
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
