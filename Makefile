@@ -94,6 +94,7 @@ $(BINARY_OUTPUT_FOLDER)/release.json:
 #   :(exclude) syntax: https://git-scm.com/docs/gitglossary.html#Documentation/gitglossary.txt-exclude
 # Release notes uses version from package.json so we need to prepack beforehand.
 $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER) $(BINARY_OUTPUT_FOLDER)/version
+	@npm i
 	npx conventional-changelog-cli -l -r 1 -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
 
 $(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips
