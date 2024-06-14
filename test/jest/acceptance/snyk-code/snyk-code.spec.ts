@@ -32,7 +32,7 @@ describe('snyk code test', () => {
   };
   beforeAll((done) => {
     deepCodeServer = fakeDeepCodeServer();
-    deepCodeServer.listen(() => { });
+    deepCodeServer.listen(() => {});
     env = {
       ...initialEnvVars,
       SNYK_CODE_CLIENT_PROXY_URL: `http://localhost:${deepCodeServer.getPort()}`,
@@ -49,7 +49,7 @@ describe('snyk code test', () => {
   });
 
   afterAll((done) => {
-    deepCodeServer.close(() => { });
+    deepCodeServer.close(() => {});
     server.close(() => {
       done();
     });
@@ -111,7 +111,7 @@ describe('snyk code test', () => {
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
         });
 
-        it.only('should succeed with correct exit code - with sarif output', async () => {
+        it('should succeed with correct exit code - with sarif output', async () => {
           const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -122,7 +122,7 @@ describe('snyk code test', () => {
             extensions: ['.java'],
           });
           deepCodeServer.setSarifResponse(sarifPayload);
-          
+
           // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
           server.setCustomResponse({
             configFiles: [],
@@ -130,7 +130,7 @@ describe('snyk code test', () => {
           });
 
           const { stderr, code } = await runSnykCLI(
-            `code test ${path()} --sarif -d`,
+            `code test ${path()} --sarif`,
             {
               env: {
                 ...env,
@@ -140,9 +140,9 @@ describe('snyk code test', () => {
               },
             },
           );
-          console.log('****', 'stderr ****\n', stderr, '\n');
+
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
-          // expect(stderr).toBe('');
+          expect(stderr).toBe('');
         });
 
         it('should succeed with correct exit code - with json output', async () => {
@@ -157,12 +157,20 @@ describe('snyk code test', () => {
           });
           deepCodeServer.setSarifResponse(sarifPayload);
 
+          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
+          server.setCustomResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+
           const { stderr, code } = await runSnykCLI(
             `code test ${path()} --json`,
             {
               env: {
                 ...env,
                 ...integrationEnv,
+                // code-client-go will panic if we don't supply the org UUID
+                SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
               },
             },
           );
@@ -184,16 +192,20 @@ describe('snyk code test', () => {
 
           deepCodeServer.setSarifResponse(sarifPayload);
 
-          const { stderr, code } = await runSnykCLI(
-            `code test ${path()}`,
-            {
-              env: {
-                ...env,
-                ...integrationEnv,
-              },
-            },
-          );
+          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
+          server.setCustomResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
 
+          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...env,
+              ...integrationEnv,
+              // code-client-go will panic if we don't supply the org UUID
+              SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
+            },
+          });
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
         });
@@ -217,38 +229,41 @@ describe('snyk code test', () => {
         });
 
         // TODO: reenable this test for golang/native when SNYK_CODE_CLIENT_PROXY_URL is supported
-        const itif = (condition) => condition ? it : it.skip;
-        // console.warn('Skipping test for "golang/native" implementation until this feature is supported.')
-        itif(type === 'typescript')('should support the SNYK_CODE_CLIENT_PROXY_URL env var', async () => {
-          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
-          const { path } = await createProjectFromFixture(
-            'sast/unsupported-files',
-          );
-          server.setOrgSetting('sast', true);
-          deepCodeServer.setSarifResponse(sarifPayload);
+        const itif = (condition) => (condition ? it : it.skip);
+        console.warn(
+          'Skipping test for "golang/native" implementation until this feature is supported.',
+        );
+        itif(type === 'typescript')(
+          'should support the SNYK_CODE_CLIENT_PROXY_URL env var',
+          async () => {
+            const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+            const { path } = await createProjectFromFixture(
+              'sast/unsupported-files',
+            );
+            server.setOrgSetting('sast', true);
+            deepCodeServer.setSarifResponse(sarifPayload);
 
-          const { code } = await runSnykCLI(`code test ${path()} -d`, {
-            env: {
-              ...env,
-              ...integrationEnv,
-            },
-          });
+            const { code } = await runSnykCLI(`code test ${path()} -d`, {
+              env: {
+                ...env,
+                ...integrationEnv,
+              },
+            });
 
-          expect(code).toEqual(EXIT_CODE_NO_SUPPORTED_FILES);
+            expect(code).toEqual(EXIT_CODE_NO_SUPPORTED_FILES);
 
-          const request = deepCodeServer
-            .getRequests()
-            .filter((value) =>
-              (value.url as string).includes(`/filters`),
-            )
-            .pop();
+            const request = deepCodeServer
+              .getRequests()
+              .filter((value) => (value.url as string).includes(`/filters`))
+              .pop();
 
-          expect(request).toBeDefined();
-        });
+            expect(request).toBeDefined();
+          },
+        );
 
-        it('use remote LCE URL as base when LCE is enabled', async () => {
+        it.only('use remote LCE URL as base when LCE is enabled', async () => {
           const localCodeEngineUrl = fakeDeepCodeServer();
-          localCodeEngineUrl.listen(() => { });
+          localCodeEngineUrl.listen(() => {});
 
           const { path } = await createProjectFromFixture(
             'sast/shallow_sast_webgoat',
@@ -263,12 +278,20 @@ describe('snyk code test', () => {
             require('../../../fixtures/sast/sample-sarif.json'),
           );
 
+          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
+          server.setCustomResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+
           const { stdout, code, stderr } = await runSnykCLI(
-            `code test ${path()}`,
+            `code test ${path()} -d`,
             {
               env: {
                 ...env,
                 ...integrationEnv,
+                // code-client-go will panic if we don't supply the org UUID
+                SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
               },
             },
           );
@@ -281,7 +304,7 @@ describe('snyk code test', () => {
           );
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
-          await localCodeEngineUrl.close(() => { });
+          await localCodeEngineUrl.close(() => {});
         });
       });
     },
@@ -302,7 +325,7 @@ describe('snyk code test', () => {
     //     // TODO: stop using dev env once consistent ignores is GA
     //     SNYK_API: 'https://api.dev.snyk.io',
     //     // TODO: determine valid token for api.dev.snyk.io
-    //     // SNYK_TOKEN: process.env.SOME_TOKEN
+    //     SNYK_TOKEN: process.env.SOME_TOKEN
     //   },
     // },
   ];
@@ -317,15 +340,12 @@ describe('snyk code test', () => {
             'sast/no-vulnerabilities',
           );
 
-          const { stderr, code } = await runSnykCLI(
-            `code test ${path()}`,
-            {
-              env: {
-                ...process.env,
-                ...integrationEnv,
-              },
+          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...process.env,
+              ...integrationEnv,
             },
-          );
+          });
 
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_SUCCESS);
@@ -336,15 +356,12 @@ describe('snyk code test', () => {
             'sast/shallow_sast_webgoat',
           );
 
-          const { stderr, code } = await runSnykCLI(
-            `code test ${path()}`,
-            {
-              env: {
-                ...process.env,
-                ...integrationEnv,
-              },
+          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...process.env,
+              ...integrationEnv,
             },
-          );
+          });
 
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
@@ -355,15 +372,12 @@ describe('snyk code test', () => {
             'sast/unsupported-files',
           );
 
-          const { stderr, code } = await runSnykCLI(
-            `code test ${path()}`,
-            {
-              env: {
-                ...process.env,
-                ...integrationEnv,
-              },
+          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...process.env,
+              ...integrationEnv,
             },
-          );
+          });
 
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
@@ -374,16 +388,13 @@ describe('snyk code test', () => {
             'sast/unsupported-files',
           );
 
-          const { stderr, code } = await runSnykCLI(
-            `code test ${path()}`,
-            {
-              env: {
-                ...process.env,
-                ...integrationEnv,
-                SNYK_TOKEN: 'woof',
-              },
+          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...process.env,
+              ...integrationEnv,
+              SNYK_TOKEN: 'woof',
             },
-          );
+          });
 
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
