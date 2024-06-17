@@ -89,11 +89,8 @@ $(BINARY_OUTPUT_FOLDER)/sha256sums.txt.asc:
 $(BINARY_OUTPUT_FOLDER)/release.json:
 	./release-scripts/release.json.sh
 
-# --commit-path is forwarded to `git log <path>`.
-#   We're using this to remove CLIv2 changes in v1's changelogs.
-#   :(exclude) syntax: https://git-scm.com/docs/gitglossary.html#Documentation/gitglossary.txt-exclude
-# Release notes uses version from package.json so we need to prepack beforehand.
-$(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER) $(BINARY_OUTPUT_FOLDER)/version
+# This target must not have any dependency to support checked in Release Notes that don't get overridden.
+$(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md:
 	npx conventional-changelog-cli -l -r 1 -n ./release-scripts/conventional-changelog-cli-config.js > $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md
 
 $(BINARY_OUTPUT_FOLDER)/fips/RELEASE_NOTES.md: $(BINARY_OUTPUT_FOLDER)/RELEASE_NOTES.md $(BINARY_OUTPUT_FOLDER)/fips
