@@ -1,0 +1,330 @@
+[
+  {
+    "meta": {
+      "isPrivate": true,
+      "isLicensesEnabled": false,
+      "org": "org-name",
+      "policy": "",
+      "ignoreSettings": {
+        "adminOnly": false,
+        "disregardFilesystemIgnores": false,
+        "reasonRequired": false
+      }
+    },
+    "filesystemPolicy": false,
+    "vulnerabilities": [],
+    "dependencyCount": 0,
+    "licensesPolicy": null,
+    "ignoreSettings": {
+      "adminOnly": false,
+      "disregardFilesystemIgnores": false,
+      "reasonRequired": false
+    },
+    "targetFile": "no_rules_detected.json",
+    "projectName": "org-name",
+    "org": "org-name",
+    "policy": "",
+    "isPrivate": true,
+    "targetFilePath": "/Users/sergiub/snyk/cli/no_rules_detected.json",
+    "packageManager": "terraformconfig",
+    "path": "/Users/sergiub/snyk/cli",
+    "projectType": "terraformconfig",
+    "ok": true,
+    "infrastructureAsCodeIssues": [],
+    "infrastructureAsCodeSuccesses": []
+  },
+  {
+    "meta": {
+      "isPrivate": true,
+      "isLicensesEnabled": false,
+      "org": "org-name",
+      "policy": "",
+      "ignoreSettings": {
+        "adminOnly": false,
+        "disregardFilesystemIgnores": false,
+        "reasonRequired": false
+      }
+    },
+    "filesystemPolicy": false,
+    "vulnerabilities": [],
+    "dependencyCount": 0,
+    "licensesPolicy": null,
+    "ignoreSettings": {
+      "adminOnly": false,
+      "disregardFilesystemIgnores": false,
+      "reasonRequired": false
+    },
+    "targetFile": "plan.json",
+    "projectName": "org-name",
+    "org": "org-name",
+    "policy": "",
+    "isPrivate": true,
+    "targetFilePath": "/Users/sergiub/snyk/cli/plan.json",
+    "packageManager": "terraformconfig",
+    "path": "/Users/sergiub/snyk/cli",
+    "projectType": "terraformconfig",
+    "ok": false,
+    "infrastructureAsCodeIssues": [
+      {
+        "severity": "medium",
+        "resolve": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`.",
+        "impact": "Configuring all VPC default security groups to restrict all inbound traffic encourages least privilege security group development and mindful placement of AWS resources into security groups, which in turn reduces the exposure of those resources.",
+        "msg": "resource.aws_default_security_group[default].ingress[0].cidr_blocks[0]",
+        "remediation": {
+          "terraform": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
+        },
+        "type": "terraformconfig",
+        "subType": "aws_default_security_group",
+        "issue": "VPC default security group allows unrestricted ingress traffic",
+        "publicId": "SNYK-CC-00024",
+        "title": "VPC default security group allows unrestricted ingress traffic",
+        "references": [
+          "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+        ],
+        "id": "SNYK-CC-00024",
+        "isIgnored": false,
+        "iacDescription": {
+          "issue": "VPC default security group allows unrestricted ingress traffic",
+          "impact": "Configuring all VPC default security groups to restrict all inbound traffic encourages least privilege security group development and mindful placement of AWS resources into security groups, which in turn reduces the exposure of those resources.",
+          "resolve": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
+        },
+        "lineNumber": -1,
+        "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00024",
+        "isGeneratedByCustomRule": false,
+        "path": [
+          "resource",
+          "aws_default_security_group[default]",
+          "ingress[0]",
+          "cidr_blocks[0]"
+        ],
+        "compliance": [],
+        "description": "Configuring all VPC default security groups to restrict all inbound traffic encourages least privilege security group development and mindful placement of AWS resources into security groups, which in turn reduces the exposure of those resources."
+      },
+      {
+        "severity": "medium",
+        "resolve": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field.",
+        "impact": "VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows.",
+        "msg": "resource.aws_vpc[mainvpc]",
+        "remediation": {
+          "terraform": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field."
+        },
+        "type": "terraformconfig",
+        "subType": "aws_vpc",
+        "issue": "VPC flow logging is not enabled",
+        "publicId": "SNYK-CC-00151",
+        "title": "VPC flow logging is not enabled",
+        "references": [
+          "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html"
+        ],
+        "id": "SNYK-CC-00151",
+        "isIgnored": false,
+        "iacDescription": {
+          "issue": "VPC flow logging is not enabled",
+          "impact": "VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows.",
+          "resolve": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field."
+        },
+        "lineNumber": -1,
+        "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151",
+        "isGeneratedByCustomRule": false,
+        "path": [
+          "resource",
+          "aws_vpc[mainvpc]"
+        ],
+        "compliance": [],
+        "description": "VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows."
+      }
+    ],
+    "infrastructureAsCodeSuccesses": [
+      {
+        "id": "SNYK-CC-00328",
+        "severity": "medium",
+        "type": "terraformconfig",
+        "subType": "aws_default_security_group",
+        "path": [
+          "resource",
+          "aws_default_security_group[default]",
+          "egress"
+        ],
+        "msg": "resource.aws_default_security_group[default].egress",
+        "isIgnored": false
+      }
+    ]
+  },
+  {
+    "meta": {
+      "isPrivate": true,
+      "isLicensesEnabled": false,
+      "org": "org-name",
+      "policy": "",
+      "ignoreSettings": {
+        "adminOnly": false,
+        "disregardFilesystemIgnores": false,
+        "reasonRequired": false
+      }
+    },
+    "filesystemPolicy": false,
+    "vulnerabilities": [],
+    "dependencyCount": 0,
+    "licensesPolicy": null,
+    "ignoreSettings": {
+      "adminOnly": false,
+      "disregardFilesystemIgnores": false,
+      "reasonRequired": false
+    },
+    "targetFile": "vpc_group.tf",
+    "projectName": "org-name",
+    "org": "org-name",
+    "policy": "",
+    "isPrivate": true,
+    "targetFilePath": "/Users/sergiub/snyk/cli/vpc_group.tf",
+    "packageManager": "terraformconfig",
+    "path": "/Users/sergiub/snyk/cli",
+    "projectType": "terraformconfig",
+    "ok": false,
+    "infrastructureAsCodeIssues": [
+      {
+        "severity": "medium",
+        "resolve": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`.",
+        "impact": "Configuring all VPC default security groups to restrict all inbound traffic encourages least privilege security group development and mindful placement of AWS resources into security groups, which in turn reduces the exposure of those resources.",
+        "msg": "resource.aws_default_security_group[default].ingress[0].cidr_blocks[0]",
+        "remediation": {
+          "terraform": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
+        },
+        "type": "terraformconfig",
+        "subType": "aws_default_security_group",
+        "issue": "VPC default security group allows unrestricted ingress traffic",
+        "publicId": "SNYK-CC-00024",
+        "title": "VPC default security group allows unrestricted ingress traffic",
+        "references": [
+          "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html"
+        ],
+        "id": "SNYK-CC-00024",
+        "isIgnored": false,
+        "iacDescription": {
+          "issue": "VPC default security group allows unrestricted ingress traffic",
+          "impact": "Configuring all VPC default security groups to restrict all inbound traffic encourages least privilege security group development and mindful placement of AWS resources into security groups, which in turn reduces the exposure of those resources.",
+          "resolve": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`."
+        },
+        "lineNumber": 16,
+        "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00024",
+        "isGeneratedByCustomRule": false,
+        "path": [
+          "resource",
+          "aws_default_security_group[default]",
+          "ingress[0]",
+          "cidr_blocks[0]"
+        ],
+        "compliance": [],
+        "description": "Configuring all VPC default security groups to restrict all inbound traffic encourages least privilege security group development and mindful placement of AWS resources into security groups, which in turn reduces the exposure of those resources."
+      },
+      {
+        "severity": "medium",
+        "resolve": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field.",
+        "impact": "VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows.",
+        "msg": "resource.aws_vpc[mainvpc]",
+        "remediation": {
+          "terraform": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field."
+        },
+        "type": "terraformconfig",
+        "subType": "aws_vpc",
+        "issue": "VPC flow logging is not enabled",
+        "publicId": "SNYK-CC-00151",
+        "title": "VPC flow logging is not enabled",
+        "references": [
+          "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html"
+        ],
+        "id": "SNYK-CC-00151",
+        "isIgnored": false,
+        "iacDescription": {
+          "issue": "VPC flow logging is not enabled",
+          "impact": "VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows.",
+          "resolve": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field."
+        },
+        "lineNumber": 5,
+        "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151",
+        "isGeneratedByCustomRule": false,
+        "path": [
+          "resource",
+          "aws_vpc[mainvpc]"
+        ],
+        "compliance": [],
+        "description": "VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows."
+      }
+    ],
+    "infrastructureAsCodeSuccesses": [
+      {
+        "id": "SNYK-CC-00328",
+        "severity": "medium",
+        "type": "terraformconfig",
+        "subType": "aws_default_security_group",
+        "path": [
+          "resource",
+          "aws_default_security_group[default]",
+          "egress"
+        ],
+        "msg": "resource.aws_default_security_group[default].egress",
+        "isIgnored": false
+      },
+      {
+        "id": "SNYK-CC-00707",
+        "severity": "high",
+        "type": "terraformconfig",
+        "subType": "aws_vpc",
+        "path": [
+          "resource",
+          "aws_vpc[mainvpc]",
+          "cluster_security_groups"
+        ],
+        "msg": "resource.aws_vpc[mainvpc].cluster_security_groups",
+        "isIgnored": false
+      }
+    ]
+  },
+  {
+    "meta": {
+      "isPrivate": true,
+      "isLicensesEnabled": false,
+      "org": "org-name",
+      "policy": "",
+      "ignoreSettings": {
+        "adminOnly": false,
+        "disregardFilesystemIgnores": false,
+        "reasonRequired": false
+      }
+    },
+    "filesystemPolicy": false,
+    "vulnerabilities": [],
+    "dependencyCount": 0,
+    "licensesPolicy": null,
+    "ignoreSettings": {
+      "adminOnly": false,
+      "disregardFilesystemIgnores": false,
+      "reasonRequired": false
+    },
+    "targetFile": "plan_no_vulns.json",
+    "projectName": "org-name",
+    "org": "org-name",
+    "policy": "",
+    "isPrivate": true,
+    "targetFilePath": "/Users/sergiub/snyk/cli/plan_no_vulns.json",
+    "packageManager": "terraformconfig",
+    "path": "/Users/sergiub/snyk/cli",
+    "projectType": "terraformconfig",
+    "ok": true,
+    "infrastructureAsCodeIssues": [],
+    "infrastructureAsCodeSuccesses": [
+      {
+        "id": "SNYK-CC-00151",
+        "severity": "medium",
+        "type": "terraformconfig",
+        "subType": "aws_vpc",
+        "path": [
+          "resource",
+          "aws_vpc[mainvpc]"
+        ],
+        "msg": "resource.aws_vpc[mainvpc]",
+        "isIgnored": false
+      }
+    ]
+  }
+]

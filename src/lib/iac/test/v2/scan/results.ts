@@ -64,6 +64,7 @@ export interface SnykIacTestOutput {
 export interface Results {
   resources?: Resource[];
   vulnerabilities?: Vulnerability[];
+  passedVulnerabilities?: Vulnerability[];
   metadata: Metadata;
   scanAnalytics: ScanAnalytics;
 }

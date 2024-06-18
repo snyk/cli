@@ -29,7 +29,6 @@ export interface Result {
   projectType: IacProjectType | State.InputTypeEnum;
   ok: boolean;
   infrastructureAsCodeIssues: IacIssue[];
-  infrastructureAsCodeSuccesses?: IacSuccess[];
   error?: string;
 }
 
@@ -76,15 +75,6 @@ export interface IacIssue {
   compliance?: string[][];
   description: string;
 }
-export interface IacSuccess {
-  id: string;
-  severity: string;
-  type: IacProjectType | State.InputTypeEnum;
-  subType: string;
-  path: string[];
-  msg: string;
-  isIgnored: boolean;
-}
 
 export interface Remediation {
   cloudformation?: string;
@@ -123,18 +113,9 @@ export function convertEngineToJsonResults({
     output.push(resourcesToResult(results, projectName, file, resources));
   }
 
-  for (const [
-    file,
-    { vulnerabilities, passedVulnerabilities },
-  ] of Object.entries(vulnerabilityGroups)) {
+  for (const [file, vulnerabilities] of Object.entries(vulnerabilityGroups)) {
     output.push(
-      vulnerabilitiesToResult(
-        results,
-        projectName,
-        file,
-        vulnerabilities,
-        passedVulnerabilities,
-      ),
+      vulnerabilitiesToResult(results, projectName, file, vulnerabilities),
     );
   }
 
@@ -158,36 +139,14 @@ function groupResourcesByFile(results: TestOutput) {
 }
 
 function groupVulnerabilitiesByFile(results: TestOutput) {
-  const groups: Record<
-    string,
-    {
-      vulnerabilities: Vulnerability[];
-      passedVulnerabilities: Vulnerability[];
-    }
-  > = {};
+  const groups: Record<string, Vulnerability[]> = {};
 
   if (results.results?.vulnerabilities) {
     for (const vulnerability of results.results.vulnerabilities) {
       if (vulnerability.resource.file) {
-        const vulnerabilityInfo = groups[vulnerability.resource.file] || {
-          vulnerabilities: [],
-          passedVulnerabilities: [],
-        };
-        vulnerabilityInfo.vulnerabilities.push(vulnerability);
-        groups[vulnerability.resource.file] = vulnerabilityInfo;
-      }
-    }
-  }
-
-  if (results.results?.passedVulnerabilities) {
-    for (const passedVulnerability of results.results.passedVulnerabilities) {
-      if (passedVulnerability.resource.file) {
-        const vulnerabilityInfo = groups[passedVulnerability.resource.file] || {
-          vulnerabilities: [],
-          passedVulnerabilities: [],
-        };
-        vulnerabilityInfo.passedVulnerabilities.push(passedVulnerability);
-        groups[passedVulnerability.resource.file] = vulnerabilityInfo;
+        const vulnerabilities = groups[vulnerability.resource.file] || [];
+        vulnerabilities.push(vulnerability);
+        groups[vulnerability.resource.file] = vulnerabilities;
       }
     }
   }
@@ -197,7 +156,7 @@ function groupVulnerabilitiesByFile(results: TestOutput) {
 
 function findFilesWithoutIssues(
   resourceGroups: Record<string, Resource[]>,
-  vulnerabilityGroups: Record<string, unknown>,
+  vulnerabilityGroups: Record<string, Vulnerability[]>,
 ) {
   const groups: Record<string, Resource[]> = {};
 
@@ -238,7 +197,6 @@ function resourcesToResult(
     projectType: kind,
     ok: true,
     infrastructureAsCodeIssues: [],
-    infrastructureAsCodeSuccesses: [],
   };
 }
 
@@ -247,18 +205,12 @@ function vulnerabilitiesToResult(
   projectName: string,
   file: string,
   vulnerabilities: Vulnerability[],
-  passedVulnerabilities: Vulnerability[],
 ): Result {
-  const kind =
-    vulnerabilitiesToKind(vulnerabilities) ||
-    vulnerabilitiesToKind(passedVulnerabilities);
+  const kind = vulnerabilitiesToKind(vulnerabilities);
   const ignoreSettings = testOutput.settings.ignoreSettings;
   const meta = orgSettingsToMeta(testOutput, ignoreSettings);
   const infrastructureAsCodeIssues = vulnerabilitiesToIacIssues(
     vulnerabilities,
-  );
-  const infrastructureAsCodeSuccesses = passedVulnerabilitiesToIacSuccesses(
-    passedVulnerabilities,
   );
 
   return {
@@ -277,9 +229,8 @@ function vulnerabilitiesToResult(
     packageManager: kind,
     path: process.cwd(),
     projectType: kind,
-    ok: infrastructureAsCodeIssues.length === 0,
+    ok: false,
     infrastructureAsCodeIssues,
-    infrastructureAsCodeSuccesses,
   };
 }
 
@@ -316,23 +267,6 @@ function vulnerabilitiesToIacIssues(
       path: v?.resource?.formattedPath.split('.') || [],
       compliance: [],
       description: v.rule.description,
-    };
-  });
-}
-
-function passedVulnerabilitiesToIacSuccesses(
-  vulnerabilities: Vulnerability[],
-): IacSuccess[] {
-  return vulnerabilities.map((v) => {
-    return {
-      id: v.rule.id,
-      severity: v.severity,
-      type: v.resource.kind,
-      subType: v.resource.type,
-      path: v?.resource?.formattedPath.split('.') || [],
-      // IAC-2962: This field is included in IacIssue, so adding it here as well
-      msg: v.resource.formattedPath,
-      isIgnored: v.ignored,
     };
   });
 }

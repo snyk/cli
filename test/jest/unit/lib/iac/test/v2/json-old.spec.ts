@@ -4,7 +4,7 @@ import { SnykIacTestError } from '../../../../../../../src/lib/iac/test/v2/error
 import {
   convertEngineToJsonResults,
   Result,
-} from '../../../../../../../src/lib/iac/test/v2/json';
+} from '../../../../../../../src/lib/iac/test/v2/json-old';
 import { ScanError } from '../../../../../../../src/lib/iac/test/v2/scan/results';
 
 describe('convertEngineToJsonResults', () => {
@@ -18,7 +18,7 @@ describe('convertEngineToJsonResults', () => {
       'iac',
       'process-results',
       'fixtures',
-      'snyk-iac-test-results-v2.json',
+      'snyk-iac-test-results.json',
     ),
     'utf-8',
   );
@@ -39,7 +39,7 @@ describe('convertEngineToJsonResults', () => {
       'iac',
       'process-results',
       'fixtures',
-      'integrated-json-output-v2.json',
+      'integrated-json-output.json',
     ),
     'utf-8',
   );
