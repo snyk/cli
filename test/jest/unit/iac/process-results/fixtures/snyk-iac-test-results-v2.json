@@ -1,0 +1,290 @@
+{
+  "results": {
+    "resources": [
+      {
+        "id": "aws_vpc.mainvpc",
+        "type": "aws_vpc",
+        "kind": "terraformconfig",
+        "file": "no_rules_detected.json"
+      },
+      {
+        "id": "aws_vpc.mainvpc",
+        "type": "aws_vpc",
+        "kind": "terraformconfig",
+        "file": "plan_no_vulns.json"
+      },
+      {
+        "id": "aws_vpc.mainvpc",
+        "type": "aws_vpc",
+        "kind": "terraformconfig",
+        "file": "plan.json"
+      },
+      {
+        "id": "aws_default_security_group.default",
+        "type": "aws_default_security_group",
+        "kind": "terraformconfig",
+        "file": "plan.json"
+      },
+      {
+        "id": "aws_default_security_group.default",
+        "type": "aws_default_security_group",
+        "kind": "terraformconfig",
+        "file": "vpc_group.tf",
+        "line": 9,
+        "column": 1
+      },
+      {
+        "id": "aws_vpc.mainvpc",
+        "type": "aws_vpc",
+        "kind": "terraformconfig",
+        "file": "vpc_group.tf",
+        "line": 5,
+        "column": 1
+      }
+    ],
+    "vulnerabilities": [
+      {
+        "rule": {
+          "id": "SNYK-CC-00024",
+          "title": "VPC default security group allows unrestricted ingress traffic",
+          "description": "Configuring all VPC default security groups to restrict all inbound traffic encourages least privilege security group development and mindful placement of AWS resources into security groups, which in turn reduces the exposure of those resources.",
+          "references": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html",
+          "labels": [
+            "best-practices",
+            "public-access"
+          ],
+          "category": "network",
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00024"
+        },
+        "message": "",
+        "remediation": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`.\n\nEnsure that an [aws_default_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) or [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) `ingress` block does NOT contain the value `0.0.0.0/0` in the `cidr_blocks` (`ipv6_cidr_blocks` for ipv6) field.\n\n# Example Configuration\n\n```hcl\n resource \"aws_security_group\" \"example\" {\n  ingress {\n    cidr_blocks = [10.0.0.0/16]\n    from_port   = 5900\n    to_port     = 5900\n    # other required fields here\n  }\n}\n```\n",
+        "severity": "medium",
+        "ignored": false,
+        "resource": {
+          "id": "aws_default_security_group.default",
+          "type": "aws_default_security_group",
+          "kind": "terraformconfig",
+          "path": [
+            "ingress",
+            0,
+            "cidr_blocks",
+            0
+          ],
+          "formattedPath": "resource.aws_default_security_group[default].ingress[0].cidr_blocks[0]",
+          "file": "plan.json"
+        }
+      },
+      {
+        "rule": {
+          "id": "SNYK-CC-00151",
+          "title": "VPC flow logging is not enabled",
+          "description": "VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows.",
+          "references": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html",
+          "labels": [
+            "logging"
+          ],
+          "category": "logging",
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151"
+        },
+        "message": "",
+        "remediation": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field.\n\n# Example Configuration\n\n```hcl\nresource \"aws_vpc\" \"valid_vpc\" {\n  # other required fields here\n}\n\nresource \"aws_flow_log\" \"test_flow_log\" {\n  vpc_id         = \"${aws_vpc.valid_vpc.id}\"\n  # other required fields here\n}\n```\n",
+        "severity": "medium",
+        "ignored": false,
+        "resource": {
+          "id": "aws_vpc.mainvpc",
+          "type": "aws_vpc",
+          "kind": "terraformconfig",
+          "formattedPath": "resource.aws_vpc[mainvpc]",
+          "file": "plan.json"
+        }
+      },
+      {
+        "rule": {
+          "id": "SNYK-CC-00024",
+          "title": "VPC default security group allows unrestricted ingress traffic",
+          "description": "Configuring all VPC default security groups to restrict all inbound traffic encourages least privilege security group development and mindful placement of AWS resources into security groups, which in turn reduces the exposure of those resources.",
+          "references": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html",
+          "labels": [
+            "best-practices",
+            "public-access"
+          ],
+          "category": "network",
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00024"
+        },
+        "message": "",
+        "remediation": "Remove any invalid `ingress` block from the `aws_security_group` or `aws_default_security_group`.\n\nEnsure that an [aws_default_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_security_group) or [aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) `ingress` block does NOT contain the value `0.0.0.0/0` in the `cidr_blocks` (`ipv6_cidr_blocks` for ipv6) field.\n\n# Example Configuration\n\n```hcl\n resource \"aws_security_group\" \"example\" {\n  ingress {\n    cidr_blocks = [10.0.0.0/16]\n    from_port   = 5900\n    to_port     = 5900\n    # other required fields here\n  }\n}\n```\n",
+        "severity": "medium",
+        "ignored": false,
+        "resource": {
+          "id": "aws_default_security_group.default",
+          "type": "aws_default_security_group",
+          "kind": "terraformconfig",
+          "path": [
+            "ingress",
+            0,
+            "cidr_blocks",
+            0
+          ],
+          "formattedPath": "resource.aws_default_security_group[default].ingress[0].cidr_blocks[0]",
+          "file": "vpc_group.tf",
+          "line": 16,
+          "column": 5
+        }
+      },
+      {
+        "rule": {
+          "id": "SNYK-CC-00151",
+          "title": "VPC flow logging is not enabled",
+          "description": "VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows.",
+          "references": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html",
+          "labels": [
+            "logging"
+          ],
+          "category": "logging",
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151"
+        },
+        "message": "",
+        "remediation": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field.\n\n# Example Configuration\n\n```hcl\nresource \"aws_vpc\" \"valid_vpc\" {\n  # other required fields here\n}\n\nresource \"aws_flow_log\" \"test_flow_log\" {\n  vpc_id         = \"${aws_vpc.valid_vpc.id}\"\n  # other required fields here\n}\n```\n",
+        "severity": "medium",
+        "ignored": false,
+        "resource": {
+          "id": "aws_vpc.mainvpc",
+          "type": "aws_vpc",
+          "kind": "terraformconfig",
+          "formattedPath": "resource.aws_vpc[mainvpc]",
+          "file": "vpc_group.tf",
+          "line": 5,
+          "column": 1
+        }
+      }
+    ],
+    "passedVulnerabilities": [
+      {
+        "rule": {
+          "id": "SNYK-CC-00151",
+          "title": "VPC flow logging is not enabled",
+          "description": "VPC Flow Logs provide visibility into network traffic that traverses the AWS VPC. Users can use the flow logs to detect anomalous traffic or insight during security workflows.",
+          "references": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html",
+          "labels": [
+            "logging"
+          ],
+          "category": "logging",
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00151"
+        },
+        "message": "",
+        "remediation": "Reference the `aws_vpc` in an `aws_flog_log` `vpc_id` field.\n\n# Example Configuration\n\n```hcl\nresource \"aws_vpc\" \"valid_vpc\" {\n  # other required fields here\n}\n\nresource \"aws_flow_log\" \"test_flow_log\" {\n  vpc_id         = \"${aws_vpc.valid_vpc.id}\"\n  # other required fields here\n}\n```\n",
+        "severity": "medium",
+        "ignored": false,
+        "resource": {
+          "id": "aws_vpc.mainvpc",
+          "type": "aws_vpc",
+          "kind": "terraformconfig",
+          "formattedPath": "resource.aws_vpc[mainvpc]",
+          "file": "plan_no_vulns.json"
+        }
+      },
+      {
+        "rule": {
+          "id": "SNYK-CC-00328",
+          "title": "VPC default security group allows unrestricted egress traffic",
+          "description": "Traffic from a resource could reach any destination. In the event of a breach, this means data could be uploaded externally or additional resources targeted.",
+          "references": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html",
+          "labels": [
+            "best-practices",
+            "access-control",
+            "network"
+          ],
+          "category": "network",
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00328"
+        },
+        "message": "",
+        "remediation": "Update the `cidr_block` attribute with a more restrictive IP range or a specific IP address to ensure traffic can only reach known destinations.\n\n",
+        "severity": "medium",
+        "ignored": false,
+        "resource": {
+          "id": "aws_default_security_group.default",
+          "type": "aws_default_security_group",
+          "kind": "terraformconfig",
+          "path": [
+            "egress"
+          ],
+          "formattedPath": "resource.aws_default_security_group[default].egress",
+          "file": "plan.json"
+        }
+      },
+      {
+        "rule": {
+          "id": "SNYK-CC-00328",
+          "title": "VPC default security group allows unrestricted egress traffic",
+          "description": "Traffic from a resource could reach any destination. In the event of a breach, this means data could be uploaded externally or additional resources targeted.",
+          "references": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html",
+          "labels": [
+            "best-practices",
+            "access-control",
+            "network"
+          ],
+          "category": "network",
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00328"
+        },
+        "message": "",
+        "remediation": "Update the `cidr_block` attribute with a more restrictive IP range or a specific IP address to ensure traffic can only reach known destinations.\n\n",
+        "severity": "medium",
+        "ignored": false,
+        "resource": {
+          "id": "aws_default_security_group.default",
+          "type": "aws_default_security_group",
+          "kind": "terraformconfig",
+          "path": [
+            "egress"
+          ],
+          "formattedPath": "resource.aws_default_security_group[default].egress",
+          "file": "vpc_group.tf",
+          "line": 9,
+          "column": 1
+        }
+      },
+      {
+        "rule": {
+          "id": "SNYK-CC-00707",
+          "title": "Obsolete EC2-classic resource in use",
+          "description": "AWS has officially retired EC2-classic resources. Retired resources do not receive security updates and are no longer supported by Snyk IaC. Hence EC2-classic infrastructure might be exposed to unknown vulnerabilities.",
+          "references": "https://aws.amazon.com/blogs/aws/ec2-classic-is-retiring-heres-how-to-prepare/",
+          "labels": [
+            "best-practices"
+          ],
+          "category": "network",
+          "documentation": "https://security.snyk.io/rules/cloud/SNYK-CC-00707"
+        },
+        "message": "",
+        "remediation": "AWS retired all EC2-classic resources on August 15, 2022, please migrate away.\n\nMultiple resources are affected by this change. It is recommended to follow\nAWS instructions as described in the blog post \"[EC2-Classic Networking is Retiring – Here's How to Prepare](https://aws.amazon.com/blogs/aws/ec2-classic-is-retiring-heres-how-to-prepare/)\".\n",
+        "severity": "high",
+        "ignored": false,
+        "resource": {
+          "id": "aws_vpc.mainvpc",
+          "type": "aws_vpc",
+          "kind": "terraformconfig",
+          "path": [
+            "cluster_security_groups"
+          ],
+          "formattedPath": "resource.aws_vpc[mainvpc].cluster_security_groups",
+          "file": "vpc_group.tf",
+          "line": 5,
+          "column": 1
+        }
+      }
+    ],
+    "metadata": {
+      "projectName": "input-files-for-snyk-iac-test-fixtures",
+      "ignoredCount": 0
+    },
+    "scanAnalytics": {}
+  },
+  "settings": {
+    "org": "org-name",
+    "ignoreSettings": {
+      "adminOnly": false,
+      "disregardFilesystemIgnores": false,
+      "reasonRequired": false
+    }
+  }
+}
