@@ -573,6 +573,9 @@ func MainWithErrorCode() int {
 		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
 	}
 
+	// cleanup resources in use
+	basic_workflows.Cleanup()
+
 	return exitCode
 }
 
