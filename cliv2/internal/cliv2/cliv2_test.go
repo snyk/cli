@@ -412,7 +412,7 @@ func Test_clearCache(t *testing.T) {
 	randomFile := path.Join(versionNoV, "filename")
 	currentVersion := cli.GetBinaryLocation()
 	tempDir := filepath.Dir(cli.GetTempDir())
-	oldProcessTempDir := path.Join(tempDir, "123")
+	oldProcessTempDir := path.Join(tempDir, "pid123")
 	oldProcessTempDirFile := path.Join(oldProcessTempDir, "bla.txt")
 
 	assert.NoError(t, os.Mkdir(versionWithV, 0755))

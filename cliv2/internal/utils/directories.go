@@ -17,7 +17,7 @@ const CACHEDIR_PERMISSION = 0755
 
 func GetTemporaryDirectory(baseCacheDirectory string, versionNumber string) string {
 	pid := os.Getpid()
-	return path.Join(GetVersionCacheDirectory(baseCacheDirectory, versionNumber), "tmp", fmt.Sprintf("%d", pid))
+	return path.Join(GetVersionCacheDirectory(baseCacheDirectory, versionNumber), "tmp", fmt.Sprintf("pid%d", pid))
 }
 
 func GetVersionCacheDirectory(baseCacheDirectory string, versionNumber string) string {
