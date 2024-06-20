@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"testing"
@@ -410,11 +411,16 @@ func Test_clearCache(t *testing.T) {
 	lockfile := path.Join(cli.CacheDirectory, "v1.914.0.lock")
 	randomFile := path.Join(versionNoV, "filename")
 	currentVersion := cli.GetBinaryLocation()
+	tempDir := filepath.Dir(cli.GetTempDir())
+	oldProcessTempDir := path.Join(tempDir, "123")
+	oldProcessTempDirFile := path.Join(oldProcessTempDir, "bla.txt")
 
-	_ = os.Mkdir(versionWithV, 0755)
-	_ = os.Mkdir(versionNoV, 0755)
-	_ = os.WriteFile(randomFile, []byte("Writing some strings"), 0666)
-	_ = os.WriteFile(lockfile, []byte("Writing some strings"), 0666)
+	assert.NoError(t, os.Mkdir(versionWithV, 0755))
+	assert.NoError(t, os.Mkdir(versionNoV, 0755))
+	assert.NoError(t, os.Mkdir(oldProcessTempDir, 0755))
+	assert.NoError(t, os.WriteFile(randomFile, []byte("Writing some strings"), 0666))
+	assert.NoError(t, os.WriteFile(lockfile, []byte("Writing some strings"), 0666))
+	assert.NoError(t, os.WriteFile(oldProcessTempDirFile, []byte("Writing some strings"), 0666))
 
 	// clear cache
 	err := cli.ClearCache()
@@ -424,9 +430,11 @@ func Test_clearCache(t *testing.T) {
 	assert.NoDirExists(t, versionWithV)
 	assert.NoDirExists(t, versionNoV)
 	assert.NoFileExists(t, randomFile)
+	assert.NoFileExists(t, oldProcessTempDirFile)
 	// check if directories that need to exist still exist
 	assert.FileExists(t, currentVersion)
 	assert.FileExists(t, lockfile)
+	assert.DirExists(t, cli.GetTempDir())
 }
 
 func Test_clearCacheBigCache(t *testing.T) {

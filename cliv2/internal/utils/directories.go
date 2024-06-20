@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"path"
 
@@ -15,7 +16,8 @@ const CACHEDIR_PERMISSION = 0755
 // |- Temp directory (example: /Users/username/Library/Caches/snyk/snyk-cli/1.1075.0/tmp/)
 
 func GetTemporaryDirectory(baseCacheDirectory string, versionNumber string) string {
-	return path.Join(GetVersionCacheDirectory(baseCacheDirectory, versionNumber), "tmp")
+	pid := os.Getpid()
+	return path.Join(GetVersionCacheDirectory(baseCacheDirectory, versionNumber), "tmp", fmt.Sprintf("%d", pid))
 }
 
 func GetVersionCacheDirectory(baseCacheDirectory string, versionNumber string) string {
