@@ -2,6 +2,16 @@
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
+### News
+
+This Snyk CLI release delivers an assortment of bug fixes and improvements.
+
+- We've added support for pnpm, giving you more flexibility in your project setup.
+- You can now scan npm/yarn projects even without lockfiles, ensuring comprehensive vulnerability detection regardless of your dependency management approach.
+- We're committed to strengthening security. This release includes redaction of additional sensitive data in debug logs, minimizing potential risks.
+
+## Complete changelog
+
 ### Features
 
 - **test:** Added pnpm support under 'enablePnpmCli' feature flag ([#5181](https://github.com/snyk/snyk/issues/5181)) ([46769cc](https://github.com/snyk/snyk/commit/46769ccefc0c9ca98a44ad4bdd2b4d8161294dbf))
@@ -13,7 +23,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 - **language-server:** Add --all-projects flag scans by default [IDE-318](<[#5247](https://github.com/snyk/snyk/issues/5247)>) ([fdcf30e](https://github.com/snyk/snyk/commit/fdcf30e7421b7f8342d11003508f293661264a66))
 - **language-server:** Enable incremental scanning [IDE-275](<[#5291](https://github.com/snyk/snyk/issues/5291)>) ([d198685](https://github.com/snyk/snyk/commit/d1986856b152419e1712fa2c35b9b73303c428f9))
 - **language-server:** Add support for IDE themes ([c1c4d08](https://github.com/snyk/snyk/commit/c1c4d0805252ee96c7e081edd6b4e42a23cee3b8))
-- **language-server:** Consistent styling acorss intellij and vscode ([#5282](https://github.com/snyk/snyk/issues/5282)) ([9aa6f76](https://github.com/snyk/snyk/commit/9aa6f76201661e8270a92ccc38c75285df435634))
+- **language-server:** Consistent styling across intellij and vscode ([#5282](https://github.com/snyk/snyk/issues/5282)) ([9aa6f76](https://github.com/snyk/snyk/commit/9aa6f76201661e8270a92ccc38c75285df435634))
 - **logging:** Redact additional types of sensitive data from debug logs ([#5254](https://github.com/snyk/snyk/issues/5254)) ([056cdab](https://github.com/snyk/snyk/commit/056cdab070102aec927db831090b5bb82df9d31e))
 
 ### Bug Fixes
