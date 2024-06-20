@@ -447,7 +447,9 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			}
 
 			uiError := userInterface.OutputError(err)
-			globalLogger.Err(uiError).Msg("ui failed show error")
+			if uiError != nil {
+				globalLogger.Err(uiError).Msg("ui failed to show error")
+			}
 		}
 	}
 }
@@ -572,6 +574,9 @@ func MainWithErrorCode() int {
 	if exitCode == 2 {
 		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
 	}
+
+	// cleanup resources in use
+	basic_workflows.Cleanup()
 
 	return exitCode
 }
