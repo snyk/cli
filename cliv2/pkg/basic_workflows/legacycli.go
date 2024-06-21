@@ -5,8 +5,10 @@ import (
 	"bytes"
 	"net/http"
 	"os"
+	"sync"
 
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/logging"
@@ -22,6 +24,9 @@ import (
 
 var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("legacycli")
 var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stdout")
+
+var proxySingleton *proxy.WrapperProxy
+var proxyMutex sync.Mutex
 
 const (
 	PROXY_NOAUTH string = "proxy-noauth"
@@ -132,12 +137,10 @@ func legacycliWorkflow(
 		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}
 
-	// init proxy object
-	wrapperProxy, err := proxy.NewWrapperProxy(config, cliv2.GetFullVersion(), debugLogger)
+	wrapperProxy, err := getProxyInstance(config, debugLogger)
 	if err != nil {
-		return output, errors.Wrap(err, "Failed to create proxy!")
+		return output, err
 	}
-	defer wrapperProxy.Close()
 
 	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
 
@@ -174,4 +177,29 @@ func legacycliWorkflow(
 	}
 
 	return output, err
+}
+
+func Cleanup() {
+	proxyMutex.Lock()
+	defer proxyMutex.Unlock()
+	if proxySingleton != nil {
+		proxySingleton.Close()
+		proxySingleton = nil
+	}
+}
+
+func getProxyInstance(config configuration.Configuration, debugLogger *zerolog.Logger) (*proxy.WrapperProxy, error) {
+	var err error
+	proxyMutex.Lock()
+	defer proxyMutex.Unlock()
+
+	if proxySingleton == nil {
+		// init proxy object
+		proxySingleton, err = proxy.NewWrapperProxy(config, cliv2.GetFullVersion(), debugLogger)
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed to create proxy!")
+		}
+	}
+
+	return proxySingleton, nil
 }
