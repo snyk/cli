@@ -12,6 +12,8 @@ import { getVersion } from '../version';
 import * as https from 'https';
 import * as http from 'http';
 import { jsonStringifyLargeObject } from '../json';
+import { MissingApiTokenError } from '../errors';
+import { headerSnykAuthFailed } from './constants';
 
 const debug = debugModule('snyk:req');
 const snykDebug = debugModule('snyk');
@@ -143,6 +145,9 @@ export async function makeRequest(
 
   return new Promise((resolve, reject) => {
     needle.request(method, url, data, options, (err, res, respBody) => {
+      if (res?.headers?.[headerSnykAuthFailed] === 'true') {
+        return reject(new MissingApiTokenError());
+      }
       // respBody potentially very large, do not output it in debug
       debug('response (%s)', (res || {}).statusCode);
       if (err) {
@@ -173,7 +178,10 @@ export async function streamRequest(
 
 async function getStatusCode(stream: needle.ReadableStream): Promise<number> {
   return new Promise((resolve, reject) => {
-    stream.on('header', (statusCode: number) => {
+    stream.on('header', (statusCode: number, headers: any) => {
+      if (headers?.[headerSnykAuthFailed] === 'true') {
+        return reject(new MissingApiTokenError());
+      }
       resolve(statusCode);
     });
     stream.on('err', (err: Error) => {
