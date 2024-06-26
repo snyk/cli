@@ -8,9 +8,7 @@ import {
 
 export default async function displayPolicy(path?: string): Promise<string> {
   try {
-    const loadedPolicy = (await policy.load(path || process.cwd())) as Promise<
-      string
-    >;
+    const loadedPolicy = await policy.load(path || process.cwd());
     return await display(loadedPolicy);
   } catch (error) {
     let adaptedError: CustomError;
