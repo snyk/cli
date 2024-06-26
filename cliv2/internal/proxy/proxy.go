@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -18,6 +19,7 @@ import (
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
+	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -143,9 +145,28 @@ func (p *WrapperProxy) ProxyInfo() *ProxyInfo {
 	}
 }
 
+// headerSnykAuthFailed is used to indicate there was a failure to establish
+// authorization in a legacycli proxied HTTP request and response.
+//
+// The request header is used to propagate this indication from
+// NetworkAccess.AddHeaders all the way through proxy middleware into the
+// response.
+//
+// The response header is then used by the Typescript CLI to surface an
+// appropriate authentication failure error back to the user.
+//
+// These layers of indirection are necessary because the Typescript CLI is not
+// involved in OAuth authentication at all, but needs to know that an auth
+// failure specifically occurred. HTTP status and error catalog codes aren't
+// adequate for this purpose because there are non-authentication reasons an API
+// request might 401 or 403, such as permissions or entitlements.
+const headerSnykAuthFailed = "snyk-auth-failed"
+
 func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-	err := p.addHeaderFunc(r)
-	if err != nil {
+	if err := p.addHeaderFunc(r); err != nil {
+		if errors.Is(err, middleware.ErrAuthenticationFailed) {
+			r.Header.Set(headerSnykAuthFailed, "true")
+		}
 		p.DebugLogger.Printf("Failed to add header: %s", err)
 	}
 
@@ -177,6 +198,12 @@ func (p *WrapperProxy) Start() error {
 	proxy.Logger = log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0)
 	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
 	proxy.OnRequest().HandleConnect(p)
+	proxy.OnResponse().DoFunc(func(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
+		if authFailed := resp.Request.Header.Get(headerSnykAuthFailed); authFailed != "" {
+			resp.Header.Set(headerSnykAuthFailed, authFailed)
+		}
+		return resp
+	})
 	proxy.Verbose = true
 	proxyServer := &http.Server{
 		Handler: proxy,

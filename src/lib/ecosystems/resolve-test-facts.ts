@@ -43,9 +43,14 @@ export async function resolveAndTestFacts(
   try {
     return await resolveAndTestFactsUnmanagedDeps(scans, options);
   } catch (error) {
-    const unauthorized = error.code === 401 || error.code === 403;
+    const unauthorizedErrorCode = error.code === 401 || error.code === 403;
+    const missingApiToken = error.isMissingApiToken;
 
-    if (unauthorized) {
+    // Decide if the error is an authorization error other than being
+    // unauthenticated (missing or invalid API token). An account lacking
+    // permission, for example.
+    const otherUnauthorized = unauthorizedErrorCode && !missingApiToken;
+    if (otherUnauthorized) {
       throw AuthFailedError(
         'Unauthorized request to unmanaged service',
         error.code,
