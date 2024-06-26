@@ -7,6 +7,7 @@ import { Contributor, MonitorResult, Options, PolicyOptions } from '../types';
 import { spinner } from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
+import { processJsonMonitorResponse } from '../../cli/commands/monitor/process-json-monitor';
 import { formatErrorMonitorOutput, formatMonitorOutput } from '../formatters';
 import { getExtraProjectCount } from '../plugins/get-extra-project-count';
 import {
@@ -222,6 +223,10 @@ export async function getFormattedMonitorOutput(
       data: new MonitorError(500, monitorError.error),
       path: monitorError.path,
     });
+  }
+
+  if (options.json) {
+    return processJsonMonitorResponse(results);
   }
 
   const outputString = results
