@@ -15,7 +15,7 @@ export async function findAndLoadPolicy(
   options: PolicyOptions,
   pkg?: PackageExpanded,
   scannedProjectFolder?: string,
-): Promise<Policy | undefined> {
+): Promise<snykPolicyLib.Policy | undefined> {
   const isDocker = scanType === 'docker';
   const isNodeProject = ['npm', 'yarn', 'pnpm'].includes(scanType);
   // monitor
@@ -48,10 +48,4 @@ export async function findAndLoadPolicy(
     }
   }
   return policy;
-}
-
-export interface Policy {
-  filter(vulns: any, root?: string, matchStrategy?: string): any;
-  exclude?: { [key: string]: string[] };
-  ignore?: any;
 }
