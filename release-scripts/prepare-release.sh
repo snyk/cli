@@ -22,7 +22,7 @@ if [ -f binary-releases/RELEASE_NOTES.md ]; then
 fi
 
 # Generate the release notes baseline from the commits
-make binary-releases/RELEASE_NOTES.md format
+make binary-releases binary-releases/version binary-releases/RELEASE_NOTES.md format
 
 # if the release notes are generated locally, the version contains something like X.Y.Z-dev.hash
 # the replacement below ensures that the version in the RELEASE_NOTES.md is X.Y.Z

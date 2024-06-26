@@ -13,9 +13,12 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/gofrs/flock"
@@ -135,6 +138,16 @@ func (c *CLI) Init() (err error) {
 }
 
 func (c *CLI) ClearCache() error {
+	err := c.clearVersionFolders()
+	if err != nil {
+		return err
+	}
+
+	err = c.clearTemporaryProcessFolders()
+	return err
+}
+
+func (c *CLI) clearVersionFolders() error {
 	// Get files in directory
 	fileInfo, err := os.ReadDir(c.CacheDirectory)
 	if err != nil {
@@ -156,6 +169,58 @@ func (c *CLI) ClearCache() error {
 		}
 		// Stop the loop after 5 deletions to not create too much overhead
 		if deleteCount == maxVersionToDelete {
+			break
+		}
+	}
+
+	return nil
+}
+
+func (c *CLI) clearTemporaryProcessFolders() error {
+	// clean up the tmp dir of the current version
+	maxConsecutiveDeletes := 5
+	deleteCount := 0
+	tempDir := filepath.Dir(c.GetTempDir())
+	fileInfo, err := os.ReadDir(tempDir)
+	if err != nil {
+		return err
+	}
+
+	// cleanup tmp files related to a non-existing process
+	processTempPattern := regexp.MustCompile("pid([0-9]*)")
+	for _, file := range fileInfo {
+		currentPath := path.Join(tempDir, file.Name())
+		matches := processTempPattern.FindStringSubmatch(file.Name())
+		if len(matches) == 2 {
+			processFound := true
+			pid, localError := strconv.Atoi(matches[1])
+			if localError != nil {
+				continue
+			}
+
+			p, localError := os.FindProcess(pid)
+			if localError != nil {
+				processFound = false
+			}
+
+			if p != nil {
+				localError = p.Signal(syscall.Signal(0))
+				if localError != nil {
+					processFound = false
+				}
+			}
+
+			if !processFound {
+				deleteCount++
+				err = os.RemoveAll(currentPath)
+				if err != nil {
+					c.DebugLogger.Println("Error deleting temporary files: ", currentPath)
+				}
+			}
+		}
+
+		// Stop the loop after 5 deletions to not create too much overhead
+		if deleteCount == maxConsecutiveDeletes {
 			break
 		}
 	}
@@ -208,6 +273,10 @@ func (c *CLI) GetIntegrationName() string {
 
 func (c *CLI) GetBinaryLocation() string {
 	return c.v1BinaryLocation
+}
+
+func (c *CLI) GetTempDir() string {
+	return local_utils.GetTemporaryDirectory(c.CacheDirectory, cliv1.CLIV1Version())
 }
 
 func (c *CLI) printVersion() {
