@@ -10,7 +10,6 @@ import {
   parseDriftAnalysisResults,
   updateExcludeInPolicy,
 } from '../../lib/iac/drift';
-import { Policy } from '../../lib/policy/find-and-load-policy';
 import * as analytics from '../../lib/analytics';
 
 export default async (...args: MethodArgs): Promise<any> => {
@@ -42,7 +41,7 @@ export default async (...args: MethodArgs): Promise<any> => {
     // Add analytics
     analytics.add('is-iac-drift', true);
 
-    let policy: Policy;
+    let policy: snykPolicyLib.Policy;
     try {
       policy = await snykPolicyLib.load();
     } catch (error) {
