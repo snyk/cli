@@ -43,6 +43,11 @@ tap@0.7.1 > runforcover@0.0.2 > bunker@0.1.2 > burrito@0.2.12 > uglify-js@1.1.1
 Reason: Stuff
 Expires: Sun, 20 Dec 2015 16:37:39 GMT
 
+#4 Ignore https://snyk.io/vuln/snyk:lic:npm:kafkajs-metrics:MPL-2.0 in the following paths:
+*
+Reason: Used but not modified, and not mixing source code
+Expires: Tue, 15 Jun 2123 12:19:00 GMT
+
 ------------------------
 
 #1 Exclude the following code items/paths:
