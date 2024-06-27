@@ -29,9 +29,13 @@ async function test(root, options, callback) {
 }
 
 async function executeTest(root, options) {
+  let hasPnpmSupport = false;
   try {
-    const hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
-
+    hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
+  } catch (err) {
+    hasPnpmSupport = false;
+  }
+  try {
     const featureFlags = hasPnpmSupport
       ? new Set([PNPM_FEATURE_FLAG])
       : new Set([]);
