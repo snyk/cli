@@ -159,7 +159,15 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     );
   }
 
-  const hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
+  let hasPnpmSupport = false;
+  try {
+    hasPnpmSupport = (await hasFeatureFlag(
+      PNPM_FEATURE_FLAG,
+      options,
+    )) as boolean;
+  } catch (err) {
+    hasPnpmSupport = false;
+  }
 
   const featureFlags = hasPnpmSupport
     ? new Set<string>([PNPM_FEATURE_FLAG])
