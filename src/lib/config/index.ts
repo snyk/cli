@@ -35,6 +35,7 @@ interface Config {
   IAC_POLICY_ENGINE_PATH?: string;
   IAC_RULES_CLIENT_URL?: string;
   PUBLIC_VULN_DB_URL: string;
+  PUBLIC_LICENSE_URL: string;
 }
 
 // TODO: fix the types!
@@ -89,6 +90,7 @@ if (!config.ROOT) {
 }
 
 config.PUBLIC_VULN_DB_URL = 'https://security.snyk.io';
+config.PUBLIC_LICENSE_URL = 'https://snyk.io';
 
 config.CODE_CLIENT_PROXY_URL = process.env.SNYK_CODE_CLIENT_PROXY_URL || '';
 
