@@ -203,6 +203,9 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     {
       fixture: 'nuget-app-8-with-azure-functions',
     },
+    {
+      fixture: 'nuget-app-8-with-multi-project and spaces',
+    },
   ])(
     'run `snyk test` on a nuget project using v2 dotnet runtime resolution logic for $fixture',
     async ({ fixture }) => {
