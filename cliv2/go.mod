@@ -15,10 +15,10 @@ require (
 	github.com/snyk/cli-extension-sbom v0.0.0-20240619142341-3b3fe79e862c
 	github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1
 	github.com/snyk/error-catalog-golang-public v0.0.0-20240605115201-8461850930e6
-	github.com/snyk/go-application-framework v0.0.0-20240624121329-845d8c3cb5a2
+	github.com/snyk/go-application-framework v0.0.0-20240627194757-cc0fb551c613
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20240626071017-1de2c7f68e09
+	github.com/snyk/snyk-ls v0.0.0-20240628143418-3bfd57e618c2
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
