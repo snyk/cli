@@ -29,6 +29,38 @@
         "${workspaceRoot}/node_modules/.bin/jest",
         "--runInBand"
       ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "snyk test",
+      "console": "integratedTerminal",
+      "program": "node_modules/.bin/ts-node",
+      "args": ["./src/cli/index.ts", "test"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "snyk test --unmanaged",
+      "console": "integratedTerminal",
+      "program": "node_modules/.bin/ts-node",
+      "args": ["./src/cli/index.ts", "test", "--unmanaged"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "snyk container test",
+      "console": "integratedTerminal",
+      "program": "node_modules/.bin/ts-node",
+      "args": ["./src/cli/index.ts", "container", "test", "snyk/snyk:linux"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "snyk iac test",
+      "console": "integratedTerminal",
+      "program": "node_modules/.bin/ts-node",
+      "args": ["./src/cli/index.ts", "iac", "test", "--unmanaged"]
     }
   ]
 }
