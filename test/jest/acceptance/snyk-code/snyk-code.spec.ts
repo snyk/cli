@@ -27,19 +27,17 @@ describe('snyk code test', () => {
     SNYK_TOKEN: '123456789',
   };
 
-  beforeAll(async () => {
-    const cb = () => {
-      return;
-    };
-
+  beforeAll((done) => {
     deepCodeServer = fakeDeepCodeServer();
-    deepCodeServer.listen(cb);
+    deepCodeServer.listen(() => {});
     env = {
       ...initialEnvVars,
       SNYK_CODE_CLIENT_PROXY_URL: `http://localhost:${deepCodeServer.getPort()}`,
     };
     server = fakeServer(baseApi, 'snykToken');
-    server.listen(port, cb);
+    server.listen(port, () => {
+      done();
+    });
   });
 
   afterEach(() => {
@@ -47,17 +45,11 @@ describe('snyk code test', () => {
     deepCodeServer.restore();
   });
 
-  afterAll(async () => {
-    const cb = () => {
-      return;
-    };
-
-    try {
-      await deepCodeServer.close(cb);
-      await server.close(cb);
-    } catch (error) {
-      console.error('Error closing mock servers:', error);
-    }
+  afterAll((done) => {
+    deepCodeServer.close(() => {});
+    server.close(() => {
+      done();
+    });
   });
 
   it('prints help info', async () => {
@@ -102,7 +94,7 @@ describe('snyk code test', () => {
           );
           server.setOrgSetting('sast', false);
 
-          const { stdout, code, stderr } = await runSnykCLI(
+          const { code, stdout, stderr } = await runSnykCLI(
             `code test ${path()}`,
             {
               env: {
@@ -349,6 +341,24 @@ describe('snyk code test', () => {
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
         jest.setTimeout(60000);
+        xit('should not include code quality issues in results', async () => {
+          const { path } = await createProjectFromFixture('');
+          server.setOrgSetting('sast', true);
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_SUCCESS);
+        });
+
         it('should succeed - when no vulnerabilities found', async () => {
           const { path } = await createProjectFromFixture(
             'sast/no-vulnerabilities',
