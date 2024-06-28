@@ -29,7 +29,7 @@ describe('snyk code test', () => {
 
   beforeAll((done) => {
     deepCodeServer = fakeDeepCodeServer();
-    deepCodeServer.listen(() => {});
+    deepCodeServer.listen(() => { });
     env = {
       ...initialEnvVars,
       SNYK_CODE_CLIENT_PROXY_URL: `http://localhost:${deepCodeServer.getPort()}`,
@@ -46,7 +46,7 @@ describe('snyk code test', () => {
   });
 
   afterAll((done) => {
-    deepCodeServer.close(() => {});
+    deepCodeServer.close(() => { });
     server.close(() => {
       done();
     });
@@ -263,7 +263,7 @@ describe('snyk code test', () => {
           'use remote LCE URL as base when LCE is enabled',
           async () => {
             const localCodeEngineUrl = fakeDeepCodeServer();
-            localCodeEngineUrl.listen(() => {});
+            localCodeEngineUrl.listen(() => { });
 
             const { path } = await createProjectFromFixture(
               'sast/shallow_sast_webgoat',
@@ -310,7 +310,7 @@ describe('snyk code test', () => {
             // eslint-disable-next-line jest/no-standalone-expect
             expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
-            localCodeEngineUrl.close(() => {});
+            localCodeEngineUrl.close(() => { });
           },
         );
       });
@@ -326,13 +326,13 @@ describe('snyk code test', () => {
     },
     {
       type: 'golang/native',
-      env: {
-        // internal GAF feature flag for consistent ignores
-        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
-        // TODO: stop using dev env once consistent ignores is GA
-        SNYK_API: process.env.TEST_SNYK_API_DEV,
-        SNYK_TOKEN: process.env.TEST_SNYK_TOKEN_DEV,
-      },
+    env: {
+    // internal GAF feature flag for consistent ignores
+    INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
+    // TODO: stop using dev env once consistent ignores is GA
+    SNYK_API: process.env.TEST_SNYK_API_DEV,
+    SNYK_TOKEN: process.env.TEST_SNYK_TOKEN_DEV,
+    },
     },
   ];
 
@@ -341,24 +341,6 @@ describe('snyk code test', () => {
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
         jest.setTimeout(60000);
-        xit('should not include code quality issues in results', async () => {
-          const { path } = await createProjectFromFixture('');
-          server.setOrgSetting('sast', true);
-
-          const { stderr, code } = await runSnykCLI(
-            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git`,
-            {
-              env: {
-                ...process.env,
-                ...integrationEnv,
-              },
-            },
-          );
-
-          expect(stderr).toBe('');
-          expect(code).toBe(EXIT_CODE_SUCCESS);
-        });
-
         it('should succeed - when no vulnerabilities found', async () => {
           const { path } = await createProjectFromFixture(
             'sast/no-vulnerabilities',
@@ -395,6 +377,27 @@ describe('snyk code test', () => {
 
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+        });
+
+        it('should not include code quality issues in results', async () => {
+          // expected Code Quality Issues: 22
+          const expectedCodeSecurityIssues = 45;
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+
+          const { stdout } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git --json`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          const actualCodeSecurityIssues = JSON.parse(stdout)?.runs[0]?.results?.length;
+          expect(actualCodeSecurityIssues).toEqual(expectedCodeSecurityIssues);
         });
 
         it('should fail with correct exit code - when testing empty project', async () => {
