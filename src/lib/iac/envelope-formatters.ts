@@ -4,7 +4,7 @@ import {
   PolicyMetadata,
 } from '../../cli/commands/test/iac/local-execution/types';
 import { GitTarget, NamedTarget, ScanResult } from '../ecosystems/types';
-import { Policy } from '../policy/find-and-load-policy';
+import { Policy } from 'snyk-policy';
 import { IacOutputMeta } from '../types';
 
 export function convertIacResultToScanResult(

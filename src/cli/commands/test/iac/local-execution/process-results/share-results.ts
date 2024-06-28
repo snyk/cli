@@ -1,6 +1,6 @@
 import { isFeatureFlagSupportedForOrg } from '../../../../../../lib/feature-flags';
 import { shareResults } from './cli-share-results';
-import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { Policy } from 'snyk-policy';
 import {
   IacOutputMeta,
   ProjectAttributes,
