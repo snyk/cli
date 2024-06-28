@@ -3,14 +3,18 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 import { getServerPort } from '../../util/getServerPort';
+import { matchers } from 'jest-json-schema';
+
 const stripAnsi = require('strip-ansi');
+
+expect.extend(matchers);
 
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_ACTION_NEEDED = 1;
 const EXIT_CODE_FAIL_WITH_ERROR = 2;
 const EXIT_CODE_NO_SUPPORTED_FILES = 3;
 
-describe('code', () => {
+describe('snyk code test', () => {
   let server: ReturnType<typeof fakeServer>;
   let deepCodeServer: ReturnType<typeof fakeDeepCodeServer>;
   let env: Record<string, string>;
@@ -58,191 +62,384 @@ describe('code', () => {
     expect(stderr).toBe('');
   });
 
-  describe('test', () => {
-    it('should fail - when we do not support files', async () => {
-      // Setup
-      const { path } = await createProjectFromFixture('empty');
-      server.setOrgSetting('sast', true);
+  interface Workflow {
+    type: string;
+    env: { [key: string]: string | undefined };
+  }
 
-      const { stdout, code, stderr } = await runSnykCLI(`code test ${path()}`, {
-        env,
-      });
-
-      expect(stderr).toBe('');
-      expect(stdout).toContain(`We found 0 supported files`);
-      expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES); // failure, no supported projects detected
-    });
-
-    it('should succeed - when no errors found', async () => {
-      // Setup
-      const { path } = await createProjectFromFixture(
-        'sast-empty/shallow_empty',
-      );
-      server.setOrgSetting('sast', true);
-      deepCodeServer.setSarifResponse(
-        require('../../../fixtures/sast-empty/empty-sarif.json'),
-      );
-
-      const { stdout, code, stderr } = await runSnykCLI(`code test ${path()}`, {
-        env,
-      });
-
-      expect(stderr).toBe('');
-      expect(stdout).toContain(`Awesome! No issues were found.`);
-      expect(code).toBe(EXIT_CODE_SUCCESS);
-
-      expect(
-        server
-          .getRequests()
-          .filter((req) => req.originalUrl.endsWith('/analytics/cli')),
-      ).toHaveLength(2);
-    });
-
-    it('should succeed - with correct exit code', async () => {
-      const { path } = await createProjectFromFixture(
-        'sast/shallow_sast_webgoat',
-      );
-      server.setOrgSetting('sast', true);
-      deepCodeServer.setSarifResponse(
-        require('../../../fixtures/sast/sample-sarif.json'),
-      );
-
-      const { stdout, stderr, code } = await runSnykCLI(`code test ${path()}`, {
-        env,
-      });
-
-      // We do not render the help message for unknown flags
-      expect(stderr).toBe('');
-      expect(stripAnsi(stdout)).toContain('✗ [Medium] Information Exposure');
-      expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
-    });
-
-    it('should show error if sast is not enabled', async () => {
-      // Setup
-      const { path } = await createProjectFromFixture(
-        'sast/shallow_sast_webgoat',
-      );
-      server.setOrgSetting('sast', false);
-
-      const { stdout, code, stderr } = await runSnykCLI(`code test ${path()}`, {
-        env,
-      });
-
-      expect(stderr).toBe('');
-      expect(stdout).toContain('Snyk Code is not supported for org');
-      expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
-    });
-
-    it.each([['sarif'], ['json']])(
-      'succeed testing with correct exit code - with %p output',
-      async (optionsName) => {
-        const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
-        const { path } = await createProjectFromFixture(
-          'sast/shallow_sast_webgoat',
-        );
-        server.setOrgSetting('sast', true);
-        deepCodeServer.setSarifResponse(sarifPayload);
-
-        const { stdout, stderr, code } = await runSnykCLI(
-          `code test ${path()} --${optionsName}`,
-          {
-            env,
-          },
-        );
-
-        expect(stderr).toBe('');
-        expect(JSON.parse(stdout)).toEqual(sarifPayload);
-        expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+  const integrationWorkflows: Workflow[] = [
+    {
+      type: 'typescript',
+      env: {
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
       },
-    );
+    },
+    {
+      type: 'golang/native',
+      env: {
+        // internal GAF feature flag for consistent ignores
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
+      },
+    },
+  ];
 
-    it('succeed testing with correct exit code - with sarif oputput and no markdown', async () => {
-      const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
-      const { path } = await createProjectFromFixture(
-        'sast/shallow_sast_webgoat',
-      );
-      server.setOrgSetting('sast', true);
-      deepCodeServer.setSarifResponse(sarifPayload);
+  const itif = (condition) => (condition ? it : it.skip);
+  describe.each(integrationWorkflows)(
+    `integration`,
+    ({ type, env: integrationEnv }) => {
+      describe(`${type} workflow`, () => {
+        it('should show error if sast is not enabled', async () => {
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+          server.setOrgSetting('sast', false);
 
-      const { stdout, stderr, code } = await runSnykCLI(
-        `code test ${path()} --sarif --no-markdown`,
-        {
-          env,
-        },
-      );
+          const { code, stdout, stderr } = await runSnykCLI(
+            `code test ${path()}`,
+            {
+              env: {
+                ...env,
+                ...integrationEnv,
+              },
+            },
+          );
 
-      expect(stderr).toBe('');
-      const output = JSON.parse(stdout);
-      expect(Object.keys(output.runs[0].results[0].message)).not.toContain(
-        'markdown',
-      );
-      expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
-    });
-
-    const failedCodeTestMessage = "Failed to run 'code test'";
-
-    // This is caused by the retry logic in the code-client
-    // which defaults to 10 retries with a 5 second delay
-    jest.setTimeout(60000);
-    it.each([
-      [{ code: 401 }, `Unauthorized: ${failedCodeTestMessage}`],
-      [{ code: 429 }, failedCodeTestMessage],
-      [{ code: 500 }, failedCodeTestMessage], // TODO this causes the test to hang. Think it is due to retry logic
-    ])(
-      'should fail - when server returns %p',
-      async (errorCodeObj, expectedResult) => {
-        const { path } = await createProjectFromFixture(
-          'sast/shallow_sast_webgoat',
-        );
-        server.setOrgSetting('sast', true);
-        deepCodeServer.setNextStatusCode(errorCodeObj.code);
-        deepCodeServer.setNextResponse({
-          statusCode: errorCodeObj.code,
-          statusText: 'Unauthorized action',
-          apiName: 'code',
+          expect(stderr).toBe('');
+          expect(stdout).toContain('Snyk Code is not supported for org');
+          expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
         });
 
-        const { stdout, code, stderr } = await runSnykCLI(
-          `code test ${path()}`,
-          {
-            env,
+        it('should succeed with correct exit code - with sarif output', async () => {
+          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+          server.setOrgSetting('sast', true);
+          deepCodeServer.setCustomResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+          deepCodeServer.setSarifResponse(sarifPayload);
+
+          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
+          server.setCustomResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --sarif`,
+            {
+              env: {
+                ...env,
+                ...integrationEnv,
+                // code-client-go will panic if we don't supply the org UUID
+                SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
+              },
+            },
+          );
+
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+          expect(stderr).toBe('');
+        });
+
+        it('should succeed with correct exit code - with json output', async () => {
+          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+          server.setOrgSetting('sast', true);
+          deepCodeServer.setFiltersResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+          deepCodeServer.setSarifResponse(sarifPayload);
+
+          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
+          server.setCustomResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --json`,
+            {
+              env: {
+                ...env,
+                ...integrationEnv,
+                // code-client-go will panic if we don't supply the org UUID
+                SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+        });
+
+        it('should succeed with correct exit code - normal output', async () => {
+          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+          server.setOrgSetting('sast', true);
+          deepCodeServer.setFiltersResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+
+          deepCodeServer.setSarifResponse(sarifPayload);
+
+          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
+          server.setCustomResponse({
+            configFiles: [],
+            extensions: ['.java'],
+          });
+
+          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...env,
+              ...integrationEnv,
+              // code-client-go will panic if we don't supply the org UUID
+              SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
+            },
+          });
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+        });
+
+        it('should fail with correct exit code - when testing empty project', async () => {
+          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const { path } = await createProjectFromFixture(
+            'sast/unsupported-files',
+          );
+          server.setOrgSetting('sast', true);
+          deepCodeServer.setSarifResponse(sarifPayload);
+
+          const { code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...env,
+              ...integrationEnv,
+            },
+          });
+
+          expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
+        });
+
+        // TODO: reenable this test for golang/native when SNYK_CODE_CLIENT_PROXY_URL is supported
+        itif(type === 'typescript')(
+          'should support the SNYK_CODE_CLIENT_PROXY_URL env var',
+          async () => {
+            const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+            const { path } = await createProjectFromFixture(
+              'sast/unsupported-files',
+            );
+            server.setOrgSetting('sast', true);
+            deepCodeServer.setSarifResponse(sarifPayload);
+
+            const { code } = await runSnykCLI(`code test ${path()}`, {
+              env: {
+                ...env,
+                ...integrationEnv,
+              },
+            });
+
+            // the itif wrapper confuses eslint, expect() is inside a test block
+            // eslint-disable-next-line jest/no-standalone-expect
+            expect(code).toEqual(EXIT_CODE_NO_SUPPORTED_FILES);
+
+            const request = deepCodeServer
+              .getRequests()
+              .filter((value) => (value.url as string).includes(`/filters`))
+              .pop();
+
+            // eslint-disable-next-line jest/no-standalone-expect
+            expect(request).toBeDefined();
           },
         );
 
-        expect(stderr).toBe('');
-        expect(stdout).toContain(expectedResult);
-        expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
+        // TODO: reenable this test for golang/native when LCE is implemented
+        itif(type === 'typescript')(
+          'use remote LCE URL as base when LCE is enabled',
+          async () => {
+            const localCodeEngineUrl = fakeDeepCodeServer();
+            localCodeEngineUrl.listen(() => {});
+
+            const { path } = await createProjectFromFixture(
+              'sast/shallow_sast_webgoat',
+            );
+
+            server.setOrgSetting('sast', true);
+            server.setLocalCodeEngineConfiguration({
+              enabled: true,
+              allowCloudUpload: true,
+              url: 'http://localhost:' + localCodeEngineUrl.getPort(),
+            });
+
+            localCodeEngineUrl.setSarifResponse(
+              require('../../../fixtures/sast/sample-sarif.json'),
+            );
+
+            // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
+            server.setCustomResponse({
+              configFiles: [],
+              extensions: ['.java'],
+            });
+
+            const { stdout, code, stderr } = await runSnykCLI(
+              `code test ${path()}`,
+              {
+                env: {
+                  ...env,
+                  ...integrationEnv,
+                  // code-client-go will panic if we don't supply the org UUID
+                  SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
+                },
+              },
+            );
+
+            // same as before, expect() is inside a test block
+            // eslint-disable-next-line jest/no-standalone-expect
+            expect(stderr).toBe('');
+            // eslint-disable-next-line jest/no-standalone-expect
+            expect(deepCodeServer.getRequests().length).toBe(0);
+            // eslint-disable-next-line jest/no-standalone-expect
+            expect(localCodeEngineUrl.getRequests().length).toBeGreaterThan(0);
+            // eslint-disable-next-line jest/no-standalone-expect
+            expect(stripAnsi(stdout)).toContain('✗ [Medium]');
+            // eslint-disable-next-line jest/no-standalone-expect
+            expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+
+            localCodeEngineUrl.close(() => {});
+          },
+        );
+      });
+    },
+  );
+
+  const userJourneyWorkflows: Workflow[] = [
+    {
+      type: 'typescript',
+      env: {
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
       },
-    );
+    },
+    {
+      type: 'golang/native',
+      env: {
+        // internal GAF feature flag for consistent ignores
+        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
+        // TODO: stop using dev env once consistent ignores is GA
+        SNYK_API: process.env.TEST_SNYK_API_DEV,
+        SNYK_TOKEN: process.env.TEST_SNYK_TOKEN_DEV,
+      },
+    },
+  ];
 
-    it("use remote LCE's url as base when LCE is enabled", async () => {
-      const localCodeEngineUrl = fakeDeepCodeServer();
-      localCodeEngineUrl.listen(() => {});
+  describe.each(userJourneyWorkflows)(
+    'user journey',
+    ({ type, env: integrationEnv }) => {
+      describe(`${type} workflow`, () => {
+        jest.setTimeout(60000);
+        it('should succeed - when no vulnerabilities found', async () => {
+          const { path } = await createProjectFromFixture(
+            'sast/no-vulnerabilities',
+          );
 
-      const { path } = await createProjectFromFixture(
-        'sast/shallow_sast_webgoat',
-      );
-      server.setOrgSetting('sast', true);
-      server.setLocalCodeEngineConfiguration({
-        enabled: true,
-        allowCloudUpload: true,
-        url: 'http://localhost:' + localCodeEngineUrl.getPort(),
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_SUCCESS);
+        });
+
+        it('should succeed with correct exit code', async () => {
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+        });
+
+        it('should not include code quality issues in results', async () => {
+          // expected Code Quality Issues: 22
+          const expectedCodeSecurityIssues = 45;
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+
+          const { stdout } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git --json`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          const actualCodeSecurityIssues = JSON.parse(stdout)?.runs[0]?.results
+            ?.length;
+          expect(actualCodeSecurityIssues).toEqual(expectedCodeSecurityIssues);
+        });
+
+        it('should fail with correct exit code - when testing empty project', async () => {
+          const { path } = await createProjectFromFixture(
+            'sast/unsupported-files',
+          );
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
+        });
+
+        it('should fail with correct exit code - when using invalid token', async () => {
+          const { path } = await createProjectFromFixture(
+            'sast/unsupported-files',
+          );
+
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path()} --remote-repo-url=https://github.com/snyk/cli.git`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+                SNYK_TOKEN: 'woof',
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
+        });
       });
-      localCodeEngineUrl.setSarifResponse(
-        require('../../../fixtures/sast/sample-sarif.json'),
-      );
-
-      const { stdout, code, stderr } = await runSnykCLI(`code test ${path()}`, {
-        env,
-      });
-
-      expect(deepCodeServer.getRequests().length).toBe(0);
-      expect(localCodeEngineUrl.getRequests().length).toBeGreaterThan(0);
-      expect(stderr).toBe('');
-      expect(stripAnsi(stdout)).toContain('✗ [Medium] Information Exposure');
-      expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
-
-      await localCodeEngineUrl.close(() => {});
-    });
-  });
+    },
+  );
 });
