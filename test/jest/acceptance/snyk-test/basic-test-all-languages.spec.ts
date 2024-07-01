@@ -7,6 +7,7 @@ import { fakeServer } from '../../../acceptance/fake-server';
 import { runCommand } from '../../util/runCommand';
 import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
 import { getServerPort } from '../../util/getServerPort';
+import * as path from 'node:path';
 
 jest.setTimeout(1000 * 60);
 
@@ -190,25 +191,31 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   test.each([
     {
       fixture: 'nuget-app-6',
+      targetFile: 'dotnet_6.csproj',
     },
     {
       fixture: 'nuget-app-6-no-rid',
+      targetFile: 'dotnet_6.csproj',
     },
     {
       fixture: 'nuget-app-7-windows',
+      targetFile: 'dotnet_7.csproj',
     },
     {
       fixture: 'nuget-app-netstandard20',
+      targetFile: 'netstandard20.csproj',
     },
     {
       fixture: 'nuget-app-8-with-azure-functions',
+      targetFile: 'dotnet_8_with_azure_functions.csproj',
     },
     {
       fixture: 'nuget-app-8-with-multi-project and spaces',
+      targetFile: 'dotnet_8_first.csproj',
     },
   ])(
     'run `snyk test` on a nuget project using v2 dotnet runtime resolution logic for $fixture',
-    async ({ fixture }) => {
+    async ({ fixture, targetFile }) => {
       const prerequisite = await runCommand('dotnet', ['--version']).catch(
         function() {
           return { code: 1, stderr: '', stdout: '' };
@@ -220,6 +227,13 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       }
 
       const project = await createProjectFromWorkspace(fixture);
+
+      await runCommand('dotnet', [
+        'restore',
+        `"${path.resolve(project.path(), fixture, targetFile)}"`,
+      ]).catch((err) => {
+        return { code: 1, stderr: err, stdout: '' };
+      });
 
       const { code, stderr, stdout } = await runSnykCLI(
         'test -d --dotnet-runtime-resolution',
@@ -249,11 +263,14 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       return;
     }
 
-    await runCommand('dotnet', ['restore']);
+    const fixtureName = 'nuget-app-8-custom-output-path';
 
-    const project = await createProjectFromWorkspace(
-      'nuget-app-8-custom-output-path',
-    );
+    const project = await createProjectFromWorkspace(fixtureName);
+
+    await runCommand('dotnet', [
+      'restore',
+      `${path.resolve(project.path(), fixtureName, 'program.csproj')}`,
+    ]);
 
     const { code, stderr, stdout } = await runSnykCLI(
       'test -d --dotnet-runtime-resolution --file=random-output/company/obj/project.assets.json',
@@ -297,7 +314,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
         return;
       }
 
-      const project = await createProjectFromWorkspace('nuget-app-6-7-8');
+      const project = await createProjectFromWorkspace('nuget-app-≠');
 
       let command = 'test -d --dotnet-runtime-resolution';
       if (targetFramework) {
