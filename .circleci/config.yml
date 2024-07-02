@@ -335,6 +335,7 @@ commands:
           command: |
             apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
             pip3 install pipenv requests PyYAML
+            wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh
 
   failed-release-notification:
     steps:
