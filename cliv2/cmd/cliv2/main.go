@@ -472,7 +472,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 }
 
 func outputError(output []workflow.Data, err error, userInterface ui.UserInterface) {
-	if output != nil && len(output) > 0 {
+	if len(output) > 0 {
 		s := stringify(output)
 		outputString(userInterface, s)
 	}
