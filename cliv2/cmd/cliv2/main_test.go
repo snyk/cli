@@ -425,7 +425,7 @@ func Test_displayError(t *testing.T) {
 		userInterface.EXPECT().OutputError(err).Times(1)
 
 		config := configuration.NewInMemory()
-		displayError(err, userInterface, config)
+		displayError(err, userInterface, config, nil)
 	})
 
 	scenarios := []struct {
@@ -446,7 +446,7 @@ func Test_displayError(t *testing.T) {
 		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
 			config := configuration.NewInMemory()
 			err := scenario.err
-			displayError(err, userInterface, config)
+			displayError(err, userInterface, config, nil)
 		})
 	}
 
@@ -455,7 +455,7 @@ func Test_displayError(t *testing.T) {
 		userInterface.EXPECT().OutputError(err).Times(1)
 
 		config := configuration.NewInMemory()
-		displayError(err, userInterface, config)
+		displayError(err, userInterface, config, nil)
 	})
 }
 

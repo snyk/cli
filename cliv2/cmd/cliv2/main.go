@@ -1,7 +1,10 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+import (
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+	"os/exec"
+)
 
 import (
 	"context"
@@ -10,7 +13,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
 
@@ -288,10 +290,11 @@ func help(_ *cobra.Command, _ []string) error {
 	helpProvided = true
 	args := utils.RemoveSimilar(os.Args[1:], "--") // remove all double dash arguments to avoid issues with the help command
 	args = append(args, "--help")
-	return defaultCmd(args)
+	_, err := defaultCmd(args)
+	return err
 }
 
-func defaultCmd(args []string) error {
+func defaultCmd(args []string) ([]workflow.Data, error) {
 	inputDirectory := cliv2.DetermineInputDirectory(args)
 	if len(inputDirectory) > 0 {
 		globalConfiguration.Set(configuration.INPUT_DIRECTORY, inputDirectory)
@@ -302,8 +305,8 @@ func defaultCmd(args []string) error {
 	// * by specifying the raw cmd args for it
 	globalConfiguration.Set(configuration.WORKFLOW_USE_STDIO, true)
 	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
-	_, err := globalEngine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
-	return err
+	output, err := globalEngine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
+	return output, err
 }
 
 func getGlobalFLags() *pflag.FlagSet {
@@ -371,7 +374,8 @@ func prepareRootCommand() *cobra.Command {
 	rootCommand := cobra.Command{
 		Use: "snyk",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			return defaultCmd(os.Args[1:])
+			_, err := defaultCmd(os.Args[1:])
+			return err
 		},
 	}
 
@@ -424,33 +428,80 @@ func handleError(err error) HandleError {
 	return resultError
 }
 
-func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration) {
+func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, output []workflow.Data) {
 	if err != nil {
-		_, isExitError := err.(*exec.ExitError)
-		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
-		if isExitError || isErrorWithCode {
+		exitError, isExitError := err.(*exec.ExitError)
+		errorWithCode, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
+		if isExitError {
+			if exitError.ExitCode() > 1 {
+				outputError(output, err, userInterface)
+			}
+			return
+		}
+
+		if isErrorWithCode {
+			if errorWithCode.ExitCode > 1 {
+				outputError(output, err, userInterface)
+			}
 			return
 		}
 
 		if config.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
 			jsonError := JsonErrorStruct{
 				Ok:       false,
-				ErrorMsg: err.Error(),
+				ErrorMsg: stringify(output) + err.Error(),
 				Path:     globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
 			}
 
-			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-			userInterface.Output(string(jsonErrorBuffer))
+			jsonErrorBuffer, marshallingError := json.MarshalIndent(jsonError, "", "  ")
+			if marshallingError != nil {
+				err1 := userInterface.OutputError(marshallingError)
+				outputError(nil, err1, userInterface)
+				outputError(nil, err, userInterface)
+			} else {
+				outputString(userInterface, string(jsonErrorBuffer))
+			}
 		} else {
 			if errors.Is(err, context.DeadlineExceeded) {
 				err = fmt.Errorf("command timed out")
 			}
 
-			uiError := userInterface.OutputError(err)
-			if uiError != nil {
-				globalLogger.Err(uiError).Msg("ui failed to show error")
-			}
+			outputError(output, err, userInterface)
 		}
+	}
+}
+
+func outputError(output []workflow.Data, err error, userInterface ui.UserInterface) {
+	if output != nil && len(output) > 0 {
+		s := stringify(output)
+		outputString(userInterface, s)
+	}
+
+	err2 := userInterface.OutputError(err)
+	if err2 != nil {
+		globalLogger.Err(err2).Msg("could not output the error via the user interface")
+		globalLogger.Err(err).Send()
+	}
+}
+
+func stringify(output []workflow.Data) string {
+	var s string
+	for i, data := range output {
+		payload := data.GetPayload()
+		if outputBytes, ok := payload.([]byte); ok {
+			s += fmt.Sprintf("workflow output %d: %s", i, string(outputBytes))
+		} else {
+			s += fmt.Sprintf("workflow output %d: (%+v)", i, payload)
+		}
+	}
+	return s
+}
+
+func outputString(userInterface ui.UserInterface, s string) {
+	err2 := userInterface.Output(s)
+	if err2 != nil {
+		globalLogger.Err(err2).Send()
+		globalLogger.Printf(s)
 	}
 }
 
@@ -544,9 +595,10 @@ func MainWithErrorCode() int {
 
 	// fallback to the legacy cli or show help
 	handleErrorResult := handleError(err)
+	var output []workflow.Data
 	if handleErrorResult == handleErrorFallbackToLegacyCLI {
 		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
-		err = defaultCmd(os.Args[1:])
+		output, err = defaultCmd(os.Args[1:])
 	} else if handleErrorResult == handleErrorShowHelp {
 		err = help(nil, []string{})
 	}
@@ -555,7 +607,7 @@ func MainWithErrorCode() int {
 		cliAnalytics.AddError(err)
 	}
 
-	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
+	displayError(err, globalEngine.GetUserInterface(), globalConfiguration, output)
 
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Exiting with %d", exitCode)
