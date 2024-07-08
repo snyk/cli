@@ -305,6 +305,92 @@ DepGraph end`,
     });
   });
 
+  describe('snyk container monitor --json output', () => {
+    it('snyk container monitor json produces expected output for a single depgraph', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container monitor --platform=linux/amd64 --json ${TEST_DISTROLESS_STATIC_IMAGE}`,
+      );
+      expect(code).toEqual(0);
+      const result = JSON.parse(stdout);
+      expect(result).toEqual(
+        expect.objectContaining({
+          ok: true,
+          packageManager: 'deb',
+          manageUrl: expect.stringContaining('://'),
+          scanResult: expect.objectContaining({
+            facts: expect.arrayContaining([
+              expect.objectContaining({
+                type: 'depGraph',
+                data: expect.objectContaining({
+                  pkgManager: expect.objectContaining({
+                    name: 'deb',
+                    repositories: expect.arrayContaining([
+                      expect.objectContaining({
+                        alias: 'debian:11',
+                      }),
+                    ]),
+                  }),
+                }),
+              }),
+            ]),
+          }),
+        }),
+      );
+    });
+
+    it('snyk container monitor json produces expected output for multiple depgraphs', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container monitor --platform=linux/amd64 --json snyk/snyk:linux`,
+      );
+      expect(code).toEqual(0);
+      const result = JSON.parse(stdout);
+      expect(result).toHaveLength(2);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ok: true,
+            packageManager: 'deb',
+            manageUrl: expect.stringContaining('://'),
+            scanResult: expect.objectContaining({
+              facts: expect.arrayContaining([
+                expect.objectContaining({
+                  type: 'depGraph',
+                  data: expect.objectContaining({
+                    pkgManager: expect.objectContaining({
+                      name: 'deb',
+                      repositories: expect.arrayContaining([
+                        expect.objectContaining({
+                          alias: 'ubuntu:24.04',
+                        }),
+                      ]),
+                    }),
+                  }),
+                }),
+              ]),
+            }),
+          }),
+          expect.objectContaining({
+            ok: true,
+            packageManager: 'gomodules',
+            manageUrl: expect.stringContaining('://'),
+            scanResult: expect.objectContaining({
+              facts: expect.arrayContaining([
+                expect.objectContaining({
+                  type: 'depGraph',
+                  data: expect.objectContaining({
+                    pkgManager: expect.objectContaining({
+                      name: 'gomodules',
+                    }),
+                  }),
+                }),
+              ]),
+            }),
+          }),
+        ]),
+      );
+    });
+  });
+
   describe('snyk container monitor supports --target-reference', () => {
     let server: ReturnType<typeof fakeServer>;
     let env: Record<string, string>;
