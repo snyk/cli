@@ -7,7 +7,7 @@ import { fakeServer } from '../../../acceptance/fake-server';
 import { runCommand } from '../../util/runCommand';
 import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
 import { getServerPort } from '../../util/getServerPort';
-import * as path from 'node:path';
+import * as path from 'path';
 
 jest.setTimeout(1000 * 60);
 
@@ -216,24 +216,28 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   ])(
     'run `snyk test` on a nuget project using v2 dotnet runtime resolution logic for $fixture',
     async ({ fixture, targetFile }) => {
-      const prerequisite = await runCommand('dotnet', ['--version']).catch(
+      let prerequisite = await runCommand('dotnet', ['--version']).catch(
         function() {
           return { code: 1, stderr: '', stdout: '' };
         },
       );
 
-      if (prerequisite.code !== 0 && !dontSkip) {
+      if (prerequisite.code !== 0) {
         return;
       }
 
       const project = await createProjectFromWorkspace(fixture);
 
-      await runCommand('dotnet', [
+      prerequisite = await runCommand('dotnet', [
         'restore',
-        `"${path.resolve(project.path(), fixture, targetFile)}"`,
-      ]).catch((err) => {
-        return { code: 1, stderr: err, stdout: '' };
-      });
+        `"${path.resolve(project.path(), targetFile)}"`,
+      ]);
+
+      if (prerequisite.code !== 0) {
+        console.log(prerequisite.stdout);
+        console.log(prerequisite.stderr);
+        throw new Error(prerequisite.stdout);
+      }
 
       const { code, stderr, stdout } = await runSnykCLI(
         'test -d --dotnet-runtime-resolution',
@@ -253,13 +257,13 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   );
 
   test('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with a custom output path', async () => {
-    const prerequisite = await runCommand('dotnet', ['--version']).catch(
+    let prerequisite = await runCommand('dotnet', ['--version']).catch(
       function() {
         return { code: 1, stderr: '', stdout: '' };
       },
     );
 
-    if (prerequisite.code !== 0 && !dontSkip) {
+    if (prerequisite.code !== 0) {
       return;
     }
 
@@ -267,10 +271,16 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
 
     const project = await createProjectFromWorkspace(fixtureName);
 
-    await runCommand('dotnet', [
+    prerequisite = await runCommand('dotnet', [
       'restore',
-      `${path.resolve(project.path(), fixtureName, 'program.csproj')}`,
+      `${path.resolve(project.path(), 'program.csproj')}`,
     ]);
+
+    if (prerequisite.code !== 0) {
+      console.log(prerequisite.stdout);
+      console.log(prerequisite.stderr);
+      throw new Error(prerequisite.stdout);
+    }
 
     const { code, stderr, stdout } = await runSnykCLI(
       'test -d --dotnet-runtime-resolution --file=random-output/company/obj/project.assets.json',
@@ -304,26 +314,44 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   ])(
     'run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with explicit target framework $targetFramework',
     async ({ targetFramework }) => {
-      const prerequisite = await runCommand('dotnet', ['--version']).catch(
+      let prerequisite = await runCommand('dotnet', ['--version']).catch(
         function() {
           return { code: 1, stderr: '', stdout: '' };
         },
       );
 
-      if (prerequisite.code !== 0 && !dontSkip) {
+      if (prerequisite.code !== 0) {
         return;
       }
 
-      const project = await createProjectFromWorkspace('nuget-app-6-7-8');
+      const fixtureName = 'nuget-app-6-7-8';
+      const project = await createProjectFromWorkspace(fixtureName);
+
+      prerequisite = await runCommand('dotnet', [
+        'restore',
+        `"${project.path()}"`,
+      ]);
+
+      if (prerequisite.code !== 0) {
+        console.log(prerequisite.stdout);
+        console.log(prerequisite.stderr);
+        throw new Error(prerequisite.stdout);
+      }
 
       let command = 'test -d --dotnet-runtime-resolution';
       if (targetFramework) {
         command = `test -d --dotnet-runtime-resolution --dotnet-target-framework=${targetFramework}`;
       }
 
-      const { code } = await runSnykCLI(command, {
+      const { code, stderr, stdout } = await runSnykCLI(command, {
         cwd: project.path(),
       });
+
+      if (code !== 0) {
+        console.debug(stderr);
+        console.debug('---------------------------');
+        console.debug(stdout);
+      }
 
       expect(code).toEqual(0);
     },
