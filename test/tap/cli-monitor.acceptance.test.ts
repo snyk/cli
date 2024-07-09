@@ -3,6 +3,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as cli from '../../src/cli/commands';
+import * as child_process from 'child_process';
+import * as util from 'util';
 import { fakeServer } from '../acceptance/fake-server';
 import * as subProcess from '../../src/lib/sub-process';
 import { getVersion } from '../../src/lib/version';
@@ -10,6 +12,7 @@ import {
   chdirWorkspaces,
   getWorkspaceJSON,
 } from '../acceptance/workspace-helper';
+
 const isEmpty = require('lodash.isempty');
 const isObject = require('lodash.isobject');
 const get = require('lodash.get');
@@ -43,6 +46,8 @@ import { getFixturePath } from '../jest/util/getFixturePath';
 import { getWorkspacePath } from '../jest/util/getWorkspacePath';
 import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
 import * as os from 'os';
+
+const exec = util.promisify(child_process.exec);
 
 /*
   TODO: enable these tests, once we switch from node-tap
@@ -452,6 +457,7 @@ if (!isWindows) {
 
   test('`monitor nuget package with --dotnet-runtime-resolution enabled`', async (t) => {
     chdirWorkspaces();
+    await exec(`dotnet restore ${path.resolve(process.cwd(), 'nuget-app-6')}`);
     await cli.monitor('nuget-app-6', {
       'dotnet-runtime-resolution': true,
     });
@@ -2026,6 +2032,7 @@ if (!isWindows) {
     }
   });
 }
+
 // fixture can be fixture path or object
 function stubDockerPluginResponse(fixture: string | object, t) {
   const plugin = {
