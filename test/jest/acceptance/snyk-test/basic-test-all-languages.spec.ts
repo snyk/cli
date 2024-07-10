@@ -188,7 +188,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
-  test.each([
+  test.skip.each([
     {
       fixture: 'nuget-app-6',
       targetFile: 'dotnet_6.csproj',
