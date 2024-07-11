@@ -118,6 +118,15 @@ describe('snyk container', () => {
       await expect(cli).toDisplay(`yum @ 4.9.0`, { timeout: 60 * 1000 });
     });
 
+    it('container tests the platform specified in the parameters', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test debian:unstable-slim --platform=linux/arm64/v8`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Platform:          linux/arm64');
+    });
+
     it('npm depGraph is generated in an npm image with lockfiles', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container test docker-archive:test/fixtures/container-projects/npm7-with-package-lock-file.tar --print-deps`,
