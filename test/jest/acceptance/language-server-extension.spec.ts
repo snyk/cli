@@ -67,6 +67,7 @@ describe('Language Server Extension', () => {
         activateSnykCodeQuality: 'false',
         activateSnykOpenSource: 'true',
         activateSnykIac: 'false',
+        endpoint: process.env.TEST_SNYK_API,
         token: process.env.TEST_SNYK_TOKEN,
         manageBinariesAutomatically: 'false',
         enableTrustedFoldersFeature: 'false',
