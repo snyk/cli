@@ -101,23 +101,21 @@ export function buildOutput({
   const mappedResults = results.map(mapIacTestResult);
 
   const {
-    stdout: dataToSend,
-    stringifiedData,
-    stringifiedJsonData,
-    stringifiedSarifData,
+    dataToSend,
+    jsonData,
+    sarifData,
   } = extractDataToSendFromResults(results, mappedResults, options);
 
   if (options.json || options.sarif) {
     // if all results are ok (.ok == true)
     if (mappedResults.every((res) => res.ok)) {
       return TestCommandResult.createJsonTestCommandResult(
-        stringifiedData,
-        stringifiedJsonData,
-        stringifiedSarifData,
+        jsonData,
+        sarifData,
       );
     }
 
-    const err = new Error(stringifiedData) as any;
+    const err = new Error() as any;
 
     if (foundVulnerabilities) {
       err.code = 'VULNS';
@@ -134,9 +132,8 @@ export function buildOutput({
       // the first error.
       err.code = errorResults[0].code;
     }
-    err.json = stringifiedData;
-    err.jsonStringifiedResults = stringifiedJsonData;
-    err.sarifStringifiedResults = stringifiedSarifData;
+    err.jsonData = jsonData;
+    err.sarifData = sarifData;
     throw err;
   }
 
@@ -228,15 +225,15 @@ export function buildOutput({
     // first one
     error.code = vulnerableResults[0].code || 'VULNS';
     error.userMessage = vulnerableResults[0].userMessage;
-    error.jsonStringifiedResults = stringifiedJsonData;
-    error.sarifStringifiedResults = stringifiedSarifData;
+    error.jsonData = jsonData;
+    error.sarifData = sarifData;
     throw error;
   }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
     response,
-    stringifiedJsonData,
-    stringifiedSarifData,
+    jsonData,
+    sarifData,
   );
 }
 

@@ -15,113 +15,65 @@ export class CommandResult {
   }
 }
 
+export type JsonDocument = Record<string, undefined> | Array<JsonDocument>;
+
 export abstract class TestCommandResult extends CommandResult {
-  protected jsonResult = '';
-  protected sarifResult = '';
-  protected jsonData = {};
+  protected jsonData?: JsonDocument;
+  protected sarifData?: JsonDocument;
 
-  public getJsonResult(): string {
-    return this.jsonResult;
-  }
-
-  public getSarifResult(): string {
-    return this.sarifResult;
-  }
-
-  public getJsonData(): Record<string, unknown> {
+  public getJsonData(): JsonDocument | undefined {
     return this.jsonData;
+  }
+
+  public getSarifData(): JsonDocument | undefined {
+    return this.sarifData;
   }
 
   public static createHumanReadableTestCommandResult(
     humanReadableResult: string,
-    jsonResult: string,
-    sarifResult?: string,
-    jsonData?: Record<string, unknown>,
+    jsonData?: JsonDocument,
+    sarifData?: JsonDocument,
   ): HumanReadableTestCommandResult {
     return new HumanReadableTestCommandResult(
       humanReadableResult,
-      jsonResult,
-      sarifResult,
       jsonData,
+      sarifData,
     );
   }
 
   public static createJsonTestCommandResult(
-    stdout: string,
-    jsonResult?: string,
-    sarifResult?: string,
-    jsonPayload?: Record<string, unknown>,
+    jsonData?: JsonDocument,
+    sarifData?: JsonDocument,
   ): JsonTestCommandResult {
     return new JsonTestCommandResult(
-      stdout,
-      jsonResult,
-      sarifResult,
-      jsonPayload,
+      '',
+      jsonData,
+      sarifData,
     );
   }
 }
 
 class HumanReadableTestCommandResult extends TestCommandResult {
-  protected jsonResult = '';
-  protected sarifResult = '';
-  protected jsonData = {};
-
   constructor(
     humanReadableResult: string,
-    jsonResult: string,
-    sarifResult?: string,
-    jsonData?: Record<string, unknown>,
+    jsonData?: JsonDocument,
+    sarifData?: JsonDocument,
   ) {
     super(humanReadableResult);
-    this.jsonResult = jsonResult;
-    if (sarifResult) {
-      this.sarifResult = sarifResult;
-    }
-    if (jsonData) {
-      this.jsonData = jsonData;
-    }
-  }
-
-  public getJsonResult(): string {
-    return this.jsonResult;
-  }
-
-  public getSarifResult(): string {
-    return this.sarifResult;
-  }
-
-  public getJsonData(): Record<string, unknown> {
-    return this.jsonData;
+    this.jsonData = jsonData;
+    this.sarifData = sarifData;
   }
 }
 
 class JsonTestCommandResult extends TestCommandResult {
   constructor(
     stdout: string,
-    jsonResult?: string,
-    sarifResult?: string,
-    jsonData?: Record<string, unknown>,
+    jsonData?: JsonDocument,
+    sarifData?: JsonDocument,
   ) {
     super(stdout);
-    if (jsonResult) {
-      this.jsonResult = jsonResult;
-    }
-    if (sarifResult) {
-      this.sarifResult = sarifResult;
-    } else {
-      this.jsonResult = stdout;
-    }
-    if (jsonData) {
-      this.jsonData = jsonData;
-    }
-  }
-
-  public getJsonResult(): string {
-    return this.jsonResult;
-  }
-
-  public getSarifResult(): string {
-    return this.sarifResult;
+    this.jsonData = jsonData;
+    this.sarifData = sarifData;
   }
 }
 

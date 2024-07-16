@@ -5,7 +5,7 @@ import { getPlugin } from '../ecosystems';
 import { Ecosystem, ContainerTarget, ScanResult } from '../ecosystems/types';
 import { Options, PolicyOptions, TestOptions } from '../types';
 import { Payload } from './types';
-import { assembleQueryString, depGraphToOutputString } from './common';
+import { assembleQueryString, depGraphToOutputStream } from './common';
 import { spinner } from '../spinner';
 import { findAndLoadPolicyForScanResult } from '../ecosystems/policy';
 import { getAuthHeader } from '../../lib/api-token';
@@ -59,11 +59,10 @@ export async function assembleEcosystemPayloads(
         // those.
         const dg = scanResult.facts.find((dg) => dg.type === 'depGraph');
         if (dg) {
-          console.log(
-            depGraphToOutputString(
-              dg.data.toJSON(),
-              constructProjectName(scanResult),
-            ),
+          depGraphToOutputStream(
+            dg.data.toJSON(),
+            constructProjectName(scanResult),
+            process.stdout,
           );
         }
       }

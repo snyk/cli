@@ -224,10 +224,9 @@ export interface SpinnerOptions {
 }
 
 export interface OutputDataTypes {
-  stdout: any;
-  stringifiedData: string;
-  stringifiedJsonData: string;
-  stringifiedSarifData: string;
+  dataToSend: any;
+  jsonData: any;
+  sarifData: any;
 }
 
 export type SupportedProjectTypes = IacProjectTypes | SupportedPackageManagers;

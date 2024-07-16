@@ -21,7 +21,6 @@ import { formatDockerBinariesIssues } from '../docker';
 import { createSarifOutputForContainers } from '../sarif-output';
 import { createSarifOutputForIac } from '../iac-output/sarif';
 import { isNewVuln, isVulnFixable } from '../../vuln-helpers';
-import { jsonStringifyLargeObject } from '../../json';
 import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
 import { getSeverityValue } from '../get-severity-value';
 import { showFixTip } from '../show-fix-tip';
@@ -70,7 +69,6 @@ export function extractDataToSendFromResults(
   options: Options,
 ): OutputDataTypes {
   let sarifData = {};
-  let stringifiedSarifData = '';
   if (options.sarif || options['sarif-file-output']) {
     if (options.iac) {
       sarifData = createSarifOutputForIac(results);
@@ -79,7 +77,6 @@ export function extractDataToSendFromResults(
     } else {
       sarifData = createSarifOutputForOpenSource(results);
     }
-    stringifiedSarifData = jsonStringifyLargeObject(sarifData);
   }
 
   const jsonResults = mappedResults.map((res) =>
@@ -100,21 +97,12 @@ export function extractDataToSendFromResults(
     jsonData['applications'] = appVulnsData;
   }
 
-  let stringifiedJsonData = '';
-  if (options.json || options['json-file-output']) {
-    stringifiedJsonData = jsonStringifyLargeObject(jsonData);
-  }
-
   const dataToSend = options.sarif ? sarifData : jsonData;
-  const stringifiedData = options.sarif
-    ? stringifiedSarifData
-    : stringifiedJsonData;
 
   return {
-    stdout: dataToSend, // this is for the human-readable stdout output and is set even if --json or --sarif is set
-    stringifiedData, // this will be used to display either the Snyk or SARIF format JSON to stdout if --json or --sarif is set
-    stringifiedJsonData, // this will be used for the --json-file-output=<file.json> option
-    stringifiedSarifData, // this will be used for the --sarif-file-output=<file.json> option
+    dataToSend, // this is for the human-readable stdout output and is set even if --json or --sarif is set
+    jsonData,
+    sarifData,
   };
 }
 

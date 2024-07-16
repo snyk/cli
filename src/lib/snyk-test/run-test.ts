@@ -768,9 +768,7 @@ async function assembleLocalPayloads(
           );
         }
 
-        console.log(
-          common.depGraphToOutputString(root.toJSON(), targetFile || ''),
-        );
+        common.depGraphToOutputStream(root.toJSON(), targetFile || '', process.stdout);
       }
 
       const body: PayloadBody = {

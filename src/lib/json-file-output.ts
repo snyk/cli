@@ -2,6 +2,7 @@ import { gte } from 'semver';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
 import * as path from 'path';
 import { JsonStreamStringify } from 'json-stream-stringify';
+import { JsonDocument } from '../cli/commands/types';
 
 export const MIN_VERSION_FOR_MKDIR_RECURSIVE = '10.12.0';
 
@@ -69,20 +70,9 @@ export async function writeContentsToFileSwallowingErrors(
   });
 }
 
-export async function saveJsonToFileCreatingDirectoryIfRequired(
-  jsonOutputFile: string,
-  contents: string,
-): Promise<void> {
-  const dirPath = path.dirname(jsonOutputFile);
-  const createDirSuccess = createDirectory(dirPath);
-  if (createDirSuccess) {
-    await writeContentsToFileSwallowingErrors(jsonOutputFile, contents);
-  }
-}
-
 export async function saveObjectToFile(
   jsonOutputFile: string,
-  jsonPayload: Record<string, unknown>,
+  jsonPayload: JsonDocument,
 ): Promise<void> {
   const dirPath = path.dirname(jsonOutputFile);
   const createDirSuccess = createDirectory(dirPath);
