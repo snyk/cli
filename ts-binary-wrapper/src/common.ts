@@ -21,6 +21,7 @@ const binaryDeploymentsFilePath = path.join(
   'generated',
   'binary-deployments.json',
 );
+export const integrationName = 'TS_BINARY_WRAPPER';
 
 export class WrapperConfiguration {
   private version: string;
@@ -45,9 +46,14 @@ export class WrapperConfiguration {
     return this.binaryName;
   }
 
-  public getDownloadLocation(): string {
-    const baseUrl = 'https://static.snyk.io/cli/v';
-    return baseUrl + this.version + '/' + this.binaryName;
+  public getDownloadLocations(): { downloadUrl: string; backupUrl: string } {
+    const baseUrl = 'https://downloads.snyk.io/cli';
+    const backupUrl = 'https://static.snyk.io/cli';
+
+    return {
+      downloadUrl: `${baseUrl}/v${this.version}/${this.binaryName}`,
+      backupUrl: `${backupUrl}/v${this.version}/${this.binaryName}`,
+    };
   }
 
   public getLocalLocation(): string {
@@ -180,6 +186,11 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   const res = spawnSync(executable, cliArguments, {
     shell: false,
     stdio: 'inherit',
+    env: {
+      ...process.env,
+      SNYK_INTEGRATION_NAME: integrationName,
+      SNYK_INTEGRATION_VERSION: getCurrentVersion(versionFile),
+    },
   });
 
   if (res.status !== null) {
@@ -242,7 +253,7 @@ export function downloadExecutable(
   filenameShasum: string,
 ): Promise<Error | undefined> {
   return new Promise<Error | undefined>(function(resolve) {
-    const options = new URL(downloadUrl);
+    const options = new URL(`${downloadUrl}?utm_source=${integrationName}`);
     const temp = path.join(__dirname, Date.now().toString());
     const fileStream = fs.createWriteStream(temp);
     const shasum = createHash('sha256').setEncoding('hex');
@@ -322,9 +333,42 @@ export function downloadExecutable(
   });
 }
 
+export async function downloadWithBackup(
+  downloadUrl: string,
+  backupUrl: string,
+  filename: string,
+  filenameShasum: string,
+): Promise<Error | undefined> {
+  try {
+    const error = await downloadExecutable(
+      downloadUrl,
+      filename,
+      filenameShasum,
+    );
+    if (error) {
+      console.error(error);
+      console.error(
+        'Download failed! Trying to download from backup location...',
+      );
+      const backupError = await downloadExecutable(
+        backupUrl,
+        filename,
+        filenameShasum,
+      );
+
+      console.error(backupError);
+      return backupError;
+    }
+  } catch (err) {
+    // Handle any unexpected errors
+    console.error('An unexpected error occurred:', err);
+    throw err; // Rethrow if you want to propagate the error upwards
+  }
+}
+
 export async function logError(
   context: string,
-  err,
+  err: Error,
   printToConsole = true,
 ): Promise<void> {
   if (isAnalyticsEnabled()) {
