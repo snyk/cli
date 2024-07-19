@@ -334,7 +334,7 @@ commands:
           name: Installing Node.js + other test dependencies
           command: |
             apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
-            pip3 install pipenv requests PyYAML
+            pip3 install pipenv requests PyYAML setuptools==70.3.0
             wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh
 
   failed-release-notification:
