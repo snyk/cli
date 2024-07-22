@@ -115,14 +115,16 @@ For detailed information about the CLI, see the [CLI docs](https://docs.snyk.io/
 
 [Submit a ticket](https://support.snyk.io/hc/en-us/requests/new) to Snyk support whenever you need help with the Snyk CLI or Snyk in general. Note that Snyk support does not actively monitor GitHub Issues on any [Snyk development project](https://github.com/snyk).
 
-## Contributing to the Snyk CLI
-
-The Snyk CLI project is open-source, but Snyk does not encourage outside contributors.
-
-You may look into [design decisions for the Snyk CLI](https://github.com/snyk/snyk/blob/master/help/_about-this-project/README.md).
-
-The Snyk CLI repository is a monorepo that also covers other projects and tools, such as [@snyk/protect](https://github.com/snyk/snyk/tree/master/packages/snyk-protect), also available at [npm package for snyk-protect command](https://www.npmjs.com/package/@snyk/protect).
-
 ## Security
 
 For any security issues or concerns, see the [SECURITY.md](https://github.com/snyk/snyk/blob/master/SECURITY.md) file in the GitHub repository.
+
+## Snyk CLI is closed to contributions
+
+Effective July 22, 2024, Snyk CLI will no longer accept external contributions.
+
+Due to the CLI's extensive usage and intricate nature, even minor modifications can have unforeseen consequences. Since introducing [release channels](https://snyk.io/blog/snyk-cli-semantic-versioning-and-release-channels/) to our code in April 2024, our focus has been on stabilizing releases. We believe this open-source, closed-contribution model best serves this goal.
+
+In the spirit of transparency to Snyk customers and CLI users, we will continue to working in public. However, going forward, we are closed to contributions.
+
+We appreciate and extend our gratitude to the Snyk community.
