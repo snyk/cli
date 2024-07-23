@@ -552,6 +552,7 @@ func MainWithErrorCode() int {
 	}
 
 	if err != nil {
+		globalLogger.Printf("Exiting after error: %v", err)
 		cliAnalytics.AddError(err)
 	}
 

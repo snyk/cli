@@ -403,7 +403,7 @@ func PrepareV1EnvironmentVariables(
 
 		if loglevelString := config.GetString("snyk_log_level"); loglevelString != "" {
 			logLevelParts := strings.Split(loglevelString, ":")
-			if logLevelParts[0] == "trace" {
+			if logLevelParts[0] == "trace" && config.GetBool(configuration.DEBUG) {
 				inputAsMap["DEBUG"] = "*"
 			}
 		}
