@@ -114,13 +114,11 @@ describe('getAllDirectoriesForPath', () => {
         mockFs({
           [level1Directory]: {
             [path.basename(level2Directory)]: {
-              [path.basename(
-                level2FileStub.filePath,
-              )]: level2FileStub.fileContent,
+              [path.basename(level2FileStub.filePath)]:
+                level2FileStub.fileContent,
               [path.basename(level3Directory)]: {
-                [path.basename(
-                  level3FileStub.filePath,
-                )]: level3FileStub.fileContent,
+                [path.basename(level3FileStub.filePath)]:
+                  level3FileStub.fileContent,
               },
             },
           },
@@ -130,9 +128,8 @@ describe('getAllDirectoriesForPath', () => {
       describe('with 1 directory', () => {
         describe('with 2 directories', () => {
           it('returns the files at level 2', () => {
-            const directoryFilePaths = getAllDirectoriesForPath(
-              level1Directory,
-            );
+            const directoryFilePaths =
+              getAllDirectoriesForPath(level1Directory);
             const level2Dir = path.join(
               level1Directory,
               path.basename(level2Directory),

@@ -30,9 +30,8 @@ export function getIacDisplayedIssues(
   const severitySectionsOutput = Object.values(SEVERITY)
     .filter((severity) => !!resultsBySeverity[severity])
     .map((severity) => {
-      const severityResults: FormattedOutputResult[] = resultsBySeverity[
-        severity
-      ]!;
+      const severityResults: FormattedOutputResult[] =
+        resultsBySeverity[severity]!;
 
       const titleOutput = colors.title(
         `${capitalize(severity)} Severity Issues: ${severityResults.length}`,

@@ -209,9 +209,8 @@ function vulnerabilitiesToResult(
   const kind = vulnerabilitiesToKind(vulnerabilities);
   const ignoreSettings = testOutput.settings.ignoreSettings;
   const meta = orgSettingsToMeta(testOutput, ignoreSettings);
-  const infrastructureAsCodeIssues = vulnerabilitiesToIacIssues(
-    vulnerabilities,
-  );
+  const infrastructureAsCodeIssues =
+    vulnerabilitiesToIacIssues(vulnerabilities);
 
   return {
     meta,

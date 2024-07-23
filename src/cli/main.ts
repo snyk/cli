@@ -274,7 +274,7 @@ export async function main(): Promise<void> {
     modeValidation(globalArgs);
     // TODO: fix this, we do transformation to options and teh type doesn't reflect it
     validateUnsupportedOptionCombinations(
-      (globalArgs.options as unknown) as AllSupportedCliOptions,
+      globalArgs.options as unknown as AllSupportedCliOptions,
     );
 
     if (globalArgs.options['group-issues'] && globalArgs.options['iac']) {

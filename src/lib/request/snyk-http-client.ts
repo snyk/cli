@@ -17,9 +17,7 @@ interface RequestInfo {
   family?: number;
 }
 
-export async function snykHttpClient(
-  requestInfo: RequestInfo,
-): Promise<{
+export async function snykHttpClient(requestInfo: RequestInfo): Promise<{
   res: needle.NeedleResponse;
   body: any;
 }> {

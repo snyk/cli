@@ -1,6 +1,6 @@
 # Contributing
 
-> This guide is for internal Snyk contributors with write access to this repository. 
+> This guide is for internal Snyk contributors with write access to this repository.
 
 ## Prerequisites
 

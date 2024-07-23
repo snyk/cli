@@ -404,8 +404,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       isMonitored: true,
       trialStarted: true,
       licensesPolicy: {},
-      uri:
-        'http://example-url/project/project-public-id/history/snapshot-public-id',
+      uri: 'http://example-url/project/project-public-id/history/snapshot-public-id',
       projectName: 'test-project',
     });
   });
@@ -621,8 +620,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         version: '1.0',
       },
       links: {
-        self:
-          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests?version=2023-08-31~beta',
+        self: '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests?version=2023-08-31~beta',
         related:
           '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
       },
@@ -644,8 +642,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         version: '1.0',
       },
       links: {
-        self:
-          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
+        self: '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
         related:
           '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8/results?version=2023-08-31~beta',
       },

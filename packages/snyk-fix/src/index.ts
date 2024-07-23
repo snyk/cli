@@ -42,10 +42,8 @@ export async function fix(
   const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
 
   let resultsByPlugin: FixHandlerResultByPlugin = {};
-  const {
-    vulnerable,
-    notVulnerable: nothingToFix,
-  } = await partitionByVulnerable(entities);
+  const { vulnerable, notVulnerable: nothingToFix } =
+    await partitionByVulnerable(entities);
   const entitiesPerType = groupEntitiesPerScanType(vulnerable);
   const exceptions: ErrorsByEcoSystem = {};
   await pMap(
@@ -94,9 +92,7 @@ export async function fix(
   };
 }
 
-export function groupEntitiesPerScanType(
-  entities: EntityToFix[],
-): {
+export function groupEntitiesPerScanType(entities: EntityToFix[]): {
   [type: string]: EntityToFix[];
 } {
   const entitiesPerType: {
