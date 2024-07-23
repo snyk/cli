@@ -1,6 +1,6 @@
 # Contributing
 
-> This guide is for internal Snyk contributors with write access to this repository. If you are an external contributor, before working on any contributions, please first [contact support](https://support.snyk.io) to discuss the issue or feature request with us.
+> This guide is for internal Snyk contributors with write access to this repository.
 
 ## Prerequisites
 
