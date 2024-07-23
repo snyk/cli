@@ -4,6 +4,7 @@ package main
 import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -17,13 +18,19 @@ import (
 func getDebugLevel(config configuration.Configuration, logger *zerolog.Logger) zerolog.Level {
 	loglevel := zerolog.DebugLevel
 	if loglevelString := config.GetString("snyk_log_level"); loglevelString != "" {
+		logLevelParts := strings.Split(loglevelString, ":")
+
 		var err error
-		loglevel, err = zerolog.ParseLevel(loglevelString)
+		loglevel, err = zerolog.ParseLevel(logLevelParts[0])
 		if err == nil {
-			logger.Log().Msgf("Setting log level to %s", loglevelString)
+			logger.Log().Msgf("Setting log level to %s", logLevelParts[0])
 		} else {
 			logger.Log().Msgf("%v", err)
 			loglevel = zerolog.DebugLevel
+		}
+
+		for _, logger_parameter := range logLevelParts[1:] {
+			config.Set(fmt.Sprintf("internal_logger_param_%s", logger_parameter), true)
 		}
 	}
 	return loglevel

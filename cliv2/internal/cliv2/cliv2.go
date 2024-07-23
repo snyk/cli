@@ -401,6 +401,13 @@ func PrepareV1EnvironmentVariables(
 			inputAsMap[constants.SNYK_ENDPOINT_ENV] = config.GetString(configuration.API_URL)
 		}
 
+		if loglevelString := config.GetString("snyk_log_level"); loglevelString != "" {
+			logLevelParts := strings.Split(loglevelString, ":")
+			if logLevelParts[0] == "trace" {
+				inputAsMap["DEBUG"] = "*"
+			}
+		}
+
 		_, orgEnVarExists := inputAsMap[constants.SNYK_ORG_ENV]
 		if !utils.ContainsPrefix(args, "--org=") &&
 			!orgEnVarExists &&

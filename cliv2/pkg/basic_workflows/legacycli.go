@@ -133,8 +133,13 @@ func legacycliWorkflow(
 		cli.SetIoStreams(in, outWriter, errWriter)
 	} else {
 		scrubDict := logging.GetScrubDictFromConfig(config)
-		scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
-		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
+
+		if !config.GetBool("internal_logger_param_no-redact") {
+			scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
+			cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
+		} else {
+			cli.SetIoStreams(os.Stdin, os.Stdout, os.Stderr)
+		}
 	}
 
 	wrapperProxy, err := getProxyInstance(config, debugLogger)
