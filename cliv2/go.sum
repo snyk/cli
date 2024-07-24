@@ -663,6 +663,10 @@ github.com/open-policy-agent/opa v0.51.0 h1:2hS5xhos8HtkN+mgpqMhNJSFtn/1n/h3wh+A
 github.com/open-policy-agent/opa v0.51.0/go.mod h1:OjmwLfXdeR7skSxrt8Yd3ScXTqPxyJn7GeTRJrcEerU=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
 github.com/opencontainers/go-digest v1.0.0/go.mod h1:0JzlMkj0TRzQZfJkVvzbP0HBR3IKzErnv2BNG4W4MAM=
+github.com/otiai10/copy v1.14.0 h1:dCI/t1iTdYGtkvCuBG2BgR6KZa83PTclw4U5n2wAllU=
+github.com/otiai10/copy v1.14.0/go.mod h1:ECfuL02W+/FkTWZWgQqXPWZgW9oeKCSQ5qVfSc4qc4w=
+github.com/otiai10/mint v1.5.1 h1:XaPLeE+9vGbuyEHem1JNk3bYc7KKqyI/na0/mLd/Kks=
+github.com/otiai10/mint v1.5.1/go.mod h1:MJm72SBthJjz8qhefc4z1PYEieWmy8Bku7CjcAqyUSM=
 github.com/pact-foundation/pact-go v1.10.0 h1:LE954RwmeV0rSm21umyPGGCvzHkEhglowkNGyuMwNGM=
 github.com/pact-foundation/pact-go v1.10.0/go.mod h1:YLt/uSQGo9x5ZUjynLzNy3IiORlA4BtbR9p2yxgD2as=
 github.com/pact-foundation/pact-go/v2 v2.0.5 h1:t7Ngeug5TYYREKYBLAb+jmNUB84mJdBNTYRAfPLyY90=
@@ -748,8 +752,8 @@ github.com/snyk/policy-engine v0.30.11 h1:wUy5LMar2vccMbNM62MSBRdjAQAhAbIm7aNXXO
 github.com/snyk/policy-engine v0.30.11/go.mod h1:O6nwYXbb+SNDrYVWBwkieOwVuwXNKBHuXLm//fLz9Dw=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20240716092611-5daa97aa5fc3 h1:Gso/O0W7BaFhqQCE1HqXsz3cWy9Sl6cn54cxWx/RvNw=
-github.com/snyk/snyk-ls v0.0.0-20240716092611-5daa97aa5fc3/go.mod h1:d9f/Q8Pj9R6QBG7r818qEf94UfuUbL2mTsPqnoITNd0=
+github.com/snyk/snyk-ls v0.0.0-20240724110216-fff14d6d09e0 h1:9g5iv54hEMXAo3i8f0bfSNUOEoHF3CzwxmVmRFI/kOM=
+github.com/snyk/snyk-ls v0.0.0-20240724110216-fff14d6d09e0/go.mod h1:LJ9AOeLduu7sehimJjMcGxGwe6+MM/nYNPkHkIhXov0=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
