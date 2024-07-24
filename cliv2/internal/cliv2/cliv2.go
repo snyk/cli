@@ -527,6 +527,10 @@ func DeriveExitCode(err error) int {
 
 		if errors.As(err, &exitError) {
 			returnCode = exitError.ExitCode()
+			// map errors in subprocesses to exit code 2 to remain the documented exit code range
+			if returnCode < 0 {
+				returnCode = constants.SNYK_EXIT_CODE_ERROR
+			}
 		} else if errors.Is(err, context.DeadlineExceeded) {
 			returnCode = constants.SNYK_EXIT_CODE_EX_UNAVAILABLE
 		} else if errors.As(err, &errorWithExitCode) {
