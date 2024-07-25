@@ -37,6 +37,15 @@ export default function getWoof(args: MethodArgs): string {
     if (previewFeaturesEnabled()) {
       console.debug('This is a previewoof!');
     }
+
+    if (options['exit-code'] != undefined) {
+      const exitCode = Number(options['exit-code']);
+      if (exitCode < 0) {
+        process.abort();
+      } else {
+        process.exit(exitCode);
+      }
+    }
   }
 
   return woofs[lang];

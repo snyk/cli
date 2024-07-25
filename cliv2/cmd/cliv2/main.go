@@ -558,7 +558,7 @@ func MainWithErrorCode() int {
 	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
 
 	exitCode := cliv2.DeriveExitCode(err)
-	globalLogger.Printf("Exiting with %d", exitCode)
+	globalLogger.Printf("Exiting with %d (cause: %v)", exitCode, err)
 
 	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
 	if targetIdError != nil {
