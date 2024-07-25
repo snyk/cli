@@ -93,7 +93,7 @@ jobs:
         if: ${{ matrix.snyk_install_method == 'docker-bundle' && matrix.os == 'macos' }}
         run: |
           pushd "$(mktemp -d)"
-          curl 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}' | tar -xz
+          curl 'https://downloads.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}' | tar -xz
           pushd ./docker
           ls -la
           sudo ln -s "$(pwd)/snyk-mac.sh" ./snyk
@@ -116,7 +116,7 @@ jobs:
       - name: Install Snyk with binary - Non-Windows
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
         run: |
-          curl -Lo ./snyk-cli 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}'
+          curl -Lo ./snyk-cli 'https://downloads.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}'
           chmod -R +x ./snyk-cli
           sudo mv ./snyk-cli /usr/local/bin/snyk
           snyk --version
