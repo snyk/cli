@@ -7,6 +7,7 @@ import time
 
 import requests
 
+backup_url = "https://static.snyk.io"
 
 def get_os_arch():
     system = platform.system()
@@ -39,7 +40,7 @@ def get_os_arch():
         return None, None
 
 
-def download_snyk_cli(download_version, base_url):
+def download_snyk_cli(download_version, base_url, use_backup_url=1):
     success = 0
     fail = 1
 
@@ -50,12 +51,14 @@ def download_snyk_cli(download_version, base_url):
 
     filename, output_filename = get_filename(arch_type, os_type)
 
-    if download_version != "latest":
+    is_non_prefixed_version = download_version in ["latest", "stable", "preview", "rc"]
+    if not is_non_prefixed_version:
         if download_version[0] != "v":  # Add a "v" prefix if it's missing
             download_version = f"v{download_version}"
 
     url = f"{base_url}/cli/{download_version}/{filename}"
 
+    print(f"Downloading '{filename}' from: {url}")
     response = requests.get(url)
 
     if response.status_code == 200:
@@ -71,7 +74,9 @@ def download_snyk_cli(download_version, base_url):
         with open(downloaded_file_path, "wb") as f:
             f.write(response.content)
 
+        print("Verifying checksum")
         if verify_checksum(downloaded_file_path, sha256_checksum):
+            print("Checksum verified")
             os.rename(downloaded_file_path, filename)
             print(f"Snyk CLI {download_version} downloaded successfully to {filename}")
 
@@ -90,7 +95,10 @@ def download_snyk_cli(download_version, base_url):
             return fail
         return success
     else:
-        print(f"Failed to download Snyk CLI {download_version}")
+        print(f"Failed to download Snyk CLI {download_version} via {base_url}")
+        if use_backup_url == 1:
+            print(f"Trying download from: {backup_url}")
+            return download_snyk_cli(download_version, backup_url, use_backup_url=0)
         return fail
 
 
@@ -139,12 +147,13 @@ if __name__ == "__main__":
         "version", help="Version of Snyk CLI to download (e.g., 1.123.456)"
     )
     parser.add_argument(
-        "--base_url", help="Base URL to download from", default="https://static.snyk.io"
+        "--base_url", help="Base URL to download from", default="https://downloads.snyk.io"
     )
     parser.add_argument("--retry", help="number of retries", default=3)
 
     args = parser.parse_args()
 
+    # will try to download via the base_url and backup_url, if base_url fails, for each retry iteration
     for retry in range(1, args.retry + 1):
         print(
             "Trying to download version "
