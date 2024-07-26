@@ -25,6 +25,9 @@ parameters:
     type: string
     # https://github.com/cli/cli/releases
     default: '2.7.0'
+  run_monitor_deployment:
+    type: boolean
+    default: false
 
 orbs:
   prodsec: snyk/prodsec-orb@1
@@ -371,12 +374,30 @@ commands:
               circleci-agent step halt
             fi
 
+  download-from-cdn:
+    parameters:
+      version:
+        type: string
+      base_url:
+        type: string
+    steps:
+      - run:
+          name: Download << parameters.version >> from << parameters.base_url >>
+          command: |
+            rm -f ./snyk
+            curl -L --compressed https://<< parameters.base_url >>/cli/<< parameters.version >>/snyk-linux -o ./snyk
+            chmod +x ./snyk
+            ./snyk --version
+
 ####################################################################################################
 # WORKFLOWS
 ####################################################################################################
 
 workflows:
   test_and_release:
+    when:
+      not:
+        equal: [true, << pipeline.parameters.run_monitor_deployment >>]
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
@@ -895,6 +916,12 @@ workflows:
                 - main
                 - '/release.*/'
 
+  monitor_deployments:
+    when:
+      equal: [true, << pipeline.parameters.run_monitor_deployment >>]
+    jobs:
+      - test-deployment-cdn
+
 ####################################################################################################
 # JOBS
 ####################################################################################################
@@ -1400,3 +1427,28 @@ jobs:
       - run:
           name: No operation
           command: echo Nothing to be done!
+
+  test-deployment-cdn:
+    executor: generic-ubuntu
+    steps:
+      - run:
+          name: Install dependencies
+          command: echo UTC > /etc/timezone && apt update && apt install -y sudo curl
+      - download-from-cdn:
+          version: latest
+          base_url: downloads.snyk.io
+      - download-from-cdn:
+          version: preview
+          base_url: downloads.snyk.io
+      - download-from-cdn:
+          version: rc
+          base_url: downloads.snyk.io
+      - download-from-cdn:
+          version: latest
+          base_url: static.snyk.io
+      - download-from-cdn:
+          version: preview
+          base_url: static.snyk.io
+      - download-from-cdn:
+          version: rc
+          base_url: static.snyk.io
