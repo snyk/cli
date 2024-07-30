@@ -199,6 +199,8 @@ func (p *WrapperProxy) Start() error {
 	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
 	proxy.OnRequest().HandleConnect(p)
 	proxy.OnResponse().DoFunc(func(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
+		networking.LogResponse(resp, p.DebugLogger)
+
 		if authFailed := resp.Request.Header.Get(headerSnykAuthFailed); authFailed != "" {
 			resp.Header.Set(headerSnykAuthFailed, authFailed)
 		}
