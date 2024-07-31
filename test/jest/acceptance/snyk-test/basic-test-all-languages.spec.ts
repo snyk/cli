@@ -139,6 +139,29 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(result.stderr).toMatch(wrongPythonCommand);
   });
 
+  test('run `snyk test` on a pipenv project', async () => {
+    const project = await createProjectFromWorkspace('pipenv-app');
+    let pythonCommand = 'python';
+
+    await runCommand(pythonCommand, ['--version']).catch(function() {
+      pythonCommand = 'python3';
+    });
+
+    const pipenvResult = await runCommand('pipenv', ['install'], {
+      shell: true,
+      cwd: project.path(),
+    });
+
+    expect(pipenvResult.code).toEqual(0);
+
+    const result = await runSnykCLI('test -d --command=' + pythonCommand, {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(result.code).toEqual(0);
+  });
+
   test('run `snyk test` on a gradle project', async () => {
     const project = await createProjectFromWorkspace('gradle-app');
 
