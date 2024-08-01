@@ -12,7 +12,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/logging"
-	"github.com/snyk/go-application-framework/pkg/networking"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
@@ -74,7 +73,6 @@ func legacycliWorkflow(
 	config := invocation.GetConfiguration()
 	debugLogger := invocation.GetEnhancedLogger() // uses zerolog
 	debugLoggerDefault := invocation.GetLogger()  // uses log
-	networkAccess := invocation.GetNetworkAccess()
 
 	oauthIsAvailable := config.GetBool(configuration.FF_OAUTH_AUTH_FLOW_ENABLED)
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
@@ -138,7 +136,7 @@ func legacycliWorkflow(
 		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}
 
-	wrapperProxy, err := getProxyInstance(config, debugLogger, proxyAuthenticationMechanism, networkAccess)
+	wrapperProxy, err := getProxyInstance(config, debugLogger, proxyAuthenticationMechanism, invocation.GetEngine())
 	if err != nil {
 		return output, err
 	}
@@ -176,7 +174,7 @@ func Cleanup() {
 	}
 }
 
-func getProxyInstance(config configuration.Configuration, debugLogger *zerolog.Logger, proxyAuthenticationMechanism httpauth.AuthenticationMechanism, networkAccess networking.NetworkAccess) (*proxy.WrapperProxy, error) {
+func getProxyInstance(config configuration.Configuration, debugLogger *zerolog.Logger, proxyAuthenticationMechanism httpauth.AuthenticationMechanism, engine workflow.Engine) (*proxy.WrapperProxy, error) {
 	proxyMutex.Lock()
 	defer proxyMutex.Unlock()
 
@@ -190,7 +188,7 @@ func getProxyInstance(config configuration.Configuration, debugLogger *zerolog.L
 		tmp.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
 
 		proxyHeaderFunc := func(req *http.Request) error {
-			headersErr := networkAccess.AddHeaders(req)
+			headersErr := engine.GetNetworkAccess().AddHeaders(req)
 			return headersErr
 		}
 		tmp.SetHeaderFunction(proxyHeaderFunc)
