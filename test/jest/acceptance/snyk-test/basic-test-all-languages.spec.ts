@@ -219,19 +219,32 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       const project = await createProjectFromWorkspace(fixture);
 
       const { code, stderr, stdout } = await runSnykCLI(
-        'test -d --dotnet-runtime-resolution',
+        'test --dotnet-runtime-resolution --json',
         {
           cwd: project.path(),
         },
       );
 
-      if (code !== 0) {
+      // Debug output on an unexpected exit code
+      if (code !== 0 && code !== 1) {
         console.debug(stderr);
         console.debug('---------------------------');
         console.debug(stdout);
       }
 
-      expect(code).toEqual(0);
+      // Expect an exit code of 0 or 1. Exit code 1 is possible if a new
+      // vulnerability is discovered in the installed version of dotnet's system
+      // libraries.
+      expect([0, 1]).toContain(code);
+
+      // Note: dotnet plugin can print a warning about runtime resolution, which breaks JSON output.
+      // This replacement regex is a temporary workaround until the dotnet plugin can be fixed.
+      const sanitizedStdout = stdout.replace(/^[\s\S]*?{/, '{');
+      const result = JSON.parse(sanitizedStdout);
+      expect(result?.ok).toBeDefined();
+
+      // Expect 'ok' to be true if exit 0, false if exit 1.
+      expect(result.ok).toBe(code === 0);
     },
   );
 
