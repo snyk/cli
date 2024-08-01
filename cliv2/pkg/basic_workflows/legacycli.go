@@ -12,6 +12,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/logging"
+	"github.com/snyk/go-application-framework/pkg/networking"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
@@ -137,22 +138,9 @@ func legacycliWorkflow(
 		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}
 
-	wrapperProxy, err := getProxyInstance(config, debugLogger)
+	wrapperProxy, err := getProxyInstance(config, debugLogger, proxyAuthenticationMechanism, networkAccess)
 	if err != nil {
 		return output, err
-	}
-
-	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
-
-	proxyHeaderFunc := func(req *http.Request) error {
-		headersErr := networkAccess.AddHeaders(req)
-		return headersErr
-	}
-	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
-
-	err = wrapperProxy.Start()
-	if err != nil {
-		return output, errors.Wrap(err, "Failed to start the proxy!")
 	}
 
 	// run the cli
@@ -188,17 +176,31 @@ func Cleanup() {
 	}
 }
 
-func getProxyInstance(config configuration.Configuration, debugLogger *zerolog.Logger) (*proxy.WrapperProxy, error) {
-	var err error
+func getProxyInstance(config configuration.Configuration, debugLogger *zerolog.Logger, proxyAuthenticationMechanism httpauth.AuthenticationMechanism, networkAccess networking.NetworkAccess) (*proxy.WrapperProxy, error) {
 	proxyMutex.Lock()
 	defer proxyMutex.Unlock()
 
 	if proxySingleton == nil {
 		// init proxy object
-		proxySingleton, err = proxy.NewWrapperProxy(config, cliv2.GetFullVersion(), debugLogger)
+		tmp, err := proxy.NewWrapperProxy(config, cliv2.GetFullVersion(), debugLogger)
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to create proxy!")
 		}
+
+		tmp.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
+
+		proxyHeaderFunc := func(req *http.Request) error {
+			headersErr := networkAccess.AddHeaders(req)
+			return headersErr
+		}
+		tmp.SetHeaderFunction(proxyHeaderFunc)
+
+		err = tmp.Start()
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed to start the proxy!")
+		}
+
+		proxySingleton = tmp
 	}
 
 	return proxySingleton, nil
