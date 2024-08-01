@@ -154,6 +154,20 @@ describe('snyk container', () => {
       expect(stdout).toContain('Package manager:   npm');
     });
 
+    it('npm projects target file are found in container image', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects//multi-project-image.tar`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Target file:       /usr/goof2/package.json');
+      expect(stdout).toContain('Target file:       /usr/goof3/node_modules');
+      expect(stdout).toContain('Target file:       /usr/goof/package.json');
+      expect(stdout).toContain(
+        'Target file:       /usr/local/lib/node_modules',
+      );
+    });
+
     it('npm depGraph is generated in an npm image with lockfiles image', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container test docker-archive:test/fixtures/container-projects/npm7-without-package-lock-file.tar --print-deps`,
