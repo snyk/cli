@@ -35,8 +35,14 @@ import {
 } from '../errors';
 import * as snyk from '../';
 import { isCI } from '../is-ci';
-import * as common from './common';
-import { RETRY_ATTEMPTS, RETRY_DELAY } from './common';
+import {
+  assembleQueryString,
+  constructProjectName,
+  depGraphToOutputString,
+  shouldPrintDepGraphs,
+  RETRY_ATTEMPTS,
+  RETRY_DELAY,
+} from './common';
 import config from '../config';
 import * as analytics from '../analytics';
 import { maybePrintDepGraph, maybePrintDepTree } from '../print-deps';
@@ -66,7 +72,7 @@ import {
 } from './types';
 import { getAuthHeader } from '../api-token';
 import { getEcosystem } from '../ecosystems';
-import { Issue } from '../ecosystems/types';
+import { Issue, ScanResult } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
 import { makeRequest } from '../request';
 import { spinner } from '../spinner';
@@ -279,6 +285,11 @@ async function sendAndParseResults(
     concurrency: MAX_CONCURRENCY,
   });
 
+  const depGraphsAndScanResults: {
+    depGraph: depGraphLib.DepGraph;
+    scanResult: ScanResult;
+  }[] = [];
+
   for (const { payload, originalPayload, response } of responses) {
     const {
       depGraph,
@@ -298,8 +309,10 @@ async function sendAndParseResults(
       options,
     );
 
+    depGraphsAndScanResults.push({ depGraph, scanResult });
+
     const ecosystem = getEcosystem(options);
-    if (ecosystem && options['print-deps']) {
+    if (ecosystem && shouldPrintDepGraphs(options)) {
       await spinner.clear<void>(spinnerLbl)();
       await maybePrintDepGraph(options, depGraph);
     }
@@ -328,6 +341,28 @@ async function sendAndParseResults(
       hasUnknownVersions,
     });
   }
+
+  // For a Container scan, we print the dep-graphs after we received all scan
+  // results; this is because analysis can detect more dependency graphs of
+  // applications within the container image.
+  if (getEcosystem(options) === 'docker' && options['print-graph']) {
+    await spinner.clear<void>(spinnerLbl)();
+    for (const { depGraph, scanResult } of depGraphsAndScanResults) {
+      if (!depGraph || !scanResult) {
+        continue;
+      }
+
+      console.log(
+        depGraphToOutputString(
+          depGraph.toJSON(),
+          constructProjectName(scanResult),
+        ),
+      );
+    }
+    // Do not print any further results after printing the dep-graphs.
+    return [];
+  }
+
   return results;
 }
 
@@ -337,11 +372,15 @@ export async function runTest(
   options: Options & TestOptions,
   featureFlags: Set<string> = new Set<string>(),
 ): Promise<TestResult[]> {
+  const isDocker = getEcosystem(options) === 'docker';
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
     const payloads = await assemblePayloads(root, options, featureFlags);
 
-    if (options['print-graph'] && !options['print-deps']) {
+    // Managed ecosystems have done full SCA at this point and
+    // dep-graphs can be printed. Container SCA must continue remotely
+    // however, and dep-graphs can only be printed later on.
+    if (!isDocker && shouldPrintDepGraphs(options)) {
       const results: TestResult[] = [];
       return results;
     }
@@ -366,7 +405,7 @@ export async function runTest(
       throw FailedToGetVulnsFromUnavailableResource(root, error.code);
     }
     if (
-      getEcosystem(options) === 'docker' &&
+      isDocker &&
       error.statusCode === 401 &&
       [
         'authentication required',
@@ -755,7 +794,7 @@ async function assembleLocalPayloads(
         : (pkg as DepTree).name;
 
       // print dep graph if `--print-graph` is set
-      if (options['print-graph'] && !options['print-deps']) {
+      if (shouldPrintDepGraphs(options)) {
         spinner.clear<void>(spinnerLbl)();
         let root: depGraphLib.DepGraph;
         if (scannedProject.depGraph) {
@@ -768,9 +807,7 @@ async function assembleLocalPayloads(
           );
         }
 
-        console.log(
-          common.depGraphToOutputString(root.toJSON(), targetFile || ''),
-        );
+        console.log(depGraphToOutputString(root.toJSON(), targetFile || ''));
       }
 
       const body: PayloadBody = {
@@ -829,7 +866,7 @@ async function assembleLocalPayloads(
           'x-is-ci': isCI(),
           authorization: getAuthHeader(),
         },
-        qs: common.assembleQueryString(options),
+        qs: assembleQueryString(options),
         body,
       };
 
@@ -871,7 +908,7 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
     {
       method: 'GET',
       url,
-      qs: common.assembleQueryString(options),
+      qs: assembleQueryString(options),
       json: true,
       headers: {
         'x-is-ci': isCI(),

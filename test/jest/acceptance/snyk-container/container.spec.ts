@@ -171,6 +171,7 @@ describe('snyk container', () => {
         timeout: 60 * 1000,
       });
     });
+
     it('prints dep graph with --print-graph flag', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container test --print-graph ${TEST_DISTROLESS_STATIC_IMAGE}`,
@@ -188,6 +189,16 @@ DepGraph end`,
         .split('DepGraph target:')[0];
       const jsonDG = JSON.parse(jsonDGStr);
       expect(jsonDG).toMatchObject(TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH);
+    });
+
+    it('prints all dep graphs with --print-graph flag', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test --print-graph pasapples/snyk-boot-web@sha256:793d76003676db3390dba497c2d11a2d30840a7a37aed51b5c7e8b9d9478bcc0`,
+      );
+
+      assertCliExitCode(code, 0, stderr);
+      const jsonDGStr = stdout.split('DepGraph data:').slice(1);
+      expect(jsonDGStr).toHaveLength(14);
     });
   });
 

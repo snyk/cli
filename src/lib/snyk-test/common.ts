@@ -1,7 +1,10 @@
+import { DepGraphData, DepGraph } from '@snyk/dep-graph';
+
 import config from '../config';
 import { color } from '../theme';
-import { DepGraphData } from '@snyk/dep-graph';
 import { jsonStringifyLargeObject } from '../json';
+import { ContainerTarget, ScanResult } from '../ecosystems/types';
+import { Options, TestOptions } from '../types';
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -82,4 +85,40 @@ ${jsonStringifyLargeObject(dg)}
 DepGraph target:
 ${targetName}
 DepGraph end`;
+}
+
+// @tommyknows (2023-08-15): constructProjectName attempts to construct the project
+// name the same way that registry does. This is a bit difficult because in Registry,
+// the code is distributed over multiple functions and files that need to be kept
+// in sync...
+// See https://github.com/snyk/cli/commit/28eeb789b5d3831df8751f2ff5cf552b64282a26
+export function constructProjectName(sr: ScanResult): string {
+  let suffix = '';
+  if (sr.identity.targetFile) {
+    suffix = ':' + sr.identity.targetFile;
+  }
+
+  if (sr.name) {
+    return sr.name + suffix;
+  }
+
+  const targetImage = (sr.target as ContainerTarget | undefined)?.image;
+  if (targetImage) {
+    return targetImage + suffix;
+  }
+
+  const dgFact = sr.facts.find((d) => d.type === 'depGraph');
+  // not every scanResult has a depGraph, for example the JAR fingerprints.
+  if (dgFact) {
+    const name = (dgFact.data as DepGraph | undefined)?.rootPkg.name;
+    if (name) {
+      return name + suffix;
+    }
+  }
+
+  return 'no-name' + suffix;
+}
+
+export function shouldPrintDepGraphs(options: Options & TestOptions): boolean {
+  return options['print-graph'] && !options['print-deps'];
 }
