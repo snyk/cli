@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as stream from 'stream';
 import * as get from 'lodash.get';
 import * as path from 'path';
 import * as pathUtil from 'path';
@@ -38,7 +39,8 @@ import { isCI } from '../is-ci';
 import {
   assembleQueryString,
   constructProjectName,
-  depGraphToOutputString,
+  depGraphToOutputStream,
+  mergeStreams,
   shouldPrintDepGraphs,
   RETRY_ATTEMPTS,
   RETRY_DELAY,
@@ -347,18 +349,22 @@ async function sendAndParseResults(
   // applications within the container image.
   if (getEcosystem(options) === 'docker' && options['print-graph']) {
     await spinner.clear<void>(spinnerLbl)();
+    const streams: stream.Readable[] = [];
     for (const { depGraph, scanResult } of depGraphsAndScanResults) {
       if (!depGraph || !scanResult) {
         continue;
       }
 
-      console.log(
-        depGraphToOutputString(
+      streams.push(
+        await depGraphToOutputStream(
           depGraph.toJSON(),
           constructProjectName(scanResult),
         ),
       );
     }
+
+    stream.Readable.from(await mergeStreams(...streams)).pipe(process.stdout);
+
     // Do not print any further results after printing the dep-graphs.
     return [];
   }
@@ -807,7 +813,9 @@ async function assembleLocalPayloads(
           );
         }
 
-        console.log(depGraphToOutputString(root.toJSON(), targetFile || ''));
+        (await depGraphToOutputStream(root.toJSON(), targetFile || '')).pipe(
+          process.stdout,
+        );
       }
 
       const body: PayloadBody = {

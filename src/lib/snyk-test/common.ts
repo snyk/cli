@@ -1,10 +1,22 @@
+import * as stream from 'stream';
 import { DepGraphData, DepGraph } from '@snyk/dep-graph';
+import { JsonStreamStringify } from 'json-stream-stringify';
 
 import config from '../config';
 import { color } from '../theme';
 import { jsonStringifyLargeObject } from '../json';
 import { ContainerTarget, ScanResult } from '../ecosystems/types';
 import { Options, TestOptions } from '../types';
+
+export async function* mergeStreams(
+  ...readables: NodeJS.ReadableStream[]
+): AsyncGenerator<string | Buffer> {
+  for (const readable of readables) {
+    for await (const chunk of readable) {
+      yield chunk;
+    }
+  }
+}
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -85,6 +97,27 @@ ${jsonStringifyLargeObject(dg)}
 DepGraph target:
 ${targetName}
 DepGraph end`;
+}
+
+// depGraphToOutputStream writes the given depGraphData, targetName to the given stream
+// as expected by the `depgraph` CLI workflow.
+export async function depGraphToOutputStream(
+  dg: DepGraphData,
+  targetName: string,
+): Promise<stream.Readable> {
+  return stream.Readable.from(
+    await mergeStreams(
+      stream.Readable.from('DepGraph data:\n'),
+      // XXX: the json stream currently exceeds the allowed output length,
+      // at least on my machine. uncommenting the next line will
+      // successfully print all 14 dep-graphs that I'm trying
+      // to print for my conatienr image fixture.
+      new JsonStreamStringify(dg),
+      stream.Readable.from(
+        `\nDepGraph target:\n${targetName}\nDepGraph end\n\n`,
+      ),
+    ),
+  );
 }
 
 // @tommyknows (2023-08-15): constructProjectName attempts to construct the project
