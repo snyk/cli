@@ -91,7 +91,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   };
 
   const popRequest = () => {
-    return requests.pop()!;
+    const request = requests?.pop();
+    if (request) return request;
+    else throw new Error('No request found in requests array');
   };
 
   const popRequests = (num: number) => {
@@ -223,6 +225,89 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         vulnerabilities: [],
       });
     }
+  });
+
+  // needed for code-client-go
+  app.get('/deeproxy/filters', (req, res) => {
+    res.status(200);
+    if (customResponse) {
+      res.send(customResponse);
+    }
+    res.send({});
+  });
+
+  // needed for code-client-go
+  app.post('/deeproxy/bundle', (req, res) => {
+    res.status(200);
+    res.send({
+      bundleHash:
+        'faa6b7161c14f933ef4ca79a18ad9283eab362d5e6d3a977125eb95b37c377d8',
+      missingFiles: [],
+    });
+  });
+
+  // needed for code-client-go
+  app.post(`/api/rest/orgs/:orgId/scans`, (req, res) => {
+    res.status(201);
+    res.send({ data: { id: 'a6fb2742-b67f-4dc3-bb27-42b67f1dc344' } });
+  });
+
+  // needed for code-client-go
+  app.get(`/api/rest/orgs/:orgId/scans/:id`, (req, res) => {
+    res.status(200);
+    res.send({
+      data: {
+        attributes: {
+          status: 'done',
+          components: [
+            { findings_url: 'http://localhost:12345/api/code_mock_stream' },
+          ],
+        },
+        id: 'a6fb2742-b67f-4dc3-bb27-42b67f1dc344',
+      },
+    });
+  });
+
+  app.get(`/api/code_mock_stream`, (req, res) => {
+    res.status(200);
+    res.send({
+      $schema:
+        'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
+      version: '2.1.0',
+      runs: [
+        {
+          tool: {
+            driver: {
+              name: 'SnykCode',
+              semanticVersion: '1.0.0',
+              version: '1.0.0',
+              rules: [],
+            },
+          },
+          results: [
+            {
+              ruleId: 'javascript/DisablePoweredBy',
+              ruleIndex: 1,
+              level: 'warning',
+            },
+          ],
+          properties: {
+            coverage: [
+              {
+                files: 8,
+                isSupported: true,
+                lang: 'JavaScript',
+              },
+              {
+                files: 1,
+                isSupported: true,
+                lang: 'HTML',
+              },
+            ],
+          },
+        },
+      ],
+    });
   });
 
   app.post(basePath + '/vuln/:registry', (req, res, next) => {
@@ -611,6 +696,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+  // needed for code-client-go
+  app.post(
+    basePath.replace('v1', 'hidden') + `/orgs/:orgId/workspaces`,
+    (req, res) => {
+      res.status(201).send({});
+    },
+  );
+
   app.post(`/rest/orgs/:orgId/sbom_tests`, (req, res) => {
     const response = {
       data: {
@@ -861,7 +954,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     getRequests,
     popRequest,
     popRequests,
-    setCustomResponse: setCustomResponse,
+    setCustomResponse,
     setLocalCodeEngineConfiguration,
     setNextResponse,
     setNextStatusCode,
