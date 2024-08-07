@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as stream from 'stream';
 import * as get from 'lodash.get';
 import * as path from 'path';
 import * as pathUtil from 'path';
@@ -39,8 +38,7 @@ import { isCI } from '../is-ci';
 import {
   assembleQueryString,
   constructProjectName,
-  depGraphToOutputStream,
-  mergeStreams,
+  depGraphsToOutputStream,
   shouldPrintDepGraphs,
   RETRY_ATTEMPTS,
   RETRY_DELAY,
@@ -349,21 +347,16 @@ async function sendAndParseResults(
   // applications within the container image.
   if (getEcosystem(options) === 'docker' && options['print-graph']) {
     await spinner.clear<void>(spinnerLbl)();
-    const streams: stream.Readable[] = [];
+
+    const depGraphs = new Map<string, depGraphLib.DepGraphData>();
     for (const { depGraph, scanResult } of depGraphsAndScanResults) {
       if (!depGraph || !scanResult) {
         continue;
       }
-
-      streams.push(
-        await depGraphToOutputStream(
-          depGraph.toJSON(),
-          constructProjectName(scanResult),
-        ),
-      );
+      depGraphs.set(constructProjectName(scanResult), depGraph.toJSON());
     }
 
-    stream.Readable.from(await mergeStreams(...streams)).pipe(process.stdout);
+    depGraphsToOutputStream(depGraphs).pipe(process.stdout);
 
     // Do not print any further results after printing the dep-graphs.
     return [];
@@ -813,9 +806,9 @@ async function assembleLocalPayloads(
           );
         }
 
-        (await depGraphToOutputStream(root.toJSON(), targetFile || '')).pipe(
-          process.stdout,
-        );
+        depGraphsToOutputStream(
+          new Map([[targetFile || '', root.toJSON()]]),
+        ).pipe(process.stdout);
       }
 
       const body: PayloadBody = {

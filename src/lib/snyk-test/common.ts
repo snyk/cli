@@ -7,16 +7,7 @@ import { color } from '../theme';
 import { jsonStringifyLargeObject } from '../json';
 import { ContainerTarget, ScanResult } from '../ecosystems/types';
 import { Options, TestOptions } from '../types';
-
-export async function* mergeStreams(
-  ...readables: NodeJS.ReadableStream[]
-): AsyncGenerator<string | Buffer> {
-  for (const readable of readables) {
-    for await (const chunk of readable) {
-      yield chunk;
-    }
-  }
-}
+import { ConcatStream } from '../stream';
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -86,8 +77,11 @@ export type FailOn = 'all' | 'upgradable' | 'patchable';
 export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY = 500;
 
-// depGraphData formats the given depGrahData with the targetName as expected by
-// the `depgraph` CLI workflow.
+/**
+ * depGraphToOutputString formats the given depGrahData with the targetName as expected by
+ * the `depgraph` CLI workflow.
+ * @deprecated use depGraphsToOutputStream instead.
+ */
 export function depGraphToOutputString(
   dg: DepGraphData,
   targetName: string,
@@ -99,25 +93,24 @@ ${targetName}
 DepGraph end`;
 }
 
-// depGraphToOutputStream writes the given depGraphData, targetName to the given stream
-// as expected by the `depgraph` CLI workflow.
-export async function depGraphToOutputStream(
-  dg: DepGraphData,
-  targetName: string,
-): Promise<stream.Readable> {
-  return stream.Readable.from(
-    await mergeStreams(
+/**
+ * depGraphsToOutputStreams takes a set depGraphData indexed by their target name, and returns a
+ * stream that can be pipe to a write stream (e.g. process.stdout) as expected by the `depgraph`
+ * CLI workflow.
+ */
+export function depGraphsToOutputStream(
+  depGraphs: Map<string, DepGraphData>,
+): stream.Readable {
+  const cStream = new ConcatStream();
+  for (const [targetName, depGraph] of depGraphs.entries())
+    cStream.append(
       stream.Readable.from('DepGraph data:\n'),
-      // XXX: the json stream currently exceeds the allowed output length,
-      // at least on my machine. uncommenting the next line will
-      // successfully print all 14 dep-graphs that I'm trying
-      // to print for my conatienr image fixture.
-      new JsonStreamStringify(dg),
+      new JsonStreamStringify(depGraph),
       stream.Readable.from(
         `\nDepGraph target:\n${targetName}\nDepGraph end\n\n`,
       ),
-    ),
-  );
+    );
+  return cStream;
 }
 
 // @tommyknows (2023-08-15): constructProjectName attempts to construct the project
