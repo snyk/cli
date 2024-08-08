@@ -72,7 +72,7 @@ import {
 } from './types';
 import { getAuthHeader } from '../api-token';
 import { getEcosystem } from '../ecosystems';
-import { Issue, ScanResult } from '../ecosystems/types';
+import { Issue } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
 import { makeRequest } from '../request';
 import { spinner } from '../spinner';
@@ -285,10 +285,7 @@ async function sendAndParseResults(
     concurrency: MAX_CONCURRENCY,
   });
 
-  const depGraphsAndScanResults: {
-    depGraph: depGraphLib.DepGraph;
-    scanResult: ScanResult;
-  }[] = [];
+  const depGraphs = new Map<string, depGraphLib.DepGraphData>();
 
   for (const { payload, originalPayload, response } of responses) {
     const {
@@ -309,7 +306,7 @@ async function sendAndParseResults(
       options,
     );
 
-    depGraphsAndScanResults.push({ depGraph, scanResult });
+    depGraphs.set(constructProjectName(scanResult), depGraph.toJSON());
 
     const ecosystem = getEcosystem(options);
     if (ecosystem && options['print-deps']) {
@@ -347,18 +344,7 @@ async function sendAndParseResults(
   // applications within the container image.
   if (getEcosystem(options) === 'docker' && options['print-graph']) {
     await spinner.clear<void>(spinnerLbl)();
-
-    const depGraphs = new Map<string, depGraphLib.DepGraphData>();
-    for (const { depGraph, scanResult } of depGraphsAndScanResults) {
-      if (!depGraph || !scanResult) {
-        continue;
-      }
-      depGraphs.set(constructProjectName(scanResult), depGraph.toJSON());
-    }
-
     depGraphsToOutputStream(depGraphs).pipe(process.stdout);
-
-    // Do not print any further results after printing the dep-graphs.
     return [];
   }
 
