@@ -1,4 +1,4 @@
-import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { Policy } from 'snyk-policy';
 import {
   IacOutputMeta,
   ProjectAttributes,

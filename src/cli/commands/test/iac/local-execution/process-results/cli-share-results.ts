@@ -7,7 +7,7 @@ import {
   ShareResultsOutput,
 } from '../types';
 import { convertIacResultToScanResult } from '../../../../../../lib/iac/envelope-formatters';
-import { Policy } from '../../../../../../lib/policy/find-and-load-policy';
+import { Policy } from 'snyk-policy';
 import {
   Contributor,
   IacOutputMeta,
