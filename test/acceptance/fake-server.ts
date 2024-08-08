@@ -349,7 +349,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       return;
     }
 
-    let depGraphData = {
+    const depGraphData = {
       schemaVersion: '1.2.0',
       pkgManager: {
         name: 'rpm',
@@ -357,9 +357,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       },
       pkgs: [
         {
-          id: 'docker-image|foo2@1.2.3',
+          id: 'docker-image|foo@1.2.3',
           info: {
-            name: 'docker-image|foo2',
+            name: 'docker-image|foo',
             version: '1.2.3',
           },
         },
@@ -369,7 +369,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         nodes: [
           {
             nodeId: 'root-node',
-            pkgId: 'docker-image|foo2@1.2.3',
+            pkgId: 'docker-image|foo@1.2.3',
             deps: [],
           },
         ],
@@ -377,9 +377,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     };
 
     // If a dep-graph can be found on the request, echo it.
-    depGraphData =
-      req.body.scanResult?.facts.find((fact) => fact.type === 'depGraph')
-        ?.data || depGraphData;
+    // depGraphData =
+    //   req.body.scanResult?.facts.find((fact) => fact.type === 'depGraph')
+    //     ?.data || depGraphData;
 
     res.send({
       result: {
