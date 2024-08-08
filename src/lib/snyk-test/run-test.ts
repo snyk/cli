@@ -306,7 +306,9 @@ async function sendAndParseResults(
       options,
     );
 
-    depGraphs.set(constructProjectName(scanResult), depGraph.toJSON());
+    if (depGraph) {
+      depGraphs.set(constructProjectName(scanResult), depGraph.toJSON());
+    }
 
     const ecosystem = getEcosystem(options);
     if (ecosystem && options['print-deps']) {
