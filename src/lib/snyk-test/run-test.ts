@@ -344,7 +344,7 @@ async function sendAndParseResults(
   // For a Container scan, we print the dep-graphs after we received all scan
   // results; this is because analysis can detect more dependency graphs of
   // applications within the container image.
-  if (getEcosystem(options) === 'docker' && options['print-graph']) {
+  if (getEcosystem(options) === 'docker' && shouldPrintDepGraphs(options)) {
     await spinner.clear<void>(spinnerLbl)();
     depGraphsToOutputStream(depGraphs).pipe(process.stdout);
     return [];
