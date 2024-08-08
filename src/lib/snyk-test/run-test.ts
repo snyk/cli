@@ -312,7 +312,7 @@ async function sendAndParseResults(
     depGraphsAndScanResults.push({ depGraph, scanResult });
 
     const ecosystem = getEcosystem(options);
-    if (ecosystem && shouldPrintDepGraphs(options)) {
+    if (ecosystem && options['print-deps']) {
       await spinner.clear<void>(spinnerLbl)();
       await maybePrintDepGraph(options, depGraph);
     }

@@ -349,36 +349,43 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       return;
     }
 
+    let depGraphData = {
+      schemaVersion: '1.2.0',
+      pkgManager: {
+        name: 'rpm',
+        repositories: [{ alias: 'rhel:8.2' }],
+      },
+      pkgs: [
+        {
+          id: 'docker-image|foo2@1.2.3',
+          info: {
+            name: 'docker-image|foo2',
+            version: '1.2.3',
+          },
+        },
+      ],
+      graph: {
+        rootNodeId: 'root-node',
+        nodes: [
+          {
+            nodeId: 'root-node',
+            pkgId: 'docker-image|foo2@1.2.3',
+            deps: [],
+          },
+        ],
+      },
+    };
+
+    // If a dep-graph can be found on the request, echo it.
+    depGraphData =
+      req.body.scanResult?.facts.find((fact) => fact.type === 'depGraph')
+        ?.data || depGraphData;
+
     res.send({
       result: {
         issues: [],
         issuesData: {},
-        depGraphData: {
-          schemaVersion: '1.2.0',
-          pkgManager: {
-            name: 'rpm',
-            repositories: [{ alias: 'rhel:8.2' }],
-          },
-          pkgs: [
-            {
-              id: 'docker-image|foo@1.2.3',
-              info: {
-                name: 'docker-image|foo',
-                version: '1.2.3',
-              },
-            },
-          ],
-          graph: {
-            rootNodeId: 'root-node',
-            nodes: [
-              {
-                nodeId: 'root-node',
-                pkgId: 'docker-image|foo@1.2.3',
-                deps: [],
-              },
-            ],
-          },
-        },
+        depGraphData,
       },
       meta: {
         org: 'test-org',
@@ -691,9 +698,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         });
       };
 
-      if (Array.isArray(depGraphs) && req.body.subject) {
+      if (Array.isArray(depGraphs)) {
         // Return a fixture of an all-projects SBOM.
-        name = req.body.subject.name;
+        name = req.body.subject.name || depGraphs[0].pkgs[0]?.info.name || '';
         components = depGraphs
           .flatMap(({ pkgs }) => pkgs)
           .map(({ info: { name } }) => ({ name }));
