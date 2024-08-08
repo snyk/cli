@@ -15,7 +15,7 @@ require (
 	github.com/snyk/cli-extension-sbom v0.0.0-20240722082449-69a631da39ad
 	github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1
 	github.com/snyk/error-catalog-golang-public v0.0.0-20240724122202-c7d3fb545c88
-	github.com/snyk/go-application-framework v0.0.0-20240725135406-ef950283001b
+	github.com/snyk/go-application-framework v0.0.0-20240805133359-9b7c985cfc80
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20240724110216-fff14d6d09e0

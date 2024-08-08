@@ -60,6 +60,7 @@ var interactionId = uuid.NewString()
 const (
 	unknownCommandMessage  string = "unknown command"
 	disable_analytics_flag string = "DISABLE_ANALYTICS"
+	debug_level_flag       string = "log-level"
 )
 
 type JsonErrorStruct struct {
@@ -90,6 +91,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.ANALYTICS_DISABLED, []string{strings.ToLower(constants.SNYK_ANALYTICS_DISABLED_ENV), "snyk_cfg_disable_analytics", "disable-analytics", "disable_analytics"})
 	config.AddAlternativeKeys(configuration.ORGANIZATION, []string{"snyk_cfg_org"})
 	config.AddAlternativeKeys(configuration.PREVIEW_FEATURES_ENABLED, []string{"snyk_preview"})
+	config.AddAlternativeKeys(configuration.LOG_LEVEL, []string{debug_level_flag})
 
 	// if the CONFIG_KEY_OAUTH_TOKEN is specified as env var, we don't apply any additional logic
 	_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
@@ -311,6 +313,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalFLags := workflow.FlagsetFromConfigurationOptions(globalConfigurationOptions)
 	globalFLags.Bool(basic_workflows.PROXY_NOAUTH, false, "")
 	globalFLags.Bool(disable_analytics_flag, false, "")
+	globalFLags.String(debug_level_flag, "debug", "")
 	return globalFLags
 }
 
