@@ -1,7 +1,9 @@
+import { Writable } from 'stream';
+
 import { isUnmanagedEcosystem } from '../../../../../src/lib/ecosystems/common';
 import { handleProcessingStatus } from '../../../../../src/lib/polling/common';
 import { FailedToRunTestError } from '../../../../../src/lib/errors';
-import { formatUnmanagedResults } from '../../../../../src/lib/ecosystems/test';
+import { printUnmanagedDepGraph } from '../../../../../src/lib/ecosystems/test';
 import * as utils from '../../../../../src/lib/ecosystems/unmanaged/utils';
 import { DepGraphDataOpenAPI } from '../../../../../src/lib/ecosystems/unmanaged/types';
 
@@ -34,8 +36,8 @@ describe('handleProcessingStatus fn', () => {
   );
 });
 
-describe('formatUnmanagedResults fn', () => {
-  it('should return formatted results', async () => {
+describe('printUnmanagedDepGraph fn', () => {
+  it('should print the dep-graph', async () => {
     const mockedUnmanagedDepGraph: DepGraphDataOpenAPI = {
       schema_version: '1.2.0',
       pkg_manager: {
@@ -80,12 +82,17 @@ describe('formatUnmanagedResults fn', () => {
     jest
       .spyOn(utils, 'getUnmanagedDepGraph')
       .mockImplementation(() => Promise.resolve([mockedUnmanagedDepGraph]));
+    let buffer = Buffer.alloc(0);
+    const mockDest = new Writable({
+      write(chunk, _, next) {
+        buffer = Buffer.concat([buffer, chunk]);
+        next();
+      },
+    });
 
-    const { result } = await formatUnmanagedResults({}, 'foo/bar');
+    const { result } = await printUnmanagedDepGraph({}, 'foo/bar', mockDest);
 
-    expect(result.includes('DepGraph data:')).toBeTruthy();
-    expect(result.includes('DepGraph target:')).toBeTruthy();
-    expect(result.includes('foo/bar')).toBeTruthy();
-    expect(result.includes('DepGraph end')).toBeTruthy();
+    expect(result).toBe('');
+    expect(buffer.toString()).toMatchSnapshot();
   });
 });

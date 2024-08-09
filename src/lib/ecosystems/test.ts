@@ -1,3 +1,5 @@
+import { Writable } from 'stream';
+
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
@@ -9,7 +11,8 @@ import { getPlugin } from './plugins';
 import { TestDependenciesResponse } from '../snyk-test/legacy';
 import {
   assembleQueryString,
-  depGraphToOutputString,
+  printDepGraph,
+  shouldPrintDepGraph,
 } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
 import { resolveAndTestFacts } from './resolve-test-facts';
@@ -46,9 +49,9 @@ export async function testEcosystem(
   }
   spinner.clearAll();
 
-  if (isUnmanagedEcosystem(ecosystem) && options['print-graph']) {
+  if (isUnmanagedEcosystem(ecosystem) && shouldPrintDepGraph(options)) {
     const [target] = paths;
-    return formatUnmanagedResults(results, target);
+    return printUnmanagedDepGraph(results, target, process.stdout);
   }
 
   const [testResults, errors] = await selectAndExecuteTestStrategy(
@@ -87,16 +90,17 @@ export async function selectAndExecuteTestStrategy(
     : await testDependencies(scanResultsByPath, options);
 }
 
-export async function formatUnmanagedResults(
+export async function printUnmanagedDepGraph(
   results: ScanResultsByPath,
   target: string,
+  destination: Writable,
 ): Promise<TestCommandResult> {
   const [result] = await getUnmanagedDepGraph(results);
   const depGraph = convertDepGraph(result);
 
-  return TestCommandResult.createJsonTestCommandResult(
-    depGraphToOutputString(depGraph, target),
-  );
+  await printDepGraph(depGraph, target, destination);
+
+  return TestCommandResult.createJsonTestCommandResult('');
 }
 
 async function testDependencies(
