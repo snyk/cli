@@ -72,7 +72,10 @@ import {
 import { getAuthHeader } from '../api-token';
 import { getEcosystem } from '../ecosystems';
 import { Issue } from '../ecosystems/types';
-import { assembleEcosystemPayloads } from './assemble-payloads';
+import {
+  assembleEcosystemPayloads,
+  constructProjectName,
+} from './assemble-payloads';
 import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
@@ -235,6 +238,8 @@ async function sendAndParseResults(
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
+  const ecosystem = getEcosystem(options);
+  const depGraphs = new Map<string, depGraphLib.DepGraphData>();
 
   await spinner.clear<void>(spinnerLbl)();
   if (!options.quiet) {
@@ -303,10 +308,14 @@ async function sendAndParseResults(
       options,
     );
 
-    const ecosystem = getEcosystem(options);
     if (ecosystem && options['print-deps']) {
       await spinner.clear<void>(spinnerLbl)();
       await maybePrintDepGraph(options, depGraph);
+    }
+
+    if (ecosystem && depGraph) {
+      const targetName = scanResult ? constructProjectName(scanResult) : '';
+      depGraphs.set(targetName, depGraph.toJSON());
     }
 
     const legacyRes = convertIssuesToAffectedPkgs(response);
@@ -333,6 +342,15 @@ async function sendAndParseResults(
       hasUnknownVersions,
     });
   }
+
+  if (ecosystem && shouldPrintDepGraph(options)) {
+    await spinner.clear<void>(spinnerLbl)();
+    for (const [targetName, depGraph] of depGraphs.entries()) {
+      await printDepGraph(depGraph, targetName, process.stdout);
+    }
+    return [];
+  }
+
   return results;
 }
 
@@ -346,7 +364,10 @@ export async function runTest(
   try {
     const payloads = await assemblePayloads(root, options, featureFlags);
 
-    if (shouldPrintDepGraph(options)) {
+    // At this point managed ecosystems have dependency graphs printed.
+    // Containers however require another roundtrip to get all the
+    // dependency graph artifacts for printing.
+    if (!options.docker && shouldPrintDepGraph(options)) {
       const results: TestResult[] = [];
       return results;
     }
