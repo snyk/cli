@@ -5,6 +5,13 @@ import * as path from 'path';
 import { AcceptanceTests } from '../cli-test.acceptance.test';
 import { getFixturePath } from '../../jest/util/getFixturePath';
 
+const fixedDepGraph = {
+  schemaVersion: '1.2.0',
+  pkgManager: { name: 'rpm' },
+  pkgs: [],
+  graph: { nodes: [] },
+};
+
 export const DockerTests: AcceptanceTests = {
   language: 'Docker',
   tests: {
@@ -15,7 +22,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 { type: 'dockerfileAnalysis', data: {} },
               ],
               identity: {
@@ -47,7 +54,7 @@ export const DockerTests: AcceptanceTests = {
         {
           scanResult: {
             facts: [
-              { type: 'depGraph', data: {} },
+              { type: 'depGraph', data: fixedDepGraph },
               { type: 'dockerfileAnalysis', data: {} },
             ],
             identity: {
@@ -86,7 +93,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 { type: 'dockerfileAnalysis', data: {} },
               ],
               identity: {
@@ -121,7 +128,7 @@ export const DockerTests: AcceptanceTests = {
         {
           scanResult: {
             facts: [
-              { type: 'depGraph', data: {} },
+              { type: 'depGraph', data: fixedDepGraph },
               { type: 'dockerfileAnalysis', data: {} },
             ],
             identity: {
@@ -161,7 +168,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 { type: 'dockerfileAnalysis', data: {} },
               ],
               identity: {
@@ -210,7 +217,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 {
                   type: 'dockerfileAnalysis',
                   data: {
@@ -260,7 +267,7 @@ export const DockerTests: AcceptanceTests = {
         {
           scanResult: {
             facts: [
-              { type: 'depGraph', data: {} },
+              { type: 'depGraph', data: fixedDepGraph },
               {
                 type: 'dockerfileAnalysis',
                 data: {
@@ -316,7 +323,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 { type: 'dockerfileAnalysis', data: {} },
               ],
               identity: {
@@ -360,7 +367,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 { type: 'dockerfileAnalysis', data: {} },
               ],
               identity: {
@@ -392,7 +399,7 @@ export const DockerTests: AcceptanceTests = {
         {
           scanResult: {
             facts: [
-              { type: 'depGraph', data: {} },
+              { type: 'depGraph', data: fixedDepGraph },
               { type: 'dockerfileAnalysis', data: {} },
             ],
             identity: {
@@ -439,7 +446,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 { type: 'dockerfileAnalysis', data: {} },
               ],
               identity: {
@@ -467,7 +474,7 @@ export const DockerTests: AcceptanceTests = {
         {
           scanResult: {
             facts: [
-              { type: 'depGraph', data: {} },
+              { type: 'depGraph', data: fixedDepGraph },
               { type: 'dockerfileAnalysis', data: {} },
             ],
             identity: {
@@ -506,7 +513,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 { type: 'dockerfileAnalysis', data: {} },
                 {
                   type: 'keyBinariesHashes',
@@ -544,7 +551,7 @@ export const DockerTests: AcceptanceTests = {
         {
           scanResult: {
             facts: [
-              { type: 'depGraph', data: {} },
+              { type: 'depGraph', data: fixedDepGraph },
               { type: 'dockerfileAnalysis', data: {} },
               {
                 type: 'keyBinariesHashes',
@@ -589,7 +596,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 { type: 'dockerfileAnalysis', data: {} },
                 {
                   type: 'keyBinariesHashes',
@@ -654,7 +661,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 {
                   type: 'dockerfileAnalysis',
                   data: {
@@ -704,7 +711,7 @@ export const DockerTests: AcceptanceTests = {
           scanResults: [
             {
               facts: [
-                { type: 'depGraph', data: {} },
+                { type: 'depGraph', data: fixedDepGraph },
                 {
                   type: 'autoDetectedUserInstructions',
                   data: {
@@ -836,7 +843,7 @@ async function testSarif(t, utils, params, flags) {
       scanResults: [
         {
           facts: [
-            { type: 'depGraph', data: {} },
+            { type: 'depGraph', data: fixedDepGraph },
             { type: 'dockerfileAnalysis', data: {} },
             {
               type: 'keyBinariesHashes',
