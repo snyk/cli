@@ -48,6 +48,10 @@ async function executeTest(root, options) {
       );
     }
 
+    if (options['print-graph']) {
+      options.quiet = true;
+    }
+
     return run(root, options, featureFlags).then((results) => {
       for (const res of results) {
         if (!res.packageManager) {
