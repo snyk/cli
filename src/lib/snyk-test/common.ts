@@ -1,7 +1,11 @@
+import { Readable, Writable } from 'stream';
+import { JsonStreamStringify } from 'json-stream-stringify';
+import { DepGraphData } from '@snyk/dep-graph';
+
 import config from '../config';
 import { color } from '../theme';
-import { DepGraphData } from '@snyk/dep-graph';
-import { jsonStringifyLargeObject } from '../json';
+import { Options } from '../types';
+import { ConcatStream } from '../stream';
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -71,15 +75,27 @@ export type FailOn = 'all' | 'upgradable' | 'patchable';
 export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY = 500;
 
-// depGraphData formats the given depGrahData with the targetName as expected by
-// the `depgraph` CLI workflow.
-export function depGraphToOutputString(
-  dg: DepGraphData,
+/**
+ * printDepGraph writes the given dep-graph and target name to the destination
+ * stream as expected by the `depgraph` CLI workflow.
+ */
+export async function printDepGraph(
+  depGraph: DepGraphData,
   targetName: string,
-): string {
-  return `DepGraph data:
-${jsonStringifyLargeObject(dg)}
-DepGraph target:
-${targetName}
-DepGraph end`;
+  destination: Writable,
+): Promise<void> {
+  return new Promise((res, rej) => {
+    new ConcatStream(
+      Readable.from('DepGraph data:\n'),
+      new JsonStreamStringify(depGraph),
+      Readable.from(`\nDepGraph target:\n${targetName}\nDepGraph end\n\n`),
+    )
+      .on('end', res)
+      .on('error', rej)
+      .pipe(destination);
+  });
+}
+
+export function shouldPrintDepGraph(opts: Options): boolean {
+  return opts['print-graph'] && !opts['print-deps'];
 }

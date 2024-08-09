@@ -35,8 +35,13 @@ import {
 } from '../errors';
 import * as snyk from '../';
 import { isCI } from '../is-ci';
-import * as common from './common';
-import { RETRY_ATTEMPTS, RETRY_DELAY } from './common';
+import {
+  RETRY_ATTEMPTS,
+  RETRY_DELAY,
+  printDepGraph,
+  assembleQueryString,
+  shouldPrintDepGraph,
+} from './common';
 import config from '../config';
 import * as analytics from '../analytics';
 import { maybePrintDepGraph, maybePrintDepTree } from '../print-deps';
@@ -341,7 +346,7 @@ export async function runTest(
   try {
     const payloads = await assemblePayloads(root, options, featureFlags);
 
-    if (options['print-graph'] && !options['print-deps']) {
+    if (shouldPrintDepGraph(options)) {
       const results: TestResult[] = [];
       return results;
     }
@@ -754,8 +759,7 @@ async function assembleLocalPayloads(
         ? (pkg as depGraphLib.DepGraph).rootPkg.name
         : (pkg as DepTree).name;
 
-      // print dep graph if `--print-graph` is set
-      if (options['print-graph'] && !options['print-deps']) {
+      if (shouldPrintDepGraph(options)) {
         spinner.clear<void>(spinnerLbl)();
         let root: depGraphLib.DepGraph;
         if (scannedProject.depGraph) {
@@ -768,9 +772,7 @@ async function assembleLocalPayloads(
           );
         }
 
-        console.log(
-          common.depGraphToOutputString(root.toJSON(), targetFile || ''),
-        );
+        await printDepGraph(root.toJSON(), targetFile || '', process.stdout);
       }
 
       const body: PayloadBody = {
@@ -829,7 +831,7 @@ async function assembleLocalPayloads(
           'x-is-ci': isCI(),
           authorization: getAuthHeader(),
         },
-        qs: common.assembleQueryString(options),
+        qs: assembleQueryString(options),
         body,
       };
 
@@ -871,7 +873,7 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
     {
       method: 'GET',
       url,
-      qs: common.assembleQueryString(options),
+      qs: assembleQueryString(options),
       json: true,
       headers: {
         'x-is-ci': isCI(),
