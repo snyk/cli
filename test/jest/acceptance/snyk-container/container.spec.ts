@@ -185,23 +185,31 @@ describe('snyk container', () => {
         timeout: 60 * 1000,
       });
     });
+
     it('prints dep graph with --print-graph flag', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
-        `container test --print-graph ${TEST_DISTROLESS_STATIC_IMAGE}`,
+        `container test --print-graph docker-archive:test/fixtures/container-projects/multi-project-image.tar`,
       );
 
       assertCliExitCode(code, 0, stderr);
+
       expect(stdout).toContain('DepGraph data:');
       expect(stdout).toContain(
         `DepGraph target:
-docker-image|gcr.io/distroless/static
+docker-image|multi-project-image.tar
 DepGraph end`,
       );
-      const jsonDGStr = stdout
-        .split('DepGraph data:')[1]
-        .split('DepGraph target:')[0];
-      const jsonDG = JSON.parse(jsonDGStr);
-      expect(jsonDG).toMatchObject(TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH);
+
+      const payloads = stdout
+        .split('DepGraph data:')
+        .slice(1)
+        .map((payload) =>
+          payload
+            .split('DepGraph target:')
+            .map((str) => str.replace('DepGraph end', '').trim()),
+        );
+
+      expect(payloads).toMatchSnapshot();
     });
   });
 
@@ -251,6 +259,15 @@ DepGraph end`,
     });
 
     it('should print sbom for image - spdx', async () => {
+      // return a dep-graph fixture from `/test-dependencies` endpoint
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
       const {
         code,
         stdout,
@@ -274,6 +291,15 @@ DepGraph end`,
     });
 
     it('should print sbom for image - cyclonedx 1.4', async () => {
+      // return a dep-graph fixture from `/test-dependencies` endpoint
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
       const {
         code,
         stdout,
@@ -301,6 +327,15 @@ DepGraph end`,
     });
 
     it('should print sbom for image - cyclonedx 1.5', async () => {
+      // return a dep-graph fixture from `/test-dependencies` endpoint
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
       const {
         code,
         stdout,
