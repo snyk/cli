@@ -63,7 +63,7 @@ Example: `--detection-depth=3` limits search to the specified directory (or the 
 
 ### `--exclude=<NAME>[,<NAME>]...>`
 
-Can be used with `--all-projects` and `--yarn-workspaces` to indicate directory names and file names to exclude. Must be comma-separated, and cannot include a path.&#x20;
+Can be used with `--all-projects` and `--yarn-workspaces` to indicate directory names and file names to exclude. Must be comma-separated, and cannot include a path.
 
 Example: `$ snyk test --all-projects --exclude=dir1,file2`
 
@@ -114,7 +114,7 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 **Note:** You can also use `--org=<orgslugname>.` The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
-`orgslugname` must match the slug name as displayed in the URL of your org in the Snyk UI: `https://snyk.io/org/[orgslugname]`. The orgname does not work.
+`orgslugname` must match the slug name as displayed in the URL of your org in the Snyk UI: `https://app.snyk.io/org/[orgslugname]`. The orgname does not work.
 
 For more information see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
@@ -244,7 +244,7 @@ To test individual JAR, WAR, and AAR files, use the following:
 
 ### `--scan-all-unmanaged`
 
-Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.&#x20;
+Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.
 
 `--scan-all-unmanaged`
 
@@ -260,9 +260,9 @@ For Gradle multi project configurations, test a specific sub-project.
 
 ### `--all-sub-projects`
 
-For multi project configurations, test all sub-projects. \
+For multi project configurations, test all sub-projects.\
 \
-Both a build.gradle file and a settings.gradle file, or equivalent files, based on the package manager, must exist in the current directory.&#x20;
+Both a build.gradle file and a settings.gradle file, or equivalent files, based on the package manager, must exist in the current directory.
 
 ### `--all-projects`
 
@@ -276,7 +276,7 @@ This option is designed to be run in the root of your monorepo.
 
 ### `--configuration-matching=<CONFIGURATION_REGEX>`
 
-Resolve dependencies using only configuration(s) that match the specified Java regular expression.
+Resolve dependencies using the first configuration that matches the specified Java regular expression.
 
 Example: `^releaseRuntimeClasspath$`
 
