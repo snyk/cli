@@ -485,6 +485,7 @@ workflows:
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: macos-arm64
           install_deps_extension: macos-build
+          context: snyk-macos-signing
           requires:
             - prepare-build
 
@@ -496,6 +497,7 @@ workflows:
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: macos-arm64
           install_deps_extension: macos-build
+          context: snyk-macos-signing
           requires:
             - prepare-build
 
