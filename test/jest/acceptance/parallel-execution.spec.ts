@@ -5,11 +5,11 @@ jest.setTimeout(1000 * 120);
 
 describe('Parallel CLI execution', () => {
   it('parallel woof', async () => {
-    const numberOfParallelExecutions = 10;
+    const numberOfParallelExecutions = 20;
 
     const singleTestResult: Promise<RunCommandResult>[] = [];
     for (let i = 0; i < numberOfParallelExecutions; i++) {
-      singleTestResult.push(runSnykCLI(`woof -d`));
+      singleTestResult.push(runSnykCLI(`test -d`));
     }
 
     for (let i = 0; i < numberOfParallelExecutions; i++) {
