@@ -87,7 +87,7 @@ export function getTool(testResult): sarif.Tool {
             testResult.packageManager!,
           ],
           cvssv3_baseScore: vuln.cvssScore, // AWS
-          'security-severity': String(vuln.cvssScore), // GitHub
+          'security-severity': String(!!vuln.cvssScore? vuln.cvssScore : 0), // GitHub
         },
       };
     })
