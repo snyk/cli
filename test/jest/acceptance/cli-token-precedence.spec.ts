@@ -110,7 +110,7 @@ describe('cli token precedence', () => {
         );
       });
 
-      describe('when oauth env vars are set', () => {
+      describe('when env vars are set', () => {
         it('SNYK_OAUTH_TOKEN should override config', async () => {
           env = {
             ...env,
@@ -133,6 +133,18 @@ describe('cli token precedence', () => {
 
           const authHeader = server.popRequest().headers?.authorization;
           expect(authHeader).toEqual(`Bearer ${env.SNYK_DOCKER_TOKEN}`);
+        });
+
+        it('SNYK_TOKEN should override config', async () => {
+          env = {
+            ...env,
+            SNYK_TOKEN: 'SnykApiTokenEnvVar',
+          };
+
+          await runSnykCLI(`-d`, { env });
+
+          const authHeader = server.popRequest().headers?.authorization;
+          expect(authHeader).toEqual(`token ${env.SNYK_TOKEN}`);
         });
       });
 
