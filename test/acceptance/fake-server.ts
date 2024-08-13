@@ -612,9 +612,15 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   );
 
   app.post(`/rest/orgs/:orgId/sbom_tests`, (req, res) => {
+    let testId = '4b341b8a-4697-4e35-928b-4b9ae37f8ea8';
+
+    if (req.body.data.attributes.sbom.bomFormat !== 'CycloneDX') {
+      testId = '162c313c-b241-4f14-8579-618e9fa4c0e7';
+    }
+
     const response = {
       data: {
-        id: '4b341b8a-4697-4e35-928b-4b9ae37f8ea8',
+        id: testId,
         type: 'sbom_tests',
       },
       jsonapi: {
@@ -632,26 +638,45 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   app.get(`/rest/orgs/:orgId/sbom_tests/:id`, (req, res) => {
-    const response = {
-      data: {
-        id: '4b341b8a-4697-4e35-928b-4b9ae37f8ea8',
-        type: 'sbom_tests',
-        attributes: {
-          status: 'finished',
+    if (req.params.id === '162c313c-b241-4f14-8579-618e9fa4c0e7') {
+      res.status(422).send({
+        jsonapi: { version: '1.0' },
+        errors: [
+          {
+            id: 'f189ac86-c123-4f30-ab32-f93a1477e47f',
+            title: 'Unknown SBOM format',
+            status: '422',
+            code: 'SNYK-SBOM-0006',
+            meta: {
+              classification: 'UNSUPPORTED',
+              isErrorCatalogError: true,
+            },
+            links: {
+              about:
+                'https://docs.snyk.io/scan-with-snyk/error-catalog#snyk-sbom-0006',
+            },
+            source: {},
+          },
+        ],
+      });
+    } else {
+      res.status(303).send({
+        jsonapi: { version: '1.0' },
+        data: {
+          id: '4b341b8a-4697-4e35-928b-4b9ae37f8ea8',
+          type: 'sbom_tests',
+          attributes: {
+            status: 'finished',
+          },
         },
-      },
-      jsonapi: {
-        version: '1.0',
-      },
-      links: {
-        self:
-          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
-        related:
-          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8/results?version=2023-08-31~beta',
-      },
-    };
-    res.status(303);
-    res.send(response);
+        links: {
+          self:
+            '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
+          related:
+            '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8/results?version=2023-08-31~beta',
+        },
+      });
+    }
   });
 
   app.get(`/rest/orgs/:orgId/sbom_tests/:id/results`, (req, res) => {

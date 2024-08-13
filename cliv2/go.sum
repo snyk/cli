@@ -657,8 +657,8 @@ github.com/oapi-codegen/runtime v1.1.1 h1:EXLHh0DXIJnWhdRPN2w4MXAzFyE4CskzhNLUmt
 github.com/oapi-codegen/runtime v1.1.1/go.mod h1:SK9X900oXmPWilYR5/WKPzt3Kqxn/uS/+lbpREv+eCg=
 github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=
 github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6HuIJcUGPhkA7kY=
-github.com/onsi/gomega v1.27.10 h1:naR28SdDFlqrG6kScpT8VWpu1xWY5nJRCF3XaYyBjhI=
-github.com/onsi/gomega v1.27.10/go.mod h1:RsS8tutOdbdgzbPtzzATp12yT7kM5I5aElG3evPbQ0M=
+github.com/onsi/gomega v1.29.0 h1:KIA/t2t5UBzoirT4H9tsML45GEbo3ouUnBHsCfD2tVg=
+github.com/onsi/gomega v1.29.0/go.mod h1:9sxs+SwGrKI0+PWe4Fxa9tFQQBG5xSsSbMXOI8PPpoQ=
 github.com/open-policy-agent/opa v0.51.0 h1:2hS5xhos8HtkN+mgpqMhNJSFtn/1n/h3wh+AeTPJg6Q=
 github.com/open-policy-agent/opa v0.51.0/go.mod h1:OjmwLfXdeR7skSxrt8Yd3ScXTqPxyJn7GeTRJrcEerU=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
@@ -736,8 +736,8 @@ github.com/snyk/cli-extension-dep-graph v0.0.0-20240426125928-8d56ac52821e h1:j1
 github.com/snyk/cli-extension-dep-graph v0.0.0-20240426125928-8d56ac52821e/go.mod h1:QF3v8HBpOpyudYNCuR8LqfULutO76c91sBdLzD+pBJU=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672 h1:AkLej8Lk//vFex1fiygSYFrQTUd0xP+GyRbsI+m2kwQ=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672/go.mod h1:2vKTUsW73sVbDcyD19iNLfN0so2GSu9BE3k/fqG0mjA=
-github.com/snyk/cli-extension-sbom v0.0.0-20240722082449-69a631da39ad h1:PCy+fWM1LSQyNCS7zBYMuNi6vpQKL0FmdtdEGqyQYPE=
-github.com/snyk/cli-extension-sbom v0.0.0-20240722082449-69a631da39ad/go.mod h1:lqmQT+QdzLdfi7qsqIH4qvCsSWu+P09GDFwQcmFfC0g=
+github.com/snyk/cli-extension-sbom v0.0.0-20240812130014-3f4e892f15ec h1:xkRPBjcqXwRnWCYCoybM9PO2J/hYn8txm/wzwnDImZg=
+github.com/snyk/cli-extension-sbom v0.0.0-20240812130014-3f4e892f15ec/go.mod h1:5CaY1bgvJY/uoG/1plLOf8T8o9AkwoBIGvw34RfRLZw=
 github.com/snyk/code-client-go v1.8.0 h1:6H883KAn7ybiSIxhvL2QR9yEyHgAwA2+9WVHMDNEKa8=
 github.com/snyk/code-client-go v1.8.0/go.mod h1:orU911flV1kJQOlxxx0InUQkAfpBrcERsb2olfnlI8s=
 github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1 h1:9RKY9NdX5DrJAoVXDP0JiqrXT+4Nb9NH8pjEcA0NsLA=
