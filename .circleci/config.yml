@@ -385,9 +385,11 @@ commands:
           name: Download << parameters.version >> from << parameters.base_url >>
           command: |
             rm -f ./snyk
-            curl -L --compressed https://<< parameters.base_url >>/cli/<< parameters.version >>/snyk-linux -o ./snyk
-            chmod +x ./snyk
-            ./snyk --version
+            curl -L --compressed https://<< parameters.base_url >>/cli/<< parameters.version >>/snyk-linux -o ./snyk-linux
+            curl -L --compressed https://<< parameters.base_url >>/cli/<< parameters.version >>/snyk-linux.sha256 -o ./snyk-linux.sha256
+            sha256sum -c snyk-linux.sha256
+            chmod +x ./snyk-linux
+            ./snyk-linux --version
 
 ####################################################################################################
 # WORKFLOWS
