@@ -21,6 +21,8 @@ import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-t
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
+import { SUPPORTED_MANIFEST_FILES } from '../package-managers';
+import * as fs from 'fs';
 
 const debug = debugModule('snyk-test');
 
@@ -46,13 +48,17 @@ export async function getDepsFromPlugin(
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
 
-    const { files: targetFiles, allFilesFound } = await find({
+    const { files: targetFiles_temp, allFilesFound } = await find({
       path: root,
       ignore,
       filter: multiProjectProcessors[scanType].files,
       featureFlags,
       levelsDeep,
     });
+
+    //Remove files found which do meet schema requirements
+    const targetFiles = targetFiles_temp.filter(isValidPackageFileSchema);
+
     debug(
       `auto detect manifest files, found ${targetFiles.length}`,
       targetFiles,
@@ -154,4 +160,27 @@ export function warnSomeGradleManifestsNotScanned(
     return `${icon.ISSUE} ${diff.length}/${detectedGradleFiles.length} detected Gradle manifests did not return dependencies. They may have errored or were not included as part of a multi-project build. You may need to scan them individually with --file=path/to/file. Run with \`-d\` for more info.`;
   }
   return null;
+}
+
+
+// Evaluate the if the file conforms with expected schema when other popular frameworks conflict with naming convention.
+// If it is found to be the expected schema return true; othwewise, false
+function isValidPackageFileSchema(filePath:string) : boolean {
+  let isValid = true;
+  if( pathLib.basename(filePath) == SUPPORTED_MANIFEST_FILES.PROJECT_JSON ) {
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    const data = JSON.parse(fileContent);
+
+    // Define the keys specific to NuGet and Nx
+    const nugetKeys = ['dependencies', 'frameworks'];
+    const nxKeys = ['targets', 'architect', 'tasksRunnerOptions'];
+
+    // Check for NuGet-specific keys and ensure Nx-specific keys are not present
+    const hasNugetKeys = nugetKeys.some(key => key in data);
+    const hasNxKeys = nxKeys.some(key => key in data);
+
+    isValid = hasNugetKeys && !hasNxKeys;
+    debug( `auto detected manifest files, found ${filePath}.\n\tNuget Keys: ${hasNugetKeys}\n\tNX Keys: ${hasNxKeys}\n\tIs Valid Nuget: ${isValid}`);
+  }
+ return isValid;
 }
