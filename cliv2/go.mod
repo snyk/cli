@@ -1,11 +1,13 @@
 module github.com/snyk/cli/cliv2
 
-go 1.21
+go 1.22
+
+toolchain go1.22.5
 
 require (
 	github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a
 	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
-	github.com/gofrs/flock v0.8.1
+	github.com/gofrs/flock v0.12.1
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
@@ -15,10 +17,10 @@ require (
 	github.com/snyk/cli-extension-sbom v0.0.0-20240722082449-69a631da39ad
 	github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1
 	github.com/snyk/error-catalog-golang-public v0.0.0-20240809094525-c48d19c27edb
-	github.com/snyk/go-application-framework v0.0.0-20240809101931-3de5b6fbaf62
+	github.com/snyk/go-application-framework v0.0.0-20240814101709-b335a1ce00ac
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20240724110216-fff14d6d09e0
+	github.com/snyk/snyk-ls v0.0.0-20240814110458-759bec2da65d
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
