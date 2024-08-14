@@ -9,8 +9,10 @@ set -euo pipefail
 #APPLE_SIGNING_SECRETS_BINARY=EEE....
 #APPLE_SIGNING_SECRETS_PASSWORD=FFF
 
+SCRIPTDIR=$(dirname "$0")
 EXPORT_PATH=${1:-./bin}
 PRODUCT_NAME=${2:-snyk_darwin_amd64}
+SIGN_NODEJS_CLI=${3:-0}
 KEYCHAIN_PROFILE=AC_PASSWORD
 APP_PATH="$EXPORT_PATH/$PRODUCT_NAME"
 ZIP_PATH="$EXPORT_PATH/$PRODUCT_NAME.zip"
@@ -20,6 +22,11 @@ KEYCHAIN_NAME=CodeSigningChain
 KEYCHAIN_PASSWORD=123456
 KEYCHAIN_FILE="$HOME/Library/Keychains/$KEYCHAIN_NAME-db"
 OLD_KEYCHAIN_NAMES=$(security list-keychains | sed -E -e ':a' -e 'N' -e '$!ba' -e 's/\n//g' -e 's/ //g' -e 's/""/" "/g')
+CODESIGN_ENTITLEMENTS=""
+
+if [[ "$SIGN_NODEJS_CLI" = "--sign-nodejs-cli" ]]; then
+  CODESIGN_ENTITLEMENTS="--entitlements ${SCRIPTDIR}/osx-entitlements.plist"
+fi
 
 LOG_PREFIX="--- $(basename "$0"):"
 
@@ -28,6 +35,12 @@ echo "$LOG_PREFIX Signing & notarizing \"$APP_PATH\""
 if [[ "$OSTYPE" != *"darwin"* ]]; then
   echo "$LOG_PREFIX ERROR! This script needs to be run on macOS!"
   exit 1
+fi
+
+# if the required secrets are not available we skip signing completely without an error to enable local builds on windows. A later issigned check will catch this error in the build pipeline
+if [ -z "${APPLE_ID+x}" ]; then
+  echo "$LOG_PREFIX Skipping signing, since the required secrets are not available."
+  exit 0
 fi
 
 #
@@ -51,11 +64,17 @@ security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD"
 sleep 10
 
 echo "$LOG_PREFIX Signing binary $APP_PATH"
-codesign -s "$APPLE_SIGNING_IDENTITY" -v "$APP_PATH" --timestamp --options runtime 
+
+
+codesign -f -s "$APPLE_SIGNING_IDENTITY" -v "$APP_PATH" --timestamp --options runtime $CODESIGN_ENTITLEMENTS
 
 #
 # notarization
 #
+
+if [[ "$SIGN_NODEJS_CLI" = "--sign-nodejs-cli" ]]; then
+  exit 0
+fi
 
 # create a zip file
 echo "$LOG_PREFIX Creating zip file $ZIP_PATH"
