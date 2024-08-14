@@ -1436,21 +1436,21 @@ jobs:
       - run:
           name: Install dependencies
           command: echo UTC > /etc/timezone && apt update && apt install -y sudo curl
-      - download-from-cdn:
-          version: latest
-          base_url: downloads.snyk.io
-      - download-from-cdn:
-          version: preview
-          base_url: downloads.snyk.io
-      - download-from-cdn:
-          version: rc
-          base_url: downloads.snyk.io
-      - download-from-cdn:
-          version: latest
-          base_url: static.snyk.io
+#      - download-from-cdn:
+#          version: latest
+#          base_url: downloads.snyk.io
       - download-from-cdn:
           version: preview
-          base_url: static.snyk.io
+          base_url: downloads.snyk.io
+#      - download-from-cdn:
+#          version: rc
+#          base_url: downloads.snyk.io
+#      - download-from-cdn:
+#          version: latest
+#          base_url: static.snyk.io
       - download-from-cdn:
-          version: rc
+          version: preview
           base_url: static.snyk.io
+#      - download-from-cdn:
+#          version: rc
+#          base_url: static.snyk.io
