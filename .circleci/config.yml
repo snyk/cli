@@ -41,10 +41,6 @@ executors:
     docker:
       - image: ubuntu:latest
     resource_class: small
-  circle-go:
-    docker:
-      - image: cimg/go:1.20
-    resource_class: medium+
   docker-amd64:
     docker:
       - image: snyklabs/cli-build:20240814-161347
@@ -52,7 +48,7 @@ executors:
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: bastiandoetsch209/cli-build:20240814-161347
+      - image: snyklabs/cli-build:20240814-161347
     working_directory: /mnt/ramdisk/snyk
     resource_class: xlarge
   docker-arm64:
@@ -333,9 +329,12 @@ commands:
       - run:
           name: Installing Node.js + other test dependencies
           command: |
-            apk add --update nodejs npm bash maven git go gradle python3 py3-pip elixir composer
+            apk add --update nodejs npm bash maven git gradle python3 py3-pip elixir composer
             pip3 install pipenv requests PyYAML setuptools==70.3.0
             wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh
+            wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-amd64.tar.gz -O /tmp/go.tgz && \
+              tar -C /usr/local -xzvf /tmp/go.tgz && \
+              ln -s /usr/local/go/bin/go /usr/local/bin
 
   failed-release-notification:
     steps:
