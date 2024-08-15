@@ -7,11 +7,7 @@ import { getPlugin } from '../ecosystems';
 import { Ecosystem, ContainerTarget, ScanResult } from '../ecosystems/types';
 import { Options, PolicyOptions, TestOptions } from '../types';
 import { Payload } from './types';
-import {
-  assembleQueryString,
-  printDepGraph,
-  shouldPrintDepGraph,
-} from './common';
+import { assembleQueryString } from './common';
 import { spinner } from '../spinner';
 import { findAndLoadPolicyForScanResult } from '../ecosystems/policy';
 import { getAuthHeader } from '../../lib/api-token';
@@ -58,22 +54,6 @@ export async function assembleEcosystemPayloads(
       scanResult.name =
         options['project-name'] || config.PROJECT_NAME || scanResult.name;
 
-      if (shouldPrintDepGraph(options)) {
-        spinner.clear<void>(spinnerLbl)();
-
-        // not every scanResult has a 'depGraph' fact, for example the JAR
-        // fingerprints. I don't think we have another option than to skip
-        // those.
-        const dg = scanResult.facts.find((dg) => dg.type === 'depGraph');
-        if (dg) {
-          await printDepGraph(
-            dg.data.toJSON(),
-            constructProjectName(scanResult),
-            process.stdout,
-          );
-        }
-      }
-
       payloads.push({
         method: 'POST',
         url: `${config.API}${options.testDepGraphDockerEndpoint ||
@@ -108,7 +88,7 @@ export async function assembleEcosystemPayloads(
 // constructProjectName attempts to construct the project name the same way that
 // registry does. This is a bit difficult because in Registry, the code is
 // distributed over multiple functions and files that need to be kept in sync...
-function constructProjectName(sr: ScanResult): string {
+export function constructProjectName(sr: ScanResult): string {
   let suffix = '';
   if (sr.identity.targetFile) {
     suffix = ':' + sr.identity.targetFile;
