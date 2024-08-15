@@ -30,6 +30,8 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 
+	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
+
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
@@ -78,6 +80,7 @@ const (
 
 func main() {
 	errorCode := MainWithErrorCode()
+	globalLogger.Printf("Exiting with %d", errorCode)
 	os.Exit(errorCode)
 }
 
@@ -495,10 +498,12 @@ func MainWithErrorCode() int {
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
+	networkAccess.AddHeaderField("snyk-interaction-id", instrumentation.AssembleUrnFromUUID(interactionId))
 	networkAccess.AddHeaderField(
 		"User-Agent",
 		ua.String(),
 	)
+	network_utils.AddSnykRequestId(networkAccess)
 
 	if debugEnabled {
 		writeLogHeader(globalConfiguration, networkAccess)
@@ -543,7 +548,7 @@ func MainWithErrorCode() int {
 	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
 
 	exitCode := cliv2.DeriveExitCode(err)
-	globalLogger.Printf("Exiting with %d (cause: %v)", exitCode, err)
+	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, err)
 
 	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
 	if targetIdError != nil {
