@@ -1,16 +1,21 @@
 import * as path from 'path';
+import { DepGraph } from '@snyk/dep-graph';
+
 import config from '../config';
 import { isCI } from '../is-ci';
 import { getPlugin } from '../ecosystems';
 import { Ecosystem, ContainerTarget, ScanResult } from '../ecosystems/types';
 import { Options, PolicyOptions, TestOptions } from '../types';
 import { Payload } from './types';
-import { assembleQueryString, depGraphToOutputString } from './common';
+import {
+  assembleQueryString,
+  printDepGraph,
+  shouldPrintDepGraph,
+} from './common';
 import { spinner } from '../spinner';
 import { findAndLoadPolicyForScanResult } from '../ecosystems/policy';
 import { getAuthHeader } from '../../lib/api-token';
 import { DockerImageNotFoundError } from '../errors';
-import { DepGraph } from '@snyk/dep-graph';
 
 export async function assembleEcosystemPayloads(
   ecosystem: Ecosystem,
@@ -53,17 +58,18 @@ export async function assembleEcosystemPayloads(
       scanResult.name =
         options['project-name'] || config.PROJECT_NAME || scanResult.name;
 
-      if (options['print-graph'] && !options['print-deps']) {
+      if (shouldPrintDepGraph(options)) {
+        spinner.clear<void>(spinnerLbl)();
+
         // not every scanResult has a 'depGraph' fact, for example the JAR
         // fingerprints. I don't think we have another option than to skip
         // those.
         const dg = scanResult.facts.find((dg) => dg.type === 'depGraph');
         if (dg) {
-          console.log(
-            depGraphToOutputString(
-              dg.data.toJSON(),
-              constructProjectName(scanResult),
-            ),
+          await printDepGraph(
+            dg.data.toJSON(),
+            constructProjectName(scanResult),
+            process.stdout,
           );
         }
       }

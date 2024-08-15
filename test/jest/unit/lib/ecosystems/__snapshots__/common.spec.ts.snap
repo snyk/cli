@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`printUnmanagedDepGraph fn should print the dep-graph 1`] = `
+"DepGraph data:
+{"schemaVersion":"1.2.0","pkgManager":{"name":"cpp"},"pkgs":[{"id":"root-node@0.0.0","info":{"name":"root-node","version":"0.0.0"}},{"id":"https://ftp.gnu.org|cpio@2.12","info":{"name":"https://ftp.gnu.org|cpio","version":"2.12"}}],"graph":{"rootNodeId":"root-node","nodes":[{"nodeId":"root-node","pkgId":"root-node@0.0.0","deps":[{"nodeId":"https://ftp.gnu.org|cpio@2.12"}]},{"nodeId":"https://ftp.gnu.org|cpio@2.12","pkgId":"https://ftp.gnu.org|cpio@2.12","deps":[]}]}}
+DepGraph target:
+foo/bar
+DepGraph end
+
+"
+`;
