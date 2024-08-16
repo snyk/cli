@@ -388,14 +388,14 @@ commands:
             rm -f ./snyk
             curl --retry 2 -L -v --compressed https://<< parameters.base_url >>/cli/<< parameters.version >>/snyk-linux -o ./snyk-linux
             curl --retry 2 -L -v --compressed https://<< parameters.base_url >>/cli/<< parameters.version >>/snyk-linux.sha256 -o ./snyk-linux.sha256
-            echo Content shasum file ---
+            echo --- Content shasum file ---
             cat snyk-linux.sha256
-            echo Shasum binary ---
+            echo --- Shasum binary ---
             sha256sum snyk-linux
             chmod +x ./snyk-linux
-            echo CLI version ---
+            echo --- CLI version ---
             ./snyk-linux --version
-            echo Shasum comparison ---
+            echo --- Shasum comparison ---
             sha256sum -c snyk-linux.sha256
 
 ####################################################################################################
