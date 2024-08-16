@@ -384,6 +384,7 @@ commands:
       - run:
           name: Download << parameters.version >> from << parameters.base_url >>
           command: |
+            date -u
             rm -f ./snyk
             curl --retry 2 -L --compressed https://<< parameters.base_url >>/cli/<< parameters.version >>/snyk-linux -o ./snyk-linux
             curl --retry 2 -L --compressed https://<< parameters.base_url >>/cli/<< parameters.version >>/snyk-linux.sha256 -o ./snyk-linux.sha256
@@ -923,7 +924,12 @@ workflows:
     when:
       equal: [true, << pipeline.parameters.run_monitor_deployment >>]
     jobs:
-      - test-deployment-cdn
+      - test-deployment-cdn:
+          name: Download from static.snyk.io
+          base_url: static.snyk.io
+      - test-deployment-cdn:
+          name: Download from downloads.snyk.io
+          base_url: downloads.snyk.io
 
 ####################################################################################################
 # JOBS
@@ -1432,26 +1438,20 @@ jobs:
           command: echo Nothing to be done!
 
   test-deployment-cdn:
+    parameters:
+      base_url:
+        type: string
     executor: generic-ubuntu
     steps:
       - run:
           name: Install dependencies
           command: echo UTC > /etc/timezone && apt update && apt install -y sudo curl
-#      - download-from-cdn:
-#          version: latest
-#          base_url: downloads.snyk.io
       - download-from-cdn:
           version: preview
-          base_url: downloads.snyk.io
+          base_url: << parameters.base_url >>
 #      - download-from-cdn:
 #          version: rc
-#          base_url: downloads.snyk.io
+#          base_url: << parameters.base_url >>
 #      - download-from-cdn:
 #          version: latest
-#          base_url: static.snyk.io
-      - download-from-cdn:
-          version: preview
-          base_url: static.snyk.io
-#      - download-from-cdn:
-#          version: rc
-#          base_url: static.snyk.io
+#          base_url: << parameters.base_url >>
