@@ -281,10 +281,8 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       // libraries.
       expect([0, 1]).toContain(code);
 
-      // Note: dotnet plugin can print a warning about runtime resolution, which breaks JSON output.
-      // This replacement regex is a temporary workaround until the dotnet plugin can be fixed.
-      const sanitizedStdout = stdout.replace(/^[\s\S]*?{/, '{');
-      const result = JSON.parse(sanitizedStdout);
+      // Checking if the JSON output is correctly defined and is not poluted with user facing messages.
+      const result = JSON.parse(stdout);
       expect(result?.ok).toBeDefined();
 
       // Expect 'ok' to be true if exit 0, false if exit 1.
