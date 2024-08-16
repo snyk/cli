@@ -2,34 +2,34 @@
   "version": "1.0.0-monorepo",
   "assets": {
     "snyk-alpine": {
-      "url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-alpine",
+      "url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-alpine",
       "sha256": "snyk-alpine-sha256",
-      "sha256Url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-alpine.sha256"
+      "sha256Url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-alpine.sha256"
     },
     "snyk-linux": {
-      "url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-linux",
+      "url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-linux",
       "sha256": "snyk-linux-sha256",
-      "sha256Url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-linux.sha256"
+      "sha256Url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-linux.sha256"
     },
     "snyk-linux-arm64": {
-      "url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-linux-arm64",
+      "url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-linux-arm64",
       "sha256": "snyk-linux-arm64-sha256",
-      "sha256Url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-linux-arm64.sha256"
+      "sha256Url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-linux-arm64.sha256"
     },
     "snyk-macos": {
-      "url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-macos",
+      "url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-macos",
       "sha256": "snyk-macos-sha256",
-      "sha256Url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-macos.sha256"
+      "sha256Url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-macos.sha256"
     },
     "snyk-macos-arm64": {
-      "url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-macos-arm64",
+      "url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-macos-arm64",
       "sha256": "snyk-macos-arm64-sha256",
-      "sha256Url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-macos-arm64.sha256"
+      "sha256Url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-macos-arm64.sha256"
     },
     "snyk-win.exe": {
-      "url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-win.exe",
+      "url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-win.exe",
       "sha256": "snyk-win.exe-sha256",
-      "sha256Url": "https://static.snyk.io/cli/v1.0.0-monorepo/snyk-win.exe.sha256"
+      "sha256Url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-win.exe.sha256"
     }
   },
   "schemaVersion": 1

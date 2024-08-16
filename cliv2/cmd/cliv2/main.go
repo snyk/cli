@@ -22,7 +22,6 @@ import (
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
-	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/spf13/cobra"
@@ -30,6 +29,8 @@ import (
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
+
+	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -60,6 +61,7 @@ var interactionId = uuid.NewString()
 const (
 	unknownCommandMessage  string = "unknown command"
 	disable_analytics_flag string = "DISABLE_ANALYTICS"
+	debug_level_flag       string = "log-level"
 )
 
 type JsonErrorStruct struct {
@@ -78,6 +80,7 @@ const (
 
 func main() {
 	errorCode := MainWithErrorCode()
+	globalLogger.Printf("Exiting with %d", errorCode)
 	os.Exit(errorCode)
 }
 
@@ -90,25 +93,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.ANALYTICS_DISABLED, []string{strings.ToLower(constants.SNYK_ANALYTICS_DISABLED_ENV), "snyk_cfg_disable_analytics", "disable-analytics", "disable_analytics"})
 	config.AddAlternativeKeys(configuration.ORGANIZATION, []string{"snyk_cfg_org"})
 	config.AddAlternativeKeys(configuration.PREVIEW_FEATURES_ENABLED, []string{"snyk_preview"})
-
-	// if the CONFIG_KEY_OAUTH_TOKEN is specified as env var, we don't apply any additional logic
-	_, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN)
-	if !ok {
-		alternativeBearerKeys := config.GetAlternativeKeys(configuration.AUTHENTICATION_BEARER_TOKEN)
-		alternativeBearerKeys = append(alternativeBearerKeys, configuration.AUTHENTICATION_BEARER_TOKEN)
-		for _, key := range alternativeBearerKeys {
-			hasPrefix := strings.HasPrefix(key, "snyk_")
-			if hasPrefix {
-				formattedKey := strings.ToUpper(key)
-				_, ok := os.LookupEnv(formattedKey)
-				if ok {
-					globalLogger.Printf("Found environment variable %s, disabling OAuth flow", formattedKey)
-					config.Set(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, false)
-					break
-				}
-			}
-		}
-	}
+	config.AddAlternativeKeys(configuration.LOG_LEVEL, []string{debug_level_flag})
 }
 
 func getFullCommandString(cmd *cobra.Command) string {
@@ -311,6 +296,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalFLags := workflow.FlagsetFromConfigurationOptions(globalConfigurationOptions)
 	globalFLags.Bool(basic_workflows.PROXY_NOAUTH, false, "")
 	globalFLags.Bool(disable_analytics_flag, false, "")
+	globalFLags.String(debug_level_flag, "debug", "")
 	return globalFLags
 }
 
@@ -477,6 +463,8 @@ func MainWithErrorCode() int {
 
 	globalEngine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
 
+	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
+
 	if noProxyAuth := globalConfiguration.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
 	}
@@ -510,10 +498,12 @@ func MainWithErrorCode() int {
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
+	networkAccess.AddHeaderField("snyk-interaction-id", instrumentation.AssembleUrnFromUUID(interactionId))
 	networkAccess.AddHeaderField(
 		"User-Agent",
 		ua.String(),
 	)
+	network_utils.AddSnykRequestId(networkAccess)
 
 	if debugEnabled {
 		writeLogHeader(globalConfiguration, networkAccess)
@@ -558,7 +548,7 @@ func MainWithErrorCode() int {
 	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
 
 	exitCode := cliv2.DeriveExitCode(err)
-	globalLogger.Printf("Exiting with %d", exitCode)
+	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, err)
 
 	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
 	if targetIdError != nil {

@@ -1,4 +1,6 @@
 import { getAuthHeader } from '../api-token';
+import { MissingApiTokenError } from '../errors';
+import { headerSnykAuthFailed } from './constants';
 import * as request from './index';
 
 export async function makeRequest<T>(payload: any): Promise<T> {
@@ -35,6 +37,9 @@ export async function makeRequestRest<T>(payload: any): Promise<T> {
     request.makeRequest(payload, (error, res, body) => {
       if (error) {
         return reject(error);
+      }
+      if (res?.headers?.[headerSnykAuthFailed] === 'true') {
+        return reject(new MissingApiTokenError());
       }
       if (res.statusCode === 400) {
         return reject({

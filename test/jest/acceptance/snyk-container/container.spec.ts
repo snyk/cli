@@ -118,6 +118,15 @@ describe('snyk container', () => {
       await expect(cli).toDisplay(`yum @ 4.9.0`, { timeout: 60 * 1000 });
     });
 
+    it('container tests the platform specified in the parameters', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test debian:unstable-slim --platform=linux/arm64/v8`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('Platform:          linux/arm64');
+    });
+
     it('npm depGraph is generated in an npm image with lockfiles', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container test docker-archive:test/fixtures/container-projects/npm7-with-package-lock-file.tar --print-deps`,
@@ -176,23 +185,31 @@ describe('snyk container', () => {
         timeout: 60 * 1000,
       });
     });
+
     it('prints dep graph with --print-graph flag', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
-        `container test --print-graph ${TEST_DISTROLESS_STATIC_IMAGE}`,
+        `container test --print-graph docker-archive:test/fixtures/container-projects/multi-project-image.tar`,
       );
 
       assertCliExitCode(code, 0, stderr);
+
       expect(stdout).toContain('DepGraph data:');
       expect(stdout).toContain(
         `DepGraph target:
-docker-image|gcr.io/distroless/static
+docker-image|multi-project-image.tar
 DepGraph end`,
       );
-      const jsonDGStr = stdout
-        .split('DepGraph data:')[1]
-        .split('DepGraph target:')[0];
-      const jsonDG = JSON.parse(jsonDGStr);
-      expect(jsonDG).toMatchObject(TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH);
+
+      const payloads = stdout
+        .split('DepGraph data:')
+        .slice(1)
+        .map((payload) =>
+          payload
+            .split('DepGraph target:')
+            .map((str) => str.replace('DepGraph end', '').trim()),
+        );
+
+      expect(payloads).toMatchSnapshot();
     });
   });
 
@@ -242,6 +259,15 @@ DepGraph end`,
     });
 
     it('should print sbom for image - spdx', async () => {
+      // return a dep-graph fixture from `/test-dependencies` endpoint
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
       const {
         code,
         stdout,
@@ -265,6 +291,15 @@ DepGraph end`,
     });
 
     it('should print sbom for image - cyclonedx 1.4', async () => {
+      // return a dep-graph fixture from `/test-dependencies` endpoint
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
       const {
         code,
         stdout,
@@ -292,6 +327,15 @@ DepGraph end`,
     });
 
     it('should print sbom for image - cyclonedx 1.5', async () => {
+      // return a dep-graph fixture from `/test-dependencies` endpoint
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
       const {
         code,
         stdout,
@@ -315,6 +359,92 @@ DepGraph end`,
 
       expect(sbom.components).toHaveLength(
         TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
+      );
+    });
+  });
+
+  describe('snyk container monitor --json output', () => {
+    it('snyk container monitor json produces expected output for a single depgraph', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container monitor --platform=linux/amd64 --json ${TEST_DISTROLESS_STATIC_IMAGE}`,
+      );
+      expect(code).toEqual(0);
+      const result = JSON.parse(stdout);
+      expect(result).toEqual(
+        expect.objectContaining({
+          ok: true,
+          packageManager: 'deb',
+          manageUrl: expect.stringContaining('://'),
+          scanResult: expect.objectContaining({
+            facts: expect.arrayContaining([
+              expect.objectContaining({
+                type: 'depGraph',
+                data: expect.objectContaining({
+                  pkgManager: expect.objectContaining({
+                    name: 'deb',
+                    repositories: expect.arrayContaining([
+                      expect.objectContaining({
+                        alias: 'debian:11',
+                      }),
+                    ]),
+                  }),
+                }),
+              }),
+            ]),
+          }),
+        }),
+      );
+    });
+
+    it('snyk container monitor json produces expected output for multiple depgraphs', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container monitor --platform=linux/amd64 --json snyk/snyk:linux`,
+      );
+      expect(code).toEqual(0);
+      const result = JSON.parse(stdout);
+      expect(result).toHaveLength(2);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ok: true,
+            packageManager: 'deb',
+            manageUrl: expect.stringContaining('://'),
+            scanResult: expect.objectContaining({
+              facts: expect.arrayContaining([
+                expect.objectContaining({
+                  type: 'depGraph',
+                  data: expect.objectContaining({
+                    pkgManager: expect.objectContaining({
+                      name: 'deb',
+                      repositories: expect.arrayContaining([
+                        expect.objectContaining({
+                          alias: 'ubuntu:24.04',
+                        }),
+                      ]),
+                    }),
+                  }),
+                }),
+              ]),
+            }),
+          }),
+          expect.objectContaining({
+            ok: true,
+            packageManager: 'gomodules',
+            manageUrl: expect.stringContaining('://'),
+            scanResult: expect.objectContaining({
+              facts: expect.arrayContaining([
+                expect.objectContaining({
+                  type: 'depGraph',
+                  data: expect.objectContaining({
+                    pkgManager: expect.objectContaining({
+                      name: 'gomodules',
+                    }),
+                  }),
+                }),
+              ]),
+            }),
+          }),
+        ]),
       );
     });
   });

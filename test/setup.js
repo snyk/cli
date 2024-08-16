@@ -18,6 +18,10 @@ module.exports = async function() {
     token = '***';
   }
 
+  if (!process.env.TEST_SNYK_API) {
+    process.env.TEST_SNYK_API = 'https://api.snyk.io';
+  }
+
   const { stdout: version } = await runSnykCLI('version');
   const SNYK_VERSION = version.trim();
 
@@ -35,6 +39,8 @@ module.exports = async function() {
       process.env.TEST_SNYK_ORG_SLUGNAME +
       '\n Token               [TEST_SNYK_TOKEN] ................ ' +
       token +
+      '\n API                 [TEST_SNYK_API] .................. ' +
+      process.env.TEST_SNYK_API +
       '\n------------------------------------------------------------------------------------------------------',
   );
 

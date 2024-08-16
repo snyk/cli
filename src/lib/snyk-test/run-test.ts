@@ -35,8 +35,13 @@ import {
 } from '../errors';
 import * as snyk from '../';
 import { isCI } from '../is-ci';
-import * as common from './common';
-import { RETRY_ATTEMPTS, RETRY_DELAY } from './common';
+import {
+  RETRY_ATTEMPTS,
+  RETRY_DELAY,
+  printDepGraph,
+  assembleQueryString,
+  shouldPrintDepGraph,
+} from './common';
 import config from '../config';
 import * as analytics from '../analytics';
 import { maybePrintDepGraph, maybePrintDepTree } from '../print-deps';
@@ -67,7 +72,10 @@ import {
 import { getAuthHeader } from '../api-token';
 import { getEcosystem } from '../ecosystems';
 import { Issue } from '../ecosystems/types';
-import { assembleEcosystemPayloads } from './assemble-payloads';
+import {
+  assembleEcosystemPayloads,
+  constructProjectName,
+} from './assemble-payloads';
 import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
@@ -230,6 +238,8 @@ async function sendAndParseResults(
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
+  const ecosystem = getEcosystem(options);
+  const depGraphs = new Map<string, depGraphLib.DepGraphData>();
 
   await spinner.clear<void>(spinnerLbl)();
   if (!options.quiet) {
@@ -298,10 +308,14 @@ async function sendAndParseResults(
       options,
     );
 
-    const ecosystem = getEcosystem(options);
     if (ecosystem && options['print-deps']) {
       await spinner.clear<void>(spinnerLbl)();
       await maybePrintDepGraph(options, depGraph);
+    }
+
+    if (ecosystem && depGraph) {
+      const targetName = scanResult ? constructProjectName(scanResult) : '';
+      depGraphs.set(targetName, depGraph.toJSON());
     }
 
     const legacyRes = convertIssuesToAffectedPkgs(response);
@@ -328,6 +342,15 @@ async function sendAndParseResults(
       hasUnknownVersions,
     });
   }
+
+  if (ecosystem && shouldPrintDepGraph(options)) {
+    await spinner.clear<void>(spinnerLbl)();
+    for (const [targetName, depGraph] of depGraphs.entries()) {
+      await printDepGraph(depGraph, targetName, process.stdout);
+    }
+    return [];
+  }
+
   return results;
 }
 
@@ -341,7 +364,10 @@ export async function runTest(
   try {
     const payloads = await assemblePayloads(root, options, featureFlags);
 
-    if (options['print-graph'] && !options['print-deps']) {
+    // At this point managed ecosystems have dependency graphs printed.
+    // Containers however require another roundtrip to get all the
+    // dependency graph artifacts for printing.
+    if (!options.docker && shouldPrintDepGraph(options)) {
       const results: TestResult[] = [];
       return results;
     }
@@ -754,8 +780,7 @@ async function assembleLocalPayloads(
         ? (pkg as depGraphLib.DepGraph).rootPkg.name
         : (pkg as DepTree).name;
 
-      // print dep graph if `--print-graph` is set
-      if (options['print-graph'] && !options['print-deps']) {
+      if (shouldPrintDepGraph(options)) {
         spinner.clear<void>(spinnerLbl)();
         let root: depGraphLib.DepGraph;
         if (scannedProject.depGraph) {
@@ -768,9 +793,7 @@ async function assembleLocalPayloads(
           );
         }
 
-        console.log(
-          common.depGraphToOutputString(root.toJSON(), targetFile || ''),
-        );
+        await printDepGraph(root.toJSON(), targetFile || '', process.stdout);
       }
 
       const body: PayloadBody = {
@@ -829,7 +852,7 @@ async function assembleLocalPayloads(
           'x-is-ci': isCI(),
           authorization: getAuthHeader(),
         },
-        qs: common.assembleQueryString(options),
+        qs: assembleQueryString(options),
         body,
       };
 
@@ -871,7 +894,7 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
     {
       method: 'GET',
       url,
-      qs: common.assembleQueryString(options),
+      qs: assembleQueryString(options),
       json: true,
       headers: {
         'x-is-ci': isCI(),

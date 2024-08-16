@@ -18,7 +18,7 @@ describe('convertEngineToJsonResults', () => {
       'iac',
       'process-results',
       'fixtures',
-      'snyk-iac-test-results.json',
+      'snyk-iac-test-results-v2.json',
     ),
     'utf-8',
   );
@@ -39,7 +39,7 @@ describe('convertEngineToJsonResults', () => {
       'iac',
       'process-results',
       'fixtures',
-      'integrated-json-output.json',
+      'integrated-json-output-v2.json',
     ),
     'utf-8',
   );

@@ -38,7 +38,7 @@ describe('snyk sbom test (mocked server only)', () => {
     });
   });
 
-  test('`npm CycloneDX JSON`', async () => {
+  test('npm CycloneDX JSON', async () => {
     const fileToTest = path.resolve(
       getFixturePath('sbom'),
       'npm-sbom-cdx15.json',
@@ -68,13 +68,15 @@ describe('snyk sbom test (mocked server only)', () => {
     expect(stdout).toMatch(
       'URL: https://security.snyk.io/vuln/SNYK-JS-SEMVER-3247795',
     );
+    expect(stdout).toMatch('[HIGH] GPL-2.0 license');
+    expect(stdout).toMatch('Introduced through: pkg:npm/fuzzball@1.4.0');
 
     expect(code).toEqual(1);
 
     expect(stderr).toEqual('');
   });
 
-  test('`npm CycloneDX JSON with --json`', async () => {
+  test('npm CycloneDX JSON with --json', async () => {
     const fileToTest = path.resolve(
       getFixturePath('sbom'),
       'npm-sbom-cdx15.json',
@@ -103,13 +105,15 @@ describe('snyk sbom test (mocked server only)', () => {
     );
     expect(stdout).toContain('"version":"3.0.4",');
     expect(stdout).toContain('"name":"minimatch"');
+    expect(stdout).toContain('"CWE":["CWE-1333"]');
+    expect(stdout).toContain('"semver":{"vulnerable":["3.0.4"]}');
 
     expect(code).toEqual(1);
 
     expect(stderr).toEqual('');
   });
 
-  test('`missing experimental flag`', async () => {
+  test('missing experimental flag', async () => {
     const fileToTest = path.resolve(
       getFixturePath('sbom'),
       'npm-sbom-cdx15.json',
@@ -130,7 +134,7 @@ describe('snyk sbom test (mocked server only)', () => {
     expect(stderr).toEqual('');
   });
 
-  test('`missing file flag`', async () => {
+  test('missing file flag', async () => {
     const {
       stdout,
       stderr,
@@ -144,5 +148,23 @@ describe('snyk sbom test (mocked server only)', () => {
     );
 
     expect(stderr).toEqual('');
+  });
+
+  test('bad SBOM input', async () => {
+    const fileToTest = path.resolve(getFixturePath('sbom'), 'bad-sbom.json');
+    const {
+      code,
+      stdout,
+      stderr,
+    } = await runSnykCLI(
+      `sbom test --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --experimental --file ${fileToTest}`,
+      { env },
+    );
+
+    expect(stdout).toMatch('Unknown SBOM format');
+    expect(stdout).toMatch('SNYK-SBOM-0006');
+
+    expect(stderr).toEqual('');
+    expect(code).toEqual(2);
   });
 });

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/gofrs/flock"
+	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -29,6 +30,7 @@ import (
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
+	debug_utils "github.com/snyk/cli/cliv2/internal/debug"
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
 	"github.com/snyk/cli/cliv2/internal/proxy"
@@ -391,22 +393,8 @@ func PrepareV1EnvironmentVariables(
 		inputAsMap[constants.SNYK_HTTPS_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_HTTP_PROXY_ENV] = proxyAddress
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
-		inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
 
-		if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
-			inputAsMap[constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED] = "1"
-		}
-
-		if config.IsSet(configuration.API_URL) {
-			inputAsMap[constants.SNYK_ENDPOINT_ENV] = config.GetString(configuration.API_URL)
-		}
-
-		_, orgEnVarExists := inputAsMap[constants.SNYK_ORG_ENV]
-		if !utils.ContainsPrefix(args, "--org=") &&
-			!orgEnVarExists &&
-			config.IsSet(configuration.ORGANIZATION) {
-			inputAsMap[constants.SNYK_ORG_ENV] = config.GetString(configuration.ORGANIZATION)
-		}
+		fillEnvironmentFromConfig(inputAsMap, config, args)
 
 		// merge user defined (external) and internal no_proxy configuration
 		if len(inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM]) > 0 {
@@ -422,6 +410,30 @@ func PrepareV1EnvironmentVariables(
 	}
 
 	return result, err
+}
+
+// Fill environment variables for the legacy CLI from the given configuration.
+func fillEnvironmentFromConfig(inputAsMap map[string]string, config configuration.Configuration, args []string) {
+	inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
+
+	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
+		inputAsMap[constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED] = "1"
+	}
+
+	if config.IsSet(configuration.API_URL) {
+		inputAsMap[constants.SNYK_ENDPOINT_ENV] = config.GetString(configuration.API_URL)
+	}
+
+	if debug_utils.GetDebugLevel(config) == zerolog.TraceLevel {
+		inputAsMap["DEBUG"] = "*"
+	}
+
+	_, orgEnVarExists := inputAsMap[constants.SNYK_ORG_ENV]
+	if !utils.ContainsPrefix(args, "--org=") &&
+		!orgEnVarExists &&
+		config.IsSet(configuration.ORGANIZATION) {
+		inputAsMap[constants.SNYK_ORG_ENV] = config.GetString(configuration.ORGANIZATION)
+	}
 }
 
 func (c *CLI) PrepareV1Command(
@@ -527,6 +539,10 @@ func DeriveExitCode(err error) int {
 
 		if errors.As(err, &exitError) {
 			returnCode = exitError.ExitCode()
+			// map errors in subprocesses to exit code 2 to remain the documented exit code range
+			if returnCode < 0 {
+				returnCode = constants.SNYK_EXIT_CODE_ERROR
+			}
 		} else if errors.Is(err, context.DeadlineExceeded) {
 			returnCode = constants.SNYK_EXIT_CODE_EX_UNAVAILABLE
 		} else if errors.As(err, &errorWithExitCode) {

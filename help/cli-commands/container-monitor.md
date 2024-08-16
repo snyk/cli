@@ -48,7 +48,7 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 **Note:** You can also use `--org=<orgslugname>.` The `ORG_ID` works in both the CLI and the API. The Organization slug name works in the CLI, but not in the API.
 
-`orgslugname` must match the slug name as displayed in the URL of your org in the Snyk UI: `https://snyk.io/org/[orgslugname]`. The orgname does not work.
+`orgslugname` must match the slug name as displayed in the URL of your org in the Snyk UI: `https://app.snyk.io/org/[orgslugname]`. The orgname does not work.
 
 For more information see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
@@ -71,6 +71,12 @@ Print results on the console as a JSON data structure.
 Example: `$ snyk container test --json`
 
 **Note**: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Permissions (role) required to edit Project attributes from the Snyk CLI](https://docs.snyk.io/snyk-admin/manage-permissions-and-roles/manage-member-roles#permissions-role-required-to-edit-project-attributes-from-the-snyk-cli)
+
+### `--target-reference=<TARGET_REFERENCE>`
+
+Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference.&#x20;
+
+For more information see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 

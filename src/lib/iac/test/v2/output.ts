@@ -1,8 +1,9 @@
 import { Ora } from 'ora';
 import { EOL } from 'os';
 import { convertEngineToJsonResults } from './json';
+import { convertEngineToJsonResults as oldConvertEngineToJsonResults } from './json-old';
 import { TestOutput } from './scan/results';
-
+import { previewFeaturesEnabled } from '../../../preview-features-enabled';
 import { TestCommandResult } from '../../../../cli/commands/types';
 import {
   formatIacTestFailures,
@@ -83,10 +84,15 @@ function buildTestCommandResultData({
     scanResult.results?.metadata?.projectName ?? path.basename(process.cwd());
 
   const jsonData = jsonStringifyLargeObject(
-    convertEngineToJsonResults({
-      results: scanResult,
-      projectName,
-    }),
+    previewFeaturesEnabled()
+      ? convertEngineToJsonResults({
+          results: scanResult,
+          projectName,
+        })
+      : oldConvertEngineToJsonResults({
+          results: scanResult,
+          projectName,
+        }),
   );
 
   const sarifData = jsonStringifyLargeObject(
