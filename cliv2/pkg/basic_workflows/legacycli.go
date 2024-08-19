@@ -3,6 +3,7 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
+	"log"
 	"net/http"
 	"os"
 	"sync"
@@ -25,8 +26,8 @@ import (
 var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("legacycli")
 var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stdout")
 
-var proxySingleton *proxy.WrapperProxy
-var proxyMutex sync.Mutex
+var caSingleton *proxy.CaData
+var caMutex sync.Mutex
 
 const (
 	PROXY_NOAUTH string = "proxy-noauth"
@@ -137,9 +138,14 @@ func legacycliWorkflow(
 		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}
 
-	wrapperProxy, err := getProxyInstance(config, debugLogger)
+	caData, err := getGlobalCertPool(config, debugLogger)
 	if err != nil {
 		return output, err
+	}
+
+	wrapperProxy, err := proxy.NewWrapperProxy(config, cliv2.GetFullVersion(), debugLogger, caData)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create proxy!")
 	}
 
 	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
@@ -180,26 +186,34 @@ func legacycliWorkflow(
 }
 
 func Cleanup() {
-	proxyMutex.Lock()
-	defer proxyMutex.Unlock()
-	if proxySingleton != nil {
-		proxySingleton.Close()
-		proxySingleton = nil
+	caMutex.Lock()
+	defer caMutex.Unlock()
+	if caSingleton != nil {
+		//p.DebugLogger.Print("deleting temp cert file:", caSingleton.CertFile)
+		err := os.Remove(caSingleton.CertFile)
+		if err != nil {
+			//p.DebugLogger.Print("failed to delete cert file")
+			//p.DebugLogger.Print(err)
+		} else {
+			//p.DebugLogger.Print("deleted temp cert file:", p.CertificateLocation)
+		}
+
+		caSingleton = nil
 	}
 }
 
-func getProxyInstance(config configuration.Configuration, debugLogger *zerolog.Logger) (*proxy.WrapperProxy, error) {
-	var err error
-	proxyMutex.Lock()
-	defer proxyMutex.Unlock()
+func getGlobalCertPool(config configuration.Configuration, debugLogger *zerolog.Logger) (proxy.CaData, error) {
+	caMutex.Lock()
+	defer caMutex.Unlock()
 
-	if proxySingleton == nil {
-		// init proxy object
-		proxySingleton, err = proxy.NewWrapperProxy(config, cliv2.GetFullVersion(), debugLogger)
+	if caSingleton == nil {
+		tmp, err := proxy.InitCA(config, cliv2.GetFullVersion(), &log.Logger{})
 		if err != nil {
-			return nil, errors.Wrap(err, "Failed to create proxy!")
+			return proxy.CaData{}, err
 		}
+
+		caSingleton = tmp
 	}
 
-	return proxySingleton, nil
+	return *caSingleton, nil
 }

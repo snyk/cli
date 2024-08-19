@@ -89,7 +89,7 @@ func Test_closingProxyDeletesTempCert(t *testing.T) {
 	config.Set(configuration.CACHE_PATH, basecache)
 	config.Set(configuration.INSECURE_HTTPS, false)
 
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, nil)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -113,7 +113,7 @@ func Test_canGoThroughProxy(t *testing.T) {
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, nil)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -146,7 +146,7 @@ func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, nil)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -195,7 +195,7 @@ func Test_SetUpstreamProxy(t *testing.T) {
 		httpauth.UnknownMechanism,
 	}
 
-	objectUnderTest, err = proxy.NewWrapperProxy(config, version, &debugLogger)
+	objectUnderTest, err = proxy.NewWrapperProxy(config, version, &debugLogger, nil)
 	assert.Nil(t, err)
 
 	// running different cases
@@ -244,7 +244,7 @@ func Test_appendExtraCaCert(t *testing.T) {
 
 	t.Setenv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV, file.Name())
 
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, nil)
 	assert.Nil(t, err)
 
 	certsPem, err := os.ReadFile(wp.CertificateLocation)
@@ -268,7 +268,7 @@ func Test_proxyPropagatesAuthFailureHeader(t *testing.T) {
 	setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger)
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, nil)
 	assert.Nil(t, err)
 	wp.SetHeaderFunction(func(r *http.Request) error {
 		// Simulate a wrapped authentication failure, such as oauth refresh.
