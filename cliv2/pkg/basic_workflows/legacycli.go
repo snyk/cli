@@ -138,7 +138,7 @@ func legacycliWorkflow(
 		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}
 
-	caData, err := getGlobalCertPool(config, debugLogger)
+	caData, err := GetGlobalCertAuthority(config, debugLogger)
 	if err != nil {
 		return output, err
 	}
@@ -202,7 +202,7 @@ func Cleanup() {
 	}
 }
 
-func getGlobalCertPool(config configuration.Configuration, debugLogger *zerolog.Logger) (proxy.CaData, error) {
+func GetGlobalCertAuthority(config configuration.Configuration, debugLogger *zerolog.Logger) (proxy.CaData, error) {
 	caMutex.Lock()
 	defer caMutex.Unlock()
 

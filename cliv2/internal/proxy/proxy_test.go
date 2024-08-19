@@ -17,14 +17,16 @@ import (
 	gafUtils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
 	"github.com/snyk/cli/cliv2/internal/utils"
-
-	"github.com/stretchr/testify/assert"
+	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
 var debugLogger = zerolog.New(os.Stderr).With().Timestamp().Logger()
+var caData proxy.CaData
 
 func helper_getHttpClient(gateway *proxy.WrapperProxy, useProxyAuth bool) (*http.Client, error) {
 	rootCAs, _ := x509.SystemCertPool()
@@ -67,53 +69,49 @@ func helper_getHttpClient(gateway *proxy.WrapperProxy, useProxyAuth bool) (*http
 	return proxiedClient, nil
 }
 
-func setup(t *testing.T, baseCache string, version string) {
+func setup(t *testing.T, baseCache string, version string) configuration.Configuration {
 	t.Helper()
 	err := utils.CreateAllDirectories(baseCache, version)
 	assert.Nil(t, err)
+	config := configuration.NewInMemory()
+	config.Set(configuration.CACHE_PATH, baseCache)
+	caData, err = basic_workflows.GetGlobalCertAuthority(config, &debugLogger)
+	assert.Nil(t, err)
+	return config
 }
 
 func teardown(t *testing.T, baseCache string) {
 	t.Helper()
 	err := os.RemoveAll(baseCache)
+	basic_workflows.Cleanup()
 	assert.Nil(t, err)
 }
 
-func Test_closingProxyDeletesTempCert(t *testing.T) {
+func Test_CleanupCertFile(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
-	setup(t, basecache, version)
+	config := setup(t, basecache, version)
+	assert.NotNil(t, config)
+
 	defer teardown(t, basecache)
 
-	config := configuration.NewInMemory()
-	config.Set(configuration.CACHE_PATH, basecache)
-	config.Set(configuration.INSECURE_HTTPS, false)
+	assert.FileExistsf(t, caData.CertFile, "CertFile exist")
 
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, nil)
-	assert.Nil(t, err)
-
-	err = wp.Start()
-	t.Log("proxy port:", wp.ProxyInfo().Port)
-	assert.Nil(t, err)
-
-	wp.Close()
-
-	// assert cert file is deleted
-	_, err = os.Stat(wp.CertificateLocation)
-	assert.NotNil(t, err) // this means the file is gone
+	basic_workflows.Cleanup()
+	
+	assert.NoFileExists(t, caData.CertFile, "CertFile does not exist anymore")
 }
 
 func Test_canGoThroughProxy(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
-	config := configuration.NewInMemory()
-	config.Set(configuration.CACHE_PATH, basecache)
-	config.Set(configuration.INSECURE_HTTPS, false)
 
-	setup(t, basecache, version)
+	config := setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, nil)
+	config.Set(configuration.INSECURE_HTTPS, false)
+
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, caData)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -130,23 +128,18 @@ func Test_canGoThroughProxy(t *testing.T) {
 	assert.Equal(t, 200, res.StatusCode)
 
 	wp.Close()
-
-	// assert cert file is deleted on Close
-	_, err = os.Stat(wp.CertificateLocation)
-	assert.NotNil(t, err) // this means the file is gone
 }
 
 func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
-	config := configuration.NewInMemory()
-	config.Set(configuration.CACHE_PATH, basecache)
-	config.Set(configuration.INSECURE_HTTPS, false)
 
-	setup(t, basecache, version)
+	config := setup(t, basecache, version)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, nil)
+	config.Set(configuration.INSECURE_HTTPS, false)
+
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, caData)
 	assert.Nil(t, err)
 
 	err = wp.Start()
@@ -162,20 +155,14 @@ func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 	assert.Contains(t, err.Error(), "Proxy Authentication Required")
 
 	wp.Close()
-
-	// assert cert file is deleted on Close
-	_, err = os.Stat(wp.CertificateLocation)
-	assert.NotNil(t, err) // this means the file is gone
 }
 
 func Test_SetUpstreamProxy(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
-	config := configuration.NewInMemory()
-	config.Set(configuration.CACHE_PATH, basecache)
-	config.Set(configuration.INSECURE_HTTPS, false)
 
-	setup(t, basecache, version)
+	config := setup(t, basecache, version)
+	config.Set(configuration.INSECURE_HTTPS, false)
 	defer teardown(t, basecache)
 
 	var err error
@@ -195,7 +182,7 @@ func Test_SetUpstreamProxy(t *testing.T) {
 		httpauth.UnknownMechanism,
 	}
 
-	objectUnderTest, err = proxy.NewWrapperProxy(config, version, &debugLogger, nil)
+	objectUnderTest, err = proxy.NewWrapperProxy(config, version, &debugLogger, caData)
 	assert.Nil(t, err)
 
 	// running different cases
@@ -227,12 +214,6 @@ func Test_SetUpstreamProxy(t *testing.T) {
 func Test_appendExtraCaCert(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
-	config := configuration.NewInMemory()
-	config.Set(configuration.CACHE_PATH, basecache)
-	config.Set(configuration.INSECURE_HTTPS, false)
-
-	setup(t, basecache, version)
-	defer teardown(t, basecache)
 
 	loggerWrapper := log.New(&gafUtils.ToZeroLogDebug{Logger: &debugLogger}, "", 0)
 	certPem, _, err := certs.MakeSelfSignedCert("mycert", []string{"dns"}, loggerWrapper)
@@ -244,7 +225,11 @@ func Test_appendExtraCaCert(t *testing.T) {
 
 	t.Setenv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV, file.Name())
 
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, nil)
+	config := setup(t, basecache, version)
+	config.Set(configuration.INSECURE_HTTPS, false)
+	defer teardown(t, basecache)
+
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, caData)
 	assert.Nil(t, err)
 
 	certsPem, err := os.ReadFile(wp.CertificateLocation)
@@ -261,14 +246,12 @@ func Test_appendExtraCaCert(t *testing.T) {
 func Test_proxyPropagatesAuthFailureHeader(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
-	config := configuration.NewInMemory()
-	config.Set(configuration.CACHE_PATH, basecache)
-	config.Set(configuration.INSECURE_HTTPS, false)
 
-	setup(t, basecache, version)
+	config := setup(t, basecache, version)
+	config.Set(configuration.INSECURE_HTTPS, false)
 	defer teardown(t, basecache)
 
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, nil)
+	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, caData)
 	assert.Nil(t, err)
 	wp.SetHeaderFunction(func(r *http.Request) error {
 		// Simulate a wrapped authentication failure, such as oauth refresh.
@@ -288,8 +271,4 @@ func Test_proxyPropagatesAuthFailureHeader(t *testing.T) {
 	assert.Equal(t, res.Header.Get("snyk-auth-failed"), "true")
 
 	wp.Close()
-
-	// assert cert file is deleted on Close
-	_, err = os.Stat(wp.CertificateLocation)
-	assert.NotNil(t, err) // this means the file is gone
 }
