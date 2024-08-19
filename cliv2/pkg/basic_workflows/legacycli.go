@@ -12,6 +12,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/logging"
+	"github.com/snyk/go-application-framework/pkg/networking"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
@@ -137,27 +138,9 @@ func legacycliWorkflow(
 		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}
 
-	caData, err := GetGlobalCertAuthority(config, debugLogger)
+	wrapperProxy, err := createInternalProxy(config, debugLogger, proxyAuthenticationMechanism, networkAccess)
 	if err != nil {
 		return output, err
-	}
-
-	wrapperProxy, err := proxy.NewWrapperProxy(config, cliv2.GetFullVersion(), debugLogger, caData)
-	if err != nil {
-		return nil, errors.Wrap(err, "Failed to create proxy!")
-	}
-
-	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
-
-	proxyHeaderFunc := func(req *http.Request) error {
-		headersErr := networkAccess.AddHeaders(req)
-		return headersErr
-	}
-	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
-
-	err = wrapperProxy.Start()
-	if err != nil {
-		return output, errors.Wrap(err, "Failed to start the proxy!")
 	}
 
 	// run the cli
@@ -182,6 +165,33 @@ func legacycliWorkflow(
 	}
 
 	return output, err
+}
+
+func createInternalProxy(config configuration.Configuration, debugLogger *zerolog.Logger, proxyAuthenticationMechanism httpauth.AuthenticationMechanism, networkAccess networking.NetworkAccess) (*proxy.WrapperProxy, error) {
+	caData, err := GetGlobalCertAuthority(config, debugLogger)
+	if err != nil {
+		return nil, err
+	}
+
+	wrapperProxy, err := proxy.NewWrapperProxy(config, cliv2.GetFullVersion(), debugLogger, caData)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to create proxy!")
+	}
+
+	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
+
+	proxyHeaderFunc := func(req *http.Request) error {
+		headersErr := networkAccess.AddHeaders(req)
+		return headersErr
+	}
+	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
+
+	err = wrapperProxy.Start()
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to start the proxy!")
+	}
+
+	return wrapperProxy, nil
 }
 
 func CleanupGlobalCertAuthority(debugLogger *zerolog.Logger) {
