@@ -83,7 +83,7 @@ func setup(t *testing.T, baseCache string, version string) configuration.Configu
 func teardown(t *testing.T, baseCache string) {
 	t.Helper()
 	err := os.RemoveAll(baseCache)
-	basic_workflows.Cleanup()
+	basic_workflows.CleanupGlobalCertAuthority(&debugLogger)
 	assert.Nil(t, err)
 }
 
@@ -97,8 +97,8 @@ func Test_CleanupCertFile(t *testing.T) {
 
 	assert.FileExistsf(t, caData.CertFile, "CertFile exist")
 
-	basic_workflows.Cleanup()
-	
+	basic_workflows.CleanupGlobalCertAuthority(&debugLogger)
+
 	assert.NoFileExists(t, caData.CertFile, "CertFile does not exist anymore")
 }
 

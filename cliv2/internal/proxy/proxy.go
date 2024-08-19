@@ -60,11 +60,12 @@ type CaData struct {
 	CertFile string
 }
 
-func InitCA(config configuration.Configuration, cliVersion string, logger *log.Logger) (*CaData, error) {
+func InitCA(config configuration.Configuration, cliVersion string, logger *zerolog.Logger) (*CaData, error) {
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
 
 	certName := "snyk-embedded-proxy"
-	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, logger)
+	logWriter := pkg_utils.ToZeroLogDebug{Logger: logger}
+	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, log.New(&logWriter, "", 0))
 	if err != nil {
 		return nil, err
 	}
@@ -104,19 +105,19 @@ func InitCA(config configuration.Configuration, cliVersion string, logger *log.L
 				}
 			}
 
-			//debugLogger.Debug().Msgf("Using additional CAs from file: %v", extraCaCertFile)
+			logger.Debug().Msgf("Using additional CAs from file: %v", extraCaCertFile)
 		}
 	}
 
-	//debugLogger.Debug().Msgf("Temporary CertificateLocation: %v", p.CertificateLocation)
+	logger.Debug().Msgf("Temporary CertificateLocation: %v", certificateLocation)
 	certPEMString := string(certPEMBlock)
 	err = utils.WriteToFile(certificateLocation, certPEMString)
 	if err != nil {
-		fmt.Println("failed to write cert to file")
+		logger.Print("failed to write cert to file")
 		return nil, err
 	}
 
-	err = setCAFromBytes(certPEMBlock, keyPEMBlock)
+	err = setGlobalProxyCA(certPEMBlock, keyPEMBlock)
 	if err != nil {
 		return nil, err
 	}
@@ -131,11 +132,10 @@ func NewWrapperProxy(config configuration.Configuration, cliVersion string, debu
 	var p WrapperProxy
 	p.cliVersion = cliVersion
 	p.addHeaderFunc = func(request *http.Request) error { return nil }
-
-	insecureSkipVerify := config.GetBool(configuration.INSECURE_HTTPS)
-
 	p.DebugLogger = debugLogger
 	p.CertificateLocation = ca.CertFile
+
+	insecureSkipVerify := config.GetBool(configuration.INSECURE_HTTPS)
 
 	p.transport = &http.Transport{
 		TLSClientConfig: &tls.Config{
@@ -259,7 +259,7 @@ func (p *WrapperProxy) Close() {
 	p.Stop()
 }
 
-func setCAFromBytes(certPEMBlock []byte, keyPEMBlock []byte) error {
+func setGlobalProxyCA(certPEMBlock []byte, keyPEMBlock []byte) error {
 	goproxyCa, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 	if err != nil {
 		return err

@@ -566,7 +566,7 @@ func MainWithErrorCode() int {
 	}
 
 	// cleanup resources in use
-	basic_workflows.Cleanup()
+	basic_workflows.CleanupGlobalCertAuthority(globalLogger)
 
 	return exitCode
 }

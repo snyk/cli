@@ -3,7 +3,6 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
-	"log"
 	"net/http"
 	"os"
 	"sync"
@@ -185,17 +184,17 @@ func legacycliWorkflow(
 	return output, err
 }
 
-func Cleanup() {
+func CleanupGlobalCertAuthority(debugLogger *zerolog.Logger) {
 	caMutex.Lock()
 	defer caMutex.Unlock()
 	if caSingleton != nil {
-		//p.DebugLogger.Print("deleting temp cert file:", caSingleton.CertFile)
+		debugLogger.Print("deleting temp cert file:", caSingleton.CertFile)
 		err := os.Remove(caSingleton.CertFile)
 		if err != nil {
-			//p.DebugLogger.Print("failed to delete cert file")
-			//p.DebugLogger.Print(err)
+			debugLogger.Print("failed to delete cert file")
+			debugLogger.Print(err)
 		} else {
-			//p.DebugLogger.Print("deleted temp cert file:", p.CertificateLocation)
+			debugLogger.Print("deleted temp cert file:", caSingleton.CertFile)
 		}
 
 		caSingleton = nil
@@ -207,7 +206,7 @@ func GetGlobalCertAuthority(config configuration.Configuration, debugLogger *zer
 	defer caMutex.Unlock()
 
 	if caSingleton == nil {
-		tmp, err := proxy.InitCA(config, cliv2.GetFullVersion(), &log.Logger{})
+		tmp, err := proxy.InitCA(config, cliv2.GetFullVersion(), debugLogger)
 		if err != nil {
 			return proxy.CaData{}, err
 		}
