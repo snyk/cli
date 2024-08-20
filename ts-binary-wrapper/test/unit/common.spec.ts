@@ -132,7 +132,7 @@ describe('Get Shasum', () => {
 describe('Configuration', () => {
   it('Download and local location', async () => {
     const expectedDownloadLocation =
-      'https://downloads.snyk.io/cli/v1.2.3/snyk-win.exe';
+      'https://static.snyk.io/cli/v1.2.3/snyk-win.exe';
     const expectedLocalLocation = path.join(
       __dirname,
       '..',
@@ -146,7 +146,7 @@ describe('Configuration', () => {
       '1234abcdef',
     );
 
-    const actualDownloadLocation = config.getDownloadLocations().downloadUrl;
+    const actualDownloadLocation = config.getDownloadLocation();
     expect(actualDownloadLocation).toEqual(expectedDownloadLocation);
 
     const actualLocalLocation = config.getLocalLocation();
@@ -219,7 +219,7 @@ describe('Testing binary bootstrapper', () => {
 
     // download the shasum first, here we don't expect a shasum comparison
     const shasumDownload = await common.downloadExecutable(
-      config.getDownloadLocations().downloadUrl + shafileExtension,
+      config.getDownloadLocation() + shafileExtension,
       shasumFile,
       '',
     );
@@ -227,10 +227,9 @@ describe('Testing binary bootstrapper', () => {
     expect(fs.existsSync(shasumFile)).toBeTruthy();
     const expectedShasum = common.getCurrentSha256sum(binaryName, shasumFile);
 
-    const { downloadUrl } = config.getDownloadLocations();
     // download binary next and use previously downloaded shasum to check validity
     const binaryDownload = await common.downloadExecutable(
-      downloadUrl,
+      config.getDownloadLocation(),
       config.getLocalLocation(),
       expectedShasum,
     );
@@ -242,55 +241,10 @@ describe('Testing binary bootstrapper', () => {
 
     try {
       // check if the binary is executable
-      expect(
-        fs.accessSync(config.getLocalLocation(), fs.constants.X_OK),
-      ).not.toThrow();
+      fs.accessSync(config.getLocalLocation(), fs.constants.X_OK);
     } catch {
       // execution of binary not possible
-    }
-
-    fs.unlinkSync(shasumFile);
-    fs.unlinkSync(config.getLocalLocation());
-  });
-  it('downloadWithBackup() succesfull', async () => {
-    const binaryName = 'snyk-macos';
-    const shafileExtension = '.sha256';
-    const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
-    const shasumFile =
-      config.getLocalLocation() + Math.random() + shafileExtension;
-    const { downloadUrl } = config.getDownloadLocations();
-
-    // download the shasum first, here we don't expect a shasum comparison
-    const shasumDownload = await common.downloadWithBackup(
-      'https://notdownloads.snyk.io/cli/v1.1080.0/snyk-macos.sha256',
-      downloadUrl + shafileExtension,
-      shasumFile,
-      '',
-    );
-    expect(shasumDownload).toBeUndefined();
-    expect(fs.existsSync(shasumFile)).toBeTruthy();
-    const expectedShasum = common.getCurrentSha256sum(binaryName, shasumFile);
-
-    // download binary next and use previously downloaded shasum to check validity
-    const binaryDownload = await common.downloadWithBackup(
-      'https://notdownloads.snyk.io/cli/v1.1080.0/snyk-macos',
-      downloadUrl,
-      config.getLocalLocation(),
-      expectedShasum,
-    );
-    expect(binaryDownload).toBeUndefined();
-    expect(fs.existsSync(config.getLocalLocation())).toBeTruthy();
-
-    const stats = fs.statSync(config.getLocalLocation());
-    expect(stats.mode).toEqual(0o100755);
-
-    try {
-      // check if the binary is executable
-      expect(
-        fs.accessSync(config.getLocalLocation(), fs.constants.X_OK),
-      ).not.toThrow();
-    } catch {
-      // execution of binary not possible
+      expect(false).toBeTruthy();
     }
 
     fs.unlinkSync(shasumFile);
@@ -303,11 +257,10 @@ describe('Testing binary bootstrapper', () => {
     const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
     const shasumFile =
       config.getLocalLocation() + Math.random() + shafileExtension;
-    const { downloadUrl } = config.getDownloadLocations();
 
     // download just any file and state a shasum expectation that never can be fullfilled
     const shasumDownload = await common.downloadExecutable(
-      downloadUrl + shafileExtension,
+      config.getDownloadLocation() + shafileExtension,
       shasumFile,
       'incorrect-shasum',
     );
@@ -321,11 +274,10 @@ describe('Testing binary bootstrapper', () => {
     const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
     const shasumFile =
       config.getLocalLocation() + Math.random() + shafileExtension;
-    const { downloadUrl } = config.getDownloadLocations();
 
     // try to download a file that doesn't exis
     const shasumDownload = await common.downloadExecutable(
-      downloadUrl + shafileExtension,
+      config.getDownloadLocation() + shafileExtension,
       shasumFile,
       'incorrect-shasum',
     );
@@ -346,7 +298,7 @@ describe('Testing binary bootstrapper', () => {
   });
 });
 
-describe('isAnalyticsEnabled', () => {
+describe('isAnalyticsEnabled ', () => {
   it('enabled', async () => {
     delete process.env.SNYK_DISABLE_ANALYTICS;
     expect(common.isAnalyticsEnabled()).toBeTruthy();

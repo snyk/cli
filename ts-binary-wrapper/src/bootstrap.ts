@@ -10,11 +10,10 @@ const errorContextMessage = 'Download Error';
 
     if (process.argv.includes('exec')) {
       const filenameShasum = config.getShasumFile();
-      const { downloadUrl, backupUrl } = config.getDownloadLocations();
+      const downloadUrl = config.getDownloadLocation();
 
-      const downloadError = await common.downloadWithBackup(
+      const downloadError = await common.downloadExecutable(
         downloadUrl,
-        backupUrl,
         executable,
         filenameShasum,
       );
