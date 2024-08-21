@@ -347,6 +347,38 @@ DepGraph end`,
         TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
       );
     });
+
+    it('should print sbom for image - cyclonedx 1.6', async () => {
+      // return a dep-graph fixture from `/test-dependencies` endpoint
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.6+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
+        { env },
+      );
+
+      let sbom: any;
+      assertCliExitCode(code, 0, stderr);
+
+      expect(() => {
+        sbom = JSON.parse(stdout);
+      }).not.toThrow();
+
+      expect(sbom.specVersion).toEqual('1.6');
+      expect(sbom['$schema']).toEqual(
+        'http://cyclonedx.org/schema/bom-1.6.schema.json',
+      );
+
+      expect(sbom.components).toHaveLength(
+        TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
+      );
+    });
   });
 
   describe('snyk container monitor --json output', () => {

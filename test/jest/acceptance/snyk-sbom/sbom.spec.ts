@@ -174,6 +174,31 @@ describe('snyk sbom (mocked server only)', () => {
     );
   });
 
+  test('`sbom` generates an SBOM for a single project - CycloneDX 1.6', async () => {
+    const project = await createProjectFromWorkspace('npm-package');
+
+    const { code, stdout } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.6+json --debug`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+    let bom: any;
+
+    expect(code).toEqual(0);
+    expect(() => {
+      bom = JSON.parse(stdout);
+    }).not.toThrow();
+
+    expect(bom.specVersion).toEqual('1.6');
+    expect(bom['$schema']).toEqual(
+      'http://cyclonedx.org/schema/bom-1.6.schema.json',
+    );
+    expect(bom.metadata.component.name).toEqual('npm-package');
+    expect(bom.components).toHaveLength(3);
+  });
+
   test('`sbom` retains the exit error code of the underlying SCA process', async () => {
     const project = await createProject('empty');
 
