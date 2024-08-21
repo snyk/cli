@@ -739,12 +739,12 @@ github.com/snyk/cli-extension-dep-graph v0.0.0-20240426125928-8d56ac52821e h1:j1
 github.com/snyk/cli-extension-dep-graph v0.0.0-20240426125928-8d56ac52821e/go.mod h1:QF3v8HBpOpyudYNCuR8LqfULutO76c91sBdLzD+pBJU=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672 h1:AkLej8Lk//vFex1fiygSYFrQTUd0xP+GyRbsI+m2kwQ=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672/go.mod h1:2vKTUsW73sVbDcyD19iNLfN0so2GSu9BE3k/fqG0mjA=
-github.com/snyk/cli-extension-sbom v0.0.0-20240812130014-3f4e892f15ec h1:xkRPBjcqXwRnWCYCoybM9PO2J/hYn8txm/wzwnDImZg=
-github.com/snyk/cli-extension-sbom v0.0.0-20240812130014-3f4e892f15ec/go.mod h1:5CaY1bgvJY/uoG/1plLOf8T8o9AkwoBIGvw34RfRLZw=
+github.com/snyk/cli-extension-sbom v0.0.0-20240820111700-68258cba52c7 h1:+xhigV8lkriZ8riIg79Yx/sDpKZV9ihz2iAM0Xa8/V4=
+github.com/snyk/cli-extension-sbom v0.0.0-20240820111700-68258cba52c7/go.mod h1:5CaY1bgvJY/uoG/1plLOf8T8o9AkwoBIGvw34RfRLZw=
 github.com/snyk/code-client-go v1.10.0 h1:t/hBINxj4lKvoo681uGhxHBpMued/j68p2sHbB9qbfo=
 github.com/snyk/code-client-go v1.10.0/go.mod h1:orU911flV1kJQOlxxx0InUQkAfpBrcERsb2olfnlI8s=
-github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1 h1:9RKY9NdX5DrJAoVXDP0JiqrXT+4Nb9NH8pjEcA0NsLA=
-github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
+github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7 h1:Zn5BcV76oFAbJm5tDygU945lvoZ3yY8FoRFDC3YpwF8=
+github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
 github.com/snyk/error-catalog-golang-public v0.0.0-20240809094525-c48d19c27edb h1:w9tJhpTFxWqAhLeraGsMExDjGK9x5Dwj1NRFwb+t+QE=
 github.com/snyk/error-catalog-golang-public v0.0.0-20240809094525-c48d19c27edb/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
 github.com/snyk/go-application-framework v0.0.0-20240827093100-f92edcc104ec h1:hqrcfg/+5vz/svcws6B42J/5AurXpYCpeRimMVkgJtY=
