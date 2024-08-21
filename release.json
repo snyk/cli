@@ -1,0 +1,26 @@
+{
+  "version": "1.666.0",
+  "assets": {
+    "snyk-alpine": {
+      "url": "https://static.snyk.io/cli/v1.666.0/snyk-alpine",
+      "sha256": "41a6e93ecefd38585f2bab21e2b6da61306f7900c517b068fd645821a6b3468c  snyk-alpine",
+      "sha256Url": "https://static.snyk.io/cli/v1.666.0/snyk-alpine.sha256"
+    },
+    "snyk-linux": {
+      "url": "https://static.snyk.io/cli/v1.666.0/snyk-linux",
+      "sha256": "5f6f800c1150047f2b6bebe8996db5f25167c8ddcb82741a72634606ba03bdc4  snyk-linux",
+      "sha256Url": "https://static.snyk.io/cli/v1.666.0/snyk-linux.sha256"
+    },
+    "snyk-macos": {
+      "url": "https://static.snyk.io/cli/v1.666.0/snyk-macos",
+      "sha256": "a4bc507f05da80c4ef553bcc1b6936d49124f99ba942da1cf404ac41fe8bc344  snyk-macos",
+      "sha256Url": "https://static.snyk.io/cli/v1.666.0/snyk-macos.sha256"
+    },
+    "snyk-win.exe": {
+      "url": "https://static.snyk.io/cli/v1.666.0/snyk-win.exe",
+      "sha256": "df810e054a7527f221b27857408b7878e60259b9f07adfe986cc2cca7a16c756  snyk-win.exe",
+      "sha256Url": "https://static.snyk.io/cli/v1.666.0/snyk-win.exe.sha256"
+    }
+  },
+  "schemaVersion": 1
+}
