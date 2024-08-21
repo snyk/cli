@@ -202,5 +202,8 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
+  },
+  "jest-junit": {
+    "reportTestSuiteErrors": "true"
   }
 }
