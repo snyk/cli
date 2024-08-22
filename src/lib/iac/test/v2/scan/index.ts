@@ -13,7 +13,6 @@ import config from '../../../../config';
 import { api, getOAuthToken } from '../../../../api-token';
 import envPaths from 'env-paths';
 import { restoreEnvProxy } from '../../../env-utils';
-import { previewFeaturesEnabled } from '../../../../preview-features-enabled';
 
 const debug = newDebug('snyk-iac');
 const debugOutput = newDebug('snyk-iac:output');
@@ -125,13 +124,10 @@ function processFlags(
 
   flags.push('-output', outputPath);
 
-  // TODO: IAC-2962 - Remove condition after the feature is GA
-  if (previewFeaturesEnabled()) {
-    // to reduce the size of the output
-    flags.push('-exclude-raw-results');
-    // required for infrastructureAsCodeSuccesses to be populated
-    flags.push('-include-passed-vulnerabilities');
-  }
+  // to reduce the size of the output
+  flags.push('-exclude-raw-results');
+  // required for infrastructureAsCodeSuccesses to be populated
+  flags.push('-include-passed-vulnerabilities');
 
   if (options.severityThreshold) {
     flags.push('-severity-threshold', options.severityThreshold);
