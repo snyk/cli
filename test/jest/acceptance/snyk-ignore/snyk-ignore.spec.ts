@@ -139,13 +139,15 @@ describe('snyk ignore', () => {
 
     const policy = await loadPolicy(project.path());
 
-    expect(policy.exclude.code).toHaveLength(1);
-    expect(!!policy.exclude.code[0]['**/deps/**/*.ts']).toBeTruthy();
+    expect(policy.exclude?.code).toHaveLength(1);
+    expect(!!policy.exclude?.code[0]['**/deps/**/*.ts']).toBeTruthy();
 
     // Fake creation date
-    policy.exclude.code[0]['**/deps/**/*.ts'].created = new Date(
-      '2089-12-24T00:00:00.000Z',
-    );
+    if (policy.exclude) {
+      policy.exclude.code[0]['**/deps/**/*.ts'].created = new Date(
+        '2089-12-24T00:00:00.000Z',
+      );
+    }
 
     expect(policy.exclude).toMatchObject({
       code: [
@@ -184,13 +186,15 @@ describe('snyk ignore', () => {
 
     const policyAfter = await loadPolicy(project.path());
 
-    expect(policyAfter.exclude.code).toHaveLength(1);
-    expect(!!policyAfter.exclude.code[0]['**/deps/**/*.ts']).toBeTruthy();
+    expect(policyAfter.exclude?.code).toHaveLength(1);
+    expect(!!policyAfter.exclude?.code[0]['**/deps/**/*.ts']).toBeTruthy();
 
     // Fake creation date
-    policyAfter.exclude.code[0]['**/deps/**/*.ts'].created = new Date(
-      '2089-12-24T00:00:00.000Z',
-    );
+    if (policyAfter.exclude) {
+      policyAfter.exclude.code[0]['**/deps/**/*.ts'].created = new Date(
+        '2089-12-24T00:00:00.000Z',
+      );
+    }
 
     expect(policyAfter.exclude).toMatchObject({
       code: [

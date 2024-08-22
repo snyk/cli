@@ -1,5 +1,5 @@
 import { Issue, IssuesData } from '../../../../../src/lib/ecosystems/types';
-import { Policy } from '../../../../../src/lib/policy/find-and-load-policy';
+import { Policy } from 'snyk-policy';
 import { SEVERITY } from '@snyk/fix/dist/types';
 import { filterIgnoredIssues } from '../../../../../src/lib/ecosystems/policy';
 
@@ -59,7 +59,7 @@ describe('filterIgnoredIssues fn', () => {
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      policy as Policy,
+      (policy as unknown) as Policy,
     );
 
     expect(filteredIssues).toEqual([
@@ -132,7 +132,7 @@ describe('filterIgnoredIssues fn', () => {
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      policy as Policy,
+      (policy as unknown) as Policy,
     );
 
     expect(filteredIssues).toEqual(issues);
@@ -165,7 +165,7 @@ describe('filterIgnoredIssues fn', () => {
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      policy as Policy,
+      (policy as unknown) as Policy,
     );
 
     expect(filteredIssues).toEqual([]);
@@ -202,7 +202,7 @@ describe('filterIgnoredIssues fn', () => {
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      policy as Policy,
+      (policy as unknown) as Policy,
     );
 
     expect(filteredIssues).toEqual([]);
