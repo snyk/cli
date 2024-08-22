@@ -56,7 +56,7 @@ func Test_(t *testing.T) {
 		}()
 	}
 
-	for _ = range count {
+	for range count {
 		select {
 		case <-stop:
 		case <-time.After(time.Second):
