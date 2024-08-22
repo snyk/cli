@@ -7,7 +7,7 @@ import {
 } from './cli-share-results.fixtures';
 import * as request from '../../../../src/lib/request/request';
 import * as envelopeFormatters from '../../../../src/lib/iac/envelope-formatters';
-import { Policy } from '../../../../src/lib/policy/find-and-load-policy';
+import { Policy } from 'snyk-policy';
 import * as snykPolicyLib from 'snyk-policy';
 
 describe('CLI Share Results', () => {

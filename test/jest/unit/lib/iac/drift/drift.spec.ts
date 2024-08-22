@@ -17,7 +17,7 @@ import {
 import { addIacDriftAnalytics } from '../../../../../../src/cli/commands/test/iac/local-execution/analytics';
 import * as analytics from '../../../../../../src/lib/analytics';
 import * as snykPolicy from 'snyk-policy';
-import { Policy } from '../../../../../../src/lib/policy/find-and-load-policy';
+import { Policy } from 'snyk-policy';
 import {
   DCTL_EXIT_CODES,
   driftctlVersion,
@@ -296,6 +296,8 @@ describe('updateExcludeInPolicy', () => {
       'policy-no-excludes.yml',
       {},
       {
+        code: [],
+        global: [],
         'iac-drift': [
           'aws_iam_user.test-driftctl2',
           'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
@@ -358,6 +360,8 @@ describe('updateExcludeInPolicy', () => {
         'exclude-missing': true,
       },
       {
+        code: [],
+        global: [],
         'iac-drift': [
           'aws_s3_bucket_policy.driftctl',
           'aws_s3_bucket_notification.driftctl',
@@ -371,6 +375,8 @@ describe('updateExcludeInPolicy', () => {
         'exclude-unmanaged': true,
       },
       {
+        code: [],
+        global: [],
         'iac-drift': [
           'aws_iam_user.test-driftctl2',
           'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',

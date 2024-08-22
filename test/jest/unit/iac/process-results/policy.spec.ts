@@ -16,7 +16,7 @@ async function filterFixture(policyName: string) {
 
   // The policy library modifies its input. In order to write meaningful
   // assertions, deep-clone the original fixture.
-  const filtered = filterIgnoredIssues(policy, cloneDeep(fixture));
+  const filtered = filterIgnoredIssues(policy || undefined, cloneDeep(fixture));
 
   return {
     fixture: fixture,
