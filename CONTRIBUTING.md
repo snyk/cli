@@ -39,6 +39,8 @@ To build the project, run the following command in the root of the repository.
 
 ```sh
 make build
+# or
+make build-debug
 ```
 
 Run the build binary like this.
