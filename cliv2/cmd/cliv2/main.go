@@ -566,7 +566,10 @@ func MainWithErrorCode() int {
 	}
 
 	// cleanup resources in use
-	basic_workflows.Cleanup()
+	_, err = globalEngine.Invoke(basic_workflows.WORKFLOWID_GLOBAL_CLEANUP)
+	if err != nil {
+		globalLogger.Printf("Failed to cleanup %v", err)
+	}
 
 	return exitCode
 }

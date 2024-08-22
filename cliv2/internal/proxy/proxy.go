@@ -16,17 +16,17 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/networking"
+	"github.com/snyk/go-application-framework/pkg/networking/certs"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 
-	"github.com/snyk/go-application-framework/pkg/networking/certs"
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
-	"github.com/snyk/cli/cliv2/internal/constants"
-	"github.com/snyk/cli/cliv2/internal/utils"
-
 	"github.com/elazarl/goproxy"
 	"github.com/elazarl/goproxy/ext/auth"
+
+	"github.com/snyk/cli/cliv2/internal/constants"
+	"github.com/snyk/cli/cliv2/internal/utils"
 )
 
 type WrapperProxy struct {
@@ -55,17 +55,17 @@ const (
 	PROXY_USERNAME = "snykcli"
 )
 
-func NewWrapperProxy(config configuration.Configuration, cliVersion string, debugLogger *zerolog.Logger) (*WrapperProxy, error) {
-	var p WrapperProxy
-	p.cliVersion = cliVersion
-	p.addHeaderFunc = func(request *http.Request) error { return nil }
+type CaData struct {
+	CertPool *x509.CertPool
+	CertFile string
+}
 
+func InitCA(config configuration.Configuration, cliVersion string, logger *zerolog.Logger) (*CaData, error) {
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
-	insecureSkipVerify := config.GetBool(configuration.INSECURE_HTTPS)
 
 	certName := "snyk-embedded-proxy"
-	p.DebugLogger = debugLogger
-	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0))
+	logWriter := pkg_utils.ToZeroLogDebug{Logger: logger}
+	certPEMBlock, keyPEMBlock, err := certs.MakeSelfSignedCert(certName, []string{}, log.New(&logWriter, "", 0))
 	if err != nil {
 		return nil, err
 	}
@@ -77,12 +77,12 @@ func NewWrapperProxy(config configuration.Configuration, cliVersion string, debu
 	}
 	certFile, err := os.CreateTemp(tmpDirectory, "snyk-cli-cert-*.crt")
 	if err != nil {
-		fmt.Println("failed to create temp cert file")
+		logger.Println("failed to create temp cert file")
 		return nil, err
 	}
 	defer certFile.Close()
 
-	p.CertificateLocation = certFile.Name() // gives full path, not just the name
+	certificateLocation := certFile.Name() // gives full path, not just the name
 
 	rootCAs, err := x509.SystemCertPool()
 	if err != nil {
@@ -105,27 +105,42 @@ func NewWrapperProxy(config configuration.Configuration, cliVersion string, debu
 				}
 			}
 
-			debugLogger.Debug().Msgf("Using additional CAs from file: %v", extraCaCertFile)
+			logger.Debug().Msgf("Using additional CAs from file: %v", extraCaCertFile)
 		}
 	}
 
-	debugLogger.Debug().Msgf("Temporary CertificateLocation: %v", p.CertificateLocation)
+	logger.Debug().Msgf("Temporary CertificateLocation: %v", certificateLocation)
 	certPEMString := string(certPEMBlock)
-	err = utils.WriteToFile(p.CertificateLocation, certPEMString)
+	err = utils.WriteToFile(certificateLocation, certPEMString)
 	if err != nil {
-		fmt.Println("failed to write cert to file")
+		logger.Print("failed to write cert to file")
 		return nil, err
 	}
 
-	err = setCAFromBytes(certPEMBlock, keyPEMBlock)
+	err = setGlobalProxyCA(certPEMBlock, keyPEMBlock)
 	if err != nil {
 		return nil, err
 	}
+
+	return &CaData{
+		CertPool: rootCAs,
+		CertFile: certificateLocation,
+	}, nil
+}
+
+func NewWrapperProxy(config configuration.Configuration, cliVersion string, debugLogger *zerolog.Logger, ca CaData) (*WrapperProxy, error) {
+	var p WrapperProxy
+	p.cliVersion = cliVersion
+	p.addHeaderFunc = func(request *http.Request) error { return nil }
+	p.DebugLogger = debugLogger
+	p.CertificateLocation = ca.CertFile
+
+	insecureSkipVerify := config.GetBool(configuration.INSECURE_HTTPS)
 
 	p.transport = &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: insecureSkipVerify, // goproxy defaults to true
-			RootCAs:            rootCAs,
+			RootCAs:            ca.CertPool,
 		},
 	}
 
@@ -242,18 +257,9 @@ func (p *WrapperProxy) Stop() {
 
 func (p *WrapperProxy) Close() {
 	p.Stop()
-
-	p.DebugLogger.Print("deleting temp cert file:", p.CertificateLocation)
-	err := os.Remove(p.CertificateLocation)
-	if err != nil {
-		p.DebugLogger.Print("failed to delete cert file")
-		p.DebugLogger.Print(err)
-	} else {
-		p.DebugLogger.Print("deleted temp cert file:", p.CertificateLocation)
-	}
 }
 
-func setCAFromBytes(certPEMBlock []byte, keyPEMBlock []byte) error {
+func setGlobalProxyCA(certPEMBlock []byte, keyPEMBlock []byte) error {
 	goproxyCa, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 	if err != nil {
 		return err
