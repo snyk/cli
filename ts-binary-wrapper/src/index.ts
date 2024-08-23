@@ -28,14 +28,12 @@ function run(executable: string): number {
     try {
       const config = common.getCurrentConfiguration();
       const executable = config.getLocalLocation();
-      const { downloadUrl, backupUrl } = config.getDownloadLocations();
 
       if (!fs.existsSync(executable)) {
         console.error("Executable doesn't exist, trying to download.");
 
-        const downloadError = await common.downloadWithBackup(
-          downloadUrl,
-          backupUrl,
+        const downloadError = await common.downloadExecutable(
+          config.getDownloadLocation(),
           executable,
           config.getShasumFile(),
         );
