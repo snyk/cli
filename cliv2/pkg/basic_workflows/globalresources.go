@@ -1,6 +1,8 @@
 package basic_workflows
 
 import (
+	"errors"
+	"io/fs"
 	"os"
 	"sync"
 
@@ -62,12 +64,26 @@ func GetGlobalCertAuthority(config configuration.Configuration, debugLogger *zer
 	caMutex.Lock()
 	defer caMutex.Unlock()
 
+	createCA := false
+
 	if caSingleton == nil {
+		createCA = true
+	} else if _, existsError := os.Stat(caSingleton.CertFile); errors.Is(existsError, fs.ErrNotExist) { // certificate file does not exist
+		if len(caSingleton.CertPem) > 0 && len(caSingleton.CertFile) > 0 { // try to re-create file
+			debugLogger.Printf("Restoring temporary certificate file: %s", caSingleton.CertFile)
+			utils.WriteToFile(caSingleton.CertFile, caSingleton.CertPem)
+		} else { // create a new CA
+			debugLogger.Warn().Msg("Used Certificate Authority is not existing anymore")
+			createCA = true
+		}
+	}
+
+	if createCA {
+		debugLogger.Print("Creating new Certificate Authority")
 		tmp, err := proxy.InitCA(config, cliv2.GetFullVersion(), debugLogger)
 		if err != nil {
 			return proxy.CaData{}, err
 		}
-
 		caSingleton = tmp
 	}
 

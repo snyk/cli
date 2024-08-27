@@ -58,6 +58,7 @@ const (
 type CaData struct {
 	CertPool *x509.CertPool
 	CertFile string
+	CertPem  string
 }
 
 func InitCA(config configuration.Configuration, cliVersion string, logger *zerolog.Logger) (*CaData, error) {
@@ -125,6 +126,7 @@ func InitCA(config configuration.Configuration, cliVersion string, logger *zerol
 	return &CaData{
 		CertPool: rootCAs,
 		CertFile: certificateLocation,
+		CertPem:  certPEMString,
 	}, nil
 }
 
