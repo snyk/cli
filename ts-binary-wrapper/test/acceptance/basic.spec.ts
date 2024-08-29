@@ -9,7 +9,7 @@ jest.setTimeout(60 * 1000);
 describe('Basic acceptance test', () => {
   const envSetup = new TestEnvironmentSetup();
   const cliVersionForTesting =
-    '1.1228.0-dev.b6d3a5aed7033dd2fe9fcc1330effeca0e4250b2';
+    '1.1294.0-dev.fb7d0fdb0ab3beb8af7142c84ded754b568ba2f4';
 
   beforeEach(async () => {
     process.env.SNYK_DISABLE_ANALYTICS = '1';
