@@ -96,8 +96,7 @@ func Test_RestoreCertAuthority(t *testing.T) {
 	caSingleton.CertFile = ""
 
 	ca3, err := GetGlobalCertAuthority(config, &logger)
-	assert.NoError(t, err)
-	assert.FileExists(t, ca3.CertFile)
+	assert.Error(t, err)
 	assert.NotEqual(t, ca1.CertFile, ca3.CertFile)
 
 	// case: use cleanup function
