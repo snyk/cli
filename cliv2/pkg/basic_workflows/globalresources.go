@@ -2,6 +2,7 @@ package basic_workflows
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"sync"
@@ -72,9 +73,8 @@ func GetGlobalCertAuthority(config configuration.Configuration, debugLogger *zer
 		if len(caSingleton.CertPem) > 0 && len(caSingleton.CertFile) > 0 { // try to re-create file
 			debugLogger.Printf("Restoring temporary certificate file: %s", caSingleton.CertFile)
 			utils.WriteToFile(caSingleton.CertFile, caSingleton.CertPem)
-		} else { // create a new CA
-			debugLogger.Warn().Msg("Used Certificate Authority is not existing anymore")
-			createCA = true
+		} else { // fail for this unexpected case
+			return proxy.CaData{}, fmt.Errorf("used Certificate Authority is not existing anymore!")
 		}
 	}
 
