@@ -1,5 +1,5 @@
 import { Issue, IssuesData } from '../../../../../src/lib/ecosystems/types';
-import { Policy } from 'snyk-policy';
+import * as snykPolicyLib from 'snyk-policy';
 import { SEVERITY } from '@snyk/fix/dist/types';
 import { filterIgnoredIssues } from '../../../../../src/lib/ecosystems/policy';
 
@@ -9,7 +9,7 @@ describe('filterIgnoredIssues fn', () => {
   const getFutureDate = () => new Date(Date.now() + ONE_HOUR_MS);
   const getPastDate = () => new Date(Date.now() - ONE_HOUR_MS);
 
-  it('should filter the not-expired ignored issues', () => {
+  it('should filter the not-expired ignored issues', async () => {
     const issues: Issue[] = [
       {
         pkgName: 'https://foo.bar|test1',
@@ -42,24 +42,24 @@ describe('filterIgnoredIssues fn', () => {
         id: 'SNYK-TEST-2',
       },
     };
-    const policy = {
+    const policy = await snykPolicyLib.loadFromText(`{
       ignore: {
         'SNYK-TEST-1': [
           {
             '*': {
               reason: 'None Given',
-              created: getCurrentDate(),
-              expires: getFutureDate(),
+              created: ${getCurrentDate()},
+              expires: ${getFutureDate()},
             },
           },
         ],
       },
-    };
+    }`);
 
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      (policy as unknown) as Policy,
+      policy,
     );
 
     expect(filteredIssues).toEqual([
@@ -82,7 +82,7 @@ describe('filterIgnoredIssues fn', () => {
     });
   });
 
-  it('should not filter the expired ignored issues', () => {
+  it('should not filter the expired ignored issues', async () => {
     const issues: Issue[] = [
       {
         pkgName: 'https://foo.bar|test1',
@@ -115,31 +115,31 @@ describe('filterIgnoredIssues fn', () => {
         id: 'SNYK-TEST-2',
       },
     };
-    const policy = {
+    const policy = await snykPolicyLib.loadFromText(`{
       ignore: {
         'SNYK-TEST-1': [
           {
             '*': {
               reason: 'None Given',
-              created: getCurrentDate(),
-              expires: getPastDate(),
+              created: ${getCurrentDate()},
+              expires: ${getPastDate()},
             },
           },
         ],
       },
-    };
+    }`);
 
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      (policy as unknown) as Policy,
+      policy,
     );
 
     expect(filteredIssues).toEqual(issues);
     expect(filteredIssuesData).toEqual(issuesData);
   });
 
-  it('should handle empty issue array', () => {
+  it('should handle empty issue array', async () => {
     const issues: Issue[] = [];
     const issuesData: IssuesData = {
       'SNYK-TEST-1': {
@@ -148,31 +148,31 @@ describe('filterIgnoredIssues fn', () => {
         id: 'SNYK-TEST-1',
       },
     };
-    const policy = {
+    const policy = await snykPolicyLib.loadFromText(`{
       ignore: {
         'SNYK-TEST-1': [
           {
             '*': {
               reason: 'None Given',
-              created: getCurrentDate(),
-              expires: getFutureDate(),
+              created: ${getCurrentDate()},
+              expires: ${getFutureDate()},
             },
           },
         ],
       },
-    };
+    }`);
 
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      (policy as unknown) as Policy,
+      policy,
     );
 
     expect(filteredIssues).toEqual([]);
     expect(filteredIssuesData).toEqual(issuesData);
   });
 
-  it('should handle empty issues data object', () => {
+  it('should handle empty issues data object', async () => {
     const issues: Issue[] = [
       {
         pkgName: 'https://foo.bar|test1',
@@ -185,24 +185,24 @@ describe('filterIgnoredIssues fn', () => {
       },
     ];
     const issuesData: IssuesData = {};
-    const policy = {
+    const policy = await snykPolicyLib.loadFromText(`{
       ignore: {
         'SNYK-TEST-1': [
           {
             '*': {
               reason: 'None Given',
-              created: getCurrentDate(),
-              expires: getFutureDate(),
+              created: ${getCurrentDate()},
+              expires: ${getFutureDate()},
             },
           },
         ],
       },
-    };
+    }`);
 
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      (policy as unknown) as Policy,
+      policy,
     );
 
     expect(filteredIssues).toEqual([]);
@@ -240,7 +240,7 @@ describe('filterIgnoredIssues fn', () => {
     expect(filteredIssuesData).toEqual(issuesData);
   });
 
-  it('should handle empty policy file', () => {
+  it('should handle empty policy file', async () => {
     const issues: Issue[] = [
       {
         pkgName: 'https://foo.bar|test1',
@@ -259,14 +259,14 @@ describe('filterIgnoredIssues fn', () => {
         id: 'SNYK-TEST-1',
       },
     };
-    const policy = {
+    const policy = await snykPolicyLib.loadFromText(`{
       ignore: {},
-    };
+    }`);
 
     const [filteredIssues, filteredIssuesData] = filterIgnoredIssues(
       issues,
       issuesData,
-      policy as Policy,
+      policy,
     );
 
     expect(filteredIssues).toEqual(issues);
