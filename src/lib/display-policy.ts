@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { demunge, Policy } from 'snyk-policy';
+import { demunge, Policy, VulnRules } from 'snyk-policy';
 import config from './config';
 
 export async function display(policy: Policy): Promise<string> {
@@ -27,8 +27,8 @@ export async function display(policy: Policy): Promise<string> {
 
   return Promise.resolve(res);
 }
-
-function displayRule(title: string): (rule: any, i: number) => string {
+// id url paths, path reason expires
+function displayRule(title: string): (rule: VulnRules, i: number) => string {
   return (rule, i) => {
     i += 1;
 
@@ -49,7 +49,7 @@ function displayRule(title: string): (rule: any, i: number) => string {
               ? '\nReason: ' +
                 p.reason +
                 '\nExpires: ' +
-                p.expires.toUTCString() +
+                p.expires?.toUTCString() +
                 '\n'
               : '') +
             '\n'
