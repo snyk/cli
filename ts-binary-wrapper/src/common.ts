@@ -257,7 +257,7 @@ export function downloadExecutable(
   filename: string,
   filenameShasum: string,
 ): Promise<Error | undefined> {
-  return new Promise<Error | undefined>(function(resolve) {
+  return new Promise<Error | undefined>(function (resolve) {
     logErrorWithTimeStamps('Starting download');
     const options = new URL(`${downloadUrl}?utm_source=${integrationName}`);
     const temp = path.join(__dirname, Date.now().toString());
