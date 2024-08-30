@@ -367,7 +367,10 @@ function convertTestDepGraphResultToLegacy(
   const vulns: AnnotatedIssue[] = [];
 
   for (const pkgInfo of values(result.affectedPkgs)) {
-    for (const vulnPkgPath of depGraph.pkgPathsToRoot(pkgInfo.pkg)) {
+    const pkgPathsToRoot = depGraph.pkgPathsToRoot(pkgInfo.pkg, {
+      limit: options.maxVulnPaths,
+    });
+    for (const vulnPkgPath of pkgPathsToRoot) {
       const legacyFromPath = pkgPathToLegacyPath(vulnPkgPath.reverse());
       for (const pkgIssue of values(pkgInfo.issues)) {
         const vulnPathString = getVulnPathString(

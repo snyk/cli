@@ -16,6 +16,7 @@ export interface TestOptions {
   traverseNodeModules?: boolean;
   pruneRepeatedSubdependencies?: boolean;
   showVulnPaths: ShowVulnPaths;
+  maxVulnPaths?: number;
   failOn?: FailOn;
   initScript?: string;
   yarnWorkspaces?: boolean;
