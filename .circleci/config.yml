@@ -35,8 +35,12 @@ orbs:
 executors:
   alpine:
     docker:
-      - image: alpine:3.17
+      - image: alpine:3.20
     resource_class: xlarge
+  alpine-arm64:
+    docker:
+      - image: alpine:3.20
+    resource_class: arm.xlarge
   generic-ubuntu:
     docker:
       - image: ubuntu:latest
@@ -329,12 +333,21 @@ commands:
       - run:
           name: Installing Node.js + other test dependencies
           command: |
-            apk add --update nodejs npm bash maven git gradle python3 py3-pip elixir composer
+            arch=$(uname -m)
+            case "$arch" in
+            aarch64) arch="arm64";;
+            *) arch="amd64";;
+            esac
+            echo "using architecture: $arch"
+            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip
             pip3 install pipenv requests PyYAML setuptools==70.3.0
             wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh
-            wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-amd64.tar.gz -O /tmp/go.tgz && \
+            wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-$arch.tar.gz -O /tmp/go.tgz && \
               tar -C /usr/local -xzvf /tmp/go.tgz && \
               ln -s /usr/local/go/bin/go /usr/local/bin
+            wget https://services.gradle.org/distributions/gradle-8.10-bin.zip -O /tmp/gradle.zip && \
+              unzip -d /usr/local /tmp/gradle.zip && \
+              ln -s /usr/local/gradle-8.10/bin/gradle /usr/local/bin
 
   failed-release-notification:
     steps:
@@ -478,6 +491,17 @@ workflows:
             - prepare-build
 
       - build-artifact:
+          name: build alpine arm64
+          go_target_os: alpine
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: docker-arm64
+          c_compiler: /usr/bin/musl-gcc
+          requires:
+            - prepare-build
+
+      - build-artifact:
           name: build macOS amd64
           go_target_os: darwin
           go_os: darwin
@@ -591,6 +615,23 @@ workflows:
           dont_skip_tests: 0
 
       - acceptance-tests:
+          name: acceptance-tests alpine arm64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+          requires:
+            - build alpine arm64
+          executor: alpine-arm64
+          test_snyk_command: ./binary-releases/snyk-alpine-arm64
+          install_deps_extension: alpine-full
+          dont_skip_tests: 0
+
+      - acceptance-tests:
           name: acceptance-tests macOS amd64
           context:
             - nodejs-install
@@ -686,6 +727,7 @@ workflows:
             - sign macos arm64
             - sign windows amd64
             - build alpine amd64
+            - build alpine arm64
             - build linux amd64
             - build linux arm64
             - build fix & protect
@@ -1127,6 +1169,8 @@ jobs:
         default: 3
     executor: << parameters.executor >>
     parallelism: << parameters.shards >>
+    environment:
+      PIP_BREAK_SYSTEM_PACKAGES: 1
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>

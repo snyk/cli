@@ -119,6 +119,10 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine: prepack | $(BINARY_RELEASES_FOLDER
 	$(PKG) -t node$(PKG_NODE_VERSION)-alpine-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine.sha256
 
+$(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PKG) -t node$(PKG_NODE_VERSION)-alpine-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64 --no-bytecode
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64.sha256
+
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	$(PKG) -t node$(PKG_NODE_VERSION)-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux.sha256
@@ -266,7 +270,7 @@ release-pre:
 	@echo "-- Validating artifacts"
 	@./release-scripts/validate-checksums.sh
 	@echo "-- Validating upload permissions"
-	@./release-scripts/upload-artifacts.sh --dry-run preview latest github npm
+	@./release-scripts/upload-artifacts.sh --dry-run latest github npm
 	@echo "-- Publishing to S3 /version"
 	@./release-scripts/upload-artifacts.sh version
 
