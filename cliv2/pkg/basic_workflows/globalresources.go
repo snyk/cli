@@ -72,7 +72,11 @@ func GetGlobalCertAuthority(config configuration.Configuration, debugLogger *zer
 	} else if _, existsError := os.Stat(caSingleton.CertFile); errors.Is(existsError, fs.ErrNotExist) { // certificate file does not exist
 		if len(caSingleton.CertPem) > 0 && len(caSingleton.CertFile) > 0 { // try to re-create file
 			debugLogger.Printf("Restoring temporary certificate file: %s", caSingleton.CertFile)
-			utils.WriteToFile(caSingleton.CertFile, caSingleton.CertPem)
+			err := utils.WriteToFile(caSingleton.CertFile, caSingleton.CertPem)
+			if err != nil {
+				debugLogger.Printf("Failed to write cert to file: %s", caSingleton.CertFile)
+				return proxy.CaData{}, err
+			}
 		} else { // fail for this unexpected case
 			return proxy.CaData{}, fmt.Errorf("used Certificate Authority is not existing anymore!")
 		}
