@@ -134,7 +134,3 @@ export interface IgnoreMetadata {
 export interface IgnoreRulePathData {
   [path: string]: IgnoreMetadata;
 }
-
-export interface IgnoreRules {
-  [issueId: string]: IgnoreRulePathData[];
-}

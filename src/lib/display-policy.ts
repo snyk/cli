@@ -1,9 +1,9 @@
 import chalk from 'chalk';
-import { demunge } from 'snyk-policy';
+import { demunge, Policy, VulnRules } from 'snyk-policy';
 import config from './config';
 
-export async function display(policy) {
-  const p = demunge(policy, config.PUBLIC_VULN_DB_URL);
+export async function display(policy: Policy): Promise<string> {
+  const p = demunge(policy, apiRoot);
   const delimiter = '\n\n------------------------\n';
 
   let res =
@@ -27,8 +27,8 @@ export async function display(policy) {
 
   return Promise.resolve(res);
 }
-
-function displayRule(title) {
+// id url paths, path reason expires
+function displayRule(title: string): (rule: VulnRules, i: number) => string {
   return (rule, i) => {
     i += 1;
 
@@ -49,7 +49,7 @@ function displayRule(title) {
               ? '\nReason: ' +
                 p.reason +
                 '\nExpires: ' +
-                p.expires.toUTCString() +
+                p.expires?.toUTCString() +
                 '\n'
               : '') +
             '\n'
@@ -59,4 +59,12 @@ function displayRule(title) {
         .replace(/\s*$/, '')
     );
   };
+}
+
+function apiRoot(vulnId: string) {
+  const match = new RegExp(/^snyk:lic/i).test(vulnId);
+  if (match) {
+    return config.PUBLIC_LICENSE_URL;
+  }
+  return config.PUBLIC_VULN_DB_URL;
 }

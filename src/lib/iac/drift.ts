@@ -5,7 +5,7 @@ import {
   DriftctlExecutionResult,
   GenDriftIgnoreOptions,
 } from './types';
-import { Policy } from '../policy/find-and-load-policy';
+import { Policy } from 'snyk-policy';
 import snykLogoSVG from './assets/snyk-logo';
 import snykFaviconBase64 from './assets/snyk-favicon';
 import { getHumanReadableAnalysis } from './drift/output';
@@ -20,7 +20,7 @@ export function driftignoreFromPolicy(policy: Policy | undefined): string[] {
   if (!policy || !policy.exclude || !(excludeSection in policy.exclude)) {
     return [];
   }
-  return policy.exclude[excludeSection];
+  return policy.exclude[excludeSection] as string[];
 }
 
 export const updateExcludeInPolicy = (
@@ -40,7 +40,11 @@ export const updateExcludeInPolicy = (
   }
 
   if (!policy.exclude) {
-    policy.exclude = {};
+    policy.exclude = {
+      global: [],
+      code: [],
+      'iac-drift': [],
+    };
   }
 
   policy.exclude['iac-drift'] = excludedResources;
