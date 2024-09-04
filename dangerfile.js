@@ -33,6 +33,10 @@ if (danger.github && danger.github.pr) {
     const prTitle = danger.github.pr.title;
 
     checkCommitMessage(prTitle, danger.github.pr.html_url);
+
+    warn(
+      `There are multiple commits on your branch, please squash them locally before merging!`,
+    );
   }
 
   // Forgotten tests check
