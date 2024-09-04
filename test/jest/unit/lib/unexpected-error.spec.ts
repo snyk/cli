@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { runCommand } from '../../util/runCommand';
+import { RunCommandOptions, runCommand } from '../../util/runCommand';
 import { getFixturePath } from '../../util/getFixturePath';
 
 /**
@@ -15,7 +15,13 @@ import { getFixturePath } from '../../util/getFixturePath';
 describe('callHandlingUnexpectedErrors', () => {
   async function runScript(filename: string) {
     const file = path.resolve(getFixturePath('unexpected-error'), filename);
-    return runCommand('node', ['-r', 'ts-node/register', file]);
+    const options: RunCommandOptions = {
+      env: {
+        FORCE_COLOR: '0',
+        PATH: process.env.PATH,
+      },
+    };
+    return runCommand('node', ['-r', 'ts-node/register', file], options);
   }
 
   it('calls the provided callable', async () => {
