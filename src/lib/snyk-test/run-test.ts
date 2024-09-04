@@ -33,7 +33,7 @@ import {
   NotFoundError,
   ServiceUnavailableError,
 } from '../errors';
-import * as snyk from '../';
+import * as snykPolicy from 'snyk-policy';
 import { isCI } from '../is-ci';
 import {
   RETRY_ATTEMPTS,
@@ -473,7 +473,7 @@ async function parseRes(
   res.filesystemPolicy = !!payloadPolicy;
   if (!options['ignore-policy']) {
     res.policy = res.policy || (payloadPolicy as string);
-    const policy = await snyk.policy.loadFromText(res.policy);
+    const policy = await snykPolicy.loadFromText(res.policy);
     res = policy.filter(res, root);
   }
   analytics.add('vulns', res.vulnerabilities.length);
