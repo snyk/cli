@@ -1415,6 +1415,9 @@ jobs:
       - run:
           name: Publish to GitHub
           command: ./release-scripts/upload-artifacts.sh github
+      - run:
+          name: Create Jira Release
+          command: ./release-scripts/create-jira-release.sh
       - failed-release-notification
 
   release-npm:
