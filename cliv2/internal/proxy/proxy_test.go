@@ -21,7 +21,6 @@ import (
 
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
-	"github.com/snyk/cli/cliv2/internal/utils"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
@@ -71,7 +70,7 @@ func helper_getHttpClient(gateway *proxy.WrapperProxy, useProxyAuth bool) (*http
 
 func setup(t *testing.T, baseCache string, version string) configuration.Configuration {
 	t.Helper()
-	err := utils.CreateAllDirectories(baseCache, version)
+	err := gafUtils.CreateAllDirectories(baseCache, version)
 	assert.Nil(t, err)
 	config := configuration.NewInMemory()
 	config.Set(configuration.CACHE_PATH, baseCache)
