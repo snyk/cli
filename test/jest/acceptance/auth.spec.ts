@@ -55,6 +55,12 @@ describe('Auth', () => {
       },
     );
     expect(code).toEqual(0);
+
+    // Run this command to verify that it succeeds with oauth, since it is implemented in TS
+    const ignoreCode = await runSnykCLI(`ignore --id=das`, {
+      env,
+    });
+    expect(ignoreCode.code).toEqual(0);
   });
 
   it('fails to us oauth client credentials grant to authenticate', async () => {
