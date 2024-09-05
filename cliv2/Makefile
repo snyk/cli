@@ -161,7 +161,7 @@ fips:
 
 .PHONY: debug
 debug:
-	$(eval LDFLAGS := -X github.com/snyk/snyk-ls/application/config.Development=true)
+	$(eval LDFLAGS := -X github.com/snyk/snyk-ls/application/config.Development=true -X main.buildType=debug)
 	$(eval GCFLAGS := -gcflags="all=-N -l")
 	@echo "$(LOG_PREFIX) DEBUG"
 
