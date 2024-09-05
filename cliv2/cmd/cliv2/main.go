@@ -441,6 +441,8 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 }
 
 func MainWithErrorCode() int {
+	initDebugBuild()
+
 	startTime := time.Now()
 	var err error
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
