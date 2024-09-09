@@ -356,6 +356,10 @@ If you have made changes to the `go-application-framework`, you can run `python3
 
 You can then raise a pr with the relevant changes.
 
+## Upgrading go-lang versions
+
+When upgrading golang, you will need to update the Dockerfile under .circleci, run the _Create Build Image_ job on github, and update the docker executor that use the `snyklabs/cli-build` image in the .circleci/config.yml file, to use the new image.
+
 ---
 
 Questions? Ask Hammerhead 🔨

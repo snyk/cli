@@ -307,7 +307,7 @@ func getGlobalFLags() *pflag.FlagSet {
 }
 
 func emptyCommandFunction(_ *cobra.Command, _ []string) error {
-	return fmt.Errorf(unknownCommandMessage)
+	return fmt.Errorf("%s", unknownCommandMessage)
 }
 
 func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engine) {
