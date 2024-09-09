@@ -61,10 +61,8 @@ async function protect(projectFolderPath: string) {
     }
   });
 
-  const packageAtVersionsToPatches: Map<
-    string,
-    VulnPatches[]
-  > = await getAllPatches(vulnIdAndPackageNames, packageNameToVersionsMap);
+  const packageAtVersionsToPatches: Map<string, VulnPatches[]> =
+    await getAllPatches(vulnIdAndPackageNames, packageNameToVersionsMap);
 
   if (packageAtVersionsToPatches.size === 0) {
     console.log('Nothing to patch.');
@@ -77,9 +75,8 @@ async function protect(projectFolderPath: string) {
   const patchedModules: PatchedModule[] = [];
   foundPhysicalPackages.forEach((fpp) => {
     const packageNameAtVersion = `${fpp.packageName}@${fpp.packageVersion}`;
-    const vuldIdAndPatches = packageAtVersionsToPatches.get(
-      packageNameAtVersion,
-    );
+    const vuldIdAndPatches =
+      packageAtVersionsToPatches.get(packageNameAtVersion);
     vuldIdAndPatches?.forEach((vp) => {
       vp.patches.forEach((patchDiffs) => {
         patchDiffs.patchDiffs.forEach((diff) => {

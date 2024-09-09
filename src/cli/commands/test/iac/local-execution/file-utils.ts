@@ -11,10 +11,7 @@ import { readdirSync } from 'fs';
 import { join } from 'path';
 
 function hashData(s: string): string {
-  const hashedData = crypto
-    .createHash('sha1')
-    .update(s)
-    .digest('hex');
+  const hashedData = crypto.createHash('sha1').update(s).digest('hex');
   return hashedData;
 }
 

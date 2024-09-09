@@ -40,8 +40,7 @@ describe('snyk container', () => {
         id: 'base-files@11.1+deb11u7',
         info: {
           name: 'base-files',
-          purl:
-            'pkg:deb/debian/base-files@11.1%2Bdeb11u7?distro=debian-bullseye',
+          purl: 'pkg:deb/debian/base-files@11.1%2Bdeb11u7?distro=debian-bullseye',
           version: '11.1+deb11u7',
         },
       },
@@ -57,8 +56,7 @@ describe('snyk container', () => {
         id: 'tzdata@2021a-1+deb11u10',
         info: {
           name: 'tzdata',
-          purl:
-            'pkg:deb/debian/tzdata@2021a-1%2Bdeb11u10?distro=debian-bullseye',
+          purl: 'pkg:deb/debian/tzdata@2021a-1%2Bdeb11u10?distro=debian-bullseye',
           version: '2021a-1+deb11u10',
         },
       },
@@ -268,11 +266,7 @@ DepGraph end`,
         },
         meta: { org: 'test-org', isPublic: false },
       });
-      const {
-        code,
-        stdout,
-        stderr,
-      } = await runSnykCLIWithDebug(
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=spdx2.3+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
         { env },
       );
@@ -300,11 +294,7 @@ DepGraph end`,
         },
         meta: { org: 'test-org', isPublic: false },
       });
-      const {
-        code,
-        stdout,
-        stderr,
-      } = await runSnykCLIWithDebug(
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.4+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
         { env },
       );
@@ -336,11 +326,7 @@ DepGraph end`,
         },
         meta: { org: 'test-org', isPublic: false },
       });
-      const {
-        code,
-        stdout,
-        stderr,
-      } = await runSnykCLIWithDebug(
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.5+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
         { env },
       );

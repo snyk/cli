@@ -74,9 +74,8 @@ describe('test --json-file-output', () => {
     const reference =
       response.result.issuesData['SNYK-ALPINE319-OPENSSL-6148881']
         .references[0];
-    response.result.issuesData[
-      'SNYK-ALPINE319-OPENSSL-6148881'
-    ].references = new Array(420000).fill(reference);
+    response.result.issuesData['SNYK-ALPINE319-OPENSSL-6148881'].references =
+      new Array(420000).fill(reference);
 
     server.setCustomResponse(response);
 

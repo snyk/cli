@@ -19,11 +19,7 @@ it('test sensibly bails if gets an old .snyk format', async () => {
     .slice(3)
     .join('\n');
 
-  const expected = expectedFileString
-    .trim()
-    .split('\n')
-    .slice(3)
-    .join('\n');
+  const expected = expectedFileString.trim().split('\n').slice(3).join('\n');
 
   expect(result).toEqual(expected);
 });

@@ -25,10 +25,8 @@ export function updateDependencies(
   updatedManifest: string;
   changes: FixChangesSummary[];
 } {
-  const {
-    requirements,
-    endsWithNewLine: shouldEndWithNewLine,
-  } = parsedRequirementsData;
+  const { requirements, endsWithNewLine: shouldEndWithNewLine } =
+    parsedRequirementsData;
   if (!requirements.length) {
     debug(
       'Error: Expected to receive parsed manifest data. Is manifest empty?',

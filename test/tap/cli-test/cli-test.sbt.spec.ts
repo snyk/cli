@@ -15,9 +15,9 @@ export const SbtTests: AcceptanceTests = {
         async inspect() {
           return {
             plugin: { name: 'sbt' },
-            package: require(getWorkspacePath(
-              'sbt-simple-struts/dep-tree.json',
-            )),
+            package: require(
+              getWorkspacePath('sbt-simple-struts/dep-tree.json'),
+            ),
           };
         },
       };
@@ -39,9 +39,9 @@ export const SbtTests: AcceptanceTests = {
       } catch (err) {
         const res = JSON.parse(err.message);
 
-        const expected = require(getWorkspacePath(
-          'sbt-simple-struts/legacy-res-json.json',
-        ));
+        const expected = require(
+          getWorkspacePath('sbt-simple-struts/legacy-res-json.json'),
+        );
 
         t.same(
           omit(res, ['vulnerabilities', 'packageManager']),

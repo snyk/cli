@@ -14,27 +14,26 @@ test('createHumanReadableTestCommandResult', () => {
 });
 
 test('createJsonTestCommandResult', () => {
-  const result = TestCommandResult.createJsonTestCommandResult(
-    '{ json result}',
-  );
+  const result =
+    TestCommandResult.createJsonTestCommandResult('{ json result}');
   expect(result.toString()).toEqual('{ json result}');
   expect(result.getDisplayResults()).toEqual('{ json result}');
   expect(result.getJsonResult()).toEqual('{ json result}');
 });
 
 test('CommandResult is a HumanReadableTestCommandResult', () => {
-  const result: CommandResult = TestCommandResult.createHumanReadableTestCommandResult(
-    'hr result',
-    '{ json result}',
-  );
+  const result: CommandResult =
+    TestCommandResult.createHumanReadableTestCommandResult(
+      'hr result',
+      '{ json result}',
+    );
   expect(result.toString()).toEqual('hr result');
   expect(result.getDisplayResults()).toEqual('hr result');
 });
 
 test('CommandResult is a JsonTestCommandResult', () => {
-  const result: CommandResult = TestCommandResult.createJsonTestCommandResult(
-    '{ json result}',
-  );
+  const result: CommandResult =
+    TestCommandResult.createJsonTestCommandResult('{ json result}');
   expect(result.toString()).toEqual('{ json result}');
   expect(result.getDisplayResults()).toEqual('{ json result}');
 });

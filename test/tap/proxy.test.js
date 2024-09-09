@@ -31,7 +31,7 @@ test('request respects proxy environment variables', async (t) => {
     });
 
     process.env.http_proxy = `http://localhost:${proxyPort}`;
-    const proxy = http.createServer(function(req, res) {
+    const proxy = http.createServer(function (req, res) {
       t.equal(req.url, httpRequestHost + requestPath, 'http_proxy url ok');
       res.end();
     });
@@ -58,7 +58,7 @@ test('request respects proxy environment variables', async (t) => {
     });
 
     process.env.HTTP_PROXY = `http://localhost:${proxyPort}`;
-    const proxy = http.createServer(function(req, res) {
+    const proxy = http.createServer(function (req, res) {
       t.equal(req.url, httpRequestHost + requestPath, 'HTTP_PROXY url ok');
       res.end();
     });
@@ -107,7 +107,7 @@ test('request respects proxy environment variables', async (t) => {
           'Proxy-agent: Node.js-Proxy\r\n' +
           'Connection: close\r\n' +
           '\r\n',
-        function() {
+        function () {
           cltSocket.end();
         },
       );
@@ -159,7 +159,7 @@ test('request respects proxy environment variables', async (t) => {
           'Proxy-agent: Node.js-Proxy\r\n' +
           'Connection: close\r\n' +
           '\r\n',
-        function() {
+        function () {
           cltSocket.end();
         },
       );
