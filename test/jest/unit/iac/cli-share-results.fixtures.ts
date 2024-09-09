@@ -169,8 +169,8 @@ export const expectedEnvelopeFormatterResults = [
   },
 ];
 
-export const expectedEnvelopeFormatterResultsWithPolicy = expectedEnvelopeFormatterResults.map(
-  (result) => {
+export const expectedEnvelopeFormatterResultsWithPolicy =
+  expectedEnvelopeFormatterResults.map((result) => {
     return {
       ...result,
       policy: `# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
@@ -183,8 +183,7 @@ ignore:
 patch: {}
 `,
     };
-  },
-);
+  });
 
 export const createEnvelopeFormatterResultsWithTargetRef = (
   targetReference: string,

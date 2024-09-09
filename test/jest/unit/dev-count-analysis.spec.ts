@@ -25,10 +25,11 @@ describe('cli dev count via git log analysis', () => {
     const timestampEpochSecondsEndOfPeriod = Math.floor(
       TIMESTAMP_TO_TEST / 1000,
     );
-    const timestampEpochSecondsStartOfPeriod = getTimestampStartOfContributingDevTimeframe(
-      new Date(TIMESTAMP_TO_TEST),
-      10,
-    );
+    const timestampEpochSecondsStartOfPeriod =
+      getTimestampStartOfContributingDevTimeframe(
+        new Date(TIMESTAMP_TO_TEST),
+        10,
+      );
 
     const withMergesGitLogCommand = `git --no-pager log --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI${SERIOUS_DELIMITER}%s" --after="${timestampEpochSecondsStartOfPeriod}" --until="${timestampEpochSecondsEndOfPeriod}" --max-count=${MAX_COMMITS_IN_GIT_LOG}`;
     const withMergesGitLogStdout: string = await execShell(
@@ -123,15 +124,13 @@ describe('cli dev count via git log analysis', () => {
     expect(uniqueAuthors.has('someemail-1@somedomain.com')).toBeTruthy();
     expect(uniqueAuthors.has('someemail-2@somedomain.com')).toBeTruthy();
 
-    const mostRecentCommitTimestampSomeEmail1 = stats.getMostRecentCommitTimestamp(
-      'someemail-1@somedomain.com',
-    );
+    const mostRecentCommitTimestampSomeEmail1 =
+      stats.getMostRecentCommitTimestamp('someemail-1@somedomain.com');
     expect(mostRecentCommitTimestampSomeEmail1).toEqual(
       '2020-02-06T11:43:11+00:00',
     );
-    const mostRecentCommitTimestampSomeEmail2 = stats.getMostRecentCommitTimestamp(
-      'someemail-2@somedomain.com',
-    );
+    const mostRecentCommitTimestampSomeEmail2 =
+      stats.getMostRecentCommitTimestamp('someemail-2@somedomain.com');
     expect(mostRecentCommitTimestampSomeEmail2).toEqual(
       '2020-02-02T23:31:13+02:00',
     );
@@ -183,15 +182,13 @@ describe('cli dev count via git log analysis', () => {
     expect(uniqueAuthors).toContain('someemail-1@somedomain.com');
     expect(uniqueAuthors).toContain('someemail-2@somedomain.com');
 
-    const mostRecentCommitTimestampSomeEmail1 = stats.getMostRecentCommitTimestamp(
-      'someemail-1@somedomain.com',
-    );
+    const mostRecentCommitTimestampSomeEmail1 =
+      stats.getMostRecentCommitTimestamp('someemail-1@somedomain.com');
     expect(mostRecentCommitTimestampSomeEmail1).toEqual(
       '2020-02-06T11:43:11+00:00',
     );
-    const mostRecentCommitTimestampSomeEmail2 = stats.getMostRecentCommitTimestamp(
-      'someemail-2@somedomain.com',
-    );
+    const mostRecentCommitTimestampSomeEmail2 =
+      stats.getMostRecentCommitTimestamp('someemail-2@somedomain.com');
     expect(mostRecentCommitTimestampSomeEmail2).toEqual(
       '2020-02-02T23:31:13+02:00',
     );

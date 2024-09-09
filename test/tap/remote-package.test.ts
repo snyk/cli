@@ -79,10 +79,7 @@ test('multiple test arguments', async (t) => {
   try {
     const commandResult: CommandResult = await cli.test('semver@4', 'qs@6');
     const res = commandResult.getDisplayResults();
-    const lastLine = res
-      .trim()
-      .split('\n')
-      .pop();
+    const lastLine = res.trim().split('\n').pop();
     t.equal(
       lastLine,
       'Tested 2 projects, no vulnerable paths were found.',
@@ -97,10 +94,7 @@ test('multiple test arguments', async (t) => {
     t.fail(res);
   } catch (error) {
     const res = error.message;
-    const lastLine = res
-      .trim()
-      .split('\n')
-      .pop();
+    const lastLine = res.trim().split('\n').pop();
     t.equal(
       lastLine,
       'Tested 2 projects, 1 contained vulnerable paths.',
@@ -113,10 +107,7 @@ test('multiple test arguments', async (t) => {
     t.fail(res);
   } catch (error) {
     const res = error.message;
-    const lastLine = res
-      .trim()
-      .split('\n')
-      .pop();
+    const lastLine = res.trim().split('\n').pop();
     t.equal(
       lastLine,
       'Tested 2 projects, 1 contained vulnerable paths.',
@@ -129,10 +120,7 @@ test('multiple test arguments', async (t) => {
     t.fail(res);
   } catch (error) {
     const res = error.message;
-    const lastLine = res
-      .trim()
-      .split('\n')
-      .pop();
+    const lastLine = res.trim().split('\n').pop();
     t.equal(
       lastLine,
       'Tested 2 projects, 2 contained vulnerable paths.',
@@ -147,10 +135,7 @@ test('test for existing remote package with dev-deps only with --dev', async (t)
       dev: true,
     });
     const res = commandResult.getDisplayResults();
-    const lastLine = res
-      .trim()
-      .split('\n')
-      .pop();
+    const lastLine = res.trim().split('\n').pop();
     t.same(
       lastLine,
       '✔ Tested lodash@4.17.11 for known vulnerabilities, no vulnerable paths found.',
@@ -171,10 +156,7 @@ test('test for existing remote package with dev-deps only', async (t) => {
       dev: false,
     });
     const res = commandResult.getDisplayResults();
-    const lastLine = res
-      .trim()
-      .split('\n')
-      .pop();
+    const lastLine = res.trim().split('\n').pop();
 
     t.same(
       lastLine,
@@ -193,10 +175,7 @@ test('test for non-existing', async (t) => {
     t.fail('should fail, instead received ' + res);
   } catch (error) {
     const res = error.message;
-    const lastLine = res
-      .trim()
-      .split('\n')
-      .pop();
+    const lastLine = res.trim().split('\n').pop();
     t.same(
       lastLine,
       'Internal server error',

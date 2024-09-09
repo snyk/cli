@@ -133,10 +133,8 @@ async function monitorDependencies(
   for (const [path, scanResults] of Object.entries(scans)) {
     await spinner(`Monitoring dependencies in ${path}`);
     for (const scanResult of scanResults) {
-      const monitorDependenciesRequest = await generateMonitorDependenciesRequest(
-        scanResult,
-        options,
-      );
+      const monitorDependenciesRequest =
+        await generateMonitorDependenciesRequest(scanResult, options);
 
       const configOrg = config.org ? decodeURIComponent(config.org) : undefined;
 
@@ -154,9 +152,8 @@ async function monitorDependencies(
         },
       };
       try {
-        const response = await makeRequest<MonitorDependenciesResponse>(
-          payload,
-        );
+        const response =
+          await makeRequest<MonitorDependenciesResponse>(payload);
         results.push({
           ...response,
           path,
@@ -239,8 +236,8 @@ export async function getFormattedMonitorOutput(
         res.data && res.data.userMessage
           ? chalk.bold.red(res.data.userMessage)
           : res.data
-          ? res.data.message
-          : 'Unknown error occurred.';
+            ? res.data.message
+            : 'Unknown error occurred.';
 
       return (
         chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') + errorMessage

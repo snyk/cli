@@ -77,7 +77,7 @@ export class TestEnvironmentSetup {
 }
 
 if (process.argv.includes('exec')) {
-  (async function() {
+  (async function () {
     const env = new TestEnvironmentSetup();
     await env.prepareEnvironment('1.1080.0');
   });

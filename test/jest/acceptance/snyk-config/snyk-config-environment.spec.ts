@@ -51,10 +51,10 @@ describe('snyk config environment', () => {
   });
 
   it('fail with an invalid env alias', async () => {
-    const {
-      code,
-      stderr,
-    } = await runSnykCLI(`config environment randomEnvName`, { env: env });
+    const { code, stderr } = await runSnykCLI(
+      `config environment randomEnvName`,
+      { env: env },
+    );
     expect(stderr).toEqual('');
     expect(code).toEqual(2);
   });

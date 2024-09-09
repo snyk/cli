@@ -252,8 +252,8 @@ export class NoSuccessfulScansError extends FormattedCustomError {
     const message = options.json
       ? responseData.json
       : options.sarif
-      ? responseData.sarif
-      : firstErr.message;
+        ? responseData.sarif
+        : firstErr.message;
     super(
       message,
       isText

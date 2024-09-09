@@ -407,7 +407,7 @@ function convertTestDepGraphResultToLegacy(
         const pkgAndVersion = (pkgInfo.pkg.name +
           '@' +
           pkgInfo.pkg.version) as string;
-        const annotatedIssue = (Object.assign(
+        const annotatedIssue = Object.assign(
           {},
           binariesVulns.issuesData[pkgIssue.issueId],
           {
@@ -419,7 +419,7 @@ function convertTestDepGraphResultToLegacy(
             version: pkgInfo.pkg.version as string,
             nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
           },
-        ) as any) as AnnotatedIssue; // TODO(kyegupov): get rid of forced type assertion
+        ) as any as AnnotatedIssue; // TODO(kyegupov): get rid of forced type assertion
         vulns.push(annotatedIssue);
       }
     }
