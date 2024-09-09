@@ -21,6 +21,7 @@ const binaryDeploymentsFilePath = path.join(
   'generated',
   'binary-deployments.json',
 );
+export const integrationName = 'TS_BINARY_WRAPPER';
 
 export class WrapperConfiguration {
   private version: string;
@@ -45,9 +46,14 @@ export class WrapperConfiguration {
     return this.binaryName;
   }
 
-  public getDownloadLocation(): string {
-    const baseUrl = 'https://static.snyk.io/cli/v';
-    return baseUrl + this.version + '/' + this.binaryName;
+  public getDownloadLocations(): { downloadUrl: string; backupUrl: string } {
+    const baseUrl = 'https://downloads.snyk.io/cli';
+    const backupUrl = 'https://static.snyk.io/cli';
+
+    return {
+      downloadUrl: `${baseUrl}/v${this.version}/${this.binaryName}`,
+      backupUrl: `${backupUrl}/v${this.version}/${this.binaryName}`,
+    };
   }
 
   public getLocalLocation(): string {
@@ -59,6 +65,10 @@ export class WrapperConfiguration {
     return this.expectedSha256sum;
   }
 }
+
+const logErrorWithTimeStamps = (...args) => {
+  console.error(`${new Date().toISOString()}:`, ...args);
+};
 
 export function determineBinaryName(platform: string, arch: string): string {
   let osname = platform;
@@ -174,24 +184,33 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   const debug = debugEnabled(cliArguments);
 
   if (debug) {
-    console.error('Executing: ' + executable + ' ' + cliArguments.join(' '));
+    logErrorWithTimeStamps(
+      'Executing: ' + executable + ' ' + cliArguments.join(' '),
+    );
   }
 
   const res = spawnSync(executable, cliArguments, {
     shell: false,
     stdio: 'inherit',
+    env: {
+      ...process.env,
+      SNYK_INTEGRATION_NAME: integrationName,
+      SNYK_INTEGRATION_VERSION: getCurrentVersion(versionFile),
+    },
   });
 
   if (res.status !== null) {
     if (debug) {
-      console.error(res);
+      logErrorWithTimeStamps(res);
     }
 
     return res.status;
   } else {
-    console.error(res);
+    logErrorWithTimeStamps(res);
     if (!formatErrorMessage((res.error as SpawnError).code)) {
-      console.error('Failed to spawn child process. (' + executable + ')');
+      logErrorWithTimeStamps(
+        'Failed to spawn child process. (' + executable + ')',
+      );
     }
 
     return 2;
@@ -232,7 +251,7 @@ export function formatErrorMessage(message: string): boolean {
     return false;
   }
 
-  console.error(getWarningMessage(warning));
+  logErrorWithTimeStamps(getWarningMessage(warning));
   return true;
 }
 
@@ -242,7 +261,8 @@ export function downloadExecutable(
   filenameShasum: string,
 ): Promise<Error | undefined> {
   return new Promise<Error | undefined>(function(resolve) {
-    const options = new URL(downloadUrl);
+    logErrorWithTimeStamps('Starting download');
+    const options = new URL(`${downloadUrl}?utm_source=${integrationName}`);
     const temp = path.join(__dirname, Date.now().toString());
     const fileStream = fs.createWriteStream(temp);
     const shasum = createHash('sha256').setEncoding('hex');
@@ -271,19 +291,19 @@ export function downloadExecutable(
       if (filenameShasum && actualShasum != filenameShasum) {
         cleanupAfterError(Error('Shasum comparison failed!\n' + debugMessage));
       } else {
-        console.error(debugMessage);
+        logErrorWithTimeStamps(debugMessage);
 
         // finally rename the file and change permissions
         fs.renameSync(temp, filename);
         fs.chmodSync(filename, 0o755);
-        console.error('Downloaded successfull! ');
+        logErrorWithTimeStamps('Downloaded successfull! ');
       }
 
       resolve(undefined);
     });
 
-    console.error(
-      "Downloading from '" + downloadUrl + "' to '" + filename + "'",
+    logErrorWithTimeStamps(
+      "Downloading from '" + options.toString() + "' to '" + filename + "'",
     );
 
     const req = https.get(options, (res) => {
@@ -322,9 +342,42 @@ export function downloadExecutable(
   });
 }
 
+export async function downloadWithBackup(
+  downloadUrl: string,
+  backupUrl: string,
+  filename: string,
+  filenameShasum: string,
+): Promise<Error | undefined> {
+  try {
+    const error = await downloadExecutable(
+      downloadUrl,
+      filename,
+      filenameShasum,
+    );
+    if (error) {
+      logErrorWithTimeStamps(error);
+      logErrorWithTimeStamps(
+        `Failed to download from ${downloadUrl}! Trying to download from ${backupUrl} location...`,
+      );
+      const backupError = await downloadExecutable(
+        backupUrl,
+        filename,
+        filenameShasum,
+      );
+
+      logErrorWithTimeStamps(backupError);
+      return backupError;
+    }
+  } catch (err) {
+    // Handle any unexpected errors
+    logErrorWithTimeStamps('An unexpected error occurred:', err);
+    throw err; // Rethrow if you want to propagate the error upwards
+  }
+}
+
 export async function logError(
   context: string,
-  err,
+  err: Error,
   printToConsole = true,
 ): Promise<void> {
   if (isAnalyticsEnabled()) {
@@ -345,7 +398,7 @@ export async function logError(
 
   // finally log the error to the console as well
   if (printToConsole) {
-    console.error('\n' + err);
+    logErrorWithTimeStamps('\n' + err);
     formatErrorMessage(err.message);
   }
 }
