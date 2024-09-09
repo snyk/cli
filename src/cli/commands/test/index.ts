@@ -293,7 +293,7 @@ export default async function test(
   if (notSuccess) {
     response += chalk.bold.red(summaryMessage);
     const error = new Error(response) as any;
-      // TODO: refactor this to be more consistent
+    // TODO: refactor this to be more consistent
     // take the code of the first problem to go through error
     // translation
     // HACK as there can be different errors, and we pass only the
