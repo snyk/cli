@@ -166,9 +166,9 @@ export function packageJsonBelongsToWorkspace(
   const workspaceRootFolder = pathUtil.dirname(
     workspaceRoot.replace(/\\/g, '/'),
   );
-  const workspacesGlobs = (
-    workspacesMap[workspaceRoot].workspaces || []
-  ).map((workspace) => pathUtil.join(workspaceRootFolder, workspace));
+  const workspacesGlobs = (workspacesMap[workspaceRoot].workspaces || []).map(
+    (workspace) => pathUtil.join(workspaceRootFolder, workspace),
+  );
 
   const match = micromatch.isMatch(
     packageJsonFileName.replace(/\\/g, '/'),

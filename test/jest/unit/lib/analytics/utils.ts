@@ -6,10 +6,10 @@ import { ArgsOptions } from '../../../../../src/cli/args';
  * @returns a ArgsOptions[] with just the stuff we need for the tests.
  */
 export function argsFrom(args: { [key: string]: string }): ArgsOptions[] {
-  const fullArgs = ([
+  const fullArgs = [
     {
       ...args,
     },
-  ] as any) as ArgsOptions[];
+  ] as any as ArgsOptions[];
   return fullArgs;
 }

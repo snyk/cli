@@ -134,7 +134,7 @@ export async function test(
 
   // TODO: add support for proper typing of old TestResult interface.
   return {
-    results: (filteredIssues as unknown) as TestResult[],
+    results: filteredIssues as unknown as TestResult[],
     failures,
     ignoreCount,
   };

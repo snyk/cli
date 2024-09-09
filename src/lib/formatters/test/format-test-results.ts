@@ -355,9 +355,7 @@ function getDockerRemediationDocsLink(dockerAdvice: string, config): string {
   );
 }
 
-export function groupVulnerabilities(
-  vulns,
-): {
+export function groupVulnerabilities(vulns): {
   [vulnId: string]: GroupedVuln;
 } {
   return vulns.reduce((map, curr) => {

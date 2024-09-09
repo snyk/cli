@@ -83,9 +83,7 @@ describe('snyk ignore', () => {
 
   it('create a policy file with exclude, using custom group', async () => {
     const project = await createProjectFromWorkspace('empty');
-    const {
-      code,
-    } = await runSnykCLI(
+    const { code } = await runSnykCLI(
       `ignore --file-path=**/deps/**/*.ts --file-path-group=code  --policy-path=${project.path()}`,
       { cwd: project.path(), env: env },
     );
@@ -128,9 +126,7 @@ describe('snyk ignore', () => {
   it('write a policy file for exclude by providing group, expiry and reason', async () => {
     const project = await createProjectFromWorkspace('empty');
 
-    const {
-      code,
-    } = await runSnykCLI(
+    const { code } = await runSnykCLI(
       `ignore --file-path=**/deps/**/*.ts --file-path-group=code --reason=unknown-reason --expiry=2099-12-24  --policy-path=${project.path()}`,
       { cwd: project.path(), env: env },
     );
@@ -175,9 +171,7 @@ describe('snyk ignore', () => {
       code: ['**/deps/**/*.ts'],
     });
 
-    const {
-      code,
-    } = await runSnykCLI(
+    const { code } = await runSnykCLI(
       `ignore --file-path=**/deps/**/*.ts --file-path-group=code --reason=unknown-reason --expiry=2099-12-24`,
       { cwd: project.path(), env: env },
     );

@@ -44,11 +44,7 @@ describe('snyk sbom test (mocked server only)', () => {
       'npm-sbom-cdx15.json',
     );
 
-    const {
-      code,
-      stdout,
-      stderr,
-    } = await runSnykCLI(
+    const { code, stdout, stderr } = await runSnykCLI(
       `sbom test --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --experimental --file ${fileToTest}`,
       { env },
     );
@@ -82,11 +78,7 @@ describe('snyk sbom test (mocked server only)', () => {
       'npm-sbom-cdx15.json',
     );
 
-    const {
-      code,
-      stdout,
-      stderr,
-    } = await runSnykCLI(
+    const { code, stdout, stderr } = await runSnykCLI(
       `sbom test --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --experimental --file ${fileToTest} --json`,
       { env },
     );
@@ -119,10 +111,7 @@ describe('snyk sbom test (mocked server only)', () => {
       'npm-sbom-cdx15.json',
     );
 
-    const {
-      stdout,
-      stderr,
-    } = await runSnykCLI(
+    const { stdout, stderr } = await runSnykCLI(
       `sbom test --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --file ${fileToTest}`,
       { env },
     );
@@ -135,10 +124,7 @@ describe('snyk sbom test (mocked server only)', () => {
   });
 
   test('missing file flag', async () => {
-    const {
-      stdout,
-      stderr,
-    } = await runSnykCLI(
+    const { stdout, stderr } = await runSnykCLI(
       `sbom test --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --experimental`,
       { env },
     );
@@ -152,11 +138,7 @@ describe('snyk sbom test (mocked server only)', () => {
 
   test('bad SBOM input', async () => {
     const fileToTest = path.resolve(getFixturePath('sbom'), 'bad-sbom.json');
-    const {
-      code,
-      stdout,
-      stderr,
-    } = await runSnykCLI(
+    const { code, stdout, stderr } = await runSnykCLI(
       `sbom test --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --experimental --file ${fileToTest}`,
       { env },
     );

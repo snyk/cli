@@ -80,22 +80,23 @@ describe('formatSnykIacTestTestData', () => {
       'utf-8',
     ),
   );
-  const snykIacTestOutputWithSuppressionsFixture: SnykIacTestOutput = JSON.parse(
-    fs.readFileSync(
-      path.join(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        '..',
-        'iac',
-        'process-results',
-        'fixtures',
-        'snyk-iac-test-results-with-suppressions.json',
+  const snykIacTestOutputWithSuppressionsFixture: SnykIacTestOutput =
+    JSON.parse(
+      fs.readFileSync(
+        path.join(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          '..',
+          'iac',
+          'process-results',
+          'fixtures',
+          'snyk-iac-test-results-with-suppressions.json',
+        ),
+        'utf-8',
       ),
-      'utf-8',
-    ),
-  );
+    );
 
   const testDataFixture: IacTestData = JSON.parse(
     fs.readFileSync(

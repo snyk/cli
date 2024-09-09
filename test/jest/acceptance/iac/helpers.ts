@@ -69,7 +69,7 @@ export async function run(
         },
         cwd: cwd ?? join(root, 'test/fixtures'),
       },
-      function(err, stdout, stderr) {
+      function (err, stdout, stderr) {
         // err.code indicates the shell exited with non-zero code
         // which is in our case a success and we resolve.
         if (err && typeof err.code !== 'number') {

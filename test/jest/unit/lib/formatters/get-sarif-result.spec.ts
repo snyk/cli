@@ -2,11 +2,13 @@ import { getResults } from '../../../../../src/lib/formatters/get-sarif-result';
 import { SEVERITY, TestResult } from '../../../../../src/lib/snyk-test/legacy';
 
 describe('Retrieving sarif result', () => {
-  const cases: Array<[
-    string,
-    { path: string; displayTargetFile?: string },
-    { resultLocationUri: string },
-  ]> = [
+  const cases: Array<
+    [
+      string,
+      { path: string; displayTargetFile?: string },
+      { resultLocationUri: string },
+    ]
+  > = [
     [
       'should return the path given there is no target file present',
       { path: 'alpine' },
@@ -20,8 +22,7 @@ describe('Retrieving sarif result', () => {
     [
       'should return the path without colon characters given there is no target file present and the path contains a digest',
       {
-        path:
-          'alpine@sha256:c0669ef34cdc14332c0f1ab0c2c01acb91d96014b172f1a76f3a39e63d1f0bda',
+        path: 'alpine@sha256:c0669ef34cdc14332c0f1ab0c2c01acb91d96014b172f1a76f3a39e63d1f0bda',
       },
       {
         resultLocationUri:
@@ -49,8 +50,7 @@ describe('Retrieving sarif result', () => {
         fixes: undefined,
         level: 'error',
         message: {
-          text:
-            'This file introduces a vulnerable expat package with a critical severity vulnerability.',
+          text: 'This file introduces a vulnerable expat package with a critical severity vulnerability.',
         },
         locations: [
           {

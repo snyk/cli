@@ -329,8 +329,8 @@ describe('snyk code test', () => {
               },
             );
 
-            const actualCodeSecurityIssues = JSON.parse(stdout)?.runs[0]
-              ?.results?.length;
+            const actualCodeSecurityIssues =
+              JSON.parse(stdout)?.runs[0]?.results?.length;
             expect(actualCodeSecurityIssues).toEqual(
               expectedCodeSecurityIssues,
             );
@@ -350,8 +350,8 @@ describe('snyk code test', () => {
                 },
               );
 
-              const actualCodeSecurityIssues = JSON.parse(stdout)?.runs[0]
-                ?.results?.length;
+              const actualCodeSecurityIssues =
+                JSON.parse(stdout)?.runs[0]?.results?.length;
               expect(actualCodeSecurityIssues).toEqual(
                 expectedHighCodeSecurityIssues,
               );
@@ -432,8 +432,8 @@ describe('snyk code test', () => {
             },
           );
 
-          const actualCodeSecurityIssues = JSON.parse(stdout)?.runs[0]?.results
-            ?.length;
+          const actualCodeSecurityIssues =
+            JSON.parse(stdout)?.runs[0]?.results?.length;
           expect(actualCodeSecurityIssues).toEqual(expectedCodeSecurityIssues);
         });
 

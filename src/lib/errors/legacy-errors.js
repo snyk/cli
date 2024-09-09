@@ -71,7 +71,7 @@ module.exports = function error(command) {
   return Promise.reject(e);
 };
 
-module.exports.message = function(error) {
+module.exports.message = function (error) {
   let message = error; // defaults to a string (which is super unlikely)
   if (error instanceof Error) {
     if (error.code === 'VULNS') {

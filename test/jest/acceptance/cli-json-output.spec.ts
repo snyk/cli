@@ -113,7 +113,7 @@ describe('test --json', () => {
       let hasReferenceCount = false;
 
       const p = new Parser();
-      p.onValue = function(value) {
+      p.onValue = function (value) {
         if (this.key === 'path' && value === imageName) {
           hasExpectedPathString = true;
         } else if (this.key === 'vulnerabilities') {

@@ -56,8 +56,9 @@ export async function assembleEcosystemPayloads(
 
       payloads.push({
         method: 'POST',
-        url: `${config.API}${options.testDepGraphDockerEndpoint ||
-          '/test-dependencies'}`,
+        url: `${config.API}${
+          options.testDepGraphDockerEndpoint || '/test-dependencies'
+        }`,
         json: true,
         headers: {
           'x-is-ci': isCI(),
