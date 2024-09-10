@@ -872,6 +872,20 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
             },
           };
           break;
+        case 'cyclonedx1.6+json':
+          bom = {
+            specVersion: '1.6',
+            $schema: 'http://cyclonedx.org/schema/bom-1.6.schema.json',
+            components,
+            metadata: {
+              component: { name },
+              tools: {
+                components: [...tools, { name: 'fake-server' }],
+                services: [{ name: 'fake-server', version: '42' }],
+              },
+            },
+          };
+          break;
       }
 
       res.status(200).send(bom);
