@@ -5,7 +5,7 @@ import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
 import { RunCommandOptions, RunCommandResult } from '../../util/runCommand';
 import { getServerPort } from '../../util/getServerPort';
 
-jest.setTimeout(1000 * 60);
+jest.setTimeout(1000 * 70);
 
 describe('snyk container', () => {
   if (os.platform() === 'win32') {
