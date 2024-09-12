@@ -13,14 +13,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/utils"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
-	"github.com/snyk/cli/cliv2/internal/utils"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -397,7 +398,8 @@ func Test_executeUnknownCommand(t *testing.T) {
 
 func Test_clearCache(t *testing.T) {
 	cacheDir := getCacheDir(t)
-	config := configuration.NewInMemory()
+	engine := app.CreateAppEngine()
+	config := engine.GetConfiguration()
 	config.Set(configuration.CACHE_PATH, cacheDir)
 
 	// create instance under test
@@ -432,7 +434,8 @@ func Test_clearCache(t *testing.T) {
 
 func Test_clearCacheBigCache(t *testing.T) {
 	cacheDir := getCacheDir(t)
-	config := configuration.NewInMemory()
+	engine := app.CreateAppEngine()
+	config := engine.GetConfiguration()
 	config.Set(configuration.CACHE_PATH, cacheDir)
 
 	// create instance under test

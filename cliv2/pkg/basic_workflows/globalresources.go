@@ -10,6 +10,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/workflow"
+
 	"github.com/spf13/pflag"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
@@ -95,7 +96,7 @@ func GetGlobalCertAuthority(config configuration.Configuration, debugLogger *zer
 }
 
 func CleanupGlobalTempDirectory(config configuration.Configuration, debugLogger *zerolog.Logger) {
-	tmpDirectory := utils.GetTemporaryDirectory(config.GetString(configuration.CACHE_PATH), cliv2.GetFullVersion())
+	tmpDirectory := config.GetString(configuration.TEMP_DIR_PATH)
 	err := os.RemoveAll(tmpDirectory)
 	if err != nil {
 		debugLogger.Print("Failed to delete temporary directory: ", tmpDirectory)
