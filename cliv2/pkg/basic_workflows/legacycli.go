@@ -74,6 +74,7 @@ func legacycliWorkflow(
 	debugLogger := invocation.GetEnhancedLogger() // uses zerolog
 	debugLoggerDefault := invocation.GetLogger()  // uses log
 	networkAccess := invocation.GetNetworkAccess()
+	ri := invocation.GetRuntimeInfo()
 
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
@@ -89,7 +90,7 @@ func legacycliWorkflow(
 
 	// init cli object
 	var cli *cliv2.CLI
-	cli, err = cliv2.NewCLIv2(config, debugLoggerDefault)
+	cli, err = cliv2.NewCLIv2(config, debugLoggerDefault, ri)
 	if err != nil {
 		return output, err
 	}
