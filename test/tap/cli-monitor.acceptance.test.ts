@@ -1475,6 +1475,62 @@ if (!isWindows) {
     );
   });
 
+  test('`monitor cocoapods-app with just Podfile.lock`', async (t) => {
+    chdirWorkspaces('cocoapods-app');
+    const plugin = {
+      async inspect() {
+        return {
+          plugin: {
+            targetFile: 'Podfile.lock',
+            name: 'snyk-cocoapods-plugin',
+            runtime: 'cocoapods',
+          },
+          package: {},
+        };
+      },
+    };
+    console.log(plugin);
+    const spyPlugin = sinon.spy(plugin, 'inspect');
+
+    const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+    t.teardown(loadPlugin.restore);
+    loadPlugin.withArgs('cocoapods').returns(plugin);
+
+    await cli.monitor('./', {
+      file: 'Podfile.lock',
+    });
+    const req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.equal(
+      req.headers['x-snyk-cli-version'],
+      versionNumber,
+      'sends version number',
+    );
+    const depGraphJSON = req.body.depGraphJSON;
+    t.ok(depGraphJSON);
+    t.match(req.url, '/monitor/cocoapods/graph', 'puts at correct url');
+    t.equal(
+      req.body.targetFile,
+      'Podfile.lock',
+      'sends the targetFile (Podfile.lock)',
+    );
+    t.same(
+      spyPlugin.getCall(0).args,
+      [
+        './',
+        'Podfile.lock',
+        {
+          args: null,
+          file: 'Podfile.lock',
+          packageManager: 'cocoapods',
+          path: './',
+        },
+        snykHttpClient,
+      ],
+      'calls CocoaPods plugin',
+    );
+  });
+
   test('`monitor large-mono-repo --file=bundler-app/Gemfile` suggest to use --all-projects', async (t) => {
     chdirWorkspaces('large-mono-repo');
     const res = await cli.monitor({ file: 'bundler-app/Gemfile' });
