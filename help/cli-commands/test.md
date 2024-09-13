@@ -368,6 +368,28 @@ If there are out-of-sync lockfiles in the project, the `test` command fails when
 
 Default: true
 
+## Options for pnpm projects
+
+**Snyk CLI pnpm support is in Early Access**. To enable it, in your Snyk account navigate to Settings, select Snyk Preview, and install CLI v1.1293.0 or above.
+
+**Note**: You can use the following options with pnpm projects:
+
+`--dev`. See the [`--dev` option help](https://docs.snyk.io/snyk-cli/commands/test#dev)
+
+`--all-projects` to scan and detect pnpm projects and all other projects in the directory. See the [`--all-projects` option help](https://docs.snyk.io/snyk-cli/commands/test#all-projects)
+
+`--fail-on`. See the [--fail-on option help](https://docs.snyk.io/snyk-cli/commands/test#fail-on-less-than-all-or-upgradable-or-patchable-greater-than)
+
+`--prune-repeated-subdependencies, -p`. See the [`--prune-repeated subdependencies` option help](https://docs.snyk.io/snyk-cli/commands/test#prune-repeated-subdependencies-p)
+
+### `--strict-out-of-sync=true|false`
+
+Prevent testing out-of-sync lockfiles.
+
+If there are out-of-sync lockfiles in the project, the `test` command fails when `--strict-out-of-sync=true`.
+
+Default: true
+
 ## Options for Yarn projects
 
 **Note**: You can use the following options with Yarn projects:
@@ -388,7 +410,7 @@ Default: true
 
 ### `--yarn-workspaces`
 
-Detect and scan Yarn Workspaces only when a lockfile is in the root.
+Detect and scan only Yarn Workspaces when a lockfile is in the root.
 
 You can specify how many sub-directories to search using `--detection-depth.`
 
