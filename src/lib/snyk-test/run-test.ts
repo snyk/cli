@@ -85,6 +85,7 @@ import {
   SUPPORTED_MANIFEST_FILES,
 } from '../package-managers';
 import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
+import { normalizeTargetFile } from '../normalize-target-file';
 
 const debug = debugModule('snyk:run-test');
 
@@ -726,8 +727,11 @@ async function assembleLocalPayloads(
       }
 
       // todo: normalize what target file gets used across plugins and functions
-      const targetFile =
-        scannedProject.targetFile || deps.plugin.targetFile || options.file;
+      const targetFile = normalizeTargetFile(
+        scannedProject,
+        deps.plugin,
+        options.file,
+      );
 
       // Forcing options.path to be a string as pathUtil requires is to be stringified
       const targetFileRelativePath = targetFile
