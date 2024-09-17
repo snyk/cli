@@ -3,6 +3,14 @@ import { readFileSync } from 'fs';
 
 const workspacePath = path.join(__dirname, 'workspaces');
 
+/**
+ * Changes the current working directory to the specified subdirectory within the workspace path.
+ *
+ * @param {string} subdir - The subdirectory to navigate to (optional). If not provided, the workspace path itself will be used.
+ *
+ * @example
+ * chdirWorkspaces('project1'); // Changes the working directory to '${workspacePath}/project1'
+ */
 export function chdirWorkspaces(subdir = '') {
   const dir = path.join(workspacePath, subdir);
   process.chdir(dir);
