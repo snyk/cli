@@ -10,7 +10,7 @@ ignore:
   SNYK-JS-LODASHSET-1320032:
     - '*':
         reason: No upgrade path currently available
-        expires: 2024-09-13T13:14:22.120Z
+        expires: 2024-09-30T10:00:00.000Z
         created: 2023-09-13T13:14:22.120Z
   'snyk:lic:npm:shescape:MPL-2.0':
     - '*':
