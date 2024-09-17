@@ -3,10 +3,10 @@ version: 2.1
 parameters:
   cli_download_base_url:
     type: string
-    default: 'https://static.snyk.io/'
+    default: 'https://downloads.snyk.io/'
   fips_cli_download_base_url:
     type: string
-    default: 'https://static.snyk.io/fips/'
+    default: 'https://downloads.snyk.io/fips/'
   go_download_base_url:
     type: string
     default: 'https://storage.googleapis.com/golang/'
