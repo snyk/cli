@@ -528,11 +528,6 @@ func MainWithErrorCode() int {
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
 
-	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
-		defer sendAnalytics(cliAnalytics, globalLogger)
-	}
-	defer sendInstrumentation(globalEngine, cliAnalytics.GetInstrumentation(), globalLogger)
-
 	setTimeout(globalConfiguration, func() {
 		os.Exit(constants.SNYK_EXIT_CODE_EX_UNAVAILABLE)
 	})
@@ -573,7 +568,13 @@ func MainWithErrorCode() int {
 		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
 	}
 
+	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
+		sendAnalytics(cliAnalytics, globalLogger)
+	}
+	sendInstrumentation(globalEngine, cliAnalytics.GetInstrumentation(), globalLogger)
+
 	// cleanup resources in use
+	// WARNING: deferred actions will execute AFTER cleanup; only defer if not impacted by this
 	_, err = globalEngine.Invoke(basic_workflows.WORKFLOWID_GLOBAL_CLEANUP)
 	if err != nil {
 		globalLogger.Printf("Failed to cleanup %v", err)
