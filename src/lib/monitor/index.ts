@@ -43,6 +43,7 @@ import {
   getTargetFile,
 } from './utils';
 import { countPathsToGraphRoot } from '../utils';
+import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 
 const debug = Debug('snyk');
 
@@ -187,7 +188,9 @@ async function monitorDepTree(
     root,
     meta.isDocker ? 'docker' : packageManager!,
     options,
-    depTree,
+    // TODO: fix this and send only send when we used resolve-deps for node
+    // it should be a ExpandedPkgTree type instead
+    depTree as unknown as PackageExpanded,
     targetFileDir,
   );
 
@@ -427,7 +430,7 @@ async function monitorDepGraphFromDepTree(
     options,
     // TODO: fix this and send only send when we used resolve-deps for node
     // it should be a ExpandedPkgTree type instead
-    depTree,
+    depTree as unknown as PackageExpanded,
     targetFileDir,
   );
 
