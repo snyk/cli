@@ -77,33 +77,50 @@ func Test_ParallelGetGobalCertAuthority(t *testing.T) {
 
 func Test_RestoreCertAuthority(t *testing.T) {
 	config := configuration.NewInMemory()
+	// set as we don't call initCleanup()
+	config.Set(ConfigurationCleanupGlobalCertAuthority, true)
 	logger := zerolog.New(os.Stderr)
+
 	ca1, err := GetGlobalCertAuthority(config, &logger)
+
 	assert.NoError(t, err)
 	assert.FileExists(t, ca1.CertFile)
 
-	// case: manual removal of file
-	os.Remove(ca1.CertFile)
+	t.Run("manual removal of file", func(t *testing.T) {
+		os.Remove(ca1.CertFile)
 
-	ca2, err := GetGlobalCertAuthority(config, &logger)
-	assert.NoError(t, err)
-	assert.FileExists(t, ca2.CertFile)
-	assert.Equal(t, ca1.CertFile, ca2.CertFile)
+		ca2, err := GetGlobalCertAuthority(config, &logger)
+		assert.NoError(t, err)
+		assert.FileExists(t, ca2.CertFile)
+		assert.Equal(t, ca1.CertFile, ca2.CertFile)
+	})
 
-	// case: manual removal of file and deletion of cached values
-	os.Remove(ca1.CertFile)
-	caSingleton.CertPem = ""
-	caSingleton.CertFile = ""
+	t.Run("manual removal of file and deletion of cached values", func(t *testing.T) {
+		os.Remove(ca1.CertFile)
+		caSingleton.CertPem = ""
+		caSingleton.CertFile = ""
 
-	ca3, err := GetGlobalCertAuthority(config, &logger)
-	assert.Error(t, err)
-	assert.NotEqual(t, ca1.CertFile, ca3.CertFile)
+		ca2, err := GetGlobalCertAuthority(config, &logger)
+		assert.Error(t, err)
+		assert.NotEqual(t, ca1.CertFile, ca2.CertFile)
+	})
 
-	// case: use cleanup function
-	CleanupGlobalCertAuthority(&logger)
+	t.Run("use cleanup function", func(t *testing.T) {
+		CleanupGlobalCertAuthority(config, &logger)
 
-	ca4, err := GetGlobalCertAuthority(config, &logger)
-	assert.NoError(t, err)
-	assert.FileExists(t, ca4.CertFile)
-	assert.NotEqual(t, ca1.CertFile, ca4.CertFile)
+		ca2, err := GetGlobalCertAuthority(config, &logger)
+		assert.NoError(t, err)
+		assert.FileExists(t, ca2.CertFile)
+		assert.NotEqual(t, ca1.CertFile, ca2.CertFile)
+	})
+
+	t.Run("skips cleanup function", func(t *testing.T) {
+		config.Set(ConfigurationCleanupGlobalCertAuthority, false)
+		CleanupGlobalCertAuthority(config, &logger)
+
+		ca2, err := GetGlobalCertAuthority(config, &logger)
+		assert.NoError(t, err)
+		assert.FileExists(t, ca2.CertFile)
+		assert.NotEqual(t, ca1.CertFile, ca2.CertFile)
+	})
 }
