@@ -25,7 +25,7 @@ ignore:
   SNYK-JS-MICROMATCH-6838728:
     - '*':
         reason: Direct usage within Snyk CLI are not using vulnerable function
-        expires: 2024-08-13T04:12:20.523Z
+        expires: 2024-10-13T04:12:20.523Z
         created: 2024-05-14T04:12:20.531Z
 patch: {}
 exclude:
