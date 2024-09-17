@@ -120,7 +120,7 @@ func Test_canGoThroughProxy(t *testing.T) {
 	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
 	assert.Nil(t, err)
 
-	res, err := proxiedClient.Get("https://static.snyk.io/cli/latest/version")
+	res, err := proxiedClient.Get("https://downloads.snyk.io/cli/latest/version")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -148,7 +148,7 @@ func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
 	assert.Nil(t, err)
 
-	res, err := proxiedClient.Get("https://static.snyk.io/cli/latest/version")
+	res, err := proxiedClient.Get("https://downloads.snyk.io/cli/latest/version")
 	assert.Nil(t, res)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "Proxy Authentication Required")
@@ -264,7 +264,7 @@ func Test_proxyPropagatesAuthFailureHeader(t *testing.T) {
 	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
 	assert.Nil(t, err)
 
-	res, err := proxiedClient.Get("https://static.snyk.io/cli/latest/version")
+	res, err := proxiedClient.Get("https://downloads.snyk.io/cli/latest/version")
 	assert.Nil(t, err)
 	// Assert that the proxy propagates the auth failed marker header to the response.
 	assert.Equal(t, res.Header.Get("snyk-auth-failed"), "true")

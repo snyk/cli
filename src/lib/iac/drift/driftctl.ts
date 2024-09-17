@@ -60,7 +60,7 @@ const driftctlChecksums = {
     'e6bbdf341148e81511d30dd5afe2fa2ef08f3b0b75079bf0bde2b790d75beb8a',
 };
 
-const dctlBaseUrl = 'https://static.snyk.io/cli/driftctl/';
+const dctlBaseUrl = 'https://downloads.snyk.io/cli/driftctl/';
 
 const driftctlPath: string = path.join(
   cachePath,
