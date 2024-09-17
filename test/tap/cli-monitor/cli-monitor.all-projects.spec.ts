@@ -1,6 +1,7 @@
 import * as sinon from 'sinon';
 import * as path from 'path';
 import * as depGraphLib from '@snyk/dep-graph';
+import { getWorkspacePath } from '../../jest/util/getWorkspacePath';
 
 interface AcceptanceTests {
   language: string;
@@ -412,6 +413,9 @@ export const AllProjectsTests: AcceptanceTests = {
                     },
                   },
                   depGraph: simpleGradleGraph,
+                  targetFile:
+                    getWorkspacePath('gradle-monorepo') +
+                    '/subproj/build.gradle',
                 },
               ],
             };
@@ -437,6 +441,7 @@ export const AllProjectsTests: AcceptanceTests = {
           'gradle project was monitored',
         );
 
+        let policyCount = 0;
         const requests = params.server
           .getRequests()
           .filter((req) => req.url.includes('/monitor/'));
@@ -447,6 +452,10 @@ export const AllProjectsTests: AcceptanceTests = {
             /\/api\/v1\/monitor\/(npm\/graph|gradle\/graph)/,
             'puts at correct url',
           );
+
+          if (req.body.policy) {
+            policyCount++;
+          }
           t.notOk(req.body.targetFile, "doesn't send the targetFile");
           t.equal(req.method, 'PUT', 'makes PUT request');
           t.equal(
@@ -455,6 +464,7 @@ export const AllProjectsTests: AcceptanceTests = {
             'sends version number',
           );
         });
+        t.equal(policyCount, 1, '1 nested policy found in monorepo');
       },
     '`monitor kotlin-monorepo --all-projects` scans kotlin files':
       (params, utils) => async (t) => {
