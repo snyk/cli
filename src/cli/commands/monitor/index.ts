@@ -50,6 +50,7 @@ import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 import { processCommandArgs } from '../process-command-args';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
 import { PNPM_FEATURE_FLAG } from '../../../lib/package-managers';
+import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -294,12 +295,15 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
             maybePrintDepTree(options, projectDeps.depTree);
           }
 
-          const tFile = projectDeps.targetFile || targetFile;
-          const targetFileRelativePath =
-            projectDeps.plugin.targetFile ||
-            (tFile && pathUtil.join(pathUtil.resolve(path), tFile)) ||
-            '';
+          const tFile = normalizeTargetFile(
+            projectDeps,
+            projectDeps.plugin,
+            targetFile,
+          );
 
+          const targetFileRelativePath = tFile
+            ? pathUtil.resolve(pathUtil.resolve(path), tFile)
+            : '';
           const res: MonitorResult = await promiseOrCleanup(
             snykMonitor(
               path,
