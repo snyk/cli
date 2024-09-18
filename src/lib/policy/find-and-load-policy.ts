@@ -1,10 +1,10 @@
 import * as snykPolicyLib from 'snyk-policy';
 import * as debugModule from 'debug';
-import { PackageExpanded } from 'snyk-resolve-deps';
+import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 
 import { pluckPolicies } from '.';
 import { SupportedPackageManagers } from '../package-managers';
-import { PackageJson, PolicyOptions } from '../types';
+import { PolicyOptions } from '../types';
 import * as analytics from '../analytics';
 
 const debug = debugModule('snyk');
@@ -27,7 +27,10 @@ export async function findAndLoadPolicy(
   } else if (isNodeProject) {
     // TODO: pluckPolicies expects a package.json object to
     // find and apply policies in node_modules
-    policyLocations = policyLocations.concat(pluckPolicies(pkg as PackageJson));
+    // TODO: fix these types, this is a hack and is not correct
+    policyLocations = policyLocations.concat(
+      pluckPolicies(pkg as unknown as PackageExpanded),
+    );
   }
 
   debug('Potential policy locations found:', policyLocations);

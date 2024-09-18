@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import * as resolveNodeDeps from 'snyk-resolve-deps';
+import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
+import * as resolveDeps from 'snyk-resolve-deps';
 import * as baseDebug from 'debug';
 const isEmpty = require('lodash.isempty');
 import { spinner } from '../../spinner';
@@ -14,7 +15,7 @@ export async function parse(
   root: string,
   targetFile: string,
   options: Options,
-): Promise<resolveNodeDeps.PackageExpanded> {
+): Promise<PackageExpanded> {
   if (targetFile.endsWith('yarn.lock')) {
     options.file =
       options.file && options.file.replace('yarn.lock', 'package.json');
@@ -44,7 +45,7 @@ export async function parse(
           name: packageJson.name || 'package.json',
           dependencies: {},
           version: packageJson.version,
-        }),
+        } as unknown as PackageExpanded),
       );
     }
   } catch (e) {
@@ -77,7 +78,7 @@ export async function parse(
   try {
     await spinner.clear<void>(resolveModuleSpinnerLabel)();
     await spinner(resolveModuleSpinnerLabel);
-    return resolveNodeDeps(
+    return resolveDeps(
       root,
       Object.assign({}, options, { noFromArrays: true }),
     );

@@ -84,6 +84,7 @@ import {
   PNPM_FEATURE_FLAG,
   SUPPORTED_MANIFEST_FILES,
 } from '../package-managers';
+import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 
 const debug = debugModule('snyk:run-test');
 
@@ -749,7 +750,7 @@ async function assembleLocalPayloads(
         options,
         // TODO: fix this and send only send when we used resolve-deps for node
         // it should be a ExpandedPkgTree type instead
-        pkg,
+        pkg as unknown as PackageExpanded,
         targetFileDir,
       );
 
