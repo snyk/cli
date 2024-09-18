@@ -69,7 +69,7 @@ export class TestEnvironmentSetup {
 
   private async downloadShaSum(version: string, shasumFile: string) {
     await common.downloadExecutable(
-      'https://static.snyk.io/cli/v' + version + '/sha256sums.txt.asc',
+      'https://downloads.snyk.io/cli/v' + version + '/sha256sums.txt.asc',
       shasumFile,
       '',
     );

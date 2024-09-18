@@ -58,7 +58,7 @@ async function fetch(): Promise<Buffer> {
   return policyEngineDataBuffer;
 }
 
-export const policyEngineUrl = `https://static.snyk.io/cli/iac/test/v${policyEngineReleaseVersion}/${policyEngineFileName}`;
+export const policyEngineUrl = `https://downloads.snyk.io/cli/iac/test/v${policyEngineReleaseVersion}/${policyEngineFileName}`;
 
 export class FailedToDownloadPolicyEngineError extends CustomError {
   constructor() {
