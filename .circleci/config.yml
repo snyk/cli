@@ -247,7 +247,7 @@ commands:
   install-deps-windows-full-signing:
     steps:
       - install-deps-windows-signing
-      - install-deps-windows-full
+      - install-deps-windows-make
 
   install-deps-windows-make:
     steps:
