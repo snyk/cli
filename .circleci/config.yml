@@ -60,6 +60,11 @@ executors:
       - image: snyklabs/cli-build-arm64:20240814-161347
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
+  docker-arm64-xl:
+    docker:
+      - image: snyklabs/cli-build-arm64:20240814-161347
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.xlarge
   linux-ubuntu-mantic-amd64:
     docker:
       - image: ubuntu:mantic
@@ -105,6 +110,11 @@ executors:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '14.3.1'
     resource_class: macos.m1.medium.gen1
+  macos-arm64-large:
+    macos:
+      # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
+      xcode: '14.3.1'
+    resource_class: macos.m1.large.gen1
   win-server2022-amd64:
     machine:
       image: windows-server-2022-gui:2024.01.1
@@ -464,7 +474,7 @@ workflows:
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           make_target: build clean-golang build-fips
-          executor: docker-amd64
+          executor: docker-amd64-xl
           requires:
             - prepare-build
 
@@ -475,7 +485,7 @@ workflows:
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           make_target: build clean-golang build-fips
-          executor: docker-arm64
+          executor: docker-arm64-xl
           requires:
             - prepare-build
 
@@ -485,7 +495,7 @@ workflows:
           go_os: linux
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          executor: docker-amd64
+          executor: docker-amd64-xl
           c_compiler: /usr/bin/musl-gcc
           requires:
             - prepare-build
@@ -496,7 +506,7 @@ workflows:
           go_os: linux
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          executor: docker-arm64
+          executor: docker-arm64-xl
           c_compiler: /usr/bin/musl-gcc
           requires:
             - prepare-build
@@ -507,7 +517,7 @@ workflows:
           go_os: darwin
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          executor: macos-arm64
+          executor: macos-arm64-large
           install_deps_extension: macos-build
           context: snyk-macos-signing
           requires:
@@ -519,7 +529,7 @@ workflows:
           go_os: darwin
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          executor: macos-arm64
+          executor: macos-arm64-large
           install_deps_extension: macos-build
           context: snyk-macos-signing
           requires:
