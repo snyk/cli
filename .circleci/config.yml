@@ -186,9 +186,9 @@ commands:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v3-full-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
-          name: Install Windows dependencies
+          name: Install Windows dependencies full
           shell: bash.exe
           command: |
             choco uninstall nodejs -y
@@ -197,7 +197,7 @@ commands:
             choco install nodejs --version=$(head .nvmrc) --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v3-full-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
       - install-deps-python:
@@ -254,7 +254,7 @@ commands:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v3-make-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -262,7 +262,7 @@ commands:
             choco install make --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v3-make-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
       - install-deps-python:
