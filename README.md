@@ -1,3 +1,5 @@
+[![Open in DevZero](https://assets.devzero.io/open-in-devzero.svg)](https://www.devzero.io/dashboard/recipes/new?repo-url=https://github.com/snyk/cli)
+
 # Getting started with the Snyk CLI
 
 ## Introduction to Snyk and the Snyk CLI
