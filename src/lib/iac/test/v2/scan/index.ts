@@ -13,6 +13,7 @@ import config from '../../../../config';
 import { api, getOAuthToken } from '../../../../api-token';
 import envPaths from 'env-paths';
 import { restoreEnvProxy } from '../../../env-utils';
+import * as analytics from '../../../../analytics';
 
 const debug = newDebug('snyk-iac');
 const debugOutput = newDebug('snyk-iac:output');
@@ -128,6 +129,10 @@ function processFlags(
   flags.push('-exclude-raw-results');
   // required for infrastructureAsCodeSuccesses to be populated
   flags.push('-include-passed-vulnerabilities');
+
+  if (analytics.allowAnalytics()) {
+    flags.push('-allow-analytics');
+  }
 
   if (options.severityThreshold) {
     flags.push('-severity-threshold', options.severityThreshold);
