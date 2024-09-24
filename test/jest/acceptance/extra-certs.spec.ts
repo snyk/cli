@@ -56,7 +56,7 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
     await server.listenWithHttps(port, { cert: certPem, key: keyPem });
 
     // invoke WITHOUT additional certificate set => fails
-    const res1 = await runSnykCLI(`test --debug`, {
+    const res1Promise = runSnykCLI(`test --debug`, {
       env: {
         ...process.env,
         SNYK_API: SNYK_API,
@@ -65,7 +65,7 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
     });
 
     // invoke WITH additional certificate set => succeeds
-    const res2 = await runSnykCLI(`test --debug`, {
+    const res2Promise = runSnykCLI(`test --debug`, {
       env: {
         ...process.env,
         NODE_EXTRA_CA_CERTS: 'cliv2/mytestcert.crt',
@@ -74,10 +74,8 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
       },
     });
 
-    let res3 = { code: 2 };
-    let res4 = { code: 0 };
     // invoke WITHOUT additional certificate set => succeeds
-    res3 = await runSnykCLI(
+    const res3Promise = runSnykCLI(
       `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
       {
         env: {
@@ -89,7 +87,7 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
     );
 
     // invoke WITH additional certificate set => succeeds
-    res4 = await runSnykCLI(
+    const res4Promise = runSnykCLI(
       `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
       {
         env: {
@@ -101,14 +99,22 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
       },
     );
 
+    const [res1, res2, res3, res4] = await Promise.all([
+      res1Promise,
+      res2Promise,
+      res3Promise,
+      res4Promise,
+    ]);
+
     await server.closePromise();
 
     expect(res1.code).toBe(2);
     expect(res2.code).toBe(0);
     expect(res3.code).toBe(2);
     expect(res4.code).toBe(0);
-    fs.unlink('cliv2/mytestcert.crt', () => {});
-    fs.unlink('cliv2/mytestcert.key', () => {});
-    fs.unlink('cliv2/mytestcert.pem', () => {});
+
+    fs.unlinkSync('cliv2/mytestcert.crt');
+    fs.unlinkSync('cliv2/mytestcert.key');
+    fs.unlinkSync('cliv2/mytestcert.pem');
   });
 });

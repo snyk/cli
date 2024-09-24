@@ -10,7 +10,7 @@ import (
 
 var snykCLIBytes []byte = []byte("\n")
 
-func getCLIv1Filename() string {
+func GetCLIv1Filename() string {
 	return "FILENAME"
 }
 
