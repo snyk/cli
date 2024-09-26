@@ -20,4 +20,5 @@ export interface TestConfig {
   org?: string;
   customRules?: boolean;
   experimental?: boolean;
+  iacNewEngine?: boolean;
 }
