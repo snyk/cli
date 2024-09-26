@@ -65,6 +65,7 @@ async function prepareTestConfig(
   const insecure = options.insecure;
   const customRules = options['custom-rules'];
   const experimental = options.experimental;
+  const iacNewEngine = options['iac-new-engine'];
 
   return {
     paths: relativePaths,
@@ -86,5 +87,6 @@ async function prepareTestConfig(
     org,
     customRules,
     experimental,
+    iacNewEngine,
   };
 }

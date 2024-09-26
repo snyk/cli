@@ -221,6 +221,9 @@ export type IaCTestFlags = Pick<
   'project-environment'?: string;
   'project-lifecycle'?: string;
   'project-business-criticality'?: string;
+  // Temporary flag needed for the IaCv2 migration.
+  // The value of it is set internally by an API call.
+  'iac-new-engine'?: boolean;
 } & TerraformPlanFlags;
 
 // Flags specific for Terraform plan scanning

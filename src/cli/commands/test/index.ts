@@ -64,10 +64,19 @@ export default async function test(
   const { options: originalOptions, paths } = processCommandArgs(...args);
 
   const options = setDefaultTestOptions(originalOptions);
+  const iacNewEngine = await hasFeatureFlag('iacNewEngine', options);
+  const iacIntegratedExperience = await hasFeatureFlag(
+    'iacIntegratedExperience',
+    options,
+  );
+
   if (originalOptions.iac) {
     // temporary placeholder for the "new" flow that integrates with UPE
-    if (await hasFeatureFlag('iacIntegratedExperience', options)) {
-      return await iacTestCommandV2.test(paths, originalOptions);
+    if (iacIntegratedExperience || iacNewEngine) {
+      return await iacTestCommandV2.test(paths, {
+        ...originalOptions,
+        'iac-new-engine': iacNewEngine,
+      });
     } else {
       return await iacTestCommand(...args);
     }
