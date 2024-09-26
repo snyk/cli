@@ -23,11 +23,10 @@ describe('CLI Share Results', () => {
 
   afterAll(async () => teardown());
 
-  describe('feature flag is not enabled', () => {
-    beforeAll(() => {
+  describe('feature flag iacCliShareResults is not enabled', () => {
+    beforeEach(() => {
       server.setFeatureFlag('iacCliShareResults', false);
     });
-
     it('the output includes an error', async () => {
       const { stdout, exitCode } = await run(
         `snyk iac test ./iac/arm/rule_test.json --report`,
@@ -40,8 +39,8 @@ describe('CLI Share Results', () => {
     });
   });
 
-  describe('feature flag is enabled', () => {
-    beforeAll(() => {
+  describe('feature flag iacCliShareResults is enabled', () => {
+    beforeEach(() => {
       server.setFeatureFlag('iacCliShareResults', true);
     });
 
@@ -250,6 +249,23 @@ describe('CLI Share Results', () => {
         });
         expect(exitCode).toEqual(1);
       });
+    });
+  });
+
+  describe('feature flag iacNewEngine is enabled', () => {
+    beforeEach(() => {
+      server.setFeatureFlag('iacNewEngine', true);
+    });
+
+    it('the output includes an error', async () => {
+      const { stdout, exitCode } = await run(
+        `snyk iac test ./iac/arm/rule_test.json --report`,
+      );
+
+      expect(stdout).toMatch(
+        'flag --report is not yet supported when iacNewEngine flag is enabled',
+      );
+      expect(exitCode).toBe(2);
     });
   });
 });

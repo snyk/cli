@@ -182,6 +182,10 @@ function processFlags(
     flags.push('-rulesClientURL', rulesClientURL);
   }
 
+  if (options.iacNewEngine) {
+    flags.push('-iac-new-engine');
+  }
+
   return flags;
 }
 
