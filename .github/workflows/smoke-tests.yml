@@ -18,14 +18,14 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
         snyk_install_method: [binary, npm, yarn, brew]
-        node_version: [16, 18, 20]
+        node_version: [18, 20]
         exclude:
           # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
           - snyk_install_method: yarn
             os: windows
           # For binary, use only the Node 18
           - snyk_install_method: binary
-            node_version: 16
+            node_version: 18
           # No need to run brew tests on some Platforms
           - snyk_install_method: brew
             os: ubuntu
@@ -40,14 +40,14 @@ jobs:
             snyk_cli_dl_file: snyk-macos
           - snyk_install_method: alpine-binary
             os: ubuntu
-            node_version: 16
+            node_version: 18
             snyk_cli_dl_file: snyk-alpine
           - snyk_install_method: npm-root-user
             os: ubuntu
-            node_version: 16
+            node_version: 18
           - snyk_install_method: docker-bundle
             os: macos
-            node_version: 16
+            node_version: 18
             snyk_cli_dl_file: snyk-for-docker-desktop-darwin-x64.tar.gz
 
     steps:
