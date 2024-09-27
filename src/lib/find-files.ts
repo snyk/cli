@@ -3,13 +3,14 @@ import * as pathLib from 'path';
 
 import * as sortBy from 'lodash.sortby';
 import * as groupBy from 'lodash.groupby';
-import * as assign from 'lodash.assign';
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
 import {
   PNPM_FEATURE_FLAG,
   SUPPORTED_MANIFEST_FILES,
 } from './package-managers';
+import * as merge from 'lodash.merge';
+import { MAX_DETECTION_DEPTH } from './constants';
 
 const debug = debugModule('snyk:find-files');
 
@@ -56,27 +57,11 @@ const ignoreFolders = ['node_modules', '.build'];
 
 interface FindFilesConfig {
   path: string;
-  ignore?: string[];
-  filter?: string[];
-  levelsDeep?: number;
-  featureFlags?: Set<string>;
-}
-
-type DefaultFindConfig = {
-  path: string;
   ignore: string[];
   filter: string[];
   levelsDeep: number;
   featureFlags: Set<string>;
-};
-
-const defaultFindConfig: DefaultFindConfig = {
-  path: '',
-  ignore: [],
-  filter: [],
-  levelsDeep: 4,
-  featureFlags: new Set<string>(),
-};
+}
 
 /**
  * Find all files in given search path. Returns paths to files found.
@@ -86,8 +71,10 @@ const defaultFindConfig: DefaultFindConfig = {
  * @param filter (optional) file names to find. If not provided all files are returned.
  * @param levelsDeep (optional) how many levels deep to search, defaults to two, this path and one sub directory.
  */
-export async function find(findConfig: FindFilesConfig): Promise<FindFilesRes> {
-  const config: DefaultFindConfig = assign({}, defaultFindConfig, findConfig);
+export async function find(
+  findConfig: Partial<FindFilesConfig>,
+): Promise<FindFilesRes> {
+  const config = getFindConfig(findConfig);
   const found: string[] = [];
   const foundAll: string[] = [];
 
@@ -152,10 +139,28 @@ function findFile(path: string, filter: string[] = []): string | null {
   return null;
 }
 
+function getFindConfig(option: Partial<FindFilesConfig>): FindFilesConfig {
+  const result = merge(
+    {
+      path: '',
+      ignore: [],
+      filter: [],
+      levelsDeep: MAX_DETECTION_DEPTH,
+      featureFlags: new Set<string>(),
+    },
+    option,
+  );
+
+  if (isNaN(result.levelsDeep) || result.levelsDeep === null) {
+    result.levelsDeep = MAX_DETECTION_DEPTH;
+  }
+  return result;
+}
+
 async function findInDirectory(
   findConfig: FindFilesConfig,
 ): Promise<FindFilesRes> {
-  const config: DefaultFindConfig = assign({}, defaultFindConfig, findConfig);
+  const config = getFindConfig(findConfig);
   const files = await readDirectory(config.path);
   const toFind = files
     .filter((file) => !config.ignore.includes(file))
