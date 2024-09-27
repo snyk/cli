@@ -247,7 +247,7 @@ commands:
   install-deps-windows-full-signing:
     steps:
       - install-deps-windows-signing
-      - install-deps-windows-full
+      - install-deps-windows-make
 
   install-deps-windows-make:
     steps:
@@ -673,7 +673,7 @@ workflows:
           test_snyk_command: binary-releases\\snyk-win.exe
           install_deps_extension: windows-full
           dont_skip_tests: 0
-          shards: 4
+          shards: 8
           pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
 
       - sign:
