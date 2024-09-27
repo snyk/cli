@@ -2,8 +2,12 @@ import * as path from 'path';
 import { test } from 'tap';
 import { find } from '../../src/lib/find-files';
 import { getFixturePath } from '../jest/util/getFixturePath';
+import { getWorkspacePath } from '../jest/util/getWorkspacePath';
 
 const testFixture = getFixturePath('find-files');
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const skiptest = (name, _) => console.log(`Skipping ${name}`);
 
 test('find all files in test fixture', async (t) => {
   // six levels deep to find all
@@ -69,6 +73,26 @@ test('find all files in test fixture', async (t) => {
     [...filteredOut, ...expected].sort(),
     'should return all unfiltered files',
   );
+});
+
+test('defaults to only detecting files up to 4 layers deep when undefined', async (t) => {
+  //
+  const { files: result } = await find({
+    path: getWorkspacePath('mono-repo-nested'),
+    levelsDeep: undefined,
+  });
+
+  t.same(result.length, 4);
+});
+
+test('defaults to only detecting files up to 4 layers deep when null', async (t) => {
+  //
+  const { files: result } = await find({
+    path: getWorkspacePath('mono-repo-nested'),
+    levelsDeep: NaN,
+  });
+
+  t.same(result.length, 4);
 });
 
 test('find all files in test fixture ignoring node_modules', async (t) => {
