@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
+	"strings"
 	"testing"
 	"time"
 
@@ -400,6 +402,83 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualCode)
 }
 
+func Test_runWorkflowAndProcessData_WithTransformation(t *testing.T) {
+	defer cleanup()
+	globalConfiguration = configuration.New()
+	globalConfiguration.Set(configuration.DEBUG, true)
+	globalConfiguration.Set(configuration.FF_TRANSFORMATION_WORKFLOW, true)
+
+	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+
+	testCmnd := "subcmd1"
+	workflowId1 := workflow.NewWorkflowIdentifier("output")
+
+	outputFn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+		assert.Len(t, input, 3, "not enough items received")
+		localFindingsFound := false
+
+		for i := range input {
+			mimeType := input[i].GetContentType()
+
+			if strings.HasPrefix(mimeType, content_type.LOCAL_FINDING_MODEL) {
+				localFindingsFound = true
+			}
+		}
+
+		assert.True(t, localFindingsFound)
+
+		return input, nil
+	}
+
+	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+
+	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
+	assert.NoError(t, err)
+
+	// Register our data transformation workflow
+	err = localworkflows.InitDataTransformationWorkflow(globalEngine)
+	assert.NoError(t, err)
+
+	// Invoke a custom command that returns input
+	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
+		testSummary := json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{
+				{
+					Severity: "critical",
+					Total:    10,
+					Open:     10,
+					Ignored:  0,
+				},
+			},
+			Type: "sast",
+		}
+
+		var d []byte
+		d, err = json.Marshal(testSummary)
+		assert.NoError(t, err)
+
+		testSummaryData := workflow.NewData(typeId, content_type.TEST_SUMMARY, d)
+		sarifData := workflow.NewData(typeId, content_type.SARIF_JSON,
+			loadJsonFile(t, "sarif.json"))
+
+		return []workflow.Data{
+			testSummaryData,
+			sarifData,
+		}, nil
+	}
+	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
+	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
+	assert.NoError(t, err)
+	assert.NotNil(t, entry)
+
+	err = globalEngine.Init()
+	assert.NoError(t, err)
+
+	logger := zerolog.New(os.Stderr)
+	err = runWorkflowAndProcessData(globalEngine, &logger, testCmnd)
+}
+
 func Test_setTimeout(t *testing.T) {
 	exitedCh := make(chan struct{})
 	fakeExit := func() {
@@ -463,3 +542,17 @@ type wrErr struct{ wraps error }
 
 func (e *wrErr) Error() string { return "something went wrong" }
 func (e *wrErr) Unwrap() error { return e.wraps }
+
+func loadJsonFile(t *testing.T, filename string) []byte {
+	t.Helper()
+
+	jsonFile, err := os.Open("./testdata/" + filename)
+	assert.NoError(t, err, "failed to load json")
+	defer func(jsonFile *os.File) {
+		jsonErr := jsonFile.Close()
+		assert.NoError(t, jsonErr)
+	}(jsonFile)
+	byteValue, err := io.ReadAll(jsonFile)
+	assert.NoError(t, err)
+	return byteValue
+}
