@@ -6,7 +6,7 @@
 
 ## Description
 
-The `snyk code test` command tests for any known security issues using Static Code Analysis.
+The `snyk code test` command tests source code for any known security issues (Static Application Security Testing).
 
 ## Exit codes
 
@@ -67,7 +67,7 @@ Save test output as a JSON data structure directly to the specified file, regard
 
 Use to display the human-readable test output using stdout and, at the same time, save the JSON data structure output to a file.
 
-For SAST, if no issues are found, Snyk does not create a `json` file. In contrast, for open-source, Snyk creates a file whether or not issues are found.&#x20;
+For SAST, if no issues are found, Snyk does not create a `json` file. In contrast, for open-source, Snyk creates a file whether or not issues are found.
 
 Example: `$ snyk code test --json-file-output=vuln.json`
 
