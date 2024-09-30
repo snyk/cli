@@ -198,6 +198,10 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
+			// Register our data transformation workflow
+			err := localworkflows.InitDataTransformationWorkflow(globalEngine)
+			assert.NoError(t, err)
+
 			_ = globalEngine.Init()
 
 			config := configuration.NewInMemory()
@@ -215,7 +219,7 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 			}
 
 			// call method under test
-			err := runMainWorkflow(config, cmd, positionalArgs, rawArgs)
+			err = runMainWorkflow(config, cmd, positionalArgs, rawArgs)
 			assert.Nil(t, err)
 
 			actualInputDir := config.GetString(configuration.INPUT_DIRECTORY)
@@ -386,6 +390,10 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
 	assert.Nil(t, err)
 	assert.NotNil(t, entry)
+
+	// Register our data transformation workflow
+	err = localworkflows.InitDataTransformationWorkflow(globalEngine)
+	assert.NoError(t, err)
 
 	err = globalEngine.Init()
 	assert.NoError(t, err)
