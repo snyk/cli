@@ -160,14 +160,20 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, name string) error {
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 
-	if err == nil {
-		var output []workflow.Data
-		output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
-		if err == nil {
-			err = getErrorFromWorkFlowData(engine, output)
-		}
-	} else {
+	if err != nil {
 		logger.Print("Failed to execute the command!", err)
+		return err
+	}
+
+	output, err := engine.InvokeWithInput(localworkflows.WORKFLOWID_DATATRANSFORMATION, data)
+	if err != nil {
+		logger.Err(err).Msg(err.Error())
+		return err
+	}
+
+	output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, output)
+	if err == nil {
+		err = getErrorFromWorkFlowData(engine, output)
 	}
 	return err
 }
