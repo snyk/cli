@@ -15,9 +15,10 @@ import { assertIacV2Options } from './assert-iac-options';
 export async function test(
   paths: string[],
   options: IaCTestFlags,
+  iacNewEngine?: boolean,
 ): Promise<TestCommandResult> {
   assertIacV2Options(options);
-  const testConfig = await prepareTestConfig(paths, options);
+  const testConfig = await prepareTestConfig(paths, options, iacNewEngine);
 
   const testSpinner = buildSpinner(options);
 
@@ -41,6 +42,7 @@ export async function test(
 async function prepareTestConfig(
   paths: string[],
   options: IaCTestFlags,
+  iacNewEngine?: boolean,
 ): Promise<TestConfig> {
   const iacCachePath = pathLib.join(systemCachePath, 'iac');
 
@@ -86,5 +88,6 @@ async function prepareTestConfig(
     org,
     customRules,
     experimental,
+    iacNewEngine,
   };
 }

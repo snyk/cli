@@ -12,6 +12,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([
     ['cliFailFast', false],
     ['iacIntegratedExperience', false],
+    ['iacNewEngine', false],
     ['containerCliAppVulnsEnabled', true],
     ['enablePnpmCli', false],
   ]);
