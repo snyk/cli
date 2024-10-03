@@ -23,7 +23,14 @@ var caMutex sync.Mutex
 
 var WORKFLOWID_GLOBAL_CLEANUP workflow.Identifier = workflow.NewWorkflowIdentifier("internal.cleanup")
 
+const (
+	ConfigurationCleanupGlobalCertAuthority = "internal_cleanup_global_cert_auth_enabled"
+	ConfigurationCleanupGlobalTempDirectory = "internal_cleanup_global_temp_dir_enabled"
+)
+
 func initCleanup(engine workflow.Engine) error {
+	engine.GetConfiguration().AddDefaultValue(ConfigurationCleanupGlobalCertAuthority, configuration.StandardDefaultValueFunction(true))
+	engine.GetConfiguration().AddDefaultValue(ConfigurationCleanupGlobalTempDirectory, configuration.StandardDefaultValueFunction(true))
 	entry, err := engine.Register(WORKFLOWID_GLOBAL_CLEANUP, workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("cleanup", pflag.ContinueOnError)), globalCleanupWorkflow)
 	if err != nil {
 		return err
@@ -40,13 +47,19 @@ func globalCleanupWorkflow(
 	logger := invocation.GetEnhancedLogger()
 	config := invocation.GetConfiguration()
 
-	CleanupGlobalCertAuthority(logger)
+	CleanupGlobalCertAuthority(config, logger)
 	CleanupGlobalTempDirectory(config, logger)
 
 	return output, err
 }
 
-func CleanupGlobalCertAuthority(debugLogger *zerolog.Logger) {
+func CleanupGlobalCertAuthority(config configuration.Configuration, debugLogger *zerolog.Logger) {
+	enabled := config.GetBool(ConfigurationCleanupGlobalCertAuthority)
+	if !enabled {
+		debugLogger.Print("Cleanup of global certificate authority is disabled")
+		return
+	}
+
 	caMutex.Lock()
 	defer caMutex.Unlock()
 	if caSingleton != nil {
@@ -96,6 +109,12 @@ func GetGlobalCertAuthority(config configuration.Configuration, debugLogger *zer
 }
 
 func CleanupGlobalTempDirectory(config configuration.Configuration, debugLogger *zerolog.Logger) {
+	enabled := config.GetBool(ConfigurationCleanupGlobalTempDirectory)
+	if !enabled {
+		debugLogger.Print("Cleanup of global temporary directory is disabled")
+		return
+	}
+
 	tmpDirectory := config.GetString(configuration.TEMP_DIR_PATH)
 	err := os.RemoveAll(tmpDirectory)
 	if err != nil {
