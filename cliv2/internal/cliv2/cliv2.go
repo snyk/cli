@@ -409,32 +409,32 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 		c.DebugLogger.Println("  ", c.v1BinaryLocation)
 		c.DebugLogger.Println(" With Arguments:")
 		c.DebugLogger.Println("  ", strings.Join(passThroughArgs, ", "))
-		c.DebugLogger.Println(" With Environment: ", strings.Join(c.env, "\n"))
+		c.DebugLogger.Println(" With Environment: ")
 
-		//variablesMap := utils.ToKeyValueMap(snykCmd.Env, "=")
-		//listedEnvironmentVariables := []string{
-		//	constants.SNYK_CA_CERTIFICATE_LOCATION_ENV,
-		//	constants.SNYK_HTTPS_PROXY_ENV,
-		//	constants.SNYK_HTTP_PROXY_ENV,
-		//	constants.SNYK_HTTP_NO_PROXY_ENV,
-		//	constants.SNYK_HTTPS_PROXY_ENV_SYSTEM,
-		//	constants.SNYK_HTTP_PROXY_ENV_SYSTEM,
-		//	constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM,
-		//	constants.SNYK_ANALYTICS_DISABLED_ENV,
-		//	constants.SNYK_ENDPOINT_ENV,
-		//	constants.SNYK_ORG_ENV,
-		//}
-		//
-		//for _, key := range listedEnvironmentVariables {
-		//	if value, exists := variablesMap[key]; exists {
-		//		c.DebugLogger.Println("  ", key, "=", value)
-		//	}
-		//}
+		variablesMap := utils.ToKeyValueMap(snykCmd.Env, "=")
+		listedEnvironmentVariables := []string{
+			constants.SNYK_CA_CERTIFICATE_LOCATION_ENV,
+			constants.SNYK_HTTPS_PROXY_ENV,
+			constants.SNYK_HTTP_PROXY_ENV,
+			constants.SNYK_HTTP_NO_PROXY_ENV,
+			constants.SNYK_HTTPS_PROXY_ENV_SYSTEM,
+			constants.SNYK_HTTP_PROXY_ENV_SYSTEM,
+			constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM,
+			constants.SNYK_ANALYTICS_DISABLED_ENV,
+			constants.SNYK_ENDPOINT_ENV,
+			constants.SNYK_ORG_ENV,
+		}
+
+		for _, key := range listedEnvironmentVariables {
+			if value, exists := variablesMap[key]; exists {
+				c.DebugLogger.Println("  ", key, "=", value)
+			}
+		}
 	}
 
 	snykCmd.Stdin = c.stdin
 	snykCmd.Stdout = c.stdout
-	snykCmd.Stderr = c.DebugLogger.Writer()
+	snykCmd.Stderr = c.stderr
 
 	if err != nil {
 		var evWarning EnvironmentWarning

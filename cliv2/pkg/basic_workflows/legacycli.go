@@ -154,10 +154,7 @@ func legacycliWorkflow(
 		outWriter.Flush()
 		errWriter.Flush()
 
-		//isDebug := config.GetBool(configuration.DEBUG)
-		//if isDebug {
 		debugLogger.Print(errBuffer.String())
-		//}
 
 		contentType := "text/plain"
 		if pkg_utils.Contains(args, "--json") || pkg_utils.Contains(args, "--sarif") {
