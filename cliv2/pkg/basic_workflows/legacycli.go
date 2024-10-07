@@ -3,9 +3,7 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
-	"net/http"
-	"os"
-
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
@@ -15,6 +13,11 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/spf13/pflag"
+	"github.com/subosito/gotenv"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -78,7 +81,6 @@ func legacycliWorkflow(
 
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
-	isDebug := config.GetBool(configuration.DEBUG)
 	workingDirectory := config.GetString(configuration.WORKING_DIRECTORY)
 	proxyAuthenticationMechanismString := config.GetString(configuration.PROXY_AUTHENTICATION_MECHANISM)
 	proxyAuthenticationMechanism := httpauth.AuthenticationMechanismFromString(proxyAuthenticationMechanismString)
@@ -135,15 +137,27 @@ func legacycliWorkflow(
 
 	// run the cli
 	proxyInfo := wrapperProxy.ProxyInfo()
+
+	file := filepath.Join(workingDirectory, ".snyk.env")
+	content, _ := os.ReadFile(file)
+	if len(content) > 0 {
+		env := gotenv.Parse(strings.NewReader(string(content)))
+		for k, v := range env {
+			cli.ReplaceEnvironmentVariable(k, v)
+			debugLogger.Print(fmt.Sprintf("replacing env variable %s with %s=%s from config file %s", k, k, v, file))
+		}
+	}
+
 	err = cli.Execute(proxyInfo, finalizeArguments(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
 
 	if !useStdIo {
 		outWriter.Flush()
 		errWriter.Flush()
 
-		if isDebug {
-			debugLogger.Print(errBuffer.String())
-		}
+		//isDebug := config.GetBool(configuration.DEBUG)
+		//if isDebug {
+		debugLogger.Print(errBuffer.String())
+		//}
 
 		contentType := "text/plain"
 		if pkg_utils.Contains(args, "--json") || pkg_utils.Contains(args, "--sarif") {

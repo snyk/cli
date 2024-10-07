@@ -409,32 +409,32 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 		c.DebugLogger.Println("  ", c.v1BinaryLocation)
 		c.DebugLogger.Println(" With Arguments:")
 		c.DebugLogger.Println("  ", strings.Join(passThroughArgs, ", "))
-		c.DebugLogger.Println(" With Environment: ")
+		c.DebugLogger.Println(" With Environment: ", strings.Join(c.env, "\n"))
 
-		variablesMap := utils.ToKeyValueMap(snykCmd.Env, "=")
-		listedEnvironmentVariables := []string{
-			constants.SNYK_CA_CERTIFICATE_LOCATION_ENV,
-			constants.SNYK_HTTPS_PROXY_ENV,
-			constants.SNYK_HTTP_PROXY_ENV,
-			constants.SNYK_HTTP_NO_PROXY_ENV,
-			constants.SNYK_HTTPS_PROXY_ENV_SYSTEM,
-			constants.SNYK_HTTP_PROXY_ENV_SYSTEM,
-			constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM,
-			constants.SNYK_ANALYTICS_DISABLED_ENV,
-			constants.SNYK_ENDPOINT_ENV,
-			constants.SNYK_ORG_ENV,
-		}
-
-		for _, key := range listedEnvironmentVariables {
-			if value, exists := variablesMap[key]; exists {
-				c.DebugLogger.Println("  ", key, "=", value)
-			}
-		}
+		//variablesMap := utils.ToKeyValueMap(snykCmd.Env, "=")
+		//listedEnvironmentVariables := []string{
+		//	constants.SNYK_CA_CERTIFICATE_LOCATION_ENV,
+		//	constants.SNYK_HTTPS_PROXY_ENV,
+		//	constants.SNYK_HTTP_PROXY_ENV,
+		//	constants.SNYK_HTTP_NO_PROXY_ENV,
+		//	constants.SNYK_HTTPS_PROXY_ENV_SYSTEM,
+		//	constants.SNYK_HTTP_PROXY_ENV_SYSTEM,
+		//	constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM,
+		//	constants.SNYK_ANALYTICS_DISABLED_ENV,
+		//	constants.SNYK_ENDPOINT_ENV,
+		//	constants.SNYK_ORG_ENV,
+		//}
+		//
+		//for _, key := range listedEnvironmentVariables {
+		//	if value, exists := variablesMap[key]; exists {
+		//		c.DebugLogger.Println("  ", key, "=", value)
+		//	}
+		//}
 	}
 
 	snykCmd.Stdin = c.stdin
 	snykCmd.Stdout = c.stdout
-	snykCmd.Stderr = c.stderr
+	snykCmd.Stderr = c.DebugLogger.Writer()
 
 	if err != nil {
 		var evWarning EnvironmentWarning
@@ -499,6 +499,19 @@ func (c *CLI) SetIoStreams(stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 	c.stdin = stdin
 	c.stdout = stdout
 	c.stderr = stderr
+}
+
+func (c *CLI) ReplaceEnvironmentVariable(variableName string, value string) {
+	for i, s := range c.env {
+		split := strings.Split(s, "=")
+		if len(split) < 2 {
+			continue
+		}
+		vName := split[0]
+		if strings.ToLower(vName) == strings.ToLower(variableName) {
+			c.env[i] = fmt.Sprintf("%s=%s", vName, value)
+		}
+	}
 }
 
 func DetermineInputDirectory(args []string) string {
