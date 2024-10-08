@@ -503,19 +503,6 @@ func (c *CLI) SetIoStreams(stdin io.Reader, stdout io.Writer, stderr io.Writer) 
 	c.stderr = stderr
 }
 
-func (c *CLI) ReplaceEnvironmentVariable(variableName string, value string) {
-	for i, s := range c.env {
-		split := strings.Split(s, "=")
-		if len(split) < 2 {
-			continue
-		}
-		vName := split[0]
-		if strings.ToLower(vName) == strings.ToLower(variableName) {
-			c.env[i] = fmt.Sprintf("%s=%s", vName, value)
-		}
-	}
-}
-
 func DetermineInputDirectory(args []string) string {
 	for _, v := range args {
 		if v == "--" {
