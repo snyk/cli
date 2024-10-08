@@ -63,6 +63,8 @@ func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger, ri ru
 
 	v1BinaryLocation := path.Join(cacheDirectory, ri.GetVersion(), cliv1.GetCLIv1Filename())
 
+	configuration.LoadConfiguredEnvironment(config)
+
 	cli := CLI{
 		DebugLogger:      debugLogger,
 		CacheDirectory:   cacheDirectory,
