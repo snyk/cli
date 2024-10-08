@@ -84,3 +84,4 @@ c2de35484dcad696a6ee32f2fa317d5cfaffc133:test/fixtures/code/sample-analyze-folde
 25f37b4c609380452b0b96c3853b69e4dc29bb48:test/jest/unit/lib/iac/drift/fixtures/all.console:aws-access-token:98
 ccd03cce97470452766ab397f2ba770dbb2e002e:test/jest/unit/lib/iac/drift/fixtures/all.console:aws-access-token:98
 test/jest/acceptance/instrumentation.spec.ts:snyk-api-token:19
+1b65935bc7c69b1029d7c63808af211ae6030c98:test/fixtures/sast/shallow_sast_webgoat/JWTFinalEndpointTest.java:jwt:31
