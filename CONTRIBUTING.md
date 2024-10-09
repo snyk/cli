@@ -307,11 +307,27 @@ If any checks fail, fix them and force push your changes again. Make sure to rev
 
 Some tests may "flake", meaning they failed due to some external factor. While we try to fix these tests immediately, that's not always possible. You can use CircleCI's "Re-run from Failed" option to re-run only that job without needing to re-run the entire pipeline.
 
-## Review cycle
+## Review process
 
 Once your checks have passed, you can publish your Draft PR. Codeowners will be automatically assigned. Ask each codeowner for a review using relevant channels on Slack. Iterate on feedback.
+All pull requests must undergo a thorough review process before being merged. This includes:
 
-Once you have received the necessary approvals, you can merge.
+1. Code review
+2. Testing
+3. Documentation review (if applicable)
+4. Any necessary feedback or revisions
+
+Pull request reviews of functionality developed in other teams only review the given documentation and test reports. Manual testing will not be performed by the reviewing team and is the responsibility of the author of the PR.
+
+For Node projects: Ensure changes in package.json are correctly reflected in package-lock.json.
+
+When adding a new package as a dependency, make sure that the change is absolutely necessary. We aim to minimize new dependencies when possible.
+
+Documentation PRs in GitBook are reviewed by Snyk's content team. They will also advise on the best phrasing and structuring if needed.
+
+## Approval and merging
+
+Once a pull request has been reviewed and all necessary revisions have been made, it is approved for merging into the main codebase. The merging of the code PR is performed by the code owners, while the merging of the documentation PR is done by our content writers.
 
 ## Creating a release
 
