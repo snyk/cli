@@ -13,7 +13,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.33.0
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20240426125928-8d56ac52821e
-	github.com/snyk/cli-extension-iac-rules v0.0.0-20240912093552-831a017229d9
+	github.com/snyk/cli-extension-iac-rules v0.0.0-20241008152401-24c8cf03a1a3
 	github.com/snyk/cli-extension-sbom v0.0.0-20240820111700-68258cba52c7
 	github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20240809094525-c48d19c27edb
