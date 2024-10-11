@@ -1,0 +1,385 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "SnykCode",
+          "semanticVersion": "1.0.0",
+          "version": "1.0.0",
+          "rules": [
+            {
+              "id": "javascript/NoSqli",
+              "name": "NoSqli",
+              "shortDescription": {
+                "text": "NoSQL Injection"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "help": {
+                "markdown": "## Details\n\nIn an NoSQL injection attack, the user can submit an NoSQL query directly to the database, gaining access without providing appropriate credentials. Attackers can then view, export, modify, and delete confidential information; change passwords and other authentication information; and possibly gain access to other systems within the network. This is one of the most commonly exploited categories of vulnerability, but can largely be avoided through good coding practices.",
+                "text": ""
+              },
+              "properties": {
+                "tags": [
+                  "javascript",
+                  "NoSqli",
+                  "Security",
+                  "SourceServer",
+                  "SourceHttpBody",
+                  "Taint"
+                ],
+                "categories": ["Security"],
+                "exampleCommitFixes": [
+                  {
+                    "commitURL": "https://gilhub.com/afuh/pinstagram/commit/776a6b63f84b3bc9d38963933ff511b319b73ac5?diff=split#diff-fb901db253d2190ed5dec3508eb32e99524e0b4dcacdaea322a50f2619ae2d99L-1",
+                    "lines": [
+                      {
+                        "line": "const user = await User.findOne({ slug: req.params.user }).populate('likes')\n",
+                        "lineNumber": 47,
+                        "lineChange": "removed"
+                      },
+                      {
+                        "line": "const user = await User.findOne({ _id: req.user._id }).populate('likes')\n",
+                        "lineNumber": 47,
+                        "lineChange": "added"
+                      }
+                    ]
+                  },
+                  {
+                    "commitURL": "https://github.com/mercmobily/hotplate/commit/c9dfbe8bf6bfd03838946d0898978543589a5ea2?diff=split#diff-bdb0afd700d4dfe1801bcfe39008d413182be643063835d326641fcce15b969aL-1",
+                    "lines": [
+                      {
+                        "line": "  Workspace.findOne({ _id: req.params.workspaceId }, function( err, doc ){\n",
+                        "lineNumber": 270,
+                        "lineChange": "removed"
+                      },
+                      {
+                        "line": "  workspaces.findOne({ _id: ObjectId(req.params.workspaceId) }, function( err, doc ){\n",
+                        "lineNumber": 264,
+                        "lineChange": "added"
+                      },
+                      {
+                        "line": "    resUtils.checkFindOneResponse( err, doc, next, function(){\n",
+                        "lineNumber": 271,
+                        "lineChange": "none"
+                      },
+                      {
+                        "line": "\n",
+                        "lineNumber": 272,
+                        "lineChange": "none"
+                      },
+                      {
+                        "line": "      perms.checkPermissions( req, next, 'workspaceConfig/get', req.body, doc, function(){\n",
+                        "lineNumber": 273,
+                        "lineChange": "none"
+                      },
+                      {
+                        "line": "      sendResponse( res, doc.settings );\n",
+                        "lineNumber": 274,
+                        "lineChange": "none"
+                      },
+                      {
+                        "line": "    });\n",
+                        "lineNumber": 275,
+                        "lineChange": "none"
+                      },
+                      {
+                        "line": "  });\n",
+                        "lineNumber": 276,
+                        "lineChange": "none"
+                      },
+                      {
+                        "line": "});\n",
+                        "lineNumber": 277,
+                        "lineChange": "none"
+                      }
+                    ]
+                  },
+                  {
+                    "commitURL": "https://github.com/JasonEtco/flintcms/commit/4ae34238ce39fde00dfa15082397541758c07af1?diff=split#diff-9abe922e7535c6f75fba7150a7a803a93be7ae235564b86f799db9f37e4c1674L-1",
+                    "lines": [
+                      {
+                        "line": "const token = req.query.t\n",
+                        "lineNumber": 103,
+                        "lineChange": "removed"
+                      },
+                      {
+                        "line": "const token = req.query.t.toString()\n",
+                        "lineNumber": 103,
+                        "lineChange": "added"
+                      },
+                      {
+                        "line": "const user = await User.findOne({ token })\n",
+                        "lineNumber": 104,
+                        "lineChange": "none"
+                      }
+                    ]
+                  }
+                ],
+                "exampleCommitDescriptions": [],
+                "precision": "very-high",
+                "repoDatasetSize": 30,
+                "cwe": ["CWE-943"]
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "javascript/NoSqli",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Unsanitized input from the HTTP request body flows into findOne, where it is used in an NoSQL query. This may result in an NoSQL Injection vulnerability.",
+            "markdown": "Unsanitized input from {0} {1} into {2}, where it is used in an NoSQL query. This may result in an NoSQL Injection vulnerability.",
+            "arguments": [
+              "[the HTTP request body](0)",
+              "[flows](1),(2),(3),(4),(5),(6)",
+              "[findOne](7)"
+            ]
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "routes/likeProductReviews.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 18,
+                  "endLine": 18,
+                  "startColumn": 26,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "0": "d3e6d95802bfa65cdee1cc840eda6a7b8422f24962e436dd01730e6116e317ec",
+            "1": "93652555.4773f344.07efaa4d.9163ada2.ef9f7d82.34a4d81a.df7e59ba.d66579bf.f759b1f9.706318d0.07efaa4d.08906714.79a7d027.847dd466.0334236c.041df0b3"
+          },
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "id": 0,
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "routes/likeProductReviews.ts",
+                            "uriBaseId": "%SRCROOT%"
+                          },
+                          "region": {
+                            "startLine": 16,
+                            "endLine": 16,
+                            "startColumn": 20,
+                            "endColumn": 24
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "id": 1,
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "routes/likeProductReviews.ts",
+                            "uriBaseId": "%SRCROOT%"
+                          },
+                          "region": {
+                            "startLine": 16,
+                            "endLine": 16,
+                            "startColumn": 20,
+                            "endColumn": 24
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "id": 2,
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "routes/likeProductReviews.ts",
+                            "uriBaseId": "%SRCROOT%"
+                          },
+                          "region": {
+                            "startLine": 16,
+                            "endLine": 16,
+                            "startColumn": 16,
+                            "endColumn": 24
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "id": 3,
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "routes/likeProductReviews.ts",
+                            "uriBaseId": "%SRCROOT%"
+                          },
+                          "region": {
+                            "startLine": 16,
+                            "endLine": 16,
+                            "startColumn": 11,
+                            "endColumn": 13
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "id": 4,
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "routes/likeProductReviews.ts",
+                            "uriBaseId": "%SRCROOT%"
+                          },
+                          "region": {
+                            "startLine": 18,
+                            "endLine": 18,
+                            "startColumn": 41,
+                            "endColumn": 43
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "id": 5,
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "routes/likeProductReviews.ts",
+                            "uriBaseId": "%SRCROOT%"
+                          },
+                          "region": {
+                            "startLine": 18,
+                            "endLine": 18,
+                            "startColumn": 36,
+                            "endColumn": 39
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "id": 6,
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "routes/likeProductReviews.ts",
+                            "uriBaseId": "%SRCROOT%"
+                          },
+                          "region": {
+                            "startLine": 18,
+                            "endLine": 18,
+                            "startColumn": 34,
+                            "endColumn": 45
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "id": 7,
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "routes/likeProductReviews.ts",
+                            "uriBaseId": "%SRCROOT%"
+                          },
+                          "region": {
+                            "startLine": 18,
+                            "endLine": 18,
+                            "startColumn": 26,
+                            "endColumn": 33
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "priorityScore": 802,
+            "priorityScoreFactors": [
+              {
+                "label": true,
+                "type": "multipleOccurrence"
+              },
+              {
+                "label": true,
+                "type": "hotFileSource"
+              },
+              {
+                "label": true,
+                "type": "fixExamples"
+              }
+            ],
+            "isAutofixable": false
+          }
+        }
+      ],
+      "properties": {
+        "coverage": [
+          {
+            "isSupported": true,
+            "lang": "Python",
+            "files": 1,
+            "type": "SUPPORTED"
+          },
+          {
+            "isSupported": true,
+            "lang": "TypeScript",
+            "files": 536,
+            "type": "SUPPORTED"
+          },
+          {
+            "isSupported": true,
+            "lang": "HTML",
+            "files": 73,
+            "type": "SUPPORTED"
+          },
+          {
+            "isSupported": true,
+            "lang": "XML",
+            "files": 5,
+            "type": "SUPPORTED"
+          },
+          {
+            "isSupported": true,
+            "lang": "JavaScript",
+            "files": 15,
+            "type": "SUPPORTED"
+          },
+          {
+            "isSupported": false,
+            "lang": "XML",
+            "files": 2,
+            "type": "FAILED_PARSING"
+          },
+          {
+            "isSupported": false,
+            "lang": "Python",
+            "files": 2,
+            "type": "FAILED_PARSING"
+          },
+          {
+            "isSupported": false,
+            "lang": "TypeScript",
+            "files": 35,
+            "type": "FAILED_PARSING"
+          }
+        ]
+      }
+    }
+  ]
+}

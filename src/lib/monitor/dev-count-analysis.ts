@@ -21,10 +21,8 @@ export async function getContributors(
     repoPath: process.cwd(),
   },
 ): Promise<Contributor[]> {
-  const timestampStartOfContributingDeveloperPeriod = getTimestampStartOfContributingDevTimeframe(
-    endDate,
-    periodDays,
-  );
+  const timestampStartOfContributingDeveloperPeriod =
+    getTimestampStartOfContributingDevTimeframe(endDate, periodDays);
   const gitLogResults = await runGitLog(
     timestampStartOfContributingDeveloperPeriod,
     Math.floor(endDate.getTime() / 1000),

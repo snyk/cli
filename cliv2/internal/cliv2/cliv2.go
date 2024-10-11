@@ -22,6 +22,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
+	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
@@ -31,7 +32,6 @@ import (
 	"github.com/snyk/cli/cliv2/internal/embedded"
 	"github.com/snyk/cli/cliv2/internal/embedded/cliv1"
 	"github.com/snyk/cli/cliv2/internal/proxy"
-	local_utils "github.com/snyk/cli/cliv2/internal/utils"
 )
 
 type Handler int
@@ -58,14 +58,10 @@ const (
 	V2_ABOUT   Handler = iota
 )
 
-func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger) (*CLI, error) {
+func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger, ri runtimeinfo.RuntimeInfo) (*CLI, error) {
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
 
-	v1BinaryLocation, err := cliv1.GetFullCLIV1TargetPath(cacheDirectory)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
+	v1BinaryLocation := path.Join(cacheDirectory, ri.GetVersion(), cliv1.GetCLIv1Filename())
 
 	cli := CLI{
 		DebugLogger:      debugLogger,
@@ -93,7 +89,7 @@ func (c *CLI) Init() (err error) {
 	if len(c.CacheDirectory) > 0 {
 		// ensure the specified base cache directory exists, this needs to be done even before acquiring the lock
 		if _, err = os.Stat(c.CacheDirectory); os.IsNotExist(err) {
-			err = os.MkdirAll(c.CacheDirectory, local_utils.CACHEDIR_PERMISSION)
+			err = os.MkdirAll(c.CacheDirectory, utils.DIR_PERMISSION)
 			if err != nil {
 				return fmt.Errorf("Cache directory path is invalid: %w", err)
 			}
@@ -117,7 +113,7 @@ func (c *CLI) Init() (err error) {
 	c.DebugLogger.Printf("Init-Lock acquired: %v (%s)\n", fileLock.Locked(), lockFileName)
 
 	// create required cache and temp directories
-	err = local_utils.CreateAllDirectories(c.CacheDirectory, GetFullVersion())
+	err = utils.CreateAllDirectories(c.CacheDirectory, GetFullVersion())
 	if err != nil {
 		return err
 	}
@@ -218,7 +214,7 @@ func (c *CLI) GetBinaryLocation() string {
 }
 
 func (c *CLI) GetTempDir() string {
-	return local_utils.GetTemporaryDirectory(c.CacheDirectory, cliv1.CLIV1Version())
+	return c.globalConfig.GetString(configuration.TEMP_DIR_PATH)
 }
 
 func (c *CLI) printVersion() {

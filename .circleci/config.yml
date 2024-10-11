@@ -3,10 +3,10 @@ version: 2.1
 parameters:
   cli_download_base_url:
     type: string
-    default: 'https://static.snyk.io/'
+    default: 'https://downloads.snyk.io/'
   fips_cli_download_base_url:
     type: string
-    default: 'https://static.snyk.io/fips/'
+    default: 'https://downloads.snyk.io/fips/'
   go_download_base_url:
     type: string
     default: 'https://storage.googleapis.com/golang/'
@@ -35,8 +35,12 @@ orbs:
 executors:
   alpine:
     docker:
-      - image: alpine:3.17
+      - image: alpine:3.20
     resource_class: xlarge
+  alpine-arm64:
+    docker:
+      - image: alpine:3.20
+    resource_class: arm.xlarge
   generic-ubuntu:
     docker:
       - image: ubuntu:latest
@@ -56,6 +60,11 @@ executors:
       - image: snyklabs/cli-build-arm64:20240814-161347
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
+  docker-arm64-xl:
+    docker:
+      - image: snyklabs/cli-build-arm64:20240814-161347
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.xlarge
   linux-ubuntu-mantic-amd64:
     docker:
       - image: ubuntu:mantic
@@ -101,6 +110,11 @@ executors:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
       xcode: '14.3.1'
     resource_class: macos.m1.medium.gen1
+  macos-arm64-large:
+    macos:
+      # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
+      xcode: '14.3.1'
+    resource_class: macos.m1.large.gen1
   win-server2022-amd64:
     machine:
       image: windows-server-2022-gui:2024.01.1
@@ -233,7 +247,7 @@ commands:
   install-deps-windows-full-signing:
     steps:
       - install-deps-windows-signing
-      - install-deps-windows-full
+      - install-deps-windows-make
 
   install-deps-windows-make:
     steps:
@@ -329,12 +343,21 @@ commands:
       - run:
           name: Installing Node.js + other test dependencies
           command: |
-            apk add --update nodejs npm bash maven git gradle python3 py3-pip elixir composer
+            arch=$(uname -m)
+            case "$arch" in
+            aarch64) arch="arm64";;
+            *) arch="amd64";;
+            esac
+            echo "using architecture: $arch"
+            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip
             pip3 install pipenv requests PyYAML setuptools==70.3.0
             wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh
-            wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-amd64.tar.gz -O /tmp/go.tgz && \
+            wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-$arch.tar.gz -O /tmp/go.tgz && \
               tar -C /usr/local -xzvf /tmp/go.tgz && \
               ln -s /usr/local/go/bin/go /usr/local/bin
+            wget https://services.gradle.org/distributions/gradle-8.10-bin.zip -O /tmp/gradle.zip && \
+              unzip -d /usr/local /tmp/gradle.zip && \
+              ln -s /usr/local/gradle-8.10/bin/gradle /usr/local/bin
 
   failed-release-notification:
     steps:
@@ -451,7 +474,7 @@ workflows:
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           make_target: build clean-golang build-fips
-          executor: docker-amd64
+          executor: docker-amd64-xl
           requires:
             - prepare-build
 
@@ -462,7 +485,7 @@ workflows:
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           make_target: build clean-golang build-fips
-          executor: docker-arm64
+          executor: docker-arm64-xl
           requires:
             - prepare-build
 
@@ -472,7 +495,18 @@ workflows:
           go_os: linux
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          executor: docker-amd64
+          executor: docker-amd64-xl
+          c_compiler: /usr/bin/musl-gcc
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build alpine arm64
+          go_target_os: alpine
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          executor: docker-arm64-xl
           c_compiler: /usr/bin/musl-gcc
           requires:
             - prepare-build
@@ -483,7 +517,7 @@ workflows:
           go_os: darwin
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          executor: macos-arm64
+          executor: macos-arm64-large
           install_deps_extension: macos-build
           context: snyk-macos-signing
           requires:
@@ -495,7 +529,7 @@ workflows:
           go_os: darwin
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          executor: macos-arm64
+          executor: macos-arm64-large
           install_deps_extension: macos-build
           context: snyk-macos-signing
           requires:
@@ -591,6 +625,23 @@ workflows:
           dont_skip_tests: 0
 
       - acceptance-tests:
+          name: acceptance-tests alpine arm64
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+          requires:
+            - build alpine arm64
+          executor: alpine-arm64
+          test_snyk_command: ./binary-releases/snyk-alpine-arm64
+          install_deps_extension: alpine-full
+          dont_skip_tests: 0
+
+      - acceptance-tests:
           name: acceptance-tests macOS amd64
           context:
             - nodejs-install
@@ -622,7 +673,7 @@ workflows:
           test_snyk_command: binary-releases\\snyk-win.exe
           install_deps_extension: windows-full
           dont_skip_tests: 0
-          shards: 4
+          shards: 8
           pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
 
       - sign:
@@ -686,6 +737,7 @@ workflows:
             - sign macos arm64
             - sign windows amd64
             - build alpine amd64
+            - build alpine arm64
             - build linux amd64
             - build linux arm64
             - build fix & protect
@@ -1127,6 +1179,8 @@ jobs:
         default: 3
     executor: << parameters.executor >>
     parallelism: << parameters.shards >>
+    environment:
+      PIP_BREAK_SYSTEM_PACKAGES: 1
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
@@ -1371,6 +1425,9 @@ jobs:
       - run:
           name: Publish to GitHub
           command: ./release-scripts/upload-artifacts.sh github
+      - run:
+          name: Create Jira Release
+          command: ./release-scripts/create-jira-release.sh
       - failed-release-notification
 
   release-npm:

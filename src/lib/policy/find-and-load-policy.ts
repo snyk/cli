@@ -1,10 +1,10 @@
 import * as snykPolicyLib from 'snyk-policy';
 import * as debugModule from 'debug';
-import { PackageExpanded } from 'snyk-resolve-deps';
+import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 
 import { pluckPolicies } from '.';
 import { SupportedPackageManagers } from '../package-managers';
-import { PackageJson, PolicyOptions } from '../types';
+import { PolicyOptions } from '../types';
 import * as analytics from '../analytics';
 
 const debug = debugModule('snyk');
@@ -15,7 +15,7 @@ export async function findAndLoadPolicy(
   options: PolicyOptions,
   pkg?: PackageExpanded,
   scannedProjectFolder?: string,
-): Promise<Policy | undefined> {
+): Promise<snykPolicyLib.Policy | undefined> {
   const isDocker = scanType === 'docker';
   const isNodeProject = ['npm', 'yarn', 'pnpm'].includes(scanType);
   // monitor
@@ -27,7 +27,10 @@ export async function findAndLoadPolicy(
   } else if (isNodeProject) {
     // TODO: pluckPolicies expects a package.json object to
     // find and apply policies in node_modules
-    policyLocations = policyLocations.concat(pluckPolicies(pkg as PackageJson));
+    // TODO: fix these types, this is a hack and is not correct
+    policyLocations = policyLocations.concat(
+      pluckPolicies(pkg as unknown as PackageExpanded),
+    );
   }
 
   debug('Potential policy locations found:', policyLocations);
@@ -48,10 +51,4 @@ export async function findAndLoadPolicy(
     }
   }
   return policy;
-}
-
-export interface Policy {
-  filter(vulns: any, root?: string, matchStrategy?: string): any;
-  exclude?: { [key: string]: string[] };
-  ignore?: any;
 }

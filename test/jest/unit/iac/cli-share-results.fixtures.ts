@@ -120,6 +120,7 @@ export const expectedEnvelopeFormatterResults = [
     name: 'projectA',
     policy: '',
     target: {
+      name: undefined,
       remoteUrl: 'http://github.com/snyk/cli.git',
     },
     targetReference: undefined,
@@ -168,12 +169,12 @@ export const expectedEnvelopeFormatterResults = [
   },
 ];
 
-export const expectedEnvelopeFormatterResultsWithPolicy = expectedEnvelopeFormatterResults.map(
-  (result) => {
+export const expectedEnvelopeFormatterResultsWithPolicy =
+  expectedEnvelopeFormatterResults.map((result) => {
     return {
       ...result,
       policy: `# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.25.0
+version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   SNYK-CC-TF-4:
@@ -182,8 +183,7 @@ ignore:
 patch: {}
 `,
     };
-  },
-);
+  });
 
 export const createEnvelopeFormatterResultsWithTargetRef = (
   targetReference: string,

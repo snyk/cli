@@ -33,7 +33,7 @@ import {
   NotFoundError,
   ServiceUnavailableError,
 } from '../errors';
-import * as snyk from '../';
+import * as snykPolicy from 'snyk-policy';
 import { isCI } from '../is-ci';
 import {
   RETRY_ATTEMPTS,
@@ -84,6 +84,8 @@ import {
   PNPM_FEATURE_FLAG,
   SUPPORTED_MANIFEST_FILES,
 } from '../package-managers';
+import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
+import { normalizeTargetFile } from '../normalize-target-file';
 
 const debug = debugModule('snyk:run-test');
 
@@ -429,7 +431,7 @@ async function parseRes(
   // refactor to separate
   if (depGraph && pkgManager) {
     res = convertTestDepGraphResultToLegacy(
-      (res as any) as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
+      res as any as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
       depGraph,
       pkgManager,
       options,
@@ -473,7 +475,7 @@ async function parseRes(
   res.filesystemPolicy = !!payloadPolicy;
   if (!options['ignore-policy']) {
     res.policy = res.policy || (payloadPolicy as string);
-    const policy = await snyk.policy.loadFromText(res.policy);
+    const policy = await snykPolicy.loadFromText(res.policy);
     res = policy.filter(res, root);
   }
   analytics.add('vulns', res.vulnerabilities.length);
@@ -634,9 +636,9 @@ async function assembleLocalPayloads(
       if (!options.json && !options.quiet) {
         console.warn(
           chalk.bold.red(
-            `${icon.ISSUE} ${failedResults.length}/${failedResults.length +
-              deps.scannedProjects
-                .length} potential projects failed to get dependencies.`,
+            `${icon.ISSUE} ${failedResults.length}/${
+              failedResults.length + deps.scannedProjects.length
+            } potential projects failed to get dependencies.`,
           ),
         );
         failedResults.forEach((f) => {
@@ -694,12 +696,10 @@ async function assembleLocalPayloads(
 
       // prefer dep-graph fallback on dep tree
       // TODO: clean up once dep-graphs only
-      const pkg:
-        | DepTree
-        | depGraphLib.DepGraph
-        | undefined = scannedProject.depGraph
-        ? scannedProject.depGraph
-        : scannedProject.depTree;
+      const pkg: DepTree | depGraphLib.DepGraph | undefined =
+        scannedProject.depGraph
+          ? scannedProject.depGraph
+          : scannedProject.depTree;
 
       if (options['print-deps']) {
         if (scannedProject.depGraph) {
@@ -727,8 +727,11 @@ async function assembleLocalPayloads(
       }
 
       // todo: normalize what target file gets used across plugins and functions
-      const targetFile =
-        scannedProject.targetFile || deps.plugin.targetFile || options.file;
+      const targetFile = normalizeTargetFile(
+        scannedProject,
+        deps.plugin,
+        options.file,
+      );
 
       // Forcing options.path to be a string as pathUtil requires is to be stringified
       const targetFileRelativePath = targetFile
@@ -751,7 +754,7 @@ async function assembleLocalPayloads(
         options,
         // TODO: fix this and send only send when we used resolve-deps for node
         // it should be a ExpandedPkgTree type instead
-        pkg,
+        pkg as unknown as PackageExpanded,
         targetFileDir,
       );
 
@@ -888,8 +891,9 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
   addPackageAnalytics(pkg.name, pkg.version);
   const encodedName = encodeURIComponent(pkg.name + '@' + pkg.version);
   // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests)
-  const url = `${config.API}${options.vulnEndpoint ||
-    `/vuln/${options.packageManager}`}/${encodedName}`;
+  const url = `${config.API}${
+    options.vulnEndpoint || `/vuln/${options.packageManager}`
+  }/${encodedName}`;
   return [
     {
       method: 'GET',

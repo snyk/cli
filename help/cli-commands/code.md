@@ -10,4 +10,4 @@ For more information, see [CLI for Snyk Code](https://docs.snyk.io/snyk-cli/scan
 
 The single`snyk code` command is identified here with the help options:
 
-[`code test`](code-test.md); `code test --help`: tests for any known security issues using Static Code Analysis
+[`code test`](code-test.md); `code test --help`: Test source code for any known security issues (Static Application Security Testing).

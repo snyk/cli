@@ -85,6 +85,7 @@ export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
   'yarn',
   'rubygems',
   'poetry',
+  'cocoapods',
 ];
 // For ecosystems with a flat set of libraries (e.g. Python, JVM), one can
 // "pin" a transitive dependency

@@ -405,7 +405,11 @@ describe('analytics module', () => {
 
     expect(code).toBe(0);
 
-    const lastRequest = server.popRequest();
+    const requests = server.getRequests().filter((value) => {
+      return value.url == '/api/v1/analytics/cli';
+    });
+    const lastRequest = requests.at(-1);
+
     expect(lastRequest).toMatchObject({
       headers: {
         host: `localhost:${port}`,

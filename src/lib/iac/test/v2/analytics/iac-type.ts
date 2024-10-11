@@ -2,15 +2,13 @@ import { SEVERITY } from '../../../../snyk-test/legacy';
 import { ResourceKind, TestOutput } from '../scan/results';
 
 export function getIacType(testOutput: TestOutput): IacType {
-  const resourcesCountByPackageManager = getResourcesCountByPackageManager(
-    testOutput,
-  );
+  const resourcesCountByPackageManager =
+    getResourcesCountByPackageManager(testOutput);
 
   const filesCountByPackageManager = getFilesCountByPackageManager(testOutput);
 
-  const vulnAnalyticsByPackageManager = getVulnerabilityAnalyticsByPackageManager(
-    testOutput,
-  );
+  const vulnAnalyticsByPackageManager =
+    getVulnerabilityAnalyticsByPackageManager(testOutput);
 
   return Object.keys(resourcesCountByPackageManager).reduce(
     (acc, packageManager) => {
@@ -68,19 +66,22 @@ function getFilesCountByPackageManager(
   }
 
   return Object.entries(
-    testOutput.results.resources.reduce((acc, resource) => {
-      const packageManager = resource.kind;
+    testOutput.results.resources.reduce(
+      (acc, resource) => {
+        const packageManager = resource.kind;
 
-      if (!acc[packageManager]) {
-        acc[packageManager] = new Set();
-      }
+        if (!acc[packageManager]) {
+          acc[packageManager] = new Set();
+        }
 
-      if (resource.file) {
-        acc[packageManager].add(resource.file);
-      }
+        if (resource.file) {
+          acc[packageManager].add(resource.file);
+        }
 
-      return acc;
-    }, {} as { [packageManager in PackageManager]: Set<string> }),
+        return acc;
+      },
+      {} as { [packageManager in PackageManager]: Set<string> },
+    ),
   ).reduce((acc, [packageManager, filesSet]) => {
     acc[packageManager] = filesSet.size;
 

@@ -34,6 +34,10 @@ Remove a config value.
 
 Remove all config values.
 
+### `environment`
+
+Change the endpoint to use. Run `config environment --help` or see the [Config environment help page](https://docs.snyk.io/snyk-cli/commands/config-environment)
+
 ## Supported `<KEY>` values
 
 ### `api`

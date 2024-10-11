@@ -170,8 +170,7 @@ describe('fix Poetry Python projects', () => {
                   issueIds: ['VULN-six'],
                   reason: err,
                   success: false,
-                  tip:
-                    'Try running `poetry install six==2.0.1 transitive==1.1.1`',
+                  tip: 'Try running `poetry install six==2.0.1 transitive==1.1.1`',
                   to: 'six@2.0.1',
                   userMessage: 'Failed to upgrade six from 1.1.6 to 2.0.1',
                 },
@@ -180,8 +179,7 @@ describe('fix Poetry Python projects', () => {
                   issueIds: [],
                   reason: err,
                   success: false,
-                  tip:
-                    'Try running `poetry install six==2.0.1 transitive==1.1.1`',
+                  tip: 'Try running `poetry install six==2.0.1 transitive==1.1.1`',
                   to: 'transitive@1.1.1',
                   userMessage: 'Failed to pin transitive from 1.0.0 to 1.1.1',
                 },

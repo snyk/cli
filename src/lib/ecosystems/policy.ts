@@ -4,7 +4,7 @@ import { SupportedPackageManagers } from '../package-managers';
 import { findAndLoadPolicy } from '../policy';
 import { Options, PolicyOptions } from '../types';
 import { Issue, IssuesData, ScanResult } from './types';
-import { Policy } from '../policy/find-and-load-policy';
+import { Policy } from 'snyk-policy';
 
 export async function findAndLoadPolicyForScanResult(
   scanResult: ScanResult,
@@ -53,8 +53,8 @@ export function filterIgnoredIssues(
     if (!allResourcesRule) {
       return true;
     }
-
     const expiredIgnoreRule =
+      allResourcesRule['*'].expires &&
       new Date(allResourcesRule['*'].expires) < new Date();
     if (!expiredIgnoreRule) {
       delete filteredIssuesData[issue.issueId];

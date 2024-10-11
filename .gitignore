@@ -37,6 +37,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /test/acceptance/workspaces/**/project/
 /test/acceptance/workspaces/**/target/
 test/acceptance/workspaces/**/.gradle
+test/acceptance/workspaces/**/.build
+test/acceptance/workspaces/**/Package.resolved
 test/**/.gradle
 .iac-data
 .dccache
@@ -47,7 +49,7 @@ tap-output
 .tap
 # Jest
 coverage
-test/fixtures/basic-swift/.build
-test/fixtures/basic-swift/Package.resolved
+test/fixtures/**/*/.build
+test/fixtures/**/*/Package.resolved
 scripts/Brewfile.lock.json
 test/fixtures/**/go.sum

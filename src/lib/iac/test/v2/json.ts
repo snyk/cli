@@ -254,9 +254,8 @@ function vulnerabilitiesToResult(
     vulnerabilitiesToKind(passedVulnerabilities);
   const ignoreSettings = testOutput.settings.ignoreSettings;
   const meta = orgSettingsToMeta(testOutput, ignoreSettings);
-  const infrastructureAsCodeIssues = vulnerabilitiesToIacIssues(
-    vulnerabilities,
-  );
+  const infrastructureAsCodeIssues =
+    vulnerabilitiesToIacIssues(vulnerabilities);
   const infrastructureAsCodeSuccesses = passedVulnerabilitiesToIacSuccesses(
     passedVulnerabilities,
   );

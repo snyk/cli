@@ -122,7 +122,7 @@ For more information see the article [How to select the Organization to use in t
 
 Specify a package file.
 
-When testing locally or monitoring a project, you can specify the file that Snyk should inspect for package information. When the file is not specified, Snyk tries to detect the appropriate file for your project.
+When you are testing locally or monitoring a project, you can specify the file that Snyk should inspect for package information. When the file is not specified, Snyk tries to detect the appropriate file for your project.
 
 See also the section on [Options for Python projects](https://docs.snyk.io/snyk-cli/commands/test#options-for-python-projects)
 
@@ -368,6 +368,28 @@ If there are out-of-sync lockfiles in the project, the `test` command fails when
 
 Default: true
 
+## Options for pnpm projects
+
+**Snyk CLI pnpm support is in Early Access**. To enable it, in your Snyk account navigate to Settings, select Snyk Preview, and install CLI v1.1293.0 or above.
+
+**Note**: You can use the following options with pnpm projects:
+
+`--dev`. See the [`--dev` option help](https://docs.snyk.io/snyk-cli/commands/test#dev)
+
+`--all-projects` to scan and detect pnpm projects and all other projects in the directory. See the [`--all-projects` option help](https://docs.snyk.io/snyk-cli/commands/test#all-projects)
+
+`--fail-on`. See the [--fail-on option help](https://docs.snyk.io/snyk-cli/commands/test#fail-on-less-than-all-or-upgradable-or-patchable-greater-than)
+
+`--prune-repeated-subdependencies, -p`. See the [`--prune-repeated subdependencies` option help](https://docs.snyk.io/snyk-cli/commands/test#prune-repeated-subdependencies-p)
+
+### `--strict-out-of-sync=true|false`
+
+Prevent testing out-of-sync lockfiles.
+
+If there are out-of-sync lockfiles in the project, the `test` command fails when `--strict-out-of-sync=true`.
+
+Default: true
+
 ## Options for Yarn projects
 
 **Note**: You can use the following options with Yarn projects:
@@ -388,7 +410,7 @@ Default: true
 
 ### `--yarn-workspaces`
 
-Detect and scan Yarn Workspaces only when a lockfile is in the root.
+Detect and scan only Yarn Workspaces when a lockfile is in the root.
 
 You can specify how many sub-directories to search using `--detection-depth.`
 
@@ -426,9 +448,15 @@ For a Python project, specify a particular file to test.
 
 Default: Snyk scans the requirements.txt file at the top level of the project.
 
-Snyk can recognize any manifest files specified with this option based on `--file=req*.txt`. The `*` is a wildcard and `req` can appear anywhere in the file name.
+**Important:** When specifying a value for the `--file` parameter that is not the default file, you must also include the `--package-manager=pip` option. The test will fail without this parameter.
 
-For example, Snyk recognizes your manifest file when you have renamed it to `requirements-dev.txt`.
+Always specify this parameter with the value `pip` when using a custom `--file` value. For example:
+
+```bash
+snyk test --file=requirements-dev.txt --package-manager=pip
+```
+
+This allows Snyk to correctly recognize and scan your specified manifest file, such as when you have renamed it to `requirements-dev.txt`.
 
 ### `--package-manager=pip`
 
