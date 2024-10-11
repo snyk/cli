@@ -422,7 +422,7 @@ func Test_runWorkflowAndProcessData_WithTransformation(t *testing.T) {
 	workflowId1 := workflow.NewWorkflowIdentifier("output")
 
 	outputFn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
-		assert.Len(t, input, 3, "not enough items received")
+		assert.Len(t, input, 2, "incorrect number of items received")
 		localFindingsFound := false
 
 		for i := range input {
