@@ -457,7 +457,11 @@ func MainWithErrorCode() int {
 	_ = rootCommand.ParseFlags(os.Args)
 
 	// create engine
-	globalConfiguration = configuration.New()
+	globalConfiguration = configuration.NewWithOpts(
+		configuration.WithFiles("snyk"),
+		configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
+		configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
+	)
 	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)

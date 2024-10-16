@@ -72,7 +72,7 @@ func setup(t *testing.T, baseCache string, version string) configuration.Configu
 	t.Helper()
 	err := gafUtils.CreateAllDirectories(baseCache, version)
 	assert.Nil(t, err)
-	config := configuration.NewInMemory()
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	config.Set(configuration.CACHE_PATH, baseCache)
 	config.Set(basic_workflows.ConfigurationCleanupGlobalTempDirectory, true)
 	config.Set(basic_workflows.ConfigurationCleanupGlobalCertAuthority, true)
