@@ -50,7 +50,7 @@ func Test_MainWithErrorCode(t *testing.T) {
 
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 	t.Run("via SNYK_DISABLE_ANALYTICS (true)", func(t *testing.T) {
-		c := configuration.NewInMemory()
+		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 		assert.False(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 
 		c.Set("SNYK_DISABLE_ANALYTICS", "true")
@@ -59,7 +59,7 @@ func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 		assert.True(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 	})
 	t.Run("via SNYK_DISABLE_ANALYTICS (1)", func(t *testing.T) {
-		c := configuration.NewInMemory()
+		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 		assert.False(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 
 		c.Set("SNYK_DISABLE_ANALYTICS", "1")
@@ -68,7 +68,7 @@ func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 		assert.True(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 	})
 	t.Run("via SNYK_CFG_DISABLE_ANALYTICS (true)", func(t *testing.T) {
-		c := configuration.NewInMemory()
+		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 		assert.False(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 
 		c.Set("SNYK_CFG_DISABLE_ANALYTICS", "true")
@@ -77,7 +77,7 @@ func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 		assert.True(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 	})
 	t.Run("via SNYK_CFG_DISABLE_ANALYTICS (1)", func(t *testing.T) {
-		c := configuration.NewInMemory()
+		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 		assert.False(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 
 		c.Set("SNYK_CFG_DISABLE_ANALYTICS", "1")
@@ -86,7 +86,7 @@ func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 		assert.True(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 	})
 	t.Run("via DISABLE-ANALYTICS (true)", func(t *testing.T) {
-		c := configuration.NewInMemory()
+		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 		assert.False(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 
 		c.Set("disable-analytics", "true")
@@ -95,7 +95,7 @@ func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
 		assert.True(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 	})
 	t.Run("via DISABLE-ANALYTICS (1)", func(t *testing.T) {
-		c := configuration.NewInMemory()
+		c := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 		assert.False(t, c.GetBool(configuration.ANALYTICS_DISABLED))
 
 		c.Set("disable-analytics", "1")
@@ -204,7 +204,7 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 
 			_ = globalEngine.Init()
 
-			config := configuration.NewInMemory()
+			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 			cmd := &cobra.Command{
 				Use: "command",
 			}
@@ -492,7 +492,7 @@ func Test_setTimeout(t *testing.T) {
 	fakeExit := func() {
 		close(exitedCh)
 	}
-	config := configuration.NewInMemory()
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	config.Set(configuration.TIMEOUT, 1)
 	setTimeout(config, fakeExit)
 	select {
@@ -511,7 +511,7 @@ func Test_displayError(t *testing.T) {
 		err := errors.New("test error")
 		userInterface.EXPECT().OutputError(err).Times(1)
 
-		config := configuration.NewInMemory()
+		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 		displayError(err, userInterface, config)
 	})
 
@@ -531,7 +531,7 @@ func Test_displayError(t *testing.T) {
 
 	for _, scenario := range scenarios {
 		t.Run(fmt.Sprintf("%s does not display anything", scenario.name), func(t *testing.T) {
-			config := configuration.NewInMemory()
+			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 			err := scenario.err
 			displayError(err, userInterface, config)
 		})
@@ -541,7 +541,7 @@ func Test_displayError(t *testing.T) {
 		err := &wrErr{wraps: &exec.ExitError{}}
 		userInterface.EXPECT().OutputError(err).Times(1)
 
-		config := configuration.NewInMemory()
+		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 		displayError(err, userInterface, config)
 	})
 }
