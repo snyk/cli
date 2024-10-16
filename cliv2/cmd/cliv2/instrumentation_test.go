@@ -9,7 +9,7 @@ import (
 )
 
 func Test_shallSendInstrumentation(t *testing.T) {
-	config := configuration.NewInMemory()
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	instrumentor := analytics.NewInstrumentationCollector()
 
 	// case: nothing configured
