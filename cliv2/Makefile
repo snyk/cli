@@ -6,6 +6,7 @@ GOARCH = $(shell go env GOARCH)
 GOHOSTOS = $(shell go env GOHOSTOS)
 GOHOSTARCH = $(shell go env GOHOSTARCH)
 LS_COMMIT_HASH = $(shell cat go.mod | grep snyk-ls | cut -d "-" -f 4)
+PRINT_TIMESTAMP := date -u +'%d-%m-%Y %H:%M:%S:%N'
 FIPS_CRYPTO_BACKEND_DEFAULT = opensslcrypto
 FIPS_CRYPTO_BACKEND =
 HASH = sha
@@ -148,10 +149,12 @@ summary:
 configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
+	$(PRINT_TIMESTAMP)
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
 	@echo "$(LOG_PREFIX)  LDFLAGS:     $(LDFLAGS)"
 	@echo "$(LOG_PREFIX)  GCFLAGS:     $(GCFLAGS)"
 	@GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/*.go
+	$(PRINT_TIMESTAMP)
 
 .PHONY: fips
 fips:
@@ -177,7 +180,9 @@ $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
 
 $(CACHE_DIR)/prepare-3rd-party-licenses:
 	@echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"
+	$(PRINT_TIMESTAMP)
 	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) scripts/prepare_licenses.sh > $(CACHE_DIR)/prepare-3rd-party-licenses 2> /dev/null
+	$(PRINT_TIMESTAMP)
 
 .PHONY: generate
 generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go
@@ -220,7 +225,9 @@ test-signature: ISSIGNED_SCRIPT
 # Typescript CLI targets
 $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
+	$(PRINT_TIMESTAMP)
 	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
+	$(PRINT_TIMESTAMP)
 	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 
 .PHONY: build-ts-cli

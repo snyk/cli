@@ -10,6 +10,7 @@ export SHELL=/bin/bash
 WORKING_DIR = $(CURDIR)
 PKG := npx pkg ./ --compress Brotli --options max_old_space_size=32768
 PKG_NODE_VERSION := $(shell head -1 .nvmrc | cut -f1 -d '.')
+PRINT_TIMESTAMP := date -u +'%d-%m-%Y %H:%M:%S:%N'
 BINARY_WRAPPER_DIR = ts-binary-wrapper
 EXTENSIBLE_CLI_DIR = cliv2
 BINARY_RELEASES_FOLDER_TS_CLI = binary-releases
@@ -19,6 +20,7 @@ GOHOSTOS = $(shell go env GOHOSTOS)
 export PYTHON = python
 
 PYTHON_VERSION = $(shell python3 --version)
+
 ifneq (, $(PYTHON_VERSION))
 	PYTHON = python3
 endif
@@ -116,15 +118,21 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz: prepack | $(BINARY_RELEASES_F
 	mv $(shell npm pack --workspace '@snyk/protect') $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-protect.tgz
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PRINT_TIMESTAMP)
 	$(PKG) -t node$(PKG_NODE_VERSION)-alpine-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine
+	$(PRINT_TIMESTAMP)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PRINT_TIMESTAMP)
 	$(PKG) -t node$(PKG_NODE_VERSION)-alpine-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64 --no-bytecode
+	$(PRINT_TIMESTAMP)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PRINT_TIMESTAMP)
 	$(PKG) -t node$(PKG_NODE_VERSION)-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
+	$(PRINT_TIMESTAMP)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux.sha256
 
 # Why `--no-bytecode` for Linux/arm64:
@@ -132,22 +140,33 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_
 #   environment. So disabling until we can support it. It's an optimisation.
 #   https://github.com/vercel/pkg#targets
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PRINT_TIMESTAMP)
 	$(PKG) -t node$(PKG_NODE_VERSION)-linux-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64 --no-bytecode
+	$(PRINT_TIMESTAMP)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PRINT_TIMESTAMP)
 	$(PKG) -t node$(PKG_NODE_VERSION)-macos-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos
+	$(PRINT_TIMESTAMP)
 	$(SHELL) $(WORKING_DIR)/cliv2/scripts/sign_darwin.sh $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-macos --sign-nodejs-cli
+	$(PRINT_TIMESTAMP)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PRINT_TIMESTAMP)
 	$(PKG) -t node$(PKG_NODE_VERSION)-macos-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64 --no-bytecode
+	$(PRINT_TIMESTAMP)
 	$(SHELL) $(WORKING_DIR)/cliv2/scripts/sign_darwin.sh $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-macos-arm64 --sign-nodejs-cli
+	$(PRINT_TIMESTAMP)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PRINT_TIMESTAMP)
 	$(PKG) -t node$(PKG_NODE_VERSION)-win-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe
+	$(PRINT_TIMESTAMP)
 	powershell $(WORKING_DIR)/cliv2/scripts/sign_windows.ps1 $(BINARY_RELEASES_FOLDER_TS_CLI) snyk-win.exe
+	$(PRINT_TIMESTAMP)
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-win.exe.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-for-docker-desktop-darwin-x64.tar.gz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
@@ -188,7 +207,9 @@ $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt:
 .PHONY: build-binary-wrapper
 build-binary-wrapper: pre-build-binary-wrapper $(BINARY_WRAPPER_DIR)/src/generated/version $(BINARY_WRAPPER_DIR)/src/generated/sha256sums.txt
 	@echo "-- Building Typescript Binary Wrapper ($(BINARY_WRAPPER_DIR)/dist/)"
+	$(PRINT_TIMESTAMP)
 	@cd $(BINARY_WRAPPER_DIR); npm run build
+	$(PRINT_TIMESTAMP)
 
 .PHONY: clean-binary-wrapper
 clean-binary-wrapper:
