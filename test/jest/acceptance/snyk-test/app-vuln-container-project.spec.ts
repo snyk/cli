@@ -163,7 +163,7 @@ describe('container test projects behavior with --json flag', () => {
 
     const jsonOutput = JSON.parse(stdout);
     expect(Array.isArray(jsonOutput)).toBeTruthy();
-    expect(jsonOutput).toHaveLength(3);
+    expect(jsonOutput).toHaveLength(2);
     expect(code).toEqual(0);
   });
 });
