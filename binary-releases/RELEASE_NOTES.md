@@ -1,0 +1,51 @@
+## [1.0.0-monorepo](https://github.com/snyk/snyk/compare/v1.1293.0...v1.0.0-monorepo) (2024-10-18)
+
+The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
+
+### Features
+
+* add CycloneDX 1.6 SBOM support ([1330fc2](https://github.com/snyk/snyk/commit/1330fc2442e48865ea2e1b27a94cf665ff4b0416))
+* add data transformation workflow [CLI-502] ([2cd3bfd](https://github.com/snyk/snyk/commit/2cd3bfd298b423ea632906cdd9b24ee5eac1c6d3))
+* automatic integration of language server 45d38517ca31d0dcbb30d35bc235b187f0c33156 ([e60dda0](https://github.com/snyk/snyk/commit/e60dda0c8c8d48a59a1260b221d5ac8bbc616093))
+* automatic integration of language server 56a46746f0be9d0ad20bc1c31e9aa8a66c8c31dc ([e5d8b68](https://github.com/snyk/snyk/commit/e5d8b68901b5934d7331a97ac56216532e1ece22))
+* automatic integration of language server 749398323e1918d99214e797aaf18adf0492d0a6 ([24cfd5a](https://github.com/snyk/snyk/commit/24cfd5ad30186089114307328d04bbfc8d11dc6f))
+* automatic integration of language server 871df13e7984636feb2c61570bff2d117828d8a3 ([507d402](https://github.com/snyk/snyk/commit/507d4023a3aaf78ee5340246946c43b9501b257e))
+* automatic integration of language server a8e770a8dcb46ad14861001a969c03694d7c2a30 ([0c22b2a](https://github.com/snyk/snyk/commit/0c22b2aa5329d3e5ca00ff23b7ec7472432b89ca))
+* automatic integration of language server e23b2e02a33de2f722a579a8fa10cccfa3d80d84 ([a3037bd](https://github.com/snyk/snyk/commit/a3037bd81389dbd7054b84ece9919ff87b9a44e9))
+* automatic integration of language server f340bd73b5146a0653b2126e7900c467c89e4398 ([0637bca](https://github.com/snyk/snyk/commit/0637bca3a1440e73b2ed874217db605732b6dee6))
+* automatic integration of language server f45a1a9e861a2f67a2aa6e624b755a411333298a ([771dce7](https://github.com/snyk/snyk/commit/771dce7ac5fc2daead08dba9187186bb81e4f687))
+* automatic integration of language server fa9fa4069fc2cd94b0b9aca67c27d2e7fd7ddacd ([ac946d1](https://github.com/snyk/snyk/commit/ac946d1f521d1006bbec279377b190781675dbbb))
+* conditionally write gaf data to file ([7f11919](https://github.com/snyk/snyk/commit/7f11919360cd01e97ede0467dd0f064134807157))
+* **deployment:** Deploy alpine arm64 binaries ([9daace4](https://github.com/snyk/snyk/commit/9daace4aa1bdb5d5939d91a118709a5f78b64bb8))
+* drop policy property on global Snyk object ([fef0d69](https://github.com/snyk/snyk/commit/fef0d69e7e67923b1b3d704ef79f8df696ef310e))
+* enable cocoapods to send graphs for cli monitor ([ca56c69](https://github.com/snyk/snyk/commit/ca56c695e65f11b44b0c50f93b892a0e03aea97a))
+* pass allow analytics flag to snyk-iac-test [IAC-3017] ([b12d3ac](https://github.com/snyk/snyk/commit/b12d3acf99a318c3841977ba4a3277b32a8baa22))
+
+
+### Bug Fixes
+
+* add normalize help for deriving target files [CLI-448] ([82efb50](https://github.com/snyk/snyk/commit/82efb50280569b5a3f290fda347d18d6a67170ca))
+* **auth:** missing auth issue with oauth ([57ae95c](https://github.com/snyk/snyk/commit/57ae95cf5e3fc3d4c744a782feae2def17e70493))
+* check iacNewEngine FF and pass it to snyk-iac-test [IAC-3059] ([2051a6d](https://github.com/snyk/snyk/commit/2051a6d38071a304dbef97784cfeac20c7f56d09))
+* default limit to max vulnerable paths per vuln, add override option ([302d7ac](https://github.com/snyk/snyk/commit/302d7ac5a396d85cc4c424421ef5b7cfa5f32297))
+* **deployment:** upload sequence to s3 ([e8499b0](https://github.com/snyk/snyk/commit/e8499b041c4ca38b8bed86c704989df2c6408c32))
+* do not show test deps for Dverbose mvn with dependencyManagement ([67e0de9](https://github.com/snyk/snyk/commit/67e0de94c13622c390aff4a5b34bba4791272577))
+* **docs:** update contributing.md ([c2ff465](https://github.com/snyk/snyk/commit/c2ff465c34da80a2630099ca0c3653092d3ec3f9))
+* fixed support for pnpm alias packages ([d506de1](https://github.com/snyk/snyk/commit/d506de1203483cf627680a7ad7aa30b1479ed76c))
+* **iac:** upgrade iac custom rules ext to address vulns [IAC-3065] ([d6cc509](https://github.com/snyk/snyk/commit/d6cc509d919165efa7392b0f0ef532d8840f1207))
+* **iac:** upgrade snyk-iac-test to v0.55.1 [IAC-2940] ([0dadc90](https://github.com/snyk/snyk/commit/0dadc901087b97040243bb8a65b4844df9096a3d))
+* ignore false positive ([71215f6](https://github.com/snyk/snyk/commit/71215f68d35e07b17f93fbe22a93eea36ec2b925))
+* point snyk policy out urls to snyk.io ([28509a3](https://github.com/snyk/snyk/commit/28509a303e5d2b783799291e8db4afd159cd7533))
+* respect default detection depth of 4 ([45a74ea](https://github.com/snyk/snyk/commit/45a74eaf68404a2c046fe11d73682a8b5750368f))
+* restore cert file if it was externally removed ([ef1547f](https://github.com/snyk/snyk/commit/ef1547fde9fa0e53897bbb8c51fa1cf3b02d78b8))
+* scan non publishable projects on improved net ([a6c0e67](https://github.com/snyk/snyk/commit/a6c0e671937a662c0f3b4bfa4eae4c232511f7e8))
+* scan nuget with PublishSingleFile turned on ([2c74298](https://github.com/snyk/snyk/commit/2c74298094b627ec2d5df6b57f5aa49f67d4c132))
+* type errors in tests ([2e39187](https://github.com/snyk/snyk/commit/2e39187881daebaf0458fde772141ce9848c6762))
+* update tests to the current policy schema version ([35acaa9](https://github.com/snyk/snyk/commit/35acaa97fce3bd2627f8246d02ae3b79984fd2bd))
+* upgrade go-getter to 1.7.5 ([970de96](https://github.com/snyk/snyk/commit/970de96595a931f4362c9c95fe2ce901c4c63b55))
+* upgrade go-getter to 1.7.5 ([f730f9d](https://github.com/snyk/snyk/commit/f730f9d8893f13bf896e39d908d6b6d3662b3a42))
+* upgrade iac extension and snyk-iac-test ([9134c05](https://github.com/snyk/snyk/commit/9134c05d3f060daaa4294f47b7d2831bef894e07))
+* upgrade slack/webhook to 7.0.3 ([8ab4433](https://github.com/snyk/snyk/commit/8ab4433d2b9e037cd181270f62d3295a9c6b9086))
+* upgrade slack/webhook to 7.0.3 ([7e1a035](https://github.com/snyk/snyk/commit/7e1a03539f6e8c8a4b6fd500e9b5ac0c5449d079))
+* use runtimeInfo to derive the version for cliv1 path ([652d1ba](https://github.com/snyk/snyk/commit/652d1ba0b4e59aa5e2bf16bf95f31898fc6068b0))
+
