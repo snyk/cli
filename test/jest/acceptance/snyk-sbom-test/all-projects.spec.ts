@@ -98,6 +98,7 @@ describe('snyk sbom test (mocked server only)', () => {
     expect(stdout).toContain('"version":"3.0.4",');
     expect(stdout).toContain('"name":"minimatch"');
     expect(stdout).toContain('"CWE":["CWE-1333"]');
+    expect(stdout).toContain('"CVE":["CVE-2022-3517"]');
     expect(stdout).toContain('"semver":{"vulnerable":["3.0.4"]}');
 
     expect(code).toEqual(1);

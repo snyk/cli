@@ -750,12 +750,12 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skeema/knownhosts v1.2.2 h1:Iug2P4fLmDw9f41PB6thxUkNUkJzB5i+1/exaj40L3A=
 github.com/skeema/knownhosts v1.2.2/go.mod h1:xYbVRSPxqBZFrdmDyMmsOs+uX1UZC3nTN3ThzgDxUwo=
-github.com/snyk/cli-extension-dep-graph v0.0.0-20240426125928-8d56ac52821e h1:j17Ujw51/2SC3m1hbNCUwxFc8aNIFyfpnwFAszgEM8c=
-github.com/snyk/cli-extension-dep-graph v0.0.0-20240426125928-8d56ac52821e/go.mod h1:QF3v8HBpOpyudYNCuR8LqfULutO76c91sBdLzD+pBJU=
+github.com/snyk/cli-extension-dep-graph v0.0.0-20241014075215-311d3c8a423f h1:xZK+6ug+pNgnIfPFGkQtxBZwcN/6RoXpQruRHimjfKM=
+github.com/snyk/cli-extension-dep-graph v0.0.0-20241014075215-311d3c8a423f/go.mod h1:QF3v8HBpOpyudYNCuR8LqfULutO76c91sBdLzD+pBJU=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20241008152401-24c8cf03a1a3 h1:AQMi52/aevl9bBSzwxGLz9kxInojkSe/Q6j1s1s6yJg=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20241008152401-24c8cf03a1a3/go.mod h1:A/DNK3ZnUgqOKJ33Lc1z5KbbHqRSBgwCWw9KuyJu0xQ=
-github.com/snyk/cli-extension-sbom v0.0.0-20240820111700-68258cba52c7 h1:+xhigV8lkriZ8riIg79Yx/sDpKZV9ihz2iAM0Xa8/V4=
-github.com/snyk/cli-extension-sbom v0.0.0-20240820111700-68258cba52c7/go.mod h1:5CaY1bgvJY/uoG/1plLOf8T8o9AkwoBIGvw34RfRLZw=
+github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f h1:dlL+f+5sjHj4JCzW/Evl1x9UREXLyc3M4KjoZvQx0Bs=
+github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f/go.mod h1:5CaY1bgvJY/uoG/1plLOf8T8o9AkwoBIGvw34RfRLZw=
 github.com/snyk/code-client-go v1.10.0 h1:t/hBINxj4lKvoo681uGhxHBpMued/j68p2sHbB9qbfo=
 github.com/snyk/code-client-go v1.10.0/go.mod h1:orU911flV1kJQOlxxx0InUQkAfpBrcERsb2olfnlI8s=
 github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7 h1:Zn5BcV76oFAbJm5tDygU945lvoZ3yY8FoRFDC3YpwF8=
