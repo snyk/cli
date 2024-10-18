@@ -12,15 +12,15 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.33.0
-	github.com/snyk/cli-extension-dep-graph v0.0.0-20240426125928-8d56ac52821e
+	github.com/snyk/cli-extension-dep-graph v0.0.0-20241014075215-311d3c8a423f
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20241008152401-24c8cf03a1a3
-	github.com/snyk/cli-extension-sbom v0.0.0-20240820111700-68258cba52c7
+	github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f
 	github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20240809094525-c48d19c27edb
 	github.com/snyk/go-application-framework v0.0.0-20241009095349-dc0fb55f3eb3
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20241009134219-56a46746f0be
+	github.com/snyk/snyk-ls v0.0.0-20241018081540-0c956c5aef5b
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
