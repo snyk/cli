@@ -13,15 +13,15 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.33.0
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20240426125928-8d56ac52821e
-	github.com/snyk/cli-extension-iac-rules v0.0.0-20240422133948-ae17a4306672
-	github.com/snyk/cli-extension-sbom v0.0.0-20240812130014-3f4e892f15ec
-	github.com/snyk/container-cli v0.0.0-20240322120441-6d9b9482f9b1
+	github.com/snyk/cli-extension-iac-rules v0.0.0-20241008152401-24c8cf03a1a3
+	github.com/snyk/cli-extension-sbom v0.0.0-20240820111700-68258cba52c7
+	github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20240809094525-c48d19c27edb
-	github.com/snyk/go-application-framework v0.0.0-20240822160346-edf22a8795be
+	github.com/snyk/go-application-framework v0.0.0-20241009095349-dc0fb55f3eb3
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20240822130022-1f0ca57c12f0
-	github.com/spf13/cobra v1.8.0
+	github.com/snyk/snyk-ls v0.0.0-20241009134219-56a46746f0be
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 )
@@ -33,6 +33,8 @@ require (
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
 	cloud.google.com/go/iam v1.2.0 // indirect
 	cloud.google.com/go/storage v1.43.0 // indirect
+	cuelabs.dev/go/oci/ociregistry v0.0.0-20240807094312-a32ad29eed79 // indirect
+	cuelang.org/go v0.10.0 // indirect
 	dario.cat/mergo v1.0.1 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
@@ -56,6 +58,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.23.1 // indirect
 	github.com/charmbracelet/lipgloss v0.10.0 // indirect
 	github.com/cloudflare/circl v1.3.8 // indirect
+	github.com/cockroachdb/apd/v3 v3.2.1 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/creachadair/jrpc2 v1.2.1 // indirect
 	github.com/creachadair/mds v0.16.0 // indirect
@@ -64,6 +67,7 @@ require (
 	github.com/deepmap/oapi-codegen v1.16.3 // indirect
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
+	github.com/emicklei/proto v1.13.2 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/erikgeiser/promptkit v0.8.0 // indirect
 	github.com/erni27/imcache v1.2.0 // indirect
@@ -93,9 +97,9 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-getter v1.7.5 // indirect
-	github.com/hashicorp/go-hclog v1.5.0 // indirect
+	github.com/hashicorp/go-hclog v1.6.3 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.1 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
@@ -138,6 +142,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.51.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/otiai10/copy v1.14.0 // indirect
 	github.com/pact-foundation/pact-go/v2 v2.0.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
@@ -147,10 +152,12 @@ require (
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/protocolbuffers/txtpbfmt v0.0.0-20230328191034-3462fbc510c0 // indirect
 	github.com/puzpuzpuz/xsync v1.5.2 // indirect
 	github.com/puzpuzpuz/xsync/v3 v3.4.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/rogpeppe/go-internal v1.12.1-0.20240709150035-ccf4b4329d21 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
@@ -158,7 +165,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/skeema/knownhosts v1.2.2 // indirect
 	github.com/snyk/code-client-go v1.10.0 // indirect
-	github.com/snyk/policy-engine v0.30.11 // indirect
+	github.com/snyk/policy-engine v0.31.3 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.11.0 // indirect
@@ -170,6 +177,7 @@ require (
 	github.com/tklauser/numcpus v0.8.0 // indirect
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/vincent-petithory/dataurl v1.0.0 // indirect
+	github.com/writeas/go-strip-markdown v2.0.1+incompatible // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect

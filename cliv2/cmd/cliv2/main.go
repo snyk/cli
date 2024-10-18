@@ -160,14 +160,20 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, name string) error {
 	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 
-	if err == nil {
-		var output []workflow.Data
-		output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, data)
-		if err == nil {
-			err = getErrorFromWorkFlowData(engine, output)
-		}
-	} else {
+	if err != nil {
 		logger.Print("Failed to execute the command!", err)
+		return err
+	}
+
+	output, err := engine.InvokeWithInput(localworkflows.WORKFLOWID_DATATRANSFORMATION, data)
+	if err != nil {
+		logger.Err(err).Msg(err.Error())
+		return err
+	}
+
+	output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, output)
+	if err == nil {
+		err = getErrorFromWorkFlowData(engine, output)
 	}
 	return err
 }
@@ -441,6 +447,8 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 }
 
 func MainWithErrorCode() int {
+	initDebugBuild()
+
 	startTime := time.Now()
 	var err error
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
@@ -520,11 +528,6 @@ func MainWithErrorCode() int {
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
 
-	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
-		defer sendAnalytics(cliAnalytics, globalLogger)
-	}
-	defer sendInstrumentation(globalEngine, cliAnalytics.GetInstrumentation(), globalLogger)
-
 	setTimeout(globalConfiguration, func() {
 		os.Exit(constants.SNYK_EXIT_CODE_EX_UNAVAILABLE)
 	})
@@ -565,7 +568,13 @@ func MainWithErrorCode() int {
 		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
 	}
 
+	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
+		sendAnalytics(cliAnalytics, globalLogger)
+	}
+	sendInstrumentation(globalEngine, cliAnalytics.GetInstrumentation(), globalLogger)
+
 	// cleanup resources in use
+	// WARNING: deferred actions will execute AFTER cleanup; only defer if not impacted by this
 	_, err = globalEngine.Invoke(basic_workflows.WORKFLOWID_GLOBAL_CLEANUP)
 	if err != nil {
 		globalLogger.Printf("Failed to cleanup %v", err)

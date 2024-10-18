@@ -58,6 +58,7 @@ const (
 type CaData struct {
 	CertPool *x509.CertPool
 	CertFile string
+	CertPem  string
 }
 
 func InitCA(config configuration.Configuration, cliVersion string, logger *zerolog.Logger) (*CaData, error) {
@@ -70,8 +71,8 @@ func InitCA(config configuration.Configuration, cliVersion string, logger *zerol
 		return nil, err
 	}
 
-	tmpDirectory := utils.GetTemporaryDirectory(cacheDirectory, cliVersion)
-	err = utils.CreateAllDirectories(cacheDirectory, cliVersion)
+	tmpDirectory := config.GetString(configuration.TEMP_DIR_PATH)
+	err = pkg_utils.CreateAllDirectories(cacheDirectory, cliVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -125,6 +126,7 @@ func InitCA(config configuration.Configuration, cliVersion string, logger *zerol
 	return &CaData{
 		CertPool: rootCAs,
 		CertFile: certificateLocation,
+		CertPem:  certPEMString,
 	}, nil
 }
 

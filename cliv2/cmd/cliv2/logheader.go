@@ -106,7 +106,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 
 	fipsEnabled := getFipsStatus(config)
 
-	tablePrint("Version", cliv2.GetFullVersion())
+	tablePrint("Version", cliv2.GetFullVersion()+" "+buildType)
 	tablePrint("Platform", userAgent)
 	tablePrint("API", config.GetString(configuration.API_URL))
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))

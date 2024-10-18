@@ -6,6 +6,11 @@
       "sha256": "snyk-alpine-sha256",
       "sha256Url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-alpine.sha256"
     },
+    "snyk-alpine-arm64": {
+      "url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-alpine-arm64",
+      "sha256": "snyk-alpine-arm64-sha256",
+      "sha256Url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-alpine-arm64.sha256"
+    },
     "snyk-linux": {
       "url": "https://downloads.snyk.io/cli/v1.0.0-monorepo/snyk-linux",
       "sha256": "snyk-linux-sha256",

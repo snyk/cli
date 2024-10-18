@@ -8,7 +8,7 @@ import (
 //go:embed FILENAME
 var snykCLIBytes []byte
 
-func getCLIv1Filename() string {
+func GetCLIv1Filename() string {
 	return "FILENAME"
 }
 

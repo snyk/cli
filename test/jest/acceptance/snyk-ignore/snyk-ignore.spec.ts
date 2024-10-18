@@ -83,9 +83,7 @@ describe('snyk ignore', () => {
 
   it('create a policy file with exclude, using custom group', async () => {
     const project = await createProjectFromWorkspace('empty');
-    const {
-      code,
-    } = await runSnykCLI(
+    const { code } = await runSnykCLI(
       `ignore --file-path=**/deps/**/*.ts --file-path-group=code  --policy-path=${project.path()}`,
       { cwd: project.path(), env: env },
     );
@@ -128,9 +126,7 @@ describe('snyk ignore', () => {
   it('write a policy file for exclude by providing group, expiry and reason', async () => {
     const project = await createProjectFromWorkspace('empty');
 
-    const {
-      code,
-    } = await runSnykCLI(
+    const { code } = await runSnykCLI(
       `ignore --file-path=**/deps/**/*.ts --file-path-group=code --reason=unknown-reason --expiry=2099-12-24  --policy-path=${project.path()}`,
       { cwd: project.path(), env: env },
     );
@@ -139,13 +135,15 @@ describe('snyk ignore', () => {
 
     const policy = await loadPolicy(project.path());
 
-    expect(policy.exclude.code).toHaveLength(1);
-    expect(!!policy.exclude.code[0]['**/deps/**/*.ts']).toBeTruthy();
+    expect(policy.exclude?.code).toHaveLength(1);
+    expect(!!policy.exclude?.code[0]['**/deps/**/*.ts']).toBeTruthy();
 
     // Fake creation date
-    policy.exclude.code[0]['**/deps/**/*.ts'].created = new Date(
-      '2089-12-24T00:00:00.000Z',
-    );
+    if (policy.exclude) {
+      policy.exclude.code[0]['**/deps/**/*.ts'].created = new Date(
+        '2089-12-24T00:00:00.000Z',
+      );
+    }
 
     expect(policy.exclude).toMatchObject({
       code: [
@@ -173,9 +171,7 @@ describe('snyk ignore', () => {
       code: ['**/deps/**/*.ts'],
     });
 
-    const {
-      code,
-    } = await runSnykCLI(
+    const { code } = await runSnykCLI(
       `ignore --file-path=**/deps/**/*.ts --file-path-group=code --reason=unknown-reason --expiry=2099-12-24`,
       { cwd: project.path(), env: env },
     );
@@ -184,13 +180,15 @@ describe('snyk ignore', () => {
 
     const policyAfter = await loadPolicy(project.path());
 
-    expect(policyAfter.exclude.code).toHaveLength(1);
-    expect(!!policyAfter.exclude.code[0]['**/deps/**/*.ts']).toBeTruthy();
+    expect(policyAfter.exclude?.code).toHaveLength(1);
+    expect(!!policyAfter.exclude?.code[0]['**/deps/**/*.ts']).toBeTruthy();
 
     // Fake creation date
-    policyAfter.exclude.code[0]['**/deps/**/*.ts'].created = new Date(
-      '2089-12-24T00:00:00.000Z',
-    );
+    if (policyAfter.exclude) {
+      policyAfter.exclude.code[0]['**/deps/**/*.ts'].created = new Date(
+        '2089-12-24T00:00:00.000Z',
+      );
+    }
 
     expect(policyAfter.exclude).toMatchObject({
       code: [

@@ -82,10 +82,7 @@ export function determineBinaryName(platform: string, arch: string): string {
       let isAlpine = false;
       try {
         const result = spawnSync('cat /etc/os-release', { shell: true });
-        isAlpine = result.stdout
-          .toString()
-          .toLowerCase()
-          .includes('id=alpine');
+        isAlpine = result.stdout.toString().toLowerCase().includes('id=alpine');
       } catch {
         isAlpine = false;
       }
@@ -260,7 +257,7 @@ export function downloadExecutable(
   filename: string,
   filenameShasum: string,
 ): Promise<Error | undefined> {
-  return new Promise<Error | undefined>(function(resolve) {
+  return new Promise<Error | undefined>(function (resolve) {
     logErrorWithTimeStamps('Starting download');
     const options = new URL(`${downloadUrl}?utm_source=${integrationName}`);
     const temp = path.join(__dirname, Date.now().toString());
@@ -384,8 +381,7 @@ export async function logError(
     // init error reporting
     const version = getCurrentVersion(versionFile);
     Sentry.init({
-      dsn:
-        'https://3e845233db8c4f43b4c4b9245f1d7bd6@o30291.ingest.sentry.io/4504599528079360',
+      dsn: 'https://3e845233db8c4f43b4c4b9245f1d7bd6@o30291.ingest.sentry.io/4504599528079360',
       release: version,
     });
 

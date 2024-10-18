@@ -14,9 +14,7 @@ import envPaths from 'env-paths';
 const debug = Debug('iac-local-cache');
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
-const uuid = Math.random()
-  .toString(36)
-  .substring(2);
+const uuid = Math.random().toString(36).substring(2);
 export const LOCAL_POLICY_ENGINE_DIR = cachePath + '/iac-data/' + uuid;
 
 const KUBERNETES_POLICY_ENGINE_WASM_PATH = path.join(
@@ -144,7 +142,7 @@ export async function initLocalCache({
   // We extract the Snyk rules after the custom rules to ensure our files
   // always overwrite whatever might be there.
   try {
-    const BUNDLE_URL = 'https://static.snyk.io/cli/wasm/bundle.tar.gz';
+    const BUNDLE_URL = 'https://downloads.snyk.io/cli/wasm/bundle.tar.gz';
     const response = await streamRequest({
       method: 'get',
       url: BUNDLE_URL,
@@ -187,7 +185,7 @@ export class FailedToDownloadRulesError extends CustomError {
     this.code = IaCErrorCodes.FailedToDownloadRulesError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
-      'We were unable to download the security rules, please ensure the network can access https://static.snyk.io';
+      'We were unable to download the security rules, please ensure the network can access https://downloads.snyk.io';
   }
 }
 

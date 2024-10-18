@@ -77,9 +77,8 @@ export function formatIacTestWarnings(testWarnings: IaCTestWarning[]): string {
 }
 
 function formatWarningsList(testWarnings: IaCTestWarning[]): string {
-  const testWarningsByReasonAndPath = groupTestWarningsByReasonAndPath(
-    testWarnings,
-  );
+  const testWarningsByReasonAndPath =
+    groupTestWarningsByReasonAndPath(testWarnings);
 
   return Object.values(testWarningsByReasonAndPath)
     .map((testWarning) => {
@@ -96,9 +95,9 @@ type groupedIacTestWarnings = {
   expressions: string[];
 };
 
-function groupTestWarningsByReasonAndPath(
-  testWarnings: IaCTestWarning[],
-): { [key: string]: groupedIacTestWarnings } {
+function groupTestWarningsByReasonAndPath(testWarnings: IaCTestWarning[]): {
+  [key: string]: groupedIacTestWarnings;
+} {
   return testWarnings.reduce(
     (groupedWarnings: { [key: string]: groupedIacTestWarnings }, warning) => {
       const reasonAndPath = `${warning.warningReason}${warning.filePath}`;

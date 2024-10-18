@@ -8,7 +8,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
-	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/snyk/go-application-framework/pkg/networking"
@@ -75,8 +74,8 @@ func legacycliWorkflow(
 	debugLogger := invocation.GetEnhancedLogger() // uses zerolog
 	debugLoggerDefault := invocation.GetLogger()  // uses log
 	networkAccess := invocation.GetNetworkAccess()
+	ri := invocation.GetRuntimeInfo()
 
-	oauthIsAvailable := config.GetBool(configuration.FF_OAUTH_AUTH_FLOW_ENABLED)
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
 	isDebug := config.GetBool(configuration.DEBUG)
@@ -91,7 +90,7 @@ func legacycliWorkflow(
 
 	// init cli object
 	var cli *cliv2.CLI
-	cli, err = cliv2.NewCLIv2(config, debugLoggerDefault)
+	cli, err = cliv2.NewCLIv2(config, debugLoggerDefault, ri)
 	if err != nil {
 		return output, err
 	}
@@ -104,23 +103,14 @@ func legacycliWorkflow(
 		cli.AppendEnvironmentVariables(env)
 	}
 
-	if oauthIsAvailable {
-		// The Legacy CLI doesn't support oauth authentication. Oauth authentication is implemented in the Extensible CLI and is added
-		// to the legacy CLI by forwarding network traffic through the internal proxy of the Extensible CLI.
-		// The legacy CLI always expects some sort of token to be available, otherwise some functionality isn't available. This is why we inject
-		// a random token value to bypass these checks and replace the proper authentication headers in the internal proxy.
-		// Injecting the real token here and not in the proxy would create an issue when the token expires during CLI execution.
-		if oauth := config.GetString(auth.CONFIG_KEY_OAUTH_TOKEN); len(oauth) > 0 {
-			envMap := pkg_utils.ToKeyValueMap(os.Environ(), "=")
-			if _, ok := envMap[constants.SNYK_OAUTH_ACCESS_TOKEN_ENV]; !ok {
-				env := []string{constants.SNYK_OAUTH_ACCESS_TOKEN_ENV + "=randomtoken"}
-				cli.AppendEnvironmentVariables(env)
-				debugLogger.Print("Authentication: Oauth token handling delegated to Extensible CLI.")
-			} else {
-				debugLogger.Print("Authentication: Using oauth token from Environment Variable.")
-			}
-		}
+	// In general all authentication if handled through the Extensible CLI now. But there is some legacy logic
+	// that checks for an API token to be available. Until this logic is safely removed, we will be injecting a
+	// fake/random API token to bypass this logic.
+	apiToken := config.GetString(configuration.AUTHENTICATION_TOKEN)
+	if len(apiToken) == 0 {
+		apiToken = "random"
 	}
+	cli.AppendEnvironmentVariables([]string{constants.SNYK_API_TOKEN_ENV + "=" + apiToken})
 
 	err = cli.Init()
 	if err != nil {

@@ -12,9 +12,12 @@ import (
 
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/logging"
+	"github.com/snyk/go-application-framework/pkg/ui"
 
 	debug_tools "github.com/snyk/cli/cliv2/internal/debug"
 )
+
+var buildType string = ""
 
 func initDebugLogger(config configuration.Configuration) *zerolog.Logger {
 	var consoleWriter = zerolog.ConsoleWriter{
@@ -41,4 +44,19 @@ func initDebugLogger(config configuration.Configuration) *zerolog.Logger {
 	debugLogger := localLogger.Level(loglevel)
 	debugLogger.Log().Msgf("Using log level: %s", loglevel)
 	return &debugLogger
+}
+
+func initDebugBuild() {
+	if strings.EqualFold(buildType, "debug") {
+		progress := ui.DefaultUi().NewProgressBar()
+		progress.SetTitle("Pausing execution to attach the debugger!")
+		waitTimeInSeconds := 10
+
+		for i := range waitTimeInSeconds {
+			value := float64(waitTimeInSeconds-i) / float64(waitTimeInSeconds)
+			progress.UpdateProgress(value)
+			time.Sleep(1 * time.Second)
+		}
+		progress.Clear()
+	}
 }

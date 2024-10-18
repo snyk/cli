@@ -23,9 +23,8 @@ export function getIacCloudContext(
   let iacCloudContextSuppressedIssuesCount = 0;
   const suppressedIssues = testOutput.results?.scanAnalytics?.suppressedResults;
   if (suppressedIssues) {
-    iacCloudContextSuppressedIssuesCount = countSuppressedIssues(
-      suppressedIssues,
-    );
+    iacCloudContextSuppressedIssuesCount =
+      countSuppressedIssues(suppressedIssues);
   }
 
   return {

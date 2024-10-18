@@ -39,6 +39,8 @@ To build the project, run the following command in the root of the repository.
 
 ```sh
 make build
+# or
+make build-debug
 ```
 
 Run the build binary like this.
@@ -46,6 +48,30 @@ Run the build binary like this.
 ```sh
 ./binary-releases/snyk-macos --version
 ```
+
+## Debugging the go binary with VSCode
+
+1. Build the cli using `make build-debug`
+
+2. Save the `Installing` path from the build output
+
+3. Open your `.vscode/launch.json` file and add the following under `configurations`
+
+```json
+{
+  "name": "Attach to Go Process",
+  "type": "go",
+  "request": "attach",
+  "mode": "local",
+  "remotePath": "<your Installing path>"
+}
+```
+
+4. Add your break points
+
+5. Run the cli from your build path, you will see a prompt to attach a Debugger
+
+6. Run "Attach to Go Process" from under your debug tab
 
 ## Running tests
 

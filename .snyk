@@ -10,7 +10,7 @@ ignore:
   SNYK-JS-LODASHSET-1320032:
     - '*':
         reason: No upgrade path currently available
-        expires: 2024-09-13T13:14:22.120Z
+        expires: 2024-09-30T10:00:00.000Z
         created: 2023-09-13T13:14:22.120Z
   'snyk:lic:npm:shescape:MPL-2.0':
     - '*':
@@ -25,7 +25,7 @@ ignore:
   SNYK-JS-MICROMATCH-6838728:
     - '*':
         reason: Direct usage within Snyk CLI are not using vulnerable function
-        expires: 2024-08-13T04:12:20.523Z
+        expires: 2024-10-13T04:12:20.523Z
         created: 2024-05-14T04:12:20.531Z
 patch: {}
 exclude:

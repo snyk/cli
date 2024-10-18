@@ -31,20 +31,23 @@ export function formatScanResults(
   gitRemoteUrl?: string,
 ): FormattedResult[] {
   try {
-    const groupedByFile = scanResults.reduce((memo, scanResult) => {
-      const res = formatScanResult(scanResult, meta, options, projectRoot);
+    const groupedByFile = scanResults.reduce(
+      (memo, scanResult) => {
+        const res = formatScanResult(scanResult, meta, options, projectRoot);
 
-      if (memo[scanResult.filePath]) {
-        memo[scanResult.filePath].result.cloudConfigResults.push(
-          ...res.result.cloudConfigResults,
-        );
-      } else {
-        res.meta.gitRemoteUrl = gitRemoteUrl;
-        res.meta.projectId = projectPublicIds[res.targetFile];
-        memo[scanResult.filePath] = res;
-      }
-      return memo;
-    }, {} as { [key: string]: FormattedResult });
+        if (memo[scanResult.filePath]) {
+          memo[scanResult.filePath].result.cloudConfigResults.push(
+            ...res.result.cloudConfigResults,
+          );
+        } else {
+          res.meta.gitRemoteUrl = gitRemoteUrl;
+          res.meta.projectId = projectPublicIds[res.targetFile];
+          memo[scanResult.filePath] = res;
+        }
+        return memo;
+      },
+      {} as { [key: string]: FormattedResult },
+    );
     return Object.values(groupedByFile);
   } catch (e) {
     throw new FailedToFormatResults();

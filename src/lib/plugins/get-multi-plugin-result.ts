@@ -75,10 +75,8 @@ export async function getMultiPluginResult(
   let unprocessedFilesfromWorkspaces = targetFiles;
 
   if (featureFlags.has(PNPM_FEATURE_FLAG)) {
-    const {
-      scannedProjects: scannedPnpmResults,
-      unprocessedFiles,
-    } = await processWorkspacesProjects(root, options, targetFiles, 'pnpm');
+    const { scannedProjects: scannedPnpmResults, unprocessedFiles } =
+      await processWorkspacesProjects(root, options, targetFiles, 'pnpm');
     unprocessedFilesfromWorkspaces = unprocessedFiles;
     allResults.push(...scannedPnpmResults);
   }
@@ -94,15 +92,13 @@ export async function getMultiPluginResult(
   );
   allResults.push(...scannedYarnResults);
 
-  const {
-    scannedProjects: scannedNpmResults,
-    unprocessedFiles,
-  } = await processWorkspacesProjects(
-    root,
-    options,
-    unprocessedFilesFromYarn,
-    'npm',
-  );
+  const { scannedProjects: scannedNpmResults, unprocessedFiles } =
+    await processWorkspacesProjects(
+      root,
+      options,
+      unprocessedFilesFromYarn,
+      'npm',
+    );
   allResults.push(...scannedNpmResults);
 
   debug(`Not part of a workspace: ${unprocessedFiles.join(', ')}}`);
@@ -132,17 +128,19 @@ export async function getMultiPluginResult(
         resultWithScannedProjects = inspectRes;
       }
 
-      const pluginResultWithCustomScannedProjects = convertMultiResultToMultiCustom(
-        resultWithScannedProjects,
-        optionsClone.packageManager,
-        optionsClone.file,
-      );
+      const pluginResultWithCustomScannedProjects =
+        convertMultiResultToMultiCustom(
+          resultWithScannedProjects,
+          optionsClone.packageManager,
+          optionsClone.file,
+        );
       // annotate the package manager, project name & targetFile to be used
       // for test & monitor
       // TODO: refactor how we display meta to not have to do this
-      (options as any).projectNames = resultWithScannedProjects.scannedProjects.map(
-        (scannedProject) => scannedProject?.depTree?.name,
-      );
+      (options as any).projectNames =
+        resultWithScannedProjects.scannedProjects.map(
+          (scannedProject) => scannedProject?.depTree?.name,
+        );
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
     } catch (error) {

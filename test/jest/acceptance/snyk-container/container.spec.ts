@@ -40,8 +40,7 @@ describe('snyk container', () => {
         id: 'base-files@11.1+deb11u7',
         info: {
           name: 'base-files',
-          purl:
-            'pkg:deb/debian/base-files@11.1%2Bdeb11u7?distro=debian-bullseye',
+          purl: 'pkg:deb/debian/base-files@11.1%2Bdeb11u7?distro=debian-bullseye',
           version: '11.1+deb11u7',
         },
       },
@@ -57,8 +56,7 @@ describe('snyk container', () => {
         id: 'tzdata@2021a-1+deb11u10',
         info: {
           name: 'tzdata',
-          purl:
-            'pkg:deb/debian/tzdata@2021a-1%2Bdeb11u10?distro=debian-bullseye',
+          purl: 'pkg:deb/debian/tzdata@2021a-1%2Bdeb11u10?distro=debian-bullseye',
           version: '2021a-1+deb11u10',
         },
       },
@@ -268,11 +266,7 @@ DepGraph end`,
         },
         meta: { org: 'test-org', isPublic: false },
       });
-      const {
-        code,
-        stdout,
-        stderr,
-      } = await runSnykCLIWithDebug(
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=spdx2.3+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
         { env },
       );
@@ -300,11 +294,7 @@ DepGraph end`,
         },
         meta: { org: 'test-org', isPublic: false },
       });
-      const {
-        code,
-        stdout,
-        stderr,
-      } = await runSnykCLIWithDebug(
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.4+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
         { env },
       );
@@ -336,11 +326,7 @@ DepGraph end`,
         },
         meta: { org: 'test-org', isPublic: false },
       });
-      const {
-        code,
-        stdout,
-        stderr,
-      } = await runSnykCLIWithDebug(
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.5+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
         { env },
       );
@@ -355,6 +341,38 @@ DepGraph end`,
       expect(sbom.specVersion).toEqual('1.5');
       expect(sbom['$schema']).toEqual(
         'http://cyclonedx.org/schema/bom-1.5.schema.json',
+      );
+
+      expect(sbom.components).toHaveLength(
+        TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
+      );
+    });
+
+    it('should print sbom for image - cyclonedx 1.6', async () => {
+      // return a dep-graph fixture from `/test-dependencies` endpoint
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container sbom --org=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format=cyclonedx1.6+json ${TEST_DISTROLESS_STATIC_IMAGE}`,
+        { env },
+      );
+
+      let sbom: any;
+      assertCliExitCode(code, 0, stderr);
+
+      expect(() => {
+        sbom = JSON.parse(stdout);
+      }).not.toThrow();
+
+      expect(sbom.specVersion).toEqual('1.6');
+      expect(sbom['$schema']).toEqual(
+        'http://cyclonedx.org/schema/bom-1.6.schema.json',
       );
 
       expect(sbom.components).toHaveLength(

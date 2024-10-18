@@ -12,6 +12,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([
     ['cliFailFast', false],
     ['iacIntegratedExperience', false],
+    ['iacNewEngine', false],
     ['containerCliAppVulnsEnabled', true],
     ['enablePnpmCli', false],
   ]);
@@ -91,7 +92,9 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   };
 
   const popRequest = () => {
-    return requests.pop()!;
+    const request = requests?.pop();
+    if (request) return request;
+    else throw new Error('No request found in requests array');
   };
 
   const popRequests = (num: number) => {
@@ -223,6 +226,89 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         vulnerabilities: [],
       });
     }
+  });
+
+  // needed for code-client-go
+  app.get('/deeproxy/filters', (req, res) => {
+    res.status(200);
+    if (customResponse) {
+      res.send(customResponse);
+    }
+    res.send({});
+  });
+
+  // needed for code-client-go
+  app.post('/deeproxy/bundle', (req, res) => {
+    res.status(200);
+    res.send({
+      bundleHash:
+        'faa6b7161c14f933ef4ca79a18ad9283eab362d5e6d3a977125eb95b37c377d8',
+      missingFiles: [],
+    });
+  });
+
+  // needed for code-client-go
+  app.post(`/api/rest/orgs/:orgId/scans`, (req, res) => {
+    res.status(201);
+    res.send({ data: { id: 'a6fb2742-b67f-4dc3-bb27-42b67f1dc344' } });
+  });
+
+  // needed for code-client-go
+  app.get(`/api/rest/orgs/:orgId/scans/:id`, (req, res) => {
+    res.status(200);
+    res.send({
+      data: {
+        attributes: {
+          status: 'done',
+          components: [
+            { findings_url: 'http://localhost:12345/api/code_mock_stream' },
+          ],
+        },
+        id: 'a6fb2742-b67f-4dc3-bb27-42b67f1dc344',
+      },
+    });
+  });
+
+  app.get(`/api/code_mock_stream`, (req, res) => {
+    res.status(200);
+    res.send({
+      $schema:
+        'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
+      version: '2.1.0',
+      runs: [
+        {
+          tool: {
+            driver: {
+              name: 'SnykCode',
+              semanticVersion: '1.0.0',
+              version: '1.0.0',
+              rules: [],
+            },
+          },
+          results: [
+            {
+              ruleId: 'javascript/DisablePoweredBy',
+              ruleIndex: 1,
+              level: 'warning',
+            },
+          ],
+          properties: {
+            coverage: [
+              {
+                files: 8,
+                isSupported: true,
+                lang: 'JavaScript',
+              },
+              {
+                files: 1,
+                isSupported: true,
+                lang: 'HTML',
+              },
+            ],
+          },
+        },
+      ],
+    });
   });
 
   app.post(basePath + '/vuln/:registry', (req, res, next) => {
@@ -404,8 +490,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       isMonitored: true,
       trialStarted: true,
       licensesPolicy: {},
-      uri:
-        'http://example-url/project/project-public-id/history/snapshot-public-id',
+      uri: 'http://example-url/project/project-public-id/history/snapshot-public-id',
       projectName: 'test-project',
     });
   });
@@ -611,6 +696,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+  // needed for code-client-go
+  app.post(
+    basePath.replace('v1', 'hidden') + `/orgs/:orgId/workspaces`,
+    (req, res) => {
+      res.status(201).send({});
+    },
+  );
+
   app.post(`/rest/orgs/:orgId/sbom_tests`, (req, res) => {
     let testId = '4b341b8a-4697-4e35-928b-4b9ae37f8ea8';
 
@@ -627,8 +720,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         version: '1.0',
       },
       links: {
-        self:
-          '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests?version=2023-08-31~beta',
+        self: '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests?version=2023-08-31~beta',
         related:
           '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
       },
@@ -670,8 +762,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           },
         },
         links: {
-          self:
-            '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
+          self: '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8?version=2023-08-31~beta',
           related:
             '/rest/orgs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/sbom_tests/4b341b8a-4697-4e35-928b-4b9ae37f8ea8/results?version=2023-08-31~beta',
         },
@@ -772,6 +863,20 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           bom = {
             specVersion: '1.5',
             $schema: 'http://cyclonedx.org/schema/bom-1.5.schema.json',
+            components,
+            metadata: {
+              component: { name },
+              tools: {
+                components: [...tools, { name: 'fake-server' }],
+                services: [{ name: 'fake-server', version: '42' }],
+              },
+            },
+          };
+          break;
+        case 'cyclonedx1.6+json':
+          bom = {
+            specVersion: '1.6',
+            $schema: 'http://cyclonedx.org/schema/bom-1.6.schema.json',
             components,
             metadata: {
               component: { name },
@@ -886,7 +991,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     getRequests,
     popRequest,
     popRequests,
-    setCustomResponse: setCustomResponse,
+    setCustomResponse,
     setLocalCodeEngineConfiguration,
     setNextResponse,
     setNextStatusCode,

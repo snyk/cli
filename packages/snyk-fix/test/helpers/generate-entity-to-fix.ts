@@ -25,7 +25,7 @@ export function generateEntityToFix(
     : {
         issues: [],
         issuesData: {},
-        depGraphData: ('' as unknown) as DepGraphData,
+        depGraphData: '' as unknown as DepGraphData,
       };
   const workspace = generateWorkspace(contents, path);
   const cliTestOptions = {
@@ -112,7 +112,7 @@ export function generateTestResult(): TestResult {
         title: 'Fake vuln',
       },
     },
-    depGraphData: ('' as unknown) as DepGraphData,
+    depGraphData: '' as unknown as DepGraphData,
     remediation: {
       unresolved: [],
       upgrade: {},

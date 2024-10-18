@@ -4,7 +4,7 @@ import * as authorization from '../../lib/authorization';
 import * as auth from './auth/is-authed';
 import { apiTokenExists } from '../../lib/api-token';
 import { isCI } from '../../lib/is-ci';
-import { IgnoreRules, MethodResult } from './types';
+import { MethodResult } from './types';
 
 import * as Debug from 'debug';
 const debug = Debug('snyk');
@@ -80,7 +80,7 @@ export function ignoreIssue(options): Promise<MethodResult> {
       created: new Date(),
     };
 
-    const ignoreRules: IgnoreRules = pol.ignore;
+    const ignoreRules = pol.ignore;
 
     const issueIgnorePaths = ignoreRules[options.id] ?? [];
 

@@ -30,19 +30,22 @@ export function formatShareResults(
 }
 
 function groupByFilePath(scanResults: IacFileScanResult[]) {
-  const groupedByFilePath = scanResults.reduce((memo, scanResult) => {
-    scanResult.violatedPolicies.forEach((violatedPolicy) => {
-      violatedPolicy.docId = scanResult.docId;
-    });
-    if (memo[scanResult.filePath]) {
-      memo[scanResult.filePath].violatedPolicies.push(
-        ...scanResult.violatedPolicies,
-      );
-    } else {
-      memo[scanResult.filePath] = scanResult;
-    }
-    return memo;
-  }, {} as Record<string, IacFileScanResult>);
+  const groupedByFilePath = scanResults.reduce(
+    (memo, scanResult) => {
+      scanResult.violatedPolicies.forEach((violatedPolicy) => {
+        violatedPolicy.docId = scanResult.docId;
+      });
+      if (memo[scanResult.filePath]) {
+        memo[scanResult.filePath].violatedPolicies.push(
+          ...scanResult.violatedPolicies,
+        );
+      } else {
+        memo[scanResult.filePath] = scanResult;
+      }
+      return memo;
+    },
+    {} as Record<string, IacFileScanResult>,
+  );
 
   return Object.values(groupedByFilePath);
 }

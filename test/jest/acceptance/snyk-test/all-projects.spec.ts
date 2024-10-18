@@ -198,6 +198,48 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(stderr).toEqual('');
   });
 
+  test('`test mono-repo-nested --all-projects` defaults to 4 max depth', async () => {
+    const project = await createProjectFromWorkspace('mono-repo-nested');
+
+    const { code, stdout, stderr } = await runSnykCLI('test --all-projects', {
+      cwd: project.path(),
+      env,
+    });
+
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
+
+    expect(backendRequests).toHaveLength(4);
+    backendRequests.forEach((req: any) => {
+      expect(req.method).toEqual('POST');
+      expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
+      expect(req.url).toMatch('/api/v1/test');
+    });
+
+    expect(code).toEqual(0);
+
+    const dirSeparator = process.platform === 'win32' ? '\\' : '/';
+
+    expect(stdout).toMatch('Target file:       package-lock.json');
+    expect(stdout).toMatch(
+      `Target file:       level-1${dirSeparator}package.json`,
+    );
+    expect(stdout).toMatch(
+      `Target file:       level-1${dirSeparator}level-2${dirSeparator}Gemfile.lock`,
+    );
+    expect(stdout).toMatch(
+      `Target file:       level-1${dirSeparator}level-2${dirSeparator}level-3${dirSeparator}package-lock.json`,
+    );
+    expect(stdout).not.toMatch(
+      `level-1${dirSeparator}level-2${dirSeparator}level-3${dirSeparator}level-4${dirSeparator}level-5${dirSeparator}package-lock.json`,
+    );
+    expect(stdout).not.toMatch(
+      `level-1${dirSeparator}level-2${dirSeparator}level-3${dirSeparator}level-4${dirSeparator}level-5${dirSeparator}level-6${dirSeparator}Gemfile.lock`,
+    );
+    expect(stderr).toBe('');
+  });
+
   test('`test empty --all-projects`', async () => {
     const project = await createProjectFromWorkspace('empty');
 
