@@ -1,4 +1,4 @@
-## [1.0.0-monorepo](https://github.com/snyk/snyk/compare/v1.1293.0...v1.0.0-monorepo) (2024-10-18)
+## [1.1294.0](https://github.com/snyk/snyk/compare/v1.1293.0...v1.1294.0) (2024-10-23)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
@@ -48,4 +48,3 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * upgrade slack/webhook to 7.0.3 ([8ab4433](https://github.com/snyk/snyk/commit/8ab4433d2b9e037cd181270f62d3295a9c6b9086))
 * upgrade slack/webhook to 7.0.3 ([7e1a035](https://github.com/snyk/snyk/commit/7e1a03539f6e8c8a4b6fd500e9b5ac0c5449d079))
 * use runtimeInfo to derive the version for cliv1 path ([652d1ba](https://github.com/snyk/snyk/commit/652d1ba0b4e59aa5e2bf16bf95f31898fc6068b0))
-
