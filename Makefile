@@ -8,7 +8,7 @@
 #use bash instead of sh
 export SHELL=/bin/bash
 WORKING_DIR = $(CURDIR)
-PKG := npx @yao-pkg/pkg@5.9.0 ./ --compress Brotli --options max_old_space_size=32768
+PKG := npx @yao-pkg/pkg@5.16.1 ./ --compress Brotli --options max_old_space_size=32768
 PKG_NODE_VERSION := $(shell head -1 .nvmrc | cut -f1 -d '.')
 BINARY_WRAPPER_DIR = ts-binary-wrapper
 EXTENSIBLE_CLI_DIR = cliv2
