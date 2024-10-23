@@ -21,7 +21,6 @@ import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-t
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
-import { MAX_DETECTION_DEPTH } from '../constants';
 
 const debug = debugModule('snyk-test');
 
@@ -44,7 +43,7 @@ export async function getDepsFromPlugin(
 ): Promise<pluginApi.MultiProjectResult | MultiProjectResultCustom> {
   if (Object.keys(multiProjectProcessors).some((key) => options[key])) {
     const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
-    const levelsDeep = options.detectionDepth || MAX_DETECTION_DEPTH;
+    const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
 
     const { files: targetFiles, allFilesFound } = await find({

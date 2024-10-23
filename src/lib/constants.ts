@@ -10,6 +10,3 @@ export const CALL_PATH_LEADING_ELEMENTS = 2;
 
 // Number of function names to show in the end of an abbreviated call path
 export const CALL_PATH_TRAILING_ELEMENTS = 2;
-
-// Number of subdirectories to search when running monitor or test
-export const MAX_DETECTION_DEPTH = 4;
