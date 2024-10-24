@@ -32,7 +32,7 @@ describe('iac capture', () => {
       `snyk iac capture ./iac/drift/`,
       {
         ...process.env,
-        ORG: '0d9905be-7914-42c3-ada5-9c95d6fe7eb8',
+        SNYK_CFG_ORG: '0d9905be-7914-42c3-ada5-9c95d6fe7eb8',
         SNYK_API: apiUrl,
       },
     );
@@ -56,7 +56,7 @@ describe('iac capture', () => {
       `snyk iac capture ${statePath}`,
       {
         ...process.env,
-        ORG: orgId,
+        SNYK_CFG_ORG: orgId,
         SNYK_API: apiUrl,
       },
     );
