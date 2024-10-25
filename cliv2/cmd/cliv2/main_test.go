@@ -19,6 +19,7 @@ import (
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
@@ -203,6 +204,9 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 			assert.NoError(t, err)
 
 			_ = globalEngine.Init()
+			// Register our data filter workflow
+			err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
+			assert.NoError(t, err)
 
 			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 			cmd := &cobra.Command{
@@ -359,6 +363,9 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 
 	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
 	assert.NoError(t, err)
+	// Register our data filter workflow
+	err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
+	assert.NoError(t, err)
 
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
@@ -410,7 +417,7 @@ func Test_runWorkflowAndProcessData(t *testing.T) {
 	assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualCode)
 }
 
-func Test_runWorkflowAndProcessData_WithTransformation(t *testing.T) {
+func Test_runWorkflowAndProcessData_with_Transformation(t *testing.T) {
 	defer cleanup()
 	globalConfiguration = configuration.New()
 	globalConfiguration.Set(configuration.DEBUG, true)
@@ -447,6 +454,10 @@ func Test_runWorkflowAndProcessData_WithTransformation(t *testing.T) {
 	err = localworkflows.InitDataTransformationWorkflow(globalEngine)
 	assert.NoError(t, err)
 
+	// Register our data filter workflow
+	err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
+	assert.NoError(t, err)
+
 	// Invoke a custom command that returns input
 	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
 		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
@@ -460,6 +471,91 @@ func Test_runWorkflowAndProcessData_WithTransformation(t *testing.T) {
 				},
 			},
 			Type: "sast",
+		}
+
+		var d []byte
+		d, err = json.Marshal(testSummary)
+		assert.NoError(t, err)
+
+		testSummaryData := workflow.NewData(typeId, content_type.TEST_SUMMARY, d)
+		sarifData := workflow.NewData(typeId, content_type.SARIF_JSON,
+			loadJsonFile(t, "sarif.json"))
+
+		return []workflow.Data{
+			testSummaryData,
+			sarifData,
+		}, nil
+	}
+	wrkflowId := workflow.NewWorkflowIdentifier(testCmnd)
+	entry, err := globalEngine.Register(wrkflowId, workflowConfig, fn)
+	assert.NoError(t, err)
+	assert.NotNil(t, entry)
+
+	err = globalEngine.Init()
+	assert.NoError(t, err)
+
+	logger := zerolog.New(os.Stderr)
+	err = runWorkflowAndProcessData(globalEngine, &logger, testCmnd)
+}
+
+func Test_runWorkflowAndProcessData_with_Filtering(t *testing.T) {
+	defer cleanup()
+	globalConfiguration = configuration.New()
+	globalConfiguration.Set(configuration.DEBUG, true)
+	globalConfiguration.Set(configuration.IN_MEMORY_THRESHOLD_BYTES, -1)
+	globalConfiguration.Set(configuration.FLAG_SEVERITY_THRESHOLD, "high")
+	globalConfiguration.Set(configuration.FF_TRANSFORMATION_WORKFLOW, true)
+
+	globalEngine = workflow.NewWorkFlowEngine(globalConfiguration)
+
+	testCmnd := "subcmd1"
+	workflowId1 := workflow.NewWorkflowIdentifier("output")
+
+	outputFn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+		var findings local_models.LocalFinding
+		for i := range input {
+			mimeType := input[i].GetContentType()
+
+			if strings.HasPrefix(mimeType, content_type.LOCAL_FINDING_MODEL) {
+				findingsBytes := input[i].GetPayload().([]byte)
+				err := json.Unmarshal(findingsBytes, &findings)
+				assert.NoError(t, err)
+			}
+		}
+
+		// expect all findings below high to be filtered out
+		assert.Equal(t, 1, len(findings.Findings))
+
+		return input, nil
+	}
+
+	workflowConfig := workflow.ConfigurationOptionsFromFlagset(pflag.NewFlagSet("pla", pflag.ContinueOnError))
+
+	_, err := globalEngine.Register(workflowId1, workflowConfig, outputFn)
+	assert.NoError(t, err)
+
+	// Register our data transformation workflow
+	err = localworkflows.InitDataTransformationWorkflow(globalEngine)
+	assert.NoError(t, err)
+
+	// Register our data filter workflow
+	err = localworkflows.InitFilterFindingsWorkflow(globalEngine)
+	assert.NoError(t, err)
+
+	// Invoke a custom command that returns input
+	fn := func(invocation workflow.InvocationContext, input []workflow.Data) ([]workflow.Data, error) {
+		typeId := workflow.NewTypeIdentifier(invocation.GetWorkflowIdentifier(), "workflowData")
+		testSummary := json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{
+				{
+					Severity: "critical",
+					Total:    10,
+					Open:     10,
+					Ignored:  0,
+				},
+			},
+			Type:             "sast",
+			SeverityOrderAsc: []string{"low", "medium", "high", "critical"},
 		}
 
 		var d []byte
