@@ -35,7 +35,7 @@ func Test_ParallelGetGobalCertAuthority(t *testing.T) {
 		return output, err
 	}
 
-	config := configuration.NewInMemory()
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	engine := workflow.NewWorkFlowEngine(config)
 	testWorkflowId := workflow.NewWorkflowIdentifier("internal.test")
 
@@ -76,7 +76,7 @@ func Test_ParallelGetGobalCertAuthority(t *testing.T) {
 }
 
 func Test_RestoreCertAuthority(t *testing.T) {
-	config := configuration.NewInMemory()
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	// set as we don't call initCleanup()
 	config.Set(ConfigurationCleanupGlobalCertAuthority, true)
 	logger := zerolog.New(os.Stderr)
