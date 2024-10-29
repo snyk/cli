@@ -12,7 +12,6 @@ import * as rimraf from 'rimraf';
 import config from '../../../../config';
 import { api, getOAuthToken } from '../../../../api-token';
 import envPaths from 'env-paths';
-import { restoreEnvProxy } from '../../../env-utils';
 import * as analytics from '../../../../analytics';
 
 const debug = newDebug('snyk-iac');
@@ -284,8 +283,6 @@ async function spawn(
   env: Record<string, string | undefined>,
 ) {
   return new Promise<SpawnResult>((resolve) => {
-    env = restoreEnvProxy(env);
-
     const child = childProcess.spawn(path, args, {
       stdio: 'pipe',
       env: env,
