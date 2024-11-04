@@ -75,7 +75,7 @@ Example: `$ snyk code test --json-file-output=vuln.json`
 
 Return results in SARIF format.
 
-Example: `$ snyk code --sarif`
+Example: `$ snyk code test --sarif`
 
 ### `--sarif-file-output=<OUTPUT_FILE_PATH>`
 

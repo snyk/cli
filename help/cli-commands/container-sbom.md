@@ -10,15 +10,15 @@ The `snyk container sbom` feature requires an internet connection.
 
 ## Usage
 
-`$ snyk container sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|spdx2.3+json> [--org=<ORG_ID>] [--exclude-app-vulns] <IMAGE>`
+`$ snyk container sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--exclude-app-vulns] <IMAGE>`
 
 ## Description
 
 The `snyk container sbom` command generates an SBOM for a container image.
 
-Supported formats include CycloneDX v1.4 (JSON or XML), CycloneDX v1.5 (JSON or XML) and SPDX v2.3 (JSON).
+Supported formats include CycloneDX v1.4 (JSON or XML), CycloneDX v1.5 (JSON or XML), CycloneDX v1.6 (JSON or XML), and SPDX v2.3 (JSON).
 
-An SBOM can be generated for operating system dependencies as well as application dependencies within the image. Unmanaged dependencies are currently not supported.
+An SBOM can be generated for operating system dependencies as well as application dependencies within the image. Unmanaged dependencies are not supported.
 
 ## Exit codes
 
@@ -33,11 +33,11 @@ Use the `-d` or `--debug` option to output the debug logs.
 
 ## Options
 
-### `--format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|spdx2.3+json>`
+### `--format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json>`
 
 Required. Specify the output format for the SBOM to be produced.
 
-Set the desired SBOM output format. Available options are `cyclonedx1.4+json`, `cyclonedx1.4+xml`, `cyclonedx1.5+json`, `cyclonedx1.5+xml` and `spdx2.3+json`
+Set the desired SBOM output format. Available options are `cyclonedx1.4+json`, `cyclonedx1.4+xml`, `cyclonedx1.5+json`, `cyclonedx1.5+xml`, `cyclonedx1.6+json`, `cyclonedx1.6+xml`, and `spdx2.3+json`
 
 ### `[--org=<ORG_ID>]`
 
@@ -77,11 +77,11 @@ Required. The image for which you will generate an SBOM document.
 
 ### Create a CycloneDX JSON document for an image
 
-`$ snyk container sbom --format=cyclonedx1.5+json redis:latest`
+`$ snyk container sbom --format=cyclonedx1.6+json redis:latest`
 
 ### Create a CycloneDX JSON document for an image and redirect stdout to a file
 
-`$ snyk container sbom --format=cyclonedx1.5+json redis:latest > mySBOM.json`
+`$ snyk container sbom --format=cyclonedx1.6+json redis:latest > mySBOM.json`
 
 ### Create a SPDX JSON document for an image while excluding application dependencies
 
@@ -89,4 +89,4 @@ Required. The image for which you will generate an SBOM document.
 
 ### Refer to a container image by its digest
 
-`$ snyk container sbom --format=cyclonedx1.5+xml alpine@sha256:c5c5fda71656f28e49ac9c5416b3643eaa6a108a8093151d6d1afc9463be8e33`
+`$ snyk container sbom --format=cyclonedx1.6+xml alpine@sha256:c5c5fda71656f28e49ac9c5416b3643eaa6a108a8093151d6d1afc9463be8e33`
