@@ -57,7 +57,7 @@ To perform the scan, resolve the error and scan again.
 
 Use with `--all-projects` or `--yarn-workspaces` to indicate how many subdirectories to search. `DEPTH` must be a number, 1 or greater; zero (0) is the current directory.
 
-Default: 4 , the current working directory (0) and 4 subdirectories.
+Default: no limit.
 
 Example: `--detection-depth=3` limits search to the specified directory (or the current directory if no `<PATH>` is specified) plus three levels of subdirectories; zero (0) is the current directory.
 
@@ -273,6 +273,8 @@ Use for monorepos. This detects all supported manifests.
 For Gradle monorepos Snyk looks only for root level **build.gradle / build.gradle.kts** files and applies the same logic as `--all-sub-projects` behind the scenes.
 
 This option is designed to be run in the root of your monorepo.
+
+For more details, see the following support article: [Scanning Gradle projects in CLI with `--exclude` option does not exclude sub-projects](https://support.snyk.io/hc/en-us/articles/22275760293661-Scanning-Gradle-projects-in-CLI-with-exclude-option-does-not-exclude-sub-projects)
 
 ### `--configuration-matching=<CONFIGURATION_REGEX>`
 
