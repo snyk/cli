@@ -171,6 +171,12 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 		return err
 	}
 
+	output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_FILTER_FINDINGS, output)
+	if err != nil {
+		logger.Err(err).Msg(err.Error())
+		return err
+	}
+
 	output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, output)
 	if err == nil {
 		err = getErrorFromWorkFlowData(engine, output)
