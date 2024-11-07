@@ -4,7 +4,7 @@ import stripAnsi = require('strip-ansi');
 import { getAuthHeader, someTokenExists } from '../api-token';
 import config from '../config';
 import { makeRequest } from '../request';
-import { config as userConfig } from '../user-config';
+// import { config as userConfig } from '../user-config';
 import { getStandardData } from './getStandardData';
 
 // Add flags whose values should be redacted in analytics here.
@@ -56,11 +56,13 @@ export function addDataAndSend(
 }
 
 export function allowAnalytics(): boolean {
-  if (userConfig.get('disable-analytics') || config.DISABLE_ANALYTICS) {
-    return false;
-  } else {
-    return true;
-  }
+  // Analytics disabled until we can migrate to v2 analytics
+  return false;
+  // if (userConfig.get('disable-analytics') || config.DISABLE_ANALYTICS) {
+  //   return false;
+  // } else {
+  //   return true;
+  // }
 }
 
 /**
