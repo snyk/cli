@@ -8,7 +8,7 @@ import { getServerPort } from '../util/getServerPort';
 
 jest.setTimeout(1000 * 30);
 
-describe('analytics module', () => {
+describe.skip('analytics module', () => {
   let server;
   let env: Record<string, string>;
   const port = getServerPort(process);

@@ -1,6 +1,8 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
+import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+
 import (
 	"context"
 	"encoding/json"
@@ -17,17 +19,18 @@ import (
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
-	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
+
+	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"

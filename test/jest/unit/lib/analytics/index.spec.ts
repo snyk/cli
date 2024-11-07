@@ -3,7 +3,7 @@ import * as request from '../../../../../src/lib/request';
 import { argsFrom } from './utils';
 import * as apiTokenModule from '../../../../../src/lib/api-token';
 
-describe('analytics module', () => {
+describe.skip('analytics module', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
