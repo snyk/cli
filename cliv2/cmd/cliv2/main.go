@@ -1,8 +1,6 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-
 import (
 	"context"
 	"encoding/json"
@@ -19,18 +17,17 @@ import (
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
-
-	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -225,29 +222,6 @@ func getErrorFromWorkFlowData(engine workflow.Engine, data []workflow.Data) erro
 		}
 	}
 	return nil
-}
-
-func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
-	debugLogger.Print("Sending Analytics")
-
-	res, err := analytics.Send()
-	if err != nil {
-		debugLogger.Err(err).Msg("Failed to send Analytics")
-		return
-	}
-	defer res.Body.Close()
-
-	successfullySend := 200 <= res.StatusCode && res.StatusCode < 300
-	if successfullySend {
-		debugLogger.Print("Analytics successfully send")
-	} else {
-		var details string
-		if res != nil {
-			details = res.Status
-		}
-
-		debugLogger.Print("Failed to send Analytics:", details)
-	}
 }
 
 func sendInstrumentation(eng workflow.Engine, instrumentor analytics.InstrumentationCollector, logger *zerolog.Logger) {
@@ -576,10 +550,6 @@ func MainWithErrorCode() int {
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
 		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
-	}
-
-	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
-		sendAnalytics(cliAnalytics, globalLogger)
 	}
 	sendInstrumentation(globalEngine, cliAnalytics.GetInstrumentation(), globalLogger)
 

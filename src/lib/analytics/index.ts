@@ -58,11 +58,6 @@ export function addDataAndSend(
 export function allowAnalytics(): boolean {
   // Analytics disabled until we can migrate to v2 analytics
   return false;
-  // if (userConfig.get('disable-analytics') || config.DISABLE_ANALYTICS) {
-  //   return false;
-  // } else {
-  //   return true;
-  // }
 }
 
 /**
