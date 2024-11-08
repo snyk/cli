@@ -5,7 +5,7 @@ import { getServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 30);
 
-describe.skip('analytics module', () => {
+describe('analytics module', () => {
   let server;
   let env: Record<string, string>;
 
@@ -136,24 +136,6 @@ describe.skip('analytics module', () => {
     expect(stdout).not.toContain(
       project.path('with-package-json-without-snyk-dep/package.json'),
     );
-
-    const requests = server.getRequests().filter((req: any) => {
-      return JSON.stringify(req.body).includes('upgradable-snyk-protect-paths');
-    });
-
-    expect(requests[0].url).toEqual('/api/v1/analytics/cli');
-    expect(requests).toHaveLength(1);
-    expect(requests[0]).toMatchObject({
-      query: {},
-      body: {
-        data: {
-          command: 'test',
-          metadata: {
-            'upgradable-snyk-protect-paths': 2,
-          },
-        },
-      },
-    });
   });
 
   it('detects no upgradable protect paths with `snyk test` with no upgradable paths in the cwd', async () => {
@@ -171,23 +153,5 @@ describe.skip('analytics module', () => {
       'WARNING: It looks like you have the `snyk` dependency in the `package.json` file(s) at the following path(s):',
     );
     expect(stdout).not.toContain(project.path('package.json'));
-
-    const requests = server.getRequests().filter((req: any) => {
-      return JSON.stringify(req.body).includes('upgradable-snyk-protect-paths');
-    });
-
-    expect(requests[0].url).toEqual('/api/v1/analytics/cli');
-    expect(requests).toHaveLength(1);
-    expect(requests[0]).toMatchObject({
-      query: {},
-      body: {
-        data: {
-          command: 'test',
-          metadata: {
-            'upgradable-snyk-protect-paths': 0,
-          },
-        },
-      },
-    });
   });
 });

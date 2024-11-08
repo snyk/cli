@@ -112,38 +112,4 @@ describe('Mail API', function () {
             }).catch(done);
         });
     });
-
-    describe.skip('Stub', function () {
-        it('returns a success', function (done) {
-            config.set({mail: {transport: 'stub'}});
-
-            mailer.init().then(function () {
-                mailer.transport.transportType.should.eql('STUB');
-                return MailAPI.send(mailDataNoServer, testUtils.context.internal);
-            }).then(function (response) {
-                should.exist(response.mail);
-                should.exist(response.mail[0].message);
-                should.exist(response.mail[0].status);
-                response.mail[0].status.should.eql({message: 'Message Queued'});
-                response.mail[0].message.subject.should.eql('testemail');
-                done();
-            }).catch(done);
-        });
-
-        it('returns a boo boo', function (done) {
-            config.set({mail: {transport: 'stub', error: 'Stub made a boo boo :('}});
-
-            mailer.init().then(function () {
-                mailer.transport.transportType.should.eql('STUB');
-                return MailAPI.send(mailDataNoServer, testUtils.context.internal);
-            }).then(function (response) {
-                console.log('res', response.mail[0]);
-                done(new Error('Stub did not error'));
-            }, function (error) {
-                error.message.should.startWith('Email Error: Failed sending email: there is no mail server at this address');
-                error.errorType.should.eql('EmailError');
-                done();
-            }).catch(done);
-        });
-    });
 });
