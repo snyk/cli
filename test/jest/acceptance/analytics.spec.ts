@@ -68,7 +68,7 @@ describe('analytics module', () => {
       query: {},
       body: {
         data: {
-          args: [{}],
+          args: [],
           ci: expect.any(Boolean),
           command: 'test',
           metadata: {
@@ -142,7 +142,7 @@ describe('analytics module', () => {
       query: {},
       body: {
         data: {
-          args: [{}],
+          args: [],
           ci: expect.any(Boolean),
           command: 'test',
           metadata: {
@@ -220,7 +220,7 @@ describe('analytics module', () => {
       query: {},
       body: {
         data: {
-          args: ['random-nonsense-command'],
+          args: [],
           ci: expect.any(Boolean),
           command: 'bad-command',
           metadata: {
@@ -289,7 +289,7 @@ describe('analytics module', () => {
       query: {},
       body: {
         data: {
-          args: [{}],
+          args: [],
           ci: expect.any(Boolean),
           command: 'bad-command',
           metadata: {
@@ -365,7 +365,7 @@ describe('analytics module', () => {
       query: {},
       body: {
         data: {
-          args: ['help', {}],
+          args: [],
           ci: expect.any(Boolean),
           command: 'help',
           durationMs: expect.any(Number),

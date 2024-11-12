@@ -349,10 +349,11 @@ After the `release-npm` job successfully completes, an automated process generat
 
 ## Upgrading the go-application-framework
 
-If you have made changes to the `go-application-framework`, you can run `python3 scripts/upgrade-go-application-framework.py`. This will;
+If you have made changes to the `go-application-framework`, you can run `go run ./scripts/upgrade-snyk-go-dependencies.go -name=go-application-framework`. This will;
 
-- Fetch the most recent commit from main of the framework
+- Fetch the most recent commit from the `main` branch of the framework
 - Go get that version of the framework
+- Run `go mod tidy` to ensure the `go.mod` file matches the source code in the module
 
 You can then raise a pr with the relevant changes.
 
