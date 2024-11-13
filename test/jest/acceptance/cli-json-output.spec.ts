@@ -164,5 +164,33 @@ describe('test --json', () => {
       expect(code).toEqual(1);
       expect(server.getRequests().length).toBeGreaterThanOrEqual(1);
     });
+
+    it('returns well structured json', async () => {
+      const project = await createProjectFromWorkspace(
+        'npm-package-single-ignored-vuln',
+      );
+      server.setCustomResponse(
+        await project.readJSON('test-graph-results.json'),
+      );
+
+      const { code, stdout } = await runSnykCLI(
+        `test -d --json --log-level=trace`,
+        {
+          cwd: project.path(),
+          env,
+        },
+      );
+
+      try {
+        const returnedJson = JSON.parse(stdout);
+
+        expect(returnedJson.vulnerabilities).toHaveLength(0);
+        expect(code).toEqual(0);
+        expect(server.getRequests().length).toBeGreaterThanOrEqual(1);
+      } catch (err) {
+        console.log(stdout);
+        throw err;
+      }
+    });
   });
 });
