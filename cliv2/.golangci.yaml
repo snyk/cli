@@ -3,9 +3,6 @@ run:
     - integration
   concurrency: 4
   issues-exit-code: 1
-  skip-dirs:
-    - scripts
-    - test/fixtures
   tests: true
   timeout: 5m
 
@@ -34,7 +31,6 @@ linters-settings:
   gosimple:
     checks: ['all']
   govet:
-    check-shadowing: true
     enable-all: true
     disable:
       - fieldalignment
@@ -106,7 +102,8 @@ linters:
     # TODO(errorlint): revisit
     #- errorlint
     - exhaustive
-    - exportloopref
+    # Checks for pointers to enclosing loop variables.
+    - copyloopvar
     # TODO(forbidigo): revisit
     #- forbidigo
     # TODO(forcetypeassert): revisit
@@ -167,6 +164,9 @@ linters:
     #- wrapcheck
 
 issues:
+  exclude-dirs:
+    - scripts
+    - test/fixtures
   exclude-rules:
     - path: _test\.go
       linters:
