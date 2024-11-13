@@ -1,6 +1,9 @@
 import pick = require('lodash.pick');
 import { CustomError } from '../errors';
 import { BasicResultData, SEVERITY, TestDepGraphMeta } from './legacy';
+import * as debugLib from 'debug';
+
+const debug = debugLib('snyk-iac');
 
 export interface AnnotatedIacIssue {
   id: string;
@@ -58,8 +61,22 @@ const IAC_ISSUES_KEY = 'infrastructureAsCodeIssues';
 export function mapIacTestResult(
   iacTest: IacTestResponse,
 ): MappedIacTestResponse | IacTestError {
-  if (iacTest instanceof CustomError) {
+  if (iacTest instanceof Error) {
     return mapIacTestError(iacTest);
+  }
+
+  if (!iacTest.result) {
+    // This is an unexpected scenario, we should always have a result object,
+    // but if we don't, we should handle it gracefully.
+    debug(`invalid scan result: ${iacTest}`);
+    const errorMessage = iacTest.path
+      ? `Invalid result for ${iacTest.path}`
+      : 'Invalid result';
+    return mapIacTestError(
+      new CustomError(
+        `${errorMessage}. Please run the command again with the \`-d\` flag and contact support@snyk.io with the contents of the output`,
+      ),
+    );
   }
 
   const infrastructureAsCodeIssues =
@@ -76,10 +93,10 @@ export function mapIacTestResult(
   };
 }
 
-export function mapIacTestError(error: CustomError) {
+export function mapIacTestError(error: Error) {
   return {
     ok: false,
-    code: error.code,
+    code: error instanceof CustomError ? error.code : undefined,
     error: error.message,
     path: (error as any).path,
   };
