@@ -37,12 +37,7 @@ describe('analytics module', () => {
       }),
     });
 
-    expect(requestSpy.mock.calls[0][0].body.data).toHaveProperty('args', [
-      {
-        'tfc-endpoint': "I don't care who sees this",
-        'tfc-token': 'REDACTED',
-      },
-    ]);
+    expect(requestSpy.mock.calls[0][0].body.data).toHaveProperty('args', []);
   });
 
   it('ignores analytics request failures', async () => {

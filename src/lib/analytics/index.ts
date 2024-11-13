@@ -84,7 +84,6 @@ async function postAnalytics(
       ...customData,
       ...standardData,
     };
-    debug('analytics', JSON.stringify(analyticsData, null, '  '));
 
     const headers = {};
     if (someTokenExists()) {
@@ -99,6 +98,10 @@ async function postAnalytics(
     const queryString =
       Object.keys(queryStringParams).length > 0 ? queryStringParams : undefined;
 
+    // CLI-586 - do not send CLI args to analytics
+    analyticsData.args = [];
+
+    debug('analytics', JSON.stringify(analyticsData, null, '  '));
     const res = await makeRequest({
       body: {
         data: analyticsData,
