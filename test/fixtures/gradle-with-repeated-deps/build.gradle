@@ -1,0 +1,13 @@
+plugins {
+  id 'java'
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+   implementation 'org.apache.ignite:ignite-spring:2.13.0'
+   implementation 'org.apache.ignite:ignite-indexing:2.13.0'
+   implementation 'org.apache.ignite:ignite-core:2.13.0'
+}
