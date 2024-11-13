@@ -12,6 +12,12 @@ ignore:
         reason: No direct upgrade path available
         expires: 2025-01-01T00:12:20.523Z
         created: 2024-11-08T10:22:20.531Z
+  SNYK-JS-SOURCEMAPSUPPORT-6112477:
+    - '*':
+        reason: Not directely exploitable
+        expires: 2025-01-01T00:12:20.523Z
+        created: 2024-11-08T10:22:20.531Z
+
 patch: {}
 exclude:
   code:
