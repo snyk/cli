@@ -30,6 +30,8 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 
+	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
+
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -430,7 +432,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			return
 		}
 
-		if config.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
+		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
 			jsonError := JsonErrorStruct{
 				Ok:       false,
 				ErrorMsg: err.Error(),
