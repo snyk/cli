@@ -21,7 +21,7 @@ release:
 	chmod +x ./test-and-release.sh && ./test-and-release.sh $(version)
 
 $(GOBIN)/gopherjs:
-	go get github.com/gopherjs/gopherjs@v0.0.0-20220221023154-0b2280d3ff96
+	go install github.com/gopherjs/gopherjs@v0.0.0-20220221023154-0b2280d3ff96
 
 $(PROJECT_SRC)/vendor: $(PROJECT_SRC)/go.mod $(PROJECT_SRC)/go.sum
 	cd $(PROJECT_SRC); go mod vendor
