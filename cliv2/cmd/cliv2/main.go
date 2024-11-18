@@ -305,6 +305,13 @@ func defaultCmd(args []string) error {
 	return err
 }
 
+func runCodeTestCommand(cmd *cobra.Command, args []string) error {
+	// ensure legacy behaviour, where sarif and json can be used interchangeably
+	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
+	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE})
+	return runCommand(cmd, args)
+}
+
 func getGlobalFLags() *pflag.FlagSet {
 	globalConfigurationOptions := workflow.GetGlobalConfiguration()
 	globalFLags := workflow.FlagsetFromConfigurationOptions(globalConfigurationOptions)
@@ -360,9 +367,13 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		parentCommand.Hidden = !workflowEntry.IsVisible()
 		parentCommand.DisableFlagParsing = false
 
-		// special case for snyk code test, to preserve backwards compatibility we will need to relax flag validation
+		// special case for snyk code test
 		if currentCommandString == "code test" {
+			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
+
+			// use the special run command to ensure that the non-standard behaviour of the command can be kept
+			parentCommand.RunE = runCodeTestCommand
 		}
 	}
 }
