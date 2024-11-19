@@ -65,11 +65,6 @@ executors:
       - image: snyklabs/cli-build-arm64:20241015-082358
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.xlarge
-  linux-ubuntu-mantic-amd64:
-    docker:
-      - image: ubuntu:mantic
-    working_directory: /mnt/ramdisk/snyk
-    resource_class: medium
   linux-ubuntu-jammy-amd64:
     docker:
       - image: ubuntu:jammy
@@ -88,11 +83,6 @@ executors:
   linux-ubuntu-latest-arm64:
     docker:
       - image: ubuntu:latest
-    working_directory: /mnt/ramdisk/snyk
-    resource_class: arm.medium
-  linux-ubuntu-mantic-arm64:
-    docker:
-      - image: ubuntu:mantic
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
   linux-ubuntu-jammy-arm64:
@@ -802,11 +792,9 @@ workflows:
                 - 'win-server2022-amd64'
                 - 'macos-arm64'
                 - 'linux-ubuntu-latest-amd64'
-                - 'linux-ubuntu-mantic-amd64'
                 - 'linux-ubuntu-jammy-amd64'
                 - 'linux-ubuntu-focal-amd64'
                 - 'linux-ubuntu-latest-arm64'
-                - 'linux-ubuntu-mantic-arm64'
                 - 'linux-ubuntu-jammy-arm64'
                 - 'linux-ubuntu-focal-arm64'
                 - 'alpine'
@@ -863,11 +851,9 @@ workflows:
             - e2e tests (win-server2022-amd64)
             - e2e tests (macos-arm64)
             - e2e tests (linux-ubuntu-latest-amd64)
-            - e2e tests (linux-ubuntu-mantic-amd64)
             - e2e tests (linux-ubuntu-jammy-amd64)
             - e2e tests (linux-ubuntu-focal-amd64)
             - e2e tests (linux-ubuntu-latest-arm64)
-            - e2e tests (linux-ubuntu-mantic-arm64)
             - e2e tests (linux-ubuntu-jammy-arm64)
             - e2e tests (linux-ubuntu-focal-arm64)
             - e2e tests (alpine)
