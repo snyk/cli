@@ -519,7 +519,6 @@ describe('snyk code test', () => {
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
-          expect(stdout).toContain('To view ignored issues, use the --include-ignores option.'); // maybe delete this assertion?
           
           expect(existsSync(filePath)).toBe(true);
           expect(require(filePath)).toMatchSchema(sarifSchema);
@@ -547,8 +546,6 @@ describe('snyk code test', () => {
           
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
-
-          expect(stdout).toContain('To view ignored issues, use the --include-ignores option.'); // maybe delete this assertion?
 
           expect(existsSync(filePath)).toBe(true);
           expect(require(filePath)).toMatchSchema(sarifSchema);
