@@ -99,18 +99,19 @@ export function parseTerraformFiles(filesData: IacFileData[]): ParsingResults {
         engineType: EngineType.Terraform,
       });
     } else if (failedFiles[fileData.filePath]) {
-      if (debugLogs[fileData.filePath]) {
-        debug(
-          'File %s failed to parse with: %s',
-          fileData.filePath,
-          debugLogs[fileData.filePath],
-        );
-      }
       parsingResults.failedFiles.push(
         generateFailedParsedFile(
           fileData,
           new FailedToParseTerraformFileError(fileData.filePath),
         ),
+      );
+    }
+
+    if (debugLogs[fileData.filePath]) {
+      debug(
+        'File %s failed to parse with: %s',
+        fileData.filePath,
+        debugLogs[fileData.filePath],
       );
     }
   }
