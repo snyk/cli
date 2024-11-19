@@ -306,7 +306,7 @@ func defaultCmd(args []string) error {
 }
 
 func runCodeTestCommand(cmd *cobra.Command, args []string) error {
-	// ensure legacy behaviour, where sarif and json can be used interchangeably
+	// ensure legacy behavior, where sarif and json can be used interchangeably
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE})
 	return runCommand(cmd, args)
