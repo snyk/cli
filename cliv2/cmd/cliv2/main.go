@@ -372,7 +372,7 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
 
-			// use the special run command to ensure that the non-standard behaviour of the command can be kept
+			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
 		}
 	}
