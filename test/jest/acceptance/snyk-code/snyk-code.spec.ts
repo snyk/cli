@@ -132,6 +132,8 @@ describe('snyk code test', () => {
             extensions: ['.java'],
           });
 
+          server.setSarifResponse(sarifPayload);
+
           const { stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues} --sarif`,
             {
