@@ -510,7 +510,7 @@ describe('snyk code test', () => {
         it('works with --json-file-output', async () => {
           const fileName = 'jsonOutput.json';
           const filePath = `${projectRoot}/${fileName}`;
-          const { stdout, stderr, code } = await runSnykCLI(
+          const { stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues} --json-file-output=${fileName}`,
             {
               env: {
@@ -538,7 +538,7 @@ describe('snyk code test', () => {
         it('works with --sarif-file-output', async () => {
           const fileName = 'sarifOutput.json'
           const filePath = `${projectRoot}/${fileName}`;
-          const { stdout, stderr, code } = await runSnykCLI(
+          const { stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues} --sarif-file-output=${fileName}`,
             {
               env: {
