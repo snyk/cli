@@ -164,6 +164,7 @@ describe('snyk code test', () => {
             configFiles: [],
             extensions: ['.java'],
           });
+          server.setSarifResponse(sarifPayload);
 
           const { stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues} --json`,
@@ -196,6 +197,7 @@ describe('snyk code test', () => {
             configFiles: [],
             extensions: ['.java'],
           });
+          server.setSarifResponse(sarifPayload);
 
           const { stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues}`,
@@ -483,7 +485,7 @@ describe('snyk code test', () => {
               },
             },
           );
-          
+
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
           expect(JSON.parse(stdout)).toMatchSchema(sarifSchema);
@@ -499,7 +501,7 @@ describe('snyk code test', () => {
               },
             },
           );
-          
+
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
           expect(JSON.parse(stdout)).toMatchSchema(sarifSchema);
@@ -521,7 +523,7 @@ describe('snyk code test', () => {
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
-          
+
           expect(existsSync(filePath)).toBe(true);
           expect(require(filePath)).toMatchSchema(sarifSchema);
 
@@ -545,7 +547,7 @@ describe('snyk code test', () => {
               },
             },
           );
-          
+
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
