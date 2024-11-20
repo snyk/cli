@@ -17,7 +17,7 @@ require (
 	github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f
 	github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20241030160523-0aa643bb7069
-	github.com/snyk/go-application-framework v0.0.0-20241119155105-a3726cd2fdb1
+	github.com/snyk/go-application-framework v0.0.0-20241120134749-b4f1fdd5d65c
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20241119103428-c8baa889f42f
@@ -138,6 +138,7 @@ require (
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.2 // indirect
+	github.com/oapi-codegen/oapi-codegen/v2 v2.3.0 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/open-policy-agent/opa v0.51.0 // indirect

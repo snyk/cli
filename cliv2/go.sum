@@ -205,8 +205,6 @@ github.com/OneOfOne/xxhash v1.2.8 h1:31czK/TI9sNkxIKfaUfGlU47BAxQ0ztGgd9vPyqimf8
 github.com/OneOfOne/xxhash v1.2.8/go.mod h1:eZbhyaAYD41SGSSsnmcpxVoRiQ/MPUTjUdIIOT9Um7Q=
 github.com/ProtonMail/go-crypto v1.1.2 h1:A7JbD57ThNqh7XjmHE+PXpQ3Dqt3BrSAC0AL0Go3KS0=
 github.com/ProtonMail/go-crypto v1.1.2/go.mod h1:rA3QumHc/FZ8pAHreoekgiAbzpNsfQAosU5td4SnOrE=
-github.com/ProtonMail/go-crypto v1.1.2 h1:A7JbD57ThNqh7XjmHE+PXpQ3Dqt3BrSAC0AL0Go3KS0=
-github.com/ProtonMail/go-crypto v1.1.2/go.mod h1:rA3QumHc/FZ8pAHreoekgiAbzpNsfQAosU5td4SnOrE=
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
 github.com/adrg/strutil v0.3.1 h1:OLvSS7CSJO8lBii4YmBt8jiK9QOtB9CzCzwl4Ic/Fz4=
 github.com/adrg/strutil v0.3.1/go.mod h1:8h90y18QLrs11IBffcGX3NW/GFBXCMcNg4M7H6MspPA=
@@ -279,8 +277,6 @@ github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMn
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cloudflare/circl v1.5.0 h1:hxIWksrX6XN5a1L2TI/h53AGPhNHoUBo+TD1ms9+pys=
 github.com/cloudflare/circl v1.5.0/go.mod h1:uddAzsPgqdMAYatqJ0lsjX1oECcQLIlRpzZh3pJrofs=
-github.com/cloudflare/circl v1.5.0 h1:hxIWksrX6XN5a1L2TI/h53AGPhNHoUBo+TD1ms9+pys=
-github.com/cloudflare/circl v1.5.0/go.mod h1:uddAzsPgqdMAYatqJ0lsjX1oECcQLIlRpzZh3pJrofs=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
 github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
@@ -300,8 +296,6 @@ github.com/creachadair/jrpc2 v1.2.1 h1:eIgmguoqLbEjn4Pb/XYMg5U1PhVpAClGdhI/Q4gfC
 github.com/creachadair/jrpc2 v1.2.1/go.mod h1:RvEKAYVpDBKn3YWlTVQJIFmxG5GuLD7ztp9FMTJx8eI=
 github.com/creachadair/mds v0.16.0 h1:v6DlvKXClowXFg4hkjLCR1FEFiREMf0qgX+Lm5GsEKk=
 github.com/creachadair/mds v0.16.0/go.mod h1:4vrFYUzTXMJpMBU+OA292I6IUxKWCCfZkgXg+/kBZMo=
-github.com/cyphar/filepath-securejoin v0.3.4 h1:VBWugsJh2ZxJmLFSM06/0qzQyiQX2Qs0ViKrUAcqdZ8=
-github.com/cyphar/filepath-securejoin v0.3.4/go.mod h1:8s/MCNJREmFK0H02MF6Ihv1nakJe4L/w3WZLHNkvlYM=
 github.com/cyphar/filepath-securejoin v0.3.4 h1:VBWugsJh2ZxJmLFSM06/0qzQyiQX2Qs0ViKrUAcqdZ8=
 github.com/cyphar/filepath-securejoin v0.3.4/go.mod h1:8s/MCNJREmFK0H02MF6Ihv1nakJe4L/w3WZLHNkvlYM=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -379,8 +373,6 @@ github.com/go-errors/errors v1.4.2 h1:J6MZopCL4uSllY1OfXM374weqZFFItUbrImctkmUxI
 github.com/go-errors/errors v1.4.2/go.mod h1:sIVyrIiJhuEF+Pj9Ebtd6P/rEYROXFi3BopGUQ5a5Og=
 github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 h1:+zs/tPmkDkHx3U66DAb0lQFJrpS6731Oaa12ikc+DiI=
 github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376/go.mod h1:an3vInlBmSxCcxctByoQdvwPiA7DTK7jaaFDBTtu0ic=
-github.com/go-git/go-billy/v5 v5.6.0 h1:w2hPNtoehvJIxR00Vb4xX94qHQi/ApZfX+nBE2Cjio8=
-github.com/go-git/go-billy/v5 v5.6.0/go.mod h1:sFDq7xD3fn3E0GOwUSZqHo9lrkmx8xJhA0ZrfvjBRGM=
 github.com/go-git/go-billy/v5 v5.6.0 h1:w2hPNtoehvJIxR00Vb4xX94qHQi/ApZfX+nBE2Cjio8=
 github.com/go-git/go-billy/v5 v5.6.0/go.mod h1:sFDq7xD3fn3E0GOwUSZqHo9lrkmx8xJhA0ZrfvjBRGM=
 github.com/go-git/go-git-fixtures/v4 v4.3.2-0.20231010084843-55a94097c399 h1:eMje31YglSBqCdIqdhKBW8lokaMrL3uTkpGYlE2OOT4=
@@ -673,12 +665,12 @@ github.com/muesli/termenv v0.11.1-0.20220212125758-44cd13922739/go.mod h1:Bd5NYQ
 github.com/muesli/termenv v0.13.0/go.mod h1:sP1+uffeLaEYpyOTb8pLCUctGcGLnoFjSn4YJK5e2bc=
 github.com/muesli/termenv v0.15.2 h1:GohcuySI0QmI3wN8Ok9PtKGkgkFIk7y6Vpb5PvrY+Wo=
 github.com/muesli/termenv v0.15.2/go.mod h1:Epx+iuz8sNs7mNKhxzH4fWXGNpZwUaJKRS1noLXviQ8=
+github.com/oapi-codegen/oapi-codegen/v2 v2.3.0 h1:rICjNsHbPP1LttefanBPnwsSwl09SqhCO7Ee623qR84=
+github.com/oapi-codegen/oapi-codegen/v2 v2.3.0/go.mod h1:4k+cJeSq5ntkwlcpQSxLxICCxQzCL772o30PxdibRt4=
 github.com/oapi-codegen/runtime v1.1.1 h1:EXLHh0DXIJnWhdRPN2w4MXAzFyE4CskzhNLUmtpMYro=
 github.com/oapi-codegen/runtime v1.1.1/go.mod h1:SK9X900oXmPWilYR5/WKPzt3Kqxn/uS/+lbpREv+eCg=
 github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=
 github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6HuIJcUGPhkA7kY=
-github.com/onsi/gomega v1.34.1 h1:EUMJIKUjM8sKjYbtxQI9A4z2o+rruxnzNvpknOXie6k=
-github.com/onsi/gomega v1.34.1/go.mod h1:kU1QgUvBDLXBJq618Xvm2LUX6rSAfRaFRTcdOeDLwwY=
 github.com/onsi/gomega v1.34.1 h1:EUMJIKUjM8sKjYbtxQI9A4z2o+rruxnzNvpknOXie6k=
 github.com/onsi/gomega v1.34.1/go.mod h1:kU1QgUvBDLXBJq618Xvm2LUX6rSAfRaFRTcdOeDLwwY=
 github.com/open-policy-agent/opa v0.51.0 h1:2hS5xhos8HtkN+mgpqMhNJSFtn/1n/h3wh+AeTPJg6Q=
@@ -693,8 +685,6 @@ github.com/otiai10/mint v1.5.1 h1:XaPLeE+9vGbuyEHem1JNk3bYc7KKqyI/na0/mLd/Kks=
 github.com/otiai10/mint v1.5.1/go.mod h1:MJm72SBthJjz8qhefc4z1PYEieWmy8Bku7CjcAqyUSM=
 github.com/pact-foundation/pact-go v1.10.0 h1:LE954RwmeV0rSm21umyPGGCvzHkEhglowkNGyuMwNGM=
 github.com/pact-foundation/pact-go v1.10.0/go.mod h1:YLt/uSQGo9x5ZUjynLzNy3IiORlA4BtbR9p2yxgD2as=
-github.com/pact-foundation/pact-go/v2 v2.0.8 h1:j9s/tk46O5hpEEbYd0/QF9kQlQt/mu3HJrVJVeix54w=
-github.com/pact-foundation/pact-go/v2 v2.0.8/go.mod h1:/IAP9loNwPHWdZUrECAltM8p630NETHitNarJa/DkXU=
 github.com/pact-foundation/pact-go/v2 v2.0.8 h1:j9s/tk46O5hpEEbYd0/QF9kQlQt/mu3HJrVJVeix54w=
 github.com/pact-foundation/pact-go/v2 v2.0.8/go.mod h1:/IAP9loNwPHWdZUrECAltM8p630NETHitNarJa/DkXU=
 github.com/pelletier/go-toml/v2 v2.2.2 h1:aYUidT7k73Pcl9nb2gScu7NSrKCSHIDE89b3+6Wq+LM=
@@ -760,8 +750,6 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skeema/knownhosts v1.3.0 h1:AM+y0rI04VksttfwjkSTNQorvGqmwATnvnAHpSgc0LY=
 github.com/skeema/knownhosts v1.3.0/go.mod h1:sPINvnADmT/qYH1kfv+ePMmOBTH6Tbl7b5LvTDjFK7M=
-github.com/skeema/knownhosts v1.3.0 h1:AM+y0rI04VksttfwjkSTNQorvGqmwATnvnAHpSgc0LY=
-github.com/skeema/knownhosts v1.3.0/go.mod h1:sPINvnADmT/qYH1kfv+ePMmOBTH6Tbl7b5LvTDjFK7M=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20241014075215-311d3c8a423f h1:xZK+6ug+pNgnIfPFGkQtxBZwcN/6RoXpQruRHimjfKM=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20241014075215-311d3c8a423f/go.mod h1:QF3v8HBpOpyudYNCuR8LqfULutO76c91sBdLzD+pBJU=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20241008152401-24c8cf03a1a3 h1:AQMi52/aevl9bBSzwxGLz9kxInojkSe/Q6j1s1s6yJg=
@@ -776,6 +764,8 @@ github.com/snyk/error-catalog-golang-public v0.0.0-20241030160523-0aa643bb7069 h
 github.com/snyk/error-catalog-golang-public v0.0.0-20241030160523-0aa643bb7069/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
 github.com/snyk/go-application-framework v0.0.0-20241119155105-a3726cd2fdb1 h1:aNqG5NAwQNjsB7sX7TEVm3fllDY/q0VBqQy+PFrbjv0=
 github.com/snyk/go-application-framework v0.0.0-20241119155105-a3726cd2fdb1/go.mod h1:GekIT38VeZQiDw/Ot9Qn0s2kxVR1TXMw6gcaaAiKsVg=
+github.com/snyk/go-application-framework v0.0.0-20241120134749-b4f1fdd5d65c h1:SPHAn273Vwuev7bDuFxzjTsnJfYjRYir8YkjRZwxiYU=
+github.com/snyk/go-application-framework v0.0.0-20241120134749-b4f1fdd5d65c/go.mod h1:GekIT38VeZQiDw/Ot9Qn0s2kxVR1TXMw6gcaaAiKsVg=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v0.31.3 h1:FepCg6QN/X8uvxYjF+WwB2aiBPJB+NENDgKQeI/FwLg=
