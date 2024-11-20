@@ -118,7 +118,7 @@ describe('snyk code test', () => {
         });
 
         it('should succeed with correct exit code - with sarif output', async () => {
-          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const sarifPayload = require('./fixtures/test-sarif.json');
           server.setOrgSetting('sast', true);
           deepCodeServer.setCustomResponse({
             configFiles: [],
