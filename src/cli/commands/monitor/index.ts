@@ -502,7 +502,7 @@ export function generateTags(options): Tag[] | undefined {
     const parts = keyEqualsValue.split('=');
     if (parts.length !== 2) {
       throw new ValidationError(
-        `The tag "${keyEqualsValue}" does not have an "=" separating the key and value. For example: --project-tag=KEY=VALUE`,
+        `The tag "${keyEqualsValue}" does not have an "=" separating the key and value. For example: --project-tags=KEY=VALUE`,
       );
     }
     tags.push({
