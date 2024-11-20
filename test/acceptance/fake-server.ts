@@ -280,7 +280,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200);
 
     if (sarifResponse) {
-      res.send(customResponse);
+      res.send(sarifResponse);
       return;
     }
 
