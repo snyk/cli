@@ -41,7 +41,7 @@ describe('snyk code test', () => {
 
   beforeAll((done) => {
     deepCodeServer = fakeDeepCodeServer();
-    deepCodeServer.listen(() => { });
+    deepCodeServer.listen(() => {});
     env = {
       ...initialEnvVars,
       SNYK_CODE_CLIENT_PROXY_URL: `http://localhost:${deepCodeServer.getPort()}`,
@@ -58,7 +58,7 @@ describe('snyk code test', () => {
   });
 
   afterAll((done) => {
-    deepCodeServer.close(() => { });
+    deepCodeServer.close(() => {});
     server.close(() => {
       done();
     });
@@ -255,7 +255,7 @@ describe('snyk code test', () => {
 
           it('use remote LCE URL as base when LCE is enabled', async () => {
             const localCodeEngineUrl = fakeDeepCodeServer();
-            localCodeEngineUrl.listen(() => { });
+            localCodeEngineUrl.listen(() => {});
 
             server.setOrgSetting('sast', true);
             server.setLocalCodeEngineConfiguration({
@@ -292,7 +292,7 @@ describe('snyk code test', () => {
             expect(stripAnsi(stdout)).toContain('✗ [Medium]');
             expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
-            localCodeEngineUrl.close(() => { });
+            localCodeEngineUrl.close(() => {});
           });
         }
       });
@@ -523,7 +523,6 @@ describe('snyk code test', () => {
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
-
           expect(existsSync(filePath)).toBe(true);
           expect(require(filePath)).toMatchSchema(sarifSchema);
 
@@ -536,7 +535,7 @@ describe('snyk code test', () => {
         });
 
         it('works with --sarif-file-output', async () => {
-          const fileName = 'sarifOutput.json'
+          const fileName = 'sarifOutput.json';
           const filePath = `${projectRoot}/${fileName}`;
           const { stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues} --sarif-file-output=${fileName}`,
