@@ -151,7 +151,7 @@ describe('snyk code test', () => {
         });
 
         it('should succeed with correct exit code - with json output', async () => {
-          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const sarifPayload = require('./fixtures/test-sarif.json');
           server.setOrgSetting('sast', true);
           deepCodeServer.setFiltersResponse({
             configFiles: [],
@@ -183,7 +183,7 @@ describe('snyk code test', () => {
         });
 
         it('should succeed with correct exit code - normal output', async () => {
-          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const sarifPayload = require('./fixtures/test-sarif.json');
           server.setOrgSetting('sast', true);
           deepCodeServer.setFiltersResponse({
             configFiles: [],
