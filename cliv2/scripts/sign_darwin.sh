@@ -61,7 +61,7 @@ rm $APPLE_SIGNING_SECRETS
 security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
 
 # wait for security commands to finish before running codesign
-sleep 10
+sleep 30
 
 echo "$LOG_PREFIX Signing binary $APP_PATH"
 
