@@ -292,7 +292,7 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 	t.Run("workflow with empty test summary and unsupported error annotation", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		d, err := json.Marshal(json_schemas.NewTestSummary("sast"))
+		d, err := json.Marshal(json_schemas.NewTestSummary("sast", "/path"))
 		assert.Nil(t, err)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
 		expectedCodeErr := code.NewUnsupportedProjectError("")

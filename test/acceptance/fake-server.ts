@@ -40,6 +40,7 @@ export type FakeServer = {
   popRequest: () => express.Request;
   popRequests: (num: number) => express.Request[];
   setCustomResponse: (next: Record<string, unknown>) => void;
+  setSarifResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
   setStatusCode: (c: number) => void;
@@ -75,6 +76,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let statusCodes: number[] = [];
   let nextResponse: any = undefined;
   let customResponse: Record<string, unknown> | undefined = undefined;
+  let sarifResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
   const sockets = new Set();
 
@@ -82,6 +84,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     statusCode = undefined;
     requests = [];
     customResponse = undefined;
+    sarifResponse = undefined;
     featureFlags = featureFlagDefaults();
     availableSettings = new Map();
     unauthorizedActions = new Map();
@@ -103,6 +106,10 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setCustomResponse = (next: typeof customResponse) => {
     customResponse = next;
+  };
+
+  const setSarifResponse = (next: typeof sarifResponse) => {
+    sarifResponse = next;
   };
 
   const setLocalCodeEngineConfiguration = (
@@ -271,6 +278,12 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.get(`/api/code_mock_stream`, (req, res) => {
     res.status(200);
+
+    if (sarifResponse) {
+      res.send(sarifResponse);
+      return;
+    }
+
     res.send({
       $schema:
         'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
@@ -992,6 +1005,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     popRequest,
     popRequests,
     setCustomResponse,
+    setSarifResponse,
     setLocalCodeEngineConfiguration,
     setNextResponse,
     setNextStatusCode,

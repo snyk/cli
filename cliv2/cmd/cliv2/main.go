@@ -30,6 +30,8 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 
+	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
+
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -303,6 +305,13 @@ func defaultCmd(args []string) error {
 	return err
 }
 
+func runCodeTestCommand(cmd *cobra.Command, args []string) error {
+	// ensure legacy behavior, where sarif and json can be used interchangeably
+	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
+	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE})
+	return runCommand(cmd, args)
+}
+
 func getGlobalFLags() *pflag.FlagSet {
 	globalConfigurationOptions := workflow.GetGlobalConfiguration()
 	globalFLags := workflow.FlagsetFromConfigurationOptions(globalConfigurationOptions)
@@ -358,9 +367,13 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		parentCommand.Hidden = !workflowEntry.IsVisible()
 		parentCommand.DisableFlagParsing = false
 
-		// special case for snyk code test, to preserve backwards compatibility we will need to relax flag validation
+		// special case for snyk code test
 		if currentCommandString == "code test" {
+			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
+
+			// use the special run command to ensure that the non-standard behavior of the command can be kept
+			parentCommand.RunE = runCodeTestCommand
 		}
 	}
 }
@@ -430,7 +443,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			return
 		}
 
-		if config.GetBool(localworkflows.OUTPUT_CONFIG_KEY_JSON) {
+		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
 			jsonError := JsonErrorStruct{
 				Ok:       false,
 				ErrorMsg: err.Error(),
@@ -482,6 +495,7 @@ func MainWithErrorCode() int {
 	globalEngine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
 
 	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
+	globalConfiguration.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
 
 	if noProxyAuth := globalConfiguration.GetBool(basic_workflows.PROXY_NOAUTH); noProxyAuth {
 		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))

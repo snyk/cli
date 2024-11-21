@@ -5,9 +5,12 @@ import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { matchers } from 'jest-json-schema';
 import { resolve } from 'path';
+import { existsSync, unlinkSync } from 'fs';
 
 const stripAnsi = require('strip-ansi');
 const projectRoot = resolve(__dirname, '../../../..');
+
+const sarifSchema = require('../../../schemas/sarif-schema-2.1.0.json');
 
 expect.extend(matchers);
 
@@ -115,7 +118,7 @@ describe('snyk code test', () => {
         });
 
         it('should succeed with correct exit code - with sarif output', async () => {
-          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const sarifPayload = require('./fixtures/test-sarif.json');
           server.setOrgSetting('sast', true);
           deepCodeServer.setCustomResponse({
             configFiles: [],
@@ -128,6 +131,8 @@ describe('snyk code test', () => {
             configFiles: [],
             extensions: ['.java'],
           });
+
+          server.setSarifResponse(sarifPayload);
 
           const { stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues} --sarif`,
@@ -146,7 +151,7 @@ describe('snyk code test', () => {
         });
 
         it('should succeed with correct exit code - with json output', async () => {
-          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const sarifPayload = require('./fixtures/test-sarif.json');
           server.setOrgSetting('sast', true);
           deepCodeServer.setFiltersResponse({
             configFiles: [],
@@ -159,6 +164,7 @@ describe('snyk code test', () => {
             configFiles: [],
             extensions: ['.java'],
           });
+          server.setSarifResponse(sarifPayload);
 
           const { stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues} --json`,
@@ -177,7 +183,7 @@ describe('snyk code test', () => {
         });
 
         it('should succeed with correct exit code - normal output', async () => {
-          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
+          const sarifPayload = require('./fixtures/test-sarif.json');
           server.setOrgSetting('sast', true);
           deepCodeServer.setFiltersResponse({
             configFiles: [],
@@ -191,6 +197,7 @@ describe('snyk code test', () => {
             configFiles: [],
             extensions: ['.java'],
           });
+          server.setSarifResponse(sarifPayload);
 
           const { stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues}`,
@@ -466,6 +473,92 @@ describe('snyk code test', () => {
 
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
+        });
+
+        it('works with --json', async () => {
+          const { stdout, stderr, code } = await runSnykCLI(
+            `code test ${projectWithCodeIssues} --json`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+          expect(JSON.parse(stdout)).toMatchSchema(sarifSchema);
+        });
+
+        it('works with --sarif', async () => {
+          const { stdout, stderr, code } = await runSnykCLI(
+            `code test ${projectWithCodeIssues} --sarif`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+          expect(JSON.parse(stdout)).toMatchSchema(sarifSchema);
+        });
+
+        it('works with --json-file-output', async () => {
+          const fileName = 'jsonOutput.json';
+          const filePath = `${projectRoot}/${fileName}`;
+          const { stderr, code } = await runSnykCLI(
+            `code test ${projectWithCodeIssues} --json-file-output=${fileName}`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+
+          expect(existsSync(filePath)).toBe(true);
+          expect(require(filePath)).toMatchSchema(sarifSchema);
+
+          // cleanup file
+          try {
+            unlinkSync(filePath);
+          } catch (error) {
+            console.error('failed to remove file.', error);
+          }
+        });
+
+        it('works with --sarif-file-output', async () => {
+          const fileName = 'sarifOutput.json';
+          const filePath = `${projectRoot}/${fileName}`;
+          const { stderr, code } = await runSnykCLI(
+            `code test ${projectWithCodeIssues} --sarif-file-output=${fileName}`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+
+          expect(existsSync(filePath)).toBe(true);
+          expect(require(filePath)).toMatchSchema(sarifSchema);
+
+          // cleanup file
+          try {
+            unlinkSync(filePath);
+          } catch (error) {
+            console.error('failed to remove file.', error);
+          }
         });
       });
     },
