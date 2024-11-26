@@ -3,6 +3,7 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 import { getServerPort } from '../../util/getServerPort';
+import { sortSarifByResults } from '../../util/sortSarif';
 import { matchers } from 'jest-json-schema';
 import { resolve } from 'path';
 import { existsSync, unlinkSync } from 'fs';
@@ -99,6 +100,8 @@ describe('snyk code test', () => {
     `integration`,
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
+        const cliVersionForTesting = '1.0.0';
+
         it('should show error if sast is not enabled', async () => {
           server.setOrgSetting('sast', false);
 
@@ -118,7 +121,12 @@ describe('snyk code test', () => {
         });
 
         it('should succeed with correct exit code - with sarif output', async () => {
-          const sarifPayload = require('./fixtures/test-sarif.json');
+          let sarifPayload = require('./fixtures/test-sarif.json');
+          // the golang implementation removes fields with value null from the sarif,
+          // so things like `"suppressions": null` need to be removed from the payload
+          if (type === 'golang/native')
+            sarifPayload = require('./fixtures/test-sarif-no-null-fields.json');
+
           server.setOrgSetting('sast', true);
           deepCodeServer.setCustomResponse({
             configFiles: [],
@@ -134,7 +142,7 @@ describe('snyk code test', () => {
 
           server.setSarifResponse(sarifPayload);
 
-          const { stderr, code } = await runSnykCLI(
+          const { stdout, stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues} --sarif`,
             {
               env: {
@@ -148,10 +156,35 @@ describe('snyk code test', () => {
 
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
           expect(stderr).toBe('');
+
+          let actualPayload;
+          expect(() => {
+            actualPayload = JSON.parse(stdout);
+          }).not.toThrow();
+
+          const sortedActualPayload = sortSarifByResults(actualPayload);
+          const sortedSarifPayload = sortSarifByResults(sarifPayload);
+
+          // set hardcoded cli version for testing
+          sortedSarifPayload.runs[0].tool.driver.version = cliVersionForTesting;
+          sortedSarifPayload.runs[0].tool.driver.semanticVersion =
+            cliVersionForTesting;
+
+          sortedActualPayload.runs[0].tool.driver.version =
+            cliVersionForTesting;
+          sortedActualPayload.runs[0].tool.driver.semanticVersion =
+            cliVersionForTesting;
+
+          expect(sortedActualPayload).toEqual(sortedSarifPayload);
         });
 
         it('should succeed with correct exit code - with json output', async () => {
-          const sarifPayload = require('./fixtures/test-sarif.json');
+          let sarifPayload = require('./fixtures/test-sarif.json');
+          // the golang implementation removes fields with value null from the sarif,
+          // so things like `"suppressions": null` need to be removed from the payload
+          if (type === 'golang/native')
+            sarifPayload = require('./fixtures/test-sarif-no-null-fields.json');
+
           server.setOrgSetting('sast', true);
           deepCodeServer.setFiltersResponse({
             configFiles: [],
@@ -166,7 +199,7 @@ describe('snyk code test', () => {
           });
           server.setSarifResponse(sarifPayload);
 
-          const { stderr, code } = await runSnykCLI(
+          const { stdout, stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues} --json`,
             {
               env: {
@@ -180,10 +213,31 @@ describe('snyk code test', () => {
 
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+
+          let actualPayload;
+          expect(() => {
+            actualPayload = JSON.parse(stdout);
+          }).not.toThrow();
+
+          const sortedActualPayload = sortSarifByResults(actualPayload);
+          const sortedSarifPayload = sortSarifByResults(sarifPayload);
+
+          // set hardcoded cli version for testing
+          sortedSarifPayload.runs[0].tool.driver.version = cliVersionForTesting;
+          sortedSarifPayload.runs[0].tool.driver.semanticVersion =
+            cliVersionForTesting;
+
+          sortedActualPayload.runs[0].tool.driver.version =
+            cliVersionForTesting;
+          sortedActualPayload.runs[0].tool.driver.semanticVersion =
+            cliVersionForTesting;
+
+          expect(sortedActualPayload).toEqual(sortedSarifPayload);
         });
 
         it('should succeed with correct exit code - normal output', async () => {
           const sarifPayload = require('./fixtures/test-sarif.json');
+
           server.setOrgSetting('sast', true);
           deepCodeServer.setFiltersResponse({
             configFiles: [],
