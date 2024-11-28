@@ -113,7 +113,7 @@ describe('snyk code test', () => {
           );
 
           expect(stderr).toBe('');
-          expect(stdout).toContain('Snyk Code is not supported for org');
+          expect(stdout).toContain('Snyk Code is not enabled');
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
         });
 
