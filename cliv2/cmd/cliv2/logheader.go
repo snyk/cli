@@ -13,6 +13,7 @@ import (
 
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/fips"
 
@@ -109,6 +110,12 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Version", cliv2.GetFullVersion()+" "+buildType)
 	tablePrint("Platform", userAgent)
 	tablePrint("API", config.GetString(configuration.API_URL))
+
+	region, err := localworkflows.DetermineRegionFromUrl(config.GetString(configuration.API_URL))
+	if err == nil {
+		tablePrint("Region", region)
+	}
+
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
 	tablePrint("Organization", org)
 	tablePrint("Insecure HTTPS", insecureHTTPS)
