@@ -165,6 +165,7 @@ export interface LegacyVulnApiResult extends BasicResultData {
   filesystemPolicy?: boolean;
   uniqueCount?: any;
   remediation?: RemediationChanges;
+  depGraph?: depGraphLib.DepGraphData;
 }
 
 export interface BaseImageRemediation {
@@ -451,6 +452,9 @@ function convertTestDepGraphResultToLegacy(
     severityThreshold,
     remediation: result.remediation,
   };
+  if (options['print-deps']) {
+    legacyRes.depGraph = depGraph.toJSON();
+  }
 
   return legacyRes;
 }

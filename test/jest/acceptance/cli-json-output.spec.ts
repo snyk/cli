@@ -4,6 +4,7 @@ import { getServerPort } from '../util/getServerPort';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { AppliedPolicyRules } from '../../../src/lib/formatters/types';
 import * as Parser from 'jsonparse';
+import * as depGraphLib from '@snyk/dep-graph';
 
 jest.setTimeout(1000 * 60);
 
@@ -191,6 +192,40 @@ describe('test --json', () => {
         console.log(stdout);
         throw err;
       }
+    });
+  });
+
+  describe('print-deps', () => {
+    it('JSON output contains depGraph when --print-deps is used', async () => {
+      const project = await createProjectFromWorkspace('maven-app');
+
+      const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
+        cwd: project.path(),
+        env,
+      });
+
+      expect(code).toEqual(0);
+      console.log(stdout);
+
+      const json = JSON.parse(stdout);
+      const depGraph = depGraphLib.createFromJSON(json.depGraph);
+      expect(depGraph.getPkgs()).toContainEqual({
+        name: 'axis:axis',
+        version: '1.4',
+      });
+    });
+
+    it('JSON output has no depGraph when --print-deps is not used', async () => {
+      const project = await createProjectFromWorkspace('maven-app');
+
+      const { code, stdout } = await runSnykCLI(`test --json`, {
+        cwd: project.path(),
+        env,
+      });
+
+      expect(code).toEqual(0);
+      const json = JSON.parse(stdout);
+      expect(json.depGraph).toBeUndefined();
     });
   });
 });
