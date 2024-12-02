@@ -4,6 +4,7 @@ import { createProjectFromWorkspace } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { humanFileSize } from '../../utils';
 import { getServerPort } from '../util/getServerPort';
+import * as depGraphLib from '@snyk/dep-graph';
 
 jest.setTimeout(1000 * 60);
 
@@ -111,5 +112,46 @@ describe('test --json-file-output', () => {
     const fileExists = fs.existsSync(outputFilename);
     expect(fileExists).toBeFalsy();
     expect(code).toEqual(0);
+  });
+
+  describe('print-deps', () => {
+    it('saves JSON output to file with depGraph when --print-deps is used', async () => {
+      const project = await createProjectFromWorkspace('maven-app');
+      const outputPath = 'json-file-output.json';
+
+      const { code } = await runSnykCLI(
+        `test --print-deps --json-file-output=${outputPath}`,
+        {
+          cwd: project.path(),
+          env,
+        },
+      );
+
+      expect(code).toEqual(0);
+      const json = await project.readJSON(outputPath);
+      expect(json.depGraph).toBeTruthy();
+      const depGraph = depGraphLib.createFromJSON(json.depGraph);
+      expect(depGraph.getPkgs()).toContainEqual({
+        name: 'axis:axis',
+        version: '1.4',
+      });
+    });
+
+    it('saves JSON output to file without a depGraph when --print-deps is not used', async () => {
+      const project = await createProjectFromWorkspace('maven-app');
+      const outputPath = 'json-file-output.json';
+
+      const { code } = await runSnykCLI(
+        `test --json-file-output=${outputPath}`,
+        {
+          cwd: project.path(),
+          env,
+        },
+      );
+
+      expect(code).toEqual(0);
+      const json = await project.readJSON(outputPath);
+      expect(json.depGraph).toBeUndefined();
+    });
   });
 });
