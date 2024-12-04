@@ -19,5 +19,5 @@ jobs:
       - run: npm ci
       - run: npm start
         env:
-          USER_GITHUB_TOKEN: ${{ secrets.USER_GITHUB_TOKEN }}
+          USER_GITHUB_TOKEN: ${{ secrets.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 }}
           IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL: ${{ secrets.IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL }}
