@@ -86,6 +86,7 @@ import {
 } from '../package-managers';
 import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 import { normalizeTargetFile } from '../normalize-target-file';
+import { EXIT_CODES } from '../../cli/exit-codes';
 
 const debug = debugModule('snyk:run-test');
 
@@ -531,6 +532,11 @@ function sendTestPayload(
       if (error) {
         return reject(error);
       }
+
+      if(res?.headers?.["snyk-terminate"]){
+        process.exit(EXIT_CODES.EX_TERMINATE)
+      }
+
       if (res.statusCode !== 200) {
         const err = handleTestHttpErrorResponse(res, body);
         debug('sendTestPayload request URL:', payload.url);

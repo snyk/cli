@@ -27,15 +27,9 @@ import (
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
-
-	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
-
-	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -544,10 +538,13 @@ func MainWithErrorCode() int {
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, globalEngine)
 
+	errorList := []error{}
+
 	// init NetworkAccess
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddErrorHandler(func(err error, ctx context.Context) error {
+		errorList = append(errorList, err)
 		return err
 	})
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
@@ -590,6 +587,16 @@ func MainWithErrorCode() int {
 	}
 
 	if err != nil {
+		for _, tempError := range errorList {
+			cliAnalytics.AddError(tempError)
+		}
+
+		if exitErr, isExitError := err.(*exec.ExitError); isExitError {
+			if exitErr.ExitCode() == 44 {
+				err = errors.Join(errorList...)
+			}
+		}
+
 		cliAnalytics.AddError(err)
 	}
 
