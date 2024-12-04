@@ -42,6 +42,7 @@ type WrapperProxy struct {
 	proxyUsername       string
 	proxyPassword       string
 	addHeaderFunc       func(*http.Request) error
+	errHandlerFunc      func(error, context.Context) error
 }
 
 type ProxyInfo struct {
@@ -179,6 +180,9 @@ func (p *WrapperProxy) ProxyInfo() *ProxyInfo {
 // request might 401 or 403, such as permissions or entitlements.
 const headerSnykAuthFailed = "snyk-auth-failed"
 
+// Header to signal that the typescript CLI should terminate execution.
+const headerSnykTerminate = "snyk-terminate"
+
 func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 	if err := p.addHeaderFunc(r); err != nil {
 		if errors.Is(err, middleware.ErrAuthenticationFailed) {
@@ -221,6 +225,15 @@ func (p *WrapperProxy) Start() error {
 		if authFailed := resp.Request.Header.Get(headerSnykAuthFailed); authFailed != "" {
 			resp.Header.Set(headerSnykAuthFailed, authFailed)
 		}
+
+		if err := middleware.HandleResponse(resp); err != nil {
+			resp.Header.Set(headerSnykTerminate, "true")
+
+			if p.errHandlerFunc != nil {
+				p.errHandlerFunc(err, resp.Request.Context())
+			}
+		}
+
 		return resp
 	})
 	proxy.Verbose = true
@@ -321,4 +334,8 @@ func (p *WrapperProxy) Transport() *http.Transport {
 
 func (p *WrapperProxy) SetHeaderFunction(addHeaderFunc func(*http.Request) error) {
 	p.addHeaderFunc = addHeaderFunc
+}
+
+func (p *WrapperProxy) SetErrorHandlerFunction(errHandler func(error, context.Context) error) {
+	p.errHandlerFunc = errHandler
 }
