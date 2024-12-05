@@ -84,6 +84,7 @@ export interface IacSuccess {
   path: string[];
   msg: string;
   isIgnored: boolean;
+  evidence?: string;
 }
 
 export interface Remediation {
@@ -332,6 +333,7 @@ function passedVulnerabilitiesToIacSuccesses(
       // IAC-2962: This field is included in IacIssue, so adding it here as well
       msg: v.resource.formattedPath,
       isIgnored: v.ignored,
+      evidence: v.context?.evidence,
     };
   });
 }

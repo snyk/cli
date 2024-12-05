@@ -97,6 +97,9 @@ export interface Vulnerability {
   severity: SEVERITY;
   ignored: boolean;
   resource: Resource;
+  context?: {
+    evidence?: string;
+  };
 }
 
 export interface Rule {
