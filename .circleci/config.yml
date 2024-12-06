@@ -632,7 +632,7 @@ workflows:
           dont_skip_tests: 0
 
       - acceptance-tests:
-          name: acceptance-tests macOS amd64
+          name: acceptance-tests macOS arm64
           context:
             - nodejs-install
             - team_hammerhead-cli

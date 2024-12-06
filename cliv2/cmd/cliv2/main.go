@@ -232,6 +232,8 @@ func getErrorFromWorkFlowData(engine workflow.Engine, data []workflow.Data) erro
 func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 	debugLogger.Print("Sending Analytics")
 
+	analytics.SetApiUrl(globalConfiguration.GetString(configuration.API_URL))
+
 	res, err := analytics.Send()
 	if err != nil {
 		debugLogger.Err(err).Msg("Failed to send Analytics")
@@ -312,6 +314,17 @@ func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 	return runCommand(cmd, args)
 }
 
+func runAuthCommand(cmd *cobra.Command, args []string) error {
+	err := runCommand(cmd, args)
+
+	reloadError := globalConfiguration.ReloadConfig()
+	if reloadError != nil {
+		globalLogger.Err(reloadError).Msg("Failed to reload the configuration after authentication.")
+	}
+
+	return err
+}
+
 func getGlobalFLags() *pflag.FlagSet {
 	globalConfigurationOptions := workflow.GetGlobalConfiguration()
 	globalFLags := workflow.FlagsetFromConfigurationOptions(globalConfigurationOptions)
@@ -374,6 +387,8 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
+		} else if currentCommandString == "auth" {
+			parentCommand.RunE = runAuthCommand
 		}
 	}
 }

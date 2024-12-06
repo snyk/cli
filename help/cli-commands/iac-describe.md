@@ -101,7 +101,7 @@ Change the directory path used for `iac describe` configuration (default `$HOME`
 
 ### `--service=<SERVICE>[,<SERVICE>...]`
 
-Specify the services whose resources are inspected for drift or unmanaged resources.
+Specify the services to inspect for unmanaged resources.
 
 This option cannot be used with a `.snyk` drift ignore rule; the content in `.snyk` will be ignored.
 

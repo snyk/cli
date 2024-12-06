@@ -1,11 +1,12 @@
 {
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/csprd01/schemas/sarif-schema-2.1.0.json",
   "version": "2.1.0",
   "runs": [
     {
       "tool": {
         "driver": {
-          "name": "SnykCode",
+          "name": "snyk-cli",
+          "informationUri": "https://docs.snyk.io/",
           "semanticVersion": "1.0.0",
           "version": "1.0.0",
           "rules": [
@@ -2012,8 +2013,7 @@
               }
             ],
             "isAutofixable": false
-          },
-          "suppressions": null
+          }
         },
         {
           "ruleId": "javascript/NoRateLimitingForExpensiveWebOperation",
@@ -2110,8 +2110,7 @@
               }
             ],
             "isAutofixable": false
-          },
-          "suppressions": null
+          }
         },
         {
           "ruleId": "javascript/NoRateLimitingForExpensiveWebOperation",
@@ -2208,8 +2207,7 @@
               }
             ],
             "isAutofixable": false
-          },
-          "suppressions": null
+          }
         },
         {
           "ruleId": "javascript/NoSqli",
@@ -2375,8 +2373,7 @@
               }
             ],
             "isAutofixable": false
-          },
-          "suppressions": null
+          }
         },
         {
           "ruleId": "javascript/NoSqli",
@@ -2525,8 +2522,7 @@
               }
             ],
             "isAutofixable": false
-          },
-          "suppressions": null
+          }
         },
         {
           "ruleId": "javascript/NoSqli",
@@ -2780,8 +2776,7 @@
               }
             ],
             "isAutofixable": false
-          },
-          "suppressions": null
+          }
         },
         {
           "ruleId": "javascript/DisablePoweredBy",
@@ -2861,7 +2856,6 @@
               "kind": "external",
               "properties": {
                 "category": "not-vulnerable",
-                "expiration": null,
                 "ignoredOn": "2024-10-08T09:33:05.933Z",
                 "ignoredBy": {
                   "name": "JSON",
@@ -2942,8 +2936,7 @@
               }
             ],
             "isAutofixable": false
-          },
-          "suppressions": null
+          }
         },
         {
           "ruleId": "javascript/UseCsurfForExpress",
@@ -3016,8 +3009,7 @@
               }
             ],
             "isAutofixable": false
-          },
-          "suppressions": null
+          }
         },
         {
           "ruleId": "javascript/NoHardcodedPasswords",
@@ -3095,8 +3087,7 @@
               "severity": "low"
             },
             "isAutofixable": false
-          },
-          "suppressions": null
+          }
         }
       ],
       "properties": {
