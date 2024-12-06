@@ -20,6 +20,7 @@ import (
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
+	networktypes "github.com/snyk/go-application-framework/pkg/networking/network_types"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/elazarl/goproxy"
@@ -42,7 +43,8 @@ type WrapperProxy struct {
 	proxyUsername       string
 	proxyPassword       string
 	addHeaderFunc       func(*http.Request) error
-	errHandlerFunc      func(error, context.Context) error
+	config              configuration.Configuration
+	errHandlerFunc      networktypes.ErrorHandlerFunc
 }
 
 type ProxyInfo struct {
@@ -137,6 +139,7 @@ func NewWrapperProxy(config configuration.Configuration, cliVersion string, debu
 	p.addHeaderFunc = func(request *http.Request) error { return nil }
 	p.DebugLogger = debugLogger
 	p.CertificateLocation = ca.CertFile
+	p.config = config
 
 	insecureSkipVerify := config.GetBool(configuration.INSECURE_HTTPS)
 
@@ -226,12 +229,10 @@ func (p *WrapperProxy) Start() error {
 			resp.Header.Set(headerSnykAuthFailed, authFailed)
 		}
 
-		if err := middleware.HandleResponse(resp); err != nil {
+		err := middleware.HandleResponse(resp, p.config)
+		if err != nil && p.errHandlerFunc != nil {
 			resp.Header.Set(headerSnykTerminate, "true")
-
-			if p.errHandlerFunc != nil {
-				p.errHandlerFunc(err, resp.Request.Context())
-			}
+			p.errHandlerFunc(err, resp.Request.Context())
 		}
 
 		return resp
@@ -336,6 +337,6 @@ func (p *WrapperProxy) SetHeaderFunction(addHeaderFunc func(*http.Request) error
 	p.addHeaderFunc = addHeaderFunc
 }
 
-func (p *WrapperProxy) SetErrorHandlerFunction(errHandler func(error, context.Context) error) {
+func (p *WrapperProxy) SetErrorHandlerFunction(errHandler networktypes.ErrorHandlerFunc) {
 	p.errHandlerFunc = errHandler
 }
