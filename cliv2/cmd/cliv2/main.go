@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -539,11 +540,15 @@ func MainWithErrorCode() int {
 	createCommandsForWorkflows(rootCommand, globalEngine)
 
 	errorList := []error{}
+	errorListMutex := sync.Mutex{}
 
 	// init NetworkAccess
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddErrorHandler(func(err error, ctx context.Context) error {
+		errorListMutex.Lock()
+		defer errorListMutex.Unlock()
+
 		errorList = append(errorList, err)
 		return err
 	})
@@ -591,13 +596,14 @@ func MainWithErrorCode() int {
 			cliAnalytics.AddError(tempError)
 		}
 
+		cliAnalytics.AddError(err)
+
 		if exitErr, isExitError := err.(*exec.ExitError); isExitError {
-			if exitErr.ExitCode() == 44 {
+			if exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
+				errorList = append([]error{err}, errorList...)
 				err = errors.Join(errorList...)
 			}
 		}
-
-		cliAnalytics.AddError(err)
 	}
 
 	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
