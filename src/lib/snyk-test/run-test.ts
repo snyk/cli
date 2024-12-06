@@ -533,8 +533,8 @@ function sendTestPayload(
         return reject(error);
       }
 
-      if(res?.headers?.["snyk-terminate"]){
-        process.exit(EXIT_CODES.EX_TERMINATE)
+      if (res?.headers?.['snyk-terminate']) {
+        process.exit(EXIT_CODES.EX_TERMINATE);
       }
 
       if (res.statusCode !== 200) {
