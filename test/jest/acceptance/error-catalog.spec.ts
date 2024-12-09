@@ -88,7 +88,7 @@ describe.each(integrationWorkflows)(
       describe('internal server errors', () => {
         describe(`${type} workflow`, () => {
           it(`snyk ${cmd}`, async () => {
-            server.setStatusCode(500)
+            server.setStatusCode(500);
             const { code, stdout } = await runSnykCLI(`${cmd}`, { env });
             expect(code).toBe(2);
             expect(stdout).toContain(
@@ -101,7 +101,7 @@ describe.each(integrationWorkflows)(
       describe('bad request errors', () => {
         describe(`${type} workflow`, () => {
           it(`snyk ${cmd}`, async () => {
-            server.setStatusCode(400)
+            server.setStatusCode(400);
             const { code, stdout } = await runSnykCLI(`${cmd}`, { env });
             expect(code).toBe(2);
             expect(stdout).toContain(
