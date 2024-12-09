@@ -39,7 +39,7 @@ See also subsequent sections for options for specific build environments, packag
 
 Auto-detect all projects in the working directory, including Yarn workspaces.
 
-For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/hc/en-us/articles/360000910577-Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files-)
+For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/s/article/Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files)
 
 If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/invalid-string-length-error-when-scanning-projects)
 
