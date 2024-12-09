@@ -32,13 +32,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
-
-	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
-
-	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
-
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
