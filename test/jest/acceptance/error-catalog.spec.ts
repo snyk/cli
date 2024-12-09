@@ -1,6 +1,6 @@
 import { getCliConfig, restoreCliConfig } from '../../acceptance/config-helper';
 import { runSnykCLI } from '../util/runSnykCLI';
-import { fakeServer } from '../../acceptance/fake-server';
+import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { getServerPort } from '../util/getServerPort';
 
 interface Workflow {
@@ -46,7 +46,7 @@ describe.each(integrationWorkflows)(
       await restoreCliConfig(initialConfig);
     });
 
-    describe('authorization errors', () => {
+    describe('authentication errors', () => {
       describe(`${type} workflow`, () => {
         it(`snyk ${cmd}`, async () => {
           await runSnykCLI('config clear');
@@ -58,49 +58,56 @@ describe.each(integrationWorkflows)(
       });
     });
 
-    // TODO: fix fake server proxy config
-    describe.skip('internal server errors', () => {
+    describe('other network errors', () => {
       let server: ReturnType<typeof fakeServer>;
+      const ipAddr = getFirstIPv4Address();
       const port = getServerPort(process);
-      beforeEach((done) => {
-        server = fakeServer('/', 'snykToken');
+      const baseApi = '/api/v1';
+      beforeAll((done) => {
+        env = {
+          ...env,
+          SNYK_API: 'http://' + ipAddr + ':' + port + baseApi,
+          SNYK_HOST: 'http://' + ipAddr + ':' + port,
+          SNYK_TOKEN: '123456789',
+          SNYK_HTTP_PROTOCOL_UPGRADE: '0',
+        };
+        server = fakeServer(baseApi, 'snykToken');
         server.listen(port, () => {
           done();
         });
       });
-      afterEach((done) => {
+      afterEach(() => {
         server.restore();
+      });
+      afterAll((done) => {
         server.close(() => {
           done();
         });
       });
 
-      describe(`${type} workflow`, () => {
-        it.only(`snyk ${cmd}`, async () => {
-          server.setStatusCode(500);
-          const { code, stdout, stderr } = await runSnykCLI(`${cmd} -d`, {
-            env: {
-              ...env,
-              SNYK_API: 'http://localhost:' + port,
-              SNYK_TOKEN: '123456789',
-            },
+      describe('internal server errors', () => {
+        describe(`${type} workflow`, () => {
+          it(`snyk ${cmd}`, async () => {
+            server.setStatusCode(500)
+            const { code, stdout } = await runSnykCLI(`${cmd}`, { env });
+            expect(code).toBe(2);
+            expect(stdout).toContain(
+              'Request not fulfilled due to server error (SNYK-9999)',
+            );
           });
-          console.log(stderr);
-          expect(code).toBe(2);
-          expect(stdout).toContain(
-            'Request not fulfilled due to server error (SNYK-9999)',
-          );
         });
       });
-    });
 
-    // TODO: fix fake server proxy config
-    describe.skip('bad request errors', () => {
-      describe(`${type} workflow`, () => {
-        it.only(`snyk ${cmd}`, async () => {
-          const { code, stdout } = await runSnykCLI(`test`, { env });
-          expect(code).toBe(2);
-          expect(stdout).toContain('Authentication error (SNYK-0005)');
+      describe('bad request errors', () => {
+        describe(`${type} workflow`, () => {
+          it(`snyk ${cmd}`, async () => {
+            server.setStatusCode(400)
+            const { code, stdout } = await runSnykCLI(`${cmd}`, { env });
+            expect(code).toBe(2);
+            expect(stdout).toContain(
+              'Client request cannot be processed (SNYK-0003)',
+            );
+          });
         });
       });
     });
