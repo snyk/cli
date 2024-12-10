@@ -11,9 +11,9 @@ import (
 )
 
 func defaultOAuthFF(config configuration.Configuration) configuration.DefaultValueFunction {
-	return func(existingValue interface{}) interface{} {
+	return func(existingValue interface{}) (interface{}, error) {
 		if _, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN); ok {
-			return true
+			return true, nil
 		}
 
 		keysThatMightDisableOAuth := config.GetAllKeysThatContainValues(configuration.AUTHENTICATION_BEARER_TOKEN)
@@ -23,10 +23,10 @@ func defaultOAuthFF(config configuration.Configuration) configuration.DefaultVal
 		for _, key := range keysThatMightDisableOAuth {
 			keyType := config.GetKeyType(key)
 			if keyType == configuration.EnvVarKeyType {
-				return false
+				return false, nil
 			}
 		}
 
-		return true
+		return true, nil
 	}
 }
