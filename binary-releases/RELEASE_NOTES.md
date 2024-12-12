@@ -4,4 +4,4 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 
 ### Bug Fixes
 
-* **security:** update golang.org/x/crypto/ssh to fix a critical vulnerability
+* **security:** update golang.org/x/crypto/ssh to fix a [critical vulnerability](https://security.snyk.io/vuln/SNYK-GOLANG-GOLANGORGXCRYPTOSSH-8496611)
