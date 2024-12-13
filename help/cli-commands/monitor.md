@@ -50,7 +50,7 @@ See also subsequent sections for options for specific build environments, packag
 
 Auto-detect all projects in the working directory, including Yarn workspaces.
 
-For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/hc/en-us/articles/360000910577-Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files-)
+For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/s/article/Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files)
 
 ### `--fail-fast`
 
@@ -273,7 +273,7 @@ For Gradle monorepos Snyk looks only for root level **build.gradle / build.gradl
 
 This option is designed to be run in the root of your monorepo.
 
-For more details, see the following support article: [Scanning Gradle projects in CLI with `--exclude` option does not exclude sub-projects](https://support.snyk.io/hc/en-us/articles/22275760293661-Scanning-Gradle-projects-in-CLI-with-exclude-option-does-not-exclude-sub-projects)
+For more details, see the following support article: [Scanning Gradle projects in CLI with `--exclude` option does not exclude sub-projects](https://support.snyk.io/s/article/Scanning-Gradle-projects-in-CLI-with---exclude-option-does-not-exclude-sub-projects)
 
 ### `--configuration-matching=<CONFIGURATION_REGEX>`
 
