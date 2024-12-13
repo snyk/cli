@@ -22,19 +22,19 @@ import (
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
+	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
+	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 	"github.com/snyk/container-cli/pkg/container"
+	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/ui"
@@ -42,11 +42,10 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
-
-	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
-	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
 var internalOS string
@@ -620,6 +619,36 @@ func MainWithErrorCode() int {
 	if exitCode == 2 {
 		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
 	}
+
+	// Load error out of run-errors.json
+	filePath := globalConfiguration.GetString(configuration.TEMP_DIR_PATH) + "/typescript-runtime-errors"
+
+	// Read the entire file into a byte slice
+	errDataFromFile, err := os.ReadFile(filePath)
+	if err != nil {
+		globalLogger.Printf("Failed to read file: %v", err)
+	}
+
+	// Convert the byte slice to a string and print it
+	fmt.Println(`LADEBUG`)
+	fmt.Println(string(errDataFromFile))
+	cliError := snyk_errors.Error{
+		ID:             uuid.NewString(),
+		Title:          "Unable to set environment",
+		Description:    "The specified environment cannot be used. As a result, the configuration remains unchanged.Provide the correct specifications for the environment and try again.",
+		StatusCode:     200,
+		ErrorCode:      string(errDataFromFile),
+		Classification: "ACTIONABLE",
+		Links: []string{
+			"https://docs.snyk.io/snyk-cli/commands/config-environment",
+		},
+		Level:  "error",
+		Detail: string(errDataFromFile),
+	}
+	cliAnalytics.GetInstrumentation().AddError(
+		cliError,
+	)
+	// END error loading
 
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		sendAnalytics(cliAnalytics, globalLogger)

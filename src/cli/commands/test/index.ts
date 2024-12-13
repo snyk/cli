@@ -295,16 +295,7 @@ export default async function test(
 
   if (notSuccess) {
     response += chalk.bold.red(summaryMessage);
-    const error = new Error(response) as any;
-    // take the code of the first problem to go through error
-    // translation
-    // HACK as there can be different errors, and we pass only the
-    // first one
-    error.code = errorResults[0].code;
-    error.userMessage = errorResults[0].userMessage;
-    error.strCode = errorResults[0].strCode;
-    error.innerError = errorResults[0].innerError;
-    throw error;
+    throw errorResults[0];
   }
 
   if (foundVulnerabilities) {

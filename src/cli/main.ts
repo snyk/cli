@@ -195,6 +195,12 @@ async function handleError(args, error) {
     analytics.add('error', true);
     analytics.add('command', args.command);
   } else {
+    const errorFilePath = pathLib.join(process.env.SNYK_TEMP_DIR_PATH || getFullPath(''), './typescript-runtime-errors');
+
+    // TODO: If error is NOT valid error catalog message transform to match structure
+    await saveJsonResultsToFile(JSON.stringify(
+      analyticsError,
+    ), errorFilePath);
     analytics.add('error-message', analyticsError.message);
     // Note that error.stack would also contain the error message
     // (see https://nodejs.org/api/errors.html#errors_error_stack)
