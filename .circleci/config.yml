@@ -298,7 +298,7 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python pipenv elixir composer gradle@6 maven sbt dotnet
+        default: go gradle python pipenv elixir composer gradle@8 maven sbt dotnet
     steps:
       - run:
           name: Installing Rosetta
@@ -320,7 +320,7 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python elixir composer gradle@6 maven sbt dotnet
+        default: go gradle python elixir composer gradle@8 maven sbt dotnet
     steps:
       - run:
           name: Installing Rosetta
