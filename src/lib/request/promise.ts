@@ -1,11 +1,16 @@
+import { EXIT_CODES } from '../../cli/exit-codes';
 import { getAuthHeader } from '../api-token';
 import { MissingApiTokenError } from '../errors';
-import { headerSnykAuthFailed } from './constants';
+import { headerSnykAuthFailed, headerSnykTsCliTerminate } from './constants';
 import * as request from './index';
 
 export async function makeRequest<T>(payload: any): Promise<T> {
   return new Promise((resolve, reject) => {
     request.makeRequest(payload, (error, res, body) => {
+      if (res.headers[headerSnykTsCliTerminate] == 'true') {
+        process.exit(EXIT_CODES.EX_TERMINATE);
+      }
+
       if (error) {
         return reject(error);
       }

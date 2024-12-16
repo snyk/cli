@@ -87,6 +87,7 @@ import {
 import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 import { normalizeTargetFile } from '../normalize-target-file';
 import { EXIT_CODES } from '../../cli/exit-codes';
+import { headerSnykTsCliTerminate } from '../request/constants';
 
 const debug = debugModule('snyk:run-test');
 
@@ -533,7 +534,7 @@ function sendTestPayload(
         return reject(error);
       }
 
-      if (res?.headers?.['snyk-terminate']) {
+      if (res?.headers?.[headerSnykTsCliTerminate]) {
         process.exit(EXIT_CODES.EX_TERMINATE);
       }
 

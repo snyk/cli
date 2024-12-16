@@ -2,6 +2,9 @@ import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { getServerPort } from '../util/getServerPort';
 
+const TEST_DISTROLESS_STATIC_IMAGE =
+  'gcr.io/distroless/static@sha256:7198a357ff3a8ef750b041324873960cf2153c11cc50abb9d8d5f8bb089f6b4e';
+
 interface Workflow {
   type: string;
   cmd: string;
@@ -16,13 +19,21 @@ const integrationWorkflows: Workflow[] = [
     type: 'golang/native',
     cmd: 'code test',
   },
+  {
+    type: 'typescript',
+    cmd: 'monitor',
+  },
+  {
+    type: 'typescript',
+    cmd: `container monitor ${TEST_DISTROLESS_STATIC_IMAGE}`,
+  },
 ];
 
 describe.each(integrationWorkflows)(
   'outputs Error Catalog errors',
   ({ cmd, type }) => {
     const snykOrg = '11111111-2222-3333-4444-555555555555';
-    let env: any = {
+    let env: { [key: string]: string | undefined } = {
       ...process.env,
     };
 
@@ -75,18 +86,17 @@ describe.each(integrationWorkflows)(
           it(`snyk ${cmd}`, async () => {
             server.setStatusCode(500);
             const { code } = await runSnykCLI(`${cmd}`, { env });
-            expect(code).toBe(2);
             const analyticsRequest = server
               .getRequests()
               .filter((value) =>
-                (value.url as string).includes(
-                  `/api/hidden/orgs/${snykOrg}/analytics`,
-                ),
+                value.url.includes(`/api/hidden/orgs/${snykOrg}/analytics`),
               )
               .pop();
-            expect(
-              analyticsRequest?.body.data.attributes.interaction.errors[0].code,
-            ).toEqual('500');
+            const errors =
+              analyticsRequest?.body.data.attributes.interaction.errors;
+
+            expect(code).toBe(2);
+            expect(errors[0].code).toEqual('500');
           });
         });
       });
@@ -96,19 +106,17 @@ describe.each(integrationWorkflows)(
           it(`snyk ${cmd}`, async () => {
             server.setStatusCode(400);
             const { code } = await runSnykCLI(`${cmd}`, { env });
-            expect(code).toBe(2);
-
             const analyticsRequest = server
               .getRequests()
               .filter((value) =>
-                (value.url as string).includes(
-                  `/api/hidden/orgs/${snykOrg}/analytics`,
-                ),
+                value.url.includes(`/api/hidden/orgs/${snykOrg}/analytics`),
               )
               .pop();
-            expect(
-              analyticsRequest?.body.data.attributes.interaction.errors[0].code,
-            ).toEqual('400');
+            const errors =
+              analyticsRequest?.body.data.attributes.interaction.errors;
+
+            expect(code).toBe(2);
+            expect(errors[0].code).toEqual('400');
           });
         });
       });
