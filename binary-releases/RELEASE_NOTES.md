@@ -6,8 +6,6 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 
 * **iac**: include evidence field in json output [IAC-3161] ([9487a08](https://github.com/snyk/snyk/commit/9487a0816693ec5cfd4c69ac5987a9b5ae7c4ddf))
 * **auth:** auto detect API Url during OAuth authentication ([6884511](https://github.com/snyk/snyk/commit/688451119275ccb1b22d66d3673bcd1bb26249ed))
-* **general**: introduce template based renderer ([cee289d](https://github.com/snyk/snyk/commit/cee289ddc06979c092b87b3533d9e14ade132d30))
-* **code**: support severity change overrides in golang snyk code test ([358d731](https://github.com/snyk/snyk/commit/358d73165054373148f1b8c55d885bbf3a330cd2))
 * **test**: support verbose gradle graphs for sbom generation ([600ef50](https://github.com/snyk/snyk/commit/600ef5076ca7a6f76e4709dc873d60cd089608f1))
 
 
