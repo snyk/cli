@@ -167,3 +167,39 @@ describe('container test projects behavior with --json flag', () => {
     expect(code).toEqual(0);
   });
 });
+
+describe('container test projects behavior with --exclude-node-modules flag', () => {
+  // Dockerfile for node-slim-image.tar
+  // FROM node:alpine
+
+  // COPY package.json /goof1/
+  // COPY package-lock.json /goof1/
+  // COPY package.json /
+  // COPY package-lock.json /
+  // WORKDIR /goof1
+  // RUN npm install
+  // WORKDIR /
+  // RUN npm install
+  it('should scan npm projects only when package.json and package-lock.json pairs are identified in the container image', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/node-slim-image.tar --exclude-node-modules --json --exclude-base-image-vulns`,
+    );
+    const jsonOutput = JSON.parse(stdout);
+    const applications = jsonOutput.applications;
+
+    expect(applications.length).toEqual(2);
+    expect(code).toEqual(1);
+  }, 30000);
+
+  it('should scan npm projects from package.json and package-lock.json pairs and node_modules dependencies', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/node-slim-image.tar --json --exclude-base-image-vulns`,
+    );
+    const jsonOutput = JSON.parse(stdout);
+    const applications = jsonOutput.applications;
+
+    expect(applications.length).toEqual(3);
+
+    expect(code).toEqual(1);
+  }, 30000);
+});
