@@ -18,6 +18,9 @@ const runSnykCLIWithArray = async (
   if (process.env.TEST_SNYK_COMMAND) {
     return await runCommand(process.env.TEST_SNYK_COMMAND, args, options);
   }
+  console.log(
+    `No Binary configured with TEST_SNYK_COMMAND, falling back to node`,
+  );
   return await runCommand('node', [CLI_BIN_PATH, ...args], options);
 };
 

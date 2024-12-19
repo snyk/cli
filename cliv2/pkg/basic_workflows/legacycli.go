@@ -175,6 +175,7 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 		return headersErr
 	}
 	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
+	wrapperProxy.SetErrorHandlerFunction(networkAccess.GetErrorHandler())
 
 	err = wrapperProxy.Start()
 	if err != nil {

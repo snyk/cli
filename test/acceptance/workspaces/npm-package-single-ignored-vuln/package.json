@@ -1,0 +1,9 @@
+{
+  "name": "npm-package-single-ignored-vuln",
+  "version": "1.0.0",
+  "description": "application with annotated vulns",
+  "dependencies": {
+    "cxct": "0.0.1-security"
+  },
+  "devDependencies": {}
+}

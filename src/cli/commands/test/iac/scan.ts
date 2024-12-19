@@ -1,5 +1,6 @@
 import * as cloneDeep from 'lodash.clonedeep';
 import * as assign from 'lodash.assign';
+import * as debugLib from 'debug';
 
 import {
   IacFileInDirectory,
@@ -29,6 +30,8 @@ import { getErrorStringCode } from './local-execution/error-utils';
 import { getRepositoryRootForPath } from '../../../../lib/iac/git';
 import { getInfo } from '../../../../lib/project-metadata/target-builders/git';
 import { buildMeta, GitRepository, GitRepositoryFinder } from './meta';
+
+const debug = debugLib('snyk-iac');
 
 export async function scan(
   iacOrgSettings: IacOrgSettings,
@@ -109,6 +112,7 @@ export async function scan(
         iacScanFailures = [...iacScanFailures, ...(failures || [])];
         iacIgnoredIssuesCount += ignoreCount;
       } catch (error) {
+        debug(`Scan error for path ${path}, details below`);
         res = formatTestError(error);
       }
 
@@ -155,12 +159,17 @@ export async function scan(
 function formatTestError(error) {
   let errorResponse;
   if (error instanceof Error) {
+    debug(`Error: ${error.name} ${error.message}`);
+    debug(`Stack trace: ${error.stack}`);
     errorResponse = error;
   } else if (Array.isArray(error)) {
     return error.map(formatTestError);
   } else if (typeof error !== 'object') {
+    debug(`Error value: ${error}`);
     errorResponse = new Error(error);
   } else {
+    // we should not get here, but if we do, we want to log the thrown object
+    debug('Unexpected error object:', safeStringify(error));
     try {
       errorResponse = JSON.parse(error.message);
     } catch (unused) {
@@ -168,6 +177,17 @@ function formatTestError(error) {
     }
   }
   return errorResponse;
+}
+
+function safeStringify(obj: unknown): string {
+  try {
+    return JSON.stringify(obj);
+  } catch (e) {
+    if (e instanceof Error) {
+      return `Error stringifying object: ${e.message}`;
+    }
+    return `Error stringifying object`;
+  }
 }
 
 class CurrentWorkingDirectoryTraversalError extends CustomError {

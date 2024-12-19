@@ -44,6 +44,8 @@ import {
 } from './utils';
 import { countPathsToGraphRoot } from '../utils';
 import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
+import { headerSnykTsCliTerminate } from '../request/constants';
+import { EXIT_CODES } from '../../cli/exit-codes';
 
 const debug = Debug('snyk');
 
@@ -213,7 +215,7 @@ async function monitorDepTree(
     );
   }
 
-  const { res, body } = await makeRequest({
+  return await monitorRequest({
     body: {
       meta: {
         method: meta.method,
@@ -264,17 +266,6 @@ async function monitorDepTree(
     url: config.API + '/monitor/' + packageManager,
     json: true,
   });
-
-  if (res.statusCode && res.statusCode >= 200 && res.statusCode <= 299) {
-    return body as MonitorResult;
-  } else {
-    const userMessage = body && body.userMessage;
-    if (!userMessage && res.statusCode === 504) {
-      throw new ConnectionTimeoutError();
-    } else {
-      throw new MonitorError(res.statusCode, userMessage);
-    }
-  }
 }
 
 export async function monitorDepGraph(
@@ -336,7 +327,7 @@ export async function monitorDepGraph(
     );
   }
 
-  const { res, body } = await makeRequest({
+  return await monitorRequest({
     body: {
       meta: {
         method: meta.method,
@@ -379,17 +370,6 @@ export async function monitorDepGraph(
     url: `${config.API}/monitor/${packageManager}/graph`,
     json: true,
   });
-
-  if (res.statusCode && res.statusCode >= 200 && res.statusCode <= 299) {
-    return body as MonitorResult;
-  } else {
-    const userMessage = body && body.userMessage;
-    if (!userMessage && res.statusCode === 504) {
-      throw new ConnectionTimeoutError();
-    } else {
-      throw new MonitorError(res.statusCode, userMessage);
-    }
-  }
 }
 
 async function monitorDepGraphFromDepTree(
@@ -465,7 +445,8 @@ async function monitorDepGraphFromDepTree(
       errorMessageWithRetry('Your monitor request could not be completed.'),
     );
   }
-  const { res, body } = await makeRequest({
+
+  return await monitorRequest({
     body: {
       meta: {
         method: meta.method,
@@ -511,6 +492,13 @@ async function monitorDepGraphFromDepTree(
     url: `${config.API}/monitor/${packageManager}/graph`,
     json: true,
   });
+}
+
+async function monitorRequest(payload: any): Promise<MonitorResult> {
+  const { res, body } = await makeRequest(payload);
+  if (res.headers[headerSnykTsCliTerminate] == 'true') {
+    process.exit(EXIT_CODES.EX_TERMINATE);
+  }
 
   if (res.statusCode && res.statusCode >= 200 && res.statusCode <= 299) {
     return body as MonitorResult;

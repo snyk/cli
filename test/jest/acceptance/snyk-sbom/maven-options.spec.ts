@@ -67,6 +67,17 @@ describe('snyk sbom: maven options (mocked server only)', () => {
     );
   });
 
+  test('`sbom --scan-unmanaged --file=<NAME>` fails to generate an SBOM for user defined JAR file', async () => {
+    const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
+      'maven-jars',
+      '--scan-unmanaged --file=mvn-app-1.0-SNAPSHOT.jar',
+      env,
+    );
+
+    expect(sbom.metadata.component.name).toMatch(/^snyk-test-maven-jars-/);
+    expect(sbom.components.length).toBe(2);
+  });
+
   test('`sbom --scan-unmanaged --file=<NAME>` generates an SBOM for the specific JAR file', async () => {
     const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
       'maven-jars',

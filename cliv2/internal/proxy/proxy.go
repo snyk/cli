@@ -20,6 +20,7 @@ import (
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
+	networktypes "github.com/snyk/go-application-framework/pkg/networking/network_types"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/elazarl/goproxy"
@@ -42,6 +43,8 @@ type WrapperProxy struct {
 	proxyUsername       string
 	proxyPassword       string
 	addHeaderFunc       func(*http.Request) error
+	config              configuration.Configuration
+	errHandlerFunc      networktypes.ErrorHandlerFunc
 }
 
 type ProxyInfo struct {
@@ -136,6 +139,7 @@ func NewWrapperProxy(config configuration.Configuration, cliVersion string, debu
 	p.addHeaderFunc = func(request *http.Request) error { return nil }
 	p.DebugLogger = debugLogger
 	p.CertificateLocation = ca.CertFile
+	p.config = config
 
 	insecureSkipVerify := config.GetBool(configuration.INSECURE_HTTPS)
 
@@ -179,6 +183,9 @@ func (p *WrapperProxy) ProxyInfo() *ProxyInfo {
 // request might 401 or 403, such as permissions or entitlements.
 const headerSnykAuthFailed = "snyk-auth-failed"
 
+// Header to signal that the typescript CLI should terminate execution.
+const headerSnykTerminate = "snyk-terminate"
+
 func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 	if err := p.addHeaderFunc(r); err != nil {
 		if errors.Is(err, middleware.ErrAuthenticationFailed) {
@@ -190,6 +197,25 @@ func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.Proxy
 	networking.LogRequest(r, p.DebugLogger)
 
 	return r, nil
+}
+
+func (p *WrapperProxy) handleResponse(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
+	networking.LogResponse(resp, p.DebugLogger)
+
+	if authFailed := resp.Request.Header.Get(headerSnykAuthFailed); authFailed != "" {
+		resp.Header.Set(headerSnykAuthFailed, authFailed)
+	}
+
+	err := middleware.HandleResponse(resp, p.config)
+	if err == nil {
+		return resp
+	}
+
+	if p.errHandlerFunc != nil && p.errHandlerFunc(err, resp.Request.Context()) != nil {
+		resp.Header.Set(headerSnykTerminate, "true")
+	}
+
+	return resp
 }
 
 func (p *WrapperProxy) checkBasicCredentials(user, password string) bool {
@@ -215,14 +241,7 @@ func (p *WrapperProxy) Start() error {
 	proxy.Logger = log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0)
 	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
 	proxy.OnRequest().HandleConnect(p)
-	proxy.OnResponse().DoFunc(func(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
-		networking.LogResponse(resp, p.DebugLogger)
-
-		if authFailed := resp.Request.Header.Get(headerSnykAuthFailed); authFailed != "" {
-			resp.Header.Set(headerSnykAuthFailed, authFailed)
-		}
-		return resp
-	})
+	proxy.OnResponse().DoFunc(p.handleResponse)
 	proxy.Verbose = true
 	proxyServer := &http.Server{
 		Handler: proxy,
@@ -321,4 +340,8 @@ func (p *WrapperProxy) Transport() *http.Transport {
 
 func (p *WrapperProxy) SetHeaderFunction(addHeaderFunc func(*http.Request) error) {
 	p.addHeaderFunc = addHeaderFunc
+}
+
+func (p *WrapperProxy) SetErrorHandlerFunction(errHandler networktypes.ErrorHandlerFunc) {
+	p.errHandlerFunc = errHandler
 }

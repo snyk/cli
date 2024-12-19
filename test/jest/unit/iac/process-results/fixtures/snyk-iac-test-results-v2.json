@@ -241,6 +241,9 @@
           "file": "vpc_group.tf",
           "line": 9,
           "column": 1
+        },
+        "context": {
+          "evidence": "cidr_block: 10.1.0.0/16"
         }
       },
       {

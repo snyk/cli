@@ -253,6 +253,7 @@
     ],
     "infrastructureAsCodeSuccesses": [
       {
+        "evidence": "cidr_block: 10.1.0.0/16",
         "id": "SNYK-CC-00328",
         "severity": "medium",
         "type": "terraformconfig",

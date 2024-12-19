@@ -11,8 +11,11 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
+
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/fips"
 
@@ -80,8 +83,6 @@ func getFipsStatus(config configuration.Configuration) string {
 }
 
 func writeLogHeader(config configuration.Configuration, networkAccess networking.NetworkAccess) {
-	keys := []string{configuration.API_URL, configuration.AUTHENTICATION_TOKEN, configuration.AUTHENTICATION_BEARER_TOKEN, configuration.ORGANIZATION}
-
 	authorization, _, userAgent := logHeaderAuthorizationInfo(config, networkAccess)
 
 	org := config.GetString(configuration.ORGANIZATION)
@@ -109,6 +110,12 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Version", cliv2.GetFullVersion()+" "+buildType)
 	tablePrint("Platform", userAgent)
 	tablePrint("API", config.GetString(configuration.API_URL))
+
+	region, err := localworkflows.DetermineRegionFromUrl(config.GetString(configuration.API_URL))
+	if err == nil {
+		tablePrint("Region", region)
+	}
+
 	tablePrint("Cache", config.GetString(configuration.CACHE_PATH))
 	tablePrint("Organization", org)
 	tablePrint("Insecure HTTPS", insecureHTTPS)
@@ -120,16 +127,12 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("  fips", fipsEnabled)
 	tablePrint("Checks", "")
 
-	checkCount := 0
-	for _, key := range keys {
-		keysSpecified := config.GetAllKeysThatContainValues(key)
-		if len(keysSpecified) > 1 {
-			checkCount++
-			tablePrint("  Configuration", fmt.Sprintf("Possible unexpected behavior, the following configuration values might override each other %s", strings.ToUpper(strings.Join(keysSpecified, ", "))))
-		}
+	sanityCheckResults := config_utils.CheckSanity(config)
+	for _, result := range sanityCheckResults {
+		tablePrint("  Configuration", result.Description)
 	}
 
-	if checkCount == 0 {
+	if len(sanityCheckResults) == 0 {
 		tablePrint("  Configuration", "all good")
 	}
 }

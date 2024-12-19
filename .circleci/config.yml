@@ -16,7 +16,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.22.6'
+    default: '1.23.2'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -47,22 +47,22 @@ executors:
     resource_class: small
   docker-amd64:
     docker:
-      - image: snyklabs/cli-build:20240814-161347
+      - image: snyklabs/cli-build:20241015-082358
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: snyklabs/cli-build:20240814-161347
+      - image: snyklabs/cli-build:20241015-082358
     working_directory: /mnt/ramdisk/snyk
     resource_class: xlarge
   docker-arm64:
     docker:
-      - image: snyklabs/cli-build-arm64:20240814-161347
+      - image: snyklabs/cli-build-arm64:20241015-082358
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   docker-arm64-xl:
     docker:
-      - image: snyklabs/cli-build-arm64:20240814-161347
+      - image: snyklabs/cli-build-arm64:20241015-082358
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.xlarge
   linux-ubuntu-jammy-amd64:
@@ -176,7 +176,7 @@ commands:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -187,7 +187,7 @@ commands:
             choco install nodejs --version=$(head .nvmrc) --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
       - install-deps-python:
@@ -244,7 +244,7 @@ commands:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -252,7 +252,7 @@ commands:
             choco install make --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v3-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
       - install-deps-python:
@@ -298,7 +298,7 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python pipenv elixir composer gradle@6 maven sbt dotnet
+        default: go gradle python pipenv elixir composer gradle@8 maven sbt dotnet
     steps:
       - run:
           name: Installing Rosetta
@@ -320,7 +320,7 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python elixir composer gradle@6 maven sbt dotnet
+        default: go gradle python elixir composer gradle@8 maven sbt dotnet
     steps:
       - run:
           name: Installing Rosetta
@@ -632,7 +632,7 @@ workflows:
           dont_skip_tests: 0
 
       - acceptance-tests:
-          name: acceptance-tests macOS amd64
+          name: acceptance-tests macOS arm64
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -946,14 +946,14 @@ jobs:
       - restore_cache:
           name: Restore npm cache
           keys:
-            - prepare-build-npm-deps-{{ checksum "package-lock.json" }}
-            - prepare-build-npm-deps
+            - prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
+            - prepare-v1-build-npm-deps
       - run:
           name: Installing dependencies
           command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
       - save_cache:
           name: Save npm cache
-          key: prepare-build-npm-deps-{{ checksum "package-lock.json" }}
+          key: prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
           paths:
             - .npm
       - run:

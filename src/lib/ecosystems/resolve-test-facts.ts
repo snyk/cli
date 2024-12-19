@@ -237,7 +237,7 @@ export async function resolveAndTestFactsUnmanagedDeps(
           },
           {
             name: 'unmanagedDependencyCount',
-            data: depGraphData?.pkgs.length ?? 0,
+            data: dependencyCount ?? 0,
           },
           {
             name: 'unmanagedIssuesCount',

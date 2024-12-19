@@ -14,13 +14,13 @@ The `snyk sbom` feature requires an internet connection.
 
 ## Usage
 
-`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|spdx2.3+json> [--org=<ORG_ID>] [--file=<FILE>] [--unmanaged] [--dev] [--all-projects] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [--maven-aggregate-project] [--scan-unmanaged] [--scan-all-unmanaged] [--sub-project=<NAME>] [--gradle-sub-project=<NAME>] [--all-sub-projects] [--configuration-matching=<CONFIGURATION_REGEX>] [--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]] [--init-script=<FILE>] [--json-file-output=<OUTPUT_FILE_PATH>] [<TARGET_DIRECTORY>]`
+`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--file=<FILE>] [--unmanaged] [--dev] [--all-projects] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [--maven-aggregate-project] [--scan-unmanaged] [--scan-all-unmanaged] [--sub-project=<NAME>] [--gradle-sub-project=<NAME>] [--all-sub-projects] [--configuration-matching=<CONFIGURATION_REGEX>] [--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]] [--init-script=<FILE>] [--json-file-output=<OUTPUT_FILE_PATH>] [<TARGET_DIRECTORY>]`
 
 ## Description
 
 The `snyk sbom` command generates an SBOM for a local software project in an ecosystem supported by Snyk.
 
-Supported formats include CycloneDX v1.4 (JSON or XML), CycloneDX v1.5 (JSON or XML) and SPDX v2.3 (JSON).
+Supported formats include CycloneDX v1.4 (JSON or XML), CycloneDX v1.5 (JSON or XML), CycloneDX v1.6 (JSON or XML), and SPDX v2.3 (JSON).
 
 An SBOM can be generated for all supported Open Source package managers as well as unmanaged software projects.
 
@@ -37,11 +37,11 @@ Use the `-d` or `--debug` option to output the debug logs.
 
 ## Options
 
-### `--format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|spdx2.3+json>`
+### `--format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json>`
 
 Required. Specify the output format for the SBOM to be produced.
 
-Set the desired SBOM output format. Available options are `cyclonedx1.4+json`, `cyclonedx1.4+xml`, `cyclonedx1.5+json`, `cyclonedx1.5+xml` and `spdx2.3+json`
+Set the desired SBOM output format. Available options are `cyclonedx1.4+json`, `cyclonedx1.4+xml`, `cyclonedx1.5+json`, `cyclonedx1.5+xml`, `cyclonedx1.6+json`, `cyclonedx1.6+xml`, and `spdx2.3+json`
 
 ### `[--org=<ORG_ID>]`
 
@@ -114,7 +114,7 @@ However, `--exclude=./src/dir1` will result in an error because it includes a pa
 
 Use with `--all-projects` to indicate how many subdirectories to search. `DEPTH` must be a number, 1 or greater; zero (0) is the current directory.
 
-Default: 4
+Default: no limit
 
 ### `[--prune-repeated-subdependencies|-p]`
 
@@ -292,11 +292,11 @@ Example: `snyk sbom -- -s settings.xml`
 
 ### Create a CycloneDX JSON document for a local software project
 
-`$ snyk sbom --format=cyclonedx1.5+json`
+`$ snyk sbom --format=cyclonedx1.6+json`
 
 ### Create a CycloneDX JSON document and redirect stdout to a file
 
-`$ snyk sbom --format=cyclonedx1.5+json > mySBOM.json`
+`$ snyk sbom --format=cyclonedx1.6+json > mySBOM.json`
 
 ### Create an SPDX JSON document and write it to a file
 
@@ -308,8 +308,8 @@ Example: `snyk sbom -- -s settings.xml`
 
 ### Create a CycloneDX XML document for a Maven project
 
-`$ snyk sbom --file=pom.xml --format=cyclonedx1.5+xml`
+`$ snyk sbom --file=pom.xml --format=cyclonedx1.6+xml`
 
 ### Create a CycloneDX JSON document for a monorepo
 
-`$ snyk sbom --format=cyclonedx1.5+json --all-projects`
+`$ snyk sbom --format=cyclonedx1.6+json --all-projects`
