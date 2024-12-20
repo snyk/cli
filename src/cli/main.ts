@@ -48,6 +48,8 @@ import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-erro
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
 import { obfuscateArgs } from '../lib/utils';
 import { EXIT_CODES } from './exit-codes';
+import { sendError } from './ipc';
+
 const isEmpty = require('lodash/isEmpty');
 
 const debug = Debug('snyk');
@@ -195,12 +197,7 @@ async function handleError(args, error) {
     analytics.add('error', true);
     analytics.add('command', args.command);
   } else {
-    const errorFilePath = pathLib.join(process.env.SNYK_TEMP_DIR_PATH || getFullPath(''), './typescript-runtime-errors');
-
-    // TODO: If error is NOT valid error catalog message transform to match structure
-    await saveJsonResultsToFile(JSON.stringify(
-      analyticsError,
-    ), errorFilePath);
+    sendError(error);
     analytics.add('error-message', analyticsError.message);
     // Note that error.stack would also contain the error message
     // (see https://nodejs.org/api/errors.html#errors_error_stack)
@@ -220,7 +217,7 @@ async function handleError(args, error) {
   return { res, exitCode };
 }
 
-function getFullPath(filepathFragment: string): string {
+export function getFullPath(filepathFragment: string): string {
   if (pathLib.isAbsolute(filepathFragment)) {
     return filepathFragment;
   } else {

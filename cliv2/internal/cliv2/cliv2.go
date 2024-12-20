@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
@@ -57,6 +58,8 @@ const (
 	V2_VERSION Handler = iota
 	V2_ABOUT   Handler = iota
 )
+
+const configKeyErrFile = "INTENAL_MY_ERR_FILE"
 
 func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger, ri runtimeinfo.RuntimeInfo) (*CLI, error) {
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
@@ -351,6 +354,8 @@ func PrepareV1EnvironmentVariables(
 // Fill environment variables for the legacy CLI from the given configuration.
 func fillEnvironmentFromConfig(inputAsMap map[string]string, config configuration.Configuration, args []string) {
 	inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
+	// TODO: pull into constants
+	inputAsMap["SNYK_ERR_FILE"] = config.GetString(configKeyErrFile)
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
 		inputAsMap[constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED] = "1"
@@ -402,6 +407,9 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 		defer cancel()
 	}
 
+	filePath := filepath.Join(c.globalConfig.GetString(configuration.TEMP_DIR_PATH), fmt.Sprintf("err-file-%d", time.Now().Nanosecond()))
+	c.globalConfig.Set(configKeyErrFile, filePath)
+
 	snykCmd, err := c.PrepareV1Command(ctx, c.v1BinaryLocation, passThroughArgs, proxyInfo, c.GetIntegrationName(), GetFullVersion())
 
 	if c.DebugLogger.Writer() != io.Discard {
@@ -447,6 +455,16 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		return ctx.Err()
 	}
+
+	errDataFromFile, fileErr := os.ReadFile(filePath)
+	if fileErr != nil {
+		c.DebugLogger.Printf("Failed to read file: %v", fileErr)
+	}
+
+	c.DebugLogger.Println(`LADEBUG`)
+	c.DebugLogger.Println(string(errDataFromFile))
+	// TODO: wrap this in a custom struct/err format that we can use in the
+
 	return err
 }
 

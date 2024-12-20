@@ -110,10 +110,7 @@ func legacycliWorkflow(
 	if len(apiToken) == 0 {
 		apiToken = "random"
 	}
-	cli.AppendEnvironmentVariables([]string{
-		constants.SNYK_API_TOKEN_ENV + "=" + apiToken,
-		"SNYK_TEMP_DIR_PATH=" + config.GetString(configuration.TEMP_DIR_PATH),
-	})
+	cli.AppendEnvironmentVariables([]string{constants.SNYK_API_TOKEN_ENV + "=" + apiToken})
 
 	err = cli.Init()
 	if err != nil {
