@@ -5,8 +5,8 @@ go 1.23
 toolchain go1.23.2
 
 require (
-	github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a
-	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
+	github.com/elazarl/goproxy v0.0.0-20241219141958-0cbc93263399
+	github.com/elazarl/goproxy/ext v0.0.0-20241217120900-7711dfa3811c
 	github.com/gofrs/flock v0.12.1
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
