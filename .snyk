@@ -10,7 +10,7 @@ ignore:
   SNYK-JS-CROSSSPAWN-8303230:
     - '*':
         reason: No direct upgrade path available
-        expires: 2025-01-01T00:12:20.523Z
+        expires: 2025-04-01T00:12:20.523Z
         created: 2024-11-08T10:22:20.531Z
   SNYK-JS-SOURCEMAPSUPPORT-6112477:
     - '*':
