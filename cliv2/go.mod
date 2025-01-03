@@ -5,7 +5,7 @@ go 1.23
 toolchain go1.23.4
 
 require (
-	github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a
+	github.com/elazarl/goproxy v1.2.5
 	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
 	github.com/gofrs/flock v0.12.1
 	github.com/golang/mock v1.6.0
@@ -23,7 +23,7 @@ require (
 	github.com/snyk/snyk-ls v0.0.0-20250106145332-465285ee6c04
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 )
 
 require (
