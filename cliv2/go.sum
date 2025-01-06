@@ -447,8 +447,8 @@ github.com/golang/protobuf v1.5.4/go.mod h1:lnTiLA8Wa4RWRcIUkrtSVa5nRhsEGBg48fD6
 github.com/golang/snappy v0.0.3/go.mod h1:/XxbfmMg8lxefKM7IXC3fBNl/7bRcc72aCRzEWrmP2Q=
 github.com/golang/snappy v0.0.4 h1:yAGX7huGHXlcLOEtBnF4w7FQwA26wojNCwOYAEhLjQM=
 github.com/golang/snappy v0.0.4/go.mod h1:/XxbfmMg8lxefKM7IXC3fBNl/7bRcc72aCRzEWrmP2Q=
-github.com/gomarkdown/markdown v0.0.0-20240730141124-034f12af3bf6 h1:ZPy+2XJ8u0bB3sNFi+I72gMEMS7MTg7aZCCXPOjV8iw=
-github.com/gomarkdown/markdown v0.0.0-20240730141124-034f12af3bf6/go.mod h1:JDGcbDT52eL4fju3sZ4TeHGsQwhG9nbDV21aMyhwPoA=
+github.com/gomarkdown/markdown v0.0.0-20241205020045-f7e15b2f3e62 h1:pbAFUZisjG4s6sxvRJvf2N7vhpCvx2Oxb3PmS6pDO1g=
+github.com/gomarkdown/markdown v0.0.0-20241205020045-f7e15b2f3e62/go.mod h1:JDGcbDT52eL4fju3sZ4TeHGsQwhG9nbDV21aMyhwPoA=
 github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c/go.mod h1:lNA+9X1NB3Zf8V7Ke586lFgjr2dZNuvo3lPJSGZ5JPQ=
 github.com/google/btree v1.0.0/go.mod h1:lNA+9X1NB3Zf8V7Ke586lFgjr2dZNuvo3lPJSGZ5JPQ=
 github.com/google/flatbuffers v1.12.1 h1:MVlul7pQNoDzWRLTw5imwYsl+usrS1TXG2H4jg6ImGw=
@@ -768,8 +768,8 @@ github.com/snyk/policy-engine v0.31.3 h1:FepCg6QN/X8uvxYjF+WwB2aiBPJB+NENDgKQeI/
 github.com/snyk/policy-engine v0.31.3/go.mod h1:Z9/hcngz+2txX4QfQRwfODk8F7w4mr/IQOvCtIosnLo=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20241219141749-1fb24532eed8 h1:0HKtutPGmc3Cp6v+l3ngwWRP29x8I1SuQxAtYN4b1do=
-github.com/snyk/snyk-ls v0.0.0-20241219141749-1fb24532eed8/go.mod h1:b03ltsCNR3DCEoUdGcSxDAP8eQmav4f0WpNTgfJgwcU=
+github.com/snyk/snyk-ls v0.0.0-20250106145332-465285ee6c04 h1:DqKYBJDtAL1kK7YDjnjlv0n5eP3Q/bAkDAuoiu6SLjE=
+github.com/snyk/snyk-ls v0.0.0-20250106145332-465285ee6c04/go.mod h1:K+oEw3GpY18fozAsWThgkZNebau4DSgn/3eMvNMREEI=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
