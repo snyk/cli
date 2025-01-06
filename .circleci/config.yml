@@ -394,6 +394,7 @@ workflows:
           name: secrets-scan
           context: snyk-bot-slack
           channel: cli-alerts
+          trusted-branch: main
 
       - prepare-build:
           requires:
