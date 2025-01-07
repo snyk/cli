@@ -5,7 +5,7 @@ go 1.23
 toolchain go1.23.4
 
 require (
-	github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a
+	github.com/elazarl/goproxy v1.2.3
 	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
 	github.com/gofrs/flock v0.12.1
 	github.com/golang/mock v1.6.0
@@ -23,7 +23,7 @@ require (
 	github.com/snyk/snyk-ls v0.0.0-20250106145332-465285ee6c04
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 )
 
 require (
@@ -62,7 +62,7 @@ require (
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/creachadair/jrpc2 v1.2.1 // indirect
 	github.com/creachadair/mds v0.16.0 // indirect
-	github.com/cyphar/filepath-securejoin v0.3.4 // indirect
+	github.com/cyphar/filepath-securejoin v0.3.6 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/deepmap/oapi-codegen v1.16.3 // indirect
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
@@ -79,8 +79,8 @@ require (
 	github.com/getsentry/sentry-go v0.28.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
-	github.com/go-git/go-billy/v5 v5.6.0 // indirect
-	github.com/go-git/go-git/v5 v5.12.0 // indirect
+	github.com/go-git/go-billy/v5 v5.6.1 // indirect
+	github.com/go-git/go-git/v5 v5.13.1 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
