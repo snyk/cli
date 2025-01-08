@@ -124,4 +124,9 @@ ignore:
         reason: Affected functionality is not used.
         expires: 2023-09-14T08:43:11.340Z
         created: 2022-09-14T08:43:11.370Z
+  SNYK-GOLANG-GITHUBCOMGOGITGOGITV5PLUMBING-8602520:
+    - '*':
+        reason: No immeditiately exploitable path. More time required to validate safety of upgrade
+        expires: 2025-02-07T12:38:43.627Z
+        created: 2025-01-08T12:38:43.632Z
 patch: {}
