@@ -1018,6 +1018,7 @@ jobs:
             npm run lint
             pushd cliv2
               export CGO_ENABLED=1
+              echo $GOLANGCI_LINT_CACHE
               make lint
             popd
       - save_cache:
