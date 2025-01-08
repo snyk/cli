@@ -997,6 +997,12 @@ jobs:
     executor: docker-amd64
     steps:
       - prepare-workspace
+      - restore_cache:
+          name: Restoring golint cache
+          keys:
+            - golint-cache-{{ .Branch }}-{{ .Revision }}
+            - golint-cache-{{ .Branch }}-
+            - golint-cache-
       - install-go:
           go_os: << parameters.go_os >>
           go_target_os: << parameters.go_target_os >>
@@ -1005,12 +1011,20 @@ jobs:
           extraction_path: << parameters.install_path >>
       - run:
           name: Linting project
+          environment:
+            # we re-use the Go build cache as our lint-cache too.
+            GOLANGCI_LINT_CACHE: /home/circleci/.cache/golint
           command: |
             npm run lint
             pushd cliv2
               export CGO_ENABLED=1
               make lint
             popd
+      - save_cache:
+          name: Saving Golintci cache
+          key: golint-cache-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - /home/circleci/.cache/golint
       - prodsec/security_scans:
           mode: auto
           open-source-additional-arguments: --exclude=test,dist
