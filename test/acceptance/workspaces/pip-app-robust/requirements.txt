@@ -1,0 +1,11 @@
+--trusted-host pypi.fury.io
+
+Jinja2==2.7.2
+git+https://github.com/snyk-fixtures/python-pypi-package-simple@v1.0.0#egg=simple==v1.0.0
+-e git+https://github.com/snyk-fixtures/python-pypi-package-sample-subdir#egg=sample&subdirectory=subdir
+https://files.pythonhosted.org/packages/d0/d7/4806fd165c27716f02a3a9c23d207854b8a3ed884db53c2781b92bd8d4f4/whl.setup-0.2-py2.py3-none-any.whl
+requests; python_version >= "3.8.dev0"
+pydantic[email]==1.9.0
+djangorestframework @ git+https://github.com/encode/django-rest-framework.git@1db19f4b2d1500894448634852e02f73043382e4
+-r req.txt
+-c constraints.txt

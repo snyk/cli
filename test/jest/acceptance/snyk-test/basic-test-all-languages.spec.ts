@@ -76,8 +76,15 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
-  test('run `snyk test` on a python project', async () => {
-    const project = await createProjectFromWorkspace('pip-app');
+  test.each([
+    {
+      fixture: 'pip-app',
+    },
+    {
+      fixture: 'pip-app-robust',
+    },
+  ])('run `snyk test` on a python project $fixture', async ({ fixture }) => {
+    const project = await createProjectFromWorkspace(fixture);
     let pythonCommand = 'python';
 
     await runCommand(pythonCommand, ['--version']).catch(function () {
