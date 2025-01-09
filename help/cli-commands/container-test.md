@@ -116,12 +116,6 @@ Allow disabling scans for app vulnerabilities; in CLI versions 1.1090.0 (2023-01
 
 In earlier releases, cannot be used with `--app-vulns`.
 
-### `--exclude-node-modules`
-
-Allow disabling the scan of node_modules directories inside node.js container images; in CLI versions v1.1292.0 and higher, node_modules scanning is enabled by default.
-
-When the node_modules scan is disabled, snyk will report vulnerabilities for npm projects sourced from application file pairs: [package.json, package-lock.json], [package.json, yarn.lock].
-
 ### `--nested-jars-depth`
 
 When `app-vulns` is enabled, use the `--nested-jars-depth=n` option to set how many levels of nested jars Snyk is to unpack. Depth must be a number.
