@@ -925,7 +925,29 @@ workflows:
                 - '/release.*/'
 
       - trigger-building-snyk-images:
-          name: Trigger building snyk-images
+          name: Trigger building snyk-images (preview)
+          context: team-hammerhead-common-deploy-tokens
+          deployment: preview
+          requires:
+            - upload preview
+          filters:
+            branches:
+              only:
+                - main
+
+      - trigger-building-snyk-images:
+          name: Trigger building snyk-images (rc)
+          context: team-hammerhead-common-deploy-tokens
+          deployment: rc
+          requires:
+            - upload release candidate
+          filters:
+            branches:
+              only:
+                - '/release.*/'
+
+      - trigger-building-snyk-images:
+          name: Trigger building snyk-images (stable)
           context: team-hammerhead-common-deploy-tokens
           requires:
             - upload npm
@@ -1429,11 +1451,15 @@ jobs:
       - failed-release-notification
 
   trigger-building-snyk-images:
+    parameters:
+      deployment:
+        type: string
+        default: stable
     executor: docker-amd64
     steps:
       - prepare-workspace
       - shall-deploy:
-          deployment: stable
+          deployment: << parameters.deployment >>
       - run:
           name: Trigger build-and-publish workflow at snyk-images
           command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
