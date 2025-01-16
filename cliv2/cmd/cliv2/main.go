@@ -456,6 +456,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			return
 		}
 
+		userInterface.Output("Interaction ID")
 		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
 			jsonError := JsonErrorStruct{
 				Ok:            false,
@@ -472,6 +473,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			}
 
 			uiError := userInterface.OutputError(err)
+			userInterface.Output("InteractionID: " + instrumentation.AssembleUrnFromUUID(interactionId))
 			if uiError != nil {
 				globalLogger.Err(uiError).Msg("ui failed to show error")
 			}
