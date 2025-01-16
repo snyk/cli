@@ -91,6 +91,8 @@ async function runCommand(args: Args) {
 async function handleError(args, error) {
   spinner.clearAll();
 
+  console.log(`LADEBUG`);
+
   if (typeof error === 'object') {
     error.stack = error.nestedStack || error.stack;
     error.userMessage = error.nestedUserMessage || error.userMessage;
@@ -135,8 +137,14 @@ async function handleError(args, error) {
     }
   }
 
+  const w = (s: any) => {
+    console.log({s, sType: typeof s})
+    stripAnsi(s);
+  }
+
   if (args.options.debug && !args.options.json) {
     const output = vulnsFound ? error.message : error.stack;
+    console.log('PIE')
     console.log(output);
   } else if (
     args.options.json &&
@@ -144,12 +152,18 @@ async function handleError(args, error) {
   ) {
     const output = vulnsFound
       ? error.message
-      : stripAnsi(error.json || error.stack);
+      : w(error.json || error.stack);
+
     if (error.jsonPayload) {
       new JsonStreamStringify(error.jsonPayload, undefined, 2).pipe(
         process.stdout,
       );
     } else {
+      console.log(`FISH`, typeof output)
+      // is object
+      if (typeof output === 'object') {
+        output.interactionId = 'foo';
+      }
       console.log(output);
     }
   } else {

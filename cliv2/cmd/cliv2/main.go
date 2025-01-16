@@ -1,8 +1,6 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-
 import (
 	"context"
 	"encoding/json"
@@ -29,6 +27,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -65,9 +64,10 @@ const (
 )
 
 type JsonErrorStruct struct {
-	Ok       bool   `json:"ok"`
-	ErrorMsg string `json:"error"`
-	Path     string `json:"path"`
+	Ok            bool   `json:"ok"`
+	ErrorMsg      string `json:"error"`
+	Path          string `json:"path"`
+	InteractionId string `json:"interactionId"`
 }
 
 type HandleError int
@@ -458,9 +458,10 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 
 		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
 			jsonError := JsonErrorStruct{
-				Ok:       false,
-				ErrorMsg: err.Error(),
-				Path:     globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
+				Ok:            false,
+				ErrorMsg:      err.Error(),
+				Path:          globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
+				InteractionId: "foo",
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
@@ -604,6 +605,7 @@ func MainWithErrorCode() int {
 	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
 
 	exitCode := cliv2.DeriveExitCode(err)
+	fmt.Printf("Deriving Exit Code %d", exitCode)
 	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, err)
 
 	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
