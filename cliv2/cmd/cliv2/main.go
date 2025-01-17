@@ -448,7 +448,7 @@ func handleError(err error) HandleError {
 	return resultError
 }
 
-func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration) {
+func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, interactionId string) {
 	if err != nil {
 		_, isExitError := err.(*exec.ExitError)
 		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
@@ -456,13 +456,12 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			return
 		}
 
-		userInterface.Output("Interaction ID")
 		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
 			jsonError := JsonErrorStruct{
 				Ok:            false,
 				ErrorMsg:      err.Error(),
 				Path:          globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
-				InteractionId: "foo",
+				InteractionId: interactionId,
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
@@ -472,8 +471,9 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 				err = fmt.Errorf("command timed out")
 			}
 
-			uiError := userInterface.OutputError(err)
-			userInterface.Output("InteractionID: " + instrumentation.AssembleUrnFromUUID(interactionId))
+			errWithInteractionId := err
+
+			uiError := userInterface.OutputError(errWithInteractionId)
 			if uiError != nil {
 				globalLogger.Err(uiError).Msg("ui failed to show error")
 			}
@@ -604,7 +604,7 @@ func MainWithErrorCode() int {
 		err = legacyCLITerminated(err, errorList)
 	}
 
-	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
+	displayError(err, globalEngine.GetUserInterface(), globalConfiguration, instrumentation.AssembleUrnFromUUID(interactionId))
 
 	exitCode := cliv2.DeriveExitCode(err)
 	fmt.Printf("Deriving Exit Code %d", exitCode)
