@@ -271,7 +271,6 @@ export function args(rawArgv: string[]): Args {
 
   if (argv.insecure) {
     global.ignoreUnknownCA = true;
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   }
 
   debug(command, obfuscateArgs(argv));
