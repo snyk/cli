@@ -25,4 +25,3 @@ exclude:
     - test/**
     - scripts/upgrade-snyk-go-dependencies.go
     - release-scripts/write-ls-protocol-version.go
-    - src/cli/args.ts
