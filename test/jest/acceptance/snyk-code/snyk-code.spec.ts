@@ -381,7 +381,7 @@ describe('snyk code test', () => {
           it('works with --remote-repo-url', async () => {
             const expectedCodeSecurityIssues = 6;
             const { stdout } = await runSnykCLI(
-              `code test ${projectWithCodeIssues} --remote-repo-url=hhttps://github.com/snyk/cli.git --json`,
+              `code test ${projectWithCodeIssues} --remote-repo-url=https://github.com/snyk/cli.git --json`,
               {
                 env: {
                   ...process.env,
