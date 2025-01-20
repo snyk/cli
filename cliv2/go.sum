@@ -316,8 +316,6 @@ github.com/docker/distribution v2.8.2+incompatible h1:T3de5rq0dB1j30rp0sA2rER+m3
 github.com/docker/distribution v2.8.2+incompatible/go.mod h1:J2gT2udsDAN96Uj4KfcMRqY0/ypR+oyYUYmja8H+y+w=
 github.com/dustin/go-humanize v1.0.0 h1:VSnTsYCnlFHaM2/igO1h6X3HA71jcobQuxemgkq4zYo=
 github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
-github.com/elazarl/goproxy v1.3.0 h1:hpDH1r1qJgM3eusz7lP+BiMPnLiWPa6hDjIFF5WVCjE=
-github.com/elazarl/goproxy v1.3.0/go.mod h1:X/5W/t+gzDyLfHW4DrMdpjqYjpXsURlBt9lpBDxZZZQ=
 github.com/elazarl/goproxy v1.5.0 h1:YU2DM2E1piA2lvHx/Wv7AgxoE0MoYnPyKOnZhiNsopc=
 github.com/elazarl/goproxy v1.5.0/go.mod h1:X/5W/t+gzDyLfHW4DrMdpjqYjpXsURlBt9lpBDxZZZQ=
 github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a h1:6hp3+W5oJSkbk/m2XquFdhih2H4wxxR0Nl6GfPL8kss=
@@ -772,8 +770,8 @@ github.com/snyk/policy-engine v0.32.1 h1:BP0SQoli2YAbGa8BJgr8asvJIYk2sd9xwrg0Vsn
 github.com/snyk/policy-engine v0.32.1/go.mod h1:stW3Avc0kTuqzUM85W4fjj/xRi616CNxCku/rz9d3z8=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20250117094348-007da850d52b h1:KOIRulwBleLa2CxAdI3ON0ymQ1VfpQaDH+Zrz/GabzM=
-github.com/snyk/snyk-ls v0.0.0-20250117094348-007da850d52b/go.mod h1:6nEEGeHSUt95UGDaNrVJ96JMiHMsbrx29cso1/KeBko=
+github.com/snyk/snyk-ls v0.0.0-20250120122933-b692957e61a8 h1:i89BGgPeq1R/nIkjiMcRjVCP/VPwUEHzy1HMfg/x2GI=
+github.com/snyk/snyk-ls v0.0.0-20250120122933-b692957e61a8/go.mod h1:6nEEGeHSUt95UGDaNrVJ96JMiHMsbrx29cso1/KeBko=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
