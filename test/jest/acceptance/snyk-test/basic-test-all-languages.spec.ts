@@ -530,7 +530,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   test('run `snyk test` on a pnpm project with `enablePnpmCli` feature flag enabled', async () => {
     server.setFeatureFlag('enablePnpmCli', true);
 
-    const project = await createProjectFromFixture('pnpm-app');
+    const project = await createProjectFromWorkspace('pnpm-app-extended');
 
     const { code, stdout } = await runSnykCLI('test -d', {
       cwd: project.path(),
