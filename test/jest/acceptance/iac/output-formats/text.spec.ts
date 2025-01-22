@@ -52,7 +52,7 @@ describe('iac test text output', () => {
   it('should show the issues list section with correct values', async () => {
     const { stdout } = await run('snyk iac test  ./iac/arm/rule_test.json');
 
-    expect(stdout).toContain(
+    expect(stdout).toContainText(
       '  [Medium] Azure Firewall Network Rule Collection allows public access' +
         EOL +
         '  Info:    That inbound traffic is allowed to a resource from any source instead' +
@@ -182,7 +182,7 @@ describe('iac test text output', () => {
       ];
       const { stdout } = await run(`snyk iac test ${invalidPaths.join(' ')}`);
 
-      expect(stdout).toContain(
+      expect(stdout).toContainText(
         '  Failed to parse YAML file' +
           EOL +
           `  Path: ${pathLib.join(

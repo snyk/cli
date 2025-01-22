@@ -57,7 +57,7 @@ describe('snyk fix', () => {
       env,
     });
     expect(code).toEqual(2);
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       "`snyk fix` is not supported for org 'no-flag'.\nSee documentation on how to enable this beta feature: https://docs.snyk.io/snyk-cli/fix-vulnerabilities-from-the-cli/automatic-remediation-with-snyk-fix#enabling-snyk-fix",
     );
     expect(stderr).toBe('');

@@ -32,7 +32,7 @@ describe('CLI Share Results', () => {
         `snyk iac test ./iac/arm/rule_test.json --report`,
       );
 
-      expect(stdout).toMatch(
+      expect(stdout).toContainText(
         'Flag "--report" is only supported if feature flag "iacCliShareResults" is enabled. To enable it, please contact Snyk support.',
       );
       expect(exitCode).toBe(2);

@@ -60,7 +60,7 @@ describe('cli args', () => {
     const { code, stdout } = await runSnykCLI(`test --file package-lock.json`, {
       env,
     });
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'Empty --file argument. Did you mean --file=path/to/file ?',
     );
     expect(code).toEqual(2);
@@ -78,7 +78,7 @@ describe('cli args', () => {
     const { code, stdout } = await runSnykCLI(`test --packageManager=hello`, {
       env,
     });
-    expect(stdout).toMatch('Unsupported package manager');
+    expect(stdout).toContainText('Unsupported package manager');
     expect(code).toEqual(2);
   });
 
@@ -90,7 +90,7 @@ describe('cli args', () => {
       },
     );
 
-    expect(stdout).toMatch('Unsupported flag');
+    expect(stdout).toContainText('Unsupported flag');
     expect(code).toEqual(2);
   });
 
@@ -101,7 +101,7 @@ describe('cli args', () => {
         env,
       },
     );
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'The following option combination is not currently supported: multiple paths + project-name',
     );
     expect(code).toEqual(2);
@@ -115,7 +115,7 @@ describe('cli args', () => {
       },
     );
 
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'The following option combination is not currently supported: file=*.sln + project-name',
     );
     expect(code).toEqual(2);
@@ -128,7 +128,7 @@ describe('cli args', () => {
         env,
       },
     );
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'The following option combination is not currently supported: file + scan-all-unmanaged',
     );
     expect(code).toEqual(2);
@@ -141,7 +141,7 @@ describe('cli args', () => {
         env,
       },
     );
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'The following option combination is not currently supported: maven-aggregate-project + project-name',
     );
     expect(code).toEqual(2);
@@ -161,7 +161,7 @@ describe('cli args', () => {
           env,
         },
       );
-      expect(stdout).toMatch(
+      expect(stdout).toContainText(
         `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
       );
       expect(code).toEqual(2);
@@ -174,7 +174,7 @@ describe('cli args', () => {
           env,
         },
       );
-      expect(stdout).toMatch(
+      expect(stdout).toContainText(
         `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
       );
       expect(code).toEqual(2);
@@ -191,7 +191,7 @@ describe('cli args', () => {
   ].forEach((arg) => {
     test(`test using --${arg} and --all-projects displays error message`, async () => {
       const { code, stdout } = await runSnykCLI(`test --${arg} --all-projects`);
-      expect(stdout).toMatch(
+      expect(stdout).toContainText(
         `The following option combination is not currently supported: ${arg} + all-projects`,
       );
       expect(code).toEqual(2);
@@ -204,7 +204,7 @@ describe('cli args', () => {
           env,
         },
       );
-      expect(stdout).toMatch(
+      expect(stdout).toContainText(
         `The following option combination is not currently supported: ${arg} + all-projects`,
       );
       expect(code).toEqual(2);
@@ -215,7 +215,7 @@ describe('cli args', () => {
     const { code, stdout } = await runSnykCLI(`test --exclude=test`, {
       env,
     });
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.',
     );
     expect(code).toEqual(2);
@@ -225,7 +225,7 @@ describe('cli args', () => {
     const { code, stdout } = await runSnykCLI(`test --all-projects --exclude`, {
       env,
     });
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'Empty --exclude argument. Did you mean --exclude=subdirectory ?',
     );
     expect(code).toEqual(2);
@@ -240,7 +240,7 @@ describe('cli args', () => {
       },
     );
 
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'The --exclude argument must be a comma separated list of directory or file names and cannot contain a path.',
     );
     expect(code).toEqual(2);
@@ -264,7 +264,7 @@ describe('cli args', () => {
           env,
         },
       );
-      expect(stdout).toMatch(
+      expect(stdout).toContainText(
         `The following option combination is not currently supported: ${command} + json-file-output`,
       );
       expect(code).toEqual(2);
@@ -278,7 +278,7 @@ describe('cli args', () => {
         env,
       },
     );
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       "--project-business-criticality must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --project-business-criticality=",
     );
     expect(code).toEqual(2);
@@ -288,7 +288,7 @@ describe('cli args', () => {
     const { code, stdout } = await runSnykCLI(`monitor --project-tags`, {
       env,
     });
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       "--project-tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --project-tags=",
     );
     expect(code).toEqual(2);
@@ -301,7 +301,7 @@ describe('cli args', () => {
         env,
       },
     );
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       "--project-tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --project-tags=",
     );
     expect(code).toEqual(2);
@@ -319,7 +319,7 @@ describe('cli args', () => {
       const { code, stdout } = await runSnykCLI(`test ${option}`, {
         env,
       });
-      expect(stdout).toMatch(
+      expect(stdout).toContainText(
         'Empty --json-file-output argument. Did you mean --file=path/to/output-file.json ?',
       );
       expect(code).toEqual(2);
@@ -330,11 +330,10 @@ describe('cli args', () => {
     const { code, stdout } = await runSnykCLI(`iac test --sarif --json`, {
       env,
     });
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
         .userMessage,
     );
-    expect(stdout.trim().split('\n')).toHaveLength(1);
     expect(code).toEqual(2);
   });
 
@@ -345,11 +344,10 @@ describe('cli args', () => {
         env,
       },
     );
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
         .userMessage,
     );
-    expect(stdout.trim().split('\n')).toHaveLength(1);
     expect(code).toEqual(2);
   });
 
@@ -363,7 +361,7 @@ describe('cli args', () => {
       const { code, stdout } = await runSnykCLI(`test ${option}`, {
         env,
       });
-      expect(stdout).toMatch(
+      expect(stdout).toContainText(
         'Empty --sarif-file-output argument. Did you mean --file=path/to/output-file.json ?',
       );
       expect(code).toEqual(2);
@@ -387,7 +385,7 @@ describe('cli args', () => {
     const sarifOutput = await project.readJSON(sarifPath);
     const jsonOutput = await project.readJSON(jsonPath);
 
-    expect(stdout).toMatch('Organization:');
+    expect(stdout).toContainText('Organization:');
     expect(jsonOutput.ok).toEqual(true);
     expect(sarifOutput.version).toMatch('2.1.0');
     expect(code).toEqual(0);
@@ -407,7 +405,7 @@ describe('cli args', () => {
     );
 
     const sarifOutput = await project.readJSON(sarifPath);
-    expect(stdout).toMatch('rules');
+    expect(stdout).toContainText('rules');
     expect(sarifOutput.version).toMatch('2.1.0');
     expect(code).toEqual(0);
   });

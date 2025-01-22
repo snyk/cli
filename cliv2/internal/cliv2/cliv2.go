@@ -13,13 +13,16 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
 	"time"
 
 	"github.com/gofrs/flock"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
+	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
@@ -57,6 +60,8 @@ const (
 	V2_VERSION Handler = iota
 	V2_ABOUT   Handler = iota
 )
+
+const configKeyErrFile = "INTERNAL_ERR_FILE_PATH"
 
 func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger, ri runtimeinfo.RuntimeInfo) (*CLI, error) {
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
@@ -351,6 +356,7 @@ func PrepareV1EnvironmentVariables(
 // Fill environment variables for the legacy CLI from the given configuration.
 func fillEnvironmentFromConfig(inputAsMap map[string]string, config configuration.Configuration, args []string) {
 	inputAsMap[constants.SNYK_INTERNAL_ORGID_ENV] = config.GetString(configuration.ORGANIZATION)
+	inputAsMap[constants.SNYK_INTERNAL_ERR_FILE] = config.GetString(configKeyErrFile)
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
 		inputAsMap[constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED] = "1"
@@ -402,6 +408,9 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 		defer cancel()
 	}
 
+	filePath := filepath.Join(c.globalConfig.GetString(configuration.TEMP_DIR_PATH), fmt.Sprintf("err-file-%s", uuid.NewString()))
+	c.globalConfig.Set(configKeyErrFile, filePath)
+
 	snykCmd, err := c.PrepareV1Command(ctx, c.v1BinaryLocation, passThroughArgs, proxyInfo, c.GetIntegrationName(), GetFullVersion())
 
 	if c.DebugLogger.Writer() != io.Discard {
@@ -447,7 +456,45 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		return ctx.Err()
 	}
+
+	if err == nil {
+		return nil
+	}
+
+	if sentErrs, fileErr := c.getErrorFromFile(filePath); fileErr == nil {
+		err = errors.Join(err, sentErrs)
+	}
+
 	return err
+}
+
+func (c *CLI) getErrorFromFile(errFilePath string) (data error, err error) {
+	bytes, fileErr := os.ReadFile(errFilePath)
+	if fileErr != nil {
+		c.DebugLogger.Println("Failed to read error file: ", fileErr)
+		return nil, fileErr
+	}
+
+	jsonErrors, serErr := snyk_errors.FromJSONAPIErrorBytes(bytes)
+	if serErr != nil {
+		c.DebugLogger.Println("Failed to deserialize file: ", serErr)
+		return nil, fileErr
+	}
+
+	if len(jsonErrors) != 0 {
+		errs := make([]error, len(jsonErrors)+1)
+		for _, jerr := range jsonErrors {
+			jerr.Meta["orign"] = "Typescript-CLI"
+			errs = append(errs, jerr)
+		}
+
+		err = errors.Join(errs...)
+		c.DebugLogger.Println("Error file contained ", len(jsonErrors), " errors: ", err)
+		return err, nil
+	}
+
+	c.DebugLogger.Println("The file didn't contain any errors")
+	return nil, errors.New("no errorrs were sent thought the error file")
 }
 
 func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {

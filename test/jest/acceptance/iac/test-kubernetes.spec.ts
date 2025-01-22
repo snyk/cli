@@ -1,5 +1,7 @@
 import { EOL } from 'os';
 import { startMockServer, isValidJSONString } from './helpers';
+import { NoFilesToScanError } from '../../../../src/cli/commands/test/iac/local-execution/file-loader';
+import { InvalidYamlFileError } from '../../../../src/cli/commands/test/iac/local-execution/yaml-parser';
 
 jest.setTimeout(50000);
 
@@ -45,11 +47,7 @@ describe('Kubernetes single file scan', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/kubernetes/pod-invalid.yaml`,
     );
-    expect(stdout).toContain(
-      'Could not find any valid IaC files' +
-        EOL +
-        '  Path: ./iac/kubernetes/pod-invalid.yaml',
-    );
+    expect(stdout).toContainText(new NoFilesToScanError().message);
     expect(exitCode).toBe(3);
   });
 
@@ -77,10 +75,9 @@ describe('Kubernetes single file scan', () => {
   });
 
   it('outputs an error for Helm files', async () => {
-    const { stdout, exitCode } = await run(
-      `snyk iac test ./iac/kubernetes/helm-config.yaml`,
-    );
-    expect(stdout).toContain('Failed to parse YAML file');
+    const path = './iac/kubernetes/helm-config.yaml';
+    const { stdout, exitCode } = await run(`snyk iac test ${path}`);
+    expect(stdout).toContainText(new InvalidYamlFileError(path).message);
     expect(exitCode).toBe(2);
   });
 });

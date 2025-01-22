@@ -1,5 +1,6 @@
 import { EOL } from 'os';
 import { startMockServer, isValidJSONString } from './helpers';
+import { InvalidYamlFileError } from '../../../../src/cli/commands/test/iac/local-execution/yaml-parser';
 
 jest.setTimeout(50000);
 
@@ -54,15 +55,10 @@ describe('CloudFormation single file scan', () => {
   });
 
   it('outputs an error for files with no valid YAML', async () => {
-    const { stdout, exitCode } = await run(
-      `snyk iac test ./iac/cloudformation/invalid-cfn.yml`,
-    );
+    const path = ' ./iac/cloudformation/invalid-cfn.yml';
+    const { stdout, exitCode } = await run(`snyk iac test ${path}`);
 
-    expect(stdout).toContain(
-      'Failed to parse YAML file' +
-        EOL +
-        '  Path: ./iac/cloudformation/invalid-cfn.yml',
-    );
+    expect(stdout).toContainText(new InvalidYamlFileError(path).message);
     expect(exitCode).toBe(2);
   });
 

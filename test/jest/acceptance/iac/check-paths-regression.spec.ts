@@ -1,5 +1,5 @@
-import { EOL } from 'os';
 import { startMockServer } from './helpers';
+import { NoFilesToScanError } from '../../../../src/cli/commands/test/iac/local-execution/file-loader';
 
 jest.setTimeout(50000);
 
@@ -17,18 +17,12 @@ describe('checkPath() regression test snyk/cli#3406', () => {
 
   afterAll(async () => teardown());
 
+  const filePath = './iac/check-paths-regression/package.json';
+
   it('supports scanning a project matching an OSS manifest name', async () => {
-    const { stdout, exitCode } = await run(
-      `snyk iac test ./iac/check-paths-regression/package.json`,
-    );
-    expect(stdout).not.toContain(
-      '--file=iac/check-paths-regression/package.json',
-    );
-    expect(stdout).toContain(
-      'Could not find any valid IaC files' +
-        EOL +
-        '  Path: ./iac/check-paths-regression/package.json',
-    );
+    const { stdout, exitCode } = await run(`snyk iac test ${filePath}`);
+    expect(stdout).not.toContain(`--file=${filePath}`);
+    expect(stdout).toContainText(new NoFilesToScanError().message);
     expect(exitCode).toBe(3);
   });
 });

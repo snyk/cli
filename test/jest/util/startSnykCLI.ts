@@ -44,7 +44,8 @@ const createMatchableOutput = (outputStream: Readable) => {
 
       const matches =
         typeof expected === 'string'
-          ? () => output.includes(expected)
+          ? () =>
+              output.replace(/\s/g, '').includes(expected.replace(/\s/g, ''))
           : () => expected.test(output);
 
       const matcher = (): void => {

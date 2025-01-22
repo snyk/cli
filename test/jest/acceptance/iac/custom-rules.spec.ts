@@ -60,7 +60,7 @@ describe('iac test --rules', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test --org=no-custom-rules-entitlements --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
     );
-    expect(stdout).toContain(
+    expect(stdout).toContainText(
       `Flag "--rules" is currently not supported for this org. To enable it, please contact snyk support.`,
     );
     expect(exitCode).toBe(2);

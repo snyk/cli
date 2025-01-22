@@ -54,7 +54,7 @@ describe('iac describe', () => {
       },
     );
 
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'Command "drift" is currently not supported for this org. To enable it, please contact snyk support.',
     );
     expect(stderr).toMatch('');
