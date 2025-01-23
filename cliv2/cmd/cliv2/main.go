@@ -591,9 +591,7 @@ func MainWithErrorCode() int {
 	} else if handleErrorResult == handleErrorShowHelp {
 		err = help(nil, []string{})
 	}
-
-	//err = decorateError(err)
-
+	
 	if err != nil {
 		for _, tempError := range errorList {
 			cliAnalytics.AddError(tempError)
