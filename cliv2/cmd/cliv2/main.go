@@ -79,8 +79,8 @@ const (
 )
 
 func main() {
-	errorCode := MainWithErrorCode()
-	globalLogger.Printf("Exiting with %d", errorCode)
+	errorCode, errs := MainWithErrorCode()
+	writeLogFooter(errorCode, errs)
 	os.Exit(errorCode)
 }
 
@@ -478,8 +478,11 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 	}
 }
 
-func MainWithErrorCode() int {
+func MainWithErrorCode() (int, []error) {
 	initDebugBuild()
+
+	errorList := []error{}
+	errorListMutex := sync.Mutex{}
 
 	startTime := time.Now()
 	var err error
@@ -528,7 +531,7 @@ func MainWithErrorCode() int {
 	err = globalEngine.Init()
 	if err != nil {
 		globalLogger.Print("Failed to init Workflow Engine!", err)
-		return constants.SNYK_EXIT_CODE_ERROR
+		return constants.SNYK_EXIT_CODE_ERROR, errorList
 	}
 
 	// add output flags as persistent flags
@@ -538,9 +541,6 @@ func MainWithErrorCode() int {
 
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, globalEngine)
-
-	errorList := []error{}
-	errorListMutex := sync.Mutex{}
 
 	// init NetworkAccess
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
@@ -592,11 +592,10 @@ func MainWithErrorCode() int {
 	}
 
 	if err != nil {
+		errorList = append(errorList, err)
 		for _, tempError := range errorList {
 			cliAnalytics.AddError(tempError)
 		}
-
-		cliAnalytics.AddError(err)
 
 		err = legacyCLITerminated(err, errorList)
 	}
@@ -633,7 +632,7 @@ func MainWithErrorCode() int {
 		globalLogger.Printf("Failed to cleanup %v", err)
 	}
 
-	return exitCode
+	return exitCode, errorList
 }
 
 func legacyCLITerminated(err error, errorList []error) error {

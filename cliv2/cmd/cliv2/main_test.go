@@ -44,9 +44,32 @@ func Test_MainWithErrorCode(t *testing.T) {
 	os.Args = []string{"snyk", "--version"}
 	defer func() { os.Args = oldArgs }()
 
-	err := MainWithErrorCode()
+	errCode, _ := MainWithErrorCode()
 
-	assert.Equal(t, 0, err)
+	assert.Equal(t, 0, errCode)
+
+	t.Run("outputs an error list", func(t *testing.T) {
+		t.Setenv("SNYK_TOKEN", "invalidToken")
+		defer cleanup()
+		oldArgs := append([]string{}, os.Args...)
+		os.Args = []string{"snyk", "whoami", "--experimental"}
+		defer func() {
+			os.Args = oldArgs
+		}()
+
+		errCode, errs := MainWithErrorCode()
+		assert.Equal(t, 2, errCode)
+
+		unauthorizedErrorCode := "SNYK-0005"
+		var actualErrorCodes []string
+		for _, err := range errs {
+			var snykError snyk_errors.Error
+			if errors.As(err, &snykError) {
+				actualErrorCodes = append(actualErrorCodes, snykError.ErrorCode)
+			}
+		}
+		assert.Contains(t, actualErrorCodes, unauthorizedErrorCode)
+	})
 }
 
 func Test_initApplicationConfiguration_DisablesAnalytics(t *testing.T) {
