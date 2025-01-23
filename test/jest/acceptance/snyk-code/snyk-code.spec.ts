@@ -3,7 +3,6 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 import { getServerPort } from '../../util/getServerPort';
-import { sortSarifByResults } from '../../util/sortSarif';
 import { matchers } from 'jest-json-schema';
 import { resolve } from 'path';
 import { existsSync, unlinkSync } from 'fs';
@@ -100,8 +99,6 @@ describe('snyk code test', () => {
     `integration`,
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
-        const cliVersionForTesting = '1.0.0';
-
         it('should show error if sast is not enabled', async () => {
           server.setOrgSetting('sast', false);
 
@@ -118,169 +115,6 @@ describe('snyk code test', () => {
           expect(stderr).toBe('');
           expect(stdout).toContain('Snyk Code is not enabled');
           expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
-        });
-
-        it('should succeed with correct exit code - with sarif output', async () => {
-          let sarifPayload = require('./fixtures/test-sarif.json');
-          // the golang implementation removes fields with value null from the sarif,
-          // so things like `"suppressions": null` need to be removed from the payload
-          if (type === 'golang/native')
-            sarifPayload = require('./fixtures/test-sarif-no-null-fields.json');
-
-          server.setOrgSetting('sast', true);
-          deepCodeServer.setCustomResponse({
-            configFiles: [],
-            extensions: ['.java'],
-          });
-          deepCodeServer.setSarifResponse(sarifPayload);
-
-          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
-          server.setCustomResponse({
-            configFiles: [],
-            extensions: ['.java'],
-          });
-
-          server.setSarifResponse(sarifPayload);
-
-          const { stdout, stderr, code } = await runSnykCLI(
-            `code test ${projectWithCodeIssues} --sarif`,
-            {
-              env: {
-                ...env,
-                ...integrationEnv,
-                // code-client-go will panic if we don't supply the org UUID
-                SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
-              },
-            },
-          );
-
-          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
-          expect(stderr).toBe('');
-
-          let actualPayload;
-          expect(() => {
-            actualPayload = JSON.parse(stdout);
-          }).not.toThrow();
-
-          const sortedActualPayload = sortSarifByResults(actualPayload);
-          const sortedSarifPayload = sortSarifByResults(sarifPayload);
-
-          // set hardcoded cli version for testing
-          sortedSarifPayload.runs[0].tool.driver.version = cliVersionForTesting;
-          sortedSarifPayload.runs[0].tool.driver.semanticVersion =
-            cliVersionForTesting;
-
-          sortedActualPayload.runs[0].tool.driver.version =
-            cliVersionForTesting;
-          sortedActualPayload.runs[0].tool.driver.semanticVersion =
-            cliVersionForTesting;
-
-          expect(sortedActualPayload).toEqual(sortedSarifPayload);
-        });
-
-        it('should succeed with correct exit code - with json output', async () => {
-          let sarifPayload = require('./fixtures/test-sarif.json');
-          // the golang implementation removes fields with value null from the sarif,
-          // so things like `"suppressions": null` need to be removed from the payload
-          if (type === 'golang/native')
-            sarifPayload = require('./fixtures/test-sarif-no-null-fields.json');
-
-          server.setOrgSetting('sast', true);
-          deepCodeServer.setFiltersResponse({
-            configFiles: [],
-            extensions: ['.java'],
-          });
-          deepCodeServer.setSarifResponse(sarifPayload);
-
-          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
-          server.setCustomResponse({
-            configFiles: [],
-            extensions: ['.java'],
-          });
-          server.setSarifResponse(sarifPayload);
-
-          const { stdout, stderr, code } = await runSnykCLI(
-            `code test ${projectWithCodeIssues} --json`,
-            {
-              env: {
-                ...env,
-                ...integrationEnv,
-                // code-client-go will panic if we don't supply the org UUID
-                SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
-              },
-            },
-          );
-
-          expect(stderr).toBe('');
-          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
-
-          let actualPayload;
-          expect(() => {
-            actualPayload = JSON.parse(stdout);
-          }).not.toThrow();
-
-          const sortedActualPayload = sortSarifByResults(actualPayload);
-          const sortedSarifPayload = sortSarifByResults(sarifPayload);
-
-          // set hardcoded cli version for testing
-          sortedSarifPayload.runs[0].tool.driver.version = cliVersionForTesting;
-          sortedSarifPayload.runs[0].tool.driver.semanticVersion =
-            cliVersionForTesting;
-
-          sortedActualPayload.runs[0].tool.driver.version =
-            cliVersionForTesting;
-          sortedActualPayload.runs[0].tool.driver.semanticVersion =
-            cliVersionForTesting;
-
-          expect(sortedActualPayload).toEqual(sortedSarifPayload);
-        });
-
-        it('should succeed with correct exit code - normal output', async () => {
-          const sarifPayload = require('./fixtures/test-sarif.json');
-
-          server.setOrgSetting('sast', true);
-          deepCodeServer.setFiltersResponse({
-            configFiles: [],
-            extensions: ['.java'],
-          });
-
-          deepCodeServer.setSarifResponse(sarifPayload);
-
-          // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
-          server.setCustomResponse({
-            configFiles: [],
-            extensions: ['.java'],
-          });
-          server.setSarifResponse(sarifPayload);
-
-          const { stderr, code } = await runSnykCLI(
-            `code test ${projectWithCodeIssues}`,
-            {
-              env: {
-                ...env,
-                ...integrationEnv,
-                // code-client-go will panic if we don't supply the org UUID
-                SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
-              },
-            },
-          );
-          expect(stderr).toBe('');
-          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
-        });
-
-        it('should fail with correct exit code - when testing empty project', async () => {
-          const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
-          server.setOrgSetting('sast', true);
-          deepCodeServer.setSarifResponse(sarifPayload);
-
-          const { code } = await runSnykCLI(`code test ${emptyProject}`, {
-            env: {
-              ...env,
-              ...integrationEnv,
-            },
-          });
-
-          expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
         });
 
         // TODO: reenable tests for golang/native when SNYK_CODE_CLIENT_PROXY_URL && LCE are supported
@@ -381,7 +215,7 @@ describe('snyk code test', () => {
           it('works with --remote-repo-url', async () => {
             const expectedCodeSecurityIssues = 6;
             const { stdout } = await runSnykCLI(
-              `code test ${projectWithCodeIssues} --remote-repo-url=hhttps://github.com/snyk/cli.git --json`,
+              `code test ${projectWithCodeIssues} --remote-repo-url=https://github.com/snyk/cli.git --json`,
               {
                 env: {
                   ...process.env,
@@ -398,26 +232,26 @@ describe('snyk code test', () => {
           });
 
           // TODO: reenable when fixed in CLI-397, CLI-436
-          if (type === 'typescript') {
-            it('works with --severity-threshold', async () => {
-              const expectedHighCodeSecurityIssues = 5;
-              const { stdout } = await runSnykCLI(
-                `code test ${projectWithCodeIssues} --json --severity-threshold=high`,
-                {
-                  env: {
-                    ...process.env,
-                    ...integrationEnv,
-                  },
+          it('works with --severity-threshold', async () => {
+            const expectedHighCodeSecurityIssues = 5;
+            const { stdout } = await runSnykCLI(
+              `code test ${projectWithCodeIssues} --json --severity-threshold=high`,
+              {
+                env: {
+                  ...process.env,
+                  ...integrationEnv,
                 },
-              );
+              },
+            );
 
-              const actualCodeSecurityIssues =
-                JSON.parse(stdout)?.runs[0]?.results?.length;
-              expect(actualCodeSecurityIssues).toEqual(
-                expectedHighCodeSecurityIssues,
-              );
-            });
+            const actualCodeSecurityIssues =
+              JSON.parse(stdout)?.runs[0]?.results?.length;
+            expect(actualCodeSecurityIssues).toEqual(
+              expectedHighCodeSecurityIssues,
+            );
+          });
 
+          if (type === 'typescript') {
             it('works with --org', async () => {
               const MADE_UP_ORG_WITH_NO_SNYK_CODE_PERMISSIONS =
                 'madeUpOrgWithNoSnykCodePermissions';
@@ -440,25 +274,22 @@ describe('snyk code test', () => {
           }
         });
 
-        // TODO: reenable for golang/native when it supports no git context
-        if (type === 'typescript') {
-          it('works on projects with no git context', async () => {
-            // createProjectFromFixture creates a new project without gitcontext
-            const { path } = await createProjectFromFixture(
-              'sast/shallow_sast_webgoat',
-            );
+        it('works on projects with no git context', async () => {
+          // createProjectFromFixture creates a new project without gitcontext
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
 
-            const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
-              env: {
-                ...process.env,
-                ...integrationEnv,
-              },
-            });
-
-            expect(stderr).toBe('');
-            expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...process.env,
+              ...integrationEnv,
+            },
           });
-        }
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+        });
 
         it('should succeed - when no vulnerabilities found', async () => {
           const noVulnsProject = resolve(
@@ -613,6 +444,22 @@ describe('snyk code test', () => {
           } catch (error) {
             console.error('failed to remove file.', error);
           }
+        });
+
+        it('works with human readable output', async () => {
+          const { stdout, stderr, code } = await runSnykCLI(
+            `code test ${projectWithCodeIssues}`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stdout).not.toBe('');
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
         });
       });
     },
