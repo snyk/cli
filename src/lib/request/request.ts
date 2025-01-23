@@ -14,6 +14,7 @@ import * as http from 'http';
 import { jsonStringifyLargeObject } from '../json';
 import { MissingApiTokenError } from '../errors';
 import { headerSnykAuthFailed } from './constants';
+import { MAX_STRING_LENGTH } from '../constants';
 
 const debug = debugModule('snyk:req');
 const snykDebug = debugModule('snyk');
@@ -87,7 +88,13 @@ function setupRequest(payload: Payload) {
   }
 
   try {
-    debug('request payload: ', jsonStringifyLargeObject(payload));
+    const payloadStr = jsonStringifyLargeObject(payload);
+    debug(
+      'request payload: ',
+      payloadStr.length > MAX_STRING_LENGTH
+        ? payloadStr + '...(log line truncated)'
+        : payloadStr,
+    );
   } catch (e) {
     debug('request payload is too big to log', e);
   }
