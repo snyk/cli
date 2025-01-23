@@ -112,6 +112,8 @@ upload_npm() {
 
 trigger_build_snyk_images() {
   echo "Triggering build-and-publish workflow at snyk-images..."
+  echo "Version: $VERSION_TAG"
+  echo "Release Channel: $RELEASE_CHANNEL"
   RESPONSE=$(curl -L \
     -X POST \
     -H "Accept: application/vnd.github+json" \
