@@ -232,27 +232,26 @@ describe('snyk code test', () => {
           });
 
           // TODO: reenable when fixed in CLI-397, CLI-436
-            it.only('works with --severity-threshold', async () => {
-              const expectedHighCodeSecurityIssues = 5;
-              const { stdout } = await runSnykCLI(
-                `code test ${projectWithCodeIssues} --json --severity-threshold=high`,
-                {
-                  env: {
-                    ...process.env,
-                    ...integrationEnv,
-                  },
+          it('works with --severity-threshold', async () => {
+            const expectedHighCodeSecurityIssues = 5;
+            const { stdout } = await runSnykCLI(
+              `code test ${projectWithCodeIssues} --json --severity-threshold=high`,
+              {
+                env: {
+                  ...process.env,
+                  ...integrationEnv,
                 },
-              );
+              },
+            );
 
-              const actualCodeSecurityIssues =
-                JSON.parse(stdout)?.runs[0]?.results?.length;
-              expect(actualCodeSecurityIssues).toEqual(
-                expectedHighCodeSecurityIssues,
-              );
-            });
+            const actualCodeSecurityIssues =
+              JSON.parse(stdout)?.runs[0]?.results?.length;
+            expect(actualCodeSecurityIssues).toEqual(
+              expectedHighCodeSecurityIssues,
+            );
+          });
 
           if (type === 'typescript') {
-
             it('works with --org', async () => {
               const MADE_UP_ORG_WITH_NO_SNYK_CODE_PERMISSIONS =
                 'madeUpOrgWithNoSnykCodePermissions';
