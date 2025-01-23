@@ -274,25 +274,22 @@ describe('snyk code test', () => {
           }
         });
 
-        // TODO: reenable for golang/native when it supports no git context
-        if (type === 'typescript') {
-          it('works on projects with no git context', async () => {
-            // createProjectFromFixture creates a new project without gitcontext
-            const { path } = await createProjectFromFixture(
-              'sast/shallow_sast_webgoat',
-            );
+        it('works on projects with no git context', async () => {
+          // createProjectFromFixture creates a new project without gitcontext
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
 
-            const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
-              env: {
-                ...process.env,
-                ...integrationEnv,
-              },
-            });
-
-            expect(stderr).toBe('');
-            expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+          const { stderr, code } = await runSnykCLI(`code test ${path()}`, {
+            env: {
+              ...process.env,
+              ...integrationEnv,
+            },
           });
-        }
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+        });
 
         it('should succeed - when no vulnerabilities found', async () => {
           const noVulnsProject = resolve(
