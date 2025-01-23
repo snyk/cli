@@ -20,8 +20,6 @@ import (
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
@@ -31,6 +29,11 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
+	"github.com/snyk/error-catalog-golang-public/cli"
+	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -589,6 +592,14 @@ func MainWithErrorCode() int {
 		err = defaultCmd(os.Args[1:])
 	} else if handleErrorResult == handleErrorShowHelp {
 		err = help(nil, []string{})
+	}
+
+	// add a generic error catalog error
+	if err != nil {
+		var errorCatalogError snyk_errors.Error
+		if !errors.As(err, &errorCatalogError) {
+			err = errors.Join(err, cli.NewGeneralCLIFailureError(err.Error()))
+		}
 	}
 
 	if err != nil {
