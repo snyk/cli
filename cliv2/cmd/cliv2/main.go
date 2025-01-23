@@ -32,7 +32,7 @@ import (
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
-	
+
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
@@ -592,7 +592,7 @@ func MainWithErrorCode() int {
 		err = help(nil, []string{})
 	}
 
-	err = decorateError(err)
+	//err = decorateError(err)
 
 	if err != nil {
 		for _, tempError := range errorList {
