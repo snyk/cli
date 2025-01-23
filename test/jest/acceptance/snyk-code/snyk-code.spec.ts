@@ -232,8 +232,7 @@ describe('snyk code test', () => {
           });
 
           // TODO: reenable when fixed in CLI-397, CLI-436
-          if (type === 'typescript') {
-            it('works with --severity-threshold', async () => {
+            it.only('works with --severity-threshold', async () => {
               const expectedHighCodeSecurityIssues = 5;
               const { stdout } = await runSnykCLI(
                 `code test ${projectWithCodeIssues} --json --severity-threshold=high`,
@@ -251,6 +250,8 @@ describe('snyk code test', () => {
                 expectedHighCodeSecurityIssues,
               );
             });
+
+          if (type === 'typescript') {
 
             it('works with --org', async () => {
               const MADE_UP_ORG_WITH_NO_SNYK_CODE_PERMISSIONS =
