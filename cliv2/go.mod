@@ -5,7 +5,7 @@ go 1.23
 toolchain go1.23.4
 
 require (
-	github.com/elazarl/goproxy v1.5.0
+	github.com/elazarl/goproxy v1.6.0
 	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
 	github.com/gofrs/flock v0.12.1
 	github.com/golang/mock v1.6.0
