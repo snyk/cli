@@ -62,6 +62,7 @@ export interface Options {
   severityThreshold?: SEVERITY;
   dev?: boolean;
   'print-deps'?: boolean;
+  'print-tree'?: boolean;
   'print-dep-paths'?: boolean;
   'remote-repo-url'?: string;
   criticality?: string;
