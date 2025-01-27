@@ -1,10 +1,12 @@
 import { Options } from '../../../../../../src/lib/types';
 import * as fs from 'fs';
 import { extractDataToSendFromResults } from '../../../../../../src/lib/formatters/test/format-test-results';
+//import exp from 'constants';
 
 describe('extractDataToSendFromResults', () => {
   afterEach(() => {
     jest.restoreAllMocks();
+    process.env.SET_AUTOMATION_DETAILS_ID = "";
   });
 
   describe('open source results', () => {
@@ -116,6 +118,29 @@ describe('extractDataToSendFromResults', () => {
       expect(res.stringifiedData).not.toBe('');
       expect(res.stringifiedJsonData).toBe('');
       expect(res.stringifiedSarifData).not.toBe('');
+      var sarif = JSON.parse(res.stringifiedSarifData);
+      expect(sarif.runs[0].automationDetails.id).toBe('');
+    });
+
+    it('should create SARIF JSON and only SARIF JSON if `--sarif` is set in the options and SET_AUTOMATION_DETAILS_ID is set', () => {
+      const options = {
+        sarif: true,
+      } as Options;
+      process.env.SET_AUTOMATION_DETAILS_ID = "true";
+
+      const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
+      const res = extractDataToSendFromResults(
+        resultsFixture,
+        mappedResultsFixture,
+        options,
+      );
+
+      expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
+      expect(res.stringifiedData).not.toBe('');
+      expect(res.stringifiedJsonData).toBe('');
+      expect(res.stringifiedSarifData).not.toBe('');
+      var sarif = JSON.parse(res.stringifiedSarifData);
+      expect(sarif.runs[0].automationDetails.id).not.toBe('');
     });
 
     it('should create SARIF JSON and only SARIF JSON if `--sarif-file-output` is set in the options', () => {
