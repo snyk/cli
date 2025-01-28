@@ -130,7 +130,7 @@ describe('snyk sbom test (mocked server only)', () => {
       { env },
     );
 
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'Flag `--file` is required to execute this command. Value should point to a valid SBOM document.',
     );
 
