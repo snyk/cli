@@ -1,5 +1,7 @@
 import { EOL } from 'os';
 import { startMockServer, isValidJSONString } from './helpers';
+import { InvalidJsonFileError } from '../../../../src/cli/commands/test/iac/local-execution/yaml-parser';
+
 jest.setTimeout(50000);
 
 describe('ARM single file scan', () => {
@@ -41,15 +43,10 @@ describe('ARM single file scan', () => {
   });
 
   it('outputs an error for files with no valid JSON', async () => {
-    const { stdout, exitCode } = await run(
-      `snyk iac test ./iac/arm/invalid_rule_test.json`,
-    );
+    const path = './iac/arm/invalid_rule_test.json';
+    const { stdout, exitCode } = await run(`snyk iac test ${path}`);
 
-    expect(stdout).toContain(
-      'Failed to parse JSON file' +
-        EOL +
-        '  Path: ./iac/arm/invalid_rule_test.json',
-    );
+    expect(stdout).toContainText(new InvalidJsonFileError(path).message);
     expect(exitCode).toBe(2);
   });
 

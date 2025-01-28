@@ -31,7 +31,7 @@ describe('iac update-exclude-policy', () => {
       {},
     );
 
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'Command "update-exclude-policy" is currently not supported for this org. To enable it, please contact snyk support.',
     );
     expect(stderr).toMatch('');

@@ -48,6 +48,8 @@ import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-erro
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
 import { obfuscateArgs } from '../lib/utils';
 import { EXIT_CODES } from './exit-codes';
+import { sendError } from './ipc';
+
 const isEmpty = require('lodash/isEmpty');
 
 const debug = Debug('snyk');
@@ -135,36 +137,47 @@ async function handleError(args, error) {
     }
   }
 
-  if (args.options.debug && !args.options.json) {
-    const output = vulnsFound ? error.message : error.stack;
-    console.log(output);
-  } else if (
-    args.options.json &&
-    !(error instanceof UnsupportedOptionCombinationError)
-  ) {
-    const output = vulnsFound
-      ? error.message
-      : stripAnsi(error.json || error.stack);
-    if (error.jsonPayload) {
-      new JsonStreamStringify(error.jsonPayload, undefined, 2).pipe(
-        process.stdout,
-      );
-    } else {
+  /**
+   * Exceptions from sending errors
+   * - json/sarif flags - this would just stringify the content as the error message; could look into outputing the Error Catalog JSON
+   * - vulnsFound - issues are treated as errors (exit code 1), this should be some nice pretty formated output for users.
+   */
+  const errorSent =
+    args.options.json || args.options.sarif || vulnsFound
+      ? false
+      : sendError(error);
+  if (!errorSent) {
+    if (args.options.debug && !args.options.json) {
+      const output = vulnsFound ? error.message : error.stack;
       console.log(output);
-    }
-  } else {
-    if (!args.options.quiet) {
-      const result = errors.message(error);
-      if (args.options.copy) {
-        copy(result);
-        console.log('Result copied to clipboard');
+    } else if (
+      args.options.json &&
+      !(error instanceof UnsupportedOptionCombinationError)
+    ) {
+      const output = vulnsFound
+        ? error.message
+        : stripAnsi(error.json || error.stack);
+      if (error.jsonPayload) {
+        new JsonStreamStringify(error.jsonPayload, undefined, 2).pipe(
+          process.stdout,
+        );
       } else {
-        if (`${error.code}`.indexOf('AUTH_') === 0) {
-          // remove the last few lines
-          const erase = ansiEscapes.eraseLines(4);
-          process.stdout.write(erase);
+        console.log(output);
+      }
+    } else {
+      if (!args.options.quiet) {
+        const result = errors.message(error);
+        if (args.options.copy) {
+          copy(result);
+          console.log('Result copied to clipboard');
+        } else {
+          if (`${error.code}`.indexOf('AUTH_') === 0) {
+            // remove the last few lines
+            const erase = ansiEscapes.eraseLines(4);
+            process.stdout.write(erase);
+          }
+          console.log(result);
         }
-        console.log(result);
       }
     }
   }

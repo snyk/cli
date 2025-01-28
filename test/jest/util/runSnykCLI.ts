@@ -25,3 +25,19 @@ const runSnykCLIWithArray = async (
 };
 
 export { runSnykCLI, runSnykCLIWithArray };
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace jest {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    interface Matchers<R = unknown> {
+      /**
+       * Assert that the received text includes the expected substring if whitespace is omited.
+       * @param received The text to assert.
+       * @param expected The substring to match.
+       * @returns {boolean}
+       */
+      toContainText(expected: string): CustomMatcherResult;
+    }
+  }
+}

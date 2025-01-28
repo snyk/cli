@@ -78,7 +78,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     );
     expect(code).toEqual(2);
 
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'Your test request could not be completed.\nTip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>\nIf the issue persists contact support@snyk.io',
     );
     expect(stderr).toMatch(
