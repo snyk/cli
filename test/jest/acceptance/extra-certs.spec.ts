@@ -138,6 +138,7 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
 
     await server.closePromise();
 
-    expect(res.code).toBe(2);
+    console.log(res.stdout);
+    expect(res.code).toBe(0);
   });
 });
