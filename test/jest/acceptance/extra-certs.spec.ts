@@ -117,4 +117,27 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
     fs.unlinkSync('cliv2/mytestcert.key');
     fs.unlinkSync('cliv2/mytestcert.pem');
   });
+
+  it('includes a large cert bundle file', async () => {
+    // setup https server
+    const port = 2132;
+    const token = '1234';
+    const baseApi = '/api/v1';
+    const SNYK_API = 'https://localhost:' + port + baseApi;
+    const server = fakeServer(baseApi, token);
+
+    // invoke WITH additional certificate set => succeeds
+    const res = await runSnykCLI(`test --debug`, {
+      env: {
+        ...process.env,
+        NODE_EXTRA_CA_CERTS: 'test/fixtures/ca-bundle.crt',
+        SNYK_API: SNYK_API,
+        SNYK_TOKEN: token,
+      },
+    });
+
+    await server.closePromise();
+
+    expect(res.code).toBe(2);
+  });
 });
