@@ -37,6 +37,22 @@ export function formatShareResultsOutputV2(
   );
 }
 
+export function formatShareResultsOutputIacNewEngine(
+  orgName: string,
+  projectPublicId: string,
+) {
+  return (
+    colors.title('Report Complete') +
+    EOL +
+    EOL +
+    contentPadding +
+    'Your test results are available at: ' +
+    colors.title(
+      `${config.ROOT}/org/${orgName}/project/${encodeURIComponent(projectPublicId)}`,
+    )
+  );
+}
+
 export const shareResultsTip =
   colors.title('Tip') +
   EOL +
