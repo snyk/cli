@@ -211,7 +211,7 @@ describe('snyk sbom (mocked server only)', () => {
     );
 
     expect(code).toBe(3);
-    expect(stdout).toContain(
+    expect(stdout).toContainText(
       'An error occurred while running the underlying analysis needed to generate the SBOM.',
     );
   });
