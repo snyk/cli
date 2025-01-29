@@ -2,6 +2,7 @@ import { runSnykCLI } from '../util/runSnykCLI';
 import * as fs from 'fs';
 import { runCommand } from '../util/runCommand';
 import { fakeServer } from '../../../test/acceptance/fake-server';
+import { getServerPort } from '../util/getServerPort';
 
 jest.setTimeout(1000 * 60 * 2);
 describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
@@ -120,11 +121,13 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
 
   it('includes a large cert bundle file', async () => {
     // setup https server
-    const port = 2132;
+    const port = getServerPort(process);
     const token = '1234';
     const baseApi = '/api/v1';
     const SNYK_API = 'https://localhost:' + port + baseApi;
     const server = fakeServer(baseApi, token);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    server.listen(port, () => {});
 
     // invoke WITH additional certificate set => succeeds
     const res = await runSnykCLI(`test --debug`, {
@@ -139,6 +142,7 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
     await server.closePromise();
 
     console.log(res.stdout);
+    console.log(res.stderr);
     expect(res.code).toBe(0);
   });
 });
