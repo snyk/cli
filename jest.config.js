@@ -6,4 +6,5 @@ module.exports = createJestConfig({
   projects: ['<rootDir>', '<rootDir>/packages/*'],
   globalSetup: './test/setup.js',
   setupFilesAfterEnv: ['./test/setup-jest.ts'],
+  globalTeardown: './test/teardown.ts',
 });
