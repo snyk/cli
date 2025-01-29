@@ -432,7 +432,7 @@ async function parseRes(
   // so this flow will not be applicable
   // refactor to separate
   if (depGraph && pkgManager) {
-    res = convertTestDepGraphResultToLegacy(
+    res = await convertTestDepGraphResultToLegacy(
       res as any as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
       depGraph,
       pkgManager,

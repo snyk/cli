@@ -166,6 +166,7 @@ export interface LegacyVulnApiResult extends BasicResultData {
   uniqueCount?: any;
   remediation?: RemediationChanges;
   depGraph?: depGraphLib.DepGraphData;
+  depTree?: depGraphLib.legacy.DepTree;
 }
 
 export interface BaseImageRemediation {
@@ -336,12 +337,12 @@ export interface RemediationChanges {
   pin: DependencyPins;
 }
 
-function convertTestDepGraphResultToLegacy(
+async function convertTestDepGraphResultToLegacy(
   res: TestDepGraphResponse,
   depGraph: depGraphLib.DepGraph,
   packageManager: SupportedProjectTypes | undefined,
   options: Options & TestOptions,
-): LegacyVulnApiResult {
+): Promise<LegacyVulnApiResult> {
   const result = res.result;
 
   const upgradePathsMap = new Map<string, string[]>();
@@ -455,6 +456,13 @@ function convertTestDepGraphResultToLegacy(
 
   if (options['print-deps'] && options['json-file-output']) {
     legacyRes.depGraph = depGraph.toJSON();
+  }
+
+  if (options['print-tree'] && options['json-file-output']) {
+    legacyRes.depTree = await depGraphLib.legacy.graphToDepTree(
+      depGraph,
+      depGraph.pkgManager.name,
+    );
   }
 
   return legacyRes;
