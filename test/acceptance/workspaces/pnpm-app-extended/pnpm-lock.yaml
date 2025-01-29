@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@snyk/gemfile':
+    specifier: https://codeload.github.com/snyk/gemfile/tar.gz/fff475b
+    version: '@codeload.github.com/snyk/gemfile/tar.gz/fff475b'
   accepts:
     specifier: 1.3.7
     version: 1.3.7
@@ -227,6 +230,13 @@ packages:
 
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
+    dev: false
+
+  '@codeload.github.com/snyk/gemfile/tar.gz/fff475b':
+    resolution: {tarball: https://codeload.github.com/snyk/gemfile/tar.gz/fff475b}
+    name: '@snyk/gemfile'
+    version: 0.0.0
+    engines: {node: '>= 4.2.4'}
     dev: false
 
   git@github.com+linkedin/dustjs-helpers/1469a7a0297f84fba28a5101ad5305890f47e352(dustjs-linkedin@3.0.1):

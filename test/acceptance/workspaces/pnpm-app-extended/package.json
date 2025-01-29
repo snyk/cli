@@ -1,11 +1,12 @@
 {
-    "name": "one-dep",
+    "name": "pnpm-app-extended",
     "version": "1.0.0",
     "main": "index.js",
     "license": "MIT",
     "dependencies": {
       "accepts": "1.3.7",
-      "dustjs-helpers": "github:linkedin/dustjs-helpers"
+      "dustjs-helpers": "github:linkedin/dustjs-helpers",
+      "@snyk/gemfile": "https://codeload.github.com/snyk/gemfile/tar.gz/fff475b"
     }
   }
   
