@@ -1,5 +1,8 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+import * as fse from 'fs-extra';
 import { runCommand } from '../util/runCommand';
 import { fakeServer } from '../../../test/acceptance/fake-server';
 import { getServerPort } from '../util/getServerPort';
@@ -120,25 +123,52 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
   });
 
   it('includes a large cert bundle file', async () => {
+    // generate certificate
+    const certName = 'mytestcertagain';
+    const setupCert = await runCommand(
+      'go',
+      ['run', 'cmd/make-cert/main.go', certName],
+      { cwd: 'cliv2', env: { ...process.env, SNYK_DNS_NAMES: 'localhost' } },
+    );
+
+    console.debug(setupCert.stderr);
+    expect(setupCert.code).toBe(0);
+
     // setup https server
     const port = getServerPort(process);
     const token = '1234';
     const baseApi = '/api/v1';
     const SNYK_API = 'https://localhost:' + port + baseApi;
     const server = fakeServer(baseApi, token);
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    server.listen(port, () => {});
+
+    // Certs
+    const certPem = fs.readFileSync(`cliv2/${certName}.pem`);
+    const keyPem = fs.readFileSync(`cliv2/${certName}.key`);
+    const certCrt = fs.readFileSync(`cliv2/${certName}.crt`);
+
+    await server.listenWithHttps(port, { cert: certPem, key: keyPem });
+
+    // Concat our new certificate with the large certificate bundle fixture
+    const largeBundleContents = fs.readFileSync('test/fixtures/ca-bundle.crt');
+    const tempCert =
+      path.resolve(os.tmpdir(), `snyk-extra-certs-test-`) + 'ca-bundle.crt';
+    fse.writeFileSync(tempCert, [largeBundleContents, certCrt].join('\n'));
 
     // invoke WITH additional certificate set => succeeds
     const res = await runSnykCLI(`test --debug`, {
       env: {
         ...process.env,
-        NODE_EXTRA_CA_CERTS: 'test/fixtures/ca-bundle.crt',
+        NODE_EXTRA_CA_CERTS: tempCert,
         SNYK_API: SNYK_API,
         SNYK_TOKEN: token,
       },
     });
 
+    // Cleanup
+    fs.unlinkSync(`cliv2/${certName}.crt`);
+    fs.unlinkSync(`cliv2/${certName}.key`);
+    fs.unlinkSync(`cliv2/${certName}.pem`);
+    fs.unlinkSync(tempCert);
     await server.closePromise();
 
     console.log(res.stdout);
