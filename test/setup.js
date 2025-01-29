@@ -1,3 +1,7 @@
+const fse = require('fs-extra');
+const path = require('path');
+const os = require('os');
+
 const { getCliBinaryPath } = require('./jest/util/getCliBinaryPath');
 const {
   isDontSkipTestsEnabled,
@@ -25,10 +29,21 @@ module.exports = async function () {
   const { stdout: version } = await runSnykCLI('version');
   const SNYK_VERSION = version.trim();
 
+  if (!process.env.SNYK_CONFIG_FILE && !process.env.TEST_CONFIG_FILE) {
+    const tempConfigFolder = fse.mkdtempSync(
+      path.resolve(os.tmpdir(), `snyk-e2e-test-config-`),
+    );
+
+    const tempSnykConfigFile = path.resolve(tempConfigFolder, 'snyk.json');
+    process.env.SNYK_CONFIG_FILE = tempSnykConfigFile;
+  }
+
   console.info(
     '\n------------------------------------------------------------------------------------------------------' +
       '\n Binary under test   [TEST_SNYK_COMMAND] .............. ' +
       process.env.TEST_SNYK_COMMAND +
+      '\n Snyk configuration  [TEST_CONFIG_FILE] ............... ' +
+      process.env.SNYK_CONFIG_FILE +
       '\n Version under test  .................................. ' +
       SNYK_VERSION +
       '\n Allow to skip tests [TEST_SNYK_DONT_SKIP_ANYTHING] ... ' +
