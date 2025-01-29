@@ -23,8 +23,8 @@ import (
 	networktypes "github.com/snyk/go-application-framework/pkg/networking/network_types"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
-	"github.com/elazarl/goproxy"
 	"github.com/elazarl/goproxy/ext/auth"
+	goproxy "github.com/thisislawatts/pinproxy"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/utils"

@@ -1,11 +1,8 @@
 module github.com/snyk/cli/cliv2
 
-go 1.23
-
-toolchain go1.23.5
+go 1.23.5
 
 require (
-	github.com/elazarl/goproxy v1.6.0
 	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
 	github.com/gofrs/flock v0.12.1
 	github.com/golang/mock v1.6.0
@@ -24,6 +21,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.10.0
+	github.com/thisislawatts/pinproxy v0.0.0-20250129152203-2b7d54e6451e
 )
 
 require (
@@ -69,6 +67,7 @@ require (
 	github.com/denisbrodbeck/machineid v1.0.1 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 // indirect
+	github.com/elazarl/goproxy v1.7.0 // indirect
 	github.com/emicklei/proto v1.13.2 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/erikgeiser/promptkit v0.8.0 // indirect
