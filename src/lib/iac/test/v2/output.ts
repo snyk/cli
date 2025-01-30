@@ -25,9 +25,8 @@ import stripAnsi = require('strip-ansi');
 import * as path from 'path';
 import { getErrorStringCode } from '../../../../cli/commands/test/iac/local-execution/error-utils';
 import {
-  buildShareResultsSummary,
-  buildShareResultsSummaryIacNewEngine,
-  buildShareResultsSummaryV2,
+  buildShareResultsSummaryIacV2,
+  buildShareResultsSummaryIacPlus,
   shouldPrintShareResultsTip,
 } from '../../../../cli/commands/test/iac/output';
 import {
@@ -37,7 +36,6 @@ import {
 import * as wrapAnsi from 'wrap-ansi';
 import { formatIacTestWarnings } from '../../../formatters/iac-output/text/failures/list';
 import { IacV2Name, IacV2ShortLink } from '../../constants';
-import { buildResponse } from 'snyk-docker-plugin/dist/response-builder';
 
 export function buildOutput({
   scanResult,
@@ -189,13 +187,12 @@ function buildTextOutput({
 
   if (options.report) {
     if (iacNewEngine) {
-      // TODO build response differently
-      response += buildShareResultsSummaryIacNewEngine({
+      response += buildShareResultsSummaryIacV2({
         orgName: scanResult.settings.org,
-        projectPublicId: scanResult.results?.metadata.projectPublicId ?? "",
+        projectPublicId: scanResult.results?.metadata.projectPublicId,
       });
     } else {
-      response += buildShareResultsSummaryV2({
+      response += buildShareResultsSummaryIacPlus({
         orgName: scanResult.settings.org,
         projectName,
         options,
@@ -203,6 +200,7 @@ function buildTextOutput({
         isIacShareCliResultsCustomRulesSupported: false, // TODO: update when we add custom rules support
       });
     }
+
     response += EOL;
   }
 

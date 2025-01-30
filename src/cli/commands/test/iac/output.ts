@@ -33,8 +33,8 @@ import {
   formatTestData,
 } from '../../../../lib/formatters/iac-output/text';
 import {
-  formatShareResultsOutputIacNewEngine,
-  formatShareResultsOutputV2,
+  formatShareResultsOutputIacV2,
+  formatShareResultsOutputIacPlus,
 } from '../../../../lib/formatters/iac-output/text/share-results';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -273,7 +273,7 @@ export function buildShareResultsSummary({
   return response;
 }
 
-export function buildShareResultsSummaryV2({
+export function buildShareResultsSummaryIacPlus({
   orgName,
   projectName,
   options,
@@ -289,7 +289,7 @@ export function buildShareResultsSummaryV2({
   let response = '';
 
   response +=
-    SEPARATOR + EOL + formatShareResultsOutputV2(orgName, projectName);
+    SEPARATOR + EOL + formatShareResultsOutputIacPlus(orgName, projectName);
 
   if (
     shouldPrintShareCustomRulesDisclaimer(
@@ -304,18 +304,16 @@ export function buildShareResultsSummaryV2({
   return response;
 }
 
-export function buildShareResultsSummaryIacNewEngine({
+export function buildShareResultsSummaryIacV2({
   orgName,
   projectPublicId,
 }: {
   orgName: string;
-  projectPublicId: string;
+  projectPublicId: string | undefined;
 }): string {
   let response = '';
   response +=
-    SEPARATOR +
-    EOL +
-    formatShareResultsOutputIacNewEngine(orgName, projectPublicId);
+    SEPARATOR + EOL + formatShareResultsOutputIacV2(orgName, projectPublicId);
 
   return response;
 }
