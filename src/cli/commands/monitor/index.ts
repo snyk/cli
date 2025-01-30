@@ -92,9 +92,6 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     checkOSSPaths(paths, options);
   }
 
-  if (options.docker && options['remote-repo-url']) {
-    throw new Error('`--remote-repo-url` is not supported for container scans');
-  }
   if (options.docker) {
     // order is important here, we want:
     // 1) exclude-app-vulns set -> no app vulns
