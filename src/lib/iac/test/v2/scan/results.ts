@@ -71,6 +71,7 @@ export interface Results {
 
 export interface Metadata {
   projectName: string;
+  projectPublicId: string;
   ignoredCount: number;
 }
 

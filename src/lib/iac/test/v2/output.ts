@@ -25,7 +25,8 @@ import stripAnsi = require('strip-ansi');
 import * as path from 'path';
 import { getErrorStringCode } from '../../../../cli/commands/test/iac/local-execution/error-utils';
 import {
-  buildShareResultsSummaryV2,
+  buildShareResultsSummaryIacV2,
+  buildShareResultsSummaryIacPlus,
   shouldPrintShareResultsTip,
 } from '../../../../cli/commands/test/iac/output';
 import {
@@ -40,10 +41,12 @@ export function buildOutput({
   scanResult,
   testSpinner,
   options,
+  iacNewEngine,
 }: {
   scanResult: TestOutput;
   testSpinner?: Ora;
   options: any;
+  iacNewEngine?: boolean;
 }): TestCommandResult {
   if (scanResult.results) {
     testSpinner?.succeed(spinnerSuccessMessage);
@@ -54,6 +57,7 @@ export function buildOutput({
   const { responseData, jsonData, sarifData } = buildTestCommandResultData({
     scanResult,
     options,
+    iacNewEngine,
   });
 
   if (options.json || options.sarif) {
@@ -74,9 +78,11 @@ export function buildOutput({
 function buildTestCommandResultData({
   scanResult,
   options,
+  iacNewEngine,
 }: {
   scanResult: TestOutput;
   options: any;
+  iacNewEngine?: boolean;
 }) {
   const projectName =
     scanResult.results?.metadata?.projectName ?? path.basename(process.cwd());
@@ -108,6 +114,7 @@ function buildTestCommandResultData({
       scanResult,
       projectName,
       options,
+      iacNewEngine,
     });
   }
 
@@ -129,10 +136,12 @@ function buildTextOutput({
   scanResult,
   projectName,
   options,
+  iacNewEngine,
 }: {
   scanResult: TestOutput;
   projectName: string;
   options: IaCTestFlags;
+  iacNewEngine?: boolean;
 }): string {
   let response = '';
 
@@ -177,13 +186,21 @@ function buildTextOutput({
   response += EOL;
 
   if (options.report) {
-    response += buildShareResultsSummaryV2({
-      orgName: scanResult.settings.org,
-      projectName,
-      options,
-      isIacCustomRulesEntitlementEnabled: false, // TODO: update when we add custom rules support
-      isIacShareCliResultsCustomRulesSupported: false, // TODO: update when we add custom rules support
-    });
+    if (iacNewEngine) {
+      response += buildShareResultsSummaryIacV2({
+        orgName: scanResult.settings.org,
+        projectPublicId: scanResult.results?.metadata.projectPublicId,
+      });
+    } else {
+      response += buildShareResultsSummaryIacPlus({
+        orgName: scanResult.settings.org,
+        projectName,
+        options,
+        isIacCustomRulesEntitlementEnabled: false, // TODO: update when we add custom rules support
+        isIacShareCliResultsCustomRulesSupported: false, // TODO: update when we add custom rules support
+      });
+    }
+
     response += EOL;
   }
 
@@ -191,10 +208,12 @@ function buildTextOutput({
     response += SEPARATOR + EOL + shareResultsTip + EOL;
   }
 
-  response += EOL;
-  response += colors.title('Info') + EOL;
-  response += EOL;
-  response += wrapWithPadding(infoMessage(scanResult), 80) + EOL;
+  if (!iacNewEngine) {
+    response += EOL;
+    response += colors.title('Info') + EOL;
+    response += EOL;
+    response += wrapWithPadding(infoMessage(scanResult), 80) + EOL;
+  }
 
   return response;
 }

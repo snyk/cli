@@ -17,7 +17,7 @@ export function formatShareResultsOutput(orgName: string, projectName: string) {
   );
 }
 
-export function formatShareResultsOutputV2(
+export function formatShareResultsOutputIacPlus(
   orgName: string,
   projectName: string,
 ) {
@@ -34,6 +34,25 @@ export function formatShareResultsOutputV2(
         projectName,
       )}`,
     )
+  );
+}
+
+export function formatShareResultsOutputIacV2(
+  orgName: string,
+  projectPublicId: string | undefined,
+) {
+  let projectLink = ''; // empty link if projectId is undefined, will follow up on this after product decision
+  if (projectPublicId) {
+    projectLink = `${config.ROOT}/org/${orgName}/project/${encodeURIComponent(projectPublicId)}`;
+  }
+
+  return (
+    colors.title('Report Complete') +
+    EOL +
+    EOL +
+    contentPadding +
+    'Your test results are available at: ' +
+    colors.title(projectLink)
   );
 }
 
