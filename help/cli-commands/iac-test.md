@@ -101,8 +101,6 @@ Allowed values: `critical, high, medium, low`
 
 For more information see Project attributes
 
-This option is not supported for IaC+.
-
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
 This can be used in combination with the `--report` option.
@@ -112,8 +110,6 @@ Set the project environment project attribute to one or more values (comma-separ
 Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`
 
 For more information see [Project attributes](https://docs.snyk.io/manage-issues/introduction-to-snyk-projects/project-attributes)
-
-This option is not supported for IaC+.
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
 
@@ -125,8 +121,6 @@ Allowed values: `production`, `development`, `sandbox`
 
 For more information see [Project attributes](https://docs.snyk.io/manage-issues/introduction-to-snyk-projects/project-attributes)
 
-This option is not supported for IaC+.
-
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
 This can be used in combination with the `--report` option.
@@ -136,8 +130,6 @@ Set the project tags to one or more values (comma-separated key value pairs with
 Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
-
-This option is not supported for IaC+.
 
 For more information including allowable characters see [Project tags](https://docs.snyk.io/manage-issues/introduction-to-snyk-projects/project-tags)
 
@@ -172,8 +164,6 @@ Example: Scan the configuration files using custom rules and internal Snyk rules
 `--rules=bundle.tar.gz`
 
 Note: This option can not be used in combination with the `--report` option.
-
-This option is not supported for IaC+.
 
 ### `--severity-threshold=<low|medium|high|critical>`
 
@@ -215,16 +205,6 @@ Load a terraform variable definitions file that is located in a different direct
 Example:
 
 `$ snyk iac test myproject/staging/networking --var-file=myproject/vars.tf`
-
-### `--snyk-cloud-environment=<ENVIRONMENT_ID>`
-
-Use the last scan from your Snyk Cloud Environment to suppress issues. For more information, see [Adding cloud context to your IaC test](https://docs.snyk.io/scan-cloud-deployment/snyk-infrastructure-as-code/integrated-infrastructure-as-code/adding-cloud-context-to-your-iac-test)
-
-This option is only supported for IaC+.
-
-Example:
-
-`$ snyk iac test --snyk-cloud-environment=0d19dc1a-c2aa-4719-89ee-5f281dd92a20`
 
 ## Examples for snyk iac test command
 
