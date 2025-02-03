@@ -7,6 +7,7 @@ import { LOCAL_POLICY_ENGINE_DIR } from '../local-cache';
 import * as Debug from 'debug';
 import { createIacDir } from '../file-utils';
 import { OciRegistry } from './oci-registry';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 const debug = Debug('iac-oci-pull');
 
 export const CUSTOM_RULES_TARBALL = 'custom-bundle.tar.gz';
@@ -80,6 +81,7 @@ export class FailedToBuildOCIArtifactError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We were unable to build the remote OCI Artifact locally, please ensure that the local directory is writeable.';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -89,6 +91,7 @@ export class InvalidManifestSchemaVersionError extends CustomError {
     this.code = IaCErrorCodes.InvalidRemoteRegistryURLError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Invalid manifest schema version: ${message}. We currently support Image Manifest Version 2, Schema 2`;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -97,9 +100,8 @@ export class InvalidRemoteRegistryURLError extends CustomError {
     super('Invalid URL for Remote Registry');
     this.code = IaCErrorCodes.InvalidRemoteRegistryURLError;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `The provided remote registry URL${
-      url ? `: "${url}"` : ''
-    } is invalid. Please check it again.`;
+    this.userMessage = `The provided remote registry URL${url ? `: "${url}"` : ''} is invalid. Please check it again.`;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -109,5 +111,6 @@ export class UnsupportedEntitlementPullError extends CustomError {
     this.code = IaCErrorCodes.UnsupportedEntitlementPullError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `The custom rules feature is currently not supported for this org. To enable it, please contact snyk support.`;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }

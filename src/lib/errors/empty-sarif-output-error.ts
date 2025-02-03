@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class SarifFileOutputEmptyError extends CustomError {
@@ -9,5 +10,6 @@ export class SarifFileOutputEmptyError extends CustomError {
     super(SarifFileOutputEmptyError.ERROR_MESSAGE);
     this.code = SarifFileOutputEmptyError.ERROR_CODE;
     this.userMessage = SarifFileOutputEmptyError.ERROR_MESSAGE;
+    this.errorCatalog = new CLI.EmptyFlagOptionError('');
   }
 }

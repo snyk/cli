@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export function MissingTargetFileError(path: string) {
@@ -8,5 +9,6 @@ export function MissingTargetFileError(path: string) {
   const error = new CustomError(errorMsg);
   error.code = 422;
   error.userMessage = errorMsg;
+  error.errorCatalog = new CLI.CommandArgsError('');
   return error;
 }

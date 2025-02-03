@@ -25,6 +25,7 @@ import {
 import { OciRegistry, RemoteOciRegistry } from './oci-registry';
 import { isValidUrl } from '../url-utils';
 import { isFeatureFlagSupportedForOrg } from '../../../../../../lib/feature-flags';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export async function initRules(
   buildOciRegistry: () => OciRegistry,
@@ -201,6 +202,7 @@ export class FailedToPullCustomBundleError extends CustomError {
       `${message ? message + ' ' : ''}` +
       '\nWe were unable to download the custom bundle to the disk. Please ensure access to the remote Registry and validate you have provided all the right parameters.' +
       '\nSee documentation on troubleshooting: https://docs.snyk.io/products/snyk-infrastructure-as-code/custom-rules/use-IaC-custom-rules-with-CLI/using-a-remote-custom-rules-bundle#troubleshooting';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -209,8 +211,8 @@ export class FailedToExecuteCustomRulesError extends CustomError {
     super(message || 'Could not execute custom rules mode');
     this.code = IaCErrorCodes.FailedToExecuteCustomRulesError;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `
-    Remote and local custom rules bundle can not be used at the same time.
-    Please provide a registry URL for the remote bundle, or specify local path location by using the --rules flag for the local bundle.`;
+    this.userMessage = `Remote and local custom rules bundle can not be used at the same time.
+      Please provide a registry URL for the remote bundle, or specify local path location by using the --rules flag for the local bundle.`;
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }

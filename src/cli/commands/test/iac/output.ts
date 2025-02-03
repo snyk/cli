@@ -37,6 +37,7 @@ import {
   formatShareResultsOutputIacPlus,
   shareResultsError,
 } from '../../../../lib/formatters/iac-output/text/share-results';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -183,6 +184,8 @@ export function buildOutput({
         ? new FormattedCustomError(
             errorResults[0].message,
             formatFailuresList(allTestFailures),
+            undefined,
+            new CLI.GeneralIACFailureError(formatFailuresList(allTestFailures)),
           )
         : new CustomError(response);
       error.code = errorResults[0].code;

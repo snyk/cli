@@ -545,9 +545,6 @@ func MainWithErrorCode() (int, []error) {
 	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
 	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
 	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
-	// add output flags as persistent flags
-	_ = rootCommand.ParseFlags(os.Args)
-	globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, globalEngine)
@@ -595,6 +592,10 @@ func MainWithErrorCode() (int, []error) {
 	// fallback to the legacy cli or show help
 	handleErrorResult := handleError(err)
 	if handleErrorResult == handleErrorFallbackToLegacyCLI {
+		// when falling back to TS cli, make sure the
+		_ = rootCommand.ParseFlags(os.Args)
+		globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
+
 		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(os.Args[1:])
 	} else if handleErrorResult == handleErrorShowHelp {

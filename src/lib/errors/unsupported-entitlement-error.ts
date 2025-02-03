@@ -1,3 +1,4 @@
+import { OpenAPI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class UnsupportedEntitlementError extends CustomError {
@@ -17,5 +18,6 @@ export class UnsupportedEntitlementError extends CustomError {
     this.entitlement = entitlement;
     this.code = UnsupportedEntitlementError.ERROR_CODE;
     this.userMessage = userMessage;
+    this.errorCatalog = new OpenAPI.ForbiddenError('');
   }
 }

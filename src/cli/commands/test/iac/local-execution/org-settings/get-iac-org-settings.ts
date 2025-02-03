@@ -6,6 +6,7 @@ import { getAuthHeader } from '../../../../../../lib/api-token';
 import { makeRequest } from '../../../../../../lib/request';
 import { CustomError } from '../../../../../../lib/errors';
 import { getErrorStringCode } from '../error-utils';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export function getIacOrgSettings(
   publicOrgId?: string,
@@ -41,5 +42,6 @@ export class FailedToGetIacOrgSettingsError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We failed to fetch your organization settings, including custom severity overrides for infrastructure-as-code policies. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output.';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
