@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class MissingApiTokenError extends CustomError {
@@ -22,5 +23,6 @@ export class MissingApiTokenError extends CustomError {
     this.code = MissingApiTokenError.ERROR_CODE;
     this.strCode = MissingApiTokenError.ERROR_STRING_CODE;
     this.userMessage = MissingApiTokenError.ERROR_MESSAGE;
+    this.errorCatalog = new CLI.AuthConfigError('');
   }
 }

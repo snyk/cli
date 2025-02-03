@@ -1,4 +1,5 @@
 import { CustomError } from './custom-error';
+import { Snyk } from '@snyk/error-catalog-nodejs-public';
 import config from '../config';
 
 export function AuthFailedError(
@@ -10,5 +11,6 @@ export function AuthFailedError(
   error.code = errorCode;
   error.strCode = 'authfail';
   error.userMessage = errorMessage;
+  error.errorCatalog = new Snyk.UnauthorisedError('');
   return error;
 }

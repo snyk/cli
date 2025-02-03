@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class MissingArgError extends CustomError {
@@ -7,5 +8,6 @@ export class MissingArgError extends CustomError {
     super(msg);
     this.code = 422;
     this.userMessage = msg;
+    this.errorCatalog = new CLI.CommandArgsError('');
   }
 }
