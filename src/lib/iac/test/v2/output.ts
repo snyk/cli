@@ -36,6 +36,7 @@ import {
 import * as wrapAnsi from 'wrap-ansi';
 import { formatIacTestWarnings } from '../../../formatters/iac-output/text/failures/list';
 import { IacV2Name, IacV2ShortLink } from '../../constants';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export function buildOutput({
   scanResult,
@@ -273,16 +274,19 @@ export class NoSuccessfulScansError extends FormattedCustomError {
       : options.sarif
         ? responseData.sarif
         : firstErr.message;
+    const formattedMessage = isText
+      ? formatIacTestFailures(
+          errors.map((scanError) => ({
+            failureReason: scanError.userMessage,
+            filePath: scanError.fields.path,
+          })),
+        )
+      : stripAnsi(message);
     super(
       message,
-      isText
-        ? formatIacTestFailures(
-            errors.map((scanError) => ({
-              failureReason: scanError.userMessage,
-              filePath: scanError.fields.path,
-            })),
-          )
-        : stripAnsi(message),
+      formattedMessage,
+      undefined,
+      new CLI.GeneralIACFailureError(formattedMessage),
     );
 
     this.code = firstErr.code;
@@ -326,5 +330,6 @@ export class FoundIssuesError extends CustomError {
     this.userMessage = responseData.response;
     this.jsonStringifiedResults = responseData.json;
     this.sarifStringifiedResults = responseData.sarif;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }

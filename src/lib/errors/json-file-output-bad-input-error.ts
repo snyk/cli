@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class JsonFileOutputBadInputError extends CustomError {
@@ -9,5 +10,6 @@ export class JsonFileOutputBadInputError extends CustomError {
     super(JsonFileOutputBadInputError.ERROR_MESSAGE);
     this.code = JsonFileOutputBadInputError.ERROR_CODE;
     this.userMessage = JsonFileOutputBadInputError.ERROR_MESSAGE;
+    this.errorCatalog = new CLI.EmptyFlagOptionError('');
   }
 }

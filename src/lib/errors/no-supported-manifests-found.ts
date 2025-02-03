@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { CustomError } from './custom-error';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export function NoSupportedManifestsFoundError(
   atLocations: string[],
@@ -16,5 +17,6 @@ export function NoSupportedManifestsFoundError(
   const error = new CustomError(errorMsg);
   error.code = 422;
   error.userMessage = errorMsg;
+  error.errorCatalog = new CLI.NoSupportedFilesFoundError('');
   return error;
 }

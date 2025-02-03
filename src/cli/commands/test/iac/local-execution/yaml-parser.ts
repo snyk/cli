@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { IaCErrorCodes, IacFileData } from './types';
@@ -28,6 +29,7 @@ export class InvalidJsonFileError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.filename = filename;
     this.userMessage = `We were unable to parse the JSON file "${filename}". Please ensure that it contains properly structured JSON`;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -39,5 +41,6 @@ export class InvalidYamlFileError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.filename = filename;
     this.userMessage = `We were unable to parse the YAML file "${filename}". Please ensure that it contains properly structured YAML, without any template directives`;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }

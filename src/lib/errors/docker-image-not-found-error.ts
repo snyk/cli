@@ -1,3 +1,4 @@
+import { CustomBaseImages } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class DockerImageNotFoundError extends CustomError {
@@ -8,5 +9,6 @@ export class DockerImageNotFoundError extends CustomError {
     super(message);
     this.code = DockerImageNotFoundError.ERROR_CODE;
     this.userMessage = message;
+    this.errorCatalog = new CustomBaseImages.ImageNotFoundError('');
   }
 }

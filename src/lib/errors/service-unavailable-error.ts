@@ -1,3 +1,4 @@
+import { Snyk } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class ServiceUnavailableError extends CustomError {
@@ -10,5 +11,6 @@ export class ServiceUnavailableError extends CustomError {
     this.code = ServiceUnavailableError.ERROR_CODE;
     this.strCode = ServiceUnavailableError.ERROR_STRING_CODE;
     this.userMessage = userMessage || ServiceUnavailableError.ERROR_MESSAGE;
+    this.errorCatalog = new Snyk.ServiceUnavailableError('');
   }
 }

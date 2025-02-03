@@ -1,4 +1,5 @@
 import { CustomError } from './custom-error';
+import { Snyk } from '@snyk/error-catalog-nodejs-public';
 
 export class BadGatewayError extends CustomError {
   private static ERROR_CODE = 502;
@@ -10,5 +11,6 @@ export class BadGatewayError extends CustomError {
     this.code = BadGatewayError.ERROR_CODE;
     this.strCode = BadGatewayError.ERROR_STRING_CODE;
     this.userMessage = userMessage || BadGatewayError.ERROR_MESSAGE;
+    this.errorCatalog = new Snyk.BadGatewayError('');
   }
 }

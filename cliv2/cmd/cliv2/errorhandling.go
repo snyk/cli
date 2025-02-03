@@ -69,35 +69,36 @@ func errorHasBeenShown(err error) bool {
 	return false
 }
 
-// IterErrorChain returns an iterator with all the errors from the error parameter, including the initial error.
-// Taken from this proposal: https://github.com/golang/go/issues/66455
+// iterErrorChain returns an iterator with all the errors from the error parameter, including the initial error.
 // Eg: errA -> errB -> errC will yield an iterator with the following errors:
 // ["errA -> errB -> errC", "errA", "errB", "errC"]
 func iterErrorChain(err error) iter.Seq[error] {
 	return func(yield func(error) bool) {
-		yieldAll(err, yield)
+		traverseError(err, yield)
 	}
 }
 
-// yieldAll is the generator function that walks the error chain.
-func yieldAll(err error, yield func(error) bool) bool {
-	for err != nil {
-		if !yield(err) {
-			return false
-		}
-		switch x := err.(type) {
-		case interface{ Unwrap() error }:
-			err = x.Unwrap()
-		case interface{ Unwrap() []error }:
-			for _, err := range x.Unwrap() {
-				if !yieldAll(err, yield) {
-					return false
-				}
+// traverseError is the generator function that walks the error chain, yielding any error it encounters
+func traverseError(err error, yield func(error) bool) bool {
+	if err == nil {
+		return true
+	}
+
+	if !yield(err) {
+		return false
+	}
+
+	if unwrappedOne, ok := err.(interface{ Unwrap() error }); ok {
+		return traverseError(unwrappedOne.Unwrap(), yield)
+	}
+
+	if unrappedMany, ok := err.(interface{ Unwrap() []error }); ok {
+		for _, err := range unrappedMany.Unwrap() {
+			if !traverseError(err, yield) {
+				return false
 			}
-			return true
-		default:
-			return true
 		}
 	}
+
 	return true
 }
