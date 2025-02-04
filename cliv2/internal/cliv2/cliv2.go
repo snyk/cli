@@ -25,6 +25,7 @@ import (
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils"
 
@@ -61,7 +62,10 @@ const (
 	V2_ABOUT   Handler = iota
 )
 
-const configKeyErrFile = "INTERNAL_ERR_FILE_PATH"
+const (
+	configKeyErrFile         = "INTERNAL_ERR_FILE_PATH"
+	ERROR_HAS_BEEN_DISPLAYED = "hasBeenDisplayed"
+)
 
 func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger, ri runtimeinfo.RuntimeInfo) (*CLI, error) {
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
@@ -482,9 +486,17 @@ func (c *CLI) getErrorFromFile(errFilePath string) (data error, err error) {
 	}
 
 	if len(jsonErrors) != 0 {
+		useSTDIO := c.globalConfig.GetBool(configuration.WORKFLOW_USE_STDIO)
+		jsonEnabled := c.globalConfig.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON)
+		hasBeenDisplayed := false
+		if useSTDIO && jsonEnabled {
+			hasBeenDisplayed = true
+		}
+
 		errs := make([]error, len(jsonErrors)+1)
 		for _, jerr := range jsonErrors {
 			jerr.Meta["orign"] = "Typescript-CLI"
+			jerr.Meta[ERROR_HAS_BEEN_DISPLAYED] = hasBeenDisplayed
 			errs = append(errs, jerr)
 		}
 

@@ -138,32 +138,34 @@ async function handleError(args, error) {
   }
 
   /**
-   * Exceptions from sending errors
-   * - json/sarif flags - this would just stringify the content as the error message; could look into outputing the Error Catalog JSON
+   * Exceptions from sending errors to IPC
+   * - sarif - no error message or details are present in the payload
    * - vulnsFound - issues are treated as errors (exit code 1), this should be some nice pretty formated output for users.
    */
   const errorSent =
-    args.options.json || args.options.sarif || vulnsFound
+    vulnsFound || args.options.sarif
       ? false
-      : sendError(error);
-  if (!errorSent) {
-    if (args.options.debug && !args.options.json) {
+      : await sendError(error, args.options.json);
+
+  // JSON output flow
+  if (args.options.json) {
+    const output = vulnsFound
+      ? error.message
+      : stripAnsi(error.json || error.stack);
+    if (error.jsonPayload) {
+      new JsonStreamStringify(error.jsonPayload, undefined, 2).pipe(
+        process.stdout,
+      );
+    } else {
+      console.log(output);
+    }
+    // If the IPC communication failed, we default back to the original output flow
+  } else if (!errorSent) {
+    // Debug output flow
+    if (args.options.debug) {
       const output = vulnsFound ? error.message : error.stack;
       console.log(output);
-    } else if (
-      args.options.json &&
-      !(error instanceof UnsupportedOptionCombinationError)
-    ) {
-      const output = vulnsFound
-        ? error.message
-        : stripAnsi(error.json || error.stack);
-      if (error.jsonPayload) {
-        new JsonStreamStringify(error.jsonPayload, undefined, 2).pipe(
-          process.stdout,
-        );
-      } else {
-        console.log(output);
-      }
+      // Human readable output/sarif
     } else {
       if (!args.options.quiet) {
         const result = errors.message(error);
