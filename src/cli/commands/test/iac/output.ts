@@ -32,7 +32,11 @@ import {
   shareResultsTip,
   formatTestData,
 } from '../../../../lib/formatters/iac-output/text';
-import { formatShareResultsOutputV2 } from '../../../../lib/formatters/iac-output/text/share-results';
+import {
+  formatShareResultsOutputIacV2,
+  formatShareResultsOutputIacPlus,
+  shareResultsError,
+} from '../../../../lib/formatters/iac-output/text/share-results';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -270,7 +274,7 @@ export function buildShareResultsSummary({
   return response;
 }
 
-export function buildShareResultsSummaryV2({
+export function buildShareResultsSummaryIacPlus({
   orgName,
   projectName,
   options,
@@ -286,7 +290,7 @@ export function buildShareResultsSummaryV2({
   let response = '';
 
   response +=
-    SEPARATOR + EOL + formatShareResultsOutputV2(orgName, projectName);
+    SEPARATOR + EOL + formatShareResultsOutputIacPlus(orgName, projectName);
 
   if (
     shouldPrintShareCustomRulesDisclaimer(
@@ -297,6 +301,21 @@ export function buildShareResultsSummaryV2({
   ) {
     response += EOL + EOL + shareCustomRulesDisclaimer;
   }
+
+  return response;
+}
+
+export function buildShareResultsSummaryIacV2({
+  orgName,
+  projectPublicId,
+}: {
+  orgName: string;
+  projectPublicId: string | undefined;
+}): string {
+  let response = SEPARATOR + EOL;
+  response += projectPublicId
+    ? formatShareResultsOutputIacV2(orgName, projectPublicId)
+    : shareResultsError;
 
   return response;
 }
