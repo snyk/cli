@@ -456,14 +456,16 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 	if err != nil {
 		_, isExitError := err.(*exec.ExitError)
 		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
-		if isExitError || isErrorWithCode {
+		if isExitError || isErrorWithCode || errorHasBeenShown(err) {
 			return
 		}
 
 		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
+			message := getErrorMessage(err)
+
 			jsonError := JsonErrorStruct{
 				Ok:       false,
-				ErrorMsg: err.Error(),
+				ErrorMsg: message,
 				Path:     globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
 			}
 
@@ -545,6 +547,9 @@ func MainWithErrorCode() (int, []error) {
 	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
 	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
 	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
+	// add output flags as persistent flags
+	_ = rootCommand.ParseFlags(os.Args)
+	globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, globalEngine)
