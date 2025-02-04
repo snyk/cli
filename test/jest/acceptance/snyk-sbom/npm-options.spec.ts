@@ -68,7 +68,7 @@ describe('snyk sbom: npm options (mocked server only)', () => {
 
     expect(code).toEqual(2);
     expect(stdout).toContainText(
-      'An error occurred while running the underlying analysis needed to generate the SBOM.',
+      'Dependency snyk was not found in package-lock.json.',
     );
     expect(stderr).toContainText(
       'OutOfSyncError: Dependency snyk was not found in package-lock.json.',

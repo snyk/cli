@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-
+import { NoSupportedManifestsFoundError } from '../../../../src/lib/errors/no-supported-manifests-found';
 import {
   createProject,
   createProjectFromWorkspace,
@@ -212,7 +212,7 @@ describe('snyk sbom (mocked server only)', () => {
 
     expect(code).toBe(3);
     expect(stdout).toContainText(
-      'An error occurred while running the underlying analysis needed to generate the SBOM.',
+      NoSupportedManifestsFoundError([project.path()]).message,
     );
   });
 });
