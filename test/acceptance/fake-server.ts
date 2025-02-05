@@ -943,11 +943,27 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   const listenPromise = (port: string | number) => {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       server = http.createServer(app).listen(Number(port), resolve);
 
-      server?.on('connection', (socket) => {
+      if (server === undefined) {
+        reject(new Error('Server not created'));
+        return;
+      }
+
+      server.on('connection', (socket) => {
         sockets.add(socket);
+      });
+
+      server.on('error', (e) => {
+        console.log('Error in server.listen', e);
+        if ((e as NodeJS.ErrnoException).code === 'EADDRINUSE') {
+          console.error('Address in use, retrying...');
+          setTimeout(() => {
+            server?.close();
+            server?.listen(port, resolve);
+          }, 1000);
+        }
       });
     });
   };
