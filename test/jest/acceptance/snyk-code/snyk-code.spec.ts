@@ -1,11 +1,12 @@
 import { createProjectFromFixture } from '../../util/createProject';
-import { runSnykCLI } from '../../util/runSnykCLI';
+import { runSnykCLI, runSnykCLIWithArray } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { matchers } from 'jest-json-schema';
 import { resolve } from 'path';
-import { existsSync, unlinkSync } from 'fs';
+import { existsSync, unlinkSync, readFileSync } from 'fs';
+import { execSync } from 'child_process';
 
 const stripAnsi = require('strip-ansi');
 const projectRoot = resolve(__dirname, '../../../..');
@@ -14,10 +15,54 @@ const sarifSchema = require('../../../schemas/sarif-schema-2.1.0.json');
 
 expect.extend(matchers);
 
+jest.setTimeout(1000 * 120);
+
+interface Workflow {
+  type: string;
+  env: { [key: string]: string | undefined };
+}
+
+interface IgnoreTests {
+  name: string;
+  expectedExitCode: number;
+  expectedIgnoredIssuesHigh: number;
+  expectedIgnoredIssuesMedium: number;
+  pathToTest: string;
+}
+
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_ACTION_NEEDED = 1;
 const EXIT_CODE_FAIL_WITH_ERROR = 2;
 const EXIT_CODE_NO_SUPPORTED_FILES = 3;
+const repoUrl = 'https://github.com/snyk/snyk-goof.git';
+const localPath = '/tmp/snyk-goof';
+
+// This method does some basic checks on the given sarif file
+function checkSarif(file: string, expectedIgnoredFindings: number): any {
+  expect(existsSync(file)).toBe(true);
+
+  const sarifOutput = JSON.parse(readFileSync(file, 'utf8'));
+
+  // Check that the SARIF payload contains all expected fingerprints including identity and snyk/asset/finding/v1
+  const fingerprints = sarifOutput.runs[0].results.flatMap(
+    (result) => result.fingerprints || [],
+  );
+  expect(fingerprints).toContainEqual(
+    expect.objectContaining({ identity: expect.any(String) }),
+  );
+  expect(fingerprints).toContainEqual(
+    expect.objectContaining({
+      'snyk/asset/finding/v1': expect.any(String),
+    }),
+  );
+
+  const suppressions = sarifOutput.runs[0].results.filter(
+    (result) => result.suppressions,
+  );
+  expect(suppressions.length).toBe(expectedIgnoredFindings);
+
+  return sarifOutput;
+}
 
 describe('snyk code test', () => {
   let server: ReturnType<typeof fakeServer>;
@@ -39,16 +84,29 @@ describe('snyk code test', () => {
   );
   const emptyProject = resolve(projectRoot, 'test/fixtures/empty');
 
-  beforeAll((done) => {
-    deepCodeServer = fakeDeepCodeServer();
-    deepCodeServer.listen(() => {});
-    env = {
-      ...initialEnvVars,
-      SNYK_CODE_CLIENT_PROXY_URL: `http://localhost:${deepCodeServer.getPort()}`,
-    };
-    server = fakeServer(baseApi, 'snykToken');
-    server.listen(port, () => {
-      done();
+  beforeAll(() => {
+    if (!existsSync(localPath)) {
+      // Clone the repository
+      execSync(`git clone ${repoUrl} ${localPath}`, { stdio: 'inherit' });
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      try {
+        deepCodeServer = fakeDeepCodeServer();
+        deepCodeServer.listen(() => {
+          // Add any necessary setup code here
+        });
+        env = {
+          ...initialEnvVars,
+          SNYK_CODE_CLIENT_PROXY_URL: `http://localhost:${deepCodeServer.getPort()}`,
+        };
+        server = fakeServer(baseApi, 'snykToken');
+        server.listen(port, () => {
+          resolve();
+        });
+      } catch (error) {
+        reject(error);
+      }
     });
   });
 
@@ -57,10 +115,14 @@ describe('snyk code test', () => {
     deepCodeServer.restore();
   });
 
-  afterAll((done) => {
-    deepCodeServer.close(() => {});
-    server.close(() => {
-      done();
+  afterAll(() => {
+    return new Promise<void>((resolve) => {
+      deepCodeServer.close(() => {
+        // Add any necessary cleanup code here
+      });
+      server.close(() => {
+        resolve();
+      });
     });
   });
 
@@ -73,11 +135,6 @@ describe('snyk code test', () => {
     expect(code).toBe(0);
     expect(stderr).toBe('');
   });
-
-  interface Workflow {
-    type: string;
-    env: { [key: string]: string | undefined };
-  }
 
   const integrationWorkflows: Workflow[] = [
     {
@@ -199,8 +256,6 @@ describe('snyk code test', () => {
       type: 'golang/native',
       env: {
         // Use an org with consistent ignores enabled - uses golang/native workflow
-        SNYK_API: process.env.TEST_SNYK_API_DEV,
-        SNYK_TOKEN: process.env.TEST_SNYK_TOKEN_DEV,
       },
     },
   ];
@@ -461,6 +516,161 @@ describe('snyk code test', () => {
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
         });
+
+        const projectWithSpaces = resolve(
+          projectRoot,
+          'test/fixtures/sast/folder with spaces',
+        );
+
+        it('should pass when given a folder with spaces', async () => {
+          const args = ['code', 'test', projectWithSpaces];
+          const { stderr, code } = await runSnykCLIWithArray(args, {
+            env: {
+              ...process.env,
+              ...integrationEnv,
+            },
+          });
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_SUCCESS);
+        });
+
+        it('shows all issues when scanning a folder without repository context', async () => {
+          // createProjectFromFixture creates a new project without git context
+          const { path } = await createProjectFromFixture(
+            'sast/shallow_sast_webgoat',
+          );
+
+          const sarifFileName = 'sarifOutput.json';
+          const sarifFilePath = `${projectRoot}/${sarifFileName}`;
+
+          // Test human readable output and SARIF output
+          const cliResult = await runSnykCLI(
+            `code test ${path()} --sarif-file-output=${sarifFileName}`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(cliResult.code).toBe(EXIT_CODE_ACTION_NEEDED);
+          expect(cliResult.stdout).toMatch(/✗ \[High|HIGH\]/); // Verify issues are shown
+
+          // Verify SARIF file
+          expect(existsSync(sarifFilePath)).toBe(true);
+          const sarifOutput = require(sarifFilePath);
+          expect(sarifOutput.runs[0].results.length).toBeGreaterThan(0);
+          // Verify no suppressions exist in the results
+          expect(
+            sarifOutput.runs[0].results.every((result) => !result.suppressions),
+          ).toBeTruthy();
+
+          // cleanup file
+          try {
+            unlinkSync(sarifFilePath);
+          } catch (error) {
+            console.error('failed to remove file.', error);
+          }
+        });
+
+        if (type === 'golang/native') {
+          const ignoreTestList: IgnoreTests[] = [
+            {
+              name: 'given 4 issues are ignored and 5 open issues are present',
+              expectedExitCode: EXIT_CODE_ACTION_NEEDED,
+              expectedIgnoredIssuesHigh: 1,
+              expectedIgnoredIssuesMedium: 3,
+              pathToTest: localPath,
+            },
+            {
+              name: 'given 4 issues are ignored and 0 open issues are present',
+              expectedExitCode: EXIT_CODE_SUCCESS,
+              expectedIgnoredIssuesHigh: 1,
+              expectedIgnoredIssuesMedium: 3,
+              pathToTest: `${localPath}/routes`,
+            },
+          ];
+
+          const sarifFile = `${projectRoot}/sarifOutput.json`;
+
+          describe.each(ignoreTestList)(
+            `with ignored issues`,
+            ({
+              name,
+              expectedExitCode,
+              expectedIgnoredIssuesHigh,
+              expectedIgnoredIssuesMedium,
+              pathToTest,
+            }) => {
+              const expectedIgnoredIssuesAll =
+                expectedIgnoredIssuesHigh + expectedIgnoredIssuesMedium;
+
+              describe(name, () => {
+                afterEach(() => {
+                  // Cleanup SARIF file
+                  try {
+                    unlinkSync(sarifFile);
+                  } catch (error) {
+                    // nothing
+                  }
+                });
+
+                it('with --severity-threashold', async () => {
+                  const { stdout, stderr, code } = await runSnykCLI(
+                    `code test ${pathToTest} --severity-threshold=high --sarif-file-output=${sarifFile}`,
+                    {
+                      env: {
+                        ...process.env,
+                        ...integrationEnv,
+                      },
+                    },
+                  );
+
+                  expect(stderr).toBe('');
+                  expect(stdout).toContain(
+                    `Ignored issues: ${expectedIgnoredIssuesHigh}`,
+                  );
+                  expect(stdout.toLowerCase()).not.toContain('[medium]');
+                  expect(code).toBe(expectedExitCode);
+
+                  // Verify SARIF file
+                  const sarifOutput = checkSarif(
+                    sarifFile,
+                    expectedIgnoredIssuesHigh,
+                  );
+
+                  const levels = sarifOutput.runs[0].results.filter(
+                    (result) => result.level.toLowerCase() == 'warning',
+                  );
+                  expect(levels.length).toBe(0);
+                });
+
+                it('with --include-ignores', async () => {
+                  const { stdout, stderr, code } = await runSnykCLI(
+                    `code test ${pathToTest} --include-ignores --sarif-file-output=${sarifFile}`,
+                    {
+                      env: {
+                        ...process.env,
+                        ...integrationEnv,
+                      },
+                    },
+                  );
+
+                  expect(stderr).toBe('');
+                  expect(
+                    stdout.toLowerCase().split('[ ignored ]').length - 1,
+                  ).toBe(expectedIgnoredIssuesAll);
+                  expect(code).toBe(expectedExitCode);
+
+                  // Verify SARIF file
+                  checkSarif(sarifFile, expectedIgnoredIssuesAll);
+                });
+              });
+            },
+          );
+        }
       });
     },
   );
