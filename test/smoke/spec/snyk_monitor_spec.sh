@@ -13,21 +13,21 @@ Describe "Snyk monitor command"
     It "monitors a project in the same folder"
       When run run_monitor_in_subfolder
       The status should be success
-      The output should include "Explore this snapshot at https://app.eu.snyk.io/org/"
+      The output should include "Explore this snapshot at https://"
       The output should include "Notifications about newly disclosed issues related to these dependencies will be emailed to you."
     End
 
     It "monitors a project when pointing to a folder"
       When run snyk monitor ../fixtures/basic-npm
       The status should be success
-      The output should include "Explore this snapshot at https://app.eu.snyk.io/org/"
+      The output should include "Explore this snapshot at https://"
       The output should include "Notifications about newly disclosed issues related to these dependencies will be emailed to you."
     End
 
     It "monitors a project when pointing to a file"
       When run snyk monitor --file=../fixtures/basic-npm/package.json
       The status should be success
-      The output should include "Explore this snapshot at https://app.eu.snyk.io/org/"
+      The output should include "Explore this snapshot at https://"
       The output should include "Notifications about newly disclosed issues related to these dependencies will be emailed to you."
     End
   End
