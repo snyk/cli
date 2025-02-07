@@ -33,6 +33,7 @@ export async function test(
       scanResult,
       testSpinner,
       options,
+      iacNewEngine,
     });
   } finally {
     testSpinner?.stop();
