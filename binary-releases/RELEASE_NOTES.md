@@ -4,7 +4,6 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 
 ### Bug Fixes
 
-* **security:** Upgrade dependency goproxy to address CVE-2023-37788
 * **security:** Upgrades dependencies to address CVE-2025-21614
 * **language-server:** Improved memory usage when executing code scans on large projects
 * **language-server:** Fix incorrect filtering of files when executing code scans which could fail the analysis
