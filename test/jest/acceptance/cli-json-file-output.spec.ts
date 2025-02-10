@@ -107,12 +107,6 @@ describe('test --json-file-output', () => {
 
     const { code } = await runSnykCLI(
       `code test --json-file-output=${outputFilename} ${project.path()}`,
-      {
-        env: {
-          ...process.env,
-          INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false', // remove when CLI-711 is implemented
-        },
-      },
     );
 
     const fileExists = fs.existsSync(outputFilename);
