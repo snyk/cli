@@ -132,6 +132,6 @@ ignore:
   SNYK-GOLANG-GITHUBCOMELAZARLGOPROXY-5783247:
     - '*':
         reason: No immeditiately exploitable path. More time required to validate safety of upgrade
-        expires: 2025-02-07T12:38:43.627Z
+        expires: 2025-02-20T12:38:43.627Z
         created: 2025-01-08T12:38:43.632Z
 patch: {}

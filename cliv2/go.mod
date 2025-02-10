@@ -5,6 +5,8 @@ go 1.23
 toolchain go1.23.2
 
 require (
+	github.com/elazarl/goproxy v1.2.3
+	github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a
 	github.com/gofrs/flock v0.12.1
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
@@ -22,7 +24,6 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.10.0
-	github.com/stripe/goproxy v0.0.0-20241022131412-58117846327a
 )
 
 require (
@@ -227,6 +228,8 @@ require (
 
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
+
+replace github.com/elazarl/goproxy v1.2.3 => github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a
 
 //replace github.com/snyk/go-application-framework => ../../go-application-framework
 
