@@ -519,6 +519,8 @@ github.com/gorilla/securecookie v1.1.1 h1:miw7JPhV+b/lAHSXz4qd/nN9jRiAFV5FwjeKyC
 github.com/gorilla/securecookie v1.1.1/go.mod h1:ra0sb63/xPlUeL+yeDciTfxMRAA+MP+HVt/4epWDjd4=
 github.com/gorilla/sessions v1.2.1 h1:DHd3rPN5lE3Ts3D8rKkQ8x/0kqfeNmBAaiSi+o7FsgI=
 github.com/gorilla/sessions v1.2.1/go.mod h1:dk2InVEVJ0sfLlnXv9EAgkf6ecYs/i80K/zI+bUmuGM=
+github.com/gosimple/hashdir v1.0.2 h1:3h8l8CfLUeRgcJGDxJyJjfYFzDuZZo6HjwEm7I4inv4=
+github.com/gosimple/hashdir v1.0.2/go.mod h1:BqFbiXPzCbJAzK1ppHf+idDESsuauUqgq/hHYTBQnzE=
 github.com/grpc-ecosystem/grpc-gateway v1.16.0 h1:gmcG1KaJ57LophUzW0Hy8NmPhnMZb4M0+kPpLofRdBo=
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 h1:bkypFPDjIYGfCYD5mRBvpqxfYX1YCS1PXdKYWi8FsN0=
@@ -784,8 +786,8 @@ github.com/snyk/policy-engine v0.33.0 h1:nXH4LEVrYbEuSEq4RJBObRY2fduaXiovAJt3Kni
 github.com/snyk/policy-engine v0.33.0/go.mod h1:Zq+JU+cC6C3zsgzzr824YLlFX6I0/Xev5I5KriehZgs=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20250206143251-70650224e066 h1:AJYdHkYx35qqzJz3LxNpKkbl9pUkIb/0e0xSP45KbeM=
-github.com/snyk/snyk-ls v0.0.0-20250206143251-70650224e066/go.mod h1:aMxUAMv3Ppa59pGHFB7jDAU/+K19zeqXFEjIayMRg5c=
+github.com/snyk/snyk-ls v0.0.0-20250211120001-7122ee6defea h1:K+pDTdMBkZA9BIh5JH3F5jagike2WaejP+LsAdb53ak=
+github.com/snyk/snyk-ls v0.0.0-20250211120001-7122ee6defea/go.mod h1:sACqtQZgIONaFcY+Hn5kHnZxtYwIF4T+px37LWsUnMw=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
