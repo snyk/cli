@@ -617,7 +617,7 @@ describe('snyk code test', () => {
                   }
                 });
 
-                it('with --severity-threashold', async () => {
+                it('with --severity-threshold', async () => {
                   const { stdout, stderr, code } = await runSnykCLI(
                     `code test ${pathToTest} --severity-threshold=high --sarif-file-output=${sarifFile}`,
                     {
@@ -670,6 +670,26 @@ describe('snyk code test', () => {
               });
             },
           );
+
+          describe(`with ignored issues`, () => {
+            it('test a single file', async () => {
+              const { stderr, code } = await runSnykCLI(
+                `code test ${localPath}/routes/index.js --sarif-file-output=${sarifFile}`,
+                {
+                  env: {
+                    ...process.env,
+                    ...integrationEnv,
+                  },
+                },
+              );
+
+              expect(code).toBe(0);
+              expect(stderr).toBe('');
+
+              // Verify SARIF file
+              checkSarif(sarifFile, 4);
+            });
+          });
         }
       });
     },
