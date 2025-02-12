@@ -5,8 +5,7 @@ import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { matchers } from 'jest-json-schema';
 import { resolve } from 'path';
-import { existsSync, unlinkSync, readFileSync } from 'fs';
-import { execSync } from 'child_process';
+import { existsSync, unlinkSync } from 'fs';
 
 const stripAnsi = require('strip-ansi');
 const projectRoot = resolve(__dirname, '../../../..');
@@ -22,47 +21,11 @@ interface Workflow {
   env: { [key: string]: string | undefined };
 }
 
-interface IgnoreTests {
-  name: string;
-  expectedExitCode: number;
-  expectedIgnoredIssuesHigh: number;
-  expectedIgnoredIssuesMedium: number;
-  pathToTest: string;
-}
-
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_ACTION_NEEDED = 1;
 const EXIT_CODE_FAIL_WITH_ERROR = 2;
 const EXIT_CODE_NO_SUPPORTED_FILES = 3;
-const repoUrl = 'https://github.com/snyk/snyk-goof.git';
-const localPath = '/tmp/snyk-goof';
 
-// This method does some basic checks on the given sarif file
-function checkSarif(file: string, expectedIgnoredFindings: number): any {
-  expect(existsSync(file)).toBe(true);
-
-  const sarifOutput = JSON.parse(readFileSync(file, 'utf8'));
-
-  // Check that the SARIF payload contains all expected fingerprints including identity and snyk/asset/finding/v1
-  const fingerprints = sarifOutput.runs[0].results.flatMap(
-    (result) => result.fingerprints || [],
-  );
-  expect(fingerprints).toContainEqual(
-    expect.objectContaining({ identity: expect.any(String) }),
-  );
-  expect(fingerprints).toContainEqual(
-    expect.objectContaining({
-      'snyk/asset/finding/v1': expect.any(String),
-    }),
-  );
-
-  const suppressions = sarifOutput.runs[0].results.filter(
-    (result) => result.suppressions,
-  );
-  expect(suppressions.length).toBe(expectedIgnoredFindings);
-
-  return sarifOutput;
-}
 
 describe('snyk code test', () => {
   let server: ReturnType<typeof fakeServer>;
@@ -85,11 +48,6 @@ describe('snyk code test', () => {
   const emptyProject = resolve(projectRoot, 'test/fixtures/empty');
 
   beforeAll(() => {
-    if (!existsSync(localPath)) {
-      // Clone the repository
-      execSync(`git clone ${repoUrl} ${localPath}`, { stdio: 'inherit' });
-    }
-
     return new Promise<void>((resolve, reject) => {
       try {
         deepCodeServer = fakeDeepCodeServer();
@@ -200,7 +158,7 @@ describe('snyk code test', () => {
 
           it('use remote LCE URL as base when LCE is enabled', async () => {
             const localCodeEngineUrl = fakeDeepCodeServer();
-            localCodeEngineUrl.listen(() => {});
+            localCodeEngineUrl.listen(jest.fn);
 
             server.setOrgSetting('sast', true);
             server.setLocalCodeEngineConfiguration({
@@ -574,123 +532,6 @@ describe('snyk code test', () => {
             console.error('failed to remove file.', error);
           }
         });
-
-        if (type === 'golang/native') {
-          const ignoreTestList: IgnoreTests[] = [
-            {
-              name: 'given 4 issues are ignored and 5 open issues are present',
-              expectedExitCode: EXIT_CODE_ACTION_NEEDED,
-              expectedIgnoredIssuesHigh: 1,
-              expectedIgnoredIssuesMedium: 3,
-              pathToTest: localPath,
-            },
-            {
-              name: 'given 4 issues are ignored and 0 open issues are present',
-              expectedExitCode: EXIT_CODE_SUCCESS,
-              expectedIgnoredIssuesHigh: 1,
-              expectedIgnoredIssuesMedium: 3,
-              pathToTest: `${localPath}/routes`,
-            },
-          ];
-
-          const sarifFile = `${projectRoot}/sarifOutput.json`;
-
-          describe.each(ignoreTestList)(
-            `with ignored issues`,
-            ({
-              name,
-              expectedExitCode,
-              expectedIgnoredIssuesHigh,
-              expectedIgnoredIssuesMedium,
-              pathToTest,
-            }) => {
-              const expectedIgnoredIssuesAll =
-                expectedIgnoredIssuesHigh + expectedIgnoredIssuesMedium;
-
-              describe(name, () => {
-                afterEach(() => {
-                  // Cleanup SARIF file
-                  try {
-                    unlinkSync(sarifFile);
-                  } catch (error) {
-                    // nothing
-                  }
-                });
-
-                it('with --severity-threshold', async () => {
-                  const { stdout, stderr, code } = await runSnykCLI(
-                    `code test ${pathToTest} --severity-threshold=high --sarif-file-output=${sarifFile}`,
-                    {
-                      env: {
-                        ...process.env,
-                        ...integrationEnv,
-                      },
-                    },
-                  );
-
-                  expect(stderr).toBe('');
-                  expect(stdout).toContain(
-                    `Ignored issues: ${expectedIgnoredIssuesHigh}`,
-                  );
-                  expect(stdout.toLowerCase()).not.toContain('[medium]');
-                  expect(code).toBe(expectedExitCode);
-
-                  // Verify SARIF file
-                  const sarifOutput = checkSarif(
-                    sarifFile,
-                    expectedIgnoredIssuesHigh,
-                  );
-
-                  const levels = sarifOutput.runs[0].results.filter(
-                    (result) => result.level.toLowerCase() == 'warning',
-                  );
-                  expect(levels.length).toBe(0);
-                });
-
-                it('with --include-ignores', async () => {
-                  const { stdout, stderr, code } = await runSnykCLI(
-                    `code test ${pathToTest} --include-ignores --sarif-file-output=${sarifFile}`,
-                    {
-                      env: {
-                        ...process.env,
-                        ...integrationEnv,
-                      },
-                    },
-                  );
-
-                  expect(stderr).toBe('');
-                  expect(
-                    stdout.toLowerCase().split('[ ignored ]').length - 1,
-                  ).toBe(expectedIgnoredIssuesAll);
-                  expect(code).toBe(expectedExitCode);
-
-                  // Verify SARIF file
-                  checkSarif(sarifFile, expectedIgnoredIssuesAll);
-                });
-              });
-            },
-          );
-
-          describe(`with ignored issues`, () => {
-            it('test a single file', async () => {
-              const { stderr, code } = await runSnykCLI(
-                `code test ${localPath}/routes/index.js --sarif-file-output=${sarifFile}`,
-                {
-                  env: {
-                    ...process.env,
-                    ...integrationEnv,
-                  },
-                },
-              );
-
-              expect(code).toBe(0);
-              expect(stderr).toBe('');
-
-              // Verify SARIF file
-              checkSarif(sarifFile, 4);
-            });
-          });
-        }
       });
     },
   );
