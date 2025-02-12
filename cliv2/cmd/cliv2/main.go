@@ -310,6 +310,10 @@ func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 	// ensure legacy behavior, where sarif and json can be used interchangeably
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE})
+
+	// ensure legacy behavior, where sarif files with no findings are not written
+	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_WRITE_EMPTY_FILE, false)
+
 	return runCommand(cmd, args)
 }
 
