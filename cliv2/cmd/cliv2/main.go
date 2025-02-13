@@ -20,6 +20,8 @@ import (
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
@@ -29,9 +31,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -57,7 +56,7 @@ var helpProvided bool
 
 var noopLogger zerolog.Logger = zerolog.New(io.Discard)
 var globalLogger *zerolog.Logger = &noopLogger
-var interactionId = uuid.NewString()
+var interactionId = instrumentation.AssembleUrnFromUUID(uuid.NewString())
 
 const (
 	unknownCommandMessage  string = "unknown command"
@@ -471,10 +470,6 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
 			userInterface.Output(string(jsonErrorBuffer))
 		} else {
-			if errors.Is(err, context.DeadlineExceeded) {
-				err = fmt.Errorf("command timed out")
-			}
-
 			uiError := userInterface.OutputError(err)
 			if uiError != nil {
 				globalLogger.Err(uiError).Msg("ui failed to show error")
@@ -597,7 +592,11 @@ func MainWithErrorCode() (int, []error) {
 	}
 
 	if err != nil {
-		err = decorateError(err)
+		// add any meta fields to the err
+		meta := map[string]any{
+			"interactionId": interactionId,
+		}
+		err = decorateError(err, meta)
 
 		errorList = append(errorList, err)
 		for _, tempError := range errorList {

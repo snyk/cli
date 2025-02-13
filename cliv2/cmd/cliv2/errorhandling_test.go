@@ -14,34 +14,36 @@ import (
 )
 
 func Test_decorateError(t *testing.T) {
+	meta := map[string]any{}
 	t.Run("is nil error", func(t *testing.T) {
-		assert.Nil(t, decorateError(nil))
+		assert.Nil(t, decorateError(nil, meta))
 	})
 
 	t.Run("is ErrorWithExitCode", func(t *testing.T) {
 		err := &cli_errors.ErrorWithExitCode{
 			ExitCode: 2,
 		}
-		assert.Equal(t, err, decorateError(err))
+		assert.Equal(t, err, decorateError(err, meta))
 	})
 
 	t.Run("is ExitError", func(t *testing.T) {
 		err := &exec.ExitError{
 			ProcessState: &os.ProcessState{},
 		}
-		assert.Equal(t, err, decorateError(err))
+		assert.Equal(t, err, decorateError(err, meta))
 	})
 
 	t.Run("is already error catalog error", func(t *testing.T) {
 		err := cli.NewConnectionTimeoutError("")
-		assert.Equal(t, err, decorateError(err))
+		actualErr := decorateError(err, meta)
+		assert.ErrorAs(t, actualErr, &err)
 	})
 
 	t.Run("is a generic error", func(t *testing.T) {
 		err := errors.New("generic error")
-		actualErrr := decorateError(err)
+		actualErr := decorateError(err, meta)
 		expectedError := cli.NewGeneralCLIFailureError("")
-		assert.ErrorIs(t, actualErrr, err)
-		assert.ErrorAs(t, actualErrr, &expectedError)
+		assert.ErrorIs(t, actualErr, err)
+		assert.ErrorAs(t, actualErr, &expectedError)
 	})
 }
