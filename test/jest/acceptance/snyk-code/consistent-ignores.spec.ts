@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { existsSync, readFileSync, rm, rmdirSync, rmSync, unlinkSync } from 'fs';
+import { existsSync, readFileSync, rmSync, unlinkSync } from 'fs';
 import { resolve } from 'path';
 import { runSnykCLI } from '../../util/runSnykCLI';
 
