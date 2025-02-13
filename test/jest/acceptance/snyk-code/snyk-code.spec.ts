@@ -26,7 +26,6 @@ const EXIT_CODE_ACTION_NEEDED = 1;
 const EXIT_CODE_FAIL_WITH_ERROR = 2;
 const EXIT_CODE_NO_SUPPORTED_FILES = 3;
 
-
 describe('snyk code test', () => {
   let server: ReturnType<typeof fakeServer>;
   let deepCodeServer: ReturnType<typeof fakeDeepCodeServer>;

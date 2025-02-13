@@ -43,7 +43,6 @@ const localPath = '/tmp/snyk-goof';
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_ACTION_NEEDED = 1;
 
-
 const ignoreTestList: IgnoreTests[] = [
   {
     name: 'given 4 issues are ignored and 5 open issues are present',
@@ -75,16 +74,16 @@ describe.each(ignoreTestList)(
       expectedIgnoredIssuesHigh + expectedIgnoredIssuesMedium;
     const sarifFile = `${projectRoot}/sarifOutput.json`;
     beforeAll(() => {
-        if (!existsSync(localPath)) {
-          // Clone the repository
-          execSync(`git clone ${repoUrl} ${localPath}`, { stdio: 'inherit' });
-        }
-    })
+      if (!existsSync(localPath)) {
+        // Clone the repository
+        execSync(`git clone ${repoUrl} ${localPath}`, { stdio: 'inherit' });
+      }
+    });
     afterAll(() => {
       if (existsSync(localPath)) {
-        rmSync(localPath, { recursive: true })
+        rmSync(localPath, { recursive: true });
       }
-    })
+    });
 
     describe(`${name}`, () => {
       jest.setTimeout(2 * 60 * 1000);
