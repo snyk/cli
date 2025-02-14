@@ -96,12 +96,8 @@ func InitCA(config configuration.Configuration, cliVersion string, logger *zerol
 	// append any given extra CA certificate to the internal PEM data before storing it to file
 	// this merges user provided CA certificates with the internal one
 	if extraCaCertFile, ok := os.LookupEnv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV); ok {
-		extraCertificateBytes, extraCertificateList, extraCertificateError := certs.GetExtraCaCert(extraCaCertFile)
+		_, extraCertificateList, extraCertificateError := certs.GetExtraCaCert(extraCaCertFile)
 		if extraCertificateError == nil {
-			// add to pem data
-			certPEMBlock = append(certPEMBlock, '\n')
-			certPEMBlock = append(certPEMBlock, extraCertificateBytes...)
-
 			// add to cert pool
 			for _, currentCert := range extraCertificateList {
 				if currentCert != nil {
