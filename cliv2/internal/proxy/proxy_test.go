@@ -216,7 +216,7 @@ func Test_SetUpstreamProxy(t *testing.T) {
 	}
 }
 
-func Test_appendExtraCaCert(t *testing.T) {
+func Test_AddExtraCaCert(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
 
