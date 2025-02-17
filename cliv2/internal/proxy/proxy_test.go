@@ -216,7 +216,7 @@ func Test_SetUpstreamProxy(t *testing.T) {
 	}
 }
 
-func Test_doNotAddExtraCaCert(t *testing.T) {
+func Test_AddExtraCaCert(t *testing.T) {
 	basecache := "testcache"
 	version := "1.1.1"
 
@@ -242,7 +242,7 @@ func Test_doNotAddExtraCaCert(t *testing.T) {
 
 	certsList, err := certs.GetAllCerts(certsPem)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, len(certsList))
+	assert.Equal(t, 2, len(certsList))
 
 	// cleanup
 	os.Remove(file.Name())
