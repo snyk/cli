@@ -402,7 +402,6 @@ export enum IaCErrorCodes {
   FailedToProcessResults = 2200,
   EntitlementNotEnabled = 2201,
   ReadSettings = 2202,
-  FeatureFlagNotEnabled = 2203,
 
   // snyk-iac-test non-fatal errors
   SubmoduleLoadingError = 3000,
