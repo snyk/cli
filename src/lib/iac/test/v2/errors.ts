@@ -55,10 +55,6 @@ export function getErrorUserMessage(code: number, error: string): string {
     return `${error}. Please run the command again with the \`-d\` flag for more information.`;
   }
 
-  if (code == IaCErrorCodes.FeatureFlagNotEnabled) {
-    return error;
-  }
-
   return snykIacTestErrorsUserMessages[errorName];
 }
 
