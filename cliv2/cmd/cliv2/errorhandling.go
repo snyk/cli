@@ -29,7 +29,19 @@ func decorateError(err error, meta map[string]any) error {
 			snyk_errors.WithMeta(k, v)(&errorCatalogError)
 		}
 
-		return errorCatalogError
+		// Rebuild the error chain, replacing the original errorCatalogError
+		var newErr error = errorCatalogError
+		current := err
+		for current != nil {
+			if current.Error() == errorCatalogError.Error() {
+				current = errors.Unwrap(current)
+				continue
+			}
+			newErr = errors.Join(newErr, current)
+			current = errors.Unwrap(current)
+		}
+
+		return newErr
 	}
 
 	genericError := cli.NewGeneralCLIFailureError(err.Error())
