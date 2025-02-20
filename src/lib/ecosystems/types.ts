@@ -18,6 +18,7 @@ export interface GitTarget {
 
 export interface ContainerTarget {
   image: string;
+  remoteUrl?: string;
 }
 
 export interface NamedTarget extends GitTarget {

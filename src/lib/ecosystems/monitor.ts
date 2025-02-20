@@ -107,6 +107,9 @@ export async function generateMonitorDependenciesRequest(
   scanResult.name =
     options['project-name'] || config.PROJECT_NAME || scanResult.name;
   scanResult.targetReference = options['target-reference'];
+  if (scanResult.target && options['remote-repo-url']) {
+    scanResult.target.remoteUrl = options['remote-repo-url'];
+  }
   // WARNING! This mutates the payload. Policy logic should be in the plugin.
   const policy = await findAndLoadPolicyForScanResult(scanResult, options);
   if (policy !== undefined) {

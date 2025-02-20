@@ -467,7 +467,7 @@ DepGraph end`,
     });
   });
 
-  describe('snyk container monitor supports --target-reference', () => {
+  describe('snyk container monitor supports --target-reference and --remote-repo-url', () => {
     let server: ReturnType<typeof fakeServer>;
     let env: Record<string, string>;
 
@@ -512,6 +512,48 @@ DepGraph end`,
       expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
       monitorRequests.forEach((request) => {
         expect(request.body.scanResult.targetReference).toBe('test-target-ref');
+      });
+    });
+
+    it('forwards value of remote-repo-url to test-dependencies endpoint', async () => {
+      const { code } = await runSnykCLI(
+        `container test ${TEST_DISTROLESS_STATIC_IMAGE} --remote-repo-url=https://github.com/org/my-repo-test`,
+        {
+          env,
+        },
+      );
+      expect(code).toEqual(0);
+
+      const monitorRequests = server
+        .getRequests()
+        .filter((request) => request.url?.includes('/test-dependencies'));
+
+      expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
+      monitorRequests.forEach((request) => {
+        expect(request.body.scanResult.target.remoteUrl).toBe(
+          'https://github.com/org/my-repo-test',
+        );
+      });
+    });
+
+    it('forwards value of remote-repo-url to monitor-dependencies endpoint', async () => {
+      const { code } = await runSnykCLI(
+        `container monitor ${TEST_DISTROLESS_STATIC_IMAGE} --remote-repo-url=https://github.com/org/my-repo-test`,
+        {
+          env,
+        },
+      );
+      expect(code).toEqual(0);
+
+      const monitorRequests = server
+        .getRequests()
+        .filter((request) => request.url?.includes('/monitor-dependencies'));
+
+      expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
+      monitorRequests.forEach((request) => {
+        expect(request.body.scanResult.target.remoteUrl).toBe(
+          'https://github.com/org/my-repo-test',
+        );
       });
     });
   });
