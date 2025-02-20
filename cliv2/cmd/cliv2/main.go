@@ -470,6 +470,9 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
 			userInterface.Output(string(jsonErrorBuffer))
 		} else {
+			if errors.Is(err, context.DeadlineExceeded) {
+				err = fmt.Errorf("command timed out")
+			}
 			uiError := userInterface.OutputError(err)
 			if uiError != nil {
 				globalLogger.Err(uiError).Msg("ui failed to show error")
