@@ -3,7 +3,6 @@ package cliv2_test
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -16,7 +15,6 @@ import (
 
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/utils"
 
@@ -538,52 +536,4 @@ func Test_determineInputDirectory(t *testing.T) {
 		actual := cliv2.DetermineInputDirectory([]string{"iac", "test", "--remote-repo-url=something", "-d", "--project-tags=t1,t2", "--", "-DVerbose", "true", "/somefolder/here.file"})
 		assert.Equal(t, expected, actual)
 	})
-}
-
-func Test_GetErrorDisplayStatus(t *testing.T) {
-	// Decision table:
-	//  stdin |  json  | hasBeenDisplayed
-	// ---------------------------------
-	//  true  |  true  |    true
-	//  true  |  false |    false
-	//  false |    *   |    false
-
-	tests := []struct {
-		stdin    bool
-		json     bool
-		expected bool
-	}{
-		{
-			stdin:    true,
-			json:     true,
-			expected: true,
-		},
-		{
-			stdin:    true,
-			json:     false,
-			expected: false,
-		},
-		{
-			stdin:    false,
-			json:     true,
-			expected: false,
-		},
-		{
-			stdin:    false,
-			json:     false,
-			expected: false,
-		},
-	}
-
-	for _, tc := range tests {
-		testName := fmt.Sprintf("%t + %t = %t", tc.stdin, tc.json, tc.expected)
-		t.Run(testName, func(t *testing.T) {
-			config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
-			config.Set(configuration.WORKFLOW_USE_STDIO, tc.stdin)
-			config.Set(output_workflow.OUTPUT_CONFIG_KEY_JSON, tc.json)
-
-			hasBeenDisplayed := cliv2.GetErrorDisplayStatus(config)
-			assert.Equal(t, hasBeenDisplayed, tc.expected)
-		})
-	}
 }

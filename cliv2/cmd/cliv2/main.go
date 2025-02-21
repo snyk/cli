@@ -496,7 +496,6 @@ func MainWithErrorCode() (int, []error) {
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
 	rootCommand := prepareRootCommand()
-	_ = rootCommand.ParseFlags(os.Args)
 
 	// create engine
 	globalConfiguration = configuration.NewWithOpts(
@@ -504,10 +503,6 @@ func MainWithErrorCode() (int, []error) {
 		configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
 		configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
 	)
-	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)
-	}
 
 	// ensure to init configuration before using it
 	initApplicationConfiguration(globalConfiguration)
@@ -545,9 +540,12 @@ func MainWithErrorCode() (int, []error) {
 	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
 	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
 	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
-	// add output flags as persistent flags
 	_ = rootCommand.ParseFlags(os.Args)
-	globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
+
+	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to add flags to root command", err)
+	}
 
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, globalEngine)
