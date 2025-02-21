@@ -486,12 +486,7 @@ func (c *CLI) getErrorFromFile(errFilePath string) (data error, err error) {
 	}
 
 	if len(jsonErrors) != 0 {
-		useSTDIO := c.globalConfig.GetBool(configuration.WORKFLOW_USE_STDIO)
-		jsonEnabled := c.globalConfig.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON)
-		hasBeenDisplayed := false
-		if useSTDIO && jsonEnabled {
-			hasBeenDisplayed = true
-		}
+		hasBeenDisplayed := GetErrorDisplayStatus(c.globalConfig)
 
 		errs := make([]error, len(jsonErrors)+1)
 		for _, jerr := range jsonErrors {
@@ -573,4 +568,18 @@ func DetermineInputDirectory(args []string) string {
 		}
 	}
 	return ""
+}
+
+// GetErrorDisplayStatus computes whether the IPC error was displayed by the TS CLI or not. It accounts for
+// the usage of STDIO and the presence of the JSON flag when the Legacy CLI was invoked.
+func GetErrorDisplayStatus(config configuration.Configuration) bool {
+	useSTDIO := config.GetBool(configuration.WORKFLOW_USE_STDIO)
+	jsonEnabled := config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON)
+
+	hasBeenDisplayed := false
+	if useSTDIO && jsonEnabled {
+		hasBeenDisplayed = true
+	}
+
+	return hasBeenDisplayed
 }

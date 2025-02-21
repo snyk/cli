@@ -148,7 +148,10 @@ async function handleError(args, error) {
       : await sendError(error, args.options.json);
 
   // JSON output flow
-  if (args.options.json) {
+  if (
+    args.options.json &&
+    !(error instanceof UnsupportedOptionCombinationError)
+  ) {
     const output = vulnsFound
       ? error.message
       : stripAnsi(error.json || error.stack);

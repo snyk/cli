@@ -35,8 +35,8 @@ func decorateError(err error) error {
 	return err
 }
 
-// getErrorMessage returns the appropriate error message for the specified error, while also looking for the output suppessions in case of errors coming from the IPC.
-// Defaults to the standard error message method, but if the error contains a match for the Error Catalog model, the returned value will become the detail field.
+// getErrorMessage returns the appropriate error message for the specified error. Defaults to the standard error message method,
+// but if the error matches the Error Catalog model, the returned value will become the detail field.
 func getErrorMessage(err error) string {
 	message := err.Error()
 	snykErr := snyk_errors.Error{}

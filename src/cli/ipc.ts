@@ -61,7 +61,7 @@ function extractMessageFromJson(message: string): string {
   try {
     let msgObject = JSON.parse(message);
 
-    /** IAC JSON mode can contain an array of error objects, we will use just the first one to send to our debug logs.
+    /** IAC JSON mode can contain an array of error objects, we will use just the first one to send to the IPC.
      *  We are checking for the error field, since they can also combine results with the mentioned errors inside  the same array.
      * Example:
      * Error { message: '[{"filesystemPolicy": false,"vulnerabilities": [],"targetFile": "rule_test.json","projectName": "test",...]},
