@@ -13,7 +13,7 @@ interface Workflow {
 const integrationWorkflows: Workflow[] = [
   {
     type: 'typescript',
-    cmd: 'test -d',
+    cmd: 'test',
   },
   {
     type: 'golang/native',
