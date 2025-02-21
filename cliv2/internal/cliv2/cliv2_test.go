@@ -586,5 +586,4 @@ func Test_GetErrorDisplayStatus(t *testing.T) {
 			assert.Equal(t, hasBeenDisplayed, tc.expected)
 		})
 	}
-
 }
