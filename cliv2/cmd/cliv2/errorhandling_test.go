@@ -21,14 +21,21 @@ func Test_decorateError(t *testing.T) {
 	})
 
 	t.Run("preserves nested ExitError", func(t *testing.T) {
+		metaValues := map[string]any{"Foo": "bar"}
 		err1 := cli.NewConnectionTimeoutError("")
 		err2 := &exec.ExitError{
 			ProcessState: &os.ProcessState{},
 		}
-		actualErr := decorateError(errors.Join(err1, err2), meta)
+		snyk_errors.WithCause(err2)(&err1)
+		actualErr := decorateError(err1, metaValues)
 		// Assert that err2 is present in actualErr
 		if !errors.Is(actualErr, err2) {
 			t.Errorf("Expected actualErr to contain err2, but it did not")
+		}
+
+		var ecError snyk_errors.Error
+		if errors.As(actualErr, &ecError) {
+			assert.Equal(t, metaValues, ecError.Meta)
 		}
 	})
 
@@ -57,9 +64,15 @@ func Test_decorateError(t *testing.T) {
 	})
 
 	t.Run("is already error catalog error", func(t *testing.T) {
+		metaValues := map[string]any{"Foo": "bar"}
 		err := cli.NewConnectionTimeoutError("")
 		actualErr := decorateError(err, meta)
 		assert.Equal(t, err, actualErr)
+
+		var expectedError *snyk_errors.Error
+		if errors.As(actualErr, &expectedError) {
+			assert.Equal(t, metaValues, expectedError.Meta)
+		}
 	})
 
 	t.Run("is a generic error", func(t *testing.T) {
