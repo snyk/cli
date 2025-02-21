@@ -186,7 +186,6 @@ export function buildOutput({
           )
         : new CustomError(response);
       error.code = errorResults[0].code;
-      error.userMessage = errorResults[0].userMessage;
       error.strCode = errorResults[0].strCode;
 
       throw error;
