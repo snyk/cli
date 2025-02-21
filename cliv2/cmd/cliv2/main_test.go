@@ -660,6 +660,7 @@ func Test_displayError(t *testing.T) {
 	t.Run("prints messages of error wrapping exec.ExitError", func(t *testing.T) {
 		err := &wrErr{wraps: &exec.ExitError{}}
 		userInterface.EXPECT().OutputError(err).Times(1)
+		userInterface.EXPECT().Output(gomock.Any()).Times(1)
 
 		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 		displayError(err, userInterface, config)
