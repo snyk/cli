@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/snyk/error-catalog-golang-public/cli"
@@ -15,9 +14,8 @@ import (
 )
 
 func Test_decorateError(t *testing.T) {
-	meta := map[string]any{}
 	t.Run("is nil error", func(t *testing.T) {
-		assert.Nil(t, decorateError(nil, meta))
+		assert.Nil(t, decorateError(nil))
 	})
 
 	t.Run("preserves nested ExitError", func(t *testing.T) {
@@ -25,20 +23,10 @@ func Test_decorateError(t *testing.T) {
 		err2 := &exec.ExitError{
 			ProcessState: &os.ProcessState{},
 		}
-		actualErr := decorateError(errors.Join(err1, err2), meta)
+		actualErr := decorateError(errors.Join(err1, err2))
 		// Assert that err2 is present in actualErr
 		if !errors.Is(actualErr, err2) {
 			t.Errorf("Expected actualErr to contain err2, but it did not")
-		}
-	})
-
-	t.Run("adds metadata to snyk_error", func(t *testing.T) {
-		metaValues := map[string]any{"Foo": "bar"}
-		err := cli.NewConnectionTimeoutError("")
-		actualErr := decorateError(err, metaValues)
-		var ecError snyk_errors.Error
-		if errors.As(actualErr, &ecError) {
-			assert.Equal(t, metaValues, ecError.Meta)
 		}
 	})
 
@@ -46,25 +34,25 @@ func Test_decorateError(t *testing.T) {
 		err := &cli_errors.ErrorWithExitCode{
 			ExitCode: 2,
 		}
-		assert.Equal(t, err, decorateError(err, meta))
+		assert.Equal(t, err, decorateError(err))
 	})
 
 	t.Run("is ExitError", func(t *testing.T) {
 		err := &exec.ExitError{
 			ProcessState: &os.ProcessState{},
 		}
-		assert.Equal(t, err, decorateError(err, meta))
+		assert.Equal(t, err, decorateError(err))
 	})
 
 	t.Run("is already error catalog error", func(t *testing.T) {
 		err := cli.NewConnectionTimeoutError("")
-		actualErr := decorateError(err, meta)
+		actualErr := decorateError(err)
 		assert.Equal(t, err, actualErr)
 	})
 
 	t.Run("is a generic error", func(t *testing.T) {
 		err := errors.New("generic error")
-		actualErr := decorateError(err, meta)
+		actualErr := decorateError(err)
 		expectedError := cli.NewGeneralCLIFailureError("")
 		assert.ErrorIs(t, actualErr, err)
 		assert.ErrorAs(t, actualErr, &expectedError)

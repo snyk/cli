@@ -4,13 +4,14 @@ import (
 	"errors"
 	"os/exec"
 
-	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
+
+	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 )
 
 // decorate generic errors that do not contain Error-Catalog Errors
-func decorateError(err error, meta map[string]any) error {
+func decorateError(err error) error {
 	if err == nil {
 		return nil
 	}
@@ -24,32 +25,10 @@ func decorateError(err error, meta map[string]any) error {
 	}
 
 	var errorCatalogError snyk_errors.Error
-	if errors.As(err, &errorCatalogError) {
-		for k, v := range meta {
-			snyk_errors.WithMeta(k, v)(&errorCatalogError)
-		}
-
-		// Rebuild the error chain, replacing the original errorCatalogError
-		var newErr error = errorCatalogError
-		current := err
-		for current != nil {
-			if current.Error() == errorCatalogError.Error() {
-				current = errors.Unwrap(current)
-				continue
-			}
-			newErr = errors.Join(newErr, current)
-			current = errors.Unwrap(current)
-		}
-
-		return newErr
+	if !errors.As(err, &errorCatalogError) {
+		genericError := cli.NewGeneralCLIFailureError(err.Error())
+		genericError.StatusCode = 0
+		err = errors.Join(err, genericError)
 	}
-
-	genericError := cli.NewGeneralCLIFailureError(err.Error())
-	genericError.StatusCode = 0
-
-	for k, v := range meta {
-		snyk_errors.WithMeta(k, v)(&genericError)
-	}
-
-	return errors.Join(err, genericError)
+	return err
 }

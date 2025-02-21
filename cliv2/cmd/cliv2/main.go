@@ -477,6 +477,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			if uiError != nil {
 				globalLogger.Err(uiError).Msg("ui failed to show error")
 			}
+			userInterface.Output(fmt.Sprintf("\nID: %s", interactionId))
 		}
 	}
 }
@@ -595,11 +596,7 @@ func MainWithErrorCode() (int, []error) {
 	}
 
 	if err != nil {
-		// add any meta fields to the err
-		meta := map[string]any{
-			"interactionId": interactionId,
-		}
-		err = decorateError(err, meta)
+		err = decorateError(err)
 
 		errorList = append(errorList, err)
 		for _, tempError := range errorList {

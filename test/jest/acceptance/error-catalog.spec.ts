@@ -13,20 +13,20 @@ interface Workflow {
 const integrationWorkflows: Workflow[] = [
   {
     type: 'typescript',
-    cmd: 'test',
+    cmd: 'test -d',
   },
-  // {
-  //   type: 'golang/native',
-  //   cmd: 'code test',
-  // },
-  // {
-  //   type: 'typescript',
-  //   cmd: 'monitor',
-  // },
-  // {
-  //   type: 'typescript',
-  //   cmd: `container monitor ${TEST_DISTROLESS_STATIC_IMAGE}`,
-  // },
+  {
+    type: 'golang/native',
+    cmd: 'code test',
+  },
+  {
+    type: 'typescript',
+    cmd: 'monitor',
+  },
+  {
+    type: 'typescript',
+    cmd: `container monitor ${TEST_DISTROLESS_STATIC_IMAGE}`,
+  },
 ];
 
 describe.each(integrationWorkflows)(
