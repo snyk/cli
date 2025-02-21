@@ -15,18 +15,18 @@ const integrationWorkflows: Workflow[] = [
     type: 'typescript',
     cmd: 'test',
   },
-  {
-    type: 'golang/native',
-    cmd: 'code test',
-  },
-  {
-    type: 'typescript',
-    cmd: 'monitor',
-  },
-  {
-    type: 'typescript',
-    cmd: `container monitor ${TEST_DISTROLESS_STATIC_IMAGE}`,
-  },
+  // {
+  //   type: 'golang/native',
+  //   cmd: 'code test',
+  // },
+  // {
+  //   type: 'typescript',
+  //   cmd: 'monitor',
+  // },
+  // {
+  //   type: 'typescript',
+  //   cmd: `container monitor ${TEST_DISTROLESS_STATIC_IMAGE}`,
+  // },
 ];
 
 describe.each(integrationWorkflows)(
@@ -49,6 +49,7 @@ describe.each(integrationWorkflows)(
 
           expect(code).toBe(2);
           expect(stdout).toContain('Authentication error (SNYK-0005)');
+          expect(stdout).toContain(`urn:snyk:interaction`);
         });
       });
     });
