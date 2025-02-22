@@ -17,10 +17,10 @@ require (
 	github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f
 	github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20250121101159-e6a61b2bfae6
-	github.com/snyk/go-application-framework v0.0.0-20250212121528-2e787c13a2cc
+	github.com/snyk/go-application-framework v0.0.0-20250221182358-0fe29d3ddeb8
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20250213084108-c87400c00e06
+	github.com/snyk/snyk-ls v0.0.0-20250222100649-94174fb56978
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.10.0
@@ -169,7 +169,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.0 // indirect
-	github.com/snyk/code-client-go v1.13.1 // indirect
+	github.com/snyk/code-client-go v1.14.2-0.20250221174754-28a89161e34b // indirect
 	github.com/snyk/policy-engine v0.33.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
