@@ -266,7 +266,7 @@ and an object is returned with the following properties:
 * `line`: The line number in the original source, or null if this information is
   not available.
 
-* `column`: The column number in the original source, or null or null if this
+* `column`: The column number in the original source, or null if this
   information is not available.
 
 * `name`: The original identifier, or null if this information is not available.

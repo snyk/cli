@@ -19,7 +19,7 @@ Snyk CLI scanning **supports many languages and tools.** For detailed informatio
 
 - [Supported languages and frameworks for Open Source and Code](https://docs.snyk.io/getting-started/supported-languages-frameworks-and-feature-availability-overview)
 - [Supported operating system distributions for Container](https://docs.snyk.io/scan-with-snyk/snyk-container/how-snyk-container-works/supported-operating-system-distributions)
-- [Supported IaC Lanuages and cloud providers](https://docs.snyk.io/scan-with-snyk/snyk-iac/supported-iac-languages-cloud-providers-and-cloud-resources)
+- [Supported IaC Languages and cloud providers](https://docs.snyk.io/scan-with-snyk/snyk-iac/supported-iac-languages-cloud-providers-and-cloud-resources)
 
 This page explains how to install, authenticate, and start scanning using the CLI. Snyk also has an onboarding wizard to guide you through these steps. For a demonstration, view [Starting with Snyk: an overview of the CLI onboarding flow](https://www.youtube.com/watch?v=adj3VF82-v8).
 

@@ -8,7 +8,7 @@
 
 The `snyk monitor` command creates a project in your Snyk account to be continuously monitored for open-source vulnerabilities and license issues, sending the results to [snyk.io](https://snyk.io)
 
-Use the `monitor` command command before integrating a project into production, to take a snapshot of the code to be monitored in order to avoid pushing vulnerabilities into production. Choose a test frequency in your Settings if you want to change the frequency from the default, which is daily.
+Use the `monitor` command before integrating a project into production, to take a snapshot of the code to be monitored in order to avoid pushing vulnerabilities into production. Choose a test frequency in your Settings if you want to change the frequency from the default, which is daily.
 
 A PR check will also do a test.
 
@@ -313,7 +313,7 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 ### `--dotnet-runtime-resolution`
 
-**Note:** This option in in Early Access and may change until it is released.
+**Note:** This option in Early Access and may change until it is released.
 
 Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](https://docs.snyk.io/getting-started/supported-languages-and-frameworks/.net/improved-.net-scanning)
 
@@ -321,7 +321,7 @@ Example: `snyk test --dotnet-runtime-resolution`
 
 ### `--dotnet-target-framework`
 
-**Note:** This option in in Early Access and may change until it is released.
+**Note:** This option in Early Access and may change until it is released.
 
 Optional. You may use this option if your solution contains multiple `<TargetFramework>` directives. If you do not specify the option `--dotnet-target-framework`, all supported Target Frameworks will be scanned.
 

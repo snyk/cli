@@ -24,7 +24,7 @@ The following definitions and rules of interpretation apply in this Agreement.
 
 **2. Licence Grant**
 
-2.1 Copyright: The Contributor grants to Snyk a perpetual, irrevocable, worldwide, transferable, fully sublicenseable through multiple tiers, fee-free, non-exclusive licence under the Copyright to do the following acts, subject to, and in accordance with, the terms of this Agreement: to reproduce, prepare derivative works of, publicly display, publicly perform, communicate to the public, and distribute by any means Contributions and such derivative works.
+2.1 Copyright: The Contributor grants to Snyk a perpetual, irrevocable, worldwide, transferable, fully sublicensable through multiple tiers, fee-free, non-exclusive licence under the Copyright to do the following acts, subject to, and in accordance with, the terms of this Agreement: to reproduce, prepare derivative works of, publicly display, publicly perform, communicate to the public, and distribute by any means Contributions and such derivative works.
 
 2.2. Patent Rights: The Contributor grants to Snyk a perpetual, irrevocable, worldwide, transferable, fully sublicenseable through multiple tiers, fee-free, non-exclusive licence under the Patent Rights to do the following acts, subject to, and in accordance with, the terms of this Agreement: to make, have made, use, sell, offer for sale, import and otherwise transfer the Contribution and the Contribution in combination with a Project (and portions of such combination).
 

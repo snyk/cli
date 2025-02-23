@@ -549,7 +549,7 @@ Why another node.js option parsing lib?
 
 - `optimist` has surprise interpretation of options (at least to me).
   Implicit opts mean ambiguities and poor error handling for fat-fingering.
-  `process.exit` calls makes it hard to use as a libary.
+  `process.exit` calls makes it hard to use as a library.
 
 - `optparse` Incomplete docs. Is this an attempted clone of Python's `optparse`.
   Not clear. Some divergence. `parser.on("name", ...)` API is weird.

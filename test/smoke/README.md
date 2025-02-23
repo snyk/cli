@@ -21,7 +21,7 @@ To run these tests locally you may use `npm run test:smoke`:
 
 1. Install:
 
-   - [Shellspec](https://shellspec.info) reccomended installation is through brew:
+   - [Shellspec](https://shellspec.info) recommended installation is through brew:
 
      - ### Install the latest stable version of shell spec
      - brew tap shellspec/shellspec
