@@ -116,7 +116,7 @@ describe('snyk fix', () => {
 
   // Skip this test in environments without pipenv (currently windows & linux
   // docker images).
-  (hasPipEnv ? it : it.skip)(
+  it.skip(
     'runs successfully on a pipenv project',
     async () => {
       const project = await createProject('snyk-fix-pipenv');
