@@ -142,7 +142,7 @@ async function handleError(args, error) {
    * - sarif - no error message or details are present in the payload
    * - vulnsFound - issues are treated as errors (exit code 1), this should be some nice pretty formated output for users.
    */
-  const errorSent =
+  const shouldOutputError =
     vulnsFound || args.options.sarif
       ? false
       : await sendError(error, args.options.json);
@@ -163,7 +163,7 @@ async function handleError(args, error) {
       console.log(output);
     }
     // If the IPC communication failed, we default back to the original output flow
-  } else if (!errorSent) {
+  } else if (!shouldOutputError) {
     // Debug output flow
     if (args.options.debug) {
       const output = vulnsFound ? error.message : error.stack;

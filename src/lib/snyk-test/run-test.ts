@@ -23,6 +23,7 @@ import {
 import {
   AuthFailedError,
   BadGatewayError,
+  CustomError,
   DockerImageNotFoundError,
   errorMessageWithRetry,
   FailedToGetVulnerabilitiesError,
@@ -412,6 +413,7 @@ export async function runTest(
         `Failed to test ${projectType} project`,
       error.code,
       error.innerError,
+      error.errorCatalog,
     );
   } finally {
     spinner.clear<void>(spinnerLbl)();
@@ -554,7 +556,7 @@ function sendTestPayload(
 
 function handleTestHttpErrorResponse(res, body) {
   const { statusCode } = res;
-  let err;
+  let err: CustomError;
   const userMessage = body && body.userMessage;
   switch (statusCode) {
     case 401:

@@ -9,6 +9,7 @@ import {
 } from './types';
 import { Options, TestOptions } from '../../../../../lib/types';
 import { IacV2Name } from '../../../../../lib/iac/constants';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const keys: (keyof IaCTestFlags)[] = [
   'org',
@@ -67,6 +68,7 @@ export class FlagError extends CustomError {
     this.code = IaCErrorCodes.FlagError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = msg;
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }
 
@@ -78,6 +80,7 @@ export class IntegratedFlagError extends CustomError {
     this.code = IaCErrorCodes.FlagError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = msg;
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }
 
@@ -94,6 +97,7 @@ export class FeatureFlagError extends CustomError {
     this.code = IaCErrorCodes.FeatureFlagError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = msg;
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }
 
@@ -105,29 +109,34 @@ export class FlagValueError extends CustomError {
     this.code = IaCErrorCodes.FlagValueError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = msg;
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }
 
 export class UnsupportedEntitlementFlagError extends CustomError {
   constructor(key: string, entitlementName: string) {
     const flag = getFlagName(key);
+    const msg = `Flag "${flag}" is currently not supported for this org. To enable it, please contact snyk support.`;
     super(
       `Unsupported flag: ${flag} - Missing the ${entitlementName} entitlement`,
     );
     this.code = IaCErrorCodes.UnsupportedEntitlementFlagError;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `Flag "${flag}" is currently not supported for this org. To enable it, please contact snyk support.`;
+    this.userMessage = msg;
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }
 
 export class UnsupportedEntitlementCommandError extends CustomError {
   constructor(key: string, entitlementName: string) {
+    const usrMsg = `Command "${key}" is currently not supported for this org. To enable it, please contact snyk support.`;
     super(
       `Unsupported command: ${key} - Missing the ${entitlementName} entitlement`,
     );
     this.code = IaCErrorCodes.UnsupportedEntitlementFlagError;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `Command "${key}" is currently not supported for this org. To enable it, please contact snyk support.`;
+    this.userMessage = usrMsg;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -213,5 +222,6 @@ export class InvalidArgumentError extends CustomError {
     this.code = IaCErrorCodes.InvalidArgumentError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = msg;
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }

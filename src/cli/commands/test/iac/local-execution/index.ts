@@ -32,6 +32,7 @@ import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { NoFilesToScanError } from './file-loader';
 import { Tag } from '../../../../../lib/types';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -184,5 +185,6 @@ export class InvalidVarFilePath extends CustomError {
     this.code = IaCErrorCodes.InvalidVarFilePath;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to locate a variable definitions file at: "${path}". The file at the provided path does not exist`;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }

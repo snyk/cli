@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class ExcludeFlagBadInputError extends CustomError {
@@ -9,5 +10,6 @@ export class ExcludeFlagBadInputError extends CustomError {
     super(ExcludeFlagBadInputError.ERROR_MESSAGE);
     this.code = ExcludeFlagBadInputError.ERROR_CODE;
     this.userMessage = ExcludeFlagBadInputError.ERROR_MESSAGE;
+    this.errorCatalog = new CLI.EmptyFlagOptionError('');
   }
 }

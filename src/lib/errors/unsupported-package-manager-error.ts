@@ -1,5 +1,6 @@
 import { CustomError } from './custom-error';
 import * as pms from '../package-managers';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export class UnsupportedPackageManagerError extends CustomError {
   private static ERROR_MESSAGE: string =
@@ -11,12 +12,13 @@ export class UnsupportedPackageManagerError extends CustomError {
 
   constructor(packageManager) {
     super(
-      `Unsupported package manager ${packageManager}.` +
+      `Unsupported package manager '${packageManager}''. ` +
         UnsupportedPackageManagerError.ERROR_MESSAGE,
     );
     this.code = 422;
     this.userMessage =
       `Unsupported package manager '${packageManager}''. ` +
       UnsupportedPackageManagerError.ERROR_MESSAGE;
+    this.errorCatalog = new CLI.NoSupportedFilesFoundError('');
   }
 }

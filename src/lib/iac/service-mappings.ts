@@ -1,6 +1,7 @@
 import { CustomError } from '../errors';
 import { IaCErrorCodes } from '../../cli/commands/test/iac/local-execution/types';
 import { getErrorStringCode } from '../../cli/commands/test/iac/local-execution/error-utils';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export const services2resources = new Map<string, Array<string>>([
   // Amazon
@@ -267,5 +268,6 @@ export class InvalidServiceError extends CustomError {
     this.code = IaCErrorCodes.InvalidServiceError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = msg;
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }

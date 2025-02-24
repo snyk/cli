@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export function MisconfiguredAuthInCI() {
@@ -9,5 +10,6 @@ export function MisconfiguredAuthInCI() {
   error.code = 401;
   error.strCode = 'noAuthInCI';
   error.userMessage = errorMsg;
+  error.errorCatalog = new CLI.AuthConfigError('');
   return error;
 }

@@ -1,3 +1,4 @@
+import { Snyk } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class MonitorError extends CustomError {
@@ -10,5 +11,6 @@ export class MonitorError extends CustomError {
     super(MonitorError.ERROR_MESSAGE + `Status code: ${code}${errorMessage}`);
     this.code = errorCode;
     this.userMessage = message;
+    this.errorCatalog = new Snyk.ServerError('');
   }
 }

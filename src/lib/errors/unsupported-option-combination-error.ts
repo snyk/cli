@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class UnsupportedOptionCombinationError extends CustomError {
@@ -14,5 +15,6 @@ export class UnsupportedOptionCombinationError extends CustomError {
     this.code = 422;
     this.userMessage =
       UnsupportedOptionCombinationError.ERROR_MESSAGE + options.join(' + ');
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }

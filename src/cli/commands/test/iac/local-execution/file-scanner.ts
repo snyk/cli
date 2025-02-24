@@ -13,6 +13,7 @@ import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { IacFileInDirectory } from '../../../../../lib/types';
 import { SEVERITIES } from '../../../../../lib/snyk-test/common';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export async function scanFiles(parsedFiles: Array<IacFileParsed>): Promise<{
   scannedFiles: IacFileScanResult[];
@@ -170,6 +171,7 @@ export class FailedToBuildPolicyEngine extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We were unable to run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 export class FailedToExecutePolicyEngine extends CustomError {
@@ -179,5 +181,6 @@ export class FailedToExecutePolicyEngine extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We were unable to run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }

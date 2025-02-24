@@ -3,9 +3,9 @@ import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
 import { debug as Debug } from 'debug';
 import * as legacyErrors from '../lib/errors/legacy-errors';
 import stripAnsi = require('strip-ansi');
+import { CustomError } from '../lib/errors';
 
-const ERROR_FILE_PATH = process.env.SNYK_ERR_FILE;
-const debug = Debug('snyk');
+const debug = Debug('snyk:ipc');
 
 /**
  * Sends the specified error back at the Golang CLI, by writting it to the temporary error file. Errors that are not
@@ -15,6 +15,7 @@ const debug = Debug('snyk');
  * @returns {Promise<boolean>} The result of the operation as a boolean value
  */
 export async function sendError(err: Error, isJson: boolean): Promise<boolean> {
+  const ERROR_FILE_PATH = process.env.SNYK_ERR_FILE;
   if (!ERROR_FILE_PATH) {
     debug('Error file path not set.');
     return false;
@@ -22,7 +23,7 @@ export async function sendError(err: Error, isJson: boolean): Promise<boolean> {
 
   // @ts-expect-error Using this instead of 'instanceof' since the error might be caught from external CLI plugins.
   // See: https://github.com/snyk/error-catalog/blob/main/packages/error-catalog-nodejs/src/problem-error.ts#L17-L19
-  if (!err.isErrorCatalogError) {
+  if (!err.isErrorCatalogError && !err.errorCatalog) {
     let message = legacyErrors.message(err);
 
     if (isJson) {
@@ -36,6 +37,10 @@ export async function sendError(err: Error, isJson: boolean): Promise<boolean> {
     err = new CLI.GeneralCLIFailureError(detail);
     // @ts-expect-error Overriding the HTTP status field.
     err.metadata.status = 0;
+  }
+
+  if (err instanceof CustomError && err.errorCatalog) {
+    err = err.errorCatalog;
   }
 
   const data = (err as ProblemError).toJsonApi().body();

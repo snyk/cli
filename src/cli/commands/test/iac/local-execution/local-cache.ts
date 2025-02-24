@@ -10,6 +10,7 @@ import { getErrorStringCode } from './error-utils';
 import config from '../../../../../lib/config';
 import { streamRequest } from '../../../../../lib/request/request';
 import envPaths from 'env-paths';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const debug = Debug('iac-local-cache');
 
@@ -176,6 +177,7 @@ export class FailedToInitLocalCacheError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We were unable to create a local directory to store the test assets, please ensure that the current working directory is writable';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -186,6 +188,7 @@ export class FailedToDownloadRulesError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We were unable to download the security rules, please ensure the network can access https://downloads.snyk.io';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -195,6 +198,7 @@ export class FailedToExtractCustomRulesError extends CustomError {
     this.code = IaCErrorCodes.FailedToExtractCustomRulesError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to extract the rules provided at: ${path}. The provided bundle may be corrupted or invalid. Please ensure it was generated using the 'snyk-iac-rules' SDK`;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -204,6 +208,7 @@ export class InvalidCustomRules extends CustomError {
     this.code = IaCErrorCodes.InvalidCustomRules;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to extract the rules provided at: ${path}. The provided bundle does not match the required structure. Please ensure it was generated using the 'snyk-iac-rules' SDK`;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -213,6 +218,7 @@ export class InvalidCustomRulesPath extends CustomError {
     this.code = IaCErrorCodes.InvalidCustomRulesPath;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to extract the rules provided at: ${path}. The bundle at the provided path does not exist`;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
