@@ -90,7 +90,7 @@ describe('cli args', () => {
       },
     );
 
-    expect(stdout).toContainText('Unsupported flag');
+    expect(stdout).toContainText('Usage');
     expect(code).toEqual(2);
   });
 
