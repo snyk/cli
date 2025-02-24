@@ -120,6 +120,93 @@ describe('snyk test for python project', () => {
           result: JSON.stringify(expectedResultObject, null, 2),
         });
       });
+      it('should scan poetry v2 vulnerabilities', async () => {
+        const fixturePath = getWorkspacePath('poetry-v2-app');
+
+        const plugin = {
+          async inspect() {
+            return {
+              plugin: {
+                targetFile: 'pyproject.toml',
+                name: 'snyk-python-plugin',
+                runtime: 'Python',
+              },
+              package: {},
+            };
+          },
+        };
+
+        // this is for 'enablePnpmCli' feature flag
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: false,
+            },
+          });
+        });
+        mockedLoadPlugin.mockImplementationOnce(() => {
+          return plugin;
+        });
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              result: { issuesData: {}, affectedPkgs: {} },
+              meta: { org: 'test-org', isPublic: false },
+              filesystemPolicy: false,
+            },
+          });
+        });
+
+        const result: CommandResult = await test(fixturePath, {
+          json: true,
+          _: [],
+          _doubleDashArgs: [],
+        });
+
+        expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
+        expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
+
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: expect.objectContaining({
+              displayTargetFile: 'pyproject.toml',
+            }),
+          }),
+        );
+
+        const expectedResultObject = {
+          vulnerabilities: [],
+          ok: true,
+          dependencyCount: 0,
+          org: 'test-org',
+          policy: undefined,
+          isPrivate: true,
+          licensesPolicy: null,
+          packageManager: 'poetry',
+          projectId: undefined,
+          ignoreSettings: null,
+          docker: undefined,
+          summary: 'No known vulnerabilities',
+          severityThreshold: undefined,
+          remediation: undefined,
+          filesystemPolicy: false,
+          uniqueCount: 0,
+          targetFile: 'pyproject.toml',
+          projectName: undefined,
+          foundProjectCount: undefined,
+          displayTargetFile: 'pyproject.toml',
+          platform: undefined,
+          hasUnknownVersions: false,
+          path: fixturePath,
+        };
+        expect(result).toMatchObject({
+          result: JSON.stringify(expectedResultObject, null, 2),
+        });
+      });
     });
   });
 
