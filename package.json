@@ -40,6 +40,7 @@
     "build-cli:prod": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.prod.ts",
     "watch": "npm run build-cli:dev -- --watch",
     "test": "npm run test:unit && npm run test:acceptance && npm run test:tap",
+    "test:tsc": "tsc --noEmit",
     "test:unit": "jest --runInBand --testPathPattern '/test(/jest)?/unit/' --reporters=jest-junit",
     "test:acceptance": "jest --maxWorkers=1 --testPathPattern \"/test(/jest)?/acceptance/\" --reporters=jest-junit",
     "test:tap": "tap -Rspec --timeout=300 test/tap/*.test.* ",
@@ -137,7 +138,9 @@
     "wrap-ansi": "^5.1.0"
   },
   "devDependencies": {
+    "@types/abbrev": "^1.1.5",
     "@types/body-parser": "^1.19.1",
+    "@types/chalk": "^2.2.0",
     "@types/cross-spawn": "^6.0.2",
     "@types/express": "^4.17.13",
     "@types/fs-extra": "^9.0.11",
@@ -178,7 +181,7 @@
     "ts-jest": "29.1.2",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "typescript": "^4.9.5",
+    "typescript": "^5.5.0",
     "vscode-jsonrpc": "8.1.0",
     "webpack": "^5.54.0",
     "webpack-cli": "^4.6.0",
