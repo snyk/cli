@@ -187,6 +187,7 @@ func writeLogFooter(exitCode int, errs []error) {
 			}
 		}
 	}
+	tablePrint("Interaction", interactionId)
 	tablePrint("Exit Code", strconv.Itoa(exitCode))
 }
 
