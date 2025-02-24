@@ -95,13 +95,14 @@ func InitCA(config configuration.Configuration, cliVersion string, logger *zerol
 
 	// append any given extra CA certificate to the internal PEM data before storing it to file
 	// this merges user provided CA certificates with the internal one
+	certNodePEM := append([]byte(nil), certPEMBlock...)
+
 	if extraCaCertFile, ok := os.LookupEnv(constants.SNYK_CA_CERTIFICATE_LOCATION_ENV); ok {
 		extraCertificateBytes, extraCertificateList, extraCertificateError := certs.GetExtraCaCert(extraCaCertFile)
 		if extraCertificateError == nil {
 			// add to pem data
-			certPEMBlock = append(certPEMBlock, '\n')
-			certPEMBlock = append(certPEMBlock, extraCertificateBytes...)
-
+			certNodePEM = append(certNodePEM, '\n')
+			certNodePEM = append(certNodePEM, extraCertificateBytes...)
 			// add to cert pool
 			for _, currentCert := range extraCertificateList {
 				if currentCert != nil {
@@ -113,14 +114,16 @@ func InitCA(config configuration.Configuration, cliVersion string, logger *zerol
 		}
 	}
 
+	// Write certificate file for use by Node.js process
 	logger.Debug().Msgf("Temporary CertificateLocation: %v", certificateLocation)
-	certPEMString := string(certPEMBlock)
+	certPEMString := string(certNodePEM)
 	err = utils.WriteToFile(certificateLocation, certPEMString)
 	if err != nil {
 		logger.Print("failed to write cert to file")
 		return nil, err
 	}
 
+	// Configure goproxy Certificate
 	err = setGlobalProxyCA(certPEMBlock, keyPEMBlock)
 	if err != nil {
 		return nil, err
