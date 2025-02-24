@@ -14,6 +14,7 @@ import {
   policyEngineReleaseVersion,
 } from './constants';
 import { saveFile } from '../../../../file-utils';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const debugLog = createDebugLogger('snyk-iac');
 
@@ -68,6 +69,7 @@ export class FailedToDownloadPolicyEngineError extends CustomError {
     this.userMessage =
       `Could not fetch cache resource from: ${policyEngineUrl}` +
       '\nEnsure valid network connection.';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 
@@ -111,5 +113,6 @@ export class FailedToCachePolicyEngineError extends CustomError {
     this.userMessage =
       `Could not write the downloaded cache resource to: ${savePath}` +
       '\nEnsure the cache directory is writable.';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }

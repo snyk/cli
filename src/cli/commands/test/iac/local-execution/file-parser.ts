@@ -24,6 +24,7 @@ import hclToJsonV2 from './parsers/hcl-to-json-v2';
 import { IacProjectType } from '../../../../../lib/iac/constants';
 
 import * as Debug from 'debug';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const debug = Debug('snyk-test');
 
@@ -168,5 +169,6 @@ export class UnsupportedFileTypeError extends CustomError {
     this.code = IaCErrorCodes.UnsupportedFileTypeError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Unable to process the file with extension ${fileType}. Supported file extensions are tf, yml, yaml & json.\nMore information can be found by running \`snyk iac test --help\` or through our documentation:\nhttps://support.snyk.io/hc/en-us/articles/360012429477-Test-your-Kubernetes-files-with-our-CLI-tool\nhttps://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files-with-our-CLI-tool`;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }

@@ -13,6 +13,7 @@ import config from '../../../../config';
 import { api, getOAuthToken } from '../../../../api-token';
 import envPaths from 'env-paths';
 import * as analytics from '../../../../analytics';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const debug = newDebug('snyk-iac');
 const debugOutput = newDebug('snyk-iac:output');
@@ -343,5 +344,6 @@ class ScanError extends CustomError {
     this.code = IaCErrorCodes.PolicyEngineScanError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = 'An error occurred when running the scan';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }

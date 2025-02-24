@@ -31,6 +31,7 @@ import { getRepositoryRootForPath } from '../../../../lib/iac/git';
 import { getInfo } from '../../../../lib/project-metadata/target-builders/git';
 import { buildMeta, GitRepository, GitRepositoryFinder } from './meta';
 import { MAX_STRING_LENGTH } from '../../../../lib/constants';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const debug = debugLib('snyk-iac');
 
@@ -199,9 +200,10 @@ class CurrentWorkingDirectoryTraversalError extends CustomError {
     super('Path is outside the current working directory');
     this.code = IaCErrorCodes.CurrentWorkingDirectoryTraversalError;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `Path is outside the current working directory`;
+    this.userMessage = 'Path is outside the current working directory';
     this.filename = path;
     this.projectRoot = projectRoot;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 

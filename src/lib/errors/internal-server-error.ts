@@ -1,4 +1,5 @@
 import { CustomError } from './custom-error';
+import { Snyk } from '@snyk/error-catalog-nodejs-public';
 
 export class InternalServerError extends CustomError {
   private static ERROR_CODE = 500;
@@ -10,5 +11,6 @@ export class InternalServerError extends CustomError {
     this.code = InternalServerError.ERROR_CODE;
     this.strCode = InternalServerError.ERROR_STRING_CODE;
     this.userMessage = userMessage || InternalServerError.ERROR_MESSAGE;
+    this.errorCatalog = new Snyk.ServerError('');
   }
 }

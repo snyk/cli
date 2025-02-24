@@ -4,6 +4,7 @@ import * as path from 'path';
 import { CustomError } from '../../../../errors';
 import { streamRequest } from '../../../../request/request';
 import { ReadableStream } from 'needle';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const debugLogger = createDebugLogger('snyk-iac');
 
@@ -38,6 +39,7 @@ export async function lookupLocal(
 export class InvalidUserPathError extends CustomError {
   constructor(message: string) {
     super(message);
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 

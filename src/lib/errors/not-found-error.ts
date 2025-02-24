@@ -1,3 +1,4 @@
+import { OpenAPI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class NotFoundError extends CustomError {
@@ -8,5 +9,6 @@ export class NotFoundError extends CustomError {
     super(userMessage || NotFoundError.ERROR_MESSAGE);
     this.code = NotFoundError.ERROR_CODE;
     this.userMessage = userMessage || NotFoundError.ERROR_MESSAGE;
+    this.errorCatalog = new OpenAPI.NotFoundError('');
   }
 }

@@ -1,3 +1,4 @@
+import { Snyk } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class FailedToGetVulnerabilitiesError extends CustomError {
@@ -11,5 +12,6 @@ export class FailedToGetVulnerabilitiesError extends CustomError {
     this.strCode = FailedToGetVulnerabilitiesError.ERROR_STRING_CODE;
     this.userMessage =
       userMessage || FailedToGetVulnerabilitiesError.ERROR_MESSAGE;
+    this.errorCatalog = new Snyk.ServerError('');
   }
 }

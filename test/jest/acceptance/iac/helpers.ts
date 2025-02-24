@@ -1,5 +1,6 @@
 import { exec } from 'child_process';
 import { join } from 'path';
+import '../../util/runSnykCLI'; // Neede for TS errors regarding the .toContainText matcher
 import { fakeServer } from '../../../acceptance/fake-server';
 
 /**

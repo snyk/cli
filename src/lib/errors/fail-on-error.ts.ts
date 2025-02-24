@@ -1,5 +1,6 @@
 import { CustomError } from './custom-error';
 import { FAIL_ON } from '../snyk-test/common';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export class FailOnError extends CustomError {
   private static ERROR_MESSAGE =
@@ -8,5 +9,6 @@ export class FailOnError extends CustomError {
 
   constructor() {
     super(FailOnError.ERROR_MESSAGE);
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }
