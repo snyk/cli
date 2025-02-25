@@ -313,9 +313,8 @@ github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936 h1:PRxIJD8XjimM5aT
 github.com/dprotaso/go-yit v0.0.0-20220510233725-9ba8df137936/go.mod h1:ttYvX5qlB+mlV1okblJqcSMtR4c52UKxDiX9GRBS8+Q=
 github.com/dustin/go-humanize v1.0.0 h1:VSnTsYCnlFHaM2/igO1h6X3HA71jcobQuxemgkq4zYo=
 github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
-github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a h1:r72lWG/xCv9MLpRTss5BQVHDURXaaD6OwS2HkI5/+Ls=
-github.com/elazarl/goproxy v0.0.0-20231031074852-3ec07828be7a/go.mod h1:Ro8st/ElPeALwNFlcTpWmkr6IoMFfkjXAvTHpevnDsM=
-github.com/elazarl/goproxy/ext v0.0.0-20190711103511-473e67f1d7d2/go.mod h1:gNh8nYJoAm43RfaxurUnxr+N1PwuFV3ZMl/efxlIlY8=
+github.com/elazarl/goproxy v1.7.0 h1:EXv2nV4EjM60ZtsEVLYJG4oBXhDGutMKperpHsZ/v+0=
+github.com/elazarl/goproxy v1.7.0/go.mod h1:X/5W/t+gzDyLfHW4DrMdpjqYjpXsURlBt9lpBDxZZZQ=
 github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a h1:6hp3+W5oJSkbk/m2XquFdhih2H4wxxR0Nl6GfPL8kss=
 github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a/go.mod h1:gNh8nYJoAm43RfaxurUnxr+N1PwuFV3ZMl/efxlIlY8=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
