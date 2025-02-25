@@ -66,7 +66,6 @@ func legacycliWorkflow(
 ) (output []workflow.Data, err error) {
 	output = []workflow.Data{}
 	var outBuffer bytes.Buffer
-	var errBuffer bytes.Buffer
 	var outWriter *bufio.Writer
 	var errWriter *bufio.Writer
 
@@ -78,7 +77,6 @@ func legacycliWorkflow(
 
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
-	isDebug := config.GetBool(configuration.DEBUG)
 	workingDirectory := config.GetString(configuration.WORKING_DIRECTORY)
 	proxyAuthenticationMechanismString := config.GetString(configuration.PROXY_AUTHENTICATION_MECHANISM)
 	proxyAuthenticationMechanism := httpauth.AuthenticationMechanismFromString(proxyAuthenticationMechanismString)
@@ -117,14 +115,15 @@ func legacycliWorkflow(
 		return output, err
 	}
 
+	scrubDict := logging.GetScrubDictFromConfig(config)
+	scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
+
 	if !useStdIo {
 		in := bytes.NewReader([]byte{})
 		outWriter = bufio.NewWriter(&outBuffer)
-		errWriter = bufio.NewWriter(&errBuffer)
+		errWriter = bufio.NewWriter(scrubbedStderr)
 		cli.SetIoStreams(in, outWriter, errWriter)
 	} else {
-		scrubDict := logging.GetScrubDictFromConfig(config)
-		scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
 		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}
 
@@ -140,10 +139,6 @@ func legacycliWorkflow(
 	if !useStdIo {
 		outWriter.Flush()
 		errWriter.Flush()
-
-		if isDebug {
-			debugLogger.Print(errBuffer.String())
-		}
 
 		contentType := "text/plain"
 		if pkg_utils.Contains(args, "--json") || pkg_utils.Contains(args, "--sarif") {
