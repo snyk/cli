@@ -155,7 +155,6 @@ describe('analytics module', () => {
             packageManager: 'npm',
             packageName: 'with-vulnerable-lodash-dep',
             packageVersion: '1.2.3',
-            prePrunedPathsCount: 2,
             depGraph: true,
             isDocker: false,
             'vulns-pre-policy': 5,
@@ -302,7 +301,6 @@ describe('analytics module', () => {
             packageManager: 'npm',
             packageName: 'with-vulnerable-lodash-dep',
             packageVersion: '1.2.3',
-            prePrunedPathsCount: 2,
             'error-code': 403,
             'error-message': expect.stringContaining(
               'Authentication failed. Please check the API token on',
