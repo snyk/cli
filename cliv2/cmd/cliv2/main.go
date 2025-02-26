@@ -20,6 +20,8 @@ import (
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
@@ -29,9 +31,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
@@ -57,7 +56,7 @@ var helpProvided bool
 
 var noopLogger zerolog.Logger = zerolog.New(io.Discard)
 var globalLogger *zerolog.Logger = &noopLogger
-var interactionId = uuid.NewString()
+var interactionId = instrumentation.AssembleUrnFromUUID(uuid.NewString())
 
 const (
 	unknownCommandMessage  string = "unknown command"
@@ -453,7 +452,7 @@ func handleError(err error) HandleError {
 	return resultError
 }
 
-func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration) {
+func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, ctx context.Context) {
 	if err != nil {
 		_, isExitError := err.(*exec.ExitError)
 		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
@@ -474,8 +473,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			if errors.Is(err, context.DeadlineExceeded) {
 				err = fmt.Errorf("command timed out")
 			}
-
-			uiError := userInterface.OutputError(err)
+			uiError := userInterface.OutputError(err, ui.WithContext(ctx))
 			if uiError != nil {
 				globalLogger.Err(uiError).Msg("ui failed to show error")
 			}
@@ -538,6 +536,10 @@ func MainWithErrorCode() (int, []error) {
 		globalLogger.Print("Failed to init Workflow Engine!", err)
 		return constants.SNYK_EXIT_CODE_ERROR, errorList
 	}
+
+	// init context
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, networking.InteractionIdKey, instrumentation.AssembleUrnFromUUID(interactionId))
 
 	// add output flags as persistent flags
 	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
@@ -607,7 +609,7 @@ func MainWithErrorCode() (int, []error) {
 		err = legacyCLITerminated(err, errorList)
 	}
 
-	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
+	displayError(err, globalEngine.GetUserInterface(), globalConfiguration, ctx)
 
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, err)
