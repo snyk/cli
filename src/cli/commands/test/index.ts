@@ -294,6 +294,11 @@ export default async function test(
   }
 
   if (notSuccess) {
+    const errorCatalogErr = errorResults.find((err) => err.isErrorCatalogError);
+    if (errorCatalogErr) {
+      throw errorCatalogErr;
+    }
+
     response += chalk.bold.red(summaryMessage);
     const error = new Error(response) as any;
     // take the code of the first problem to go through error

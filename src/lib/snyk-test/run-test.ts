@@ -380,6 +380,9 @@ export async function runTest(
     return await sendAndParseResults(payloads, spinnerLbl, root, options);
   } catch (error) {
     debug('Error running test', { error });
+    if (error.isErrorCatalogError) {
+      throw error;
+    }
     // handling denial from registry because of the feature flag
     // currently done for go.mod
     const isFeatureNotAllowed =
