@@ -770,8 +770,8 @@ github.com/skeema/knownhosts v1.3.1 h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnB
 github.com/skeema/knownhosts v1.3.1/go.mod h1:r7KTdC8l4uxWRyK2TpQZ/1o5HaSzh06ePQNxPwTcfiY=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20241014075215-311d3c8a423f h1:xZK+6ug+pNgnIfPFGkQtxBZwcN/6RoXpQruRHimjfKM=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20241014075215-311d3c8a423f/go.mod h1:QF3v8HBpOpyudYNCuR8LqfULutO76c91sBdLzD+pBJU=
-github.com/snyk/cli-extension-iac-rules v0.0.0-20250121103856-ea5f31e53509 h1:4LGhDkeoTIKYsnS/YF/xHWfXEKAyCVrXb3LU/QcI4Z4=
-github.com/snyk/cli-extension-iac-rules v0.0.0-20250121103856-ea5f31e53509/go.mod h1:eaSq1kwY3uGF8bGVYDuv2E3AbzOlCRhdseGhKPvG4OM=
+github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a h1:SJ+Ts7e1EYcGJXeENR5inTGwPNRlNVgmMN2itO3+yj8=
+github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a/go.mod h1:IqfQCIkyC26mkwa+aM6d6yxIh5+tCm4fSQG+Ogq3Qbc=
 github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f h1:dlL+f+5sjHj4JCzW/Evl1x9UREXLyc3M4KjoZvQx0Bs=
 github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f/go.mod h1:5CaY1bgvJY/uoG/1plLOf8T8o9AkwoBIGvw34RfRLZw=
 github.com/snyk/code-client-go v1.13.1 h1:JWQIrHOg/HYs0yqLmv1kNASwNhKXSYOcZsHU3QEugLk=
@@ -784,8 +784,8 @@ github.com/snyk/go-application-framework v0.0.0-20250226171602-090708d9f31e h1:U
 github.com/snyk/go-application-framework v0.0.0-20250226171602-090708d9f31e/go.mod h1:01eU5C2Oq0zfhPXt7sL+gmATPcTnk5VVmnP1vOWBlKw=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
-github.com/snyk/policy-engine v0.33.0 h1:nXH4LEVrYbEuSEq4RJBObRY2fduaXiovAJt3Kni1baY=
-github.com/snyk/policy-engine v0.33.0/go.mod h1:Zq+JU+cC6C3zsgzzr824YLlFX6I0/Xev5I5KriehZgs=
+github.com/snyk/policy-engine v0.33.2 h1:ZxD6/RQ4vqUAXa64V72SsGjZ8vmnBgZNGYQxMIqctYo=
+github.com/snyk/policy-engine v0.33.2/go.mod h1:YTZq3GMRbXcHOXQQrFRVEg+MQiIGCGZ1met6KlpruNo=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
 github.com/snyk/snyk-ls v0.0.0-20250213084108-c87400c00e06 h1:t5qRbzSVBHKAKkzz/ADNQmANtgE/Bw7J5tYg8zxyLcA=
@@ -1047,8 +1047,8 @@ golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094/go.mod h1:h4gKUeWbJ4rQPri
 golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1/go.mod h1:h4gKUeWbJ4rQPri7E0u6Gs4e9Ri2zaLxzw5DI5XGrYg=
 golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783/go.mod h1:h4gKUeWbJ4rQPri7E0u6Gs4e9Ri2zaLxzw5DI5XGrYg=
 golang.org/x/oauth2 v0.1.0/go.mod h1:G9FE4dLTsbXUu90h/Pf85g4w1D+SSAgR+q46nJZ8M4A=
-golang.org/x/oauth2 v0.23.0 h1:PbgcYx2W7i4LvjJWEbf0ngHV6qJYr86PkAV3bXdLEbs=
-golang.org/x/oauth2 v0.23.0/go.mod h1:XYTD2NtWslqkgxebSiOHnXEap4TF09sJSc7H1sXbhtI=
+golang.org/x/oauth2 v0.27.0 h1:da9Vo7/tDv5RH/7nZDz1eMGS/q1Vv1N/7FCrBhI9I3M=
+golang.org/x/oauth2 v0.27.0/go.mod h1:onh5ek6nERTohokkhCD/y2cV4Do3fxFHFuAejCkRWT8=
 golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181108010431-42b317875d0f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
