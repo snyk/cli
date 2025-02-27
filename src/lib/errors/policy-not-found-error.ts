@@ -1,3 +1,4 @@
+import { Policies } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class PolicyNotFoundError extends CustomError {
@@ -10,5 +11,6 @@ export class PolicyNotFoundError extends CustomError {
     this.code = PolicyNotFoundError.ERROR_CODE;
     this.strCode = PolicyNotFoundError.ERROR_STRING_CODE;
     this.userMessage = PolicyNotFoundError.ERROR_MESSAGE;
+    this.errorCatalog = new Policies.InvalidPolicyApplyError('');
   }
 }

@@ -5,6 +5,7 @@ import { getErrorStringCode } from '../../../../../../cli/commands/test/iac/loca
 import { TestConfig } from '../../types';
 import { policyEngineFileName } from './constants';
 import { InvalidUserPathError, lookupLocal } from '../utils';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export class InvalidUserPolicyEnginePathError extends CustomError {
   constructor(path: string, message?: string, userMessage?: string) {
@@ -18,6 +19,7 @@ export class InvalidUserPolicyEnginePathError extends CustomError {
       userMessage ||
       `Could not find a valid Policy Engine executable in the configured path: ${path}` +
         '\nEnsure the configured path points to a valid Policy Engine executable.';
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 

@@ -456,14 +456,16 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 	if err != nil {
 		_, isExitError := err.(*exec.ExitError)
 		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
-		if isExitError || isErrorWithCode {
+		if isExitError || isErrorWithCode || errorHasBeenShown(err) {
 			return
 		}
 
 		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
+			message := getErrorMessage(err)
+
 			jsonError := JsonErrorStruct{
 				Ok:       false,
-				ErrorMsg: err.Error(),
+				ErrorMsg: message,
 				Path:     globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
 			}
 
@@ -592,6 +594,10 @@ func MainWithErrorCode() (int, []error) {
 	// fallback to the legacy cli or show help
 	handleErrorResult := handleError(err)
 	if handleErrorResult == handleErrorFallbackToLegacyCLI {
+		// when falling back to TS cli, make sure the
+		_ = rootCommand.ParseFlags(os.Args)
+		globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
+
 		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(os.Args[1:])
 	} else if handleErrorResult == handleErrorShowHelp {

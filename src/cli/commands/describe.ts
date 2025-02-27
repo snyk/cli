@@ -17,6 +17,7 @@ import { DCTL_EXIT_CODES, runDriftCTL } from '../../lib/iac/drift/driftctl';
 import { IaCErrorCodes } from './test/iac/local-execution/types';
 import { getErrorStringCode } from './test/iac/local-execution/error-utils';
 import { DescribeOptions } from '../../lib/iac/types';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export class FlagError extends CustomError {
   constructor(flag: string) {
@@ -25,6 +26,7 @@ export class FlagError extends CustomError {
     this.code = IaCErrorCodes.FlagError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = msg;
+    this.errorCatalog = new CLI.InvalidFlagOptionError('');
   }
 }
 export default async (...args: MethodArgs): Promise<any> => {
