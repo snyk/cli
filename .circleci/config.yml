@@ -1234,6 +1234,12 @@ jobs:
       - install-deps-<< parameters.install_deps_extension >>
       - run:
           command: npm install
+      - install-go:
+          go_os: << parameters.go_os >>
+          go_target_os: << parameters.go_target_os >>
+          go_arch: << parameters.go_arch >>
+          base_url: << parameters.go_download_base_url >>
+          extraction_path: << parameters.install_path >>
       - run:
           name: Running acceptance tests
           no_output_timeout: 30m
