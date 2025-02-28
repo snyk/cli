@@ -1,6 +1,6 @@
 module github.com/snyk/cli/cliv2
 
-go 1.23.0
+go 1.23.6
 
 toolchain go1.23.6
 
