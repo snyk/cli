@@ -558,7 +558,6 @@ workflows:
           go_os: linux
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          make_target: build clean-golang build-fips
           context:
             - nodejs-install
             - team_hammerhead-cli
