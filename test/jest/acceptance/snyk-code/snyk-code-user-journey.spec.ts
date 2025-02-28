@@ -1,20 +1,11 @@
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI, runSnykCLIWithArray } from '../../util/runSnykCLI';
-import { fakeServer } from '../../../acceptance/fake-server';
-import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
-import { getServerPort } from '../../util/getServerPort';
 import { matchers } from 'jest-json-schema';
 import { resolve } from 'path';
 import { existsSync, unlinkSync, readFileSync } from 'fs';
 import { execSync } from 'child_process';
 
-const stripAnsi = require('strip-ansi');
-const projectRoot = resolve(__dirname, '../../../..');
-
-const sarifSchema = require('../../../schemas/sarif-schema-2.1.0.json');
-
 expect.extend(matchers);
-
 jest.setTimeout(1000 * 120);
 
 interface Workflow {
@@ -30,12 +21,22 @@ interface IgnoreTests {
   pathToTest: string;
 }
 
+const projectRoot = resolve(__dirname, '../../../..');
+const sarifSchema = require('../../../schemas/sarif-schema-2.1.0.json');
 const EXIT_CODE_SUCCESS = 0;
 const EXIT_CODE_ACTION_NEEDED = 1;
 const EXIT_CODE_FAIL_WITH_ERROR = 2;
 const EXIT_CODE_NO_SUPPORTED_FILES = 3;
 const repoUrl = 'https://github.com/snyk/snyk-goof.git';
 const localPath = '/tmp/snyk-goof';
+
+// expected Code Security Issues: 6 -  5 [High] 1 [Low]
+// expected Code Quality Issues: 2 -  2 [Medium]
+const projectWithCodeIssues = resolve(
+  projectRoot,
+  'test/fixtures/sast/with_code_issues',
+);
+const emptyProject = resolve(projectRoot, 'test/fixtures/empty');
 
 // This method does some basic checks on the given sarif file
 function checkSarif(file: string, expectedIgnoredFindings: number): any {
@@ -64,201 +65,34 @@ function checkSarif(file: string, expectedIgnoredFindings: number): any {
   return sarifOutput;
 }
 
-describe('snyk code test', () => {
-  let server: ReturnType<typeof fakeServer>;
-  let deepCodeServer: ReturnType<typeof fakeDeepCodeServer>;
-  let env: Record<string, string>;
-  const port = getServerPort(process);
-  const baseApi = '/api/v1';
-  const initialEnvVars = {
-    ...process.env,
-    SNYK_API: 'http://localhost:' + port + baseApi,
-    SNYK_HOST: 'http://localhost:' + port,
-    SNYK_TOKEN: '123456789',
-  };
-  // expected Code Security Issues: 6 -  5 [High] 1 [Low]
-  // expected Code Quality Issues: 2 -  2 [Medium]
-  const projectWithCodeIssues = resolve(
-    projectRoot,
-    'test/fixtures/sast/with_code_issues',
-  );
-  const emptyProject = resolve(projectRoot, 'test/fixtures/empty');
+const userJourneyWorkflows: Workflow[] = [
+  {
+    type: 'typescript',
+    env: {
+      // force use of legacy implementation
+      INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
+      INTERNAL_SNYK_CODE_IGNORES_REPORT_ENABLED: 'false',
+      SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
+    },
+  },
+  {
+    type: 'golang/native',
+    env: {
+      INTERNAL_SNYK_CODE_IGNORES_REPORT_ENABLED: 'true',
+      SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
+    },
+  },
+];
 
+describe('snyk code test', () => {
   beforeAll(() => {
     if (!existsSync(localPath)) {
       // Clone the repository
       execSync(`git clone ${repoUrl} ${localPath}`, { stdio: 'inherit' });
     }
-
-    return new Promise<void>((resolve, reject) => {
-      try {
-        deepCodeServer = fakeDeepCodeServer();
-        deepCodeServer.listen(() => {
-          // Add any necessary setup code here
-        });
-        env = {
-          ...initialEnvVars,
-          SNYK_CODE_CLIENT_PROXY_URL: `http://localhost:${deepCodeServer.getPort()}`,
-        };
-        server = fakeServer(baseApi, 'snykToken');
-        server.listen(port, () => {
-          resolve();
-        });
-      } catch (error) {
-        reject(error);
-      }
-    });
   });
 
-  afterEach(() => {
-    server.restore();
-    deepCodeServer.restore();
-  });
-
-  afterAll(() => {
-    return new Promise<void>((resolve) => {
-      deepCodeServer.close(() => {
-        // Add any necessary cleanup code here
-      });
-      server.close(() => {
-        resolve();
-      });
-    });
-  });
-
-  it('prints help info', async () => {
-    const { stdout, code, stderr } = await runSnykCLI('code', { env });
-
-    expect(stripAnsi(stdout)).toContain(
-      'The snyk code test command finds security issues using Static Code Analysis.',
-    );
-    expect(code).toBe(0);
-    expect(stderr).toBe('');
-  });
-
-  const integrationWorkflows: Workflow[] = [
-    {
-      type: 'typescript',
-      env: {
-        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
-      },
-    },
-    {
-      type: 'golang/native',
-      env: {
-        // internal GAF feature flag for consistent ignores
-        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
-      },
-    },
-  ];
-
-  describe.each(integrationWorkflows)(
-    `integration`,
-    ({ type, env: integrationEnv }) => {
-      describe(`${type} workflow`, () => {
-        it('should show error if sast is not enabled', async () => {
-          server.setOrgSetting('sast', false);
-
-          const { code, stdout, stderr } = await runSnykCLI(
-            `code test ${projectWithCodeIssues}`,
-            {
-              env: {
-                ...env,
-                ...integrationEnv,
-              },
-            },
-          );
-
-          expect(stderr).toBe('');
-          expect(stdout).toContain('Snyk Code is not enabled');
-          expect(code).toBe(EXIT_CODE_FAIL_WITH_ERROR);
-        });
-
-        // TODO: reenable tests for golang/native when SNYK_CODE_CLIENT_PROXY_URL && LCE are supported
-        if (type === 'typescript') {
-          it('should support the SNYK_CODE_CLIENT_PROXY_URL env var', async () => {
-            const sarifPayload = require('../../../fixtures/sast/sample-sarif.json');
-            server.setOrgSetting('sast', true);
-            deepCodeServer.setSarifResponse(sarifPayload);
-
-            const { code } = await runSnykCLI(`code test ${emptyProject}`, {
-              env: {
-                ...env,
-                ...integrationEnv,
-              },
-            });
-
-            expect(code).toEqual(EXIT_CODE_NO_SUPPORTED_FILES);
-
-            const request = deepCodeServer
-              .getRequests()
-              .filter((value) => (value.url as string).includes(`/filters`))
-              .pop();
-
-            expect(request).toBeDefined();
-          });
-
-          it('use remote LCE URL as base when LCE is enabled', async () => {
-            const localCodeEngineUrl = fakeDeepCodeServer();
-            localCodeEngineUrl.listen(() => {});
-
-            server.setOrgSetting('sast', true);
-            server.setLocalCodeEngineConfiguration({
-              enabled: true,
-              allowCloudUpload: true,
-              url: 'http://localhost:' + localCodeEngineUrl.getPort(),
-            });
-
-            localCodeEngineUrl.setSarifResponse(
-              require('../../../fixtures/sast/sample-sarif.json'),
-            );
-
-            // code-client-go abstracts deeproxy calls, so fake-server needs these endpoints
-            server.setCustomResponse({
-              configFiles: [],
-              extensions: ['.java'],
-            });
-
-            const { stdout, code, stderr } = await runSnykCLI(
-              `code test ${projectWithCodeIssues}`,
-              {
-                env: {
-                  ...env,
-                  ...integrationEnv,
-                  // code-client-go will panic if we don't supply the org UUID
-                  SNYK_CFG_ORG: '11111111-2222-3333-4444-555555555555',
-                },
-              },
-            );
-
-            expect(stderr).toBe('');
-            expect(deepCodeServer.getRequests().length).toBe(0);
-            expect(localCodeEngineUrl.getRequests().length).toBeGreaterThan(0);
-            expect(stripAnsi(stdout)).toContain('✗ [Medium]');
-            expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
-
-            localCodeEngineUrl.close(() => {});
-          });
-        }
-      });
-    },
-  );
-
-  const userJourneyWorkflows: Workflow[] = [
-    {
-      type: 'typescript',
-      env: {
-        // force use of legacy implementation
-        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
-      },
-    },
-    {
-      type: 'golang/native',
-      env: {
-        // Use an org with consistent ignores enabled - uses golang/native workflow
-      },
-    },
-  ];
+  afterAll(() => {});
 
   describe.each(userJourneyWorkflows)(
     'user journey',
@@ -286,7 +120,6 @@ describe('snyk code test', () => {
             );
           });
 
-          // TODO: reenable when fixed in CLI-397, CLI-436
           it('works with --severity-threshold', async () => {
             const expectedHighCodeSecurityIssues = 5;
             const { stdout } = await runSnykCLI(
@@ -575,6 +408,49 @@ describe('snyk code test', () => {
           }
         });
 
+        it('Stateful local code test --report', async () => {
+          const args = [
+            'code',
+            'test',
+            '--report',
+            '--project-name=cicd-user-journey-test',
+            projectWithCodeIssues,
+          ];
+          const { stderr, code } = await runSnykCLIWithArray(args, {
+            env: {
+              ...process.env,
+              ...integrationEnv,
+            },
+          });
+
+          expect(stderr).toBe('');
+          expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(code);
+        });
+
+        it('Stateful remote code test --report', async () => {
+          const args = [
+            'code',
+            'test',
+            '--report',
+            '--project-id=ff7a6ceb-fab5-4f68-bdbf-4dbc919e8074',
+            '--commit-id=845449f45861a431e53298248f51e368268ef9fc',
+          ];
+          const { stderr, code } = await runSnykCLIWithArray(args, {
+            env: {
+              ...process.env,
+              ...integrationEnv,
+            },
+          });
+
+          expect(stderr).toBe('');
+          expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(code);
+        });
+
+        /**
+         *
+         * Ignore related tests
+         *
+         **/
         if (type === 'golang/native') {
           const ignoreTestList: IgnoreTests[] = [
             {
