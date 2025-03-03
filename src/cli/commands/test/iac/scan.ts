@@ -30,6 +30,8 @@ import { getErrorStringCode } from './local-execution/error-utils';
 import { getRepositoryRootForPath } from '../../../../lib/iac/git';
 import { getInfo } from '../../../../lib/project-metadata/target-builders/git';
 import { buildMeta, GitRepository, GitRepositoryFinder } from './meta';
+import { MAX_STRING_LENGTH } from '../../../../lib/constants';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const debug = debugLib('snyk-iac');
 
@@ -181,7 +183,7 @@ function formatTestError(error) {
 
 function safeStringify(obj: unknown): string {
   try {
-    return JSON.stringify(obj);
+    return JSON.stringify(obj).slice(0, MAX_STRING_LENGTH);
   } catch (e) {
     if (e instanceof Error) {
       return `Error stringifying object: ${e.message}`;
@@ -198,9 +200,10 @@ class CurrentWorkingDirectoryTraversalError extends CustomError {
     super('Path is outside the current working directory');
     this.code = IaCErrorCodes.CurrentWorkingDirectoryTraversalError;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `Path is outside the current working directory`;
+    this.userMessage = 'Path is outside the current working directory';
     this.filename = path;
     this.projectRoot = projectRoot;
+    this.errorCatalog = new CLI.GeneralIACFailureError('');
   }
 }
 

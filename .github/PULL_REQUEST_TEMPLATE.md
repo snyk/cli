@@ -6,12 +6,15 @@
 - [ ] Links to automated tests covering new functionality
 - [ ] Includes manual testing instructions (if necessary)
 - [ ] Updates relevant GitBook documentation (PR link: ___)
+- [ ] Includes product update to be announced in the next stable release notes
 
 ## What does this PR do?
 
 ## Where should the reviewer start?
 
 ## How should this be manually tested?
+
+## What's the product update that needs to be communicated to CLI users?
 
 <!---
 ## Any background context you want to provide?

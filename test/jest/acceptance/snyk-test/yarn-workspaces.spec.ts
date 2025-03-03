@@ -51,7 +51,7 @@ describe('snyk test --yarn-workspaces (mocked server only)', () => {
 
     expect(code).toEqual(2);
 
-    expect(stdout).toMatch(
+    expect(stdout).toContainText(
       'Your package.json and yarn.lock are probably out of sync',
     );
     expect(stderr).toEqual('');

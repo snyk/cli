@@ -10,3 +10,7 @@ export const CALL_PATH_LEADING_ELEMENTS = 2;
 
 // Number of function names to show in the end of an abbreviated call path
 export const CALL_PATH_TRAILING_ELEMENTS = 2;
+
+// Upper limit of string length that should be allowed for output to stdrr || stdout.
+// Use when outputting strings of unknown length. e.g. response payloads
+export const MAX_STRING_LENGTH = 50000;

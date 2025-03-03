@@ -1,3 +1,4 @@
+import { Policies } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export class FailedToLoadPolicyError extends CustomError {
@@ -10,5 +11,6 @@ export class FailedToLoadPolicyError extends CustomError {
     this.code = FailedToLoadPolicyError.ERROR_CODE;
     this.strCode = FailedToLoadPolicyError.ERROR_STRING_CODE;
     this.userMessage = FailedToLoadPolicyError.ERROR_MESSAGE;
+    this.errorCatalog = new Policies.InvalidPolicyApplyError('');
   }
 }

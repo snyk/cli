@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 const errorNpmMessage =
@@ -9,12 +10,13 @@ export function FailedToGetVulnsFromUnavailableResource(
   root: string,
   statusCode: number,
 ): CustomError {
-  const isRepository = root.startsWith('http' || 'https');
+  const isRepository = root.startsWith('http');
   const errorMsg = `We couldn't test ${root}. ${
     isRepository ? errorRepositoryMessage : errorNpmMessage
   }`;
   const error = new CustomError(errorMsg);
   error.code = statusCode;
   error.userMessage = errorMsg;
+  error.errorCatalog = new CLI.GetVulnsFromResourceFailedError('');
   return error;
 }

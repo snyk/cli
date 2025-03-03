@@ -6,7 +6,6 @@ import config from './config';
 import { TooManyVulnPaths } from './errors';
 import * as analytics from '../lib/analytics';
 import { SupportedPackageManagers } from './package-managers';
-import { countPathsToGraphRoot } from './utils';
 
 const debug = _debug('snyk:prune');
 
@@ -17,14 +16,11 @@ export async function pruneGraph(
   packageManager: SupportedPackageManagers,
   pruneIsRequired = false,
 ): Promise<DepGraph> {
-  const prePrunePathsCount = countPathsToGraphRoot(depGraph);
-  const isDenseGraph = prePrunePathsCount > config.PRUNE_DEPS_THRESHOLD;
+  const prune = shouldPrune(depGraph, pruneIsRequired);
 
   debug('rootPkg', depGraph.rootPkg);
-  debug('prePrunePathsCount: ' + prePrunePathsCount);
-  debug('isDenseGraph', isDenseGraph);
-  analytics.add('prePrunedPathsCount', prePrunePathsCount);
-  if (isDenseGraph || pruneIsRequired) {
+  debug('shouldPrune: ' + prune);
+  if (prune) {
     debug('Trying to prune the graph');
     const pruneStartTime = Date.now();
     const prunedTree = (await graphToDepTree(depGraph, packageManager, {
@@ -37,10 +33,11 @@ export async function pruneGraph(
     );
     const prunedGraph = await depTreeToGraph(prunedTree, packageManager);
     analytics.add('prune.treeToGraphDuration', Date.now() - graphToTreeEndTime);
-    const postPrunePathsCount = countPathsToGraphRoot(prunedGraph);
-    analytics.add('postPrunedPathsCount', postPrunePathsCount);
-    debug('postPrunePathsCount' + postPrunePathsCount);
-    if (postPrunePathsCount > config.MAX_PATH_COUNT) {
+
+    const { completed: postPrunePathsCountCompleted } =
+      countPathsToRootEarlyExit(prunedGraph, config.MAX_PATH_COUNT);
+
+    if (!postPrunePathsCountCompleted) {
       debug('Too many paths to process the project');
       //TODO replace the throw below with TooManyPaths we do not calculate vuln paths there
       throw new TooManyVulnPaths();
@@ -48,4 +45,34 @@ export async function pruneGraph(
     return prunedGraph;
   }
   return depGraph;
+}
+
+function shouldPrune(depGraph: DepGraph, pruneIsRequired: boolean): boolean {
+  // Short circuit is possible if this flag is set
+  if (pruneIsRequired) {
+    return true;
+  }
+
+  const { completed } = countPathsToRootEarlyExit(
+    depGraph,
+    config.PRUNE_DEPS_THRESHOLD,
+  );
+
+  return !completed;
+}
+
+function countPathsToRootEarlyExit(
+  depGraph: DepGraph,
+  limit: number,
+): { count: number; completed: boolean } {
+  let accumulatedPathCount = 0;
+  for (const pkg of depGraph.getPkgs()) {
+    accumulatedPathCount += depGraph.countPathsToRoot(pkg, { limit });
+
+    if (accumulatedPathCount > limit) {
+      return { completed: false, count: accumulatedPathCount };
+    }
+  }
+
+  return { completed: true, count: accumulatedPathCount };
 }

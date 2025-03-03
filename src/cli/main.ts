@@ -48,6 +48,8 @@ import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-erro
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
 import { obfuscateArgs } from '../lib/utils';
 import { EXIT_CODES } from './exit-codes';
+import { sendError } from './ipc';
+
 const isEmpty = require('lodash/isEmpty');
 
 const debug = Debug('snyk');
@@ -135,10 +137,18 @@ async function handleError(args, error) {
     }
   }
 
-  if (args.options.debug && !args.options.json) {
-    const output = vulnsFound ? error.message : error.stack;
-    console.log(output);
-  } else if (
+  /**
+   * Exceptions from sending errors to IPC
+   * - sarif - no error message or details are present in the payload
+   * - vulnsFound - issues are treated as errors (exit code 1), this should be some nice pretty formated output for users.
+   */
+  const shouldOutputError =
+    vulnsFound || args.options.sarif
+      ? false
+      : await sendError(error, args.options.json);
+
+  // JSON output flow
+  if (
     args.options.json &&
     !(error instanceof UnsupportedOptionCombinationError)
   ) {
@@ -152,19 +162,27 @@ async function handleError(args, error) {
     } else {
       console.log(output);
     }
-  } else {
-    if (!args.options.quiet) {
-      const result = errors.message(error);
-      if (args.options.copy) {
-        copy(result);
-        console.log('Result copied to clipboard');
-      } else {
-        if (`${error.code}`.indexOf('AUTH_') === 0) {
-          // remove the last few lines
-          const erase = ansiEscapes.eraseLines(4);
-          process.stdout.write(erase);
+    // If the IPC communication failed, we default back to the original output flow
+  } else if (!shouldOutputError) {
+    // Debug output flow
+    if (args.options.debug) {
+      const output = vulnsFound ? error.message : error.stack;
+      console.log(output);
+      // Human readable output/sarif
+    } else {
+      if (!args.options.quiet) {
+        const result = errors.message(error);
+        if (args.options.copy) {
+          copy(result);
+          console.log('Result copied to clipboard');
+        } else {
+          if (`${error.code}`.indexOf('AUTH_') === 0) {
+            // remove the last few lines
+            const erase = ansiEscapes.eraseLines(4);
+            process.stdout.write(erase);
+          }
+          console.log(result);
         }
-        console.log(result);
       }
     }
   }

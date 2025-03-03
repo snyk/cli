@@ -34,6 +34,7 @@ declare -a StaticFilesFIPS=(
 )
 
 VERSION_TAG="v$(cat binary-releases/version)"
+RELEASE_CHANNEL="$($(dirname "$0")/determine-release-channel.sh)"
 DRY_RUN=false
 
 if [ ${#} == 0 ]; then
@@ -111,13 +112,15 @@ upload_npm() {
 
 trigger_build_snyk_images() {
   echo "Triggering build-and-publish workflow at snyk-images..."
+  echo "Version: $VERSION_TAG"
+  echo "Release Channel: $RELEASE_CHANNEL"
   RESPONSE=$(curl -L \
     -X POST \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
     https://api.github.com/repos/snyk/snyk-images/dispatches \
-    -d "{\"event_type\":\"build_and_push_images\", \"client_payload\": {\"version\": \"$VERSION_TAG\"}}" \
+    -d "{\"event_type\":\"build_and_push_images\", \"client_payload\": {\"version\": \"$VERSION_TAG\", \"release_channel\": \"$RELEASE_CHANNEL\"}}" \
     -w "%{http_code}" \
     -o /dev/null)
   if [ "$RESPONSE" -eq 204 ]; then

@@ -1,10 +1,61 @@
-## [1.1295.3](https://github.com/snyk/snyk/compare/v1.1295.2...v1.1295.3) (2025-02-11)
+## [1.1296.0](https://github.com/snyk/snyk/compare/v1.1295.3...v1.1296.0) (2025-02-28)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
+### News
+* **general:** Improved error logging and handling
+
+### Features
+
+* **container:** add support for --exclude-node-modules option ([4756f27](https://github.com/snyk/snyk/commit/4756f270f16fcd1588fec1f4d4be846c32e31271))
+* **container:** adds kaniko support ([bfb69c8](https://github.com/snyk/snyk/commit/bfb69c83ddda560b2940ee1eb771da665737eb42))
+* **general:** display a unique interactionID alongside each error ([960a71c](https://github.com/snyk/snyk/commit/960a71c81f17f0b5743e5ebd61cbf1b88c7d0c40))
+* **test:** python support for local wheel files specifiers ([42675eb](https://github.com/snyk/snyk/commit/42675eb4da17307ad8ab6a090b761fd3ab9a8a2f))
+* **test:** add support for poetry v2 ([52e31e0](https://github.com/snyk/snyk/commit/52e31e0e9ab6326b759933ec7ee5d5c5925c3823))
+* **test:** dep-graph json file output ([90f24ec](https://github.com/snyk/snyk/commit/90f24ecdba80b431fb8db4116a82f3fb6db45f80))
+* **test:** print legacy tree with json file output ([b256937](https://github.com/snyk/snyk/commit/b2569378135e3156eca44b27902dc799def1e430))
+* **test:** display all applicable maven unmanaged identities ([ebf6ba1](https://github.com/snyk/snyk/commit/ebf6ba1f832f1416adc9d5501081e8a681b1ff5f))
+* **code:** enable v1 fingerprints in code sarif output ([00644af](https://github.com/snyk/snyk/commit/00644af4ad77e9dc09b49973bac30a3fcd7eef0a))
+* **test:** Add 'pkgIdProvenance' labels to dependency graph nodes when the package identity has been changed from what has been discovered in the manifest files ([4d529b3](https://github.com/snyk/snyk/commit/4d529b372de1ea0561119f5e7cf9bb9361e8089d))
+* **test:** added Python support for sys_platform ([1aa1565](https://github.com/snyk/snyk/commit/1aa1565bca1863c8f362f0c19baed76981fabdc2))
+* **language-server** AI fix explain ([26d118f](https://github.com/snyk/cli/commit/26d118fff0f5825dcf70fe001df69e809e153881))
+* **language-server** enable calling mcp commands via ls commands ([6f80a03](https://github.com/snyk/cli/commit/6f80a03a57a1c73e5936aa9f537af5774bf3c6b6))
+* **language-server** add scan source to metrics ([6f80a03](https://github.com/snyk/cli/commit/6f80a03a57a1c73e5936aa9f537af5774bf3c6b6))
+* **language-server** add mcp server, refactoring ([6f80a03](https://github.com/snyk/cli/commit/6f80a03a57a1c73e5936aa9f537af5774bf3c6b6))
+* **language-server** added a new code action and code lens for showDocument ([8e7ab06](https://github.com/snyk/cli/commit/8e7ab0669aa1bbb2c66c45db03c7edbb662414b3))
+* **language-server** add Option for Pre-Scan command, fix auth race ([64920ac](https://github.com/snyk/cli/commit/64920ac2547f6d07600bed89915ef4deab7409d9))
+* **language-server** add ideStyle variable to static html ([0a05e66](https://github.com/snyk/cli/commit/0a05e66779df877e869352f374516737dbc93c70))
+* **language-server** intiial commit of shared html for scan summary panel ([0a05e66](https://github.com/snyk/cli/commit/0a05e66779df877e869352f374516737dbc93c70))
+* **language-server** send scan summary and scan base & working directory concurrently ([1908a08](https://github.com/snyk/cli/commit/1908a0860f366c334614a611f862f53ea5649831))
+* **language-server** store folder config outside of git repo, add reference folder ([50d0770](https://github.com/snyk/cli/commit/50d0770bca6bfa938f67e1d8ef2a58a8ed1847db))
+* **language-server** send initial summary panel notification ([50d0770](https://github.com/snyk/cli/commit/50d0770bca6bfa938f67e1d8ef2a58a8ed1847db))
+* **language-server** add a new $/snyk.scanSummary notificiation ([fc80c9c](https://github.com/snyk/cli/commit/fc80c9cc35a717e5ad5ba2a7cdc6dd470f97c97e))
+* **language-server** support maven pom hierarchies for highlighting & fixes ([e5924fc](https://github.com/snyk/cli/commit/e5924fcd0a0efb47c36e8c89cc54db6ab5da57f7))
+* **language-server** Sending a user event when fixing inside the editor ([e5924fc](https://github.com/snyk/cli/commit/e5924fcd0a0efb47c36e8c89cc54db6ab5da57f7))
+* **language-server** Sending IDE+extension versions to autofix ([a18975a](https://github.com/snyk/cli/commit/a18975a99e9a684e190fe1076748854079a5b1ea))
+
+
 ### Bug Fixes
 
-* **security:** Upgrades dependencies to address CVE-2025-21614
-* **language-server:** Improved memory usage when executing code scans on large projects
-* **language-server:** Fix incorrect filtering of files when executing code scans which could fail the analysis
-* **language-server:** Fix random unexpected logouts when using OAuth2 authentication 
+* **container:** add container test doc info for --exclude-node-modules ([2faf2d1](https://github.com/snyk/snyk/commit/2faf2d16338b7d7b67e6faa116db6e4408864d15))
+* **test:** fix dotnet UTF-16LE support for target framework ([e90075a](https://github.com/snyk/snyk/commit/e90075aab4ed9bc55ba438d4435b47c8e65d16f9))
+* **test:** reduce false positives when scanning improved dotnet projects ([c21625a](https://github.com/snyk/snyk/commit/c21625a59468dea2fe963a2ded40f947fbbe9be5))
+* **test:** use --strict-out-of-sync when set to false with pnpm for top level dependencies ([8d5b71a](https://github.com/snyk/snyk/commit/8d5b71a1209a4f06f455fc0bd0639f9578bbc1e1))
+* **test:** fix OutOfSync errors in pnpm for download urls ([b6e4ea0](https://github.com/snyk/snyk/commit/b6e4ea01fb4a188e35efc0b462d343cd674614f2))
+* **test:** fix OutOfSync errors in pnpm git protocol dependencies ([5c8dc34](https://github.com/snyk/snyk/commit/5c8dc34477f24354924edae770e1e249e79be1cb))
+* **code:** Don't write sarif files when no results are found ([5a15113](https://github.com/snyk/snyk/commit/5a151137c68704cdfb82025a2cc616a7378792a3))
+* **code:** Support single file test for golang native implementation ([d7881f1](https://github.com/snyk/snyk/commit/d7881f128197d3384de75129cdcfeef8c2dc9370))
+* **sbom:** mavenAggregateProject with Dverbose or sbom ([e88cf71](https://github.com/snyk/snyk/commit/e88cf712f21e7a26056796d46356e98b6d453bf4))
+* **iac:** Updates the user messages for snyk iac test --report for IaC V2 ([1c9b3b3](https://github.com/snyk/snyk/commit/1c9b3b30d5ed2d17a8113b42169f3f7e4d4d88ea))
+* **language-server** check folder trust before opening/changing/saving file ([26d118f](https://github.com/snyk/cli/commit/26d118fff0f5825dcf70fe001df69e809e153881))
+* **language-server** new issue summary totals ([6f80a03](https://github.com/snyk/cli/commit/6f80a03a57a1c73e5936aa9f537af5774bf3c6b6))
+* **language-server** add correct lesson url for license issues ([6f80a03](https://github.com/snyk/cli/commit/6f80a03a57a1c73e5936aa9f537af5774bf3c6b6))
+* **language-server** issues with non-UTF-8 encoded files in Snyk Code ([8e7ab06](https://github.com/snyk/cli/commit/8e7ab0669aa1bbb2c66c45db03c7edbb662414b3))
+* **language-server** ignore first dataflow element for oss fingerprint ([64920ac](https://github.com/snyk/cli/commit/64920ac2547f6d07600bed89915ef4deab7409d9))
+* **language-server** use workdir folderConfig for ref Scan ([64920ac](https://github.com/snyk/cli/commit/64920ac2547f6d07600bed89915ef4deab7409d9))
+* **language-server** test bundle add size property ([0a05e66](https://github.com/snyk/cli/commit/0a05e66779df877e869352f374516737dbc93c70))
+* **language-server** normalize path for file filter and reduce memory footprint ([0a05e66](https://github.com/snyk/cli/commit/0a05e66779df877e869352f374516737dbc93c70))
+* **language-server** add ideScript to Summary html ([0a05e66](https://github.com/snyk/cli/commit/0a05e66779df877e869352f374516737dbc93c70))
+* **language-server** add css variables and headers ([0a05e66](https://github.com/snyk/cli/commit/0a05e66779df877e869352f374516737dbc93c70))
+* **language-server** panic in range_finder ([50d0770](https://github.com/snyk/cli/commit/50d0770bca6bfa938f67e1d8ef2a58a8ed1847db))
+* **language-server** fix issue metadata used for hashing ([fc80c9c](https://github.com/snyk/cli/commit/fc80c9cc35a717e5ad5ba2a7cdc6dd470f97c97e))

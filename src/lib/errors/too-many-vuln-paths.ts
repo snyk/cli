@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public/src';
 import { CustomError } from './custom-error';
 
 export class TooManyVulnPaths extends CustomError {
@@ -11,5 +12,6 @@ export class TooManyVulnPaths extends CustomError {
     this.code = TooManyVulnPaths.ERROR_CODE;
     this.strCode = TooManyVulnPaths.ERROR_STRING_CODE;
     this.userMessage = TooManyVulnPaths.ERROR_MESSAGE;
+    this.errorCatalog = new CLI.TooManyVulnerablePathsError('');
   }
 }

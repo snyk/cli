@@ -1,18 +1,26 @@
 # Ignore
 
-## Usage
+## Usage and description
+
+### Ignore
 
 `snyk ignore --id=<ISSUE_ID> [--expiry=] [--reason=] [--policy-path=<PATH_TO_POLICY_FILE>] [--path=<PATH_TO_RESOURCE>] [OPTIONS]`
 
-OR
+The `snyk ignore` command modifies the `.snyk` policy file to ignore a specified issue according to its Snyk ID for all occurrences, its expiry date, a reason, or according to paths in the filesystem for the policy, the issue, or both.
+
+**Note:** Ignoring issues or vulnerabilities using the `.snyk` file is not supported for Snyk Code.
+
+### Exclude
 
 `snyk ignore [--expiry=] [--reason=] [--policy-path=<PATH_TO_POLICY_FILE>] [--file-path=<PATH_TO_RESOURCE>] [OPTIONS]`
 
-## Description
+You can exclude directories or files from scanning using the `--file-path` option. This option is available only for Snyk Code (SAST) tests or Open Source `--unmanaged` tests; it will not work for other test types.
 
-The `snyk ignore` command modifies the `.snyk` policy file to ignore a stated issue according to its snyk ID for all occurrences, its expiry date, a reason, or according to paths in the filesystem.
+## Examples of updates to the `.snyk` file
 
-This updates your local `.snyk` file to contain a block similar to the following:
+### Updates for ignores
+
+The `snyk ignore` command for an `ISSUE_ID` updates your local `.snyk` file to contain a block similar to the following:
 
 ```yaml
 ignore:
@@ -22,7 +30,7 @@ ignore:
         expires: <EXPIRY>
 ```
 
-When you use the `--path` option the block is similar to this:
+When you use the `--path` option for an ignore, the block is similar to this:
 
 ```yaml
 ignore:
@@ -31,6 +39,8 @@ ignore:
         reason: <REASON>
         expires: <EXPIRY>
 ```
+
+### Update for an exclude
 
 When you use the `--file-path` option the block is similar to this:
 
@@ -44,9 +54,9 @@ exclude:
       created: <CREATION TIME>
 ```
 
-**Note**: The `--file-path` \[exclude] option is available only for Snyk Code (SAST) tests or Open Source `--unmanaged` tests and will not work for other test types.
+**Note**: Ignoring issues or vulnerabilities using the `.snyk` file is not supported for Snyk Code.
 
-Ignoring issues or vulnerabilities using the .snyk file is not supported for Snyk Code
+The `--file-path` option excludes directories or files from scanning and is available only for Snyk Code (SAST) tests or Open Source `--unmanaged` tests; it will not work for other test types.
 
 ## Debug
 
@@ -56,7 +66,7 @@ Use the `-d` option to output the debug logs.
 
 ### `--id=<ISSUE_ID>`
 
-Snyk ID for the issue to ignore, omitted if used with `--file-path`; required by other use cases.
+Snyk ID for the issue to ignore, omitted if the `ignore` command used with `--file-path`, otherwise required.
 
 ### `--expiry=<EXPIRY>`
 
@@ -90,7 +100,7 @@ Path to resource inside the depgraph for which to ignore the issue.
 
 Use to narrow the scope of the ignore rule. When no resource path is specified, all resources are ignored.
 
-You can specify component versions in the path using [https://github.com/npm/node-semver#versions](https://github.com/npm/node-semver#versions)
+For ecosystems which use the semver convention for versioning, you can specify component versions in the path using [https://github.com/npm/node-semver#versions](https://github.com/npm/node-semver#versions)
 
 If used, follows the `--policy-path` option.
 
@@ -98,7 +108,7 @@ Default: all
 
 ### `--file-path=<PATH_TO_RESOURCE>`
 
-Filesystem for which to ignore the issue. Used by `snyk code` and `snyk test --unmanaged`
+Filesystem for which to exclude directories or files from scanning. Used only by `snyk code` and `snyk test --unmanaged`
 
 Default: none
 
@@ -108,18 +118,24 @@ Grouping used in combination with `--file-path`, otherwise omitted.
 
 Default: global
 
-## Examples for snyk ignore command
+## Examples for `snyk ignore` command
 
-### Ignore a specific vulnerability
+### Ignore a specific vulnerability with the expiry and reason specified
 
 ```
 $ snyk ignore --id='npm:qs:20170213' --expiry='2021-01-10' --reason='Module not affected by this vulnerability'
 ```
 
-### Ignore a specific vulnerability with a resource path specified
+### Ignore a specific vulnerability with the expiry, a resource path, and reason specified
 
 ```
-$ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc@11.9.0 > istanbul-lib-report@1.1.3 > path-parse@1.0.5' --reason='Module not affected by this vulnerability'$ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc@11.9.0
+$ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc@11.9.0 > istanbul-lib-report@1.1.3 > path-parse@1.0.5' --reason='Module not affected by this vulnerability
+```
+
+### Ignore a specific vulnerability with an expiry date and path specified
+
+```
+$ snyk ignore --id='SNYK-JS-PATHPARSE-1077067' --expiry='2021-01-10' --path='nyc@11.9.0
 ```
 
 ### Ignore a specific vulnerability with a resource path specified (Windows)&#x20;
@@ -128,7 +144,7 @@ In this example, `snyk iac test` on Windows returned a Path containing single qu
 
 Rule: [https://security.snyk.io/rules/cloud/SNYK-CC-TF-118](https://security.snyk.io/rules/cloud/SNYK-CC-TF-118)\
 Path: resource > aws_iam_role\[OrganizationAccountAccessRole] > assume_role_policy\['Statement']\[0]\
-File: terraform\environment\com\iam.tf\
+File: terraform\environment\com\iam.tf
 
 The corresponding `snyk ignore` command would be:
 
@@ -154,7 +170,9 @@ $ snyk ignore --id=npm:tough-cookie:20160722
 
 ### Ignore a specific file until 2031-01-20
 
-Ignore a specific file, used by `snyk test --unmanaged` until 2031-01-20, with a description as a reference for the future.
+Ignore a specific file.
+
+The rule created in the `.snyk` file is used by `snyk test --unmanaged` until 2031-01-20, with a description as a reference for the future.
 
 ```
 $ snyk ignore --file-path='./deps/curl-7.58.0/src/tool_msgs.c' --expiry='2031-01-20' --reason='patched file'

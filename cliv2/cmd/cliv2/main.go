@@ -56,7 +56,7 @@ var helpProvided bool
 
 var noopLogger zerolog.Logger = zerolog.New(io.Discard)
 var globalLogger *zerolog.Logger = &noopLogger
-var interactionId = uuid.NewString()
+var interactionId = instrumentation.AssembleUrnFromUUID(uuid.NewString())
 
 const (
 	unknownCommandMessage  string = "unknown command"
@@ -79,8 +79,8 @@ const (
 )
 
 func main() {
-	errorCode := MainWithErrorCode()
-	globalLogger.Printf("Exiting with %d", errorCode)
+	errorCode, errs := MainWithErrorCode()
+	writeLogFooter(errorCode, errs)
 	os.Exit(errorCode)
 }
 
@@ -158,16 +158,9 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 }
 
 func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, name string) error {
-	data, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
-
+	output, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
 	if err != nil {
 		logger.Print("Failed to execute the command!", err)
-		return err
-	}
-
-	output, err := engine.InvokeWithInput(localworkflows.WORKFLOWID_DATATRANSFORMATION, data)
-	if err != nil {
-		logger.Err(err).Msg(err.Error())
 		return err
 	}
 
@@ -309,6 +302,10 @@ func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 	// ensure legacy behavior, where sarif and json can be used interchangeably
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE})
+
+	// ensure legacy behavior, where sarif files with no findings are not written
+	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_WRITE_EMPTY_FILE, false)
+
 	return runCommand(cmd, args)
 }
 
@@ -448,18 +445,20 @@ func handleError(err error) HandleError {
 	return resultError
 }
 
-func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration) {
+func displayError(err error, userInterface ui.UserInterface, config configuration.Configuration, ctx context.Context) {
 	if err != nil {
 		_, isExitError := err.(*exec.ExitError)
 		_, isErrorWithCode := err.(*cli_errors.ErrorWithExitCode)
-		if isExitError || isErrorWithCode {
+		if isExitError || isErrorWithCode || errorHasBeenShown(err) {
 			return
 		}
 
 		if config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) {
+			message := getErrorMessage(err)
+
 			jsonError := JsonErrorStruct{
 				Ok:       false,
-				ErrorMsg: err.Error(),
+				ErrorMsg: message,
 				Path:     globalConfiguration.GetString(configuration.INPUT_DIRECTORY),
 			}
 
@@ -469,8 +468,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			if errors.Is(err, context.DeadlineExceeded) {
 				err = fmt.Errorf("command timed out")
 			}
-
-			uiError := userInterface.OutputError(err)
+			uiError := userInterface.OutputError(err, ui.WithContext(ctx))
 			if uiError != nil {
 				globalLogger.Err(uiError).Msg("ui failed to show error")
 			}
@@ -478,8 +476,11 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 	}
 }
 
-func MainWithErrorCode() int {
+func MainWithErrorCode() (int, []error) {
 	initDebugBuild()
+
+	errorList := []error{}
+	errorListMutex := sync.Mutex{}
 
 	startTime := time.Now()
 	var err error
@@ -528,8 +529,12 @@ func MainWithErrorCode() int {
 	err = globalEngine.Init()
 	if err != nil {
 		globalLogger.Print("Failed to init Workflow Engine!", err)
-		return constants.SNYK_EXIT_CODE_ERROR
+		return constants.SNYK_EXIT_CODE_ERROR, errorList
 	}
+
+	// init context
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, networking.InteractionIdKey, instrumentation.AssembleUrnFromUUID(interactionId))
 
 	// add output flags as persistent flags
 	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
@@ -538,9 +543,6 @@ func MainWithErrorCode() int {
 
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, globalEngine)
-
-	errorList := []error{}
-	errorListMutex := sync.Mutex{}
 
 	// init NetworkAccess
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
@@ -585,6 +587,10 @@ func MainWithErrorCode() int {
 	// fallback to the legacy cli or show help
 	handleErrorResult := handleError(err)
 	if handleErrorResult == handleErrorFallbackToLegacyCLI {
+		// when falling back to TS cli, make sure the
+		_ = rootCommand.ParseFlags(os.Args)
+		globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
+
 		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(os.Args[1:])
 	} else if handleErrorResult == handleErrorShowHelp {
@@ -592,16 +598,17 @@ func MainWithErrorCode() int {
 	}
 
 	if err != nil {
+		err = decorateError(err)
+
+		errorList = append(errorList, err)
 		for _, tempError := range errorList {
 			cliAnalytics.AddError(tempError)
 		}
 
-		cliAnalytics.AddError(err)
-
 		err = legacyCLITerminated(err, errorList)
 	}
 
-	displayError(err, globalEngine.GetUserInterface(), globalConfiguration)
+	displayError(err, globalEngine.GetUserInterface(), globalConfiguration, ctx)
 
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, err)
@@ -633,7 +640,7 @@ func MainWithErrorCode() int {
 		globalLogger.Printf("Failed to cleanup %v", err)
 	}
 
-	return exitCode
+	return exitCode, errorList
 }
 
 func legacyCLITerminated(err error, errorList []error) error {

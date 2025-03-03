@@ -76,8 +76,15 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
-  test('run `snyk test` on a python project', async () => {
-    const project = await createProjectFromWorkspace('pip-app');
+  test.each([
+    {
+      fixture: 'pip-app',
+    },
+    {
+      fixture: 'pip-app-robust',
+    },
+  ])('run `snyk test` on a python project $fixture', async ({ fixture }) => {
+    const project = await createProjectFromWorkspace(fixture);
     let pythonCommand = 'python';
 
     await runCommand(pythonCommand, ['--version']).catch(function () {
@@ -523,7 +530,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   test('run `snyk test` on a pnpm project with `enablePnpmCli` feature flag enabled', async () => {
     server.setFeatureFlag('enablePnpmCli', true);
 
-    const project = await createProjectFromFixture('pnpm-app');
+    const project = await createProjectFromWorkspace('pnpm-app-extended');
 
     const { code, stdout } = await runSnykCLI('test -d', {
       cwd: project.path(),
@@ -534,5 +541,37 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(stdout).toMatch('Package manager:   pnpm');
 
     expect(code).toEqual(0);
+  });
+
+  test('run `snyk test` on an out of sync pnpm project with --strict-out-of-sync=false', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromWorkspace('pnpm-app-out-of-sync');
+
+    const { code, stdout } = await runSnykCLI(
+      'test -d --strict-out-of-sync=false',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(stdout).toMatch('Target file:       pnpm-lock.yaml');
+    expect(stdout).toMatch('Package manager:   pnpm');
+
+    expect(code).toEqual(0);
+  });
+
+  test('run `snyk test` on an out of sync pnpm project without out of sync option', async () => {
+    server.setFeatureFlag('enablePnpmCli', true);
+
+    const project = await createProjectFromWorkspace('pnpm-app-out-of-sync');
+
+    const { code } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(2);
   });
 });

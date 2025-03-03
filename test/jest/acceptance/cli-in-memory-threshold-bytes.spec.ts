@@ -1,22 +1,14 @@
 import * as os from 'os';
 import * as path from 'path';
-import { resolve } from 'path';
 
 import { runSnykCLI } from '../util/runSnykCLI';
 import { matchers } from 'jest-json-schema';
 import * as fs from 'fs';
 
-const projectRoot = resolve(__dirname, '../../..');
-
 expect.extend(matchers);
 
 // For golang implementation only
 describe('conditionally write data to disk', () => {
-  const projectWithCodeIssues = resolve(
-    projectRoot,
-    'test/fixtures/sast/with_code_issues',
-  );
-
   const env = {
     // Use an org with consistent ignores enabled - uses golang/native workflow
     SNYK_API: process.env.TEST_SNYK_API_DEV,
@@ -49,7 +41,7 @@ describe('conditionally write data to disk', () => {
     };
 
     it('should write to temp dir if payload is bigger than threshold', async () => {
-      await runSnykCLI(`code test ${projectWithCodeIssues}`, {
+      await runSnykCLI(`whoami --experimental --json`, {
         env: {
           ...process.env,
           ...env,
@@ -76,7 +68,7 @@ describe('conditionally write data to disk', () => {
     };
 
     it('should write to default temp dir if payload is bigger than threshold', async () => {
-      await runSnykCLI(`code test ${projectWithCodeIssues}`, {
+      await runSnykCLI(`whoami --experimental --json`, {
         env: {
           ...process.env,
           ...env,
@@ -100,7 +92,7 @@ describe('conditionally write data to disk', () => {
     };
 
     it('should use 512MB as default threshold', async () => {
-      await runSnykCLI(`code test ${projectWithCodeIssues}`, {
+      await runSnykCLI(`whoami --experimental --json`, {
         env: {
           ...process.env,
           ...env,
@@ -125,7 +117,7 @@ describe('conditionally write data to disk', () => {
     };
 
     it('should keep payload memory', async () => {
-      await runSnykCLI(`code test ${projectWithCodeIssues}`, {
+      await runSnykCLI(`whoami --experimental --json`, {
         env: {
           ...process.env,
           ...env,

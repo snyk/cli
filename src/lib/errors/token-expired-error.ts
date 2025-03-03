@@ -1,3 +1,4 @@
+import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from './custom-error';
 
 export function TokenExpiredError() {
@@ -9,5 +10,6 @@ export function TokenExpiredError() {
   error.code = 401;
   error.strCode = 'AUTH_TIMEOUT';
   error.userMessage = errorMsg;
+  error.errorCatalog = new CLI.AuthConfigError('');
   return error;
 }

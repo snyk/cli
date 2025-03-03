@@ -1,0 +1,12 @@
+{
+    "name": "pnpm-app-out-of-sync",
+    "version": "0.7.1",
+    "main": "index.js",
+    "module": "index.mjs",
+    "dependencies": {
+      "debug": "2.0.x",
+      "lodash": "4.17.11",
+      "body-parser": "^1.18.2"
+    },
+    "devDependencies": {}
+  }

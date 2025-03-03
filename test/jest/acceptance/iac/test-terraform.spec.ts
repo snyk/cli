@@ -2,6 +2,8 @@ import { isValidJSONString, startMockServer } from './helpers';
 import * as path from 'path';
 import { EOL } from 'os';
 import { FakeServer } from '../../../acceptance/fake-server';
+import { FailedToParseTerraformFileError } from '../../../../src/cli/commands/test/iac/local-execution/parsers/terraform-file-parser';
+import { InvalidVarFilePath } from '../../../../src/cli/commands/test/iac/local-execution';
 
 jest.setTimeout(50000);
 
@@ -48,13 +50,10 @@ describe('Terraform', () => {
     });
 
     it('outputs an error for files with invalid HCL2', async () => {
-      const { stdout, exitCode } = await run(
-        `snyk iac test ./iac/terraform/sg_open_ssh_invalid_hcl2.tf`,
-      );
-      expect(stdout).toContain(
-        'Failed to parse Terraform file' +
-          EOL +
-          '  Path: ./iac/terraform/sg_open_ssh_invalid_hcl2.tf',
+      const path = './iac/terraform/sg_open_ssh_invalid_hcl2.tf';
+      const { stdout, exitCode } = await run(`snyk iac test ${path}`);
+      expect(stdout).toContainText(
+        new FailedToParseTerraformFileError(path).message,
       );
       expect(exitCode).toBe(2);
     });
@@ -207,14 +206,11 @@ describe('Terraform', () => {
       expect(exitCode).toBe(1);
     });
     it('returns error if the file does not exist', async () => {
+      const path = './iac/terraform/non-existent.tfvars';
       const { stdout, exitCode } = await run(
-        `snyk iac test ./iac/terraform/var_deref --var-file=./iac/terraform/non-existent.tfvars`,
+        `snyk iac test ./iac/terraform/var_deref --var-file=${path}`,
       );
-      expect(stdout).toContain(
-        'Invalid path to variable definitions file' +
-          EOL +
-          '  Path: ./iac/terraform/var_deref',
-      );
+      expect(stdout).toContainText(new InvalidVarFilePath(path).message);
       expect(exitCode).toBe(2);
     });
     it('will not parse the external file if it is invalid', async () => {
