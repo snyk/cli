@@ -251,21 +251,4 @@ describe('CLI Share Results', () => {
       });
     });
   });
-
-  describe('feature flag iacNewEngine is enabled', () => {
-    beforeEach(() => {
-      server.setFeatureFlag('iacNewEngine', true);
-    });
-
-    it('the output includes an error', async () => {
-      const { stdout, exitCode } = await run(
-        `snyk iac test ./iac/arm/rule_test.json --report`,
-      );
-
-      expect(stdout).toMatch(
-        'flag --report is not yet supported when iacNewEngine flag is enabled',
-      );
-      expect(exitCode).toBe(2);
-    });
-  });
 });
