@@ -122,7 +122,7 @@ Allow detection of vulnerabilities in your application dependencies from contain
 
 In CLI versions 1.1090.0 (2023-01-24) and higher, Snyk scans for application dependencies in your image by default; you do not need to specify the `--app-vulns` option.
 
-In CLI versions 1.962.0 through v1.1089.0, use the `--app-vulns` option with the the `--json` option to see the operating system as well as application vulnerabilities in JSON format in the results.
+In CLI versions 1.962.0 through v1.1089.0, use the `--app-vulns` option with the `--json` option to see the operating system as well as application vulnerabilities in JSON format in the results.
 
 For more information see [Detecting application vulnerabilities in container images](https://docs.snyk.io/scan-using-snyk/snyk-container/use-snyk-container-from-the-web-ui/detect-application-vulnerabilities-in-container-images)
 
