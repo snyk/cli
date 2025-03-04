@@ -1,6 +1,8 @@
 import * as path from 'path';
 import { RunCommandOptions, runCommand } from '../../util/runCommand';
 import { getFixturePath } from '../../util/getFixturePath';
+import * as os from 'os';
+import * as fs from 'fs';
 
 /**
  * This module cannot be unit tested as it hooks onto the current process where
@@ -13,13 +15,23 @@ import { getFixturePath } from '../../util/getFixturePath';
  * NodeJS process.
  */
 describe('callHandlingUnexpectedErrors', () => {
-  async function runScript(filename: string) {
+  async function runScript(filename: string, env?: NodeJS.ProcessEnv) {
     const file = path.resolve(getFixturePath('unexpected-error'), filename);
+
+    let environment = {
+      FORCE_COLOR: '0',
+      PATH: process.env.PATH,
+    };
+
+    if (env) {
+      environment = {
+        ...environment,
+        ...env,
+      };
+    }
+
     const options: RunCommandOptions = {
-      env: {
-        FORCE_COLOR: '0',
-        PATH: process.env.PATH,
-      },
+      env: environment,
     };
     return runCommand('node', ['-r', 'ts-node/register', file], options);
   }
@@ -59,5 +71,27 @@ describe('callHandlingUnexpectedErrors', () => {
     expect(stderr).toMatch('Exit code: 2');
     expect(stdout).toEqual('');
     expect(code).toEqual(2);
+  });
+
+  it('write unhandled exception to error file', async () => {
+    const errorDir = path.join(os.tmpdir(), 'unhandledException');
+    const errorFile = path.join(errorDir, 'error.txt');
+    fs.mkdirSync(errorDir, {
+      recursive: true,
+    });
+
+    const { code, stdout, stderr } = await runScript('unhandledRejection.ts', {
+      SNYK_ERR_FILE: errorFile,
+    });
+
+    expect(fs.existsSync(errorFile)).toBeTruthy();
+    expect(fs.readFileSync(errorFile).toString()).toContain(
+      'unhandledRejection',
+    );
+    expect(stderr).toEqual('');
+    expect(stdout).toEqual('');
+    expect(code).toEqual(2);
+
+    fs.rmSync(errorDir, { recursive: true });
   });
 });

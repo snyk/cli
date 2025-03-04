@@ -16,17 +16,17 @@ describe('sendError()', () => {
 
     it('when given a simple error', async () => {
       const error = new Error('something went wrong');
-      expect(await sendError(error, false)).toBeTruthy();
+      expect(sendError(error, false)).toBeTruthy();
     });
 
     it('when given an Error Catalog error', async () => {
       const error = new CLI.GeneralCLIFailureError('something went wrong');
-      expect(await sendError(error, false)).toBeTruthy();
+      expect(sendError(error, false)).toBeTruthy();
     });
 
     it('when given an TS custom error', async () => {
       const error = new ExcludeFlagBadInputError();
-      expect(await sendError(error, false)).toBeTruthy();
+      expect(sendError(error, false)).toBeTruthy();
     });
 
     describe('JSON formatted errors', () => {
@@ -39,7 +39,7 @@ describe('sendError()', () => {
 
       it('when given a single error', async () => {
         const error = new Error(JSON.stringify(JSONerr));
-        expect(await sendError(error, true)).toBeTruthy();
+        expect(sendError(error, true)).toBeTruthy();
       });
 
       it('when given an error in a list', async () => {
@@ -79,7 +79,7 @@ describe('sendError()', () => {
           JSONerr,
         ];
         const error = new Error(JSON.stringify(errMsg));
-        expect(await sendError(error, true)).toBeTruthy();
+        expect(sendError(error, true)).toBeTruthy();
       });
     });
   });
@@ -87,18 +87,18 @@ describe('sendError()', () => {
   describe('returns false', () => {
     it('when no error file path is specified', async () => {
       const error = new Error('something went wrong');
-      expect(await sendError(error, false)).toBeFalsy();
+      expect(sendError(error, false)).toBeFalsy();
     });
 
     it('when no error message is specified', async () => {
       const error = new Error('');
-      expect(await sendError(error, false)).toBeFalsy();
+      expect(sendError(error, false)).toBeFalsy();
     });
 
     it('when the file cannot be written', async () => {
       process.env.SNYK_ERR_FILE = './does/not/exist';
       const error = new Error('something went wrong');
-      expect(await sendError(error, false)).toBeFalsy();
+      expect(sendError(error, false)).toBeFalsy();
     });
   });
 });
