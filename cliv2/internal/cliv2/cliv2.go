@@ -465,6 +465,10 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 		return nil
 	}
 
+	if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() < 2 {
+		return err
+	}
+
 	if sentErrs, fileErr := c.getErrorFromFile(filePath); fileErr == nil {
 		err = errors.Join(err, sentErrs)
 	}
