@@ -145,7 +145,7 @@ async function handleError(args, error) {
   const shouldOutputError =
     vulnsFound || args.options.sarif
       ? false
-      : await sendError(error, args.options.json);
+      : sendError(error, args.options.json);
 
   // JSON output flow
   if (
