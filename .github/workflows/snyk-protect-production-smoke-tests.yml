@@ -29,7 +29,7 @@ jobs:
         id: npm7-cache-dir
         run: |
           echo "::set-output name=dir::$(npx npm@7 config get cache)"
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         id: npm7-cache
         with:
           path: ${{ steps.npm7-cache-dir.outputs.dir }}
