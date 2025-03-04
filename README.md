@@ -7,7 +7,7 @@
 - [**Snyk Open Source**](https://docs.snyk.io/scan-using-snyk/snyk-open-source): Find and automatically fix open-source vulnerabilities
 - [**Snyk Code**](https://docs.snyk.io/scan-using-snyk/snyk-code): Find and fix vulnerabilities in your application code in real time
 - [**Snyk Container**](https://docs.snyk.io/scan-using-snyk/snyk-container): Find and fix vulnerabilities in container images and Kubernetes applications
-- [**Snyk Infrastructure as Code**](https://docs.snyk.io/scan-using-snyk/scan-infrastructure): Find and fix insecure configurations in Terraform and Kubernetes code
+- [**Snyk IaC**](https://docs.snyk.io/scan-using-snyk/scan-infrastructure): Find and fix insecure configurations in Terraform and Kubernetes code
 
 [Learn more about what Snyk can do and sign up for a free account](https://snyk.io/).
 
@@ -17,9 +17,9 @@ The **Snyk CLI brings the functionality of Snyk into your development workflow**
 
 Snyk CLI scanning **supports many languages and tools.** For detailed information, see the following:
 
-- [Supported languages and frameworks for Open Source and Code](https://docs.snyk.io/getting-started/supported-languages-frameworks-and-feature-availability-overview)
+- [Supported languages, package managers, and frameworks](https://docs.snyk.io/getting-started/supported-languages-frameworks-and-feature-availability-overview) for Open Source and Snyk Code
 - [Supported operating system distributions for Container](https://docs.snyk.io/scan-with-snyk/snyk-container/how-snyk-container-works/supported-operating-system-distributions)
-- [Supported IaC Lanuages and cloud providers](https://docs.snyk.io/scan-with-snyk/snyk-iac/supported-iac-languages-cloud-providers-and-cloud-resources)
+- [Supported IaC Languages and cloud providers](https://docs.snyk.io/scan-with-snyk/snyk-iac/supported-iac-languages-cloud-providers-and-cloud-resources)
 
 This page explains how to install, authenticate, and start scanning using the CLI. Snyk also has an onboarding wizard to guide you through these steps. For a demonstration, view [Starting with Snyk: an overview of the CLI onboarding flow](https://www.youtube.com/watch?v=adj3VF82-v8).
 
@@ -29,13 +29,13 @@ To use the CLI, you must install it and authenticate your machine. See [Install 
 
 **Note:** Before you can use the CLI for Open Source scanning, you must install your package manager. The needed third-party tools, such as Gradle or Maven, must be in the `PATH`.
 
-You can use the CLI in your IDE or CI/CD environment. For details, see [Install as part of a Snyk integration](https://docs.snyk.io/snyk-cli/install-the-snyk-cli#install-as-a-part-of-a-snyk-integration).
+You can also install the CLI in your IDE or CI/CD environment. For details, see the [IDE and CI/CD documentation](https://docs.snyk.io/scm-ide-and-ci-cd-workflow-and-integrations) for instructions for each integration.
 
 ## Test your installation
 
-After authenticating, you can **test your installation**. For a quick test, run `snyk --help`.
+After authenticating, you can **test your installation**. For a quick test, run. `snyk --help`.
 
-Alternatively, you can perform a **quick test** on a public npm package, for example `snyk test ionic`.
+Alternatively, you can perform a **quick test** on a public npm package, for example. `snyk test ionic`.
 
 Look at the `test` command **report** in your terminal. The report shows the vulnerabilities Snyk found in the package. For each issue found, Snyk reports the severity of the issue, provides a link to a detailed description, reports the path through which the vulnerable module got into your system, and provides guidance on how to fix the problem.
 
@@ -43,15 +43,15 @@ Look at the `test` command **report** in your terminal. The report shows the vul
 
 **Note:** Before using the Snyk CLI to test your Open Source Project for vulnerabilities, with limited exceptions, you must **build your Project**. For details, see [Open Source Projects that must be built before testing](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-open-source/open-source-projects-that-must-be-built-before-testing-with-the-snyk-cli).
 
-In addition, depending on the language of your open-source Project, you may need to **set up your language environment** before using the Snyk CLI. For details, refer to [Supported languages, frameworks, and feature availability overview.](https://docs.snyk.io/scan-using-snyk/supported-languages-and-frameworks/supported-languages-frameworks-and-feature-availability-overview)
+In addition, depending on the language of your open-source Project, you may need to **set up your language environment** before using the Snyk CLI. For details, refer to [Supported languages, package managers, and frameworks](https://docs.snyk.io/supported-languages-package-managers-and-frameworks).
 
-After you have installed the CLI and authenticated your machine, to **scan an open-source Project**, use `cd /my/project/` to change the current directory to`a`folder containing a supported package manifest file, such as `package.json`, `pom.xml`, or `composer.lock`. Then run `snyk test`. All vulnerabilities identified are listed, including their path and fix guidance.
+After you have installed the CLI and authenticated your machine, to **scan an open-source Project**, use `cd /my/project/` to change the current directory to a folder containing a supported package manifest file, such as `package.json`, `pom.xml`, or `composer.lock`. Then run `snyk test`. All vulnerabilities identified are listed, including their path and fix guidance.
 
-To scan your **source code** run `snyk code test`.
+To scan your **source code,** run `snyk code test`.
 
 You can **scan a Docker image** by its tag running, for example: `snyk container test ubuntu:18.04`.
 
-To scan a **Kubernetes (K8s) file** run the following:\
+To scan a **Kubernetes (K8s) file,** run the following:\
 `snyk iac test /path/to/kubernetes_file.yaml`
 
 For details about using the Snyk CLI to scan each content type, see the following:
@@ -87,7 +87,7 @@ For more information, see [Monitor your Projects at regular intervals](https://d
 
 ## Running out of tests
 
-Snyk allows unlimited tests for public repositories. If you are on the Free plan, you have a limited number of tests per month. Paid plans have unlimited tests on private and public repositories. If you are on the Free plan and notice that your test count is quickly being used, even with public repositories, you can remedy this by telling Snyk the public url of the repository that is being scanned by the Snyk CLI. This ensures that Snyk does not count a public repository towards the test limits.
+Snyk allows unlimited tests for public repositories. If you are on the Free plan, you have a limited number of tests per month. Paid plans have unlimited tests on private and public repositories. If you are on the Free plan and notice that your test count is quickly being used, even with public repositories, you can remedy this by telling Snyk the public URL of the repository that is being scanned by the Snyk CLI. This ensures that Snyk does not count a public repository towards the test limits.
 
 If you run out of tests on an open-source Project, follow these steps:
 
@@ -101,7 +101,7 @@ Run `snyk help` or see the [CLI commands and options summary](https://docs.snyk.
 
 See the course [Introduction to the Snyk CLI](https://learn.snyk.io/lesson/snyk-cli/https://learn.snyk.io/lesson/snyk-cli/) for a quick video training session.
 
-Snyk also provides a [cheat sheet](https://res.cloudinary.com/snyk/image/upload/v1664236143/cheat-sheets/cheat-sheet-snyk-cli-v3.pdf) ([blog post](https://snyk.io/blog/snyk-cli-cheat-sheet/)) and a [video tutorial](https://www.youtube.com/watch?v=xp_LtchEkT8).
+Snyk also provides a [cheat sheet](https://res.cloudinary.com/snyk/image/upload/v1664236143/cheat-sheets/cheat-sheet-snyk-cli-v3.pdf) ([blog post](https://snyk.io/blog/snyk-cli-cheat-sheet/)).
 
 In particular, see the information about the following options that you may find useful:
 
@@ -113,18 +113,18 @@ For detailed information about the CLI, see the [CLI docs](https://docs.snyk.io/
 
 ## Getting support for the Snyk CLI
 
-[Submit a ticket](https://support.snyk.io/hc/en-us/requests/new) to Snyk support whenever you need help with the Snyk CLI or Snyk in general. Note that Snyk support does not actively monitor GitHub Issues on any [Snyk development project](https://github.com/snyk).
+Use the resources on the [Snyk support page ](https://support.snyk.io)to find help for using the Snyk CLI or Snyk in general. Note that Snyk support does not actively monitor GitHub Issues on any [Snyk development project](https://github.com/snyk).
+
+## Snyk CLI is closed to contributions
+
+Effective July 22, 2024, Snyk CLI no longer accepts external contributions.
+
+Due to the CLI's extensive usage and intricate nature, even minor modifications can have unforeseen consequences. Since introducing [release channels](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli) to the CLI code in April 2024, Snyk's focus has been on stabilizing releases. Snyk believes this open-source, closed-contribution model best serves this goal.
+
+In the spirit of transparency to Snyk customers and CLI users, Snyk will continue working in public. However, going forward, Snyk CLI is closed to contributions.
+
+Snyk appreciates and extends gratitude to the Snyk community.
 
 ## Security
 
 For any security issues or concerns, see the [SECURITY.md](https://github.com/snyk/snyk/blob/master/SECURITY.md) file in the GitHub repository.
-
-## Snyk CLI is closed to contributions
-
-Effective July 22, 2024, Snyk CLI will no longer accept external contributions.
-
-Due to the CLI's extensive usage and intricate nature, even minor modifications can have unforeseen consequences. Since introducing [release channels](https://snyk.io/blog/snyk-cli-semantic-versioning-and-release-channels/) to our code in April 2024, our focus has been on stabilizing releases. We believe this open-source, closed-contribution model best serves this goal.
-
-In the spirit of transparency to Snyk customers and CLI users, we will continue to working in public. However, going forward, we are closed to contributions.
-
-We appreciate and extend our gratitude to the Snyk community.
