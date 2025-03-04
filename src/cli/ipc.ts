@@ -1,9 +1,9 @@
-import { writeFile } from 'fs/promises';
 import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
 import { debug as Debug } from 'debug';
 import * as legacyErrors from '../lib/errors/legacy-errors';
 import stripAnsi = require('strip-ansi');
 import { CustomError } from '../lib/errors';
+import { writeFileSync } from 'fs';
 
 const debug = Debug('snyk:ipc');
 
@@ -14,7 +14,7 @@ const debug = Debug('snyk:ipc');
  * @param isJson {boolean} If the prameter is set, the meta field "supressJsonOutput" will also be set, supressing the Golang CLI from displaying this error.
  * @returns {Promise<boolean>} The result of the operation as a boolean value
  */
-export async function sendError(err: Error, isJson: boolean): Promise<boolean> {
+export function sendError(err: Error, isJson: boolean): boolean {
   const ERROR_FILE_PATH = process.env.SNYK_ERR_FILE;
   if (!ERROR_FILE_PATH) {
     debug('Error file path not set.');
@@ -46,7 +46,7 @@ export async function sendError(err: Error, isJson: boolean): Promise<boolean> {
   const data = (err as ProblemError).toJsonApi().body();
 
   try {
-    await writeFile(ERROR_FILE_PATH, JSON.stringify(data));
+    writeFileSync(ERROR_FILE_PATH, JSON.stringify(data));
   } catch (e) {
     debug('Failed to write data to error file: ', e);
     return false;
