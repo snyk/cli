@@ -1,3 +1,5 @@
+import { sendError } from '../cli/ipc';
+
 /**
  * Ensures a given function does not throw any errors, including unexpected ones
  * outside of its chain of execution.
@@ -10,8 +12,21 @@ export async function callHandlingUnexpectedErrors(
   exitCode: number,
 ): Promise<void> {
   function handleUnexpectedError(reason: unknown): never {
-    console.error('Something unexpected went wrong:', reason);
-    console.error('Exit code:', exitCode);
+    let errorWasSend = false;
+
+    const e = reason as Error;
+    if (e !== undefined) {
+      // in this case we create an extra error object to send, in order to ensure that we have as much information as possible displayed
+      const tmp = new Error();
+      tmp.message = e.stack === undefined ? e.message : e.stack;
+      errorWasSend = sendError(tmp, false);
+    }
+
+    if (!errorWasSend) {
+      console.error('Something unexpected went wrong:', reason);
+      console.error('Exit code:', exitCode);
+    }
+
     process.exit(exitCode);
   }
 
