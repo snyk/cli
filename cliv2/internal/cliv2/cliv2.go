@@ -478,6 +478,11 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 
 func (c *CLI) getErrorFromFile(errFilePath string) (data error, err error) {
 	bytes, fileErr := os.ReadFile(errFilePath)
+	if os.IsNotExist(fileErr) {
+		c.DebugLogger.Println("No data was sent through the IPC file.")
+		return nil, fileErr
+	}
+
 	if fileErr != nil {
 		c.DebugLogger.Println("Failed to read error file: ", fileErr)
 		return nil, fileErr
