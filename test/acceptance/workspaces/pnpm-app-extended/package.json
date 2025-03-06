@@ -7,6 +7,8 @@
       "accepts": "1.3.7",
       "dustjs-helpers": "github:linkedin/dustjs-helpers",
       "@snyk/gemfile": "https://codeload.github.com/snyk/gemfile/tar.gz/fff475b"
-    }
+    },
+    "peerDependencies": {},
+    "devDependencies": {}
   }
   
