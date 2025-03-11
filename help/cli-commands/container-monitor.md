@@ -78,6 +78,12 @@ Specify a reference that differentiates this project, for example, a branch name
 
 For more information see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
 
+### `--remote-repo-url=<URL>`
+
+Set or override the remote URL for the image that you would like to monitor.
+
+Groups container images under the same target with other monitored projects.
+
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
 Set the project environment to one or more values (comma-separated). To clear the project environment set `--project-environment=`
