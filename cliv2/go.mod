@@ -18,7 +18,7 @@ require (
 	github.com/snyk/go-application-framework v0.0.0-20250307155453-ce7aaf72fe7d
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20250311121017-2181ed7f6719
+	github.com/snyk/snyk-ls v0.0.0-20250311173630-f1a49f299c8e
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
 	github.com/stretchr/testify v1.10.0
@@ -179,7 +179,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
-	github.com/snyk/code-client-go v1.16.1 // indirect
+	github.com/snyk/code-client-go v1.16.2 // indirect
 	github.com/snyk/policy-engine v0.33.2 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
