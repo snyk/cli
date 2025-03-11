@@ -11,7 +11,6 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **container:** adds kaniko support ([bfb69c8](https://github.com/snyk/snyk/commit/bfb69c83ddda560b2940ee1eb771da665737eb42))
 * **general:** display a unique interactionID alongside each error ([960a71c](https://github.com/snyk/snyk/commit/960a71c81f17f0b5743e5ebd61cbf1b88c7d0c40))
 * **test:** python support for local wheel files specifiers ([42675eb](https://github.com/snyk/snyk/commit/42675eb4da17307ad8ab6a090b761fd3ab9a8a2f))
-* **test:** add support for poetry v2 ([52e31e0](https://github.com/snyk/snyk/commit/52e31e0e9ab6326b759933ec7ee5d5c5925c3823))
 * **test:** dep-graph json file output ([90f24ec](https://github.com/snyk/snyk/commit/90f24ecdba80b431fb8db4116a82f3fb6db45f80))
 * **test:** print legacy tree with json file output ([b256937](https://github.com/snyk/snyk/commit/b2569378135e3156eca44b27902dc799def1e430))
 * **test:** display all applicable maven unmanaged identities ([ebf6ba1](https://github.com/snyk/snyk/commit/ebf6ba1f832f1416adc9d5501081e8a681b1ff5f))
