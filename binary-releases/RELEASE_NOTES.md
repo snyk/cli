@@ -58,3 +58,6 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **language-server** add css variables and headers ([0a05e66](https://github.com/snyk/cli/commit/0a05e66779df877e869352f374516737dbc93c70))
 * **language-server** panic in range_finder ([50d0770](https://github.com/snyk/cli/commit/50d0770bca6bfa938f67e1d8ef2a58a8ed1847db))
 * **language-server** fix issue metadata used for hashing ([fc80c9c](https://github.com/snyk/cli/commit/fc80c9cc35a717e5ad5ba2a7cdc6dd470f97c97e))
+* **language-server** use diff without enricher for delta ([b213b58](https://github.com/snyk/cli/pull/5781/commits/b213b5864a279f7e88af497458eea3c28f805fe6))
+* **language-server** move issue view option filtering to the LS to not display ignored diagnostics in editor ([b213b58](https://github.com/snyk/cli/pull/5781/commits/b213b5864a279f7e88af497458eea3c28f805fe6))
+* **language-server** add api version query to explain API URL ([b213b58](https://github.com/snyk/cli/pull/5781/commits/b213b5864a279f7e88af497458eea3c28f805fe6))
