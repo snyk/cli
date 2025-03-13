@@ -251,6 +251,9 @@ export default async function test(
       // Note: this is done based on the logic done below
       // for non-json/sarif outputs, where we take the code of
       // the first error.
+      // TODO: refactor this to be more consistent
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: broken type definitions
       err.code = errorResults[0].code;
     }
     err.json = stringifiedData;
@@ -296,13 +299,22 @@ export default async function test(
   if (notSuccess) {
     response += chalk.bold.red(summaryMessage);
     const error = new Error(response) as any;
+    // TODO: refactor this to be more consistent
     // take the code of the first problem to go through error
     // translation
     // HACK as there can be different errors, and we pass only the
     // first one
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: broken type definitions
     error.code = errorResults[0].code;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: broken type definitions
     error.userMessage = errorResults[0].userMessage;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: broken type definitions
     error.strCode = errorResults[0].strCode;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: broken type definitions
     error.innerError = errorResults[0].innerError;
     throw error;
   }
