@@ -252,7 +252,7 @@ async function saveJsonResultsToFile(
   }
 
   if (jsonOutputFile.constructor.name !== String.name) {
-    console.error('--json-output-file should be a filename path');
+    console.error('--json-file-output should be a filename path');
     return;
   }
 
