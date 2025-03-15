@@ -67,6 +67,13 @@ const (
 	ERROR_HAS_BEEN_DISPLAYED = "hasBeenDisplayed"
 )
 
+var (
+	ErrIPCNotNeeded           = errors.New("no IPC communication was needed")
+	ErrIPCNoDataSent          = errors.New("no data was sent through the IPC")
+	ErrIPCFailedToRead        = errors.New("error while reading IPC file")
+	ErrIPCFailedToDeserialize = errors.New("error while deserializing IPC file")
+)
+
 func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger, ri runtimeinfo.RuntimeInfo) (*CLI, error) {
 	cacheDirectory := config.GetString(configuration.CACHE_PATH)
 
@@ -461,51 +468,55 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 		return ctx.Err()
 	}
 
-	if err == nil {
-		return nil
-	}
-
-	if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() < 2 {
+	sentErr, ipcErr := GetErrorFromFile(err, filePath, c.globalConfig)
+	if ipcErr != nil {
+		if !errors.Is(ipcErr, ErrIPCNotNeeded) {
+			c.DebugLogger.Println("IPC: ", ipcErr.Error())
+		}
 		return err
 	}
 
-	if sentErrs, fileErr := c.getErrorFromFile(filePath); fileErr == nil {
-		err = errors.Join(err, sentErrs)
-	}
-
-	return err
+	return sentErr
 }
 
-func (c *CLI) getErrorFromFile(errFilePath string) (data error, err error) {
+func GetErrorFromFile(execErr error, errFilePath string, config configuration.Configuration) (data error, ipcReadErr error) {
+	if execErr == nil {
+		return nil, ErrIPCNotNeeded
+	}
+
+	if exitErr, ok := execErr.(*exec.ExitError); ok && exitErr.ExitCode() < 2 {
+		return nil, ErrIPCNotNeeded
+	}
+
 	bytes, fileErr := os.ReadFile(errFilePath)
+	if os.IsNotExist(fileErr) {
+		return nil, ErrIPCNoDataSent
+	}
+
 	if fileErr != nil {
-		c.DebugLogger.Println("Failed to read error file: ", fileErr)
-		return nil, fileErr
+		return nil, fmt.Errorf("%w: %w", ErrIPCFailedToRead, fileErr)
 	}
 
 	jsonErrors, serErr := snyk_errors.FromJSONAPIErrorBytes(bytes)
 	if serErr != nil {
-		c.DebugLogger.Println("Failed to deserialize file: ", serErr)
-		return nil, fileErr
+		return nil, fmt.Errorf("%w: %w", ErrIPCFailedToDeserialize, serErr)
 	}
 
 	if len(jsonErrors) != 0 {
-		hasBeenDisplayed := GetErrorDisplayStatus(c.globalConfig)
+		hasBeenDisplayed := GetErrorDisplayStatus(config)
 
 		errs := make([]error, len(jsonErrors)+1)
+		errs = append(errs, execErr)
 		for _, jerr := range jsonErrors {
 			jerr.Meta["orign"] = "Typescript-CLI"
 			jerr.Meta[ERROR_HAS_BEEN_DISPLAYED] = hasBeenDisplayed
 			errs = append(errs, jerr)
 		}
 
-		err = errors.Join(errs...)
-		c.DebugLogger.Println("Error file contained ", len(jsonErrors), " errors: ", err)
-		return err, nil
+		return errors.Join(errs...), nil
 	}
 
-	c.DebugLogger.Println("The file didn't contain any errors")
-	return nil, errors.New("no errorrs were sent thought the error file")
+	return nil, ErrIPCNoDataSent
 }
 
 func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) error {
