@@ -794,8 +794,6 @@ github.com/skeema/knownhosts v1.3.1 h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnB
 github.com/skeema/knownhosts v1.3.1/go.mod h1:r7KTdC8l4uxWRyK2TpQZ/1o5HaSzh06ePQNxPwTcfiY=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20241014075215-311d3c8a423f h1:xZK+6ug+pNgnIfPFGkQtxBZwcN/6RoXpQruRHimjfKM=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20241014075215-311d3c8a423f/go.mod h1:QF3v8HBpOpyudYNCuR8LqfULutO76c91sBdLzD+pBJU=
-github.com/snyk/cli-extension-iac v0.0.0-20250318171214-be5f9702ea8b h1:WKu1WzKg9nKmbJ7ldIYuchR+tysa4uUUriQdF3OFHjo=
-github.com/snyk/cli-extension-iac v0.0.0-20250318171214-be5f9702ea8b/go.mod h1:7O90So5PPqTRMpcs8BY14+jX+J8BixqZQyXQiRZW7ws=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a h1:SJ+Ts7e1EYcGJXeENR5inTGwPNRlNVgmMN2itO3+yj8=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a/go.mod h1:IqfQCIkyC26mkwa+aM6d6yxIh5+tCm4fSQG+Ogq3Qbc=
 github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f h1:dlL+f+5sjHj4JCzW/Evl1x9UREXLyc3M4KjoZvQx0Bs=
@@ -879,8 +877,6 @@ github.com/vincent-petithory/dataurl v1.0.0 h1:cXw+kPto8NLuJtlMsI152irrVw9fRDX8A
 github.com/vincent-petithory/dataurl v1.0.0/go.mod h1:FHafX5vmDzyP+1CQATJn7WFKc9CvnvxyvZy6I1MrG/U=
 github.com/vmware-labs/yaml-jsonpath v0.3.2 h1:/5QKeCBGdsInyDCyVNLbXyilb61MXGi9NP674f9Hobk=
 github.com/vmware-labs/yaml-jsonpath v0.3.2/go.mod h1:U6whw1z03QyqgWdgXxvVnQ90zN1BWz5V+51Ewf8k+rQ=
-github.com/whilp/git-urls v1.0.0 h1:95f6UMWN5FKW71ECsXRUd3FVYiXdrE7aX4NZKcPmIjU=
-github.com/whilp/git-urls v1.0.0/go.mod h1:J16SAmobsqc3Qcy98brfl5f5+e0clUvg1krgwk/qCfE=
 github.com/writeas/go-strip-markdown v2.0.1+incompatible h1:IIqxTM5Jr7RzhigcL6FkrCNfXkvbR+Nbu1ls48pXYcw=
 github.com/writeas/go-strip-markdown v2.0.1+incompatible/go.mod h1:Rsyu10ZhbEK9pXdk8V6MVnZmTzRG0alMNLMwa0J01fE=
 github.com/xanzy/ssh-agent v0.3.3 h1:+/15pJfg/RsTxqYcX6fHqOXZwwMP+2VyYWJeWM2qQFM=

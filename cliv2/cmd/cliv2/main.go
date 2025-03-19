@@ -25,6 +25,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
@@ -516,6 +517,10 @@ func MainWithErrorCode() (int, []error) {
 
 	// initialize the extensions -> they register themselves at the engine
 	globalEngine.AddExtensionInitializer(basic_workflows.Init)
+	FeatureFlagNewEngine := "iacNewEngine"
+	FeatureFlagIntegratedExperience := "iacIntegratedExperience"
+	config_utils.AddFeatureFlagToConfig(globalEngine, FeatureFlagNewEngine, FeatureFlagNewEngine)
+	config_utils.AddFeatureFlagToConfig(globalEngine, FeatureFlagIntegratedExperience, FeatureFlagIntegratedExperience)
 	// globalEngine.AddExtensionInitializer(iac.Init)
 	globalEngine.AddExtensionInitializer(sbom.Init)
 	globalEngine.AddExtensionInitializer(depgraph.Init)

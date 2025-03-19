@@ -11,7 +11,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.33.0
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20241014075215-311d3c8a423f
-	github.com/snyk/cli-extension-iac v0.0.0-20250314131900-0a6317256193
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a
 	github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f
 	github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7
@@ -196,7 +195,6 @@ require (
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/vincent-petithory/dataurl v1.0.0 // indirect
 	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
-	github.com/whilp/git-urls v1.0.0 // indirect
 	github.com/writeas/go-strip-markdown v2.0.1+incompatible // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
