@@ -1,0 +1,72 @@
+{
+    "format": 1,
+    "restore": {
+        "/app/Service/Service.csproj": {}
+    },
+    "projects": {
+        "/app/Service/Service.csproj": {
+            "version": "1.0.0",
+            "restore": {
+                "projectUniqueName": "/app/Service/Service.csproj",
+                "projectName": "Service",
+                "projectPath": "/app/Service/Service.csproj",
+                "packagesPath": "/home/builder/.nuget",
+                "outputPath": "/app/Service/obj/",
+                "projectStyle": "PackageReference",
+                "configFilePaths": [
+                    "/home/builder/.nuget/NuGet/NuGet.Config"
+                ],
+                "originalTargetFrameworks": [
+                    "net8.0"
+                ],
+                "sources": {
+                    "https://api.nuget.org/v3/index.json": {}
+                },
+                "frameworks": {
+                    "net8.0": {
+                        "targetAlias": "net8.0",
+                        "projectReferences": {}
+                    }
+                },
+                "warningProperties": {
+                    "warnAsError": [
+                        "NU1605"
+                    ]
+                },
+                "restoreAuditProperties": {
+                    "enableAudit": "true",
+                    "auditLevel": "low",
+                    "auditMode": "direct"
+                }
+            },
+            "frameworks": {
+                "net8.0": {
+                    "targetAlias": "net8.0",
+                    "dependencies": {
+                        "Humanizer": {
+                            "target": "Package",
+                            "version": "[2.14.1, )"
+                        }
+                    },
+                    "imports": [
+                        "net461",
+                        "net462",
+                        "net47",
+                        "net471",
+                        "net472",
+                        "net48",
+                        "net481"
+                    ],
+                    "assetTargetFallback": true,
+                    "warn": true,
+                    "frameworkReferences": {
+                        "Microsoft.NETCore.App": {
+                            "privateAssets": "all"
+                        }
+                    },
+                    "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.407/PortableRuntimeIdentifierGraph.json"
+                }
+            }
+        }
+    }
+}
