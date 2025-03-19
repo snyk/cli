@@ -1,8 +1,6 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-
 import (
 	"context"
 	"encoding/json"
@@ -29,6 +27,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -517,6 +516,7 @@ func MainWithErrorCode() (int, []error) {
 
 	// initialize the extensions -> they register themselves at the engine
 	globalEngine.AddExtensionInitializer(basic_workflows.Init)
+	// globalEngine.AddExtensionInitializer(iac.Init)
 	globalEngine.AddExtensionInitializer(sbom.Init)
 	globalEngine.AddExtensionInitializer(depgraph.Init)
 	globalEngine.AddExtensionInitializer(capture.Init)
