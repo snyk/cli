@@ -17,7 +17,8 @@ export async function test(testConfig: TestConfig): Promise<TestOutput> {
     rulesClientURL,
   );
 
-  addIacAnalytics(testConfig, testOutput);
+  const hasSnykCloudEnvironment = !!testConfig.snykCloudEnvironment;
+  addIacAnalytics(hasSnykCloudEnvironment, testOutput);
 
   return testOutput;
 }
