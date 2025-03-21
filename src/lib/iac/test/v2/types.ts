@@ -21,4 +21,5 @@ export interface TestConfig {
   customRules?: boolean;
   experimental?: boolean;
   iacNewEngine?: boolean;
+  iacTestOutputFile?: string;
 }

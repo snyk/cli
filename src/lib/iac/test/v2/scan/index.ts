@@ -45,6 +45,14 @@ export async function scan(
   }
 }
 
+export async function getResultFromOutputFile(
+  outputFilePath: string,
+): Promise<TestOutput> {
+  const results = await readJson(outputFilePath);
+
+  return mapSnykIacTestOutputToTestOutput(results);
+}
+
 async function scanWithConfig(
   options: TestConfig,
   policyEnginePath: string,
