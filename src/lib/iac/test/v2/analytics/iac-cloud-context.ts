@@ -11,7 +11,7 @@ type IacCloudContext = Pick<
 >;
 
 export function getIacCloudContext(
-  testConfig: TestConfig,
+  testConfig: Partial<TestConfig>,
   testOutput: TestOutput,
 ): IacCloudContext {
   let iacCloudContext: string | undefined;
