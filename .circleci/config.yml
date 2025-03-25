@@ -463,6 +463,7 @@ workflows:
 
       - build-artifact:
           name: build linux amd64
+          context: iac-cli
           go_target_os: linux
           go_os: linux
           go_arch: amd64
@@ -474,6 +475,7 @@ workflows:
 
       - build-artifact:
           name: build linux arm64
+          context: iac-cli
           go_target_os: linux
           go_os: linux
           go_arch: arm64
@@ -485,6 +487,7 @@ workflows:
 
       - build-artifact:
           name: build alpine amd64
+          context: iac-cli
           go_target_os: alpine
           go_os: linux
           go_arch: amd64
@@ -496,6 +499,7 @@ workflows:
 
       - build-artifact:
           name: build alpine arm64
+          context: iac-cli
           go_target_os: alpine
           go_os: linux
           go_arch: arm64
@@ -513,7 +517,9 @@ workflows:
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: macos-arm64-large
           install_deps_extension: macos-build
-          context: snyk-macos-signing
+          context:
+            - snyk-macos-signing
+            - iac-cli
           requires:
             - prepare-build
 
@@ -525,7 +531,9 @@ workflows:
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: macos-arm64-large
           install_deps_extension: macos-build
-          context: snyk-macos-signing
+          context:
+            - snyk-macos-signing
+            - iac-cli
           requires:
             - prepare-build
 
@@ -539,7 +547,9 @@ workflows:
           install_deps_extension: windows-full-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
-          context: snyk-windows-signing
+          context:
+            - snyk-windows-signing
+            - iac-cli
           requires:
             - prepare-build
 

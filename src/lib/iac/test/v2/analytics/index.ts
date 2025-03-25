@@ -2,7 +2,6 @@ import { policyEngineReleaseVersion } from '../local-cache/policy-engine/constan
 import { ResourceKind, TestOutput } from '../scan/results';
 import * as analytics from '../../../../../lib/analytics';
 import { getIacType, IacType } from './iac-type';
-import { TestConfig } from '../types';
 import { getIacCloudContext } from './iac-cloud-context';
 
 export interface IacAnalytics {
@@ -21,7 +20,9 @@ export interface IacAnalytics {
 }
 
 export function addIacAnalytics(
-  testConfig: TestConfig,
+  testConfig: {
+    snykCloudEnvironment?: string;
+  },
   testOutput: TestOutput,
 ): void {
   const iacAnalytics = computeIacAnalytics(testConfig, testOutput);
@@ -50,7 +51,9 @@ export function addIacAnalytics(
 }
 
 function computeIacAnalytics(
-  testConfig: TestConfig,
+  testConfig: {
+    snykCloudEnvironment?: string;
+  },
   testOutput: TestOutput,
 ): IacAnalytics {
   const iacType = getIacType(testOutput);

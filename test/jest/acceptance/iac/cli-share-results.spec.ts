@@ -91,7 +91,7 @@ describe('CLI Share Results', () => {
 
     it('forwards project tags', async () => {
       const { exitCode } = await run(
-        'snyk iac test ./iac/arm/rule_test.json --report --tags=foo=bar',
+        'snyk iac test ./iac/arm/rule_test.json --report --project-tags=foo=bar',
       );
 
       const requests = server

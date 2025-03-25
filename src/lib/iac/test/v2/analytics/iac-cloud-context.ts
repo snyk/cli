@@ -1,5 +1,4 @@
 import { TestOutput } from '../scan/results';
-import { TestConfig } from '../types';
 import { countSuppressedIssues } from '../../../../formatters/iac-output/text/utils';
 import { IacAnalytics } from './index';
 
@@ -11,7 +10,9 @@ type IacCloudContext = Pick<
 >;
 
 export function getIacCloudContext(
-  testConfig: TestConfig,
+  testConfig: {
+    snykCloudEnvironment?: string;
+  },
   testOutput: TestOutput,
 ): IacCloudContext {
   let iacCloudContext: string | undefined;
