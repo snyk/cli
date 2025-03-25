@@ -21,7 +21,7 @@ export interface IacAnalytics {
 }
 
 export function addIacAnalytics(
-  testConfig: TestConfig,
+  testConfig: Partial<TestConfig>,
   testOutput: TestOutput,
 ): void {
   const iacAnalytics = computeIacAnalytics(testConfig, testOutput);
@@ -50,7 +50,7 @@ export function addIacAnalytics(
 }
 
 function computeIacAnalytics(
-  testConfig: TestConfig,
+  testConfig: Partial<TestConfig>,
   testOutput: TestOutput,
 ): IacAnalytics {
   const iacType = getIacType(testOutput);
