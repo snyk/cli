@@ -38,7 +38,7 @@ RUN node -v
 RUN apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/
 
 # install aws cli
-ADD .circleci/awscli-publickey.pub awscli-publickey.pub
+COPY .circleci/awscli-publickey.pub awscli-publickey.pub
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$ARCH.zip" -o "awscliv2.zip"
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$ARCH.zip.sig" -o "awscliv2.sig"
 RUN gpg --import awscli-publickey.pub
@@ -51,7 +51,7 @@ RUN useradd circleci --create-home
 RUN echo "circleci ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # install snyk
-ADD scripts/ scripts/
+COPY scripts/ scripts/
 RUN mkdir -p /target/global-logging
 RUN chown -R circleci scripts /target && chmod 770 scripts/*
 
