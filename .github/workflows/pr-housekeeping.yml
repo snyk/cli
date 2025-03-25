@@ -1,3 +1,5 @@
+name: Check for stale PRs
+
 on:
   schedule:
     - cron: '0 0 * * *' # Every day at midnight
