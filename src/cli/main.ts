@@ -339,7 +339,7 @@ export async function main(): Promise<void> {
 
     if (
       typeof globalArgs.options.detectionDepth !== 'undefined' &&
-      (globalArgs.options.detectionDepth <= 0 ||
+      ((globalArgs.options.detectionDepth as number) <= 0 ||
         Number.isNaN(globalArgs.options.detectionDepth))
     ) {
       throw new InvalidDetectionDepthValue();
