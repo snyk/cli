@@ -1,7 +1,7 @@
 import * as policy from 'snyk-policy';
 import chalk from 'chalk';
 import * as authorization from '../../lib/authorization';
-import * as auth from './auth/is-authed';
+import * as auth from './auth/verify';
 import { apiTokenExists } from '../../lib/api-token';
 import { isCI } from '../../lib/is-ci';
 import { MethodResult } from './types';
@@ -14,16 +14,16 @@ import { MisconfiguredAuthInCI } from '../../lib/errors/misconfigured-auth-in-ci
 export default function ignore(options): Promise<MethodResult> {
   debug('snyk ignore called with options: %O', options);
 
-  return auth
-    .isAuthed()
-    .then((authed) => {
-      if (!authed) {
-        if (isCI()) {
-          throw MisconfiguredAuthInCI();
-        }
-      }
+  return new Promise(() => {
+    try {
       apiTokenExists();
-    })
+    } catch (err) {
+      if (isCI()) {
+        throw MisconfiguredAuthInCI();
+      }
+      throw err;
+    }
+  })
     .then(() => {
       return authorization.actionAllowed('cliIgnore', options);
     })
