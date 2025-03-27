@@ -1,11 +1,11 @@
 import * as os from 'os';
 
 const policyEngineChecksums = `
-2bece98c6602298aab72fe8be803cd48974b63766c2a53491761d0855dccef0d  snyk-iac-test_0.57.5_Darwin_x86_64
-3703de51908fb24ea11358c1f97643937b502a43afac5131d45c11a321138687  snyk-iac-test_0.57.5_Windows_x86_64.exe
-458e9debc734006ce6bb4ae530111ad0548a3d85ca43f8b4b5f0b17994e75efd  snyk-iac-test_0.57.5_Linux_arm64
-c624ddaa85851ed8c9fb54895c8834d0f04221066feb7d08afd2413ae2cf97cc  snyk-iac-test_0.57.5_Darwin_arm64
-d15e89f5933933b13693f5ee42b27799825a1abc16e0bdbd5a2c40c5b5af8f9b  snyk-iac-test_0.57.5_Linux_x86_64
+133c5a025bfdb1495f2941ad85f6ba0b74e142464e970c85004b9f287a439ad5  snyk-iac-test_0.57.9_Windows_x86_64.exe
+62d727c7d353142707a81258fea04fda76a718f7da618704166dc5347b21b022  snyk-iac-test_0.57.9_Linux_x86_64
+ca7f470776adc0eb26d0e19e3a12f5bc354513612318bd6669679fd0c3d5ce55  snyk-iac-test_0.57.9_Darwin_arm64
+f8b86cfb397e98c2ed6978f53f70a8becb99fc9f4a6381365beeec7b648b1091  snyk-iac-test_0.57.9_Darwin_x86_64
+fca3e40c31232f72f640f7f3623e1d9252db65588d92061e2dba34e8f9bee02e  snyk-iac-test_0.57.9_Linux_arm64
 `;
 
 export const policyEngineVersion = getPolicyEngineVersion();

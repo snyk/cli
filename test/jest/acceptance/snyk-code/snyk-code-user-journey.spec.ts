@@ -4,6 +4,8 @@ import { matchers } from 'jest-json-schema';
 import { resolve } from 'path';
 import { existsSync, unlinkSync, readFileSync } from 'fs';
 import { execSync } from 'child_process';
+import { runCommand } from '../../util/runCommand';
+import * as fs from 'fs';
 
 expect.extend(matchers);
 jest.setTimeout(1000 * 120);
@@ -71,14 +73,14 @@ const userJourneyWorkflows: Workflow[] = [
     env: {
       // force use of legacy implementation
       INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
-      INTERNAL_SNYK_CODE_IGNORES_REPORT_ENABLED: 'false',
+      INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'false',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
     },
   },
   {
     type: 'golang/native',
     env: {
-      INTERNAL_SNYK_CODE_IGNORES_REPORT_ENABLED: 'true',
+      INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'true',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
     },
   },
@@ -283,6 +285,7 @@ describe('snyk code test', () => {
         it('works with --json-file-output', async () => {
           const fileName = 'jsonOutput.json';
           const filePath = `${projectRoot}/${fileName}`;
+          const htmlFilePath = `${projectRoot}/out.html`;
           const { stderr, code } = await runSnykCLI(
             `code test ${projectWithCodeIssues} --json-file-output=${fileName}`,
             {
@@ -299,9 +302,21 @@ describe('snyk code test', () => {
           expect(existsSync(filePath)).toBe(true);
           expect(require(filePath)).toMatchSchema(sarifSchema);
 
+          // execute snyk-to-html for a basic compatibility check
+          const s2h = await runCommand('npx', [
+            'snyk-to-html',
+            `--input=${filePath}`,
+            `--output=${htmlFilePath}`,
+          ]);
+          expect(s2h.code).toBe(0);
+          expect(fs.readFileSync(htmlFilePath, 'utf8')).toContain(
+            'Snyk Code Report',
+          );
+
           // cleanup file
           try {
             unlinkSync(filePath);
+            unlinkSync(htmlFilePath);
           } catch (error) {
             console.error('failed to remove file.', error);
           }
