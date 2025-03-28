@@ -525,6 +525,9 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(container.Init)
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 
+	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
+	globalConfiguration.Set(configuration.USER_AGENT, ua)
+
 	// init engine
 	err = globalEngine.Init()
 	if err != nil {
@@ -545,7 +548,6 @@ func MainWithErrorCode() (int, []error) {
 	createCommandsForWorkflows(rootCommand, globalEngine)
 
 	// init NetworkAccess
-	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddErrorHandler(func(err error, ctx context.Context) error {
 		errorListMutex.Lock()
@@ -555,11 +557,8 @@ func MainWithErrorCode() (int, []error) {
 		return err
 	})
 	networkAccess.AddHeaderField("x-snyk-cli-version", cliv2.GetFullVersion())
+
 	networkAccess.AddHeaderField("snyk-interaction-id", instrumentation.AssembleUrnFromUUID(interactionId))
-	networkAccess.AddHeaderField(
-		"User-Agent",
-		ua.String(),
-	)
 	network_utils.AddSnykRequestId(networkAccess)
 
 	if debugEnabled {
