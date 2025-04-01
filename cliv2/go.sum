@@ -804,8 +804,8 @@ github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f h1:dlL+f+5
 github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f/go.mod h1:5CaY1bgvJY/uoG/1plLOf8T8o9AkwoBIGvw34RfRLZw=
 github.com/snyk/code-client-go v1.17.1 h1:H5G4Ufe8fMkLpr9L//34S2iXdfRY7Q/+gALedIRtHXQ=
 github.com/snyk/code-client-go v1.17.1/go.mod h1:WH6lNkJc785hfXmwhixxWHix3O6z+1zwz40oK8vl/zg=
-github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7 h1:Zn5BcV76oFAbJm5tDygU945lvoZ3yY8FoRFDC3YpwF8=
-github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
+github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
+github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
 github.com/snyk/error-catalog-golang-public v0.0.0-20250310083934-7ac627e3451f h1:plWVxooZeV6rTxu5BXYCe6p9z48r5egblbYM9VW4tvY=
 github.com/snyk/error-catalog-golang-public v0.0.0-20250310083934-7ac627e3451f/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
 github.com/snyk/go-application-framework v0.0.0-20250325133828-3ffd1aa4f76f h1:1EPrRhLQ5Bo0SmIqoAU38Et1Bv2klCbyfgLmVJfUyvM=
