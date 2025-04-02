@@ -78,13 +78,36 @@ describe('snyk test --all-projects (mocked server only)', () => {
     );
     expect(code).toEqual(2);
 
-    expect(stdout).toContainText(
-      'Your test request could not be completed.\nTip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>\nIf the issue persists contact support@snyk.io',
-    );
+    expect(stdout).toContainText('SNYK-CLI-0000');
     expect(stderr).toMatch(
       '✗ 1/3 potential projects failed to get dependencies',
     );
     expect(stderr).toMatch(
+      `Dependency snyk@1.320.0 was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
+    );
+  });
+
+  test('`test yarn-out-of-sync` with --fail-fast and --json errors the whole scan', async () => {
+    const project = await createProjectFromWorkspace(
+      'yarn-workspace-out-of-sync',
+    );
+
+    const { code, stdout } = await runSnykCLI(
+      'test --all-projects --fail-fast --json',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+    expect(code).toEqual(2);
+    let jsonResponse;
+    try {
+      jsonResponse = JSON.parse(stdout);
+    } catch (error) {
+      throw new Error(`test command did not return a valid json: ${error}`);
+    }
+    expect(jsonResponse?.ok).toBe(false);
+    expect(jsonResponse?.error).toMatch(
       `Dependency snyk@1.320.0 was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
     );
   });
