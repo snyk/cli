@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as Debug from 'debug';
 import { Spinner } from 'cli-spinner';
 import * as snyk from '../../../lib';
-import { verifyAPI } from './is-authed';
+import { verifyAPI } from './verify';
 import { isCI } from '../../../lib/is-ci';
 import { isDocker } from '../../../lib/is-docker';
 import { args as argsLib } from '../../args';

@@ -1,13 +1,5 @@
-import * as snyk from '../../../lib';
 import config from '../../../lib/config';
 import { makeRequest } from '../../../lib/request';
-
-export function isAuthed() {
-  const token = snyk.config.get('api');
-  return verifyAPI(token).then((res: any) => {
-    return res.body.ok;
-  });
-}
 
 export function verifyAPI(api) {
   const payload = {
