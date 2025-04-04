@@ -14,6 +14,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
@@ -243,6 +244,15 @@ func (p *WrapperProxy) Start() error {
 	// zerolog based logger also works but it will print empty lines between logs
 	proxy.Logger = log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0)
 	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
+
+	for _, i := range interceptor.GetRegisteredInterceptors() {
+		condition, err := i.GetCondition()
+		if err != nil {
+			return err
+		}
+		proxy.OnRequest(condition).DoFunc(i.GetHandler())
+	}
+
 	proxy.OnRequest().HandleConnect(p)
 	proxy.OnResponse().DoFunc(p.handleResponse)
 	proxy.Verbose = true
