@@ -662,9 +662,18 @@ async function assembleLocalPayloads(
         failedResults,
       );
       if (options['fail-fast']) {
-        throw new FailedToRunTestError(
-          errorMessageWithRetry('Your test request could not be completed.'),
+        let msg = errorMessageWithRetry(
+          'Your test request could not be completed.',
         );
+        // should include failure message if applicable
+        if (failedResults?.length) {
+          const firstError = failedResults[0];
+          msg = firstError.targetFile
+            ? `${firstError.targetFile}: ${firstError.errMessage}`
+            : firstError.errMessage;
+        }
+
+        throw new FailedToRunTestError(msg);
       }
     }
     analytics.add('pluginName', deps.plugin.name);
