@@ -99,7 +99,7 @@ Set the project business criticality project attribute to one or more values (co
 
 Allowed values: `critical, high, medium, low`
 
-For more information see Project attributes
+For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -137,7 +137,7 @@ For more information including allowable characters see [Project tags](https://d
 
 Set or override the remote URL for the repository.
 
-Groups all Projects found under a single Target.
+Example: `--remote-repo-url=https://gitlab.com/example/project` will create a target for given URL and on the UI it would be visible as `/example/project/` .
 
 Can be used in combination with the `--report` option.
 
