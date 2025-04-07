@@ -112,7 +112,7 @@ export function determineBinaryName(platform: string, arch: string): string {
       ' ' +
       archname +
       ') is not supported by Snyk.\n' +
-      ' You may want to consider using Docker to run Snyk, for details see: https://docs.snyk.io/snyk-cli/install-the-snyk-cli#snyk-cli-in-a-docker-image\n' +
+      ' You may want to consider using Docker to run Snyk, for details see: https://docs.snyk.io/snyk-cli/install-or-update-the-snyk-cli#snyk-cli-in-a-docker-image\n' +
       ' If you experience errors please check http://support.snyk.io/.';
     throw Error(getWarningMessage(defaultErrorMsg));
   }
@@ -233,7 +233,7 @@ export function formatErrorMessage(message: string): boolean {
   const degradedCLIWarning =
     'You are currently running a degraded version of the Snyk CLI.\n' +
     'As a result, some features of the CLI will be unavailable.\n' +
-    'For information on how to resolve this, please see this article: https://docs.snyk.io/snyk-cli/installing-snyk-cli-as-a-binary-via-npm\n' +
+    'For information on how to resolve this, please see this article: https://docs.snyk.io/snyk-cli/install-or-update-the-snyk-cli/installing-snyk-cli-as-a-binary-using-npm\n' +
     'For any assistance, please check http://support.snyk.io/.';
 
   let warning = '';
