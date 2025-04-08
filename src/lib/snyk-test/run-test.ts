@@ -642,6 +642,13 @@ async function assembleLocalPayloads(
     const failedResults = (deps as MultiProjectResultCustom).failedResults;
     if (failedResults?.length) {
       await spinner.clear<void>(spinnerLbl)();
+      const isNotJsonOrQueiet = !options.json && !options.quiet;
+
+      const errorMessages = extractErrorMessages(
+        failedResults,
+        isNotJsonOrQueiet,
+      );
+
       if (!options.json && !options.quiet) {
         console.warn(
           chalk.bold.red(
@@ -650,21 +657,18 @@ async function assembleLocalPayloads(
             } potential projects failed to get dependencies.`,
           ),
         );
-        failedResults.forEach((f) => {
-          if (f.targetFile) {
-            console.warn(theme.color.status.error(`${f.targetFile}:`));
-          }
-          console.warn(theme.color.status.error(`  ${f.errMessage}`));
-        });
       }
       debug(
         'getDepsFromPlugin returned failed results, cannot run test/monitor',
         failedResults,
       );
       if (options['fail-fast']) {
-        throw new FailedToRunTestError(
-          errorMessageWithRetry('Your test request could not be completed.'),
-        );
+        // should include failure message if applicable
+        const message = errorMessages.length
+          ? errorMessages
+          : errorMessageWithRetry('Your test request could not be completed.');
+
+        throw new FailedToRunTestError(message);
       }
     }
     analytics.add('pluginName', deps.plugin.name);
@@ -929,4 +933,30 @@ function countUniqueVulns(vulns: AnnotatedIssue[]): number {
     seen[curr.id] = true;
   }
   return Object.keys(seen).length;
+}
+
+function extractErrorMessages(
+  results: Array<any>,
+  shouldWarn: boolean,
+): string {
+  if (!results.length) {
+    return '';
+  }
+
+  const errorMessages: string[] = [];
+
+  results.forEach((f) => {
+    if (shouldWarn) {
+      if (f.targetFile) {
+        console.warn(theme.color.status.error(`${f.targetFile}:`));
+      }
+      console.warn(theme.color.status.error(`  ${f.errMessage}`));
+    }
+
+    errorMessages.push(
+      `${f.targetFile ? f.targetFile + ': ' : ''}${f.errMessage}`,
+    );
+  });
+
+  return errorMessages.join('\n');
 }
