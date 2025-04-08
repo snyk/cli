@@ -73,14 +73,14 @@ const userJourneyWorkflows: Workflow[] = [
     env: {
       // force use of legacy implementation
       INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
-      INTERNAL_SNYK_CODE_IGNORES_REPORT_ENABLED: 'false',
+      INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'false',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
     },
   },
   {
     type: 'golang/native',
     env: {
-      INTERNAL_SNYK_CODE_IGNORES_REPORT_ENABLED: 'true',
+      INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'true',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
     },
   },

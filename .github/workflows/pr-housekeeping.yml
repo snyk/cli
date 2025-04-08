@@ -1,0 +1,21 @@
+name: Check for stale PRs
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Every day at midnight
+  workflow_dispatch:
+
+jobs:
+  close-stale:
+    runs-on: ubuntu-latest
+    name: 'Label and close stale PRs after no activity for a long time'
+    steps:
+      - name: 'Close stale PRs'
+        uses: actions/stale@v9.1.0
+        with:
+          stale-pr-label: Stale
+          days-before-stale: 30
+          days-before-close: 2
+          stale-pr-message: "Your PR has not had any activity for 30 days. In 2 days I'll close it. Make some activity to remove this."
+          close-pr-message: "Your PR has now been stale for 2 days. I'm closing it."
+          delete-branch: true

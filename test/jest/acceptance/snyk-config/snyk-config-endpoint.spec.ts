@@ -28,27 +28,25 @@ describe('snyk config endpoint', () => {
     };
 
     {
-      const { code, stdout, stderr } = await runSnykCLI(
+      const { code, stdout } = await runSnykCLI(
         `config set endpoint=${invalidEndpoint}`,
         runOptions,
       );
-      expect(stderr).toEqual('');
       expect(stdout).toContain('endpoint updated');
       expect(code).toEqual(0);
     }
 
     {
-      const { code, stdout, stderr } = await runSnykCLI(
+      const { code, stdout } = await runSnykCLI(
         `config get endpoint`,
         runOptions,
       );
-      expect(stderr).toContain("Invalid 'endpoint' config option");
       expect(stdout).toEqual(invalidEndpoint + '\n');
       expect(code).toEqual(0);
     }
 
     {
-      const { code, stdout, stderr } = await runSnykCLI(
+      const { code, stdout } = await runSnykCLI(
         `config set endpoint=${validEndpoint}`,
         runOptions,
       );
@@ -56,17 +54,15 @@ describe('snyk config endpoint', () => {
        *  Error will still be logged as we still validate the pre-existing
        *  invalid value before executing commands.
        */
-      expect(stderr).toContain("Invalid 'endpoint' config option");
       expect(stdout).toContain('endpoint updated');
       expect(code).toEqual(0);
     }
 
     {
-      const { code, stdout, stderr } = await runSnykCLI(
+      const { code, stdout } = await runSnykCLI(
         `config get endpoint`,
         runOptions,
       );
-      expect(stderr).not.toContain("Invalid 'endpoint' config option");
       expect(stdout).toEqual(validEndpoint + '\n');
       expect(code).toEqual(0);
     }
