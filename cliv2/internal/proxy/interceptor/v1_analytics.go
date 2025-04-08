@@ -3,6 +3,7 @@ package interceptor
 import (
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"github.com/elazarl/goproxy"
 	"github.com/snyk/go-application-framework/pkg/workflow"
@@ -21,6 +22,46 @@ func (v v1AnalyticsInterceptor) GetCondition() goproxy.ReqCondition {
 	return v.requestCondition
 }
 
+// flattenAnalyticsPayload transforms nested JSON into a flat structure with prefixed keys
+func (v v1AnalyticsInterceptor) flattenAnalyticsPayload(bodyBytes []byte) (map[string]interface{}, error) {
+	var payload map[string]interface{}
+	if err := json.Unmarshal(bodyBytes, &payload); err != nil {
+		return nil, fmt.Errorf("parsing JSON: %w", err)
+	}
+
+	// Create a flat map with prefixed keys
+	flatMap := make(map[string]interface{})
+	if data, ok := payload["data"].(map[string]interface{}); ok {
+		v.flattenObject(flatMap, data, "v1", "")
+	} else {
+		return nil, fmt.Errorf("found no 'data' object in the request body")
+	}
+
+	return flatMap, nil
+}
+
+// flattenObject recursively flattens a nested JSON structure
+func (v v1AnalyticsInterceptor) flattenObject(result map[string]interface{}, obj map[string]interface{}, prefix string, parentKey string) {
+	for k, val := range obj {
+		newKey := prefix + "-" + k
+		if parentKey != "" {
+			newKey = prefix + "-" + parentKey + "-" + k
+		}
+
+		switch value := val.(type) {
+		case map[string]interface{}:
+			// For nested objects, recurse with the current key as parent
+			v.flattenObject(result, value, prefix, k)
+		case []interface{}:
+			// The v2 analytics endpoint only accepts strings, integers, or booleans. So we must stringify arrays, floats and the like.
+			// Should this ever change in the future, just remove this entire case statement.
+			result[newKey] = fmt.Sprintf("%v", value)
+		default:
+			result[newKey] = value
+		}
+	}
+}
+
 func (v v1AnalyticsInterceptor) GetHandler(ctx workflow.InvocationContext) HandlerFunc {
 	return func(req *http.Request, proxyCtx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 		r, err := gzip.NewReader(req.Body)
@@ -35,12 +76,22 @@ func (v v1AnalyticsInterceptor) GetHandler(ctx workflow.InvocationContext) Handl
 
 		defer r.Close()
 
-		bodyBytes, bodyErr := io.ReadAll(tee)
-		if bodyErr != nil {
-			ctx.GetLogger().Printf(fmt.Sprintf("Error reading body: %v", bodyErr))
+		bodyBytes, err := io.ReadAll(tee)
+		if err != nil {
+			ctx.GetLogger().Printf(fmt.Sprintf("Error reading body: %v", err))
 			return req, nil
 		}
-		ctx.GetLogger().Printf(string(bodyBytes))
+
+		flattened, err := v.flattenAnalyticsPayload(bodyBytes)
+		if err != nil {
+			ctx.GetLogger().Printf(fmt.Sprintf("gzip.NewReader: %v", err))
+			return req, nil
+		}
+
+		// Add each key-value pair to the "extension" object of the analytics instrumentation
+		for key, val := range flattened {
+			ctx.GetAnalytics().GetInstrumentation().AddExtension(key, val)
+		}
 
 		return req, nil
 	}
