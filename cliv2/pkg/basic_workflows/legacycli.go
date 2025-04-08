@@ -127,7 +127,13 @@ func legacycliWorkflow(
 		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}
 
-	wrapperProxy, err := createInternalProxy(config, debugLogger, proxyAuthenticationMechanism, networkAccess)
+	wrapperProxy, err := createInternalProxy(
+		config,
+		debugLogger,
+		proxyAuthenticationMechanism,
+		networkAccess,
+		invocation,
+	)
 	if err != nil {
 		return output, err
 	}
@@ -152,7 +158,7 @@ func legacycliWorkflow(
 	return output, err
 }
 
-func createInternalProxy(config configuration.Configuration, debugLogger *zerolog.Logger, proxyAuthenticationMechanism httpauth.AuthenticationMechanism, networkAccess networking.NetworkAccess) (*proxy.WrapperProxy, error) {
+func createInternalProxy(config configuration.Configuration, debugLogger *zerolog.Logger, proxyAuthenticationMechanism httpauth.AuthenticationMechanism, networkAccess networking.NetworkAccess, invocation workflow.InvocationContext) (*proxy.WrapperProxy, error) {
 	caData, err := GetGlobalCertAuthority(config, debugLogger)
 	if err != nil {
 		return nil, err
@@ -171,6 +177,7 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 	}
 	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
 	wrapperProxy.SetErrorHandlerFunction(networkAccess.GetErrorHandler())
+	wrapperProxy.SetInvocationContext(invocation)
 
 	err = wrapperProxy.Start()
 	if err != nil {
