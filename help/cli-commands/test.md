@@ -88,9 +88,9 @@ Print the dependency tree before sending it for analysis.
 
 ### `--remote-repo-url=<URL>`
 
-Set or override the remote URL for the repository that you would like to monitor.
+Set or override the remote URL for the repository.
 
-Groups all Projects found under a single Target.
+Example: `--remote-repo-url=https://gitlab.com/example/project` will create a target for given URL and on the UI it would be visible as `/example/project/` .
 
 ### `--dev`
 
