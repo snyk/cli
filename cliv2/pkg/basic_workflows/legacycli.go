@@ -3,6 +3,7 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
+	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 	"net/http"
 	"os"
 
@@ -177,7 +178,10 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 	}
 	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
 	wrapperProxy.SetErrorHandlerFunction(networkAccess.GetErrorHandler())
-	wrapperProxy.SetInvocationContext(invocation)
+
+	for _, i := range interceptor.GetRegisteredInterceptors(invocation, debugLogger) {
+		wrapperProxy.RegisterInterceptor(i)
+	}
 
 	err = wrapperProxy.Start()
 	if err != nil {

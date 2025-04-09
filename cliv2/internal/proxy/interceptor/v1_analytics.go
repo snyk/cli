@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/elazarl/goproxy"
+	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"io"
 	"net/http"
@@ -16,6 +17,8 @@ import (
 // requests to the v2 analytics service. This is a temporary measure to allow users to migrate to the new service.
 type v1AnalyticsInterceptor struct {
 	requestCondition goproxy.ReqCondition
+	debugLogger      *zerolog.Logger
+	invocationCtx    workflow.InvocationContext
 }
 
 func (v v1AnalyticsInterceptor) GetCondition() goproxy.ReqCondition {
@@ -62,11 +65,11 @@ func (v v1AnalyticsInterceptor) flattenObject(result map[string]interface{}, obj
 	}
 }
 
-func (v v1AnalyticsInterceptor) GetHandler(ctx workflow.InvocationContext) HandlerFunc {
+func (v v1AnalyticsInterceptor) GetHandler() HandlerFunc {
 	return func(req *http.Request, proxyCtx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 		r, err := gzip.NewReader(req.Body)
 		if err != nil {
-			ctx.GetLogger().Printf(fmt.Sprintf("gzip.NewReader: %v", err))
+			v.debugLogger.Printf(fmt.Sprintf("gzip.NewReader: %v", err))
 			return req, nil
 		}
 
@@ -78,28 +81,30 @@ func (v v1AnalyticsInterceptor) GetHandler(ctx workflow.InvocationContext) Handl
 
 		bodyBytes, err := io.ReadAll(tee)
 		if err != nil {
-			ctx.GetLogger().Printf(fmt.Sprintf("Error reading body: %v", err))
+			v.debugLogger.Printf(fmt.Sprintf("Error reading body: %v", err))
 			return req, nil
 		}
 
 		flattened, err := v.flattenAnalyticsPayload(bodyBytes)
 		if err != nil {
-			ctx.GetLogger().Printf(fmt.Sprintf("gzip.NewReader: %v", err))
+			v.debugLogger.Printf(fmt.Sprintf("gzip.NewReader: %v", err))
 			return req, nil
 		}
 
 		// Add each key-value pair to the "extension" object of the analytics instrumentation
 		for key, val := range flattened {
-			ctx.GetAnalytics().GetInstrumentation().AddExtension(key, val)
+			v.invocationCtx.GetAnalytics().GetInstrumentation().AddExtension(key, val)
 		}
 
 		return req, nil
 	}
 }
 
-func NewV1AnalyticsInterceptor() Interceptor {
+func NewV1AnalyticsInterceptor(invocationCtx workflow.InvocationContext, debugLogger *zerolog.Logger) Interceptor {
 	i := v1AnalyticsInterceptor{
 		requestCondition: goproxy.UrlMatches(regexp.MustCompile("^*/v1/analytics/cli")),
+		debugLogger:      debugLogger,
+		invocationCtx:    invocationCtx,
 	}
 	return i
 }
