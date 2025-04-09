@@ -1,7 +1,7 @@
 import { test } from 'tap';
 import * as sinon from 'sinon';
 import stripAnsi = require('strip-ansi');
-import * as isAuthed from '../../src/cli/commands/auth/is-authed';
+import * as auth from '../../src/cli/commands/auth/verify';
 import * as errors from '../../src/lib/errors/legacy-errors';
 import { fakeServer } from '../acceptance/fake-server';
 import { getServerPort } from '../jest/util/getServerPort';
@@ -32,7 +32,7 @@ test('auth shows an appropriate error message when a request times out', async (
   const failedReq = new Promise((resolve) => {
     return resolve({ res: { statusCode: 502 } });
   });
-  const verifyStub = sinon.stub(isAuthed, 'verifyAPI').returns(failedReq);
+  const verifyStub = sinon.stub(auth, 'verifyAPI').returns(failedReq);
 
   t.teardown(() => {
     verifyStub.restore();
@@ -52,7 +52,7 @@ test('auth shows an appropriate error message when a request fails with a user m
   const failedReq = new Promise((resolve) => {
     return resolve({ res: { statusCode: 502, body: { userMessage } } });
   });
-  const verifyStub = sinon.stub(isAuthed, 'verifyAPI').returns(failedReq);
+  const verifyStub = sinon.stub(auth, 'verifyAPI').returns(failedReq);
 
   t.teardown(() => {
     verifyStub.restore();
