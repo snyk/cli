@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
-	"github.com/snyk/go-application-framework/pkg/workflow"
 	"log"
 	"net"
 	"net/http"
@@ -47,7 +46,7 @@ type WrapperProxy struct {
 	addHeaderFunc       func(*http.Request) error
 	config              configuration.Configuration
 	errHandlerFunc      networktypes.ErrorHandlerFunc
-	invocation          workflow.InvocationContext
+	interceptors        []interceptor.Interceptor
 }
 
 type ProxyInfo struct {
@@ -247,8 +246,8 @@ func (p *WrapperProxy) Start() error {
 	proxy.Logger = log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0)
 	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
 
-	for _, i := range interceptor.GetRegisteredInterceptors() {
-		proxy.OnRequest(i.GetCondition()).DoFunc(i.GetHandler(p.invocation))
+	for _, i := range p.interceptors {
+		proxy.OnRequest(i.GetCondition()).DoFunc(i.GetHandler())
 	}
 
 	proxy.OnRequest().HandleConnect(p)
@@ -307,8 +306,8 @@ func setGlobalProxyCA(certPEMBlock []byte, keyPEMBlock []byte) error {
 	return nil
 }
 
-func (p *WrapperProxy) SetInvocationContext(invocation workflow.InvocationContext) {
-	p.invocation = invocation
+func (p *WrapperProxy) RegisterInterceptor(interceptor interceptor.Interceptor) {
+	p.interceptors = append(p.interceptors, interceptor)
 }
 
 func (p *WrapperProxy) SetUpstreamProxyAuthentication(mechanism httpauth.AuthenticationMechanism) {
