@@ -638,8 +638,6 @@ github.com/magiconair/properties v1.8.7 h1:IeQXZAiQcpL9mgcAe1Nu6cX9LLw6ExEHKjN0V
 github.com/magiconair/properties v1.8.7/go.mod h1:Dhd985XPs7jluiymwWYZ0G4Z61jb3vdS329zhj2hYo0=
 github.com/mailru/easyjson v0.9.0 h1:PrnmzHw7262yW8sTBwxi1PdJA3Iw/EKBa8psRf7d9a4=
 github.com/mailru/easyjson v0.9.0/go.mod h1:1+xMtQp2MRNVL/V1bOzuP3aP8VNwRW55fQUto+XFtTU=
-github.com/mark3labs/mcp-go v0.8.4 h1:/VxjJ0+4oN2eYLuAgVzixrYNfrmwJnV38EfPIX3VbPE=
-github.com/mark3labs/mcp-go v0.8.4/go.mod h1:cjMlBU0cv/cj9kjlgmRhoJ5JREdS7YX83xeIG9Ko/jE=
 github.com/mark3labs/mcp-go v0.18.0 h1:YuhgIVjNlTG2ZOwmrkORWyPTp0dz1opPEqvsPtySXao=
 github.com/mark3labs/mcp-go v0.18.0/go.mod h1:KmJndYv7GIgcPVwEKJjNcbhVQ+hJGJhrCCB/9xITzpE=
 github.com/maruel/natural v1.1.1 h1:Hja7XhhmvEFhcByqDoHz9QZbkWey+COd9xWfCfn1ioo=
@@ -804,8 +802,6 @@ github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a h1:SJ
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a/go.mod h1:IqfQCIkyC26mkwa+aM6d6yxIh5+tCm4fSQG+Ogq3Qbc=
 github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f h1:dlL+f+5sjHj4JCzW/Evl1x9UREXLyc3M4KjoZvQx0Bs=
 github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f/go.mod h1:5CaY1bgvJY/uoG/1plLOf8T8o9AkwoBIGvw34RfRLZw=
-github.com/snyk/code-client-go v1.17.1 h1:H5G4Ufe8fMkLpr9L//34S2iXdfRY7Q/+gALedIRtHXQ=
-github.com/snyk/code-client-go v1.17.1/go.mod h1:WH6lNkJc785hfXmwhixxWHix3O6z+1zwz40oK8vl/zg=
 github.com/snyk/code-client-go v1.20.0 h1:sWQlXUYf4e0Ft3JOnCHQooYMhZLDrhaFCouayswIKYc=
 github.com/snyk/code-client-go v1.20.0/go.mod h1:WH6lNkJc785hfXmwhixxWHix3O6z+1zwz40oK8vl/zg=
 github.com/snyk/container-cli v0.0.0-20240821111304-7ca1c415a5d7 h1:Zn5BcV76oFAbJm5tDygU945lvoZ3yY8FoRFDC3YpwF8=
@@ -820,10 +816,6 @@ github.com/snyk/policy-engine v0.33.2 h1:ZxD6/RQ4vqUAXa64V72SsGjZ8vmnBgZNGYQxMIq
 github.com/snyk/policy-engine v0.33.2/go.mod h1:YTZq3GMRbXcHOXQQrFRVEg+MQiIGCGZ1met6KlpruNo=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20250325135416-ee1e33097efc h1:Exfel0/N84Uxkr5xZvJxU1ZCj9Mhekxfas76bj9MyYg=
-github.com/snyk/snyk-ls v0.0.0-20250325135416-ee1e33097efc/go.mod h1:NWjD50IncskXnx08BXudc1f4Fl46Ne/i9romn+4uWCE=
-github.com/snyk/snyk-ls v0.0.0-20250409101433-0d21b0b496c8 h1:Zi7tKrNO6MAY/F5C8AIDYgalNYl+26ZUyQGU0bh3054=
-github.com/snyk/snyk-ls v0.0.0-20250409101433-0d21b0b496c8/go.mod h1:7s5QUX0PydwpyhFsFIgxegl5nsNu9YynXmivMb4oGJM=
 github.com/snyk/snyk-ls v0.0.0-20250409123700-dc90ce557606 h1:2tgF0IzyKQem+kknO3DYm6TGJGYfL/e1fuITkxQCUE8=
 github.com/snyk/snyk-ls v0.0.0-20250409123700-dc90ce557606/go.mod h1:7s5QUX0PydwpyhFsFIgxegl5nsNu9YynXmivMb4oGJM=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
