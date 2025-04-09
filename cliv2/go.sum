@@ -824,6 +824,8 @@ github.com/snyk/snyk-ls v0.0.0-20250325135416-ee1e33097efc h1:Exfel0/N84Uxkr5xZv
 github.com/snyk/snyk-ls v0.0.0-20250325135416-ee1e33097efc/go.mod h1:NWjD50IncskXnx08BXudc1f4Fl46Ne/i9romn+4uWCE=
 github.com/snyk/snyk-ls v0.0.0-20250409101433-0d21b0b496c8 h1:Zi7tKrNO6MAY/F5C8AIDYgalNYl+26ZUyQGU0bh3054=
 github.com/snyk/snyk-ls v0.0.0-20250409101433-0d21b0b496c8/go.mod h1:7s5QUX0PydwpyhFsFIgxegl5nsNu9YynXmivMb4oGJM=
+github.com/snyk/snyk-ls v0.0.0-20250409123700-dc90ce557606 h1:2tgF0IzyKQem+kknO3DYm6TGJGYfL/e1fuITkxQCUE8=
+github.com/snyk/snyk-ls v0.0.0-20250409123700-dc90ce557606/go.mod h1:7s5QUX0PydwpyhFsFIgxegl5nsNu9YynXmivMb4oGJM=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
