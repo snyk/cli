@@ -24,9 +24,9 @@ func TestFlattenAnalyticsPayload(t *testing.T) {
 				}
 			}`,
 			expected: map[string]interface{}{
-				"v1-command":          "test",
-				"v1-metadata-id":      "123",
-				"v1-metadata-version": "1.0",
+				"legacycli::command":          "test",
+				"legacycli::metadata-id":      "123",
+				"legacycli::metadata-version": "1.0",
 			},
 			shouldFail: false,
 		},
@@ -42,9 +42,9 @@ func TestFlattenAnalyticsPayload(t *testing.T) {
 				}
 			}`,
 			expected: map[string]interface{}{
-				"v1-command":       "test",
-				"v1-args":          "[arg1 arg2]",
-				"v1-metadata-tags": "[tag1 tag2]",
+				"legacycli::command":       "test",
+				"legacycli::args":          "[arg1 arg2]",
+				"legacycli::metadata-tags": "[tag1 tag2]",
 			},
 			shouldFail: false,
 		},
@@ -100,9 +100,9 @@ func TestFlattenObject(t *testing.T) {
 			prefix:    "prefix",
 			parentKey: "",
 			expected: map[string]interface{}{
-				"prefix-key1": "value1",
-				"prefix-key2": 123,
-				"prefix-key3": true,
+				"prefix::key1": "value1",
+				"prefix::key2": 123,
+				"prefix::key3": true,
 			},
 		},
 		{
@@ -116,8 +116,8 @@ func TestFlattenObject(t *testing.T) {
 			prefix:    "prefix",
 			parentKey: "",
 			expected: map[string]interface{}{
-				"prefix-key1":           "value1",
-				"prefix-nested-subkey1": "subvalue1",
+				"prefix::key1":           "value1",
+				"prefix::nested-subkey1": "subvalue1",
 			},
 		},
 		{
@@ -128,7 +128,7 @@ func TestFlattenObject(t *testing.T) {
 			prefix:    "prefix",
 			parentKey: "parent",
 			expected: map[string]interface{}{
-				"prefix-parent-key1": "value1",
+				"prefix::parent-key1": "value1",
 			},
 		},
 		{
@@ -139,7 +139,7 @@ func TestFlattenObject(t *testing.T) {
 			prefix:    "prefix",
 			parentKey: "",
 			expected: map[string]interface{}{
-				"prefix-array": "[one two]",
+				"prefix::array": "[one two]",
 			},
 		},
 	}
