@@ -35,7 +35,7 @@ func (v v1AnalyticsInterceptor) flattenAnalyticsPayload(bodyBytes []byte) (map[s
 	// Create a flat map with prefixed keys
 	flatMap := make(map[string]interface{})
 	if data, ok := payload["data"].(map[string]interface{}); ok {
-		v.flattenObject(flatMap, data, "v1", "")
+		v.flattenObject(flatMap, data, "legacycli", "")
 	} else {
 		return nil, fmt.Errorf("found no 'data' object in the request body")
 	}
@@ -46,9 +46,9 @@ func (v v1AnalyticsInterceptor) flattenAnalyticsPayload(bodyBytes []byte) (map[s
 // flattenObject recursively flattens a nested JSON structure
 func (v v1AnalyticsInterceptor) flattenObject(result map[string]interface{}, obj map[string]interface{}, prefix string, parentKey string) {
 	for k, val := range obj {
-		newKey := prefix + "-" + k
+		newKey := prefix + "::" + k
 		if parentKey != "" {
-			newKey = prefix + "-" + parentKey + "-" + k
+			newKey = prefix + "::" + parentKey + "-" + k
 		}
 
 		switch value := val.(type) {
@@ -69,7 +69,7 @@ func (v v1AnalyticsInterceptor) GetHandler() HandlerFunc {
 	return func(req *http.Request, proxyCtx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 		r, err := gzip.NewReader(req.Body)
 		if err != nil {
-			v.debugLogger.Printf(fmt.Sprintf("gzip.NewReader: %v", err))
+			v.debugLogger.Printf("failed to call gzip.NewReader: %v", err)
 			return req, nil
 		}
 
@@ -81,13 +81,13 @@ func (v v1AnalyticsInterceptor) GetHandler() HandlerFunc {
 
 		bodyBytes, err := io.ReadAll(tee)
 		if err != nil {
-			v.debugLogger.Printf(fmt.Sprintf("Error reading body: %v", err))
+			v.debugLogger.Printf("frror reading body: %v", err)
 			return req, nil
 		}
 
 		flattened, err := v.flattenAnalyticsPayload(bodyBytes)
 		if err != nil {
-			v.debugLogger.Printf(fmt.Sprintf("gzip.NewReader: %v", err))
+			v.debugLogger.Printf("failed to flatten object: %v", err)
 			return req, nil
 		}
 
