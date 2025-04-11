@@ -54,10 +54,11 @@ describe('Terraform plan scanning', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/terraform-plan/tf-plan-create.json.json  --scan`,
     );
-    expect(stdout).toContain(
-      'Unsupported value "true" provided to flag "--scan".',
-    );
-    expect(exitCode).toBe(2);
+    // --scan is defined as a string flag in cli-extension-iac. If no value is provided,
+    // it is treated as a boolean and CLI detects a mismatch in the flag type.
+    // The CLI behavior in this case is to print usage and exit with code 0.
+    expect(stdout).toContainText('Usage');
+    expect(exitCode).toEqual(0); // CLI exits with 0 when usage is printed
   });
 
   it('succesfully scans a TF-Plan with the --json output flag', async () => {

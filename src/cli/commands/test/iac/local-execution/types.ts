@@ -221,6 +221,8 @@ export type IaCTestFlags = Pick<
   'project-environment'?: string;
   'project-lifecycle'?: string;
   'project-business-criticality'?: string;
+  // file with test results created by the the IaC CLI extension
+  'iac-test-output-file'?: string;
 } & TerraformPlanFlags;
 
 // Flags specific for Terraform plan scanning
