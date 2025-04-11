@@ -283,11 +283,11 @@ describe('snyk code test', () => {
         });
 
         it('works with --json-file-output', async () => {
-          const fileName = 'jsonOutput.json';
-          const filePath = `${projectRoot}/${fileName}`;
+          const filePath = `${projectRoot}/not-existing/jsonOutput.json`;
           const htmlFilePath = `${projectRoot}/out.html`;
+
           const { stderr, code } = await runSnykCLI(
-            `code test ${projectWithCodeIssues} --json-file-output=${fileName}`,
+            `code test ${projectWithCodeIssues} --json-file-output=${filePath}`,
             {
               env: {
                 ...process.env,
