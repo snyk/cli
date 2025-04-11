@@ -81,7 +81,7 @@ func (v v1AnalyticsInterceptor) GetHandler() HandlerFunc {
 
 		bodyBytes, err := io.ReadAll(tee)
 		if err != nil {
-			v.debugLogger.Printf("frror reading body: %v", err)
+			v.debugLogger.Printf("error reading body: %v", err)
 			return req, nil
 		}
 
