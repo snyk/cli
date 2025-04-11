@@ -17,6 +17,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli-extension-aibom/pkg/aibom"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
@@ -30,6 +31,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -521,6 +523,7 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(basic_workflows.Init)
 	globalEngine.AddExtensionInitializer(iac.Init)
 	globalEngine.AddExtensionInitializer(sbom.Init)
+	globalEngine.AddExtensionInitializer(aibom.Init)
 	globalEngine.AddExtensionInitializer(depgraph.Init)
 	globalEngine.AddExtensionInitializer(capture.Init)
 	globalEngine.AddExtensionInitializer(iacrules.Init)
