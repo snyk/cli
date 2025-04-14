@@ -143,9 +143,9 @@ summary:
 	@echo "$(LOG_PREFIX)  Building version:             $(CLI_V1_VERSION_TAG)"
 	@echo "$(LOG_PREFIX)  LS version:                   $(LS_COMMIT_HASH)"
 	@if [ -z "$(IAC_RULES_URL)" ]; then \
-		echo "$(LOG_PREFIX)  ⚠️  IAC_RULES_URL env var is missing and is required for IaC testing"; \
+	echo "$(LOG_PREFIX)  IAC_RULES_URL:                ⚠️  IAC_RULES_URL env var is missing and is required for IaC testing"; \
 	else \
-		echo "$(LOG_PREFIX)  IAC_RULES_URL:                $(IAC_RULES_URL)"; \
+  	echo "$(LOG_PREFIX)  IAC_RULES_URL:                $(IAC_RULES_URL)"; \
 	fi
 
 # prepare the workspace and cache global parameters
