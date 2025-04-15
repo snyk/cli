@@ -1,12 +1,13 @@
 package interceptor
 
 import (
-	"github.com/golang/mock/gomock"
-	"github.com/rs/zerolog"
-	"github.com/snyk/go-application-framework/pkg/mocks"
 	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/rs/zerolog"
+	"github.com/snyk/go-application-framework/pkg/mocks"
 )
 
 func TestV1AnalyticsInterceptor(t *testing.T) {
@@ -17,6 +18,7 @@ func TestV1AnalyticsInterceptor(t *testing.T) {
 		logger := zerolog.Nop()
 
 		mockInvocationCtx := mocks.NewMockInvocationContext(ctrl)
+		mockInvocationCtx.EXPECT().GetEnhancedLogger().Return(&logger).AnyTimes()
 
 		tests := []struct {
 			name        string
@@ -27,13 +29,13 @@ func TestV1AnalyticsInterceptor(t *testing.T) {
 			{
 				name:        "matches v1 analytics endpoint",
 				url:         "https://api.snyk.io/v1/analytics/cli",
-				interceptor: NewV1AnalyticsInterceptor(mockInvocationCtx, &logger),
+				interceptor: NewV1AnalyticsInterceptor(mockInvocationCtx),
 				expected:    true,
 			},
 			{
 				name:        "doesn't match non-analytics endpoints",
 				url:         "https://api.snyk.io/v1/test",
-				interceptor: NewV1AnalyticsInterceptor(mockInvocationCtx, &logger),
+				interceptor: NewV1AnalyticsInterceptor(mockInvocationCtx),
 				expected:    false,
 			},
 		}
