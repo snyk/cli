@@ -5,19 +5,18 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"github.com/elazarl/goproxy"
-	"github.com/rs/zerolog"
-	"github.com/snyk/go-application-framework/pkg/workflow"
 	"io"
 	"net/http"
 	"regexp"
+
+	"github.com/elazarl/goproxy"
+	"github.com/snyk/go-application-framework/pkg/workflow"
 )
 
 // v1AnalyticsInterceptor looks for requests to the (now deprecated) v1 analytics endpoint, and re-directs these
 // requests to the v2 analytics service. This is a temporary measure to allow users to migrate to the new service.
 type v1AnalyticsInterceptor struct {
 	requestCondition goproxy.ReqCondition
-	debugLogger      *zerolog.Logger
 	invocationCtx    workflow.InvocationContext
 }
 
@@ -69,7 +68,7 @@ func (v v1AnalyticsInterceptor) GetHandler() HandlerFunc {
 	return func(req *http.Request, proxyCtx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 		r, err := gzip.NewReader(req.Body)
 		if err != nil {
-			v.debugLogger.Printf("failed to call gzip.NewReader: %v", err)
+			v.invocationCtx.GetEnhancedLogger().Printf("failed to call gzip.NewReader: %v", err)
 			return req, nil
 		}
 
@@ -81,13 +80,13 @@ func (v v1AnalyticsInterceptor) GetHandler() HandlerFunc {
 
 		bodyBytes, err := io.ReadAll(tee)
 		if err != nil {
-			v.debugLogger.Printf("error reading body: %v", err)
+			v.invocationCtx.GetEnhancedLogger().Printf("error reading body: %v", err)
 			return req, nil
 		}
 
 		flattened, err := v.flattenAnalyticsPayload(bodyBytes)
 		if err != nil {
-			v.debugLogger.Printf("failed to flatten object: %v", err)
+			v.invocationCtx.GetEnhancedLogger().Printf("failed to flatten object: %v", err)
 			return req, nil
 		}
 
@@ -100,10 +99,9 @@ func (v v1AnalyticsInterceptor) GetHandler() HandlerFunc {
 	}
 }
 
-func NewV1AnalyticsInterceptor(invocationCtx workflow.InvocationContext, debugLogger *zerolog.Logger) Interceptor {
+func NewV1AnalyticsInterceptor(invocationCtx workflow.InvocationContext) Interceptor {
 	i := v1AnalyticsInterceptor{
 		requestCondition: goproxy.UrlMatches(regexp.MustCompile("^*/v1/analytics/cli")),
-		debugLogger:      debugLogger,
 		invocationCtx:    invocationCtx,
 	}
 	return i

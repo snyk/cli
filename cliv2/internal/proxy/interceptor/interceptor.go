@@ -1,10 +1,9 @@
 package interceptor
 
 import (
-	"github.com/elazarl/goproxy"
-	"github.com/rs/zerolog"
-	"github.com/snyk/go-application-framework/pkg/workflow"
 	"net/http"
+
+	"github.com/elazarl/goproxy"
 )
 
 type HandlerFunc func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response)
@@ -16,10 +15,4 @@ type HandlerFunc func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, 
 type Interceptor interface {
 	GetHandler() HandlerFunc
 	GetCondition() goproxy.ReqCondition
-}
-
-func GetRegisteredInterceptors(invocationCtx workflow.InvocationContext, debugLogger *zerolog.Logger) []Interceptor {
-	return []Interceptor{
-		NewV1AnalyticsInterceptor(invocationCtx, debugLogger),
-	}
 }
