@@ -44,6 +44,7 @@ import (
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
+	snykmcp "github.com/snyk/snyk-ls/mcp_extension"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
@@ -522,6 +523,7 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(capture.Init)
 	globalEngine.AddExtensionInitializer(iacrules.Init)
 	globalEngine.AddExtensionInitializer(snykls.Init)
+	globalEngine.AddExtensionInitializer(snykmcp.Init)
 	globalEngine.AddExtensionInitializer(container.Init)
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 
