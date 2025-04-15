@@ -1,11 +1,21 @@
 const fs = require('fs');
 
 export function isDocker(): boolean {
-  return hasDockerEnv() || hasDockerCGroup();
+  return hasDockerEnv() || hasContainerEnv() || hasDockerCGroup();
 }
+
 function hasDockerEnv() {
   try {
     fs.statSync('/.dockerenv');
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function hasContainerEnv() {
+  try {
+    fs.statSync('/run/.containerenv');
     return true;
   } catch (_) {
     return false;

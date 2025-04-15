@@ -16,6 +16,25 @@ describe('isDocker', () => {
     expect(statSyncSpy).toHaveBeenLastCalledWith('/.dockerenv');
   });
 
+  it('inside other containers (.containerenv test)', async () => {
+    delete require.cache[path.join(__dirname, 'index.js')];
+    const statSyncSpy = jest.spyOn(fs, 'statSync');
+
+    statSyncSpy.mockImplementationOnce((path): any => {
+      if (path === '/.dockerenv') {
+        throw new Error("ENOENT, no such file or directory '/.dockerinit'");
+      }
+
+      if (path === '/run/.containerenv') {
+        return {} as any
+      }
+    });
+    expect(isDocker()).toBeTruthy();
+    expect(statSyncSpy).toHaveBeenCalledTimes(2);
+    expect(statSyncSpy).toHaveBeenLastCalledWith('/run/.containerenv');
+  });
+
+
   it('inside a Docker container (cgroup test)', async () => {
     delete require.cache[path.join(__dirname, 'index.js')];
 
