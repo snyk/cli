@@ -234,7 +234,7 @@ build: pre-build
 
 .PHONY: build-debug
 build-debug: pre-build
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) debug build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	@cd $(EXTENSIBLE_CLI_DIR); go mod tidy; $(MAKE) debug build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
 	@$(MAKE) clean-package-files
 
 .PHONY: sign
