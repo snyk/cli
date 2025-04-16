@@ -366,9 +366,7 @@ func fillEnvironmentFromConfig(inputAsMap map[string]string, config configuratio
 		inputAsMap[constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED] = "1"
 	}
 
-	if config.IsSet(configuration.API_URL) {
-		inputAsMap[constants.SNYK_ENDPOINT_ENV] = config.GetString(configuration.API_URL)
-	}
+	inputAsMap[constants.SNYK_ENDPOINT_ENV] = config.GetString(configuration.API_URL)
 
 	if debug_utils.GetDebugLevel(config) == zerolog.TraceLevel {
 		inputAsMap["DEBUG"] = "*"
