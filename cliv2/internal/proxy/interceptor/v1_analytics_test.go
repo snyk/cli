@@ -18,15 +18,13 @@ func TestFlattenAnalyticsPayload(t *testing.T) {
 				"data": {
 					"command": "test",
 					"metadata": {
-						"id": "123",
-						"version": "1.0"
+						"id": "123"
 					}
 				}
 			}`,
 			expected: map[string]interface{}{
-				"legacycli::command":          "test",
-				"legacycli::metadata-id":      "123",
-				"legacycli::metadata-version": "1.0",
+				"legacycli::command":     "test",
+				"legacycli::metadata-id": "123",
 			},
 			shouldFail: false,
 		},
@@ -72,6 +70,78 @@ func TestFlattenAnalyticsPayload(t *testing.T) {
 			}
 
 			if tt.shouldFail {
+				return
+			}
+
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("flattenAnalyticsPayload() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestExcludedFields(t *testing.T) {
+	tests := []struct {
+		name       string
+		input      string
+		expected   map[string]interface{}
+		shouldFail bool
+	}{
+		{
+			name: "a flat structure with excluded fields",
+			input: `{
+				"data": {
+					"command": "test",
+					"version": "1.2.3"
+				}
+			}`,
+			expected: map[string]interface{}{
+				"legacycli::command": "test",
+			},
+		},
+		{
+			name: "a nested structure with nested excluded fields",
+			input: `{
+				"data": {
+					"command": "test",
+					"nested": {
+						"foo": "bar",
+						"osArch": "amd64",
+						"osPlatform": "linux"
+					}
+				}
+			}`,
+			expected: map[string]interface{}{
+				"legacycli::command":    "test",
+				"legacycli::nested-foo": "bar",
+			},
+		},
+		{
+			name: "a nested structure with excluded top field",
+			input: `{
+				"data": {
+					"command": "test",
+					"platform": {
+						"foo": "bar",
+						"osArch": "amd64",
+						"osPlatform": "linux"
+					}
+				}
+			}`,
+			expected: map[string]interface{}{
+				"legacycli::command": "test",
+			},
+		},
+	}
+
+	interceptor := v1AnalyticsInterceptor{}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := interceptor.flattenAnalyticsPayload([]byte(tt.input))
+
+			if (err != nil) != tt.shouldFail {
+				t.Errorf("flattenAnalyticsPayload() error = %v, shouldFail %v", err, tt.shouldFail)
 				return
 			}
 

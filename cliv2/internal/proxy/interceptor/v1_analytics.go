@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"github.com/snyk/cli/cliv2/internal/utils"
 	"io"
 	"net/http"
 	"regexp"
@@ -12,6 +13,19 @@ import (
 	"github.com/elazarl/goproxy"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 )
+
+// excludedKeys contains a list of v1 analytics keys that is already present in the v2 payload and should thus not be added
+var excludedKeys = []string{
+	"args",
+	"command",
+	"integrationVersion",
+	"metadata-command",
+	"os",
+	"osArch",
+	"osPlatform",
+	"platform",
+	"version",
+}
 
 // v1AnalyticsInterceptor looks for requests to the (now deprecated) v1 analytics endpoint, and re-directs these
 // requests to the v2 analytics service. This is a temporary measure to allow users to migrate to the new service.
@@ -45,6 +59,10 @@ func (v v1AnalyticsInterceptor) flattenAnalyticsPayload(bodyBytes []byte) (map[s
 // flattenObject recursively flattens a nested JSON structure
 func (v v1AnalyticsInterceptor) flattenObject(result map[string]interface{}, obj map[string]interface{}, prefix string, parentKey string) {
 	for k, val := range obj {
+		if utils.Contains(excludedKeys, k) {
+			continue
+		}
+
 		newKey := prefix + "::" + k
 		if parentKey != "" {
 			newKey = prefix + "::" + parentKey + "-" + k
