@@ -10,7 +10,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-aibom v0.0.0-20250403155535-d8f2f64cb5b4
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e
 	github.com/snyk/cli-extension-iac v0.0.0-20250408080522-a39e8e880b9c
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a
@@ -181,6 +180,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
+	github.com/snyk/cli-extension-aisbom v0.0.0-00010101000000-000000000000 // indirect
 	github.com/snyk/code-client-go v1.19.0 // indirect
 	github.com/snyk/policy-engine v0.33.2 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
@@ -254,3 +254,4 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 //replace github.com/snyk/code-client-go => ../../code-client-go
 
 // replace github.com/snyk/cli-extension-iac => ../../cli-extension-iac
+replace github.com/snyk/cli-extension-aisbom => ../../cli-extension-aisbom
