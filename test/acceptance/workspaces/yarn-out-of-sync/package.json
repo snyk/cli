@@ -15,5 +15,8 @@
   "devDependencies": {
     "object-assign": "4.1.1",
     "rewire": "^4.0.1"
+  },
+  "resolutions": {
+    "snyk": "1.0.0"
   }
 }
