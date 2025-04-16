@@ -15,6 +15,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['iacNewEngine', false],
     ['containerCliAppVulnsEnabled', true],
     ['enablePnpmCli', false],
+    ['sbomMonitorBeta', false],
   ]);
 };
 
@@ -786,6 +787,20 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   app.get(`/rest/orgs/:orgId/sbom_tests/:id/results`, (req, res) => {
     const body = fs.readFileSync(
       path.resolve(getFixturePath('sbom'), 'npm-sbom-test-response.json'),
+      'utf8',
+    );
+    res.send(JSON.parse(body));
+  });
+
+  app.post(`/hidden/orgs/:orgId/sboms/convert`, (req, res) => {
+    if (req.url.includes('/orgs/badaabad-badb-badb-badb-badbadbadbad/')) {
+      res
+        .status(400)
+        .send(`{"errors":[{"title":"Bad Request","detail":"invalid SBOM"}]}`);
+    }
+
+    const body = fs.readFileSync(
+      path.resolve(getFixturePath('sbom'), 'sbom-convert-response.json'),
       'utf8',
     );
     res.send(JSON.parse(body));
