@@ -228,6 +228,9 @@ commands:
             # Execute the MSI installer
             msiexec.exe /i smtools-windows-x64.msi /quiet /qn | Wait-Process
             & 'C:\Program Files\DigiCert\DigiCert One Signing Manager Tools\smksp_cert_sync.exe'
+
+            # Manual resync
+            & 'C:\Program Files\DigiCert\DigiCert One Signing Manager Tools\smctl.exe' windows certsync
       - save_cache:
           name: Saving DigitCert cache
           key: digicert-cache-v3-{{ arch }}-{{ checksum "~/cache_key.txt" }}
