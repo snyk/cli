@@ -13,7 +13,7 @@ require (
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e
 	github.com/snyk/cli-extension-iac v0.0.0-20250408080522-a39e8e880b9c
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a
-	github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f
+	github.com/snyk/cli-extension-sbom v0.0.0-20250415142210-e20bcc236bb7
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20250310083934-7ac627e3451f
 	github.com/snyk/go-application-framework v0.0.0-20250415192654-765eb3da59d5
