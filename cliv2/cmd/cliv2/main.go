@@ -19,7 +19,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
-	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -45,6 +44,7 @@ import (
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
+
 	snykmcp "github.com/snyk/snyk-ls/mcp_extension"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
@@ -519,7 +519,7 @@ func MainWithErrorCode() (int, []error) {
 
 	// initialize the extensions -> they register themselves at the engine
 	globalEngine.AddExtensionInitializer(basic_workflows.Init)
-	globalEngine.AddExtensionInitializer(iac.Init)
+	// globalEngine.AddExtensionInitializer(iac.Init)
 	globalEngine.AddExtensionInitializer(sbom.Init)
 	globalEngine.AddExtensionInitializer(depgraph.Init)
 	globalEngine.AddExtensionInitializer(capture.Init)

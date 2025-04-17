@@ -90,10 +90,8 @@ describe('cli args', () => {
       },
     );
 
-    // inexistent flags are caught by the CLI and the usage is printed.
-    // the CLI currently exits with 0 when usage is printed.
-    expect(stdout).toContainText('Usage');
-    expect(code).toEqual(0);
+    expect(stdout).toContainText('Unsupported flag');
+    expect(code).toEqual(2);
   });
 
   test('snyk test multiple paths with --project-name=NAME', async () => {
