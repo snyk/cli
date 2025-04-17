@@ -796,8 +796,8 @@ github.com/skeema/knownhosts v1.3.1 h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnB
 github.com/skeema/knownhosts v1.3.1/go.mod h1:r7KTdC8l4uxWRyK2TpQZ/1o5HaSzh06ePQNxPwTcfiY=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e h1:lYBeDqyAmb7NPfcLZJb1rcc+BrWhX5Ct9isQO1O4mSc=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e/go.mod h1:9Zpe+B8SCkWFjpDR3ckFJl1XuMyxysWebKhyAIj7EyI=
-github.com/snyk/cli-extension-iac v0.0.0-20250408080522-a39e8e880b9c h1:H1ZizWApCkMARSP+Iey56Yqsh6SH0lGyneSZyrQZi/Y=
-github.com/snyk/cli-extension-iac v0.0.0-20250408080522-a39e8e880b9c/go.mod h1:7O90So5PPqTRMpcs8BY14+jX+J8BixqZQyXQiRZW7ws=
+github.com/snyk/cli-extension-iac v0.0.0-20250417092850-bfa35aacddfc h1:Kg1f+GX1cW7un3Busrqj3u9VhKlZgqgHtXzAHcdcbEs=
+github.com/snyk/cli-extension-iac v0.0.0-20250417092850-bfa35aacddfc/go.mod h1:7O90So5PPqTRMpcs8BY14+jX+J8BixqZQyXQiRZW7ws=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a h1:SJ+Ts7e1EYcGJXeENR5inTGwPNRlNVgmMN2itO3+yj8=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a/go.mod h1:IqfQCIkyC26mkwa+aM6d6yxIh5+tCm4fSQG+Ogq3Qbc=
 github.com/snyk/cli-extension-sbom v0.0.0-20241016065306-0df2be5b3b8f h1:dlL+f+5sjHj4JCzW/Evl1x9UREXLyc3M4KjoZvQx0Bs=
