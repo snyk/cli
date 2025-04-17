@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 	"log"
 	"net"
 	"net/http"
@@ -45,6 +46,7 @@ type WrapperProxy struct {
 	addHeaderFunc       func(*http.Request) error
 	config              configuration.Configuration
 	errHandlerFunc      networktypes.ErrorHandlerFunc
+	interceptors        []interceptor.Interceptor
 }
 
 type ProxyInfo struct {
@@ -243,6 +245,11 @@ func (p *WrapperProxy) Start() error {
 	// zerolog based logger also works but it will print empty lines between logs
 	proxy.Logger = log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0)
 	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
+
+	for _, i := range p.interceptors {
+		proxy.OnRequest(i.GetCondition()).DoFunc(i.GetHandler())
+	}
+
 	proxy.OnRequest().HandleConnect(p)
 	proxy.OnResponse().DoFunc(p.handleResponse)
 	proxy.Verbose = true
@@ -297,6 +304,10 @@ func setGlobalProxyCA(certPEMBlock []byte, keyPEMBlock []byte) error {
 	goproxy.HTTPMitmConnect = &goproxy.ConnectAction{Action: goproxy.ConnectHTTPMitm, TLSConfig: goproxy.TLSConfigFromCA(&goproxyCa)}
 	goproxy.RejectConnect = &goproxy.ConnectAction{Action: goproxy.ConnectReject, TLSConfig: goproxy.TLSConfigFromCA(&goproxyCa)}
 	return nil
+}
+
+func (p *WrapperProxy) RegisterInterceptor(interceptor interceptor.Interceptor) {
+	p.interceptors = append(p.interceptors, interceptor)
 }
 
 func (p *WrapperProxy) SetUpstreamProxyAuthentication(mechanism httpauth.AuthenticationMechanism) {
