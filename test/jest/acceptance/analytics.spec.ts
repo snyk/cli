@@ -1,4 +1,4 @@
-import { fakeServer } from '../../acceptance/fake-server';
+import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import {
   createProjectFromFixture,
   createProjectFromWorkspace,
@@ -12,16 +12,19 @@ describe('analytics module', () => {
   let server;
   let env: Record<string, string>;
   const port = getServerPort(process);
+  const fakeServerIp = getFirstIPv4Address();
 
   beforeAll((done) => {
     const baseApi = '/api/v1';
+
     env = {
       ...process.env,
-      SNYK_API: 'http://localhost:' + port + baseApi,
-      SNYK_HOST: 'http://localhost:' + port,
+      SNYK_API: `http://${fakeServerIp}:${port}${baseApi}`,
+      SNYK_HOST: `http://${fakeServerIp}:${port}`,
       SNYK_TOKEN: '123456789',
       SNYK_INTEGRATION_NAME: 'JENKINS',
       SNYK_INTEGRATION_VERSION: '1.2.3',
+      SNYK_HTTP_PROTOCOL_UPGRADE: '0',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
     server.listen(port, () => {
@@ -59,7 +62,6 @@ describe('analytics module', () => {
 
     expect(lastRequest).toMatchObject({
       headers: {
-        host: `localhost:${port}`,
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
@@ -88,17 +90,17 @@ describe('analytics module', () => {
           integrationVersion: '1.2.3',
           // prettier-ignore
           metrics: {
-                        'network_time': {
-                            type: 'timer',
-                            values: expect.any(Array),
-                            total: expect.any(Number),
-                        },
-                        'cpu_time': {
-                            type: 'synthetic',
-                            values: [expect.any(Number)],
-                            total: expect.any(Number),
-                        },
-                    },
+            'network_time': {
+                type: 'timer',
+                values: expect.any(Array),
+                total: expect.any(Number),
+            },
+            'cpu_time': {
+                type: 'synthetic',
+                values: [expect.any(Number)],
+                total: expect.any(Number),
+            },
+        },
           nodeVersion: expect.any(String),
           os: expect.any(String),
           standalone: expect.any(Boolean),
@@ -133,7 +135,6 @@ describe('analytics module', () => {
     const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
       headers: {
-        host: `localhost:${port}`,
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
@@ -210,7 +211,6 @@ describe('analytics module', () => {
     const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
       headers: {
-        host: `localhost:${port}`,
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
@@ -238,17 +238,17 @@ describe('analytics module', () => {
           integrationVersion: '1.2.3',
           // prettier-ignore
           metrics: {
-                        'network_time': {
-                            type: 'timer',
-                            values: expect.any(Array),
-                            total: expect.any(Number),
-                        },
-                        'cpu_time': {
-                            type: 'synthetic',
-                            values: [expect.any(Number)],
-                            total: expect.any(Number),
-                        },
-                    },
+            'network_time': {
+                type: 'timer',
+                values: expect.any(Array),
+                total: expect.any(Number),
+            },
+            'cpu_time': {
+                type: 'synthetic',
+                values: [expect.any(Number)],
+                total: expect.any(Number),
+            },
+        },
           nodeVersion: expect.any(String),
           os: expect.any(String),
           standalone: expect.any(Boolean),
@@ -354,7 +354,6 @@ describe('analytics module', () => {
     const lastRequest = requests.pop();
     expect(lastRequest).toMatchObject({
       headers: {
-        host: `localhost:${port}`,
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
@@ -410,7 +409,6 @@ describe('analytics module', () => {
 
     expect(lastRequest).toMatchObject({
       headers: {
-        host: `localhost:${port}`,
         'content-length': expect.any(String),
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
