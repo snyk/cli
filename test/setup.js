@@ -22,6 +22,10 @@ module.exports = async function () {
     process.env.TEST_SNYK_API = 'https://api.snyk.io';
   }
 
+  if (!process.env.TEST_SNYK_ORG_SLUGNAME) {
+    process.env.TEST_SNYK_ORG_SLUGNAME = 'team-cli-testing';
+  }
+
   const { stdout: version } = await runSnykCLI('version');
   const SNYK_VERSION = version.trim();
 
