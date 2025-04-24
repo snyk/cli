@@ -34,6 +34,8 @@ import (
 	"github.com/spf13/pflag"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
+
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/networking"
@@ -528,6 +530,7 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(snykmcp.Init)
 	globalEngine.AddExtensionInitializer(container.Init)
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
+	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
 
 	// init engine
 	err = globalEngine.Init()
