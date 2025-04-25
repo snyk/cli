@@ -55,6 +55,9 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 	config.Set(configuration.API_URL, testapi)
 	config.Set(configuration.PREVIEW_FEATURES_ENABLED, true)
 
+	expectedTmpPath := "foo/bar"
+	config.Set(configuration.TEMP_DIR_PATH, expectedTmpPath)
+
 	input := []string{
 		"something=1",
 		"in=2",
@@ -85,6 +88,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_INTERNAL_PREVIEW_FEATURES=1",
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",noProxy",
+		"SNYK_TMP_PATH=" + expectedTmpPath,
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
@@ -102,6 +106,9 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	config.Set(configuration.ORGANIZATION, orgid)
 	config.Set(configuration.API_URL, testapi)
+
+	expectedTmpPath := "foo/bar"
+	config.Set(configuration.TEMP_DIR_PATH, expectedTmpPath)
 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already"}
 	expected := []string{
@@ -121,6 +128,7 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY,
+		"SNYK_TMP_PATH=" + expectedTmpPath,
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
@@ -138,6 +146,9 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	config.Set(configuration.ORGANIZATION, orgid)
 	config.Set(configuration.API_URL, testapi)
+
+	expectedTmpPath := "foo/bar"
+	config.Set(configuration.TEMP_DIR_PATH, expectedTmpPath)
 
 	input := []string{"something=1", "in=2", "here=3", "http_proxy=exists", "https_proxy=already", "NODE_EXTRA_CA_CERTS=again", "no_proxy=312123"}
 	expected := []string{
@@ -157,6 +168,7 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",312123",
+		"SNYK_TMP_PATH=" + expectedTmpPath,
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
