@@ -1,6 +1,5 @@
 .bin/
 .circleci/
-!.circleci/awscli-publickey.pub
 .github/
 !/.github/CODEOWNERS
 .git
