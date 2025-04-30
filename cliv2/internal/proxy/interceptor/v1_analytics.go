@@ -81,6 +81,9 @@ func (v v1AnalyticsInterceptor) flattenObject(result map[string]interface{}, obj
 		newKey := prefix + "::" + newParentKey
 
 		switch value := val.(type) {
+		// The analytics service does not accept `null` values, so we skip them entirely
+		case nil:
+			continue
 		case map[string]interface{}:
 			// For nested objects, recurse with the current key as parent
 			v.flattenObject(result, value, prefix, newParentKey)

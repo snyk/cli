@@ -186,6 +186,22 @@ func TestFlattenObject(t *testing.T) {
 			},
 		},
 		{
+			name: "excluded nil fields",
+			obj: map[string]interface{}{
+				"key1": "value1",
+				"key2": 123,
+				"key3": true,
+				"key4": nil,
+			},
+			prefix:    "prefix",
+			parentKey: "",
+			expected: map[string]interface{}{
+				"prefix::key1": "value1",
+				"prefix::key2": 123,
+				"prefix::key3": true,
+			},
+		},
+		{
 			name: "nested object",
 			obj: map[string]interface{}{
 				"key1": "value1",
