@@ -21,8 +21,6 @@ import (
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
@@ -32,6 +30,9 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
@@ -629,6 +630,8 @@ func MainWithErrorCode() (int, []error) {
 	if cliAnalytics.GetInstrumentation().GetDuration() == 0 {
 		cliAnalytics.GetInstrumentation().SetDuration(time.Since(startTime))
 	}
+
+	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
 
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {
