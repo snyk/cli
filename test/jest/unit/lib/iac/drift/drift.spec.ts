@@ -157,7 +157,7 @@ describe('parseDriftAnalysisResults', () => {
           type: 'aws_iam_user',
         },
         {
-          id: 'AKIA5QYBVVD2Y6PBAAPY',
+          id: 'AAAAAAAAAAAAAAAAAAAA',
           type: 'aws_iam_access_key',
         },
       ],
@@ -300,7 +300,7 @@ describe('updateExcludeInPolicy', () => {
         global: [],
         'iac-drift': [
           'aws_iam_user.test-driftctl2',
-          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+          'aws_iam_access_key.AAAAAAAAAAAAAAAAAAAA',
           'aws_s3_bucket_policy.driftctl',
           'aws_s3_bucket_notification.driftctl',
         ],
@@ -314,7 +314,7 @@ describe('updateExcludeInPolicy', () => {
         foo: ['bar'],
         'iac-drift': [
           'aws_iam_user.test-driftctl2',
-          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+          'aws_iam_access_key.AAAAAAAAAAAAAAAAAAAA',
           'aws_s3_bucket_policy.driftctl',
           'aws_s3_bucket_notification.driftctl',
         ],
@@ -327,7 +327,7 @@ describe('updateExcludeInPolicy', () => {
       {
         'iac-drift': [
           'aws_iam_user.test-driftctl2',
-          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+          'aws_iam_access_key.AAAAAAAAAAAAAAAAAAAA',
           'aws_s3_bucket_policy.driftctl',
           'aws_s3_bucket_notification.driftctl',
         ],
@@ -347,7 +347,7 @@ describe('updateExcludeInPolicy', () => {
           'aws_s3_bucket.name*',
           // Following exclude are the new ones
           'aws_iam_user.test-driftctl2',
-          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+          'aws_iam_access_key.AAAAAAAAAAAAAAAAAAAA',
           'aws_s3_bucket_policy.driftctl',
           'aws_s3_bucket_notification.driftctl',
         ],
@@ -379,7 +379,7 @@ describe('updateExcludeInPolicy', () => {
         global: [],
         'iac-drift': [
           'aws_iam_user.test-driftctl2',
-          'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+          'aws_iam_access_key.AAAAAAAAAAAAAAAAAAAA',
         ],
       },
     ],
