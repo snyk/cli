@@ -7,6 +7,7 @@ import { execSync } from 'child_process';
 import { runCommand } from '../../util/runCommand';
 import * as fs from 'fs-extra';
 import { makeTmpDirectory } from '../../../utils';
+import * as crypto from 'crypto';
 
 expect.extend(matchers);
 jest.setTimeout(1000 * 120);
@@ -78,7 +79,8 @@ async function ensureUniqueBundleIsUsed(path: string): Promise<string> {
   }
 
   // add a random file to ensure a new bundle is created
-  fs.writeFileSync(`${newPath}/tmp.java`, `test${Math.random().toString(36)}`);
+  const randomBytes: Buffer = crypto.randomBytes(100);
+  fs.writeFileSync(`${newPath}/tmp.java`, randomBytes, { encoding: 'binary' });
   return newPath;
 }
 
