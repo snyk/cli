@@ -99,7 +99,7 @@ Print the dependency tree before sending it for analysis.
 
 Set or override the remote URL for the repository.
 
-Example: `--remote-repo-url=https://gitlab.com/example/project` will create a target for given URL and on UI it would be visible as `/example/project/` .
+Example: `--remote-repo-url=https://gitlab.com/example/project` will create a target for given URL, and on the UI it would be visible as `/example/project/` .
 
 ### `--dev`
 
@@ -125,7 +125,7 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 `orgslugname` must match the slug name as displayed in the URL of your org in the Snyk UI: `https://app.snyk.io/org/[orgslugname]`. The orgname does not work.
 
-For more information see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
+For more information, see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--file=<FILE>`
 
@@ -167,7 +167,7 @@ Example: `$ snyk monitor --project-name=my-project`
 
 Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Supported for Snyk Open Source and use with `--unmanaged`.
 
-For more information see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
+For more information, see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
 
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 
