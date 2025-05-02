@@ -125,6 +125,17 @@ describe('snyk container', () => {
       expect(stdout).toContain('Platform:          linux/arm64');
     });
 
+    it('container test scan when the archive type is not specified in the .tar path prefix', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test test/fixtures/container-projects/os-packages-and-app-vulns.tar --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+
+      expect(jsonOutput.ok).toEqual(false);
+      expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
+      expect(code).toEqual(1);
+    }, 30000);
+
     it('npm depGraph is generated in an npm image with lockfiles', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container test docker-archive:test/fixtures/container-projects/npm7-with-package-lock-file.tar --print-deps`,

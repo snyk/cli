@@ -19,9 +19,8 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
+	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
@@ -32,7 +31,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
+
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
+
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/networking"
@@ -254,7 +258,7 @@ func sendInstrumentation(eng workflow.Engine, instrumentor analytics.Instrumenta
 	}
 
 	logger.Print("Sending Instrumentation")
-	data, err := analytics.GetV2InstrumentationObject(instrumentor)
+	data, err := analytics.GetV2InstrumentationObject(instrumentor, analytics.WithLogger(logger))
 	if err != nil {
 		logger.Err(err).Msg("Failed to derive data object")
 	}
@@ -518,6 +522,7 @@ func MainWithErrorCode() (int, []error) {
 
 	// initialize the extensions -> they register themselves at the engine
 	globalEngine.AddExtensionInitializer(basic_workflows.Init)
+	globalEngine.AddExtensionInitializer(iac.Init)
 	globalEngine.AddExtensionInitializer(sbom.Init)
 	globalEngine.AddExtensionInitializer(depgraph.Init)
 	globalEngine.AddExtensionInitializer(capture.Init)
@@ -526,6 +531,7 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(snykmcp.Init)
 	globalEngine.AddExtensionInitializer(container.Init)
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
+	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
 
 	// init engine
 	err = globalEngine.Init()
@@ -624,6 +630,8 @@ func MainWithErrorCode() (int, []error) {
 	if cliAnalytics.GetInstrumentation().GetDuration() == 0 {
 		cliAnalytics.GetInstrumentation().SetDuration(time.Since(startTime))
 	}
+
+	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
 
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {

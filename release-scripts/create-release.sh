@@ -24,12 +24,11 @@ if ! git status | grep $RC_BRANCH; then
     exit 1
 fi
 
-# Ensure that the next version matches the version in binary-releases/RELEASE_NOTES.md, if not FAIL 
+# Ensure that the next version matches the version in binary-releases/RELEASE_NOTES.md, if not FAIL
 echo "Validating next version..."
 
 # Get version from version file
-VERSION_FILE="./binary-releases/version"
-CURRENT_VERSION=$(npx semver --coerce $(cat $VERSION_FILE))
+CURRENT_VERSION=$(npx semver --coerce $(./release-scripts/next-version.sh))
 
 # Get version from RELEASE_NOTES.md
 RELEASE_NOTES_MD="./binary-releases/RELEASE_NOTES.md"
@@ -56,7 +55,7 @@ IFS="." read -r CURRENT_MAJOR CURRENT_MINOR CURRENT_PATCH <<< "$CURRENT_VERSION"
 
 # Decide whether to create major/minor release or patch release
 if [[ "$CURRENT_MAJOR" -gt "$LATEST_MAJOR" || "$CURRENT_MINOR" -gt "$LATEST_MINOR" ]]; then
-    # If a new Major or Minor version exists, create a branch based on 
+    # If a new Major or Minor version exists, create a branch based on
     # the next version following the pattern: release/${Major}.${Minor}
     MAJOR_MINOR_BRANCH=release/${CURRENT_MAJOR}.${CURRENT_MINOR}
     git checkout -b $MAJOR_MINOR_BRANCH
@@ -70,23 +69,17 @@ if [[ "$CURRENT_MAJOR" -gt "$LATEST_MAJOR" || "$CURRENT_MINOR" -gt "$LATEST_MINO
     fi
 elif [[ "$CURRENT_PATCH" -gt "$LATEST_PATCH" ]]; then
     # If only the Patch version changes, update the existing release branch
-    PATCH_BRANCH=release/${LATEST_MAJOR}.${LATEST_MINOR}
-    # Check if curent release branch (PATCH_BRANCH) is behind release candidate branch
-    # merge release candidate branch into current release branch
-    git checkout $PATCH_BRANCH
-    if git rev-list --left-right --count $RC_BRANCH...$PATCH_BRANCH | awk '{print $1}' | grep -q '[1-9]'; then
-        git merge --quiet -m "chore: merge $RC_BRANCH into $PATCH_BRANCH $(date)" --no-edit --no-ff $RC_BRANCH
-        if [ $? -ne 0 ]; then
-            echo "Merge conflict occurred. Please resolve conflicts and try again."
-            exit 1
-        fi
-    fi
+    MAJOR_MINOR=release/${LATEST_MAJOR}.${LATEST_MINOR}
+    PATCH_BRANCH=chore/update-${LATEST_MAJOR}.${LATEST_MINOR}
+
+    git checkout -b $PATCH_BRANCH
+    git merge -m "chore: merge $RC_BRANCH into $MAJOR_MINOR $(date)" --no-edit --no-ff $RC_BRANCH
 
     if [[ $DRY_RUN_MODE == true ]]; then
         echo "Dry running git push"
         git push --dry-run origin $PATCH_BRANCH
     else
         echo "Pushing updated release branch '$PATCH_BRANCH'"
-        git push origin $MAJOR_MINOR_BRANCH
+        git push origin $PATCH_BRANCH
     fi
 fi

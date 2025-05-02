@@ -62,7 +62,7 @@ describe('iac update-exclude-policy', () => {
       code: [],
       'iac-drift': [
         'aws_iam_user.test-driftctl2',
-        'aws_iam_access_key.AKIA5QYBVVD2Y6PBAAPY',
+        'aws_iam_access_key.AAAAAAAAAAAAAAAAAAAA',
         'aws_s3_bucket_policy.driftctl',
         'aws_s3_bucket_notification.driftctl',
       ],

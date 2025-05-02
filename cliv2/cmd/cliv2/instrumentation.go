@@ -4,11 +4,13 @@ package main
 import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 
 import (
+	"os/exec"
 	"strings"
 
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
+	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 )
@@ -26,4 +28,18 @@ func shallSendInstrumentation(config configuration.Configuration, instrumentor a
 	}
 
 	return true
+}
+
+func addRuntimeDetails(instrumentor analytics.InstrumentationCollector, ua networking.UserAgentInfo) {
+	if !strings.EqualFold(ua.OS, "linux") {
+		return
+	}
+
+	if out, err := exec.Command("uname", "-v").Output(); err == nil {
+		instrumentor.AddExtension("os-details", strings.TrimSpace(string(out)))
+	}
+
+	if out, err := exec.Command("ldd", "--version").Output(); err == nil {
+		instrumentor.AddExtension("c-runtime-details", strings.TrimSpace(string(out)))
+	}
 }

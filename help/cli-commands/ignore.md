@@ -49,7 +49,6 @@ exclude:
   '<GROUP>':
     - <FILE MATCHING-PATTERN>
     - <FILE MATCHING-PATTERN>:
-      reason: <REASON>
       expires: <EXPIRY>
       created: <CREATION TIME>
 ```

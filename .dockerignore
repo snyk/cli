@@ -1,0 +1,14 @@
+.bin/
+.circleci/
+.github/
+!/.github/CODEOWNERS
+.git
+.node-version
+**/*.md
+Dockerfile*
+coverage/
+dist/
+helm/
+node_modules/
+test/
+**/*.test.ts

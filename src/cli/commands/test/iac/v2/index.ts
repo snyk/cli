@@ -1,18 +1,38 @@
 import * as pathLib from 'path';
 import * as testLib from '../../../../../lib/iac/test/v2';
-import { TestConfig } from '../../../../../lib/iac/test/v2';
 import config from '../../../../../lib/config';
 import { TestCommandResult } from '../../../types';
 import { buildSpinner, printHeader } from '../output';
 import { spinnerMessage } from '../../../../../lib/formatters/iac-output/text';
 import { buildOutput } from '../../../../../lib/iac/test/v2/output';
-import { systemCachePath } from '../../../../../lib/iac/test/v2/scan';
 import { getFlag } from '../index';
 import { IaCTestFlags } from '../local-execution/types';
 import { findAndLoadPolicy } from '../../../../../lib/policy';
 import { assertIacV2Options } from './assert-iac-options';
+import { addIacAnalytics } from '../../../../../lib/iac/test/v2/analytics';
+import { TestConfig } from '../../../../../lib/iac/test/v2/types';
+import {
+  getResultFromOutputFile,
+  systemCachePath,
+} from '../../../../../lib/iac/test/v2/scan';
 
 export async function test(
+  paths: string[],
+  options: IaCTestFlags,
+  iacNewEngine?: boolean,
+): Promise<TestCommandResult> {
+  const iacTestOutputFile = options['iac-test-output-file'];
+  if (iacTestOutputFile) {
+    return buildResultFromCliExtensionIac(
+      iacTestOutputFile,
+      options,
+      iacNewEngine,
+    );
+  }
+  return testWithSnykIacTestBinary(paths, options, iacNewEngine);
+}
+
+async function testWithSnykIacTestBinary(
   paths: string[],
   options: IaCTestFlags,
   iacNewEngine?: boolean,
@@ -38,6 +58,25 @@ export async function test(
   } finally {
     testSpinner?.stop();
   }
+}
+
+async function buildResultFromCliExtensionIac(
+  iacTestOutputFile: string,
+  options: IaCTestFlags,
+  iacNewEngine?: boolean,
+): Promise<TestCommandResult> {
+  const testOutput = await getResultFromOutputFile(iacTestOutputFile);
+
+  const testConfig = {
+    snykCloudEnvironment: getFlag(options, 'snyk-cloud-environment'),
+  };
+  addIacAnalytics(testConfig, testOutput);
+
+  return buildOutput({
+    scanResult: testOutput,
+    options,
+    iacNewEngine,
+  });
 }
 
 async function prepareTestConfig(

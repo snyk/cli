@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
@@ -54,6 +55,9 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 	config.Set(configuration.API_URL, testapi)
 	config.Set(configuration.PREVIEW_FEATURES_ENABLED, true)
 
+	expectedTmpPath := "foo/bar"
+	config.Set(configuration.TEMP_DIR_PATH, expectedTmpPath)
+
 	input := []string{
 		"something=1",
 		"in=2",
@@ -84,6 +88,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_INTERNAL_PREVIEW_FEATURES=1",
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",noProxy",
+		"SNYK_TMP_PATH=" + expectedTmpPath,
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
@@ -101,6 +106,9 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	config.Set(configuration.ORGANIZATION, orgid)
 	config.Set(configuration.API_URL, testapi)
+
+	expectedTmpPath := "foo/bar"
+	config.Set(configuration.TEMP_DIR_PATH, expectedTmpPath)
 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists", "SNYK_INTEGRATION_VERSION=already"}
 	expected := []string{
@@ -120,6 +128,7 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY,
+		"SNYK_TMP_PATH=" + expectedTmpPath,
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
@@ -137,6 +146,9 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
 	config.Set(configuration.ORGANIZATION, orgid)
 	config.Set(configuration.API_URL, testapi)
+
+	expectedTmpPath := "foo/bar"
+	config.Set(configuration.TEMP_DIR_PATH, expectedTmpPath)
 
 	input := []string{"something=1", "in=2", "here=3", "http_proxy=exists", "https_proxy=already", "NODE_EXTRA_CA_CERTS=again", "no_proxy=312123"}
 	expected := []string{
@@ -156,6 +168,7 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_API=" + testapi,
 		"NO_PROXY=" + constants.SNYK_INTERNAL_NO_PROXY + ",312123",
+		"SNYK_TMP_PATH=" + expectedTmpPath,
 	}
 
 	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
@@ -586,4 +599,123 @@ func Test_GetErrorDisplayStatus(t *testing.T) {
 			assert.Equal(t, hasBeenDisplayed, tc.expected)
 		})
 	}
+}
+
+func Test_GetErrorFromFile(t *testing.T) {
+	// returns an ExitError instances with the specified exit code
+	getExitError := func(exitCode int) error {
+		var err error
+		command := fmt.Sprintf("exit %d", exitCode)
+		if runtime.GOOS == "windows" {
+			cmd := exec.Command("cmd", "/C", command)
+			err = cmd.Run()
+		} else {
+			cmd := exec.Command("sh", "-c", command)
+			err = cmd.Run()
+		}
+
+		return err
+	}
+
+	// Setup
+	jsonAPIErrorBytes := []byte(`{"jsonapi":{"version":"1.0"},"errors":[{"id":"1","links":{"about":"https://docs.snyk.io/scan-with-snyk/error-catalog#snyk-os-7001"},"status":"504","code":"SNYK-OS-7001","title":"Request to Snyk API timeout","detail":"connection is timedout","meta":{"links":["https://status.snyk.io/"],"isErrorCatalogError":true,"classification":"UNEXPECTED"}}]}`)
+	validFilePath := path.Join(t.TempDir(), "ipc-err-file")
+	err := os.WriteFile(validFilePath, jsonAPIErrorBytes, 0664)
+	assert.Nil(t, err)
+
+	noErrorBytes := []byte(`{"jsonapi":{"version":"1.0"},"errors":[]}`)
+	noErrorsFilePath := path.Join(t.TempDir(), "no-err-file")
+	err = os.WriteFile(noErrorsFilePath, noErrorBytes, 0664)
+	assert.Nil(t, err)
+
+	notJsonBytes := []byte(`this is not a valid json`)
+	invalidFilePath := path.Join(t.TempDir(), "invalid-err-file")
+	err = os.WriteFile(invalidFilePath, notJsonBytes, 0664)
+	assert.Nil(t, err)
+
+	notFoundFilePath := path.Join(t.TempDir(), "not-found-file")
+
+	jsonApiError, err := snyk_errors.FromJSONAPIErrorBytes(jsonAPIErrorBytes)
+	assert.Nil(t, err)
+	jsonAPIError := jsonApiError[0]
+
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+
+	t.Run("does not retrieve errors for exit code 0", func(t *testing.T) {
+		exitCodeErr := getExitError(0)
+		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, validFilePath, config)
+
+		assert.Nil(t, sentErr)
+		assert.ErrorIs(t, err, cliv2.ErrIPCNotNeeded)
+	})
+
+	t.Run("does not retrieve errors for exit code 1", func(t *testing.T) {
+		exitCodeErr := getExitError(1)
+		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, validFilePath, config)
+
+		assert.Nil(t, sentErr)
+		assert.ErrorIs(t, err, cliv2.ErrIPCNotNeeded)
+	})
+
+	t.Run("does not retrieve errors if the IPC was not used", func(t *testing.T) {
+		exitCodeErr := getExitError(2)
+		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, notFoundFilePath, config)
+
+		assert.Nil(t, sentErr)
+		assert.ErrorIs(t, err, cliv2.ErrIPCNoDataSent)
+	})
+
+	t.Run("does not retrieve errors if the file cannot be read", func(t *testing.T) {
+		exitCodeErr := getExitError(2)
+		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, t.TempDir(), config)
+
+		assert.Nil(t, sentErr)
+		assert.ErrorIs(t, err, cliv2.ErrIPCFailedToRead)
+	})
+
+	t.Run("does not retrieve errors if the IPC data cannot be deserialized", func(t *testing.T) {
+		exitCodeErr := getExitError(2)
+		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, invalidFilePath, config)
+
+		assert.Nil(t, sentErr)
+		assert.ErrorIs(t, err, cliv2.ErrIPCFailedToDeserialize)
+	})
+
+	t.Run("does not retrieve errors if the IPC data cannot be deserialized", func(t *testing.T) {
+		exitCodeErr := getExitError(2)
+		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, invalidFilePath, config)
+
+		assert.Nil(t, sentErr)
+		assert.ErrorIs(t, err, cliv2.ErrIPCFailedToDeserialize)
+	})
+
+	t.Run("does not retrieve errors if the IPC didnt send any errors", func(t *testing.T) {
+		exitCodeErr := getExitError(2)
+		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, noErrorsFilePath, config)
+
+		assert.Nil(t, sentErr)
+		assert.ErrorIs(t, err, cliv2.ErrIPCNoDataSent)
+	})
+
+	t.Run("retrieves errors for exit code 2", func(t *testing.T) {
+		exitCodeErr := getExitError(2)
+		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, validFilePath, config)
+
+		snykErr := snyk_errors.Error{}
+		assert.ErrorIs(t, sentErr, exitCodeErr)
+		assert.ErrorAs(t, sentErr, &snykErr)
+		assert.Equal(t, snykErr.ErrorCode, jsonAPIError.ErrorCode)
+		assert.Nil(t, err)
+	})
+
+	t.Run("retrieves errors for exit code 44", func(t *testing.T) {
+		exitCodeErr := getExitError(44)
+		sentErr, err := cliv2.GetErrorFromFile(exitCodeErr, validFilePath, config)
+
+		snykErr := snyk_errors.Error{}
+		assert.ErrorIs(t, sentErr, exitCodeErr)
+		assert.ErrorAs(t, sentErr, &snykErr)
+		assert.Equal(t, snykErr.ErrorCode, jsonAPIError.ErrorCode)
+		assert.Nil(t, err)
+	})
 }
