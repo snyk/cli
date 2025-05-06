@@ -1,18 +1,10 @@
-// must be set before we import 'global-agent/bootstrap'
-process.env.GLOBAL_AGENT_ENVIRONMENT_VARIABLE_NAMESPACE = '';
-process.env.HTTPS_PROXY =
-  process.env.HTTPS_PROXY ?? process.env.https_proxy ?? '';
-process.env.HTTP_PROXY = process.env.HTTP_PROXY ?? process.env.http_proxy ?? '';
-process.env.NO_PROXY = process.env.NO_PROXY ?? process.env.no_proxy ?? '';
-
-import 'global-agent/bootstrap';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import { spawnSync } from 'child_process';
-import * as https from 'https';
 import { createHash } from 'crypto';
 import * as Sentry from '@sentry/node';
+import axios from 'axios';
 
 export const versionFile = path.join(__dirname, 'generated', 'version');
 export const shasumFile = path.join(__dirname, 'generated', 'sha256sums.txt');
@@ -301,39 +293,27 @@ export function downloadExecutable(
       "Downloading from '" + options.toString() + "' to '" + filename + "'",
     );
 
-    const req = https.get(options, (res) => {
-      // response events
-      res.on('error', cleanupAfterError).on('end', () => {
-        shasum.end();
-        fileStream.end();
-      });
-
-      // pipe data
-      res.pipe(fileStream);
-      res.pipe(shasum);
-    });
-
-    req.on('error', cleanupAfterError).on('response', (incoming) => {
-      if (
-        incoming.statusCode &&
-        !(200 <= incoming.statusCode && incoming.statusCode < 300)
-      ) {
-        req.destroy();
+    axios({
+      method: 'get',
+      url: options.toString(),
+      responseType: 'stream',
+    })
+      .then(function (resp) {
+        // pipe data
+        resp.data.pipe(fileStream);
+        resp.data.pipe(shasum);
+      })
+      .catch(function (error) {
         cleanupAfterError(
           Error(
             'Download failed! Server Response: ' +
-              incoming.statusCode +
-              ' ' +
-              incoming.statusMessage +
+              error.toString() +
               ' (' +
               downloadUrl +
               ')',
           ),
         );
-      }
-    });
-
-    req.end();
+      });
   });
 }
 

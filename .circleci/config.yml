@@ -119,6 +119,10 @@ executors:
     docker:
       - image: mcr.microsoft.com/cbl-mariner/base/python:3.9.14-8-cm2.0.20240301-arm64
     resource_class: arm.medium
+  linux-node12:
+    docker:
+      - image: node:12.17.0-stretch
+    resource_class: arm.medium
 
 commands:
   install-go:
@@ -826,6 +830,7 @@ workflows:
                 - 'docker-amd64'
                 - 'win-server2019-amd64'
                 - 'macos-arm64'
+                - 'linux-node12'
           requires:
             - upload version
           filters:

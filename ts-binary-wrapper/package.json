@@ -50,6 +50,6 @@
   },
   "dependencies": {
     "@sentry/node": "^7.36.0",
-    "global-agent": "^3.0.0"
+    "axios": "^1.9.0"
   }
 }
