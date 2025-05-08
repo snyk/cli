@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "",
+          "ruleIndex": 0,
+          "level": "",
+          "message": {
+            "text": "{\"$schema\":\"https://cyclonedx.org/schema/bom-1.6.schema.json\",\"bomFormat\":\"CycloneDX\",\"components\":[{\"bom-ref\":\"application:Root\",\"name\":\"Root\",\"type\":\"application\"},{\"bom-ref\":\"pkg:anthropic\",\"evidence\":{\"identity\":[{\"field\":\"name\",\"methods\":[{\"confidence\":0.9,\"technique\":\"source-code-analysis\"}]}],\"occurrences\":[{\"line\":8,\"location\":\"chatbot.py\",\"offset\":8},{\"line\":9,\"location\":\"chatbot.py\",\"offset\":23},{\"line\":17,\"location\":\"chatbot.py\",\"offset\":14}]},\"name\":\"anthropic\",\"type\":\"library\"},{\"bom-ref\":\"model:claude-3-5-sonnet-20240620\",\"evidence\":{\"identity\":[{\"field\":\"name\",\"methods\":[{\"confidence\":0.9,\"technique\":\"source-code-analysis\"}]}],\"occurrences\":[{\"line\":27,\"location\":\"chatbot.py\",\"offset\":20}]},\"externalReferences\":[{\"type\":\"website\",\"url\":\"https://docs.anthropic.com/en/docs/about-claude/models/all-models#model-comparison-table\"}],\"manufacturer\":{\"name\":\"Anthropic PBC\",\"url\":[\"https://www.anthropic.com\"]},\"name\":\"claude-3-5-sonnet-20240620\",\"type\":\"machine-learning-model\"}],\"dependencies\":[{\"dependsOn\":[\"pkg:anthropic\",\"model:claude-3-5-sonnet-20240620\"],\"ref\":\"application:Root\"}],\"specVersion\":\"1.6\",\"version\":1}",
+            "markdown": "",
+            "arguments": []
+          },
+          "locations": [],
+          "fingerprints": {},
+          "codeFlows": []
+        }
+      ],
+      "properties": {
+        "coverage": []
+      }
+    }
+  ]
+}
