@@ -3,7 +3,6 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
-	"net/http"
 	"os"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
@@ -171,15 +170,17 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 		return nil, errors.Wrap(err, "Failed to create proxy!")
 	}
 
-	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
+	//wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
 
-	proxyHeaderFunc := func(req *http.Request) error {
-		headersErr := networkAccess.AddHeaders(req)
-		return headersErr
-	}
-	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
-	wrapperProxy.SetErrorHandlerFunction(networkAccess.GetErrorHandler())
+	//proxyHeaderFunc := func(req *http.Request) error {
+	//	headersErr := networkAccess.AddHeaders(req)
+	//	return headersErr
+	//}
+	//wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
+	//wrapperProxy.SetErrorHandlerFunction(networkAccess.GetErrorHandler())
 	wrapperProxy.RegisterInterceptor(interceptor.NewV1AnalyticsInterceptor(invocation))
+	// Keep this at the bottom
+	wrapperProxy.RegisterInterceptor(interceptor.NewNetworkInjector(invocation))
 
 	err = wrapperProxy.Start()
 	if err != nil {

@@ -16,7 +16,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
-	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 
@@ -199,13 +198,13 @@ func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.Proxy
 		p.DebugLogger.Printf("Failed to add header: %s", err)
 	}
 
-	networking.LogRequest(r, p.DebugLogger)
+	//networking.LogRequest(r, p.DebugLogger)
 
 	return r, nil
 }
 
 func (p *WrapperProxy) handleResponse(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
-	networking.LogResponse(resp, p.DebugLogger)
+	//networking.LogResponse(resp, p.DebugLogger)
 
 	if authFailed := resp.Request.Header.Get(headerSnykAuthFailed); authFailed != "" {
 		resp.Header.Set(headerSnykAuthFailed, authFailed)
