@@ -61,6 +61,13 @@
       "console": "integratedTerminal",
       "program": "node_modules/.bin/ts-node",
       "args": ["./src/cli/index.ts", "iac", "test", "--unmanaged"]
+    },
+    {
+      "name": "Attach to CLI Process",
+      "type": "go",
+      "request": "attach",
+      "mode": "local",
+      "processId": 0
     }
   ]
 }
