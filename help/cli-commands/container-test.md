@@ -63,12 +63,6 @@ Specify a custom Snyk project name.
 
 Manually pass a path to a `.snyk` policy file.
 
-### `--target-reference=<TARGET_REFERENCE>`
-
-Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Ignores applied on monitored project with a particular target reference will only apply on test with a matching reference.
-
-For more information see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
-
 ### `--json`
 
 Print results on the console as a JSON data structure.
