@@ -13,6 +13,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 ### Bug Fixes
 
 * **container:** Fix issue when scanning invalid node manifest files ([ceb8020](https://github.com/snyk/snyk/commit/ceb8020284db2b76abc42637caaa94d227c422ef))
+* **code:** Fix hash mismatches for files containing non-UTF-8 content ([33d33e9](https://github.com/snyk/cli/commit/33d33e92bba76cff694cc5ee9e9b2e4b9274a673))
 * **iac:** Ensure to use the correct org id when sharing results for v2 ([1c4094a](https://github.com/snyk/snyk/commit/1c4094aff5a21b08eefed47508d33668940af003))
 * **iac:** Ensure to use target-name ([2201f0a](https://github.com/snyk/snyk/commit/2201f0a46ac5747b4c58ed01990d1e9ae13f4eb7))
 * **sbom:** Fix issues when generating sboms based on NuGet .sln ([80c43d9](https://github.com/snyk/snyk/commit/80c43d9a6f9f3a29f5f0df679d75d82fed48a7f5))
@@ -21,5 +22,8 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **test:** Fix yarn 2 out of sync issues ([18aee45](https://github.com/snyk/snyk/commit/18aee454a87fbeed480839fc91a04123840c6ff5))
 * **test:** Fix pnpm out of sync issue for duplicated peer and dev dependencies ([2581e16](https://github.com/snyk/snyk/commit/2581e169ac813df49e8eccce8ae4bfd85f01378e))
 * **test:** Ensure internal dependencies are represented correctly when normalizing Gradle dependencies ([c7e2713](https://github.com/snyk/snyk/commit/c7e2713a4d1d961857b95038c186085e14d8f415))
+* **test:** Fix testing composer-based PHP projects ([39e3379](https://github.com/snyk/snyk/commit/39e337965740f6242a22f998cc433d7842468490))
 * **language-server:** Fix and improve issue filtering in IDEs
+* **language-server:** Fix unmanaged C/C++ scans with '—unmanaged' flag in additional parameters ([01f53e3](https://github.com/snyk/cli/commit/01f53e39c7d05c33aba9f219de958262202b5545))
+* **language-server:** Fix applying Snyk Code AI fixes on the wrong lines ([01f53e3](https://github.com/snyk/cli/commit/01f53e39c7d05c33aba9f219de958262202b5545))
 
