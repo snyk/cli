@@ -4,7 +4,7 @@
 
 ## Usage
 
-`snyk sbom test --experimental --file=<FILE_PATH> [<options>]`
+`snyk sbom test --experimental --file=<FILE_PATH> [<OPTIONS>]`
 
 ## Description
 
