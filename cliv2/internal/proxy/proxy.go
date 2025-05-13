@@ -16,7 +16,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
-	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 
@@ -199,24 +198,15 @@ func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.Proxy
 		p.DebugLogger.Printf("Failed to add header: %s", err)
 	}
 
-	networking.LogRequest(r, p.DebugLogger)
-
 	return r, nil
 }
 
 func (p *WrapperProxy) handleResponse(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
-	networking.LogResponse(resp, p.DebugLogger)
-
 	if authFailed := resp.Request.Header.Get(headerSnykAuthFailed); authFailed != "" {
 		resp.Header.Set(headerSnykAuthFailed, authFailed)
 	}
 
-	err := middleware.HandleResponse(resp, p.config)
-	if err == nil {
-		return resp
-	}
-
-	if p.errHandlerFunc != nil && p.errHandlerFunc(err, resp.Request.Context()) != nil {
+	if ctx.Error != nil {
 		resp.Header.Set(headerSnykTerminate, "true")
 	}
 
@@ -350,12 +340,4 @@ func (p *WrapperProxy) UpstreamProxy() func(req *http.Request) (*url.URL, error)
 
 func (p *WrapperProxy) Transport() *http.Transport {
 	return p.transport
-}
-
-func (p *WrapperProxy) SetHeaderFunction(addHeaderFunc func(*http.Request) error) {
-	p.addHeaderFunc = addHeaderFunc
-}
-
-func (p *WrapperProxy) SetErrorHandlerFunction(errHandler networktypes.ErrorHandlerFunc) {
-	p.errHandlerFunc = errHandler
 }

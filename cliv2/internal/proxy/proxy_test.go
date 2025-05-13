@@ -1,13 +1,11 @@
 package proxy_test
 
 import (
-	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"os"
 	"testing"
@@ -15,7 +13,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
-	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	gafUtils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
@@ -246,98 +243,4 @@ func Test_AddExtraCaCert(t *testing.T) {
 
 	// cleanup
 	os.Remove(file.Name())
-}
-
-func Test_proxyPropagatesAuthFailureHeader(t *testing.T) {
-	basecache := "testcache"
-	version := "1.1.1"
-
-	config := setup(t, basecache, version)
-	config.Set(configuration.INSECURE_HTTPS, false)
-	defer teardown(t, basecache)
-
-	wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, caData)
-	assert.Nil(t, err)
-	wp.SetHeaderFunction(func(r *http.Request) error {
-		// Simulate a wrapped authentication failure, such as oauth refresh.
-		return fmt.Errorf("nope: %w", middleware.ErrAuthenticationFailed)
-	})
-
-	err = wp.Start()
-	assert.Nil(t, err)
-
-	useProxyAuth := true
-	proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
-	assert.Nil(t, err)
-
-	res, err := proxiedClient.Get("https://downloads.snyk.io/cli/latest/version")
-	assert.Nil(t, err)
-	// Assert that the proxy propagates the auth failed marker header to the response.
-	assert.Equal(t, res.Header.Get("snyk-auth-failed"), "true")
-
-	wp.Close()
-}
-
-func Test_proxyWithErrorHandler(t *testing.T) {
-	basecache := "testcache"
-	version := "1.1.1"
-
-	config := setup(t, basecache, version)
-	config.Set(configuration.INSECURE_HTTPS, false)
-	defer teardown(t, basecache)
-
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusUnauthorized)
-	})
-	server := httptest.NewServer(handler)
-	defer server.Close()
-
-	t.Run("intercepts traffic based on configuration", func(t *testing.T) {
-		config.Set(configuration.API_URL, server.URL)
-		wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, caData)
-		assert.Nil(t, err)
-
-		// register err handler for the proxy
-		wp.SetErrorHandlerFunction(func(err error, ctx context.Context) error {
-			return err
-		})
-
-		err = wp.Start()
-		defer wp.Close()
-		assert.Nil(t, err)
-
-		useProxyAuth := true
-		proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
-		assert.Nil(t, err)
-
-		res, err := proxiedClient.Get(server.URL)
-		assert.NotNil(t, res)
-		assert.Equal(t, res.Header.Get("snyk-terminate"), "true")
-		assert.Nil(t, err)
-	})
-
-	t.Run("does not intercept external traffic", func(t *testing.T) {
-		// the local server is not in the configuration, so it's not intercepted
-		config.Set(configuration.API_URL, "http://api.snyk.io")
-		wp, err := proxy.NewWrapperProxy(config, version, &debugLogger, caData)
-		assert.Nil(t, err)
-
-		// register err handler for the proxy
-		wp.SetErrorHandlerFunction(func(err error, ctx context.Context) error {
-			return err
-		})
-
-		err = wp.Start()
-		defer wp.Close()
-		assert.Nil(t, err)
-
-		useProxyAuth := true
-		proxiedClient, err := helper_getHttpClient(wp, useProxyAuth)
-		assert.Nil(t, err)
-
-		res, err := proxiedClient.Get(server.URL)
-		assert.NotNil(t, res)
-		assert.Empty(t, res.Header.Get("snyk-terminate"))
-		assert.Nil(t, err)
-	})
 }

@@ -3,7 +3,6 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
-	"net/http"
 	"os"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
@@ -12,10 +11,8 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/logging"
-	"github.com/snyk/go-application-framework/pkg/networking"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
-	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/spf13/pflag"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
@@ -74,14 +71,11 @@ func legacycliWorkflow(
 	config := invocation.GetConfiguration()
 	debugLogger := invocation.GetEnhancedLogger() // uses zerolog
 	debugLoggerDefault := invocation.GetLogger()  // uses log
-	networkAccess := invocation.GetNetworkAccess()
 	ri := invocation.GetRuntimeInfo()
 
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
 	workingDirectory := config.GetString(configuration.WORKING_DIRECTORY)
-	proxyAuthenticationMechanismString := config.GetString(configuration.PROXY_AUTHENTICATION_MECHANISM)
-	proxyAuthenticationMechanism := httpauth.AuthenticationMechanismFromString(proxyAuthenticationMechanismString)
 	analyticsDisabled := config.GetBool(configuration.ANALYTICS_DISABLED)
 
 	debugLogger.Print("Arguments:", args)
@@ -132,8 +126,6 @@ func legacycliWorkflow(
 	wrapperProxy, err := createInternalProxy(
 		config,
 		debugLogger,
-		proxyAuthenticationMechanism,
-		networkAccess,
 		invocation,
 	)
 	if err != nil {
@@ -160,7 +152,7 @@ func legacycliWorkflow(
 	return output, err
 }
 
-func createInternalProxy(config configuration.Configuration, debugLogger *zerolog.Logger, proxyAuthenticationMechanism httpauth.AuthenticationMechanism, networkAccess networking.NetworkAccess, invocation workflow.InvocationContext) (*proxy.WrapperProxy, error) {
+func createInternalProxy(config configuration.Configuration, debugLogger *zerolog.Logger, invocation workflow.InvocationContext) (*proxy.WrapperProxy, error) {
 	caData, err := GetGlobalCertAuthority(config, debugLogger)
 	if err != nil {
 		return nil, err
@@ -171,15 +163,11 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 		return nil, errors.Wrap(err, "Failed to create proxy!")
 	}
 
-	wrapperProxy.SetUpstreamProxyAuthentication(proxyAuthenticationMechanism)
-
-	proxyHeaderFunc := func(req *http.Request) error {
-		headersErr := networkAccess.AddHeaders(req)
-		return headersErr
-	}
-	wrapperProxy.SetHeaderFunction(proxyHeaderFunc)
-	wrapperProxy.SetErrorHandlerFunction(networkAccess.GetErrorHandler())
 	wrapperProxy.RegisterInterceptor(interceptor.NewV1AnalyticsInterceptor(invocation))
+	// The networkinjector intercepts all requests from the legacy CLI and re-routes them to the existing networking
+	// layer. It should therefore be kept as the last interceptor in the chain, as it circuit breaks goproxy's own
+	// routing. Any interceptor added later will not be called.
+	wrapperProxy.RegisterInterceptor(interceptor.NewNetworkInjector(invocation))
 
 	err = wrapperProxy.Start()
 	if err != nil {
