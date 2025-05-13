@@ -8,7 +8,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **iac:** Improve IaC deployment to avoid on the fly downloads ([5108f58](https://github.com/snyk/snyk/commit/5108f58954b22de962cc3125f643e5823a439a20))
 * **sbom:** Introduce sbom monitor command ([24e96c3](https://github.com/snyk/snyk/commit/24e96c33f153071fe798ed1b7a3ec78e5cc35733))
 * **test:** Improve gradle module resolution  ([7991133](https://github.com/snyk/snyk/commit/79911337912082454e4362d9473c40699e059425))
-* **language-server:** Introduce explanation of AI fixes in IDEs
+* **language-server:** Introduce explanation of AI fixes in IDEs ([74fa322](https://github.com/snyk/cli/commit/74fa3224aef6ba68b7f55006b7d0ced92c6d7e57))
 
 ### Bug Fixes
 
@@ -23,7 +23,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **test:** Fix pnpm out of sync issue for duplicated peer and dev dependencies ([2581e16](https://github.com/snyk/snyk/commit/2581e169ac813df49e8eccce8ae4bfd85f01378e))
 * **test:** Ensure internal dependencies are represented correctly when normalizing Gradle dependencies ([c7e2713](https://github.com/snyk/snyk/commit/c7e2713a4d1d961857b95038c186085e14d8f415))
 * **test:** Fix testing composer-based PHP projects ([39e3379](https://github.com/snyk/snyk/commit/39e337965740f6242a22f998cc433d7842468490))
-* **language-server:** Fix and improve issue filtering in IDEs
+* **language-server:** Fix and improve issue filtering in IDEs ([a474d67](https://github.com/snyk/cli/commit/a474d67a55c5b0684462b867fba1acf5dabcb000))
 * **language-server:** Fix unmanaged C/C++ scans with '—unmanaged' flag in additional parameters ([01f53e3](https://github.com/snyk/cli/commit/01f53e39c7d05c33aba9f219de958262202b5545))
 * **language-server:** Fix applying Snyk Code AI fixes on the wrong lines ([01f53e3](https://github.com/snyk/cli/commit/01f53e39c7d05c33aba9f219de958262202b5545))
 
