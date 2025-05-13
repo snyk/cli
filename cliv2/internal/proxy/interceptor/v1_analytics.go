@@ -99,7 +99,7 @@ func (v v1AnalyticsInterceptor) flattenObject(result map[string]interface{}, obj
 	}
 }
 
-func (v v1AnalyticsInterceptor) GetHandler() HandlerFunc {
+func (v v1AnalyticsInterceptor) GetHandler() goproxy.FuncReqHandler {
 	return func(req *http.Request, proxyCtx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 		bodyBytesGzipped, err := io.ReadAll(req.Body)
 		if err != nil {
