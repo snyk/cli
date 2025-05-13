@@ -4,7 +4,7 @@
 
 ## Usage
 
-`snyk monitor [<OPTIONS>]`
+`snyk sbom monitor --experimental [<OPTIONS>]`
 
 ## Description
 
@@ -35,7 +35,7 @@ Use the `-d` option to output the debug logs.
 
 ### `--experimental`
 
-Required. Use experimental command features. This option is currently required as the command is in its experimental phase.
+Required. Use experimental command features. This option is required because the command is in its experimental phase.
 
 ### `--file=<FILE_PATH>`
 
