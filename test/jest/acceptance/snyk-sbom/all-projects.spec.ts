@@ -84,6 +84,6 @@ describe('snyk sbom --all-projects (mocked server only)', () => {
     expect(bom.metadata.component.name).toEqual(
       'mono-repo-project-manifests-only',
     );
-    expect(bom.components).toHaveLength(36);
+    expect(bom.components).toHaveLength(37);
   });
 });
