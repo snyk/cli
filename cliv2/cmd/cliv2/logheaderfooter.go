@@ -17,6 +17,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/auth"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
+	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/utils"
@@ -137,6 +138,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Features", "")
 	tablePrint("  preview", previewFeaturesEnabled)
 	tablePrint("  fips", fipsEnabled)
+	tablePrint("  request attempts", fmt.Sprintf("%d", config.GetInt(middleware.ConfigurationKeyRetryAttempts)))
 	tablePrint("Checks", "")
 
 	sanityCheckResults := config_utils.CheckSanity(config)

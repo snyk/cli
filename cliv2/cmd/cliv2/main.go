@@ -634,6 +634,7 @@ func MainWithErrorCode() (int, []error) {
 	}
 
 	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
+	addNetworkingDetails(cliAnalytics.GetInstrumentation(), globalConfiguration)
 
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {

@@ -17,7 +17,7 @@ require (
 	github.com/snyk/cli-extension-sbom v0.0.0-20250422133603-a5ae6fdf0934
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20250429130542-564b0605020e
-	github.com/snyk/go-application-framework v0.0.0-20250516091145-ac8a7e88df25
+	github.com/snyk/go-application-framework v0.0.0-20250520093237-2f9180791a51
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20250514053102-44a941375f2b
@@ -58,6 +58,7 @@ require (
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.6.0 // indirect
+	github.com/cenkalti/backoff/v5 v5.0.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/charmbracelet/bubbles v0.14.0 // indirect
 	github.com/charmbracelet/bubbletea v0.23.1 // indirect
