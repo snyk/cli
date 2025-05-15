@@ -19,7 +19,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 
-	networktypes "github.com/snyk/go-application-framework/pkg/networking/network_types"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
 	"github.com/elazarl/goproxy"
@@ -42,7 +41,6 @@ type WrapperProxy struct {
 	proxyUsername       string
 	proxyPassword       string
 	config              configuration.Configuration
-	errHandlerFunc      networktypes.ErrorHandlerFunc
 	interceptors        []interceptor.Interceptor
 }
 
