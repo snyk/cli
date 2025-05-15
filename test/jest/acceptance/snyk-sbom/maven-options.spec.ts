@@ -63,7 +63,7 @@ describe('snyk sbom: maven options (mocked server only)', () => {
     );
     expect(sbom.dependencies[2].dependsOn.length).toEqual(1);
     expect(sbom.dependencies[2].dependsOn[0]).toEqual(
-      'commons-logging:commons-logging@1.0.3',
+      'commons-logging:commons-logging@1.0.4',
     );
   });
 
