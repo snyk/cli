@@ -63,4 +63,17 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
 
     expect(code).toEqual(0);
   });
+
+  test('run `snyk test` on a maven project with Dverbose omitted versions', async () => {
+    const project = await createProjectFromWorkspace(
+      'maven-dverbose-omitted-versions',
+    );
+
+    const { code } = await runSnykCLI('test -d - --Dverbose', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+  });
 });
