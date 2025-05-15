@@ -167,12 +167,12 @@ func (p *WrapperProxy) ProxyInfo() *ProxyInfo {
 	}
 }
 
-// Header to signal that the typescript CLI should terminate execution.
-const headerSnykTerminate = "snyk-terminate"
+// HeaderSnykTerminate is a header to signal that the typescript CLI should terminate execution.
+const HeaderSnykTerminate = "snyk-terminate"
 
 func (p *WrapperProxy) handleResponse(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
 	if ctx.Error != nil {
-		resp.Header.Set(headerSnykTerminate, "true")
+		resp.Header.Set(HeaderSnykTerminate, "true")
 	}
 
 	return resp
