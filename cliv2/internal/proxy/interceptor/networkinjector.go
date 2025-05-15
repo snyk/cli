@@ -23,7 +23,7 @@ func (ni networkInjector) GetHandler() goproxy.FuncReqHandler {
 	return func(req *http.Request, proxyCtx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 		resp, err := ni.invocationCtx.GetNetworkAccess().GetRoundTripper().RoundTrip(req)
 		if err != nil {
-			ni.invocationCtx.GetEnhancedLogger().Printf("intercepting call failed with error: %v", err)
+			ni.invocationCtx.GetEnhancedLogger().Trace().Msgf("intercepting call failed with error: %v", err)
 
 			// We use goproxy's context to store the error, which we use later in the handling of all legacycli responses.
 			proxyCtx.Error = err
