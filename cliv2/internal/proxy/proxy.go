@@ -4,14 +4,14 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
 	"fmt"
-	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 	"log"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+
+	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
@@ -19,7 +19,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/networking/certs"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 
-	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	networktypes "github.com/snyk/go-application-framework/pkg/networking/network_types"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 
@@ -42,7 +41,6 @@ type WrapperProxy struct {
 	cliVersion          string
 	proxyUsername       string
 	proxyPassword       string
-	addHeaderFunc       func(*http.Request) error
 	config              configuration.Configuration
 	errHandlerFunc      networktypes.ErrorHandlerFunc
 	interceptors        []interceptor.Interceptor
@@ -140,7 +138,6 @@ func InitCA(config configuration.Configuration, cliVersion string, logger *zerol
 func NewWrapperProxy(config configuration.Configuration, cliVersion string, debugLogger *zerolog.Logger, ca CaData) (*WrapperProxy, error) {
 	var p WrapperProxy
 	p.cliVersion = cliVersion
-	p.addHeaderFunc = func(request *http.Request) error { return nil }
 	p.DebugLogger = debugLogger
 	p.CertificateLocation = ca.CertFile
 	p.config = config
@@ -170,42 +167,10 @@ func (p *WrapperProxy) ProxyInfo() *ProxyInfo {
 	}
 }
 
-// headerSnykAuthFailed is used to indicate there was a failure to establish
-// authorization in a legacycli proxied HTTP request and response.
-//
-// The request header is used to propagate this indication from
-// NetworkAccess.AddHeaders all the way through proxy middleware into the
-// response.
-//
-// The response header is then used by the Typescript CLI to surface an
-// appropriate authentication failure error back to the user.
-//
-// These layers of indirection are necessary because the Typescript CLI is not
-// involved in OAuth authentication at all, but needs to know that an auth
-// failure specifically occurred. HTTP status and error catalog codes aren't
-// adequate for this purpose because there are non-authentication reasons an API
-// request might 401 or 403, such as permissions or entitlements.
-const headerSnykAuthFailed = "snyk-auth-failed"
-
 // Header to signal that the typescript CLI should terminate execution.
 const headerSnykTerminate = "snyk-terminate"
 
-func (p *WrapperProxy) replaceVersionHandler(r *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
-	if err := p.addHeaderFunc(r); err != nil {
-		if errors.Is(err, middleware.ErrAuthenticationFailed) {
-			r.Header.Set(headerSnykAuthFailed, "true")
-		}
-		p.DebugLogger.Printf("Failed to add header: %s", err)
-	}
-
-	return r, nil
-}
-
 func (p *WrapperProxy) handleResponse(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
-	if authFailed := resp.Request.Header.Get(headerSnykAuthFailed); authFailed != "" {
-		resp.Header.Set(headerSnykAuthFailed, authFailed)
-	}
-
 	if ctx.Error != nil {
 		resp.Header.Set(headerSnykTerminate, "true")
 	}
@@ -234,7 +199,6 @@ func (p *WrapperProxy) Start() error {
 	proxy.Tr = p.transport
 	// zerolog based logger also works but it will print empty lines between logs
 	proxy.Logger = log.New(&pkg_utils.ToZeroLogDebug{Logger: p.DebugLogger}, "", 0)
-	proxy.OnRequest().DoFunc(p.replaceVersionHandler)
 
 	for _, i := range p.interceptors {
 		proxy.OnRequest(i.GetCondition()).DoFunc(i.GetHandler())
