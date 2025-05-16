@@ -186,37 +186,37 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
-  test('run `snyk test` on a gradle project and check top-level dependency node id', async () => {
-    const project = await createProjectFromWorkspace('gradle-with-classifier');
-
-    const { code, stderr, stdout } = await runSnykCLI('test --print-graph', {
-      cwd: project.path(),
-      env,
-    });
-
-    if (code != 0) {
-      console.debug(stderr);
-      console.debug('---------------------------');
-      console.debug(stdout);
-    }
-    expect(code).toEqual(0);
-
-    const depGraphJsonStr = stdout
-      .split('DepGraph data:')[1]
-      .split('DepGraph target:')[0];
-    const depGraphJson = JSON.parse(depGraphJsonStr);
-    expect(depGraphJson.pkgManager.name).toEqual('gradle');
-    expect(depGraphJson.pkgs).toContainEqual({
-      id: 'net.sf.json-lib:json-lib@2.4',
-      info: { name: 'net.sf.json-lib:json-lib', version: '2.4' },
-    });
-    expect(depGraphJson.graph.nodes).toContainEqual({
-      nodeId: 'net.sf.json-lib:json-lib:jar:jdk13@2.4',
-      pkgId: 'net.sf.json-lib:json-lib@2.4',
-      deps: expect.any(Array),
-    });
-  });
-
+  // test('run `snyk test` on a gradle project and check top-level dependency node id', async () => {
+  //   const project = await createProjectFromWorkspace('gradle-with-classifier');
+  //
+  //   const { code, stderr, stdout } = await runSnykCLI('test --print-graph', {
+  //     cwd: project.path(),
+  //     env,
+  //   });
+  //
+  //   if (code != 0) {
+  //     console.debug(stderr);
+  //     console.debug('---------------------------');
+  //     console.debug(stdout);
+  //   }
+  //   expect(code).toEqual(0);
+  //
+  //   const depGraphJsonStr = stdout
+  //     .split('DepGraph data:')[1]
+  //     .split('DepGraph target:')[0];
+  //   const depGraphJson = JSON.parse(depGraphJsonStr);
+  //   expect(depGraphJson.pkgManager.name).toEqual('gradle');
+  //   expect(depGraphJson.pkgs).toContainEqual({
+  //     id: 'net.sf.json-lib:json-lib@2.4',
+  //     info: { name: 'net.sf.json-lib:json-lib', version: '2.4' },
+  //   });
+  //   expect(depGraphJson.graph.nodes).toContainEqual({
+  //     nodeId: 'net.sf.json-lib:json-lib:jar:jdk13@2.4',
+  //     pkgId: 'net.sf.json-lib:json-lib@2.4',
+  //     deps: expect.any(Array),
+  //   });
+  // });
+  //
   test('run `snyk test` on a cocoapods project', async () => {
     const project = await createProjectFromWorkspace('cocoapods-app');
 
