@@ -42,8 +42,6 @@ func Test_proxyWithErrorHandler(t *testing.T) {
 	logger := zerolog.Nop()
 	config := configuration.NewWithOpts()
 
-	config.Set(configuration.INSECURE_HTTPS, false)
-
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 	})
@@ -89,11 +87,7 @@ func Test_proxyWithErrorHandler(t *testing.T) {
 			res, err := client.Get(server.URL)
 			assert.NotNil(t, res)
 
-			if tc.expectedIntercept {
-				assert.Equal(t, "true", res.Header.Get(proxy.HeaderSnykTerminate))
-			} else {
-				assert.Empty(t, res.Header.Get(proxy.HeaderSnykTerminate))
-			}
+			assert.Equal(t, tc.expectedIntercept, res.Header.Get(proxy.HeaderSnykTerminate) == "true")
 			assert.Nil(t, err)
 		})
 	}
