@@ -796,8 +796,8 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skeema/knownhosts v1.3.1 h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnBY8=
 github.com/skeema/knownhosts v1.3.1/go.mod h1:r7KTdC8l4uxWRyK2TpQZ/1o5HaSzh06ePQNxPwTcfiY=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20250507092905-796fa7472681 h1:Mdj0YYq6oJzRdbnYzlbEMxeOp/c4MxuZfN8TDAXxz44=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20250507092905-796fa7472681/go.mod h1:5a+N7XhF3sd6Qy7hwQvSWyHrkfp2/J556SLjPdbyDbE=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20250521095438-554f620d07db h1:OlhaP+aY369qqY1dugNbJorG4BS69QbIIzy5aorcT0Q=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20250521095438-554f620d07db/go.mod h1:uDqoSiY+4y31mCf6pjMa67hLaDsrzBxYP4dOutfkP3c=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e h1:lYBeDqyAmb7NPfcLZJb1rcc+BrWhX5Ct9isQO1O4mSc=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e/go.mod h1:9Zpe+B8SCkWFjpDR3ckFJl1XuMyxysWebKhyAIj7EyI=
 github.com/snyk/cli-extension-iac v0.0.0-20250417092850-bfa35aacddfc h1:Kg1f+GX1cW7un3Busrqj3u9VhKlZgqgHtXzAHcdcbEs=
@@ -810,8 +810,8 @@ github.com/snyk/code-client-go v1.21.3 h1:2+HPXCA9FGn3gaI1Jw1C4Ifn/NRAbSnmohFUvz
 github.com/snyk/code-client-go v1.21.3/go.mod h1:WH6lNkJc785hfXmwhixxWHix3O6z+1zwz40oK8vl/zg=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
-github.com/snyk/error-catalog-golang-public v0.0.0-20250429130542-564b0605020e h1:XFGkHDWA8JTPLr82QzoKVqGytofEYBf68VqoUq8yvXk=
-github.com/snyk/error-catalog-golang-public v0.0.0-20250429130542-564b0605020e/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
+github.com/snyk/error-catalog-golang-public v0.0.0-20250520155934-078275889e2c h1:rXUCGepwK38Xn00MKwfJRd5ecQ7ylvkudoMFBycIJUk=
+github.com/snyk/error-catalog-golang-public v0.0.0-20250520155934-078275889e2c/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
 github.com/snyk/go-application-framework v0.0.0-20250520093237-2f9180791a51 h1:iwTYAvY2/iVMbsTtjEeBXI6BB3Z8WlOqYXRQl8+Hvn8=
 github.com/snyk/go-application-framework v0.0.0-20250520093237-2f9180791a51/go.mod h1:g5uaQUKUNtcWGksxyTLYxlpC6EJfNuOohoyDl/JIQLQ=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=

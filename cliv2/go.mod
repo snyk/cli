@@ -10,13 +10,13 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-ai-bom v0.0.0-20250507092905-796fa7472681
+	github.com/snyk/cli-extension-ai-bom v0.0.0-20250521095438-554f620d07db
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e
 	github.com/snyk/cli-extension-iac v0.0.0-20250417092850-bfa35aacddfc
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a
 	github.com/snyk/cli-extension-sbom v0.0.0-20250422133603-a5ae6fdf0934
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
-	github.com/snyk/error-catalog-golang-public v0.0.0-20250429130542-564b0605020e
+	github.com/snyk/error-catalog-golang-public v0.0.0-20250520155934-078275889e2c
 	github.com/snyk/go-application-framework v0.0.0-20250520093237-2f9180791a51
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5

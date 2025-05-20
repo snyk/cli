@@ -11,6 +11,7 @@ export type FakeDeepCodeServer = {
   setNextResponse: (r: any) => void;
   setNextStatusCode: (code: number) => void;
   setSarifResponse: (r: any) => void;
+  setAnalysisHandler: (handler: any) => void;
   listen: (callback: () => void) => void;
   restore: () => void;
   close: (callback: () => void) => void;
@@ -31,13 +32,36 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   let server: http.Server | undefined = undefined;
   const sockets = new Set();
 
+  const defaultAnalysisHandler = (_req, res) => {
+    res.status(200);
+    res.send({
+      timing: {
+        fetchingCode: 1,
+        analysis: 1,
+        queue: 1,
+      },
+      coverage: [],
+      status: 'COMPLETE',
+      type: 'sarif',
+      sarif: sarifResponse,
+    });
+  };
+  let analysisHandler = defaultAnalysisHandler;
+  const setAnalysisHandler = (handler) => {
+    analysisHandler = handler;
+  };
+
   const restore = () => {
     requests = [];
     customResponse = undefined;
     nextResponse = undefined;
     nextStatusCode = undefined;
     sarifResponse = null;
-    filtersResponse = { configFiles: [], extensions: ['.java', '.js'] };
+    analysisHandler = defaultAnalysisHandler;
+    filtersResponse = {
+      configFiles: [],
+      extensions: ['.java', '.js'],
+    };
   };
 
   const getRequests = () => {
@@ -121,20 +145,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     });
   });
 
-  app.post('/analysis', (req, res) => {
-    res.status(200);
-    res.send({
-      timing: {
-        fetchingCode: 1,
-        analysis: 1,
-        queue: 1,
-      },
-      coverage: [],
-      status: 'COMPLETE',
-      type: 'sarif',
-      sarif: sarifResponse,
-    });
-  });
+  app.post('/analysis', (req, res) => analysisHandler(req, res));
 
   const listenPromise = () => {
     return new Promise<void>((resolve) => {
@@ -187,6 +198,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     setSarifResponse,
     setNextResponse,
     setNextStatusCode,
+    setAnalysisHandler,
     listen,
     restore,
     close,
