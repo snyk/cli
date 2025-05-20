@@ -1,0 +1,85 @@
+name: Deployment Tests
+
+on:
+  push:
+    paths:
+      - '.github/workflows/deployment-monitor.yml'
+  schedule:
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+
+jobs:
+  monitor_cdn:
+    name: 'deployment: CDN'
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu]
+        base_url: [static.snyk.io, downloads.snyk.io]
+        channel: [stable, preview]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y curl
+      - name: Install Snyk
+        run: |
+          rm -f ./snyk
+          curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{  matrix.channel }}/snyk-linux -o ./snyk-linux
+          curl --retry 2 -L -v --compressed https://${{  matrix.base_url }}/cli/${{  matrix.channel }}/snyk-linux.sha256 -o ./snyk-linux.sha256
+          echo --- Content shasum file ---
+          cat snyk-linux.sha256
+          echo --- Shasum binary ---
+          sha256sum snyk-linux
+          chmod +x ./snyk-linux
+          echo --- CLI version ---
+          ./snyk-linux --version
+          echo --- Shasum comparison ---
+          sha256sum -c snyk-linux.sha256
+      - name: Run snyk --version
+        run: ./snyk-linux --version
+
+  monitor_homebrew:
+    name: 'deployment: Homebrew (macos)'
+    runs-on: macos-latest
+    steps:
+      - name: Install Snyk
+        run: |
+          brew tap snyk/tap
+          brew install snyk
+      - name: Run snyk --version
+        run: snyk --version
+
+  monitor_scoop:
+    name: 'deployment: Scoop (windows)'
+    runs-on: windows-latest
+    steps:
+      - name: Install Scoop and Snyk
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+          Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+          scoop bucket add snyk https://github.com/snyk/scoop-snyk
+          scoop install snyk
+          snyk --version
+
+  monitor_npm:
+    name: 'deployment: npm (ubuntu)'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+      - name: Install Snyk
+        run: |
+          npm install -g snyk
+          snyk --version
+
+  monitor_snyk_images:
+    name: 'deployment: snyk-images (snyk/snyk:linux)'
+    runs-on: ubuntu-latest
+    container:
+      image: snyk/snyk:linux
+    steps:
+      - name: Install Snyk
+        run: |
+          snyk --version
