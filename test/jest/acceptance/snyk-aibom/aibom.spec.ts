@@ -1,7 +1,11 @@
 import { runSnykCLI } from '../../util/runSnykCLI';
-import { fakeServer } from '../../../acceptance/fake-server';
+import {
+  fakeServer,
+  getFirstIPv4Address,
+} from '../../../acceptance/fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { resolve } from 'path';
+import { readFileSync } from 'fs';
 
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 
@@ -13,16 +17,22 @@ describe('snyk aibom (mocked servers only)', () => {
   let env: Record<string, string>;
   const port = getServerPort(process);
   const baseApi = '/api/v1';
+  const ipAddress = getFirstIPv4Address();
   const initialEnvVars = {
     ...process.env,
-    SNYK_API: 'http://localhost:' + port + baseApi,
-    SNYK_HOST: 'http://localhost:' + port,
+    SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+    SNYK_HOST: `http://${ipAddress}:${port}`,
     SNYK_TOKEN: '123456789',
   };
   const projectRoot = resolve(__dirname, '../../../..');
   const pythonChatbotProject = resolve(
     projectRoot,
     'test/fixtures/ai-bom/python-chatbot',
+  );
+
+  const notSupportedProject = resolve(
+    projectRoot,
+    'test/fixtures/ai-bom/not-supported',
   );
 
   beforeAll(() => {
@@ -39,19 +49,7 @@ describe('snyk aibom (mocked servers only)', () => {
 
         deepCodeServer = fakeDeepCodeServer();
         deepCodeServer.listen(checkAndResolve);
-
-        env = {
-          ...initialEnvVars,
-          SNYK_CODE_CLIENT_PROXY_URL: `http://localhost:${deepCodeServer.getPort()}`,
-        };
         server = fakeServer(baseApi, 'snykToken');
-        deepCodeServer.setFiltersResponse({
-          configFiles: [],
-          extensions: ['.py'],
-          autofixExtensions: [],
-        });
-        const sarifPayload = require('../../../fixtures/ai-bom/sample-ai-bom-sarif.json');
-        deepCodeServer.setSarifResponse(sarifPayload);
         server.listen(port, checkAndResolve);
       } catch (error) {
         reject(error);
@@ -59,10 +57,23 @@ describe('snyk aibom (mocked servers only)', () => {
     });
   });
 
-  afterEach(() => {
+  beforeEach(() => {
     jest.resetAllMocks();
     server.restore();
     deepCodeServer.restore();
+    env = {
+      ...initialEnvVars,
+      SNYK_CODE_CLIENT_PROXY_URL: `http://${ipAddress}:${deepCodeServer.getPort()}`,
+    };
+    deepCodeServer.setFiltersResponse({
+      configFiles: [],
+      extensions: ['.py'],
+      autofixExtensions: [],
+    });
+    const sarifPayload = readFileSync(
+      `${projectRoot}/test/fixtures/ai-bom/sample-ai-bom-sarif.json`,
+    ).toString();
+    deepCodeServer.setSarifResponse(sarifPayload);
   });
 
   afterAll(() => {
@@ -94,5 +105,59 @@ describe('snyk aibom (mocked servers only)', () => {
       bomFormat: 'CycloneDX',
     });
     expect(bom.components.length).toBeGreaterThan(1);
+  });
+
+  describe('aibom error handling', () => {
+    test('handles a missing experimental flag', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `aibom ${pythonChatbotProject}`,
+        {
+          env,
+        },
+      );
+      expect(code).toEqual(2);
+      expect(stdout).toContain('Command is experimental (SNYK-CLI-0015)');
+    });
+
+    test('handles unauthenticated', async () => {
+      deepCodeServer.setAnalysisHandler((req, res) => {
+        res.status(401).send();
+      });
+      console.log(pythonChatbotProject);
+      const { code, stdout } = await runSnykCLI(
+        `aibom ${pythonChatbotProject} --experimental`,
+        {
+          env,
+        },
+      );
+      expect(code).toEqual(2);
+      expect(stdout).toContain('Authentication error (SNYK-0005)');
+    });
+
+    test('handles org has no access', async () => {
+      deepCodeServer.setAnalysisHandler((req, res) => {
+        res.status(403).send();
+      });
+      console.log(pythonChatbotProject);
+      const { code, stdout } = await runSnykCLI(
+        `aibom ${pythonChatbotProject} --experimental`,
+        {
+          env,
+        },
+      );
+      expect(code).toEqual(2);
+      expect(stdout).toContain('Forbidden (SNYK-AI-BOM-0002)');
+    });
+
+    test('handles an unsupported project', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `aibom ${notSupportedProject} --experimental`,
+        {
+          env,
+        },
+      );
+      expect(code).toEqual(2);
+      expect(stdout).toContain('No supported files (SNYK-AI-BOM-0003)');
+    });
   });
 });
