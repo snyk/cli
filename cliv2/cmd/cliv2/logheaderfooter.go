@@ -55,6 +55,9 @@ func logHeaderAuthorizationInfo(
 	if len(splitHeader) == 2 {
 		tokenType := splitHeader[0]
 		token := splitHeader[1]
+		if tokenType == string(auth.AUTH_TYPE_TOKEN) && auth.IsAuthTypePAT(token) {
+			tokenType = string(auth.AUTH_TYPE_PAT)
+		}
 		tokenShaSum = redactAuthorizationTokens(token)
 		tokenDetails = fmt.Sprintf(" (type=%s)", tokenType)
 	}

@@ -5,19 +5,20 @@ import { ciEnvs } from '../../../src/lib/is-ci';
 import { getServerPort } from '../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
-
 describe('Auth', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
   let initialConfig: Record<string, string> = {};
+  let fakeServerUrl: string;
   const serverToken = 'random';
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
     const apiPort = getServerPort(process);
+    fakeServerUrl = 'http://' + getFirstIPv4Address() + ':' + apiPort + apiPath;
     env = {
       ...process.env,
-      SNYK_API: 'http://' + getFirstIPv4Address() + ':' + apiPort + apiPath,
+      SNYK_API: fakeServerUrl,
       SNYK_DISABLE_ANALYTICS: '1',
       SNYK_HTTP_PROTOCOL_UPGRADE: '0',
     };
@@ -108,5 +109,55 @@ describe('Auth', () => {
     expect(code).toEqual(0);
     expect(resultConfigGet.code).toEqual(0);
     expect(resultConfigGet.stdout).toContain(serverToken);
+  });
+
+  describe('pat', () => {
+    it('successfully authenticates', async () => {
+      const pat = 'snyk_uat.12345678.abcdefg-hijklmnop.qrstuvwxyz-123456';
+      const authCmd = await runSnykCLI(`auth ${pat} -d`, {
+        env: {
+          ...env,
+          SNYK_API: `${fakeServerUrl.replace('/api/v1', '')}`,
+        },
+      });
+      expect(authCmd.code).toEqual(0);
+
+      const configCmd = await runSnykCLI('config get api', {
+        env: {
+          ...env,
+          INTERNAL_SNYK_REGION_URLS: `${fakeServerUrl.replace('/v1', '')}`,
+        },
+      });
+      expect(configCmd.code).toEqual(0);
+      expect(configCmd.stdout).toContain(pat);
+    });
+
+    it('successfully configures endpoint', async () => {
+      const euBasedPat =
+        'snyk_uat.12345678.thisisa-europecon.figuredpat-123456';
+      const authCmd = await runSnykCLI(`auth ${euBasedPat} -d`, {
+        env: {
+          ...env,
+          SNYK_API: `${fakeServerUrl.replace('/api/v1', '')}`,
+        },
+      });
+      expect(authCmd.code).toEqual(0);
+
+      const helpCmd = await runSnykCLI('help -d', {
+        env: {
+          ...env,
+          SNYK_API: `${fakeServerUrl.replace('/api/v1', '')}`,
+        },
+      });
+      expect(helpCmd.code).toEqual(0);
+
+      const expectedEndpoint = 'https://api.eu.snyk.io';
+      const expectedRegion = 'snyk-eu-01';
+      expect(helpCmd.stderr).toContain(expectedEndpoint);
+      expect(helpCmd.stderr).toContain(expectedRegion);
+
+      const serverRequest = server.popRequest();
+      expect(serverRequest.headers.authorization).toContain(euBasedPat);
+    });
   });
 });
