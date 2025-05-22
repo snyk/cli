@@ -800,8 +800,8 @@ github.com/snyk/cli-extension-ai-bom v0.0.0-20250521095438-554f620d07db h1:OlhaP
 github.com/snyk/cli-extension-ai-bom v0.0.0-20250521095438-554f620d07db/go.mod h1:uDqoSiY+4y31mCf6pjMa67hLaDsrzBxYP4dOutfkP3c=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e h1:lYBeDqyAmb7NPfcLZJb1rcc+BrWhX5Ct9isQO1O4mSc=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e/go.mod h1:9Zpe+B8SCkWFjpDR3ckFJl1XuMyxysWebKhyAIj7EyI=
-github.com/snyk/cli-extension-iac v0.0.0-20250417092850-bfa35aacddfc h1:Kg1f+GX1cW7un3Busrqj3u9VhKlZgqgHtXzAHcdcbEs=
-github.com/snyk/cli-extension-iac v0.0.0-20250417092850-bfa35aacddfc/go.mod h1:7O90So5PPqTRMpcs8BY14+jX+J8BixqZQyXQiRZW7ws=
+github.com/snyk/cli-extension-iac v0.0.0-20250521122953-52bf59414647 h1:HNuJNUtoJHgaVE514+7gaLTRZj0yl+MBPp0diDgqH34=
+github.com/snyk/cli-extension-iac v0.0.0-20250521122953-52bf59414647/go.mod h1:7O90So5PPqTRMpcs8BY14+jX+J8BixqZQyXQiRZW7ws=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a h1:SJ+Ts7e1EYcGJXeENR5inTGwPNRlNVgmMN2itO3+yj8=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a/go.mod h1:IqfQCIkyC26mkwa+aM6d6yxIh5+tCm4fSQG+Ogq3Qbc=
 github.com/snyk/cli-extension-sbom v0.0.0-20250422133603-a5ae6fdf0934 h1:0RCTH9C0zaTrnqpKLaLXTmP7suwWEHBNVwQSaR8Aifo=
@@ -885,8 +885,6 @@ github.com/vincent-petithory/dataurl v1.0.0 h1:cXw+kPto8NLuJtlMsI152irrVw9fRDX8A
 github.com/vincent-petithory/dataurl v1.0.0/go.mod h1:FHafX5vmDzyP+1CQATJn7WFKc9CvnvxyvZy6I1MrG/U=
 github.com/vmware-labs/yaml-jsonpath v0.3.2 h1:/5QKeCBGdsInyDCyVNLbXyilb61MXGi9NP674f9Hobk=
 github.com/vmware-labs/yaml-jsonpath v0.3.2/go.mod h1:U6whw1z03QyqgWdgXxvVnQ90zN1BWz5V+51Ewf8k+rQ=
-github.com/whilp/git-urls v1.0.0 h1:95f6UMWN5FKW71ECsXRUd3FVYiXdrE7aX4NZKcPmIjU=
-github.com/whilp/git-urls v1.0.0/go.mod h1:J16SAmobsqc3Qcy98brfl5f5+e0clUvg1krgwk/qCfE=
 github.com/writeas/go-strip-markdown v2.0.1+incompatible h1:IIqxTM5Jr7RzhigcL6FkrCNfXkvbR+Nbu1ls48pXYcw=
 github.com/writeas/go-strip-markdown v2.0.1+incompatible/go.mod h1:Rsyu10ZhbEK9pXdk8V6MVnZmTzRG0alMNLMwa0J01fE=
 github.com/xanzy/ssh-agent v0.3.3 h1:+/15pJfg/RsTxqYcX6fHqOXZwwMP+2VyYWJeWM2qQFM=

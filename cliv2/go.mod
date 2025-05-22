@@ -12,7 +12,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20250521095438-554f620d07db
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e
-	github.com/snyk/cli-extension-iac v0.0.0-20250417092850-bfa35aacddfc
+	github.com/snyk/cli-extension-iac v0.0.0-20250521122953-52bf59414647
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a
 	github.com/snyk/cli-extension-sbom v0.0.0-20250422133603-a5ae6fdf0934
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
@@ -197,7 +197,6 @@ require (
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/vincent-petithory/dataurl v1.0.0 // indirect
 	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
-	github.com/whilp/git-urls v1.0.0 // indirect
 	github.com/writeas/go-strip-markdown v2.0.1+incompatible // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
@@ -252,4 +251,4 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 //replace github.com/snyk/snyk-ls => ../../snyk-ls
 //replace github.com/snyk/code-client-go => ../../code-client-go
 
-// replace github.com/snyk/cli-extension-iac => ../../cli-extension-iac
+//replace github.com/snyk/cli-extension-iac => ../../cli-extension-iac
