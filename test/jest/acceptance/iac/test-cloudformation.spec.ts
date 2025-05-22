@@ -170,7 +170,7 @@ describe('CloudFormation single file scan for IaCV2', () => {
     expect(isValidJSONString(stdout)).toBe(true);
     expect(stdout).toContain('"id": "SNYK-CC-00002",');
     expect(stdout).toContain('"packageManager": "cloudformationconfig",');
-    expect(stdout).toContain('"projectType": "cloudformationconfig",');
+    expect(stdout).toContain('"projectType": "iac",');
     expect(exitCode).toBe(1);
   });
 });

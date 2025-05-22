@@ -92,6 +92,7 @@ function buildTestCommandResultData({
     convertEngineToJsonResults({
       results: scanResult,
       projectName,
+      iacNewEngine,
     }),
   );
 

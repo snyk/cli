@@ -103,9 +103,11 @@ export interface IacDescription {
 export function convertEngineToJsonResults({
   results,
   projectName,
+  iacNewEngine,
 }: {
   results: TestOutput;
   projectName: string;
+  iacNewEngine?: boolean;
 }): Array<Result | IacTestError> {
   const vulnerabilityGroups = groupVulnerabilitiesByFile(results); // all vulns groups by file
   const resourceGroups = groupResourcesByFile(results); // all resources grouped by file
@@ -121,7 +123,9 @@ export function convertEngineToJsonResults({
   }
 
   for (const [file, resources] of Object.entries(filesWithoutIssues)) {
-    output.push(resourcesToResult(results, projectName, file, resources));
+    output.push(
+      resourcesToResult(results, projectName, file, resources, iacNewEngine),
+    );
   }
 
   for (const [
@@ -135,6 +139,7 @@ export function convertEngineToJsonResults({
         file,
         vulnerabilities,
         passedVulnerabilities,
+        iacNewEngine,
       ),
     );
   }
@@ -216,6 +221,7 @@ function resourcesToResult(
   projectName: string,
   file: string,
   resources: Resource[],
+  iacNewEngine?: boolean,
 ): Result {
   const kind = resourcesToKind(resources);
   const ignoreSettings = testOutput.settings.ignoreSettings;
@@ -236,7 +242,7 @@ function resourcesToResult(
     targetFilePath: path.resolve(file),
     packageManager: kind,
     path: process.cwd(),
-    projectType: kind,
+    projectType: iacNewEngine ? IacProjectType.IAC : kind,
     ok: true,
     infrastructureAsCodeIssues: [],
     infrastructureAsCodeSuccesses: [],
@@ -249,6 +255,7 @@ function vulnerabilitiesToResult(
   file: string,
   vulnerabilities: Vulnerability[],
   passedVulnerabilities: Vulnerability[],
+  iacNewEngine?: boolean,
 ): Result {
   const kind =
     vulnerabilitiesToKind(vulnerabilities) ||
@@ -276,7 +283,7 @@ function vulnerabilitiesToResult(
     targetFilePath: path.resolve(file),
     packageManager: kind,
     path: process.cwd(),
-    projectType: kind,
+    projectType: iacNewEngine ? IacProjectType.IAC : kind,
     ok: infrastructureAsCodeIssues.length === 0,
     infrastructureAsCodeIssues,
     infrastructureAsCodeSuccesses,

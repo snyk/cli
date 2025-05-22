@@ -151,7 +151,7 @@ describe('Kubernetes single file scan for IaCV2', () => {
     expect(isValidJSONString(stdout)).toBe(true);
     expect(stdout).toContain('"id": "SNYK-CC-00608",');
     expect(stdout).toContain('"packageManager": "k8sconfig",');
-    expect(stdout).toContain('"projectType": "k8sconfig",');
+    expect(stdout).toContain('"projectType": "iac",');
     expect(exitCode).toBe(1);
   });
 

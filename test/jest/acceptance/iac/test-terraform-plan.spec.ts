@@ -137,7 +137,7 @@ describe('Terraform plan scanning for IaCV2', () => {
     expect(isValidJSONString(stdout)).toBe(true);
     expect(stdout).toContain('"id": "SNYK-CC-00021",');
     expect(stdout).toContain('"packageManager": "terraformconfig",');
-    expect(stdout).toContain('"projectType": "terraformconfig",');
+    expect(stdout).toContain('"projectType": "iac",');
     expect(exitCode).toBe(1);
   });
 });

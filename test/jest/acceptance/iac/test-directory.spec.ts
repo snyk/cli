@@ -528,10 +528,10 @@ describe('Directory scan for IaCV2', () => {
       expect(stdout).toContainText('"id": "SNYK-CC-00002",');
       expect(stdout).toContainText('"id": "SNYK-CC-00143",');
       expect(stdout).toContainText('"packageManager": "terraformconfig",');
-      expect(stdout).toContainText('"projectType": "terraformconfig",');
+      expect(stdout).toContainText('"projectType": "iac",');
       expect(stdout).toContainText('"id": "SNYK-CC-00256",');
       expect(stdout).toContainText('"packageManager": "cloudformationconfig",');
-      expect(stdout).toContainText('"projectType": "cloudformationconfig",');
+      expect(stdout).toContainText('"projectType": "iac",');
       expect(exitCode).toBe(1);
     });
 

@@ -1,6 +1,7 @@
 import { ParserFileType } from '@snyk/cloud-config-parser';
 
 export type IacProjectTypes =
+  | 'iac'
   | 'k8sconfig'
   | 'terraformconfig'
   | 'cloudformationconfig'
@@ -10,6 +11,7 @@ export type IacProjectTypes =
 export type IacFileTypes = ParserFileType | 'tf' | 'tfvars';
 
 export enum IacProjectType {
+  IAC = 'iac',
   K8S = 'k8sconfig',
   TERRAFORM = 'terraformconfig',
   CLOUDFORMATION = 'cloudformationconfig',
@@ -19,6 +21,7 @@ export enum IacProjectType {
 }
 
 export const TEST_SUPPORTED_IAC_PROJECTS: IacProjectTypes[] = [
+  IacProjectType.IAC,
   IacProjectType.K8S,
   IacProjectType.TERRAFORM,
   IacProjectType.CLOUDFORMATION,

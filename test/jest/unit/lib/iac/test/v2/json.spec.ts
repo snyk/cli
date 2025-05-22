@@ -65,4 +65,16 @@ describe('convertEngineToJsonResults', () => {
 
     expect(result).toEqual(integratedJsonOutputFixture);
   });
+
+  it('returns expected JSON result for IaCV2', () => {
+    const result = convertEngineToJsonResults({
+      results: snykIacTestFixture,
+      projectName: 'org-name',
+      iacNewEngine: true,
+    });
+
+    result.forEach((item) => {
+      expect(item).toHaveProperty('projectType', 'iac');
+    });
+  });
 });

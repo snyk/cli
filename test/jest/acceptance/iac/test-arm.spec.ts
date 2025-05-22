@@ -150,7 +150,7 @@ describe('ARM single file scan for IaCV2', () => {
     expect(isValidJSONString(stdout)).toBe(true);
     expect(stdout).toContain('"id": "SNYK-CC-00477",');
     expect(stdout).toContain('"packageManager": "armconfig",');
-    expect(stdout).toContain('"projectType": "armconfig",');
+    expect(stdout).toContain('"projectType": "iac",');
     expect(exitCode).toBe(1);
   });
 });
