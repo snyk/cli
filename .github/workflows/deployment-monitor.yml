@@ -163,11 +163,6 @@ jobs:
           pattern: snyk-version-*
           merge-multiple: true
           path: ${{ env.SNYK_VERSION_DIR }}
-      - name: Debug
-        run: |
-          echo "Snyk version directory: ${{ env.SNYK_VERSION_DIR }}"
-          echo "Contents of the directory:"
-          ls -la *
       - name: Check if the directory is not empty
         run: |
           cd "${{ env.SNYK_VERSION_DIR }}"
@@ -235,3 +230,36 @@ jobs:
           fi
 
           echo "✅ All Snyk versions (stable and preview) are consistent within their respective channels."
+
+  notify_slack_on_failure:
+    if: ${{ failure() }}
+    name: 'Do a Slack notification on failure'
+    needs: compare_versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post a message in a channel
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ secrets.SLACK_CLI_ALERTS_CHANNEL_ID }}
+            text: ":red_circle: *Deployment Monitor Failed!*"
+            blocks:
+              - type: "header"
+                text:
+                  type: "plain_text"
+                  text: ":red_circle: Deployment Monitor Failed!"
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "*Workflow*: `${{ github.workflow }}`              
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: ":link: *View run:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open in GitHub Actions>"
+              - type: "divider"
+              - type: "context"
+                elements:
+                  - type: "mrkdwn"
+                    text: ":warning: Please investigate the failure. This message was generated automatically."
