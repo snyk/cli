@@ -820,8 +820,8 @@ github.com/snyk/policy-engine v0.33.2 h1:ZxD6/RQ4vqUAXa64V72SsGjZ8vmnBgZNGYQxMIq
 github.com/snyk/policy-engine v0.33.2/go.mod h1:YTZq3GMRbXcHOXQQrFRVEg+MQiIGCGZ1met6KlpruNo=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20250522155954-c9bd6c939b34 h1:pFUO93B5j41NqWXldISrX98TwqCPGeQMD0ASQbG/Af4=
-github.com/snyk/snyk-ls v0.0.0-20250522155954-c9bd6c939b34/go.mod h1:YNp8kSuOYlAPW70rZwQB2NxaxuyEWsmarv1oChyEylY=
+github.com/snyk/snyk-ls v0.0.0-20250523083528-16e199a48c43 h1:pTXxjrlfCR0ST28ejaz4rUFB3GM9344/ydo3vsyKDmM=
+github.com/snyk/snyk-ls v0.0.0-20250523083528-16e199a48c43/go.mod h1:YNp8kSuOYlAPW70rZwQB2NxaxuyEWsmarv1oChyEylY=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
