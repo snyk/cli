@@ -224,6 +224,7 @@ export function args(rawArgv: string[]): Args {
     'dry-run',
     'sequential',
     'gradle-normalize-deps',
+    'tmp-path',
   ];
   for (const dashedArg of argumentsToTransform) {
     if (argv[dashedArg]) {
