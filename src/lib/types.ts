@@ -264,6 +264,7 @@ export type SupportedUserReachableFacingCliArgs =
   | 'skip-unresolved'
   | 'strict-out-of-sync'
   | 'sub-project'
+  | 'tmp-path'
   | 'trust-policies'
   | 'yarn-workspaces'
   | 'maven-aggregate-project'
