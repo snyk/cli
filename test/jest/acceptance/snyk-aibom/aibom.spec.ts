@@ -107,6 +107,20 @@ describe('snyk aibom (mocked servers only)', () => {
     expect(bom.components.length).toBeGreaterThan(1);
   });
 
+  test('`aibom` generates an AI-BOM CycloneDX in the HTML format', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `aibom ${pythonChatbotProject} --experimental --html`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+    expect(stdout).toContain('<!DOCTYPE html>');
+    expect(stdout).toContain(
+      'https://cyclonedx.org/schema/bom-1.6.schema.json',
+    );
+  });
+
   describe('aibom error handling', () => {
     test('handles a missing experimental flag', async () => {
       const { code, stdout } = await runSnykCLI(

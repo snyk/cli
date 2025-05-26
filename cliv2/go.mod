@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-ai-bom v0.0.0-20250521172443-60fe93bb8ab6
+	github.com/snyk/cli-extension-ai-bom v0.0.0-20250526122118-68d20d659a0e
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e
 	github.com/snyk/cli-extension-iac v0.0.0-20250521122953-52bf59414647
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a
@@ -218,6 +218,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.34.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.34.0 // indirect
 	go.opentelemetry.io/otel/trace v1.34.0 // indirect
+	go.uber.org/mock v0.5.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/exp v0.0.0-20250215185904-eff6e970281f // indirect
