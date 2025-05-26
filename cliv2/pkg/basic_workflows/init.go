@@ -15,5 +15,10 @@ func Init(engine workflow.Engine) error {
 		return err
 	}
 
+	err = initWraptest(engine)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

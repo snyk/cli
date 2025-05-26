@@ -22,6 +22,7 @@ import (
 
 var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("legacycli")
 var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stdout")
+var DATATYPEID_LEGACY_CLI_STDERR workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stderr")
 
 const (
 	PROXY_NOAUTH string = "proxy-noauth"
@@ -66,6 +67,7 @@ func legacycliWorkflow(
 	output = []workflow.Data{}
 	var outBuffer bytes.Buffer
 	var outWriter *bufio.Writer
+	var errBuffer bytes.Buffer
 	var errWriter *bufio.Writer
 
 	config := invocation.GetConfiguration()
@@ -112,14 +114,15 @@ func legacycliWorkflow(
 	}
 
 	scrubDict := logging.GetScrubDictFromConfig(config)
-	scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
 
 	if !useStdIo {
 		in := bytes.NewReader([]byte{})
+		scrubbedStderr := logging.NewScrubbingIoWriter(&errBuffer, scrubDict)
 		outWriter = bufio.NewWriter(&outBuffer)
 		errWriter = bufio.NewWriter(scrubbedStderr)
 		cli.SetIoStreams(in, outWriter, errWriter)
 	} else {
+		scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
 		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
 	}
 
@@ -147,6 +150,9 @@ func legacycliWorkflow(
 
 		data := workflow.NewData(DATATYPEID_LEGACY_CLI_STDOUT, contentType, outBuffer.Bytes())
 		output = append(output, data)
+
+		errdata := workflow.NewData(DATATYPEID_LEGACY_CLI_STDERR, contentType, errBuffer.Bytes())
+		output = append(output, errdata)
 	}
 
 	return output, err
