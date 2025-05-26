@@ -117,8 +117,6 @@ describe('snyk code test', () => {
     'user journey',
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
-        jest.setTimeout(80000);
-
         describe('snyk code flag options', () => {
           it('works with --remote-repo-url', async () => {
             const expectedCodeSecurityIssues = 6;
