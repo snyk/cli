@@ -43,7 +43,7 @@ The `snyk sbom test` command accepts the following file formats:
 
 Packages and components within the provided SBOM file must be identified by a PackageURL (purl).
 
-Supported purl types are: `apk`, `cargo`, `cocoapods`, `composer`, `deb`, `gem`, `generic`, `golang`, `hex`, `maven`, `npm`, `nuget`, `pub`, `pypi`, `rpm`, `swift`.
+Supported purl types are: `apk`, `cargo`, `cocoapods`, `conan`, `composer`, `deb`, `gem`, `generic`, `golang`, `hex`, `maven`, `npm`, `nuget`, `pub`, `pypi`, `rpm`, `swift`.
 
 Example: `$ snyk sbom test --experimental --file=bom.cdx.json`
 
