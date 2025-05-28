@@ -512,6 +512,20 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
+  test('run `snyk test` on an npm project with lockfile', async () => {
+    const project = await createProjectFromFixture('npm-bundled-dep');
+
+    const { code, stdout } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(stdout).toMatch('Target file:       package-lock.json');
+    expect(stdout).toMatch('Package manager:   npm');
+
+    expect(code).toEqual(0);
+  });
+
   test('run `snyk test` on a pnpm project without `enablePnpmCli` feature flag enabled', async () => {
     server.setFeatureFlag('enablePnpmCli', false);
     const project = await createProjectFromFixture('pnpm-app');
