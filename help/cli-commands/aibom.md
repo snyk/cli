@@ -18,21 +18,16 @@ Use the `snyk aibom` command to understand what AI models, datasets, tools, and 
 
 The current supported format is CycloneDX v1.6 (JSON).
 
-## Exit codes
-
-Possible exit codes and their meaning:
-
-**0**: success (process completed), AIBOM created successfully\
-**2**: failure, try to re-run the command.&#x20;
-
 ## Options
 
 ### `--experimental`
 
 Required. Use experimental command features. This option is required because the command is in its experimental phase.
 
+### `--html`
+
+Optional. Embed the AIBOM into an HTML visualization of the AIBOM components and their relationships.
+
 ### `[--json-file-output]`
 
 Optional. Save the AIBOM output as a JSON data structure directly to the specified file.
-
-\
