@@ -1,0 +1,11 @@
+{
+    "name": "bundled-top-level-dep",
+    "version": "1.0.0",
+    "description": "",
+    "dependencies": {
+      "express": "^4.19.2"
+    },
+    "bundledDependencies": [
+      "express"
+    ]
+  }
