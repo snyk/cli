@@ -6,6 +6,7 @@ import {
 import { getServerPort } from '../../util/getServerPort';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
+import { runCommand } from '../../util/runCommand';
 
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 
@@ -23,11 +24,16 @@ describe('snyk aibom (mocked servers only)', () => {
     SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
     SNYK_HOST: `http://${ipAddress}:${port}`,
     SNYK_TOKEN: '123456789',
+    SNYK_CFG_ORG: '5dd84065-6aa9-4749-81de-fc7f23a2b8e1',
   };
   const projectRoot = resolve(__dirname, '../../../..');
   const pythonChatbotProject = resolve(
     projectRoot,
     'test/fixtures/ai-bom/python-chatbot',
+  );
+  const pythonRequirementsProject = resolve(
+    projectRoot,
+    'test/fixtures/ai-bom/requirements',
   );
 
   const notSupportedProject = resolve(
@@ -67,7 +73,7 @@ describe('snyk aibom (mocked servers only)', () => {
     };
     deepCodeServer.setFiltersResponse({
       configFiles: [],
-      extensions: ['.py'],
+      extensions: ['.py', '.snykdepgraph'],
       autofixExtensions: [],
     });
     const sarifPayload = readFileSync(
@@ -87,13 +93,79 @@ describe('snyk aibom (mocked servers only)', () => {
   });
 
   test('`aibom` generates an AI-BOM CycloneDX with components', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `aibom ${pythonChatbotProject} --experimental`,
+    const { code, stdout, stderr } = await runSnykCLI(
+      `aibom ${pythonChatbotProject} --experimental -d`,
       {
         env,
       },
     );
     let bom: any;
+    console.log(stderr);
+    expect(code).toEqual(0);
+    expect(() => {
+      bom = JSON.parse(stdout);
+    }).not.toThrow();
+
+    const deeproxyRequestUrls = deepCodeServer
+      .getRequests()
+      .map((req) => `${req.method}:${req.url}`);
+    expect(deeproxyRequestUrls).toEqual([
+      'GET:/filters',
+      'POST:/bundle',
+      'POST:/analysis',
+    ]);
+
+    expect(bom).toMatchObject({
+      $schema: 'https://cyclonedx.org/schema/bom-1.6.schema.json',
+      specVersion: '1.6',
+      bomFormat: 'CycloneDX',
+    });
+    expect(bom.components.length).toBeGreaterThan(1);
+  });
+
+  test.only('`aibom` adds the depgraph to the bundle', async () => {
+    const pipResult = await runCommand(
+      'pip',
+      ['install', '-r', 'requirements.txt'],
+      {
+        shell: true,
+        cwd: pythonRequirementsProject,
+      },
+    );
+
+    expect(pipResult.code).toBe(0);
+    console.log(pipResult.stdout);
+
+    // const x = await runSnykCLI(`depgraph`, {
+    //   env,
+    //   cwd: pythonChatbotProject,
+    // });
+    const { code, stdout, stderr } = await runSnykCLI(
+      `aibom ${pythonRequirementsProject} --experimental -d`,
+      {
+        env,
+      },
+    );
+    let bom: any;
+    console.log(stderr);
+    // expect(stderr).toBe('');
+    const deeproxyRequestUrls = deepCodeServer
+      .getRequests()
+      .map((req) => `${req.method}:${req.url}`);
+    expect(deeproxyRequestUrls).toEqual([
+      'GET:/filters',
+      'PUT:/bundle/',
+      'POST:/bundle',
+      'PUT:/bundle/bundle-hash',
+      'POST:/analysis',
+    ]);
+
+    const deepcodeBundleCreateRequest = deepCodeServer.getRequests()[1];
+    expect(deepcodeBundleCreateRequest.body).toEqual('/bundle/bundle-hash');
+    const deepcodeBundleRequest = deepCodeServer.getRequests()[2];
+    expect(deepcodeBundleRequest.url).toEqual('/bundle/bundle-hash');
+    expect(deepcodeBundleRequest.body).toEqual({ fail: true });
+
     expect(code).toEqual(0);
     expect(() => {
       bom = JSON.parse(stdout);
