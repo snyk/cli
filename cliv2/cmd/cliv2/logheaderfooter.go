@@ -118,6 +118,16 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 		previewFeaturesEnabled = "enabled"
 	}
 
+	cacheEnabled := "disabled"
+	if !config.GetBool(configuration.CONFIG_CACHE_DISABLED) {
+		ttl := config.GetDuration(configuration.CONFIG_CACHE_TTL)
+		ttlString := "(ttl=no expiration)"
+		if ttl > 0 {
+			ttlString = fmt.Sprintf(" (ttl=%v)", ttl)
+		}
+		cacheEnabled = fmt.Sprintf("enabled %s", ttlString)
+	}
+
 	fipsEnabled := getFipsStatus(config)
 
 	tablePrint("Version", cliv2.GetFullVersion()+" "+buildType)
@@ -139,6 +149,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("  preview", previewFeaturesEnabled)
 	tablePrint("  fips", fipsEnabled)
 	tablePrint("  request attempts", fmt.Sprintf("%d", config.GetInt(middleware.ConfigurationKeyRetryAttempts)))
+	tablePrint("  config cache", cacheEnabled)
 	tablePrint("Checks", "")
 
 	sanityCheckResults := config_utils.CheckSanity(config)

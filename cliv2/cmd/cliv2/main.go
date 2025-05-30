@@ -500,6 +500,7 @@ func MainWithErrorCode() (int, []error) {
 		configuration.WithFiles("snyk"),
 		configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
 		configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
+		configuration.WithCachingEnabled(configuration.NoCacheExpiration),
 	)
 	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
