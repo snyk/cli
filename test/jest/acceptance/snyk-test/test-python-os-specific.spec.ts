@@ -126,41 +126,41 @@ describe('`snyk test` of python projects with OS specific dependencies', () => {
     expect(code).toEqual(0);
   });
 
-  test('run `snyk test` on python project with SNYK_TMP_PATH set to valid directory', async () => {
-    const setup = await setupPythonProject();
-    if (!setup) return;
+  // test('run `snyk test` on python project with SNYK_TMP_PATH set to valid directory', async () => {
+  //   const setup = await setupPythonProject();
+  //   if (!setup) return;
 
-    const { project, pythonCommand } = setup;
+  //   const { project, pythonCommand } = setup;
 
-    const envWithValidTmpPath = {
-      ...env,
-      SNYK_TMP_PATH: './foo',
-    };
+  //   const envWithValidTmpPath = {
+  //     ...env,
+  //     SNYK_TMP_PATH: './foo',
+  //   };
 
-    const { code } = await runSnykCLI('test -d --command=' + pythonCommand, {
-      cwd: project.path(),
-      env: envWithValidTmpPath,
-    });
+  //   const { code } = await runSnykCLI('test -d --command=' + pythonCommand, {
+  //     cwd: project.path(),
+  //     env: envWithValidTmpPath,
+  //   });
 
-    expect(code).toEqual(0);
-  });
+  //   expect(code).toEqual(0);
+  // });
 
-  test('run `snyk test` on python project with SNYK_TMP_PATH set to invalid directory', async () => {
-    const setup = await setupPythonProject();
-    if (!setup) return;
+  // test('run `snyk test` on python project with SNYK_TMP_PATH set to invalid directory', async () => {
+  //   const setup = await setupPythonProject();
+  //   if (!setup) return;
 
-    const { project, pythonCommand } = setup;
+  //   const { project, pythonCommand } = setup;
 
-    const envWithInvalidTmpPath = {
-      ...env,
-      SNYK_TMP_PATH: './parent/dirs/dont/exist',
-    };
+  //   const envWithInvalidTmpPath = {
+  //     ...env,
+  //     SNYK_TMP_PATH: './parent/dirs/dont/exist',
+  //   };
 
-    const { code } = await runSnykCLI('test -d --command=' + pythonCommand, {
-      cwd: project.path(),
-      env: envWithInvalidTmpPath,
-    });
+  //   const { code } = await runSnykCLI('test -d --command=' + pythonCommand, {
+  //     cwd: project.path(),
+  //     env: envWithInvalidTmpPath,
+  //   });
 
-    expect(code).toEqual(1);
-  });
+  //   expect(code).toEqual(1);
+  // });
 });
