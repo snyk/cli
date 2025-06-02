@@ -32,6 +32,7 @@ function getCurrentPlatform(): string {
 
 describe('`snyk test` of python projects with OS specific dependencies', () => {
   let server;
+
   let env: Record<string, string>;
   let dontSkip: boolean;
 
