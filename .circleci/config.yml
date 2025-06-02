@@ -145,13 +145,13 @@ commands:
       - restore_cache:
           name: Restoring go binary cache
           keys:
-            - go-binary-cache-{{ checksum "<< parameters.cache_key_file >>" }}
+            - go-binary-cache-2-{{ checksum "<< parameters.cache_key_file >>" }}
       - run:
           name: Download go binary
           command: python ./scripts/download_go.py << pipeline.parameters.go_version >> --go_os=<< parameters.go_os >> --go_arch=<< parameters.go_arch >> --base_url=<< parameters.base_url >> --extraction_path=<< parameters.extraction_path >>
       - save_cache:
           name: Caching go binary
-          key: go-binary-cache-{{ checksum "<< parameters.cache_key_file >>" }}
+          key: go-binary-cache-2-{{ checksum "<< parameters.cache_key_file >>" }}
           paths:
             - << parameters.extraction_path >>/go
       - unless:
@@ -176,7 +176,7 @@ commands:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -187,7 +187,7 @@ commands:
             choco install nodejs --version=$(head .nvmrc) --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
       - install-deps-python:
@@ -247,7 +247,7 @@ commands:
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -255,7 +255,7 @@ commands:
             choco install make --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
             - ~\AppData\Local\Temp\chocolatey
       - install-deps-python:
@@ -1013,14 +1013,14 @@ jobs:
       - restore_cache:
           name: Restore npm cache
           keys:
-            - prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
-            - prepare-v1-build-npm-deps
+            - prepare-v2-build-npm-deps-{{ checksum "package-lock.json" }}
+            - prepare-v2-build-npm-deps-
       - run:
           name: Installing dependencies
-          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+          command: npm ci --no-audit --no-progress --cache .npm
       - save_cache:
           name: Save npm cache
-          key: prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
+          key: prepare-v2-build-npm-deps-{{ checksum "package-lock.json" }}
           paths:
             - .npm
       - run:
