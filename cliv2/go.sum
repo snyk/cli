@@ -816,6 +816,8 @@ github.com/snyk/error-catalog-golang-public v0.0.0-20250520155934-078275889e2c h
 github.com/snyk/error-catalog-golang-public v0.0.0-20250520155934-078275889e2c/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
 github.com/snyk/go-application-framework v0.0.0-20250602133719-07271dcce207 h1:wlLdOLO1pZ8d3nIAv8UQfSTouBPMNc8mrIMnimIyp5U=
 github.com/snyk/go-application-framework v0.0.0-20250602133719-07271dcce207/go.mod h1:sLurPEPXELvsOGPElbqhqTKS78aRvSqXGtk5F5X/los=
+github.com/snyk/go-application-framework v0.0.0-20250603113635-27fc6122f730 h1:sfmm0cHCayETnMd+sD9QpGhzSg7VT51ZUL5gj566em4=
+github.com/snyk/go-application-framework v0.0.0-20250603113635-27fc6122f730/go.mod h1:sLurPEPXELvsOGPElbqhqTKS78aRvSqXGtk5F5X/los=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v0.33.2 h1:ZxD6/RQ4vqUAXa64V72SsGjZ8vmnBgZNGYQxMIqctYo=
