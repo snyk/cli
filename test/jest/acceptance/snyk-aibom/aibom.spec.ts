@@ -6,6 +6,7 @@ import {
 import { getServerPort } from '../../util/getServerPort';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
+import { runCommand } from '../../util/runCommand';
 
 import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 
@@ -23,11 +24,16 @@ describe('snyk aibom (mocked servers only)', () => {
     SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
     SNYK_HOST: `http://${ipAddress}:${port}`,
     SNYK_TOKEN: '123456789',
+    SNYK_CFG_ORG: 'myorg',
   };
   const projectRoot = resolve(__dirname, '../../../..');
   const pythonChatbotProject = resolve(
     projectRoot,
     'test/fixtures/ai-bom/python-chatbot',
+  );
+  const pythonRequirementsProject = resolve(
+    projectRoot,
+    'test/fixtures/ai-bom/requirements',
   );
 
   const notSupportedProject = resolve(
@@ -67,7 +73,7 @@ describe('snyk aibom (mocked servers only)', () => {
     };
     deepCodeServer.setFiltersResponse({
       configFiles: [],
-      extensions: ['.py'],
+      extensions: ['.py', '.snykdepgraph'],
       autofixExtensions: [],
     });
     const sarifPayload = readFileSync(
@@ -99,12 +105,65 @@ describe('snyk aibom (mocked servers only)', () => {
       bom = JSON.parse(stdout);
     }).not.toThrow();
 
+    const deeproxyRequestUrls = deepCodeServer
+      .getRequests()
+      .map((req) => `${req.method}:${req.url}`);
+    expect(deeproxyRequestUrls).toEqual([
+      'GET:/filters',
+      'POST:/bundle',
+      'POST:/analysis',
+    ]);
+
     expect(bom).toMatchObject({
       $schema: 'https://cyclonedx.org/schema/bom-1.6.schema.json',
       specVersion: '1.6',
       bomFormat: 'CycloneDX',
     });
     expect(bom.components.length).toBeGreaterThan(1);
+  });
+
+  test('`aibom` adds the depgraph to the bundle', async () => {
+    const pipResult = await runCommand(
+      'pip',
+      ['install', '-r', 'requirements.txt'],
+      {
+        shell: true,
+        cwd: pythonRequirementsProject,
+      },
+    );
+
+    expect(pipResult.code).toBe(0);
+
+    await runSnykCLI(`aibom ${pythonRequirementsProject} --experimental`, {
+      env,
+    });
+    const deeproxyRequestUrls = deepCodeServer
+      .getRequests()
+      .map((req) => `${req.method}:${req.url}`);
+    expect(deeproxyRequestUrls).toEqual([
+      'GET:/filters',
+      'POST:/bundle',
+      'PUT:/bundle/bundle-hash',
+      'POST:/analysis',
+    ]);
+
+    const deepcodeBundleRequest = deepCodeServer.getRequests()[2];
+    expect(deepcodeBundleRequest.url).toEqual('/bundle/bundle-hash');
+
+    const deepcodeBundleRequestBody = JSON.parse(
+      Buffer.from(deepcodeBundleRequest.body.toString(), 'base64').toString(),
+    );
+    expect(deepcodeBundleRequestBody['files']).toBeDefined();
+    const fileNames = Object.keys(deepcodeBundleRequestBody['files']);
+    expect(fileNames.length).toEqual(1);
+    const depgraphFileName = fileNames[0];
+    expect(depgraphFileName.endsWith('.snykdepgraph')).toBe(true);
+    const depgraph = JSON.parse(
+      deepcodeBundleRequestBody['files'][depgraphFileName].content,
+    );
+
+    const packagesInDepgraph = depgraph.pkgs.map((pkg) => pkg.info.name);
+    expect(packagesInDepgraph).toContain('anthropic');
   });
 
   test('`aibom` generates an AI-BOM CycloneDX in the HTML format', async () => {
