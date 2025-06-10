@@ -1,6 +1,9 @@
-import config from '../../../config';
 import { EOL } from 'os';
 import { colors, contentPadding } from './utils';
+import { getAppUrl } from '../../../config/api-url';
+import config from '../../../config';
+
+const apiUrl = config.API;
 
 export function formatShareResultsOutput(orgName: string, projectName: string) {
   return (
@@ -9,7 +12,7 @@ export function formatShareResultsOutput(orgName: string, projectName: string) {
     EOL +
     contentPadding +
     'Your test results are available at: ' +
-    colors.title(`${config.ROOT}/org/${orgName}/projects`) +
+    colors.title(`${getAppUrl(apiUrl)}/org/${orgName}/projects`) +
     EOL +
     contentPadding +
     'under the name: ' +
@@ -28,9 +31,7 @@ export function formatShareResultsOutputIacPlus(
     contentPadding +
     'Your test results are available at: ' +
     colors.title(
-      `${
-        config.ROOT
-      }/org/${orgName}/cloud/issues?environment_name=${encodeURIComponent(
+      `${getAppUrl(apiUrl)}/org/${orgName}/cloud/issues?environment_name=${encodeURIComponent(
         projectName,
       )}`,
     )
@@ -43,7 +44,7 @@ export function formatShareResultsOutputIacV2(
 ) {
   let projectLink = ''; // empty link if projectId is undefined, will follow up on this after product decision
   if (projectPublicId) {
-    projectLink = `${config.ROOT}/org/${orgName}/project/${encodeURIComponent(projectPublicId)}`;
+    projectLink = `${getAppUrl(apiUrl)}/org/${orgName}/project/${encodeURIComponent(projectPublicId)}`;
   }
 
   return (
