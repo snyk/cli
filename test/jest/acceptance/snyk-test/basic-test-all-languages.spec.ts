@@ -243,6 +243,10 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       fixture: 'nuget-app-8-with-multi-project and spaces',
       targetFile: 'dotnet_8_first.csproj',
     },
+    {
+      fixture: 'nuget-app-9-globaljson',
+      targetFile: 'dotnet_9.csproj',
+    },
   ])(
     'run `snyk test` on a nuget project using v2 dotnet runtime resolution logic for $fixture',
     async ({ fixture, targetFile }) => {
