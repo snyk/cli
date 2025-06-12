@@ -2,9 +2,9 @@
 
 Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.
 
-For more information visit the [Snyk website](https://snyk.io)
+For more information, visit the [Snyk website](https://snyk.io)
 
-For details see the [CLI documentation](https://docs.snyk.io/features/snyk-cli)
+For details, see the [CLI documentation](https://docs.snyk.io/snyk-cli)
 
 ## How to get started
 
@@ -74,4 +74,4 @@ Use `-d` option to output the debug logs.
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
+You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli)
