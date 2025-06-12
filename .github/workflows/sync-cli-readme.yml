@@ -49,9 +49,7 @@ jobs:
 
       - name: Retrieve GitBook content and update README
         run: |
-          wget \
-            https://raw.githubusercontent.com/snyk/user-docs/main/docs/snyk-cli/getting-started-with-the-snyk-cli.md \
-            -O ./cli/README.md
+          cp ./docs/snyk-cli/getting-started-with-the-snyk-cli.md ./cli/README.md
           
           # GitBook Markdown files often use relative paths for assets (e.g., images)
           # like `../.gitbook/assets/image.png`. When this README.md is viewed directly
