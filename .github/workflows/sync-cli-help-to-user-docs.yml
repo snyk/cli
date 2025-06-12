@@ -68,7 +68,7 @@ jobs:
           fi
 
           echo "--- Documentation changes detected from GitBooks ---"
-          git --no-pager diff --name-only --color=always
+          git --no-pager diff --color=always
           echo "------------------------------------------------"
           
           echo "continue=true" >> "$GITHUB_OUTPUT"
