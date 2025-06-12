@@ -46,6 +46,25 @@ describe('debug log', () => {
     expect(stderr).not.toContain(expectedToken);
   });
 
+  it('redacts basic authentication', async () => {
+    const { stderr } = await runSnykCLI(
+      'container test ubuntu:latest --username=us --password=pw -d',
+      {
+        env: {
+          ...process.env,
+          SNYK_DISABLE_ANALYTICS: '1',
+          SNYK_LOG_LEVEL: 'trace',
+        },
+      },
+    );
+
+    // this test only makes sense when Basic auth would be expected, otherwise the checks below
+    if (stderr.includes('Basic ')) {
+      expect(stderr).not.toContain('Basic dXM6cHc=');
+      expect(stderr).toContain('Basic ***');
+    }
+  });
+
   it('redacts externally injected bearer token', async () => {
     const project = await createProject('cocoapods-app');
 
