@@ -6,7 +6,7 @@ on:
 
 env:
   DESTINATION_BRANCH: docs/automatic-gitbook-update-readme
-  COMMIT_MESSAGE: "docs: synchronizing README from snyk/user-docs"
+  COMMIT_MESSAGE: 'docs: synchronizing README from snyk/user-docs'
 
 jobs:
   build:
@@ -31,7 +31,7 @@ jobs:
       - name: Configure git user
         run: |
           git config --global user.email "noreply@snyk.io"
-          
+
           # GITHUB_ACTOR: The name of the person or app that initiated the workflow.
           git config --global user.name "$GITHUB_ACTOR"
 
@@ -43,14 +43,14 @@ jobs:
             git checkout ${{ env.DESTINATION_BRANCH }}
             exit 0
           fi
-          
+
           echo "Branch ${{ env.DESTINATION_BRANCH }} does not exist, creating and checking out."
           git checkout -b ${{ env.DESTINATION_BRANCH }}
 
       - name: Retrieve GitBook content and update README
         run: |
           cp ./docs/snyk-cli/getting-started-with-the-snyk-cli.md ./cli/README.md
-          
+
           # GitBook Markdown files often use relative paths for assets (e.g., images)
           # like `../.gitbook/assets/image.png`. When this README.md is viewed directly
           # on GitHub, these relative paths won't resolve correctly. This `sed` command
@@ -82,7 +82,7 @@ jobs:
           echo "--- Documentation changes detected from GitBooks (before Prettier) ---"
           git --no-pager diff --color=always
           echo "---------------------------------------------------------------------"
-          
+
           echo "continue=true" >> "$GITHUB_OUTPUT"
 
       - name: Commit and push changes (if any)
@@ -108,7 +108,7 @@ jobs:
             echo "Pushed changes to existing PR #$PR_NUMBER."
             exit 0
           fi
-          
+
           echo "No existing PR found. Creating a new one."
           gh pr create \
             --title="${{ env.COMMIT_MESSAGE }}" \
