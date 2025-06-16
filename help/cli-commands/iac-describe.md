@@ -13,7 +13,7 @@ The `snyk iac describe` command detects unmanaged infrastructure resources. It c
 - Resources in your Terraform state files are **managed resources**.
 - Resources that exist but are not in your Terraform state file are **unmanaged resources**.
 
-For detailed information and examples, see [IaC describe command examples](https://docs.snyk.io/scan-using-snyk/scan-infrastructure/iac+-code-to-cloud-capabilities/detect-drift-and-manually-created-resources/iac-describe-command-examples)
+For detailed information and examples, see [IaC describe command examples](https://docs.snyk.io/scan-with-snyk/snyk-iac/detect-drift-and-manually-created-resources/iac-describe-command-examples)
 
 For a list of related commands see the snyk [iac help](iac.md); `iac --help`
 
@@ -51,7 +51,7 @@ For more information, see the article [How to select the Organization to use in 
 
 Specify multiple Terraform state files to be read. Glob patterns are supported.
 
-For more information, including **a list of supported IaC sources** and how to use them, see [IAC Sources usage](https://docs.snyk.io/scan-using-snyk/scan-infrastructure/iac+-code-to-cloud-capabilities/detect-drift-and-manually-created-resources/iac-sources-usage)
+For more information, including a list of supported IaC sources and how to use them, see [IAC Sources usage](https://docs.snyk.io/scan-with-snyk/snyk-iac/detect-drift-and-manually-created-resources/iac-sources-usage)
 
 ### `--to=<PROVIDER+TYPE>`
 
@@ -151,7 +151,7 @@ Output the report as html into a file.
 
 ## Examples for snyk iac describe command
 
-For more examples, see [IaC describe command examples](https://docs.snyk.io/scan-using-snyk/scan-infrastructure/iac+-code-to-cloud-capabilities/detect-drift-and-manually-created-resources/iac-describe-command-examples)
+For more examples, see [IaC describe command examples](https://docs.snyk.io/scan-with-snyk/snyk-iac/detect-drift-and-manually-created-resources/iac-describe-command-examples)
 
 ### Detect unmanaged resources on AWS with a single local Terraform state
 

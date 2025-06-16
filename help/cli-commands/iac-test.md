@@ -75,7 +75,7 @@ Example: `$ snyk iac test --json`
 
 Save test output as a JSON data structure directly to the specified file, regardless of whether or not you use the `--json` option.
 
-Use to display the human-readable test output using stdout and at the same time save the JSON data structure output to a file.
+Use to display the human-readable test output using stdout, and at the same time, save the JSON data structure output to a file.
 
 Example: `$ snyk iac test --json-file-output=vuln.json`
 
@@ -109,7 +109,7 @@ Set the project environment project attribute to one or more values (comma-separ
 
 Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`
 
-For more information see [Project attributes](https://docs.snyk.io/manage-issues/introduction-to-snyk-projects/project-attributes)
+For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
 
@@ -119,7 +119,7 @@ Set the project lifecycle project attribute to one or more values (comma-separat
 
 Allowed values: `production`, `development`, `sandbox`
 
-For more information see [Project attributes](https://docs.snyk.io/manage-issues/introduction-to-snyk-projects/project-attributes)
+For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
@@ -131,7 +131,7 @@ Example: `--project-tags=department=finance,team=alpha`
 
 To clear the project tags set `--project-tags=`
 
-For more information including allowable characters see [Project tags](https://docs.snyk.io/manage-issues/introduction-to-snyk-projects/project-tags)
+For more information including allowable characters see [Project tags](../../snyk-admin/introduction-to-snyk-projects/project-tags.md)
 
 ### `--remote-repo-url=<URL>`
 
@@ -208,7 +208,7 @@ Example:
 
 ## Examples for snyk iac test command
 
-For more information see [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/scan-cloud-deployment/snyk-infrastructure-as-code/snyk-cli-for-infrastructure-as-code)
+For more information, see [Snyk CLI for Infrastructure as Code](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac)
 
 ### Test a CloudFormation file
 
