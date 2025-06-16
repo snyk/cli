@@ -1,4 +1,4 @@
-import { fakeServer } from '../../acceptance/fake-server';
+import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { getServerPort } from '../util/getServerPort';
 
@@ -14,10 +14,11 @@ describe('PAT', () => {
   beforeAll((done) => {
     const apiPath = '/api/v1';
     const apiPort = getServerPort(process);
-    serverUrl = `http://localhost:${apiPort}${apiPath}`.replace('/v1', '');
+    const host = `http://${getFirstIPv4Address()}:${apiPort}${apiPath}`;
+    serverUrl = host.replace('/v1', '');
     env = {
       ...process.env,
-      SNYK_API: 'http://localhost:' + apiPort + apiPath,
+      SNYK_API: host + apiPort + apiPath,
       SNYK_TOKEN: pat,
       SNYK_DISABLE_ANALYTICS: '1',
       INTERNAL_SNYK_REGION_URLS: serverUrl,
