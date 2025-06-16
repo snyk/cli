@@ -4,5 +4,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 
 ### Bug Fixes
 
-* **logging:** Redact Basic Authorization credentials from debug logs if they exist ([e054455](https://github.com/snyk/snyk/commit/e054455eab8e686f19c165a8bad86259103a5f5d))
+* **logging:** Improves the sanitization of credentials in local debug logs. ([e054455](https://github.com/snyk/snyk/commit/e054455eab8e686f19c165a8bad86259103a5f5d))
+* **language-server:** IDE Connectivity for Proxy Users: Fixes an issue where IDE plugins could fail to connect when operating behind an NTLM proxy.
+* **language-server:** Snyk Code Local Engine Fix: Addresses a regression that prevented the Snyk Code Local Engine (SCLE) from functioning correctly within the IDEs.
 
