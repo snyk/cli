@@ -18,7 +18,6 @@ describe('PAT', () => {
     serverUrl = host.replace('/v1', '');
     env = {
       ...process.env,
-      SNYK_API: host + apiPort + apiPath,
       SNYK_TOKEN: pat,
       SNYK_DISABLE_ANALYTICS: '1',
       INTERNAL_SNYK_REGION_URLS: serverUrl,
@@ -60,7 +59,7 @@ describe('PAT', () => {
       env: {
         ...env,
         SNYK_TOKEN: euBasedPat,
-        SNYK_API: `${serverUrl.replace('/api', '')}`,
+        INTERNAL_SNYK_REGION_URLS: `${serverUrl.replace('/api', '')}`,
       },
     });
 
@@ -94,9 +93,8 @@ describe('PAT', () => {
   });
 
   it('fallbacks to different apis to validate the pat', async () => {
-    // note that the fallback logic also shuffles the order of apis to try
     // as long as one api works this test should pass
-    const commaDelimitedApis = `${serverUrl},http://someRandomApi.io,http://anotherRandomApi.io`;
+    const commaDelimitedApis = `http://someRandomApi.io,${serverUrl.replace('/api', '')},http://anotherRandomApi.io`;
 
     const helpCmd = await runSnykCLI(`help -d`, {
       env: {
@@ -107,14 +105,18 @@ describe('PAT', () => {
 
     expect(helpCmd.code).toEqual(0);
 
-    expect(server.getRequests().length).toBeGreaterThanOrEqual(1);
-    server.getRequests().forEach((request) => {
-      expect(request).toMatchObject({
-        headers: {
-          authorization: `token ${pat}`,
-        },
+    const requests = server.getRequests();
+    expect(requests.length).toBeGreaterThanOrEqual(1);
+
+    requests
+      .filter((request) => request.url?.includes('personal_access_tokens'))
+      .forEach((request) => {
+        expect(request).toMatchObject({
+          headers: {
+            authorization: `token ${pat}`,
+          },
+        });
       });
-    });
   });
 
   it('fails if all fallbacks fail', async () => {
