@@ -89,7 +89,7 @@ jobs:
         if: steps.check_changes.outputs.continue == 'true'
         run: |
           cd ./cli
-          git add .
+          git add help
           git commit -m "${{ env.COMMIT_MESSAGE }}"
           git push --force --set-upstream origin ${{ env.DESTINATION_BRANCH }}
 
