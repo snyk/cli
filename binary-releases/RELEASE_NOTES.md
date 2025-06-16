@@ -1,7 +1,10 @@
-## [1.1297.1](https://github.com/snyk/cli/compare/v1.1297.0...v1.1297.1) (2025-05-16)
+## [1.1297.2](https://github.com/snyk/snyk/compare/v1.1297.1...1.1297.2) (2025-06-16)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
 ### Bug Fixes
 
-* **test:** Rollbacked a regression introduced by a change in gradle module resolution in version `1.1297.0` ([7991133](https://github.com/snyk/cli/commit/79911337912082454e4362d9473c40699e059425))
+* **logging:** Improves the sanitization of credentials in local debug logs. ([e054455](https://github.com/snyk/snyk/commit/e054455eab8e686f19c165a8bad86259103a5f5d))
+* **language-server:** IDE Connectivity for Proxy Users: Fixes an issue where IDE plugins could fail to connect when operating behind an NTLM proxy.
+* **language-server:** Snyk Code Local Engine Fix: Addresses a regression that prevented the Snyk Code Local Engine (SCLE) from functioning correctly within the IDEs.
+
