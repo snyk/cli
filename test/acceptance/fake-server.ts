@@ -200,6 +200,30 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send('Test Authenticated!');
   });
 
+  app.get('/rest/self', (req, res) => {
+    const defaultResponse = {
+      jsonapi: {
+        version: '1.0',
+      },
+      data: {
+        type: 'user',
+        id: '11111111-2222-3333-4444-555555555555',
+        attributes: {
+          name: 'Messi',
+          default_org_context: '55555555-5555-5555-5555-555555555555',
+          username: 'test.user@snyk.io',
+          email: 'test.user@snyk.io',
+          avatar_url: 'https://s.gravatar.com/avatar/snykdog.png',
+        },
+      },
+      links: {
+        self: '/self?version=2024-10-15',
+      },
+    };
+    res.status(200);
+    res.send(defaultResponse);
+  });
+
   app.use((req, res, next) => {
     if (
       req.url?.includes('/iac-org-settings') ||
@@ -742,67 +766,6 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(201);
     res.send(response);
   });
-
-  // PAT service endpoints
-  app.get(
-    basePath.replace('api/v1', 'hidden') +
-      `/self/personal_access_token/metadata`,
-    (req, res) => {
-      const defaultSuccessResponse = {
-        jsonapi: {
-          version: '1.0',
-        },
-        data: {
-          attributes: {
-            hostname: 'snyk.io',
-          },
-          id: '01JVC82VDVCDTP9Z7QM7WRX2KZ',
-          type: 'personal_access_token',
-        },
-        links: {},
-      };
-
-      if (
-        req.headers.authorization?.includes(
-          'token snyk_uat.12345678.abcdefg-hijklmnop.qrstuvwxyz-123456',
-        )
-      ) {
-        res.status(200).send(defaultSuccessResponse);
-      }
-      if (
-        req.headers.authorization?.includes(
-          'token snyk_uat.12345678.thisisa-europecon.figuredpat-123456',
-        )
-      ) {
-        const euSuccessResponse = {
-          ...defaultSuccessResponse,
-          data: {
-            attributes: {
-              hostname: 'eu.snyk.io',
-            },
-          },
-        };
-        res.status(200).send(euSuccessResponse);
-      }
-
-      res.status(400).send({
-        jsonapi: {
-          version: '1.0',
-        },
-        errors: [
-          {
-            status: '400',
-            detail: 'invalid authorization token',
-            id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
-            title: 'Bad Request',
-            meta: {
-              created: '2025-05-20T16:04:30.40061835Z',
-            },
-          },
-        ],
-      });
-    },
-  );
 
   app.get(`/rest/orgs/:orgId/sbom_tests/:id`, (req, res) => {
     if (req.params.id === '162c313c-b241-4f14-8579-618e9fa4c0e7') {

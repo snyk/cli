@@ -125,39 +125,11 @@ describe('Auth', () => {
       const configCmd = await runSnykCLI('config get api', {
         env: {
           ...env,
-          INTERNAL_SNYK_REGION_URLS: `${fakeServerUrl.replace('/v1', '')}`,
+          SNYK_API: `${fakeServerUrl.replace('/v1', '')}`,
         },
       });
       expect(configCmd.code).toEqual(0);
       expect(configCmd.stdout).toContain(pat);
-    });
-
-    it('successfully configures endpoint', async () => {
-      const euBasedPat =
-        'snyk_uat.12345678.thisisa-europecon.figuredpat-123456';
-      const authCmd = await runSnykCLI(`auth ${euBasedPat} -d`, {
-        env: {
-          ...env,
-          SNYK_API: `${fakeServerUrl.replace('/api/v1', '')}`,
-        },
-      });
-      expect(authCmd.code).toEqual(0);
-
-      const helpCmd = await runSnykCLI('help -d', {
-        env: {
-          ...env,
-          SNYK_API: `${fakeServerUrl.replace('/api/v1', '')}`,
-        },
-      });
-      expect(helpCmd.code).toEqual(0);
-
-      const expectedEndpoint = 'https://api.eu.snyk.io';
-      const expectedRegion = 'snyk-eu-01';
-      expect(helpCmd.stderr).toContain(expectedEndpoint);
-      expect(helpCmd.stderr).toContain(expectedRegion);
-
-      const serverRequest = server.popRequest();
-      expect(serverRequest.headers.authorization).toContain(euBasedPat);
     });
   });
 });
