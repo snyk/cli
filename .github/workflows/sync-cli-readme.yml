@@ -90,7 +90,7 @@ jobs:
         if: steps.check_changes.outputs.continue == 'true'
         run: |
           cd ./cli
-          git add help
+          git add README.md
           git commit -S -m "${{ env.COMMIT_MESSAGE }}"
           git push --force --set-upstream origin ${{ env.DESTINATION_BRANCH }}
 
