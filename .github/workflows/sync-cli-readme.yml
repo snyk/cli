@@ -1,16 +1,16 @@
-name: Synchronize CLI Help to User Docs
+name: Synchronize README from GitBooks
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 9 * * 1' # Monday at 9
 
 env:
-  DESTINATION_BRANCH: docs/automatic-gitbook-update-cli-help-${{ github.ref_name }}
-  COMMIT_MESSAGE: 'docs: synchronizing help from snyk/user-docs'
+  DESTINATION_BRANCH: docs/automatic-gitbook-update-readme
+  COMMIT_MESSAGE: 'docs: synchronizing README from snyk/user-docs'
 
 jobs:
   build:
-    name: synchronize-help
+    name: synchronize-readme
     runs-on: ubuntu-latest
     steps:
       - name: Checkout user-docs repository
@@ -24,7 +24,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: snyk/cli
-          ref: ${{ github.ref_name }}
           path: cli
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -48,15 +47,27 @@ jobs:
           echo "Branch ${{ env.DESTINATION_BRANCH }} does not exist, creating and checking out."
           git checkout -b ${{ env.DESTINATION_BRANCH }}
 
-      - name: Copy help documentation from user-docs to CLI
+      - name: Retrieve GitBook content and update README
         run: |
-          cp ./user-docs/docs/snyk-cli/commands/*.md ./cli/help/cli-commands/
+          cp ./docs/snyk-cli/getting-started-with-the-snyk-cli.md ./cli/README.md
 
-      - name: Format help files with Prettier
+          # GitBook Markdown files often use relative paths for assets (e.g., images)
+          # like `../.gitbook/assets/image.png`. When this README.md is viewed directly
+          # on GitHub, these relative paths won't resolve correctly. This `sed` command
+          # replaces those relative paths with the full, absolute URL to the assets
+          # hosted in the `snyk/user-docs` GitHub repository's raw content.
+          #
+          # - `-i`: Edits the file in-place, modifying the original README.md directly.
+          # - `-e`: Specifies the script to be executed. In this case, it's the 's'
+          #         (substitute) command which replaces the old path with the new URL.
+          sed -i \
+              -e "s|../.gitbook/assets/|https://github.com/snyk/user-docs/raw/HEAD/docs/.gitbook/assets/|g" \
+              ./cli/README.md
+
+      - name: Format README with Prettier
         run: |
           cd ./cli
-          npm clean-install
-          npx prettier --write ./help/cli-commands/*.md
+          npx prettier --write README.md
 
       - name: Check for changes
         id: check_changes
@@ -68,9 +79,9 @@ jobs:
             exit 0
           fi
 
-          echo "--- Documentation changes detected from GitBooks ---"
+          echo "--- Documentation changes detected from GitBooks (before Prettier) ---"
           git --no-pager diff --color=always
-          echo "------------------------------------------------"
+          echo "---------------------------------------------------------------------"
 
           echo "continue=true" >> "$GITHUB_OUTPUT"
 
@@ -103,6 +114,6 @@ jobs:
             --title="${{ env.COMMIT_MESSAGE }}" \
             --body="Automatic PR controlled by GitHub Action" \
             --head "${{ env.DESTINATION_BRANCH }}" \
-            --base ${{ github.ref_name || 'main' }}
+            --base main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
