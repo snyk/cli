@@ -164,19 +164,21 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 }
 
 func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, name string) error {
-	output, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
+	ic := engine.GetAnalytics().GetInstrumentation()
+
+	output, err := engine.Invoke(workflow.NewWorkflowIdentifier(name), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
 		logger.Print("Failed to execute the command!", err)
 		return err
 	}
 
-	output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_FILTER_FINDINGS, output)
+	output, err = engine.Invoke(localworkflows.WORKFLOWID_FILTER_FINDINGS, workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
 		logger.Err(err).Msg(err.Error())
 		return err
 	}
 
-	output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, output)
+	output, err = engine.Invoke(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
 	if err == nil {
 		err = getErrorFromWorkFlowData(engine, output)
 	}
