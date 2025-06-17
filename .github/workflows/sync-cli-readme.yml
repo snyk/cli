@@ -91,7 +91,7 @@ jobs:
         run: |
           cd ./cli
           git add help
-          git commit -m "${{ env.COMMIT_MESSAGE }}"
+          git commit -S -m "${{ env.COMMIT_MESSAGE }}"
           git push --force --set-upstream origin ${{ env.DESTINATION_BRANCH }}
 
       - name: Create or update a pull request
