@@ -39,9 +39,9 @@ See also subsequent sections for options for specific build environments, packag
 
 Auto-detect all projects in the working directory, including Yarn workspaces.
 
-For more information see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/s/article/Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files)
+For more information, see the article [Does the Snyk CLI support monorepos or multiple manifest files?](https://support.snyk.io/s/article/Does-the-Snyk-CLI-support-monorepos-or-multiple-manifest-files)
 
-If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/invalid-string-length-error-when-scanning-projects)
+If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/invalid-string-length-error-when-scanning-projects)
 
 ### `--fail-fast`
 
@@ -116,7 +116,7 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 `orgslugname` must match the slug name as displayed in the URL of your org in the Snyk UI: `https://app.snyk.io/org/[orgslugname]`. The orgname does not work.
 
-For more information see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
+For more information, see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--file=<FILE>`
 
@@ -164,11 +164,11 @@ Specify a custom Snyk project name.
 
 Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference. Supported for Snyk Open Source except for use with `--unmanaged`.
 
-For more information see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
+For more information, see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
 
 You can use `--target-reference=<TARGET_REFERENCE>` when running tests to apply the same ignores and policies as for a monitored target.
 
-For more information see [Ignore issues](https://docs.snyk.io/scan-using-snyk/find-and-manage-priority-issues/ignore-issues)
+For more information, see [Ignore issues](https://docs.snyk.io/manage-risk/prioritize-issues-for-fixing/ignore-issues)
 
 ### `--policy-path=<PATH_TO_POLICY_FILE>`
 
@@ -336,7 +336,7 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 **Note:** This option in Early Access and may change until it is released.
 
-Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](https://docs.snyk.io/getting-started/supported-languages-and-frameworks/.net/improved-.net-scanning)
+Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](../../supported-languages-package-managers-and-frameworks/.net/improved-.net-scanning.md)
 
 Example: `snyk test --dotnet-runtime-resolution`
 
@@ -372,7 +372,7 @@ Default: true
 
 ## Options for pnpm projects
 
-**Snyk CLI pnpm support is in Early Access**. To enable it, in your Snyk account navigate to Settings, select Snyk Preview, and install CLI v1.1293.0 or above.
+**Snyk CLI pnpm support is in Early Access**. To enable it, in your Snyk account, navigate to Settings, select Snyk Preview, and install CLI v1.1293.0 or above.
 
 **Note**: You can use the following options with pnpm projects:
 
