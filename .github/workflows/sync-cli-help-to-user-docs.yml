@@ -18,16 +18,16 @@ jobs:
         with:
           repository: snyk/user-docs
           path: user-docs
+          fetch-depth: 0
           ref: main
 
       - name: Checkout cli repository
         uses: actions/checkout@v4
         with:
           repository: snyk/cli
-          ref: ${{ github.ref_name }}
           path: cli
-          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          ref: ${{ github.ref_name }}
 
       - name: Configure git user
         run: |
