@@ -5,7 +5,7 @@ on:
     - cron: '0 9 * * 1' # Monday at 9
 
 env:
-  DESTINATION_BRANCH: docs/automatic-gitbook-update-cli-help
+  DESTINATION_BRANCH: docs/automatic-gitbook-update-cli-help-${{ github.ref_name }}
   COMMIT_MESSAGE: 'docs: synchronizing help from snyk/user-docs'
 
 jobs:
@@ -24,6 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: snyk/cli
+          ref: ${{ github.ref_name }}
           path: cli
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -102,6 +103,6 @@ jobs:
             --title="${{ env.COMMIT_MESSAGE }}" \
             --body="Automatic PR controlled by GitHub Action" \
             --head "${{ env.DESTINATION_BRANCH }}" \
-            --base main
+            --base ${{ github.ref_name || 'main' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
