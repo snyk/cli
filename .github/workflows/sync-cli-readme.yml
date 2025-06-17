@@ -29,12 +29,18 @@ jobs:
           fetch-depth: 0
           ref: main
 
-      - name: Configure git user
+      - name: Configure Git user
         run: |
-          git config --global user.email "noreply@snyk.io"
+          git config --global user.name "Team CLI Bot"
+          git config --global user.email "team-cli@snyk.io"
 
-          # GITHUB_ACTOR: The name of the person or app that initiated the workflow.
-          git config --global user.name "$GITHUB_ACTOR"
+      - name: Import and configure GPG
+        run: |
+          echo "$GPG_KEY" | gpg --batch --import
+          gpg --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --batch --sign
+        env:
+          GPG_KEY: ${{ secrets.TEAM_CLI_BOT_GPG_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.TEAM_CLI_BOT_GPG_PASSPHRASE }}
 
       - name: Create or checkout destination branch
         run: |
