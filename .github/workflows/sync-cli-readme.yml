@@ -18,6 +18,7 @@ jobs:
         with:
           repository: snyk/user-docs
           path: user-docs
+          fetch-depth: 0
           ref: main
 
       - name: Checkout cli repository
@@ -25,15 +26,21 @@ jobs:
         with:
           repository: snyk/cli
           path: cli
-          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          ref: main
 
-      - name: Configure git user
+      - name: Configure Git user
         run: |
-          git config --global user.email "noreply@snyk.io"
+          git config --global user.name "Team CLI Bot"
+          git config --global user.email "team-cli@snyk.io"
 
-          # GITHUB_ACTOR: The name of the person or app that initiated the workflow.
-          git config --global user.name "$GITHUB_ACTOR"
+      - name: Import and configure GPG
+        run: |
+          echo "$GPG_KEY" | gpg --batch --import
+          gpg --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --batch --sign
+        env:
+          GPG_KEY: ${{ secrets.TEAM_CLI_BOT_GPG_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.TEAM_CLI_BOT_GPG_PASSPHRASE }}
 
       - name: Create or checkout destination branch
         run: |
@@ -49,7 +56,7 @@ jobs:
 
       - name: Retrieve GitBook content and update README
         run: |
-          cp ./docs/snyk-cli/getting-started-with-the-snyk-cli.md ./cli/README.md
+          cp ./user-docs/docs/snyk-cli/getting-started-with-the-snyk-cli.md ./cli/README.md
 
           # GitBook Markdown files often use relative paths for assets (e.g., images)
           # like `../.gitbook/assets/image.png`. When this README.md is viewed directly
@@ -89,8 +96,8 @@ jobs:
         if: steps.check_changes.outputs.continue == 'true'
         run: |
           cd ./cli
-          git add help
-          git commit -m "${{ env.COMMIT_MESSAGE }}"
+          git add README.md
+          git commit -S -m "${{ env.COMMIT_MESSAGE }}"
           git push --force --set-upstream origin ${{ env.DESTINATION_BRANCH }}
 
       - name: Create or update a pull request
