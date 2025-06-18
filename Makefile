@@ -230,7 +230,7 @@ build-fips: pre-build $(BINARY_OUTPUT_FOLDER)/fips/version
 .PHONY: build
 build: pre-build
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
-	@$(MAKE) clean-package-files
+	# @$(MAKE) clean-package-files
 
 .PHONY: build-debug
 build-debug: pre-build

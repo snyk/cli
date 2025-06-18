@@ -375,6 +375,22 @@ function chooseBestManifest(
       );
       return defaultManifest.path;
     }
+    case 'swift': {
+      // Preferred order: Package.swift, Cartfile.resolved, Cartfile
+      const manifestOrder = ['Package.swift', 'Cartfile.resolved', 'Cartfile'];
+
+      for (const manifestName of manifestOrder) {
+        const foundManifest = files.find((file) => file.base === manifestName);
+        if (foundManifest) {
+          debug(
+            `Encountered multiple swift manifest files, defaulting to ${foundManifest.path}`,
+          );
+          return foundManifest.path;
+        }
+      }
+      debug(`No preferred swift manifests found`);
+      return null;
+    }
     default: {
       return null;
     }

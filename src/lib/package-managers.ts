@@ -53,6 +53,8 @@ export enum SUPPORTED_MANIFEST_FILES {
   POETRY_LOCK = 'poetry.lock',
   MIX_EXS = 'mix.exs',
   PACKAGE_SWIFT = 'Package.swift',
+  CARTHAGE = 'Cartfile',
+  CARTHAGE_RESOLVED = 'Cartfile.resolved',
 }
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
