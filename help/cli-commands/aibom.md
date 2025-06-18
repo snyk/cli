@@ -24,6 +24,18 @@ The current supported format is CycloneDX v1.6 (JSON).
 
 Required. Use experimental command features. This option is required because the command is in its experimental phase.
 
+### `--org=<ORG_ID>`
+
+Specify the `<ORG_ID>`to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences private test limits.
+
+If you have multiple Organizations, you can set a default from the CLI using:
+
+`$ snyk config set org=<ORG_ID>`
+
+Set a default to ensure all newly tested projects are tested under your default Organization. If you need to override the default, use the `--org=<ORG_ID>` option.
+
+Default: `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)
+
 ### `--html`
 
 Optional. Embed the AIBOM into an HTML visualization of the AIBOM components and their relationships.

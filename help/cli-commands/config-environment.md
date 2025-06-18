@@ -2,7 +2,7 @@
 
 **Note:** This command will be available as of CLI version 1.1293.0.
 
-If you are not in the system default environment, SNYK-US-01, use the `snyk config environment` command to set your environment before you run `snyk auth`.
+If you are not in the system default environment, `SNYK-US-01`, use the `snyk config environment` command to set your environment before you run `snyk auth`.
 
 ## Usage
 
@@ -16,7 +16,7 @@ The outcome is almost the same as `snyk config set endpoint=<URL>` but in additi
 
 - Supports aliases for environments to avoid the use of full URLs
 - Performs basic checks to avoid ambiguous or unexpected configuration
-- Clears existing authentication and organization settings, which are expected to be environment-specific
+- Clears existing authentication and Organization settings, which are expected to be environment-specific
 
 ## Debug
 
