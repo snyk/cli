@@ -742,6 +742,67 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+    // PAT service endpoints
+    app.get(
+      basePath.replace('api/v1', 'hidden') +
+        `/self/personal_access_token/metadata`,
+      (req, res) => {
+        const defaultSuccessResponse = {
+          jsonapi: {
+            version: '1.0',
+          },
+          data: {
+            attributes: {
+              hostname: 'snyk.io',
+            },
+            id: '01JVC82VDVCDTP9Z7QM7WRX2KZ',
+            type: 'personal_access_token',
+          },
+          links: {},
+        };
+  
+        if (
+          req.headers.authorization?.includes(
+            'token snyk_uat.12345678.abcdefg-hijklmnop.qrstuvwxyz-123456',
+          )
+        ) {
+          res.status(200).send(defaultSuccessResponse);
+        }
+        if (
+          req.headers.authorization?.includes(
+            'token snyk_uat.12345678.thisisa-europecon.figuredpat-123456',
+          )
+        ) {
+          const euSuccessResponse = {
+            ...defaultSuccessResponse,
+            data: {
+              attributes: {
+                hostname: 'eu.snyk.io',
+              },
+            },
+          };
+          res.status(200).send(euSuccessResponse);
+        }
+  
+        res.status(400).send({
+          jsonapi: {
+            version: '1.0',
+          },
+          errors: [
+            {
+              status: '400',
+              detail: 'invalid authorization token',
+              id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+              title: 'Bad Request',
+              meta: {
+                created: '2025-05-20T16:04:30.40061835Z',
+              },
+            },
+          ],
+        });
+      },
+    );
+
   app.post(`/rest/orgs/:orgId/sbom_tests`, (req, res) => {
     let testId = '4b341b8a-4697-4e35-928b-4b9ae37f8ea8';
 
