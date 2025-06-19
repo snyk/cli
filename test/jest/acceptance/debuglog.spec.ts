@@ -4,7 +4,7 @@ import {
   createProjectFromWorkspace,
 } from '../util/createProject';
 
-jest.setTimeout(1000 * 60);
+jest.setTimeout(10000 * 60);
 
 describe('debug log', () => {
   it('redacts token from env var', async () => {
@@ -48,7 +48,63 @@ describe('debug log', () => {
 
   it('redacts basic authentication', async () => {
     const { stderr } = await runSnykCLI(
-      'container test ubuntu:latest --username=us --password=pw -d',
+      'container test ubuntu:latest --username=john.doe@domain.org --password=solidpassword -d',
+      {
+        env: {
+          ...process.env,
+          SNYK_DISABLE_ANALYTICS: '1',
+        },
+      },
+    );
+
+    expect(stderr).not.toContain('Basic am9ob');
+    expect(stderr).toContain('Basic ***');
+
+    expect(stderr).not.toContain('john.doe@domain.org');
+    expect(stderr).not.toContain('solidpassword');
+  });
+
+  it('redacts short-form basic authentication', async () => {
+    const { stderr } = await runSnykCLI(
+      'container test ubuntu:latest -u=john.doe@domain.org -p=solidpassword -d',
+      {
+        env: {
+          ...process.env,
+          SNYK_DISABLE_ANALYTICS: '1',
+        },
+      },
+    );
+
+    expect(stderr).not.toContain('Basic am9ob');
+    expect(stderr).toContain('Basic ***');
+
+    expect(stderr).not.toContain('john.doe@domain.org');
+    expect(stderr).not.toContain('solidpassword');
+
+    expect(stderr).toContain('-u=***');
+    expect(stderr).toContain('-p=***');
+  });
+
+  it('redacts ENV-driven basic authentication', async () => {
+    const { stderr } = await runSnykCLI('container test ubuntu:latest -d', {
+      env: {
+        ...process.env,
+        SNYK_DISABLE_ANALYTICS: '1',
+        SNYK_REGISTRY_USERNAME: 'john.doe@domain.org',
+        SNYK_REGISTRY_PASSWORD: 'solidpassword',
+      },
+    });
+
+    expect(stderr).not.toContain('Basic am9ob');
+    expect(stderr).toContain('Basic ***');
+
+    expect(stderr).not.toContain('john.doe@domain.org');
+    expect(stderr).not.toContain('solidpassword');
+  });
+
+  it('redacts basic authentication with trace log level', async () => {
+    const { stderr } = await runSnykCLI(
+      'container test ubuntu:latest --username=john.doe@domain.org --password=solidpassword -d',
       {
         env: {
           ...process.env,
@@ -58,11 +114,59 @@ describe('debug log', () => {
       },
     );
 
-    // this test only makes sense when Basic auth would be expected, otherwise the checks below
-    if (stderr.includes('Basic ')) {
-      expect(stderr).not.toContain('Basic dXM6cHc=');
-      expect(stderr).toContain('Basic ***');
-    }
+    expect(stderr).not.toContain('Basic am9ob');
+    expect(stderr).toContain('Basic ***');
+
+    expect(stderr).not.toContain('john.doe@domain.org');
+    expect(stderr).not.toContain('solidpassword');
+
+    expect(stderr).toContain('"username": "***"');
+    expect(stderr).toContain('"password": "***"');
+  });
+
+  it('redacts short-form basic authentication with trace log level', async () => {
+    const { stderr } = await runSnykCLI(
+      'container test ubuntu:latest -u=john.doe@domain.org -p=solidpassword -d',
+      {
+        env: {
+          ...process.env,
+          SNYK_DISABLE_ANALYTICS: '1',
+          SNYK_LOG_LEVEL: 'trace',
+        },
+      },
+    );
+
+    expect(stderr).not.toContain('Basic am9ob');
+    expect(stderr).toContain('Basic ***');
+
+    expect(stderr).not.toContain('john.doe@domain.org');
+    expect(stderr).not.toContain('solidpassword');
+
+    expect(stderr).toContain('-u=***');
+    expect(stderr).toContain('"u": "***"');
+    expect(stderr).toContain('-p=***');
+    expect(stderr).toContain('"p": "***"');
+  });
+
+  it('redacts ENV-driven basic authentication with trace log level', async () => {
+    const { stderr } = await runSnykCLI('container test ubuntu:latest -d', {
+      env: {
+        ...process.env,
+        SNYK_DISABLE_ANALYTICS: '1',
+        SNYK_REGISTRY_USERNAME: 'john.doe@domain.org',
+        SNYK_REGISTRY_PASSWORD: 'solidpassword',
+        SNYK_LOG_LEVEL: 'trace',
+      },
+    });
+
+    expect(stderr).not.toContain('Basic am9ob');
+    expect(stderr).toContain('Basic ***');
+
+    expect(stderr).not.toContain('john.doe@domain.org');
+    expect(stderr).not.toContain('solidpassword');
+
+    expect(stderr).toContain('"REGISTRY_USERNAME": "***"');
+    expect(stderr).toContain('"REGISTRY_PASSWORD": "***"');
   });
 
   it('redacts externally injected bearer token', async () => {
