@@ -181,9 +181,7 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
   const debug = debugEnabled(cliArguments);
 
   if (debug) {
-    logErrorWithTimeStamps(
-      'Executing: ' + executable + ' ' + cliArguments.join(' '),
-    );
+    logErrorWithTimeStamps('Executing: ' + executable);
   }
 
   const res = spawnSync(executable, cliArguments, {
