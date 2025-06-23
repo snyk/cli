@@ -16,6 +16,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['containerCliAppVulnsEnabled', true],
     ['enablePnpmCli', false],
     ['sbomMonitorBeta', false],
+    ['useImprovedDotnetWithoutPublish', false],
   ]);
 };
 
