@@ -49,7 +49,10 @@ import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
 import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 import { processCommandArgs } from '../process-command-args';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
-import { PNPM_FEATURE_FLAG } from '../../../lib/package-managers';
+import {
+  PNPM_FEATURE_FLAG,
+  DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+} from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -161,11 +164,18 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   let hasPnpmSupport = false;
+  let hasImprovedDotnetWithoutPublish = false;
   try {
     hasPnpmSupport = (await hasFeatureFlag(
       PNPM_FEATURE_FLAG,
       options,
     )) as boolean;
+    if (options['dotnet-runtime-resolution']) {
+      hasImprovedDotnetWithoutPublish = (await hasFeatureFlag(
+        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+        options,
+      )) as boolean;
+    }
   } catch (err) {
     hasPnpmSupport = false;
   }
@@ -173,6 +183,10 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   const featureFlags = hasPnpmSupport
     ? new Set<string>([PNPM_FEATURE_FLAG])
     : new Set<string>();
+
+  if (hasImprovedDotnetWithoutPublish) {
+    options.useImprovedDotnetWithoutPublish = true;
+  }
 
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of paths) {
