@@ -4,4 +4,4 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 
 ### Bug Fixes
 
-* **logging:** Improves the sanitization of credentials in local debug logs. ([e50fb22](https://github.com/snyk/snyk/commit/e50fb22cde76b3ca01e6a21d5495534c06586df9))
+* **logging:** Improves the sanitization of credentials in local debug logs. ([38322f3](https://github.com/snyk/snyk/commit/38322f377da7e5f1391e1f641710be50989fa4df))
