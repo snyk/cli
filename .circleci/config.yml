@@ -447,7 +447,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
           requires:
-            - secrets-scan
+            - prepare-build
           filters:
             branches:
               ignore:
