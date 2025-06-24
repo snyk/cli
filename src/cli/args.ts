@@ -8,7 +8,6 @@ import {
   SupportedUserReachableFacingCliArgs,
 } from '../lib/types';
 import { getContainerImageSavePath } from '../lib/container';
-import { obfuscateArgs } from '../lib/utils';
 
 export declare interface Global extends NodeJS.Global {
   ignoreUnknownCA: boolean;
@@ -118,8 +117,6 @@ export function args(rawArgv: string[]): Args {
 
     debugModule.enable(enable);
   }
-
-  const debug = debugModule('snyk');
 
   // Late require, see the note re "debug" option above.
   const cli = require('./commands');
@@ -272,8 +269,6 @@ export function args(rawArgv: string[]): Args {
   if (argv.insecure) {
     global.ignoreUnknownCA = true;
   }
-
-  debug(command, obfuscateArgs(argv));
 
   return {
     command,
