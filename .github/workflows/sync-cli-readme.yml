@@ -35,12 +35,12 @@ jobs:
           git config --global user.email "team-cli@snyk.io"
 
       - name: Import and configure GPG
-        run: |
-          echo "$GPG_KEY" | gpg --batch --import
-          gpg --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --batch --sign
         env:
           GPG_KEY: ${{ secrets.TEAM_CLI_BOT_GPG_KEY }}
           GPG_PASSPHRASE: ${{ secrets.TEAM_CLI_BOT_GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_KEY" | gpg --batch --import
+          gpg --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --batch --sign
 
       - name: Create or checkout destination branch
         run: |
@@ -92,16 +92,10 @@ jobs:
 
           echo "continue=true" >> "$GITHUB_OUTPUT"
 
-      - name: Commit and push changes (if any)
-        if: steps.check_changes.outputs.continue == 'true'
-        run: |
-          cd ./cli
-          git add README.md
-          git commit -S -m "${{ env.COMMIT_MESSAGE }}"
-          git push --force --set-upstream origin ${{ env.DESTINATION_BRANCH }}
-
       - name: Create or update a pull request
         if: steps.check_changes.outputs.continue == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd ./cli
           PR_NUMBER=$(gh pr list \
@@ -122,5 +116,11 @@ jobs:
             --body="Automatic PR controlled by GitHub Action" \
             --head "${{ env.DESTINATION_BRANCH }}" \
             --base main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit and push changes (if any)
+        if: steps.check_changes.outputs.continue == 'true'
+        run: |
+          cd ./cli
+          git add README.md
+          git commit -S -m "${{ env.COMMIT_MESSAGE }}"
+          git push --force --set-upstream origin ${{ env.DESTINATION_BRANCH }}
