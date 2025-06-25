@@ -20,7 +20,7 @@ For Snyk Container, see [`snyk container` help](https://docs.snyk.io/snyk-cli/co
 
 The `monitor` command is not supported for Snyk Code.
 
-For Snyk Infrastructure as Code follow the instructions in "Regularly testing IaC files" on [Snyk CLI for IaC](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac)
+For Snyk Infrastructure as Code follow the instructions in [Regularly testing IaC files on Snyk CLI for IaC](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac#regularly-testing-iac-files)
 
 ## Exit codes
 
@@ -141,7 +141,7 @@ Specify the name of the package manager when the filename specified with the `--
 
 Example: `$ snyk monitor --file=req.txt --package-manager=pip`
 
-For more information see [Options for Python projects](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-python-projects)
+For more information, see [Options for Python projects](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-python-projects)
 
 ### `--unmanaged`
 
@@ -155,7 +155,7 @@ Ignore all set policies, the current policy in the `.snyk` file, org level ignor
 
 ### `--trust-policies`
 
-Apply and use ignore rules from the Snyk policies in your dependencies; otherwise ignore rules in the dependencies are only shown as a suggestion.
+Apply and use ignore rules from the Snyk policies in your dependencies; otherwise, ignore rules in the dependencies are only shown as a suggestion.
 
 ### `--project-name=<PROJECT_NAME>`
 
@@ -177,7 +177,7 @@ Manually pass a path to a `.snyk` policy file.
 
 Print results on the console as a JSON data structure.
 
-**Note**: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Permissions (role) required to edit Project attributes from the Snyk CLI](https://docs.snyk.io/snyk-admin/manage-permissions-and-roles/manage-member-roles#permissions-role-required-to-edit-project-attributes-from-the-snyk-cli)
+**Note**: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Permissions (role) required to edit Project attributes from the Snyk CLI](https://docs.snyk.io/snyk-admin/user-roles/user-role-management#permissions-required-to-edit-project-attributes-from-the-snyk-cli)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -185,7 +185,7 @@ Set the project environment project attribute to one or more values (comma-separ
 
 Allowed values: `frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed`
 
-For more information see [Project attributes](https://docs.snyk.io/getting-started/introduction-to-snyk-projects/view-project-information/project-attributes)
+For more information, see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
 
@@ -193,7 +193,7 @@ Set the project lifecycle project attribute to one or more values (comma-separat
 
 Allowed values: `production, development, sandbox`
 
-For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-tags)
+For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
 
@@ -201,7 +201,7 @@ Set the project business criticality project attribute to one or more values (co
 
 Allowed values: `critical, high, medium, low`
 
-For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-tags)
+For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
@@ -219,7 +219,7 @@ This is an alias for `--project-tags`
 
 ## Options for Maven projects
 
-**Note**: The `--dev` option can be used with Maven projects. See also the [`--dev` option help](https://docs.snyk.io/snyk-cli/commands/monitor#dev)
+**Note**: The `--dev` option can be used with Maven projects. See also the `--dev` option help
 
 ### `--maven-aggregate-project`
 
@@ -315,7 +315,7 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 **Note:** This option in in Early Access and may change until it is released.
 
-Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](https://docs.snyk.io/getting-started/supported-languages-and-frameworks/.net/improved-.net-scanning)
+Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](../../supported-languages-package-managers-and-frameworks/.net/improved-.net-scanning.md)
 
 Example: `snyk test --dotnet-runtime-resolution`
 
