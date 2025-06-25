@@ -5,7 +5,6 @@ import * as querystring from 'querystring';
 import * as zlib from 'zlib';
 import config from '../config';
 import { getProxyForUrl } from 'proxy-from-env';
-import { bootstrap } from 'global-agent';
 import { Global } from '../../cli/args';
 import { Payload } from './types';
 import { getVersion } from '../version';
@@ -130,9 +129,7 @@ function setupRequest(payload: Payload) {
   const proxyUri = getProxyForUrl(url);
   if (proxyUri) {
     snykDebug('using proxy:', proxyUri);
-    bootstrap({
-      environmentVariableNamespace: '',
-    });
+    options.proxy = proxyUri;
   } else {
     snykDebug('not using proxy');
   }

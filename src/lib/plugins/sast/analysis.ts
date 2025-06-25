@@ -20,8 +20,6 @@ import {
 } from './types';
 import { analysisProgressUpdate } from './utils';
 import { FeatureNotSupportedBySnykCodeError } from './errors';
-import { getProxyForUrl } from 'proxy-from-env';
-import { bootstrap } from 'global-agent';
 import chalk from 'chalk';
 import * as debugLib from 'debug';
 import { getCodeClientProxyUrl } from '../../code-config';
@@ -83,13 +81,6 @@ export async function getCodeTestResults(
   if (process.env.HTTPS_PROXY || process.env.https_proxy) {
     process.env.HTTPS_PROXY =
       process.env.HTTPS_PROXY || process.env.https_proxy;
-  }
-
-  const proxyUrl = getProxyForUrl(baseURL);
-  if (proxyUrl) {
-    bootstrap({
-      environmentVariableNamespace: '',
-    });
   }
 
   const analysisArgs = {
