@@ -5,7 +5,7 @@ on:
     - cron: '0 9 * * 1' # Monday at 9
 
 env:
-  DESTINATION_BRANCH: docs/automatic-gitbook-update-readme
+  DESTINATION_BRANCH: docs/automatic-gitbook-update-readme-${{ github.ref_name }}
   COMMIT_MESSAGE: 'docs: synchronizing README from snyk/user-docs'
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
           repository: snyk/cli
           path: cli
           fetch-depth: 0
-          ref: main
+          ref: ${{ github.ref_name }}
 
       - name: Configure Git user
         run: |
@@ -35,12 +35,12 @@ jobs:
           git config --global user.email "team-cli@snyk.io"
 
       - name: Import and configure GPG
-        run: |
-          echo "$GPG_KEY" | gpg --batch --import
-          gpg --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --batch --sign
         env:
           GPG_KEY: ${{ secrets.TEAM_CLI_BOT_GPG_KEY }}
           GPG_PASSPHRASE: ${{ secrets.TEAM_CLI_BOT_GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_KEY" | gpg --batch --import
+          gpg --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --batch --sign >/dev/null 2>&1
 
       - name: Create or checkout destination branch
         run: |
@@ -48,6 +48,8 @@ jobs:
           if git show-ref --verify --quiet refs/heads/${{ env.DESTINATION_BRANCH }}; then
             echo "Branch ${{ env.DESTINATION_BRANCH }} already exists, checking out."
             git checkout ${{ env.DESTINATION_BRANCH }}
+            echo "Cleaning it for a fresh start."
+            git reset --hard origin/main
             exit 0
           fi
 
@@ -102,6 +104,8 @@ jobs:
 
       - name: Create or update a pull request
         if: steps.check_changes.outputs.continue == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd ./cli
           PR_NUMBER=$(gh pr list \
@@ -121,6 +125,4 @@ jobs:
             --title="${{ env.COMMIT_MESSAGE }}" \
             --body="Automatic PR controlled by GitHub Action" \
             --head "${{ env.DESTINATION_BRANCH }}" \
-            --base main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            --base ${{ github.ref_name || 'main' }}

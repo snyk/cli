@@ -427,7 +427,7 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 		c.DebugLogger.Println("Launching: ")
 		c.DebugLogger.Println("  ", c.v1BinaryLocation)
 		c.DebugLogger.Println(" With Arguments:")
-		c.DebugLogger.Println("  ", strings.Join(passThroughArgs, ", "))
+		c.DebugLogger.Println(" ", strings.Join(passThroughArgs, " "))
 		c.DebugLogger.Println(" With Environment: ")
 
 		variablesMap := utils.ToKeyValueMap(snykCmd.Env, "=")

@@ -399,9 +399,19 @@ workflows:
           channel: cli-alerts
           trusted-branch: main
 
+      - docs-only-check:
+          filters:
+            branches:
+              only:
+                - '/^docs\/.*/'
+
       - prepare-build:
           requires:
             - secrets-scan
+          filters:
+            branches:
+              ignore:
+                - '/^docs\/.*/'
 
       - code-analysis:
           go_target_os: linux
@@ -437,7 +447,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
           requires:
-            - secrets-scan
+            - prepare-build
           filters:
             branches:
               ignore:
@@ -1083,6 +1093,30 @@ jobs:
           open-source-additional-arguments: --exclude=test,dist
           iac-scan: disabled
           release-branch: main
+
+  docs-only-check:
+    executor: docker-amd64
+    steps:
+      - checkout
+      - run:
+          name: Check if all changed files are documentation (.md)
+          command: |
+            CHANGED_FILES=$(git diff --name-only main)
+
+            # If this step fails, check if you need to add another extension, 
+            # or indeed if this PR adds more than docs-related changes.
+            ALLOWED_DOCS_EXTENSIONS="(\.md|\.svg|\.jpg)$"
+
+            for file in $CHANGED_FILES; do
+              echo "Checking extension of file: $file"
+              # -q:  quiet
+              # -E: extended regular expressions
+              if ! echo "$file" | grep -q -E "$ALLOWED_DOCS_EXTENSIONS"; then
+                echo "Error: Disallowed file type found: $file"
+                exit 1
+              fi
+            done
+            exit 0
 
   test-node:
     executor: docker-amd64

@@ -78,7 +78,6 @@ func legacycliWorkflow(
 	workingDirectory := config.GetString(configuration.WORKING_DIRECTORY)
 	analyticsDisabled := config.GetBool(configuration.ANALYTICS_DISABLED)
 
-	debugLogger.Print("Arguments:", args)
 	debugLogger.Print("Use StdIO:", useStdIo)
 	debugLogger.Print("Working directory:", workingDirectory)
 
