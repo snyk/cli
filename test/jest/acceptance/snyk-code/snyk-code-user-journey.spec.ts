@@ -374,6 +374,40 @@ describe('snyk code test', () => {
           }
         });
 
+        it('works with both --sarif-file-output and --json-file-output', async () => {
+          const sarifFileName = 'sarifOutput.json';
+          const jsonFileName = 'jsonOutput.json';
+          const sarifFilePath = `${projectRoot}/${sarifFileName}`;
+          const jsonFilePath = `${projectRoot}/${jsonFileName}`;
+          const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path} --sarif-file-output=${sarifFilePath} --json-file-output=${jsonFilePath}`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+
+          expect(existsSync(sarifFilePath)).toBe(true);
+          expect(require(sarifFilePath)).toMatchSchema(sarifSchema);
+
+          expect(existsSync(jsonFilePath)).toBe(true);
+          expect(require(jsonFilePath)).toMatchSchema(sarifSchema);
+
+          // cleanup file
+          try {
+            unlinkSync(sarifFilePath);
+            unlinkSync(jsonFilePath);
+          } catch (error) {
+            console.error('failed to remove file.', error);
+          }
+        });
+
         it('works with human readable output', async () => {
           const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
           const { stdout, stderr, code } = await runSnykCLI(
