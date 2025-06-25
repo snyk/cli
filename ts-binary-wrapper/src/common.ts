@@ -1,11 +1,3 @@
-// must be set before we import 'global-agent/bootstrap'
-process.env.GLOBAL_AGENT_ENVIRONMENT_VARIABLE_NAMESPACE = '';
-process.env.HTTPS_PROXY =
-  process.env.HTTPS_PROXY ?? process.env.https_proxy ?? '';
-process.env.HTTP_PROXY = process.env.HTTP_PROXY ?? process.env.http_proxy ?? '';
-process.env.NO_PROXY = process.env.NO_PROXY ?? process.env.no_proxy ?? '';
-
-import 'global-agent/bootstrap';
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
@@ -13,6 +5,12 @@ import { spawnSync } from 'child_process';
 import * as https from 'https';
 import { createHash } from 'crypto';
 import * as Sentry from '@sentry/node';
+import { getProxyForUrl } from 'proxy-from-env';
+
+process.env.HTTPS_PROXY =
+  process.env.HTTPS_PROXY ?? process.env.https_proxy ?? '';
+process.env.HTTP_PROXY = process.env.HTTP_PROXY ?? process.env.http_proxy ?? '';
+process.env.NO_PROXY = process.env.NO_PROXY ?? process.env.no_proxy ?? '';
 
 export const versionFile = path.join(__dirname, 'generated', 'version');
 export const shasumFile = path.join(__dirname, 'generated', 'sha256sums.txt');
@@ -24,9 +22,9 @@ const binaryDeploymentsFilePath = path.join(
 export const integrationName = 'TS_BINARY_WRAPPER';
 
 export class WrapperConfiguration {
-  private version: string;
-  private binaryName: string;
-  private expectedSha256sum: string;
+  private readonly version: string;
+  private readonly binaryName: string;
+  private readonly expectedSha256sum: string;
 
   public constructor(
     version: string,
@@ -257,7 +255,6 @@ export function downloadExecutable(
 ): Promise<Error | undefined> {
   return new Promise<Error | undefined>(function (resolve) {
     logErrorWithTimeStamps('Starting download');
-    const options = new URL(`${downloadUrl}?utm_source=${integrationName}`);
     const temp = path.join(__dirname, Date.now().toString());
     const fileStream = fs.createWriteStream(temp);
     const shasum = createHash('sha256').setEncoding('hex');
@@ -291,17 +288,35 @@ export function downloadExecutable(
         // finally rename the file and change permissions
         fs.renameSync(temp, filename);
         fs.chmodSync(filename, 0o755);
-        logErrorWithTimeStamps('Downloaded successfull! ');
+        logErrorWithTimeStamps('Downloaded successful! ');
       }
 
       resolve(undefined);
     });
 
+    const url = new URL(`${downloadUrl}?utm_source=${integrationName}`);
+
     logErrorWithTimeStamps(
-      "Downloading from '" + options.toString() + "' to '" + filename + "'",
+      "Downloading from '" + url.toString() + "' to '" + filename + "'",
     );
 
-    const req = https.get(options, (res) => {
+    let agent;
+    let proxyUri: string | URL = getProxyForUrl(url);
+    if (proxyUri) {
+      logErrorWithTimeStamps('using proxy:', proxyUri);
+      proxyUri = new URL(proxyUri);
+      agent = new https.Agent({
+        host: proxyUri.hostname,
+        port:
+          parseInt(proxyUri.port) ||
+          (proxyUri.protocol === 'https:' ? 443 : 80),
+      });
+    } else {
+      agent = https.globalAgent;
+      logErrorWithTimeStamps('not using proxy');
+    }
+
+    const req = https.get(url, { agent }, (res) => {
       // response events
       res.on('error', cleanupAfterError).on('end', () => {
         shasum.end();
