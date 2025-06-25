@@ -67,7 +67,7 @@ Supported platforms are: `linux/amd64`, `linux/arm64`, `linux/riscv64`, `linux/p
 
 ### `[--exclude-app-vulns]`
 
-Snyk scans and generates an SBOM for operating system dependencies as well as application dependencies in your image by default.
+Snyk scans and generates an SBOM for operating system dependencies and application dependencies in your image by default.
 
 You can disable generation for application dependencies by adding `--exclude-app-vulns`.
 
