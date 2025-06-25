@@ -41,12 +41,15 @@ jobs:
         run: |
           echo "$GPG_KEY" | gpg --batch --import
           gpg --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --batch --sign
+
       - name: Create or checkout destination branch
         run: |
           cd cli
           if git show-ref --verify --quiet refs/heads/${{ env.DESTINATION_BRANCH }}; then
             echo "Branch ${{ env.DESTINATION_BRANCH }} already exists, checking out."
             git checkout ${{ env.DESTINATION_BRANCH }}
+            echo "Cleaning it for a fresh start."
+            git reset --hard origin/main
             exit 0
           fi
 
@@ -79,6 +82,14 @@ jobs:
 
           echo "continue=true" >> "$GITHUB_OUTPUT"
 
+      - name: Commit and push changes (if any)
+        if: steps.check_changes.outputs.continue == 'true'
+        run: |
+          cd ./cli
+          git add help
+          git commit -S -m "${{ env.COMMIT_MESSAGE }}"
+          git push --force --set-upstream origin ${{ env.DESTINATION_BRANCH }}
+
       - name: Create or update a pull request
         if: steps.check_changes.outputs.continue == 'true'
         env:
@@ -103,11 +114,3 @@ jobs:
             --body="Automatic PR controlled by GitHub Action" \
             --head "${{ env.DESTINATION_BRANCH }}" \
             --base ${{ github.ref_name || 'main' }}
-
-      - name: Commit and push changes (if any)
-        if: steps.check_changes.outputs.continue == 'true'
-        run: |
-          cd ./cli
-          git add help
-          git commit -S -m "${{ env.COMMIT_MESSAGE }}"
-          git push --force --set-upstream origin ${{ env.DESTINATION_BRANCH }}
