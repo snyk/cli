@@ -301,6 +301,60 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     },
   );
 
+  it('run `snyk test` on a .net framework project using v3 dotnet runtime resolution logic', async () => {
+    server.setFeatureFlag('useImprovedDotnetWithoutPublish', true);
+
+    let prerequisite = await runCommand('dotnet', ['--version']).catch(
+      function () {
+        return { code: 1, stderr: '', stdout: '' };
+      },
+    );
+
+    if (prerequisite.code !== 0) {
+      return;
+    }
+
+    const project = await createProjectFromWorkspace('nuget-app-net48');
+
+    prerequisite = await runCommand('dotnet', [
+      'restore',
+      `"${path.resolve(project.path(), 'net48.csproj')}"`,
+    ]);
+
+    if (prerequisite.code !== 0) {
+      console.log(prerequisite.stdout);
+      console.log(prerequisite.stderr);
+      throw new Error(prerequisite.stdout);
+    }
+
+    const { code, stderr, stdout } = await runSnykCLI(
+      'test --dotnet-runtime-resolution --json',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    // Debug output on an unexpected exit code
+    if (code !== 0 && code !== 1) {
+      console.debug(stderr);
+      console.debug('---------------------------');
+      console.debug(stdout);
+    }
+
+    // Expect an exit code of 0 or 1. Exit code 1 is possible if a new
+    // vulnerability is discovered in the installed version of dotnet's system
+    // libraries.
+    expect([0, 1]).toContain(code);
+
+    // Checking if the JSON output is correctly defined and is not poluted with user facing messages.
+    const result = JSON.parse(stdout);
+    expect(result?.ok).toBeDefined();
+
+    // Expect 'ok' to be true if exit 0, false if exit 1.
+    expect(result.ok).toBe(code === 0);
+  });
+
   test('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with a custom output path', async () => {
     let prerequisite = await runCommand('dotnet', ['--version']).catch(
       function () {
