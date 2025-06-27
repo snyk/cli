@@ -127,6 +127,14 @@ describe('snyk container', () => {
       expect(code).toEqual(1);
     });
 
+    it('finds dependencies in wolfi/chainguard image', async () => {
+      const { stdout } = await runSnykCLI(
+        `container test chainguard/wolfi-base:latest --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+      expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
+    });
+
     it('container tests the platform specified in the parameters', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container test debian:unstable-slim --platform=linux/arm64/v8`,
