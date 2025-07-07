@@ -26,9 +26,9 @@ ignore:
         created: 2025-04-01T10:37:59.609Z
   SNYK-JS-TARFS-10293725:
     - '*':
-        reason: None Given
-        expires: 2025-07-03T12:38:39.920Z
-        created: 2025-06-03T12:38:39.927Z
+        reason: Renew temporary ignore for snyk-docker-plugin to resolve vulnerability
+        expires: 2025-07-14T11:14:01.040Z
+        created: 2025-07-07T11:14:01.047Z
 patch: {}
 exclude:
   code:
