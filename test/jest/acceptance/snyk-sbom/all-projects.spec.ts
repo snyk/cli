@@ -86,4 +86,31 @@ describe('snyk sbom --all-projects (mocked server only)', () => {
     );
     expect(bom.components).toHaveLength(36);
   });
+
+  test('`sbom mono-repo-project-manifests-only` generates an SBOM for multiple projects with enableMavenDverboseExhaustiveDeps enabled', async () => {
+    server.setFeatureFlag('enableMavenDverboseExhaustiveDeps', true);
+    const project = await createProjectFromWorkspace(
+      'mono-repo-project-manifests-only',
+    );
+
+    const { code, stdout, stderr } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --debug --all-projects`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+    let bom;
+
+    console.log(stderr);
+
+    expect(code).toEqual(0);
+    expect(() => {
+      bom = JSON.parse(stdout);
+    }).not.toThrow();
+    expect(bom.metadata.component.name).toEqual(
+      'mono-repo-project-manifests-only',
+    );
+    expect(bom.components).toHaveLength(37);
+  });
 });

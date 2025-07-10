@@ -34,6 +34,7 @@ async function test(root, options, callback) {
 async function executeTest(root, options) {
   let hasPnpmSupport = false;
   let hasImprovedDotnetWithoutPublish = false;
+  let enableMavenDverboseExhaustiveDeps = false;
   try {
     hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
     if (options['dotnet-runtime-resolution']) {
@@ -48,6 +49,24 @@ async function executeTest(root, options) {
   } catch (err) {
     hasPnpmSupport = false;
   }
+  
+  try {
+    const args = options['_doubleDashArgs'] || [];
+    const verboseEnabled =
+      args.includes('-Dverbose') ||
+      args.includes('-Dverbose=true') ||
+      !!options['print-graph'];
+    if (verboseEnabled) {
+      enableMavenDverboseExhaustiveDeps = (await hasFeatureFlag(
+        MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+        options,
+      ));
+    }
+  } catch (err) {
+    enableMavenDverboseExhaustiveDeps = false;
+  }
+  options.mavenVerboseIncludeAllVersions = enableMavenDverboseExhaustiveDeps;
+
   try {
     const featureFlags = hasPnpmSupport
       ? new Set([PNPM_FEATURE_FLAG])

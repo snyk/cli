@@ -54,6 +54,7 @@ export interface Options {
   'dry-run'?: boolean;
   allSubProjects?: boolean;
   mavenAggregateProject?: boolean;
+  mavenVerboseIncludeAllVersions?: boolean;
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
   packageManager?: SupportedPackageManagers;

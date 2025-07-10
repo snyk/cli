@@ -52,6 +52,7 @@ import { hasFeatureFlag } from '../../../lib/feature-flags';
 import {
   PNPM_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+  MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 
@@ -165,6 +166,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
 
   let hasPnpmSupport = false;
   let hasImprovedDotnetWithoutPublish = false;
+  let enableMavenDverboseExhaustiveDeps = false;
   try {
     hasPnpmSupport = (await hasFeatureFlag(
       PNPM_FEATURE_FLAG,
@@ -179,6 +181,23 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   } catch (err) {
     hasPnpmSupport = false;
   }
+
+  try {
+    const args = options['_doubleDashArgs'] || [];
+    const verboseEnabled =
+      args.includes('-Dverbose') ||
+      args.includes('-Dverbose=true') ||
+      !!options['print-graph'];
+    if (verboseEnabled) {
+      enableMavenDverboseExhaustiveDeps = (await hasFeatureFlag(
+        MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+        options,
+      )) as boolean;
+    }
+  } catch (err) {
+    enableMavenDverboseExhaustiveDeps = false;
+  }
+  options.mavenVerboseIncludeAllVersions = enableMavenDverboseExhaustiveDeps;
 
   const featureFlags = hasPnpmSupport
     ? new Set<string>([PNPM_FEATURE_FLAG])
