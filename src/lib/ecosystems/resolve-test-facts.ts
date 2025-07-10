@@ -203,24 +203,10 @@ export async function resolveAndTestFactsUnmanagedDeps(
           orgId,
         );
 
-        const issuesMap: Map<string, Issue> = new Map();
+        const issuesMap: { [key: string]: Issue } = {};
         issues.forEach((i) => {
           issuesMap[i.issueId] = i;
         });
-
-        const vulnerabilities: IssueDataUnmanaged[] = [];
-        for (const issuesDataKey in issuesData) {
-          const pkgCoordinate = `${issuesMap[issuesDataKey]?.pkgName}@${issuesMap[issuesDataKey]?.pkgVersion}`;
-          const issueData = issuesData[issuesDataKey];
-
-          issueData.from = [pkgCoordinate];
-          issueData.name = pkgCoordinate;
-          issueData.packageManager = packageManager;
-          issueData.version = issuesMap[issuesDataKey]?.pkgVersion;
-          issueData.upgradePath = [false];
-          issueData.isPatchable = false;
-          vulnerabilities.push(issueData);
-        }
 
         const policy = await findAndLoadPolicy(path, 'cpp', options);
 
@@ -229,6 +215,46 @@ export async function resolveAndTestFactsUnmanagedDeps(
           issuesData,
           policy,
         );
+
+        // Build vulnerabilities array from filtered data.
+        const vulnerabilities: IssueDataUnmanaged[] = [];
+        for (const issuesDataKey in issuesDataFiltered) {
+          if (issuesMap[issuesDataKey]) {
+            const issueData = issuesDataFiltered[
+              issuesDataKey
+            ] as IssueDataUnmanaged;
+            const pkgCoordinate = `${issuesMap[issuesDataKey].pkgName}@${issuesMap[issuesDataKey].pkgVersion}`;
+            issueData.from = [pkgCoordinate];
+            issueData.name = pkgCoordinate;
+            issueData.packageManager = packageManager;
+            issueData.version = issuesMap[issuesDataKey].pkgVersion || '';
+            issueData.upgradePath = [false];
+            issueData.isPatchable = false;
+            vulnerabilities.push(issueData);
+          }
+        }
+
+        // Build filtered.ignore array with ignored vulnerabilities
+        const filteredIgnore: IssueDataUnmanaged[] = [];
+        for (const issuesDataKey in issuesData) {
+          // If the issue was in the original data but not in the filtered data, it was ignored
+          if (
+            !(issuesDataKey in issuesDataFiltered) &&
+            issuesMap[issuesDataKey]
+          ) {
+            const issueData = {
+              ...issuesData[issuesDataKey],
+            } as IssueDataUnmanaged;
+            const pkgCoordinate = `${issuesMap[issuesDataKey].pkgName}@${issuesMap[issuesDataKey].pkgVersion}`;
+            issueData.from = [pkgCoordinate];
+            issueData.name = pkgCoordinate;
+            issueData.packageManager = packageManager;
+            issueData.version = issuesMap[issuesDataKey].pkgVersion || '';
+            issueData.upgradePath = [false];
+            issueData.isPatchable = false;
+            filteredIgnore.push(issueData);
+          }
+        }
 
         extractAndApplyPluginAnalytics([
           {
@@ -256,6 +282,9 @@ export async function resolveAndTestFactsUnmanagedDeps(
           dependencyCount,
           packageManager,
           displayTargetFile,
+          filtered: {
+            ignore: filteredIgnore,
+          },
         });
       } catch (error) {
         const hasStatusCodeError = error.code >= 400 && error.code <= 500;
