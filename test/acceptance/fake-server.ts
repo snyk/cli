@@ -3,10 +3,10 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as http from 'http';
 import * as https from 'https';
-import * as path from 'path';
 import * as net from 'net';
-import { getFixturePath } from '../jest/util/getFixturePath';
 import * as os from 'os';
+import * as path from 'path';
+import { getFixturePath } from '../jest/util/getFixturePath';
 
 const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([
@@ -283,6 +283,88 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     };
     res.status(200);
     res.send(defaultResponse);
+  });
+
+  app.post('/hidden/orgs/:orgId/unmanaged_ecosystem/depgraphs', (req, res) => {
+    res.status(201);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: { self: req.url },
+      data: {
+        id: 'test-dep-graph-id',
+        type: 'unmanaged-dep-graph',
+        location: `/orgs/${req.params.orgId}/unmanaged_ecosystem/depgraphs/test-dep-graph-id`,
+      },
+    });
+  });
+
+  app.get(
+    '/hidden/orgs/:orgId/unmanaged_ecosystem/depgraphs/:id',
+    (req, res) => {
+      const result = customResponse?.result as any;
+      const depGraphData = result?.depGraphData || {};
+
+      res.status(200);
+      res.send({
+        jsonapi: { version: '1.0' },
+        links: { self: req.url },
+        data: {
+          id: req.params.id,
+          type: 'unmanaged-dep-graph',
+          attributes: {
+            start_time: Date.now(),
+            in_progress: false,
+            dep_graph_data: depGraphData,
+            component_details: {},
+          },
+        },
+      });
+    },
+  );
+
+  app.post('/hidden/orgs/:orgId/unmanaged_ecosystem/issues', (req, res) => {
+    if (customResponse && customResponse.result) {
+      // Convert camelCase fixture format to snake_case API format
+      const result = customResponse.result as any;
+
+      const apiResult: any = {
+        start_time: Date.now(),
+        issues: result.issues || [],
+        issues_data: result.issuesData || {},
+        dep_graph: result.depGraphData || {},
+        deps_file_paths: result.depsFilePaths || {},
+        file_signatures_details: result.fileSignaturesDetails || {},
+        type: 'unmanaged',
+      };
+
+      res.status(200);
+      res.send({
+        jsonapi: { version: '1.0' },
+        links: { self: req.url },
+        data: {
+          id: 'test-issues-id',
+          result: apiResult,
+        },
+      });
+      return;
+    }
+    res.status(200);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: { self: req.url },
+      data: {
+        id: 'test-issues-id',
+        result: {
+          start_time: Date.now(),
+          issues: [],
+          issues_data: {},
+          dep_graph: {},
+          deps_file_paths: {},
+          file_signatures_details: {},
+          type: 'unmanaged',
+        },
+      },
+    });
   });
 
   app.get(basePath + '/vuln/:registry/:module', (req, res) => {
