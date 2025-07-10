@@ -58,7 +58,7 @@ jobs:
 
       - name: Copy help documentation from user-docs to CLI
         run: |
-          cp ./user-docs/docs/snyk-cli/commands/*.md ./cli/help/cli-commands/
+          cp ./user-docs/docs/cli-ide-and-ci-cd-integrations/snyk-cli/commands/*.md ./cli/help/cli-commands/
 
       - name: Format help files with Prettier
         run: |
