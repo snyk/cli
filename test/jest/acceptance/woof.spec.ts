@@ -1,5 +1,7 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 
+jest.setTimeout(20 * 1000);
+
 describe('woof', () => {
   // supported languages
   const languages = [

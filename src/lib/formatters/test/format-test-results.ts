@@ -24,7 +24,6 @@ import { isNewVuln, isVulnFixable } from '../../vuln-helpers';
 import { jsonStringifyLargeObject } from '../../json';
 import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
 import { getSeverityValue } from '../get-severity-value';
-import { showFixTip } from '../show-fix-tip';
 import {
   DockerFileAnalysisErrorCode,
   facts as dockerFacts,
@@ -172,9 +171,6 @@ export function getDisplayedOutput(
   const summary =
     testedInfoText + ', ' + chalk.red.bold(vulnCountText) + hasUnknownVersions;
 
-  const fixTip = showFixTip(projectType, res, options);
-  const fixAdvice = fixTip ? `\n\n${fixTip}` : '';
-
   const dockerfileWarning = getDockerfileWarning(res.scanResult);
   const dockerSuggestion = getDockerSuggestionText(options, res);
   const dockerDocsLink = getDockerRemediationDocsLink(dockerAdvice, config);
@@ -225,9 +221,9 @@ export function getDisplayedOutput(
     meta;
 
   if (res.remediation) {
-    body = summary + body + fixAdvice;
+    body = summary + body;
   } else {
-    body = body + '\n\n' + summary + fixAdvice;
+    body = body + '\n\n' + summary;
   }
 
   const ignoredIssues = '';

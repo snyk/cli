@@ -1,10 +1,11 @@
 import { EOL } from 'os';
-import config from '../../../../../../../src/lib/config';
 import { formatShareResultsOutput } from '../../../../../../../src/lib/formatters/iac-output/text';
 import {
   colors,
   contentPadding,
 } from '../../../../../../../src/lib/formatters/iac-output/text/utils';
+import { getAppUrl } from '../../../../../../../src/lib/config/api-url';
+import config from '../../../../../../../src/lib/config';
 
 describe('formatShareResultsOutput', () => {
   it('returns the correct output', () => {
@@ -22,7 +23,7 @@ describe('formatShareResultsOutput', () => {
         EOL +
         contentPadding +
         'Your test results are available at: ' +
-        colors.title(`${config.ROOT}/org/${testOrgName}/projects`) +
+        colors.title(`${getAppUrl(config.API)}/org/${testOrgName}/projects`) +
         EOL +
         contentPadding +
         'under the name: ' +

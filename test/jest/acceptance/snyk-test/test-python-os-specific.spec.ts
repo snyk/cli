@@ -6,6 +6,7 @@ import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
 import { getServerPort } from '../../util/getServerPort';
 import * as os from 'os';
 import * as fs from 'fs';
+import * as path from 'path';
 
 jest.setTimeout(1000 * 60);
 
@@ -64,7 +65,7 @@ describe('`snyk test` of python projects with OS specific dependencies', () => {
     });
   });
 
-  test('run `snyk test` on python project $fixture on the corresponding platform', async () => {
+  async function setupPythonProject() {
     const currentPlatform = getCurrentPlatform();
 
     if (!(currentPlatform in PLATFORM_FIXTURES_MAPS)) {
@@ -110,6 +111,14 @@ describe('`snyk test` of python projects with OS specific dependencies', () => {
 
     expect(pipResult.code).toEqual(0);
 
+    return { project, pythonCommand };
+  }
+
+  test('run `snyk test` on python project $fixture on the corresponding platform', async () => {
+    const setup = await setupPythonProject();
+    if (!setup) return;
+
+    const { project, pythonCommand } = setup;
     const { code } = await runSnykCLI('test -d --command=' + pythonCommand, {
       cwd: project.path(),
       env,
@@ -117,4 +126,56 @@ describe('`snyk test` of python projects with OS specific dependencies', () => {
 
     expect(code).toEqual(0);
   });
+
+  test('run `snyk test` on python project with SNYK_TMP_PATH set to valid directory', async () => {
+    const setup = await setupPythonProject();
+    if (!setup) return;
+
+    const { project, pythonCommand } = setup;
+
+    const envWithValidTmpPath = {
+      ...env,
+      SNYK_TMP_PATH: '.',
+    };
+
+    const { code } = await runSnykCLI('test -d --command=' + pythonCommand, {
+      cwd: project.path(),
+      env: envWithValidTmpPath,
+    });
+
+    expect(code).toEqual(0);
+  });
+
+  test('run `snyk test` on python project with SNYK_TMP_PATH set to invalid directory', async () => {
+    if (getCurrentPlatform() == 'alpine_arm64') {
+      // Can't remove permissions as required for this test on Alpine
+      return;
+    }
+
+    const setup = await setupPythonProject();
+    if (!setup) return;
+
+    const { project, pythonCommand } = setup;
+
+    const dirName = './test-dir-with-no-write-permissions';
+    const fullDirPath = path.resolve(project.path(), dirName);
+
+    fs.mkdirSync(fullDirPath, { recursive: true });
+    // Remove write permissions
+    fs.chmodSync(fullDirPath, 0o555);
+
+    const envWithInvalidTmpPath = {
+      ...env,
+      SNYK_TMP_PATH: dirName,
+    };
+
+    const { code } = await runSnykCLI('test -d --command=' + pythonCommand, {
+      cwd: project.path(),
+      env: envWithInvalidTmpPath,
+    });
+
+    expect(code).toEqual(2);
+
+    fs.rmSync(fullDirPath, { recursive: true, force: true });
+  }, 30000);
 });

@@ -1,4 +1,6 @@
 export const PNPM_FEATURE_FLAG = 'enablePnpmCli';
+export const DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG =
+  'useImprovedDotnetWithoutPublish';
 
 export type SupportedPackageManagers =
   | 'rubygems'

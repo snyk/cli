@@ -10,3 +10,4 @@ djangorestframework @ git+https://github.com/encode/django-rest-framework.git@1d
 -r req.txt
 -c constraints.txt
 jedi-0.19.2-py2.py3-none-any.whl
+SQLAlchemy

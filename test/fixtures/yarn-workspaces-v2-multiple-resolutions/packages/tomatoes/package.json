@@ -1,0 +1,11 @@
+{
+  "name": "tomatoes",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "main": "./src/index.js",
+  "dependencies": {
+    "git-rev-sync": "1.5.0",
+    "node-fetch": "2.2.0",
+    "object-assign": "4.1.1"
+  }
+}

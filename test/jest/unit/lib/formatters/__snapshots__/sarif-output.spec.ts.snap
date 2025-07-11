@@ -2,7 +2,7 @@
 
 exports[`createSarifOutputForContainers general with critical severity issue without CVE 1`] = `
 {
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
   "runs": [
     {
       "results": [
@@ -96,7 +96,7 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
 
 exports[`createSarifOutputForContainers general with critical severity issue without CWE 1`] = `
 {
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
   "runs": [
     {
       "results": [
@@ -189,7 +189,7 @@ In libexpat in Expat before 2.2.7, XML input including XML names that contain a 
 
 exports[`createSarifOutputForContainers general with high severity issue 1`] = `
 {
-  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
   "runs": [
     {
       "results": [

@@ -1,8 +1,8 @@
 // taken from "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
 module.exports = {
-  $schema: 'http://json-schema.org/draft-07/schema#',
+  $schema: 'http://json-schema.org/draft-04/schema#',
   title: 'Static Analysis Results Format (SARIF) Version 2.1.0 JSON Schema',
-  $id: 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
+  id: 'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json',
   description:
     'Static Analysis Results Format (SARIF) Version 2.1.0 JSON Schema: a standard format for the output of static analysis tools.',
   additionalProperties: false,
@@ -17,11 +17,12 @@ module.exports = {
     version: {
       description: 'The SARIF format version of this log file.',
       enum: ['2.1.0'],
+      type: 'string',
     },
 
     runs: {
       description: 'The set of runs contained in this log file.',
-      type: 'array',
+      type: ['array', 'null'],
       minItems: 0,
       uniqueItems: false,
       items: {
@@ -193,6 +194,7 @@ module.exports = {
               'toolSpecifiedConfiguration',
               'debugOutputFile',
             ],
+            type: 'string',
           },
         },
 
@@ -629,11 +631,12 @@ module.exports = {
           description:
             'The SARIF format version of this external properties object.',
           enum: ['2.1.0'],
+          type: 'string',
         },
 
         guid: {
           description:
-            'A stable, unique identifer for this external properties object, in the form of a GUID.',
+            'A stable, unique identifier for this external properties object, in the form of a GUID.',
           type: 'string',
           pattern:
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
@@ -641,7 +644,7 @@ module.exports = {
 
         runGuid: {
           description:
-            'A stable, unique identifer for the run associated with this external properties object, in the form of a GUID.',
+            'A stable, unique identifier for the run associated with this external properties object, in the form of a GUID.',
           type: 'string',
           pattern:
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
@@ -837,7 +840,7 @@ module.exports = {
 
         guid: {
           description:
-            'A stable, unique identifer for the external property file in the form of a GUID.',
+            'A stable, unique identifier for the external property file in the form of a GUID.',
           type: 'string',
           pattern:
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
@@ -1681,6 +1684,7 @@ module.exports = {
             'A value specifying the severity level of the notification.',
           default: 'warning',
           enum: ['none', 'note', 'warning', 'error'],
+          type: 'string',
         },
 
         threadId: {
@@ -1912,6 +1916,12 @@ module.exports = {
           $ref: '#/definitions/propertyBag',
         },
       },
+
+      anyOf: [
+        { required: ['startLine'] },
+        { required: ['charOffset'] },
+        { required: ['byteOffset'] },
+      ],
     },
 
     replacement: {
@@ -1964,7 +1974,7 @@ module.exports = {
 
         guid: {
           description:
-            'A unique identifer for the reporting descriptor in the form of a GUID.',
+            'A unique identifier for the reporting descriptor in the form of a GUID.',
           type: 'string',
           pattern:
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
@@ -2077,6 +2087,7 @@ module.exports = {
           description: 'Specifies the failure level for the report.',
           default: 'warning',
           enum: ['none', 'note', 'warning', 'error'],
+          type: 'string',
         },
 
         rank: {
@@ -2220,12 +2231,14 @@ module.exports = {
             'open',
             'informational',
           ],
+          type: 'string',
         },
 
         level: {
           description: 'A value specifying the severity level of the result.',
           default: 'warning',
           enum: ['none', 'note', 'warning', 'error'],
+          type: 'string',
         },
 
         message: {
@@ -2254,7 +2267,7 @@ module.exports = {
 
         guid: {
           description:
-            'A stable, unique identifer for the result in the form of a GUID.',
+            'A stable, unique identifier for the result in the form of a GUID.',
           type: 'string',
           pattern:
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
@@ -2364,6 +2377,7 @@ module.exports = {
           description:
             'The state of a result relative to a baseline of a previous run.',
           enum: ['new', 'unchanged', 'updated', 'absent'],
+          type: 'string',
         },
 
         rank: {
@@ -2551,7 +2565,7 @@ module.exports = {
             'The language of the messages emitted into the log file during this run (expressed as an ISO 639-1 two-letter lowercase culture code) and an optional region (expressed as an ISO 3166-1 two-letter uppercase subculture code associated with a country or region). The casing is recommended but not required (in order for this data to conform to RFC5646).',
           type: 'string',
           default: 'en-US',
-          pattern: '^[a-zA-Z]{2}|^[a-zA-Z]{2}-[a-zA-Z]{2}]?$',
+          pattern: '^[a-zA-Z]{2}(-[a-zA-Z]{2})?$',
         },
 
         versionControlProvenance: {
@@ -2684,6 +2698,7 @@ module.exports = {
         columnKind: {
           description: 'Specifies the unit in which the tool measures columns.',
           enum: ['utf16CodeUnits', 'unicodeCodePoints'],
+          type: 'string',
         },
 
         externalPropertyFileReferences: {
@@ -2809,7 +2824,7 @@ module.exports = {
 
         guid: {
           description:
-            "A stable, unique identifer for this object's containing run object in the form of a GUID.",
+            "A stable, unique identifier for this object's containing run object in the form of a GUID.",
           type: 'string',
           pattern:
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
@@ -2929,7 +2944,7 @@ module.exports = {
       properties: {
         guid: {
           description:
-            'A stable, unique identifer for the suprression in the form of a GUID.',
+            'A stable, unique identifier for the suprression in the form of a GUID.',
           type: 'string',
           pattern:
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
@@ -2939,12 +2954,14 @@ module.exports = {
           description:
             'A string that indicates where the suppression is persisted.',
           enum: ['inSource', 'external'],
+          type: 'string',
         },
 
         status: {
           description:
             'A string that indicates the review status of the suppression.',
           enum: ['accepted', 'underReview', 'rejected'],
+          type: 'string',
         },
 
         justification: {
@@ -3113,6 +3130,7 @@ module.exports = {
             'Specifies the importance of this location in understanding the code flow in which it occurs. The order from most to least important is "essential", "important", "unimportant". Default: "important".',
           enum: ['important', 'essential', 'unimportant'],
           default: 'important',
+          type: 'string',
         },
 
         webRequest: {
@@ -3175,7 +3193,7 @@ module.exports = {
       properties: {
         guid: {
           description:
-            'A unique identifer for the tool component in the form of a GUID.',
+            'A unique identifier for the tool component in the form of a GUID.',
           type: 'string',
           pattern:
             '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
@@ -3319,7 +3337,7 @@ module.exports = {
             'The language of the messages emitted into the log file during this run (expressed as an ISO 639-1 two-letter lowercase language code) and an optional region (expressed as an ISO 3166-1 two-letter uppercase subculture code associated with a country or region). The casing is recommended but not required (in order for this data to conform to RFC5646).',
           type: 'string',
           default: 'en-US',
-          pattern: '^[a-zA-Z]{2}|^[a-zA-Z]{2}-[a-zA-Z]{2}]?$',
+          pattern: '^[a-zA-Z]{2}(-[a-zA-Z]{2})?$',
         },
 
         contents: {
@@ -3329,6 +3347,7 @@ module.exports = {
           default: ['localizedData', 'nonLocalizedData'],
           items: {
             enum: ['localizedData', 'nonLocalizedData'],
+            type: 'string',
           },
         },
 

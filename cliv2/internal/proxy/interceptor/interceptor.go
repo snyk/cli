@@ -1,18 +1,14 @@
 package interceptor
 
 import (
-	"net/http"
-
 	"github.com/elazarl/goproxy"
 )
-
-type HandlerFunc func(req *http.Request, ctx *goproxy.ProxyCtx) (*http.Request, *http.Response)
 
 // Interceptor is an interface that defines self-registering MITM-style handlers
 // for interacting with requests send to the go proxy from the legacy CLI.
 // Add a new interceptor by implementing the Interceptor interface and adding it to
 // the GetRegisteredInterceptors function.
 type Interceptor interface {
-	GetHandler() HandlerFunc
+	GetHandler() goproxy.FuncReqHandler
 	GetCondition() goproxy.ReqCondition
 }
