@@ -792,8 +792,8 @@ github.com/snyk/cli-extension-ai-bom v0.0.0-20250616112001-3bba91586896 h1:psBmU
 github.com/snyk/cli-extension-ai-bom v0.0.0-20250616112001-3bba91586896/go.mod h1:t4YJQ7GhCpk4Nt6z0ziFFcQ6Sc921MhUtFtPJov6S6c=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e h1:lYBeDqyAmb7NPfcLZJb1rcc+BrWhX5Ct9isQO1O4mSc=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e/go.mod h1:9Zpe+B8SCkWFjpDR3ckFJl1XuMyxysWebKhyAIj7EyI=
-github.com/snyk/cli-extension-iac v0.0.0-20250521122953-52bf59414647 h1:HNuJNUtoJHgaVE514+7gaLTRZj0yl+MBPp0diDgqH34=
-github.com/snyk/cli-extension-iac v0.0.0-20250521122953-52bf59414647/go.mod h1:7O90So5PPqTRMpcs8BY14+jX+J8BixqZQyXQiRZW7ws=
+github.com/snyk/cli-extension-iac v0.0.0-20250711122243-0de490b44873 h1:D2LsRbi9qFm8NsWXHmS29vC1mzTg7uoXi9ewQ7NC+Ig=
+github.com/snyk/cli-extension-iac v0.0.0-20250711122243-0de490b44873/go.mod h1:HHOvlKnJfypPCYNP+yG7FLu0ii02UwumpkWlSLy5pYc=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a h1:SJ+Ts7e1EYcGJXeENR5inTGwPNRlNVgmMN2itO3+yj8=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a/go.mod h1:IqfQCIkyC26mkwa+aM6d6yxIh5+tCm4fSQG+Ogq3Qbc=
 github.com/snyk/cli-extension-sbom v0.0.0-20250422133603-a5ae6fdf0934 h1:0RCTH9C0zaTrnqpKLaLXTmP7suwWEHBNVwQSaR8Aifo=
