@@ -37,6 +37,8 @@ const snykIacTestErrorsUserMessages = {
   MissingRemoteSubmodulesError: `Could not load some remote modules. Run 'terraform init' if you would like to include them in the evaluation`,
   EvaluationError: 'Skipping evaluation',
   MissingTermError: 'Missing term - term has been assigned as the name itself',
+  TestLimitReached:
+    'Test limit reached! You have exceeded your infrastructure as code test allocation for this billing period.',
 };
 
 export function getErrorUserMessage(code: number, error: string): string {
