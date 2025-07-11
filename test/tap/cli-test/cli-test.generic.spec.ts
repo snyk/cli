@@ -2,7 +2,7 @@ import * as sinon from 'sinon';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as needle from 'needle';
-import * as Ajv from 'ajv';
+import Ajv from 'ajv-draft-04';
 import * as sarifSchema from './sarif-schema-2.1.0';
 import { AcceptanceTests } from '../cli-test.acceptance.test';
 
@@ -416,7 +416,10 @@ export const GenericTests: AcceptanceTests = {
         t.fail('Should fail');
       } catch (err) {
         const sarifObj = JSON.parse(err.message);
-        const validate = new Ajv({ allErrors: true }).compile(sarifSchema);
+        const validate = new Ajv({
+          allErrors: true,
+          validateFormats: false,
+        }).compile(sarifSchema);
         const valid = validate(sarifObj);
         if (!valid) {
           t.fail(

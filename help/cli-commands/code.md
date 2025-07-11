@@ -4,7 +4,7 @@
 
 The `snyk code test` command finds security issues using Static Code Analysis.
 
-For more information, see [CLI for Snyk Code](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/using-snyk-code-from-the-cli)
+For more information, see [CLI for Snyk Code](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-code)
 
 ## `snyk code` command and the help docs
 

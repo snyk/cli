@@ -23,7 +23,7 @@ func TestFlattenAnalyticsPayload(t *testing.T) {
 				}
 			}`,
 			expected: map[string]interface{}{
-				"legacycli::nested__foobar": "123",
+				"nested__foobar": "123",
 			},
 			shouldFail: false,
 		},
@@ -40,7 +40,7 @@ func TestFlattenAnalyticsPayload(t *testing.T) {
 				}
 			}`,
 			expected: map[string]interface{}{
-				"legacycli::metadata__things__otherThings": "123",
+				"metadata__things__otherThings": "123",
 			},
 			shouldFail: false,
 		},
@@ -56,7 +56,7 @@ func TestFlattenAnalyticsPayload(t *testing.T) {
 				}
 			}`,
 			expected: map[string]interface{}{
-				"legacycli::metadata__tags": "[tag1 tag2]",
+				"metadata__tags": "[tag1 tag2]",
 			},
 			shouldFail: false,
 		},
@@ -110,7 +110,7 @@ func TestExcludedFields(t *testing.T) {
 				}
 			}`,
 			expected: map[string]interface{}{
-				"legacycli::foobar": "1.2.3",
+				"foobar": "1.2.3",
 			},
 		},
 		{
@@ -126,7 +126,7 @@ func TestExcludedFields(t *testing.T) {
 				}
 			}`,
 			expected: map[string]interface{}{
-				"legacycli::nested__foo": "bar",
+				"nested__foo": "bar",
 			},
 		},
 		{
@@ -166,7 +166,6 @@ func TestFlattenObject(t *testing.T) {
 	tests := []struct {
 		name      string
 		obj       map[string]interface{}
-		prefix    string
 		parentKey string
 		expected  map[string]interface{}
 	}{
@@ -177,12 +176,11 @@ func TestFlattenObject(t *testing.T) {
 				"key2": 123,
 				"key3": true,
 			},
-			prefix:    "prefix",
 			parentKey: "",
 			expected: map[string]interface{}{
-				"prefix::key1": "value1",
-				"prefix::key2": 123,
-				"prefix::key3": true,
+				"key1": "value1",
+				"key2": 123,
+				"key3": true,
 			},
 		},
 		{
@@ -193,12 +191,11 @@ func TestFlattenObject(t *testing.T) {
 				"key3": true,
 				"key4": nil,
 			},
-			prefix:    "prefix",
 			parentKey: "",
 			expected: map[string]interface{}{
-				"prefix::key1": "value1",
-				"prefix::key2": 123,
-				"prefix::key3": true,
+				"key1": "value1",
+				"key2": 123,
+				"key3": true,
 			},
 		},
 		{
@@ -209,11 +206,10 @@ func TestFlattenObject(t *testing.T) {
 					"subkey1": "subvalue1",
 				},
 			},
-			prefix:    "prefix",
 			parentKey: "",
 			expected: map[string]interface{}{
-				"prefix::key1":            "value1",
-				"prefix::nested__subkey1": "subvalue1",
+				"key1":            "value1",
+				"nested__subkey1": "subvalue1",
 			},
 		},
 		{
@@ -221,10 +217,9 @@ func TestFlattenObject(t *testing.T) {
 			obj: map[string]interface{}{
 				"key1": "value1",
 			},
-			prefix:    "prefix",
 			parentKey: "parent",
 			expected: map[string]interface{}{
-				"prefix::parent__key1": "value1",
+				"parent__key1": "value1",
 			},
 		},
 		{
@@ -232,10 +227,9 @@ func TestFlattenObject(t *testing.T) {
 			obj: map[string]interface{}{
 				"array": []interface{}{"one", "two"},
 			},
-			prefix:    "prefix",
 			parentKey: "",
 			expected: map[string]interface{}{
-				"prefix::array": "[one two]",
+				"array": "[one two]",
 			},
 		},
 	}
@@ -245,8 +239,8 @@ func TestFlattenObject(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := make(map[string]interface{})
-			interceptor.flattenObject(result, tt.obj, tt.prefix, tt.parentKey)
 
+			interceptor.flattenObject(result, tt.obj, tt.parentKey)
 			if !reflect.DeepEqual(result, tt.expected) {
 				t.Errorf("flattenObject() = %v, want %v", result, tt.expected)
 			}

@@ -10,7 +10,7 @@ The `snyk container sbom` feature requires an internet connection.
 
 ## Usage
 
-`$ snyk container sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--exclude-app-vulns] <IMAGE>`
+`$ snyk container sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--platform=<PLATFORM>] [--exclude-app-vulns] <IMAGE>`
 
 ## Description
 
@@ -59,9 +59,15 @@ If you have multiple organizations, you can set a default from the CLI using:
 
 For more information, see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
+#### `--platform=<PLATFORM>`
+
+For multi-architecture images, specify the platform for the container image.
+
+Supported platforms are: `linux/amd64`, `linux/arm64`, `linux/riscv64`, `linux/ppc64le`, `linux/s390x`, `linux/386`, `linux/arm/v6` or `linux/arm/v7`.
+
 ### `[--exclude-app-vulns]`
 
-Snyk scans and generates an SBOM for operating system dependencies as well as application dependencies in your image by default.
+Snyk scans and generates an SBOM for operating system dependencies and application dependencies in your image by default.
 
 You can disable generation for application dependencies by adding `--exclude-app-vulns`.
 

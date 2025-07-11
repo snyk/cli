@@ -138,4 +138,12 @@ describe('filtering ignored issues', () => {
     expect(filtered).toEqual(fixture);
     expect(ignoreCount).toEqual(0);
   });
+
+  it('filters ignored issues when ignore policy expiry date is invalid', async () => {
+    const { fixture, filtered, ignoreCount } = await filterFixture(
+      'policy-ignore-invalid-expiry.yml',
+    );
+    assertK8sPolicyPruned(fixture, filtered);
+    expect(ignoreCount).toEqual(1);
+  });
 });

@@ -16,6 +16,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['containerCliAppVulnsEnabled', true],
     ['enablePnpmCli', false],
     ['sbomMonitorBeta', false],
+    ['useImprovedDotnetWithoutPublish', false],
   ]);
 };
 
@@ -198,6 +199,30 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   app.get('/login', (req, res) => {
     res.status(200);
     res.send('Test Authenticated!');
+  });
+
+  app.get('/rest/self', (req, res) => {
+    const defaultResponse = {
+      jsonapi: {
+        version: '1.0',
+      },
+      data: {
+        type: 'user',
+        id: '11111111-2222-3333-4444-555555555555',
+        attributes: {
+          name: 'Messi',
+          default_org_context: '55555555-5555-5555-5555-555555555555',
+          username: 'test.user@snyk.io',
+          email: 'test.user@snyk.io',
+          avatar_url: 'https://s.gravatar.com/avatar/snykdog.png',
+        },
+      },
+      links: {
+        self: '/self?version=2024-10-15',
+      },
+    };
+    res.status(200);
+    res.send(defaultResponse);
   });
 
   app.use((req, res, next) => {

@@ -28,7 +28,7 @@ Specify the \<TYPE> of authentication to use. Supported types are `oauth` (the d
 
 ### `--client-secret=<SECRET>` and `--client-id=<ID>`
 
-You can set the client secret and the id can be set in order to use the [OAuth2 Client Credentials Grant](https://docs.snyk.io/enterprise-configuration/service-accounts/service-accounts-using-oauth-2.0#oauth-2.0-with-client-secret)
+You can set the client secret, and the id can be set in order to use the OAuth2 Client Credentials Grant.
 
 Both values must be provided together. They are only valid together with `--auth-type=oauth;`otherwise they will be ignored.&#x20;
 
@@ -36,7 +36,7 @@ For information about how to get the `<SECRET>` and the `<ID>`, see [Service acc
 
 ## Token value
 
-In some environments and configurations, you must use the `<API_TOKEN>`; see [Authenticate the CLI with your account](https://docs.snyk.io/snyk-cli/authenticate-the-cli-with-your-account)
+In some environments and configurations, you must use the `<API_TOKEN>`; see [Authenticate to use the CLI](https://docs.snyk.io/snyk-cli/authenticate-to-use-the-cli)
 
 The value may be a user token or a service account token; see [Service accounts](https://docs.snyk.io/enterprise-setup/service-accounts)
 

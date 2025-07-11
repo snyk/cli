@@ -46,6 +46,8 @@ func Test_MainWithErrorCode(t *testing.T) {
 	defer func() { os.Args = oldArgs }()
 
 	errCode, _ := MainWithErrorCode()
+	assert.False(t, globalConfiguration.GetBool(configuration.CONFIG_CACHE_DISABLED))
+	assert.Equal(t, configuration.NoCacheExpiration, globalConfiguration.GetDuration(configuration.CONFIG_CACHE_TTL))
 
 	assert.Equal(t, 0, errCode)
 

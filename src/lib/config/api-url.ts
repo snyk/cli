@@ -192,3 +192,13 @@ export function getRootUrl(apiUrlString: string): string {
   const rootUrl = apiUrl.protocol + '//' + apiUrl.host;
   return rootUrl;
 }
+
+export function getAppUrl(url: string): string {
+  const apiUrl = new URL(url);
+
+  if (apiUrl.host.startsWith('api.')) {
+    apiUrl.host = apiUrl.host.replace(/^api\./, 'app.');
+  }
+
+  return apiUrl.protocol + '//' + apiUrl.host;
+}

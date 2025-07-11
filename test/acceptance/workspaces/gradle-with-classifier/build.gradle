@@ -1,0 +1,11 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'net.sf.json-lib:json-lib:2.4:jdk13'
+}

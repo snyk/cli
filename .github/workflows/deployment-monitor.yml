@@ -1,0 +1,265 @@
+name: Deployment Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/deployment-monitor.yml'
+  schedule:
+    # At minute 0 past every 2nd hour
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+
+env:
+  SNYK_VERSION_DIR: snyk-versions-${{ github.run_id }}
+
+jobs:
+  create_version_dir:
+    name: 'Create version directory'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create version directory for version comparison
+        run: |
+          mkdir -p $SNYK_VERSION_DIR
+          echo "Created directory for Snyk versions."
+          touch ${{ env.SNYK_VERSION_DIR }}/.keep
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snyk-version-${{ github.job }}
+          path: ${{ env.SNYK_VERSION_DIR }}
+          include-hidden-files: 'true'
+
+  monitor_cdn:
+    name: 'deployment: CDN'
+    runs-on: ${{ matrix.os }}-latest
+    needs: create_version_dir
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu]
+        base_url: [static.snyk.io, downloads.snyk.io]
+        channel: [stable, preview]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y curl
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Install Snyk
+        run: |
+          rm -f ./snyk
+          curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux -o ./snyk-linux
+          curl --retry 2 -L -v --compressed https://${{ matrix.base_url }}/cli/${{ matrix.channel }}/snyk-linux.sha256 -o ./snyk-linux.sha256
+          echo --- Content shasum file ---
+          cat snyk-linux.sha256
+          echo --- Shasum binary ---
+          sha256sum snyk-linux
+          chmod +x ./snyk-linux
+          echo --- CLI version ---
+          ./snyk-linux --version
+          echo --- Shasum comparison ---
+          sha256sum -c snyk-linux.sha256
+      - name: Set unique identifier for the artifact file name
+        run: echo "SUFFIX=${{ matrix.os }}-${{ matrix.base_url }}-${{ matrix.channel }}" >> $GITHUB_ENV
+      - name: Run snyk --version
+        run: ./snyk-linux --version > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ env.SUFFIX }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snyk-version-${{ env.SUFFIX }}
+          path: ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ env.SUFFIX }}.txt
+
+  monitor_homebrew:
+    name: 'deployment: Homebrew (macos)'
+    runs-on: macos-latest
+    needs: create_version_dir
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Install Snyk
+        run: |
+          brew tap snyk/tap
+          brew install snyk
+      - name: Run snyk --version
+        run: snyk --version > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snyk-version-${{ github.job }}
+          path: ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+
+  monitor_scoop:
+    name: 'deployment: Scoop (windows)'
+    runs-on: windows-latest
+    needs: create_version_dir
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Install Scoop and Snyk, run Snyk --version
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+          Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+          scoop bucket add snyk https://github.com/snyk/scoop-snyk
+          scoop install snyk
+          snyk --version > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snyk-version-${{ github.job }}
+          path: ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+
+  monitor_npm:
+    name: 'deployment: npm (ubuntu)'
+    runs-on: ubuntu-latest
+    needs: create_version_dir
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+      - name: Install Snyk
+        run: npm install -g snyk
+      - name: Run snyk --version
+        run: snyk --version > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snyk-version-${{ github.job }}
+          path: ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+
+  monitor_snyk_images:
+    name: 'deployment: snyk-images (snyk/snyk:linux)'
+    runs-on: ubuntu-latest
+    needs: create_version_dir
+    container:
+      image: snyk/snyk:linux
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Run snyk --version
+        run: snyk --version > ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snyk-version-${{ github.job }}
+          path: ${{ env.SNYK_VERSION_DIR }}/snyk-version-${{ github.job }}.txt
+
+  compare_versions:
+    name: 'Compare Snyk Versions'
+    runs-on: ubuntu-latest
+    needs:
+      [
+        monitor_cdn,
+        monitor_homebrew,
+        monitor_scoop,
+        monitor_npm,
+        monitor_snyk_images,
+      ]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: snyk-version-*
+          merge-multiple: true
+          path: ${{ env.SNYK_VERSION_DIR }}
+      - name: Check if the directory is not empty
+        run: |
+          cd "${{ env.SNYK_VERSION_DIR }}"
+          txt_files=$(ls *.txt 2>/dev/null)
+          if [ -z "$txt_files" ]; then
+            echo "❌ No .txt files found in ${{ env.SNYK_VERSION_DIR }}. Version comparison cannot proceed."
+            exit 2
+          fi
+      - name: If not empty, compare Snyk versions
+        run: |
+          cd "${{ env.SNYK_VERSION_DIR }}"
+          echo "Collected Snyk versions:"
+
+          stable_versions=()
+          preview_versions=()
+
+          # First, sort the *.txt files containg versions numbers into a preview and stable array
+          for file in *.txt; do
+            job_name=$(basename "$file" .txt)
+            version=$(cat "$file" | tr -d '\r\n')
+            echo "$job_name: $version"
+
+            # Fail fast if any of the files are empty
+            if [ -z "$version" ]; then
+              echo "❌ File $file is does not contain anything. All .txt files must contain a version number."
+              exit 3
+            fi
+
+            # As long as we have at least one non-empty file, we can set all_empty to 0 and not fail on empty files
+            all_empty=0
+
+            # Fill the stable and preview arrays
+            if [[ "$file" == *"-preview"* ]]; then
+              preview_versions+=("$version")
+            else
+              stable_versions+=("$version")
+            fi
+          done
+
+          # Check stable versions consistency
+          found_diff_stable=0
+          first_stable="${stable_versions[0]}"
+          echo "Checking stable versions consistency..."
+          for version in "${stable_versions[@]}"; do
+            if [ "$version" != "$first_stable" ]; then
+              found_diff_stable=1
+              echo "  ❌ Found different stable version: $version (expected: $first_stable)"
+            fi
+          done
+
+          # Check preview versions consistency
+          found_diff_preview=0
+          first_preview="${preview_versions[0]}"
+          echo "Checking preview versions consistency..."
+          for version in "${preview_versions[@]}"; do
+            if [ "$version" != "$first_preview" ]; then
+              found_diff_preview=1
+              echo "  ❌ Found different preview version: $version (expected: $first_preview)"
+            fi
+          done
+
+          if [ "$found_diff_stable" -eq 1 ] || [ "$found_diff_preview" -eq 1 ]; then
+            echo "❌ Snyk versions are NOT consistent across jobs."
+            exit 1
+          fi
+
+          echo "✅ All Snyk versions (stable and preview) are consistent within their respective channels."
+
+  notify_slack_on_failure:
+    if: ${{ failure() }}
+    name: 'Do a Slack notification on failure'
+    needs: compare_versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post a message in a channel
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ secrets.SLACK_CLI_ALERTS_CHANNEL_ID }}
+            text: ":red_circle: *Deployment Monitor Failed!*"
+            blocks:
+              - type: "header"
+                text:
+                  type: "plain_text"
+                  text: ":red_circle: Deployment Monitor Failed!"
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "*Workflow*: `${{ github.workflow }}`"
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: ":link: *View run:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Open in GitHub Actions>"
+              - type: "divider"
+              - type: "context"
+                elements:
+                  - type: "mrkdwn"
+                    text: ":warning: Please investigate the failure. This message was generated automatically."

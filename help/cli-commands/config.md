@@ -10,7 +10,7 @@ The `snyk config` command manages your local Snyk CLI config file, a JSON file l
 
 Example: `~/.config/configstore/snyk.json`
 
-This command does not manage the `.snyk` file that is part of your project. See the [`snyk policy` ](policy.md)and [`snyk ignore`](ignore.md) commands.
+This command does not manage the `.snyk` file that is part of your project. See the [`snyk policy`](https://docs.snyk.io/snyk-cli/commands/policy) and [`snyk ignore`](https://docs.snyk.io/snyk-cli/commands/ignore) commands.
 
 ## Debug
 
@@ -36,13 +36,13 @@ Remove all config values.
 
 ### `environment`
 
-Change the endpoint to use. Run `config environment --help` or see the [Config environment help page](https://docs.snyk.io/snyk-cli/commands/config-environment)
+Change the endpoint to use. Run `config environment --help` or see the [snyk config environment command](https://docs.snyk.io/snyk-cli/commands/config-environment)
 
 ## Supported `<KEY>` values
 
 ### `api`
 
-API token to use when calling Snyk API.
+API token to use when calling the Snyk API.
 
 ### `endpoint`
 

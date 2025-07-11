@@ -123,6 +123,9 @@ export interface Options {
   // GenDriftIgnoreOptions
   'exclude-missing'?: boolean;
   'exclude-unmanaged'?: boolean;
+
+  // Feature Flags
+  useImprovedDotnetWithoutPublish?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny

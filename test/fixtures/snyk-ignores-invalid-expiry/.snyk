@@ -1,0 +1,16 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  'npm:hawk:20160119':
+    - 'sqlite > sqlite3 > node-pre-gyp > request > hawk':
+        reason: hawk got bumped
+        expires: 'is a random string'
+  'npm:is-my-json-valid:20160118':
+    - 'sqlite > sqlite3 > node-pre-gyp > request > har-validator > is-my-json-valid':
+        reason: dev tool
+        expires: '2000-03-01'
+  'npm:tar:20151103':
+    - 'sqlite > sqlite3 > node-pre-gyp > tar-pack > tar':
+        reason: none given
+        expires: '2000-03-01 14:30:04.137Z'

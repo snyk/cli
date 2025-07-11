@@ -41,7 +41,7 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 `orgslugname` must match the slug name as displayed in the URL of your org in the Snyk UI: `https://app.snyk.io/org/[orgslugname]`. The orgname does not work.
 
-For more information see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
+For more information, see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
 
 ### `--json`
 
@@ -55,7 +55,7 @@ Save test output as a JSON data structure directly to the specified file, regard
 
 Use to display the human-readable test output using stdout and, at the same time, save the JSON data structure output to a file.
 
-For SAST, if no issues are found, Snyk does not create a `json` file. In contrast, for open-source, Snyk creates a file whether or not issues are found.
+For SAST, if no issues are found, Snyk does not create a `json` file. In contrast, for open source, Snyk creates a file whether or not issues are found.
 
 Example: `$ snyk code test --json-file-output=vuln.json`
 

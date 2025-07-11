@@ -41,6 +41,10 @@ const projectWithCodeIssues = resolve(
   'test/fixtures/sast/with_code_issues',
 );
 const emptyProject = resolve(projectRoot, 'test/fixtures/empty');
+const projectWithoutCodeIssues = resolve(
+  projectRoot,
+  'test/fixtures/sast-empty',
+);
 
 // This method does some basic checks on the given sarif file
 function checkSarif(file: string, expectedIgnoredFindings: number): any {
@@ -117,8 +121,6 @@ describe('snyk code test', () => {
     'user journey',
     ({ type, env: integrationEnv }) => {
       describe(`${type} workflow`, () => {
-        jest.setTimeout(60000);
-
         describe('snyk code flag options', () => {
           it('works with --remote-repo-url', async () => {
             const expectedCodeSecurityIssues = 6;
@@ -371,6 +373,72 @@ describe('snyk code test', () => {
           // cleanup file
           try {
             unlinkSync(filePath);
+          } catch (error) {
+            console.error('failed to remove file.', error);
+          }
+        });
+
+        it('works with both --sarif-file-output and --json-file-output', async () => {
+          const sarifFileName = 'sarifOutput.json';
+          const jsonFileName = 'jsonOutput.json';
+          const sarifFilePath = `${projectRoot}/${sarifFileName}`;
+          const jsonFilePath = `${projectRoot}/${jsonFileName}`;
+          const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path} --sarif-file-output=${sarifFilePath} --json-file-output=${jsonFilePath}`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+
+          expect(existsSync(sarifFilePath)).toBe(true);
+          expect(require(sarifFilePath)).toMatchSchema(sarifSchema);
+
+          expect(existsSync(jsonFilePath)).toBe(true);
+          expect(require(jsonFilePath)).toMatchSchema(sarifSchema);
+
+          // cleanup file
+          try {
+            unlinkSync(sarifFilePath);
+            unlinkSync(jsonFilePath);
+          } catch (error) {
+            console.error('failed to remove file.', error);
+          }
+        });
+
+        it('zero findings is handled differently with --sarif-file-output and --json-file-output', async () => {
+          const sarifFileName = 'sarifOutput.json';
+          const jsonFileName = 'jsonOutput.json';
+          const sarifFilePath = `${projectRoot}/${sarifFileName}`;
+          const jsonFilePath = `${projectRoot}/${jsonFileName}`;
+          const path = await ensureUniqueBundleIsUsed(projectWithoutCodeIssues);
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path} --sarif-file-output=${sarifFilePath} --json-file-output=${jsonFilePath}`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_SUCCESS);
+
+          expect(existsSync(sarifFilePath)).toBe(true);
+          expect(require(sarifFilePath)).toMatchSchema(sarifSchema);
+
+          expect(existsSync(jsonFilePath)).toBe(false);
+
+          // cleanup file
+          try {
+            unlinkSync(sarifFilePath);
           } catch (error) {
             console.error('failed to remove file.', error);
           }

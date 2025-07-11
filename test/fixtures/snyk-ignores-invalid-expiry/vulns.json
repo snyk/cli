@@ -1,0 +1,220 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-01-19T23:24:51.834Z",
+      "modificationTime": "2016-01-19T23:24:51.834Z",
+      "publicationTime": "2016-01-19T21:51:35.396Z",
+      "description": "## Overview\nA [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in `hawk` package, affecting version 4.1.0 and below.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## References\n- https://github.com/hueniverse/hawk/issues/168\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=3.1.2 || >= 4.0.0 <4.1.1",
+        "unaffected": ">3.1.2 < 4.0.0 || >=4.1.1"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 77
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/hawk/20160119/hawk_20160119_0_0_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<4.1.1 >=4.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/hawk/20160119/hawk_20160119_0_1_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<4.0.0 >=3.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:1"
+        }
+      ],
+      "moduleName": "hawk",
+      "id": "npm:hawk:20160119",
+      "from": [
+        "ignore@1.0.0",
+        "sqlite@0.0.2",
+        "sqlite3@3.1.1",
+        "node-pre-gyp@0.6.14",
+        "request@2.64.0",
+        "hawk@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite@0.0.2",
+        "sqlite3@3.1.1",
+        "node-pre-gyp@0.6.14",
+        "request@2.64.0",
+        "hawk@3.1.3"
+      ],
+      "version": "3.1.0",
+      "name": "hawk",
+      "__filename": "/Users/remy/Sites/snyk-tests/ignore/node_modules/sqlite/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/request/node_modules/hawk/package.json",
+      "bundled": [
+        "ignore@1.0.0",
+        "sqlite@0.0.2",
+        "sqlite3@3.1.1",
+        "node-pre-gyp@0.6.14"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-01-18T12:28:12.885Z",
+      "modificationTime": "2016-01-18T12:28:12.885Z",
+      "publicationTime": "2016-01-18T04:29:55.903Z",
+      "description": "## Overview\nA [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in `utc-millisec` validator of `is-my-json-valid` package, affecting version 2.12.3 and below.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## References\n- https://nodesecurity.io/advisories/76\n- https://github.com/mafintosh/is-my-json-valid/commit/eca4beb21e61877d76fdf6bea771f72f39544d9b\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n\n\n",
+      "semver": {
+        "vulnerable": "<=2.12.3",
+        "unaffected": ">=2.12.4"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 76
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/is-my-json-valid/20160118/imjv_20160118_0_0_eca4beb21e61877d76fdf6bea771f72f39544d9b.patch"
+          ],
+          "version": "<=2.12.3 >=2.0.3",
+          "modificationTime": "2016-01-21T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:is-my-json-valid:20160118:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/is-my-json-valid/20160118/imjv_20160118_0_1_eca4beb21e61877d76fdf6bea771f72f39544d9b.patch"
+          ],
+          "version": "<2.0.3 >=1.3.4",
+          "modificationTime": "2016-01-21T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:is-my-json-valid:20160118:1"
+        }
+      ],
+      "moduleName": "is-my-json-valid",
+      "id": "npm:is-my-json-valid:20160118",
+      "from": [
+        "ignore@1.0.0",
+        "sqlite@0.0.2",
+        "sqlite3@3.1.1",
+        "node-pre-gyp@0.6.14",
+        "request@2.64.0",
+        "har-validator@1.8.0",
+        "is-my-json-valid@2.12.2"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite@0.0.2",
+        "sqlite3@3.1.1",
+        "node-pre-gyp@0.6.14",
+        "request@2.64.0",
+        "har-validator@1.8.0",
+        "is-my-json-valid@2.12.4"
+      ],
+      "version": "2.12.2",
+      "name": "is-my-json-valid",
+      "__filename": "/Users/remy/Sites/snyk-tests/ignore/node_modules/sqlite/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/request/node_modules/har-validator/node_modules/is-my-json-valid/package.json",
+      "bundled": [
+        "ignore@1.0.0",
+        "sqlite@0.0.2",
+        "sqlite3@3.1.1",
+        "node-pre-gyp@0.6.14"
+      ]
+    },
+    {
+      "title": "Symlink Arbitrary File Overwrite",
+      "credit": [
+        "Tim Cuthbertson"
+      ],
+      "creationTime": "2015-11-06T02:09:36.182Z",
+      "modificationTime": "2015-11-06T02:09:36.182Z",
+      "publicationTime": "2015-11-03T07:15:12.900Z",
+      "description": "## Overview\nThe [`tar`](https://www.npmjs.com/package/tar) module prior to version 2.0.0 does not properly normalize symbolic links pointing to targets outside the extraction root. As a result, packages may hold symbolic links to parent and sibling directories and overwrite those files when the package is extracted.\n\n## Remediation\nUpgrade to version 2.0.0 or greater. \n\n## References\n- https://nodesecurity.io/advisories/57\n- https://github.com/npm/node-tar/commit/a5337a6cd58a2d800fc03b3781a25751cf459f28\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<2.0.0",
+        "unaffected": ">=2.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 57
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/tar/20151103/tar_20151103_0_0_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
+          ],
+          "version": "<2.0.0 >=0.1.13",
+          "modificationTime": "2015-11-17T09:29:10.000Z",
+          "comments": [
+            "https://github.com/npm/node-tar/commit/a5337a6cd58a2d800fc03b3781a25751cf459f28.patch"
+          ],
+          "id": "patch:npm:tar:20151103:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/tar/20151103/tar_20151103_0_1_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
+          ],
+          "version": "<0.1.13 >0.0.1",
+          "modificationTime": "2015-11-17T09:29:10.000Z",
+          "comments": [
+            "https://github.com/npm/node-tar/commit/a5337a6cd58a2d800fc03b3781a25751cf459f28.patch"
+          ],
+          "id": "patch:npm:tar:20151103:1"
+        }
+      ],
+      "moduleName": "tar",
+      "id": "npm:tar:20151103",
+      "from": [
+        "ignore@1.0.0",
+        "sqlite@0.0.2",
+        "sqlite3@3.1.1",
+        "node-pre-gyp@0.6.14",
+        "tar-pack@2.0.0",
+        "tar@0.1.20"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite@0.0.2",
+        "sqlite3@3.1.1",
+        "node-pre-gyp@0.6.15",
+        "tar-pack@3.1.0",
+        "tar@2.2.1"
+      ],
+      "version": "0.1.20",
+      "name": "tar",
+      "__filename": "/Users/remy/Sites/snyk-tests/ignore/node_modules/sqlite/node_modules/sqlite3/node_modules/node-pre-gyp/node_modules/tar-pack/node_modules/tar/package.json",
+      "bundled": [
+        "ignore@1.0.0",
+        "sqlite@0.0.2",
+        "sqlite3@3.1.1",
+        "node-pre-gyp@0.6.14"
+      ]
+    }
+  ],
+  "dependencyCount": 108
+}

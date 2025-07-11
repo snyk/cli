@@ -116,6 +116,25 @@ describe('snyk container', () => {
       await expect(cli).toDisplay(`yum @ 4.9.0`, { timeout: 60 * 1000 });
     });
 
+    it('finds dependencies in rpm ndb databases', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test test/fixtures/container-projects/sle15.6.tar --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+
+      expect(jsonOutput.ok).toEqual(false);
+      expect(jsonOutput.dependencyCount).toBe(139);
+      expect(code).toEqual(1);
+    });
+
+    it('finds dependencies in wolfi/chainguard image', async () => {
+      const { stdout } = await runSnykCLI(
+        `container test chainguard/wolfi-base:latest --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+      expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
+    });
+
     it('container tests the platform specified in the parameters', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container test debian:unstable-slim --platform=linux/arm64/v8`,

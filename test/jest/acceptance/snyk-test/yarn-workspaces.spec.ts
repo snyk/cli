@@ -1,4 +1,7 @@
-import { createProjectFromWorkspace } from '../../util/createProject';
+import {
+  createProjectFromFixture,
+  createProjectFromWorkspace,
+} from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { getServerPort } from '../../util/getServerPort';
@@ -71,6 +74,25 @@ describe('snyk test --yarn-workspaces (mocked server only)', () => {
     expect(code).toEqual(0);
 
     expect(stdout).toMatch('Tested 3 projects, no vulnerable paths were found');
+    expect(stderr).toEqual('');
+  });
+
+  test('`test yarn-workspaces-v2-resolutions` succeeds', async () => {
+    const project = await createProjectFromFixture(
+      'yarn-workspaces-v2-multiple-resolutions',
+    );
+
+    const { code, stdout, stderr } = await runSnykCLI(
+      'test --yarn-workspaces',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toEqual(0);
+
+    expect(stdout).toMatch('Tested 3 projects');
     expect(stderr).toEqual('');
   });
 

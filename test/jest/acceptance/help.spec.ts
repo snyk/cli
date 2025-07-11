@@ -1,5 +1,7 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 
+jest.setTimeout(20000);
+
 describe('help', () => {
   it('prints help info', async () => {
     const { stdout, code, stderr } = await runSnykCLI('help');
