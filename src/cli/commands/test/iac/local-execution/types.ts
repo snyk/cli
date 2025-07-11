@@ -401,6 +401,7 @@ export enum IaCErrorCodes {
   NoLoadableInput = 2114,
   FailedToMakeResourcesResolvers = 2115,
   ResourcesResolverError = 2116,
+  TestLimitReached,
   FailedToProcessResults = 2200,
   EntitlementNotEnabled = 2201,
   ReadSettings = 2202,
