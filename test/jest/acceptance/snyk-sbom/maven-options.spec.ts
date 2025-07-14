@@ -58,11 +58,11 @@ describe('snyk sbom: maven options (mocked server only)', () => {
       'io.snyk.example:test-project',
     );
     expect(sbom.dependencies.length).toBeGreaterThanOrEqual(7);
-    expect(sbom.dependencies[6].ref).toEqual(
+    expect(sbom.dependencies[2].ref).toEqual(
       'commons-discovery:commons-discovery@0.2',
     );
-    expect(sbom.dependencies[6].dependsOn.length).toEqual(1);
-    expect(sbom.dependencies[6].dependsOn[0]).toEqual(
+    expect(sbom.dependencies[2].dependsOn.length).toEqual(1);
+    expect(sbom.dependencies[2].dependsOn[0]).toEqual(
       'commons-logging:commons-logging@1.0.4',
     );
   });

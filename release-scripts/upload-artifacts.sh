@@ -114,6 +114,7 @@ trigger_build_snyk_images() {
   echo "Triggering build-and-publish workflow at snyk-images..."
   echo "Version: $VERSION_TAG"
   echo "Release Channel: $RELEASE_CHANNEL"
+  response_file=$TMPDIR/trigger_build_snyk_images_response.txt
   RESPONSE=$(curl -L \
     -X POST \
     -H "Accept: application/vnd.github+json" \
@@ -122,11 +123,15 @@ trigger_build_snyk_images() {
     https://api.github.com/repos/snyk/snyk-images/dispatches \
     -d "{\"event_type\":\"build_and_push_images\", \"client_payload\": {\"version\": \"$VERSION_TAG\", \"release_channel\": \"$RELEASE_CHANNEL\"}}" \
     -w "%{http_code}" \
-    -o /dev/null)
+    -s  \
+    -o "$response_file")
   if [ "$RESPONSE" -eq 204 ]; then
     echo "Successfully triggered build-and-publish workflow at snyk-images."
   else
-    echo "Failed to trigger build-and-publish workflow at snyk-images. HTTP response code: $RESPONSE."
+    echo "Failed to trigger build-and-publish workflow at snyk-images."
+    echo "Response status code: $RESPONSE"
+    echo "Details:"
+    cat $response_file
     exit 1
   fi
 }

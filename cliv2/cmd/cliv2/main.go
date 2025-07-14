@@ -17,6 +17,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli-extension-ai-bom/pkg/aibom"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
@@ -163,19 +164,21 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 }
 
 func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, name string) error {
-	output, err := engine.Invoke(workflow.NewWorkflowIdentifier(name))
+	ic := engine.GetAnalytics().GetInstrumentation()
+
+	output, err := engine.Invoke(workflow.NewWorkflowIdentifier(name), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
 		logger.Print("Failed to execute the command!", err)
 		return err
 	}
 
-	output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_FILTER_FINDINGS, output)
+	output, err = engine.Invoke(localworkflows.WORKFLOWID_FILTER_FINDINGS, workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
 		logger.Err(err).Msg(err.Error())
 		return err
 	}
 
-	output, err = engine.InvokeWithInput(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, output)
+	output, err = engine.Invoke(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
 	if err == nil {
 		err = getErrorFromWorkFlowData(engine, output)
 	}
@@ -306,10 +309,22 @@ func defaultCmd(args []string) error {
 func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 	// ensure legacy behavior, where sarif and json can be used interchangeably
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
-	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE})
 
-	// ensure legacy behavior, where sarif files with no findings are not written
-	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_WRITE_EMPTY_FILE, false)
+	fileWriters := []output_workflow.FileWriter{
+		{
+			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE,
+			MimeType:          output_workflow.SARIF_MIME_TYPE,
+			TemplateFiles:     output_workflow.ApplicationSarifTemplates,
+			WriteEmptyContent: true,
+		},
+		{
+			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE,
+			MimeType:          output_workflow.SARIF_MIME_TYPE,
+			TemplateFiles:     output_workflow.ApplicationSarifTemplates,
+			WriteEmptyContent: false,
+		},
+	}
+	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS, fileWriters)
 
 	return runCommand(cmd, args)
 }
@@ -499,6 +514,7 @@ func MainWithErrorCode() (int, []error) {
 		configuration.WithFiles("snyk"),
 		configuration.WithSupportedEnvVars("NODE_EXTRA_CA_CERTS"),
 		configuration.WithSupportedEnvVarPrefixes("snyk_", "internal_", "test_"),
+		configuration.WithCachingEnabled(configuration.NoCacheExpiration),
 	)
 	err = globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
 	if err != nil {
@@ -524,6 +540,7 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(basic_workflows.Init)
 	globalEngine.AddExtensionInitializer(iac.Init)
 	globalEngine.AddExtensionInitializer(sbom.Init)
+	globalEngine.AddExtensionInitializer(aibom.Init)
 	globalEngine.AddExtensionInitializer(depgraph.Init)
 	globalEngine.AddExtensionInitializer(capture.Init)
 	globalEngine.AddExtensionInitializer(iacrules.Init)
@@ -632,6 +649,7 @@ func MainWithErrorCode() (int, []error) {
 	}
 
 	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
+	addNetworkingDetails(cliAnalytics.GetInstrumentation(), globalConfiguration)
 
 	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
 	if exitCode == 2 {

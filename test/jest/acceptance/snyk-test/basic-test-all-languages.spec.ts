@@ -186,6 +186,37 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
+  test('run `snyk test` on a gradle project and check top-level dependency node id', async () => {
+    const project = await createProjectFromWorkspace('gradle-with-classifier');
+
+    const { code, stderr, stdout } = await runSnykCLI('test --print-graph', {
+      cwd: project.path(),
+      env,
+    });
+
+    if (code != 0) {
+      console.debug(stderr);
+      console.debug('---------------------------');
+      console.debug(stdout);
+    }
+    expect(code).toEqual(0);
+
+    const depGraphJsonStr = stdout
+      .split('DepGraph data:')[1]
+      .split('DepGraph target:')[0];
+    const depGraphJson = JSON.parse(depGraphJsonStr);
+    expect(depGraphJson.pkgManager.name).toEqual('gradle');
+    expect(depGraphJson.pkgs).toContainEqual({
+      id: 'net.sf.json-lib:json-lib@2.4',
+      info: { name: 'net.sf.json-lib:json-lib', version: '2.4' },
+    });
+    expect(depGraphJson.graph.nodes).toContainEqual({
+      nodeId: 'net.sf.json-lib:json-lib:jar:jdk13@2.4',
+      pkgId: 'net.sf.json-lib:json-lib@2.4',
+      deps: expect.any(Array),
+    });
+  });
+
   test('run `snyk test` on a cocoapods project', async () => {
     const project = await createProjectFromWorkspace('cocoapods-app');
 
@@ -243,6 +274,10 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       fixture: 'nuget-app-8-with-multi-project and spaces',
       targetFile: 'dotnet_8_first.csproj',
     },
+    {
+      fixture: 'nuget-app-9-globaljson',
+      targetFile: 'dotnet_9.csproj',
+    },
   ])(
     'run `snyk test` on a nuget project using v2 dotnet runtime resolution logic for $fixture',
     async ({ fixture, targetFile }) => {
@@ -296,6 +331,60 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       expect(result.ok).toBe(code === 0);
     },
   );
+
+  it('run `snyk test` on a .net framework project using v3 dotnet runtime resolution logic', async () => {
+    server.setFeatureFlag('useImprovedDotnetWithoutPublish', true);
+
+    let prerequisite = await runCommand('dotnet', ['--version']).catch(
+      function () {
+        return { code: 1, stderr: '', stdout: '' };
+      },
+    );
+
+    if (prerequisite.code !== 0) {
+      return;
+    }
+
+    const project = await createProjectFromWorkspace('nuget-app-net48');
+
+    prerequisite = await runCommand('dotnet', [
+      'restore',
+      `"${path.resolve(project.path(), 'net48.csproj')}"`,
+    ]);
+
+    if (prerequisite.code !== 0) {
+      console.log(prerequisite.stdout);
+      console.log(prerequisite.stderr);
+      throw new Error(prerequisite.stdout);
+    }
+
+    const { code, stderr, stdout } = await runSnykCLI(
+      'test --dotnet-runtime-resolution --json',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    // Debug output on an unexpected exit code
+    if (code !== 0 && code !== 1) {
+      console.debug(stderr);
+      console.debug('---------------------------');
+      console.debug(stdout);
+    }
+
+    // Expect an exit code of 0 or 1. Exit code 1 is possible if a new
+    // vulnerability is discovered in the installed version of dotnet's system
+    // libraries.
+    expect([0, 1]).toContain(code);
+
+    // Checking if the JSON output is correctly defined and is not poluted with user facing messages.
+    const result = JSON.parse(stdout);
+    expect(result?.ok).toBeDefined();
+
+    // Expect 'ok' to be true if exit 0, false if exit 1.
+    expect(result.ok).toBe(code === 0);
+  });
 
   test('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with a custom output path', async () => {
     let prerequisite = await runCommand('dotnet', ['--version']).catch(
@@ -508,6 +597,20 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       cwd: project.path(),
       env,
     });
+
+    expect(code).toEqual(0);
+  });
+
+  test('run `snyk test` on an npm project with lockfile', async () => {
+    const project = await createProjectFromFixture('npm-bundled-dep');
+
+    const { code, stdout } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(stdout).toMatch('Target file:       package-lock.json');
+    expect(stdout).toMatch('Package manager:   npm');
 
     expect(code).toEqual(0);
   });

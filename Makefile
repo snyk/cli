@@ -264,15 +264,18 @@ acceptance-test-with-proxy: pre-build
 
 # targets responsible for the CLI release
 .PHONY: release-pre
-release-pre:
-	@echo "-- Validating repository"
-	@./release-scripts/validate-repository.sh
+release-pre: release-validate-version
 	@echo "-- Validating artifacts"
 	@./release-scripts/validate-checksums.sh
 	@echo "-- Validating upload permissions"
 	@./release-scripts/upload-artifacts.sh --dry-run latest github npm
 	@echo "-- Publishing to S3 /version"
 	@./release-scripts/upload-artifacts.sh version
+
+.PHONE: release-validate-version
+release-validate-version:
+	@echo "-- Validating repository"
+	@./release-scripts/validate-repository.sh
 
 .PHONY: release-mgt-prepare
 release-mgt-prepare:

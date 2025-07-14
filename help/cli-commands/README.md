@@ -2,9 +2,9 @@
 
 Snyk CLI scans and monitors your projects for security vulnerabilities and license issues.
 
-For more information visit the [Snyk website](https://snyk.io)
+For more information, visit the [Snyk website](https://snyk.io)
 
-For details see the [CLI documentation](https://docs.snyk.io/features/snyk-cli)
+For details, see the [CLI documentation](https://docs.snyk.io/snyk-cli)
 
 ## How to get started
 
@@ -38,7 +38,7 @@ These commands test and continuously monitor container images for vulnerabilitie
 
 ### [`snyk iac`](iac.md)
 
-These commands find and report security issues in Infrastructure as Code files; detect, track, and alert on infrastructure drift and unmanaged resources; and create a .driftigore file.
+These commands find and report security issues in Infrastructure as Code files; detect, track, and alert on unmanaged resources; and create a .driftignore file.
 
 ### [`snyk code`](code.md)
 
@@ -47,6 +47,10 @@ The `snyk code test` command finds security issues using Static Code Analysis.
 ### [`snyk sbom`](sbom.md)
 
 Generate or test an SBOM document in ecosystems supported by Snyk.
+
+### [`snyk aibom`](aibom.md)
+
+Generates an AIBOM for a local software project that is written in Python, to understand what AI models, datasets, tools, and so on are used in that project.
 
 ### [`snyk log4shell`](log4shell.md)
 
@@ -70,4 +74,4 @@ Use `-d` option to output the debug logs.
 
 ## Configure the Snyk CLI
 
-You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
+You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli)

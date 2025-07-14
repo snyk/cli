@@ -1,6 +1,8 @@
 # SBOM monitor
 
-**Feature availability:** This feature is available to customers on Snyk Enterprise plans.
+**Feature availability:** SBOM monitor is in Closed Beta for Snyk Open Source and Snyk Container, available through the Snyk CLI `sbom monitor` command. This feature is available only with Enterprise plans. If you want to get the feature up and running in your Group or Organization, contact your Snyk account team.
+
+**Note:** In order to use the SBOM monitoring feature, you must use a minimum of CLI version 1.1297.0.
 
 ## Usage
 
@@ -48,7 +50,7 @@ The `snyk sbom monitor` command accepts the following file formats:
 
 Packages and components within the provided SBOM file must be identified by a Package URL (`purl`).
 
-Supported purl types are: `apk`, `cargo`, `cocoapods`, `composer`, `deb`, `gem`, `generic`, `golang`, `hex`, `maven`, `npm`, `nuget`, `pub`, `pypi`, `rpm`, `swift`
+Supported purl types are: `apk`, `cargo`, `cocoapods`, `conan`, `composer`, `deb`, `gem`, `generic`, `golang`, `hex`, `maven`, `npm`, `nuget`, `pub`, `pypi`, `rpm`, `swift`
 
 Example: `$ snyk sbom monitor --experimental --file=bom.cdx.json`&#x20;
 
@@ -84,4 +86,4 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 `orgslugname` must match the slug name as displayed in the URL of your org in the Snyk UI: `https://app.snyk.io/org/[orgslugname]`. The orgname does not work.
 
-For more information, see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli)
+For more information, see the article [How to select the Organization to use in the CLI](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/how-to-select-the-organization-to-use-in-the-cli).

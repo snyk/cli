@@ -5,10 +5,11 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"github.com/snyk/cli/cliv2/internal/utils"
 	"io"
 	"net/http"
 	"regexp"
+
+	"github.com/snyk/cli/cliv2/internal/utils"
 
 	"github.com/elazarl/goproxy"
 	"github.com/snyk/go-application-framework/pkg/workflow"
@@ -60,7 +61,7 @@ func (v v1AnalyticsInterceptor) flattenAnalyticsPayload(bodyBytes []byte) (map[s
 	// Create a flat map with prefixed keys
 	flatMap := make(map[string]interface{})
 	if data, ok := payload["data"].(map[string]interface{}); ok {
-		v.flattenObject(flatMap, data, "legacycli", "")
+		v.flattenObject(flatMap, data, "")
 	} else {
 		return nil, fmt.Errorf("found no 'data' object in the request body")
 	}
@@ -69,7 +70,7 @@ func (v v1AnalyticsInterceptor) flattenAnalyticsPayload(bodyBytes []byte) (map[s
 }
 
 // flattenObject recursively flattens a nested JSON structure
-func (v v1AnalyticsInterceptor) flattenObject(result map[string]interface{}, obj map[string]interface{}, prefix string, parentKey string) {
+func (v v1AnalyticsInterceptor) flattenObject(result map[string]interface{}, obj map[string]interface{}, parentKey string) {
 	for k, val := range obj {
 		if utils.Contains(excludedKeys, k) {
 			continue
@@ -80,26 +81,24 @@ func (v v1AnalyticsInterceptor) flattenObject(result map[string]interface{}, obj
 			newParentKey = parentKey + "__" + k
 		}
 
-		newKey := prefix + "::" + newParentKey
-
 		switch value := val.(type) {
 		// The analytics service does not accept `null` values, so we skip them entirely
 		case nil:
 			continue
 		case map[string]interface{}:
 			// For nested objects, recurse with the current key as parent
-			v.flattenObject(result, value, prefix, newParentKey)
+			v.flattenObject(result, value, newParentKey)
 		case []interface{}:
 			// The v2 analytics endpoint only accepts strings, integers, or booleans. So we must stringify arrays, floats and the like.
 			// Should this ever change in the future, just remove this entire case statement.
-			result[newKey] = fmt.Sprintf("%v", value)
+			result[newParentKey] = fmt.Sprintf("%v", value)
 		default:
-			result[newKey] = value
+			result[newParentKey] = value
 		}
 	}
 }
 
-func (v v1AnalyticsInterceptor) GetHandler() HandlerFunc {
+func (v v1AnalyticsInterceptor) GetHandler() goproxy.FuncReqHandler {
 	return func(req *http.Request, proxyCtx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 		bodyBytesGzipped, err := io.ReadAll(req.Body)
 		if err != nil {
@@ -131,7 +130,16 @@ func (v v1AnalyticsInterceptor) GetHandler() HandlerFunc {
 
 		// Add each key-value pair to the "extension" object of the analytics instrumentation
 		for key, val := range flattened {
-			v.invocationCtx.GetAnalytics().GetInstrumentation().AddExtension(key, val)
+			switch p := val.(type) {
+			case string:
+				v.invocationCtx.GetAnalytics().AddExtensionStringValue(key, val.(string))
+			case int:
+				v.invocationCtx.GetAnalytics().AddExtensionIntegerValue(key, val.(int))
+			case bool:
+				v.invocationCtx.GetAnalytics().AddExtensionBoolValue(key, val.(bool))
+			default:
+				v.invocationCtx.GetEnhancedLogger().Warn().Msgf("Cannot add value of type %v", p)
+			}
 		}
 
 		return req, nil

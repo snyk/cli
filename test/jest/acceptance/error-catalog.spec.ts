@@ -85,8 +85,14 @@ describe.each(integrationWorkflows)(
       describe('internal server errors', () => {
         describe(`${type} workflow`, () => {
           it(`snyk ${cmd}`, async () => {
+            const localEnv = {
+              ...env,
+              INTERNAL_NETWORK_REQUEST_MAX_ATTEMPTS: '1', // reduce test duration by reducing retry
+              INTERNAL_NETWORK_REQUEST_RETRY_AFTER_SECONDS: '1', // reduce test duration by reducing retry
+            };
+
             server.setStatusCode(500);
-            const { code } = await runSnykCLI(`${cmd}`, { env });
+            const { code } = await runSnykCLI(`${cmd}`, { env: localEnv });
             const analyticsRequest = server
               .getRequests()
               .filter((value) =>
