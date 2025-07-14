@@ -40,6 +40,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **langauge-server:**  Read locks when running auth command ([420d62a](https://github.com/snyk/snyk/commit/420d62ad518d79fcb8a3c0414dc8892ff5f502f1))
 * **language-server:** Authentication command is now cancellable ([35eb9a8](https://github.com/snyk/snyk/commit/35eb9a88fc47a26a62a490be88d951e456b2d7c8))
 * **language-server:** MCP command for SCA ([c6f1203](https://github.com/snyk/cli/commit/c6f12035639d09023dcaaafdb38a134b0953b0f9))
+* **language-server:** Send auth analytics when token updated ([6916af8](https://github.com/snyk/cli/commit/6916af848ea3dc3e79d7e7e9f07089461e6f5ebf))
 * **test, monitor, sbom:** Maven Dverbose algorithm adds only the dependencies resolved by maven in the dependency graph/sbom ([9b6abd3](https://github.com/snyk/snyk/commit/9b6abd3ccbf75490d9741d4db3de71ebacb3b822))
 * **test, monitor, sbom:** `-- -Dverbose` affecting scope collisions from the maven Dverbose command output (parentNodeId does not exist error). ([0a48b96](https://github.com/snyk/snyk/commit/0a48b965f2b26c68b091ef23692058f1f81b544a))
 * **test, monitor:** Misleading `OutOfSync` error in npm projects for top-level bundled dependencies ([8ac67c6](https://github.com/snyk/snyk/commit/8ac67c67bc68d2e0a6b24c613458042e9b880dee))
