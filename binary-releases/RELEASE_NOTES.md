@@ -22,8 +22,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 
 ### Bug Fixes
 
-* Bump `snyk-mvn-plugin` to require Node 20 ([c91cfbb](https://github.com/snyk/snyk/commit/c91cfbbb02a7319454a306f1889fd443288abf75))
-* Fixes incorrect SARIF schema link for Code, Container, IAC and Open Source product line output ([f283dd9](https://github.com/snyk/snyk/commit/f283dd9b4e8bf9bba298b4ff40204b599d738da5))
+* **general:** Fixes incorrect SARIF schema link for Code, Container, IAC and Open Source product line output ([f283dd9](https://github.com/snyk/snyk/commit/f283dd9b4e8bf9bba298b4ff40204b599d738da5))
 * **language-server:** MCP tool description and params ([bb88287](https://github.com/snyk/snyk/commit/bb882876e47bfc721b9c2451ac5dee2d5c513cf6))
 * **language-server:** Update IAW wording to match web UI ([bb88287](https://github.com/snyk/snyk/commit/bb882876e47bfc721b9c2451ac5dee2d5c513cf6))
 * **language-server:** General MCP extension improvements ([e8fe9f8](https://github.com/snyk/snyk/commit/e8fe9f8e6beb9ce00571883da880c170bc724e78))
@@ -40,6 +39,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **langauge-server:**  Read locks when running auth command ([420d62a](https://github.com/snyk/snyk/commit/420d62ad518d79fcb8a3c0414dc8892ff5f502f1))
 * **language-server:** Authentication command is now cancellable ([35eb9a8](https://github.com/snyk/snyk/commit/35eb9a88fc47a26a62a490be88d951e456b2d7c8))
 * **language-server:** MCP command for SCA ([c6f1203](https://github.com/snyk/cli/commit/c6f12035639d09023dcaaafdb38a134b0953b0f9))
+* **language-server:** Send auth analytics when token updated ([6916af8](https://github.com/snyk/cli/commit/6916af848ea3dc3e79d7e7e9f07089461e6f5ebf))
 * **test, monitor, sbom:** Maven Dverbose algorithm adds only the dependencies resolved by maven in the dependency graph/sbom ([9b6abd3](https://github.com/snyk/snyk/commit/9b6abd3ccbf75490d9741d4db3de71ebacb3b822))
 * **test, monitor, sbom:** `-- -Dverbose` affecting scope collisions from the maven Dverbose command output (parentNodeId does not exist error). ([0a48b96](https://github.com/snyk/snyk/commit/0a48b965f2b26c68b091ef23692058f1f81b544a))
 * **test, monitor:** Misleading `OutOfSync` error in npm projects for top-level bundled dependencies ([8ac67c6](https://github.com/snyk/snyk/commit/8ac67c67bc68d2e0a6b24c613458042e9b880dee))
@@ -48,6 +48,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **test:** Imports that failed when that file contained special content such as URLs will no longer fail because of it ([164618c](https://github.com/snyk/snyk/commit/164618cf3b98da98dd2e109f9a94e24354cd8c5e))
 * **test:** Scanning open source dependencies of PHP projects when composer is installed on the user machine works again ([39e3379](https://github.com/snyk/snyk/commit/39e337965740f6242a22f998cc433d7842468490))
 * **test:** Bump nodejs parser to handle manual aliases on indirct deps. ([15f693a](https://github.com/snyk/snyk/commit/15f693a1e47ba15cc264ba6d21c1230cd061ebf6))
+* **test** Bump `snyk-mvn-plugin` to require Node 20 ([c91cfbb](https://github.com/snyk/snyk/commit/c91cfbbb02a7319454a306f1889fd443288abf75))
 * **test:** Performance improvements running `snyk test --print-graph` on gradle projects ([156fdb2](https://github.com/snyk/snyk/commit/156fdb2802faf6248e129d1869f2b7aa37374cd2))
 * **test:** Fixed error `Could not scan C/C++ project: RangeError: Maximum call stack size exceeded` which was sometimes seen when scanning very large archives using `snyk test --unmanaged` ([5ab0676](https://github.com/snyk/snyk/commit/5ab06769a80005a87f2f8264a96c145aca013a34))
 * **code:** In the golang native code test implementation (CCI), fix hash mismatch errors when uploading non UTF-8 content ([33d33e9](https://github.com/snyk/snyk/commit/33d33e92bba76cff694cc5ee9e9b2e4b9274a673))
@@ -58,3 +59,4 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **sbom:** Performance improvements running `snyk sbom` on gradle projects ([156fdb2](https://github.com/snyk/snyk/commit/156fdb2802faf6248e129d1869f2b7aa37374cd2))
 * **ignore:** Align handling for invalid ignore expiry across Snyk product lines ([54b4f56](https://github.com/snyk/snyk/commit/54b4f56f41497f6da97c651e65b23798809e53b5))
 * **logging:** Redact negotiate in debug logs ([8daa112](https://github.com/snyk/snyk/commit/8daa112ff747f2e83c0dabe94426dc99574c9892))
+* **logging:** Fixes some crashes when the CLI was used with debug and trace logging level enabled ([92fa8be](https://github.com/snyk/cli/commit/92fa8be2bae46a9d5efe7a3538efe1f9aedc21d1))
