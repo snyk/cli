@@ -95,6 +95,11 @@ executors:
       - image: ubuntu:focal
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
+  linux-centos-7-arm64:
+    docker:
+      - image: centos:7
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.medium
   macos-arm64:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
@@ -853,6 +858,7 @@ workflows:
                 - 'linux-ubuntu-jammy-arm64'
                 - 'linux-ubuntu-focal-arm64'
                 - 'alpine'
+                - 'linux-centos-7-arm64'
           requires:
             - upload version
           filters:
@@ -912,6 +918,7 @@ workflows:
             - e2e tests (linux-ubuntu-jammy-arm64)
             - e2e tests (linux-ubuntu-focal-arm64)
             - e2e tests (alpine)
+            - e2e tests (linux-centos-7-arm64)
             - e2e fips tests (cbl-mariner)
             - e2e fips tests (win-server2022-amd64)
           filters:
