@@ -124,7 +124,7 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64: prepack | $(BINARY_RELEASES_
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-alpine-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node$(PKG_NODE_VERSION)-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
+	$(PKG) -t node$(PKG_NODE_VERSION)-linuxstatic-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux.sha256
 
 # Why `--no-bytecode` for Linux/arm64:
@@ -132,7 +132,7 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_
 #   environment. So disabling until we can support it. It's an optimisation.
 #   https://github.com/vercel/pkg#targets
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
-	$(PKG) -t node$(PKG_NODE_VERSION)-linux-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64 --no-bytecode
+	$(PKG) -t node$(PKG_NODE_VERSION)-linuxstatic-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64 --no-bytecode
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
