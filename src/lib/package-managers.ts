@@ -1,6 +1,8 @@
 export const PNPM_FEATURE_FLAG = 'enablePnpmCli';
 export const DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG =
   'useImprovedDotnetWithoutPublish';
+export const MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF =
+  'enableMavenDverboseExhaustiveDeps';
 
 export type SupportedPackageManagers =
   | 'rubygems'
