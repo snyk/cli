@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/snyk/go-application-framework/pkg/ui"
@@ -35,7 +34,14 @@ func initDebugLogger(config configuration.Configuration) *zerolog.Logger {
 		},
 		FieldsExclude: []string{"ext", "separator"},
 		FormatTimestamp: func(i interface{}) string {
-			t, _ := time.Parse(time.RFC3339, i.(string))
+			timeString, ok := i.(string)
+			if !ok {
+				return ""
+			}
+			t, err := time.Parse(time.RFC3339, timeString)
+			if err != nil {
+				return ""
+			}
 			return strings.ToUpper(t.UTC().Format(time.RFC3339))
 		},
 	}
