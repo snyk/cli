@@ -50,6 +50,6 @@
   },
   "dependencies": {
     "@sentry/node": "^7.36.0",
-    "global-agent": "^3.0.0"
+    "proxy-from-env": "^1.1.0"
   }
 }
