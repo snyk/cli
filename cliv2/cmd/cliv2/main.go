@@ -22,6 +22,8 @@ import (
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
@@ -32,13 +34,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
-
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
-	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
+	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
@@ -49,10 +48,12 @@ import (
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
+
 	snykmcp "github.com/snyk/snyk-ls/mcp_extension"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
+	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 )
 
 var internalOS string
@@ -547,6 +548,7 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(snykls.Init)
 	globalEngine.AddExtensionInitializer(snykmcp.Init)
 	globalEngine.AddExtensionInitializer(container.Init)
+	globalEngine.AddExtensionInitializer(initConnectivityCheck)
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
 
@@ -692,4 +694,23 @@ func setTimeout(config configuration.Configuration, onTimeout func()) {
 		fmt.Fprintf(os.Stdout, "command timed out")
 		onTimeout()
 	}()
+}
+
+// initConnectivityCheck wraps the connectivity-check extension initialization
+// to ensure the workflow is visible
+func initConnectivityCheck(engine workflow.Engine) error {
+	// Call the original init function
+	err := workflows.InitConnectivityCheckWorkflow(engine)
+	if err != nil {
+		return err
+	}
+
+	// Get the workflow entry and make it visible
+	workflowID := workflow.NewWorkflowIdentifier("tools.connectivity-check")
+	entry, exists := engine.GetWorkflow(workflowID)
+	if exists && entry != nil {
+		entry.SetVisibility(true)
+	}
+
+	return nil
 }
