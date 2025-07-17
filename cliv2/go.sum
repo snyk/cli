@@ -790,6 +790,8 @@ github.com/snyk/cli-extension-iac v0.0.0-20250711122243-0de490b44873 h1:D2LsRbi9
 github.com/snyk/cli-extension-iac v0.0.0-20250711122243-0de490b44873/go.mod h1:HHOvlKnJfypPCYNP+yG7FLu0ii02UwumpkWlSLy5pYc=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a h1:SJ+Ts7e1EYcGJXeENR5inTGwPNRlNVgmMN2itO3+yj8=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a/go.mod h1:IqfQCIkyC26mkwa+aM6d6yxIh5+tCm4fSQG+Ogq3Qbc=
+github.com/snyk/cli-extension-os-flows v0.0.0-20250725030203-15567cf9f341 h1:R96ku7TZD0GZuRFfsketPmB42azc8l/lLmkWiyMLOX4=
+github.com/snyk/cli-extension-os-flows v0.0.0-20250725030203-15567cf9f341/go.mod h1:FO4LdZeMyPm1KFANEVKdWGfpBoCaarU0vQXyxyeEBmw=
 github.com/snyk/cli-extension-sbom v0.0.0-20250422133603-a5ae6fdf0934 h1:0RCTH9C0zaTrnqpKLaLXTmP7suwWEHBNVwQSaR8Aifo=
 github.com/snyk/cli-extension-sbom v0.0.0-20250422133603-a5ae6fdf0934/go.mod h1:Q8dmRgcpHTk711dkLVtpkTF5RvLkQVcExGuv1cyx/zU=
 github.com/snyk/code-client-go v1.22.2 h1:ECEg8LLLP8+fXIw1W1tsKpBeMtCdK9QNT8VTUDn11TQ=
