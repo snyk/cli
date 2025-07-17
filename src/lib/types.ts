@@ -69,6 +69,7 @@ export interface Options {
   criticality?: string;
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
+  'experimental-delta'?: boolean;
   detectionDepth?: number;
   exclude?: string;
   strictOutOfSync?: boolean;
