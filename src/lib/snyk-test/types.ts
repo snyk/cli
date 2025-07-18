@@ -28,6 +28,15 @@ export interface DepTreeFromResolveDeps extends DepTree {
   pluck: any;
 }
 
+export interface SnykDeltaRequest {
+  data: {
+    type: string;
+    attributes: {
+      [key: string]: any;
+    };
+  };
+}
+
 export interface Payload {
   method: string;
   url: string;
@@ -35,8 +44,9 @@ export interface Payload {
   headers: {
     'x-is-ci': boolean;
     authorization: string;
+    'Content-type'?: string;
   };
-  body?: PayloadBody | TestDependenciesRequest;
+  body?: PayloadBody | TestDependenciesRequest | SnykDeltaRequest;
   qs?: object | null;
   modules?: DepTreeFromResolveDeps;
 }
