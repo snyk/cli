@@ -14,7 +14,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@octokit/rest": "^18.0.5",
-    "@slack/webhook": "^7.0.3"
+    "@slack/webhook": "^7.0.4"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",
