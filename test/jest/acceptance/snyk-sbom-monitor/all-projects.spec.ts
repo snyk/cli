@@ -3,6 +3,7 @@ import { fakeServer } from '../../../acceptance/fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { getFixturePath } from '../../util/getFixturePath';
 import * as path from 'path';
+import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 
 jest.setTimeout(1000 * 60);
 
@@ -86,14 +87,14 @@ describe('snyk sbom monitor (mocked server only)', () => {
       'npm-sbom-cdx15.json',
     );
 
-    const { stdout, stderr } = await runSnykCLI(
+    const { stdout, stderr, code } = await runSnykCLI(
       `sbom monitor --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --file ${fileToTest}`,
       { env },
     );
 
-    expect(stdout).toMatch(
-      'Flag `--experimental` is required to execute this command.',
-    );
+    expect(code).toBe(EXIT_CODES.ERROR);
+
+    expect(stdout).toContain('--experimental');
 
     expect(stderr).toEqual('');
   });
@@ -124,7 +125,7 @@ describe('snyk sbom monitor (mocked server only)', () => {
       { env },
     );
 
-    expect(code).toEqual(2);
+    expect(code).toEqual(EXIT_CODES.ERROR);
 
     expect(stderr).toEqual('');
     expect(stdout).toContain(
