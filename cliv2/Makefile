@@ -6,7 +6,7 @@ GOARCH = $(shell go env GOARCH)
 GOHOSTOS = $(shell go env GOHOSTOS)
 GOHOSTARCH = $(shell go env GOHOSTARCH)
 LS_COMMIT_HASH = $(shell cat go.mod | grep snyk-ls | cut -d "-" -f 4)
-FIPS_CRYPTO_BACKEND_DEFAULT = opensslcrypto
+FIPS_CRYPTO_BACKEND_DEFAULT = systemcrypto
 FIPS_CRYPTO_BACKEND =
 HASH = sha
 HASH_ALGORITHM = 256
@@ -19,7 +19,7 @@ export LS_PROTOCOL_VERSION=
 
 # Build tools
 GO_BIN := $(shell pwd)/.bin
-OVERRIDE_GOCI_LINT_V := v1.61.0
+OVERRIDE_GOCI_LINT_V := v1.64.8
 SHELL := env PATH=$(GO_BIN):$(PATH) $(SHELL)
 
 # Make directories per convention
@@ -95,10 +95,6 @@ ifeq ($(GOHOSTOS), windows)
 	SHASUM_CMD = $(SPECIAL_SHELL) $(WORKING_DIR)/scripts/shasum.ps1
 	SIGN_SCRIPT = $(SPECIAL_SHELL) $(WORKING_DIR)/scripts/sign_$(GOHOSTOS).ps1
 	ISSIGNED_SCRIPT = $(SPECIAL_SHELL) $(WORKING_DIR)/scripts/issigned_$(GOHOSTOS).ps1
-endif
-
-ifeq ($(_GO_OS), windows)
-	FIPS_CRYPTO_BACKEND_DEFAULT = cngcrypto
 endif
 
 # some make file variables
