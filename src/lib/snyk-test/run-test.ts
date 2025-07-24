@@ -268,7 +268,9 @@ async function sendAndParseResults(
       try {
         /** sendTestPayload() deletes the request.body from the payload once completed. */
         const payload = Object.assign({}, originalPayload);
-        const response = await sendTestPayload(payload);
+        const response = options['experimental-delta']
+          ? await sendTestPayload(payload, options)
+          : await sendTestPayload(payload);
 
         return { payload, originalPayload, response };
       } catch (err) {
@@ -521,6 +523,7 @@ async function parseRes(
 
 function sendTestPayload(
   payload: Payload,
+  options?: Options & TestOptions,
 ): Promise<
   LegacyVulnApiResult | TestDepGraphResponse | TestDependenciesResponse
 > {
@@ -530,17 +533,49 @@ function sendTestPayload(
 
   debug('sendTestPayload request remoteUrl:', payloadBody?.target?.remoteUrl);
   debug('sendTestPayload request branch:', payloadBody?.target?.branch);
+
+  if (options && options['experimental-delta']) {
+    const deltaPayload = Object.assign({}, payload);
+    const deltaEndpoint = `${config.API_HIDDEN_URL}/delta/scan`;
+    const deltaBody = {
+      data: {
+        type: 'delta_scan',
+        attributes: {
+          deltaPayload,
+        },
+      },
+    };
+
+    payload.method = 'POST';
+    payload.url = deltaEndpoint;
+    payload.qs = { version: '2024-10-15' };
+    payload.body = deltaBody;
+    payload.headers = {
+      ...payload.headers,
+      'Content-type': 'application/vnd.api+json',
+    };
+  }
+
   return new Promise((resolve, reject) => {
-    makeRequest(payload, (error, res, body) => {
+    makeRequest(payload, (error, res, rawBody) => {
       if (error) {
         return reject(error);
+      }
+      let body = rawBody;
+      if (options && options['experimental-delta'] && res.statusCode === 201) {
+        body = JSON.parse(rawBody.data.attributes.result.response);
       }
 
       if (res?.headers?.[headerSnykTsCliTerminate]) {
         process.exit(EXIT_CODES.EX_TERMINATE);
       }
 
-      if (res.statusCode !== 200) {
+      if (res.statusCode < 200 || res.statusCode > 201) {
+        if (options && options['experimental-delta']) {
+          throw new CustomError(
+            `Error ${res.statusCode} computing delta: ${JSON.stringify(res.body.errors ?? res.statusText)}`,
+          );
+        }
         const err = handleTestHttpErrorResponse(res, body);
         debug('sendTestPayload request URL:', payload.url);
         debug('sendTestPayload response status code:', res.statusCode);
