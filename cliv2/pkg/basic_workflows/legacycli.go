@@ -110,6 +110,7 @@ func legacycliWorkflow(
 
 	if !useStdIo {
 		in := bytes.NewReader([]byte{})
+		outWriter = bufio.NewWriter(&outBuffer)
 		cli.SetIoStreams(in, outWriter, debugLogger)
 	} else {
 		cli.SetIoStreams(os.Stdin, os.Stdout, debugLogger)
