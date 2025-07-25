@@ -1,0 +1,107 @@
+{
+  "$schema": "https://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "bom-ref": "application:Root",
+      "name": "Root",
+      "type": "application"
+    },
+    {
+      "bom-ref": "model:claude-3-5-sonnet-20240620",
+      "evidence": {
+        "identity": [
+          {
+            "field": "name",
+            "methods": [
+              {
+                "confidence": 0.9,
+                "technique": "source-code-analysis"
+              }
+            ]
+          }
+        ],
+        "occurrences": [
+          {
+            "line": 18,
+            "location": "chatbot.py",
+            "offset": 20
+          },
+          {
+            "line": 27,
+            "location": "chatbot.py",
+            "offset": 20
+          }
+        ]
+      },
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://docs.anthropic.com/en/docs/about-claude/models/all-models#model-comparison-table"
+        }
+      ],
+      "manufacturer": {
+        "name": "Anthropic PBC",
+        "url": [
+          "https://www.anthropic.com"
+        ]
+      },
+      "name": "claude-3-5-sonnet-20240620",
+      "type": "machine-learning-model"
+    },
+    {
+      "bom-ref": "pkg:anthropic",
+      "evidence": {
+        "identity": [
+          {
+            "field": "name",
+            "methods": [
+              {
+                "confidence": 0.9,
+                "technique": "source-code-analysis"
+              }
+            ]
+          }
+        ],
+        "occurrences": [
+          {
+            "line": 8,
+            "location": "chatbot.py",
+            "offset": 8
+          },
+          {
+            "line": 9,
+            "location": "chatbot.py",
+            "offset": 23
+          },
+          {
+            "line": 17,
+            "location": "chatbot.py",
+            "offset": 14
+          }
+        ]
+      },
+      "name": "anthropic",
+      "type": "library"
+    }
+  ],
+  "dependencies": [
+    {
+      "dependsOn": [
+        "model:claude-3-5-sonnet-20240620",
+        "pkg:anthropic"
+      ],
+      "ref": "application:Root"
+    }
+  ],
+  "metadata": {
+    "manufacturer": {
+      "name": "Snyk",
+      "url": [
+        "https://snyk.io"
+      ]
+    }
+  },
+  "specVersion": "1.6",
+  "version": 1
+}
