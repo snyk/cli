@@ -350,6 +350,59 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
+  app.post(`/api/rest/orgs/:orgId/ai_boms`, (req, res) => {
+    res.status(202);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {
+        self: `/api/rest/orgs/${req.params.orgId}/ai_bom_jobs/59622253-75f3-4439-ac1e-ce94834c5804`,
+      },
+      data: {
+        id: '59622253-75f3-4439-ac1e-ce94834c5804',
+        type: 'ai_bom_job',
+        attributes: { status: 'processing' },
+      },
+    });
+  });
+
+  app.get(`/api/rest/orgs/:orgId/ai_bom_jobs/:jobId`, (req, res) => {
+    res.status(303);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {},
+      data: {
+        id: `${req.params.jobId}`,
+        type: 'ai_bom_job',
+        attributes: { status: 'finished' },
+        relationships: {
+          ai_bom: {
+            data: {
+              id: '39645628-1168-4876-b767-937ba9aabd77',
+              type: 'ai_bom',
+            },
+          },
+        },
+      },
+    });
+  });
+
+  app.get(`/api/rest/orgs/:orgId/ai_boms/:aiBomId`, (req, res) => {
+    res.status(200);
+    const aiBomCycloneDx = fs.readFileSync(
+      path.resolve(getFixturePath('ai-bom'), 'sample-ai-bom.json'),
+      'utf8',
+    );
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {},
+      data: {
+        id: req.params.aiBomId,
+        type: 'ai_bom',
+        attributes: JSON.parse(aiBomCycloneDx),
+      },
+    });
+  });
+
   app.post(basePath + '/vuln/:registry', (req, res, next) => {
     const vulnerabilities = [];
     if (req.query.org && req.query.org === 'missing-org') {
