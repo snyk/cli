@@ -1,4 +1,4 @@
-## [1.1298.1](https://github.com/snyk/snyk/compare/v1.1298.0...v1.1298.1) (2025-07-22)
+## [1.1298.2](https://github.com/snyk/snyk/compare/v1.1298.1...v1.1298.2) (2025-07-29)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
@@ -11,5 +11,6 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 
 ### Bug Fixes
 
-* **container:** Fix failing scan of local container images ([6095a60](https://github.com/snyk/cli/pull/6052/commits/6095a60762687312f749bf5209e15604483be157))
-* **mcp:** Fix incomplete mcp instrumentation ([9108dc0](https://github.com/snyk/cli/commit/9108dc042010842869c2f24b6b7371d117915418))
+* **code:** Fix code test --report when a project_id environment variable exists ([8be17d6](https://github.com/snyk/cli/commit/8be17d6580fe3a41ba7d9337662116f10f596742))
+* **mcp:** Skip trust browser popup if folder is already trusted
+* **mcp:** Improve container scan security

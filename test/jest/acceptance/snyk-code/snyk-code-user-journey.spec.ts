@@ -96,6 +96,7 @@ const userJourneyWorkflows: Workflow[] = [
       INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
       INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'false',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
+      PROJECT_ID: 'this_should_be_ignored',
     },
   },
   {
@@ -103,6 +104,7 @@ const userJourneyWorkflows: Workflow[] = [
     env: {
       INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'true',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
+      PROJECT_ID: 'this_should_be_ignored',
     },
   },
 ];
