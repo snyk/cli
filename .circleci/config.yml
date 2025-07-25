@@ -1011,6 +1011,17 @@ workflows:
                 - main
                 - '/release.*/'
 
+      - trigger-building-dxt:
+          name: Trigger building mcp-dxt (stable)
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - upload npm
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+
 ####################################################################################################
 # JOBS
 ####################################################################################################
@@ -1559,6 +1570,15 @@ jobs:
       - run:
           name: Trigger build-and-publish workflow at snyk-images
           command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
+      - failed-release-notification
+
+  trigger-building-dxt:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Trigger build-and-release workflow at mcp-dxt
+          command: ./release-scripts/upload-artifacts.sh trigger_build_dxt
       - failed-release-notification
 
   noop:
