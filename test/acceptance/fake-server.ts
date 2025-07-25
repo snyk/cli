@@ -17,6 +17,14 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['enablePnpmCli', false],
     ['sbomMonitorBeta', false],
     ['useImprovedDotnetWithoutPublish', false],
+
+    // Default these to false.
+    // TODO: Future acceptance tests targeting these features and their
+    // associated extension (cli-extension-os-flows) specifically may enable
+    // them at a later time.
+    ['useExperimentalRiskScore', false],
+    ['useExperimentalRiskScoreInCLI', false],
+    ['sbomTestReachability', false],
   ]);
 };
 

@@ -14,6 +14,7 @@ require (
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e
 	github.com/snyk/cli-extension-iac v0.0.0-20250711122243-0de490b44873
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a
+	github.com/snyk/cli-extension-os-flows v0.0.0-20250725030203-15567cf9f341
 	github.com/snyk/cli-extension-sbom v0.0.0-20250422133603-a5ae6fdf0934
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20250625135845-2d6f9a31f318
@@ -250,3 +251,5 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 //replace github.com/snyk/code-client-go => ../../code-client-go
 
 //replace github.com/snyk/cli-extension-iac => ../../cli-extension-iac
+
+//replace github.com/snyk/cli-extension-os-flows => ../../cli-extension-os-flows
