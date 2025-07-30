@@ -60,6 +60,9 @@ import (
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
+
+	// labsWorkflow "github.com/snyk/labs-cli-extension/pkg/labs"
+	labsWorkflow "github.com/snyk/cli/cliv2/pkg/labs"
 )
 
 var internalOS string
@@ -570,6 +573,7 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
+	globalEngine.AddExtensionInitializer(labsWorkflow.InitLabsWorkflow)
 
 	// init engine
 	err = globalEngine.Init()
