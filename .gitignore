@@ -53,3 +53,4 @@ test/fixtures/**/*/.build
 test/fixtures/**/*/Package.resolved
 scripts/Brewfile.lock.json
 test/fixtures/**/go.sum
+cliv2/labsPlugins/*.so
