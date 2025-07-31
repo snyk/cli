@@ -258,7 +258,7 @@ describe('Testing binary bootstrapper', () => {
     expect(shasumDownloadProxyNoProxy).toBeUndefined();
   });
 
-  it('downloadExecutable() succesfull', async () => {
+  it('downloadExecutable() successful', async () => {
     const binaryName = 'snyk-macos';
     const shafileExtension = '.sha256';
     const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
@@ -300,7 +300,7 @@ describe('Testing binary bootstrapper', () => {
     fs.unlinkSync(shasumFile);
     fs.unlinkSync(config.getLocalLocation());
   });
-  it('downloadWithBackup() succesfull', async () => {
+  it('downloadWithBackup() successful', async () => {
     const binaryName = 'snyk-macos';
     const shafileExtension = '.sha256';
     const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
@@ -353,7 +353,7 @@ describe('Testing binary bootstrapper', () => {
       config.getLocalLocation() + Math.random() + shafileExtension;
     const { downloadUrl } = config.getDownloadLocations();
 
-    // download just any file and state a shasum expectation that never can be fullfilled
+    // download just any file and state a shasum expectation that never can be fulfilled
     const shasumDownload = await common.downloadExecutable(
       downloadUrl + shafileExtension,
       shasumFile,
@@ -384,7 +384,7 @@ describe('Testing binary bootstrapper', () => {
   });
 
   it('downloadExecutable() fails due to an error in the https connection', async () => {
-    // download the just any file and state a shasum expectation that never can be fullfilled
+    // download the just any file and state a shasum expectation that never can be fulfilled
     const shasumDownload = await common.downloadExecutable(
       'https://notaurl',
       '',
