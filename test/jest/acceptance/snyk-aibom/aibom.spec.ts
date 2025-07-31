@@ -127,6 +127,7 @@ describe('snyk aibom (mocked servers only)', () => {
     const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
     expect(aiBomRequests).toEqual([
       'POST:/ai_boms',
+      'POST:/ai_boms',
       'GET:/ai_bom_jobs',
       'GET:/ai_boms',
     ]);
@@ -137,6 +138,28 @@ describe('snyk aibom (mocked servers only)', () => {
       bomFormat: 'CycloneDX',
     });
     expect(bom.components.length).toBeGreaterThan(1);
+  });
+
+  test('`aibom` fails if api is unavailable', async () => {
+    expect(server.getRequests().length).toEqual(0);
+    server.setStatusCode(404);
+    const { code, stdout } = await runSnykCLI(
+      `aibom ${pythonChatbotProject} --experimental`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(2);
+
+    const deeproxyRequestUrls = deepCodeServer
+      .getRequests()
+      .map((req) => `${req.method}:${req.url}`);
+    expect(deeproxyRequestUrls).toEqual([]);
+
+    const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
+    expect(aiBomRequests).toEqual(['POST:/ai_boms']);
+
+    expect(stdout).toContain('unexpected status code 404 for CreateAIBOM');
   });
 
   test('`aibom` adds the depgraph to the bundle', async () => {
