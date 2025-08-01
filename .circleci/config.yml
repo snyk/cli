@@ -1038,7 +1038,8 @@ jobs:
             - prepare-v1-build-npm-deps
       - run:
           name: Installing dependencies
-          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+#          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+          command: npm ci
       - save_cache:
           name: Save npm cache
           key: prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
@@ -1058,6 +1059,7 @@ jobs:
       - run:
           name: Build TypeScript CLI
           command: npm run build:prod
+
       - persist_to_workspace:
           root: .
           paths:

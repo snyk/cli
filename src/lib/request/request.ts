@@ -1,11 +1,10 @@
 import { debug as debugModule } from 'debug';
 import * as needle from 'needle';
-import { parse, format } from 'url';
+import { format, parse } from 'url';
 import * as querystring from 'querystring';
 import * as zlib from 'zlib';
 import config from '../config';
 import { getProxyForUrl } from 'proxy-from-env';
-import { bootstrap } from 'global-agent';
 import { Global } from '../../cli/args';
 import { Payload } from './types';
 import { getVersion } from '../version';
@@ -112,10 +111,6 @@ function setupRequest(payload: Payload) {
     delete payload.qs;
   }
 
-  const agent =
-    parsedUrl.protocol === 'http:'
-      ? new http.Agent({ keepAlive: true })
-      : new https.Agent({ keepAlive: true });
   const options: needle.NeedleOptions = {
     use_proxy_from_env_var: false,
     json: payload.json,
@@ -124,18 +119,24 @@ function setupRequest(payload: Payload) {
     timeout: payload.timeout,
     follow_max: 5,
     family: payload.family,
-    agent,
   };
 
   const proxyUri = getProxyForUrl(url);
   if (proxyUri) {
     snykDebug('using proxy:', proxyUri);
-    bootstrap({
-      environmentVariableNamespace: '',
-    });
+    options.proxy = proxyUri;
   } else {
     snykDebug('not using proxy');
   }
+
+  // Node expects the same protocol for the agent as for the proxy's URL,
+  // so if a proxy is defined, the agent's protocol must be the same.
+  // See: https://github.com/nodejs/node/blob/a0a69f5e4af6c49d4db838ff05122c12837a6168/lib/_http_client.js#L187-L189
+  options.agent = proxyUri
+    ? new http.Agent({ keepAlive: true })
+    : parsedUrl.protocol === 'http:'
+      ? new http.Agent({ keepAlive: true })
+      : new https.Agent({ keepAlive: true });
 
   if (global.ignoreUnknownCA) {
     debug('Using insecure mode (ignore unknown certificate authority)');
