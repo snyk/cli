@@ -316,6 +316,7 @@ commands:
           name: Installing sdks and tools via homebrew
           command: |
             brew install << parameters.items >>
+            echo 'export PATH="/opt/homebrew/opt/gradle@8/bin:$PATH"' >> "$BASH_ENV"
       - save_cache:
           key: acceptance-tests-macos-<< parameters.items >>
           paths:
