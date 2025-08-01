@@ -16,7 +16,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.23.10'
+    default: '1.24.5'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -47,22 +47,22 @@ executors:
     resource_class: small
   docker-amd64:
     docker:
-      - image: snyklabs/cli-build:20241015-082358
+      - image: snyklabs/cli-build:20250429-091242
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: snyklabs/cli-build:20241015-082358
+      - image: snyklabs/cli-build:20250429-091242
     working_directory: /mnt/ramdisk/snyk
     resource_class: xlarge
   docker-arm64:
     docker:
-      - image: snyklabs/cli-build-arm64:20241015-082358
+      - image: snyklabs/cli-build-arm64:20250429-091242
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   docker-arm64-xl:
     docker:
-      - image: snyklabs/cli-build-arm64:20241015-082358
+      - image: snyklabs/cli-build-arm64:20250429-091242
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.xlarge
   linux-ubuntu-jammy-amd64:
@@ -118,6 +118,10 @@ executors:
   cbl-mariner:
     docker:
       - image: mcr.microsoft.com/cbl-mariner/base/python:3.9.14-8-cm2.0.20240301-arm64
+    resource_class: arm.medium
+  suse-linux-fips:
+    docker:
+      - image: registry.suse.com/bci/bci-base-fips:15.6
     resource_class: arm.medium
 
 commands:
@@ -312,6 +316,7 @@ commands:
           name: Installing sdks and tools via homebrew
           command: |
             brew install << parameters.items >>
+            echo 'export PATH="/opt/homebrew/opt/gradle@8/bin:$PATH"' >> "$BASH_ENV"
       - save_cache:
           key: acceptance-tests-macos-<< parameters.items >>
           paths:
@@ -863,12 +868,12 @@ workflows:
                 - '/.*e2e.*/'
 
       - test-release:
-          name: e2e fips tests (cbl-mariner)
+          name: e2e fips tests (suse-linux-fips)
           context: team_hammerhead-cli
           cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
           setup_steps:
-            - run: tdnf install -y tar ca-certificates
-          executor: 'cbl-mariner'
+            - run: zypper --non-interactive install python3-pip
+          executor: 'suse-linux-fips'
           requires:
             - upload version
           filters:
@@ -912,7 +917,7 @@ workflows:
             - e2e tests (linux-ubuntu-jammy-arm64)
             - e2e tests (linux-ubuntu-focal-arm64)
             - e2e tests (alpine)
-            - e2e fips tests (cbl-mariner)
+            - e2e fips tests (suse-linux-fips)
             - e2e fips tests (win-server2022-amd64)
           filters:
             branches:
