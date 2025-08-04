@@ -210,7 +210,55 @@ describe('Testing binary wrapper', () => {
 });
 
 describe('Testing binary bootstrapper', () => {
-  it('downloadExecutable() succesfull', async () => {
+  let originalEnv;
+
+  beforeEach(() => {
+    jest.resetModules();
+    originalEnv = { ...process.env }; // Shallow copy is usually sufficient
+  });
+
+  afterEach(() => {
+    process.env = originalEnv; // Restore original
+  });
+
+  it('considers proxy settings during download', async () => {
+    const binaryName = 'snyk-macos';
+    const shafileExtension = '.sha256';
+    const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
+    const shasumFile =
+      config.getLocalLocation() + Math.random() + shafileExtension;
+
+    // case: no proxy specified
+    const shasumDownloadNoProxy = await common.downloadExecutable(
+      config.getDownloadLocations().downloadUrl + shafileExtension,
+      shasumFile,
+      '',
+    );
+    expect(shasumDownloadNoProxy).toBeUndefined();
+
+    // case: proxy specified
+    // setting a non-existing proxy should make the download fail
+    process.env['HTTPS_PROXY'] = 'http://127.0.0.1:1234';
+    const shasumDownloadProxy = await common.downloadExecutable(
+      config.getDownloadLocations().downloadUrl + shafileExtension,
+      shasumFile,
+      '',
+    );
+    expect(shasumDownloadProxy).toBeDefined();
+
+    // case: proxy specified but no_proxy as well
+    // setting a non-existing proxy should make the download fail
+    process.env['HTTPS_PROXY'] = 'http://127.0.0.1:1234';
+    process.env['NO_PROXY'] = '*.snyk.io';
+    const shasumDownloadProxyNoProxy = await common.downloadExecutable(
+      config.getDownloadLocations().downloadUrl + shafileExtension,
+      shasumFile,
+      '',
+    );
+    expect(shasumDownloadProxyNoProxy).toBeUndefined();
+  });
+
+  it('downloadExecutable() successful', async () => {
     const binaryName = 'snyk-macos';
     const shafileExtension = '.sha256';
     const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
@@ -252,7 +300,7 @@ describe('Testing binary bootstrapper', () => {
     fs.unlinkSync(shasumFile);
     fs.unlinkSync(config.getLocalLocation());
   });
-  it('downloadWithBackup() succesfull', async () => {
+  it('downloadWithBackup() successful', async () => {
     const binaryName = 'snyk-macos';
     const shafileExtension = '.sha256';
     const config = new common.WrapperConfiguration('1.1080.0', binaryName, '');
@@ -305,7 +353,7 @@ describe('Testing binary bootstrapper', () => {
       config.getLocalLocation() + Math.random() + shafileExtension;
     const { downloadUrl } = config.getDownloadLocations();
 
-    // download just any file and state a shasum expectation that never can be fullfilled
+    // download just any file and state a shasum expectation that never can be fulfilled
     const shasumDownload = await common.downloadExecutable(
       downloadUrl + shafileExtension,
       shasumFile,
@@ -336,7 +384,7 @@ describe('Testing binary bootstrapper', () => {
   });
 
   it('downloadExecutable() fails due to an error in the https connection', async () => {
-    // download the just any file and state a shasum expectation that never can be fullfilled
+    // download the just any file and state a shasum expectation that never can be fulfilled
     const shasumDownload = await common.downloadExecutable(
       'https://notaurl',
       '',

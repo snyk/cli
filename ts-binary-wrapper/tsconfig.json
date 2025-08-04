@@ -2,7 +2,8 @@
   "extends": "../tsconfig.settings.json",
   "compilerOptions": {
     "outDir": "./wrapper_dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "esModuleInterop": true
   },
   "include": ["./src/**/*"],
   "types": ["node", "jest"]
