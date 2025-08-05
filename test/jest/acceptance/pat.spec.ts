@@ -7,16 +7,16 @@ jest.setTimeout(1000 * 60);
 describe('PAT', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
-
-  const pat = 'snyk_uat.12345678.abcdefg-hijklmnop.qrstuvwxyz-123456';
+  let pat: string;
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
     const apiPort = getServerPort(process);
-    const apiBaseUrl = `http://${getFirstIPv4Address()}:${apiPort}`;
+    const apiBaseUrl = `${getFirstIPv4Address()}:${apiPort}`;
+    const payload = `{"h":"http://${apiBaseUrl}"}`;
+    pat = createPAT(payload);
     env = {
       ...process.env,
-      SNYK_API: apiBaseUrl,
       SNYK_TOKEN: pat,
       SNYK_DISABLE_ANALYTICS: '1',
     };
@@ -33,9 +33,9 @@ describe('PAT', () => {
     server.close(() => done());
   });
 
-  it('uses pat for authorised requests', async () => {
-    const helpCmd = await runSnykCLI(`whoami --experimental -d`, { env });
-    expect(helpCmd.code).toEqual(0);
+  it('derives api from pat for authorised requests', async () => {
+    const whoamicmd = await runSnykCLI(`whoami --experimental -d`, { env });
+    expect(whoamicmd.code).toEqual(0);
 
     expect(server.getRequests().length).toBeGreaterThanOrEqual(1);
     server.getRequests().forEach((request) => {
@@ -54,7 +54,6 @@ describe('PAT', () => {
         ...env,
         // make a real API request with an invalid token
         SNYK_TOKEN: invalidPat,
-        SNYK_API: 'https://api.snyk.io',
       },
     });
 
@@ -62,3 +61,9 @@ describe('PAT', () => {
     expect(whoamiCmd.stdout).toContain('Authentication error');
   });
 });
+
+function createPAT(payload: string): string {
+  const encodedPayload = Buffer.from(payload).toString('base64').replace(/=/g, '');
+  const signature = "signature";
+  return `snyk_uat.12345678.${encodedPayload}.${signature}`;
+}
