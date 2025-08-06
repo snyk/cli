@@ -28,10 +28,17 @@ function aiBomRestEndpointRequests(requests: Request[]): string[] {
 describe('snyk aibom (mocked servers only)', () => {
   let server: ReturnType<typeof fakeServer>;
   let deepCodeServer: ReturnType<typeof fakeDeepCodeServer>;
+  let envWithoutAuth: Record<string, string>;
   let env: Record<string, string>;
   const port = getServerPort(process);
   const baseApi = '/api/v1';
   const ipAddress = getFirstIPv4Address();
+  const initialEnvVarsWithoutAuth = {
+    ...process.env,
+    SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+    SNYK_HOST: `http://${ipAddress}:${port}`,
+    TEST_SNYK_TOKEN: 'UNSET',
+  };
   const initialEnvVars = {
     ...process.env,
     SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
@@ -39,6 +46,7 @@ describe('snyk aibom (mocked servers only)', () => {
     SNYK_TOKEN: '123456789',
     SNYK_CFG_ORG: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
   };
+
   const projectRoot = resolve(__dirname, '../../../..');
   const pythonChatbotProject = resolve(
     projectRoot,
@@ -82,6 +90,10 @@ describe('snyk aibom (mocked servers only)', () => {
     deepCodeServer.restore();
     env = {
       ...initialEnvVars,
+      SNYK_CODE_CLIENT_PROXY_URL: `http://${ipAddress}:${deepCodeServer.getPort()}`,
+    };
+    envWithoutAuth = {
+      ...initialEnvVarsWithoutAuth,
       SNYK_CODE_CLIENT_PROXY_URL: `http://${ipAddress}:${deepCodeServer.getPort()}`,
     };
     deepCodeServer.setFiltersResponse({
@@ -270,6 +282,17 @@ describe('snyk aibom (mocked servers only)', () => {
       );
       expect(code).toEqual(2);
       expect(stdout).toContain('No supported files (SNYK-AI-BOM-0003)');
+    });
+
+    test('handles no SNYK_TOKEN', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `aibom ${pythonChatbotProject} --experimental`,
+        {
+          env: envWithoutAuth,
+        },
+      );
+      expect(code).toEqual(2);
+      expect(stdout).toContain('Authentication error (SNYK-0005)');
     });
   });
 });
