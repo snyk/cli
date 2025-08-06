@@ -788,8 +788,8 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skeema/knownhosts v1.3.1 h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnBY8=
 github.com/skeema/knownhosts v1.3.1/go.mod h1:r7KTdC8l4uxWRyK2TpQZ/1o5HaSzh06ePQNxPwTcfiY=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20250731091721-9545337e1ed7 h1:4PLegHX4Fbabi9jVki8O7VlwIho7EyaFv54rXeDZDf8=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20250731091721-9545337e1ed7/go.mod h1:dySxka2pkVqMV+zL6yNbHBKTf3Cy7yBUsvah4hyQOeE=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20250806122647-dd6a7986878e h1:Xmjk9N2jVfEULDCnayzlC57Reo1iHkb+YHqIIJIwiKk=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20250806122647-dd6a7986878e/go.mod h1:dySxka2pkVqMV+zL6yNbHBKTf3Cy7yBUsvah4hyQOeE=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e h1:lYBeDqyAmb7NPfcLZJb1rcc+BrWhX5Ct9isQO1O4mSc=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e/go.mod h1:9Zpe+B8SCkWFjpDR3ckFJl1XuMyxysWebKhyAIj7EyI=
 github.com/snyk/cli-extension-iac v0.0.0-20250711122243-0de490b44873 h1:D2LsRbi9qFm8NsWXHmS29vC1mzTg7uoXi9ewQ7NC+Ig=
