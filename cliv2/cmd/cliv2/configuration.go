@@ -11,7 +11,7 @@ import (
 )
 
 func defaultOAuthFF(config configuration.Configuration) configuration.DefaultValueFunction {
-	return func(existingValue interface{}) (interface{}, error) {
+	return func(_ configuration.Configuration, existingValue interface{}) (interface{}, error) {
 		if _, ok := os.LookupEnv(auth.CONFIG_KEY_OAUTH_TOKEN); ok {
 			return true, nil
 		}
