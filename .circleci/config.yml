@@ -1043,7 +1043,11 @@ jobs:
             - prepare-v1-build-npm-deps
       - run:
           name: Installing dependencies
-          command: npm ci --no-audit --no-progress --cache .npm --prefer-offline
+          command: |
+            npm ci --no-audit --no-progress --cache .npm --prefer-offline
+            # Forcing git install, not to be merged
+            npm install git+https://github.com/snyk/snyk-docker-plugin.git#a9ba87b
+
       - save_cache:
           name: Save npm cache
           key: prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
