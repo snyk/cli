@@ -191,6 +191,8 @@ export function runWrapper(executable: string, cliArguments: string[]): number {
       ...process.env,
       SNYK_INTEGRATION_NAME: integrationName,
       SNYK_INTEGRATION_VERSION: getCurrentVersion(versionFile),
+      SNYK_INTEGRATION_ENVIRONMENT: 'node',
+      SNYK_INTEGRATION_ENVIRONMENT_VERSION: process.versions.node,
     },
   });
 
