@@ -26,8 +26,8 @@ repositories {
 
 dependencies {
   // Removed Spring because too heavy
-	compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	testCompile("org.jetbrains.kotlin:kotlin-reflect") {
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+  testImplementation("org.jetbrains.kotlin:kotlin-reflect") {
 		exclude(module = "junit")
 	}
 }
