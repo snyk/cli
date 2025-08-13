@@ -127,6 +127,12 @@ export default async function test(
         console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
       }
     }
+
+    // Check scanUsrLibJars feature flag and add --include-system-jars parameter
+    const scanUsrLibJarsEnabled = await hasFeatureFlag('scanUsrLibJars', options);
+    if (scanUsrLibJarsEnabled) {
+      options['include-system-jars'] = true;
+    }
   }
 
   const ecosystem = getEcosystemForTest(options);
