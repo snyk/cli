@@ -301,7 +301,7 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python pipenv elixir composer gradle@8 maven sbt dotnet
+        default: go gradle python pipenv elixir composer gradle@9 maven sbt dotnet
     steps:
       - run:
           name: Installing Rosetta
@@ -312,6 +312,7 @@ commands:
           name: Installing sdks and tools via homebrew
           command: |
             brew install << parameters.items >>
+            echo 'export PATH="/opt/homebrew/opt/gradle@9/bin:$PATH"' >> "$BASH_ENV"
       - save_cache:
           key: acceptance-tests-macos-<< parameters.items >>
           paths:
@@ -323,7 +324,7 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python elixir composer gradle@8 maven sbt dotnet
+        default: go gradle python elixir composer gradle@9 maven sbt dotnet
     steps:
       - run:
           name: Installing Rosetta
@@ -348,9 +349,9 @@ commands:
             wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-$arch.tar.gz -O /tmp/go.tgz && \
               tar -C /usr/local -xzvf /tmp/go.tgz && \
               ln -s /usr/local/go/bin/go /usr/local/bin
-            wget https://services.gradle.org/distributions/gradle-8.10-bin.zip -O /tmp/gradle.zip && \
+            wget https://services.gradle.org/distributions/gradle-9.0.0-bin.zip -O /tmp/gradle.zip && \
               unzip -d /usr/local /tmp/gradle.zip && \
-              ln -s /usr/local/gradle-8.10/bin/gradle /usr/local/bin
+              ln -s /usr/local/gradle-9.0.0/bin/gradle /usr/local/bin
 
   failed-release-notification:
     steps:

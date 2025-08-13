@@ -1,4 +1,5 @@
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { Request } from 'express';
 import {
   fakeServer,
   getFirstIPv4Address,
@@ -12,20 +13,40 @@ import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 
 jest.setTimeout(1000 * 60 * 5);
 
+function aiBomRestEndpointRequests(requests: Request[]): string[] {
+  const res: string[] = [];
+  for (const request of requests) {
+    if (request.url.includes('/ai_boms')) {
+      res.push(`${request.method}:/ai_boms`);
+    } else if (request.url.includes('/ai_bom_jobs')) {
+      res.push(`${request.method}:/ai_bom_jobs`);
+    }
+  }
+  return res;
+}
+
 describe('snyk aibom (mocked servers only)', () => {
   let server: ReturnType<typeof fakeServer>;
   let deepCodeServer: ReturnType<typeof fakeDeepCodeServer>;
+  let envWithoutAuth: Record<string, string>;
   let env: Record<string, string>;
   const port = getServerPort(process);
   const baseApi = '/api/v1';
   const ipAddress = getFirstIPv4Address();
+  const initialEnvVarsWithoutAuth = {
+    ...process.env,
+    SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+    SNYK_HOST: `http://${ipAddress}:${port}`,
+    TEST_SNYK_TOKEN: 'UNSET',
+  };
   const initialEnvVars = {
     ...process.env,
     SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
     SNYK_HOST: `http://${ipAddress}:${port}`,
     SNYK_TOKEN: '123456789',
-    SNYK_CFG_ORG: 'myorg',
+    SNYK_CFG_ORG: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
   };
+
   const projectRoot = resolve(__dirname, '../../../..');
   const pythonChatbotProject = resolve(
     projectRoot,
@@ -71,6 +92,10 @@ describe('snyk aibom (mocked servers only)', () => {
       ...initialEnvVars,
       SNYK_CODE_CLIENT_PROXY_URL: `http://${ipAddress}:${deepCodeServer.getPort()}`,
     };
+    envWithoutAuth = {
+      ...initialEnvVarsWithoutAuth,
+      SNYK_CODE_CLIENT_PROXY_URL: `http://${ipAddress}:${deepCodeServer.getPort()}`,
+    };
     deepCodeServer.setFiltersResponse({
       configFiles: [],
       extensions: ['.py', '.snykdepgraph'],
@@ -93,6 +118,7 @@ describe('snyk aibom (mocked servers only)', () => {
   });
 
   test('`aibom` generates an AI-BOM CycloneDX with components', async () => {
+    expect(server.getRequests().length).toEqual(0);
     const { code, stdout } = await runSnykCLI(
       `aibom ${pythonChatbotProject} --experimental`,
       {
@@ -108,10 +134,14 @@ describe('snyk aibom (mocked servers only)', () => {
     const deeproxyRequestUrls = deepCodeServer
       .getRequests()
       .map((req) => `${req.method}:${req.url}`);
-    expect(deeproxyRequestUrls).toEqual([
-      'GET:/filters',
-      'POST:/bundle',
-      'POST:/analysis',
+    expect(deeproxyRequestUrls).toEqual(['GET:/filters', 'POST:/bundle']);
+
+    const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
+    expect(aiBomRequests).toEqual([
+      'POST:/ai_boms',
+      'POST:/ai_boms',
+      'GET:/ai_bom_jobs',
+      'GET:/ai_boms',
     ]);
 
     expect(bom).toMatchObject({
@@ -120,6 +150,28 @@ describe('snyk aibom (mocked servers only)', () => {
       bomFormat: 'CycloneDX',
     });
     expect(bom.components.length).toBeGreaterThan(1);
+  });
+
+  test('`aibom` fails if api is unavailable', async () => {
+    expect(server.getRequests().length).toEqual(0);
+    server.setStatusCode(404);
+    const { code, stdout } = await runSnykCLI(
+      `aibom ${pythonChatbotProject} --experimental`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(2);
+
+    const deeproxyRequestUrls = deepCodeServer
+      .getRequests()
+      .map((req) => `${req.method}:${req.url}`);
+    expect(deeproxyRequestUrls).toEqual([]);
+
+    const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
+    expect(aiBomRequests).toEqual(['POST:/ai_boms']);
+
+    expect(stdout).toContain('unexpected status code 404 for CreateAIBOM');
   });
 
   test('`aibom` adds the depgraph to the bundle', async () => {
@@ -144,7 +196,6 @@ describe('snyk aibom (mocked servers only)', () => {
       'GET:/filters',
       'POST:/bundle',
       'PUT:/bundle/bundle-hash',
-      'POST:/analysis',
     ]);
 
     const deepcodeBundleRequest = deepCodeServer.getRequests()[2];
@@ -193,31 +244,31 @@ describe('snyk aibom (mocked servers only)', () => {
     });
 
     test('handles unauthenticated', async () => {
-      deepCodeServer.setAnalysisHandler((req, res) => {
-        res.status(401).send();
-      });
-      console.log(pythonChatbotProject);
+      expect(server.getRequests().length).toEqual(0);
+      server.setStatusCode(401);
       const { code, stdout } = await runSnykCLI(
         `aibom ${pythonChatbotProject} --experimental`,
         {
           env,
         },
       );
+      const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
+      expect(aiBomRequests).toEqual(['POST:/ai_boms']);
       expect(code).toEqual(2);
       expect(stdout).toContain('Authentication error (SNYK-0005)');
     });
 
     test('handles org has no access', async () => {
-      deepCodeServer.setAnalysisHandler((req, res) => {
-        res.status(403).send();
-      });
-      console.log(pythonChatbotProject);
+      expect(server.getRequests().length).toEqual(0);
+      server.setStatusCode(403);
       const { code, stdout } = await runSnykCLI(
         `aibom ${pythonChatbotProject} --experimental`,
         {
           env,
         },
       );
+      const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
+      expect(aiBomRequests).toEqual(['POST:/ai_boms']);
       expect(code).toEqual(2);
       expect(stdout).toContain('Forbidden (SNYK-AI-BOM-0002)');
     });
@@ -231,6 +282,17 @@ describe('snyk aibom (mocked servers only)', () => {
       );
       expect(code).toEqual(2);
       expect(stdout).toContain('No supported files (SNYK-AI-BOM-0003)');
+    });
+
+    test('handles no SNYK_TOKEN', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `aibom ${pythonChatbotProject} --experimental`,
+        {
+          env: envWithoutAuth,
+        },
+      );
+      expect(code).toEqual(2);
+      expect(stdout).toContain('Authentication error (SNYK-0005)');
     });
   });
 });
