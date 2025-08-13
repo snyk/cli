@@ -16,7 +16,7 @@ dependencies.attributesSchema {
 }
 
 configurations {
-    api {
+    apiElements {
         attributes {
             attribute(testAttribute, 'api')
         }
