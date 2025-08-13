@@ -17,6 +17,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['enablePnpmCli', false],
     ['sbomMonitorBeta', false],
     ['useImprovedDotnetWithoutPublish', false],
+    ['scanUsrLibJars', false],
 
     // Default these to false.
     // TODO: Future acceptance tests targeting these features and their

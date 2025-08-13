@@ -5,6 +5,9 @@ import { assembleQueryString } from '../snyk-test/common';
 import { OrgFeatureFlagResponse } from './types';
 import { Options } from '../types';
 import { AuthFailedError } from '../errors';
+import * as Debug from 'debug';
+
+const debug = Debug('snyk-feature-flags');
 
 export async function isFeatureFlagSupportedForOrg(
   featureFlag: string,
@@ -37,4 +40,18 @@ export async function hasFeatureFlag(
     throw AuthFailedError(error, code);
   }
   return ok;
+}
+
+export async function hasFeatureFlagOrDefault(
+  featureFlag: string,
+  options: Options,
+  defaultValue = false,
+): Promise<boolean> {
+  try {
+    const result = await hasFeatureFlag(featureFlag, options);
+    return result ?? defaultValue;
+  } catch (err) {
+    debug(`error checking feature flag '${featureFlag}':`, err);
+    return defaultValue;
+  }
 }
