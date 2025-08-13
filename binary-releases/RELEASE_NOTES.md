@@ -1,4 +1,4 @@
-## [1.1298.2](https://github.com/snyk/snyk/compare/v1.1298.1...v1.1298.2) (2025-07-30)
+## [1.1298.3](https://github.com/snyk/snyk/compare/v1.1298.2...v1.1298.3) (2025-08-14)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
@@ -11,7 +11,5 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 
 ### Bug Fixes
 
-* **code:** Fix code test --report when a project_id environment variable exists ([8be17d6](https://github.com/snyk/cli/commit/8be17d6580fe3a41ba7d9337662116f10f596742))
-* **mcp:** Skip trust browser popup if folder is already trusted
-* **mcp:** Improve container scan security
-* **language-server:** Fixed missing AI Fix entitlements for cases where the default org didn’t have AI Fix enabled
+* **aibom** This command is now publicly available. Note that the feature is still experimental and subject to breaking changes without notice.
+* **test** Added support for Gradle 9.
