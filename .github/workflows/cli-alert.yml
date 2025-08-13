@@ -20,6 +20,6 @@ jobs:
       - run: npm ci
       - run: npm start
         env:
-          USER_GITHUB_TOKEN: ${{ secrets.USER_GITHUB_TOKEN }}
+          TEAM_CLI_GITHUB_PAT: ${{ secrets.TEAM_CLI_GITHUB_PAT }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           PD_ROUTING_KEY: ${{ secrets.PD_ROUTING_KEY }}
