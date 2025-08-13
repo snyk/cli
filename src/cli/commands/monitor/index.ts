@@ -126,6 +126,15 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
         console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
       }
     }
+
+    // Check scanUsrLibJars feature flag and add --include-system-jars parameter
+    const scanUsrLibJarsEnabled = await hasFeatureFlag(
+      'scanUsrLibJars',
+      options,
+    );
+    if (scanUsrLibJarsEnabled) {
+      options['include-system-jars'] = true;
+    }
   }
 
   // Handles no image arg provided to the container command until
