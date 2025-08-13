@@ -127,6 +127,15 @@ export default async function test(
         console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
       }
     }
+
+    // Check scanUsrLibJars feature flag and add --include-system-jars parameter
+    const scanUsrLibJarsEnabled = await hasFeatureFlag(
+      'scanUsrLibJars',
+      options,
+    );
+    if (scanUsrLibJarsEnabled) {
+      options['include-system-jars'] = true;
+    }
   }
 
   const ecosystem = getEcosystemForTest(options);
@@ -251,7 +260,7 @@ export default async function test(
       // Note: this is done based on the logic done below
       // for non-json/sarif outputs, where we take the code of
       // the first error.
-      err.code = errorResults[0].code;
+      (err as any).code = (errorResults[0] as any).code;
     }
     err.json = stringifiedData;
     err.jsonStringifiedResults = stringifiedJsonData;
@@ -300,10 +309,10 @@ export default async function test(
     // translation
     // HACK as there can be different errors, and we pass only the
     // first one
-    error.code = errorResults[0].code;
-    error.userMessage = errorResults[0].userMessage;
-    error.strCode = errorResults[0].strCode;
-    error.innerError = errorResults[0].innerError;
+    (error as any).code = (errorResults[0] as any).code;
+    (error as any).userMessage = (errorResults[0] as any).userMessage;
+    (error as any).strCode = (errorResults[0] as any).strCode;
+    (error as any).innerError = (errorResults[0] as any).innerError;
     throw error;
   }
 

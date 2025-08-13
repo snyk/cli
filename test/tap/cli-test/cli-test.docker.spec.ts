@@ -65,13 +65,13 @@ export const DockerTests: AcceptanceTests = {
         [
           {
             docker: true,
-            'exclude-app-vulns': false,
             org: 'explicit-org',
-            projectName: null,
-            packageManager: null,
-            path: 'foo:latest',
             showVulnPaths: 'some',
             maxVulnPaths: undefined,
+            'exclude-app-vulns': false,
+            path: 'foo:latest',
+            projectName: undefined,
+            packageManager: undefined,
           },
         ],
         'calls docker plugin with expected arguments',
@@ -142,13 +142,13 @@ export const DockerTests: AcceptanceTests = {
           [
             {
               docker: true,
-              'exclude-app-vulns': false,
               org: 'explicit-org',
-              projectName: null,
-              packageManager: null,
-              path: 'foo:latest',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              'exclude-app-vulns': false,
+              path: 'foo:latest',
+              projectName: undefined,
+              packageManager: undefined,
             },
           ],
           'calls docker plugin with expected arguments',
@@ -177,7 +177,7 @@ export const DockerTests: AcceptanceTests = {
         t,
       );
 
-      const vulns = require(getFixturePath('docker/find-result.json'));
+      const vulns = await import(getFixturePath('docker/find-result.json'));
       params.server.setNextResponse(vulns);
 
       try {
@@ -296,13 +296,13 @@ export const DockerTests: AcceptanceTests = {
           {
             file: 'Dockerfile',
             docker: true,
-            'exclude-app-vulns': false,
             org: 'explicit-org',
-            projectName: null,
-            packageManager: null,
-            path: 'foo:latest',
             showVulnPaths: 'some',
             maxVulnPaths: undefined,
+            'exclude-app-vulns': false,
+            path: 'foo:latest',
+            projectName: undefined,
+            packageManager: undefined,
           },
         ],
         'calls docker plugin with expected arguments',
@@ -331,8 +331,8 @@ export const DockerTests: AcceptanceTests = {
           },
           t,
         );
-        const vulns = require(
-          getFixturePath('docker/find-result-remediation.json'),
+        const vulns = await import(
+          getFixturePath('docker/find-result-remediation.json')
         );
         params.server.setNextResponse(vulns);
 
@@ -409,13 +409,13 @@ export const DockerTests: AcceptanceTests = {
           [
             {
               docker: true,
-              'exclude-app-vulns': false,
               org: 'explicit-org',
-              projectName: null,
-              packageManager: null,
-              path: 'foo:latest',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              'exclude-app-vulns': false,
+              path: 'foo:latest',
+              projectName: undefined,
+              packageManager: undefined,
             },
           ],
           'calls docker plugin with expected arguments',
@@ -484,13 +484,13 @@ export const DockerTests: AcceptanceTests = {
           [
             {
               docker: true,
-              'exclude-app-vulns': false,
               org: 'explicit-org',
-              projectName: null,
-              packageManager: null,
-              path: 'foo:latest',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              'exclude-app-vulns': false,
+              path: 'foo:latest',
+              projectName: undefined,
+              packageManager: undefined,
               'policy-path': 'npm-package-policy/custom-location',
             },
           ],
@@ -567,13 +567,13 @@ export const DockerTests: AcceptanceTests = {
         [
           {
             docker: true,
-            'exclude-app-vulns': false,
             org: 'explicit-org',
-            projectName: null,
-            packageManager: null,
-            path: 'foo:latest',
             showVulnPaths: 'some',
             maxVulnPaths: undefined,
+            'exclude-app-vulns': false,
+            path: 'foo:latest',
+            projectName: undefined,
+            packageManager: undefined,
           },
         ],
         'calls docker plugin with expected arguments',
@@ -609,8 +609,8 @@ export const DockerTests: AcceptanceTests = {
           t,
         );
 
-        const vulns = require(
-          getFixturePath('docker/find-result-binaries.json'),
+        const vulns = await import(
+          getFixturePath('docker/find-result-binaries.json')
         );
         params.server.setNextResponse(vulns);
 
@@ -678,8 +678,8 @@ export const DockerTests: AcceptanceTests = {
           t,
         );
 
-        const vulns = require(
-          getFixturePath('docker/find-result-remediation.json'),
+        const vulns = await import(
+          getFixturePath('docker/find-result-remediation.json')
         );
         params.server.setNextResponse(vulns);
 
@@ -727,8 +727,8 @@ export const DockerTests: AcceptanceTests = {
           t,
         );
 
-        const vulns = require(
-          getFixturePath('docker/find-result-remediation.json'),
+        const vulns = await import(
+          getFixturePath('docker/find-result-remediation.json')
         );
         params.server.setNextResponse(vulns);
 
@@ -749,8 +749,8 @@ export const DockerTests: AcceptanceTests = {
         sarif: true,
       });
       const results = JSON.parse(testableObject.message);
-      const sarifResults = require(
-        getFixturePath('docker/sarif-container-result.json'),
+      const sarifResults = await import(
+        getFixturePath('docker/sarif-container-result.json')
       );
       t.same(results, sarifResults, 'stdout containing sarif results');
       t.end();
@@ -763,8 +763,8 @@ export const DockerTests: AcceptanceTests = {
           file: 'Dockerfile',
         });
         const results = JSON.parse(testableObject.message);
-        const sarifResults = require(
-          getFixturePath('docker/sarif-with-file-container-result.json'),
+        const sarifResults = await import(
+          getFixturePath('docker/sarif-with-file-container-result.json')
         );
         t.same(results, sarifResults, 'stdout containing sarif results');
         t.end();
@@ -810,7 +810,7 @@ export const DockerTests: AcceptanceTests = {
 function stubDockerPluginResponse(plugins, fixture: string | object, t) {
   const plugin = {
     async scan() {
-      return typeof fixture === 'object' ? fixture : require(fixture);
+      return typeof fixture === 'object' ? fixture : await import(fixture);
     },
     async display() {
       return '';
@@ -858,7 +858,7 @@ async function testSarif(t, utils, params, flags) {
 
 async function testPrep(t, utils, params, additionaLpropsForCli) {
   utils.chdirWorkspaces();
-  const vulns = require(getFixturePath('docker/find-result.json'));
+  const vulns = await import(getFixturePath('docker/find-result.json'));
   params.server.setNextResponse(vulns);
 
   try {

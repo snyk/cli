@@ -28,7 +28,7 @@ import { apiOrOAuthTokenExists } from '../../../lib/api-token';
 import { maybePrintDepTree, maybePrintDepGraph } from '../../../lib/print-deps';
 import { monitor as snykMonitor } from '../../../lib/monitor';
 import { processJsonMonitorResponse } from './process-json-monitor';
-import snyk = require('../../../lib'); // TODO(kyegupov): fix import
+const snyk = require('../../../lib');
 import { formatMonitorOutput } from '../../../lib/formatters';
 import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
 import { getExtraProjectCount } from '../../../lib/plugins/get-extra-project-count';
@@ -125,6 +125,15 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       ) {
         console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
       }
+    }
+
+    // Check scanUsrLibJars feature flag and add --include-system-jars parameter
+    const scanUsrLibJarsEnabled = await hasFeatureFlag(
+      'scanUsrLibJars',
+      options,
+    );
+    if (scanUsrLibJarsEnabled) {
+      options['include-system-jars'] = true;
     }
   }
 

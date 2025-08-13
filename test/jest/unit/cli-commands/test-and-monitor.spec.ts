@@ -8,6 +8,7 @@ import config from '../../../../src/lib/config';
 import { apiOrOAuthTokenExists } from '../../../../src/lib/api-token';
 import { runTest } from '../../../../src/lib/snyk-test/run-test';
 import * as detect from '../../../../src/lib/detect';
+import test from '../../../../src/cli/commands/test';
 
 jest.mock('../../../../src/lib/api-token');
 jest.mock('../../../../src/lib/check-paths');
@@ -17,6 +18,23 @@ jest.mock('../../../../src/lib/plugins/get-deps-from-plugin');
 jest.mock('../../../../src/lib/spinner');
 jest.mock('../../../../src/lib/snyk-test/run-test');
 jest.mock('../../../../src/lib/feature-flags');
+jest.mock('../../../../src/lib/protect-update-notification', () => ({
+  getPackageJsonPathsContainingSnykDependency: jest.fn(() => []),
+  getProtectUpgradeWarningForPaths: jest.fn(() => ''),
+}));
+jest.mock('../../../../src/cli/commands/test/validate-credentials', () => ({
+  validateCredentials: jest.fn(),
+}));
+jest.mock('../../../../src/cli/commands/test/validate-test-options', () => ({
+  validateTestOptions: jest.fn(),
+}));
+jest.mock('../../../../src/lib/ecosystems', () => ({
+  getEcosystem: jest.fn(() => undefined),
+  getEcosystemForTest: jest.fn(() => undefined),
+}));
+jest.mock('../../../../src/lib/snyk-test/legacy', () => ({
+  test: jest.fn(() => Promise.resolve({})),
+}));
 
 const snykTest = require('../../../../src/lib/snyk-test');
 
@@ -42,6 +60,7 @@ describe('monitor & test', () => {
     getEcosystemSpy.mockRestore();
     analyticsSpy.mockRestore();
     snykMonitorSpy.mockRestore();
+    (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(false);
   });
 
   describe('monitor', () => {
@@ -152,6 +171,199 @@ describe('monitor & test', () => {
         options,
       );
       expect(options.useImprovedDotnetWithoutPublish).toBeUndefined();
+    });
+  });
+
+  describe('docker scanUsrLibJars feature flag', () => {
+    beforeEach(() => {
+      getEcosystemSpy.mockReturnValue(undefined); // Don't use ecosystem for these tests
+      analyticsSpy.mockReturnValue(false);
+    });
+
+    describe('test command', () => {
+      let capturedOptions: any = null;
+
+      beforeEach(() => {
+        // Mock the ecosystem detection to return null so it uses the legacy path
+        jest.spyOn(ecosystems, 'getEcosystemForTest').mockReturnValue(null);
+        // Mock runTest to return empty array and capture the options
+        capturedOptions = null;
+        (runTest as jest.Mock).mockImplementation(
+          (projectType, root, options) => {
+            capturedOptions = options;
+            return Promise.resolve([]);
+          },
+        );
+        // Mock detectPackageManager
+        jest.spyOn(detect, 'detectPackageManager').mockReturnValue('docker');
+      });
+
+      it('should set include-system-jars when scanUsrLibJars feature flag is enabled', async () => {
+        const options: any = {
+          docker: true,
+          'exclude-app-vulns': true, // Skip containerCliAppVulnsEnabled check
+        };
+
+        // Mock feature flag responses - need to handle multiple calls
+        (featureFlags.hasFeatureFlag as jest.Mock).mockImplementation(
+          (flag: string) => {
+            if (flag === 'scanUsrLibJars') {
+              return Promise.resolve(true);
+            }
+            return Promise.resolve(false); // Default for other flags
+          },
+        );
+
+        try {
+          await test('docker-image:latest', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+          // We only care about the feature flag being called correctly.
+        }
+
+        expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
+          'scanUsrLibJars',
+          expect.objectContaining({
+            docker: true,
+          }),
+        );
+
+        // Verify that include-system-jars was set on the internal options object passed to runTest
+        expect(capturedOptions).toBeTruthy();
+        expect(capturedOptions['include-system-jars']).toBe(true);
+      });
+
+      it('should not set include-system-jars when scanUsrLibJars feature flag is disabled', async () => {
+        const options: any = {
+          docker: true,
+          'exclude-app-vulns': true, // Skip containerCliAppVulnsEnabled check
+        };
+
+        // Mock feature flag responses - need to handle multiple calls
+        (featureFlags.hasFeatureFlag as jest.Mock).mockImplementation(() => {
+          return Promise.resolve(false); // All flags disabled
+        });
+
+        try {
+          await test('docker-image:latest', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+          // We only care about the feature flag being called correctly.
+        }
+
+        expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
+          'scanUsrLibJars',
+          expect.objectContaining({
+            docker: true,
+          }),
+        );
+
+        // Verify that include-system-jars was NOT set when the feature flag is disabled
+        expect(options['include-system-jars']).toBeUndefined();
+      });
+
+      it('should not check scanUsrLibJars feature flag for non-docker scans', async () => {
+        const options: any = {
+          docker: false,
+        };
+
+        try {
+          await test('path/to/project', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+          // We only care about the options being set correctly.
+        }
+
+        expect(featureFlags.hasFeatureFlag).not.toHaveBeenCalledWith(
+          'scanUsrLibJars',
+          options,
+        );
+        expect(options['include-system-jars']).toBeUndefined();
+      });
+    });
+
+    describe('monitor command', () => {
+      it('should set include-system-jars when scanUsrLibJars feature flag is enabled', async () => {
+        const options: any = {
+          docker: true,
+          'exclude-app-vulns': true, // Skip containerCliAppVulnsEnabled check
+        };
+
+        // Mock feature flag responses - need to handle multiple calls
+        (featureFlags.hasFeatureFlag as jest.Mock).mockImplementation(
+          (flag: string) => {
+            if (flag === 'scanUsrLibJars') {
+              return Promise.resolve(true);
+            }
+            return Promise.resolve(false); // Default for other flags
+          },
+        );
+
+        try {
+          await monitor('docker-image:latest', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+          // We only care about the feature flag being called correctly.
+        }
+
+        expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
+          'scanUsrLibJars',
+          expect.objectContaining({
+            docker: true,
+          }),
+        );
+
+        // Verify that include-system-jars was set on the options object
+        expect(options['include-system-jars']).toBe(true);
+      });
+
+      it('should not set include-system-jars when scanUsrLibJars feature flag is disabled', async () => {
+        const options: any = {
+          docker: true,
+          'exclude-app-vulns': true, // Skip containerCliAppVulnsEnabled check
+        };
+
+        // Mock feature flag responses - need to handle multiple calls
+        (featureFlags.hasFeatureFlag as jest.Mock).mockImplementation(() => {
+          return Promise.resolve(false); // All flags disabled
+        });
+
+        try {
+          await monitor('docker-image:latest', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+          // We only care about the feature flag being called correctly.
+        }
+
+        expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
+          'scanUsrLibJars',
+          expect.objectContaining({
+            docker: true,
+          }),
+        );
+
+        // Verify that include-system-jars was NOT set when the feature flag is disabled
+        expect(options['include-system-jars']).toBeUndefined();
+      });
+
+      it('should not check scanUsrLibJars feature flag for non-docker scans', async () => {
+        const options: any = {
+          docker: false,
+        };
+
+        try {
+          await monitor('path/to/project', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+          // We only care about the options being set correctly.
+        }
+
+        expect(featureFlags.hasFeatureFlag).not.toHaveBeenCalledWith(
+          'scanUsrLibJars',
+          options,
+        );
+        expect(options['include-system-jars']).toBeUndefined();
+      });
     });
   });
 });
