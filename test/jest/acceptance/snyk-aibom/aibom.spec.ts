@@ -270,7 +270,7 @@ describe('snyk aibom (mocked servers only)', () => {
       const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
       expect(aiBomRequests).toEqual(['POST:/ai_boms']);
       expect(code).toEqual(2);
-      expect(stdout).toContain('Forbidden (SNYK-AI-BOM-0002)');
+      expect(stdout).toContain('Forbidden (SNYK-AIBOM-0002)');
     });
 
     test('handles an unsupported project', async () => {
@@ -281,7 +281,7 @@ describe('snyk aibom (mocked servers only)', () => {
         },
       );
       expect(code).toEqual(2);
-      expect(stdout).toContain('No supported files (SNYK-AI-BOM-0003)');
+      expect(stdout).toContain('No supported files (SNYK-AIBOM-0003)');
     });
 
     test('handles no SNYK_TOKEN', async () => {
