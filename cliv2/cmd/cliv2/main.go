@@ -75,6 +75,7 @@ const (
 	unknownCommandMessage  string = "unknown command"
 	disable_analytics_flag string = "DISABLE_ANALYTICS"
 	debug_level_flag       string = "log-level"
+	integrationNameFlag    string = "integration-name"
 )
 
 type JsonErrorStruct struct {
@@ -107,6 +108,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.ORGANIZATION, []string{"snyk_cfg_org"})
 	config.AddAlternativeKeys(configuration.PREVIEW_FEATURES_ENABLED, []string{"snyk_preview"})
 	config.AddAlternativeKeys(configuration.LOG_LEVEL, []string{debug_level_flag})
+	config.AddAlternativeKeys(configuration.INTEGRATION_NAME, []string{integrationNameFlag})
 }
 
 func getFullCommandString(cmd *cobra.Command) string {
@@ -360,6 +362,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalFLags.Bool(basic_workflows.PROXY_NOAUTH, false, "")
 	globalFLags.Bool(disable_analytics_flag, false, "")
 	globalFLags.String(debug_level_flag, "debug", "")
+	globalFLags.String(integrationNameFlag, "", "")
 	return globalFLags
 }
 
