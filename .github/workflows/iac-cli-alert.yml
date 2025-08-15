@@ -19,5 +19,5 @@ jobs:
       - run: npm ci
       - run: npm start
         env:
-          USER_GITHUB_TOKEN: ${{ secrets.USER_GITHUB_TOKEN }}
+          TEAM_CLI_GITHUB_PAT: ${{ secrets.TEAM_CLI_GITHUB_PAT }}
           IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL: ${{ secrets.IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL }}

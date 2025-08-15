@@ -2,8 +2,8 @@ import { Octokit } from '@octokit/rest';
 import { IncomingWebhook } from '@slack/webhook';
 import { IncomingWebhookDefaultArguments } from '@slack/webhook';
 
-if (!process.env.USER_GITHUB_TOKEN) {
-  console.error('Missing USER_GITHUB_TOKEN');
+if (!process.env.TEAM_CLI_GITHUB_PAT) {
+  console.error('Missing TEAM_CLI_GITHUB_PAT');
   process.exit(1);
 }
 
@@ -12,7 +12,7 @@ if (!process.env.IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL) {
   process.exit(1);
 }
 
-const GITHUB_TOKEN = process.env.USER_GITHUB_TOKEN;
+const GITHUB_TOKEN = process.env.TEAM_CLI_GITHUB_PAT;
 const SLACK_WEBHOOK_URL = process.env.IAC_SMOKE_TESTS_SLACK_WEBHOOK_URL;
 
 const octokit = new Octokit({
