@@ -13,7 +13,8 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **tools:** add connectivity check extension ([82f4958](https://github.com/snyk/snyk/commit/82f49587aa0c4f89b03e8a4c0486407b761c26f8))
 * update cli-extension-os-flows for Closed Beta. ([e43b073](https://github.com/snyk/snyk/commit/e43b073762ba9e6f9639fc8d424ee3cab2820a64))
 * update cli-extension-os-flows for Closed Beta. ([e8f326f](https://github.com/snyk/snyk/commit/e8f326f76ab94767f6efcc7c39ba0a3195b38f87))
-
+* **test** Added support for Gradle 9.
+* **aibom** This command is now publicly available. Note that the feature is still experimental and subject to breaking changes without notice.
 
 ### Bug Fixes
 
@@ -27,9 +28,3 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * handles aibom unauthorized error correctly ([1187e1e](https://github.com/snyk/snyk/commit/1187e1edc20f68fe21d50ad3bb4ebdc9f465662e))
 * **iac:** fix status code checks [IAC-3375] ([77152e5](https://github.com/snyk/snyk/commit/77152e5204e48643a00590c0745a45b8c7760347))
 * sbom test --reachability without git context ([6952529](https://github.com/snyk/snyk/commit/6952529bd51545b87856bd08f8d2d0e13ad23a7c))
-
-
-### Reverts
-
-* Revert "fix(ci): Fix incorrect version bump" ([c7bc6fe](https://github.com/snyk/snyk/commit/c7bc6fedf897cb7a74c0addf2c0b7d2f065d72ee))
-
