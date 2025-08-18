@@ -403,7 +403,7 @@ You can then raise a pr with the relevant changes.
 ## Upgrading go-lang versions
 
 When upgrading golang, you will need to update the Dockerfile under .circleci, run the _Create Build Image_ job on
-GitHub, and update the docker executor that use the `snyklabs/cli-build` image in the .circleci/config.yml file, to use
+GitHub, and update the docker executor that use the `snyklabs/cli-build-private` image in the .circleci/config.yml file, to use
 the new image.
 
 ---

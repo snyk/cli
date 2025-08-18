@@ -14,14 +14,13 @@ set -exuo pipefail # ensures that the script exits on any error, and that all co
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 NOW=$(date "+%Y%m%d-%H%M%S")
 
-
 pushd "$SCRIPT_DIR/.."
   NODEVERSION=$(head -1 .nvmrc)
   export NODEVERSION
 
   docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
-  BASE_IMG_NAME=${DOCKER_REPO:-${DOCKER_USERNAME}}/cli-build
+  BASE_IMG_NAME=${DOCKER_REPO:-${DOCKER_USERNAME}}/cli-build-private
   docker buildx build \
     --build-arg NODEVERSION="$NODEVERSION" \
     --build-arg ARCH="x86_64" \
@@ -31,7 +30,7 @@ pushd "$SCRIPT_DIR/.."
     --push \
     --file .circleci/Dockerfile .
 
-  BASE_IMG_NAME=${DOCKER_REPO:-${DOCKER_USERNAME}}/cli-build-arm64
+  BASE_IMG_NAME=${DOCKER_REPO:-${DOCKER_USERNAME}}/cli-build-private-arm64
   docker buildx build \
     --build-arg NODEVERSION="$NODEVERSION" \
     --build-arg ARCH="aarch64" \
