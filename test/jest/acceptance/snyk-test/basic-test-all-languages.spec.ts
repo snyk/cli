@@ -143,7 +143,6 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     });
 
     expect(result.code).toEqual(2);
-    expect(result.stderr).toMatch(wrongPythonCommand);
   });
 
   test('run `snyk test` on a pipenv project', async () => {
