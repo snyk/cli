@@ -29,9 +29,11 @@ import (
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
+	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 
@@ -69,6 +71,7 @@ var helpProvided bool
 
 var noopLogger zerolog.Logger = zerolog.New(io.Discard)
 var globalLogger *zerolog.Logger = &noopLogger
+var scrubbedLogger logging.ScrubbingLogWriter
 var interactionId = instrumentation.AssembleUrnFromUUID(uuid.NewString())
 
 const (
@@ -529,7 +532,8 @@ func MainWithErrorCode() (int, []error) {
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
 	rootCommand := prepareRootCommand()
-	_ = rootCommand.ParseFlags(os.Args)
+	// omit the first arg which is always `snyk`
+	_ = rootCommand.ParseFlags(os.Args[1:])
 
 	// create engine
 	globalConfiguration = configuration.NewWithOpts(
@@ -547,8 +551,8 @@ func MainWithErrorCode() (int, []error) {
 	initApplicationConfiguration(globalConfiguration)
 
 	debugEnabled := globalConfiguration.GetBool(configuration.DEBUG)
-	globalLogger = initDebugLogger(globalConfiguration)
 
+	globalLogger, scrubbedLogger = initDebugLogger(globalConfiguration)
 	globalEngine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
 
 	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
@@ -576,6 +580,13 @@ func MainWithErrorCode() (int, []error) {
 
 	// init engine
 	err = globalEngine.Init()
+
+	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
+	knownCommands, _ := instrumentation.GetKnownCommandsAndFlags(globalEngine)
+	allParameters := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownCommands)
+	scrubbedLogger.AddTermsToReplace(allParameters)
+
+	globalEngine.SetLogger(globalLogger)
 	if err != nil {
 		globalLogger.Print("Failed to init Workflow Engine!", err)
 		return constants.SNYK_EXIT_CODE_ERROR, errorList
