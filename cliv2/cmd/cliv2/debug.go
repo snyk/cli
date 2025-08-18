@@ -14,6 +14,8 @@ import (
 	"github.com/snyk/go-application-framework/pkg/ui"
 
 	debug_tools "github.com/snyk/cli/cliv2/internal/debug"
+
+	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 )
 
 var buildType string = ""
@@ -46,7 +48,32 @@ func initDebugLogger(config configuration.Configuration) *zerolog.Logger {
 		},
 	}
 
+	// catpure CLI arguments
+	allArgs := cliv2utils.CaptureAllArgs(os.Args[1:], os.Environ())
+
 	scrubLogger := logging.NewScrubbingWriter(zerolog.MultiLevelWriter(consoleWriter), logging.GetScrubDictFromConfig(config))
+
+	// create a map of all the args
+	allArgsMap := map[string]string{}
+	for k, v := range allArgs.Options {
+		vString, ok := v.(string)
+		if ok {
+			allArgsMap[k] = vString
+		}
+	}
+	for k, v := range allArgs.Operands {
+		vString, ok := v.(string)
+		if ok {
+			allArgsMap[k] = vString
+		}
+	}
+	for k, v := range allArgs.EnvVars {
+		allArgsMap[k] = v
+	}
+
+	// redact sensitive information
+	scrubLogger.(logging.ScrubbingLogWriter).AddArgs(allArgsMap)
+
 	localLogger := zerolog.New(scrubLogger).With().Str("ext", "main").Str("separator", "-").Timestamp().Logger()
 	loglevel := debug_tools.GetDebugLevel(config)
 	debugLogger := localLogger.Level(loglevel)
