@@ -5,6 +5,9 @@ import {
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { getServerPort } from '../../util/getServerPort';
+import { rm, writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 jest.setTimeout(1000 * 60);
 
@@ -313,5 +316,71 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(stdout).toMatch('Package manager:   npm');
     expect(stdout).toMatch('Package manager:   yarn');
     expect(stdout).toMatch('Package manager:   pnpm');
+  });
+
+  test('`test one project with an invalid manifest file displays error details`', async () => {
+    const tempDirName = `tempDir-${Date.now()}`;
+    const tempDirPath = join(tmpdir(), tempDirName);
+    await mkdir(tempDirPath, { recursive: true });
+
+    const packageJsonPath = join(tempDirPath, 'package.json');
+    await writeFile(packageJsonPath, '{{}}');
+
+    const { code, stdout } = await runSnykCLI('test --all-projects', {
+      cwd: tempDirPath,
+      env,
+    });
+
+    expect(code).toEqual(2);
+    expect(stdout).toContain('SNYK-CLI-0000');
+    expect(stdout).toContain(
+      'Failed to get dependencies for all 1 potential projects.',
+    );
+    expect(stdout).toContain('package.json');
+
+    // cleanup
+    try {
+      await rm(tempDirPath, { recursive: true, force: true });
+    } catch {
+      console.warn('teardown failed');
+    }
+  });
+
+  test('`test multiple projects with different invalid manifest files displays specific error details`', async () => {
+    const tempDirName = `tempDir-${Date.now()}`;
+    const tempDirPath = join(tmpdir(), tempDirName);
+    await mkdir(tempDirPath, { recursive: true });
+
+    const project1Path = join(tempDirPath, 'project1');
+    const project2Path = join(tempDirPath, 'project2');
+    await mkdir(project1Path, { recursive: true });
+    await mkdir(project2Path, { recursive: true });
+
+    const packageJson1Path = join(project1Path, 'package.json');
+    await writeFile(packageJson1Path, '{ invalid json }');
+
+    const packageJson2Path = join(project2Path, 'package.json');
+    await writeFile(packageJson2Path, '{"name":}');
+
+    const { code, stdout } = await runSnykCLI('test --all-projects', {
+      cwd: tempDirPath,
+      env,
+    });
+
+    expect(code).toEqual(2);
+    expect(stdout).toContain('SNYK-CLI-0000');
+    expect(stdout).toContain(
+      'Failed to get dependencies for all 2 potential projects.',
+    );
+
+    expect(stdout).toContain(join('project1', 'package.json'));
+    expect(stdout).toContain(join('project2', 'package.json'));
+
+    // cleanup
+    try {
+      await rm(tempDirPath, { recursive: true, force: true });
+    } catch {
+      console.warn('teardown failed');
+    }
   });
 });
