@@ -20,6 +20,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/cli/cliv2/internal/proxy"
+	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 )
 
 var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("legacycli")
@@ -115,6 +116,28 @@ func legacycliWorkflow(
 
 	scrubDict := logging.GetScrubDictFromConfig(config)
 	scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
+	// catpure CLI arguments
+	allArgs := cliv2utils.CaptureAllArgs(os.Args[1:])
+
+	// create a list of all the primary/secondary flag values
+	flagTerms := []string{}
+	for _, term := range allArgs.PrimaryFlags {
+		termString, ok := term.(string)
+		if ok {
+			flagTerms = append(flagTerms, termString)
+		}
+	}
+	for _, term := range allArgs.SecondaryFlags {
+		termString, ok := term.(string)
+		if ok {
+			flagTerms = append(flagTerms, termString)
+		}
+	}
+
+	// iterate over allArgs and add the values to the scrub dict
+	for _, term := range flagTerms {
+		scrubbedStderr.(logging.ScrubbingLogWriter).AddTerm(term, 0)
+	}
 
 	if !useStdIo {
 		in := bytes.NewReader([]byte{})
