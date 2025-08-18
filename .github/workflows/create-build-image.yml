@@ -2,19 +2,38 @@ name: Create Build Image
 
 on:
   schedule:
-    - cron: '0 4 * * 2'
+    - cron: '0 4 * * 2' # Every Tuesday at 04:00 UTC
   workflow_dispatch:
 
 jobs:
-  build:
+  generate-timestamp:
     runs-on: ubuntu-latest
+    outputs:
+      timestamp: ${{ steps.timestamp.outputs.now }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: docker/setup-buildx-action@v2
-      - name: Build Docker image
+      - name: Generate Docker tag
+        id: timestamp
+        run: echo "now=$(date '+%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+
+  build:
+    needs: generate-timestamp
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+            docker_arch: x86_64
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            docker_arch: aarch64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - name: Build Docker image (${{ matrix.arch }})
         env:
+          DOCKER_REPO: snyklabs
           DOCKER_USERNAME: ${{ secrets.DOCKER_CLI_BUILD_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_CLI_BUILD_PASSWORD }}
-          DOCKER_REPO: snyklabs
           DOCKER_BUILDKIT: 1
-        run: scripts/create-build-image.sh
+        run: scripts/create-build-image.sh ${{ matrix.arch }} ${{ needs.generate-timestamp.outputs.timestamp }}

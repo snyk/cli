@@ -1,4 +1,4 @@
-# When upgrading golang, make sure to update the docker executors that use snyklabs/cli-build in .circleci/config.yml
+# When upgrading golang, make sure to update the docker executors that use snyklabs/cli-build-private in .circleci/config.yml
 FROM golang:1.24-bullseye
 
 # install "normal" stuff
@@ -43,7 +43,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$ARCH.zip" -o "awscliv2.
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$ARCH.zip.sig" -o "awscliv2.sig"
 RUN gpg --import awscli-publickey.pub
 RUN gpg --verify awscliv2.sig awscliv2.zip
-RUN unzip awscliv2.zip
+RUN unzip -q awscliv2.zip
 RUN sudo ./aws/install
 RUN rm -rf "awscli*"
 
