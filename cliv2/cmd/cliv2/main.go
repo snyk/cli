@@ -43,7 +43,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
-
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/ui"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -51,14 +50,14 @@ import (
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
-	snykls "github.com/snyk/snyk-ls/ls_extension"
-
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
+	snykls "github.com/snyk/snyk-ls/ls_extension"
 
 	snykmcp "github.com/snyk/snyk-ls/mcp_extension"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
+
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
 )
 
@@ -529,7 +528,7 @@ func MainWithErrorCode() (int, []error) {
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
 	rootCommand := prepareRootCommand()
-	_ = rootCommand.ParseFlags(os.Args)
+	_ = rootCommand.ParseFlags(os.Args[1:])
 
 	// create engine
 	globalConfiguration = configuration.NewWithOpts(
