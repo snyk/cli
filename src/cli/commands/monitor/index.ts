@@ -420,6 +420,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
     'remote-repo-url': options['remote-repo-url'],
     targetReference: options['target-reference'],
     assetsProjectName: options['assets-project-name'],
+    reachabilityScanId: options['reachability-id'],
   };
 }
 
