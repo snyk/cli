@@ -161,7 +161,6 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-for-docker-desktop-darwin-arm64.tar.gz: pr
 $(BINARY_RELEASES_FOLDER_TS_CLI)/docker-mac-signed-bundle.tar.gz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	./release-scripts/docker-desktop-release.sh
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/docker-mac-signed-bundle.tar.gz.sha256
-
 # targets responsible for the Wrapper CLI (TS around Golang)
 $(BINARY_WRAPPER_DIR)/README.md:
 	@cp ./README.md $(BINARY_WRAPPER_DIR)/README.md

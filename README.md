@@ -25,7 +25,7 @@ This page explains how to install, authenticate, and start scanning using the CL
 
 ## Install the Snyk CLI and authenticate your machine
 
-To use the CLI, you must install it and authenticate your machine. See [Install or update the Snyk CLI](https://docs.snyk.io/snyk-cli/install-or-update-the-snyk-cli) and [Authenticate the CLI with your account](authenticate-to-use-the-cli.md). You can refer to the [release notes](https://github.com/snyk/cli/releases) for a summary of changes in each release. Before scanning your code, review the [Code execution warning for Snyk CLI](https://docs.snyk.io/snyk-cli/code-execution-warning-for-snyk-cli).
+To use the CLI, you must install it and authenticate your machine. See [Install or update the Snyk CLI](https://docs.snyk.io/snyk-cli/install-or-update-the-snyk-cli) and [Authenticate the CLI with your account](../../snyk-cli/authenticate-to-use-the-cli.md). You can refer to the [release notes](https://github.com/snyk/cli/releases) for a summary of changes in each release. Before scanning your code, review the [Code execution warning for Snyk CLI](https://docs.snyk.io/snyk-cli/code-execution-warning-for-snyk-cli).
 
 **Note:** Before you can use the CLI for Open Source scanning, you must install your package manager. The needed third-party tools, such as Gradle or Maven, must be in the `PATH`.
 

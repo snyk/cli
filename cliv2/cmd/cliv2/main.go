@@ -21,26 +21,29 @@ import (
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
+	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/container-cli/pkg/container"
+	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
-
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
-	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 
+	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
+
+	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
+
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/ui"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -49,6 +52,10 @@ import (
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
+
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
+
 	snykmcp "github.com/snyk/snyk-ls/mcp_extension"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
@@ -68,6 +75,7 @@ const (
 	unknownCommandMessage  string = "unknown command"
 	disable_analytics_flag string = "DISABLE_ANALYTICS"
 	debug_level_flag       string = "log-level"
+	integrationNameFlag    string = "integration-name"
 )
 
 type JsonErrorStruct struct {
@@ -100,6 +108,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.ORGANIZATION, []string{"snyk_cfg_org"})
 	config.AddAlternativeKeys(configuration.PREVIEW_FEATURES_ENABLED, []string{"snyk_preview"})
 	config.AddAlternativeKeys(configuration.LOG_LEVEL, []string{debug_level_flag})
+	config.AddAlternativeKeys(configuration.INTEGRATION_NAME, []string{integrationNameFlag})
 }
 
 func getFullCommandString(cmd *cobra.Command) string {
@@ -150,6 +159,13 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 	if err != nil {
 		globalLogger.Print("Failed to add flags", err)
 		return err
+	}
+
+	// global handling of experimental commands
+	if config_utils.IsExperimental(cmd.Flags()) {
+		if !globalConfiguration.GetBool(configuration.FLAG_EXPERIMENTAL) {
+			return cli.NewCommandIsExperimentalError(getFullCommandString(cmd))
+		}
 	}
 
 	updateConfigFromParameter(config, args, rawArgs)
@@ -346,6 +362,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalFLags.Bool(basic_workflows.PROXY_NOAUTH, false, "")
 	globalFLags.Bool(disable_analytics_flag, false, "")
 	globalFLags.String(debug_level_flag, "debug", "")
+	globalFLags.String(integrationNameFlag, "", "")
 	return globalFLags
 }
 
@@ -402,6 +419,11 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
+		} else if currentCommandString == "test" {
+			// to preserve backwards compatibility we will need to relax flag validation
+			parentCommand.SetFlagErrorFunc(func(command *cobra.Command, err error) error {
+				return emptyCommandFunction(command, []string{})
+			})
 		} else if currentCommandString == "auth" {
 			parentCommand.RunE = runAuthCommand
 		}
@@ -538,6 +560,7 @@ func MainWithErrorCode() (int, []error) {
 
 	// initialize the extensions -> they register themselves at the engine
 	globalEngine.AddExtensionInitializer(basic_workflows.Init)
+	globalEngine.AddExtensionInitializer(osflows.Init)
 	globalEngine.AddExtensionInitializer(iac.Init)
 	globalEngine.AddExtensionInitializer(sbom.Init)
 	globalEngine.AddExtensionInitializer(aibom.Init)
@@ -547,6 +570,7 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(snykls.Init)
 	globalEngine.AddExtensionInitializer(snykmcp.Init)
 	globalEngine.AddExtensionInitializer(container.Init)
+	globalEngine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
 

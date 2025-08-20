@@ -3,6 +3,7 @@ import { runSnykCLI } from '../util/runSnykCLI';
 import { getCliConfig, restoreCliConfig } from '../../acceptance/config-helper';
 import { ciEnvs } from '../../../src/lib/is-ci';
 import { getServerPort } from '../util/getServerPort';
+import { createPAT } from '../util/createPAT';
 
 jest.setTimeout(1000 * 60);
 describe('Auth', () => {
@@ -10,12 +11,14 @@ describe('Auth', () => {
   let env: Record<string, string>;
   let initialConfig: Record<string, string> = {};
   let fakeServerUrl: string;
+  let fakeServerHost: string;
   const serverToken = 'random';
 
   beforeAll((done) => {
     const apiPath = '/api/v1';
     const apiPort = getServerPort(process);
-    fakeServerUrl = 'http://' + getFirstIPv4Address() + ':' + apiPort + apiPath;
+    fakeServerHost = 'http://' + getFirstIPv4Address() + ':' + apiPort;
+    fakeServerUrl = fakeServerHost + apiPath;
     env = {
       ...process.env,
       SNYK_API: fakeServerUrl,
@@ -112,20 +115,43 @@ describe('Auth', () => {
   });
 
   describe('pat', () => {
-    it('successfully authenticates', async () => {
-      const pat = 'snyk_uat.12345678.abcdefg-hijklmnop.qrstuvwxyz-123456';
+    it('prefers pat derived api over SNYK_API', async () => {
+      const pat = createPAT({ host: fakeServerHost });
       const authCmd = await runSnykCLI(`auth ${pat} -d`, {
         env: {
           ...env,
-          SNYK_API: `${fakeServerUrl.replace('/api/v1', '')}`,
+          // SNYK_API will actually be used up until the auth workflow
+          SNYK_API: 'https://api.this.should.not.be.used.io',
         },
       });
+
       expect(authCmd.code).toEqual(0);
 
       const configCmd = await runSnykCLI('config get api', {
         env: {
           ...env,
-          SNYK_API: `${fakeServerUrl.replace('/v1', '')}`,
+        },
+      });
+      expect(configCmd.code).toEqual(0);
+      expect(configCmd.stdout).toContain(pat);
+    });
+
+    it('successfully authenticates', async () => {
+      const pat = createPAT({ host: fakeServerHost });
+      // create backup of env
+      const envBackup = { ...env };
+      delete envBackup.SNYK_API;
+      const authCmd = await runSnykCLI(`auth ${pat} -d`, {
+        env: {
+          ...envBackup,
+        },
+      });
+
+      expect(authCmd.code).toEqual(0);
+
+      const configCmd = await runSnykCLI('config get api', {
+        env: {
+          ...envBackup,
         },
       });
       expect(configCmd.code).toEqual(0);
