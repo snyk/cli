@@ -279,9 +279,10 @@ describe('snyk code test', () => {
 
         it('works with --json', async () => {
           const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
-          const { stdout, stderr, code } = await runSnykCLI(
-            `code test ${path} --json`,
+          const { stdout, stderr, code } = await runSnykCLIWithArray(
+            ['code', 'test', '--json', ''], // the empty string is intentional testing an unexpected empty string as input directory
             {
+              cwd: path,
               env: {
                 ...process.env,
                 ...integrationEnv,
