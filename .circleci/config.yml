@@ -80,6 +80,11 @@ executors:
       - image: ubuntu:latest
     working_directory: /mnt/ramdisk/snyk
     resource_class: medium
+  linux-ubuntu-bionic-beaver-amd64:
+    docker:
+      - image: ubuntu:18.04
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: medium
   linux-ubuntu-latest-arm64:
     docker:
       - image: ubuntu:latest
@@ -93,6 +98,11 @@ executors:
   linux-ubuntu-focal-arm64:
     docker:
       - image: ubuntu:focal
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: arm.medium
+  linux-ubuntu-bionic-beaver-arm64:
+    docker:
+      - image: ubuntu:18.04
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
   macos-arm64:
@@ -489,6 +499,18 @@ workflows:
             - prepare-build
 
       - build-artifact:
+          name: build linux static amd64
+          context: iac-cli
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build-experimental
+          executor: docker-amd64-xl
+          requires:
+            - prepare-build
+
+      - build-artifact:
           name: build linux arm64
           context: iac-cli
           go_target_os: linux
@@ -496,6 +518,18 @@ workflows:
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           make_target: build clean-golang build-fips
+          executor: docker-arm64-xl
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build linux static arm64
+          context: iac-cli
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          make_target: build-experimental
           executor: docker-arm64-xl
           requires:
             - prepare-build
@@ -579,6 +613,44 @@ workflows:
           requires:
             - build linux amd64
           test_snyk_command: ./binary-releases/snyk-linux
+
+      - acceptance-tests:
+          name: acceptance-tests linux static amd64
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+          requires:
+            - build linux static amd64
+          executor: docker-amd64-xl
+          test_snyk_command: ./binary-releases/experimental/snyk-linux
+
+      - acceptance-tests:
+          name: acceptance-tests linux static arm64
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+          requires:
+            - build linux static arm64
+          executor: docker-arm64-xl
+          test_snyk_command: ./binary-releases/experimental/snyk-linux-arm64
 
       - acceptance-tests:
           name: acceptance-tests linux amd64
@@ -790,6 +862,8 @@ workflows:
             - build alpine arm64
             - build linux amd64
             - build linux arm64
+            - build linux static amd64
+            - build linux static arm64
             - build fix & protect
           filters:
             branches:
@@ -857,6 +931,8 @@ workflows:
                 - 'linux-ubuntu-latest-arm64'
                 - 'linux-ubuntu-jammy-arm64'
                 - 'linux-ubuntu-focal-arm64'
+                - 'linux-ubuntu-bionic-beaver-amd64'
+                - 'linux-ubuntu-bionic-beaver-arm64'
                 - 'alpine'
           requires:
             - upload version
@@ -916,9 +992,23 @@ workflows:
             - e2e tests (linux-ubuntu-latest-arm64)
             - e2e tests (linux-ubuntu-jammy-arm64)
             - e2e tests (linux-ubuntu-focal-arm64)
+            - e2e tests (linux-ubuntu-bionic-beaver-amd64)
+            - e2e tests (linux-ubuntu-bionic-beaver-arm64)
             - e2e tests (alpine)
             - e2e fips tests (suse-linux-fips)
             - e2e fips tests (win-server2022-amd64)
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+
+      - release-s3:
+          name: upload experimental
+          deployment: experimental
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - Start Deployments
           filters:
             branches:
               only:
@@ -1069,6 +1159,7 @@ jobs:
             - binary-releases/*
             - ts-cli-binaries/*
             - binary-releases/fips/*
+            - binary-releases/experimental/*
             - node_modules/*
             - ts-binary-wrapper/*
             - dist/*
@@ -1259,6 +1350,7 @@ jobs:
           paths:
             - binary-releases/snyk-*
             - binary-releases/fips/snyk-*
+            - binary-releases/experimental/snyk-*
 
   acceptance-tests:
     parameters:
@@ -1381,6 +1473,7 @@ jobs:
           paths:
             - binary-releases/snyk-*
             - binary-releases/fips/snyk-*
+            - binary-releases/experimental/snyk-*
 
   create_deployment_artifacts:
     parameters:
@@ -1443,6 +1536,11 @@ jobs:
             - binary-releases/ls-protocol-version-*
             - binary-releases/fips/ls-protocol-version-*
             - binary-releases/fips/RELEASE_NOTES.md
+            - binary-releases/experimental/sha256sums.txt.asc
+            - binary-releases/experimental/release.json
+            - binary-releases/experimental/snyk-*.sha256
+            - binary-releases/experimental/ls-protocol-version-*
+            - binary-releases/experimental/RELEASE_NOTES.md
 
   pre-release:
     executor: docker-amd64
