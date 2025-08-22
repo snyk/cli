@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
+	"strconv"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 
@@ -23,6 +24,7 @@ import (
 
 var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("legacycli")
 var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stdout")
+var staticNodeJsBinary string // injected by Makefile
 
 const (
 	PROXY_NOAUTH string = "proxy-noauth"
@@ -153,6 +155,12 @@ func legacycliWorkflow(
 	if errors.As(err, &exitError) {
 		invocation.GetAnalytics().AddExtensionIntegerValue("exitcode", exitError.ExitCode())
 	}
+
+	staticNodeJsBinaryBool, parseErr := strconv.ParseBool(staticNodeJsBinary)
+	if parseErr != nil {
+		debugLogger.Print("Failed to parse staticNodeJsBinary:", parseErr)
+	}
+	invocation.GetAnalytics().AddExtensionBoolValue("static-nodejs-binary", staticNodeJsBinaryBool)
 
 	return output, err
 }
