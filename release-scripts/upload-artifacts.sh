@@ -22,6 +22,15 @@ declare -a StaticFiles=(
   "binary-releases/$PROTOCOL_VERSION_FILE"
 )
 
+declare -a StaticFilesExperimental=(
+  "binary-releases/experimental/snyk-linux"
+  "binary-releases/experimental/snyk-linux.sha256"
+  "binary-releases/experimental/snyk-linux-arm64"
+  "binary-releases/experimental/snyk-linux-arm64.sha256"
+  "binary-releases/experimental/sha256sums.txt.asc"
+  "binary-releases/experimental/$PROTOCOL_VERSION_FILE"
+)
+
 declare -a StaticFilesFIPS=(
   "binary-releases/fips/snyk-linux"
   "binary-releases/fips/snyk-linux.sha256"
@@ -164,6 +173,7 @@ trigger_build_dxt() {
 
 upload_s3() {
   version_target=$1
+  experimental_build=$2
   if [ "${DRY_RUN}" == true ]; then
     echo "DRY RUN: uploading to S3..."
     for filename in "${StaticFiles[@]}"; do
@@ -179,6 +189,21 @@ upload_s3() {
     aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
     aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
     aws s3 cp "binary-releases/fips/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
+
+    for filename in "${StaticFilesExperimental[@]}"; do
+      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/ --dryrun
+    done
+    aws s3 cp "binary-releases/experimental/release.json" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/ --dryrun
+    aws s3 cp "binary-releases/experimental/version" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/ --dryrun
+    aws s3 cp "binary-releases/experimental/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/ --dryrun
+  elif [ "${experimental_build}" == true ]; then
+    echo "Uploading to S3..."
+    for filename in "${StaticFilesExperimental[@]}"; do
+      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${version_target}"/
+    done
+    aws s3 cp "binary-releases/experimental/release.json" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/
+    aws s3 cp "binary-releases/experimental/version" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/
+    aws s3 cp "binary-releases/experimental/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/
   else
     echo "Uploading to S3..."
     for filename in "${StaticFiles[@]}"; do
