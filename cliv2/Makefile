@@ -85,6 +85,8 @@ V1_EMBEDDED_FILE_OUTPUT = embedded$(_SEPARATOR)$(V2_PLATFORM_STRING).go
 V1_WORKING_DIR = $(WORKING_DIR)/..
 V1_BUILD_TYPE = build:prod
 V1_BINARY_FOLDER = ts-cli-binaries
+# default to empty string, which means no subfolder
+V1_BINARY_SUBFOLDER =
 HASH_STRING = $(HASH)$(HASH_ALGORITHM)
 SIGN_SCRIPT = $(WORKING_DIR)/scripts/sign_$(_GO_OS).sh
 ISSIGNED_SCRIPT = $(WORKING_DIR)/scripts/issigned_$(_GO_OS).sh
@@ -111,7 +113,7 @@ $(CACHE_DIR)/variables.mk: $(CACHE_DIR)
 
 $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT):
 	@echo "$(LOG_PREFIX) Generating ( $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) )"
-	@sed -e 's/FILENAME/$(V1_EXECUTABLE_NAME)/g' $(V1_EMBEDDED_FILE_TEMPLATE) > $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
+	@sed -e 's|FILENAME|$(V1_EXECUTABLE_NAME)|g' $(V1_EMBEDDED_FILE_TEMPLATE) > $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
 
 $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Copying cliv1 executable ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) )"
@@ -162,8 +164,8 @@ fips:
 
 .PHONY: experimental
 experimental:
-# set the binary folder to the experimental folder
-	$(eval V1_EXECUTABLE_NAME := experimental/$(V1_EXECUTABLE_NAME))
+# set the binary subfolder to the experimental folder
+	$(eval V1_BINARY_SUBFOLDER := experimental/)
 	@echo "$(LOG_PREFIX) EXPERIMENTAL"
 
 .PHONY: debug
@@ -225,13 +227,13 @@ sign: SIGN_SCRIPT ISSIGNED_SCRIPT
 test-signature: ISSIGNED_SCRIPT
 
 # Typescript CLI targets
-$(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME):
+$(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
 	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
-	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
+	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)
 
 .PHONY: build-ts-cli
-build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME)
+build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME)
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/version))
 	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/)
 
@@ -246,7 +248,7 @@ generate-ls-protocol-metadata:
 .PHONY: clean-ts-cli
 clean-ts-cli:
 	@echo "$(LOG_PREFIX) Cleaning legacy CLI"
-	@$(MAKE) -C $(V1_WORKING_DIR) clean-ts BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
+	@$(MAKE) -C $(V1_WORKING_DIR) clean-ts BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)	
 
 # build the full CLI (Typescript+Golang)
 .PHONY: build-full
