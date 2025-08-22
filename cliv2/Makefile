@@ -162,8 +162,9 @@ fips:
 
 .PHONY: experimental
 experimental:
+# set the binary folder to the experimental folder
+	$(eval V1_EXECUTABLE_NAME := experimental/$(V1_EXECUTABLE_NAME))
 	@echo "$(LOG_PREFIX) EXPERIMENTAL"
-	$(eval V1_BINARY_FOLDER := $(V1_BINARY_FOLDER)/experimental/)
 
 .PHONY: debug
 debug:
@@ -233,17 +234,6 @@ $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME):
 build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME)
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/version))
 	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/)
-
-# # Linux static Typescript CLI targets
-# $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/experimental/$(V1_EXECUTABLE_NAME):
-# 	@echo "$(LOG_PREFIX) Building Linux static Typescript CLI"
-# 	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
-# 	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/experimental/$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
-
-# .PHONY: build-ts-cli-experimental
-# build-ts-cli-experimental: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/experimental/$(V1_EXECUTABLE_NAME)
-# 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/version))
-# 	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/experimental/)
 
 .PHONY: generate-ls-protocol-metadata
 generate-ls-protocol-metadata:
