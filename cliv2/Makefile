@@ -160,6 +160,11 @@ fips:
 	$(eval FIPS_CRYPTO_BACKEND := $(FIPS_CRYPTO_BACKEND_DEFAULT))
 	@echo "$(LOG_PREFIX) FIPS"
 
+.PHONY: experimental
+experimental:
+	@echo "$(LOG_PREFIX) EXPERIMENTAL"
+	$(eval V1_BINARY_FOLDER := $(V1_BINARY_FOLDER)/experimental/)
+
 .PHONY: debug
 debug:
 	$(eval LDFLAGS := -X github.com/snyk/snyk-ls/application/config.Development=true -X main.buildType=debug)
@@ -229,6 +234,17 @@ build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_EXECUTABLE_NAME)
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/version))
 	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/)
 
+# # Linux static Typescript CLI targets
+# $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/experimental/$(V1_EXECUTABLE_NAME):
+# 	@echo "$(LOG_PREFIX) Building Linux static Typescript CLI"
+# 	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
+# 	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/experimental/$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
+
+# .PHONY: build-ts-cli-experimental
+# build-ts-cli-experimental: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/experimental/$(V1_EXECUTABLE_NAME)
+# 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/version))
+# 	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/experimental/)
+
 .PHONY: generate-ls-protocol-metadata
 generate-ls-protocol-metadata:
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(DESTDIR)$(bindir)/version))
@@ -245,6 +261,10 @@ clean-ts-cli:
 # build the full CLI (Typescript+Golang)
 .PHONY: build-full
 build-full: build-ts-cli build
+
+# # build the full experimental CLI (Typescript+Golang)
+# .PHONY: build-full-experimental
+# build-full-experimental: build-ts-cli-experimental build
 
 # clean the full CLI (Typescript+Golang)
 .PHONY: clean-full
