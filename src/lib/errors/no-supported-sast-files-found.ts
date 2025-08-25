@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { CustomError } from './custom-error';
-import { CLI } from '@snyk/error-catalog-nodejs-public';
+import { Code } from '@snyk/error-catalog-nodejs-public';
 
 export class NoSupportedSastFiles extends CustomError {
   private static ERROR_MESSAGE =
@@ -14,7 +14,7 @@ export class NoSupportedSastFiles extends CustomError {
     super(NoSupportedSastFiles.ERROR_MESSAGE);
     this.code = 422;
     this.userMessage = NoSupportedSastFiles.ERROR_MESSAGE;
-    this.errorCatalog = new CLI.NoSupportedFilesFoundError(
+    this.errorCatalog = new Code.UnsupportedProjectError(
       NoSupportedSastFiles.ERROR_MESSAGE,
     );
   }
