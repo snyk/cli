@@ -154,6 +154,7 @@ export interface MonitorOptions {
   initScript?: string;
   yarnWorkspaces?: boolean;
   'max-depth'?: number;
+  'reachability-id'?: string;
 }
 
 export interface MonitorMeta {
@@ -166,6 +167,7 @@ export interface MonitorMeta {
   'remote-repo-url'?: string;
   targetReference?: string;
   assetsProjectName?: boolean;
+  reachabilityScanId?: string;
 }
 
 export interface Tag {

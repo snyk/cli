@@ -58,6 +58,7 @@ interface MonitorBody {
   targetFileRelativePath: string;
   targetFile: string;
   contributors?: Contributor[];
+  reachabilityScanId?: string;
 }
 
 interface Meta {
@@ -256,6 +257,7 @@ async function monitorDepTree(
       contributors,
       projectAttributes,
       tags,
+      reachabilityScanId: meta.reachabilityScanId,
     } as MonitorBody,
     gzip: true,
     method: 'PUT',
@@ -360,6 +362,7 @@ export async function monitorDepGraph(
       callGraph: callGraphPayload,
       projectAttributes,
       tags,
+      reachabilityScanId: meta.reachabilityScanId,
     } as MonitorBody,
     gzip: true,
     method: 'PUT',
@@ -482,6 +485,7 @@ async function monitorDepGraphFromDepTree(
       contributors,
       projectAttributes,
       tags,
+      reachabilityScanId: meta.reachabilityScanId,
     } as MonitorBody,
     gzip: true,
     method: 'PUT',
