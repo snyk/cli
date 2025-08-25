@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"os"
+	"os/exec"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 
@@ -146,6 +147,11 @@ func legacycliWorkflow(
 
 		data := workflow.NewData(DATATYPEID_LEGACY_CLI_STDOUT, contentType, outBuffer.Bytes())
 		output = append(output, data)
+	}
+
+	var exitError *exec.ExitError
+	if errors.As(err, &exitError) {
+		invocation.GetAnalytics().AddExtensionIntegerValue("exitcode", exitError.ExitCode())
 	}
 
 	return output, err
