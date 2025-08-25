@@ -247,7 +247,7 @@ describe('snyk code test', () => {
         });
 
         it('should fail with correct exit code - when testing empty project', async () => {
-          const { stderr, code } = await runSnykCLI(
+          const { stdout, stderr, code } = await runSnykCLI(
             `code test ${emptyProject}`,
             {
               env: {
@@ -258,6 +258,7 @@ describe('snyk code test', () => {
           );
 
           expect(stderr).toBe('');
+          expect(stdout).toContain('snyk-code-0006');
           expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
         });
 
