@@ -241,11 +241,6 @@ commands:
           paths:
             - ~\smtools-windows-x64.msi
 
-  install-deps-windows-full-signing:
-    steps:
-      - install-deps-windows-signing
-      - install-deps-windows-make
-
   install-deps-windows-make:
     steps:
       - restore_cache:
@@ -559,11 +554,10 @@ workflows:
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           make_target: build clean-golang build-fips
-          install_deps_extension: windows-full-signing
+          install_deps_extension: windows-full
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
-            - snyk-windows-signing
             - iac-cli
           requires:
             - prepare-build
