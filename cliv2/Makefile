@@ -130,7 +130,13 @@ _validate_sha_v1: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 
 # separate dependency target
 .PHONY: dependencies
-dependencies: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) _validate_sha_v1
+dependencies:
+	@echo "$(LOG_PREFIX) Executing Target: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)"
+	@$(MAKE) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
+	@echo "$(LOG_PREFIX) Executing Target: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)"
+	@$(MAKE) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
+	@echo "$(LOG_PREFIX) Executing Target: _validate_sha_v1"
+	@$(MAKE) _validate_sha_v1
 
 .PHONY: summary
 summary:
@@ -148,7 +154,19 @@ summary:
 
 # prepare the workspace and cache global parameters
 .PHONY: configure
-configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
+configure:
+	@echo "$(LOG_PREFIX) Executing Target: summary"
+	@$(MAKE) summary
+	@echo "$(LOG_PREFIX) Executing Target: $(CACHE_DIR)"
+	@$(MAKE) $(CACHE_DIR)
+	@echo "$(LOG_PREFIX) Executing Target: $(CACHE_DIR)/variables.mk"
+	@$(MAKE) $(CACHE_DIR)/variables.mk
+	@echo "$(LOG_PREFIX) Executing Target: $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)"
+	@$(MAKE) $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
+	@echo "$(LOG_PREFIX) Executing Target: dependencies"
+	@$(MAKE) dependencies
+	@echo "$(LOG_PREFIX) Executing Target: $(CACHE_DIR)/prepare-3rd-party-licenses"
+	@$(MAKE) $(CACHE_DIR)/prepare-3rd-party-licenses
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
@@ -175,7 +193,11 @@ debug:
 	@echo "$(LOG_PREFIX) DEBUG"
 
 .PHONY: build
-build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
+build:
+	@echo "$(LOG_PREFIX) Executing Target: configure"
+	@$(MAKE) configure
+	@echo "$(LOG_PREFIX) Executing Target: $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)"
+	@$(MAKE) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 
 $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
@@ -229,16 +251,18 @@ test-signature: ISSIGNED_SCRIPT
 # Typescript CLI targets
 $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
+	@echo "$(LOG_PREFIX) cd $(V1_WORKING_DIR)"
 	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
-	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)
+	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 
 .PHONY: build-ts-cli
 build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME)
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/version))
-	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/)
+	$(eval CLI_V1_LOCATION := $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER))
 
 .PHONY: generate-ls-protocol-metadata
 generate-ls-protocol-metadata:
+	@echo "$(LOG_PREFIX) Executing Target: generate-ls-protocol-metadata"
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(DESTDIR)$(bindir)/version))
 	@echo "$(LOG_PREFIX) Determining LS protocol version"
 	@echo "$(LOG_PREFIX) Writing protocol version file to $(DESTDIR)$(bindir)"
