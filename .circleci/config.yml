@@ -505,7 +505,7 @@ workflows:
           go_os: linux
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-          make_target: build clean-golang build-experimental
+          make_target: build-experimental
           executor: docker-amd64-xl
           requires:
             - prepare-build
@@ -529,7 +529,7 @@ workflows:
           go_os: linux
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-          make_target: build clean-golang build-experimental
+          make_target: build-experimental
           executor: docker-arm64-xl
           requires:
             - prepare-build

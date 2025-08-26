@@ -116,12 +116,13 @@ $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT):
 	@sed -e 's|FILENAME|$(V1_EXECUTABLE_NAME)|g' $(V1_EMBEDDED_FILE_TEMPLATE) > $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
 
 $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME):
-	@echo "$(LOG_PREFIX) Copying cliv1 executable ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) )"
-	@cp $(CLI_V1_LOCATION)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
+	@echo "$(LOG_PREFIX) Copying cliv1 executable from: ( $(CLI_V1_LOCATION)$(V1_EXECUTABLE_NAME) )"
+	@echo "$(LOG_PREFIX) Copying cliv1 executable to: ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) )"
+	@cp $(CLI_V1_LOCATION)$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
 
 $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING): $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
 	@echo "$(LOG_PREFIX) Copying cliv1 checksum ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) )"
-	@cp $(CLI_V1_LOCATION)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
+	@cp $(CLI_V1_LOCATION)$(V1_EXECUTABLE_NAME).$(HASH_STRING) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 
 .PHONY: _validate_sha_v1
 _validate_sha_v1: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
@@ -130,13 +131,7 @@ _validate_sha_v1: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 
 # separate dependency target
 .PHONY: dependencies
-dependencies:
-	@echo "$(LOG_PREFIX) Executing Target: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)"
-	@$(MAKE) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
-	@echo "$(LOG_PREFIX) Executing Target: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)"
-	@$(MAKE) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
-	@echo "$(LOG_PREFIX) Executing Target: _validate_sha_v1"
-	@$(MAKE) _validate_sha_v1
+dependencies: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) _validate_sha_v1
 
 .PHONY: summary
 summary:
@@ -154,19 +149,7 @@ summary:
 
 # prepare the workspace and cache global parameters
 .PHONY: configure
-configure:
-	@echo "$(LOG_PREFIX) Executing Target: summary"
-	@$(MAKE) summary
-	@echo "$(LOG_PREFIX) Executing Target: $(CACHE_DIR)"
-	@$(MAKE) $(CACHE_DIR)
-	@echo "$(LOG_PREFIX) Executing Target: $(CACHE_DIR)/variables.mk"
-	@$(MAKE) $(CACHE_DIR)/variables.mk
-	@echo "$(LOG_PREFIX) Executing Target: $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)"
-	@$(MAKE) $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
-	@echo "$(LOG_PREFIX) Executing Target: dependencies"
-	@$(MAKE) dependencies
-	@echo "$(LOG_PREFIX) Executing Target: $(CACHE_DIR)/prepare-3rd-party-licenses"
-	@$(MAKE) $(CACHE_DIR)/prepare-3rd-party-licenses
+configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
 
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
@@ -193,11 +176,7 @@ debug:
 	@echo "$(LOG_PREFIX) DEBUG"
 
 .PHONY: build
-build:
-	@echo "$(LOG_PREFIX) Executing Target: configure"
-	@$(MAKE) configure
-	@echo "$(LOG_PREFIX) Executing Target: $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)"
-	@$(MAKE) $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
+build: configure $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)
 
 $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go:
 	@$(GOCMD) generate ./internal/httpauth/
@@ -277,10 +256,6 @@ clean-ts-cli:
 # build the full CLI (Typescript+Golang)
 .PHONY: build-full
 build-full: build-ts-cli build
-
-# # build the full experimental CLI (Typescript+Golang)
-# .PHONY: build-full-experimental
-# build-full-experimental: build-ts-cli-experimental build
 
 # clean the full CLI (Typescript+Golang)
 .PHONY: clean-full
