@@ -117,7 +117,6 @@ $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT):
 	@sed -e 's/FILENAME/$(V1_EXECUTABLE_NAME)/g' $(V1_EMBEDDED_FILE_TEMPLATE) > $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT)
 
 $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME):
-	@echo "$(LOG_PREFIX) Copying cliv1 executable from: ( $(CLI_V1_LOCATION)$(V1_EXECUTABLE_NAME) )"
 	@echo "$(LOG_PREFIX) Copying cliv1 executable to: ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) )"
 	@cp $(CLI_V1_LOCATION)$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME)
 
@@ -235,7 +234,6 @@ test-signature: ISSIGNED_SCRIPT
 # Typescript CLI targets
 $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME):
 	@echo "$(LOG_PREFIX) Building legacy CLI"
-	@echo "$(LOG_PREFIX) cd $(V1_WORKING_DIR)"
 	@cd $(V1_WORKING_DIR) && npm i && npm run $(V1_BUILD_TYPE)
 	@$(MAKE) -C $(V1_WORKING_DIR) $(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_EXECUTABLE_NAME) BINARY_RELEASES_FOLDER_TS_CLI=$(V1_BINARY_FOLDER)
 
@@ -246,7 +244,6 @@ build-ts-cli: $(V1_WORKING_DIR)/$(V1_BINARY_FOLDER)/$(V1_BINARY_SUBFOLDER)$(V1_E
 
 .PHONY: generate-ls-protocol-metadata
 generate-ls-protocol-metadata:
-	@echo "$(LOG_PREFIX) Executing Target: generate-ls-protocol-metadata"
 	$(eval CLI_V1_VERSION_TAG := $(shell cat $(DESTDIR)$(bindir)/version))
 	@echo "$(LOG_PREFIX) Determining LS protocol version"
 	@echo "$(LOG_PREFIX) Writing protocol version file to $(DESTDIR)$(bindir)"
