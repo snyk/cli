@@ -161,11 +161,19 @@ export async function getMultiPluginResult(
   }
 
   if (!allResults.length) {
-    throw new FailedToRunTestError(
-      errorMessageWithRetry(
-        `Failed to get dependencies for all ${targetFiles.length} potential projects.`,
-      ),
-    );
+    // No projects were scanned successfully
+    let message = `Failed to get dependencies for all ${targetFiles.length} potential projects.\n`;
+
+    if (failedResults.length > 0) {
+      const errorDetails = failedResults
+        .map((result) => `${result.targetFile}:\n${result.errMessage}`)
+        .join('\n\n');
+      message += `\n${errorDetails}`;
+    } else {
+      message = errorMessageWithRetry(message);
+    }
+
+    throw new FailedToRunTestError(message);
   }
 
   return {

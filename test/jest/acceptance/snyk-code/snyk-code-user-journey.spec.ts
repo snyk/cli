@@ -247,7 +247,7 @@ describe('snyk code test', () => {
         });
 
         it('should fail with correct exit code - when testing empty project', async () => {
-          const { stderr, code } = await runSnykCLI(
+          const { stdout, stderr, code } = await runSnykCLI(
             `code test ${emptyProject}`,
             {
               env: {
@@ -258,6 +258,7 @@ describe('snyk code test', () => {
           );
 
           expect(stderr).toBe('');
+          expect(stdout).toContain('snyk-code-0006');
           expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
         });
 
@@ -279,9 +280,10 @@ describe('snyk code test', () => {
 
         it('works with --json', async () => {
           const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
-          const { stdout, stderr, code } = await runSnykCLI(
-            `code test ${path} --json`,
+          const { stdout, stderr, code } = await runSnykCLIWithArray(
+            ['code', 'test', '--json', ''], // the empty string is intentional testing an unexpected empty string as input directory
             {
+              cwd: path,
               env: {
                 ...process.env,
                 ...integrationEnv,
@@ -292,6 +294,41 @@ describe('snyk code test', () => {
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
           expect(JSON.parse(stdout)).toMatchSchema(sarifSchema);
+        });
+
+        it('supports whitespaces in the path', async () => {
+          const randomId = Math.random().toString(36).substring(7);
+
+          // add a random file to ensure a new bundle is created
+          const newPath = ` startAndEndWithWhitespace${randomId} `;
+
+          fs.mkdirSync(newPath);
+
+          // Create a simple Java file with just a main method
+          const javaContent = `public class TestClass {
+    public static void main(String[] args) {
+        System.out.println("Hello from ${randomId}!");
+    }
+}`;
+          fs.writeFileSync(`${newPath}/TestClass.java`, javaContent, {
+            encoding: 'utf8',
+          });
+
+          const { stderr, code } = await runSnykCLIWithArray(
+            ['code', 'test', newPath],
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          // cleanup file
+          fs.removeSync(newPath);
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_SUCCESS);
         });
 
         it('works with --sarif', async () => {
