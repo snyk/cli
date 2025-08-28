@@ -9,8 +9,7 @@ parameters:
     default: 'https://downloads.snyk.io/fips/'
   experimental_cli_download_base_url:
     type: string
-    # TODO: change to https://downloads.snyk.io/experimental/ when ready
-    default: 'https://static.snyk.io/experimental/'
+    default: 'https://downloads.snyk.io/experimental/'
   go_download_base_url:
     type: string
     default: 'https://storage.googleapis.com/golang/'
