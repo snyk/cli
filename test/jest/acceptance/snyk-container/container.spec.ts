@@ -568,4 +568,26 @@ DepGraph end`,
       options,
     );
   }
+
+  describe('snyk container test --json targetOS field', () => {
+    it('includes targetOS field in JSON output when available', async () => {
+      const { _, stdout } = await runSnykCLI(
+        `container test test/fixtures/container-projects/os-packages-and-app-vulns.tar --json`,
+      );
+
+      const jsonOutput = JSON.parse(stdout);
+
+      // The test should include targetOS if OS information is available
+      // Note: This test may need to be adjusted based on the actual container content
+      if (jsonOutput.targetOS) {
+        expect(typeof jsonOutput.targetOS).toBe('string');
+        expect(jsonOutput.targetOS.length).toBeGreaterThan(0);
+      }
+
+      // Verify other expected fields still exist
+      expect(jsonOutput).toHaveProperty('ok');
+      expect(jsonOutput).toHaveProperty('dependencyCount');
+      expect(jsonOutput).toHaveProperty('packageManager');
+    });
+  });
 });

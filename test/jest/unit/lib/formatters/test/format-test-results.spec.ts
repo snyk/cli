@@ -424,5 +424,65 @@ describe('extractDataToSendFromResults', () => {
         parsedStringifiedJson.applications[0].vulnerabilities,
       ).toHaveLength(11);
     });
+
+    it('should include targetOS field in JSON output for container tests when OS info is available', () => {
+      const mockContainerResult = {
+        vulnerabilities: [],
+        ok: true,
+        dependencyCount: 5,
+        packageManager: 'apk',
+        scanResult: {
+          facts: [
+            {
+              type: 'imageOsReleasePrettyName',
+              data: 'Alpine Linux v3.14'
+            }
+          ]
+        }
+      };
+
+      const options = {
+        json: true,
+        docker: true,
+      } as Options;
+
+      const res = extractDataToSendFromResults(
+        [mockContainerResult],
+        [mockContainerResult],
+        options,
+      );
+
+      const parsedJson = JSON.parse(res.stringifiedJsonData);
+      expect(parsedJson.targetOS).toBe('Alpine Linux v3.14');
+      expect(parsedJson.ok).toBe(true);
+      expect(parsedJson.dependencyCount).toBe(5);
+    });
+
+    it('should not include targetOS field when OS info is not available', () => {
+      const mockContainerResult = {
+        vulnerabilities: [],
+        ok: true,
+        dependencyCount: 5,
+        packageManager: 'apk',
+        scanResult: {
+          facts: []
+        }
+      };
+
+      const options = {
+        json: true,
+        docker: true,
+      } as Options;
+
+      const res = extractDataToSendFromResults(
+        [mockContainerResult],
+        [mockContainerResult],
+        options,
+      );
+
+      const parsedJson = JSON.parse(res.stringifiedJsonData);
+      expect(parsedJson.targetOS).toBeUndefined();
+      expect(parsedJson.ok).toBe(true);
+    });
   });
 });
