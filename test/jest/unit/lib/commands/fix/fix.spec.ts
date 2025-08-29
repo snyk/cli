@@ -486,4 +486,121 @@ describe('snyk fix (functional tests)', () => {
     },
     testTimeout,
   );
+
+  it(
+    'filters vulnerabilities when vulnid is provided',
+    async () => {
+      let stdoutMessages = '';
+      process.stdout.write = (str) => {
+        stdoutMessages += str;
+        return true;
+      };
+
+      // Mock test result with multiple vulnerabilities
+      const testResultWithMultipleVulns = {
+        ...pipWithRemediation,
+        displayTargetFile: pipRequirementsTxt,
+      };
+
+      jest.spyOn(snyk, 'test').mockResolvedValue(testResultWithMultipleVulns);
+
+      // Test with single vulnid - using actual vulnerability ID from test fixture
+      const res = await fix('.', {
+        file: pipRequirementsTxt,
+        dryRun: true,
+        quiet: true,
+        vulnid: 'SNYK-PYTHON-JINJA2-1012994', // Filter to only this vulnerability
+        _doubleDashArgs: [],
+        _: [],
+      });
+
+      expect(snykFixSpy).toHaveBeenCalledTimes(1);
+      expect(snykFixSpy.mock.calls[0][1]).toEqual({
+        dryRun: true,
+        quiet: true,
+      });
+
+      // Verify that filtering occurred by checking the entities passed to fix
+      const entitiesPassedToFix = snykFixSpy.mock.calls[0][0];
+      expect(entitiesPassedToFix).toBeDefined();
+      expect(entitiesPassedToFix.length).toBeGreaterThan(0);
+
+      // Check that only the specified vulnid is present in the filtered results
+      entitiesPassedToFix.forEach((entity) => {
+        entity.testResult.issues.forEach((issue) => {
+          expect(issue.issueId).toBe('SNYK-PYTHON-JINJA2-1012994');
+        });
+      });
+
+      expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
+      expect(stdoutMessages).toEqual('');
+    },
+    testTimeout,
+  );
+
+  it(
+    'filters vulnerabilities when multiple vulnids are provided',
+    async () => {
+      let stdoutMessages = '';
+      process.stdout.write = (str) => {
+        stdoutMessages += str;
+        return true;
+      };
+
+      const testResultWithMultipleVulns = {
+        ...pipWithRemediation,
+        displayTargetFile: pipRequirementsTxt,
+      };
+
+      jest.spyOn(snyk, 'test').mockResolvedValue(testResultWithMultipleVulns);
+
+      // Test with multiple vulnids - using actual vulnerability IDs from test fixture
+      const res = await fix('.', {
+        file: pipRequirementsTxt,
+        dryRun: true,
+        quiet: true,
+        vulnid: ['SNYK-PYTHON-JINJA2-1012994', 'SNYK-PYTHON-MARKUPSAFE-1021244'], // Filter to these vulnerabilities
+        _doubleDashArgs: [],
+        _: [],
+      });
+
+      expect(snykFixSpy).toHaveBeenCalledTimes(1);
+
+      // Verify that filtering occurred by checking the entities passed to fix
+      const entitiesPassedToFix = snykFixSpy.mock.calls[0][0];
+      expect(entitiesPassedToFix).toBeDefined();
+      expect(entitiesPassedToFix.length).toBeGreaterThan(0);
+
+      // Check that only the specified vulnids are present in the filtered results
+      const allowedVulnIds = ['SNYK-PYTHON-JINJA2-1012994', 'SNYK-PYTHON-MARKUPSAFE-1021244'];
+      entitiesPassedToFix.forEach((entity) => {
+        entity.testResult.issues.forEach((issue) => {
+          expect(allowedVulnIds).toContain(issue.issueId);
+        });
+      });
+    },
+    testTimeout,
+  );
+
+  it(
+    'returns no vulnerable results when vulnid does not match any issues',
+    async () => {
+      jest.spyOn(snyk, 'test').mockResolvedValue({
+        ...pipWithRemediation,
+        displayTargetFile: pipRequirementsTxt,
+      });
+
+      const res = await fix('.', {
+        file: pipRequirementsTxt,
+        dryRun: true,
+        quiet: true,
+        vulnid: 'NON-EXISTENT-VULN-ID', // This ID doesn't exist in the test data
+        _doubleDashArgs: [],
+        _: [],
+      });
+
+      expect(res).toMatch('No vulnerable items to fix');
+    },
+    testTimeout,
+  );
 });

@@ -271,7 +271,8 @@ export type SupportedUserReachableFacingCliArgs =
   | 'trust-policies'
   | 'yarn-workspaces'
   | 'maven-aggregate-project'
-  | 'gradle-normalize-deps';
+  | 'gradle-normalize-deps'
+  | 'vuln-id';
 
 export enum SupportedCliCommands {
   version = 'version',

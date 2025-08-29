@@ -23,16 +23,64 @@ import { checkOSSPaths } from '../../../lib/check-paths';
 const debug = Debug('snyk-fix');
 const snykFixFeatureFlag = 'cliSnykFix';
 
+function parseVulnIds(options: any): string[] | undefined {
+  if (!options.vulnid) {
+    return undefined;
+  }
+
+  // Handle both single string and array of strings
+  if (Array.isArray(options.vulnid)) {
+    return options.vulnid;
+  }
+
+  return [options.vulnid];
+}
+
+function filterResultsByVulnIds(
+  results: snykFix.EntityToFix[],
+  vulnIds: string[],
+): snykFix.EntityToFix[] {
+  return results.map((result) => {
+    // Filter issues array by the provided vulnIds
+    const filteredIssues = result.testResult.issues.filter((issue) =>
+      vulnIds.includes(issue.issueId)
+    );
+
+    // Filter issuesData to only include data for the filtered issues
+    const filteredIssuesData: { [issueId: string]: any } = {};
+    filteredIssues.forEach((issue) => {
+      if (result.testResult.issuesData[issue.issueId]) {
+        filteredIssuesData[issue.issueId] = result.testResult.issuesData[issue.issueId];
+      }
+    });
+
+    // Return a new result with filtered issues and issuesData
+    return {
+      ...result,
+      testResult: {
+        ...result.testResult,
+        issues: filteredIssues,
+        issuesData: filteredIssuesData,
+      },
+    };
+  }).filter((result) => result.testResult.issues.length > 0);
+}
+
 interface FixOptions {
   dryRun?: boolean;
   quiet?: boolean;
   sequential?: boolean;
+  vulnid?: string | string[];
 }
 export default async function fix(...args: MethodArgs): Promise<string> {
   const { options: rawOptions, paths } = await processCommandArgs<FixOptions>(
     ...args,
   );
-  const options = setDefaultTestOptions<FixOptions>(rawOptions);
+
+  // Handle multiple --vulnid options
+  const vulnIds = parseVulnIds(rawOptions);
+  const options = { ...setDefaultTestOptions<FixOptions>(rawOptions), vulnid: vulnIds };
+
   debug(options);
   await validateFixCommandIsSupported(options);
 
@@ -48,9 +96,15 @@ export default async function fix(...args: MethodArgs): Promise<string> {
   debug(
     `Organization has ${snykFixFeatureFlag} feature flag enabled for experimental Snyk fix functionality`,
   );
-  const vulnerableResults = results.filter(
+  let vulnerableResults = results.filter(
     (res) => Object.keys(res.testResult.issues).length,
   );
+
+  // Filter by vulnIds if provided
+  if (vulnIds && vulnIds.length > 0) {
+    vulnerableResults = filterResultsByVulnIds(vulnerableResults, vulnIds);
+  }
+
   const { dryRun, quiet, sequential: sequentialFix } = options;
   const {
     fixSummary,

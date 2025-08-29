@@ -74,6 +74,9 @@ export function args(rawArgv: string[]): Args {
     _: [] as string[],
   } as ArgsOptions;
 
+  // Track multiple vulnid values
+  const vulnIds: string[] = [];
+
   for (let arg of rawArgv.slice(2)) {
     if (argv._doubleDashArgs) {
       argv._doubleDashArgs.push(arg);
@@ -90,7 +93,15 @@ export function args(rawArgv: string[]): Args {
           argv[arg] = true;
         } else {
           const parts = arg.split('=');
-          argv[parts.shift()!] = parts.join('=');
+          const key = parts.shift()!;
+          const value = parts.join('=');
+
+          // Handle multiple vulnid options
+          if (key === 'vulnid' || key === 'vuln-id') {
+            vulnIds.push(value);
+          } else {
+            argv[key] = value;
+          }
         }
       } else {
         argv[arg] = true;
@@ -98,6 +109,11 @@ export function args(rawArgv: string[]): Args {
     } else {
       argv._.push(arg);
     }
+  }
+
+  // Set vulnid array if any were collected
+  if (vulnIds.length > 0) {
+    argv['vulnid'] = vulnIds.length === 1 ? vulnIds[0] : vulnIds;
   }
 
   // By passing `-d` to the CLI, we enable the debugging output.
@@ -221,6 +237,7 @@ export function args(rawArgv: string[]): Args {
     'dry-run',
     'sequential',
     'gradle-normalize-deps',
+    'vuln-id',
   ];
   for (const dashedArg of argumentsToTransform) {
     if (argv[dashedArg]) {
