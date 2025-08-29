@@ -21,6 +21,8 @@ describe('PAT', () => {
       ...process.env,
       SNYK_TOKEN: pat,
       SNYK_DISABLE_ANALYTICS: '1',
+      // override the auth host regex check, else host will be rejected
+      INTERNAL_OAUTH_ALLOWED_HOSTS: '.*',
     };
 
     server = fakeServer(apiPath, env.SNYK_TOKEN);
