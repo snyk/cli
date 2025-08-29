@@ -12,8 +12,8 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20250806122647-dd6a7986878e
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e
-	github.com/snyk/cli-extension-iac v0.0.0-20250711122243-0de490b44873
-	github.com/snyk/cli-extension-iac-rules v0.0.0-20250227121450-6e14346dbd1a
+	github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0
+	github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188
 	github.com/snyk/cli-extension-os-flows v0.0.0-20250813112222-a4de039ac630
 	github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
@@ -179,7 +179,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
 	github.com/snyk/code-client-go v1.22.3 // indirect
-	github.com/snyk/policy-engine v0.33.2 // indirect
+	github.com/snyk/policy-engine v1.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/speakeasy-api/jsonpath v0.6.2 // indirect
