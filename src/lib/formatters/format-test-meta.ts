@@ -4,6 +4,27 @@ import { TestOptions, Options } from '../../lib/types';
 import { TestResult } from '../../lib/snyk-test/legacy';
 import { IacTestResponse } from '../../lib/snyk-test/iac-test-result';
 
+export function getOSFromTestResult(
+  res: TestResult,
+): { prettyName?: string } | null {
+  // Check if we have scanResult with facts
+  if (!res.scanResult?.facts) {
+    return null;
+  }
+
+  const osReleaseFact = res.scanResult.facts.find(
+    (fact) => fact.type === 'imageOsReleasePrettyName',
+  );
+
+  if (osReleaseFact?.data) {
+    return {
+      prettyName: osReleaseFact.data,
+    };
+  }
+
+  return null;
+}
+
 export function formatTestMeta(
   res: TestResult | IacTestResponse,
   options: Options & TestOptions,
@@ -40,6 +61,15 @@ export function formatTestMeta(
       meta.push(
         chalk.bold(rightPadWithSpaces('Platform: ', padToLength)) +
           res.platform,
+      );
+    }
+
+    const legacyRes: TestResult = res as TestResult;
+    const osInfo = getOSFromTestResult(legacyRes);
+    if (osInfo?.prettyName) {
+      meta.push(
+        chalk.bold(rightPadWithSpaces('Target OS: ', padToLength)) +
+          osInfo.prettyName,
       );
     }
   } else {
