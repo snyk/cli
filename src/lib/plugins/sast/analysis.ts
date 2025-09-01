@@ -121,9 +121,25 @@ export async function getCodeTestResults(
     return null;
   }
 
+  enrichCodeAnalysis(codeAnalysis, config.PROJECT_NAME);
+
   return {
     reportResults: codeAnalysis.reportResults,
     analysisResults: codeAnalysis.analysisResults,
+  };
+}
+
+function enrichCodeAnalysis(
+  codeAnalysis: CodeAnalysisResults,
+  projectName: string,
+): void {
+  // Overrides the schema link to the work
+  codeAnalysis.analysisResults.sarif.$schema =
+    'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json';
+
+  const projectId = projectName ? `${projectName}/` : '';
+  codeAnalysis.analysisResults.sarif.runs[0].automationDetails = {
+    id: `Snyk/Code/${projectId}${new Date().toISOString()}`,
   };
 }
 
@@ -249,8 +265,6 @@ function parseSecurityResults(codeAnalysis: Log): Log {
     );
   }
 
-  codeAnalysis.$schema =
-    'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json';
   return codeAnalysis;
 }
 
