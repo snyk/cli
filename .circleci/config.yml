@@ -9,8 +9,7 @@ parameters:
     default: 'https://downloads.snyk.io/fips/'
   experimental_cli_download_base_url:
     type: string
-    # TODO: change to https://downloads.snyk.io/experimental/ when ready
-    default: 'https://static.snyk.io/experimental/'
+    default: 'https://downloads.snyk.io/experimental/'
   go_download_base_url:
     type: string
     default: 'https://storage.googleapis.com/golang/'
@@ -20,7 +19,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.24.5'
+    default: '1.24.6'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst

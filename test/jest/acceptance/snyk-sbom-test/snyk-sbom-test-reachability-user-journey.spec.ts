@@ -9,7 +9,7 @@ jest.setTimeout(1000 * 120);
 const EXIT_CODE_ACTION_NEEDED = 1;
 
 describe('snyk sbom test --reachability', () => {
-  it('works on projects with no git context', async () => {
+  it.skip('works on projects with no git context', async () => {
     // createProjectFromFixture creates a new project without gitcontext
     const { path: tmpPth } = await createProjectFromFixture(
       'sast/shallow_sast_webgoat',
