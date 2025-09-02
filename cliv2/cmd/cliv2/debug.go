@@ -55,17 +55,20 @@ func initDebugLogger(config configuration.Configuration) *zerolog.Logger {
 
 	// create a list of all the primary/secondary flag values
 	flagTerms := []string{}
-	for _, term := range allArgs.PrimaryFlags {
+	for _, term := range allArgs.Options {
 		termString, ok := term.(string)
 		if ok {
 			flagTerms = append(flagTerms, termString)
 		}
 	}
-	for _, term := range allArgs.SecondaryFlags {
+	for _, term := range allArgs.Operands {
 		termString, ok := term.(string)
 		if ok {
 			flagTerms = append(flagTerms, termString)
 		}
+	}
+	for _, term := range allArgs.EnvVars {
+		flagTerms = append(flagTerms, term)
 	}
 
 	// iterate over allArgs and add the values to the scrub dict
