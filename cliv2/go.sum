@@ -1295,8 +1295,8 @@ github.com/snyk/cli-extension-os-flows v0.0.0-20250813112222-a4de039ac630 h1:sNa
 github.com/snyk/cli-extension-os-flows v0.0.0-20250813112222-a4de039ac630/go.mod h1:Epnqr2TQGownRG+pW63Yn0QIKdj50UYBJuJpeLvkPm4=
 github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd h1:bZg7Zkctm2tvaznI8A4/0fFOZMgglNAIFmIIlRz16W0=
 github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd/go.mod h1:zyKDBaETfZyI7BfIjPnezH3QX2seQrR/d7NM5W6LV9s=
-github.com/snyk/code-client-go v1.22.3 h1:xDT/SHwHd6ondz0uEiysoc7S6b9L1NMeWUIH7ugmtqo=
-github.com/snyk/code-client-go v1.22.3/go.mod h1:Jx3Jpo8kHlqHjhGa7a0ROQzPu+X15TBN0zRD+wNcUds=
+github.com/snyk/code-client-go v1.23.1 h1:0ZXZjkHImwK1JBZWrJUKoz7jZIxveoxORaRbKwcSh80=
+github.com/snyk/code-client-go v1.23.1/go.mod h1:Jx3Jpo8kHlqHjhGa7a0ROQzPu+X15TBN0zRD+wNcUds=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
 github.com/snyk/error-catalog-golang-public v0.0.0-20250812140843-a01d75260003 h1:qeXih9sVe/WvhccE3MfEgglnSVKN1xTQBcsA/N96Kzo=
