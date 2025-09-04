@@ -78,7 +78,7 @@ export function createSarifOutputForIac(
 
         tool,
         automationDetails: {
-          id: 'snyk-iac',
+          id: `Snyk IaC scan for ${repoRoot}/${new Date().toISOString().split('T')[0]}`,
         },
         results: mapIacTestResponseToSarifResults(issues),
       },
