@@ -117,7 +117,7 @@ func legacycliWorkflow(
 	scrubDict := logging.GetScrubDictFromConfig(config)
 	scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
 	// catpure CLI arguments
-	allArgs := cliv2utils.CaptureAllArgs(os.Args[1:])
+	allArgs := cliv2utils.CaptureAllArgs(os.Args[1:], os.Environ())
 
 	// create a list of all the primary/secondary flag values
 	flagTerms := []string{}

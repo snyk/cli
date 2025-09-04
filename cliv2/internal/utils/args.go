@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"os"
 	"slices"
 	"strings"
 )
@@ -30,7 +29,7 @@ type CaptureAllArgsResult struct {
 // - Options: the flags before the POSIX end of options delimiter
 // - Operands: the flags after the POSIX end of options delimiter
 // - EnvVars: the environment variables
-func CaptureAllArgs(osArgs []string) CaptureAllArgsResult {
+func CaptureAllArgs(osArgs []string, envVars []string) CaptureAllArgsResult {
 	result := CaptureAllArgsResult{
 		Command:  strings.Join(osArgs, " "),
 		Args:     []string{},
@@ -47,19 +46,19 @@ func CaptureAllArgs(osArgs []string) CaptureAllArgsResult {
 
 	result.Options = formatFlagset(formattedOptions, result.Options)
 	result.Operands = formatFlagset(formattedOperands, result.Operands)
-	result.EnvVars = captureAllEnvVars()
+	result.EnvVars = captureAllEnvVars(envVars)
 
 	return result
 }
 
 // captureAllEnvVars captures all the environment variables and returns them as a map of key-value pairs
-func captureAllEnvVars() map[string]string {
-	envVars := make(map[string]string)
-	for _, envVar := range os.Environ() {
+func captureAllEnvVars(envVars []string) map[string]string {
+	envVarsMap := make(map[string]string)
+	for _, envVar := range envVars {
 		parts := strings.Split(envVar, "=")
-		envVars[parts[0]] = parts[1]
+		envVarsMap[parts[0]] = parts[1]
 	}
-	return envVars
+	return envVarsMap
 }
 
 // isFlagToken checks if a token is a flag token.

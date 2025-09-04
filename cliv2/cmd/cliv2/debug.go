@@ -49,7 +49,7 @@ func initDebugLogger(config configuration.Configuration) *zerolog.Logger {
 	}
 
 	// catpure CLI arguments
-	allArgs := cliv2utils.CaptureAllArgs(os.Args[1:])
+	allArgs := cliv2utils.CaptureAllArgs(os.Args[1:], os.Environ())
 
 	scrubLogger := logging.NewScrubbingWriter(zerolog.MultiLevelWriter(consoleWriter), logging.GetScrubDictFromConfig(config))
 
