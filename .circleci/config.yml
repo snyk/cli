@@ -280,6 +280,15 @@ commands:
           name: No dependencies to install
           command: echo all done!
 
+  # this can be removed if we install the xdg-utils package in the docker image
+  install-deps-linux-acceptance-tests:
+    steps:
+      - run:
+          name: Installing linux acceptance tests dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install xdg-utils -y
+
   install-deps-python:
     parameters:
       os:
@@ -355,7 +364,7 @@ commands:
             *) arch="amd64";;
             esac
             echo "using architecture: $arch"
-            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip
+            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip xdg-utils
             pip3 install pipenv requests PyYAML setuptools==70.3.0
             wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh
             wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-$arch.tar.gz -O /tmp/go.tgz && \
@@ -627,6 +636,8 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux static arm64
           executor: docker-arm64-xl
@@ -646,6 +657,8 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux amd64
           executor: docker-amd64-xl
@@ -666,6 +679,8 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux arm64
           executor: docker-arm64
@@ -689,6 +704,8 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux arm64
 
@@ -712,6 +729,7 @@ workflows:
           test_snyk_command: ./binary-releases/snyk-alpine
           install_deps_extension: alpine-full
           dont_skip_tests: 0
+          pre_test_cmds: export BROWSER="wget -O -"
 
       - acceptance-tests:
           name: acceptance-tests alpine arm64
@@ -734,6 +752,7 @@ workflows:
           test_snyk_command: ./binary-releases/snyk-alpine-arm64
           install_deps_extension: alpine-full
           dont_skip_tests: 0
+          pre_test_cmds: export BROWSER="wget -O -"
 
       - acceptance-tests:
           name: acceptance-tests macOS arm64

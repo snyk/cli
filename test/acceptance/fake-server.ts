@@ -53,6 +53,11 @@ export type FakeServer = {
   setSarifResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
+  setEndpointResponse: (
+    endpoint: string,
+    response: Record<string, unknown>,
+  ) => void;
+  setEndpointStatusCode: (endpoint: string, code: number) => void;
   setStatusCode: (c: number) => void;
   setStatusCodes: (c: number[]) => void;
   setLocalCodeEngineConfiguration: (next: Record<string, unknown>) => void;
@@ -85,6 +90,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let statusCode: number | undefined = undefined;
   let statusCodes: number[] = [];
   let nextResponse: any = undefined;
+  let endpointResponses: Map<string, Record<string, unknown>> = new Map();
+  let endpointStatusCodes: Map<string, number> = new Map();
   let customResponse: Record<string, unknown> | undefined = undefined;
   let sarifResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
@@ -95,6 +102,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     requests = [];
     customResponse = undefined;
     sarifResponse = undefined;
+    endpointResponses = new Map();
+    endpointStatusCodes = new Map();
     featureFlags = featureFlagDefaults();
     availableSettings = new Map();
     unauthorizedActions = new Map();
@@ -152,6 +161,17 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     statusCodes = codes;
   };
 
+  const setEndpointResponse = (
+    endpoint: string,
+    response: Record<string, unknown>,
+  ) => {
+    endpointResponses.set(endpoint, response);
+  };
+
+  const setEndpointStatusCode = (endpoint: string, code: number) => {
+    endpointStatusCodes.set(endpoint, code);
+  };
+
   const setFeatureFlag = (featureFlag: string, enabled: boolean) => {
     featureFlags.set(featureFlag, enabled);
   };
@@ -172,11 +192,42 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const app = express();
   app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ extended: true }));
   // Content-Type for rest API endpoints is 'application/vnd.api+json'
   app.use(express.json({ type: 'application/vnd.api+json', strict: false }));
   app.use((req, res, next) => {
     requests.push(req);
     next();
+  });
+
+  app.use((req, res, next) => {
+    const endpoint = req.url;
+    const endpointResponse = endpointResponses.get(endpoint);
+    const endpointStatusCode = endpointStatusCodes.get(endpoint);
+    if (endpointResponse) {
+      res.status(endpointStatusCode || 200);
+      res.send(endpointResponse);
+      return;
+    }
+
+    if (
+      req.url?.includes('/iac-org-settings') ||
+      req.url?.includes('/cli-config/feature-flags/') ||
+      (!nextResponse && !nextStatusCode && !statusCode)
+    ) {
+      return next();
+    }
+    const response = nextResponse;
+    nextResponse = undefined;
+    if (nextStatusCode) {
+      const code = nextStatusCode;
+      nextStatusCode = undefined;
+      res.status(code);
+    } else if (statusCode) {
+      res.status(statusCode);
+    }
+
+    res.send(response);
   });
 
   [basePath + '/verify/callback', basePath + '/verify/token'].map((url) => {
@@ -231,27 +282,6 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     };
     res.status(200);
     res.send(defaultResponse);
-  });
-
-  app.use((req, res, next) => {
-    if (
-      req.url?.includes('/iac-org-settings') ||
-      req.url?.includes('/cli-config/feature-flags/') ||
-      (!nextResponse && !nextStatusCode && !statusCode)
-    ) {
-      return next();
-    }
-    const response = nextResponse;
-    nextResponse = undefined;
-    if (nextStatusCode) {
-      const code = nextStatusCode;
-      nextStatusCode = undefined;
-      res.status(code);
-    } else if (statusCode) {
-      res.status(statusCode);
-    }
-
-    res.send(response);
   });
 
   app.get(basePath + '/vuln/:registry/:module', (req, res) => {
@@ -1030,12 +1060,30 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+  app.get(basePath.replace('/v1', '') + '/oauth2/authorize', (req, res) => {
+    const redirectUri = req.query.redirect_uri;
+    const responseState = req.query.state;
+    const responseCode = 'test_authorization_code_12345';
+    // NOTE: the instance param is not supported for testing
+
+    res.writeHead(302, {
+      Location: `${redirectUri}?code=${responseCode}&state=${responseState}`,
+    });
+    res.end();
+    return;
+  });
+
   app.post(basePath.replace('/v1', '') + '/oauth2/token', (req, res) => {
     const fake_oauth_token =
       '{"access_token":"access_token_value","token_type":"b","expiry":"3023-12-20T08:49:15.504539Z"}';
 
     // client credentials grant: expecting client id = a and client secret = b
     if (req.headers.authorization?.includes('Basic YTpi')) {
+      res.status(200).send(fake_oauth_token);
+      return;
+    }
+    // authorization code grant: expect code and state
+    if (req.body.grant_type === 'authorization_code' && req.body.code) {
       res.status(200).send(fake_oauth_token);
       return;
     }
@@ -1110,6 +1158,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setLocalCodeEngineConfiguration,
     setNextResponse,
     setNextStatusCode,
+    setEndpointResponse,
+    setEndpointStatusCode,
     setStatusCode,
     setStatusCodes,
     setFeatureFlag,
