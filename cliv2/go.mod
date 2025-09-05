@@ -18,7 +18,7 @@ require (
 	github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20250812140843-a01d75260003
-	github.com/snyk/go-application-framework v0.0.0-20250829091032-bea1827e8723
+	github.com/snyk/go-application-framework v0.0.0-20250905134506-6d1283bbe77c
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20250829121348-b98640ff2ec2
@@ -243,7 +243,7 @@ require (
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
 
-//replace github.com/snyk/go-application-framework => ../../go-application-framework
+// replace github.com/snyk/go-application-framework => ../../go-application-framework
 
 //replace github.com/snyk/snyk-ls => ../../snyk-ls
 //replace github.com/snyk/code-client-go => ../../code-client-go

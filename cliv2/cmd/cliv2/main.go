@@ -529,7 +529,7 @@ func MainWithErrorCode() (int, []error) {
 	rInfo := runtimeinfo.New(runtimeinfo.WithName("snyk-cli"), runtimeinfo.WithVersion(cliv2.GetFullVersion()))
 
 	rootCommand := prepareRootCommand()
-	_ = rootCommand.ParseFlags(os.Args)
+	_ = rootCommand.ParseFlags(os.Args[1:])
 
 	// create engine
 	globalConfiguration = configuration.NewWithOpts(
