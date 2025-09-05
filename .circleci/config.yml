@@ -414,7 +414,6 @@ commands:
 
 workflows:
   test_and_release:
-    max_auto_reruns: 2
     jobs:
       - prodsec/secrets-scan:
           name: secrets-scan
