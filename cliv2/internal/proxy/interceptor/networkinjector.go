@@ -1,10 +1,11 @@
 package interceptor
 
 import (
-	"github.com/elazarl/goproxy"
-	"github.com/snyk/go-application-framework/pkg/workflow"
 	"net/http"
 	"regexp"
+
+	"github.com/elazarl/goproxy"
+	"github.com/snyk/go-application-framework/pkg/workflow"
 )
 
 type networkInjector struct {
@@ -24,6 +25,9 @@ func (ni networkInjector) GetHandler() goproxy.FuncReqHandler {
 		resp, err := ni.invocationCtx.GetNetworkAccess().GetRoundTripper().RoundTrip(req)
 		if err != nil {
 			ni.invocationCtx.GetEnhancedLogger().Trace().Msgf("intercepting call failed with error: %v", err)
+
+			// forward the error to the error handler since the proxy doesn't report them
+			err = ni.invocationCtx.GetNetworkAccess().GetErrorHandler()(err, proxyCtx.Req.Context())
 
 			// We use goproxy's context to store the error, which we use later in the handling of all legacycli responses.
 			proxyCtx.Error = err

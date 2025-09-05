@@ -3,13 +3,13 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"os"
 	"os/exec"
 	"strconv"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/logging"
@@ -173,7 +173,7 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 
 	wrapperProxy, err := proxy.NewWrapperProxy(config, cliv2.GetFullVersion(), debugLogger, caData)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to create proxy!")
+		return nil, errors.Join(err, errors.New("Failed to create proxy!"))
 	}
 
 	wrapperProxy.RegisterInterceptor(interceptor.NewV1AnalyticsInterceptor(invocation))
@@ -184,7 +184,7 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 
 	err = wrapperProxy.Start()
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to start the proxy!")
+		return nil, errors.Join(err, errors.New("Failed to start the proxy!"))
 	}
 
 	return wrapperProxy, nil
