@@ -15,6 +15,7 @@ require (
 	github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188
 	github.com/snyk/cli-extension-os-flows v0.0.0-20250813112222-a4de039ac630
+	github.com/snyk/cli-extension-redteam v0.0.0-00010101000000-000000000000
 	github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20250812140843-a01d75260003
@@ -242,6 +243,8 @@ require (
 
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
+
+replace github.com/snyk/cli-extension-redteam => ../../cli-extension-redteam
 
 //replace github.com/snyk/go-application-framework => ../../go-application-framework
 

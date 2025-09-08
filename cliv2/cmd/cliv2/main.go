@@ -1,8 +1,6 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-
 import (
 	"context"
 	"encoding/json"
@@ -22,6 +20,7 @@ import (
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
+	"github.com/snyk/cli-extension-redteam/pkg/redteam"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
@@ -29,6 +28,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -43,7 +43,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
-
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/ui"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -51,10 +50,9 @@ import (
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
-	snykls "github.com/snyk/snyk-ls/ls_extension"
-
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
+	snykls "github.com/snyk/snyk-ls/ls_extension"
 
 	snykmcp "github.com/snyk/snyk-ls/mcp_extension"
 
@@ -564,6 +562,7 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(iac.Init)
 	globalEngine.AddExtensionInitializer(sbom.Init)
 	globalEngine.AddExtensionInitializer(aibom.Init)
+	globalEngine.AddExtensionInitializer(redteam.Init)
 	globalEngine.AddExtensionInitializer(depgraph.Init)
 	globalEngine.AddExtensionInitializer(capture.Init)
 	globalEngine.AddExtensionInitializer(iacrules.Init)
