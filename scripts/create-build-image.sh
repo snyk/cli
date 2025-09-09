@@ -8,6 +8,8 @@ else
   set -exuo pipefail
 fi
 
+trap 'docker logout' EXIT
+
 # This script is used for building Docker images which in turn build the CLI.
 # It sets up the environment, logs into Docker, and builds images for different architectures.
 
