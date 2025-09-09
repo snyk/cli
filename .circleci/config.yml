@@ -664,6 +664,7 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - devex_cli_docker_hub
           filters:
             branches:
               ignore:
