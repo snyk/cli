@@ -16,7 +16,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     vim \
     make \
     maven \
-    gradle \
     python3 \
     python3-pip \
     python-is-python3 \
@@ -67,7 +66,7 @@ USER circleci
 # install java & scala
 RUN curl -s "https://get.sdkman.io" | bash
 RUN scripts/jvm-install.sh
-ENV PATH=/home/circleci/.sdkman/candidates/scala/current/bin:/home/circleci/.sdkman/candidates/sbt/current/bin:/home/circleci/.sdkman/candidates/java/current/bin:$PATH
+ENV PATH=/home/circleci/.sdkman/candidates/gradle/current/bin:/home/circleci/.sdkman/candidates/scala/current/bin:/home/circleci/.sdkman/candidates/sbt/current/bin:/home/circleci/.sdkman/candidates/java/current/bin:$PATH
 
 # install dotnet
 RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 8.0
