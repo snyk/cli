@@ -6,12 +6,14 @@ if [[ -n "${CI:-}" ]]; then
 else
   # Local development: echo all commands for debugging
   set -exuo pipefail
+  # Set up cleanup for local development
+  trap 'docker logout' EXIT
 fi
 
-trap 'docker logout' EXIT
 
 # This script is used for building Docker images which in turn build the CLI.
-# It sets up the environment, logs into Docker, and builds images for different architectures.
+# It sets up the environment and builds images for different architectures.
+# Docker login should be handled by the CI/CD system (e.g., GitHub Actions).
 
 # Before running the script, ensure DOCKER_REPO, DOCKER_USERNAME and DOCKER_PASSWORD environment variables are set.
 # Example usage:
@@ -42,8 +44,11 @@ pushd "$SCRIPT_DIR/.."
   echo "Building Docker image for $TARGET_ARCH with Node version: $NODEVERSION"
   echo "Timestamp: $TAG"
 
-  echo "Logging into Docker"
-  echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  # For local development, login to Docker
+  if [[ -z "${CI:-}" ]]; then
+    echo "Logging into Docker"
+    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  fi
 
   echo "Building $TARGET_ARCH image..."
 
