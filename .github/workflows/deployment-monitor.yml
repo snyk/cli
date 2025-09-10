@@ -253,7 +253,7 @@ jobs:
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: "*Workflow*: `${{ github.workflow }}`              
+                  text: "*Workflow*: `${{ github.workflow }}`"
               - type: "section"
                 text:
                   type: "mrkdwn"

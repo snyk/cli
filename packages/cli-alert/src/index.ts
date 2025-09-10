@@ -4,17 +4,17 @@ import { IncomingWebhookDefaultArguments } from '@slack/webhook';
 import { event } from '@pagerduty/pdjs';
 
 if (
-  !process.env.USER_GITHUB_TOKEN ||
+  !process.env.TEAM_CLI_GITHUB_PAT ||
   !process.env.SLACK_WEBHOOK_URL ||
   !process.env.PD_ROUTING_KEY
 ) {
   console.error(
-    'Missing USER_GITHUB_TOKEN, SLACK_WEBHOOK_URL or PD_ROUTING_KEY',
+    'Missing TEAM_CLI_GITHUB_PAT, SLACK_WEBHOOK_URL or PD_ROUTING_KEY',
   );
   process.exit(1);
 }
 
-const GITHUB_TOKEN = process.env.USER_GITHUB_TOKEN;
+const GITHUB_TOKEN = process.env.TEAM_CLI_GITHUB_PAT;
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 const PD_ROUTING_KEY = process.env.PD_ROUTING_KEY;
 

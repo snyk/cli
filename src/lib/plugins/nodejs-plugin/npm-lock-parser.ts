@@ -73,6 +73,7 @@ export async function parse(
         includeOptionalDeps: true,
         strictOutOfSync,
         pruneCycles: true,
+        honorAliases: true,
       },
     );
   }
@@ -85,6 +86,7 @@ export async function parse(
       lockFileFullPath,
       options.dev,
       strictOutOfSync,
+      true,
     );
   } finally {
     await spinner.clear<void>(resolveModuleSpinnerLabel)();
@@ -127,6 +129,7 @@ async function buildDepGraph(
           includePeerDeps: options.includePeerDeps || false,
           pruneLevel: 'withinTopLevelDeps',
           strictOutOfSync: options.strictOutOfSync,
+          honorAliases: true,
         },
       );
     case NodeLockfileVersion.YarnLockV2:
@@ -138,6 +141,7 @@ async function buildDepGraph(
           includeOptionalDeps: options.includeOptionalDeps,
           pruneWithinTopLevelDeps: true,
           strictOutOfSync: options.strictOutOfSync,
+          honorAliases: true,
         },
       );
     case NodeLockfileVersion.NpmLockV2:

@@ -49,7 +49,11 @@ import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
 import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 import { processCommandArgs } from '../process-command-args';
 import { hasFeatureFlag } from '../../../lib/feature-flags';
-import { PNPM_FEATURE_FLAG } from '../../../lib/package-managers';
+import {
+  PNPM_FEATURE_FLAG,
+  DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+  MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+} from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -161,18 +165,50 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   let hasPnpmSupport = false;
+  let hasImprovedDotnetWithoutPublish = false;
+  let enableMavenDverboseExhaustiveDeps = false;
   try {
     hasPnpmSupport = (await hasFeatureFlag(
       PNPM_FEATURE_FLAG,
       options,
     )) as boolean;
+    if (options['dotnet-runtime-resolution']) {
+      hasImprovedDotnetWithoutPublish = (await hasFeatureFlag(
+        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+        options,
+      )) as boolean;
+    }
   } catch (err) {
     hasPnpmSupport = false;
+  }
+
+  try {
+    const args = options['_doubleDashArgs'] || [];
+    const verboseEnabled =
+      args.includes('-Dverbose') ||
+      args.includes('-Dverbose=true') ||
+      !!options['print-graph'];
+    if (verboseEnabled) {
+      enableMavenDverboseExhaustiveDeps = (await hasFeatureFlag(
+        MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+        options,
+      )) as boolean;
+      if (enableMavenDverboseExhaustiveDeps) {
+        options.mavenVerboseIncludeAllVersions =
+          enableMavenDverboseExhaustiveDeps;
+      }
+    }
+  } catch (err) {
+    enableMavenDverboseExhaustiveDeps = false;
   }
 
   const featureFlags = hasPnpmSupport
     ? new Set<string>([PNPM_FEATURE_FLAG])
     : new Set<string>();
+
+  if (hasImprovedDotnetWithoutPublish) {
+    options.useImprovedDotnetWithoutPublish = true;
+  }
 
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of paths) {
@@ -384,6 +420,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
     'remote-repo-url': options['remote-repo-url'],
     targetReference: options['target-reference'],
     assetsProjectName: options['assets-project-name'],
+    reachabilityScanId: options['reachability-id'],
   };
 }
 

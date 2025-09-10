@@ -1,0 +1,7 @@
+{
+  "comment": "Only update the version manually with major SDK updates, see https://dotnet.microsoft.com/en-us/download/dotnet.",
+  "sdk": {
+    "version": "6.0.100",
+    "rollForward": "latestMajor"
+  }
+}

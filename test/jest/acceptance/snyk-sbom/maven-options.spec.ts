@@ -48,6 +48,7 @@ describe('snyk sbom: maven options (mocked server only)', () => {
   });
 
   test('`sbom --file` generates an SBOM without pruning', async () => {
+    server.setFeatureFlag('enableMavenDverboseExhaustiveDeps', false);
     const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
       'maven-print-graph',
       '--file=pom.xml',
@@ -64,6 +65,27 @@ describe('snyk sbom: maven options (mocked server only)', () => {
     expect(sbom.dependencies[2].dependsOn.length).toEqual(1);
     expect(sbom.dependencies[2].dependsOn[0]).toEqual(
       'commons-logging:commons-logging@1.0.4',
+    );
+  });
+
+  test('`sbom --file` generates an SBOM without pruning with enableMavenDverboseExhaustiveDeps enabled', async () => {
+    server.setFeatureFlag('enableMavenDverboseExhaustiveDeps', true);
+    const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
+      'maven-print-graph',
+      '--file=pom.xml',
+      env,
+    );
+
+    expect(sbom.metadata.component.name).toEqual(
+      'io.snyk.example:test-project',
+    );
+    expect(sbom.dependencies.length).toBeGreaterThanOrEqual(7);
+    expect(sbom.dependencies[2].ref).toEqual(
+      'commons-discovery:commons-discovery@0.2',
+    );
+    expect(sbom.dependencies[2].dependsOn.length).toEqual(1);
+    expect(sbom.dependencies[2].dependsOn[0]).toEqual(
+      'commons-logging:commons-logging@1.0.3',
     );
   });
 

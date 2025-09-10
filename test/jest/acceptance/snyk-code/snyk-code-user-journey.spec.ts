@@ -41,6 +41,10 @@ const projectWithCodeIssues = resolve(
   'test/fixtures/sast/with_code_issues',
 );
 const emptyProject = resolve(projectRoot, 'test/fixtures/empty');
+const projectWithoutCodeIssues = resolve(
+  projectRoot,
+  'test/fixtures/sast-empty',
+);
 
 // This method does some basic checks on the given sarif file
 function checkSarif(file: string, expectedIgnoredFindings: number): any {
@@ -92,6 +96,7 @@ const userJourneyWorkflows: Workflow[] = [
       INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
       INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'false',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
+      PROJECT_ID: 'this_should_be_ignored',
     },
   },
   {
@@ -99,6 +104,7 @@ const userJourneyWorkflows: Workflow[] = [
     env: {
       INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'true',
       SNYK_CFG_ORG: process.env.TEST_SNYK_ORG_SLUGNAME,
+      PROJECT_ID: 'this_should_be_ignored',
     },
   },
 ];
@@ -241,7 +247,7 @@ describe('snyk code test', () => {
         });
 
         it('should fail with correct exit code - when testing empty project', async () => {
-          const { stderr, code } = await runSnykCLI(
+          const { stdout, stderr, code } = await runSnykCLI(
             `code test ${emptyProject}`,
             {
               env: {
@@ -252,6 +258,7 @@ describe('snyk code test', () => {
           );
 
           expect(stderr).toBe('');
+          expect(stdout).toContain('snyk-code-0006');
           expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
         });
 
@@ -273,9 +280,10 @@ describe('snyk code test', () => {
 
         it('works with --json', async () => {
           const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
-          const { stdout, stderr, code } = await runSnykCLI(
-            `code test ${path} --json`,
+          const { stdout, stderr, code } = await runSnykCLIWithArray(
+            ['code', 'test', '--json', ''], // the empty string is intentional testing an unexpected empty string as input directory
             {
+              cwd: path,
               env: {
                 ...process.env,
                 ...integrationEnv,
@@ -286,6 +294,41 @@ describe('snyk code test', () => {
           expect(stderr).toBe('');
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
           expect(JSON.parse(stdout)).toMatchSchema(sarifSchema);
+        });
+
+        it('supports whitespaces in the path', async () => {
+          const randomId = Math.random().toString(36).substring(7);
+
+          // add a random file to ensure a new bundle is created
+          const newPath = ` startAndEndWithWhitespace${randomId} `;
+
+          fs.mkdirSync(newPath);
+
+          // Create a simple Java file with just a main method
+          const javaContent = `public class TestClass {
+    public static void main(String[] args) {
+        System.out.println("Hello from ${randomId}!");
+    }
+}`;
+          fs.writeFileSync(`${newPath}/TestClass.java`, javaContent, {
+            encoding: 'utf8',
+          });
+
+          const { stderr, code } = await runSnykCLIWithArray(
+            ['code', 'test', newPath],
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          // cleanup file
+          fs.removeSync(newPath);
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_SUCCESS);
         });
 
         it('works with --sarif', async () => {
@@ -369,6 +412,72 @@ describe('snyk code test', () => {
           // cleanup file
           try {
             unlinkSync(filePath);
+          } catch (error) {
+            console.error('failed to remove file.', error);
+          }
+        });
+
+        it('works with both --sarif-file-output and --json-file-output', async () => {
+          const sarifFileName = 'sarifOutput.json';
+          const jsonFileName = 'jsonOutput.json';
+          const sarifFilePath = `${projectRoot}/${sarifFileName}`;
+          const jsonFilePath = `${projectRoot}/${jsonFileName}`;
+          const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path} --sarif-file-output=${sarifFilePath} --json-file-output=${jsonFilePath}`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+
+          expect(existsSync(sarifFilePath)).toBe(true);
+          expect(require(sarifFilePath)).toMatchSchema(sarifSchema);
+
+          expect(existsSync(jsonFilePath)).toBe(true);
+          expect(require(jsonFilePath)).toMatchSchema(sarifSchema);
+
+          // cleanup file
+          try {
+            unlinkSync(sarifFilePath);
+            unlinkSync(jsonFilePath);
+          } catch (error) {
+            console.error('failed to remove file.', error);
+          }
+        });
+
+        it('zero findings is handled differently with --sarif-file-output and --json-file-output', async () => {
+          const sarifFileName = 'sarifOutput.json';
+          const jsonFileName = 'jsonOutput.json';
+          const sarifFilePath = `${projectRoot}/${sarifFileName}`;
+          const jsonFilePath = `${projectRoot}/${jsonFileName}`;
+          const path = await ensureUniqueBundleIsUsed(projectWithoutCodeIssues);
+          const { stderr, code } = await runSnykCLI(
+            `code test ${path} --sarif-file-output=${sarifFilePath} --json-file-output=${jsonFilePath}`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
+            },
+          );
+
+          expect(stderr).toBe('');
+          expect(code).toBe(EXIT_CODE_SUCCESS);
+
+          expect(existsSync(sarifFilePath)).toBe(true);
+          expect(require(sarifFilePath)).toMatchSchema(sarifSchema);
+
+          expect(existsSync(jsonFilePath)).toBe(false);
+
+          // cleanup file
+          try {
+            unlinkSync(sarifFilePath);
           } catch (error) {
             console.error('failed to remove file.', error);
           }

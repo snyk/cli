@@ -19,11 +19,6 @@ ignore:
         reason: Not directely exploitable
         expires: 2025-01-01T00:12:20.523Z
         created: 2024-11-08T10:22:20.531Z
-  SNYK-JS-TARFS-9535930:
-    - '*':
-        reason: None Given
-        expires: 2025-05-01T10:37:59.602Z
-        created: 2025-04-01T10:37:59.609Z
 patch: {}
 exclude:
   code:

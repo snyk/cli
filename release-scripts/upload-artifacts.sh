@@ -22,6 +22,15 @@ declare -a StaticFiles=(
   "binary-releases/$PROTOCOL_VERSION_FILE"
 )
 
+declare -a StaticFilesExperimental=(
+  "binary-releases/experimental/snyk-linux"
+  "binary-releases/experimental/snyk-linux.sha256"
+  "binary-releases/experimental/snyk-linux-arm64"
+  "binary-releases/experimental/snyk-linux-arm64.sha256"
+  "binary-releases/experimental/sha256sums.txt.asc"
+  "binary-releases/experimental/$PROTOCOL_VERSION_FILE"
+)
+
 declare -a StaticFilesFIPS=(
   "binary-releases/fips/snyk-linux"
   "binary-releases/fips/snyk-linux.sha256"
@@ -136,6 +145,32 @@ trigger_build_snyk_images() {
   fi
 }
 
+trigger_build_dxt() {
+  echo "Triggering build-and-release workflow at mcp-dxt..."
+  echo "Version: $VERSION_TAG"
+  echo "Release Channel: $RELEASE_CHANNEL"
+  response_file=$TMPDIR/trigger_build_dxt.txt
+  RESPONSE=$(curl -L \
+    -X POST \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    https://api.github.com/repos/snyk/mcp-dxt/dispatches \
+    -d "{\"event_type\":\"cli_release\", \"client_payload\": {\"cli_version\": \"$VERSION_TAG\"}}" \
+    -w "%{http_code}" \
+    -s  \
+    -o "$response_file")
+  if [ "$RESPONSE" -eq 204 ]; then
+    echo "Successfully triggered build-and-release workflow at mcp-dxt."
+  else
+    echo "Failed to trigger build-and-release workflow at mcp-dxt."
+    echo "Response status code: $RESPONSE"
+    echo "Details:"
+    cat $response_file
+    exit 1
+  fi
+}
+
 upload_s3() {
   version_target=$1
   if [ "${DRY_RUN}" == true ]; then
@@ -153,6 +188,10 @@ upload_s3() {
     aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
     aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
     aws s3 cp "binary-releases/fips/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/ --dryrun
+
+    for filename in "${StaticFilesExperimental[@]}"; do
+      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/ --dryrun
+    done
   else
     echo "Uploading to S3..."
     for filename in "${StaticFiles[@]}"; do
@@ -168,6 +207,10 @@ upload_s3() {
     aws s3 cp "binary-releases/fips/release.json" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
     aws s3 cp "binary-releases/fips/version" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
     aws s3 cp "binary-releases/fips/RELEASE_NOTES.md" s3://"${PUBLIC_S3_BUCKET}"/fips/cli/"${version_target}"/
+
+    for filename in "${StaticFilesExperimental[@]}"; do
+      aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/experimental/cli/"${version_target}"/
+    done
   fi
 }
 
@@ -221,6 +264,10 @@ for arg in "${@}"; do
   # Trigger building Snyk images in snyk-images repository
   elif [ "${arg}" == "trigger-snyk-images" ]; then
     trigger_build_snyk_images
+
+  # Trigger building DXT in mcp-dxt repository
+  elif [ "${arg}" == "trigger_build_dxt" ]; then
+    trigger_build_dxt
 
   # Upload files to S3 bucket
   else

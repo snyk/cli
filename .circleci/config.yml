@@ -7,6 +7,9 @@ parameters:
   fips_cli_download_base_url:
     type: string
     default: 'https://downloads.snyk.io/fips/'
+  experimental_cli_download_base_url:
+    type: string
+    default: 'https://downloads.snyk.io/experimental/'
   go_download_base_url:
     type: string
     default: 'https://storage.googleapis.com/golang/'
@@ -16,7 +19,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.23.8'
+    default: '1.24.6'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -47,22 +50,22 @@ executors:
     resource_class: small
   docker-amd64:
     docker:
-      - image: snyklabs/cli-build:20241015-082358
+      - image: snyklabs/cli-build:20250429-091242
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: snyklabs/cli-build:20241015-082358
+      - image: snyklabs/cli-build:20250429-091242
     working_directory: /mnt/ramdisk/snyk
     resource_class: xlarge
   docker-arm64:
     docker:
-      - image: snyklabs/cli-build-arm64:20241015-082358
+      - image: snyklabs/cli-build-arm64:20250429-091242
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   docker-arm64-xl:
     docker:
-      - image: snyklabs/cli-build-arm64:20241015-082358
+      - image: snyklabs/cli-build-arm64:20250429-091242
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.xlarge
   linux-ubuntu-jammy-amd64:
@@ -78,6 +81,11 @@ executors:
   linux-ubuntu-latest-amd64:
     docker:
       - image: ubuntu:latest
+    working_directory: /mnt/ramdisk/snyk
+    resource_class: medium
+  linux-ubuntu-bionic-beaver-amd64:
+    docker:
+      - image: ubuntu:18.04
     working_directory: /mnt/ramdisk/snyk
     resource_class: medium
   linux-ubuntu-latest-arm64:
@@ -118,6 +126,10 @@ executors:
   cbl-mariner:
     docker:
       - image: mcr.microsoft.com/cbl-mariner/base/python:3.9.14-8-cm2.0.20240301-arm64
+    resource_class: arm.medium
+  suse-linux-fips:
+    docker:
+      - image: registry.suse.com/bci/bci-base-fips:15.6
     resource_class: arm.medium
 
 commands:
@@ -268,6 +280,15 @@ commands:
           name: No dependencies to install
           command: echo all done!
 
+  # this can be removed if we install the xdg-utils package in the docker image
+  install-deps-linux-acceptance-tests:
+    steps:
+      - run:
+          name: Installing linux acceptance tests dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install xdg-utils -y
+
   install-deps-python:
     parameters:
       os:
@@ -301,7 +322,7 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python pipenv elixir composer gradle@8 maven sbt dotnet
+        default: go gradle python pipenv elixir composer gradle@9 maven sbt dotnet
     steps:
       - run:
           name: Installing Rosetta
@@ -312,6 +333,7 @@ commands:
           name: Installing sdks and tools via homebrew
           command: |
             brew install << parameters.items >>
+            echo 'export PATH="/opt/homebrew/opt/gradle@9/bin:$PATH"' >> "$BASH_ENV"
       - save_cache:
           key: acceptance-tests-macos-<< parameters.items >>
           paths:
@@ -323,7 +345,7 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python elixir composer gradle@8 maven sbt dotnet
+        default: go gradle python elixir composer gradle@9 maven sbt dotnet
     steps:
       - run:
           name: Installing Rosetta
@@ -342,15 +364,15 @@ commands:
             *) arch="amd64";;
             esac
             echo "using architecture: $arch"
-            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip
+            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip xdg-utils
             pip3 install pipenv requests PyYAML setuptools==70.3.0
             wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh
             wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-$arch.tar.gz -O /tmp/go.tgz && \
               tar -C /usr/local -xzvf /tmp/go.tgz && \
               ln -s /usr/local/go/bin/go /usr/local/bin
-            wget https://services.gradle.org/distributions/gradle-8.10-bin.zip -O /tmp/gradle.zip && \
+            wget https://services.gradle.org/distributions/gradle-9.0.0-bin.zip -O /tmp/gradle.zip && \
               unzip -d /usr/local /tmp/gradle.zip && \
-              ln -s /usr/local/gradle-8.10/bin/gradle /usr/local/bin
+              ln -s /usr/local/gradle-9.0.0/bin/gradle /usr/local/bin
 
   failed-release-notification:
     steps:
@@ -399,9 +421,19 @@ workflows:
           channel: cli-alerts
           trusted-branch: main
 
+      - docs-only-check:
+          filters:
+            branches:
+              only:
+                - '/^docs\/.*/'
+
       - prepare-build:
           requires:
             - secrets-scan
+          filters:
+            branches:
+              ignore:
+                - '/^docs\/.*/'
 
       - code-analysis:
           go_target_os: linux
@@ -437,7 +469,7 @@ workflows:
             - nodejs-install
             - team_hammerhead-cli
           requires:
-            - secrets-scan
+            - prepare-build
           filters:
             branches:
               ignore:
@@ -474,6 +506,18 @@ workflows:
             - prepare-build
 
       - build-artifact:
+          name: build linux static amd64
+          context: iac-cli
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          make_target: build-experimental
+          executor: docker-amd64-xl
+          requires:
+            - prepare-build
+
+      - build-artifact:
           name: build linux arm64
           context: iac-cli
           go_target_os: linux
@@ -481,6 +525,18 @@ workflows:
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           make_target: build clean-golang build-fips
+          executor: docker-arm64-xl
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build linux static arm64
+          context: iac-cli
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          make_target: build-experimental
           executor: docker-arm64-xl
           requires:
             - prepare-build
@@ -566,6 +622,27 @@ workflows:
           test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-tests:
+          name: acceptance-tests linux static arm64
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
+          requires:
+            - build linux static arm64
+          executor: docker-arm64-xl
+          test_snyk_command: ./binary-releases/experimental/snyk-linux-arm64
+
+      - acceptance-tests:
           name: acceptance-tests linux amd64
           go_target_os: linux
           go_os: linux
@@ -579,6 +656,8 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux amd64
           executor: docker-amd64-xl
@@ -599,6 +678,8 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux arm64
           executor: docker-arm64
@@ -622,6 +703,8 @@ workflows:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux arm64
 
@@ -645,6 +728,7 @@ workflows:
           test_snyk_command: ./binary-releases/snyk-alpine
           install_deps_extension: alpine-full
           dont_skip_tests: 0
+          pre_test_cmds: export BROWSER="wget -O -"
 
       - acceptance-tests:
           name: acceptance-tests alpine arm64
@@ -667,6 +751,7 @@ workflows:
           test_snyk_command: ./binary-releases/snyk-alpine-arm64
           install_deps_extension: alpine-full
           dont_skip_tests: 0
+          pre_test_cmds: export BROWSER="wget -O -"
 
       - acceptance-tests:
           name: acceptance-tests macOS arm64
@@ -775,6 +860,8 @@ workflows:
             - build alpine arm64
             - build linux amd64
             - build linux arm64
+            - build linux static amd64
+            - build linux static arm64
             - build fix & protect
           filters:
             branches:
@@ -853,12 +940,26 @@ workflows:
                 - '/.*e2e.*/'
 
       - test-release:
-          name: e2e fips tests (cbl-mariner)
+          name: e2e experimental tests (linux-static-amd64)
+          context: team_hammerhead-cli
+          cli_download_base_url: << pipeline.parameters.experimental_cli_download_base_url >>
+          executor: 'linux-ubuntu-bionic-beaver-amd64'
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
+
+      - test-release:
+          name: e2e fips tests (suse-linux-fips)
           context: team_hammerhead-cli
           cli_download_base_url: << pipeline.parameters.fips_cli_download_base_url >>
           setup_steps:
-            - run: tdnf install -y tar ca-certificates
-          executor: 'cbl-mariner'
+            - run: zypper --non-interactive install python3-pip
+          executor: 'suse-linux-fips'
           requires:
             - upload version
           filters:
@@ -902,8 +1003,9 @@ workflows:
             - e2e tests (linux-ubuntu-jammy-arm64)
             - e2e tests (linux-ubuntu-focal-arm64)
             - e2e tests (alpine)
-            - e2e fips tests (cbl-mariner)
+            - e2e fips tests (suse-linux-fips)
             - e2e fips tests (win-server2022-amd64)
+            - e2e experimental tests (linux-static-amd64)
           filters:
             branches:
               only:
@@ -1001,6 +1103,17 @@ workflows:
                 - main
                 - '/release.*/'
 
+      - trigger-building-dxt:
+          name: Trigger building mcp-dxt (stable)
+          context: team-hammerhead-common-deploy-tokens
+          requires:
+            - upload npm
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+
 ####################################################################################################
 # JOBS
 ####################################################################################################
@@ -1043,6 +1156,7 @@ jobs:
             - binary-releases/*
             - ts-cli-binaries/*
             - binary-releases/fips/*
+            - binary-releases/experimental/*
             - node_modules/*
             - ts-binary-wrapper/*
             - dist/*
@@ -1083,6 +1197,30 @@ jobs:
           open-source-additional-arguments: --exclude=test,dist
           iac-scan: disabled
           release-branch: main
+
+  docs-only-check:
+    executor: docker-amd64
+    steps:
+      - checkout
+      - run:
+          name: Check if all changed files are documentation (.md)
+          command: |
+            CHANGED_FILES=$(git diff --name-only main)
+
+            # If this step fails, check if you need to add another extension, 
+            # or indeed if this PR adds more than docs-related changes.
+            ALLOWED_DOCS_EXTENSIONS="(\.md|\.svg|\.jpg)$"
+
+            for file in $CHANGED_FILES; do
+              echo "Checking extension of file: $file"
+              # -q:  quiet
+              # -E: extended regular expressions
+              if ! echo "$file" | grep -q -E "$ALLOWED_DOCS_EXTENSIONS"; then
+                echo "Error: Disallowed file type found: $file"
+                exit 1
+              fi
+            done
+            exit 0
 
   test-node:
     executor: docker-amd64
@@ -1209,6 +1347,7 @@ jobs:
           paths:
             - binary-releases/snyk-*
             - binary-releases/fips/snyk-*
+            - binary-releases/experimental/snyk-*
 
   acceptance-tests:
     parameters:
@@ -1331,6 +1470,7 @@ jobs:
           paths:
             - binary-releases/snyk-*
             - binary-releases/fips/snyk-*
+            - binary-releases/experimental/snyk-*
 
   create_deployment_artifacts:
     parameters:
@@ -1377,6 +1517,7 @@ jobs:
           command: |
             make ls-protocol-metadata
             cp binary-releases/ls-protocol-version-* binary-releases/fips/
+            cp binary-releases/ls-protocol-version-* binary-releases/experimental/
       - store_artifacts:
           path: ./binary-releases
       - persist_to_workspace:
@@ -1393,6 +1534,9 @@ jobs:
             - binary-releases/ls-protocol-version-*
             - binary-releases/fips/ls-protocol-version-*
             - binary-releases/fips/RELEASE_NOTES.md
+            - binary-releases/experimental/sha256sums.txt.asc
+            - binary-releases/experimental/snyk-*.sha256
+            - binary-releases/experimental/ls-protocol-version-*
 
   pre-release:
     executor: docker-amd64
@@ -1525,6 +1669,15 @@ jobs:
       - run:
           name: Trigger build-and-publish workflow at snyk-images
           command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
+      - failed-release-notification
+
+  trigger-building-dxt:
+    executor: docker-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Trigger build-and-release workflow at mcp-dxt
+          command: ./release-scripts/upload-artifacts.sh trigger_build_dxt
       - failed-release-notification
 
   noop:

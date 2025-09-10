@@ -64,7 +64,7 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     };
   };
 
-  const getRequests = () => {
+  const getRequests = (): express.Request[] => {
     return requests;
   };
 
@@ -111,6 +111,8 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
   };
 
   const app = express();
+  app.use(express.json());
+  app.use(express.raw({ type: 'application/octet-stream' }));
 
   app.use((req, res, next) => {
     requests.push(req);
@@ -136,11 +138,19 @@ export const fakeDeepCodeServer = (): FakeDeepCodeServer => {
     res.send(filtersResponse);
   });
 
+  const bundleHash = 'bundle-hash';
   app.post('/bundle', (req, res) => {
     res.status(200);
 
     res.send({
-      bundleHash: 'bundle-hash',
+      bundleHash,
+      missingFiles: [],
+    });
+  });
+  app.put(`/bundle/${bundleHash}`, (req, res) => {
+    res.status(200);
+    res.send({
+      bundleHash,
       missingFiles: [],
     });
   });

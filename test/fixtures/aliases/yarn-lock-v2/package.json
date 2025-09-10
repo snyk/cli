@@ -1,0 +1,8 @@
+{
+  "name": "v2",
+  "packageManager": "yarn@4.9.1",
+  "dependencies": {
+    "lodash": "npm:lodash@^4.17.15",
+    "pkg": "npm:@yao-pkg/pkg@^6.4.1"
+  }
+}

@@ -1,0 +1,128 @@
+name: Synchronize README from GitBooks
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1' # Monday at 9
+
+env:
+  DESTINATION_BRANCH: docs/automatic-gitbook-update-readme-${{ github.ref_name }}
+  COMMIT_MESSAGE: 'docs: synchronizing README from snyk/user-docs'
+
+jobs:
+  build:
+    name: synchronize-readme
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout user-docs repository
+        uses: actions/checkout@v4
+        with:
+          repository: snyk/user-docs
+          path: user-docs
+          fetch-depth: 0
+          ref: main
+
+      - name: Checkout cli repository
+        uses: actions/checkout@v4
+        with:
+          repository: snyk/cli
+          path: cli
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Configure Git user
+        run: |
+          git config --global user.name "Team CLI Bot"
+          git config --global user.email "team-cli@snyk.io"
+
+      - name: Import and configure GPG
+        env:
+          GPG_KEY: ${{ secrets.TEAM_CLI_BOT_GPG_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.TEAM_CLI_BOT_GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_KEY" | gpg --batch --import
+          gpg --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --batch --sign >/dev/null 2>&1
+
+      - name: Create or checkout destination branch
+        run: |
+          cd cli
+          if git show-ref --verify --quiet refs/heads/${{ env.DESTINATION_BRANCH }}; then
+            echo "Branch ${{ env.DESTINATION_BRANCH }} already exists, checking out."
+            git checkout ${{ env.DESTINATION_BRANCH }}
+            echo "Cleaning it for a fresh start."
+            git reset --hard origin/main
+            exit 0
+          fi
+
+          echo "Branch ${{ env.DESTINATION_BRANCH }} does not exist, creating and checking out."
+          git checkout -b ${{ env.DESTINATION_BRANCH }}
+
+      - name: Retrieve GitBook content and update README
+        run: |
+          cp ./user-docs/docs/developer-tools/snyk-cli/getting-started-with-the-snyk-cli.md ./cli/README.md
+
+          # GitBook Markdown files often use relative paths for assets (e.g., images)
+          # like `../.gitbook/assets/image.png`. When this README.md is viewed directly
+          # on GitHub, these relative paths won't resolve correctly. This `sed` command
+          # replaces those relative paths with the full, absolute URL to the assets
+          # hosted in the `snyk/user-docs` GitHub repository's raw content.
+          #
+          # - `-i`: Edits the file in-place, modifying the original README.md directly.
+          # - `-e`: Specifies the script to be executed. In this case, it's the 's'
+          #         (substitute) command which replaces the old path with the new URL.
+          sed -i \
+              -e "s|../.gitbook/assets/|https://github.com/snyk/user-docs/raw/HEAD/docs/.gitbook/assets/|g" \
+              ./cli/README.md
+
+      - name: Format README with Prettier
+        run: |
+          cd ./cli
+          npx prettier --write README.md
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          cd ./cli
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No documentation changes detected, exiting."
+            echo "continue=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "--- Documentation changes detected from GitBooks (before Prettier) ---"
+          git --no-pager diff --color=always
+          echo "---------------------------------------------------------------------"
+
+          echo "continue=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push changes (if any)
+        if: steps.check_changes.outputs.continue == 'true'
+        run: |
+          cd ./cli
+          git add README.md
+          git commit -S -m "${{ env.COMMIT_MESSAGE }}"
+          git push --force --set-upstream origin ${{ env.DESTINATION_BRANCH }}
+
+      - name: Create or update a pull request
+        if: steps.check_changes.outputs.continue == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.TEAM_CLI_GITHUB_PAT }}
+        run: |
+          cd ./cli
+          PR_NUMBER=$(gh pr list \
+            --head "${{ env.DESTINATION_BRANCH }}" \
+            --json number \
+            --jq '.[0].number' \
+            --limit 1)
+
+          if [ -n "$PR_NUMBER" ]; then
+            echo "PR #$PR_NUMBER already exists. Updating it."
+            echo "Pushed changes to existing PR #$PR_NUMBER."
+            exit 0
+          fi
+
+          echo "No existing PR found. Creating a new one."
+          gh pr create \
+            --title="${{ env.COMMIT_MESSAGE }}" \
+            --body="Automatic PR controlled by GitHub Action" \
+            --head "${{ env.DESTINATION_BRANCH }}" \
+            --base ${{ github.ref_name || 'main' }}

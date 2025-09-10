@@ -38,11 +38,17 @@ help:
 $(BINARY_OUTPUT_FOLDER)/fips: $(BINARY_OUTPUT_FOLDER)
 	@mkdir -p $(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips
 
+$(BINARY_OUTPUT_FOLDER)/experimental: $(BINARY_OUTPUT_FOLDER)
+	@mkdir -p $(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/experimental
+
 $(BINARY_RELEASES_FOLDER_TS_CLI):
 	@mkdir -p $(BINARY_RELEASES_FOLDER_TS_CLI)
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/version: | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	./release-scripts/next-version.sh > $(BINARY_RELEASES_FOLDER_TS_CLI)/version
+
+$(BINARY_OUTPUT_FOLDER)/experimental/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/experimental
+	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/experimental/version
 
 $(BINARY_OUTPUT_FOLDER)/fips/version: $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/fips
 	@cp $(BINARY_RELEASES_FOLDER_TS_CLI)/version $(BINARY_OUTPUT_FOLDER)/fips/version
@@ -127,6 +133,10 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_
 	$(PKG) -t node$(PKG_NODE_VERSION)-linux-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux.sha256
 
+$(BINARY_RELEASES_FOLDER_TS_CLI)/experimental/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PKG) -t node$(PKG_NODE_VERSION)-linuxstatic-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/experimental/snyk-linux
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/experimental/snyk-linux.sha256
+
 # Why `--no-bytecode` for Linux/arm64:
 #   arm64 bytecode generation requires various build tools on an x64 build
 #   environment. So disabling until we can support it. It's an optimisation.
@@ -134,6 +144,10 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux: prepack | $(BINARY_RELEASES_FOLDER_
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	$(PKG) -t node$(PKG_NODE_VERSION)-linux-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64 --no-bytecode
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-linux-arm64.sha256
+
+$(BINARY_RELEASES_FOLDER_TS_CLI)/experimental/snyk-linux-arm64: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
+	$(PKG) -t node$(PKG_NODE_VERSION)-linuxstatic-arm64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/experimental/snyk-linux-arm64 --no-bytecode
+	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/experimental/snyk-linux-arm64.sha256
 
 $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	$(PKG) -t node$(PKG_NODE_VERSION)-macos-x64 -o $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-macos
@@ -161,7 +175,6 @@ $(BINARY_RELEASES_FOLDER_TS_CLI)/snyk-for-docker-desktop-darwin-arm64.tar.gz: pr
 $(BINARY_RELEASES_FOLDER_TS_CLI)/docker-mac-signed-bundle.tar.gz: prepack | $(BINARY_RELEASES_FOLDER_TS_CLI)
 	./release-scripts/docker-desktop-release.sh
 	$(MAKE) $(BINARY_RELEASES_FOLDER_TS_CLI)/docker-mac-signed-bundle.tar.gz.sha256
-
 # targets responsible for the Wrapper CLI (TS around Golang)
 $(BINARY_WRAPPER_DIR)/README.md:
 	@cp ./README.md $(BINARY_WRAPPER_DIR)/README.md
@@ -225,6 +238,11 @@ pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI) $(BINARY_RE
 .PHONY: build-fips
 build-fips: pre-build $(BINARY_OUTPUT_FOLDER)/fips/version
 	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
+	@$(MAKE) clean-package-files
+
+.PHONY: build-experimental
+build-experimental: pre-build $(BINARY_OUTPUT_FOLDER)/experimental/version
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) experimental build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/experimental USE_LEGACY_EXECUTABLE_NAME=1
 	@$(MAKE) clean-package-files
 
 .PHONY: build

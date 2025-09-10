@@ -16,6 +16,15 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['containerCliAppVulnsEnabled', true],
     ['enablePnpmCli', false],
     ['sbomMonitorBeta', false],
+    ['useImprovedDotnetWithoutPublish', false],
+
+    // Default these to false.
+    // TODO: Future acceptance tests targeting these features and their
+    // associated extension (cli-extension-os-flows) specifically may enable
+    // them at a later time.
+    ['useExperimentalRiskScore', false],
+    ['useExperimentalRiskScoreInCLI', false],
+    ['sbomTestReachability', false],
   ]);
 };
 
@@ -44,6 +53,11 @@ export type FakeServer = {
   setSarifResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
+  setEndpointResponse: (
+    endpoint: string,
+    response: Record<string, unknown>,
+  ) => void;
+  setEndpointStatusCode: (endpoint: string, code: number) => void;
   setStatusCode: (c: number) => void;
   setStatusCodes: (c: number[]) => void;
   setLocalCodeEngineConfiguration: (next: Record<string, unknown>) => void;
@@ -76,6 +90,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let statusCode: number | undefined = undefined;
   let statusCodes: number[] = [];
   let nextResponse: any = undefined;
+  let endpointResponses: Map<string, Record<string, unknown>> = new Map();
+  let endpointStatusCodes: Map<string, number> = new Map();
   let customResponse: Record<string, unknown> | undefined = undefined;
   let sarifResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
@@ -86,6 +102,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     requests = [];
     customResponse = undefined;
     sarifResponse = undefined;
+    endpointResponses = new Map();
+    endpointStatusCodes = new Map();
     featureFlags = featureFlagDefaults();
     availableSettings = new Map();
     unauthorizedActions = new Map();
@@ -143,6 +161,17 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     statusCodes = codes;
   };
 
+  const setEndpointResponse = (
+    endpoint: string,
+    response: Record<string, unknown>,
+  ) => {
+    endpointResponses.set(endpoint, response);
+  };
+
+  const setEndpointStatusCode = (endpoint: string, code: number) => {
+    endpointStatusCodes.set(endpoint, code);
+  };
+
   const setFeatureFlag = (featureFlag: string, enabled: boolean) => {
     featureFlags.set(featureFlag, enabled);
   };
@@ -163,11 +192,42 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const app = express();
   app.use(bodyParser.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ extended: true }));
   // Content-Type for rest API endpoints is 'application/vnd.api+json'
   app.use(express.json({ type: 'application/vnd.api+json', strict: false }));
   app.use((req, res, next) => {
     requests.push(req);
     next();
+  });
+
+  app.use((req, res, next) => {
+    const endpoint = req.url;
+    const endpointResponse = endpointResponses.get(endpoint);
+    const endpointStatusCode = endpointStatusCodes.get(endpoint);
+    if (endpointResponse) {
+      res.status(endpointStatusCode || 200);
+      res.send(endpointResponse);
+      return;
+    }
+
+    if (
+      req.url?.includes('/iac-org-settings') ||
+      req.url?.includes('/cli-config/feature-flags/') ||
+      (!nextResponse && !nextStatusCode && !statusCode)
+    ) {
+      return next();
+    }
+    const response = nextResponse;
+    nextResponse = undefined;
+    if (nextStatusCode) {
+      const code = nextStatusCode;
+      nextStatusCode = undefined;
+      res.status(code);
+    } else if (statusCode) {
+      res.status(statusCode);
+    }
+
+    res.send(response);
   });
 
   [basePath + '/verify/callback', basePath + '/verify/token'].map((url) => {
@@ -200,25 +260,28 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send('Test Authenticated!');
   });
 
-  app.use((req, res, next) => {
-    if (
-      req.url?.includes('/iac-org-settings') ||
-      req.url?.includes('/cli-config/feature-flags/') ||
-      (!nextResponse && !nextStatusCode && !statusCode)
-    ) {
-      return next();
-    }
-    const response = nextResponse;
-    nextResponse = undefined;
-    if (nextStatusCode) {
-      const code = nextStatusCode;
-      nextStatusCode = undefined;
-      res.status(code);
-    } else if (statusCode) {
-      res.status(statusCode);
-    }
-
-    res.send(response);
+  app.get('/rest/self', (req, res) => {
+    const defaultResponse = {
+      jsonapi: {
+        version: '1.0',
+      },
+      data: {
+        type: 'user',
+        id: '11111111-2222-3333-4444-555555555555',
+        attributes: {
+          name: 'Messi',
+          default_org_context: '55555555-5555-5555-5555-555555555555',
+          username: 'test.user@snyk.io',
+          email: 'test.user@snyk.io',
+          avatar_url: 'https://s.gravatar.com/avatar/snykdog.png',
+        },
+      },
+      links: {
+        self: '/self?version=2024-10-15',
+      },
+    };
+    res.status(200);
+    res.send(defaultResponse);
   });
 
   app.get(basePath + '/vuln/:registry/:module', (req, res) => {
@@ -322,6 +385,59 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           },
         },
       ],
+    });
+  });
+
+  app.post(`/api/rest/orgs/:orgId/ai_boms`, (req, res) => {
+    res.status(202);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {
+        self: `/api/rest/orgs/${req.params.orgId}/ai_bom_jobs/59622253-75f3-4439-ac1e-ce94834c5804`,
+      },
+      data: {
+        id: '59622253-75f3-4439-ac1e-ce94834c5804',
+        type: 'ai_bom_job',
+        attributes: { status: 'processing' },
+      },
+    });
+  });
+
+  app.get(`/api/rest/orgs/:orgId/ai_bom_jobs/:jobId`, (req, res) => {
+    res.status(303);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {},
+      data: {
+        id: `${req.params.jobId}`,
+        type: 'ai_bom_job',
+        attributes: { status: 'finished' },
+        relationships: {
+          ai_bom: {
+            data: {
+              id: '39645628-1168-4876-b767-937ba9aabd77',
+              type: 'ai_bom',
+            },
+          },
+        },
+      },
+    });
+  });
+
+  app.get(`/api/rest/orgs/:orgId/ai_boms/:aiBomId`, (req, res) => {
+    res.status(200);
+    const aiBomCycloneDx = fs.readFileSync(
+      path.resolve(getFixturePath('ai-bom'), 'sample-ai-bom.json'),
+      'utf8',
+    );
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {},
+      data: {
+        id: req.params.aiBomId,
+        type: 'ai_bom',
+        attributes: JSON.parse(aiBomCycloneDx),
+      },
     });
   });
 
@@ -944,12 +1060,30 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+  app.get(basePath.replace('/v1', '') + '/oauth2/authorize', (req, res) => {
+    const redirectUri = req.query.redirect_uri;
+    const responseState = req.query.state;
+    const responseCode = 'test_authorization_code_12345';
+    // NOTE: the instance param is not supported for testing
+
+    res.writeHead(302, {
+      Location: `${redirectUri}?code=${responseCode}&state=${responseState}`,
+    });
+    res.end();
+    return;
+  });
+
   app.post(basePath.replace('/v1', '') + '/oauth2/token', (req, res) => {
     const fake_oauth_token =
       '{"access_token":"access_token_value","token_type":"b","expiry":"3023-12-20T08:49:15.504539Z"}';
 
     // client credentials grant: expecting client id = a and client secret = b
     if (req.headers.authorization?.includes('Basic YTpi')) {
+      res.status(200).send(fake_oauth_token);
+      return;
+    }
+    // authorization code grant: expect code and state
+    if (req.body.grant_type === 'authorization_code' && req.body.code) {
       res.status(200).send(fake_oauth_token);
       return;
     }
@@ -1024,6 +1158,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setLocalCodeEngineConfiguration,
     setNextResponse,
     setNextStatusCode,
+    setEndpointResponse,
+    setEndpointStatusCode,
     setStatusCode,
     setStatusCodes,
     setFeatureFlag,

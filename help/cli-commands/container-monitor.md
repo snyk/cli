@@ -12,7 +12,7 @@ Use the `container monitor` command before integrating your code into production
 
 If you make changes to your code, you must run the `container monitor` command again.
 
-For more information, see [Snyk CLI for container security](https://docs.snyk.io/products/snyk-container/snyk-cli-for-container-security)
+For more information, see [Snyk CLI for Snyk Container](../scan-and-maintain-projects-using-the-cli/snyk-cli-for-snyk-container/)
 
 ## Exit codes
 
@@ -26,7 +26,7 @@ Possible exit codes and their meaning:
 
 You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API.
 
-There are environment variables that apply to the container command; see [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli)
+There are environment variables that apply to the container command; see [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli)
 
 ## Debug
 
@@ -70,13 +70,13 @@ Print results on the console as a JSON data structure.
 
 Example: `$ snyk container test --json`
 
-**Note**: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed see [Permissions (role) required to edit Project attributes from the Snyk CLI](https://docs.snyk.io/snyk-admin/manage-permissions-and-roles/manage-member-roles#permissions-role-required-to-edit-project-attributes-from-the-snyk-cli)
+**Note**: If you use an option that sets project attributes and your role lacks permission to edit project attributes the `monitor` command fails. For instructions on how to proceed, see [Permissions required to edit Project attributes](https://docs.snyk.io/snyk-admin/user-roles/user-role-management#permissions-required-to-edit-project-attributes-from-the-snyk-cli)
 
 ### `--target-reference=<TARGET_REFERENCE>`
 
 Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference.
 
-For more information see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
+For more information, see [Group projects by branch or version for monitoring](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/group-projects-by-branch-or-version-for-monitoring)
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
@@ -84,7 +84,7 @@ Set the project environment to one or more values (comma-separated). To clear th
 
 Allowed values: `frontend`, `backend`, `internal`, `external`, `mobile`, `saas`, `onprem`, `hosted`, `distributed`
 
-For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
+For more information, see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE]...>`
 
@@ -92,7 +92,7 @@ Set the project lifecycle to one or more values (comma-separated). To clear the 
 
 Allowed values: `production, development, sandbox`
 
-For more information see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
+For more information, see [Project attributes](https://docs.snyk.io/snyk-admin/snyk-projects/project-attributes)
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
 

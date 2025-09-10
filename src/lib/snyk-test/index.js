@@ -7,7 +7,11 @@ const pm = require('../package-managers');
 const { UnsupportedPackageManagerError } = require('../errors');
 const { isMultiProjectScan } = require('../is-multi-project-scan');
 const { hasFeatureFlag } = require('../feature-flags');
-const { PNPM_FEATURE_FLAG } = require('../package-managers');
+const {
+  PNPM_FEATURE_FLAG,
+  DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+  MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+} = require('../package-managers');
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -30,11 +34,43 @@ async function test(root, options, callback) {
 
 async function executeTest(root, options) {
   let hasPnpmSupport = false;
+  let hasImprovedDotnetWithoutPublish = false;
+  let enableMavenDverboseExhaustiveDeps = false;
   try {
     hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
+    if (options['dotnet-runtime-resolution']) {
+      hasImprovedDotnetWithoutPublish = await hasFeatureFlag(
+        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+        options,
+      );
+      if (hasImprovedDotnetWithoutPublish) {
+        options.useImprovedDotnetWithoutPublish = true;
+      }
+    }
   } catch (err) {
     hasPnpmSupport = false;
   }
+
+  try {
+    const args = options['_doubleDashArgs'] || [];
+    const verboseEnabled =
+      args.includes('-Dverbose') ||
+      args.includes('-Dverbose=true') ||
+      !!options['print-graph'];
+    if (verboseEnabled) {
+      enableMavenDverboseExhaustiveDeps = await hasFeatureFlag(
+        MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+        options,
+      );
+      if (enableMavenDverboseExhaustiveDeps) {
+        options.mavenVerboseIncludeAllVersions =
+          enableMavenDverboseExhaustiveDeps;
+      }
+    }
+  } catch (err) {
+    enableMavenDverboseExhaustiveDeps = false;
+  }
+
   try {
     const featureFlags = hasPnpmSupport
       ? new Set([PNPM_FEATURE_FLAG])

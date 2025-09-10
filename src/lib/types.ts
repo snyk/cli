@@ -54,6 +54,7 @@ export interface Options {
   'dry-run'?: boolean;
   allSubProjects?: boolean;
   mavenAggregateProject?: boolean;
+  mavenVerboseIncludeAllVersions?: boolean;
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
   packageManager?: SupportedPackageManagers;
@@ -123,6 +124,9 @@ export interface Options {
   // GenDriftIgnoreOptions
   'exclude-missing'?: boolean;
   'exclude-unmanaged'?: boolean;
+
+  // Feature Flags
+  useImprovedDotnetWithoutPublish?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -150,6 +154,7 @@ export interface MonitorOptions {
   initScript?: string;
   yarnWorkspaces?: boolean;
   'max-depth'?: number;
+  'reachability-id'?: string;
 }
 
 export interface MonitorMeta {
@@ -162,6 +167,7 @@ export interface MonitorMeta {
   'remote-repo-url'?: string;
   targetReference?: string;
   assetsProjectName?: boolean;
+  reachabilityScanId?: string;
 }
 
 export interface Tag {
