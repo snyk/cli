@@ -25,6 +25,15 @@ Use the `-d` option to output the debug logs.
 
 ## Options
 
+`--report --project-name="<PROJECT_NAME>"`
+
+Allows you to publish test results of local code to a Snyk Project in the Web UI
+
+* `project-name` must be in double quotation marks. Single quotes or missing quotes will result in an error.
+* `project-name` must contain only alphanumeric characters, forward slashes (/), dashes (-), underscores (\_), and square brackets (\[]).
+
+After using this option, log in to the Snyk website and view your projects to see the snapshot.
+
 ### `--org=<ORG_ID>`
 
 Specify the `<ORG_ID>`to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences private test limits.
