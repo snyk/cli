@@ -19,6 +19,9 @@ export function createSarifOutputForContainers(
     sarifRes.runs.push({
       tool: getTool(testResult),
       results: getResults(testResult),
+      automationDetails: {
+        id: `Snyk Container scan for ${testResult.targetFile ?? testResult.path}/${new Date().toISOString().split('T')[0]}`,
+      },
     });
   });
 

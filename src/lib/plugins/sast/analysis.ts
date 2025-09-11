@@ -251,6 +251,7 @@ function parseSecurityResults(codeAnalysis: Log): Log {
 
   codeAnalysis.$schema =
     'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json';
+  codeAnalysis.runs[0].automationDetails!.id = `Snyk Code scan for ${codeAnalysis.runs[0].tool.driver.name}/${new Date().toISOString().split('T')[0]}`;
   return codeAnalysis;
 }
 

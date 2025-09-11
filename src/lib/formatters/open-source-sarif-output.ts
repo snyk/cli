@@ -39,6 +39,9 @@ export function createSarifOutputForOpenSource(
           rules: getRules(testResult),
         },
       },
+      automationDetails: {
+        id: `Snyk Open Source scan for ${testResult.targetFile ?? testResult.path}/${new Date().toISOString().split('T')[0]}`,
+      },
       results: getResults(testResult),
     })),
   };
