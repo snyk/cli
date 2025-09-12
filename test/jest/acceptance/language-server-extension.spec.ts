@@ -36,6 +36,12 @@ describe('Language Server Extension', () => {
 
     const cli = cp.spawn(cmd, ['language-server'], { stdio: 'pipe' }); // Use stdin and stdout for communication:
 
+    let processExited = false;
+    cli.on('exit', (code, signal) => {
+      console.debug(`CLI process exited with code: ${code}, signal: ${signal}`);
+      processExited = true;
+    });
+
     const connection = rpc.createMessageConnection(
       new rpc.StreamMessageReader(cli.stdout),
       new rpc.StreamMessageWriter(cli.stdin),
@@ -58,7 +64,8 @@ describe('Language Server Extension', () => {
       workspaceFolders: [
         {
           name: 'workspace',
-          uri: pathToFileURL('.').href,
+          uri: pathToFileURL('./test/fixtures/npm/with-vulnerable-lodash-dep')
+            .href,
         },
       ],
       rootUri: null,
@@ -82,7 +89,7 @@ describe('Language Server Extension', () => {
     connection.onNotification(
       'textDocument/publishDiagnostics',
       (param: string) => {
-        console.debug('Received notification: ' + param);
+        console.debug('Received notification: ' + JSON.stringify(param));
         diagnosticCount++;
       },
     );
@@ -107,5 +114,15 @@ describe('Language Server Extension', () => {
     }
 
     cli.kill(9);
+
+    for (let i = 0; i < 10; i++) {
+      console.debug('Waiting for process to exit...');
+      if (processExited) {
+        break;
+      }
+      await sleep(1000);
+    }
+
+    expect(diagnosticCount).toBeGreaterThan(0);
   });
 });
