@@ -239,6 +239,17 @@ DepGraph end`,
 
       expect(payloads).toMatchSnapshot();
     });
+
+    it('includes OS field with prettyName under docker element in JSON output for container tests when OS info is available', async () => {
+      const { stdout } = await runSnykCLI(
+        `container test library/ubuntu@sha256:7a57c69fe1e9d5b97c5fe649849e79f2cfc3bf11d10bbd5218b4eb61716aebe6 --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+      expect(jsonOutput.docker).toBeDefined();
+      expect(jsonOutput.docker.os).toBeDefined();
+      expect(jsonOutput.docker.os.prettyName).toBeDefined();
+      expect(jsonOutput.docker.os.prettyName).toBe('Ubuntu 22.04.2 LTS');
+    });
   });
 
   describe('depgraph', () => {
