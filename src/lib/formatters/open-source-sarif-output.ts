@@ -39,6 +39,9 @@ export function createSarifOutputForOpenSource(
           rules: getRules(testResult),
         },
       },
+      automationDetails: {
+        id: `Snyk/Open Source/${testResult.projectName}/${new Date().toISOString()}`,
+      },
       results: getResults(testResult),
     })),
   };

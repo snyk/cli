@@ -49,7 +49,7 @@ export function convertEngineToSarifResults(scanResult: TestOutput): sarif.Log {
 
         tool,
         automationDetails: {
-          id: 'snyk-iac',
+          id: `Snyk/IaC/${scanResult.results?.metadata?.projectName}/${new Date().toISOString()}`,
         },
         results: mapSnykIacTestResultsToSarifResults(scanResult.results),
       },
