@@ -44,7 +44,7 @@ describe('analytics module', () => {
     const requestSpy = jest.spyOn(request, 'makeRequest');
     requestSpy.mockRejectedValue(new Error('this should be ignored'));
 
-    const result = analytics.addDataAndSend({
+    const result = await analytics.addDataAndSend({
       args: argsFrom({}),
     });
 

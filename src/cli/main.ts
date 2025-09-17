@@ -57,7 +57,7 @@ const debug = Debug('snyk');
 async function runCommand(args: Args) {
   const commandResult = await args.method(...args.options._);
 
-  const res = analytics.addDataAndSend({
+  const res = await analytics.addDataAndSend({
     args: obfuscateArgs(args.options._),
     command: args.command,
     org: args.options.org,
@@ -223,7 +223,7 @@ async function handleError(args, error) {
     analytics.add('command', args.command);
   }
 
-  const res = analytics.addDataAndSend({
+  const res = await analytics.addDataAndSend({
     args: obfuscateArgs(args.options._),
     command,
     org: args.options.org,
@@ -286,6 +286,7 @@ export async function main(): Promise<void> {
   checkRuntime();
 
   let res;
+  let response;
   let failed = false;
   let exitCode = EXIT_CODES.ERROR;
   try {
@@ -362,7 +363,7 @@ export async function main(): Promise<void> {
   } catch (error) {
     failed = true;
 
-    const response = await handleError(globalArgs, error);
+    response = await handleError(globalArgs, error);
     res = response.res;
     exitCode = response.exitCode;
   }
@@ -377,6 +378,7 @@ export async function main(): Promise<void> {
   if (!process.env.TAP && failed) {
     debug('Exit code: ' + exitCode);
     process.exitCode = exitCode;
+    throw response;
   }
 
   return res;

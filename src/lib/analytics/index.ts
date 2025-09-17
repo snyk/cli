@@ -25,7 +25,7 @@ const metadata = {};
  * @param data the data to merge into that data which has been staged thus far (with the {@link add} function)
  * and then sent to the backend.
  */
-export function addDataAndSend(
+export async function addDataAndSend(
   data,
 ): Promise<void | { res: needle.NeedleResponse; body: any }> {
   if (!data) {

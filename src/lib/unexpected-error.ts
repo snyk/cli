@@ -1,4 +1,6 @@
 import { sendError } from '../cli/ipc';
+import Debug from 'debug';
+const debug = Debug('snyk:unexpected-error');
 
 /**
  * Ensures a given function does not throw any errors, including unexpected ones
@@ -22,12 +24,13 @@ export async function callHandlingUnexpectedErrors(
       errorWasSend = sendError(tmp, false);
     }
 
+    const code = (reason as any).exitCode ?? exitCode;
     if (!errorWasSend) {
-      console.error('Something unexpected went wrong:', reason);
-      console.error('Exit code:', exitCode);
+      debug('Something unexpected went wrong:', reason);
+      debug('Exit code:', code);
     }
 
-    process.exit(exitCode);
+    process.exit(code);
   }
 
   process.on('uncaughtException', handleUnexpectedError);
