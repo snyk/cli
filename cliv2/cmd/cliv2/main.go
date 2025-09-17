@@ -419,7 +419,7 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
-		} else if currentCommandString == "test" {
+		} else if currentCommandString == "test" || currentCommandString == "monitor" {
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.SetFlagErrorFunc(func(command *cobra.Command, err error) error {
 				return emptyCommandFunction(command, []string{})
