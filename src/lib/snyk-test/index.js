@@ -11,6 +11,7 @@ const {
   PNPM_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+  ADVANCED_PACKAGE_MANAGER_DETECTION_FLAG,
 } = require('../package-managers');
 
 async function test(root, options, callback) {
@@ -36,6 +37,8 @@ async function executeTest(root, options) {
   let hasPnpmSupport = false;
   let hasImprovedDotnetWithoutPublish = false;
   let enableMavenDverboseExhaustiveDeps = false;
+  let enableAdvancedPackageManagerDetection = false;
+
   try {
     hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
     if (options['dotnet-runtime-resolution']) {
@@ -49,6 +52,15 @@ async function executeTest(root, options) {
     }
   } catch (err) {
     hasPnpmSupport = false;
+  }
+
+  try {
+    enableAdvancedPackageManagerDetection = await hasFeatureFlag(
+      ADVANCED_PACKAGE_MANAGER_DETECTION_FLAG,
+      options,
+    );
+  } catch (err) {
+    enableAdvancedPackageManagerDetection = false;
   }
 
   try {
@@ -72,9 +84,13 @@ async function executeTest(root, options) {
   }
 
   try {
-    const featureFlags = hasPnpmSupport
-      ? new Set([PNPM_FEATURE_FLAG])
-      : new Set([]);
+    const featureFlags = new Set();
+    if (hasPnpmSupport) {
+      featureFlags.add(PNPM_FEATURE_FLAG);
+    }
+    if (enableAdvancedPackageManagerDetection) {
+      featureFlags.add(ADVANCED_PACKAGE_MANAGER_DETECTION_FLAG);
+    }
 
     if (!options.allProjects) {
       options.packageManager = detect.detectPackageManager(

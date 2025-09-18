@@ -1,5 +1,8 @@
 import { fakeServer } from '../../../acceptance/fake-server';
-import { createProjectFromWorkspace } from '../../util/createProject';
+import {
+  createProjectFromWorkspace,
+  createProject,
+} from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60 * 5);
@@ -35,7 +38,49 @@ describe('snyk sbom: npm options (mocked server only)', () => {
     });
   });
 
-  test('`sbom --strict-out-of-sync=false` generates an SBOM for the NPM project by NOT preventing scanning out-of-sync NPM lockfiles.', async () => {
+  test('sbom creation fails due to presence of nx build platform project.json with advanced package manager detection disabled', async () => {
+    server.setFeatureFlag('enableAdvancedPackageManagerDetection', false);
+    const project = await createProject('npm-nx-build-platform');
+
+    const { code, stdout } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --all-projects --debug`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toEqual(2);
+    expect(stdout).toContainText(
+      'npm-nx-build-platform/project.json: No valid Dotnet target',
+    );
+  });
+
+  test('sbom creation handles presence of nx build platform project.json file by using advanced package manager detection', async () => {
+    server.setFeatureFlag('enableAdvancedPackageManagerDetection', true);
+    const project = await createProject('npm-nx-build-platform');
+
+    const { code, stdout } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --all-projects --debug`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+    let bom;
+
+    expect(code).toEqual(0);
+    expect(stdout).not.toContainText(
+      'npm-nx-build-platform/project.json: No valid Dotnet target',
+    );
+    expect(() => {
+      bom = JSON.parse(stdout);
+    }).not.toThrow();
+    expect(bom.metadata.component.name).toEqual('with-vulnerable-lodash-dep');
+    expect(bom.components).toHaveLength(2);
+  });
+
+  test('sbom --strict-out-of-sync=false` generates an SBOM for the NPM project by NOT preventing scanning out-of-sync NPM lockfiles.', async () => {
     const project = await createProjectFromWorkspace('npm-out-of-sync');
 
     const { code, stdout } = await runSnykCLI(
@@ -55,7 +100,7 @@ describe('snyk sbom: npm options (mocked server only)', () => {
     expect(bom.components).toHaveLength(3);
   });
 
-  test('`sbom --strict-out-of-sync=true` fails to generate an SBOM for the NPM project because out-of-sync NPM lockfiles.', async () => {
+  test('sbom --strict-out-of-sync=true` fails to generate an SBOM for the NPM project because out-of-sync NPM lockfiles.', async () => {
     const project = await createProjectFromWorkspace('npm-out-of-sync');
 
     const { code, stdout, stderr } = await runSnykCLI(
