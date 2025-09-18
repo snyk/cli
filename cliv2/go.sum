@@ -1268,8 +1268,8 @@ github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9f
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
 github.com/snyk/error-catalog-golang-public v0.0.0-20250912144134-a308b7983895 h1:JrN/uGEMVprlres/CVMJybSKvaLuW59SfCHoT4TfvUk=
 github.com/snyk/error-catalog-golang-public v0.0.0-20250912144134-a308b7983895/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
-github.com/snyk/go-application-framework v0.0.0-20250911083616-bd79def4cf6b h1:A/uHsYYzH+MQbUV5WPNwcsKNxrjgeNz1aDrmTYfolzA=
-github.com/snyk/go-application-framework v0.0.0-20250911083616-bd79def4cf6b/go.mod h1:3qfDCCm6WiRb0xfX0fXlBS1sVbAbEsaCPeHEns/QVcA=
+github.com/snyk/go-application-framework v0.0.0-20250917164002-527eabced057 h1:Hh6NV/bhfXaiurUHFSUSqInZ1bHecqQeHKoyKff3+tY=
+github.com/snyk/go-application-framework v0.0.0-20250917164002-527eabced057/go.mod h1:3qfDCCm6WiRb0xfX0fXlBS1sVbAbEsaCPeHEns/QVcA=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v1.1.0 h1:vFbFZbs3B0Y3XuGSur5om2meo4JEcCaKfNzshZFGOUs=
