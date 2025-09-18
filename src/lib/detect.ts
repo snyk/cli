@@ -6,7 +6,9 @@ import {
   SupportedPackageManagers,
   SUPPORTED_MANIFEST_FILES,
   PNPM_FEATURE_FLAG,
+  ADVANCED_PACKAGE_MANAGER_DETECTION_FLAG,
 } from './package-managers';
+import { detectPackageManagerFromFile as advancedDetectPackageManagerFromFile } from '@snyk/package-manager-detection';
 
 const debug = debugLib('snyk-detect');
 
@@ -70,6 +72,9 @@ export const AUTO_DETECTABLE_FILES: string[] = [
 
 // when file is specified with --file, we look it up here
 // this is also used when --all-projects flag is enabled and auto detection plugin is triggered
+/**
+ * @deprecated Any change here should be reflected in the package @snyk/package-manager-detection
+ */
 const DETECTABLE_PACKAGE_MANAGERS: {
   [key in SUPPORTED_MANIFEST_FILES]: SupportedPackageManagers;
 } = {
@@ -216,6 +221,18 @@ export function detectPackageFile(
 }
 
 export function detectPackageManagerFromFile(
+  file: string,
+  featureFlags: Set<string> = new Set<string>(),
+): SupportedPackageManagers {
+  if (featureFlags.has(ADVANCED_PACKAGE_MANAGER_DETECTION_FLAG)) {
+    debug(`using advanced package manager detection for ${file}`);
+    return advancedDetectPackageManagerFromFile(file, featureFlags);
+  }
+
+  return legacyDetectPackageManagerFromFile(file, featureFlags);
+}
+
+function legacyDetectPackageManagerFromFile(
   file: string,
   featureFlags: Set<string> = new Set<string>(),
 ): SupportedPackageManagers {

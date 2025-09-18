@@ -53,6 +53,7 @@ import {
   PNPM_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+  ADVANCED_PACKAGE_MANAGER_DETECTION_FLAG,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 
@@ -167,6 +168,8 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   let hasPnpmSupport = false;
   let hasImprovedDotnetWithoutPublish = false;
   let enableMavenDverboseExhaustiveDeps = false;
+  let enableAdvancedPackageManagerDetection = false;
+
   try {
     hasPnpmSupport = (await hasFeatureFlag(
       PNPM_FEATURE_FLAG,
@@ -180,6 +183,15 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     }
   } catch (err) {
     hasPnpmSupport = false;
+  }
+
+  try {
+    enableAdvancedPackageManagerDetection = (await hasFeatureFlag(
+      ADVANCED_PACKAGE_MANAGER_DETECTION_FLAG,
+      options,
+    )) as boolean;
+  } catch (err) {
+    enableAdvancedPackageManagerDetection = false;
   }
 
   try {
@@ -202,9 +214,13 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     enableMavenDverboseExhaustiveDeps = false;
   }
 
-  const featureFlags = hasPnpmSupport
-    ? new Set<string>([PNPM_FEATURE_FLAG])
-    : new Set<string>();
+  const featureFlags = new Set<string>();
+  if (hasPnpmSupport) {
+    featureFlags.add(PNPM_FEATURE_FLAG);
+  }
+  if (enableAdvancedPackageManagerDetection) {
+    featureFlags.add(ADVANCED_PACKAGE_MANAGER_DETECTION_FLAG);
+  }
 
   if (hasImprovedDotnetWithoutPublish) {
     options.useImprovedDotnetWithoutPublish = true;
