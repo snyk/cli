@@ -443,7 +443,8 @@ function validateUnsupportedOptionCombinations(
     if (typeof options.exclude !== 'string') {
       throw new ExcludeFlagBadInputError();
     }
-    if (options.exclude.indexOf(pathLib.sep) > -1) {
+    // Only apply path separator validation for non-IaC commands to maintain backwards compatibility
+    if (!options.iac && options.exclude.indexOf(pathLib.sep) > -1) {
       throw new ExcludeFlagInvalidInputError();
     }
   }
