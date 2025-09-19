@@ -218,7 +218,7 @@ describe('cli args', () => {
       env,
     });
     expect(stdout).toContainText(
-      'The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.',
+      'The --exclude option can only be use in combination with --all-projects or --iac or --yarn-workspaces.',
     );
     expect(code).toEqual(2);
   });
@@ -231,6 +231,18 @@ describe('cli args', () => {
       'Empty --exclude argument. Did you mean --exclude=subdirectory ?',
     );
     expect(code).toEqual(2);
+  });
+
+  test('snyk iac test --exclude should not display error message', async () => {
+    const { code, stdout } = await runSnykCLI(`iac test --exclude=.bin`, {
+      env,
+    });
+    // Should not contain the exclude validation error
+    expect(stdout).not.toContainText(
+      'The --exclude option can only be use in combination with',
+    );
+    // The command might fail for other reasons (like missing files), but not due to exclude validation
+    expect(code).not.toEqual(2);
   });
 
   test('snyk test --exclude=path/to/dir displays error message', async () => {

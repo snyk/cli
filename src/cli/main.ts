@@ -433,10 +433,11 @@ function validateUnsupportedOptionCombinations(
   }
 
   if (options.exclude) {
-    if (!(options.allProjects || options.yarnWorkspaces)) {
+    if (!(options.allProjects || options.yarnWorkspaces || options.iac)) {
       throw new MissingOptionError('--exclude', [
         '--yarn-workspaces',
         '--all-projects',
+        '--iac',
       ]);
     }
     if (typeof options.exclude !== 'string') {
