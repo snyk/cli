@@ -20,7 +20,6 @@ import (
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
-	"github.com/snyk/cli-extension-redteam/pkg/redteam"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
@@ -562,7 +561,6 @@ func MainWithErrorCode() (int, []error) {
 	globalEngine.AddExtensionInitializer(iac.Init)
 	globalEngine.AddExtensionInitializer(sbom.Init)
 	globalEngine.AddExtensionInitializer(aibom.Init)
-	globalEngine.AddExtensionInitializer(redteam.Init)
 	globalEngine.AddExtensionInitializer(depgraph.Init)
 	globalEngine.AddExtensionInitializer(capture.Init)
 	globalEngine.AddExtensionInitializer(iacrules.Init)
