@@ -2,6 +2,8 @@ import { createSarifOutputForContainers } from '../../../../../src/lib/formatter
 import { SEVERITY, TestResult } from '../../../../../src/lib/snyk-test/legacy';
 import { SupportedProjectTypes } from '../../../../../src/lib/types';
 
+jest.useFakeTimers().setSystemTime(new Date('2025-01-01T00:00:00.000Z'));
+
 describe('createSarifOutputForContainers', () => {
   it('general with high severity issue', () => {
     const identifiers = {
