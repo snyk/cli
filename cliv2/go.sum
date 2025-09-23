@@ -1262,8 +1262,8 @@ github.com/snyk/cli-extension-os-flows v0.0.0-20250915102829-6a59c2ef7e88 h1:m6k
 github.com/snyk/cli-extension-os-flows v0.0.0-20250915102829-6a59c2ef7e88/go.mod h1:dFrXORRzFNF+tJ/Z51MPEeWi3IU5MuLWkt1L3dxDMG4=
 github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd h1:bZg7Zkctm2tvaznI8A4/0fFOZMgglNAIFmIIlRz16W0=
 github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd/go.mod h1:zyKDBaETfZyI7BfIjPnezH3QX2seQrR/d7NM5W6LV9s=
-github.com/snyk/code-client-go v1.23.6 h1:L9fy6ihF9hETPzHmlWOcLXLjj7paBw6fa1HodyCUra8=
-github.com/snyk/code-client-go v1.23.6/go.mod h1:3d9rtr06j239obFmF7Ojl9KybivOTR3lz0vsmDNPsRI=
+github.com/snyk/code-client-go v1.23.7 h1:jbveMfbihjfbOcDGhzO62Ik966IPmHBFSpEf0nmuoZ4=
+github.com/snyk/code-client-go v1.23.7/go.mod h1:3d9rtr06j239obFmF7Ojl9KybivOTR3lz0vsmDNPsRI=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
 github.com/snyk/error-catalog-golang-public v0.0.0-20250912144134-a308b7983895 h1:JrN/uGEMVprlres/CVMJybSKvaLuW59SfCHoT4TfvUk=
@@ -1276,8 +1276,8 @@ github.com/snyk/policy-engine v1.1.0 h1:vFbFZbs3B0Y3XuGSur5om2meo4JEcCaKfNzshZFG
 github.com/snyk/policy-engine v1.1.0/go.mod h1:SSZiMz6TiggRAk33duOueWeSG0Xwl0QoZo8hfPcEAh0=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20250911124327-66ea5253a18c h1:aYF5SmCOTD4c8ikc9IDxuCgtsV/SW8u3v/D9XayxDd4=
-github.com/snyk/snyk-ls v0.0.0-20250911124327-66ea5253a18c/go.mod h1:FCGPpxsMFXV+t4KHd5q9oD10qmc0E4gXOkfl6DaCWc0=
+github.com/snyk/snyk-ls v0.0.0-20250923135355-3f907ea89fcc h1:a/7OhvR8/NSI/YXrskqHz58YwBmQF325tWEG95UXJX8=
+github.com/snyk/snyk-ls v0.0.0-20250923135355-3f907ea89fcc/go.mod h1:/nn33EsNm/KA7gqN4Kt4uM/Edi8w8KVjQFDIMfSs4hw=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
