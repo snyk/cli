@@ -745,47 +745,62 @@ export const DockerTests: AcceptanceTests = {
       },
 
     '`container test alpine --sarif `': (params, utils) => async (t) => {
-      const testableObject = await testSarif(t, utils, params, {
-        sarif: true,
-      });
-      const results = JSON.parse(testableObject.message);
-      const sarifResults = await import(
-        getFixturePath('docker/sarif-container-result.json')
-      );
-      t.same(results, sarifResults, 'stdout containing sarif results');
-      t.end();
+      const clock = sinon.useFakeTimers(new Date('2025-01-01T00:00:00.000Z'));
+      try {
+        const testableObject = await testSarif(t, utils, params, {
+          sarif: true,
+        });
+        const results = JSON.parse(testableObject.message);
+        const sarifResults = await import(
+          getFixturePath('docker/sarif-container-result.json')
+        );
+        t.same(results, sarifResults, 'stdout containing sarif results');
+        t.end();
+      } finally {
+        clock.restore();
+      }
     },
 
     '`container test alpine --file=Dockerfile --sarif `':
       (params, utils) => async (t) => {
-        const testableObject = await testSarif(t, utils, params, {
-          sarif: true,
-          file: 'Dockerfile',
-        });
-        const results = JSON.parse(testableObject.message);
-        const sarifResults = await import(
-          getFixturePath('docker/sarif-with-file-container-result.json')
-        );
-        t.same(results, sarifResults, 'stdout containing sarif results');
-        t.end();
+        const clock = sinon.useFakeTimers(new Date('2025-01-01T00:00:00.000Z'));
+        try {
+          const testableObject = await testSarif(t, utils, params, {
+            sarif: true,
+            file: 'Dockerfile',
+          });
+          const results = JSON.parse(testableObject.message);
+          const sarifResults = await import(
+            getFixturePath('docker/sarif-with-file-container-result.json')
+          );
+          t.same(results, sarifResults, 'stdout containing sarif results');
+          t.end();
+        } finally {
+          clock.restore();
+        }
       },
 
     '`test --docker --file=Dockerfile --sarif --sarif-output-file`':
       (params, utils) => async (t) => {
-        const testableObject = await testSarif(t, utils, params, {
-          sarif: true,
-          'sarif-output-file': 'sarif-test-file.json',
-        });
-        const results = JSON.parse(testableObject.message);
-        const sarifStringifiedResults = JSON.parse(
-          testableObject.sarifStringifiedResults,
-        );
-        t.same(
-          results,
-          sarifStringifiedResults,
-          'stdout and stringified sarif results are the same',
-        );
-        t.end();
+        const clock = sinon.useFakeTimers(new Date('2025-01-01T00:00:00.000Z'));
+        try {
+          const testableObject = await testSarif(t, utils, params, {
+            sarif: true,
+            'sarif-output-file': 'sarif-test-file.json',
+          });
+          const results = JSON.parse(testableObject.message);
+          const sarifStringifiedResults = JSON.parse(
+            testableObject.sarifStringifiedResults,
+          );
+          t.same(
+            results,
+            sarifStringifiedResults,
+            'stdout and stringified sarif results are the same',
+          );
+          t.end();
+        } finally {
+          clock.restore();
+        }
       },
 
     '`test --docker doesnotexist`': (params) => async (t) => {

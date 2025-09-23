@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as sarif from 'sarif';
 import { pathToFileURL } from 'url';
 
+jest.useFakeTimers().setSystemTime(new Date('2025-01-01T00:00:00.000Z'));
 import { TestOutput } from '../../../../../../../src/lib/iac/test/v2/scan/results';
 import { convertEngineToSarifResults } from '../../../../../../../src/lib/iac/test/v2/sarif';
 describe('convertEngineToSarifResults', () => {
