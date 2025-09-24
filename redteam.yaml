@@ -1,4 +1,4 @@
 options:
   target:
-    name: 'try'
-    url: 'sth'
+    name: 'Our Vulnerable App'
+    url: https://vulnerable-app.com
