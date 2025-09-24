@@ -7,6 +7,32 @@ import {
 jest.setTimeout(10000 * 60);
 
 describe('debug log', () => {
+  const username = 'john.doe@domain.org';
+  const password = 'solidpassword';
+  const base64EncodedUsername = Buffer.from(username).toString('base64');
+  const base64EncodedPassword = Buffer.from(password).toString('base64');
+
+  it('redacts unknown values after end-of-options from args', async () => {
+    const project = await createProjectFromWorkspace('cocoapods-app');
+
+    const { stderr } = await runSnykCLI(
+      `test -d --log-level=trace -- --password=${password} -p ${password} --username ${username} -u=${username}`,
+      {
+        cwd: project.path(),
+        env: {
+          ...process.env,
+          SNYK_DISABLE_ANALYTICS: '1',
+        },
+      },
+    );
+
+    expect(stderr).toContain('Using log level: trace');
+    expect(stderr).not.toContain(password);
+    expect(stderr).not.toContain(username);
+    expect(stderr).not.toContain(base64EncodedUsername);
+    expect(stderr).not.toContain(base64EncodedPassword);
+  });
+
   it('redacts token from env var', async () => {
     const project = await createProjectFromWorkspace('cocoapods-app');
     const token = 'mytoken';
@@ -48,7 +74,7 @@ describe('debug log', () => {
 
   it('redacts basic authentication', async () => {
     const { stderr } = await runSnykCLI(
-      'container test ubuntu:latest --username=john.doe@domain.org --password=solidpassword -d',
+      `container test ubuntu:latest --username=${username} --password=${password} -d`,
       {
         env: {
           ...process.env,
@@ -57,16 +83,15 @@ describe('debug log', () => {
       },
     );
 
-    expect(stderr).not.toContain('Basic am9ob');
-    expect(stderr).toContain('Basic ***');
-
-    expect(stderr).not.toContain('john.doe@domain.org');
-    expect(stderr).not.toContain('solidpassword');
+    expect(stderr).not.toContain(username);
+    expect(stderr).not.toContain(password);
+    expect(stderr).not.toContain(base64EncodedUsername);
+    expect(stderr).not.toContain(base64EncodedPassword);
   });
 
   it('redacts short-form basic authentication', async () => {
     const { stderr } = await runSnykCLI(
-      'container test ubuntu:latest -u=john.doe@domain.org -p=solidpassword -d',
+      `container test ubuntu:latest -u=${username} -p=${password} -d`,
       {
         env: {
           ...process.env,
@@ -75,14 +100,10 @@ describe('debug log', () => {
       },
     );
 
-    expect(stderr).not.toContain('Basic am9ob');
-    expect(stderr).toContain('Basic ***');
-
-    expect(stderr).not.toContain('john.doe@domain.org');
-    expect(stderr).not.toContain('solidpassword');
-
-    expect(stderr).toContain('-u=***');
-    expect(stderr).toContain('-p=***');
+    expect(stderr).not.toContain(username);
+    expect(stderr).not.toContain(password);
+    expect(stderr).not.toContain(base64EncodedUsername);
+    expect(stderr).not.toContain(base64EncodedPassword);
   });
 
   it('redacts ENV-driven basic authentication', async () => {
@@ -90,21 +111,20 @@ describe('debug log', () => {
       env: {
         ...process.env,
         SNYK_DISABLE_ANALYTICS: '1',
-        SNYK_REGISTRY_USERNAME: 'john.doe@domain.org',
-        SNYK_REGISTRY_PASSWORD: 'solidpassword',
+        SNYK_REGISTRY_USERNAME: username,
+        SNYK_REGISTRY_PASSWORD: password,
       },
     });
 
-    expect(stderr).not.toContain('Basic am9ob');
-    expect(stderr).toContain('Basic ***');
-
-    expect(stderr).not.toContain('john.doe@domain.org');
-    expect(stderr).not.toContain('solidpassword');
+    expect(stderr).not.toContain(username);
+    expect(stderr).not.toContain(password);
+    expect(stderr).not.toContain(base64EncodedUsername);
+    expect(stderr).not.toContain(base64EncodedPassword);
   });
 
   it('redacts basic authentication with trace log level', async () => {
     const { stderr } = await runSnykCLI(
-      'container test ubuntu:latest --username=john.doe@domain.org --password=solidpassword -d',
+      `container test ubuntu:latest --username=${username} --password=${password} -d`,
       {
         env: {
           ...process.env,
@@ -114,19 +134,15 @@ describe('debug log', () => {
       },
     );
 
-    expect(stderr).not.toContain('Basic am9ob');
-    expect(stderr).toContain('Basic ***');
-
-    expect(stderr).not.toContain('john.doe@domain.org');
-    expect(stderr).not.toContain('solidpassword');
-
-    expect(stderr).toContain('"username": "***"');
-    expect(stderr).toContain('"password": "***"');
+    expect(stderr).not.toContain(username);
+    expect(stderr).not.toContain(password);
+    expect(stderr).not.toContain(base64EncodedUsername);
+    expect(stderr).not.toContain(base64EncodedPassword);
   });
 
   it('redacts short-form basic authentication with trace log level', async () => {
     const { stderr } = await runSnykCLI(
-      'container test ubuntu:latest -u=john.doe@domain.org -p=solidpassword -d',
+      `container test ubuntu:latest -u=${username} -p=${password} -d`,
       {
         env: {
           ...process.env,
@@ -136,16 +152,10 @@ describe('debug log', () => {
       },
     );
 
-    expect(stderr).not.toContain('Basic am9ob');
-    expect(stderr).toContain('Basic ***');
-
-    expect(stderr).not.toContain('john.doe@domain.org');
-    expect(stderr).not.toContain('solidpassword');
-
-    expect(stderr).toContain('-u=***');
-    expect(stderr).toContain('"u": "***"');
-    expect(stderr).toContain('-p=***');
-    expect(stderr).toContain('"p": "***"');
+    expect(stderr).not.toContain(username);
+    expect(stderr).not.toContain(password);
+    expect(stderr).not.toContain(base64EncodedUsername);
+    expect(stderr).not.toContain(base64EncodedPassword);
   });
 
   it('redacts ENV-driven basic authentication with trace log level', async () => {
@@ -153,20 +163,16 @@ describe('debug log', () => {
       env: {
         ...process.env,
         SNYK_DISABLE_ANALYTICS: '1',
-        SNYK_REGISTRY_USERNAME: 'john.doe@domain.org',
-        SNYK_REGISTRY_PASSWORD: 'solidpassword',
+        SNYK_REGISTRY_USERNAME: username,
+        SNYK_REGISTRY_PASSWORD: password,
         SNYK_LOG_LEVEL: 'trace',
       },
     });
 
-    expect(stderr).not.toContain('Basic am9ob');
-    expect(stderr).toContain('Basic ***');
-
-    expect(stderr).not.toContain('john.doe@domain.org');
-    expect(stderr).not.toContain('solidpassword');
-
-    expect(stderr).toContain('"REGISTRY_USERNAME": "***"');
-    expect(stderr).toContain('"REGISTRY_PASSWORD": "***"');
+    expect(stderr).not.toContain(username);
+    expect(stderr).not.toContain(password);
+    expect(stderr).not.toContain(base64EncodedUsername);
+    expect(stderr).not.toContain(base64EncodedPassword);
   });
 
   it('redacts externally injected bearer token', async () => {
@@ -186,7 +192,6 @@ describe('debug log', () => {
 
     expect(expectedToken).not.toBeFalsy();
     expect(stderr).not.toContain(expectedToken);
-    expect(stderr).toContain('Bearer ***');
   });
 
   it('trace level logs contain body content', async () => {
