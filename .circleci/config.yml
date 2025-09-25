@@ -1184,7 +1184,7 @@ workflows:
 
 jobs:
   prepare-build:
-    executor: docker-amd64
+    executor: docker-amd64-xl
     steps:
       - checkout
       - restore_cache:
