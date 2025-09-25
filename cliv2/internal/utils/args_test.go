@@ -36,7 +36,6 @@ func Test_CaptureAllArgs(t *testing.T) {
 				"secret\"password",
 				"sensitive",
 				"super.secret",
-				"trace",
 			},
 		},
 		{
@@ -56,7 +55,6 @@ func Test_CaptureAllArgs(t *testing.T) {
 				"secret\"password",
 				"sensitive",
 				"super.secret",
-				"trace",
 			},
 		},
 		{
@@ -101,7 +99,6 @@ func Test_CaptureAllArgs(t *testing.T) {
 				"mySuperSecretToken",
 				"primary/path/to/file",
 				"super.secret",
-				"trace",
 			},
 		},
 	}
