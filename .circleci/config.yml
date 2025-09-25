@@ -1317,6 +1317,7 @@ jobs:
           environment:
             CC: << parameters.c_compiler >>
             CGO_ENABLED: 1
+            MACOSX_DEPLOYMENT_TARGET: 13.0
           command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >>
       - save_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
