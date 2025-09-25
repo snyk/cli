@@ -194,6 +194,10 @@ function processFlags(
     flags.push('-iac-new-engine');
   }
 
+  if (options.exclude) {
+    flags.push('-exclude', options.exclude);
+  }
+
   return flags;
 }
 

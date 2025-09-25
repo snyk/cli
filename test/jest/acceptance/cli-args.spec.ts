@@ -218,7 +218,7 @@ describe('cli args', () => {
       env,
     });
     expect(stdout).toContainText(
-      'The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.',
+      'The --exclude option can only be use in combination with --all-projects or --iac or --yarn-workspaces.',
     );
     expect(code).toEqual(2);
   });
@@ -233,7 +233,19 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('snyk test --exclude=path/to/dir displays error message', async () => {
+  test('snyk iac test --exclude should not display error message', async () => {
+    const { code, stdout } = await runSnykCLI(`iac test --exclude=.bin`, {
+      env,
+    });
+    // Should not contain the exclude validation error
+    expect(stdout).not.toContainText(
+      'The --exclude option can only be use in combination with',
+    );
+    // The command might fail for other reasons (like missing files), but not due to exclude validation
+    expect(code).not.toEqual(2);
+  });
+
+  test('snyk test --exclude=path/to/dir displays error message for open source', async () => {
     const exclude = path.normalize('path/to/dir');
     const { code, stdout } = await runSnykCLI(
       `test --all-projects --exclude=${exclude}`,
@@ -246,6 +258,20 @@ describe('cli args', () => {
       'The --exclude argument must be a comma separated list of directory or file names and cannot contain a path.',
     );
     expect(code).toEqual(2);
+  });
+
+  test('snyk iac test --exclude=path/to/dir should work with paths', async () => {
+    const exclude = path.normalize('path/to/dir');
+    const { code, stdout } = await runSnykCLI(`iac test --exclude=${exclude}`, {
+      env,
+    });
+
+    // Should not display error message about paths not being allowed for IaC
+    expect(stdout).not.toContainText(
+      'The --exclude argument must be a comma separated list of directory or file names and cannot contain a path.',
+    );
+    // Should not fail with error code 2 due to path validation for IaC
+    expect(code).not.toEqual(2);
   });
 
   [
