@@ -7,6 +7,7 @@ import { makeRequest } from '../../../../src/lib/request';
 
 jest.mock('@snyk/code-client');
 jest.mock('../../../../src/lib/request');
+jest.useFakeTimers().setSystemTime(new Date('2025-01-01T00:00:00.000Z'));
 
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
 const makeRequestMock = makeRequest as jest.Mock;

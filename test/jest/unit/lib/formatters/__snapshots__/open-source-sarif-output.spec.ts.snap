@@ -5,6 +5,9 @@ exports[`createSarifOutputForOpenSource general 1`] = `
   "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
   "runs": [
     {
+      "automationDetails": {
+        "id": "Snyk/Open Source/PROJECT_NAME/2025-01-01T00:00:00.000Z",
+      },
       "results": [
         {
           "fixes": [
