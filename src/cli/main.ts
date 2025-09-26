@@ -433,16 +433,18 @@ function validateUnsupportedOptionCombinations(
   }
 
   if (options.exclude) {
-    if (!(options.allProjects || options.yarnWorkspaces)) {
+    if (!(options.allProjects || options.yarnWorkspaces || options.iac)) {
       throw new MissingOptionError('--exclude', [
         '--yarn-workspaces',
         '--all-projects',
+        '--iac',
       ]);
     }
     if (typeof options.exclude !== 'string') {
       throw new ExcludeFlagBadInputError();
     }
-    if (options.exclude.indexOf(pathLib.sep) > -1) {
+    // Only apply path separator validation for non-IaC commands to maintain backwards compatibility
+    if (!options.iac && options.exclude.indexOf(pathLib.sep) > -1) {
       throw new ExcludeFlagInvalidInputError();
     }
   }
