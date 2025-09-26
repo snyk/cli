@@ -3,7 +3,12 @@ export const DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG =
   'useImprovedDotnetWithoutPublish';
 export const MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF =
   'enableMavenDverboseExhaustiveDeps';
+export const ADVANCED_PACKAGE_MANAGER_DETECTION_FLAG =
+  'enableAdvancedPackageManagerDetection';
 
+/**
+ * @deprecated Any change here should be reflected in the package @snyk/package-manager-detection
+ */
 export type SupportedPackageManagers =
   | 'rubygems'
   | 'npm'
@@ -25,6 +30,9 @@ export type SupportedPackageManagers =
   | 'Unmanaged (C/C++)'
   | 'swift';
 
+/**
+ * @deprecated Any change here should be reflected in the package @snyk/package-manager-detection
+ */
 export enum SUPPORTED_MANIFEST_FILES {
   GEMFILE = 'Gemfile',
   GEMFILE_LOCK = 'Gemfile.lock',

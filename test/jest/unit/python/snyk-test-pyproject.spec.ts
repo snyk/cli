@@ -31,6 +31,16 @@ describe('snyk test for python project', () => {
     jest.restoreAllMocks();
   });
 
+  const mockFeatureFlagResponseFn = () => {
+    return Promise.resolve({
+      res: { statusCode: 200 } as NeedleResponse,
+      body: {
+        code: 200,
+        ok: true,
+      },
+    });
+  };
+
   describe('no flag is used', () => {
     describe('project contains pyproject.toml file', () => {
       it('should scan poetry vulnerabilities', async () => {
@@ -49,16 +59,10 @@ describe('snyk test for python project', () => {
           },
         };
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        // this is for 'enablePnpmCli' and 'enableAdvancedPackageManagerDetection' feature flags
+        mockedMakeRequest.mockImplementationOnce(mockFeatureFlagResponseFn);
+        mockedMakeRequest.mockImplementationOnce(mockFeatureFlagResponseFn);
+
         mockedLoadPlugin.mockImplementationOnce(() => {
           return plugin;
         });
@@ -82,7 +86,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(3);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -136,16 +140,10 @@ describe('snyk test for python project', () => {
           },
         };
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        // this is for 'enablePnpmCli' and 'enableAdvancedPackageManagerDetection' feature flags
+        mockedMakeRequest.mockImplementationOnce(mockFeatureFlagResponseFn);
+        mockedMakeRequest.mockImplementationOnce(mockFeatureFlagResponseFn);
+
         mockedLoadPlugin.mockImplementationOnce(() => {
           return plugin;
         });
@@ -169,7 +167,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(3);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -227,16 +225,10 @@ describe('snyk test for python project', () => {
           },
         };
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        // this is for 'enablePnpmCli' and 'enableAdvancedPackageManagerDetection' feature flags
+        mockedMakeRequest.mockImplementationOnce(mockFeatureFlagResponseFn);
+        mockedMakeRequest.mockImplementationOnce(mockFeatureFlagResponseFn);
+
         mockedLoadPlugin.mockImplementationOnce(() => {
           return plugin;
         });
@@ -261,7 +253,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('pip');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(3);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -329,16 +321,10 @@ describe('snyk test for python project', () => {
           },
         };
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        // this is for 'enablePnpmCli' and 'enableAdvancedPackageManagerDetection' feature flags
+        mockedMakeRequest.mockImplementationOnce(mockFeatureFlagResponseFn);
+        mockedMakeRequest.mockImplementationOnce(mockFeatureFlagResponseFn);
+
         mockedLoadPlugin
           .mockImplementationOnce(() => pipfilePythonPluginResponse)
           .mockImplementationOnce(() => pyprojectPythonPluginResponse);
@@ -364,7 +350,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledWith('pip');
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(3);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(4);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
