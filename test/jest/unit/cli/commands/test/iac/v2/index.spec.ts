@@ -15,6 +15,7 @@ import {
 import { pathToFileURL } from 'url';
 
 jest.setTimeout(1000 * 10);
+jest.useFakeTimers().setSystemTime(new Date('2025-01-01T00:00:00.000Z'));
 
 const projectRoot = path.resolve(
   __dirname,
@@ -143,7 +144,7 @@ describe('test', () => {
           '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
         sarifStringifiedResults: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
           pathToFileURL(path.join(process.cwd(), '/')).href
-        }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "snyk-iac"\n      },\n      "results": []\n    }\n  ]\n}`,
+        }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "Snyk/IaC/2025-01-01T00:00:00.000Z"\n      },\n      "results": []\n    }\n  ]\n}`,
         fields: {
           path: 'invalid_file.txt',
         },
@@ -258,7 +259,7 @@ describe('test', () => {
             '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
           sarifStringifiedResults: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
             pathToFileURL(path.join(process.cwd(), '/')).href
-          }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "snyk-iac"\n      },\n      "results": []\n    }\n  ]\n}`,
+          }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "Snyk/IaC/2025-01-01T00:00:00.000Z"\n      },\n      "results": []\n    }\n  ]\n}`,
           fields: {
             path: 'invalid_file.txt',
           },
@@ -363,18 +364,18 @@ describe('test', () => {
           innerError: undefined,
           userMessage: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
             pathToFileURL(path.join(process.cwd(), '/')).href
-          }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "snyk-iac"\n      },\n      "results": []\n    }\n  ]\n}`,
+          }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "Snyk/IaC/2025-01-01T00:00:00.000Z"\n      },\n      "results": []\n    }\n  ]\n}`,
           formattedUserMessage: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
             pathToFileURL(path.join(process.cwd(), '/')).href
-          }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "snyk-iac"\n      },\n      "results": []\n    }\n  ]\n}`,
+          }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "Snyk/IaC/2025-01-01T00:00:00.000Z"\n      },\n      "results": []\n    }\n  ]\n}`,
           json: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
             pathToFileURL(path.join(process.cwd(), '/')).href
-          }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "snyk-iac"\n      },\n      "results": []\n    }\n  ]\n}`,
+          }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "Snyk/IaC/2025-01-01T00:00:00.000Z"\n      },\n      "results": []\n    }\n  ]\n}`,
           jsonStringifiedResults:
             '[\n  {\n    "ok": false,\n    "code": 2114,\n    "error": "",\n    "path": "invalid_file.txt"\n  }\n]',
           sarifStringifiedResults: `{\n  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",\n  "version": "2.1.0",\n  "runs": [\n    {\n      "originalUriBaseIds": {\n        "PROJECTROOT": {\n          "uri": "${
             pathToFileURL(path.join(process.cwd(), '/')).href
-          }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "snyk-iac"\n      },\n      "results": []\n    }\n  ]\n}`,
+          }",\n          "description": {\n            "text": "The root directory for all project files."\n          }\n        }\n      },\n      "tool": {\n        "driver": {\n          "name": "Snyk IaC",\n          "fullName": "Snyk Infrastructure as Code",\n          "version": "1.0.0-monorepo",\n          "informationUri": "https://docs.snyk.io/products/snyk-infrastructure-as-code",\n          "rules": []\n        }\n      },\n      "automationDetails": {\n        "id": "Snyk/IaC/2025-01-01T00:00:00.000Z"\n      },\n      "results": []\n    }\n  ]\n}`,
           fields: {
             path: 'invalid_file.txt',
           },
