@@ -1,6 +1,4 @@
-import * as os from 'os';
-
-const isWindows = os.platform().indexOf('win') === 0;
+import { isWindowsOperatingSystem } from '../../utils';
 
 export const fipsTestsEnabled = (): boolean => {
   const required = process.env.TEST_SNYK_FIPS == '1';
@@ -10,7 +8,7 @@ export const fipsTestsEnabled = (): boolean => {
 export const getFipsEnabledEnvironment = (
   env = { ...process.env },
 ): Record<string, string | undefined> => {
-  if (!isWindows) {
+  if (!isWindowsOperatingSystem()) {
     env.OPENSSL_CONF = '/usr/local/ssl/openssl_fips_enabled.cnf';
     return env;
   }
@@ -20,7 +18,7 @@ export const getFipsEnabledEnvironment = (
 export const getFipsDisabledEnvironment = (
   env = { ...process.env },
 ): Record<string, string | undefined> => {
-  if (!isWindows) {
+  if (!isWindowsOperatingSystem()) {
     delete env.OPENSSL_CONF;
   }
   return env;

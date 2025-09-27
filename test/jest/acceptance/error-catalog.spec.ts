@@ -1,6 +1,7 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { getServerPort } from '../util/getServerPort';
+import { isWindowsOperatingSystem, testIf } from '../../utils';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const TEST_DISTROLESS_STATIC_IMAGE =
@@ -40,6 +41,10 @@ describe.each(integrationWorkflows)(
     };
 
     describe('authentication errors', () => {
+      if (isWindowsOperatingSystem()) {
+        // Address as part CLI-1202
+        return;
+      }
       describe(`${type} workflow`, () => {
         it(`snyk ${cmd}`, async () => {
           const { code, stdout } = await runSnykCLI(cmd, {
@@ -171,38 +176,42 @@ describe('Special error cases', () => {
     });
   });
 
-  it('Monitor 422 error handling', async () => {
-    const endpoint = `/api/v1/monitor-dependencies?org=${snykOrg}`;
-    const expectedCode = 422;
-    const expectedMessage =
-      'Validation failed: missing required field "docker.baseImage"';
-    // Set up the 422 error response
-    server.setEndpointResponse(endpoint, {
-      message: expectedMessage,
-    });
-    server.setEndpointStatusCode(endpoint, expectedCode);
+  // Address as part CLI-1202
+  testIf(!isWindowsOperatingSystem())(
+    'Monitor 422 error handling',
+    async () => {
+      const endpoint = `/api/v1/monitor-dependencies?org=${snykOrg}`;
+      const expectedCode = 422;
+      const expectedMessage =
+        'Validation failed: missing required field "docker.baseImage"';
+      // Set up the 422 error response
+      server.setEndpointResponse(endpoint, {
+        message: expectedMessage,
+      });
+      server.setEndpointStatusCode(endpoint, expectedCode);
 
-    const { code, stdout } = await runSnykCLI(
-      `container monitor alpine:latest -d`,
-      {
-        env: env,
-      },
-    );
+      const { code, stdout } = await runSnykCLI(
+        `container monitor alpine:latest -d`,
+        {
+          env: env,
+        },
+      );
 
-    expect(code).toBeGreaterThan(1);
+      expect(code).toBeGreaterThan(1);
 
-    const analyticsRequest = server
-      .getRequests()
-      .filter((value) =>
-        value.url.includes(`/api/hidden/orgs/${snykOrg}/analytics`),
-      )
-      .pop();
-    const errors = analyticsRequest?.body.data.attributes.interaction.errors;
+      const analyticsRequest = server
+        .getRequests()
+        .filter((value) =>
+          value.url.includes(`/api/hidden/orgs/${snykOrg}/analytics`),
+        )
+        .pop();
+      const errors = analyticsRequest?.body.data.attributes.interaction.errors;
 
-    expect(errors[0].code).toEqual(expectedCode.toString());
-    expect(stdout).toContain(expectedMessage);
-    expect(stdout).toContain(
-      new CLI.GeneralCLIFailureError('').metadata.errorCode,
-    );
-  });
+      expect(errors[0].code).toEqual(expectedCode.toString());
+      expect(stdout).toContain(expectedMessage);
+      expect(stdout).toContain(
+        new CLI.GeneralCLIFailureError('').metadata.errorCode,
+      );
+    },
+  );
 });
