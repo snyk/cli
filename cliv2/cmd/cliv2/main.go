@@ -34,18 +34,20 @@ import (
 	"github.com/spf13/pflag"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
+
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
-
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/ui"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -54,9 +56,6 @@ import (
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
-
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 
 	snykmcp "github.com/snyk/snyk-ls/mcp_extension"
 
@@ -562,48 +561,6 @@ func MainWithErrorCode() (int, []error) {
 		globalConfiguration.Set(configuration.PROXY_AUTHENTICATION_MECHANISM, httpauth.StringFromAuthenticationMechanism(httpauth.NoAuth))
 	}
 
-	// initialize the extensions -> they register themselves at the engine
-	globalEngine.AddExtensionInitializer(basic_workflows.Init)
-	globalEngine.AddExtensionInitializer(osflows.Init)
-	globalEngine.AddExtensionInitializer(iac.Init)
-	globalEngine.AddExtensionInitializer(sbom.Init)
-	globalEngine.AddExtensionInitializer(aibom.Init)
-	globalEngine.AddExtensionInitializer(depgraph.Init)
-	globalEngine.AddExtensionInitializer(capture.Init)
-	globalEngine.AddExtensionInitializer(iacrules.Init)
-	globalEngine.AddExtensionInitializer(snykls.Init)
-	globalEngine.AddExtensionInitializer(snykmcp.Init)
-	globalEngine.AddExtensionInitializer(container.Init)
-	globalEngine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
-	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
-	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
-
-	// init engine
-	err = globalEngine.Init()
-
-	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
-	knownCommands, _ := instrumentation.GetKnownCommandsAndFlags(globalEngine)
-	allParameters := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownCommands)
-	scrubbedLogger.AddTermsToReplace(allParameters)
-
-	globalEngine.SetLogger(globalLogger)
-	if err != nil {
-		globalLogger.Print("Failed to init Workflow Engine!", err)
-		return constants.SNYK_EXIT_CODE_ERROR, errorList
-	}
-
-	// init context
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, networking.InteractionIdKey, instrumentation.AssembleUrnFromUUID(interactionId))
-
-	// add output flags as persistent flags
-	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
-	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
-	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
-
-	// add workflows as commands
-	createCommandsForWorkflows(rootCommand, globalEngine)
-
 	// init NetworkAccess
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
@@ -625,6 +582,50 @@ func MainWithErrorCode() (int, []error) {
 	if debugEnabled {
 		writeLogHeader(globalConfiguration, networkAccess)
 	}
+
+	// initialize the extensions -> they register themselves at the engine
+	globalEngine.AddExtensionInitializer(basic_workflows.Init)
+	globalEngine.AddExtensionInitializer(osflows.Init)
+	globalEngine.AddExtensionInitializer(iac.Init)
+	globalEngine.AddExtensionInitializer(sbom.Init)
+	globalEngine.AddExtensionInitializer(aibom.Init)
+	globalEngine.AddExtensionInitializer(depgraph.Init)
+	globalEngine.AddExtensionInitializer(capture.Init)
+	globalEngine.AddExtensionInitializer(iacrules.Init)
+	globalEngine.AddExtensionInitializer(snykls.Init)
+	globalEngine.AddExtensionInitializer(snykmcp.Init)
+	globalEngine.AddExtensionInitializer(container.Init)
+	globalEngine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
+	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
+	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
+
+	// init engine
+	err = globalEngine.Init()
+
+	// We want to scrub the debug log of sensitive information. Since we have a list of commands we know can occur, we can intersect that with arguments we don't recognize, and automatically scrub all those from the logs.
+	if debugEnabled {
+		knownTerms, _ := instrumentation.GetKnownCommandsAndFlags(globalEngine)
+		knownTerms = append(knownTerms, globalConfiguration.GetString(configuration.API_URL), globalConfiguration.GetString(configuration.ORGANIZATION), globalConfiguration.GetString(configuration.ORGANIZATION_SLUG))
+		termsToRedact := cliv2utils.GetUnknownParameters(os.Args[1:], os.Environ(), knownTerms)
+		scrubbedLogger.AddTermsToReplace(termsToRedact)
+	}
+
+	if err != nil {
+		globalLogger.Print("Failed to init Workflow Engine!", err)
+		return constants.SNYK_EXIT_CODE_ERROR, errorList
+	}
+
+	// init context
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, networking.InteractionIdKey, instrumentation.AssembleUrnFromUUID(interactionId))
+
+	// add output flags as persistent flags
+	outputWorkflow, _ := globalEngine.GetWorkflow(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW)
+	outputFlags := workflow.FlagsetFromConfigurationOptions(outputWorkflow.GetConfigurationOptions())
+	rootCommand.PersistentFlags().AddFlagSet(outputFlags)
+
+	// add workflows as commands
+	createCommandsForWorkflows(rootCommand, globalEngine)
 
 	// init Analytics
 	cliAnalytics := globalEngine.GetAnalytics()
