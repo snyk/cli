@@ -28,7 +28,7 @@ import { apiOrOAuthTokenExists } from '../../../lib/api-token';
 import { maybePrintDepTree, maybePrintDepGraph } from '../../../lib/print-deps';
 import { monitor as snykMonitor } from '../../../lib/monitor';
 import { processJsonMonitorResponse } from './process-json-monitor';
-import snyk = require('../../../lib'); // TODO(kyegupov): fix import
+import * as snyk from '../../../lib';
 import { formatMonitorOutput } from '../../../lib/formatters';
 import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
 import { getExtraProjectCount } from '../../../lib/plugins/get-extra-project-count';
@@ -48,7 +48,17 @@ import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
 import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 import { processCommandArgs } from '../process-command-args';
-import { hasFeatureFlag } from '../../../lib/feature-flags';
+import {
+  hasFeatureFlag,
+  hasFeatureFlagOrDefault,
+} from '../../../lib/feature-flags';
+import {
+  SCAN_USR_LIB_JARS_FEATURE_FLAG,
+  CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+  INCLUDE_SYSTEM_JARS_OPTION,
+  EXCLUDE_APP_VULNS_OPTION,
+  APP_VULNS_OPTION,
+} from '../constants';
 import {
   PNPM_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
@@ -83,7 +93,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   const results: Array<GoodResult | BadResult> = [];
 
   if (options.id) {
-    snyk.id = options.id;
+    (snyk as any).id = options.id;
   }
 
   if (options.allSubProjects && options['project-name']) {
@@ -104,14 +114,15 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     // 1) exclude-app-vulns set -> no app vulns
     // 2) app-vulns set -> app-vulns
     // 3) neither set -> containerAppVulnsEnabled
-    if (options['exclude-app-vulns']) {
-      options['exclude-app-vulns'] = true;
-    } else if (options['app-vulns']) {
-      options['exclude-app-vulns'] = false;
+    if (options[EXCLUDE_APP_VULNS_OPTION]) {
+      options[EXCLUDE_APP_VULNS_OPTION] = true;
+    } else if (options[APP_VULNS_OPTION]) {
+      options[EXCLUDE_APP_VULNS_OPTION] = false;
     } else {
-      options['exclude-app-vulns'] = !(await hasFeatureFlag(
-        'containerCliAppVulnsEnabled',
+      options[EXCLUDE_APP_VULNS_OPTION] = !(await hasFeatureFlagOrDefault(
+        CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
         options,
+        false,
       ));
 
       // we can't print the warning message with JSON output as that would make
@@ -119,12 +130,22 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
       // We also only want to print the message if the user did not overwrite
       // the default with one of the flags.
       if (
-        options['exclude-app-vulns'] &&
+        options[EXCLUDE_APP_VULNS_OPTION] &&
         !options['json'] &&
         !options['sarif']
       ) {
         console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
       }
+    }
+
+    // Check scanUsrLibJars feature flag and add --include-system-jars parameter
+    const scanUsrLibJarsEnabled = await hasFeatureFlagOrDefault(
+      SCAN_USR_LIB_JARS_FEATURE_FLAG,
+      options,
+      false,
+    );
+    if (scanUsrLibJarsEnabled) {
+      options[INCLUDE_SYSTEM_JARS_OPTION] = true;
     }
   }
 
