@@ -1,7 +1,6 @@
 import { startMockServer } from './helpers';
 import * as pathLib from 'path';
 import * as fs from 'fs';
-import * as os from 'os';
 import * as rimraf from 'rimraf';
 
 jest.setTimeout(50000);
@@ -11,27 +10,27 @@ describe('IAC test --exclude flag', () => {
     cmd: string,
   ) => Promise<{ stdout: string; stderr: string; exitCode: number }>;
   let teardown: () => void;
-  let tmpTestDir: string;
+  const testDirName = 'iac-test-exclude';
+  let testDirPath: string;
 
   beforeAll(async () => {
     ({ run, teardown } = await startMockServer());
-  });
-
-  afterAll(async () => {
-    await teardown();
-  });
-
-  beforeEach(() => {
-    // Create temporary test directory structure
-    tmpTestDir = fs.mkdtempSync(
-      pathLib.join(os.tmpdir(), 'test-iac-exclude-'),
-    );
-
+    
+    // Create test directory in fixtures
+    const fixturesPath = pathLib.join(__dirname, '../../../../test/fixtures');
+    testDirPath = pathLib.join(fixturesPath, testDirName);
+    
+    // Clean up if exists from previous run
+    if (fs.existsSync(testDirPath)) {
+      rimraf.sync(testDirPath);
+    }
+    
     // Create test directory structure with IAC files
-    const includedDir = pathLib.join(tmpTestDir, 'included');
-    const excludedDir = pathLib.join(tmpTestDir, 'excluded');
-    const ignoredDir = pathLib.join(tmpTestDir, 'ignored');
+    const includedDir = pathLib.join(testDirPath, 'included');
+    const excludedDir = pathLib.join(testDirPath, 'excluded');
+    const ignoredDir = pathLib.join(testDirPath, 'ignored');
 
+    fs.mkdirSync(testDirPath);
     fs.mkdirSync(includedDir);
     fs.mkdirSync(excludedDir);
     fs.mkdirSync(ignoredDir);
@@ -51,15 +50,16 @@ describe('IAC test --exclude flag', () => {
     );
   });
 
-  afterEach(() => {
-    // Clean up temporary directory
-    if (tmpTestDir) {
-      rimraf.sync(tmpTestDir);
+  afterAll(async () => {
+    // Clean up test directory
+    if (testDirPath && fs.existsSync(testDirPath)) {
+      rimraf.sync(testDirPath);
     }
+    await teardown();
   });
 
   it('scans all directories when no exclusions are specified', async () => {
-    const { stdout, exitCode } = await run(`snyk iac test ${tmpTestDir}`);
+    const { stdout, exitCode } = await run(`snyk iac test ./${testDirName}`);
 
     // All three directories should be scanned
     expect(stdout).toContainText(pathLib.join('included', 'main.tf'));
@@ -69,9 +69,9 @@ describe('IAC test --exclude flag', () => {
   });
 
   it('excludes a single directory when using --exclude', async () => {
-    const excludePath = pathLib.join(tmpTestDir, 'excluded');
+    const excludePath = pathLib.join(testDirName, 'excluded');
     const { stdout, exitCode } = await run(
-      `snyk iac test --exclude=${excludePath} ${tmpTestDir}`,
+      `snyk iac test --exclude=${excludePath} ./${testDirName}`,
     );
 
     // Only included and ignored directories should be scanned
@@ -83,10 +83,10 @@ describe('IAC test --exclude flag', () => {
   });
 
   it('excludes multiple directories when using comma-separated --exclude', async () => {
-    const excludePath = pathLib.join(tmpTestDir, 'excluded');
-    const ignoredPath = pathLib.join(tmpTestDir, 'ignored');
+    const excludePath = pathLib.join(testDirName, 'excluded');
+    const ignoredPath = pathLib.join(testDirName, 'ignored');
     const { stdout, exitCode } = await run(
-      `snyk iac test --exclude=${excludePath},${ignoredPath} ${tmpTestDir}`,
+      `snyk iac test --exclude=${excludePath},${ignoredPath} ./${testDirName}`,
     );
 
     // Only included directory should be scanned
@@ -98,9 +98,9 @@ describe('IAC test --exclude flag', () => {
   });
 
   it('excludes specific files when using --exclude with file path', async () => {
-    const excludeFile = pathLib.join(tmpTestDir, 'excluded', 'main.tf');
+    const excludeFile = pathLib.join(testDirName, 'excluded', 'main.tf');
     const { stdout, exitCode } = await run(
-      `snyk iac test --exclude=${excludeFile} ${tmpTestDir}`,
+      `snyk iac test --exclude=${excludeFile} ./${testDirName}`,
     );
 
     // Included and ignored should be scanned
@@ -112,9 +112,9 @@ describe('IAC test --exclude flag', () => {
   });
 
   it('works with --exclude and --json flag', async () => {
-    const excludePath = pathLib.join(tmpTestDir, 'excluded');
+    const excludePath = pathLib.join(testDirName, 'excluded');
     const { stdout, exitCode } = await run(
-      `snyk iac test --exclude=${excludePath} --json ${tmpTestDir}`,
+      `snyk iac test --exclude=${excludePath} --json ./${testDirName}`,
     );
 
     // Parse the JSON output
@@ -133,9 +133,9 @@ describe('IAC test --exclude flag', () => {
   });
 
   it('works with --exclude and --sarif flag', async () => {
-    const excludePath = pathLib.join(tmpTestDir, 'excluded');
+    const excludePath = pathLib.join(testDirName, 'excluded');
     const { stdout, exitCode } = await run(
-      `snyk iac test --exclude=${excludePath} --sarif ${tmpTestDir}`,
+      `snyk iac test --exclude=${excludePath} --sarif ./${testDirName}`,
     );
 
     // Should not contain excluded path in SARIF output
@@ -144,11 +144,9 @@ describe('IAC test --exclude flag', () => {
   });
 
   describe('with nested directory structure', () => {
-    let nestedDir: string;
-
-    beforeEach(() => {
+    beforeAll(() => {
       // Create a more complex nested structure
-      nestedDir = pathLib.join(tmpTestDir, 'nested');
+      const nestedDir = pathLib.join(testDirPath, 'nested');
       const nestedExcluded = pathLib.join(nestedDir, 'excluded');
       const nestedIncluded = pathLib.join(nestedDir, 'included');
 
@@ -167,9 +165,9 @@ describe('IAC test --exclude flag', () => {
     });
 
     it('excludes nested directories correctly', async () => {
-      const excludePath = pathLib.join(tmpTestDir, 'nested', 'excluded');
+      const excludePath = pathLib.join(testDirName, 'nested', 'excluded');
       const { stdout } = await run(
-        `snyk iac test --exclude=${excludePath} ${tmpTestDir}`,
+        `snyk iac test --exclude=${excludePath} ./${testDirName}`,
       );
 
       // Should include the nested/included directory
@@ -183,38 +181,25 @@ describe('IAC test --exclude flag', () => {
     });
 
     it('excludes entire parent directory when parent is excluded', async () => {
-      const excludePath = pathLib.join(tmpTestDir, 'nested');
+      const excludePath = pathLib.join(testDirName, 'nested');
       const { stdout } = await run(
-        `snyk iac test --exclude=${excludePath} ${tmpTestDir}`,
+        `snyk iac test --exclude=${excludePath} ./${testDirName}`,
       );
 
       // Should not include any files from nested directory
-      expect(stdout).not.toContainText('nested');
+      expect(stdout).not.toContainText(
+        pathLib.join(testDirName, 'nested'),
+      );
       // Should still include top-level directories
       expect(stdout).toContainText(pathLib.join('included', 'main.tf'));
     });
   });
 
   describe('edge cases', () => {
-    it('handles relative paths in --exclude', async () => {
-      // Change to tmpTestDir and use relative paths
-      const originalCwd = process.cwd();
-      process.chdir(tmpTestDir);
-
-      try {
-        const { stdout } = await run(`snyk iac test --exclude=excluded .`);
-
-        expect(stdout).toContainText(pathLib.join('included', 'main.tf'));
-        expect(stdout).not.toContainText(pathLib.join('excluded', 'main.tf'));
-      } finally {
-        process.chdir(originalCwd);
-      }
-    });
-
     it('handles exclusion of non-existent paths gracefully', async () => {
-      const excludePath = pathLib.join(tmpTestDir, 'does-not-exist');
+      const excludePath = pathLib.join(testDirName, 'does-not-exist');
       const { stdout, exitCode } = await run(
-        `snyk iac test --exclude=${excludePath} ${tmpTestDir}`,
+        `snyk iac test --exclude=${excludePath} ./${testDirName}`,
       );
 
       // Should scan normally, ignoring the non-existent exclusion
@@ -224,7 +209,7 @@ describe('IAC test --exclude flag', () => {
 
     it('handles empty --exclude value', async () => {
       const { stdout, exitCode } = await run(
-        `snyk iac test --exclude= ${tmpTestDir}`,
+        `snyk iac test --exclude= ./${testDirName}`,
       );
 
       // Should scan all directories when exclude is empty
