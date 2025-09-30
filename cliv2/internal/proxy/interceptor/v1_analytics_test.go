@@ -1,8 +1,13 @@
 package interceptor
 
 import (
+	"math"
 	"reflect"
 	"testing"
+
+	"github.com/rs/zerolog"
+	"github.com/snyk/go-application-framework/pkg/analytics"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFlattenAnalyticsPayload(t *testing.T) {
@@ -246,4 +251,29 @@ func TestFlattenObject(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestTranslateToAnalytics(t *testing.T) {
+	flattened := map[string]interface{}{
+		"random1": "value1",
+		"random2": float64(123),
+		"random3": true,
+		"random4": 10,
+		"random5": math.MaxFloat64,
+	}
+
+	logger := zerolog.Nop()
+
+	analyticsObject := analytics.New()
+	translateToAnalytics(flattened, analyticsObject, &logger)
+
+	body, err := analytics.GetV2InstrumentationObject(analyticsObject.GetInstrumentation())
+	assert.NoError(t, err)
+
+	actualExtension := (*body.Data.Attributes.Interaction.Extension)
+	assert.Equal(t, flattened["random1"], actualExtension["random1"])
+	assert.Equal(t, flattened["random2"], actualExtension["random2"])
+	assert.Equal(t, flattened["random3"], actualExtension["random3"])
+	assert.Equal(t, flattened["random4"], int(actualExtension["random4"].(float64)))
+	assert.Nil(t, actualExtension["random5"])
 }

@@ -6,12 +6,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"regexp"
 
 	"github.com/snyk/cli/cliv2/internal/utils"
 
 	"github.com/elazarl/goproxy"
+	"github.com/rs/zerolog"
+	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 )
 
@@ -128,21 +131,33 @@ func (v v1AnalyticsInterceptor) GetHandler() goproxy.FuncReqHandler {
 			return req, nil
 		}
 
-		// Add each key-value pair to the "extension" object of the analytics instrumentation
-		for key, val := range flattened {
-			switch p := val.(type) {
-			case string:
-				v.invocationCtx.GetAnalytics().AddExtensionStringValue(key, val.(string))
-			case int:
-				v.invocationCtx.GetAnalytics().AddExtensionIntegerValue(key, val.(int))
-			case bool:
-				v.invocationCtx.GetAnalytics().AddExtensionBoolValue(key, val.(bool))
-			default:
-				v.invocationCtx.GetEnhancedLogger().Warn().Msgf("Cannot add value of type %v", p)
-			}
-		}
+		// Process the flattened analytics data
+		translateToAnalytics(flattened, v.invocationCtx.GetAnalytics(), v.invocationCtx.GetEnhancedLogger())
 
 		return req, nil
+	}
+}
+
+// processAnalyticsData processes flattened analytics data and adds it to the analytics instrumentation
+func translateToAnalytics(flattened map[string]interface{}, analytics analytics.Analytics, logger *zerolog.Logger) {
+	for key, val := range flattened {
+		switch p := val.(type) {
+		case string:
+			analytics.AddExtensionStringValue(key, val.(string))
+		case int:
+			analytics.AddExtensionIntegerValue(key, val.(int))
+		case float64:
+			tmp := val.(float64)
+			if tmp > math.MaxInt || tmp < math.MinInt {
+				logger.Warn().Msgf("Cannot map float64 (value: %f) to int", tmp)
+				continue
+			}
+			analytics.AddExtensionIntegerValue(key, int(tmp))
+		case bool:
+			analytics.AddExtensionBoolValue(key, val.(bool))
+		default:
+			logger.Warn().Msgf("Cannot add value of type %v", p)
+		}
 	}
 }
 
