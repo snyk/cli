@@ -34,6 +34,15 @@ help:
 	@echo
 	@echo 'This Makefile is currently only for building release artifacts.'
 	@echo 'Use `npm run` for CLIv1 scripts.'
+	@echo
+	@echo 'Developer Targets:'
+	@echo '  build-ide-debug'
+	@echo '    Builds a debug binary with local gaf and snyk-ls dependencies.'
+	@echo '    Accepts optional args: DEST=/path/to/copy CLIP=false'
+	@echo
+	@echo '  build-ide-debug-with-code-client'
+	@echo '    Same as above, but also includes local code-client-go dependency.'
+	@echo '    Accepts optional args: DEST=/path/to/copy CLIP=false'
 
 $(BINARY_OUTPUT_FOLDER)/fips: $(BINARY_OUTPUT_FOLDER)
 	@mkdir -p $(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips
@@ -305,11 +314,24 @@ release-mgt-create:
 	@echo "-- Creating stable release"
 	@./release-scripts/create-release.sh
 
+.PHONY: build-ide-debug build-ide-debug-with-code-client
+
+CLIP ?= true
+
+build-ide-debug:
+	@$(MAKE) clean-golang
+	@(cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) build-ide-debug IDE_BUILD=true DEST='$(DEST)' CLIP='$(CLIP)' bindir='$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)' USE_LEGACY_EXECUTABLE_NAME=1)
+
+build-ide-debug-with-code-client:
+	@$(MAKE) clean-golang
+	@(cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) build-ide-debug-with-code-client IDE_BUILD=true DEST='$(DEST)' CLIP='$(CLIP)' bindir='$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)' USE_LEGACY_EXECUTABLE_NAME=1)
+
 .PHONY: format
 format:
 	@echo "-- Formatting code"
 	@npm run format
 	@pushd $(EXTENSIBLE_CLI_DIR); $(MAKE) format; popd
+
 
 .PHONY: ls-protocol-metadata
 ls-protocol-metadata: $(BINARY_RELEASES_FOLDER_TS_CLI)/version

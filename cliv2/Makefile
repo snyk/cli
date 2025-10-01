@@ -1,10 +1,11 @@
 # Build system related variables
 MAKE = make
 GOCMD = go
-GOOS = $(shell go env GOOS)
-GOARCH = $(shell go env GOARCH)
-GOHOSTOS = $(shell go env GOHOSTOS)
-GOHOSTARCH = $(shell go env GOHOSTARCH)
+_GO_ENV_VARS   := $(shell go env GOOS GOARCH GOHOSTOS GOHOSTARCH)
+GOOS           := $(word 1, $(_GO_ENV_VARS))
+GOARCH         := $(word 2, $(_GO_ENV_VARS))
+GOHOSTOS       := $(word 3, $(_GO_ENV_VARS))
+GOHOSTARCH     := $(word 4, $(_GO_ENV_VARS))
 LS_COMMIT_HASH = $(shell cat go.mod | grep snyk-ls | cut -d "-" -f 4)
 FIPS_CRYPTO_BACKEND_DEFAULT = systemcrypto
 FIPS_CRYPTO_BACKEND =
@@ -103,6 +104,7 @@ endif
 # some make file variables
 LOG_PREFIX = --
 
+
 $(BUILD_DIR):
 	@mkdir $@
 
@@ -129,10 +131,6 @@ _validate_sha_v1: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 	@echo "$(LOG_PREFIX) Validating checksum ( $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) )"
 	@cd $(V1_DIRECTORY) && $(SHASUM_CMD) -b -q -a $(HASH_ALGORITHM) -c $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
 
-# separate dependency target
-.PHONY: dependencies
-dependencies: $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING) _validate_sha_v1
-
 .PHONY: summary
 summary:
 	@echo "$(LOG_PREFIX) Build Summary"
@@ -147,11 +145,25 @@ summary:
   	echo "$(LOG_PREFIX)  IAC_RULES_URL:                $(IAC_RULES_URL)"; \
 	fi
 
+# Optimization flag for local/IDE builds
+IDE_BUILD ?= false
+
+# prepare the workspace and cache global parameters
+# Base dependencies, common to all builds
+CONFIGURE_DEPS := $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME) $(V1_DIRECTORY)/$(V1_EXECUTABLE_NAME).$(HASH_STRING)
+BUILD_DEPS     := $(BUILD_DIR) $(SRCS)
+
+# Add expensive dependencies only for standard (non-IDE) builds
+ifneq ($(IDE_BUILD),true)
+CONFIGURE_DEPS += summary $(CACHE_DIR)/prepare-3rd-party-licenses _validate_sha_v1
+BUILD_DEPS     += generate-ls-protocol-metadata
+endif
+
 # prepare the workspace and cache global parameters
 .PHONY: configure
-configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_EMBEDDED_FILE_OUTPUT) dependencies $(CACHE_DIR)/prepare-3rd-party-licenses
+configure: $(CONFIGURE_DEPS)
 
-$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
+$(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DEPS)
 	$(eval EXTRA_FLAGS := -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG) -X github.com/snyk/cli-extension-iac/internal/commands/iactest.internalRulesClientURL=$(IAC_RULES_URL) -X github.com/snyk/cli/cliv2/pkg/basic_workflows.staticNodeJsBinary=$(STATIC_NODE_BINARY))
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
 	@echo "$(LOG_PREFIX)  LDFLAGS:     $(LDFLAGS)"
@@ -298,6 +310,9 @@ help:
 	@echo "\nFull local targets (Typescript + Golang):"
 	@echo "$(LOG_PREFIX) build-full"
 	@echo "$(LOG_PREFIX) clean-full"
+	@echo "\nDeveloper targets:"
+	@echo "$(LOG_PREFIX) build-ide-debug DEST=... CLIP=..."
+	@echo "$(LOG_PREFIX) build-ide-debug-with-code-client DEST=... CLIP=..."
 	@echo "\nAvailable parameter:"
 	@echo "$(LOG_PREFIX) GOOS                       Specify Operating System to compile for (see golang GOOS, default=$(GOOS))"
 	@echo "$(LOG_PREFIX) GOARCH                     Specify Architecture to compile for (see golang GOARCH, default=$(GOARCH))"
@@ -305,3 +320,52 @@ help:
 	@echo "$(LOG_PREFIX) CLI_V1_LOCATION            Filesystem location of CLIv1 binaries to bundle, if specified, CLI_V1_VERSION_TAG is also required"
 	@echo "$(LOG_PREFIX) prefix                     Installation prefix (default=$(prefix))"
 	@echo "$(LOG_PREFIX) DESTDIR                    For staged installations"
+
+.PHONY: ide-install
+ide-install:
+	@FINAL_PATH="$(DESTDIR)$(bindir)/$(V2_EXECUTABLE_NAME)"; \
+	if [ -n "$(DEST)" ]; then \
+		echo "--- IDE Post-build: Copying binary to $(DEST) ---"; \
+		cp "$(BUILD_DIR)/$(V2_EXECUTABLE_NAME)" "$(DEST)"; \
+		FINAL_PATH="$(DEST)"; \
+	fi; \
+	if command -v realpath >/dev/null 2>&1; then \
+		ABS_FINAL_PATH=$$(realpath "$$FINAL_PATH"); \
+	else \
+		ABS_FINAL_PATH=$$(cd "$$(dirname "$$FINAL_PATH")" && pwd)/$$(basename "$$FINAL_PATH"); \
+	fi; \
+	echo "Binary available at: $$ABS_FINAL_PATH"; \
+	if [ "$(CLIP)" = "true" ]; then \
+		echo "--- Copying path to clipboard ---"; \
+		case "$(GOHOSTOS)" in \
+			darwin) printf "%s" "$$ABS_FINAL_PATH" | pbcopy; echo "Path copied to clipboard."; ;; \
+			linux) if command -v xclip >/dev/null 2>&1; then printf "%s" "$$ABS_FINAL_PATH" | xclip -selection clipboard; echo "Path copied to clipboard (xclip)."; elif command -v wl-copy >/dev/null 2>&1; then printf "%s" "$$ABS_FINAL_PATH" | wl-copy; echo "Path copied to clipboard (wl-copy)."; else echo "Warning: Could not find xclip or wl-copy. Path not copied to clipboard."; fi; ;; \
+			windows) printf "%s" "$$ABS_FINAL_PATH" | clip.exe; echo "Path copied to clipboard (clip.exe)."; ;; \
+			*) echo "Warning: Unsupported OS for clipboard copy: $(GOHOSTOS)"; ;; \
+		esac; \
+	fi
+
+.PHONY: build-ide-debug
+build-ide-debug: ide-setup-default debug build-full install ide-install
+
+.PHONY: build-ide-debug-with-code-client
+build-ide-debug-with-code-client: ide-setup-with-code-client debug build-full install ide-install
+
+.PHONY: ide-setup-default
+ide-setup-default:
+	@echo "--- IDE Pre-build: Appending replace directives to go.mod ---"; \
+	echo "" >> go.mod; \
+	echo "replace github.com/snyk/go-application-framework => ../../go-application-framework" >> go.mod; \
+	echo "replace github.com/snyk/snyk-ls => ../../snyk-ls" >> go.mod; \
+	echo "--- IDE Pre-build: Running go mod tidy ---"; \
+	go mod tidy;
+
+.PHONY: ide-setup-with-code-client
+ide-setup-with-code-client:
+	@echo "--- IDE Pre-build: Appending replace directives to go.mod ---"; \
+	echo "" >> go.mod; \
+	echo "replace github.com/snyk/go-application-framework => ../../go-application-framework" >> go.mod; \
+	echo "replace github.com/snyk/snyk-ls => ../../snyk-ls" >> go.mod; \
+	echo "replace github.com/snyk/code-client-go => ../../code-client-go" >> go.mod; \
+	echo "--- IDE Pre-build: Running go mod tidy ---"; \
+	go mod tidy;
