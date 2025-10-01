@@ -344,6 +344,12 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       description:
         '.net 8 project with pinned dependencies using v3 dotnet runtime resolution logic',
     },
+    {
+      fixture: 'nuget-app-netcore31',
+      projectFile: 'netcore31.csproj',
+      description:
+        '.net core 3.1 web project using v3 dotnet runtime resolution logic',
+    },
   ])('run `snyk test` on a $description', async ({ fixture, projectFile }) => {
     server.setFeatureFlag('useImprovedDotnetWithoutPublish', true);
 
