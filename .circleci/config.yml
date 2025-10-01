@@ -1207,8 +1207,6 @@ jobs:
             make release-validate-version
             make ts-cli-binaries/version BINARY_RELEASES_FOLDER_TS_CLI=ts-cli-binaries
       - run:
-          # required for one unit test (ts-binary-wrapper/test/unit/common.spec.ts:15:30)
-          # consider removing this run
           name: Pre-Build
           command: make pre-build
       - run:
