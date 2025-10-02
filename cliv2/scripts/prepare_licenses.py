@@ -14,6 +14,10 @@ def manual_license_download(url, package_name):
             with open(license_file_name, "wb") as license_file:
                 for chunk in response.iter_content(chunk_size=8192):
                     license_file.write(chunk)
+        try:
+            os.chmod(license_file_name, 0o644)
+        except Exception as e:
+            print(f"Warning: Could not set permissions for {license_file_name}: {e}")
 
 def main():
     # Try to find all licenses via the go.mod file
@@ -27,6 +31,16 @@ def main():
     manual_license_download("https://raw.githubusercontent.com/alexbrainman/sspi/master/LICENSE", "github.com/alexbrainman/sspi")
     manual_license_download("https://raw.githubusercontent.com/pmezard/go-difflib/master/LICENSE", "github.com/pmezard/go-difflib")
     manual_license_download("https://go.dev/LICENSE?m=text", "go.dev")
+
+    # Fix permissions for all license files (in case go-licenses created them with restrictive permissions)
+    licenses_dir = os.path.join(".", "internal", "embedded", "_data", "licenses")
+    for root, dirs, files in os.walk(licenses_dir):
+        for file in files:
+            file_path = os.path.join(root, file)
+            try:
+                os.chmod(file_path, 0o644)
+            except Exception as e:
+                print(f"Warning: Could not set permissions for {file_path}: {e}")
 
     # Clean up and print result
     pattern = re.compile("COPYING|LICENSE|NOTICE.*", flags=re.IGNORECASE)
