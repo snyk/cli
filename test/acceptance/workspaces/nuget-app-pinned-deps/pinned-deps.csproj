@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Dynamicweb.Security" Version="12.5.21" />
+        <PackageReference Include="Aspire.RabbitMQ.Client" Version="8.2.2" />
+        <PackageReference Include="System.ServiceModel.Duplex" Version="[4.10.3]" />
+        <PackageReference
+            Include="Kentico.Xperience.Libraries"
+            Version="13.0.193"
+        />
+    </ItemGroup>
+</Project>

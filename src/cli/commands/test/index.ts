@@ -1,8 +1,8 @@
 import * as Debug from 'debug';
 import { EOL } from 'os';
-const cloneDeep = require('lodash.clonedeep');
+import * as cloneDeep from 'lodash.clonedeep';
 const omit = require('lodash.omit');
-const assign = require('lodash.assign');
+import * as assign from 'lodash.assign';
 import chalk from 'chalk';
 import { MissingArgError } from '../../../lib/errors';
 import * as theme from '../../../lib/theme';
@@ -44,7 +44,17 @@ import {
 } from '../../../lib/spotlight-vuln-notification';
 import iacTestCommand from './iac';
 import * as iacTestCommandV2 from './iac/v2';
-import { hasFeatureFlag } from '../../../lib/feature-flags';
+import {
+  hasFeatureFlag,
+  hasFeatureFlagOrDefault,
+} from '../../../lib/feature-flags';
+import {
+  SCAN_USR_LIB_JARS_FEATURE_FLAG,
+  CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+  INCLUDE_SYSTEM_JARS_OPTION,
+  EXCLUDE_APP_VULNS_OPTION,
+  APP_VULNS_OPTION,
+} from '../constants';
 import { checkOSSPaths } from '../../../lib/check-paths';
 
 const debug = Debug('snyk-test');
@@ -105,14 +115,15 @@ export default async function test(
     // 1) exclude-app-vulns set -> no app vulns
     // 2) app-vulns set -> app-vulns
     // 3) neither set -> containerAppVulnsEnabled
-    if (options['exclude-app-vulns']) {
-      options['exclude-app-vulns'] = true;
-    } else if (options['app-vulns']) {
-      options['exclude-app-vulns'] = false;
+    if (options[EXCLUDE_APP_VULNS_OPTION]) {
+      options[EXCLUDE_APP_VULNS_OPTION] = true;
+    } else if (options[APP_VULNS_OPTION]) {
+      options[EXCLUDE_APP_VULNS_OPTION] = false;
     } else {
-      options['exclude-app-vulns'] = !(await hasFeatureFlag(
-        'containerCliAppVulnsEnabled',
+      options[EXCLUDE_APP_VULNS_OPTION] = !(await hasFeatureFlagOrDefault(
+        CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
         options,
+        true,
       ));
 
       // we can't print the warning message with JSON output as that would make
@@ -120,12 +131,22 @@ export default async function test(
       // We also only want to print the message if the user did not overwrite
       // the default with one of the flags.
       if (
-        options['exclude-app-vulns'] &&
+        options[EXCLUDE_APP_VULNS_OPTION] &&
         !options['json'] &&
         !options['sarif']
       ) {
         console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
       }
+    }
+
+    // Check scanUsrLibJars feature flag and add --include-system-jars parameter
+    const scanUsrLibJarsEnabled = await hasFeatureFlagOrDefault(
+      SCAN_USR_LIB_JARS_FEATURE_FLAG,
+      options,
+      false,
+    );
+    if (scanUsrLibJarsEnabled) {
+      options[INCLUDE_SYSTEM_JARS_OPTION] = true;
     }
   }
 
@@ -251,7 +272,7 @@ export default async function test(
       // Note: this is done based on the logic done below
       // for non-json/sarif outputs, where we take the code of
       // the first error.
-      err.code = errorResults[0].code;
+      (err as any).code = (errorResults[0] as any).code;
     }
     err.json = stringifiedData;
     err.jsonStringifiedResults = stringifiedJsonData;
@@ -300,10 +321,10 @@ export default async function test(
     // translation
     // HACK as there can be different errors, and we pass only the
     // first one
-    error.code = errorResults[0].code;
-    error.userMessage = errorResults[0].userMessage;
-    error.strCode = errorResults[0].strCode;
-    error.innerError = errorResults[0].innerError;
+    (error as any).code = (errorResults[0] as any).code;
+    (error as any).userMessage = (errorResults[0] as any).userMessage;
+    (error as any).strCode = (errorResults[0] as any).strCode;
+    (error as any).innerError = (errorResults[0] as any).innerError;
     throw error;
   }
 
