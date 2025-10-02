@@ -37,12 +37,8 @@ help:
 	@echo
 	@echo 'Developer Targets:'
 	@echo '  build-ide-debug'
-	@echo '    Builds a debug binary with local gaf and snyk-ls dependencies.'
-	@echo '    Accepts optional args: DEST=/path/to/copy CLIP=false'
-	@echo
-	@echo '  build-ide-debug-with-code-client'
-	@echo '    Same as above, but also includes local code-client-go dependency.'
-	@echo '    Accepts optional args: DEST=/path/to/copy CLIP=false'
+	@echo '    Builds a debug binary with local dependencies.'
+	@echo '    Accepts optional args: GAF=true LS=true CLIENT=false DEST=/path/to/copy CLIP=false'
 
 $(BINARY_OUTPUT_FOLDER)/fips: $(BINARY_OUTPUT_FOLDER)
 	@mkdir -p $(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips
@@ -314,17 +310,10 @@ release-mgt-create:
 	@echo "-- Creating stable release"
 	@./release-scripts/create-release.sh
 
-.PHONY: build-ide-debug build-ide-debug-with-code-client
-
-CLIP ?= true
+.PHONY: build-ide-debug
 
 build-ide-debug:
-	@$(MAKE) clean-golang
-	@(cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) build-ide-debug IDE_BUILD=true DEST='$(DEST)' CLIP='$(CLIP)' bindir='$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)' USE_LEGACY_EXECUTABLE_NAME=1)
-
-build-ide-debug-with-code-client:
-	@$(MAKE) clean-golang
-	@(cd $(EXTENSIBLE_CLI_DIR) && $(MAKE) build-ide-debug-with-code-client IDE_BUILD=true DEST='$(DEST)' CLIP='$(CLIP)' bindir='$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)' USE_LEGACY_EXECUTABLE_NAME=1)
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-ide-debug IDE_BUILD=true bindir='$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)' USE_LEGACY_EXECUTABLE_NAME=1
 
 .PHONY: format
 format:

@@ -311,8 +311,7 @@ help:
 	@echo "$(LOG_PREFIX) build-full"
 	@echo "$(LOG_PREFIX) clean-full"
 	@echo "\nDeveloper targets:"
-	@echo "$(LOG_PREFIX) build-ide-debug DEST=... CLIP=..."
-	@echo "$(LOG_PREFIX) build-ide-debug-with-code-client DEST=... CLIP=..."
+	@echo "$(LOG_PREFIX) build-ide-debug DEST=... CLIP=... GAF=... LS=... CLIENT=..."
 	@echo "\nAvailable parameter:"
 	@echo "$(LOG_PREFIX) GOOS                       Specify Operating System to compile for (see golang GOOS, default=$(GOOS))"
 	@echo "$(LOG_PREFIX) GOARCH                     Specify Architecture to compile for (see golang GOARCH, default=$(GOARCH))"
@@ -345,27 +344,26 @@ ide-install:
 		esac; \
 	fi
 
+# IDE build arguments
+GAF ?= true
+LS ?= true
+CLIENT ?= false
+
 .PHONY: build-ide-debug
-build-ide-debug: ide-setup-default debug build-full install ide-install
+build-ide-debug: ide-setup debug build-full install ide-install
 
-.PHONY: build-ide-debug-with-code-client
-build-ide-debug-with-code-client: ide-setup-with-code-client debug build-full install ide-install
-
-.PHONY: ide-setup-default
-ide-setup-default:
+.PHONY: ide-setup
+ide-setup:
 	@echo "--- IDE Pre-build: Appending replace directives to go.mod ---"; \
 	echo "" >> go.mod; \
-	echo "replace github.com/snyk/go-application-framework => ../../go-application-framework" >> go.mod; \
-	echo "replace github.com/snyk/snyk-ls => ../../snyk-ls" >> go.mod; \
-	echo "--- IDE Pre-build: Running go mod tidy ---"; \
-	go mod tidy;
-
-.PHONY: ide-setup-with-code-client
-ide-setup-with-code-client:
-	@echo "--- IDE Pre-build: Appending replace directives to go.mod ---"; \
-	echo "" >> go.mod; \
-	echo "replace github.com/snyk/go-application-framework => ../../go-application-framework" >> go.mod; \
-	echo "replace github.com/snyk/snyk-ls => ../../snyk-ls" >> go.mod; \
-	echo "replace github.com/snyk/code-client-go => ../../code-client-go" >> go.mod; \
+	if [ "$(GAF)" = "true" ]; then \
+		echo "replace github.com/snyk/go-application-framework => ../../go-application-framework" >> go.mod; \
+	fi; \
+	if [ "$(LS)" = "true" ]; then \
+		echo "replace github.com/snyk/snyk-ls => ../../snyk-ls" >> go.mod; \
+	fi; \
+	if [ "$(CLIENT)" = "true" ]; then \
+		echo "replace github.com/snyk/code-client-go => ../../code-client-go" >> go.mod; \
+	fi; \
 	echo "--- IDE Pre-build: Running go mod tidy ---"; \
 	go mod tidy;
