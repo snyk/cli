@@ -50,22 +50,34 @@ executors:
     resource_class: small
   docker-amd64:
     docker:
-      - image: snyklabs/cli-build:20250429-091242
+      - image: snyklabs/cli-build-private:20250910-083449
+        auth:
+          username: $DOCKER_CLI_BUILD_USERNAME
+          password: $DOCKER_CLI_BUILD_PASSWORD
     working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: snyklabs/cli-build:20250429-091242
+      - image: snyklabs/cli-build-private:20250910-083449
+        auth:
+          username: $DOCKER_CLI_BUILD_USERNAME
+          password: $DOCKER_CLI_BUILD_PASSWORD
     working_directory: /mnt/ramdisk/snyk
     resource_class: xlarge
   docker-arm64:
     docker:
-      - image: snyklabs/cli-build-arm64:20250429-091242
+      - image: snyklabs/cli-build-private-arm64:20250910-083449
+        auth:
+          username: $DOCKER_CLI_BUILD_USERNAME
+          password: $DOCKER_CLI_BUILD_PASSWORD
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   docker-arm64-xl:
     docker:
-      - image: snyklabs/cli-build-arm64:20250429-091242
+      - image: snyklabs/cli-build-private-arm64:20250910-083449
+        auth:
+          username: $DOCKER_CLI_BUILD_USERNAME
+          password: $DOCKER_CLI_BUILD_PASSWORD
     working_directory: /mnt/ramdisk/snyk
     resource_class: arm.xlarge
   linux-ubuntu-jammy-amd64:
@@ -280,6 +292,15 @@ commands:
           name: No dependencies to install
           command: echo all done!
 
+  # this can be removed if we install the xdg-utils package in the docker image
+  install-deps-linux-acceptance-tests:
+    steps:
+      - run:
+          name: Installing linux acceptance tests dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install xdg-utils docker.io -y
+
   install-deps-python:
     parameters:
       os:
@@ -355,7 +376,7 @@ commands:
             *) arch="amd64";;
             esac
             echo "using architecture: $arch"
-            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip
+            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip xdg-utils docker
             pip3 install pipenv requests PyYAML setuptools==70.3.0
             wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh
             wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-$arch.tar.gz -O /tmp/go.tgz && \
@@ -413,12 +434,14 @@ workflows:
           trusted-branch: main
 
       - docs-only-check:
+          context: devex_cli_docker_hub
           filters:
             branches:
               only:
                 - '/^docs\/.*/'
 
       - prepare-build:
+          context: devex_cli_docker_hub
           requires:
             - secrets-scan
           filters:
@@ -431,7 +454,9 @@ workflows:
           go_os: linux
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          context: devex_cli
+          context:
+            - devex_cli
+            - devex_cli_docker_hub
           requires:
             - prepare-build
           filters:
@@ -443,6 +468,7 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - devex_cli_docker_hub
           requires:
             - prepare-build
           filters:
@@ -459,6 +485,7 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - devex_cli_docker_hub
           requires:
             - prepare-build
           filters:
@@ -471,6 +498,7 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - devex_cli_docker_hub
           requires:
             - prepare-build
           filters:
@@ -481,12 +509,15 @@ workflows:
 
       - build-special-artifacts:
           name: build fix & protect
+          context: devex_cli_docker_hub
           requires:
             - prepare-build
 
       - build-artifact:
           name: build linux amd64
-          context: iac-cli
+          context:
+            - iac-cli
+            - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
           go_arch: amd64
@@ -498,7 +529,9 @@ workflows:
 
       - build-artifact:
           name: build linux static amd64
-          context: iac-cli
+          context:
+            - iac-cli
+            - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
           go_arch: amd64
@@ -510,7 +543,9 @@ workflows:
 
       - build-artifact:
           name: build linux arm64
-          context: iac-cli
+          context:
+            - iac-cli
+            - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
           go_arch: arm64
@@ -522,7 +557,9 @@ workflows:
 
       - build-artifact:
           name: build linux static arm64
-          context: iac-cli
+          context:
+            - iac-cli
+            - devex_cli_docker_hub
           go_target_os: linux
           go_os: linux
           go_arch: arm64
@@ -534,7 +571,9 @@ workflows:
 
       - build-artifact:
           name: build alpine amd64
-          context: iac-cli
+          context:
+            - iac-cli
+            - devex_cli_docker_hub
           go_target_os: alpine
           go_os: linux
           go_arch: amd64
@@ -546,7 +585,9 @@ workflows:
 
       - build-artifact:
           name: build alpine arm64
-          context: iac-cli
+          context:
+            - iac-cli
+            - devex_cli_docker_hub
           go_target_os: alpine
           go_os: linux
           go_arch: arm64
@@ -602,7 +643,9 @@ workflows:
 
       - regression-tests:
           name: regression-tests
-          context: team_hammerhead-cli
+          context:
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
           filters:
             branches:
               ignore:
@@ -621,11 +664,14 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - devex_cli_docker_hub
           filters:
             branches:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux static arm64
           executor: docker-arm64-xl
@@ -640,11 +686,14 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - devex_cli_docker_hub
           filters:
             branches:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux amd64
           executor: docker-amd64-xl
@@ -660,11 +709,14 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - devex_cli_docker_hub
           filters:
             branches:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux arm64
           executor: docker-arm64
@@ -683,11 +735,14 @@ workflows:
           context:
             - nodejs-install
             - team_hammerhead-cli
+            - devex_cli_docker_hub
           filters:
             branches:
               ignore:
                 - main
                 - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
           requires:
             - build linux arm64
 
@@ -711,6 +766,7 @@ workflows:
           test_snyk_command: ./binary-releases/snyk-alpine
           install_deps_extension: alpine-full
           dont_skip_tests: 0
+          pre_test_cmds: export BROWSER="wget -O -"
 
       - acceptance-tests:
           name: acceptance-tests alpine arm64
@@ -733,6 +789,7 @@ workflows:
           test_snyk_command: ./binary-releases/snyk-alpine-arm64
           install_deps_extension: alpine-full
           dont_skip_tests: 0
+          pre_test_cmds: export BROWSER="wget -O -"
 
       - acceptance-tests:
           name: acceptance-tests macOS arm64
@@ -832,7 +889,9 @@ workflows:
           go_os: linux
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
-          context: snyk-cli-pgp-signing
+          context:
+            - snyk-cli-pgp-signing
+            - devex_cli_docker_hub
           requires:
             - sign macos amd64
             - sign macos arm64
@@ -865,7 +924,9 @@ workflows:
 
       - pre-release:
           name: upload version
-          context: team-hammerhead-common-deploy-tokens
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
           requires:
             - release?
           filters:
@@ -877,7 +938,9 @@ workflows:
 
       - npm-validation:
           name: Validate NPM artifacts (<< matrix.executor >>)
-          context: team_hammerhead-cli
+          context:
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
           matrix:
             parameters:
               executor:
@@ -895,7 +958,9 @@ workflows:
 
       - test-release:
           name: e2e tests (<< matrix.executor >>)
-          context: team_hammerhead-cli
+          context:
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
           matrix:
             parameters:
               executor:
@@ -996,7 +1061,9 @@ workflows:
       - release-s3:
           name: upload preview
           deployment: preview
-          context: team-hammerhead-common-deploy-tokens
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
           requires:
             - Start Deployments
           filters:
@@ -1008,7 +1075,9 @@ workflows:
       - release-s3:
           name: upload release candidate
           deployment: rc
-          context: team-hammerhead-common-deploy-tokens
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
           requires:
             - Start Deployments
           filters:
@@ -1020,7 +1089,9 @@ workflows:
       - release-s3:
           name: upload latest/stable
           deployment: stable
-          context: team-hammerhead-common-deploy-tokens
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
           requires:
             - Start Deployments
           filters:
@@ -1031,7 +1102,9 @@ workflows:
 
       - release-github:
           name: upload github
-          context: team-hammerhead-common-deploy-tokens
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
           requires:
             - upload latest/stable
           filters:
@@ -1042,7 +1115,9 @@ workflows:
 
       - release-npm:
           name: upload npm
-          context: team-hammerhead-common-deploy-tokens
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
           requires:
             - upload github
           filters:
@@ -1053,7 +1128,9 @@ workflows:
 
       - trigger-building-snyk-images:
           name: Trigger building snyk-images (preview)
-          context: team-hammerhead-common-deploy-tokens
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
           deployment: preview
           requires:
             - upload preview
@@ -1064,7 +1141,9 @@ workflows:
 
       - trigger-building-snyk-images:
           name: Trigger building snyk-images (rc)
-          context: team-hammerhead-common-deploy-tokens
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
           deployment: rc
           requires:
             - upload release candidate
@@ -1075,7 +1154,9 @@ workflows:
 
       - trigger-building-snyk-images:
           name: Trigger building snyk-images (stable)
-          context: team-hammerhead-common-deploy-tokens
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
           requires:
             - upload npm
           filters:
@@ -1086,7 +1167,9 @@ workflows:
 
       - trigger-building-dxt:
           name: Trigger building mcp-dxt (stable)
-          context: team-hammerhead-common-deploy-tokens
+          context:
+            - team-hammerhead-common-deploy-tokens
+            - devex_cli_docker_hub
           requires:
             - upload npm
           filters:
@@ -1370,6 +1453,14 @@ jobs:
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
+      - when:
+          condition:
+            matches:
+              pattern: '^(docker.*|alpine.*)'
+              value: << parameters.executor >>
+          steps:
+            - setup_remote_docker:
+                docker_layer_caching: false
       - run:
           command: npm install
       - install-go:

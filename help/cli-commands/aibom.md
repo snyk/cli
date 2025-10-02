@@ -1,12 +1,12 @@
 # AI-BOM
 
-**Note**: AI-BOM is an experimental feature and is subject to breaking changes without notice.
+**Note**: AI-BOM is an experimental feature and is subject to breaking changes without notice. If you are using AI-BOM, Snyk recommends installing the Snyk CLI from the [release](../releases-and-channels-for-the-snyk-cli.md#stable) channel.
 
 ## Prerequisites
 
 - The `snyk aibom` feature requires an internet connection.&#x20;
-- Install the Snyk CLI from the [preview release](../../../snyk-cli/releases-and-channels-for-the-snyk-cli.md#preview) channel.
-- Your Project must be Python and with a [package manager](../../../supported-languages-package-managers-and-frameworks/python/) supported by Snyk.
+- Snyk CLI v1.1298.3 (or later).
+- Your Project must be written in Python and using a [package manager](../../../supported-languages/supported-languages-list/python/) supported by Snyk.
 
 ## Usage
 
@@ -20,7 +20,7 @@ The supported format is CycloneDX v1.6 (JSON).
 
 In the JSON file, you can see the following AI dependencies and components:
 
-- **Models:** You can see your usage of foundational models (such as GPT-4) and open source models (such as Llama-4). Where possible, the information surfaced also refers to model card, license, and other information.
+- **Models:** You can see your usage of foundational models (such as GPT-4) and open-source models (such as Llama-4). Where possible, the information surfaced also refers to model card, license, and other information.
 - **Agents:** Identified based on popular AI agent libraries.
 - **Tools:** Identified based on popular patterns of tool calling.
 - **MCPs:** Identified based on the official MCP SDK, in addition to other popular ways of building MCPs.
@@ -47,7 +47,7 @@ Required. Use experimental command features. This option is required because the
 
 ### `--org=<ORG_ID>`
 
-Specify the `<ORG_ID>`to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences private test limits.
+Specify the `<ORG_ID>` to run Snyk commands tied to a specific Snyk Organization. The `<ORG_ID>` influences private test limits.
 
 If you have multiple Organizations, you can set a default from the CLI using:
 

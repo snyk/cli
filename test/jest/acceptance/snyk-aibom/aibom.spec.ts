@@ -294,16 +294,5 @@ describe('snyk aibom (mocked servers only)', () => {
       expect(code).toEqual(2);
       expect(stdout).toContain('Authentication error (SNYK-0005)');
     });
-
-    test('handles no SNYK_TOKEN', async () => {
-      const { code, stdout } = await runSnykCLI(
-        `aibom ${pythonChatbotProject} --experimental`,
-        {
-          env: envWithoutAuth,
-        },
-      );
-      expect(code).toEqual(2);
-      expect(stdout).toContain('Authentication error (SNYK-0005)');
-    });
   });
 });

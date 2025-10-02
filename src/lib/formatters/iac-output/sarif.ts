@@ -60,6 +60,10 @@ export function createSarifOutputForIac(
       rules: extractReportingDescriptor(issues),
     },
   };
+
+  const projectName = iacTestResponses[0].projectName;
+  const projectIdentifier = projectName ? `${projectName}/` : '';
+
   return {
     $schema:
       'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json',
@@ -78,7 +82,7 @@ export function createSarifOutputForIac(
 
         tool,
         automationDetails: {
-          id: 'snyk-iac',
+          id: `Snyk/IaC/${projectIdentifier}${new Date().toISOString()}`,
         },
         results: mapIacTestResponseToSarifResults(issues),
       },
