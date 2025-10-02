@@ -1165,8 +1165,8 @@ workflows:
                 - main
                 - '/release.*/'
 
-      - trigger-building-dxt:
-          name: Trigger building mcp-dxt (stable)
+      - trigger-build-agentic-integration:
+          name: Trigger building agentic-integration (stable)
           context:
             - team-hammerhead-common-deploy-tokens
             - devex_cli_docker_hub
@@ -1744,13 +1744,13 @@ jobs:
           command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
       - failed-release-notification
 
-  trigger-building-dxt:
+  trigger-build-agentic-integration:
     executor: docker-amd64
     steps:
       - prepare-workspace
       - run:
-          name: Trigger build-and-release workflow at mcp-dxt
-          command: ./release-scripts/upload-artifacts.sh trigger_build_dxt
+          name: Trigger build-and-release workflow at agentic-integration-wrappers
+          command: ./release-scripts/upload-artifacts.sh trigger_build_agentic_integration
       - failed-release-notification
 
   noop:
