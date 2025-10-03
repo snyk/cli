@@ -29,7 +29,7 @@ Use the `-d` option to output the debug logs.
 
 ### `--report`
 
-**NEW** option: Share results with the Snyk Web UI.
+Share results with the Snyk Web UI.
 
 This creates a project in your Snyk account with a snapshot of the current configuration issues or appends the snapshot to an existing project.
 
