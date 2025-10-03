@@ -19,20 +19,59 @@ Possible exit codes and their meaning:
 
 ## Configure the Snyk CLI
 
+You can use environment variables to configure the Snyk CLI and set variables for connecting with the Snyk API. See [Configure the Snyk CLI](https://docs.snyk.io/snyk-cli/configure-the-snyk-cli)
+
 ## Debug
 
 Use the `-d` option to output the debug logs.
 
 ## Options
 
-`--report --project-name="<PROJECT_NAME>"`
+### `--report`
 
-Allows you to publish test results of local code to a Snyk Project in the Web UI
+**NEW** option: Share results with the Snyk Web UI.
 
-* `project-name` must be in double quotation marks. Single quotes or missing quotes will result in an error.
-* `project-name` must contain only alphanumeric characters, forward slashes (/), dashes (-), underscores (\_), and square brackets (\[]).
+This creates a project in your Snyk account with a snapshot of the current configuration issues or appends the snapshot to an existing project.
 
 After using this option, log in to the Snyk website and view your projects to see the snapshot.
+
+Example: `$ snyk code test --report`
+
+### `--project-name=<PROJECT_NAME>`
+
+**Required** when using `--report`. Specify a custom Snyk project name.
+
+Example: `$ snyk code test --report --project-name=my-project`
+
+### `--target-name=<TARGET_NAME>`
+
+This can be used in combination with the `--report` option.
+
+Set or override the project name for the repository.
+
+Note: This option supersedes `--project-name`, if both options are used together.
+
+### `--target-reference=<TARGET_REFERENCE>`
+
+This can be used in combination with the `--report` option.
+
+Specify a reference that differentiates this project, for example, a branch name or version. Projects having the same reference can be grouped based on that reference.
+
+Example, setting to the current Git branch:
+
+`snyk code test --report --target-reference="$(git branch --show-current)"`
+
+Example, setting to the latest Git tag:
+
+`snyk code test --report --target-reference="$(git describe --tags --abbrev=0)"`
+
+### `--remote-repo-url=<URL>`
+
+Set or override the remote URL for the repository.
+
+Example: `--remote-repo-url=https://gitlab.com/example/project` will create a target for given URL and on the UI it would be visible as `/example/project/` .
+
+Can be used in combination with the `--report` option.
 
 ### `--org=<ORG_ID>`
 
