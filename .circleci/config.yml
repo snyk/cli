@@ -1510,6 +1510,11 @@ jobs:
             sudo ln -s $(realpath << parameters.test_snyk_command >>) /usr/local/bin/snyk
             snyk --version
       - run:
+          name: Running jest smoke tests
+          command: |
+            npm install
+            npm run test:smoke-jest -- --ci --reporters=default --reporters=jest-junit
+      - run:
           name: Running ShellSpec tests
           working_directory: ./test/smoke
           command: |

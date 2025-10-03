@@ -44,6 +44,7 @@
     "test:acceptance": "jest --maxWorkers=1 --testPathPattern \"/test(/jest)?/acceptance/\" --reporters=jest-junit --reporters=default",
     "test:tap": "tap -Rspec --timeout=300 test/tap/*.test.* ",
     "test:smoke": "./scripts/run-smoke-tests-locally.sh",
+    "test:smoke-jest": "jest --runInBand --testPathPattern '/test/smoke/' --reporters=jest-junit --reporters=default",
     "dev": "ts-node ./src/cli/index.ts"
   },
   "keywords": [
