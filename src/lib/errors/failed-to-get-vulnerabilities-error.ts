@@ -1,4 +1,4 @@
-import { Snyk } from '@snyk/error-catalog-nodejs-public';
+import { createErrorCatalogFromStatusCode } from './error-catalog-factory';
 import { CustomError } from './custom-error';
 
 export class FailedToGetVulnerabilitiesError extends CustomError {
@@ -8,10 +8,11 @@ export class FailedToGetVulnerabilitiesError extends CustomError {
 
   constructor(userMessage, statusCode) {
     super(FailedToGetVulnerabilitiesError.ERROR_MESSAGE);
-    this.code = statusCode || FailedToGetVulnerabilitiesError.ERROR_CODE;
+    const code = statusCode || FailedToGetVulnerabilitiesError.ERROR_CODE;
+    this.code = code;
     this.strCode = FailedToGetVulnerabilitiesError.ERROR_STRING_CODE;
     this.userMessage =
       userMessage || FailedToGetVulnerabilitiesError.ERROR_MESSAGE;
-    this.errorCatalog = new Snyk.ServerError('');
+    this.errorCatalog = createErrorCatalogFromStatusCode(code);
   }
 }
