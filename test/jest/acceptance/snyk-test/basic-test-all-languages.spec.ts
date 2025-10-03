@@ -143,7 +143,6 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     });
 
     expect(result.code).toEqual(2);
-    expect(result.stderr).toMatch(wrongPythonCommand);
   });
 
   test('run `snyk test` on a pipenv project', async () => {
@@ -332,7 +331,20 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     },
   );
 
-  it('run `snyk test` on a .net framework project using v3 dotnet runtime resolution logic', async () => {
+  it.each([
+    {
+      fixture: 'nuget-app-net48',
+      projectFile: 'net48.csproj',
+      description:
+        '.net framework project using v3 dotnet runtime resolution logic',
+    },
+    {
+      fixture: 'nuget-app-pinned-deps',
+      projectFile: 'pinned-deps.csproj',
+      description:
+        '.net 8 project with pinned dependencies using v3 dotnet runtime resolution logic',
+    },
+  ])('run `snyk test` on a $description', async ({ fixture, projectFile }) => {
     server.setFeatureFlag('useImprovedDotnetWithoutPublish', true);
 
     let prerequisite = await runCommand('dotnet', ['--version']).catch(
@@ -345,11 +357,11 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
       return;
     }
 
-    const project = await createProjectFromWorkspace('nuget-app-net48');
+    const project = await createProjectFromWorkspace(fixture);
 
     prerequisite = await runCommand('dotnet', [
       'restore',
-      `"${path.resolve(project.path(), 'net48.csproj')}"`,
+      `"${path.resolve(project.path(), projectFile)}"`,
     ]);
 
     if (prerequisite.code !== 0) {

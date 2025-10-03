@@ -560,14 +560,18 @@ describe('snyk code test', () => {
         });
 
         it('Stateful local code test --report', async () => {
+          const sarifFileName = 'sarifReportOutput.json';
+          const sarifFilePath = `${projectRoot}/${sarifFileName}`;
+
           const args = [
             'code',
             'test',
             '--report',
             '--project-name=cicd-user-journey-test',
+            `--sarif-file-output=${sarifFilePath}`,
             await ensureUniqueBundleIsUsed(projectWithCodeIssues),
           ];
-          const { stderr, code } = await runSnykCLIWithArray(args, {
+          const { stdout, stderr, code } = await runSnykCLIWithArray(args, {
             env: {
               ...process.env,
               ...integrationEnv,
@@ -576,6 +580,40 @@ describe('snyk code test', () => {
 
           expect(stderr).toBe('');
           expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(code);
+
+          const sarifOutput = JSON.parse(readFileSync(sarifFilePath, 'utf8'));
+
+          // ensure that uploadResult metadata exists
+          expect(
+            sarifOutput.runs[0].properties.uploadResult.projectId,
+          ).toBeDefined();
+          expect(
+            sarifOutput.runs[0].properties.uploadResult.projectId,
+          ).not.toBe('');
+          expect(
+            sarifOutput.runs[0].properties.uploadResult.snapshotId,
+          ).toBeDefined();
+          expect(
+            sarifOutput.runs[0].properties.uploadResult.snapshotId,
+          ).not.toBe('');
+          expect(
+            sarifOutput.runs[0].properties.uploadResult.reportUrl,
+          ).toBeDefined();
+          expect(
+            sarifOutput.runs[0].properties.uploadResult.reportUrl,
+          ).not.toBe('');
+
+          // ensure that the same report url is displayed in the stdout and in the sarif file
+          expect(stdout).toContain(
+            sarifOutput.runs[0].properties.uploadResult.reportUrl,
+          );
+
+          // cleanup file
+          try {
+            unlinkSync(sarifFilePath);
+          } catch (error) {
+            console.error('failed to remove file.', error);
+          }
         });
 
         it('Stateful remote code test --report', async () => {

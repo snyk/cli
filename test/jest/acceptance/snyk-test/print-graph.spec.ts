@@ -55,6 +55,29 @@ describe('print graph', () => {
     expect(numEdges).toEqual(28);
   });
 
+  test('`snyk test --print-graph` resolves Maven metaversions', async () => {
+    const project = await createProjectFromFixture('maven-metaversion');
+
+    const { code, stdout } = await runSnykCLI('test --print-graph', {
+      cwd: project.path(),
+    });
+
+    expect(code).toEqual(0);
+
+    const depGraph = JSON.parse(
+      stdout.split('DepGraph data:')[1]?.split('DepGraph target:')[0],
+    );
+
+    // Ensure no LATEST/RELEASE metaversions remain in any package id
+    for (const pkg of depGraph.pkgs) {
+      expect(pkg.id).not.toMatch(/@(LATEST|RELEASE)$/);
+      expect(pkg.info.version).not.toMatch(/^(LATEST|RELEASE)$/);
+    }
+
+    // Minimum packages: at least the root + two metaversion deps
+    expect(depGraph.pkgs.length).toBeGreaterThanOrEqual(3);
+  });
+
   test('`snyk test --print-graph --all-projects` should not prune dependencies', async () => {
     const project = await createProjectFromWorkspace('maven-many-paths');
 

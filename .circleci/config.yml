@@ -118,12 +118,12 @@ executors:
   macos-arm64:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
-      xcode: '14.3.1'
+      xcode: '16.4.0'
     resource_class: macos.m1.medium.gen1
   macos-arm64-large:
     macos:
       # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
-      xcode: '14.3.1'
+      xcode: '16.4.0'
     resource_class: macos.m1.large.gen1
   win-server2022-amd64:
     machine:
@@ -299,7 +299,7 @@ commands:
           name: Installing linux acceptance tests dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install xdg-utils -y
+            sudo apt-get install xdg-utils docker.io -y
 
   install-deps-python:
     parameters:
@@ -376,7 +376,7 @@ commands:
             *) arch="amd64";;
             esac
             echo "using architecture: $arch"
-            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip xdg-utils
+            apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip xdg-utils docker
             pip3 install pipenv requests PyYAML setuptools==70.3.0
             wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh
             wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-$arch.tar.gz -O /tmp/go.tgz && \
@@ -1165,8 +1165,8 @@ workflows:
                 - main
                 - '/release.*/'
 
-      - trigger-building-dxt:
-          name: Trigger building mcp-dxt (stable)
+      - trigger-build-agentic-integration:
+          name: Trigger building agentic-integration (stable)
           context:
             - team-hammerhead-common-deploy-tokens
             - devex_cli_docker_hub
@@ -1400,6 +1400,7 @@ jobs:
           environment:
             CC: << parameters.c_compiler >>
             CGO_ENABLED: 1
+            MACOSX_DEPLOYMENT_TARGET: 13.0
           command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >>
       - save_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
@@ -1452,6 +1453,14 @@ jobs:
     steps:
       - prepare-workspace
       - install-deps-<< parameters.install_deps_extension >>
+      - when:
+          condition:
+            matches:
+              pattern: '^(docker.*|alpine.*)'
+              value: << parameters.executor >>
+          steps:
+            - setup_remote_docker:
+                docker_layer_caching: false
       - run:
           command: npm install
       - install-go:
@@ -1735,13 +1744,13 @@ jobs:
           command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
       - failed-release-notification
 
-  trigger-building-dxt:
+  trigger-build-agentic-integration:
     executor: docker-amd64
     steps:
       - prepare-workspace
       - run:
-          name: Trigger build-and-release workflow at mcp-dxt
-          command: ./release-scripts/upload-artifacts.sh trigger_build_dxt
+          name: Trigger build-and-release workflow at agentic-integration-wrappers
+          command: ./release-scripts/upload-artifacts.sh trigger_build_agentic_integration
       - failed-release-notification
 
   noop:

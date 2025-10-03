@@ -3,6 +3,7 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
+	"io"
 	"os"
 	"os/exec"
 	"strconv"
@@ -12,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
-	"github.com/snyk/go-application-framework/pkg/logging"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/pflag"
@@ -69,7 +69,6 @@ func legacycliWorkflow(
 	output = []workflow.Data{}
 	var outBuffer bytes.Buffer
 	var outWriter *bufio.Writer
-	var errWriter *bufio.Writer
 
 	config := invocation.GetConfiguration()
 	debugLogger := invocation.GetEnhancedLogger() // uses zerolog
@@ -106,23 +105,25 @@ func legacycliWorkflow(
 	if len(apiToken) == 0 {
 		apiToken = "random"
 	}
-	cli.AppendEnvironmentVariables([]string{constants.SNYK_API_TOKEN_ENV + "=" + apiToken})
+	cli.AppendEnvironmentVariables([]string{constants.SNYK_API_TOKEN_ENV + "=" + apiToken, "DEBUG_HIDE_DATE=true"})
 
 	err = cli.Init()
 	if err != nil {
 		return output, err
 	}
 
-	scrubDict := logging.GetScrubDictFromConfig(config)
-	scrubbedStderr := logging.NewScrubbingIoWriter(os.Stderr, scrubDict)
+	// if debug is enabled, stderr will be directly using the debuglogger otherwise, stderr will be stderr
+	var stderr io.Writer = os.Stderr
+	if config.GetBool(configuration.DEBUG) {
+		stderr = debugLogger
+	}
 
 	if !useStdIo {
 		in := bytes.NewReader([]byte{})
 		outWriter = bufio.NewWriter(&outBuffer)
-		errWriter = bufio.NewWriter(scrubbedStderr)
-		cli.SetIoStreams(in, outWriter, errWriter)
+		cli.SetIoStreams(in, outWriter, stderr)
 	} else {
-		cli.SetIoStreams(os.Stdin, os.Stdout, scrubbedStderr)
+		cli.SetIoStreams(os.Stdin, os.Stdout, stderr)
 	}
 
 	wrapperProxy, err := createInternalProxy(
@@ -140,7 +141,6 @@ func legacycliWorkflow(
 
 	if !useStdIo {
 		outWriter.Flush()
-		errWriter.Flush()
 
 		contentType := "text/plain"
 		if pkg_utils.Contains(args, "--json") || pkg_utils.Contains(args, "--sarif") {

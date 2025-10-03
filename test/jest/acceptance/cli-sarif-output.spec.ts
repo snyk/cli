@@ -90,3 +90,16 @@ describe('SARIF output is schema compliant', () => {
     expect(jsonValidator.validate(schema, result)).toBe(true);
   });
 });
+
+describe('SARIF output is GitHub Actions compliant', () => {
+  it.each(TEST_CASES)(
+    'has runAutomationDetails.id for $name',
+    async ({ cmd, env, target }: TestCase) => {
+      const { stdout, code } = await runSnykCLI(`${cmd} ${target}`, { env });
+      expect(code).toBe(1);
+
+      const result = JSON.parse(stdout);
+      expect(result.runs[0].automationDetails.id).toMatch(/Snyk\/[A-Z][a-z]+/);
+    },
+  );
+});

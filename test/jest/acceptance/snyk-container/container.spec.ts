@@ -239,6 +239,77 @@ DepGraph end`,
 
       expect(payloads).toMatchSnapshot();
     });
+
+    it('includes OS field with prettyName under docker element in JSON output for container tests when OS info is available', async () => {
+      const { stdout } = await runSnykCLI(
+        `container test library/ubuntu@sha256:7a57c69fe1e9d5b97c5fe649849e79f2cfc3bf11d10bbd5218b4eb61716aebe6 --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+      expect(jsonOutput.docker).toBeDefined();
+      expect(jsonOutput.docker.os).toBeDefined();
+      expect(jsonOutput.docker.os.prettyName).toBeDefined();
+      expect(jsonOutput.docker.os.prettyName).toBe('Ubuntu 22.04.2 LTS');
+    });
+
+    it('successfully scans a local docker image with private tag', async () => {
+      if (os.platform() === 'darwin') {
+        console.warn(
+          'Skipping container test - Docker not available on macOS CI',
+        );
+        return;
+      }
+
+      const tarPath = 'test/fixtures/container-projects/node-slim-image.tar';
+      const privateTag = 'private-registry.local/test-node-slim:latest';
+      const { exec } = await import('child_process');
+      const { promisify } = await import('util');
+      const execAsync = promisify(exec);
+
+      try {
+        const loadResult = await execAsync(`docker load -i ${tarPath}`);
+
+        const loadOutput = loadResult.stdout || loadResult.stderr;
+        const imageMatch = loadOutput.match(/Loaded image.*?:\s*(.+)/);
+
+        if (!imageMatch) {
+          throw new Error(
+            `Could not extract image name from docker load output: ${loadOutput}`,
+          );
+        }
+
+        const loadedImageName = imageMatch[1].trim();
+
+        await execAsync(`docker tag ${loadedImageName} ${privateTag}`);
+
+        const { code, stdout } = await runSnykCLI(
+          `container test ${privateTag} --json`,
+        );
+
+        // Validate the scan was successful (exit code 0 or 1 are both valid - 1 means vulns found)
+        expect([0, 1]).toContain(code);
+
+        let jsonOutput;
+        try {
+          jsonOutput = JSON.parse(stdout);
+        } catch (e) {
+          throw new Error(`Failed to parse JSON output: ${e.message}.`);
+        }
+
+        expect(jsonOutput).toBeDefined();
+        expect(jsonOutput.packageManager).toBeDefined();
+        expect(jsonOutput.applications).toBeDefined();
+        expect(jsonOutput.applications).toHaveLength(3);
+      } finally {
+        try {
+          await execAsync(`docker rmi ${privateTag}`);
+        } catch (cleanupError) {
+          console.warn(
+            `Failed to cleanup image ${privateTag}:`,
+            cleanupError.message,
+          );
+        }
+      }
+    });
   });
 
   describe('depgraph', () => {
