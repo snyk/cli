@@ -117,14 +117,14 @@ executors:
     resource_class: arm.medium
   macos-arm64:
     macos:
-      # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
+      # https://circleci.com/docs/guides/test/testing-ios/#supported-xcode-versions
       xcode: '16.4.0'
-    resource_class: macos.m1.medium.gen1
+    resource_class: m4pro.medium
   macos-arm64-large:
     macos:
-      # https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
+      # https://circleci.com/docs/guides/test/testing-ios/#supported-xcode-versions
       xcode: '16.4.0'
-    resource_class: macos.m1.large.gen1
+    resource_class: m4pro.large
   win-server2022-amd64:
     machine:
       image: windows-server-2022-gui:2024.01.1
