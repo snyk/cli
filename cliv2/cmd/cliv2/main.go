@@ -33,6 +33,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -42,8 +44,6 @@ import (
 	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
@@ -95,8 +95,7 @@ const (
 )
 
 func main() {
-	errorCode, errs := MainWithErrorCode()
-	writeLogFooter(errorCode, errs)
+	errorCode := MainWithErrorCode()
 	os.Exit(errorCode)
 }
 
@@ -520,7 +519,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 	}
 }
 
-func MainWithErrorCode() (int, []error) {
+func MainWithErrorCode() int {
 	initDebugBuild()
 
 	errorList := []error{}
@@ -612,7 +611,7 @@ func MainWithErrorCode() (int, []error) {
 
 	if err != nil {
 		globalLogger.Print("Failed to init Workflow Engine!", err)
-		return constants.SNYK_EXIT_CODE_ERROR, errorList
+		return constants.SNYK_EXIT_CODE_ERROR
 	}
 
 	// init context
@@ -674,23 +673,7 @@ func MainWithErrorCode() (int, []error) {
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, err)
 
-	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
-	if targetIdError != nil {
-		globalLogger.Printf("Failed to derive target id, %v", targetIdError)
-	}
-	cliAnalytics.GetInstrumentation().SetTargetId(targetId)
-
-	if cliAnalytics.GetInstrumentation().GetDuration() == 0 {
-		cliAnalytics.GetInstrumentation().SetDuration(time.Since(startTime))
-	}
-
-	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
-	addNetworkingDetails(cliAnalytics.GetInstrumentation(), globalConfiguration)
-
-	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
-	if exitCode == 2 {
-		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
-	}
+	updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {
 		sendAnalytics(cliAnalytics, globalLogger)
@@ -704,7 +687,11 @@ func MainWithErrorCode() (int, []error) {
 		globalLogger.Printf("Failed to cleanup %v", err)
 	}
 
-	return exitCode, errorList
+	if debugEnabled {
+		writeLogFooter(exitCode, errorList, globalConfiguration, networkAccess)
+	}
+
+	return exitCode
 }
 
 func legacyCLITerminated(err error, errorList []error) error {
