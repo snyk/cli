@@ -6,9 +6,12 @@ import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
 import (
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/instrumentation"
+
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/networking/middleware"
@@ -47,4 +50,24 @@ func addRuntimeDetails(instrumentor analytics.InstrumentationCollector, ua netwo
 
 func addNetworkingDetails(instrumentor analytics.InstrumentationCollector, config configuration.Configuration) {
 	instrumentor.AddExtension("network-request-attempts", config.GetInt(middleware.ConfigurationKeyRetryAttempts))
+}
+
+func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, startTime time.Time, ua networking.UserAgentInfo, exitCode int) {
+	targetId, targetIdError := instrumentation.GetTargetId(globalConfiguration.GetString(configuration.INPUT_DIRECTORY), instrumentation.AutoDetectedTargetId, instrumentation.WithConfiguredRepository(globalConfiguration))
+	if targetIdError != nil {
+		globalLogger.Printf("Failed to derive target id, %v", targetIdError)
+	}
+	cliAnalytics.GetInstrumentation().SetTargetId(targetId)
+
+	if cliAnalytics.GetInstrumentation().GetDuration() == 0 {
+		cliAnalytics.GetInstrumentation().SetDuration(time.Since(startTime))
+	}
+
+	addRuntimeDetails(cliAnalytics.GetInstrumentation(), ua)
+	addNetworkingDetails(cliAnalytics.GetInstrumentation(), globalConfiguration)
+
+	cliAnalytics.GetInstrumentation().AddExtension("exitcode", exitCode)
+	if exitCode == 2 {
+		cliAnalytics.GetInstrumentation().SetStatus(analytics.Failure)
+	}
 }
