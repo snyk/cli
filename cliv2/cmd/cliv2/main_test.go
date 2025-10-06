@@ -45,7 +45,7 @@ func Test_MainWithErrorCode(t *testing.T) {
 	os.Args = []string{"snyk", "--version"}
 	defer func() { os.Args = oldArgs }()
 
-	errCode, _ := MainWithErrorCode()
+	errCode := MainWithErrorCode()
 	assert.False(t, globalConfiguration.GetBool(configuration.CONFIG_CACHE_DISABLED))
 	assert.Equal(t, configuration.NoCacheExpiration, globalConfiguration.GetDuration(configuration.CONFIG_CACHE_TTL))
 
@@ -60,18 +60,8 @@ func Test_MainWithErrorCode(t *testing.T) {
 			os.Args = oldArgs
 		}()
 
-		errCode, errs := MainWithErrorCode()
+		errCode := MainWithErrorCode()
 		assert.Equal(t, 2, errCode)
-
-		unauthorizedErrorCode := "SNYK-0005"
-		var actualErrorCodes []string
-		for _, err := range errs {
-			var snykError snyk_errors.Error
-			if errors.As(err, &snykError) {
-				actualErrorCodes = append(actualErrorCodes, snykError.ErrorCode)
-			}
-		}
-		assert.Contains(t, actualErrorCodes, unauthorizedErrorCode)
 	})
 }
 
