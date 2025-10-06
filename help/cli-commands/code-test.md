@@ -31,7 +31,7 @@ Use the `-d` option to output the debug logs.
 
 Share results with the Snyk Web UI.
 
-This creates a project in your Snyk account with a snapshot of the current configuration issues or appends the snapshot to an existing project.
+This creates a project in your Snyk account with a snapshot of the current issues or appends the snapshot to an existing project.
 
 After using this option, log in to the Snyk website and view your projects to see the snapshot.
 
@@ -47,9 +47,8 @@ Example: `$ snyk code test --report --project-name=my-project`
 
 This can be used in combination with the `--report` option.
 
-Set or override the project name for the repository.
+Set or override the target name for the project.
 
-Note: This option supersedes `--project-name`, if both options are used together.
 
 ### `--target-reference=<TARGET_REFERENCE>`
 
@@ -67,11 +66,10 @@ Example, setting to the latest Git tag:
 
 ### `--remote-repo-url=<URL>`
 
-Set or override the remote URL for the repository.
+Set or override the repository's remote URL metadata for the test.
 
 Example: `--remote-repo-url=https://gitlab.com/example/project` will create a target for given URL and on the UI it would be visible as `/example/project/` .
 
-Can be used in combination with the `--report` option.
 
 ### `--org=<ORG_ID>`
 
