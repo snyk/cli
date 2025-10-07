@@ -38,67 +38,156 @@ describe('npm alias support', () => {
     server.close(() => done());
   });
 
-  it('test npm alias v1', async () => {
+  it('test npm alias v1 - print-deps no json warning msg', async () => {
     const project = await createProject('aliases/npm-lock-v1');
 
-    const { code, stdout } = await runSnykCLI(`test --print-deps`, {
+    const { code, stderr } = await runSnykCLI(`test --print-deps`, {
       cwd: project.path(),
       env,
     });
     expect(code).toEqual(0);
 
-    expect(stdout).not.toContain('pkg @ npm:@yao-pkg/pkg@6.5.0');
-    expect(stdout).toContain('@yao-pkg/pkg @ 6.5.0');
+    expect(stderr).toContain(
+      '--print-deps option not yet supported for large projects or with aliases. Try with --json.',
+    );
+  });
+
+  it('test npm alias v1 --json', async () => {
+    const project = await createProject('aliases/npm-lock-v1');
+
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+    expect(stdout).toContain('"aliasTargetDepName": "@yao-pkg/pkg"');
+    expect(stdout).toContain('"name": "@yao-pkg/pkg",');
+    expect(stdout).toContain('"version": "npm:@yao-pkg/pkg@6.5.0",');
   });
 
   it('test npm alias v2', async () => {
     const project = await createProject('aliases/npm-lock-v2');
 
-    const { code, stdout } = await runSnykCLI(`test --print-deps`, {
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
       cwd: project.path(),
       env,
     });
-    expect(code).toEqual(0);
 
-    expect(stdout).not.toContain('pkg @ npm:@yao-pkg/pkg@6.5.0');
-    expect(stdout).toContain('@yao-pkg/pkg @ 6.5.0');
+    expect(code).toEqual(0);
+    expect(stdout).toContain('"pkgId": "@yao-pkg/pkg@6.5.0",');
+    expect(stdout).toContain('"nodeId": "pkg@6.5.0",');
+
+    expect(stdout).toContain('"alias": "pkg=>@yao-pkg/pkg@6.5.0"');
   });
+
   it('test npm alias v3', async () => {
     const project = await createProject('aliases/npm-lock-v3');
 
-    const { code, stdout } = await runSnykCLI(`test --print-deps`, {
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+    expect(stdout).toContain('"pkgId": "@yao-pkg/pkg@6.5.0",');
+    expect(stdout).toContain('"nodeId": "pkg@6.5.0",');
+    expect(stdout).toContain('"alias": "pkg=>@yao-pkg/pkg@6.5.0"');
+  });
+
+  it('test npm alias v1 - multiple versions of same package via aliasing', async () => {
+    const project = await createProject(
+      'aliases/alias-multiple-versions/npm-lock-v1',
+    );
+
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+
+    expect(stdout).toContain('"name": "hello-world-npm",');
+    expect(stdout).toContain('"name": "hello-world-npm",');
+    expect(stdout).toContain('"version": "npm:hello-world-npm@1.1.1"');
+    expect(stdout).toContain('"aliasName": "hello-world-npm"');
+    expect(stdout).toContain('"aliasTargetDepName": "hello-world-npm"');
+    expect(stdout).toContain('"aliasName": "hello-world-npm-v1_1_1"');
+  });
+
+  it('test npm alias v2 - multiple versions of same package via aliasing', async () => {
+    const project = await createProject(
+      'aliases/alias-multiple-versions/npm-lock-v2',
+    );
+
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+
+    expect(stdout).toContain('"pkgId": "hello-world-npm@1.1.0",');
+    expect(stdout).toContain('"nodeId": "hello-world-npm@1.1.0",');
+    expect(stdout).toContain('"nodeId": "hello-world-npm-v1_1_1@1.1.1",');
+    expect(stdout).toContain('"pkgId": "hello-world-npm@1.1.1",');
+
+    expect(stdout).toContain(
+      '"alias": "hello-world-npm=>hello-world-npm@1.1.0"',
+    );
+    expect(stdout).toContain(
+      '"alias": "hello-world-npm-v1_1_1=>hello-world-npm@1.1.1"',
+    );
+  });
+
+  it('test npm alias v3 - multiple versions of same package via aliasing', async () => {
+    const project = await createProject(
+      'aliases/alias-multiple-versions/npm-lock-v3',
+    );
+
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
       cwd: project.path(),
       env,
     });
     expect(code).toEqual(0);
 
-    expect(stdout).not.toContain('pkg @ npm:@yao-pkg/pkg@6.5.0');
-    expect(stdout).toContain('@yao-pkg/pkg @ 6.5.0');
+    expect(stdout).toContain('"pkgId": "hello-world-npm@1.1.0",');
+    expect(stdout).toContain('"nodeId": "hello-world-npm@1.1.0",');
+    expect(stdout).toContain('"nodeId": "hello-world-npm-v1_1_1@1.1.1",');
+    expect(stdout).toContain('"pkgId": "hello-world-npm@1.1.1",');
+
+    expect(stdout).toContain(
+      '"alias": "hello-world-npm=>hello-world-npm@1.1.0"',
+    );
+    expect(stdout).toContain(
+      '"alias": "hello-world-npm-v1_1_1=>hello-world-npm@1.1.1"',
+    );
   });
 
   it('test yarn alias v1', async () => {
     const project = await createProject('aliases/yarn-lock-v1');
 
-    const { code, stdout } = await runSnykCLI(`test --print-deps`, {
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
       cwd: project.path(),
       env,
     });
     expect(code).toEqual(0);
-
-    expect(stdout).not.toContain('pkg @ npm:@yao-pkg/pkg@6.5.0');
-    expect(stdout).toContain('@yao-pkg/pkg @ 6.5.0');
+    expect(stdout).toContain('"pkgId": "@yao-pkg/pkg@6.5.0",');
+    expect(stdout).toContain('"nodeId": "pkg@6.5.0",');
+    expect(stdout).toContain('"alias": "pkg=>@yao-pkg/pkg@6.5.0"');
   });
 
   it('test yarn alias v2', async () => {
     const project = await createProject('aliases/yarn-lock-v2');
 
-    const { code, stdout } = await runSnykCLI(`test --print-deps`, {
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
       cwd: project.path(),
       env,
     });
     expect(code).toEqual(0);
 
-    expect(stdout).not.toContain('pkg @ npm:@yao-pkg/pkg@6.5.0');
-    expect(stdout).toContain('@yao-pkg/pkg @ 6.5.0');
+    expect(stdout).toContain('"pkgId": "@yao-pkg/pkg@6.5.0",');
+    expect(stdout).toContain('"nodeId": "pkg@6.5.0",');
+    expect(stdout).toContain('"alias": "pkg=>@yao-pkg/pkg@6.5.0"');
   });
 });
