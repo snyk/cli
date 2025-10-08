@@ -17,11 +17,11 @@ require (
 	github.com/snyk/cli-extension-os-flows v0.0.0-20250915102829-6a59c2ef7e88
 	github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
-	github.com/snyk/error-catalog-golang-public v0.0.0-20250912144134-a308b7983895
-	github.com/snyk/go-application-framework v0.0.0-20251001122929-9233509171af
+	github.com/snyk/error-catalog-golang-public v0.0.0-20251006093240-2d9cc5458485
+	github.com/snyk/go-application-framework v0.0.0-20251006124522-e128dc93338d
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20250930080011-490a08b5db19
+	github.com/snyk/snyk-ls v0.0.0-20251007104647-18cf38d2c118
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
 	github.com/stretchr/testify v1.10.0

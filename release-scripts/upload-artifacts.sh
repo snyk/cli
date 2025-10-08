@@ -145,25 +145,25 @@ trigger_build_snyk_images() {
   fi
 }
 
-trigger_build_dxt() {
-  echo "Triggering build-and-release workflow at mcp-dxt..."
+trigger_build_agentic_integration() {
+  echo "Triggering build-and-release workflow at agentic-integration-wrappers..."
   echo "Version: $VERSION_TAG"
   echo "Release Channel: $RELEASE_CHANNEL"
-  response_file=$TMPDIR/trigger_build_dxt.txt
+  response_file=$TMPDIR/trigger_build_agentic_integration.txt
   RESPONSE=$(curl -L \
     -X POST \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
-    https://api.github.com/repos/snyk/mcp-dxt/dispatches \
+    https://api.github.com/repos/snyk/agentic-integration-wrappers/dispatches \
     -d "{\"event_type\":\"cli_release\", \"client_payload\": {\"cli_version\": \"$VERSION_TAG\"}}" \
     -w "%{http_code}" \
     -s  \
     -o "$response_file")
   if [ "$RESPONSE" -eq 204 ]; then
-    echo "Successfully triggered build-and-release workflow at mcp-dxt."
+    echo "Successfully triggered build-and-release workflow at agentic-integration-wrappers."
   else
-    echo "Failed to trigger build-and-release workflow at mcp-dxt."
+    echo "Failed to trigger build-and-release workflow at agentic-integration-wrappers."
     echo "Response status code: $RESPONSE"
     echo "Details:"
     cat $response_file
@@ -265,9 +265,9 @@ for arg in "${@}"; do
   elif [ "${arg}" == "trigger-snyk-images" ]; then
     trigger_build_snyk_images
 
-  # Trigger building DXT in mcp-dxt repository
-  elif [ "${arg}" == "trigger_build_dxt" ]; then
-    trigger_build_dxt
+  # Trigger building DXT in agentic-integration-wrappers repository
+  elif [ "${arg}" == "trigger_build_agentic_integration" ]; then
+    trigger_build_agentic_integration
 
   # Upload files to S3 bucket
   else

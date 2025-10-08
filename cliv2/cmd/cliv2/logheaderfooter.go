@@ -165,36 +165,54 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	}
 }
 
-func writeLogFooter(exitCode int, errs []error) {
+func writeLogFooter(exitCode int, errs []error, globalConfiguration configuration.Configuration, networkAccess networking.NetworkAccess) {
+	const maxLength = 100
+	globalLogger.Print("")
+	globalLogger.Printf("------------ Summary ------------")
+	// to make things easier to find, let's repeat the header before the footer
+	writeLogHeader(globalConfiguration, networkAccess)
+
 	// output error details
-	if exitCode > 1 && len(errs) > 0 {
-		ecErrs := formatErrorCatalogErrors(errs)
+	ecErrs := formatErrorCatalogErrors(errs)
+	if len(ecErrs) > 0 {
+		globalLogger.Print("")
+		globalLogger.Printf("------------ Errors ------------")
 
-		for i, err := range ecErrs {
-			tablePrint(fmt.Sprintf("Error (%d)", i), fmt.Sprintf("%s (%s)", err.ErrorCode, err.Title))
-			tablePrint("  Type", err.Type)
-			tablePrint("  Classification", err.Classification)
+		for _, err := range ecErrs {
+			tablePrint(strings.ToUpper(err.Level), fmt.Sprintf("%s (%s)", err.Title, err.ErrorCode))
 
+			description := err.Description
 			// description
-			if _, ok := err.Meta["description"]; ok && len(err.Description) == 0 {
-				tablePrint("  Description", err.Meta["description"].(string))
+			if _, ok := err.Meta["description"]; ok && len(description) == 0 {
+				tmp, ok := err.Meta["description"].(string)
+				if ok {
+					description = tmp
+				}
 			}
-			tablePrint("  Description", err.Description)
+
+			if len(description) > 0 {
+				globalLogger.Print("  Description:")
+				tablePrintMaxLength("", description, maxLength)
+			}
+
+			// links
+			err.Links = append(err.Links, err.Type)
+			if len(err.Links) > 0 {
+				tablePrint("  Links", "")
+				for _, link := range err.Links {
+					tablePrint("", link)
+				}
+			}
+
+			globalLogger.Print("")
 
 			// details
 			_, hasDetails := err.Meta["details"]
 			if hasDetails && len(err.Meta["details"].([]string)) > 0 {
-				tablePrint("  Details", "")
 				for i, details := range utils.Dedupe(err.Meta["details"].([]string)) {
-					tablePrint(fmt.Sprintf("    %d", i), details)
-				}
-			}
-
-			// links
-			if len(err.Links) > 0 {
-				tablePrint("  Links", "")
-				for i, link := range err.Links {
-					tablePrint(fmt.Sprintf("    %d", i), link)
+					globalLogger.Printf("  Instance %d:", i+1)
+					tablePrintMaxLength("", details, maxLength)
+					globalLogger.Print("")
 				}
 			}
 
@@ -205,11 +223,32 @@ func writeLogFooter(exitCode int, errs []error) {
 				for i, request := range err.Meta["requests"].([]string) {
 					tablePrint(fmt.Sprintf("    %d", i), request)
 				}
+				globalLogger.Print("")
+			}
+		}
+	} else {
+		globalLogger.Print("")
+	}
+
+	tablePrint("Exit Code", strconv.Itoa(exitCode))
+}
+
+func tablePrintMaxLength(name string, value string, maxLength int) {
+	for _, inputLine := range strings.Split(value, "\n") {
+		tmp := inputLine
+		for {
+			line := tmp
+			if len(tmp) > maxLength {
+				line = tmp[:maxLength]
+			}
+			tmp = tmp[len(line):]
+			tablePrint("", strings.TrimSpace(line))
+
+			if len(tmp) == 0 {
+				break
 			}
 		}
 	}
-	tablePrint("Interaction", interactionId)
-	tablePrint("Exit Code", strconv.Itoa(exitCode))
 }
 
 func formatErrorCatalogErrors(errs []error) []snyk_errors.Error {
