@@ -347,8 +347,6 @@ Default: true
 
 ## Options for pnpm projects
 
-**Snyk CLI pnpm support is in Early Access**. To enable it, in your Snyk account navigate to Settings, select Snyk Preview, and install CLI v1.1293.0 or above.
-
 **Note**: You can use the following options with pnpm projects:
 
 `--dev`. See the [`--dev` option help](https://docs.snyk.io/snyk-cli/commands/monitor#dev)

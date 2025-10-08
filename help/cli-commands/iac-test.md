@@ -143,7 +143,7 @@ Can be used in combination with the `--report` option.
 
 ### `--report`
 
-**NEW** option: Share results with the Snyk Web UI.
+Share results with the Snyk Web UI.
 
 This creates a project in your Snyk account with a snapshot of the current configuration issues or appends the snapshot to an existing project.
 
