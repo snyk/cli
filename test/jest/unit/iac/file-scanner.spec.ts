@@ -37,11 +37,11 @@ describe('scanFiles', () => {
     it('returns the expected violated policies', async () => {
       const policyEngineCoreDataPath = path.resolve(
         __dirname,
-        path.normalize('../../../smoke/.iac-data'),
+        path.normalize('./fixtures/.iac-data'),
       );
       const policyEngineMetaDataPath = path.resolve(
         __dirname,
-        path.normalize('../../../smoke/.iac-data'),
+        path.normalize('./fixtures/.iac-data'),
       );
 
       const spy = jest
