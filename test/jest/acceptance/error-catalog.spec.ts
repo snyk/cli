@@ -1,6 +1,7 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { getServerPort } from '../util/getServerPort';
+import { isWindowsOperatingSystem } from '../../utils';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 const TEST_DISTROLESS_STATIC_IMAGE =
@@ -40,6 +41,10 @@ describe.each(integrationWorkflows)(
     };
 
     describe('authentication errors', () => {
+      if (isWindowsOperatingSystem()) {
+        // Address as part CLI-1202
+        return;
+      }
       describe(`${type} workflow`, () => {
         it(`snyk ${cmd}`, async () => {
           const { code, stdout } = await runSnykCLI(cmd, {
@@ -172,6 +177,10 @@ describe('Special error cases', () => {
   });
 
   it('Monitor 422 error handling', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1202
+      return;
+    }
     const endpoint = `/api/v1/monitor-dependencies?org=${snykOrg}`;
     const expectedCode = 422;
     const expectedMessage =

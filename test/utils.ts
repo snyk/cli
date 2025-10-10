@@ -1,4 +1,4 @@
-import { tmpdir } from 'os';
+import { tmpdir, platform } from 'os';
 import { join } from 'path';
 import { mkdir, readFileSync } from 'fs';
 
@@ -71,4 +71,13 @@ export function humanFileSize(bytes, si = false, dp = 1) {
   );
 
   return bytes.toFixed(dp) + ' ' + units[u];
+}
+
+/**
+ * Check if the current platform is Windows
+ *
+ * @returns boolean
+ */
+export function isWindowsOperatingSystem(): boolean {
+  return platform().indexOf('win') === 0;
 }
