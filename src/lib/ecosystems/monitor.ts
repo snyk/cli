@@ -34,6 +34,7 @@ import {
 } from '../../cli/commands/monitor';
 import { isUnmanagedEcosystem } from './common';
 import { findAndLoadPolicy } from '../policy';
+import { getCommitSha } from './get-commit-sha-in-ci';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -107,6 +108,16 @@ export async function generateMonitorDependenciesRequest(
   scanResult.name =
     options['project-name'] || config.PROJECT_NAME || scanResult.name;
   scanResult.targetReference = options['target-reference'];
+
+  // Conditionally add gitSha if it can be extracted
+  const gitSha = getCommitSha();
+  if (gitSha) {
+    scanResult.identity.args = {
+      ...(scanResult.identity.args || {}),
+      gitsha: gitSha,
+    };
+  }
+
   // WARNING! This mutates the payload. Policy logic should be in the plugin.
   const policy = await findAndLoadPolicyForScanResult(scanResult, options);
   if (policy !== undefined) {
