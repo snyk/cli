@@ -1,13 +1,13 @@
+import * as path from 'path';
+import { fakeServer } from '../../../acceptance/fake-server';
 import {
   createProjectFromFixture,
   createProjectFromWorkspace,
 } from '../../util/createProject';
-import { runSnykCLI } from '../../util/runSnykCLI';
-import { fakeServer } from '../../../acceptance/fake-server';
-import { runCommand } from '../../util/runCommand';
-import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
 import { getServerPort } from '../../util/getServerPort';
-import * as path from 'path';
+import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
+import { runCommand } from '../../util/runCommand';
+import { runSnykCLI } from '../../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60);
 
@@ -553,7 +553,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     },
   );
 
-  test.skip('run `snyk test` on an unmanaged project', async () => {
+  test('run `snyk test` on an unmanaged project', async () => {
     const project = await createProjectFromWorkspace('unmanaged');
 
     const { code } = await runSnykCLI('test --unmanaged -d', {
@@ -563,7 +563,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(1);
   });
 
-  test.skip('run `snyk test` on an unmanaged project with a org-slug', async () => {
+  test('run `snyk test` on an unmanaged project with a org-slug', async () => {
     const project = await createProjectFromWorkspace('unmanaged');
 
     const { code } = await runSnykCLI(
