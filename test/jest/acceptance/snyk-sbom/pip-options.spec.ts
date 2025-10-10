@@ -1,9 +1,9 @@
-import * as os from 'os';
 import { execSync } from 'child_process';
 
 import { createProjectFromWorkspace } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
+import { isWindowsOperatingSystem } from '../../../utils';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -42,8 +42,7 @@ describe('snyk sbom --command (mocked server only)', () => {
 
   test('`sbom pip-app` generates an SBOM with a specified python command', async () => {
     const project = await createProjectFromWorkspace('pip-app');
-    const command =
-      os.platform().indexOf('win') === 0 ? 'python3.11.exe' : 'python3';
+    const command = isWindowsOperatingSystem() ? 'python3.11.exe' : 'python3';
     execSync(`pip install -r requirements.txt`, { cwd: project.path() });
 
     const { code, stdout } = await runSnykCLI(

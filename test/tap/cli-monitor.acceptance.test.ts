@@ -8,6 +8,7 @@ import * as util from 'util';
 import { fakeServer } from '../acceptance/fake-server';
 import * as subProcess from '../../src/lib/sub-process';
 import { getVersion } from '../../src/lib/version';
+import { isWindowsOperatingSystem } from '../utils';
 import {
   chdirWorkspaces,
   getWorkspaceJSON,
@@ -45,7 +46,6 @@ import * as depGraphLib from '@snyk/dep-graph';
 import { getFixturePath } from '../jest/util/getFixturePath';
 import { getWorkspacePath } from '../jest/util/getWorkspacePath';
 import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
-import * as os from 'os';
 
 const exec = util.promisify(child_process.exec);
 
@@ -57,9 +57,7 @@ const exec = util.promisify(child_process.exec);
   - Jakub
 */
 
-const isWindows = os.platform().indexOf('win') === 0;
-
-if (!isWindows) {
+if (!isWindowsOperatingSystem()) {
   before('setup', async (t) => {
     versionNumber = await getVersion();
 
