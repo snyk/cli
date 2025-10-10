@@ -238,6 +238,54 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
+  test('run `snyk test` on a maven 4 basic project with wrapper', async () => {
+    const project = await createProjectFromFixture('maven4-basic-with-wrapper');
+
+    const { code, stdout, stderr } = await runSnykCLI('test -d', {
+      cwd: project.path(),
+      env,
+    });
+
+    if (code !== 0) {
+      console.debug(stderr);
+      console.debug('---------------------------');
+      console.debug(stdout);
+    }
+
+    expect(stdout).toMatch('Package manager:   maven');
+    expect(stdout).toMatch('Target file:       pom.xml');
+    expect(stdout).toMatch('Project name:      com.example:maven4-basic');
+    expect(code).toEqual(0);
+  });
+
+  test('run `snyk test --maven-aggregate-project` on a maven 4 aggregate project with wrapper', async () => {
+    const project = await createProjectFromFixture(
+      'maven4-aggregate-with-wrapper',
+    );
+
+    const { code, stdout, stderr } = await runSnykCLI(
+      'test -d --maven-aggregate-project',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    if (code !== 0) {
+      console.debug(stderr);
+      console.debug('---------------------------');
+      console.debug(stdout);
+    }
+
+    expect(stdout).toMatch('Package manager:   maven');
+    // For aggregate projects, we should see all three project names
+    expect(stdout).toMatch('Project name:      com.example:maven4-aggregate');
+    expect(stdout).toMatch('Project name:      com.example:maven4-service');
+    expect(stdout).toMatch('Project name:      com.example:maven4-web');
+    expect(stdout).toMatch('Tested 3 projects');
+    expect(code).toEqual(0);
+  });
+
   test('run `snyk test` on a nuget project', async () => {
     const project = await createProjectFromWorkspace('nuget-app-2');
 
