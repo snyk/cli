@@ -3,6 +3,7 @@ import { fakeServer } from '../../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../../util/createProject';
 import { getServerPort } from '../../util/getServerPort';
 import { tmpdir } from 'os';
+import { isWindowsOperatingSystem } from '../../../utils';
 process.env.SNYK_ERR_FILE = tmpdir() + '/tmp_err_file.txt';
 jest.setTimeout(1000 * 60);
 
@@ -39,6 +40,10 @@ describe('--target-reference', () => {
   });
 
   it('forwards value to container monitor endpoint', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1201
+      return;
+    }
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
     const { code } = await runSnykCLI(
       'container monitor debian --target-reference=test-target-ref',
@@ -63,6 +68,10 @@ describe('--target-reference', () => {
   });
 
   it('forwards value to test endpoint', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1201
+      return;
+    }
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
     const { code } = await runSnykCLI(
       'container test debian --target-reference=test-target-ref',
