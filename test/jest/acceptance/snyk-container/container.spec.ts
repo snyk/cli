@@ -4,11 +4,12 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
 import { RunCommandOptions, RunCommandResult } from '../../util/runCommand';
 import { getServerPort } from '../../util/getServerPort';
+import { isWindowsOperatingSystem } from '../../../utils';
 
 jest.setTimeout(1000 * 60);
 
 describe('snyk container', () => {
-  if (os.platform() === 'win32') {
+  if (isWindowsOperatingSystem()) {
     // eslint-disable-next-line jest/no-focused-tests
     it.only('Windows not yet supported', () => {
       console.warn(

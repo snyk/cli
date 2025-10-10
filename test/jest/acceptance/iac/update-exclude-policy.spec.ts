@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as rimraf from 'rimraf';
 import * as path from 'path';
 import { findAndLoadPolicy } from '../../../../src/lib/policy';
+import { isWindowsOperatingSystem } from '../../../utils';
 
 jest.setTimeout(50000);
 
@@ -38,7 +39,7 @@ describe('iac update-exclude-policy', () => {
     expect(exitCode).toBe(2);
   });
 
-  if (os.platform() === 'win32') {
+  if (isWindowsOperatingSystem()) {
     return; // skip following tests
   }
 
