@@ -34,6 +34,11 @@ help:
 	@echo
 	@echo 'This Makefile is currently only for building release artifacts.'
 	@echo 'Use `npm run` for CLIv1 scripts.'
+	@echo
+	@echo 'Developer Targets:'
+	@echo '  build-ide-debug'
+	@echo '    Builds a debug binary with local dependencies.'
+	@echo '    Accepts optional args: GAF=true LS=true CLIENT=false DEST=/path/to/copy CLIP=false'
 
 $(BINARY_OUTPUT_FOLDER)/fips: $(BINARY_OUTPUT_FOLDER)
 	@mkdir -p $(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips
@@ -305,11 +310,17 @@ release-mgt-create:
 	@echo "-- Creating stable release"
 	@./release-scripts/create-release.sh
 
+.PHONY: build-ide-debug
+
+build-ide-debug:
+	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-ide-debug IDE_BUILD=true bindir='$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)' USE_LEGACY_EXECUTABLE_NAME=1
+
 .PHONY: format
 format:
 	@echo "-- Formatting code"
 	@npm run format
 	@pushd $(EXTENSIBLE_CLI_DIR); $(MAKE) format; popd
+
 
 .PHONY: ls-protocol-metadata
 ls-protocol-metadata: $(BINARY_RELEASES_FOLDER_TS_CLI)/version
