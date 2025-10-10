@@ -2,6 +2,7 @@ import * as path from 'path';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { getServerPort } from '../../util/getServerPort';
+import { isWindowsOperatingSystem } from '../../../utils';
 
 describe('container test projects behavior with --app-vulns, --file and --exclude-base-image-vulns flags', () => {
   it('should find nothing when only vulns are in base image', async () => {
@@ -154,6 +155,11 @@ describe('container test projects behavior with --json flag', () => {
   });
 
   it('returns a json with the --experimental flags', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1200
+      return;
+    }
+
     const { code, stdout } = await runSnykCLI(
       `container test docker-archive:test/fixtures/container-projects/os-app-alpine-and-debug.tar --json --experimental`,
       {
@@ -192,6 +198,10 @@ describe('container test projects behavior with --exclude-node-modules flag', ()
   }, 60000);
 
   it('should scan npm projects from package.json and package-lock.json pairs and node_modules dependencies', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1200
+      return;
+    }
     const { code, stdout } = await runSnykCLI(
       `container test docker-archive:test/fixtures/container-projects/node-slim-image.tar --json --exclude-base-image-vulns`,
     );

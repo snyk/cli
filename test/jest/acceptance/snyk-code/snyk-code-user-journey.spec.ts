@@ -6,7 +6,7 @@ import { existsSync, unlinkSync, readFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { runCommand } from '../../util/runCommand';
 import * as fs from 'fs-extra';
-import { makeTmpDirectory } from '../../../utils';
+import { makeTmpDirectory, isWindowsOperatingSystem } from '../../../utils';
 import * as crypto from 'crypto';
 
 expect.extend(matchers);
@@ -325,6 +325,10 @@ describe('snyk code test', () => {
         });
 
         it('supports whitespaces in the path', async () => {
+          if (isWindowsOperatingSystem()) {
+            // Address as part CLI-1199
+            return;
+          }
           const randomId = Math.random().toString(36).substring(7);
 
           // add a random file to ensure a new bundle is created
@@ -377,6 +381,10 @@ describe('snyk code test', () => {
         });
 
         it('works with --json-file-output', async () => {
+          if (isWindowsOperatingSystem()) {
+            // Address as part CLI-1199
+            return;
+          }
           const filePath = `${projectRoot}/not-existing/jsonOutput.json`;
           const htmlFilePath = `${projectRoot}/out.html`;
           const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);

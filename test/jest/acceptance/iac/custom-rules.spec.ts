@@ -27,7 +27,7 @@ describe('iac test --rules', () => {
     expect(stdout).toContain(
       'Using custom rules to generate misconfigurations.',
     );
-    expect(stdout).toContain('File:    ./iac/terraform/sg_open_ssh.tf');
+    expect(stdout).toContain(`File:    ./iac/terraform/sg_open_ssh.tf`);
     expect(stdout).toContain('Missing tags');
     expect(stdout).toContain('CUSTOM-1');
     expect(stdout).toContain(

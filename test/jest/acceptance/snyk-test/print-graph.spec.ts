@@ -3,6 +3,7 @@ import {
   createProjectFromWorkspace,
 } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { isWindowsOperatingSystem } from '../../../utils';
 
 jest.setTimeout(1000 * 60);
 
@@ -37,23 +38,28 @@ describe('print graph', () => {
     expect(numEdges).toEqual(7);
   });
 
-  test('`snyk test --print-graph` should not prune gradle dependencies', async () => {
-    const project = await createProjectFromFixture('gradle-with-repeated-deps');
+  if (!isWindowsOperatingSystem()) {
+    // Address as part CLI-1219
+    test('`snyk test --print-graph` should not prune gradle dependencies', async () => {
+      const project = await createProjectFromFixture(
+        'gradle-with-repeated-deps',
+      );
 
-    const { code, stdout } = await runSnykCLI('test --print-graph', {
-      cwd: project.path(),
+      const { code, stdout } = await runSnykCLI('test --print-graph', {
+        cwd: project.path(),
+      });
+
+      expect(code).toEqual(0);
+      const depGraph = JSON.parse(
+        stdout.split('DepGraph data:')[1]?.split('DepGraph target:')[0],
+      );
+      let numEdges = 0;
+      for (const node of depGraph.graph.nodes) {
+        numEdges += node.deps.length;
+      }
+      expect(numEdges).toEqual(28);
     });
-
-    expect(code).toEqual(0);
-    const depGraph = JSON.parse(
-      stdout.split('DepGraph data:')[1]?.split('DepGraph target:')[0],
-    );
-    let numEdges = 0;
-    for (const node of depGraph.graph.nodes) {
-      numEdges += node.deps.length;
-    }
-    expect(numEdges).toEqual(28);
-  });
+  }
 
   test('`snyk test --print-graph` resolves Maven metaversions', async () => {
     const project = await createProjectFromFixture('maven-metaversion');

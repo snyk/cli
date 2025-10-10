@@ -6,10 +6,7 @@ import {
   saveObjectToFile,
   writeContentsToFileSwallowingErrors,
 } from '../../../src/lib/json-file-output';
-import * as os from 'os';
-import { humanFileSize } from '../../utils';
-
-const isWindows = os.platform().indexOf('win') === 0;
+import { humanFileSize, isWindowsOperatingSystem } from '../../utils';
 
 describe('createDirectory', () => {
   it('returns true if directory already exists - non-recursive', async () => {
@@ -39,7 +36,7 @@ describe('writeContentsToFileSwallowingErrors', () => {
   });
 
   it('captures any errors when attempting to write to a readonly directory', async () => {
-    if (!isWindows) {
+    if (!isWindowsOperatingSystem()) {
       const project = await createProjectFromFixture('json-file-output');
       // create a directory without write permissions
       fs.mkdirSync(path.join(project.path(), 'read-only'), 0o555);
