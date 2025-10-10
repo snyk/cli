@@ -310,6 +310,79 @@ DepGraph end`,
         }
       }
     });
+
+    it('successfully scans container with an executable file larger than the node.js max file size', async () => {
+      if (os.platform() === 'darwin') {
+        console.warn(
+          'Skipping container test - Docker not available on macOS CI',
+        );
+        return;
+      }
+
+      const { exec } = await import('child_process');
+      const { promisify } = await import('util');
+      const execAsync = promisify(exec);
+
+      // Build the test image from the Dockerfile with large ELF file
+      const dockerfilePath =
+        'test/fixtures/container-projects/Dockerfile-large-elf-vulns';
+      const testImageName = 'snyk-test-large-elf:latest';
+
+      try {
+        console.log('Building test image with large ELF file...');
+        const buildResult = await execAsync(
+          `docker build -f ${dockerfilePath} -t ${testImageName} test/fixtures/container-projects/`,
+        );
+
+        console.log('Docker build completed:', buildResult.stdout);
+
+        // Run snyk container test on the built image
+        console.log('Running snyk container test...');
+        const { code, stdout, stderr } = await runSnykCLI(
+          `container test ${testImageName} --json`,
+        );
+
+        // The test should complete without throwing errors
+        // We expect to find vulnerabilities with alpine:3.10.1, so exit code should be 1
+        expect(code).toBe(1);
+
+        // Parse and validate JSON output
+        let jsonOutput;
+        try {
+          jsonOutput = JSON.parse(stdout);
+        } catch (e) {
+          throw new Error(
+            `Failed to parse JSON output: ${e.message}. Output: ${stdout}`,
+          );
+        }
+
+        // Verify the scan completed successfully
+        expect(jsonOutput).toBeDefined();
+        expect(jsonOutput.packageManager).toBeDefined();
+
+        // Verify no errors occurred - any error should cause test failure
+        if (stderr && stderr.trim()) {
+          throw new Error(
+            `Unexpected errors during container scan:\n${stderr}`,
+          );
+        }
+
+        console.log(
+          'Container test completed successfully with large ELF file',
+        );
+      } finally {
+        // Cleanup: remove the test image
+        try {
+          await execAsync(`docker rmi ${testImageName}`);
+          console.log('Cleaned up test image');
+        } catch (cleanupError) {
+          console.warn(
+            `Failed to cleanup image ${testImageName}:`,
+            cleanupError.message,
+          );
+        }
+      }
+    }, 300000); // 5 minute timeout for this test
   });
 
   describe('depgraph', () => {
