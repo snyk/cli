@@ -55,6 +55,7 @@ export async function test(
   const allDirectories = getAllDirectoriesForPath(
     pathToScan,
     options.detectionDepth,
+    options.exclude,
   );
 
   // we load and parse files directory by directory
@@ -63,6 +64,7 @@ export async function test(
     const filePathsInDirectory = getFilesForDirectory(
       pathToScan,
       currentDirectory,
+      options.exclude,
     );
     if (
       currentDirectory === pathToScan &&

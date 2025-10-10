@@ -158,6 +158,105 @@ describe('getAllDirectoriesForPath', () => {
     });
   });
 
+  describe('with exclude parameter', () => {
+    it('excludes directories matching the exclude pattern', () => {
+      mockFs({
+        dir: {
+          ['included.tf']: 'content',
+          'excluded-dir': {
+            ['file.tf']: 'content',
+          },
+          'included-dir': {
+            ['file.tf']: 'content',
+          },
+        },
+      });
+
+      const directories = getAllDirectoriesForPath(
+        'dir',
+        undefined,
+        'dir/excluded-dir',
+      );
+      expect(directories).toEqual(['dir', 'dir/included-dir']);
+    });
+
+    it('excludes directories matching multiple exclude patterns', () => {
+      mockFs({
+        dir: {
+          ['included.tf']: 'content',
+          'excluded-dir': {
+            ['file.tf']: 'content',
+          },
+          'ignored-dir': {
+            ['file.tf']: 'content',
+          },
+          'included-dir': {
+            ['file.tf']: 'content',
+          },
+        },
+      });
+
+      const directories = getAllDirectoriesForPath(
+        'dir',
+        undefined,
+        'dir/excluded-dir,dir/ignored-dir',
+      );
+      expect(directories).toEqual(['dir', 'dir/included-dir']);
+    });
+
+    it('handles empty exclude parameter', () => {
+      mockFs({
+        dir: {
+          ['included.tf']: 'content',
+          'included-subdir': {
+            ['file.tf']: 'content',
+          },
+        },
+      });
+
+      const directories = getAllDirectoriesForPath('dir', undefined, '');
+      expect(directories).toEqual(['dir', 'dir/included-subdir']);
+    });
+
+    it('handles undefined exclude parameter', () => {
+      mockFs({
+        dir: {
+          ['included.tf']: 'content',
+          'included-subdir': {
+            ['file.tf']: 'content',
+          },
+        },
+      });
+
+      const directories = getAllDirectoriesForPath('dir', undefined, undefined);
+      expect(directories).toEqual(['dir', 'dir/included-subdir']);
+    });
+
+    it('excludes nested directories when excluding a parent directory', () => {
+      mockFs({
+        dir: {
+          ['included.tf']: 'content',
+          'excluded-dir': {
+            ['file.tf']: 'content',
+            'nested-dir': {
+              ['file.tf']: 'content',
+            },
+          },
+          'included-dir': {
+            ['file.tf']: 'content',
+          },
+        },
+      });
+
+      const directories = getAllDirectoriesForPath(
+        'dir',
+        undefined,
+        'dir/excluded-dir',
+      );
+      expect(directories).toEqual(['dir', 'dir/included-dir']);
+    });
+  });
+
   describe('getTerraformFilesInDirectoryGenerator', () => {
     it('ignores specific filetypes', () => {
       mockFs({
@@ -199,6 +298,185 @@ describe('getAllDirectoriesForPath', () => {
 
       const filePaths = [...getFilesForDirectoryGenerator('dir')];
       expect(filePaths).toEqual(['dir/file.tfvars', 'dir/file1.tf']);
+    });
+
+    describe('with exclude parameter', () => {
+      it('excludes files matching the exclude pattern', () => {
+        mockFs({
+          dir: {
+            ['included1.tf']: 'content',
+            ['included2.tf']: 'content',
+            ['excluded.tf']: 'content',
+            ['included.tfvars']: 'content',
+          },
+        });
+
+        const filePaths = [
+          ...getFilesForDirectoryGenerator('dir', 'dir/excluded.tf'),
+        ];
+        expect(filePaths).toEqual([
+          'dir/included.tfvars',
+          'dir/included1.tf',
+          'dir/included2.tf',
+        ]);
+      });
+
+      it('excludes files matching multiple exclude patterns', () => {
+        mockFs({
+          dir: {
+            ['included1.tf']: 'content',
+            ['included2.tf']: 'content',
+            ['excluded.tf']: 'content',
+            ['ignored.tf']: 'content',
+            ['included.tfvars']: 'content',
+          },
+        });
+
+        const filePaths = [
+          ...getFilesForDirectoryGenerator(
+            'dir',
+            'dir/excluded.tf,dir/ignored.tf',
+          ),
+        ];
+        expect(filePaths).toEqual([
+          'dir/included.tfvars',
+          'dir/included1.tf',
+          'dir/included2.tf',
+        ]);
+      });
+
+      it('handles empty exclude parameter', () => {
+        mockFs({
+          dir: {
+            ['included1.tf']: 'content',
+            ['included2.tf']: 'content',
+            ['included.tfvars']: 'content',
+          },
+        });
+
+        const filePaths = [...getFilesForDirectoryGenerator('dir', '')];
+        expect(filePaths).toEqual([
+          'dir/included.tfvars',
+          'dir/included1.tf',
+          'dir/included2.tf',
+        ]);
+      });
+
+      it('handles undefined exclude parameter', () => {
+        mockFs({
+          dir: {
+            ['included1.tf']: 'content',
+            ['included2.tf']: 'content',
+            ['included.tfvars']: 'content',
+          },
+        });
+
+        const filePaths = [...getFilesForDirectoryGenerator('dir', undefined)];
+        expect(filePaths).toEqual([
+          'dir/included.tfvars',
+          'dir/included1.tf',
+          'dir/included2.tf',
+        ]);
+      });
+
+      it('excludes nested files when excluding a directory', () => {
+        mockFs({
+          dir: {
+            ['included.tf']: 'content',
+            'excluded-dir': {
+              ['nested-file.tf']: 'content',
+              subdir: {
+                ['deep-file.tf']: 'content',
+              },
+            },
+            'included-dir': {
+              ['nested-file.tf']: 'content',
+            },
+          },
+        });
+
+        const filePaths = [
+          ...getFilesForDirectoryGenerator('dir', 'dir/excluded-dir'),
+        ];
+        expect(filePaths).toEqual(['dir/included.tf']);
+      });
+    });
+  });
+
+  describe('getFilesForDirectory with exclude parameter', () => {
+    it('excludes files matching the exclude pattern', () => {
+      mockFs({
+        dir: {
+          ['included1.tf']: 'content',
+          ['included2.tf']: 'content',
+          ['excluded.tf']: 'content',
+          ['included.tfvars']: 'content',
+        },
+      });
+
+      const filePaths = getFilesForDirectory('dir', 'dir', 'dir/excluded.tf');
+      expect(filePaths).toEqual([
+        'dir/included.tfvars',
+        'dir/included1.tf',
+        'dir/included2.tf',
+      ]);
+    });
+
+    it('excludes files matching multiple exclude patterns', () => {
+      mockFs({
+        dir: {
+          ['included1.tf']: 'content',
+          ['included2.tf']: 'content',
+          ['excluded.tf']: 'content',
+          ['ignored.tf']: 'content',
+          ['included.tfvars']: 'content',
+        },
+      });
+
+      const filePaths = getFilesForDirectory(
+        'dir',
+        'dir',
+        'dir/excluded.tf,dir/ignored.tf',
+      );
+      expect(filePaths).toEqual([
+        'dir/included.tfvars',
+        'dir/included1.tf',
+        'dir/included2.tf',
+      ]);
+    });
+
+    it('handles empty exclude parameter', () => {
+      mockFs({
+        dir: {
+          ['included1.tf']: 'content',
+          ['included2.tf']: 'content',
+          ['included.tfvars']: 'content',
+        },
+      });
+
+      const filePaths = getFilesForDirectory('dir', 'dir', '');
+      expect(filePaths).toEqual([
+        'dir/included.tfvars',
+        'dir/included1.tf',
+        'dir/included2.tf',
+      ]);
+    });
+
+    it('handles undefined exclude parameter', () => {
+      mockFs({
+        dir: {
+          ['included1.tf']: 'content',
+          ['included2.tf']: 'content',
+          ['included.tfvars']: 'content',
+        },
+      });
+
+      const filePaths = getFilesForDirectory('dir', 'dir', undefined);
+      expect(filePaths).toEqual([
+        'dir/included.tfvars',
+        'dir/included1.tf',
+        'dir/included2.tf',
+      ]);
     });
   });
 });

@@ -38,6 +38,7 @@ const keys: (keyof IaCTestFlags)[] = [
   'remote-repo-url',
   'target-name',
   'target-reference',
+  'exclude',
   // Hidden flag to use the output file from the IaC CLI extension
   'iac-test-output-file',
 ];
