@@ -27,7 +27,7 @@ describe('Kubernetes single file scan', () => {
       `snyk iac test ./iac/kubernetes/pod-privileged.yaml`,
     );
 
-    expect(stdout).toContain(`File:    ./iac/kubernetes/pod-privileged.yaml`);
+    expect(stdout).toContain(`File:    ${join('iac', 'kubernetes', 'pod-privileged.yaml')}`);
     expect(stdout).toContain('Privileged container');
     expect(stdout).toContain(
       '  Path:    [DocId: 0] > input > spec > containers[example] > securityContext >' +
@@ -116,7 +116,7 @@ describe('Kubernetes single file scan for IaCV2', () => {
       `snyk iac test ./iac/kubernetes/pod-privileged.yaml`,
     );
 
-    expect(stdout).toContain(`File:    iac/kubernetes/pod-privileged.yaml`);
+    expect(stdout).toContain(`File:    ${join('iac', 'kubernetes', 'pod-privileged.yaml')}`);
     expect(stdout).toContain('Container is running in privileged mode');
     expect(stdout).toContain(
       '  Path:    resource > example > example > spec > containers > example >' +
