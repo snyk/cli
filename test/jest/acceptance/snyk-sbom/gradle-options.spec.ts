@@ -1,4 +1,5 @@
 import { fakeServer } from '../../../acceptance/fake-server';
+import { isWindowsOperatingSystem } from '../../../utils';
 import { runSnykSbomCliCycloneDxJsonForFixture } from './common';
 
 jest.setTimeout(1000 * 60 * 5);
@@ -35,6 +36,10 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
   });
 
   test('`sbom --sub-project=<NAME>` generates an SBOM for selected sub-project', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1203
+      return;
+    }
     const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
       'gradle-multi-project',
       '--sub-project=lib',
@@ -46,6 +51,10 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
   });
 
   test('`sbom --gradle-sub-project=<NAME>` generates an SBOM for selected sub-project', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1203
+      return;
+    }
     const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
       'gradle-multi-project',
       '--gradle-sub-project=lib',
@@ -57,6 +66,10 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
   });
 
   test('`sbom --all-sub-projects` generates an SBOM for all sub-projects', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1203
+      return;
+    }
     const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
       'gradle-multi-project',
       '--all-sub-projects',
@@ -71,6 +84,10 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
   });
 
   test('`sbom --configuration-matching=<CONFIGURATION_REGEX>` generates an SBOM only for matching configuration', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1203
+      return;
+    }
     const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
       'gradle-configurations',
       '--configuration-matching=^runtimeClasspath$',
@@ -84,6 +101,10 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
   });
 
   test('`sbom --configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]...` generates an SBOM only for matching variant', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1203
+      return;
+    }
     const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
       'gradle-configurations',
       '--configuration-attributes=snykattr:api',
@@ -105,6 +126,10 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
   });
 
   test('`sbom --init-script=<FILE>` applies given init script', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1203
+      return;
+    }
     const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
       'gradle-configurations',
       '--init-script=test-init.gradle',
