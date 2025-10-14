@@ -3,6 +3,7 @@ import { createProjectFromWorkspace } from '../util/createProject';
 import { getServerPort } from '../util/getServerPort';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { AppliedPolicyRules } from '../../../src/lib/formatters/types';
+import { isWindowsOperatingSystem } from '../../utils';
 import * as Parser from 'jsonparse';
 
 jest.setTimeout(1000 * 60);
@@ -82,6 +83,11 @@ describe('test --json', () => {
 
   describe('handling responses larger than 512Mb string size limit in v8', () => {
     it('container test --json', async () => {
+      if (isWindowsOperatingSystem()) {
+        // Skipping on Windows as docker is not always available in CI - to be addressed as part of CLI-1206
+        return;
+      }
+
       const expectedReferenceNumber = 420000;
       const issueID = 'SNYK-ALPINE319-OPENSSL-6148881';
       const project = await createProjectFromWorkspace(
