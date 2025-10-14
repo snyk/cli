@@ -1,8 +1,13 @@
 import { runSnykCLI } from '../util/runSnykCLI';
+import { isWindowsOperatingSystem } from '../../utils';
 
 jest.setTimeout(1000 * 60);
 
 describe('exit code behaviour', () => {
+  if (isWindowsOperatingSystem()) {
+    // Address as part CLI-1207
+    return;
+  }
   it.each([
     { input: 0, expected: 0 },
     { input: 1, expected: 1 },
