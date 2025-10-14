@@ -17,8 +17,8 @@ require (
 	github.com/snyk/cli-extension-os-flows v0.0.0-20250915102829-6a59c2ef7e88
 	github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
-	github.com/snyk/error-catalog-golang-public v0.0.0-20251006093240-2d9cc5458485
-	github.com/snyk/go-application-framework v0.0.0-20251015174344-b9b245778c73
+	github.com/snyk/error-catalog-golang-public v0.0.0-20251008132755-b542bb643649
+	github.com/snyk/go-application-framework v0.0.0-20251016104433-d98d8780ade2
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20251007171907-a5935a6211d1
@@ -167,7 +167,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
-	github.com/snyk/code-client-go v1.24.0 // indirect
+	github.com/snyk/code-client-go v1.24.1 // indirect
 	github.com/snyk/policy-engine v1.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
