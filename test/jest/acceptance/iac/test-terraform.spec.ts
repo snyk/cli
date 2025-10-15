@@ -33,7 +33,7 @@ describe('Terraform', () => {
         `snyk iac test ./iac/terraform/sg_open_ssh.tf`,
       );
       expect(stdout).toContain(
-        `File:    ${path.join('iac', 'terraform', 'sg_open_ssh.tf')}`,
+        `File:    ${['.', 'iac', 'terraform', 'sg_open_ssh.tf'].join(path.sep)}`,
       );
       expect(stdout).toContain('Security Group allows open ingress');
       expect(stdout).toContain(

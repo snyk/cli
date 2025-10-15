@@ -1,5 +1,5 @@
 import { EOL } from 'os';
-import { join } from 'path';
+import * as path from 'path';
 import { startMockServer, isValidJSONString } from './helpers';
 import { InvalidJsonFileError } from '../../../../src/cli/commands/test/iac/local-execution/yaml-parser';
 import { FakeServer } from '../../../acceptance/fake-server';
@@ -34,7 +34,7 @@ describe('ARM single file scan', () => {
         '           rules[0] > sourceAddresses',
     );
     expect(stdout).toContain(
-      `File:    ${join('iac', 'arm', 'rule_test.json')}`,
+      `File:    ${['.', 'iac', 'arm', 'rule_test.json'].join(path.sep)}`,
     );
     expect(exitCode).toBe(1);
   });
@@ -115,7 +115,7 @@ describe('ARM single file scan for IaCV2', () => {
         '           networkRuleCollections[0] > properties > action > type',
     );
     expect(stdout).toContain(
-      `File:    ${join('iac', 'arm', 'rule_test.json')}`,
+      `File:    ${['iac', 'arm', 'rule_test.json'].join(path.sep)}`,
     );
     expect(exitCode).toBe(1);
   });

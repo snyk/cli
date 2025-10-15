@@ -1,5 +1,5 @@
 import { EOL } from 'os';
-import { join } from 'path';
+import * as path from 'path';
 import { startMockServer, isValidJSONString } from './helpers';
 import { NoFilesToScanError } from '../../../../src/cli/commands/test/iac/local-execution/file-loader';
 import { InvalidYamlFileError } from '../../../../src/cli/commands/test/iac/local-execution/yaml-parser';
@@ -28,7 +28,7 @@ describe('Kubernetes single file scan', () => {
     );
 
     expect(stdout).toContain(
-      `File:    ${join('iac', 'kubernetes', 'pod-privileged.yaml')}`,
+      `File:    ${['.', 'iac', 'kubernetes', 'pod-privileged.yaml'].join(path.sep)}`,
     );
     expect(stdout).toContain('Privileged container');
     expect(stdout).toContain(
@@ -44,7 +44,7 @@ describe('Kubernetes single file scan', () => {
       `snyk iac test ./iac/kubernetes/pod-privileged.yaml --severity-threshold=high`,
     );
     expect(stdout).toContain(
-      `File:    ${join('iac', 'kubernetes', 'pod-privileged.yaml')}`,
+      `File:    ${['.', 'iac', 'kubernetes', 'pod-privileged.yaml'].join(path.sep)}`,
     );
     expect(stdout).toContain('Total issues: 1');
     expect(exitCode).toBe(1);
@@ -119,7 +119,7 @@ describe('Kubernetes single file scan for IaCV2', () => {
     );
 
     expect(stdout).toContain(
-      `File:    ${join('iac', 'kubernetes', 'pod-privileged.yaml')}`,
+      `File:    ${['iac', 'kubernetes', 'pod-privileged.yaml'].join(path.sep)}`,
     );
     expect(stdout).toContain('Container is running in privileged mode');
     expect(stdout).toContain(
@@ -135,7 +135,7 @@ describe('Kubernetes single file scan for IaCV2', () => {
       `snyk iac test ./iac/kubernetes/pod-privileged.yaml --severity-threshold=high`,
     );
     expect(stdout).toContain(
-      `File:    ${join('iac', 'kubernetes', 'pod-privileged.yaml')}`,
+      `File:    ${['iac', 'kubernetes', 'pod-privileged.yaml'].join(path.sep)}`,
     );
     expect(stdout).toContain('Total issues: 1');
     expect(exitCode).toBe(1);
