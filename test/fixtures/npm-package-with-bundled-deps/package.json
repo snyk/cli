@@ -1,0 +1,8 @@
+{
+  "name": "test-bundled-deps-wasm",
+  "version": "1.0.0",
+  "description": "Test case for bundled dependencies in WASM packages",
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.11"
+  }
+}

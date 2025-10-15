@@ -190,4 +190,20 @@ describe('npm alias support', () => {
     expect(stdout).toContain('"nodeId": "pkg@6.5.0",');
     expect(stdout).toContain('"alias": "pkg=>@yao-pkg/pkg@6.5.0"');
   });
+
+  it('test npm override with alias syntax', async () => {
+    const project = await createProject('npm-package-with-override-alias');
+
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+
+    // The test passes if dry-uninstall is present as expected
+    // (proving the alias override is working)
+    expect(stdout).toContain('dry-uninstall');
+    expect(stdout).toContain('0.3.0');
+  });
 });
