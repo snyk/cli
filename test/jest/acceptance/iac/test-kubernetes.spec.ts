@@ -27,9 +27,7 @@ describe('Kubernetes single file scan', () => {
       `snyk iac test ./iac/kubernetes/pod-privileged.yaml`,
     );
 
-    expect(stdout).toContain(
-      `File:    ${['.', 'iac', 'kubernetes', 'pod-privileged.yaml'].join(path.sep)}`,
-    );
+    expect(stdout).toContain(`File:    ./iac/kubernetes/pod-privileged.yaml`);
     expect(stdout).toContain('Privileged container');
     expect(stdout).toContain(
       '  Path:    [DocId: 0] > input > spec > containers[example] > securityContext >' +
@@ -43,9 +41,7 @@ describe('Kubernetes single file scan', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/kubernetes/pod-privileged.yaml --severity-threshold=high`,
     );
-    expect(stdout).toContain(
-      `File:    ${['.', 'iac', 'kubernetes', 'pod-privileged.yaml'].join(path.sep)}`,
-    );
+    expect(stdout).toContain(`File:    ./iac/kubernetes/pod-privileged.yaml`);
     expect(stdout).toContain('Total issues: 1');
     expect(exitCode).toBe(1);
   });
