@@ -250,6 +250,14 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.
 
 **Note**: Custom-built JAR files, even with open-source dependencies, are not supported.
 
+### `--include-provenance`
+
+**Experimental:** Enable provenance generation for Maven artifacts during analysis. This generates cryptographic fingerprints for scanned artifacts to help with vulnerability matching and supply chain security.
+
+**Note:** This requires the dependency artifacts to be present in your local Maven repository, via `mvn clean install` or similar commands.
+
+Default: false
+
 ## Options for Gradle projects
 
 **Note:** If you see the invalid string length error, refer to [Invalid string length error when scanning projects](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/invalid-string-length-error-when-scanning-projects)
