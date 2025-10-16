@@ -11,11 +11,11 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20251017132403-1df5f92a72ae
-	github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e
+	github.com/snyk/cli-extension-dep-graph v0.0.0-20251015130327-019666738659
 	github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188
 	github.com/snyk/cli-extension-os-flows v0.0.0-20250915102829-6a59c2ef7e88
-	github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd
+	github.com/snyk/cli-extension-sbom v0.0.0-20251015130320-94416bf727b1
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20251008132755-b542bb643649
 	github.com/snyk/go-application-framework v0.0.0-20251016104433-d98d8780ade2
