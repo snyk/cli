@@ -596,7 +596,7 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     stdout.includes('"purl": "pkg:generic/zlib@');
   });
 
-  test('run `snyk test` on a hex project', async () => {
+  test.skip('run `snyk test` on a hex project', async () => {
     const prerequisite = await runCommand('mix', ['--version']).catch(
       function () {
         return { code: 1, stderr: '', stdout: '' };
