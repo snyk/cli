@@ -1407,8 +1407,13 @@ jobs:
       - save_cache:
           key: go-build-{{ arch }}-{{ checksum "cliv2/go.sum" }}
           paths: [/home/circleci/go/pkg/mod]
+
       - store_artifacts:
           path: binary-releases
+
+      - store_artifacts:
+          path: cliv2/internal/embedded/_data/licenses
+
       - persist_to_workspace:
           root: .
           paths:
