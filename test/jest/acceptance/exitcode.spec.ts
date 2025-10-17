@@ -3,9 +3,9 @@ import { isWindowsOperatingSystem } from '../../utils';
 
 jest.setTimeout(1000 * 60);
 
-if (!isWindowsOperatingSystem()) {
-  // Address as part CLI-1207
-  describe('exit code behaviour', () => {
+// Address as part CLI-1207
+describe('exit code behaviour', () => {
+  if (!isWindowsOperatingSystem()) {
     it.each([
       { input: 0, expected: 0 },
       { input: 1, expected: 1 },
@@ -21,5 +21,9 @@ if (!isWindowsOperatingSystem()) {
         expect(code).toEqual(expected);
       },
     );
-  });
-}
+  } else {
+    it('skipped on windows OS', () => {
+      expect(true).toBe(true);
+    });
+  }
+});

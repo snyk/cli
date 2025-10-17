@@ -1,6 +1,5 @@
 import { startMockServer } from './helpers';
 import { FakeServer } from '../../../acceptance/fake-server';
-import * as path from 'path';
 
 jest.setTimeout(50000);
 
@@ -28,9 +27,7 @@ describe('iac test --rules', () => {
     expect(stdout).toContain(
       'Using custom rules to generate misconfigurations.',
     );
-    expect(stdout).toContain(
-      `File:    ${['.', 'iac', 'terraform', 'sg_open_ssh.tf'].join(path.sep)}`,
-    );
+    expect(stdout).toContain(`File:    ./iac/terraform/sg_open_ssh.tf`);
     expect(stdout).toContain('Missing tags');
     expect(stdout).toContain('CUSTOM-1');
     expect(stdout).toContain(
