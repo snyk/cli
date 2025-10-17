@@ -1,37 +1,37 @@
-import { AuthFailedError } from '../errors';
-import { Options, PolicyOptions } from '../types';
 import { spinner } from '../../lib/spinner';
+import { sleep } from '../common';
+import { AuthFailedError } from '../errors';
+import { findAndLoadPolicy } from '../policy';
 import {
-  Ecosystem,
-  ScanResult,
-  TestResult,
-  FileSignaturesDetails,
-} from './types';
-import {
-  CreateDepGraphResponse,
-  GetIssuesResponse,
-  FileHashes,
-  Attributes,
-} from './unmanaged/types';
-import {
-  requestTestPollingToken,
-  pollingTestWithTokenUntilDone,
   createDepGraph,
   getDepGraph,
   getIssues,
+  pollingTestWithTokenUntilDone,
+  requestTestPollingToken,
 } from '../polling/polling-test';
+import { SEVERITY } from '../snyk-test/common';
+import { Issue, IssueDataUnmanaged } from '../snyk-test/legacy';
+import { Options, PolicyOptions, SupportedProjectTypes } from '../types';
 import { extractAndApplyPluginAnalytics } from './plugin-analytics';
-import { findAndLoadPolicy } from '../policy';
 import { filterIgnoredIssues } from './policy';
-import { IssueDataUnmanaged, Issue } from '../snyk-test/legacy';
+import {
+  Ecosystem,
+  FileSignaturesDetails,
+  ScanResult,
+  TestResult,
+} from './types';
+import {
+  Attributes,
+  CreateDepGraphResponse,
+  FileHashes,
+  GetIssuesResponse,
+} from './unmanaged/types';
 import {
   convertDepGraph,
   convertMapCasing,
   convertToCamelCase,
   getOrg,
 } from './unmanaged/utils';
-import { sleep } from '../common';
-import { SEVERITY } from '../snyk-test/common';
 
 export async function resolveAndTestFacts(
   ecosystem: Ecosystem,
@@ -152,6 +152,21 @@ async function fetchIssues(
   };
 }
 
+function buildVulnerabilityFromIssue(
+  issueData: IssueDataUnmanaged,
+  issue: Issue,
+  packageManager: SupportedProjectTypes,
+): IssueDataUnmanaged {
+  const pkgCoordinate = `${issue.pkgName}@${issue.pkgVersion}`;
+  issueData.from = [pkgCoordinate];
+  issueData.name = pkgCoordinate;
+  issueData.packageManager = packageManager;
+  issueData.version = issue.pkgVersion || '';
+  issueData.upgradePath = [false];
+  issueData.isPatchable = false;
+  return issueData;
+}
+
 export async function resolveAndTestFactsUnmanagedDeps(
   scans: {
     [dir: string]: ScanResult[];
@@ -203,24 +218,10 @@ export async function resolveAndTestFactsUnmanagedDeps(
           orgId,
         );
 
-        const issuesMap: Map<string, Issue> = new Map();
+        const issuesMap = new Map<string, Issue>();
         issues.forEach((i) => {
-          issuesMap[i.issueId] = i;
+          issuesMap.set(i.issueId, i);
         });
-
-        const vulnerabilities: IssueDataUnmanaged[] = [];
-        for (const issuesDataKey in issuesData) {
-          const pkgCoordinate = `${issuesMap[issuesDataKey]?.pkgName}@${issuesMap[issuesDataKey]?.pkgVersion}`;
-          const issueData = issuesData[issuesDataKey];
-
-          issueData.from = [pkgCoordinate];
-          issueData.name = pkgCoordinate;
-          issueData.packageManager = packageManager;
-          issueData.version = issuesMap[issuesDataKey]?.pkgVersion;
-          issueData.upgradePath = [false];
-          issueData.isPatchable = false;
-          vulnerabilities.push(issueData);
-        }
 
         const policy = await findAndLoadPolicy(path, 'cpp', options);
 
@@ -229,6 +230,37 @@ export async function resolveAndTestFactsUnmanagedDeps(
           issuesData,
           policy,
         );
+
+        // Build vulnerabilities array from filtered data.
+        const vulnerabilities: IssueDataUnmanaged[] = [];
+        for (const issuesDataKey in issuesDataFiltered) {
+          const issue = issuesMap.get(issuesDataKey);
+          if (issue) {
+            const issueData = issuesDataFiltered[
+              issuesDataKey
+            ] as IssueDataUnmanaged;
+            vulnerabilities.push(
+              buildVulnerabilityFromIssue(issueData, issue, packageManager),
+            );
+          }
+        }
+
+        // Build filtered.ignore array with ignored vulnerabilities
+        const filteredIgnore: IssueDataUnmanaged[] = [];
+        for (const issuesDataKey in issuesData) {
+          // If the issue was in the original data but not in the filtered data, it was ignored
+          if (!(issuesDataKey in issuesDataFiltered)) {
+            const issue = issuesMap.get(issuesDataKey);
+            if (issue) {
+              const issueData = {
+                ...issuesData[issuesDataKey],
+              } as IssueDataUnmanaged;
+              filteredIgnore.push(
+                buildVulnerabilityFromIssue(issueData, issue, packageManager),
+              );
+            }
+          }
+        }
 
         extractAndApplyPluginAnalytics([
           {
@@ -256,6 +288,9 @@ export async function resolveAndTestFactsUnmanagedDeps(
           dependencyCount,
           packageManager,
           displayTargetFile,
+          filtered: {
+            ignore: filteredIgnore,
+          },
         });
       } catch (error) {
         const hasStatusCodeError = error.code >= 400 && error.code <= 500;
@@ -312,20 +347,21 @@ export async function resolveAndTestFactsRegistry(
           policy,
         );
 
-        const issuesMap: Map<string, Issue> = new Map();
+        const issuesMap = new Map<string, Issue>();
         response.issues.forEach((i) => {
-          issuesMap[i.issueId] = i;
+          issuesMap.set(i.issueId, i);
         });
 
         const vulnerabilities: IssueDataUnmanaged[] = [];
         for (const issuesDataKey in response.issuesData) {
-          if (issuesMap[issuesDataKey]) {
+          const issue = issuesMap.get(issuesDataKey);
+          if (issue) {
             const issueData = response.issuesData[issuesDataKey];
-            const pkgCoordinate = `${issuesMap[issuesDataKey].pkgName}@${issuesMap[issuesDataKey].pkgVersion}`;
+            const pkgCoordinate = `${issue.pkgName}@${issue.pkgVersion}`;
             issueData.from = [pkgCoordinate];
             issueData.name = pkgCoordinate;
             issueData.packageManager = packageManager;
-            issueData.version = issuesMap[issuesDataKey]?.pkgVersion;
+            issueData.version = issue.pkgVersion || '';
             issueData.upgradePath = [false];
             issueData.isPatchable = false;
             vulnerabilities.push(issueData);
