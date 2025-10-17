@@ -55,6 +55,8 @@ export interface Options {
   allSubProjects?: boolean;
   mavenAggregateProject?: boolean;
   mavenVerboseIncludeAllVersions?: boolean;
+  includeProvenance?: boolean;
+  fingerprintAlgorithm?: string;
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
   packageManager?: SupportedPackageManagers;
@@ -273,6 +275,8 @@ export type SupportedUserReachableFacingCliArgs =
   | 'trust-policies'
   | 'yarn-workspaces'
   | 'maven-aggregate-project'
+  | 'include-provenance'
+  | 'fingerprint-algorithm'
   | 'gradle-normalize-deps';
 
 export enum SupportedCliCommands {
