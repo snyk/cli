@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-ai-bom v0.0.0-20251017132403-1df5f92a72ae
+	github.com/snyk/cli-extension-ai-bom v0.0.0-20251020202637-f2a2552d8e69
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e
 	github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188
