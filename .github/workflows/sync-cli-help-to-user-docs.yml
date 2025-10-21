@@ -24,6 +24,7 @@ jobs:
       - name: Checkout cli repository
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.TEAM_CLI_GITHUB_PAT }}
           repository: snyk/cli
           path: cli
           fetch-depth: 0
