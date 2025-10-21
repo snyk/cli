@@ -1,25 +1,15 @@
-## [1.1300.0](https://github.com/snyk/snyk/compare/v1.1299.1...v1.1300.0) (2025-10-08)
+## [1.1300.1](https://github.com/snyk/snyk/compare/v1.1300.0...v1.1300.1) (2025-10-21)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
 ### Features
 
-* **general:** Improve SARIF compatibility by adding runAutomationDetails ([3e232e5](https://github.com/snyk/snyk/commit/3e232e52a105620c638b211bbc1a8baddeddb170))
-* **container:** Add support scanning system JARs ([54e84d8](https://github.com/snyk/snyk/commit/54e84d8f4efda07f21b0e729f75440fa4608966c))
-* **container:** Add TargetOS to output of container scan ([aa55cd9](https://github.com/snyk/snyk/commit/aa55cd90683995d4143f43173eddee61ecf88167))
-* **test:** Add support for godot projects ([d9fc200](https://github.com/snyk/snyk/commit/d9fc2008287349c63b3144634549c77cb3864fd9))
-* **test:** Add support for maven metaversions ([f321ffa](https://github.com/snyk/snyk/commit/f321ffa6efdf2f269f0b7fb1a87b91332a7da18e))
-* **language-server:** Add CVSSv4 Links in IDE Issue Details
-* **mcp:** Workflow and performance improvements
-
+* **mcp:** Added support for the MCP server to use IDE extension storage when running in VS Code ([7f26dc6](https://github.com/snyk/snyk/commit/7f26dc63f2b650f88bc27604a5568d9e80bcb2a6))
 
 ### Bug Fixes
 
-* **container:** Fixed crashes when scanning docker images with very large files ([72cb040](https://github.com/snyk/snyk/commit/72cb04083d3c204d6755f194f7ccc6e522788f66))
-* **test:** Re-enable support for python 2.7 ([02c7fe3](https://github.com/snyk/snyk/commit/02c7fe373e3ec1a59d15de1f7fe87e461d3fafb5))
-* **test:** Improved error information when using --all-projects ([36d14f9](https://github.com/snyk/snyk/commit/36d14f940003d093df0bdc9d22a32d9b26b6b252))
-* **test:** Fix a bug due to case-sensitive ignores ([b432406](https://github.com/snyk/snyk/commit/b4324066fbdca2224e3a1aca223cde5b2b6e0ea2))
-* **test:** Resolve project assets file path dynamically ([75a152e](https://github.com/snyk/snyk/commit/75a152ec29e91f9c37a26f0daed77a142cebef39))
-* **iac:** Upgrade iac components to address a vulnerability [IAC-3439] ([eaaaf84](https://github.com/snyk/snyk/commit/eaaaf844237b430d9d9ee7109ada5b5bd2e103a5))
-* **logging:** Fix broken debug logs due to secret redaction by redacting all user input ([0cf19a7](https://github.com/snyk/snyk/commit/0cf19a7dc8b761ec61d7ae0f3f5d160b0e2b0450))
-* **language-server:** Multiple bugfixes
+* **test:** Fix issue where npm aliases only detected the latest version of a dependency ([cb37da7](https://github.com/snyk/snyk/commit/cb37da79febf6e9c44b68eccf444633a6508aa3f))
+* **security:** Upgrades dependencies to address CVE-2025-58058 and CVE-2025-11065 ([d7e87e2](https://github.com/snyk/snyk/commit/d7e87e296f99d299a87533812399830b60b7c0c3))
+* **general:** Improved error messaging ([5d16466](https://github.com/snyk/snyk/commit/5d16466e76ad0d278e62c023001ed78f06b3cd01))
+* **logging:** Remove support for legacy DEBUG environment variable. For the supported debugging options, please check https://docs.snyk.io/developer-tools/snyk-cli/debugging-the-snyk-cli ([2087f74](https://github.com/snyk/snyk/commit/2087f7465e76930427004272c3faa62064c2dc74))
+* **redteam:** Added a new experimental AI Red Teaming feature, read more: https://docs.snyk.io/developer-tools/snyk-cli/commands/ai-red-teaming ([fe37e0f](https://github.com/snyk/snyk/commit/fe37e0f0d74e9737a2daf3730dd236a4ebd87869))
