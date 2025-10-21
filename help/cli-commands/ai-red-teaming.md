@@ -2,7 +2,7 @@
 
 **Note**: AI Red Teaming is an experimental feature and is subject to breaking changes without notice.
 
-AI Red Teaming is potentially disruptive. Before running this CLI, make sure you:
+AI Red Teaming is potentially disruptive. Before running this CLI, ensure you:
 
 - Favor scanning dev or staging over production, so as to avoid disruption of live apps.
 - Use test data and accounts rather than real customer or user data.
@@ -12,7 +12,7 @@ AI Red Teaming is potentially disruptive. Before running this CLI, make sure you
 ## Prerequisites
 
 - Requires an [internet connection](../../snyk-ci-cd-integrations/azure-pipelines-integration/regional-api-endpoints.md).
-- Requires Snyk CLI \<TODO> (or later, preview version).
+- Requires Snyk CLI v1.1298.3 or later, preview version.
 - This feature is available only in the preview version of the Snyk CLI. See [our documentation](../releases-and-channels-for-the-snyk-cli.md) for instructions on how to install the preview version.
 
 ## Usage
