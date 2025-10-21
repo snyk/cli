@@ -12,3 +12,4 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **security:** Upgrades dependencies to address CVE-2025-58058 and CVE-2025-11065 ([d7e87e2](https://github.com/snyk/snyk/commit/d7e87e296f99d299a87533812399830b60b7c0c3))
 * **general:** Improved error messaging ([5d16466](https://github.com/snyk/snyk/commit/5d16466e76ad0d278e62c023001ed78f06b3cd01))
 * **logging:** Remove support for legacy DEBUG environment variable. For the supported debugging options, please check https://docs.snyk.io/developer-tools/snyk-cli/debugging-the-snyk-cli ([2087f74](https://github.com/snyk/snyk/commit/2087f7465e76930427004272c3faa62064c2dc74))
+* **redteam:** Added a new experimental AI Red Teaming feature, read more: https://docs.snyk.io/developer-tools/snyk-cli/commands/ai-red-teaming ([fe37e0f](https://github.com/snyk/snyk/commit/fe37e0f0d74e9737a2daf3730dd236a4ebd87869))
