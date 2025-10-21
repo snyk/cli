@@ -86,6 +86,7 @@ describe('snyk config set endpoint', () => {
     const resultSBOM = await runSnykCLI(
       `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
       {
+        cwd: project.path(),
         env: env,
       },
     );

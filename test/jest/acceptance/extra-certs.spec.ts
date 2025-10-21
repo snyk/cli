@@ -1,7 +1,9 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 import * as fs from 'fs';
+import * as path from 'path';
 import { runCommand } from '../util/runCommand';
 import { fakeServer } from '../../../test/acceptance/fake-server';
+import { createProject } from '../util/createProject';
 
 jest.setTimeout(1000 * 60 * 2);
 describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
@@ -55,8 +57,15 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
 
     await server.listenWithHttps(port, { cert: certPem, key: keyPem });
 
+    // Create a test project to avoid workspace dependency issues
+    const project = await createProject('npm/with-vulnerable-lodash-dep');
+
+    // Get absolute path to certificate
+    const certPath = path.resolve(process.cwd(), 'cliv2/mytestcert.crt');
+
     // invoke WITHOUT additional certificate set => fails
     const res1Promise = runSnykCLI(`test --debug`, {
+      cwd: project.path(),
       env: {
         ...process.env,
         SNYK_API: SNYK_API,
@@ -66,9 +75,10 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
 
     // invoke WITH additional certificate set => succeeds
     const res2Promise = runSnykCLI(`test --debug`, {
+      cwd: project.path(),
       env: {
         ...process.env,
-        NODE_EXTRA_CA_CERTS: 'cliv2/mytestcert.crt',
+        NODE_EXTRA_CA_CERTS: certPath,
         SNYK_API: SNYK_API,
         SNYK_TOKEN: token,
       },
@@ -78,6 +88,7 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
     const res3Promise = runSnykCLI(
       `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
       {
+        cwd: project.path(),
         env: {
           ...process.env,
           SNYK_API: SNYK_API,
@@ -90,9 +101,10 @@ describe('Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`', () => {
     const res4Promise = runSnykCLI(
       `sbom --debug --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json`,
       {
+        cwd: project.path(),
         env: {
           ...process.env,
-          NODE_EXTRA_CA_CERTS: 'cliv2/mytestcert.crt',
+          NODE_EXTRA_CA_CERTS: certPath,
           SNYK_API: SNYK_API,
           SNYK_TOKEN: token,
         },

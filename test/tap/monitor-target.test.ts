@@ -8,6 +8,7 @@ import * as sinon from 'sinon';
 import * as cli from '../../src/cli/commands';
 import subProcess = require('../../src/lib/sub-process');
 import { fakeServer } from '../acceptance/fake-server';
+import { chdirWorkspaces } from '../acceptance/workspace-helper';
 
 const apiKey = '123456789';
 
@@ -62,7 +63,7 @@ test('Make sure that target is sent correctly', async (t) => {
   );
   t.match(
     data.targetFileRelativePath,
-    'snyk' + path.sep + 'package-lock.json',
+    'npm-package' + path.sep + 'package-lock.json',
     'correct relative target file path passed to request',
   );
 
@@ -79,7 +80,7 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
   t.ok(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
-    'snyk' + path.sep + 'package-lock.json',
+    'npm-package' + path.sep + 'package-lock.json',
     'targetFileRelativePath passed to request',
   );
 
@@ -96,7 +97,7 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
   t.ok(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
-    'snyk' + path.sep + 'package-lock.json',
+    'npm-package' + path.sep + 'package-lock.json',
     'targetFileRelativePath passed to request',
   );
   subProcessStub.restore();
@@ -134,7 +135,8 @@ test('teardown', async (t) => {
 });
 
 async function getFakeServerRequestBody() {
-  await cli.monitor();
+  chdirWorkspaces();
+  await cli.monitor('npm-package');
 
   //The first request in monitor is for retrieving feature flags
   const req = server.popRequests(2)[1];

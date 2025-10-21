@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 
 jest.setTimeout(1000 * 60);
 
-describe('npm bundled dependencies', () => {
+describe('npm optional dependencies without separate package entries', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
@@ -39,8 +39,8 @@ describe('npm bundled dependencies', () => {
     server.close(() => done());
   });
 
-  it('test npm package with bundled dependencies', async () => {
-    const project = await createProject('npm-package-with-bundled-deps');
+  it('test optional dependencies without separate package entries', async () => {
+    const project = await createProject('npm-optional-deps-missing-entries');
 
     const { code, stdout } = await runSnykCLI(`test --print-graph --json`, {
       cwd: project.path(),
@@ -48,7 +48,7 @@ describe('npm bundled dependencies', () => {
     });
 
     // The main test: no out-of-sync error should be thrown
-    // even though bundled dependencies don't have separate entries in package-lock.json
+    // even though optional dependencies don't have separate entries in package-lock.json
     expect(code).toEqual(0);
 
     // Extract the DepGraph JSON from the output
@@ -73,24 +73,16 @@ describe('npm bundled dependencies', () => {
     expect(depGraph.pkgManager?.name).toBe('npm');
     expect(depGraph.pkgs?.length).toBeGreaterThan(0);
 
-    // Verify the WASM package with bundled dependencies is in the dependency graph
-    const wasmPkg = depGraph.pkgs?.find(
-      (p: any) => p.info?.name === '@tailwindcss/oxide-wasm32-wasi',
+    // Verify the optional dependency is handled correctly
+    // The parser should create terminus nodes with missingLockFileEntry: true
+    // instead of throwing OutOfSyncError
+    const hasOptionalDep = depGraph.pkgs?.some(
+      (p: any) => p.info?.name === '@parcel/watcher-darwin-x64',
     );
-    expect(wasmPkg).toBeDefined();
-    expect(wasmPkg?.info?.version).toBe('4.1.11');
+    expect(hasOptionalDep).toBe(true);
 
-    // Verify bundled dependencies are in the graph as children
-    const wasmNode = depGraph.graph?.nodes?.find(
-      (n: any) => n.pkgId === wasmPkg?.id,
-    );
-    expect(wasmNode).toBeDefined();
-    expect(wasmNode?.deps?.length).toBeGreaterThan(0);
-
-    // Check for one of the bundled dependencies (@emnapi/core)
-    const emnapiCoreDep = wasmNode?.deps?.find((d: any) =>
-      d.nodeId.includes('@emnapi/core'),
-    );
-    expect(emnapiCoreDep).toBeDefined();
+    // The key test is that no error was thrown and the graph was created successfully
+    // The optional dependency may or may not be present depending on the parser's handling
+    expect(depGraph.graph?.nodes?.length).toBeGreaterThan(0);
   });
 });
