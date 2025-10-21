@@ -335,6 +335,7 @@ func PrepareV1EnvironmentVariables(
 			constants.SNYK_NPM_ALL_PROXY,
 			constants.SNYK_OPENSSL_CONF,
 			constants.SNYK_INTERNAL_PREVIEW_FEATURES_ENABLED,
+			constants.DEBUG_CONST,
 		}
 
 		for _, key := range blackList {
