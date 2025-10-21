@@ -1266,6 +1266,8 @@ github.com/snyk/cli-extension-ai-bom v0.0.0-20251017132403-1df5f92a72ae h1:GVXq0
 github.com/snyk/cli-extension-ai-bom v0.0.0-20251017132403-1df5f92a72ae/go.mod h1:YvlGYA6i/aXDY68ps/X/XvkN8JGZ8T6eKFNdPE2y3oI=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e h1:lYBeDqyAmb7NPfcLZJb1rcc+BrWhX5Ct9isQO1O4mSc=
 github.com/snyk/cli-extension-dep-graph v0.0.0-20250321153619-9390ab5e348e/go.mod h1:9Zpe+B8SCkWFjpDR3ckFJl1XuMyxysWebKhyAIj7EyI=
+github.com/snyk/cli-extension-dep-graph v0.0.0-20251015130327-019666738659 h1:8dOsSZ2t56CXJCTQCf/r8CQ2+SwmIFa1YNq1pZ/Sqks=
+github.com/snyk/cli-extension-dep-graph v0.0.0-20251015130327-019666738659/go.mod h1:9Zpe+B8SCkWFjpDR3ckFJl1XuMyxysWebKhyAIj7EyI=
 github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0 h1:ecGoMisVTnz5xRnt9yXW2hlRrIyYM123yMt1NeNEo6s=
 github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0/go.mod h1:tLxyhtrRiEvbSLQ6PbCsl29ZXK6s2aunRuL6cSe/8cE=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188 h1:UoyD7cB9XZVHPTRugsmCt6rBvAw5IoiBjI8go2qj1pk=
@@ -1274,6 +1276,8 @@ github.com/snyk/cli-extension-os-flows v0.0.0-20250915102829-6a59c2ef7e88 h1:m6k
 github.com/snyk/cli-extension-os-flows v0.0.0-20250915102829-6a59c2ef7e88/go.mod h1:dFrXORRzFNF+tJ/Z51MPEeWi3IU5MuLWkt1L3dxDMG4=
 github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd h1:bZg7Zkctm2tvaznI8A4/0fFOZMgglNAIFmIIlRz16W0=
 github.com/snyk/cli-extension-sbom v0.0.0-20250801142135-ae472dafa4cd/go.mod h1:zyKDBaETfZyI7BfIjPnezH3QX2seQrR/d7NM5W6LV9s=
+github.com/snyk/cli-extension-sbom v0.0.0-20251015130320-94416bf727b1 h1:PgO1Cz/VSFN2RIHz/MDQU25wjf8rSrwTW6lX6D+j8HI=
+github.com/snyk/cli-extension-sbom v0.0.0-20251015130320-94416bf727b1/go.mod h1:zyKDBaETfZyI7BfIjPnezH3QX2seQrR/d7NM5W6LV9s=
 github.com/snyk/code-client-go v1.24.1 h1:FTCVxRq8kNryq0xKOW8vqEU6s1iWwyaq7zvEN7q0Gn0=
 github.com/snyk/code-client-go v1.24.1/go.mod h1:uMlmMToe4uuNhNLs+yxjM3WFbytna+ytDWhpbnNwTSk=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
