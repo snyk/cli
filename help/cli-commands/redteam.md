@@ -11,13 +11,12 @@ AI Red Teaming is potentially disruptive. Before running this CLI, make sure you
 
 ## Prerequisites
 
-- Requires an [internet connection](../../snyk-ci-cd-integrations/azure-pipelines-integration/regional-api-endpoints.md).
-- Requires Snyk CLI \<TODO> (or later, preview version).
-- This feature is available only in the preview version of the Snyk CLI. See [our documentation](../releases-and-channels-for-the-snyk-cli.md) for instructions on how to install the preview version.
+- Requires an [internet connection](https://docs.snyk.io/snyk-data-and-governance/regional-hosting-and-data-residency#available-snyk-regions).
+- Requires Snyk CLI v1.1300.1 (or later).
 
 ## Usage
 
-1. Create your YAML [configuration file](ai-red-teaming.md#configuration-file).
+1. Create your YAML [configuration file](https://docs.snyk.io/developer-tools/snyk-cli/commands/ai-red-teaming#configuration-file).
 2. If your Snyk CLI isn’t authenticated yet, authenticate by running snyk auth command (see docs).
 3. Run the following command: `$ snyk redteam --experimental [<OPTION>]`
 
