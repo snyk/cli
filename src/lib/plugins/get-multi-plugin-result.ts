@@ -144,6 +144,18 @@ export async function getMultiPluginResult(
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
     } catch (error) {
+      if (
+        error.name === 'NotSupportedEcosystem' ||
+        error.constructor?.name === 'NotSupportedEcosystem'
+      ) {
+        debug(
+          chalk.bold.yellow(
+            `\n${icon.INFO} Skipping unsupported ecosystem for ${targetFile}: ${error.message}`,
+          ),
+        );
+        continue;
+      }
+
       const errMessage =
         error.message ?? 'Something went wrong getting dependencies';
       // TODO: propagate this all the way back and include in --json output

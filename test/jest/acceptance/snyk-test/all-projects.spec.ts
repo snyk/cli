@@ -263,6 +263,26 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(stderr).toEqual('');
   });
 
+  test('`test npm NX Build Platform --all-projects --print-graph --json --fail-fast`', async () => {
+    const project = await createProjectFromFixture('npm-nx-build-platform');
+
+    const { code } = await runSnykCLI(
+      'test --print-graph --json --all-projects --fail-fast',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    const backendRequests = server.getRequests().filter((req: any) => {
+      return req.url.includes('/api/v1/test');
+    });
+
+    expect(backendRequests).toHaveLength(0);
+
+    expect(code).toEqual(0);
+  });
+
   test('`test node workspaces --all-projects`', async () => {
     server.setFeatureFlag('enablePnpmCli', false);
     const project = await createProjectFromFixture('workspace-multi-type');
