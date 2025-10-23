@@ -16,12 +16,15 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
+	testapimocks "github.com/snyk/go-application-framework/pkg/apiclients/mocks"
+	"github.com/snyk/go-application-framework/pkg/apiclients/testapi"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/local_models"
 	"github.com/snyk/go-application-framework/pkg/mocks"
+	"github.com/snyk/go-application-framework/pkg/utils/ufm"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -253,7 +256,19 @@ func Test_runMainWorkflow_unknownargs(t *testing.T) {
 
 func Test_getErrorFromWorkFlowData(t *testing.T) {
 	engine := workflow.NewWorkFlowEngine(configuration.New())
-	engine.Init()
+	assert.NoError(t, engine.Init())
+
+	localFailValue := testapi.Fail
+	localPassValue := testapi.Pass
+	mockController := gomock.NewController(t)
+
+	ufmTestResultFail := testapimocks.NewMockTestResult(mockController)
+	ufmTestResultFail.EXPECT().GetPassFail().Return(&localFailValue).AnyTimes()
+	ufmDataFail := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), []testapi.TestResult{ufmTestResultFail})
+
+	ufmTestResultPass := testapimocks.NewMockTestResult(mockController)
+	ufmTestResultPass.EXPECT().GetPassFail().Return(&localPassValue).AnyTimes()
+	ufmDataPass := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), []testapi.TestResult{ufmTestResultPass})
 
 	t.Run("nil error", func(t *testing.T) {
 		err := getErrorFromWorkFlowData(engine, nil)
@@ -305,6 +320,27 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("workflow with zero count test summary and ufm fail should have exit code 1", func(t *testing.T) {
+		workflowId := workflow.NewWorkflowIdentifier("output")
+		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
+		d, err := json.Marshal(json_schemas.TestSummary{
+			Results: []json_schemas.TestSummaryResult{{
+				Severity: "critical",
+				Total:    0,
+				Open:     0,
+				Ignored:  0,
+			}},
+			Type: "sast",
+		})
+		assert.Nil(t, err)
+		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
+		err = getErrorFromWorkFlowData(engine, []workflow.Data{data, ufmDataFail})
+		assert.Error(t, err)
+		var actualError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, err, &actualError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualError.ExitCode)
+	})
+
 	t.Run("workflow with empty test summary and unsupported error annotation", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
@@ -341,6 +377,20 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
 		data.AddError(code.NewAnalysisFileCountLimitExceededError(""))
 		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
+		assert.NoError(t, err)
+	})
+
+	t.Run("derive exit code 1 from ufm fail", func(t *testing.T) {
+		err := getErrorFromWorkFlowData(engine, []workflow.Data{ufmDataFail})
+		assert.Error(t, err)
+
+		var actualError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, err, &actualError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualError.ExitCode)
+	})
+
+	t.Run("derive no error from ufm pass", func(t *testing.T) {
+		err := getErrorFromWorkFlowData(engine, []workflow.Data{ufmDataPass})
 		assert.NoError(t, err)
 	})
 }

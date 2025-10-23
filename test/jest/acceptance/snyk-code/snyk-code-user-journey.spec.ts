@@ -40,6 +40,10 @@ const projectWithCodeIssues = resolve(
   projectRoot,
   'test/fixtures/sast/with_code_issues',
 );
+const projectWithCodeIssuesLow = resolve(
+  projectRoot,
+  'test/fixtures/sast/with_code_issues_low',
+);
 const emptyProject = resolve(projectRoot, 'test/fixtures/empty');
 const projectWithoutCodeIssues = resolve(
   projectRoot,
@@ -162,6 +166,30 @@ describe('snyk code test', () => {
             expect(actualCodeSecurityIssues).toEqual(
               expectedHighCodeSecurityIssues,
             );
+          });
+
+          it('works with --severity-threshold when all issues are filtered out', async () => {
+            const expectedCodeSecurityIssues = 0;
+            const path = await ensureUniqueBundleIsUsed(
+              projectWithCodeIssuesLow,
+            );
+            const { stdout, code } = await runSnykCLI(
+              `code test ${path} --json --severity-threshold=high`,
+              {
+                env: {
+                  ...process.env,
+                  ...integrationEnv,
+                },
+              },
+            );
+
+            const actualCodeSecurityIssues =
+              JSON.parse(stdout)?.runs[0]?.results?.length;
+            expect(actualCodeSecurityIssues).toEqual(
+              expectedCodeSecurityIssues,
+            );
+
+            expect(code).toBe(EXIT_CODE_SUCCESS);
           });
 
           if (type === 'typescript') {
