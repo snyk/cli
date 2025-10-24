@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 
 jest.setTimeout(1000 * 60);
 
-describe('npm bundled dependencies', () => {
+describe('npm aliased packages with nested dependencies', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
@@ -39,8 +39,8 @@ describe('npm bundled dependencies', () => {
     server.close(() => done());
   });
 
-  it('test npm package with bundled dependencies', async () => {
-    const project = await createProject('npm-package-with-bundled-deps');
+  it('test aliased packages with nested dependencies', async () => {
+    const project = await createProject('npm-alias-nested-deps');
 
     const { code, stdout } = await runSnykCLI(`test --print-graph --json`, {
       cwd: project.path(),
@@ -48,7 +48,7 @@ describe('npm bundled dependencies', () => {
     });
 
     // The main test: no out-of-sync error should be thrown
-    // even though bundled dependencies don't have separate entries in package-lock.json
+    // when parsing npm lockfiles with aliased packages that have nested dependencies
     expect(code).toEqual(0);
 
     // Extract the DepGraph JSON from the output
@@ -73,24 +73,31 @@ describe('npm bundled dependencies', () => {
     expect(depGraph.pkgManager?.name).toBe('npm');
     expect(depGraph.pkgs?.length).toBeGreaterThan(0);
 
-    // Verify the WASM package with bundled dependencies is in the dependency graph
-    const wasmPkg = depGraph.pkgs?.find(
-      (p: any) => p.info?.name === '@tailwindcss/oxide-wasm32-wasi',
+    // Verify the aliased package is present
+    const aliasedPkg = depGraph.pkgs?.find(
+      (p: any) => p.info?.name === '@example/component-lib',
     );
-    expect(wasmPkg).toBeDefined();
-    expect(wasmPkg?.info?.version).toBe('4.1.11');
+    expect(aliasedPkg).toBeDefined();
+    expect(aliasedPkg?.info?.version).toBe('3.0.0');
 
-    // Verify bundled dependencies are in the graph as children
-    const wasmNode = depGraph.graph?.nodes?.find(
-      (n: any) => n.pkgId === wasmPkg?.id,
+    // Verify the nested dependency is also present
+    const nestedDep = depGraph.pkgs?.find(
+      (p: any) => p.info?.name === '@types/helper-lib',
     );
-    expect(wasmNode).toBeDefined();
-    expect(wasmNode?.deps?.length).toBeGreaterThan(0);
+    expect(nestedDep).toBeDefined();
+    expect(nestedDep?.info?.version).toBe('1.2.3');
 
-    // Check for one of the bundled dependencies (@emnapi/core)
-    const emnapiCoreDep = wasmNode?.deps?.find((d: any) =>
-      d.nodeId.includes('@emnapi/core'),
+    // Verify the dependency relationship is correctly established
+    const aliasedNode = depGraph.graph?.nodes?.find(
+      (n: any) => n.pkgId === aliasedPkg?.id,
     );
-    expect(emnapiCoreDep).toBeDefined();
+    expect(aliasedNode).toBeDefined();
+    expect(aliasedNode?.deps?.length).toBeGreaterThan(0);
+
+    // Check for the nested dependency in the aliased package's dependencies
+    const nestedDepInAliased = aliasedNode?.deps?.find((d: any) =>
+      d.nodeId.includes('@types/helper-lib'),
+    );
+    expect(nestedDepInAliased).toBeDefined();
   });
 });

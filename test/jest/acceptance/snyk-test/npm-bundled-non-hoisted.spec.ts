@@ -6,7 +6,7 @@ import { tmpdir } from 'os';
 
 jest.setTimeout(1000 * 60);
 
-describe('npm bundled dependencies', () => {
+describe('npm bundled dependencies with non-hoisted bundle owner', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
@@ -39,8 +39,8 @@ describe('npm bundled dependencies', () => {
     server.close(() => done());
   });
 
-  it('test npm package with bundled dependencies', async () => {
-    const project = await createProject('npm-package-with-bundled-deps');
+  it('test bundled dependencies with non-hoisted bundle owner', async () => {
+    const project = await createProject('npm-bundled-non-hoisted');
 
     const { code, stdout } = await runSnykCLI(`test --print-graph --json`, {
       cwd: project.path(),
@@ -48,7 +48,7 @@ describe('npm bundled dependencies', () => {
     });
 
     // The main test: no out-of-sync error should be thrown
-    // even though bundled dependencies don't have separate entries in package-lock.json
+    // when parsing npm lockfiles with bundled dependencies where the bundle owner is not hoisted
     expect(code).toEqual(0);
 
     // Extract the DepGraph JSON from the output
@@ -73,24 +73,42 @@ describe('npm bundled dependencies', () => {
     expect(depGraph.pkgManager?.name).toBe('npm');
     expect(depGraph.pkgs?.length).toBeGreaterThan(0);
 
-    // Verify the WASM package with bundled dependencies is in the dependency graph
-    const wasmPkg = depGraph.pkgs?.find(
-      (p: any) => p.info?.name === '@tailwindcss/oxide-wasm32-wasi',
+    // Verify the bundle owner is present
+    const bundleOwner = depGraph.pkgs?.find(
+      (p: any) => p.info?.name === 'builder-tool',
     );
-    expect(wasmPkg).toBeDefined();
-    expect(wasmPkg?.info?.version).toBe('4.1.11');
+    expect(bundleOwner).toBeDefined();
+    expect(bundleOwner?.info?.version).toBe('2.0.0');
 
-    // Verify bundled dependencies are in the graph as children
-    const wasmNode = depGraph.graph?.nodes?.find(
-      (n: any) => n.pkgId === wasmPkg?.id,
+    // Verify the bundled dependencies are present
+    const bundledDep1 = depGraph.pkgs?.find(
+      (p: any) => p.info?.name === 'semver',
     );
-    expect(wasmNode).toBeDefined();
-    expect(wasmNode?.deps?.length).toBeGreaterThan(0);
+    expect(bundledDep1).toBeDefined();
+    expect(bundledDep1?.info?.version).toBe('7.5.4');
 
-    // Check for one of the bundled dependencies (@emnapi/core)
-    const emnapiCoreDep = wasmNode?.deps?.find((d: any) =>
-      d.nodeId.includes('@emnapi/core'),
+    const bundledDep2 = depGraph.pkgs?.find(
+      (p: any) => p.info?.name === 'chalk',
     );
-    expect(emnapiCoreDep).toBeDefined();
+    expect(bundledDep2).toBeDefined();
+    expect(bundledDep2?.info?.version).toBe('4.1.2');
+
+    // Verify the dependency relationship is correctly established
+    const bundleOwnerNode = depGraph.graph?.nodes?.find(
+      (n: any) => n.pkgId === bundleOwner?.id,
+    );
+    expect(bundleOwnerNode).toBeDefined();
+    expect(bundleOwnerNode?.deps?.length).toBeGreaterThan(0);
+
+    // Check for the bundled dependencies in the bundle owner's dependencies
+    const bundledDepInOwner1 = bundleOwnerNode?.deps?.find((d: any) =>
+      d.nodeId.includes('semver'),
+    );
+    expect(bundledDepInOwner1).toBeDefined();
+
+    const bundledDepInOwner2 = bundleOwnerNode?.deps?.find((d: any) =>
+      d.nodeId.includes('chalk'),
+    );
+    expect(bundledDepInOwner2).toBeDefined();
   });
 });

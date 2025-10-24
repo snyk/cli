@@ -75,8 +75,8 @@ describe('instrumentation module', () => {
     it('sends instrumentation data even if disable analytics is set via SNYK_DISABLE_ANALYTICS', async () => {
       const project = await createProjectFromWorkspace(fixtureName);
       const { code } = await runSnykCLI(`test --debug`, {
+        cwd: project.path(),
         env: {
-          cwd: project.path(),
           ...env,
           SNYK_DISABLE_ANALYTICS: '1',
         },
@@ -110,7 +110,6 @@ describe('instrumentation module', () => {
       async (disable_analytics) => {
         const project = await createProjectFromWorkspace(fixtureName);
         const executionEnv = {
-          cwd: project.path(),
           ...env,
         };
 
@@ -119,6 +118,7 @@ describe('instrumentation module', () => {
         }
 
         const { code } = await runSnykCLI(`test --debug`, {
+          cwd: project.path(),
           env: executionEnv,
         });
 

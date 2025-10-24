@@ -2,6 +2,7 @@ import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { getServerPort } from '../util/getServerPort';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
+import { createProject } from '../util/createProject';
 
 const TEST_DISTROLESS_STATIC_IMAGE =
   'gcr.io/distroless/static@sha256:7198a357ff3a8ef750b041324873960cf2153c11cc50abb9d8d5f8bb089f6b4e';
@@ -42,7 +43,17 @@ describe.each(integrationWorkflows)(
     describe('authentication errors', () => {
       describe(`${type} workflow`, () => {
         it(`snyk ${cmd}`, async () => {
+          // For typescript workflows, use a test fixture to avoid workspace dependency issues
+          let cwd: string | undefined;
+          if (type === 'typescript') {
+            const project = await createProject(
+              'npm/with-vulnerable-lodash-dep',
+            );
+            cwd = project.path();
+          }
+
           const { code, stdout } = await runSnykCLI(cmd, {
+            cwd,
             env: {
               ...env,
               SNYK_TOKEN: '1234',
@@ -87,6 +98,15 @@ describe.each(integrationWorkflows)(
       describe('internal server errors', () => {
         describe(`${type} workflow`, () => {
           it(`snyk ${cmd}`, async () => {
+            // For typescript workflows, use a test fixture to avoid workspace dependency issues
+            let cwd: string | undefined;
+            if (type === 'typescript') {
+              const project = await createProject(
+                'npm/with-vulnerable-lodash-dep',
+              );
+              cwd = project.path();
+            }
+
             const localEnv = {
               ...env,
               INTERNAL_NETWORK_REQUEST_MAX_ATTEMPTS: '1', // reduce test duration by reducing retry
@@ -94,7 +114,7 @@ describe.each(integrationWorkflows)(
             };
 
             server.setStatusCode(500);
-            const { code } = await runSnykCLI(`${cmd}`, { env: localEnv });
+            const { code } = await runSnykCLI(`${cmd}`, { cwd, env: localEnv });
             const analyticsRequest = server
               .getRequests()
               .filter((value) =>
@@ -113,8 +133,17 @@ describe.each(integrationWorkflows)(
       describe('bad request errors', () => {
         describe(`${type} workflow`, () => {
           it(`snyk ${cmd}`, async () => {
+            // For typescript workflows, use a test fixture to avoid workspace dependency issues
+            let cwd: string | undefined;
+            if (type === 'typescript') {
+              const project = await createProject(
+                'npm/with-vulnerable-lodash-dep',
+              );
+              cwd = project.path();
+            }
+
             server.setStatusCode(400);
-            const { code } = await runSnykCLI(`${cmd}`, { env });
+            const { code } = await runSnykCLI(`${cmd}`, { cwd, env });
             const analyticsRequest = server
               .getRequests()
               .filter((value) =>
