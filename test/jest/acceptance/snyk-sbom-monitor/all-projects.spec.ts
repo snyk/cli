@@ -94,7 +94,7 @@ describe('snyk sbom monitor (mocked server only)', () => {
 
     expect(code).toBe(EXIT_CODES.ERROR);
 
-    expect(stdout).toContain('--experimental');
+    expect(stdout).toContain('SNYK-CLI-0015');
 
     expect(stderr).toEqual('');
   });
