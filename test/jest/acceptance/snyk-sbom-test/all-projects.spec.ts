@@ -120,7 +120,7 @@ describe('snyk sbom test (mocked server only)', () => {
 
     expect(code).toBe(EXIT_CODES.ERROR);
 
-    expect(stdout).toMatch('--experimental');
+    expect(stdout).toMatch('SNYK-CLI-0015');
 
     expect(stderr).toEqual('');
   });
