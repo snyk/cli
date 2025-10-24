@@ -8,6 +8,7 @@ import { getServerPort } from '../../util/getServerPort';
 import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
 import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { isWindowsOperatingSystem } from '../../../utils';
 
 jest.setTimeout(1000 * 60);
 
@@ -146,6 +147,11 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   });
 
   test('run `snyk test` on a pipenv project', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1204
+      return;
+    }
+
     const project = await createProjectFromWorkspace('pipenv-app');
     let pythonCommand = 'python';
 
@@ -169,6 +175,10 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   });
 
   test('run `snyk test` on a gradle project', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1204
+      return;
+    }
     const project = await createProjectFromWorkspace('gradle-app');
 
     const { code, stderr, stdout } = await runSnykCLI('test -d', {
@@ -186,6 +196,10 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
   });
 
   test('run `snyk test` on a gradle project and check top-level dependency node id', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1204
+      return;
+    }
     const project = await createProjectFromWorkspace('gradle-with-classifier');
 
     const { code, stderr, stdout } = await runSnykCLI('test --print-graph', {

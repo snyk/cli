@@ -832,6 +832,7 @@ workflows:
           install_deps_extension: windows-full
           dont_skip_tests: 0
           shards: 8
+          shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
           pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
 
       - sign:
@@ -1446,6 +1447,9 @@ jobs:
       shards:
         type: integer
         default: 4
+      shard_calc_cmd:
+        type: string
+        default: '$(expr $CIRCLE_NODE_INDEX + 1)'
     executor: << parameters.executor >>
     parallelism: << parameters.shards >>
     environment:
@@ -1474,7 +1478,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             << parameters.pre_test_cmds >>
-            npm run test:acceptance -- --selectProjects coreCli --shard=$(expr $CIRCLE_NODE_INDEX + 1)/<< parameters.shards >>
+            npm run test:acceptance -- --selectProjects coreCli --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
           environment:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>

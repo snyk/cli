@@ -5,9 +5,7 @@ import { fakeServer } from '../../acceptance/fake-server';
 import { createProject } from '../util/createProject';
 import { getServerPort } from '../util/getServerPort';
 
-import * as os from 'os';
-
-const isWindows = os.platform().indexOf('win') === 0;
+import { isWindowsOperatingSystem } from '../../utils';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -455,7 +453,7 @@ describe('cli args', () => {
     expect(code).toEqual(0);
   });
 
-  if (!isWindows) {
+  if (!isWindowsOperatingSystem()) {
     // Previously we used to have a bug where --exclude-base-image-vulns returned exit code 2.
     // This test asserts that the bug no longer exists.
     test('container test --file=Dockerfile --exclude-base-image-vulns returns exit code 0', async () => {
