@@ -13,6 +13,7 @@ export const config: Options = {
     'jest-junit', // used for CI test reporting
     '@types/node', // node types used for alerts
     'conventional-changelog-conventionalcommits', // used to configure generating release notes
+    'proxy-agent', // used by `ts-binary-wrapper` when downloading binaries, and is required by the build pipeline
   ],
   ignoreDirs: ['node_modules', 'dist', 'fixtures', 'test-output'],
 };
