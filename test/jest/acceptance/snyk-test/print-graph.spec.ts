@@ -3,7 +3,7 @@ import {
   createProjectFromWorkspace,
 } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
-import { isWindowsOperatingSystem } from '../../../utils';
+import { isWindowsOperatingSystem, testIf } from '../../../utils';
 
 jest.setTimeout(1000 * 60);
 
@@ -38,9 +38,10 @@ describe('print graph', () => {
     expect(numEdges).toEqual(7);
   });
 
-  if (!isWindowsOperatingSystem()) {
-    // Address as part CLI-1219
-    test('`snyk test --print-graph` should not prune gradle dependencies', async () => {
+  // Address as part CLI-1219
+  testIf(!isWindowsOperatingSystem())(
+    '`snyk test --print-graph` should not prune gradle dependencies',
+    async () => {
       const project = await createProjectFromFixture(
         'gradle-with-repeated-deps',
       );
@@ -58,8 +59,8 @@ describe('print graph', () => {
         numEdges += node.deps.length;
       }
       expect(numEdges).toEqual(28);
-    });
-  }
+    },
+  );
 
   test('`snyk test --print-graph` resolves Maven metaversions', async () => {
     const project = await createProjectFromFixture('maven-metaversion');
