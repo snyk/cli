@@ -81,3 +81,22 @@ export function humanFileSize(bytes, si = false, dp = 1) {
 export function isWindowsOperatingSystem(): boolean {
   return platform().indexOf('win') === 0;
 }
+
+/**
+ * Conditionally run a test if the condition is true
+ *
+ * @param condition boolean
+ * @returns jest.It
+ */
+export function testIf(condition: boolean): jest.It {
+  return condition ? test : test.skip;
+}
+
+/**
+ * Conditionally run a describe block if the condition is true
+ *
+ * @param condition boolean
+ * @returns jest.Describe
+ */
+export const describeIf = (condition: boolean): jest.Describe =>
+  condition ? describe : describe.skip;
