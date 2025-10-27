@@ -35,20 +35,23 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
     });
   });
 
-  test('`sbom --sub-project=<NAME>` generates an SBOM for selected sub-project', async () => {
-    if (isWindowsOperatingSystem()) {
-      // Address as part CLI-1203
-      return;
-    }
-    const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
-      'gradle-multi-project',
-      '--sub-project=lib',
-      env,
-    );
+  testIf(!isWindowsOperatingSystem())(
+    '`sbom --sub-project=<NAME>` generates an SBOM for selected sub-project',
+    async () => {
+      if (isWindowsOperatingSystem()) {
+        // Address as part CLI-1203
+        return;
+      }
+      const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
+        'gradle-multi-project',
+        '--sub-project=lib',
+        env,
+      );
 
-    expect(sbom.metadata.component.name).toEqual('example-multi-project/lib');
-    expect(sbom.components.length).toBeGreaterThan(1);
-  });
+      expect(sbom.metadata.component.name).toEqual('example-multi-project/lib');
+      expect(sbom.components.length).toBeGreaterThan(1);
+    },
+  );
 
   // Address as part CLI-1203
   testIf(!isWindowsOperatingSystem())(
@@ -101,7 +104,7 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
   );
 
   // Address as part CLI-1203
-  testIf(isWindowsOperatingSystem())(
+  testIf(!isWindowsOperatingSystem())(
     '`sbom --configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]...` generates an SBOM only for matching variant',
     async () => {
       const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
@@ -126,7 +129,7 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
   );
 
   // Address as part CLI-1203
-  testIf(isWindowsOperatingSystem())(
+  testIf(!isWindowsOperatingSystem())(
     '`sbom --init-script=<FILE>` applies given init script',
     async () => {
       const sbom = await runSnykSbomCliCycloneDxJsonForFixture(
