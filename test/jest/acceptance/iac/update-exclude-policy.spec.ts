@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as rimraf from 'rimraf';
 import * as path from 'path';
 import { findAndLoadPolicy } from '../../../../src/lib/policy';
-import { isWindowsOperatingSystem } from '../../../utils';
+import { isWindowsOperatingSystem, testIf } from '../../../utils';
 
 jest.setTimeout(50000);
 
@@ -39,40 +39,39 @@ describe('iac update-exclude-policy', () => {
     expect(exitCode).toBe(2);
   });
 
-  if (isWindowsOperatingSystem()) {
-    return; // skip following tests
-  }
+  testIf(!isWindowsOperatingSystem())(
+    'update-exclude-policy successfully executed when org has the entitlement',
+    async () => {
+      const analysisPath = path.join(
+        __dirname,
+        '../../../fixtures/iac/drift/analysis.json',
+      );
 
-  it('update-exclude-policy successfully executed when org has the entitlement', async () => {
-    const analysisPath = path.join(
-      __dirname,
-      '../../../fixtures/iac/drift/analysis.json',
-    );
+      const snykBinaryPath = path.join(__dirname, '../../../../bin/snyk');
 
-    const snykBinaryPath = path.join(__dirname, '../../../../bin/snyk');
+      const { stderr, stdout, exitCode } = await run(
+        `cat ${analysisPath} | ${snykBinaryPath} iac update-exclude-policy`,
+        {},
+        tmpFolderPath,
+      );
 
-    const { stderr, stdout, exitCode } = await run(
-      `cat ${analysisPath} | ${snykBinaryPath} iac update-exclude-policy`,
-      {},
-      tmpFolderPath,
-    );
+      const policy = await findAndLoadPolicy(tmpFolderPath, 'iac', {});
+      const expectedExcludes = {
+        global: [],
+        code: [],
+        'iac-drift': [
+          'aws_iam_user.test-driftctl2',
+          'aws_iam_access_key.AAAAAAAAAAAAAAAAAAAA',
+          'aws_s3_bucket_policy.driftctl',
+          'aws_s3_bucket_notification.driftctl',
+        ],
+      };
 
-    const policy = await findAndLoadPolicy(tmpFolderPath, 'iac', {});
-    const expectedExcludes = {
-      global: [],
-      code: [],
-      'iac-drift': [
-        'aws_iam_user.test-driftctl2',
-        'aws_iam_access_key.AAAAAAAAAAAAAAAAAAAA',
-        'aws_s3_bucket_policy.driftctl',
-        'aws_s3_bucket_notification.driftctl',
-      ],
-    };
-
-    expect(stdout).toBe('');
-    expect(stderr).toMatch('');
-    expect(exitCode).toBe(0);
-    expect(policy).toBeDefined();
-    expect(policy?.exclude).toStrictEqual(expectedExcludes);
-  });
+      expect(stdout).toBe('');
+      expect(stderr).toMatch('');
+      expect(exitCode).toBe(0);
+      expect(policy).toBeDefined();
+      expect(policy?.exclude).toStrictEqual(expectedExcludes);
+    },
+  );
 });
