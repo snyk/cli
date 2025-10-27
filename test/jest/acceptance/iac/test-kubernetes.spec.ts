@@ -41,7 +41,7 @@ describe('Kubernetes single file scan', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/kubernetes/pod-privileged.yaml --severity-threshold=high`,
     );
-    expect(stdout).toContain(`File:    ./iac/kubernetes/pod-privileged.yaml`);
+    expect(stdout).toContain('File:    ./iac/kubernetes/pod-privileged.yaml');
     expect(stdout).toContain('Total issues: 1');
     expect(exitCode).toBe(1);
   });

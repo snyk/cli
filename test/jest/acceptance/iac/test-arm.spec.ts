@@ -33,7 +33,7 @@ describe('ARM single file scan', () => {
         EOL +
         '           rules[0] > sourceAddresses',
     );
-    expect(stdout).toContain(`File:    ./iac/arm/rule_test.json`);
+    expect(stdout).toContain('File:    ./iac/arm/rule_test.json');
     expect(exitCode).toBe(1);
   });
 

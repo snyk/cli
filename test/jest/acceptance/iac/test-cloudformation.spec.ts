@@ -25,7 +25,7 @@ describe('CloudFormation single file scan', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/cloudformation/aurora-valid.yml`,
     );
-    expect(stdout).toContain(`File:    ./iac/cloudformation/aurora-valid.yml`);
+    expect(stdout).toContain('File:    ./iac/cloudformation/aurora-valid.yml');
     expect(stdout).toContain(
       'SNS topic is not encrypted with customer managed key',
     );
