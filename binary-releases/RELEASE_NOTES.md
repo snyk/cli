@@ -1,15 +1,8 @@
-## [1.1300.1](https://github.com/snyk/snyk/compare/v1.1300.0...v1.1300.1) (2025-10-21)
+## [1.1300.2](https://github.com/snyk/snyk/compare/v1.1300.1...v1.1300.2) (2025-10-28)
 
 The Snyk CLI is being deployed to different deployment channels, users can select the stability level according to their needs. For details please see [this documentation](https://docs.snyk.io/snyk-cli/releases-and-channels-for-the-snyk-cli)
 
-### Features
-
-* **mcp:** Added support for the MCP server to use IDE extension storage when running in VS Code ([7f26dc6](https://github.com/snyk/snyk/commit/7f26dc63f2b650f88bc27604a5568d9e80bcb2a6))
-
 ### Bug Fixes
 
-* **test:** Fix issue where npm aliases only detected the latest version of a dependency ([cb37da7](https://github.com/snyk/snyk/commit/cb37da79febf6e9c44b68eccf444633a6508aa3f))
-* **security:** Upgrades dependencies to address CVE-2025-58058 and CVE-2025-11065 ([d7e87e2](https://github.com/snyk/snyk/commit/d7e87e296f99d299a87533812399830b60b7c0c3))
-* **general:** Improved error messaging ([5d16466](https://github.com/snyk/snyk/commit/5d16466e76ad0d278e62c023001ed78f06b3cd01))
-* **logging:** Remove support for legacy DEBUG environment variable. For the supported debugging options, please check https://docs.snyk.io/developer-tools/snyk-cli/debugging-the-snyk-cli ([2087f74](https://github.com/snyk/snyk/commit/2087f7465e76930427004272c3faa62064c2dc74))
-* **redteam:** Added a new experimental AI Red Teaming feature, read more: https://docs.snyk.io/developer-tools/snyk-cli/commands/ai-red-teaming ([fe37e0f](https://github.com/snyk/snyk/commit/fe37e0f0d74e9737a2daf3730dd236a4ebd87869))
+* **security:** Upgrades dependencies to address CVE-2025-47913 ([d7e87e2](https://github.com/snyk/snyk/commit/a00b0dc5a4a997933655fc1436c59ebd4af57cf6))
+* **general:** Improved error messaging ([5d16466](https://github.com/snyk/snyk/commit/e4aaa0924ed01ebd2aed4dc63e47684259ebf92c))
