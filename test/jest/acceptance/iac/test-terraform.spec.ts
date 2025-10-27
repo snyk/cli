@@ -32,7 +32,7 @@ describe('Terraform', () => {
       const { stdout, exitCode } = await run(
         `snyk iac test ./iac/terraform/sg_open_ssh.tf`,
       );
-      expect(stdout).toContain(`File:    ./iac/terraform/sg_open_ssh.tf`);
+      expect(stdout).toContain('File:    ./iac/terraform/sg_open_ssh.tf');
       expect(stdout).toContain('Security Group allows open ingress');
       expect(stdout).toContain(
         'Path:    input > resource > aws_security_group[allow_ssh] > ingress',
