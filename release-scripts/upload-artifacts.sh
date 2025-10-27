@@ -76,7 +76,7 @@ show_help() {
   echo ""
   echo -e "\033[1;33mTrigger Build and Publish Snyk Images:\033[0m"  # Set color to yellow
   echo ""
-  echo "  upload-artifacts.sh trigger-snyk-images"
+  echo "  upload-artifacts.sh trigger-distribution-channels"
   echo ""
   echo "  This will trigger the build-and-publish workflow in the snyk-images repository."
   echo ""
@@ -138,6 +138,58 @@ trigger_build_snyk_images() {
     echo "Successfully triggered build-and-publish workflow at snyk-images."
   else
     echo "Failed to trigger build-and-publish workflow at snyk-images."
+    echo "Response status code: $RESPONSE"
+    echo "Details:"
+    cat $response_file
+    exit 1
+  fi
+}
+
+trigger_build_scoop_snyk() {
+  echo "Triggering build-and-release workflow at snyk-scoop..."
+  echo "Version: $VERSION_TAG"
+  echo "Release Channel: $RELEASE_CHANNEL"
+  response_file=$TMPDIR/trigger_build_snyk_scoop.txt
+  RESPONSE=$(curl -L \
+    -X POST \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    https://api.github.com/repos/snyk/scoop-snyk/dispatches \
+    -d "{\"event_type\":\"build_and_release\", \"client_payload\": {\"version\": \"$VERSION_TAG\", \"release_channel\": \"$RELEASE_CHANNEL\"}}" \
+    -w "%{http_code}" \
+    -s  \
+    -o "$response_file")
+  if [ "$RESPONSE" -eq 204 ]; then
+    echo "Successfully triggered build-and-release workflow at snyk-scoop."
+  else
+    echo "Failed to trigger build-and-release workflow at snyk-scoop."
+    echo "Response status code: $RESPONSE"
+    echo "Details:"
+    cat $response_file
+    exit 1
+  fi
+}
+
+trigger_build_homebrew() {
+  echo "Triggering build-and-release workflow at homebrew-tap..."
+  echo "Version: $VERSION_TAG"
+  echo "Release Channel: $RELEASE_CHANNEL"
+  response_file=$TMPDIR/trigger_build_homebrew.txt
+  RESPONSE=$(curl -L \
+    -X POST \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    https://api.github.com/repos/snyk/homebrew-tap/dispatches \
+    -d "{\"event_type\":\"build_and_release\", \"client_payload\": {\"version\": \"$VERSION_TAG\", \"release_channel\": \"$RELEASE_CHANNEL\"}}" \
+    -w "%{http_code}" \
+    -s  \
+    -o "$response_file")
+  if [ "$RESPONSE" -eq 204 ]; then
+    echo "Successfully triggered build-and-release workflow at homebrew-tap."
+  else
+    echo "Failed to trigger build-and-release workflow at homebrew-tap."
     echo "Response status code: $RESPONSE"
     echo "Details:"
     cat $response_file
@@ -261,9 +313,12 @@ for arg in "${@}"; do
   elif [ "${arg}" == "npm" ]; then
     upload_npm
 
-  # Trigger building Snyk images in snyk-images repository
-  elif [ "${arg}" == "trigger-snyk-images" ]; then
+  # Trigger builds across distirbution channel repositories
+  elif [ "${arg}" == "trigger-distribution-channels" ]; then
     trigger_build_snyk_images
+    trigger_build_scoop_snyk
+    trigger_build_homebrew
+
 
   # Trigger building DXT in agentic-integration-wrappers repository
   elif [ "${arg}" == "trigger_build_agentic_integration" ]; then

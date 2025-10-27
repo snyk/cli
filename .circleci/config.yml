@@ -1126,7 +1126,7 @@ workflows:
                 - main
                 - '/release.*/'
 
-      - trigger-building-snyk-images:
+      - trigger-building-distribution-channels:
           name: Trigger building snyk-images (preview)
           context:
             - team-hammerhead-common-deploy-tokens
@@ -1139,7 +1139,7 @@ workflows:
               only:
                 - main
 
-      - trigger-building-snyk-images:
+      - trigger-building-distribution-channels:
           name: Trigger building snyk-images (rc)
           context:
             - team-hammerhead-common-deploy-tokens
@@ -1152,7 +1152,7 @@ workflows:
               only:
                 - '/release.*/'
 
-      - trigger-building-snyk-images:
+      - trigger-building-distribution-channels:
           name: Trigger building snyk-images (stable)
           context:
             - team-hammerhead-common-deploy-tokens
@@ -1729,7 +1729,7 @@ jobs:
           command: ./release-scripts/upload-artifacts.sh npm
       - failed-release-notification
 
-  trigger-building-snyk-images:
+  trigger-building-distribution-channels:
     parameters:
       deployment:
         type: string
@@ -1741,7 +1741,7 @@ jobs:
           deployment: << parameters.deployment >>
       - run:
           name: Trigger build-and-publish workflow at snyk-images
-          command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
+          command: ./release-scripts/upload-artifacts.sh trigger-distribution-channels
       - failed-release-notification
 
   trigger-build-agentic-integration:
