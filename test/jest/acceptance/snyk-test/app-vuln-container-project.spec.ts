@@ -2,7 +2,7 @@ import * as path from 'path';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { getServerPort } from '../../util/getServerPort';
-import { isWindowsOperatingSystem } from '../../../utils';
+import { isWindowsOperatingSystem, testIf } from '../../../utils';
 
 describe('container test projects behavior with --app-vulns, --file and --exclude-base-image-vulns flags', () => {
   it('should find nothing when only vulns are in base image', async () => {
@@ -154,24 +154,23 @@ describe('container test projects behavior with --json flag', () => {
     });
   });
 
-  it('returns a json with the --experimental flags', async () => {
-    if (isWindowsOperatingSystem()) {
-      // Address as part CLI-1200
-      return;
-    }
+  // Address as part CLI-1200
+  testIf(!isWindowsOperatingSystem())(
+    'returns a json with the --experimental flags',
+    async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test docker-archive:test/fixtures/container-projects/os-app-alpine-and-debug.tar --json --experimental`,
+        {
+          env,
+        },
+      );
 
-    const { code, stdout } = await runSnykCLI(
-      `container test docker-archive:test/fixtures/container-projects/os-app-alpine-and-debug.tar --json --experimental`,
-      {
-        env,
-      },
-    );
-
-    const jsonOutput = JSON.parse(stdout);
-    expect(Array.isArray(jsonOutput)).toBeTruthy();
-    expect(jsonOutput).toHaveLength(2);
-    expect(code).toEqual(0);
-  });
+      const jsonOutput = JSON.parse(stdout);
+      expect(Array.isArray(jsonOutput)).toBeTruthy();
+      expect(jsonOutput).toHaveLength(2);
+      expect(code).toEqual(0);
+    },
+  );
 });
 
 describe('container test projects behavior with --exclude-node-modules flag', () => {
@@ -197,19 +196,20 @@ describe('container test projects behavior with --exclude-node-modules flag', ()
     expect(code).toEqual(1);
   }, 60000);
 
-  it('should scan npm projects from package.json and package-lock.json pairs and node_modules dependencies', async () => {
-    if (isWindowsOperatingSystem()) {
-      // Address as part CLI-1200
-      return;
-    }
-    const { code, stdout } = await runSnykCLI(
-      `container test docker-archive:test/fixtures/container-projects/node-slim-image.tar --json --exclude-base-image-vulns`,
-    );
-    const jsonOutput = JSON.parse(stdout);
-    const applications = jsonOutput.applications;
+  // Address as part CLI-1200
+  testIf(!isWindowsOperatingSystem())(
+    'should scan npm projects from package.json and package-lock.json pairs and node_modules dependencies',
+    async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test docker-archive:test/fixtures/container-projects/node-slim-image.tar --json --exclude-base-image-vulns`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+      const applications = jsonOutput.applications;
 
-    expect(applications.length).toEqual(3);
+      expect(applications.length).toEqual(3);
 
-    expect(code).toEqual(1);
-  }, 60000);
+      expect(code).toEqual(1);
+    },
+    60000,
+  );
 });

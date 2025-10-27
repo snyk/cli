@@ -8,7 +8,7 @@ import { getServerPort } from '../../util/getServerPort';
 import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
 import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
-import { isWindowsOperatingSystem } from '../../../utils';
+import { isWindowsOperatingSystem, testIf } from '../../../utils';
 
 jest.setTimeout(1000 * 60);
 
@@ -881,89 +881,90 @@ describe.each(userJourneyWorkflows)(
     expect(result.code).toEqual(2);
   });
 
-  test('run `snyk test` on a pipenv project', async () => {
-    if (isWindowsOperatingSystem()) {
-      // Address as part CLI-1204
-      return;
-    }
+  // Address as part CLI-1204
+  testIf(!isWindowsOperatingSystem())(
+    'run `snyk test` on a pipenv project',
+    async () => {
+      const project = await createProjectFromWorkspace('pipenv-app');
+      let pythonCommand = 'python';
 
-    const project = await createProjectFromWorkspace('pipenv-app');
-    let pythonCommand = 'python';
+      await runCommand(pythonCommand, ['--version']).catch(function () {
+        pythonCommand = 'python3';
+      });
 
-    await runCommand(pythonCommand, ['--version']).catch(function () {
-      pythonCommand = 'python3';
-    });
+      const pipenvResult = await runCommand('pipenv', ['install'], {
+        shell: true,
+        cwd: project.path(),
+      });
 
-    const pipenvResult = await runCommand('pipenv', ['install'], {
-      shell: true,
-      cwd: project.path(),
-    });
+      expect(pipenvResult.code).toEqual(0);
 
-    expect(pipenvResult.code).toEqual(0);
+      const result = await runSnykCLI('test -d --command=' + pythonCommand, {
+        cwd: project.path(),
+        env,
+      });
 
-    const result = await runSnykCLI('test -d --command=' + pythonCommand, {
-      cwd: project.path(),
-      env,
-    });
+      expect(result.code).toEqual(0);
+    },
+  );
 
-    expect(result.code).toEqual(0);
-  });
+  // Address as part CLI-1204
+  testIf(!isWindowsOperatingSystem())(
+    'run `snyk test` on a gradle project',
+    async () => {
+      const project = await createProjectFromWorkspace('gradle-app');
 
-  test('run `snyk test` on a gradle project', async () => {
-    if (isWindowsOperatingSystem()) {
-      // Address as part CLI-1204
-      return;
-    }
-    const project = await createProjectFromWorkspace('gradle-app');
+      const { code, stderr, stdout } = await runSnykCLI('test -d', {
+        cwd: project.path(),
+        env,
+      });
 
-    const { code, stderr, stdout } = await runSnykCLI('test -d', {
-      cwd: project.path(),
-      env,
-    });
+      if (code != 0) {
+        console.debug(stderr);
+        console.debug('---------------------------');
+        console.debug(stdout);
+      }
 
-    if (code != 0) {
-      console.debug(stderr);
-      console.debug('---------------------------');
-      console.debug(stdout);
-    }
+      expect(code).toEqual(0);
+    },
+  );
 
-    expect(code).toEqual(0);
-  });
+  // Address as part CLI-1204
+  testIf(!isWindowsOperatingSystem())(
+    'run `snyk test` on a gradle project and check top-level dependency node id',
+    async () => {
+      const project = await createProjectFromWorkspace(
+        'gradle-with-classifier',
+      );
 
-  test('run `snyk test` on a gradle project and check top-level dependency node id', async () => {
-    if (isWindowsOperatingSystem()) {
-      // Address as part CLI-1204
-      return;
-    }
-    const project = await createProjectFromWorkspace('gradle-with-classifier');
+      const { code, stderr, stdout } = await runSnykCLI('test --print-graph', {
+        cwd: project.path(),
+        env,
+      });
 
-    const { code, stderr, stdout } = await runSnykCLI('test --print-graph', {
-      cwd: project.path(),
-      env,
-    });
+      if (code != 0) {
+        console.debug(stderr);
+        console.debug('---------------------------');
+        console.debug(stdout);
+      }
+      expect(code).toEqual(0);
 
-    if (code != 0) {
-      console.debug(stderr);
-      console.debug('---------------------------');
-      console.debug(stdout);
-    }
-    expect(code).toEqual(0);
-
-    const depGraphJsonStr = stdout
-      .split('DepGraph data:')[1]
-      .split('DepGraph target:')[0];
-    const depGraphJson = JSON.parse(depGraphJsonStr);
-    expect(depGraphJson.pkgManager.name).toEqual('gradle');
-    expect(depGraphJson.pkgs).toContainEqual({
-      id: 'net.sf.json-lib:json-lib@2.4',
-      info: { name: 'net.sf.json-lib:json-lib', version: '2.4' },
-    });
-    expect(depGraphJson.graph.nodes).toContainEqual({
-      nodeId: 'net.sf.json-lib:json-lib:jar:jdk13@2.4',
-      pkgId: 'net.sf.json-lib:json-lib@2.4',
-      deps: expect.any(Array),
-    });
-  });
+      const depGraphJsonStr = stdout
+        .split('DepGraph data:')[1]
+        .split('DepGraph target:')[0];
+      const depGraphJson = JSON.parse(depGraphJsonStr);
+      expect(depGraphJson.pkgManager.name).toEqual('gradle');
+      expect(depGraphJson.pkgs).toContainEqual({
+        id: 'net.sf.json-lib:json-lib@2.4',
+        info: { name: 'net.sf.json-lib:json-lib', version: '2.4' },
+      });
+      expect(depGraphJson.graph.nodes).toContainEqual({
+        nodeId: 'net.sf.json-lib:json-lib:jar:jdk13@2.4',
+        pkgId: 'net.sf.json-lib:json-lib@2.4',
+        deps: expect.any(Array),
+      });
+    },
+  );
 
   test('run `snyk test` on a cocoapods project', async () => {
     const project = await createProjectFromWorkspace('cocoapods-app');

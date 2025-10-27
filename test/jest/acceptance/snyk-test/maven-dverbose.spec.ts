@@ -3,7 +3,6 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
 import { getServerPort } from '../../util/getServerPort';
-import { isWindowsOperatingSystem } from '../../../utils';
 
 jest.setTimeout(1000 * 60);
 
@@ -52,32 +51,29 @@ describe('`snyk test` of basic projects for each language/ecosystem', () => {
     expect(code).toEqual(0);
   });
 
-  if (isWindowsOperatingSystem()) {
-    // Address as part CLI-1218
-    test('run `snyk test` on a maven project with scopes collision with Dverbose', async () => {
-      const project = await createProjectFromWorkspace(
-        'maven-dverbose-scopes-collision',
-      );
+  test('run `snyk test` on a maven project with scopes collision with Dverbose', async () => {
+    const project = await createProjectFromWorkspace(
+      'maven-dverbose-scopes-collision',
+    );
 
-      const { code } = await runSnykCLI('test -d - --Dverbose', {
-        cwd: project.path(),
-        env,
-      });
-
-      expect(code).toEqual(0);
+    const { code } = await runSnykCLI('test -d - --Dverbose', {
+      cwd: project.path(),
+      env,
     });
 
-    test('run `snyk test` on a maven project with Dverbose omitted versions', async () => {
-      const project = await createProjectFromWorkspace(
-        'maven-dverbose-omitted-versions',
-      );
+    expect(code).toEqual(0);
+  });
 
-      const { code } = await runSnykCLI('test -d - --Dverbose', {
-        cwd: project.path(),
-        env,
-      });
+  test('run `snyk test` on a maven project with Dverbose omitted versions', async () => {
+    const project = await createProjectFromWorkspace(
+      'maven-dverbose-omitted-versions',
+    );
 
-      expect(code).toEqual(0);
+    const { code } = await runSnykCLI('test -d - --Dverbose', {
+      cwd: project.path(),
+      env,
     });
-  }
+
+    expect(code).toEqual(0);
+  });
 });
