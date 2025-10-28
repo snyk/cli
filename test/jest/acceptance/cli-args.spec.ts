@@ -274,11 +274,9 @@ describe('cli args', () => {
   });
 
   test('project attributes are implemented --project{-business-criticality, -lifecycle, -environment}', async () => {
-    const project = await createProject('npm/with-vulnerable-lodash-dep');
     const { code, stdout } = await runSnykCLI(
       `monitor --project-business-criticality`,
       {
-        cwd: project.path(),
         env,
       },
     );
@@ -289,9 +287,7 @@ describe('cli args', () => {
   });
 
   test('snyk monitor --project-tags is implemented', async () => {
-    const project = await createProject('npm/with-vulnerable-lodash-dep');
     const { code, stdout } = await runSnykCLI(`monitor --project-tags`, {
-      cwd: project.path(),
       env,
     });
     expect(stdout).toContainText(
