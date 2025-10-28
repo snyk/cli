@@ -15,7 +15,12 @@ EXTENSIBLE_CLI_DIR = cliv2
 BINARY_RELEASES_FOLDER_TS_CLI = binary-releases
 export BINARY_OUTPUT_FOLDER = binary-releases
 SHASUM_CMD = shasum
-GOHOSTOS = $(shell go env GOHOSTOS)
+export GOCMD = go
+_GO_ENV_VARS   := $(shell $(GOCMD) env GOOS GOARCH GOHOSTOS GOHOSTARCH)
+export GOOS           := $(word 1, $(_GO_ENV_VARS))
+export GOARCH         := $(word 2, $(_GO_ENV_VARS))
+export GOHOSTOS       := $(word 3, $(_GO_ENV_VARS))
+export GOHOSTARCH     := $(word 4, $(_GO_ENV_VARS))
 export PYTHON = python
 
 PYTHON_VERSION = $(shell python3 --version)
@@ -242,40 +247,40 @@ pre-build: pre-build-binary-wrapper $(BINARY_RELEASES_FOLDER_TS_CLI) $(BINARY_RE
 
 .PHONY: build-fips
 build-fips: pre-build $(BINARY_OUTPUT_FOLDER)/fips/version
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
+	$(MAKE) -C $(EXTENSIBLE_CLI_DIR) fips build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
 	@$(MAKE) clean-package-files
 
 .PHONY: build-experimental
 build-experimental: pre-build $(BINARY_OUTPUT_FOLDER)/experimental/version
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) experimental build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/experimental USE_LEGACY_EXECUTABLE_NAME=1
+	$(MAKE) -C $(EXTENSIBLE_CLI_DIR) experimental build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/experimental USE_LEGACY_EXECUTABLE_NAME=1
 	@$(MAKE) clean-package-files
 
 .PHONY: build
 build: pre-build
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	$(MAKE) -C $(EXTENSIBLE_CLI_DIR) build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
 	@$(MAKE) clean-package-files
 
 .PHONY: build-debug
 build-debug: pre-build
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) debug build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	$(MAKE) -C $(EXTENSIBLE_CLI_DIR) debug build-full install bindir=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
 	@$(MAKE) clean-package-files
 
 .PHONY: sign
 sign:
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) sign BUILD_DIR=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
+	$(MAKE) -C $(EXTENSIBLE_CLI_DIR) sign BUILD_DIR=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER) USE_LEGACY_EXECUTABLE_NAME=1
 
 .PHONY: sign-fips
 sign-fips:
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) fips sign BUILD_DIR=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
+	$(MAKE) -C $(EXTENSIBLE_CLI_DIR) fips sign BUILD_DIR=$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)/fips USE_LEGACY_EXECUTABLE_NAME=1
 
 .PHONY: clean
 clean:
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) clean-full USE_LEGACY_EXECUTABLE_NAME=1
+	$(MAKE) -C $(EXTENSIBLE_CLI_DIR) clean-full USE_LEGACY_EXECUTABLE_NAME=1
 	@$(MAKE) clean-prepack
 
 .PHONY: clean-golang
 clean-golang:
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) clean USE_LEGACY_EXECUTABLE_NAME=1
+	$(MAKE) -C $(EXTENSIBLE_CLI_DIR) clean USE_LEGACY_EXECUTABLE_NAME=1
 
 # targets responsible for the testing of CLI build
 .PHONY: acceptance-test-with-proxy
@@ -313,7 +318,7 @@ release-mgt-create:
 .PHONY: build-ide-debug
 
 build-ide-debug:
-	@cd $(EXTENSIBLE_CLI_DIR); $(MAKE) build-ide-debug IDE_BUILD=true bindir='$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)' USE_LEGACY_EXECUTABLE_NAME=1
+	$(MAKE) -C $(EXTENSIBLE_CLI_DIR) build-ide-debug IDE_BUILD=true bindir='$(WORKING_DIR)/$(BINARY_OUTPUT_FOLDER)' USE_LEGACY_EXECUTABLE_NAME=1
 
 .PHONY: format
 format:

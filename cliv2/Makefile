@@ -1,11 +1,4 @@
 # Build system related variables
-MAKE = make
-GOCMD = go
-_GO_ENV_VARS   := $(shell go env GOOS GOARCH GOHOSTOS GOHOSTARCH)
-GOOS           := $(word 1, $(_GO_ENV_VARS))
-GOARCH         := $(word 2, $(_GO_ENV_VARS))
-GOHOSTOS       := $(word 3, $(_GO_ENV_VARS))
-GOHOSTARCH     := $(word 4, $(_GO_ENV_VARS))
 LS_COMMIT_HASH = $(shell cat go.mod | grep snyk-ls | cut -d "-" -f 4)
 FIPS_CRYPTO_BACKEND_DEFAULT = systemcrypto
 FIPS_CRYPTO_BACKEND =
