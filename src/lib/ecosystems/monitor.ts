@@ -6,7 +6,7 @@ import * as debug from 'debug';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
-import { Contributor, MonitorResult, Options, PolicyOptions, TestOptions } from '../types';
+import { Contributor, MonitorOptions, MonitorResult, Options, PolicyOptions } from '../types';
 import { spinner } from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
@@ -43,7 +43,7 @@ const SEPARATOR = '\n-------------------------------------------------------\n';
 export async function monitorEcosystem(
   ecosystem: Ecosystem,
   paths: string[],
-  options: Options & PolicyOptions & TestOptions,
+  options: Options & PolicyOptions & MonitorOptions,
   contributors?: Contributor[],
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const plugin = getPlugin(ecosystem);
