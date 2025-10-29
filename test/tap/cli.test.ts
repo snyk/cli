@@ -359,9 +359,8 @@ test('snyk policy', async (t) => {
 });
 
 test('monitor', async (t) => {
-  chdirWorkspaces();
   try {
-    const res = await cli.monitor('npm-package');
+    const res = await cli.monitor();
     t.match(res, /Monitoring/, 'monitor captured');
   } catch (error) {
     t.fail(error);
@@ -369,9 +368,8 @@ test('monitor', async (t) => {
 });
 
 test('monitor --json', async (t) => {
-  chdirWorkspaces();
   try {
-    const response = await cli.monitor('npm-package', { json: true });
+    const response = await cli.monitor(undefined, { json: true });
     const res = JSON.parse(response);
 
     if (isObject(res)) {
