@@ -260,7 +260,7 @@ export async function getFormattedMonitorOutput(
   throw new Error(outputString);
 }
 
-async function pruneScanResults( // Bella todo: I dont know if I like this here, but I want access to the CLI functions..... 
+async function pruneScanResults(
   scanResults: ScanResult[]
 ): Promise<ScanResult[]> {
   return Promise.all(
