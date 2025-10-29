@@ -6,7 +6,7 @@ import * as debug from 'debug';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
-import { Contributor, MonitorResult, Options, PolicyOptions } from '../types';
+import { Contributor, MonitorResult, Options, PolicyOptions, TestOptions } from '../types';
 import { spinner } from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
@@ -43,7 +43,7 @@ const SEPARATOR = '\n-------------------------------------------------------\n';
 export async function monitorEcosystem(
   ecosystem: Ecosystem,
   paths: string[],
-  options: Options & PolicyOptions,
+  options: Options & PolicyOptions & TestOptions,
   contributors?: Contributor[],
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const plugin = getPlugin(ecosystem);
@@ -57,15 +57,10 @@ export async function monitorEcosystem(
       await spinner(`Analyzing dependencies in ${path}`);
       options.path = path;
       const pluginResponse = await plugin.scan(options);
-
-      // Bella todo: Prune deps here! 
-      // This is the first place that we have both a deps tree and a packageManager in the CLI
-      // how can we check options?
-      // if ecosystem == docker
-      
-      // if (ecosystem === 'docker' && options.pruneRepeatedSubdependencies) {
-      //   scanResultsByPath[path] = await pruneScanResults(scanResultsByPath[path]);
-      // }
+          
+      if (ecosystem === 'docker' && options.pruneRepeatedSubdependencies) {
+        pluginResponse.scanResults = await pruneScanResults(pluginResponse.scanResults);
+      }
 
       scanResultsByPath[path] = pluginResponse.scanResults;
 
