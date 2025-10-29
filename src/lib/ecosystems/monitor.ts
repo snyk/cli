@@ -1,5 +1,8 @@
 import { InspectResult } from '@snyk/cli-interface/legacy/plugin';
+import { pruneGraph } from '../prune';
+import { SupportedPackageManagers } from '../package-managers';
 import chalk from 'chalk';
+import * as debug from 'debug';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
@@ -54,6 +57,16 @@ export async function monitorEcosystem(
       await spinner(`Analyzing dependencies in ${path}`);
       options.path = path;
       const pluginResponse = await plugin.scan(options);
+
+      // Bella todo: Prune deps here! 
+      // This is the first place that we have both a deps tree and a packageManager in the CLI
+      // how can we check options?
+      // if ecosystem == docker
+      
+      // if (ecosystem === 'docker' && options.pruneRepeatedSubdependencies) {
+      //   scanResultsByPath[path] = await pruneScanResults(scanResultsByPath[path]);
+      // }
+
       scanResultsByPath[path] = pluginResponse.scanResults;
 
       const policy = await findAndLoadPolicy(path, 'cpp', options);
@@ -250,4 +263,29 @@ export async function getFormattedMonitorOutput(
   }
 
   throw new Error(outputString);
+}
+
+async function pruneScanResults( // Bella todo: I dont know if I like this here, but I want access to the CLI functions..... 
+  scanResults: ScanResult[]
+): Promise<ScanResult[]> {
+  return Promise.all(
+    scanResults.map(async (scanResult) => {
+      const depGraphFact = scanResult.facts.find(f => f.type === 'depGraph');
+      const packageManager = scanResult.identity.type;
+
+      if (!packageManager || !depGraphFact) {
+        debug('Unable to prune scan results for ${scanResult.identity.type}');
+        return scanResult; 
+      }
+
+      const prunedGraph = await pruneGraph(
+        depGraphFact.data,
+        packageManager as SupportedPackageManagers,
+        true
+      );
+      
+      depGraphFact.data = prunedGraph;
+      return scanResult;
+    })
+  );
 }
