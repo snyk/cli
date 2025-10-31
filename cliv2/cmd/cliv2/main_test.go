@@ -16,7 +16,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
-	testapimocks "github.com/snyk/go-application-framework/pkg/apiclients/mocks"
 	"github.com/snyk/go-application-framework/pkg/apiclients/testapi"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -258,17 +257,13 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 	engine := workflow.NewWorkFlowEngine(configuration.New())
 	assert.NoError(t, engine.Init())
 
-	localFailValue := testapi.Fail
-	localPassValue := testapi.Pass
-	mockController := gomock.NewController(t)
+	ufmTestResultFail, err := ufm.NewSerializableTestResultFromBytes([]byte(`[{"testId": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "passFail": "` + testapi.Fail + `", "findings": []}]`))
+	assert.NoError(t, err)
+	ufmDataFail := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), ufmTestResultFail)
 
-	ufmTestResultFail := testapimocks.NewMockTestResult(mockController)
-	ufmTestResultFail.EXPECT().GetPassFail().Return(&localFailValue).AnyTimes()
-	ufmDataFail := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), []testapi.TestResult{ufmTestResultFail})
-
-	ufmTestResultPass := testapimocks.NewMockTestResult(mockController)
-	ufmTestResultPass.EXPECT().GetPassFail().Return(&localPassValue).AnyTimes()
-	ufmDataPass := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), []testapi.TestResult{ufmTestResultPass})
+	ufmTestResultPass, err := ufm.NewSerializableTestResultFromBytes([]byte(`[{"testId": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "passFail": "` + testapi.Pass + `", "findings": []}]`))
+	assert.NoError(t, err)
+	ufmDataPass := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), ufmTestResultPass)
 
 	t.Run("nil error", func(t *testing.T) {
 		err := getErrorFromWorkFlowData(engine, nil)
