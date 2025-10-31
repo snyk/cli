@@ -109,6 +109,15 @@ In particular, see the information about the following options that you may find
 - `--json`: Print results in JSON format.
 - `--all-projects`: Auto-detect all Projects in the working directory.
 
+
+### How does `cli` work?
+
+Check out this interactive walkthrough of the `cli` codebase on CodeCanvas [here](https://www.code-canvas.com/?session=unauthenticatedGithub&repo=cli&owner=snyk&branch=main&OnboardingTutorial=true).
+
+To update the diagram, follow the quick tutorial [here](https://docs.code-canvas.com/updating-diagram).
+
+<img width="1916" alt="CodeCanvas Screenshot" src="https://codecanvas-media-public.s3.amazonaws.com/images/codecanvas-readme-screenshot.png" />
+
 For detailed information about the CLI, see the [CLI documentation](https://docs.snyk.io/snyk-cli).
 
 ## Getting support for the Snyk CLI
