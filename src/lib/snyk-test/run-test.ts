@@ -40,8 +40,10 @@ import {
   RETRY_ATTEMPTS,
   RETRY_DELAY,
   printDepGraph,
+  printEffectiveDepGraph,
   assembleQueryString,
   shouldPrintDepGraph,
+  shouldPrintEffectiveDepGraph,
 } from './common';
 import config from '../config';
 import * as analytics from '../analytics';
@@ -372,7 +374,10 @@ export async function runTest(
     // At this point managed ecosystems have dependency graphs printed.
     // Containers however require another roundtrip to get all the
     // dependency graph artifacts for printing.
-    if (!options.docker && shouldPrintDepGraph(options)) {
+    if (
+      !options.docker &&
+      (shouldPrintDepGraph(options) || shouldPrintEffectiveDepGraph(options))
+    ) {
       const results: TestResult[] = [];
       return results;
     }
@@ -853,6 +858,18 @@ async function assembleLocalPayloads(
       if (packageManager) {
         depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
       }
+
+      if (shouldPrintEffectiveDepGraph(options)) {
+        spinner.clear<void>(spinnerLbl)();
+        await printEffectiveDepGraph(
+          depGraph.toJSON(),
+          targetFile,
+          project.plugin.targetFile,
+          target,
+          process.stdout,
+        );
+      }
+
       body.depGraph = depGraph;
 
       const reqUrl =
