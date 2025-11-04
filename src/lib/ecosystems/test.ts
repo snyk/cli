@@ -18,6 +18,7 @@ import { getAuthHeader } from '../api-token';
 import { resolveAndTestFacts } from './resolve-test-facts';
 import { isUnmanagedEcosystem } from './common';
 import { convertDepGraph, getUnmanagedDepGraph } from './unmanaged/utils';
+import { TestError } from '../errors/test-error';
 
 type ScanResultsByPath = { [dir: string]: ScanResult[] };
 
@@ -136,7 +137,7 @@ async function testDependencies(
         });
       } catch (error) {
         if (error.code >= 400 && error.code < 500) {
-          throw new Error(error.message);
+          throw new TestError(error.code, error.message);
         }
         errors.push('Could not test dependencies in ' + path);
       }
