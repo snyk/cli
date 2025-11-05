@@ -132,12 +132,12 @@ trigger_repository_event() {
 
   if [ -z "$1" ]; then
     echo "Error: Missing required argument: repository"
-    return 0
+    return 1
   fi
 
   if [ -z "$2" ]; then
     echo "Error: Missing required argument: event_type"
-    return 0
+    return 1
   fi
 
 
@@ -162,7 +162,7 @@ trigger_repository_event() {
     echo "Response status code: $RESPONSE"
     echo "Details:"
     cat $response_file
-    return 0
+    return 1
   fi
 }
 
@@ -282,11 +282,33 @@ for arg in "${@}"; do
   elif [ "${arg}" == "npm" ]; then
     upload_npm
 
-  # Trigger builds across distirbution channel repositories
+  # Trigger builds across distribution channel repositories
   elif [ "${arg}" == "trigger-distribution-channels" ]; then
+    DISTRIBUTION_FAILURE=0
+    
+    # 1. Trigger snyk-images
     trigger_repository_event "snyk-images" "build_and_push_images"
+    if [ $? -ne 0 ]; then
+        DISTRIBUTION_FAILURE=1
+    fi
+    
+    # 2. Trigger scoop-snyk
     trigger_repository_event "scoop-snyk" "build_and_release"
+    if [ $? -ne 0 ]; then
+        DISTRIBUTION_FAILURE=1
+    fi
+    
+    # 3. Trigger homebrew-tap
     trigger_repository_event "homebrew-tap" "build_and_release"
+    if [ $? -ne 0 ]; then
+        DISTRIBUTION_FAILURE=1
+    fi
+
+    # Exit 1 only after attempting all triggers
+    if [ $DISTRIBUTION_FAILURE -eq 1 ]; then
+        echo "One or more distribution channel triggers failed. Exiting with error."
+        exit 1
+    fi
 
 
   # Trigger building DXT in agentic-integration-wrappers repository
