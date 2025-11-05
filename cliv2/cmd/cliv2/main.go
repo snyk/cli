@@ -33,6 +33,7 @@ import (
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -362,25 +363,22 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 
 		// last parentCommand is the last level of the command, e.g. in the snyk iac capture workflow, it would be 'capture'
 		// we add flags and command line only to that one
+		parentCommand.RunE = runCommand
+		parentCommand.Hidden = !workflowEntry.IsVisible()
+
+		if currentCommandString == "test" || currentCommandString == "monitor" {
+			parentCommand.DisableFlagParsing = true
+			continue
+		}
+
 		if flagset != nil {
 			parentCommand.Flags().AddFlagSet(flagset)
 		}
-		parentCommand.RunE = runCommand
-		parentCommand.Hidden = !workflowEntry.IsVisible()
 		parentCommand.DisableFlagParsing = false
 
-		// special case for snyk code test
 		if currentCommandString == "code test" {
-			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
-
-			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
-		} else if currentCommandString == "test" || currentCommandString == "monitor" {
-			// to preserve backwards compatibility we will need to relax flag validation
-			parentCommand.SetFlagErrorFunc(func(command *cobra.Command, err error) error {
-				return emptyCommandFunction(command, []string{})
-			})
 		} else if currentCommandString == "auth" {
 			parentCommand.RunE = runAuthCommand
 		}
