@@ -42,10 +42,11 @@ describe('snyk container test - 403 error handling bug', () => {
     });
   });
 
-  it('FIXED: errorCatalog property and error status code are not properly preserved', async () => {
-    // This test shows that instead of having status code 403, the error status code is 401
+  it('FIXED: errorCatalog property and error status code are properly preserved', async () => {
+    // This test shows that the error status code is 403 and the error catalog code is SNYK-CLI-0000
     // when using CustomError instead of plain Error in /src/cli/commands/test/index.ts
     // and copying the errorCatalog property from the original error to the new error
+    // and using createErrorCatalogFromStatusCode in the AuthFailedError function for 403 status codes
     
     const fs = require('fs');
     const os = require('os');
@@ -81,7 +82,7 @@ describe('snyk container test - 403 error handling bug', () => {
       
       const error = errorData.errors[0];
       
-      console.log(`   Attempted Fix: Using CustomError instead of plain Error + copying errorCatalog property`);
+      console.log(`   Fix: Using CustomError instead of plain Error + copying errorCatalog property + createErrorCatalogFromStatusCode for 403 status codes`);
       console.log(`   Status: "${error.status}" (HTTP status, should be "403")`);
       console.log(`   Code: "${error.code}" (error catalog code, should be "SNYK-CLI-0000")`);
       console.log(`   User message preserved: ${error.detail.includes('This functionality is not available on your plan.')}`);
