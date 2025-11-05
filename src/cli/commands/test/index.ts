@@ -4,7 +4,7 @@ import * as cloneDeep from 'lodash.clonedeep';
 const omit = require('lodash.omit');
 import * as assign from 'lodash.assign';
 import chalk from 'chalk';
-import { MissingArgError } from '../../../lib/errors';
+import { MissingArgError, CustomError } from '../../../lib/errors';
 import * as theme from '../../../lib/theme';
 
 import * as snyk from '../../../lib';
@@ -316,7 +316,7 @@ export default async function test(
 
   if (notSuccess) {
     response += chalk.bold.red(summaryMessage);
-    const error = new Error(response) as any;
+    const error = new CustomError(response) as any;
     // take the code of the first problem to go through error
     // translation
     // HACK as there can be different errors, and we pass only the
@@ -325,6 +325,7 @@ export default async function test(
     (error as any).userMessage = (errorResults[0] as any).userMessage;
     (error as any).strCode = (errorResults[0] as any).strCode;
     (error as any).innerError = (errorResults[0] as any).innerError;
+    (error as any).errorCatalog = (errorResults[0] as any).errorCatalog;
     throw error;
   }
 
