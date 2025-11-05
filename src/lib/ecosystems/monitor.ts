@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
-import { Contributor, MonitorResult, Options, PolicyOptions } from '../types';
+import { Contributor, MonitorOptions, MonitorResult, Options, PolicyOptions } from '../types';
 import { spinner } from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
@@ -101,7 +101,7 @@ async function selectAndExecuteMonitorStrategy(
 
 export async function generateMonitorDependenciesRequest(
   scanResult: ScanResult,
-  options: Options,
+  options: Options & MonitorOptions,
 ): Promise<MonitorDependenciesRequest> {
   // WARNING! This mutates the payload. The project name logic should be handled in the plugin.
   scanResult.name =
@@ -119,6 +119,7 @@ export async function generateMonitorDependenciesRequest(
     projectName: options['project-name'] || config.PROJECT_NAME || undefined,
     tags: generateTags(options),
     attributes: generateProjectAttributes(options),
+    pruneRepeatedSubdependencies: options.pruneRepeatedSubdependencies,
   };
 }
 
@@ -126,7 +127,7 @@ async function monitorDependencies(
   scans: {
     [dir: string]: ScanResult[];
   },
-  options: Options,
+  options: Options & MonitorOptions,
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const results: EcosystemMonitorResult[] = [];
   const errors: EcosystemMonitorError[] = [];
