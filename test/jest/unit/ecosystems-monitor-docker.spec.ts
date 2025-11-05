@@ -127,4 +127,69 @@ describe('monitorEcosystem docker/container', () => {
       'Detected 0 dependencies (no project created)',
     );
   });
+
+  it('should pass pruneRepeatedSubdependencies flag to registry when set', async () => {
+    const mavenScanResult = readJsonFixture(
+      'maven-project-0-dependencies-scan-result.json',
+    ) as ScanResult;
+    const monitorDependenciesResponse = readJsonFixture(
+      'monitor-maven-project-0-dependencies-response.json',
+    ) as ecosystemsTypes.MonitorDependenciesResponse;
+
+    jest
+      .spyOn(dockerPlugin, 'scan')
+      .mockResolvedValue({ scanResults: [mavenScanResult] });
+    const makeRequestSpy = jest
+      .spyOn(request, 'makeRequest')
+      .mockResolvedValue(monitorDependenciesResponse);
+
+    await ecosystems.monitorEcosystem(
+      'docker',
+      ['/srv'],
+      {
+        path: '/srv',
+        docker: true,
+        org: 'my-org',
+        pruneRepeatedSubdependencies: true,
+      } as any,
+    );
+
+    expect(makeRequestSpy).toHaveBeenCalled();
+    expect(makeRequestSpy.mock.calls[0][0].body).toMatchObject({
+      pruneRepeatedSubdependencies: true,
+      method: 'cli',
+    });
+  });
+
+  it('should not include pruneRepeatedSubdependencies in request when flag is not set', async () => {
+    const mavenScanResult = readJsonFixture(
+      'maven-project-0-dependencies-scan-result.json',
+    ) as ScanResult;
+    const monitorDependenciesResponse = readJsonFixture(
+      'monitor-maven-project-0-dependencies-response.json',
+    ) as ecosystemsTypes.MonitorDependenciesResponse;
+
+    jest
+      .spyOn(dockerPlugin, 'scan')
+      .mockResolvedValue({ scanResults: [mavenScanResult] });
+    const makeRequestSpy = jest
+      .spyOn(request, 'makeRequest')
+      .mockResolvedValue(monitorDependenciesResponse);
+
+    await ecosystems.monitorEcosystem(
+      'docker',
+      ['/srv'],
+      {
+        path: '/srv',
+        docker: true,
+        org: 'my-org',
+      } as any,
+    );
+
+    expect(makeRequestSpy).toHaveBeenCalled();
+    expect(makeRequestSpy.mock.calls[0][0].body).toMatchObject({
+      method: 'cli',
+    });
+    expect(makeRequestSpy.mock.calls[0][0].body.pruneRepeatedSubdependencies).toBeUndefined();
+  });
 });
