@@ -1127,7 +1127,7 @@ workflows:
                 - '/release.*/'
 
       - trigger-building-distribution-channels:
-          name: Trigger building snyk-images (preview)
+          name: Trigger building distribution channels (preview)
           context:
             - team-hammerhead-common-deploy-tokens
             - devex_cli_docker_hub
@@ -1140,7 +1140,7 @@ workflows:
                 - main
 
       - trigger-building-distribution-channels:
-          name: Trigger building snyk-images (rc)
+          name: Trigger building distribution channels (rc)
           context:
             - team-hammerhead-common-deploy-tokens
             - devex_cli_docker_hub
@@ -1153,7 +1153,7 @@ workflows:
                 - '/release.*/'
 
       - trigger-building-distribution-channels:
-          name: Trigger building snyk-images (stable)
+          name: Trigger building distribution channels (stable)
           context:
             - team-hammerhead-common-deploy-tokens
             - devex_cli_docker_hub

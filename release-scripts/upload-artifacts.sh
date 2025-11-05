@@ -119,81 +119,50 @@ upload_npm() {
   fi
 }
 
-trigger_build_snyk_images() {
-  echo "Triggering build-and-publish workflow at snyk-images..."
-  echo "Version: $VERSION_TAG"
-  echo "Release Channel: $RELEASE_CHANNEL"
-  response_file=$TMPDIR/trigger_build_snyk_images_response.txt
-  RESPONSE=$(curl -L \
-    -X POST \
-    -H "Accept: application/vnd.github+json" \
-    -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
-    -H "X-GitHub-Api-Version: 2022-11-28" \
-    https://api.github.com/repos/snyk/snyk-images/dispatches \
-    -d "{\"event_type\":\"build_and_push_images\", \"client_payload\": {\"version\": \"$VERSION_TAG\", \"release_channel\": \"$RELEASE_CHANNEL\"}}" \
-    -w "%{http_code}" \
-    -s  \
-    -o "$response_file")
-  if [ "$RESPONSE" -eq 204 ]; then
-    echo "Successfully triggered build-and-publish workflow at snyk-images."
-  else
-    echo "Failed to trigger build-and-publish workflow at snyk-images."
-    echo "Response status code: $RESPONSE"
-    echo "Details:"
-    cat $response_file
-    exit 1
-  fi
-}
+# Trigger event for a given repository
+# Failure mode is to log and continue as these steps
+# are non blocking to a release.
+# Recovery is manual trigger on the target repository.
+# Arguments:
+#   repository: The GitHub repository name (e.g., "scoop-snyk
+#   event_type: The event type to trigger (default: "build_and_release")
+trigger_repository_event() {
+  repository=$1
+  event_type=$2
 
-trigger_build_scoop_snyk() {
-  echo "Triggering build-and-release workflow at snyk-scoop..."
-  echo "Version: $VERSION_TAG"
-  echo "Release Channel: $RELEASE_CHANNEL"
-  response_file=$TMPDIR/trigger_build_snyk_scoop.txt
-  RESPONSE=$(curl -L \
-    -X POST \
-    -H "Accept: application/vnd.github+json" \
-    -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
-    -H "X-GitHub-Api-Version: 2022-11-28" \
-    https://api.github.com/repos/snyk/scoop-snyk/dispatches \
-    -d "{\"event_type\":\"build_and_release\", \"client_payload\": {\"version\": \"$VERSION_TAG\", \"release_channel\": \"$RELEASE_CHANNEL\"}}" \
-    -w "%{http_code}" \
-    -s  \
-    -o "$response_file")
-  if [ "$RESPONSE" -eq 204 ]; then
-    echo "Successfully triggered build-and-release workflow at snyk-scoop."
-  else
-    echo "Failed to trigger build-and-release workflow at snyk-scoop."
-    echo "Response status code: $RESPONSE"
-    echo "Details:"
-    cat $response_file
-    exit 1
+  if [ -z "$1" ]; then
+    echo "Error: Missing required argument: repository"
+    return 0
   fi
-}
 
-trigger_build_homebrew() {
-  echo "Triggering build-and-release workflow at homebrew-tap..."
+  if [ -z "$2" ]; then
+    echo "Error: Missing required argument: event_type"
+    return 0
+  fi
+
+
+  echo "Triggering $event_type event on $repository..."
   echo "Version: $VERSION_TAG"
   echo "Release Channel: $RELEASE_CHANNEL"
-  response_file=$TMPDIR/trigger_build_homebrew.txt
+  response_file=$TMPDIR/trigger_build_$repository.txt
   RESPONSE=$(curl -L \
     -X POST \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer $HAMMERHEAD_GITHUB_PAT" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
-    https://api.github.com/repos/snyk/homebrew-tap/dispatches \
-    -d "{\"event_type\":\"build_and_release\", \"client_payload\": {\"version\": \"$VERSION_TAG\", \"release_channel\": \"$RELEASE_CHANNEL\"}}" \
+    https://api.github.com/repos/snyk/$repository/dispatches \
+    -d "{\"event_type\":\"$event_type\", \"client_payload\": {\"version\": \"$VERSION_TAG\", \"release_channel\": \"$RELEASE_CHANNEL\"}}" \
     -w "%{http_code}" \
     -s  \
     -o "$response_file")
   if [ "$RESPONSE" -eq 204 ]; then
-    echo "Successfully triggered build-and-release workflow at homebrew-tap."
+    echo "Successfully triggered $event_type event on $repository."
   else
-    echo "Failed to trigger build-and-release workflow at homebrew-tap."
+    echo "Failed to trigger $event_type event on $repository."
     echo "Response status code: $RESPONSE"
     echo "Details:"
     cat $response_file
-    exit 1
+    return 0
   fi
 }
 
@@ -315,9 +284,9 @@ for arg in "${@}"; do
 
   # Trigger builds across distirbution channel repositories
   elif [ "${arg}" == "trigger-distribution-channels" ]; then
-    trigger_build_snyk_images
-    trigger_build_scoop_snyk
-    trigger_build_homebrew
+    trigger_repository_event "snyk-images" "build_and_push_images"
+    trigger_repository_event "scoop-snyk" "build_and_release"
+    trigger_repository_event "homebrew-tap" "build_and_release"
 
 
   # Trigger building DXT in agentic-integration-wrappers repository
