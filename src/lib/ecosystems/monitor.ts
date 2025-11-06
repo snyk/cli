@@ -3,7 +3,13 @@ import chalk from 'chalk';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
-import { Contributor, MonitorOptions, MonitorResult, Options, PolicyOptions } from '../types';
+import {
+  Contributor,
+  MonitorOptions,
+  MonitorResult,
+  Options,
+  PolicyOptions,
+} from '../types';
 import { spinner } from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';

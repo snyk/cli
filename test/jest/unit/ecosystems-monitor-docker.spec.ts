@@ -143,16 +143,12 @@ describe('monitorEcosystem docker/container', () => {
       .spyOn(request, 'makeRequest')
       .mockResolvedValue(monitorDependenciesResponse);
 
-    await ecosystems.monitorEcosystem(
-      'docker',
-      ['/srv'],
-      {
-        path: '/srv',
-        docker: true,
-        org: 'my-org',
-        pruneRepeatedSubdependencies: true,
-      } as any,
-    );
+    await ecosystems.monitorEcosystem('docker', ['/srv'], {
+      path: '/srv',
+      docker: true,
+      org: 'my-org',
+      pruneRepeatedSubdependencies: true,
+    } as any);
 
     expect(makeRequestSpy).toHaveBeenCalled();
     expect(makeRequestSpy.mock.calls[0][0].body).toMatchObject({
@@ -176,20 +172,18 @@ describe('monitorEcosystem docker/container', () => {
       .spyOn(request, 'makeRequest')
       .mockResolvedValue(monitorDependenciesResponse);
 
-    await ecosystems.monitorEcosystem(
-      'docker',
-      ['/srv'],
-      {
-        path: '/srv',
-        docker: true,
-        org: 'my-org',
-      } as any,
-    );
+    await ecosystems.monitorEcosystem('docker', ['/srv'], {
+      path: '/srv',
+      docker: true,
+      org: 'my-org',
+    } as any);
 
     expect(makeRequestSpy).toHaveBeenCalled();
     expect(makeRequestSpy.mock.calls[0][0].body).toMatchObject({
       method: 'cli',
     });
-    expect(makeRequestSpy.mock.calls[0][0].body.pruneRepeatedSubdependencies).toBeUndefined();
+    expect(
+      makeRequestSpy.mock.calls[0][0].body.pruneRepeatedSubdependencies,
+    ).toBeUndefined();
   });
 });
