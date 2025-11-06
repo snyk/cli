@@ -24,6 +24,7 @@ import (
 	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
@@ -377,10 +378,7 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
 		} else if currentCommandString == "test" || currentCommandString == "monitor" {
-			// to preserve backwards compatibility we will need to relax flag validation
-			parentCommand.SetFlagErrorFunc(func(command *cobra.Command, err error) error {
-				return emptyCommandFunction(command, []string{})
-			})
+			legacy.SetupTestMonitorCommand(parentCommand)
 		} else if currentCommandString == "auth" {
 			parentCommand.RunE = runAuthCommand
 		}
