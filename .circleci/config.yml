@@ -54,7 +54,7 @@ executors:
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-amd64-xl:
     docker:
@@ -62,7 +62,7 @@ executors:
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: xlarge
   docker-arm64:
     docker:
@@ -70,7 +70,7 @@ executors:
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   docker-arm64-xl:
     docker:
@@ -78,42 +78,42 @@ executors:
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.xlarge
   linux-ubuntu-jammy-amd64:
     docker:
       - image: ubuntu:jammy
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: medium
   linux-ubuntu-focal-amd64:
     docker:
       - image: ubuntu:focal
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: medium
   linux-ubuntu-latest-amd64:
     docker:
       - image: ubuntu:latest
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: medium
   linux-ubuntu-bionic-beaver-amd64:
     docker:
       - image: ubuntu:18.04
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: medium
   linux-ubuntu-latest-arm64:
     docker:
       - image: ubuntu:latest
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
   linux-ubuntu-jammy-arm64:
     docker:
       - image: ubuntu:jammy
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
   linux-ubuntu-focal-arm64:
     docker:
       - image: ubuntu:focal
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
   macos-arm64:
     macos:
@@ -1490,9 +1490,9 @@ jobs:
     parameters:
       test_snyk_command:
         type: string
-        default: /mnt/ramdisk/snyk/binary-files/snyk-linux
+        default: ./binary-files/snyk-linux
     executor: docker-amd64
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     steps:
       - prepare-workspace
       - run:
