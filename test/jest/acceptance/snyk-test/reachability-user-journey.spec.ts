@@ -173,4 +173,34 @@ describe('snyk test --reachability', () => {
 
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });
+
+  test('works with --severity-threshold and --risk-score features', async () => {
+    const { stdout, code, stderr } = await runSnykCLI(
+      `test ${TEMP_LOCAL_PATH} --reachability --severity-threshold=critical --risk-score-threshold=500 --json`,
+      {
+        env: {
+          ...process.env,
+          ...ReachabilityIntegrationEnv.env,
+        },
+      },
+    );
+
+    expect(stdout).not.toBe('');
+    expect(stderr).toBe('');
+
+    const jsonOutput = JSON.parse(stdout);
+
+    const meetsRiskScoreThreshold = jsonOutput.vulnerabilities.some(
+      (vuln: { riskScore: number }) => vuln.riskScore >= 500,
+    );
+
+    const meetsSeverityThreshold = jsonOutput.vulnerabilities.some(
+      (vuln: { severity: string }) => vuln.severity === 'critical',
+    );
+
+    expect(meetsRiskScoreThreshold).toBeTruthy();
+    expect(meetsSeverityThreshold).toBeTruthy();
+
+    expect(code).toBe(EXIT_CODES.ERROR);
+  });
 });
