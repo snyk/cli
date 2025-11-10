@@ -553,6 +553,36 @@ DepGraph end`,
         TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
       );
     });
+
+    it('finds go binaries on windows with complex paths', async () => {
+      const { code, stdout } = await runSnykCLI(
+        'container test test/fixtures/container-projects/go-binaries.tar --json',
+        { env },
+      );
+
+      const jsonOutput = JSON.parse(stdout);
+
+      // Should succeed and find Go binaries (including esbuild)
+      expect([0, 1]).toContain(code); // 0 = no vulns, 1 = vulns found
+      expect(jsonOutput).toHaveProperty('applications');
+      expect(jsonOutput.applications).toBeInstanceOf(Array);
+      expect(jsonOutput.applications.length).toBeGreaterThanOrEqual(1);
+
+      // Verify esbuild binary was actually detected by the real container scan
+      const esbuildApp = jsonOutput.applications.find(
+        (app) => app.targetFile && app.targetFile.includes('esbuild'),
+      );
+      expect(esbuildApp).toBeDefined();
+      expect(esbuildApp.targetFile).toBe(
+        '/app/node_modules/.pnpm/@esbuild+linux-x64@0.23.1/node_modules/@esbuild/linux-x64/bin/esbuild',
+      );
+
+      // Verify the complex pnpm path structure is handled correctly
+      expect(esbuildApp.targetFile).toMatch(/@esbuild\+linux-x64@0\.23\.1/);
+      expect(esbuildApp.targetFile).toContain('.pnpm');
+      expect(esbuildApp.targetFile).toContain('node_modules');
+      expect(esbuildApp.packageManager).toBe('gomodules');
+    });
   });
 
   describe('snyk container monitor --json output', () => {
