@@ -1083,6 +1083,8 @@ github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
+github.com/jackc/puddle/v2 v2.2.2 h1:PR8nw+E/1w0GLuRFSmiioY6UooMp6KJv0/61nB7icHo=
+github.com/jackc/puddle/v2 v2.2.2/go.mod h1:vriiEXHvEE654aYKXXjOvZM39qJ0q+azkZFrfEOc3H4=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99/go.mod h1:1lJo3i6rXxKeerYnT8Nvf0QmHCRC1n8sfWVwXF2Frvo=
 github.com/jcmturner/aescts/v2 v2.0.0 h1:9YKLH6ey7H4eDBXW8khjYslgyqG2xZikXP0EQFKrle8=
@@ -1284,14 +1286,14 @@ github.com/skeema/knownhosts v1.3.1 h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnB
 github.com/skeema/knownhosts v1.3.1/go.mod h1:r7KTdC8l4uxWRyK2TpQZ/1o5HaSzh06ePQNxPwTcfiY=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20251020202637-f2a2552d8e69 h1:fRmPAb9M4fbq3bq3TY8cB7dquxL7zc/dpkwHHxM0eTg=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20251020202637-f2a2552d8e69/go.mod h1:YvlGYA6i/aXDY68ps/X/XvkN8JGZ8T6eKFNdPE2y3oI=
-github.com/snyk/cli-extension-dep-graph v0.0.0-20251105131536-40ff5193659c h1:p6xxUF70GO8rRVV97Ccl1BCnq3819cXY1qI0QmrM/Fc=
-github.com/snyk/cli-extension-dep-graph v0.0.0-20251105131536-40ff5193659c/go.mod h1:3SCIK7ECux7YfZVPTxrcWhWGr/Ph//gpZCE2qcoO0o0=
+github.com/snyk/cli-extension-dep-graph v0.0.0-20251111071234-1ea3ded4c7d2 h1:GG3jrRzdgRbK6rDPBeUm/NHnu6+9oI/mpAVz1xs+SzM=
+github.com/snyk/cli-extension-dep-graph v0.0.0-20251111071234-1ea3ded4c7d2/go.mod h1:k1ZvlY0rv527wfkmLOggYhaH78cy4R86C7/jW3BwFgk=
 github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0 h1:ecGoMisVTnz5xRnt9yXW2hlRrIyYM123yMt1NeNEo6s=
 github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0/go.mod h1:tLxyhtrRiEvbSLQ6PbCsl29ZXK6s2aunRuL6cSe/8cE=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188 h1:UoyD7cB9XZVHPTRugsmCt6rBvAw5IoiBjI8go2qj1pk=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188/go.mod h1:qUc1yjKJe6tt/8/MJasnog3VBXd/b619MSFVfKAlDxE=
-github.com/snyk/cli-extension-os-flows v0.0.0-20251110143333-35618dd179bf h1:duN5fjVz+fy+M9uDX4qbS6EnpqHoNRVtpZvqGw2Hg9s=
-github.com/snyk/cli-extension-os-flows v0.0.0-20251110143333-35618dd179bf/go.mod h1:Yjg4hTUFHKVwnbgrwKVoKrgVUezI7ORBaP7DC5LEPBw=
+github.com/snyk/cli-extension-os-flows v0.0.0-20251111161917-55366f295dd6 h1:gZEGnUxmUQL6kRczjVsZ17saVEt4q+BjnHl9YuAJFW4=
+github.com/snyk/cli-extension-os-flows v0.0.0-20251111161917-55366f295dd6/go.mod h1:zzzpxTldp5eASBcjgWw6KL2RDWXK/09x6q7s2wpF3EQ=
 github.com/snyk/cli-extension-sbom v0.0.0-20251015130320-94416bf727b1 h1:PgO1Cz/VSFN2RIHz/MDQU25wjf8rSrwTW6lX6D+j8HI=
 github.com/snyk/cli-extension-sbom v0.0.0-20251015130320-94416bf727b1/go.mod h1:zyKDBaETfZyI7BfIjPnezH3QX2seQrR/d7NM5W6LV9s=
 github.com/snyk/code-client-go v1.24.3 h1:2TVOADxyNpdFQ79y25ci/RPw3KW28OmLFf9Xv5T3fLo=
