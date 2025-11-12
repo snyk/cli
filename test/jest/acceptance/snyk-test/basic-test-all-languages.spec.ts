@@ -34,10 +34,10 @@ const userJourneyWorkflows: Workflow[] = [
       SNYK_FORCE_LEGACY_CLI: 'true',
     },
   },
-  // {
-  //   type: 'golang/native',
-  //   env: {},
-  // },
+  {
+    type: 'golang/native',
+    env: {},
+  },
 ];
 
 describe.each(userJourneyWorkflows)(
