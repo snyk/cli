@@ -262,7 +262,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   app.get('/rest/self', (req, res) => {
-    const defaultResponse = {
+    let status = 200;
+    let response = {
       jsonapi: {
         version: '1.0',
       },
@@ -281,8 +282,25 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         self: '/self?version=2024-10-15',
       },
     };
-    res.status(200);
-    res.send(defaultResponse);
+
+    if (customResponse) {
+      if (customResponse.headers) {
+        for (const [key, value] of Object.entries(customResponse.headers)) {
+          res.set(key, value);
+        }
+      }
+      if (customResponse.status) {
+        status = customResponse.status as number;
+      }
+      if (customResponse.body) {
+        response = customResponse.body as typeof response;
+      }
+
+      res.status(status).send(response);
+    } else {
+      res.status(status);
+      res.send(response);
+    }
   });
 
   app.post('/hidden/orgs/:orgId/unmanaged_ecosystem/depgraphs', (req, res) => {
