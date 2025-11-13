@@ -19,7 +19,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.24.8'
+    default: '1.24.10'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -54,7 +54,7 @@ executors:
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: large
   docker-amd64-xl:
     docker:
@@ -62,7 +62,7 @@ executors:
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: xlarge
   docker-arm64:
     docker:
@@ -70,7 +70,7 @@ executors:
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.large
   docker-arm64-xl:
     docker:
@@ -78,42 +78,42 @@ executors:
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.xlarge
   linux-ubuntu-jammy-amd64:
     docker:
       - image: ubuntu:jammy
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: medium
   linux-ubuntu-focal-amd64:
     docker:
       - image: ubuntu:focal
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: medium
   linux-ubuntu-latest-amd64:
     docker:
       - image: ubuntu:latest
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: medium
   linux-ubuntu-bionic-beaver-amd64:
     docker:
       - image: ubuntu:18.04
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: medium
   linux-ubuntu-latest-arm64:
     docker:
       - image: ubuntu:latest
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
   linux-ubuntu-jammy-arm64:
     docker:
       - image: ubuntu:jammy
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
   linux-ubuntu-focal-arm64:
     docker:
       - image: ubuntu:focal
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     resource_class: arm.medium
   macos-arm64:
     macos:
@@ -1126,8 +1126,8 @@ workflows:
                 - main
                 - '/release.*/'
 
-      - trigger-building-snyk-images:
-          name: Trigger building snyk-images (preview)
+      - trigger-building-distribution-channels:
+          name: Trigger building distribution channels (preview)
           context:
             - team-hammerhead-common-deploy-tokens
             - devex_cli_docker_hub
@@ -1139,8 +1139,8 @@ workflows:
               only:
                 - main
 
-      - trigger-building-snyk-images:
-          name: Trigger building snyk-images (rc)
+      - trigger-building-distribution-channels:
+          name: Trigger building distribution channels (rc)
           context:
             - team-hammerhead-common-deploy-tokens
             - devex_cli_docker_hub
@@ -1152,8 +1152,8 @@ workflows:
               only:
                 - '/release.*/'
 
-      - trigger-building-snyk-images:
-          name: Trigger building snyk-images (stable)
+      - trigger-building-distribution-channels:
+          name: Trigger building distribution channels (stable)
           context:
             - team-hammerhead-common-deploy-tokens
             - devex_cli_docker_hub
@@ -1261,6 +1261,7 @@ jobs:
           open-source-additional-arguments: --exclude=test,dist
           iac-scan: disabled
           release-branch: main
+          open-source-scan-reachability: true
 
   docs-only-check:
     executor: docker-amd64
@@ -1490,9 +1491,9 @@ jobs:
     parameters:
       test_snyk_command:
         type: string
-        default: /mnt/ramdisk/snyk/binary-files/snyk-linux
+        default: ./binary-files/snyk-linux
     executor: docker-amd64
-    working_directory: /mnt/ramdisk/snyk
+    # working_directory: /mnt/ramdisk/snyk
     steps:
       - prepare-workspace
       - run:
@@ -1729,7 +1730,7 @@ jobs:
           command: ./release-scripts/upload-artifacts.sh npm
       - failed-release-notification
 
-  trigger-building-snyk-images:
+  trigger-building-distribution-channels:
     parameters:
       deployment:
         type: string
@@ -1741,7 +1742,7 @@ jobs:
           deployment: << parameters.deployment >>
       - run:
           name: Trigger build-and-publish workflow at snyk-images
-          command: ./release-scripts/upload-artifacts.sh trigger-snyk-images
+          command: ./release-scripts/upload-artifacts.sh trigger-distribution-channels
       - failed-release-notification
 
   trigger-build-agentic-integration:

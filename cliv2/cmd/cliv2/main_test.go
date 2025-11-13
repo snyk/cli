@@ -16,7 +16,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/error-catalog-golang-public/code"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
-	testapimocks "github.com/snyk/go-application-framework/pkg/apiclients/mocks"
 	"github.com/snyk/go-application-framework/pkg/apiclients/testapi"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -258,112 +257,97 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 	engine := workflow.NewWorkFlowEngine(configuration.New())
 	assert.NoError(t, engine.Init())
 
-	localFailValue := testapi.Fail
-	localPassValue := testapi.Pass
-	mockController := gomock.NewController(t)
+	ufmTestResultNothing, err := ufm.NewSerializableTestResultFromBytes([]byte(`[{"testId": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "findings": []}]`))
+	assert.NoError(t, err)
+	ufmDataNothing := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), ufmTestResultNothing)
 
-	ufmTestResultFail := testapimocks.NewMockTestResult(mockController)
-	ufmTestResultFail.EXPECT().GetPassFail().Return(&localFailValue).AnyTimes()
-	ufmDataFail := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), []testapi.TestResult{ufmTestResultFail})
+	ufmTestResultFail, err := ufm.NewSerializableTestResultFromBytes([]byte(`[{"testId": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "passFail": "` + testapi.Pass + `", "findings": []}, {"testId": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "passFail": "` + testapi.Fail + `", "findings": []}]`))
+	assert.NoError(t, err)
+	ufmDataFail := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), ufmTestResultFail)
 
-	ufmTestResultPass := testapimocks.NewMockTestResult(mockController)
-	ufmTestResultPass.EXPECT().GetPassFail().Return(&localPassValue).AnyTimes()
-	ufmDataPass := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), []testapi.TestResult{ufmTestResultPass})
+	ufmTestResultPass, err := ufm.NewSerializableTestResultFromBytes([]byte(`[{"testId": "f47ac10b-58cc-4372-a567-0e02b2c3d479", "passFail": "` + testapi.Pass + `", "findings": []}]`))
+	assert.NoError(t, err)
+	ufmDataPass := ufm.CreateWorkflowDataFromTestResults(workflow.NewWorkflowIdentifier("test"), ufmTestResultPass)
 
-	t.Run("nil error", func(t *testing.T) {
-		err := getErrorFromWorkFlowData(engine, nil)
-		assert.Nil(t, err)
+	testSummaryBytesFail, err := json.Marshal(json_schemas.TestSummary{
+		Results: []json_schemas.TestSummaryResult{{
+			Severity: "critical",
+			Total:    99,
+			Open:     97,
+			Ignored:  2,
+		}},
+		Type: "sast",
 	})
-	t.Run("workflow error", func(t *testing.T) {
+	assert.Nil(t, err)
+	testSummaryDataFail := workflow.NewData(workflow.NewTypeIdentifier(workflow.NewWorkflowIdentifier("output"), "output"), content_type.TEST_SUMMARY, testSummaryBytesFail)
+
+	testSummaryBytesPass, err := json.Marshal(json_schemas.TestSummary{
+		Results: []json_schemas.TestSummaryResult{{
+			Severity: "critical",
+			Total:    0,
+			Open:     0,
+			Ignored:  0,
+		}},
+		Type: "sast",
+	})
+	assert.Nil(t, err)
+	testSummaryDataPass := workflow.NewData(workflow.NewTypeIdentifier(workflow.NewWorkflowIdentifier("output"), "output"), content_type.TEST_SUMMARY, testSummaryBytesPass)
+
+	t.Run("Nil data = no exit code", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, nil)
+		assert.NoError(t, tErr)
+	})
+	t.Run("Unhandled data = no exit code", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
 		data := workflow.NewData(workflowIdentifier, "application/json", []byte(`{"error": "test error"}`))
-		err := getErrorFromWorkFlowData(engine, []workflow.Data{data})
-		assert.Nil(t, err)
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, data})
+		assert.NoError(t, tErr)
 	})
-	t.Run("workflow with test findings", func(t *testing.T) {
-		workflowId := workflow.NewWorkflowIdentifier("output")
-		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		payload, err := json.Marshal(json_schemas.TestSummary{
-			Results: []json_schemas.TestSummaryResult{{
-				Severity: "critical",
-				Total:    99,
-				Open:     97,
-				Ignored:  2,
-			}},
-			Type: "sast",
-		})
-		assert.Nil(t, err)
-		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, payload)
-		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
-		require.NotNil(t, err)
+	t.Run("TestSummary with vulnerabilities = exit code 1", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataFail})
+		require.NotNil(t, tErr)
 		var expectedError *clierrors.ErrorWithExitCode
-		assert.ErrorAs(t, err, &expectedError)
+		assert.ErrorAs(t, tErr, &expectedError)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, expectedError.ExitCode)
 	})
 
-	t.Run("workflow with zero count test summary", func(t *testing.T) {
-		workflowId := workflow.NewWorkflowIdentifier("output")
-		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		d, err := json.Marshal(json_schemas.TestSummary{
-			Results: []json_schemas.TestSummaryResult{{
-				Severity: "critical",
-				Total:    0,
-				Open:     0,
-				Ignored:  0,
-			}},
-			Type: "sast",
-		})
-		assert.Nil(t, err)
-		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
-		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
-		assert.Nil(t, err)
+	t.Run("TestSummary with no vulnerabilities = exit code 0", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataPass})
+		assert.Nil(t, tErr)
 	})
 
-	t.Run("workflow with zero count test summary and ufm fail should have exit code 1", func(t *testing.T) {
-		workflowId := workflow.NewWorkflowIdentifier("output")
-		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		d, err := json.Marshal(json_schemas.TestSummary{
-			Results: []json_schemas.TestSummaryResult{{
-				Severity: "critical",
-				Total:    0,
-				Open:     0,
-				Ignored:  0,
-			}},
-			Type: "sast",
-		})
-		assert.Nil(t, err)
-		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
-		err = getErrorFromWorkFlowData(engine, []workflow.Data{data, ufmDataFail})
-		assert.Error(t, err)
+	t.Run("TestSummary without and UFM with vulnerabilities = exit code 1", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataPass, ufmDataFail})
+		assert.Error(t, tErr)
 		var actualError *clierrors.ErrorWithExitCode
-		assert.ErrorAs(t, err, &actualError)
+		assert.ErrorAs(t, tErr, &actualError)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualError.ExitCode)
 	})
 
-	t.Run("workflow with empty test summary and unsupported error annotation", func(t *testing.T) {
+	t.Run("TestSummary with unsupported project error annotation = exit code 3", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		d, err := json.Marshal(json_schemas.NewTestSummary("sast", "/path"))
-		assert.Nil(t, err)
+		d, tErr := json.Marshal(json_schemas.NewTestSummary("sast", "/path"))
+		assert.Nil(t, tErr)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
 		expectedCodeErr := code.NewUnsupportedProjectError("")
 		data.AddError(expectedCodeErr)
-		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
+		tErr = getErrorFromWorkFlowData(engine, []workflow.Data{nil, data})
 
 		var actualError *clierrors.ErrorWithExitCode
 		var actualSnykCatalogError snyk_errors.Error
-		assert.ErrorAs(t, err, &actualError)
-		assert.ErrorAs(t, err, &actualSnykCatalogError)
+		assert.ErrorAs(t, tErr, &actualError)
+		assert.ErrorAs(t, tErr, &actualSnykCatalogError)
 
 		assert.Equal(t, expectedCodeErr, actualSnykCatalogError)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS, actualError.ExitCode)
 	})
 
-	t.Run("workflow with empty testing and misc error annotation", func(t *testing.T) {
+	t.Run("TestSummary with misc error annotation = exit code 0", func(t *testing.T) {
 		workflowId := workflow.NewWorkflowIdentifier("output")
 		workflowIdentifier := workflow.NewTypeIdentifier(workflowId, "output")
-		d, err := json.Marshal(json_schemas.TestSummary{
+		d, tErr := json.Marshal(json_schemas.TestSummary{
 			Results: []json_schemas.TestSummaryResult{{
 				Severity: "critical",
 				Total:    0,
@@ -373,25 +357,34 @@ func Test_getErrorFromWorkFlowData(t *testing.T) {
 			Artifacts: 0,
 			Type:      "sast",
 		})
-		assert.Nil(t, err)
+		assert.Nil(t, tErr)
 		data := workflow.NewData(workflowIdentifier, content_type.TEST_SUMMARY, d)
 		data.AddError(code.NewAnalysisFileCountLimitExceededError(""))
-		err = getErrorFromWorkFlowData(engine, []workflow.Data{data})
-		assert.NoError(t, err)
+		tErr = getErrorFromWorkFlowData(engine, []workflow.Data{nil, data})
+		assert.NoError(t, tErr)
 	})
 
-	t.Run("derive exit code 1 from ufm fail", func(t *testing.T) {
-		err := getErrorFromWorkFlowData(engine, []workflow.Data{ufmDataFail})
-		assert.Error(t, err)
+	t.Run("Ufm with vulnerabilities = exit code 1", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataFail, ufmDataPass, ufmDataFail})
+		assert.Error(t, tErr)
 
 		var actualError *clierrors.ErrorWithExitCode
-		assert.ErrorAs(t, err, &actualError)
+		assert.ErrorAs(t, tErr, &actualError)
 		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualError.ExitCode)
 	})
 
-	t.Run("derive no error from ufm pass", func(t *testing.T) {
-		err := getErrorFromWorkFlowData(engine, []workflow.Data{ufmDataPass})
-		assert.NoError(t, err)
+	t.Run("Ufm with no vulnerabilities = exit code 0", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataFail, ufmDataPass})
+		assert.NoError(t, tErr)
+	})
+
+	t.Run("Ufm without and TestSummary with vulnerabilities = exit code 1", func(t *testing.T) {
+		tErr := getErrorFromWorkFlowData(engine, []workflow.Data{nil, testSummaryDataFail, ufmDataNothing})
+		assert.Error(t, tErr)
+
+		var actualError *clierrors.ErrorWithExitCode
+		assert.ErrorAs(t, tErr, &actualError)
+		assert.Equal(t, constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND, actualError.ExitCode)
 	})
 }
 
