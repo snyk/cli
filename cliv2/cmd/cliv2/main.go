@@ -57,7 +57,7 @@ import (
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
 
-	snykmcp "github.com/snyk/snyk-ls/mcp_extension"
+	"github.com/snyk/studio-mcp/pkg/mcp"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
@@ -547,7 +547,7 @@ func MainWithErrorCode() int {
 	globalEngine.AddExtensionInitializer(capture.Init)
 	globalEngine.AddExtensionInitializer(iacrules.Init)
 	globalEngine.AddExtensionInitializer(snykls.Init)
-	globalEngine.AddExtensionInitializer(snykmcp.Init)
+	globalEngine.AddExtensionInitializer(mcp.Init)
 	globalEngine.AddExtensionInitializer(container.Init)
 	globalEngine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
