@@ -46,10 +46,10 @@ make build
 make build-debug
 ```
 
-Run the build binary like this.
+Then run `ls binary-releases` to confirm the name of the binary. For instance, if you are on an Apple Silicon Mac, run the CLI using:
 
 ```sh
-./binary-releases/snyk-macos --version
+./binary-releases/snyk-macos-arm64 --version
 ```
 
 ## Debugging the go binary with VSCode
@@ -405,6 +405,58 @@ You can then raise a pr with the relevant changes.
 When upgrading golang, you will need to update the Dockerfile under .circleci, run the _Create Build Image_ job on
 GitHub, and update the docker executor that use the `snyklabs/cli-build-private` image in the .circleci/config.yml file, to use
 the new image.
+
+## Building the CLI with local dependencies
+
+You can build the CLI using local copies of either Go or TypeScript dependencies.
+
+### Go
+
+Add the following line (updated as required) to the bottom of `cliv2/go.mod`:
+
+```go
+replace github.com/snyk/cli-extension-foo => ../../cli-extension-foo
+```
+
+where `github.com/snyk/cli-extension-foo` is the name of the dependency and `../../cli-extension-foo` is your local copy of the repo, using a path relative to the `cliv2/go.mod` file.
+
+Then run
+
+```sh
+make build
+```
+
+to build the CLI, and run it as usual with `./binary-releases/snyk-macos-arm64` (check the contents of `binary-releases/` to confirm the name of the binary, as this varies by platform).
+
+### TypeScript
+
+Find the line in `package.json` referencing the dependency you want to update, e.g. `"snyk-foo": "^1.2.3",` to point to your local copy of the dependency:
+
+```json
+"snyk-foo": "file:../snyk-foo",
+```
+
+assuming that you have the repo pulled down at `../snyk-foo` relative to the root of the CLI. Then, run:
+
+```sh
+npm install
+```
+
+to update your `package-lock.json`, and temporarily commit both changes:
+
+```
+git add package*.json && git commit -m "temp"
+```
+
+Be sure to drop that commit once you are done testing locally.
+
+Then run:
+
+```sh
+make clean && make build
+```
+
+to build the ClI, and run it as usual with `./binary-releases/snyk-macos-arm64` (check the contents of `binary-releases/` to confirm the name of the binary, as this varies by platform).
 
 ---
 

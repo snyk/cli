@@ -213,6 +213,8 @@ export function args(rawArgv: string[]): Args {
     'all-projects',
     'yarn-workspaces',
     'maven-aggregate-project',
+    'include-provenance',
+    'fingerprint-algorithm',
     'detection-depth',
     'init-script',
     'integration-name',

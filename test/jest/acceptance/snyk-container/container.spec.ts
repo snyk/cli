@@ -310,6 +310,79 @@ DepGraph end`,
         }
       }
     });
+
+    it('successfully scans container with an executable file larger than the node.js max file size', async () => {
+      if (os.platform() === 'darwin') {
+        console.warn(
+          'Skipping container test - Docker not available on macOS CI',
+        );
+        return;
+      }
+
+      const { exec } = await import('child_process');
+      const { promisify } = await import('util');
+      const execAsync = promisify(exec);
+
+      // Build the test image from the Dockerfile with large ELF file
+      const dockerfilePath =
+        'test/fixtures/container-projects/Dockerfile-large-elf-vulns';
+      const testImageName = 'snyk-test-large-elf:latest';
+
+      try {
+        console.log('Building test image with large ELF file...');
+        const buildResult = await execAsync(
+          `docker build -f ${dockerfilePath} -t ${testImageName} test/fixtures/container-projects/`,
+        );
+
+        console.log('Docker build completed:', buildResult.stdout);
+
+        // Run snyk container test on the built image
+        console.log('Running snyk container test...');
+        const { code, stdout, stderr } = await runSnykCLI(
+          `container test ${testImageName} --json`,
+        );
+
+        // The test should complete without throwing errors
+        // We expect to find vulnerabilities with alpine:3.10.1, so exit code should be 1
+        expect(code).toBe(1);
+
+        // Parse and validate JSON output
+        let jsonOutput;
+        try {
+          jsonOutput = JSON.parse(stdout);
+        } catch (e) {
+          throw new Error(
+            `Failed to parse JSON output: ${e.message}. Output: ${stdout}`,
+          );
+        }
+
+        // Verify the scan completed successfully
+        expect(jsonOutput).toBeDefined();
+        expect(jsonOutput.packageManager).toBeDefined();
+
+        // Verify no errors occurred - any error should cause test failure
+        if (stderr && stderr.trim()) {
+          throw new Error(
+            `Unexpected errors during container scan:\n${stderr}`,
+          );
+        }
+
+        console.log(
+          'Container test completed successfully with large ELF file',
+        );
+      } finally {
+        // Cleanup: remove the test image
+        try {
+          await execAsync(`docker rmi ${testImageName}`);
+          console.log('Cleaned up test image');
+        } catch (cleanupError) {
+          console.warn(
+            `Failed to cleanup image ${testImageName}:`,
+            cleanupError.message,
+          );
+        }
+      }
+    }, 300000); // 5 minute timeout for this test
   });
 
   describe('depgraph', () => {
@@ -479,6 +552,36 @@ DepGraph end`,
       expect(sbom.components).toHaveLength(
         TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH.pkgs.length,
       );
+    });
+
+    it('finds go binaries on windows with complex paths', async () => {
+      const { code, stdout } = await runSnykCLI(
+        'container test test/fixtures/container-projects/go-binaries.tar --json',
+        { env },
+      );
+
+      const jsonOutput = JSON.parse(stdout);
+
+      // Should succeed and find Go binaries (including esbuild)
+      expect([0, 1]).toContain(code); // 0 = no vulns, 1 = vulns found
+      expect(jsonOutput).toHaveProperty('applications');
+      expect(jsonOutput.applications).toBeInstanceOf(Array);
+      expect(jsonOutput.applications.length).toBeGreaterThanOrEqual(1);
+
+      // Verify esbuild binary was actually detected by the real container scan
+      const esbuildApp = jsonOutput.applications.find(
+        (app) => app.targetFile && app.targetFile.includes('esbuild'),
+      );
+      expect(esbuildApp).toBeDefined();
+      expect(esbuildApp.targetFile).toBe(
+        '/app/node_modules/.pnpm/@esbuild+linux-x64@0.23.1/node_modules/@esbuild/linux-x64/bin/esbuild',
+      );
+
+      // Verify the complex pnpm path structure is handled correctly
+      expect(esbuildApp.targetFile).toMatch(/@esbuild\+linux-x64@0\.23\.1/);
+      expect(esbuildApp.targetFile).toContain('.pnpm');
+      expect(esbuildApp.targetFile).toContain('node_modules');
+      expect(esbuildApp.packageManager).toBe('gomodules');
     });
   });
 

@@ -3,7 +3,7 @@ import { fakeServer } from '../../../acceptance/fake-server';
 import { createProject } from '../../util/createProject';
 import { getServerPort } from '../../util/getServerPort';
 import { tmpdir } from 'os';
-process.env.SNYK_ERR_FILE = tmpdir() + '/tmp_err_file.txt';
+
 jest.setTimeout(1000 * 60);
 
 describe('npm alias support', () => {
@@ -189,5 +189,38 @@ describe('npm alias support', () => {
     expect(stdout).toContain('"pkgId": "@yao-pkg/pkg@6.5.0",');
     expect(stdout).toContain('"nodeId": "pkg@6.5.0",');
     expect(stdout).toContain('"alias": "pkg=>@yao-pkg/pkg@6.5.0"');
+  });
+
+  it('test npm override with alias syntax', async () => {
+    const project = await createProject('npm-package-with-override-alias');
+
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+
+    // The test passes if dry-uninstall is present as expected
+    // (proving the alias override is working)
+    expect(stdout).toContain('dry-uninstall');
+    expect(stdout).toContain('0.3.0');
+  });
+
+  it('test yarn resolutions with alias syntax', async () => {
+    const project = await createProject('yarn-package-with-resolutions');
+
+    const { code, stdout } = await runSnykCLI(`test --print-deps --json`, {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toEqual(0);
+
+    // Verify the package name was replaced with dry-uninstall (not ms)
+    // This proves that yarn resolutions with npm: alias syntax correctly replaces the package
+    expect(stdout).toContain('dry-uninstall');
+    expect(stdout).toContain('0.3.0');
+    expect(stdout).not.toContain('"name": "ms"'); // ms should be replaced, not present
   });
 });

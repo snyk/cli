@@ -6,6 +6,7 @@ import config from '../config';
 import { color } from '../theme';
 import { Options } from '../types';
 import { ConcatStream } from '../stream';
+import { ContainerTarget, GitTarget } from '../project-metadata/types';
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -98,4 +99,38 @@ export async function printDepGraph(
 
 export function shouldPrintDepGraph(opts: Options): boolean {
   return opts['print-graph'] && !opts['print-deps'];
+}
+
+/**
+ * printEffectiveDepGraph writes the given, possibly pruned dep-graph and target file to the destination
+ * stream as a JSON object containing both depGraph, normalisedTargetFile and targetFile from plugin.
+ * This allows extracting the effective dep-graph which is being used for the test.
+ */
+export async function printEffectiveDepGraph(
+  depGraph: DepGraphData,
+  normalisedTargetFile: string,
+  targetFileFromPlugin: string | undefined,
+  target: GitTarget | ContainerTarget | null | undefined,
+  destination: Writable,
+): Promise<void> {
+  return new Promise((res, rej) => {
+    const effectiveGraphOutput = {
+      depGraph,
+      normalisedTargetFile,
+      targetFileFromPlugin,
+      target,
+    };
+
+    new ConcatStream(
+      new JsonStreamStringify(effectiveGraphOutput),
+      Readable.from('\n'),
+    )
+      .on('end', res)
+      .on('error', rej)
+      .pipe(destination);
+  });
+}
+
+export function shouldPrintEffectiveDepGraph(opts: Options): boolean {
+  return !!opts['print-effective-graph'];
 }

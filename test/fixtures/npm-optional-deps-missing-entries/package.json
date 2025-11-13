@@ -1,0 +1,8 @@
+{
+  "name": "test-optional-deps",
+  "version": "1.0.0",
+  "description": "Minimal test for optional dependencies without separate package entries",
+  "dependencies": {
+    "@parcel/watcher": "^2.4.1"
+  }
+}

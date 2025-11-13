@@ -1,8 +1,8 @@
-# AI Red Teaming
+# Redteam
 
-**Note**: AI Red Teaming is an experimental feature and is subject to breaking changes without notice.
+**Note**: Redteam is an experimental feature and is subject to breaking changes without notice. The feature is also referenced as AI Red Teaming. &#x20;
 
-AI Red Teaming is potentially disruptive. Before running this CLI, make sure you:
+Redteam is potentially disruptive. Before running this command, ensure you:
 
 - Favor scanning dev or staging over production, so as to avoid disruption of live apps.
 - Use test data and accounts rather than real customer or user data.
@@ -11,14 +11,14 @@ AI Red Teaming is potentially disruptive. Before running this CLI, make sure you
 
 ## Prerequisites
 
-- Requires an [internet connection](https://docs.snyk.io/snyk-data-and-governance/regional-hosting-and-data-residency#available-snyk-regions).
+- Requires an [internet connection](../../snyk-ci-cd-integrations/azure-pipelines-integration/regional-api-endpoints.md).
 - Requires Snyk CLI v1.1300.1 (or later).
+- Create your YAML [configuration file](redteam.md#configuration-file).
+- If your Snyk CLI isn’t authenticated yet, authenticate by running the `snyk auth` command ([see docs](auth.md)).
 
 ## Usage
 
-1. Create your YAML [configuration file](https://docs.snyk.io/developer-tools/snyk-cli/commands/ai-red-teaming#configuration-file).
-2. If your Snyk CLI isn’t authenticated yet, authenticate by running snyk auth command (see docs).
-3. Run the following command: `$ snyk redteam --experimental [<OPTION>]`
+Run the following command: `snyk redteam --experimental [<OPTION>]`
 
 ## Description
 
@@ -28,7 +28,7 @@ The command runs a red teaming scan using the targets and parameters defined in 
 
 ### `--experimental`
 
-Required. Use experimental command features. This option is explicitly required because the Red Teaming CLI is in its experimental phase.
+Required. Use experimental command features. This option is explicitly required because the `redteam` command is in its experimental phase.
 
 ### `--org=<ORG_ID>`
 

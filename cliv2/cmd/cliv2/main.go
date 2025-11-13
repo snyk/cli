@@ -24,6 +24,9 @@ import (
 	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/go-application-framework/pkg/analytics"
@@ -34,8 +37,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
@@ -43,10 +44,8 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 
 	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
-	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
@@ -190,60 +189,17 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 		return err
 	}
 
-	output, err = engine.Invoke(localworkflows.WORKFLOWID_FILTER_FINDINGS, workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
+	outputFiltered, err := engine.Invoke(localworkflows.WORKFLOWID_FILTER_FINDINGS, workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
 		logger.Err(err).Msg(err.Error())
 		return err
 	}
 
-	output, err = engine.Invoke(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, workflow.WithInput(output), workflow.WithInstrumentationCollector(ic))
+	_, err = engine.Invoke(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, workflow.WithInput(outputFiltered), workflow.WithInstrumentationCollector(ic))
 	if err == nil {
-		err = getErrorFromWorkFlowData(engine, output)
+		err = getErrorFromWorkFlowData(engine, outputFiltered)
 	}
 	return err
-}
-
-func getErrorFromWorkFlowData(engine workflow.Engine, data []workflow.Data) error {
-	for i := range data {
-		mimeType := data[i].GetContentType()
-		if strings.EqualFold(mimeType, content_type.TEST_SUMMARY) {
-			singleData, ok := data[i].GetPayload().([]byte)
-			if !ok {
-				return fmt.Errorf("invalid payload type: %T", data[i].GetPayload())
-			}
-
-			summary := json_schemas.TestSummary{}
-
-			err := json.Unmarshal(singleData, &summary)
-			if err != nil {
-				return fmt.Errorf("failed to parse test summary payload: %w", err)
-			}
-
-			engine.GetAnalytics().GetInstrumentation().SetTestSummary(summary)
-
-			// We are missing an understanding of ignored issues here
-			// this should be supported in the future
-			for _, result := range summary.Results {
-				if result.Open > 0 {
-					return &cli_errors.ErrorWithExitCode{
-						ExitCode: constants.SNYK_EXIT_CODE_VULNERABILITIES_FOUND,
-					}
-				}
-			}
-
-			dataErrors := data[i].GetErrorList()
-			for _, dataError := range dataErrors {
-				if dataError.ErrorCode == "SNYK-CODE-0006" {
-					return errors.Join(dataError, &cli_errors.ErrorWithExitCode{
-						ExitCode: constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
-					})
-				}
-			}
-
-			return nil
-		}
-	}
-	return nil
 }
 
 func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
@@ -422,10 +378,7 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
 		} else if currentCommandString == "test" || currentCommandString == "monitor" {
-			// to preserve backwards compatibility we will need to relax flag validation
-			parentCommand.SetFlagErrorFunc(func(command *cobra.Command, err error) error {
-				return emptyCommandFunction(command, []string{})
-			})
+			legacy.SetupTestMonitorCommand(parentCommand)
 		} else if currentCommandString == "auth" {
 			parentCommand.RunE = runAuthCommand
 		}
