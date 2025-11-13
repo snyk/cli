@@ -1261,6 +1261,7 @@ jobs:
           open-source-additional-arguments: --exclude=test,dist
           iac-scan: disabled
           release-branch: main
+          open-source-scan-reachability: true
 
   docs-only-check:
     executor: docker-amd64
