@@ -13,7 +13,7 @@ import {
 import { getServerPort } from '../util/getServerPort';
 import { unlink } from 'fs';
 import { execSync } from 'child_process';
-import * as os from 'os';
+import { isWindowsOperatingSystem } from '../../utils';
 
 const fakeServerPort = 12345;
 const SNYK_API_HTTPS = 'https://snyk.io/api/v1';
@@ -317,7 +317,7 @@ describe('Proxy Authentication (all platforms)', () => {
 });
 
 describe('Proxy Authentication (Non-Windows)', () => {
-  if (canTestRun() && !os.platform().includes('win32')) {
+  if (canTestRun() && !isWindowsOperatingSystem()) {
     let server: FakeServer;
     let env: Record<string, string>;
     let project: TestProject;
