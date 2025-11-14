@@ -58,7 +58,13 @@
         "@typescript-eslint/ban-ts-comment": "warn",
         "jest/no-standalone-expect": [
           "error",
-          { "additionalTestBlockFunctions": ["testIf", "describeIf"] }
+          {
+            "additionalTestBlockFunctions": [
+              "testIf",
+              "describeIf",
+              "testIf.each"
+            ]
+          }
         ]
       }
     }
