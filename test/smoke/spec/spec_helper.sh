@@ -4,6 +4,8 @@ set -e
 spec_helper_precheck() {
   setenv CI=1 # This flag influences behavior of `snyk auth` so it needs to be explicitly set
   setenv ORIGINAL_SNYK_EXECUTABLE="$(which snyk)"
+  # Disable RiskScoreInCLI for smoke tests so smoke tests use legacy flow instead of unified flow
+  setenv INTERNAL_SNYK_CLI_EXPERIMENTAL_RISK_SCORE_IN_CLI=false
 }
 
 spec_helper_configure() {
