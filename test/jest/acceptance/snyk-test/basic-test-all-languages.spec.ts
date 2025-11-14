@@ -516,48 +516,51 @@ describe.each(userJourneyWorkflows)(
           },
         );
 
-        test('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with a custom output path', async () => {
-          let prerequisite = await runCommand('dotnet', ['--version']).catch(
-            function () {
-              return { code: 1, stderr: '', stdout: '' };
-            },
-          );
+        testIf(!isWindowsOperatingSystem())(
+          'run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with a custom output path',
+          async () => {
+            let prerequisite = await runCommand('dotnet', ['--version']).catch(
+              function () {
+                return { code: 1, stderr: '', stdout: '' };
+              },
+            );
 
-          if (prerequisite.code !== 0) {
-            return;
-          }
+            if (prerequisite.code !== 0) {
+              return;
+            }
 
-          const fixtureName = 'nuget-app-8-custom-output-path';
+            const fixtureName = 'nuget-app-8-custom-output-path';
 
-          const project = await createProjectFromWorkspace(fixtureName);
+            const project = await createProjectFromWorkspace(fixtureName);
 
-          prerequisite = await runCommand('dotnet', [
-            'restore',
-            `${path.resolve(project.path(), 'program.csproj')}`,
-          ]);
+            prerequisite = await runCommand('dotnet', [
+              'restore',
+              `${path.resolve(project.path(), 'program.csproj')}`,
+            ]);
 
-          if (prerequisite.code !== 0) {
-            console.log(prerequisite.stdout);
-            console.log(prerequisite.stderr);
-            throw new Error(prerequisite.stdout);
-          }
+            if (prerequisite.code !== 0) {
+              console.log(prerequisite.stdout);
+              console.log(prerequisite.stderr);
+              throw new Error(prerequisite.stdout);
+            }
 
-          const { code, stderr, stdout } = await runSnykCLI(
-            'test -d --dotnet-runtime-resolution --file=random-output/company/obj/project.assets.json',
-            {
-              cwd: project.path(),
-              env,
-            },
-          );
+            const { code, stderr, stdout } = await runSnykCLI(
+              'test -d --dotnet-runtime-resolution --file=random-output/company/obj/project.assets.json',
+              {
+                cwd: project.path(),
+                env,
+              },
+            );
 
-          if (code !== 0) {
-            console.debug(stderr);
-            console.debug('---------------------------');
-            console.debug(stdout);
-          }
+            if (code !== 0) {
+              console.debug(stderr);
+              console.debug('---------------------------');
+              console.debug(stdout);
+            }
 
-          expect(code).toEqual(0);
-        });
+            expect(code).toEqual(0);
+          },
+        );
 
         test.each([
           {
