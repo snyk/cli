@@ -516,7 +516,7 @@ describe.each(userJourneyWorkflows)(
           },
         );
 
-        test('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with a custom output path', async () => {
+        testIf(!isWindowsOperatingSystem())('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with a custom output path', async () => {
           let prerequisite = await runCommand('dotnet', ['--version']).catch(
             function () {
               return { code: 1, stderr: '', stdout: '' };
