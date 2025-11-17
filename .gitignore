@@ -54,3 +54,4 @@ test/fixtures/**/*/Package.resolved
 scripts/Brewfile.lock.json
 test/fixtures/**/go.sum
 .cursor
+.windsurf

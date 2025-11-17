@@ -1,0 +1,11 @@
+## invalid rules
+.
+
+## wildcards
+*wildcard-sandwich*
+*wildcard-prefix.java
+wildcard-suffix*
+
+## special characters
+*$.java
+$*.java
