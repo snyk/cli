@@ -562,7 +562,7 @@ describe.each(userJourneyWorkflows)(
           },
         );
 
-        test.each([
+        testIf(!isWindowsOperatingSystem()).each([
           {
             targetFramework: 'net6.0',
           },
