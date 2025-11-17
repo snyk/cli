@@ -11,6 +11,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **test(maven):** Initial maven 4 support, testing against the most recent release candidate ([88cf47e](https://github.com/snyk/snyk/commit/88cf47e6b6894ac8bac9a0eb75d57ec32c465381))
 * **test(maven):** A new experimental flag `--include-provenance` that will produce DepGraphs containing purls with checksum qualifiers for each package. Primarily to be used via --print-graph, not yet used in the main testing flow ([5b8fe0a](https://github.com/snyk/snyk/commit/5b8fe0acf024d9332482ef3ea192f1f1d656d15c))
 * **sbom(maven):** A new experimental flag `--include-provenance` that will produce an SBOM with checksum qualifiers in each purl ([5b8fe0a](https://github.com/snyk/snyk/commit/5b8fe0acf024d9332482ef3ea192f1f1d656d15c))
+* **snyk-ls:** A new feature flag service to manage feature flags on a per-organization basis. This allows for more granular control over feature rollouts and enables fetching feature flags directly from the folder configuration. ([2cc554e](https://github.com/snyk/snyk/commit/a52dcc6adf8b4305e1a82fa4852b792e031cbff6))
 
 
 ### Bug Fixes
@@ -40,3 +41,4 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **dependencies:** Upgrade to golang 1.24.8 ([4dcf97a](https://github.com/snyk/snyk/commit/4dcf97a638ee2277e4ccd93afb6c385e0f4f1f52))
 * **dependencies:** Upgrade xcode to avoid flaky signing ([bdcb991](https://github.com/snyk/snyk/commit/bdcb9918166e5ffd4c57e446deb599c0697c046f))
 * **dependencies:** Fix CVE-2025-47913 ([a00b0dc](https://github.com/snyk/snyk/commit/a00b0dc5a4a997933655fc1436c59ebd4af57cf6))
+* **snyk-ls:** Various Language Server related fixes ([2cc554e](https://github.com/snyk/snyk/commit/a52dcc6adf8b4305e1a82fa4852b792e031cbff6))
