@@ -35,6 +35,12 @@ Use the `-d` option to output the debug logs.
 
 See also subsequent sections for options for specific build environments, package managers, languages, and `[<CONTEXT-SPECIFIC OPTIONS>]` which you specify last.
 
+### `--reachability=<true|false>`
+
+Perform reachability analysis during the scan. This feature is currently in Snyk Preview. For more information, refer to [Reachability analysis](../../../manage-risk/prioritize-issues-for-fixing/reachability-analysis.md).
+
+Default: `false`
+
 ### `--all-projects`
 
 Auto-detect all projects in the working directory, including Yarn workspaces.
@@ -134,6 +140,10 @@ Example: `$ snyk test --file=req.txt --package-manager=pip`
 
 For more information see [Options for Python projects](https://docs.snyk.io/snyk-cli/commands/test#options-for-python-projects)
 
+### `--source-dir=<PATH_TO_SOURCE_CODE>`
+
+Specify a directory of source code to be analyzed. Use with `--reachability`.&#x20;
+
 ### `--unmanaged`
 
 For C++ only, scan all files for known open source dependencies.
@@ -220,6 +230,12 @@ To fail on any Snyk-discoverable vulnerability (the default behavior), do not us
 
 **Note**: If you test code constrained by metadata that Snyk cannot respect with `snyk test`, Snyk will not propose a fix, in order to avoid breaking your code. You may be able to identify and apply a fix manually.
 
+### `--reachability-filter=<reachable|no-info|not-applicable>`
+
+Filter the findings to show only reachable or non-reachable (`no-info`) vulnerabilities, or vulnerabilities where reachability analysis could not be performed (`not-applicable`).
+
+Requires `--reachability=true`.
+
 ## Options for Maven projects
 
 **Note**: The `--dev` option can be used with Maven projects. See also the [`--dev` option help](https://docs.snyk.io/snyk-cli/commands/test#dev)
@@ -249,6 +265,12 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.
 `--scan-all-unmanaged`
 
 **Note**: Custom-built JAR files, even with open-source dependencies, are not supported.
+
+### `--include-provenance`
+
+**Experimental:** Enable provenance generation for Maven artifacts during analysis. This generates cryptographic fingerprints for scanned artifacts to help with vulnerability matching and supply chain security.
+
+**Note:** This requires the dependency artifacts to be present in your local Maven repository, using `mvn clean install` or similar commands.
 
 ## Options for Gradle projects
 

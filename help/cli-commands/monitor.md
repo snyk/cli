@@ -46,6 +46,12 @@ Use the `-d` option to output the debug logs.
 
 See also subsequent sections for options for specific build environments, package managers, languages and `[<CONTEXT-SPECIFIC OPTIONS>]` which you specify last.
 
+### `--reachability=<true|false>`
+
+Perform reachability analysis during the scan. This feature is currently in Snyk Preview. For more information, refer to [Reachability analysis](../../../manage-risk/prioritize-issues-for-fixing/reachability-analysis.md).
+
+Default: `false`
+
 ### `--all-projects`
 
 Auto-detect all projects in the working directory, including Yarn workspaces.
@@ -142,6 +148,10 @@ Specify the name of the package manager when the filename specified with the `--
 Example: `$ snyk monitor --file=req.txt --package-manager=pip`
 
 For more information, see [Options for Python projects](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-python-projects)
+
+### `--source-dir=<PATH_TO_SOURCE_CODE>`&#x20;
+
+Specify a directory of source code to be analyzed. Use with `--reachability`.
 
 ### `--unmanaged`
 
