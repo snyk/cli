@@ -17,6 +17,7 @@ import { CocoapodsTests } from './cli-test/cli-test.cocoapods.spec';
 import { SwiftTests } from './cli-test/cli-test.swift.spec';
 import { ComposerTests } from './cli-test/cli-test.composer.spec';
 import { DockerTests } from './cli-test/cli-test.docker.spec';
+import { DockerDHITests } from './cli-test/cli-test.docker-dhi.spec';
 import { GoTests } from './cli-test/cli-test.go.spec';
 import { GradleTests } from './cli-test/cli-test.gradle.spec';
 import { MavenTests } from './cli-test/cli-test.maven.spec';
@@ -34,6 +35,7 @@ const languageTests: AcceptanceTests[] = [
   CocoapodsTests,
   ComposerTests,
   DockerTests,
+  DockerDHITests,
   GoTests,
   GradleTests,
   MavenTests,
