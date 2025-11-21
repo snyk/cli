@@ -143,13 +143,22 @@ export async function find(findConfig: FindFilesConfig): Promise<FindFilesRes> {
 function findFile(path: string, filter: string[] = []): string | null {
   if (filter.length > 0) {
     const filename = pathLib.basename(path);
-    if (filter.includes(filename)) {
-      return path;
+    // Check both exact filename match and path-based match for filters containing path separators
+    for (const filterEntry of filter) {
+      if (filterEntry === filename) {
+        return path;
+      }
+      // For filters with path separators (e.g., 'vendor/vendor.json' for govendor),
+      // check if the full path ends with the filter. This ensures we only match files
+      // in the correct directory structure as required by the package manager tool.
+      if (filterEntry.includes('/') && path.endsWith(filterEntry)) {
+        return path;
+      }
     }
+    return null;
   } else {
     return path;
   }
-  return null;
 }
 
 async function findInDirectory(

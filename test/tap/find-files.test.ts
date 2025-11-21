@@ -21,6 +21,12 @@ test('find all files in test fixture', async (t) => {
     ),
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.lock'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
+    path.join(
+      testFixture,
+      'golang',
+      'java-app-with-misplaced-vendor-json',
+      'pom.xml',
+    ),
     path.join(testFixture, 'gradle', 'build.gradle'),
     path.join(testFixture, 'gradle-kts', 'build.gradle.kts'),
     path.join(testFixture, 'gradle-and-kotlin', 'build.gradle'),
@@ -65,7 +71,10 @@ test('find all files in test fixture', async (t) => {
   t.same(result.length, expected.length, 'should be the same length');
   t.same(result.sort(), expected.sort(), 'should return all files');
   t.same(
-    allFilesFound.filter((f) => !f.endsWith('broken-symlink')).sort(),
+    allFilesFound
+      .filter((f) => !f.endsWith('broken-symlink'))
+      .filter((f) => !f.includes('/.gradle/'))
+      .sort(),
     [...filteredOut, ...expected].sort(),
     'should return all unfiltered files',
   );
@@ -88,6 +97,12 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
     ),
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.lock'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
+    path.join(
+      testFixture,
+      'golang',
+      'java-app-with-misplaced-vendor-json',
+      'pom.xml',
+    ),
     path.join(testFixture, 'gradle', 'build.gradle'),
     path.join(testFixture, 'gradle-kts', 'build.gradle.kts'),
     path.join(testFixture, 'gradle-and-kotlin', 'build.gradle'),
@@ -233,6 +248,12 @@ test('find pom.xml files in test fixture', async (t) => {
     filter: ['pom.xml'],
   });
   const expected = [
+    path.join(
+      testFixture,
+      'golang',
+      'java-app-with-misplaced-vendor-json',
+      'pom.xml',
+    ),
     path.join(testFixture, 'maven', 'pom.xml'),
     path.join(testFixture, 'mvn', 'pom.xml'),
   ];
@@ -263,4 +284,26 @@ test('find path is empty string', async (t) => {
       'throws expected exception',
     );
   }
+});
+
+test('find vendor/vendor.json but not vendor.json in other directories', async (t) => {
+  const { files: result } = await find({
+    path: path.join(testFixture, 'golang'),
+    filter: ['vendor/vendor.json'],
+    levelsDeep: 6,
+  });
+  const expected = [
+    path.join(
+      testFixture,
+      'golang',
+      'golang-app-govendor',
+      'vendor',
+      'vendor.json',
+    ),
+  ];
+  t.same(
+    result.sort(),
+    expected.sort(),
+    'should only find vendor.json inside vendor/ directory',
+  );
 });
