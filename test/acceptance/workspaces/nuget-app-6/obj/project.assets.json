@@ -1502,7 +1502,7 @@
         }
       }
     },
-    "net6.0/linux-x64": {
+    "net6.0/osx-arm64": {
       "Castle.Core/4.4.1": {
         "type": "package",
         "dependencies": {
@@ -2914,7 +2914,7 @@
           "ref/netstandard1.6/System.Security.Cryptography.Algorithms.dll": {}
         },
         "runtime": {
-          "runtimes/unix/lib/netstandard1.6/System.Security.Cryptography.Algorithms.dll": {}
+          "runtimes/osx/lib/netstandard1.6/System.Security.Cryptography.Algorithms.dll": {}
         }
       },
       "System.Security.Cryptography.Cng/4.3.0": {
@@ -7802,19 +7802,19 @@
     ]
   },
   "packageFolders": {
-    "/Users/johnappleseed/.nuget/packages/": {}
+    "/Users/will/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/johnappleseed/git/plugins/snyk-nuget-plugin/test/fixtures/dotnetcore/dotnet_6/dotnet_6.csproj",
+      "projectUniqueName": "/Users/will/Projects/cli/test/acceptance/workspaces/nuget-app-6/dotnet_6.csproj",
       "projectName": "dotnet_6",
-      "projectPath": "/Users/johnappleseed/git/plugins/snyk-nuget-plugin/test/fixtures/dotnetcore/dotnet_6/dotnet_6.csproj",
-      "packagesPath": "/Users/johnappleseed/.nuget/packages/",
-      "outputPath": "/Users/johnappleseed/git/plugins/snyk-nuget-plugin/test/fixtures/dotnetcore/dotnet_6/obj/",
+      "projectPath": "/Users/will/Projects/cli/test/acceptance/workspaces/nuget-app-6/dotnet_6.csproj",
+      "packagesPath": "/Users/will/.nuget/packages/",
+      "outputPath": "/Users/will/Projects/cli/test/acceptance/workspaces/nuget-app-6/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/johnappleseed/.nuget/NuGet/NuGet.Config"
+        "/Users/will/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
@@ -7828,10 +7828,10 @@
           "projectReferences": {}
         }
       },
-      "warningProperties": {
-        "warnAsError": [
-          "NU1605"
-        ]
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -7857,23 +7857,23 @@
         "downloadDependencies": [
           {
             "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[6.0.16, 6.0.16]"
+            "version": "[6.0.36, 6.0.36]"
           },
           {
-            "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
-            "version": "[6.0.16, 6.0.16]"
+            "name": "Microsoft.AspNetCore.App.Runtime.osx-arm64",
+            "version": "[6.0.36, 6.0.36]"
           },
           {
-            "name": "Microsoft.NETCore.App.Host.linux-x64",
-            "version": "[6.0.16, 6.0.16]"
+            "name": "Microsoft.NETCore.App.Host.osx-arm64",
+            "version": "[6.0.36, 6.0.36]"
           },
           {
             "name": "Microsoft.NETCore.App.Ref",
-            "version": "[6.0.16, 6.0.16]"
+            "version": "[6.0.36, 6.0.36]"
           },
           {
-            "name": "Microsoft.NETCore.App.Runtime.linux-x64",
-            "version": "[6.0.16, 6.0.16]"
+            "name": "Microsoft.NETCore.App.Runtime.osx-arm64",
+            "version": "[6.0.36, 6.0.36]"
           }
         ],
         "frameworkReferences": {
@@ -7881,11 +7881,11 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.203/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.412/RuntimeIdentifierGraph.json"
       }
     },
     "runtimes": {
-      "linux-x64": {
+      "osx-arm64": {
         "#import": []
       }
     }

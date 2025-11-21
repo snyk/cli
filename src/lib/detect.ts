@@ -56,7 +56,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'composer.lock',
   'Gopkg.lock',
   'go.mod',
-  'vendor.json',
+  'vendor/vendor.json',
   'Pipfile',
   'requirements.txt',
   'build.sbt',
