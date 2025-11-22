@@ -8,6 +8,7 @@ import { getServerPort } from '../../util/getServerPort';
 import { isDontSkipTestsEnabled } from '../../util/isDontSkipTestsEnabled';
 import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { isWindowsOperatingSystem, testIf } from '../../../utils';
 
 jest.setTimeout(1000 * 60);
 
@@ -180,84 +181,93 @@ describe.each(userJourneyWorkflows)(
           expect(result.code).toEqual(2);
         });
 
-        test('run `snyk test` on a pipenv project', async () => {
-          const project = await createProjectFromWorkspace('pipenv-app');
-          let pythonCommand = 'python';
+        testIf(!isWindowsOperatingSystem())(
+          'run `snyk test` on a pipenv project',
+          async () => {
+            const project = await createProjectFromWorkspace('pipenv-app');
+            let pythonCommand = 'python';
 
-          await runCommand(pythonCommand, ['--version']).catch(function () {
-            pythonCommand = 'python3';
-          });
+            await runCommand(pythonCommand, ['--version']).catch(function () {
+              pythonCommand = 'python3';
+            });
 
-          const pipenvResult = await runCommand('pipenv', ['install'], {
-            shell: true,
-            cwd: project.path(),
-          });
+            const pipenvResult = await runCommand('pipenv', ['install'], {
+              shell: true,
+              cwd: project.path(),
+            });
 
-          expect(pipenvResult.code).toEqual(0);
+            expect(pipenvResult.code).toEqual(0);
 
-          const result = await runSnykCLI(
-            'test -d --command=' + pythonCommand,
-            {
+            const result = await runSnykCLI(
+              'test -d --command=' + pythonCommand,
+              {
+                cwd: project.path(),
+                env,
+              },
+            );
+
+            expect(result.code).toEqual(0);
+          },
+        );
+
+        testIf(!isWindowsOperatingSystem())(
+          'run `snyk test` on a gradle project',
+          async () => {
+            const project = await createProjectFromWorkspace('gradle-app');
+
+            const { code, stderr, stdout } = await runSnykCLI('test -d', {
               cwd: project.path(),
               env,
-            },
-          );
+            });
 
-          expect(result.code).toEqual(0);
-        });
+            if (code != 0) {
+              console.debug(stderr);
+              console.debug('---------------------------');
+              console.debug(stdout);
+            }
 
-        test('run `snyk test` on a gradle project', async () => {
-          const project = await createProjectFromWorkspace('gradle-app');
+            expect(code).toEqual(0);
+          },
+        );
 
-          const { code, stderr, stdout } = await runSnykCLI('test -d', {
-            cwd: project.path(),
-            env,
-          });
+        testIf(!isWindowsOperatingSystem())(
+          'run `snyk test` on a gradle project and check top-level dependency node id',
+          async () => {
+            const project = await createProjectFromWorkspace(
+              'gradle-with-classifier',
+            );
 
-          if (code != 0) {
-            console.debug(stderr);
-            console.debug('---------------------------');
-            console.debug(stdout);
-          }
+            const { code, stderr, stdout } = await runSnykCLI(
+              'test --print-graph',
+              {
+                cwd: project.path(),
+                env,
+              },
+            );
 
-          expect(code).toEqual(0);
-        });
+            if (code != 0) {
+              console.debug(stderr);
+              console.debug('---------------------------');
+              console.debug(stdout);
+            }
+            expect(code).toEqual(0);
 
-        test('run `snyk test` on a gradle project and check top-level dependency node id', async () => {
-          const project = await createProjectFromWorkspace(
-            'gradle-with-classifier',
-          );
-
-          const { code, stderr, stdout } = await runSnykCLI(
-            'test --print-graph',
-            {
-              cwd: project.path(),
-              env,
-            },
-          );
-
-          if (code != 0) {
-            console.debug(stderr);
-            console.debug('---------------------------');
-            console.debug(stdout);
-          }
-          expect(code).toEqual(0);
-
-          const depGraphJsonStr = stdout
-            .split('DepGraph data:')[1]
-            .split('DepGraph target:')[0];
-          const depGraphJson = JSON.parse(depGraphJsonStr);
-          expect(depGraphJson.pkgManager.name).toEqual('gradle');
-          expect(depGraphJson.pkgs).toContainEqual({
-            id: 'net.sf.json-lib:json-lib@2.4',
-            info: { name: 'net.sf.json-lib:json-lib', version: '2.4' },
-          });
-          expect(depGraphJson.graph.nodes).toContainEqual({
-            nodeId: 'net.sf.json-lib:json-lib:jar:jdk13@2.4',
-            pkgId: 'net.sf.json-lib:json-lib@2.4',
-            deps: expect.any(Array),
-          });
-        });
+            const depGraphJsonStr = stdout
+              .split('DepGraph data:')[1]
+              .split('DepGraph target:')[0];
+            const depGraphJson = JSON.parse(depGraphJsonStr);
+            expect(depGraphJson.pkgManager.name).toEqual('gradle');
+            expect(depGraphJson.pkgs).toContainEqual({
+              id: 'net.sf.json-lib:json-lib@2.4',
+              info: { name: 'net.sf.json-lib:json-lib', version: '2.4' },
+            });
+            expect(depGraphJson.graph.nodes).toContainEqual({
+              nodeId: 'net.sf.json-lib:json-lib:jar:jdk13@2.4',
+              pkgId: 'net.sf.json-lib:json-lib@2.4',
+              deps: expect.any(Array),
+            });
+          },
+        );
 
         test('run `snyk test` on a cocoapods project', async () => {
           const project = await createProjectFromWorkspace('cocoapods-app');
@@ -346,7 +356,7 @@ describe.each(userJourneyWorkflows)(
           expect(code).toEqual(0);
         });
 
-        test.each([
+        testIf(!isWindowsOperatingSystem()).each([
           {
             fixture: 'nuget-app-6',
             targetFile: 'dotnet_6.csproj',
@@ -430,7 +440,7 @@ describe.each(userJourneyWorkflows)(
           },
         );
 
-        it.each([
+        testIf(!isWindowsOperatingSystem()).each([
           {
             fixture: 'nuget-app-net48',
             projectFile: 'net48.csproj',
@@ -506,50 +516,53 @@ describe.each(userJourneyWorkflows)(
           },
         );
 
-        test('run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with a custom output path', async () => {
-          let prerequisite = await runCommand('dotnet', ['--version']).catch(
-            function () {
-              return { code: 1, stderr: '', stdout: '' };
-            },
-          );
+        testIf(!isWindowsOperatingSystem())(
+          'run `snyk test` on a nuget project using v2 dotnet runtime resolution logic with a custom output path',
+          async () => {
+            let prerequisite = await runCommand('dotnet', ['--version']).catch(
+              function () {
+                return { code: 1, stderr: '', stdout: '' };
+              },
+            );
 
-          if (prerequisite.code !== 0) {
-            return;
-          }
+            if (prerequisite.code !== 0) {
+              return;
+            }
 
-          const fixtureName = 'nuget-app-8-custom-output-path';
+            const fixtureName = 'nuget-app-8-custom-output-path';
 
-          const project = await createProjectFromWorkspace(fixtureName);
+            const project = await createProjectFromWorkspace(fixtureName);
 
-          prerequisite = await runCommand('dotnet', [
-            'restore',
-            `${path.resolve(project.path(), 'program.csproj')}`,
-          ]);
+            prerequisite = await runCommand('dotnet', [
+              'restore',
+              `${path.resolve(project.path(), 'program.csproj')}`,
+            ]);
 
-          if (prerequisite.code !== 0) {
-            console.log(prerequisite.stdout);
-            console.log(prerequisite.stderr);
-            throw new Error(prerequisite.stdout);
-          }
+            if (prerequisite.code !== 0) {
+              console.log(prerequisite.stdout);
+              console.log(prerequisite.stderr);
+              throw new Error(prerequisite.stdout);
+            }
 
-          const { code, stderr, stdout } = await runSnykCLI(
-            'test -d --dotnet-runtime-resolution --file=random-output/company/obj/project.assets.json',
-            {
-              cwd: project.path(),
-              env,
-            },
-          );
+            const { code, stderr, stdout } = await runSnykCLI(
+              'test -d --dotnet-runtime-resolution --file=random-output/company/obj/project.assets.json',
+              {
+                cwd: project.path(),
+                env,
+              },
+            );
 
-          if (code !== 0) {
-            console.debug(stderr);
-            console.debug('---------------------------');
-            console.debug(stdout);
-          }
+            if (code !== 0) {
+              console.debug(stderr);
+              console.debug('---------------------------');
+              console.debug(stdout);
+            }
 
-          expect(code).toEqual(0);
-        });
+            expect(code).toEqual(0);
+          },
+        );
 
-        test.each([
+        testIf(!isWindowsOperatingSystem()).each([
           {
             targetFramework: 'net6.0',
           },

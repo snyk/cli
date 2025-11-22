@@ -2,6 +2,7 @@ import { fakeServer } from '../../acceptance/fake-server';
 import { createProjectFromFixture } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { getServerPort } from '../util/getServerPort';
+import { isWindowsOperatingSystem } from '../../utils';
 import * as path from 'path';
 
 jest.setTimeout(1000 * 30);
@@ -43,6 +44,10 @@ describe('`test` command with `--print-graph` option', () => {
   // graph with for project with vulns and --all-projects
 
   it('works for project with no deps', async () => {
+    if (isWindowsOperatingSystem()) {
+      // Address as part CLI-1205
+      return;
+    }
     const project = await createProjectFromFixture('print-graph-no-deps');
     const { code, stdout } = await runSnykCLI('test --print-graph', {
       cwd: project.path(),
