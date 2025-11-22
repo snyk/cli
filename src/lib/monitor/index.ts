@@ -228,7 +228,9 @@ async function monitorDepTree(
         master: snyk.config.isMaster,
         name: getNameDepTree(scannedProject, depTree, meta),
         version: depTree.version,
-        org: config.org ? decodeURIComponent(config.org) : undefined,
+        org:
+          config.orgId ||
+          (config.org ? decodeURIComponent(config.org) : undefined),
         pluginName: pluginMeta.name,
         pluginRuntime: pluginMeta.runtime,
         missingDeps: treeMissingDeps,
@@ -341,7 +343,9 @@ export async function monitorDepGraph(
         master: snyk.config.isMaster,
         name: getNameDepGraph(scannedProject, depGraph, meta),
         version: depGraph.rootPkg.version,
-        org: config.org ? decodeURIComponent(config.org) : undefined,
+        org:
+          config.orgId ||
+          (config.org ? decodeURIComponent(config.org) : undefined),
         pluginName: pluginMeta.name,
         pluginRuntime: pluginMeta.runtime,
         projectName: getProjectName(scannedProject, meta),
@@ -461,7 +465,9 @@ async function monitorDepGraphFromDepTree(
         master: snyk.config.isMaster,
         name: getNameDepGraph(scannedProject, depGraph, meta),
         version: depGraph.rootPkg.version,
-        org: config.org ? decodeURIComponent(config.org) : undefined,
+        org:
+          config.orgId ||
+          (config.org ? decodeURIComponent(config.org) : undefined),
         pluginName: pluginMeta.name,
         pluginRuntime: pluginMeta.runtime,
         dockerImageId: pluginMeta.dockerImageId,
