@@ -383,6 +383,21 @@ DepGraph end`,
         }
       }
     }, 300000); // 5 minute timeout for this test
+
+    it('successfully scans image with empty history array', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `container test public.ecr.aws/bottlerocket/bottlerocket-kernel-kit:v4.5.1 --json`,
+      );
+
+      const jsonOutput = JSON.parse(stdout);
+      expect([0, 1]).toContain(code);
+
+      expect(jsonOutput).toBeDefined();
+      expect(jsonOutput.packageManager).toBeDefined();
+
+      expect(stderr).not.toContain('Cannot read properties of undefined');
+      expect(stderr).not.toContain("reading 'created'");
+    });
   });
 
   describe('depgraph', () => {
