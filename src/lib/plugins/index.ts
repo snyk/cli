@@ -42,8 +42,7 @@ export function loadPlugin(
       return pythonPlugin;
     }
     case 'golangdep':
-    case 'gomodules':
-    case 'govendor': {
+    case 'gomodules': {
       return goPlugin;
     }
     case 'nuget': {
