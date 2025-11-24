@@ -524,6 +524,60 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
+  app.post(`/api/hidden/orgs/:orgId/ai_scans`, (req, res) => {
+    res.status(201);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {
+        self: `/api/hidden/orgs/${req.params.orgId}/ai_scans/59622253-75f3-4439-ac1e-ce94834c5804`,
+      },
+      data: {
+        id: '59622253-75f3-4439-ac1e-ce94834c5804',
+        type: 'ai_scan',
+        attributes: { status: 'started' },
+      },
+    });
+  });
+
+  app.get(`/api/hidden/orgs/:orgId/ai_scans/:id`, (req, res) => {
+    res.status(200);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {},
+      data: {
+        id: req.params.id,
+        type: 'ai_scan',
+        status: 'completed',
+      },
+    });
+  });
+
+  app.get(
+    `/api/hidden/orgs/:orgId/ai_scans/:id/vulnerabilities`,
+    (req, res) => {
+      res.status(200);
+      res.send({
+        jsonapi: { version: '1.0' },
+        links: {},
+        data: {
+          id: '59622253-75f3-4439-ac1e-ce94834c5804',
+          results: [
+            {
+              id: '59622253-75f3-4439-ac1e-ce94834c5804',
+              severity: 'medium',
+              definition: {
+                id: 'system_prompt_exfiltration',
+                name: 'System Prompt Exfiltration',
+                description: 'The system prompt was exfiltrated.',
+              },
+              url: 'https://demo-app.com/api/chat',
+            },
+          ],
+        },
+      });
+    },
+  );
+
   app.post(basePath + '/vuln/:registry', (req, res, next) => {
     const vulnerabilities = [];
     if (req.query.org && req.query.org === 'missing-org') {
