@@ -1,9 +1,9 @@
-import { runSnykCLI } from '../../util/runSnykCLI';
-import { fakeServer } from '../../../acceptance/fake-server';
-import { getServerPort } from '../../util/getServerPort';
-import { getFixturePath } from '../../util/getFixturePath';
+import { runSnykCLI } from '../../../util/runSnykCLI';
+import { fakeServer } from '../../../../acceptance/fake-server';
+import { getServerPort } from '../../../util/getServerPort';
+import { getFixturePath } from '../../../util/getFixturePath';
 import * as path from 'path';
-import { EXIT_CODES } from '../../../../src/cli/exit-codes';
+import { EXIT_CODES } from '../../../../../src/cli/exit-codes';
 
 jest.setTimeout(1000 * 60);
 

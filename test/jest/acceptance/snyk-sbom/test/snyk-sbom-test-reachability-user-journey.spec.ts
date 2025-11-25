@@ -1,5 +1,5 @@
-import { createProjectFromFixture } from '../../util/createProject';
-import { runSnykCLI } from '../../util/runSnykCLI';
+import { createProjectFromFixture } from '../../../util/createProject';
+import { runSnykCLI } from '../../../util/runSnykCLI';
 import { matchers } from 'jest-json-schema';
 import * as path from 'path';
 
