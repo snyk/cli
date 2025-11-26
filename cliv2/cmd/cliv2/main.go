@@ -591,6 +591,7 @@ func MainWithErrorCode() int {
 	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategory(os.Args, globalEngine))
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
+	cliAnalytics.GetInstrumentation().AddExtension("show-maven-build-scope", true)
 
 	setTimeout(globalConfiguration, func() {
 		os.Exit(constants.SNYK_EXIT_CODE_EX_UNAVAILABLE)
