@@ -2,19 +2,26 @@ package basic_workflows
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/golang/mock/gomock"
-	"github.com/rs/zerolog"
-	"github.com/snyk/cli/cliv2/internal/proxy"
-	"github.com/snyk/go-application-framework/pkg/configuration"
-	"github.com/snyk/go-application-framework/pkg/mocks"
-	"github.com/snyk/go-application-framework/pkg/networking"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os/exec"
+	"runtime"
+	"strings"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/rs/zerolog"
+	"github.com/snyk/cli/cliv2/internal/proxy"
+	"github.com/snyk/error-catalog-golang-public/snyk_errors"
+	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/mocks"
+	"github.com/snyk/go-application-framework/pkg/networking"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_finalizeArguments(t *testing.T) {
@@ -90,5 +97,121 @@ func Test_proxyWithErrorHandler(t *testing.T) {
 			assert.Equal(t, tc.expectedIntercept, res.Header.Get(proxy.HeaderSnykTerminate) == "true")
 			assert.Nil(t, err)
 		})
+	}
+}
+
+func Test_ValidateGlibcVersion_doesNotApplyOnNonLinux(t *testing.T) {
+	// skip for Linux
+	if runtime.GOOS == "linux" {
+		t.Skip("Test only applicable on non-Linux")
+	}
+
+	logger := zerolog.Nop()
+	err := ValidateGlibcVersion(&logger)
+	if err != nil {
+		t.Errorf("Expected no error but got: %v", err)
+	}
+}
+
+func Test_ValidateGlibcVersion_validates(t *testing.T) {
+	skipIfNotGlibcBasedLinux(t)
+
+	logger := zerolog.Nop()
+	detectionErr := errors.New("detection failed")
+
+	type test struct {
+		name                string
+		version             string
+		versionError        error
+		expectedSnykErrCode string
+	}
+
+	tests := []test{
+		{
+			name:    "Empty version (musl/Alpine)",
+			version: "",
+		},
+		{
+			name:         "Version detection returns error",
+			versionError: detectionErr,
+		},
+	}
+
+	amd64Tests := []test{
+		{
+			name:                "Version too old on amd64",
+			version:             "2.27",
+			expectedSnykErrCode: "SNYK-0010",
+		},
+		{
+			name:    "Version exactly minimum on amd64",
+			version: MIN_GLIBC_VERSION_LINUX_AMD64,
+		},
+		{
+			name:    "Version newer than minimum on amd64",
+			version: "2.35",
+		},
+	}
+
+	arm64Tests := []test{
+		{
+			name:                "Version too old on arm64",
+			version:             "2.30",
+			expectedSnykErrCode: "SNYK-0010",
+		},
+		{
+			name:    "Version exactly minimum on arm64",
+			version: MIN_GLIBC_VERSION_LINUX_ARM64,
+		},
+		{
+			name:    "Version newer than minimum on arm64",
+			version: "2.35",
+		},
+	}
+
+	switch runtime.GOARCH {
+	case "amd64":
+		tests = append(tests, amd64Tests...)
+	case "arm64":
+		tests = append(tests, arm64Tests...)
+	default:
+		t.Skip("Test only applicable on amd64 or arm64")
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockVersionFn := func() (string, error) {
+				return tt.version, tt.versionError
+			}
+
+			actualErr := ValidateGlibcVersion(&logger, mockVersionFn)
+
+			if tt.versionError != nil {
+				assert.ErrorIs(t, actualErr, tt.versionError)
+				return
+			}
+
+			if tt.expectedSnykErrCode != "" {
+				require.NotNil(t, actualErr, "Expected error but got nil")
+				var snykErr snyk_errors.Error
+				require.True(t, errors.As(actualErr, &snykErr), "Expected snyk_errors.Error but got: %v", actualErr)
+				assert.Equal(t, tt.expectedSnykErrCode, snykErr.ErrorCode)
+			} else {
+				assert.NoError(t, actualErr)
+			}
+		})
+	}
+}
+
+func skipIfNotGlibcBasedLinux(t *testing.T) {
+	t.Helper()
+
+	if runtime.GOOS != "linux" {
+		t.Skip("Test only applicable on Linux")
+	}
+	// Skip Alpine Linux because it does not use glibc
+	out, err := exec.Command("ldd", "--version").CombinedOutput()
+	if err != nil || strings.Contains(string(out), "musl") {
+		t.Skip("Test only applicable on glibc-based Linux")
 	}
 }
