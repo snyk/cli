@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
+	"github.com/snyk/cli/cliv2/internal/utils"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -69,6 +70,11 @@ func legacycliWorkflow(
 	output = []workflow.Data{}
 	var outBuffer bytes.Buffer
 	var outWriter *bufio.Writer
+
+	err = utils.ValidateGlibcVersion()
+	if err != nil {
+		return output, err
+	}
 
 	config := invocation.GetConfiguration()
 	debugLogger := invocation.GetEnhancedLogger() // uses zerolog
