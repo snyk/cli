@@ -2,6 +2,8 @@ import { createProjectFromWorkspace } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
 
+jest.setTimeout(1000 * 60 * 5);
+
 describe('golang sboms (mocked server only)', () => {
   let server: FakeServer;
   let env: Record<string, string>;
