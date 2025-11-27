@@ -61,6 +61,7 @@ import (
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 	"github.com/snyk/cli/cliv2/pkg/basic_workflows"
+	snykdeltaworkflow "github.com/snyk/cli-extension-snyk-delta/pkg/test_delta"
 )
 
 var internalOS string
@@ -381,6 +382,9 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			legacy.SetupTestMonitorCommand(parentCommand)
 		} else if currentCommandString == "auth" {
 			parentCommand.RunE = runAuthCommand
+		} else if currentCommandString == "test-delta" {
+			// to preserve all flags for test-delta to be passed to the legacy cli
+			parentCommand.FParseErrWhitelist.UnknownFlags = true
 		}
 	}
 }
@@ -552,6 +556,8 @@ func MainWithErrorCode() int {
 	globalEngine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
+	globalEngine.AddExtensionInitializer(snykdeltaworkflow.InitTestDelta)
+
 
 	// init engine
 	err = globalEngine.Init()
