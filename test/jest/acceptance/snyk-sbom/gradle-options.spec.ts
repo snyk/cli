@@ -1,5 +1,6 @@
 import { fakeServer } from '../../../acceptance/fake-server';
 import { isWindowsOperatingSystem, testIf } from '../../../utils';
+import { getAvailableServerPort } from '../../util/getServerPort';
 import { runSnykSbomCliCycloneDxJsonForFixture } from './common';
 
 jest.setTimeout(1000 * 60 * 5);
@@ -8,8 +9,8 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
   let server;
   let env: Record<string, string>;
 
-  beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '58586';
+  beforeAll(async () => {
+    const port = await getAvailableServerPort(process);
     const baseApi = '/api/v1';
     env = {
       ...process.env,
@@ -19,9 +20,7 @@ describe('snyk sbom: gradle options (mocked server only)', () => {
       SNYK_DISABLE_ANALYTICS: '1',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
-    server.listen(port, () => {
-      done();
-    });
+    await server.listenPromise(port);
   });
 
   afterEach(() => {

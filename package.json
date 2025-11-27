@@ -112,6 +112,7 @@
     "ora": "5.4.0",
     "os-name": "^5.1.0",
     "p-map": "^4.0.0",
+    "portfinder": "^1.0.38",
     "proxy-from-env": "^1.0.0",
     "rimraf": "^2.6.3",
     "semver": "^6.0.0",
