@@ -25,6 +25,7 @@ const commands = {
   woof: async (...args) => callModule(import('./woof'), args),
   log4shell: async (...args) => callModule(import('./log4shell'), args),
   apps: async (...args) => callModule(import('./apps'), args),
+  format: async (...args) => callModule(import('./format'), args),
 };
 
 commands.aliases = abbrev(Object.keys(commands));

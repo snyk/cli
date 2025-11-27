@@ -64,7 +64,7 @@ func finalizeArguments(args []string, unknownArgs []string) []string {
 
 func legacycliWorkflow(
 	invocation workflow.InvocationContext,
-	_ []workflow.Data,
+	input []workflow.Data,
 ) (output []workflow.Data, err error) {
 	output = []workflow.Data{}
 	var outBuffer bytes.Buffer
@@ -120,6 +120,9 @@ func legacycliWorkflow(
 
 	if !useStdIo {
 		in := bytes.NewReader([]byte{})
+		if len(input) > 0 {
+			in = bytes.NewReader([]byte(input[0].GetPayload().([]byte)))
+		}
 		outWriter = bufio.NewWriter(&outBuffer)
 		cli.SetIoStreams(in, outWriter, stderr)
 	} else {
