@@ -1306,8 +1306,8 @@ github.com/snyk/cli-extension-os-flows v0.0.0-20251125150934-8bac76166638 h1:JSg
 github.com/snyk/cli-extension-os-flows v0.0.0-20251125150934-8bac76166638/go.mod h1:7cBuPp3HdioLGDBd7TvBPPUxTrehTi0dYPRh3K7fKm4=
 github.com/snyk/cli-extension-sbom v0.0.0-20251113132837-5f6cc6d0cb26 h1:KEiRBMdOJHefM4GKL3C3FfvH4J2G/vBFnwkonylV5+o=
 github.com/snyk/cli-extension-sbom v0.0.0-20251113132837-5f6cc6d0cb26/go.mod h1:zyKDBaETfZyI7BfIjPnezH3QX2seQrR/d7NM5W6LV9s=
-github.com/snyk/cli-extension-snyk-delta v0.0.0-20251127172645-7010680bfd56 h1:EpWJ/U2PfQLbAWpgnIp197oDWFt/Ad5vTQ6fql7FS7E=
-github.com/snyk/cli-extension-snyk-delta v0.0.0-20251127172645-7010680bfd56/go.mod h1:pm4RE0OLdmMwFa6BDHVSaPFf8FICiSUEu12d4jxQlwI=
+github.com/snyk/cli-extension-snyk-delta v0.0.0-20251128154224-3a5a768a357d h1:zN4vFR30zlri7/9DeqZzVIRPtvVl/5XkrKbw+RebzxI=
+github.com/snyk/cli-extension-snyk-delta v0.0.0-20251128154224-3a5a768a357d/go.mod h1:pm4RE0OLdmMwFa6BDHVSaPFf8FICiSUEu12d4jxQlwI=
 github.com/snyk/code-client-go v1.24.4 h1:19rmeqZFvjQMKaAmSZ0CdYZb1d0ENsDad2Cp32jeWOA=
 github.com/snyk/code-client-go v1.24.4/go.mod h1:uMlmMToe4uuNhNLs+yxjM3WFbytna+ytDWhpbnNwTSk=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
