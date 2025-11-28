@@ -299,6 +299,7 @@ export enum SupportedCliCommands {
   drift = 'drift',
   describe = 'describe',
   'update-exclude-policy' = 'update-exclude-policy',
+  format = 'format',
 }
 
 export interface IacFileInDirectory {
