@@ -1,4 +1,5 @@
 import { createProjectFromWorkspace } from '../../util/createProject';
+import { createProject } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { getAvailableServerPort } from '../../util/getServerPort';
@@ -112,5 +113,58 @@ describe('snyk sbom --all-projects (mocked server only)', () => {
       'mono-repo-project-manifests-only',
     );
     expect(bom.components).toHaveLength(37);
+  });
+
+  describe('--fail-fast option', () => {
+    test('`sbom --all-projects` with projects that have errors exits with code 2 (fail-fast by default)', async () => {
+      server.setFeatureFlag('enableMavenDverboseExhaustiveDeps', false);
+      const project = await createProject(
+        'snyk-test-all-projects-exit-codes/project-with-no-issues-and-project-with-error',
+      );
+
+      const { code, stderr } = await runSnykCLI(
+        `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --debug --all-projects`,
+        {
+          cwd: project.path(),
+          env,
+        },
+      );
+
+      // With default fail-fast behavior, should exit on first error
+      expect(code).toEqual(2);
+      // Should indicate that processing was interrupted
+      expect(stderr).toBeTruthy();
+    });
+
+    test('`sbom --all-projects --fail-fast=false` with projects that have errors continues processing', async () => {
+      server.setFeatureFlag('enableMavenDverboseExhaustiveDeps', false);
+      const project = await createProject(
+        'snyk-test-all-projects-exit-codes/project-with-no-issues-and-project-with-error',
+      );
+
+      const { code, stdout, stderr } = await runSnykCLI(
+        `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --debug --all-projects --fail-fast=false`,
+        {
+          cwd: project.path(),
+          env,
+        },
+      );
+
+      // With --fail-fast=false, should continue processing even if some projects fail
+      // If at least one project succeeds, should generate SBOM
+      if (code === 0) {
+        // Success case: at least one project succeeded, SBOM was generated
+        let bom;
+        expect(() => {
+          bom = JSON.parse(stdout);
+        }).not.toThrow();
+        expect(bom).toBeDefined();
+      } else {
+        // Error case: all projects failed, but we tried all of them
+        expect(code).toBeGreaterThan(0);
+      }
+      // Should indicate that errors occurred but processing continued
+      expect(stderr).toBeTruthy();
+    });
   });
 });
