@@ -276,7 +276,13 @@ func defaultCmd(args []string) error {
 	// * by specifying the raw cmd args for it
 	globalConfiguration.Set(configuration.WORKFLOW_USE_STDIO, true)
 	globalConfiguration.Set(configuration.RAW_CMD_ARGS, args)
-	_, err := globalEngine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
+ 	output, err := globalEngine.Invoke(basic_workflows.WORKFLOWID_LEGACY_CLI)
+	if err != nil {
+		return err
+	}
+
+	// run output workflow to get the project id and monitor id
+	_, err = globalEngine.Invoke(localworkflows.WORKFLOWID_OUTPUT_WORKFLOW, workflow.WithInput(output))
 	return err
 }
 
@@ -622,12 +628,14 @@ func MainWithErrorCode() int {
 
 		err = legacyCLITerminated(err, errorList)
 	}
-
+	
 	displayError(err, globalEngine.GetUserInterface(), globalConfiguration, ctx)
 
 	exitCode := cliv2.DeriveExitCode(err)
 	globalLogger.Printf("Deriving Exit Code %d (cause: %v)", exitCode, err)
 
+	// Update instrumentation data before sending for project id and monitor id
+	// from stdout
 	updateInstrumentationDataBeforeSending(cliAnalytics, startTime, ua, exitCode)
 
 	if !globalConfiguration.GetBool(configuration.ANALYTICS_DISABLED) {

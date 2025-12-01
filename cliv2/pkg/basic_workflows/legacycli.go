@@ -24,6 +24,7 @@ import (
 
 var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("legacycli")
 var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stdout")
+var DATATYPEID_LEGACY_CLI_STDOUT_HIDDEN workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stdout-hidden")
 var staticNodeJsBinary string // injected by Makefile
 
 const (
@@ -123,7 +124,8 @@ func legacycliWorkflow(
 		outWriter = bufio.NewWriter(&outBuffer)
 		cli.SetIoStreams(in, outWriter, stderr)
 	} else {
-		cli.SetIoStreams(os.Stdin, os.Stdout, stderr)
+		outWriter = bufio.NewWriter(io.MultiWriter(os.Stdout, &outBuffer))
+		cli.SetIoStreams(os.Stdin, outWriter, stderr)
 	}
 
 	wrapperProxy, err := createInternalProxy(
@@ -148,6 +150,10 @@ func legacycliWorkflow(
 		}
 
 		data := workflow.NewData(DATATYPEID_LEGACY_CLI_STDOUT, contentType, outBuffer.Bytes())
+		output = append(output, data)
+	} else {
+		outWriter.Flush()
+		data := workflow.NewData(DATATYPEID_LEGACY_CLI_STDOUT_HIDDEN, "text/hidden", outBuffer.Bytes())
 		output = append(output, data)
 	}
 
