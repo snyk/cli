@@ -12,7 +12,7 @@ parameters:
     default: 'https://downloads.snyk.io/experimental/'
   go_download_base_url:
     type: string
-    default: 'https://storage.googleapis.com/golang/'
+    default: 'https://dl.google.com/go/'
   fips_go_download_base_url:
     type: string
     default: 'https://aka.ms/golang/release/latest/'
