@@ -1,7 +1,7 @@
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI, runSnykCLIWithArray } from '../../util/runSnykCLI';
 import { matchers } from 'jest-json-schema';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 import { existsSync, unlinkSync, readFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { runCommand } from '../../util/runCommand';
@@ -12,6 +12,10 @@ import {
   testIf,
 } from '../../../utils';
 import * as crypto from 'crypto';
+import {
+  createFilepaths,
+  deleteFilepaths,
+} from '../../../jest/util/fileIgnoreRulesFixture';
 
 expect.extend(matchers);
 jest.setTimeout(1000 * 120);
@@ -53,6 +57,7 @@ const projectWithoutCodeIssues = resolve(
   projectRoot,
   'test/fixtures/sast-empty',
 );
+const projectWithFileIgnoreRules = resolve('test/fixtures/file-ignore-rules');
 
 // This method does some basic checks on the given sarif file
 function checkSarif(file: string, expectedIgnoredFindings: number): any {
@@ -793,6 +798,89 @@ describe('snyk code test', () => {
 
               // Verify SARIF file
               checkSarif(sarifFile, 4);
+            });
+          });
+
+          describe('file filtering support', () => {
+            const gitIgnoreProject = join(
+              projectWithFileIgnoreRules,
+              'gitignore',
+            );
+            beforeAll(() => {
+              // create the file structure for testing gitignore file filtering
+              createFilepaths(gitIgnoreProject);
+            });
+
+            afterAll(() => {
+              deleteFilepaths(gitIgnoreProject);
+            });
+
+            it('should support .gitignore file filtering', async () => {
+              // get list of files that should be ignored
+              const gitIgnoredFilesCmd = await runCommand(
+                'git',
+                [
+                  'ls-files',
+                  '--ignored',
+                  '--exclude-standard',
+                  '-o',
+                  projectWithFileIgnoreRules,
+                ],
+                {
+                  env: {
+                    ...process.env,
+                    ...integrationEnv,
+                  },
+                },
+              );
+
+              const gitIgnoreFiles = gitIgnoredFilesCmd.stdout
+                .split('\n')
+                .filter((file) => file !== '');
+
+              // get a list of files that should not be ignored
+              const gitNotIgnoredFilesCmd = await runCommand(
+                'git',
+                [
+                  'ls-files',
+                  '--exclude-standard',
+                  '-o',
+                  projectWithFileIgnoreRules,
+                ],
+                {
+                  env: {
+                    ...process.env,
+                    ...integrationEnv,
+                  },
+                },
+              );
+
+              const gitNotIgnoredFiles = gitNotIgnoredFilesCmd.stdout
+                .split('\n')
+                .filter((file) => file !== '')
+                .filter((file) => file.includes('HashingAssignment.java'));
+
+              const codeTestCmd = await runSnykCLI(
+                `code test ${projectWithFileIgnoreRules}`,
+                {
+                  env: {
+                    ...process.env,
+                    ...integrationEnv,
+                  },
+                },
+              );
+
+              gitIgnoreFiles.forEach((file) => {
+                // code output resolves to the local path of the file
+                const gitignoredFile = file.split('file-ignore-rules/')[1];
+                expect(codeTestCmd.stdout).not.toContain(gitignoredFile);
+              });
+
+              gitNotIgnoredFiles.forEach((file) => {
+                // code output resolves to the local path of the file
+                const gitNotIgnoredFile = file.split('file-ignore-rules/')[1];
+                expect(codeTestCmd.stdout).toContain(gitNotIgnoredFile);
+              });
             });
           });
         }
