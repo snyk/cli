@@ -2,7 +2,9 @@ import { fakeServer } from '../../../acceptance/fake-server';
 import { runSnykSbomCliCycloneDxJsonForFixture } from './common';
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
-import { getServerPort } from '../../util/getServerPort';
+import {
+  getAvailableServerPort,
+} from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -10,8 +12,8 @@ describe('snyk sbom: maven options (mocked server only)', () => {
   let server;
   let env: Record<string, string>;
 
-  beforeAll((done) => {
-    const port = getServerPort(process);
+  beforeAll(async () => {
+    const port = await getAvailableServerPort(process);
     const baseApi = '/api/v1';
     env = {
       ...process.env,
@@ -21,9 +23,7 @@ describe('snyk sbom: maven options (mocked server only)', () => {
       SNYK_DISABLE_ANALYTICS: '1',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
-    server.listen(port, () => {
-      done();
-    });
+    await server.listenPromise(port);
   });
 
   afterEach(() => {
