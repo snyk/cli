@@ -1,6 +1,7 @@
 import { createProjectFromWorkspace } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
+import { getAvailableServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -8,8 +9,8 @@ describe('golang sboms (mocked server only)', () => {
   let server: FakeServer;
   let env: Record<string, string>;
 
-  beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '60213';
+  beforeAll(async () => {
+    const port = await getAvailableServerPort(process);
     const baseApi = '/api/v1';
     env = {
       ...process.env,
@@ -19,9 +20,7 @@ describe('golang sboms (mocked server only)', () => {
       SNYK_DISABLE_ANALYTICS: '1',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
-    server.listen(port, () => {
-      done();
-    });
+    await server.listenPromise(port);
   });
 
   afterEach(() => {
