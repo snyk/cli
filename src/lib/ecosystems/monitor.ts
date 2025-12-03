@@ -218,7 +218,7 @@ export async function getFormattedMonitorOutput(
       ok: true,
       data: monOutput,
       path: monitorResult.path,
-      projectName: monitorResult.id,
+      projectName: monitorResult.projectName,
     });
   }
   for (const monitorError of errors) {
