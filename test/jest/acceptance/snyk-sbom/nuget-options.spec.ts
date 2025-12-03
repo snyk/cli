@@ -3,9 +3,7 @@ import * as path from 'path';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
-import {
-  getAvailableServerPort,
-} from '../../util/getServerPort';
+import { getAvailableServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60 * 5);
 

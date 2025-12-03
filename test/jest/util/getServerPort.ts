@@ -1,5 +1,11 @@
 const portfinder = require('portfinder');
 
+/**
+ * @deprecated Use getAvailableServerPort instead
+ *
+ * @param process
+ * @returns string
+ */
 export const getServerPort = (process: NodeJS.Process): string => {
   return process.env.PORT || process.env.SNYK_PORT || '12345';
 };
