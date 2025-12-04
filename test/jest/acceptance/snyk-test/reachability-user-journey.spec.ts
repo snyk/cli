@@ -176,6 +176,26 @@ describe('snyk test --reachability', () => {
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });
 
+  test('works with --sarif', async () => {
+    const { stdout, code } = await runSnykCLI(
+      `test ${TEMP_LOCAL_PATH} --reachability --sarif`,
+      {
+        env: {
+          ...process.env,
+          ...ReachabilityIntegrationEnv.env,
+        },
+      },
+    );
+
+    expect(stdout).not.toBe('');
+
+    const sarifOutputJson = JSON.parse(stdout);
+    expect(sarifOutputJson['$schema']).toBeDefined();
+    expect(sarifOutputJson.runs[0].results.length).toBeGreaterThanOrEqual(1);
+
+    expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+  });
+
   test('works with --json and --sarif-file-output', async () => {
     const tmppath = tmpdir();
     const sarifOutputPath = join(tmppath, 'test.sarif');
