@@ -12,14 +12,14 @@ parameters:
     default: 'https://downloads.snyk.io/experimental/'
   go_download_base_url:
     type: string
-    default: 'https://storage.googleapis.com/golang/'
+    default: 'https://dl.google.com/go/'
   fips_go_download_base_url:
     type: string
     default: 'https://aka.ms/golang/release/latest/'
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.24.10'
+    default: '1.24.11'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
