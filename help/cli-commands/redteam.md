@@ -1,6 +1,6 @@
 # Redteam
 
-**Note**: Redteam is an experimental feature and is subject to breaking changes without notice. The feature is also referenced as AI Red Teaming. &#x20;
+**Note**: Redteam is an experimental feature and is subject to breaking changes without notice. The feature is also referenced as AI Red Teaming.
 
 Redteam is potentially disruptive. Before running this command, ensure you:
 
@@ -15,6 +15,7 @@ Redteam is potentially disruptive. Before running this command, ensure you:
 - Requires Snyk CLI v1.1300.1 (or later).
 - Create your YAML [configuration file](redteam.md#configuration-file).
 - If your Snyk CLI isn’t authenticated yet, authenticate by running the `snyk auth` command ([see docs](auth.md)).
+- A role with Edit Organization permission, granted using a custom rule or by an Organization or Group administrator.
 
 ## Usage
 
