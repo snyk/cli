@@ -156,6 +156,19 @@ describe('snyk container', () => {
       expect(code).toEqual(1);
     }, 30000);
 
+    it('detects stripped Go binaries and reports fleet-server dependencies', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test docker-archive:test/fixtures/container-projects/stripped-go-binaries-minimal.tar.gz --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+
+      const goModulesResults = jsonOutput.applications?.find((app) =>
+        app.targetFile?.includes('fleet-server'),
+      );
+      expect(code).toEqual(1);
+      expect(goModulesResults).toBeDefined();
+    });
+
     it('npm depGraph is generated in an npm image with lockfiles', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container test docker-archive:test/fixtures/container-projects/npm7-with-package-lock-file.tar --print-deps`,

@@ -24,18 +24,19 @@ import (
 	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/container-cli/pkg/container"
+	"github.com/snyk/error-catalog-golang-public/cli"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
 	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
-	"github.com/snyk/container-cli/pkg/container"
-	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
@@ -45,6 +46,9 @@ import (
 
 	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 
+	"github.com/snyk/go-httpauth/pkg/httpauth"
+	"github.com/snyk/snyk-iac-capture/pkg/capture"
+
 	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
@@ -52,8 +56,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/ui"
 	"github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
-	"github.com/snyk/go-httpauth/pkg/httpauth"
-	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
 
@@ -299,6 +301,12 @@ func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 		},
 	}
 	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_KEY_FILE_WRITERS, fileWriters)
+
+	// ensure that json is translated to sarif for the default writer as well
+	defaultWriterLookup := map[string]string{
+		output_workflow.JSON_MIME_TYPE: output_workflow.SARIF_MIME_TYPE,
+	}
+	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_KEY_DEFAULT_WRITER_LUT, defaultWriterLookup)
 
 	return runCommand(cmd, args)
 }
