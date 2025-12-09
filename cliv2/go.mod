@@ -14,11 +14,11 @@ require (
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20251111071234-1ea3ded4c7d2
 	github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188
-	github.com/snyk/cli-extension-os-flows v0.0.0-20251204103758-6d63a313a38e
+	github.com/snyk/cli-extension-os-flows v0.0.0-20251209132006-860b91fe60d5
 	github.com/snyk/cli-extension-sbom v0.0.0-20251113132837-5f6cc6d0cb26
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20251024131459-25bdd340f134
-	github.com/snyk/go-application-framework v0.0.0-20251204154041-f17021f1a502
+	github.com/snyk/go-application-framework v0.0.0-20251209131634-fa77f8c14fa3
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20251202122720-659b8a92f4cd
