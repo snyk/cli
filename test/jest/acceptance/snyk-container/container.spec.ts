@@ -4,11 +4,12 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
 import { RunCommandOptions, RunCommandResult } from '../../util/runCommand';
 import { getServerPort } from '../../util/getServerPort';
+import { isWindowsOperatingSystem } from '../../../utils';
 
 jest.setTimeout(1000 * 60);
 
 describe('snyk container', () => {
-  if (os.platform() === 'win32') {
+  if (isWindowsOperatingSystem()) {
     // eslint-disable-next-line jest/no-focused-tests
     it.only('Windows not yet supported', () => {
       console.warn(
@@ -154,6 +155,19 @@ describe('snyk container', () => {
       expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
       expect(code).toEqual(1);
     }, 30000);
+
+    it('detects stripped Go binaries and reports fleet-server dependencies', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test docker-archive:test/fixtures/container-projects/stripped-go-binaries-minimal.tar.gz --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+
+      const goModulesResults = jsonOutput.applications?.find((app) =>
+        app.targetFile?.includes('fleet-server'),
+      );
+      expect(code).toEqual(1);
+      expect(goModulesResults).toBeDefined();
+    });
 
     it('npm depGraph is generated in an npm image with lockfiles', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
@@ -383,6 +397,21 @@ DepGraph end`,
         }
       }
     }, 300000); // 5 minute timeout for this test
+
+    it('successfully scans image with empty history array', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `container test public.ecr.aws/bottlerocket/bottlerocket-kernel-kit:v4.5.1 --json`,
+      );
+
+      const jsonOutput = JSON.parse(stdout);
+      expect([0, 1]).toContain(code);
+
+      expect(jsonOutput).toBeDefined();
+      expect(jsonOutput.packageManager).toBeDefined();
+
+      expect(stderr).not.toContain('Cannot read properties of undefined');
+      expect(stderr).not.toContain("reading 'created'");
+    });
   });
 
   describe('depgraph', () => {

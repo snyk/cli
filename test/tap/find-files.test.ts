@@ -12,13 +12,6 @@ test('find all files in test fixture', async (t) => {
     levelsDeep: 6,
   });
   const expected = [
-    path.join(
-      testFixture,
-      'golang',
-      'golang-app-govendor',
-      'vendor',
-      'vendor.json',
-    ),
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.lock'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),
@@ -65,7 +58,9 @@ test('find all files in test fixture', async (t) => {
   t.same(result.length, expected.length, 'should be the same length');
   t.same(result.sort(), expected.sort(), 'should return all files');
   t.same(
-    allFilesFound.filter((f) => !f.endsWith('broken-symlink')).sort(),
+    allFilesFound
+      .filter((f) => !f.endsWith('broken-symlink') && !f.includes('/.gradle/'))
+      .sort(),
     [...filteredOut, ...expected].sort(),
     'should return all unfiltered files',
   );
@@ -79,13 +74,6 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
     levelsDeep: 6,
   });
   const expected = [
-    path.join(
-      testFixture,
-      'golang',
-      'golang-app-govendor',
-      'vendor',
-      'vendor.json',
-    ),
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.lock'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),

@@ -214,6 +214,7 @@ async function processWorkspacesProjects(
       {
         strictOutOfSync: options.strictOutOfSync,
         dev: options.dev,
+        exclude: options.exclude,
       },
       targetFiles,
     );

@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-ai-bom v0.0.0-20251020202637-f2a2552d8e69
+	github.com/snyk/cli-extension-ai-bom v0.0.0-20251124115105-fc8ec958c82e
 	github.com/snyk/cli-extension-dep-graph v0.0.0-20251111071234-1ea3ded4c7d2
 	github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188
@@ -18,10 +18,10 @@ require (
 	github.com/snyk/cli-extension-sbom v0.0.0-20251113132837-5f6cc6d0cb26
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20251024131459-25bdd340f134
-	github.com/snyk/go-application-framework v0.0.0-20251118111357-8c9e565ff018
+	github.com/snyk/go-application-framework v0.0.0-20251204154041-f17021f1a502
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20251126093614-d999dd468f2e
+	github.com/snyk/snyk-ls v0.0.0-20251202122720-659b8a92f4cd
 	github.com/snyk/studio-mcp v1.1.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
@@ -71,6 +71,7 @@ require (
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.13-0.20250311204145-2c3ea96c31dd // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect
+	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/cncf/xds/go v0.0.0-20241223141626-cff3c89139a3 // indirect
 	github.com/containerd/console v1.0.3 // indirect
@@ -147,6 +148,7 @@ require (
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
+	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mark3labs/mcp-go v0.43.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

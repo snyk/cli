@@ -1,4 +1,5 @@
 import { EOL } from 'os';
+import * as path from 'path';
 import { startMockServer, isValidJSONString } from './helpers';
 import { InvalidYamlFileError } from '../../../../src/cli/commands/test/iac/local-execution/yaml-parser';
 import { FakeServer } from '../../../acceptance/fake-server';
@@ -116,7 +117,10 @@ describe('CloudFormation single file scan for IaCV2', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/cloudformation/aurora-valid.yml`,
     );
-    expect(stdout).toContain('File:    iac/cloudformation/aurora-valid.yml');
+
+    expect(stdout).toContain(
+      `File:    ${['iac', 'cloudformation', 'aurora-valid.yml'].join(path.sep)}`,
+    );
     expect(stdout).toContain('RDS instance is not using encrypted storage');
     expect(stdout).toContain(
       '  Path:    resource > AuroraInstance0 > StorageEncrypted',
@@ -128,7 +132,9 @@ describe('CloudFormation single file scan for IaCV2', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/cloudformation/fargate-valid.json`,
     );
-    expect(stdout).toContain('File:    iac/cloudformation/fargate-valid.json');
+    expect(stdout).toContain(
+      `File:    ${['iac', 'cloudformation', 'fargate-valid.json'].join(path.sep)}`,
+    );
     expect(stdout).toContain('SNYK-CC-00021');
     expect(exitCode).toBe(1);
   });

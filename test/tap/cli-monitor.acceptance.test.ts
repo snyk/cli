@@ -8,14 +8,14 @@ import * as util from 'util';
 import { fakeServer } from '../acceptance/fake-server';
 import * as subProcess from '../../src/lib/sub-process';
 import { getVersion } from '../../src/lib/version';
+import { isWindowsOperatingSystem } from '../utils';
 import {
   chdirWorkspaces,
   getWorkspaceJSON,
 } from '../acceptance/workspace-helper';
-
-const isEmpty = require('lodash.isempty');
-const isObject = require('lodash.isobject');
-const get = require('lodash.get');
+import * as isEmpty from 'lodash.isempty';
+import * as isObject from 'lodash.isobject';
+import * as get from 'lodash.get';
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -45,7 +45,6 @@ import * as depGraphLib from '@snyk/dep-graph';
 import { getFixturePath } from '../jest/util/getFixturePath';
 import { getWorkspacePath } from '../jest/util/getWorkspacePath';
 import { snykHttpClient } from '../../src/lib/request/snyk-http-client';
-import * as os from 'os';
 
 const exec = util.promisify(child_process.exec);
 
@@ -57,9 +56,7 @@ const exec = util.promisify(child_process.exec);
   - Jakub
 */
 
-const isWindows = os.platform().indexOf('win') === 0;
-
-if (!isWindows) {
+if (!isWindowsOperatingSystem()) {
   before('setup', async (t) => {
     versionNumber = await getVersion();
 
@@ -1322,55 +1319,6 @@ if (!isWindows) {
           args: null,
           file: 'Gopkg.lock',
           packageManager: 'golangdep',
-          path: 'golang-app',
-        },
-        snykHttpClient,
-      ],
-      'calls golang plugin',
-    );
-  });
-
-  test('`monitor golang-app --file=vendor/vendor.json`', async (t) => {
-    chdirWorkspaces();
-    const plugin = {
-      async inspect() {
-        return {
-          plugin: {
-            targetFile: 'vendor/vendor.json',
-            name: 'snyk-go-plugin',
-            runtime: 'go',
-          },
-          package: {},
-        };
-      },
-    };
-    const spyPlugin = sinon.spy(plugin, 'inspect');
-
-    const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-    t.teardown(loadPlugin.restore);
-    loadPlugin.withArgs('govendor').returns(plugin);
-
-    await cli.monitor('golang-app', {
-      file: 'vendor/vendor.json',
-    });
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.equal(
-      req.headers['x-snyk-cli-version'],
-      versionNumber,
-      'sends version number',
-    );
-    t.match(req.url, '/monitor/govendor', 'puts at correct url');
-    t.equal(req.body.targetFile, 'vendor/vendor.json', 'sends the targetFile');
-    t.same(
-      spyPlugin.getCall(0).args,
-      [
-        'golang-app',
-        'vendor/vendor.json',
-        {
-          args: null,
-          file: 'vendor/vendor.json',
-          packageManager: 'govendor',
           path: 'golang-app',
         },
         snykHttpClient,

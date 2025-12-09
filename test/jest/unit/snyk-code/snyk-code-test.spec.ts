@@ -1,4 +1,3 @@
-import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
 import stripAnsi = require('strip-ansi');
@@ -12,7 +11,7 @@ jest.useFakeTimers().setSystemTime(new Date('2025-01-01T00:00:00.000Z'));
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
 const makeRequestMock = makeRequest as jest.Mock;
 
-import { loadJson } from '../../../utils';
+import { isWindowsOperatingSystem, loadJson } from '../../../utils';
 import * as checks from '../../../../src/lib/plugins/sast/checks';
 import { config as userConfig } from '../../../../src/lib/user-config';
 import * as analysis from '../../../../src/lib/plugins/sast/analysis';
@@ -46,11 +45,10 @@ describe('Test snyk code', () => {
     path.join(fixturePath, 'sample-analyze-folders-response.json'),
   );
 
-  const isWindows = os.platform().indexOf('win') === 0;
   const cwd = process.cwd();
 
   function readFixture(filename: string) {
-    if (isWindows) {
+    if (isWindowsOperatingSystem()) {
       filename = filename.replace('.txt', '-windows.txt');
     }
     const filePath = path.join(fixturePath, filename);

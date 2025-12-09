@@ -36,6 +36,17 @@ const TEST_CASES: Array<TestCase> = [
     env: { ...process.env },
   },
   {
+    name: 'Snyk Open Source (UFM)',
+    cmd: 'test --sarif --reachability',
+    target: join(__dirname, '../../fixtures/npm/with-vulnerable-lodash-dep'),
+    env: {
+      ...process.env,
+      INTERNAL_SNYK_CLI_REACHABILITY_ENABLED: 'true',
+      INTERNAL_SNYK_CLI_EXPERIMENTAL_RISK_SCORE: 'true',
+      INTERNAL_SNYK_CLI_EXPERIMENTAL_RISK_SCORE_IN_CLI: 'true',
+    },
+  },
+  {
     name: 'Snyk Code (native)',
     cmd: 'code test --sarif',
     target: join(__dirname, '../../fixtures/sast/with_code_issues'),

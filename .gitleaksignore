@@ -87,3 +87,4 @@ test/jest/acceptance/instrumentation.spec.ts:snyk-api-token:19
 1b65935bc7c69b1029d7c63808af211ae6030c98:test/fixtures/sast/shallow_sast_webgoat/JWTFinalEndpointTest.java:jwt:31
 test/jest/acceptance/snyk-code/snyk-code-integration.spec.ts:snyk-api-token:181
 test/jest/acceptance/error-catalog.spec.ts:snyk-api-token:32
+test/jest/acceptance/snyk-redteam/redteam.spec.ts:snyk-api-token:30
