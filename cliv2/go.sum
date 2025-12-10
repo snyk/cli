@@ -799,6 +799,8 @@ github.com/elazarl/goproxy v1.7.2 h1:Y2o6urb7Eule09PjlhQRGNsqRfPmYI3KKQLFpCAV3+o
 github.com/elazarl/goproxy v1.7.2/go.mod h1:82vkLNir0ALaW14Rc399OTTjyNREgmdL2cVoIbS6XaE=
 github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a h1:6hp3+W5oJSkbk/m2XquFdhih2H4wxxR0Nl6GfPL8kss=
 github.com/elazarl/goproxy/ext v0.0.0-20230808193330-2592e75ae04a/go.mod h1:gNh8nYJoAm43RfaxurUnxr+N1PwuFV3ZMl/efxlIlY8=
+github.com/elliotchance/orderedmap/v3 v3.1.0 h1:j4DJ5ObEmMBt/lcwIecKcoRxIQUEnw0L804lXYDt/pg=
+github.com/elliotchance/orderedmap/v3 v3.1.0/go.mod h1:G+Hc2RwaZvJMcS4JpGCOyViCnGeKf0bTYCGTO4uhjSo=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
 github.com/emirpasic/gods v1.18.1/go.mod h1:8tpGGwCnJ5H4r6BWwaV6OrWmMoPhUl5jm/FMNAnJvWQ=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
@@ -1304,8 +1306,8 @@ github.com/skeema/knownhosts v1.3.1 h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnB
 github.com/skeema/knownhosts v1.3.1/go.mod h1:r7KTdC8l4uxWRyK2TpQZ/1o5HaSzh06ePQNxPwTcfiY=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20251124115105-fc8ec958c82e h1:O6cDZiYpN8weytz2tTO0paNrm/DNSuTXb+xhY92QDdY=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20251124115105-fc8ec958c82e/go.mod h1:YvlGYA6i/aXDY68ps/X/XvkN8JGZ8T6eKFNdPE2y3oI=
-github.com/snyk/cli-extension-dep-graph v0.0.0-20251111071234-1ea3ded4c7d2 h1:GG3jrRzdgRbK6rDPBeUm/NHnu6+9oI/mpAVz1xs+SzM=
-github.com/snyk/cli-extension-dep-graph v0.0.0-20251111071234-1ea3ded4c7d2/go.mod h1:k1ZvlY0rv527wfkmLOggYhaH78cy4R86C7/jW3BwFgk=
+github.com/snyk/cli-extension-dep-graph v0.9.1-0.20251209152458-4eef1b575908 h1:c72Hb7BTxxqXj6hITTTDjaI5cm/PTcRpsIEKUD6grPU=
+github.com/snyk/cli-extension-dep-graph v0.9.1-0.20251209152458-4eef1b575908/go.mod h1:64obHvy7tIkb93A96BoMIobO2JEvl3lQEPoTnpQ65sI=
 github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0 h1:ecGoMisVTnz5xRnt9yXW2hlRrIyYM123yMt1NeNEo6s=
 github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0/go.mod h1:tLxyhtrRiEvbSLQ6PbCsl29ZXK6s2aunRuL6cSe/8cE=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188 h1:UoyD7cB9XZVHPTRugsmCt6rBvAw5IoiBjI8go2qj1pk=
@@ -1318,8 +1320,10 @@ github.com/snyk/code-client-go v1.24.4 h1:19rmeqZFvjQMKaAmSZ0CdYZb1d0ENsDad2Cp32
 github.com/snyk/code-client-go v1.24.4/go.mod h1:uMlmMToe4uuNhNLs+yxjM3WFbytna+ytDWhpbnNwTSk=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
-github.com/snyk/error-catalog-golang-public v0.0.0-20251024131459-25bdd340f134 h1:IKwMDrwicB07NDS+VrI6I8qowqdDpKI0nBEvMnbSu+w=
-github.com/snyk/error-catalog-golang-public v0.0.0-20251024131459-25bdd340f134/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
+github.com/snyk/dep-graph/go v0.0.0-20251128083058-1972edcff6cf h1:RZ3KGLcbH37DUFNA0zDnfcET3jz6lxTOywON5L1xxK0=
+github.com/snyk/dep-graph/go v0.0.0-20251128083058-1972edcff6cf/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
+github.com/snyk/error-catalog-golang-public v0.0.0-20251029091002-52bc5ef82c45 h1:CN5E7U5U4oxrkGohSZLLUHbWwVEc1xkyWIoQyIKNMTU=
+github.com/snyk/error-catalog-golang-public v0.0.0-20251029091002-52bc5ef82c45/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
 github.com/snyk/go-application-framework v0.0.0-20251209131634-fa77f8c14fa3 h1:RYF3pIQ7qv7nlOYXc/SEqxZ1anlSeDxye6Q6LvM7gKw=
 github.com/snyk/go-application-framework v0.0.0-20251209131634-fa77f8c14fa3/go.mod h1:T+dt4+4XFAJ4PmoGgt/hrx7LiY+vaz+m9V4UYe24Rpc=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=

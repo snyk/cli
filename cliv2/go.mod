@@ -11,13 +11,13 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20251124115105-fc8ec958c82e
-	github.com/snyk/cli-extension-dep-graph v0.0.0-20251111071234-1ea3ded4c7d2
+	github.com/snyk/cli-extension-dep-graph v0.9.1-0.20251209152458-4eef1b575908
 	github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188
 	github.com/snyk/cli-extension-os-flows v0.0.0-20251209132006-860b91fe60d5
 	github.com/snyk/cli-extension-sbom v0.0.0-20251113132837-5f6cc6d0cb26
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
-	github.com/snyk/error-catalog-golang-public v0.0.0-20251024131459-25bdd340f134
+	github.com/snyk/error-catalog-golang-public v0.0.0-20251029091002-52bc5ef82c45
 	github.com/snyk/go-application-framework v0.0.0-20251209131634-fa77f8c14fa3
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
@@ -84,6 +84,7 @@ require (
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/dop251/goja v0.0.0-20251008123653-cf18d89f3cf6 // indirect
 	github.com/dop251/goja_nodejs v0.0.0-20250409162600-f7acab6894b0 // indirect
+	github.com/elliotchance/orderedmap/v3 v3.1.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/envoyproxy/go-control-plane/envoy v1.32.4 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
@@ -190,6 +191,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
 	github.com/snyk/code-client-go v1.24.4 // indirect
+	github.com/snyk/dep-graph/go v0.0.0-20251128083058-1972edcff6cf // indirect
 	github.com/snyk/policy-engine v1.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
