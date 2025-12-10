@@ -13,6 +13,9 @@ module.exports = async function () {
     process.env.TEST_SNYK_COMMAND = getCliBinaryPath();
   }
 
+  // clear config to avoid any conflicts with local runs
+  await runSnykCLI(`config clear`);
+
   let token = 'UNSET';
   if (process.env.TEST_SNYK_TOKEN !== undefined) {
     token = '***';
