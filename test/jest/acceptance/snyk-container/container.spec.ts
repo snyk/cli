@@ -219,6 +219,44 @@ describe('snyk container', () => {
       expect(stdout).toContain('Package manager:   npm');
     });
 
+    it('pnpm depGraph is generated in an image with pnpm-lock.yaml v6', async () => {
+      const { code, stdout } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/pnpmlockv6.tar --print-deps`,
+      );
+
+      // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+      expect([0, 1]).toContain(code);
+      expect(stdout).toContain('Package manager:   pnpm');
+    });
+
+    it('pnpm depGraph is generated in an image with pnpm-lock.yaml v9', async () => {
+      const { code, stdout } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/pnpmlockv9.tar --print-deps`,
+      );
+
+      // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+      expect([0, 1]).toContain(code);
+      expect(stdout).toContain('Package manager:   pnpm');
+    });
+
+    it('pnpm project target file is found in container image', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test docker-archive:test/fixtures/container-projects/pnpmlockv6.tar --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+
+      // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+      expect([0, 1]).toContain(code);
+      expect(jsonOutput.applications).toBeDefined();
+      expect(jsonOutput.applications.length).toBeGreaterThanOrEqual(1);
+
+      const pnpmApp = jsonOutput.applications.find(
+        (app) => app.packageManager === 'pnpm',
+      );
+      expect(pnpmApp).toBeDefined();
+      expect(pnpmApp.targetFile).toContain('package.json');
+    });
+
     it('finds dependencies in oci image (library/ubuntu)', async () => {
       cli = await startSnykCLI(
         'container test library/ubuntu@sha256:7a57c69fe1e9d5b97c5fe649849e79f2cfc3bf11d10bbd5218b4eb61716aebe6 --print-deps',
