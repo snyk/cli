@@ -1,8 +1,6 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-
 import (
 	"context"
 	"encoding/json"
@@ -24,19 +22,20 @@ import (
 	"github.com/snyk/cli-extension-iac/pkg/iac"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
-	"github.com/snyk/container-cli/pkg/container"
-	"github.com/snyk/error-catalog-golang-public/cli"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-
+	"github.com/snyk/cli-extension-secrets/pkg/secrets"
 	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
+	"github.com/snyk/container-cli/pkg/container"
+	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
@@ -45,7 +44,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
-
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
@@ -58,7 +56,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
-
 	"github.com/snyk/studio-mcp/pkg/mcp"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
@@ -560,6 +557,10 @@ func MainWithErrorCode() int {
 	globalEngine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
+
+	if globalConfiguration.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
+		globalEngine.AddExtensionInitializer(secrets.Init)
+	}
 
 	// init engine
 	err = globalEngine.Init()
