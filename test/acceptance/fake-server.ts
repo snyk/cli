@@ -578,6 +578,63 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     },
   );
 
+  app.get(`/api/hidden/orgs/:orgId/scanning_agents`, (req, res) => {
+    res.status(200);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {},
+      data: [
+        {
+          name: 'test-agent',
+          installer_generated: false,
+          id: '59622253-75f3-4439-ac1e-ce94834c5804',
+          online: true,
+          fallback: false,
+          rx_bytes: 1000,
+          tx_bytes: 1000,
+          latest_handshake: 1000,
+        },
+      ],
+    });
+  });
+
+  app.post(`/api/hidden/orgs/:orgId/scanning_agents`, (req, res) => {
+    res.status(201);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {},
+      data: {
+        name: 'test-agent',
+        installer_generated: false,
+        id: '59622253-75f3-4439-ac1e-ce94834c5804',
+        online: true,
+        fallback: false,
+        rx_bytes: 1000,
+        tx_bytes: 1000,
+        latest_handshake: 1000,
+      },
+    });
+  });
+
+  app.post(
+    `/api/hidden/orgs/:orgId/scanning_agents/:id/generate`,
+    (req, res) => {
+      res.status(200);
+      res.send({
+        jsonapi: { version: '1.0' },
+        links: {},
+        data: {
+          token: 'test-token',
+        },
+      });
+    },
+  );
+
+  app.delete(`/api/hidden/orgs/:orgId/scanning_agents/:id`, (req, res) => {
+    res.status(204);
+    res.send();
+  });
+
   app.post(basePath + '/vuln/:registry', (req, res, next) => {
     const vulnerabilities = [];
     if (req.query.org && req.query.org === 'missing-org') {
