@@ -255,7 +255,7 @@ describe.each(userJourneyWorkflows)(
             env,
           });
           expect(stdout).toContainText(
-            'The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.',
+            'The --exclude option can only be used in combination with --all-projects or --yarn-workspaces.',
           );
           expect(code).toEqual(2);
         });
