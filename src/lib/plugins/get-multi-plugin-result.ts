@@ -116,6 +116,7 @@ export async function getMultiPluginResult(
         root,
         optionsClone,
         optionsClone.file,
+        featureFlags,
       );
       let resultWithScannedProjects: cliInterface.legacyPlugin.MultiProjectResult;
 

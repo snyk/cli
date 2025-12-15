@@ -684,8 +684,6 @@ github.com/aws/aws-sdk-go v1.55.5/go.mod h1:eRwEWoyTWFMVYVQzKMNHWP5/RV4xIUGMQfXQ
 github.com/aymanbagabas/go-osc52 v1.0.3/go.mod h1:zT8H+Rk4VSabYN90pWyugflM3ZhpTZNC7cASDfUCdT4=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1/go.mod h1:uYgXzlJ7ZpABp8OJ+exZzJJhRNQ2ASbcXHWsFqH8hp8=
-github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
-github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d h1:xDfNPAt8lFiC1UJrqV3uuy861HCTo708pDMbjHHdCas=
@@ -699,8 +697,6 @@ github.com/boombuler/barcode v1.0.0/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl
 github.com/boombuler/barcode v1.0.1/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/bradleyjkemp/cupaloy/v2 v2.8.0 h1:any4BmKE+jGIaMpnU8YgH/I2LPiLBufr6oMMlVBbn9M=
 github.com/bradleyjkemp/cupaloy/v2 v2.8.0/go.mod h1:bm7JXdkRd4BHJk9HpwqAI8BoAY1lps46Enkdqw6aRX0=
-github.com/buger/jsonparser v1.1.1 h1:2PnMjfWD7wBILjqQbt530v576A/cAbQvEW9gGIpYMUs=
-github.com/buger/jsonparser v1.1.1/go.mod h1:6RYKKt7H4d4+iWqouImQ9R2FZql3VbhNgx27UK13J/0=
 github.com/bytecodealliance/wasmtime-go/v3 v3.0.2 h1:3uZCA/BLTIu+DqCfguByNMJa2HVHpXvjfy0Dy7g6fuA=
 github.com/bytecodealliance/wasmtime-go/v3 v3.0.2/go.mod h1:RnUjnIXxEJcL6BgCvNyzCCRzZcxCgsZCi+RNlvYor5Q=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
@@ -1095,8 +1091,6 @@ github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
-github.com/invopop/jsonschema v0.13.0 h1:KvpoAJWEjR3uD9Kbm2HWJmqsEaHt8lBUpd0qHcIi21E=
-github.com/invopop/jsonschema v0.13.0/go.mod h1:ffZ5Km5SWWRAIN6wbDXItl95euhFz2uON45H2qjYt+0=
 github.com/jackc/puddle/v2 v2.2.2 h1:PR8nw+E/1w0GLuRFSmiioY6UooMp6KJv0/61nB7icHo=
 github.com/jackc/puddle/v2 v2.2.2/go.mod h1:vriiEXHvEE654aYKXXjOvZM39qJ0q+azkZFrfEOc3H4=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
@@ -1152,12 +1146,10 @@ github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i
 github.com/lyft/protoc-gen-star v0.6.0/go.mod h1:TGAoBVkt8w7MPG72TrKIu85MIdXwDuzJYeZuUPFPNwA=
 github.com/lyft/protoc-gen-star v0.6.1/go.mod h1:TGAoBVkt8w7MPG72TrKIu85MIdXwDuzJYeZuUPFPNwA=
 github.com/lyft/protoc-gen-star/v2 v2.0.1/go.mod h1:RcCdONR2ScXaYnQC5tUzxzlpA3WVYF7/opLeUgcQs/o=
-github.com/mailru/easyjson v0.9.0 h1:PrnmzHw7262yW8sTBwxi1PdJA3Iw/EKBa8psRf7d9a4=
-github.com/mailru/easyjson v0.9.0/go.mod h1:1+xMtQp2MRNVL/V1bOzuP3aP8VNwRW55fQUto+XFtTU=
 github.com/manifoldco/promptui v0.9.0 h1:3V4HzJk1TtXW1MTZMP7mdlwbBpIinw3HztaIlYthEiA=
 github.com/manifoldco/promptui v0.9.0/go.mod h1:ka04sppxSGFAtxX0qhlYQjISsg9mR4GWtQEhdbn6Pgg=
-github.com/mark3labs/mcp-go v0.43.0 h1:lgiKcWMddh4sngbU+hoWOZ9iAe/qp/m851RQpj3Y7jA=
-github.com/mark3labs/mcp-go v0.43.0/go.mod h1:YnJfOL382MIWDx1kMY+2zsRHU/q78dBg9aFb8W6Thdw=
+github.com/mark3labs/mcp-go v0.31.0 h1:4UxSV8aM770OPmTvaVe/b1rA2oZAjBMhGBfUgOGut+4=
+github.com/mark3labs/mcp-go v0.31.0/go.mod h1:rXqOudj/djTORU/ThxYx8fqEVj/5pvTuuebQ2RC7uk4=
 github.com/maruel/natural v1.1.1 h1:Hja7XhhmvEFhcByqDoHz9QZbkWey+COd9xWfCfn1ioo=
 github.com/maruel/natural v1.1.1/go.mod h1:v+Rfd79xlw1AgVBjbO0BEQmptqb5HvL/k9GRHB7ZKEg=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
@@ -1306,14 +1298,26 @@ github.com/skeema/knownhosts v1.3.1 h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnB
 github.com/skeema/knownhosts v1.3.1/go.mod h1:r7KTdC8l4uxWRyK2TpQZ/1o5HaSzh06ePQNxPwTcfiY=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20251211082900-ca53e09267c4 h1:/fFPiyMeU6egp39QkubOsDBn86WgHO/OlRGH8J0CAhg=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20251211082900-ca53e09267c4/go.mod h1:YvlGYA6i/aXDY68ps/X/XvkN8JGZ8T6eKFNdPE2y3oI=
-github.com/snyk/cli-extension-dep-graph v0.9.1-0.20251209152458-4eef1b575908 h1:c72Hb7BTxxqXj6hITTTDjaI5cm/PTcRpsIEKUD6grPU=
-github.com/snyk/cli-extension-dep-graph v0.9.1-0.20251209152458-4eef1b575908/go.mod h1:64obHvy7tIkb93A96BoMIobO2JEvl3lQEPoTnpQ65sI=
+github.com/snyk/cli-extension-dep-graph v0.11.0 h1:giyMIGHH6VeUG1sfvrDP8vyIwbkqE7iQEV4hwGk6bbc=
+github.com/snyk/cli-extension-dep-graph v0.11.0/go.mod h1:jw4rmBwqM1Z+rPHUagXlSsw/S78MXNodpie4+EjYVmw=
 github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0 h1:ecGoMisVTnz5xRnt9yXW2hlRrIyYM123yMt1NeNEo6s=
 github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0/go.mod h1:tLxyhtrRiEvbSLQ6PbCsl29ZXK6s2aunRuL6cSe/8cE=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188 h1:UoyD7cB9XZVHPTRugsmCt6rBvAw5IoiBjI8go2qj1pk=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188/go.mod h1:qUc1yjKJe6tt/8/MJasnog3VBXd/b619MSFVfKAlDxE=
-github.com/snyk/cli-extension-os-flows v0.0.0-20251212151932-5d45529cc422 h1:nlLTg8TcVoGPRxelCf32eMGc72zgXDA2ENBoMzGsyJQ=
-github.com/snyk/cli-extension-os-flows v0.0.0-20251212151932-5d45529cc422/go.mod h1:ifUA0iPGCigV4OEDySBYvz2Yt1YqMvD6eT6AqJ2k37Y=
+github.com/snyk/cli-extension-mcp-scan v0.0.0-20251217093101-0705cbe3593b h1:d8s+TntutaQlPcB+5I2781ALWEgGfQh2XQjPrt0oRy8=
+github.com/snyk/cli-extension-mcp-scan v0.0.0-20251217093101-0705cbe3593b/go.mod h1:dRgGvQssSQ1U//nQ0D+H8JXnjz1ZhG9GWbz8GEaFRMQ=
+<<<<<<< HEAD
+<<<<<<< HEAD
+github.com/snyk/cli-extension-os-flows v0.0.0-20251218084622-1754d1ef9945 h1:c/x1CGajnt9/sTcZ3IxGS9vnaN/SIwCsaMz7o4WmW1A=
+github.com/snyk/cli-extension-os-flows v0.0.0-20251218084622-1754d1ef9945/go.mod h1:TWWxoMwavH+jAluWZtaaDbdOuwt8C5n51xnEuWvrv1g=
+=======
+github.com/snyk/cli-extension-os-flows v0.0.0-20251217153425-36074440ea9e h1:yy/KR+LvqOWjCChq+2YEAhlju+D15PHKLkBtn4Aw0NA=
+github.com/snyk/cli-extension-os-flows v0.0.0-20251217153425-36074440ea9e/go.mod h1:ifUA0iPGCigV4OEDySBYvz2Yt1YqMvD6eT6AqJ2k37Y=
+>>>>>>> 9336b0a9f (feat: route OS tests via new extension when FF set)
+=======
+github.com/snyk/cli-extension-os-flows v0.0.0-20251218084622-1754d1ef9945 h1:c/x1CGajnt9/sTcZ3IxGS9vnaN/SIwCsaMz7o4WmW1A=
+github.com/snyk/cli-extension-os-flows v0.0.0-20251218084622-1754d1ef9945/go.mod h1:TWWxoMwavH+jAluWZtaaDbdOuwt8C5n51xnEuWvrv1g=
+>>>>>>> 814118a3f (feat: update GAF and os cli extension)
 github.com/snyk/cli-extension-sbom v0.0.0-20251113132837-5f6cc6d0cb26 h1:KEiRBMdOJHefM4GKL3C3FfvH4J2G/vBFnwkonylV5+o=
 github.com/snyk/cli-extension-sbom v0.0.0-20251113132837-5f6cc6d0cb26/go.mod h1:zyKDBaETfZyI7BfIjPnezH3QX2seQrR/d7NM5W6LV9s=
 github.com/snyk/code-client-go v1.24.4 h1:19rmeqZFvjQMKaAmSZ0CdYZb1d0ENsDad2Cp32jeWOA=
@@ -1324,18 +1328,28 @@ github.com/snyk/dep-graph/go v0.0.0-20251128083058-1972edcff6cf h1:RZ3KGLcbH37DU
 github.com/snyk/dep-graph/go v0.0.0-20251128083058-1972edcff6cf/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
 github.com/snyk/error-catalog-golang-public v0.0.0-20251205100923-e93b06d4a6c6 h1:8fGb/ipxqcmQHwC1ltd7Fch23fbQXP6kNohORe/GQpE=
 github.com/snyk/error-catalog-golang-public v0.0.0-20251205100923-e93b06d4a6c6/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
-github.com/snyk/go-application-framework v0.0.0-20251212150740-f0fedc73ebad h1:FZ0O9Ngi0uJXpSOlqwu/dElSuriQu45VL8odVCqbv9k=
-github.com/snyk/go-application-framework v0.0.0-20251212150740-f0fedc73ebad/go.mod h1:T+dt4+4XFAJ4PmoGgt/hrx7LiY+vaz+m9V4UYe24Rpc=
+<<<<<<< HEAD
+<<<<<<< HEAD
+github.com/snyk/go-application-framework v0.0.0-20251218080318-c938eac5f436 h1:G7gu1qgxsGnh79VCsik98wKV7kmUS4RQnV+YrKlyxgc=
+github.com/snyk/go-application-framework v0.0.0-20251218080318-c938eac5f436/go.mod h1:T+dt4+4XFAJ4PmoGgt/hrx7LiY+vaz+m9V4UYe24Rpc=
+=======
+github.com/snyk/go-application-framework v0.0.0-20251217153727-e90bc955133b h1:9d/8ydamDIIusE10N1T86Z+udy32mLNrmiImRih2rVg=
+github.com/snyk/go-application-framework v0.0.0-20251217153727-e90bc955133b/go.mod h1:T+dt4+4XFAJ4PmoGgt/hrx7LiY+vaz+m9V4UYe24Rpc=
+>>>>>>> 52e6e262a (chore: ensure to use latest gaf version)
+=======
+github.com/snyk/go-application-framework v0.0.0-20251218080318-c938eac5f436 h1:G7gu1qgxsGnh79VCsik98wKV7kmUS4RQnV+YrKlyxgc=
+github.com/snyk/go-application-framework v0.0.0-20251218080318-c938eac5f436/go.mod h1:T+dt4+4XFAJ4PmoGgt/hrx7LiY+vaz+m9V4UYe24Rpc=
+>>>>>>> 814118a3f (feat: update GAF and os cli extension)
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v1.1.0 h1:vFbFZbs3B0Y3XuGSur5om2meo4JEcCaKfNzshZFGOUs=
 github.com/snyk/policy-engine v1.1.0/go.mod h1:SSZiMz6TiggRAk33duOueWeSG0Xwl0QoZo8hfPcEAh0=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20251215101950-ba84c9f01282 h1:2gKseYE3fTTARnM9hVyqk3pi3ZjIsAP20mY1xieygSo=
-github.com/snyk/snyk-ls v0.0.0-20251215101950-ba84c9f01282/go.mod h1:mLHvDNJThkQpT35J6pCoYp4efM+pfqj8WdHP8I9gkd4=
-github.com/snyk/studio-mcp v1.1.0 h1:1AtAZITJCWh8/dlcKEou7fs1yuRV1xZq2YK0LA4rHJc=
-github.com/snyk/studio-mcp v1.1.0/go.mod h1:mc5SWeSCdrOW86DynzQV0iyBcDWNvmaNb7tfDCa7wUQ=
+github.com/snyk/snyk-ls v0.0.0-20251218112222-8c5878cbac7d h1:GaCnUbRYMIrHlYXQxxjHM+1s77rAh15i/YojTCzu/Kc=
+github.com/snyk/snyk-ls v0.0.0-20251218112222-8c5878cbac7d/go.mod h1:STDRX94wGUjny7cg2a1gxbsmoXNuHQJISQWQKGOjRZ0=
+github.com/snyk/studio-mcp v1.2.3 h1:4zvKlfl1wL91QHvF1pjn4vXWRiqixL9X0Wc/Bo+Ukr8=
+github.com/snyk/studio-mcp v1.2.3/go.mod h1:+OuCQy/pOysingGYHNUojmpSVse/q36KODBaJlOvsNQ=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
 github.com/sourcegraph/conc v0.3.0/go.mod h1:Sdozi7LEKbFPqYX2/J+iBAM6HpqSLTASQIKqDmF7Mt0=
 github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd h1:Dq5WSzWsP1TbVi10zPWBI5LKEBDg4Y1OhWEph1wr5WQ=
@@ -1397,8 +1411,6 @@ github.com/ulikunitz/xz v0.5.15 h1:9DNdB5s+SgV3bQ2ApL10xRc35ck0DuIX/isZvIk+ubY=
 github.com/ulikunitz/xz v0.5.15/go.mod h1:nbz6k7qbPmH4IRqmfOplQw/tblSgqTqBwxkY0oWt/14=
 github.com/vincent-petithory/dataurl v1.0.0 h1:cXw+kPto8NLuJtlMsI152irrVw9fRDX8AbShPRpg2CI=
 github.com/vincent-petithory/dataurl v1.0.0/go.mod h1:FHafX5vmDzyP+1CQATJn7WFKc9CvnvxyvZy6I1MrG/U=
-github.com/wk8/go-ordered-map/v2 v2.1.8 h1:5h/BUHu93oj4gIdvHHHGsScSTMijfx5PeYkE/fJgbpc=
-github.com/wk8/go-ordered-map/v2 v2.1.8/go.mod h1:5nJHM5DyteebpVlHnWMV0rPz6Zp7+xBAnxjb1X5vnTw=
 github.com/writeas/go-strip-markdown v2.0.1+incompatible h1:IIqxTM5Jr7RzhigcL6FkrCNfXkvbR+Nbu1ls48pXYcw=
 github.com/writeas/go-strip-markdown v2.0.1+incompatible/go.mod h1:Rsyu10ZhbEK9pXdk8V6MVnZmTzRG0alMNLMwa0J01fE=
 github.com/xanzy/ssh-agent v0.3.3 h1:+/15pJfg/RsTxqYcX6fHqOXZwwMP+2VyYWJeWM2qQFM=

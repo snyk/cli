@@ -26,6 +26,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['useExperimentalRiskScore', false],
     ['useExperimentalRiskScoreInCLI', false],
     ['sbomTestReachability', false],
+    ['useTestShimForOSCliTest', false],
   ]);
 };
 
@@ -213,6 +214,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
     if (
       req.url?.includes('/iac-org-settings') ||
+      req.url?.includes('/feature_flags/evaluation') ||
       req.url?.includes('/cli-config/feature-flags/') ||
       (!nextResponse && !nextStatusCode && !statusCode)
     ) {
@@ -885,6 +887,59 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       ok: true,
     });
   });
+
+  app.post(
+    basePath + '/hidden/orgs/:orgId/feature_flags/evaluation',
+    (req, res) => {
+      const { orgId } = req.params;
+      const flags: string[] = req.body?.data?.attributes?.flags ?? [];
+
+      // Example: org that has no flags at all
+      if (orgId === 'no-flag') {
+        return res.send({
+          data: {
+            type: 'feature_flags_evaluation',
+            attributes: {
+              evaluations: flags.map((flag) => ({
+                key: flag,
+                value: false,
+                reason: 'not_available',
+              })),
+              evaluatedAt: new Date().toISOString(),
+            },
+          },
+        });
+      }
+
+      const evaluations = flags.map((flag) => {
+        if (!featureFlags.has(flag)) {
+          return {
+            key: flag,
+            value: false,
+            reason: 'not_available',
+          };
+        }
+
+        const enabled = featureFlags.get(flag);
+
+        return {
+          key: flag,
+          value: Boolean(enabled),
+          reason: enabled ? 'found' : 'not_available',
+        };
+      });
+
+      res.send({
+        data: {
+          type: 'feature_flags_evaluation',
+          attributes: {
+            evaluations,
+            evaluatedAt: new Date().toISOString(),
+          },
+        },
+      });
+    },
+  );
 
   app.get(basePath + '/iac-org-settings', (req, res) => {
     const baseResponse = {

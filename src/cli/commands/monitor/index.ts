@@ -65,6 +65,10 @@ import {
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
+import {
+  getFeatureFlagValue,
+  SHOW_MAVEN_BUILD_SCOPE,
+} from '../../../lib/feature-flag-gateway';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -279,6 +283,13 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
 
       // Scan the project dependencies via a plugin
       debug('getDepsFromPlugin ...');
+      const showScope = await getFeatureFlagValue(
+        SHOW_MAVEN_BUILD_SCOPE,
+        options.org ?? config.org,
+      );
+      if (showScope) {
+        featureFlags.add(SHOW_MAVEN_BUILD_SCOPE);
+      }
 
       // each plugin will be asked to scan once per path
       // some return single InspectResult & newer ones return Multi
