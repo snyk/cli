@@ -142,7 +142,7 @@ For more information see [Options for Python projects](https://docs.snyk.io/snyk
 
 ### `--source-dir=<PATH_TO_SOURCE_CODE>`
 
-Specify a directory of source code to be analyzed. Use with `--reachability`.&#x20;
+Specify a directory of source code to be analyzed. Use with `--reachability`.
 
 ### `--unmanaged`
 
@@ -271,6 +271,14 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.
 **Experimental:** Enable provenance generation for Maven artifacts during analysis. This generates cryptographic fingerprints for scanned artifacts to help with vulnerability matching and supply chain security.
 
 **Note:** This requires the dependency artifacts to be present in your local Maven repository, using `mvn clean install` or similar commands.
+
+### Maven-specific options
+
+Add the `--` option for Maven-specific options, followed by the Maven option.&#x20;
+
+The following examples are not all-inclusive. For more details, see [Maven CLI options](https://maven.apache.org/ref/3.9.11/maven-embedder/cli.html).
+
+Examples: `-- -Dpkg_version=1.4`; `-- -Dprofile=my-profile`; `-- -s path/to/settings.xml` &#x20;
 
 ## Options for Gradle projects
 
