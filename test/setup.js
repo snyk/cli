@@ -9,6 +9,10 @@ const {
 const { runSnykCLI } = require('./jest/util/runSnykCLI');
 
 module.exports = async function () {
+  // Disable RiskScoreInCLI for all tests by default to prevent unified flow.
+  // Risk score specific tests will override this in their test env.
+  process.env.INTERNAL_SNYK_CLI_EXPERIMENTAL_RISK_SCORE_IN_CLI = 'false';
+
   if (process.env.TEST_SNYK_COMMAND) {
     process.env.TEST_SNYK_COMMAND = getCliBinaryPath();
   }
