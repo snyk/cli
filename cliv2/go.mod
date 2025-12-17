@@ -15,11 +15,11 @@ require (
 	github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20251217093101-0705cbe3593b
-	github.com/snyk/cli-extension-os-flows v0.0.0-20251212151932-5d45529cc422
+	github.com/snyk/cli-extension-os-flows v0.0.0-20251216105957-6fea9cc0c94b
 	github.com/snyk/cli-extension-sbom v0.0.0-20251113132837-5f6cc6d0cb26
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20251205100923-e93b06d4a6c6
-	github.com/snyk/go-application-framework v0.0.0-20251212150740-f0fedc73ebad
+	github.com/snyk/go-application-framework v0.0.0-20251215143646-9f078499ac30
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20251215101950-ba84c9f01282
