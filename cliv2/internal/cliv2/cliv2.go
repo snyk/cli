@@ -91,6 +91,11 @@ func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger, ri ru
 		globalConfig:     config,
 	}
 
+	subProcessEnv := config.GetStringSlice(configuration.SUBPROCESS_ENVIRONMENT)
+	if len(subProcessEnv) != 0 {
+		cli.env = subProcessEnv
+	}
+
 	return &cli, nil
 }
 
