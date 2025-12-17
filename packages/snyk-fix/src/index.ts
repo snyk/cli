@@ -121,7 +121,6 @@ export function extractMeta(
   const issueData = testResults.map((i) => i.issuesData);
 
   const failed = outputFormatter.calculateFailed(resultsByPlugin, exceptions);
-  const skipped = outputFormatter.calculateSkipped(resultsByPlugin);
   const fixed = outputFormatter.calculateFixed(resultsByPlugin);
   const totalIssueCount = getTotalIssueCount(issueData);
   const { count: fixableCount } = hasFixableIssues(testResults);
@@ -130,7 +129,6 @@ export function extractMeta(
   return {
     fixed,
     failed,
-    skipped,
     totalIssues: totalIssueCount,
     fixableIssues: fixableCount,
     fixedIssues: fixedIssueCount,

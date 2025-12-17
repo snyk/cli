@@ -82,10 +82,9 @@ export default async function fix(...args: MethodArgs): Promise<string> {
   }
   // `snyk test` returned vulnerable results
   // however some errors occurred during `snyk fix` and nothing was fixed in the end
-  // Note: "skipped" items (e.g., "no upgrades available") are not errors
-  const anyActualFailures = meta.failed > 0;
+  const anyFailed = meta.failed > 0;
   const noneFixed = meta.fixed === 0;
-  if (anyActualFailures && noneFixed) {
+  if (anyFailed && noneFixed) {
     throw new Error(fixSummary);
   }
   return fixSummary;

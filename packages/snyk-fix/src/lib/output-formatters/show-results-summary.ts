@@ -130,7 +130,6 @@ export function generateOverallSummary(
   const formattedTitleHeader = `${chalk.bold(sectionTitle)}`;
   const fixed = calculateFixed(resultsByPlugin);
   const failed = calculateFailed(resultsByPlugin, exceptions);
-  const skipped = calculateSkipped(resultsByPlugin);
   const dryRunText = options.dryRun
     ? chalk.hex('#EDD55E')(
         `${PADDING_SPACE}Command run in ${chalk.bold(
@@ -138,7 +137,6 @@ export function generateOverallSummary(
         )} mode. Fixes are not applied.\n`,
       )
     : '';
-  // Only show "not fixed" for actual failures (not skipped items)
   const notFixedMessage =
     failed > 0
       ? `${PADDING_SPACE}${chalk.bold.red(failed)} items were not fixed\n`
@@ -149,13 +147,6 @@ export function generateOverallSummary(
           fixed,
         )} items were successfully fixed\n`
       : '';
-  // Show skipped items separately (no upgrades available, etc.)
-  const skippedMessage =
-    skipped > 0
-      ? `${PADDING_SPACE}${chalk.hex('#EDD55E').bold(
-          skipped,
-        )} items had no available fixes\n`
-      : '';
 
   const vulnsSummary = generateIssueSummary(resultsByPlugin, exceptions);
 
@@ -165,8 +156,8 @@ export function generateOverallSummary(
       : '';
 
   return {
-    summary: `${formattedTitleHeader}\n\n${dryRunText}${notFixedMessage}${skippedMessage}${fixedMessage}${notVulnerableSummary}${vulnsSummary}`,
-    count: fixed + failed + skipped,
+    summary: `${formattedTitleHeader}\n\n${dryRunText}${notFixedMessage}${fixedMessage}${notVulnerableSummary}${vulnsSummary}`,
+    count: fixed + failed,
   };
 }
 
@@ -209,7 +200,7 @@ export function calculateFailed(
   let failed = 0;
   for (const plugin of Object.keys(resultsByPlugin)) {
     const results = resultsByPlugin[plugin];
-    failed += results.failed.length;
+    failed += results.failed.length + results.skipped.length;
   }
 
   if (Object.keys(exceptions).length) {
@@ -219,17 +210,6 @@ export function calculateFailed(
     }
   }
   return failed;
-}
-
-export function calculateSkipped(
-  resultsByPlugin: FixHandlerResultByPlugin,
-): number {
-  let skipped = 0;
-  for (const plugin of Object.keys(resultsByPlugin)) {
-    const results = resultsByPlugin[plugin];
-    skipped += results.skipped.length;
-  }
-  return skipped;
 }
 
 export function formatIssueCountBySeverity({
