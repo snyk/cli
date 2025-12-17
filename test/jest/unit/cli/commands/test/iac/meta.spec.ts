@@ -193,57 +193,63 @@ describe('buildMeta', () => {
 });
 
 describe('getProjectNameFromGitUrl', () => {
-  const urls = [
+  const testCases = [
     // SSH URLs without ~username expansion, as documented by "git clone".
-
-    'ssh://user@host.xz:1234/user/repo.git/',
-    'ssh://host.xz:1234/user/repo.git/',
-    'ssh://user@host.xz/user/repo.git/',
-    'ssh://host.xz/user/repo.git/',
-    'ssh://user@host.xz:1234/user/repo.git',
-    'ssh://host.xz:1234/user/repo.git',
-    'ssh://user@host.xz/user/repo.git',
-    'ssh://host.xz/user/repo.git',
+    ['ssh://user@host.xz:1234/user/repo.git/', 'user/repo'],
+    ['ssh://host.xz:1234/user/repo.git/', 'user/repo'],
+    ['ssh://user@host.xz/user/repo.git/', 'user/repo'],
+    ['ssh://host.xz/user/repo.git/', 'user/repo'],
+    ['ssh://user@host.xz:1234/user/repo.git', 'user/repo'],
+    ['ssh://host.xz:1234/user/repo.git', 'user/repo'],
+    ['ssh://user@host.xz/user/repo.git', 'user/repo'],
+    ['ssh://host.xz/user/repo.git', 'user/repo'],
 
     // Git URLs without ~username expansion, as documented by "git clone".
-
-    'git://host.xz:1234/user/repo.git/',
-    'git://host.xz/user/repo.git/',
-    'git://host.xz:1234/user/repo.git',
-    'git://host.xz/user/repo.git',
+    ['git://host.xz:1234/user/repo.git/', 'user/repo'],
+    ['git://host.xz/user/repo.git/', 'user/repo'],
+    ['git://host.xz:1234/user/repo.git', 'user/repo'],
+    ['git://host.xz/user/repo.git', 'user/repo'],
 
     // HTTP URLs, as documented by "git clone".
-
-    'http://host.xz:1234/user/repo.git/',
-    'http://host.xz/user/repo.git/',
-    'http://host.xz:1234/user/repo.git',
-    'http://host.xz/user/repo.git',
+    ['http://host.xz:1234/user/repo.git/', 'user/repo'],
+    ['http://host.xz/user/repo.git/', 'user/repo'],
+    ['http://host.xz:1234/user/repo.git', 'user/repo'],
+    ['http://host.xz/user/repo.git', 'user/repo'],
 
     // HTTPS URLs, as documented by "git clone".
-
-    'https://host.xz:1234/user/repo.git/',
-    'https://host.xz/user/repo.git/',
-    'https://host.xz:1234/user/repo.git',
-    'https://host.xz/user/repo.git',
+    ['https://host.xz:1234/user/repo.git/', 'user/repo'],
+    ['https://host.xz/user/repo.git/', 'user/repo'],
+    ['https://host.xz:1234/user/repo.git', 'user/repo'],
+    ['https://host.xz/user/repo.git', 'user/repo'],
 
     // SSH URLs without protocol, as used by GitHub.
-
-    'git@github.com:user/repo.git',
+    ['git@github.com:user/repo.git', 'user/repo'],
 
     // Remote URLs set up by 'actions/checkout' in GitHub workflows.
+    ['https://github.com/user/repo', 'user/repo'],
+    ['http://github.com/user/repo', 'user/repo'],
 
-    'https://github.com/user/repo',
-    'http://github.com/user/repo',
+    // Azure DevOps SSH via Proxy - http://ssh.dev.azure.com/v3/Org/Project/Repo
+    [
+      'http://ssh.dev.azure.com/v3/org-user/project/repo',
+      'org-user/project/repo',
+    ],
+    // Azure DevOps Standard HTTP - https://dev.azure.com/Org/Project/_git/Repo
+    [
+      'https://dev.azure.com/org-user/project/_git/repo',
+      'org-user/project/repo',
+    ],
+    // Azure DevOps SSH - git@ssh.dev.azure.com:v3/Org/Project/Repo
+    ['git@ssh.dev.azure.com:v3/org-user/project/repo', 'org-user/project/repo'],
 
     // If everything else fails, the URL should be returned as-is, but trimmed.
-
-    'user/repo',
-    ' user/repo',
-    'user/repo ',
+    ['user/repo', 'user/repo'],
+    [' user/repo', 'user/repo'],
+    ['user/repo ', 'user/repo'],
   ];
 
-  it.each(urls)('should parse %s', (url) => {
-    expect(getProjectNameFromGitUrl(url)).toBe('user/repo');
+  it.each(testCases)('parses "%s" -> "%s"', (url, expected) => {
+    expect(getProjectNameFromGitUrl(url)).toBe(expected);
   });
 });
 

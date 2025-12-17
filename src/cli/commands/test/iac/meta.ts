@@ -79,6 +79,9 @@ export function getProjectNameFromGitUrl(url: string) {
     /^(git|https?|ftp):\/\/[^:/]+(:[^/]+)?\/(?<name>.*).git\/?$/,
     /^[^@]+@[^:]+:(?<name>.*).git$/,
     /^(https?):\/\/github.com\/(?<name>.*)$/,
+    /^https?:\/\/dev\.azure\.com\/(?<name>[^/]+\/[^/]+\/_git\/[^/]+)/,
+    /^https?:\/\/ssh\.dev\.azure\.com\/v3\/(?<name>.*)$/,
+    /^git@ssh\.dev\.azure\.com:v3\/(?<name>.*)$/,
   ];
 
   const trimmed = url.trim();
@@ -86,7 +89,11 @@ export function getProjectNameFromGitUrl(url: string) {
   for (const regexp of regexps) {
     const match = trimmed.match(regexp);
 
-    if (match && match.groups) {
+    if (match?.groups?.name) {
+      // Only strip "/_git/" if we are dealing with an Azure url
+      if (url.includes('dev.azure.com')) {
+        return match.groups.name.replace('/_git/', '/');
+      }
       return match.groups.name;
     }
   }
