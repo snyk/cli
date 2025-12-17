@@ -27,6 +27,7 @@ interface FixOptions {
   dryRun?: boolean;
   quiet?: boolean;
   sequential?: boolean;
+  'use-overrides'?: boolean;
 }
 export default async function fix(...args: MethodArgs): Promise<string> {
   const { options: rawOptions, paths } = await processCommandArgs<FixOptions>(
@@ -52,6 +53,7 @@ export default async function fix(...args: MethodArgs): Promise<string> {
     (res) => Object.keys(res.testResult.issues).length,
   );
   const { dryRun, quiet, sequential: sequentialFix } = options;
+  const useOverrides = options['use-overrides'];
   const {
     fixSummary,
     meta,
@@ -60,6 +62,7 @@ export default async function fix(...args: MethodArgs): Promise<string> {
     dryRun,
     quiet,
     sequentialFix,
+    useOverrides,
   });
 
   setSnykFixAnalytics(
@@ -79,9 +82,10 @@ export default async function fix(...args: MethodArgs): Promise<string> {
   }
   // `snyk test` returned vulnerable results
   // however some errors occurred during `snyk fix` and nothing was fixed in the end
-  const anyFailed = meta.failed > 0;
+  // Note: "skipped" items (e.g., "no upgrades available") are not errors
+  const anyActualFailures = meta.failed > 0;
   const noneFixed = meta.fixed === 0;
-  if (anyFailed && noneFixed) {
+  if (anyActualFailures && noneFixed) {
     throw new Error(fixSummary);
   }
   return fixSummary;

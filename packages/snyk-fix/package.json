@@ -39,6 +39,7 @@
     "@snyk/dep-graph": "^2.7.4",
     "@snyk/fix-pipenv-pipfile": "^0.7.1",
     "@snyk/fix-poetry": "^0.9.1",
+    "@snyk/node-fix": "file:../../../node-fix/packages/npm",
     "chalk": "4.1.1",
     "debug": "^4.3.1",
     "lodash.groupby": "4.6.0",

@@ -239,11 +239,17 @@ export interface FixOptions {
   quiet?: boolean;
   stripAnsi?: boolean;
   sequentialFix?: boolean;
+  /**
+   * Opt-in flag to use npm overrides for transitive dependencies
+   * with no upgrade path. Requires npm >= 8.3.
+   */
+  useOverrides?: boolean;
 }
 
 export interface FixedMeta {
   fixed: number;
   failed: number;
+  skipped: number;
   fixableIssues: number;
   fixedIssues: number;
   totalIssues: number;

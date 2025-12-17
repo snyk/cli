@@ -2,67 +2,7 @@
 
 exports[`Error handling Snyk fix returns error when called with unsupported type 1`] = `
 {
-  "exceptions": {
-    "npm": {
-      "originals": [
-        {
-          "options": {
-            "command": "python3",
-          },
-          "scanResult": {
-            "facts": [
-              {
-                "data": "not-implemented",
-                "type": "not-implemented",
-              },
-            ],
-            "identity": {
-              "targetFile": "package.json",
-              "type": "npm",
-            },
-          },
-          "testResult": {
-            "depGraphData": "",
-            "issues": [
-              {
-                "fixInfo": {},
-                "issueId": "VULN_ID_1",
-                "pkgName": "package@version",
-              },
-            ],
-            "issuesData": {
-              "vuln-id": {
-                "id": "VULN_ID_1",
-                "severity": "high",
-                "title": "Fake vuln",
-              },
-            },
-            "remediation": {
-              "ignore": {},
-              "patch": {},
-              "pin": {
-                "django@1.6.1": {
-                  "isTransitive": false,
-                  "upgradeTo": "django@2.0.1",
-                  "vulns": [
-                    "vuln-id",
-                  ],
-                },
-              },
-              "unresolved": [],
-              "upgrade": {},
-            },
-          },
-          "workspace": {
-            "path": ".",
-            "readFile": [Function],
-            "writeFile": [Function],
-          },
-        },
-      ],
-      "userMessage": "npm is not supported.",
-    },
-  },
+  "exceptions": {},
   "fixSummary": "
  ✖ No successful fixes
 
@@ -70,7 +10,7 @@ exports[`Error handling Snyk fix returns error when called with unsupported type
 Unresolved items:
 
   package.json
-  ✖ npm is not supported.
+  ✖ No upgrades available for this project.
 
 Summary:
 
@@ -88,7 +28,71 @@ Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If th
     "fixedIssues": 0,
     "totalIssues": 1,
   },
-  "results": {},
+  "results": {
+    "node": {
+      "failed": [],
+      "skipped": [
+        {
+          "original": {
+            "options": {
+              "command": "python3",
+            },
+            "scanResult": {
+              "facts": [
+                {
+                  "data": "not-implemented",
+                  "type": "not-implemented",
+                },
+              ],
+              "identity": {
+                "targetFile": "package.json",
+                "type": "npm",
+              },
+            },
+            "testResult": {
+              "depGraphData": "",
+              "issues": [
+                {
+                  "fixInfo": {},
+                  "issueId": "VULN_ID_1",
+                  "pkgName": "package@version",
+                },
+              ],
+              "issuesData": {
+                "vuln-id": {
+                  "id": "VULN_ID_1",
+                  "severity": "high",
+                  "title": "Fake vuln",
+                },
+              },
+              "remediation": {
+                "ignore": {},
+                "patch": {},
+                "pin": {
+                  "django@1.6.1": {
+                    "isTransitive": false,
+                    "upgradeTo": "django@2.0.1",
+                    "vulns": [
+                      "vuln-id",
+                    ],
+                  },
+                },
+                "unresolved": [],
+                "upgrade": {},
+              },
+            },
+            "workspace": {
+              "path": ".",
+              "readFile": [Function],
+              "writeFile": [Function],
+            },
+          },
+          "userMessage": "No upgrades available for this project.",
+        },
+      ],
+      "succeeded": [],
+    },
+  },
 }
 `;
 
