@@ -12,7 +12,7 @@ import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-a
 import { generateUpgrades } from './generate-upgrades';
 import { partitionByFixType, PartitionedUpgrades } from './partition-by-fix-type';
 import { applyFixes } from './apply-fixes';
-import { applyOverrides, identifyOverrideCandidates } from './apply-overrides';
+import { applyOverrides } from './apply-overrides';
 import { isSuccessfulChange } from '../../attempted-changes-summary';
 
 const debug = debugLib('snyk-fix:node:npm');
@@ -53,15 +53,11 @@ export async function updateDependencies(
 
       if (!overridesSupported) {
         debug('npm overrides not supported (requires npm >= 8.3)');
-      } else {
-        const overrideCandidates = identifyOverrideCandidates(entity);
-
-        if (overrideCandidates.length > 0) {
-          debug(`Found ${overrideCandidates.length} override candidates`);
-          changes.push(
-            ...(await applyOverrides(entity, overrideCandidates, options)),
-          );
-        }
+      } else if (entity.overrideCandidates?.length) {
+        debug(
+          `Found ${entity.overrideCandidates.length} override candidates`,
+        );
+        changes.push(...(await applyOverrides(entity, options)));
       }
     }
 

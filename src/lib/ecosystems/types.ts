@@ -85,6 +85,7 @@ export interface IssuesData {
     id: string;
     severity: SEVERITY;
     title: string;
+    fixedIn?: string[];
   };
 }
 

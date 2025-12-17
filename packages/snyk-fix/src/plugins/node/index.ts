@@ -57,7 +57,7 @@ export async function nodeFix(
         // drop unsupported Node.js entities early so only potentially fixable items get
         // attempted to be fixed
         const { fixable, skipped: notFixable } =
-          await partitionByFixable(projectsToFix);
+          await partitionByFixable(projectsToFix, options);
         results.skipped.push(...notFixable);
 
         const { failed, skipped, succeeded } = await handler(fixable, options);

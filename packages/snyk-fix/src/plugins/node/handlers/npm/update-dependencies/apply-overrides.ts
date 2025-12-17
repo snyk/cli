@@ -2,24 +2,14 @@ import * as debugLib from 'debug';
 import * as path from 'path';
 import { npmInstallLockfileOnly } from '@snyk/node-fix';
 
-import { EntityToFix, FixChangesSummary, FixOptions } from '../../../../../types';
+import {
+  EntityToFix,
+  FixChangesSummary,
+  FixOptions,
+  OverrideCandidate,
+} from '../../../../../types';
 
 const debug = debugLib('snyk-fix:node:npm:overrides');
-
-export interface OverrideInfo {
-  /**
-   * Package name
-   */
-  name: string;
-  /**
-   * Target version to force
-   */
-  targetVersion: string;
-  /**
-   * Issue IDs that this override addresses
-   */
-  issueIds: string[];
-}
 
 interface PackageJson {
   dependencies?: Record<string, string>;
@@ -32,16 +22,17 @@ interface PackageJson {
  * Apply overrides to package.json for transitive dependencies with no upgrade path.
  * This is an opt-in feature enabled with --use-overrides flag.
  *
- * @param entity - The entity to fix
- * @param overrides - List of packages to override
+ * Candidates are pre-computed by is-supported.ts and stored on entity.overrideCandidates
+ *
+ * @param entity - The entity to fix (with overrideCandidates already computed)
  * @param options - Fix options
  * @returns Array of fix change summaries
  */
 export async function applyOverrides(
   entity: EntityToFix,
-  overrides: OverrideInfo[],
   options: FixOptions,
 ): Promise<FixChangesSummary[]> {
+  const overrides = entity.overrideCandidates || [];
   if (overrides.length === 0) {
     return [];
   }
@@ -123,57 +114,6 @@ export async function applyOverrides(
   }
 
   return changes;
-}
-
-/**
- * Identify transitive dependencies that have no upgrade path but have a fix available.
- * These are candidates for overrides when --use-overrides is enabled.
- */
-export function identifyOverrideCandidates(entity: EntityToFix): OverrideInfo[] {
-  const candidates: OverrideInfo[] = [];
-  const { issues, remediation } = entity.testResult;
-
-  if (!issues || !remediation) {
-    return candidates;
-  }
-
-  const upgradeKeys = new Set(Object.keys(remediation.upgrade || {}));
-
-  for (const issue of issues) {
-    const { pkgName, pkgVersion, fixInfo, issueId } = issue;
-
-    // Check if there's a fix available
-    if (!fixInfo?.nearestFixedInVersion) {
-      continue;
-    }
-
-    // Check if this package has an upgrade path
-    const hasUpgradePath = Array.from(upgradeKeys).some((key) =>
-      key.startsWith(`${pkgName}@`),
-    );
-
-    if (!hasUpgradePath) {
-      // No upgrade path - candidate for override
-      candidates.push({
-        name: pkgName,
-        targetVersion: fixInfo.nearestFixedInVersion,
-        issueIds: [issueId],
-      });
-    }
-  }
-
-  // Deduplicate by package name (keep first occurrence with all issue IDs merged)
-  const deduped = new Map<string, OverrideInfo>();
-  for (const candidate of candidates) {
-    const existing = deduped.get(candidate.name);
-    if (existing) {
-      existing.issueIds.push(...candidate.issueIds);
-    } else {
-      deduped.set(candidate.name, { ...candidate });
-    }
-  }
-
-  return Array.from(deduped.values());
 }
 
 function getProjectPath(entity: EntityToFix): string {

@@ -76,6 +76,7 @@ export interface IssuesData {
     id: string;
     severity: SEVERITY;
     title: string;
+    fixedIn?: string[];
   };
 }
 
@@ -177,11 +178,19 @@ export interface Workspace {
   readFile: (path: string) => Promise<string>;
   writeFile: (path: string, content: string) => Promise<void>;
 }
+export interface OverrideCandidate {
+  name: string;
+  targetVersion: string;
+  issueIds: string[];
+}
+
 export interface EntityToFix {
   readonly workspace: Workspace;
   readonly scanResult: ScanResult;
   readonly testResult: TestResult;
   readonly options: CliTestOptions;
+  // Computed override candidates (populated by is-supported.ts)
+  overrideCandidates?: OverrideCandidate[];
 }
 
 // Partial CLI test options interface

@@ -17,6 +17,7 @@ function convertVulnerabilities(vulns: AnnotatedIssue[]): {
       id: vuln.id,
       severity: vuln.severity,
       title: vuln.title,
+      fixedIn: vuln.fixedIn,
     };
     issues.push({
       pkgName: vuln.packageName,
