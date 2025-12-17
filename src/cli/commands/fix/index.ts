@@ -81,10 +81,18 @@ export default async function fix(...args: MethodArgs): Promise<string> {
     return fixSummary;
   }
   // `snyk test` returned vulnerable results
-  // however some errors occurred during `snyk fix` and nothing was fixed in the end
-  const anyFailed = meta.failed > 0;
-  const noneFixed = meta.fixed === 0;
-  if (anyFailed && noneFixed) {
+  // Check if there are actual failures (not just skipped items like "no upgrades available")
+  let hasActualFailures = false;
+  for (const plugin of Object.keys(resultsByPlugin)) {
+    if (resultsByPlugin[plugin].failed.length > 0) {
+      hasActualFailures = true;
+      break;
+    }
+  }
+
+  // Only throw error if there were actual failures and nothing was fixed
+  // Skipped items ("no upgrades available") are informational, not errors
+  if (hasActualFailures && meta.fixed === 0) {
     throw new Error(fixSummary);
   }
   return fixSummary;
