@@ -17,6 +17,7 @@ describe('snyk test --fail-on', () => {
       SNYK_API: 'http://localhost:' + apiPort + apiPath,
       SNYK_TOKEN: '123456789',
       SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_CFG_INTERNAL_ORGID: 'orgid-test-cli',
     };
 
     server = fakeServer(apiPath, env.SNYK_TOKEN);

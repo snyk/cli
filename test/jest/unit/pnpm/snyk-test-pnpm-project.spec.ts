@@ -2,24 +2,28 @@ import { NeedleResponse } from 'needle';
 import test from '../../../../src/cli/commands/test';
 import { CommandResult } from '../../../../src/cli/commands/types';
 import { makeRequest } from '../../../../src/lib/request/request';
-import * as featureFlagsModule from '../../../../src/lib/feature-flags';
+import * as featureFlagGateway from '../../../../src/lib/feature-flag-gateway';
+
 import { getFixturePath } from '../../util/getFixturePath';
+import { PNPM_FEATURE_FLAG } from '../../../../src/lib/package-managers';
 
 jest.mock('../../../../src/lib/request/request');
+jest.mock('../../../../src/lib/feature-flag-gateway');
 
 const mockedMakeRequest = jest.mocked(makeRequest);
 describe('snyk test for pnpm project', () => {
   afterEach(() => {
     jest.clearAllMocks();
+    (featureFlagGateway.getEnabledFeatureFlags as jest.Mock).mockResolvedValue(
+      new Set(),
+    );
   });
 
   beforeAll(() => {
     // this spy is for the `cliFailFast` feature flag
     jest
-      .spyOn(featureFlagsModule, 'isFeatureFlagSupportedForOrg')
-      .mockResolvedValue({
-        ok: true,
-      });
+      .spyOn(featureFlagGateway, 'getEnabledFeatureFlags')
+      .mockResolvedValue(new Set());
   });
 
   afterAll(() => {
@@ -31,16 +35,9 @@ describe('snyk test for pnpm project', () => {
       it('should scan pnpm vulnerabilities when enablePnpmCli feature flag is enabled', async () => {
         const fixturePath = getFixturePath('pnpm-app');
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: true,
-            },
-          });
-        });
+        (
+          featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+        ).mockResolvedValue(new Set([PNPM_FEATURE_FLAG]));
 
         mockedMakeRequest.mockImplementationOnce(() => {
           return Promise.resolve({
@@ -59,7 +56,11 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+          expect.any(Array),
+          expect.any(String),
+        );
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(1);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -101,15 +102,9 @@ describe('snyk test for pnpm project', () => {
         const fixturePath = getFixturePath('pnpm-app');
 
         // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        (
+          featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+        ).mockResolvedValueOnce(new Set([]));
 
         mockedMakeRequest.mockImplementationOnce(() => {
           return Promise.resolve({
@@ -128,7 +123,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(1);
 
         const expectedResultObject = {
           vulnerabilities: [],
@@ -167,15 +162,9 @@ describe('snyk test for pnpm project', () => {
         const fixturePath = getFixturePath('workspace-multi-type');
 
         // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: true,
-            },
-          });
-        });
+        (
+          featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+        ).mockResolvedValue(new Set([PNPM_FEATURE_FLAG]));
 
         mockedMakeRequest.mockImplementation(() => {
           return Promise.resolve({
@@ -195,7 +184,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(11);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(10);
 
         const parsedResult = JSON.parse(result.getDisplayResults());
         const pnpmResult = parsedResult.filter(
@@ -210,15 +199,9 @@ describe('snyk test for pnpm project', () => {
         const fixturePath = getFixturePath('workspace-multi-type');
 
         // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        (
+          featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+        ).mockResolvedValueOnce(new Set());
 
         mockedMakeRequest.mockImplementation(() => {
           return Promise.resolve({
@@ -238,7 +221,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(7);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
 
         const parsedResult = JSON.parse(result.getDisplayResults());
         const pnpmResult = parsedResult.filter(

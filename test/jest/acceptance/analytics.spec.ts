@@ -25,6 +25,8 @@ describe('analytics module', () => {
       SNYK_INTEGRATION_NAME: 'JENKINS',
       SNYK_INTEGRATION_VERSION: '1.2.3',
       SNYK_HTTP_PROTOCOL_UPGRADE: '0',
+      SNYK_CFG_INTERNAL_ORGID: 'orgid-test-cli',
+      SNYK_API_HIDDEN_URL: 'http://localhost:' + port + '/hidden',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
     server.listen(port, () => {

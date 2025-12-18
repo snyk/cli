@@ -6,7 +6,6 @@ import { validateTestOptions } from '../validate-test-options';
 import { setDefaultTestOptions } from '../set-default-test-options';
 import { processCommandArgs } from '../../process-command-args';
 
-import { hasFeatureFlag } from '../../../../lib/feature-flags';
 import { buildDefaultOciRegistry } from './local-execution/rules/rules';
 import { getIacOrgSettings } from './local-execution/measurable-methods';
 import config from '../../../../lib/config';
@@ -15,6 +14,8 @@ import { scan } from './scan';
 import { buildOutput, buildSpinner, printHeader } from './output';
 import { InvalidArgumentError } from './local-execution/assert-iac-options-flag';
 import { IaCTestFlags } from './local-execution/types';
+import { getOrganizationID } from '../../../../lib/organization';
+import { getEnabledFeatureFlags } from '../../../../lib/feature-flag-gateway';
 
 export default async function (
   ...args: MethodArgs
@@ -36,8 +37,14 @@ export default async function (
 
   const buildOciRegistry = () => buildDefaultOciRegistry(iacOrgSettings);
 
-  const isIacShareCliResultsCustomRulesSupported = Boolean(
-    await hasFeatureFlag('iacShareCliResultsCustomRules', options),
+  //Batch fetch of feature flags to reduce latency
+  const featureFlags = await getEnabledFeatureFlags(
+    ['iacShareCliResultsCustomRules'],
+    getOrganizationID(),
+  );
+
+  const isIacShareCliResultsCustomRulesSupported = featureFlags.has(
+    'iacShareCliResultsCustomRules',
   );
 
   const isIacCustomRulesEntitlementEnabled = Boolean(

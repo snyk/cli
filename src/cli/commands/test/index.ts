@@ -45,10 +45,6 @@ import {
 import iacTestCommand from './iac';
 import * as iacTestCommandV2 from './iac/v2';
 import {
-  hasFeatureFlag,
-  hasFeatureFlagOrDefault,
-} from '../../../lib/feature-flags';
-import {
   SCAN_USR_LIB_JARS_FEATURE_FLAG,
   CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
   INCLUDE_SYSTEM_JARS_OPTION,
@@ -56,6 +52,8 @@ import {
   APP_VULNS_OPTION,
 } from '../constants';
 import { checkOSSPaths } from '../../../lib/check-paths';
+import { getOrganizationID } from '../../../lib/organization';
+import { getEnabledFeatureFlags } from '../../../lib/feature-flag-gateway';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -75,15 +73,27 @@ export default async function test(
 
   const options = setDefaultTestOptions(originalOptions);
 
-  if (originalOptions.iac) {
-    const iacNewEngine = await hasFeatureFlag('iacNewEngine', options);
-    const iacIntegratedExperience = await hasFeatureFlag(
+  const featureFlags = await getEnabledFeatureFlags(
+    [
+      'iacNewEngine',
       'iacIntegratedExperience',
-      options,
-    );
+      CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+      SCAN_USR_LIB_JARS_FEATURE_FLAG,
+    ],
+    getOrganizationID(),
+  );
+
+  if (originalOptions.iac) {
     // temporary placeholder for the "new" flow that integrates with UPE
-    if (iacIntegratedExperience || iacNewEngine) {
-      return await iacTestCommandV2.test(paths, originalOptions, iacNewEngine);
+    if (
+      featureFlags.has('iacIntegratedExperience') ||
+      featureFlags.has('iacNewEngine')
+    ) {
+      return await iacTestCommandV2.test(
+        paths,
+        originalOptions,
+        featureFlags.has('iacNewEngine'),
+      );
     } else {
       return await iacTestCommand(...args);
     }
@@ -120,11 +130,9 @@ export default async function test(
     } else if (options[APP_VULNS_OPTION]) {
       options[EXCLUDE_APP_VULNS_OPTION] = false;
     } else {
-      options[EXCLUDE_APP_VULNS_OPTION] = !(await hasFeatureFlagOrDefault(
+      options[EXCLUDE_APP_VULNS_OPTION] = !featureFlags.has(
         CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
-        options,
-        true,
-      ));
+      );
 
       // we can't print the warning message with JSON output as that would make
       // the JSON output invalid.
@@ -140,10 +148,8 @@ export default async function test(
     }
 
     // Check scanUsrLibJars feature flag and add --include-system-jars parameter
-    const scanUsrLibJarsEnabled = await hasFeatureFlagOrDefault(
+    const scanUsrLibJarsEnabled = featureFlags.has(
       SCAN_USR_LIB_JARS_FEATURE_FLAG,
-      options,
-      false,
     );
     if (scanUsrLibJarsEnabled) {
       options[INCLUDE_SYSTEM_JARS_OPTION] = true;

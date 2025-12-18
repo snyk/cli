@@ -24,6 +24,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       SNYK_HOST: 'http://localhost:' + port,
       SNYK_TOKEN: '123456789',
       SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_CFG_INTERNAL_ORGID: 'orgid-test-cli',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
     server.listen(port, () => {
@@ -324,7 +325,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       return req.url.includes('/api/v1/test');
     });
 
-    expect(backendRequests).toHaveLength(10);
+    expect(backendRequests).toHaveLength(6);
     backendRequests.forEach((req: any) => {
       expect(req.method).toEqual('POST');
       expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
@@ -427,7 +428,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     const app1Path = join('app1', 'package.json');
     const app2Path = join('app2', 'package.json');
 
-    expect(backendRequests.length).toBe(3);
+    expect(backendRequests.length).toBe(1);
     expect(stdout).not.toMatch(sharedPath);
     expect(stdout).toMatch(app1Path);
     expect(stdout).toMatch(app2Path);
@@ -453,7 +454,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       return req.url.includes('/api/v1/test');
     });
 
-    expect(backendRequests.length).toBe(3);
+    expect(backendRequests.length).toBe(1);
     expect(stdout).not.toMatch(join('shared', 'package.json'));
     expect(code).toEqual(0);
   });
@@ -474,7 +475,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
       return req.url.includes('/api/v1/test');
     });
 
-    expect(backendRequests.length).toBe(4);
+    expect(backendRequests.length).toBe(1);
     expect(stdout).toMatch(join('app1', 'package.json'));
     expect(stdout).toMatch(join('app2', 'package.json'));
     expect(stdout).toMatch(join('shared', 'package.json'));

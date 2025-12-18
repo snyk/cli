@@ -214,7 +214,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
     if (
       req.url?.includes('/iac-org-settings') ||
-      req.url?.includes('/cli-config/feature-flags/') ||
+      req.url?.includes('/feature_flags/evaluation') ||
       (!nextResponse && !nextStatusCode && !statusCode)
     ) {
       return next();
@@ -855,35 +855,47 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
-  app.get(basePath + '/cli-config/feature-flags/:featureFlag', (req, res) => {
-    const org = req.query.org;
-    const flag = req.params.featureFlag;
-    if (org === 'no-flag') {
-      res.send({
-        ok: false,
-        userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
+  app.post(`*hidden/orgs/:orgId/feature_flags/evaluation`, (req, res) => {
+    const flags: string[] = req.body?.data?.attributes?.flags ?? [];
+
+    const { orgId } = req.params;
+    if (orgId === 'no-flag') {
+      return res.send({
+        data: {
+          type: 'feature_flags_evaluation',
+          attributes: {
+            evaluations: [],
+            evaluatedAt: new Date().toISOString(),
+          },
+        },
       });
-      return;
     }
 
-    if (featureFlags.has(flag)) {
-      const ffEnabled = featureFlags.get(flag);
-      if (ffEnabled) {
-        res.send({
-          ok: true,
-        });
-      } else {
-        res.send({
-          ok: false,
-          userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
-        });
+    const evaluations = flags.map((flag) => {
+      if (!featureFlags.has(flag)) {
+        return {
+          key: flag,
+          value: false,
+          reason: 'not_available',
+        };
       }
-      return;
-    }
 
-    // default: return true for all feature flags
+      const enabled = featureFlags.get(flag);
+      return {
+        key: flag,
+        value: Boolean(enabled),
+        reason: enabled ? 'found' : 'not_available',
+      };
+    });
+
     res.send({
-      ok: true,
+      data: {
+        type: 'feature_flags_evaluation',
+        attributes: {
+          evaluations,
+          evaluatedAt: new Date().toISOString(),
+        },
+      },
     });
   });
 

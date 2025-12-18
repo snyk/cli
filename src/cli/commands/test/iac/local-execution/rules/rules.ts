@@ -24,8 +24,9 @@ import {
 } from '../../../../../../lib/formatters/iac-output/text';
 import { OciRegistry, RemoteOciRegistry } from './oci-registry';
 import { isValidUrl } from '../url-utils';
-import { isFeatureFlagSupportedForOrg } from '../../../../../../lib/feature-flags';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
+import { getOrganizationID } from '../../../../../../lib/organization';
+import { getEnabledFeatureFlags } from '../../../../../../lib/feature-flag-gateway';
 
 export async function initRules(
   buildOciRegistry: () => OciRegistry,
@@ -56,12 +57,12 @@ export async function initRules(
     let userMessage = `${customRulesMessage}${EOL}`;
 
     if (options.report) {
-      const isCliReportCustomRulesEnabled = await isFeatureFlagSupportedForOrg(
-        'iacShareCliResultsCustomRules',
-        orgPublicId,
+      const featureFlags = await getEnabledFeatureFlags(
+        ['iacShareCliResultsCustomRules'],
+        orgPublicId?.trim() || getOrganizationID(),
       );
 
-      if (!isCliReportCustomRulesEnabled.ok) {
+      if (!featureFlags.has('iacShareCliResultsCustomRules')) {
         userMessage += `${customRulesReportMessage}${EOL}`;
       }
     }
