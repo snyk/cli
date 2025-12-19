@@ -1306,10 +1306,10 @@ github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188 h1:Uo
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188/go.mod h1:qUc1yjKJe6tt/8/MJasnog3VBXd/b619MSFVfKAlDxE=
 github.com/snyk/cli-extension-mcp-scan v0.0.0-20251217093101-0705cbe3593b h1:d8s+TntutaQlPcB+5I2781ALWEgGfQh2XQjPrt0oRy8=
 github.com/snyk/cli-extension-mcp-scan v0.0.0-20251217093101-0705cbe3593b/go.mod h1:dRgGvQssSQ1U//nQ0D+H8JXnjz1ZhG9GWbz8GEaFRMQ=
-github.com/snyk/cli-extension-os-flows v0.0.0-20251218084622-1754d1ef9945 h1:c/x1CGajnt9/sTcZ3IxGS9vnaN/SIwCsaMz7o4WmW1A=
-github.com/snyk/cli-extension-os-flows v0.0.0-20251218084622-1754d1ef9945/go.mod h1:TWWxoMwavH+jAluWZtaaDbdOuwt8C5n51xnEuWvrv1g=
-github.com/snyk/cli-extension-sbom v0.0.0-20251113132837-5f6cc6d0cb26 h1:KEiRBMdOJHefM4GKL3C3FfvH4J2G/vBFnwkonylV5+o=
-github.com/snyk/cli-extension-sbom v0.0.0-20251113132837-5f6cc6d0cb26/go.mod h1:zyKDBaETfZyI7BfIjPnezH3QX2seQrR/d7NM5W6LV9s=
+github.com/snyk/cli-extension-os-flows v0.0.0-20251219081448-8c21f334b274 h1:Yr94SawqzCCQZOoNpul2SWHVeqIkQKSrcaQDRFQph1M=
+github.com/snyk/cli-extension-os-flows v0.0.0-20251219081448-8c21f334b274/go.mod h1:TWWxoMwavH+jAluWZtaaDbdOuwt8C5n51xnEuWvrv1g=
+github.com/snyk/cli-extension-sbom v0.0.0-20251219081320-1e63de9188b4 h1:cHS8ckjwvPfClDLSNEswh3qXvuwkQcu/LL/x+DM7g9A=
+github.com/snyk/cli-extension-sbom v0.0.0-20251219081320-1e63de9188b4/go.mod h1:zyKDBaETfZyI7BfIjPnezH3QX2seQrR/d7NM5W6LV9s=
 github.com/snyk/code-client-go v1.24.4 h1:19rmeqZFvjQMKaAmSZ0CdYZb1d0ENsDad2Cp32jeWOA=
 github.com/snyk/code-client-go v1.24.4/go.mod h1:uMlmMToe4uuNhNLs+yxjM3WFbytna+ytDWhpbnNwTSk=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
