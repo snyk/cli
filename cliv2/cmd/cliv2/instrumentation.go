@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	cli_utils "github.com/snyk/cli/cliv2/internal/utils"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
@@ -43,8 +44,9 @@ func addRuntimeDetails(instrumentor analytics.InstrumentationCollector, ua netwo
 		instrumentor.AddExtension("os-details", strings.TrimSpace(string(out)))
 	}
 
-	if out, err := exec.Command("ldd", "--version").Output(); err == nil {
-		instrumentor.AddExtension("c-runtime-details", strings.TrimSpace(string(out)))
+	cRuntimeDetails := cli_utils.GetGlibcDetails(cli_utils.ParserGlibcFull())
+	if cRuntimeDetails != "" {
+		instrumentor.AddExtension("c-runtime-details", cRuntimeDetails)
 	}
 }
 
