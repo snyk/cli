@@ -12,11 +12,12 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/rs/zerolog"
-	"github.com/snyk/cli/cliv2/internal/proxy"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/mocks"
 	"github.com/snyk/go-application-framework/pkg/networking"
+
+	"github.com/snyk/cli/cliv2/internal/proxy"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -150,6 +151,12 @@ func Test_ValidateGlibcVersion_validation(t *testing.T) {
 				os:      "linux",
 				arch:    "arm64",
 			},
+			{
+				name:    "invalid version format",
+				version: "glibc version", // not a valid semver string
+				os:      "linux",
+				arch:    "amd64",
+			},
 		}
 
 		for _, tt := range tests {
@@ -177,13 +184,6 @@ func Test_ValidateGlibcVersion_validation(t *testing.T) {
 				version:             "2.30", // below minimum of 2.31
 				os:                  "linux",
 				arch:                "arm64",
-				expectedSnykErrCode: "SNYK-0010",
-			},
-			{
-				name:                "invalid version format",
-				version:             "glibc version", // not a valid semver string
-				os:                  "linux",
-				arch:                "amd64",
 				expectedSnykErrCode: "SNYK-0010",
 			},
 		}
