@@ -2,6 +2,7 @@ module.exports = test;
 
 const detect = require('../detect');
 const { runTest } = require('./run-test');
+
 const chalk = require('chalk');
 const pm = require('../package-managers');
 const { UnsupportedPackageManagerError } = require('../errors');
@@ -12,6 +13,11 @@ const {
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } = require('../package-managers');
+const {
+  getFeatureFlagValue,
+  SHOW_MAVEN_BUILD_SCOPE,
+} = require('../feature-flag-gateway');
+const { getOrganizationID } = require('../organization');
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -75,6 +81,14 @@ async function executeTest(root, options) {
     const featureFlags = hasPnpmSupport
       ? new Set([PNPM_FEATURE_FLAG])
       : new Set([]);
+
+    const showScope = await getFeatureFlagValue(
+      SHOW_MAVEN_BUILD_SCOPE,
+      getOrganizationID(),
+    );
+    if (showScope) {
+      featureFlags.add(SHOW_MAVEN_BUILD_SCOPE);
+    }
 
     if (!options.allProjects) {
       options.packageManager = detect.detectPackageManager(
