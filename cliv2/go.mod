@@ -161,7 +161,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/open-policy-agent/opa v0.69.0 // indirect
+	github.com/open-policy-agent/opa v1.4.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/otiai10/copy v1.14.1 // indirect
 	github.com/otiai10/mint v1.6.3 // indirect
