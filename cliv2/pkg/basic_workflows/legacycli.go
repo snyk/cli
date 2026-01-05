@@ -82,7 +82,12 @@ func legacycliWorkflow(
 	debugLoggerDefault := invocation.GetLogger()  // uses log
 	ri := invocation.GetRuntimeInfo()
 
-	err = ValidateGlibcVersion(debugLogger, utils.DefaultGlibcVersion(), runtime.GOOS, runtime.GOARCH)
+	staticNodeJsBinaryBool, parseErr := strconv.ParseBool(staticNodeJsBinary)
+	if parseErr != nil {
+		debugLogger.Print("Failed to parse staticNodeJsBinary:", parseErr)
+	}
+
+	err = ValidateGlibcVersion(debugLogger, utils.DefaultGlibcVersion(), runtime.GOOS, runtime.GOARCH, staticNodeJsBinaryBool)
 	if err != nil {
 		return output, err
 	}
@@ -168,10 +173,6 @@ func legacycliWorkflow(
 		invocation.GetAnalytics().AddExtensionIntegerValue("exitcode", exitError.ExitCode())
 	}
 
-	staticNodeJsBinaryBool, parseErr := strconv.ParseBool(staticNodeJsBinary)
-	if parseErr != nil {
-		debugLogger.Print("Failed to parse staticNodeJsBinary:", parseErr)
-	}
 	invocation.GetAnalytics().AddExtensionBoolValue("static-nodejs-binary", staticNodeJsBinaryBool)
 
 	return output, err
@@ -204,9 +205,9 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 
 // ValidateGlibcVersion checks if the glibc version is supported and returns an Error Catalog error if it is not.
 // This check only applies to glibc-based Linux systems (amd64, arm64).
-func ValidateGlibcVersion(debugLogger *zerolog.Logger, glibcVersion string, os string, arch string) error {
-	// Skip validation on non-Linux or if glibc not detected
-	if glibcVersion == "" || os != "linux" {
+func ValidateGlibcVersion(debugLogger *zerolog.Logger, glibcVersion string, os string, arch string, staticNodeJsBinaryBool bool) error {
+	// Skip validation on linuxstatic, non-Linux, or if glibc not detected
+	if glibcVersion == "" || os != "linux" || staticNodeJsBinaryBool {
 		return nil
 	}
 
