@@ -106,7 +106,7 @@ func Test_ValidateGlibcVersion_doesNotApplyOnNonLinux(t *testing.T) {
 	}
 
 	logger := zerolog.Nop()
-	err := ValidateGlibcVersion(&logger, "", "darwin", "amd64")
+	err := ValidateGlibcVersion(&logger, "", "darwin", "amd64", false)
 	assert.NoError(t, err)
 }
 
@@ -121,6 +121,7 @@ func Test_ValidateGlibcVersion_validation(t *testing.T) {
 		os                  string
 		arch                string
 		expectedSnykErrCode string
+		staticNodeJsBinary  bool
 	}
 
 	t.Run("validates successfully", func(t *testing.T) {
@@ -128,40 +129,45 @@ func Test_ValidateGlibcVersion_validation(t *testing.T) {
 
 		tests := []glibcTest{
 			{
-				name:    "version exactly minimum on amd64",
-				version: MIN_GLIBC_VERSION_LINUX_AMD64,
-				os:      "linux",
-				arch:    "amd64",
+				name:               "version exactly minimum on amd64",
+				version:            MIN_GLIBC_VERSION_LINUX_AMD64,
+				os:                 "linux",
+				arch:               "amd64",
+				staticNodeJsBinary: false,
 			},
 			{
-				name:    "version newer than minimum on amd64",
-				version: "2.35",
-				os:      "linux",
-				arch:    "amd64",
+				name:               "version newer than minimum on amd64",
+				version:            "2.35",
+				os:                 "linux",
+				arch:               "amd64",
+				staticNodeJsBinary: false,
 			},
 			{
-				name:    "version exactly minimum on arm64",
-				version: MIN_GLIBC_VERSION_LINUX_ARM64,
-				os:      "linux",
-				arch:    "arm64",
+				name:               "version exactly minimum on arm64",
+				version:            MIN_GLIBC_VERSION_LINUX_ARM64,
+				os:                 "linux",
+				arch:               "arm64",
+				staticNodeJsBinary: false,
 			},
 			{
-				name:    "version newer than minimum on arm64",
-				version: "2.35",
-				os:      "linux",
-				arch:    "arm64",
+				name:               "version newer than minimum on arm64",
+				version:            "2.35",
+				os:                 "linux",
+				arch:               "arm64",
+				staticNodeJsBinary: false,
 			},
 			{
-				name:    "invalid version format",
-				version: "glibc version", // not a valid semver string
-				os:      "linux",
-				arch:    "amd64",
+				name:               "invalid version format",
+				version:            "glibc version", // not a valid semver string
+				os:                 "linux",
+				arch:               "amd64",
+				staticNodeJsBinary: false,
 			},
 		}
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				actualErr := ValidateGlibcVersion(&logger, tt.version, tt.os, tt.arch)
+				actualErr := ValidateGlibcVersion(&logger, tt.version, tt.os, tt.arch, tt.staticNodeJsBinary)
 
 				assert.NoError(t, actualErr)
 			})
@@ -178,6 +184,7 @@ func Test_ValidateGlibcVersion_validation(t *testing.T) {
 				os:                  "linux",
 				arch:                "amd64",
 				expectedSnykErrCode: "SNYK-0010",
+				staticNodeJsBinary:  false,
 			},
 			{
 				name:                "version too old on arm64",
@@ -185,12 +192,13 @@ func Test_ValidateGlibcVersion_validation(t *testing.T) {
 				os:                  "linux",
 				arch:                "arm64",
 				expectedSnykErrCode: "SNYK-0010",
+				staticNodeJsBinary:  false,
 			},
 		}
 
 		for _, tc := range testCases {
 			t.Run(tc.name, func(t *testing.T) {
-				actualErr := ValidateGlibcVersion(&logger, tc.version, tc.os, tc.arch)
+				actualErr := ValidateGlibcVersion(&logger, tc.version, tc.os, tc.arch, tc.staticNodeJsBinary)
 				require.NotNil(t, actualErr, "Expected error but got nil")
 				var snykErr snyk_errors.Error
 				require.True(t, errors.As(actualErr, &snykErr), "Expected snyk_errors.Error but got: %v", actualErr)
@@ -204,28 +212,38 @@ func Test_ValidateGlibcVersion_validation(t *testing.T) {
 
 		testCases := []glibcTest{
 			{
-				name:    "invalid os",
-				version: "",
-				os:      "windows",
-				arch:    "amd64",
+				name:               "invalid os",
+				version:            "1.0.0",
+				os:                 "windows",
+				arch:               "amd64",
+				staticNodeJsBinary: false,
 			},
 			{
-				name:    "invalid arch",
-				version: "",
-				os:      "linux",
-				arch:    "riscv",
+				name:               "invalid arch",
+				version:            "1.0.0",
+				os:                 "linux",
+				arch:               "riscv",
+				staticNodeJsBinary: false,
 			},
 			{
-				name:    "musl/Alpine",
-				version: "",
-				os:      "linux",
-				arch:    "amd64",
+				name:               "musl/Alpine",
+				version:            "",
+				os:                 "linux",
+				arch:               "amd64",
+				staticNodeJsBinary: false,
+			},
+			{
+				name:               "linux static builds",
+				version:            "1.0.0",
+				os:                 "linux",
+				arch:               "amd64",
+				staticNodeJsBinary: true,
 			},
 		}
 
 		for _, tc := range testCases {
 			t.Run(tc.name, func(t *testing.T) {
-				actualErr := ValidateGlibcVersion(&logger, tc.version, tc.os, tc.arch)
+				actualErr := ValidateGlibcVersion(&logger, tc.version, tc.os, tc.arch, tc.staticNodeJsBinary)
 				require.Nil(t, actualErr, "Expected no error but got: %v", actualErr)
 			})
 		}
