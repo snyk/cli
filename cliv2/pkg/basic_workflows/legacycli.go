@@ -3,12 +3,17 @@ package basic_workflows
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
+	"github.com/snyk/cli/cliv2/internal/utils"
+	"github.com/snyk/error-catalog-golang-public/snyk"
+	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -27,7 +32,9 @@ var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifie
 var staticNodeJsBinary string // injected by Makefile
 
 const (
-	PROXY_NOAUTH string = "proxy-noauth"
+	PROXY_NOAUTH                  string = "proxy-noauth"
+	MIN_GLIBC_VERSION_LINUX_AMD64 string = "2.28"
+	MIN_GLIBC_VERSION_LINUX_ARM64 string = "2.31"
 )
 
 func initLegacycli(engine workflow.Engine) error {
@@ -74,6 +81,11 @@ func legacycliWorkflow(
 	debugLogger := invocation.GetEnhancedLogger() // uses zerolog
 	debugLoggerDefault := invocation.GetLogger()  // uses log
 	ri := invocation.GetRuntimeInfo()
+
+	err = ValidateGlibcVersion(debugLogger, utils.DefaultGlibcVersion(), runtime.GOOS, runtime.GOARCH)
+	if err != nil {
+		return output, err
+	}
 
 	args := config.GetStringSlice(configuration.RAW_CMD_ARGS)
 	useStdIo := config.GetBool(configuration.WORKFLOW_USE_STDIO)
@@ -188,4 +200,36 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 	}
 
 	return wrapperProxy, nil
+}
+
+// ValidateGlibcVersion checks if the glibc version is supported and returns an Error Catalog error if it is not.
+// This check only applies to glibc-based Linux systems (amd64, arm64).
+func ValidateGlibcVersion(debugLogger *zerolog.Logger, glibcVersion string, os string, arch string) error {
+	// Skip validation on non-Linux or if glibc not detected
+	if glibcVersion == "" || os != "linux" {
+		return nil
+	}
+
+	var minVersion string
+	switch arch {
+	case "arm64":
+		minVersion = MIN_GLIBC_VERSION_LINUX_ARM64
+	case "amd64":
+		minVersion = MIN_GLIBC_VERSION_LINUX_AMD64
+	default:
+		return nil
+	}
+
+	res := utils.SemverCompare(glibcVersion, minVersion)
+
+	if res < 0 {
+		return snyk.NewRequirementsNotMetError(
+			fmt.Sprintf("The installed glibc version, %s is not supported. Upgrade to a version of glibc >= %s", glibcVersion, minVersion),
+			snyk_errors.WithLinks([]string{"https://docs.snyk.io/developer-tools/snyk-cli/releases-and-channels-for-the-snyk-cli#runtime-requirements"}),
+		)
+	}
+
+	// We currently do not fail on Linux when glibc is not detected, which could lead to an ungraceful failure.
+	// Failing here would require detectGlibcVersion to always return a valid version, which is not the case.
+	return nil
 }
