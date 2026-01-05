@@ -55,7 +55,7 @@ ignore:
   '${issueId}':
     - '*':
         reason: ${reason}
-        expires: '2026-01-01T00:00:00.000Z'
+        expires: '3026-01-01T00:00:00.000Z'
         created: '2024-01-01T00:00:00.000Z'
 `;
     await fs.promises.writeFile(path.join(projectPath, '.snyk'), policyContent);
