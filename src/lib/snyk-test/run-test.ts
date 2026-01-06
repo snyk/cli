@@ -41,9 +41,11 @@ import {
   RETRY_DELAY,
   printDepGraph,
   printEffectiveDepGraph,
+  printEffectiveDepGraphError,
   assembleQueryString,
   shouldPrintDepGraph,
   shouldPrintEffectiveDepGraph,
+  shouldPrintEffectiveDepGraphWithErrors,
 } from './common';
 import config from '../config';
 import * as analytics from '../analytics';
@@ -667,6 +669,13 @@ async function assembleLocalPayloads(
         'getDepsFromPlugin returned failed results, cannot run test/monitor',
         failedResults,
       );
+
+      if (shouldPrintEffectiveDepGraphWithErrors(options)) {
+        for (const failed of failedResults) {
+          await printEffectiveDepGraphError(root, failed, process.stdout);
+        }
+      }
+
       if (options['fail-fast']) {
         // should include failure message if applicable
         const message = errorMessages.length
