@@ -545,6 +545,80 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
+  // Unified Test API endpoints for uv acceptance tests
+  const testJobId = 'aaaaaaaa-bbbb-cccc-dddd-000000000001';
+  const testId = 'aaaaaaaa-bbbb-cccc-dddd-000000000002';
+
+  app.post(`/rest/orgs/:orgId/tests`, (req, res) => {
+    res.status(202);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        type: 'test_jobs',
+        id: testJobId,
+        attributes: { status: 'pending' },
+      },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/test_jobs/:testJobId`, (req, res) => {
+    const addr = server?.address();
+    const port = typeof addr === 'object' && addr ? addr.port : 4000;
+    const location = `http://localhost:${port}/rest/orgs/${req.params.orgId}/tests/${testId}`;
+    res.status(303);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.setHeader('Location', location);
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        type: 'test_jobs',
+        id: req.params.testJobId,
+        attributes: { status: 'finished' },
+        relationships: {
+          test: {
+            data: { type: 'tests', id: testId },
+          },
+        },
+      },
+      links: { related: location },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/tests/:testId`, (req, res) => {
+    res.status(200);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        id: req.params.testId,
+        type: 'tests',
+        attributes: {
+          status: 'finished',
+          pass_fail: 'pass',
+          outcome_reason: 'passed',
+          created_at: new Date().toISOString(),
+          summary: {
+            total: 0,
+            critical: 0,
+            high: 0,
+            medium: 0,
+            low: 0,
+          },
+        },
+      },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/tests/:testId/findings`, (req, res) => {
+    res.status(200);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: [],
+    });
+  });
+
   app.post(`/api/hidden/orgs/:orgId/ai_scans`, (req, res) => {
     res.status(201);
     res.send({
