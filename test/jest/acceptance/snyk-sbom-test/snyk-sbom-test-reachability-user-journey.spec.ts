@@ -16,7 +16,6 @@ const SBOM_FILE_PATH = getFixturePath('sbom/snyk-goof-sbom.json');
 const reachabilityEnv = {
   ...process.env,
   INTERNAL_SNYK_CLI_REACHABILITY_ENABLED: 'true',
-  INTERNAL_SNYK_CLI_SBOM_TEST_REACHABILITY: 'true',
 };
 
 beforeAll(() => {
@@ -50,49 +49,116 @@ afterAll(() => {
   }
 });
 
-describe('snyk sbom test --reachability', () => {
-  it('should display human-readable output with test summary', async () => {
-    const { code, stdout, stderr } = await runSnykCLI(
-      `sbom test --experimental --file=${SBOM_FILE_PATH} --reachability --source-dir=${TEMP_LOCAL_PATH}`,
-      { env: reachabilityEnv },
-    );
+describe('snyk sbom test', () => {
+  describe('basic functionality', () => {
+    it('should display human-readable output with test summary', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `sbom test --file=${SBOM_FILE_PATH}`,
+      );
 
-    expect(stderr).toBe('');
-    expect(stdout).toContain('Test Summary');
-    expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+      expect(stderr).toBe('');
+      expect(stdout).toContain('Test Summary');
+      expect(stdout).toContain('Issues to fix by upgrading');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+    });
+
+    it('should output valid JSON with vulnerability data', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `sbom test --file=${SBOM_FILE_PATH} --json`,
+      );
+
+      expect(stderr).toBe('');
+      expect(stdout).not.toBe('');
+
+      const jsonOutput = JSON.parse(stdout);
+
+      expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
+      expect(jsonOutput.vulnerabilities).toBeInstanceOf(Array);
+      expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);
+      expect(
+        Object.keys(jsonOutput.remediation.upgrade).length,
+      ).toBeGreaterThanOrEqual(1);
+
+      const vuln = jsonOutput.vulnerabilities[0];
+      expect(vuln).toHaveProperty('id');
+      expect(vuln).toHaveProperty('title');
+      expect(vuln).toHaveProperty('severity');
+
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+    });
+
+    it('should show error when --file flag is missing', async () => {
+      const { code, stdout } = await runSnykCLI(`sbom test`);
+
+      expect(stdout).toContain('--file');
+      expect(code).toBe(EXIT_CODES.ERROR);
+    });
   });
 
-  it('should output valid JSON with reachability data', async () => {
-    const { code, stdout, stderr } = await runSnykCLI(
-      `sbom test --experimental --file=${SBOM_FILE_PATH} --reachability --source-dir=${TEMP_LOCAL_PATH} --json`,
-      { env: reachabilityEnv },
-    );
+  describe('with reachability', () => {
+    it('should display human-readable output with test summary', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `sbom test --file=${SBOM_FILE_PATH} --reachability --source-dir=${TEMP_LOCAL_PATH}`,
+        { env: reachabilityEnv },
+      );
 
-    expect(stderr).toBe('');
-    expect(stdout).not.toBe('');
+      expect(stderr).toBe('');
+      expect(stdout).toContain('Test Summary');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+    });
 
-    const jsonOutput = JSON.parse(stdout);
+    it('should emit valid json output with filtering only reachable vulnerabilities', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `sbom test --file=${SBOM_FILE_PATH} --reachability --source-dir=${TEMP_LOCAL_PATH} --reachability-filter=reachable --json`,
+        { env: reachabilityEnv },
+      );
 
-    expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
-    expect(jsonOutput.vulnerabilities).toBeInstanceOf(Array);
-    expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);
+      expect(stdout).not.toBe('');
+      expect(stderr).toBe('');
 
-    const vulnsWithReachability = jsonOutput.vulnerabilities.filter(
-      (vuln: any) => vuln.reachability !== undefined,
-    );
-    expect(vulnsWithReachability.length).toBeGreaterThan(0);
+      const jsonOutput = JSON.parse(stdout);
 
-    const reachableVulns = jsonOutput.vulnerabilities.filter(
-      (vuln: any) => vuln.reachability === 'reachable',
-    );
+      const areAllVulnsReachable = jsonOutput.vulnerabilities.every(
+        (vuln: { reachability: string }) => vuln.reachability === 'reachable',
+      );
 
-    expect(reachableVulns.length).toBeGreaterThan(0);
+      expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);
+      expect(areAllVulnsReachable).toBeTruthy();
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+    });
 
-    expect(reachableVulns[0]).toHaveProperty('id');
-    expect(reachableVulns[0]).toHaveProperty('title');
-    expect(reachableVulns[0]).toHaveProperty('severity');
-    expect(reachableVulns[0]).toHaveProperty('reachability', 'reachable');
+    it('should output valid JSON with reachability data', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `sbom test --file=${SBOM_FILE_PATH} --reachability --source-dir=${TEMP_LOCAL_PATH} --json`,
+        { env: reachabilityEnv },
+      );
 
-    expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+      expect(stderr).toBe('');
+      expect(stdout).not.toBe('');
+
+      const jsonOutput = JSON.parse(stdout);
+
+      expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
+      expect(jsonOutput.vulnerabilities).toBeInstanceOf(Array);
+      expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);
+
+      const vulnsWithReachability = jsonOutput.vulnerabilities.filter(
+        (vuln: any) => vuln.reachability !== undefined,
+      );
+      expect(vulnsWithReachability.length).toBeGreaterThan(0);
+
+      const reachableVulns = jsonOutput.vulnerabilities.filter(
+        (vuln: any) => vuln.reachability === 'reachable',
+      );
+
+      expect(reachableVulns.length).toBeGreaterThan(0);
+
+      expect(reachableVulns[0]).toHaveProperty('id');
+      expect(reachableVulns[0]).toHaveProperty('title');
+      expect(reachableVulns[0]).toHaveProperty('severity');
+      expect(reachableVulns[0]).toHaveProperty('reachability', 'reachable');
+
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+    });
   });
 });
