@@ -30,14 +30,15 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
+
+	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
@@ -623,14 +624,22 @@ func MainWithErrorCode() int {
 	}
 
 	if err != nil {
+		// ensure to use generic fallback error catalog error if no other is available
 		err = decorateError(err)
 
+		// add all errors to analytics
 		errorList = append(errorList, err)
 		for _, tempError := range errorList {
 			cliAnalytics.AddError(tempError)
 		}
 
+		// special handling for legacy cli termination errors
 		err = legacyCLITerminated(err, errorList)
+
+		// ensure to apply exit code mapping based on errors
+		if exitCode := mapErrorToExitCode(err); exitCode != unsetExitCode {
+			err = createErrorWithExitCode(exitCode, err)
+		}
 	}
 
 	displayError(err, globalEngine.GetUserInterface(), globalConfiguration, ctx)

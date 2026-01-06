@@ -1,18 +1,21 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os/exec"
 	"strings"
 
-	"github.com/snyk/error-catalog-golang-public/code"
+	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/snyk/go-application-framework/pkg/apiclients/testapi"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/json_schemas"
 	"github.com/snyk/go-application-framework/pkg/utils/ufm"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 
+	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior"
 	"github.com/snyk/cli/cliv2/internal/constants"
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
 )
@@ -146,8 +149,8 @@ func handleTestSummary(engine workflow.Engine, data workflow.Data) (int, error) 
 // handleDataErrors processes data errors and returns the appropriate exit code and error
 func handleDataErrors(data workflow.Data) (int, error) {
 	for _, dataError := range data.GetErrorList() {
-		if dataError.ErrorCode == code.NewUnsupportedProjectError("").ErrorCode {
-			return constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS, dataError
+		if exitCode := mapErrorToExitCode(dataError); exitCode != unsetExitCode {
+			return exitCode, dataError
 		}
 	}
 	return unsetExitCode, nil
@@ -167,4 +170,27 @@ func createErrorWithExitCode(exitCode int, err error) error {
 		return errorWithExitCode
 	}
 	return errors.Join(err, errorWithExitCode)
+}
+
+// mapErrorToExitCode maps specific errors to an exit code. Unmapped errors will return unsetExitCode.
+func mapErrorToExitCode(err error) int {
+	// no need to map if the error already contains an exit code in some form
+	exitCodeError := cli_errors.ErrorWithExitCode{}
+	var exitError *exec.ExitError
+	if errors.Is(err, exitCodeError) || errors.As(err, &exitError) {
+		return unsetExitCode
+	}
+
+	// map external errors for example from golang runtime or other libraries that require a specific exit code
+	if errors.Is(err, context.DeadlineExceeded) {
+		return constants.SNYK_EXIT_CODE_EX_UNAVAILABLE
+	}
+
+	// map error catalog errors
+	errCatalogError := snyk_errors.Error{}
+	if errors.As(err, &errCatalogError) {
+		return behavior.MapErrorCatalogToExitCode(&errCatalogError, unsetExitCode)
+	}
+
+	return unsetExitCode
 }

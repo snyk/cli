@@ -561,9 +561,6 @@ func Test_setTimeout(t *testing.T) {
 	err = cli.Execute(getProxyInfoForTest(), []string{"2"})
 
 	assert.ErrorIs(t, err, context.DeadlineExceeded)
-
-	// ensure that -1 is correctly mapped if timeout is set
-	assert.Equal(t, constants.SNYK_EXIT_CODE_EX_UNAVAILABLE, cliv2.DeriveExitCode(err))
 }
 
 func TestDeriveExitCode(t *testing.T) {
@@ -574,7 +571,6 @@ func TestDeriveExitCode(t *testing.T) {
 	}{
 		{name: "no error", err: nil, expected: constants.SNYK_EXIT_CODE_OK},
 		{name: "error with exit code", err: &cli_errors.ErrorWithExitCode{ExitCode: 42}, expected: 42},
-		{name: "context.DeadlineExceeded", err: context.DeadlineExceeded, expected: constants.SNYK_EXIT_CODE_EX_UNAVAILABLE},
 		{name: "other error", err: errors.New("some other error"), expected: constants.SNYK_EXIT_CODE_ERROR},
 	}
 
