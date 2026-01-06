@@ -169,6 +169,18 @@ describe('snyk container', () => {
       expect(goModulesResults).toBeDefined();
     });
 
+    it('should correctly scan an OCI image with manifest missing platform field', async () => {
+      const image = 'snykgoof/oci-goof:ociNoPlatformTag';
+      const { code, stdout } = await runSnykCLI(
+        `container test ${image} --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+      expect(code).toEqual(1);
+      expect(jsonOutput).toBeDefined();
+      expect(jsonOutput.vulnerabilities).toBeDefined();
+      expect(Array.isArray(jsonOutput.vulnerabilities)).toBe(true);
+    }, 180000);
+
     it('npm depGraph is generated in an npm image with lockfiles', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container test docker-archive:test/fixtures/container-projects/npm7-with-package-lock-file.tar --print-deps`,
