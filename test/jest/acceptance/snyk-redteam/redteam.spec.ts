@@ -11,6 +11,7 @@ describe('snyk redteam (mocked servers only)', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
   let redteamTarget: string;
+  let redteamTargetWithAgent: string;
   const projectRoot = resolve(__dirname, '../../../..');
 
   beforeAll((done) => {
@@ -18,6 +19,10 @@ describe('snyk redteam (mocked servers only)', () => {
     const baseApi = '/api/v1';
     const ipAddr = getFirstIPv4Address();
     redteamTarget = resolve(projectRoot, 'test/fixtures/redteam/redteam.yaml');
+    redteamTargetWithAgent = resolve(
+      projectRoot,
+      'test/fixtures/redteam/redteam_with_agent.yaml',
+    );
     env = {
       ...process.env,
       SNYK_API: 'http://' + ipAddr + ':' + port + baseApi,
@@ -101,5 +106,112 @@ describe('snyk redteam (mocked servers only)', () => {
     );
     expect(code).toEqual(2);
     expect(stdout).toContain('CLI validation failure');
+  });
+
+  /**
+   * TODO(pkey): when running the tests, underlying go framework is NOT converting http errors to Snyk Errors.
+   * As a result, locally or in CI, this test doesn't go through the same error handling path.
+   * This needs to be addressed either by handling both cases equally in the cli extension or
+   * by fixing the framework to be consistent across all environments.
+   *
+   * Leaving this test disabled so that it can be enabled when underlying issue is fixed.
+   */
+  test.skip('`redteam` displays a 400 error properly', async () => {
+    server.setStatusCode(400);
+    server.setEndpointResponse('/api/v1/ai_scans', {
+      errors: [
+        {
+          status: '400',
+          detail: 'This is the error message',
+          title: 'Bad Request',
+        },
+      ],
+    });
+    const { code, stdout } = await runSnykCLI(
+      `redteam --config=${redteamTarget} --experimental`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(2);
+    expect(stdout).toContain('400');
+    expect(stdout).toContain('This is the error message');
+  });
+
+  test('`redteam` can run a redteam scan with a scanning agent', async () => {
+    const { code } = await runSnykCLI(
+      `redteam --config=${redteamTargetWithAgent} --experimental`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+  });
+
+  test('`redteam scanning-agent` can list scanning agents', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `redteam scanning-agent --experimental`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+    const agents = JSON.parse(stdout);
+    expect(agents).toEqual(
+      expect.arrayContaining([
+        {
+          id: expect.any(String),
+          name: expect.any(String),
+          online: expect.any(Boolean),
+          fallback: expect.any(Boolean),
+          rx_bytes: expect.any(Number),
+          tx_bytes: expect.any(Number),
+          latest_handshake: expect.any(Number),
+          installer_generated: expect.any(Boolean),
+        },
+      ]),
+    );
+  });
+
+  test('`redteam` can add scanning agents', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `redteam scanning-agent create --experimental`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+
+    expect(stdout).toContain('Agent Token:');
+    expect(stdout).toContain('The token will only be displayed once');
+    expect(stdout).toContain('Installation');
+    expect(stdout).toContain('Docker:');
+    expect(stdout).toContain('docker run');
+    expect(stdout).toContain('probely/farcaster-onprem-agent');
+
+    const lastBraceIndex = stdout.lastIndexOf('{');
+    expect(lastBraceIndex).toBeGreaterThan(-1);
+    const jsonString = stdout.substring(lastBraceIndex).trim();
+    const agent = JSON.parse(jsonString);
+    expect(agent).toMatchObject({
+      id: expect.any(String),
+      name: expect.any(String),
+      online: expect.any(Boolean),
+      fallback: expect.any(Boolean),
+      rx_bytes: expect.any(Number),
+      tx_bytes: expect.any(Number),
+      latest_handshake: expect.any(Number),
+      installer_generated: expect.any(Boolean),
+    });
+  });
+
+  test('`redteam` can remove scanning agents', async () => {
+    const { code } = await runSnykCLI(
+      `redteam scanning-agent delete --experimental --id=59622253-75f3-4439-ac1e-ce94834c5804`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
   });
 });

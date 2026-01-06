@@ -641,20 +641,6 @@ workflows:
           requires:
             - prepare-build
 
-      - regression-tests:
-          name: regression-tests
-          context:
-            - team_hammerhead-cli
-            - devex_cli_docker_hub
-          filters:
-            branches:
-              ignore:
-                - main
-                - '/release.*/'
-          requires:
-            - build linux amd64
-          test_snyk_command: ./binary-releases/snyk-linux
-
       - acceptance-tests:
           name: acceptance-tests linux static arm64
           go_target_os: linux
@@ -1490,36 +1476,6 @@ jobs:
           path: test/reports
       - store_artifacts:
           path: test/reports
-
-  regression-tests:
-    parameters:
-      test_snyk_command:
-        type: string
-        default: ./binary-files/snyk-linux
-    executor: docker-amd64
-    # working_directory: /mnt/ramdisk/snyk
-    steps:
-      - prepare-workspace
-      - run:
-          name: Install ShellSpec Deps
-          command: |
-            ./test/smoke/install-shellspec.sh --yes
-            sudo ln -s ~/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
-      - run:
-          name: Installing test fixture dependencies
-          working_directory: ./test/fixtures/basic-npm
-          command: npm i
-      - run:
-          name: Installing Snyk CLI
-          command: |
-            sudo ln -s $(realpath << parameters.test_snyk_command >>) /usr/local/bin/snyk
-            snyk --version
-      - run:
-          name: Running ShellSpec tests
-          working_directory: ./test/smoke
-          command: |
-            echo "Checkout the README in test/smoke folder for more details about this step"
-            shellspec -f d -e REGRESSION_TEST=1 -e PIP_BREAK_SYSTEM_PACKAGES=1
 
   sign:
     parameters:

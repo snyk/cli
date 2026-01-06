@@ -10,8 +10,6 @@ The `snyk monitor` command creates a project in your Snyk account to be continuo
 
 Use the `monitor` command before integrating a project into production, to take a snapshot of the code to be monitored in order to avoid pushing vulnerabilities into production. Choose a test frequency in your Settings if you want to change the frequency from the default, which is daily.
 
-A PR check will also do a test.
-
 After running the `snyk monitor` command, log in to the Snyk website and view your projects to see the monitor.
 
 If you make changes to your code, you must run the `monitor` command again.
@@ -149,7 +147,7 @@ Example: `$ snyk monitor --file=req.txt --package-manager=pip`
 
 For more information, see [Options for Python projects](https://docs.snyk.io/snyk-cli/commands/monitor#options-for-python-projects)
 
-### `--source-dir=<PATH_TO_SOURCE_CODE>`&#x20;
+### `--source-dir=<PATH_TO_SOURCE_CODE>`
 
 Specify a directory of source code to be analyzed. Use with `--reachability`.
 
@@ -235,7 +233,7 @@ This is an alias for `--project-tags`
 
 Use `--maven-aggregate-project` instead of `--all-projects` when scanning Maven aggregate projects, that is, projects that use modules and inheritance.
 
-Using `--maven-aggregate-project` instructs Snyk to perform a compilation step to ensure all modules within the project are resolvable by the Maven reactor. This ensures a comprehensive scan that includes dependencies of all sub-modules.
+Use `--maven-aggregate-project` to instruct Snyk to perform a compilation step to ensure all modules within the project are resolvable by the Maven reactor. This ensures a comprehensive scan that includes dependencies of all sub-modules.
 
 Be sure to run the scan in the same directory as the root `pom.xml` file.
 
@@ -260,6 +258,14 @@ Auto-detect Maven, JAR, WAR, and AAR files recursively from the current folder.
 ```
 
 **Note**: Custom-built JAR files, even with open-source dependencies, are not supported.
+
+### Maven-specific options
+
+Add the `--` option for Maven-specific options, followed by the Maven option.&#x20;
+
+The following examples are not all-inclusive. For more details, see [Maven CLI options](https://maven.apache.org/ref/3.9.11/maven-embedder/cli.html)
+
+Examples: `-- -Dpkg_version=1.4` ; `-- -Dprofile=my-profile` ; `-- -s path/to/settings.xml`
 
 ## Options for Gradle projects
 
