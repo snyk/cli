@@ -22,7 +22,8 @@ export type SupportedPackageManagers =
   | 'poetry'
   | 'hex'
   | 'Unmanaged (C/C++)'
-  | 'swift';
+  | 'swift'
+  | 'uv';
 
 export enum SUPPORTED_MANIFEST_FILES {
   GEMFILE = 'Gemfile',
@@ -55,6 +56,7 @@ export enum SUPPORTED_MANIFEST_FILES {
   POETRY_LOCK = 'poetry.lock',
   MIX_EXS = 'mix.exs',
   PACKAGE_SWIFT = 'Package.swift',
+  UV_LOCK = 'uv.lock',
 }
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
@@ -78,6 +80,7 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   hex: 'Hex',
   'Unmanaged (C/C++)': 'Unmanaged (C/C++)',
   swift: 'Swift',
+  uv: 'uv',
 };
 
 export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
@@ -87,6 +90,7 @@ export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
   'rubygems',
   'poetry',
   'cocoapods',
+  'uv',
 ];
 // For ecosystems with a flat set of libraries (e.g. Python, JVM), one can
 // "pin" a transitive dependency

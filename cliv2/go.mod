@@ -189,7 +189,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
 	github.com/snyk/code-client-go v1.24.4 // indirect
-	github.com/snyk/dep-graph/go v0.0.0-20251128083058-1972edcff6cf // indirect
+	github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25 // indirect
 	github.com/snyk/policy-engine v1.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
@@ -258,4 +258,4 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 
 //replace github.com/snyk/cli-extension-os-flows => ../../cli-extension-os-flows
 
-// replace github.com/snyk/cli-extension-ai-bom => ../../cli-extension-ai-bom
+replace github.com/snyk/cli-extension-dep-graph => ../../cli-extension-dep-graph
