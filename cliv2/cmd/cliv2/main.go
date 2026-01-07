@@ -189,7 +189,7 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 
 	output, err := engine.Invoke(workflow.NewWorkflowIdentifier(name), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
-		logger.Print("Failed to execute the command!", err)
+		logger.Print("Failed to execute the command! ", err)
 		return err
 	}
 
@@ -624,16 +624,13 @@ func MainWithErrorCode() int {
 	}
 
 	if err != nil {
-		// ensure to use generic fallback error catalog error if no other is available
 		err = decorateError(err)
 
-		// add all errors to analytics
 		errorList = append(errorList, err)
 		for _, tempError := range errorList {
 			cliAnalytics.AddError(tempError)
 		}
 
-		// special handling for legacy cli termination errors
 		err = legacyCLITerminated(err, errorList)
 
 		// ensure to apply exit code mapping based on errors
