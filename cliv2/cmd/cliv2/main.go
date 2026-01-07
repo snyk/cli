@@ -528,6 +528,9 @@ func MainWithErrorCode() int {
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddErrorHandler(func(err error, ctx context.Context) error {
+		if err == nil {
+			return nil
+		}
 		errorListMutex.Lock()
 		defer errorListMutex.Unlock()
 
@@ -624,18 +627,12 @@ func MainWithErrorCode() int {
 	}
 
 	if err != nil {
-		err = decorateError(err)
+		err, errorList = processError(err, errorList)
 
-		errorList = append(errorList, err)
 		for _, tempError := range errorList {
-			cliAnalytics.AddError(tempError)
-		}
-
-		err = legacyCLITerminated(err, errorList)
-
-		// ensure to apply exit code mapping based on errors
-		if exitCode := mapErrorToExitCode(err); exitCode != unsetExitCode {
-			err = createErrorWithExitCode(exitCode, err)
+			if tempError != nil {
+				cliAnalytics.AddError(tempError)
+			}
 		}
 	}
 
@@ -665,13 +662,32 @@ func MainWithErrorCode() int {
 	return exitCode
 }
 
-func legacyCLITerminated(err error, errorList []error) error {
-	exitErr, isExitError := err.(*exec.ExitError)
-	if isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
+func processError(err error, errorList []error) (error, []error) {
+	// ensure to use generic fallback error catalog error if no other is available
+	err = decorateError(err)
+
+	// filter legacycli terminate errors since it is only used for internal purposes
+	if exitErr, isExitError := err.(*exec.ExitError); isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
+		err = nil
+	}
+
+	// add all errors to analytics
+	if err != nil {
 		errorList = append([]error{err}, errorList...)
+	}
+
+	// create a single error from all errors
+	if len(errorList) == 1 {
+		err = errorList[0]
+	} else if len(errorList) > 1 {
 		err = errors.Join(errorList...)
 	}
-	return err
+
+	// ensure to apply exit code mapping based on errors
+	if exitCode := mapErrorToExitCode(err); exitCode != unsetExitCode {
+		err = createErrorWithExitCode(exitCode, err)
+	}
+	return err, errorList
 }
 
 func setTimeout(config configuration.Configuration, onTimeout func()) {
