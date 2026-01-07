@@ -214,6 +214,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
     if (
       req.url?.includes('/iac-org-settings') ||
+      req.url?.includes('/feature_flags/evaluation') ||
       req.url?.includes('/cli-config/feature-flags/') ||
       (!nextResponse && !nextStatusCode && !statusCode)
     ) {
@@ -884,6 +885,57 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     // default: return true for all feature flags
     res.send({
       ok: true,
+    });
+  });
+
+  app.post(`*hidden/orgs/:orgId/feature_flags/evaluation`, (req, res) => {
+    console.log('tombrew Feature flag evaluation request received');
+    console.log('orgId:', req.params.orgId);
+    console.log(
+      'flags:',
+      req.body?.data?.attributes?.flags ?? 'no flags provided',
+    );
+    console.log('path:', req.path);
+    const flags: string[] = req.body?.data?.attributes?.flags ?? [];
+
+    const { orgId } = req.params;
+    if (orgId === 'no-flag') {
+      return res.send({
+        data: {
+          type: 'feature_flags_evaluation',
+          attributes: {
+            evaluations: [],
+            evaluatedAt: new Date().toISOString(),
+          },
+        },
+      });
+    }
+
+    const evaluations = flags.map((flag) => {
+      if (!featureFlags.has(flag)) {
+        return {
+          key: flag,
+          value: false,
+          reason: 'not_available',
+        };
+      }
+
+      const enabled = featureFlags.get(flag);
+      return {
+        key: flag,
+        value: Boolean(enabled),
+        reason: enabled ? 'found' : 'not_available',
+      };
+    });
+
+    res.send({
+      data: {
+        type: 'feature_flags_evaluation',
+        attributes: {
+          evaluations,
+          evaluatedAt: new Date().toISOString(),
+        },
+      },
     });
   });
 
