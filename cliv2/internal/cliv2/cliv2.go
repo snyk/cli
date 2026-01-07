@@ -45,6 +45,7 @@ type CLI struct {
 	CacheDirectory   string
 	WorkingDirectory string
 	v1BinaryLocation string
+	executablePath   string
 	stdin            io.Reader
 	stdout           io.Writer
 	stderr           io.Writer
@@ -79,11 +80,20 @@ func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger, ri ru
 
 	v1BinaryLocation := path.Join(cacheDirectory, ri.GetVersion(), cliv1.GetCLIv1Filename())
 
+	// Get the executable path for the parent application
+	executablePath, err := os.Executable()
+	if err != nil {
+		// If we can't get the executable path, continue without it
+		// The TypeScript code can fall back to other methods
+		executablePath = ""
+	}
+
 	cli := CLI{
 		DebugLogger:      debugLogger,
 		CacheDirectory:   cacheDirectory,
 		WorkingDirectory: "",
 		v1BinaryLocation: v1BinaryLocation,
+		executablePath:   executablePath,
 		stdin:            os.Stdin,
 		stdout:           os.Stdout,
 		stderr:           os.Stderr,
@@ -307,6 +317,7 @@ func PrepareV1EnvironmentVariables(
 	caCertificateLocation string,
 	config configuration.Configuration,
 	args []string,
+	executablePath string,
 ) (result []string, err error) {
 	inputAsMap := utils.ToKeyValueMap(input, "=")
 	result = input
@@ -353,6 +364,11 @@ func PrepareV1EnvironmentVariables(
 		inputAsMap[constants.SNYK_CA_CERTIFICATE_LOCATION_ENV] = caCertificateLocation
 
 		fillEnvironmentFromConfig(inputAsMap, config, args)
+
+		// Set the parent application path so TypeScript can call back to the Go CLI
+		if len(executablePath) > 0 {
+			inputAsMap[constants.SNYK_INTERNAL_PARENT_APPLICATION] = executablePath
+		}
 
 		// merge user defined (external) and internal no_proxy configuration
 		if len(inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM]) > 0 {
@@ -404,7 +420,10 @@ func (c *CLI) PrepareV1Command(
 ) (snykCmd *exec.Cmd, err error) {
 	proxyAddress := fmt.Sprintf("http://%s:%s@127.0.0.1:%d", proxy.PROXY_USERNAME, proxyInfo.Password, proxyInfo.Port)
 	snykCmd = exec.CommandContext(ctx, cmd, args...)
-	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, c.globalConfig, args)
+	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, c.globalConfig, args, c.executablePath)
+	if c.DebugLogger != nil && len(c.executablePath) > 0 {
+		c.DebugLogger.Printf("PrepareV1Command: executablePath=%s", c.executablePath)
+	}
 
 	if len(c.WorkingDirectory) > 0 {
 		snykCmd.Dir = c.WorkingDirectory

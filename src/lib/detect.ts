@@ -36,6 +36,7 @@ const DETECTABLE_FILES: string[] = [
   'mix.exs',
   'mix.lock',
   'Package.swift',
+  'uv.lock',
 ];
 
 export const AUTO_DETECTABLE_FILES: string[] = [
@@ -64,6 +65,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'mix.exs',
   'mix.lock',
   'Package.swift',
+  'uv.lock',
 ];
 
 // when file is specified with --file, we look it up here
@@ -101,6 +103,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   [SUPPORTED_MANIFEST_FILES.POETRY_LOCK]: 'poetry',
   [SUPPORTED_MANIFEST_FILES.MIX_EXS]: 'hex',
   [SUPPORTED_MANIFEST_FILES.PACKAGE_SWIFT]: 'swift',
+  [SUPPORTED_MANIFEST_FILES.UV_LOCK]: 'uv',
 };
 
 export function isPathToPackageFile(
@@ -123,8 +126,10 @@ export function detectPackageManager(
   options,
   featureFlags: Set<string> = new Set<string>(),
 ) {
+  debug(`[UV-DEBUG] detectPackageManager called for root: ${root}, options.packageManager: ${options.packageManager}`);
   // If user specified a package manager let's use it.
   if (options.packageManager) {
+    debug(`[UV-DEBUG] Using user-specified package manager: ${options.packageManager}`);
     return options.packageManager;
   }
   // The package manager used by a docker container is not known ahead of time
@@ -145,13 +150,16 @@ export function detectPackageManager(
       }
       file = options.file;
       packageManager = detectPackageManagerFromFile(file, featureFlags);
+      debug(`[UV-DEBUG] Detected package manager from file ${file}: ${packageManager}`);
     } else if (options.scanAllUnmanaged) {
       packageManager = 'maven';
     } else {
       debug('no file specified. Trying to autodetect in base folder ' + root);
       file = detectPackageFile(root, featureFlags);
+      debug(`[UV-DEBUG] detectPackageFile returned: ${file}`);
       if (file) {
         packageManager = detectPackageManagerFromFile(file, featureFlags);
+        debug(`[UV-DEBUG] Detected package manager from file ${file}: ${packageManager}`);
       }
     }
   } else {
@@ -160,8 +168,10 @@ export function detectPackageManager(
     packageManager = detectPackageManagerFromRegistry(registry);
   }
   if (!packageManager) {
+    debug(`[UV-DEBUG] No package manager detected, throwing error`);
     throw NoSupportedManifestsFoundError([root]);
   }
+  debug(`[UV-DEBUG] Final detected package manager: ${packageManager}`);
   return packageManager;
 }
 
@@ -184,22 +194,36 @@ function isFileCompatible(
   file: string,
   featureFlags: Set<string> = new Set<string>(),
 ) {
+  debug(`[UV-DEBUG] isFileCompatible called for file: ${file}`);
   if (
     file === SUPPORTED_MANIFEST_FILES.PNPM_LOCK &&
     !featureFlags.has(PNPM_FEATURE_FLAG)
   ) {
+    debug(`[UV-DEBUG] pnpm lockfile found but feature flag not enabled`);
     return false;
   }
-  return true;
+  if (file === SUPPORTED_MANIFEST_FILES.UV_LOCK) {
+    debug(`[UV-DEBUG] uv.lock file is compatible`);
+    // TODO: check uv FF here
+  }
+  const compatible = true;
+  debug(`[UV-DEBUG] File ${file} is compatible: ${compatible}`);
+  return compatible;
 }
 
 export function detectPackageFile(
   root: string,
   featureFlags: Set<string> = new Set<string>(),
 ) {
+  debug(`[UV-DEBUG] detectPackageFile called for root: ${root}`);
   for (const file of DETECTABLE_FILES) {
-    if (fs.existsSync(pathLib.resolve(root, file))) {
-      if (!isFileCompatible(file, featureFlags)) {
+    const filePath = pathLib.resolve(root, file);
+    const exists = fs.existsSync(filePath);
+    debug(`[UV-DEBUG] Checking file: ${file}, path: ${filePath}, exists: ${exists}`);
+    if (exists) {
+      const compatible = isFileCompatible(file, featureFlags);
+      debug(`[UV-DEBUG] File ${file} compatible: ${compatible}`);
+      if (!compatible) {
         debug(
           `found pnpm lockfile ${file} in ${root}, but ${PNPM_FEATURE_FLAG} not enabled`,
         );
@@ -216,7 +240,9 @@ export function detectPackageManagerFromFile(
   file: string,
   featureFlags: Set<string> = new Set<string>(),
 ): SupportedPackageManagers {
+  debug(`[UV-DEBUG] detectPackageManagerFromFile called with file: ${file}`);
   let key = pathLib.basename(file);
+  debug(`[UV-DEBUG] Extracted key from file: ${key}`);
 
   // TODO: fix this to use glob matching instead
   // like *.gemspec
@@ -232,16 +258,24 @@ export function detectPackageManagerFromFile(
     key = '.war';
   }
 
+  debug(`[UV-DEBUG] Final key after processing: ${key}`);
+  debug(`[UV-DEBUG] Checking if key exists in DETECTABLE_PACKAGE_MANAGERS: ${key in DETECTABLE_PACKAGE_MANAGERS}`);
+  
   if (!(key in DETECTABLE_PACKAGE_MANAGERS)) {
     // we throw and error here because the file was specified by the user
+    debug(`[UV-DEBUG] Key ${key} not found in DETECTABLE_PACKAGE_MANAGERS`);
     throw new Error('Could not detect package manager for file: ' + file);
   }
 
-  if (!isFileCompatible(key, featureFlags)) {
+  const compatible = isFileCompatible(key, featureFlags);
+  debug(`[UV-DEBUG] File ${key} compatible: ${compatible}`);
+  if (!compatible) {
     throw new Error('Could not detect package manager for file: ' + file);
   }
 
-  return DETECTABLE_PACKAGE_MANAGERS[key];
+  const packageManager = DETECTABLE_PACKAGE_MANAGERS[key];
+  debug(`[UV-DEBUG] Detected package manager: ${packageManager}`);
+  return packageManager;
 }
 
 function detectPackageManagerFromRegistry(registry) {
