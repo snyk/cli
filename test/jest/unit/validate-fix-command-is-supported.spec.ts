@@ -1,45 +1,48 @@
 import { validateFixCommandIsSupported } from '../../../src/cli/commands/fix/validate-fix-command-is-supported';
 import { AuthFailedError } from '../../../src/lib/errors';
 import { FeatureNotSupportedByEcosystemError } from '../../../src/lib/errors/not-supported-by-ecosystem';
-import * as featureFlags from '../../../src/lib/feature-flags';
+import * as featureFlagGateway from '../../../src/lib/feature-flag-gateway';
 import { ShowVulnPaths } from '../../../src/lib/types';
+
+jest.mock('../../../src/lib/feature-flag-gateway');
+
 describe('setDefaultTestOptions', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
   it('fix is supported for OS projects + enabled FF', () => {
-    jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
-      .mockResolvedValue({ ok: true });
+    (
+      featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+    ).mockResolvedValueOnce(new Set(['cliSnykFix']));
     const options = { path: '/', showVulnPaths: 'all' as ShowVulnPaths };
     const supported = validateFixCommandIsSupported(options);
     expect(supported).toBeTruthy();
   });
 
   it('fix is NOT supported for OS projects + disabled FF', async () => {
-    jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
-      .mockResolvedValue({ ok: false });
+    (
+      featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+    ).mockResolvedValueOnce(new Set());
     const options = { path: '/', showVulnPaths: 'all' as ShowVulnPaths };
     await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
-      '`snyk fix` is not supported',
+      'snykFixSupported is false',
     );
   });
 
   it('fix is NOT supported and bubbles up auth error invalid auth token', async () => {
-    jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
-      .mockResolvedValue({ ok: false, code: 401, error: 'Invalid auth token' });
+    (
+      featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+    ).mockResolvedValueOnce(new Set());
     const options = { path: '/', showVulnPaths: 'all' as ShowVulnPaths };
     await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
-      AuthFailedError('Invalid auth token', 401),
+      AuthFailedError('snykFixSupported is false', 403),
     );
   });
 
   it('fix is NOT supported for --unmanaged + enabled FF', async () => {
-    jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
-      .mockResolvedValue({ ok: true });
+    (
+      featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+    ).mockResolvedValueOnce(new Set(['cliSnykFix']));
     const options = {
       path: '/',
       showVulnPaths: 'all' as ShowVulnPaths,
@@ -51,9 +54,9 @@ describe('setDefaultTestOptions', () => {
   });
 
   it('fix is NOT supported for --docker + enabled FF', async () => {
-    jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
-      .mockResolvedValue({ ok: true });
+    (
+      featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+    ).mockResolvedValueOnce(new Set(['cliSnykFix']));
     const options = {
       path: '/',
       showVulnPaths: 'all' as ShowVulnPaths,
@@ -65,9 +68,9 @@ describe('setDefaultTestOptions', () => {
   });
 
   it('fix is NOT supported for --code + enabled FF', async () => {
-    jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
-      .mockResolvedValue({ ok: true });
+    (
+      featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+    ).mockResolvedValueOnce(new Set(['cliSnykFix']));
     const options = {
       path: '/',
       showVulnPaths: 'all' as ShowVulnPaths,

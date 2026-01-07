@@ -49,10 +49,6 @@ import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
 import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 import { processCommandArgs } from '../process-command-args';
 import {
-  hasFeatureFlag,
-  hasFeatureFlagOrDefault,
-} from '../../../lib/feature-flags';
-import {
   SCAN_USR_LIB_JARS_FEATURE_FLAG,
   CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
   INCLUDE_SYSTEM_JARS_OPTION,
@@ -65,6 +61,8 @@ import {
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
+import { getOrganizationID } from '../../../lib/organization';
+import { getEnabledFeatureFlags } from '../../../lib/feature-flag-gateway';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -102,6 +100,18 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     );
   }
 
+  //Batch fetch of feature flags to reduce latency
+  const batchFeatureFlags = await getEnabledFeatureFlags(
+    [
+      CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+      SCAN_USR_LIB_JARS_FEATURE_FLAG,
+      PNPM_FEATURE_FLAG,
+      DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+      MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+    ],
+    getOrganizationID(),
+  );
+
   if (!options.docker) {
     checkOSSPaths(paths, options);
   }
@@ -119,11 +129,9 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     } else if (options[APP_VULNS_OPTION]) {
       options[EXCLUDE_APP_VULNS_OPTION] = false;
     } else {
-      options[EXCLUDE_APP_VULNS_OPTION] = !(await hasFeatureFlagOrDefault(
+      options[EXCLUDE_APP_VULNS_OPTION] = !batchFeatureFlags.has(
         CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
-        options,
-        false,
-      ));
+      );
 
       // we can't print the warning message with JSON output as that would make
       // the JSON output invalid.
@@ -139,12 +147,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     }
 
     // Check scanUsrLibJars feature flag and add --include-system-jars parameter
-    const scanUsrLibJarsEnabled = await hasFeatureFlagOrDefault(
-      SCAN_USR_LIB_JARS_FEATURE_FLAG,
-      options,
-      false,
-    );
-    if (scanUsrLibJarsEnabled) {
+    if (batchFeatureFlags.has(SCAN_USR_LIB_JARS_FEATURE_FLAG)) {
       options[INCLUDE_SYSTEM_JARS_OPTION] = true;
     }
   }
@@ -185,51 +188,26 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     );
   }
 
-  let hasPnpmSupport = false;
-  let hasImprovedDotnetWithoutPublish = false;
-  let enableMavenDverboseExhaustiveDeps = false;
-  try {
-    hasPnpmSupport = (await hasFeatureFlag(
-      PNPM_FEATURE_FLAG,
-      options,
-    )) as boolean;
-    if (options['dotnet-runtime-resolution']) {
-      hasImprovedDotnetWithoutPublish = (await hasFeatureFlag(
-        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-        options,
-      )) as boolean;
+  if (options['dotnet-runtime-resolution']) {
+    if (batchFeatureFlags.has(DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG)) {
+      options.useImprovedDotnetWithoutPublish = true;
     }
-  } catch (err) {
-    hasPnpmSupport = false;
   }
 
-  try {
-    const args = options['_doubleDashArgs'] || [];
-    const verboseEnabled =
-      args.includes('-Dverbose') ||
-      args.includes('-Dverbose=true') ||
-      !!options['print-graph'];
-    if (verboseEnabled) {
-      enableMavenDverboseExhaustiveDeps = (await hasFeatureFlag(
-        MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
-        options,
-      )) as boolean;
-      if (enableMavenDverboseExhaustiveDeps) {
-        options.mavenVerboseIncludeAllVersions =
-          enableMavenDverboseExhaustiveDeps;
-      }
+  const args = options['_doubleDashArgs'] || [];
+  const verboseEnabled =
+    args.includes('-Dverbose') ||
+    args.includes('-Dverbose=true') ||
+    !!options['print-graph'];
+  if (verboseEnabled) {
+    if (batchFeatureFlags.has(MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF)) {
+      options.mavenVerboseIncludeAllVersions = true;
     }
-  } catch (err) {
-    enableMavenDverboseExhaustiveDeps = false;
   }
 
-  const featureFlags = hasPnpmSupport
+  const featureFlags = batchFeatureFlags.has(PNPM_FEATURE_FLAG)
     ? new Set<string>([PNPM_FEATURE_FLAG])
     : new Set<string>();
-
-  if (hasImprovedDotnetWithoutPublish) {
-    options.useImprovedDotnetWithoutPublish = true;
-  }
 
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of paths) {

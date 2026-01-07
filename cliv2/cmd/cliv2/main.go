@@ -1,8 +1,6 @@
 package main
 
 // !!! This import needs to be the first import, please do not change this !!!
-import _ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
-
 import (
 	"context"
 	"encoding/json"
@@ -25,19 +23,20 @@ import (
 	"github.com/snyk/cli-extension-mcp-scan/pkg/mcpscan"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
-	"github.com/snyk/container-cli/pkg/container"
-	"github.com/snyk/error-catalog-golang-public/cli"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-
 	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
 	"github.com/snyk/cli/cliv2/internal/constants"
+	featureflaggateway "github.com/snyk/cli/cliv2/internal/feature-flag-gateway"
+	"github.com/snyk/container-cli/pkg/container"
+	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
+	_ "github.com/snyk/go-application-framework/pkg/networking/fips_enable"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
@@ -46,7 +45,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
-
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
@@ -59,7 +57,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
-
 	"github.com/snyk/studio-mcp/pkg/mcp"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
@@ -77,10 +74,11 @@ var scrubbedLogger logging.ScrubbingLogWriter
 var interactionId = instrumentation.AssembleUrnFromUUID(uuid.NewString())
 
 const (
-	unknownCommandMessage  string = "unknown command"
-	disable_analytics_flag string = "DISABLE_ANALYTICS"
-	debug_level_flag       string = "log-level"
-	integrationNameFlag    string = "integration-name"
+	unknownCommandMessage   string = "unknown command"
+	disable_analytics_flag  string = "DISABLE_ANALYTICS"
+	debug_level_flag        string = "log-level"
+	integrationNameFlag     string = "integration-name"
+	showMavenBuildScopeFlag string = "show-maven-build-scope"
 )
 
 type JsonErrorStruct struct {
@@ -591,6 +589,14 @@ func MainWithErrorCode() int {
 	// add workflows as commands
 	createCommandsForWorkflows(rootCommand, globalEngine)
 
+	// fetch feature flags
+	ffgService, err := featureflaggateway.NewService(globalConfiguration.GetUrl(configuration.API_URL), 10*time.Second)
+	if err != nil {
+		globalLogger.Print("Failed to fetch feature flags", err)
+		return constants.SNYK_EXIT_CODE_ERROR
+	}
+	apiToken := globalConfiguration.GetString(configuration.AUTHENTICATION_TOKEN)
+
 	// init Analytics
 	cliAnalytics := globalEngine.GetAnalytics()
 	cliAnalytics.SetVersion(cliv2.GetFullVersion())
@@ -601,6 +607,8 @@ func MainWithErrorCode() int {
 	cliAnalytics.GetInstrumentation().SetCategory(instrumentation.DetermineCategory(os.Args, globalEngine))
 	cliAnalytics.GetInstrumentation().SetStage(instrumentation.DetermineStage(cliAnalytics.IsCiEnvironment()))
 	cliAnalytics.GetInstrumentation().SetStatus(analytics.Success)
+	cliAnalytics.GetInstrumentation().AddExtension(showMavenBuildScopeFlag,
+		IsFeatureEnabled(ctx, ffgService, globalConfiguration.GetString(configuration.ORGANIZATION), showMavenBuildScopeFlag, apiToken))
 
 	setTimeout(globalConfiguration, func() {
 		os.Exit(constants.SNYK_EXIT_CODE_EX_UNAVAILABLE)
@@ -657,6 +665,26 @@ func MainWithErrorCode() int {
 	}
 
 	return exitCode
+}
+
+func IsFeatureEnabled(
+	ctx context.Context,
+	service featureflaggateway.Service,
+	orgID string,
+	flag string,
+	token string,
+) bool {
+	resp, err := service.EvaluateFlags(ctx, []string{flag}, orgID, "2024-10-15", token)
+	if err != nil || resp == nil {
+		return false
+	}
+	evals := resp.Data.Attributes.Evaluations
+	for _, e := range evals {
+		if e.Key == flag {
+			return e.Value
+		}
+	}
+	return false
 }
 
 func legacyCLITerminated(err error, errorList []error) error {

@@ -1,7 +1,6 @@
 import { Options } from '../../../../../src/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 import * as pollingTest from '../../../../../src/lib/polling/polling-test';
-import * as featureFlags from '../../../../../src/lib/feature-flags/index';
 import * as common from '../../../../../src/lib/polling/common';
 import { scanResults } from './fixtures/';
 import { resolveAndTestFacts } from '../../../../../src/lib/ecosystems/resolve-test-facts';
@@ -39,11 +38,6 @@ describe('resolve and test facts', () => {
   afterEach(() => jest.restoreAllMocks());
 
   it('successfully resolving and testing file-signatures fact for c/c++ projects with unmanaged-deps service', async () => {
-    const hasFeatureFlag: boolean | undefined = true;
-    jest
-      .spyOn(featureFlags, 'hasFeatureFlag')
-      .mockResolvedValueOnce(hasFeatureFlag);
-
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
     jest.spyOn(pollingTest, 'createDepGraph').mockResolvedValueOnce({
@@ -75,11 +69,6 @@ describe('resolve and test facts', () => {
   });
 
   it('successfully resolving and testing file-signatures fact for c/c++ projects with unmanaged-deps service when org slug is provided', async () => {
-    const hasFeatureFlag: boolean | undefined = true;
-    jest
-      .spyOn(featureFlags, 'hasFeatureFlag')
-      .mockResolvedValueOnce(hasFeatureFlag);
-
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
     jest.spyOn(pollingTest, 'createDepGraph').mockResolvedValueOnce({
@@ -111,11 +100,6 @@ describe('resolve and test facts', () => {
   });
 
   it('successfully resolving and testing file-signatures fact after a retry for c/c++ projects with unmanaged-deps service', async () => {
-    const hasFeatureFlag: boolean | undefined = true;
-    jest
-      .spyOn(featureFlags, 'hasFeatureFlag')
-      .mockResolvedValueOnce(hasFeatureFlag);
-
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
     jest.spyOn(pollingTest, 'createDepGraph').mockResolvedValueOnce({
@@ -153,11 +137,6 @@ describe('resolve and test facts', () => {
   });
 
   it('failed resolving and testing file-signatures since createDepGraph throws exception with unmanaged-deps service', async () => {
-    const hasFeatureFlag: boolean | undefined = true;
-    jest
-      .spyOn(featureFlags, 'hasFeatureFlag')
-      .mockResolvedValueOnce(hasFeatureFlag);
-
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
     jest.spyOn(pollingTest, 'createDepGraph').mockImplementation(() => {
@@ -175,11 +154,6 @@ describe('resolve and test facts', () => {
   });
 
   it('failed resolving and testing file-signatures since getDepGraph throws exception with unmanaged-deps service', async () => {
-    const hasFeatureFlag: boolean | undefined = true;
-    jest
-      .spyOn(featureFlags, 'hasFeatureFlag')
-      .mockResolvedValueOnce(hasFeatureFlag);
-
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
     jest.spyOn(pollingTest, 'createDepGraph').mockResolvedValueOnce({
@@ -203,11 +177,6 @@ describe('resolve and test facts', () => {
   });
 
   it('failed resolving and testing file-signatures since getIssues throws exception with unmanaged-deps service', async () => {
-    const hasFeatureFlag: boolean | undefined = true;
-    jest
-      .spyOn(featureFlags, 'hasFeatureFlag')
-      .mockResolvedValueOnce(hasFeatureFlag);
-
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
     jest.spyOn(pollingTest, 'createDepGraph').mockResolvedValueOnce({
@@ -237,11 +206,6 @@ describe('resolve and test facts', () => {
   });
 
   it('successfully filters ignored vulnerabilities and includes them in filtered.ignore for unmanaged projects', async () => {
-    const hasFeatureFlag: boolean | undefined = true;
-    jest
-      .spyOn(featureFlags, 'hasFeatureFlag')
-      .mockResolvedValueOnce(hasFeatureFlag);
-
     jest.spyOn(common, 'delayNextStep').mockImplementation();
 
     jest.spyOn(pollingTest, 'createDepGraph').mockResolvedValueOnce({

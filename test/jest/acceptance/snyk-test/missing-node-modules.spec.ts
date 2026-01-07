@@ -26,6 +26,7 @@ describe('snyk test with missing node_modules', () => {
       SNYK_HOST: 'http://localhost:' + port,
       SNYK_TOKEN: requireSnykToken(),
       SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_CFG_INTERNAL_ORGID: 'orgid-test-cli',
     };
 
     const apiKey = '123456789';

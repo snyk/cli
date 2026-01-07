@@ -1,10 +1,15 @@
 import monitor from '../../../../src/cli/commands/monitor';
-import { DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG } from '../../../../src/lib/package-managers';
-import * as featureFlags from '../../../../src/lib/feature-flags';
+import {
+  DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+  MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+  PNPM_FEATURE_FLAG,
+} from '../../../../src/lib/package-managers';
+import * as featureFlagGateway from '../../../../src/lib/feature-flag-gateway';
 import {
   SCAN_USR_LIB_JARS_FEATURE_FLAG,
   INCLUDE_SYSTEM_JARS_OPTION,
   EXCLUDE_APP_VULNS_OPTION,
+  CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
 } from '../../../../src/cli/commands/constants';
 import * as ecosystems from '../../../../src/lib/ecosystems';
 import * as analytics from '../../../../src/lib/analytics';
@@ -14,6 +19,7 @@ import { apiOrOAuthTokenExists } from '../../../../src/lib/api-token';
 import { runTest } from '../../../../src/lib/snyk-test/run-test';
 import * as detect from '../../../../src/lib/detect';
 import test from '../../../../src/cli/commands/test';
+import { SHOW_MAVEN_BUILD_SCOPE } from '../../../../src/lib/feature-flag-gateway';
 
 jest.mock('../../../../src/lib/api-token');
 jest.mock('../../../../src/lib/check-paths');
@@ -22,7 +28,7 @@ jest.mock('../../../../src/lib/formatters');
 jest.mock('../../../../src/lib/plugins/get-deps-from-plugin');
 jest.mock('../../../../src/lib/spinner');
 jest.mock('../../../../src/lib/snyk-test/run-test');
-jest.mock('../../../../src/lib/feature-flags');
+jest.mock('../../../../src/lib/feature-flag-gateway');
 jest.mock('../../../../src/lib/protect-update-notification', () => ({
   getPackageJsonPathsContainingSnykDependency: jest.fn(() => []),
   getProtectUpgradeWarningForPaths: jest.fn(() => ''),
@@ -53,7 +59,9 @@ describe('monitor & test', () => {
     analyticsSpy = jest.spyOn(analytics, 'allowAnalytics');
     snykMonitorSpy = jest.spyOn(snykMonitor, 'monitor');
     (apiOrOAuthTokenExists as jest.Mock).mockReturnValue(true);
-    (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(false);
+    (featureFlagGateway.getEnabledFeatureFlags as jest.Mock).mockResolvedValue(
+      new Set([]),
+    );
 
     // mock config values
     Object.defineProperty(config, 'PROJECT_NAME', {
@@ -65,7 +73,9 @@ describe('monitor & test', () => {
     getEcosystemSpy.mockRestore();
     analyticsSpy.mockRestore();
     snykMonitorSpy.mockRestore();
-    (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(false);
+    (featureFlagGateway.getEnabledFeatureFlags as jest.Mock).mockResolvedValue(
+      new Set([]),
+    );
   });
 
   describe('monitor', () => {
@@ -75,7 +85,9 @@ describe('monitor & test', () => {
       const options: any = {
         'dotnet-runtime-resolution': true,
       };
-      (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(true);
+      (
+        featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+      ).mockResolvedValue(new Set([DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG]));
 
       try {
         await monitor('path/to/project', options);
@@ -84,10 +96,17 @@ describe('monitor & test', () => {
         // We only care about the options being set correctly.
       }
 
-      expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
-        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-        options,
+      expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+        [
+          CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+          SCAN_USR_LIB_JARS_FEATURE_FLAG,
+          PNPM_FEATURE_FLAG,
+          DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+          MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+        ],
+        expect.any(String),
       );
+
       expect(options.useImprovedDotnetWithoutPublish).toBe(true);
     });
 
@@ -97,7 +116,9 @@ describe('monitor & test', () => {
       const options: any = {
         'dotnet-runtime-resolution': true,
       };
-      (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(false);
+      (
+        featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+      ).mockResolvedValue(new Set());
 
       try {
         await monitor('path/to/project', options);
@@ -106,11 +127,17 @@ describe('monitor & test', () => {
         // We only care about the options being set correctly.
       }
 
-      expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
-        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-        options,
+      expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+        [
+          CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+          SCAN_USR_LIB_JARS_FEATURE_FLAG,
+          PNPM_FEATURE_FLAG,
+          DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+          MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+        ],
+        expect.any(String),
       );
-      expect(options.useImprovedDotnetWithoutPublish).toBeUndefined();
+      expect(options.useImprovedDotnetWithoutPublish).toBeFalsy();
     });
 
     it('should not check the feature flag if dotnet-runtime-resolution is not enabled', async () => {
@@ -125,9 +152,15 @@ describe('monitor & test', () => {
         // We only care about the options being set correctly.
       }
 
-      expect(featureFlags.hasFeatureFlag).not.toHaveBeenCalledWith(
-        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-        options,
+      expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+        [
+          CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+          SCAN_USR_LIB_JARS_FEATURE_FLAG,
+          PNPM_FEATURE_FLAG,
+          DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+          MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+        ],
+        expect.any(String),
       );
       expect(options.useImprovedDotnetWithoutPublish).toBeUndefined();
     });
@@ -143,12 +176,21 @@ describe('monitor & test', () => {
       const options: any = {
         'dotnet-runtime-resolution': true,
       };
-      (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(true);
+
+      (
+        featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+      ).mockResolvedValue(new Set([DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG]));
+
       await snykTest('path/to/project', options);
 
-      expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
-        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-        options,
+      expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+        [
+          PNPM_FEATURE_FLAG,
+          DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+          MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+          SHOW_MAVEN_BUILD_SCOPE,
+        ],
+        expect.any(String),
       );
       expect(options.useImprovedDotnetWithoutPublish).toBe(true);
     });
@@ -157,12 +199,19 @@ describe('monitor & test', () => {
       const options: any = {
         'dotnet-runtime-resolution': true,
       };
-      (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(false);
+      (
+        featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+      ).mockResolvedValue(new Set());
       await snykTest('path/to/project', options);
 
-      expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
-        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-        options,
+      expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+        [
+          PNPM_FEATURE_FLAG,
+          DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+          MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+          SHOW_MAVEN_BUILD_SCOPE,
+        ],
+        expect.any(String),
       );
       expect(options.useImprovedDotnetWithoutPublish).toBeUndefined();
     });
@@ -171,9 +220,14 @@ describe('monitor & test', () => {
       const options: any = {};
       await snykTest('path/to/project', options);
 
-      expect(featureFlags.hasFeatureFlag).not.toHaveBeenCalledWith(
-        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-        options,
+      expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+        [
+          PNPM_FEATURE_FLAG,
+          DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+          MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+          SHOW_MAVEN_BUILD_SCOPE,
+        ],
+        expect.any(String),
       );
       expect(options.useImprovedDotnetWithoutPublish).toBeUndefined();
     });
@@ -210,22 +264,17 @@ describe('monitor & test', () => {
         };
 
         // Mock feature flag responses - need to handle multiple calls
-        (featureFlags.hasFeatureFlag as jest.Mock).mockImplementation(
-          (flag: string) => {
-            if (flag === SCAN_USR_LIB_JARS_FEATURE_FLAG) {
-              return Promise.resolve(true);
-            }
-            return Promise.resolve(false); // Default for other flags
-          },
-        );
-        (featureFlags.hasFeatureFlagOrDefault as jest.Mock).mockImplementation(
-          (flag: string) => {
-            if (flag === SCAN_USR_LIB_JARS_FEATURE_FLAG) {
-              return Promise.resolve(true);
-            }
-            return Promise.resolve(false); // Default for other flags
-          },
-        );
+        (
+          featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+        ).mockImplementation(async (flags: string[]) => {
+          const enabled = new Set<string>();
+
+          if (flags.includes(SCAN_USR_LIB_JARS_FEATURE_FLAG)) {
+            enabled.add(SCAN_USR_LIB_JARS_FEATURE_FLAG);
+          }
+
+          return enabled;
+        });
 
         try {
           await test('docker-image:latest', options);
@@ -234,12 +283,15 @@ describe('monitor & test', () => {
           // We only care about the feature flag being called correctly.
         }
 
-        expect(featureFlags.hasFeatureFlagOrDefault).toHaveBeenCalledWith(
-          SCAN_USR_LIB_JARS_FEATURE_FLAG,
-          expect.objectContaining({
-            docker: true,
-          }),
-          false,
+        expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+          [
+            CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+            SCAN_USR_LIB_JARS_FEATURE_FLAG,
+            PNPM_FEATURE_FLAG,
+            DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+            MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+          ],
+          expect.any(String),
         );
 
         // Verify that include-system-jars was set on the internal options object passed to runTest
@@ -254,14 +306,9 @@ describe('monitor & test', () => {
         };
 
         // Mock feature flag responses - need to handle multiple calls
-        (featureFlags.hasFeatureFlag as jest.Mock).mockImplementation(() => {
-          return Promise.resolve(false); // All flags disabled
-        });
-        (featureFlags.hasFeatureFlagOrDefault as jest.Mock).mockImplementation(
-          () => {
-            return Promise.resolve(false); // All flags disabled
-          },
-        );
+        (
+          featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+        ).mockResolvedValue(new Set());
 
         try {
           await test('docker-image:latest', options);
@@ -270,12 +317,15 @@ describe('monitor & test', () => {
           // We only care about the feature flag being called correctly.
         }
 
-        expect(featureFlags.hasFeatureFlagOrDefault).toHaveBeenCalledWith(
-          SCAN_USR_LIB_JARS_FEATURE_FLAG,
-          expect.objectContaining({
-            docker: true,
-          }),
-          false,
+        expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+          [
+            CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+            SCAN_USR_LIB_JARS_FEATURE_FLAG,
+            PNPM_FEATURE_FLAG,
+            DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+            MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+          ],
+          expect.any(String),
         );
 
         // Verify that include-system-jars was NOT set when the feature flag is disabled
@@ -294,10 +344,15 @@ describe('monitor & test', () => {
           // We only care about the options being set correctly.
         }
 
-        expect(featureFlags.hasFeatureFlagOrDefault).not.toHaveBeenCalledWith(
-          SCAN_USR_LIB_JARS_FEATURE_FLAG,
-          options,
-          false,
+        expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+          [
+            CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+            SCAN_USR_LIB_JARS_FEATURE_FLAG,
+            PNPM_FEATURE_FLAG,
+            DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+            MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+          ],
+          expect.any(String),
         );
         expect(options[INCLUDE_SYSTEM_JARS_OPTION]).toBeUndefined();
       });
@@ -311,22 +366,17 @@ describe('monitor & test', () => {
         };
 
         // Mock feature flag responses - need to handle multiple calls
-        (featureFlags.hasFeatureFlag as jest.Mock).mockImplementation(
-          (flag: string) => {
-            if (flag === SCAN_USR_LIB_JARS_FEATURE_FLAG) {
-              return Promise.resolve(true);
-            }
-            return Promise.resolve(false); // Default for other flags
-          },
-        );
-        (featureFlags.hasFeatureFlagOrDefault as jest.Mock).mockImplementation(
-          (flag: string) => {
-            if (flag === SCAN_USR_LIB_JARS_FEATURE_FLAG) {
-              return Promise.resolve(true);
-            }
-            return Promise.resolve(false); // Default for other flags
-          },
-        );
+        (
+          featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+        ).mockImplementation(async (flags: string[]) => {
+          const enabled = new Set<string>();
+
+          if (flags.includes(SCAN_USR_LIB_JARS_FEATURE_FLAG)) {
+            enabled.add(SCAN_USR_LIB_JARS_FEATURE_FLAG);
+          }
+
+          return enabled;
+        });
 
         try {
           await monitor('docker-image:latest', options);
@@ -335,12 +385,15 @@ describe('monitor & test', () => {
           // We only care about the feature flag being called correctly.
         }
 
-        expect(featureFlags.hasFeatureFlagOrDefault).toHaveBeenCalledWith(
-          SCAN_USR_LIB_JARS_FEATURE_FLAG,
-          expect.objectContaining({
-            docker: true,
-          }),
-          false,
+        expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+          [
+            CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+            SCAN_USR_LIB_JARS_FEATURE_FLAG,
+            PNPM_FEATURE_FLAG,
+            DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+            MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+          ],
+          expect.any(String),
         );
 
         // Verify that include-system-jars was set on the options object
@@ -354,14 +407,9 @@ describe('monitor & test', () => {
         };
 
         // Mock feature flag responses - need to handle multiple calls
-        (featureFlags.hasFeatureFlag as jest.Mock).mockImplementation(() => {
-          return Promise.resolve(false); // All flags disabled
-        });
-        (featureFlags.hasFeatureFlagOrDefault as jest.Mock).mockImplementation(
-          () => {
-            return Promise.resolve(false); // All flags disabled
-          },
-        );
+        (
+          featureFlagGateway.getEnabledFeatureFlags as jest.Mock
+        ).mockResolvedValue(new Set());
 
         try {
           await monitor('docker-image:latest', options);
@@ -370,12 +418,15 @@ describe('monitor & test', () => {
           // We only care about the feature flag being called correctly.
         }
 
-        expect(featureFlags.hasFeatureFlagOrDefault).toHaveBeenCalledWith(
-          SCAN_USR_LIB_JARS_FEATURE_FLAG,
-          expect.objectContaining({
-            docker: true,
-          }),
-          false,
+        expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+          [
+            CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+            SCAN_USR_LIB_JARS_FEATURE_FLAG,
+            PNPM_FEATURE_FLAG,
+            DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+            MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+          ],
+          expect.any(String),
         );
 
         // Verify that include-system-jars was NOT set when the feature flag is disabled
@@ -394,10 +445,15 @@ describe('monitor & test', () => {
           // We only care about the options being set correctly.
         }
 
-        expect(featureFlags.hasFeatureFlagOrDefault).not.toHaveBeenCalledWith(
-          SCAN_USR_LIB_JARS_FEATURE_FLAG,
-          options,
-          false,
+        expect(featureFlagGateway.getEnabledFeatureFlags).toHaveBeenCalledWith(
+          [
+            CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+            SCAN_USR_LIB_JARS_FEATURE_FLAG,
+            PNPM_FEATURE_FLAG,
+            DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
+            MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+          ],
+          expect.any(String),
         );
         expect(options[INCLUDE_SYSTEM_JARS_OPTION]).toBeUndefined();
       });

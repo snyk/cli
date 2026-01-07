@@ -56,6 +56,7 @@ const BASE_API = '/api/v1';
 process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
+process.env.SNYK_INTERNAL_ORGID = 'orgid-test-monitor-cli';
 const apiKey = '123456789';
 let oldkey;
 let oldendpoint;

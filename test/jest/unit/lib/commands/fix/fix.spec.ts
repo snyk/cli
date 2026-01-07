@@ -3,11 +3,13 @@ import * as fs from 'fs';
 import * as snykFix from '@snyk/fix';
 import fix from '../../../../../../src/cli/commands/fix';
 import * as snyk from '../../../../../../src/lib';
-import * as featureFlags from '../../../../../../src/lib/feature-flags';
+import * as featureFlagGateway from '../../../../../../src/lib/feature-flag-gateway';
 import * as analytics from '../../../../../../src/lib/analytics';
 import stripAnsi = require('strip-ansi');
 import { getWorkspacePath } from '../../../../util/getWorkspacePath';
 import { getFixturePath } from '../../../../util/getFixturePath';
+
+jest.mock('../../../../../../src/lib/feature-flag-gateway');
 
 const testTimeout = 100000;
 
@@ -37,9 +39,10 @@ describe('snyk fix (functional tests)', () => {
 
   beforeAll(async () => {
     origStdWrite = process.stdout.write;
-    jest
-      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
-      .mockResolvedValue({ ok: true });
+    jest.clearAllMocks();
+    (featureFlagGateway.getEnabledFeatureFlags as jest.Mock).mockResolvedValue(
+      new Set(['cliSnykFix']),
+    );
   });
 
   beforeEach(() => {

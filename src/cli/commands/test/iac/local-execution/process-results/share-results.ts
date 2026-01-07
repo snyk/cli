@@ -1,4 +1,3 @@
-import { isFeatureFlagSupportedForOrg } from '../../../../../../lib/feature-flags';
 import { shareResults } from './cli-share-results';
 import { Policy } from 'snyk-policy';
 import {
@@ -9,6 +8,8 @@ import {
 import { FeatureFlagError } from '../assert-iac-options-flag';
 import { formatShareResults } from './share-results-formatter';
 import { IacFileScanResult, IaCTestFlags, ShareResultsOutput } from '../types';
+import { getOrganizationID } from '../../../../../../lib/organization';
+import { getEnabledFeatureFlags } from '../../../../../../lib/feature-flag-gateway';
 
 export async function formatAndShareResults({
   results,
@@ -29,11 +30,12 @@ export async function formatAndShareResults({
   projectRoot: string;
   meta: IacOutputMeta;
 }): Promise<ShareResultsOutput> {
-  const isCliReportEnabled = await isFeatureFlagSupportedForOrg(
-    'iacCliShareResults',
-    orgPublicId,
+  const featureFlags = await getEnabledFeatureFlags(
+    ['iacCliShareResults'],
+    orgPublicId?.trim() || getOrganizationID(),
   );
-  if (!isCliReportEnabled.ok) {
+
+  if (!featureFlags.has('iacCliShareResults')) {
     throw new FeatureFlagError('report', 'iacCliShareResults');
   }
 

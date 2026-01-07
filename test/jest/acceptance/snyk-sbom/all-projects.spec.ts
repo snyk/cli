@@ -18,6 +18,7 @@ describe('snyk sbom --all-projects (mocked server only)', () => {
       SNYK_HOST: 'http://localhost:' + port,
       SNYK_TOKEN: '123456789',
       SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_CFG_INTERNAL_ORGID: 'orgid-test-cli',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
     await server.listenPromise(port);
