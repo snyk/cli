@@ -19,7 +19,7 @@ require (
 	github.com/snyk/cli-extension-sbom v0.0.0-20260109124810-cfdd074f8eeb
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260108110943-21ad0c940c14
-	github.com/snyk/go-application-framework v0.0.0-20260106115317-a1fb6f13accd
+	github.com/snyk/go-application-framework v0.0.0-20260114101209-fc9715a5539a
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20260113102244-36303931affc
@@ -188,7 +188,7 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
-	github.com/snyk/code-client-go v1.24.4 // indirect
+	github.com/snyk/code-client-go v1.24.5 // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25 // indirect
 	github.com/snyk/policy-engine v1.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
@@ -227,7 +227,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.46.0 // indirect
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
-	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/net v0.48.0 // indirect
 	golang.org/x/oauth2 v0.33.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
@@ -249,7 +249,7 @@ require (
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
 
-//replace github.com/snyk/go-application-framework => ../../go-application-framework
+// replace github.com/snyk/go-application-framework => ../../go-application-framework
 
 //replace github.com/snyk/snyk-ls => ../../snyk-ls
 //replace github.com/snyk/code-client-go => ../../code-client-go

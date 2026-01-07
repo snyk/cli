@@ -55,7 +55,11 @@ export type FakeServer = {
   setSarifResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
-  setGlobalResponse: (response: Record<string, unknown>, code: number) => void;
+  setGlobalResponse: (
+    response: Record<string, unknown>,
+    code: number,
+    headers?: Record<string, any>,
+  ) => void;
 
   setEndpointResponse: (
     endpoint: string,
@@ -96,6 +100,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let nextResponse: any = undefined;
   let endpointResponses: Map<string, Record<string, unknown>> = new Map();
   let endpointStatusCodes: Map<string, number> = new Map();
+  let endpointHeaders: Map<string, string> = new Map();
   let customResponse: Record<string, unknown> | undefined = undefined;
   let sarifResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
@@ -108,6 +113,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     sarifResponse = undefined;
     endpointResponses = new Map();
     endpointStatusCodes = new Map();
+    endpointHeaders = new Map();
     featureFlags = featureFlagDefaults();
     availableSettings = new Map();
     unauthorizedActions = new Map();
@@ -168,9 +174,15 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   const setGlobalResponse = (
     response: Record<string, unknown>,
     code: number,
+    headers?: Record<string, string>,
   ) => {
     endpointResponses.set('*', response);
     endpointStatusCodes.set('*', code);
+    if (headers) {
+      for (const [key, value] of Object.entries(headers)) {
+        endpointHeaders.set(key, value);
+      }
+    }
   };
 
   const setEndpointResponse = (
@@ -224,6 +236,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     let endpointStatusCode = endpointStatusCodes.get(wildcardEndpoint);
     if (!endpointStatusCode) {
       endpointStatusCode = endpointStatusCodes.get(endpoint);
+    }
+
+    // configure any response headers
+    if (endpointHeaders.size > 0) {
+      endpointHeaders.forEach((value, key) => {
+        res.set(key, value);
+      });
     }
 
     if (endpointResponse) {
