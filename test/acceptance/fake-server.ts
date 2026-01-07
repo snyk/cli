@@ -55,6 +55,8 @@ export type FakeServer = {
   setSarifResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
+  setGlobalResponse: (response: Record<string, unknown>, code: number) => void;
+
   setEndpointResponse: (
     endpoint: string,
     response: Record<string, unknown>,
@@ -163,6 +165,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     statusCodes = codes;
   };
 
+  const setGlobalResponse = (
+    response: Record<string, unknown>,
+    code: number,
+  ) => {
+    endpointResponses.set('*', response);
+    endpointStatusCodes.set('*', code);
+  };
+
   const setEndpointResponse = (
     endpoint: string,
     response: Record<string, unknown>,
@@ -204,8 +214,18 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.use((req, res, next) => {
     const endpoint = req.url;
-    const endpointResponse = endpointResponses.get(endpoint);
-    const endpointStatusCode = endpointStatusCodes.get(endpoint);
+
+    const wildcardEndpoint = '*';
+    let endpointResponse = endpointResponses.get(wildcardEndpoint);
+    if (!endpointResponse) {
+      endpointResponse = endpointResponses.get(endpoint);
+    }
+
+    let endpointStatusCode = endpointStatusCodes.get(wildcardEndpoint);
+    if (!endpointStatusCode) {
+      endpointStatusCode = endpointStatusCodes.get(endpoint);
+    }
+
     if (endpointResponse) {
       res.status(endpointStatusCode || 200);
       res.send(endpointResponse);
@@ -1359,6 +1379,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setNextStatusCode,
     setEndpointResponse,
     setEndpointStatusCode,
+    setGlobalResponse,
     setStatusCode,
     setStatusCodes,
     setFeatureFlag,
