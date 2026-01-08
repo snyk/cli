@@ -1306,8 +1306,8 @@ github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188 h1:Uo
 github.com/snyk/cli-extension-iac-rules v0.0.0-20250829110455-1260348bc188/go.mod h1:qUc1yjKJe6tt/8/MJasnog3VBXd/b619MSFVfKAlDxE=
 github.com/snyk/cli-extension-mcp-scan v0.0.0-20251217093101-0705cbe3593b h1:d8s+TntutaQlPcB+5I2781ALWEgGfQh2XQjPrt0oRy8=
 github.com/snyk/cli-extension-mcp-scan v0.0.0-20251217093101-0705cbe3593b/go.mod h1:dRgGvQssSQ1U//nQ0D+H8JXnjz1ZhG9GWbz8GEaFRMQ=
-github.com/snyk/cli-extension-os-flows v0.0.0-20260106151927-bc2b61c5f6e1 h1:zNyzyrlCh5isS6pQAegNxmoclRdp9tmXmGxZWz5W3kw=
-github.com/snyk/cli-extension-os-flows v0.0.0-20260106151927-bc2b61c5f6e1/go.mod h1:TWWxoMwavH+jAluWZtaaDbdOuwt8C5n51xnEuWvrv1g=
+github.com/snyk/cli-extension-os-flows v0.0.0-20260108122334-2d86a741f1f7 h1:njG2hz4K4FGTf2C95wXKO+p8Y4CD13ESHL8JKL68y6M=
+github.com/snyk/cli-extension-os-flows v0.0.0-20260108122334-2d86a741f1f7/go.mod h1:TWWxoMwavH+jAluWZtaaDbdOuwt8C5n51xnEuWvrv1g=
 github.com/snyk/cli-extension-sbom v0.0.0-20260106140701-6c590485fbe4 h1:hfrkX61nZ0+RsVBBbsJNwjfga+tB0Nesa95a4dteqRc=
 github.com/snyk/cli-extension-sbom v0.0.0-20260106140701-6c590485fbe4/go.mod h1:jIACVV10j4pW7LFrlYYtjn9mZm2JnXeFBM6/aTNJgvM=
 github.com/snyk/code-client-go v1.24.4 h1:19rmeqZFvjQMKaAmSZ0CdYZb1d0ENsDad2Cp32jeWOA=
