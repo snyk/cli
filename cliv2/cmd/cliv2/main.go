@@ -30,14 +30,15 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
+
+	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
@@ -188,7 +189,7 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 
 	output, err := engine.Invoke(workflow.NewWorkflowIdentifier(name), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
-		logger.Print("Failed to execute the command!", err)
+		logger.Print("Failed to execute the command! ", err)
 		return err
 	}
 
@@ -631,6 +632,11 @@ func MainWithErrorCode() int {
 		}
 
 		err = legacyCLITerminated(err, errorList)
+
+		// ensure to apply exit code mapping based on errors
+		if exitCode := mapErrorToExitCode(err); exitCode != unsetExitCode {
+			err = createErrorWithExitCode(exitCode, err)
+		}
 	}
 
 	displayError(err, globalEngine.GetUserInterface(), globalConfiguration, ctx)
