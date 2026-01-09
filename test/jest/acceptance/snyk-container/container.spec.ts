@@ -462,6 +462,30 @@ DepGraph end`,
       expect(stderr).not.toContain('Cannot read properties of undefined');
       expect(stderr).not.toContain("reading 'created'");
     });
+
+    it('detects sub-packages in n8n container image', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test n8nio/n8n:1.120.3 --json`,
+      );
+
+      const jsonOutput = JSON.parse(stdout);
+      // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+      expect([0, 1]).toContain(code);
+
+      expect(jsonOutput).toBeDefined();
+      expect(jsonOutput.applications).toBeDefined();
+      expect(Array.isArray(jsonOutput.applications)).toBe(true);
+      expect(jsonOutput.applications.length).toBeGreaterThan(0);
+
+      // make sure that sub-packages are detected in the scan
+      // n8n-nodes-langchain should be discovered as a sub-package of n8n
+      const langchainApp = jsonOutput.applications.find(
+        (app) =>
+          app.targetFile?.includes('n8n-nodes-langchain') ||
+          app.depTree?.name?.includes('n8n-nodes-langchain'),
+      );
+      expect(langchainApp).toBeDefined();
+    }, 180000);
   });
 
   describe('depgraph', () => {
