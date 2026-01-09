@@ -41,9 +41,11 @@ import {
   RETRY_DELAY,
   printDepGraph,
   printEffectiveDepGraph,
+  printEffectiveDepGraphError,
   assembleQueryString,
   shouldPrintDepGraph,
   shouldPrintEffectiveDepGraph,
+  shouldPrintEffectiveDepGraphWithErrors,
 } from './common';
 import config from '../config';
 import * as analytics from '../analytics';
@@ -667,6 +669,26 @@ async function assembleLocalPayloads(
         'getDepsFromPlugin returned failed results, cannot run test/monitor',
         failedResults,
       );
+
+      if (shouldPrintEffectiveDepGraphWithErrors(options)) {
+        for (const failed of failedResults) {
+          // Normalize the target file path to be relative to root, consistent with printEffectiveDepGraph
+          const normalisedTargetFile = failed.targetFile
+            ? path.relative(root, failed.targetFile)
+            : failed.targetFile;
+          const errorTitle = normalisedTargetFile
+            ? `Failed to resolve dependencies for project ${normalisedTargetFile}`
+            : 'Failed to resolve dependencies for project';
+
+          await printEffectiveDepGraphError(
+            errorTitle,
+            failed.errMessage,
+            normalisedTargetFile,
+            process.stdout,
+          );
+        }
+      }
+
       if (options['fail-fast']) {
         // should include failure message if applicable
         const message = errorMessages.length
