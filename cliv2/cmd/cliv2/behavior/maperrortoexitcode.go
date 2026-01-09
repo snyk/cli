@@ -3,6 +3,7 @@ package behavior
 import (
 	"github.com/snyk/error-catalog-golang-public/aibom"
 	"github.com/snyk/error-catalog-golang-public/code"
+	"github.com/snyk/error-catalog-golang-public/snyk"
 	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 
 	"github.com/snyk/cli/cliv2/internal/constants"
@@ -15,6 +16,7 @@ func mapErrorToExitCode(err *snyk_errors.Error, defaultValue int) int {
 	var errorCatalogToExitCodeMap = map[string]int{
 		code.NewUnsupportedProjectError("").ErrorCode: constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
 		aibom.NewNoSupportedFilesError("").ErrorCode:  constants.SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS,
+		snyk.NewMaintenanceWindowError("").ErrorCode:  constants.SNYK_EXIT_CODE_EX_TEMPFAIL,
 		// Add new mappings here
 	}
 
