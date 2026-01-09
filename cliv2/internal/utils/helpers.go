@@ -1,5 +1,11 @@
 package utils
 
+import (
+	"strings"
+
+	"golang.org/x/mod/semver"
+)
+
 // Dedupe removes duplicate entries from a given slice.
 // Returns a new, deduplicated slice.
 //
@@ -35,4 +41,23 @@ func Contains(list []string, element string) bool {
 		}
 	}
 	return false
+}
+
+// SemverCompare compares two semantic version strings
+func SemverCompare(v1 string, v2 string) int {
+	// ensure v1 and v2 start with "v"
+	if !strings.HasPrefix(v1, "v") {
+		v1 = "v" + v1
+	}
+	if !strings.HasPrefix(v2, "v") {
+		v2 = "v" + v2
+	}
+
+	if !semver.IsValid(v1) || !semver.IsValid(v2) {
+		// return 0 to comply with semver.Compare()
+		// "Falls back to 0 when either version is invalid semver."
+		return 0
+	}
+
+	return semver.Compare(v1, v2)
 }

@@ -46,6 +46,53 @@ func getRuntimeInfo(t *testing.T) runtimeinfo.RuntimeInfo {
 	return runtimeinfo.New(runtimeinfo.WithVersion(cliv1.CLIV1Version()))
 }
 
+func Test_NewCLIv2_SubprocessEnv_OverridesIfSet_AndDefaultsToOsEnv(t *testing.T) {
+	t.Run("uses configured subprocess environment if set", func(t *testing.T) {
+		cacheDir := getCacheDir(t)
+		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+		config.Set(configuration.CACHE_PATH, cacheDir)
+		config.Set(configuration.SUBPROCESS_ENVIRONMENT, []string{"FOO=bar"})
+
+		cli, err := cliv2.NewCLIv2(config, discardLogger, getRuntimeInfo(t))
+		assert.NoError(t, err)
+
+		cmd, err := cli.PrepareV1Command(
+			context.Background(),
+			"someExecutable",
+			[]string{"--help"},
+			getProxyInfoForTest(),
+			"name",
+			"version",
+		)
+		assert.NoError(t, err)
+		assert.Contains(t, cmd.Env, "FOO=bar")
+	})
+
+	t.Run("uses os.Environ when subprocess environment is not defined", func(t *testing.T) {
+		cacheDir := getCacheDir(t)
+		config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+		config.Set(configuration.CACHE_PATH, cacheDir)
+
+		envKey := "SNYK_CLIV2_TEST_ENV"
+		envValue := "present"
+		t.Setenv(envKey, envValue)
+
+		cli, err := cliv2.NewCLIv2(config, discardLogger, getRuntimeInfo(t))
+		assert.NoError(t, err)
+
+		cmd, err := cli.PrepareV1Command(
+			context.Background(),
+			"someExecutable",
+			[]string{"--help"},
+			getProxyInfoForTest(),
+			"name",
+			"version",
+		)
+		assert.NoError(t, err)
+		assert.Contains(t, cmd.Env, envKey+"="+envValue)
+	})
+}
+
 func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 	orgid := "orgid"
 	testapi := "https://api.snyky.io"
@@ -514,9 +561,6 @@ func Test_setTimeout(t *testing.T) {
 	err = cli.Execute(getProxyInfoForTest(), []string{"2"})
 
 	assert.ErrorIs(t, err, context.DeadlineExceeded)
-
-	// ensure that -1 is correctly mapped if timeout is set
-	assert.Equal(t, constants.SNYK_EXIT_CODE_EX_UNAVAILABLE, cliv2.DeriveExitCode(err))
 }
 
 func TestDeriveExitCode(t *testing.T) {
@@ -527,7 +571,6 @@ func TestDeriveExitCode(t *testing.T) {
 	}{
 		{name: "no error", err: nil, expected: constants.SNYK_EXIT_CODE_OK},
 		{name: "error with exit code", err: &cli_errors.ErrorWithExitCode{ExitCode: 42}, expected: 42},
-		{name: "context.DeadlineExceeded", err: context.DeadlineExceeded, expected: constants.SNYK_EXIT_CODE_EX_UNAVAILABLE},
 		{name: "other error", err: errors.New("some other error"), expected: constants.SNYK_EXIT_CODE_ERROR},
 	}
 

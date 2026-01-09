@@ -4,11 +4,12 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
 import { RunCommandOptions, RunCommandResult } from '../../util/runCommand';
 import { getServerPort } from '../../util/getServerPort';
+import { isWindowsOperatingSystem } from '../../../utils';
 
 jest.setTimeout(1000 * 60);
 
 describe('snyk container', () => {
-  if (os.platform() === 'win32') {
+  if (isWindowsOperatingSystem()) {
     // eslint-disable-next-line jest/no-focused-tests
     it.only('Windows not yet supported', () => {
       console.warn(
@@ -155,6 +156,31 @@ describe('snyk container', () => {
       expect(code).toEqual(1);
     }, 30000);
 
+    it('detects stripped Go binaries and reports fleet-server dependencies', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test docker-archive:test/fixtures/container-projects/stripped-go-binaries-minimal.tar.gz --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+
+      const goModulesResults = jsonOutput.applications?.find((app) =>
+        app.targetFile?.includes('fleet-server'),
+      );
+      expect(code).toEqual(1);
+      expect(goModulesResults).toBeDefined();
+    });
+
+    it('should correctly scan an OCI image with manifest missing platform field', async () => {
+      const image = 'snykgoof/oci-goof:ociNoPlatformTag';
+      const { code, stdout } = await runSnykCLI(
+        `container test ${image} --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+      expect(code).toEqual(1);
+      expect(jsonOutput).toBeDefined();
+      expect(jsonOutput.vulnerabilities).toBeDefined();
+      expect(Array.isArray(jsonOutput.vulnerabilities)).toBe(true);
+    }, 180000);
+
     it('npm depGraph is generated in an npm image with lockfiles', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container test docker-archive:test/fixtures/container-projects/npm7-with-package-lock-file.tar --print-deps`,
@@ -203,6 +229,44 @@ describe('snyk container', () => {
 
       assertCliExitCode(code, 1, stderr);
       expect(stdout).toContain('Package manager:   npm');
+    });
+
+    it('pnpm depGraph is generated in an image with pnpm-lock.yaml v6', async () => {
+      const { code, stdout } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/pnpmlockv6.tar --print-deps`,
+      );
+
+      // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+      expect([0, 1]).toContain(code);
+      expect(stdout).toContain('Package manager:   pnpm');
+    });
+
+    it('pnpm depGraph is generated in an image with pnpm-lock.yaml v9', async () => {
+      const { code, stdout } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/pnpmlockv9.tar --print-deps`,
+      );
+
+      // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+      expect([0, 1]).toContain(code);
+      expect(stdout).toContain('Package manager:   pnpm');
+    });
+
+    it('pnpm project target file is found in container image', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test docker-archive:test/fixtures/container-projects/pnpmlockv6.tar --json`,
+      );
+      const jsonOutput = JSON.parse(stdout);
+
+      // Exit code can be 0 (no vulns) or 1 (vulns found), both are valid
+      expect([0, 1]).toContain(code);
+      expect(jsonOutput.applications).toBeDefined();
+      expect(jsonOutput.applications.length).toBeGreaterThanOrEqual(1);
+
+      const pnpmApp = jsonOutput.applications.find(
+        (app) => app.packageManager === 'pnpm',
+      );
+      expect(pnpmApp).toBeDefined();
+      expect(pnpmApp.targetFile).toContain('package.json');
     });
 
     it('finds dependencies in oci image (library/ubuntu)', async () => {
@@ -383,6 +447,21 @@ DepGraph end`,
         }
       }
     }, 300000); // 5 minute timeout for this test
+
+    it('successfully scans image with empty history array', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `container test public.ecr.aws/bottlerocket/bottlerocket-kernel-kit:v4.5.1 --json`,
+      );
+
+      const jsonOutput = JSON.parse(stdout);
+      expect([0, 1]).toContain(code);
+
+      expect(jsonOutput).toBeDefined();
+      expect(jsonOutput.packageManager).toBeDefined();
+
+      expect(stderr).not.toContain('Cannot read properties of undefined');
+      expect(stderr).not.toContain("reading 'created'");
+    });
   });
 
   describe('depgraph', () => {

@@ -4,10 +4,9 @@ import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer } from '../../acceptance/fake-server';
 import { createProject } from '../util/createProject';
 import { getServerPort } from '../util/getServerPort';
+import { isWindowsOperatingSystem } from '../../utils';
 
-import * as os from 'os';
-
-const isWindows = os.platform().indexOf('win') === 0;
+const isWindows = isWindowsOperatingSystem();
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -256,7 +255,7 @@ describe.each(userJourneyWorkflows)(
             env,
           });
           expect(stdout).toContainText(
-            'The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.',
+            'The --exclude option can only be used in combination with --all-projects or --yarn-workspaces.',
           );
           expect(code).toEqual(2);
         });

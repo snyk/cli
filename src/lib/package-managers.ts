@@ -14,7 +14,6 @@ export type SupportedPackageManagers =
   | 'sbt'
   | 'gradle'
   | 'golangdep'
-  | 'govendor'
   | 'gomodules'
   | 'nuget'
   | 'paket'
@@ -44,7 +43,6 @@ export enum SUPPORTED_MANIFEST_FILES {
   REQUIREMENTS_TXT = 'requirements.txt',
   GOPKG_LOCK = 'Gopkg.lock',
   GO_MOD = 'go.mod',
-  VENDOR_JSON = 'vendor.json',
   PROJECT_ASSETS_JSON = 'project.assets.json',
   PACKAGES_CONFIG = 'packages.config',
   PROJECT_JSON = 'project.json',
@@ -72,7 +70,6 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   gradle: 'Gradle',
   golangdep: 'dep (Go)',
   gomodules: 'Go Modules',
-  govendor: 'govendor',
   nuget: 'NuGet',
   paket: 'Paket',
   composer: 'Composer',

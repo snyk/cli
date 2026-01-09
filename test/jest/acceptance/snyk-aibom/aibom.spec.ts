@@ -280,7 +280,7 @@ describe('snyk aibom (mocked servers only)', () => {
           env,
         },
       );
-      expect(code).toEqual(2);
+      expect(code).toEqual(3);
       expect(stdout).toContain('No supported files (SNYK-AIBOM-0003)');
     });
 

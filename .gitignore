@@ -42,7 +42,7 @@ test/acceptance/workspaces/**/Package.resolved
 test/**/.gradle
 .iac-data
 .dccache
-!test/smoke/.iac-data
+!test/jest/unit/iac/fixtures/.iac-data
 test-output
 test-results
 tap-output
@@ -54,3 +54,4 @@ test/fixtures/**/*/Package.resolved
 scripts/Brewfile.lock.json
 test/fixtures/**/go.sum
 .cursor
+.windsurf

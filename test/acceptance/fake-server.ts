@@ -26,6 +26,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['useExperimentalRiskScore', false],
     ['useExperimentalRiskScoreInCLI', false],
     ['sbomTestReachability', false],
+    ['useTestShimForOSCliTest', false],
   ]);
 };
 
@@ -54,6 +55,8 @@ export type FakeServer = {
   setSarifResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
+  setGlobalResponse: (response: Record<string, unknown>, code: number) => void;
+
   setEndpointResponse: (
     endpoint: string,
     response: Record<string, unknown>,
@@ -162,6 +165,14 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     statusCodes = codes;
   };
 
+  const setGlobalResponse = (
+    response: Record<string, unknown>,
+    code: number,
+  ) => {
+    endpointResponses.set('*', response);
+    endpointStatusCodes.set('*', code);
+  };
+
   const setEndpointResponse = (
     endpoint: string,
     response: Record<string, unknown>,
@@ -203,8 +214,18 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.use((req, res, next) => {
     const endpoint = req.url;
-    const endpointResponse = endpointResponses.get(endpoint);
-    const endpointStatusCode = endpointStatusCodes.get(endpoint);
+
+    const wildcardEndpoint = '*';
+    let endpointResponse = endpointResponses.get(wildcardEndpoint);
+    if (!endpointResponse) {
+      endpointResponse = endpointResponses.get(endpoint);
+    }
+
+    let endpointStatusCode = endpointStatusCodes.get(wildcardEndpoint);
+    if (!endpointStatusCode) {
+      endpointStatusCode = endpointStatusCodes.get(endpoint);
+    }
+
     if (endpointResponse) {
       res.status(endpointStatusCode || 200);
       res.send(endpointResponse);
@@ -522,6 +543,191 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         attributes: JSON.parse(aiBomCycloneDx),
       },
     });
+  });
+
+  // Unified Test API endpoints for uv acceptance tests
+  const testJobId = 'aaaaaaaa-bbbb-cccc-dddd-000000000001';
+  const testId = 'aaaaaaaa-bbbb-cccc-dddd-000000000002';
+
+  app.post(`/rest/orgs/:orgId/tests`, (req, res) => {
+    res.status(202);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        type: 'test_jobs',
+        id: testJobId,
+        attributes: { status: 'pending' },
+      },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/test_jobs/:testJobId`, (req, res) => {
+    const addr = server?.address();
+    const port = typeof addr === 'object' && addr ? addr.port : 4000;
+    const location = `http://localhost:${port}/rest/orgs/${req.params.orgId}/tests/${testId}`;
+    res.status(303);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.setHeader('Location', location);
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        type: 'test_jobs',
+        id: req.params.testJobId,
+        attributes: { status: 'finished' },
+        relationships: {
+          test: {
+            data: { type: 'tests', id: testId },
+          },
+        },
+      },
+      links: { related: location },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/tests/:testId`, (req, res) => {
+    res.status(200);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        id: req.params.testId,
+        type: 'tests',
+        attributes: {
+          status: 'finished',
+          pass_fail: 'pass',
+          outcome_reason: 'passed',
+          created_at: new Date().toISOString(),
+          summary: {
+            total: 0,
+            critical: 0,
+            high: 0,
+            medium: 0,
+            low: 0,
+          },
+        },
+      },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/tests/:testId/findings`, (req, res) => {
+    res.status(200);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: [],
+    });
+  });
+
+  app.post(`/api/hidden/orgs/:orgId/ai_scans`, (req, res) => {
+    res.status(201);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {
+        self: `/api/hidden/orgs/${req.params.orgId}/ai_scans/59622253-75f3-4439-ac1e-ce94834c5804`,
+      },
+      data: {
+        id: '59622253-75f3-4439-ac1e-ce94834c5804',
+        type: 'ai_scan',
+        attributes: { status: 'started' },
+      },
+    });
+  });
+
+  app.get(`/api/hidden/orgs/:orgId/ai_scans/:id`, (req, res) => {
+    res.status(200);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {},
+      data: {
+        id: req.params.id,
+        type: 'ai_scan',
+        status: 'completed',
+      },
+    });
+  });
+
+  app.get(
+    `/api/hidden/orgs/:orgId/ai_scans/:id/vulnerabilities`,
+    (req, res) => {
+      res.status(200);
+      res.send({
+        jsonapi: { version: '1.0' },
+        links: {},
+        data: {
+          id: '59622253-75f3-4439-ac1e-ce94834c5804',
+          results: [
+            {
+              id: '59622253-75f3-4439-ac1e-ce94834c5804',
+              severity: 'medium',
+              definition: {
+                id: 'system_prompt_exfiltration',
+                name: 'System Prompt Exfiltration',
+                description: 'The system prompt was exfiltrated.',
+              },
+              url: 'https://demo-app.com/api/chat',
+            },
+          ],
+        },
+      });
+    },
+  );
+
+  app.get(`/api/hidden/orgs/:orgId/scanning_agents`, (req, res) => {
+    res.status(200);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {},
+      data: [
+        {
+          name: 'test-agent',
+          installer_generated: false,
+          id: '59622253-75f3-4439-ac1e-ce94834c5804',
+          online: true,
+          fallback: false,
+          rx_bytes: 1000,
+          tx_bytes: 1000,
+          latest_handshake: 1000,
+        },
+      ],
+    });
+  });
+
+  app.post(`/api/hidden/orgs/:orgId/scanning_agents`, (req, res) => {
+    res.status(201);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {},
+      data: {
+        name: 'test-agent',
+        installer_generated: false,
+        id: '59622253-75f3-4439-ac1e-ce94834c5804',
+        online: true,
+        fallback: false,
+        rx_bytes: 1000,
+        tx_bytes: 1000,
+        latest_handshake: 1000,
+      },
+    });
+  });
+
+  app.post(
+    `/api/hidden/orgs/:orgId/scanning_agents/:id/generate`,
+    (req, res) => {
+      res.status(200);
+      res.send({
+        jsonapi: { version: '1.0' },
+        links: {},
+        data: {
+          token: 'test-token',
+        },
+      });
+    },
+  );
+
+  app.delete(`/api/hidden/orgs/:orgId/scanning_agents/:id`, (req, res) => {
+    res.status(204);
+    res.send();
   });
 
   app.post(basePath + '/vuln/:registry', (req, res, next) => {
@@ -1054,7 +1260,11 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         });
       } else if (depGraph) {
         name = depGraph.pkgs[0]?.info.name;
-        components = depGraph.pkgs.map(({ info: { name } }) => ({ name }));
+        components = depGraph.pkgs.map(({ info: { name, version, purl } }) => ({
+          name,
+          version,
+          purl,
+        }));
 
         const nodeIdMap: { [key: string]: string } = {};
 
@@ -1243,6 +1453,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setNextStatusCode,
     setEndpointResponse,
     setEndpointStatusCode,
+    setGlobalResponse,
     setStatusCode,
     setStatusCodes,
     setFeatureFlag,

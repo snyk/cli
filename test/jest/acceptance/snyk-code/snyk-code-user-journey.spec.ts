@@ -1,13 +1,21 @@
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI, runSnykCLIWithArray } from '../../util/runSnykCLI';
 import { matchers } from 'jest-json-schema';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 import { existsSync, unlinkSync, readFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { runCommand } from '../../util/runCommand';
 import * as fs from 'fs-extra';
-import { makeTmpDirectory } from '../../../utils';
+import {
+  makeTmpDirectory,
+  isWindowsOperatingSystem,
+  testIf,
+} from '../../../utils';
 import * as crypto from 'crypto';
+import {
+  createFilepaths,
+  deleteFilepaths,
+} from '../../../jest/util/fileIgnoreRulesFixture';
 
 expect.extend(matchers);
 jest.setTimeout(1000 * 120);
@@ -49,6 +57,7 @@ const projectWithoutCodeIssues = resolve(
   projectRoot,
   'test/fixtures/sast-empty',
 );
+const projectWithFileIgnoreRules = resolve('test/fixtures/file-ignore-rules');
 
 // This method does some basic checks on the given sarif file
 function checkSarif(file: string, expectedIgnoredFindings: number): any {
@@ -324,40 +333,44 @@ describe('snyk code test', () => {
           expect(JSON.parse(stdout)).toMatchSchema(sarifSchema);
         });
 
-        it('supports whitespaces in the path', async () => {
-          const randomId = Math.random().toString(36).substring(7);
+        // Address as part CLI-1199
+        testIf(!isWindowsOperatingSystem())(
+          'supports whitespaces in the path',
+          async () => {
+            const randomId = Math.random().toString(36).substring(7);
 
-          // add a random file to ensure a new bundle is created
-          const newPath = ` startAndEndWithWhitespace${randomId} `;
+            // add a random file to ensure a new bundle is created
+            const newPath = ` startAndEndWithWhitespace${randomId} `;
 
-          fs.mkdirSync(newPath);
+            fs.mkdirSync(newPath);
 
-          // Create a simple Java file with just a main method
-          const javaContent = `public class TestClass {
+            // Create a simple Java file with just a main method
+            const javaContent = `public class TestClass {
     public static void main(String[] args) {
         System.out.println("Hello from ${randomId}!");
     }
 }`;
-          fs.writeFileSync(`${newPath}/TestClass.java`, javaContent, {
-            encoding: 'utf8',
-          });
+            fs.writeFileSync(`${newPath}/TestClass.java`, javaContent, {
+              encoding: 'utf8',
+            });
 
-          const { stderr, code } = await runSnykCLIWithArray(
-            ['code', 'test', newPath],
-            {
-              env: {
-                ...process.env,
-                ...integrationEnv,
+            const { stderr, code } = await runSnykCLIWithArray(
+              ['code', 'test', newPath],
+              {
+                env: {
+                  ...process.env,
+                  ...integrationEnv,
+                },
               },
-            },
-          );
+            );
 
-          // cleanup file
-          fs.removeSync(newPath);
+            // cleanup file
+            fs.removeSync(newPath);
 
-          expect(stderr).toBe('');
-          expect(code).toBe(EXIT_CODE_SUCCESS);
-        });
+            expect(stderr).toBe('');
+            expect(code).toBe(EXIT_CODE_SUCCESS);
+          },
+        );
 
         it('works with --sarif', async () => {
           const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
@@ -376,46 +389,50 @@ describe('snyk code test', () => {
           expect(JSON.parse(stdout)).toMatchSchema(sarifSchema);
         });
 
-        it('works with --json-file-output', async () => {
-          const filePath = `${projectRoot}/not-existing/jsonOutput.json`;
-          const htmlFilePath = `${projectRoot}/out.html`;
-          const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
+        // Address as part CLI-1199
+        testIf(!isWindowsOperatingSystem())(
+          'works with --json-file-output',
+          async () => {
+            const filePath = `${projectRoot}/not-existing/jsonOutput.json`;
+            const htmlFilePath = `${projectRoot}/out.html`;
+            const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
 
-          const { stderr, code } = await runSnykCLI(
-            `code test ${path} --json-file-output=${filePath}`,
-            {
-              env: {
-                ...process.env,
-                ...integrationEnv,
+            const { stderr, code } = await runSnykCLI(
+              `code test ${path} --json-file-output=${filePath}`,
+              {
+                env: {
+                  ...process.env,
+                  ...integrationEnv,
+                },
               },
-            },
-          );
+            );
 
-          expect(stderr).toBe('');
-          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
+            expect(stderr).toBe('');
+            expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
 
-          expect(existsSync(filePath)).toBe(true);
-          expect(require(filePath)).toMatchSchema(sarifSchema);
+            expect(existsSync(filePath)).toBe(true);
+            expect(require(filePath)).toMatchSchema(sarifSchema);
 
-          // execute snyk-to-html for a basic compatibility check
-          const s2h = await runCommand('npx', [
-            'snyk-to-html',
-            `--input=${filePath}`,
-            `--output=${htmlFilePath}`,
-          ]);
-          expect(s2h.code).toBe(0);
-          expect(fs.readFileSync(htmlFilePath, 'utf8')).toContain(
-            'Snyk Code Report',
-          );
+            // execute snyk-to-html for a basic compatibility check
+            const s2h = await runCommand('npx', [
+              'snyk-to-html',
+              `--input=${filePath}`,
+              `--output=${htmlFilePath}`,
+            ]);
+            expect(s2h.code).toBe(0);
+            expect(fs.readFileSync(htmlFilePath, 'utf8')).toContain(
+              'Snyk Code Report',
+            );
 
-          // cleanup file
-          try {
-            unlinkSync(filePath);
-            unlinkSync(htmlFilePath);
-          } catch (error) {
-            console.error('failed to remove file.', error);
-          }
-        });
+            // cleanup file
+            try {
+              unlinkSync(filePath);
+              unlinkSync(htmlFilePath);
+            } catch (error) {
+              console.error('failed to remove file.', error);
+            }
+          },
+        );
 
         it('works with --sarif-file-output', async () => {
           const fileName = 'sarifOutput.json';
@@ -781,6 +798,89 @@ describe('snyk code test', () => {
 
               // Verify SARIF file
               checkSarif(sarifFile, 4);
+            });
+          });
+
+          describe('file filtering support', () => {
+            const gitIgnoreProject = join(
+              projectWithFileIgnoreRules,
+              'gitignore',
+            );
+            beforeAll(() => {
+              // create the file structure for testing gitignore file filtering
+              createFilepaths(gitIgnoreProject);
+            });
+
+            afterAll(() => {
+              deleteFilepaths(gitIgnoreProject);
+            });
+
+            it('should support .gitignore file filtering', async () => {
+              // get list of files that should be ignored
+              const gitIgnoredFilesCmd = await runCommand(
+                'git',
+                [
+                  'ls-files',
+                  '--ignored',
+                  '--exclude-standard',
+                  '-o',
+                  projectWithFileIgnoreRules,
+                ],
+                {
+                  env: {
+                    ...process.env,
+                    ...integrationEnv,
+                  },
+                },
+              );
+
+              const gitIgnoreFiles = gitIgnoredFilesCmd.stdout
+                .split('\n')
+                .filter((file) => file !== '');
+
+              // get a list of files that should not be ignored
+              const gitNotIgnoredFilesCmd = await runCommand(
+                'git',
+                [
+                  'ls-files',
+                  '--exclude-standard',
+                  '-o',
+                  projectWithFileIgnoreRules,
+                ],
+                {
+                  env: {
+                    ...process.env,
+                    ...integrationEnv,
+                  },
+                },
+              );
+
+              const gitNotIgnoredFiles = gitNotIgnoredFilesCmd.stdout
+                .split('\n')
+                .filter((file) => file !== '')
+                .filter((file) => file.includes('HashingAssignment.java'));
+
+              const codeTestCmd = await runSnykCLI(
+                `code test ${projectWithFileIgnoreRules}`,
+                {
+                  env: {
+                    ...process.env,
+                    ...integrationEnv,
+                  },
+                },
+              );
+
+              gitIgnoreFiles.forEach((file) => {
+                // code output resolves to the local path of the file
+                const gitignoredFile = file.split('file-ignore-rules/')[1];
+                expect(codeTestCmd.stdout).not.toContain(gitignoredFile);
+              });
+
+              gitNotIgnoredFiles.forEach((file) => {
+                // code output resolves to the local path of the file
+                const gitNotIgnoredFile = file.split('file-ignore-rules/')[1];
+                expect(codeTestCmd.stdout).toContain(gitNotIgnoredFile);
+              });
             });
           });
         }

@@ -1,4 +1,4 @@
-import { tmpdir } from 'os';
+import { tmpdir, platform } from 'os';
 import { join } from 'path';
 import { mkdir, readFileSync } from 'fs';
 
@@ -72,3 +72,31 @@ export function humanFileSize(bytes, si = false, dp = 1) {
 
   return bytes.toFixed(dp) + ' ' + units[u];
 }
+
+/**
+ * Check if the current platform is Windows
+ *
+ * @returns boolean
+ */
+export function isWindowsOperatingSystem(): boolean {
+  return platform().indexOf('win') === 0;
+}
+
+/**
+ * Conditionally run a test if the condition is true
+ *
+ * @param condition boolean
+ * @returns jest.It
+ */
+export function testIf(condition: boolean): jest.It {
+  return condition ? test : test.skip;
+}
+
+/**
+ * Conditionally run a describe block if the condition is true
+ *
+ * @param condition boolean
+ * @returns jest.Describe
+ */
+export const describeIf = (condition: boolean): jest.Describe =>
+  condition ? describe : describe.skip;

@@ -1,8 +1,10 @@
 import { execSync } from 'child_process';
-import { existsSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
 
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { EXIT_CODES } from '../../../../src/cli/exit-codes';
+import { join } from 'path';
 
 jest.setTimeout(1000 * 120);
 
@@ -170,6 +172,81 @@ describe('snyk test --reachability', () => {
 
     expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
     expect(jsonOutput.ok).toBeFalsy();
+
+    expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+  });
+
+  test('works with --sarif', async () => {
+    const { stdout, code } = await runSnykCLI(
+      `test ${TEMP_LOCAL_PATH} --reachability --sarif`,
+      {
+        env: {
+          ...process.env,
+          ...ReachabilityIntegrationEnv.env,
+        },
+      },
+    );
+
+    expect(stdout).not.toBe('');
+
+    const sarifOutputJson = JSON.parse(stdout);
+    expect(sarifOutputJson['$schema']).toBeDefined();
+    expect(sarifOutputJson.runs[0].results.length).toBeGreaterThanOrEqual(1);
+
+    expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+  });
+
+  test('works with --json and --sarif-file-output', async () => {
+    const tmppath = tmpdir();
+    const sarifOutputPath = join(tmppath, 'test.sarif');
+
+    const { stdout, code, stderr } = await runSnykCLI(
+      `test ${TEMP_LOCAL_PATH} --reachability --json --sarif-file-output=${sarifOutputPath}`,
+      {
+        env: {
+          ...process.env,
+          ...ReachabilityIntegrationEnv.env,
+        },
+      },
+    );
+
+    expect(stdout).not.toBe('');
+    expect(stderr).toBe('');
+
+    const jsonOutput = JSON.parse(stdout);
+    expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);
+
+    const sarifOutputJson = JSON.parse(readFileSync(sarifOutputPath, 'utf8'));
+    expect(sarifOutputJson['$schema']).toBeDefined();
+    expect(sarifOutputJson.runs[0].results.length).toBeGreaterThanOrEqual(1);
+
+    expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+  });
+
+  test('works with --json-file-output and --sarif-file-output', async () => {
+    const tmppath = tmpdir();
+    const jsonOutputPath = join(tmppath, 'test2.json');
+    const sarifOutputPath = join(tmppath, 'test2.sarif');
+
+    const { stdout, code, stderr } = await runSnykCLI(
+      `test ${TEMP_LOCAL_PATH} --reachability --json-file-output=${jsonOutputPath} --sarif-file-output=${sarifOutputPath}`,
+      {
+        env: {
+          ...process.env,
+          ...ReachabilityIntegrationEnv.env,
+        },
+      },
+    );
+
+    expect(stderr).toBe('');
+    expect(stdout).toContain('Test Summary');
+
+    const jsonOutput = JSON.parse(readFileSync(jsonOutputPath, 'utf8'));
+    expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);
+
+    const sarifOutputJson = JSON.parse(readFileSync(sarifOutputPath, 'utf8'));
+    expect(sarifOutputJson['$schema']).toBeDefined();
+    expect(sarifOutputJson.runs[0].results.length).toBeGreaterThanOrEqual(1);
 
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });

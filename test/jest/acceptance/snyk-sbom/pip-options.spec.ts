@@ -1,9 +1,10 @@
-import * as os from 'os';
 import { execSync } from 'child_process';
 
 import { createProjectFromWorkspace } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { fakeServer } from '../../../acceptance/fake-server';
+import { isWindowsOperatingSystem } from '../../../utils';
+import { getAvailableServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -11,22 +12,19 @@ describe('snyk sbom --command (mocked server only)', () => {
   let server;
   let env: Record<string, string>;
 
-  beforeAll(
-    () =>
-      new Promise((res) => {
-        const port = process.env.PORT || process.env.SNYK_PORT || '58588';
-        const baseApi = '/api/v1';
-        env = {
-          ...process.env,
-          SNYK_API: 'http://localhost:' + port + baseApi,
-          SNYK_HOST: 'http://localhost:' + port,
-          SNYK_TOKEN: '123456789',
-          SNYK_DISABLE_ANALYTICS: '1',
-        };
-        server = fakeServer(baseApi, env.SNYK_TOKEN);
-        server.listen(port, res);
-      }),
-  );
+  beforeAll(async () => {
+    const port = await getAvailableServerPort(process);
+    const baseApi = '/api/v1';
+    env = {
+      ...process.env,
+      SNYK_API: 'http://localhost:' + port + baseApi,
+      SNYK_HOST: 'http://localhost:' + port,
+      SNYK_TOKEN: '123456789',
+      SNYK_DISABLE_ANALYTICS: '1',
+    };
+    server = fakeServer(baseApi, env.SNYK_TOKEN);
+    await server.listenPromise(port);
+  });
 
   afterEach(() => {
     jest.resetAllMocks();
@@ -42,8 +40,7 @@ describe('snyk sbom --command (mocked server only)', () => {
 
   test('`sbom pip-app` generates an SBOM with a specified python command', async () => {
     const project = await createProjectFromWorkspace('pip-app');
-    const command =
-      os.platform().indexOf('win') === 0 ? 'python3.11.exe' : 'python3';
+    const command = isWindowsOperatingSystem() ? 'python3.11.exe' : 'python3';
     execSync(`pip install -r requirements.txt`, { cwd: project.path() });
 
     const { code, stdout } = await runSnykCLI(
