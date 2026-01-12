@@ -464,11 +464,28 @@ DepGraph end`,
     });
 
     it('detects sub-packages in n8n container image', async () => {
-      const { stdout } = await runSnykCLI(
+      const { code, stdout, stderr } = await runSnykCLI(
         `container test n8nio/n8n:1.120.3 --json`,
       );
 
-      const jsonOutput = JSON.parse(stdout);
+      // authentication error, this is mainly here for helping people who are running the tests locally
+      if (code === 2) {
+        throw new Error(
+          `Authentication required. Please run 'snyk auth' or set TEST_SNYK_TOKEN environment variable. Stderr: ${stderr}`,
+        );
+      }
+
+      // Exit code should be 1 (vulns found) for this package
+      expect(1).toBe(code);
+
+      let jsonOutput;
+      try {
+        jsonOutput = JSON.parse(stdout);
+      } catch (e) {
+        throw new Error(
+          `Failed to parse JSON output: ${e.message}. Exit code: ${code}. Stdout: ${stdout.substring(0, 500)}. Stderr: ${stderr?.substring(0, 500)}`,
+        );
+      }
 
       expect(jsonOutput).toBeDefined();
       expect(jsonOutput.applications).toBeDefined();
@@ -477,47 +494,24 @@ DepGraph end`,
 
       // make sure that sub-packages are detected in the scan
       // n8n-nodes-langchain should be discovered as a sub-package of n8n
-      const langchainApp = jsonOutput.applications.find((app: any) => {
-        // Check targetFile path
-        if (app.targetFile?.includes('n8n-nodes-langchain')) {
-          return true;
-        }
-        // Check displayTargetFile path
-        if (app.displayTargetFile?.includes('n8n-nodes-langchain')) {
-          return true;
-        }
-        // Check depTree name
-        if (app.depTree?.name?.includes('n8n-nodes-langchain')) {
-          return true;
-        }
-        // Check projectName
-        if (app.projectName?.includes('n8n-nodes-langchain')) {
-          return true;
-        }
-        // Check depGraph packages
-        if (app.depGraph?.pkgs) {
-          return app.depGraph.pkgs.some(
-            (pkg: any) =>
-              pkg.id?.includes('n8n-nodes-langchain') ||
-              pkg.info?.name?.includes('n8n-nodes-langchain'),
-          );
-        }
-        // Check scanResult depGraph
-        if (app.scanResult?.facts) {
-          const depGraphFact = app.scanResult.facts.find(
-            (fact: any) => fact.type === 'depGraph',
-          );
-          if (depGraphFact?.data?.pkgs) {
-            return depGraphFact.data.pkgs.some(
-              (pkg: any) =>
-                pkg.id?.includes('n8n-nodes-langchain') ||
-                pkg.info?.name?.includes('n8n-nodes-langchain'),
-            );
-          }
-        }
-        return false;
-      });
-      expect(langchainApp).toBeDefined();
+      // As long as vulnerabilities from that package are being reported, the test passes
+      
+      // Find the n8n application
+      const n8nApp = jsonOutput.applications.find(
+        (app: any) => app.projectName === 'n8n' || app.targetFile?.includes('n8n/package.json'),
+      );
+
+      expect(n8nApp).toBeDefined();
+
+      // @n8n/n8n-nodes-langchain package should be detected by checking
+      // if vulnerabilities from that package are being reported
+      const hasLangchainVuln = n8nApp?.vulnerabilities?.some(
+        (vuln: any) =>
+          vuln.moduleName === '@n8n/n8n-nodes-langchain' ||
+          vuln.moduleName?.includes('n8n-nodes-langchain'),
+      ) || false;
+
+      expect(hasLangchainVuln).toBe(true);
     }, 180000);
   });
 
