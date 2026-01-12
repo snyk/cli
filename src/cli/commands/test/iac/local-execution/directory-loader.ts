@@ -1,8 +1,7 @@
 import * as path from 'path';
-import { makeFileAndDirectoryGenerator } from './file-utils';
+import { makeFileAndDirectoryGenerator, type ExclusionMatcher } from './file-utils';
 import { VALID_FILE_TYPES } from './types';
 import { isLocalFolder } from '../../../../../lib/detect';
-import mm from 'micromatch';
 
 /**
  * Gets all nested directories for the path that we ran a scan.
@@ -13,12 +12,13 @@ import mm from 'micromatch';
 export function getAllDirectoriesForPath(
   pathToScan: string,
   maxDepth?: number,
+  isExcluded: ExclusionMatcher = () => false,
 ): string[] {
   // if it is a single file (it has an extension), we return the current path
   if (!isLocalFolder(pathToScan)) {
     return [path.resolve(pathToScan)];
   }
-  return [...getAllDirectoriesForPathGenerator(pathToScan, maxDepth)];
+  return [...getAllDirectoriesForPathGenerator(pathToScan, maxDepth, isExcluded)];
 }
 
 /**
@@ -30,8 +30,9 @@ export function getAllDirectoriesForPath(
 function* getAllDirectoriesForPathGenerator(
   pathToScan: string,
   maxDepth?: number,
+  isExcluded: ExclusionMatcher = () => false,
 ): Generator<string> {
-  for (const filePath of makeFileAndDirectoryGenerator(pathToScan, maxDepth)) {
+  for (const filePath of makeFileAndDirectoryGenerator(pathToScan, maxDepth, isExcluded)) {
     if (filePath.directory) yield filePath.directory;
   }
 }
@@ -45,19 +46,19 @@ function* getAllDirectoriesForPathGenerator(
 export function getFilesForDirectory(
   pathToScan: string,
   currentDirectory: string,
-  excludePatterns: string[] = []
+  isExcluded: ExclusionMatcher = () => false,
 ): string[] {
   if (!isLocalFolder(pathToScan)) {
     if (
       shouldBeParsed(pathToScan) &&
       !isIgnoredFile(pathToScan, currentDirectory) &&
-      !mm.isMatch(pathToScan, excludePatterns)
+      !isExcluded(pathToScan)
     ) {
       return [pathToScan];
     }
     return [];
   } else {
-    return [...getFilesForDirectoryGenerator(currentDirectory, excludePatterns)];
+    return [...getFilesForDirectoryGenerator(currentDirectory, isExcluded)];
   }
 }
 
@@ -68,7 +69,7 @@ export function getFilesForDirectory(
  */
 export function* getFilesForDirectoryGenerator(
   pathToScan: string,
-  excludePatterns: string[] = []
+  isExcluded: ExclusionMatcher = () => false
 ): Generator<string> {
   for (const filePath of makeFileAndDirectoryGenerator(pathToScan)) {
     if (filePath.file && filePath.file.dir !== pathToScan) {
@@ -79,7 +80,7 @@ export function* getFilesForDirectoryGenerator(
       filePath.file &&
       shouldBeParsed(filePath.file.fileName) &&
       !isIgnoredFile(filePath.file.fileName, pathToScan) &&
-      !mm.isMatch(filePath.file.fileName, excludePatterns)
+      !isExcluded(filePath.file.fileName)
     ) {
       yield filePath.file.fileName;
     }
@@ -114,44 +115,4 @@ function isIgnoredFile(pathToScan: string, currentDirectory: string): boolean {
     resolvedPath.startsWith('~') || // vim
     (resolvedPath.startsWith('#') && resolvedPath.endsWith('#')) // emacs
   );
-}
-
-
-export class PathNotAllowedError extends Error {
-  constructor() {
-    super("exclusion patterns must be basenames, not paths (no slashes allowed)");
-    this.name = "PathNotAllowedError";
-  }
-}
-
-/**
- * Converts a comma-separated string into global glob patterns.
- * Enforces basename matching by forbidding slashes.
- */
-export function buildExclusionGlobs(rawExcludeFlag: string): string[] {
-  if (!rawExcludeFlag || rawExcludeFlag.trim() === "") {
-    return [];
-  }
-
-  const rawEntries = rawExcludeFlag.split(",");
-  const patterns: string[] = [];
-
-  for (const entry of rawEntries) {
-    const trimmed = entry.trim();
-
-    if (trimmed === "") {
-      continue;
-    }
-
-    // Strictly forbid paths (matches both / and \ for cross-platform safety)
-    if (trimmed.includes("/") || trimmed.includes("\\")) {
-      throw new PathNotAllowedError();
-    }
-    // Create global patterns to match the basename at any depth.
-    // '**/name' matches a file or folder named 'name' anywhere.
-    // '**/name/**' ensures if 'name' is a directory, its contents are also excluded.
-    patterns.push(`**/${trimmed}`, `**/${trimmed}/**`);
-  }
-
-  return patterns;
 }
