@@ -15,7 +15,7 @@ export async function getSinglePluginResult(
   const inspectRes: pluginApi.InspectResult = await moduleInfo.inspect(
     root,
     targetFile || options.file,
-    { ...options, showMavenBuildScope: true },
+    { ...options, showMavenBuildScope: true, showNpmScope: true },
     snykHttpClient,
   );
   return inspectRes;

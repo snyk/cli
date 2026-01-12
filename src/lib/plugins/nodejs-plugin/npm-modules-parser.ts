@@ -80,7 +80,7 @@ export async function parse(
     await spinner(resolveModuleSpinnerLabel);
     return resolveDeps(
       root,
-      Object.assign({}, options, { noFromArrays: true }),
+      Object.assign({}, options, { noFromArrays: true, showNpmScope: options.showNpmScope }),
     );
   } finally {
     await spinner.clear<void>(resolveModuleSpinnerLabel)();
