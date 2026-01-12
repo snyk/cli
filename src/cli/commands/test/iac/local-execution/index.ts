@@ -27,6 +27,7 @@ import { generateProjectAttributes, generateTags } from '../../../monitor';
 import {
   getAllDirectoriesForPath,
   getFilesForDirectory,
+  buildExclusionGlobs
 } from './directory-loader';
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
@@ -50,11 +51,14 @@ export async function test(
 
   const policy = await findAndLoadPolicy(pathToScan, 'iac', options);
 
+  const excludePatterns = buildExclusionGlobs(options.exclude || '');
+
   let allParsedFiles: IacFileParsed[] = [],
     allFailedFiles: IacFileParseFailure[] = [];
   const allDirectories = getAllDirectoriesForPath(
     pathToScan,
     options.detectionDepth,
+    excludePatterns,
   );
 
   // we load and parse files directory by directory
@@ -63,6 +67,7 @@ export async function test(
     const filePathsInDirectory = getFilesForDirectory(
       pathToScan,
       currentDirectory,
+      excludePatterns,
     );
     if (
       currentDirectory === pathToScan &&
