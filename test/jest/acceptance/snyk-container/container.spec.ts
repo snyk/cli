@@ -495,21 +495,24 @@ DepGraph end`,
       // make sure that sub-packages are detected in the scan
       // n8n-nodes-langchain should be discovered as a sub-package of n8n
       // As long as vulnerabilities from that package are being reported, the test passes
-      
+
       // Find the n8n application
       const n8nApp = jsonOutput.applications.find(
-        (app: any) => app.projectName === 'n8n' || app.targetFile?.includes('n8n/package.json'),
+        (app: any) =>
+          app.projectName === 'n8n' ||
+          app.targetFile?.includes('n8n/package.json'),
       );
 
       expect(n8nApp).toBeDefined();
 
       // @n8n/n8n-nodes-langchain package should be detected by checking
       // if vulnerabilities from that package are being reported
-      const hasLangchainVuln = n8nApp?.vulnerabilities?.some(
-        (vuln: any) =>
-          vuln.moduleName === '@n8n/n8n-nodes-langchain' ||
-          vuln.moduleName?.includes('n8n-nodes-langchain'),
-      ) || false;
+      const hasLangchainVuln =
+        n8nApp?.vulnerabilities?.some(
+          (vuln: any) =>
+            vuln.moduleName === '@n8n/n8n-nodes-langchain' ||
+            vuln.moduleName?.includes('n8n-nodes-langchain'),
+        ) || false;
 
       expect(hasLangchainVuln).toBe(true);
     }, 180000);
