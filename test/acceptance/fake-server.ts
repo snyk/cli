@@ -18,6 +18,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['sbomMonitorBeta', false],
     ['useImprovedDotnetWithoutPublish', false],
     ['scanUsrLibJars', false],
+    ['includeGoStandardLibraryDeps', false],
 
     // Default these to false.
     // TODO: Future acceptance tests targeting these features and their
