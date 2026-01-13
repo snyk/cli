@@ -10,6 +10,7 @@ import { CUSTOM_RULES_TARBALL } from './rules/oci-pull';
 import { readdirSync } from 'fs';
 import { join } from 'path';
 import * as mm from 'micromatch';
+import { ExcludeFlagInvalidInputError } from '../../../../../lib/errors/exclude-flag-invalid-input';
 
 function hashData(s: string): string {
   const hashedData = crypto.createHash('sha1').update(s).digest('hex');
@@ -77,8 +78,16 @@ export function computeCustomRulesBundleChecksum(): string | undefined {
  * @returns {Generator<object>} - a generator which yields an object with directories or paths for the path to scan
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function* makeFileAndDirectoryGenerator(root = '.', maxDepth?: number, isExcluded: ExclusionMatcher = () => false) {
-  function* generatorHelper(pathToScan, currentDepth) {    
+export function* makeFileAndDirectoryGenerator(
+  root = '.',
+  maxDepth?: number,
+  isExcluded: ExclusionMatcher = () => false,
+) {
+  function* generatorHelper(pathToScan, currentDepth) {
+    if (isExcluded(pathToScan)) {
+      return;
+    }
+
     {
       yield { directory: pathToScan };
     }
@@ -114,36 +123,31 @@ export function* makeFileAndDirectoryGenerator(root = '.', maxDepth?: number, is
 
 export type ExclusionMatcher = (pathToCheck: string) => boolean;
 
-export class PathNotAllowedError extends Error {
-  constructor() {
-    super("exclusion patterns must be basenames, not paths (no slashes allowed)");
-    this.name = "PathNotAllowedError";
-  }
-}
-
 /**
  * Creates a path matcher function from a comma-separated string of basenames.
  * @param rawExcludeFlag - Comma-separated basenames: "node_modules,temp"
  * @returns A function that takes a path and returns true if it should be excluded.
  */
-export function createPathExclusionMatcher(rawExcludeFlag: string) : ExclusionMatcher {
-  if (!rawExcludeFlag || rawExcludeFlag.trim() === "") {
+export function createPathExclusionMatcher(
+  rawExcludeFlag: string,
+): ExclusionMatcher {
+  if (!rawExcludeFlag || rawExcludeFlag.trim() === '') {
     return () => false;
   }
 
-  const rawEntries = rawExcludeFlag.split(",");
+  const rawEntries = rawExcludeFlag.split(',');
   const patterns: string[] = [];
 
   for (const entry of rawEntries) {
     const trimmed = entry.trim();
 
-    if (trimmed === "") {
+    if (trimmed === '') {
       continue;
     }
 
     // Strictly forbid paths (matches both / and \ for cross-platform safety)
-    if (trimmed.includes("/") || trimmed.includes("\\")) {
-      throw new PathNotAllowedError();
+    if (trimmed.includes('/') || trimmed.includes('\\')) {
+      throw new ExcludeFlagInvalidInputError();
     }
     // Create global patterns to match the basename at any depth.
     // '**/name' matches a file or folder named 'name' anywhere.

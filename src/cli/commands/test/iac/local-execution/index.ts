@@ -33,7 +33,6 @@ import { getErrorStringCode } from './error-utils';
 import { NoFilesToScanError } from './file-loader';
 import { Tag } from '../../../../../lib/types';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
-import * as mm from 'micromatch';
 import { createPathExclusionMatcher } from './file-utils';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
@@ -51,8 +50,8 @@ export async function test(
   const attributes = parseAttributes(options);
 
   const policy = await findAndLoadPolicy(pathToScan, 'iac', options);
-  const isPathExcluded = createPathExclusionMatcher(options.exclude || '')
-  
+  const isPathExcluded = createPathExclusionMatcher(options.exclude || '');
+
   let allParsedFiles: IacFileParsed[] = [],
     allFailedFiles: IacFileParseFailure[] = [];
   const allDirectories = getAllDirectoriesForPath(

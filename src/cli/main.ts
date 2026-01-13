@@ -437,7 +437,7 @@ function validateUnsupportedOptionCombinations(
       throw new MissingOptionError('--exclude', [
         '--yarn-workspaces',
         '--all-projects',
-        '--iac'
+        '--iac',
       ]);
     }
     if (typeof options.exclude !== 'string') {
