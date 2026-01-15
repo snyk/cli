@@ -526,6 +526,21 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
+  app.post(`/api/rest/orgs/:orgId/ai_boms/upload`, (req, res) => {
+    res.status(202);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {
+        self: `/api/rest/orgs/${req.params.orgId}/ai_bom_jobs/c051477e-5033-55b1-bc23-135daf9b1724`,
+      },
+      data: {
+        id: 'c051477e-5033-55b1-bc23-135daf9b1724',
+        type: 'ai_bom_job',
+        attributes: { status: 'processing' },
+      },
+    });
+  });
+
   app.get(`/api/rest/orgs/:orgId/ai_bom_jobs/:jobId`, (req, res) => {
     res.status(303);
     res.send({
