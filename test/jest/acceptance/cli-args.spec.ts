@@ -255,7 +255,7 @@ describe.each(userJourneyWorkflows)(
             env,
           });
           expect(stdout).toContainText(
-            'The --exclude option can only be used in combination with --all-projects or --yarn-workspaces.',
+            'The --exclude option can only be used in combination with --all-projects or --iac or --yarn-workspaces.',
           );
           expect(code).toEqual(2);
         });
@@ -284,6 +284,31 @@ describe.each(userJourneyWorkflows)(
 
           expect(stdout).toContainText(
             'The --exclude argument must be a comma separated list of directory or file names and cannot contain a path.',
+          );
+          expect(code).toEqual(2);
+        });
+
+        test('snyk iac test --exclude=path/to/dir displays error message', async () => {
+          const exclude = path.normalize('path/to/dir');
+          const { code, stdout } = await runSnykCLI(
+            `iac test --exclude=${exclude} .`,
+            {
+              env,
+            },
+          );
+
+          expect(stdout).toContainText(
+            'The --exclude argument must be a comma separated list of directory or file names and cannot contain a path.',
+          );
+          expect(code).toEqual(2);
+        });
+
+        test('snyk iac test --exclude without any value displays error message', async () => {
+          const { code, stdout } = await runSnykCLI(`iac test --exclude .`, {
+            env,
+          });
+          expect(stdout).toContainText(
+            'Empty --exclude argument. Did you mean --exclude=subdirectory ?',
           );
           expect(code).toEqual(2);
         });
