@@ -132,6 +132,7 @@ async function buildDepGraph(
           pruneLevel: 'withinTopLevelDeps',
           strictOutOfSync: options.strictOutOfSync,
           honorAliases: true,
+          showNpmScope: options.showNpmScope,
         },
       );
     case NodeLockfileVersion.YarnLockV2:
@@ -144,6 +145,7 @@ async function buildDepGraph(
           pruneWithinTopLevelDeps: true,
           strictOutOfSync: options.strictOutOfSync,
           honorAliases: true,
+          showNpmScope: options.showNpmScope,
         },
       );
     case NodeLockfileVersion.NpmLockV2:
