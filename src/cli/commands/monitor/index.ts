@@ -61,6 +61,7 @@ import {
 } from '../constants';
 import {
   PNPM_FEATURE_FLAG,
+  UV_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } from '../../../lib/package-managers';
@@ -186,11 +187,16 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   let hasPnpmSupport = false;
+  let hasUvSupport = false;
   let hasImprovedDotnetWithoutPublish = false;
   let enableMavenDverboseExhaustiveDeps = false;
   try {
     hasPnpmSupport = (await hasFeatureFlag(
       PNPM_FEATURE_FLAG,
+      options,
+    )) as boolean;
+    hasUvSupport = (await hasFeatureFlag(
+      UV_FEATURE_FLAG,
       options,
     )) as boolean;
     if (options['dotnet-runtime-resolution']) {
@@ -201,6 +207,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     }
   } catch (err) {
     hasPnpmSupport = false;
+    hasUvSupport = false;
   }
 
   try {
@@ -223,9 +230,13 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     enableMavenDverboseExhaustiveDeps = false;
   }
 
-  const featureFlags = hasPnpmSupport
-    ? new Set<string>([PNPM_FEATURE_FLAG])
-    : new Set<string>();
+  const featureFlags = new Set<string>();
+  if (hasPnpmSupport) {
+    featureFlags.add(PNPM_FEATURE_FLAG);
+  }
+  if (hasUvSupport) {
+    featureFlags.add(UV_FEATURE_FLAG);
+  }
 
   if (hasImprovedDotnetWithoutPublish) {
     options.useImprovedDotnetWithoutPublish = true;

@@ -138,7 +138,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_TMP_PATH=" + expectedTmpPath,
 	}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{}, "")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -178,7 +178,7 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 		"SNYK_TMP_PATH=" + expectedTmpPath,
 	}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{}, "")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -218,7 +218,7 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 		"SNYK_TMP_PATH=" + expectedTmpPath,
 	}
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{}, "")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -233,7 +233,7 @@ func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
 		input := []string{}
 		notExpected := []string{"SNYK_API=", "SNYK_CFG_ORG="}
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{}, "")
 
 		assert.NotContains(t, actual, notExpected)
 		assert.Nil(t, err)
@@ -245,7 +245,7 @@ func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
 
 		config.Set(configuration.API_URL, "https://api.snyky.io")
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{}, "")
 
 		assert.NotContains(t, actual, expected)
 		assert.Nil(t, err)
@@ -257,7 +257,7 @@ func Test_PrepareV1EnvironmentVariables_OnlyExplicitlySetValues(t *testing.T) {
 
 		config.Set(configuration.ORGANIZATION, "my-org")
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{})
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "proxy", "cacertlocation", config, []string{}, "")
 
 		assert.NotContains(t, actual, expected)
 		assert.Nil(t, err)
@@ -275,7 +275,7 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting(t *testing.T) 
 	input := []string{"something=1", "in=2", "here=3", "SNYK_INTEGRATION_NAME=exists"}
 	expected := input
 
-	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, []string{})
+	actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, []string{}, "")
 
 	sort.Strings(expected)
 	sort.Strings(actual)
@@ -300,7 +300,7 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting_Org(t *testing
 		input := []string{}
 		args := []string{"-d"}
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, args)
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, args, "")
 		assert.Nil(t, err)
 
 		assert.Contains(t, actual, notExpected)
@@ -310,7 +310,7 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting_Org(t *testing
 		input := []string{}
 		args := []string{"-d", "--org=something"}
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, args)
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, args, "")
 		assert.Nil(t, err)
 
 		assert.NotContains(t, actual, notExpected)
@@ -321,7 +321,7 @@ func Test_PrepareV1EnvironmentVariables_Fail_DontOverrideExisting_Org(t *testing
 		input := []string{"something=hello", expectedOrgEnvVar}
 		args := []string{"-d"}
 
-		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, args)
+		actual, err := cliv2.PrepareV1EnvironmentVariables(input, "foo", "bar", "unused", "unused", config, args, "")
 		assert.Nil(t, err)
 
 		assert.NotContains(t, actual, notExpected)
