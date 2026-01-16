@@ -9,6 +9,7 @@ const { isMultiProjectScan } = require('../is-multi-project-scan');
 const { hasFeatureFlag } = require('../feature-flags');
 const {
   PNPM_FEATURE_FLAG,
+  UV_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } = require('../package-managers');
@@ -34,10 +35,12 @@ async function test(root, options, callback) {
 
 async function executeTest(root, options) {
   let hasPnpmSupport = false;
+  let hasUvSupport = false;
   let hasImprovedDotnetWithoutPublish = false;
   let enableMavenDverboseExhaustiveDeps = false;
   try {
     hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
+    hasUvSupport = await hasFeatureFlag(UV_FEATURE_FLAG, options);
     if (options['dotnet-runtime-resolution']) {
       hasImprovedDotnetWithoutPublish = await hasFeatureFlag(
         DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
@@ -49,6 +52,7 @@ async function executeTest(root, options) {
     }
   } catch (err) {
     hasPnpmSupport = false;
+    hasUvSupport = false;
   }
 
   try {
@@ -72,9 +76,13 @@ async function executeTest(root, options) {
   }
 
   try {
-    const featureFlags = hasPnpmSupport
-      ? new Set([PNPM_FEATURE_FLAG])
-      : new Set([]);
+    const featureFlags = new Set([]);
+    if (hasPnpmSupport) {
+      featureFlags.add(PNPM_FEATURE_FLAG);
+    }
+    if (hasUvSupport) {
+      featureFlags.add(UV_FEATURE_FLAG);
+    }
 
     if (!options.allProjects) {
       options.packageManager = detect.detectPackageManager(
@@ -112,6 +120,9 @@ function run(root, options, featureFlags) {
 
 function validateProjectType(options, projectType, featureFlags) {
   if (projectType === 'pnpm' && !featureFlags.has(PNPM_FEATURE_FLAG)) {
+    throw new UnsupportedPackageManagerError(projectType);
+  }
+  if (projectType === 'uv' && !featureFlags.has(UV_FEATURE_FLAG)) {
     throw new UnsupportedPackageManagerError(projectType);
   }
 
