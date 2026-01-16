@@ -288,3 +288,4 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 // replace github.com/snyk/cli-extension-mcp-scan => ../../cli-extension-mcp-scan
 
 // replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
+replace github.com/snyk/cli-extension-dep-graph => ../../cli-extension-dep-graph
