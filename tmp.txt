@@ -1,0 +1,16 @@
+We'd need to make a subset of the changes shown in https://github.com/snyk/registry/commit/d04ce289e80a, which enabled SCM support for pipenv projects. In particular, we'd need to make these changes:
+
+- Add `'uv'` to `ossPackageManagers` array and create `uv` entry in `PACKAGE_MANAGERS` object with similar configuration (`vulnDbType: 'pip'`, `pkgFormatType: 'pip'`, `isGraphMonitor: true`, etc.)
+- Add `isUv()` helper function
+- Add `'uv'` to Python `packageManagers` and `projectTypes` in `src/lib/domain/needs-refactoring/languages.ts`
+- Add `'uv'` case to `getProductLineForProjectType()` in `src/lib/domain/scm-platform/agents/correlation.ts`
+- Add `'uv'` case to `linkToPackage()` in `src/web/presenters/package-managers.ts` (shares PyPI link with other Python PMs)
+- Add `enableUvCLI` feature flag to `src/lib/domain/internal-developer-tooling/features/index.ts` (or verify it already exists)
+
+We will skip the following changes shown in that commit, which are only relevant to SCM:
+
+- No handler in `src/lib/deps-discovery/handlers/`
+- No service in `src/lib/deps-service/`
+- No changes to `src/lib/import-apps/sub-tasks.ts`
+- No changes to `src/lib/models/model-definitions/importsubtask.ts` or `src/lib/types/models.ts` (SCM import task types)
+- No changes to `src/lib/monitor/snapshots/monitor-issues.ts` (type cast workaround not needed)

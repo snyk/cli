@@ -261,3 +261,4 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 // replace github.com/snyk/cli-extension-ai-bom => ../../cli-extension-ai-bom
 
 // replace github.com/snyk/studio-mcp => ../../studio-mcp
+replace github.com/snyk/cli-extension-dep-graph => ../../cli-extension-dep-graph
