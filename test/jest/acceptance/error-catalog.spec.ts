@@ -7,6 +7,9 @@ import { CLI } from '@snyk/error-catalog-nodejs-public';
 const TEST_DISTROLESS_STATIC_IMAGE =
   'gcr.io/distroless/static@sha256:7198a357ff3a8ef750b041324873960cf2153c11cc50abb9d8d5f8bb089f6b4e';
 
+const TEST_WINDOWS_AMD64_IMAGE =
+  'mcr.microsoft.com/windows/nanoserver:ltsc2019';
+
 interface Workflow {
   type: string;
   cmd: string;
@@ -25,11 +28,20 @@ const integrationWorkflows: Workflow[] = [
     type: 'typescript',
     cmd: 'monitor',
   },
-  {
+];
+
+// Use a different image for Windows as the distroless image is not available on Windows
+if (isWindowsOperatingSystem()) {
+  integrationWorkflows.push({
+    type: 'typescript',
+    cmd: `container monitor ${TEST_WINDOWS_AMD64_IMAGE}`,
+  });
+} else {
+  integrationWorkflows.push({
     type: 'typescript',
     cmd: `container monitor ${TEST_DISTROLESS_STATIC_IMAGE}`,
-  },
-];
+  });
+}
 
 const snykOrg = '11111111-2222-3333-4444-555555555555';
 
@@ -111,7 +123,7 @@ describe.each(integrationWorkflows)(
 
             expect(code).toBe(2);
             expect(errors[0].code).toEqual('500');
-          });
+          }, 50000);
         });
       });
 
@@ -138,7 +150,7 @@ describe.each(integrationWorkflows)(
   },
 );
 
-describe('Special error cases', () => {
+describe('special error cases', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 

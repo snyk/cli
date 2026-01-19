@@ -55,6 +55,12 @@ export type FakeServer = {
   setSarifResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
+  setGlobalResponse: (
+    response: Record<string, unknown>,
+    code: number,
+    headers?: Record<string, any>,
+  ) => void;
+
   setEndpointResponse: (
     endpoint: string,
     response: Record<string, unknown>,
@@ -94,6 +100,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let nextResponse: any = undefined;
   let endpointResponses: Map<string, Record<string, unknown>> = new Map();
   let endpointStatusCodes: Map<string, number> = new Map();
+  let endpointHeaders: Map<string, string> = new Map();
   let customResponse: Record<string, unknown> | undefined = undefined;
   let sarifResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
@@ -106,6 +113,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     sarifResponse = undefined;
     endpointResponses = new Map();
     endpointStatusCodes = new Map();
+    endpointHeaders = new Map();
     featureFlags = featureFlagDefaults();
     availableSettings = new Map();
     unauthorizedActions = new Map();
@@ -163,6 +171,20 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     statusCodes = codes;
   };
 
+  const setGlobalResponse = (
+    response: Record<string, unknown>,
+    code: number,
+    headers?: Record<string, string>,
+  ) => {
+    endpointResponses.set('*', response);
+    endpointStatusCodes.set('*', code);
+    if (headers) {
+      for (const [key, value] of Object.entries(headers)) {
+        endpointHeaders.set(key, value);
+      }
+    }
+  };
+
   const setEndpointResponse = (
     endpoint: string,
     response: Record<string, unknown>,
@@ -204,8 +226,25 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.use((req, res, next) => {
     const endpoint = req.url;
-    const endpointResponse = endpointResponses.get(endpoint);
-    const endpointStatusCode = endpointStatusCodes.get(endpoint);
+
+    const wildcardEndpoint = '*';
+    let endpointResponse = endpointResponses.get(wildcardEndpoint);
+    if (!endpointResponse) {
+      endpointResponse = endpointResponses.get(endpoint);
+    }
+
+    let endpointStatusCode = endpointStatusCodes.get(wildcardEndpoint);
+    if (!endpointStatusCode) {
+      endpointStatusCode = endpointStatusCodes.get(endpoint);
+    }
+
+    // configure any response headers
+    if (endpointHeaders.size > 0) {
+      endpointHeaders.forEach((value, key) => {
+        res.set(key, value);
+      });
+    }
+
     if (endpointResponse) {
       res.status(endpointStatusCode || 200);
       res.send(endpointResponse);
@@ -487,6 +526,21 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
+  app.post(`/api/rest/orgs/:orgId/ai_boms/upload`, (req, res) => {
+    res.status(202);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {
+        self: `/api/rest/orgs/${req.params.orgId}/ai_bom_jobs/c051477e-5033-55b1-bc23-135daf9b1724`,
+      },
+      data: {
+        id: 'c051477e-5033-55b1-bc23-135daf9b1724',
+        type: 'ai_bom_job',
+        attributes: { status: 'processing' },
+      },
+    });
+  });
+
   app.get(`/api/rest/orgs/:orgId/ai_bom_jobs/:jobId`, (req, res) => {
     res.status(303);
     res.send({
@@ -522,6 +576,80 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         type: 'ai_bom',
         attributes: JSON.parse(aiBomCycloneDx),
       },
+    });
+  });
+
+  // Unified Test API endpoints for uv acceptance tests
+  const testJobId = 'aaaaaaaa-bbbb-cccc-dddd-000000000001';
+  const testId = 'aaaaaaaa-bbbb-cccc-dddd-000000000002';
+
+  app.post(`/rest/orgs/:orgId/tests`, (req, res) => {
+    res.status(202);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        type: 'test_jobs',
+        id: testJobId,
+        attributes: { status: 'pending' },
+      },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/test_jobs/:testJobId`, (req, res) => {
+    const addr = server?.address();
+    const port = typeof addr === 'object' && addr ? addr.port : 4000;
+    const location = `http://localhost:${port}/rest/orgs/${req.params.orgId}/tests/${testId}`;
+    res.status(303);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.setHeader('Location', location);
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        type: 'test_jobs',
+        id: req.params.testJobId,
+        attributes: { status: 'finished' },
+        relationships: {
+          test: {
+            data: { type: 'tests', id: testId },
+          },
+        },
+      },
+      links: { related: location },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/tests/:testId`, (req, res) => {
+    res.status(200);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        id: req.params.testId,
+        type: 'tests',
+        attributes: {
+          status: 'finished',
+          pass_fail: 'pass',
+          outcome_reason: 'passed',
+          created_at: new Date().toISOString(),
+          summary: {
+            total: 0,
+            critical: 0,
+            high: 0,
+            medium: 0,
+            low: 0,
+          },
+        },
+      },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/tests/:testId/findings`, (req, res) => {
+    res.status(200);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: [],
     });
   });
 
@@ -1359,6 +1487,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setNextStatusCode,
     setEndpointResponse,
     setEndpointStatusCode,
+    setGlobalResponse,
     setStatusCode,
     setStatusCodes,
     setFeatureFlag,

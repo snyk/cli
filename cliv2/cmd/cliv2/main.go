@@ -30,14 +30,15 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
+
+	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
@@ -188,7 +189,7 @@ func runWorkflowAndProcessData(engine workflow.Engine, logger *zerolog.Logger, n
 
 	output, err := engine.Invoke(workflow.NewWorkflowIdentifier(name), workflow.WithInstrumentationCollector(ic))
 	if err != nil {
-		logger.Print("Failed to execute the command!", err)
+		logger.Print("Failed to execute the command! ", err)
 		return err
 	}
 
@@ -527,6 +528,9 @@ func MainWithErrorCode() int {
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddErrorHandler(func(err error, ctx context.Context) error {
+		if err == nil {
+			return nil
+		}
 		errorListMutex.Lock()
 		defer errorListMutex.Unlock()
 
@@ -623,14 +627,13 @@ func MainWithErrorCode() int {
 	}
 
 	if err != nil {
-		err = decorateError(err)
+		err, errorList = processError(err, errorList)
 
-		errorList = append(errorList, err)
 		for _, tempError := range errorList {
-			cliAnalytics.AddError(tempError)
+			if tempError != nil {
+				cliAnalytics.AddError(tempError)
+			}
 		}
-
-		err = legacyCLITerminated(err, errorList)
 	}
 
 	displayError(err, globalEngine.GetUserInterface(), globalConfiguration, ctx)
@@ -659,13 +662,32 @@ func MainWithErrorCode() int {
 	return exitCode
 }
 
-func legacyCLITerminated(err error, errorList []error) error {
-	exitErr, isExitError := err.(*exec.ExitError)
-	if isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
+func processError(err error, errorList []error) (error, []error) {
+	// ensure to use generic fallback error catalog error if no other is available
+	err = decorateError(err)
+
+	// filter legacycli terminate errors since it is only used for internal purposes
+	if exitErr, isExitError := err.(*exec.ExitError); isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
+		err = nil
+	}
+
+	// add all errors to analytics
+	if err != nil {
 		errorList = append([]error{err}, errorList...)
+	}
+
+	// create a single error from all errors
+	if len(errorList) == 1 {
+		err = errorList[0]
+	} else if len(errorList) > 1 {
 		err = errors.Join(errorList...)
 	}
-	return err
+
+	// ensure to apply exit code mapping based on errors
+	if exitCode := mapErrorToExitCode(err); exitCode != unsetExitCode {
+		err = createErrorWithExitCode(exitCode, err)
+	}
+	return err, errorList
 }
 
 func setTimeout(config configuration.Configuration, onTimeout func()) {

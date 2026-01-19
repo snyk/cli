@@ -62,6 +62,17 @@ describe('snyk sbom test', () => {
       expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
 
+    it('should display human-readable output with test summary with experimental flag backwards compatibility', async () => {
+      const { code, stdout, stderr } = await runSnykCLI(
+        `sbom test --file=${SBOM_FILE_PATH} --experimental`,
+      );
+
+      expect(stderr).toBe('');
+      expect(stdout).toContain('Test Summary');
+      expect(stdout).toContain('Issues to fix by upgrading');
+      expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+    });
+
     it('should output valid JSON with vulnerability data', async () => {
       const { code, stdout, stderr } = await runSnykCLI(
         `sbom test --file=${SBOM_FILE_PATH} --json`,

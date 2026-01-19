@@ -216,6 +216,9 @@ commands:
             - ~\AppData\Local\Temp\chocolatey
       - install-deps-python:
           os: win
+      - run:
+          name: Install uv
+          command: pip install uv
 
   install-deps-windows-signing:
     steps:
@@ -300,6 +303,8 @@ commands:
           command: |
             sudo apt-get update
             sudo apt-get install xdg-utils docker.io -y
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
 
   install-deps-python:
     parameters:
@@ -334,7 +339,7 @@ commands:
     parameters:
       items:
         type: string
-        default: go gradle python pipenv elixir composer gradle@9 maven sbt dotnet
+        default: go gradle python pipenv elixir composer gradle@9 maven sbt dotnet uv
     steps:
       - run:
           name: Installing Rosetta
@@ -385,6 +390,8 @@ commands:
             wget https://services.gradle.org/distributions/gradle-9.0.0-bin.zip -O /tmp/gradle.zip && \
               unzip -d /usr/local /tmp/gradle.zip && \
               ln -s /usr/local/gradle-9.0.0/bin/gradle /usr/local/bin
+            wget -qO- https://astral.sh/uv/install.sh | sh
+            ln -s $HOME/.local/bin/uv /usr/local/bin/uv
 
   failed-release-notification:
     steps:
