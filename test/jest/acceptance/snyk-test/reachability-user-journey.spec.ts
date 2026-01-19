@@ -173,6 +173,14 @@ describe('snyk test --reachability', () => {
     expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
     expect(jsonOutput.ok).toBeFalsy();
 
+    const momentVuln = jsonOutput.vulnerabilities.find(
+      (v) => v.id === 'npm:moment:20161019',
+    );
+    expect(momentVuln.alternativeIds).toEqual(['SNYK-JS-MOMENT-10164']);
+    expect(momentVuln.proprietary).toEqual(true);
+    expect(momentVuln.isDisputed).toEqual(false);
+    expect(momentVuln.severityBasedOn).toEqual('CVSS');
+
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });
 
