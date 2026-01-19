@@ -25,6 +25,7 @@ import (
 	"github.com/snyk/cli-extension-mcp-scan/pkg/mcpscan"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/cli-extension-secrets/pkg/secrets"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/spf13/cobra"
@@ -566,6 +567,10 @@ func MainWithErrorCode() int {
 	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
 	globalEngine.AddExtensionInitializer(mcpscan.Init)
+
+	if globalConfiguration.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
+		globalEngine.AddExtensionInitializer(secrets.Init)
+	}
 
 	// init engine
 	err = globalEngine.Init()
