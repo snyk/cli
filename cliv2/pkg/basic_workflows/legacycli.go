@@ -190,6 +190,7 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 	}
 
 	wrapperProxy.RegisterInterceptor(interceptor.NewV1AnalyticsInterceptor(invocation))
+	wrapperProxy.RegisterInterceptor(interceptor.NewLegacyFeatureFlagInterceptor(invocation))
 	// The networkinjector intercepts all requests from the legacy CLI and re-routes them to the existing networking
 	// layer. It should therefore be kept as the last interceptor in the chain, as it circuit breaks goproxy's own
 	// routing. Any interceptor added later will not be called.
