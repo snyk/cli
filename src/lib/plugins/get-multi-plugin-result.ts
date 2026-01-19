@@ -48,6 +48,7 @@ type WorkspaceParameters = {
 
 const NODE_WORKSPACES_MAP: Record<string, WorkspaceParameters> = {
   pnpm: {
+    // TODO: add showNpmScope to the pnpm workspace
     processingFunction: processPnpmWorkspaces,
     lockFile: SUPPORTED_MANIFEST_FILES.PNPM_LOCK,
   },
@@ -215,6 +216,7 @@ async function processWorkspacesProjects(
         strictOutOfSync: options.strictOutOfSync,
         dev: options.dev,
         exclude: options.exclude,
+        showNpmScope: true,
       },
       targetFiles,
     );
