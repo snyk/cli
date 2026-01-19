@@ -140,7 +140,7 @@ Allow disabling the scan of `node_modules` directories inside node.js container 
 
 In CLI versions v1.1292.0 and higher, `node_modules` scanning is enabled by default.
 
-&#x20;When `node_modules` scanning is disabled, Snyk reports vulnerabilities for npm Projects sourced from application file pairs: `[package.json, package-lock.json], [package.json, yarn.lock]`.
+When `node_modules` scanning is disabled, Snyk reports vulnerabilities for npm Projects sourced from application file pairs: `[package.json, package-lock.json], [package.json, yarn.lock]`.
 
 ### `--nested-jars-depth`
 
@@ -149,6 +149,14 @@ When `app-vulns` is enabled, use the `--nested-jars-depth=n` option to set how m
 ### `--exclude-base-image-vulns`
 
 Do not show vulnerabilities introduced only by the base image. Works for operating system packages only. Available when using `snyk container test` only. Provided for compatibility with `snyk container test`. Using this option with `snyk container monitor` will not have any effect
+
+### `--prune-repeated-subdependencies`
+
+Prune dependency trees, removing duplicate sub-dependencies. It continues to find all vulnerabilities, but may not find all of the vulnerable paths.
+
+Use this option if any big projects fail to be tested.
+
+Default: false
 
 ### `--platform=<PLATFORM>`
 
