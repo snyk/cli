@@ -131,6 +131,51 @@ export async function printEffectiveDepGraph(
   });
 }
 
+/**
+ * printEffectiveDepGraphError writes an error output for failed dependency graph resolution
+ * to the destination stream in a format consistent with printEffectiveDepGraph.
+ * This is used when --print-effective-graph-with-errors is set but dependency resolution failed.
+ */
+export async function printEffectiveDepGraphError(
+  errorTitle: string,
+  errorDetail: string,
+  normalisedTargetFile: string | undefined,
+  destination: Writable,
+): Promise<void> {
+  return new Promise((res, rej) => {
+    const effectiveGraphErrorOutput = {
+      error: {
+        id: 'SNYK-CLI-0000',
+        title: errorTitle,
+        detail: errorDetail,
+      },
+      normalisedTargetFile,
+    };
+
+    new ConcatStream(
+      new JsonStreamStringify(effectiveGraphErrorOutput),
+      Readable.from('\n'),
+    )
+      .on('end', res)
+      .on('error', rej)
+      .pipe(destination);
+  });
+}
+
+/**
+ * Checks if either --print-effective-graph or --print-effective-graph-with-errors is set.
+ */
 export function shouldPrintEffectiveDepGraph(opts: Options): boolean {
-  return !!opts['print-effective-graph'];
+  return (
+    !!opts['print-effective-graph'] ||
+    shouldPrintEffectiveDepGraphWithErrors(opts)
+  );
+}
+
+/**
+ * shouldPrintEffectiveDepGraphWithErrors checks if the --print-effective-graph-with-errors flag is set.
+ * This is used to determine if the effective dep-graph with errors should be printed.
+ */
+export function shouldPrintEffectiveDepGraphWithErrors(opts: Options): boolean {
+  return !!opts['print-effective-graph-with-errors'];
 }
