@@ -130,6 +130,12 @@ export interface Options {
 
   // Feature Flags
   useImprovedDotnetWithoutPublish?: boolean;
+
+  // Plugin configuration options
+  configuration?: {
+    includeGoStandardLibraryDeps?: boolean;
+    includePackageUrls?: boolean;
+  };
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
