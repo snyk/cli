@@ -305,6 +305,9 @@ commands:
             sudo apt-get install xdg-utils docker.io -y
             curl -LsSf https://astral.sh/uv/install.sh | sh
             echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
+            # Create symlink to ensure uv is available in standard PATH for subprocesses
+            # TODO: is this required?
+            sudo ln -sf $HOME/.local/bin/uv /usr/local/bin/uv || true
 
   install-deps-python:
     parameters:
