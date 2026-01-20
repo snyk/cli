@@ -4,7 +4,7 @@
 
 ## Usage
 
-`snyk sbom test --experimental --file=<FILE_PATH> [<OPTIONS>]`
+`snyk sbom test --file=<FILE_PATH> [<OPTIONS>]`
 
 ## Description
 
@@ -28,20 +28,6 @@ Use the `-d` or `--debug` option to output the debug logs.
 
 ## Options
 
-### `--experimental`
-
-Required. Use experimental command features. This option is required as the command is in its experimental phase.
-
-### `--reachability=<true|false>`
-
-Perform reachability analysis during the scan. This feature is currently in Snyk Preview. For more information, refer to [Reachability analysis](../../../manage-risk/prioritize-issues-for-fixing/reachability-analysis.md).
-
-Default: `false`
-
-### `--source-dir=<PATH_TO_SOURCE_CODE>`
-
-Specify a directory of source code to be analyzed. Use with `--reachability`.&#x20;
-
 ### `--file=<FILE_PATH>`
 
 Required. Specify the file path of the SBOM document.
@@ -55,16 +41,30 @@ Packages and components within the provided SBOM file must be identified by a Pa
 
 Supported purl types are: `apk`, `cargo`, `cocoapods`, `conan`, `composer`, `deb`, `gem`, `generic`, `golang`, `hex`, `maven`, `npm`, `nuget`, `pub`, `pypi`, `rpm`, `swift`.
 
-Example: `$ snyk sbom test --experimental --file=bom.cdx.json`
+Example: `$ snyk sbom test --file=bom.cdx.json`
 
 ### `--json`
 
 Print results on the console as a JSON data structure.
 
-Example: `$ snyk sbom test --experimental --file=bom.cdx.json --json`
+Example: `$ snyk sbom test --file=bom.cdx.json --json`
+
+### `--reachability=<true|false>`
+
+Perform reachability analysis during the scan. This feature is currently in Snyk Preview. For more information, refer to [Reachability analysis](../../../manage-risk/prioritize-issues-for-fixing/reachability-analysis.md).
+
+Default: `false`
+
+### `--source-dir=<PATH_TO_SOURCE_CODE>`
+
+Specify a directory of source code to be analyzed. Use with `--reachability`.
 
 ### `--reachability-filter=<reachable|no-info|not-applicable>`
 
 Filter the findings to show only reachable or non-reachable (`no-info`) vulnerabilities, or vulnerabilities where reachability analysis could not be performed (`not-applicable`).
 
 Requires `--reachability=true`.
+
+### `--severity-threshold=<low|medium|high|critical>`
+
+Report only vulnerabilities at the specified level or higher.
