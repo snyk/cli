@@ -14,7 +14,7 @@ require (
 	github.com/snyk/cli-extension-dep-graph v0.15.0
 	github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260115114457-a8ac3358ec57
-	github.com/snyk/cli-extension-mcp-scan v0.0.0-20251217093101-0705cbe3593b
+	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260120142932-0eea0566625a
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260115160519-84f621016a34
 	github.com/snyk/cli-extension-sbom v0.0.0-20260109124810-cfdd074f8eeb
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
@@ -279,3 +279,5 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 // replace github.com/snyk/cli-extension-ai-bom => ../../cli-extension-ai-bom
 
 // replace github.com/snyk/studio-mcp => ../../studio-mcp
+
+// replace github.com/snyk/cli-extension-mcp-scan => ../../cli-extension-mcp-scan
