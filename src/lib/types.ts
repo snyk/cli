@@ -130,6 +130,13 @@ export interface Options {
 
   // Feature Flags
   useImprovedDotnetWithoutPublish?: boolean;
+
+  // Plugin configuration options
+  configuration?: {
+    // Used only with the Go plugin. When enabled, includes Go standard library packages in dependency graph.
+    includeGoStandardLibraryDeps?: boolean;
+    includePackageUrls?: boolean;
+  };
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
