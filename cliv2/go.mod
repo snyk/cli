@@ -189,8 +189,8 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.1 // indirect
 	github.com/snyk/code-client-go v1.24.6 // indirect
-	github.com/snyk/dep-graph/go v0.0.0-20251128083058-1972edcff6cf // indirect
-	github.com/snyk/policy-engine v1.1.0 // indirect
+	github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25 // indirect
+	github.com/snyk/policy-engine v1.1.2 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.14.0 // indirect
