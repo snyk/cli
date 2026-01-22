@@ -4,7 +4,7 @@ jest.setTimeout(1000 * 10);
 
 describe('Auto detect API URL', () => {
   it('Based on OAuth token claim', async () => {
-    const expectedApiUrl = 'https://api.my.special.url.io';
+    const expectedApiUrl = 'https://api.snyk.io';
     const payload = {
       sub: '1234567890',
       name: 'John Doe',
