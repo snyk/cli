@@ -1295,11 +1295,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         });
       } else if (depGraph) {
         name = depGraph.pkgs[0]?.info.name;
-        components = depGraph.pkgs.map(({ info: { name, version, purl } }) => ({
-          name,
-          version,
-          purl,
-        }));
+        components = depGraph.pkgs.map(({ info: { name } }) => ({ name }));
 
         const nodeIdMap: { [key: string]: string } = {};
 
