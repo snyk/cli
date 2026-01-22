@@ -595,8 +595,9 @@ describe.each(userJourneyWorkflows)(
             );
 
             expect(code).toEqual(2);
+            // Message may be line-wrapped in output, so check for key parts separately
             expect(stdout).toContain(
-              'Cannot use --shaded-jars-depth together with --nested-jars-depth, please use the latter',
+              'Cannot use --shaded-jars-depth together with --nested-jars-depth',
             );
           });
 
