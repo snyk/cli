@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="856" failures="0" errors="0" time="10.369">
-  <testsuite name="selectFileForPinning" errors="0" failures="0" skipped="16" timestamp="2026-01-22T15:22:48" time="0.413" tests="16">
+<testsuites name="jest tests" tests="856" failures="0" errors="0" time="10.335">
+  <testsuite name="selectFileForPinning" errors="0" failures="0" skipped="16" timestamp="2026-01-22T16:22:16" time="0.419" tests="16">
     <testcase classname="selectFileForPinning with a -r option chooses targetFile" name="selectFileForPinning with a -r option chooses targetFile" time="0">
       <skipped/>
     </testcase>
@@ -50,7 +50,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk container" errors="0" failures="0" skipped="31" timestamp="2026-01-22T15:22:49" time="0.089" tests="31">
+  <testsuite name="snyk container" errors="0" failures="0" skipped="31" timestamp="2026-01-22T16:22:16" time="0.091" tests="31">
     <testcase classname="snyk container test finds dependencies in rpm sqlite databases" name="snyk container test finds dependencies in rpm sqlite databases" time="0">
       <skipped/>
     </testcase>
@@ -145,7 +145,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk code test" errors="0" failures="0" skipped="47" timestamp="2026-01-22T15:22:49" time="0.067" tests="47">
+  <testsuite name="snyk code test" errors="0" failures="0" skipped="47" timestamp="2026-01-22T16:22:16" time="0.068" tests="47">
     <testcase classname="snyk code test user journey typescript workflow snyk code flag options works with --remote-repo-url" name="snyk code test user journey typescript workflow snyk code flag options works with --remote-repo-url" time="0">
       <skipped/>
     </testcase>
@@ -288,7 +288,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="fix Poetry Python projects" errors="0" failures="0" skipped="16" timestamp="2026-01-22T15:22:49" time="0.04" tests="16">
+  <testsuite name="fix Poetry Python projects" errors="0" failures="0" skipped="16" timestamp="2026-01-22T16:22:17" time="0.034" tests="16">
     <testcase classname="fix Poetry Python projects shows expected changes with lockfile in --dry-run mode" name="fix Poetry Python projects shows expected changes with lockfile in --dry-run mode" time="0">
       <skipped/>
     </testcase>
@@ -338,7 +338,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Directory scan" errors="0" failures="0" skipped="40" timestamp="2026-01-22T15:22:49" time="0.143" tests="40">
+  <testsuite name="Directory scan" errors="0" failures="0" skipped="40" timestamp="2026-01-22T16:22:17" time="0.133" tests="40">
     <testcase classname="Directory scan scans all files in a directory with Kubernetes files" name="Directory scan scans all files in a directory with Kubernetes files" time="0">
       <skipped/>
     </testcase>
@@ -460,7 +460,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="user journey" errors="0" failures="0" skipped="40" timestamp="2026-01-22T15:22:49" time="0.044" tests="40">
+  <testsuite name="user journey" errors="0" failures="0" skipped="40" timestamp="2026-01-22T16:22:17" time="0.037" tests="40">
     <testcase classname="user journey typescript workflow `snyk test` of basic projects for each language/ecosystem run `snyk test` on a go project and ensure that required modules are not cached" name="user journey typescript workflow `snyk test` of basic projects for each language/ecosystem run `snyk test` on a go project and ensure that required modules are not cached" time="0">
       <skipped/>
     </testcase>
@@ -582,7 +582,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="fix Pipfile Python projects" errors="0" failures="0" skipped="10" timestamp="2026-01-22T15:22:49" time="0.031" tests="10">
+  <testsuite name="fix Pipfile Python projects" errors="0" failures="0" skipped="10" timestamp="2026-01-22T16:22:17" time="0.03" tests="10">
     <testcase classname="fix Pipfile Python projects shows expected changes with lockfile in --dry-run mode" name="fix Pipfile Python projects shows expected changes with lockfile in --dry-run mode" time="0">
       <skipped/>
     </testcase>
@@ -614,7 +614,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="analytics module" errors="0" failures="0" skipped="12" timestamp="2026-01-22T15:22:49" time="0.035" tests="12">
+  <testsuite name="analytics module" errors="0" failures="0" skipped="12" timestamp="2026-01-22T16:22:17" time="0.034" tests="12">
     <testcase classname="analytics module sends analytics for `snyk test` with no vulns found" name="analytics module sends analytics for `snyk test` with no vulns found" time="0">
       <skipped/>
     </testcase>
@@ -652,7 +652,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk test --all-projects (mocked server only)" errors="0" failures="0" skipped="17" timestamp="2026-01-22T15:22:49" time="0.034" tests="17">
+  <testsuite name="snyk test --all-projects (mocked server only)" errors="0" failures="0" skipped="17" timestamp="2026-01-22T16:22:17" time="0.032" tests="17">
     <testcase classname="snyk test --all-projects (mocked server only) `test yarn-out-of-sync` skips the out of sync project and scans the rest" name="snyk test --all-projects (mocked server only) `test yarn-out-of-sync` skips the out of sync project and scans the rest" time="0">
       <skipped/>
     </testcase>
@@ -705,7 +705,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="@snyk/protect" errors="0" failures="0" skipped="13" timestamp="2026-01-22T15:22:49" time="0.301" tests="13">
+  <testsuite name="@snyk/protect" errors="0" failures="0" skipped="13" timestamp="2026-01-22T16:22:17" time="0.304" tests="13">
     <testcase classname="@snyk/protect applies patch(es) works for project with a single patchable module" name="@snyk/protect applies patch(es) works for project with a single patchable module" time="0">
       <skipped/>
     </testcase>
@@ -746,7 +746,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Proxy configuration behavior" errors="0" failures="0" skipped="9" timestamp="2026-01-22T15:22:50" time="0.169" tests="9">
+  <testsuite name="Proxy configuration behavior" errors="0" failures="0" skipped="9" timestamp="2026-01-22T16:22:17" time="0.128" tests="9">
     <testcase classname="Proxy configuration behavior *_PROXY against HTTPS host tries to connect to the HTTPS_PROXY when HTTPS_PROXY is set" name="Proxy configuration behavior *_PROXY against HTTPS host tries to connect to the HTTPS_PROXY when HTTPS_PROXY is set" time="0">
       <skipped/>
     </testcase>
@@ -775,7 +775,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk ignore" errors="0" failures="0" skipped="12" timestamp="2026-01-22T15:22:50" time="0.051" tests="12">
+  <testsuite name="snyk ignore" errors="0" failures="0" skipped="12" timestamp="2026-01-22T16:22:17" time="0.042" tests="12">
     <testcase classname="snyk ignore creates a policy file with exclude, using default group" name="snyk ignore creates a policy file with exclude, using default group" time="0">
       <skipped/>
     </testcase>
@@ -813,7 +813,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk aibom (mocked servers only)" errors="0" failures="0" skipped="10" timestamp="2026-01-22T15:22:50" time="0.039" tests="10">
+  <testsuite name="snyk aibom (mocked servers only)" errors="0" failures="0" skipped="10" timestamp="2026-01-22T16:22:17" time="0.031" tests="10">
     <testcase classname="snyk aibom (mocked servers only) `aibom` generates an AI-BOM CycloneDX with components" name="snyk aibom (mocked servers only) `aibom` generates an AI-BOM CycloneDX with components" time="0">
       <skipped/>
     </testcase>
@@ -845,7 +845,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk-apps: create app" errors="0" failures="0" skipped="14" timestamp="2026-01-22T15:22:50" time="0.034" tests="14">
+  <testsuite name="snyk-apps: create app" errors="0" failures="0" skipped="14" timestamp="2026-01-22T16:22:17" time="0.036" tests="14">
     <testcase classname="snyk-apps: create app experimental flag should throw error without the experimental flag" name="snyk-apps: create app experimental flag should throw error without the experimental flag" time="0">
       <skipped/>
     </testcase>
@@ -889,7 +889,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac test --json-file-output" errors="0" failures="0" skipped="10" timestamp="2026-01-22T15:22:50" time="0.031" tests="10">
+  <testsuite name="iac test --json-file-output" errors="0" failures="0" skipped="10" timestamp="2026-01-22T16:22:17" time="0.031" tests="10">
     <testcase classname="iac test --json-file-output contains a valid line number" name="iac test --json-file-output contains a valid line number" time="0">
       <skipped/>
     </testcase>
@@ -921,7 +921,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="container test projects behavior with --app-vulns, --file and --exclude-base-image-vulns flags" errors="0" failures="0" skipped="13" timestamp="2026-01-22T15:22:50" time="0.031" tests="13">
+  <testsuite name="container test projects behavior with --app-vulns, --file and --exclude-base-image-vulns flags" errors="0" failures="0" skipped="13" timestamp="2026-01-22T16:22:17" time="0.03" tests="13">
     <testcase classname="container test projects behavior with --app-vulns, --file and --exclude-base-image-vulns flags should find nothing when only vulns are in base image" name="container test projects behavior with --app-vulns, --file and --exclude-base-image-vulns flags should find nothing when only vulns are in base image" time="0">
       <skipped/>
     </testcase>
@@ -962,7 +962,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Terraform" errors="0" failures="0" skipped="13" timestamp="2026-01-22T15:22:50" time="0.706" tests="13">
+  <testsuite name="Terraform" errors="0" failures="0" skipped="13" timestamp="2026-01-22T16:22:17" time="0.734" tests="13">
     <testcase classname="Terraform Terraform single file scans finds issues in Terraform file" name="Terraform Terraform single file scans finds issues in Terraform file" time="0">
       <skipped/>
     </testcase>
@@ -1003,7 +1003,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac describe" errors="0" failures="0" skipped="9" timestamp="2026-01-22T15:22:51" time="0.084" tests="9">
+  <testsuite name="iac describe" errors="0" failures="0" skipped="9" timestamp="2026-01-22T16:22:18" time="0.068" tests="9">
     <testcase classname="iac describe describe fail when not used as an iac sub-command" name="iac describe describe fail when not used as an iac sub-command" time="0">
       <skipped/>
     </testcase>
@@ -1032,7 +1032,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk test --reachability" errors="0" failures="0" skipped="9" timestamp="2026-01-22T15:22:51" time="0.018" tests="9">
+  <testsuite name="snyk test --reachability" errors="0" failures="0" skipped="9" timestamp="2026-01-22T16:22:18" time="0.018" tests="9">
     <testcase classname="snyk test --reachability runs in the requested path and emits human readable output" name="snyk test --reachability runs in the requested path and emits human readable output" time="0">
       <skipped/>
     </testcase>
@@ -1061,7 +1061,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="CLI Share Results" errors="0" failures="0" skipped="10" timestamp="2026-01-22T15:22:51" time="0.033" tests="10">
+  <testsuite name="CLI Share Results" errors="0" failures="0" skipped="10" timestamp="2026-01-22T16:22:18" time="0.029" tests="10">
     <testcase classname="CLI Share Results feature flag iacCliShareResults is not enabled the output includes an error" name="CLI Share Results feature flag iacCliShareResults is not enabled the output includes an error" time="0">
       <skipped/>
     </testcase>
@@ -1093,7 +1093,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac test text output" errors="0" failures="0" skipped="10" timestamp="2026-01-22T15:22:51" time="0.033" tests="10">
+  <testsuite name="iac test text output" errors="0" failures="0" skipped="10" timestamp="2026-01-22T16:22:18" time="0.03" tests="10">
     <testcase classname="iac test text output should show the IaC test title" name="iac test text output should show the IaC test title" time="0">
       <skipped/>
     </testcase>
@@ -1125,7 +1125,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="npm alias support" errors="0" failures="0" skipped="11" timestamp="2026-01-22T15:22:51" time="0.034" tests="11">
+  <testsuite name="npm alias support" errors="0" failures="0" skipped="11" timestamp="2026-01-22T16:22:18" time="0.032" tests="11">
     <testcase classname="npm alias support test npm alias v1 - print-deps no json warning msg" name="npm alias support test npm alias v1 - print-deps no json warning msg" time="0">
       <skipped/>
     </testcase>
@@ -1160,7 +1160,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="instrumentation module" errors="0" failures="0" skipped="12" timestamp="2026-01-22T15:22:51" time="0.044" tests="12">
+  <testsuite name="instrumentation module" errors="0" failures="0" skipped="12" timestamp="2026-01-22T16:22:18" time="0.043" tests="12">
     <testcase classname="instrumentation module CLI support sends instrumentation data for the CLI" name="instrumentation module CLI support sends instrumentation data for the CLI" time="0">
       <skipped/>
     </testcase>
@@ -1198,7 +1198,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="debug log" errors="0" failures="0" skipped="13" timestamp="2026-01-22T15:22:51" time="0.023" tests="13">
+  <testsuite name="debug log" errors="0" failures="0" skipped="13" timestamp="2026-01-22T16:22:18" time="0.022" tests="13">
     <testcase classname="debug log redacts unknown values after end-of-options from args" name="debug log redacts unknown values after end-of-options from args" time="0">
       <skipped/>
     </testcase>
@@ -1239,7 +1239,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Auth" errors="0" failures="0" skipped="10" timestamp="2026-01-22T15:22:51" time="0.038" tests="10">
+  <testsuite name="Auth" errors="0" failures="0" skipped="10" timestamp="2026-01-22T16:22:18" time="0.03" tests="10">
     <testcase classname="Auth token authentication successfully uses token authentication with interactive login" name="Auth token authentication successfully uses token authentication with interactive login" time="0">
       <skipped/>
     </testcase>
@@ -1271,7 +1271,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Basic acceptance test" errors="0" failures="0" skipped="5" timestamp="2026-01-22T15:22:51" time="0.03" tests="5">
+  <testsuite name="Basic acceptance test" errors="0" failures="0" skipped="5" timestamp="2026-01-22T16:22:18" time="0.029" tests="5">
     <testcase classname="Basic acceptance test Bootstrap binary &amp; execute a command" name="Basic acceptance test Bootstrap binary &amp; execute a command" time="0">
       <skipped/>
     </testcase>
@@ -1288,7 +1288,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="outputs Error Catalog errors" errors="0" failures="0" skipped="13" timestamp="2026-01-22T15:22:51" time="0.036" tests="13">
+  <testsuite name="outputs Error Catalog errors" errors="0" failures="0" skipped="13" timestamp="2026-01-22T16:22:19" time="0.035" tests="13">
     <testcase classname="outputs Error Catalog errors authentication errors typescript workflow snyk test" name="outputs Error Catalog errors authentication errors typescript workflow snyk test" time="0">
       <skipped/>
     </testcase>
@@ -1329,7 +1329,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="extractProvenance" errors="0" failures="0" skipped="5" timestamp="2026-01-22T15:22:51" time="0.019" tests="5">
+  <testsuite name="extractProvenance" errors="0" failures="0" skipped="5" timestamp="2026-01-22T16:22:19" time="0.017" tests="5">
     <testcase classname="extractProvenance can extract and parse 1 required files" name="extractProvenance can extract and parse 1 required files" time="0">
       <skipped/>
     </testcase>
@@ -1346,7 +1346,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="log4shell command" errors="0" failures="0" skipped="6" timestamp="2026-01-22T15:22:51" time="0.023" tests="6">
+  <testsuite name="log4shell command" errors="0" failures="0" skipped="6" timestamp="2026-01-22T16:22:19" time="0.021" tests="6">
     <testcase classname="log4shell command detects vulnerable versions of log4j only in jar files" name="log4shell command detects vulnerable versions of log4j only in jar files" time="0">
       <skipped/>
     </testcase>
@@ -1366,7 +1366,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="test --json" errors="0" failures="0" skipped="6" timestamp="2026-01-22T15:22:51" time="0.033" tests="6">
+  <testsuite name="test --json" errors="0" failures="0" skipped="6" timestamp="2026-01-22T16:22:19" time="0.035" tests="6">
     <testcase classname="test --json test with --json returns without error and with JSON return type when no vulns found" name="test --json test with --json returns without error and with JSON return type when no vulns found" time="0">
       <skipped/>
     </testcase>
@@ -1386,7 +1386,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk container zstd test fixtures" errors="0" failures="0" skipped="6" timestamp="2026-01-22T15:22:51" time="0.02" tests="6">
+  <testsuite name="snyk container zstd test fixtures" errors="0" failures="0" skipped="6" timestamp="2026-01-22T16:22:19" time="0.025" tests="6">
     <testcase classname="snyk container zstd test fixtures docker archive (gzip compression) should scan docker archive successfully (docker archives use gzip)" name="snyk container zstd test fixtures docker archive (gzip compression) should scan docker archive successfully (docker archives use gzip)" time="0">
       <skipped/>
     </testcase>
@@ -1406,7 +1406,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="test --json-file-output" errors="0" failures="0" skipped="8" timestamp="2026-01-22T15:22:51" time="0.039" tests="8">
+  <testsuite name="test --json-file-output" errors="0" failures="0" skipped="8" timestamp="2026-01-22T16:22:19" time="0.041" tests="8">
     <testcase classname="test --json-file-output can save JSON output to file while sending human readable output to stdout" name="test --json-file-output can save JSON output to file while sending human readable output to stdout" time="0">
       <skipped/>
     </testcase>
@@ -1432,7 +1432,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk redteam (mocked servers only)" errors="0" failures="0" skipped="7" timestamp="2026-01-22T15:22:51" time="0.031" tests="7">
+  <testsuite name="snyk redteam (mocked servers only)" errors="0" failures="0" skipped="7" timestamp="2026-01-22T16:22:19" time="0.029" tests="7">
     <testcase classname="snyk redteam (mocked servers only) `redteam` generates a redteam report" name="snyk redteam (mocked servers only) `redteam` generates a redteam report" time="0">
       <skipped/>
     </testcase>
@@ -1455,7 +1455,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="`test` command with `--print-effective-graph-with-errors` option" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:51" time="0.037" tests="3">
+  <testsuite name="`test` command with `--print-effective-graph-with-errors` option" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:19" time="0.035" tests="3">
     <testcase classname="`test` command with `--print-effective-graph-with-errors` option works for project with no deps" name="`test` command with `--print-effective-graph-with-errors` option works for project with no deps" time="0">
       <skipped/>
     </testcase>
@@ -1466,7 +1466,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="CloudFormation single file scan" errors="0" failures="0" skipped="12" timestamp="2026-01-22T15:22:51" time="0.059" tests="12">
+  <testsuite name="CloudFormation single file scan" errors="0" failures="0" skipped="12" timestamp="2026-01-22T16:22:19" time="0.062" tests="12">
     <testcase classname="CloudFormation single file scan finds issues in CloudFormation YAML file" name="CloudFormation single file scan finds issues in CloudFormation YAML file" time="0">
       <skipped/>
     </testcase>
@@ -1504,7 +1504,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk code test" errors="0" failures="0" skipped="5" timestamp="2026-01-22T15:22:51" time="0.039" tests="5">
+  <testsuite name="snyk code test" errors="0" failures="0" skipped="5" timestamp="2026-01-22T16:22:19" time="0.038" tests="5">
     <testcase classname="snyk code test prints help info" name="snyk code test prints help info" time="0">
       <skipped/>
     </testcase>
@@ -1521,7 +1521,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom (mocked server only)" errors="0" failures="0" skipped="7" timestamp="2026-01-22T15:22:51" time="0.033" tests="7">
+  <testsuite name="snyk sbom (mocked server only)" errors="0" failures="0" skipped="7" timestamp="2026-01-22T16:22:19" time="0.032" tests="7">
     <testcase classname="snyk sbom (mocked server only) `sbom` generates an SBOM for a single project - CycloneDX 1.4" name="snyk sbom (mocked server only) `sbom` generates an SBOM for a single project - CycloneDX 1.4" time="0">
       <skipped/>
     </testcase>
@@ -1544,7 +1544,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom test" errors="0" failures="0" skipped="7" timestamp="2026-01-22T15:22:51" time="0.027" tests="7">
+  <testsuite name="snyk sbom test" errors="0" failures="0" skipped="7" timestamp="2026-01-22T16:22:19" time="0.025" tests="7">
     <testcase classname="snyk sbom test basic functionality should display human-readable output with test summary" name="snyk sbom test basic functionality should display human-readable output with test summary" time="0">
       <skipped/>
     </testcase>
@@ -1567,7 +1567,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="`test` command with `--print-graph` option" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:51" time="0.036" tests="3">
+  <testsuite name="`test` command with `--print-graph` option" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:19" time="0.031" tests="3">
     <testcase classname="`test` command with `--print-graph` option works for project with no deps" name="`test` command with `--print-graph` option works for project with no deps" time="0">
       <skipped/>
     </testcase>
@@ -1578,7 +1578,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Kubernetes single file scan" errors="0" failures="0" skipped="11" timestamp="2026-01-22T15:22:51" time="0.062" tests="11">
+  <testsuite name="Kubernetes single file scan" errors="0" failures="0" skipped="11" timestamp="2026-01-22T16:22:19" time="0.062" tests="11">
     <testcase classname="Kubernetes single file scan finds issues in Kubernetes JSON file" name="Kubernetes single file scan finds issues in Kubernetes JSON file" time="0">
       <skipped/>
     </testcase>
@@ -1613,7 +1613,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="https" errors="0" failures="0" skipped="5" timestamp="2026-01-22T15:22:52" time="0.038" tests="5">
+  <testsuite name="https" errors="0" failures="0" skipped="5" timestamp="2026-01-22T16:22:19" time="0.035" tests="5">
     <testcase classname="https invalid certificate rejects connections" name="https invalid certificate rejects connections" time="0">
       <skipped/>
     </testcase>
@@ -1630,7 +1630,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom: maven options (mocked server only)" errors="0" failures="0" skipped="8" timestamp="2026-01-22T15:22:52" time="0.033" tests="8">
+  <testsuite name="snyk sbom: maven options (mocked server only)" errors="0" failures="0" skipped="8" timestamp="2026-01-22T16:22:19" time="0.032" tests="8">
     <testcase classname="snyk sbom: maven options (mocked server only) `sbom --maven-aggregate-project` generates an SBOM for the multi-module maven project" name="snyk sbom: maven options (mocked server only) `sbom --maven-aggregate-project` generates an SBOM for the multi-module maven project" time="0">
       <skipped/>
     </testcase>
@@ -1656,7 +1656,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="analytics module" errors="0" failures="0" skipped="4" timestamp="2026-01-22T15:22:52" time="0.035" tests="4">
+  <testsuite name="analytics module" errors="0" failures="0" skipped="4" timestamp="2026-01-22T16:22:19" time="0.033" tests="4">
     <testcase classname="analytics module detects upgradable protect paths with `snyk test` with upgradable path in the cwd" name="analytics module detects upgradable protect paths with `snyk test` with upgradable path in the cwd" time="0">
       <skipped/>
     </testcase>
@@ -1670,7 +1670,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="cli token precedence" errors="0" failures="0" skipped="11" timestamp="2026-01-22T15:22:52" time="0.032" tests="11">
+  <testsuite name="cli token precedence" errors="0" failures="0" skipped="11" timestamp="2026-01-22T16:22:19" time="0.033" tests="11">
     <testcase classname="cli token precedence when snykAPI is set in config should use snykAPI auth type set in config" name="cli token precedence when snykAPI is set in config should use snykAPI auth type set in config" time="0">
       <skipped/>
     </testcase>
@@ -1705,7 +1705,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="`test` command with `--print-effective-graph` option" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:52" time="0.037" tests="3">
+  <testsuite name="`test` command with `--print-effective-graph` option" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:19" time="0.034" tests="3">
     <testcase classname="`test` command with `--print-effective-graph` option works for project with no deps" name="`test` command with `--print-effective-graph` option works for project with no deps" time="0">
       <skipped/>
     </testcase>
@@ -1716,7 +1716,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="ARM single file scan" errors="0" failures="0" skipped="10" timestamp="2026-01-22T15:22:52" time="0.06" tests="10">
+  <testsuite name="ARM single file scan" errors="0" failures="0" skipped="10" timestamp="2026-01-22T16:22:19" time="0.061" tests="10">
     <testcase classname="ARM single file scan finds issues in ARM JSON file" name="ARM single file scan finds issues in ARM JSON file" time="0">
       <skipped/>
     </testcase>
@@ -1748,7 +1748,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom: gradle options (mocked server only)" errors="0" failures="0" skipped="6" timestamp="2026-01-22T15:22:52" time="0.033" tests="6">
+  <testsuite name="snyk sbom: gradle options (mocked server only)" errors="0" failures="0" skipped="6" timestamp="2026-01-22T16:22:19" time="0.032" tests="6">
     <testcase classname="snyk sbom: gradle options (mocked server only) `sbom --sub-project=&lt;NAME&gt;` generates an SBOM for selected sub-project" name="snyk sbom: gradle options (mocked server only) `sbom --sub-project=&lt;NAME&gt;` generates an SBOM for selected sub-project" time="0">
       <skipped/>
     </testcase>
@@ -1768,7 +1768,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk fix" errors="0" failures="0" skipped="7" timestamp="2026-01-22T15:22:52" time="0.033" tests="7">
+  <testsuite name="snyk fix" errors="0" failures="0" skipped="7" timestamp="2026-01-22T16:22:19" time="0.032" tests="7">
     <testcase classname="snyk fix succeeds when there are no vulns to fix" name="snyk fix succeeds when there are no vulns to fix" time="0">
       <skipped/>
     </testcase>
@@ -1791,7 +1791,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac test --rules" errors="0" failures="0" skipped="10" timestamp="2026-01-22T15:22:52" time="0.03" tests="10">
+  <testsuite name="iac test --rules" errors="0" failures="0" skipped="10" timestamp="2026-01-22T16:22:19" time="0.029" tests="10">
     <testcase classname="iac test --rules scans local custom rules provided via the --rules flag" name="iac test --rules scans local custom rules provided via the --rules flag" time="0">
       <skipped/>
     </testcase>
@@ -1823,7 +1823,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Terraform plan scanning" errors="0" failures="0" skipped="9" timestamp="2026-01-22T15:22:52" time="0.039" tests="9">
+  <testsuite name="Terraform plan scanning" errors="0" failures="0" skipped="9" timestamp="2026-01-22T16:22:19" time="0.029" tests="9">
     <testcase classname="Terraform plan scanning finds issues in a Terraform plan file" name="Terraform plan scanning finds issues in a Terraform plan file" time="0">
       <skipped/>
     </testcase>
@@ -1852,7 +1852,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="print graph" errors="0" failures="0" skipped="6" timestamp="2026-01-22T15:22:52" time="0.021" tests="6">
+  <testsuite name="print graph" errors="0" failures="0" skipped="6" timestamp="2026-01-22T16:22:19" time="0.025" tests="6">
     <testcase classname="print graph `snyk test --print-graph` should print a project&apos;s dep-graph" name="print graph `snyk test --print-graph` should print a project&apos;s dep-graph" time="0">
       <skipped/>
     </testcase>
@@ -1872,7 +1872,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="`snyk test` of python projects with OS specific dependencies" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:52" time="0.032" tests="3">
+  <testsuite name="`snyk test` of python projects with OS specific dependencies" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:19" time="0.032" tests="3">
     <testcase classname="`snyk test` of python projects with OS specific dependencies run `snyk test` on python project $fixture on the corresponding platform" name="`snyk test` of python projects with OS specific dependencies run `snyk test` on python project $fixture on the corresponding platform" time="0">
       <skipped/>
     </testcase>
@@ -1883,7 +1883,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="unmanaged test" errors="0" failures="0" skipped="4" timestamp="2026-01-22T15:22:52" time="0.033" tests="4">
+  <testsuite name="unmanaged test" errors="0" failures="0" skipped="4" timestamp="2026-01-22T16:22:19" time="0.032" tests="4">
     <testcase classname="unmanaged test unmanaged issues returned by the backend" name="unmanaged test unmanaged issues returned by the backend" time="0">
       <skipped/>
     </testcase>
@@ -1897,7 +1897,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac test JSON output" errors="0" failures="0" skipped="7" timestamp="2026-01-22T15:22:52" time="0.072" tests="7">
+  <testsuite name="iac test JSON output" errors="0" failures="0" skipped="7" timestamp="2026-01-22T16:22:19" time="0.085" tests="7">
     <testcase classname="iac test JSON output should not show an initial message" name="iac test JSON output should not show an initial message" time="0">
       <skipped/>
     </testcase>
@@ -1920,7 +1920,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="`snyk test` with `--file=`" errors="0" failures="0" skipped="4" timestamp="2026-01-22T15:22:52" time="0.034" tests="4">
+  <testsuite name="`snyk test` with `--file=`" errors="0" failures="0" skipped="4" timestamp="2026-01-22T16:22:20" time="0.033" tests="4">
     <testcase classname="`snyk test` with `--file=` without `.snyk` file policy field is empty in payload when using relative path" name="`snyk test` with `--file=` without `.snyk` file policy field is empty in payload when using relative path" time="0">
       <skipped/>
     </testcase>
@@ -1934,7 +1934,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="conditionally write data to disk" errors="0" failures="0" skipped="4" timestamp="2026-01-22T15:22:52" time="0.028" tests="4">
+  <testsuite name="conditionally write data to disk" errors="0" failures="0" skipped="4" timestamp="2026-01-22T16:22:20" time="0.028" tests="4">
     <testcase classname="conditionally write data to disk when temp dir and threshold are set should write to temp dir if payload is bigger than threshold" name="conditionally write data to disk when temp dir and threshold are set should write to temp dir if payload is bigger than threshold" time="0">
       <skipped/>
     </testcase>
@@ -1948,12 +1948,12 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="npm nested real package with top-level alias shadowing" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:52" time="0.032" tests="1">
+  <testsuite name="npm nested real package with top-level alias shadowing" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:20" time="0.032" tests="1">
     <testcase classname="npm nested real package with top-level alias shadowing resolves nested real package when top-level alias shadows the same package name" name="npm nested real package with top-level alias shadowing resolves nested real package when top-level alias shadows the same package name" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom monitor (mocked server only)" errors="0" failures="0" skipped="5" timestamp="2026-01-22T15:22:52" time="0.03" tests="5">
+  <testsuite name="snyk sbom monitor (mocked server only)" errors="0" failures="0" skipped="5" timestamp="2026-01-22T16:22:20" time="0.03" tests="5">
     <testcase classname="snyk sbom monitor (mocked server only) monitor success" name="snyk sbom monitor (mocked server only) monitor success" time="0">
       <skipped/>
     </testcase>
@@ -1970,7 +1970,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Language Server Extension" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:52" time="0.052" tests="3">
+  <testsuite name="Language Server Extension" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:20" time="0.046" tests="3">
     <testcase classname="Language Server Extension get ls licenses" name="Language Server Extension get ls licenses" time="0">
       <skipped/>
     </testcase>
@@ -1981,7 +1981,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="help" errors="0" failures="0" skipped="9" timestamp="2026-01-22T15:22:52" time="0.025" tests="9">
+  <testsuite name="help" errors="0" failures="0" skipped="9" timestamp="2026-01-22T16:22:20" time="0.019" tests="9">
     <testcase classname="help prints help info" name="help prints help info" time="0">
       <skipped/>
     </testcase>
@@ -2010,12 +2010,12 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="npm bundled dependencies with non-hoisted bundle owner" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:52" time="0.036" tests="1">
+  <testsuite name="npm bundled dependencies with non-hoisted bundle owner" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:20" time="0.032" tests="1">
     <testcase classname="npm bundled dependencies with non-hoisted bundle owner test bundled dependencies with non-hoisted bundle owner" name="npm bundled dependencies with non-hoisted bundle owner test bundled dependencies with non-hoisted bundle owner" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="uv lock acceptance" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:52" time="0.038" tests="2">
+  <testsuite name="uv lock acceptance" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:20" time="0.033" tests="2">
     <testcase classname="uv lock acceptance routes uv.lock through unified test API when feature flag is enabled" name="uv lock acceptance routes uv.lock through unified test API when feature flag is enabled" time="0">
       <skipped/>
     </testcase>
@@ -2023,7 +2023,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom --all-projects (mocked server only)" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:52" time="0.037" tests="3">
+  <testsuite name="snyk sbom --all-projects (mocked server only)" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:20" time="0.031" tests="3">
     <testcase classname="snyk sbom --all-projects (mocked server only) `sbom mono-repo-project` generates an SBOM for multiple projects" name="snyk sbom --all-projects (mocked server only) `sbom mono-repo-project` generates an SBOM for multiple projects" time="0">
       <skipped/>
     </testcase>
@@ -2034,7 +2034,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:52" time="0.034" tests="3">
+  <testsuite name="Extra CA certificates specified with `NODE_EXTRA_CA_CERTS`" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:20" time="0.028" tests="3">
     <testcase classname="Extra CA certificates specified with `NODE_EXTRA_CA_CERTS` using a not existing file" name="Extra CA certificates specified with `NODE_EXTRA_CA_CERTS` using a not existing file" time="0">
       <skipped/>
     </testcase>
@@ -2045,7 +2045,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="SARIF output is schema compliant" errors="0" failures="0" skipped="12" timestamp="2026-01-22T15:22:52" time="0.026" tests="12">
+  <testsuite name="SARIF output is schema compliant" errors="0" failures="0" skipped="12" timestamp="2026-01-22T16:22:20" time="0.025" tests="12">
     <testcase classname="SARIF output is schema compliant for Snyk Open Source" name="SARIF output is schema compliant for Snyk Open Source" time="0">
       <skipped/>
     </testcase>
@@ -2083,7 +2083,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk test --all-projects with one project that has errors" errors="0" failures="0" skipped="4" timestamp="2026-01-22T15:22:52" time="0.034" tests="4">
+  <testsuite name="snyk test --all-projects with one project that has errors" errors="0" failures="0" skipped="4" timestamp="2026-01-22T16:22:20" time="0.032" tests="4">
     <testcase classname="snyk test --all-projects with one project that has errors and another that has issues (vulnerabilities) should exit with exit code 1 when the `--fail-fast` option is not set" name="snyk test --all-projects with one project that has errors and another that has issues (vulnerabilities) should exit with exit code 1 when the `--fail-fast` option is not set" time="0">
       <skipped/>
     </testcase>
@@ -2097,12 +2097,12 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="npm aliased packages with nested dependencies" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:52" time="0.032" tests="1">
+  <testsuite name="npm aliased packages with nested dependencies" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:20" time="0.031" tests="1">
     <testcase classname="npm aliased packages with nested dependencies test aliased packages with nested dependencies" name="npm aliased packages with nested dependencies test aliased packages with nested dependencies" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom --command (mocked server only)" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:53" time="0.033" tests="3">
+  <testsuite name="snyk sbom --command (mocked server only)" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:20" time="0.033" tests="3">
     <testcase classname="snyk sbom --command (mocked server only) `sbom pip-app` generates an SBOM with a specified python command" name="snyk sbom --command (mocked server only) `sbom pip-app` generates an SBOM with a specified python command" time="0">
       <skipped/>
     </testcase>
@@ -2113,7 +2113,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom: nuget options (mocked server only)" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:53" time="0.033" tests="3">
+  <testsuite name="snyk sbom: nuget options (mocked server only)" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:20" time="0.032" tests="3">
     <testcase classname="snyk sbom: nuget options (mocked server only) `sbom --assets-project-name` generates an SBOM for the NuGet project by using the project name in project.assets.json if found" name="snyk sbom: nuget options (mocked server only) `sbom --assets-project-name` generates an SBOM for the NuGet project by using the project name in project.assets.json if found" time="0">
       <skipped/>
     </testcase>
@@ -2124,12 +2124,12 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="npm bundled dependencies" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:53" time="0.033" tests="1">
+  <testsuite name="npm bundled dependencies" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:20" time="0.032" tests="1">
     <testcase classname="npm bundled dependencies test npm package with bundled dependencies" name="npm bundled dependencies test npm package with bundled dependencies" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk test --sarif" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.032" tests="2">
+  <testsuite name="snyk test --sarif" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:20" time="0.033" tests="2">
     <testcase classname="snyk test --sarif `snyk test --sarif` includes the expected output" name="snyk test --sarif `snyk test --sarif` includes the expected output" time="0">
       <skipped/>
     </testcase>
@@ -2137,7 +2137,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="--org" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.033" tests="2">
+  <testsuite name="--org" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:20" time="0.054" tests="2">
     <testcase classname="--org orgID is sent to the API" name="--org orgID is sent to the API" time="0">
       <skipped/>
     </testcase>
@@ -2145,7 +2145,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk test --yarn-workspaces (mocked server only)" errors="0" failures="0" skipped="4" timestamp="2026-01-22T15:22:53" time="0.034" tests="4">
+  <testsuite name="snyk test --yarn-workspaces (mocked server only)" errors="0" failures="0" skipped="4" timestamp="2026-01-22T16:22:20" time="0.033" tests="4">
     <testcase classname="snyk test --yarn-workspaces (mocked server only) `test yarn-out-of-sync` out of sync fails by default" name="snyk test --yarn-workspaces (mocked server only) `test yarn-out-of-sync` out of sync fails by default" time="0">
       <skipped/>
     </testcase>
@@ -2159,12 +2159,12 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="npm optional dependencies without separate package entries" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:53" time="0.032" tests="1">
+  <testsuite name="npm optional dependencies without separate package entries" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:20" time="0.035" tests="1">
     <testcase classname="npm optional dependencies without separate package entries test optional dependencies without separate package entries" name="npm optional dependencies without separate package entries test optional dependencies without separate package entries" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="PAT" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:53" time="0.031" tests="3">
+  <testsuite name="PAT" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:20" time="0.031" tests="3">
     <testcase classname="PAT derives api from pat for authorised requests" name="PAT derives api from pat for authorised requests" time="0">
       <skipped/>
     </testcase>
@@ -2175,7 +2175,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="--target-reference" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.032" tests="2">
+  <testsuite name="--target-reference" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:20" time="0.033" tests="2">
     <testcase classname="--target-reference forwards value to container monitor endpoint" name="--target-reference forwards value to container monitor endpoint" time="0">
       <skipped/>
     </testcase>
@@ -2183,7 +2183,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="undefined" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.033" tests="2">
+  <testsuite name="undefined" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:20" time="0.032" tests="2">
     <testcase classname=" returns value in one line" name=" returns value in one line" time="0">
       <skipped/>
     </testcase>
@@ -2191,7 +2191,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk container - chisel images" errors="0" failures="0" skipped="4" timestamp="2026-01-22T15:22:53" time="0.022" tests="4">
+  <testsuite name="snyk container - chisel images" errors="0" failures="0" skipped="4" timestamp="2026-01-22T16:22:20" time="0.02" tests="4">
     <testcase classname="snyk container - chisel images test finds dependencies in chisel images" name="snyk container - chisel images test finds dependencies in chisel images" time="0">
       <skipped/>
     </testcase>
@@ -2205,7 +2205,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac test --org" errors="0" failures="0" skipped="6" timestamp="2026-01-22T15:22:53" time="0.031" tests="6">
+  <testsuite name="iac test --org" errors="0" failures="0" skipped="6" timestamp="2026-01-22T16:22:20" time="0.029" tests="6">
     <testcase classname="iac test --org uses the default org" name="iac test --org uses the default org" time="0">
       <skipped/>
     </testcase>
@@ -2225,7 +2225,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk container zstd archive edge cases" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.019" tests="2">
+  <testsuite name="snyk container zstd archive edge cases" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:20" time="0.02" tests="2">
     <testcase classname="snyk container zstd archive edge cases archive format handling should handle zstd compressed OCI archive with auto-detection (no prefix)" name="snyk container zstd archive edge cases archive format handling should handle zstd compressed OCI archive with auto-detection (no prefix)" time="0">
       <skipped/>
     </testcase>
@@ -2233,7 +2233,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="config" errors="0" failures="0" skipped="4" timestamp="2026-01-22T15:22:53" time="0.032" tests="4">
+  <testsuite name="config" errors="0" failures="0" skipped="4" timestamp="2026-01-22T16:22:20" time="0.03" tests="4">
     <testcase classname="config loads API_REST_URL from config key if set" name="config loads API_REST_URL from config key if set" time="0">
       <skipped/>
     </testcase>
@@ -2247,7 +2247,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk test with missing node_modules" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:53" time="0.034" tests="3">
+  <testsuite name="snyk test with missing node_modules" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:20" time="0.032" tests="3">
     <testcase classname="snyk test with missing node_modules throws when missing node_modules" name="snyk test with missing node_modules throws when missing node_modules" time="0">
       <skipped/>
     </testcase>
@@ -2258,12 +2258,12 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="golang sboms (mocked server only)" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:53" time="0.039" tests="1">
+  <testsuite name="golang sboms (mocked server only)" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:20" time="0.032" tests="1">
     <testcase classname="golang sboms (mocked server only) Golang SBOMs contain properly formatted PackageURLs" name="golang sboms (mocked server only) Golang SBOMs contain properly formatted PackageURLs" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom: npm options (mocked server only)" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.034" tests="2">
+  <testsuite name="snyk sbom: npm options (mocked server only)" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:21" time="0.032" tests="2">
     <testcase classname="snyk sbom: npm options (mocked server only) `sbom --strict-out-of-sync=false` generates an SBOM for the NPM project by NOT preventing scanning out-of-sync NPM lockfiles." name="snyk sbom: npm options (mocked server only) `sbom --strict-out-of-sync=false` generates an SBOM for the NPM project by NOT preventing scanning out-of-sync NPM lockfiles." time="0">
       <skipped/>
     </testcase>
@@ -2271,7 +2271,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="--target-reference" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.032" tests="2">
+  <testsuite name="--target-reference" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:21" time="0.032" tests="2">
     <testcase classname="--target-reference forwards value to monitor endpoint" name="--target-reference forwards value to monitor endpoint" time="0">
       <skipped/>
     </testcase>
@@ -2279,7 +2279,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac update-exclude-policy" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.057" tests="2">
+  <testsuite name="iac update-exclude-policy" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:21" time="0.056" tests="2">
     <testcase classname="iac update-exclude-policy update-exclude-policy fail without the right entitlement" name="iac update-exclude-policy update-exclude-policy fail without the right entitlement" time="0">
       <skipped/>
     </testcase>
@@ -2287,7 +2287,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="`snyk test` of basic projects for each language/ecosystem" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:53" time="0.034" tests="3">
+  <testsuite name="`snyk test` of basic projects for each language/ecosystem" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:21" time="0.032" tests="3">
     <testcase classname="`snyk test` of basic projects for each language/ecosystem run `snyk test` on a maven project with Dverbose" name="`snyk test` of basic projects for each language/ecosystem run `snyk test` on a maven project with Dverbose" time="0">
       <skipped/>
     </testcase>
@@ -2298,7 +2298,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac capture" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:53" time="0.032" tests="3">
+  <testsuite name="iac capture" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:21" time="0.029" tests="3">
     <testcase classname="iac capture capture fail when not used as an iac sub-command" name="iac capture capture fail when not used as an iac sub-command" time="0">
       <skipped/>
     </testcase>
@@ -2309,7 +2309,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac test --json file.yaml" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.032" tests="2">
+  <testsuite name="iac test --json file.yaml" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:21" time="0.03" tests="2">
     <testcase classname="iac test --json file.yaml supports the correct line numbers for multi-doc YAML files" name="iac test --json file.yaml supports the correct line numbers for multi-doc YAML files" time="0">
       <skipped/>
     </testcase>
@@ -2317,7 +2317,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk config environment" errors="0" failures="0" skipped="5" timestamp="2026-01-22T15:22:53" time="0.022" tests="5">
+  <testsuite name="snyk config environment" errors="0" failures="0" skipped="5" timestamp="2026-01-22T16:22:21" time="0.02" tests="5">
     <testcase classname="snyk config environment successfully configure with a partial DNS name" name="snyk config environment successfully configure with a partial DNS name" time="0">
       <skipped/>
     </testcase>
@@ -2334,7 +2334,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="OAuth Token" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.033" tests="2">
+  <testsuite name="OAuth Token" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:21" time="0.032" tests="2">
     <testcase classname="OAuth Token uses oauth token for authorised requests when testing projects" name="OAuth Token uses oauth token for authorised requests when testing projects" time="0">
       <skipped/>
     </testcase>
@@ -2342,7 +2342,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="trust policies" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.034" tests="2">
+  <testsuite name="trust policies" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:21" time="0.033" tests="2">
     <testcase classname="trust policies `snyk test` detects suggested ignore policies" name="trust policies `snyk test` detects suggested ignore policies" time="0">
       <skipped/>
     </testcase>
@@ -2350,12 +2350,12 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk test with patched vulnerabilities" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:53" time="0.033" tests="1">
+  <testsuite name="snyk test with patched vulnerabilities" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:21" time="0.033" tests="1">
     <testcase classname="snyk test with patched vulnerabilities takes into account patched vulnerabilities" name="snyk test with patched vulnerabilities takes into account patched vulnerabilities" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="test formatting for human consumption" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:53" time="0.033" tests="2">
+  <testsuite name="test formatting for human consumption" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:21" time="0.035" tests="2">
     <testcase classname="test formatting for human consumption includes a summary of vulnerabilites and paths" name="test formatting for human consumption includes a summary of vulnerabilites and paths" time="0">
       <skipped/>
     </testcase>
@@ -2363,12 +2363,12 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk config endpoint" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:53" time="0.024" tests="1">
+  <testsuite name="snyk config endpoint" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:21" time="0.022" tests="1">
     <testcase classname="snyk config endpoint can set an endpoint after setting an invalid one" name="snyk config endpoint can set an endpoint after setting an invalid one" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk test --fail-on" errors="0" failures="0" skipped="9" timestamp="2026-01-22T15:22:53" time="0.035" tests="9">
+  <testsuite name="snyk test --fail-on" errors="0" failures="0" skipped="9" timestamp="2026-01-22T16:22:21" time="0.033" tests="9">
     <testcase classname="snyk test --fail-on snyk test --fail-on=&quot;all&quot; with no-vulns result exits with 0" name="snyk test --fail-on snyk test --fail-on=&quot;all&quot; with no-vulns result exits with 0" time="0">
       <skipped/>
     </testcase>
@@ -2397,7 +2397,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac test SARIF output" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:53" time="0.062" tests="3">
+  <testsuite name="iac test SARIF output" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:21" time="0.061" tests="3">
     <testcase classname="iac test SARIF output should not show an initial message" name="iac test SARIF output should not show an initial message" time="0">
       <skipped/>
     </testcase>
@@ -2408,7 +2408,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="checkPackageToolSupported" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:54" time="0.023" tests="2">
+  <testsuite name="checkPackageToolSupported" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:21" time="0.024" tests="2">
     <testcase classname="checkPackageToolSupported pipenv fix package called with correct data" name="checkPackageToolSupported pipenv fix package called with correct data" time="0">
       <skipped/>
     </testcase>
@@ -2416,12 +2416,12 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="spotlight vuln notification" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.033" tests="1">
+  <testsuite name="spotlight vuln notification" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:21" time="0.032" tests="1">
     <testcase classname="spotlight vuln notification includes spotlight vuln notification for Log4j SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720" name="spotlight vuln notification includes spotlight vuln notification for Log4j SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk test retry mechanism" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:54" time="0.057" tests="2">
+  <testsuite name="snyk test retry mechanism" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:21" time="0.056" tests="2">
     <testcase classname="snyk test retry mechanism run `snyk test` on an arbitrary cocoapods project and expect retries in case of failures" name="snyk test retry mechanism run `snyk test` on an arbitrary cocoapods project and expect retries in case of failures" time="0">
       <skipped/>
     </testcase>
@@ -2429,22 +2429,22 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom --yarn-workspaces (mocked server only)" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.033" tests="1">
+  <testsuite name="snyk sbom --yarn-workspaces (mocked server only)" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:21" time="0.032" tests="1">
     <testcase classname="snyk sbom --yarn-workspaces (mocked server only) `sbom yarn-workspaces` generates an SBOM for multiple yarn workspaces" name="snyk sbom --yarn-workspaces (mocked server only) `sbom yarn-workspaces` generates an SBOM for multiple yarn workspaces" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="--reachability-id" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.033" tests="1">
+  <testsuite name="--reachability-id" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:21" time="0.032" tests="1">
     <testcase classname="--reachability-id forwards value to monitor graph endpoint" name="--reachability-id forwards value to monitor graph endpoint" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="gomodules dep-graphs" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.032" tests="1">
+  <testsuite name="gomodules dep-graphs" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:21" time="0.033" tests="1">
     <testcase classname="gomodules dep-graphs includes PackageURLs in gomodules dep-graphs" name="gomodules dep-graphs includes PackageURLs in gomodules dep-graphs" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="woof" errors="0" failures="0" skipped="11" timestamp="2026-01-22T15:22:54" time="0.021" tests="11">
+  <testsuite name="woof" errors="0" failures="0" skipped="11" timestamp="2026-01-22T16:22:21" time="0.021" tests="11">
     <testcase classname="woof Woofs in English by default" name="woof Woofs in English by default" time="0">
       <skipped/>
     </testcase>
@@ -2479,7 +2479,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="--tags" errors="0" failures="0" skipped="6" timestamp="2026-01-22T15:22:54" time="0.231" tests="6">
+  <testsuite name="--tags" errors="0" failures="0" skipped="6" timestamp="2026-01-22T16:22:21" time="0.231" tests="6">
     <testcase classname="--tags raises the correct error when passed as --project-tags (i.e. missing the =)" name="--tags raises the correct error when passed as --project-tags (i.e. missing the =)" time="0">
       <skipped/>
     </testcase>
@@ -2499,7 +2499,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="GitHub action - IaC" errors="0" failures="0" skipped="5" timestamp="2026-01-22T15:22:54" time="0.065" tests="5">
+  <testsuite name="GitHub action - IaC" errors="0" failures="0" skipped="5" timestamp="2026-01-22T16:22:22" time="0.073" tests="5">
     <testcase classname="GitHub action - IaC when provided config: {&quot;relativeDir&quot;:&quot;&quot;,&quot;inputPath&quot;:&quot;/Users/ianvidal/repos/cli/test/fixtures/iac/kubernetes/pod-valid.json&quot;} tests the GH Action SARIF output" name="GitHub action - IaC when provided config: {&quot;relativeDir&quot;:&quot;&quot;,&quot;inputPath&quot;:&quot;/Users/ianvidal/repos/cli/test/fixtures/iac/kubernetes/pod-valid.json&quot;} tests the GH Action SARIF output" time="0">
       <skipped/>
     </testcase>
@@ -2516,7 +2516,7 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="dep-graph" errors="0" failures="0" skipped="3" timestamp="2026-01-22T15:22:54" time="0.03" tests="3">
+  <testsuite name="dep-graph" errors="0" failures="0" skipped="3" timestamp="2026-01-22T16:22:22" time="0.026" tests="3">
     <testcase classname="dep-graph hasUnknownVersions returns true when dep-graph has unknown versions" name="dep-graph hasUnknownVersions returns true when dep-graph has unknown versions" time="0">
       <skipped/>
     </testcase>
@@ -2527,12 +2527,12 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="FIPS" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.017" tests="1">
+  <testsuite name="FIPS" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:22" time="0.021" tests="1">
     <testcase classname="FIPS Tests are disabled!" name="FIPS Tests are disabled!" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="exit code behaviour - legacycli" errors="0" failures="0" skipped="6" timestamp="2026-01-22T15:22:54" time="0.02" tests="6">
+  <testsuite name="exit code behaviour - legacycli" errors="0" failures="0" skipped="6" timestamp="2026-01-22T16:22:22" time="0.018" tests="6">
     <testcase classname="exit code behaviour - legacycli map legacy cli exit code 0 to 0" name="exit code behaviour - legacycli map legacy cli exit code 0 to 0" time="0">
       <skipped/>
     </testcase>
@@ -2552,42 +2552,42 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="iac test with infrastructureAsCode entitlement" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.032" tests="1">
+  <testsuite name="iac test with infrastructureAsCode entitlement" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:22" time="0.033" tests="1">
     <testcase classname="iac test with infrastructureAsCode entitlement fails to scan because the user is not entitled to infrastructureAsCode" name="iac test with infrastructureAsCode entitlement fails to scan because the user is not entitled to infrastructureAsCode" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Auto detect API URL" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.021" tests="1">
+  <testsuite name="Auto detect API URL" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:22" time="0.017" tests="1">
     <testcase classname="Auto detect API URL Based on OAuth token claim" name="Auto detect API URL Based on OAuth token claim" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="snyk sbom: unmanaged options" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.022" tests="1">
+  <testsuite name="snyk sbom: unmanaged options" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:22" time="0.021" tests="1">
     <testcase classname="snyk sbom: unmanaged options `sbom --max-depth=1` generates an SBOM includind the dependencies within the archive" name="snyk sbom: unmanaged options `sbom --max-depth=1` generates an SBOM includind the dependencies within the archive" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="checkPath() regression test snyk/cli#3406" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.058" tests="1">
+  <testsuite name="checkPath() regression test snyk/cli#3406" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:22" time="0.057" tests="1">
     <testcase classname="checkPath() regression test snyk/cli#3406 supports scanning a project matching an OSS manifest name" name="checkPath() regression test snyk/cli#3406 supports scanning a project matching an OSS manifest name" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Fix PR" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.022" tests="1">
+  <testsuite name="Fix PR" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:22" time="0.022" tests="1">
     <testcase classname="Fix PR patches vulnerable dependencies on install" name="Fix PR patches vulnerable dependencies on install" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="mcp-scan command" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.017" tests="1">
+  <testsuite name="mcp-scan command" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:22" time="0.023" tests="1">
     <testcase classname="mcp-scan command invokes mcp-scan and prints invariant version text" name="mcp-scan command invokes mcp-scan and prints invariant version text" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Parallel CLI execution" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.019" tests="1">
+  <testsuite name="Parallel CLI execution" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:22" time="0.021" tests="1">
     <testcase classname="Parallel CLI execution parallel test" name="Parallel CLI execution parallel test" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="Enable preview features" errors="0" failures="0" skipped="2" timestamp="2026-01-22T15:22:54" time="0.019" tests="2">
+  <testsuite name="Enable preview features" errors="0" failures="0" skipped="2" timestamp="2026-01-22T16:22:22" time="0.017" tests="2">
     <testcase classname="Enable preview features force enable" name="Enable preview features force enable" time="0">
       <skipped/>
     </testcase>
@@ -2595,17 +2595,17 @@
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="--about" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.02" tests="1">
+  <testsuite name="--about" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:22" time="0.019" tests="1">
     <testcase classname="--about prints open source attribution information" name="--about prints open source attribution information" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="cli env" errors="0" failures="0" skipped="1" timestamp="2026-01-22T15:22:54" time="0.018" tests="1">
+  <testsuite name="cli env" errors="0" failures="0" skipped="1" timestamp="2026-01-22T16:22:22" time="0.021" tests="1">
     <testcase classname="cli env should run the command with the correct env" name="cli env should run the command with the correct env" time="0">
       <skipped/>
     </testcase>
   </testsuite>
-  <testsuite name="user journey" errors="0" failures="0" skipped="61" timestamp="2026-01-22T15:22:54" time="4.275" tests="67">
+  <testsuite name="user journey" errors="0" failures="0" skipped="61" timestamp="2026-01-22T16:22:22" time="4.36" tests="67">
     <testcase classname="user journey typescript workflow cli args delimiting args should pass expected args to the command as expected" name="user journey typescript workflow cli args delimiting args should pass expected args to the command as expected" time="0">
       <skipped/>
     </testcase>
@@ -2789,17 +2789,17 @@
     <testcase classname="user journey typescript workflow cli args container test --file=Dockerfile --exclude-base-image-vulns returns exit code 0" name="user journey typescript workflow cli args container test --file=Dockerfile --exclude-base-image-vulns returns exit code 0" time="0">
       <skipped/>
     </testcase>
-    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: true)" name="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: true)" time="0.749">
+    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: true)" name="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: true)" time="0.733">
     </testcase>
-    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: false)" name="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: false)" time="0.73">
+    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: false)" name="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: false)" time="0.728">
     </testcase>
-    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: Infinity)" name="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: Infinity)" time="0.728">
+    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: Infinity)" name="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (non-numeric: Infinity)" time="0.724">
     </testcase>
-    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (negative number)" name="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (negative number)" time="0.734">
+    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (negative number)" name="user journey typescript workflow cli args container test nested-jars-depth validation should fail with invalid nested-jars-depth value (negative number)" time="0.72">
     </testcase>
-    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should fail when using both nested-jars-depth and shaded-jars-depth flags" name="user journey typescript workflow cli args container test nested-jars-depth validation should fail when using both nested-jars-depth and shaded-jars-depth flags" time="0.731">
+    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should fail when using both nested-jars-depth and shaded-jars-depth flags" name="user journey typescript workflow cli args container test nested-jars-depth validation should fail when using both nested-jars-depth and shaded-jars-depth flags" time="0.726">
     </testcase>
-    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should accept valid numeric nested-jars-depth value" name="user journey typescript workflow cli args container test nested-jars-depth validation should accept valid numeric nested-jars-depth value" time="0.56">
+    <testcase classname="user journey typescript workflow cli args container test nested-jars-depth validation should accept valid numeric nested-jars-depth value" name="user journey typescript workflow cli args container test nested-jars-depth validation should accept valid numeric nested-jars-depth value" time="0.561">
     </testcase>
   </testsuite>
 </testsuites>
