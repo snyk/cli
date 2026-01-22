@@ -29,7 +29,11 @@ import (
 // breaking change and must align with the organization's centralized
 // versioning and deprecation processes.
 //
-// Exit code constraints
+// # Exit code constraints
+//
+// We lean toward the sysexits.h standard for categorical failures.
+// For a full definition of these codes, refer to:
+// https://man.freebsd.org/sysexits
 //
 //   - 0: Success.
 //   - 1: General Failure (The default for 90% of cases).
@@ -40,7 +44,8 @@ import (
 // # Technical warning
 //
 // Exit codes are 8-bit integers. Values > 255 will wrap around (modulo 256).
-// For example, returning 256 results in a 0 (Success), which is a security risk.
+// For example, returning 256 results in a 0 (Success). In a security context,
+// this "silent success" is a high-risk failure mode that must be avoided.
 var MapErrorCatalogToExitCode func(err *snyk_errors.Error, defaultValue int) int = mapErrorToExitCode
 
 // mapErrorToExitCode maps error catalog errors to exit codes. Please extend the switch statement if new error codes need to be mapped.
