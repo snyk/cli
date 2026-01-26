@@ -69,6 +69,7 @@ export interface Options {
   'print-dep-paths'?: boolean;
   'print-effective-graph'?: boolean;
   'print-effective-graph-with-errors'?: boolean;
+  'print-graph-with-errors'?: boolean;
   'remote-repo-url'?: string;
   criticality?: string;
   scanAllUnmanaged?: boolean;

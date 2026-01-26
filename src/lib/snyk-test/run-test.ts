@@ -39,13 +39,15 @@ import { isCI } from '../is-ci';
 import {
   RETRY_ATTEMPTS,
   RETRY_DELAY,
-  printDepGraph,
-  printEffectiveDepGraph,
-  printEffectiveDepGraphError,
+  printDepGraphLegacy,
+  printDepGraphJSON,
+  printDepGraphJSONError,
   assembleQueryString,
-  shouldPrintDepGraph,
+  shouldPrintDepGraphLegacy,
+  shouldPrintDepGraphWithErrors,
   shouldPrintEffectiveDepGraph,
-  shouldPrintEffectiveDepGraphWithErrors,
+  shouldPrintAnyDepGraph,
+  shouldIncludeDepGraphErrors,
 } from './common';
 import config from '../config';
 import * as analytics from '../analytics';
@@ -352,10 +354,10 @@ async function sendAndParseResults(
     });
   }
 
-  if (ecosystem && shouldPrintDepGraph(options)) {
+  if (ecosystem && shouldPrintDepGraphLegacy(options)) {
     await spinner.clear<void>(spinnerLbl)();
     for (const [targetName, depGraph] of depGraphs.entries()) {
-      await printDepGraph(depGraph, targetName, process.stdout);
+      await printDepGraphLegacy(depGraph, targetName, process.stdout);
     }
     return [];
   }
@@ -376,10 +378,7 @@ export async function runTest(
     // At this point managed ecosystems have dependency graphs printed.
     // Containers however require another roundtrip to get all the
     // dependency graph artifacts for printing.
-    if (
-      !options.docker &&
-      (shouldPrintDepGraph(options) || shouldPrintEffectiveDepGraph(options))
-    ) {
+    if (!options.docker && shouldPrintAnyDepGraph(options)) {
       const results: TestResult[] = [];
       return results;
     }
@@ -670,9 +669,9 @@ async function assembleLocalPayloads(
         failedResults,
       );
 
-      if (shouldPrintEffectiveDepGraphWithErrors(options)) {
+      if (shouldIncludeDepGraphErrors(options)) {
         for (const failed of failedResults) {
-          await printEffectiveDepGraphError(root, failed, process.stdout);
+          await printDepGraphJSONError(root, failed, process.stdout);
         }
       }
 
@@ -810,7 +809,10 @@ async function assembleLocalPayloads(
         ? (pkg as depGraphLib.DepGraph).rootPkg.name
         : (pkg as DepTree).name;
 
-      if (shouldPrintDepGraph(options)) {
+      if (
+        shouldPrintDepGraphWithErrors(options) ||
+        shouldPrintDepGraphLegacy(options)
+      ) {
         spinner.clear<void>(spinnerLbl)();
         let root: depGraphLib.DepGraph;
         if (scannedProject.depGraph) {
@@ -823,7 +825,17 @@ async function assembleLocalPayloads(
           );
         }
 
-        await printDepGraph(root.toJSON(), targetFile || '', process.stdout);
+        if (shouldPrintDepGraphWithErrors(options)) {
+          await printDepGraphJSON(
+            root.toJSON(),
+            targetFile || '',
+            project.plugin.targetFile,
+            target,
+            process.stdout,
+          );
+        } else {
+          await printDepGraphLegacy(root.toJSON(), targetFile || '', process.stdout);
+        }
       }
 
       const body: PayloadBody = {
@@ -870,7 +882,7 @@ async function assembleLocalPayloads(
 
       if (shouldPrintEffectiveDepGraph(options)) {
         spinner.clear<void>(spinnerLbl)();
-        await printEffectiveDepGraph(
+        await printDepGraphJSON(
           depGraph.toJSON(),
           targetFile,
           project.plugin.targetFile,

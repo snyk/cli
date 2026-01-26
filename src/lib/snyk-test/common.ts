@@ -81,10 +81,10 @@ export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY = 500;
 
 /**
- * printDepGraph writes the given dep-graph and target name to the destination
+ * printDepGraphLegacy writes the given dep-graph and target name to the destination
  * stream as expected by the `depgraph` CLI workflow.
  */
-export async function printDepGraph(
+export async function printDepGraphLegacy(
   depGraph: DepGraphData,
   targetName: string,
   destination: Writable,
@@ -101,16 +101,12 @@ export async function printDepGraph(
   });
 }
 
-export function shouldPrintDepGraph(opts: Options): boolean {
-  return opts['print-graph'] && !opts['print-deps'];
-}
-
 /**
- * printEffectiveDepGraph writes the given, possibly pruned dep-graph and target file to the destination
+ * printDepGraphJSON writes the given dep-graph and target file to the destination
  * stream as a JSON object containing both depGraph, normalisedTargetFile and targetFile from plugin.
- * This allows extracting the effective dep-graph which is being used for the test.
+ * This allows structured parsing by CLI extensions.
  */
-export async function printEffectiveDepGraph(
+export async function printDepGraphJSON(
   depGraph: DepGraphData,
   normalisedTargetFile: string,
   targetFileFromPlugin: string | undefined,
@@ -118,7 +114,7 @@ export async function printEffectiveDepGraph(
   destination: Writable,
 ): Promise<void> {
   return new Promise((res, rej) => {
-    const effectiveGraphOutput = {
+    const graphOutput = {
       depGraph,
       normalisedTargetFile,
       targetFileFromPlugin,
@@ -126,7 +122,7 @@ export async function printEffectiveDepGraph(
     };
 
     new ConcatStream(
-      new JsonStreamStringify(effectiveGraphOutput),
+      new JsonStreamStringify(graphOutput),
       Readable.from('\n'),
     )
       .on('end', res)
@@ -136,17 +132,17 @@ export async function printEffectiveDepGraph(
 }
 
 /**
- * printEffectiveDepGraphError writes an error output for failed dependency graph resolution
- * to the destination stream in a format consistent with printEffectiveDepGraph.
- * This is used when --print-effective-graph-with-errors is set but dependency resolution failed.
+ * printDepGraphJSONError writes an error output for failed dependency graph resolution
+ * to the destination stream in a format consistent with printDepGraphJSON.
+ * This is used when structured graph output with errors is requested but dependency resolution failed.
  */
-export async function printEffectiveDepGraphError(
+export async function printDepGraphJSONError(
   root: string,
   failedProjectScanError: FailedProjectScanError,
   destination: Writable,
 ): Promise<void> {
   return new Promise((res, rej) => {
-    // Normalize the target file path to be relative to root, consistent with printEffectiveDepGraph
+    // Normalize the target file path to be relative to root, consistent with printDepGraphJSON
     const normalisedTargetFile = failedProjectScanError.targetFile
       ? path.relative(root, failedProjectScanError.targetFile)
       : failedProjectScanError.targetFile;
@@ -154,13 +150,13 @@ export async function printEffectiveDepGraphError(
     const problemError = getOrCreateErrorCatalogError(failedProjectScanError);
     const serializedError = problemError.toJsonApi().body();
 
-    const effectiveGraphErrorOutput = {
+    const errorOutput = {
       error: serializedError,
       normalisedTargetFile,
     };
 
     new ConcatStream(
-      new JsonStreamStringify(effectiveGraphErrorOutput),
+      new JsonStreamStringify(errorOutput),
       Readable.from('\n'),
     )
       .on('end', res)
@@ -169,9 +165,21 @@ export async function printEffectiveDepGraphError(
   });
 }
 
-/**
- * Checks if either --print-effective-graph or --print-effective-graph-with-errors is set.
- */
+/** Checks if dep-graphs should be output in legacy text format. */
+export function shouldPrintDepGraphLegacy(opts: Options): boolean {
+  return (
+    !!opts['print-graph'] &&
+    !opts['print-deps'] &&
+    !shouldPrintDepGraphWithErrors(opts)
+  );
+}
+
+/** Checks if dep-graphs should be output as JSONL, including errors. */
+export function shouldPrintDepGraphWithErrors(opts: Options): boolean {
+  return !!opts['print-graph-with-errors'];
+}
+
+/** Checks if effective dep-graphs should be output as JSONL. */
 export function shouldPrintEffectiveDepGraph(opts: Options): boolean {
   return (
     !!opts['print-effective-graph'] ||
@@ -179,12 +187,26 @@ export function shouldPrintEffectiveDepGraph(opts: Options): boolean {
   );
 }
 
-/**
- * shouldPrintEffectiveDepGraphWithErrors checks if the --print-effective-graph-with-errors flag is set.
- * This is used to determine if the effective dep-graph with errors should be printed.
- */
+/** Checks if effective dep-graphs should be output as JSONL, including errors. */
 export function shouldPrintEffectiveDepGraphWithErrors(opts: Options): boolean {
   return !!opts['print-effective-graph-with-errors'];
+}
+
+/** Checks if any dep-graph output mode is active. */
+export function shouldPrintAnyDepGraph(opts: Options): boolean {
+  return (
+    shouldPrintDepGraphLegacy(opts) ||
+    shouldPrintDepGraphWithErrors(opts) ||
+    shouldPrintEffectiveDepGraph(opts)
+  );
+}
+
+/** Checks if errors from failed dependency resolution should be included in dep-graph JSONL output. */
+export function shouldIncludeDepGraphErrors(opts: Options): boolean {
+  return (
+    shouldPrintDepGraphWithErrors(opts) ||
+    shouldPrintEffectiveDepGraphWithErrors(opts)
+  );
 }
 
 /**

@@ -12,6 +12,7 @@ const {
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } = require('../package-managers');
+const { shouldPrintDepGraphWithErrors } = require('./common');
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -56,7 +57,12 @@ async function executeTest(root, options) {
     const verboseEnabled =
       args.includes('-Dverbose') ||
       args.includes('-Dverbose=true') ||
-      !!options['print-graph'];
+      !!options['print-graph'] ||
+      shouldPrintDepGraphWithErrors(options);
+    // Some plugins e.g. Maven explicitly check for print-graph
+    if (shouldPrintDepGraphWithErrors(options)) {
+      options['print-graph'] = true;
+    }
     if (verboseEnabled) {
       enableMavenDverboseExhaustiveDeps = await hasFeatureFlag(
         MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,

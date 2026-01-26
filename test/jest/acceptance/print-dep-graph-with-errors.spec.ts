@@ -3,10 +3,11 @@ import { createProjectFromFixture } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { getServerPort } from '../util/getServerPort';
 import { ProblemError } from '@snyk/error-catalog-nodejs-public';
+import * as path from 'path';
 
 jest.setTimeout(1000 * 30);
 
-describe('`test` command with `--print-effective-graph-with-errors` option', () => {
+describe('`test` command with `--print-graph-with-errors` option', () => {
   let server;
   let env: Record<string, string>;
 
@@ -40,7 +41,7 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
   it('works for project with no deps', async () => {
     const project = await createProjectFromFixture('print-graph-no-deps');
     const { code, stdout } = await runSnykCLI(
-      'test --print-effective-graph-with-errors',
+      'test --print-graph-with-errors',
       {
         cwd: project.path(),
         env,
@@ -78,7 +79,7 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
     });
   });
 
-  it('successfully outputs dep graph for single project success', async () => {
+  it('works for project with dep', async () => {
     const project = await createProjectFromFixture(
       'npm/with-vulnerable-lodash-dep',
     );
@@ -86,7 +87,7 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
       await project.readJSON('test-dep-graph-result.json'),
     );
     const { code, stdout } = await runSnykCLI(
-      'test --print-effective-graph-with-errors',
+      'test --print-graph-with-errors',
       {
         cwd: project.path(),
         env,
@@ -98,7 +99,6 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
     const jsonOutput = JSON.parse(stdout);
 
     expect(jsonOutput.normalisedTargetFile).toBe('package-lock.json');
-
     expect(jsonOutput.depGraph).toMatchObject({
       pkgManager: {
         name: 'npm',
@@ -146,6 +146,66 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
     });
   });
 
+  it('works with `--all-projects`', async () => {
+    const project = await createProjectFromFixture(
+      'print-graph-multiple-projects',
+    );
+    const { code, stdout } = await runSnykCLI(
+      'test --all-projects --print-graph-with-errors',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toEqual(0);
+
+    const lines = stdout
+      .trim()
+      .split('\n')
+      .filter((line) => line.trim());
+    expect(lines.length).toBeGreaterThan(0);
+
+    const jsonOutputFirstProject = JSON.parse(lines[0]);
+
+    expect(jsonOutputFirstProject).toHaveProperty('depGraph');
+    expect(jsonOutputFirstProject).toHaveProperty('normalisedTargetFile');
+
+    expect(jsonOutputFirstProject.depGraph).toMatchObject({
+      pkgManager: {
+        name: 'npm',
+      },
+      pkgs: expect.arrayContaining([
+        expect.objectContaining({
+          info: expect.objectContaining({
+            name: expect.stringMatching(/proj[12]/),
+          }),
+        }),
+      ]),
+      graph: {
+        rootNodeId: 'root-node',
+        nodes: expect.any(Array),
+      },
+    });
+    expect(jsonOutputFirstProject.normalisedTargetFile).toBe(
+      path.join('proj1', 'package.json'),
+    );
+
+    const jsonOutputSecondProject = JSON.parse(lines[1]);
+
+    expect(jsonOutputSecondProject).toHaveProperty('depGraph');
+    expect(jsonOutputSecondProject).toHaveProperty('normalisedTargetFile');
+
+    expect(jsonOutputSecondProject.depGraph).toMatchObject({
+      pkgManager: {
+        name: 'npm',
+      },
+    });
+    expect(jsonOutputSecondProject.normalisedTargetFile).toBe(
+      path.join('proj2', 'package.json'),
+    );
+  });
+
   it('outputs both error JSON and dep graphs for mixed success/failure with --all-projects', async () => {
     const project = await createProjectFromFixture(
       'print-graph-mixed-success-failure',
@@ -154,7 +214,7 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
       await project.readJSON('valid-project/test-dep-graph-result.json'),
     );
     const { code, stdout, stderr } = await runSnykCLI(
-      'test --all-projects --print-effective-graph-with-errors',
+      'test --all-projects --print-graph-with-errors',
       {
         cwd: project.path(),
         env,
@@ -163,7 +223,6 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
 
     expect(code).toBe(0);
 
-    // Parse JSONL output
     const lines = stdout
       .trim()
       .split('\n')
@@ -178,23 +237,18 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
       }
     }
 
-    // Should have at least one output (either success or error)
     expect(jsonObjects.length).toBeGreaterThan(0);
 
-    // Find error outputs from printDepGraphJSONError (has error.id field)
     const errorOutputs = jsonObjects.filter(
       (obj) =>
         obj.error !== undefined && obj.normalisedTargetFile !== undefined,
     );
-    // Find success outputs (dep graphs)
     const successOutputs = jsonObjects.filter(
       (obj) => obj.depGraph !== undefined,
     );
 
-    // Should have at least one error output for the invalid project
     expect(errorOutputs.length).toBeGreaterThanOrEqual(1);
 
-    // Validate error output structure
     for (const errorOutput of errorOutputs) {
       expect(errorOutput).toHaveProperty('normalisedTargetFile');
 
@@ -212,17 +266,30 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
       expect(problemError.detail).toContain(errorOutput.normalisedTargetFile);
     }
 
-    // Should have at least one success output for the valid project
     expect(successOutputs.length).toBeGreaterThanOrEqual(1);
 
-    // Validate success output structure
     for (const successOutput of successOutputs) {
       expect(successOutput).toHaveProperty('depGraph');
       expect(successOutput).toHaveProperty('normalisedTargetFile');
       expect(successOutput.depGraph).toHaveProperty('pkgManager');
     }
 
-    // stderr should contain the failure warning
     expect(stderr).toMatch(/failed to get dependencies/i);
+  });
+
+  it('does not use legacy text format', async () => {
+    const project = await createProjectFromFixture('print-graph-no-deps');
+    const { code, stdout } = await runSnykCLI(
+      'test --print-graph-with-errors',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toEqual(0);
+    expect(stdout).not.toContain('DepGraph data:');
+    expect(stdout).not.toContain('DepGraph target:');
+    expect(stdout).not.toContain('DepGraph end');
   });
 });
