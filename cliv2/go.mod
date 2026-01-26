@@ -12,7 +12,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260115091503-3d0699c466ef
 	github.com/snyk/cli-extension-dep-graph v0.15.1
-	github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0
+	github.com/snyk/cli-extension-iac v0.0.0-20260115084339-e0c36e4dffdf
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260115114457-a8ac3358ec57
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260120142932-0eea0566625a
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260115160519-84f621016a34
@@ -94,7 +94,7 @@ require (
 	github.com/clipperhouse/displaywidth v0.6.1 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/cloudflare/circl v1.6.2 // indirect
 	github.com/cncf/xds/go v0.0.0-20251022180443-0feb69152e9f // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/creachadair/jrpc2 v1.3.0 // indirect
@@ -207,10 +207,10 @@ require (
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/samber/lo v1.52.0 // indirect
-	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
+	github.com/sergi/go-diff v1.4.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/skeema/knownhosts v1.3.1 // indirect
+	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/code-client-go v1.25.0 // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25 // indirect
 	github.com/snyk/policy-engine v1.1.2 // indirect
@@ -250,7 +250,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
-	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
