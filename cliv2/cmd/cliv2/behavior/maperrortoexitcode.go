@@ -36,8 +36,8 @@ import (
 // https://man.freebsd.org/sysexits
 //
 //   - 0: Success.
-//   - 1: General Failure (The default for 90% of cases).
-//   - 2: CLI Usage Error (Reserved for invalid flags or arguments).
+//   - 1: Vulnerabilities found, successful execution but user facing issues detected.
+//   - 2: General catch-all error code
 //   - 3-125: Custom Application Logic (Safe range for Snyk-specific errors).
 //   - 126-255: Reserved (Used by OS/Shell for execution errors and signals).
 //
