@@ -524,8 +524,8 @@ github.com/skeema/knownhosts v1.3.1 h1:X2osQ+RAjK76shCbvhHHHVl3ZlgDm8apHEHFqRjnB
 github.com/skeema/knownhosts v1.3.1/go.mod h1:r7KTdC8l4uxWRyK2TpQZ/1o5HaSzh06ePQNxPwTcfiY=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260115091503-3d0699c466ef h1:w+PLQGOM3wHGZ89Hhh16AL0OVFfgbZiGs8XYEYxHgks=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260115091503-3d0699c466ef/go.mod h1:vcRqbTJ3oEM4I6q88opeq2erDtdXW9TLKhU63iJXPM4=
-github.com/snyk/cli-extension-dep-graph v0.15.0 h1:GMjyIbKzkLRqKKR5TfmRMb3D3oKyUAQ6pFqK2mEenCY=
-github.com/snyk/cli-extension-dep-graph v0.15.0/go.mod h1:Do/xNThRKSbZcIC2JCCgkBJ2X/h/YbN5i12znPEEvjY=
+github.com/snyk/cli-extension-dep-graph v0.15.1 h1:SK1cMIfIzpmQhcfVnn77FZHQgcXT/3d9ZzTog1uPT3c=
+github.com/snyk/cli-extension-dep-graph v0.15.1/go.mod h1:Do/xNThRKSbZcIC2JCCgkBJ2X/h/YbN5i12znPEEvjY=
 github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0 h1:ecGoMisVTnz5xRnt9yXW2hlRrIyYM123yMt1NeNEo6s=
 github.com/snyk/cli-extension-iac v0.0.0-20250829110702-b41ac109dab0/go.mod h1:tLxyhtrRiEvbSLQ6PbCsl29ZXK6s2aunRuL6cSe/8cE=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260115114457-a8ac3358ec57 h1:8A/m+2Kqq7YylEZxAO/Ap6C5Fr+21WRM9BecxzOg098=
