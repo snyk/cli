@@ -2,16 +2,24 @@ module.exports = test;
 
 const detect = require('../detect');
 const { runTest } = require('./run-test');
+
 const chalk = require('chalk');
 const pm = require('../package-managers');
 const { UnsupportedPackageManagerError } = require('../errors');
 const { isMultiProjectScan } = require('../is-multi-project-scan');
-const { hasFeatureFlag } = require('../feature-flags');
+const {
+  hasFeatureFlag,
+  isFeatureFlagSupportedForOrg,
+} = require('../feature-flags');
 const {
   PNPM_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } = require('../package-managers');
+const { getOrganizationID } = require('../organization');
+
+const SHOW_MAVEN_BUILD_SCOPE = 'show-maven-build-scope';
+const SHOW_NPM_SCOPE = 'show-npm-scope';
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -75,6 +83,22 @@ async function executeTest(root, options) {
     const featureFlags = hasPnpmSupport
       ? new Set([PNPM_FEATURE_FLAG])
       : new Set([]);
+
+    const showMavenScope = await isFeatureFlagSupportedForOrg(
+      SHOW_MAVEN_BUILD_SCOPE,
+      getOrganizationID(),
+    );
+    if (showMavenScope.ok) {
+      featureFlags.add(SHOW_MAVEN_BUILD_SCOPE);
+    }
+
+    const showScope = await isFeatureFlagSupportedForOrg(
+      SHOW_NPM_SCOPE,
+      getOrganizationID(),
+    );
+    if (showScope.ok) {
+      featureFlags.add(SHOW_NPM_SCOPE);
+    }
 
     if (!options.allProjects) {
       options.packageManager = detect.detectPackageManager(

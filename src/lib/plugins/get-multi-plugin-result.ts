@@ -61,6 +61,8 @@ const NODE_WORKSPACES_MAP: Record<string, WorkspaceParameters> = {
   },
 };
 
+const SHOW_NPM_SCOPE = 'show-npm-scope';
+
 export async function getMultiPluginResult(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
@@ -76,7 +78,13 @@ export async function getMultiPluginResult(
 
   if (featureFlags.has(PNPM_FEATURE_FLAG)) {
     const { scannedProjects: scannedPnpmResults, unprocessedFiles } =
-      await processWorkspacesProjects(root, options, targetFiles, 'pnpm');
+      await processWorkspacesProjects(
+        root,
+        options,
+        targetFiles,
+        'pnpm',
+        featureFlags,
+      );
     unprocessedFilesfromWorkspaces = unprocessedFiles;
     allResults.push(...scannedPnpmResults);
   }
@@ -89,6 +97,7 @@ export async function getMultiPluginResult(
     options,
     unprocessedFilesfromWorkspaces,
     'yarn',
+    featureFlags,
   );
   allResults.push(...scannedYarnResults);
 
@@ -98,6 +107,7 @@ export async function getMultiPluginResult(
       options,
       unprocessedFilesFromYarn,
       'npm',
+      featureFlags,
     );
   allResults.push(...scannedNpmResults);
 
@@ -116,6 +126,7 @@ export async function getMultiPluginResult(
         root,
         optionsClone,
         optionsClone.file,
+        featureFlags,
       );
       let resultWithScannedProjects: cliInterface.legacyPlugin.MultiProjectResult;
 
@@ -202,6 +213,7 @@ async function processWorkspacesProjects(
   options: Options & (TestOptions | MonitorOptions),
   targetFiles: string[],
   packageManager: 'npm' | 'yarn' | 'pnpm',
+  featureFlags: Set<string> = new Set<string>(),
 ): Promise<{
   scannedProjects: ScannedProjectCustom[];
   unprocessedFiles: string[];
@@ -215,6 +227,7 @@ async function processWorkspacesProjects(
         strictOutOfSync: options.strictOutOfSync,
         dev: options.dev,
         exclude: options.exclude,
+        showNpmScope: featureFlags.has(SHOW_NPM_SCOPE),
       },
       targetFiles,
     );
