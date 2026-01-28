@@ -100,10 +100,9 @@ func unknownCommandError(details string) error {
 
 // SetupTestMonitorCommand configures command for test/monitor to ensure parity with legacy behavior
 func SetupTestMonitorCommand(cmd *cobra.Command) {
-	// Relax flag validation for backwards compatibility by suppressing cobra's default error
-	cmd.SetFlagErrorFunc(func(_ *cobra.Command, _ error) error {
-		return unknownCommandError("")
-	})
+	// Disable flag parsing for test/monitor so that cli-extension-os-flows
+	// can manually route to the legacy CLI and handle flag validation.
+	cmd.DisableFlagParsing = true
 
 	cmd.PreRunE = func(c *cobra.Command, args []string) error {
 		if err := validateFlagsCompatibilityWithLegacy(os.Args[1:]); err != nil {
