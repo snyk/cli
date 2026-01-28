@@ -18,6 +18,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['sbomMonitorBeta', false],
     ['useImprovedDotnetWithoutPublish', false],
     ['scanUsrLibJars', false],
+    ['includeGoStandardLibraryDeps', false],
 
     // Default these to false.
     // TODO: Future acceptance tests targeting these features and their
@@ -1294,11 +1295,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         });
       } else if (depGraph) {
         name = depGraph.pkgs[0]?.info.name;
-        components = depGraph.pkgs.map(({ info: { name, version, purl } }) => ({
-          name,
-          version,
-          purl,
-        }));
+        components = depGraph.pkgs.map(({ info: { name } }) => ({ name }));
 
         const nodeIdMap: { [key: string]: string } = {};
 

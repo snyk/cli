@@ -68,6 +68,7 @@ export interface Options {
   'print-tree'?: boolean;
   'print-dep-paths'?: boolean;
   'print-effective-graph'?: boolean;
+  'print-effective-graph-with-errors'?: boolean;
   'remote-repo-url'?: string;
   criticality?: string;
   scanAllUnmanaged?: boolean;
@@ -130,6 +131,13 @@ export interface Options {
 
   // Feature Flags
   useImprovedDotnetWithoutPublish?: boolean;
+
+  // Plugin configuration options
+  configuration?: {
+    // Used only with the Go plugin. When enabled, includes Go standard library packages in dependency graph.
+    includeGoStandardLibraryDeps?: boolean;
+    includePackageUrls?: boolean;
+  };
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny

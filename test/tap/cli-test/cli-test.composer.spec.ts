@@ -243,6 +243,9 @@ export const ComposerTests: AcceptanceTests = {
               path: 'golang-app',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              configuration: {
+                includeGoStandardLibraryDeps: false,
+              },
             },
             snykHttpClient,
           ],
