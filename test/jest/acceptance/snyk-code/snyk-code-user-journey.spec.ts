@@ -52,6 +52,10 @@ const projectWithCodeIssuesLow = resolve(
   projectRoot,
   'test/fixtures/sast/with_code_issues_low',
 );
+const projectWithIssuesAndDotSnykFile = resolve(
+  projectRoot,
+  'test/fixtures/sast/shallow_sast_webgoat_with_dotSnyk',
+);
 const emptyProject = resolve(projectRoot, 'test/fixtures/empty');
 const projectWithoutCodeIssues = resolve(
   projectRoot,
@@ -881,6 +885,46 @@ describe('snyk code test', () => {
                 const gitNotIgnoredFile = file.split('file-ignore-rules/')[1];
                 expect(codeTestCmd.stdout).toContain(gitNotIgnoredFile);
               });
+            });
+
+            it('should support .snyk file filtering', async () => {
+              /** .snyk file in sut:
+               * # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+                  version: v1.25.1
+                  ignore: {}
+                  patch: {}
+                  exclude:
+                    code:
+                      - JWTVotesEndpoint.java
+                      - HashingAssignment.java:
+                          reason: testing ignores with valid expiry
+                          expires: 3000-12-31T00:00:00.000Z
+                          created: 2026-01-28T11:59:32.489Z
+                    global:
+                      - Assignment5.java:
+                          reason: testing ignores with expired expiry
+                          expires: 2000-12-31T00:00:00.000Z
+                          created: 1999-01-28T12:00:45.636Z
+                      - JWTRefreshEndpoint.java
+               */
+              const codeTestCmd = await runSnykCLI(
+                `code test ${projectWithIssuesAndDotSnykFile} --severity-threshold=high`,
+                {
+                  env: {
+                    ...process.env,
+                    ...integrationEnv,
+                  },
+                },
+              );
+
+              expect(codeTestCmd.stdout).toContain('Assignment5.java');
+              expect(codeTestCmd.stdout).not.toContain(
+                'HashingAssignment.java',
+              );
+              expect(codeTestCmd.stdout).not.toContain(
+                'JWTRefreshEndpoint.java',
+              );
+              expect(codeTestCmd.stdout).not.toContain('JWTVotesEndpoint.java');
             });
           });
         }
