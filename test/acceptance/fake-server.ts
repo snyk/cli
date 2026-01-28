@@ -30,6 +30,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['useExperimentalRiskScoreInCLI', false],
     ['sbomTestReachability', false],
     ['useTestShimForOSCliTest', false],
+    ['show-maven-build-scope', false],
   ]);
 };
 
@@ -1277,12 +1278,22 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         });
       };
 
+      const showMavenBuildScope = featureFlags.get('show-maven-build-scope');
+      const addScopeToComponent = (comp: Record<string, any>, info: any) => {
+        if (showMavenBuildScope && info.purl?.includes('pkg:maven')) {
+          comp.properties = [{ name: 'snyk:maven:build_scope', value: 'compile' }];
+        }
+        return comp;
+      };
+
       if (Array.isArray(depGraphs) && req.body.subject) {
         // Return a fixture of an all-projects SBOM.
         name = req.body.subject.name;
         components = depGraphs
           .flatMap(({ pkgs }) => pkgs)
-          .map(({ info: { name } }) => ({ name }));
+          .map(({ info }) =>
+            addScopeToComponent({ name: info.name }, info),
+          );
 
         const nodeIdMap: { [key: string]: string } = {};
 
@@ -1297,11 +1308,16 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         });
       } else if (depGraph) {
         name = depGraph.pkgs[0]?.info.name;
-        components = depGraph.pkgs.map(({ info: { name, version, purl } }) => ({
-          name,
-          version,
-          purl,
-        }));
+        components = depGraph.pkgs.map(({ info }) =>
+          addScopeToComponent(
+            {
+              name: info.name,
+              version: info.version,
+              purl: info.purl,
+            },
+            info,
+          ),
+        );
 
         const nodeIdMap: { [key: string]: string } = {};
 
