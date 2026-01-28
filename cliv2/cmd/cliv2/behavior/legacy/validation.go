@@ -5,17 +5,10 @@ import (
 	"os"
 	"strings"
 
+	snyk_cli_errors "github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
-
-type unsupportedFlagCombinationError struct {
-	flag1 string
-	flag2 string
-}
-
-func (e *unsupportedFlagCombinationError) Error() string {
-	return fmt.Sprintf("The following option combination is not currently supported: %s + %s", e.flag1, e.flag2)
-}
 
 type flagCombinationRule struct {
 	primaryFlag      string
@@ -26,20 +19,20 @@ var incompatibleFlagRules = []flagCombinationRule{
 	{
 		primaryFlag: "--all-projects",
 		incompatibleWith: []string{
-			"--file",
-			"--package-manager",
 			"--project-name",
+			"--file",
+			"--yarn-workspaces",
+			"--package-manager",
 			"--docker",
 			"--all-sub-projects",
-			"--yarn-workspaces",
 		},
 	},
 	{
 		primaryFlag: "--yarn-workspaces",
 		incompatibleWith: []string{
+			"--project-name",
 			"--file",
 			"--package-manager",
-			"--project-name",
 			"--docker",
 			"--all-sub-projects",
 		},
@@ -52,62 +45,87 @@ var incompatibleFlagRules = []flagCombinationRule{
 		primaryFlag:      "--maven-aggregate-project",
 		incompatibleWith: []string{"--project-name"},
 	},
+	{
+		primaryFlag:      "--json",
+		incompatibleWith: []string{"--sarif"},
+	},
 }
 
-func validateFlagsCompatibilityWithLegacy(args []string) error {
-	presentFlags := parseFlagsFromArgs(args)
+func validateFlags(flags *pflag.FlagSet) error {
 
 	for _, rule := range incompatibleFlagRules {
-		if !presentFlags[rule.primaryFlag] {
+		if ok := flags.Changed(rule.primaryFlag); !ok {
 			continue
 		}
 
 		for _, incompatibleFlag := range rule.incompatibleWith {
-			if presentFlags[incompatibleFlag] {
-				return &unsupportedFlagCombinationError{
-					flag1: extractFlagName(incompatibleFlag),
-					flag2: extractFlagName(rule.primaryFlag),
-				}
+			if ok := flags.Changed(incompatibleFlag); ok {
+				return snyk_cli_errors.NewInvalidFlagOptionError(fmt.Sprintf("The following option combination is not currently supported: %s + %s", incompatibleFlag, rule.primaryFlag))
 			}
 		}
+	}
+
+	if excludePresent := flags.Changed("--exclude"); excludePresent {
+		allProjectsPresent := flags.Changed("--all-projects")
+		yarnWorkspacesPresent := flags.Changed("--yarn-workspaces")
+		if !allProjectsPresent && !yarnWorkspacesPresent {
+			return snyk_cli_errors.NewInvalidFlagOptionError("The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.")
+		}
+
+		excludeValue, err := flags.GetString("--exclude")
+		if err != nil {
+			return err
+		}
+
+		if excludeValue == "" {
+			return snyk_cli_errors.NewEmptyFlagOptionError("Empty --exclude argument. Did you mean --exclude=subdirectory ?")
+		}
+
+		if strings.ContainsRune(excludeValue, os.PathSeparator) {
+			return snyk_cli_errors.NewInvalidFlagOptionError("The --exclude argument must be a comma separated list of directory or file names and cannot contain a path.")
+		}
+	}
+
+	fileValue, err := flags.GetString("--file")
+	if err != nil {
+		return err
+	}
+
+	if strings.HasSuffix(fileValue, ".sln") {
+		if projectNamePresent := flags.Changed("--project-name"); projectNamePresent {
+			return snyk_cli_errors.NewInvalidFlagOptionError(fmt.Sprintf("The following option combination is not currently supported: %s + %s", "file=*.sln", "project-name"))
+		}
+	}
+
+	if detectionDepthValue, err := flags.GetInt("--detection-depth"); err != nil || detectionDepthValue <= 0 {
+		return snyk_cli_errors.NewInvalidFlagOptionError("Unsupported value for --detection-depth flag. Expected a positive integer.")
+	}
+
+	jsonFileOutputValue, err := flags.GetString("--json-file-output")
+	if err != nil {
+		return err
+	}
+	if flags.Changed("--json-file-output") && jsonFileOutputValue == "" {
+		return snyk_cli_errors.NewEmptyFlagOptionError("Empty --json-file-output argument. Did you mean --file=path/to/output-file.json ?")
+	}
+
+	sarifFileOutputValue, err := flags.GetString("--sarif-file-output")
+	if err != nil {
+		return err
+	}
+	if flags.Changed("--sarif-file-output") && sarifFileOutputValue == "" {
+		return snyk_cli_errors.NewEmptyFlagOptionError("Empty --sarif-file-output argument. Did you mean --file=path/to/output-file.json ?")
 	}
 
 	return nil
 }
 
-func parseFlagsFromArgs(args []string) map[string]bool {
-	flags := make(map[string]bool)
-	for _, arg := range args {
-		if !strings.HasPrefix(arg, "--") {
-			continue
-		}
-		flagName := strings.SplitN(arg, "=", 2)[0]
-		flags[flagName] = true
-	}
-	return flags
-}
-
-func extractFlagName(flag string) string {
-	return strings.TrimPrefix(flag, "--")
-}
-
-func unknownCommandError(details string) error {
-	if details == "" {
-		return fmt.Errorf("unknown command")
-	}
-	return fmt.Errorf("unknown command %s", details)
-}
-
 // SetupTestMonitorCommand configures command for test/monitor to ensure parity with legacy behavior
 func SetupTestMonitorCommand(cmd *cobra.Command) {
-	// Relax flag validation for backwards compatibility by suppressing cobra's default error
-	cmd.SetFlagErrorFunc(func(_ *cobra.Command, _ error) error {
-		return unknownCommandError("")
-	})
-
+	cmd.FParseErrWhitelist.UnknownFlags = true
 	cmd.PreRunE = func(c *cobra.Command, args []string) error {
-		if err := validateFlagsCompatibilityWithLegacy(os.Args[1:]); err != nil {
-			return unknownCommandError(err.Error())
+		if err := validateFlags(c.Flags()); err != nil {
+			return err
 		}
 		return nil
 	}
