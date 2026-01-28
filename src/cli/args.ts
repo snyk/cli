@@ -255,6 +255,14 @@ export function args(rawArgv: string[]): Args {
     }
   }
 
+  if (argv['fail-fast'] !== undefined) {
+    if (argv['fail-fast'] === 'false' || argv['fail-fast'] === false) {
+      argv['fail-fast'] = false;
+    } else {
+      argv['fail-fast'] = true;
+    }
+  }
+
   // Alias
   const aliases = {
     gradleSubProject: 'subProject',
