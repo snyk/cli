@@ -227,17 +227,18 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.use((req, res, next) => {
     const endpoint = req.url;
+    const pathOnly = endpoint.split('?')[0];
 
     const wildcardEndpoint = '*';
-    let endpointResponse = endpointResponses.get(wildcardEndpoint);
-    if (!endpointResponse) {
-      endpointResponse = endpointResponses.get(endpoint);
-    }
+    const endpointResponse =
+      endpointResponses.get(wildcardEndpoint) ||
+      endpointResponses.get(endpoint) ||
+      endpointResponses.get(pathOnly);
 
-    let endpointStatusCode = endpointStatusCodes.get(wildcardEndpoint);
-    if (!endpointStatusCode) {
-      endpointStatusCode = endpointStatusCodes.get(endpoint);
-    }
+    const endpointStatusCode =
+      endpointStatusCodes.get(wildcardEndpoint) ||
+      endpointStatusCodes.get(endpoint) ||
+      endpointStatusCodes.get(pathOnly);
 
     // configure any response headers
     if (endpointHeaders.size > 0) {
@@ -428,6 +429,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200);
     if (customResponse) {
       res.send(customResponse);
+      return;
     }
     res.send({});
   });
@@ -1244,6 +1246,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       res
         .status(400)
         .send(`{"errors":[{"title":"Bad Request","detail":"invalid SBOM"}]}`);
+      return;
     }
 
     const body = fs.readFileSync(
@@ -1334,6 +1337,28 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
             },
           };
           break;
+        case 'cyclonedx1.4+xml': {
+          const componentsXml = components
+            .map(
+              (c: { name: string }) =>
+                `    <component type="library"><name>${c.name}</name></component>`,
+            )
+            .join('\n');
+          const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<bom xmlns="http://cyclonedx.org/schema/bom/1.4" version="1" specVersion="1.4">
+  <metadata>
+    <component type="application">
+      <name>${name}</name>
+    </component>
+  </metadata>
+  <components>
+${componentsXml}
+  </components>
+</bom>`;
+          res.set('Content-Type', 'application/xml');
+          res.status(200).send(xmlContent);
+          return;
+        }
         case 'cyclonedx1.5+json':
           bom = {
             specVersion: '1.5',
