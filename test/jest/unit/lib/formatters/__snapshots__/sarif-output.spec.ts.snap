@@ -6,7 +6,7 @@ exports[`createSarifOutputForContainers general with critical severity issue wit
   "runs": [
     {
       "automationDetails": {
-        "id": "Snyk/Container/PROJECT_NAME/2025-01-01T00:00:00.000Z",
+        "id": "Snyk/Container/PROJECT_NAME/0/2025-01-01T00:00:00.000Z",
       },
       "results": [
         {
@@ -103,7 +103,7 @@ exports[`createSarifOutputForContainers general with critical severity issue wit
   "runs": [
     {
       "automationDetails": {
-        "id": "Snyk/Container/PROJECT_NAME/2025-01-01T00:00:00.000Z",
+        "id": "Snyk/Container/PROJECT_NAME/0/2025-01-01T00:00:00.000Z",
       },
       "results": [
         {
@@ -199,7 +199,7 @@ exports[`createSarifOutputForContainers general with high severity issue 1`] = `
   "runs": [
     {
       "automationDetails": {
-        "id": "Snyk/Container/PROJECT_NAME/2025-01-01T00:00:00.000Z",
+        "id": "Snyk/Container/PROJECT_NAME/0/2025-01-01T00:00:00.000Z",
       },
       "results": [
         {
