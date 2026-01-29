@@ -23,8 +23,9 @@ export function createSarifOutputForIac(
 ): sarif.Log {
   // If the CLI scans a singular file, then the base path is the current working directory
   // Otherwise it's the computed path
-  const basePath = isLocalFolder(iacTestResponses[0].path)
-    ? pathLib.resolve('.', iacTestResponses[0].path)
+  const index = 0;
+  const basePath = isLocalFolder(iacTestResponses[index].path)
+    ? pathLib.resolve('.', iacTestResponses[index].path)
     : pathLib.resolve('.');
   let repoRoot: string;
   try {
@@ -61,8 +62,10 @@ export function createSarifOutputForIac(
     },
   };
 
-  const projectName = iacTestResponses[0].projectName;
-  const projectIdentifier = projectName ? `${projectName}/` : '';
+  const projectName = iacTestResponses[index].projectName;
+  const projectIdentifier = projectName
+    ? `${projectName}/${index}/`
+    : `${index}/`;
 
   return {
     $schema:
