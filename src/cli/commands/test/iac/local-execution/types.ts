@@ -200,6 +200,7 @@ export type IaCTestFlags = Pick<
   // Report options
   | 'remote-repo-url'
   | 'target-name'
+  | 'exclude'
 > & {
   // Supported flags not yet covered by Options or TestOptions
   'json-file-output'?: string;
