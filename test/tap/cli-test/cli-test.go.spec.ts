@@ -52,6 +52,8 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-gomodules',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              showMavenBuildScope: false,
+              showNpmScope: false,
               configuration: {
                 includeGoStandardLibraryDeps: false,
               },
@@ -108,6 +110,8 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-gomodules',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              showMavenBuildScope: false,
+              showNpmScope: false,
               configuration: {
                 includeGoStandardLibraryDeps: false,
               },
@@ -166,6 +170,8 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-app',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              showMavenBuildScope: false,
+              showNpmScope: false,
               configuration: {
                 includeGoStandardLibraryDeps: false,
               },
@@ -222,6 +228,8 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-app',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              showMavenBuildScope: false,
+              showNpmScope: false,
               configuration: {
                 includeGoStandardLibraryDeps: false,
               },

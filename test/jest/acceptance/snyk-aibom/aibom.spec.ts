@@ -40,6 +40,7 @@ describe('snyk aibom (mocked servers only)', () => {
     SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
     SNYK_HOST: `http://${ipAddress}:${port}`,
     TEST_SNYK_TOKEN: 'UNSET',
+    SNYK_HTTP_PROTOCOL_UPGRADE: '0',
   };
   const initialEnvVars = {
     ...process.env,
@@ -47,6 +48,7 @@ describe('snyk aibom (mocked servers only)', () => {
     SNYK_HOST: `http://${ipAddress}:${port}`,
     SNYK_TOKEN: '123456789',
     SNYK_CFG_ORG: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    SNYK_HTTP_PROTOCOL_UPGRADE: '0',
   };
 
   const projectRoot = resolve(__dirname, '../../../..');

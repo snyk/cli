@@ -74,6 +74,7 @@ export async function parse(
         strictOutOfSync,
         pruneCycles: true,
         honorAliases: true,
+        showNpmScope: options.showNpmScope,
       },
     );
   }
@@ -87,6 +88,7 @@ export async function parse(
       options.dev,
       strictOutOfSync,
       true,
+      options.showNpmScope,
     );
   } finally {
     await spinner.clear<void>(resolveModuleSpinnerLabel)();
@@ -130,6 +132,7 @@ async function buildDepGraph(
           pruneLevel: 'withinTopLevelDeps',
           strictOutOfSync: options.strictOutOfSync,
           honorAliases: true,
+          showNpmScope: options.showNpmScope,
         },
       );
     case NodeLockfileVersion.YarnLockV2:
@@ -142,6 +145,7 @@ async function buildDepGraph(
           pruneWithinTopLevelDeps: true,
           strictOutOfSync: options.strictOutOfSync,
           honorAliases: true,
+          showNpmScope: options.showNpmScope,
         },
       );
     case NodeLockfileVersion.NpmLockV2:
