@@ -22,7 +22,11 @@ export async function buildPluginOptions(
         options,
         false,
       ),
-    };
+      // enable PackageURLs.
+      includePackageUrls: true,
+      // enable fix for replaced modules.
+      useReplaceName: true,
+    } as Options['configuration'];
   }
 
   return pluginOptions;
