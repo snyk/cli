@@ -15,9 +15,11 @@ export function createSarifOutputForContainers(
     runs: [],
   };
 
-  testResults.forEach((testResult) => {
+  testResults.forEach((testResult, index) => {
     const projectName = testResult.projectName;
-    const projectIdentifier = projectName ? `${projectName}/` : '';
+    const projectIdentifier = projectName
+      ? `${projectName}/${index}/`
+      : `${index}/`;
     sarifRes.runs.push({
       tool: getTool(testResult),
       results: getResults(testResult),
