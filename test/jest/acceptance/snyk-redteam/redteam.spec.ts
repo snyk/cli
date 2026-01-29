@@ -214,4 +214,60 @@ describe('snyk redteam (mocked servers only)', () => {
     );
     expect(code).toEqual(0);
   });
+
+  test('`redteam get` retrieves scan results', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `redteam get --experimental --id=59622253-75f3-4439-ac1e-ce94834c5804`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+
+    let report: any;
+    expect(() => {
+      report = JSON.parse(stdout);
+    }).not.toThrow();
+
+    expect(report).toMatchObject({
+      id: expect.any(String),
+      results: expect.arrayContaining([
+        {
+          id: expect.any(String),
+          severity: expect.any(String),
+          definition: {
+            id: expect.any(String),
+            name: expect.any(String),
+            description: expect.any(String),
+          },
+          url: expect.any(String),
+          evidence: {
+            content: {
+              reason: expect.any(String),
+            },
+            type: expect.any(String),
+          },
+        },
+      ]),
+    });
+  });
+
+  test('`redteam get` fails without --id flag', async () => {
+    const { code, stdout } = await runSnykCLI(`redteam get --experimental`, {
+      env,
+    });
+    expect(code).toEqual(2);
+    expect(stdout).toContain('No scan ID');
+  });
+
+  test('`redteam get` fails with invalid UUID', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `redteam get --experimental --id=not-a-uuid`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(2);
+    expect(stdout).toContain('not a valid UUID');
+  });
 });

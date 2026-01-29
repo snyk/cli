@@ -701,6 +701,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
                 description: 'The system prompt was exfiltrated.',
               },
               url: 'https://demo-app.com/api/chat',
+              evidence: {
+                type: 'raw',
+                content: {
+                  reason:
+                    'The model disclosed confidential system instructions.',
+                },
+              },
             },
           ],
         },
