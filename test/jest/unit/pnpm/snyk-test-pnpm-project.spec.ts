@@ -42,6 +42,26 @@ describe('snyk test for pnpm project', () => {
           });
         });
 
+        // this is for 'show-maven-build-scope' and 'show-npm-scope' feature flags
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: true,
+            },
+          });
+        });
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: true,
+            },
+          });
+        });
+
         mockedMakeRequest.mockImplementationOnce(() => {
           return Promise.resolve({
             res: { statusCode: 200 } as NeedleResponse,
@@ -59,7 +79,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(4);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -111,6 +131,26 @@ describe('snyk test for pnpm project', () => {
           });
         });
 
+        // this is for 'show-maven-build-scope' and 'show-npm-scope' feature flags
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: false,
+            },
+          });
+        });
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: false,
+            },
+          });
+        });
+
         mockedMakeRequest.mockImplementationOnce(() => {
           return Promise.resolve({
             res: { statusCode: 200 } as NeedleResponse,
@@ -128,7 +168,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(4);
 
         const expectedResultObject = {
           vulnerabilities: [],
@@ -195,7 +235,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(11);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(13);
 
         const parsedResult = JSON.parse(result.getDisplayResults());
         const pnpmResult = parsedResult.filter(
@@ -238,7 +278,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(7);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(9);
 
         const parsedResult = JSON.parse(result.getDisplayResults());
         const pnpmResult = parsedResult.filter(

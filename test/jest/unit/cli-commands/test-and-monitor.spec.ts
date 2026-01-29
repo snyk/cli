@@ -76,6 +76,9 @@ describe('monitor & test', () => {
         'dotnet-runtime-resolution': true,
       };
       (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(true);
+      (
+        featureFlags.isFeatureFlagSupportedForOrg as jest.Mock
+      ).mockResolvedValue(true);
 
       try {
         await monitor('path/to/project', options);
@@ -144,6 +147,9 @@ describe('monitor & test', () => {
         'dotnet-runtime-resolution': true,
       };
       (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(true);
+      (
+        featureFlags.isFeatureFlagSupportedForOrg as jest.Mock
+      ).mockResolvedValue(true);
       await snykTest('path/to/project', options);
 
       expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
