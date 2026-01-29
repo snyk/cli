@@ -118,6 +118,80 @@ describe('Test snyk code with --report', () => {
 
       expect(actual?.reportResults).toEqual(expectedReportResults);
     });
+
+    it('should pass project-tags to reportOptions when provided', async () => {
+      const tags = [
+        { key: 'env', value: 'prod' },
+        { key: 'team', value: 'security' },
+      ];
+
+      const reportOptions = {
+        enabled: true,
+        projectName: 'test-project-name',
+        targetName: 'test-target-name',
+        targetRef: 'test-target-ref',
+        remoteRepoUrl: 'https://github.com/owner/repo',
+        tags,
+      };
+
+      analyzeFoldersMock.mockResolvedValue(
+        sampleAnalyzeFoldersWithReportAndIgnoresResponse,
+      );
+
+      await getCodeTestResults(
+        '.',
+        {
+          path: '',
+          code: true,
+          report: true,
+          'project-name': reportOptions.projectName,
+          'target-name': reportOptions.targetName,
+          'target-reference': reportOptions.targetRef,
+          'remote-repo-url': reportOptions.remoteRepoUrl,
+          'project-tags': 'env=prod,team=security',
+        },
+        sastSettings,
+        'test-id',
+      );
+
+      expect(analyzeFoldersMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reportOptions: expect.objectContaining({
+            enabled: true,
+            projectName: reportOptions.projectName,
+            tags,
+          }),
+        }),
+      );
+    });
+
+    it('should not include tags in reportOptions when project-tags is not provided', async () => {
+      analyzeFoldersMock.mockResolvedValue(
+        sampleAnalyzeFoldersWithReportAndIgnoresResponse,
+      );
+
+      await getCodeTestResults(
+        '.',
+        {
+          path: '',
+          code: true,
+          report: true,
+          'project-name': 'test-project',
+        },
+        sastSettings,
+        'test-id',
+      );
+
+      expect(analyzeFoldersMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reportOptions: expect.objectContaining({
+            enabled: true,
+            projectName: 'test-project',
+            tags: undefined,
+          }),
+        }),
+      );
+    });
   });
 
   describe('SCM-based report flow - analyzeScmProject', () => {

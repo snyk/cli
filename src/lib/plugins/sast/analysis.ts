@@ -21,6 +21,7 @@ import {
 import { analysisProgressUpdate } from './utils';
 import { FeatureNotSupportedBySnykCodeError } from './errors';
 import { getProxyForUrl } from 'proxy-from-env';
+import { generateTags } from '../../../cli/commands/monitor';
 import { bootstrap } from 'global-agent';
 import chalk from 'chalk';
 import * as debugLib from 'debug';
@@ -210,6 +211,7 @@ async function getCodeAnalysis(
           targetName: options['target-name'],
           targetRef: options['target-reference'],
           remoteRepoUrl: options['remote-repo-url'],
+          tags: generateTags(options),
         },
       }),
       analysisContext,
