@@ -54,6 +54,8 @@ export const GoTests: AcceptanceTests = {
               maxVulnPaths: undefined,
               configuration: {
                 includeGoStandardLibraryDeps: false,
+                includePackageUrls: true,
+                useReplaceName: true,
               },
             },
             snykHttpClient,
@@ -110,6 +112,8 @@ export const GoTests: AcceptanceTests = {
               maxVulnPaths: undefined,
               configuration: {
                 includeGoStandardLibraryDeps: false,
+                includePackageUrls: true,
+                useReplaceName: true,
               },
             },
             snykHttpClient,
@@ -168,6 +172,8 @@ export const GoTests: AcceptanceTests = {
               maxVulnPaths: undefined,
               configuration: {
                 includeGoStandardLibraryDeps: false,
+                includePackageUrls: true,
+                useReplaceName: true,
               },
             },
             snykHttpClient,
@@ -224,6 +230,8 @@ export const GoTests: AcceptanceTests = {
               maxVulnPaths: undefined,
               configuration: {
                 includeGoStandardLibraryDeps: false,
+                includePackageUrls: true,
+                useReplaceName: true,
               },
             },
             snykHttpClient,
