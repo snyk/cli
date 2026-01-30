@@ -245,6 +245,8 @@ export const ComposerTests: AcceptanceTests = {
               maxVulnPaths: undefined,
               configuration: {
                 includeGoStandardLibraryDeps: false,
+                includePackageUrls: true,
+                useReplaceName: true,
               },
             },
             snykHttpClient,

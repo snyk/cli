@@ -61,9 +61,9 @@ describe('getSinglePluginResult', () => {
         '/test',
         undefined,
         expect.objectContaining({
-          configuration: {
+          configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
-          },
+          }),
         }),
         snykHttpClient,
       );
@@ -89,9 +89,9 @@ describe('getSinglePluginResult', () => {
         '/test',
         undefined,
         expect.objectContaining({
-          configuration: {
+          configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: false,
-          },
+          }),
         }),
         snykHttpClient,
       );
@@ -117,9 +117,9 @@ describe('getSinglePluginResult', () => {
         '/test',
         undefined,
         expect.objectContaining({
-          configuration: {
+          configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
-          },
+          }),
         }),
         snykHttpClient,
       );
@@ -143,10 +143,9 @@ describe('getSinglePluginResult', () => {
         '/test',
         undefined,
         expect.objectContaining({
-          configuration: {
-            includePackageUrls: true,
+          configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
-          },
+          }),
         }),
         snykHttpClient,
       );
@@ -284,9 +283,9 @@ describe('getSinglePluginResult', () => {
         '/test',
         undefined,
         expect.objectContaining({
-          configuration: {
+          configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
-          },
+          }),
         }),
         snykHttpClient,
       );

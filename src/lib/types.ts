@@ -136,7 +136,10 @@ export interface Options {
   configuration?: {
     // Used only with the Go plugin. When enabled, includes Go standard library packages in dependency graph.
     includeGoStandardLibraryDeps?: boolean;
+    // Used only with the Go plugin. When enabled, includes PackageURL information in dep-graphs.
     includePackageUrls?: boolean;
+    // Used only with the Go plugin and temporary. When enabled, fixes misidentification of replaced modules.
+    useReplaceName?: boolean;
   };
 }
 
