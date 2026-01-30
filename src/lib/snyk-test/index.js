@@ -2,7 +2,6 @@ module.exports = test;
 
 const detect = require('../detect');
 const { runTest } = require('./run-test');
-const chalk = require('chalk');
 const pm = require('../package-managers');
 const { UnsupportedPackageManagerError } = require('../errors');
 const { isMultiProjectScan } = require('../is-multi-project-scan');
@@ -98,9 +97,9 @@ async function executeTest(root, options) {
       return results;
     });
   } catch (error) {
-    return Promise.reject(
-      chalk.red.bold(error.message ? error.message : error),
-    );
+    // Preserve the error object to maintain properties like errorCatalog, code, userMessage, etc.
+    // The error will be formatted later in formatTestError if needed
+    return Promise.reject(error);
   }
 }
 
