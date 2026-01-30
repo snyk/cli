@@ -1277,6 +1277,38 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         });
       };
 
+      // Determine package manager type
+      let pkgManager = '';
+      if (depGraph) {
+        pkgManager = depGraph.pkgManager?.name || '';
+      } else if (Array.isArray(depGraphs) && depGraphs.length > 0) {
+        pkgManager = depGraphs[0].pkgManager?.name || '';
+      }
+
+      // Check feature flags for scope properties
+      const showNpmScope = featureFlags.get('show-npm-scope') || false;
+      const showMavenBuildScope =
+        featureFlags.get('show-maven-build-scope') || false;
+
+      // Helper to get random scope value
+      const getRandomNpmScope = () => {
+        const scopes = ['prod', 'dev', 'optional', 'peer', 'unknown'];
+        return scopes[Math.floor(Math.random() * scopes.length)];
+      };
+
+      const getRandomMavenScope = () => {
+        const scopes = [
+          'compile',
+          'provided',
+          'runtime',
+          'test',
+          'system',
+          'import',
+          'unknown',
+        ];
+        return scopes[Math.floor(Math.random() * scopes.length)];
+      };
+
       if (Array.isArray(depGraphs) && req.body.subject) {
         // Return a fixture of an all-projects SBOM.
         name = req.body.subject.name;
@@ -1314,6 +1346,40 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
       switch (req.query.format) {
         case 'spdx2.3+json':
+          if (components) {
+            components.forEach((pkg: any, index: number) => {
+              if (!pkg.annotations) {
+                pkg.annotations = [];
+              }
+
+              if (index === 0) return; // Skip root package
+
+              if (showNpmScope && pkgManager === 'npm') {
+                const scope = getRandomNpmScope();
+                pkg.annotations.push({
+                  annotationType: 'OTHER',
+                  annotator: {
+                    annotator: 'Snyk',
+                    annotatorType: 'Tool',
+                  },
+                  annotationComment: `snyk:npm:scope=${scope}`,
+                });
+              }
+
+              if (showMavenBuildScope && pkgManager === 'maven') {
+                const scope = getRandomMavenScope();
+                pkg.annotations.push({
+                  annotationType: 'OTHER',
+                  annotator: {
+                    annotator: 'Snyk',
+                    annotatorType: 'Tool',
+                  },
+                  annotationComment: `snyk:maven:build_scope=${scope}`,
+                });
+              }
+            });
+          }
+
           bom = {
             spdxVersion: 'SPDX-2.3',
             name,
@@ -1322,6 +1388,33 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           };
           break;
         case 'cyclonedx1.4+json':
+          // Initialize properties for all components, add scope properties when enabled
+          if (components) {
+            components.forEach((component: any, index: number) => {
+              if (!component.properties) {
+                component.properties = [];
+              }
+
+              if (index === 0) return; // Skip root component
+
+              if (showNpmScope && pkgManager === 'npm') {
+                const scope = getRandomNpmScope();
+                component.properties.push({
+                  name: 'snyk:npm:scope',
+                  value: scope,
+                });
+              }
+
+              if (showMavenBuildScope && pkgManager === 'maven') {
+                const scope = getRandomMavenScope();
+                component.properties.push({
+                  name: 'snyk:maven:build_scope',
+                  value: scope,
+                });
+              }
+            });
+          }
+
           bom = {
             specVersion: '1.4',
             $schema: 'http://cyclonedx.org/schema/bom-1.4.schema.json',
@@ -1334,6 +1427,33 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           };
           break;
         case 'cyclonedx1.5+json':
+          // Initialize properties for all components, add scope properties when enabled
+          if (components) {
+            components.forEach((component: any, index: number) => {
+              if (!component.properties) {
+                component.properties = [];
+              }
+
+              if (index === 0) return; // Skip root component
+
+              if (showNpmScope && pkgManager === 'npm') {
+                const scope = getRandomNpmScope();
+                component.properties.push({
+                  name: 'snyk:npm:scope',
+                  value: scope,
+                });
+              }
+
+              if (showMavenBuildScope && pkgManager === 'maven') {
+                const scope = getRandomMavenScope();
+                component.properties.push({
+                  name: 'snyk:maven:build_scope',
+                  value: scope,
+                });
+              }
+            });
+          }
+
           bom = {
             specVersion: '1.5',
             $schema: 'http://cyclonedx.org/schema/bom-1.5.schema.json',
@@ -1348,6 +1468,33 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           };
           break;
         case 'cyclonedx1.6+json':
+          // Initialize properties for all components, add scope properties when enabled
+          if (components) {
+            components.forEach((component: any, index: number) => {
+              if (!component.properties) {
+                component.properties = [];
+              }
+
+              if (index === 0) return; // Skip root component
+
+              if (showNpmScope && pkgManager === 'npm') {
+                const scope = getRandomNpmScope();
+                component.properties.push({
+                  name: 'snyk:npm:scope',
+                  value: scope,
+                });
+              }
+
+              if (showMavenBuildScope && pkgManager === 'maven') {
+                const scope = getRandomMavenScope();
+                component.properties.push({
+                  name: 'snyk:maven:build_scope',
+                  value: scope,
+                });
+              }
+            });
+          }
+
           bom = {
             specVersion: '1.6',
             $schema: 'http://cyclonedx.org/schema/bom-1.6.schema.json',
