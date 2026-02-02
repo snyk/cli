@@ -5,9 +5,7 @@ import { TestOptions, Options, MonitorOptions } from '../types';
 import { snykHttpClient } from '../request/snyk-http-client';
 import * as types from './types';
 import { buildPluginOptions } from './build-plugin-options';
-
-const SHOW_MAVEN_BUILD_SCOPE = 'show-maven-build-scope';
-const SHOW_NPM_SCOPE = 'show-npm-scope';
+const { SHOW_MAVEN_BUILD_SCOPE, SHOW_NPM_SCOPE } = require('../feature-flags');
 
 export async function getSinglePluginResult(
   root: string,

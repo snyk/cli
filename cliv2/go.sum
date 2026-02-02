@@ -534,8 +534,8 @@ github.com/snyk/cli-extension-mcp-scan v0.0.0-20260120142932-0eea0566625a h1:ElZ
 github.com/snyk/cli-extension-mcp-scan v0.0.0-20260120142932-0eea0566625a/go.mod h1:i/EDskKxg68MtWaIOWFyataAMtcXOb/DQPLxT5jtLRE=
 github.com/snyk/cli-extension-os-flows v0.0.0-20260126114133-44216d2c49f1 h1:xlw3z5a6KrpoLXgoGjzjc3LyxDjZCxylHuiEoQ8U9No=
 github.com/snyk/cli-extension-os-flows v0.0.0-20260126114133-44216d2c49f1/go.mod h1:eYla0N+RzCa88JT6v4t/sAQthfJgyOHO1Oj9J72/Exw=
-github.com/snyk/cli-extension-sbom v0.0.0-20260109124810-cfdd074f8eeb h1:5cAi3VwdoE4d6kc6D6qSge11e/ALBMmuBatySFd8rfE=
-github.com/snyk/cli-extension-sbom v0.0.0-20260109124810-cfdd074f8eeb/go.mod h1:jIACVV10j4pW7LFrlYYtjn9mZm2JnXeFBM6/aTNJgvM=
+github.com/snyk/cli-extension-sbom v0.0.0-20260202122838-0e327836c96e h1:6Gd58nwuWHv+m0xNlgI5WsmRyiPV5zR/b4nHF+Vw7GE=
+github.com/snyk/cli-extension-sbom v0.0.0-20260202122838-0e327836c96e/go.mod h1:OT3GJa4+cbCV8bq3cKtwe2ELHBHRWQb2DkHdyeG8TL4=
 github.com/snyk/code-client-go v1.25.0 h1:1lcg6asMpMWwpaZLKVDdci3OrAv6rRoCsCcT8Ci/fUI=
 github.com/snyk/code-client-go v1.25.0/go.mod h1:YYggK3UbOHl5rg7uBhLzsKZBFNavcwFUse/EWCKWdzw=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
@@ -544,8 +544,8 @@ github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25 h1:dwJ4Kdp4c5aaW
 github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260108110943-21ad0c940c14 h1:R74dgtKtcrIOG/349YDV8arH7D09pob3lAcJc290FqI=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260108110943-21ad0c940c14/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
-github.com/snyk/go-application-framework v0.0.0-20260126103810-195f34e2e0a2 h1:GPPfUrc/qgRqqkd+4FSbD+OYXVwrb9JG8vMjgN0Kmjw=
-github.com/snyk/go-application-framework v0.0.0-20260126103810-195f34e2e0a2/go.mod h1:LPR080GrK2jqNN9/hgVwKkXTVS3BlvwqmTN60lX5wdA=
+github.com/snyk/go-application-framework v0.0.0-20260128131202-72ae858e7d08 h1:spA/w4h6q+UJq054xF3rhaqIeF8UYuHPjiLGezViAYU=
+github.com/snyk/go-application-framework v0.0.0-20260128131202-72ae858e7d08/go.mod h1:LPR080GrK2jqNN9/hgVwKkXTVS3BlvwqmTN60lX5wdA=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v1.1.2 h1:BYWigTxPjiQer4m2jYhO623KmGdmmzA3S60k9AJPT+Q=

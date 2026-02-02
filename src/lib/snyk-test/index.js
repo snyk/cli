@@ -8,6 +8,8 @@ const pm = require('../package-managers');
 const { UnsupportedPackageManagerError } = require('../errors');
 const { isMultiProjectScan } = require('../is-multi-project-scan');
 const {
+  SHOW_MAVEN_BUILD_SCOPE,
+  SHOW_NPM_SCOPE,
   hasFeatureFlag,
   isFeatureFlagSupportedForOrg,
 } = require('../feature-flags');
@@ -17,9 +19,6 @@ const {
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } = require('../package-managers');
 const { getOrganizationID } = require('../organization');
-
-const SHOW_MAVEN_BUILD_SCOPE = 'show-maven-build-scope';
-const SHOW_NPM_SCOPE = 'show-npm-scope';
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
