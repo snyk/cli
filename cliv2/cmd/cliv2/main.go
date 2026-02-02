@@ -26,9 +26,6 @@ import (
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/cli-extension-secrets/pkg/secrets"
-	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
-	"github.com/snyk/cli/cliv2/internal/cliv2"
-	"github.com/snyk/cli/cliv2/internal/constants"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/go-application-framework/pkg/analytics"
@@ -38,6 +35,10 @@ import (
 	"github.com/snyk/go-application-framework/pkg/logging"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
+	"github.com/snyk/cli/cliv2/internal/cliv2"
+	"github.com/snyk/cli/cliv2/internal/constants"
 
 	cliv2utils "github.com/snyk/cli/cliv2/internal/utils"
 
@@ -281,7 +282,7 @@ func defaultCmd(args []string) error {
 	return err
 }
 
-func runCodeTestCommand(cmd *cobra.Command, args []string) error {
+func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templateFiles []string) error {
 	// ensure legacy behavior, where sarif and json can be used interchangeably
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
 
@@ -289,13 +290,13 @@ func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 		{
 			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE,
 			MimeType:          output_workflow.SARIF_MIME_TYPE,
-			TemplateFiles:     output_workflow.ApplicationSarifTemplates,
+			TemplateFiles:     templateFiles,
 			WriteEmptyContent: true,
 		},
 		{
 			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE,
 			MimeType:          output_workflow.SARIF_MIME_TYPE,
-			TemplateFiles:     output_workflow.ApplicationSarifTemplates,
+			TemplateFiles:     templateFiles,
 			WriteEmptyContent: false,
 		},
 	}
@@ -308,6 +309,14 @@ func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_KEY_DEFAULT_WRITER_LUT, defaultWriterLookup)
 
 	return runCommand(cmd, args)
+}
+
+func runCodeTestCommand(cmd *cobra.Command, args []string) error {
+	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplates)
+}
+
+func runSecretsTestCommand(cmd *cobra.Command, args []string) error {
+	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplatesUfm)
 }
 
 func runAuthCommand(cmd *cobra.Command, args []string) error {
@@ -384,6 +393,9 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
+		} else if currentCommandString == "secrets test" {
+			// use the special run command to ensure that the non-standard behavior of the command can be kept
+			parentCommand.RunE = runSecretsTestCommand
 		} else if currentCommandString == "test" || currentCommandString == "monitor" {
 			legacy.SetupTestMonitorCommand(parentCommand)
 		} else if currentCommandString == "auth" {
