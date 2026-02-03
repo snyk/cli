@@ -93,6 +93,7 @@ import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 import { normalizeTargetFile } from '../normalize-target-file';
 import { EXIT_CODES } from '../../cli/exit-codes';
 import { headerSnykTsCliTerminate } from '../request/constants';
+import { ProblemError } from '@snyk/error-catalog-nodejs-public';
 
 const debug = debugModule('snyk:run-test');
 
@@ -420,7 +421,7 @@ export async function runTest(
         `Failed to test ${projectType} project`,
       error.code,
       error.innerError,
-      error.errorCatalog,
+      error instanceof ProblemError ? error : error.errorCatalog,
     );
   } finally {
     spinner.clear<void>(spinnerLbl)();

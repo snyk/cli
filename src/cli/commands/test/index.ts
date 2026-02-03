@@ -273,6 +273,7 @@ export default async function test(
       // for non-json/sarif outputs, where we take the code of
       // the first error.
       (err as any).code = (errorResults[0] as any).code;
+      (err as any).errorCatalog = (errorResults[0] as any).errorCatalog;
     }
     err.json = stringifiedData;
     err.jsonStringifiedResults = stringifiedJsonData;
@@ -325,6 +326,7 @@ export default async function test(
     (error as any).userMessage = (errorResults[0] as any).userMessage;
     (error as any).strCode = (errorResults[0] as any).strCode;
     (error as any).innerError = (errorResults[0] as any).innerError;
+    (error as any).errorCatalog = (errorResults[0] as any).errorCatalog;
     throw error;
   }
 
