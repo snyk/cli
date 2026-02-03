@@ -6,10 +6,6 @@ import {
 } from '../../../acceptance/fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { resolve } from 'path';
-import { readFileSync } from 'fs';
-import { runCommand } from '../../util/runCommand';
-
-import { fakeDeepCodeServer } from '../../../acceptance/deepcode-fake-server';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -22,6 +18,12 @@ function aiBomRestEndpointRequests(requests: Request[]): string[] {
       res.push(`${request.method}:/ai_boms`);
     } else if (request.url.includes('/ai_bom_jobs')) {
       res.push(`${request.method}:/ai_bom_jobs`);
+    } else if (request.url.match(/.*\/upload_revisions\/.*\/files/)) {
+      res.push(`${request.method}:/upload_revisions/:uploadRevisionId/files`);
+    } else if (request.url.match(/.*\/upload_revisions\/.*/)) {
+      res.push(`${request.method}:/upload_revisions/:uploadRevisionId`);
+    } else if (request.url.match(/.*\/upload_revisions/)) {
+      res.push(`${request.method}:/upload_revisions`);
     }
   }
   return res;
@@ -29,7 +31,6 @@ function aiBomRestEndpointRequests(requests: Request[]): string[] {
 
 describe('snyk aibom (mocked servers only)', () => {
   let server: ReturnType<typeof fakeServer>;
-  let deepCodeServer: ReturnType<typeof fakeDeepCodeServer>;
   let envWithoutAuth: Record<string, string>;
   let env: Record<string, string>;
   const port = getServerPort(process);
@@ -56,10 +57,6 @@ describe('snyk aibom (mocked servers only)', () => {
     projectRoot,
     'test/fixtures/ai-bom/python-chatbot',
   );
-  const pythonRequirementsProject = resolve(
-    projectRoot,
-    'test/fixtures/ai-bom/requirements',
-  );
 
   const notSupportedProject = resolve(
     projectRoot,
@@ -70,7 +67,7 @@ describe('snyk aibom (mocked servers only)', () => {
     return new Promise<void>((resolve, reject) => {
       try {
         let serversReady = 0;
-        const totalServers = 2;
+        const totalServers = 1;
         const checkAndResolve = () => {
           serversReady++;
           if (serversReady === totalServers) {
@@ -78,8 +75,6 @@ describe('snyk aibom (mocked servers only)', () => {
           }
         };
 
-        deepCodeServer = fakeDeepCodeServer();
-        deepCodeServer.listen(checkAndResolve);
         server = fakeServer(baseApi, 'snykToken');
         server.listen(port, checkAndResolve);
       } catch (error) {
@@ -88,37 +83,23 @@ describe('snyk aibom (mocked servers only)', () => {
     });
   });
 
+  afterAll(() => {
+    return new Promise<void>((resolve) => {
+      server.close(() => {
+        resolve();
+      });
+    });
+  });
+
   beforeEach(() => {
     jest.resetAllMocks();
     server.restore();
-    deepCodeServer.restore();
     env = {
       ...initialEnvVars,
-      SNYK_CODE_CLIENT_PROXY_URL: `http://${ipAddress}:${deepCodeServer.getPort()}`,
     };
     envWithoutAuth = {
       ...initialEnvVarsWithoutAuth,
-      SNYK_CODE_CLIENT_PROXY_URL: `http://${ipAddress}:${deepCodeServer.getPort()}`,
     };
-    deepCodeServer.setFiltersResponse({
-      configFiles: [],
-      extensions: ['.py', '.snykdepgraph'],
-      autofixExtensions: [],
-    });
-    const sarifPayload = readFileSync(
-      `${projectRoot}/test/fixtures/ai-bom/sample-ai-bom-sarif.json`,
-    ).toString();
-    deepCodeServer.setSarifResponse(sarifPayload);
-  });
-
-  afterAll(() => {
-    return new Promise<void>((resolve) => {
-      deepCodeServer.close(() => {
-        server.close(() => {
-          resolve();
-        });
-      });
-    });
   });
 
   test('`aibom` generates an AI-BOM CycloneDX with components', async () => {
@@ -135,14 +116,12 @@ describe('snyk aibom (mocked servers only)', () => {
       bom = JSON.parse(stdout);
     }).not.toThrow();
 
-    const deeproxyRequestUrls = deepCodeServer
-      .getRequests()
-      .map((req) => `${req.method}:${req.url}`);
-    expect(deeproxyRequestUrls).toEqual(['GET:/filters', 'POST:/bundle']);
-
     const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
     expect(aiBomRequests).toEqual([
       'POST:/ai_boms',
+      'POST:/upload_revisions',
+      'POST:/upload_revisions/:uploadRevisionId/files',
+      'PATCH:/upload_revisions/:uploadRevisionId',
       'POST:/ai_boms',
       'GET:/ai_bom_jobs',
       'GET:/ai_boms',
@@ -170,14 +149,12 @@ describe('snyk aibom (mocked servers only)', () => {
       bom = JSON.parse(stdout);
     }).not.toThrow();
 
-    const deeproxyRequestUrls = deepCodeServer
-      .getRequests()
-      .map((req) => `${req.method}:${req.url}`);
-    expect(deeproxyRequestUrls).toEqual(['GET:/filters', 'POST:/bundle']);
-
     const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
     expect(aiBomRequests).toEqual([
       'POST:/ai_boms',
+      'POST:/upload_revisions',
+      'POST:/upload_revisions/:uploadRevisionId/files',
+      'PATCH:/upload_revisions/:uploadRevisionId',
       'POST:/ai_boms/upload',
       'GET:/ai_bom_jobs',
       'GET:/ai_boms',
@@ -202,58 +179,10 @@ describe('snyk aibom (mocked servers only)', () => {
     );
     expect(code).toEqual(2);
 
-    const deeproxyRequestUrls = deepCodeServer
-      .getRequests()
-      .map((req) => `${req.method}:${req.url}`);
-    expect(deeproxyRequestUrls).toEqual([]);
-
     const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
     expect(aiBomRequests).toEqual(['POST:/ai_boms']);
 
     expect(stdout).toContain('unexpected status code 404 for CreateAIBOM');
-  });
-
-  test('`aibom` adds the depgraph to the bundle', async () => {
-    const pipResult = await runCommand(
-      'pip',
-      ['install', '-r', 'requirements.txt'],
-      {
-        shell: true,
-        cwd: pythonRequirementsProject,
-      },
-    );
-
-    expect(pipResult.code).toBe(0);
-
-    await runSnykCLI(`aibom ${pythonRequirementsProject} --experimental`, {
-      env,
-    });
-    const deeproxyRequestUrls = deepCodeServer
-      .getRequests()
-      .map((req) => `${req.method}:${req.url}`);
-    expect(deeproxyRequestUrls).toEqual([
-      'GET:/filters',
-      'POST:/bundle',
-      'PUT:/bundle/bundle-hash',
-    ]);
-
-    const deepcodeBundleRequest = deepCodeServer.getRequests()[2];
-    expect(deepcodeBundleRequest.url).toEqual('/bundle/bundle-hash');
-
-    const deepcodeBundleRequestBody = JSON.parse(
-      Buffer.from(deepcodeBundleRequest.body.toString(), 'base64').toString(),
-    );
-    expect(deepcodeBundleRequestBody['files']).toBeDefined();
-    const fileNames = Object.keys(deepcodeBundleRequestBody['files']);
-    expect(fileNames.length).toEqual(1);
-    const depgraphFileName = fileNames[0];
-    expect(depgraphFileName.endsWith('.snykdepgraph')).toBe(true);
-    const depgraph = JSON.parse(
-      deepcodeBundleRequestBody['files'][depgraphFileName].content,
-    );
-
-    const packagesInDepgraph = depgraph.pkgs.map((pkg) => pkg.info.name);
-    expect(packagesInDepgraph).toContain('anthropic');
   });
 
   test('`aibom` generates an AI-BOM CycloneDX in the HTML format', async () => {
