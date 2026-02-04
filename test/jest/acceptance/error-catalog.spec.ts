@@ -1,5 +1,6 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
+import { createProject } from '../util/createProject';
 import { getServerPort } from '../util/getServerPort';
 import {
   isWindowsOperatingSystem,
@@ -255,6 +256,38 @@ describe('special error cases', () => {
         // Clean up temporary directory
         await fs.promises.rm(emptyDir, { recursive: true, force: true });
       }
+    },
+  );
+
+
+  testIf(!isWindowsOperatingSystem())(
+    'sbom command returns SNYK-CLI-0006 when authentication is missing',
+    async () => {
+      // Create a temporary directory with a valid npm project
+      const project = await createProject('npm-bundled-dep');
+      
+      // Configure fake server to return 401 (authentication failure)
+      server.setStatusCode(401);
+      
+      delete env.SNYK_TOKEN;
+      delete env.SNYK_CFG_ORG;  //dont set the org to ensure the error is returned
+
+      const { code, stdout, stderr } = await runSnykCLI(
+        `sbom --format cyclonedx1.4+json --debug`,
+        {
+          cwd: project.path(),
+          env: env,
+        },
+      );
+  
+
+      console.log(stderr);
+      // expect exit with code 2 (authentication/authorization failure)
+      expect(code).toBe(2);
+      // expect the error code SNYK-0005 and SNYK-CLI-0006 to pass
+      expect(stderr).toContain('SNYK-0005');
+      expect(stderr).not.toContain('SNYK-CLI-0000');
+      expect(stderr).toContain('SNYK-CLI-0006');
     },
   );
 });
