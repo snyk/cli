@@ -1,15 +1,13 @@
 # Getting started with the Snyk CLI
 
-## Introduction to Snyk and the Snyk CLI
+## Introduction to the Snyk CLI
 
-[Snyk](https://snyk.io/) is a developer-first, cloud-native security tool to scan and monitor your software development projects for security vulnerabilities. Snyk scans multiple content types for security issues:
+Snyk is a developer-first, cloud-native security tool to scan and monitor your software development projects for security vulnerabilities. Snyk scans multiple content types for security issues:
 
 - [Snyk Open Source](https://docs.snyk.io/scan-with-snyk/snyk-open-source): Find and automatically fix open-source vulnerabilities
 - [Snyk Code](https://docs.snyk.io/scan-with-snyk/snyk-code): Find and fix vulnerabilities in your application code in real time
 - [Snyk Container](https://docs.snyk.io/scan-with-snyk/snyk-container): Find and fix vulnerabilities in container images and Kubernetes applications
 - [Snyk IaC](https://docs.snyk.io/scan-with-snyk/snyk-iac): Find and fix insecure configurations in Terraform and Kubernetes code
-
-[Learn more about what Snyk can do and sign up for a free account](https://snyk.io/).
 
 The Snyk CLI brings the functionality of Snyk into your development workflow. You can run the CLI locally from the command line or in an IDE. You can also run the CLI in your CI/CD pipeline. The following shows an example of Snyk CLI test command output.
 
@@ -27,7 +25,9 @@ This page explains how to install, authenticate, and start scanning using the CL
 
 To use the CLI, you must install it and authenticate your machine. See [Install or update the Snyk CLI](https://docs.snyk.io/snyk-cli/install-or-update-the-snyk-cli) and [Authenticate the CLI with your account](authenticate-to-use-the-cli.md). You can refer to the [release notes](https://github.com/snyk/cli/releases) for a summary of changes in each release. Before scanning your code, review the [Code execution warning for Snyk CLI](https://docs.snyk.io/snyk-cli/code-execution-warning-for-snyk-cli).
 
-**Note:** Before you can use the CLI for Open Source scanning, you must install your package manager. The needed third-party tools, such as Gradle or Maven, must be in the `PATH`.
+{% hint style="info" %}
+Before you can use the CLI for Open Source scanning, you must install your package manager. The needed third-party tools, such as Gradle or Maven, must be in the `PATH`.
+{% endhint %}
 
 You can also install the CLI in your IDE or CI/CD environment. For details, see the [IDE and CI/CD documentation](https://docs.snyk.io/scm-ide-and-ci-cd-integrations) for instructions for each integration.
 
@@ -41,17 +41,17 @@ Look at the `test` command report in your terminal. The report shows the vulnera
 
 ## Scan your development Project
 
-**Note:** Before using the Snyk CLI to test your Open Source Project for vulnerabilities, with limited exceptions, you must **build your Project**. For details, see [Open Source Projects that must be built before testing](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-open-source/open-source-projects-that-must-be-built-before-testing-with-the-snyk-cli).
+Before using the Snyk CLI to test your Open Source Project for vulnerabilities, with limited exceptions, you must build your Project. For details, see [Open Source Projects that must be built before testing](https://docs.snyk.io/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-open-source/open-source-projects-that-must-be-built-before-testing-with-the-snyk-cli).
 
-In addition, depending on the language of your open-source Project, you may need to **set up your language environment** before using the Snyk CLI. For details, refer to [Supported languages, package managers, and frameworks](https://docs.snyk.io/supported-languages-package-managers-and-frameworks).
+In addition, depending on the language of your open-source Project, you may need to set up your language environment before using the Snyk CLI. For details, refer to [Supported languages, package managers, and frameworks](https://docs.snyk.io/supported-languages-package-managers-and-frameworks).
 
 After you have installed the CLI and authenticated your machine, to **scan an open-source Project**, use `cd /my/project/` to change the current directory to a folder containing a supported package manifest file, such as `package.json`, `pom.xml`, or `composer.lock`. Then run `snyk test`. All vulnerabilities identified are listed, including their path and fix guidance.
 
-To scan your **source code,** run `snyk code test`.
+To scan your source code, run `snyk code test`.
 
-You can **scan a Docker image** by its tag running, for example: `snyk container test ubuntu:18.04`.
+You can scan a Docker image by its tag running, for example: `snyk container test ubuntu:18.04`.
 
-To scan a **Kubernetes (K8s) file,** run the following:\
+To scan a Kubernetes (K8s) file, run the following:\
 `snyk iac test /path/to/kubernetes_file.yaml`
 
 For details about using the Snyk CLI to scan each content type, see the following:
@@ -87,13 +87,13 @@ For more information, see [Monitor your Projects at regular intervals](https://d
 
 ## Running out of tests
 
-Snyk allows unlimited tests for public repositories. If you are on the Free plan, you have a limited number of tests per month. Paid plans have unlimited tests on private and public repositories. If you are on the Free plan and notice that your test count is quickly being used, even with public repositories, you can remedy this by telling Snyk the public URL of the repository that is being scanned by the Snyk CLI. This ensures that Snyk does not count a public repository towards the test limits.
+Test limits do not apply to public repositories. If you notice that the test limits related to your private repositories (where applicable) are being used by tests on public repositories, you can remedy this by telling Snyk the public URL of the repository that is being scanned by the Snyk CLI. This ensures that Snyk does not count a public repository towards the test limits.
 
 If you run out of tests on an open-source Project, follow these steps:
 
 - Run `snyk monitor`.
-- Open the Snyk UI and navigate to the **settings** of the Project.
-- Enter the URL of your open-source repository in **Git remote URL**.
+- In the Snyk Web UI, navigate to the **Settings** of the Project.
+- Enter the URL of your open-source repository under **Git remote URL**.
 
 ## Additional information about the Snyk CLI
 
