@@ -1,11 +1,19 @@
 import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer, getFirstIPv4Address } from '../../acceptance/fake-server';
 import { getServerPort } from '../util/getServerPort';
-import { isWindowsOperatingSystem, testIf } from '../../utils';
+import {
+  isWindowsOperatingSystem,
+  testIf,
+  makeTmpDirectory,
+} from '../../utils';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
+import * as fs from 'fs';
 
 const TEST_DISTROLESS_STATIC_IMAGE =
   'gcr.io/distroless/static@sha256:7198a357ff3a8ef750b041324873960cf2153c11cc50abb9d8d5f8bb089f6b4e';
+
+const TEST_WINDOWS_AMD64_IMAGE =
+  'mcr.microsoft.com/windows/nanoserver:ltsc2019';
 
 interface Workflow {
   type: string;
@@ -25,11 +33,20 @@ const integrationWorkflows: Workflow[] = [
     type: 'typescript',
     cmd: 'monitor',
   },
-  {
+];
+
+// Use a different image for Windows as the distroless image is not available on Windows
+if (isWindowsOperatingSystem()) {
+  integrationWorkflows.push({
+    type: 'typescript',
+    cmd: `container monitor ${TEST_WINDOWS_AMD64_IMAGE}`,
+  });
+} else {
+  integrationWorkflows.push({
     type: 'typescript',
     cmd: `container monitor ${TEST_DISTROLESS_STATIC_IMAGE}`,
-  },
-];
+  });
+}
 
 const snykOrg = '11111111-2222-3333-4444-555555555555';
 
@@ -111,7 +128,7 @@ describe.each(integrationWorkflows)(
 
             expect(code).toBe(2);
             expect(errors[0].code).toEqual('500');
-          });
+          }, 50000);
         });
       });
 
@@ -138,7 +155,7 @@ describe.each(integrationWorkflows)(
   },
 );
 
-describe('Special error cases', () => {
+describe('special error cases', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
@@ -214,4 +231,27 @@ describe('Special error cases', () => {
       );
     },
   );
+
+  it('test command returns SNYK-CLI-0008 when no supported files are found', async () => {
+    // Create a temporary empty directory
+    const emptyDir = await makeTmpDirectory();
+
+    try {
+      const { code, stdout, stderr } = await runSnykCLI(`test`, {
+        cwd: emptyDir,
+        env: env,
+      });
+
+      // Should exit with code 3 (NO_SUPPORTED_PROJECTS_DETECTED)
+      expect(code).toBe(3);
+
+      // Should contain the error code SNYK-CLI-0008
+      expect(stdout).toContain('SNYK-CLI-0008');
+      expect(stdout).toContain('No supported files found');
+      expect(stderr).toBe('');
+    } finally {
+      // Clean up temporary directory
+      await fs.promises.rm(emptyDir, { recursive: true, force: true });
+    }
+  });
 });

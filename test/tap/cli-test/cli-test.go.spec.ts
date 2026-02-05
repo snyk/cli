@@ -52,6 +52,9 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-gomodules',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              configuration: {
+                includeGoStandardLibraryDeps: false,
+              },
             },
             snykHttpClient,
           ],
@@ -105,6 +108,9 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-gomodules',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              configuration: {
+                includeGoStandardLibraryDeps: false,
+              },
             },
             snykHttpClient,
           ],
@@ -160,6 +166,9 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-app',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              configuration: {
+                includeGoStandardLibraryDeps: false,
+              },
             },
             snykHttpClient,
           ],
@@ -213,6 +222,9 @@ export const GoTests: AcceptanceTests = {
               path: 'golang-app',
               showVulnPaths: 'some',
               maxVulnPaths: undefined,
+              configuration: {
+                includeGoStandardLibraryDeps: false,
+              },
             },
             snykHttpClient,
           ],

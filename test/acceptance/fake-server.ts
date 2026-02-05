@@ -18,6 +18,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['sbomMonitorBeta', false],
     ['useImprovedDotnetWithoutPublish', false],
     ['scanUsrLibJars', false],
+    ['includeGoStandardLibraryDeps', false],
 
     // Default these to false.
     // TODO: Future acceptance tests targeting these features and their
@@ -55,7 +56,11 @@ export type FakeServer = {
   setSarifResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
-  setGlobalResponse: (response: Record<string, unknown>, code: number) => void;
+  setGlobalResponse: (
+    response: Record<string, unknown>,
+    code: number,
+    headers?: Record<string, any>,
+  ) => void;
 
   setEndpointResponse: (
     endpoint: string,
@@ -96,6 +101,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let nextResponse: any = undefined;
   let endpointResponses: Map<string, Record<string, unknown>> = new Map();
   let endpointStatusCodes: Map<string, number> = new Map();
+  let endpointHeaders: Map<string, string> = new Map();
   let customResponse: Record<string, unknown> | undefined = undefined;
   let sarifResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
@@ -108,6 +114,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     sarifResponse = undefined;
     endpointResponses = new Map();
     endpointStatusCodes = new Map();
+    endpointHeaders = new Map();
     featureFlags = featureFlagDefaults();
     availableSettings = new Map();
     unauthorizedActions = new Map();
@@ -168,9 +175,15 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   const setGlobalResponse = (
     response: Record<string, unknown>,
     code: number,
+    headers?: Record<string, string>,
   ) => {
     endpointResponses.set('*', response);
     endpointStatusCodes.set('*', code);
+    if (headers) {
+      for (const [key, value] of Object.entries(headers)) {
+        endpointHeaders.set(key, value);
+      }
+    }
   };
 
   const setEndpointResponse = (
@@ -214,16 +227,24 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.use((req, res, next) => {
     const endpoint = req.url;
+    const pathOnly = endpoint.split('?')[0];
 
     const wildcardEndpoint = '*';
-    let endpointResponse = endpointResponses.get(wildcardEndpoint);
-    if (!endpointResponse) {
-      endpointResponse = endpointResponses.get(endpoint);
-    }
+    const endpointResponse =
+      endpointResponses.get(wildcardEndpoint) ||
+      endpointResponses.get(endpoint) ||
+      endpointResponses.get(pathOnly);
 
-    let endpointStatusCode = endpointStatusCodes.get(wildcardEndpoint);
-    if (!endpointStatusCode) {
-      endpointStatusCode = endpointStatusCodes.get(endpoint);
+    const endpointStatusCode =
+      endpointStatusCodes.get(wildcardEndpoint) ||
+      endpointStatusCodes.get(endpoint) ||
+      endpointStatusCodes.get(pathOnly);
+
+    // configure any response headers
+    if (endpointHeaders.size > 0) {
+      endpointHeaders.forEach((value, key) => {
+        res.set(key, value);
+      });
     }
 
     if (endpointResponse) {
@@ -408,6 +429,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200);
     if (customResponse) {
       res.send(customResponse);
+      return;
     }
     res.send({});
   });
@@ -501,6 +523,21 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       },
       data: {
         id: '59622253-75f3-4439-ac1e-ce94834c5804',
+        type: 'ai_bom_job',
+        attributes: { status: 'processing' },
+      },
+    });
+  });
+
+  app.post(`/api/rest/orgs/:orgId/ai_boms/upload`, (req, res) => {
+    res.status(202);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {
+        self: `/api/rest/orgs/${req.params.orgId}/ai_bom_jobs/c051477e-5033-55b1-bc23-135daf9b1724`,
+      },
+      data: {
+        id: 'c051477e-5033-55b1-bc23-135daf9b1724',
         type: 'ai_bom_job',
         attributes: { status: 'processing' },
       },
@@ -666,6 +703,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
                 description: 'The system prompt was exfiltrated.',
               },
               url: 'https://demo-app.com/api/chat',
+              evidence: {
+                type: 'raw',
+                content: {
+                  reason:
+                    'The model disclosed confidential system instructions.',
+                },
+              },
             },
           ],
         },
@@ -1202,6 +1246,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       res
         .status(400)
         .send(`{"errors":[{"title":"Bad Request","detail":"invalid SBOM"}]}`);
+      return;
     }
 
     const body = fs.readFileSync(
@@ -1292,6 +1337,28 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
             },
           };
           break;
+        case 'cyclonedx1.4+xml': {
+          const componentsXml = components
+            .map(
+              (c: { name: string }) =>
+                `    <component type="library"><name>${c.name}</name></component>`,
+            )
+            .join('\n');
+          const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<bom xmlns="http://cyclonedx.org/schema/bom/1.4" version="1" specVersion="1.4">
+  <metadata>
+    <component type="application">
+      <name>${name}</name>
+    </component>
+  </metadata>
+  <components>
+${componentsXml}
+  </components>
+</bom>`;
+          res.set('Content-Type', 'application/xml');
+          res.status(200).send(xmlContent);
+          return;
+        }
         case 'cyclonedx1.5+json':
           bom = {
             specVersion: '1.5',

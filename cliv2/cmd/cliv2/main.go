@@ -25,16 +25,16 @@ import (
 	"github.com/snyk/cli-extension-mcp-scan/pkg/mcpscan"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
+	"github.com/snyk/cli-extension-secrets/pkg/secrets"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
@@ -47,7 +47,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
 	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
-
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
 
@@ -60,7 +59,6 @@ import (
 	"github.com/snyk/go-application-framework/pkg/workflow"
 
 	snykls "github.com/snyk/snyk-ls/ls_extension"
-
 	"github.com/snyk/studio-mcp/pkg/mcp"
 
 	cli_errors "github.com/snyk/cli/cliv2/internal/errors"
@@ -284,7 +282,7 @@ func defaultCmd(args []string) error {
 	return err
 }
 
-func runCodeTestCommand(cmd *cobra.Command, args []string) error {
+func runTestCommandWithSarifEqualJson(cmd *cobra.Command, args []string, templateFiles []string) error {
 	// ensure legacy behavior, where sarif and json can be used interchangeably
 	globalConfiguration.AddAlternativeKeys(output_workflow.OUTPUT_CONFIG_KEY_SARIF, []string{output_workflow.OUTPUT_CONFIG_KEY_JSON})
 
@@ -292,13 +290,13 @@ func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 		{
 			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_SARIF_FILE,
 			MimeType:          output_workflow.SARIF_MIME_TYPE,
-			TemplateFiles:     output_workflow.ApplicationSarifTemplates,
+			TemplateFiles:     templateFiles,
 			WriteEmptyContent: true,
 		},
 		{
 			NameConfigKey:     output_workflow.OUTPUT_CONFIG_KEY_JSON_FILE,
 			MimeType:          output_workflow.SARIF_MIME_TYPE,
-			TemplateFiles:     output_workflow.ApplicationSarifTemplates,
+			TemplateFiles:     templateFiles,
 			WriteEmptyContent: false,
 		},
 	}
@@ -311,6 +309,14 @@ func runCodeTestCommand(cmd *cobra.Command, args []string) error {
 	globalConfiguration.Set(output_workflow.OUTPUT_CONFIG_KEY_DEFAULT_WRITER_LUT, defaultWriterLookup)
 
 	return runCommand(cmd, args)
+}
+
+func runCodeTestCommand(cmd *cobra.Command, args []string) error {
+	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplates)
+}
+
+func runSecretsTestCommand(cmd *cobra.Command, args []string) error {
+	return runTestCommandWithSarifEqualJson(cmd, args, output_workflow.ApplicationSarifTemplatesUfm)
 }
 
 func runAuthCommand(cmd *cobra.Command, args []string) error {
@@ -387,6 +393,9 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
+		} else if currentCommandString == "secrets test" {
+			// use the special run command to ensure that the non-standard behavior of the command can be kept
+			parentCommand.RunE = runSecretsTestCommand
 		} else if currentCommandString == "test" || currentCommandString == "monitor" {
 			legacy.SetupTestMonitorCommand(parentCommand)
 		} else if currentCommandString == "auth" {
@@ -483,6 +492,29 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 	}
 }
 
+func initExtensions(engine workflow.Engine, config configuration.Configuration) {
+	engine.AddExtensionInitializer(basic_workflows.Init)
+	engine.AddExtensionInitializer(osflows.Init)
+	engine.AddExtensionInitializer(iac.Init)
+	engine.AddExtensionInitializer(sbom.Init)
+	engine.AddExtensionInitializer(aibom.Init)
+	engine.AddExtensionInitializer(redteam.Init)
+	engine.AddExtensionInitializer(depgraph.Init)
+	engine.AddExtensionInitializer(capture.Init)
+	engine.AddExtensionInitializer(iacrules.Init)
+	engine.AddExtensionInitializer(snykls.Init)
+	engine.AddExtensionInitializer(mcp.Init)
+	engine.AddExtensionInitializer(container.Init)
+	engine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
+	engine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
+	engine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
+	engine.AddExtensionInitializer(mcpscan.Init)
+
+	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
+		engine.AddExtensionInitializer(secrets.Init)
+	}
+}
+
 func MainWithErrorCode() int {
 	initDebugBuild()
 
@@ -528,6 +560,9 @@ func MainWithErrorCode() int {
 	ua := networking.UserAgent(networking.UaWithConfig(globalConfiguration), networking.UaWithRuntimeInfo(rInfo), networking.UaWithOS(internalOS))
 	networkAccess := globalEngine.GetNetworkAccess()
 	networkAccess.AddErrorHandler(func(err error, ctx context.Context) error {
+		if err == nil {
+			return nil
+		}
 		errorListMutex.Lock()
 		defer errorListMutex.Unlock()
 
@@ -547,22 +582,7 @@ func MainWithErrorCode() int {
 	}
 
 	// initialize the extensions -> they register themselves at the engine
-	globalEngine.AddExtensionInitializer(basic_workflows.Init)
-	globalEngine.AddExtensionInitializer(osflows.Init)
-	globalEngine.AddExtensionInitializer(iac.Init)
-	globalEngine.AddExtensionInitializer(sbom.Init)
-	globalEngine.AddExtensionInitializer(aibom.Init)
-	globalEngine.AddExtensionInitializer(redteam.Init)
-	globalEngine.AddExtensionInitializer(depgraph.Init)
-	globalEngine.AddExtensionInitializer(capture.Init)
-	globalEngine.AddExtensionInitializer(iacrules.Init)
-	globalEngine.AddExtensionInitializer(snykls.Init)
-	globalEngine.AddExtensionInitializer(mcp.Init)
-	globalEngine.AddExtensionInitializer(container.Init)
-	globalEngine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
-	globalEngine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
-	globalEngine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
-	globalEngine.AddExtensionInitializer(mcpscan.Init)
+	initExtensions(globalEngine, globalConfiguration)
 
 	// init engine
 	err = globalEngine.Init()
@@ -624,18 +644,12 @@ func MainWithErrorCode() int {
 	}
 
 	if err != nil {
-		err = decorateError(err)
+		err, errorList = processError(err, errorList)
 
-		errorList = append(errorList, err)
 		for _, tempError := range errorList {
-			cliAnalytics.AddError(tempError)
-		}
-
-		err = legacyCLITerminated(err, errorList)
-
-		// ensure to apply exit code mapping based on errors
-		if exitCode := mapErrorToExitCode(err); exitCode != unsetExitCode {
-			err = createErrorWithExitCode(exitCode, err)
+			if tempError != nil {
+				cliAnalytics.AddError(tempError)
+			}
 		}
 	}
 
@@ -665,13 +679,32 @@ func MainWithErrorCode() int {
 	return exitCode
 }
 
-func legacyCLITerminated(err error, errorList []error) error {
-	exitErr, isExitError := err.(*exec.ExitError)
-	if isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
+func processError(err error, errorList []error) (error, []error) {
+	// ensure to use generic fallback error catalog error if no other is available
+	err = decorateError(err)
+
+	// filter legacycli terminate errors since it is only used for internal purposes
+	if exitErr, isExitError := err.(*exec.ExitError); isExitError && exitErr.ExitCode() == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
+		err = nil
+	}
+
+	// add all errors to analytics
+	if err != nil {
 		errorList = append([]error{err}, errorList...)
+	}
+
+	// create a single error from all errors
+	if len(errorList) == 1 {
+		err = errorList[0]
+	} else if len(errorList) > 1 {
 		err = errors.Join(errorList...)
 	}
-	return err
+
+	// ensure to apply exit code mapping based on errors
+	if exitCode := mapErrorToExitCode(err); exitCode != unsetExitCode {
+		err = createErrorWithExitCode(exitCode, err)
+	}
+	return err, errorList
 }
 
 func setTimeout(config configuration.Configuration, onTimeout func()) {

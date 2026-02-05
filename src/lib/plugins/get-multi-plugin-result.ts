@@ -30,7 +30,7 @@ export interface ScannedProjectCustom
   callGraph?: CallGraph;
 }
 
-interface FailedProjectScanError {
+export interface FailedProjectScanError {
   targetFile?: string;
   error?: Error;
   errMessage: string;

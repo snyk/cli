@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dynamicweb.Security" Version="12.5.21" />
+        <PackageReference Include="dynamicweb.security" Version="12.5.21" />
         <PackageReference Include="Aspire.RabbitMQ.Client" Version="8.2.2" />
         <PackageReference Include="System.ServiceModel.Duplex" Version="[4.10.3]" />
         <PackageReference
