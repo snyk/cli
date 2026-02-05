@@ -218,7 +218,10 @@ export async function getFormattedMonitorOutput(
       ok: true,
       data: monOutput,
       path: monitorResult.path,
-      projectName: monitorResult.projectName,
+      // Use correct projectName by default; feature flag reverts to legacy behavior (id)
+      projectName: options.disableContainerMonitorProjectNameFix
+        ? monitorResult.id
+        : monitorResult.projectName,
     });
   }
   for (const monitorError of errors) {
