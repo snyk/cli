@@ -545,8 +545,6 @@ github.com/snyk/cli-extension-os-flows v0.0.0-20260202092920-2b2a978a1e44 h1:TSn
 github.com/snyk/cli-extension-os-flows v0.0.0-20260202092920-2b2a978a1e44/go.mod h1:s3HX7yjdyP5PYe+ZTMyrJA5wv6hCnmfGdh7Nk5la6tY=
 github.com/snyk/cli-extension-sbom v0.0.0-20260123101300-130043bcdc06 h1:qXcnwF3v9IobQzfEpUMTvm/+qlW6I/6QuTjf2o008G4=
 github.com/snyk/cli-extension-sbom v0.0.0-20260123101300-130043bcdc06/go.mod h1:nP8zYxLD7/dfbmfeVt+QJRjOK9LJ9+fKieY/Ph/iYb4=
-github.com/snyk/cli-extension-secrets v0.0.0-20260130143905-76aef877df32 h1:aGQr/s53m4Eoy3JRTxnG+ZVaCWGSLXj1xj7swpzVpnE=
-github.com/snyk/cli-extension-secrets v0.0.0-20260130143905-76aef877df32/go.mod h1:vj0PtB7L3tdiVLFDJtMuklDIjOBQdzoKQulnMv8/M/c=
 github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0 h1:LjYHZ+MnBJ9IT/zgU2qCq8+YS2qJFrKJMejOdFC6vCA=
 github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0/go.mod h1:vj0PtB7L3tdiVLFDJtMuklDIjOBQdzoKQulnMv8/M/c=
 github.com/snyk/code-client-go v1.25.0 h1:1lcg6asMpMWwpaZLKVDdci3OrAv6rRoCsCcT8Ci/fUI=
@@ -555,10 +553,10 @@ github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9f
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
 github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25 h1:dwJ4Kdp4c5aaWI+waHomarhouWF6BUYzfen0B6aqaNA=
 github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
-github.com/snyk/error-catalog-golang-public v0.0.0-20260108110943-21ad0c940c14 h1:R74dgtKtcrIOG/349YDV8arH7D09pob3lAcJc290FqI=
-github.com/snyk/error-catalog-golang-public v0.0.0-20260108110943-21ad0c940c14/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
-github.com/snyk/go-application-framework v0.0.0-20260203142932-9a34b4f75695 h1:FwoQ9iDIStKe4572z9P/1Pu3UmxwrSluQM8yJJoBe8s=
-github.com/snyk/go-application-framework v0.0.0-20260203142932-9a34b4f75695/go.mod h1:LPR080GrK2jqNN9/hgVwKkXTVS3BlvwqmTN60lX5wdA=
+github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905 h1:pUe6iOWHEOFY0t4u4ssXeTqpMmZBu1xq06VBFI9zUik=
+github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
+github.com/snyk/go-application-framework v0.0.0-20260205122411-697daedbf089 h1:LcS0fxiCQvA53S2Yo2MOX3yDWbyy7LXPLJiVlwNiQBk=
+github.com/snyk/go-application-framework v0.0.0-20260205122411-697daedbf089/go.mod h1:Egp3UU2UeJdlrJlzFDJv8yA2+Z0Bp7cwgGVL0xdjTqQ=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v1.1.2 h1:BYWigTxPjiQer4m2jYhO623KmGdmmzA3S60k9AJPT+Q=
