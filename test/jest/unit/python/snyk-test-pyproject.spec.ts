@@ -59,6 +59,26 @@ describe('snyk test for python project', () => {
             },
           });
         });
+        // this is for 'show-maven-build-scope' and 'show-npm-scope' feature flags
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: true,
+            },
+          });
+        });
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: true,
+            },
+          });
+        });
+
         mockedLoadPlugin.mockImplementationOnce(() => {
           return plugin;
         });
@@ -82,7 +102,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(4);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -146,6 +166,26 @@ describe('snyk test for python project', () => {
             },
           });
         });
+        // this is for 'show-maven-build-scope' and 'show-npm-scope' feature flags
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: true,
+            },
+          });
+        });
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: true,
+            },
+          });
+        });
+
         mockedLoadPlugin.mockImplementationOnce(() => {
           return plugin;
         });
@@ -169,7 +209,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(4);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -237,6 +277,26 @@ describe('snyk test for python project', () => {
             },
           });
         });
+        // this is for 'show-maven-build-scope' and 'show-npm-scope' feature flags
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: false,
+            },
+          });
+        });
+        mockedMakeRequest.mockImplementationOnce(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: false,
+            },
+          });
+        });
+
         mockedLoadPlugin.mockImplementationOnce(() => {
           return plugin;
         });
@@ -261,7 +321,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('pip');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(4);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -339,6 +399,17 @@ describe('snyk test for python project', () => {
             },
           });
         });
+        // this is for 'show-maven-build-scope' and 'show-npm-scope' feature flags
+        mockedMakeRequest.mockImplementation(() => {
+          return Promise.resolve({
+            res: { statusCode: 200 } as NeedleResponse,
+            body: {
+              code: 200,
+              ok: true,
+            },
+          });
+        });
+
         mockedLoadPlugin
           .mockImplementationOnce(() => pipfilePythonPluginResponse)
           .mockImplementationOnce(() => pyprojectPythonPluginResponse);
@@ -364,7 +435,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledWith('pip');
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(3);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(5);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -498,7 +569,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(2);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(4);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({

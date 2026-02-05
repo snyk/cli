@@ -5,6 +5,7 @@ import * as analytics from '../../analytics';
 import { MissingTargetFileError } from '../../errors/missing-targetfile-error';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 import { DepGraph } from '@snyk/dep-graph';
+import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 import {
   PkgTree,
   getLockfileVersionFromFile,
@@ -26,7 +27,7 @@ export async function inspect(
     targetFile.endsWith('yarn.lock');
 
   const getLockFileDeps = isLockFileBased && !options.traverseNodeModules;
-  const depRes: PkgTree | DepGraph = getLockFileDeps
+  const depRes: PkgTree | DepGraph | PackageExpanded = getLockFileDeps
     ? await lockParser.parse(root, targetFile, options)
     : await modulesParser.parse(root, targetFile, options);
 
@@ -66,6 +67,8 @@ export async function inspect(
   };
 }
 
-function isResDepGraph(depRes: PkgTree | DepGraph): depRes is DepGraph {
+function isResDepGraph(
+  depRes: PkgTree | DepGraph | PackageExpanded,
+): depRes is DepGraph {
   return 'rootPkg' in depRes;
 }

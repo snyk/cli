@@ -12,6 +12,7 @@ import {
   SUPPORTED_MANIFEST_FILES,
   SupportedPackageManagers,
 } from '../package-managers';
+const { SHOW_NPM_SCOPE } = require('../feature-flags');
 import { getSinglePluginResult } from './get-single-plugin-result';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
@@ -76,7 +77,13 @@ export async function getMultiPluginResult(
 
   if (featureFlags.has(PNPM_FEATURE_FLAG)) {
     const { scannedProjects: scannedPnpmResults, unprocessedFiles } =
-      await processWorkspacesProjects(root, options, targetFiles, 'pnpm');
+      await processWorkspacesProjects(
+        root,
+        options,
+        targetFiles,
+        'pnpm',
+        featureFlags,
+      );
     unprocessedFilesfromWorkspaces = unprocessedFiles;
     allResults.push(...scannedPnpmResults);
   }
@@ -89,6 +96,7 @@ export async function getMultiPluginResult(
     options,
     unprocessedFilesfromWorkspaces,
     'yarn',
+    featureFlags,
   );
   allResults.push(...scannedYarnResults);
 
@@ -98,6 +106,7 @@ export async function getMultiPluginResult(
       options,
       unprocessedFilesFromYarn,
       'npm',
+      featureFlags,
     );
   allResults.push(...scannedNpmResults);
 
@@ -116,6 +125,7 @@ export async function getMultiPluginResult(
         root,
         optionsClone,
         optionsClone.file,
+        featureFlags,
       );
       let resultWithScannedProjects: cliInterface.legacyPlugin.MultiProjectResult;
 
@@ -202,6 +212,7 @@ async function processWorkspacesProjects(
   options: Options & (TestOptions | MonitorOptions),
   targetFiles: string[],
   packageManager: 'npm' | 'yarn' | 'pnpm',
+  featureFlags: Set<string> = new Set<string>(),
 ): Promise<{
   scannedProjects: ScannedProjectCustom[];
   unprocessedFiles: string[];
@@ -215,6 +226,7 @@ async function processWorkspacesProjects(
         strictOutOfSync: options.strictOutOfSync,
         dev: options.dev,
         exclude: options.exclude,
+        showNpmScope: featureFlags.has(SHOW_NPM_SCOPE),
       },
       targetFiles,
     );

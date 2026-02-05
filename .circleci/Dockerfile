@@ -1,5 +1,5 @@
 # When upgrading golang, make sure to update the docker executors that use snyklabs/cli-build-private in .circleci/config.yml
-FROM golang:1.24-bullseye
+FROM golang:1.25-bookworm
 
 # install "normal" stuff
 
