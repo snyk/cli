@@ -230,7 +230,7 @@ func Test_AddExtraCaCert(t *testing.T) {
 	loggerWrapper := log.New(&gafUtils.ToZeroLogDebug{Logger: &debugLogger}, "", 0)
 	certPem, _, err := certs.MakeSelfSignedCert("mycert", []string{"dns"}, loggerWrapper)
 	assert.NoError(t, err)
-	file, err := os.CreateTemp("", "")
+	file, err := os.CreateTemp(t.TempDir(), "")
 	assert.NoError(t, err)
 	_, err = file.Write(certPem)
 	assert.NoError(t, err)
