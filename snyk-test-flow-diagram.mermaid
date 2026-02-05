@@ -1,0 +1,85 @@
+sequenceDiagram
+    participant User
+    box CLI Repo
+    participant GoCLI as Go CLI
+    participant TSCLI as TS CLI (legacy)
+    end
+    participant OSFlows as os-flows extension
+    box dep-graph extension
+    participant DepGraph as plugin orchestration
+    participant uvPlugin as uv plugin
+    end
+    participant uvBinary as uv CLI binary
+    participant Registry as Registry
+    participant SBOMAPI as SBOM Conversion API<br/>(/hidden/orgs/.../sboms/convert)
+    participant UnifiedAPI as Unified Test API<br/>(/rest/orgs/.../tests)
+
+    User->>GoCLI: snyk test
+
+    GoCLI->>OSFlows: Invoke os-flows "test" workflow
+
+    OSFlows->>OSFlows: Check for uv.lock files
+
+    alt uv.lock found
+        OSFlows->>Registry: GET /v1/cli-config/feature-flags/enableUvCLI
+        Registry-->>OSFlows: Feature flag value
+    end
+
+    alt uv.lock found AND enableUvCLI = true
+        OSFlows->>DepGraph: Invoke dep-graph workflow<br/>with use-sbom-resolution=true
+
+        DepGraph->>uvPlugin: Execute uv plugin
+
+        uvPlugin->>uvPlugin: Discover uv.lock files
+
+        uvPlugin->>uvBinary: uv --version
+        uvBinary-->>uvPlugin: Version string (must be >= 0.9.23)
+
+        uvPlugin->>uvBinary: uv export --format cyclonedx1.5<br/>--locked --preview [--no-dev] [--all-packages]
+        uvBinary-->>uvPlugin: CycloneDX SBOM (JSON)
+
+        uvPlugin->>uvPlugin: Parse SBOM, extract metadata<br/>(package name, version, workspace packages)
+
+        uvPlugin->>SBOMAPI: POST /hidden/orgs/{orgId}/sboms/convert<br/>with gzipped SBOM
+        SBOMAPI-->>uvPlugin: ScanResult with dep-graph(s)
+
+        uvPlugin-->>DepGraph: Return Finding(s) with dep-graph(s)
+
+        opt --all-projects flag set OR no uv findings
+            Note over DepGraph: Apply uv file exclusions to avoid duplicate<br/>scanning (not yet implemented)
+
+            DepGraph->>GoCLI: Invoke legacy CLI workflow<br/>with --print-effective-graph-with-errors
+            GoCLI->>TSCLI: Execute via stdio
+
+            TSCLI->>TSCLI: Process other ecosystems<br/>(npm, pip, maven, gradle, etc.)
+
+            TSCLI-->>GoCLI: Return dep-graphs (stdout JSONL)
+            GoCLI-->>DepGraph: Return legacy dep-graphs
+
+            DepGraph->>DepGraph: Combine uv + legacy dep-graphs
+        end
+
+        DepGraph-->>OSFlows: Return all dep-graph(s)
+
+        OSFlows->>OSFlows: Create test subjects from dep-graphs
+
+        loop For each dep-graph (up to 5 concurrent)
+            OSFlows->>UnifiedAPI: POST /rest/orgs/{orgId}/tests<br/>with dep_graph subject
+            UnifiedAPI-->>OSFlows: Test handle
+
+            OSFlows->>UnifiedAPI: Poll test_jobs/{jobId} until complete
+            UnifiedAPI-->>OSFlows: Redirect to test result
+
+            OSFlows->>UnifiedAPI: GET /rest/orgs/{orgId}/tests/{testId}/findings
+            UnifiedAPI-->>OSFlows: Vulnerability findings
+        end
+
+        OSFlows->>OSFlows: Consolidate & transform findings
+
+        OSFlows-->>GoCLI: Return test results
+    else uv.lock not found OR enableUvCLI = false
+        Note over OSFlows: Falls back to legacy flow<br/>(uses TS CLI + older plugins)
+    end
+
+    GoCLI->>GoCLI: Output workflow (format results)
+    GoCLI-->>User: Display final results
