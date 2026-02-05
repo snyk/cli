@@ -80,6 +80,8 @@ func TestLegacyFeatureFlagInterceptor_Routing(t *testing.T) {
 
 			_, resp := handler(req, proxyCtx)
 			assert.NotNil(t, resp)
+			defer func() { _ = resp.Body.Close() }()
+
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
 			assert.Equal(t, "application/json", resp.Header.Get("Content-Type"))
 
