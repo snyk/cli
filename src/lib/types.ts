@@ -130,6 +130,7 @@ export interface Options {
 
   // Feature Flags
   useImprovedDotnetWithoutPublish?: boolean;
+  disableContainerMonitorProjectNameFix?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
