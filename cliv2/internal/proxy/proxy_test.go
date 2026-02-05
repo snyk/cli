@@ -127,7 +127,12 @@ func Test_canGoThroughProxy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer func() { _ = res.Body.Close() }()
+	defer func() {
+		if res != nil && res.Body != nil {
+			_ = res.Body.Close()
+		}
+	}()
+
 	assert.Equal(t, 200, res.StatusCode)
 
 	wp.Close()
@@ -154,8 +159,11 @@ func Test_proxyRejectsWithoutBasicAuthHeader(t *testing.T) {
 
 	res, err := proxiedClient.Get("https://downloads.snyk.io/cli/latest/version")
 	assert.Nil(t, res)
-	defer func() { _ = res.Body.Close() }()
-	assert.NotNil(t, err)
+	defer func() {
+		if res != nil && res.Body != nil {
+			_ = res.Body.Close()
+		}
+	}()
 	assert.Contains(t, err.Error(), "Proxy Authentication Required")
 
 	wp.Close()
