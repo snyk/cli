@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "org": "test-org",
+  "id": "7c7305e2-fbcb-44d7-8fbf-8367371c509f",
+  "isMonitored": true,
+  "licensesPolicy": null,
+  "uri": "https://app.snyk.io/org/test-org/project/3dda9b21-ca42-4de6-be7a-85696fa6e866/history/f60dce17-8a72-4cca-8a76-e9c88df546aa",
+  "trialStarted": false,
+  "path": "/srv",
+  "projectName": "my-custom-project-name"
+}
+
