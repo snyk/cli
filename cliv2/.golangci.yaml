@@ -1,3 +1,5 @@
+version: '2'
+
 run:
   build-tags:
     - integration
@@ -115,7 +117,6 @@ linters:
     - gocyclo
     # TODO(godot): revisit
     #- godot
-    - gofmt
     # TODO(gofumpt): revisit
     #- gofumpt
     # TODO(goimports): revisit
@@ -149,7 +150,7 @@ linters:
     # TODO(stylecheck): revisit in a followup; some breaking API changes
     #- stylecheck
     # NOTE: removed tagliatelle as it conflicts too much with existing API wireformats
-    - tenv
+    - usetesting
     # TODO(testpackage): improve open vs closed-box testing in a followup
     #- testpackage
     - thelper
@@ -184,3 +185,7 @@ issues:
   include:
     - EXC0012
     - EXC0014
+
+formatters:
+  enable:
+    - gofmt

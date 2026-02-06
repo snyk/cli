@@ -214,7 +214,7 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 		debugLogger.Err(err).Msg("Failed to send Analytics")
 		return
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	successfullySend := 200 <= res.StatusCode && res.StatusCode < 300
 	if successfullySend {
@@ -387,18 +387,19 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		parentCommand.DisableFlagParsing = false
 
 		// special case for snyk code test
-		if currentCommandString == "code test" {
+		switch currentCommandString {
+		case "code test":
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
 
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
-		} else if currentCommandString == "secrets test" {
+		case "secrets test":
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runSecretsTestCommand
-		} else if currentCommandString == "test" || currentCommandString == "monitor" {
+		case "test", "monitor":
 			legacy.SetupTestMonitorCommand(parentCommand)
-		} else if currentCommandString == "auth" {
+		case "auth":
 			parentCommand.RunE = runAuthCommand
 		}
 	}
@@ -479,7 +480,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-			userInterface.Output(string(jsonErrorBuffer))
+			_ = userInterface.Output(string(jsonErrorBuffer))
 		} else {
 			if errors.Is(err, context.DeadlineExceeded) {
 				err = fmt.Errorf("command timed out")
@@ -632,19 +633,24 @@ func MainWithErrorCode() int {
 
 	// fallback to the legacy cli or show help
 	handleErrorResult := handleError(err)
-	if handleErrorResult == handleErrorFallbackToLegacyCLI {
+	switch handleErrorResult {
+	case handleErrorFallbackToLegacyCLI:
 		// when falling back to TS cli, make sure the
 		_ = rootCommand.ParseFlags(os.Args)
-		globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
+		if err := globalConfiguration.AddFlagSet(rootCommand.LocalFlags()); err != nil {
+			globalLogger.Printf("failed to add flagset: %v", err)
+		}
 
 		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(os.Args[1:])
-	} else if handleErrorResult == handleErrorShowHelp {
+	case handleErrorShowHelp:
 		err = help(nil, []string{})
+	case handleErrorUnhandled:
+		// ignore
 	}
 
 	if err != nil {
-		err, errorList = processError(err, errorList)
+		errorList, err = processError(err, errorList)
 
 		for _, tempError := range errorList {
 			if tempError != nil {
@@ -679,7 +685,7 @@ func MainWithErrorCode() int {
 	return exitCode
 }
 
-func processError(err error, errorList []error) (error, []error) {
+func processError(err error, errorList []error) ([]error, error) {
 	// ensure to use generic fallback error catalog error if no other is available
 	err = decorateError(err)
 
@@ -704,7 +710,7 @@ func processError(err error, errorList []error) (error, []error) {
 	if exitCode := mapErrorToExitCode(err); exitCode != unsetExitCode {
 		err = createErrorWithExitCode(exitCode, err)
 	}
-	return err, errorList
+	return errorList, err
 }
 
 func setTimeout(config configuration.Configuration, onTimeout func()) {
@@ -716,7 +722,7 @@ func setTimeout(config configuration.Configuration, onTimeout func()) {
 	go func() {
 		const gracePeriodForSubProcesses = 3
 		<-time.After(time.Duration(timeout+gracePeriodForSubProcesses) * time.Second)
-		fmt.Fprintf(os.Stdout, "command timed out")
+		_, _ = fmt.Fprintf(os.Stdout, "command timed out")
 		onTimeout()
 	}()
 }

@@ -7,7 +7,7 @@ GOHOSTOS = $(shell go env GOHOSTOS)
 GOHOSTARCH = $(shell go env GOHOSTARCH)
 LS_COMMIT_HASH = $(shell cat go.mod | grep snyk-ls | cut -d "-" -f 4 | head -1)
 FIPS_CRYPTO_BACKEND_DEFAULT = systemcrypto
-FIPS_CRYPTO_BACKEND =
+FIPS_CRYPTO_BACKEND = nosystemcrypto
 HASH = sha
 HASH_ALGORITHM = 256
 CLI_V1_VERSION_TAG = 0.0.0
@@ -21,7 +21,7 @@ CGO_ENABLED = 1
 
 # Build tools
 GO_BIN := $(shell pwd)/.bin
-OVERRIDE_GOCI_LINT_V := v1.64.8
+OVERRIDE_GOCI_LINT_V := v2.8.0
 SHELL := env PATH=$(GO_BIN):$(PATH) $(SHELL)
 
 # Make directories per convention
