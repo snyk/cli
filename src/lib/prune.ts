@@ -67,7 +67,7 @@ function countPathsToRootEarlyExit(
 ): { count: number; completed: boolean } {
   let accumulatedPathCount = 0;
   for (const pkg of depGraph.getPkgs()) {
-    accumulatedPathCount += depGraph.countPathsToRoot(pkg, { limit });
+    accumulatedPathCount += depGraph.countPathsToRoot(pkg);
 
     if (accumulatedPathCount > limit) {
       return { completed: false, count: accumulatedPathCount };
