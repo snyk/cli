@@ -64,9 +64,9 @@ func initDebugBuild() {
 
 		for i := range waitTimeInSeconds {
 			value := float64(waitTimeInSeconds-i) / float64(waitTimeInSeconds)
-			progress.UpdateProgress(value)
+			_ = progress.UpdateProgress(value)
 			time.Sleep(1 * time.Second)
 		}
-		progress.Clear()
+		_ = progress.Clear()
 	}
 }

@@ -51,6 +51,9 @@ import { processCommandArgs } from '../process-command-args';
 import {
   hasFeatureFlag,
   hasFeatureFlagOrDefault,
+  SHOW_MAVEN_BUILD_SCOPE,
+  SHOW_NPM_SCOPE,
+  isFeatureFlagSupportedForOrg,
 } from '../../../lib/feature-flags';
 import {
   SCAN_USR_LIB_JARS_FEATURE_FLAG,
@@ -65,6 +68,7 @@ import {
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
+import { getOrganizationID } from '../../../lib/organization';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -229,6 +233,22 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
 
   if (hasImprovedDotnetWithoutPublish) {
     options.useImprovedDotnetWithoutPublish = true;
+  }
+
+  const showMavenScope = await isFeatureFlagSupportedForOrg(
+    SHOW_MAVEN_BUILD_SCOPE,
+    getOrganizationID(),
+  );
+  if (showMavenScope.ok) {
+    featureFlags.add(SHOW_MAVEN_BUILD_SCOPE);
+  }
+
+  const showScope = await isFeatureFlagSupportedForOrg(
+    SHOW_NPM_SCOPE,
+    getOrganizationID(),
+  );
+  if (showScope.ok) {
+    featureFlags.add(SHOW_NPM_SCOPE);
   }
 
   // Part 1: every argument is a scan target; process them sequentially

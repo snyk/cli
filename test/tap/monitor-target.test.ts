@@ -5,7 +5,7 @@ const isEmpty = require('lodash.isempty');
 import * as sinon from 'sinon';
 
 import * as cli from '../../src/cli/commands';
-import subProcess = require('../../src/lib/sub-process');
+import * as subProcess from '../../src/lib/sub-process';
 import { fakeServer } from '../acceptance/fake-server';
 
 const apiKey = '123456789';
@@ -47,7 +47,11 @@ test('Make sure that target is sent correctly', async (t) => {
     .resolves('master');
 
   const { data } = await getFakeServerRequestBody();
-  t.ok(requestSpy.calledTwice, 'needle.request was not called twice');
+  t.equal(
+    requestSpy.callCount,
+    4,
+    `needle.request was called ${requestSpy.callCount} times`,
+  );
   t.ok(!isEmpty(data.target), 'target passed to request');
   t.ok(
     !isEmpty(data.targetFileRelativePath),
@@ -74,7 +78,11 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
   const requestSpy = sinon.spy(requestLib, 'request');
   const { data } = await getFakeServerRequestBody();
 
-  t.ok(requestSpy.calledTwice, 'needle.request was not called twice');
+  t.equal(
+    requestSpy.callCount,
+    4,
+    `needle.request was called ${requestSpy.callCount} times`,
+  );
   t.ok(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
@@ -91,7 +99,11 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
   const requestSpy = sinon.spy(requestLib, 'request');
   const { data } = await getFakeServerRequestBody();
 
-  t.ok(requestSpy.calledTwice, 'needle.request was not called twice');
+  t.equal(
+    requestSpy.callCount,
+    4,
+    `needle.request was called ${requestSpy.callCount} times`,
+  );
   t.ok(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
