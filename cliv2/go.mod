@@ -14,7 +14,7 @@ require (
 	github.com/snyk/cli-extension-dep-graph v0.15.1
 	github.com/snyk/cli-extension-iac v0.0.0-20260115084339-e0c36e4dffdf
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260115114457-a8ac3358ec57
-	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260129084434-b011e5ad5508
+	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260202092920-2b2a978a1e44
 	github.com/snyk/cli-extension-sbom v0.0.0-20260123101300-130043bcdc06
 	github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0
