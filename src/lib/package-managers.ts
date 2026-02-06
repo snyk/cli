@@ -24,6 +24,8 @@ export type SupportedPackageManagers =
   | 'Unmanaged (C/C++)'
   | 'swift';
 
+export const UV_MONITOR_ENABLED_ENV_VAR = 'SNYK_INTERNAL_UV_MONITOR_ENABLED';
+
 export enum SUPPORTED_MANIFEST_FILES {
   GEMFILE = 'Gemfile',
   GEMFILE_LOCK = 'Gemfile.lock',
