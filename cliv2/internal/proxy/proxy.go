@@ -82,9 +82,7 @@ func InitCA(config configuration.Configuration, cliVersion string, logger *zerol
 		return nil, err
 	}
 	defer func() {
-		if cerr := certFile.Close(); cerr != nil && err == nil {
-			err = cerr
-		}
+		_ = certFile.Close()
 	}()
 
 	certificateLocation := certFile.Name() // gives full path, not just the name
