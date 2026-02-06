@@ -92,7 +92,7 @@ func GetGlobalCertAuthority(config configuration.Configuration, debugLogger *zer
 				return proxy.CaData{}, err
 			}
 		} else { // fail for this unexpected case
-			return proxy.CaData{}, fmt.Errorf("used Certificate Authority is not existing anymore!")
+			return proxy.CaData{}, fmt.Errorf("used Certificate Authority is not existing anymore!") //nolint:staticcheck // user-facing error message
 		}
 	}
 
