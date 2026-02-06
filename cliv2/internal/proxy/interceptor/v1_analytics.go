@@ -117,7 +117,11 @@ func (v v1AnalyticsInterceptor) GetHandler() goproxy.FuncReqHandler {
 			return req, nil
 		}
 
-		defer r.Close()
+		defer func() {
+			if cerr := r.Close(); cerr != nil && err == nil {
+				err = cerr
+			}
+		}()
 
 		bodyBytes, err := io.ReadAll(r)
 		if err != nil {
