@@ -20,7 +20,7 @@ STATIC_NODE_BINARY = false
 
 # Build tools
 GO_BIN := $(shell pwd)/.bin
-OVERRIDE_GOCI_LINT_V := v1.64.8
+OVERRIDE_GOCI_LINT_V := v2.8.0
 SHELL := env PATH=$(GO_BIN):$(PATH) $(SHELL)
 
 # Make directories per convention

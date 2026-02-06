@@ -1,6 +1,6 @@
 module github.com/snyk/cli/cliv2
 
-go 1.24.4
+go 1.25.7
 
 require (
 	github.com/elazarl/goproxy v1.7.2
@@ -16,7 +16,7 @@ require (
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260202092920-2b2a978a1e44
-	github.com/snyk/cli-extension-sbom v0.0.0-20260123101300-130043bcdc06
+	github.com/snyk/cli-extension-sbom v0.0.0-20260204114341-af943eb1fb19
 	github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905
