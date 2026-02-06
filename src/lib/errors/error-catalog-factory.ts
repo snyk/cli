@@ -20,7 +20,7 @@ export function createErrorCatalogFromStatusCode(
   // Update error metadata
   error.metadata.status = statusCode;
 
-  if (statusCode < 400) {
+  if (statusCode < 400 && statusCode > 0) {
     error.metadata.level = 'warn';
   }
 

@@ -1,10 +1,10 @@
-# AI-BOM
+# AIBOM
 
-**Note**: AI-BOM is an experimental feature and is subject to breaking changes without notice. If you are using AI-BOM, Snyk recommends installing the Snyk CLI from the [release](../releases-and-channels-for-the-snyk-cli.md#stable) channel.
+**Note**: AIBOM is an experimental feature and is subject to breaking changes without notice. If you are using AIBOM, Snyk recommends installing the Snyk CLI from the [release](../releases-and-channels-for-the-snyk-cli.md#stable) channel.
 
 ## Prerequisites
 
-- The `snyk aibom` feature requires an internet connection.&#x20;
+- The `snyk aibom` feature requires an internet connection.
 - Snyk CLI v1.1298.3 (or later).
 - Your Project must be written in Python and using a [package manager](../../../supported-languages/supported-languages-list/python/) supported by Snyk.
 
@@ -14,7 +14,7 @@
 
 ## Description
 
-The `snyk aibom` command generates an AI-BOM for a local software project that is written in Python. You can use the `snyk aibom` command to identify AI models, datasets, and map the AI supply chain, including connections to external tools and services using the Model Context Protocol (MCP).
+The `snyk aibom` command generates an AIBOM for a local software Project that is written in Python. You can use the `snyk aibom` command to identify AI models, datasets, and map the AI supply chain, including connections to external tools and services using the Model Context Protocol (MCP).
 
 The supported format is CycloneDX v1.6 (JSON).
 
@@ -25,7 +25,19 @@ In the JSON file, you can see the following AI dependencies and components:
 - **Tools:** Identified based on popular patterns of tool calling.
 - **MCPs:** Identified based on the official MCP SDK, in addition to other popular ways of building MCPs.
 
-## MCP and your AI-BOM
+## Exit codes
+
+Possible exit codes and their meaning:
+
+**0**: success (scan completed), AIBOM created successfully.\
+**2**: failure, try to re-run the command. Use `-d` to output the debug logs.\
+**3**: failure, unable to find any supported files for the scan.
+
+## Debug
+
+Use the `-d` or `--debug` option to output the debug logs.
+
+## MCP and your AIBOM
 
 A key feature of the `snyk aibom` command is its ability to detect and map dependencies established using the MCP.
 
@@ -59,8 +71,8 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 ### `--html`
 
-Optional. Embed the AI-BOM into an HTML visualization of the AI-BOM components and their relationships.
+Optional. Embed the AIBOM into an HTML visualization of the AIBOM components and their relationships.
 
 ### `[--json-file-output]`
 
-Optional. Save the AI-BOM output as a JSON data structure directly to the specified file.
+Optional. Save the AIBOM output as a JSON data structure directly to the specified file.

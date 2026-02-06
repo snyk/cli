@@ -41,9 +41,11 @@ import {
   RETRY_DELAY,
   printDepGraph,
   printEffectiveDepGraph,
+  printEffectiveDepGraphError,
   assembleQueryString,
   shouldPrintDepGraph,
   shouldPrintEffectiveDepGraph,
+  shouldPrintEffectiveDepGraphWithErrors,
 } from './common';
 import config from '../config';
 import * as analytics from '../analytics';
@@ -91,6 +93,7 @@ import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 import { normalizeTargetFile } from '../normalize-target-file';
 import { EXIT_CODES } from '../../cli/exit-codes';
 import { headerSnykTsCliTerminate } from '../request/constants';
+import { ProblemError } from '@snyk/error-catalog-nodejs-public';
 
 const debug = debugModule('snyk:run-test');
 
@@ -418,7 +421,7 @@ export async function runTest(
         `Failed to test ${projectType} project`,
       error.code,
       error.innerError,
-      error.errorCatalog,
+      error instanceof ProblemError ? error : error.errorCatalog,
     );
   } finally {
     spinner.clear<void>(spinnerLbl)();
@@ -667,6 +670,13 @@ async function assembleLocalPayloads(
         'getDepsFromPlugin returned failed results, cannot run test/monitor',
         failedResults,
       );
+
+      if (shouldPrintEffectiveDepGraphWithErrors(options)) {
+        for (const failed of failedResults) {
+          await printEffectiveDepGraphError(root, failed, process.stdout);
+        }
+      }
+
       if (options['fail-fast']) {
         // should include failure message if applicable
         const message = errorMessages.length

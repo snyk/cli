@@ -16,7 +16,9 @@ jest.setTimeout(1000 * 60 * 5);
 function aiBomRestEndpointRequests(requests: Request[]): string[] {
   const res: string[] = [];
   for (const request of requests) {
-    if (request.url.includes('/ai_boms')) {
+    if (request.url.includes('/ai_boms/upload')) {
+      res.push(`${request.method}:/ai_boms/upload`);
+    } else if (request.url.includes('/ai_boms')) {
       res.push(`${request.method}:/ai_boms`);
     } else if (request.url.includes('/ai_bom_jobs')) {
       res.push(`${request.method}:/ai_bom_jobs`);
@@ -140,6 +142,41 @@ describe('snyk aibom (mocked servers only)', () => {
     expect(aiBomRequests).toEqual([
       'POST:/ai_boms',
       'POST:/ai_boms',
+      'GET:/ai_bom_jobs',
+      'GET:/ai_boms',
+    ]);
+
+    expect(bom).toMatchObject({
+      $schema: 'https://cyclonedx.org/schema/bom-1.6.schema.json',
+      specVersion: '1.6',
+      bomFormat: 'CycloneDX',
+    });
+    expect(bom.components.length).toBeGreaterThan(1);
+  });
+
+  test('`aibom` uses upload endpoint if --upload flag is set', async () => {
+    expect(server.getRequests().length).toEqual(0);
+    const { code, stdout } = await runSnykCLI(
+      `aibom ${pythonChatbotProject} --experimental --upload --repo "python-chatbot"`,
+      {
+        env,
+      },
+    );
+    let bom: any;
+    expect(code).toEqual(0);
+    expect(() => {
+      bom = JSON.parse(stdout);
+    }).not.toThrow();
+
+    const deeproxyRequestUrls = deepCodeServer
+      .getRequests()
+      .map((req) => `${req.method}:${req.url}`);
+    expect(deeproxyRequestUrls).toEqual(['GET:/filters', 'POST:/bundle']);
+
+    const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
+    expect(aiBomRequests).toEqual([
+      'POST:/ai_boms',
+      'POST:/ai_boms/upload',
       'GET:/ai_bom_jobs',
       'GET:/ai_boms',
     ]);
@@ -280,7 +317,7 @@ describe('snyk aibom (mocked servers only)', () => {
           env,
         },
       );
-      expect(code).toEqual(2);
+      expect(code).toEqual(3);
       expect(stdout).toContain('No supported files (SNYK-AIBOM-0003)');
     });
 

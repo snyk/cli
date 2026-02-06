@@ -1271,6 +1271,9 @@ if (!isWindowsOperatingSystem()) {
           file: 'go.mod',
           packageManager: 'gomodules',
           path: 'golang-gomodules',
+          configuration: {
+            includeGoStandardLibraryDeps: false,
+          },
         },
         snykHttpClient,
       ],
@@ -1320,6 +1323,9 @@ if (!isWindowsOperatingSystem()) {
           file: 'Gopkg.lock',
           packageManager: 'golangdep',
           path: 'golang-app',
+          configuration: {
+            includeGoStandardLibraryDeps: false,
+          },
         },
         snykHttpClient,
       ],

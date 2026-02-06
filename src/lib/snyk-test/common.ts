@@ -4,9 +4,13 @@ import { DepGraphData } from '@snyk/dep-graph';
 
 import config from '../config';
 import { color } from '../theme';
+import * as path from 'path';
 import { Options } from '../types';
 import { ConcatStream } from '../stream';
 import { ContainerTarget, GitTarget } from '../project-metadata/types';
+import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
+import { CustomError } from '../errors';
+import { FailedProjectScanError } from '../plugins/get-multi-plugin-result';
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -131,6 +135,79 @@ export async function printEffectiveDepGraph(
   });
 }
 
+/**
+ * printEffectiveDepGraphError writes an error output for failed dependency graph resolution
+ * to the destination stream in a format consistent with printEffectiveDepGraph.
+ * This is used when --print-effective-graph-with-errors is set but dependency resolution failed.
+ */
+export async function printEffectiveDepGraphError(
+  root: string,
+  failedProjectScanError: FailedProjectScanError,
+  destination: Writable,
+): Promise<void> {
+  return new Promise((res, rej) => {
+    // Normalize the target file path to be relative to root, consistent with printEffectiveDepGraph
+    const normalisedTargetFile = failedProjectScanError.targetFile
+      ? path.relative(root, failedProjectScanError.targetFile)
+      : failedProjectScanError.targetFile;
+
+    const problemError = getOrCreateErrorCatalogError(failedProjectScanError);
+    const serializedError = problemError.toJsonApi().body();
+
+    const effectiveGraphErrorOutput = {
+      error: serializedError,
+      normalisedTargetFile,
+    };
+
+    new ConcatStream(
+      new JsonStreamStringify(effectiveGraphErrorOutput),
+      Readable.from('\n'),
+    )
+      .on('end', res)
+      .on('error', rej)
+      .pipe(destination);
+  });
+}
+
+/**
+ * Checks if either --print-effective-graph or --print-effective-graph-with-errors is set.
+ */
 export function shouldPrintEffectiveDepGraph(opts: Options): boolean {
-  return !!opts['print-effective-graph'];
+  return (
+    !!opts['print-effective-graph'] ||
+    shouldPrintEffectiveDepGraphWithErrors(opts)
+  );
+}
+
+/**
+ * shouldPrintEffectiveDepGraphWithErrors checks if the --print-effective-graph-with-errors flag is set.
+ * This is used to determine if the effective dep-graph with errors should be printed.
+ */
+export function shouldPrintEffectiveDepGraphWithErrors(opts: Options): boolean {
+  return !!opts['print-effective-graph-with-errors'];
+}
+
+/**
+ * getOrCreateErrorCatalogError returns a ProblemError instance for consistent error catalog usage.
+ * This helper is used to ensure errors are wrapped in a ProblemError so they can be reported in a standardized way,
+ * especially when converting thrown errors from plugins and flows to error catalog format.
+ */
+export function getOrCreateErrorCatalogError(
+  failedProjectScanError: FailedProjectScanError,
+): ProblemError {
+  const { error, errMessage } = failedProjectScanError;
+  if (error instanceof ProblemError) {
+    return error;
+  }
+
+  if (error instanceof CustomError) {
+    if (error.errorCatalog) {
+      return error.errorCatalog;
+    }
+    return new CLI.GeneralCLIFailureError(
+      error.userMessage ?? error.message ?? errMessage,
+    );
+  }
+
+  return new CLI.GeneralCLIFailureError(errMessage);
 }

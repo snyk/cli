@@ -553,8 +553,6 @@ func DeriveExitCode(err error) int {
 			if returnCode < 0 || returnCode == constants.SNYK_EXIT_CODE_TS_CLI_TERMINATED {
 				returnCode = constants.SNYK_EXIT_CODE_ERROR
 			}
-		} else if errors.Is(err, context.DeadlineExceeded) {
-			returnCode = constants.SNYK_EXIT_CODE_EX_UNAVAILABLE
 		} else if errors.As(err, &errorWithExitCode) {
 			returnCode = errorWithExitCode.ExitCode
 		} else {

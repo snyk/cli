@@ -208,9 +208,9 @@ describe('snyk sbom (mocked server only)', () => {
     );
 
     expect(code).toBe(3);
-    expect(stdout).toContainText('SNYK-CLI-0000');
+    expect(stdout).toContainText('SNYK-CLI-0008');
     expect(stdout).toContainText('Could not detect supported target files');
-    expect(stderr).toContainText('SNYK-CLI-0000');
+    expect(stderr).toContainText('SNYK-CLI-0008');
     expect(stderr).toContainText('Could not detect supported target files');
   });
 });

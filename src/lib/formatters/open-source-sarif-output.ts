@@ -26,29 +26,33 @@ export function createSarifOutputForOpenSource(
     $schema:
       'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json',
     version: '2.1.0',
-    runs: testResults.map(replaceLockfileWithManifest).map((testResult) => {
-      const projectName = testResult?.projectName;
-      const projectIdentifier = projectName ? `${projectName}/` : '';
+    runs: testResults
+      .map(replaceLockfileWithManifest)
+      .map((testResult, index) => {
+        const projectName = testResult?.projectName;
+        const projectIdentifier = projectName
+          ? `${projectName}/${index}/`
+          : `${index}/`;
 
-      return {
-        tool: {
-          driver: {
-            name: 'Snyk Open Source',
-            semanticVersion: getVersion(),
-            version: getVersion(),
-            informationUri: 'https://docs.snyk.io/',
-            properties: {
-              artifactsScanned: testResult.dependencyCount,
+        return {
+          tool: {
+            driver: {
+              name: 'Snyk Open Source',
+              semanticVersion: getVersion(),
+              version: getVersion(),
+              informationUri: 'https://docs.snyk.io/',
+              properties: {
+                artifactsScanned: testResult.dependencyCount,
+              },
+              rules: getRules(testResult),
             },
-            rules: getRules(testResult),
           },
-        },
-        automationDetails: {
-          id: `Snyk/Open Source/${projectIdentifier}${new Date().toISOString()}`,
-        },
-        results: getResults(testResult),
-      };
-    }),
+          automationDetails: {
+            id: `Snyk/Open Source/${projectIdentifier}${new Date().toISOString()}`,
+          },
+          results: getResults(testResult),
+        };
+      }),
   };
 }
 
