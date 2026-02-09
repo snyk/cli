@@ -61,9 +61,9 @@ describe('getSinglePluginResult', () => {
         '/test',
         undefined,
         expect.objectContaining({
-          configuration: {
+          configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
-          },
+          }),
         }),
         snykHttpClient,
       );
@@ -89,9 +89,9 @@ describe('getSinglePluginResult', () => {
         '/test',
         undefined,
         expect.objectContaining({
-          configuration: {
+          configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: false,
-          },
+          }),
         }),
         snykHttpClient,
       );
@@ -117,9 +117,9 @@ describe('getSinglePluginResult', () => {
         '/test',
         undefined,
         expect.objectContaining({
-          configuration: {
+          configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
-          },
+          }),
         }),
         snykHttpClient,
       );
@@ -143,10 +143,65 @@ describe('getSinglePluginResult', () => {
         '/test',
         undefined,
         expect.objectContaining({
-          configuration: {
-            includePackageUrls: true,
+          configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
-          },
+          }),
+        }),
+        snykHttpClient,
+      );
+    });
+
+    it('should enable PackageURLs in gomodules dep-graphs', async () => {
+      const options: Options & TestOptions = {
+        path: '/test',
+        packageManager: 'gomodules',
+        showVulnPaths: 'some',
+      };
+
+      (hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(false);
+
+      await getSinglePluginResult('/test', options);
+
+      expect(hasFeatureFlagOrDefault).toHaveBeenCalledWith(
+        'disableGoPackageUrlsInCli',
+        options,
+        false,
+      );
+      expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
+        '/test',
+        undefined,
+        expect.objectContaining({
+          configuration: expect.objectContaining({
+            includePackageUrls: true,
+          }),
+        }),
+        snykHttpClient,
+      );
+    });
+
+    it('should disable PackageURLs in gomodules dep-graphs if the feature flag says so', async () => {
+      const options: Options & TestOptions = {
+        path: '/test',
+        packageManager: 'gomodules',
+        showVulnPaths: 'some',
+      };
+
+      (hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(true);
+
+      await getSinglePluginResult('/test', options);
+
+      expect(hasFeatureFlagOrDefault).toHaveBeenCalledWith(
+        'disableGoPackageUrlsInCli',
+        options,
+        false,
+      );
+      expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
+        '/test',
+        undefined,
+        expect.objectContaining({
+          configuration: expect.objectContaining({
+            includePackageUrls: false,
+          }),
         }),
         snykHttpClient,
       );
@@ -284,9 +339,9 @@ describe('getSinglePluginResult', () => {
         '/test',
         undefined,
         expect.objectContaining({
-          configuration: {
+          configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
-          },
+          }),
         }),
         snykHttpClient,
       );

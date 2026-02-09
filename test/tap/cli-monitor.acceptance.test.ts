@@ -1273,6 +1273,8 @@ if (!isWindowsOperatingSystem()) {
           path: 'golang-gomodules',
           configuration: {
             includeGoStandardLibraryDeps: false,
+            includePackageUrls: true,
+            useReplaceName: true,
           },
         },
         snykHttpClient,
@@ -1325,6 +1327,8 @@ if (!isWindowsOperatingSystem()) {
           path: 'golang-app',
           configuration: {
             includeGoStandardLibraryDeps: false,
+            includePackageUrls: true,
+            useReplaceName: true,
           },
         },
         snykHttpClient,

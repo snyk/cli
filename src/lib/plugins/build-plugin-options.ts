@@ -15,14 +15,25 @@ export async function buildPluginOptions(
     options.packageManager === 'golangdep';
 
   if (isGoPackageManager) {
+    const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
+      'includeGoStandardLibraryDeps',
+      options,
+      false,
+    );
+
+    const disableGoPackageUrls = await hasFeatureFlagOrDefault(
+      'disableGoPackageUrlsInCli',
+      options,
+      false,
+    );
+
     pluginOptions.configuration = {
       ...(pluginOptions.configuration || {}),
-      includeGoStandardLibraryDeps: await hasFeatureFlagOrDefault(
-        'includeGoStandardLibraryDeps',
-        options,
-        false,
-      ),
-    };
+      includeGoStandardLibraryDeps,
+      includePackageUrls: disableGoPackageUrls ? false : true,
+      // enable fix for replaced modules.
+      useReplaceName: true,
+    } as Options['configuration'];
   }
 
   return pluginOptions;

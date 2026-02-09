@@ -19,6 +19,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['useImprovedDotnetWithoutPublish', false],
     ['scanUsrLibJars', false],
     ['includeGoStandardLibraryDeps', false],
+    ['disableGoPackageUrlsInCli', false],
 
     // Default these to false.
     // TODO: Future acceptance tests targeting these features and their
