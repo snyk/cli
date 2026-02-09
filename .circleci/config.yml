@@ -528,8 +528,22 @@ workflows:
           go_target_os: linux
           go_os: linux
           go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          make_target: build
+          executor: docker-amd64-xl
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build linux fips amd64
+          context:
+            - iac-cli
+            - devex_cli_docker_hub
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-          make_target: build clean-golang build-fips
+          make_target: build-fips
           executor: docker-amd64-xl
           requires:
             - prepare-build
@@ -556,8 +570,22 @@ workflows:
           go_target_os: linux
           go_os: linux
           go_arch: arm64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          make_target: build
+          executor: docker-arm64-xl
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build linux fips arm64
+          context:
+            - iac-cli
+            - devex_cli_docker_hub
+          go_target_os: linux
+          go_os: linux
+          go_arch: arm64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-          make_target: build clean-golang build-fips
+          make_target: build-fips
           executor: docker-arm64-xl
           requires:
             - prepare-build
@@ -637,8 +665,24 @@ workflows:
           go_target_os: windows
           go_os: windows
           go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          make_target: build
+          install_deps_extension: windows-full-signing
+          install_path: 'C:\'
+          executor: win-server2022-amd64
+          context:
+            - snyk-windows-signing
+            - iac-cli
+          requires:
+            - prepare-build
+
+      - build-artifact:
+          name: build windows fips amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
-          make_target: build clean-golang build-fips
+          make_target: build-fips
           install_deps_extension: windows-full-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
@@ -693,6 +737,29 @@ workflows:
           test_snyk_command: ./binary-releases/snyk-linux
 
       - acceptance-tests:
+          name: acceptance-tests fips linux amd64
+          go_target_os: linux
+          go_os: linux
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+            - devex_cli_docker_hub
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+          install_deps_extension: linux-acceptance-tests
+          pre_test_cmds: export BROWSER="curl -L"
+          requires:
+            - build linux fips amd64
+          executor: docker-amd64-xl
+          test_snyk_command: ./binary-releases/fips/snyk-linux
+          fips: 1
+
+      - acceptance-tests:
           name: acceptance-tests linux arm64
           go_target_os: linux
           go_os: linux
@@ -737,7 +804,7 @@ workflows:
           install_deps_extension: linux-acceptance-tests
           pre_test_cmds: export BROWSER="curl -L"
           requires:
-            - build linux arm64
+            - build linux fips arm64
 
       - acceptance-tests:
           name: acceptance-tests alpine amd64
@@ -828,11 +895,37 @@ workflows:
           shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
           pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
 
+      - acceptance-tests:
+          name: acceptance-tests fips windows amd64
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
+          fips: 1
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+          requires:
+            - build windows fips amd64
+          executor: win-server2022-amd64
+          test_snyk_command: binary-releases\\fips\\snyk-win.exe
+          install_deps_extension: windows-full
+          dont_skip_tests: 0
+          shards: 8
+          shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
+          pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
+
       - sign:
           name: sign windows amd64
           context: snyk-windows-signing
           requires:
             - build windows amd64
+            - build windows fips amd64
           go_os: windows
           go_arch: amd64
           make_target: sign sign-fips
@@ -893,7 +986,9 @@ workflows:
             - build alpine amd64
             - build alpine arm64
             - build linux amd64
+            - build linux fips amd64
             - build linux arm64
+            - build linux fips arm64
             - build linux static amd64
             - build linux static arm64
             - build fix & protect

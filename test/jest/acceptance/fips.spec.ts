@@ -1,3 +1,4 @@
+import { isWindowsOperatingSystem } from '../../utils';
 import { runSnykCLI } from '../util/runSnykCLI';
 import * as fips from '../util/fipsTestHelper';
 
@@ -12,7 +13,8 @@ describe('FIPS', () => {
     const fipsEnabled = fips.getFipsEnabledEnvironment();
     const fipsDisabled = fips.getFipsDisabledEnvironment();
 
-    it('panic when FIPS is not enabled in the environment', async () => {
+    let fn = isWindowsOperatingSystem() ? it.skip : it;
+    fn('panic when FIPS is not enabled in the environment', async () => {
       const result = await runSnykCLI('whoami --experimental -d', {
         env: fipsDisabled,
       });

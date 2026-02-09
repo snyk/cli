@@ -10,9 +10,8 @@ export const getFipsEnabledEnvironment = (
 ): Record<string, string | undefined> => {
   if (!isWindowsOperatingSystem()) {
     env.OPENSSL_CONF = '/usr/local/ssl/openssl_fips_enabled.cnf';
-    return env;
   }
-  return {};
+  return env;
 };
 
 export const getFipsDisabledEnvironment = (
