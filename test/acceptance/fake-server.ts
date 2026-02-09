@@ -18,6 +18,8 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['sbomMonitorBeta', false],
     ['useImprovedDotnetWithoutPublish', false],
     ['scanUsrLibJars', false],
+    ['includeGoStandardLibraryDeps', false],
+    ['disableGoPackageUrlsInCli', false],
 
     // Default these to false.
     // TODO: Future acceptance tests targeting these features and their
@@ -55,6 +57,12 @@ export type FakeServer = {
   setSarifResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
+  setGlobalResponse: (
+    response: Record<string, unknown>,
+    code: number,
+    headers?: Record<string, any>,
+  ) => void;
+
   setEndpointResponse: (
     endpoint: string,
     response: Record<string, unknown>,
@@ -94,6 +102,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let nextResponse: any = undefined;
   let endpointResponses: Map<string, Record<string, unknown>> = new Map();
   let endpointStatusCodes: Map<string, number> = new Map();
+  let endpointHeaders: Map<string, string> = new Map();
   let customResponse: Record<string, unknown> | undefined = undefined;
   let sarifResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
@@ -106,6 +115,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     sarifResponse = undefined;
     endpointResponses = new Map();
     endpointStatusCodes = new Map();
+    endpointHeaders = new Map();
     featureFlags = featureFlagDefaults();
     availableSettings = new Map();
     unauthorizedActions = new Map();
@@ -163,6 +173,20 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     statusCodes = codes;
   };
 
+  const setGlobalResponse = (
+    response: Record<string, unknown>,
+    code: number,
+    headers?: Record<string, string>,
+  ) => {
+    endpointResponses.set('*', response);
+    endpointStatusCodes.set('*', code);
+    if (headers) {
+      for (const [key, value] of Object.entries(headers)) {
+        endpointHeaders.set(key, value);
+      }
+    }
+  };
+
   const setEndpointResponse = (
     endpoint: string,
     response: Record<string, unknown>,
@@ -204,8 +228,26 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.use((req, res, next) => {
     const endpoint = req.url;
-    const endpointResponse = endpointResponses.get(endpoint);
-    const endpointStatusCode = endpointStatusCodes.get(endpoint);
+    const pathOnly = endpoint.split('?')[0];
+
+    const wildcardEndpoint = '*';
+    const endpointResponse =
+      endpointResponses.get(wildcardEndpoint) ||
+      endpointResponses.get(endpoint) ||
+      endpointResponses.get(pathOnly);
+
+    const endpointStatusCode =
+      endpointStatusCodes.get(wildcardEndpoint) ||
+      endpointStatusCodes.get(endpoint) ||
+      endpointStatusCodes.get(pathOnly);
+
+    // configure any response headers
+    if (endpointHeaders.size > 0) {
+      endpointHeaders.forEach((value, key) => {
+        res.set(key, value);
+      });
+    }
+
     if (endpointResponse) {
       res.status(endpointStatusCode || 200);
       res.send(endpointResponse);
@@ -388,6 +430,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200);
     if (customResponse) {
       res.send(customResponse);
+      return;
     }
     res.send({});
   });
@@ -487,6 +530,21 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
+  app.post(`/api/rest/orgs/:orgId/ai_boms/upload`, (req, res) => {
+    res.status(202);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {
+        self: `/api/rest/orgs/${req.params.orgId}/ai_bom_jobs/c051477e-5033-55b1-bc23-135daf9b1724`,
+      },
+      data: {
+        id: 'c051477e-5033-55b1-bc23-135daf9b1724',
+        type: 'ai_bom_job',
+        attributes: { status: 'processing' },
+      },
+    });
+  });
+
   app.get(`/api/rest/orgs/:orgId/ai_bom_jobs/:jobId`, (req, res) => {
     res.status(303);
     res.send({
@@ -522,6 +580,80 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         type: 'ai_bom',
         attributes: JSON.parse(aiBomCycloneDx),
       },
+    });
+  });
+
+  // Unified Test API endpoints for uv acceptance tests
+  const testJobId = 'aaaaaaaa-bbbb-cccc-dddd-000000000001';
+  const testId = 'aaaaaaaa-bbbb-cccc-dddd-000000000002';
+
+  app.post(`/rest/orgs/:orgId/tests`, (req, res) => {
+    res.status(202);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        type: 'test_jobs',
+        id: testJobId,
+        attributes: { status: 'pending' },
+      },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/test_jobs/:testJobId`, (req, res) => {
+    const addr = server?.address();
+    const port = typeof addr === 'object' && addr ? addr.port : 4000;
+    const location = `http://localhost:${port}/rest/orgs/${req.params.orgId}/tests/${testId}`;
+    res.status(303);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.setHeader('Location', location);
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        type: 'test_jobs',
+        id: req.params.testJobId,
+        attributes: { status: 'finished' },
+        relationships: {
+          test: {
+            data: { type: 'tests', id: testId },
+          },
+        },
+      },
+      links: { related: location },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/tests/:testId`, (req, res) => {
+    res.status(200);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: {
+        id: req.params.testId,
+        type: 'tests',
+        attributes: {
+          status: 'finished',
+          pass_fail: 'pass',
+          outcome_reason: 'passed',
+          created_at: new Date().toISOString(),
+          summary: {
+            total: 0,
+            critical: 0,
+            high: 0,
+            medium: 0,
+            low: 0,
+          },
+        },
+      },
+    });
+  });
+
+  app.get(`/rest/orgs/:orgId/tests/:testId/findings`, (req, res) => {
+    res.status(200);
+    res.setHeader('Content-Type', 'application/vnd.api+json');
+    res.send({
+      jsonapi: { version: '1.0' },
+      data: [],
     });
   });
 
@@ -572,6 +704,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
                 description: 'The system prompt was exfiltrated.',
               },
               url: 'https://demo-app.com/api/chat',
+              evidence: {
+                type: 'raw',
+                content: {
+                  reason:
+                    'The model disclosed confidential system instructions.',
+                },
+              },
             },
           ],
         },
@@ -1108,6 +1247,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       res
         .status(400)
         .send(`{"errors":[{"title":"Bad Request","detail":"invalid SBOM"}]}`);
+      return;
     }
 
     const body = fs.readFileSync(
@@ -1166,11 +1306,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         });
       } else if (depGraph) {
         name = depGraph.pkgs[0]?.info.name;
-        components = depGraph.pkgs.map(({ info: { name, version, purl } }) => ({
-          name,
-          version,
-          purl,
-        }));
+        components = depGraph.pkgs.map(({ info: { name } }) => ({ name }));
 
         const nodeIdMap: { [key: string]: string } = {};
 
@@ -1202,6 +1338,28 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
             },
           };
           break;
+        case 'cyclonedx1.4+xml': {
+          const componentsXml = components
+            .map(
+              (c: { name: string }) =>
+                `    <component type="library"><name>${c.name}</name></component>`,
+            )
+            .join('\n');
+          const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<bom xmlns="http://cyclonedx.org/schema/bom/1.4" version="1" specVersion="1.4">
+  <metadata>
+    <component type="application">
+      <name>${name}</name>
+    </component>
+  </metadata>
+  <components>
+${componentsXml}
+  </components>
+</bom>`;
+          res.set('Content-Type', 'application/xml');
+          res.status(200).send(xmlContent);
+          return;
+        }
         case 'cyclonedx1.5+json':
           bom = {
             specVersion: '1.5',
@@ -1359,6 +1517,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setNextStatusCode,
     setEndpointResponse,
     setEndpointStatusCode,
+    setGlobalResponse,
     setStatusCode,
     setStatusCodes,
     setFeatureFlag,

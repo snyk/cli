@@ -14,3 +14,9 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 )
+
+// version override
+replace golang.org/x/exp => golang.org/x/exp v0.0.0-20260112195511-716be5621a96
+
+// replace with fork
+replace github.com/hashicorp/go-retryablehttp => github.com/wiz-sec/go-retryablehttp v0.7.8-wiz-1

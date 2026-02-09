@@ -283,7 +283,7 @@ To run a scan with an agent you have two options: specifying `scanning_agent` in
 #### Running using the CLI
 
 ```bash
-snyk redteam --scanning_agent_id=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --experimental
+snyk redteam --scanning-agent-id=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --experimental
 ```
 
 Note: This method takes precedence over other specific methods.

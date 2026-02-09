@@ -68,6 +68,7 @@ export interface Options {
   'print-tree'?: boolean;
   'print-dep-paths'?: boolean;
   'print-effective-graph'?: boolean;
+  'print-effective-graph-with-errors'?: boolean;
   'remote-repo-url'?: string;
   criticality?: string;
   scanAllUnmanaged?: boolean;
@@ -131,6 +132,18 @@ export interface Options {
   // Feature Flags
   useImprovedDotnetWithoutPublish?: boolean;
   disableContainerMonitorProjectNameFix?: boolean;
+
+  // Plugin configuration options
+  configuration?: {
+    // Used only with the Go plugin. When enabled, includes Go standard library packages in dependency graph.
+    includeGoStandardLibraryDeps?: boolean;
+    // Used only with the Go plugin. When enabled, includes PackageURL information in dep-graphs.
+    // TODO: remove once UNIFY-891 is done.
+    includePackageUrls?: boolean;
+    // Used only with the Go plugin.
+    // TODO: remove once UNIFY-891 is done.
+    useReplaceName?: boolean;
+  };
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
