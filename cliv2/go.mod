@@ -15,8 +15,8 @@ require (
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260202092920-2b2a978a1e44
-	github.com/snyk/cli-extension-sbom v0.0.0-20260123101300-130043bcdc06
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260204163905-d454493d2360
+	github.com/snyk/cli-extension-sbom v0.0.0-20260210090350-fdca20d5a98d
 	github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905
@@ -286,5 +286,7 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 // replace github.com/snyk/studio-mcp => ../../studio-mcp
 
 // replace github.com/snyk/cli-extension-mcp-scan => ../../cli-extension-mcp-scan
+
+// replace github.com/snyk/cli-extension-sbom => ../../cli-extension-sbom
 
 // replace github.com/snyk/cli-extension-secrets => ../../cli-extension-secrets
