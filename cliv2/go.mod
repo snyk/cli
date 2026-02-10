@@ -12,8 +12,8 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260127153523-c10ebb791f73
 	github.com/snyk/cli-extension-dep-graph v0.15.1
-	github.com/snyk/cli-extension-iac v0.0.0-20260115084339-e0c36e4dffdf
-	github.com/snyk/cli-extension-iac-rules v0.0.0-20260115114457-a8ac3358ec57
+	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
+	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260202092920-2b2a978a1e44
 	github.com/snyk/cli-extension-sbom v0.0.0-20260123101300-130043bcdc06
@@ -213,7 +213,7 @@ require (
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/snyk/code-client-go v1.25.0 // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25 // indirect
-	github.com/snyk/policy-engine v1.1.2 // indirect
+	github.com/snyk/policy-engine v1.1.3 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/sourcegraph/go-lsp v0.0.0-20240223163137-f80c5dd31dfd // indirect
 	github.com/spf13/afero v1.14.0 // indirect
@@ -242,11 +242,11 @@ require (
 	go.opentelemetry.io/contrib/detectors/gcp v1.38.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0 // indirect
-	go.opentelemetry.io/otel v1.38.0 // indirect
-	go.opentelemetry.io/otel/metric v1.38.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.38.0 // indirect
-	go.opentelemetry.io/otel/sdk/metric v1.38.0 // indirect
-	go.opentelemetry.io/otel/trace v1.38.0 // indirect
+	go.opentelemetry.io/otel v1.40.0 // indirect
+	go.opentelemetry.io/otel/metric v1.40.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.40.0 // indirect
+	go.opentelemetry.io/otel/sdk/metric v1.40.0 // indirect
+	go.opentelemetry.io/otel/trace v1.40.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
