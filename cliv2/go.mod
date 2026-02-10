@@ -272,14 +272,15 @@ require (
 // version 2491eb6c1c75 contains a valid license
 replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localereader v0.0.2-0.20220822084749-2491eb6c1c75
 
-// replace github.com/snyk/go-application-framework => ../../go-application-framework
+replace github.com/snyk/go-application-framework => ../../go-application-framework
 
-//replace github.com/snyk/snyk-ls => ../../snyk-ls
+replace github.com/snyk/snyk-ls => ../../snyk-ls
+
 //replace github.com/snyk/code-client-go => ../../code-client-go
 
 //replace github.com/snyk/cli-extension-iac => ../../cli-extension-iac
 
-//replace github.com/snyk/cli-extension-os-flows => ../../cli-extension-os-flows
+replace github.com/snyk/cli-extension-os-flows => ../../cli-extension-os-flows
 
 // replace github.com/snyk/cli-extension-ai-bom => ../../cli-extension-ai-bom
 

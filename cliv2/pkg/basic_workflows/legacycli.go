@@ -18,6 +18,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/local_workflows/content_type"
 	pkg_utils "github.com/snyk/go-application-framework/pkg/utils"
 	"github.com/snyk/go-application-framework/pkg/workflow"
 	"github.com/spf13/pflag"
@@ -159,12 +160,8 @@ func legacycliWorkflow(
 	if !useStdIo {
 		outWriter.Flush()
 
-		contentType := "text/plain"
-		if pkg_utils.Contains(args, "--json") || pkg_utils.Contains(args, "--sarif") {
-			contentType = "application/json"
-		}
-
-		data := workflow.NewData(DATATYPEID_LEGACY_CLI_STDOUT, contentType, outBuffer.Bytes())
+		// Use well-known content type so consumers can detect legacy CLI stdout explicitly.
+		data := workflow.NewData(DATATYPEID_LEGACY_CLI_STDOUT, content_type.LEGACY_CLI_STDOUT, outBuffer.Bytes())
 		output = append(output, data)
 	}
 

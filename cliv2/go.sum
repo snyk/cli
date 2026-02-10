@@ -541,8 +541,6 @@ github.com/snyk/cli-extension-iac-rules v0.0.0-20260115114457-a8ac3358ec57 h1:8A
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260115114457-a8ac3358ec57/go.mod h1:AFto63ozNmCXtKb5oTTD3Qz1jEl/HCqCVwpZCfTpSIE=
 github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4 h1:NLo25mu6h56KX0bgYAhvrzvMOzxz/L/whqZhiptZfEU=
 github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4/go.mod h1:i/EDskKxg68MtWaIOWFyataAMtcXOb/DQPLxT5jtLRE=
-github.com/snyk/cli-extension-os-flows v0.0.0-20260202092920-2b2a978a1e44 h1:TSnn2lDTtKxqm5JQrjVO5UTlDHCj3MQSP44dZlW2ulQ=
-github.com/snyk/cli-extension-os-flows v0.0.0-20260202092920-2b2a978a1e44/go.mod h1:s3HX7yjdyP5PYe+ZTMyrJA5wv6hCnmfGdh7Nk5la6tY=
 github.com/snyk/cli-extension-sbom v0.0.0-20260123101300-130043bcdc06 h1:qXcnwF3v9IobQzfEpUMTvm/+qlW6I/6QuTjf2o008G4=
 github.com/snyk/cli-extension-sbom v0.0.0-20260123101300-130043bcdc06/go.mod h1:nP8zYxLD7/dfbmfeVt+QJRjOK9LJ9+fKieY/Ph/iYb4=
 github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0 h1:LjYHZ+MnBJ9IT/zgU2qCq8+YS2qJFrKJMejOdFC6vCA=
@@ -555,16 +553,12 @@ github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25 h1:dwJ4Kdp4c5aaW
 github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905 h1:pUe6iOWHEOFY0t4u4ssXeTqpMmZBu1xq06VBFI9zUik=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
-github.com/snyk/go-application-framework v0.0.0-20260205122411-697daedbf089 h1:LcS0fxiCQvA53S2Yo2MOX3yDWbyy7LXPLJiVlwNiQBk=
-github.com/snyk/go-application-framework v0.0.0-20260205122411-697daedbf089/go.mod h1:Egp3UU2UeJdlrJlzFDJv8yA2+Z0Bp7cwgGVL0xdjTqQ=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v1.1.2 h1:BYWigTxPjiQer4m2jYhO623KmGdmmzA3S60k9AJPT+Q=
 github.com/snyk/policy-engine v1.1.2/go.mod h1:WW0eEb6adCEZ8CPGYsq19J6iPsvoeeTet+OWdU5Nrlw=
 github.com/snyk/snyk-iac-capture v0.6.5 h1:992DXCAJSN97KtUh8T5ndaWwd/6ZCal2bDkRXqM1u/E=
 github.com/snyk/snyk-iac-capture v0.6.5/go.mod h1:e47i55EmM0F69ZxyFHC4sCi7vyaJW6DLoaamJJCzWGk=
-github.com/snyk/snyk-ls v0.0.0-20260128094006-1a31e5aa396e h1:8TPdi3tQTCMbqU/4Bu3SSDPCw56WmDK6zjUFG68abAc=
-github.com/snyk/snyk-ls v0.0.0-20260128094006-1a31e5aa396e/go.mod h1:+DFpqPnUgqNDCa1bhszp+oPh/MP4HGLQCf4lMTBwVVQ=
 github.com/snyk/studio-mcp v1.5.1 h1:nupbxvl0zEiqLhXFSErlWalVpQ33DXfASWxZ5wpK6I8=
 github.com/snyk/studio-mcp v1.5.1/go.mod h1:NA+BaqNCvY5ne2X8Gmj/v96eeizaWqQ7cjIYMCbvNrs=
 github.com/sourcegraph/conc v0.3.0 h1:OQTbbt6P72L20UqAkXXuLOj79LfEanQ+YQFNpLA9ySo=
