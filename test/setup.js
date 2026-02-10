@@ -8,10 +8,7 @@ const {
 } = require('./jest/util/fipsTestHelper');
 const { runSnykCLI } = require('./jest/util/runSnykCLI');
 
-const TOKEN_ENV_VARS = [
-  'TEST_SNYK_TOKEN',
-  'TEST_SNYK_TOKEN_2',
-];
+const TOKEN_ENV_VARS = ['TEST_SNYK_TOKEN', 'TEST_SNYK_TOKEN_2'];
 
 function selectRandomToken() {
   const availableTokens = TOKEN_ENV_VARS.filter(
