@@ -545,8 +545,8 @@ github.com/snyk/cli-extension-os-flows v0.0.0-20260204163905-d454493d2360 h1:R5N
 github.com/snyk/cli-extension-os-flows v0.0.0-20260204163905-d454493d2360/go.mod h1:+fWqxiaIYf/fkszK5Iao+9sVf3KZUvmHIG7gtSb6eo0=
 github.com/snyk/cli-extension-sbom v0.0.0-20260210104429-41aece880532 h1:F+V6GFYpYdkawG0EeTZcAdmq8x3Is8YTwMzidhe/2mI=
 github.com/snyk/cli-extension-sbom v0.0.0-20260210104429-41aece880532/go.mod h1:OT3GJa4+cbCV8bq3cKtwe2ELHBHRWQb2DkHdyeG8TL4=
-github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0 h1:LjYHZ+MnBJ9IT/zgU2qCq8+YS2qJFrKJMejOdFC6vCA=
-github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0/go.mod h1:vj0PtB7L3tdiVLFDJtMuklDIjOBQdzoKQulnMv8/M/c=
+github.com/snyk/cli-extension-secrets v0.0.0-20260210120918-669d47e834cf h1:8XQrDdU0Pfy4PlAjwN0Hs9CCxW6jHUev1q+mEvOBoDg=
+github.com/snyk/cli-extension-secrets v0.0.0-20260210120918-669d47e834cf/go.mod h1:Ut8fBJ+98TvdudnLLuGLixbppODXXNU83OvenwB5XZ0=
 github.com/snyk/code-client-go v1.25.0 h1:1lcg6asMpMWwpaZLKVDdci3OrAv6rRoCsCcT8Ci/fUI=
 github.com/snyk/code-client-go v1.25.0/go.mod h1:YYggK3UbOHl5rg7uBhLzsKZBFNavcwFUse/EWCKWdzw=
 github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
