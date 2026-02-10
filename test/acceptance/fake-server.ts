@@ -18,6 +18,8 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['sbomMonitorBeta', false],
     ['useImprovedDotnetWithoutPublish', false],
     ['scanUsrLibJars', false],
+    ['show-maven-build-scope', false],
+    ['show-npm-scope', false],
     ['includeGoStandardLibraryDeps', false],
     ['disableGoPackageUrlsInCli', false],
 
@@ -257,6 +259,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     if (
       req.url?.includes('/iac-org-settings') ||
       req.url?.includes('/cli-config/feature-flags/') ||
+      req.url?.includes('/feature_flags/evaluation') ||
       (!nextResponse && !nextStatusCode && !statusCode)
     ) {
       return next();
@@ -1306,7 +1309,11 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         });
       } else if (depGraph) {
         name = depGraph.pkgs[0]?.info.name;
-        components = depGraph.pkgs.map(({ info: { name } }) => ({ name }));
+        components = depGraph.pkgs.map(({ info: { name, version, purl } }) => ({
+          name,
+          version,
+          purl,
+        }));
 
         const nodeIdMap: { [key: string]: string } = {};
 
