@@ -17,6 +17,7 @@ LDFLAGS = -s -w
 SHASUM_CMD = shasum
 export LS_PROTOCOL_VERSION=
 STATIC_NODE_BINARY = false
+CGO_ENABLED = 1
 
 # Build tools
 GO_BIN := $(shell pwd)/.bin
@@ -154,11 +155,12 @@ configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_E
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
 	$(eval EXTRA_FLAGS := -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG) -X github.com/snyk/cli-extension-iac/internal/commands/iactest.internalRulesClientURL=$(IAC_RULES_URL) -X github.com/snyk/cli/cliv2/pkg/basic_workflows.staticNodeJsBinary=$(STATIC_NODE_BINARY))
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
+	@echo "$(LOG_PREFIX)  CGO_ENABLED: $(CGO_ENABLED)"
 	@echo "$(LOG_PREFIX)  LDFLAGS:     $(LDFLAGS)"
 	@echo "$(LOG_PREFIX)  EXTRA_FLAGS: "
 	@$(foreach flag,$(filter -X%,$(subst -X ,$(space)-X,$(EXTRA_FLAGS))),echo "$(LOG_PREFIX)    $(flag)";)
 	@echo "$(LOG_PREFIX)  GCFLAGS:     $(GCFLAGS)"
-	@GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/*.go
+	@CGO_ENABLED=$(CGO_ENABLED)  GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/*.go
 
 .PHONY: fips
 fips:
@@ -171,6 +173,7 @@ experimental:
 # set the binary subfolder to the experimental folder
 	$(eval V1_BINARY_SUBFOLDER := experimental/)
 	$(eval STATIC_NODE_BINARY := true)
+	$(eval CGO_ENABLED := 0)
 	@echo "$(LOG_PREFIX) EXPERIMENTAL"
 
 .PHONY: debug
