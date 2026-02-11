@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/snyk/cli/cliv2/internal/proxy/interceptor"
 
@@ -221,11 +222,53 @@ func (p *WrapperProxy) Start() error {
 	p.port = l.Addr().(*net.TCPAddr).Port
 	p.DebugLogger.Print("Wrapper proxy is listening on port: ", p.port)
 
+	// Start the server in a goroutine
+	serverErr := make(chan error, 1)
 	go func() {
-		_ = p.httpServer.Serve(l) // this blocks until the server stops and gives you an error which can be ignored
+		// http.Server.Serve will return an error if it fails to start
+		// or nil when the server is shut down
+		if serveErr := p.httpServer.Serve(l); serveErr != nil && serveErr != http.ErrServerClosed {
+			serverErr <- serveErr
+		}
 	}()
 
+	// Wait for the server to be ready by attempting to connect to it
+	// This prevents a race condition where the legacy CLI tries to connect
+	// before the proxy server is ready to accept connections
+	err = p.waitForProxyReady(serverErr)
+	if err != nil {
+		return fmt.Errorf("proxy server failed to become ready: %w", err)
+	}
+
 	return nil
+}
+
+// waitForProxyReady waits for the proxy server to be ready to accept connections
+// by attempting to connect to it with retries. It also checks for server startup errors.
+func (p *WrapperProxy) waitForProxyReady(serverErr chan error) error {
+	maxRetries := 10
+	retryDelay := 50 * time.Millisecond
+
+	for i := 0; i < maxRetries; i++ {
+		// Check if server failed to start
+		select {
+		case err := <-serverErr:
+			return fmt.Errorf("proxy server failed to start: %w", err)
+		default:
+			// Server hasn't reported an error yet, continue checking readiness
+		}
+
+		// Try to connect to verify the server is ready
+		conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", p.port), 100*time.Millisecond)
+		if err == nil {
+			conn.Close()
+			p.DebugLogger.Print("Proxy server is ready")
+			return nil
+		}
+		time.Sleep(retryDelay)
+	}
+
+	return fmt.Errorf("proxy server did not become ready after %d attempts", maxRetries)
 }
 
 func (p *WrapperProxy) Stop() {
