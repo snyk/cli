@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 
+import { fakeServer } from '../../../acceptance/fake-server';
 import {
   createProject,
   createProjectFromWorkspace,
 } from '../../util/createProject';
-import { runSnykCLI } from '../../util/runSnykCLI';
-import { fakeServer } from '../../../acceptance/fake-server';
 import { getAvailableServerPort } from '../../util/getServerPort';
+import { runSnykCLI } from '../../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -194,6 +194,31 @@ describe('snyk sbom (mocked server only)', () => {
     );
     expect(bom.metadata.component.name).toEqual('npm-package');
     expect(bom.components).toHaveLength(3);
+  });
+
+  test('`sbom --go-module-level` sends go_module_level to the SBOM endpoint', async () => {
+    const orgId = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+    const project = await createProjectFromWorkspace('golang-gomodules');
+
+    const { code, stdout } = await runSnykCLI(
+      `sbom --org ${orgId} --format cyclonedx1.6+json --go-module-level --debug`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toEqual(0);
+    expect(() => JSON.parse(stdout)).not.toThrow();
+
+    const sbomRequests = server.getRequests().filter((req: any) => {
+      return (
+        req.method === 'POST' && req.path.endsWith(`/hidden/orgs/${orgId}/sbom`)
+      );
+    });
+
+    expect(sbomRequests).toHaveLength(1);
+    expect(sbomRequests[0].query.go_module_level).toEqual('true');
   });
 
   test('`sbom` retains the exit error code of the underlying SCA process', async () => {
