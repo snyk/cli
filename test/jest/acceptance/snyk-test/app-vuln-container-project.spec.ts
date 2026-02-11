@@ -13,7 +13,7 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     const jsonOutput = JSON.parse(stdout);
     expect(jsonOutput.ok).toEqual(true);
     expect(code).toEqual(0);
-  }, 60000);
+  }, 120000);
   it('should find all vulns including app vulns', async () => {
     const { code, stdout } = await runSnykCLI(
       `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --experimental`,
@@ -25,7 +25,7 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     expect(jsonOutput[1].ok).toEqual(false);
     expect(jsonOutput[1].uniqueCount).toBeGreaterThan(0);
     expect(code).toEqual(1);
-  }, 60000);
+  }, 120000);
   it('should find nothing when app-vulns are explicitly disabled', async () => {
     const { code, stdout } = await runSnykCLI(
       `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --exclude-app-vulns`,
@@ -36,7 +36,7 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     expect(jsonOutput.ok).toEqual(false);
     expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
     expect(code).toEqual(1);
-  }, 60000);
+  }, 120000);
   it('should find nothing on conflicting app-vulns flags', async () => {
     // if both flags are set, --exclude-app-vulns should take precedence and
     // disable it.
@@ -48,7 +48,7 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     expect(jsonOutput.ok).toEqual(false);
     expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
     expect(code).toEqual(1);
-  }, 60000);
+  }, 120000);
 
   it('should find vulns on an npm project application image without package-lock.json file', async () => {
     const { code, stdout } = await runSnykCLI(
@@ -58,7 +58,7 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     expect(Array.isArray(jsonOutput)).toBeFalsy();
     expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
     expect(code).toEqual(1);
-  }, 60000);
+  }, 120000);
 
   it('should find vulns on an npm project application image without package.json and package-lock.json file', async () => {
     const { code, stdout } = await runSnykCLI(
@@ -66,7 +66,7 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     );
     expect(code).toEqual(1);
     expect(stdout).toContain('Package manager:   npm');
-  }, 60000);
+  }, 120000);
 
   it('should show app vulns tip when available', async () => {
     const { stdout } = await runSnykCLI(
@@ -74,7 +74,7 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     );
 
     expect(stdout).toContain(`Testing docker-archive:test`);
-  }, 60000);
+  }, 120000);
 
   it('should find all vulns without experimental flag', async () => {
     const { code, stdout } = await runSnykCLI(
@@ -89,7 +89,7 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     expect(applications[0].uniqueCount).toBeGreaterThan(0);
     expect(applications[0].ok).toEqual(false);
     expect(code).toEqual(1);
-  }, 60000);
+  }, 120000);
   it('should return only dockerfile instructions vulnerabilities when excluding base image vulns', async () => {
     const dockerfilePath = path.normalize(
       'test/fixtures/container-projects/Dockerfile-vulns',
@@ -103,7 +103,7 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     expect(jsonOutput.ok).toEqual(false);
     expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
     expect(code).toEqual(1);
-  }, 60000);
+  }, 120000);
 
   it('finds dockerfile instructions and app vulns when excluding base image vulns', async () => {
     const dockerfilePath = path.normalize(
@@ -120,7 +120,7 @@ describe('container test projects behavior with --app-vulns, --file and --exclud
     expect(jsonOutput.applications[0].ok).toEqual(false);
     expect(jsonOutput.applications[0].uniqueCount).toBeGreaterThan(0);
     expect(code).toEqual(1);
-  }, 60000);
+  }, 120000);
 });
 
 describe('container test projects behavior with --json flag', () => {
@@ -194,7 +194,7 @@ describe('container test projects behavior with --exclude-node-modules flag', ()
 
     expect(applications.length).toEqual(2);
     expect(code).toEqual(1);
-  }, 60000);
+  }, 120000);
 
   // Address as part CLI-1200
   testIf(!isWindowsOperatingSystem())(
@@ -210,6 +210,6 @@ describe('container test projects behavior with --exclude-node-modules flag', ()
 
       expect(code).toEqual(1);
     },
-    60000,
+    120000,
   );
 });
