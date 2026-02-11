@@ -338,6 +338,9 @@ func PrepareV1EnvironmentVariables(
 	inputAsMap[constants.SNYK_HTTP_PROXY_ENV_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_HTTP_PROXY_ENV)
 	inputAsMap[constants.SNYK_HTTP_NO_PROXY_ENV_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_HTTP_NO_PROXY_ENV)
 
+	// preserve original OPENSSL_CONF so the Go binary can be re-invoked with FIPS support
+	inputAsMap[constants.SNYK_OPENSSL_CONF_SYSTEM], _ = utils.FindValueCaseInsensitive(inputAsMap, constants.SNYK_OPENSSL_CONF)
+
 	if err == nil {
 		// apply blacklist: ensure that no existing no_proxy or other configuration causes redirecting internal communication that is meant to stay between cliv1 and cliv2
 		blackList := []string{
