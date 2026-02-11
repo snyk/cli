@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"testing"
@@ -29,6 +30,7 @@ import (
 	"github.com/snyk/cli/cliv2/internal/proxy"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var discardLogger = log.New(io.Discard, "", 0)
@@ -360,6 +362,32 @@ func Test_prepareV1Command(t *testing.T) {
 	assert.Contains(t, snykCmd.Env, "NODE_EXTRA_CA_CERTS=certLocation")
 	assert.Equal(t, expectedArgs, snykCmd.Args[1:])
 	assert.Nil(t, err)
+}
+
+func Test_prepareV1Command_InjectsExecutablePath(t *testing.T) {
+	cacheDir := getCacheDir(t)
+	config := configuration.NewWithOpts(configuration.WithAutomaticEnv())
+	config.Set(configuration.CACHE_PATH, cacheDir)
+	cli, err := cliv2.NewCLIv2(config, discardLogger, getRuntimeInfo(t))
+	assert.NoError(t, err)
+
+	snykCmd, err := cli.PrepareV1Command(
+		context.Background(),
+		"someExecutable",
+		[]string{"--help"},
+		getProxyInfoForTest(),
+		"name",
+		"version",
+	)
+	assert.NoError(t, err)
+
+	execPath, err := os.Executable()
+	require.NoError(t, err)
+
+	execPath, err = filepath.EvalSymlinks(execPath)
+	require.NoError(t, err)
+
+	assert.Contains(t, snykCmd.Env, fmt.Sprintf("%s=%s", constants.SNYK_CLI_EXECUTABLE_PATH_ENV, execPath))
 }
 
 func Test_extractOnlyOnce(t *testing.T) {

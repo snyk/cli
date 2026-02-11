@@ -45,6 +45,7 @@ type CLI struct {
 	CacheDirectory   string
 	WorkingDirectory string
 	v1BinaryLocation string
+	executablePath   string
 	stdin            io.Reader
 	stdout           io.Writer
 	stderr           io.Writer
@@ -79,11 +80,22 @@ func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger, ri ru
 
 	v1BinaryLocation := path.Join(cacheDirectory, ri.GetVersion(), cliv1.GetCLIv1Filename())
 
+	executablePath, err := os.Executable()
+	if err != nil {
+		debugLogger.Printf("Failed to get executable path: %v", err)
+	} else {
+		executablePath, err = filepath.EvalSymlinks(executablePath)
+		if err != nil {
+			debugLogger.Printf("Failed to resolve symlinks for executable path: %v", err)
+		}
+	}
+
 	cli := CLI{
 		DebugLogger:      debugLogger,
 		CacheDirectory:   cacheDirectory,
 		WorkingDirectory: "",
 		v1BinaryLocation: v1BinaryLocation,
+		executablePath:   executablePath,
 		stdin:            os.Stdin,
 		stdout:           os.Stdout,
 		stderr:           os.Stderr,
@@ -406,6 +418,11 @@ func (c *CLI) PrepareV1Command(
 	snykCmd = exec.CommandContext(ctx, cmd, args...)
 	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, c.globalConfig, args)
 
+	if c.executablePath != "" {
+		snykCmd.Env = append(snykCmd.Env,
+			fmt.Sprintf("%s=%s", constants.SNYK_CLI_EXECUTABLE_PATH_ENV, c.executablePath))
+	}
+
 	if len(c.WorkingDirectory) > 0 {
 		snykCmd.Dir = c.WorkingDirectory
 	}
@@ -448,6 +465,7 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 			constants.SNYK_ANALYTICS_DISABLED_ENV,
 			constants.SNYK_ENDPOINT_ENV,
 			constants.SNYK_ORG_ENV,
+			constants.SNYK_CLI_EXECUTABLE_PATH_ENV,
 		}
 
 		for _, key := range listedEnvironmentVariables {
