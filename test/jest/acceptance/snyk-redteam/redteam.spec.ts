@@ -4,6 +4,7 @@ import {
   getFirstIPv4Address,
 } from '../../../acceptance/fake-server';
 import { resolve } from 'path';
+import { getAvailableServerPort } from '../../util/getServerPort';
 
 jest.setTimeout(1000 * 60);
 
@@ -14,8 +15,8 @@ describe('snyk redteam (mocked servers only)', () => {
   let redteamTargetWithAgent: string;
   const projectRoot = resolve(__dirname, '../../../..');
 
-  beforeAll((done) => {
-    const port = process.env.PORT || process.env.SNYK_PORT || '58584';
+  beforeAll(async () => {
+    const port = await getAvailableServerPort(process);
     const baseApi = '/api/v1';
     const ipAddr = getFirstIPv4Address();
     redteamTarget = resolve(projectRoot, 'test/fixtures/redteam/redteam.yaml');
@@ -32,9 +33,7 @@ describe('snyk redteam (mocked servers only)', () => {
       SNYK_CFG_ORG: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
-    server.listen(port, () => {
-      done();
-    });
+    await server.listenPromise(port);
   });
 
   afterEach(() => {
