@@ -548,6 +548,59 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
+  app.post(`/api/hidden/orgs/:orgId/upload_revisions`, (req, res) => {
+    res.status(201).send({
+      data: {
+        attributes: {
+          revision_type: 'snapshot',
+          sealed: false,
+        },
+        id: 'bc0729a7-109f-4fe9-a048-aac410e28c9a',
+        type: 'upload_revision',
+      },
+      jsonapi: {
+        version: '1.0',
+      },
+      links: {
+        self: {
+          href: '/orgs/bb262a15-d798-458b-81fa-30a92cb3475c/upload_revisions/bc0729a7-109f-4fe9-a048-aac410e28c9a',
+        },
+      },
+    });
+  });
+
+  app.post(
+    `/api/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId/files`,
+    (_, res) => {
+      res.status(204);
+      res.send();
+    },
+  );
+
+  app.patch(
+    `/api/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId`,
+    (req, res) => {
+      res.status(200).send({
+        data: {
+          attributes: {
+            revision_type: 'snapshot',
+            sealed: true,
+          },
+          id: 'fbdb5cc0-6e34-4191-b088-0dff740faf38',
+          type: 'upload_revision',
+        },
+        jsonapi: {
+          version: '1.0',
+        },
+        links: {
+          self: {
+            href: '/orgs/bb262a15-d798-458b-81fa-30a92cb3475c/upload_revisions/fbdb5cc0-6e34-4191-b088-0dff740faf38',
+          },
+        },
+      });
+    },
+  );
+
   app.get(`/api/rest/orgs/:orgId/ai_bom_jobs/:jobId`, (req, res) => {
     res.status(303);
     res.send({
