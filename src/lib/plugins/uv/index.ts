@@ -1,60 +1,9 @@
-import { createFromJSON, DepGraphData } from '@snyk/dep-graph';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
+import { createFromJSON, DepGraphData } from '@snyk/dep-graph';
+import { CLI } from '@snyk/error-catalog-nodejs-public';
+import { execGoCommand, GoCommandResult } from '../../go-bridge';
 import { UV_MONITOR_ENABLED_ENV_VAR } from '../../package-managers';
 import * as types from '../types';
-
-const STUB_DEP_GRAPH_DATA: DepGraphData = {
-  schemaVersion: '1.3.0',
-  pkgManager: {
-    name: 'pip',
-  },
-  pkgs: [
-    {
-      id: 'uv-project@0.1.0',
-      info: { name: 'uv-project', version: '0.1.0' },
-    },
-    {
-      id: 'urllib3@1.26.15',
-      info: { name: 'urllib3', version: '1.26.15' },
-    },
-    {
-      id: 'cryptography@40.0.0',
-      info: { name: 'cryptography', version: '40.0.0' },
-    },
-    {
-      id: 'cffi@2.0.0',
-      info: { name: 'cffi', version: '2.0.0' },
-    },
-  ],
-  graph: {
-    rootNodeId: 'root-node',
-    nodes: [
-      {
-        nodeId: 'root-node',
-        pkgId: 'uv-project@0.1.0',
-        deps: [
-          { nodeId: 'urllib3@1.26.15' },
-          { nodeId: 'cryptography@40.0.0' },
-        ],
-      },
-      {
-        nodeId: 'urllib3@1.26.15',
-        pkgId: 'urllib3@1.26.15',
-        deps: [],
-      },
-      {
-        nodeId: 'cryptography@40.0.0',
-        pkgId: 'cryptography@40.0.0',
-        deps: [{ nodeId: 'cffi@2.0.0' }],
-      },
-      {
-        nodeId: 'cffi@2.0.0',
-        pkgId: 'cffi@2.0.0',
-        deps: [],
-      },
-    ],
-  },
-};
 
 export async function inspect(
   _root: string,
@@ -65,7 +14,27 @@ export async function inspect(
     throw new Error(`uv monitor support is not yet available.`);
   }
 
-  const depGraph = createFromJSON(STUB_DEP_GRAPH_DATA);
+  const result = await execGoCommand([
+    'depgraph',
+    `--file=${targetFile}`,
+    '--use-sbom-resolution',
+    '--json',
+  ]);
+
+  if (result.exitCode !== 0) {
+    throw new CLI.GeneralCLIFailureError(extractErrorDetail(result));
+  }
+
+  const parsed = JSON.parse(result.stdout);
+
+  const depGraphDataArray: DepGraphData[] = Array.isArray(parsed)
+    ? parsed
+    : [parsed];
+
+  const scannedProjects = depGraphDataArray.map((data) => ({
+    depGraph: createFromJSON(data),
+    targetFile,
+  }));
 
   return {
     plugin: {
@@ -74,11 +43,20 @@ export async function inspect(
       targetFile,
       packageManager: 'pip',
     },
-    scannedProjects: [
-      {
-        depGraph,
-        targetFile,
-      },
-    ],
+    scannedProjects,
   };
+}
+
+function extractErrorDetail(result: GoCommandResult): string {
+  if (result.stdout) {
+    try {
+      const parsed = JSON.parse(result.stdout);
+      if (parsed.error) {
+        return parsed.error;
+      }
+    } catch {
+      // stdout wasn't valid JSON; fall through to stderr
+    }
+  }
+  return result.stderr || 'depgraph command failed';
 }
