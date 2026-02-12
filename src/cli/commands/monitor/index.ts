@@ -58,6 +58,7 @@ import {
 import {
   SCAN_USR_LIB_JARS_FEATURE_FLAG,
   CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+  DISABLE_CONTAINER_MONITOR_PROJECT_NAME_FIX_FEATURE_FLAG,
   INCLUDE_SYSTEM_JARS_OPTION,
   EXCLUDE_APP_VULNS_OPTION,
   APP_VULNS_OPTION,
@@ -150,6 +151,17 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     );
     if (scanUsrLibJarsEnabled) {
       options[INCLUDE_SYSTEM_JARS_OPTION] = true;
+    }
+
+    // Check disableContainerMonitorProjectNameFix feature flag
+    // When enabled, reverts to legacy behavior (using id instead of projectName in JSON output)
+    const disableContainerMonitorProjectNameFix = await hasFeatureFlagOrDefault(
+      DISABLE_CONTAINER_MONITOR_PROJECT_NAME_FIX_FEATURE_FLAG,
+      options,
+      false,
+    );
+    if (disableContainerMonitorProjectNameFix) {
+      options.disableContainerMonitorProjectNameFix = true;
     }
   }
 

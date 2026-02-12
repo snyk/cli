@@ -1,0 +1,27 @@
+{
+  "identity": {
+    "type": "deb"
+  },
+  "facts": [
+    {
+      "type": "depGraph",
+      "data": {
+        "schemaVersion": "1.2.0",
+        "pkgManager": {
+          "name": "deb",
+          "repositories": [{"alias": "debian:11"}]
+        },
+        "pkgs": [{"id": "alpine@3.18", "info": {"name": "alpine", "version": "3.18"}}],
+        "graph": {
+          "rootNodeId": "root-node",
+          "nodes": [{"nodeId": "root-node", "pkgId": "alpine@3.18", "deps": []}]
+        }
+      }
+    }
+  ],
+  "target": {
+    "image": "alpine:latest"
+  },
+  "name": "my-custom-project-name"
+}
+

@@ -3,6 +3,7 @@ import { DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG } from '../../../../src/lib/package
 import * as featureFlags from '../../../../src/lib/feature-flags';
 import {
   SCAN_USR_LIB_JARS_FEATURE_FLAG,
+  DISABLE_CONTAINER_MONITOR_PROJECT_NAME_FIX_FEATURE_FLAG,
   INCLUDE_SYSTEM_JARS_OPTION,
   EXCLUDE_APP_VULNS_OPTION,
 } from '../../../../src/cli/commands/constants';
@@ -420,6 +421,102 @@ describe('monitor & test', () => {
           false,
         );
         expect(options[INCLUDE_SYSTEM_JARS_OPTION]).toBeUndefined();
+      });
+    });
+  });
+
+  describe('docker disableContainerMonitorProjectNameFix feature flag', () => {
+    beforeEach(() => {
+      getEcosystemSpy.mockReturnValue(undefined);
+      analyticsSpy.mockReturnValue(false);
+    });
+
+    describe('monitor command', () => {
+      it('should set disableContainerMonitorProjectNameFix on options when feature flag is enabled (to revert to legacy behavior)', async () => {
+        const options: any = {
+          docker: true,
+          [EXCLUDE_APP_VULNS_OPTION]: true,
+        };
+
+        (featureFlags.hasFeatureFlagOrDefault as jest.Mock).mockImplementation(
+          (flag: string) => {
+            if (
+              flag === DISABLE_CONTAINER_MONITOR_PROJECT_NAME_FIX_FEATURE_FLAG
+            ) {
+              return Promise.resolve(true);
+            }
+            return Promise.resolve(false);
+          },
+        );
+
+        try {
+          await monitor('docker-image:latest', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+          // We only care about the feature flag being called correctly.
+        }
+
+        expect(featureFlags.hasFeatureFlagOrDefault).toHaveBeenCalledWith(
+          DISABLE_CONTAINER_MONITOR_PROJECT_NAME_FIX_FEATURE_FLAG,
+          expect.objectContaining({
+            docker: true,
+          }),
+          false,
+        );
+
+        // When flag is enabled, it triggers legacy behavior (using id instead of projectName)
+        expect(options.disableContainerMonitorProjectNameFix).toBe(true);
+      });
+
+      it('should not set disableContainerMonitorProjectNameFix on options by default (uses new correct behavior)', async () => {
+        const options: any = {
+          docker: true,
+          [EXCLUDE_APP_VULNS_OPTION]: true,
+        };
+
+        (featureFlags.hasFeatureFlagOrDefault as jest.Mock).mockImplementation(
+          () => {
+            return Promise.resolve(false);
+          },
+        );
+
+        try {
+          await monitor('docker-image:latest', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+          // We only care about the feature flag being called correctly.
+        }
+
+        expect(featureFlags.hasFeatureFlagOrDefault).toHaveBeenCalledWith(
+          DISABLE_CONTAINER_MONITOR_PROJECT_NAME_FIX_FEATURE_FLAG,
+          expect.objectContaining({
+            docker: true,
+          }),
+          false,
+        );
+
+        // When flag is not set, uses new correct behavior (projectName)
+        expect(options.disableContainerMonitorProjectNameFix).toBeUndefined();
+      });
+
+      it('should not check disableContainerMonitorProjectNameFix feature flag for non-docker scans', async () => {
+        const options: any = {
+          docker: false,
+        };
+
+        try {
+          await monitor('path/to/project', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+          // We only care about the options being set correctly.
+        }
+
+        expect(featureFlags.hasFeatureFlagOrDefault).not.toHaveBeenCalledWith(
+          DISABLE_CONTAINER_MONITOR_PROJECT_NAME_FIX_FEATURE_FLAG,
+          options,
+          false,
+        );
+        expect(options.disableContainerMonitorProjectNameFix).toBeUndefined();
       });
     });
   });

@@ -131,6 +131,7 @@ export interface Options {
 
   // Feature Flags
   useImprovedDotnetWithoutPublish?: boolean;
+  disableContainerMonitorProjectNameFix?: boolean;
 
   // Plugin configuration options
   configuration?: {
