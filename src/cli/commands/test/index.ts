@@ -56,6 +56,7 @@ import {
   APP_VULNS_OPTION,
 } from '../constants';
 import { checkOSSPaths } from '../../../lib/check-paths';
+import { isDefined, isStrictNumber, resolveNestedJarsOption } from '../../../lib/container';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -74,6 +75,7 @@ export default async function test(
   const { options: originalOptions, paths } = processCommandArgs(...args);
 
   const options = setDefaultTestOptions(originalOptions);
+  options["use-strict-jars-depth"]=false;
 
   if (originalOptions.iac) {
     const iacNewEngine = await hasFeatureFlag('iacNewEngine', options);
@@ -137,6 +139,29 @@ export default async function test(
       ) {
         console.log(theme.color.status.warn(appVulnsReleaseWarningMsg));
       }
+      const nestedJarsDepth = resolveNestedJarsOption(options)
+      const warnings: string[] = [];
+      if (
+        isDefined(options["shaded-jars-depth"]) &&
+        isDefined(options["nested-jars-depth"])
+      ) {
+        warnings.push(
+          "Using both --shaded-jars-depth and --nested-jars-depth is deprecated, use only --nested-jars-depth",
+        );
+      } else if (isDefined(options["shaded-jars-depth"])) {
+        warnings.push(
+          "--shaded-jars-depth is deprecated, use --nested-jars-depth instead",
+        );
+      }
+      if (
+        !isStrictNumber(nestedJarsDepth) &&
+        typeof nestedJarsDepth !== "undefined"
+      ) {
+        warnings.push(
+          "Non-numeric inputs for --nested-jars-depth are deprecated, replace with a numeric input",
+        );
+      }
+      warnings.forEach((msg) => console.warn(chalk.yellow(msg)));
     }
 
     // Check scanUsrLibJars feature flag and add --include-system-jars parameter
@@ -273,7 +298,6 @@ export default async function test(
       // for non-json/sarif outputs, where we take the code of
       // the first error.
       (err as any).code = (errorResults[0] as any).code;
-      (err as any).errorCatalog = (errorResults[0] as any).errorCatalog;
     }
     err.json = stringifiedData;
     err.jsonStringifiedResults = stringifiedJsonData;
@@ -326,7 +350,6 @@ export default async function test(
     (error as any).userMessage = (errorResults[0] as any).userMessage;
     (error as any).strCode = (errorResults[0] as any).strCode;
     (error as any).innerError = (errorResults[0] as any).innerError;
-    (error as any).errorCatalog = (errorResults[0] as any).errorCatalog;
     throw error;
   }
 

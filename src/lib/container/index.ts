@@ -50,3 +50,36 @@ export function getContainerImageSavePath(): string | undefined {
     undefined
   );
 }
+
+export function isTrue(value?: boolean | string): boolean {
+  return String(value).toLowerCase() === "true";
+}
+
+// This strictly follows the ECMAScript Language Specification: https://262.ecma-international.org/5.1/#sec-9.3
+export function isNumber(value?: boolean | string): boolean {
+  return !isNaN(Number(value));
+}
+
+export function resolveNestedJarsOption(options?: Record<string, any>) {
+  const safeOptions = options || {};
+
+  return [
+    safeOptions["nested-jars-depth"],
+    safeOptions["shaded-jars-depth"],
+  ].find(isDefined);
+}
+
+// Must be a finite numeric value, excluding booleans, Infinity, and non-numeric strings
+export function isStrictNumber(value?: boolean | string): boolean {
+  if (typeof value === "boolean" || !value?.trim().length) {
+    return false;
+  }
+
+  const num = Number(value);
+  return Number.isFinite(num);
+}
+
+export function isDefined(value?: string | boolean): boolean {
+  return value !== "" && value != null;
+}
+
