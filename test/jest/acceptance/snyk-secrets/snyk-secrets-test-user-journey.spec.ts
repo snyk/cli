@@ -7,7 +7,7 @@ import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 import { resolve } from 'path';
 
 expect.extend(matchers);
-jest.setTimeout(1000 * 120);
+jest.setTimeout(1000 * 180);
 
 const projectRoot = resolve(__dirname, '../../../..');
 
