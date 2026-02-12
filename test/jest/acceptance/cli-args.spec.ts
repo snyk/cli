@@ -535,6 +535,81 @@ describe.each(userJourneyWorkflows)(
             expect(code).toEqual(0);
           });
         }
+
+        describe('container test nested-jars-depth validation', () => {
+          const TEST_IMAGE =
+            'docker-archive:test/fixtures/docker/hello-world-linux.tar';
+
+          test('should fail with invalid nested-jars-depth value (non-numeric: true)', async () => {
+            const { code, stdout } = await runSnykCLI(
+              `container test ${TEST_IMAGE} --nested-jars-depth=true`,
+              { env },
+            );
+
+            expect(code).toEqual(2);
+            expect(stdout).toContain(
+              '--nested-jars-depth accepts only numbers bigger than or equal to 0',
+            );
+          });
+
+          test('should fail with invalid nested-jars-depth value (non-numeric: false)', async () => {
+            const { code, stdout } = await runSnykCLI(
+              `container test ${TEST_IMAGE} --nested-jars-depth=false`,
+              { env },
+            );
+
+            expect(code).toEqual(2);
+            expect(stdout).toContain(
+              '--nested-jars-depth accepts only numbers bigger than or equal to 0',
+            );
+          });
+
+          test('should fail with invalid nested-jars-depth value (non-numeric: Infinity)', async () => {
+            const { code, stdout } = await runSnykCLI(
+              `container test ${TEST_IMAGE} --nested-jars-depth=Infinity`,
+              { env },
+            );
+
+            expect(code).toEqual(2);
+            expect(stdout).toContain(
+              '--nested-jars-depth accepts only numbers bigger than or equal to 0',
+            );
+          });
+
+          test('should fail with invalid nested-jars-depth value (negative number)', async () => {
+            const { code, stdout } = await runSnykCLI(
+              `container test ${TEST_IMAGE} --nested-jars-depth=-1`,
+              { env },
+            );
+
+            expect(code).toEqual(2);
+            expect(stdout).toContain(
+              '--nested-jars-depth accepts only numbers bigger than or equal to 0',
+            );
+          });
+
+          test('should fail when using both nested-jars-depth and shaded-jars-depth flags', async () => {
+            const { code, stdout } = await runSnykCLI(
+              `container test ${TEST_IMAGE} --nested-jars-depth=5 --shaded-jars-depth=5`,
+              { env },
+            );
+
+            expect(code).toEqual(2);
+            // Message may be line-wrapped in output, so check for key parts separately
+            expect(stdout).toContain(
+              'Cannot use --shaded-jars-depth together with --nested-jars-depth',
+            );
+          });
+
+          test('should accept valid numeric nested-jars-depth value', async () => {
+            const { code } = await runSnykCLI(
+              `container test ${TEST_IMAGE} --nested-jars-depth=5`,
+              { env },
+            );
+
+            expect([0, 1]).toContain(code);
+          });
+        });
       });
     });
   },
