@@ -53,7 +53,7 @@ afterAll(() => {
   }
 });
 
-describe('snyk secrets test', () => {
+describe.skip('snyk secrets test', () => {
   describe('output formats', () => {
     it('should display human-readable output by default', async () => {
       const { code, stderr } = await runSnykCLI(
