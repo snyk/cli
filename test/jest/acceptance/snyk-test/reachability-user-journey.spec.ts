@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, symlinkSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 
 import { runSnykCLI } from '../../util/runSnykCLI';
@@ -32,6 +32,10 @@ ignore:
 `;
 
   writeFileSync(`${path}/.snyk`, localPolicy, { encoding: 'utf8' });
+}
+
+function injectBrokenSymlink(path: string) {
+  symlinkSync('/broken/path', `${path}/brokenSymlink.js`);
 }
 
 type IntegrationEnv = {
@@ -130,6 +134,32 @@ describe('snyk test --reachability', () => {
   });
 
   test('emits a valid json output and fails the test if vulnerabilies are upgradable', async () => {
+    const { stdout, code, stderr } = await runSnykCLI(
+      `test ${TEMP_LOCAL_PATH} --reachability --fail-on=upgradable --json`,
+      {
+        env: {
+          ...process.env,
+          ...ReachabilityIntegrationEnv.env,
+        },
+      },
+    );
+
+    expect(stdout).not.toBe('');
+    expect(stderr).toBe('');
+
+    const jsonOutput = JSON.parse(stdout);
+
+    const includesUpgradablePaths = jsonOutput.vulnerabilities.some(
+      (vuln: { isUpgradable: boolean }) => vuln.isUpgradable,
+    );
+
+    expect(includesUpgradablePaths).toBeTruthy();
+
+    expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+  });
+
+  test('it uploads the source code when invalid files are present in the directory', async () => {
+    injectBrokenSymlink(TEMP_LOCAL_PATH);
     const { stdout, code, stderr } = await runSnykCLI(
       `test ${TEMP_LOCAL_PATH} --reachability --fail-on=upgradable --json`,
       {
