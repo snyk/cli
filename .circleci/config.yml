@@ -48,6 +48,10 @@ executors:
     docker:
       - image: ubuntu:latest
     resource_class: small
+  linux-machine-amd64:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: medium
   docker-amd64:
     docker:
       - image: snyklabs/cli-build-private:20250910-083449
@@ -1028,6 +1032,19 @@ workflows:
                 - '/release.*/'
                 - '/.*e2e.*/'
 
+      - test-release-static:
+          name: e2e experimental tests (scratch-container-amd64)
+          context:
+            - team_hammerhead-cli
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
+
       - noop:
           name: Start Deployments
           requires:
@@ -1049,6 +1066,7 @@ workflows:
             - e2e fips tests (suse-linux-fips)
             - e2e fips tests (win-server2022-amd64)
             - e2e experimental tests (linux-static-amd64)
+            - e2e experimental tests (scratch-container-amd64)
           filters:
             branches:
               only:
@@ -1653,6 +1671,32 @@ jobs:
             python scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >>  $(cat binary-releases/version) || python3 scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >> $(cat binary-releases/version)
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk whoami --experimental
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk woof
+
+  test-release-static:
+    parameters:
+      cli_download_base_url:
+        type: string
+        default: << pipeline.parameters.experimental_cli_download_base_url >>
+    executor: linux-machine-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Build scratch test image
+          command: |
+            VERSION=$(cat binary-releases/version)
+            docker build \
+              --build-arg CLI_DOWNLOAD_BASE_URL="<< parameters.cli_download_base_url >>" \
+              --build-arg SNYK_VERSION="${VERSION}" \
+              -f .circleci/Dockerfile.scratch-e2e \
+              -t snyk-scratch-test .
+      - run:
+          name: Test Snyk CLI in scratch container
+          command: |
+            docker run --rm \
+              -e SNYK_TOKEN="${TEST_SNYK_TOKEN}" \
+              -e SNYK_DISABLE_ANALYTICS=1 \
+              snyk-scratch-test \
+              -c "/usr/local/bin/snyk whoami --experimental && /usr/local/bin/snyk woof"
 
   release-s3:
     parameters:
