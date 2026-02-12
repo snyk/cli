@@ -15,15 +15,16 @@ require (
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260204163905-d454493d2360
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260212081805-254967305750
 	github.com/snyk/cli-extension-sbom v0.0.0-20260210104429-41aece880532
 	github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0
+	github.com/snyk/code-client-go v1.26.1
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905
-	github.com/snyk/go-application-framework v0.0.0-20260211094010-4089e938239c
+	github.com/snyk/go-application-framework v0.0.0-20260212124903-a6888bafc081
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260210114410-1b6ab0b80c10
+	github.com/snyk/snyk-ls v0.0.0-20260212131823-6c7aceaf5880
 	github.com/snyk/studio-mcp v1.5.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
@@ -211,7 +212,6 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.3.2 // indirect
-	github.com/snyk/code-client-go v1.25.0 // indirect
 	github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25 // indirect
 	github.com/snyk/policy-engine v1.1.3 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect

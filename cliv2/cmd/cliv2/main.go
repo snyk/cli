@@ -26,6 +26,7 @@ import (
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/cli-extension-secrets/pkg/secrets"
+	"github.com/snyk/code-client-go/pkg/code"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/snyk/go-application-framework/pkg/analytics"
@@ -505,8 +506,8 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration) 
 	engine.AddExtensionInitializer(snykls.Init)
 	engine.AddExtensionInitializer(mcp.Init)
 	engine.AddExtensionInitializer(container.Init)
+	engine.AddExtensionInitializer(code.Init)
 	engine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
-	engine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 	engine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
 	engine.AddExtensionInitializer(mcpscan.Init)
 
