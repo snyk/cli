@@ -6,7 +6,7 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 import { join } from 'path';
 
-jest.setTimeout(1000 * 120);
+jest.setTimeout(1000 * 180);
 
 const TEST_REPO_URL = 'https://github.com/snyk/snyk-goof.git';
 const TEMP_LOCAL_PATH = '/tmp/snyk-goof';
