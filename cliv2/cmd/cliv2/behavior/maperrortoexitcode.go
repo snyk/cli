@@ -9,6 +9,43 @@ import (
 	"github.com/snyk/cli/cliv2/internal/constants"
 )
 
+// MapErrorCatalogToExitCode translates error catalog entries into CLI exit statuses.
+//
+// # Design philosophy
+//
+// Adopting a new exit code is an exceptional situation, not the default.
+// Because the CLI provides structured JSON output, automation should
+// parse the JSON for granular error details (e.g., specific error IDs,
+// messages, or metadata).
+//
+// Exit codes should signal broad categories of error states rather than
+// individual scenarios. Ask: "Does a shell script need to branch logic
+// based solely on this number?" If the answer is no, use the default (1).
+//
+// # Public contract and breaking changes
+//
+// Exit codes constitute a stable public API contract with our customers.
+// Modification, reassignment, or removal of existing exit codes is a
+// breaking change and must align with the organization's centralized
+// versioning and deprecation processes.
+//
+// # Exit code constraints
+//
+// We lean toward the sysexits.h standard for categorical failures.
+// For a full definition of these codes, refer to:
+// https://man.freebsd.org/sysexits
+//
+//   - 0: Success.
+//   - 1: Vulnerabilities found, successful execution but user facing issues detected.
+//   - 2: General catch-all error code
+//   - 3-125: Custom Application Logic (Safe range for Snyk-specific errors).
+//   - 126-255: Reserved (Used by OS/Shell for execution errors and signals).
+//
+// # Technical warning
+//
+// Exit codes are 8-bit integers. Values > 255 will wrap around (modulo 256).
+// For example, returning 256 results in a 0 (Success). In a security context,
+// this "silent success" is a high-risk failure mode that must be avoided.
 var MapErrorCatalogToExitCode func(err *snyk_errors.Error, defaultValue int) int = mapErrorToExitCode
 
 // mapErrorToExitCode maps error catalog errors to exit codes. Please extend the switch statement if new error codes need to be mapped.

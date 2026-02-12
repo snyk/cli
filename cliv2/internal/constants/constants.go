@@ -1,5 +1,7 @@
 package constants
 
+// Exit code constants for the Snyk CLI.
+// Please refer to the documentation in cmd/cliv2/behavior/maperrortoexitcode.go for guidance on exit code usage.
 const SNYK_EXIT_CODE_OK = 0
 const SNYK_EXIT_CODE_VULNERABILITIES_FOUND = 1
 const SNYK_EXIT_CODE_ERROR = 2
@@ -7,6 +9,7 @@ const SNYK_EXIT_CODE_UNSUPPORTED_PROJECTS = 3
 const SNYK_EXIT_CODE_EX_TEMPFAIL = 75 // EX_TEMPFAIL, Temporary failure, indicating something that is not really an error.  For example that a mailer could not create a connection, and the request should be reattempted later.
 const SNYK_EXIT_CODE_EX_UNAVAILABLE = 69
 const SNYK_EXIT_CODE_TS_CLI_TERMINATED = 44
+
 const SNYK_INTEGRATION_NAME = "CLI_V1_PLUGIN"
 const SNYK_INTEGRATION_NAME_ENV = "SNYK_INTEGRATION_NAME"
 const SNYK_INTEGRATION_VERSION_ENV = "SNYK_INTEGRATION_VERSION"
