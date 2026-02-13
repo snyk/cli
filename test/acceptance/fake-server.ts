@@ -15,6 +15,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['iacNewEngine', false],
     ['containerCliAppVulnsEnabled', true],
     ['enablePnpmCli', false],
+    ['enableUvCLI', false],
     ['sbomMonitorBeta', false],
     ['useImprovedDotnetWithoutPublish', false],
     ['scanUsrLibJars', false],

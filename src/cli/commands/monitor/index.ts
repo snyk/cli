@@ -64,11 +64,13 @@ import {
 } from '../constants';
 import {
   PNPM_FEATURE_FLAG,
+  UV_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 import { getOrganizationID } from '../../../lib/organization';
+import { UV_MONITOR_ENABLED_ENV_VAR } from '../../../lib/plugins/uv';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -207,6 +209,18 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     hasPnpmSupport = false;
   }
 
+  let hasUvSupport = false;
+  try {
+    if (process.env[UV_MONITOR_ENABLED_ENV_VAR] === 'true') {
+      hasUvSupport = (await hasFeatureFlag(
+        UV_FEATURE_FLAG,
+        options,
+      )) as boolean;
+    }
+  } catch (err) {
+    debug('Error checking uv feature flag', err);
+  }
+
   try {
     const args = options['_doubleDashArgs'] || [];
     const verboseEnabled =
@@ -227,9 +241,13 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     enableMavenDverboseExhaustiveDeps = false;
   }
 
-  const featureFlags = hasPnpmSupport
-    ? new Set<string>([PNPM_FEATURE_FLAG])
-    : new Set<string>();
+  const featureFlags = new Set<string>();
+  if (hasPnpmSupport) {
+    featureFlags.add(PNPM_FEATURE_FLAG);
+  }
+  if (hasUvSupport) {
+    featureFlags.add(UV_FEATURE_FLAG);
+  }
 
   if (hasImprovedDotnetWithoutPublish) {
     options.useImprovedDotnetWithoutPublish = true;

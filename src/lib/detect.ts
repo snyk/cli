@@ -6,7 +6,9 @@ import {
   SupportedPackageManagers,
   SUPPORTED_MANIFEST_FILES,
   PNPM_FEATURE_FLAG,
+  UV_FEATURE_FLAG,
 } from './package-managers';
+import { UV_MONITOR_ENABLED_ENV_VAR } from './plugins/uv';
 
 const debug = debugLib('snyk-detect');
 
@@ -36,6 +38,7 @@ const DETECTABLE_FILES: string[] = [
   'mix.exs',
   'mix.lock',
   'Package.swift',
+  'uv.lock',
 ];
 
 export const AUTO_DETECTABLE_FILES: string[] = [
@@ -64,6 +67,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'mix.exs',
   'mix.lock',
   'Package.swift',
+  'uv.lock',
 ];
 
 // when file is specified with --file, we look it up here
@@ -101,6 +105,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   [SUPPORTED_MANIFEST_FILES.POETRY_LOCK]: 'poetry',
   [SUPPORTED_MANIFEST_FILES.MIX_EXS]: 'hex',
   [SUPPORTED_MANIFEST_FILES.PACKAGE_SWIFT]: 'swift',
+  [SUPPORTED_MANIFEST_FILES.UV_LOCK]: 'uv',
 };
 
 export function isPathToPackageFile(
@@ -184,13 +189,17 @@ function isFileCompatible(
   file: string,
   featureFlags: Set<string> = new Set<string>(),
 ) {
-  if (
-    file === SUPPORTED_MANIFEST_FILES.PNPM_LOCK &&
-    !featureFlags.has(PNPM_FEATURE_FLAG)
-  ) {
-    return false;
+  switch (file) {
+    case SUPPORTED_MANIFEST_FILES.PNPM_LOCK:
+      return featureFlags.has(PNPM_FEATURE_FLAG);
+    case SUPPORTED_MANIFEST_FILES.UV_LOCK:
+      return (
+        process.env[UV_MONITOR_ENABLED_ENV_VAR] === 'true' &&
+        featureFlags.has(UV_FEATURE_FLAG)
+      );
+    default:
+      return true;
   }
-  return true;
 }
 
 export function detectPackageFile(
