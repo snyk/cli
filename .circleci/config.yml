@@ -201,10 +201,15 @@ commands:
 
   install-deps-windows-full:
     steps:
+      - run:
+          name: Configure Chocolatey cache location
+          shell: bash.exe
+          command: |
+            choco config set cacheLocation "C:\choco-cache"
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -215,9 +220,9 @@ commands:
             choco install nodejs --version=$(head .nvmrc) --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
-            - ~\AppData\Local\Temp\chocolatey
+            - C:\choco-cache
       - install-deps-python:
           os: win
       - run:
@@ -275,10 +280,15 @@ commands:
 
   install-deps-windows-make:
     steps:
+      - run:
+          name: Configure Chocolatey cache location
+          shell: bash.exe
+          command: |
+            choco config set cacheLocation "C:\choco-cache"
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -286,9 +296,9 @@ commands:
             choco install make --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
-            - ~\AppData\Local\Temp\chocolatey
+            - C:\choco-cache
       - install-deps-python:
           os: win
       - install-deps-windows-signing
