@@ -87,6 +87,16 @@ Optional. Use for monorepos and directories with multiple projects or manifest f
 
 Auto-detect all projects in the working directory (including Yarn workspaces) and generate a single SBOM based on their contents.
 
+### `--fail-fast=true|false`
+
+Use with `--all-projects` to control whether SBOM generation continues when errors occur.
+
+**Default:** `true` (fail-fast behavior)
+
+- `--fail-fast=true` or `--fail-fast` (default): When errors occur, SBOM generation is interrupted immediately. The exit code is 2 and the scan ends. No SBOM is generated for projects that had errors.
+
+- `--fail-fast=false`: Continue processing all projects even when some fail. All successful projects will be included in the SBOM, and errors for failed projects will be reported at the end.
+
 ### `[--name=<NAME>]`
 
 Use in combination with `--all-projects` to provide the name of the software which the SBOM describes. If not specified, this defaults to the name of the current working directory.
