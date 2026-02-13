@@ -1,5 +1,5 @@
 # When upgrading golang, make sure to update the docker executors that use snyklabs/cli-build-private in .circleci/config.yml
-FROM golang:1.24-bullseye
+FROM golang:1.25-bookworm
 
 # install "normal" stuff
 
@@ -54,6 +54,22 @@ COPY scripts/ scripts/
 RUN mkdir -p /target/global-logging
 RUN chown -R circleci scripts /target && chmod 770 scripts/*
 
+# Install deps mentioned in https://www.swift.org/install/linux/tarball/
+RUN apt-get update && apt-get install -y \
+    binutils-gold \
+    gcc \
+    git \
+    libcurl4-openssl-dev \
+    libedit-dev \
+    libicu-dev \
+    libncurses-dev \
+    libpython3-dev \
+    libsqlite3-dev \
+    libxml2-dev \
+    pkg-config \
+    tzdata \
+    uuid-dev \
+    && rm -rf /var/lib/apt/lists/*
 RUN scripts/install-swift.sh $ARCH
 ENV PATH=/usr/local/swift/usr/bin:$PATH
 

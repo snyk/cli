@@ -92,6 +92,7 @@ func Test_proxyWithErrorHandler(t *testing.T) {
 
 			res, err := client.Get(server.URL)
 			assert.NotNil(t, res)
+			defer func() { _ = res.Body.Close() }()
 
 			assert.Equal(t, tc.expectedIntercept, res.Header.Get(proxy.HeaderSnykTerminate) == "true")
 			assert.Nil(t, err)
