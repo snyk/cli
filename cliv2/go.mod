@@ -17,7 +17,7 @@ require (
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260204163905-d454493d2360
 	github.com/snyk/cli-extension-sbom v0.0.0-20260210104429-41aece880532
-	github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0
+	github.com/snyk/cli-extension-secrets v0.0.0-20260210120918-669d47e834cf
 	github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905
 	github.com/snyk/go-application-framework v0.0.0-20260211094010-4089e938239c

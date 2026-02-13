@@ -189,7 +189,7 @@ describe.skip('snyk secrets test', () => {
           { env },
         );
 
-        expect(stdout).toContain('Invalid flag option');
+        expect(stdout).toContain('CLI validation failure (SNYK-CLI-0010)');
         expect(code).toBe(EXIT_CODES.ERROR);
       },
     );
