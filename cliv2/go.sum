@@ -549,8 +549,8 @@ github.com/snyk/cli-extension-secrets v0.0.0-20260210120918-669d47e834cf h1:8XQr
 github.com/snyk/cli-extension-secrets v0.0.0-20260210120918-669d47e834cf/go.mod h1:Ut8fBJ+98TvdudnLLuGLixbppODXXNU83OvenwB5XZ0=
 github.com/snyk/code-client-go v1.25.0 h1:1lcg6asMpMWwpaZLKVDdci3OrAv6rRoCsCcT8Ci/fUI=
 github.com/snyk/code-client-go v1.25.0/go.mod h1:YYggK3UbOHl5rg7uBhLzsKZBFNavcwFUse/EWCKWdzw=
-github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7 h1:/2+2piwQtB9fEJCkXEOjboZjY+77lQfnvqBZ/60xNHk=
-github.com/snyk/container-cli v0.0.0-20250321132345-1e2e01681dd7/go.mod h1:38w+dcAQp9eG3P5t2eNS9eG0reut10AeJjLv5lJ5lpM=
+github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea h1:/v48hCMPiZVjplylgE2FX1ib8Qd8LN/vf8ZIKfA+wkI=
+github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea/go.mod h1:P5yW8+jkwhYBsj5l2jtHeWujyX+SAtvkC8+LELKdlWI=
 github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25 h1:dwJ4Kdp4c5aaWI+waHomarhouWF6BUYzfen0B6aqaNA=
 github.com/snyk/dep-graph/go v0.0.0-20251219134535-fcb262dc6d25/go.mod h1:hTr91da/4ze2nk9q6ZW1BmfM2Z8rLUZSEZ3kK+6WGpc=
 github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905 h1:pUe6iOWHEOFY0t4u4ssXeTqpMmZBu1xq06VBFI9zUik=
