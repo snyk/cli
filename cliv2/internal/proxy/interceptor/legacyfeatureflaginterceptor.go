@@ -13,6 +13,14 @@ import (
 
 const FeatureFlagShowMavenBuildScope = "internal_snyk_show_maven_scope_enabled"
 const FeatureFlagShowNpmBuildScope = "internal_snyk_show_npm_scope_enabled"
+const FeatureFlagRolloutDflyOSCLI = "internal_snyk_rollout_dfly_os_cli"
+
+// featureFlagPaths maps CLI config feature-flag URL paths to their config keys.
+var featureFlagPaths = map[string]string{
+	"/v1/cli-config/feature-flags/show-maven-build-scope": FeatureFlagShowMavenBuildScope,
+	"/v1/cli-config/feature-flags/show-npm-scope":         FeatureFlagShowNpmBuildScope,
+	"/v1/cli-config/feature-flags/rollout-dfly-os-cli":    FeatureFlagRolloutDflyOSCLI,
+}
 
 type legacyFeatureFlagInterceptor struct {
 	requestCondition goproxy.ReqCondition
@@ -29,17 +37,12 @@ func (ni legacyFeatureFlagInterceptor) GetCondition() goproxy.ReqCondition {
 
 // GetHandler for legacyFeatureFlagInterceptor will re-route all registry requests from the proxy to the configured feature flag values.
 // This ensures that we can control feature flag values for the legacy CLI from the CLIv2 configuration.
-// Currently, only the "show-maven-build-scope" and "show-npm-scope" feature flags are supported.
+// Currently, only the "show-maven-build-scope", "show-npm-scope" and "rollout-dfly-os-cli" feature flags are supported.
 func (ni legacyFeatureFlagInterceptor) GetHandler() goproxy.FuncReqHandler {
 	return func(req *http.Request, proxyCtx *goproxy.ProxyCtx) (*http.Request, *http.Response) {
 		ni.invocationCtx.GetEnhancedLogger().Printf("legacyFeatureFlagInterceptor handling request for %s", req.URL.Path)
-		var configKey string
-		switch req.URL.Path {
-		case "/v1/cli-config/feature-flags/show-maven-build-scope":
-			configKey = FeatureFlagShowMavenBuildScope
-		case "/v1/cli-config/feature-flags/show-npm-scope":
-			configKey = FeatureFlagShowNpmBuildScope
-		default:
+		configKey, ok := featureFlagPaths[req.URL.Path]
+		if !ok {
 			return req, nil
 		}
 
@@ -70,7 +73,7 @@ func (ni legacyFeatureFlagInterceptor) GetHandler() goproxy.FuncReqHandler {
 func NewLegacyFeatureFlagInterceptor(invocationCtx workflow.InvocationContext) Interceptor {
 	i := legacyFeatureFlagInterceptor{
 		requestCondition: goproxy.UrlMatches(
-			regexp.MustCompile(`/cli-config/feature-flags/(show-maven-build-scope|show-npm-scope)/?(?:\?.*)?$`),
+			regexp.MustCompile(`/cli-config/feature-flags/(show-maven-build-scope|show-npm-scope|rollout-dfly-os-cli)/?(?:\?.*)?$`),
 		),
 		invocationCtx: invocationCtx,
 	}

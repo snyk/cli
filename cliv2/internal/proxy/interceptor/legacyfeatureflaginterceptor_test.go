@@ -35,6 +35,13 @@ func TestLegacyFeatureFlagInterceptor_Routing(t *testing.T) {
 			configKey:    FeatureFlagShowNpmBuildScope,
 		},
 		{
+			name:         "cli dfly path",
+			path:         "https://example.com/v1/cli-config/feature-flags/rollout-dfly-os-cli?org=abc",
+			shouldHandle: true,
+			configKey:    FeatureFlagRolloutDflyOSCLI,
+		},
+
+		{
 			name:         "other path",
 			path:         "https://example.com/api/v1/other-endpoint",
 			shouldHandle: false,
