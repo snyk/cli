@@ -34,11 +34,18 @@ describe('Language Server Extension', () => {
       cmd = process.env.TEST_SNYK_COMMAND;
     }
 
-    const cli = cp.spawn(cmd, ['language-server'], { stdio: 'pipe' }); // Use stdin and stdout for communication:
+    const cli = cp.spawn(cmd, ['language-server', '-d'], { stdio: 'pipe' });
 
     let processExited = false;
+    let stderrOutput = '';
+    cli.stderr.on('data', (data: Buffer) => {
+      stderrOutput += data.toString();
+    });
     cli.on('exit', (code, signal) => {
       console.debug(`CLI process exited with code: ${code}, signal: ${signal}`);
+      console.debug('--- LS stderr output ---');
+      console.debug(stderrOutput);
+      console.debug('--- end LS stderr output ---');
       processExited = true;
     });
 
