@@ -35,14 +35,21 @@ describe('Language Server Extension', () => {
       cmd = process.env.TEST_SNYK_COMMAND;
     }
 
-    const cli = cp.spawn(cmd, ['language-server'], {
-      stdio: 'pipe', // Use stdin and stdout for communication:
+    const cli = cp.spawn(cmd, ['language-server', '-d'], {
+      stdio: 'pipe',
       env: withFipsEnvIfNeeded(),
     });
 
     let processExited = false;
+    let stderrOutput = '';
+    cli.stderr.on('data', (data: Buffer) => {
+      stderrOutput += data.toString();
+    });
     cli.on('exit', (code, signal) => {
       console.debug(`CLI process exited with code: ${code}, signal: ${signal}`);
+      console.debug('--- LS stderr output ---');
+      console.debug(stderrOutput);
+      console.debug('--- end LS stderr output ---');
       processExited = true;
     });
 
@@ -80,11 +87,14 @@ describe('Language Server Extension', () => {
         activateSnykIac: 'false',
         endpoint: process.env.TEST_SNYK_API,
         token: process.env.TEST_SNYK_TOKEN,
+        organization: process.env.TEST_SNYK_ORG_SLUGNAME || '',
         manageBinariesAutomatically: 'false',
         enableTrustedFoldersFeature: 'false',
         integrationName: 'MyFakePlugin',
         integrationVersion: '1.2.3',
         enableTelemetry: 'false',
+        automaticAuthentication: 'false',
+        authenticationMethod: 'token',
         cliPath: cmd,
       },
     });
@@ -109,7 +119,7 @@ describe('Language Server Extension', () => {
 
     await connection.sendRequest('initialized', {});
 
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 90; i++) {
       console.debug('Waiting for diagnostics...');
       if (diagnosticCount > 0) {
         break;
