@@ -101,8 +101,12 @@ describe('Language Server Extension', () => {
       },
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/no-empty-function
-    connection.onNotification('window/logMessage', (_: string) => {});
+    connection.onNotification(
+      'window/logMessage',
+      (param: { type: number; message: string }) => {
+        console.debug(`[LS] ${param.message}`);
+      },
+    );
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/no-empty-function
     connection.onNotification((_: string) => {});
