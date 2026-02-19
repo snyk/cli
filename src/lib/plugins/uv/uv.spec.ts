@@ -106,8 +106,7 @@ describe('uv plugin', () => {
 
       expect(result.plugin).toEqual({
         name: 'snyk-uv-plugin',
-        runtime: process.version,
-        targetFile: 'uv.lock',
+        targetFile: 'pyproject.toml',
         packageManager: 'pip',
       });
       expect(result.scannedProjects).toHaveLength(1);
@@ -127,7 +126,7 @@ describe('uv plugin', () => {
       expect(depNames).toEqual(['cffi', 'cryptography', 'urllib3']);
     });
 
-    it('passes through the target file', async () => {
+    it('maps uv.lock to pyproject.toml for monitor target file', async () => {
       const result = await inspect('.', 'path/to/uv.lock');
 
       expect(execGoCommandSpy).toHaveBeenCalledWith(
@@ -139,8 +138,10 @@ describe('uv plugin', () => {
         ],
         { cwd: '.' },
       );
-      expect(result.plugin.targetFile).toBe('path/to/uv.lock');
-      expect(result.scannedProjects[0].targetFile).toBe('path/to/uv.lock');
+      expect(result.plugin.targetFile).toBe('path/to/pyproject.toml');
+      expect(result.scannedProjects[0].targetFile).toBe(
+        'path/to/pyproject.toml',
+      );
     });
 
     it('passes through org when provided in options', async () => {
