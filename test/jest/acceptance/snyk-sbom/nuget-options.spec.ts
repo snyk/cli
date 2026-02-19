@@ -82,6 +82,52 @@ describe('snyk sbom: nuget options (mocked server only)', () => {
     expect(bom.components).toHaveLength(5);
   });
 
+  test('`sbom --file` from filesystem root derives a non-empty project name from the manifest path', async () => {
+    const project = await createProjectFromFixture('nuget-app');
+
+    const absManifestPath = project.path('obj/project.assets.json');
+    const filesystemRoot = path.parse(absManifestPath).root;
+    const targetFileFromRoot = path.relative(filesystemRoot, absManifestPath);
+
+    const { code, stdout } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.6+json --file=${targetFileFromRoot}`,
+      {
+        cwd: filesystemRoot,
+        env,
+      },
+    );
+    let bom;
+
+    expect(code).toEqual(0);
+    expect(() => {
+      bom = JSON.parse(stdout);
+    }).not.toThrow();
+    expect(bom.metadata.component.name).toEqual('nuget-app');
+  });
+
+  test('`sbom --file` from filesystem root derives project name from manifest directory when not inside obj/', async () => {
+    const project = await createProjectFromFixture('nuget-assets-name');
+
+    const absManifestPath = project.path('project.assets.json');
+    const filesystemRoot = path.parse(absManifestPath).root;
+    const targetFileFromRoot = path.relative(filesystemRoot, absManifestPath);
+
+    const { code, stdout } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.6+json --file=${targetFileFromRoot}`,
+      {
+        cwd: filesystemRoot,
+        env,
+      },
+    );
+    let bom;
+
+    expect(code).toEqual(0);
+    expect(() => {
+      bom = JSON.parse(stdout);
+    }).not.toThrow();
+    expect(bom.metadata.component.name).toEqual('nuget-assets-name');
+  });
+
   test('`sbom --file` generates an SBOM for the NuGet project by using the file flag with a .sln solution file', async () => {
     const project = await createProjectFromFixture('nuget-sln');
 
