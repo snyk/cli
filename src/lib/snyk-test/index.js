@@ -41,6 +41,10 @@ async function executeTest(root, options) {
   let hasPnpmSupport = false;
   let hasImprovedDotnetWithoutPublish = false;
   let enableMavenDverboseExhaustiveDeps = false;
+  if (options.packageManager === 'uv') {
+    // TS uv plugin is monitor-only, test is handled by Go plugin.
+    delete options.packageManager;
+  }
   try {
     hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
     if (options['dotnet-runtime-resolution']) {
