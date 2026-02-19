@@ -157,7 +157,7 @@ func legacycliWorkflow(
 	err = cli.Execute(proxyInfo, finalizeArguments(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
 
 	if !useStdIo {
-		outWriter.Flush()
+		_ = outWriter.Flush()
 
 		contentType := "text/plain"
 		if pkg_utils.Contains(args, "--json") {

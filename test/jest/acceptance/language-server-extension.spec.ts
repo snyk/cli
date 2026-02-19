@@ -3,6 +3,7 @@ import { pathToFileURL } from 'url';
 import { sleep } from '../../../src/lib/common';
 import * as cp from 'child_process';
 import * as rpc from 'vscode-jsonrpc/node';
+import { withFipsEnvIfNeeded } from '../util/fipsTestHelper';
 
 jest.setTimeout(1000 * 120);
 
@@ -34,7 +35,10 @@ describe('Language Server Extension', () => {
       cmd = process.env.TEST_SNYK_COMMAND;
     }
 
-    const cli = cp.spawn(cmd, ['language-server'], { stdio: 'pipe' }); // Use stdin and stdout for communication:
+    const cli = cp.spawn(cmd, ['language-server'], {
+      stdio: 'pipe', // Use stdin and stdout for communication:
+      env: withFipsEnvIfNeeded(),
+    });
 
     let processExited = false;
     cli.on('exit', (code, signal) => {

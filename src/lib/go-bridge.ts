@@ -56,6 +56,7 @@ export function execGoCommand(
 
     const proc = childProcess.spawn(execPath, args, {
       cwd: options?.cwd,
+      env: process.env,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
