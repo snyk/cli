@@ -1,7 +1,9 @@
+import * as path from 'path';
 import {
   isPathToPackageFile,
   detectPackageManagerFromFile,
 } from '../../detect';
+import { find } from '../../find-files';
 import { UV_FEATURE_FLAG } from '../../package-managers';
 import { loadPlugin } from '..';
 
@@ -47,6 +49,32 @@ describe('uv detection', () => {
       const plugin = loadPlugin('uv');
       expect(plugin).toBeDefined();
       expect(typeof plugin.inspect).toBe('function');
+    });
+  });
+
+  describe('find with uv.lock', () => {
+    const uvFixturePath = path.resolve(
+      __dirname,
+      '../../../../test/fixtures/uv-acceptance',
+    );
+
+    it('filters out uv.lock when feature flag is not set', async () => {
+      const { files } = await find({
+        path: uvFixturePath,
+        filter: ['uv.lock'],
+        levelsDeep: 1,
+      });
+      expect(files).toEqual([]);
+    });
+
+    it('returns uv.lock when feature flag is set', async () => {
+      const { files } = await find({
+        path: uvFixturePath,
+        filter: ['uv.lock'],
+        levelsDeep: 1,
+        featureFlags: new Set([UV_FEATURE_FLAG]),
+      });
+      expect(files).toEqual([path.join(uvFixturePath, 'uv.lock')]);
     });
   });
 });
