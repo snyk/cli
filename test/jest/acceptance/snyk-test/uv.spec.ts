@@ -104,4 +104,35 @@ describe('uv lock acceptance', () => {
     expect(paths).not.toContain(`/rest/orgs/${orgId}/tests`);
     expect(paths).not.toContain(`/hidden/orgs/${orgId}/sboms/convert`);
   });
+
+  test('succeeds for uv project with no dependencies', async () => {
+    server.setFeatureFlag('enableUvCLI', true);
+
+    const project = await createProject('uv-no-deps');
+    const { code } = await runSnykCLI('test --json', {
+      cwd: project.path(),
+      env: {
+        ...env,
+        XDG_CONFIG_HOME: project.path(),
+      },
+    });
+
+    expect(code).toEqual(0);
+
+    const requests = server.getRequests();
+    const paths = requests.map((req) => req.path);
+    const orgId = '55555555-5555-5555-5555-555555555555';
+
+    expect(paths).toContain('/v1/cli-config/feature-flags/enableUvCLI');
+    expect(paths).toContain(`/rest/orgs/${orgId}/tests`);
+
+    const createTestReq = requests.find(
+      (req) =>
+        req.method === 'POST' && req.path === `/rest/orgs/${orgId}/tests`,
+    );
+    expect(createTestReq).toBeDefined();
+    const depGraph: DepGraph =
+      createTestReq?.body?.data?.attributes?.subject?.dep_graph;
+    expect(depGraph).toBeDefined();
+  });
 });

@@ -15,9 +15,15 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['iacNewEngine', false],
     ['containerCliAppVulnsEnabled', true],
     ['enablePnpmCli', false],
+    ['enableUvCLI', false],
     ['sbomMonitorBeta', false],
     ['useImprovedDotnetWithoutPublish', false],
     ['scanUsrLibJars', false],
+    ['disableContainerMonitorProjectNameFix', false],
+    ['show-maven-build-scope', false],
+    ['show-npm-scope', false],
+    ['includeGoStandardLibraryDeps', false],
+    ['disableGoPackageUrlsInCli', false],
 
     // Default these to false.
     // TODO: Future acceptance tests targeting these features and their
@@ -55,7 +61,11 @@ export type FakeServer = {
   setSarifResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
-  setGlobalResponse: (response: Record<string, unknown>, code: number) => void;
+  setGlobalResponse: (
+    response: Record<string, unknown>,
+    code: number,
+    headers?: Record<string, any>,
+  ) => void;
 
   setEndpointResponse: (
     endpoint: string,
@@ -96,6 +106,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let nextResponse: any = undefined;
   let endpointResponses: Map<string, Record<string, unknown>> = new Map();
   let endpointStatusCodes: Map<string, number> = new Map();
+  let endpointHeaders: Map<string, string> = new Map();
   let customResponse: Record<string, unknown> | undefined = undefined;
   let sarifResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
@@ -108,6 +119,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     sarifResponse = undefined;
     endpointResponses = new Map();
     endpointStatusCodes = new Map();
+    endpointHeaders = new Map();
     featureFlags = featureFlagDefaults();
     availableSettings = new Map();
     unauthorizedActions = new Map();
@@ -168,9 +180,15 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   const setGlobalResponse = (
     response: Record<string, unknown>,
     code: number,
+    headers?: Record<string, string>,
   ) => {
     endpointResponses.set('*', response);
     endpointStatusCodes.set('*', code);
+    if (headers) {
+      for (const [key, value] of Object.entries(headers)) {
+        endpointHeaders.set(key, value);
+      }
+    }
   };
 
   const setEndpointResponse = (
@@ -214,16 +232,24 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.use((req, res, next) => {
     const endpoint = req.url;
+    const pathOnly = endpoint.split('?')[0];
 
     const wildcardEndpoint = '*';
-    let endpointResponse = endpointResponses.get(wildcardEndpoint);
-    if (!endpointResponse) {
-      endpointResponse = endpointResponses.get(endpoint);
-    }
+    const endpointResponse =
+      endpointResponses.get(wildcardEndpoint) ||
+      endpointResponses.get(endpoint) ||
+      endpointResponses.get(pathOnly);
 
-    let endpointStatusCode = endpointStatusCodes.get(wildcardEndpoint);
-    if (!endpointStatusCode) {
-      endpointStatusCode = endpointStatusCodes.get(endpoint);
+    const endpointStatusCode =
+      endpointStatusCodes.get(wildcardEndpoint) ||
+      endpointStatusCodes.get(endpoint) ||
+      endpointStatusCodes.get(pathOnly);
+
+    // configure any response headers
+    if (endpointHeaders.size > 0) {
+      endpointHeaders.forEach((value, key) => {
+        res.set(key, value);
+      });
     }
 
     if (endpointResponse) {
@@ -235,6 +261,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     if (
       req.url?.includes('/iac-org-settings') ||
       req.url?.includes('/cli-config/feature-flags/') ||
+      req.url?.includes('/feature_flags/evaluation') ||
       (!nextResponse && !nextStatusCode && !statusCode)
     ) {
       return next();
@@ -408,6 +435,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200);
     if (customResponse) {
       res.send(customResponse);
+      return;
     }
     res.send({});
   });
@@ -506,6 +534,74 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       },
     });
   });
+
+  app.post(`/api/rest/orgs/:orgId/ai_boms/upload`, (req, res) => {
+    res.status(202);
+    res.send({
+      jsonapi: { version: '1.0' },
+      links: {
+        self: `/api/rest/orgs/${req.params.orgId}/ai_bom_jobs/c051477e-5033-55b1-bc23-135daf9b1724`,
+      },
+      data: {
+        id: 'c051477e-5033-55b1-bc23-135daf9b1724',
+        type: 'ai_bom_job',
+        attributes: { status: 'processing' },
+      },
+    });
+  });
+
+  app.post(`/api/hidden/orgs/:orgId/upload_revisions`, (req, res) => {
+    res.status(201).send({
+      data: {
+        attributes: {
+          revision_type: 'snapshot',
+          sealed: false,
+        },
+        id: 'bc0729a7-109f-4fe9-a048-aac410e28c9a',
+        type: 'upload_revision',
+      },
+      jsonapi: {
+        version: '1.0',
+      },
+      links: {
+        self: {
+          href: '/orgs/bb262a15-d798-458b-81fa-30a92cb3475c/upload_revisions/bc0729a7-109f-4fe9-a048-aac410e28c9a',
+        },
+      },
+    });
+  });
+
+  app.post(
+    `/api/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId/files`,
+    (_, res) => {
+      res.status(204);
+      res.send();
+    },
+  );
+
+  app.patch(
+    `/api/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId`,
+    (req, res) => {
+      res.status(200).send({
+        data: {
+          attributes: {
+            revision_type: 'snapshot',
+            sealed: true,
+          },
+          id: 'fbdb5cc0-6e34-4191-b088-0dff740faf38',
+          type: 'upload_revision',
+        },
+        jsonapi: {
+          version: '1.0',
+        },
+        links: {
+          self: {
+            href: '/orgs/bb262a15-d798-458b-81fa-30a92cb3475c/upload_revisions/fbdb5cc0-6e34-4191-b088-0dff740faf38',
+          },
+        },
+      });
+    },
+  );
 
   app.get(`/api/rest/orgs/:orgId/ai_bom_jobs/:jobId`, (req, res) => {
     res.status(303);
@@ -666,6 +762,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
                 description: 'The system prompt was exfiltrated.',
               },
               url: 'https://demo-app.com/api/chat',
+              evidence: {
+                type: 'raw',
+                content: {
+                  reason:
+                    'The model disclosed confidential system instructions.',
+                },
+              },
             },
           ],
         },
@@ -1202,6 +1305,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       res
         .status(400)
         .send(`{"errors":[{"title":"Bad Request","detail":"invalid SBOM"}]}`);
+      return;
     }
 
     const body = fs.readFileSync(
@@ -1260,7 +1364,11 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         });
       } else if (depGraph) {
         name = depGraph.pkgs[0]?.info.name;
-        components = depGraph.pkgs.map(({ info: { name } }) => ({ name }));
+        components = depGraph.pkgs.map(({ info: { name, version, purl } }) => ({
+          name,
+          version,
+          purl,
+        }));
 
         const nodeIdMap: { [key: string]: string } = {};
 
@@ -1292,6 +1400,28 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
             },
           };
           break;
+        case 'cyclonedx1.4+xml': {
+          const componentsXml = components
+            .map(
+              (c: { name: string }) =>
+                `    <component type="library"><name>${c.name}</name></component>`,
+            )
+            .join('\n');
+          const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<bom xmlns="http://cyclonedx.org/schema/bom/1.4" version="1" specVersion="1.4">
+  <metadata>
+    <component type="application">
+      <name>${name}</name>
+    </component>
+  </metadata>
+  <components>
+${componentsXml}
+  </components>
+</bom>`;
+          res.set('Content-Type', 'application/xml');
+          res.status(200).send(xmlContent);
+          return;
+        }
         case 'cyclonedx1.5+json':
           bom = {
             specVersion: '1.5',

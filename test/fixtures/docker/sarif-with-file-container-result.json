@@ -67,7 +67,7 @@
         }
       ],
       "automationDetails": {
-        "id": "Snyk/Container/docker-image|snyk/kubernetes-monitor/2025-01-01T00:00:00.000Z"
+        "id": "Snyk/Container/docker-image|snyk/kubernetes-monitor/0/2025-01-01T00:00:00.000Z"
       }
     }
   ]

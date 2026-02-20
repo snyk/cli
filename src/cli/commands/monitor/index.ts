@@ -51,20 +51,27 @@ import { processCommandArgs } from '../process-command-args';
 import {
   hasFeatureFlag,
   hasFeatureFlagOrDefault,
+  SHOW_MAVEN_BUILD_SCOPE,
+  SHOW_NPM_SCOPE,
+  isFeatureFlagSupportedForOrg,
 } from '../../../lib/feature-flags';
 import {
   SCAN_USR_LIB_JARS_FEATURE_FLAG,
   CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
+  DISABLE_CONTAINER_MONITOR_PROJECT_NAME_FIX_FEATURE_FLAG,
   INCLUDE_SYSTEM_JARS_OPTION,
   EXCLUDE_APP_VULNS_OPTION,
   APP_VULNS_OPTION,
 } from '../constants';
 import {
   PNPM_FEATURE_FLAG,
+  UV_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
+import { getOrganizationID } from '../../../lib/organization';
+import { UV_MONITOR_ENABLED_ENV_VAR } from '../../../lib/plugins/uv';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -147,6 +154,17 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     if (scanUsrLibJarsEnabled) {
       options[INCLUDE_SYSTEM_JARS_OPTION] = true;
     }
+
+    // Check disableContainerMonitorProjectNameFix feature flag
+    // When enabled, reverts to legacy behavior (using id instead of projectName in JSON output)
+    const disableContainerMonitorProjectNameFix = await hasFeatureFlagOrDefault(
+      DISABLE_CONTAINER_MONITOR_PROJECT_NAME_FIX_FEATURE_FLAG,
+      options,
+      false,
+    );
+    if (disableContainerMonitorProjectNameFix) {
+      options.disableContainerMonitorProjectNameFix = true;
+    }
   }
 
   // Handles no image arg provided to the container command until
@@ -203,6 +221,10 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     hasPnpmSupport = false;
   }
 
+  const hasUvSupport =
+    process.env[UV_MONITOR_ENABLED_ENV_VAR] === 'true' &&
+    (await hasFeatureFlagOrDefault(UV_FEATURE_FLAG, options));
+
   try {
     const args = options['_doubleDashArgs'] || [];
     const verboseEnabled =
@@ -223,12 +245,32 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     enableMavenDverboseExhaustiveDeps = false;
   }
 
-  const featureFlags = hasPnpmSupport
-    ? new Set<string>([PNPM_FEATURE_FLAG])
-    : new Set<string>();
+  const featureFlags = new Set<string>();
+  if (hasPnpmSupport) {
+    featureFlags.add(PNPM_FEATURE_FLAG);
+  }
+  if (hasUvSupport) {
+    featureFlags.add(UV_FEATURE_FLAG);
+  }
 
   if (hasImprovedDotnetWithoutPublish) {
     options.useImprovedDotnetWithoutPublish = true;
+  }
+
+  const showMavenScope = await isFeatureFlagSupportedForOrg(
+    SHOW_MAVEN_BUILD_SCOPE,
+    getOrganizationID(),
+  );
+  if (showMavenScope.ok) {
+    featureFlags.add(SHOW_MAVEN_BUILD_SCOPE);
+  }
+
+  const showScope = await isFeatureFlagSupportedForOrg(
+    SHOW_NPM_SCOPE,
+    getOrganizationID(),
+  );
+  if (showScope.ok) {
+    featureFlags.add(SHOW_NPM_SCOPE);
   }
 
   // Part 1: every argument is a scan target; process them sequentially

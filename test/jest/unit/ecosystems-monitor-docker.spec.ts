@@ -186,4 +186,103 @@ describe('monitorEcosystem docker/container', () => {
       makeRequestSpy.mock.calls[0][0].body.pruneRepeatedSubdependencies,
     ).toBeUndefined();
   });
+
+  it('should return projectName from registry response in JSON output by default', async () => {
+    const containerScanResult = readJsonFixture(
+      'container-deb-scan-result.json',
+    ) as ScanResult;
+    const monitorDependenciesResponse = readJsonFixture(
+      'monitor-dependencies-response-with-project-name.json',
+    ) as ecosystemsTypes.MonitorDependenciesResponse;
+
+    jest
+      .spyOn(dockerPlugin, 'scan')
+      .mockResolvedValue({ scanResults: [containerScanResult] });
+    jest
+      .spyOn(request, 'makeRequest')
+      .mockResolvedValue(monitorDependenciesResponse);
+
+    const results: Array<GoodResult | BadResult> = [];
+
+    const [monitorResults, monitorErrors] = await ecosystems.monitorEcosystem(
+      'docker',
+      ['/srv'],
+      {
+        path: '/srv',
+        docker: true,
+        org: 'test-org',
+      },
+    );
+
+    const jsonOutput = await getFormattedMonitorOutput(
+      results,
+      monitorResults,
+      monitorErrors,
+      {
+        path: '/srv',
+        docker: true,
+        org: 'test-org',
+        json: true,
+        // Feature flag not set - uses new correct behavior by default
+      } as Options,
+    );
+
+    const parsedOutput = JSON.parse(jsonOutput);
+
+    // projectName should be the actual project name from the registry by default
+    expect(parsedOutput.projectName).toBe('my-custom-project-name');
+    expect(parsedOutput.projectName).not.toBe(
+      '7c7305e2-fbcb-44d7-8fbf-8367371c509f',
+    );
+  });
+
+  it('should return id as projectName in JSON output when feature flag is enabled (legacy behavior)', async () => {
+    const containerScanResult = readJsonFixture(
+      'container-deb-scan-result.json',
+    ) as ScanResult;
+    const monitorDependenciesResponse = readJsonFixture(
+      'monitor-dependencies-response-with-project-name.json',
+    ) as ecosystemsTypes.MonitorDependenciesResponse;
+
+    jest
+      .spyOn(dockerPlugin, 'scan')
+      .mockResolvedValue({ scanResults: [containerScanResult] });
+    jest
+      .spyOn(request, 'makeRequest')
+      .mockResolvedValue(monitorDependenciesResponse);
+
+    const results: Array<GoodResult | BadResult> = [];
+
+    const [monitorResults, monitorErrors] = await ecosystems.monitorEcosystem(
+      'docker',
+      ['/srv'],
+      {
+        path: '/srv',
+        docker: true,
+        org: 'test-org',
+      },
+    );
+
+    const jsonOutput = await getFormattedMonitorOutput(
+      results,
+      monitorResults,
+      monitorErrors,
+      {
+        path: '/srv',
+        docker: true,
+        org: 'test-org',
+        json: true,
+        // Feature flag enabled - reverts to legacy behavior
+        disableContainerMonitorProjectNameFix: true,
+      } as Options,
+    );
+
+    const parsedOutput = JSON.parse(jsonOutput);
+
+    // projectName should be the id (UUID) when feature flag is enabled (legacy escape hatch)
+    expect(parsedOutput.projectName).toBe(
+      '7c7305e2-fbcb-44d7-8fbf-8367371c509f',
+    );
+    expect(parsedOutput.projectName).not.toBe('my-custom-project-name');
+  });
 });

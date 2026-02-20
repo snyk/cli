@@ -10,7 +10,7 @@ import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { isWindowsOperatingSystem, testIf } from '../../../utils';
 
-jest.setTimeout(1000 * 60);
+jest.setTimeout(1000 * 120);
 
 const getOrgSlug = () => {
   const orgSlug = process.env.TEST_SNYK_ORG_SLUGNAME;

@@ -2,20 +2,46 @@ const { getCliBinaryPath } = require('./jest/util/getCliBinaryPath');
 const {
   isDontSkipTestsEnabled,
 } = require('./jest/util/isDontSkipTestsEnabled');
-const {
-  fipsTestsEnabled,
-  getFipsEnabledEnvironment,
-} = require('./jest/util/fipsTestHelper');
+const { fipsTestsEnabled } = require('./jest/util/fipsTestHelper');
 const { runSnykCLI } = require('./jest/util/runSnykCLI');
+
+const TOKEN_ENV_VARS = ['TEST_SNYK_TOKEN', 'TEST_SNYK_TOKEN_2'];
+
+function selectRandomToken() {
+  const availableTokens = TOKEN_ENV_VARS.filter(
+    (envVar) =>
+      process.env[envVar] !== undefined && process.env[envVar].trim() !== '',
+  );
+
+  if (availableTokens.length === 0) {
+    return { envVar: undefined, token: undefined };
+  }
+
+  // Shuffle array to randomize selection order
+  const shuffled = availableTokens.sort(() => Math.random() - 0.5);
+
+  // Return the first valid token from shuffled list
+  for (const envVar of shuffled) {
+    const token = process.env[envVar];
+    if (token && token.trim() !== '') {
+      return { envVar, token };
+    }
+  }
+
+  return { envVar: undefined, token: undefined };
+}
 
 module.exports = async function () {
   if (process.env.TEST_SNYK_COMMAND) {
     process.env.TEST_SNYK_COMMAND = getCliBinaryPath();
   }
 
-  let token = 'UNSET';
-  if (process.env.TEST_SNYK_TOKEN !== undefined) {
-    token = '***';
+  const { envVar: selectedTokenEnvVar, token: selectedToken } =
+    selectRandomToken();
+
+  let tokenDisplay = 'UNSET';
+  if (selectedToken !== undefined) {
+    tokenDisplay = '***';
   }
 
   if (!process.env.TEST_SNYK_API) {
@@ -41,8 +67,10 @@ module.exports = async function () {
       fipsTestsEnabled() +
       '\n Organization        [TEST_SNYK_ORG_SLUGNAME] ......... ' +
       process.env.TEST_SNYK_ORG_SLUGNAME +
-      '\n Token               [TEST_SNYK_TOKEN] ................ ' +
-      token +
+      '\n Token               [' +
+      (selectedTokenEnvVar || 'NONE') +
+      '] ................ ' +
+      tokenDisplay +
       '\n API                 [TEST_SNYK_API] .................. ' +
       process.env.TEST_SNYK_API +
       '\n------------------------------------------------------------------------------------------------------',
@@ -51,24 +79,22 @@ module.exports = async function () {
   if (
     process.env.SNYK_API_KEY ||
     process.env.SNYK_TOKEN ||
-    process.env.TEST_SNYK_TOKEN === undefined
+    selectedToken === undefined
   ) {
     delete process.env.SNYK_TOKEN;
     delete process.env.SNYK_API_KEY;
     console.error(
       '\n------------------------------------------------------------' +
-        '\n Currently Tests require the environment variable TEST_SNYK_TOKEN to be set.' +
+        '\n Currently Tests require one of the environment variables ' +
+        TOKEN_ENV_VARS.join(', ') +
+        ' to be set.' +
         '\n This token is automatically stored on the config as some tests require this.' +
         '\n------------------------------------------------------------',
     );
   }
 
-  if (fipsTestsEnabled()) {
-    process.env = getFipsEnabledEnvironment();
-  }
-
-  if (process.env.TEST_SNYK_TOKEN !== undefined) {
-    await runSnykCLI(`config set api=${process.env.TEST_SNYK_TOKEN}`);
+  if (selectedToken !== undefined) {
+    await runSnykCLI(`config set api=${selectedToken}`);
   }
 
   console.error(

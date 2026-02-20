@@ -12,7 +12,9 @@ export class FailedToRunTestError extends CustomError {
     innerError?: any,
     errorCatalog?: ProblemError,
   ) {
-    const code = errorCode || 500;
+    // if errorCode is not provided, we're using 0 as 0 is not a valid http status code
+    // ideally and eventually we will use custom errors across the board and this will be removed.
+    const code = errorCode || 0;
     super(userMessage || FailedToRunTestError.ERROR_MESSAGE);
     this.code = code;
     this.userMessage = userMessage || FailedToRunTestError.ERROR_MESSAGE;

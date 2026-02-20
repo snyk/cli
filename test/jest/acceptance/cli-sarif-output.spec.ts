@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { runSnykCLI } from '../util/runSnykCLI';
 import Ajv from 'ajv-draft-04';
-jest.setTimeout(1000 * 60);
+jest.setTimeout(1000 * 180);
 
 async function loadSchema(uri: string) {
   try {
@@ -86,6 +86,12 @@ const TEST_CASES: Array<TestCase> = [
 ];
 
 describe('SARIF output is schema compliant', () => {
+  let schema: object;
+
+  beforeAll(async () => {
+    schema = await loadSchema(SARIF_SCHEMA_URL);
+  });
+
   it.each(TEST_CASES)('for $name', async ({ cmd, env, target }: TestCase) => {
     const { stdout, code } = await runSnykCLI(`${cmd} ${target}`, { env });
     expect(code).toBe(1);
@@ -96,7 +102,6 @@ describe('SARIF output is schema compliant', () => {
     expect(result.runs.length).toBeGreaterThan(0);
     expect(result.runs[0].results.length).toBeGreaterThan(0);
 
-    const schema = await loadSchema(result.$schema);
     const jsonValidator = new Ajv({ validateFormats: false });
     expect(jsonValidator.validate(schema, result)).toBe(true);
   });

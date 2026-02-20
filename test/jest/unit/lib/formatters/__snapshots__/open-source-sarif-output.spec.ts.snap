@@ -6,7 +6,7 @@ exports[`createSarifOutputForOpenSource general 1`] = `
   "runs": [
     {
       "automationDetails": {
-        "id": "Snyk/Open Source/PROJECT_NAME/2025-01-01T00:00:00.000Z",
+        "id": "Snyk/Open Source/PROJECT_NAME/0/2025-01-01T00:00:00.000Z",
       },
       "results": [
         {

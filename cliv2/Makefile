@@ -8,6 +8,7 @@ GOHOSTARCH = $(shell go env GOHOSTARCH)
 LS_COMMIT_HASH = $(shell cat go.mod | grep snyk-ls | cut -d "-" -f 4 | head -1)
 FIPS_CRYPTO_BACKEND_DEFAULT = systemcrypto
 FIPS_CRYPTO_BACKEND =
+MS_GO_NOSYSTEMCRYPTO ?= 1
 HASH = sha
 HASH_ALGORITHM = 256
 CLI_V1_VERSION_TAG = 0.0.0
@@ -17,10 +18,11 @@ LDFLAGS = -s -w
 SHASUM_CMD = shasum
 export LS_PROTOCOL_VERSION=
 STATIC_NODE_BINARY = false
+CGO_ENABLED = 1
 
 # Build tools
 GO_BIN := $(shell pwd)/.bin
-OVERRIDE_GOCI_LINT_V := v1.64.8
+OVERRIDE_GOCI_LINT_V := v2.8.0
 SHELL := env PATH=$(GO_BIN):$(PATH) $(SHELL)
 
 # Make directories per convention
@@ -138,6 +140,7 @@ summary:
 	@echo "$(LOG_PREFIX) Build Summary"
 	@echo "$(LOG_PREFIX)  Using Go installation:        $(shell which go)"
 	@echo "$(LOG_PREFIX)  Non-Standard Crypto-Backend:  $(FIPS_CRYPTO_BACKEND)"
+	@echo "$(LOG_PREFIX)  MS_GO_NOSYSTEMCRYPTO:         $(MS_GO_NOSYSTEMCRYPTO)"
 	@echo "$(LOG_PREFIX)  Building Binary:              $(BUILD_DIR)/$(V2_EXECUTABLE_NAME)"
 	@echo "$(LOG_PREFIX)  Building version:             $(CLI_V1_VERSION_TAG)"
 	@echo "$(LOG_PREFIX)  LS version:                   $(LS_COMMIT_HASH)"
@@ -154,15 +157,20 @@ configure: summary $(CACHE_DIR) $(CACHE_DIR)/variables.mk $(V1_DIRECTORY)/$(V1_E
 $(BUILD_DIR)/$(V2_EXECUTABLE_NAME): $(BUILD_DIR) $(SRCS) generate-ls-protocol-metadata
 	$(eval EXTRA_FLAGS := -X github.com/snyk/snyk-ls/application/config.Version=$(LS_COMMIT_HASH) -X github.com/snyk/snyk-ls/application/config.LsProtocolVersion=$(LS_PROTOCOL_VERSION)  -X main.internalOS=$(GOOS) -X github.com/snyk/cli/cliv2/internal/embedded/cliv1.snykCLIVersion=$(CLI_V1_VERSION_TAG) -X github.com/snyk/cli-extension-iac/internal/commands/iactest.internalRulesClientURL=$(IAC_RULES_URL) -X github.com/snyk/cli/cliv2/pkg/basic_workflows.staticNodeJsBinary=$(STATIC_NODE_BINARY))
 	@echo "$(LOG_PREFIX) Building ( $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) )"
+	@echo "$(LOG_PREFIX)  CGO_ENABLED: $(CGO_ENABLED)"
 	@echo "$(LOG_PREFIX)  LDFLAGS:     $(LDFLAGS)"
 	@echo "$(LOG_PREFIX)  EXTRA_FLAGS: "
 	@$(foreach flag,$(filter -X%,$(subst -X ,$(space)-X,$(EXTRA_FLAGS))),echo "$(LOG_PREFIX)    $(flag)";)
 	@echo "$(LOG_PREFIX)  GCFLAGS:     $(GCFLAGS)"
-	@GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/*.go
+	@CGO_ENABLED=$(CGO_ENABLED)  GOEXPERIMENT=$(FIPS_CRYPTO_BACKEND) MS_GO_NOSYSTEMCRYPTO=$(MS_GO_NOSYSTEMCRYPTO) GOOS=$(_GO_OS) GOARCH=$(GOARCH) $(GOCMD) build -tags=application -ldflags="$(LDFLAGS) $(EXTRA_FLAGS)" $(GCFLAGS) -o $(BUILD_DIR)/$(V2_EXECUTABLE_NAME) $(WORKING_DIR)/cmd/cliv2/*.go
 
 .PHONY: fips
 fips:
-# assign name of crypto backend to use
+	# CI uses Microsoft's Go toolchain for Linux and Windows builds. Since Microsoft Go enables
+	# `systemcrypto` by default, we explicitly disable it for the non-FIPS binaries.
+	# See https://github.com/microsoft/go/blob/microsoft/main/eng/doc/fips/README.md
+	$(eval MS_GO_NOSYSTEMCRYPTO := 0)
+	# assign name of crypto backend to use
 	$(eval FIPS_CRYPTO_BACKEND := $(FIPS_CRYPTO_BACKEND_DEFAULT))
 	@echo "$(LOG_PREFIX) FIPS"
 
@@ -171,6 +179,7 @@ experimental:
 # set the binary subfolder to the experimental folder
 	$(eval V1_BINARY_SUBFOLDER := experimental/)
 	$(eval STATIC_NODE_BINARY := true)
+	$(eval CGO_ENABLED := 0)
 	@echo "$(LOG_PREFIX) EXPERIMENTAL"
 
 .PHONY: debug

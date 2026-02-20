@@ -157,10 +157,12 @@ func legacycliWorkflow(
 	err = cli.Execute(proxyInfo, finalizeArguments(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
 
 	if !useStdIo {
-		outWriter.Flush()
+		_ = outWriter.Flush()
 
 		contentType := "text/plain"
-		if pkg_utils.Contains(args, "--json") || pkg_utils.Contains(args, "--sarif") {
+		if pkg_utils.Contains(args, "--json") {
+			contentType = "application/json; schema=legacy-cli"
+		} else if pkg_utils.Contains(args, "--sarif") {
 			contentType = "application/json"
 		}
 
@@ -190,6 +192,7 @@ func createInternalProxy(config configuration.Configuration, debugLogger *zerolo
 	}
 
 	wrapperProxy.RegisterInterceptor(interceptor.NewV1AnalyticsInterceptor(invocation))
+	wrapperProxy.RegisterInterceptor(interceptor.NewLegacyFeatureFlagInterceptor(invocation))
 	// The networkinjector intercepts all requests from the legacy CLI and re-routes them to the existing networking
 	// layer. It should therefore be kept as the last interceptor in the chain, as it circuit breaks goproxy's own
 	// routing. Any interceptor added later will not be called.

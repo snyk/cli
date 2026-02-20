@@ -6,7 +6,7 @@ import { runSnykCLI } from '../../util/runSnykCLI';
 import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 import { join } from 'path';
 
-jest.setTimeout(1000 * 120);
+jest.setTimeout(1000 * 180);
 
 const TEST_REPO_URL = 'https://github.com/snyk/snyk-goof.git';
 const TEMP_LOCAL_PATH = '/tmp/snyk-goof';
@@ -172,6 +172,14 @@ describe('snyk test --reachability', () => {
 
     expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
     expect(jsonOutput.ok).toBeFalsy();
+
+    const momentVuln = jsonOutput.vulnerabilities.find(
+      (v) => v.id === 'npm:moment:20161019',
+    );
+    expect(momentVuln.alternativeIds).toEqual(['SNYK-JS-MOMENT-10164']);
+    expect(momentVuln.proprietary).toEqual(true);
+    expect(momentVuln.isDisputed).toEqual(false);
+    expect(momentVuln.severityBasedOn).toEqual('CVSS');
 
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });

@@ -19,7 +19,7 @@ parameters:
   go_version:
     type: string
     # https://go.dev/doc/devel/release
-    default: '1.24.11'
+    default: '1.25.7'
   aws_version:
     type: string
     # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
@@ -48,9 +48,13 @@ executors:
     docker:
       - image: ubuntu:latest
     resource_class: small
+  linux-machine-amd64:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: medium
   docker-amd64:
     docker:
-      - image: snyklabs/cli-build-private:20250910-083449
+      - image: snyklabs/cli-build-private:20260219-152627
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -58,7 +62,7 @@ executors:
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: snyklabs/cli-build-private:20250910-083449
+      - image: snyklabs/cli-build-private:20260219-152627
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -66,7 +70,7 @@ executors:
     resource_class: xlarge
   docker-arm64:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20250910-083449
+      - image: snyklabs/cli-build-private-arm64:20260219-152627
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -74,7 +78,7 @@ executors:
     resource_class: arm.large
   docker-arm64-xl:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20250910-083449
+      - image: snyklabs/cli-build-private-arm64:20260219-152627
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -197,10 +201,15 @@ commands:
 
   install-deps-windows-full:
     steps:
+      - run:
+          name: Configure Chocolatey cache location
+          shell: bash.exe
+          command: |
+            choco config set cacheLocation "C:\choco-cache"
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -211,9 +220,9 @@ commands:
             choco install nodejs --version=$(head .nvmrc) --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
-            - ~\AppData\Local\Temp\chocolatey
+            - C:\choco-cache
       - install-deps-python:
           os: win
       - run:
@@ -271,10 +280,15 @@ commands:
 
   install-deps-windows-make:
     steps:
+      - run:
+          name: Configure Chocolatey cache location
+          shell: bash.exe
+          command: |
+            choco config set cacheLocation "C:\choco-cache"
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
-            - chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
       - run:
           name: Install Windows dependencies
           shell: bash.exe
@@ -282,9 +296,9 @@ commands:
             choco install make --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
-          key: chocolatey-cache-v4-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          key: chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
           paths:
-            - ~\AppData\Local\Temp\chocolatey
+            - C:\choco-cache
       - install-deps-python:
           os: win
       - install-deps-windows-signing
@@ -654,6 +668,7 @@ workflows:
           go_os: linux
           go_arch: arm64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -676,6 +691,7 @@ workflows:
           go_os: linux
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -745,6 +761,7 @@ workflows:
           go_os: linux
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          shards: 6
           context:
             - nodejs-install
             - team_hammerhead-cli
@@ -1025,6 +1042,19 @@ workflows:
                 - '/release.*/'
                 - '/.*e2e.*/'
 
+      - test-release-static:
+          name: e2e experimental tests (scratch-container-amd64)
+          context:
+            - team_hammerhead-cli
+          requires:
+            - upload version
+          filters:
+            branches:
+              only:
+                - main
+                - '/release.*/'
+                - '/.*e2e.*/'
+
       - noop:
           name: Start Deployments
           requires:
@@ -1046,6 +1076,7 @@ workflows:
             - e2e fips tests (suse-linux-fips)
             - e2e fips tests (win-server2022-amd64)
             - e2e experimental tests (linux-static-amd64)
+            - e2e experimental tests (scratch-container-amd64)
           filters:
             branches:
               only:
@@ -1394,7 +1425,6 @@ jobs:
           name: Build << parameters.go_target_os >>/<< parameters.go_arch >>
           environment:
             CC: << parameters.c_compiler >>
-            CGO_ENABLED: 1
             MACOSX_DEPLOYMENT_TARGET: 13.0
           command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >>
       - save_cache:
@@ -1651,6 +1681,32 @@ jobs:
             python scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >>  $(cat binary-releases/version) || python3 scripts/install-snyk.py --base_url=<< parameters.cli_download_base_url >> $(cat binary-releases/version)
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk whoami --experimental
             SNYK_TOKEN=${TEST_SNYK_TOKEN} ./snyk woof
+
+  test-release-static:
+    parameters:
+      cli_download_base_url:
+        type: string
+        default: << pipeline.parameters.experimental_cli_download_base_url >>
+    executor: linux-machine-amd64
+    steps:
+      - prepare-workspace
+      - run:
+          name: Build scratch test image
+          command: |
+            VERSION=$(cat binary-releases/version)
+            docker build \
+              --build-arg CLI_DOWNLOAD_BASE_URL="<< parameters.cli_download_base_url >>" \
+              --build-arg SNYK_VERSION="${VERSION}" \
+              -f .circleci/Dockerfile.scratch-e2e \
+              -t snyk-scratch-test .
+      - run:
+          name: Test Snyk CLI in scratch container
+          command: |
+            docker run --rm \
+              -e SNYK_TOKEN="${TEST_SNYK_TOKEN}" \
+              -e SNYK_DISABLE_ANALYTICS=1 \
+              snyk-scratch-test \
+              -c "/usr/local/bin/snyk whoami --experimental && /usr/local/bin/snyk woof"
 
   release-s3:
     parameters:

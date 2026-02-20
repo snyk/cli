@@ -45,6 +45,7 @@ type CLI struct {
 	CacheDirectory   string
 	WorkingDirectory string
 	v1BinaryLocation string
+	executablePath   string
 	stdin            io.Reader
 	stdout           io.Writer
 	stderr           io.Writer
@@ -79,11 +80,22 @@ func NewCLIv2(config configuration.Configuration, debugLogger *log.Logger, ri ru
 
 	v1BinaryLocation := path.Join(cacheDirectory, ri.GetVersion(), cliv1.GetCLIv1Filename())
 
+	executablePath, err := os.Executable()
+	if err != nil {
+		debugLogger.Printf("Failed to get executable path: %v", err)
+	} else {
+		executablePath, err = filepath.EvalSymlinks(executablePath)
+		if err != nil {
+			debugLogger.Printf("Failed to resolve symlinks for executable path: %v", err)
+		}
+	}
+
 	cli := CLI{
 		DebugLogger:      debugLogger,
 		CacheDirectory:   cacheDirectory,
 		WorkingDirectory: "",
 		v1BinaryLocation: v1BinaryLocation,
+		executablePath:   executablePath,
 		stdin:            os.Stdin,
 		stdout:           os.Stdout,
 		stderr:           os.Stderr,
@@ -112,7 +124,7 @@ func (c *CLI) Init() (err error) {
 		if _, err = os.Stat(c.CacheDirectory); os.IsNotExist(err) {
 			err = os.MkdirAll(c.CacheDirectory, utils.DIR_PERMISSION)
 			if err != nil {
-				return fmt.Errorf("Cache directory path is invalid: %w", err)
+				return fmt.Errorf("Cache directory path is invalid: %w", err) //nolint:staticcheck // user-facing error message
 			}
 		}
 	}
@@ -244,7 +256,7 @@ func (c *CLI) printVersion() {
 
 func (c *CLI) commandVersion(passthroughArgs []string) error {
 	if utils.Contains(passthroughArgs, "--json-file-output") {
-		return fmt.Errorf("The following option combination is not currently supported: version + json-file-output")
+		return fmt.Errorf("The following option combination is not currently supported: version + json-file-output") //nolint:staticcheck // user-facing error message
 	} else {
 		c.printVersion()
 		return nil
@@ -317,7 +329,7 @@ func PrepareV1EnvironmentVariables(
 	if !integrationNameExists && !integrationVersionExists {
 		inputAsMap[constants.SNYK_INTEGRATION_NAME_ENV] = integrationName
 		inputAsMap[constants.SNYK_INTEGRATION_VERSION_ENV] = integrationVersion
-	} else if !(integrationNameExists && integrationVersionExists) {
+	} else if !integrationNameExists || !integrationVersionExists {
 		err = EnvironmentWarning{message: fmt.Sprintf("Partially defined environment, please ensure to provide both %s and %s together!", constants.SNYK_INTEGRATION_NAME_ENV, constants.SNYK_INTEGRATION_VERSION_ENV)}
 	}
 
@@ -406,6 +418,11 @@ func (c *CLI) PrepareV1Command(
 	snykCmd = exec.CommandContext(ctx, cmd, args...)
 	snykCmd.Env, err = PrepareV1EnvironmentVariables(c.env, integrationName, integrationVersion, proxyAddress, proxyInfo.CertificateLocation, c.globalConfig, args)
 
+	if c.executablePath != "" {
+		snykCmd.Env = append(snykCmd.Env,
+			fmt.Sprintf("%s=%s", constants.SNYK_INTERNAL_CLI_EXECUTABLE_PATH_ENV, c.executablePath))
+	}
+
 	if len(c.WorkingDirectory) > 0 {
 		snykCmd.Dir = c.WorkingDirectory
 	}
@@ -448,6 +465,7 @@ func (c *CLI) executeV1Default(proxyInfo *proxy.ProxyInfo, passThroughArgs []str
 			constants.SNYK_ANALYTICS_DISABLED_ENV,
 			constants.SNYK_ENDPOINT_ENV,
 			constants.SNYK_ORG_ENV,
+			constants.SNYK_INTERNAL_CLI_EXECUTABLE_PATH_ENV,
 		}
 
 		for _, key := range listedEnvironmentVariables {
@@ -528,11 +546,13 @@ func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) erro
 	var err error
 	handler := determineHandler(passThroughArgs)
 
-	switch {
-	case handler == V2_VERSION:
+	switch handler {
+	case V2_VERSION:
 		err = c.commandVersion(passThroughArgs)
-	case handler == V2_ABOUT:
+	case V2_ABOUT:
 		err = c.commandAbout(proxyInfo, passThroughArgs)
+	case V1_DEFAULT:
+		fallthrough
 	default:
 		err = c.executeV1Default(proxyInfo, passThroughArgs)
 	}
@@ -594,10 +614,7 @@ func GetErrorDisplayStatus(config configuration.Configuration) bool {
 	useSTDIO := config.GetBool(configuration.WORKFLOW_USE_STDIO)
 	jsonEnabled := config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON)
 
-	hasBeenDisplayed := false
-	if useSTDIO && jsonEnabled {
-		hasBeenDisplayed = true
-	}
+	hasBeenDisplayed := useSTDIO && jsonEnabled
 
 	return hasBeenDisplayed
 }
