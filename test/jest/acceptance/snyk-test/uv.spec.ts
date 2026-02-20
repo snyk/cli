@@ -105,6 +105,57 @@ describe('uv lock acceptance', () => {
     expect(paths).not.toContain(`/hidden/orgs/${orgId}/sboms/convert`);
   });
 
+  test('succeeds with --all-projects for a uv project when feature flag is enabled', async () => {
+    server.setFeatureFlag('enableUvCLI', true);
+
+    const project = await createProject('uv-acceptance');
+    const { code } = await runSnykCLI('test --all-projects --json', {
+      cwd: project.path(),
+      env: {
+        ...env,
+        XDG_CONFIG_HOME: project.path(),
+      },
+    });
+
+    expect(code).toEqual(0);
+
+    const requests = server.getRequests();
+    const paths = requests.map((req) => req.path);
+    const orgId = '55555555-5555-5555-5555-555555555555';
+
+    expect(paths).toContain('/v1/cli-config/feature-flags/enableUvCLI');
+    expect(paths).toContain(`/rest/orgs/${orgId}/tests`);
+
+    const createTestReq = requests.find(
+      (req) =>
+        req.method === 'POST' && req.path === `/rest/orgs/${orgId}/tests`,
+    );
+    expect(createTestReq).toBeDefined();
+    const depGraph: DepGraph =
+      createTestReq?.body?.data?.attributes?.subject?.dep_graph;
+    expect(depGraph).toBeDefined();
+    const pkgNames = (depGraph.pkgs || []).map((p) => p.info?.name);
+    expect(pkgNames.length).toBeGreaterThan(0);
+  });
+
+  test('does not attempt to test a uv.lock file with --all-projects when feature flag is disabled', async () => {
+    server.setFeatureFlag('enableUvCLI', false);
+
+    const project = await createProject('uv-acceptance');
+    const { code, stdout } = await runSnykCLI('test --all-projects --json', {
+      cwd: project.path(),
+      env: {
+        ...env,
+        XDG_CONFIG_HOME: project.path(),
+      },
+    });
+
+    expect(code).toEqual(3);
+
+    const result = JSON.parse(stdout);
+    expect(result.error).toContain('Could not detect supported target files');
+  });
+
   test('succeeds for uv project with no dependencies', async () => {
     server.setFeatureFlag('enableUvCLI', true);
 

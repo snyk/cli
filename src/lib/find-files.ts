@@ -189,12 +189,6 @@ function filterForDefaultManifests(
   files: string[],
   featureFlags: Set<string> = new Set<string>(),
 ): string[] {
-  // take all the files in the same dir & filter out
-  // based on package Manager
-  if (files.length <= 1) {
-    return files;
-  }
-
   const filteredFiles: string[] = [];
 
   const beforeSort = files
