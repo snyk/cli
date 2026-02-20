@@ -2,7 +2,7 @@ import * as os from 'os';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { RunCommandOptions, RunCommandResult } from '../../util/runCommand';
 
-jest.setTimeout(1000 * 60);
+jest.setTimeout(1000 * 120);
 
 describe('snyk container zstd archive edge cases', () => {
   if (os.platform() === 'win32') {

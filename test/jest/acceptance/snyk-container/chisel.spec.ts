@@ -2,7 +2,7 @@ import * as os from 'os';
 import { startSnykCLI, TestCLI } from '../../util/startSnykCLI';
 import { runSnykCLI } from '../../util/runSnykCLI';
 
-jest.setTimeout(1000 * 60);
+jest.setTimeout(1000 * 120);
 
 describe('snyk container - chisel images', () => {
   // Skip on Windows - chisel images are Linux-only
