@@ -1,5 +1,6 @@
 import { execGoCommand, GoCommandResult } from '../../../src/lib/go-bridge';
 import { getCliBinaryPath } from '../util/getCliBinaryPath';
+import { withFipsEnvIfNeeded } from '../util/fipsTestHelper';
 import { testIf } from '../../utils';
 
 const hasBinary = !!process.env.TEST_SNYK_COMMAND;
@@ -8,7 +9,7 @@ describe('go-bridge (acceptance)', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    process.env = { ...originalEnv };
+    process.env = withFipsEnvIfNeeded(originalEnv);
     if (hasBinary) {
       process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = getCliBinaryPath();
     }

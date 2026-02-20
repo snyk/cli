@@ -41,7 +41,11 @@ pushd "$SCRIPT_DIR/.."
   NODEVERSION=$(head -1 .nvmrc)
   export NODEVERSION
 
-  echo "Building Docker image for $TARGET_ARCH with Node version: $NODEVERSION"
+  # Extract go_version from .circleci/config.yml (single source of truth)
+  GOVERSION=$(grep -A3 "go_version:" .circleci/config.yml | grep "default:" | sed "s/.*default: *['\"]\\([^'\"]*\\)['\"].*/\\1/")
+  export GOVERSION
+
+  echo "Building Docker image for $TARGET_ARCH with Node version: $NODEVERSION, Go version: $GOVERSION"
   echo "Timestamp: $TAG"
 
   # For local development, login to Docker
@@ -65,6 +69,7 @@ pushd "$SCRIPT_DIR/.."
     ${CI:+--quiet} \
     --build-arg NODEVERSION="$NODEVERSION" \
     --build-arg ARCH="$DOCKER_ARCH" \
+    --build-arg GOVERSION="$GOVERSION" \
     --platform linux/"$TARGET_ARCH" \
     --tag "$BASE_IMG_NAME":"$TAG" \
     --tag "$BASE_IMG_NAME":latest \

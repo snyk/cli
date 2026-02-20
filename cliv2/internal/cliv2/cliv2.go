@@ -124,7 +124,7 @@ func (c *CLI) Init() (err error) {
 		if _, err = os.Stat(c.CacheDirectory); os.IsNotExist(err) {
 			err = os.MkdirAll(c.CacheDirectory, utils.DIR_PERMISSION)
 			if err != nil {
-				return fmt.Errorf("Cache directory path is invalid: %w", err)
+				return fmt.Errorf("Cache directory path is invalid: %w", err) //nolint:staticcheck // user-facing error message
 			}
 		}
 	}
@@ -256,7 +256,7 @@ func (c *CLI) printVersion() {
 
 func (c *CLI) commandVersion(passthroughArgs []string) error {
 	if utils.Contains(passthroughArgs, "--json-file-output") {
-		return fmt.Errorf("The following option combination is not currently supported: version + json-file-output")
+		return fmt.Errorf("The following option combination is not currently supported: version + json-file-output") //nolint:staticcheck // user-facing error message
 	} else {
 		c.printVersion()
 		return nil
@@ -329,7 +329,7 @@ func PrepareV1EnvironmentVariables(
 	if !integrationNameExists && !integrationVersionExists {
 		inputAsMap[constants.SNYK_INTEGRATION_NAME_ENV] = integrationName
 		inputAsMap[constants.SNYK_INTEGRATION_VERSION_ENV] = integrationVersion
-	} else if !(integrationNameExists && integrationVersionExists) {
+	} else if !integrationNameExists || !integrationVersionExists {
 		err = EnvironmentWarning{message: fmt.Sprintf("Partially defined environment, please ensure to provide both %s and %s together!", constants.SNYK_INTEGRATION_NAME_ENV, constants.SNYK_INTEGRATION_VERSION_ENV)}
 	}
 
@@ -546,11 +546,13 @@ func (c *CLI) Execute(proxyInfo *proxy.ProxyInfo, passThroughArgs []string) erro
 	var err error
 	handler := determineHandler(passThroughArgs)
 
-	switch {
-	case handler == V2_VERSION:
+	switch handler {
+	case V2_VERSION:
 		err = c.commandVersion(passThroughArgs)
-	case handler == V2_ABOUT:
+	case V2_ABOUT:
 		err = c.commandAbout(proxyInfo, passThroughArgs)
+	case V1_DEFAULT:
+		fallthrough
 	default:
 		err = c.executeV1Default(proxyInfo, passThroughArgs)
 	}
@@ -612,10 +614,7 @@ func GetErrorDisplayStatus(config configuration.Configuration) bool {
 	useSTDIO := config.GetBool(configuration.WORKFLOW_USE_STDIO)
 	jsonEnabled := config.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON)
 
-	hasBeenDisplayed := false
-	if useSTDIO && jsonEnabled {
-		hasBeenDisplayed = true
-	}
+	hasBeenDisplayed := useSTDIO && jsonEnabled
 
 	return hasBeenDisplayed
 }
