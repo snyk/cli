@@ -2,6 +2,7 @@ import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 import { createFromJSON, DepGraphData } from '@snyk/dep-graph';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { debug as Debug } from 'debug';
+import { CustomError } from '../../errors';
 import { execGoCommand, GoCommandResult } from '../../go-bridge';
 import { truncateForLog } from '../../utils';
 import * as types from '../types';
@@ -32,7 +33,7 @@ export async function inspect(
   const result = await execGoCommand(args, { cwd: root });
 
   if (result.exitCode !== 0) {
-    throw new CLI.GeneralCLIFailureError(extractErrorDetail(result));
+    throw createDepgraphError(extractErrorDetail(result));
   }
 
   let depGraphData: DepGraphData;
@@ -46,7 +47,7 @@ export async function inspect(
       truncateForLog(result.stdout),
       truncateForLog(result.stderr),
     );
-    throw new CLI.GeneralCLIFailureError(
+    throw createDepgraphError(
       result.stderr || 'Unable to process dependency information',
     );
   }
@@ -67,6 +68,13 @@ export async function inspect(
     },
     scannedProjects,
   };
+}
+
+function createDepgraphError(detail: string): CustomError {
+  const error = new CustomError(detail);
+  error.userMessage = detail;
+  error.errorCatalog = new CLI.GeneralCLIFailureError(detail);
+  return error;
 }
 
 function extractErrorDetail(result: GoCommandResult): string {
