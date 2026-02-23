@@ -142,9 +142,8 @@ describe('snyk code test', () => {
       describe(`${type} workflow`, () => {
         describe('snyk code flag options', () => {
           it('works with --remote-repo-url', async () => {
-            // const expectedCodeSecurityIssues = 6;
             const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
-            const { code } = await runSnykCLI(
+            const { code, stdout } = await runSnykCLI(
               `code test ${path} --remote-repo-url=https://github.com/snyk/cli.git --json -d`,
               {
                 env: {
@@ -154,19 +153,15 @@ describe('snyk code test', () => {
               },
             );
 
-            // TODO: Investigate why the expectations have been changed.
-            // const actualCodeSecurityIssues =
-            //   JSON.parse(stdout)?.runs[0]?.results?.length;
-            // expect(actualCodeSecurityIssues).toEqual(
-            //   expectedCodeSecurityIssues,
-            // );
+            const actualCodeSecurityIssues =
+              JSON.parse(stdout)?.runs[0]?.results?.length;
+            expect(actualCodeSecurityIssues).toBeGreaterThan(0);
             expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
           });
 
           it('works with --severity-threshold', async () => {
-            // const expectedHighCodeSecurityIssues = 5;
             const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
-            const { code } = await runSnykCLI(
+            const { code, stdout } = await runSnykCLI(
               `code test ${path} --json --severity-threshold=high`,
               {
                 env: {
@@ -176,12 +171,9 @@ describe('snyk code test', () => {
               },
             );
 
-            // TODO: Investigate why the expectations have been changed.
-            // const actualCodeSecurityIssues =
-            //   JSON.parse(stdout)?.runs[0]?.results?.length;
-            // expect(actualCodeSecurityIssues).toEqual(
-            //   expectedHighCodeSecurityIssues,
-            // );
+            const actualCodeSecurityIssues =
+              JSON.parse(stdout)?.runs[0]?.results?.length;
+            expect(actualCodeSecurityIssues).toBeGreaterThan(0);
             expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
           });
 
@@ -276,20 +268,21 @@ describe('snyk code test', () => {
 
         it('should not include code quality issues in results', async () => {
           // expected Code Quality Issues: 2 -  2 [Medium]
-          // const expectedCodeSecurityIssues = 6;
           const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
 
-          const { code } = await runSnykCLI(`code test ${path} --json`, {
-            env: {
-              ...process.env,
-              ...integrationEnv,
+          const { code, stdout } = await runSnykCLI(
+            `code test ${path} --json`,
+            {
+              env: {
+                ...process.env,
+                ...integrationEnv,
+              },
             },
-          });
+          );
 
-          // TODO: Investigate why the expectations have been changed.
-          // const actualCodeSecurityIssues =
-          //   JSON.parse(stdout)?.runs[0]?.results?.length;
-          // expect(actualCodeSecurityIssues).toEqual(expectedCodeSecurityIssues);
+          const actualCodeSecurityIssues =
+            JSON.parse(stdout)?.runs[0]?.results?.length;
+          expect(actualCodeSecurityIssues).toBeGreaterThan(0);
           expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
         });
 
