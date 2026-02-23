@@ -37,3 +37,6 @@ const SNYK_HTTPS_PROXY_ENV_SYSTEM = "SNYK_SYSTEM_HTTPS_PROXY"
 const SNYK_HTTP_PROXY_ENV_SYSTEM = "SNYK_SYSTEM_HTTP_PROXY"
 const SNYK_HTTP_NO_PROXY_ENV_SYSTEM = "SNYK_SYSTEM_NO_PROXY"
 const SNYK_OPENSSL_CONF_SYSTEM = "SNYK_SYSTEM_OPENSSL_CONF"
+
+// temporary flag for static nodejs binary, remove once linuxstatic is official
+var StaticNodeJsBinary string // injected by Makefile via -ldflags
