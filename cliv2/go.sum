@@ -547,6 +547,8 @@ github.com/snyk/cli-extension-sbom v0.0.0-20260210104429-41aece880532 h1:F+V6GFY
 github.com/snyk/cli-extension-sbom v0.0.0-20260210104429-41aece880532/go.mod h1:OT3GJa4+cbCV8bq3cKtwe2ELHBHRWQb2DkHdyeG8TL4=
 github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0 h1:LjYHZ+MnBJ9IT/zgU2qCq8+YS2qJFrKJMejOdFC6vCA=
 github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0/go.mod h1:vj0PtB7L3tdiVLFDJtMuklDIjOBQdzoKQulnMv8/M/c=
+github.com/snyk/cli-extension-secrets v0.0.0-20260220154140-0b1a0cfa2063 h1:eqWObBMFVmiPCQLoTk8u5A0NOBbMYohiz1jAKQuU3Mc=
+github.com/snyk/cli-extension-secrets v0.0.0-20260220154140-0b1a0cfa2063/go.mod h1:ng0OTIfgT/Jq6mThy1kkwIS6Z5uPjE1T/I29VUYThx0=
 github.com/snyk/code-client-go v1.26.1 h1:09g3z462ZxSmXxuH2s13DbKjUPH5ve20af2+RVV/RYo=
 github.com/snyk/code-client-go v1.26.1/go.mod h1:0NcZZHB48Sr4UAucEH2H10HwV7gjI2Ue0c+FxPWaTNo=
 github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea h1:/v48hCMPiZVjplylgE2FX1ib8Qd8LN/vf8ZIKfA+wkI=
@@ -557,6 +559,8 @@ github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905 h
 github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905/go.mod h1:Ytttq7Pw4vOCu9NtRQaOeDU2dhBYUyNBe6kX4+nIIQ4=
 github.com/snyk/go-application-framework v0.0.0-20260219121502-ba9cecc54f7d h1:BKf/UnLaPnLlM/hrsuk28AJv6KqxGQUrz7bkrkvpm8o=
 github.com/snyk/go-application-framework v0.0.0-20260219121502-ba9cecc54f7d/go.mod h1:6MuCxSVGYNY3gfNKPZc5oMuy5/Q+yxbLxKnVtOMSB8Y=
+github.com/snyk/go-application-framework v0.0.0-20260220143504-633ce0180b0b h1:zMAs0JxYTu62z9sNZkp6bI/MwksBUJ0CmCMqVkxv0bs=
+github.com/snyk/go-application-framework v0.0.0-20260220143504-633ce0180b0b/go.mod h1:6MuCxSVGYNY3gfNKPZc5oMuy5/Q+yxbLxKnVtOMSB8Y=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65 h1:CEQuYv0Go6MEyRCD3YjLYM2u3Oxkx8GpCpFBd4rUTUk=
 github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65/go.mod h1:88KbbvGYlmLgee4OcQ19yr0bNpXpOr2kciOthaSzCAg=
 github.com/snyk/policy-engine v1.1.3 h1:MU+K8pxbN6VZ9P5wALUt8BwTjrPDpoEtmTtQqj7sKfY=
