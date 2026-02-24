@@ -188,9 +188,7 @@
     "webpack-merge": "^5.8.0"
   },
   "overrides": {
-    "cross-spawn@7.0.3": "7.0.6",
-    "minimatch": "^10.2.2",
-    "tar": "^7.5.8"
+    "cross-spawn@7.0.3": "7.0.6"
   },
   "repository": {
     "type": "git",
