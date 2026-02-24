@@ -62,7 +62,7 @@ export async function inspect(
     plugin: {
       name: 'snyk-uv-plugin',
       targetFile: resolvedTargetFile,
-      packageManager: 'pip',
+      packageManager: 'uv',
     },
     scannedProjects,
   };

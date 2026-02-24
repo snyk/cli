@@ -95,11 +95,21 @@ describe('uv monitor', () => {
       expect(monitorRequests).toHaveLength(1);
       expect(monitorRequests[0].body.meta.pluginRuntime).toBeUndefined();
       expect(monitorRequests[0].body.targetFile).toBe('pyproject.toml');
+      const [monitorRequest] = monitorRequests;
+      expect(monitorRequest.url).toContain('/monitor/uv/graph');
+      expect(monitorRequest.body).toMatchObject({
+        meta: {
+          pluginName: 'snyk-uv-plugin',
+          monitorGraph: true,
+        },
+        targetFile: 'pyproject.toml',
+      });
+      expect(monitorRequest.body.targetFileRelativePath).toMatch(/uv\.lock$/);
 
-      const depGraphJSON = monitorRequests[0].body.depGraphJSON;
+      const depGraphJSON = monitorRequest.body.depGraphJSON;
       expect(depGraphJSON).toBeDefined();
 
-      expect(depGraphJSON.pkgManager.name).toBe('pip');
+      expect(depGraphJSON.pkgManager.name).toBe('uv');
 
       const rootPkg = depGraphJSON.pkgs.find(
         (p: any) => p.id === 'uv-project@0.1.0',

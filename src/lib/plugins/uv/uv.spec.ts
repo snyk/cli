@@ -6,7 +6,7 @@ import * as goBridge from '../../go-bridge';
 const MOCK_DEP_GRAPH_DATA: DepGraphData = {
   schemaVersion: '1.3.0',
   pkgManager: {
-    name: 'pip',
+    name: 'uv',
   },
   pkgs: [
     {
@@ -84,7 +84,7 @@ describe('uv plugin', () => {
     expect(result.plugin).toEqual({
       name: 'snyk-uv-plugin',
       targetFile: 'pyproject.toml',
-      packageManager: 'pip',
+      packageManager: 'uv',
     });
     expect(result.scannedProjects).toHaveLength(1);
 
@@ -94,7 +94,7 @@ describe('uv plugin', () => {
       name: 'uv-project',
       version: '0.1.0',
     });
-    expect(depGraph!.pkgManager.name).toBe('pip');
+    expect(depGraph!.pkgManager.name).toBe('uv');
 
     const depNames = depGraph!
       .getDepPkgs()
