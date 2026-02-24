@@ -214,10 +214,18 @@ commands:
           name: Install Windows dependencies
           shell: bash.exe
           command: |
-            choco uninstall nodejs -y
-            choco uninstall nodejs.install -y
+            node_version=$(head .nvmrc)
+            installed_node_version=$(node --version 2>/dev/null | sed 's/^v//')
+
+            if [ "$installed_node_version" != "$node_version" ]; then
+              choco uninstall nodejs -y
+              choco uninstall nodejs.install -y
+              choco install nodejs --version="$node_version" --no-progress -y
+            else
+              echo "Node.js $node_version already installed. Skipping reinstall."
+            fi
+
             choco install .circleci/chocolatey.config --no-progress -y
-            choco install nodejs --version=$(head .nvmrc) --no-progress -y
       - save_cache:
           name: Saving Chocolatey cache
           key: chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
@@ -227,7 +235,13 @@ commands:
           os: win
       - run:
           name: Install uv
-          command: pip install uv
+          shell: powershell
+          command: |
+            if (Get-Command uv -ErrorAction SilentlyContinue) {
+              Write-Host "uv already installed. Skipping install."
+            } else {
+              pip install uv
+            }
 
   install-deps-windows-signing:
     steps:
@@ -842,6 +856,7 @@ workflows:
           install_deps_extension: windows-full
           dont_skip_tests: 0
           shards: 8
+          use_timings_split: 1
           shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
           pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
 
@@ -1474,6 +1489,9 @@ jobs:
       shard_calc_cmd:
         type: string
         default: '$(expr $CIRCLE_NODE_INDEX + 1)'
+      use_timings_split:
+        type: integer
+        default: 0
     executor: << parameters.executor >>
     parallelism: << parameters.shards >>
     environment:
@@ -1489,26 +1507,61 @@ jobs:
           steps:
             - setup_remote_docker:
                 docker_layer_caching: false
+      - restore_cache:
+          name: Restore npm cache
+          keys:
+            - prepare-v1-build-npm-deps-{{ checksum "package-lock.json" }}
+            - prepare-v1-build-npm-deps
       - run:
-          command: npm install
+          name: Installing npm dependencies
+          command: npm install --no-audit --no-progress --cache .npm --prefer-offline
       - install-go:
           go_os: << parameters.go_os >>
           go_target_os: << parameters.go_target_os >>
           go_arch: << parameters.go_arch >>
           base_url: << parameters.go_download_base_url >>
           extraction_path: << parameters.install_path >>
-      - run:
-          name: Running acceptance tests
-          no_output_timeout: 30m
-          command: |
-            << parameters.pre_test_cmds >>
-            npm run test:acceptance -- --selectProjects coreCli --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
-          environment:
-            TEST_SNYK_FIPS: << parameters.fips >>
-            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
-            TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
-            JEST_JUNIT_OUTPUT_DIR: test/reports
-            NODE_OPTIONS: --max-old-space-size=4096
+      - when:
+          condition:
+            and:
+              - equal: ['windows', << parameters.go_os >>]
+              - equal: [1, << parameters.use_timings_split >>]
+          steps:
+            - run:
+                name: Running acceptance tests (timings split)
+                shell: powershell
+                no_output_timeout: 30m
+                command: |
+                  << parameters.pre_test_cmds >>
+                  $testFiles = (circleci tests glob "test/acceptance/**/*.spec.ts" "test/jest/acceptance/**/*.spec.ts" | circleci tests split --split-by=timings --timings-type=filename) -join ' '
+                  if ([string]::IsNullOrWhiteSpace($testFiles)) {
+                    throw "No acceptance test files were selected for this shard."
+                  }
+                  npm run test:acceptance -- --selectProjects coreCli --runTestsByPath $testFiles
+                environment:
+                  TEST_SNYK_FIPS: << parameters.fips >>
+                  TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+                  TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
+                  JEST_JUNIT_OUTPUT_DIR: test/reports
+                  NODE_OPTIONS: --max-old-space-size=4096
+      - unless:
+          condition:
+            and:
+              - equal: ['windows', << parameters.go_os >>]
+              - equal: [1, << parameters.use_timings_split >>]
+          steps:
+            - run:
+                name: Running acceptance tests
+                no_output_timeout: 30m
+                command: |
+                  << parameters.pre_test_cmds >>
+                  npm run test:acceptance -- --selectProjects coreCli --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
+                environment:
+                  TEST_SNYK_FIPS: << parameters.fips >>
+                  TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+                  TEST_SNYK_DONT_SKIP_ANYTHING: << parameters.dont_skip_tests >>
+                  JEST_JUNIT_OUTPUT_DIR: test/reports
+                  NODE_OPTIONS: --max-old-space-size=4096
       - store_test_results:
           path: test/reports
       - store_artifacts:
