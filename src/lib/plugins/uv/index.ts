@@ -14,6 +14,7 @@ export async function inspect(
   targetFile: string,
   options: types.Options = {},
 ): Promise<MultiProjectResult> {
+  // Test comment (to be deleted)
   if (process.env[UV_MONITOR_ENABLED_ENV_VAR] !== 'true') {
     throw new Error(`uv monitor support is not yet available.`);
   }
