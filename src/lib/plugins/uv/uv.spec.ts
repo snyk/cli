@@ -1,5 +1,6 @@
 import { DepGraphData } from '@snyk/dep-graph';
 import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
+import { CustomError } from '../../errors';
 import { inspect, UV_MONITOR_ENABLED_ENV_VAR } from './index';
 import * as goBridge from '../../go-bridge';
 
@@ -161,19 +162,80 @@ describe('uv plugin', () => {
     it('throws when dependency data is invalid JSON', async () => {
       execGoCommandSpy.mockResolvedValueOnce(mockResult('not-json'));
 
-      const err: ProblemError = await inspect('.', 'uv.lock').catch((e) => e);
+      const err: CustomError = await inspect('.', 'uv.lock').catch((e) => e);
 
-      expect(err).toBeInstanceOf(CLI.GeneralCLIFailureError);
-      expect(err.detail).toBe('Unable to process dependency information');
+      expect(err).toBeInstanceOf(CustomError);
+      expect(err.userMessage).toBe('Unable to process dependency information');
+      expect(err.message).toBe('Unable to process dependency information');
     });
 
     it('throws a generic error when command fails without parseable details', async () => {
       execGoCommandSpy.mockResolvedValueOnce(mockResult('not-json', 1, ''));
 
-      const err: ProblemError = await inspect('.', 'uv.lock').catch((e) => e);
+      const err: CustomError = await inspect('.', 'uv.lock').catch((e) => e);
 
-      expect(err).toBeInstanceOf(CLI.GeneralCLIFailureError);
-      expect(err.detail).toBe('Unable to process dependency information');
+      expect(err).toBeInstanceOf(CustomError);
+      expect(err.userMessage).toBe('Unable to process dependency information');
+      expect(err.message).toBe('Unable to process dependency information');
+    });
+
+    it('throws with the error detail from JSON stdout when command fails', async () => {
+      const jsonError = JSON.stringify({
+        ok: false,
+        error:
+          'uv version 0.4.0 is not supported. Minimum required version is 0.9.23',
+        path: '/test',
+      });
+      execGoCommandSpy.mockResolvedValueOnce(mockResult(jsonError, 2));
+
+      const err: CustomError = await inspect('.', 'uv.lock').catch((e) => e);
+
+      expect(err).toBeInstanceOf(CustomError);
+      expect(err.userMessage).toBe(
+        'uv version 0.4.0 is not supported. Minimum required version is 0.9.23',
+      );
+      expect(err.message).toBe(
+        'uv version 0.4.0 is not supported. Minimum required version is 0.9.23',
+      );
+    });
+
+    it('throws with stderr when command fails and stdout is not JSON', async () => {
+      execGoCommandSpy.mockResolvedValueOnce(
+        mockResult('', 1, 'something went wrong'),
+      );
+
+      const err: CustomError = await inspect('.', 'uv.lock').catch((e) => e);
+
+      expect(err).toBeInstanceOf(CustomError);
+      expect(err.userMessage).toBe('something went wrong');
+      expect(err.message).toBe('something went wrong');
+    });
+
+    it('attaches an error catalog entry for IPC propagation', async () => {
+      const jsonError = JSON.stringify({
+        ok: false,
+        error: 'some depgraph failure',
+        path: '/test',
+      });
+      execGoCommandSpy.mockResolvedValueOnce(mockResult(jsonError, 2));
+
+      const err: CustomError = await inspect('.', 'uv.lock').catch((e) => e);
+
+      expect(err).toBeInstanceOf(CustomError);
+      const catalog = err.errorCatalog;
+      expect(catalog).toBeInstanceOf(CLI.GeneralCLIFailureError);
+      expect(catalog).toBeInstanceOf(ProblemError);
+      expect(catalog!.detail).toBe('some depgraph failure');
+    });
+
+    it('attaches an error catalog entry for invalid JSON errors', async () => {
+      execGoCommandSpy.mockResolvedValueOnce(mockResult('not-json', 0, ''));
+
+      const err: CustomError = await inspect('.', 'uv.lock').catch((e) => e);
+
+      const catalog = err.errorCatalog;
+      expect(catalog).toBeInstanceOf(CLI.GeneralCLIFailureError);
+      expect(catalog!.detail).toBe('Unable to process dependency information');
     });
   });
 });
