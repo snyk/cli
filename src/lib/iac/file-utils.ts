@@ -1,6 +1,5 @@
 import * as tar from 'tar';
 import { promises as fsPromises, constants as fsConstants } from 'fs';
-import { promisify } from 'util';
 
 export async function isExe(path: string): Promise<boolean> {
   try {
@@ -37,8 +36,7 @@ export async function isFile(path: string): Promise<boolean> {
 
 export async function isArchive(path: string): Promise<boolean> {
   try {
-    const tarList = promisify(tar.list);
-    await tarList({ file: path, strict: true });
+    await tar.list({ file: path, strict: true });
     return true;
   } catch (e) {
     return false;
