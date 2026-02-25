@@ -362,17 +362,7 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 ## Options for .NET projects
 
-### `--dotnet-runtime-resolution`
-
-**Note:** This option in Early Access and may change until it is released.
-
-Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](../../../supported-languages/supported-languages-list/.net/improved-.net-scanning.md)
-
-Example: `snyk test --dotnet-runtime-resolution`
-
 ### `--dotnet-target-framework`
-
-**Note:** This option in Early Access and may change until it is released.
 
 Optional. You may use this option if your solution contains multiple `<TargetFramework>` directives. If you do not specify the option `--dotnet-target-framework`, all supported Target Frameworks will be scanned.
 

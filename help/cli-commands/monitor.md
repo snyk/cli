@@ -331,7 +331,7 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 **Note:** This option in in Early Access and may change until it is released.
 
-Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](../../../supported-languages/supported-languages-list/.net/improved-.net-scanning.md)
+Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](/broken/pages/PvXOZ1NqIqQz46Zk799z)
 
 Example: `snyk test --dotnet-runtime-resolution`
 
