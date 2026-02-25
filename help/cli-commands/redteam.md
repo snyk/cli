@@ -47,6 +47,26 @@ Default: redteam.yaml in the current working directory.
 
 Optional. Save the output as a JSON to the specified file path.
 
+### `--html`
+
+Optional. Print the red teaming report in HTML format to stdout instead of JSON. The generated report is a self-contained HTML file with embedded CSS and JavaScript that can be viewed in any browser.
+
+Example: `$ snyk redteam --experimental --html > report.html`
+
+### `--html-file-output=<PATH>`
+
+Optional. Save the HTML report to the specified file path, regardless of whether or not you use the `--html` option.
+
+Use to display the default JSON output using stdout and at the same time save the HTML report to a file.
+
+Example: `$ snyk redteam --experimental --html-file-output=report.html`
+
+### `--scanning-agent-id=<UUID>`
+
+Optional. Specify the scanning agent ID to use for the scan. This overrides the `scanning_agent` value in the configuration file.
+
+Example: `$ snyk redteam --experimental --scanning-agent-id=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+
 ## Configuration file
 
 If you do not specify a configuration file with `--config=<PATH>`, the tool searches for `redteam.yaml` in the current working directory by default.
@@ -186,7 +206,7 @@ Note that the scanning agent is scoped to the user and Organization, meaning tha
     snyk redteam scanning-agent create --experimental
     ```
 
-2.  Copy the output and spin the scanning agent container with `docker run ...`&#x20;
+2.  Copy the output and spin the scanning agent container with `docker run ...`
 3.  Update your [configuration](redteam.md#configuration-file) to point to a target your internal scanning agent container can reach, for example, `host.docker.internal` (if testing locally).
 4.  Add the `scanning_agent` option to the [options](redteam.md#options-object) field in the [configuration](redteam.md#configuration-file)
 5.  Run the scan:<br>
@@ -232,8 +252,8 @@ https://github.com/Probely/farcaster-onprem-agent
 
 Notes:
 
-- Ensure to copy the `Agent Token`, store it securely, and follow the instructions.&#x20;
-- You are limited to three scanning agents per user and Organization.&#x20;
+- Ensure to copy the `Agent Token`, store it securely, and follow the instructions.
+- You are limited to three scanning agents per user and Organization.
 
 #### Specifying the name (optional)
 
@@ -278,7 +298,7 @@ snyk redteam scanning-agent delete --id xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx --e
 
 ### Running a scan with an agent
 
-To run a scan with an agent you have two options: specifying `scanning_agent` in the configuration [options](redteam.md#options-object) or passing `--scanning-agent-id` flag to the `redteam` command.&#x20;
+To run a scan with an agent you have two options: specifying `scanning_agent` in the configuration [options](redteam.md#options-object) or passing `--scanning-agent-id` flag to the `redteam` command.
 
 #### Running using the CLI
 
@@ -302,6 +322,16 @@ Note: This method takes precedence over other specific methods.
     ```bash
     snyk redteam --experimental
     ```
+
+## Get scan results
+
+You can retrieve the results of individual scans. To retrieve scan results, run the following command:
+
+```bash
+snyk redteam --experimental get --id=<your-previous-scan-id>
+```
+
+This command accepts the same options as the `snyk redteam --experimental` command.
 
 ## Supported vulnerabilities
 
