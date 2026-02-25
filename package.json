@@ -116,7 +116,7 @@
     "rimraf": "^2.6.3",
     "semver": "^6.0.0",
     "snyk-config": "^5.0.0",
-    "snyk-cpp-plugin": "2.24.1",
+    "snyk-cpp-plugin": "^2.24.2",
     "snyk-docker-plugin": "9.1.1",
     "snyk-go-plugin": "2.0.2",
     "snyk-gradle-plugin": "5.1.1",
