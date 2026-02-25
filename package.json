@@ -122,8 +122,8 @@
     "snyk-gradle-plugin": "5.1.1",
     "snyk-module": "3.1.0",
     "snyk-mvn-plugin": "4.5.1",
-    "snyk-nodejs-lockfile-parser": "2.5.0",
-    "snyk-nodejs-plugin": "1.5.0",
+    "snyk-nodejs-lockfile-parser": "^2.6.0",
+    "snyk-nodejs-plugin": "^1.6.0",
     "snyk-nuget-plugin": "4.1.1",
     "snyk-php-plugin": "1.12.1",
     "snyk-policy": "^4.1.6",
@@ -189,7 +189,10 @@
   },
   "overrides": {
     "cross-spawn@7.0.3": "7.0.6",
-    "minimatch@^3.1.2": "3.1.3"
+    "minimatch@^3.1.2": "3.1.3",
+    "@yarnpkg/core@4.5.0": {
+      "tar": "7.5.9"
+    }
   },
   "repository": {
     "type": "git",
