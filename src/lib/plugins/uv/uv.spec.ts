@@ -1,6 +1,6 @@
 import { DepGraphData } from '@snyk/dep-graph';
 import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
-import { inspect, UV_MONITOR_ENABLED_ENV_VAR } from './index';
+import { inspect } from './index';
 import * as goBridge from '../../go-bridge';
 
 const MOCK_DEP_GRAPH_DATA: DepGraphData = {
@@ -66,11 +66,9 @@ function mockResult(
 }
 
 describe('uv plugin', () => {
-  const originalEnv = process.env;
   let execGoCommandSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    process.env = { ...originalEnv };
     execGoCommandSpy = jest
       .spyOn(goBridge, 'execGoCommand')
       .mockResolvedValue(mockResult(JSON.stringify(MOCK_DEP_GRAPH_DATA)));
@@ -80,101 +78,74 @@ describe('uv plugin', () => {
     execGoCommandSpy.mockRestore();
   });
 
-  afterAll(() => {
-    process.env = originalEnv;
+  it('returns a valid result with the expected depGraph', async () => {
+    const result = await inspect('.', 'uv.lock');
+
+    expect(result.plugin).toEqual({
+      name: 'snyk-uv-plugin',
+      targetFile: 'pyproject.toml',
+      packageManager: 'pip',
+    });
+    expect(result.scannedProjects).toHaveLength(1);
+
+    const { depGraph } = result.scannedProjects[0];
+    expect(depGraph).toBeDefined();
+    expect(depGraph!.rootPkg).toEqual({
+      name: 'uv-project',
+      version: '0.1.0',
+    });
+    expect(depGraph!.pkgManager.name).toBe('pip');
+
+    const depNames = depGraph!
+      .getDepPkgs()
+      .map((p) => p.name)
+      .sort();
+    expect(depNames).toEqual(['cffi', 'cryptography', 'urllib3']);
   });
 
-  describe('when env var is not set', () => {
-    it('throws an error', async () => {
-      delete process.env[UV_MONITOR_ENABLED_ENV_VAR];
+  it('maps uv.lock to pyproject.toml for monitor target file', async () => {
+    const result = await inspect('.', 'path/to/uv.lock');
 
-      await expect(inspect('.', 'uv.lock')).rejects.toThrow(
-        'uv monitor support is not yet available.',
-      );
-
-      expect(execGoCommandSpy).not.toHaveBeenCalled();
-    });
+    expect(execGoCommandSpy).toHaveBeenCalledWith(
+      ['depgraph', '--file=path/to/uv.lock', '--use-sbom-resolution', '--json'],
+      { cwd: '.' },
+    );
+    expect(result.plugin.targetFile).toBe('path/to/pyproject.toml');
+    expect(result.scannedProjects[0].targetFile).toBe(
+      'path/to/pyproject.toml',
+    );
   });
 
-  describe('when env var is set to true', () => {
-    beforeEach(() => {
-      process.env[UV_MONITOR_ENABLED_ENV_VAR] = 'true';
-    });
+  it('passes through org when provided in options', async () => {
+    await inspect('.', 'uv.lock', { org: 'my-org' } as any);
 
-    it('returns a valid result with the expected depGraph', async () => {
-      const result = await inspect('.', 'uv.lock');
+    expect(execGoCommandSpy).toHaveBeenCalledWith(
+      [
+        'depgraph',
+        '--file=uv.lock',
+        '--use-sbom-resolution',
+        '--json',
+        '--org=my-org',
+      ],
+      { cwd: '.' },
+    );
+  });
 
-      expect(result.plugin).toEqual({
-        name: 'snyk-uv-plugin',
-        targetFile: 'pyproject.toml',
-        packageManager: 'pip',
-      });
-      expect(result.scannedProjects).toHaveLength(1);
+  it('throws when dependency data is invalid JSON', async () => {
+    execGoCommandSpy.mockResolvedValueOnce(mockResult('not-json'));
 
-      const { depGraph } = result.scannedProjects[0];
-      expect(depGraph).toBeDefined();
-      expect(depGraph!.rootPkg).toEqual({
-        name: 'uv-project',
-        version: '0.1.0',
-      });
-      expect(depGraph!.pkgManager.name).toBe('pip');
+    const err: ProblemError = await inspect('.', 'uv.lock').catch((e) => e);
 
-      const depNames = depGraph!
-        .getDepPkgs()
-        .map((p) => p.name)
-        .sort();
-      expect(depNames).toEqual(['cffi', 'cryptography', 'urllib3']);
-    });
+    expect(err).toBeInstanceOf(CLI.GeneralCLIFailureError);
+    expect(err.detail).toBe('Unable to process dependency information');
+  });
 
-    it('maps uv.lock to pyproject.toml for monitor target file', async () => {
-      const result = await inspect('.', 'path/to/uv.lock');
+  it('throws a generic error when command fails without parseable details', async () => {
+    execGoCommandSpy.mockResolvedValueOnce(mockResult('not-json', 1, ''));
 
-      expect(execGoCommandSpy).toHaveBeenCalledWith(
-        [
-          'depgraph',
-          '--file=path/to/uv.lock',
-          '--use-sbom-resolution',
-          '--json',
-        ],
-        { cwd: '.' },
-      );
-      expect(result.plugin.targetFile).toBe('path/to/pyproject.toml');
-      expect(result.scannedProjects[0].targetFile).toBe(
-        'path/to/pyproject.toml',
-      );
-    });
+    const err: ProblemError = await inspect('.', 'uv.lock').catch((e) => e);
 
-    it('passes through org when provided in options', async () => {
-      await inspect('.', 'uv.lock', { org: 'my-org' } as any);
-
-      expect(execGoCommandSpy).toHaveBeenCalledWith(
-        [
-          'depgraph',
-          '--file=uv.lock',
-          '--use-sbom-resolution',
-          '--json',
-          '--org=my-org',
-        ],
-        { cwd: '.' },
-      );
-    });
-
-    it('throws when dependency data is invalid JSON', async () => {
-      execGoCommandSpy.mockResolvedValueOnce(mockResult('not-json'));
-
-      const err: ProblemError = await inspect('.', 'uv.lock').catch((e) => e);
-
-      expect(err).toBeInstanceOf(CLI.GeneralCLIFailureError);
-      expect(err.detail).toBe('Unable to process dependency information');
-    });
-
-    it('throws a generic error when command fails without parseable details', async () => {
-      execGoCommandSpy.mockResolvedValueOnce(mockResult('not-json', 1, ''));
-
-      const err: ProblemError = await inspect('.', 'uv.lock').catch((e) => e);
-
-      expect(err).toBeInstanceOf(CLI.GeneralCLIFailureError);
-      expect(err.detail).toBe('Unable to process dependency information');
-    });
+    expect(err).toBeInstanceOf(CLI.GeneralCLIFailureError);
+    expect(err.detail).toBe('Unable to process dependency information');
   });
 });
