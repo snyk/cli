@@ -30,13 +30,16 @@ import (
 	"github.com/snyk/code-client-go/pkg/code"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
+	"github.com/snyk/go-application-framework/pkg/ui/consoleui"
+
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 
 	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
@@ -48,9 +51,10 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
-	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
+
+	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 
 	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
@@ -165,6 +169,14 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 		globalLogger.Print("Failed to add flags", err)
 		return err
 	}
+
+	// init UI
+	errorUI := consoleui.WithErrorOutput(os.Stdout)
+	if output_workflow.DefaultOutputIsStructured(config) {
+		errorUI = consoleui.WithErrorOutput(os.Stderr)
+	}
+	mainUI := consoleui.New(consoleui.WithInput(os.Stdin), consoleui.WithOutput(os.Stdout), consoleui.WithProgressWriter(os.Stderr), errorUI)
+	globalEngine.SetUserInterface(mainUI)
 
 	// global handling of experimental commands
 	if config_utils.IsExperimental(cmd.Flags()) {
@@ -491,7 +503,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-			_ = userInterface.Output(string(jsonErrorBuffer))
+			_ = userInterface.OutputError(fmt.Errorf("%s", jsonErrorBuffer))
 		} else {
 			if errors.Is(err, context.DeadlineExceeded) {
 				err = fmt.Errorf("command timed out")
