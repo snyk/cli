@@ -29,13 +29,14 @@ import (
 	"github.com/snyk/code-client-go/pkg/code"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 
 	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
@@ -47,9 +48,10 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
-	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
+
+	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 
 	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
@@ -551,6 +553,12 @@ func MainWithErrorCode() int {
 
 	globalLogger, scrubbedLogger = initDebugLogger(globalConfiguration)
 	globalEngine = app.CreateAppEngineWithOptions(app.WithZeroLogger(globalLogger), app.WithConfiguration(globalConfiguration), app.WithRuntimeInfo(rInfo))
+
+	userInterface := ui.NewConsoleUi(os.Stdin, os.Stdout, os.Stdout, os.Stderr)
+	if globalConfiguration.GetBool(output_workflow.OUTPUT_CONFIG_KEY_JSON) || globalConfiguration.GetBool(output_workflow.OUTPUT_CONFIG_KEY_SARIF) {
+		userInterface = ui.NewConsoleUi(os.Stdin, os.Stdout, os.Stderr, os.Stderr)
+	}
+	globalEngine.SetUserInterface(userInterface)
 
 	globalConfiguration.AddDefaultValue(configuration.FF_OAUTH_AUTH_FLOW_ENABLED, defaultOAuthFF(globalConfiguration))
 	globalConfiguration.AddDefaultValue(configuration.FF_TRANSFORMATION_WORKFLOW, configuration.StandardDefaultValueFunction(true))
