@@ -7,7 +7,6 @@ import { execGoCommand, GoCommandResult } from '../../go-bridge';
 import { truncateForLog } from '../../utils';
 import * as types from '../types';
 
-export const UV_MONITOR_ENABLED_ENV_VAR = 'SNYK_INTERNAL_UV_MONITOR_ENABLED';
 const debug = Debug('snyk:plugins:uv');
 const UV_LOCKFILE_NAME = 'uv.lock';
 const PYPROJECT_MANIFEST_NAME = 'pyproject.toml';
@@ -17,10 +16,6 @@ export async function inspect(
   targetFile: string,
   options: types.Options = {},
 ): Promise<MultiProjectResult> {
-  if (process.env[UV_MONITOR_ENABLED_ENV_VAR] !== 'true') {
-    throw new Error(`uv monitor support is not yet available.`);
-  }
-
   const args = [
     'depgraph',
     `--file=${targetFile}`,

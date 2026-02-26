@@ -67,7 +67,6 @@ describe('uv monitor', () => {
       const project = await createProjectFromFixture('uv-project');
       const runEnv = {
         ...env,
-        SNYK_INTERNAL_UV_MONITOR_ENABLED: 'true',
         XDG_CONFIG_HOME: project.path(),
       };
 
@@ -129,51 +128,6 @@ describe('uv monitor', () => {
   );
 
   it('does not monitor uv projects when the feature flag is disabled', async () => {
-    server.setFeatureFlag('enableUvCLI', false);
-
-    const project = await createProjectFromFixture('uv-project');
-
-    const { code } = await runSnykCLI('monitor --file=uv.lock', {
-      env: {
-        ...env,
-        SNYK_INTERNAL_UV_MONITOR_ENABLED: 'true',
-        XDG_CONFIG_HOME: project.path(),
-      },
-      cwd: project.path(),
-    });
-
-    expect(code).not.toEqual(0);
-
-    const monitorRequests = server
-      .getRequests()
-      .filter((request) => /\/monitor\/[^/]+\/graph/.test(request.url));
-
-    expect(monitorRequests).toHaveLength(0);
-  });
-
-  it('does not monitor uv projects when the env var is not set', async () => {
-    server.setFeatureFlag('enableUvCLI', true);
-
-    const project = await createProjectFromFixture('uv-project');
-
-    const { code } = await runSnykCLI('monitor --file=uv.lock', {
-      env: {
-        ...env,
-        XDG_CONFIG_HOME: project.path(),
-      },
-      cwd: project.path(),
-    });
-
-    expect(code).not.toEqual(0);
-
-    const monitorRequests = server
-      .getRequests()
-      .filter((request) => /\/monitor\/[^/]+\/graph/.test(request.url));
-
-    expect(monitorRequests).toHaveLength(0);
-  });
-
-  it('does not monitor uv projects when both feature flag and env var are disabled', async () => {
     server.setFeatureFlag('enableUvCLI', false);
 
     const project = await createProjectFromFixture('uv-project');
