@@ -2,12 +2,15 @@ import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 import { createFromJSON, DepGraphData } from '@snyk/dep-graph';
 import { CLI } from '@snyk/error-catalog-nodejs-public';
 import { debug as Debug } from 'debug';
+import * as path from 'path';
 import { execGoCommand, GoCommandResult } from '../../go-bridge';
 import { truncateForLog } from '../../utils';
 import * as types from '../types';
 
 export const UV_MONITOR_ENABLED_ENV_VAR = 'SNYK_INTERNAL_UV_MONITOR_ENABLED';
 const debug = Debug('snyk:plugins:uv');
+const UV_LOCKFILE_NAME = 'uv.lock';
+const PYPROJECT_MANIFEST_NAME = 'pyproject.toml';
 
 export async function inspect(
   root: string,
@@ -51,18 +54,19 @@ export async function inspect(
     );
   }
 
+  const resolvedTargetFile = getResolvedTargetFile(targetFile);
+
   const scannedProjects = [
     {
       depGraph: createFromJSON(depGraphData),
-      targetFile,
+      targetFile: resolvedTargetFile,
     },
   ];
 
   return {
     plugin: {
       name: 'snyk-uv-plugin',
-      runtime: process.version,
-      targetFile,
+      targetFile: resolvedTargetFile,
       packageManager: 'pip',
     },
     scannedProjects,
@@ -81,4 +85,13 @@ function extractErrorDetail(result: GoCommandResult): string {
     }
   }
   return result.stderr || 'Unable to process dependency information';
+}
+
+function getResolvedTargetFile(targetFile: string): string {
+  if (path.basename(targetFile) !== UV_LOCKFILE_NAME) {
+    return targetFile;
+  }
+
+  const targetFileDir = path.dirname(targetFile);
+  return path.join(targetFileDir, PYPROJECT_MANIFEST_NAME);
 }

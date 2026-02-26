@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { runSnykCLI } from '../../util/runSnykCLI';
 import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
 import { testIf } from '../../../utils';
 import { createProjectFromFixture } from '../../util/createProject';
-import { getFixturePath } from '../../util/getFixturePath';
 import { getCliBinaryPath } from '../../util/getCliBinaryPath';
+import { getFixturePath } from '../../util/getFixturePath';
 import { getAvailableServerPort } from '../../util/getServerPort';
+import { runSnykCLI } from '../../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60);
 
@@ -94,6 +94,8 @@ describe('uv monitor', () => {
         .filter((request) => /\/monitor\/[^/]+\/graph/.test(request.url));
 
       expect(monitorRequests).toHaveLength(1);
+      expect(monitorRequests[0].body.meta.pluginRuntime).toBeUndefined();
+      expect(monitorRequests[0].body.targetFile).toBe('pyproject.toml');
 
       const depGraphJSON = monitorRequests[0].body.depGraphJSON;
       expect(depGraphJSON).toBeDefined();
