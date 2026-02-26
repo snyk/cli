@@ -10,7 +10,7 @@ The `snyk container sbom` feature requires an internet connection.
 
 ## Usage
 
-`$ snyk container sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--platform=<PLATFORM>] [--exclude-app-vulns] <IMAGE>`
+`$ snyk container sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--platform=<PLATFORM>] [--exclude-app-vulns] [--exclude-node-modules] [--nested-jars-depth=<DEPTH>] [--username=<CONTAINER_REGISTRY_USERNAME>] [--password=<CONTAINER_REGISTRY_PASSWORD>] <IMAGE>`
 
 ## Description
 
@@ -47,7 +47,7 @@ Use this option when your default Organization does not have API entitlement.
 
 If this option is omitted, the default Organization for your account will be used.
 
-This is the `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)&#x20;
+This is the `<ORG_ID>` that is the current preferred Organization in your [Account settings](https://app.snyk.io/account)
 
 Set a default to ensure all newly tested projects are tested under your default Organization. If you need to override the default, use the `--org=<ORG_ID>` option.
 
@@ -72,6 +72,26 @@ Snyk scans and generates an SBOM for operating system dependencies and applicati
 You can disable generation for application dependencies by adding `--exclude-app-vulns`.
 
 For more information about application scanning, see [Detect application vulnerabilities in container images](https://docs.snyk.io/scan-using-snyk/snyk-container/use-snyk-container-from-the-web-ui/detect-application-vulnerabilities-in-container-images)
+
+### `[--exclude-node-modules]`
+
+Allow disabling the scan of `node_modules` directories inside node.js container images.&#x20;
+
+In CLI versions v1.1292.0 and higher, `node_modules` scanning is enabled by default.
+
+When `node_modules` scanning is disabled, Snyk reports vulnerabilities for npm projects sourced from application file pairs: `[package.json, package-lock.json], [package.json, yarn.lock]`.
+
+### `[--nested-jars-depth=<DEPTH>]`
+
+When `app-vulns` is enabled, use the `--nested-jars-depth=n` option to set how many levels of nested jars Snyk is to unpack. Depth must be a number.
+
+### `[--username=<CONTAINER_REGISTRY_USERNAME>]`
+
+Specify a username to use when connecting to a container registry. This is ignored in favor of local Docker binary credentials when Docker is present.
+
+### `[--password=<CONTAINER_REGISTRY_PASSWORD>]`
+
+Specify a password to use when connecting to a container registry. This is ignored in favor of local Docker binary credentials when Docker is present.
 
 ### `<IMAGE>`
 
