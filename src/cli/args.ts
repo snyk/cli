@@ -38,6 +38,8 @@ const DEBUG_DEFAULT_NAMESPACES = [
   'snyk:find-files',
   'snyk:run-test',
   'snyk:prune',
+  'snyk:go-bridge',
+  'snyk:plugins:uv',
   'snyk-nodejs-plugin',
   'snyk-gradle-plugin',
   'snyk-sbt-plugin',

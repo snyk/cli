@@ -1,5 +1,5 @@
-import * as childProcess from 'child_process';
 import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
+import * as childProcess from 'child_process';
 import { EventEmitter } from 'events';
 import { Readable } from 'stream';
 
