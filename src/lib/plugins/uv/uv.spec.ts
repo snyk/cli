@@ -111,9 +111,7 @@ describe('uv plugin', () => {
       { cwd: '.' },
     );
     expect(result.plugin.targetFile).toBe('path/to/pyproject.toml');
-    expect(result.scannedProjects[0].targetFile).toBe(
-      'path/to/pyproject.toml',
-    );
+    expect(result.scannedProjects[0].targetFile).toBe('path/to/pyproject.toml');
   });
 
   it('passes through org when provided in options', async () => {

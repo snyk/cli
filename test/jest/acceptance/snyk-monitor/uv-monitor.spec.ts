@@ -104,7 +104,9 @@ describe('uv monitor', () => {
         },
         targetFile: 'pyproject.toml',
       });
-      expect(monitorRequest.body.targetFileRelativePath).toMatch(/uv\.lock$/);
+      expect(path.basename(monitorRequest.body.targetFileRelativePath)).toBe(
+        'pyproject.toml',
+      );
 
       const depGraphJSON = monitorRequest.body.depGraphJSON;
       expect(depGraphJSON).toBeDefined();
