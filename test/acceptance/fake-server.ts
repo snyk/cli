@@ -17,7 +17,6 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['enablePnpmCli', false],
     ['enableUvCLI', false],
     ['sbomMonitorBeta', false],
-    ['useImprovedDotnetWithoutPublish', false],
     ['scanUsrLibJars', false],
     ['disableContainerMonitorProjectNameFix', false],
     ['show-maven-build-scope', false],

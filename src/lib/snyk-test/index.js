@@ -13,7 +13,6 @@ const {
 } = require('../feature-flags');
 const {
   PNPM_FEATURE_FLAG,
-  DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } = require('../package-managers');
 const { getOrganizationID } = require('../organization');
@@ -39,19 +38,9 @@ async function test(root, options, callback) {
 
 async function executeTest(root, options) {
   let hasPnpmSupport = false;
-  let hasImprovedDotnetWithoutPublish = false;
   let enableMavenDverboseExhaustiveDeps = false;
   try {
     hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
-    if (options['dotnet-runtime-resolution']) {
-      hasImprovedDotnetWithoutPublish = await hasFeatureFlag(
-        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-        options,
-      );
-      if (hasImprovedDotnetWithoutPublish) {
-        options.useImprovedDotnetWithoutPublish = true;
-      }
-    }
   } catch (err) {
     hasPnpmSupport = false;
   }
