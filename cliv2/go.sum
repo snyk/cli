@@ -539,8 +539,8 @@ github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80 h1:JHbnSkgG
 github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80/go.mod h1:Ht5k+sWdi//fM2MjcmBMWjcJmr35iMvQpYlBWnUHL4I=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d h1:xkxHgZ+DT4hRiIEeAEv1JWLJRYV4MbAFvtEUpUkndPA=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d/go.mod h1:ztpTmC4n8MEO0B48M2nL/Q9tb6CkLZ61ZKZbjwhOKRo=
-github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4 h1:NLo25mu6h56KX0bgYAhvrzvMOzxz/L/whqZhiptZfEU=
-github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4/go.mod h1:i/EDskKxg68MtWaIOWFyataAMtcXOb/DQPLxT5jtLRE=
+github.com/snyk/cli-extension-mcp-scan v0.0.0-20260303212715-765446d4e6f9 h1:+2Obp67jsbSxPZYMux1Kz0LCiUH/p9/sNBLF0JoR0nY=
+github.com/snyk/cli-extension-mcp-scan v0.0.0-20260303212715-765446d4e6f9/go.mod h1:CBoONedYRJQ8aiatNzehPNp4S6t/qLqEAKq22b/WTf8=
 github.com/snyk/cli-extension-os-flows v0.0.0-20260217135510-c516a8ddef18 h1:QECRWjjYx3BoL3gMReHL5M9W70IvfTk0x4ucphEkDwc=
 github.com/snyk/cli-extension-os-flows v0.0.0-20260217135510-c516a8ddef18/go.mod h1:+fWqxiaIYf/fkszK5Iao+9sVf3KZUvmHIG7gtSb6eo0=
 github.com/snyk/cli-extension-sbom v0.0.0-20260224160059-19994cac388f h1:BGmZuHXyxlWmqe3qaEH+s7jDps815ZKbA2tEd5zxe8E=
