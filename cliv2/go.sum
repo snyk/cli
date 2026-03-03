@@ -533,8 +533,8 @@ github.com/skeema/knownhosts v1.3.2 h1:EDL9mgf4NzwMXCTfaxSD/o/a5fxDw/xL9nkU28Jjd
 github.com/skeema/knownhosts v1.3.2/go.mod h1:bEg3iQAuw+jyiw+484wwFJoKSLwcfd7fqRy+N0QTiow=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260218133142-7025507e9b78 h1:EHr15xjsoaJz460Zjs0I36nmNKYYmNP8e6JXBNDCZi8=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260218133142-7025507e9b78/go.mod h1:eIq61+KliPjLwhaAZT87FfeyfK/4mJaGP0wqyFtf8pQ=
-github.com/snyk/cli-extension-dep-graph v0.17.1 h1:POWtydM95I/H0XuxbgoDO646o4fun2+GgyWy7pIwsz0=
-github.com/snyk/cli-extension-dep-graph v0.17.1/go.mod h1:ABLEq35vtOsno1+QRWhaNLYQ1oidqovz/DBfLAJ6YC0=
+github.com/snyk/cli-extension-dep-graph v0.21.0 h1:ot7Jwdbopwb5FYmWT0J+fetyzDLEibHSZ2nZBexkcXc=
+github.com/snyk/cli-extension-dep-graph v0.21.0/go.mod h1:lV3AKVpQJ3kWGWjqzX68eCH34LRO5S3itK3PWipmwQM=
 github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80 h1:JHbnSkgGc2oUejjzdWdeTghl0BZV7QamcRuyh7ornVo=
 github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80/go.mod h1:Ht5k+sWdi//fM2MjcmBMWjcJmr35iMvQpYlBWnUHL4I=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d h1:xkxHgZ+DT4hRiIEeAEv1JWLJRYV4MbAFvtEUpUkndPA=
@@ -543,8 +543,8 @@ github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4 h1:NLo
 github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4/go.mod h1:i/EDskKxg68MtWaIOWFyataAMtcXOb/DQPLxT5jtLRE=
 github.com/snyk/cli-extension-os-flows v0.0.0-20260217135510-c516a8ddef18 h1:QECRWjjYx3BoL3gMReHL5M9W70IvfTk0x4ucphEkDwc=
 github.com/snyk/cli-extension-os-flows v0.0.0-20260217135510-c516a8ddef18/go.mod h1:+fWqxiaIYf/fkszK5Iao+9sVf3KZUvmHIG7gtSb6eo0=
-github.com/snyk/cli-extension-sbom v0.0.0-20260210104429-41aece880532 h1:F+V6GFYpYdkawG0EeTZcAdmq8x3Is8YTwMzidhe/2mI=
-github.com/snyk/cli-extension-sbom v0.0.0-20260210104429-41aece880532/go.mod h1:OT3GJa4+cbCV8bq3cKtwe2ELHBHRWQb2DkHdyeG8TL4=
+github.com/snyk/cli-extension-sbom v0.0.0-20260224160059-19994cac388f h1:BGmZuHXyxlWmqe3qaEH+s7jDps815ZKbA2tEd5zxe8E=
+github.com/snyk/cli-extension-sbom v0.0.0-20260224160059-19994cac388f/go.mod h1:SJ624HENWG4yjM6jNuLebTeNsMriozf1LcKhMYVm1aY=
 github.com/snyk/cli-extension-secrets v0.0.0-20260225102140-98e0d8bf295b h1:KzZN4254arIUOTkhb/bYPH82B4sV2HDytxKZrYVVtxw=
 github.com/snyk/cli-extension-secrets v0.0.0-20260225102140-98e0d8bf295b/go.mod h1:ng0OTIfgT/Jq6mThy1kkwIS6Z5uPjE1T/I29VUYThx0=
 github.com/snyk/code-client-go v1.26.1 h1:09g3z462ZxSmXxuH2s13DbKjUPH5ve20af2+RVV/RYo=

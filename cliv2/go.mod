@@ -11,12 +11,12 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260218133142-7025507e9b78
-	github.com/snyk/cli-extension-dep-graph v0.17.1
+	github.com/snyk/cli-extension-dep-graph v0.21.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260217135510-c516a8ddef18
-	github.com/snyk/cli-extension-sbom v0.0.0-20260210104429-41aece880532
+	github.com/snyk/cli-extension-sbom v0.0.0-20260224160059-19994cac388f
 	github.com/snyk/cli-extension-secrets v0.0.0-20260225102140-98e0d8bf295b
 	github.com/snyk/code-client-go v1.26.1
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
