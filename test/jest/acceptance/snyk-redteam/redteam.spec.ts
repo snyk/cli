@@ -318,6 +318,109 @@ describe('snyk redteam (mocked servers only)', () => {
     expect(html).toContain('System Prompt Exfiltration');
   });
 
+  test('`redteam` report includes scan summary', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `redteam --config=${redteamTarget} --experimental`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+
+    const report = JSON.parse(stdout);
+    expect(report.summary).toBeDefined();
+    expect(report.summary.vulnerabilities).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          engine_tag: expect.any(String),
+          slug: expect.any(String),
+          name: expect.any(String),
+          description: expect.any(String),
+          severity: expect.any(String),
+          status: expect.any(String),
+          vulnerable: expect.any(Boolean),
+        }),
+      ]),
+    );
+
+    const vulnerable = report.summary.vulnerabilities.filter(
+      (v: any) => v.vulnerable,
+    );
+    const notVulnerable = report.summary.vulnerabilities.filter(
+      (v: any) => !v.vulnerable,
+    );
+    expect(vulnerable.length).toBeGreaterThan(0);
+    expect(notVulnerable.length).toBeGreaterThan(0);
+  });
+
+  test('`redteam get` report includes scan summary', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `redteam get --experimental --id=59622253-75f3-4439-ac1e-ce94834c5804`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+
+    const report = JSON.parse(stdout);
+    expect(report.summary).toBeDefined();
+    expect(report.summary.vulnerabilities).toHaveLength(2);
+    expect(report.summary.vulnerabilities).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          slug: 'system-prompt-exfiltration',
+          vulnerable: true,
+        }),
+        expect.objectContaining({
+          slug: 'prompt-injection',
+          vulnerable: false,
+        }),
+      ]),
+    );
+  });
+
+  test('`redteam --html` includes summary data in HTML report', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `redteam --config=${redteamTarget} --experimental --html`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+    expect(stdout).toContain('<!doctype html>');
+    expect(stdout).toContain('system-prompt-exfiltration');
+    expect(stdout).toContain('prompt-injection');
+  });
+
+  test('`redteam get --html` includes summary data in HTML report', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `redteam get --experimental --id=59622253-75f3-4439-ac1e-ce94834c5804 --html`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+    expect(stdout).toContain('<!doctype html>');
+    expect(stdout).toContain('system-prompt-exfiltration');
+    expect(stdout).toContain('prompt-injection');
+  });
+
+  test('`redteam --html-file-output` includes summary data in file', async () => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'snyk-redteam-'));
+    const htmlFile = join(tmpDir, 'report.html');
+    const { code } = await runSnykCLI(
+      `redteam --config=${redteamTarget} --experimental --html-file-output=${htmlFile}`,
+      {
+        env,
+      },
+    );
+    expect(code).toEqual(0);
+
+    const html = readFileSync(htmlFile, 'utf-8');
+    expect(html).toContain('system-prompt-exfiltration');
+    expect(html).toContain('prompt-injection');
+  });
+
   test('`redteam get` fails without --id flag', async () => {
     const { code, stdout } = await runSnykCLI(`redteam get --experimental`, {
       env,
