@@ -132,6 +132,10 @@ describe.each(userJourneyWorkflows)(
               {
                 shell: true,
                 cwd: project.path(),
+                env: {
+                  ...env,
+                  GIT_LFS_SKIP_SMUDGE: '1',
+                },
               },
             );
 
@@ -142,6 +146,10 @@ describe.each(userJourneyWorkflows)(
                 {
                   shell: true,
                   cwd: project.path(),
+                  env: {
+                    ...env,
+                    GIT_LFS_SKIP_SMUDGE: '1',
+                  },
                 },
               );
             }
@@ -462,8 +470,6 @@ describe.each(userJourneyWorkflows)(
         ])(
           'run `snyk test` on a $description',
           async ({ fixture, projectFile }) => {
-            server.setFeatureFlag('useImprovedDotnetWithoutPublish', true);
-
             let prerequisite = await runCommand('dotnet', ['--version']).catch(
               function () {
                 return { code: 1, stderr: '', stdout: '' };

@@ -17,7 +17,6 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['enablePnpmCli', false],
     ['enableUvCLI', false],
     ['sbomMonitorBeta', false],
-    ['useImprovedDotnetWithoutPublish', false],
     ['scanUsrLibJars', false],
     ['disableContainerMonitorProjectNameFix', false],
     ['show-maven-build-scope', false],
@@ -771,6 +770,28 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
               },
             },
           ],
+          summary: {
+            vulnerabilities: [
+              {
+                engine_tag: 'OVI-1000',
+                slug: 'system-prompt-exfiltration',
+                name: 'System Prompt Exfiltration',
+                description: 'Tests for system prompt exfiltration.',
+                severity: 'medium',
+                status: 'completed',
+                vulnerable: true,
+              },
+              {
+                engine_tag: 'OVI-1001',
+                slug: 'prompt-injection',
+                name: 'Prompt Injection',
+                description: 'Tests for prompt injection attacks.',
+                severity: 'high',
+                status: 'completed',
+                vulnerable: false,
+              },
+            ],
+          },
         },
       });
     },

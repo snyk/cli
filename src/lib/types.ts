@@ -130,7 +130,6 @@ export interface Options {
   'exclude-unmanaged'?: boolean;
 
   // Feature Flags
-  useImprovedDotnetWithoutPublish?: boolean;
   disableContainerMonitorProjectNameFix?: boolean;
 
   // Plugin configuration options

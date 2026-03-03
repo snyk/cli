@@ -66,7 +66,6 @@ import {
 import {
   PNPM_FEATURE_FLAG,
   UV_FEATURE_FLAG,
-  DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
@@ -204,19 +203,12 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   let hasPnpmSupport = false;
-  let hasImprovedDotnetWithoutPublish = false;
   let enableMavenDverboseExhaustiveDeps = false;
   try {
     hasPnpmSupport = (await hasFeatureFlag(
       PNPM_FEATURE_FLAG,
       options,
     )) as boolean;
-    if (options['dotnet-runtime-resolution']) {
-      hasImprovedDotnetWithoutPublish = (await hasFeatureFlag(
-        DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-        options,
-      )) as boolean;
-    }
   } catch (err) {
     hasPnpmSupport = false;
   }
@@ -251,10 +243,6 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
   if (hasUvSupport) {
     featureFlags.add(UV_FEATURE_FLAG);
-  }
-
-  if (hasImprovedDotnetWithoutPublish) {
-    options.useImprovedDotnetWithoutPublish = true;
   }
 
   const showMavenScope = await isFeatureFlagSupportedForOrg(
