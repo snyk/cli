@@ -196,6 +196,16 @@ export default async function test(
         resArray[i],
       );
       results.push(assign(resArray[i], { path: pathWithOptionalProjectName }));
+
+      const pluginWarningsFact = resArray[i]?.scanResult?.facts?.find(
+        (fact) => fact.type === 'pluginWarnings',
+      );
+      if (pluginWarningsFact?.data?.parameterChecks?.length) {
+        for (const warning of pluginWarningsFact.data.parameterChecks) {
+          console.warn(chalk.yellow(warning));
+        }
+      }
+
       // currently testOpts are identical for each test result returned even if it's for multiple projects.
       // we want to return the project names, so will need to be crafty in a way that makes sense.
       if (!testOpts.projectNames) {

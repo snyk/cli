@@ -1038,6 +1038,75 @@ DepGraph end`,
     });
   });
 
+  describe('container test deprecation warnings', () => {
+    let server: ReturnType<typeof fakeServer>;
+    let env: Record<string, string>;
+
+    beforeAll((done) => {
+      const port = getServerPort(process);
+      const baseApi = '/api/v1';
+      env = {
+        ...process.env,
+        SNYK_API: 'http://localhost:' + port + baseApi,
+        SNYK_HOST: 'http://localhost:' + port,
+        SNYK_TOKEN: '123456789',
+        SNYK_DISABLE_ANALYTICS: '1',
+      };
+      server = fakeServer(baseApi, env.SNYK_TOKEN);
+      server.listen(port, () => {
+        done();
+      });
+    });
+
+    afterEach(() => {
+      server.restore();
+    });
+
+    afterAll((done) => {
+      server.close(() => done());
+    });
+
+    it('should show deprecation warning for --shaded-jars-depth', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+
+      const { stderr } = await runSnykCLI(
+        `container test docker-archive:${TEST_OS_PACKAGES_AND_APP_VULNS_TAR} --shaded-jars-depth=3`,
+        { env },
+      );
+
+      expect(stderr).toContain(
+        '--shaded-jars-depth is deprecated, use --nested-jars-depth instead',
+      );
+    });
+
+    it('should show warning for non-numeric --nested-jars-depth', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+
+      const { stderr } = await runSnykCLI(
+        `container test docker-archive:${TEST_OS_PACKAGES_AND_APP_VULNS_TAR} --nested-jars-depth=true`,
+        { env },
+      );
+
+      expect(stderr).toContain(
+        'Non-numeric inputs for --nested-jars-depth are deprecated, replace with a numeric input',
+      );
+    });
+  });
+
   function assertCliExitCode(
     code: number,
     expectedCode: number,
