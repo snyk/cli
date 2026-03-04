@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -235,6 +236,15 @@ func sendInstrumentation(eng workflow.Engine, instrumentor analytics.Instrumenta
 	if !shallSendInstrumentation(eng.GetConfiguration(), instrumentor) {
 		logger.Print("This CLI call is not instrumented!")
 		return
+	}
+
+	// add temporary static nodejs binary flag, remove once linuxstatic is official
+	staticNodeJsBinaryBool, parseErr := strconv.ParseBool(constants.StaticNodeJsBinary)
+	if parseErr != nil {
+		logger.Print("Failed to parse staticNodeJsBinary:", parseErr)
+	} else {
+		// the legacycli:: prefix is added to maintain compatibility with our monitoring dashboard
+		instrumentor.AddExtension("legacycli::static-nodejs-binary", staticNodeJsBinaryBool)
 	}
 
 	logger.Print("Sending Instrumentation")
