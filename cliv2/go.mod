@@ -11,7 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb
-	github.com/snyk/cli-extension-dep-graph v0.25.0
+	github.com/snyk/cli-extension-dep-graph v0.26.1
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260303212715-765446d4e6f9
