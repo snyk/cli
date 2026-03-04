@@ -5,3 +5,5 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 ### Bug Fixes
 
 * **ui:** Fixed an issue where JSON output was incorrectly printed to stdout when only --json-file-output was specified. ([d6d465d](https://github.com/snyk/snyk/commit/d6d465d3238696e61df472546d3099f84de668dc))
+* **language-server:** Fixed an issue where scans would not trigger when Snyk Code was enabled in IDE settings. ([7567881](https://github.com/snyk/snyk/commit/7567881b387ff3464196c4fd3512d79992ab18a9))
+* **mcp:** Fixed an issue where Snyk rules were not written locally. ([7567881](https://github.com/snyk/snyk/commit/7567881b387ff3464196c4fd3512d79992ab18a9))
