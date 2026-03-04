@@ -17,6 +17,23 @@ describe('uv monitor', () => {
   let env: Record<string, string>;
   const orgId = '55555555-5555-5555-5555-555555555555';
 
+  async function makeProjectOutOfSync(projectPath: string): Promise<void> {
+    const pyprojectPath = `${projectPath}/pyproject.toml`;
+    const pyproject = await fs.promises.readFile(pyprojectPath, 'utf8');
+    const updatedPyproject = pyproject.replace(
+      'urllib3==1.26.15',
+      'urllib3==1.26.14',
+    );
+
+    if (pyproject === updatedPyproject) {
+      throw new Error(
+        'uv-project fixture did not contain expected urllib3 pin to force out-of-sync lockfile',
+      );
+    }
+
+    await fs.promises.writeFile(pyprojectPath, updatedPyproject, 'utf8');
+  }
+
   beforeAll(async () => {
     const port = await getAvailableServerPort(process);
     const baseApi = '/v1';
@@ -135,6 +152,67 @@ describe('uv monitor', () => {
         'urllib3@1.26.15',
         'uv-project@0.1.0',
       ]);
+    },
+  );
+
+  testIf(hasBinary)(
+    'fails by default when uv.lock is out of sync',
+    async () => {
+      server.setFeatureFlag('enableUvCLI', true);
+
+      const project = await createProjectFromFixture('uv-project');
+      await makeProjectOutOfSync(project.path());
+      const runEnv = {
+        ...env,
+        XDG_CONFIG_HOME: project.path(),
+      };
+
+      const { code, stdout, stderr } = await runSnykCLI('monitor --file=uv.lock', {
+        env: runEnv,
+        cwd: project.path(),
+      });
+
+      expect(code).not.toEqual(0);
+      expect(`${stdout}\n${stderr}`).toContain(
+        'uv.lock is out of sync with pyproject.toml',
+      );
+      expect(`${stdout}\n${stderr}`).toContain('--strict-out-of-sync=false');
+
+      const monitorRequests = server
+        .getRequests()
+        .filter((request) => /\/monitor\/[^/]+\/graph/.test(request.url));
+
+      expect(monitorRequests).toHaveLength(0);
+    },
+  );
+
+  testIf(hasBinary)(
+    'succeeds with --strict-out-of-sync=false when uv.lock is out of sync',
+    async () => {
+      server.setFeatureFlag('enableUvCLI', true);
+
+      const project = await createProjectFromFixture('uv-project');
+      await makeProjectOutOfSync(project.path());
+      const runEnv = {
+        ...env,
+        XDG_CONFIG_HOME: project.path(),
+      };
+
+      const { code } = await runSnykCLI(
+        'monitor --file=uv.lock --strict-out-of-sync=false',
+        {
+          env: runEnv,
+          cwd: project.path(),
+        },
+      );
+
+      expect(code).toEqual(0);
+
+      const monitorRequests = server
+        .getRequests()
+        .filter((request) => /\/monitor\/[^/]+\/graph/.test(request.url));
+
+      expect(monitorRequests).toHaveLength(1);
     },
   );
 

@@ -130,6 +130,52 @@ describe('uv plugin', () => {
     );
   });
 
+  it('passes through debug and dev flags when provided in options', async () => {
+    await inspect('.', 'uv.lock', { debug: true, dev: true } as any);
+
+    expect(execGoCommandSpy).toHaveBeenCalledWith(
+      [
+        'depgraph',
+        '--file=uv.lock',
+        '--use-sbom-resolution',
+        '--json',
+        '--debug',
+        '--dev',
+      ],
+      { cwd: '.' },
+    );
+  });
+
+  it('passes through strict-out-of-sync=true when provided in options', async () => {
+    await inspect('.', 'uv.lock', { strictOutOfSync: true } as any);
+
+    expect(execGoCommandSpy).toHaveBeenCalledWith(
+      [
+        'depgraph',
+        '--file=uv.lock',
+        '--use-sbom-resolution',
+        '--json',
+        '--strict-out-of-sync=true',
+      ],
+      { cwd: '.' },
+    );
+  });
+
+  it('passes through strict-out-of-sync=false when provided in options', async () => {
+    await inspect('.', 'uv.lock', { strictOutOfSync: false } as any);
+
+    expect(execGoCommandSpy).toHaveBeenCalledWith(
+      [
+        'depgraph',
+        '--file=uv.lock',
+        '--use-sbom-resolution',
+        '--json',
+        '--strict-out-of-sync=false',
+      ],
+      { cwd: '.' },
+    );
+  });
+
   it('throws when dependency data is invalid JSON', async () => {
     execGoCommandSpy.mockResolvedValueOnce(mockResult('not-json'));
 
