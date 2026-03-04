@@ -132,6 +132,10 @@ describe.each(userJourneyWorkflows)(
               {
                 shell: true,
                 cwd: project.path(),
+                env: {
+                  ...env,
+                  GIT_LFS_SKIP_SMUDGE: '1',
+                },
               },
             );
 
@@ -142,6 +146,10 @@ describe.each(userJourneyWorkflows)(
                 {
                   shell: true,
                   cwd: project.path(),
+                  env: {
+                    ...env,
+                    GIT_LFS_SKIP_SMUDGE: '1',
+                  },
                 },
               );
             }
