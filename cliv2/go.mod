@@ -15,7 +15,7 @@ require (
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260303212715-765446d4e6f9
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260217135510-c516a8ddef18
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260226141356-d3e6262d7eda
 	github.com/snyk/cli-extension-sbom v0.0.0-20260224160059-19994cac388f
 	github.com/snyk/cli-extension-secrets v0.0.0-20260225102140-98e0d8bf295b
 	github.com/snyk/code-client-go v1.26.1
