@@ -10,21 +10,21 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-ai-bom v0.0.0-20260218133142-7025507e9b78
-	github.com/snyk/cli-extension-dep-graph v0.17.1
+	github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb
+	github.com/snyk/cli-extension-dep-graph v0.21.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
-	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260205184045-13a21a9b38c4
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260217135510-c516a8ddef18
-	github.com/snyk/cli-extension-sbom v0.0.0-20260210104429-41aece880532
-	github.com/snyk/cli-extension-secrets v0.0.0-20260203145315-1a9eb913d2f0
+	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260303212715-765446d4e6f9
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260304134842-6c978e646177
+	github.com/snyk/cli-extension-sbom v0.0.0-20260224160059-19994cac388f
+	github.com/snyk/cli-extension-secrets v0.0.0-20260304135222-98b6e07023b7
 	github.com/snyk/code-client-go v1.26.1
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905
-	github.com/snyk/go-application-framework v0.0.0-20260302141548-30b9b6b2d4bf
+	github.com/snyk/go-application-framework v0.0.0-20260304160105-2397ed30f947
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
-	github.com/snyk/snyk-ls v0.0.0-20260304090940-10a6788a163d
+	github.com/snyk/snyk-ls v0.0.0-20260304132829-e6e1af4e34d8
 	github.com/snyk/studio-mcp v1.6.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10

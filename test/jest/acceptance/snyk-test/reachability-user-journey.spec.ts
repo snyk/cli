@@ -184,6 +184,42 @@ describe('snyk test --reachability', () => {
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });
 
+  test('renders a warning if no files were uploaded', async () => {
+    const pathWithNoValidFiles = join(
+      __dirname,
+      '../../../fixtures/npm/with-vulnerable-lodash-dep',
+    );
+    const { stdout, code, stderr } = await runSnykCLI(
+      `test ${TEMP_LOCAL_PATH} --reachability --source-dir=${pathWithNoValidFiles} --json`,
+      {
+        env: {
+          ...process.env,
+          ...ReachabilityIntegrationEnv.env,
+        },
+      },
+    );
+
+    expect(stdout).not.toBe('');
+    expect(stderr).toContainText(
+      'failed to upload source code for reachability analysis',
+    );
+
+    const jsonOutput = JSON.parse(stdout);
+
+    expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
+    expect(jsonOutput.ok).toBeFalsy();
+
+    const momentVuln = jsonOutput.vulnerabilities.find(
+      (v) => v.id === 'npm:moment:20161019',
+    );
+    expect(momentVuln.alternativeIds).toEqual(['SNYK-JS-MOMENT-10164']);
+    expect(momentVuln.proprietary).toEqual(true);
+    expect(momentVuln.isDisputed).toEqual(false);
+    expect(momentVuln.severityBasedOn).toEqual('CVSS');
+
+    expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+  });
+
   test('works with --sarif', async () => {
     const { stdout, code } = await runSnykCLI(
       `test ${TEMP_LOCAL_PATH} --reachability --sarif`,

@@ -470,8 +470,6 @@ describe.each(userJourneyWorkflows)(
         ])(
           'run `snyk test` on a $description',
           async ({ fixture, projectFile }) => {
-            server.setFeatureFlag('useImprovedDotnetWithoutPublish', true);
-
             let prerequisite = await runCommand('dotnet', ['--version']).catch(
               function () {
                 return { code: 1, stderr: '', stdout: '' };

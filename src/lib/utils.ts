@@ -1,6 +1,7 @@
 import * as cloneDeep from 'lodash.clonedeep';
 import { DepGraph } from '@snyk/dep-graph';
 import { ArgsOptions, MethodArgs } from '../cli/args';
+import { MAX_STRING_LENGTH } from './constants';
 
 export function countPathsToGraphRoot(graph: DepGraph): number {
   return graph
@@ -27,4 +28,10 @@ export function obfuscateArgs(
   }
 
   return obfuscatedArgs;
+}
+
+export function truncateForLog(value: string): string {
+  return value.length > MAX_STRING_LENGTH
+    ? value.slice(0, MAX_STRING_LENGTH) + '...(log line truncated)'
+    : value;
 }
