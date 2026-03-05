@@ -70,7 +70,6 @@ import {
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 import { getOrganizationID } from '../../../lib/organization';
-import { UV_MONITOR_ENABLED_ENV_VAR } from '../../../lib/plugins/uv';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -213,9 +212,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     hasPnpmSupport = false;
   }
 
-  const hasUvSupport =
-    process.env[UV_MONITOR_ENABLED_ENV_VAR] === 'true' &&
-    (await hasFeatureFlagOrDefault(UV_FEATURE_FLAG, options));
+  const hasUvSupport = await hasFeatureFlagOrDefault(UV_FEATURE_FLAG, options);
 
   try {
     const args = options['_doubleDashArgs'] || [];
