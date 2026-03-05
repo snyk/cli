@@ -244,7 +244,7 @@ commands:
       - run:
           name: Generate Scoop cache key
           shell: bash.exe
-          command: echo "maven@3.8.2 make@4.4.1 gradle@8.1.1 python@3.12.8 dotnet-sdk@8.0.100 nodejs@$(head .nvmrc)" > ~/scoop-packages.txt
+          command: echo "maven@3.8.9 make@4.4.1 gradle@8.1.1 python@3.12.8 dotnet-sdk@8.0.100 nodejs@$(head .nvmrc)" > ~/scoop-packages.txt
       - restore_cache:
           name: Restoring Scoop cache
           keys:
@@ -256,14 +256,12 @@ commands:
           command: |
             set -euo pipefail
             export PATH="$HOME/scoop/shims:$PATH"
-            scoop uninstall nodejs || true
-            scoop bucket add main
-            scoop install main/maven@3.8.2
-            scoop install main/make@4.4.1
-            scoop install main/gradle@8.1.1
-            scoop install main/python@3.12.8
-            scoop install main/dotnet-sdk@8.0.100
-            scoop install main/nodejs@$(head .nvmrc)
+            scoop install maven@3.8.9
+            scoop install make@4.4.1
+            scoop install gradle@8.1.1
+            scoop install python@3.12.8
+            scoop install dotnet-sdk@8.0.100
+            scoop install nodejs@$(head .nvmrc)
       - save_cache:
           name: Saving Scoop cache
           key: scoop-cache-full-v1-{{ arch }}-{{ checksum "~/scoop-packages.txt" }}
@@ -337,8 +335,7 @@ commands:
           command: |
             set -euo pipefail
             export PATH="$HOME/scoop/shims:$PATH"
-            scoop bucket add main
-            scoop install main/make@4.4.1
+            scoop install make@4.4.1
       - save_cache:
           name: Saving Scoop cache
           key: scoop-cache-make-v1-{{ arch }}
