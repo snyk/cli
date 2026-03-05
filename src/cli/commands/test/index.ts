@@ -44,10 +44,7 @@ import {
 } from '../../../lib/spotlight-vuln-notification';
 import iacTestCommand from './iac';
 import * as iacTestCommandV2 from './iac/v2';
-import {
-  hasFeatureFlag,
-  hasFeatureFlagOrDefault,
-} from '../../../lib/feature-flags';
+import { hasFeatureFlagOrDefault } from '../../../lib/feature-flags';
 import {
   SCAN_USR_LIB_JARS_FEATURE_FLAG,
   CONTAINER_CLI_APP_VULNS_ENABLED_FEATURE_FLAG,
@@ -76,8 +73,8 @@ export default async function test(
   const options = setDefaultTestOptions(originalOptions);
 
   if (originalOptions.iac) {
-    const iacNewEngine = await hasFeatureFlag('iacNewEngine', options);
-    const iacIntegratedExperience = await hasFeatureFlag(
+    const iacNewEngine = await hasFeatureFlagOrDefault('iacNewEngine', options);
+    const iacIntegratedExperience = await hasFeatureFlagOrDefault(
       'iacIntegratedExperience',
       options,
     );
