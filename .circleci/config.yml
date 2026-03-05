@@ -233,30 +233,48 @@ commands:
                   New-Item -Path $profile -ItemType File -Force
                   '$Env:Path = "<< parameters.extraction_path >>\go\bin;" + $Env:Path' >> $profile
 
+  install-scoop:
+    steps:
+      - restore_cache:
+          name: Restoring Scoop cache
+          keys:
+            - scoop-cache-v5-{{ arch }}
+      - run:
+          name: Install Scoop
+          command: ./scripts/install-scoop.ps1
+      - save_cache:
+          name: Saving Scoop cache
+          key: scoop-cache-v5-{{ arch }}
+          paths:
+            - ~/scoop
+
   install-deps-windows-full:
     steps:
-      - run:
-          name: Configure Chocolatey cache location
-          shell: bash.exe
-          command: |
-            choco config set cacheLocation "C:\choco-cache"
       - restore_cache:
-          name: Restoring Chocolatey cache
+          name: Restoring Scoop cache
           keys:
-            - chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - scoop-cache-full-v5-{{ arch }}
+      - install-scoop
       - run:
           name: Install Windows dependencies
           shell: bash.exe
+          environment:
+            SCOOP_CACHE: "C:\\scoop-cache"
           command: |
-            choco uninstall nodejs -y
-            choco uninstall nodejs.install -y
-            choco install .circleci/chocolatey.config --no-progress -y
-            choco install nodejs --version=$(head .nvmrc) --no-progress -y
+            set -euo pipefail
+            scoop uninstall nodejs || true
+            scoop bucket add main
+            scoop install main/maven@3.8.2
+            scoop install main/make@4.4.1
+            scoop install main/gradle@8.1.1
+            scoop install main/python@3.12.8
+            scoop install main/dotnet-sdk@8.0.100
+            scoop install main/nodejs@$(head .nvmrc)
       - save_cache:
-          name: Saving Chocolatey cache
-          key: chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          name: Saving Scoop cache
+          key: scoop-cache-full-v5-{{ arch }}
           paths:
-            - C:\choco-cache
+            - C:\scoop-cache
       - install-deps-python:
           os: win
       - run:
@@ -314,25 +332,25 @@ commands:
 
   install-deps-windows-make:
     steps:
-      - run:
-          name: Configure Chocolatey cache location
-          shell: bash.exe
-          command: |
-            choco config set cacheLocation "C:\choco-cache"
       - restore_cache:
-          name: Restoring Chocolatey cache
+          name: Restoring Scoop cache
           keys:
-            - chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - scoop-cache-make-v5-{{ arch }}
+      - install-scoop
       - run:
           name: Install Windows dependencies
+          environment:
+            SCOOP_CACHE: "C:\\scoop-cache"
           shell: bash.exe
           command: |
-            choco install make --no-progress -y
+            set -euo pipefail
+            scoop bucket add main
+            scoop install main/make@4.4.1
       - save_cache:
-          name: Saving Chocolatey cache
-          key: chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          name: Saving Scoop cache
+          key: scoop-cache-make-v5-{{ arch }}
           paths:
-            - C:\choco-cache
+            - C:\scoop-cache
       - install-deps-python:
           os: win
       - install-deps-windows-signing
@@ -907,7 +925,6 @@ workflows:
           dont_skip_tests: 0
           shards: 8
           shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
-          pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
 
       - sign:
           name: sign windows amd64
