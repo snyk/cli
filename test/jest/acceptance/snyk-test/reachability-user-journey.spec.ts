@@ -120,7 +120,8 @@ describe('snyk test --reachability', () => {
     const jsonOutput = JSON.parse(stdout);
 
     const areAllVulnsReachable = jsonOutput.vulnerabilities.every(
-      (vuln: { reachability: string }) => vuln.reachability === 'reachable',
+      (vuln: { reachability: string; type: string }) =>
+        vuln.reachability === 'reachable' || vuln.type === 'license', // license issues are considered always reachable even without reachability metadata
     );
 
     expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);
