@@ -59,6 +59,7 @@ import (
 	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
+	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/ui"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -86,6 +87,7 @@ const (
 	disable_analytics_flag string = "DISABLE_ANALYTICS"
 	debug_level_flag       string = "log-level"
 	integrationNameFlag    string = "integration-name"
+	retryAttemptsFlag      string = "retry-attempts"
 )
 
 type JsonErrorStruct struct {
@@ -118,6 +120,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.PREVIEW_FEATURES_ENABLED, []string{"snyk_preview"})
 	config.AddAlternativeKeys(configuration.LOG_LEVEL, []string{debug_level_flag})
 	config.AddAlternativeKeys(configuration.INTEGRATION_NAME, []string{integrationNameFlag})
+	config.AddAlternativeKeys(middleware.ConfigurationKeyRetryAttempts, []string{"snyk_retry_attempts", retryAttemptsFlag})
 }
 
 func getFullCommandString(cmd *cobra.Command) string {
@@ -360,6 +363,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalFLags.Bool(disable_analytics_flag, false, "")
 	globalFLags.String(debug_level_flag, "debug", "")
 	globalFLags.String(integrationNameFlag, "", "")
+	globalFLags.Int(retryAttemptsFlag, -1, "")
 	return globalFLags
 }
 
