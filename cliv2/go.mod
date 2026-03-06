@@ -15,13 +15,13 @@ require (
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
 	github.com/snyk/cli-extension-mcp-scan v0.0.0-20260303212715-765446d4e6f9
-	github.com/snyk/cli-extension-os-flows v0.0.0-20260304134842-6c978e646177
+	github.com/snyk/cli-extension-os-flows v0.0.0-20260306115903-79ae783267c1
 	github.com/snyk/cli-extension-sbom v0.0.0-20260224160059-19994cac388f
 	github.com/snyk/cli-extension-secrets v0.0.0-20260305092220-defe1129df99
 	github.com/snyk/code-client-go v1.26.1
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905
-	github.com/snyk/go-application-framework v0.0.0-20260304160105-2397ed30f947
+	github.com/snyk/go-application-framework v0.0.0-20260305172259-b33b95a28a1a
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20260304132829-e6e1af4e34d8
@@ -42,6 +42,7 @@ require (
 	cloud.google.com/go/monitoring v1.24.3 // indirect
 	cloud.google.com/go/storage v1.59.0 // indirect
 	dario.cat/mergo v1.0.2 // indirect
+	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.30.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.54.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.54.0 // indirect
