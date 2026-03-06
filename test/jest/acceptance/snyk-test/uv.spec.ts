@@ -18,7 +18,10 @@ describe('uv lock acceptance', () => {
   async function makeProjectOutOfSync(projectPath: string): Promise<void> {
     const pyprojectPath = `${projectPath}/pyproject.toml`;
     const pyproject = await fs.promises.readFile(pyprojectPath, 'utf8');
-    const updatedPyproject = pyproject.replace('urllib3==2.0.7', 'urllib3==2.0.6');
+    const updatedPyproject = pyproject.replace(
+      'urllib3==2.0.7',
+      'urllib3==2.0.6',
+    );
 
     if (pyproject === updatedPyproject) {
       throw new Error(
@@ -256,13 +259,16 @@ describe('uv lock acceptance', () => {
 
     const project = await createProject('uv-acceptance');
     await makeProjectOutOfSync(project.path());
-    const { code } = await runSnykCLI('test --json --strict-out-of-sync=false', {
-      cwd: project.path(),
-      env: {
-        ...env,
-        XDG_CONFIG_HOME: project.path(),
+    const { code } = await runSnykCLI(
+      'test --json --strict-out-of-sync=false',
+      {
+        cwd: project.path(),
+        env: {
+          ...env,
+          XDG_CONFIG_HOME: project.path(),
+        },
       },
-    });
+    );
 
     expect(code).toEqual(0);
 
@@ -290,9 +296,7 @@ describe('uv lock acceptance', () => {
     const paths = requests.map((req) => req.path);
 
     expect(paths).toContain('/v1/cli-config/feature-flags/enableUvCLI');
-    expect(paths).toContain(
-      `/hidden/orgs/${orgId}/sboms/convert`,
-    );
+    expect(paths).toContain(`/hidden/orgs/${orgId}/sboms/convert`);
     expect(paths).toContain(`/rest/orgs/${orgId}/tests`);
   });
 

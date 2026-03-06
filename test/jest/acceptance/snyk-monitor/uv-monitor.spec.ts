@@ -167,10 +167,13 @@ describe('uv monitor', () => {
         XDG_CONFIG_HOME: project.path(),
       };
 
-      const { code, stdout, stderr } = await runSnykCLI('monitor --file=uv.lock', {
-        env: runEnv,
-        cwd: project.path(),
-      });
+      const { code, stdout, stderr } = await runSnykCLI(
+        'monitor --file=uv.lock',
+        {
+          env: runEnv,
+          cwd: project.path(),
+        },
+      );
 
       expect(code).not.toEqual(0);
       expect(`${stdout}\n${stderr}`).toContain(
