@@ -198,7 +198,8 @@ $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go:
 
 $(CACHE_DIR)/prepare-3rd-party-licenses:
 	@echo "$(LOG_PREFIX) Preparing 3rd Party Licenses"
-	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) scripts/prepare_licenses.sh > $(CACHE_DIR)/prepare-3rd-party-licenses 2> /dev/null
+	@GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) scripts/prepare_licenses.sh > $(CACHE_DIR)/prepare-3rd-party-licenses 2> $(CACHE_DIR)/prepare-3rd-party-licenses.log \
+		|| (cat $(CACHE_DIR)/prepare-3rd-party-licenses.log && exit 1)
 
 .PHONY: generate
 generate: $(WORKING_DIR)/internal/httpauth/generated/httpauth_generated_mock.go $(WORKING_DIR)/internal/httpauth/generated/spnego_generated_mock.go
