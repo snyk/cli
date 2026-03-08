@@ -33,6 +33,13 @@ interface IgnoreTests {
   pathToTest: string;
 }
 
+interface ValidProjectTest {
+  name: string;
+  project?: string;
+  expectedExitCode: number;
+  expectedErrorCatalogError?: string;
+}
+
 const projectRoot = resolve(__dirname, '../../../..');
 const sarifSchema = require('../../../schemas/sarif-schema-2.1.0.json');
 const EXIT_CODE_SUCCESS = 0;
@@ -288,6 +295,7 @@ describe('snyk code test', () => {
 
         it('should fail with correct exit code - when testing empty project', async () => {
           const { stdout, stderr, code } = await runSnykCLI(
+            // NOTE - this isn't actually an empty project, it contains hidden files
             `code test ${emptyProject}`,
             {
               env: {
@@ -299,6 +307,10 @@ describe('snyk code test', () => {
 
           expect(stderr).toBe('');
           expect(stdout).toContain('snyk-code-0006');
+          // NOTE - this passes in the native implementation as `emptyProject`
+          // contains hidden files that are not supported NOT because it is an empty project
+          // the native implementation is tested in `valid project support` tests
+          // this test is kept for legacy implementation testing
           expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
         });
 
@@ -943,6 +955,66 @@ describe('snyk code test', () => {
               expect(codeTestCmd.stdout).not.toContain(ignoredFile2);
             });
           });
+
+          const validProjectTestList: ValidProjectTest[] = [
+            {
+              name: 'returns SNYK-CODE-0006 with unsupported files',
+              project: resolve(
+                'test/fixtures/sast/no-projects-found/unsupportedFilesOnly',
+              ),
+              expectedExitCode: EXIT_CODE_NO_SUPPORTED_FILES,
+              expectedErrorCatalogError: 'SNYK-CODE-0006',
+            },
+            {
+              name: 'returns SNYK-CODE-0006 with empty project',
+              expectedExitCode: EXIT_CODE_NO_SUPPORTED_FILES,
+              expectedErrorCatalogError: 'SNYK-CODE-0006',
+            },
+            {
+              name: 'does not error with project containing unparseable file',
+              project: resolve(
+                'test/fixtures/sast/no-projects-found/nonParseableOnly',
+              ),
+              expectedExitCode: EXIT_CODE_SUCCESS,
+            },
+            {
+              name: 'does not error with project containing valid and unparseable file',
+              project: resolve(
+                'test/fixtures/sast/no-projects-found/parseableAndNonParseable',
+              ),
+              expectedExitCode: EXIT_CODE_SUCCESS,
+            },
+          ];
+
+          describe.each(validProjectTestList)(
+            'valid project support',
+            ({
+              name,
+              project,
+              expectedExitCode,
+              expectedErrorCatalogError,
+            }) => {
+              it(name, async () => {
+                if (!project) {
+                  project = await makeTmpDirectory();
+                }
+
+                const codeTestCmd = await runSnykCLI(`code test ${project}`, {
+                  env: {
+                    ...process.env,
+                    ...integrationEnv,
+                  },
+                });
+
+                expect(codeTestCmd.code).toEqual(expectedExitCode);
+                if (expectedErrorCatalogError) {
+                  expect(codeTestCmd.stdout).toContain(
+                    expectedErrorCatalogError,
+                  );
+                }
+              });
+            },
+          );
         }
       });
     },
