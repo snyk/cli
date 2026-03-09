@@ -415,13 +415,20 @@ export async function runTest(
       throw new DockerImageNotFoundError(root);
     }
 
+    let catalogError: ProblemError | undefined;
+    if (error instanceof ProblemError || error.isErrorCatalogError) {
+      catalogError = error as ProblemError;
+    } else {
+      catalogError = error.errorCatalog;
+    }
+
     throw new FailedToRunTestError(
       error.userMessage ||
         error.message ||
         `Failed to test ${projectType} project`,
       error.code,
       error.innerError,
-      error instanceof ProblemError ? error : error.errorCatalog,
+      catalogError,
     );
   } finally {
     spinner.clear<void>(spinnerLbl)();
