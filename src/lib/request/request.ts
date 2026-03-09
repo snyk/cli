@@ -203,11 +203,16 @@ export async function makeRequest(
             const preserveMethod =
               res.statusCode !== undefined &&
               METHOD_PRESERVING_REDIRECTS.includes(res.statusCode);
+            const redirectOptions = { ...reqOptions, agent: newAgent };
+            if (!preserveMethod) {
+              delete redirectOptions.headers!['content-length'];
+              delete redirectOptions.headers!['content-encoding'];
+            }
             return sendRequest(
               preserveMethod ? reqMethod : 'get',
               redirectUrl,
               preserveMethod ? reqData : null,
-              { ...reqOptions, agent: newAgent },
+              redirectOptions,
             );
           }
 
