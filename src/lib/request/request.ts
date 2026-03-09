@@ -213,16 +213,28 @@ export async function makeRequest(
             const preserveMethod =
               res.statusCode !== undefined &&
               METHOD_PRESERVING_REDIRECTS.includes(res.statusCode);
-            const redirectOptions = { ...reqOptions, agent: newAgent };
+            const redirectHeaders = { ...reqOptions.headers };
             if (!preserveMethod) {
-              delete redirectOptions.headers!['content-length'];
-              delete redirectOptions.headers!['content-encoding'];
+              delete redirectHeaders['content-length'];
+              delete redirectHeaders['content-encoding'];
             }
-            // Strip auth headers on cross-origin redirects to avoid leaking credentials.
             if (parsedRedirect.host !== parsedOriginal.host) {
-              delete redirectOptions.headers!['authorization'];
-              delete redirectOptions.headers!['session-token'];
+              const sensitiveHeaders = [
+                'authorization',
+                'session-token',
+                'cookie',
+                'x-api-key',
+                'x-snyk-token',
+              ];
+              for (const h of sensitiveHeaders) {
+                delete redirectHeaders[h];
+              }
             }
+            const redirectOptions = {
+              ...reqOptions,
+              agent: newAgent,
+              headers: redirectHeaders,
+            };
             return sendRequest(
               preserveMethod ? reqMethod : 'get',
               redirectUrl,
