@@ -141,6 +141,8 @@ function setupRequest(payload: Payload) {
 }
 
 const REDIRECT_CODES = [301, 302, 303, 307, 308];
+// 307/308 require preserving the original method and body per RFC 9110.
+const METHOD_PRESERVING_REDIRECTS = [307, 308];
 const MAX_REDIRECTS = 5;
 
 export async function makeRequest(
@@ -198,10 +200,15 @@ export async function makeRequest(
               parsedRedirect.protocol === 'http:'
                 ? new http.Agent({ keepAlive: false })
                 : new https.Agent({ keepAlive: false });
-            return sendRequest('get', redirectUrl, null, {
-              ...reqOptions,
-              agent: newAgent,
-            });
+            const preserveMethod =
+              res.statusCode !== undefined &&
+              METHOD_PRESERVING_REDIRECTS.includes(res.statusCode);
+            return sendRequest(
+              preserveMethod ? reqMethod : 'get',
+              redirectUrl,
+              preserveMethod ? reqData : null,
+              { ...reqOptions, agent: newAgent },
+            );
           }
 
           resolve({ res, body: respBody });
