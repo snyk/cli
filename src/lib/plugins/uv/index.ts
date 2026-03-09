@@ -23,9 +23,23 @@ export async function inspect(
     '--use-sbom-resolution',
     '--json',
   ];
-  const org = (options as types.Options & { org?: string | null }).org;
+  const {
+    org,
+    debug: debugEnabled,
+    dev,
+    strictOutOfSync,
+  } = options as types.Options & { org?: string | null };
   if (org) {
     args.push(`--org=${org}`);
+  }
+  if (debugEnabled) {
+    args.push('--debug');
+  }
+  if (dev) {
+    args.push('--dev');
+  }
+  if (strictOutOfSync !== undefined) {
+    args.push(`--strict-out-of-sync=${strictOutOfSync}`);
   }
 
   const result = await execGoCommand(args, { cwd: root });
