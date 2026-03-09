@@ -47,7 +47,7 @@ test('request calls needle as expected and returns status code and body', (t) =>
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
@@ -85,7 +85,7 @@ test('request to localhost calls needle as expected', (t) => {
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
@@ -124,7 +124,7 @@ test('request with timeout calls needle as expected', (t) => {
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 100000, // provided
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
@@ -166,7 +166,7 @@ test('request with query string calls needle as expected', (t) => {
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
@@ -205,7 +205,7 @@ test('request with json calls needle as expected', (t) => {
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 300000, // default
             json: false, // provided
             agent: sinon.match.instanceOf(http.Agent),
@@ -247,7 +247,7 @@ test('request with custom header calls needle as expected', (t) => {
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
@@ -286,7 +286,7 @@ test('request with https proxy calls needle as expected', (t) => {
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.truthy,
@@ -335,7 +335,7 @@ test('request with http proxy calls needle as expected', (t) => {
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.truthy,
@@ -375,7 +375,7 @@ test('request with no proxy calls needle as expected', (t) => {
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
@@ -414,7 +414,7 @@ test('request with insecure calls needle as expected', (t) => {
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
@@ -471,7 +471,7 @@ test('request calls needle as expected and will not update HTTP to HTTPS if envv
               'content-encoding': undefined, // should not set when no data
               'content-length': undefined, // should not be set when no data
             }),
-            follow_max: 5, // default
+            follow_max: 0, // needle's redirect following is disabled; we handle redirects manually
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
