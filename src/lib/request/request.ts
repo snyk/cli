@@ -188,7 +188,10 @@ export async function makeRequest(
             redirectsLeft > 0
           ) {
             redirectsLeft--;
-            const redirectUrl = new URL(res.headers.location, reqUrl).toString();
+            const redirectUrl = new URL(
+              res.headers.location,
+              reqUrl,
+            ).toString();
             debug('following redirect to %s', redirectUrl);
             const parsedRedirect = parse(redirectUrl);
             const newAgent =
