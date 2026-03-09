@@ -190,12 +190,22 @@ export async function makeRequest(
             redirectsLeft > 0
           ) {
             redirectsLeft--;
-            const redirectUrl = new URL(
-              res.headers.location,
-              reqUrl,
-            ).toString();
+
+            let redirectUrl: string;
+            try {
+              redirectUrl = new URL(
+                res.headers.location,
+                reqUrl,
+              ).toString();
+            } catch (e) {
+              return reject(
+                new Error(`Invalid redirect Location: ${res.headers.location}`),
+              );
+            }
+
             debug('following redirect to %s', redirectUrl);
             const parsedRedirect = parse(redirectUrl);
+            const parsedOriginal = parse(reqUrl);
             const newAgent =
               parsedRedirect.protocol === 'http:'
                 ? new http.Agent({ keepAlive: false })
@@ -207,6 +217,11 @@ export async function makeRequest(
             if (!preserveMethod) {
               delete redirectOptions.headers!['content-length'];
               delete redirectOptions.headers!['content-encoding'];
+            }
+            // Strip auth headers on cross-origin redirects to avoid leaking credentials.
+            if (parsedRedirect.host !== parsedOriginal.host) {
+              delete redirectOptions.headers!['authorization'];
+              delete redirectOptions.headers!['session-token'];
             }
             return sendRequest(
               preserveMethod ? reqMethod : 'get',
