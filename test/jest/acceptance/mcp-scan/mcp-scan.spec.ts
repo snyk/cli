@@ -3,12 +3,12 @@ import { isWindowsOperatingSystem, testIf } from '../../../utils';
 
 jest.setTimeout(1000 * 60 * 5);
 
-describe('mcp-scan command', () => {
+describe('agent-scan command', () => {
   testIf(!isWindowsOperatingSystem() && process.platform !== 'linux')(
-    'invokes mcp-scan and prints invariant version text',
+    'invokes agent-scan and prints invariant version text',
     async () => {
       const { stdout, stderr } = await runSnykCLI(
-        'mcp-scan --experimental --client-id=6e31e1ce-1d84-45c4-b0e3-d63008548dbb',
+        'agent-scan --experimental --client-id=6e31e1ce-1d84-45c4-b0e3-d63008548dbb',
         {
           env: {
             ...process.env,
@@ -19,7 +19,7 @@ describe('mcp-scan command', () => {
       );
 
       const output = `${stdout}\n${stderr}`;
-      expect(output).toContain('Invariant MCP-scan v');
+      expect(output).toContain('Snyk Agent Scan v');
     },
   );
 });
