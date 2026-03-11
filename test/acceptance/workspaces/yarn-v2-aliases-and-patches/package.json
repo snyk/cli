@@ -1,0 +1,9 @@
+{
+  "name": "yarn-v2-aliases-and-patches",
+  "version": "1.0.0",
+  "packageManager": "yarn@4.9.1",
+  "dependencies": {
+    "lodash-old": "npm:lodash@4.17.21",
+    "axios-old": "npm:axios@0.21.1"
+  }
+}
