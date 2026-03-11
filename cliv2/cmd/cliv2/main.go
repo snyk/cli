@@ -18,12 +18,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli-extension-agent-scan/pkg/agentscan"
 	"github.com/snyk/cli-extension-ai-bom/pkg/aibom"
 	"github.com/snyk/cli-extension-ai-bom/pkg/redteam"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
-	"github.com/snyk/cli-extension-mcp-scan/pkg/mcpscan"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/cli-extension-secrets/pkg/secrets"
@@ -532,7 +532,7 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration) 
 	engine.AddExtensionInitializer(code.Init)
 	engine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
 	engine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
-	engine.AddExtensionInitializer(mcpscan.Init)
+	engine.AddExtensionInitializer(agentscan.Init)
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
 		engine.AddExtensionInitializer(secrets.Init)

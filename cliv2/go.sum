@@ -531,6 +531,10 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skeema/knownhosts v1.3.2 h1:EDL9mgf4NzwMXCTfaxSD/o/a5fxDw/xL9nkU28JjdBg=
 github.com/skeema/knownhosts v1.3.2/go.mod h1:bEg3iQAuw+jyiw+484wwFJoKSLwcfd7fqRy+N0QTiow=
+github.com/snyk/cli-extension-agent-scan v0.0.0-20260311112131-54eb1cf063fa h1:v3W/PDxRmYyEBJK5b/xIl9rt4ccyD7Ixh1NcGAWU6Ok=
+github.com/snyk/cli-extension-agent-scan v0.0.0-20260311112131-54eb1cf063fa/go.mod h1:+Znlgu2v7sOTNAVjsoldFjDZUIo8tpdKnFlMptZHzz0=
+github.com/snyk/cli-extension-agent-scan v0.0.0-20260311142730-33246140f242 h1:6ThLg7wqBtzeoc86Yj52KRi9pnC27vzYAQ4E4/Hb2Kc=
+github.com/snyk/cli-extension-agent-scan v0.0.0-20260311142730-33246140f242/go.mod h1:+Znlgu2v7sOTNAVjsoldFjDZUIo8tpdKnFlMptZHzz0=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb h1:ZgBgiMMtY8XK8WJZpmnlt08wKPMitDEU1TS99OK+k8A=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb/go.mod h1:eIq61+KliPjLwhaAZT87FfeyfK/4mJaGP0wqyFtf8pQ=
 github.com/snyk/cli-extension-dep-graph v0.26.1 h1:aOov0GvCuvNbrkkk/CWggXFIIrFcBmRkNyE0yTMsTrc=
@@ -539,8 +543,6 @@ github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80 h1:JHbnSkgG
 github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80/go.mod h1:Ht5k+sWdi//fM2MjcmBMWjcJmr35iMvQpYlBWnUHL4I=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d h1:xkxHgZ+DT4hRiIEeAEv1JWLJRYV4MbAFvtEUpUkndPA=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d/go.mod h1:ztpTmC4n8MEO0B48M2nL/Q9tb6CkLZ61ZKZbjwhOKRo=
-github.com/snyk/cli-extension-mcp-scan v0.0.0-20260303212715-765446d4e6f9 h1:+2Obp67jsbSxPZYMux1Kz0LCiUH/p9/sNBLF0JoR0nY=
-github.com/snyk/cli-extension-mcp-scan v0.0.0-20260303212715-765446d4e6f9/go.mod h1:CBoONedYRJQ8aiatNzehPNp4S6t/qLqEAKq22b/WTf8=
 github.com/snyk/cli-extension-os-flows v0.0.0-20260306115903-79ae783267c1 h1:CR4E/6MeRNpFhO6huU0qk0WkUAp3kwJr9Y3jMJE8zfY=
 github.com/snyk/cli-extension-os-flows v0.0.0-20260306115903-79ae783267c1/go.mod h1:DREH8r1EdIMSDNTdcG1WDvXQMzdyMRGaQejQdEc8s4c=
 github.com/snyk/cli-extension-sbom v0.0.0-20260310155620-07d1927f26ea h1:rBIfTmKT1B1Qe6taCO55MfgZ2J0RdZ6jz6UuAXFzCz4=
