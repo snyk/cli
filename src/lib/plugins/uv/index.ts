@@ -7,10 +7,17 @@ import { CustomError } from '../../errors';
 import { execGoCommand, GoCommandResult } from '../../go-bridge';
 import { truncateForLog } from '../../utils';
 import * as types from '../types';
+import { ScannedProjectCustom } from '../get-multi-plugin-result';
 
 const debug = Debug('snyk:plugins:uv');
 const UV_LOCKFILE_NAME = 'uv.lock';
 const PYPROJECT_MANIFEST_NAME = 'pyproject.toml';
+
+// JSON type returned from the Go plugin when using the --internal-uv-workspace-packages flag
+interface WorkspacePackageResult {
+  depGraph: DepGraphData;
+  targetFile: string;
+}
 
 export async function inspect(
   root: string,
@@ -41,6 +48,9 @@ export async function inspect(
   if (strictOutOfSync !== undefined) {
     args.push(`--strict-out-of-sync=${strictOutOfSync}`);
   }
+  if (options?.allProjects) {
+    args.push('--internal-uv-workspace-packages');
+  }
 
   const result = await execGoCommand(args, { cwd: root });
 
@@ -48,9 +58,40 @@ export async function inspect(
     throw createDepgraphError(extractErrorDetail(result));
   }
 
-  let depGraphData: DepGraphData;
+  const resolvedTargetFile = getResolvedTargetFile(targetFile);
+
+  let scannedProjects: ScannedProjectCustom[];
   try {
-    depGraphData = JSON.parse(result.stdout);
+    if (options?.allProjects) {
+      scannedProjects = result.stdout
+        .split('\n')
+        .filter((line) => line.trim().length > 0)
+        .map((line) => JSON.parse(line) as WorkspacePackageResult)
+        .map((workspacePkg) => ({
+          depGraph: createFromJSON(workspacePkg.depGraph),
+          targetFile: workspacePkg.targetFile,
+          packageManager: 'uv',
+          plugin: {
+            name: 'snyk-uv-plugin',
+            packageManager: 'uv',
+            targetFile: workspacePkg.targetFile,
+          },
+        }));
+    } else {
+      const depGraphData = JSON.parse(result.stdout) as DepGraphData;
+      scannedProjects = [
+        {
+          depGraph: createFromJSON(depGraphData),
+          targetFile: resolvedTargetFile,
+          packageManager: 'uv',
+          plugin: {
+            name: 'snyk-uv-plugin',
+            packageManager: 'uv',
+            targetFile: resolvedTargetFile,
+          },
+        },
+      ];
+    }
   } catch (error) {
     const parseError = error instanceof Error ? error.message : String(error);
     debug(
@@ -63,15 +104,6 @@ export async function inspect(
       result.stderr || 'Unable to process dependency information',
     );
   }
-
-  const resolvedTargetFile = getResolvedTargetFile(targetFile);
-
-  const scannedProjects = [
-    {
-      depGraph: createFromJSON(depGraphData),
-      targetFile: resolvedTargetFile,
-    },
-  ];
 
   return {
     plugin: {
