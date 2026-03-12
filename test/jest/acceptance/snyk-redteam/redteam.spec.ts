@@ -123,7 +123,7 @@ describe('snyk redteam (mocked servers only)', () => {
     }).not.toThrow();
 
     const scanId = '59622253-75f3-4439-ac1e-ce94834c5804';
-    const scanPath = `/hidden/tenants/${tenantId}/red_team_scans`;
+    const scanPath = `/api/hidden/tenants/${tenantId}/red_team_scans`;
     const redteamRequests = server
       .getRequests()
       .filter((req) => req.url?.includes('/red_team_scans'))

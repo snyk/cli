@@ -850,7 +850,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   // Red team control server routes
   app.post(
-    '/hidden/tenants/:tenantId/red_team_scans',
+    '/api/hidden/tenants/:tenantId/red_team_scans',
     (req, res) => {
       const scanId = '59622253-75f3-4439-ac1e-ce94834c5804';
       redteamNextCallCount[scanId] = 0;
@@ -859,7 +859,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   );
 
   app.post(
-    '/hidden/tenants/:tenantId/red_team_scans/:id/next',
+    '/api/hidden/tenants/:tenantId/red_team_scans/:id/next',
     (req, res) => {
       const scanId = req.params.id;
       const count = redteamNextCallCount[scanId] || 0;
@@ -882,7 +882,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   );
 
   app.get(
-    '/hidden/tenants/:tenantId/red_team_scans/:id/status',
+    '/api/hidden/tenants/:tenantId/red_team_scans/:id/status',
     (req, res) => {
       res.json({
         scan_id: req.params.id,
@@ -919,7 +919,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   );
 
   app.get(
-    '/hidden/tenants/:tenantId/red_team_scans/:id',
+    '/api/hidden/tenants/:tenantId/red_team_scans/:id',
     (req, res) => {
       res.json({
         scan_id: req.params.id,
