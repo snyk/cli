@@ -2,6 +2,7 @@ import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
 import * as childProcess from 'child_process';
 import { EventEmitter } from 'events';
 import { Readable } from 'stream';
+import * as errorFormat from '../../../../src/lib/error-format';
 
 import { execGoCommand, GoCommandResult } from '../../../../src/lib/go-bridge';
 
@@ -284,6 +285,35 @@ describe('go-bridge', () => {
       const result = await promise;
       expect(result.stderr).toBe('🙂\n');
       expect(stderrWriteSpy).toHaveBeenCalledWith('[go-bridge] 🙂\n');
+
+      jest.restoreAllMocks();
+    });
+
+    it('soft-caps stderr when it exceeds maximum buffer size', async () => {
+      process.env.SNYK_INTERNAL_CLI_EXECUTABLE_PATH = '/usr/local/bin/snyk';
+
+      const mockProc = createMockProcess();
+      mockProc.kill = jest.fn() as any;
+      jest.spyOn(childProcess, 'spawn').mockReturnValue(mockProc);
+      const abridgeErrorMessageSpy = jest
+        .spyOn(errorFormat, 'abridgeErrorMessage')
+        .mockReturnValue('truncated stderr');
+      jest.spyOn(Buffer, 'byteLength').mockReturnValueOnce(50 * 1024 * 1024 + 1);
+
+      const promise = execGoCommand(['depgraph']);
+
+      mockProc.stderr.emit('data', Buffer.from('too much stderr output'));
+      mockProc.emit('close', 0);
+
+      const result: GoCommandResult = await promise;
+      expect(result.exitCode).toBe(0);
+      expect(result.stderr).toBe('truncated stderr');
+      expect(mockProc.kill).not.toHaveBeenCalled();
+      expect(abridgeErrorMessageSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        50 * 1024 * 1024,
+        expect.stringContaining('stderr truncated'),
+      );
 
       jest.restoreAllMocks();
     });
