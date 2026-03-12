@@ -20,7 +20,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/snyk/cli-extension-agent-scan/pkg/agentscan"
 	"github.com/snyk/cli-extension-ai-bom/pkg/aibom"
-	"github.com/snyk/cli-extension-ai-bom/pkg/redteam"
+	"github.com/snyk/cli-extension-ai-redteam/pkg/redteam"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
