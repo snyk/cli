@@ -12,6 +12,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260311142730-33246140f242
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb
+	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260311160705-ded7134e25ae
 	github.com/snyk/cli-extension-dep-graph v0.26.1
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
@@ -166,6 +167,7 @@ require (
 	github.com/jcmturner/goidentity/v6 v6.0.1 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.4.4 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/kevinburke/ssh_config v1.4.0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
@@ -282,6 +284,8 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 //replace github.com/snyk/cli-extension-os-flows => ../../cli-extension-os-flows
 
 // replace github.com/snyk/cli-extension-ai-bom => ../../cli-extension-ai-bom
+
+// replace github.com/snyk/cli-extension-ai-redteam => ../../cli-extension-ai-redteam
 
 // replace github.com/snyk/studio-mcp => ../../studio-mcp
 

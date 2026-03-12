@@ -382,6 +382,10 @@ github.com/jcmturner/gokrb5/v8 v8.4.4 h1:x1Sv4HaTpepFkXbt2IkL29DXRf8sOfZXo8eRKh6
 github.com/jcmturner/gokrb5/v8 v8.4.4/go.mod h1:1btQEpgT6k+unzCwX1KdWMEwPPkkgBtP+F6aCACiMrs=
 github.com/jcmturner/rpc/v2 v2.0.3 h1:7FXXj8Ti1IaVFpSAziCZWNzbNuZmnvw/i6CqLNdWfZY=
 github.com/jcmturner/rpc/v2 v2.0.3/go.mod h1:VUJYCIDm3PVOEHw8sgt091/20OJjskO/YJki3ELg/Hc=
+github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=
+github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
+github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGwWFoC7ycTf1rcQZHOlsJ6N8=
+github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
 github.com/juju/gnuflag v0.0.0-20171113085948-2ce1bb71843d/go.mod h1:2PavIy+JPciBPrBUjwbNvtwB6RQlve+hkpll6QSNmOE=
 github.com/kevinburke/ssh_config v1.4.0 h1:6xxtP5bZ2E4NF5tuQulISpTO2z8XbtH8cg1PWkxoFkQ=
 github.com/kevinburke/ssh_config v1.4.0/go.mod h1:q2RIzfka+BXARoNexmF9gkxEX7DmvbW9P4hIVx2Kg4M=
@@ -531,12 +535,12 @@ github.com/sirupsen/logrus v1.9.3 h1:dueUQJ1C2q9oE3F7wvmSGAaVtTmUizReu6fjN8uqzbQ
 github.com/sirupsen/logrus v1.9.3/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVsIT4qYEQ=
 github.com/skeema/knownhosts v1.3.2 h1:EDL9mgf4NzwMXCTfaxSD/o/a5fxDw/xL9nkU28JjdBg=
 github.com/skeema/knownhosts v1.3.2/go.mod h1:bEg3iQAuw+jyiw+484wwFJoKSLwcfd7fqRy+N0QTiow=
-github.com/snyk/cli-extension-agent-scan v0.0.0-20260311112131-54eb1cf063fa h1:v3W/PDxRmYyEBJK5b/xIl9rt4ccyD7Ixh1NcGAWU6Ok=
-github.com/snyk/cli-extension-agent-scan v0.0.0-20260311112131-54eb1cf063fa/go.mod h1:+Znlgu2v7sOTNAVjsoldFjDZUIo8tpdKnFlMptZHzz0=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260311142730-33246140f242 h1:6ThLg7wqBtzeoc86Yj52KRi9pnC27vzYAQ4E4/Hb2Kc=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260311142730-33246140f242/go.mod h1:+Znlgu2v7sOTNAVjsoldFjDZUIo8tpdKnFlMptZHzz0=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb h1:ZgBgiMMtY8XK8WJZpmnlt08wKPMitDEU1TS99OK+k8A=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb/go.mod h1:eIq61+KliPjLwhaAZT87FfeyfK/4mJaGP0wqyFtf8pQ=
+github.com/snyk/cli-extension-ai-redteam v0.0.0-20260311160705-ded7134e25ae h1:HdPnaBql6fJJVzWMhXtIuRc1wAuVWkslG8kCHfGJEKU=
+github.com/snyk/cli-extension-ai-redteam v0.0.0-20260311160705-ded7134e25ae/go.mod h1:445d735F53IuegetHs/S4GyWyng4Crd9TPj4vosmFmM=
 github.com/snyk/cli-extension-dep-graph v0.26.1 h1:aOov0GvCuvNbrkkk/CWggXFIIrFcBmRkNyE0yTMsTrc=
 github.com/snyk/cli-extension-dep-graph v0.26.1/go.mod h1:JQ37TXutjFa585Ocak1jfBRN6+QPppmFIlJ6+nrfgaY=
 github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80 h1:JHbnSkgGc2oUejjzdWdeTghl0BZV7QamcRuyh7ornVo=
@@ -794,6 +798,7 @@ gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c/go.mod h1:JHkPIbrfpd72SG/EV
 gopkg.in/warnings.v0 v0.1.2 h1:wFXVbFY8DY5/xOe1ECiWdKCzZlxgshcYVNkBHstARME=
 gopkg.in/warnings.v0 v0.1.2/go.mod h1:jksf8JmL6Qr/oQM2OXTHunEvvTAsrWBLb6OOjuVWRNI=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
+gopkg.in/yaml.v2 v2.2.8/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v2 v2.4.0 h1:D8xgwECY7CYvx+Y2n4sBz93Jn9JRvxdiyyo8CTfuKaY=
 gopkg.in/yaml.v2 v2.4.0/go.mod h1:RDklbk79AGWmwhnvt/jBztapEOGDOx6ZbXqjP6csGnQ=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
