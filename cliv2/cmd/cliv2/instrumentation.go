@@ -8,10 +8,11 @@ import (
 	"strings"
 	"time"
 
-	cli_utils "github.com/snyk/cli/cliv2/internal/utils"
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
+
+	cli_utils "github.com/snyk/cli/cliv2/internal/utils"
 
 	localworkflows "github.com/snyk/go-application-framework/pkg/local_workflows"
 	"github.com/snyk/go-application-framework/pkg/networking"
@@ -51,7 +52,7 @@ func addRuntimeDetails(instrumentor analytics.InstrumentationCollector, ua netwo
 }
 
 func addNetworkingDetails(instrumentor analytics.InstrumentationCollector, config configuration.Configuration) {
-	instrumentor.AddExtension("network-request-attempts", config.GetInt(middleware.ConfigurationKeyRetryAttempts))
+	instrumentor.AddExtension("network-request-attempts", config.GetInt(middleware.ConfigurationKeyRequestAttempts))
 }
 
 func updateInstrumentationDataBeforeSending(cliAnalytics analytics.Analytics, startTime time.Time, ua networking.UserAgentInfo, exitCode int) {
