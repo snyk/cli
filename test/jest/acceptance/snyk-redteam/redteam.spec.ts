@@ -209,8 +209,7 @@ describe('snyk redteam (mocked servers only)', () => {
     expect(result.stdout).toContain('This is the error message');
   });
 
-  // TODO: unskip once --control-server-url flag is removed from the extension
-  test.skip('`redteam get` retrieves scan results', async () => {
+  test('`redteam get` retrieves scan results', async () => {
     const result = await runSnykCLI(
       `redteam get --experimental --id=59622253-75f3-4439-ac1e-ce94834c5804 --tenant-id=${tenantId}`,
       {
@@ -277,8 +276,7 @@ describe('snyk redteam (mocked servers only)', () => {
     expect(html).toContain('system-prompt-exfiltration');
   });
 
-  // TODO: unskip once --control-server-url flag is removed from the extension
-  test.skip('`redteam get --html` outputs HTML report to stdout', async () => {
+  test('`redteam get --html` outputs HTML report to stdout', async () => {
     const result = await runSnykCLI(
       `redteam get --experimental --id=59622253-75f3-4439-ac1e-ce94834c5804 --html --tenant-id=${tenantId}`,
       {
@@ -290,8 +288,7 @@ describe('snyk redteam (mocked servers only)', () => {
     expect(result.stdout).toContain('system-prompt-exfiltration');
   });
 
-  // TODO: unskip once --control-server-url flag is removed from the extension
-  test.skip('`redteam get --html-file-output` writes HTML report to file', async () => {
+  test('`redteam get --html-file-output` writes HTML report to file', async () => {
     tmpDir = mkdtempSync(join(tmpdir(), 'snyk-redteam-'));
     const htmlFile = join(tmpDir, 'report.html');
     const result = await runSnykCLI(
@@ -344,8 +341,7 @@ describe('snyk redteam (mocked servers only)', () => {
     expect(notVulnerable.length).toBeGreaterThan(0);
   });
 
-  // TODO: unskip once --control-server-url flag is removed from the extension
-  test.skip('`redteam get` report includes scan summary', async () => {
+  test('`redteam get` report includes scan summary', async () => {
     const result = await runSnykCLI(
       `redteam get --experimental --id=59622253-75f3-4439-ac1e-ce94834c5804 --tenant-id=${tenantId}`,
       {
@@ -384,8 +380,7 @@ describe('snyk redteam (mocked servers only)', () => {
     expect(result.stdout).toContain('prompt-injection');
   });
 
-  // TODO: unskip once --control-server-url flag is removed from the extension
-  test.skip('`redteam get --html` includes summary data in HTML report', async () => {
+  test('`redteam get --html` includes summary data in HTML report', async () => {
     const result = await runSnykCLI(
       `redteam get --experimental --id=59622253-75f3-4439-ac1e-ce94834c5804 --html --tenant-id=${tenantId}`,
       {
