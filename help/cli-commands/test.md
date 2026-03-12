@@ -252,6 +252,12 @@ Snyk reports the test results per individual `pom.xml` file within the aggregate
 
 **Note:** You can use `--all-projects` when scanning Maven aggregate projects, but you cannot use `--all-projects` with `--maven-aggregate-project`.
 
+### `--maven-skip-wrapper`
+
+Forces the use of a globally installed `mvn` command, even when a Maven wrapper (`mvnw` or `mvnw.cmd`) is present in the project.
+
+Some projects include a Maven wrapper but users may prefer (or be required by their CI environment) to use a globally installed `mvn` instead. This option gives an explicit escape hatch without having to remove the wrapper from the project.
+
 ### `--scan-unmanaged`
 
 To test individual JAR, WAR, and AAR files, use the following:
