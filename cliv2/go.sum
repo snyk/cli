@@ -539,8 +539,8 @@ github.com/snyk/cli-extension-agent-scan v0.0.0-20260311142730-33246140f242 h1:6
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260311142730-33246140f242/go.mod h1:+Znlgu2v7sOTNAVjsoldFjDZUIo8tpdKnFlMptZHzz0=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb h1:ZgBgiMMtY8XK8WJZpmnlt08wKPMitDEU1TS99OK+k8A=
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb/go.mod h1:eIq61+KliPjLwhaAZT87FfeyfK/4mJaGP0wqyFtf8pQ=
-github.com/snyk/cli-extension-ai-redteam v0.0.0-20260311160705-ded7134e25ae h1:HdPnaBql6fJJVzWMhXtIuRc1wAuVWkslG8kCHfGJEKU=
-github.com/snyk/cli-extension-ai-redteam v0.0.0-20260311160705-ded7134e25ae/go.mod h1:445d735F53IuegetHs/S4GyWyng4Crd9TPj4vosmFmM=
+github.com/snyk/cli-extension-ai-redteam v0.0.0-20260312231149-363ad6a0a8e3 h1:kJ7PLloB7iU+2j/7QQddkkYBVGGxboh+BBYfw1qb5kE=
+github.com/snyk/cli-extension-ai-redteam v0.0.0-20260312231149-363ad6a0a8e3/go.mod h1:445d735F53IuegetHs/S4GyWyng4Crd9TPj4vosmFmM=
 github.com/snyk/cli-extension-dep-graph v0.26.1 h1:aOov0GvCuvNbrkkk/CWggXFIIrFcBmRkNyE0yTMsTrc=
 github.com/snyk/cli-extension-dep-graph v0.26.1/go.mod h1:JQ37TXutjFa585Ocak1jfBRN6+QPppmFIlJ6+nrfgaY=
 github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80 h1:JHbnSkgGc2oUejjzdWdeTghl0BZV7QamcRuyh7ornVo=
