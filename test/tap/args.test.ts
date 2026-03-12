@@ -67,6 +67,19 @@ test('test command line test --all-sub-projects', (t) => {
   t.end();
 });
 
+test('test command line test --maven-skip-wrapper', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--maven-skip-wrapper',
+  ];
+  const result = args(cliArgs);
+  t.ok(result.options.mavenSkipWrapper);
+  t.notOk(result.options['maven-skip-wrapper']);
+  t.end();
+});
+
 test('test command line test --gradle-sub-project=foo', (t) => {
   const cliArgs = [
     '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
