@@ -7,6 +7,7 @@ try {
   $cacheDir = 'C:\tools-cache'
   $makeZip = Join-Path $cacheDir "make-$makeVersion-without-guile-w32-bin.zip"
   $makeDir = 'C:\tools\make'
+  $expectedSha256 = 'fb66a02b530f7466f6222ce53c0b602c5288e601547a034e4156a512dd895ee7'
 
   if (Get-Command make -ErrorAction SilentlyContinue) {
     Write-Host 'make already available on PATH, skipping install.'
@@ -25,6 +26,13 @@ try {
     Write-Host "Downloading GNU Make $makeVersion for Windows..."
     $url = 'https://sourceforge.net/projects/ezwinports/files/make-4.4.1-without-guile-w32-bin.zip/download'
     curl.exe -L $url -o $makeZip
+  }
+
+  # Verify SHA256 checksum of the downloaded archive
+  Write-Host 'Verifying GNU Make archive checksum...'
+  $hash = Get-FileHash -Path $makeZip -Algorithm SHA256
+  if ($hash.Hash.ToLower() -ne $expectedSha256.ToLower()) {
+    throw "Checksum verification failed for $makeZip. Expected $expectedSha256 but got $($hash.Hash.ToLower())."
   }
 
   Write-Host 'Extracting GNU Make...'

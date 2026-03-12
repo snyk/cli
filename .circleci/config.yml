@@ -257,6 +257,11 @@ commands:
           keys:
             - windows-tools-cache-v1-{{ arch }}
       - run:
+          name: Install Python 3.12.8 (native)
+          shell: powershell
+          command: |
+            .\.circleci\windows\install-python3.ps1
+      - run:
           name: Install GNU Make 4.4.1 (native)
           shell: powershell
           command: |
