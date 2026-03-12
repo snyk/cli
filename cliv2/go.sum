@@ -520,8 +520,8 @@ github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06/go.mod h1:+e
 github.com/sagikazarmark/locafero v0.7.0 h1:5MqpDsTGNDhY8sGp0Aowyf0qKsPrhewaLSsFaodPcyo=
 github.com/sagikazarmark/locafero v0.7.0/go.mod h1:2za3Cg5rMaTMoG/2Ulr9AwtFaIppKXTRYnozin4aB5k=
 github.com/sahilm/fuzzy v0.1.0/go.mod h1:VFvziUEIMCrT6A6tw2RFIXPXXmzXbOsSHF0DOI8ZK9Y=
-github.com/samber/lo v1.52.0 h1:Rvi+3BFHES3A8meP33VPAxiBZX/Aws5RxrschYGjomw=
-github.com/samber/lo v1.52.0/go.mod h1:4+MXEGsJzbKGaUEQFKBq2xtfuznW9oz/WrgyzMzRoM0=
+github.com/samber/lo v1.53.0 h1:t975lj2py4kJPQ6haz1QMgtId2gtmfktACxIXArw3HM=
+github.com/samber/lo v1.53.0/go.mod h1:4+MXEGsJzbKGaUEQFKBq2xtfuznW9oz/WrgyzMzRoM0=
 github.com/sergi/go-diff v1.4.0 h1:n/SP9D5ad1fORl+llWyN+D6qoUETXNZARKjyY2/KVCw=
 github.com/sergi/go-diff v1.4.0/go.mod h1:A0bzQcvG0E7Rwjx0REVgAGH58e96+X0MeOfepqsbeW4=
 github.com/shirou/gopsutil v3.21.11+incompatible h1:+1+c1VGhc88SSonWP6foOcLhvnKlUeu/erjjvaPEYiI=
@@ -533,8 +533,8 @@ github.com/skeema/knownhosts v1.3.2 h1:EDL9mgf4NzwMXCTfaxSD/o/a5fxDw/xL9nkU28Jjd
 github.com/skeema/knownhosts v1.3.2/go.mod h1:bEg3iQAuw+jyiw+484wwFJoKSLwcfd7fqRy+N0QTiow=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260311142730-33246140f242 h1:6ThLg7wqBtzeoc86Yj52KRi9pnC27vzYAQ4E4/Hb2Kc=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260311142730-33246140f242/go.mod h1:+Znlgu2v7sOTNAVjsoldFjDZUIo8tpdKnFlMptZHzz0=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb h1:ZgBgiMMtY8XK8WJZpmnlt08wKPMitDEU1TS99OK+k8A=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb/go.mod h1:eIq61+KliPjLwhaAZT87FfeyfK/4mJaGP0wqyFtf8pQ=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20260312142851-4a3ed1abe853 h1:6CTQnacsK4/AXtijRhtwg/6TTGMCPwEL9ivUE7FxXn0=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20260312142851-4a3ed1abe853/go.mod h1:RnMP+tFTeKygfXSx7z+heyMZoOps67u5HFytjptHjuk=
 github.com/snyk/cli-extension-dep-graph v0.26.1 h1:aOov0GvCuvNbrkkk/CWggXFIIrFcBmRkNyE0yTMsTrc=
 github.com/snyk/cli-extension-dep-graph v0.26.1/go.mod h1:JQ37TXutjFa585Ocak1jfBRN6+QPppmFIlJ6+nrfgaY=
 github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80 h1:JHbnSkgGc2oUejjzdWdeTghl0BZV7QamcRuyh7ornVo=
