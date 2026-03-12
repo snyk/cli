@@ -257,6 +257,11 @@ commands:
           keys:
             - windows-tools-cache-v1-{{ arch }}
       - run:
+          name: Install .NET SDK 8.0.100 (native)
+          shell: powershell
+          command: |
+            .\.circleci\windows\install-dotnet-sdk.ps1
+      - run:
           name: Install Python 3.12.8 (native)
           shell: powershell
           command: |
