@@ -1,0 +1,8 @@
+{
+  "name": "deeply-nested-package",
+  "version": "1.0.0",
+  "description": "Test fixture for deeply nested package that should NOT be detected as a workspace",
+  "dependencies": {
+    "uuid": "^13.0.0"
+  }
+}

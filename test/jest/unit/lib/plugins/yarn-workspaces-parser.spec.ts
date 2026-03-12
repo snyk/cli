@@ -12,7 +12,7 @@ const yarnWorkspacesMap = {
 const yarnWorkspacesMapWindows = {
   'C:\\snyk\\test\\acceptance\\workspaces\\yarn-workspace-out-of-sync\\package.json':
     {
-      workspaces: ['packages'],
+      workspaces: ['packages/*'],
     },
   'C:\\snyk\\test\\acceptance\\workspaces\\yarn-workspace\\package.json': {
     workspaces: ['libs/*/**', 'tools/*'],
@@ -69,6 +69,21 @@ describe('packageJsonBelongsToWorkspace', () => {
       'snyk/test/acceptance/workspaces/yarn-workspace/packages/a/package.json';
     const workspaceRoot =
       'snyk/test/acceptance/workspaces/yarn-workspace/package.json';
+    expect(
+      packageJsonBelongsToWorkspace(
+        packageJsonFileName,
+        yarnWorkspacesMap,
+        workspaceRoot,
+      ),
+    ).toBeFalsy();
+  });
+
+  test('does not match deeply nested packages with /* glob', () => {
+    // packages/* should only match direct children, not nested packages
+    const packageJsonFileName =
+      'snyk/test/acceptance/workspaces/yarn-workspace-out-of-sync/packages/not_a_workspace/deeply_nested/package.json';
+    const workspaceRoot =
+      'snyk/test/acceptance/workspaces/yarn-workspace-out-of-sync/package.json';
     expect(
       packageJsonBelongsToWorkspace(
         packageJsonFileName,
@@ -141,6 +156,21 @@ describe('packageJsonBelongsToWorkspace Windows', () => {
       'C:\\snyk\\test\\acceptance\\workspaces\\yarn-workspace\\packages\\a\\package.json';
     const workspaceRoot =
       'C:\\snyk\\test\\acceptance\\workspaces\\yarn-workspace\\package.json';
+    expect(
+      packageJsonBelongsToWorkspace(
+        packageJsonFileName,
+        yarnWorkspacesMapWindows,
+        workspaceRoot,
+      ),
+    ).toBeFalsy();
+  });
+
+  test('does not match deeply nested packages with /* glob', () => {
+    // packages/* should only match direct children, not nested packages
+    const packageJsonFileName =
+      'C:\\snyk\\test\\acceptance\\workspaces\\yarn-workspace-out-of-sync\\packages\\not_a_workspace\\deeply_nested\\package.json';
+    const workspaceRoot =
+      'C:\\snyk\\test\\acceptance\\workspaces\\yarn-workspace-out-of-sync\\package.json';
     expect(
       packageJsonBelongsToWorkspace(
         packageJsonFileName,
