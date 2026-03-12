@@ -54,6 +54,7 @@ export interface Options {
   'dry-run'?: boolean;
   allSubProjects?: boolean;
   mavenAggregateProject?: boolean;
+  mavenSkipWrapper?: boolean;
   mavenVerboseIncludeAllVersions?: boolean;
   includeProvenance?: boolean;
   fingerprintAlgorithm?: string;
@@ -289,6 +290,7 @@ export type SupportedUserReachableFacingCliArgs =
   | 'trust-policies'
   | 'yarn-workspaces'
   | 'maven-aggregate-project'
+  | 'maven-skip-wrapper'
   | 'include-provenance'
   | 'fingerprint-algorithm'
   | 'gradle-normalize-deps';
