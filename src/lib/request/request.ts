@@ -140,25 +140,115 @@ function setupRequest(payload: Payload) {
   return { method, url, data, options };
 }
 
+const REDIRECT_CODES = [301, 302, 303, 307, 308];
+// 307/308 require preserving the original method and body per RFC 9110.
+const METHOD_PRESERVING_REDIRECTS = [307, 308];
+const MAX_REDIRECTS = 5;
+
 export async function makeRequest(
   payload: Payload,
 ): Promise<{ res: needle.NeedleResponse; body: any }> {
   const { method, url, data, options } = setupRequest(payload);
+  // Disable needle's internal redirect following. When needle follows a
+  // redirect through a CONNECT proxy, the intermediate socket is never
+  // exposed to the callback and lingers, keeping the process alive.
+  // We follow redirects manually below so each hop gets its own agent
+  // and socket cleanup.
+  options.follow_max = 0;
 
   return new Promise((resolve, reject) => {
-    needle.request(method, url, data, options, (err, res, respBody) => {
-      if (res?.headers?.[headerSnykAuthFailed] === 'true') {
-        return reject(new MissingApiTokenError());
-      }
-      // respBody potentially very large, do not output it in debug
-      debug('response (%s)', (res || {}).statusCode);
-      if (err) {
-        debug('response err: %s', err);
-        return reject(err);
-      }
+    let redirectsLeft = MAX_REDIRECTS;
 
-      resolve({ res, body: respBody });
-    });
+    const sendRequest = (
+      reqMethod: string,
+      reqUrl: string,
+      reqData: any,
+      reqOptions: needle.NeedleOptions,
+    ) => {
+      needle.request(
+        reqMethod as needle.NeedleHttpVerbs,
+        reqUrl,
+        reqData,
+        reqOptions,
+        (err, res, respBody) => {
+          // Destroy the socket so the CONNECT tunnel doesn't keep the process alive.
+          res?.socket?.destroy();
+
+          if (res?.headers?.[headerSnykAuthFailed] === 'true') {
+            return reject(new MissingApiTokenError());
+          }
+          debug('response (%s)', (res || {}).statusCode);
+          if (err) {
+            debug('response err: %s', err);
+            return reject(err);
+          }
+
+          if (
+            res.statusCode &&
+            REDIRECT_CODES.includes(res.statusCode) &&
+            res.headers?.location &&
+            redirectsLeft > 0
+          ) {
+            redirectsLeft--;
+
+            let redirectUrl: string;
+            try {
+              redirectUrl = new URL(
+                res.headers.location,
+                reqUrl,
+              ).toString();
+            } catch (e) {
+              return reject(
+                new Error(`Invalid redirect Location: ${res.headers.location}`),
+              );
+            }
+
+            debug('following redirect to %s', redirectUrl);
+            const parsedRedirect = parse(redirectUrl);
+            const parsedOriginal = parse(reqUrl);
+            const newAgent =
+              parsedRedirect.protocol === 'http:'
+                ? new http.Agent({ keepAlive: false })
+                : new https.Agent({ keepAlive: false });
+            const preserveMethod =
+              res.statusCode !== undefined &&
+              METHOD_PRESERVING_REDIRECTS.includes(res.statusCode);
+            const redirectHeaders = { ...reqOptions.headers };
+            if (!preserveMethod) {
+              delete redirectHeaders['content-length'];
+              delete redirectHeaders['content-encoding'];
+            }
+            if (parsedRedirect.host !== parsedOriginal.host) {
+              const sensitiveHeaders = [
+                'authorization',
+                'session-token',
+                'cookie',
+                'x-api-key',
+                'x-snyk-token',
+              ];
+              for (const h of sensitiveHeaders) {
+                delete redirectHeaders[h];
+              }
+            }
+            const redirectOptions = {
+              ...reqOptions,
+              agent: newAgent,
+              headers: redirectHeaders,
+            };
+            return sendRequest(
+              preserveMethod ? reqMethod : 'get',
+              redirectUrl,
+              preserveMethod ? reqData : null,
+              redirectOptions,
+            );
+          }
+
+          resolve({ res, body: respBody });
+        },
+      );
+    };
+
+    sendRequest(method, url, data, options);
   });
 }
 
