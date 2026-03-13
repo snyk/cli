@@ -257,7 +257,17 @@ commands:
           keys:
             - windows-tools-cache-v1-{{ arch }}
       - run:
-          name: Install .NET SDK 8.0.100 (native)
+          name: Install Apache Maven 3.8.2 (native)
+          shell: powershell
+          command: |
+            .\.circleci\windows\install-maven.ps1
+      - run:
+          name: Install Gradle 8.1.1 (native)
+          shell: powershell
+          command: |
+            .\.circleci\windows\install-gradle.ps1
+      - run:
+          name: Install .NET SDK 8.0.125 (native)
           shell: powershell
           command: |
             .\.circleci\windows\install-dotnet-sdk.ps1
