@@ -1,5 +1,8 @@
 import { Options, TestOptions, MonitorOptions } from '../types';
-import { hasFeatureFlagOrDefault } from '../feature-flags';
+import {
+  DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
+  INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+} from '../package-managers';
 
 /**
  * Returns a shallow clone of the original `options` object with any
@@ -7,6 +10,7 @@ import { hasFeatureFlagOrDefault } from '../feature-flags';
  */
 export async function buildPluginOptions(
   options: Options & (TestOptions | MonitorOptions),
+  featureFlags: Set<string> = new Set<string>(),
 ): Promise<Options & (TestOptions | MonitorOptions)> {
   const pluginOptions: any = { ...options };
 
@@ -15,22 +19,14 @@ export async function buildPluginOptions(
     options.packageManager === 'golangdep';
 
   if (isGoPackageManager) {
-    const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
-      'includeGoStandardLibraryDeps',
-      options,
-      false,
-    );
-
-    const disableGoPackageUrls = await hasFeatureFlagOrDefault(
-      'disableGoPackageUrlsInCli',
-      options,
-      false,
-    );
-
     pluginOptions.configuration = {
       ...(pluginOptions.configuration || {}),
-      includeGoStandardLibraryDeps,
-      includePackageUrls: disableGoPackageUrls ? false : true,
+      includeGoStandardLibraryDeps: featureFlags.has(
+        INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+      ),
+      includePackageUrls: !featureFlags.has(
+        DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
+      ),
       // enable fix for replaced modules.
       useReplaceName: true,
     } as Options['configuration'];
