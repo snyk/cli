@@ -257,6 +257,11 @@ commands:
           keys:
             - windows-tools-cache-v1-{{ arch }}
       - run:
+          name: Install Node.js (native)
+          shell: powershell
+          command: |
+            .\.circleci\windows\install-node.ps1
+      - run:
           name: Install Apache Maven 3.8.2 (native)
           shell: powershell
           command: |
