@@ -428,6 +428,10 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			legacy.SetupTestMonitorCommand(parentCommand)
 		case "auth":
 			parentCommand.RunE = runAuthCommand
+		case "agent-scan":
+			// to preserve backwards compatibility we will need to relax flag validation
+			parentCommand.FParseErrWhitelist.UnknownFlags = true
+			parentCommand.Aliases = []string{"mcp-scan"}
 		}
 	}
 }
