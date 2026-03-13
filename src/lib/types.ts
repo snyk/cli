@@ -131,11 +131,10 @@ export interface Options {
 
   // Feature Flags
   disableContainerMonitorProjectNameFix?: boolean;
+  includeGoStandardLibraryDeps?: boolean;
 
   // Plugin configuration options
   configuration?: {
-    // Used only with the Go plugin. When enabled, includes Go standard library packages in dependency graph.
-    includeGoStandardLibraryDeps?: boolean;
     // Used only with the Go plugin. When enabled, includes PackageURL information in dep-graphs.
     // TODO: remove once UNIFY-891 is done.
     includePackageUrls?: boolean;

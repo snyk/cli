@@ -67,6 +67,7 @@ import {
   PNPM_FEATURE_FLAG,
   UV_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+  INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 import { getOrganizationID } from '../../../lib/organization';
@@ -203,9 +204,15 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
 
   let hasPnpmSupport = false;
   let enableMavenDverboseExhaustiveDeps = false;
+  let includeGoStandardLibraryDeps = false;
   try {
     hasPnpmSupport = (await hasFeatureFlag(
       PNPM_FEATURE_FLAG,
+      options,
+    )) as boolean;
+
+    includeGoStandardLibraryDeps = (await hasFeatureFlag(
+      INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
       options,
     )) as boolean;
   } catch (err) {
@@ -257,6 +264,8 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   if (showScope.ok) {
     featureFlags.add(SHOW_NPM_SCOPE);
   }
+
+  options.includeGoStandardLibraryDeps = includeGoStandardLibraryDeps;
 
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of paths) {

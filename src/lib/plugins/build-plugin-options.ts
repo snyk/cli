@@ -1,5 +1,6 @@
 import { Options, TestOptions, MonitorOptions } from '../types';
 import { hasFeatureFlagOrDefault } from '../feature-flags';
+import { INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG } from '../package-managers';
 
 /**
  * Returns a shallow clone of the original `options` object with any
@@ -15,11 +16,14 @@ export async function buildPluginOptions(
     options.packageManager === 'golangdep';
 
   if (isGoPackageManager) {
-    const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
-      'includeGoStandardLibraryDeps',
-      options,
-      false,
-    );
+    const includeGoStandardLibraryDeps =
+      options.includeGoStandardLibraryDeps !== undefined
+        ? options.includeGoStandardLibraryDeps
+        : await hasFeatureFlagOrDefault(
+            INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+            options,
+            false,
+          );
 
     const disableGoPackageUrls = await hasFeatureFlagOrDefault(
       'disableGoPackageUrlsInCli',
