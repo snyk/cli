@@ -60,6 +60,16 @@ try {
   catch {
     Write-Host "Warning: failed to persist Maven PATH update to profile: $($_.Exception.Message)"
   }
+
+  # Append PATH update to shared environment script for CircleCI steps
+  try {
+    $envScript = 'C:\tools-cache\snyk-env.ps1'
+    New-Item -Path $envScript -ItemType File -Force | Out-Null
+    '$Env:Path = "C:\tools\maven\apache-maven-3.8.2\bin;" + $Env:Path' | Out-File -FilePath $envScript -Append -Encoding UTF8
+  }
+  catch {
+    Write-Host "Warning: failed to persist Maven PATH update to env script: $($_.Exception.Message)"
+  }
 }
 catch {
   Write-Error "Failed to install Apache Maven: $($_.Exception.Message)"

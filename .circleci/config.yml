@@ -949,7 +949,9 @@ workflows:
           dont_skip_tests: 0
           shards: 8
           shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
-          pre_test_cmds: echo "Windows environment ready"
+          pre_test_cmds: |
+            if (Test-Path 'C:\tools-cache\snyk-env.ps1') { . 'C:\tools-cache\snyk-env.ps1' }
+            echo "Windows environment ready"
 
       - sign:
           name: sign windows amd64

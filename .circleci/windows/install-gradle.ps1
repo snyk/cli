@@ -59,6 +59,16 @@ try {
   catch {
     Write-Host "Warning: failed to persist Gradle PATH update to profile: $($_.Exception.Message)"
   }
+
+  # Append PATH update to shared environment script for CircleCI steps
+  try {
+    $envScript = 'C:\tools-cache\snyk-env.ps1'
+    New-Item -Path $envScript -ItemType File -Force | Out-Null
+    '$Env:Path = "C:\tools\gradle\gradle-8.1.1\bin;" + $Env:Path' | Out-File -FilePath $envScript -Append -Encoding UTF8
+  }
+  catch {
+    Write-Host "Warning: failed to persist Gradle PATH update to env script: $($_.Exception.Message)"
+  }
 }
 catch {
   Write-Error "Failed to install Gradle: $($_.Exception.Message)"
