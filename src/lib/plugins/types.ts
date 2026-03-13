@@ -21,6 +21,7 @@ export interface Options {
   systemVersions?: object;
   scanAllUnmanaged?: boolean;
   showNpmScope?: boolean;
+  allProjects?: boolean;
 }
 
 export interface Plugin {

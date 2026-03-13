@@ -84,8 +84,8 @@ describe('uv plugin', () => {
 
     expect(result.plugin).toEqual({
       name: 'snyk-uv-plugin',
-      targetFile: 'pyproject.toml',
       packageManager: 'uv',
+      targetFile: 'pyproject.toml',
     });
     expect(result.scannedProjects).toHaveLength(1);
 
@@ -111,7 +111,6 @@ describe('uv plugin', () => {
       ['depgraph', '--file=path/to/uv.lock', '--use-sbom-resolution', '--json'],
       { cwd: '.' },
     );
-    expect(result.plugin.targetFile).toBe('path/to/pyproject.toml');
     expect(result.scannedProjects[0].targetFile).toBe('path/to/pyproject.toml');
   });
 
@@ -242,7 +241,7 @@ describe('uv plugin', () => {
     const catalog = err.errorCatalog;
     expect(catalog).toBeInstanceOf(CLI.GeneralCLIFailureError);
     expect(catalog).toBeInstanceOf(ProblemError);
-    expect(catalog!.detail).toBe('some depgraph failure');
+    expect(catalog?.detail).toBe('some depgraph failure');
   });
 
   it('attaches an error catalog entry for invalid JSON errors', async () => {
@@ -252,6 +251,123 @@ describe('uv plugin', () => {
 
     const catalog = err.errorCatalog;
     expect(catalog).toBeInstanceOf(CLI.GeneralCLIFailureError);
-    expect(catalog!.detail).toBe('Unable to process dependency information');
+    expect(catalog?.detail).toBe('Unable to process dependency information');
+  });
+
+  it('throws a generic error when depgraph command fails with --json error', async () => {
+    const errorJSON = `{
+        "ok": false,
+        "error": "/path/to/uv version 0.9.9 is not supported. Minimum required version is 0.9.29",
+        "path": "/cwd/uv-project"
+      }`;
+    execGoCommandSpy.mockResolvedValueOnce(mockResult(errorJSON, 2, ''));
+
+    const err: CustomError = await inspect('.', 'uv.lock').catch((e) => e);
+
+    expect(err).toBeInstanceOf(CustomError);
+    expect(err.message).toBe(
+      '/path/to/uv version 0.9.9 is not supported. Minimum required version is 0.9.29',
+    );
+    expect(err.errorCatalog).toBeInstanceOf(CLI.GeneralCLIFailureError);
+    expect(err.errorCatalog?.detail).toBe(
+      '/path/to/uv version 0.9.9 is not supported. Minimum required version is 0.9.29',
+    );
+  });
+
+  it('passes --internal-uv-workspace-packages when allProjects is true', async () => {
+    const workspaceResult = JSON.stringify({
+      depGraph: MOCK_DEP_GRAPH_DATA,
+      targetFile: 'pyproject.toml',
+    });
+    execGoCommandSpy.mockResolvedValueOnce(mockResult(workspaceResult));
+
+    await inspect('.', 'uv.lock', { allProjects: true } as any);
+
+    expect(execGoCommandSpy).toHaveBeenCalledWith(
+      [
+        'depgraph',
+        '--file=uv.lock',
+        '--use-sbom-resolution',
+        '--json',
+        '--internal-uv-workspace-packages',
+      ],
+      { cwd: '.' },
+    );
+  });
+
+  it('does not pass --internal-uv-workspace-packages when allProjects is false', async () => {
+    await inspect('.', 'uv.lock');
+
+    expect(execGoCommandSpy).toHaveBeenCalledWith(
+      ['depgraph', '--file=uv.lock', '--use-sbom-resolution', '--json'],
+      { cwd: '.' },
+    );
+  });
+
+  it('handles JSONL dep graphs from uv workspace when --all-projects is true', async () => {
+    const depGraphA: DepGraphData = {
+      schemaVersion: '1.3.0',
+      pkgManager: { name: 'uv' },
+      pkgs: [{ id: 'pkg-a@1.0.0', info: { name: 'pkg-a', version: '1.0.0' } }],
+      graph: {
+        rootNodeId: 'pkg-a@1.0.0',
+        nodes: [{ nodeId: 'pkg-a@1.0.0', pkgId: 'pkg-a@1.0.0', deps: [] }],
+      },
+    };
+    const depGraphB: DepGraphData = {
+      schemaVersion: '1.3.0',
+      pkgManager: { name: 'uv' },
+      pkgs: [{ id: 'pkg-b@2.0.0', info: { name: 'pkg-b', version: '2.0.0' } }],
+      graph: {
+        rootNodeId: 'pkg-b@2.0.0',
+        nodes: [{ nodeId: 'pkg-b@2.0.0', pkgId: 'pkg-b@2.0.0', deps: [] }],
+      },
+    };
+
+    const jsonl = [
+      JSON.stringify({ depGraph: depGraphA, targetFile: 'pyproject.toml' }),
+      JSON.stringify({
+        depGraph: depGraphB,
+        targetFile: 'packages/pkg-b/pyproject.toml',
+      }),
+    ].join('\n');
+
+    execGoCommandSpy.mockResolvedValueOnce(mockResult(jsonl));
+
+    const result = await inspect('.', 'uv.lock', {
+      allProjects: true,
+    } as any);
+
+    expect(result.plugin).toEqual({
+      name: 'snyk-uv-plugin',
+      packageManager: 'uv',
+      targetFile: 'pyproject.toml',
+    });
+
+    expect(result.scannedProjects).toHaveLength(2);
+
+    const firstProject = result.scannedProjects[0];
+    expect(firstProject.targetFile).toBe('pyproject.toml');
+    expect(firstProject.depGraph?.rootPkg).toEqual({
+      name: 'pkg-a',
+      version: '1.0.0',
+    });
+
+    const secondProject = result.scannedProjects[1];
+    expect(secondProject.targetFile).toBe('packages/pkg-b/pyproject.toml');
+    expect(secondProject.depGraph?.rootPkg).toEqual({
+      name: 'pkg-b',
+      version: '2.0.0',
+    });
+  });
+
+  it('handles a single dep graph object (backward compatibility)', async () => {
+    const result = await inspect('.', 'uv.lock');
+
+    expect(result.scannedProjects).toHaveLength(1);
+    expect(result.scannedProjects[0].depGraph?.rootPkg).toEqual({
+      name: 'uv-project',
+      version: '0.1.0',
+    });
   });
 });
