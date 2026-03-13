@@ -53,6 +53,13 @@ try {
 
   Write-Host "Adding $binPath to PATH for current session..."
   $Env:Path = "$binPath;" + $Env:Path
+  try {
+    New-Item -Path $profile -ItemType File -Force | Out-Null
+    '$Env:Path = "C:\tools\maven\apache-maven-3.8.2\bin;" + $Env:Path' | Out-File -FilePath $profile -Append -Encoding UTF8
+  }
+  catch {
+    Write-Host "Warning: failed to persist Maven PATH update to profile: $($_.Exception.Message)"
+  }
 }
 catch {
   Write-Error "Failed to install Apache Maven: $($_.Exception.Message)"

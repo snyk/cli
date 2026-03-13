@@ -66,6 +66,15 @@ try {
   Write-Host "Adding $binPath to PATH for current session..."
   $Env:Path = "$binPath;" + $Env:Path
 
+  # Persist PATH change for subsequent PowerShell sessions (CircleCI steps)
+  try {
+    New-Item -Path $profile -ItemType File -Force | Out-Null
+    '$Env:Path = "C:\tools\make\bin;" + $Env:Path' | Out-File -FilePath $profile -Append -Encoding UTF8
+  }
+  catch {
+    Write-Host "Warning: failed to persist make PATH update to profile: $($_.Exception.Message)"
+  }
+
 }
 catch {
   Write-Error "Failed to install GNU Make: $($_.Exception.Message)"

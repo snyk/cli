@@ -52,6 +52,13 @@ try {
 
   Write-Host "Adding $binPath to PATH for current session..."
   $Env:Path = "$binPath;" + $Env:Path
+  try {
+    New-Item -Path $profile -ItemType File -Force | Out-Null
+    '$Env:Path = "C:\tools\gradle\gradle-8.1.1\bin;" + $Env:Path' | Out-File -FilePath $profile -Append -Encoding UTF8
+  }
+  catch {
+    Write-Host "Warning: failed to persist Gradle PATH update to profile: $($_.Exception.Message)"
+  }
 }
 catch {
   Write-Error "Failed to install Gradle: $($_.Exception.Message)"

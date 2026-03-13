@@ -36,6 +36,13 @@ try {
 
   Write-Host "Adding $dotnetPath to PATH for current session..."
   $Env:Path = "$dotnetPath;" + $Env:Path
+  try {
+    New-Item -Path $profile -ItemType File -Force | Out-Null
+    '$Env:Path = "C:\dotnet;" + $Env:Path' | Out-File -FilePath $profile -Append -Encoding UTF8
+  }
+  catch {
+    Write-Host "Warning: failed to persist .NET PATH update to profile: $($_.Exception.Message)"
+  }
 }
 catch {
   Write-Error "Failed to install .NET SDK: $($_.Exception.Message)"
