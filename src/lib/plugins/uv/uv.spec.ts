@@ -228,6 +228,26 @@ describe('uv plugin', () => {
     expect(err.message).toBe('something went wrong');
   });
 
+  it('extracts error message from JSON in stderr when stdout is empty', async () => {
+    const stderrJson = JSON.stringify({
+      ok: false,
+      error:
+        'uv.lock is out of sync with pyproject.toml. Run `uv lock` to update the lockfile.',
+      path: '/test',
+    });
+    execGoCommandSpy.mockResolvedValueOnce(mockResult('', 2, stderrJson));
+
+    const err: CustomError = await inspect('.', 'uv.lock').catch((e) => e);
+
+    expect(err).toBeInstanceOf(CustomError);
+    expect(err.userMessage).toBe(
+      'uv.lock is out of sync with pyproject.toml. Run `uv lock` to update the lockfile.',
+    );
+    expect(err.message).toBe(
+      'uv.lock is out of sync with pyproject.toml. Run `uv lock` to update the lockfile.',
+    );
+  });
+
   it('attaches an error catalog entry for IPC propagation', async () => {
     const jsonError = JSON.stringify({
       ok: false,
