@@ -168,21 +168,59 @@ commands:
       - when:
           condition: << parameters.static >>
           steps:
-            - run:
-                name: Build static << parameters.go_target_os >>/<< parameters.go_arch >>
-                environment:
-                  CC: << parameters.c_compiler >>
-                  MACOSX_DEPLOYMENT_TARGET: 13.0
-                command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=true CGO_ENABLED=0
+            # Windows static build (use PowerShell and ensure GNU make is on PATH)
+            - when:
+                condition:
+                  equal: ['windows', << parameters.go_target_os >>]
+                steps:
+                  - run:
+                      shell: powershell
+                      name: Build static << parameters.go_target_os >>/<< parameters.go_arch >> (windows)
+                      environment:
+                        CC: << parameters.c_compiler >>
+                        MACOSX_DEPLOYMENT_TARGET: 13.0
+                      command: |
+                        $Env:Path = 'C:\tools\make\bin;' + $Env:Path
+                        make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=true CGO_ENABLED=0
+            # Non-windows static build (bash)
+            - unless:
+                condition:
+                  equal: ['windows', << parameters.go_target_os >>]
+                steps:
+                  - run:
+                      name: Build static << parameters.go_target_os >>/<< parameters.go_arch >>
+                      environment:
+                        CC: << parameters.c_compiler >>
+                        MACOSX_DEPLOYMENT_TARGET: 13.0
+                      command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=true CGO_ENABLED=0
       - unless:
           condition: << parameters.static >>
           steps:
-            - run:
-                name: Build << parameters.go_target_os >>/<< parameters.go_arch >>
-                environment:
-                  CC: << parameters.c_compiler >>
-                  MACOSX_DEPLOYMENT_TARGET: 13.0
-                command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=false CGO_ENABLED=1
+            # Windows non-static build
+            - when:
+                condition:
+                  equal: ['windows', << parameters.go_target_os >>]
+                steps:
+                  - run:
+                      shell: powershell
+                      name: Build << parameters.go_target_os >>/<< parameters.go_arch >> (windows)
+                      environment:
+                        CC: << parameters.c_compiler >>
+                        MACOSX_DEPLOYMENT_TARGET: 13.0
+                      command: |
+                        $Env:Path = 'C:\tools\make\bin;' + $Env:Path
+                        make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=false CGO_ENABLED=1
+            # Non-windows non-static build
+            - unless:
+                condition:
+                  equal: ['windows', << parameters.go_target_os >>]
+                steps:
+                  - run:
+                      name: Build << parameters.go_target_os >>/<< parameters.go_arch >>
+                      environment:
+                        CC: << parameters.c_compiler >>
+                        MACOSX_DEPLOYMENT_TARGET: 13.0
+                      command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=false CGO_ENABLED=1
   install-go:
     parameters:
       go_os:
@@ -233,35 +271,65 @@ commands:
                   New-Item -Path $profile -ItemType File -Force
                   '$Env:Path = "<< parameters.extraction_path >>\go\bin;" + $Env:Path' >> $profile
 
-  install-deps-windows-full:
+  install-deps-windows-native-build:
     steps:
       - run:
-          name: Configure Chocolatey cache location
-          shell: bash.exe
+          name: Ensure tools cache directory
+          shell: powershell
           command: |
-            choco config set cacheLocation "C:\choco-cache"
+            $cacheDir = 'C:\tools-cache'
+            if (-not (Test-Path $cacheDir)) {
+              New-Item -ItemType Directory -Path $cacheDir | Out-Null
+            }
       - restore_cache:
-          name: Restoring Chocolatey cache
+          name: Restoring Windows tools cache
           keys:
-            - chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - windows-tools-cache-v1-{{ arch }}
       - run:
-          name: Install Windows dependencies
-          shell: bash.exe
+          name: Install Node.js (native)
+          shell: powershell
           command: |
-            choco uninstall nodejs -y
-            choco uninstall nodejs.install -y
-            choco install .circleci/chocolatey.config --no-progress -y
-            choco install nodejs --version=$(head .nvmrc) --no-progress -y
-      - save_cache:
-          name: Saving Chocolatey cache
-          key: chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-          paths:
-            - C:\choco-cache
-      - install-deps-python:
-          os: win
+            .\.circleci\windows\install-node.ps1
       - run:
-          name: Install uv
-          command: pip install uv
+          name: Install Apache Maven 3.8.2 (native)
+          shell: powershell
+          command: |
+            .\.circleci\windows\install-maven.ps1
+      - run:
+          name: Install Gradle 8.1.1 (native)
+          shell: powershell
+          command: |
+            .\.circleci\windows\install-gradle.ps1
+      - run:
+          name: Install .NET SDK 8.0.125 (native)
+          shell: powershell
+          command: |
+            .\.circleci\windows\install-dotnet-sdk.ps1
+      - run:
+          name: Install Python 3.12.8 (native)
+          shell: powershell
+          command: |
+            .\.circleci\windows\install-python3.ps1
+      - run:
+          name: Install GNU Make 4.4.1 (native)
+          shell: powershell
+          command: |
+            .\.circleci\windows\install-make.ps1
+      - run:
+          name: Ensure Python and uv
+          shell: powershell
+          command: |
+            .\.circleci\windows\ensure-python-uv.ps1
+      - save_cache:
+          name: Saving Windows tools cache
+          key: windows-tools-cache-v1-{{ arch }}
+          paths:
+            - C:\tools-cache
+
+  install-deps-windows-native-full-signing:
+    steps:
+      - install-deps-windows-signing
+      - install-deps-windows-native-build
 
   install-deps-windows-signing:
     steps:
@@ -309,32 +377,6 @@ commands:
 
   install-deps-windows-full-signing:
     steps:
-      - install-deps-windows-signing
-      - install-deps-windows-make
-
-  install-deps-windows-make:
-    steps:
-      - run:
-          name: Configure Chocolatey cache location
-          shell: bash.exe
-          command: |
-            choco config set cacheLocation "C:\choco-cache"
-      - restore_cache:
-          name: Restoring Chocolatey cache
-          keys:
-            - chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-      - run:
-          name: Install Windows dependencies
-          shell: bash.exe
-          command: |
-            choco install make --no-progress -y
-      - save_cache:
-          name: Saving Chocolatey cache
-          key: chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-          paths:
-            - C:\choco-cache
-      - install-deps-python:
-          os: win
       - install-deps-windows-signing
 
   install-deps-noop:
@@ -717,7 +759,7 @@ workflows:
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           make_target: build clean-golang build-fips
-          install_deps_extension: windows-full-signing
+          install_deps_extension: windows-native-full-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
@@ -903,11 +945,19 @@ workflows:
             - build windows amd64
           executor: win-server2022-amd64
           test_snyk_command: binary-releases\\snyk-win.exe
-          install_deps_extension: windows-full
+          install_deps_extension: windows-native-build
           dont_skip_tests: 0
           shards: 8
           shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
-          pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
+          pre_test_cmds: |
+            if (Test-Path 'C:\tools-cache\snyk-env.ps1') { . 'C:\tools-cache\snyk-env.ps1' }
+            Write-Host "PATH in acceptance-tests windows amd64:"
+            Write-Host $Env:Path
+            Write-Host "mvn on PATH?"
+            Get-Command mvn -ErrorAction SilentlyContinue | Format-List * || Write-Host "mvn not found by Get-Command"
+            Write-Host "Running 'mvn -version' for verification..."
+            mvn -version || Write-Host "mvn -version failed (mvn may still not be on PATH)"
+            echo "Windows environment ready"
 
       - sign:
           name: sign windows amd64
@@ -918,7 +968,7 @@ workflows:
           go_arch: amd64
           make_target: sign sign-fips
           executor: win-server2022-amd64
-          install_deps_extension: windows-make
+          install_deps_extension: windows-native-full-signing
           filters:
             branches:
               only:
@@ -1143,126 +1193,6 @@ workflows:
             - e2e fips tests (win-server2022-amd64)
             - e2e experimental tests (linux-static-amd64)
             - e2e experimental tests (scratch-container-amd64)
-          filters:
-            branches:
-              only:
-                - main
-                - '/release.*/'
-
-      - release-s3:
-          name: upload preview
-          deployment: preview
-          context:
-            - team-hammerhead-common-deploy-tokens
-            - devex_cli_docker_hub
-          requires:
-            - Start Deployments
-          filters:
-            branches:
-              only:
-                - main
-                - '/release.*/'
-
-      - release-s3:
-          name: upload release candidate
-          deployment: rc
-          context:
-            - team-hammerhead-common-deploy-tokens
-            - devex_cli_docker_hub
-          requires:
-            - Start Deployments
-          filters:
-            branches:
-              only:
-                - main
-                - '/release.*/'
-
-      - release-s3:
-          name: upload latest/stable
-          deployment: stable
-          context:
-            - team-hammerhead-common-deploy-tokens
-            - devex_cli_docker_hub
-          requires:
-            - Start Deployments
-          filters:
-            branches:
-              only:
-                - main
-                - '/release.*/'
-
-      - release-github:
-          name: upload github
-          context:
-            - team-hammerhead-common-deploy-tokens
-            - devex_cli_docker_hub
-          requires:
-            - upload latest/stable
-          filters:
-            branches:
-              only:
-                - main
-                - '/release.*/'
-
-      - release-npm:
-          name: upload npm
-          context:
-            - team-hammerhead-common-deploy-tokens
-            - devex_cli_docker_hub
-          requires:
-            - upload github
-          filters:
-            branches:
-              only:
-                - main
-                - '/release.*/'
-
-      - trigger-building-distribution-channels:
-          name: Trigger building distribution channels (preview)
-          context:
-            - team-hammerhead-common-deploy-tokens
-            - devex_cli_docker_hub
-          deployment: preview
-          requires:
-            - upload preview
-          filters:
-            branches:
-              only:
-                - main
-
-      - trigger-building-distribution-channels:
-          name: Trigger building distribution channels (rc)
-          context:
-            - team-hammerhead-common-deploy-tokens
-            - devex_cli_docker_hub
-          deployment: rc
-          requires:
-            - upload release candidate
-          filters:
-            branches:
-              only:
-                - '/release.*/'
-
-      - trigger-building-distribution-channels:
-          name: Trigger building distribution channels (stable)
-          context:
-            - team-hammerhead-common-deploy-tokens
-            - devex_cli_docker_hub
-          requires:
-            - upload npm
-          filters:
-            branches:
-              only:
-                - main
-                - '/release.*/'
-
-      - trigger-build-agentic-integration:
-          name: Trigger building agentic-integration (stable)
-          context:
-            - team-hammerhead-common-deploy-tokens
-            - devex_cli_docker_hub
-          requires:
-            - upload npm
           filters:
             branches:
               only:
