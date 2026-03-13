@@ -91,14 +91,16 @@ function createDepgraphError(detail: string): CustomError {
 }
 
 function extractErrorDetail(result: GoCommandResult): string {
-  if (result.stdout) {
-    try {
-      const parsed = JSON.parse(result.stdout);
-      if (parsed.error) {
-        return parsed.error;
+  for (const output of [result.stdout, result.stderr]) {
+    if (output) {
+      try {
+        const parsed = JSON.parse(output);
+        if (parsed.error) {
+          return parsed.error;
+        }
+      } catch {
+        // not valid JSON; try next source, or fall back to returning plain stderr
       }
-    } catch {
-      // stdout wasn't valid JSON; fall through to stderr
     }
   }
   return result.stderr || 'Unable to process dependency information';
