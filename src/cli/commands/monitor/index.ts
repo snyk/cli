@@ -67,6 +67,8 @@ import {
   PNPM_FEATURE_FLAG,
   UV_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+  INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+  DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 import { getOrganizationID } from '../../../lib/organization';
@@ -201,19 +203,21 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     );
   }
 
-  let hasPnpmSupport = false;
-  let enableMavenDverboseExhaustiveDeps = false;
-  try {
-    hasPnpmSupport = (await hasFeatureFlag(
-      PNPM_FEATURE_FLAG,
-      options,
-    )) as boolean;
-  } catch (err) {
-    hasPnpmSupport = false;
-  }
-
+  const hasPnpmSupport = await hasFeatureFlagOrDefault(
+    PNPM_FEATURE_FLAG,
+    options,
+  );
   const hasUvSupport = await hasFeatureFlagOrDefault(UV_FEATURE_FLAG, options);
+  const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
+    INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+    options,
+  );
+  const disableGoPackageUrls = await hasFeatureFlagOrDefault(
+    DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
+    options,
+  );
 
+  let enableMavenDverboseExhaustiveDeps = false;
   try {
     const args = options['_doubleDashArgs'] || [];
     const verboseEnabled =
@@ -240,6 +244,12 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
   if (hasUvSupport) {
     featureFlags.add(UV_FEATURE_FLAG);
+  }
+  if (includeGoStandardLibraryDeps) {
+    featureFlags.add(INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG);
+  }
+  if (disableGoPackageUrls) {
+    featureFlags.add(DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG);
   }
 
   const showMavenScope = await isFeatureFlagSupportedForOrg(

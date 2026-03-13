@@ -10,10 +10,13 @@ const {
   SHOW_NPM_SCOPE,
   hasFeatureFlag,
   isFeatureFlagSupportedForOrg,
+  hasFeatureFlagOrDefault,
 } = require('../feature-flags');
 const {
   PNPM_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+  INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+  DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
 } = require('../package-managers');
 const { getOrganizationID } = require('../organization');
 
@@ -37,14 +40,20 @@ async function test(root, options, callback) {
 }
 
 async function executeTest(root, options) {
-  let hasPnpmSupport = false;
-  let enableMavenDverboseExhaustiveDeps = false;
-  try {
-    hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
-  } catch (err) {
-    hasPnpmSupport = false;
-  }
+  const hasPnpmSupport = await hasFeatureFlagOrDefault(
+    PNPM_FEATURE_FLAG,
+    options,
+  );
+  const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
+    INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+    options,
+  );
+  const disableGoPackageUrls = await hasFeatureFlagOrDefault(
+    DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
+    options,
+  );
 
+  let enableMavenDverboseExhaustiveDeps = false;
   try {
     const args = options['_doubleDashArgs'] || [];
     const verboseEnabled =
@@ -66,9 +75,18 @@ async function executeTest(root, options) {
   }
 
   try {
-    const featureFlags = hasPnpmSupport
-      ? new Set([PNPM_FEATURE_FLAG])
-      : new Set([]);
+    const featureFlags = new Set();
+    if (hasPnpmSupport) {
+      featureFlags.add(PNPM_FEATURE_FLAG);
+    }
+
+    if (includeGoStandardLibraryDeps) {
+      featureFlags.add(INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG);
+    }
+
+    if (disableGoPackageUrls) {
+      featureFlags.add(DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG);
+    }
 
     const showMavenScope = await isFeatureFlagSupportedForOrg(
       SHOW_MAVEN_BUILD_SCOPE,
