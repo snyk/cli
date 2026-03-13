@@ -6,12 +6,11 @@
 
 - The `snyk aibom` feature requires an internet connection.
 - Snyk CLI v1.1298.3 (or later).
+- Your Project must be written in Python and using a [package manager](../../../supported-languages/supported-languages-list/python/) supported by Snyk.
 
 ## Usage
 
 `$ snyk aibom --experimental [<OPTION>]`
-
-**See also:** [`snyk aibom test`](aibom-test.md) — generate an AI-BOM and test it against your tenant's policies.
 
 ## Description
 
@@ -78,7 +77,7 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 **Optional.** Save the AIBOM output as a JSON data structure directly to the specified file.
 
-#### Available in 1.1303.0
+#### Upcoming Features in 1.1303.0
 
 ### `--upload`&#x20;
 
