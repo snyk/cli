@@ -951,6 +951,12 @@ workflows:
           shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
           pre_test_cmds: |
             if (Test-Path 'C:\tools-cache\snyk-env.ps1') { . 'C:\tools-cache\snyk-env.ps1' }
+            Write-Host "PATH in acceptance-tests windows amd64:"
+            Write-Host $Env:Path
+            Write-Host "mvn on PATH?"
+            Get-Command mvn -ErrorAction SilentlyContinue | Format-List * || Write-Host "mvn not found by Get-Command"
+            Write-Host "Running 'mvn -version' for verification..."
+            mvn -version || Write-Host "mvn -version failed (mvn may still not be on PATH)"
             echo "Windows environment ready"
 
       - sign:
