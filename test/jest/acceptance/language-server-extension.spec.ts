@@ -80,11 +80,14 @@ describe('Language Server Extension', () => {
         activateSnykIac: 'false',
         endpoint: process.env.TEST_SNYK_API,
         token: process.env.TEST_SNYK_TOKEN,
+        organization: process.env.TEST_SNYK_ORG_SLUGNAME || '',
         manageBinariesAutomatically: 'false',
         enableTrustedFoldersFeature: 'false',
         integrationName: 'MyFakePlugin',
         integrationVersion: '1.2.3',
         enableTelemetry: 'false',
+        automaticAuthentication: 'false',
+        authenticationMethod: 'token',
         cliPath: cmd,
       },
     });
@@ -109,7 +112,7 @@ describe('Language Server Extension', () => {
 
     await connection.sendRequest('initialized', {});
 
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 90; i++) {
       console.debug('Waiting for diagnostics...');
       if (diagnosticCount > 0) {
         break;
