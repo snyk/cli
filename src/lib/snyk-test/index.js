@@ -10,6 +10,7 @@ const {
   PNPM_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+  INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
 } = require('../package-managers');
 
 async function test(root, options, callback) {
@@ -35,6 +36,7 @@ async function executeTest(root, options) {
   let hasPnpmSupport = false;
   let hasImprovedDotnetWithoutPublish = false;
   let enableMavenDverboseExhaustiveDeps = false;
+  let includeGoStandardLibraryDeps = false;
   try {
     hasPnpmSupport = await hasFeatureFlag(PNPM_FEATURE_FLAG, options);
     if (options['dotnet-runtime-resolution']) {
@@ -46,6 +48,10 @@ async function executeTest(root, options) {
         options.useImprovedDotnetWithoutPublish = true;
       }
     }
+    includeGoStandardLibraryDeps = await hasFeatureFlag(
+      INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+      options,
+    );
   } catch (err) {
     hasPnpmSupport = false;
   }
@@ -69,6 +75,8 @@ async function executeTest(root, options) {
   } catch (err) {
     enableMavenDverboseExhaustiveDeps = false;
   }
+
+  options.includeGoStandardLibraryDeps = includeGoStandardLibraryDeps;
 
   try {
     const featureFlags = hasPnpmSupport

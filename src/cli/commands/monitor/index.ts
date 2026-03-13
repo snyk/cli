@@ -63,6 +63,7 @@ import {
   PNPM_FEATURE_FLAG,
   DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
+  INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 
@@ -188,6 +189,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   let hasPnpmSupport = false;
   let hasImprovedDotnetWithoutPublish = false;
   let enableMavenDverboseExhaustiveDeps = false;
+  let includeGoStandardLibraryDeps = false;
   try {
     hasPnpmSupport = (await hasFeatureFlag(
       PNPM_FEATURE_FLAG,
@@ -199,6 +201,10 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
         options,
       )) as boolean;
     }
+    includeGoStandardLibraryDeps = (await hasFeatureFlag(
+      INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+      options,
+    )) as boolean;
   } catch (err) {
     hasPnpmSupport = false;
   }
@@ -230,6 +236,8 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   if (hasImprovedDotnetWithoutPublish) {
     options.useImprovedDotnetWithoutPublish = true;
   }
+
+  options.includeGoStandardLibraryDeps = includeGoStandardLibraryDeps;
 
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of paths) {
