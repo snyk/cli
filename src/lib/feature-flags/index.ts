@@ -10,21 +10,39 @@ import * as Debug from 'debug';
 const debug = Debug('snyk-feature-flags');
 export const SHOW_MAVEN_BUILD_SCOPE = 'show-maven-build-scope';
 export const SHOW_NPM_SCOPE = 'show-npm-scope';
+const _ffCache = new Map<string, Map<string, OrgFeatureFlagResponse>>();
 
 export async function isFeatureFlagSupportedForOrg(
   featureFlag: string,
-  org,
+  org: string,
 ): Promise<OrgFeatureFlagResponse> {
+  let cachedOrg = org ? _ffCache.get(org) : undefined;
+  const cachedFF = org ? cachedOrg?.get(featureFlag) : undefined;
+
+  if (cachedFF) {
+    return cachedFF;
+  }
+
   const response = await makeRequest({
     method: 'GET',
     headers: {
       Authorization: getAuthHeader(),
     },
-    qs: assembleQueryString({ org }),
+    qs: org ? assembleQueryString({ org }) : undefined,
     url: `${config.API}/cli-config/feature-flags/${featureFlag}`,
     gzip: true,
     json: true,
   });
+
+  const body = response.body as OrgFeatureFlagResponse;
+
+  if (body.code === 403 || body.code === 200) {
+    if (!cachedOrg) {
+      cachedOrg = new Map();
+      _ffCache.set(org, cachedOrg);
+    }
+    cachedOrg.set(featureFlag, body);
+  }
 
   return (response as any).body;
 }
@@ -35,7 +53,7 @@ export async function hasFeatureFlag(
 ): Promise<boolean | undefined> {
   const { code, error, ok } = await isFeatureFlagSupportedForOrg(
     featureFlag,
-    options.org,
+    options.org || '',
   );
 
   if (code === 401 || code === 403) {

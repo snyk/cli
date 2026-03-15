@@ -25,7 +25,7 @@ export async function validateFixCommandIsSupported(
 
   const snykFixSupported = await isFeatureFlagSupportedForOrg(
     snykFixFeatureFlag,
-    options.org,
+    options.org ?? '',
   );
 
   debug('Feature flag check returned: ', snykFixSupported);
