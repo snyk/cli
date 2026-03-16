@@ -71,8 +71,12 @@ export type FakeServer = {
     response: Record<string, unknown>,
   ) => void;
   setEndpointStatusCode: (endpoint: string, code: number) => void;
+  setEndpointStatusCodes: (endpoint: string, codes: number[]) => void;
+  setEndpointResponses: (
+    endpoint: string,
+    responses: Record<string, unknown>[],
+  ) => void;
   setStatusCode: (c: number) => void;
-  setStatusCodes: (c: number[]) => void;
   setLocalCodeEngineConfiguration: (next: Record<string, unknown>) => void;
   setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
   setOrgSetting: (setting: string, enabled: boolean) => void;
@@ -89,6 +93,16 @@ export type FakeServer = {
   getPort: () => number;
 };
 
+interface EndpointConfig {
+  responses: Record<string, unknown>[];
+  statusCodes: number[];
+  headers: Record<string, string>;
+  responseIndex: number;
+  statusCodeIndex: number;
+  isResponseArray: boolean;
+  isStatusCodeArray: boolean;
+}
+
 export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let requests: express.Request[] = [];
   let featureFlags: Map<string, boolean> = featureFlagDefaults();
@@ -101,24 +115,36 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let nextStatusCode: number | undefined = undefined;
   // the status code to return for all the requests
   let statusCode: number | undefined = undefined;
-  let statusCodes: number[] = [];
   let nextResponse: any = undefined;
-  let endpointResponses: Map<string, Record<string, unknown>> = new Map();
-  let endpointStatusCodes: Map<string, number> = new Map();
-  let endpointHeaders: Map<string, string> = new Map();
+  let endpointConfigs: Map<string, EndpointConfig> = new Map();
   let customResponse: Record<string, unknown> | undefined = undefined;
   let sarifResponse: Record<string, unknown> | undefined = undefined;
   let server: http.Server | undefined = undefined;
   const sockets = new Set();
+
+  const getOrCreateEndpointConfig = (endpoint: string): EndpointConfig => {
+    let config = endpointConfigs.get(endpoint);
+    if (!config) {
+      config = {
+        responses: [],
+        statusCodes: [],
+        headers: {},
+        responseIndex: 0,
+        statusCodeIndex: 0,
+        isResponseArray: false,
+        isStatusCodeArray: false,
+      };
+      endpointConfigs.set(endpoint, config);
+    }
+    return config;
+  };
 
   const restore = () => {
     statusCode = undefined;
     requests = [];
     customResponse = undefined;
     sarifResponse = undefined;
-    endpointResponses = new Map();
-    endpointStatusCodes = new Map();
-    endpointHeaders = new Map();
+    endpointConfigs = new Map();
     featureFlags = featureFlagDefaults();
     availableSettings = new Map();
     unauthorizedActions = new Map();
@@ -172,21 +198,20 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     statusCode = code;
   };
 
-  const setStatusCodes = (codes: number[]) => {
-    statusCodes = codes;
-  };
-
   const setGlobalResponse = (
     response: Record<string, unknown>,
     code: number,
     headers?: Record<string, string>,
   ) => {
-    endpointResponses.set('*', response);
-    endpointStatusCodes.set('*', code);
+    const config = getOrCreateEndpointConfig('*');
+    config.responses = [response];
+    config.statusCodes = [code];
+    config.isResponseArray = false;
+    config.isStatusCodeArray = false;
+    config.responseIndex = 0;
+    config.statusCodeIndex = 0;
     if (headers) {
-      for (const [key, value] of Object.entries(headers)) {
-        endpointHeaders.set(key, value);
-      }
+      config.headers = { ...headers };
     }
   };
 
@@ -194,11 +219,116 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     endpoint: string,
     response: Record<string, unknown>,
   ) => {
-    endpointResponses.set(endpoint, response);
+    const config = getOrCreateEndpointConfig(endpoint);
+    config.responses = [response];
+    config.isResponseArray = false;
+    config.responseIndex = 0;
   };
 
   const setEndpointStatusCode = (endpoint: string, code: number) => {
-    endpointStatusCodes.set(endpoint, code);
+    const config = getOrCreateEndpointConfig(endpoint);
+    config.statusCodes = [code];
+    config.isStatusCodeArray = false;
+    config.statusCodeIndex = 0;
+  };
+
+  const setEndpointStatusCodes = (endpoint: string, codes: number[]) => {
+    const config = getOrCreateEndpointConfig(endpoint);
+    config.statusCodes = [...codes];
+    config.isStatusCodeArray = true;
+    config.statusCodeIndex = 0;
+  };
+
+  const setEndpointResponses = (
+    endpoint: string,
+    responses: Record<string, unknown>[],
+  ) => {
+    const config = getOrCreateEndpointConfig(endpoint);
+    config.responses = [...responses];
+    config.isResponseArray = true;
+    config.responseIndex = 0;
+  };
+
+  const handleSpecificResponses = (request, response): boolean => {
+    const endpoint = request.url;
+    const pathOnly = endpoint.split('?')[0];
+    const wildcardEndpoint = '*';
+
+    const config =
+      endpointConfigs.get(wildcardEndpoint) ||
+      endpointConfigs.get(endpoint) ||
+      endpointConfigs.get(pathOnly);
+
+    if (!config) {
+      return false;
+    }
+
+    // configure any response headers
+    if (Object.keys(config.headers).length > 0) {
+      for (const [key, value] of Object.entries(config.headers)) {
+        response.set(key, value);
+      }
+    }
+
+    // For static (non-array) configs, always use index 0
+    // For array configs, check if index is within bounds
+    const hasResponse =
+      config.responses.length > 0 &&
+      (!config.isResponseArray ||
+        config.responseIndex < config.responses.length);
+    const hasStatusCode =
+      config.statusCodes.length > 0 &&
+      (!config.isStatusCodeArray ||
+        config.statusCodeIndex < config.statusCodes.length);
+
+    // Get current status code (default to 200 if not set)
+    const currentStatusCode = hasStatusCode
+      ? config.statusCodes[config.statusCodeIndex]
+      : 200;
+
+    if (!hasResponse && !hasStatusCode) {
+      return false;
+    }
+
+    const currentResponse = hasResponse
+      ? config.responses[config.responseIndex]
+      : null;
+
+    console.log(
+      '[handleSpecificResponses]',
+      JSON.stringify({
+        endpoint,
+        statusCode: currentStatusCode,
+        hasResponseBody: hasResponse,
+        responseIndex: config.responseIndex,
+        statusCodeIndex: config.statusCodeIndex,
+      }),
+    );
+
+    response.status(currentStatusCode);
+
+    // Send response if configured, otherwise send empty response
+    if (hasResponse) {
+      response.send(currentResponse);
+    } else {
+      response.send();
+    }
+
+    // Advance indices for array-based configs
+    if (
+      config.isResponseArray &&
+      config.responseIndex < config.responses.length
+    ) {
+      config.responseIndex++;
+    }
+    if (
+      config.isStatusCodeArray &&
+      config.statusCodeIndex < config.statusCodes.length
+    ) {
+      config.statusCodeIndex++;
+    }
+
+    return true;
   };
 
   const setFeatureFlag = (featureFlag: string, enabled: boolean) => {
@@ -230,30 +360,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   app.use((req, res, next) => {
-    const endpoint = req.url;
-    const pathOnly = endpoint.split('?')[0];
-
-    const wildcardEndpoint = '*';
-    const endpointResponse =
-      endpointResponses.get(wildcardEndpoint) ||
-      endpointResponses.get(endpoint) ||
-      endpointResponses.get(pathOnly);
-
-    const endpointStatusCode =
-      endpointStatusCodes.get(wildcardEndpoint) ||
-      endpointStatusCodes.get(endpoint) ||
-      endpointStatusCodes.get(pathOnly);
-
-    // configure any response headers
-    if (endpointHeaders.size > 0) {
-      endpointHeaders.forEach((value, key) => {
-        res.set(key, value);
-      });
-    }
-
-    if (endpointResponse) {
-      res.status(endpointStatusCode || 200);
-      res.send(endpointResponse);
+    // check and handle specific responses first
+    if (handleSpecificResponses(req, res)) {
       return;
     }
 
@@ -306,6 +414,30 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   app.get('/login', (req, res) => {
     res.status(200);
     res.send('Test Authenticated!');
+  });
+
+  app.get(`/api/rest/orgs/:orgId`, (req, res) => {
+    res.status(200);
+    res.send({
+      data: {
+        id: req.params.orgId,
+        type: 'org',
+        attributes: {
+          group_id: 'b2371803-df81-46ba-85e2-d76b2b8dac4f',
+          is_personal: false,
+          name: 'fake testing',
+          slug: 'fake_testing',
+          created_at: '2023-06-09T10:37:07Z',
+          updated_at: '2024-03-22T10:46:32Z',
+        },
+      },
+      jsonapi: {
+        version: '1.0',
+      },
+      links: {
+        self: '/rest/orgs/' + req.params.orgId,
+      },
+    });
   });
 
   app.get('/rest/self', (req, res) => {
@@ -888,12 +1020,6 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         userMessage:
           'Org missing-org was not found or you may not have the correct permissions',
       });
-      return next();
-    }
-
-    const statusCode = statusCodes.shift();
-    if (statusCode && statusCode !== 200) {
-      res.sendStatus(statusCode);
       return next();
     }
 
@@ -1600,9 +1726,10 @@ ${componentsXml}
     setNextStatusCode,
     setEndpointResponse,
     setEndpointStatusCode,
+    setEndpointStatusCodes,
+    setEndpointResponses,
     setGlobalResponse,
     setStatusCode,
-    setStatusCodes,
     setFeatureFlag,
     setOrgSetting,
     unauthorizeAction,

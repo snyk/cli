@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
-	github.com/snyk/cli-extension-agent-scan v0.0.0-20260311142730-33246140f242
+	github.com/snyk/cli-extension-agent-scan v0.0.0-20260312152423-bc36193ecaa8
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260303103300-ea9a5a717cbb
 	github.com/snyk/cli-extension-dep-graph v0.26.1
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
@@ -18,10 +18,10 @@ require (
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260306115903-79ae783267c1
 	github.com/snyk/cli-extension-sbom v0.0.0-20260310155620-07d1927f26ea
 	github.com/snyk/cli-extension-secrets v0.0.0-20260305092220-defe1129df99
-	github.com/snyk/code-client-go v1.26.1
+	github.com/snyk/code-client-go v1.26.2
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
 	github.com/snyk/error-catalog-golang-public v0.0.0-20260205094614-116c03822905
-	github.com/snyk/go-application-framework v0.0.0-20260305172259-b33b95a28a1a
+	github.com/snyk/go-application-framework v0.0.0-20260313105832-a4cb5e591908
 	github.com/snyk/go-httpauth v0.0.0-20240307114523-1f5ea3f55c65
 	github.com/snyk/snyk-iac-capture v0.6.5
 	github.com/snyk/snyk-ls v0.0.0-20260304132829-e6e1af4e34d8

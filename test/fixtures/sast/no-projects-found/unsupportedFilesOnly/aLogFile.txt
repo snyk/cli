@@ -1,0 +1,24 @@
+2025-09-03T07:48:48.887Z: Executing: /usr/local/lib/node_modules/snyk/wrapper_dist/snyk-macos-arm64
+2025-09-03T07:48:48Z main - ⚠️ WARNING: Potentially Sensitive Information ⚠️
+These logs may contain sensitive data, including secrets or passwords. Snyk applies automated safeguards to redact commonly recognized secrets; however, full coverage cannot be guaranteed. We strongly recommend that you carefully review the logs before sharing to ensure no confidential or proprietary information is included.
+2025-09-03T07:48:49Z main - Version:               1.1298.2 
+2025-09-03T07:48:49Z main - Platform:              darwin arm64  TS_BINARY_WRAPPER/1.1298.2
+2025-09-03T07:48:49Z main - API:                   https://api.snyk.io
+2025-09-03T07:48:49Z main - Region:                snyk-us-01
+2025-09-03T07:48:49Z main - Cache:                 /Users/***/Library/Caches/snyk/snyk-cli
+2025-09-03T07:48:49Z main - Organization:          abcd
+2025-09-03T07:48:49Z main - Insecure HTTPS:        false
+2025-09-03T07:48:49Z main - Analytics:             enabled
+2025-09-03T07:48:49Z main - Authorization:         token  (type=token)
+2025-09-03T07:48:49Z main - Interaction:           urn:snyk:interaction:abcde
+2025-09-03T07:48:49Z main - Features:              
+2025-09-03T07:48:49Z main -   preview:             disabled
+2025-09-03T07:48:49Z main -   fips:                Not available
+2025-09-03T07:48:49Z main -   request attempts:    1
+2025-09-03T07:48:49Z main -   config cache:        enabled (ttl=no expiration)
+2025-09-03T07:48:49Z main - Checks:                
+2025-09-03T07:48:49Z main -   Configuration:       all good
+2025-09-03T07:48:49Z main - Running code test
+2025-09-03T07:48:49Z code.test:1 - Workflow Start
+2025-09-03T07:48:49Z code.test:1 - Boo!
+2025-09-03T07:48:54Z code.test:1 - Workflow End
