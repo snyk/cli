@@ -174,7 +174,7 @@ This option is designed to be run in the root of your monorepo.
 
 ### `--configuration-matching=<CONFIGURATION_REGEX>`
 
-Resolve dependencies using only configuration(s) that match the specified Java regular expression.
+Resolve dependencies using all configuration(s) that match the specified Java regular expression (case-insensitive), aggregating their dependencies into a single scan result. If you require separate reports for different configurations (for example, compile vs. runtime), run the command separately for each.
 
 Example: `^releaseRuntimeClasspath$`
 

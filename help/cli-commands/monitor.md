@@ -293,7 +293,7 @@ For more details, see the following support article: [Scanning Gradle projects i
 
 ### `--configuration-matching=<CONFIGURATION_REGEX>`
 
-Resolve dependencies using the first configuration that matches the specified Java regular expression.
+Resolve dependencies using all configuration(s) that match the specified Java regular expression (case-insensitive), aggregating their dependencies into a single scan result. If you require separate reports for different configurations (for example, compile vs. runtime), run the command separately for each.
 
 Example: `^releaseRuntimeClasspath$`
 
