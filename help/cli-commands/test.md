@@ -214,6 +214,8 @@ Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regar
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
+When running multiple scans, such as SCA and Code scans, the SARIF output includes data only from the most recently completed scan. If you run multiple scans sequentially and specify the same `--sarif-file-output` file path, each subsequent scan overwrites the previous SARIF file. To keep results separate, save each scan to a different SARIF output file.
+
 ### `--severity-threshold=<low|medium|high|critical>`
 
 Report only vulnerabilities at the specified level or higher.
