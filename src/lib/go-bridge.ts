@@ -1,12 +1,21 @@
 import { CLI } from '@snyk/error-catalog-nodejs-public';
 import * as childProcess from 'child_process';
 import { debug as Debug } from 'debug';
+import { StringDecoder } from 'string_decoder';
+import { abridgeErrorMessage } from './error-format';
 
 const debug = Debug('snyk:go-bridge');
 
 const SNYK_INTERNAL_CLI_EXECUTABLE_PATH_ENV =
   'SNYK_INTERNAL_CLI_EXECUTABLE_PATH';
 const MAX_BUFFER = 50 * 1024 * 1024;
+const GO_BRIDGE_STDERR_PREFIX = '[go-bridge] ';
+const STDERR_TRUNCATION_ELLIPSIS = ' ...(stderr truncated) ... ';
+
+interface PrefixedChunkResult {
+  chunk: string;
+  isAtLineStart: boolean;
+}
 
 export interface GoCommandResult {
   exitCode: number;
@@ -29,6 +38,9 @@ export interface GoCommandResult {
  * - The child process fails to spawn (e.g., binary not found)
  * - stdout exceeds the maximum buffer size
  *
+ * stderr output is soft-capped: once it reaches the maximum buffer size, it is
+ * truncated with an ellipsis marker and no further stderr is accumulated.
+ *
  * @param args - The arguments to pass to the Go Snyk CLI binary (e.g., ['depgraph', '--file=uv.lock'])
  * @param options - Optional settings for the child process
  * @returns A result object with the exitCode, stdout, and stderr
@@ -49,6 +61,7 @@ export function execGoCommand(
   }
 
   debug('executing Go command: %s %s', execPath, args.join(' '));
+  const shouldStreamStderr = args.includes('--debug');
   const commandEnv = restoreSystemEnvironment({
     ...process.env,
   });
@@ -56,6 +69,45 @@ export function execGoCommand(
   return new Promise((resolve, reject) => {
     let stdout = '';
     let stderr = '';
+    let stderrSize = 0;
+    let isStderrTruncated = false;
+    let isStderrAtLineStart = true;
+    const stderrDecoder = new StringDecoder('utf8');
+
+    const appendStderrChunk = (stderrChunk: string): void => {
+      if (!stderrChunk) {
+        return;
+      }
+
+      if (shouldStreamStderr) {
+        const result = prefixChunkLines(
+          stderrChunk,
+          GO_BRIDGE_STDERR_PREFIX,
+          isStderrAtLineStart,
+        );
+        isStderrAtLineStart = result.isAtLineStart;
+        process.stderr.write(result.chunk);
+      }
+
+      if (isStderrTruncated) {
+        return;
+      }
+
+      const stderrChunkSize = Buffer.byteLength(stderrChunk, 'utf8');
+      if (stderrSize + stderrChunkSize > MAX_BUFFER) {
+        stderr = abridgeErrorMessage(
+          `${stderr}${stderrChunk}`,
+          MAX_BUFFER,
+          STDERR_TRUNCATION_ELLIPSIS,
+        );
+        stderrSize = Buffer.byteLength(stderr, 'utf8');
+        isStderrTruncated = true;
+        return;
+      }
+
+      stderr += stderrChunk;
+      stderrSize += stderrChunkSize;
+    };
 
     const proc = childProcess.spawn(execPath, args, {
       cwd: options?.cwd,
@@ -78,8 +130,10 @@ export function execGoCommand(
     }
 
     if (proc.stderr) {
-      proc.stderr.on('data', (data: Buffer) => {
-        stderr += data;
+      proc.stderr.on('data', (data: Buffer | string) => {
+        const stderrChunk =
+          typeof data === 'string' ? data : stderrDecoder.write(data);
+        appendStderrChunk(stderrChunk);
       });
     }
 
@@ -93,6 +147,9 @@ export function execGoCommand(
     });
 
     proc.on('close', (code) => {
+      const trailingStderrChunk = stderrDecoder.end();
+      appendStderrChunk(trailingStderrChunk);
+
       debug('Go command exited with code %d', code);
       resolve({ exitCode: code ?? 1, stdout, stderr });
     });
@@ -122,4 +179,20 @@ function restoreSystemEnvironment(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
     env.OPENSSL_CONF = process.env.SNYK_SYSTEM_OPENSSL_CONF;
   }
   return env;
+}
+
+function prefixChunkLines(
+  chunk: string,
+  prefix: string,
+  isAtLineStart: boolean,
+): PrefixedChunkResult {
+  if (!chunk) {
+    return { chunk, isAtLineStart };
+  }
+
+  const prefixedChunkBody = chunk.replace(/\n(?!$)/g, `\n${prefix}`);
+  return {
+    chunk: isAtLineStart ? `${prefix}${prefixedChunkBody}` : prefixedChunkBody,
+    isAtLineStart: chunk.endsWith('\n'),
+  };
 }
