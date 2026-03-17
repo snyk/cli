@@ -772,6 +772,35 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
+  // AI-BOM CLI policy test (aibom test command)
+  app.post(
+    `/api/hidden/orgs/:orgId/ai_boms/cli_policy_test`,
+    (req: express.Request, res: express.Response) => {
+      res.status(200);
+      res.setHeader('Content-Type', 'application/vnd.api+json');
+      res.send({
+        jsonapi: { version: '1.0' },
+        data: {
+          id: 'cli-policy-test-run-1',
+          type: 'test',
+          attributes: {
+            issues: [
+              {
+                id: 'issue-1',
+                description: 'Disallowed model',
+                severity: 'high',
+                policy_id: 'pol-123',
+                state: 'open',
+                source: 'policy',
+                remediation_advice: 'Use an allowed model',
+              },
+            ],
+          },
+        },
+      });
+    },
+  );
+
   // Unified Test API endpoints for uv acceptance tests
   const testJobId = 'aaaaaaaa-bbbb-cccc-dddd-000000000001';
   const testId = 'aaaaaaaa-bbbb-cccc-dddd-000000000002';
