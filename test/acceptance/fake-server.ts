@@ -848,6 +848,51 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
+  // Red team enumeration routes
+  app.get(['/api/hidden/profiles', '/api/v1/hidden/profiles'], (_req, res) => {
+    res.json([
+      {
+        id: 'fast',
+        name: 'Fast',
+        description: 'Quick scan with a small set of attacks',
+        entries: [
+          { goal: 'system_prompt_extraction', strategy: 'directly_asking' },
+          { goal: 'prompt_injection', strategy: 'encoding_based' },
+        ],
+      },
+      {
+        id: 'security',
+        name: 'Security',
+        description: 'Comprehensive security-focused scan',
+        entries: [
+          { goal: 'system_prompt_extraction', strategy: 'directly_asking' },
+          { goal: 'prompt_injection', strategy: 'encoding_based' },
+          { goal: 'pii_extraction' },
+        ],
+      },
+    ]);
+  });
+
+  app.get('/api/hidden/goals', (_req, res) => {
+    res.json([
+      {
+        value: 'system_prompt_extraction',
+        description: 'Attempt to extract the system prompt',
+        display_order: 1,
+      },
+      {
+        value: 'prompt_injection',
+        description: 'Attempt prompt injection attacks',
+        display_order: 2,
+      },
+      {
+        value: 'pii_extraction',
+        description: 'Attempt to extract PII data',
+        display_order: 3,
+      },
+    ]);
+  });
+
   // Red team control server routes
   app.post(
     '/api/hidden/tenants/:tenantId/red_team_scans',
@@ -914,6 +959,56 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           },
         ],
         tags: [],
+      });
+    },
+  );
+
+  app.get(
+    '/api/hidden/tenants/:tenantId/red_team_scans/:id/report',
+    (req, res) => {
+      res.json({
+        id: req.params.id,
+        results: [
+          {
+            id: 'result-1',
+            severity: 'high',
+            definition: {
+              id: 'system-prompt-exfiltration',
+              name: 'System Prompt Exfiltration',
+              description:
+                'The system prompt was successfully extracted from the target.',
+            },
+            evidence: {
+              type: 'chat_transcript',
+              content: {
+                reason: 'The target revealed its system prompt when asked directly.',
+              },
+            },
+            url: 'https://example.com/vuln/1',
+          },
+        ],
+        summary: {
+          vulnerabilities: [
+            {
+              engine_tag: 'system-prompt-exfiltration/directly_asking',
+              slug: 'system-prompt-exfiltration',
+              name: 'System Prompt Exfiltration',
+              description: 'The system prompt was extracted.',
+              severity: 'high',
+              status: 'vulnerable',
+              vulnerable: true,
+            },
+            {
+              engine_tag: 'prompt-injection/encoding_based',
+              slug: 'prompt-injection',
+              name: 'Prompt Injection',
+              description: 'Prompt injection attack.',
+              severity: 'medium',
+              status: 'not_vulnerable',
+              vulnerable: false,
+            },
+          ],
+        },
       });
     },
   );

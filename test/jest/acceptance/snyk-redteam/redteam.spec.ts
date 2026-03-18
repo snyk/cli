@@ -86,7 +86,9 @@ describe('snyk redteam (mocked servers only)', () => {
       SNYK_TOKEN: '123456789',
       SNYK_DISABLE_ANALYTICS: '1',
       SNYK_CFG_ORG: tenantId,
-      CONTROL_SERVER_URL: serverBase,
+      SNYK_OAUTH_TOKEN: '',
+      INTERNAL_OAUTH_TOKEN_STORAGE: '',
+      XDG_CONFIG_HOME: mkdtempSync(join(tmpdir(), 'snyk-config-')),
     };
   });
 
@@ -126,19 +128,20 @@ describe('snyk redteam (mocked servers only)', () => {
     const scanPath = `/api/hidden/tenants/${tenantId}/red_team_scans`;
     const redteamRequests = server
       .getRequests()
-      .filter((req) => req.url?.includes('/red_team_scans'))
+      .filter((req) => req.url?.includes('/red_team_scans') || req.url?.includes('/hidden/profiles'))
       .map((req) => ({
         method: req.method,
         path: req.url?.split('?')[0],
       }));
 
     expect(redteamRequests).toEqual([
+      { method: 'GET', path: '/api/hidden/profiles' },            // resolve default profile
       { method: 'POST', path: scanPath },                         // create scan
       { method: 'POST', path: `${scanPath}/${scanId}/next` },     // get prompts (returns 1 chat)
       { method: 'GET', path: `${scanPath}/${scanId}/status` },    // progress update
       { method: 'POST', path: `${scanPath}/${scanId}/next` },     // get prompts (returns empty, loop ends)
       { method: 'GET', path: `${scanPath}/${scanId}/status` },    // final progress
-      { method: 'GET', path: `${scanPath}/${scanId}` },           // fetch result
+      { method: 'GET', path: `${scanPath}/${scanId}/report` },    // fetch report
     ]);
 
     expect(report).toMatchObject({
@@ -429,5 +432,81 @@ describe('snyk redteam (mocked servers only)', () => {
     );
     expect(result).toHaveExitCode(2);
     expect(result.stdout).toContain('not a valid UUID');
+  });
+
+  test('`redteam --list-profiles` lists available profiles', async () => {
+    const result = await runSnykCLI(
+      `redteam --experimental --list-profiles`,
+      {
+        env,
+      },
+    );
+    expect(result).toHaveExitCode(0);
+    expect(result.stdout).toContain('Available profiles');
+    expect(result.stdout).toContain('fast');
+    expect(result.stdout).toContain('security');
+  });
+
+  test('`redteam --list-goals` lists available goals', async () => {
+    const result = await runSnykCLI(
+      `redteam --experimental --list-goals`,
+      {
+        env,
+      },
+    );
+    expect(result).toHaveExitCode(0);
+    expect(result.stdout).toContain('Available goals');
+    expect(result.stdout).toContain('system_prompt_extraction');
+    expect(result.stdout).toContain('prompt_injection');
+  });
+
+  test('`redteam --goals` runs scan with specified goals', async () => {
+    const result = await runSnykCLI(
+      `redteam --config=${redteamTarget} --experimental --tenant-id=${tenantId} --target-url=${targetURL} --goals=system_prompt_extraction`,
+      {
+        env,
+      },
+    );
+    expect(result).toHaveExitCode(0);
+
+    let report: any;
+    expect(() => {
+      report = JSON.parse(extractJSON(result.stdout));
+    }).not.toThrow();
+    expect(report.id).toBeDefined();
+    expect(report.results).toBeDefined();
+
+    const requests = server
+      .getRequests()
+      .filter((req) => req.url?.includes('/hidden/profiles'));
+    expect(requests).toHaveLength(0);
+  });
+
+  test('`redteam --profile` runs scan with specified profile', async () => {
+    const result = await runSnykCLI(
+      `redteam --config=${redteamTarget} --experimental --tenant-id=${tenantId} --target-url=${targetURL} --profile=security`,
+      {
+        env,
+      },
+    );
+    expect(result).toHaveExitCode(0);
+
+    let report: any;
+    expect(() => {
+      report = JSON.parse(extractJSON(result.stdout));
+    }).not.toThrow();
+    expect(report.id).toBeDefined();
+    expect(report.results).toBeDefined();
+  });
+
+  test('`redteam --goals --profile` fails with both flags', async () => {
+    const result = await runSnykCLI(
+      `redteam --config=${redteamTarget} --experimental --tenant-id=${tenantId} --target-url=${targetURL} --goals=system_prompt_extraction --profile=fast`,
+      {
+        env,
+      },
+    );
+    expect(result).toHaveExitCode(2);
+    expect(result.stdout).toContain('cannot be used together');
   });
 });
