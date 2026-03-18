@@ -5,7 +5,7 @@ import { TestOptions, Options, MonitorOptions } from '../types';
 import { snykHttpClient } from '../request/snyk-http-client';
 import * as types from './types';
 import { buildPluginOptions } from './build-plugin-options';
-const { SHOW_MAVEN_BUILD_SCOPE, SHOW_NPM_SCOPE } = require('../feature-flags');
+import { SHOW_MAVEN_BUILD_SCOPE, SHOW_NPM_SCOPE } from '../feature-flags';
 
 export async function getSinglePluginResult(
   root: string,
@@ -17,7 +17,7 @@ export async function getSinglePluginResult(
   const moduleInfo = ModuleInfo(plugin, options.policy);
 
   // Build final options with any ecosystem-specific configurations/flags injected
-  const pluginOptions = await buildPluginOptions(options);
+  const pluginOptions = await buildPluginOptions(options, featureFlags);
 
   const inspectRes: pluginApi.InspectResult = await moduleInfo.inspect(
     root,

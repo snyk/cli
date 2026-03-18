@@ -2,6 +2,10 @@ export const PNPM_FEATURE_FLAG = 'enablePnpmCli';
 export const UV_FEATURE_FLAG = 'enableUvCLI';
 export const MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF =
   'enableMavenDverboseExhaustiveDeps';
+export const INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG =
+  'includeGoStandardLibraryDeps';
+export const DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG =
+  'disableGoPackageUrlsInCli';
 
 export type SupportedPackageManagers =
   | 'rubygems'

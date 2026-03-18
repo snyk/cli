@@ -9,6 +9,10 @@ import * as pluginsModule from '../../../../../src/lib/plugins';
 import { ModuleInfo } from '../../../../../src/lib/module-info';
 import { hasFeatureFlagOrDefault } from '../../../../../src/lib/feature-flags';
 import { snykHttpClient } from '../../../../../src/lib/request/snyk-http-client';
+import {
+  DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
+  INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+} from '../../../../../src/lib/package-managers';
 
 // Mock dependencies
 jest.mock('../../../../../src/lib/plugins', () => ({
@@ -47,19 +51,15 @@ describe('getSinglePluginResult', () => {
         packageManager: 'gomodules',
         showVulnPaths: 'some',
       };
+      const featureFlags = new Set([
+        INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+      ]);
 
-      (hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(true);
+      await getSinglePluginResult('/test', options, 'go.mod', featureFlags);
 
-      await getSinglePluginResult('/test', options);
-
-      expect(hasFeatureFlagOrDefault).toHaveBeenCalledWith(
-        'includeGoStandardLibraryDeps',
-        options,
-        false,
-      );
       expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
         '/test',
-        undefined,
+        'go.mod',
         expect.objectContaining({
           configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
@@ -75,19 +75,13 @@ describe('getSinglePluginResult', () => {
         packageManager: 'gomodules',
         showVulnPaths: 'some',
       };
+      const featureFlags = new Set<string>();
 
-      (hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(false);
+      await getSinglePluginResult('/test', options, 'go.mod', featureFlags);
 
-      await getSinglePluginResult('/test', options);
-
-      expect(hasFeatureFlagOrDefault).toHaveBeenCalledWith(
-        'includeGoStandardLibraryDeps',
-        options,
-        false,
-      );
       expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
         '/test',
-        undefined,
+        'go.mod',
         expect.objectContaining({
           configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: false,
@@ -103,45 +97,15 @@ describe('getSinglePluginResult', () => {
         packageManager: 'golangdep',
         showVulnPaths: 'some',
       };
+      const featureFlags = new Set([
+        INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+      ]);
 
-      (hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(true);
-
-      await getSinglePluginResult('/test', options);
-
-      expect(hasFeatureFlagOrDefault).toHaveBeenCalledWith(
-        'includeGoStandardLibraryDeps',
-        options,
-        false,
-      );
-      expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
-        '/test',
-        undefined,
-        expect.objectContaining({
-          configuration: expect.objectContaining({
-            includeGoStandardLibraryDeps: true,
-          }),
-        }),
-        snykHttpClient,
-      );
-    });
-
-    it('should preserve existing configuration properties when adding includeGoStandardLibraryDeps', async () => {
-      const options: Options & TestOptions = {
-        path: '/test',
-        packageManager: 'gomodules',
-        showVulnPaths: 'some',
-        configuration: {
-          includePackageUrls: true,
-        },
-      };
-
-      (hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(true);
-
-      await getSinglePluginResult('/test', options);
+      await getSinglePluginResult('/test', options, 'go.mod', featureFlags);
 
       expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
         '/test',
-        undefined,
+        'go.mod',
         expect.objectContaining({
           configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
@@ -157,19 +121,13 @@ describe('getSinglePluginResult', () => {
         packageManager: 'gomodules',
         showVulnPaths: 'some',
       };
+      const featureFlags = new Set<string>();
 
-      (hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(false);
+      await getSinglePluginResult('/test', options, 'go.mod', featureFlags);
 
-      await getSinglePluginResult('/test', options);
-
-      expect(hasFeatureFlagOrDefault).toHaveBeenCalledWith(
-        'disableGoPackageUrlsInCli',
-        options,
-        false,
-      );
       expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
         '/test',
-        undefined,
+        'go.mod',
         expect.objectContaining({
           configuration: expect.objectContaining({
             includePackageUrls: true,
@@ -185,19 +143,15 @@ describe('getSinglePluginResult', () => {
         packageManager: 'gomodules',
         showVulnPaths: 'some',
       };
+      const featureFlags = new Set<string>([
+        DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
+      ]);
 
-      (hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(true);
+      await getSinglePluginResult('/test', options, 'go.mod', featureFlags);
 
-      await getSinglePluginResult('/test', options);
-
-      expect(hasFeatureFlagOrDefault).toHaveBeenCalledWith(
-        'disableGoPackageUrlsInCli',
-        options,
-        false,
-      );
       expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
         '/test',
-        undefined,
+        'go.mod',
         expect.objectContaining({
           configuration: expect.objectContaining({
             includePackageUrls: false,
@@ -292,31 +246,6 @@ describe('getSinglePluginResult', () => {
         snykHttpClient,
       );
     });
-
-    it('should preserve existing configuration for non-Go package managers', async () => {
-      const options: Options & TestOptions = {
-        path: '/test',
-        packageManager: 'npm',
-        showVulnPaths: 'some',
-        configuration: {
-          includePackageUrls: true,
-        },
-      };
-
-      await getSinglePluginResult('/test', options);
-
-      expect(hasFeatureFlagOrDefault).not.toHaveBeenCalled();
-      expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
-        '/test',
-        undefined,
-        expect.objectContaining({
-          configuration: {
-            includePackageUrls: true,
-          },
-        }),
-        snykHttpClient,
-      );
-    });
   });
 
   describe('MonitorOptions', () => {
@@ -325,19 +254,17 @@ describe('getSinglePluginResult', () => {
         path: '/test',
         packageManager: 'gomodules',
       };
+      const featureFlags = new Set([
+        INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
+      ]);
 
       (hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(true);
 
-      await getSinglePluginResult('/test', options);
+      await getSinglePluginResult('/test', options, 'go.mod', featureFlags);
 
-      expect(hasFeatureFlagOrDefault).toHaveBeenCalledWith(
-        'includeGoStandardLibraryDeps',
-        options,
-        false,
-      );
       expect(mockModuleInfo.inspect).toHaveBeenCalledWith(
         '/test',
-        undefined,
+        'go.mod',
         expect.objectContaining({
           configuration: expect.objectContaining({
             includeGoStandardLibraryDeps: true,
@@ -349,21 +276,6 @@ describe('getSinglePluginResult', () => {
   });
 
   describe('Error handling', () => {
-    it('should propagate errors from hasFeatureFlagOrDefault', async () => {
-      const options: Options & TestOptions = {
-        path: '/test',
-        packageManager: 'gomodules',
-        showVulnPaths: 'some',
-      };
-
-      const error = new Error('Feature flag check failed');
-      (hasFeatureFlagOrDefault as jest.Mock).mockRejectedValue(error);
-
-      await expect(getSinglePluginResult('/test', options)).rejects.toThrow(
-        'Feature flag check failed',
-      );
-    });
-
     it('should propagate errors from moduleInfo.inspect', async () => {
       const options: Options & TestOptions = {
         path: '/test',
