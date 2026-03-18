@@ -1,7 +1,6 @@
 import { test } from 'tap';
 import * as requestLib from 'needle';
-
-const isEmpty = require('lodash.isempty');
+import * as isEmpty from 'lodash.isempty';
 import * as sinon from 'sinon';
 
 import * as cli from '../../src/cli/commands';
@@ -49,7 +48,7 @@ test('Make sure that target is sent correctly', async (t) => {
   const { data } = await getFakeServerRequestBody();
   t.equal(
     requestSpy.callCount,
-    5,
+    7,
     `needle.request was called ${requestSpy.callCount} times`,
   );
   t.ok(!isEmpty(data.target), 'target passed to request');
@@ -80,7 +79,7 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
 
   t.equal(
     requestSpy.callCount,
-    5,
+    7,
     `needle.request was called ${requestSpy.callCount} times`,
   );
   t.ok(isEmpty(data.target), 'empty target passed to request');
@@ -101,7 +100,7 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
 
   t.equal(
     requestSpy.callCount,
-    5,
+    7,
     `needle.request was called ${requestSpy.callCount} times`,
   );
   t.ok(isEmpty(data.target), 'empty target passed to request');

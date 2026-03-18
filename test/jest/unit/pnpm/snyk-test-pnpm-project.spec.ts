@@ -31,47 +31,7 @@ describe('snyk test for pnpm project', () => {
       it('should scan pnpm vulnerabilities when enablePnpmCli feature flag is enabled', async () => {
         const fixturePath = getFixturePath('pnpm-app');
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: true,
-            },
-          });
-        });
-
-        // this is for 'show-maven-build-scope' and 'show-npm-scope' feature flags
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: true,
-            },
-          });
-        });
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: true,
-            },
-          });
-        });
-
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              result: { issuesData: {}, affectedPkgs: {} },
-              meta: { org: 'test-org', isPublic: false },
-              filesystemPolicy: false,
-            },
-          });
-        });
+        mockRequests(true);
 
         const result: CommandResult = await test(fixturePath, {
           json: true,
@@ -79,7 +39,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(4);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -120,47 +80,7 @@ describe('snyk test for pnpm project', () => {
       it('should scan pnpm vulnerabilities as npm project when enablePnpmCli feature flag is not enabled', async () => {
         const fixturePath = getFixturePath('pnpm-app');
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
-
-        // this is for 'show-maven-build-scope' and 'show-npm-scope' feature flags
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
-
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              result: { issuesData: {}, affectedPkgs: {} },
-              meta: { org: 'test-org', isPublic: false },
-              filesystemPolicy: false,
-            },
-          });
-        });
+        mockRequests(false);
 
         const result: CommandResult = await test(fixturePath, {
           json: true,
@@ -168,7 +88,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(4);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
 
         const expectedResultObject = {
           vulnerabilities: [],
@@ -206,27 +126,7 @@ describe('snyk test for pnpm project', () => {
       it('should scan pnpm workspace vulnerabilities', async () => {
         const fixturePath = getFixturePath('workspace-multi-type');
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: true,
-            },
-          });
-        });
-
-        mockedMakeRequest.mockImplementation(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              result: { issuesData: {}, affectedPkgs: {} },
-              meta: { org: 'test-org', isPublic: false },
-              filesystemPolicy: false,
-            },
-          });
-        });
+        mockRequests(true);
 
         const result: CommandResult = await test(fixturePath, {
           allProjects: true,
@@ -235,7 +135,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(13);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(15);
 
         const parsedResult = JSON.parse(result.getDisplayResults());
         const pnpmResult = parsedResult.filter(
@@ -249,16 +149,7 @@ describe('snyk test for pnpm project', () => {
       it('should not scan pnpm workspace vulnerabilities, only npm and yarn', async () => {
         const fixturePath = getFixturePath('workspace-multi-type');
 
-        // this is for 'enablePnpmCli' feature flag
-        mockedMakeRequest.mockImplementationOnce(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              code: 200,
-              ok: false,
-            },
-          });
-        });
+        mockRequests(false);
 
         mockedMakeRequest.mockImplementation(() => {
           return Promise.resolve({
@@ -278,7 +169,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(9);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(11);
 
         const parsedResult = JSON.parse(result.getDisplayResults());
         const pnpmResult = parsedResult.filter(
@@ -289,3 +180,26 @@ describe('snyk test for pnpm project', () => {
     });
   });
 });
+
+function mockRequests(enablePnpm = true): void {
+  mockedMakeRequest.mockImplementation(async (req) => {
+    // Responses for feature flags
+    if (req.url.includes('/feature-flags/')) {
+      const ok = req.url.includes('enablePnpmCli') ? enablePnpm : true;
+      return {
+        res: { statusCode: 200 } as NeedleResponse,
+        body: { code: 200, ok },
+      };
+    }
+
+    // default response
+    return {
+      res: { statusCode: 200 } as NeedleResponse,
+      body: {
+        result: { issuesData: {}, affectedPkgs: {} },
+        meta: { org: 'test-org', isPublic: false },
+        filesystemPolicy: false,
+      },
+    };
+  });
+}
