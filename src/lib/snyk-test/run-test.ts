@@ -85,10 +85,7 @@ import { makeRequest } from '../request';
 import { spinner } from '../spinner';
 import { hasUnknownVersions } from '../dep-graph';
 import { sleep } from '../common';
-import {
-  PNPM_FEATURE_FLAG,
-  SUPPORTED_MANIFEST_FILES,
-} from '../package-managers';
+import { SUPPORTED_MANIFEST_FILES } from '../package-managers';
 import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
 import { normalizeTargetFile } from '../normalize-target-file';
 import { EXIT_CODES } from '../../cli/exit-codes';
@@ -906,7 +903,7 @@ async function assembleLocalPayloads(
         body,
       };
 
-      if (packageManager === 'pnpm' && featureFlags.has(PNPM_FEATURE_FLAG)) {
+      if (packageManager === 'pnpm') {
         const isLockFileBased =
           targetFile && targetFile.endsWith(SUPPORTED_MANIFEST_FILES.PNPM_LOCK);
         if (!isLockFileBased || options.traverseNodeModules) {

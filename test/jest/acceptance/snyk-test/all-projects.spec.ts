@@ -292,35 +292,6 @@ describe('snyk test --all-projects (mocked server only)', () => {
   });
 
   test('`test node workspaces --all-projects`', async () => {
-    server.setFeatureFlag('enablePnpmCli', false);
-    const project = await createProjectFromFixture('workspace-multi-type');
-
-    const { code, stdout } = await runSnykCLI('test --all-projects', {
-      cwd: project.path(),
-      env,
-    });
-
-    const backendRequests = server.getRequests().filter((req: any) => {
-      return req.url.includes('/api/v1/test');
-    });
-
-    expect(backendRequests).toHaveLength(6);
-    backendRequests.forEach((req: any) => {
-      expect(req.method).toEqual('POST');
-      expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
-      expect(req.url).toMatch('/api/v1/test');
-    });
-
-    expect(code).toEqual(0);
-
-    expect(stdout).toMatch('Package manager:   npm');
-    expect(stdout).toMatch('Package manager:   yarn');
-    expect(stdout).not.toMatch('Package manager:   pnpm');
-  });
-
-  test('`test node workspaces --all-projects with `enablePnpmCli` feature flag`', async () => {
-    server.setFeatureFlag('enablePnpmCli', true);
-
     const project = await createProjectFromFixture('workspace-multi-type');
 
     const { code, stdout } = await runSnykCLI('test --all-projects', {

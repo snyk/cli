@@ -791,24 +791,7 @@ describe.each(userJourneyWorkflows)(
           expect(code).toEqual(0);
         });
 
-        test('run `snyk test` on a pnpm project without `enablePnpmCli` feature flag enabled', async () => {
-          server.setFeatureFlag('enablePnpmCli', false);
-          const project = await createProjectFromFixture('pnpm-app');
-
-          const { code, stdout } = await runSnykCLI('test -d', {
-            cwd: project.path(),
-            env,
-          });
-
-          expect(stdout).toMatch('Target file:       package.json');
-          expect(stdout).toMatch('Package manager:   npm');
-
-          expect(code).toEqual(0);
-        });
-
-        test('run `snyk test` on a pnpm project with `enablePnpmCli` feature flag enabled', async () => {
-          server.setFeatureFlag('enablePnpmCli', true);
-
+        test('run `snyk test` on a pnpm project', async () => {
           const project = await createProjectFromWorkspace('pnpm-app-extended');
 
           const { code, stdout } = await runSnykCLI('test -d', {
@@ -823,8 +806,6 @@ describe.each(userJourneyWorkflows)(
         });
 
         test('run `snyk test` on an out of sync pnpm project with --strict-out-of-sync=false', async () => {
-          server.setFeatureFlag('enablePnpmCli', true);
-
           const project = await createProjectFromWorkspace(
             'pnpm-app-out-of-sync',
           );
@@ -844,8 +825,6 @@ describe.each(userJourneyWorkflows)(
         });
 
         test('run `snyk test` on an out of sync pnpm project without out of sync option', async () => {
-          server.setFeatureFlag('enablePnpmCli', true);
-
           const project = await createProjectFromWorkspace(
             'pnpm-app-out-of-sync',
           );
