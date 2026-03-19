@@ -8,6 +8,7 @@ const { isMultiProjectScan } = require('../is-multi-project-scan');
 const {
   SHOW_MAVEN_BUILD_SCOPE,
   SHOW_NPM_SCOPE,
+  CLI_DOTNET_RUNTIME_RESOLUTION,
   hasFeatureFlag,
   isFeatureFlagSupportedForOrg,
   hasFeatureFlagOrDefault,
@@ -18,6 +19,7 @@ const {
   DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
 } = require('../package-managers');
 const { getOrganizationID } = require('../organization');
+const debug = require('debug')('snyk-test');
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -94,6 +96,15 @@ async function executeTest(root, options) {
     );
     if (showScope.ok) {
       featureFlags.add(SHOW_NPM_SCOPE);
+    }
+
+    const dotnetRuntimeResolution = await isFeatureFlagSupportedForOrg(
+      CLI_DOTNET_RUNTIME_RESOLUTION,
+      getOrganizationID(),
+    );
+    if (dotnetRuntimeResolution.ok) {
+      debug('cliDotnetRuntimeResolution feature flag is enabled');
+      featureFlags.add(CLI_DOTNET_RUNTIME_RESOLUTION);
     }
 
     if (!options.allProjects) {

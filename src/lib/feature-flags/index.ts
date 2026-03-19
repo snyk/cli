@@ -10,6 +10,7 @@ import * as Debug from 'debug';
 const debug = Debug('snyk-feature-flags');
 export const SHOW_MAVEN_BUILD_SCOPE = 'show-maven-build-scope';
 export const SHOW_NPM_SCOPE = 'show-npm-scope';
+export const CLI_DOTNET_RUNTIME_RESOLUTION = 'cliDotnetRuntimeResolution';
 
 export async function isFeatureFlagSupportedForOrg(
   featureFlag: string,

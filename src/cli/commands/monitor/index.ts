@@ -53,6 +53,7 @@ import {
   hasFeatureFlagOrDefault,
   SHOW_MAVEN_BUILD_SCOPE,
   SHOW_NPM_SCOPE,
+  CLI_DOTNET_RUNTIME_RESOLUTION,
   isFeatureFlagSupportedForOrg,
 } from '../../../lib/feature-flags';
 import {
@@ -258,6 +259,15 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   );
   if (showScope.ok) {
     featureFlags.add(SHOW_NPM_SCOPE);
+  }
+
+  const dotnetRuntimeResolution = await isFeatureFlagSupportedForOrg(
+    CLI_DOTNET_RUNTIME_RESOLUTION,
+    getOrganizationID(),
+  );
+  if (dotnetRuntimeResolution.ok) {
+    debug('cliDotnetRuntimeResolution feature flag is enabled');
+    featureFlags.add(CLI_DOTNET_RUNTIME_RESOLUTION);
   }
 
   // Part 1: every argument is a scan target; process them sequentially
