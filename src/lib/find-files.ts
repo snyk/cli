@@ -6,10 +6,7 @@ import * as groupBy from 'lodash.groupby';
 import * as assign from 'lodash.assign';
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
-import {
-  PNPM_FEATURE_FLAG,
-  SUPPORTED_MANIFEST_FILES,
-} from './package-managers';
+import { SUPPORTED_MANIFEST_FILES } from './package-managers';
 
 const debug = debugModule('snyk:find-files');
 
@@ -250,10 +247,7 @@ function detectProjectTypeFromFile(
 ): string | null {
   try {
     const packageManager = detectPackageManagerFromFile(file, featureFlags);
-    if (['yarn', 'npm'].includes(packageManager)) {
-      return 'node';
-    }
-    if (featureFlags.has(PNPM_FEATURE_FLAG) && packageManager === 'pnpm') {
+    if (['yarn', 'npm', 'pnpm'].includes(packageManager)) {
       return 'node';
     }
     return packageManager;
@@ -294,10 +288,8 @@ function chooseBestManifest(
       const nodeLockfiles = [
         SUPPORTED_MANIFEST_FILES.PACKAGE_LOCK_JSON as string,
         SUPPORTED_MANIFEST_FILES.YARN_LOCK as string,
+        SUPPORTED_MANIFEST_FILES.PNPM_LOCK as string,
       ];
-      if (featureFlags.has(PNPM_FEATURE_FLAG)) {
-        nodeLockfiles.push(SUPPORTED_MANIFEST_FILES.PNPM_LOCK as string);
-      }
       const lockFile = files.filter((path) =>
         nodeLockfiles.includes(path.base),
       )[0];
