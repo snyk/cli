@@ -11,6 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260218133142-7025507e9b78
+	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319212946-7ae51e26d498
 	github.com/snyk/cli-extension-dep-graph v0.17.1
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
@@ -166,6 +167,7 @@ require (
 	github.com/jcmturner/goidentity/v6 v6.0.1 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.4.4 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/kevinburke/ssh_config v1.4.0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
@@ -247,6 +249,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.40.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.40.0 // indirect
 	go.opentelemetry.io/otel/trace v1.40.0 // indirect
+	go.uber.org/mock v0.5.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
@@ -257,6 +260,7 @@ require (
 	golang.org/x/term v0.39.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
+	golang.org/x/tools v0.40.0 // indirect
 	google.golang.org/api v0.257.0 // indirect
 	google.golang.org/genproto v0.0.0-20251202230838-ff82c1b0f217 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217 // indirect
@@ -282,6 +286,8 @@ replace github.com/mattn/go-localereader v0.0.1 => github.com/mattn/go-localerea
 //replace github.com/snyk/cli-extension-os-flows => ../../cli-extension-os-flows
 
 // replace github.com/snyk/cli-extension-ai-bom => ../../cli-extension-ai-bom
+
+// replace github.com/snyk/cli-extension-ai-redteam => ../../cli-extension-ai-redteam
 
 // replace github.com/snyk/studio-mcp => ../../studio-mcp
 
