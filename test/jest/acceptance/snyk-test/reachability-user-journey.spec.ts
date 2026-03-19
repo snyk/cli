@@ -130,6 +130,32 @@ describe('snyk test --reachability', () => {
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });
 
+  test('emits a valid json output when unknown flags are passed', async () => {
+    const { stdout, code, stderr } = await runSnykCLI(
+      `test ${TEMP_LOCAL_PATH} --reachability --json --foo-bar`,
+      {
+        env: {
+          ...process.env,
+          ...ReachabilityIntegrationEnv.env,
+        },
+      },
+    );
+
+    expect(code).not.toBe(EXIT_CODES.ERROR);
+
+    expect(stdout).not.toBe('');
+    expect(stderr).toBe('');
+
+    const jsonOutput = JSON.parse(stdout);
+
+    const allVulnsHaveReachabilitySignal = jsonOutput.vulnerabilities.every(
+      (vuln: { reachability: string; type: string }) =>
+        !!vuln.reachability || vuln.type === 'license',
+    );
+
+    expect(allVulnsHaveReachabilitySignal).toBeTruthy();
+  });
+
   test('emits a valid json output and fails the test if vulnerabilies are upgradable', async () => {
     const { stdout, code, stderr } = await runSnykCLI(
       `test ${TEMP_LOCAL_PATH} --reachability --fail-on=upgradable --json`,

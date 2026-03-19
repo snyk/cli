@@ -1,8 +1,10 @@
 package legacy
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/snyk/error-catalog-golang-public/snyk_errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,15 +29,17 @@ func Test_validateIncompatibleFlagCombinations(t *testing.T) {
 		{[]string{"test", "--all-projects", "--file"}, "file + all-projects"},
 		{[]string{"test", "--yarn-workspaces", "--file"}, "file + yarn-workspaces"},
 		{[]string{"test", "--scan-all-unmanaged", "--file"}, "file + scan-all-unmanaged"},
-		{[]string{"test", "--maven-aggregate-project", "--project-name"}, "project-name + maven-aggregate-project"},
+		{[]string{"test", "--maven-aggregate-project", "--project-name"}, "maven-aggregate-project + project-name"},
 	}
 
 	for _, tt := range tests {
-		err := validateFlagsCompatibilityWithLegacy(tt.args)
+		err := validateFlags(tt.args)
 		if tt.wantErr == "" {
 			assert.NoError(t, err, "args: %v", tt.args)
 		} else {
-			assert.EqualError(t, err, "The following option combination is not currently supported: "+tt.wantErr, "args: %v", tt.args)
+			var errCatalog snyk_errors.Error
+			assert.ErrorAs(t, err, &errCatalog)
+			assert.Equal(t, fmt.Sprintf("The following option combination is not currently supported: %s", tt.wantErr), errCatalog.Detail)
 		}
 	}
 }
