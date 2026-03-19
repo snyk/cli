@@ -173,6 +173,15 @@ describe('snyk container', () => {
       expect(goModulesResults).toBeDefined();
     });
 
+    it('detects Go stdlib dependencies in container with Go binaries', async () => {
+      const { code, stdout, stderr } = await runSnykCLIWithDebug(
+        `container test docker-archive:test/fixtures/container-projects/stripped-go-binaries-minimal.tar.gz --print-deps`,
+      );
+
+      assertCliExitCode(code, 1, stderr);
+      expect(stdout).toContain('stdlib @ 1.25.1');
+    });
+
     it('should correctly scan an OCI image with manifest missing platform field', async () => {
       const image = 'snykgoof/oci-goof:ociNoPlatformTag';
       const { code, stdout } = await runSnykCLI(
