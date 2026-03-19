@@ -203,17 +203,6 @@ describe('snyk aibom (mocked servers only)', () => {
   });
 
   describe('aibom error handling', () => {
-    test('handles a missing experimental flag', async () => {
-      const { code, stdout } = await runSnykCLI(
-        `aibom ${pythonChatbotProject}`,
-        {
-          env,
-        },
-      );
-      expect(code).toEqual(2);
-      expect(stdout).toContain('Command is experimental (SNYK-CLI-0015)');
-    });
-
     test('handles unauthenticated', async () => {
       expect(server.getRequests().length).toEqual(0);
       server.setStatusCode(401);
@@ -295,17 +284,6 @@ describe('snyk aibom (mocked servers only)', () => {
       expect(stdout).toContain('Test summary');
       expect(stdout).toContain('Disallowed model');
       expect(stdout).toContain('Open');
-    });
-
-    test('`aibom test` requires --experimental', async () => {
-      const { code, stdout } = await runSnykCLI(
-        `aibom test ${pythonChatbotProject}`,
-        {
-          env,
-        },
-      );
-      expect(code).toEqual(2);
-      expect(stdout).toContain('Command is experimental (SNYK-CLI-0015)');
     });
 
     test('`aibom test` fails if api is unavailable', async () => {

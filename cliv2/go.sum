@@ -537,14 +537,8 @@ github.com/skeema/knownhosts v1.3.2 h1:EDL9mgf4NzwMXCTfaxSD/o/a5fxDw/xL9nkU28Jjd
 github.com/skeema/knownhosts v1.3.2/go.mod h1:bEg3iQAuw+jyiw+484wwFJoKSLwcfd7fqRy+N0QTiow=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260312152423-bc36193ecaa8 h1:Ky+ZlFDH26kJ9QXeZPhQMG+1+M1EtNfa1BHBHL0zkh8=
 github.com/snyk/cli-extension-agent-scan v0.0.0-20260312152423-bc36193ecaa8/go.mod h1:+Znlgu2v7sOTNAVjsoldFjDZUIo8tpdKnFlMptZHzz0=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20260312142851-4a3ed1abe853 h1:6CTQnacsK4/AXtijRhtwg/6TTGMCPwEL9ivUE7FxXn0=
-github.com/snyk/cli-extension-ai-bom v0.0.0-20260312142851-4a3ed1abe853/go.mod h1:RnMP+tFTeKygfXSx7z+heyMZoOps67u5HFytjptHjuk=
-github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319115118-78010681b9fa h1:SZZmpSvtUV1qxV3mTrUXQ4U3Ihh7Egl7Sx4ZcYxkzTk=
-github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319115118-78010681b9fa/go.mod h1:445d735F53IuegetHs/S4GyWyng4Crd9TPj4vosmFmM=
-github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319170212-54fc2a783489 h1:rRyFPWbWOz7sgY/ZPCYbpStNLkvP3MO8v4x6k5JnIrY=
-github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319170212-54fc2a783489/go.mod h1:445d735F53IuegetHs/S4GyWyng4Crd9TPj4vosmFmM=
-github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319201334-8b80b2a69540 h1:l6brKfILeku9HUZIfwiVoD+05z26D1BW0XbdCk+HHR4=
-github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319201334-8b80b2a69540/go.mod h1:445d735F53IuegetHs/S4GyWyng4Crd9TPj4vosmFmM=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603 h1:uZyw9OvOGCMFloZy8Fyu6l4K5y77o4k0KdxHuUKAp8M=
+github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603/go.mod h1:RnMP+tFTeKygfXSx7z+heyMZoOps67u5HFytjptHjuk=
 github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319212946-7ae51e26d498 h1:wNRzepnbqfRNP/g5puNtiWcXK3Xdeqotv9Qi8IPj4pQ=
 github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319212946-7ae51e26d498/go.mod h1:445d735F53IuegetHs/S4GyWyng4Crd9TPj4vosmFmM=
 github.com/snyk/cli-extension-dep-graph v0.29.0 h1:mXxY+Pp0qiB18y/9mhSFBycWe18gV/DSv0x1aANxdw4=
