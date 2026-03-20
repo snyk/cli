@@ -84,29 +84,6 @@ describe('Terraform', () => {
       );
       expect(exitCode).toBe(3);
     });
-
-    describe('when the iacNewEngine feature flag is enabled', () => {
-      beforeAll(() => {
-        server.setFeatureFlag('iacNewEngine', true);
-      });
-      it('uses the new engine, hence the new policies are used', async () => {
-        const { stdout, exitCode } = await run(
-          `snyk iac test ./iac/terraform/sg_open_ssh.tf --json`,
-        );
-
-        expect(isValidJSONString(stdout)).toBe(true);
-
-        const jsonOut = JSON.parse(stdout);
-        expect(jsonOut).toHaveLength(1);
-
-        const issues: any[] = jsonOut[0]?.infrastructureAsCodeIssues;
-        expect(issues).toHaveLength(2);
-
-        const sortedIds = issues.map((issue) => issue.id).sort();
-        expect(sortedIds).toEqual(['SNYK-CC-00110', 'SNYK-CC-00747']);
-        expect(exitCode).toBe(1);
-      });
-    });
   });
 
   describe('Terraform directories', () => {

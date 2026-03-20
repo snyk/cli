@@ -1,4 +1,3 @@
-import { policyEngineReleaseVersion } from '../local-cache/policy-engine/constants';
 import { ResourceKind, TestOutput } from '../scan/results';
 import * as analytics from '../../../../../lib/analytics';
 import { getIacType, IacType } from './iac-type';
@@ -12,8 +11,6 @@ export interface IacAnalytics {
   iacFilesCount: number;
   iacResourcesCount: number;
   iacErrorCodes: number[];
-  iacTestBinaryVersion: string;
-  // iacRulesBundleVersion: string; // TODO: Add when we have the rules bundle version
   iacCloudContext?: string;
   iacCloudContextCloudProvider?: string;
   iacCloudContextSuppressedIssuesCount: number;
@@ -34,9 +31,7 @@ export function addIacAnalytics(
   analytics.add('iac-files-count', iacAnalytics.iacFilesCount);
   analytics.add('iac-resources-count', iacAnalytics.iacResourcesCount);
   analytics.add('iac-error-codes', iacAnalytics.iacErrorCodes);
-  analytics.add('iac-test-binary-version', iacAnalytics.iacTestBinaryVersion);
 
-  // cloud context analytics
   if (iacAnalytics.iacCloudContext) {
     analytics.add('iac-cloud-context', iacAnalytics.iacCloudContext);
     analytics.add(
@@ -71,8 +66,6 @@ function computeIacAnalytics(
     iacResourcesCount: testOutput.results?.resources?.length || 0,
     iacErrorCodes:
       [...new Set(testOutput.errors?.map((error) => error.code!))] || [],
-    iacTestBinaryVersion: policyEngineReleaseVersion,
-    // iacRulesBundleVersion = ''; // TODO: Add when we have the rules bundle version
     ...iacCloudContext,
   };
 }

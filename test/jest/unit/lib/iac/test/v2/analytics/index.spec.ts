@@ -8,17 +8,6 @@ import {
   addIacAnalytics,
   IacAnalytics,
 } from '../../../../../../../../src/lib/iac/test/v2/analytics';
-import { TestConfig } from '../../../../../../../../src/lib/iac/test/v2/types';
-
-jest.mock(
-  '../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants',
-  () => ({
-    ...jest.requireActual(
-      '../../../../../../../../src/lib/iac/test/v2/local-cache/policy-engine/constants',
-    ),
-    policyEngineReleaseVersion: 'test-policy-engine-release-version',
-  }),
-);
 
 describe('computeIacAnalytics', () => {
   const snykIacTestOutputFixture: SnykIacTestOutput = JSON.parse(
@@ -51,20 +40,17 @@ describe('computeIacAnalytics', () => {
   });
 
   it('sends the expected analytics', async () => {
-    // Arrange
     const addedAnalytics: Record<string, any> = {};
     jest.spyOn(analytics, 'add').mockImplementation((key, value) => {
       addedAnalytics[key] = value;
     });
 
-    const testConfig = {} as TestConfig;
+    const testConfig = {};
     const testOutput = clonedeep(snykIacTestOutputFixture);
     const expectedAnalytics = clonedeep(iacAnalyticsFixture);
 
-    // Act
     addIacAnalytics(testConfig, testOutput);
 
-    // Assert
     expect(addedAnalytics).toStrictEqual(expectedAnalytics);
   });
 });

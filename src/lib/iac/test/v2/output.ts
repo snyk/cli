@@ -1,4 +1,3 @@
-import { Ora } from 'ora';
 import { EOL } from 'os';
 import { convertEngineToJsonResults } from './json';
 import { TestOutput } from './scan/results';
@@ -11,7 +10,6 @@ import {
   IaCTestFailure,
   IaCTestWarning,
   shareResultsTip,
-  spinnerSuccessMessage,
 } from '../../../formatters/iac-output/text';
 import { jsonStringifyLargeObject } from '../../../json';
 import {
@@ -40,21 +38,13 @@ import { CLI } from '@snyk/error-catalog-nodejs-public';
 
 export function buildOutput({
   scanResult,
-  testSpinner,
   options,
   iacNewEngine,
 }: {
   scanResult: TestOutput;
-  testSpinner?: Ora;
   options: any;
   iacNewEngine?: boolean;
 }): TestCommandResult {
-  if (scanResult.results) {
-    testSpinner?.succeed(spinnerSuccessMessage);
-  } else {
-    testSpinner?.stop();
-  }
-
   const { responseData, jsonData, sarifData } = buildTestCommandResultData({
     scanResult,
     options,
