@@ -1,6 +1,9 @@
 import type { DepGraphData } from '@snyk/dep-graph';
 
-import { fakeServer, getFirstIPv4Address } from '../../../acceptance/fake-server';
+import {
+  fakeServer,
+  getFirstIPv4Address,
+} from '../../../acceptance/fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { createProjectFromWorkspace } from '../../util/createProject';
@@ -33,7 +36,7 @@ describe('gomodules dep-graphs', () => {
   afterAll((done) => {
     server.close(done);
   });
-    
+
   it('identifies replaced modules', async () => {
     const project = await createProjectFromWorkspace(
       'golang-gomodules-many-deps',
