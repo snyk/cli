@@ -12,7 +12,7 @@ import {
   SUPPORTED_MANIFEST_FILES,
   SupportedPackageManagers,
 } from '../package-managers';
-const { SHOW_NPM_SCOPE } = require('../feature-flags');
+import { SHOW_NPM_SCOPE } from '../feature-flags';
 import { getSinglePluginResult } from './get-single-plugin-result';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
