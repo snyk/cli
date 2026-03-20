@@ -78,7 +78,9 @@ describe('monitor & test', () => {
       const options: any = {
         'dotnet-runtime-resolution': true,
       };
-      (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(true);
+      (featureFlags.hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(
+        true,
+      );
       (
         featureFlags.isFeatureFlagSupportedForOrg as jest.Mock
       ).mockResolvedValue({ ok: true });
@@ -90,7 +92,7 @@ describe('monitor & test', () => {
         // We only care about the options being set correctly.
       }
 
-      expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
+      expect(featureFlags.hasFeatureFlagOrDefault).toHaveBeenCalledWith(
         DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
         options,
       );
@@ -103,7 +105,9 @@ describe('monitor & test', () => {
       const options: any = {
         'dotnet-runtime-resolution': true,
       };
-      (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(false);
+      (featureFlags.hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(
+        false,
+      );
 
       try {
         await monitor('path/to/project', options);
@@ -112,7 +116,7 @@ describe('monitor & test', () => {
         // We only care about the options being set correctly.
       }
 
-      expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
+      expect(featureFlags.hasFeatureFlagOrDefault).toHaveBeenCalledWith(
         DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
         options,
       );
@@ -131,7 +135,7 @@ describe('monitor & test', () => {
         // We only care about the options being set correctly.
       }
 
-      expect(featureFlags.hasFeatureFlag).not.toHaveBeenCalledWith(
+      expect(featureFlags.hasFeatureFlagOrDefault).not.toHaveBeenCalledWith(
         DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
         options,
       );
@@ -151,13 +155,15 @@ describe('monitor & test', () => {
       const options: any = {
         'dotnet-runtime-resolution': true,
       };
-      (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(true);
+      (featureFlags.hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(
+        true,
+      );
       (
         featureFlags.isFeatureFlagSupportedForOrg as jest.Mock
       ).mockResolvedValue({ ok: true });
       await snykTest('path/to/project', options);
 
-      expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
+      expect(featureFlags.hasFeatureFlagOrDefault).toHaveBeenCalledWith(
         DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
         options,
       );
@@ -178,10 +184,12 @@ describe('monitor & test', () => {
       const options: any = {
         'dotnet-runtime-resolution': true,
       };
-      (featureFlags.hasFeatureFlag as jest.Mock).mockResolvedValue(false);
+      (featureFlags.hasFeatureFlagOrDefault as jest.Mock).mockResolvedValue(
+        false,
+      );
       await snykTest('path/to/project', options);
 
-      expect(featureFlags.hasFeatureFlag).toHaveBeenCalledWith(
+      expect(featureFlags.hasFeatureFlagOrDefault).toHaveBeenCalledWith(
         DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
         options,
       );
@@ -192,7 +200,7 @@ describe('monitor & test', () => {
       const options: any = {};
       await snykTest('path/to/project', options);
 
-      expect(featureFlags.hasFeatureFlag).not.toHaveBeenCalledWith(
+      expect(featureFlags.hasFeatureFlagOrDefault).not.toHaveBeenCalledWith(
         DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
         options,
       );
