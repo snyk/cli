@@ -39,7 +39,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(5);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -92,7 +92,7 @@ describe('snyk test for pnpm project', () => {
         _doubleDashArgs: [],
       });
 
-      expect(mockedMakeRequest).toHaveBeenCalledTimes(14);
+      expect(mockedMakeRequest).toHaveBeenCalledTimes(15);
 
       const parsedResult = JSON.parse(result.getDisplayResults());
       const pnpmResult = parsedResult.filter(
