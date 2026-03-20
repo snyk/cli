@@ -12,16 +12,16 @@ jest.setTimeout(1000 * 60);
 
 describe('gomodules dep-graphs', () => {
   let server: ReturnType<typeof fakeServer>;
-  let env: Record<string, any> = {};
+  let env: Record<string, any> = { ...process.env };
   const ipAddr = getFirstIPv4Address();
   const port = getServerPort(process);
   const baseApi = '/api/v1';
 
   beforeAll((done) => {
     env = {
-      ...process.env,
-      SNYK_API: 'http://' + ipAddr + ':' + port + baseApi,
-      SNYK_HOST: 'http://' + ipAddr + ':' + port,
+      ...env,
+      SNYK_API: `http://${ipAddr}:${port}${baseApi}`,
+      SNYK_HOST: `http://${ipAddr}:${port}`,
       SNYK_TOKEN: '123456789',
     };
     server = fakeServer(baseApi, 'snykToken');
@@ -41,12 +41,12 @@ describe('gomodules dep-graphs', () => {
     const project = await createProjectFromWorkspace(
       'golang-gomodules-many-deps',
     );
-    const { code, stdout, stderr } = await runSnykCLI('test --print-graph', {
+    const { code, stdout, stderr } = await runSnykCLI('test --print-graph -d', {
       cwd: project.path(),
       env,
     });
     if (code !== 0) {
-      console.error(stderr);
+      console.error({ code, stdout, stderr });
     }
     expect(code).toEqual(0);
     expect(stdout).toBeDefined();
