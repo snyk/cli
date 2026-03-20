@@ -102,12 +102,37 @@ export async function getDepsFromPlugin(
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);
   }
-  const inspectRes = await getSinglePluginResult(
-    root,
-    options,
-    '',
-    featureFlags,
-  );
+  let inspectRes;
+  try {
+    inspectRes = await getSinglePluginResult(
+      root,
+      options,
+      '',
+      featureFlags,
+    );
+  } catch (error) {
+    if (options['print-effective-graph-with-errors']) {
+      const errMessage =
+        error?.message ?? 'Something went wrong getting dependencies';
+      debug(
+        `Single plugin scan failed for ${options.file}, collecting as failed result: ${errMessage}`,
+      );
+      return {
+        plugin: {
+          name: options.packageManager || 'unknown',
+        },
+        scannedProjects: [],
+        failedResults: [
+          {
+            targetFile: options.file,
+            error,
+            errMessage,
+          },
+        ],
+      } as MultiProjectResultCustom;
+    }
+    throw error;
+  }
 
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package && !inspectRes.dependencyGraph) {

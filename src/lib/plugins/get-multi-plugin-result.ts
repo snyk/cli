@@ -183,6 +183,18 @@ export async function getMultiPluginResult(
   }
 
   if (!allResults.length) {
+    // When allow-incomplete-sbom is active, return instead of throwing
+    // so the caller can print per-project JSONL error entries
+    if (options['print-effective-graph-with-errors']) {
+      return {
+        plugin: {
+          name: 'custom-auto-detect',
+        },
+        scannedProjects: allResults,
+        failedResults,
+      };
+    }
+
     // No projects were scanned successfully
     let message = `Failed to get dependencies for all ${targetFiles.length} potential projects.\n`;
 
