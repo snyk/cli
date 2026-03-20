@@ -41,10 +41,13 @@ describe('gomodules dep-graphs', () => {
     const project = await createProjectFromWorkspace(
       'golang-gomodules-many-deps',
     );
-    const { code, stdout } = await runSnykCLI('test --print-graph', {
+    const { code, stdout, stderr } = await runSnykCLI('test --print-graph', {
       cwd: project.path(),
       env,
     });
+    if (code !== 0) {
+      console.error(stderr);
+    }
     expect(code).toEqual(0);
     expect(stdout).toBeDefined();
 
