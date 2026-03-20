@@ -1,40 +1,40 @@
 import type { DepGraphData } from '@snyk/dep-graph';
 
-import {
-  fakeServer,
-  getFirstIPv4Address,
-} from '../../../acceptance/fake-server';
-import { getServerPort } from '../../util/getServerPort';
+import { fakeServer } from '../../../acceptance/fake-server';
+import { getAvailableServerPort } from '../../util/getServerPort';
 import { runSnykCLI } from '../../util/runSnykCLI';
 import { createProjectFromWorkspace } from '../../util/createProject';
 
 jest.setTimeout(1000 * 60);
 
 describe('gomodules dep-graphs', () => {
-  let server: ReturnType<typeof fakeServer>;
-  let env: Record<string, any> = { ...process.env };
-  const ipAddr = getFirstIPv4Address();
-  const port = getServerPort(process);
-  const baseApi = '/api/v1';
+  let server;
+  let env: Record<string, string>;
 
-  beforeAll((done) => {
+  beforeAll(async () => {
+    const port = await getAvailableServerPort(process);
+    const baseApi = '/api/v1';
     env = {
-      ...env,
-      SNYK_API: `http://${ipAddr}:${port}${baseApi}`,
-      SNYK_HOST: `http://${ipAddr}:${port}`,
+      ...process.env,
+      SNYK_API: 'http://localhost:' + port + baseApi,
+      SNYK_HOST: 'http://localhost:' + port,
       SNYK_TOKEN: '123456789',
+      SNYK_DISABLE_ANALYTICS: '1',
     };
-    server = fakeServer(baseApi, 'snykToken');
+    server = fakeServer(baseApi, env.SNYK_TOKEN);
     server.setFeatureFlag('disableGoPackageUrlsInCli', false);
-    server.listen(port, done);
+    await server.listenPromise(port);
   });
 
   afterEach(() => {
+    jest.resetAllMocks();
     server.restore();
   });
 
   afterAll((done) => {
-    server.close(done);
+    server.close(() => {
+      done();
+    });
   });
 
   it('identifies replaced modules', async () => {
