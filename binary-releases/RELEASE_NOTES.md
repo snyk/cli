@@ -15,3 +15,4 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **container**: upgrade minimatch dependency to 3.1.3 ([aacdc53](https://github.com/snyk/cli/commit/aacdc535b95135a1473ec0d0a7505927df4388e6))
 * **dependencies**: Fix CVE-2026-33186 ([f8a0602](https://github.com/snyk/cli/commit/f8a0602c03cb4061c9516c442bdca8d69a95b47c))
 * **dependencies**: Fix CVE-2025-69873 ([d240fcf](https://github.com/snyk/cli/commit/d240fcfb8e0ffb16d09e416eead7c2449faf6a3d)) 
+* **container**: Fixes an issue where container scans of OCI archive images (including hybrid-format archives produced by Docker Desktop's containerd image store) could silently fail, returning exit code 0 with no vulnerability results. ([4ad137f](https://github.com/snyk/cli/commit/4ad137f66bb9034e8270c3d8b6fa85bc0cf40455))
