@@ -650,14 +650,18 @@ async function assembleLocalPayloads(
     const failedResults = (deps as MultiProjectResultCustom).failedResults;
     if (failedResults?.length) {
       await spinner.clear<void>(spinnerLbl)();
-      const isNotJsonOrQueiet = !options.json && !options.quiet;
+      // When printing effective dep-graph with errors, suppress warning output —
+      // the failures will be embedded in the generated SBOM as annotations.
+      const suppressWarnings = shouldPrintEffectiveDepGraphWithErrors(options);
+      const isNotJsonOrQueiet =
+        !options.json && !options.quiet && !suppressWarnings;
 
       const errorMessages = extractErrorMessages(
         failedResults,
         isNotJsonOrQueiet,
       );
 
-      if (!options.json && !options.quiet) {
+      if (!options.json && !options.quiet && !suppressWarnings) {
         console.warn(
           chalk.bold.red(
             `${icon.ISSUE} ${failedResults.length}/${
