@@ -5,17 +5,9 @@ import (
 	"os"
 	"strings"
 
+	snyk_cli_errors "github.com/snyk/error-catalog-golang-public/cli"
 	"github.com/spf13/cobra"
 )
-
-type unsupportedFlagCombinationError struct {
-	flag1 string
-	flag2 string
-}
-
-func (e *unsupportedFlagCombinationError) Error() string {
-	return fmt.Sprintf("The following option combination is not currently supported: %s + %s", e.flag1, e.flag2)
-}
 
 type flagCombinationRule struct {
 	primaryFlag      string
@@ -26,20 +18,20 @@ var incompatibleFlagRules = []flagCombinationRule{
 	{
 		primaryFlag: "--all-projects",
 		incompatibleWith: []string{
-			"--file",
-			"--package-manager",
 			"--project-name",
+			"--file",
+			"--yarn-workspaces",
+			"--package-manager",
 			"--docker",
 			"--all-sub-projects",
-			"--yarn-workspaces",
 		},
 	},
 	{
 		primaryFlag: "--yarn-workspaces",
 		incompatibleWith: []string{
+			"--project-name",
 			"--file",
 			"--package-manager",
-			"--project-name",
 			"--docker",
 			"--all-sub-projects",
 		},
@@ -49,12 +41,16 @@ var incompatibleFlagRules = []flagCombinationRule{
 		incompatibleWith: []string{"--file"},
 	},
 	{
-		primaryFlag:      "--maven-aggregate-project",
-		incompatibleWith: []string{"--project-name"},
+		primaryFlag:      "--project-name",
+		incompatibleWith: []string{"--maven-aggregate-project"},
+	},
+	{
+		primaryFlag:      "--json",
+		incompatibleWith: []string{"--sarif"},
 	},
 }
 
-func validateFlagsCompatibilityWithLegacy(args []string) error {
+func validateFlags(args []string) error {
 	presentFlags := parseFlagsFromArgs(args)
 
 	for _, rule := range incompatibleFlagRules {
@@ -64,10 +60,9 @@ func validateFlagsCompatibilityWithLegacy(args []string) error {
 
 		for _, incompatibleFlag := range rule.incompatibleWith {
 			if presentFlags[incompatibleFlag] {
-				return &unsupportedFlagCombinationError{
-					flag1: extractFlagName(incompatibleFlag),
-					flag2: extractFlagName(rule.primaryFlag),
-				}
+				return snyk_cli_errors.NewInvalidFlagOptionError(
+					fmt.Sprintf("The following option combination is not currently supported: %s + %s", extractFlagName(incompatibleFlag), extractFlagName(rule.primaryFlag)),
+				)
 			}
 		}
 	}
@@ -91,23 +86,12 @@ func extractFlagName(flag string) string {
 	return strings.TrimPrefix(flag, "--")
 }
 
-func unknownCommandError(details string) error {
-	if details == "" {
-		return fmt.Errorf("unknown command")
-	}
-	return fmt.Errorf("unknown command %s", details)
-}
-
 // SetupTestMonitorCommand configures command for test/monitor to ensure parity with legacy behavior
 func SetupTestMonitorCommand(cmd *cobra.Command) {
-	// Relax flag validation for backwards compatibility by suppressing cobra's default error
-	cmd.SetFlagErrorFunc(func(_ *cobra.Command, _ error) error {
-		return unknownCommandError("")
-	})
-
+	cmd.FParseErrWhitelist.UnknownFlags = true
 	cmd.PreRunE = func(c *cobra.Command, args []string) error {
-		if err := validateFlagsCompatibilityWithLegacy(os.Args[1:]); err != nil {
-			return unknownCommandError(err.Error())
+		if err := validateFlags(os.Args[1:]); err != nil {
+			return err
 		}
 		return nil
 	}

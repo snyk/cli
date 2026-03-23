@@ -14,7 +14,6 @@ const {
 } = require('../feature-flags');
 const {
   PNPM_FEATURE_FLAG,
-  DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
   INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
   DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
@@ -53,12 +52,6 @@ async function executeTest(root, options) {
     DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
     options,
   );
-  const hasImprovedDotnetWithoutPublish =
-    !!options['dotnet-runtime-resolution'] &&
-    (await hasFeatureFlagOrDefault(
-      DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-      options,
-    ));
 
   let enableMavenDverboseExhaustiveDeps = false;
   try {
@@ -93,10 +86,6 @@ async function executeTest(root, options) {
 
     if (disableGoPackageUrls) {
       featureFlags.add(DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG);
-    }
-
-    if (hasImprovedDotnetWithoutPublish) {
-      options.useImprovedDotnetWithoutPublish = true;
     }
 
     const showMavenScope = await isFeatureFlagSupportedForOrg(

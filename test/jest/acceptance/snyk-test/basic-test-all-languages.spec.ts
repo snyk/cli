@@ -321,6 +321,31 @@ describe.each(userJourneyWorkflows)(
           expect(code).toEqual(0);
         });
 
+        test('run `snyk test --maven-skip-wrapper` on a maven project with wrapper', async () => {
+          const project = await createProjectFromFixture(
+            'maven-basic-with-wrapper',
+          );
+
+          const { code, stdout, stderr } = await runSnykCLI(
+            'test -d --maven-skip-wrapper',
+            {
+              cwd: project.path(),
+              env,
+            },
+          );
+
+          if (code !== 0) {
+            console.debug(stderr);
+            console.debug('---------------------------');
+            console.debug(stdout);
+          }
+
+          expect(stdout).toMatch('Package manager:   maven');
+          expect(stdout).toMatch('Target file:       pom.xml');
+          expect(stdout).toMatch('Project name:      com.example:maven-basic');
+          expect(code).toEqual(0);
+        });
+
         test('run `snyk test --maven-aggregate-project` on a maven 4 aggregate project with wrapper', async () => {
           const project = await createProjectFromFixture(
             'maven4-aggregate-with-wrapper',
@@ -470,8 +495,6 @@ describe.each(userJourneyWorkflows)(
         ])(
           'run `snyk test` on a $description',
           async ({ fixture, projectFile }) => {
-            server.setFeatureFlag('useImprovedDotnetWithoutPublish', true);
-
             let prerequisite = await runCommand('dotnet', ['--version']).catch(
               function () {
                 return { code: 1, stderr: '', stdout: '' };

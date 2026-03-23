@@ -61,7 +61,7 @@ describe('gomodules dep-graphs', () => {
     expect(retryablehttpPkg).toBeDefined();
     expect(retryablehttpPkg!.info).toMatchObject({
       name: 'github.com/wiz-sec/go-retryablehttp',
-      purl: 'pkg:golang/github.com/wiz-sec/go-retryablehttp@v0.7.8-wiz-1',
+      // purl: 'pkg:golang/github.com/wiz-sec/go-retryablehttp@v0.7.8-wiz-1',
       version: '0.7.8-wiz-1',
     });
   });

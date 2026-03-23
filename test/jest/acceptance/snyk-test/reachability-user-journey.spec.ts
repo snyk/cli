@@ -130,6 +130,32 @@ describe('snyk test --reachability', () => {
     expect(code).toBe(EXIT_CODES.VULNS_FOUND);
   });
 
+  test('emits a valid json output when unknown flags are passed', async () => {
+    const { stdout, code, stderr } = await runSnykCLI(
+      `test ${TEMP_LOCAL_PATH} --reachability --json --foo-bar`,
+      {
+        env: {
+          ...process.env,
+          ...ReachabilityIntegrationEnv.env,
+        },
+      },
+    );
+
+    expect(code).not.toBe(EXIT_CODES.ERROR);
+
+    expect(stdout).not.toBe('');
+    expect(stderr).toBe('');
+
+    const jsonOutput = JSON.parse(stdout);
+
+    const allVulnsHaveReachabilitySignal = jsonOutput.vulnerabilities.every(
+      (vuln: { reachability: string; type: string }) =>
+        !!vuln.reachability || vuln.type === 'license',
+    );
+
+    expect(allVulnsHaveReachabilitySignal).toBeTruthy();
+  });
+
   test('emits a valid json output and fails the test if vulnerabilies are upgradable', async () => {
     const { stdout, code, stderr } = await runSnykCLI(
       `test ${TEMP_LOCAL_PATH} --reachability --fail-on=upgradable --json`,
@@ -168,6 +194,42 @@ describe('snyk test --reachability', () => {
 
     expect(stdout).not.toBe('');
     expect(stderr).toBe('');
+
+    const jsonOutput = JSON.parse(stdout);
+
+    expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
+    expect(jsonOutput.ok).toBeFalsy();
+
+    const momentVuln = jsonOutput.vulnerabilities.find(
+      (v) => v.id === 'npm:moment:20161019',
+    );
+    expect(momentVuln.alternativeIds).toEqual(['SNYK-JS-MOMENT-10164']);
+    expect(momentVuln.proprietary).toEqual(true);
+    expect(momentVuln.isDisputed).toEqual(false);
+    expect(momentVuln.severityBasedOn).toEqual('CVSS');
+
+    expect(code).toBe(EXIT_CODES.VULNS_FOUND);
+  });
+
+  test('renders a warning if no files were uploaded', async () => {
+    const pathWithNoValidFiles = join(
+      __dirname,
+      '../../../fixtures/npm/with-vulnerable-lodash-dep',
+    );
+    const { stdout, code, stderr } = await runSnykCLI(
+      `test ${TEMP_LOCAL_PATH} --reachability --source-dir=${pathWithNoValidFiles} --json`,
+      {
+        env: {
+          ...process.env,
+          ...ReachabilityIntegrationEnv.env,
+        },
+      },
+    );
+
+    expect(stdout).not.toBe('');
+    expect(stderr).toContainText(
+      'failed to upload source code for reachability analysis',
+    );
 
     const jsonOutput = JSON.parse(stdout);
 

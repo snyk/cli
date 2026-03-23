@@ -66,14 +66,12 @@ import {
 import {
   PNPM_FEATURE_FLAG,
   UV_FEATURE_FLAG,
-  DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
   INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
   DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
 } from '../../../lib/package-managers';
 import { normalizeTargetFile } from '../../../lib/normalize-target-file';
 import { getOrganizationID } from '../../../lib/organization';
-import { UV_MONITOR_ENABLED_ENV_VAR } from '../../../lib/plugins/uv';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -205,19 +203,11 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     );
   }
 
-  const hasImprovedDotnetWithoutPublish =
-    !!options['dotnet-runtime-resolution'] &&
-    (await hasFeatureFlagOrDefault(
-      DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG,
-      options,
-    ));
   const hasPnpmSupport = await hasFeatureFlagOrDefault(
     PNPM_FEATURE_FLAG,
     options,
   );
-  const hasUvSupport =
-    process.env[UV_MONITOR_ENABLED_ENV_VAR] === 'true' &&
-    (await hasFeatureFlagOrDefault(UV_FEATURE_FLAG, options));
+  const hasUvSupport = await hasFeatureFlagOrDefault(UV_FEATURE_FLAG, options);
   const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
     INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
     options,
@@ -260,10 +250,6 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
   if (disableGoPackageUrls) {
     featureFlags.add(DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG);
-  }
-
-  if (hasImprovedDotnetWithoutPublish) {
-    options.useImprovedDotnetWithoutPublish = true;
   }
 
   const showMavenScope = await isFeatureFlagSupportedForOrg(

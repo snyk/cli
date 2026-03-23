@@ -51,6 +51,8 @@ MCP is an open standard that applications use to connect LLMs with external tool
 
 When you run `snyk aibom`, the output shows these dependencies clearly. For example, you can see a chain showing that your root application depends on an mcp-client, which depends on an mcp-server, which in turn provides a specific tool. This gives you full visibility into the services your AI application relies on.
 
+**Note:** AI-BOM scans are included for Snyk users using the Snyk CLI.
+
 ## Options
 
 ### `--experimental`
@@ -79,11 +81,11 @@ Default: `<ORG_ID>` that is the current preferred Organization in your [Account 
 
 #### Upcoming Features in 1.1303.0
 
-### `--upload`&#x20;
+### `--upload`
 
 **Optional**. Persist the AIBOM into your Snyk Organization. This flag requires the [`--repo`](aibom.md#repo) flag. It enables you to view your AI-BOM for the repository in the Evo web interface.
 
-### `--repo`&#x20;
+### `--repo`
 
 **Optional**. Specify the repository to use when persisting the AI-BOM. Required when you use the [`--upload`](aibom.md#upload) flag.
 
