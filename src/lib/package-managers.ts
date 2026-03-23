@@ -4,6 +4,10 @@ export const DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG =
   'useImprovedDotnetWithoutPublish';
 export const MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF =
   'enableMavenDverboseExhaustiveDeps';
+export const INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG =
+  'includeGoStandardLibraryDeps';
+export const DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG =
+  'disableGoPackageUrlsInCli';
 
 export type SupportedPackageManagers =
   | 'rubygems'
