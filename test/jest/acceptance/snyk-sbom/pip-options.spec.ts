@@ -40,8 +40,10 @@ describe('snyk sbom --command (mocked server only)', () => {
 
   test('`sbom pip-app` generates an SBOM with a specified python command', async () => {
     const project = await createProjectFromWorkspace('pip-app');
-    const command = isWindowsOperatingSystem() ? 'python3.11.exe' : 'python3';
-    execSync(`pip install -r requirements.txt`, { cwd: project.path() });
+    const command = isWindowsOperatingSystem() ? 'python' : 'python3';
+    execSync(`${command} -m pip install -r requirements.txt`, {
+      cwd: project.path(),
+    });
 
     const { code, stdout } = await runSnykCLI(
       `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.4+json --debug --command=${command}`,

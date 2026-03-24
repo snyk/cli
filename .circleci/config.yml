@@ -28,6 +28,15 @@ parameters:
     type: string
     # https://github.com/cli/cli/releases
     default: '2.7.0'
+  windows_cache_dir:
+    type: string
+    default: 'C:\tools-cache'
+  windows_env_script:
+    type: string
+    default: 'snyk-env.ps1'
+  windows_bash_env_script:
+    type: string
+    default: 'snyk-env.sh'
 
 orbs:
   prodsec: snyk/prodsec-orb@1
@@ -170,19 +179,27 @@ commands:
           steps:
             - run:
                 name: Build static << parameters.go_target_os >>/<< parameters.go_arch >>
+                shell: bash
                 environment:
                   CC: << parameters.c_compiler >>
                   MACOSX_DEPLOYMENT_TARGET: 13.0
-                command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=true CGO_ENABLED=0
+                command: |
+                  # load Windows $Env:Path values of tools necessary to execute the build (like Go)
+                  if [ -f "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>" ]; then source "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>"; fi
+                  make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=true CGO_ENABLED=0
       - unless:
           condition: << parameters.static >>
           steps:
             - run:
                 name: Build << parameters.go_target_os >>/<< parameters.go_arch >>
+                shell: bash
                 environment:
                   CC: << parameters.c_compiler >>
                   MACOSX_DEPLOYMENT_TARGET: 13.0
-                command: make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=false CGO_ENABLED=1
+                command: |
+                  # load Windows $Env:Path values of tools necessary to execute the build (like Go)
+                  if [ -f "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>" ]; then source "/c/tools-cache/<< pipeline.parameters.windows_bash_env_script >>"; fi
+                  make << parameters.make_target >> GOOS=<< parameters.go_target_os >> GOARCH=<< parameters.go_arch >> STATIC_NODE_BINARY=false CGO_ENABLED=1
   install-go:
     parameters:
       go_os:
@@ -228,40 +245,84 @@ commands:
             equal: ['windows', << parameters.go_os >>]
           steps:
             - run:
-                name: Add go binary to PATH
+                name: Add go binary to PATH (via snyk-env)
+                shell: powershell
                 command: |
-                  New-Item -Path $profile -ItemType File -Force
-                  '$Env:Path = "<< parameters.extraction_path >>\go\bin;" + $Env:Path' >> $profile
+                  $goBin = '<< parameters.extraction_path >>\go\bin'
+                  $envScript = '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>'
+                  $bashEnvScript = '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_bash_env_script >>'
 
-  install-deps-windows-full:
+                  if (-not (Test-Path $envScript)) {
+                    New-Item -Path $envScript -ItemType File -Force | Out-Null
+                  }
+                  '$Env:Path = "' + $goBin + ';" + $Env:Path' | Out-File -FilePath $envScript -Append -Encoding UTF8
+
+                  if (-not (Test-Path $bashEnvScript)) {
+                    New-Item -Path $bashEnvScript -ItemType File -Force | Out-Null
+                  }
+                  $bashPath = $goBin.Replace('\', '/').Replace('C:', '/c')
+                  'export PATH="' + $bashPath + ':$PATH"' | Out-File -FilePath $bashEnvScript -Append -Encoding UTF8
+
+  install-deps-windows-native-build:
     steps:
       - run:
-          name: Configure Chocolatey cache location
-          shell: bash.exe
+          name: Ensure tools cache directory
+          shell: powershell
           command: |
-            choco config set cacheLocation "C:\choco-cache"
+            $cacheDir = '<< pipeline.parameters.windows_cache_dir >>'
+            if (-not (Test-Path $cacheDir)) {
+              New-Item -ItemType Directory -Path $cacheDir | Out-Null
+            }
       - restore_cache:
-          name: Restoring Chocolatey cache
+          name: Restoring Windows tools cache
           keys:
-            - chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - windows-tools-cache-v2-{{ arch }}
       - run:
-          name: Install Windows dependencies
-          shell: bash.exe
+          name: Install Node.js (native)
+          shell: powershell
           command: |
-            choco uninstall nodejs -y
-            choco uninstall nodejs.install -y
-            choco install .circleci/chocolatey.config --no-progress -y
-            choco install nodejs --version=$(head .nvmrc) --no-progress -y
-      - save_cache:
-          name: Saving Chocolatey cache
-          key: chocolatey-cache-full-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-          paths:
-            - C:\choco-cache
-      - install-deps-python:
-          os: win
+            .\scripts\windows\install-node.ps1
       - run:
-          name: Install uv
-          command: pip install uv
+          name: Install Apache Maven 3.8.2 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-maven.ps1
+      - run:
+          name: Install Gradle 8.1.1 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-gradle.ps1
+      - run:
+          name: Install .NET SDK 8.0.100 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-dotnet-sdk.ps1
+      - run:
+          name: Install Python 3.12.8 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-python3.ps1
+      - run:
+          name: Install GNU Make 4.4.1 (native)
+          shell: powershell
+          command: |
+            .\scripts\windows\install-make.ps1
+      - run:
+          name: Ensure Python and uv
+          shell: powershell
+          command: |
+            if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
+            .\scripts\windows\ensure-python-uv.ps1
+      - save_cache:
+          name: Saving Windows tools cache
+          key: windows-tools-cache-v2-{{ arch }}
+          paths:
+            - << pipeline.parameters.windows_cache_dir >>
+
+  install-deps-windows-native-full-signing:
+    steps:
+      - install-deps-windows-signing
+      - install-deps-windows-native-build
 
   install-deps-windows-signing:
     steps:
@@ -309,32 +370,6 @@ commands:
 
   install-deps-windows-full-signing:
     steps:
-      - install-deps-windows-signing
-      - install-deps-windows-make
-
-  install-deps-windows-make:
-    steps:
-      - run:
-          name: Configure Chocolatey cache location
-          shell: bash.exe
-          command: |
-            choco config set cacheLocation "C:\choco-cache"
-      - restore_cache:
-          name: Restoring Chocolatey cache
-          keys:
-            - chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-      - run:
-          name: Install Windows dependencies
-          shell: bash.exe
-          command: |
-            choco install make --no-progress -y
-      - save_cache:
-          name: Saving Chocolatey cache
-          key: chocolatey-cache-v5-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-          paths:
-            - C:\choco-cache
-      - install-deps-python:
-          os: win
       - install-deps-windows-signing
 
   install-deps-noop:
@@ -717,7 +752,7 @@ workflows:
           go_arch: amd64
           go_download_base_url: << pipeline.parameters.fips_go_download_base_url >>
           make_target: build clean-golang build-fips
-          install_deps_extension: windows-full-signing
+          install_deps_extension: windows-native-full-signing
           install_path: 'C:\'
           executor: win-server2022-amd64
           context:
@@ -903,11 +938,12 @@ workflows:
             - build windows amd64
           executor: win-server2022-amd64
           test_snyk_command: binary-releases\\snyk-win.exe
-          install_deps_extension: windows-full
+          install_deps_extension: windows-native-build
           dont_skip_tests: 0
           shards: 8
           shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
-          pre_test_cmds: Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1; RefreshEnv
+          pre_test_cmds: |
+            if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
 
       - sign:
           name: sign windows amd64
@@ -918,7 +954,7 @@ workflows:
           go_arch: amd64
           make_target: sign sign-fips
           executor: win-server2022-amd64
-          install_deps_extension: windows-make
+          install_deps_extension: windows-native-full-signing
           filters:
             branches:
               only:

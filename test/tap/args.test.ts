@@ -67,6 +67,19 @@ test('test command line test --all-sub-projects', (t) => {
   t.end();
 });
 
+test('test command line test --maven-skip-wrapper', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--maven-skip-wrapper',
+  ];
+  const result = args(cliArgs);
+  t.ok(result.options.mavenSkipWrapper);
+  t.notOk(result.options['maven-skip-wrapper']);
+  t.end();
+});
+
 test('test command line test --gradle-sub-project=foo', (t) => {
   const cliArgs = [
     '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
@@ -112,6 +125,78 @@ test('test command line test --strict-out-of-sync=false', (t) => {
   ];
   const result = args(cliArgs);
   t.notOk(result.options.strictOutOfSync);
+  t.end();
+});
+
+test('test command line test --dotnet-runtime-resolution', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--dotnet-runtime-resolution',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], true);
+  t.end();
+});
+
+test('test command line test --dotnet-runtime-resolution=true', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--dotnet-runtime-resolution=true',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], true);
+  t.end();
+});
+
+test('test command line test --dotnet-runtime-resolution=false', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--dotnet-runtime-resolution=false',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], false);
+  t.end();
+});
+
+test('test command line monitor --dotnet-runtime-resolution', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'monitor',
+    '--dotnet-runtime-resolution',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], true);
+  t.end();
+});
+
+test('test command line monitor --dotnet-runtime-resolution=true', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'monitor',
+    '--dotnet-runtime-resolution=true',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], true);
+  t.end();
+});
+
+test('test command line monitor --dotnet-runtime-resolution=false', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'monitor',
+    '--dotnet-runtime-resolution=false',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], false);
   t.end();
 });
 

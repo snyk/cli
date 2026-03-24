@@ -215,6 +215,7 @@ export function args(rawArgv: string[]): Args {
     'all-projects',
     'yarn-workspaces',
     'maven-aggregate-project',
+    'maven-skip-wrapper',
     'include-provenance',
     'fingerprint-algorithm',
     'detection-depth',
@@ -254,6 +255,14 @@ export function args(rawArgv: string[]): Args {
       argv.strictOutOfSync = false;
     } else {
       argv.strictOutOfSync = true;
+    }
+  }
+
+  if (argv['dotnet-runtime-resolution'] !== undefined) {
+    if (argv['dotnet-runtime-resolution'] === 'false') {
+      argv['dotnet-runtime-resolution'] = false;
+    } else {
+      argv['dotnet-runtime-resolution'] = true;
     }
   }
 
