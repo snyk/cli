@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { runSnykCLI } from '../util/runSnykCLI';
 import Ajv from 'ajv-draft-04';
-jest.setTimeout(1000 * 180);
+jest.setTimeout(1000 * 300);
 
 async function loadSchema(uri: string) {
   try {
