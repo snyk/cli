@@ -258,6 +258,14 @@ export function args(rawArgv: string[]): Args {
     }
   }
 
+  if (argv['dotnet-runtime-resolution'] !== undefined) {
+    if (argv['dotnet-runtime-resolution'] === 'false') {
+      argv['dotnet-runtime-resolution'] = false;
+    } else {
+      argv['dotnet-runtime-resolution'] = true;
+    }
+  }
+
   // Alias
   const aliases = {
     gradleSubProject: 'subProject',
