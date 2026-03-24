@@ -151,9 +151,9 @@ func legacycliWorkflow(
 		return output, err
 	}
 
-	// run the cli
+	// run the cli with context from invocation (allows cancellation on signal)
 	proxyInfo := wrapperProxy.ProxyInfo()
-	err = cli.Execute(proxyInfo, finalizeArguments(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
+	err = cli.Execute(invocation.Context(), proxyInfo, finalizeArguments(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
 
 	if !useStdIo {
 		_ = outWriter.Flush()
