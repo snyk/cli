@@ -128,6 +128,78 @@ test('test command line test --strict-out-of-sync=false', (t) => {
   t.end();
 });
 
+test('test command line test --dotnet-runtime-resolution', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--dotnet-runtime-resolution',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], true);
+  t.end();
+});
+
+test('test command line test --dotnet-runtime-resolution=true', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--dotnet-runtime-resolution=true',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], true);
+  t.end();
+});
+
+test('test command line test --dotnet-runtime-resolution=false', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--dotnet-runtime-resolution=false',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], false);
+  t.end();
+});
+
+test('test command line monitor --dotnet-runtime-resolution', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'monitor',
+    '--dotnet-runtime-resolution',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], true);
+  t.end();
+});
+
+test('test command line monitor --dotnet-runtime-resolution=true', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'monitor',
+    '--dotnet-runtime-resolution=true',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], true);
+  t.end();
+});
+
+test('test command line monitor --dotnet-runtime-resolution=false', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'monitor',
+    '--dotnet-runtime-resolution=false',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.options['dotnet-runtime-resolution'], false);
+  t.end();
+});
+
 test('test command line test --fail-on=foo', (t) => {
   const cliArgs = [
     '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
