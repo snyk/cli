@@ -52,6 +52,10 @@ Generate or test an SBOM document in ecosystems supported by Snyk.
 
 Generates an AIBOM for a local software project that is written in Python, to understand what AI models, datasets, tools, and so on are used in that project.
 
+### [`snyk aibom test`](aibom-test.md)
+
+Generates an AI-BOM and tests it against your tenant's policies, returning all resulting issues.
+
 ### [`snyk redteam`](redteam.md)
 
 Runs a red teaming scan against AI targets and reports vulnerabilities.
