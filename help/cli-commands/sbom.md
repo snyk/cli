@@ -134,6 +134,12 @@ When scanning these types of projects, Snyk performs a compile to ensure all mod
 
 Be sure to run the scan in the same directory as the root pom.xml file.
 
+### `--maven-skip-wrapper`
+
+Forces the use of a globally installed `mvn` command, even when a Maven wrapper (i.e. `mvnw` or `mvnw.cmd`) is present in the project.
+
+Some projects include a Maven wrapper but users may prefer (or be required by their CI environment) to use a globally installed `mvn` instead. This option gives an explicit escape hatch without having to remove the wrapper from the project.
+
 ### `--scan-unmanaged`
 
 To scan individual JAR, WAR, or AAR files, use the following:
