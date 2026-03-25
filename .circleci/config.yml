@@ -611,7 +611,7 @@ workflows:
           go_target_os: linux
           go_os: linux
           go_arch: amd64
-          static_binary: true
+          static_binary: false # TODO: set to true when we have confidence for v1.1304.0 release
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: docker-amd64-xl
           requires:
@@ -654,7 +654,7 @@ workflows:
           go_target_os: linux
           go_os: linux
           go_arch: arm64
-          static_binary: true
+          static_binary: false # TODO: set to true when we have confidence for v1.1304.0 release
           go_download_base_url: << pipeline.parameters.go_download_base_url >>
           executor: docker-arm64-xl
           requires:
