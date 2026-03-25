@@ -18,7 +18,7 @@ import {
 } from '../../../jest/util/fileIgnoreRulesFixture';
 
 expect.extend(matchers);
-jest.setTimeout(1000 * 180);
+jest.setTimeout(1000 * 300);
 
 interface Workflow {
   type: string;

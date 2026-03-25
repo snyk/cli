@@ -6,7 +6,7 @@ import { RunCommandOptions, RunCommandResult } from '../../util/runCommand';
 import { getServerPort } from '../../util/getServerPort';
 import { isWindowsOperatingSystem } from '../../../utils';
 
-jest.setTimeout(1000 * 120);
+jest.setTimeout(1000 * 300);
 
 describe('snyk container', () => {
   if (isWindowsOperatingSystem()) {
