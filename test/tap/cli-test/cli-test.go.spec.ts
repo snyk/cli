@@ -54,6 +54,7 @@ export const GoTests: AcceptanceTests = {
               maxVulnPaths: undefined,
               showMavenBuildScope: false,
               showNpmScope: false,
+              cliDotnetRuntimeResolutionEnabled: false,
               configuration: {
                 includeGoStandardLibraryDeps: false,
                 includePackageUrls: true,
@@ -114,6 +115,7 @@ export const GoTests: AcceptanceTests = {
               maxVulnPaths: undefined,
               showMavenBuildScope: false,
               showNpmScope: false,
+              cliDotnetRuntimeResolutionEnabled: false,
               configuration: {
                 includeGoStandardLibraryDeps: false,
                 includePackageUrls: true,
@@ -176,6 +178,7 @@ export const GoTests: AcceptanceTests = {
               maxVulnPaths: undefined,
               showMavenBuildScope: false,
               showNpmScope: false,
+              cliDotnetRuntimeResolutionEnabled: false,
               configuration: {
                 includeGoStandardLibraryDeps: false,
                 includePackageUrls: true,
@@ -236,6 +239,7 @@ export const GoTests: AcceptanceTests = {
               maxVulnPaths: undefined,
               showMavenBuildScope: false,
               showNpmScope: false,
+              cliDotnetRuntimeResolutionEnabled: false,
               configuration: {
                 includeGoStandardLibraryDeps: false,
                 includePackageUrls: true,
