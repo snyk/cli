@@ -87,6 +87,7 @@ import { hasUnknownVersions } from '../dep-graph';
 import { sleep } from '../common';
 import {
   PNPM_FEATURE_FLAG,
+  BUN_FEATURE_FLAG,
   SUPPORTED_MANIFEST_FILES,
 } from '../package-managers';
 import { PackageExpanded } from 'snyk-resolve-deps/dist/types';
@@ -909,6 +910,13 @@ async function assembleLocalPayloads(
       if (packageManager === 'pnpm' && featureFlags.has(PNPM_FEATURE_FLAG)) {
         const isLockFileBased =
           targetFile && targetFile.endsWith(SUPPORTED_MANIFEST_FILES.PNPM_LOCK);
+        if (!isLockFileBased || options.traverseNodeModules) {
+          payload.modules = pkg as DepTreeFromResolveDeps; // See the output of resolve-deps
+        }
+      }
+      if (packageManager === 'bun' && featureFlags.has(BUN_FEATURE_FLAG)) {
+        const isLockFileBased =
+          targetFile && targetFile.endsWith(SUPPORTED_MANIFEST_FILES.BUN_LOCK);
         if (!isLockFileBased || options.traverseNodeModules) {
           payload.modules = pkg as DepTreeFromResolveDeps; // See the output of resolve-deps
         }

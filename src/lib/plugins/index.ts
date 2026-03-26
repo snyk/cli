@@ -12,6 +12,7 @@ import * as cocoapodsPlugin from '@snyk/snyk-cocoapods-plugin';
 import * as hexPlugin from '@snyk/snyk-hex-plugin';
 import * as swiftPlugin from 'snyk-swiftpm-plugin';
 import * as uvPlugin from './uv';
+import * as bunPlugin from './bun';
 import * as types from './types';
 import { SupportedPackageManagers } from '../package-managers';
 import { UnsupportedPackageManagerError } from '../errors';
@@ -69,6 +70,9 @@ export function loadPlugin(
     }
     case 'uv': {
       return uvPlugin;
+    }
+    case 'bun': {
+      return bunPlugin;
     }
     default: {
       throw new UnsupportedPackageManagerError(packageManager);

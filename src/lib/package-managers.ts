@@ -1,5 +1,6 @@
 export const PNPM_FEATURE_FLAG = 'enablePnpmCli';
 export const UV_FEATURE_FLAG = 'enableUvCLI';
+export const BUN_FEATURE_FLAG = 'enableBunCli';
 export const MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF =
   'enableMavenDverboseExhaustiveDeps';
 export const INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG =
@@ -26,7 +27,8 @@ export type SupportedPackageManagers =
   | 'hex'
   | 'Unmanaged (C/C++)'
   | 'swift'
-  | 'uv';
+  | 'uv'
+  | 'bun';
 
 export enum SUPPORTED_MANIFEST_FILES {
   GEMFILE = 'Gemfile',
@@ -60,6 +62,7 @@ export enum SUPPORTED_MANIFEST_FILES {
   MIX_EXS = 'mix.exs',
   PACKAGE_SWIFT = 'Package.swift',
   UV_LOCK = 'uv.lock',
+  BUN_LOCK = 'bun.lock',
 }
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
@@ -84,6 +87,7 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   'Unmanaged (C/C++)': 'Unmanaged (C/C++)',
   swift: 'Swift',
   uv: 'uv',
+  bun: 'bun',
 };
 
 export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [

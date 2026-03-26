@@ -14,6 +14,7 @@ const {
 } = require('../feature-flags');
 const {
   PNPM_FEATURE_FLAG,
+  BUN_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
   INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
   DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
@@ -44,6 +45,9 @@ async function executeTest(root, options) {
     PNPM_FEATURE_FLAG,
     options,
   );
+  const hasBunSupport =
+    options.experimental &&
+    (await hasFeatureFlagOrDefault(BUN_FEATURE_FLAG, options));
   const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
     INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
     options,
@@ -78,6 +82,9 @@ async function executeTest(root, options) {
     const featureFlags = new Set();
     if (hasPnpmSupport) {
       featureFlags.add(PNPM_FEATURE_FLAG);
+    }
+    if (hasBunSupport) {
+      featureFlags.add(BUN_FEATURE_FLAG);
     }
 
     if (includeGoStandardLibraryDeps) {
@@ -140,6 +147,9 @@ function run(root, options, featureFlags) {
 
 function validateProjectType(options, projectType, featureFlags) {
   if (projectType === 'pnpm' && !featureFlags.has(PNPM_FEATURE_FLAG)) {
+    throw new UnsupportedPackageManagerError(projectType);
+  }
+  if (projectType === 'bun' && !featureFlags.has(BUN_FEATURE_FLAG)) {
     throw new UnsupportedPackageManagerError(projectType);
   }
 

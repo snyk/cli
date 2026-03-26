@@ -49,6 +49,16 @@ export async function hasFeatureFlagOrDefault(
   options: Options,
   defaultValue = false,
 ): Promise<boolean> {
+  // Allow local env var overrides for development/testing.
+  // Converts camelCase flag name to SCREAMING_SNAKE_CASE env var, e.g.
+  // enableBunCli → SNYK_FEATURE_FLAG_ENABLE_BUN_CLI
+  const envVarName =
+    'SNYK_FEATURE_FLAG_' +
+    featureFlag.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
+  const envOverride = process.env[envVarName];
+  if (envOverride === 'true') return true;
+  if (envOverride === 'false') return false;
+
   try {
     const result = await hasFeatureFlag(featureFlag, options);
     return result ?? defaultValue;

@@ -66,6 +66,7 @@ import {
 import {
   PNPM_FEATURE_FLAG,
   UV_FEATURE_FLAG,
+  BUN_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
   INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
   DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
@@ -208,6 +209,9 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     options,
   );
   const hasUvSupport = await hasFeatureFlagOrDefault(UV_FEATURE_FLAG, options);
+  const hasBunSupport =
+    options.experimental &&
+    (await hasFeatureFlagOrDefault(BUN_FEATURE_FLAG, options));
   const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
     INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
     options,
@@ -244,6 +248,9 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
   if (hasUvSupport) {
     featureFlags.add(UV_FEATURE_FLAG);
+  }
+  if (hasBunSupport) {
+    featureFlags.add(BUN_FEATURE_FLAG);
   }
   if (includeGoStandardLibraryDeps) {
     featureFlags.add(INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG);
