@@ -64,7 +64,6 @@ import {
   APP_VULNS_OPTION,
 } from '../constants';
 import {
-  PNPM_FEATURE_FLAG,
   UV_FEATURE_FLAG,
   MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
   INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
@@ -203,10 +202,6 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     );
   }
 
-  const hasPnpmSupport = await hasFeatureFlagOrDefault(
-    PNPM_FEATURE_FLAG,
-    options,
-  );
   const hasUvSupport = await hasFeatureFlagOrDefault(UV_FEATURE_FLAG, options);
   const includeGoStandardLibraryDeps = await hasFeatureFlagOrDefault(
     INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG,
@@ -239,9 +234,6 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   const featureFlags = new Set<string>();
-  if (hasPnpmSupport) {
-    featureFlags.add(PNPM_FEATURE_FLAG);
-  }
   if (hasUvSupport) {
     featureFlags.add(UV_FEATURE_FLAG);
   }

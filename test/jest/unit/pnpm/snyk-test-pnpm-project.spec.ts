@@ -28,10 +28,10 @@ describe('snyk test for pnpm project', () => {
 
   describe('no local flag is used', () => {
     describe('project contains pnpm-lock.yaml file', () => {
-      it('should scan pnpm vulnerabilities when enablePnpmCli feature flag is enabled', async () => {
+      it('should scan pnpm vulnerabilities', async () => {
         const fixturePath = getFixturePath('pnpm-app');
 
-        mockRequests(true);
+        mockRequests();
 
         const result: CommandResult = await test(fixturePath, {
           json: true,
@@ -39,7 +39,7 @@ describe('snyk test for pnpm project', () => {
           _doubleDashArgs: [],
         });
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(5);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -76,119 +76,40 @@ describe('snyk test for pnpm project', () => {
           result: JSON.stringify(expectedResultObject, null, 2),
         });
       });
-
-      it('should scan pnpm vulnerabilities as npm project when enablePnpmCli feature flag is not enabled', async () => {
-        const fixturePath = getFixturePath('pnpm-app');
-
-        mockRequests(false);
-
-        const result: CommandResult = await test(fixturePath, {
-          json: true,
-          _: [],
-          _doubleDashArgs: [],
-        });
-
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
-
-        const expectedResultObject = {
-          vulnerabilities: [],
-          ok: true,
-          dependencyCount: 2,
-          org: 'test-org',
-          policy: undefined,
-          isPrivate: true,
-          licensesPolicy: null,
-          packageManager: 'npm',
-          projectId: undefined,
-          ignoreSettings: null,
-          docker: undefined,
-          summary: 'No known vulnerabilities',
-          severityThreshold: undefined,
-          remediation: undefined,
-          filesystemPolicy: false,
-          uniqueCount: 0,
-          projectName: 'one-dep',
-          foundProjectCount: undefined,
-          displayTargetFile: 'package.json',
-          platform: undefined,
-          hasUnknownVersions: false,
-          path: fixturePath,
-        };
-        expect(result).toMatchObject({
-          result: JSON.stringify(expectedResultObject, null, 2),
-        });
-      });
     });
   });
 
   describe('--all-projects flag is used to scan the project', () => {
-    describe('when enablePnpmCli feature flag is present', () => {
-      it('should scan pnpm workspace vulnerabilities', async () => {
-        const fixturePath = getFixturePath('workspace-multi-type');
+    it('should scan pnpm workspace vulnerabilities', async () => {
+      const fixturePath = getFixturePath('workspace-multi-type');
 
-        mockRequests(true);
+      mockRequests();
 
-        const result: CommandResult = await test(fixturePath, {
-          allProjects: true,
-          json: true,
-          _: [],
-          _doubleDashArgs: [],
-        });
-
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(15);
-
-        const parsedResult = JSON.parse(result.getDisplayResults());
-        const pnpmResult = parsedResult.filter(
-          (result) => result.packageManager === 'pnpm',
-        );
-        expect(pnpmResult.length).toBe(6);
+      const result: CommandResult = await test(fixturePath, {
+        allProjects: true,
+        json: true,
+        _: [],
+        _doubleDashArgs: [],
       });
-    });
 
-    describe('when enablePnpmCli feature flag is not present', () => {
-      it('should not scan pnpm workspace vulnerabilities, only npm and yarn', async () => {
-        const fixturePath = getFixturePath('workspace-multi-type');
+      expect(mockedMakeRequest).toHaveBeenCalledTimes(14);
 
-        mockRequests(false);
-
-        mockedMakeRequest.mockImplementation(() => {
-          return Promise.resolve({
-            res: { statusCode: 200 } as NeedleResponse,
-            body: {
-              result: { issuesData: {}, affectedPkgs: {} },
-              meta: { org: 'test-org', isPublic: false },
-              filesystemPolicy: false,
-            },
-          });
-        });
-
-        const result: CommandResult = await test(fixturePath, {
-          allProjects: true,
-          json: true,
-          _: [],
-          _doubleDashArgs: [],
-        });
-
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(11);
-
-        const parsedResult = JSON.parse(result.getDisplayResults());
-        const pnpmResult = parsedResult.filter(
-          (result) => result.packageManager === 'pnpm',
-        );
-        expect(pnpmResult.length).toBe(0);
-      });
+      const parsedResult = JSON.parse(result.getDisplayResults());
+      const pnpmResult = parsedResult.filter(
+        (result) => result.packageManager === 'pnpm',
+      );
+      expect(pnpmResult.length).toBe(6);
     });
   });
 });
 
-function mockRequests(enablePnpm = true): void {
+function mockRequests(): void {
   mockedMakeRequest.mockImplementation(async (req) => {
     // Responses for feature flags
     if (req.url.includes('/feature-flags/')) {
-      const ok = req.url.includes('enablePnpmCli') ? enablePnpm : true;
       return {
         res: { statusCode: 200 } as NeedleResponse,
-        body: { code: 200, ok },
+        body: { code: 200, ok: true },
       };
     }
 

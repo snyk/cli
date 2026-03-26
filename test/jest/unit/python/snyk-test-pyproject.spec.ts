@@ -64,7 +64,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(5);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -133,7 +133,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(5);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -207,7 +207,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('pip');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(5);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -292,7 +292,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledWith('pip');
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(7);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
@@ -403,7 +403,7 @@ describe('snyk test for python project', () => {
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
         expect(mockedLoadPlugin).toHaveBeenCalledWith('poetry');
 
-        expect(mockedMakeRequest).toHaveBeenCalledTimes(6);
+        expect(mockedMakeRequest).toHaveBeenCalledTimes(5);
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
