@@ -16,6 +16,7 @@ import {
   AUTO_DETECTABLE_FILES,
   detectPackageManagerFromFile,
 } from '../detect';
+import { BUN_FEATURE_FLAG } from '../package-managers';
 import * as analytics from '../analytics';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
@@ -59,6 +60,32 @@ export async function getDepsFromPlugin(
     );
     if (targetFiles.length === 0) {
       throw NoSupportedManifestsFoundError([root]);
+    }
+
+    // When bun is enabled, exclude package.json files that live alongside a
+    // bun.lock — the bun plugin handles those directories already, and the npm
+    // plugin would otherwise try (and fail) to scan them.
+    if (featureFlags.has(BUN_FEATURE_FLAG)) {
+      const bunLockDirs = new Set(
+        targetFiles
+          .filter((f) => pathLib.basename(f) === 'bun.lock')
+          .map((f) => pathLib.dirname(f)),
+      );
+      if (bunLockDirs.size > 0) {
+        const before = targetFiles.length;
+        targetFiles.splice(
+          0,
+          targetFiles.length,
+          ...targetFiles.filter(
+            (f) =>
+              pathLib.basename(f) !== 'package.json' ||
+              !bunLockDirs.has(pathLib.dirname(f)),
+          ),
+        );
+        debug(
+          `bun: excluded ${before - targetFiles.length} package.json file(s) co-located with bun.lock`,
+        );
+      }
     }
     // enable full sub-project scan for gradle
     options.allSubProjects = true;

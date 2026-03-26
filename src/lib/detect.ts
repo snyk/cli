@@ -7,6 +7,7 @@ import {
   SUPPORTED_MANIFEST_FILES,
   PNPM_FEATURE_FLAG,
   UV_FEATURE_FLAG,
+  BUN_FEATURE_FLAG,
 } from './package-managers';
 
 const debug = debugLib('snyk-detect');
@@ -15,6 +16,7 @@ const DETECTABLE_FILES: string[] = [
   'pnpm-lock.yaml',
   'yarn.lock',
   'package-lock.json',
+  'bun.lock',
   'package.json',
   'Gemfile',
   'Gemfile.lock',
@@ -44,6 +46,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'pnpm-lock.yaml',
   'package-lock.json',
   'yarn.lock',
+  'bun.lock',
   'package.json',
   'Gemfile',
   'Gemfile.lock',
@@ -105,6 +108,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   [SUPPORTED_MANIFEST_FILES.MIX_EXS]: 'hex',
   [SUPPORTED_MANIFEST_FILES.PACKAGE_SWIFT]: 'swift',
   [SUPPORTED_MANIFEST_FILES.UV_LOCK]: 'uv',
+  [SUPPORTED_MANIFEST_FILES.BUN_LOCK]: 'bun',
 };
 
 export function isPathToPackageFile(
@@ -193,6 +197,8 @@ function isFileCompatible(
       return featureFlags.has(PNPM_FEATURE_FLAG);
     case SUPPORTED_MANIFEST_FILES.UV_LOCK:
       return featureFlags.has(UV_FEATURE_FLAG);
+    case SUPPORTED_MANIFEST_FILES.BUN_LOCK:
+      return featureFlags.has(BUN_FEATURE_FLAG);
     default:
       return true;
   }
