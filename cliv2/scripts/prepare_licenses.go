@@ -9,13 +9,34 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/snyk/go-application-framework/pkg/configuration"
+	"github.com/snyk/go-application-framework/pkg/networking"
+	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 )
 
 // licensesEmbeddedDir is the cliv2-relative tree where go-licenses and manual downloads write.
 var licensesEmbeddedDir = filepath.Join(".", "internal", "embedded", "_data", "licenses")
 
+const (
+	maxDownloadAttempts = 5
+	perAttemptTimeout   = 30 * time.Second
+)
+
 func log(msg string) {
 	fmt.Fprintln(os.Stderr, msg)
+}
+
+func newHTTPClient() *http.Client {
+	cfg := configuration.NewWithOpts()
+	cfg.Set(middleware.ConfigurationKeyRequestAttempts, maxDownloadAttempts)
+
+	na := networking.NewNetworkAccess(cfg)
+	na.AddHeaderField("User-Agent", "Snyk-CLI-Build/1.0")
+
+	client := na.GetUnauthorizedHttpClient()
+	client.Timeout = time.Duration(maxDownloadAttempts) * perAttemptTimeout
+	return client
 }
 
 func main() {
@@ -50,6 +71,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	client := newHTTPClient()
+
 	log("Downloading manual licenses...")
 	manualLicenses := []struct{ url, pkg string }{
 		{"https://raw.githubusercontent.com/davecgh/go-spew/master/LICENSE", "github.com/davecgh/go-spew"},
@@ -58,7 +81,7 @@ func main() {
 		{"https://go.dev/LICENSE?m=text", "go.dev"},
 	}
 	for _, lic := range manualLicenses {
-		if err := manualLicenseDownload(lic.url, lic.pkg); err != nil {
+		if err := manualLicenseDownload(client, lic.url, lic.pkg); err != nil {
 			log(fmt.Sprintf("Error downloading license: %v", err))
 			os.Exit(1)
 		}
@@ -72,7 +95,7 @@ func main() {
 	log("Done preparing 3rd party licenses.")
 }
 
-func manualLicenseDownload(url, packageName string) error {
+func manualLicenseDownload(client *http.Client, url, packageName string) error {
 	folderPath := filepath.Join(licensesEmbeddedDir, packageName)
 	licenseFile := filepath.Join(folderPath, "LICENSE")
 
@@ -86,14 +109,7 @@ func manualLicenseDownload(url, packageName string) error {
 		return fmt.Errorf("creating directory for %s: %w", packageName, err)
 	}
 
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return fmt.Errorf("creating request for %s: %w", packageName, err)
-	}
-	req.Header.Set("User-Agent", "Snyk-CLI-Build/1.0")
-
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := client.Get(url)
 	if err != nil {
 		return fmt.Errorf("downloading license for %s: %w", packageName, err)
 	}
