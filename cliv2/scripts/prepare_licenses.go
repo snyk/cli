@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -93,9 +94,36 @@ func manualLicenseDownload(url, packageName string) error {
 	req.Header.Set("User-Agent", "Snyk-CLI-Build/1.0")
 
 	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("downloading license for %s: %w", packageName, err)
+	var resp *http.Response
+	maxRetries := 2
+	backoff := 5 * time.Second
+	for i := 0; i <= maxRetries; i++ {
+		resp, err = client.Do(req)
+
+		if err != nil {
+			return fmt.Errorf("downloading license for %s: %w", packageName, err)
+		}
+
+		// If not rate limited anymore, break
+		if resp.StatusCode != http.StatusTooManyRequests {
+			break
+		}
+
+		// check for Retry-After header
+		retryAfter := resp.Header.Get("Retry-After")
+		if seconds, err := strconv.Atoi(retryAfter); err == nil {
+			backoff = time.Duration(seconds) * time.Second
+		}
+
+		_ = resp.Body.Close()
+
+		if i == maxRetries {
+			return fmt.Errorf("downloading license for %s: rate limited after %d retries", packageName, maxRetries)
+		}
+
+		log(fmt.Sprintf("  Rate limited, retrying for %s... (attempt %d/%d)", packageName, i+1, maxRetries+1))
+		time.Sleep(backoff)
+		backoff *= 2 // exponential backoff
 	}
 	defer func() { _ = resp.Body.Close() }()
 
