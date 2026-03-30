@@ -1,5 +1,6 @@
 import monitor from '../../../../src/cli/commands/monitor';
 import * as featureFlags from '../../../../src/lib/feature-flags';
+import { CLI_DOTNET_RUNTIME_RESOLUTION } from '../../../../src/lib/feature-flags';
 import {
   SCAN_USR_LIB_JARS_FEATURE_FLAG,
   DISABLE_CONTAINER_MONITOR_PROJECT_NAME_FIX_FEATURE_FLAG,
@@ -11,6 +12,7 @@ import * as analytics from '../../../../src/lib/analytics';
 import config from '../../../../src/lib/config';
 import { apiOrOAuthTokenExists } from '../../../../src/lib/api-token';
 import { runTest } from '../../../../src/lib/snyk-test/run-test';
+import { getDepsFromPlugin } from '../../../../src/lib/plugins/get-deps-from-plugin';
 import * as detect from '../../../../src/lib/detect';
 import test from '../../../../src/cli/commands/test';
 
@@ -374,6 +376,136 @@ describe('monitor & test', () => {
           false,
         );
         expect(options.disableContainerMonitorProjectNameFix).toBeUndefined();
+      });
+    });
+  });
+
+  describe('cliDotnetRuntimeResolution feature flag', () => {
+    beforeEach(() => {
+      (ecosystems.getEcosystem as jest.Mock).mockReturnValue(undefined);
+      (analytics.allowAnalytics as jest.Mock).mockReturnValue(false);
+      (
+        featureFlags.isFeatureFlagSupportedForOrg as jest.Mock
+      ).mockResolvedValue({
+        ok: false,
+      });
+    });
+
+    describe('test command', () => {
+      let capturedOptions: any = null;
+      let capturedFeatureFlags: Set<string> = new Set<string>();
+
+      beforeEach(() => {
+        (ecosystems.getEcosystemForTest as jest.Mock).mockReturnValue(null);
+        capturedOptions = null;
+        capturedFeatureFlags = new Set<string>();
+        (runTest as jest.Mock).mockImplementation(
+          (_projectType, _root, options, featureFlags) => {
+            capturedOptions = options;
+            capturedFeatureFlags = featureFlags;
+            return Promise.resolve([]);
+          },
+        );
+        (detect.detectPackageManager as jest.Mock).mockReturnValue('nuget');
+      });
+
+      it('should add CLI_DOTNET_RUNTIME_RESOLUTION to featureFlags when FF is enabled', async () => {
+        const options: any = {};
+        (
+          featureFlags.isFeatureFlagSupportedForOrg as jest.Mock
+        ).mockImplementation((flag) => {
+          return Promise.resolve({
+            ok: flag === CLI_DOTNET_RUNTIME_RESOLUTION,
+          });
+        });
+
+        try {
+          await test('path/to/project', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+        }
+
+        expect(capturedFeatureFlags?.has(CLI_DOTNET_RUNTIME_RESOLUTION)).toBe(
+          true,
+        );
+        expect(capturedOptions['dotnet-runtime-resolution']).toBeUndefined();
+      });
+
+      it('should not add CLI_DOTNET_RUNTIME_RESOLUTION to featureFlags when FF is disabled', async () => {
+        const options: any = {};
+
+        try {
+          await test('path/to/project', options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+        }
+
+        expect(capturedFeatureFlags?.has(CLI_DOTNET_RUNTIME_RESOLUTION)).toBe(
+          false,
+        );
+        expect(capturedOptions['dotnet-runtime-resolution']).toBeUndefined();
+      });
+    });
+
+    describe('monitor command', () => {
+      let capturedOptions: any = null;
+      let capturedFeatureFlags: Set<string> = new Set<string>();
+
+      beforeEach(() => {
+        capturedOptions = null;
+        capturedFeatureFlags = new Set<string>();
+        (analytics.allowAnalytics as jest.Mock).mockReturnValue(false);
+        (detect.detectPackageManager as jest.Mock).mockReturnValue('nuget');
+        (detect.detectPackageFile as jest.Mock).mockReturnValue(
+          'project.assets.json',
+        );
+        (getDepsFromPlugin as jest.Mock).mockImplementation(
+          (_root, options, featureFlags) => {
+            capturedOptions = options;
+            capturedFeatureFlags = featureFlags;
+            return Promise.resolve({
+              plugin: { name: 'snyk-nuget-plugin' },
+              scannedProjects: [],
+            });
+          },
+        );
+      });
+
+      it('should add CLI_DOTNET_RUNTIME_RESOLUTION to featureFlags when FF is enabled', async () => {
+        const options: any = {};
+        (
+          featureFlags.isFeatureFlagSupportedForOrg as jest.Mock
+        ).mockImplementation((flag) => {
+          return Promise.resolve({
+            ok: flag === CLI_DOTNET_RUNTIME_RESOLUTION,
+          });
+        });
+
+        try {
+          await monitor(process.cwd(), options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+        }
+
+        expect(capturedFeatureFlags?.has(CLI_DOTNET_RUNTIME_RESOLUTION)).toBe(
+          true,
+        );
+        expect(capturedOptions['dotnet-runtime-resolution']).toBeUndefined();
+      });
+
+      it('should not add CLI_DOTNET_RUNTIME_RESOLUTION to featureFlags when FF is disabled', async () => {
+        const options: any = {};
+
+        try {
+          await monitor(process.cwd(), options);
+        } catch (error) {
+          // We expect this to fail since we are not mocking all dependencies.
+        }
+
+        expect(capturedFeatureFlags?.has(CLI_DOTNET_RUNTIME_RESOLUTION)).toBe(
+          false,
+        );
+        expect(capturedOptions['dotnet-runtime-resolution']).toBeUndefined();
       });
     });
   });

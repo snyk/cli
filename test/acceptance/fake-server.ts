@@ -32,6 +32,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
     ['useExperimentalRiskScoreInCLI', false],
     ['sbomTestReachability', false],
     ['useTestShimForOSCliTest', false],
+    ['cliDotnetRuntimeResolution', false],
   ]);
 };
 
