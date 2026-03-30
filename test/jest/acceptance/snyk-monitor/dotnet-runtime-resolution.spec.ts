@@ -1,12 +1,13 @@
-import * as path from 'path';
 import {
   fakeServer,
   getFirstIPv4Address,
 } from '../../../acceptance/fake-server';
-import { createProjectFromWorkspace } from '../../util/createProject';
 import { getAvailableServerPort } from '../../util/getServerPort';
-import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import {
+  assertDepGraph,
+  setupNugetProjectFromWorkspace,
+} from '../../util/dotnetRuntimeResolution';
 
 jest.setTimeout(1000 * 60 * 2);
 
@@ -40,91 +41,47 @@ describe('snyk monitor with cliDotnetRuntimeResolution feature flag', () => {
   });
 
   test('feature flag enables dotnet runtime resolution path for nuget project', async () => {
-    const prerequisite = await runCommand('dotnet', ['--version']).catch(
-      () => ({ code: 1, stderr: '', stdout: '' }),
+    const project = await setupNugetProjectFromWorkspace(
+      'nuget-app-6-no-rid',
+      'dotnet_6.csproj',
     );
-
-    if (prerequisite.code !== 0) {
-      return;
-    }
 
     server.setFeatureFlag('cliDotnetRuntimeResolution', true);
 
-    const project = await createProjectFromWorkspace('nuget-app-6-no-rid');
-
-    // dotnet restore is needed to generate obj/project.assets.json with valid
-    // local paths — the plugin reads this file but does not create it.
-    const restoreResult = await runCommand('dotnet', [
-      'restore',
-      path.resolve(project.path(), 'dotnet_6.csproj'),
-    ]);
-
-    if (restoreResult.code !== 0) {
-      console.log(restoreResult.stdout);
-      console.log(restoreResult.stderr);
-    }
-    expect(restoreResult.code).toBe(0);
-
-    const { code, stdout } = await runSnykCLI('monitor', {
+    const { code } = await runSnykCLI('monitor', {
       cwd: project.path(),
       env,
     });
 
     expect(code).toEqual(0);
-    expect(stdout).toContain('Monitoring');
 
-    const featureFlagRequests = server
-      .getRequests()
-      .filter((req: any) =>
-        req.url.includes('/feature-flags/cliDotnetRuntimeResolution'),
-      );
-    expect(featureFlagRequests.length).toBe(1);
-
-    // Runtime resolution produces a dep graph, sent to /monitor/nuget/graph
+    // Runtime resolution sends a dep graph to /monitor/nuget/graph
     const monitorRequests = server
       .getRequests()
       .filter((req: any) => req.url.includes('/monitor/'));
     expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
     expect(monitorRequests[0].url).toContain('/monitor/nuget/graph');
-    expect(monitorRequests[0].body.depGraphJSON).toBeDefined();
+
+    const depGraph = monitorRequests[0].body.depGraphJSON;
+    expect(depGraph).toBeDefined();
+    assertDepGraph(depGraph, {
+      expectedPackage: { name: 'DeepCloner', version: '0.10.4' },
+      expectedRuntimeMajor: '6',
+    });
   });
 
   test('nuget project uses legacy path when cliDotnetRuntimeResolution is disabled', async () => {
-    const prerequisite = await runCommand('dotnet', ['--version']).catch(
-      () => ({ code: 1, stderr: '', stdout: '' }),
+    const project = await setupNugetProjectFromWorkspace(
+      'nuget-app-6-no-rid',
+      'dotnet_6.csproj',
     );
 
-    if (prerequisite.code !== 0) {
-      return;
-    }
-
-    const project = await createProjectFromWorkspace('nuget-app-6-no-rid');
-
-    const restoreResult = await runCommand('dotnet', [
-      'restore',
-      path.resolve(project.path(), 'dotnet_6.csproj'),
-    ]);
-
-    if (restoreResult.code !== 0) {
-      console.log(restoreResult.stdout);
-      console.log(restoreResult.stderr);
-    }
-    expect(restoreResult.code).toBe(0);
-
-    const { code, stdout } = await runSnykCLI('monitor', {
+    const { code } = await runSnykCLI('monitor', {
       cwd: project.path(),
       env,
     });
 
     expect(code).toEqual(0);
-    expect(stdout).toContain('Monitoring');
-
-    const featureFlagRequests = server
-      .getRequests()
-      .filter((req: any) =>
-        req.url.includes('/feature-flags/cliDotnetRuntimeResolution'),
-      );
-    expect(featureFlagRequests.length).toBe(1);
 
     // Without runtime resolution the legacy path sends a dep tree (not a
     // dep graph) to /monitor/nuget

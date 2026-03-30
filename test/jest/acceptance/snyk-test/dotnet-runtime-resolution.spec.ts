@@ -1,24 +1,16 @@
-import * as path from 'path';
 import {
   fakeServer,
   getFirstIPv4Address,
 } from '../../../acceptance/fake-server';
-import { createProjectFromWorkspace } from '../../util/createProject';
 import { getAvailableServerPort } from '../../util/getServerPort';
-import { runCommand } from '../../util/runCommand';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import {
+  assertDepGraph,
+  parseDepGraphFromPrintGraphOutput,
+  setupNugetProjectFromWorkspace,
+} from '../../util/dotnetRuntimeResolution';
 
 jest.setTimeout(1000 * 60 * 2);
-
-function parseDepGraphFromPrintGraphOutput(stdout: string) {
-  const start = stdout.indexOf('DepGraph data:');
-  const end = stdout.indexOf('DepGraph target:', start);
-  if (start === -1 || end === -1) {
-    throw new Error('--print-graph output did not contain expected markers');
-  }
-  const jsonStr = stdout.substring(start + 'DepGraph data:'.length, end);
-  return JSON.parse(jsonStr);
-}
 
 describe('snyk test with cliDotnetRuntimeResolution feature flag', () => {
   let server: ReturnType<typeof fakeServer>;
@@ -50,29 +42,13 @@ describe('snyk test with cliDotnetRuntimeResolution feature flag', () => {
   });
 
   test('feature flag enables dotnet runtime resolution path for nuget project', async () => {
-    const prerequisite = await runCommand('dotnet', ['--version']).catch(
-      () => ({ code: 1, stderr: '', stdout: '' }),
+    const project = await setupNugetProjectFromWorkspace(
+      'nuget-app-6-no-rid',
+      'dotnet_6.csproj',
     );
-
-    if (prerequisite.code !== 0) {
-      return;
-    }
 
     server.setFeatureFlag('cliDotnetRuntimeResolution', true);
 
-    const project = await createProjectFromWorkspace('nuget-app-6-no-rid');
-
-    const restoreResult = await runCommand('dotnet', [
-      'restore',
-      path.resolve(project.path(), 'dotnet_6.csproj'),
-    ]);
-
-    if (restoreResult.code !== 0) {
-      console.log(restoreResult.stdout);
-      console.log(restoreResult.stderr);
-    }
-    expect(restoreResult.code).toBe(0);
-
     const { code, stdout } = await runSnykCLI('test --print-graph', {
       cwd: project.path(),
       env,
@@ -81,44 +57,19 @@ describe('snyk test with cliDotnetRuntimeResolution feature flag', () => {
     expect(code).toEqual(0);
 
     const depGraph = parseDepGraphFromPrintGraphOutput(stdout);
-    expect(depGraph.pkgManager.name).toBe('nuget');
+    assertDepGraph(depGraph, {
+      expectedPackage: { name: 'DeepCloner', version: '0.10.4' },
 
-    const deepCloner = depGraph.pkgs.find(
-      (p: any) => p.info.name === 'DeepCloner',
-    );
-    expect(deepCloner).toBeDefined();
-    expect(deepCloner.info.version).toBe('0.10.4');
-
-    // Runtime resolution maps framework packages to the target framework
-    // version (6.x for net6.0) rather than the older NuGet package versions (4.x)
-    const systemRuntime = depGraph.pkgs.find(
-      (p: any) => p.info.name === 'System.Runtime',
-    );
-    expect(systemRuntime).toBeDefined();
-    expect(systemRuntime.info.version).toMatch(/^6\./);
+      // System.Runtime package is resolved to the target framework version (6.x for net6.0).
+      expectedRuntimeMajor: '6',
+    });
   });
 
   test('nuget project uses legacy path when cliDotnetRuntimeResolution is disabled', async () => {
-    const prerequisite = await runCommand('dotnet', ['--version']).catch(
-      () => ({ code: 1, stderr: '', stdout: '' }),
+    const project = await setupNugetProjectFromWorkspace(
+      'nuget-app-6-no-rid',
+      'dotnet_6.csproj',
     );
-
-    if (prerequisite.code !== 0) {
-      return;
-    }
-
-    const project = await createProjectFromWorkspace('nuget-app-6-no-rid');
-
-    const restoreResult = await runCommand('dotnet', [
-      'restore',
-      path.resolve(project.path(), 'dotnet_6.csproj'),
-    ]);
-
-    if (restoreResult.code !== 0) {
-      console.log(restoreResult.stdout);
-      console.log(restoreResult.stderr);
-    }
-    expect(restoreResult.code).toBe(0);
 
     const { code, stdout } = await runSnykCLI('test --print-graph', {
       cwd: project.path(),
@@ -128,20 +79,11 @@ describe('snyk test with cliDotnetRuntimeResolution feature flag', () => {
     expect(code).toEqual(0);
 
     const depGraph = parseDepGraphFromPrintGraphOutput(stdout);
-    expect(depGraph.pkgManager.name).toBe('nuget');
+    assertDepGraph(depGraph, {
+      expectedPackage: { name: 'DeepCloner', version: '0.10.4' },
 
-    const deepCloner = depGraph.pkgs.find(
-      (p: any) => p.info.name === 'DeepCloner',
-    );
-    expect(deepCloner).toBeDefined();
-    expect(deepCloner.info.version).toBe('0.10.4');
-
-    // Without runtime resolution, framework packages retain the older NuGet
-    // package versions (4.x) from project.assets.json
-    const systemRuntime = depGraph.pkgs.find(
-      (p: any) => p.info.name === 'System.Runtime',
-    );
-    expect(systemRuntime).toBeDefined();
-    expect(systemRuntime.info.version).toMatch(/^4\./);
+      // System.Runtime package is resolved to the older NuGet package version (4.x) from project.assets.json.
+      expectedRuntimeMajor: '4',
+    });
   });
 });
