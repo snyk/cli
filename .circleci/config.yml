@@ -466,7 +466,8 @@ commands:
             echo "using architecture: $arch"
             apk add --update nodejs npm bash maven git python3 py3-pip elixir composer unzip xdg-utils docker
             pip3 install pipenv requests PyYAML setuptools==70.3.0
-            wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh
+            wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh && chmod +x dotnet-install.sh && ./dotnet-install.sh && \
+              ln -s $HOME/.dotnet/dotnet /usr/local/bin/dotnet
             wget https://go.dev/dl/go<< pipeline.parameters.go_version >>.linux-$arch.tar.gz -O /tmp/go.tgz && \
               tar -C /usr/local -xzvf /tmp/go.tgz && \
               ln -s /usr/local/go/bin/go /usr/local/bin
