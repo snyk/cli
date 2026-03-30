@@ -1,5 +1,8 @@
 import * as path from 'path';
-import { fakeServer } from '../../../acceptance/fake-server';
+import {
+  fakeServer,
+  getFirstIPv4Address,
+} from '../../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../../util/createProject';
 import { getAvailableServerPort } from '../../util/getServerPort';
 import { runCommand } from '../../util/runCommand';
@@ -13,13 +16,15 @@ describe('snyk monitor with cliDotnetRuntimeResolution feature flag', () => {
 
   beforeAll(async () => {
     const port = await getAvailableServerPort(process);
+    const ipAddress = getFirstIPv4Address();
     const baseApi = '/api/v1';
     env = {
       ...process.env,
-      SNYK_API: 'http://localhost:' + port + baseApi,
-      SNYK_HOST: 'http://localhost:' + port,
+      SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+      SNYK_HOST: `http://${ipAddress}:${port}`,
       SNYK_TOKEN: '123456789',
       SNYK_DISABLE_ANALYTICS: '1',
+      SNYK_HTTP_PROTOCOL_UPGRADE: '0',
     } as Record<string, string>;
     server = fakeServer(baseApi, env.SNYK_TOKEN);
     await new Promise<void>((resolve) => server.listen(port, resolve));
@@ -60,26 +65,13 @@ describe('snyk monitor with cliDotnetRuntimeResolution feature flag', () => {
     }
     expect(restoreResult.code).toBe(0);
 
-    const { code, stdout, stderr } = await runSnykCLI('monitor -d', {
+    const { code, stdout } = await runSnykCLI('monitor', {
       cwd: project.path(),
       env,
     });
 
-    if (code !== 0) {
-      console.debug('stderr:', stderr);
-      console.debug('stdout:', stdout);
-    }
-
     expect(code).toEqual(0);
     expect(stdout).toContain('Monitoring');
-
-    // Verify the CLI recognised the feature flag and activated runtime resolution
-    expect(stderr).toContain(
-      'cliDotnetRuntimeResolution feature flag is enabled',
-    );
-    // This debug line is emitted by the nuget plugin only when
-    // buildDepGraphFromFiles is called (the runtime-resolution code path)
-    expect(stderr).toContain('running dotnet command: version: dotnet');
 
     const featureFlagRequests = server
       .getRequests()
@@ -88,16 +80,38 @@ describe('snyk monitor with cliDotnetRuntimeResolution feature flag', () => {
       );
     expect(featureFlagRequests.length).toBe(1);
 
+    // Runtime resolution produces a dep graph, sent to /monitor/nuget/graph
     const monitorRequests = server
       .getRequests()
       .filter((req: any) => req.url.includes('/monitor/'));
     expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
+    expect(monitorRequests[0].url).toContain('/monitor/nuget/graph');
+    expect(monitorRequests[0].body.depGraphJSON).toBeDefined();
   });
 
-  test('nuget project uses standard path when cliDotnetRuntimeResolution is disabled', async () => {
-    const project = await createProjectFromWorkspace('nuget-app-2');
+  test('nuget project uses legacy path when cliDotnetRuntimeResolution is disabled', async () => {
+    const prerequisite = await runCommand('dotnet', ['--version']).catch(
+      () => ({ code: 1, stderr: '', stdout: '' }),
+    );
 
-    const { code, stdout, stderr } = await runSnykCLI('monitor -d', {
+    if (prerequisite.code !== 0) {
+      return;
+    }
+
+    const project = await createProjectFromWorkspace('nuget-app-6-no-rid');
+
+    const restoreResult = await runCommand('dotnet', [
+      'restore',
+      path.resolve(project.path(), 'dotnet_6.csproj'),
+    ]);
+
+    if (restoreResult.code !== 0) {
+      console.log(restoreResult.stdout);
+      console.log(restoreResult.stderr);
+    }
+    expect(restoreResult.code).toBe(0);
+
+    const { code, stdout } = await runSnykCLI('monitor', {
       cwd: project.path(),
       env,
     });
@@ -105,10 +119,22 @@ describe('snyk monitor with cliDotnetRuntimeResolution feature flag', () => {
     expect(code).toEqual(0);
     expect(stdout).toContain('Monitoring');
 
-    // Verify runtime-resolution was NOT activated
-    expect(stderr).not.toContain(
-      'cliDotnetRuntimeResolution feature flag is enabled',
-    );
-    expect(stderr).not.toContain('running dotnet command: version: dotnet');
+    const featureFlagRequests = server
+      .getRequests()
+      .filter((req: any) =>
+        req.url.includes('/feature-flags/cliDotnetRuntimeResolution'),
+      );
+    expect(featureFlagRequests.length).toBe(1);
+
+    // Without runtime resolution the legacy path sends a dep tree (not a
+    // dep graph) to /monitor/nuget
+    const monitorRequests = server
+      .getRequests()
+      .filter((req: any) => req.url.includes('/monitor/'));
+    expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
+    expect(monitorRequests[0].url).toContain('/monitor/nuget');
+    expect(monitorRequests[0].url).not.toContain('/monitor/nuget/graph');
+    expect(monitorRequests[0].body.package).toBeDefined();
+    expect(monitorRequests[0].body.depGraphJSON).toBeUndefined();
   });
 });
