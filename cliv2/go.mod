@@ -12,7 +12,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260312152423-bc36193ecaa8
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
-	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319212946-7ae51e26d498
+	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e
 	github.com/snyk/cli-extension-dep-graph v0.32.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d

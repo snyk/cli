@@ -1016,9 +1016,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
           },
         ],
         summary: {
-          vulnerabilities: [
+          goals: [
             {
-              engine_tag: 'system-prompt-exfiltration/directly_asking',
               slug: 'system-prompt-exfiltration',
               name: 'System Prompt Exfiltration',
               description: 'The system prompt was extracted.',
@@ -1027,7 +1026,6 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
               vulnerable: true,
             },
             {
-              engine_tag: 'prompt-injection/encoding_based',
               slug: 'prompt-injection',
               name: 'Prompt Injection',
               description: 'Prompt injection attack.',
