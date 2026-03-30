@@ -239,3 +239,56 @@ describe('snyk sbom (mocked server only)', () => {
     expect(stderr).toContainText('Could not detect supported target files');
   });
 });
+
+describe('snyk sbom uv (mocked server only)', () => {
+  let server;
+  let env: Record<string, string>;
+
+  beforeAll(async () => {
+    const port = await getAvailableServerPort(process);
+    const baseApi = '/v1';
+    env = {
+      ...process.env,
+      SNYK_API: 'http://localhost:' + port + baseApi,
+      SNYK_HOST: 'http://localhost:' + port,
+      SNYK_TOKEN: '123456789',
+      SNYK_DISABLE_ANALYTICS: '1',
+    };
+    server = fakeServer(baseApi, env.SNYK_TOKEN);
+    await server.listenPromise(port);
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+    server.restore();
+  });
+
+  afterAll((done) => {
+    server.close(() => {
+      done();
+    });
+  });
+
+  test('`sbom` for uv project sends force_single_graph=true to prevent duplicate components', async () => {
+    server.setFeatureFlag('enableUvCLI', true);
+
+    const project = await createProject('uv-acceptance');
+
+    const { code } = await runSnykCLI(
+      `sbom --org aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee --format cyclonedx1.6+json --debug`,
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toEqual(0);
+
+    const requests = server.getRequests();
+    const sbomConvertRequests = requests.filter((req) =>
+      req.url.includes('/sboms/convert'),
+    );
+    expect(sbomConvertRequests).toHaveLength(1);
+    expect(sbomConvertRequests[0].query.force_single_graph).toEqual('true');
+  });
+});

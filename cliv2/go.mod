@@ -13,11 +13,11 @@ require (
 	github.com/snyk/cli-extension-agent-scan v0.0.0-20260312152423-bc36193ecaa8
 	github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603
 	github.com/snyk/cli-extension-ai-redteam v0.0.0-20260319212946-7ae51e26d498
-	github.com/snyk/cli-extension-dep-graph v0.29.0
+	github.com/snyk/cli-extension-dep-graph v0.32.0
 	github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80
 	github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d
 	github.com/snyk/cli-extension-os-flows v0.0.0-20260318134054-104b58eeafad
-	github.com/snyk/cli-extension-sbom v0.0.0-20260310155620-07d1927f26ea
+	github.com/snyk/cli-extension-sbom v0.0.0-20260327120356-9befea04c9b0
 	github.com/snyk/cli-extension-secrets v0.0.0-20260323093911-a7c31752d309
 	github.com/snyk/code-client-go v1.26.2
 	github.com/snyk/container-cli v0.0.0-20260213211631-cd2b2cf8f3ea
