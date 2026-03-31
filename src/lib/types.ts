@@ -89,6 +89,7 @@ export interface Options {
   quiet?: boolean;
   'fail-fast'?: boolean;
   tags?: string;
+  'project-tags'?: string;
   'target-reference'?: string;
   'exclude-base-image-vulns'?: boolean;
   'no-markdown'?: boolean;
