@@ -330,10 +330,9 @@ describe('snyk redteam (mocked servers only)', () => {
 
     const report = JSON.parse(extractJSON(result.stdout));
     expect(report.summary).toBeDefined();
-    expect(report.summary.vulnerabilities).toEqual(
+    expect(report.summary.goals).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          engine_tag: expect.any(String),
           slug: expect.any(String),
           name: expect.any(String),
           description: expect.any(String),
@@ -344,10 +343,8 @@ describe('snyk redteam (mocked servers only)', () => {
       ]),
     );
 
-    const vulnerable = report.summary.vulnerabilities.filter(
-      (v: any) => v.vulnerable,
-    );
-    const notVulnerable = report.summary.vulnerabilities.filter(
+    const vulnerable = report.summary.goals.filter((v: any) => v.vulnerable);
+    const notVulnerable = report.summary.goals.filter(
       (v: any) => !v.vulnerable,
     );
     expect(vulnerable.length).toBeGreaterThan(0);
@@ -365,8 +362,8 @@ describe('snyk redteam (mocked servers only)', () => {
 
     const report = JSON.parse(extractJSON(result.stdout));
     expect(report.summary).toBeDefined();
-    expect(report.summary.vulnerabilities).toHaveLength(2);
-    expect(report.summary.vulnerabilities).toEqual(
+    expect(report.summary.goals).toHaveLength(2);
+    expect(report.summary.goals).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           slug: 'system-prompt-exfiltration',
