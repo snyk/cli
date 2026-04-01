@@ -1,0 +1,243 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
+import { testIf } from '../../../utils';
+import { createProjectFromFixture } from '../../util/createProject';
+import { getCliBinaryPath } from '../../util/getCliBinaryPath';
+import { getFixturePath } from '../../util/getFixturePath';
+import { getAvailableServerPort } from '../../util/getServerPort';
+import { runSnykCLI } from '../../util/runSnykCLI';
+
+jest.setTimeout(1000 * 60);
+
+const hasBinary = !!process.env.TEST_SNYK_COMMAND;
+
+describe('uv monitor', () => {
+  let server: FakeServer;
+  let env: Record<string, string>;
+  const orgId = '55555555-5555-5555-5555-555555555555';
+
+  async function makeProjectOutOfSync(projectPath: string): Promise<void> {
+    const pyprojectPath = `${projectPath}/pyproject.toml`;
+    const pyproject = await fs.promises.readFile(pyprojectPath, 'utf8');
+    const updatedPyproject = pyproject.replace(
+      'urllib3==1.26.15',
+      'urllib3==1.26.14',
+    );
+
+    if (pyproject === updatedPyproject) {
+      throw new Error(
+        'uv-project fixture did not contain expected urllib3 pin to force out-of-sync lockfile',
+      );
+    }
+
+    await fs.promises.writeFile(pyprojectPath, updatedPyproject, 'utf8');
+  }
+
+  beforeAll(async () => {
+    const port = await getAvailableServerPort(process);
+    const baseApi = '/v1';
+    const apiEndpoint = 'http://localhost:' + port + baseApi;
+    env = {
+      ...process.env,
+      SNYK_API: apiEndpoint,
+      SNYK_CFG_ORG: orgId,
+      SNYK_HOST: 'http://localhost:' + port,
+      SNYK_TOKEN: '123456789',
+      SNYK_DISABLE_ANALYTICS: '1',
+    };
+    if (hasBinary) {
+      env.SNYK_CLI_EXECUTABLE_PATH = getCliBinaryPath();
+    }
+    server = fakeServer(baseApi, env.SNYK_TOKEN);
+    return new Promise<void>((res) => {
+      server.listen(port, res);
+    });
+  });
+
+  afterEach(() => {
+    server.restore();
+  });
+
+  beforeEach(() => {
+    const body = fs.readFileSync(
+      path.resolve(
+        getFixturePath('sbom'),
+        'sbom-convert-response-uv-monitor.json',
+      ),
+      'utf8',
+    );
+
+    const response = JSON.parse(body);
+    server.setEndpointResponse(`/hidden/orgs/${orgId}/sboms/convert`, response);
+  });
+
+  afterAll(async () => {
+    await new Promise<void>((res) => server.close(res));
+  });
+
+  testIf(hasBinary)(
+    'sends the dep-graph from the Go binary to the monitor endpoint',
+    async () => {
+      server.setFeatureFlag('enableUvCLI', true);
+
+      const project = await createProjectFromFixture('uv-project');
+      const runEnv = {
+        ...env,
+        XDG_CONFIG_HOME: project.path(),
+      };
+
+      const { code, stdout, stderr } = await runSnykCLI(
+        'monitor --file=uv.lock',
+        {
+          env: runEnv,
+          cwd: project.path(),
+        },
+      );
+
+      console.log('exit code:', code);
+      console.log('stdout:', stdout);
+      console.log('stderr:', stderr);
+      console.log(
+        'all server requests:',
+        server.getRequests().map((r) => `${r.method} ${r.url}`),
+      );
+      expect(code).toEqual(0);
+      expect(stdout).toContain('Monitoring');
+
+      const monitorRequests = server
+        .getRequests()
+        .filter((request) => /\/monitor\/[^/]+\/graph/.test(request.url));
+
+      expect(monitorRequests).toHaveLength(1);
+      expect(monitorRequests[0].body.meta.pluginRuntime).toBeUndefined();
+      const [monitorRequest] = monitorRequests;
+      expect(monitorRequest.url).toContain('/monitor/uv/graph');
+      expect(monitorRequest.body).toMatchObject({
+        meta: {
+          pluginName: 'snyk-uv-plugin',
+          monitorGraph: true,
+        },
+        targetFile: 'pyproject.toml',
+      });
+      expect(path.basename(monitorRequest.body.targetFileRelativePath)).toBe(
+        'pyproject.toml',
+      );
+
+      const depGraphJSON = monitorRequest.body.depGraphJSON;
+      expect(depGraphJSON).toBeDefined();
+
+      expect(depGraphJSON.pkgManager.name).toBe('uv');
+
+      const rootPkg = depGraphJSON.pkgs.find(
+        (p: any) => p.id === 'uv-project@0.1.0',
+      );
+      expect(rootPkg).toBeDefined();
+      expect(rootPkg.info).toEqual({ name: 'uv-project', version: '0.1.0' });
+
+      const depNames = depGraphJSON.pkgs.map((p: any) => p.info.name).sort();
+      expect(depNames).toEqual([
+        'cffi',
+        'cryptography',
+        'pycparser',
+        'urllib3',
+        'uv-project',
+      ]);
+
+      const nodeIds = depGraphJSON.graph.nodes.map((n: any) => n.nodeId).sort();
+      expect(nodeIds).toEqual([
+        'cffi@2.0.0',
+        'cryptography@40.0.0',
+        'pycparser@3.0',
+        'urllib3@1.26.15',
+        'uv-project@0.1.0',
+      ]);
+    },
+  );
+
+  testIf(hasBinary)(
+    'fails by default when uv.lock is out of sync',
+    async () => {
+      server.setFeatureFlag('enableUvCLI', true);
+
+      const project = await createProjectFromFixture('uv-project');
+      await makeProjectOutOfSync(project.path());
+      const runEnv = {
+        ...env,
+        XDG_CONFIG_HOME: project.path(),
+      };
+
+      const { code, stdout, stderr } = await runSnykCLI(
+        'monitor --file=uv.lock',
+        {
+          env: runEnv,
+          cwd: project.path(),
+        },
+      );
+
+      expect(code).not.toEqual(0);
+      expect(`${stdout}\n${stderr}`).toContain(
+        'uv.lock is out of sync with pyproject.toml',
+      );
+      expect(`${stdout}\n${stderr}`).toContain('--strict-out-of-sync=false');
+
+      const monitorRequests = server
+        .getRequests()
+        .filter((request) => /\/monitor\/[^/]+\/graph/.test(request.url));
+
+      expect(monitorRequests).toHaveLength(0);
+    },
+  );
+
+  testIf(hasBinary)(
+    'succeeds with --strict-out-of-sync=false when uv.lock is out of sync',
+    async () => {
+      server.setFeatureFlag('enableUvCLI', true);
+
+      const project = await createProjectFromFixture('uv-project');
+      await makeProjectOutOfSync(project.path());
+      const runEnv = {
+        ...env,
+        XDG_CONFIG_HOME: project.path(),
+      };
+
+      const { code } = await runSnykCLI(
+        'monitor --file=uv.lock --strict-out-of-sync=false',
+        {
+          env: runEnv,
+          cwd: project.path(),
+        },
+      );
+
+      expect(code).toEqual(0);
+
+      const monitorRequests = server
+        .getRequests()
+        .filter((request) => /\/monitor\/[^/]+\/graph/.test(request.url));
+
+      expect(monitorRequests).toHaveLength(1);
+    },
+  );
+
+  it('does not monitor uv projects when the feature flag is disabled', async () => {
+    server.setFeatureFlag('enableUvCLI', false);
+
+    const project = await createProjectFromFixture('uv-project');
+
+    const { code } = await runSnykCLI('monitor --file=uv.lock', {
+      env: {
+        ...env,
+        XDG_CONFIG_HOME: project.path(),
+      },
+      cwd: project.path(),
+    });
+
+    expect(code).not.toEqual(0);
+
+    const monitorRequests = server
+      .getRequests()
+      .filter((request) => /\/monitor\/[^/]+\/graph/.test(request.url));
+
+    expect(monitorRequests).toHaveLength(0);
+  });
+});

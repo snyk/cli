@@ -8,7 +8,6 @@ import * as debugModule from 'debug';
 import { TestOptions, Options, MonitorOptions } from '../types';
 import { detectPackageManagerFromFile } from '../detect';
 import {
-  PNPM_FEATURE_FLAG,
   SUPPORTED_MANIFEST_FILES,
   SupportedPackageManagers,
 } from '../package-managers';
@@ -75,18 +74,18 @@ export async function getMultiPluginResult(
   // the files need to be proceeded together as they provide context to each other
   let unprocessedFilesfromWorkspaces = targetFiles;
 
-  if (featureFlags.has(PNPM_FEATURE_FLAG)) {
-    const { scannedProjects: scannedPnpmResults, unprocessedFiles } =
-      await processWorkspacesProjects(
-        root,
-        options,
-        targetFiles,
-        'pnpm',
-        featureFlags,
-      );
-    unprocessedFilesfromWorkspaces = unprocessedFiles;
-    allResults.push(...scannedPnpmResults);
-  }
+  const {
+    scannedProjects: scannedPnpmResults,
+    unprocessedFiles: unprocessedFilesFromPnpm,
+  } = await processWorkspacesProjects(
+    root,
+    options,
+    targetFiles,
+    'pnpm',
+    featureFlags,
+  );
+  unprocessedFilesfromWorkspaces = unprocessedFilesFromPnpm;
+  allResults.push(...scannedPnpmResults);
 
   const {
     scannedProjects: scannedYarnResults,

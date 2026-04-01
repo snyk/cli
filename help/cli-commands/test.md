@@ -214,6 +214,8 @@ Save test output in SARIF format directly to the \<OUTPUT_FILE_PATH> file, regar
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
+When running multiple scans, such as SCA and Code scans, the SARIF output includes data only from the most recently completed scan. If you run multiple scans sequentially and specify the same `--sarif-file-output` file path, each subsequent scan overwrites the previous SARIF file. To keep results separate, save each scan to a different SARIF output file.
+
 ### `--severity-threshold=<low|medium|high|critical>`
 
 Report only vulnerabilities at the specified level or higher.
@@ -251,6 +253,12 @@ Be sure to run the scan in the same directory as the root `pom.xml` file.
 Snyk reports the test results per individual `pom.xml` file within the aggregate project.
 
 **Note:** You can use `--all-projects` when scanning Maven aggregate projects, but you cannot use `--all-projects` with `--maven-aggregate-project`.
+
+### `--maven-skip-wrapper`
+
+Forces the use of a globally installed `mvn` command, even when a Maven wrapper (i.e. `mvnw` or `mvnw.cmd`) is present in the project.
+
+Some projects include a Maven wrapper but users may prefer (or be required by their CI environment) to use a globally installed `mvn` instead. This option gives an explicit escape hatch without having to remove the wrapper from the project.
 
 ### `--scan-unmanaged`
 
@@ -362,17 +370,7 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 ## Options for .NET projects
 
-### `--dotnet-runtime-resolution`
-
-**Note:** This option in Early Access and may change until it is released.
-
-Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](../../../supported-languages/supported-languages-list/.net/improved-.net-scanning.md)
-
-Example: `snyk test --dotnet-runtime-resolution`
-
 ### `--dotnet-target-framework`
-
-**Note:** This option in Early Access and may change until it is released.
 
 Optional. You may use this option if your solution contains multiple `<TargetFramework>` directives. If you do not specify the option `--dotnet-target-framework`, all supported Target Frameworks will be scanned.
 

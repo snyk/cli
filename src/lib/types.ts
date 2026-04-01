@@ -54,6 +54,7 @@ export interface Options {
   'dry-run'?: boolean;
   allSubProjects?: boolean;
   mavenAggregateProject?: boolean;
+  mavenSkipWrapper?: boolean;
   mavenVerboseIncludeAllVersions?: boolean;
   includeProvenance?: boolean;
   fingerprintAlgorithm?: string;
@@ -130,15 +131,10 @@ export interface Options {
   'exclude-unmanaged'?: boolean;
 
   // Feature Flags
-  useImprovedDotnetWithoutPublish?: boolean;
+  disableContainerMonitorProjectNameFix?: boolean;
 
   // Plugin configuration options
   configuration?: {
-    // Used only with the Go plugin. When enabled, includes Go standard library packages in dependency graph.
-    includeGoStandardLibraryDeps?: boolean;
-    // Used only with the Go plugin. When enabled, includes PackageURL information in dep-graphs.
-    // TODO: remove once UNIFY-891 is done.
-    includePackageUrls?: boolean;
     // Used only with the Go plugin.
     // TODO: remove once UNIFY-891 is done.
     useReplaceName?: boolean;
@@ -289,6 +285,7 @@ export type SupportedUserReachableFacingCliArgs =
   | 'trust-policies'
   | 'yarn-workspaces'
   | 'maven-aggregate-project'
+  | 'maven-skip-wrapper'
   | 'include-provenance'
   | 'fingerprint-algorithm'
   | 'gradle-normalize-deps';

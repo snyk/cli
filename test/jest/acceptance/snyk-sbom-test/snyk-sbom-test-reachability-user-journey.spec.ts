@@ -7,7 +7,7 @@ import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 import { getFixturePath } from '../../util/getFixturePath';
 
 expect.extend(matchers);
-jest.setTimeout(1000 * 180);
+jest.setTimeout(1000 * 300);
 
 const TEST_REPO_URL = 'https://github.com/snyk/snyk-goof.git';
 const TEMP_LOCAL_PATH = '/tmp/snyk-goof-reachability-test';
@@ -130,7 +130,8 @@ describe('snyk sbom test', () => {
       const jsonOutput = JSON.parse(stdout);
 
       const areAllVulnsReachable = jsonOutput.vulnerabilities.every(
-        (vuln: { reachability: string }) => vuln.reachability === 'reachable',
+        (vuln: { reachability: string; type: string }) =>
+          vuln.reachability === 'reachable' || vuln.type === 'license', // license issues are considered always reachable even without reachability metadata
       );
 
       expect(jsonOutput.vulnerabilities.length).toBeGreaterThanOrEqual(1);

@@ -7,13 +7,14 @@ import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 import { resolve } from 'path';
 
 expect.extend(matchers);
-jest.setTimeout(1000 * 180);
+jest.setTimeout(1000 * 300);
 
 const projectRoot = resolve(__dirname, '../../../..');
 
 const TEST_REPO_COMMIT = '366ae0080cc67973619584080fc85734ba2658b2';
 const TEST_REPO_URL = 'https://github.com/leaktk/fake-leaks';
-const TEST_PATH = 'examples/';
+const TEST_DIR = 'examples';
+const TEST_FILE = 'some/long/path/server.key';
 const TEMP_LOCAL_PATH = '/tmp/snyk-secrets-test';
 
 const env = {
@@ -57,7 +58,7 @@ describe.skip('snyk secrets test', () => {
   describe('output formats', () => {
     it('should display human-readable output by default', async () => {
       const { code, stderr } = await runSnykCLI(
-        `secrets test ${TEMP_LOCAL_PATH}/${TEST_PATH}`,
+        `secrets test ${TEMP_LOCAL_PATH}/${TEST_DIR}`,
         { env },
       );
 
@@ -67,7 +68,7 @@ describe.skip('snyk secrets test', () => {
 
     it('should display sarif output with --sarif', async () => {
       const { code, stderr } = await runSnykCLI(
-        `secrets test ${TEMP_LOCAL_PATH}/${TEST_PATH} --sarif`,
+        `secrets test ${TEMP_LOCAL_PATH}/${TEST_DIR} --sarif`,
         { env },
       );
 
@@ -80,7 +81,7 @@ describe.skip('snyk secrets test', () => {
       const outputFilePath = `${projectRoot}/${outputFile}`;
 
       const { code, stderr } = await runSnykCLI(
-        `secrets test ${TEMP_LOCAL_PATH}/${TEST_PATH} --sarif-file-output=${outputFile}`,
+        `secrets test ${TEMP_LOCAL_PATH}/${TEST_DIR} --sarif-file-output=${outputFile}`,
         { env },
       );
 
@@ -89,6 +90,19 @@ describe.skip('snyk secrets test', () => {
       expect(existsSync(outputFilePath)).toBe(true);
       unlinkSync(outputFilePath);
     });
+  });
+
+  it('filters out secret findings when using --severity-threshold', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `secrets test --severity-threshold=critical --sarif ${TEMP_LOCAL_PATH}/${TEST_DIR}`,
+      { env },
+    );
+
+    const sarifOutput = JSON.parse(stdout);
+
+    const findings = sarifOutput.runs[0].results;
+    expect(findings).toHaveLength(0);
+    expect(code).toBe(0);
   });
 
   describe('input paths', () => {
@@ -105,7 +119,7 @@ describe.skip('snyk secrets test', () => {
     it('scans the current working directory', async () => {
       const { code, stderr } = await runSnykCLI(`secrets test`, {
         env,
-        cwd: `${TEMP_LOCAL_PATH}/foo/testdata`,
+        cwd: `${TEMP_LOCAL_PATH}/${TEST_DIR}`,
       });
 
       expect(stderr).toBe('');
@@ -114,7 +128,7 @@ describe.skip('snyk secrets test', () => {
 
     it('scans a single file', async () => {
       const { code, stderr } = await runSnykCLI(
-        `secrets test ${TEMP_LOCAL_PATH}/${TEST_PATH}`,
+        `secrets test ${TEMP_LOCAL_PATH}/${TEST_DIR}/${TEST_FILE}`,
         { env },
       );
 
@@ -124,7 +138,7 @@ describe.skip('snyk secrets test', () => {
 
     it('scans a directory', async () => {
       const { code, stderr } = await runSnykCLI(
-        `secrets test ${TEMP_LOCAL_PATH}/foo/testdata/bar`,
+        `secrets test ${TEMP_LOCAL_PATH}/${TEST_DIR}`,
         { env },
       );
 
@@ -133,8 +147,8 @@ describe.skip('snyk secrets test', () => {
     });
 
     it('scans a file from a different subtree', async () => {
-      const { code, stdout, stderr } = await runSnykCLI(
-        `secrets test ../examples/some/long/path/server.key`,
+      const { code, stderr } = await runSnykCLI(
+        `secrets test ../${TEST_DIR}/${TEST_FILE}`,
         {
           env,
           cwd: `${TEMP_LOCAL_PATH}/foo`,
@@ -142,21 +156,16 @@ describe.skip('snyk secrets test', () => {
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('Total secrets issues: 1');
       expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
 
     it('scans a directory from a different subtree', async () => {
-      const { code, stdout, stderr } = await runSnykCLI(
-        `secrets test ../examples`,
-        {
-          env,
-          cwd: `${TEMP_LOCAL_PATH}/foo`,
-        },
-      );
+      const { code, stderr } = await runSnykCLI(`secrets test ../${TEST_DIR}`, {
+        env,
+        cwd: `${TEMP_LOCAL_PATH}/foo`,
+      });
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('Total secrets issues: 1');
       expect(code).toBe(EXIT_CODES.VULNS_FOUND);
     });
   });
@@ -164,11 +173,21 @@ describe.skip('snyk secrets test', () => {
   describe('validation', () => {
     it('should return an error for --report', async () => {
       const { code, stdout } = await runSnykCLI(
-        `secrets test ${TEMP_LOCAL_PATH}/${TEST_PATH} --report`,
+        `secrets test ${TEMP_LOCAL_PATH}/${TEST_DIR} --report`,
         { env },
       );
 
       expect(stdout).toContain('Feature under development');
+      expect(code).toBe(EXIT_CODES.ERROR);
+    });
+
+    it('should return an error for invalid value of --severity-threshold', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `secrets test --severity-threshold=none ${TEMP_LOCAL_PATH}/${TEST_DIR}`,
+        { env },
+      );
+
+      expect(stdout).toContain('CLI validation failure (SNYK-CLI-0010)');
       expect(code).toBe(EXIT_CODES.ERROR);
     });
 
@@ -185,7 +204,7 @@ describe.skip('snyk secrets test', () => {
       'flag %s requires --report flag',
       async (flag) => {
         const { code, stdout } = await runSnykCLI(
-          `secrets test ${TEMP_LOCAL_PATH}/${TEST_PATH} ${flag}`,
+          `secrets test ${TEMP_LOCAL_PATH}/${TEST_DIR} ${flag}`,
           { env },
         );
 

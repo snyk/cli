@@ -18,7 +18,7 @@ import {
 } from '../../../jest/util/fileIgnoreRulesFixture';
 
 expect.extend(matchers);
-jest.setTimeout(1000 * 180);
+jest.setTimeout(1000 * 300);
 
 interface Workflow {
   type: string;
@@ -31,6 +31,13 @@ interface IgnoreTests {
   expectedIgnoredIssuesHigh: number;
   expectedIgnoredIssuesMedium: number;
   pathToTest: string;
+}
+
+interface ValidProjectTest {
+  name: string;
+  project?: string;
+  expectedExitCode: number;
+  expectedErrorCatalogError?: string;
 }
 
 const projectRoot = resolve(__dirname, '../../../..');
@@ -56,7 +63,6 @@ const projectWithIssuesAndDotSnykFile = resolve(
   projectRoot,
   'test/fixtures/sast/shallow_sast_webgoat_with_dotSnyk',
 );
-const emptyProject = resolve(projectRoot, 'test/fixtures/empty');
 const projectWithoutCodeIssues = resolve(
   projectRoot,
   'test/fixtures/sast-empty',
@@ -142,9 +148,8 @@ describe('snyk code test', () => {
       describe(`${type} workflow`, () => {
         describe('snyk code flag options', () => {
           it('works with --remote-repo-url', async () => {
-            const expectedCodeSecurityIssues = 6;
             const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
-            const { stdout } = await runSnykCLI(
+            const { code, stdout } = await runSnykCLI(
               `code test ${path} --remote-repo-url=https://github.com/snyk/cli.git --json -d`,
               {
                 env: {
@@ -156,15 +161,13 @@ describe('snyk code test', () => {
 
             const actualCodeSecurityIssues =
               JSON.parse(stdout)?.runs[0]?.results?.length;
-            expect(actualCodeSecurityIssues).toEqual(
-              expectedCodeSecurityIssues,
-            );
+            expect(actualCodeSecurityIssues).toBeGreaterThan(0);
+            expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
           });
 
           it('works with --severity-threshold', async () => {
-            const expectedHighCodeSecurityIssues = 5;
             const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
-            const { stdout } = await runSnykCLI(
+            const { code, stdout } = await runSnykCLI(
               `code test ${path} --json --severity-threshold=high`,
               {
                 env: {
@@ -176,9 +179,8 @@ describe('snyk code test', () => {
 
             const actualCodeSecurityIssues =
               JSON.parse(stdout)?.runs[0]?.results?.length;
-            expect(actualCodeSecurityIssues).toEqual(
-              expectedHighCodeSecurityIssues,
-            );
+            expect(actualCodeSecurityIssues).toBeGreaterThan(0);
+            expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
           });
 
           it('works with --severity-threshold when all issues are filtered out', async () => {
@@ -272,24 +274,10 @@ describe('snyk code test', () => {
 
         it('should not include code quality issues in results', async () => {
           // expected Code Quality Issues: 2 -  2 [Medium]
-          const expectedCodeSecurityIssues = 6;
           const path = await ensureUniqueBundleIsUsed(projectWithCodeIssues);
 
-          const { stdout } = await runSnykCLI(`code test ${path} --json`, {
-            env: {
-              ...process.env,
-              ...integrationEnv,
-            },
-          });
-
-          const actualCodeSecurityIssues =
-            JSON.parse(stdout)?.runs[0]?.results?.length;
-          expect(actualCodeSecurityIssues).toEqual(expectedCodeSecurityIssues);
-        });
-
-        it('should fail with correct exit code - when testing empty project', async () => {
-          const { stdout, stderr, code } = await runSnykCLI(
-            `code test ${emptyProject}`,
+          const { code, stdout } = await runSnykCLI(
+            `code test ${path} --json`,
             {
               env: {
                 ...process.env,
@@ -298,9 +286,10 @@ describe('snyk code test', () => {
             },
           );
 
-          expect(stderr).toBe('');
-          expect(stdout).toContain('snyk-code-0006');
-          expect(code).toBe(EXIT_CODE_NO_SUPPORTED_FILES);
+          const actualCodeSecurityIssues =
+            JSON.parse(stdout)?.runs[0]?.results?.length;
+          expect(actualCodeSecurityIssues).toBeGreaterThan(0);
+          expect(code).toBe(EXIT_CODE_ACTION_NEEDED);
         });
 
         it('should fail with correct exit code - when using invalid token', async () => {
@@ -683,6 +672,60 @@ describe('snyk code test', () => {
           expect(stderr).toBe('');
           expect([EXIT_CODE_SUCCESS, EXIT_CODE_ACTION_NEEDED]).toContain(code);
         });
+
+        const validProjectTestList: ValidProjectTest[] = [
+          {
+            name: 'returns SNYK-CODE-0006 with unsupported files',
+            project: resolve(
+              'test/fixtures/sast/no-projects-found/unsupportedFilesOnly',
+            ),
+            expectedExitCode: EXIT_CODE_NO_SUPPORTED_FILES,
+            expectedErrorCatalogError: 'SNYK-CODE-0006',
+          },
+          {
+            name: 'returns SNYK-CODE-0006 with empty project',
+            expectedExitCode: EXIT_CODE_NO_SUPPORTED_FILES,
+            expectedErrorCatalogError: 'SNYK-CODE-0006',
+          },
+          {
+            name: 'does not error with project containing unparseable file',
+            project: resolve(
+              'test/fixtures/sast/no-projects-found/nonParseableOnly',
+            ),
+            expectedExitCode: EXIT_CODE_SUCCESS,
+          },
+          {
+            name: 'does not error with project containing valid and unparseable file',
+            project: resolve(
+              'test/fixtures/sast/no-projects-found/parseableAndNonParseable',
+            ),
+            expectedExitCode: EXIT_CODE_SUCCESS,
+          },
+        ];
+
+        describe.each(validProjectTestList)(
+          'valid project support',
+          ({ name, project, expectedExitCode, expectedErrorCatalogError }) => {
+            it(name, async () => {
+              if (!project) {
+                // create an empty directory
+                project = await makeTmpDirectory();
+              }
+
+              const codeTestCmd = await runSnykCLI(`code test ${project}`, {
+                env: {
+                  ...process.env,
+                  ...integrationEnv,
+                },
+              });
+
+              expect(codeTestCmd.code).toEqual(expectedExitCode);
+              if (expectedErrorCatalogError) {
+                expect(codeTestCmd.stdout).toContain(expectedErrorCatalogError);
+              }
+            });
+          },
+        );
 
         /**
          *

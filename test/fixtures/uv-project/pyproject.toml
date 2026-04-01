@@ -1,0 +1,10 @@
+[project]
+name = "uv-project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "cryptography==40.0.0",
+    "urllib3==1.26.15",
+]

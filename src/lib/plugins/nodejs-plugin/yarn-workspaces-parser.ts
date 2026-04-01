@@ -219,7 +219,7 @@ export function packageJsonBelongsToWorkspace(
   const match = micromatch.isMatch(
     packageJsonFileName.replace(/\\/g, '/'),
     workspacesGlobs.map((p) =>
-      pathUtil.normalize(pathUtil.join(p, '**')).replace(/\\/g, '/'),
+      pathUtil.normalize(pathUtil.join(p, 'package.json')).replace(/\\/g, '/'),
     ),
   );
   return match;

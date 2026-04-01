@@ -6,6 +6,7 @@ import {
 } from '../../../acceptance/fake-server';
 import { getServerPort } from '../../util/getServerPort';
 import { resolve } from 'path';
+import * as os from 'os';
 
 jest.setTimeout(1000 * 60 * 5);
 
@@ -14,6 +15,8 @@ function aiBomRestEndpointRequests(requests: Request[]): string[] {
   for (const request of requests) {
     if (request.url.includes('/ai_boms/upload')) {
       res.push(`${request.method}:/ai_boms/upload`);
+    } else if (request.url.includes('cli_policy_test')) {
+      res.push(`${request.method}:/ai_boms/cli_policy_test`);
     } else if (request.url.includes('/ai_boms')) {
       res.push(`${request.method}:/ai_boms`);
     } else if (request.url.includes('/ai_bom_jobs')) {
@@ -200,17 +203,6 @@ describe('snyk aibom (mocked servers only)', () => {
   });
 
   describe('aibom error handling', () => {
-    test('handles a missing experimental flag', async () => {
-      const { code, stdout } = await runSnykCLI(
-        `aibom ${pythonChatbotProject}`,
-        {
-          env,
-        },
-      );
-      expect(code).toEqual(2);
-      expect(stdout).toContain('Command is experimental (SNYK-CLI-0015)');
-    });
-
     test('handles unauthenticated', async () => {
       expect(server.getRequests().length).toEqual(0);
       server.setStatusCode(401);
@@ -261,6 +253,72 @@ describe('snyk aibom (mocked servers only)', () => {
       );
       expect(code).toEqual(2);
       expect(stdout).toContain('Authentication error (SNYK-0005)');
+    });
+  });
+
+  describe('snyk aibom test', () => {
+    test('`aibom test` runs policy test and returns open issues (exit code 1)', async () => {
+      expect(server.getRequests().length).toEqual(0);
+      const { code, stdout } = await runSnykCLI(
+        `aibom test ${pythonChatbotProject} --experimental`,
+        {
+          env,
+        },
+      );
+      expect(code).toEqual(1);
+
+      const aiBomRequests = aiBomRestEndpointRequests(server.getRequests());
+      expect(aiBomRequests).toContain('POST:/ai_boms/cli_policy_test');
+      expect(aiBomRequests).toEqual([
+        'POST:/ai_boms',
+        'POST:/upload_revisions',
+        'POST:/upload_revisions/:uploadRevisionId/files',
+        'PATCH:/upload_revisions/:uploadRevisionId',
+        'POST:/ai_boms',
+        'GET:/ai_bom_jobs',
+        'GET:/ai_boms',
+        'POST:/ai_boms/cli_policy_test',
+      ]);
+
+      expect(stdout).toContain('AI BOM policy test');
+      expect(stdout).toContain('Test summary');
+      expect(stdout).toContain('Disallowed model');
+      expect(stdout).toContain('Open');
+    });
+
+    test('`aibom test` fails if api is unavailable', async () => {
+      expect(server.getRequests().length).toEqual(0);
+      server.setStatusCode(404);
+      const { code } = await runSnykCLI(
+        `aibom test ${pythonChatbotProject} --experimental`,
+        {
+          env,
+        },
+      );
+      expect(code).toEqual(2);
+    });
+
+    test('`aibom test` with --json-file-output writes results to file', async () => {
+      const outputPath = resolve(
+        os.tmpdir(),
+        `aibom-test-output-${Date.now()}.json`,
+      );
+      const { code } = await runSnykCLI(
+        `aibom test ${pythonChatbotProject} --experimental --json-file-output=${outputPath}`,
+        {
+          env,
+        },
+      );
+      expect(code).toEqual(1);
+      const fs = await import('fs');
+      const content = fs.readFileSync(outputPath, 'utf8');
+      const result = JSON.parse(content);
+      expect(result.data).toBeDefined();
+      expect(result.data.attributes.issues).toHaveLength(1);
+      expect(result.data.attributes.issues[0].description).toEqual(
+        'Disallowed model',
+      );
+      fs.unlinkSync(outputPath);
     });
   });
 });

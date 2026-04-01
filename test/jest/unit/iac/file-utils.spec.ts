@@ -28,7 +28,7 @@ describe('extractBundle', () => {
     let receivedBundleData = '';
     const mockUntarStream = new PassThrough();
     mockUntarStream.on('data', (evt) => (receivedBundleData += evt.toString()));
-    tarSpy.mockImplementation(() => mockUntarStream);
+    tarSpy.mockImplementation(() => mockUntarStream as unknown as tar.Unpack);
 
     const mockBundleStream = new PassThrough();
     const extractBundlePromise = extractBundle(mockBundleStream);

@@ -241,6 +241,12 @@ Snyk reports the test results per individual `pom.xml` file within the aggregate
 
 **Note:** You can use `--all-projects` when scanning Maven aggregate projects, but you cannot use `--all-projects` with `--maven-aggregate-project`.
 
+### `--maven-skip-wrapper`
+
+Forces the use of a globally installed `mvn` command, even when a Maven wrapper (i.e. `mvnw` or `mvnw.cmd`) is present in the project.
+
+Some projects include a Maven wrapper but users may prefer (or be required by their CI environment) to use a globally installed `mvn` instead. This option gives an explicit escape hatch without having to remove the wrapper from the project.
+
 ### `--scan-unmanaged`
 
 To monitor individual JAR, WAR, and AAR files, use the following:
@@ -331,7 +337,7 @@ This is useful when you have multiple projects with the same name in other `.sln
 
 **Note:** This option in in Early Access and may change until it is released.
 
-Required. You must use this option when you test .NET projects using [Runtime Resolution Scanning](../../../supported-languages/supported-languages-list/.net/improved-.net-scanning.md)
+Required. You must use this option when you test .NET projects using Runtime Resolution Scanning.
 
 Example: `snyk test --dotnet-runtime-resolution`
 

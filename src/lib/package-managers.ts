@@ -1,8 +1,10 @@
-export const PNPM_FEATURE_FLAG = 'enablePnpmCli';
-export const DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG =
-  'useImprovedDotnetWithoutPublish';
+export const UV_FEATURE_FLAG = 'enableUvCLI';
 export const MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF =
   'enableMavenDverboseExhaustiveDeps';
+export const INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG =
+  'includeGoStandardLibraryDeps';
+export const DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG =
+  'disableGoPackageUrlsInCli';
 
 export type SupportedPackageManagers =
   | 'rubygems'
@@ -22,7 +24,8 @@ export type SupportedPackageManagers =
   | 'poetry'
   | 'hex'
   | 'Unmanaged (C/C++)'
-  | 'swift';
+  | 'swift'
+  | 'uv';
 
 export enum SUPPORTED_MANIFEST_FILES {
   GEMFILE = 'Gemfile',
@@ -55,6 +58,7 @@ export enum SUPPORTED_MANIFEST_FILES {
   POETRY_LOCK = 'poetry.lock',
   MIX_EXS = 'mix.exs',
   PACKAGE_SWIFT = 'Package.swift',
+  UV_LOCK = 'uv.lock',
 }
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
@@ -78,6 +82,7 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   hex: 'Hex',
   'Unmanaged (C/C++)': 'Unmanaged (C/C++)',
   swift: 'Swift',
+  uv: 'uv',
 };
 
 export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [

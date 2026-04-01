@@ -2,10 +2,7 @@ const { getCliBinaryPath } = require('./jest/util/getCliBinaryPath');
 const {
   isDontSkipTestsEnabled,
 } = require('./jest/util/isDontSkipTestsEnabled');
-const {
-  fipsTestsEnabled,
-  getFipsEnabledEnvironment,
-} = require('./jest/util/fipsTestHelper');
+const { fipsTestsEnabled } = require('./jest/util/fipsTestHelper');
 const { runSnykCLI } = require('./jest/util/runSnykCLI');
 
 const TOKEN_ENV_VARS = ['TEST_SNYK_TOKEN', 'TEST_SNYK_TOKEN_2'];
@@ -94,10 +91,6 @@ module.exports = async function () {
         '\n This token is automatically stored on the config as some tests require this.' +
         '\n------------------------------------------------------------',
     );
-  }
-
-  if (fipsTestsEnabled()) {
-    process.env = getFipsEnabledEnvironment();
   }
 
   if (selectedToken !== undefined) {

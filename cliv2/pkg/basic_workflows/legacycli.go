@@ -29,7 +29,6 @@ import (
 
 var WORKFLOWID_LEGACY_CLI workflow.Identifier = workflow.NewWorkflowIdentifier("legacycli")
 var DATATYPEID_LEGACY_CLI_STDOUT workflow.Identifier = workflow.NewTypeIdentifier(WORKFLOWID_LEGACY_CLI, "stdout")
-var staticNodeJsBinary string // injected by Makefile
 
 const (
 	PROXY_NOAUTH                  string = "proxy-noauth"
@@ -82,7 +81,7 @@ func legacycliWorkflow(
 	debugLoggerDefault := invocation.GetLogger()  // uses log
 	ri := invocation.GetRuntimeInfo()
 
-	staticNodeJsBinaryBool, parseErr := strconv.ParseBool(staticNodeJsBinary)
+	staticNodeJsBinaryBool, parseErr := strconv.ParseBool(constants.StaticNodeJsBinary)
 	if parseErr != nil {
 		debugLogger.Print("Failed to parse staticNodeJsBinary:", parseErr)
 	}
@@ -157,10 +156,12 @@ func legacycliWorkflow(
 	err = cli.Execute(proxyInfo, finalizeArguments(args, config.GetStringSlice(configuration.UNKNOWN_ARGS)))
 
 	if !useStdIo {
-		outWriter.Flush()
+		_ = outWriter.Flush()
 
 		contentType := "text/plain"
-		if pkg_utils.Contains(args, "--json") || pkg_utils.Contains(args, "--sarif") {
+		if pkg_utils.Contains(args, "--json") {
+			contentType = "application/json; schema=legacy-cli"
+		} else if pkg_utils.Contains(args, "--sarif") {
 			contentType = "application/json"
 		}
 
@@ -172,8 +173,6 @@ func legacycliWorkflow(
 	if errors.As(err, &exitError) {
 		invocation.GetAnalytics().AddExtensionIntegerValue("exitcode", exitError.ExitCode())
 	}
-
-	invocation.GetAnalytics().AddExtensionBoolValue("static-nodejs-binary", staticNodeJsBinaryBool)
 
 	return output, err
 }

@@ -119,6 +119,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"NPM_CONFIG_HTTP_PROXY=something",
 		"npm_config_no_proxy=something",
 		"ALL_PROXY=something",
+		"OPENSSL_CONF=/usr/local/ssl/openssl_fips.cnf",
 	}
 	expected := []string{"something=1",
 		"in=2",
@@ -132,6 +133,7 @@ func Test_PrepareV1EnvironmentVariables_Fill_and_Filter(t *testing.T) {
 		"SNYK_ERR_FILE=",
 		"SNYK_SYSTEM_HTTP_PROXY=httpProxy",
 		"SNYK_SYSTEM_HTTPS_PROXY=httpsProxy",
+		"SNYK_SYSTEM_OPENSSL_CONF=/usr/local/ssl/openssl_fips.cnf",
 		"SNYK_INTERNAL_ORGID=" + orgid,
 		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_INTERNAL_PREVIEW_FEATURES=1",
@@ -172,6 +174,7 @@ func Test_PrepareV1EnvironmentVariables_DontOverrideExistingIntegration(t *testi
 		"SNYK_SYSTEM_NO_PROXY=",
 		"SNYK_SYSTEM_HTTP_PROXY=",
 		"SNYK_SYSTEM_HTTPS_PROXY=",
+		"SNYK_SYSTEM_OPENSSL_CONF=",
 		"SNYK_ERR_FILE=",
 		"SNYK_INTERNAL_ORGID=" + orgid,
 		"SNYK_CFG_ORG=" + orgid,
@@ -213,6 +216,7 @@ func Test_PrepareV1EnvironmentVariables_OverrideProxyAndCerts(t *testing.T) {
 		"SNYK_SYSTEM_HTTP_PROXY=exists",
 		"SNYK_ERR_FILE=",
 		"SNYK_SYSTEM_HTTPS_PROXY=already",
+		"SNYK_SYSTEM_OPENSSL_CONF=",
 		"SNYK_INTERNAL_ORGID=" + orgid,
 		"SNYK_CFG_ORG=" + orgid,
 		"SNYK_API=" + testapi,
@@ -387,7 +391,7 @@ func Test_prepareV1Command_InjectsExecutablePath(t *testing.T) {
 	execPath, err = filepath.EvalSymlinks(execPath)
 	require.NoError(t, err)
 
-	assert.Contains(t, snykCmd.Env, fmt.Sprintf("%s=%s", constants.SNYK_CLI_EXECUTABLE_PATH_ENV, execPath))
+	assert.Contains(t, snykCmd.Env, fmt.Sprintf("%s=%s", constants.SNYK_INTERNAL_CLI_EXECUTABLE_PATH_ENV, execPath))
 }
 
 func Test_extractOnlyOnce(t *testing.T) {

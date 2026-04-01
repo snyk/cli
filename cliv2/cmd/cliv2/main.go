@@ -11,30 +11,35 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
+	"github.com/snyk/cli-extension-agent-scan/pkg/agentscan"
 	"github.com/snyk/cli-extension-ai-bom/pkg/aibom"
-	"github.com/snyk/cli-extension-ai-bom/pkg/redteam"
+	"github.com/snyk/cli-extension-ai-redteam/pkg/redteam"
 	"github.com/snyk/cli-extension-dep-graph/pkg/depgraph"
 	"github.com/snyk/cli-extension-iac-rules/iacrules"
 	"github.com/snyk/cli-extension-iac/pkg/iac"
-	"github.com/snyk/cli-extension-mcp-scan/pkg/mcpscan"
 	"github.com/snyk/cli-extension-os-flows/pkg/osflows"
 	"github.com/snyk/cli-extension-sbom/pkg/sbom"
 	"github.com/snyk/cli-extension-secrets/pkg/secrets"
+	"github.com/snyk/code-client-go/pkg/code"
 	"github.com/snyk/container-cli/pkg/container"
 	"github.com/snyk/error-catalog-golang-public/cli"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
+	"github.com/snyk/go-application-framework/pkg/ui/consoleui"
+
 	"github.com/snyk/go-application-framework/pkg/analytics"
 	"github.com/snyk/go-application-framework/pkg/app"
 	"github.com/snyk/go-application-framework/pkg/configuration"
 	"github.com/snyk/go-application-framework/pkg/instrumentation"
 	"github.com/snyk/go-application-framework/pkg/logging"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 
 	"github.com/snyk/cli/cliv2/cmd/cliv2/behavior/legacy"
 	"github.com/snyk/cli/cliv2/internal/cliv2"
@@ -46,13 +51,15 @@ import (
 	"github.com/snyk/go-application-framework/pkg/local_workflows/config_utils"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/network_utils"
 
-	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 	"github.com/snyk/go-httpauth/pkg/httpauth"
 	"github.com/snyk/snyk-iac-capture/pkg/capture"
+
+	workflows "github.com/snyk/go-application-framework/pkg/local_workflows/connectivity_check_extension"
 
 	ignoreworkflow "github.com/snyk/go-application-framework/pkg/local_workflows/ignore_workflow"
 	"github.com/snyk/go-application-framework/pkg/local_workflows/output_workflow"
 	"github.com/snyk/go-application-framework/pkg/networking"
+	"github.com/snyk/go-application-framework/pkg/networking/middleware"
 	"github.com/snyk/go-application-framework/pkg/runtimeinfo"
 	"github.com/snyk/go-application-framework/pkg/ui"
 	"github.com/snyk/go-application-framework/pkg/utils"
@@ -76,10 +83,11 @@ var scrubbedLogger logging.ScrubbingLogWriter
 var interactionId = instrumentation.AssembleUrnFromUUID(uuid.NewString())
 
 const (
-	unknownCommandMessage  string = "unknown command"
-	disable_analytics_flag string = "DISABLE_ANALYTICS"
-	debug_level_flag       string = "log-level"
-	integrationNameFlag    string = "integration-name"
+	unknownCommandMessage     string = "unknown command"
+	disable_analytics_flag    string = "DISABLE_ANALYTICS"
+	debug_level_flag          string = "log-level"
+	integrationNameFlag       string = "integration-name"
+	maxNetworkRequestAttempts string = "max-attempts"
 )
 
 type JsonErrorStruct struct {
@@ -112,6 +120,7 @@ func initApplicationConfiguration(config configuration.Configuration) {
 	config.AddAlternativeKeys(configuration.PREVIEW_FEATURES_ENABLED, []string{"snyk_preview"})
 	config.AddAlternativeKeys(configuration.LOG_LEVEL, []string{debug_level_flag})
 	config.AddAlternativeKeys(configuration.INTEGRATION_NAME, []string{integrationNameFlag})
+	config.AddAlternativeKeys(middleware.ConfigurationKeyRequestAttempts, []string{"snyk_max_attempts", maxNetworkRequestAttempts})
 }
 
 func getFullCommandString(cmd *cobra.Command) string {
@@ -164,6 +173,14 @@ func runMainWorkflow(config configuration.Configuration, cmd *cobra.Command, arg
 		return err
 	}
 
+	// init UI
+	errorUI := consoleui.WithErrorOutput(os.Stdout)
+	if output_workflow.DefaultOutputIsStructured(config) {
+		errorUI = consoleui.WithErrorOutput(os.Stderr)
+	}
+	mainUI := consoleui.New(consoleui.WithInput(os.Stdin), consoleui.WithOutput(os.Stdout), consoleui.WithProgressWriter(os.Stderr), errorUI)
+	globalEngine.SetUserInterface(mainUI)
+
 	// global handling of experimental commands
 	if config_utils.IsExperimental(cmd.Flags()) {
 		if !globalConfiguration.GetBool(configuration.FLAG_EXPERIMENTAL) {
@@ -214,7 +231,7 @@ func sendAnalytics(analytics analytics.Analytics, debugLogger *zerolog.Logger) {
 		debugLogger.Err(err).Msg("Failed to send Analytics")
 		return
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	successfullySend := 200 <= res.StatusCode && res.StatusCode < 300
 	if successfullySend {
@@ -234,6 +251,15 @@ func sendInstrumentation(eng workflow.Engine, instrumentor analytics.Instrumenta
 	if !shallSendInstrumentation(eng.GetConfiguration(), instrumentor) {
 		logger.Print("This CLI call is not instrumented!")
 		return
+	}
+
+	// add temporary static nodejs binary flag, remove once linuxstatic is official
+	staticNodeJsBinaryBool, parseErr := strconv.ParseBool(constants.StaticNodeJsBinary)
+	if parseErr != nil {
+		logger.Print("Failed to parse staticNodeJsBinary:", parseErr)
+	} else {
+		// the legacycli:: prefix is added to maintain compatibility with our monitoring dashboard
+		instrumentor.AddExtension("legacycli::static-nodejs-binary", staticNodeJsBinaryBool)
 	}
 
 	logger.Print("Sending Instrumentation")
@@ -337,6 +363,7 @@ func getGlobalFLags() *pflag.FlagSet {
 	globalFLags.Bool(disable_analytics_flag, false, "")
 	globalFLags.String(debug_level_flag, "debug", "")
 	globalFLags.String(integrationNameFlag, "", "")
+	globalFLags.Int(maxNetworkRequestAttempts, -1, "Maximum total network attempts, including the initial request (minimum: 1)")
 	return globalFLags
 }
 
@@ -387,19 +414,24 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 		parentCommand.DisableFlagParsing = false
 
 		// special case for snyk code test
-		if currentCommandString == "code test" {
+		switch currentCommandString {
+		case "code test":
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
 
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runCodeTestCommand
-		} else if currentCommandString == "secrets test" {
+		case "secrets test":
 			// use the special run command to ensure that the non-standard behavior of the command can be kept
 			parentCommand.RunE = runSecretsTestCommand
-		} else if currentCommandString == "test" || currentCommandString == "monitor" {
+		case "test", "monitor":
 			legacy.SetupTestMonitorCommand(parentCommand)
-		} else if currentCommandString == "auth" {
+		case "auth":
 			parentCommand.RunE = runAuthCommand
+		case "agent-scan":
+			// to preserve backwards compatibility we will need to relax flag validation
+			parentCommand.FParseErrWhitelist.UnknownFlags = true
+			parentCommand.Aliases = []string{"mcp-scan"}
 		}
 	}
 }
@@ -479,7 +511,7 @@ func displayError(err error, userInterface ui.UserInterface, config configuratio
 			}
 
 			jsonErrorBuffer, _ := json.MarshalIndent(jsonError, "", "  ")
-			userInterface.Output(string(jsonErrorBuffer))
+			_ = userInterface.OutputError(fmt.Errorf("%s", jsonErrorBuffer))
 		} else {
 			if errors.Is(err, context.DeadlineExceeded) {
 				err = fmt.Errorf("command timed out")
@@ -505,13 +537,14 @@ func initExtensions(engine workflow.Engine, config configuration.Configuration) 
 	engine.AddExtensionInitializer(snykls.Init)
 	engine.AddExtensionInitializer(mcp.Init)
 	engine.AddExtensionInitializer(container.Init)
+	engine.AddExtensionInitializer(code.Init)
 	engine.AddExtensionInitializer(workflows.InitConnectivityCheckWorkflow)
-	engine.AddExtensionInitializer(localworkflows.InitCodeWorkflow)
 	engine.AddExtensionInitializer(ignoreworkflow.InitIgnoreWorkflows)
-	engine.AddExtensionInitializer(mcpscan.Init)
+	engine.AddExtensionInitializer(agentscan.Init)
 
 	if config.GetBool(configuration.PREVIEW_FEATURES_ENABLED) {
 		engine.AddExtensionInitializer(secrets.Init)
+		config.Set("INTERNAL_USE_UFM_PRESENTER", true)
 	}
 }
 
@@ -632,19 +665,24 @@ func MainWithErrorCode() int {
 
 	// fallback to the legacy cli or show help
 	handleErrorResult := handleError(err)
-	if handleErrorResult == handleErrorFallbackToLegacyCLI {
+	switch handleErrorResult {
+	case handleErrorFallbackToLegacyCLI:
 		// when falling back to TS cli, make sure the
 		_ = rootCommand.ParseFlags(os.Args)
-		globalConfiguration.AddFlagSet(rootCommand.LocalFlags())
+		if err := globalConfiguration.AddFlagSet(rootCommand.LocalFlags()); err != nil {
+			globalLogger.Printf("failed to add flagset: %v", err)
+		}
 
 		globalLogger.Printf("Using Legacy CLI to serve the command. (reason: %v)", err)
 		err = defaultCmd(os.Args[1:])
-	} else if handleErrorResult == handleErrorShowHelp {
+	case handleErrorShowHelp:
 		err = help(nil, []string{})
+	case handleErrorUnhandled:
+		// ignore
 	}
 
 	if err != nil {
-		err, errorList = processError(err, errorList)
+		errorList, err = processError(err, errorList)
 
 		for _, tempError := range errorList {
 			if tempError != nil {
@@ -679,7 +717,7 @@ func MainWithErrorCode() int {
 	return exitCode
 }
 
-func processError(err error, errorList []error) (error, []error) {
+func processError(err error, errorList []error) ([]error, error) {
 	// ensure to use generic fallback error catalog error if no other is available
 	err = decorateError(err)
 
@@ -704,7 +742,7 @@ func processError(err error, errorList []error) (error, []error) {
 	if exitCode := mapErrorToExitCode(err); exitCode != unsetExitCode {
 		err = createErrorWithExitCode(exitCode, err)
 	}
-	return err, errorList
+	return errorList, err
 }
 
 func setTimeout(config configuration.Configuration, onTimeout func()) {
@@ -716,7 +754,7 @@ func setTimeout(config configuration.Configuration, onTimeout func()) {
 	go func() {
 		const gracePeriodForSubProcesses = 3
 		<-time.After(time.Duration(timeout+gracePeriodForSubProcesses) * time.Second)
-		fmt.Fprintf(os.Stdout, "command timed out")
+		_, _ = fmt.Fprintf(os.Stdout, "command timed out")
 		onTimeout()
 	}()
 }

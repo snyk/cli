@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import { join } from 'path';
 import '../../util/runSnykCLI'; // Neede for TS errors regarding the .toContainText matcher
 import { fakeServer } from '../../../acceptance/fake-server';
+import { withFipsEnvIfNeeded } from '../../util/fipsTestHelper';
 
 /**
  * Starts a local version of the fixture webserver and returns
@@ -58,16 +59,15 @@ export async function run(
     const child = exec(
       cmd.trim().replace(/^snyk/, snykCommand),
       {
-        env: {
+        env: withFipsEnvIfNeeded({
           // Home and cache env vars for CLIv2 cache directory
           HOME: process.env.HOME,
           LocalAppData: process.env.LOCALAPPDATA,
           XDG_CACHE_HOME: process.env.XDG_CACHE_HOME,
           PATH: process.env.PATH,
           LD_LIBRARY_PATH: process.env.LD_LIBRARY_PATH,
-          OPENSSL_CONF: process.env.OPENSSL_CONF,
           ...env,
-        },
+        }),
         cwd: cwd ?? join(root, 'test/fixtures'),
       },
       function (err, stdout, stderr) {
