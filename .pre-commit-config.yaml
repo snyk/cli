@@ -5,3 +5,23 @@ repos:
     rev: v8.17.0
     hooks:
       - id: gitleaks
+  - repo: local
+    hooks:
+      - id: lint-eslint
+        name: eslint
+        entry: npx eslint --quiet --cache
+        language: system
+        types_or: [javascript, ts]
+        pass_filenames: true
+      - id: lint-prettier
+        name: prettier
+        entry: npx prettier --check
+        language: system
+        types_or: [javascript, ts, json, yaml, markdown]
+        pass_filenames: true
+      - id: golangci-lint
+        name: golangci-lint
+        entry: bash -c 'cd cliv2 && CGO_ENABLED=1 make lint'
+        language: system
+        files: ^cliv2/
+        pass_filenames: false
