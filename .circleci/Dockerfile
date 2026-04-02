@@ -34,6 +34,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     binutils-gold \
     cmake \
     composer \
+    docker.io \
     elixir \
     faketime \
     g++ \
@@ -64,6 +65,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     tzdata \
     uuid-dev \
     vim \
+    xdg-utils \
     zip \
     && apt-get auto-remove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 RUN node -v
@@ -107,6 +109,10 @@ ENV PATH=/home/circleci/.dotnet:$PATH
 ENV TEMP=/tmp
 ENV TMP=$TEMP
 ENV TMPDIR=$TEMP
+
+# install uv (Python package manager)
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH=/home/circleci/.local/bin:$PATH
 
 # install rust and convco
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
