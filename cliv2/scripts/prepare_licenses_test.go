@@ -6,6 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIsEmbeddedLicenseFileName(t *testing.T) {
@@ -44,14 +47,10 @@ func TestIsEmbeddedLicenseFileName(t *testing.T) {
 	}
 
 	for _, name := range keep {
-		if !isEmbeddedLicenseFileName(name) {
-			t.Errorf("expected %q to be kept, but it would be removed", name)
-		}
+		assert.True(t, isEmbeddedLicenseFileName(name), "expected %q to be kept, but it would be removed", name)
 	}
 	for _, name := range remove {
-		if isEmbeddedLicenseFileName(name) {
-			t.Errorf("expected %q to be removed, but it would be kept", name)
-		}
+		assert.False(t, isEmbeddedLicenseFileName(name), "expected %q to be removed, but it would be kept", name)
 	}
 }
 
@@ -62,9 +61,7 @@ func TestCleanupNonLicenseFiles(t *testing.T) {
 	t.Cleanup(func() { licensesEmbeddedDir = origDir })
 
 	pkgDir := filepath.Join(tmpDir, "example.com", "foo")
-	if err := os.MkdirAll(pkgDir, 0o755); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, os.MkdirAll(pkgDir, 0o755))
 
 	files := map[string]bool{
 		"LICENSE":     true,
@@ -75,21 +72,15 @@ func TestCleanupNonLicenseFiles(t *testing.T) {
 		"main.go":     false,
 	}
 	for name := range files {
-		if err := os.WriteFile(filepath.Join(pkgDir, name), []byte("test"), 0o644); err != nil {
-			t.Fatal(err)
-		}
+		require.NoError(t, os.WriteFile(filepath.Join(pkgDir, name), []byte("test"), 0o644))
 	}
 
-	if err := cleanupNonLicenseFiles(); err != nil {
-		t.Fatalf("cleanupNonLicenseFiles() error: %v", err)
-	}
+	require.NoError(t, cleanupNonLicenseFiles())
 
 	for name, shouldExist := range files {
 		_, err := os.Stat(filepath.Join(pkgDir, name))
 		exists := err == nil
-		if exists != shouldExist {
-			t.Errorf("file %q: exists=%v, want exists=%v", name, exists, shouldExist)
-		}
+		assert.Equal(t, shouldExist, exists, "file %q", name)
 	}
 }
 
@@ -107,22 +98,15 @@ func TestManualLicenseDownload(t *testing.T) {
 	t.Cleanup(func() { licensesEmbeddedDir = origDir })
 
 	pkg := "example.com/testpkg"
-	if err := manualLicenseDownload(server.URL+"/LICENSE", pkg); err != nil {
-		t.Fatalf("manualLicenseDownload() error: %v", err)
-	}
+	client := &http.Client{}
+	require.NoError(t, manualLicenseDownload(client, server.URL+"/LICENSE", pkg))
 
 	content, err := os.ReadFile(filepath.Join(tmpDir, pkg, "LICENSE"))
-	if err != nil {
-		t.Fatalf("reading downloaded license: %v", err)
-	}
-	if string(content) != "MIT License\n" {
-		t.Errorf("license content = %q, want %q", content, "MIT License\n")
-	}
+	require.NoError(t, err)
+	assert.Equal(t, "MIT License\n", string(content))
 
 	// Second call should skip (file already exists).
-	if err := manualLicenseDownload(server.URL+"/LICENSE", pkg); err != nil {
-		t.Fatalf("second manualLicenseDownload() error: %v", err)
-	}
+	require.NoError(t, manualLicenseDownload(client, server.URL+"/LICENSE", pkg))
 }
 
 func TestManualLicenseDownloadHTTPError(t *testing.T) {
@@ -136,8 +120,55 @@ func TestManualLicenseDownloadHTTPError(t *testing.T) {
 	licensesEmbeddedDir = tmpDir
 	t.Cleanup(func() { licensesEmbeddedDir = origDir })
 
-	err := manualLicenseDownload(server.URL+"/LICENSE", "example.com/missing")
-	if err == nil {
-		t.Fatal("expected error for 404 response, got nil")
-	}
+	client := &http.Client{}
+	err := manualLicenseDownload(client, server.URL+"/LICENSE", "example.com/missing")
+	assert.Error(t, err, "expected error for 404 response, got nil")
+}
+
+func TestNewHTTPClient_SetsUserAgent(t *testing.T) {
+	var gotUA string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotUA = r.Header.Get("User-Agent")
+		_, err := w.Write([]byte("OK"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}))
+	defer server.Close()
+
+	client := newHTTPClient()
+	resp, err := client.Get(server.URL)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.NoError(t, resp.Body.Close())
+
+	assert.Equal(t, "Snyk-CLI-Build/1.0", gotUA)
+}
+
+func TestNewHTTPClient_RetriesOn429(t *testing.T) {
+	var calls int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		n := calls
+		if n <= 2 {
+			w.Header().Set("Retry-After", "0")
+			w.WriteHeader(http.StatusTooManyRequests)
+			return
+		}
+		_, err := w.Write([]byte("OK"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}))
+	defer server.Close()
+
+	client := newHTTPClient()
+	resp, err := client.Get(server.URL)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.NoError(t, resp.Body.Close())
+
+	assert.GreaterOrEqual(t, calls, 3, "expected at least 3 server calls (2 x 429 + 1 x 200)")
 }
