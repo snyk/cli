@@ -63,7 +63,7 @@ executors:
     resource_class: medium
   docker-amd64:
     docker:
-      - image: snyklabs/cli-build-private:20260219-152627
+      - image: snyklabs/cli-build-private:20260402-123524
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -71,7 +71,7 @@ executors:
     resource_class: large
   docker-amd64-xl:
     docker:
-      - image: snyklabs/cli-build-private:20260219-152627
+      - image: snyklabs/cli-build-private:20260402-123524
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -79,7 +79,7 @@ executors:
     resource_class: xlarge
   docker-arm64:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260219-152627
+      - image: snyklabs/cli-build-private-arm64:20260402-123524
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -87,7 +87,7 @@ executors:
     resource_class: arm.large
   docker-arm64-xl:
     docker:
-      - image: snyklabs/cli-build-private-arm64:20260219-152627
+      - image: snyklabs/cli-build-private-arm64:20260402-123524
         auth:
           username: $DOCKER_CLI_BUILD_USERNAME
           password: $DOCKER_CLI_BUILD_PASSWORD
@@ -378,16 +378,12 @@ commands:
           name: No dependencies to install
           command: echo all done!
 
-  # this can be removed if we install the xdg-utils package in the docker image
+  # xdg-utils, docker.io, and uv are now pre-installed in the build image (CLI-1403)
   install-deps-linux-acceptance-tests:
     steps:
       - run:
-          name: Installing linux acceptance tests dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install xdg-utils docker.io -y
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-            echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
+          name: No dependencies to install (pre-installed in build image)
+          command: echo all done!
 
   install-deps-python:
     parameters:
