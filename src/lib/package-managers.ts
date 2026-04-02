@@ -1,7 +1,4 @@
-export const PNPM_FEATURE_FLAG = 'enablePnpmCli';
 export const UV_FEATURE_FLAG = 'enableUvCLI';
-export const DOTNET_WITHOUT_PUBLISH_FEATURE_FLAG =
-  'useImprovedDotnetWithoutPublish';
 export const MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF =
   'enableMavenDverboseExhaustiveDeps';
 export const INCLUDE_GO_STANDARD_LIBRARY_DEPS_FEATURE_FLAG =

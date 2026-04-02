@@ -5,7 +5,11 @@ import { TestOptions, Options, MonitorOptions } from '../types';
 import { snykHttpClient } from '../request/snyk-http-client';
 import * as types from './types';
 import { buildPluginOptions } from './build-plugin-options';
-import { SHOW_MAVEN_BUILD_SCOPE, SHOW_NPM_SCOPE } from '../feature-flags';
+import {
+  SHOW_MAVEN_BUILD_SCOPE,
+  SHOW_NPM_SCOPE,
+  CLI_DOTNET_RUNTIME_RESOLUTION,
+} from '../feature-flags';
 
 export async function getSinglePluginResult(
   root: string,
@@ -26,6 +30,9 @@ export async function getSinglePluginResult(
       ...pluginOptions,
       showMavenBuildScope: featureFlags.has(SHOW_MAVEN_BUILD_SCOPE),
       showNpmScope: featureFlags.has(SHOW_NPM_SCOPE),
+      cliDotnetRuntimeResolutionEnabled: featureFlags.has(
+        CLI_DOTNET_RUNTIME_RESOLUTION,
+      ),
     },
     snykHttpClient,
   );

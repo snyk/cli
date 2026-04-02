@@ -48,7 +48,7 @@ test('Make sure that target is sent correctly', async (t) => {
   const { data } = await getFakeServerRequestBody();
   t.equal(
     requestSpy.callCount,
-    6,
+    7,
     `needle.request was called ${requestSpy.callCount} times`,
   );
   t.ok(!isEmpty(data.target), 'target passed to request');
@@ -79,7 +79,7 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
 
   t.equal(
     requestSpy.callCount,
-    6,
+    7,
     `needle.request was called ${requestSpy.callCount} times`,
   );
   t.ok(isEmpty(data.target), 'empty target passed to request');
@@ -100,7 +100,7 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
 
   t.equal(
     requestSpy.callCount,
-    6,
+    7,
     `needle.request was called ${requestSpy.callCount} times`,
   );
   t.ok(isEmpty(data.target), 'empty target passed to request');

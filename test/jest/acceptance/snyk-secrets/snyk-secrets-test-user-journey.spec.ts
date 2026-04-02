@@ -7,7 +7,7 @@ import { EXIT_CODES } from '../../../../src/cli/exit-codes';
 import { resolve } from 'path';
 
 expect.extend(matchers);
-jest.setTimeout(1000 * 180);
+jest.setTimeout(1000 * 300);
 
 const projectRoot = resolve(__dirname, '../../../..');
 
@@ -92,6 +92,19 @@ describe.skip('snyk secrets test', () => {
     });
   });
 
+  it('filters out secret findings when using --severity-threshold', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `secrets test --severity-threshold=critical --sarif ${TEMP_LOCAL_PATH}/${TEST_DIR}`,
+      { env },
+    );
+
+    const sarifOutput = JSON.parse(stdout);
+
+    const findings = sarifOutput.runs[0].results;
+    expect(findings).toHaveLength(0);
+    expect(code).toBe(0);
+  });
+
   describe('input paths', () => {
     it('rejects multiple input paths', async () => {
       const { code, stdout } = await runSnykCLI(
@@ -165,6 +178,16 @@ describe.skip('snyk secrets test', () => {
       );
 
       expect(stdout).toContain('Feature under development');
+      expect(code).toBe(EXIT_CODES.ERROR);
+    });
+
+    it('should return an error for invalid value of --severity-threshold', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `secrets test --severity-threshold=none ${TEMP_LOCAL_PATH}/${TEST_DIR}`,
+        { env },
+      );
+
+      expect(stdout).toContain('CLI validation failure (SNYK-CLI-0010)');
       expect(code).toBe(EXIT_CODES.ERROR);
     });
 

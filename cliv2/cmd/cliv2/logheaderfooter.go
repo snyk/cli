@@ -151,7 +151,7 @@ func writeLogHeader(config configuration.Configuration, networkAccess networking
 	tablePrint("Features", "")
 	tablePrint("  preview", previewFeaturesEnabled)
 	tablePrint("  fips", fipsEnabled)
-	tablePrint("  request attempts", fmt.Sprintf("%d", config.GetInt(middleware.ConfigurationKeyRetryAttempts)))
+	tablePrint("  request attempts", fmt.Sprintf("%d", config.GetInt(middleware.ConfigurationKeyRequestAttempts)))
 	tablePrint("  config cache", cacheEnabled)
 	tablePrint("Checks", "")
 

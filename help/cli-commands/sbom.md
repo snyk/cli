@@ -10,7 +10,7 @@ The `snyk sbom` feature requires an internet connection.
 
 ## Usage
 
-`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--file=<FILE>] [--unmanaged] [--dev] [--all-projects] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [--maven-aggregate-project] [--scan-unmanaged] [--scan-all-unmanaged] [--sub-project=<NAME>] [--gradle-sub-project=<NAME>] [--all-sub-projects] [--configuration-matching=<CONFIGURATION_REGEX>] [--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]] [--init-script=<FILE>] [--json-file-output=<OUTPUT_FILE_PATH>] [--include-provenance] [<TARGET_DIRECTORY>]`
+`$ snyk sbom --format=<cyclonedx1.4+json|cyclonedx1.4+xml|cyclonedx1.5+json|cyclonedx1.5+xml|cyclonedx1.6+json|cyclonedx1.6+xml|spdx2.3+json> [--org=<ORG_ID>] [--file=<FILE>] [--unmanaged] [--dev] [--all-projects] [--name=<NAME>] [--version=<VERSION>] [--exclude=<NAME>[,<NAME>...]] [--detection-depth=<DEPTH>] [--prune-repeated-subdependencies|-p] [--maven-aggregate-project] [--scan-unmanaged] [--scan-all-unmanaged] [--sub-project=<NAME>] [--gradle-sub-project=<NAME>] [--all-sub-projects] [--configuration-matching=<CONFIGURATION_REGEX>] [--configuration-attributes=<ATTRIBUTE>[,<ATTRIBUTE>]] [--init-script=<FILE>] [--json-file-output=<OUTPUT_FILE_PATH>] [--include-provenance] [--go-module-level] [<TARGET_DIRECTORY>]`
 
 ## Description
 
@@ -133,6 +133,12 @@ Use `--maven-aggregate-project` instead of `--all-projects` when scanning Maven 
 When scanning these types of projects, Snyk performs a compile to ensure all modules are resolvable by the Maven reactor.
 
 Be sure to run the scan in the same directory as the root pom.xml file.
+
+### `--maven-skip-wrapper`
+
+Forces the use of a globally installed `mvn` command, even when a Maven wrapper (i.e. `mvnw` or `mvnw.cmd`) is present in the project.
+
+Some projects include a Maven wrapper but users may prefer (or be required by their CI environment) to use a globally installed `mvn` instead. This option gives an explicit escape hatch without having to remove the wrapper from the project.
 
 ### `--scan-unmanaged`
 
@@ -271,6 +277,16 @@ When setting this option for Python values, it is required to also set the `--pa
 Add `--package-manager=pip` to your command if the file name is not `requirements.txt`.
 
 This option is mandatory if you specify a value for the `--file` parameter that is not to a `requirements.txt` file. The SBOM generation fails without this parameter. Specify this parameter with the value `pip`.
+
+## Options for Go projects
+
+### `--go-module-level`
+
+Consolidate Go package-level dependencies into module-level components in the generated SBOM.
+
+This option applies only when generating SBOM documents for Go projects that use a `go.mod` file.
+
+Default: false
 
 ## Options for scanning using `--unmanaged`
 

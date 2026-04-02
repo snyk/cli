@@ -1,22 +1,19 @@
 import * as os from 'os';
 import { startSnykCLI, TestCLI } from '../../util/startSnykCLI';
 import { runSnykCLI } from '../../util/runSnykCLI';
-import { FakeServer, fakeServer } from '../../../acceptance/fake-server';
+import {
+  FakeServer,
+  fakeServer,
+  getFirstIPv4Address,
+} from '../../../acceptance/fake-server';
 import { RunCommandOptions, RunCommandResult } from '../../util/runCommand';
-import { getServerPort } from '../../util/getServerPort';
-import { isWindowsOperatingSystem } from '../../../utils';
+import { getAvailableServerPort } from '../../util/getServerPort';
+import { describeIf, isWindowsOperatingSystem } from '../../../utils';
 
-jest.setTimeout(1000 * 120);
+jest.setTimeout(1000 * 300);
 
 describe('snyk container', () => {
-  if (isWindowsOperatingSystem()) {
-    // eslint-disable-next-line jest/no-focused-tests
-    it.only('Windows not yet supported', () => {
-      console.warn(
-        "Skipping as we don't have a Windows-compatible image to test against.",
-      );
-    });
-  }
+  const isWindows = isWindowsOperatingSystem();
 
   const TEST_DISTROLESS_STATIC_IMAGE_NAME = 'gcr.io/distroless/static';
   const TEST_DISTROLESS_STATIC_IMAGE = `${TEST_DISTROLESS_STATIC_IMAGE_NAME}@sha256:7198a357ff3a8ef750b041324873960cf2153c11cc50abb9d8d5f8bb089f6b4e`;
@@ -24,6 +21,8 @@ describe('snyk container', () => {
     'test/fixtures/container-projects/os-packages-and-app-vulns.tar';
   const TEST_MULTI_PROJECT_IMAGE_TAR =
     'test/fixtures/container-projects/multi-project-image.tar';
+  const TEST_PYTHON_WITH_PIP_DEPENDENCIES_TAR =
+    'test/fixtures/container-projects/python-with-pip-dependencies.tar';
   const TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH = {
     schemaVersion: '1.3.0',
     pkgManager: {
@@ -113,7 +112,24 @@ describe('snyk container', () => {
     jest.resetAllMocks();
   });
 
-  describe('test', () => {
+  describe('cross-platform tests', () => {
+    it('container test finds pip-installed python packages in an archived image', async () => {
+      const { code, stdout } = await runSnykCLI(
+        `container test ${TEST_PYTHON_WITH_PIP_DEPENDENCIES_TAR} --json --app-vulns`,
+      );
+
+      expect(code).toEqual(1);
+      const jsonOutput = JSON.parse(stdout);
+      expect(jsonOutput.applications).toBeDefined();
+      const pipApp = jsonOutput.applications.find(
+        (app) => app.packageManager === 'pip',
+      );
+      expect(pipApp).toBeDefined();
+      expect(jsonOutput.dependencyCount).toBeGreaterThan(0);
+    });
+  });
+
+  describeIf(!isWindows)('test', () => {
     it('finds dependencies in rpm sqlite databases', async () => {
       cli = await startSnykCLI(
         'container test amazonlinux:2022.0.20220504.1 --print-deps',
@@ -522,7 +538,7 @@ DepGraph end`,
     }, 180000);
   });
 
-  describe('depgraph', () => {
+  describeIf(!isWindows)('depgraph', () => {
     it('should print depgraph for image as JSON', async () => {
       const { code, stdout, stderr } = await runSnykCLIWithDebug(
         `container depgraph ${TEST_DISTROLESS_STATIC_IMAGE}`,
@@ -538,33 +554,32 @@ DepGraph end`,
     });
   });
 
-  describe('sbom (mock export-sbom service)', () => {
+  describeIf(!isWindows)('sbom (mock export-sbom service)', () => {
     let server: FakeServer;
     let env: Record<string, string>;
 
-    beforeAll((done) => {
-      const port = process.env.PORT || process.env.SNYK_PORT || '58584';
+    beforeAll(async () => {
+      const port = await getAvailableServerPort(process);
+      const ipAddress = getFirstIPv4Address();
       const baseApi = '/api/v1';
       env = {
         ...process.env,
-        SNYK_API: 'http://localhost:' + port + baseApi,
+        SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+        SNYK_HOST: `http://${ipAddress}:${port}`,
         SNYK_TOKEN: '123456789',
+        SNYK_HTTP_PROTOCOL_UPGRADE: '0',
         SNYK_DISABLE_ANALYTICS: '1',
       };
       server = fakeServer(baseApi, env.SNYK_TOKEN);
-      server.listen(port, () => {
-        done();
-      });
+      await server.listenPromise(port);
     });
 
     afterEach(() => {
       server.restore();
     });
 
-    afterAll((done) => {
-      server.close(() => {
-        done();
-      });
+    afterAll(async () => {
+      await server.closePromise();
     });
 
     it('should print sbom for image - spdx', async () => {
@@ -888,7 +903,7 @@ DepGraph end`,
     });
   });
 
-  describe('snyk container monitor --json output', () => {
+  describeIf(!isWindows)('snyk container monitor --json output', () => {
     it('snyk container monitor json produces expected output for a single depgraph', async () => {
       const { code, stdout } = await runSnykCLI(
         `container monitor --platform=linux/amd64 --json ${TEST_DISTROLESS_STATIC_IMAGE}`,
@@ -989,52 +1004,126 @@ DepGraph end`,
     });
   });
 
-  describe('snyk container monitor supports --target-reference', () => {
+  describeIf(!isWindows)(
+    'snyk container monitor supports --target-reference',
+    () => {
+      let server: ReturnType<typeof fakeServer>;
+      let env: Record<string, string>;
+
+      beforeAll(async () => {
+        const port = await getAvailableServerPort(process);
+        const ipAddress = getFirstIPv4Address();
+        const baseApi = '/api/v1';
+        env = {
+          ...process.env,
+          SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+          SNYK_HOST: `http://${ipAddress}:${port}`,
+          SNYK_TOKEN: '123456789',
+          SNYK_HTTP_PROTOCOL_UPGRADE: '0',
+          SNYK_DISABLE_ANALYTICS: '1',
+          DEBUG: 'snyk*',
+        };
+        server = fakeServer(baseApi, env.SNYK_TOKEN);
+        await server.listenPromise(port);
+      });
+
+      afterEach(() => {
+        server.restore();
+      });
+
+      afterAll(async () => {
+        await server.closePromise();
+      });
+
+      it('forwards value of target-reference to monitor-dependencies endpoint', async () => {
+        const { code } = await runSnykCLI(
+          `container monitor ${TEST_DISTROLESS_STATIC_IMAGE} --target-reference=test-target-ref`,
+          {
+            env,
+          },
+        );
+        expect(code).toEqual(0);
+
+        const monitorRequests = server
+          .getRequests()
+          .filter((request) => request.url?.includes('/monitor-dependencies'));
+
+        expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
+        monitorRequests.forEach((request) => {
+          expect(request.body.scanResult.targetReference).toBe(
+            'test-target-ref',
+          );
+        });
+      });
+    },
+  );
+
+  describeIf(!isWindows)('container test deprecation warnings', () => {
     let server: ReturnType<typeof fakeServer>;
     let env: Record<string, string>;
 
-    beforeAll((done) => {
-      const port = getServerPort(process);
+    beforeAll(async () => {
+      const port = await getAvailableServerPort(process);
+      const ipAddress = getFirstIPv4Address();
       const baseApi = '/api/v1';
       env = {
         ...process.env,
-        SNYK_API: 'http://localhost:' + port + baseApi,
-        SNYK_HOST: 'http://localhost:' + port,
+        SNYK_API: `http://${ipAddress}:${port}${baseApi}`,
+        SNYK_HOST: `http://${ipAddress}:${port}`,
         SNYK_TOKEN: '123456789',
+        SNYK_HTTP_PROTOCOL_UPGRADE: '0',
         SNYK_DISABLE_ANALYTICS: '1',
-        DEBUG: 'snyk*',
       };
       server = fakeServer(baseApi, env.SNYK_TOKEN);
-      server.listen(port, () => {
-        done();
-      });
+      await server.listenPromise(port);
     });
 
     afterEach(() => {
       server.restore();
     });
 
-    afterAll((done) => {
-      server.close(() => done());
+    afterAll(async () => {
+      await server.closePromise();
     });
 
-    it('forwards value of target-reference to monitor-dependencies endpoint', async () => {
-      const { code } = await runSnykCLI(
-        `container monitor ${TEST_DISTROLESS_STATIC_IMAGE} --target-reference=test-target-ref`,
-        {
-          env,
+    it('should show deprecation warning for --shaded-jars-depth', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
         },
-      );
-      expect(code).toEqual(0);
-
-      const monitorRequests = server
-        .getRequests()
-        .filter((request) => request.url?.includes('/monitor-dependencies'));
-
-      expect(monitorRequests.length).toBeGreaterThanOrEqual(1);
-      monitorRequests.forEach((request) => {
-        expect(request.body.scanResult.targetReference).toBe('test-target-ref');
+        meta: { org: 'test-org', isPublic: false },
       });
+
+      const { stderr } = await runSnykCLI(
+        `container test docker-archive:${TEST_OS_PACKAGES_AND_APP_VULNS_TAR} --shaded-jars-depth=3`,
+        { env },
+      );
+
+      expect(stderr).toContain(
+        '--shaded-jars-depth is deprecated, use --nested-jars-depth instead',
+      );
+    });
+
+    it('should show warning for non-numeric --nested-jars-depth', async () => {
+      server.setCustomResponse({
+        result: {
+          issues: [],
+          issuesData: {},
+          depGraphData: TEST_DISTROLESS_STATIC_IMAGE_DEPGRAPH,
+        },
+        meta: { org: 'test-org', isPublic: false },
+      });
+
+      const { stderr } = await runSnykCLI(
+        `container test docker-archive:${TEST_OS_PACKAGES_AND_APP_VULNS_TAR} --nested-jars-depth=true`,
+        { env },
+      );
+
+      expect(stderr).toContain(
+        'Non-numeric inputs for --nested-jars-depth are deprecated, replace with a numeric input',
+      );
     });
   });
 

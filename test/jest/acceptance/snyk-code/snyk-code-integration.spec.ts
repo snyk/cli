@@ -93,13 +93,13 @@ describe('snyk code test', () => {
       type: 'typescript',
       env: {
         INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'false',
+        INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'false',
       },
     },
     {
       type: 'golang/native',
       env: {
-        // internal GAF feature flag for consistent ignores
-        INTERNAL_SNYK_CODE_IGNORES_ENABLED: 'true',
+        INTERNAL_SNYK_CODE_NATIVE_IMPLEMENTATION: 'true',
       },
     },
   ];

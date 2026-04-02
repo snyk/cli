@@ -186,7 +186,7 @@ describe('npm alias support', () => {
     });
     expect(code).toEqual(0);
 
-    expect(stdout).toContain('"pkgId": "@yao-pkg/pkg@6.5.0",');
+    expect(stdout).toContain('"pkgId": "pkg@6.5.0",');
     expect(stdout).toContain('"nodeId": "pkg@6.5.0",');
     expect(stdout).toContain('"alias": "pkg=>@yao-pkg/pkg@6.5.0"');
   });

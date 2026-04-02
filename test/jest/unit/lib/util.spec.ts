@@ -1,4 +1,5 @@
-import { obfuscateArgs } from '../../../../src/lib/utils';
+import { MAX_STRING_LENGTH } from '../../../../src/lib/constants';
+import { obfuscateArgs, truncateForLog } from '../../../../src/lib/utils';
 import { ArgsOptions, MethodArgs } from '../../../../src/cli/args';
 
 describe('Sanitize args', () => {
@@ -61,5 +62,19 @@ describe('Sanitize args', () => {
     expect(resultWithFlag[0]).toEqual('snyk/goof-image:latest');
     expect(resultWithFlag[1].username).toEqual('username-set');
     expect(resultWithFlag[1].password).toEqual('password-set');
+  });
+});
+
+describe('truncateForLog', () => {
+  it('returns original value when below max length', () => {
+    expect(truncateForLog('small')).toBe('small');
+  });
+
+  it('truncates long values and adds truncation suffix', () => {
+    const longValue = 'a'.repeat(MAX_STRING_LENGTH + 1);
+
+    expect(truncateForLog(longValue)).toBe(
+      'a'.repeat(MAX_STRING_LENGTH) + '...(log line truncated)',
+    );
   });
 });

@@ -55,12 +55,14 @@ describe('snyk test --all-projects (mocked server only)', () => {
 
     expect(stdout).toMatch('Tested 2 projects, no vulnerable paths were found');
 
-    // detected only the workspace root
+    // detected only the workspace packages (apples, tomatoes)
     expect(stdout).toMatch('Package manager:   yarn');
     expect(stdout).toMatch('Project name:      tomatoes');
     expect(stdout).toMatch('Project name:      apples');
+    // 4 potential projects discovered: root, apples, tomatoes, deeply_nested
+    // 2 fail: root (out of sync) + deeply_nested (not in workspace, missing node_modules)
     expect(stderr).toMatch(
-      '✗ 1/3 potential projects failed to get dependencies',
+      '✗ 2/4 potential projects failed to get dependencies',
     );
     expect(stderr).toMatch(
       `Dependency snyk@1.320.0 was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
@@ -82,8 +84,10 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(code).toEqual(2);
 
     expect(stdout).toContainText('SNYK-CLI-0000');
+    // 4 potential projects discovered: root, apples, tomatoes, deeply_nested
+    // 2 fail: root (out of sync) + deeply_nested (not in workspace, missing node_modules)
     expect(stderr).toMatch(
-      '✗ 1/3 potential projects failed to get dependencies',
+      '✗ 2/4 potential projects failed to get dependencies',
     );
     expect(stderr).toMatch(
       `Dependency snyk@1.320.0 was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
@@ -137,7 +141,11 @@ describe('snyk test --all-projects (mocked server only)', () => {
     // workspaces themselves detected too
     expect(stdout).toMatch('Project name:      tomatoes');
     expect(stdout).toMatch('Project name:      apples');
-    expect(stderr).toMatch('');
+    // The deeply nested package fails with missing node_modules
+    expect(stderr).toMatch('Missing node_modules folder');
+    expect(stderr).toMatch(
+      '✗ 1/4 potential projects failed to get dependencies',
+    );
   });
 
   test('`test ruby-app --all-projects`', async () => {
@@ -284,35 +292,6 @@ describe('snyk test --all-projects (mocked server only)', () => {
   });
 
   test('`test node workspaces --all-projects`', async () => {
-    server.setFeatureFlag('enablePnpmCli', false);
-    const project = await createProjectFromFixture('workspace-multi-type');
-
-    const { code, stdout } = await runSnykCLI('test --all-projects', {
-      cwd: project.path(),
-      env,
-    });
-
-    const backendRequests = server.getRequests().filter((req: any) => {
-      return req.url.includes('/api/v1/test');
-    });
-
-    expect(backendRequests).toHaveLength(6);
-    backendRequests.forEach((req: any) => {
-      expect(req.method).toEqual('POST');
-      expect(req.headers['x-snyk-cli-version']).not.toBeUndefined();
-      expect(req.url).toMatch('/api/v1/test');
-    });
-
-    expect(code).toEqual(0);
-
-    expect(stdout).toMatch('Package manager:   npm');
-    expect(stdout).toMatch('Package manager:   yarn');
-    expect(stdout).not.toMatch('Package manager:   pnpm');
-  });
-
-  test('`test node workspaces --all-projects with `enablePnpmCli` feature flag`', async () => {
-    server.setFeatureFlag('enablePnpmCli', true);
-
     const project = await createProjectFromFixture('workspace-multi-type');
 
     const { code, stdout } = await runSnykCLI('test --all-projects', {

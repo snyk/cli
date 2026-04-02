@@ -5,7 +5,6 @@ import { NoSupportedManifestsFoundError } from './errors';
 import {
   SupportedPackageManagers,
   SUPPORTED_MANIFEST_FILES,
-  PNPM_FEATURE_FLAG,
   UV_FEATURE_FLAG,
 } from './package-managers';
 
@@ -189,8 +188,6 @@ function isFileCompatible(
   featureFlags: Set<string> = new Set<string>(),
 ) {
   switch (file) {
-    case SUPPORTED_MANIFEST_FILES.PNPM_LOCK:
-      return featureFlags.has(PNPM_FEATURE_FLAG);
     case SUPPORTED_MANIFEST_FILES.UV_LOCK:
       return featureFlags.has(UV_FEATURE_FLAG);
     default:
