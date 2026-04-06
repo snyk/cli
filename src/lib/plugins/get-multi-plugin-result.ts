@@ -21,6 +21,7 @@ import { errorMessageWithRetry, FailedToRunTestError } from '../errors';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 import { processNpmWorkspaces } from './nodejs-plugin/npm-workspaces-parser';
 import { processPnpmWorkspaces } from 'snyk-nodejs-plugin';
+import { shouldPrintDepGraphWithErrors } from '../snyk-test/common';
 
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
@@ -184,7 +185,7 @@ export async function getMultiPluginResult(
   if (!allResults.length) {
     // When allow-incomplete-sbom is active, return instead of throwing
     // so the caller can print per-project JSONL error entries
-    if (options['print-effective-graph-with-errors']) {
+    if (shouldPrintDepGraphWithErrors(options)) {
       return {
         plugin: {
           name: 'custom-auto-detect',

@@ -68,6 +68,10 @@ export interface Options {
   'print-deps'?: boolean;
   'print-tree'?: boolean;
   'print-dep-paths'?: boolean;
+  'print-graph'?: boolean;
+  'jsonl-output'?: boolean;
+  'effective-graph'?: boolean;
+  'print-errors'?: boolean;
   'print-effective-graph'?: boolean;
   'print-effective-graph-with-errors'?: boolean;
   'remote-repo-url'?: string;
@@ -150,6 +154,10 @@ export interface MonitorOptions {
   json?: boolean;
   allSubProjects?: boolean;
   'project-name'?: string;
+  'print-graph'?: boolean;
+  'jsonl-output'?: boolean;
+  'effective-graph'?: boolean;
+  'print-errors'?: boolean;
   'print-deps'?: boolean;
   'print-dep-paths'?: boolean;
   'target-reference'?: string;

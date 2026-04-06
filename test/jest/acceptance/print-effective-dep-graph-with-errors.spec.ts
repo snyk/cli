@@ -181,7 +181,7 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
     // Should have at least one output (either success or error)
     expect(jsonObjects.length).toBeGreaterThan(0);
 
-    // Find error outputs from printEffectiveDepGraphError (has error.id field)
+    // Find error outputs from printDepGraphJsonlError (has error.id field)
     const errorOutputs = jsonObjects.filter(
       (obj) =>
         obj.error !== undefined && obj.normalisedTargetFile !== undefined,

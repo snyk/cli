@@ -39,13 +39,14 @@ import { isCI } from '../is-ci';
 import {
   RETRY_ATTEMPTS,
   RETRY_DELAY,
+  getPrintGraphMode,
   printDepGraph,
-  printEffectiveDepGraph,
-  printEffectiveDepGraphError,
+  printDepGraphJsonl,
+  printDepGraphJsonlError,
   assembleQueryString,
   shouldPrintDepGraph,
   shouldPrintEffectiveDepGraph,
-  shouldPrintEffectiveDepGraphWithErrors,
+  shouldPrintDepGraphWithErrors,
 } from './common';
 import config from '../config';
 import * as analytics from '../analytics';
@@ -246,7 +247,11 @@ async function sendAndParseResults(
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
   const ecosystem = getEcosystem(options);
-  const depGraphs = new Map<string, depGraphLib.DepGraphData>();
+  const depGraphPrintJobs: {
+    legacyTargetLabel: string;
+    graph: depGraphLib.DepGraphData;
+    normalisedTargetFile: string;
+  }[] = [];
 
   await spinner.clear<void>(spinnerLbl)();
   if (!options.quiet) {
@@ -322,7 +327,11 @@ async function sendAndParseResults(
 
     if (ecosystem && depGraph) {
       const targetName = scanResult ? constructProjectName(scanResult) : '';
-      depGraphs.set(targetName, depGraph.toJSON());
+      depGraphPrintJobs.push({
+        legacyTargetLabel: targetName,
+        graph: depGraph.toJSON(),
+        normalisedTargetFile: targetFile || displayTargetFile || '',
+      });
     }
 
     const legacyRes = convertIssuesToAffectedPkgs(response);
@@ -351,9 +360,20 @@ async function sendAndParseResults(
   }
 
   if (ecosystem && shouldPrintDepGraph(options)) {
+    const { jsonlOutput } = getPrintGraphMode(options);
     await spinner.clear<void>(spinnerLbl)();
-    for (const [targetName, depGraph] of depGraphs.entries()) {
-      await printDepGraph(depGraph, targetName, process.stdout);
+    for (const job of depGraphPrintJobs) {
+      if (jsonlOutput) {
+        await printDepGraphJsonl(
+          job.graph,
+          job.normalisedTargetFile || job.legacyTargetLabel,
+          undefined,
+          undefined,
+          process.stdout,
+        );
+      } else {
+        await printDepGraph(job.graph, job.legacyTargetLabel, process.stdout);
+      }
     }
     return [];
   }
@@ -654,18 +674,14 @@ async function assembleLocalPayloads(
     const failedResults = (deps as MultiProjectResultCustom).failedResults;
     if (failedResults?.length) {
       await spinner.clear<void>(spinnerLbl)();
-      // When printing effective dep-graph with errors, suppress warning output —
-      // the failures will be embedded in the generated SBOM as annotations.
-      const suppressWarnings = shouldPrintEffectiveDepGraphWithErrors(options);
-      const isNotJsonOrQueiet =
-        !options.json && !options.quiet && !suppressWarnings;
+      const isNotJsonOrQueiet = !options.json && !options.quiet;
 
       const errorMessages = extractErrorMessages(
         failedResults,
         isNotJsonOrQueiet,
       );
 
-      if (!options.json && !options.quiet && !suppressWarnings) {
+      if (isNotJsonOrQueiet) {
         console.warn(
           chalk.bold.red(
             `${icon.ISSUE} ${failedResults.length}/${
@@ -679,9 +695,9 @@ async function assembleLocalPayloads(
         failedResults,
       );
 
-      if (shouldPrintEffectiveDepGraphWithErrors(options)) {
+      if (shouldPrintDepGraphWithErrors(options)) {
         for (const failed of failedResults) {
-          await printEffectiveDepGraphError(root, failed, process.stdout);
+          await printDepGraphJsonlError(root, failed, process.stdout);
         }
       }
 
@@ -832,7 +848,17 @@ async function assembleLocalPayloads(
           );
         }
 
-        await printDepGraph(root.toJSON(), targetFile || '', process.stdout);
+        if (getPrintGraphMode(options).jsonlOutput) {
+          await printDepGraphJsonl(
+            root.toJSON(),
+            targetFile || '',
+            project.plugin.targetFile,
+            target,
+            process.stdout,
+          );
+        } else {
+          await printDepGraph(root.toJSON(), targetFile || '', process.stdout);
+        }
       }
 
       const body: PayloadBody = {
@@ -871,7 +897,9 @@ async function assembleLocalPayloads(
         });
       }
 
-      const pruneIsRequired = options.pruneRepeatedSubdependencies;
+      const pruneIsRequired =
+        options.pruneRepeatedSubdependencies ||
+        shouldPrintEffectiveDepGraph(options);
 
       if (packageManager) {
         depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
@@ -879,7 +907,7 @@ async function assembleLocalPayloads(
 
       if (shouldPrintEffectiveDepGraph(options)) {
         spinner.clear<void>(spinnerLbl)();
-        await printEffectiveDepGraph(
+        await printDepGraphJsonl(
           depGraph.toJSON(),
           targetFile,
           project.plugin.targetFile,

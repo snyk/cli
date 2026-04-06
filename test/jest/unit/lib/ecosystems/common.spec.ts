@@ -4,6 +4,7 @@ import { isUnmanagedEcosystem } from '../../../../../src/lib/ecosystems/common';
 import { handleProcessingStatus } from '../../../../../src/lib/polling/common';
 import { FailedToRunTestError } from '../../../../../src/lib/errors';
 import { printUnmanagedDepGraph } from '../../../../../src/lib/ecosystems/test';
+import { Options } from '../../../../../src/lib/types';
 import * as utils from '../../../../../src/lib/ecosystems/unmanaged/utils';
 import { DepGraphDataOpenAPI } from '../../../../../src/lib/ecosystems/unmanaged/types';
 
@@ -90,7 +91,12 @@ describe('printUnmanagedDepGraph fn', () => {
       },
     });
 
-    const { result } = await printUnmanagedDepGraph({}, 'foo/bar', mockDest);
+    const { result } = await printUnmanagedDepGraph(
+      {},
+      'foo/bar',
+      mockDest,
+      {} as Options,
+    );
 
     expect(result).toBe('');
     expect(buffer.toString()).toMatchSnapshot();

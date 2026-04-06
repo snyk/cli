@@ -1,7 +1,6 @@
 import { getDepsFromPlugin } from '../../../../../src/lib/plugins/get-deps-from-plugin';
 import { Options, TestOptions } from '../../../../../src/lib/types';
 import * as singlePluginResult from '../../../../../src/lib/plugins/get-single-plugin-result';
-import * as detect from '../../../../../src/lib/detect';
 
 jest.mock('../../../../../src/lib/plugins/get-single-plugin-result');
 jest.mock('../../../../../src/lib/detect', () => ({
@@ -23,9 +22,9 @@ describe('getDepsFromPlugin - print-effective-graph-with-errors', () => {
 
   it('should return failedResults when plugin throws and flag is set', async () => {
     const pluginError = new Error('missing lockfile');
-    (
-      singlePluginResult.getSinglePluginResult as jest.Mock
-    ).mockRejectedValue(pluginError);
+    (singlePluginResult.getSinglePluginResult as jest.Mock).mockRejectedValue(
+      pluginError,
+    );
 
     const options = {
       ...baseOptions,
@@ -45,19 +44,19 @@ describe('getDepsFromPlugin - print-effective-graph-with-errors', () => {
 
   it('should rethrow when plugin throws and flag is not set', async () => {
     const pluginError = new Error('missing lockfile');
-    (
-      singlePluginResult.getSinglePluginResult as jest.Mock
-    ).mockRejectedValue(pluginError);
+    (singlePluginResult.getSinglePluginResult as jest.Mock).mockRejectedValue(
+      pluginError,
+    );
 
-    await expect(
-      getDepsFromPlugin('/test', baseOptions),
-    ).rejects.toThrow('missing lockfile');
+    await expect(getDepsFromPlugin('/test', baseOptions)).rejects.toThrow(
+      'missing lockfile',
+    );
   });
 
   it('should use fallback message when error has no message', async () => {
-    (
-      singlePluginResult.getSinglePluginResult as jest.Mock
-    ).mockRejectedValue({ code: 'UNKNOWN' });
+    (singlePluginResult.getSinglePluginResult as jest.Mock).mockRejectedValue({
+      code: 'UNKNOWN',
+    });
 
     const options = {
       ...baseOptions,

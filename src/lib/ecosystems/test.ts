@@ -11,7 +11,9 @@ import { getPlugin } from './plugins';
 import { TestDependenciesResponse } from '../snyk-test/legacy';
 import {
   assembleQueryString,
+  getPrintGraphMode,
   printDepGraph,
+  printDepGraphJsonl,
   shouldPrintDepGraph,
 } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
@@ -56,7 +58,7 @@ export async function testEcosystem(
 
   if (isUnmanagedEcosystem(ecosystem) && shouldPrintDepGraph(options)) {
     const [target] = paths;
-    return printUnmanagedDepGraph(results, target, process.stdout);
+    return printUnmanagedDepGraph(results, target, process.stdout, options);
   }
 
   const [testResults, errors] = await selectAndExecuteTestStrategy(
@@ -99,11 +101,22 @@ export async function printUnmanagedDepGraph(
   results: ScanResultsByPath,
   target: string,
   destination: Writable,
+  options: Options,
 ): Promise<TestCommandResult> {
   const [result] = await getUnmanagedDepGraph(results);
   const depGraph = convertDepGraph(result);
 
-  await printDepGraph(depGraph, target, destination);
+  if (getPrintGraphMode(options).jsonlOutput) {
+    await printDepGraphJsonl(
+      depGraph,
+      target,
+      undefined,
+      undefined,
+      destination,
+    );
+  } else {
+    await printDepGraph(depGraph, target, destination);
+  }
 
   return TestCommandResult.createJsonTestCommandResult('');
 }

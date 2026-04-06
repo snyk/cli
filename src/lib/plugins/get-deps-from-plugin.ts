@@ -21,6 +21,7 @@ import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-t
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
+import { shouldPrintDepGraphWithErrors } from '../snyk-test/common';
 
 const debug = debugModule('snyk-test');
 
@@ -104,14 +105,9 @@ export async function getDepsFromPlugin(
   }
   let inspectRes;
   try {
-    inspectRes = await getSinglePluginResult(
-      root,
-      options,
-      '',
-      featureFlags,
-    );
+    inspectRes = await getSinglePluginResult(root, options, '', featureFlags);
   } catch (error) {
-    if (options['print-effective-graph-with-errors']) {
+    if (shouldPrintDepGraphWithErrors(options)) {
       const errMessage =
         error?.message ?? 'Something went wrong getting dependencies';
       debug(

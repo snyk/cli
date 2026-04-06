@@ -80,6 +80,50 @@ export type FailOn = 'all' | 'upgradable' | 'patchable';
 export const RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY = 500;
 
+export interface PrintGraphMode {
+  printGraphEnabled: boolean;
+  effectiveGraph: boolean;
+  jsonlOutput: boolean;
+  printErrors: boolean;
+}
+
+/**
+ * getPrintGraphMode derives canonical print-graph behavior from both
+ * the new flag set and legacy aliases during the migration window.
+ */
+export function getPrintGraphMode(opts: Options): PrintGraphMode {
+  const legacyEffectiveGraph = !!opts['print-effective-graph'];
+  const legacyEffectiveGraphWithErrors =
+    !!opts['print-effective-graph-with-errors'];
+
+  const printGraphEnabled =
+    !!opts['print-graph'] ||
+    legacyEffectiveGraph ||
+    legacyEffectiveGraphWithErrors;
+
+  const effectiveGraph =
+    !!opts['effective-graph'] ||
+    legacyEffectiveGraph ||
+    legacyEffectiveGraphWithErrors;
+
+  const printErrors =
+    printGraphEnabled &&
+    (!!opts['print-errors'] || legacyEffectiveGraphWithErrors);
+
+  const jsonlOutput =
+    printGraphEnabled &&
+    (!!opts['jsonl-output'] ||
+      legacyEffectiveGraph ||
+      legacyEffectiveGraphWithErrors);
+
+  return {
+    printGraphEnabled,
+    effectiveGraph,
+    jsonlOutput,
+    printErrors,
+  };
+}
+
 /**
  * printDepGraph writes the given dep-graph and target name to the destination
  * stream as expected by the `depgraph` CLI workflow.
@@ -102,15 +146,17 @@ export async function printDepGraph(
 }
 
 export function shouldPrintDepGraph(opts: Options): boolean {
-  return opts['print-graph'] && !opts['print-deps'];
+  const mode = getPrintGraphMode(opts);
+  return mode.printGraphEnabled && !mode.effectiveGraph && !opts['print-deps'];
 }
 
 /**
- * printEffectiveDepGraph writes the given, possibly pruned dep-graph and target file to the destination
- * stream as a JSON object containing both depGraph, normalisedTargetFile and targetFile from plugin.
- * This allows extracting the effective dep-graph which is being used for the test.
+ * printDepGraphJsonl writes dep-graph metadata to the destination stream as one JSON object
+ * per line (JSONL): depGraph, normalisedTargetFile, optional targetFileFromPlugin, optional target.
+ * Used when --print-graph --jsonl-output is set for both complete and effective graphs; callers
+ * supply the dep-graph payload (full or pruned) they want to serialize.
  */
-export async function printEffectiveDepGraph(
+export async function printDepGraphJsonl(
   depGraph: DepGraphData,
   normalisedTargetFile: string,
   targetFileFromPlugin: string | undefined,
@@ -118,17 +164,14 @@ export async function printEffectiveDepGraph(
   destination: Writable,
 ): Promise<void> {
   return new Promise((res, rej) => {
-    const effectiveGraphOutput = {
+    const record = {
       depGraph,
       normalisedTargetFile,
       targetFileFromPlugin,
       target,
     };
 
-    new ConcatStream(
-      new JsonStreamStringify(effectiveGraphOutput),
-      Readable.from('\n'),
-    )
+    new ConcatStream(new JsonStreamStringify(record), Readable.from('\n'))
       .on('end', res)
       .on('error', rej)
       .pipe(destination);
@@ -136,17 +179,18 @@ export async function printEffectiveDepGraph(
 }
 
 /**
- * printEffectiveDepGraphError writes an error output for failed dependency graph resolution
- * to the destination stream in a format consistent with printEffectiveDepGraph.
- * This is used when --print-effective-graph-with-errors is set but dependency resolution failed.
+ * printDepGraphJsonlError writes a JSONL line for failed dependency graph resolution, shaped for
+ * consumers that read the same stream as printDepGraphJsonl.
+ * Used when graph output includes errors (e.g. legacy --print-effective-graph-with-errors or
+ * --print-graph --print-errors) but resolution failed for a project.
  */
-export async function printEffectiveDepGraphError(
+export async function printDepGraphJsonlError(
   root: string,
   failedProjectScanError: FailedProjectScanError,
   destination: Writable,
 ): Promise<void> {
   return new Promise((res, rej) => {
-    // Normalize the target file path to be relative to root, consistent with printEffectiveDepGraph
+    // Normalize the target file path to be relative to root, consistent with printDepGraphJsonl
     const normalisedTargetFile = failedProjectScanError.targetFile
       ? path.relative(root, failedProjectScanError.targetFile)
       : failedProjectScanError.targetFile;
@@ -154,15 +198,12 @@ export async function printEffectiveDepGraphError(
     const problemError = getOrCreateErrorCatalogError(failedProjectScanError);
     const serializedError = problemError.toJsonApi().body();
 
-    const effectiveGraphErrorOutput = {
+    const errorRecord = {
       error: serializedError,
       normalisedTargetFile,
     };
 
-    new ConcatStream(
-      new JsonStreamStringify(effectiveGraphErrorOutput),
-      Readable.from('\n'),
-    )
+    new ConcatStream(new JsonStreamStringify(errorRecord), Readable.from('\n'))
       .on('end', res)
       .on('error', rej)
       .pipe(destination);
@@ -173,18 +214,17 @@ export async function printEffectiveDepGraphError(
  * Checks if either --print-effective-graph or --print-effective-graph-with-errors is set.
  */
 export function shouldPrintEffectiveDepGraph(opts: Options): boolean {
-  return (
-    !!opts['print-effective-graph'] ||
-    shouldPrintEffectiveDepGraphWithErrors(opts)
-  );
+  const mode = getPrintGraphMode(opts);
+  return mode.printGraphEnabled && mode.effectiveGraph;
 }
 
 /**
- * shouldPrintEffectiveDepGraphWithErrors checks if the --print-effective-graph-with-errors flag is set.
- * This is used to determine if the effective dep-graph with errors should be printed.
+ * shouldPrintDepGraphWithErrors returns true when dependency graph output
+ * is requested and error entries should also be printed.
  */
-export function shouldPrintEffectiveDepGraphWithErrors(opts: Options): boolean {
-  return !!opts['print-effective-graph-with-errors'];
+export function shouldPrintDepGraphWithErrors(opts: Options): boolean {
+  const mode = getPrintGraphMode(opts);
+  return mode.printGraphEnabled && mode.printErrors;
 }
 
 /**
