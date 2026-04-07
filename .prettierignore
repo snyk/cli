@@ -12,6 +12,7 @@ test/**/workspaces
 .tap
 src/cli/commands/test/iac/local-execution/parsers/hcl-to-json/parser.js
 src/cli/commands/test/iac/local-execution/parsers/hcl-to-json-v2/parser.js
+test/jest/util/sarif-schemas
 
 # Has empty lines for templating convenience
 .github/PULL_REQUEST_TEMPLATE.md
