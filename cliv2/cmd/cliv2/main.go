@@ -432,6 +432,8 @@ func createCommandsForWorkflows(rootCommand *cobra.Command, engine workflow.Engi
 			// to preserve backwards compatibility we will need to relax flag validation
 			parentCommand.FParseErrWhitelist.UnknownFlags = true
 			parentCommand.Aliases = []string{"mcp-scan"}
+		case "redteam":
+			parentCommand.Annotations = map[string]string{"self-documented": "true"}
 		}
 	}
 }
@@ -444,8 +446,6 @@ func prepareRootCommand() *cobra.Command {
 		},
 	}
 
-	// help for all commands is handled by the legacy cli
-	// TODO: discuss how to move help to extensions
 	helpCommand := cobra.Command{
 		Use:  "help",
 		RunE: help,
@@ -457,8 +457,17 @@ func prepareRootCommand() *cobra.Command {
 	rootCommand.SilenceUsage = true
 	rootCommand.FParseErrWhitelist.UnknownFlags = true
 
-	// ensure that help and usage information comes from the legacy cli instead of cobra's default help
-	rootCommand.SetHelpFunc(func(c *cobra.Command, args []string) { _ = help(c, args) })
+	// Extensions can opt in to handle their own help by setting the "self-documented" annotation.
+	// When set, Cobra renders help from the command's flagset and Short/Long fields.
+	// Commands without the annotation fall back to the legacy CLI help.
+	rootCommand.SetHelpFunc(func(c *cobra.Command, args []string) {
+		if c.Annotations["self-documented"] == "true" {
+			c.InitDefaultHelpFlag()
+			_ = c.Usage()
+		} else {
+			_ = help(c, args)
+		}
+	})
 	rootCommand.SetHelpCommand(&helpCommand)
 	rootCommand.PersistentFlags().AddFlagSet(getGlobalFLags())
 
