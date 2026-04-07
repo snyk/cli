@@ -1,21 +1,8 @@
 import { join } from 'path';
 import { runSnykCLI } from '../util/runSnykCLI';
+import { getSarifSchema } from '../util/getSarifSchema';
 import Ajv from 'ajv-draft-04';
 jest.setTimeout(1000 * 300);
-
-async function loadSchema(uri: string) {
-  try {
-    const response = await fetch(uri);
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch schema from ${uri}: ${response.statusText}`,
-      );
-    }
-    return response.json();
-  } catch (error) {
-    throw new Error(`Failed to load schema from ${uri}: ${error.message}`);
-  }
-}
 
 const SARIF_SCHEMA_URL =
   'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json';
@@ -89,7 +76,7 @@ describe('SARIF output is schema compliant', () => {
   let schema: object;
 
   beforeAll(async () => {
-    schema = await loadSchema(SARIF_SCHEMA_URL);
+    schema = await getSarifSchema(SARIF_SCHEMA_URL);
   });
 
   it.each(TEST_CASES)('for $name', async ({ cmd, env, target }: TestCase) => {
