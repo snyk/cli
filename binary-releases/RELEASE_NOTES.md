@@ -22,6 +22,7 @@ The Snyk CLI is being deployed to different deployment channels, users can selec
 * **test**: Improves SDK detection when host and SDK versions differ. ([96d0817](https://github.com/snyk/snyk/commit/96d0817068472ee4a8bb916fb54dd3296f384d7a))
 * **test**: Ensures project names are populated when scanning NuGet projects from repository root. ([c043553](https://github.com/snyk/snyk/commit/c0435535a03fc7fcb3b35b671eda54c1f313593f))
 * **container**: Snyk Container scans of tar files on Windows should now report vulnerabilities for Python application package files. ([9b86790](https://github.com/snyk/snyk/commit/9b867908c4a89046ee475be26a058dff2301f40d))
+* **container**: Override packages with inaccurate pom.properties files ([9b86790](https://github.com/snyk/snyk/commit/9b867908c4a89046ee475be26a058dff2301f40d))
 * **test**: Ensure Yarn workspace pacakges matches are actual members defined in the root `package.json`. ([0dd6581](https://github.com/snyk/snyk/commit/0dd6581046148aceb4adedd6d0e70838970c9c84))
 * **test**: Fix increased scan times when testing Golang projects. ([f2f5ba2](https://github.com/snyk/snyk/commit/f2f5ba2811d49156016c0ce6ac7d180d40ef1efc))
 * **code**: Snyk Code scans now return clearer error message and exit codes when testing unsupported projects ([6f5b4e3](https://github.com/snyk/snyk/commit/6f5b4e3de3e1c2b7359215c7dde24af447a8b3df))
