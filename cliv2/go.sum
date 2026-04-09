@@ -541,8 +541,8 @@ github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603 h1:uZyw9
 github.com/snyk/cli-extension-ai-bom v0.0.0-20260319140413-ac7392950603/go.mod h1:RnMP+tFTeKygfXSx7z+heyMZoOps67u5HFytjptHjuk=
 github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e h1:WZ4Ph3iX+fAu3/HgblVnA+AXfKiEvrgHsZq8GHjnzzo=
 github.com/snyk/cli-extension-ai-redteam v0.0.0-20260331152502-ce341aeaff9e/go.mod h1:445d735F53IuegetHs/S4GyWyng4Crd9TPj4vosmFmM=
-github.com/snyk/cli-extension-dep-graph v0.32.0 h1:6otM3SIqYIRFonKXeIGg0tZVcNxZevAySg3sOOT+64Q=
-github.com/snyk/cli-extension-dep-graph v0.32.0/go.mod h1:66H2oCkziptQrUDibPe3m8rx+S6XcpnUL5udT+wfrmY=
+github.com/snyk/cli-extension-dep-graph v0.32.3 h1:XpPqBPQg3gwVUM2oM3Li2w1y8JTMIN8+M/egVsdBDI8=
+github.com/snyk/cli-extension-dep-graph v0.32.3/go.mod h1:66H2oCkziptQrUDibPe3m8rx+S6XcpnUL5udT+wfrmY=
 github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80 h1:JHbnSkgGc2oUejjzdWdeTghl0BZV7QamcRuyh7ornVo=
 github.com/snyk/cli-extension-iac v0.0.0-20260206082514-00c443ccee80/go.mod h1:Ht5k+sWdi//fM2MjcmBMWjcJmr35iMvQpYlBWnUHL4I=
 github.com/snyk/cli-extension-iac-rules v0.0.0-20260206080712-9cbb5f95465d h1:xkxHgZ+DT4hRiIEeAEv1JWLJRYV4MbAFvtEUpUkndPA=
