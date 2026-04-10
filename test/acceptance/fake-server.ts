@@ -684,45 +684,20 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     });
   });
 
-  app.post(`/api/hidden/orgs/:orgId/upload_revisions`, (req, res) => {
-    res.status(201).send({
-      data: {
-        attributes: {
-          revision_type: 'snapshot',
-          sealed: false,
-        },
-        id: 'bc0729a7-109f-4fe9-a048-aac410e28c9a',
-        type: 'upload_revision',
-      },
-      jsonapi: {
-        version: '1.0',
-      },
-      links: {
-        self: {
-          href: '/orgs/bb262a15-d798-458b-81fa-30a92cb3475c/upload_revisions/bc0729a7-109f-4fe9-a048-aac410e28c9a',
-        },
-      },
-    });
-  });
-
+  // Both prefixes are required due to API URL canonicalisation, performed in some extensions.
   app.post(
-    `/api/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId/files`,
-    (_, res) => {
-      res.status(204);
-      res.send();
-    },
-  );
-
-  app.patch(
-    `/api/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId`,
+    [
+      `/hidden/orgs/:orgId/upload_revisions`,
+      `/api/hidden/orgs/:orgId/upload_revisions`,
+    ],
     (req, res) => {
-      res.status(200).send({
+      res.status(201).send({
         data: {
           attributes: {
             revision_type: 'snapshot',
-            sealed: true,
+            sealed: false,
           },
-          id: 'fbdb5cc0-6e34-4191-b088-0dff740faf38',
+          id: 'bc0729a7-109f-4fe9-a048-aac410e28c9a',
           type: 'upload_revision',
         },
         jsonapi: {
@@ -730,7 +705,45 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         },
         links: {
           self: {
-            href: '/orgs/bb262a15-d798-458b-81fa-30a92cb3475c/upload_revisions/fbdb5cc0-6e34-4191-b088-0dff740faf38',
+            href: `/orgs/${req.params.orgId}/upload_revisions/bc0729a7-109f-4fe9-a048-aac410e28c9a`,
+          },
+        },
+      });
+    },
+  );
+
+  app.post(
+    [
+      `/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId/files`,
+      `/api/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId/files`,
+    ],
+    (_, res) => {
+      res.status(204);
+      res.send();
+    },
+  );
+
+  app.patch(
+    [
+      `/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId`,
+      `/api/hidden/orgs/:orgId/upload_revisions/:uploadRevisionId`,
+    ],
+    (req, res) => {
+      res.status(200).send({
+        data: {
+          attributes: {
+            revision_type: 'snapshot',
+            sealed: true,
+          },
+          id: req.params.uploadRevisionId,
+          type: 'upload_revision',
+        },
+        jsonapi: {
+          version: '1.0',
+        },
+        links: {
+          self: {
+            href: `/orgs/${req.params.orgId}/upload_revisions/${req.params.uploadRevisionId}`,
           },
         },
       });
