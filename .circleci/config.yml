@@ -931,6 +931,34 @@ workflows:
           pre_test_cmds: |
             if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
 
+      - acceptance-tests:
+          name: acceptance-tests windows unmanaged pre-prod
+          go_target_os: windows
+          go_os: windows
+          go_arch: amd64
+          go_download_base_url: << pipeline.parameters.go_download_base_url >>
+          context:
+            - nodejs-install
+            - team_hammerhead-cli
+          filters:
+            branches:
+              ignore:
+                - main
+                - '/release.*/'
+          requires:
+            - build windows amd64
+          executor: win-server2022-amd64
+          test_snyk_command: binary-releases\\snyk-win.exe
+          install_deps_extension: windows-native-build
+          dont_skip_tests: 0
+          shards: 1
+          test_command: npm run test:acceptance -- --selectProjects coreCli --runTestsByPath test/jest/acceptance/snyk-test/unmanaged-pre-prod.spec.ts
+          pre_test_cmds: |
+            if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
+            $env:TEST_SNYK_API = $env:TEST_SNYK_API_DEV
+            $env:TEST_SNYK_TOKEN = $env:TEST_SNYK_TOKEN_DEV
+            $env:TEST_SNYK_TOKEN_2 = $env:TEST_SNYK_TOKEN_DEV
+
       - sign:
           name: sign windows amd64
           context: snyk-windows-signing
@@ -1559,6 +1587,9 @@ jobs:
       pre_test_cmds:
         type: string
         default: 'echo Running tests'
+      test_command:
+        type: string
+        default: npm run test:acceptance -- --selectProjects coreCli --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
       shards:
         type: integer
         default: 4
@@ -1593,7 +1624,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             << parameters.pre_test_cmds >>
-            npm run test:acceptance -- --selectProjects coreCli --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
+            << parameters.test_command >>
           environment:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
