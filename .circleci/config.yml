@@ -952,7 +952,8 @@ workflows:
           install_deps_extension: windows-native-build
           dont_skip_tests: 0
           shards: 1
-          test_command: npm run test:acceptance -- --selectProjects coreCli --runTestsByPath test/jest/acceptance/snyk-test/unmanaged-pre-prod.spec.ts
+          shard_calc_cmd: '$([int]$env:CIRCLE_NODE_INDEX + 1)'
+          additional_test_args: --runTestsByPath test/jest/acceptance/snyk-test/unmanaged-pre-prod.spec.ts
           pre_test_cmds: |
             if (Test-Path '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>') { . '<< pipeline.parameters.windows_cache_dir >>/<< pipeline.parameters.windows_env_script >>' }
             $env:TEST_SNYK_API = $env:TEST_SNYK_API_DEV
@@ -1587,9 +1588,9 @@ jobs:
       pre_test_cmds:
         type: string
         default: 'echo Running tests'
-      test_command:
+      additional_test_args:
         type: string
-        default: npm run test:acceptance -- --selectProjects coreCli --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
+        default: ''
       shards:
         type: integer
         default: 4
@@ -1624,7 +1625,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             << parameters.pre_test_cmds >>
-            << parameters.test_command >>
+            npm run test:acceptance -- --selectProjects coreCli << parameters.additional_test_args >> --shard=<< parameters.shard_calc_cmd >>/<< parameters.shards >>
           environment:
             TEST_SNYK_FIPS: << parameters.fips >>
             TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
