@@ -115,6 +115,7 @@ export async function printEffectiveDepGraph(
   normalisedTargetFile: string,
   targetFileFromPlugin: string | undefined,
   target: GitTarget | ContainerTarget | null | undefined,
+  targetRuntime: string | undefined,
   destination: Writable,
 ): Promise<void> {
   return new Promise((res, rej) => {
@@ -123,6 +124,7 @@ export async function printEffectiveDepGraph(
       normalisedTargetFile,
       targetFileFromPlugin,
       target,
+      targetRuntime,
     };
 
     new ConcatStream(

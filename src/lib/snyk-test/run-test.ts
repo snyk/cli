@@ -880,6 +880,7 @@ async function assembleLocalPayloads(
           targetFile,
           project.plugin.targetFile,
           target,
+          scannedProject.meta?.targetRuntime ?? project.plugin?.targetRuntime,
           process.stdout,
         );
       }

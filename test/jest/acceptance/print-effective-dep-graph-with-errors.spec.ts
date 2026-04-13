@@ -1,7 +1,11 @@
 import { fakeServer } from '../../acceptance/fake-server';
-import { createProjectFromFixture } from '../util/createProject';
-import { runSnykCLI } from '../util/runSnykCLI';
+import {
+  createProjectFromFixture,
+  createProjectFromWorkspace,
+} from '../util/createProject';
 import { getServerPort } from '../util/getServerPort';
+import { parseJSONL } from '../util/parseJSONL';
+import { runSnykCLI } from '../util/runSnykCLI';
 import { ProblemError } from '@snyk/error-catalog-nodejs-public';
 
 jest.setTimeout(1000 * 30);
@@ -163,20 +167,7 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
 
     expect(code).toBe(0);
 
-    // Parse JSONL output
-    const lines = stdout
-      .trim()
-      .split('\n')
-      .filter((line) => line.trim());
-
-    const jsonObjects: any[] = [];
-    for (const line of lines) {
-      try {
-        jsonObjects.push(JSON.parse(line));
-      } catch {
-        // Skip non-JSON lines
-      }
-    }
+    const jsonObjects = parseJSONL(stdout) as any[];
 
     // Should have at least one output (either success or error)
     expect(jsonObjects.length).toBeGreaterThan(0);
@@ -224,5 +215,26 @@ describe('`test` command with `--print-effective-graph-with-errors` option', () 
 
     // stderr should contain the failure warning
     expect(stderr).toMatch(/failed to get dependencies/i);
+  });
+
+  it('outputs the target framework for nuget/dotnet projects', async () => {
+    const project = await createProjectFromWorkspace('nuget-app-6-7-8');
+    const { code, stdout } = await runSnykCLI(
+      'test --print-effective-graph-with-errors',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toBe(0);
+
+    const outputs = parseJSONL(stdout) as any[];
+
+    expect(outputs[0]).toMatchObject({
+      targetRuntime: 'net6.0',
+      normalisedTargetFile: 'obj/project.assets.json',
+    });
+    expect(outputs[0].depGraph).toBeDefined();
   });
 });
