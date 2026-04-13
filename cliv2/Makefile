@@ -22,7 +22,7 @@ CGO_ENABLED = 1
 
 # Build tools
 GO_BIN := $(shell pwd)/.bin
-OVERRIDE_GOCI_LINT_V := v2.8.0
+OVERRIDE_GOCI_LINT_V := v2.9.0
 SHELL := env PATH=$(GO_BIN):$(PATH) $(SHELL)
 
 # Make directories per convention
