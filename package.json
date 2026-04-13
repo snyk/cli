@@ -195,7 +195,8 @@
     },
     "@types/jest-json-schema@^6.1.5": {
       "ajv@6.10.2": "8.18.0"
-    }
+    },
+    "axios": "^1.15.0"
   },
   "repository": {
     "type": "git",
