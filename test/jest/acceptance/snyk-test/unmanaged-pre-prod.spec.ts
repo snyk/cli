@@ -33,7 +33,10 @@ describeIf(hasPreProdCredentials)('unmanaged pre-prod user journey', () => {
     }
 
     expect(code).toEqual(1);
-    expect(stdout).toContain('pkg:generic/zlib@');
+    expect(stdout).toContain('madler/zlib@1.2.11');
+    expect(stdout).toContain(
+      'Tested 1 dependency for known issues, found 2 issues.',
+    );
   });
 
   test('runs `snyk test --unmanaged --json` against pre-prod', async () => {
@@ -46,15 +49,21 @@ describeIf(hasPreProdCredentials)('unmanaged pre-prod user journey', () => {
       },
     );
 
-    if (code !== 1) {
-      console.debug(stderr);
-      console.debug('---------------------------');
-      console.debug(stdout);
-    }
+    console.debug(stderr);
+    console.debug('---------------------------');
+    console.debug(stdout);
 
-    expect(code).toEqual(1);
-    expect(JSON.parse(stdout)).toEqual(expect.any(Array));
+    const parsed = JSON.parse(stdout);
+    expect(parsed).toEqual(expect.any(Array));
+    expect(parsed.length).toBeGreaterThanOrEqual(1);
+    expect(parsed[0].vulnerabilities.length).toBeGreaterThanOrEqual(1);
     expect(stdout).toContain('"purl": "pkg:generic/zlib@');
+
+    // Verify file paths are present in the response to confirm the
+    // backend correctly handles OS-specific path separators (e.g. Windows backslashes).
+    expect(parsed[0].depsFilePaths).toBeDefined();
+    const filePaths = Object.values(parsed[0].depsFilePaths).flat() as string[];
+    expect(filePaths.length).toBeGreaterThanOrEqual(1);
   });
 
   test('runs `snyk sbom --unmanaged --max-depth=1` against pre-prod', async () => {
