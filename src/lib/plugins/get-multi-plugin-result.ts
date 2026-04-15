@@ -11,7 +11,7 @@ import {
   SUPPORTED_MANIFEST_FILES,
   SupportedPackageManagers,
 } from '../package-managers';
-const { SHOW_NPM_SCOPE } = require('../feature-flags');
+import { SHOW_NPM_SCOPE } from '../feature-flags';
 import { getSinglePluginResult } from './get-single-plugin-result';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
@@ -85,6 +85,13 @@ export async function getMultiPluginResult(
     featureFlags,
   );
   unprocessedFilesfromWorkspaces = unprocessedFilesFromPnpm;
+  // Annotate each scanned project with the workspace plugin name for later identification
+  scannedPnpmResults.forEach((project) => {
+    if (!project.meta) {
+      project.meta = {};
+    }
+    project.meta.workspacePluginName = 'snyk-nodejs-pnpm-workspaces';
+  });
   allResults.push(...scannedPnpmResults);
 
   const {
@@ -97,6 +104,13 @@ export async function getMultiPluginResult(
     'yarn',
     featureFlags,
   );
+  // Annotate each scanned project with the workspace plugin name for later identification
+  scannedYarnResults.forEach((project) => {
+    if (!project.meta) {
+      project.meta = {};
+    }
+    project.meta.workspacePluginName = 'snyk-nodejs-yarn-workspaces';
+  });
   allResults.push(...scannedYarnResults);
 
   const { scannedProjects: scannedNpmResults, unprocessedFiles } =
@@ -107,6 +121,13 @@ export async function getMultiPluginResult(
       'npm',
       featureFlags,
     );
+  // Annotate each scanned project with the workspace plugin name for later identification
+  scannedNpmResults.forEach((project) => {
+    if (!project.meta) {
+      project.meta = {};
+    }
+    project.meta.workspacePluginName = 'snyk-nodejs-npm-workspaces';
+  });
   allResults.push(...scannedNpmResults);
 
   debug(`Not part of a workspace: ${unprocessedFiles.join(', ')}}`);

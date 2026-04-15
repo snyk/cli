@@ -881,6 +881,8 @@ async function assembleLocalPayloads(
           project.plugin.targetFile,
           target,
           scannedProject.meta?.targetRuntime ?? project.plugin?.targetRuntime,
+          deps.plugin.name,
+          scannedProject.meta?.workspacePluginName,
           process.stdout,
         );
       }

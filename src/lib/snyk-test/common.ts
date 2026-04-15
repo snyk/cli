@@ -12,6 +12,37 @@ import { CLI, ProblemError } from '@snyk/error-catalog-nodejs-public';
 import { CustomError } from '../errors';
 import { FailedProjectScanError } from '../plugins/get-multi-plugin-result';
 
+/**
+ * Determines workspace information from the plugin name and scanned project metadata.
+ * Returns workspace metadata if the plugin is a workspace plugin, otherwise undefined.
+ */
+function getWorkspaceInfo(
+  pluginName: string | undefined,
+  workspacePluginName: string | undefined,
+): { type: string } | undefined {
+  // Check workspace plugin name from scannedProject.meta (--all-projects) or parent plugin (--yarn-workspaces)
+  if (
+    workspacePluginName === 'snyk-nodejs-yarn-workspaces' ||
+    pluginName === 'snyk-nodejs-yarn-workspaces'
+  ) {
+    return { type: 'yarn' };
+  }
+  if (
+    workspacePluginName === 'snyk-nodejs-npm-workspaces' ||
+    pluginName === 'snyk-nodejs-npm-workspaces'
+  ) {
+    return { type: 'npm' };
+  }
+  if (
+    workspacePluginName === 'snyk-nodejs-pnpm-workspaces' ||
+    pluginName === 'snyk-nodejs-pnpm-workspaces'
+  ) {
+    return { type: 'pnpm' };
+  }
+
+  return undefined;
+}
+
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
   const qs: {
@@ -116,15 +147,18 @@ export async function printEffectiveDepGraph(
   targetFileFromPlugin: string | undefined,
   target: GitTarget | ContainerTarget | null | undefined,
   targetRuntime: string | undefined,
+  pluginName: string | undefined,
+  workspacePluginName: string | undefined,
   destination: Writable,
 ): Promise<void> {
   return new Promise((res, rej) => {
-    const effectiveGraphOutput = {
+    const effectiveGraphOutput: any = {
       depGraph,
       normalisedTargetFile,
       targetFileFromPlugin,
       target,
       targetRuntime,
+      workspace: getWorkspaceInfo(pluginName, workspacePluginName),
     };
 
     new ConcatStream(
