@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.snyk.example</groupId>
+  <artifactId>maven-valid-project</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>maven-valid-project</name>
+  <description>Maven fixture with transitive dependencies for --allow-incomplete-sbom.</description>
+
+  <dependencies>
+    <!--
+      axis:axis:1.4 transitively depends on:
+        - axis:axis-jaxrpc:1.4
+        - commons-discovery:commons-discovery:0.2 -> commons-logging:commons-logging:1.0.4
+        - commons-logging:commons-logging:1.0.4
+      so the resulting SBOM contains 4+ components.
+    -->
+    <dependency>
+      <groupId>axis</groupId>
+      <artifactId>axis</artifactId>
+      <version>1.4</version>
+    </dependency>
+  </dependencies>
+
+</project>

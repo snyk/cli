@@ -19,6 +19,7 @@ const {
   DISABLE_GO_PACKAGE_URLS_IN_CLI_FEATURE_FLAG,
 } = require('../package-managers');
 const { getOrganizationID } = require('../organization');
+const { printDepGraphError } = require('./common');
 const debug = require('debug')('snyk-test');
 
 async function test(root, options, callback) {
@@ -56,7 +57,8 @@ async function executeTest(root, options) {
     const verboseEnabled =
       args.includes('-Dverbose') ||
       args.includes('-Dverbose=true') ||
-      !!options['print-graph'];
+      !!options['print-graph'] ||
+      !!options['print-output-jsonl-with-errors'];
     if (verboseEnabled) {
       enableMavenDverboseExhaustiveDeps = await hasFeatureFlag(
         MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,
@@ -108,11 +110,26 @@ async function executeTest(root, options) {
     }
 
     if (!options.allProjects) {
-      options.packageManager = detect.detectPackageManager(
-        root,
-        options,
-        featureFlags,
-      );
+      try {
+        options.packageManager = detect.detectPackageManager(
+          root,
+          options,
+          featureFlags,
+        );
+      } catch (error) {
+        if (options['print-output-jsonl-with-errors']) {
+          await printDepGraphError(
+            root,
+            {
+              error,
+              errMessage: error.userMessage,
+            },
+            process.stdout,
+          );
+          return [];
+        }
+        throw error;
+      }
     }
 
     return run(root, options, featureFlags).then((results) => {

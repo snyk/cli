@@ -58,7 +58,21 @@ export async function getDepsFromPlugin(
       targetFiles,
     );
     if (targetFiles.length === 0) {
-      throw NoSupportedManifestsFoundError([root]);
+      const error = NoSupportedManifestsFoundError([root]);
+      if (options['print-output-jsonl-with-errors']) {
+        return {
+          plugin: { name: 'custom-auto-detect' },
+          scannedProjects: [],
+          failedResults: [
+            {
+              targetFile: options.file,
+              error,
+              errMessage: error.userMessage,
+            },
+          ],
+        } as MultiProjectResultCustom;
+      }
+      throw error;
     }
     // enable full sub-project scan for gradle
     options.allSubProjects = true;
@@ -100,14 +114,49 @@ export async function getDepsFromPlugin(
     options.file = options.file || detectPackageFile(root, featureFlags);
   }
   if (!options.docker && !(options.file || options.packageManager)) {
-    throw NoSupportedManifestsFoundError([...root]);
+    const error = NoSupportedManifestsFoundError([root]);
+    if (options['print-output-jsonl-with-errors']) {
+      return {
+        plugin: { name: 'custom-auto-detect' },
+        scannedProjects: [],
+        failedResults: [
+          {
+            targetFile: options.file,
+            error,
+            errMessage: error.userMessage,
+          },
+        ],
+      } as MultiProjectResultCustom;
+    }
+    throw error;
   }
-  const inspectRes = await getSinglePluginResult(
-    root,
-    options,
-    '',
-    featureFlags,
-  );
+
+  let inspectRes: pluginApi.InspectResult;
+  try {
+    inspectRes = await getSinglePluginResult(root, options, '', featureFlags);
+  } catch (error) {
+    if (options['print-output-jsonl-with-errors']) {
+      const errMessage =
+        error?.message ?? 'Something went wrong getting dependencies';
+      debug(
+        `Single plugin scan failed for ${options.file}, collecting as failed result: ${errMessage}`,
+      );
+      return {
+        plugin: {
+          name: options.packageManager || 'unknown',
+        },
+        scannedProjects: [],
+        failedResults: [
+          {
+            targetFile: options.file,
+            error,
+            errMessage,
+          },
+        ],
+      } as MultiProjectResultCustom;
+    }
+    throw error;
+  }
 
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package && !inspectRes.dependencyGraph) {
