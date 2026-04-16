@@ -56,7 +56,8 @@ async function executeTest(root, options) {
     const verboseEnabled =
       args.includes('-Dverbose') ||
       args.includes('-Dverbose=true') ||
-      !!options['print-graph'];
+      !!options['print-graph'] ||
+      !!options['print-output-jsonl-with-errors'];
     if (verboseEnabled) {
       enableMavenDverboseExhaustiveDeps = await hasFeatureFlag(
         MAVEN_DVERBOSE_EXHAUSTIVE_DEPS_FF,

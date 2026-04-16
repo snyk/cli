@@ -137,11 +137,11 @@ export function shouldPrintDepGraph(opts: Options): boolean {
 }
 
 /**
- * printEffectiveDepGraph writes the given, possibly pruned dep-graph and target file to the destination
- * stream as a JSON object containing both depGraph, normalisedTargetFile and targetFile from plugin.
- * This allows extracting the effective dep-graph which is being used for the test.
+ * printDepGraphJsonl writes dep-graph metadata to the destination stream as one JSON object
+ * per line (JSONL): depGraph, normalisedTargetFile, optional targetFileFromPlugin, optional target.
+ * Callers supply the dep-graph payload (full or pruned) they want to serialize.
  */
-export async function printEffectiveDepGraph(
+export async function printDepGraphJsonl(
   depGraph: DepGraphData,
   normalisedTargetFile: string,
   targetFileFromPlugin: string | undefined,
@@ -152,7 +152,7 @@ export async function printEffectiveDepGraph(
   destination: Writable,
 ): Promise<void> {
   return new Promise((res, rej) => {
-    const effectiveGraphOutput: any = {
+    const graphOutput: any = {
       depGraph,
       normalisedTargetFile,
       targetFileFromPlugin,
@@ -162,7 +162,7 @@ export async function printEffectiveDepGraph(
     };
 
     new ConcatStream(
-      new JsonStreamStringify(effectiveGraphOutput),
+      new JsonStreamStringify(graphOutput),
       Readable.from('\n'),
     )
       .on('end', res)
@@ -172,17 +172,16 @@ export async function printEffectiveDepGraph(
 }
 
 /**
- * printEffectiveDepGraphError writes an error output for failed dependency graph resolution
- * to the destination stream in a format consistent with printEffectiveDepGraph.
- * This is used when --print-effective-graph-with-errors is set but dependency resolution failed.
+ * printDepGraphError writes an error output for failed dependency graph resolution
+ * to the destination stream in a format consistent with printDepGraphJsonl.
  */
-export async function printEffectiveDepGraphError(
+export async function printDepGraphError(
   root: string,
   failedProjectScanError: FailedProjectScanError,
   destination: Writable,
 ): Promise<void> {
   return new Promise((res, rej) => {
-    // Normalize the target file path to be relative to root, consistent with printEffectiveDepGraph
+    // Normalize the target file path to be relative to root, consistent with printDepGraphJsonl
     const normalisedTargetFile = failedProjectScanError.targetFile
       ? path.relative(root, failedProjectScanError.targetFile)
       : failedProjectScanError.targetFile;
@@ -190,13 +189,13 @@ export async function printEffectiveDepGraphError(
     const problemError = getOrCreateErrorCatalogError(failedProjectScanError);
     const serializedError = problemError.toJsonApi().body();
 
-    const effectiveGraphErrorOutput = {
+    const errorRecord = {
       error: serializedError,
       normalisedTargetFile,
     };
 
     new ConcatStream(
-      new JsonStreamStringify(effectiveGraphErrorOutput),
+      new JsonStreamStringify(errorRecord),
       Readable.from('\n'),
     )
       .on('end', res)
